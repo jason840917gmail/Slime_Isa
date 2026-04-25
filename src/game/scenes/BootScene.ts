@@ -53,6 +53,20 @@ export class BootScene extends Phaser.Scene {
     graphics.generateTexture('water', 64, 64);
     graphics.clear();
 
+    graphics.fillStyle(0x3f4844, 1);
+    graphics.fillRect(0, 0, 64, 64);
+    graphics.fillStyle(0x57645e, 1);
+    graphics.fillRoundedRect(4, 6, 56, 52, 18);
+    graphics.fillStyle(0x70807a, 1);
+    graphics.fillRoundedRect(10, 10, 20, 18, 8);
+    graphics.fillRoundedRect(34, 14, 18, 16, 7);
+    graphics.fillRoundedRect(18, 32, 28, 18, 9);
+    graphics.fillStyle(0x7bb26d, 0.9);
+    graphics.fillEllipse(18, 20, 12, 8);
+    graphics.fillEllipse(43, 36, 14, 9);
+    graphics.generateTexture('rock-wall', 64, 64);
+    graphics.clear();
+
     graphics.fillStyle(0x95d66a, 1);
     graphics.fillCircle(8, 8, 6);
     graphics.fillStyle(0xffd36a, 1);

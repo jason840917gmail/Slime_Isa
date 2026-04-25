@@ -6,13 +6,19 @@ import { WorldScene } from './scenes/WorldScene';
 export function createGame(container: HTMLDivElement): Phaser.Game {
   container.innerHTML = `
     <section class="game-shell">
-      <header class="hud">
-        <div>
-          <h1>Slime Wanderer</h1>
-          <p>WASD or arrow keys to move, hold Shift to boost, press Space for a slime trick.</p>
-        </div>
-      </header>
-      <div class="canvas-frame" id="game-root"></div>
+      <div class="canvas-frame">
+        <div id="game-root"></div>
+        <details class="keymap-panel" open>
+          <summary>⌨ Controls</summary>
+          <table>
+            <tr><td class="k">Arrows / IJKL</td><td>Move</td></tr>
+            <tr><td class="k">Space</td><td>Jump</td></tr>
+            <tr><td class="k">Q</td><td>Roll / boost</td></tr>
+            <tr><td class="k">E</td><td>Trick</td></tr>
+            <tr><td class="k">R / T / Y</td><td>Stretch / squash / teleport</td></tr>
+          </table>
+        </details>
+      </div>
     </section>
   `;
 

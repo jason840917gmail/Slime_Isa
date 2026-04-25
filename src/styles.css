@@ -76,17 +76,60 @@ body {
 }
 
 .canvas-frame {
+  position: relative;
   overflow: hidden;
   border-radius: 22px;
   border: 1px solid rgba(190, 255, 190, 0.14);
   background: linear-gradient(180deg, #132027, #0d161b);
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: calc(100vh - 48px);
+  display: block;
 }
 
 .canvas-frame canvas {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
 }
+
+/* ── controls panel ── */
+.keymap-panel {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  min-width: 170px;
+  border-radius: 8px;
+  border: 1px solid rgba(61, 140, 91, 0.5);
+  background: rgba(10, 26, 26, 0.88);
+  color: #ccebd0;
+  font-size: 12px;
+  backdrop-filter: blur(4px);
+  user-select: none;
+  z-index: 10;
+}
+
+.keymap-panel summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background: #1e4d35;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  list-style: none;
+  gap: 18px;
+}
+.keymap-panel summary::-webkit-details-marker { display: none; }
+.keymap-panel summary::after { content: '▲'; font-size: 9px; color: #88c899; }
+.keymap-panel:not([open]) summary { border-radius: 8px; }
+.keymap-panel:not([open]) summary::after { content: '▼'; }
+.keymap-panel[open] summary { border-radius: 8px 8px 0 0; border-bottom: 1px solid rgba(61,140,91,0.35); }
+
+.keymap-panel table { border-collapse: collapse; width: 100%; }
+.keymap-panel td { padding: 5px 10px; }
+.keymap-panel td.k { color: #ffe680; white-space: nowrap; }
 
 @media (max-width: 780px) {
   #app {

@@ -69,7 +69,7 @@ export const SLIME_ANIMS: Readonly<AnimClip[]> = [
   // ── Roll (boost / ball form) ────────────────────────────────────────
   {
     key: 'slime-roll',
-    frames: [41, 42, 43, 44, 45, 46, 47, 46],
+    frames: [ 43,44],
     frameRate: 14,
     repeat: -1,
   },
