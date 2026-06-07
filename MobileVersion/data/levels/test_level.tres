@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="LevelResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/level_resource.gd" id="1_level"]
+
+[resource]
+script = ExtResource("1_level")
+id = &"test_level"
+display_name = "Test Meadow"
+scene_path = "res://scenes/levels/TestLevel.tscn"
+recommended_level = 1

@@ -14,6 +14,7 @@ export function createGame(container: HTMLDivElement): Phaser.Game {
             <tr><td class="k">Arrows / IJKL</td><td>Move</td></tr>
             <tr><td class="k">Space</td><td>Jump</td></tr>
             <tr><td class="k">Q</td><td>Roll / boost</td></tr>
+            <tr><td class="k">F</td><td>Interact / Shop</td></tr>
             <tr><td class="k">E</td><td>Trick</td></tr>
             <tr><td class="k">R / T / Y</td><td>Stretch / squash / teleport</td></tr>
           </table>
@@ -28,13 +29,12 @@ export function createGame(container: HTMLDivElement): Phaser.Game {
     throw new Error('Missing game mount node.');
   }
 
-  return new Phaser.Game({
+    return new Phaser.Game({
     type: Phaser.AUTO,
     parent: gameRoot,
     backgroundColor: '#112028',
     scale: {
-      mode: Phaser.Scale.FIT,
-      autoCenter: Phaser.Scale.CENTER_BOTH,
+      mode: Phaser.Scale.EXPAND,
       width: 1280,
       height: 720,
     },

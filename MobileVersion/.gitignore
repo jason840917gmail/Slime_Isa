@@ -1,0 +1,6 @@
+.godot/
+*.tmp
+*.translation
+export/android/*.apk
+export/android/*.aab
+export/ios/*.ipa

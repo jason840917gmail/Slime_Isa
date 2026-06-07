@@ -1,0 +1,30 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/interactable.gd" id="1_interactable"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_house"]
+size = Vector2(76, 54)
+
+[node name="House" type="Node2D"]
+script = ExtResource("1_interactable")
+prompt_text = "This house will become the mobile shop/NPC interaction point."
+
+[node name="Body" type="StaticBody2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Body"]
+position = Vector2(0, 15)
+shape = SubResource("RectangleShape2D_house")
+
+[node name="Walls" type="Polygon2D" parent="."]
+position = Vector2(0, 16)
+color = Color(0.65, 0.43, 0.24, 1)
+polygon = PackedVector2Array(-42, -20, 42, -20, 42, 36, -42, 36)
+
+[node name="Roof" type="Polygon2D" parent="."]
+color = Color(0.42, 0.16, 0.15, 1)
+polygon = PackedVector2Array(-54, -4, 0, -54, 54, -4)
+
+[node name="Door" type="Polygon2D" parent="."]
+position = Vector2(0, 31)
+color = Color(0.18, 0.1, 0.06, 1)
+polygon = PackedVector2Array(-10, -18, 10, -18, 10, 20, -10, 20)

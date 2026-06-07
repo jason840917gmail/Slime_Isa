@@ -1,9 +1,7 @@
 :root {
   color-scheme: dark;
   font-family: Aptos, "Segoe UI Variable", "Trebuchet MS", sans-serif;
-  background:
-    radial-gradient(circle at top, rgba(132, 228, 159, 0.24), transparent 34%),
-    linear-gradient(180deg, #1b2930 0%, #111a1f 100%);
+  background: #0a0f12;
   color: #f4fff7;
 }
 
@@ -15,8 +13,9 @@ html,
 body,
 #app {
   width: 100%;
-  min-height: 100%;
+  height: 100%;
   margin: 0;
+  overflow: hidden;
 }
 
 body {
@@ -24,66 +23,33 @@ body {
 }
 
 #app {
-  display: grid;
-  place-items: center;
-  padding: 20px;
+  display: block;
+  padding: 0;
 }
 
 .game-shell {
   position: relative;
-  width: min(100%, 1220px);
-  padding: 18px;
-  border: 1px solid rgba(210, 255, 218, 0.18);
-  border-radius: 28px;
-  background:
-    linear-gradient(180deg, rgba(31, 53, 58, 0.94), rgba(18, 31, 36, 0.94)),
-    linear-gradient(120deg, rgba(121, 225, 131, 0.06), rgba(91, 179, 223, 0.03));
-  box-shadow:
-    0 26px 80px rgba(0, 0, 0, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .game-shell::before {
-  content: '';
-  position: absolute;
-  inset: 10px;
-  border-radius: 20px;
-  border: 1px solid rgba(200, 255, 203, 0.08);
-  pointer-events: none;
-}
-
-.hud {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 16px;
-  padding: 0 4px;
-}
-
-.hud h1 {
-  margin: 0;
-  font-size: clamp(1.3rem, 3vw, 2rem);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.hud p {
-  margin: 0;
-  max-width: 540px;
-  color: rgba(237, 255, 243, 0.78);
-  line-height: 1.45;
+  display: none;
 }
 
 .canvas-frame {
   position: relative;
   overflow: hidden;
-  border-radius: 22px;
-  border: 1px solid rgba(190, 255, 190, 0.14);
-  background: linear-gradient(180deg, #132027, #0d161b);
   width: 100%;
-  aspect-ratio: 16 / 9;
-  max-height: calc(100vh - 48px);
+  height: 100%;
+  border-radius: 0;
+  border: none;
+  background: #112028;
   display: block;
 }
 
@@ -130,19 +96,3 @@ body {
 .keymap-panel table { border-collapse: collapse; width: 100%; }
 .keymap-panel td { padding: 5px 10px; }
 .keymap-panel td.k { color: #ffe680; white-space: nowrap; }
-
-@media (max-width: 780px) {
-  #app {
-    padding: 10px;
-  }
-
-  .game-shell {
-    padding: 12px;
-    border-radius: 20px;
-  }
-
-  .hud {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-}

@@ -1,0 +1,25 @@
+[gd_scene format=3 uid="uid://u7uf07usht8t"]
+
+[ext_resource type="Script" uid="uid://dap2pjsbm7b4b" path="res://scripts/systems/main.gd" id="1_main"]
+[ext_resource type="PackedScene" path="res://scenes/levels/TestLevel.tscn" id="2_level"]
+[ext_resource type="PackedScene" path="res://scenes/player/PlayerSlime.tscn" id="3_player"]
+[ext_resource type="PackedScene" path="res://scenes/ui/HUD.tscn" id="4_hud"]
+[ext_resource type="PackedScene" path="res://scenes/ui/TouchControls.tscn" id="5_touch"]
+[ext_resource type="PackedScene" path="res://scenes/ui/DebugOverlay.tscn" id="6_debug"]
+
+[node name="Main" type="Node2D" unique_id=2024312663]
+script = ExtResource("1_main")
+default_level_scene = ExtResource("2_level")
+player_scene = ExtResource("3_player")
+
+[node name="GameRoot" type="Node2D" parent="." unique_id=906605073]
+
+[node name="LevelRoot" type="Node2D" parent="GameRoot" unique_id=1837047804]
+
+[node name="PlayerRoot" type="Node2D" parent="GameRoot" unique_id=1115259582]
+
+[node name="HUD" parent="." unique_id=405185331 instance=ExtResource("4_hud")]
+
+[node name="TouchControls" parent="." unique_id=526928288 instance=ExtResource("5_touch")]
+
+[node name="DebugOverlay" parent="." unique_id=2026167636 instance=ExtResource("6_debug")]

@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="SlimeTypeResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/slime_type_resource.gd" id="1_slime_type"]
+
+[resource]
+script = ExtResource("1_slime_type")
+id = &"basic_slime"
+display_name = "Basic Slime"
+max_health = 3
+speed = 180.0
+abilities = Array[StringName]([&"jump", &"roll", &"interact"])

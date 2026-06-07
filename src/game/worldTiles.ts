@@ -1,3 +1,5 @@
+import { sample } from './terrainNoise';
+
 type TileInset = {
   left: number;
   right: number;
@@ -25,8 +27,6 @@ export interface WorldTileRule {
   allowsDecorations?: boolean;
 }
 
-export type TerrainSampler = (tileX: number, tileY: number) => number;
-
 export const WORLD_TILE_RULES: Readonly<Record<WorldTileId, WorldTileRule>> = {
   'grass-a': {
     texture: 'grass-a',
@@ -53,7 +53,7 @@ export const WORLD_TILE_RULES: Readonly<Record<WorldTileId, WorldTileRule>> = {
   },
 } as const;
 
-export function resolveWorldTile(tileX: number, tileY: number, sample: TerrainSampler): WorldTileId {
+export function resolveWorldTile(tileX: number, tileY: number): WorldTileId {
   const noise = sample(tileX, tileY);
   const ridge = sample(tileX - 13, tileY + 17);
   const shelf = sample(tileX + 7, tileY - 19);

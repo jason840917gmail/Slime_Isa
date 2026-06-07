@@ -89,6 +89,13 @@ export const SLIME_ANIMS: Readonly<AnimClip[]> = [
     frameRate: 12,
     repeat: 0,
   },
+   // ── Eat─────────────────────────────────
+  {
+    key: 'slime-eat',
+    frames: [47,40],
+    frameRate: 12,
+    repeat: 0,
+  },
 ] as const;
 
 // Quick lookup by key

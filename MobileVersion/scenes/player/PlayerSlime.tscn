@@ -1,0 +1,47 @@
+[gd_scene format=3 uid="uid://cdc142lm57eox"]
+
+[ext_resource type="Script" uid="uid://c2tv8w0xgmkn2" path="res://scripts/player/player_controller.gd" id="1_player"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_7jx02"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_body"]
+radius = 14.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_interaction"]
+radius = 48.0
+
+[node name="PlayerSlime" type="CharacterBody2D" unique_id=530781630 groups=["player"]]
+script = ExtResource("1_player")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1705009807]
+position = Vector2(0, -12)
+scale = Vector2(0.28, 0.28)
+sprite_frames = SubResource("SpriteFrames_7jx02")
+
+[node name="SlimeBody" type="Polygon2D" parent="." unique_id=278505318]
+visible = false
+color = Color(0.37, 0.93, 0.57, 1)
+polygon = PackedVector2Array(-16, 8, -12, -8, -4, -15, 5, -15, 13, -8, 17, 8, 9, 16, -9, 16)
+
+[node name="NameTag" type="Label" parent="." unique_id=1746930283]
+offset_left = -18.0
+offset_top = -64.0
+offset_right = 18.0
+offset_bottom = -41.0
+text = "bob"
+horizontal_alignment = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=363201012]
+shape = SubResource("CircleShape2D_body")
+
+[node name="InteractionDetector" type="Area2D" parent="." unique_id=361201903]
+collision_layer = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractionDetector" unique_id=1769116339]
+shape = SubResource("CircleShape2D_interaction")
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=1522632284]
+position_smoothing_enabled = true
+position_smoothing_speed = 8.0
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=702846927]

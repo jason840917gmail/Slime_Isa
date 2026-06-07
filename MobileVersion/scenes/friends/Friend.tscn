@@ -1,0 +1,32 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/friends/friend.gd" id="1_friend"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_friend"]
+radius = 14.0
+
+[node name="Friend" type="CharacterBody2D" groups=["friends"]]
+script = ExtResource("1_friend")
+
+[node name="Ears" type="Polygon2D" parent="."]
+color = Color(1, 0.78, 0.42, 1)
+polygon = PackedVector2Array(-10, -7, -5, -20, 0, -7, 0, -7, 5, -20, 10, -7)
+
+[node name="Face" type="Polygon2D" parent="."]
+color = Color(1, 0.78, 0.42, 1)
+polygon = PackedVector2Array(12, 0, 10.3923, 6, 6, 10.3923, 0, 12, -6, 10.3923, -10.3923, 6, -12, 0, -10.3923, -6, -6, -10.3923, 0, -12, 6, -10.3923, 10.3923, -6)
+
+[node name="LeftEye" type="Polygon2D" parent="."]
+color = Color(0.17, 0.17, 0.17, 1)
+polygon = PackedVector2Array(-5, -2, -3, -2, -3, 0, -5, 0)
+
+[node name="RightEye" type="Polygon2D" parent="."]
+color = Color(0.17, 0.17, 0.17, 1)
+polygon = PackedVector2Array(3, -2, 5, -2, 5, 0, 3, 0)
+
+[node name="Mouth" type="Polygon2D" parent="."]
+color = Color(0.17, 0.17, 0.17, 1)
+polygon = PackedVector2Array(-2, 5, 2, 5, 2, 6.5, -2, 6.5)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_friend")

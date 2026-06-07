@@ -16,6 +16,56 @@ npx vite --port 3000
 
 Then open `http://localhost:3000`.
 
+## Android Build And Deploy
+
+The Android version is the Godot project in `MobileVersion/`.
+
+Use an Android virtual device with **API 35**. For emulator testing, the debug export includes `x86_64` and `arm64-v8a`.
+
+### Export Debug APK
+
+PowerShell:
+
+```powershell
+$env:JAVA_HOME = "C:\Program Files\Microsoft\jdk-17.0.18.8-hotspot"
+$env:ANDROID_HOME = "C:\Users\User\AppData\Local\Android\Sdk"
+$env:ANDROID_SDK_ROOT = $env:ANDROID_HOME
+$env:Path = "$env:JAVA_HOME\bin;$env:ANDROID_HOME\platform-tools;$env:ANDROID_HOME\build-tools\35.0.0;$env:Path"
+
+& "C:\Users\User\Downloads\Godot_v4.6.2-stable_win64.exe\Godot_v4.6.2-stable_win64_console.exe" `
+  --headless `
+  --path "D:\projects\Slime isa\MobileVersion" `
+  --export-debug "Android Debug" `
+  "D:\projects\Slime isa\MobileVersion\export\android\slime-isa-debug.apk"
+```
+
+APK output:
+
+```text
+MobileVersion/export/android/slime-isa-debug.apk
+```
+
+### Deploy To Virtual Device
+
+Start the Android emulator first, then run:
+
+```powershell
+adb devices
+adb install -r "D:\projects\Slime isa\MobileVersion\export\android\slime-isa-debug.apk"
+```
+
+If more than one device is connected, install to a specific emulator:
+
+```powershell
+adb -s emulator-5554 install -r "D:\projects\Slime isa\MobileVersion\export\android\slime-isa-debug.apk"
+```
+
+### Verify APK Signature
+
+```powershell
+& "C:\Users\User\AppData\Local\Android\Sdk\build-tools\35.0.0\apksigner.bat" verify --verbose "D:\projects\Slime isa\MobileVersion\export\android\slime-isa-debug.apk"
+```
+
 ## Status
 
 Work in progress. Core movement and animations are functional.
