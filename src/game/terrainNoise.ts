@@ -15,4 +15,8 @@ export function sample(tileX: number, tileY: number): number {
   return Phaser.Math.Clamp(fraction * 0.45 + wave * 0.55, 0, 1);
 }
 
+export function biomeSample(tileX: number, tileY: number, seed = 0): number {
+  return sample(tileX + seed * 17, tileY - seed * 23);
+}
+
 export { TILE_SIZE, WORLD_TILES_X, WORLD_TILES_Y };

@@ -24,4 +24,17 @@ This folder contains the asset and implementation notes for the game.
 - House texture: `128 x 128 px`
 - Small world prop: around `16 x 16 px` to `48 x 20 px`
 
+Tile size: 64×64
+Slime sprite: 48×48 or 64×64
+Tools: 16×16 to 32×32
+Buildings: multiples of 64×64
+
+Example:
+
+Tree: 1 tile wide, 2 tiles tall
+Small rock: 1 tile
+House: 3×3 tiles
+Storage: 2×2 tiles
+Farm plot: 1×1 or 2×2 tiles
+
 If new art stays inside those measurements, it should work with the current code with little or no adjustment.

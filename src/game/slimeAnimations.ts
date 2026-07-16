@@ -90,12 +90,67 @@ export const SLIME_ANIMS: Readonly<AnimClip[]> = [
     repeat: 0,
   },
    // ── Eat─────────────────────────────────
-  {
-    key: 'slime-eat',
-    frames: [47,40],
-    frameRate: 12,
-    repeat: 0,
-  },
+   {
+     key: 'slime-eat',
+     frames: [47,40],
+     frameRate: 12,
+     repeat: 0,
+   },
+
+   // ── Attack combo hits (row 6, play-once) ───────────────────────────
+   // Hit 1: quick jab
+   {
+     key: 'slime-attack-1',
+     frames: [48, 49, 50, 51],
+     frameRate: 14,
+     repeat: 0,
+   },
+   // Hit 2: follow-up
+   {
+     key: 'slime-attack-2',
+     frames: [51, 52, 53, 52],
+     frameRate: 14,
+     repeat: 0,
+   },
+   // Hit 3: heavy finisher
+   {
+     key: 'slime-attack-3',
+     frames: [48, 50, 52, 53, 54, 55],
+     frameRate: 12,
+     repeat: 0,
+   },
+
+   // ── Hurt (play-once, uses squash row 3) ────────────────────────────
+   {
+     key: 'slime-hurt',
+     frames: [24, 25, 26],
+     frameRate: 14,
+     repeat: 0,
+   },
+
+   // ── Die (play-once, collapses) ─────────────────────────────────────
+   {
+     key: 'slime-die',
+     frames: [26, 27, 28, 29, 30, 31, 31, 31],
+     frameRate: 8,
+     repeat: 0,
+   },
+
+   // ── Charge (hold attack, windup) ───────────────────────────────────
+   {
+     key: 'slime-charge',
+     frames: [48, 49, 48, 49],
+     frameRate: 6,
+     repeat: -1,
+   },
+
+   // ── Cast (ability use, row 7) ──────────────────────────────────────
+   {
+     key: 'slime-cast',
+     frames: [56, 57, 58, 59],
+     frameRate: 12,
+     repeat: 0,
+   },
 ] as const;
 
 // Quick lookup by key

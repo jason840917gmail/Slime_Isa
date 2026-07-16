@@ -1,4 +1,5 @@
-import { sample } from './terrainNoise';
+import { biomeSample } from './terrainNoise';
+import type { BiomeId } from './world/Biome';
 
 type TileInset = {
   left: number;
@@ -19,10 +20,22 @@ export type TileCollisionRule = {
   inset?: Partial<TileInset>;
 };
 
-export type WorldTileId = 'grass-a' | 'grass-b' | 'water' | 'rock-wall';
+export type WorldTileId =
+  | 'grass-a'
+  | 'grass-b'
+  | 'water'
+  | 'rock-wall'
+  | 'forest-floor'
+  | 'forest-moss'
+  | 'tree-wall'
+  | 'cavern-floor'
+  | 'crystal-floor'
+  | 'crystal-wall'
+  | 'deep-water';
 
 export interface WorldTileRule {
   texture: string;
+  textureVariants?: readonly string[];
   collision?: TileCollisionRule;
   allowsDecorations?: boolean;
 }
@@ -30,17 +43,21 @@ export interface WorldTileRule {
 export const WORLD_TILE_RULES: Readonly<Record<WorldTileId, WorldTileRule>> = {
   'grass-a': {
     texture: 'grass-a',
+    textureVariants: ['grass-a', 'grass-a-1', 'grass-a-2'],
     allowsDecorations: true,
   },
   'grass-b': {
     texture: 'grass-b',
+    textureVariants: ['grass-b', 'grass-b-1', 'grass-b-2'],
     allowsDecorations: true,
   },
   water: {
     texture: 'water',
+    textureVariants: ['water', 'water-1', 'water-2'],
   },
   'rock-wall': {
     texture: 'rock-wall',
+    textureVariants: ['rock-wall', 'rock-wall-1', 'rock-wall-2'],
     collision: {
       kind: 'solid',
       inset: {
@@ -51,15 +68,59 @@ export const WORLD_TILE_RULES: Readonly<Record<WorldTileId, WorldTileRule>> = {
       },
     },
   },
+  'forest-floor': {
+    texture: 'forest-floor',
+    allowsDecorations: true,
+  },
+  'forest-moss': {
+    texture: 'forest-moss',
+    allowsDecorations: true,
+  },
+  'tree-wall': {
+    texture: 'tree-wall',
+    collision: {
+      kind: 'solid',
+      inset: { left: 8, right: 8, top: 8, bottom: 4 },
+    },
+  },
+  'cavern-floor': {
+    texture: 'cavern-floor',
+    allowsDecorations: true,
+  },
+  'crystal-floor': {
+    texture: 'crystal-floor',
+    allowsDecorations: true,
+  },
+  'crystal-wall': {
+    texture: 'crystal-wall',
+    collision: {
+      kind: 'solid',
+      inset: { left: 5, right: 5, top: 7, bottom: 3 },
+    },
+  },
+  'deep-water': {
+    texture: 'deep-water',
+  },
 } as const;
 
-export function resolveWorldTile(tileX: number, tileY: number): WorldTileId {
-  const noise = sample(tileX, tileY);
-  const ridge = sample(tileX - 13, tileY + 17);
-  const shelf = sample(tileX + 7, tileY - 19);
+export function resolveWorldTile(tileX: number, tileY: number, biome: BiomeId = 'meadow', seed = 0): WorldTileId {
+  const edgeLane = tileX < 6 || tileX > 47 || tileY < 6 || tileY > 47;
+  const noise = biomeSample(tileX, tileY, seed);
+  const ridge = biomeSample(tileX - 13, tileY + 17, seed);
+  const shelf = biomeSample(tileX + 7, tileY - 19, seed);
 
-  if (ridge > 0.82 && shelf > 0.58) {
-    return 'rock-wall';
+  if (biome === 'gloop-forest') {
+    if (edgeLane) return 'forest-floor';
+    if (ridge > 0.78 && shelf > 0.48) return 'tree-wall';
+    if (noise > 0.78) return 'deep-water';
+    return noise > 0.42 ? 'forest-moss' : 'forest-floor';
+  }
+
+  if (biome === 'crystal-caverns') {
+    if (edgeLane) return 'cavern-floor';
+    if (ridge > 0.7 || shelf > 0.84) return 'crystal-wall';
+    if (noise > 0.76) return 'deep-water';
+    return noise > 0.46 ? 'crystal-floor' : 'cavern-floor';
   }
 
   if (noise > 0.73) {
@@ -67,6 +128,20 @@ export function resolveWorldTile(tileX: number, tileY: number): WorldTileId {
   }
 
   return noise > 0.38 ? 'grass-b' : 'grass-a';
+}
+
+export function resolveWorldTileTexture(tileId: WorldTileId, tileX: number, tileY: number, seed = 0): string {
+  const rule = WORLD_TILE_RULES[tileId];
+  const variants = rule.textureVariants;
+
+  if (!variants || variants.length === 0) {
+    return rule.texture;
+  }
+
+  const hash = Math.imul(tileX + seed * 17, 374761393) ^ Math.imul(tileY - seed * 31, 668265263);
+  const index = Math.abs(hash) % variants.length;
+
+  return variants[index];
 }
 
 export function isTileCollidable(tileId: WorldTileId): boolean {

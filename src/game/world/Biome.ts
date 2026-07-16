@@ -1,0 +1,33 @@
+export type BiomeId = 'meadow' | 'gloop-forest' | 'crystal-caverns';
+
+export interface BiomeDef {
+  id: BiomeId;
+  name: string;
+  titleColor: string;
+  ambientTint: number;
+  decorationBias: number;
+}
+
+export const BIOMES: Readonly<Record<BiomeId, BiomeDef>> = {
+  meadow: {
+    id: 'meadow',
+    name: 'Sunbell Meadow',
+    titleColor: '#a3f0c0',
+    ambientTint: 0xffffff,
+    decorationBias: 1,
+  },
+  'gloop-forest': {
+    id: 'gloop-forest',
+    name: 'Gloop Forest',
+    titleColor: '#8cff9a',
+    ambientTint: 0xd8ffd8,
+    decorationBias: 1.2,
+  },
+  'crystal-caverns': {
+    id: 'crystal-caverns',
+    name: 'Crystal Caverns',
+    titleColor: '#9ad8ff',
+    ambientTint: 0xddeaff,
+    decorationBias: 0.7,
+  },
+};

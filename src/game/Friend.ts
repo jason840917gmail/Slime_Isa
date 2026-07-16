@@ -3,6 +3,8 @@ import { House } from './House';
 
 export class Friend extends Phaser.Physics.Arcade.Sprite {
   public home?: House;
+  public hp = 40;
+  public maxHp = 40;
   private wanderTarget: Phaser.Math.Vector2 | null = null;
   private nextWanderAt = 0;
   private speed = 48;
