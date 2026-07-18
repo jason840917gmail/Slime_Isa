@@ -1,32 +1,50 @@
-# Slime Isa — OpenCode Agent Guide
+# Slime Isa — Agent Guide
 
 ## Dev Commands
-- `pnpm dev` — start Vite dev server (port 3000)
-- `pnpm build` — typecheck + production build
+
+- `pnpm dev` — start Vite on port 3000
+- `pnpm typecheck` — run strict TypeScript validation
+- `pnpm build` — typecheck and create the production build
+- `pnpm check` — run the complete local verification sequence
 
 ## Stack
-- Phaser 3 + TypeScript + Vite
-- Strict TypeScript (`strict: true` in tsconfig)
-- ES2022, ESNext modules, Bundler module resolution
-- pnpm required (enforced via `packageManager` in package.json)
+
+- Phaser 3, TypeScript, and Vite
+- ES2022 with ESNext modules and Bundler module resolution
+- pnpm is required by `packageManager`
 
 ## Project Structure
-- Entry point: `src/main.ts` → `src/game/config.ts`
-- Game scenes: `src/game/scenes/`
-- Shared systems extracted into `src/game/` root: `Minimap.ts`, `HUD.ts`, `ShopUI.ts`, `terrainNoise.ts`
-- `tools/` is a standalone utility, unrelated to the game build
 
-## Architecture Notes
-- `WorldScene` is the main scene (~887 lines). Major systems (minimap, HUD, shop) are extracted but still have references through scene callbacks. For large scale-up, extract `HouseUI` and `EnterPrompt` similarly.
-- `terrainNoise.ts` — single shared `sample()` function used by both `worldTiles.ts` and `WorldScene`. **Do not duplicate** — use this module.
-- `Friend` and `House` are entity classes in `src/game/`. They hold their own sprites/physics bodies and expose clean APIs.
-- All game textures (terrain, props, NPC parts) are generated procedurally in `BootScene.createTerrainTextures()`. No external asset loading for base tiles.
+- Entry point: `src/main.ts` → `src/game/config.ts`
+- Phaser scene composition: `src/game/scenes/`
+- Feature orchestration: `src/game/features/`
+- Immutable definitions and balancing: `src/game/content/`
+- Storage and procedural assets: `src/game/infrastructure/`
+- Shared UI tokens: `src/game/presentation/`
+- Small cross-feature utilities: `src/game/shared/`
+- Architecture rules: `docs/ARCHITECTURE.md`
+- `MobileVersion/` is an independent Godot application
+- `tools/` is unrelated to the game build
+
+## Architecture Rules
+
+- `WorldScene` is a Phaser composition root. Keep complete feature implementations out of it.
+- Browser persistence belongs exclusively in `src/game/infrastructure/persistence/`; use `SaveSystem` and the versioned repository.
+- Gameplay balancing values have one owner in `content/` or their owning feature. Do not create a global constants file.
+- Feature controllers receive dependencies through context interfaces and must never import `WorldScene`.
+- Global events, input bindings, DOM listeners, and controllers require explicit cleanup. Use `DisposableBag` for scene-owned callbacks.
+- Use the shared `terrainNoise.ts` sampling functions. Do not duplicate terrain noise logic.
+- `Friend` and `House` own their sprites and physics bodies and expose entity APIs.
+- Procedural textures are generated in `infrastructure/assets/ProceduralAssetScene.ts`; `scenes/BootScene.ts` is a stable scene facade.
 
 ## Build Behavior
-- `tsconfig.json` includes only `src/` — no type checking outside it
-- `vite.config.ts` sets `base: './'` (important for asset paths in deployed builds)
-- Build output to `dist/`
-- Asset chunk is large (2.7 MB PNG); code-splitting will be needed as more art is added
+
+- `tsconfig.json` includes only `src/`
+- Strict TypeScript also rejects unused locals, unused parameters, and switch fallthrough
+- `vite.config.ts` must retain `base: './'` for deployed asset paths
+- Build output is `dist/`
+- Phaser is emitted as a separate vendor chunk; large source images still need future asset optimization
 
 ## Status
-No tests, no linting, no CI. The `build` script runs `tsc --noEmit` as the typecheck step.
+
+There are no automated gameplay tests or CI yet. Every change must at minimum pass `pnpm build` and receive a browser smoke test when it affects scene startup or runtime wiring.

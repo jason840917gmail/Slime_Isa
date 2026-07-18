@@ -1,5 +1,7 @@
 import { gameState } from '../core/GameState';
 import type { PerkChoice } from '../core/types';
+import { PLAYER_CONFIG } from '../content/player';
+import { PERK_BALANCE, PERK_DEFS, PERK_IDS, type PerkId } from '../content/perks';
 
 /**
  * Derived player stats. Reads level + perks from GameState and produces the
@@ -34,23 +36,12 @@ export interface DerivedStats {
 const BASE_WEAPON_ARC_RAD = 0.8;
 const MAX_WEAPON_ARC_RAD = Math.PI;
 
-const PERK_DEFS: Record<string, { title: string; description: string; icon?: string; maxRank: number }> = {
-  'tanky-goo': { title: 'Tanky Goo', description: '+15 max HP per rank', icon: 'perk-tanky', maxRank: 3 },
-  'sharp-fangs': { title: 'Sharp Fangs', description: '+15% attack per rank', icon: 'perk-fangs', maxRank: 3 },
-  'thick-skin': { title: 'Thick Skin', description: '-8% damage taken per rank', icon: 'perk-skin', maxRank: 3 },
-  'quick-steps': { title: 'Quick Steps', description: '+25 move speed per rank', icon: 'perk-quick', maxRank: 3 },
-  'lucky-crit': { title: 'Lucky Crit', description: '+8% crit chance per rank', icon: 'perk-crit', maxRank: 3 },
-  'deep-well': { title: 'Deep Well', description: '+20 max energy per rank', icon: 'perk-well', maxRank: 3 },
-  'quick-recovery': { title: 'Quick Recovery', description: '+50% energy regen per rank', icon: 'perk-recovery', maxRank: 3 },
-  'long-reach': { title: 'Long Reach', description: '+25% weapon reach per rank', icon: 'perk-reach', maxRank: 3 },
-  'wide-swing': { title: 'Wide Swing', description: 'Widen attack cone; max rank is 180 degrees', icon: 'perk-wide', maxRank: 3 },
-  'vampiric-goo': { title: 'Vampiric Goo', description: '+6% life steal per rank on enemy hits', icon: 'perk-lifesteal', maxRank: 3 },
-};
-
-export const ALL_PERK_IDS = Object.keys(PERK_DEFS);
+export const ALL_PERK_IDS = [...PERK_IDS];
 
 export function getPerkDef(perkId: string) {
-  return PERK_DEFS[perkId];
+  return (PERK_IDS as readonly string[]).includes(perkId)
+    ? PERK_DEFS[perkId as PerkId]
+    : undefined;
 }
 
 /** Build the 3 random perk choices offered on a level-up. */
@@ -75,16 +66,13 @@ export function rollPerkChoices(): PerkChoice[] {
 }
 
 export function getStats(): DerivedStats {
-  const level = gameState.level;
-  const baseAttack = 10 + (level - 1) * 2;
-  const baseDefense = 2 + (level - 1) * 1;
+  const baseAttack = gameState.attackBase;
+  const baseDefense = gameState.defenseBase;
 
-  const tanky = gameState.perkRank('tanky-goo');
   const fangs = gameState.perkRank('sharp-fangs');
   const skin = gameState.perkRank('thick-skin');
   const quick = gameState.perkRank('quick-steps');
   const crit = gameState.perkRank('lucky-crit');
-  const well = gameState.perkRank('deep-well');
   const recovery = gameState.perkRank('quick-recovery');
   const reach = gameState.perkRank('long-reach');
   const wideSwing = gameState.perkRank('wide-swing');
@@ -92,18 +80,18 @@ export function getStats(): DerivedStats {
   const weaponArcRad = BASE_WEAPON_ARC_RAD + (MAX_WEAPON_ARC_RAD - BASE_WEAPON_ARC_RAD) * (wideSwing / 3);
 
   return {
-    maxHp: gameState.maxHp + tanky * 15,
-    attack: Math.round(baseAttack * (1 + fangs * 0.15)),
+    maxHp: gameState.maxHp,
+    attack: Math.round(baseAttack * (1 + fangs * PERK_BALANCE.attackMultiplierPerSharpFangsRank)),
     defense: baseDefense,
-    speed: 230 + quick * 25,
-    critChance: 0.05 + crit * 0.08,
+    speed: PLAYER_CONFIG.movement.baseSpeed + quick * PERK_BALANCE.speedPerQuickStepsRank,
+    critChance: 0.05 + crit * PERK_BALANCE.critChancePerLuckyCritRank,
     critMult: 1.75,
-    maxEnergy: gameState.maxEnergy + well * 20,
-    energyRegenPerSec: 8 * (1 + recovery * 0.5),
-    weaponReachMult: 1 + reach * 0.25,
+    maxEnergy: gameState.maxEnergy,
+    energyRegenPerSec: 8 * (1 + recovery * PERK_BALANCE.energyRegenMultiplierPerQuickRecoveryRank),
+    weaponReachMult: 1 + reach * PERK_BALANCE.reachMultiplierPerLongReachRank,
     weaponArcRad,
-    lifeStealPct: vampiric * 0.06,
-    damageTakenMult: Math.max(0.5, 1 - skin * 0.08),
+    lifeStealPct: vampiric * PERK_BALANCE.lifeStealPerVampiricGooRank,
+    damageTakenMult: Math.max(0.5, 1 - skin * PERK_BALANCE.damageReductionPerThickSkinRank),
     iFrameMs: 600,
   };
 }

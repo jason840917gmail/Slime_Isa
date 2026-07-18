@@ -73,7 +73,7 @@ export class ShopUI {
     this.container.setVisible(false);
   }
 
-  show(coins: number): void {
+  show(_coins: number): void {
     this.container.setVisible(true);
     this.visible = true;
   }

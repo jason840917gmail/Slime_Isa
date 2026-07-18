@@ -57,8 +57,6 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   private healthBar: Phaser.GameObjects.Graphics;
   private hitFlashUntil = 0;
   private telegraphUntil = 0;
-  private deathAt = 0;
-  private wanderTimer = 0;
   private hitStunUntil = 0;
 
   constructor(scene: Phaser.Scene, x: number, y: number, config: EnemyConfig, ctx: EnemyContext) {

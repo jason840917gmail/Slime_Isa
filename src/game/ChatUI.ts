@@ -202,7 +202,6 @@ export class ChatUI {
     const friends = this.getFriends();
     if (friends.length === 0) return;
 
-    const friend = friends[Phaser.Math.Between(0, friends.length - 1)];
     const reply = this.pickReply(msg);
     const delay = Phaser.Math.Between(700, 1400);
 
@@ -273,7 +272,7 @@ export class ChatUI {
     this.box.strokeRoundedRect(12, topY, cam.width - 24, boxH, 10);
   }
 
-  private handleResize(w: number, h: number): void {
+  private handleResize(_w: number, h: number): void {
     this.hintText.setPosition(16, h - 30);
     this.layoutLog();
     this.drawBox();

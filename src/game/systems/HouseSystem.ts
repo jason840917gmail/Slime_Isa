@@ -152,7 +152,7 @@ export class HouseSystem {
     this.showHouseUI(house);
   }
 
-  private showHouseUI(house: House): void {
+  private showHouseUI(_house: House): void {
     if (this.houseUI) return;
 
     const scene = this.ctx.scene;

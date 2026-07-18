@@ -1,8 +1,7 @@
 import { gameEvents } from '../core/EventBus';
 import { gameState } from '../core/GameState';
 import { QUEST_DEFS, getQuestDef, type QuestState } from './Quest';
-
-const STORAGE_KEY = 'slime-isa:quests';
+import { saveRepository } from '../infrastructure/persistence/SaveRepository';
 
 class QuestTrackerImpl {
   private states = new Map<string, QuestState>();
@@ -11,7 +10,8 @@ class QuestTrackerImpl {
   start(): void {
     if (this.started) return;
     this.started = true;
-    this.load();
+    const saved = saveRepository.read();
+    this.load(saved?.data.quests ?? saveRepository.readLegacyQuests());
     this.ensureStarterQuests();
 
     gameEvents.on('player.collect', this.onCollect, this);
@@ -35,6 +35,20 @@ class QuestTrackerImpl {
     return this.states.get(questId)?.progress[objectiveId] ?? 0;
   }
 
+  serialize(): QuestState[] {
+    return [...this.states.values()].map((state) => ({
+      ...state,
+      progress: { ...state.progress },
+    }));
+  }
+
+  load(states: QuestState[]): void {
+    this.states = new Map(states.map((state) => [state.id, {
+      ...state,
+      progress: { ...state.progress },
+    }]));
+  }
+
   private ensureStarterQuests(): void {
     for (const def of QUEST_DEFS) {
       if (!this.states.has(def.id)) {
@@ -43,7 +57,6 @@ class QuestTrackerImpl {
         gameEvents.emit('quest.changed', { questId: def.id });
       }
     }
-    this.save();
   }
 
   private onCollect = (payload: { kind: 'berry' | 'chip'; value: number }): void => {
@@ -86,7 +99,6 @@ class QuestTrackerImpl {
     if (after === before) return;
     state.progress[objectiveId] = after;
     this.tryComplete(state);
-    this.save();
     gameEvents.emit('quest.changed', { questId: state.id });
   }
 
@@ -103,23 +115,6 @@ class QuestTrackerImpl {
     gameEvents.emit('quest.completed', { questId: def.id, title: def.title, rewards: def.rewards });
   }
 
-  private load(): void {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      const parsed = raw ? JSON.parse(raw) as QuestState[] : [];
-      this.states = new Map(parsed.map((q) => [q.id, q]));
-    } catch {
-      this.states = new Map();
-    }
-  }
-
-  private save(): void {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify([...this.states.values()]));
-    } catch {
-      // ignore storage failures; quest still works for current session.
-    }
-  }
 }
 
 export const questTracker = new QuestTrackerImpl();

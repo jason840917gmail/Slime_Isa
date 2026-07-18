@@ -6,7 +6,6 @@ const FONT = 'Aptos, Segoe UI Variable, sans-serif';
 export class BossHealthBar {
   private scene: Phaser.Scene;
   private boss: Enemy;
-  private name: string;
   private container: Phaser.GameObjects.Container;
   private fill: Phaser.GameObjects.Rectangle;
   private hpText: Phaser.GameObjects.Text;
@@ -14,7 +13,6 @@ export class BossHealthBar {
   constructor(scene: Phaser.Scene, boss: Enemy, name: string) {
     this.scene = scene;
     this.boss = boss;
-    this.name = name;
 
     const cam = scene.cameras.main;
     this.container = scene.add.container(cam.width / 2, cam.height - 74).setScrollFactor(0).setDepth(220);

@@ -1,92 +1,74 @@
-import { gameState, SAVE_SCHEMA_VERSION, type GameStateData } from './GameState';
+import { worldProgress } from '../features/progression/WorldProgress';
+import { saveRepository } from '../infrastructure/persistence/SaveRepository';
+import { STORAGE_KEYS } from '../infrastructure/persistence/storageKeys';
+import { playerInventory } from '../systems/Inventory';
+import { questTracker } from '../quests/QuestTracker';
 import { gameEvents } from './EventBus';
+import { gameState } from './GameState';
 
-/**
- * Versioned localStorage save system.
- *
- * Schema versioning keeps future migrations safe: load() validates the stored
- * version and can run migration steps before handing data to GameState.
- *
- * Phase 0: persists only GameState core fields. Later phases extend the schema
- * (hp, level, xp, abilities, weapons, inventory, quest flags, discovered areas).
- */
+class SaveSystem {
+  private autoSaveStarted = false;
+  private autoSaveTimer: number | undefined;
 
-const DEFAULT_SLOT = 'slime-isa:save';
-
-interface StoredEnvelope {
-  schemaVersion: number;
-  savedAt: number;
-  data: GameStateData;
-}
-
-function readRaw(slot: string): StoredEnvelope | null {
-  try {
-    const raw = localStorage.getItem(slot);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as StoredEnvelope;
-    if (!parsed || typeof parsed !== 'object') return null;
-    if (typeof parsed.data !== 'object' || parsed.data === null) return null;
-    return parsed;
-  } catch {
-    return null;
-  }
-}
-
-function migrate(parsed: StoredEnvelope): StoredEnvelope {
-  if (parsed.schemaVersion < SAVE_SCHEMA_VERSION) {
-    // Future: per-version migration steps here.
-    parsed = {
-      ...parsed,
-      schemaVersion: SAVE_SCHEMA_VERSION,
-      data: { ...parsed.data, schemaVersion: SAVE_SCHEMA_VERSION },
-    };
-  }
-  return parsed;
-}
-
-class SaveSystemImpl {
-  save(slot: string = DEFAULT_SLOT): boolean {
-    try {
-      const envelope: StoredEnvelope = {
-        schemaVersion: SAVE_SCHEMA_VERSION,
-        savedAt: Date.now(),
-        data: gameState.serialize(),
-      };
-      localStorage.setItem(slot, JSON.stringify(envelope));
-      gameEvents.emit('save.done', { slot });
-      return true;
-    } catch {
-      return false;
-    }
+  startAutoSave(): void {
+    if (this.autoSaveStarted) return;
+    this.autoSaveStarted = true;
+    gameEvents.on('coins.changed', this.scheduleSave, this);
+    gameEvents.on('boost.changed', this.scheduleSave, this);
+    gameEvents.on('hp.changed', this.scheduleSave, this);
+    gameEvents.on('xp.changed', this.scheduleSave, this);
+    gameEvents.on('energy.changed', this.scheduleSave, this);
+    gameEvents.on('perk.taken', this.scheduleSave, this);
+    gameEvents.on('inventory.changed', this.scheduleSave, this);
+    gameEvents.on('quest.changed', this.scheduleSave, this);
+    gameEvents.on('world.progress.changed', this.scheduleSave, this);
   }
 
-  load(slot: string = DEFAULT_SLOT): boolean {
-    const parsed = readRaw(slot);
-    if (!parsed) return false;
+  save(slot = STORAGE_KEYS.save): boolean {
+    const saved = saveRepository.write({
+      player: gameState.serialize(),
+      inventory: playerInventory.serialize(),
+      quests: questTracker.serialize(),
+      world: worldProgress.serialize(),
+    }, slot);
 
-    const migrated = migrate(parsed);
-    gameState.load(migrated.data);
+    if (saved) gameEvents.emit('save.done', { slot });
+    return saved;
+  }
+
+  load(slot = STORAGE_KEYS.save): boolean {
+    const saved = saveRepository.read(slot);
+    if (!saved) return false;
+
+    gameState.load(saved.data.player);
+    playerInventory.load(saved.data.inventory);
+    questTracker.load(saved.data.quests);
+    worldProgress.load(saved.data.world);
     gameEvents.emit('save.loaded', { slot });
     return true;
   }
 
-  hasSave(slot: string = DEFAULT_SLOT): boolean {
-    return readRaw(slot) !== null;
+  hasSave(slot = STORAGE_KEYS.save): boolean {
+    return saveRepository.read(slot) !== null;
   }
 
-  deleteSave(slot: string = DEFAULT_SLOT): void {
-    try {
-      localStorage.removeItem(slot);
-    } catch {
-      // ignore
-    }
+  deleteSave(slot = STORAGE_KEYS.save): void {
+    saveRepository.remove(slot);
   }
 
-  savedAt(slot: string = DEFAULT_SLOT): number | null {
-    const parsed = readRaw(slot);
-    return parsed ? parsed.savedAt : null;
+  savedAt(slot = STORAGE_KEYS.save): number | null {
+    return saveRepository.read(slot)?.savedAt ?? null;
   }
+
+  private scheduleSave = (): void => {
+    if (this.autoSaveTimer !== undefined) window.clearTimeout(this.autoSaveTimer);
+    this.autoSaveTimer = window.setTimeout(() => {
+      this.autoSaveTimer = undefined;
+      this.save();
+    }, 250);
+  };
 }
 
-export const saveSystem = new SaveSystemImpl();
-export { DEFAULT_SLOT as DEFAULT_SAVE_SLOT };
+export const saveSystem = new SaveSystem();
+export { SAVE_SCHEMA_VERSION } from '../infrastructure/persistence/SaveSchema';
+export { STORAGE_KEYS } from '../infrastructure/persistence/storageKeys';

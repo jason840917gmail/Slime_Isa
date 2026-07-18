@@ -3,7 +3,6 @@ import { gameState } from '../core/GameState';
 import { floatingText } from '../ui/FloatingText';
 import { isTileCollidable, type WorldTileId } from '../worldTiles';
 import { TILE_SIZE } from '../terrainNoise';
-import { getStats } from './PlayerStats';
 import { hitboxPool } from '../combat/Hitbox';
 import { TargetDummy } from '../combat/TargetDummy';
 
@@ -38,7 +37,6 @@ const JUMP_ARC_HEIGHT = 54;
 const TELEPORT_COOLDOWN_MS = 1800;
 const TELEPORT_DISTANCE = 240;
 const TELEPORT_ENERGY_COST = 35;
-const TELEPORT_DURATION_MS = 300;
 
 const SLAM_COOLDOWN_MS = 2500;
 const SLAM_ENERGY_COST = 30;

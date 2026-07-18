@@ -1,9 +1,10 @@
 import Phaser from 'phaser';
 import { AREAS, type AreaId } from '../world/Area';
 import { BIOMES } from '../world/Biome';
+import { worldProgress } from '../features/progression/WorldProgress';
+import { UI_THEME } from '../presentation/theme';
 
-const FONT = 'Aptos, Segoe UI Variable, sans-serif';
-const DISCOVERED_KEY = 'slime-isa:discovered-areas';
+const FONT = UI_THEME.fontFamily;
 
 export interface WorldMapUIContext {
   scene: Phaser.Scene;
@@ -32,9 +33,7 @@ export class WorldMapUI {
   }
 
   discover(areaId: AreaId): void {
-    const discovered = this.loadDiscovered();
-    discovered.add(areaId);
-    this.saveDiscovered(discovered);
+    worldProgress.discoverArea(areaId);
   }
 
   toggle(): void {
@@ -46,9 +45,8 @@ export class WorldMapUI {
     const scene = this.ctx.scene;
     const cam = scene.cameras.main;
     const currentArea = this.ctx.getCurrentArea();
-    const discovered = this.loadDiscovered();
-    discovered.add(currentArea);
-    this.saveDiscovered(discovered);
+    worldProgress.discoverArea(currentArea);
+    const discovered = worldProgress.discovered();
 
     const container = scene.add.container(cam.width / 2, cam.height / 2).setScrollFactor(0).setDepth(310);
     this.container = container;
@@ -90,7 +88,7 @@ export class WorldMapUI {
     scene.tweens.add({ targets: container, alpha: { from: 0, to: 1 }, scale: { from: 0.96, to: 1 }, duration: 140 });
   }
 
-  private drawConnections(container: Phaser.GameObjects.Container, discovered: Set<AreaId>): void {
+  private drawConnections(container: Phaser.GameObjects.Container, discovered: ReadonlySet<AreaId>): void {
     const scene = this.ctx.scene;
     const g = scene.add.graphics();
     container.add(g);
@@ -109,7 +107,7 @@ export class WorldMapUI {
     }
   }
 
-  private drawAreas(container: Phaser.GameObjects.Container, discovered: Set<AreaId>, currentArea: AreaId): void {
+  private drawAreas(container: Phaser.GameObjects.Container, discovered: ReadonlySet<AreaId>, currentArea: AreaId): void {
     const scene = this.ctx.scene;
 
     for (const area of Object.values(AREAS)) {
@@ -151,24 +149,6 @@ export class WorldMapUI {
     this.container.destroy();
     this.container = undefined;
     this.ctx.onPausedChange(false);
-  }
-
-  private loadDiscovered(): Set<AreaId> {
-    try {
-      const raw = localStorage.getItem(DISCOVERED_KEY);
-      const parsed = raw ? JSON.parse(raw) as AreaId[] : [];
-      return new Set(parsed.filter((id): id is AreaId => id in AREAS));
-    } catch {
-      return new Set<AreaId>();
-    }
-  }
-
-  private saveDiscovered(discovered: Set<AreaId>): void {
-    try {
-      localStorage.setItem(DISCOVERED_KEY, JSON.stringify([...discovered]));
-    } catch {
-      // ignore storage failures; map still works for current open.
-    }
   }
 
   destroy(): void {

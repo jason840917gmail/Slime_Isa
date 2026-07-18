@@ -1,5 +1,4 @@
 import Phaser from 'phaser';
-import { floatingText } from '../ui/FloatingText';
 
 /**
  * Enemy AI states. Composable behaviors — the Enemy class delegates per-state
@@ -175,7 +174,7 @@ function stateChase(ctx: EnemyStateContext): StateResult {
 }
 
 function stateAttack(ctx: EnemyStateContext): StateResult {
-  const { enemy, player, dirToPlayer, distToPlayer, config, time, fireProjectile, telegraph } = ctx;
+  const { enemy, dirToPlayer, distToPlayer, config, time, fireProjectile, telegraph } = ctx;
   const body = enemy.body as Phaser.Physics.Arcade.Body;
 
   // If the player moved away, resume chasing.

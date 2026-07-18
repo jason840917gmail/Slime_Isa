@@ -22,6 +22,7 @@ export type GameEvents = {
   'enemy.died': { enemyId: number; areaId: string; kind: string };
   'save.done': { slot: string };
   'save.loaded': { slot: string };
+  'world.progress.changed': {};
 
   // ── Phase 5: quests / journal ──
   'quest.changed': { questId: string };

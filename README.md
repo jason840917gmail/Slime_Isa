@@ -10,11 +10,20 @@ An open-world game built with Phaser 3, TypeScript, and Vite. Still early in dev
 ## Run locally
 
 ```bash
-npm install
-npx vite --port 3000
+pnpm install
+pnpm dev
 ```
 
 Then open `http://localhost:3000`.
+
+## Development
+
+- `pnpm dev` starts Vite on port 3000.
+- `pnpm typecheck` runs strict TypeScript validation.
+- `pnpm build` type-checks and creates the production build.
+- `pnpm check` runs the complete local verification sequence.
+
+The Phaser project follows a feature-first structure. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for dependency rules, state ownership, persistence, and conventions for new features.
 
 ## Android Build And Deploy
 

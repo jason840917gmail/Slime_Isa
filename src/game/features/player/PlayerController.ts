@@ -1,0 +1,110 @@
+import Phaser from 'phaser';
+import { PLAYER_CONFIG } from '../../content/player';
+import { gameState } from '../../core/GameState';
+import type { Controls } from '../../core/Input';
+import { floatingText } from '../../ui/FloatingText';
+import type { StatusEffectManager } from '../../systems/StatusEffects';
+import { getStats } from '../../systems/PlayerStats';
+import type { PlayerEntity } from './PlayerFactory';
+
+export interface PlayerControllerContext {
+  scene: Phaser.Scene;
+  entity: PlayerEntity;
+  getControls: () => Controls;
+  getStatusEffects: () => StatusEffectManager | undefined;
+  playAnimation: (key: string) => void;
+}
+
+export class PlayerController {
+  readonly facing = new Phaser.Math.Vector2(0, 1);
+  private dodgeInvulnerableUntil = 0;
+
+  constructor(private readonly ctx: PlayerControllerContext) {}
+
+  readDirection(): Phaser.Math.Vector2 {
+    const controls = this.ctx.getControls();
+    const direction = new Phaser.Math.Vector2();
+    if (controls.left.isDown || controls.leftAlt.isDown) direction.x -= 1;
+    if (controls.right.isDown || controls.rightAlt.isDown) direction.x += 1;
+    if (controls.up.isDown || controls.upAlt.isDown) direction.y -= 1;
+    if (controls.down.isDown || controls.downAlt.isDown) direction.y += 1;
+    return direction;
+  }
+
+  updateVisuals(): void {
+    const { sprite, nameTag } = this.ctx.entity;
+    nameTag.setPosition(sprite.x, sprite.y - 56);
+  }
+
+  move(direction: Phaser.Math.Vector2): void {
+    const player = this.ctx.entity.sprite;
+    const controls = this.ctx.getControls();
+    const statusEffects = this.ctx.getStatusEffects();
+    const wantsBoost = controls.boost.isDown;
+    const stats = getStats();
+    const speed = wantsBoost
+      ? PLAYER_CONFIG.movement.boostSpeed + gameState.boostBonus
+      : stats.speed;
+
+    if (statusEffects?.isRooted()) {
+      player.setVelocity(0, 0);
+      player.rotation = 0;
+      this.ctx.playAnimation('slime-idle');
+      return;
+    }
+
+    if (direction.lengthSq() > 0) {
+      direction.normalize().scale(speed * (statusEffects?.speedMultiplier ?? 1));
+    }
+
+    player.setVelocity(direction.x, direction.y);
+    player.rotation = 0;
+
+    if (direction.lengthSq() === 0) {
+      player.setFlipX(false);
+      this.ctx.playAnimation('slime-idle');
+      return;
+    }
+
+    this.facing.set(direction.x, direction.y).normalize();
+    player.setFlipX(Math.abs(direction.x) >= Math.abs(direction.y) && direction.x > 0);
+
+    if (wantsBoost) this.ctx.playAnimation('slime-roll');
+    else if (Math.abs(direction.y) > Math.abs(direction.x)) {
+      this.ctx.playAnimation(direction.y < 0 ? 'slime-stretch' : 'slime-hop');
+    } else this.ctx.playAnimation('slime-walk');
+  }
+
+  tryDodge(direction: Phaser.Math.Vector2): boolean {
+    const scene = this.ctx.scene;
+    const player = this.ctx.entity.sprite;
+    const dodgeDirection = direction.lengthSq() > 0
+      ? direction.clone().normalize()
+      : this.facing.clone().normalize();
+    if (dodgeDirection.lengthSq() === 0) dodgeDirection.set(1, 0);
+
+    this.dodgeInvulnerableUntil = scene.time.now + PLAYER_CONFIG.movement.dodgeInvulnerabilityMs;
+    this.ctx.playAnimation('slime-roll');
+    player.setVelocity(
+      dodgeDirection.x * PLAYER_CONFIG.movement.dodgeSpeed,
+      dodgeDirection.y * PLAYER_CONFIG.movement.dodgeSpeed,
+    );
+
+    const dust = scene.add.particles(player.x, player.y, 'xp-orb', {
+      lifespan: 280,
+      speed: { min: 10, max: 40 },
+      scale: { start: 0.2, end: 0 },
+      alpha: { start: 0.4, end: 0 },
+      quantity: 6,
+      emitting: false,
+    }).setDepth(4);
+    dust.emitParticle(6);
+    scene.time.delayedCall(300, () => dust.destroy());
+    floatingText.spawn(scene, player.x, player.y - 30, 'DODGE', 'cyan');
+    return true;
+  }
+
+  isDodging(): boolean {
+    return this.ctx.scene.time.now < this.dodgeInvulnerableUntil;
+  }
+}

@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { gameEvents } from './core/EventBus';
 import { gameState } from './core/GameState';
+import { UI_THEME } from './presentation/theme';
 
 /**
  * Heads-up display. Event-driven: subscribes to GameState changes via
@@ -13,7 +14,6 @@ import { gameState } from './core/GameState';
  *   Energy bar (yellow) under XP
  */
 export class HUD {
-  private scene: Phaser.Scene;
   private coinsText: Phaser.GameObjects.Text;
   private friendCountText: Phaser.GameObjects.Text;
   private levelText: Phaser.GameObjects.Text;
@@ -30,8 +30,7 @@ export class HUD {
   private readonly barGap = 18;
 
   constructor(scene: Phaser.Scene) {
-    this.scene = scene;
-    const font = 'Aptos, Segoe UI Variable, sans-serif';
+    const font = UI_THEME.fontFamily;
 
     let y = 24;
     this.levelText = scene.add
@@ -93,12 +92,12 @@ export class HUD {
       .setDepth(51) as Phaser.GameObjects.Text;
     this.energyLabel.setPosition(this.barX + this.barW + 8, y);
 
-    gameEvents.on('coins.changed', (p) => this.updateCoins(p.coins), this);
-    gameEvents.on('friend.count', (p) => this.updateFriendCount(p.count), this);
-    gameEvents.on('hp.changed', (p) => this.drawHp(p.hp, p.maxHp), this);
-    gameEvents.on('xp.changed', (p) => this.drawXp(p.xpIntoLevel, p.xpForNext, p.level), this);
-    gameEvents.on('energy.changed', (p) => this.drawEnergy(p.energy, p.maxEnergy), this);
-    gameEvents.on('level.up', (p) => this.updateLevel(p.level), this);
+    gameEvents.on('coins.changed', this.onCoinsChanged, this);
+    gameEvents.on('friend.count', this.onFriendCountChanged, this);
+    gameEvents.on('hp.changed', this.onHpChanged, this);
+    gameEvents.on('xp.changed', this.onXpChanged, this);
+    gameEvents.on('energy.changed', this.onEnergyChanged, this);
+    gameEvents.on('level.up', this.onLevelUp, this);
 
     this.drawHp(gameState.hp, gameState.maxHp);
     this.drawXp(0, 0, gameState.level);
@@ -184,13 +183,24 @@ export class HUD {
     return this.xpBarY() + this.barH + this.barGap;
   }
 
+  private onCoinsChanged = (payload: { coins: number }): void => this.updateCoins(payload.coins);
+  private onFriendCountChanged = (payload: { count: number }): void => this.updateFriendCount(payload.count);
+  private onHpChanged = (payload: { hp: number; maxHp: number }): void => this.drawHp(payload.hp, payload.maxHp);
+  private onXpChanged = (payload: { xpIntoLevel: number; xpForNext: number; level: number }): void => {
+    this.drawXp(payload.xpIntoLevel, payload.xpForNext, payload.level);
+  };
+  private onEnergyChanged = (payload: { energy: number; maxEnergy: number }): void => {
+    this.drawEnergy(payload.energy, payload.maxEnergy);
+  };
+  private onLevelUp = (payload: { level: number }): void => this.updateLevel(payload.level);
+
   destroy(): void {
-    gameEvents.off('coins.changed', (p) => this.updateCoins(p.coins), this);
-    gameEvents.off('friend.count', (p) => this.updateFriendCount(p.count), this);
-    gameEvents.off('hp.changed', (p) => this.drawHp(p.hp, p.maxHp), this);
-    gameEvents.off('xp.changed', (p) => this.drawXp(p.xpIntoLevel, p.xpForNext, p.level), this);
-    gameEvents.off('energy.changed', (p) => this.drawEnergy(p.energy, p.maxEnergy), this);
-    gameEvents.off('level.up', (p) => this.updateLevel(p.level), this);
+    gameEvents.off('coins.changed', this.onCoinsChanged, this);
+    gameEvents.off('friend.count', this.onFriendCountChanged, this);
+    gameEvents.off('hp.changed', this.onHpChanged, this);
+    gameEvents.off('xp.changed', this.onXpChanged, this);
+    gameEvents.off('energy.changed', this.onEnergyChanged, this);
+    gameEvents.off('level.up', this.onLevelUp, this);
     this.coinsText.destroy();
     this.friendCountText.destroy();
     this.levelText.destroy();

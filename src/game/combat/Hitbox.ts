@@ -60,9 +60,6 @@ interface PooledHitbox {
 
 class HitboxPoolImpl {
   private pools = new Map<Phaser.Scene, PooledHitbox[]>();
-  /** Active physics overlaps keyed by pool index. */
-  private overlapClosures = new Map<PooledHitbox, (() => void) | null>();
-
   spawn(
     scene: Phaser.Scene,
     targets: Phaser.GameObjects.Group | Phaser.Physics.Arcade.Group | Phaser.Physics.Arcade.StaticGroup,

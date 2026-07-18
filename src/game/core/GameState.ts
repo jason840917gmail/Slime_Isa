@@ -1,4 +1,6 @@
 import { gameEvents } from './EventBus';
+import { PLAYER_CONFIG } from '../content/player';
+import { PERK_BALANCE } from '../content/perks';
 
 /**
  * Single source of truth for persistent player state.
@@ -28,12 +30,12 @@ export function xpForNext(level: number): number {
 }
 
 // ── Stat growth per level ──
-const HP_PER_LEVEL = 12;
-const ATK_PER_LEVEL = 2;
-const DEF_PER_LEVEL = 1;
-const ENERGY_PER_LEVEL = 4;
-const BASE_MAX_HP = 100;
-const BASE_MAX_ENERGY = 100;
+const HP_PER_LEVEL = PLAYER_CONFIG.progression.hpPerLevel;
+const ATK_PER_LEVEL = PLAYER_CONFIG.progression.attackPerLevel;
+const DEF_PER_LEVEL = PLAYER_CONFIG.progression.defensePerLevel;
+const ENERGY_PER_LEVEL = PLAYER_CONFIG.progression.energyPerLevel;
+const BASE_MAX_HP = PLAYER_CONFIG.progression.baseMaxHp;
+const BASE_MAX_ENERGY = PLAYER_CONFIG.progression.baseMaxEnergy;
 
 export interface GameStateData {
   schemaVersion: number;
@@ -182,6 +184,8 @@ class GameStateImpl {
     this.data.perks[perkId] = (this.data.perks[perkId] ?? 0) + 1;
     gameEvents.emit('skillpoint.changed', { points: this.data.skillPoints });
     gameEvents.emit('perk.taken', { perkId });
+    this.emitHp(0);
+    this.emitEnergy(0);
     return true;
   }
 
@@ -191,7 +195,9 @@ class GameStateImpl {
 
   // ── HP ──
   get maxHp(): number {
-    return BASE_MAX_HP + this.data.maxHpBonus;
+    return BASE_MAX_HP
+      + this.data.maxHpBonus
+      + this.perkRank('tanky-goo') * PERK_BALANCE.maxHpPerTankyGooRank;
   }
 
   get hp(): number {
@@ -242,7 +248,9 @@ class GameStateImpl {
 
   // ── Energy ──
   get maxEnergy(): number {
-    return BASE_MAX_ENERGY + this.data.maxEnergyBonus;
+    return BASE_MAX_ENERGY
+      + this.data.maxEnergyBonus
+      + this.perkRank('deep-well') * PERK_BALANCE.maxEnergyPerDeepWellRank;
   }
 
   get energy(): number {
