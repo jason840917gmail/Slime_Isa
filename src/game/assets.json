@@ -1,0 +1,21 @@
+{
+    "GroundTileMap": [
+        {
+            "name": "highland_green",
+            "path": "assets/MAPS/Originals/grounds/Highland Green.png"
+
+        }
+    ],
+    "GroundDecorations": [
+
+    ],
+    "Objects": [
+
+    ],
+    "Units": [
+
+    ],
+    "Effects": [
+
+    ]
+}
