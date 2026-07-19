@@ -1,7 +1,7 @@
 import { gameState } from '../../core/GameState';
 import { STORAGE_KEYS } from '../../infrastructure/persistence/storageKeys';
 import { playerInventory } from '../../systems/Inventory';
-import { AREAS, type AreaDef, type AreaId, type Direction } from '../../world/Area';
+import { getAreaDefinition, type AreaDef, type AreaId, type Direction } from '../../world/Area';
 
 export interface AreaNavigationRequest {
   areaId?: AreaId;
@@ -19,10 +19,10 @@ export function resolveAreaRequest(data: AreaNavigationRequest): ResolvedAreaReq
   const queryArea = params.get('area');
   const queryEntry = params.get('entry');
   const areaId = data.areaId
-    ?? (queryArea && queryArea in AREAS ? queryArea as AreaId : 'meadow-crossing');
+    ?? (queryArea && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(queryArea) ? queryArea : 'icege');
 
   return {
-    area: AREAS[areaId],
+    area: getAreaDefinition(areaId),
     entryEdge: data.entryEdge ?? (isDirection(queryEntry) ? queryEntry : undefined),
     respawnHome: params.get('respawn') === 'home',
   };

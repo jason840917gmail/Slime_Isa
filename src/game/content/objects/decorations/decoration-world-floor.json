@@ -1,0 +1,15 @@
+{
+  "$schema": "../objects.schema.json",
+  "objectId": "decoration.world.floor",
+  "selection": "authored",
+  "variants": [
+    {
+      "assetId": "sheet.decorations.8x3",
+      "frames": [
+        { "visualId": "sewer-grate", "frame": 22 }
+      ]
+    }
+  ],
+  "physics": null,
+  "tags": ["decoration", "floor", "walkable"]
+}

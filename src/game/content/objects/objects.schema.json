@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./objects.schema.json",
+  "title": "Slime Isa object archetype",
+  "description": "One reusable game object per file. The object owns behavior and frame-specific collider geometry.",
+  "type": "object",
+  "required": ["objectId", "selection", "variants", "physics", "tags"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "objectId": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+([.-][a-z0-9-]+)+$"
+    },
+    "selection": { "const": "authored" },
+    "variants": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/variantGroup" },
+      "minItems": 1
+    },
+    "physics": {
+      "oneOf": [
+        { "type": "null" },
+        { "$ref": "#/$defs/physics" }
+      ]
+    },
+    "behavior": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+([.-][a-z0-9-]+)+$"
+    },
+    "destructible": { "$ref": "#/$defs/destructible" },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+      "uniqueItems": true
+    }
+  },
+  "$defs": {
+    "bounds": {
+      "type": "object",
+      "required": ["width", "height", "offsetX", "offsetY"],
+      "additionalProperties": false,
+      "properties": {
+        "width": { "type": "integer", "minimum": 1 },
+        "height": { "type": "integer", "minimum": 1 },
+        "offsetX": { "type": "integer", "minimum": 0 },
+        "offsetY": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "frameVariant": {
+      "type": "object",
+      "required": ["visualId", "frame"],
+      "additionalProperties": false,
+      "properties": {
+        "visualId": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+([.-][a-z0-9-]+)*$"
+        },
+        "frame": { "type": "integer", "minimum": 0 },
+        "collider": { "$ref": "#/$defs/bounds" }
+      }
+    },
+    "variantGroup": {
+      "type": "object",
+      "required": ["assetId", "frames"],
+      "additionalProperties": false,
+      "properties": {
+        "assetId": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+([.-][a-z0-9-]+)+$"
+        },
+        "frames": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/frameVariant" },
+          "minItems": 1
+        }
+      }
+    },
+    "physics": {
+      "type": "object",
+      "required": ["body"],
+      "additionalProperties": false,
+      "properties": {
+        "body": { "const": "static" }
+      }
+    },
+    "destructible": {
+      "type": "object",
+      "required": ["health", "drops"],
+      "additionalProperties": false,
+      "properties": {
+        "health": { "type": "integer", "minimum": 1 },
+        "drops": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        }
+      }
+    }
+  }
+}

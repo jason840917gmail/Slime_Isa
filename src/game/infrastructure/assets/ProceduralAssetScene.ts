@@ -1,16 +1,5 @@
 import Phaser from 'phaser';
-import {
-  FIRST_SCENE_GROUND_TEXTURES,
-  FOREST_GROUNDS_SHEET_KEY,
-  NORMALIZED_GROUND_TILE_SIZE,
-  getForestGroundFrameRect,
-} from '../../forestGrounds';
-
-/** Each cell on the normalised sheet is 256 × 256 px, 8 columns × 8 rows. */
-const CELL_SIZE = 256;
-
-const slimeSheetUrl = new URL('../../../../asset/slime_normalized.png', import.meta.url).href;
-const forestGroundsSheetUrl = new URL('../../../../asset/MAPS/FOREST/GROUNDS.png', import.meta.url).href;
+import { assertAssetBundleTextures, loadAssetBundle } from './AssetLoader';
 
 export class ProceduralAssetScene extends Phaser.Scene {
   constructor() {
@@ -18,55 +7,19 @@ export class ProceduralAssetScene extends Phaser.Scene {
   }
 
   preload(): void {
-    this.load.spritesheet('slime', slimeSheetUrl, {
-      frameWidth: CELL_SIZE,
-      frameHeight: CELL_SIZE,
-    });
-    this.load.image(FOREST_GROUNDS_SHEET_KEY, forestGroundsSheetUrl);
+    loadAssetBundle(this, 'boot');
   }
 
   create(): void {
     this.createTerrainTextures();
-    this.scene.start('world');
-  }
-
-  private createFirstSceneGroundTextures(): void {
-    const sourceImage = this.textures.get(FOREST_GROUNDS_SHEET_KEY).getSourceImage() as CanvasImageSource;
-
-    for (const texture of FIRST_SCENE_GROUND_TEXTURES) {
-      const frame = getForestGroundFrameRect(texture.frame);
-      const canvas = this.textures.createCanvas(
-        texture.key,
-        NORMALIZED_GROUND_TILE_SIZE,
-        NORMALIZED_GROUND_TILE_SIZE,
-      );
-
-      if (!canvas) {
-        continue;
-      }
-
-      const context = canvas.context;
-      context.imageSmoothingEnabled = true;
-      context.imageSmoothingQuality = 'high';
-      context.clearRect(0, 0, NORMALIZED_GROUND_TILE_SIZE, NORMALIZED_GROUND_TILE_SIZE);
-      context.drawImage(
-        sourceImage,
-        frame.x,
-        frame.y,
-        frame.width,
-        frame.height,
-        0,
-        0,
-        NORMALIZED_GROUND_TILE_SIZE,
-        NORMALIZED_GROUND_TILE_SIZE,
-      );
-      canvas.refresh();
-    }
+    assertAssetBundleTextures(this, 'boot');
+    const editorMapId = import.meta.env.DEV
+      ? new URLSearchParams(window.location.search).get('editor')
+      : null;
+    this.scene.start(editorMapId ? 'map-editor-load' : 'map-load');
   }
 
   private createTerrainTextures(): void {
-    this.createFirstSceneGroundTextures();
-
     const graphics = this.add.graphics();
 
     // Gloop Forest tiles
@@ -130,6 +83,26 @@ export class ProceduralAssetScene extends Phaser.Scene {
     graphics.fillTriangle(32, 54, 44, 18, 56, 54);
     graphics.generateTexture('crystal-wall', 64, 64);
     graphics.clear();
+
+    // Meadow water remains procedural while meadow ground comes from the
+    // Highland Green manifest spritesheet.
+    for (const [key, baseColor, rippleColor] of [
+      ['water', 0x2f7190, 0x62b7cf],
+      ['water-1', 0x326d88, 0x70c1d6],
+      ['water-2', 0x2a6782, 0x58a9c2],
+    ] as const) {
+      graphics.fillStyle(baseColor, 1);
+      graphics.fillRect(0, 0, 64, 64);
+      graphics.lineStyle(2, rippleColor, 0.65);
+      graphics.beginPath();
+      graphics.moveTo(8, 18);
+      graphics.lineTo(24, 18);
+      graphics.moveTo(34, 38);
+      graphics.lineTo(56, 38);
+      graphics.strokePath();
+      graphics.generateTexture(key, 64, 64);
+      graphics.clear();
+    }
 
     graphics.fillStyle(0x172438, 1);
     graphics.fillRect(0, 0, 64, 64);

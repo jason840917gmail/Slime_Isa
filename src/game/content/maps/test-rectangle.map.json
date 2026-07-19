@@ -1,0 +1,46 @@
+{
+  "$schema": "./maps.schema.json",
+  "version": 1,
+  "mapId": "test-rectangle",
+  "tileSize": 64,
+  "size": {
+    "columns": 8,
+    "rows": 5
+  },
+  "layers": [
+    {
+      "id": "ground",
+      "encoding": "legend-chars-v1",
+      "legend": {
+        "g": "grass-a",
+        "w": "water"
+      },
+      "rows": [
+        "gggggggg",
+        "gggggggg",
+        "gggwwggg",
+        "gggggggg",
+        "gggggggg"
+      ]
+    }
+  ],
+  "objects": [
+    {
+      "instanceId": "amber-rock-001",
+      "objectId": "rock.amber-ore.mineable",
+      "visualId": "amber-ore",
+      "x": 288,
+      "y": 192,
+      "initialState": {
+        "health": 30
+      }
+    }
+  ],
+  "player": {
+    "spawn": {
+      "x": 96,
+      "y": 96
+    },
+    "entries": {}
+  }
+}

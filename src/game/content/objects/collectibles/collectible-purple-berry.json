@@ -1,0 +1,14 @@
+{
+  "$schema": "../objects.schema.json",
+  "objectId": "collectible.purple-berry",
+  "selection": "authored",
+  "variants": [
+    {
+      "assetId": "collectible.purple-berry",
+      "frames": [{ "visualId": "purple-berry", "frame": 0 }]
+    }
+  ],
+  "physics": null,
+  "behavior": "collectible.purple-berry",
+  "tags": ["collectible", "food"]
+}

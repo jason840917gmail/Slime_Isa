@@ -1,0 +1,195 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./maps.schema.json",
+  "title": "Slime Isa authored map",
+  "description": "Authored map format v1. Maps are content: they persist stable IDs only (terrain tile IDs, object archetype IDs, enemy type keys, area IDs) — never paths, texture keys, or inline gameplay stats. Structural rules are enforced by scripts/check-maps.mjs and re-asserted at load-time by mapFormat.ts.",
+  "type": "object",
+  "required": ["version", "mapId", "tileSize", "size", "layers", "objects", "player"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "const": 1 },
+    "mapId": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "Stable map ID, kebab-case. Distinct from AreaId; AreaDef references a mapId."
+    },
+    "tileSize": { "type": "integer", "minimum": 1 },
+    "size": {
+      "type": "object",
+      "required": ["columns", "rows"],
+      "additionalProperties": false,
+      "properties": {
+        "columns": { "type": "integer", "minimum": 1 },
+        "rows": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "layers": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/layer" }
+    },
+    "objects": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/objectInstance" }
+    },
+    "player": {
+      "type": "object",
+      "required": ["spawn", "entries"],
+      "additionalProperties": false,
+      "properties": {
+        "spawn": { "$ref": "#/$defs/point" },
+        "entries": {
+          "type": "object",
+          "propertyNames": { "enum": ["north", "east", "south", "west"] },
+          "additionalProperties": { "$ref": "#/$defs/point" }
+        }
+      }
+    },
+    "exits": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/exit" }
+    },
+    "enemySafeZones": {
+      "type": "array",
+      "description": "Areas enemies cannot enter or spawn in, independent of spawn configuration.",
+      "items": {
+        "type": "object",
+        "required": ["x", "y", "w", "h"],
+        "additionalProperties": false,
+        "properties": {
+          "x": { "type": "number" },
+          "y": { "type": "number" },
+          "w": { "type": "integer", "minimum": 1 },
+          "h": { "type": "integer", "minimum": 1 }
+        }
+      }
+    },
+    "spawns": { "$ref": "#/$defs/spawns" }
+  },
+  "$defs": {
+    "point": {
+      "type": "object",
+      "required": ["x", "y"],
+      "additionalProperties": false,
+      "properties": {
+        "x": { "type": "number" },
+        "y": { "type": "number" }
+      }
+    },
+    "layer": {
+      "type": "object",
+      "required": ["id", "encoding", "legend", "rows"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "encoding": { "const": "legend-chars-v1" },
+        "legend": {
+          "type": "object",
+          "description": "Single char -> terrain tile ID (WORLD_TILE_RULES key).",
+          "propertyNames": { "minLength": 1, "maxLength": 1 },
+          "additionalProperties": { "type": "string", "minLength": 1 }
+        },
+        "rows": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        }
+      }
+    },
+    "objectInstance": {
+      "type": "object",
+      "required": ["instanceId", "objectId", "visualId", "x", "y"],
+      "additionalProperties": false,
+      "properties": {
+        "instanceId": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Stable, editor-generated, unique within the map; survives moves. Saves key runtime state by mapId + instanceId."
+        },
+        "objectId": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Object archetype ID from the ObjectCatalog (content/objects)."
+        },
+        "visualId": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Exact visual ID declared by the object archetype. Placement is never randomized."
+        },
+        "x": { "type": "number" },
+        "y": { "type": "number" },
+        "initialState": {
+          "type": "object",
+          "description": "Authored initial state; runtime state is saved separately."
+        }
+      }
+    },
+    "exit": {
+      "type": "object",
+      "required": ["zone", "to", "entry"],
+      "additionalProperties": false,
+      "properties": {
+        "zone": {
+          "type": "object",
+          "required": ["x", "y", "w", "h"],
+          "additionalProperties": false,
+          "properties": {
+            "x": { "type": "number" },
+            "y": { "type": "number" },
+            "w": { "type": "integer", "minimum": 1 },
+            "h": { "type": "integer", "minimum": 1 }
+          }
+        },
+        "to": { "type": "string", "minLength": 1, "description": "Target AreaId." },
+        "entry": { "type": "string", "minLength": 1, "description": "Entry point name in the target map's player.entries." }
+      }
+    },
+    "spawns": {
+      "type": "object",
+      "required": ["enemies", "radius", "intervalMs", "maxPopulation", "safeZones"],
+      "additionalProperties": false,
+      "properties": {
+        "enemies": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["type", "weight"],
+            "additionalProperties": false,
+            "properties": {
+              "type": { "type": "string", "minLength": 1, "description": "Enemy type key from EnemyTypes.ts." },
+              "weight": { "type": "number", "exclusiveMinimum": 0 },
+              "maxAlive": { "type": "integer", "minimum": 1 }
+            }
+          }
+        },
+        "radius": {
+          "type": "object",
+          "required": ["min", "max"],
+          "additionalProperties": false,
+          "properties": {
+            "min": { "type": "number", "minimum": 0 },
+            "max": { "type": "number", "exclusiveMinimum": 0 }
+          }
+        },
+        "intervalMs": { "type": "number", "exclusiveMinimum": 0 },
+        "maxPopulation": { "type": "integer", "minimum": 1 },
+        "safeZones": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["x", "y", "w", "h"],
+            "additionalProperties": false,
+            "properties": {
+              "x": { "type": "number" },
+              "y": { "type": "number" },
+              "w": { "type": "integer", "minimum": 1 },
+              "h": { "type": "integer", "minimum": 1 }
+            }
+          }
+        }
+      }
+    }
+  }
+}

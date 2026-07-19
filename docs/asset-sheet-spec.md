@@ -40,8 +40,10 @@ Update the code if any of these change:
 
 Main code locations:
 
-- `src/game/scenes/BootScene.ts`
+- `asset/assets.json`
+- `src/game/infrastructure/assets/ProceduralAssetScene.ts`
 - `src/game/scenes/WorldScene.ts`
-- `src/game/worldTiles.ts`
+- `src/game/content/terrain/TileCatalog.ts`
+- `src/game/content/objects/`
 - `src/game/Friend.ts`
 - `src/game/House.ts`

@@ -2,16 +2,28 @@ import Phaser from 'phaser';
 
 import { BootScene } from './scenes/BootScene';
 import { WorldScene } from './scenes/WorldScene';
+import { MapLoadScene } from './scenes/MapLoadScene';
 import { bindDevToolsPanel, createDevToolsPanel } from './devTools';
 
-export function createGame(container: HTMLDivElement): Phaser.Game {
-  const devPanel = import.meta.env.DEV ? createDevToolsPanel() : '';
+export async function createGame(container: HTMLDivElement): Promise<Phaser.Game> {
+  const editorMapId = import.meta.env.DEV
+    ? new URLSearchParams(window.location.search).get('editor')
+    : null;
+  const isEditor = editorMapId !== null;
+  const editorScenes = isEditor
+    ? await Promise.all([
+        import('./editor/MapEditorLoadScene').then((module) => module.MapEditorLoadScene),
+        import('./editor/MapEditorScene').then((module) => module.MapEditorScene),
+      ])
+    : [];
+  const devPanel = import.meta.env.DEV && !isEditor ? createDevToolsPanel() : '';
+  if (isEditor) document.title = `Field Cartographer — ${editorMapId}`;
 
   container.innerHTML = `
-    <section class="game-shell${import.meta.env.DEV ? ' is-dev-mode' : ''}">
+    <section class="game-shell${import.meta.env.DEV && !isEditor ? ' is-dev-mode' : ''}${isEditor ? ' is-map-editor' : ''}">
       <div class="canvas-frame">
         <div id="game-root"></div>
-        <details class="keymap-panel" open>
+        ${isEditor ? '' : `<details class="keymap-panel" open>
           <summary>⌨ Controls</summary>
           <table>
             <tr><td class="k">Arrows / IJKL</td><td>Move</td></tr>
@@ -29,13 +41,14 @@ export function createGame(container: HTMLDivElement): Phaser.Game {
             <tr><td class="k">/</td><td>Chat</td></tr>
             <tr><td class="k">1–8</td><td>Debug cheats</td></tr>
           </table>
-        </details>
+        </details>`}
       </div>
+      ${isEditor ? '<aside class="map-editor-panel" data-map-editor-panel></aside>' : ''}
       ${devPanel}
     </section>
   `;
 
-  if (import.meta.env.DEV) {
+  if (import.meta.env.DEV && !isEditor) {
     bindDevToolsPanel(container);
   }
 
@@ -45,7 +58,7 @@ export function createGame(container: HTMLDivElement): Phaser.Game {
     throw new Error('Missing game mount node.');
   }
 
-    return new Phaser.Game({
+  return new Phaser.Game({
     type: Phaser.AUTO,
     parent: gameRoot,
     backgroundColor: '#112028',
@@ -63,6 +76,6 @@ export function createGame(container: HTMLDivElement): Phaser.Game {
         debug: false,
       },
     },
-    scene: [BootScene, WorldScene],
+    scene: [BootScene, MapLoadScene, WorldScene, ...editorScenes],
   });
 }

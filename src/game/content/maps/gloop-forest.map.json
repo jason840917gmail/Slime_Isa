@@ -1,0 +1,152 @@
+{
+  "$schema": "./maps.schema.json",
+  "version": 1,
+  "mapId": "gloop-forest",
+  "tileSize": 64,
+  "size": {
+    "columns": 54,
+    "rows": 54
+  },
+  "layers": [
+    {
+      "id": "ground",
+      "encoding": "legend-chars-v1",
+      "legend": {
+        "f": "forest-floor",
+        "m": "forest-moss",
+        "t": "tree-wall",
+        "w": "deep-water"
+      },
+      "rows": [
+        "ffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "ffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "ffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "ffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "ffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "ffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "ffffffmwwwmwmtwtmftfmmmmwmmwwmmwmwmwwmfmtffmmtftffffff",
+        "ffffffwwwwwmmmfmmmttffttwmwmwmmwwmmmmmftmmmfttmtffffff",
+        "ffffffmmwmmmmmmmmttfttmmmmmwmmwwwmmmwmmmtffmtmmmffffff",
+        "ffffffmmwmmmmmmmmmftttmtmmmmwmmmwwmmwmmmmmmfmttmffffff",
+        "ffffffwmmmmwmmfmtftttmmmmmmmmmwwmmmmmmfmfmffmtttffffff",
+        "ffffffmwmmmfmfmftmmtfmtmmmmfmmmmmwmmmmmtttmffmffffffff",
+        "ffffffmmmmmfmmfmfmmtmmfmffmmmmmmmmwmmfffmfmfmtfmffffff",
+        "ffffffmmmfffffmfmfftfmffffmmmmfmmfmmmffffffffmmfffffff",
+        "fffffffffmfffmffffftmtffmffmmmfmffmmmmfffmftffffffffff",
+        "ffffffmffmffmfffmfffffmmffmffffmmmmmmffmfffftmffffffff",
+        "ffffffmffmmfffmmfffffffffffmmffmfmfmfmmfffffffffffffff",
+        "ffffffffmfmfmffmffffffffffmffmmmmfmmmmfmfffmffmfffffff",
+        "ffffffmfmmffmfmfffffmfffmffffmmfmmfffmfffffffmffffffff",
+        "fffffffmmmmmffmfffffffmfmffmmmmmfmmmmmmffffmffffffffff",
+        "ffffffmmmfmmfffmmmmfffffffmmfmmfmfmffmmfffffffffffffff",
+        "ffffffmmwmmmmmfmfmfmfmmffmmfmmmwmmmmmfmmffmffmfmffffff",
+        "ffffffmmmmmmfmfmmfmfmffmmmmmmmmmmmmwmmmmffmmfmmmffffff",
+        "ffffffmmmmmmffmffmffmffmmmmwmwmmwmwmmmmmfffmmmmfffffff",
+        "ffffffwmmwwmfmfmtfmfmfmmmmwwmmmwwmwmmffmmfmtfmfmffffff",
+        "ffffffmwwmmmmmmfmmtttmmmmmmwmmwwmmmwwwmmmtmmttmmffffff",
+        "ffffffwwwmwmmmmmmtfmftfmmtwwmwmmwwmwmmmmmtffmmmmffffff",
+        "ffffffwwmmmmmmmmmtttmmttmwwmmmwmwwwmwtftfmfmtttmffffff",
+        "ffffffwwmwmmmmmmmfmmttfmmmwwwmmwmmmmmmmftfmfffmmffffff",
+        "ffffffwmmmmmmftmmfttmffmmfmmmwmmwmmmmtftmfmtftmtffffff",
+        "ffffffwmmmwmfmmfmtmtmmtmmmfmmmmmwmmwmmtfmftffmttffffff",
+        "ffffffwmwmmmmmmfmfmffttmtmmmmmwmmwmmmmffffffmftmffffff",
+        "ffffffmmmmmmffmmfffftfmmmmmmmwmwffmfmmmtfffmftffffffff",
+        "ffffffmmmmmmfffffmfftfmmmfffmmmmmmmmmmfmmfffffffffffff",
+        "ffffffmmfmmfmmffffffmfmfmfmmfmmmfmfmfmffmfffmfffffffff",
+        "fffffffffmfmfffffffffffmfmmmmmmmmmfffmffffffffffffffff",
+        "ffffffmmfmmfmfmffffmffffffmmmmfmmfmfmfffffffffmfffffff",
+        "ffffffmffmmmffmffmmffmmmfmffmfmfmfffffmfffmfmffmffffff",
+        "ffffffmmmmfmmfffmmfffffffmmmfmmmmfffmmmfmfffffffffffff",
+        "ffffffmfmmmfmmfmfmffffffmmmmmmmmmmfffmffmfmfffffffffff",
+        "fffffffmmmmmmfffmmffffmfmmfmmmmmmmmmmffmfmffmmmmffffff",
+        "ffffffmmmmmmfmffmfffffmmmfmmmmwmmmmmmmmmmfffmffmffffff",
+        "ffffffwwmmmmfmfmffmfmmmmfmmmwmmwwmmmmfmmffftfffmffffff",
+        "ffffffmmwmmmwmmmfffmfmmmmmmmwmmmmmmmmmmmmmmffmmmffffff",
+        "ffffffwmmwwmmmmmmmmmffmmwmwmwmmwwwmwmfmmfmmmmmmmffffff",
+        "ffffffwwwmmmmmmmmmfttmmmmmwwmwmmmmmmmmwmfmmmfmmmffffff",
+        "ffffffwmmmmmmmmtttfttttmwmwmmmwmwmwmmmmmmfmmfmmmffffff",
+        "ffffffwmmwmmtmtmmmfttmtmmwmmwwmmmwwwwmmmtftffmmmffffff",
+        "ffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "ffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "ffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "ffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "ffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "ffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      ]
+    }
+  ],
+  "objects": [],
+  "player": {
+    "spawn": {
+      "x": 1728,
+      "y": 1728
+    },
+    "entries": {
+      "west": {
+        "x": 256,
+        "y": 1728
+      },
+      "east": {
+        "x": 3200,
+        "y": 1728
+      }
+    }
+  },
+  "exits": [
+    {
+      "zone": {
+        "x": 0,
+        "y": 0,
+        "w": 32,
+        "h": 3456
+      },
+      "to": "meadow-crossing",
+      "entry": "east"
+    },
+    {
+      "zone": {
+        "x": 3424,
+        "y": 0,
+        "w": 32,
+        "h": 3456
+      },
+      "to": "crystal-caverns",
+      "entry": "west"
+    }
+  ],
+  "spawns": {
+    "enemies": [
+      {
+        "type": "blob",
+        "weight": 25
+      },
+      {
+        "type": "swarmer",
+        "weight": 25
+      },
+      {
+        "type": "spike",
+        "weight": 20
+      },
+      {
+        "type": "bouncer",
+        "weight": 15
+      },
+      {
+        "type": "caster",
+        "weight": 10
+      },
+      {
+        "type": "spider",
+        "weight": 5
+      }
+    ],
+    "radius": {
+      "min": 200,
+      "max": 500
+    },
+    "intervalMs": 1500,
+    "maxPopulation": 16,
+    "safeZones": []
+  }
+}

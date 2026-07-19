@@ -2,11 +2,10 @@ import Phaser from 'phaser';
 import { SLIME_ANIM_MAP, SLIME_ANIMS } from '../slimeAnimations';
 import { Friend } from '../Friend';
 import { House } from '../House';
-import { TILE_SIZE, WORLD_TILES_X, WORLD_TILES_Y, WORLD_WIDTH, WORLD_HEIGHT } from '../terrainNoise';
 import {
   isTileCollidable,
   type WorldTileId,
-} from '../worldTiles';
+} from '../content/terrain/TileCatalog';
 import { Minimap } from '../Minimap';
 import { HUD } from '../HUD';
 import { ShopUI } from '../ShopUI';
@@ -28,7 +27,7 @@ import { InventoryUI } from '../ui/InventoryUI';
 import { AbilityBar } from '../ui/AbilityBar';
 import { hitboxPool } from '../combat/Hitbox';
 import { projectilePool } from '../enemies/Projectile';
-import { AREAS, oppositeDirection, type AreaDef, type AreaId, type Direction } from '../world/Area';
+import { AREAS, type AreaDef, type AreaId, type Direction } from '../world/Area';
 import { BIOMES } from '../world/Biome';
 import { showAreaTitleCard } from '../ui/AreaTitleCard';
 import { WorldMapUI } from '../ui/WorldMapUI';
@@ -40,7 +39,6 @@ import { DisposableBag } from '../shared/lifecycle/Disposable';
 import { createPlayerEntity } from '../features/player/PlayerFactory';
 import { PlayerController } from '../features/player/PlayerController';
 import { CrystalTrialController } from '../features/dungeon/CrystalTrialController';
-import { WorldBuilder } from '../features/world/WorldBuilder';
 import {
   clearOneShotNavigationParams,
   navigateToArea as navigateToAreaUrl,
@@ -50,16 +48,19 @@ import {
 import { WorldDebugRenderer } from '../dev/WorldDebugRenderer';
 import { CombatController } from '../features/combat/CombatController';
 import { placeHouses as placeWorldHouses } from '../features/houses/HousePlacement';
+import { MapBuilder, type BuiltMap } from '../features/world/MapBuilder';
+import type { LoadedMap } from '../infrastructure/maps/MapRepository';
+import type { WorldDimensions } from '../world/WorldDimensions';
 
 const DEFAULT_ZOOM = 1;
 const HOUSE_ZOOM = 1;
 const PLAYER_HOUSE_SAFE_RADIUS = 540;
-const EDGE_TRANSITION_SIZE = 32;
 const EDGE_TRANSITION_GRACE_MS = 650;
 
 interface WorldSceneData {
   areaId?: AreaId;
   entryEdge?: Direction;
+  loadedMap?: LoadedMap | null;
 }
 
 export class WorldScene extends Phaser.Scene {
@@ -100,7 +101,10 @@ export class WorldScene extends Phaser.Scene {
   private dungeonSwitches?: Phaser.Physics.Arcade.StaticGroup;
   private dungeonChests?: Phaser.Physics.Arcade.StaticGroup;
   private dungeonController?: CrystalTrialController;
-  private currentArea: AreaDef = AREAS['meadow-crossing'];
+  private currentArea: AreaDef = AREAS.icege;
+  private worldDimensions!: WorldDimensions;
+  private loadedMap!: LoadedMap;
+  private builtMap?: BuiltMap;
   private entryEdge?: Direction;
   private transitioning = false;
   private transitionReadyAt = 0;
@@ -118,7 +122,13 @@ export class WorldScene extends Phaser.Scene {
 
   init(data: WorldSceneData = {}): void {
     const request = resolveAreaRequest(data);
+    if (!data.loadedMap) {
+      throw new Error(`WorldScene requires an authored map for area '${request.area.id}'`);
+    }
     this.currentArea = request.area;
+    this.loadedMap = data.loadedMap;
+    this.worldDimensions = this.loadedMap.dimensions;
+    this.builtMap = undefined;
     this.entryEdge = request.entryEdge;
     this.respawnHomeOnLoad = request.respawnHome;
     this.transitioning = false;
@@ -180,6 +190,7 @@ export class WorldScene extends Phaser.Scene {
     this.healthBar = new HealthBar(this, this.player);
     this.abilitySystem = new AbilitySystem({
       scene: this,
+      dimensions: this.worldDimensions,
       getPlayer: () => this.player,
       isActionLocked: () => this.actionLocked,
       setActionLocked: (locked) => { this.actionLocked = locked; },
@@ -435,6 +446,7 @@ export class WorldScene extends Phaser.Scene {
   private createDebugRenderer(): void {
     this.debugRenderer = new WorldDebugRenderer({
       scene: this,
+      dimensions: this.worldDimensions,
       getPlayer: () => this.player,
       getFriends: () => this.friends,
       getCombatTargets: () => this.combatController?.targets ?? null,
@@ -465,12 +477,17 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private buildWorld(): void {
-    this.terrainGrid = new WorldBuilder({
+    this.builtMap = new MapBuilder({
       scene: this,
-      area: this.currentArea,
+      map: this.loadedMap.map,
+      dimensions: this.worldDimensions,
       collisionTiles: this.collisionTiles,
-      spawnResource: (x, y) => this.spawnPurple(x, y),
+      seed: this.currentArea.seed,
+      behaviorGroups: {
+        'collectible.purple-berry': this.purpleFoods,
+      },
     }).build();
+    this.terrainGrid = this.builtMap.terrainGrid;
   }
 
   private createCollisionLayer(): void {
@@ -536,23 +553,18 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private createAreaTransitionZones(): void {
-    const zones: Array<{ direction: Direction; x: number; y: number; width: number; height: number }> = [
-      { direction: 'west', x: EDGE_TRANSITION_SIZE / 2, y: WORLD_HEIGHT / 2, width: EDGE_TRANSITION_SIZE, height: WORLD_HEIGHT },
-      { direction: 'east', x: WORLD_WIDTH - EDGE_TRANSITION_SIZE / 2, y: WORLD_HEIGHT / 2, width: EDGE_TRANSITION_SIZE, height: WORLD_HEIGHT },
-      { direction: 'north', x: WORLD_WIDTH / 2, y: EDGE_TRANSITION_SIZE / 2, width: WORLD_WIDTH, height: EDGE_TRANSITION_SIZE },
-      { direction: 'south', x: WORLD_WIDTH / 2, y: WORLD_HEIGHT - EDGE_TRANSITION_SIZE / 2, width: WORLD_WIDTH, height: EDGE_TRANSITION_SIZE },
-    ];
-
-    for (const z of zones) {
-      const nextAreaId = this.currentArea.neighbors[z.direction];
-      if (!nextAreaId) continue;
-
-      const zone = this.add.zone(z.x, z.y, z.width, z.height).setOrigin(0.5);
+    for (const exit of this.builtMap?.exits ?? []) {
+      const zone = this.add.zone(
+        exit.zone.x + exit.zone.w / 2,
+        exit.zone.y + exit.zone.h / 2,
+        exit.zone.w,
+        exit.zone.h,
+      );
       this.physics.add.existing(zone, true);
       this.transitionZones.push(zone);
       this.physics.add.overlap(this.player, zone, () => {
         if (this.transitioning || this.time.now < this.transitionReadyAt) return;
-        this.transitionTo(nextAreaId, oppositeDirection(z.direction));
+        this.transitionTo(exit.to as AreaId, exit.entry as Direction);
       });
     }
   }
@@ -561,6 +573,7 @@ export class WorldScene extends Phaser.Scene {
     const result = placeWorldHouses({
       scene: this,
       terrainGrid: this.terrainGrid,
+      dimensions: this.worldDimensions,
       collisionTiles: this.collisionTiles,
       player: this.player,
       friends: this.friends,
@@ -568,14 +581,6 @@ export class WorldScene extends Phaser.Scene {
     }, playerCount, friendCount);
     this.houses = result.houses;
     this.playerHouse = result.playerHouse;
-  }
-
-  private spawnPurple(x: number, y: number): void {
-    if (!this.purpleFoods) return;
-
-    const p = this.purpleFoods.create(x, y, 'purple-berry') as Phaser.Physics.Arcade.Image;
-    p.setDepth(3);
-    p.setOrigin(0.5, 0.5);
   }
 
   private collectPurple(_playerObj: any, purpleObj: any): void {
@@ -610,6 +615,7 @@ export class WorldScene extends Phaser.Scene {
     this.dungeonController = new CrystalTrialController({
       scene: this,
       areaId: this.currentArea.id,
+      dimensions: this.worldDimensions,
       switches: this.dungeonSwitches,
       chests: this.dungeonChests,
       findSpawnPoint: (anchor) => this.findSpawnPoint(anchor),
@@ -619,7 +625,7 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private createMinimap(): void {
-    this.minimap = new Minimap(this);
+    this.minimap = new Minimap(this, this.worldDimensions);
   }
 
   private createHUD(): void {
@@ -643,7 +649,7 @@ export class WorldScene extends Phaser.Scene {
   private createCamera(): void {
     this.physics.world.resume();
     this.cameras.main.resetFX();
-    this.cameras.main.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+    this.cameras.main.setBounds(0, 0, this.worldDimensions.width, this.worldDimensions.height);
     this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
     this.cameras.main.setZoom(DEFAULT_ZOOM);
     this.cameras.main.setRoundPixels(true);
@@ -690,24 +696,19 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private getEntryAnchor(): Phaser.Math.Vector2 | undefined {
-    if (!this.entryEdge) return undefined;
-
-    const centerX = Math.floor(WORLD_TILES_X / 2) * TILE_SIZE + TILE_SIZE / 2;
-    const centerY = Math.floor(WORLD_TILES_Y / 2) * TILE_SIZE + TILE_SIZE / 2;
-    const inset = TILE_SIZE * 4;
-
-    switch (this.entryEdge) {
-      case 'west': return new Phaser.Math.Vector2(inset, centerY);
-      case 'east': return new Phaser.Math.Vector2(WORLD_WIDTH - inset, centerY);
-      case 'north': return new Phaser.Math.Vector2(centerX, inset);
-      case 'south': return new Phaser.Math.Vector2(centerX, WORLD_HEIGHT - inset);
-    }
+    const authoredPoint = this.entryEdge
+      ? this.builtMap?.entries[this.entryEdge]
+      : this.builtMap?.playerSpawn;
+    return authoredPoint
+      ? new Phaser.Math.Vector2(authoredPoint.x, authoredPoint.y)
+      : undefined;
   }
 
   private findSpawnPoint(anchor?: Phaser.Math.Vector2): Phaser.Math.Vector2 {
-    const startX = Math.floor((anchor?.x ?? WORLD_WIDTH / 2) / TILE_SIZE);
-    const startY = Math.floor((anchor?.y ?? WORLD_HEIGHT / 2) / TILE_SIZE);
-    const maxRadius = Math.max(WORLD_TILES_X, WORLD_TILES_Y);
+    const { columns, rows, tileSize, width, height } = this.worldDimensions;
+    const startX = Math.floor((anchor?.x ?? width / 2) / tileSize);
+    const startY = Math.floor((anchor?.y ?? height / 2) / tileSize);
+    const maxRadius = Math.max(columns, rows);
 
     for (let radius = 0; radius < maxRadius; radius += 1) {
       for (let tileY = startY - radius; tileY <= startY + radius; tileY += 1) {
@@ -717,18 +718,21 @@ export class WorldScene extends Phaser.Scene {
           }
 
           return new Phaser.Math.Vector2(
-            tileX * TILE_SIZE + TILE_SIZE / 2,
-            tileY * TILE_SIZE + TILE_SIZE / 2,
+            tileX * tileSize + tileSize / 2,
+            tileY * tileSize + tileSize / 2,
           );
         }
       }
     }
 
-    return new Phaser.Math.Vector2(WORLD_WIDTH / 2, WORLD_HEIGHT / 2);
+    return new Phaser.Math.Vector2(width / 2, height / 2);
   }
 
   private isWithinWorld(tileX: number, tileY: number): boolean {
-    return tileX >= 0 && tileX < WORLD_TILES_X && tileY >= 0 && tileY < WORLD_TILES_Y;
+    return tileX >= 0
+      && tileX < this.worldDimensions.columns
+      && tileY >= 0
+      && tileY < this.worldDimensions.rows;
   }
 
   private isSolidTile(tileX: number, tileY: number): boolean {
@@ -1042,6 +1046,9 @@ export class WorldScene extends Phaser.Scene {
       scene: this,
       player: this.player,
       collisionTiles: this.collisionTiles,
+      dimensions: this.worldDimensions,
+      spawns: this.builtMap?.spawns,
+      enemySafeZones: this.builtMap?.enemySafeZones ?? [],
       areaId: this.currentArea.id,
       getFacing: () => this.playerController.facing,
       getSafeZones: () => this.getEnemySafeZones(),
@@ -1059,9 +1066,15 @@ export class WorldScene extends Phaser.Scene {
     });
   }
 
-  private getEnemySafeZones(): Array<{ x: number; y: number; radius: number }> {
+  private getEnemySafeZones(): Array<{ x: number; y: number; w: number; h: number }> {
     if (!this.playerHouse) return [];
-    return [{ x: this.playerHouse.sprite.x, y: this.playerHouse.sprite.y, radius: PLAYER_HOUSE_SAFE_RADIUS }];
+    const size = PLAYER_HOUSE_SAFE_RADIUS * 2;
+    return [{
+      x: this.playerHouse.sprite.x - PLAYER_HOUSE_SAFE_RADIUS,
+      y: this.playerHouse.sprite.y - PLAYER_HOUSE_SAFE_RADIUS,
+      w: size,
+      h: size,
+    }];
   }
 
   private bindDebugCheats(): void {
@@ -1080,7 +1093,7 @@ export class WorldScene extends Phaser.Scene {
       }
       const req: DamageRequest = { amount: 20, source: 'debug', knockStrength: 180 };
       const dx = this.player.x;
-      req.knockX = dx > WORLD_WIDTH / 2 ? -1 : 1;
+      req.knockX = dx > this.worldDimensions.width / 2 ? -1 : 1;
       req.knockY = 0;
       const dmg = this.healthSystem?.applyDamage(req, this.time.now) ?? 0;
       if (dmg > 0) {

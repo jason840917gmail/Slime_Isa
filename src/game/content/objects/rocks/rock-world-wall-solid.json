@@ -1,0 +1,46 @@
+{
+  "$schema": "../objects.schema.json",
+  "objectId": "rock.world-wall.solid",
+  "selection": "authored",
+  "variants": [
+    {
+      "assetId": "sheet.rocks.3x1",
+      "frames": [
+        { "visualId": "large-01", "frame": 0, "collider": { "width": 76, "height": 29, "offsetX": 24, "offsetY": 87 } },
+        { "visualId": "large-02", "frame": 1, "collider": { "width": 84, "height": 44, "offsetX": 18, "offsetY": 78 } },
+        { "visualId": "large-03", "frame": 2, "collider": { "width": 84, "height": 44, "offsetX": 30, "offsetY": 50 } }
+      ]
+    },
+    {
+      "assetId": "sheet.rocks.8x3",
+      "frames": [
+        { "visualId": "field-01", "frame": 0, "collider": { "width": 50, "height": 18, "offsetX": 24, "offsetY": 57 } },
+        { "visualId": "field-02", "frame": 1, "collider": { "width": 56, "height": 24, "offsetX": 19, "offsetY": 59 } },
+        { "visualId": "field-03", "frame": 2, "collider": { "width": 60, "height": 22, "offsetX": 18, "offsetY": 55 } },
+        { "visualId": "field-04", "frame": 3, "collider": { "width": 59, "height": 26, "offsetX": 19, "offsetY": 55 } },
+        { "visualId": "field-05", "frame": 4, "collider": { "width": 61, "height": 26, "offsetX": 18, "offsetY": 55 } },
+        { "visualId": "field-06", "frame": 5, "collider": { "width": 67, "height": 27, "offsetX": 14, "offsetY": 60 } },
+        { "visualId": "field-07", "frame": 6, "collider": { "width": 63, "height": 25, "offsetX": 17, "offsetY": 55 } },
+        { "visualId": "field-08", "frame": 7, "collider": { "width": 65, "height": 24, "offsetX": 13, "offsetY": 62 } },
+        { "visualId": "field-09", "frame": 8, "collider": { "width": 60, "height": 22, "offsetX": 18, "offsetY": 55 } },
+        { "visualId": "field-10", "frame": 9, "collider": { "width": 62, "height": 26, "offsetX": 15, "offsetY": 61 } },
+        { "visualId": "field-11", "frame": 10, "collider": { "width": 59, "height": 23, "offsetX": 17, "offsetY": 52 } },
+        { "visualId": "field-12", "frame": 11, "collider": { "width": 61, "height": 21, "offsetX": 19, "offsetY": 59 } },
+        { "visualId": "field-13", "frame": 12, "collider": { "width": 66, "height": 30, "offsetX": 12, "offsetY": 60 } },
+        { "visualId": "field-14", "frame": 13, "collider": { "width": 69, "height": 27, "offsetX": 17, "offsetY": 68 } },
+        { "visualId": "field-15", "frame": 14, "collider": { "width": 63, "height": 25, "offsetX": 19, "offsetY": 64 } },
+        { "visualId": "field-16", "frame": 15, "collider": { "width": 60, "height": 27, "offsetX": 17, "offsetY": 66 } },
+        { "visualId": "field-17", "frame": 16, "collider": { "width": 45, "height": 15, "offsetX": 23, "offsetY": 54 } },
+        { "visualId": "field-18", "frame": 17, "collider": { "width": 51, "height": 24, "offsetX": 29, "offsetY": 54 } },
+        { "visualId": "field-19", "frame": 18, "collider": { "width": 21, "height": 10, "offsetX": 32, "offsetY": 49 } },
+        { "visualId": "field-20", "frame": 19, "collider": { "width": 31, "height": 11, "offsetX": 26, "offsetY": 53 } },
+        { "visualId": "field-21", "frame": 20, "collider": { "width": 62, "height": 23, "offsetX": 17, "offsetY": 57 } },
+        { "visualId": "field-22", "frame": 21, "collider": { "width": 52, "height": 18, "offsetX": 21, "offsetY": 55 } },
+        { "visualId": "field-23", "frame": 22, "collider": { "width": 64, "height": 23, "offsetX": 20, "offsetY": 54 } },
+        { "visualId": "field-24", "frame": 23, "collider": { "width": 66, "height": 27, "offsetX": 13, "offsetY": 60 } }
+      ]
+    }
+  ],
+  "physics": { "body": "static" },
+  "tags": ["rock", "solid"]
+}

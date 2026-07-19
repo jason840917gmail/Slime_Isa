@@ -11,6 +11,7 @@ import type { EnemySafeZone } from './EnemyAI';
 export interface SpawnEntry {
   config: EnemyConfig;
   weight: number;
+  maxAlive?: number;
 }
 
 export interface SpawnerContext {
@@ -34,6 +35,8 @@ export interface SpawnerContext {
   targetGroup?: Phaser.Physics.Arcade.Group;
   /** Areas where enemies should never spawn. */
   getSafeZones?: () => EnemySafeZone[];
+  /** Delay between population refill attempts. */
+  spawnIntervalMs: number;
 }
 
 export class EnemySpawner {
@@ -44,6 +47,7 @@ export class EnemySpawner {
 
   constructor(ctx: SpawnerContext) {
     this.ctx = ctx;
+    this.spawnIntervalMs = ctx.spawnIntervalMs;
   }
 
   get group(): Enemy[] {
@@ -94,10 +98,16 @@ export class EnemySpawner {
     if (!player) return null;
 
     // Pick a weighted random enemy type.
-    const totalWeight = this.ctx.spawnTable.reduce((s, e) => s + e.weight, 0);
+    const availableEntries = this.ctx.spawnTable.filter((candidate) => (
+      candidate.maxAlive === undefined
+      || this.enemies.filter((enemy) => !enemy.dead && enemy.config === candidate.config).length < candidate.maxAlive
+    ));
+    if (availableEntries.length === 0) return null;
+
+    const totalWeight = availableEntries.reduce((s, e) => s + e.weight, 0);
     let roll = Math.random() * totalWeight;
-    let entry = this.ctx.spawnTable[0];
-    for (const e of this.ctx.spawnTable) {
+    let entry = availableEntries[0];
+    for (const e of availableEntries) {
       roll -= e.weight;
       if (roll <= 0) {
         entry = e;
@@ -125,7 +135,9 @@ export class EnemySpawner {
       const x = Phaser.Math.Clamp(player.x + Math.cos(angle) * dist, 40, this.ctx.worldWidth - 40);
       const y = Phaser.Math.Clamp(player.y + Math.sin(angle) * dist, 40, this.ctx.worldHeight - 40);
 
-      const blocked = safeZones.some((zone) => Phaser.Math.Distance.Between(x, y, zone.x, zone.y) < zone.radius);
+      const blocked = safeZones.some((zone) => (
+        x >= zone.x && x <= zone.x + zone.w && y >= zone.y && y <= zone.y + zone.h
+      ));
       if (!blocked) return new Phaser.Math.Vector2(x, y);
     }
 

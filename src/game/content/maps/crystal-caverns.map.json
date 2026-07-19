@@ -1,0 +1,142 @@
+{
+  "$schema": "./maps.schema.json",
+  "version": 1,
+  "mapId": "crystal-caverns",
+  "tileSize": 64,
+  "size": {
+    "columns": 54,
+    "rows": 54
+  },
+  "layers": [
+    {
+      "id": "ground",
+      "encoding": "legend-chars-v1",
+      "legend": {
+        "c": "cavern-floor",
+        "r": "crystal-floor",
+        "x": "crystal-wall",
+        "w": "deep-water"
+      },
+      "rows": [
+        "cccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "cccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "cccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "cccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "cccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "cccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "cccccccccrrrcrcrccrcccccxxxccccrccrcrccrrrrcrcrccccccc",
+        "cccccccrrrcrcrrccrccrcccxxcccccccrrccrrrcrcccccccccccc",
+        "ccccccccrcrrrcccrrcrrccccccccccrcrcccccrccrrrcrccccccc",
+        "cccccccrrccrccrccccrccccccccccccrccrccrccrrcrccccccccc",
+        "ccccccrcrrcrcrrrcrccccccccxcccrcrrcrrrcrcrcrrccccccccc",
+        "cccccccrcrrrrrcrcrccrcrxccccccccrrrrccwrrrcccccccccccc",
+        "ccccccrrrwccrrrrccrcccccrcrccrccrccwrrcrrrrrrcrccccccc",
+        "ccccccrcrrrwrrwwwrrrcccccxxrrrcrrxrwwrwwrrcrrccrcccccc",
+        "ccccccrwrrrwwrrrwccrcrxccxccrcxrcxrrrwrrwrrrrxrrcccccc",
+        "ccccccrrwrrrrwrrwrrxrcxcccxxrrcxxrrrrrrrrrwrrrcccccccc",
+        "ccccccxrwrwrrwrrrxrrcccrrxrxcrxwxxrrxwwrwwrrxccxcccccc",
+        "ccccccxrrwwwrrwwwrxrxrxrxxxrrxrxxxwwrrwwwrrrxxrxcccccc",
+        "cccccccrwwxwrrxrrxxxxxxxcxccwrxrxxrwwrwrrwrxcxrxcccccc",
+        "ccccccrwrwrwwxwwrrrxxrxcxxxxxrrrxxwrwwwrwxrrxxxrcccccc",
+        "ccccccrcrxwwrrwrrrccxxrxxcrrxxxxrrrrrwwxrwxrrxxxcccccc",
+        "ccccccxrrrxrrrrwrxrrxxrxxcxxxrxwrxrrwwrrrwrxrrxccccccc",
+        "ccccccxcrrcrcrwrrcccxxxxcxrcxccrrrwcrrwccrrxccxccccccc",
+        "ccccccrrcrrwrwrrrrrcxccrxcxxcxccrrcrwrcrcrrcrxxxcccccc",
+        "ccccccrrrrcrwrrcccrrrxxcxcxcxccrccccrcrccccrrccxcccccc",
+        "ccccccccrrcrrrcccccrcxcxxxcrccxcccrcccccrcrrxrcccccccc",
+        "cccccccrrrrrrrrcrrcrcrxcccccxrcccrcrrrrcccrcccxxcccccc",
+        "ccccccrrccccrrcccccrrccccxccccrccrcccccrcrcccccccccccc",
+        "cccccccrrrrrrccrccrccccccccccccccrrrrrccrrcccrcccccccc",
+        "cccccccccrrrccccccrccrcccccccccrrcrrrrrrcrcrccrccccccc",
+        "cccccccrrcrrrrccccrccccccccrccccrccrcrcrrcrccccccccccc",
+        "ccccccrccrrrrcrrrccrrcrccccrrccrrrrcrrrccccrcrcccccccc",
+        "ccccccrrrrrrrrwrcrrrccxcrrccrxrrccrwwrrrrcrrcrrccccccc",
+        "cccccccrrxrrwcwccrcccccxrrrcrcrwcxwrrrrcrrrccrcrcccccc",
+        "ccccccrrrxrwwrrrwrcccrcxrcrxrrxrrrwwwrrrwwcrrrcrcccccc",
+        "ccccccwwwwwrrrrrrrrxccrxxcxxcrxxrxxwrwrwwwrrrcrccccccc",
+        "ccccccrwxrrwwrwwrrrwccccrxcxrrcxxxrwwwwwrrcxwcxxcccccc",
+        "ccccccrwwrrwrrrrwwwxxrrcxrxrcwxxwwwrrwwrwrrwrrxrcccccc",
+        "ccccccxrwrrrrrwwrxcrxxrxxxcxxxxrrxrrwrrrwrrwrxrccccccc",
+        "ccccccxwwwrrwxrwrrxrxxxxcxrxxxxxcxrrrrrwrrrrxrcxcccccc",
+        "ccccccrwrrrwrwwrxrcccxxccrxxxxxxwwrwwwrwwrccrxrxcccccc",
+        "ccccccrxwrrrrwrwrxxrxxccxxcxxrxcrxxcrrwrrrxcrcxccccccc",
+        "ccccccrrxcwwrrrrrrxcxxccrccxrrrrcxrrwcrrwrxrccxxcccccc",
+        "ccccccrcrwrrrccrcrccrcxccxxccrrrrrrrrwrrrcrrcxcccccccc",
+        "cccccccrrcccrrrrcrcrrxcxccxcxccxcrcrcrcrrrcccxcccccccc",
+        "ccccccrcrrcrrccrcrccccccxxcxxccrcrcrcrcccccccccxcccccc",
+        "ccccccccrcrrcrrccccrcccccxxcccccrrrrrcrcrccrcccccccccc",
+        "cccccccccrccrcccrcccrcxcxcccccrccccrccrrcrcrcrcccccccc",
+        "cccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "cccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "cccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "cccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "cccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "cccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      ]
+    }
+  ],
+  "objects": [],
+  "player": {
+    "spawn": {
+      "x": 1728,
+      "y": 1728
+    },
+    "entries": {
+      "west": {
+        "x": 256,
+        "y": 1728
+      }
+    }
+  },
+  "exits": [
+    {
+      "zone": {
+        "x": 0,
+        "y": 0,
+        "w": 32,
+        "h": 3456
+      },
+      "to": "gloop-forest",
+      "entry": "east"
+    }
+  ],
+  "spawns": {
+    "enemies": [
+      {
+        "type": "spike",
+        "weight": 20
+      },
+      {
+        "type": "bouncer",
+        "weight": 20
+      },
+      {
+        "type": "caster",
+        "weight": 15
+      },
+      {
+        "type": "armored",
+        "weight": 15
+      },
+      {
+        "type": "spider",
+        "weight": 15
+      },
+      {
+        "type": "swarmer",
+        "weight": 10
+      },
+      {
+        "type": "mimic",
+        "weight": 5
+      }
+    ],
+    "radius": {
+      "min": 200,
+      "max": 500
+    },
+    "intervalMs": 1500,
+    "maxPopulation": 16,
+    "safeZones": []
+  }
+}

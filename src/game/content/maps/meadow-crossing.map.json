@@ -1,0 +1,1868 @@
+{
+  "$schema": "./maps.schema.json",
+  "version": 1,
+  "mapId": "meadow-crossing",
+  "tileSize": 64,
+  "size": {
+    "columns": 54,
+    "rows": 54
+  },
+  "layers": [
+    {
+      "id": "ground",
+      "encoding": "legend-chars-v1",
+      "legend": {
+        "a": "grass-a",
+        "b": "grass-b"
+      },
+      "rows": [
+        "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbabbbbbbbbbb",
+        "bbbbbbbbbbbbbbbbbbbbbbabbbbbbbbbbbbbbbbbbbbabbbabbbbbb",
+        "bbbbbbbbbbbbbbbbbbbbbbaabbbbbbbbbbbbbbbbbbabbbabbbbbbb",
+        "bbbbbbbbbbbbbbaabbaaabbabbbbbbbbbbbbbbbbbbaaababbbbbbb",
+        "bbbbbbbbbbbbbabbababbbbbbbbbbbbbbbbbbbbabbbaabbbaaabbb",
+        "aabbbbbbbbbbbbabbaabbbbbbbbbbbbbbbbbbbbaabaaabbabbbbbb",
+        "bbaabbbbbbbbbbbbabbbabaababbbbbbbbbbbbabaababbaabbabbb",
+        "aabbbbbabbababbabbbbaaaabbbabbabbbbbabaaaaaaaaaaaabbba",
+        "abaaaabbbababaaaababbaabbbabbbbbbbbababbababbaababbbbb",
+        "babbabbbbbbabbbaaaaaaaababababbbbbbbbaabaaaabbbbabaabb",
+        "bbbbabbbbaabbbabaaaaaaaaabbbaabbbbbbbabaaaaabbaaabbbab",
+        "baabbbbbbbbabbbbabaaaaaaabababbbbbbabbaaabbbaababababa",
+        "babbbbbabaababaaaaababaababbbbabbbbbbbaaabbaaaabbbaabb",
+        "abbbbbbbbaaaaabbaabaabbbbabababbabbbaaababbaaabbbabbab",
+        "bbbbbbbbbbbbaaabaaaabababbbbbbbbbbabbbbaaaaaaabbaaabba",
+        "babbbbbbbbbbbbbbbbbbbbbbbbbabbababbbbbabaaabbabbababbb",
+        "bbbbbbabbabbbbbaabbbbbababbbbabaabbbbbbabbbbaaababbbbb",
+        "bbbbbbaabaabbbaabbabbbbabbbbbbbbaabbbaabbbbbabaabbbbbb",
+        "bbbbbbbbbaabbbbbabaabbbabbabbaabaaaabbbaaabbbabbabbbbb",
+        "bbbbbbababbbabbabbbbbbabbbabaaaabaabbabaabaabbbbbbbbbb",
+        "bbbbbbbababbabbbbaaabbbababaabaabbbabababbabbbbbbbbbbb",
+        "bbbbbbabaabbbbbbbbabbbbbbbbaababaaaabbbbbabbbbabbbbbbb",
+        "bbbbbbabbbbabaabbabaabaabbbaabbabbbabababbbbbbbaabbbbb",
+        "bbbbbbababbababaabbbababbbbbbaabbbbbbbbbbbbaaabbaababb",
+        "bbbbbbbbbbbaabbbbbbababbbabbbbbbbbaaabbbbaaaaabbbbbbbb",
+        "bbbbbbbbbbbbabbabbabaabbbabbbbbbbbbabbbbaaabbaaabbbbba",
+        "aabbbabbbbbabbababaaababbbbbbababaabbababbaaababbabbbb",
+        "bbbbbbbbbbaabaaaabbaabaabaababbabbbabbabababaaaabbabbb",
+        "bbbbbbbabbbbbbbaaaaabaabaabbbbbbaabbbbababaabaaaaaaabb",
+        "babbbbbababbbaaaaaaaaaaaabbbabbbbbbabbaaaaaabaaaaabaab",
+        "aaaababbbbbbbaaaabaaaaabbbaaababbbbaaaaaaabababaaaabba",
+        "abbbbbabababbbaababaabbaaabbbbbbababbbababaaabaabaabba",
+        "bbabbbbbbbbaabaabaaaaaababbbbabbbbbbbbaaaababaaaababbb",
+        "bbbbbbbbbbbbbbabababaaaaaaabbaabbbaaabbbaababaabaabbba",
+        "bbbbbbbaabbbaabbbaabbbbbbbbbbbbbaabbabbabbbabbabaabbbb",
+        "bbabbbabaabbbbababbbaaabbbbbbbbbaabbabbbbbbabbbbbabbbb",
+        "bbbbbbbabbbbbbbabbbbbbbbbabbabbbbabbbbbabbabbaaabbbbbb",
+        "bbbbbbaabbabbbbbbaabbbbabbbbbbbabbbbbbbbbbbaaaababbbbb",
+        "bbbbbbaaabbbabbbbababaabbbabaaabbbbbabaaabbbbbbbbbbbbb",
+        "bbbbbbaabbabbaabbabbabbbbbaaaaaabbbbbababbbaabbbbbbbbb",
+        "bbbbbbbaaabaaabbaabbbbbbabbaaaabaababbaabbbaabaabbbbbb",
+        "bbbbbbabaaababbbaabbbbabbabbabbaaababbbbbabbaababbbbbb",
+        "bbbbbbbabaabbbbbbabbaabbbbbbaababbbaabbbbbaabbabbbbbbb",
+        "bbbbbbbbaababbbbbbbbbbbbbbbbabbbabbbbbbabbabbbbbbbbbbb",
+        "bbbbbbabbbbbabbabaaabbabbbbbbbabbbabbbbbbabbaabbaabbbb",
+        "aabbbbbbbbababababbababaabbbbbbbbbbbabbabbbaabaaabbabb",
+        "bbabbbbbbabbabbbbbabbabbabbbbbbbabaaabbabbaaaaabbaabab",
+        "aabbbbbbabbababababaaaaaabbbbbbbbabbaaabaabaaaaabbbbba",
+        "bababbbbbaabbaabbaaabaaaaabbabbbbaabababaaaaaaaaaaaaba",
+        "aabbbbbbbbabbabaaaabaaaaababababbbabababaaaaabaabababa",
+        "baabbbbbbbbbbaabaabaaaaaababbabbbbbabbaaaaaaaabaaabbbb",
+        "abbbbbbbbbbabaaaababaaabbabbbbbbbbbbbbaabbababaaaabbba",
+        "abbaaabbbbbababbbabaabaaaaababbbbbaabbabbbaaaaaaabbbaa",
+        "bbbbabbbabbbbaabaaaaaaababbbbabbbbbbbbabaabbaaaabbabbb"
+      ]
+    }
+  ],
+  "objects": [
+    {
+      "instanceId": "purple-berry-26-0",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1695,
+      "y": 28
+    },
+    {
+      "instanceId": "purple-berry-1-1",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 97,
+      "y": 91
+    },
+    {
+      "instanceId": "purple-berry-27-1",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1763,
+      "y": 93
+    },
+    {
+      "instanceId": "purple-berry-0-14",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 28,
+      "y": 937
+    },
+    {
+      "instanceId": "purple-berry-1-14",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 97,
+      "y": 929
+    },
+    {
+      "instanceId": "purple-berry-2-14",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 158,
+      "y": 931
+    },
+    {
+      "instanceId": "purple-berry-5-14",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 349,
+      "y": 927
+    },
+    {
+      "instanceId": "purple-berry-27-14",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1759,
+      "y": 931
+    },
+    {
+      "instanceId": "purple-berry-28-14",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1830,
+      "y": 936
+    },
+    {
+      "instanceId": "world-rock-34-14",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-05",
+      "x": 2208,
+      "y": 960
+    },
+    {
+      "instanceId": "purple-berry-51-14",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3301,
+      "y": 928
+    },
+    {
+      "instanceId": "purple-berry-4-15",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 294,
+      "y": 990
+    },
+    {
+      "instanceId": "world-rock-27-15",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-02",
+      "x": 1760,
+      "y": 1024
+    },
+    {
+      "instanceId": "purple-berry-28-15",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1829,
+      "y": 993
+    },
+    {
+      "instanceId": "world-rock-30-15",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 1952,
+      "y": 1024
+    },
+    {
+      "instanceId": "world-rock-32-15",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-03",
+      "x": 2080,
+      "y": 1024
+    },
+    {
+      "instanceId": "purple-berry-51-15",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3297,
+      "y": 992
+    },
+    {
+      "instanceId": "purple-berry-1-16",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 94,
+      "y": 1055
+    },
+    {
+      "instanceId": "purple-berry-3-16",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 226,
+      "y": 1053
+    },
+    {
+      "instanceId": "world-rock-6-16",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 416,
+      "y": 1088
+    },
+    {
+      "instanceId": "world-rock-9-16",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-21",
+      "x": 608,
+      "y": 1088
+    },
+    {
+      "instanceId": "purple-berry-26-16",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1690,
+      "y": 1062
+    },
+    {
+      "instanceId": "world-rock-29-16",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-13",
+      "x": 1888,
+      "y": 1088
+    },
+    {
+      "instanceId": "world-rock-31-16",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-03",
+      "x": 2016,
+      "y": 1088
+    },
+    {
+      "instanceId": "world-rock-32-16",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-09",
+      "x": 2080,
+      "y": 1088
+    },
+    {
+      "instanceId": "purple-berry-47-16",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3038,
+      "y": 1057
+    },
+    {
+      "instanceId": "purple-berry-50-16",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3226,
+      "y": 1060
+    },
+    {
+      "instanceId": "purple-berry-51-16",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3293,
+      "y": 1062
+    },
+    {
+      "instanceId": "purple-berry-4-17",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 286,
+      "y": 1116
+    },
+    {
+      "instanceId": "world-rock-6-17",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-05",
+      "x": 416,
+      "y": 1152
+    },
+    {
+      "instanceId": "world-rock-7-17",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-02",
+      "x": 480,
+      "y": 1152
+    },
+    {
+      "instanceId": "world-rock-9-17",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-02",
+      "x": 608,
+      "y": 1152
+    },
+    {
+      "instanceId": "world-rock-10-17",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 672,
+      "y": 1152
+    },
+    {
+      "instanceId": "world-rock-14-17",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 928,
+      "y": 1152
+    },
+    {
+      "instanceId": "world-rock-15-17",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-15",
+      "x": 992,
+      "y": 1152
+    },
+    {
+      "instanceId": "purple-berry-22-17",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1436,
+      "y": 1126
+    },
+    {
+      "instanceId": "world-rock-32-17",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-02",
+      "x": 2080,
+      "y": 1152
+    },
+    {
+      "instanceId": "world-rock-33-17",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-23",
+      "x": 2144,
+      "y": 1152
+    },
+    {
+      "instanceId": "world-rock-37-17",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-11",
+      "x": 2400,
+      "y": 1152
+    },
+    {
+      "instanceId": "world-rock-38-17",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-03",
+      "x": 2464,
+      "y": 1152
+    },
+    {
+      "instanceId": "purple-berry-50-17",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3231,
+      "y": 1122
+    },
+    {
+      "instanceId": "purple-berry-51-17",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3294,
+      "y": 1124
+    },
+    {
+      "instanceId": "purple-berry-1-18",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 93,
+      "y": 1182
+    },
+    {
+      "instanceId": "world-rock-9-18",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-07",
+      "x": 608,
+      "y": 1216
+    },
+    {
+      "instanceId": "world-rock-10-18",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-23",
+      "x": 672,
+      "y": 1216
+    },
+    {
+      "instanceId": "world-rock-23-18",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-09",
+      "x": 1504,
+      "y": 1216
+    },
+    {
+      "instanceId": "purple-berry-25-18",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1629,
+      "y": 1183
+    },
+    {
+      "instanceId": "world-rock-26-18",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 1696,
+      "y": 1216
+    },
+    {
+      "instanceId": "world-rock-29-18",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-07",
+      "x": 1888,
+      "y": 1216
+    },
+    {
+      "instanceId": "world-rock-30-18",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-05",
+      "x": 1952,
+      "y": 1216
+    },
+    {
+      "instanceId": "world-rock-32-18",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-19",
+      "x": 2080,
+      "y": 1216
+    },
+    {
+      "instanceId": "world-rock-33-18",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-03",
+      "x": 2144,
+      "y": 1216
+    },
+    {
+      "instanceId": "world-rock-34-18",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-01",
+      "x": 2208,
+      "y": 1216
+    },
+    {
+      "instanceId": "world-rock-35-18",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-02",
+      "x": 2272,
+      "y": 1216
+    },
+    {
+      "instanceId": "world-rock-39-18",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-03",
+      "x": 2528,
+      "y": 1216
+    },
+    {
+      "instanceId": "purple-berry-50-18",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3223,
+      "y": 1183
+    },
+    {
+      "instanceId": "purple-berry-53-18",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3425,
+      "y": 1178
+    },
+    {
+      "instanceId": "world-rock-6-19",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-15",
+      "x": 416,
+      "y": 1280
+    },
+    {
+      "instanceId": "world-rock-8-19",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-17",
+      "x": 544,
+      "y": 1280
+    },
+    {
+      "instanceId": "world-rock-12-19",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 800,
+      "y": 1280
+    },
+    {
+      "instanceId": "world-rock-15-19",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-13",
+      "x": 992,
+      "y": 1280
+    },
+    {
+      "instanceId": "world-rock-22-19",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-11",
+      "x": 1440,
+      "y": 1280
+    },
+    {
+      "instanceId": "world-rock-26-19",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-23",
+      "x": 1696,
+      "y": 1280
+    },
+    {
+      "instanceId": "world-rock-28-19",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-01",
+      "x": 1824,
+      "y": 1280
+    },
+    {
+      "instanceId": "world-rock-29-19",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-03",
+      "x": 1888,
+      "y": 1280
+    },
+    {
+      "instanceId": "world-rock-30-19",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 1952,
+      "y": 1280
+    },
+    {
+      "instanceId": "world-rock-31-19",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-23",
+      "x": 2016,
+      "y": 1280
+    },
+    {
+      "instanceId": "world-rock-33-19",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-13",
+      "x": 2144,
+      "y": 1280
+    },
+    {
+      "instanceId": "world-rock-34-19",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-03",
+      "x": 2208,
+      "y": 1280
+    },
+    {
+      "instanceId": "world-rock-37-19",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-09",
+      "x": 2400,
+      "y": 1280
+    },
+    {
+      "instanceId": "world-rock-39-19",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-07",
+      "x": 2528,
+      "y": 1280
+    },
+    {
+      "instanceId": "world-rock-40-19",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-07",
+      "x": 2592,
+      "y": 1280
+    },
+    {
+      "instanceId": "purple-berry-53-19",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3419,
+      "y": 1252
+    },
+    {
+      "instanceId": "purple-berry-1-20",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 89,
+      "y": 1307
+    },
+    {
+      "instanceId": "world-rock-7-20",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 480,
+      "y": 1344
+    },
+    {
+      "instanceId": "world-rock-9-20",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-03",
+      "x": 608,
+      "y": 1344
+    },
+    {
+      "instanceId": "world-rock-12-20",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-02",
+      "x": 800,
+      "y": 1344
+    },
+    {
+      "instanceId": "world-rock-23-20",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-03",
+      "x": 1504,
+      "y": 1344
+    },
+    {
+      "instanceId": "world-rock-25-20",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-02",
+      "x": 1632,
+      "y": 1344
+    },
+    {
+      "instanceId": "world-rock-27-20",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-02",
+      "x": 1760,
+      "y": 1344
+    },
+    {
+      "instanceId": "world-rock-28-20",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-17",
+      "x": 1824,
+      "y": 1344
+    },
+    {
+      "instanceId": "world-rock-30-20",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 1952,
+      "y": 1344
+    },
+    {
+      "instanceId": "world-rock-31-20",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-19",
+      "x": 2016,
+      "y": 1344
+    },
+    {
+      "instanceId": "world-rock-35-20",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-15",
+      "x": 2272,
+      "y": 1344
+    },
+    {
+      "instanceId": "world-rock-37-20",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-01",
+      "x": 2400,
+      "y": 1344
+    },
+    {
+      "instanceId": "world-rock-6-21",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 416,
+      "y": 1408
+    },
+    {
+      "instanceId": "world-rock-8-21",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 544,
+      "y": 1408
+    },
+    {
+      "instanceId": "world-rock-9-21",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-19",
+      "x": 608,
+      "y": 1408
+    },
+    {
+      "instanceId": "world-rock-27-21",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-21",
+      "x": 1760,
+      "y": 1408
+    },
+    {
+      "instanceId": "world-rock-28-21",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 1824,
+      "y": 1408
+    },
+    {
+      "instanceId": "world-rock-30-21",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-05",
+      "x": 1952,
+      "y": 1408
+    },
+    {
+      "instanceId": "world-rock-32-21",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-23",
+      "x": 2080,
+      "y": 1408
+    },
+    {
+      "instanceId": "world-rock-33-21",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-02",
+      "x": 2144,
+      "y": 1408
+    },
+    {
+      "instanceId": "world-rock-34-21",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-17",
+      "x": 2208,
+      "y": 1408
+    },
+    {
+      "instanceId": "world-rock-35-21",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-02",
+      "x": 2272,
+      "y": 1408
+    },
+    {
+      "instanceId": "world-rock-6-22",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-13",
+      "x": 416,
+      "y": 1472
+    },
+    {
+      "instanceId": "world-rock-11-22",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-07",
+      "x": 736,
+      "y": 1472
+    },
+    {
+      "instanceId": "world-rock-23-22",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 1504,
+      "y": 1472
+    },
+    {
+      "instanceId": "world-rock-27-22",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-03",
+      "x": 1760,
+      "y": 1472
+    },
+    {
+      "instanceId": "world-rock-28-22",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-15",
+      "x": 1824,
+      "y": 1472
+    },
+    {
+      "instanceId": "world-rock-31-22",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-21",
+      "x": 2016,
+      "y": 1472
+    },
+    {
+      "instanceId": "world-rock-35-22",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-17",
+      "x": 2272,
+      "y": 1472
+    },
+    {
+      "instanceId": "world-rock-37-22",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-23",
+      "x": 2400,
+      "y": 1472
+    },
+    {
+      "instanceId": "world-rock-39-22",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-13",
+      "x": 2528,
+      "y": 1472
+    },
+    {
+      "instanceId": "world-rock-6-23",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-03",
+      "x": 416,
+      "y": 1536
+    },
+    {
+      "instanceId": "world-rock-8-23",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-02",
+      "x": 544,
+      "y": 1536
+    },
+    {
+      "instanceId": "world-rock-11-23",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-03",
+      "x": 736,
+      "y": 1536
+    },
+    {
+      "instanceId": "world-rock-13-23",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-03",
+      "x": 864,
+      "y": 1536
+    },
+    {
+      "instanceId": "world-rock-29-23",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-05",
+      "x": 1888,
+      "y": 1536
+    },
+    {
+      "instanceId": "world-rock-30-23",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-03",
+      "x": 1952,
+      "y": 1536
+    },
+    {
+      "instanceId": "world-rock-11-24",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-05",
+      "x": 736,
+      "y": 1600
+    },
+    {
+      "instanceId": "world-rock-34-24",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-03",
+      "x": 2208,
+      "y": 1600
+    },
+    {
+      "instanceId": "world-rock-35-24",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-11",
+      "x": 2272,
+      "y": 1600
+    },
+    {
+      "instanceId": "world-rock-36-24",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-02",
+      "x": 2336,
+      "y": 1600
+    },
+    {
+      "instanceId": "world-rock-35-25",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 2272,
+      "y": 1664
+    },
+    {
+      "instanceId": "world-rock-29-26",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-02",
+      "x": 1888,
+      "y": 1728
+    },
+    {
+      "instanceId": "world-rock-33-26",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-23",
+      "x": 2144,
+      "y": 1728
+    },
+    {
+      "instanceId": "world-rock-31-27",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-03",
+      "x": 2016,
+      "y": 1792
+    },
+    {
+      "instanceId": "purple-berry-28-33",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1829,
+      "y": 2151
+    },
+    {
+      "instanceId": "world-rock-29-33",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-03",
+      "x": 1888,
+      "y": 2176
+    },
+    {
+      "instanceId": "world-rock-30-33",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-03",
+      "x": 1952,
+      "y": 2176
+    },
+    {
+      "instanceId": "world-rock-35-33",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-11",
+      "x": 2272,
+      "y": 2176
+    },
+    {
+      "instanceId": "purple-berry-5-34",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 349,
+      "y": 2203
+    },
+    {
+      "instanceId": "world-rock-7-34",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-19",
+      "x": 480,
+      "y": 2240
+    },
+    {
+      "instanceId": "world-rock-8-34",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-03",
+      "x": 544,
+      "y": 2240
+    },
+    {
+      "instanceId": "world-rock-32-34",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-13",
+      "x": 2080,
+      "y": 2240
+    },
+    {
+      "instanceId": "world-rock-33-34",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-03",
+      "x": 2144,
+      "y": 2240
+    },
+    {
+      "instanceId": "purple-berry-1-35",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 93,
+      "y": 2270
+    },
+    {
+      "instanceId": "purple-berry-3-35",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 219,
+      "y": 2268
+    },
+    {
+      "instanceId": "world-rock-6-35",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-21",
+      "x": 416,
+      "y": 2304
+    },
+    {
+      "instanceId": "world-rock-8-35",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-19",
+      "x": 544,
+      "y": 2304
+    },
+    {
+      "instanceId": "world-rock-9-35",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-03",
+      "x": 608,
+      "y": 2304
+    },
+    {
+      "instanceId": "purple-berry-25-35",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1633,
+      "y": 2277
+    },
+    {
+      "instanceId": "purple-berry-31-35",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2014,
+      "y": 2268
+    },
+    {
+      "instanceId": "world-rock-32-35",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-03",
+      "x": 2080,
+      "y": 2304
+    },
+    {
+      "instanceId": "world-rock-33-35",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-07",
+      "x": 2144,
+      "y": 2304
+    },
+    {
+      "instanceId": "world-rock-36-35",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-02",
+      "x": 2336,
+      "y": 2304
+    },
+    {
+      "instanceId": "purple-berry-48-35",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3105,
+      "y": 2271
+    },
+    {
+      "instanceId": "purple-berry-53-35",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3426,
+      "y": 2278
+    },
+    {
+      "instanceId": "purple-berry-0-36",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 29,
+      "y": 2334
+    },
+    {
+      "instanceId": "purple-berry-1-36",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 96,
+      "y": 2337
+    },
+    {
+      "instanceId": "purple-berry-5-36",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 348,
+      "y": 2332
+    },
+    {
+      "instanceId": "world-rock-7-36",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-21",
+      "x": 480,
+      "y": 2368
+    },
+    {
+      "instanceId": "purple-berry-26-36",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1692,
+      "y": 2335
+    },
+    {
+      "instanceId": "world-rock-28-36",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-02",
+      "x": 1824,
+      "y": 2368
+    },
+    {
+      "instanceId": "world-rock-33-36",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-02",
+      "x": 2144,
+      "y": 2368
+    },
+    {
+      "instanceId": "world-rock-39-36",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 2528,
+      "y": 2368
+    },
+    {
+      "instanceId": "purple-berry-50-36",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3233,
+      "y": 2342
+    },
+    {
+      "instanceId": "purple-berry-53-36",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3428,
+      "y": 2335
+    },
+    {
+      "instanceId": "purple-berry-0-37",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 33,
+      "y": 2400
+    },
+    {
+      "instanceId": "purple-berry-2-37",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 155,
+      "y": 2398
+    },
+    {
+      "instanceId": "world-rock-6-37",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-19",
+      "x": 416,
+      "y": 2432
+    },
+    {
+      "instanceId": "world-rock-7-37",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-02",
+      "x": 480,
+      "y": 2432
+    },
+    {
+      "instanceId": "world-rock-10-37",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-02",
+      "x": 672,
+      "y": 2432
+    },
+    {
+      "instanceId": "world-rock-23-37",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 1504,
+      "y": 2432
+    },
+    {
+      "instanceId": "purple-berry-25-37",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1629,
+      "y": 2397
+    },
+    {
+      "instanceId": "purple-berry-28-37",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1824,
+      "y": 2404
+    },
+    {
+      "instanceId": "world-rock-31-37",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-03",
+      "x": 2016,
+      "y": 2432
+    },
+    {
+      "instanceId": "purple-berry-51-37",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3288,
+      "y": 2402
+    },
+    {
+      "instanceId": "purple-berry-0-38",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 34,
+      "y": 2461
+    },
+    {
+      "instanceId": "purple-berry-1-38",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 97,
+      "y": 2460
+    },
+    {
+      "instanceId": "purple-berry-3-38",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 221,
+      "y": 2467
+    },
+    {
+      "instanceId": "purple-berry-5-38",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 351,
+      "y": 2466
+    },
+    {
+      "instanceId": "world-rock-6-38",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 416,
+      "y": 2496
+    },
+    {
+      "instanceId": "world-rock-7-38",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-07",
+      "x": 480,
+      "y": 2496
+    },
+    {
+      "instanceId": "world-rock-8-38",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-02",
+      "x": 544,
+      "y": 2496
+    },
+    {
+      "instanceId": "world-rock-12-38",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-19",
+      "x": 800,
+      "y": 2496
+    },
+    {
+      "instanceId": "purple-berry-23-38",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1505,
+      "y": 2464
+    },
+    {
+      "instanceId": "world-rock-26-38",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-03",
+      "x": 1696,
+      "y": 2496
+    },
+    {
+      "instanceId": "world-rock-28-38",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-03",
+      "x": 1824,
+      "y": 2496
+    },
+    {
+      "instanceId": "world-rock-29-38",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-05",
+      "x": 1888,
+      "y": 2496
+    },
+    {
+      "instanceId": "world-rock-30-38",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-07",
+      "x": 1952,
+      "y": 2496
+    },
+    {
+      "instanceId": "world-rock-36-38",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-13",
+      "x": 2336,
+      "y": 2496
+    },
+    {
+      "instanceId": "world-rock-38-38",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-15",
+      "x": 2464,
+      "y": 2496
+    },
+    {
+      "instanceId": "world-rock-39-38",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-03",
+      "x": 2528,
+      "y": 2496
+    },
+    {
+      "instanceId": "world-rock-40-38",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-02",
+      "x": 2592,
+      "y": 2496
+    },
+    {
+      "instanceId": "purple-berry-49-38",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3169,
+      "y": 2464
+    },
+    {
+      "instanceId": "purple-berry-50-38",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3231,
+      "y": 2469
+    },
+    {
+      "instanceId": "purple-berry-2-39",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 164,
+      "y": 2532
+    },
+    {
+      "instanceId": "world-rock-6-39",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-17",
+      "x": 416,
+      "y": 2560
+    },
+    {
+      "instanceId": "world-rock-7-39",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-03",
+      "x": 480,
+      "y": 2560
+    },
+    {
+      "instanceId": "world-rock-10-39",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-02",
+      "x": 672,
+      "y": 2560
+    },
+    {
+      "instanceId": "world-rock-13-39",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-13",
+      "x": 864,
+      "y": 2560
+    },
+    {
+      "instanceId": "world-rock-14-39",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 928,
+      "y": 2560
+    },
+    {
+      "instanceId": "world-rock-17-39",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-17",
+      "x": 1120,
+      "y": 2560
+    },
+    {
+      "instanceId": "purple-berry-23-39",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1499,
+      "y": 2523
+    },
+    {
+      "instanceId": "world-rock-26-39",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-01",
+      "x": 1696,
+      "y": 2560
+    },
+    {
+      "instanceId": "world-rock-27-39",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-03",
+      "x": 1760,
+      "y": 2560
+    },
+    {
+      "instanceId": "world-rock-28-39",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-07",
+      "x": 1824,
+      "y": 2560
+    },
+    {
+      "instanceId": "world-rock-29-39",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 1888,
+      "y": 2560
+    },
+    {
+      "instanceId": "world-rock-30-39",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-03",
+      "x": 1952,
+      "y": 2560
+    },
+    {
+      "instanceId": "world-rock-31-39",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-01",
+      "x": 2016,
+      "y": 2560
+    },
+    {
+      "instanceId": "world-rock-37-39",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-15",
+      "x": 2400,
+      "y": 2560
+    },
+    {
+      "instanceId": "world-rock-39-39",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-01",
+      "x": 2528,
+      "y": 2560
+    },
+    {
+      "instanceId": "purple-berry-51-39",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3289,
+      "y": 2524
+    },
+    {
+      "instanceId": "purple-berry-3-40",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 219,
+      "y": 2595
+    },
+    {
+      "instanceId": "world-rock-7-40",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 480,
+      "y": 2624
+    },
+    {
+      "instanceId": "world-rock-8-40",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-23",
+      "x": 544,
+      "y": 2624
+    },
+    {
+      "instanceId": "world-rock-9-40",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 608,
+      "y": 2624
+    },
+    {
+      "instanceId": "world-rock-11-40",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-23",
+      "x": 736,
+      "y": 2624
+    },
+    {
+      "instanceId": "world-rock-12-40",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-03",
+      "x": 800,
+      "y": 2624
+    },
+    {
+      "instanceId": "world-rock-13-40",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-17",
+      "x": 864,
+      "y": 2624
+    },
+    {
+      "instanceId": "world-rock-24-40",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-11",
+      "x": 1568,
+      "y": 2624
+    },
+    {
+      "instanceId": "world-rock-27-40",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-02",
+      "x": 1760,
+      "y": 2624
+    },
+    {
+      "instanceId": "world-rock-28-40",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-23",
+      "x": 1824,
+      "y": 2624
+    },
+    {
+      "instanceId": "world-rock-29-40",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 1888,
+      "y": 2624
+    },
+    {
+      "instanceId": "world-rock-30-40",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 1952,
+      "y": 2624
+    },
+    {
+      "instanceId": "world-rock-32-40",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 2080,
+      "y": 2624
+    },
+    {
+      "instanceId": "world-rock-33-40",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-11",
+      "x": 2144,
+      "y": 2624
+    },
+    {
+      "instanceId": "world-rock-35-40",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-01",
+      "x": 2272,
+      "y": 2624
+    },
+    {
+      "instanceId": "world-rock-38-40",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 2464,
+      "y": 2624
+    },
+    {
+      "instanceId": "world-rock-39-40",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-21",
+      "x": 2528,
+      "y": 2624
+    },
+    {
+      "instanceId": "world-rock-6-41",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 416,
+      "y": 2688
+    },
+    {
+      "instanceId": "world-rock-8-41",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 544,
+      "y": 2688
+    },
+    {
+      "instanceId": "world-rock-9-41",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-17",
+      "x": 608,
+      "y": 2688
+    },
+    {
+      "instanceId": "world-rock-10-41",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-09",
+      "x": 672,
+      "y": 2688
+    },
+    {
+      "instanceId": "world-rock-12-41",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-19",
+      "x": 800,
+      "y": 2688
+    },
+    {
+      "instanceId": "world-rock-22-41",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-03",
+      "x": 1440,
+      "y": 2688
+    },
+    {
+      "instanceId": "world-rock-25-41",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-21",
+      "x": 1632,
+      "y": 2688
+    },
+    {
+      "instanceId": "world-rock-28-41",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 1824,
+      "y": 2688
+    },
+    {
+      "instanceId": "world-rock-31-41",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-03",
+      "x": 2016,
+      "y": 2688
+    },
+    {
+      "instanceId": "world-rock-32-41",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-05",
+      "x": 2080,
+      "y": 2688
+    },
+    {
+      "instanceId": "world-rock-33-41",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 2144,
+      "y": 2688
+    },
+    {
+      "instanceId": "world-rock-35-41",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-03",
+      "x": 2272,
+      "y": 2688
+    },
+    {
+      "instanceId": "world-rock-7-42",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-03",
+      "x": 480,
+      "y": 2752
+    },
+    {
+      "instanceId": "world-rock-9-42",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-02",
+      "x": 608,
+      "y": 2752
+    },
+    {
+      "instanceId": "world-rock-10-42",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-03",
+      "x": 672,
+      "y": 2752
+    },
+    {
+      "instanceId": "world-rock-28-42",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-01",
+      "x": 1824,
+      "y": 2752
+    },
+    {
+      "instanceId": "world-rock-29-42",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-02",
+      "x": 1888,
+      "y": 2752
+    },
+    {
+      "instanceId": "world-rock-31-42",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-11",
+      "x": 2016,
+      "y": 2752
+    },
+    {
+      "instanceId": "world-rock-35-42",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-23",
+      "x": 2272,
+      "y": 2752
+    },
+    {
+      "instanceId": "world-rock-36-42",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 2336,
+      "y": 2752
+    },
+    {
+      "instanceId": "world-rock-8-43",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-03",
+      "x": 544,
+      "y": 2816
+    },
+    {
+      "instanceId": "world-rock-9-43",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-15",
+      "x": 608,
+      "y": 2816
+    },
+    {
+      "instanceId": "world-rock-11-43",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-03",
+      "x": 736,
+      "y": 2816
+    },
+    {
+      "instanceId": "world-rock-28-43",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-03",
+      "x": 1824,
+      "y": 2816
+    },
+    {
+      "instanceId": "world-rock-32-43",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-03",
+      "x": 2080,
+      "y": 2816
+    },
+    {
+      "instanceId": "world-rock-6-44",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-09",
+      "x": 416,
+      "y": 2880
+    },
+    {
+      "instanceId": "world-rock-12-44",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 800,
+      "y": 2880
+    },
+    {
+      "instanceId": "world-rock-30-44",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-03",
+      "x": 1952,
+      "y": 2880
+    },
+    {
+      "instanceId": "world-rock-34-44",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-03",
+      "x": 2208,
+      "y": 2880
+    },
+    {
+      "instanceId": "world-rock-10-45",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-05",
+      "x": 672,
+      "y": 2944
+    },
+    {
+      "instanceId": "world-rock-32-46",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-03",
+      "x": 2080,
+      "y": 3008
+    },
+    {
+      "instanceId": "world-rock-8-47",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-02",
+      "x": 544,
+      "y": 3072
+    },
+    {
+      "instanceId": "world-rock-33-47",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 2144,
+      "y": 3072
+    },
+    {
+      "instanceId": "purple-berry-1-53",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 94,
+      "y": 3432
+    },
+    {
+      "instanceId": "purple-berry-51-53",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3296,
+      "y": 3425
+    }
+  ],
+  "player": {
+    "spawn": {
+      "x": 1728,
+      "y": 1728
+    },
+    "entries": {
+      "west": {
+        "x": 256,
+        "y": 1728
+      },
+      "east": {
+        "x": 3200,
+        "y": 1728
+      }
+    }
+  },
+  "exits": [
+    {
+      "zone": {
+        "x": 3424,
+        "y": 0,
+        "w": 32,
+        "h": 3456
+      },
+      "to": "gloop-forest",
+      "entry": "west"
+    },
+    {
+      "zone": {
+        "x": 0,
+        "y": 0,
+        "w": 32,
+        "h": 3456
+      },
+      "to": "icege",
+      "entry": "east"
+    }
+  ],
+  "spawns": {
+    "enemies": [
+      {
+        "type": "blob",
+        "weight": 50
+      },
+      {
+        "type": "swarmer",
+        "weight": 30
+      },
+      {
+        "type": "spike",
+        "weight": 20
+      }
+    ],
+    "radius": {
+      "min": 200,
+      "max": 500
+    },
+    "intervalMs": 1500,
+    "maxPopulation": 16,
+    "safeZones": []
+  }
+}

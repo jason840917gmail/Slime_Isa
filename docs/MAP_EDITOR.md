@@ -1,0 +1,65 @@
+# Field Cartographer Map Editor
+
+The map editor is available only through the Vite development server. Start it with:
+
+```powershell
+pnpm dev
+```
+
+Open an existing authored map:
+
+```text
+http://localhost:3000/?editor=meadow-crossing
+http://localhost:3000/?editor=gloop-forest
+http://localhost:3000/?editor=crystal-caverns
+```
+
+## Tools
+
+- **Pan (`H`)**: click-drag the canvas. Right- or middle-drag also pans while another tool is active. Arrow keys or WASD move the camera; the mouse wheel zooms.
+- **Paint (`B`)**: open a terrain group, select a miniature, then click-drag across map cells. Fast strokes are interpolated without gaps and one drag is one undo step.
+- **Object (`O`)**: open an object group, select an exact visual miniature, then click to create a stable instance. The editor always places the chosen visual; it does not randomize variants.
+- **Select / Move (`V`)**: click an object once to select it. Press `Delete` or `Backspace` to remove it, or click another cell to move it. `Ctrl+Z` restores a deleted object.
+- **Erase (`X`)**: click to remove the nearest object, a safe zone under the pointer, or restore the first terrain type. Click-drag a rectangle to remove multiple objects and safe zones in one undoable action.
+- **Monster Safe Zone (`Z`)**: click-drag empty space to create a bright green, tile-aligned rectangle where enemies cannot spawn or enter. Left-click a zone to select it, left-drag it to move it, and right-click it (or press `Delete`) to remove it. Right-drag empty space still pans. Safe zones work independently of a map's spawn configuration.
+- **Monster Spawns (`M`)**: opens the encounter-rules dialog. Enable or disable spawning, choose monster types, set their weights and optional per-type caps, then configure spawn distance, refill interval, and total population.
+- **Player Spawn (`P`)**: places the default player spawn.
+- **Entry Point (`I`)**: choose a direction and place that incoming entry point.
+- **Exit Zone (`E`)**: choose a direction after assigning that edge in Map Connections. The physical boundary zone is generated automatically.
+
+## Connecting maps
+
+The **Map Connections** section has North, East, South, and West dropdowns containing every existing authored map except the open document. Choose a map to connect that edge or choose **Not connected** to remove it. Connection changes support undo and redo.
+
+Saving creates the opposite entry point and return exit in the target map, making the connection two-way. If that target edge already belongs to another map, saving stops with a conflict message instead of silently replacing it.
+
+Use `Ctrl+Z` and `Ctrl+Y` for undo/redo and `Ctrl+S` to save. The editor warns before leaving with unsaved work.
+
+Safe zones are stored in map-level `enemySafeZones` as `{ x, y, w, h }`. They appear in bright green, are constrained to the map bounds, block respawning, and steer active monsters through the nearest rectangle edge. Older nested `spawns.safeZones` arrays remain supported when loading existing maps.
+
+## Saving and validation
+
+Save is intentionally available only in development. The Vite endpoint:
+
+1. Accepts a maximum 2 MB JSON payload.
+2. Runs structural map validation.
+3. Verifies terrain, object, enemy, connection, and target-map references.
+4. Resolves the filename from the validated `mapId`; it never accepts a path from the browser.
+5. Writes a temporary file and atomically renames it over the existing map.
+
+After editing, run:
+
+```powershell
+pnpm maps:check
+pnpm check
+```
+
+## Creating another map
+
+Click **New map** beside the document selector, then choose:
+
+- A unique kebab-case map ID.
+- Columns, rows, and tile size.
+- The base terrain used to fill the new ground layer.
+
+Creation never overwrites an existing map. The editor writes the validated `<map-id>.map.json`, opens it immediately, and uses the same save workflow as every other authored map. Connect it through the Map Connections dropdowns to make it reachable. Maps without curated `Area.ts` metadata receive a deterministic name, seed, and meadow biome fallback until custom metadata is added.

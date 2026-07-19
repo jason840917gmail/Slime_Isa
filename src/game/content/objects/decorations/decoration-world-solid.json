@@ -1,0 +1,37 @@
+{
+  "$schema": "../objects.schema.json",
+  "objectId": "decoration.world.solid",
+  "selection": "authored",
+  "variants": [
+    {
+      "assetId": "sheet.decorations.8x3",
+      "frames": [
+        { "visualId": "wood-fence", "frame": 0, "collider": { "width": 100, "height": 24, "offsetX": 14, "offsetY": 68 } },
+        { "visualId": "reinforced-fence", "frame": 1, "collider": { "width": 103, "height": 24, "offsetX": 14, "offsetY": 72 } },
+        { "visualId": "palisade-cluster", "frame": 2, "collider": { "width": 82, "height": 26, "offsetX": 18, "offsetY": 78 } },
+        { "visualId": "palisade-gap", "frame": 3, "collider": { "width": 74, "height": 26, "offsetX": 34, "offsetY": 79 } },
+        { "visualId": "wood-door", "frame": 4, "collider": { "width": 70, "height": 25, "offsetX": 31, "offsetY": 88 } },
+        { "visualId": "double-gate", "frame": 5, "collider": { "width": 116, "height": 25, "offsetX": 6, "offsetY": 84 } },
+        { "visualId": "lantern-post", "frame": 6, "collider": { "width": 22, "height": 28, "offsetX": 92, "offsetY": 93 } },
+        { "visualId": "cooking-cauldron", "frame": 7, "collider": { "width": 70, "height": 28, "offsetX": 27, "offsetY": 94 } },
+        { "visualId": "campfire", "frame": 8, "collider": { "width": 82, "height": 26, "offsetX": 23, "offsetY": 90 } },
+        { "visualId": "hay-bale", "frame": 9, "collider": { "width": 100, "height": 34, "offsetX": 14, "offsetY": 80 } },
+        { "visualId": "haystack", "frame": 10, "collider": { "width": 76, "height": 35, "offsetX": 22, "offsetY": 84 } },
+        { "visualId": "canvas-tent", "frame": 11, "collider": { "width": 96, "height": 28, "offsetX": 18, "offsetY": 97 } },
+        { "visualId": "armor-statue", "frame": 12, "collider": { "width": 42, "height": 25, "offsetX": 38, "offsetY": 97 } },
+        { "visualId": "village-banner", "frame": 13, "collider": { "width": 30, "height": 25, "offsetX": 48, "offsetY": 103 } },
+        { "visualId": "stone-pedestal", "frame": 14, "collider": { "width": 44, "height": 24, "offsetX": 41, "offsetY": 93 } },
+        { "visualId": "stone-birdbath", "frame": 15, "collider": { "width": 48, "height": 22, "offsetX": 39, "offsetY": 91 } },
+        { "visualId": "birdhouse", "frame": 16, "collider": { "width": 20, "height": 20, "offsetX": 50, "offsetY": 97 } },
+        { "visualId": "flower-planter", "frame": 17, "collider": { "width": 80, "height": 24, "offsetX": 23, "offsetY": 90 } },
+        { "visualId": "grindstone", "frame": 18, "collider": { "width": 80, "height": 26, "offsetX": 22, "offsetY": 86 } },
+        { "visualId": "anvil", "frame": 19, "collider": { "width": 70, "height": 22, "offsetX": 20, "offsetY": 76 } },
+        { "visualId": "tool-bench", "frame": 20, "collider": { "width": 88, "height": 25, "offsetX": 19, "offsetY": 84 } },
+        { "visualId": "wood-table", "frame": 21, "collider": { "width": 92, "height": 23, "offsetX": 12, "offsetY": 86 } },
+        { "visualId": "herb-planter", "frame": 23, "collider": { "width": 82, "height": 24, "offsetX": 23, "offsetY": 83 } }
+      ]
+    }
+  ],
+  "physics": { "body": "static" },
+  "tags": ["decoration", "solid"]
+}

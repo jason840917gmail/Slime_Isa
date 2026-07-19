@@ -7,24 +7,28 @@ import { gameEvents } from '../../core/EventBus';
 import { gameState } from '../../core/GameState';
 import { Enemy } from '../../enemies/Enemy';
 import { EnemySpawner } from '../../enemies/EnemySpawner';
-import { SPAWN_TABLE_MEDIUM } from '../../enemies/library/EnemyTypes';
+import { ENEMY_CONFIGS, SPAWN_TABLE_MEDIUM } from '../../enemies/library/EnemyTypes';
 import { projectilePool } from '../../enemies/Projectile';
 import { worldProgress } from '../progression/WorldProgress';
 import { UI_THEME } from '../../presentation/theme';
 import { getStats } from '../../systems/PlayerStats';
 import { playerInventory } from '../../systems/Inventory';
-import { WORLD_HEIGHT, WORLD_WIDTH } from '../../terrainNoise';
 import { BossHealthBar } from '../../ui/BossHealthBar';
 import { floatingText } from '../../ui/FloatingText';
 import { createGooGauntlet } from '../../weapons/library/GooGauntlet';
+import type { WorldDimensions } from '../../world/WorldDimensions';
+import type { MapEnemySafeZone, MapSpawns } from '../../content/maps/mapFormat';
 
 export interface CombatControllerContext {
   scene: Phaser.Scene;
   player: Phaser.Physics.Arcade.Sprite;
   collisionTiles: Phaser.Physics.Arcade.StaticGroup;
+  dimensions: WorldDimensions;
+  spawns?: MapSpawns;
+  enemySafeZones: readonly MapEnemySafeZone[];
   areaId: string;
   getFacing: () => Phaser.Math.Vector2;
-  getSafeZones: () => Array<{ x: number; y: number; radius: number }>;
+  getSafeZones: () => MapEnemySafeZone[];
   findSpawnPoint: (anchor: Phaser.Math.Vector2) => Phaser.Math.Vector2;
   playAnimation: (key: string) => void;
   canAttack: () => boolean;
@@ -46,6 +50,14 @@ export class CombatController {
 
   constructor(private readonly ctx: CombatControllerContext) {
     const { scene, player } = ctx;
+    const spawnConfig = ctx.spawns;
+    const spawnTable = spawnConfig
+      ? spawnConfig.enemies.map((entry) => ({
+          config: ENEMY_CONFIGS[entry.type],
+          weight: entry.weight,
+          maxAlive: entry.maxAlive,
+        }))
+      : SPAWN_TABLE_MEDIUM;
     this.targets = scene.physics.add.group();
     this.comboText = scene.add.text(scene.cameras.main.width / 2, scene.cameras.main.height - 130, '', {
       fontFamily: UI_THEME.fontFamily,
@@ -93,19 +105,20 @@ export class CombatController {
     this.spawner = new EnemySpawner({
       scene,
       getPlayer: () => player,
-      maxPopulation: 16,
-      spawnRadius: 500,
-      despawnRadius: 800,
-      minSpawnDistance: 200,
-      spawnTable: SPAWN_TABLE_MEDIUM,
-      worldWidth: WORLD_WIDTH,
-      worldHeight: WORLD_HEIGHT,
+      maxPopulation: spawnConfig?.maxPopulation ?? 16,
+      spawnRadius: spawnConfig?.radius.max ?? 500,
+      despawnRadius: (spawnConfig?.radius.max ?? 500) + 300,
+      minSpawnDistance: spawnConfig?.radius.min ?? 200,
+      spawnIntervalMs: spawnConfig?.intervalMs ?? 1500,
+      spawnTable,
+      worldWidth: ctx.dimensions.width,
+      worldHeight: ctx.dimensions.height,
       targetGroup: this.targets,
-      getSafeZones: ctx.getSafeZones,
+      getSafeZones: () => this.safeZones(),
       enemyContext: this.enemyContext(),
     });
 
-    this.spawner.seed(8);
+    this.spawner.seed(Math.min(8, spawnConfig?.maxPopulation ?? 16));
     this.spawnBossIfNeeded();
     this.spawnDummy(player.x + 80, player.y + 20);
     scene.physics.add.collider(this.targets, ctx.collisionTiles);
@@ -148,16 +161,27 @@ export class CombatController {
         if (!this.ctx.isDodging()) this.ctx.applyPlayerDamage(amount, 'enemy');
       },
       onDeath: (enemy: Enemy) => this.onEnemyDeath(enemy),
-      getSafeZones: this.ctx.getSafeZones,
+      getSafeZones: () => this.safeZones(),
       fireProjectile: (x: number, y: number, dx: number, dy: number, speed: number) => {
         projectilePool.fire(this.ctx.scene, x, y, dx, dy, speed, 'enemy-projectile', 'enemy', 12);
       },
     };
   }
 
+  private safeZones(): MapEnemySafeZone[] {
+    return [
+      ...this.ctx.getSafeZones(),
+      ...this.ctx.enemySafeZones,
+      ...(this.ctx.spawns?.safeZones ?? []),
+    ];
+  }
+
   private spawnBossIfNeeded(): void {
     if (this.ctx.areaId !== BLOBFATHER.areaId || worldProgress.isBossDefeated(BLOBFATHER.id)) return;
-    const position = this.ctx.findSpawnPoint(new Phaser.Math.Vector2(WORLD_WIDTH * 0.68, WORLD_HEIGHT * 0.5));
+    const position = this.ctx.findSpawnPoint(new Phaser.Math.Vector2(
+      this.ctx.dimensions.width * 0.68,
+      this.ctx.dimensions.height * 0.5,
+    ));
     const boss = new Enemy(this.ctx.scene, position.x, position.y, BLOBFATHER.config, this.enemyContext());
     this.targets.add(boss);
     this.activeBoss = boss;
