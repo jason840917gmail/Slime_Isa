@@ -2,12 +2,13 @@ import Phaser from 'phaser';
 import { hitboxPool, type HitboxConfig } from '../combat/Hitbox';
 import { devToolsState } from '../devTools';
 import type { House } from '../House';
-import { WORLD_HEIGHT, WORLD_WIDTH } from '../terrainNoise';
+import type { WorldDimensions } from '../world/WorldDimensions';
 
 type DebugGroup = Phaser.GameObjects.Group | Phaser.Physics.Arcade.Group | Phaser.Physics.Arcade.StaticGroup;
 
 export interface WorldDebugContext {
   scene: Phaser.Scene;
+  dimensions: WorldDimensions;
   getPlayer: () => Phaser.Physics.Arcade.Sprite;
   getFriends: () => Phaser.Physics.Arcade.Group | undefined;
   getCombatTargets: () => Phaser.Physics.Arcade.Group | null;
@@ -49,7 +50,16 @@ export class WorldDebugRenderer {
   }
 
   private drawWorld(g: Phaser.GameObjects.Graphics): void {
-    this.strokeRect(g, 0, 0, WORLD_WIDTH, WORLD_HEIGHT, 0xffe66d, 0.95, 3);
+    this.strokeRect(
+      g,
+      0,
+      0,
+      this.ctx.dimensions.width,
+      this.ctx.dimensions.height,
+      0xffe66d,
+      0.95,
+      3,
+    );
     const view = this.ctx.scene.cameras.main.worldView;
     this.strokeRect(g, view.x, view.y, view.width, view.height, 0xffe66d, 0.6, 2);
   }

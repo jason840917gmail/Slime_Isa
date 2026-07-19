@@ -1,0 +1,19 @@
+{
+  "$schema": "../objects.schema.json",
+  "objectId": "rock.amber-ore.mineable",
+  "selection": "authored",
+  "variants": [
+    {
+      "assetId": "sheet.rocks.8x3",
+      "frames": [
+        { "visualId": "amber-ore", "frame": 0, "collider": { "width": 42, "height": 16, "offsetX": 28, "offsetY": 59 } }
+      ]
+    }
+  ],
+  "physics": { "body": "static" },
+  "destructible": {
+    "health": 30,
+    "drops": ["shard"]
+  },
+  "tags": ["rock", "solid", "mineable"]
+}

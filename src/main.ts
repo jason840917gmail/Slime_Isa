@@ -8,4 +8,4 @@ if (!app) {
   throw new Error('Missing app container.');
 }
 
-createGame(app);
+void createGame(app);

@@ -9,7 +9,8 @@ export type EnemyState = 'idle' | 'wander' | 'chase' | 'attack' | 'flee' | 'dead
 export interface EnemySafeZone {
   x: number;
   y: number;
-  radius: number;
+  w: number;
+  h: number;
 }
 
 export interface EnemyStateContext {
@@ -91,17 +92,21 @@ function avoidSafeZones(ctx: EnemyStateContext): StateResult | null {
   if (!zones || zones.length === 0) return null;
 
   for (const zone of zones) {
-    const dx = ctx.enemy.x - zone.x;
-    const dy = ctx.enemy.y - zone.y;
-    const dist = Math.hypot(dx, dy);
-    if (dist > zone.radius) continue;
+    if (ctx.enemy.x < zone.x || ctx.enemy.x > zone.x + zone.w
+      || ctx.enemy.y < zone.y || ctx.enemy.y > zone.y + zone.h) continue;
 
     const body = ctx.enemy.body as Phaser.Physics.Arcade.Body;
-    const away = new Phaser.Math.Vector2(dx, dy);
-    if (away.lengthSq() === 0) {
-      away.set(ctx.enemy.x - ctx.player.x, ctx.enemy.y - ctx.player.y);
+    const distances = [
+      { distance: ctx.enemy.x - zone.x, x: -1, y: 0 },
+      { distance: zone.x + zone.w - ctx.enemy.x, x: 1, y: 0 },
+      { distance: ctx.enemy.y - zone.y, x: 0, y: -1 },
+      { distance: zone.y + zone.h - ctx.enemy.y, x: 0, y: 1 },
+    ];
+    let nearest = distances[0];
+    for (const candidate of distances.slice(1)) {
+      if (candidate.distance < nearest.distance) nearest = candidate;
     }
-    if (away.lengthSq() === 0) away.set(1, 0);
+    const away = new Phaser.Math.Vector2(nearest.x, nearest.y);
     away.normalize().scale(ctx.config.chaseSpeed * 1.25);
     body.setVelocity(away.x, away.y);
     return 'flee';

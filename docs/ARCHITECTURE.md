@@ -39,7 +39,7 @@ scenes -> features -> content/shared
 - `PlayerController` and `PlayerFactory`
 - `CombatController`
 - `CrystalTrialController`
-- `WorldBuilder`
+- `MapBuilder` and `MapRepository`
 - `HousePlacement`
 - `AreaNavigation`
 - `WorldDebugRenderer`
@@ -50,6 +50,16 @@ The remaining scene code is the migration boundary for UI composition, friend sp
 ## Persistence
 
 Save schema version 2 stores player state, inventory, quests, and world progress in one envelope. The repository reads the old split keys to migrate existing browser data. Autosave is driven by typed domain events and is debounced.
+
+## World dimensions
+
+`WorldDimensions` is the single geometry value for a loaded map: tile size, columns, rows, pixel width, and pixel height. `WorldScene` passes it through feature contexts to world building, physics, navigation, spawning, houses, abilities, camera, minimap, and debug rendering. Do not introduce global world-width or tile-count constants. Production dimensions always come from `dimensionsFromMap(map)`.
+
+## Authored production maps
+
+Every area references a required JSON map in `src/game/content/maps/`. `MapRepository` validates and lazy-loads it before `WorldScene`; `MapBuilder` creates terrain, reusable objects, behavior groups, entries, and exits. Missing production maps fail visibly instead of falling back to runtime generation.
+
+The deterministic generator in `scripts/lib/procedural-map-generator.mjs` is tooling only. `pnpm maps:bake` can recreate the initial three production maps, but gameplay never imports the generator. Once a generated map is manually edited, do not rebake it unless replacing those edits is intentional.
 
 ## Phaser and Godot
 

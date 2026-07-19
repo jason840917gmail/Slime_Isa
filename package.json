@@ -7,8 +7,12 @@
   "scripts": {
     "dev": "vite --port 3000",
     "typecheck": "tsc --noEmit",
+    "assets:check": "node scripts/check-assets.mjs",
+    "objects:check": "node scripts/check-objects.mjs",
+    "maps:check": "node scripts/check-maps.mjs",
+    "maps:bake": "node scripts/bake-production-maps.mjs",
     "build": "tsc --noEmit && vite build",
-    "check": "pnpm typecheck && pnpm build",
+    "check": "pnpm assets:check && pnpm objects:check && pnpm maps:check && pnpm typecheck && pnpm build",
     "preview": "vite preview --port 3000"
   },
   "dependencies": {

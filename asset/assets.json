@@ -1,0 +1,253 @@
+{
+  "$schema": "./assets.schema.json",
+  "version": 1,
+  "ignore": [
+    "Originals/**",
+    "MAPS/FOREST/ChatGPT*.png"
+  ],
+  "bundles": {
+    "boot": [
+      "character.player.slime",
+      "sheet.grounds.19x19.highland-green",
+      "sheet.grounds.19x19.amberleaf",
+      "sheet.grounds.19x19.frozen",
+      "sheet.decorations.8x3",
+      "sheet.rocks.3x1",
+      "sheet.rocks.8x3",
+      "sheet.trees.8x6",
+      "sheet.trees.3x1",
+      "sheet.houses.3x1",
+      "terrain.water.0",
+      "terrain.water.1",
+      "terrain.water.2",
+      "terrain.deep-water",
+      "terrain.forest.floor",
+      "terrain.forest.moss",
+      "terrain.forest.tree-wall",
+      "terrain.cavern.floor",
+      "terrain.cavern.crystal-floor",
+      "terrain.cavern.crystal-wall",
+      "collectible.purple-berry"
+    ]
+  },
+  "assets": {
+    "character.player.slime": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "characters/slime_normalized.png",
+        "frame": { "w": 256, "h": 256, "cols": 8, "rows": 8 },
+        "expect": { "w": 2048, "h": 2048 }
+      },
+      "runtime": { "textureKey": "slime" },
+      "render": { "origin": [0.5, 0.5], "pixelArt": true },
+      "tags": ["player", "animated"],
+      "status": "ready",
+      "notes": "Named animation clips (slime-idle, slime-walk, ...) live in src/game/slimeAnimations.ts."
+    },
+    "sheet.grounds.19x19.highland-green": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/grounds/64x64-tile_19x19_HighlandGreen.png",
+        "frame": { "w": 64, "h": 64, "cols": 19, "rows": 19 },
+        "expect": { "w": 1216, "h": 1216 }
+      },
+      "runtime": { "textureKey": "grounds-19x19-HighlandGreen" },
+      "tags": ["ground", "meadow"],
+      "status": "ready"
+    },
+    "sheet.grounds.19x19.amberleaf": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/grounds/64x64-tile_19x19_amberleaf.png",
+        "frame": { "w": 64, "h": 64, "cols": 19, "rows": 19 },
+        "expect": { "w": 1216, "h": 1216 }
+      },
+      "runtime": { "textureKey": "grounds-19x19-amberleaf" },
+      "tags": ["ground", "amberleaf"],
+      "status": "ready"
+    },
+    "sheet.grounds.19x19.frozen": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/grounds/64x64-tile_19x19_frozen.png",
+        "frame": { "w": 64, "h": 64, "cols": 19, "rows": 19 },
+        "expect": { "w": 1216, "h": 1216 }
+      },
+      "runtime": { "textureKey": "grounds-19x19-frozen" },
+      "tags": ["ground", "frozen"],
+      "status": "ready"
+    },
+    "sheet.decorations.8x3": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/decorations/128x128-tile_8x3.png",
+        "frame": { "w": 128, "h": 128, "cols": 8, "rows": 3 },
+        "expect": { "w": 1024, "h": 384 }
+      },
+      "runtime": { "textureKey": "decorations-8x3" },
+      "render": { "origin": [0.5, 1], "pixelArt": true },
+      "tags": ["object", "decoration", "prop"],
+      "status": "ready"
+    },
+    "sheet.houses.3x1": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/Houses/320-3x1.png",
+        "frame": { "w": 320, "h": 320, "cols": 3, "rows": 1 },
+        "expect": { "w": 960, "h": 320 }
+      },
+      "runtime": { "textureKey": "houses-3x1" },
+      "render": { "origin": [0.5, 1], "pixelArt": true },
+      "tags": ["object", "house"],
+      "status": "ready"
+    },
+    "sheet.rocks.3x1": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/rocks/128x128-tile_3x1.png",
+        "frame": { "w": 128, "h": 128, "cols": 3, "rows": 1 },
+        "expect": { "w": 384, "h": 128 }
+      },
+      "runtime": { "textureKey": "rocks-3x1" },
+      "render": { "origin": [0.5, 1], "pixelArt": true },
+      "frames": {
+        "0": { "name": "rounded-boulder" },
+        "1": { "name": "large-boulder" },
+        "2": { "name": "purple-crystal-cluster" }
+      },
+      "tags": ["object", "rock"],
+      "status": "ready",
+      "notes": "Large static rock objects; all three frames are runtime candidates."
+    },
+    "sheet.rocks.8x3": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/rocks/96x96-tile_8x3.png",
+        "frame": { "w": 96, "h": 96, "cols": 8, "rows": 3 },
+        "expect": { "w": 768, "h": 288 }
+      },
+      "runtime": { "textureKey": "rocks-8x3" },
+      "render": { "origin": [0.5, 1], "pixelArt": true },
+      "frames": {
+        "0": { "name": "amber-ore-01" },
+        "1": { "name": "amber-ore-02" },
+        "2": { "name": "amber-ore-03" },
+        "3": { "name": "amber-ore-04" },
+        "4": { "name": "amber-ore-05" },
+        "5": { "name": "amber-ore-06" },
+        "6": { "name": "amber-ore-07" },
+        "7": { "name": "amber-ore-08" },
+        "8": { "name": "ember-rock" },
+        "9": { "name": "blue-crystal-rock" },
+        "10": { "name": "ember-pillar" },
+        "11": { "name": "blue-ore-rock" },
+        "12": { "name": "stone-pillar-01" },
+        "13": { "name": "blue-crystal-cluster" },
+        "14": { "name": "stone-pillar-02" },
+        "15": { "name": "purple-crystal-rock" },
+        "16": { "name": "flat-stone" },
+        "17": { "name": "tall-stone" },
+        "18": { "name": "round-pebble" },
+        "19": { "name": "square-pebble" },
+        "20": { "name": "moss-boulder" },
+        "21": { "name": "moss-rock" },
+        "22": { "name": "large-stone" },
+        "23": { "name": "tall-boulder" }
+      },
+      "tags": ["object", "rock"],
+      "status": "ready",
+      "notes": "Rock artwork only. Collider geometry and behavior live in individual object archetype files."
+    },
+    "sheet.trees.8x6": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/trees/128X170-tiles_8x6.png",
+        "frame": { "w": 128, "h": 170, "cols": 8, "rows": 6 },
+        "expect": { "w": 1024, "h": 1020 }
+      },
+      "runtime": { "textureKey": "trees-8x6" },
+      "render": { "origin": [0.5, 1], "pixelArt": true },
+      "tags": ["object", "tree"],
+      "status": "ready"
+    },
+    "sheet.trees.3x1": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/trees/256x256-Tile_3x1.png",
+        "frame": { "w": 256, "h": 256, "cols": 3, "rows": 1 },
+        "expect": { "w": 768, "h": 256 }
+      },
+      "runtime": { "textureKey": "trees-3x1" },
+      "render": { "origin": [0.5, 1], "pixelArt": true },
+      "tags": ["object", "tree"],
+      "status": "ready"
+    },
+    "terrain.water.0": {
+      "source": { "kind": "procedural", "generator": "water" },
+      "runtime": { "textureKey": "water" },
+      "tags": ["ground", "water"],
+      "status": "ready"
+    },
+    "terrain.water.1": {
+      "source": { "kind": "procedural", "generator": "water-1" },
+      "runtime": { "textureKey": "water-1" },
+      "tags": ["ground", "water"],
+      "status": "ready"
+    },
+    "terrain.water.2": {
+      "source": { "kind": "procedural", "generator": "water-2" },
+      "runtime": { "textureKey": "water-2" },
+      "tags": ["ground", "water"],
+      "status": "ready"
+    },
+    "terrain.deep-water": {
+      "source": { "kind": "procedural", "generator": "deep-water" },
+      "runtime": { "textureKey": "deep-water" },
+      "tags": ["ground", "water"],
+      "status": "ready"
+    },
+    "terrain.forest.floor": {
+      "source": { "kind": "procedural", "generator": "forest-floor" },
+      "runtime": { "textureKey": "forest-floor" },
+      "tags": ["ground", "forest"],
+      "status": "ready"
+    },
+    "terrain.forest.moss": {
+      "source": { "kind": "procedural", "generator": "forest-moss" },
+      "runtime": { "textureKey": "forest-moss" },
+      "tags": ["ground", "forest"],
+      "status": "ready"
+    },
+    "terrain.forest.tree-wall": {
+      "source": { "kind": "procedural", "generator": "tree-wall" },
+      "runtime": { "textureKey": "tree-wall" },
+      "tags": ["ground", "forest", "wall"],
+      "status": "ready"
+    },
+    "terrain.cavern.floor": {
+      "source": { "kind": "procedural", "generator": "cavern-floor" },
+      "runtime": { "textureKey": "cavern-floor" },
+      "tags": ["ground", "cavern"],
+      "status": "ready"
+    },
+    "terrain.cavern.crystal-floor": {
+      "source": { "kind": "procedural", "generator": "crystal-floor" },
+      "runtime": { "textureKey": "crystal-floor" },
+      "tags": ["ground", "cavern"],
+      "status": "ready"
+    },
+    "terrain.cavern.crystal-wall": {
+      "source": { "kind": "procedural", "generator": "crystal-wall" },
+      "runtime": { "textureKey": "crystal-wall" },
+      "tags": ["ground", "cavern", "wall"],
+      "status": "ready"
+    },
+    "collectible.purple-berry": {
+      "source": { "kind": "procedural", "generator": "purple-berry" },
+      "runtime": { "textureKey": "purple-berry" },
+      "render": { "origin": [0.5, 0.5] },
+      "tags": ["object", "collectible", "food"],
+      "status": "ready"
+    }
+  }
+}

@@ -2,8 +2,8 @@ import Phaser from 'phaser';
 import { gameState } from '../../core/GameState';
 import { playerInventory } from '../../systems/Inventory';
 import { floatingText } from '../../ui/FloatingText';
-import { WORLD_HEIGHT, WORLD_WIDTH } from '../../terrainNoise';
 import type { AreaId } from '../../world/Area';
+import type { WorldDimensions } from '../../world/WorldDimensions';
 import { worldProgress } from '../progression/WorldProgress';
 import { UI_THEME } from '../../presentation/theme';
 
@@ -12,6 +12,7 @@ const TRIAL_ID = 'crystal-caverns-switch-trial';
 export interface CrystalTrialContext {
   scene: Phaser.Scene;
   areaId: AreaId;
+  dimensions: WorldDimensions;
   switches: Phaser.Physics.Arcade.StaticGroup;
   chests: Phaser.Physics.Arcade.StaticGroup;
   findSpawnPoint: (anchor: Phaser.Math.Vector2) => Phaser.Math.Vector2;
@@ -33,7 +34,10 @@ export class CrystalTrialController {
     this.switchStates = [completed, completed];
 
     const { scene } = this.ctx;
-    const center = this.ctx.findSpawnPoint(new Phaser.Math.Vector2(WORLD_WIDTH * 0.58, WORLD_HEIGHT * 0.48));
+    const center = this.ctx.findSpawnPoint(new Phaser.Math.Vector2(
+      this.ctx.dimensions.width * 0.58,
+      this.ctx.dimensions.height * 0.48,
+    ));
     const chestPos = this.ctx.findSpawnPoint(new Phaser.Math.Vector2(center.x, center.y - 130));
     const switchPositions = [
       this.ctx.findSpawnPoint(new Phaser.Math.Vector2(center.x - 170, center.y + 95)),

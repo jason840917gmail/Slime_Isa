@@ -1,4 +1,4 @@
-export type BiomeId = 'meadow' | 'gloop-forest' | 'crystal-caverns';
+export type BiomeId = 'icege' | 'meadow' | 'gloop-forest' | 'crystal-caverns';
 
 export interface BiomeDef {
   id: BiomeId;
@@ -9,6 +9,13 @@ export interface BiomeDef {
 }
 
 export const BIOMES: Readonly<Record<BiomeId, BiomeDef>> = {
+  icege: {
+    id: 'icege',
+    name: 'Icege',
+    titleColor: '#bcecff',
+    ambientTint: 0xe5f5ff,
+    decorationBias: 0.8,
+  },
   meadow: {
     id: 'meadow',
     name: 'Sunbell Meadow',

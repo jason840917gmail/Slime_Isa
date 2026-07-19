@@ -1,10 +1,10 @@
 import Phaser from 'phaser';
 import { gameState } from '../core/GameState';
 import { floatingText } from '../ui/FloatingText';
-import { isTileCollidable, type WorldTileId } from '../worldTiles';
-import { TILE_SIZE } from '../terrainNoise';
+import { isTileCollidable, type WorldTileId } from '../content/terrain/TileCatalog';
 import { hitboxPool } from '../combat/Hitbox';
 import { TargetDummy } from '../combat/TargetDummy';
+import type { WorldDimensions } from '../world/WorldDimensions';
 
 /**
  * AbilitySystem — owns jump + teleport (preview of Phase 2 ability framework).
@@ -50,6 +50,7 @@ const LASH_DAMAGE = 18;
 
 export interface AbilitySystemContext {
   scene: Phaser.Scene;
+  dimensions: WorldDimensions;
   getPlayer: () => Phaser.Physics.Arcade.Sprite;
   isActionLocked: () => boolean;
   setActionLocked: (locked: boolean) => void;
@@ -482,8 +483,8 @@ export class AbilitySystem {
       const d = (i / steps) * maxDist;
       const x = start.x + dir.x * d;
       const y = start.y + dir.y * d;
-      const tileX = Math.floor(x / TILE_SIZE);
-      const tileY = Math.floor(y / TILE_SIZE);
+      const tileX = Math.floor(x / this.ctx.dimensions.tileSize);
+      const tileY = Math.floor(y / this.ctx.dimensions.tileSize);
 
       if (tileY < 0 || tileY >= grid.length || tileX < 0 || tileX >= grid[0].length) break;
 

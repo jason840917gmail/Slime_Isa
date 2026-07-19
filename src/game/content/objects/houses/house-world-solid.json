@@ -1,0 +1,17 @@
+{
+  "$schema": "../objects.schema.json",
+  "objectId": "house.world.solid",
+  "selection": "authored",
+  "variants": [
+    {
+      "assetId": "sheet.houses.3x1",
+      "frames": [
+        { "visualId": "barn-red", "frame": 0, "collider": { "width": 270, "height": 92, "offsetX": 22, "offsetY": 224 } },
+        { "visualId": "forge-red", "frame": 1, "collider": { "width": 280, "height": 96, "offsetX": 20, "offsetY": 220 } },
+        { "visualId": "cottage-blue", "frame": 2, "collider": { "width": 286, "height": 92, "offsetX": 17, "offsetY": 224 } }
+      ]
+    }
+  ],
+  "physics": { "body": "static" },
+  "tags": ["house", "solid"]
+}

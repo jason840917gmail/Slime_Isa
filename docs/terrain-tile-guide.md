@@ -5,8 +5,8 @@ This guide covers ground tiles, obstacle tiles, and small decorative props.
 ## Base Grid Contract
 
 - Standard world tile size: `64 x 64 px`
-- World grid: `54 x 54` tiles
-- Total world size: `3456 x 3456 px`
+- Production maps currently use `54 x 54` tiles, but each authored map owns its dimensions.
+- A current production map is `3456 x 3456 px`.
 
 Any texture that is meant to behave like a terrain tile should be designed around `64 x 64 px` first.
 
@@ -19,7 +19,7 @@ Any texture that is meant to behave like a terrain tile should be designed aroun
 
 ## Collision Rules
 
-Walkable tiles usually have no collision body. Obstacle tiles use collision bounds defined in code.
+Walkable tiles usually have no collision body. Terrain collision belongs to `TileCatalog.ts`; reusable object collision belongs to the object's own JSON definition.
 
 Default solid tile inset values:
 
@@ -52,7 +52,7 @@ Small props should remain readable when placed on top of a `64 x 64` terrain til
 - Test tiles in a checker pattern before importing them.
 - Compare props against a `64 x 64` tile mockup, not in isolation.
 - Keep obstacle silhouettes visually aligned with the collision area players will feel.
-- If an obstacle needs a different footprint, update `src/game/worldTiles.ts`.
+- If terrain needs a different footprint, update its `TileCatalog.ts` definition. If a reusable object needs one, create or update that object's content file.
 
 ## Safe Template
 

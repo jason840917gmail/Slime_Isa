@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { WORLD_WIDTH, WORLD_HEIGHT } from './terrainNoise';
+import type { WorldDimensions } from './world/WorldDimensions';
 
 const MINIMAP_SIZE = 180;
 const MINIMAP_MARGIN = 16;
@@ -8,7 +8,10 @@ export class Minimap {
   private graphics: Phaser.GameObjects.Graphics;
   private size = MINIMAP_SIZE;
 
-  constructor(scene: Phaser.Scene) {
+  constructor(
+    scene: Phaser.Scene,
+    private readonly dimensions: WorldDimensions,
+  ) {
     this.graphics = scene.add.graphics();
     this.graphics.setScrollFactor(0);
     this.graphics.setDepth(80);
@@ -52,8 +55,8 @@ export class Minimap {
     g.fillRect(baseX, baseY, this.size, this.size);
 
     const toMinimap = (wx: number, wy: number) => ({
-      mx: baseX + (wx / WORLD_WIDTH) * this.size,
-      my: baseY + (wy / WORLD_HEIGHT) * this.size,
+      mx: baseX + (wx / this.dimensions.width) * this.size,
+      my: baseY + (wy / this.dimensions.height) * this.size,
     });
 
     // Friend dots

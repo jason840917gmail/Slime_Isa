@@ -1,0 +1,271 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./assets.schema.json",
+  "title": "Slime Isa asset manifest",
+  "description": "Runtime/editor loading manifest for files under asset/. This is a media-loading catalog, not an art inventory and not gameplay data. Collision/solidity, animations, AI, stats, drops, spawn and biome rules live in content archetypes or TypeScript systems.",
+  "type": "object",
+  "required": ["version", "assets"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "const": 1 },
+    "ignore": {
+      "type": "array",
+      "description": "Glob patterns (relative to asset/, forward slashes) for files intentionally not mapped, e.g. source art, experiments, unused variants. Supports **, *, ?.",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "bundles": {
+      "type": "object",
+      "description": "Named load groups. Each entry lists asset IDs loaded together (e.g. boot, area.gloop-forest).",
+      "propertyNames": { "pattern": "^[a-z0-9]+([.-][a-z0-9-]+)*$" },
+      "additionalProperties": {
+        "type": "array",
+        "items": { "$ref": "#/$defs/assetId" },
+        "uniqueItems": true
+      }
+    },
+    "assets": {
+      "type": "object",
+      "description": "Flat keyed catalog. Keys are stable dotted IDs; categories and tags are filter metadata only.",
+      "propertyNames": { "$ref": "#/$defs/assetId" },
+      "additionalProperties": { "$ref": "#/$defs/asset" },
+      "minProperties": 1
+    }
+  },
+  "$defs": {
+    "assetId": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(\\.[a-z0-9-]+)+$",
+      "description": "Stable dotted ID such as character.player.slime or ground.meadow.grass-a."
+    },
+    "path": {
+      "type": "string",
+      "description": "Path relative to asset/ root, forward slashes, case-exact. No leading slash, no '..'.",
+      "pattern": "^(?!/)[^\\\\]+(?<!/)$",
+      "not": { "pattern": "(^|/)\\.\\.(/|$)" }
+    },
+    "dimensions": {
+      "type": "object",
+      "required": ["w", "h"],
+      "additionalProperties": false,
+      "properties": {
+        "w": { "type": "integer", "minimum": 1 },
+        "h": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "expect": {
+      "allOf": [{ "$ref": "#/$defs/dimensions" }],
+      "description": "Expected source image dimensions in px. assets:check compares them to the real file."
+    },
+    "grid": {
+      "type": "object",
+      "description": "Irregular sheet cut-lines for derived crops (non-uniform grids).",
+      "required": ["columnLines", "rowLines"],
+      "additionalProperties": false,
+      "properties": {
+        "columnLines": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 0 },
+          "minItems": 2,
+          "uniqueItems": true
+        },
+        "rowLines": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 0 },
+          "minItems": 2,
+          "uniqueItems": true
+        },
+        "pad": { "type": "integer", "minimum": 0, "default": 0 }
+      }
+    },
+    "frame": {
+      "type": "object",
+      "description": "Uniform grid cell size. cols/rows optional; assets:check always verifies the real image divides evenly.",
+      "required": ["w", "h"],
+      "additionalProperties": false,
+      "properties": {
+        "w": { "type": "integer", "minimum": 1 },
+        "h": { "type": "integer", "minimum": 1 },
+        "cols": { "type": "integer", "minimum": 1 },
+        "rows": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "sourceImage": {
+      "type": "object",
+      "required": ["kind", "path"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "const": "image" },
+        "path": { "$ref": "#/$defs/path" },
+        "expect": { "$ref": "#/$defs/expect" },
+        "grid": { "$ref": "#/$defs/grid" }
+      }
+    },
+    "sourceSpritesheet": {
+      "type": "object",
+      "required": ["kind", "path", "frame"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "const": "spritesheet" },
+        "path": { "$ref": "#/$defs/path" },
+        "frame": { "$ref": "#/$defs/frame" },
+        "expect": { "$ref": "#/$defs/expect" }
+      }
+    },
+    "sourceAtlas": {
+      "type": "object",
+      "required": ["kind", "path", "data"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "const": "atlas" },
+        "path": { "$ref": "#/$defs/path" },
+        "data": { "$ref": "#/$defs/path" }
+      }
+    },
+    "sourceAudio": {
+      "type": "object",
+      "required": ["kind", "path"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "const": "audio" },
+        "path": { "$ref": "#/$defs/path" }
+      }
+    },
+    "sourceTilemap": {
+      "type": "object",
+      "required": ["kind", "path"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "const": "tilemap" },
+        "path": { "$ref": "#/$defs/path" }
+      }
+    },
+    "sourceDerived": {
+      "type": "object",
+      "description": "Texture produced at boot by cropping another manifest asset (e.g. forest ground tiles).",
+      "required": ["kind", "from", "crop", "out"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "const": "derived" },
+        "from": { "$ref": "#/$defs/assetId" },
+        "crop": {
+          "type": "object",
+          "required": ["column", "row"],
+          "additionalProperties": false,
+          "properties": {
+            "column": { "type": "integer", "minimum": 0 },
+            "row": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "out": { "$ref": "#/$defs/dimensions" }
+      }
+    },
+    "sourceProcedural": {
+      "type": "object",
+      "description": "Texture generated in code at boot. generator names a registered ID in the TypeScript ProceduralRegistry; JSON stays data-only.",
+      "required": ["kind", "generator"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "const": "procedural" },
+        "generator": { "type": "string", "pattern": "^[a-z0-9-]+$" }
+      }
+    },
+    "source": {
+      "oneOf": [
+        { "$ref": "#/$defs/sourceImage" },
+        { "$ref": "#/$defs/sourceSpritesheet" },
+        { "$ref": "#/$defs/sourceAtlas" },
+        { "$ref": "#/$defs/sourceAudio" },
+        { "$ref": "#/$defs/sourceTilemap" },
+        { "$ref": "#/$defs/sourceDerived" },
+        { "$ref": "#/$defs/sourceProcedural" }
+      ]
+    },
+    "frameMetadata": {
+      "type": "object",
+      "description": "Optional descriptive metadata for one spritesheet frame.",
+      "required": ["name"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "pattern": "^[a-z0-9]+([.-][a-z0-9]+)*$" }
+      }
+    },
+    "asset": {
+      "type": "object",
+      "required": ["source", "runtime", "status"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/source" },
+        "runtime": {
+          "type": "object",
+          "required": ["textureKey"],
+          "additionalProperties": false,
+          "properties": {
+            "textureKey": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Phaser texture key. Existing keys are preserved verbatim during migration."
+            }
+          }
+        },
+        "frames": {
+          "type": "object",
+          "description": "Per-frame metadata keyed by zero-based spritesheet frame index.",
+          "propertyNames": { "pattern": "^(0|[1-9][0-9]*)$" },
+          "additionalProperties": { "$ref": "#/$defs/frameMetadata" }
+        },
+        "render": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "origin": {
+              "type": "array",
+              "prefixItems": [{ "type": "number" }, { "type": "number" }],
+              "items": false,
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "nativeSize": {
+              "type": "array",
+              "prefixItems": [
+                { "type": "integer", "minimum": 1 },
+                { "type": "integer", "minimum": 1 }
+              ],
+              "items": false,
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "pixelArt": { "type": "boolean" }
+          }
+        },
+        "placement": {
+          "type": "object",
+          "description": "Editor-facing placement hints only. Never read by physics or world-gen gameplay.",
+          "additionalProperties": false,
+          "properties": {
+            "tile": { "type": "boolean" },
+            "suggestedBounds": {
+              "type": "object",
+              "description": "Suggested pixel insets for editor preview. NOT a collision authority.",
+              "additionalProperties": false,
+              "properties": {
+                "left": { "type": "integer", "minimum": 0 },
+                "right": { "type": "integer", "minimum": 0 },
+                "top": { "type": "integer", "minimum": 0 },
+                "bottom": { "type": "integer", "minimum": 0 }
+              }
+            }
+          }
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "uniqueItems": true
+        },
+        "status": { "enum": ["draft", "ready", "deprecated"] },
+        "notes": { "type": "string" }
+      }
+    }
+  }
+}

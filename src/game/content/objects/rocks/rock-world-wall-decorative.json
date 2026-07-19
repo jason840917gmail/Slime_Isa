@@ -1,0 +1,34 @@
+{
+  "$schema": "../objects.schema.json",
+  "objectId": "rock.world-wall.decorative",
+  "selection": "authored",
+  "variants": [
+    {
+      "assetId": "sheet.rocks.3x1",
+      "frames": [
+        { "visualId": "large-01", "frame": 0 },
+        { "visualId": "large-02", "frame": 1 },
+        { "visualId": "large-03", "frame": 2 }
+      ]
+    },
+    {
+      "assetId": "sheet.rocks.8x3",
+      "frames": [
+        { "visualId": "field-01", "frame": 0 }, { "visualId": "field-02", "frame": 1 },
+        { "visualId": "field-03", "frame": 2 }, { "visualId": "field-04", "frame": 3 },
+        { "visualId": "field-05", "frame": 4 }, { "visualId": "field-06", "frame": 5 },
+        { "visualId": "field-07", "frame": 6 }, { "visualId": "field-08", "frame": 7 },
+        { "visualId": "field-09", "frame": 8 }, { "visualId": "field-10", "frame": 9 },
+        { "visualId": "field-11", "frame": 10 }, { "visualId": "field-12", "frame": 11 },
+        { "visualId": "field-13", "frame": 12 }, { "visualId": "field-14", "frame": 13 },
+        { "visualId": "field-15", "frame": 14 }, { "visualId": "field-16", "frame": 15 },
+        { "visualId": "field-17", "frame": 16 }, { "visualId": "field-18", "frame": 17 },
+        { "visualId": "field-19", "frame": 18 }, { "visualId": "field-20", "frame": 19 },
+        { "visualId": "field-21", "frame": 20 }, { "visualId": "field-22", "frame": 21 },
+        { "visualId": "field-23", "frame": 22 }, { "visualId": "field-24", "frame": 23 }
+      ]
+    }
+  ],
+  "physics": null,
+  "tags": ["rock", "decorative"]
+}

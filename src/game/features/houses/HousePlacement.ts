@@ -1,8 +1,12 @@
 import Phaser from 'phaser';
 import { Friend } from '../../Friend';
 import { House } from '../../House';
-import { TILE_SIZE, WORLD_HEIGHT, WORLD_TILES_X, WORLD_TILES_Y, WORLD_WIDTH } from '../../terrainNoise';
-import { isTileCollidable, WORLD_TILE_RULES, type WorldTileId } from '../../worldTiles';
+import type { WorldDimensions } from '../../world/WorldDimensions';
+import {
+  isTileCollidable,
+  TILE_CATALOG as WORLD_TILE_RULES,
+  type WorldTileId,
+} from '../../content/terrain/TileCatalog';
 
 export interface HouseEntry {
   owner: 'player' | 'friend';
@@ -12,6 +16,7 @@ export interface HouseEntry {
 export interface HousePlacementContext {
   scene: Phaser.Scene;
   terrainGrid: WorldTileId[][];
+  dimensions: WorldDimensions;
   collisionTiles: Phaser.Physics.Arcade.StaticGroup;
   player: Phaser.Physics.Arcade.Sprite;
   friends: Phaser.Physics.Arcade.Group;
@@ -23,19 +28,20 @@ export function placeHouses(
   playerCount = 1,
   friendCount = 3,
 ): { houses: HouseEntry[]; playerHouse?: House } {
+  const { columns, rows, tileSize, width, height } = ctx.dimensions;
   const candidates: Array<{ x: number; y: number }> = [];
-  for (let tileY = 0; tileY < WORLD_TILES_Y; tileY += 1) {
-    for (let tileX = 0; tileX < WORLD_TILES_X; tileX += 1) {
+  for (let tileY = 0; tileY < rows; tileY += 1) {
+    for (let tileX = 0; tileX < columns; tileX += 1) {
       const tileId = ctx.terrainGrid[tileY]?.[tileX];
       if (tileId && WORLD_TILE_RULES[tileId].allowsDecorations && !isTileCollidable(tileId)) {
-        candidates.push({ x: tileX * TILE_SIZE + TILE_SIZE / 2, y: tileY * TILE_SIZE + TILE_SIZE / 2 });
+        candidates.push({ x: tileX * tileSize + tileSize / 2, y: tileY * tileSize + tileSize / 2 });
       }
     }
   }
 
   candidates.sort((a, b) => {
-    const distanceA = (a.x - WORLD_WIDTH / 2) ** 2 + (a.y - WORLD_HEIGHT / 2) ** 2;
-    const distanceB = (b.x - WORLD_WIDTH / 2) ** 2 + (b.y - WORLD_HEIGHT / 2) ** 2;
+    const distanceA = (a.x - width / 2) ** 2 + (a.y - height / 2) ** 2;
+    const distanceB = (b.x - width / 2) ** 2 + (b.y - height / 2) ** 2;
     return distanceA - distanceB;
   });
   const homeCandidate = candidates.shift();

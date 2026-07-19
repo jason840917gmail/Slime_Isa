@@ -1,6 +1,6 @@
 import type { GameStateData } from '../../core/GameState';
 import type { QuestState } from '../../quests/Quest';
-import { AREAS, type AreaId } from '../../world/Area';
+import type { AreaId } from '../../world/Area';
 import { SAVE_SCHEMA_VERSION, type GameSaveData, type StoredSave, type WorldProgressData } from './SaveSchema';
 import { STORAGE_KEYS } from './storageKeys';
 
@@ -21,7 +21,7 @@ function parseArray<T>(key: string, guard: (value: unknown) => value is T): T[] 
 }
 
 function isAreaId(value: unknown): value is AreaId {
-  return typeof value === 'string' && value in AREAS;
+  return typeof value === 'string' && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value);
 }
 
 function isString(value: unknown): value is string {

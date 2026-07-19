@@ -1,0 +1,65 @@
+{
+  "$schema": "../objects.schema.json",
+  "objectId": "tree.world.solid",
+  "selection": "authored",
+  "variants": [
+    {
+      "assetId": "sheet.trees.8x6",
+      "frames": [
+        { "visualId": "shadow-pine-01", "frame": 0, "collider": { "width": 34, "height": 40, "offsetX": 47, "offsetY": 125 } },
+        { "visualId": "shadow-pine-02", "frame": 1, "collider": { "width": 34, "height": 40, "offsetX": 47, "offsetY": 125 } },
+        { "visualId": "ancient-bare-01", "frame": 2, "collider": { "width": 54, "height": 48, "offsetX": 37, "offsetY": 118 } },
+        { "visualId": "frost-bare", "frame": 3, "collider": { "width": 48, "height": 48, "offsetX": 40, "offsetY": 118 } },
+        { "visualId": "ancient-bare-02", "frame": 4, "collider": { "width": 54, "height": 48, "offsetX": 37, "offsetY": 118 } },
+        { "visualId": "ancient-bare-03", "frame": 5, "collider": { "width": 54, "height": 48, "offsetX": 37, "offsetY": 118 } },
+        { "visualId": "ancient-bare-04", "frame": 6, "collider": { "width": 54, "height": 48, "offsetX": 37, "offsetY": 118 } },
+        { "visualId": "ancient-bare-05", "frame": 7, "collider": { "width": 54, "height": 48, "offsetX": 37, "offsetY": 118 } },
+        { "visualId": "ancient-bare-06", "frame": 8, "collider": { "width": 54, "height": 48, "offsetX": 37, "offsetY": 118 } },
+        { "visualId": "golden-tree-01", "frame": 9, "collider": { "width": 40, "height": 42, "offsetX": 44, "offsetY": 124 } },
+        { "visualId": "golden-tree-02", "frame": 10, "collider": { "width": 40, "height": 42, "offsetX": 44, "offsetY": 124 } },
+        { "visualId": "autumn-tree-01", "frame": 11, "collider": { "width": 40, "height": 42, "offsetX": 44, "offsetY": 124 } },
+        { "visualId": "autumn-tree-02", "frame": 12, "collider": { "width": 40, "height": 42, "offsetX": 44, "offsetY": 124 } },
+        { "visualId": "autumn-tree-03", "frame": 13, "collider": { "width": 40, "height": 42, "offsetX": 44, "offsetY": 124 } },
+        { "visualId": "autumn-tree-04", "frame": 14, "collider": { "width": 40, "height": 42, "offsetX": 44, "offsetY": 124 } },
+        { "visualId": "autumn-tree-05", "frame": 15, "collider": { "width": 40, "height": 42, "offsetX": 44, "offsetY": 124 } },
+        { "visualId": "red-tree", "frame": 16, "collider": { "width": 42, "height": 42, "offsetX": 43, "offsetY": 124 } },
+        { "visualId": "pine-01", "frame": 17, "collider": { "width": 36, "height": 34, "offsetX": 46, "offsetY": 133 } },
+        { "visualId": "pine-02", "frame": 18, "collider": { "width": 36, "height": 34, "offsetX": 46, "offsetY": 133 } },
+        { "visualId": "pine-03", "frame": 19, "collider": { "width": 36, "height": 34, "offsetX": 46, "offsetY": 133 } },
+        { "visualId": "pine-04", "frame": 20, "collider": { "width": 36, "height": 34, "offsetX": 46, "offsetY": 133 } },
+        { "visualId": "pine-05", "frame": 21, "collider": { "width": 36, "height": 34, "offsetX": 46, "offsetY": 133 } },
+        { "visualId": "pine-06", "frame": 22, "collider": { "width": 36, "height": 34, "offsetX": 46, "offsetY": 133 } },
+        { "visualId": "pine-07", "frame": 23, "collider": { "width": 36, "height": 34, "offsetX": 46, "offsetY": 133 } },
+        { "visualId": "snow-pine", "frame": 24, "collider": { "width": 38, "height": 34, "offsetX": 45, "offsetY": 133 } },
+        { "visualId": "green-tree-01", "frame": 25, "collider": { "width": 42, "height": 42, "offsetX": 43, "offsetY": 125 } },
+        { "visualId": "green-tree-02", "frame": 26, "collider": { "width": 42, "height": 42, "offsetX": 43, "offsetY": 125 } },
+        { "visualId": "green-tree-03", "frame": 27, "collider": { "width": 42, "height": 42, "offsetX": 43, "offsetY": 125 } },
+        { "visualId": "green-tree-04", "frame": 28, "collider": { "width": 42, "height": 42, "offsetX": 43, "offsetY": 125 } },
+        { "visualId": "green-tree-05", "frame": 29, "collider": { "width": 42, "height": 42, "offsetX": 43, "offsetY": 125 } },
+        { "visualId": "green-tree-06", "frame": 30, "collider": { "width": 42, "height": 42, "offsetX": 43, "offsetY": 125 } },
+        { "visualId": "green-tree-07", "frame": 31, "collider": { "width": 42, "height": 42, "offsetX": 43, "offsetY": 125 } },
+        { "visualId": "grove-tree-01", "frame": 32, "collider": { "width": 44, "height": 42, "offsetX": 42, "offsetY": 125 } },
+        { "visualId": "grove-tree-02", "frame": 33, "collider": { "width": 44, "height": 42, "offsetX": 42, "offsetY": 125 } },
+        { "visualId": "grove-tree-03", "frame": 34, "collider": { "width": 44, "height": 42, "offsetX": 42, "offsetY": 125 } },
+        { "visualId": "grove-tree-04", "frame": 35, "collider": { "width": 44, "height": 42, "offsetX": 42, "offsetY": 125 } },
+        { "visualId": "grove-tree-05", "frame": 36, "collider": { "width": 44, "height": 42, "offsetX": 42, "offsetY": 125 } },
+        { "visualId": "grove-tree-06", "frame": 37, "collider": { "width": 44, "height": 42, "offsetX": 42, "offsetY": 125 } },
+        { "visualId": "grove-tree-07", "frame": 38, "collider": { "width": 44, "height": 42, "offsetX": 42, "offsetY": 125 } },
+        { "visualId": "grove-tree-08", "frame": 39, "collider": { "width": 44, "height": 42, "offsetX": 42, "offsetY": 125 } },
+        { "visualId": "grove-tree-09", "frame": 40, "collider": { "width": 44, "height": 42, "offsetX": 42, "offsetY": 125 } },
+        { "visualId": "grove-tree-10", "frame": 41, "collider": { "width": 44, "height": 42, "offsetX": 42, "offsetY": 125 } },
+        { "visualId": "grove-tree-11", "frame": 42, "collider": { "width": 44, "height": 42, "offsetX": 42, "offsetY": 125 } }
+      ]
+    },
+    {
+      "assetId": "sheet.trees.3x1",
+      "frames": [
+        { "visualId": "ancient-green", "frame": 0, "collider": { "width": 120, "height": 58, "offsetX": 68, "offsetY": 190 } },
+        { "visualId": "ancient-dark", "frame": 1, "collider": { "width": 120, "height": 58, "offsetX": 68, "offsetY": 190 } },
+        { "visualId": "ancient-blossom", "frame": 2, "collider": { "width": 120, "height": 58, "offsetX": 68, "offsetY": 190 } }
+      ]
+    }
+  ],
+  "physics": { "body": "static" },
+  "tags": ["tree", "solid"]
+}
