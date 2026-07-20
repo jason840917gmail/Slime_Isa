@@ -10,27 +10,39 @@ type TileInset = {
 export interface TileDefinition {
   readonly visual: {
     readonly assetIds: readonly AssetId[];
-    readonly selection: 'seeded-hash' | 'ground-sheet-region';
+    readonly selection: 'seeded-hash' | 'ground-sheet-region' | 'sheet-order';
   };
   readonly physics: null | {
     readonly body: 'static';
     readonly inset?: Partial<TileInset>;
   };
   readonly allowsDecorations: boolean;
+  /** Visual-only derived edge blending. Never affects physics or map data. */
+  readonly transition?: {
+    readonly group: 'natural-ground';
+    /** Same material means no transition even when logical tile IDs differ. */
+    readonly material: string;
+    /** Higher-priority material feathers into lower-priority material. */
+    readonly priority: number;
+    readonly edgeWidth: number;
+    readonly style: 'noisy-feather';
+  };
   readonly tags: readonly string[];
 }
 
 export const TILE_CATALOG = {
   'grass-a': {
-    visual: { assetIds: ['sheet.grounds.19x19.highland-green'], selection: 'ground-sheet-region' },
+    visual: { assetIds: ['sheet.grounds.19x19.highland-green'], selection: 'sheet-order' },
     physics: null,
     allowsDecorations: true,
+    transition: { group: 'natural-ground', material: 'highland', priority: 10, edgeWidth: 12, style: 'noisy-feather' },
     tags: ['ground', 'meadow', 'walkable'],
   },
   'grass-b': {
-    visual: { assetIds: ['sheet.grounds.19x19.highland-green'], selection: 'ground-sheet-region' },
+    visual: { assetIds: ['sheet.grounds.19x19.highland-green'], selection: 'sheet-order' },
     physics: null,
     allowsDecorations: true,
+    transition: { group: 'natural-ground', material: 'highland', priority: 10, edgeWidth: 12, style: 'noisy-feather' },
     tags: ['ground', 'meadow', 'walkable'],
   },
   water: {
@@ -40,7 +52,7 @@ export const TILE_CATALOG = {
     tags: ['ground', 'water'],
   },
   'rock-wall': {
-    visual: { assetIds: ['sheet.grounds.19x19.highland-green'], selection: 'ground-sheet-region' },
+    visual: { assetIds: ['sheet.grounds.19x19.highland-green'], selection: 'sheet-order' },
     physics: { body: 'static', inset: { left: 4, right: 4, top: 6, bottom: 2 } },
     allowsDecorations: false,
     tags: ['legacy', 'wall'],
@@ -49,12 +61,14 @@ export const TILE_CATALOG = {
     visual: { assetIds: ['terrain.forest.floor'], selection: 'seeded-hash' },
     physics: null,
     allowsDecorations: true,
+    transition: { group: 'natural-ground', material: 'forest-floor', priority: 10, edgeWidth: 12, style: 'noisy-feather' },
     tags: ['ground', 'forest', 'walkable'],
   },
   'forest-moss': {
     visual: { assetIds: ['terrain.forest.moss'], selection: 'seeded-hash' },
     physics: null,
     allowsDecorations: true,
+    transition: { group: 'natural-ground', material: 'forest-moss', priority: 20, edgeWidth: 12, style: 'noisy-feather' },
     tags: ['ground', 'forest', 'walkable'],
   },
   'tree-wall': {
@@ -67,12 +81,14 @@ export const TILE_CATALOG = {
     visual: { assetIds: ['terrain.cavern.floor'], selection: 'seeded-hash' },
     physics: null,
     allowsDecorations: true,
+    transition: { group: 'natural-ground', material: 'cavern-floor', priority: 10, edgeWidth: 12, style: 'noisy-feather' },
     tags: ['ground', 'cavern', 'walkable'],
   },
   'crystal-floor': {
     visual: { assetIds: ['terrain.cavern.crystal-floor'], selection: 'seeded-hash' },
     physics: null,
     allowsDecorations: true,
+    transition: { group: 'natural-ground', material: 'crystal-floor', priority: 20, edgeWidth: 12, style: 'noisy-feather' },
     tags: ['ground', 'cavern', 'walkable'],
   },
   'crystal-wall': {
@@ -88,16 +104,25 @@ export const TILE_CATALOG = {
     tags: ['ground', 'water', 'deep'],
   },
   'amberleaf-ground': {
-    visual: { assetIds: ['sheet.grounds.19x19.amberleaf'], selection: 'ground-sheet-region' },
+    visual: { assetIds: ['sheet.grounds.19x19.amberleaf'], selection: 'sheet-order' },
     physics: null,
     allowsDecorations: true,
+    transition: { group: 'natural-ground', material: 'amberleaf', priority: 10, edgeWidth: 12, style: 'noisy-feather' },
     tags: ['ground', 'amberleaf', 'walkable'],
   },
   'frozen-ground': {
-    visual: { assetIds: ['sheet.grounds.19x19.frozen'], selection: 'ground-sheet-region' },
+    visual: { assetIds: ['sheet.grounds.19x19.frozen'], selection: 'sheet-order' },
     physics: null,
     allowsDecorations: true,
+    transition: { group: 'natural-ground', material: 'frozen', priority: 10, edgeWidth: 12, style: 'noisy-feather' },
     tags: ['ground', 'frozen', 'walkable'],
+  },
+  'sanddessert-ground': {
+    visual: { assetIds: ['sheet.grounds.19x19.sanddessert'], selection: 'sheet-order' },
+    physics: null,
+    allowsDecorations: true,
+    transition: { group: 'natural-ground', material: 'sanddessert', priority: 10, edgeWidth: 12, style: 'noisy-feather' },
+    tags: ['ground', 'sanddessert', 'walkable'],
   },
 } as const satisfies Readonly<Record<string, TileDefinition>>;
 

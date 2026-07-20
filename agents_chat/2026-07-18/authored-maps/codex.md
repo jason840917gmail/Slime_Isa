@@ -246,3 +246,28 @@ Next editor conveniences: new-document wizard, drag painting as one undo transac
 - Frames 0–21 and 23 are `decoration.world.solid`, each with a conservative per-frame static footprint collider derived from its silhouette.
 - One-based tile 7x3 (frame 22, the sewer grate) is `decoration.world.floor`, walkable, and has no collider.
 - Editor groups separate Solid Decorations from Floor Decorations. Full `pnpm check` passes with 8 object definition files.
+
+23:12 - codex
+
+## Stone wall sheets and editor content
+
+- Replaced the stale wall draft entry with four validated runtime sheets using their real 40x40 frame geometry: 16 horizontal, 4 corner, 4 T-junction, and 4 vertical visuals.
+- Added all 28 visuals to `wall.stone.solid` with frame-specific static collider bounds and boot loading.
+- The editor exposes every exact frame under a dedicated Stone Walls group; placements use stable visual IDs and never randomize variants.
+- Full `pnpm check` passes with 25 assets and 9 object definition files.
+
+23:41 - codex
+
+## Direct object drag-and-drop
+
+- Select / Move now outlines every movable object with a visible grab area; the selected object receives a stronger highlight and handle.
+- Replaced the old click-then-click movement with press, drag, and release. Objects follow the pointer, then snap to a valid map cell as one undoable edit.
+- A click without movement still selects the object for Delete / Backspace. Browser verification moved a house, restored it with Undo, and reported no console errors.
+
+00:02 - codex
+
+## Renamed 70px wall sheets
+
+- Updated the manifest to the replacement 70x70 sheets and their real grids: horizontal 8x1, corners 4x2, T-junctions 7x1, and vertical 1x8.
+- Rebuilt `wall.stone.solid` as 31 exact editor visuals with frame-aligned static colliders; IDs now match the new sheet layouts.
+- Full `pnpm check` passes and the production bundle contains all four renamed wall PNGs.

@@ -125,3 +125,29 @@ Design notes for codex:
 3. Found `objects:check` already in `check` chain — inserted `maps:check` after it; no conflicts. `pnpm check` fully green: assets 8 OK, objects 3 files OK, maps 0 OK, typecheck + build OK.
 
 Next: Action 3 (dynamic world dimensions) is the big plumbing job — `WORLD_WIDTH/HEIGHT` consumers (physics bounds, navigation lanes, spawner clamp, minimap, debug renderer) take size from loaded map context. Can start on word from coordinator; suggest codex confirm its objects layer is stable first since MapBuilder (Action 5) depends on it.
+
+22:52 - kimi
+
+## Editor review + two fixes (Field Cartographer)
+
+Reviewed the full editor (`MapEditorScene/State/Panel/Connections/LoadScene`, save middleware, docs). Design is sound: state store with serialize-based undo, catalog-driven palettes, server-side validation + atomic writes. Found and fixed two defects:
+
+1. **Keyboard shortcuts leaked into DOM editing (fixed).** Tool hotkeys (H/B/O/V/X/Z/P/I/E), Ctrl+Z/Y/S, and Delete/Backspace fired while typing in the New Map / Monster Spawns dialogs or with a connection `<select>` focused — and WASD/arrows panned the camera while typing. Worst case: select an object → open New Map → hit Backspace on a typo → the selected object got deleted. Added `isUiEditingActive()` in `MapEditorScene.ts`: shortcuts and camera keys are ignored when the event target/active element is an input/textarea/select/contentEditable, or while any `<dialog>` is open.
+
+2. **Dirty flag re-serialized the whole map per state read (fixed).** `MapEditorState.value.dirty` ran `JSON.stringify(map)` on every access; `value` is read many times per second during pointermove/update (paint strokes) — megabytes of GC churn on production maps (~250 objects). Now cached: flipped in `mutate`, recomputed once in `undo`/`redo` (undo-to-saved-state clears dirty correctly), cleared on successful `save`.
+
+Also: `assets:check` flagged a new unmapped file `MAPS/walls/70x70-8x1tiles_horizontalwall.png` (orphan gate working as designed). Registered it as `sheet.walls.8x1` (70×70, 8×1, verified 560×70 on disk) with `status: "draft"` — ready for whoever authors wall archetypes.
+
+Verification: full `pnpm check` green — 22 assets, 8 object files, 5 maps, typecheck, build. Editor code remains dev-only (dynamic import, absent from production bundle).
+
+Not fixed (deliberately, say the word): full `renderDocument()` rebuild per revision (O(all tiles) per undo) — fine at 54×54 today; camera can scroll past map edges into the void (minor UX).
+
+23:31 - kimi
+
+## Editor improvements round 2 (coordinator requests)
+
+1. **Safe zones visible only in the safe-zone tool.** `renderMapMarkers` draws the bright green rectangles + labels only while `tool === 'safe-zone'`; overlays (grid/markers) now rebuild on tool change without touching terrain (new `renderOverlays` split from `renderDocument`). Zone selection is cleared when leaving the tool (`MapEditorState.setTool`), and the selection ring renders only in the safe-zone tool. Consequence: the Erase tool no longer deletes safe zones (they were invisible there — deleting what you can't see is a footgun). Zone deletion lives in the safe-zone tool: right-click or `Delete`.
+2. **Left-drag stamps multiple objects.** The Object tool previously placed one instance per click. Now pointerdown begins an `ObjectStampDrag`: Bresenham-interpolated cells (same as terrain paint), translucent previews while dragging, one `mutate` on release = one undo step. Terrain drag already existed (codex 20:00). Right/middle-drag pans from every tool (unchanged); Pan tool left-drag pans.
+3. **Cursor ghost of the selected content.** A translucent preview of the active terrain tile (alpha .55, origin-snapped to cell) or object visual (alpha .65, bottom-center like real placement) follows the pointer, rebuilt when the palette selection changes, hidden for non-placement tools, outside map bounds, and during active drags (stroke previews take over).
+
+Implementation notes: reused `previewTileFactory` + a cached `previewObjectFactory` (physics disabled) for ghosts/previews; no new textures. Removed the now-dead single-click `object` case in `applyTool` and the unused `safeZoneAt` helper (strict TS). `docs/MAP_EDITOR.md` updated. Full `pnpm check` green (25 assets, 9 object files, 5 maps, typecheck, build).

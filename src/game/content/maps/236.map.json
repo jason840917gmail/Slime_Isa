@@ -1,0 +1,6075 @@
+{
+  "$schema": "./maps.schema.json",
+  "version": 1,
+  "mapId": "236",
+  "tileSize": 64,
+  "size": {
+    "columns": 54,
+    "rows": 54
+  },
+  "layers": [
+    {
+      "id": "ground",
+      "encoding": "legend-chars-v1",
+      "legend": {
+        "g": "frozen-ground",
+        "a": "crystal-floor",
+        "b": "forest-moss"
+      },
+      "rows": [
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggbbggggggggggggggggggggggggggggggggg",
+        "ggggggggggggggggggbbbbggaaaggggggggggggggggggggggggggg",
+        "gggggggggggggggbbbgbbbggaaagaaaggggggggggggggggggggggg",
+        "gggggggggggggggbbbbbbbggaaagaaaggggggggggggggggggggggg",
+        "ggggggggggggggbbbbbbbbggaaagaaaggggggggggggggggggggggg",
+        "ggggggggggggggbbbbbbbbggaaagaaaggggggggggggggggggggggg",
+        "ggggggggggggggbbbbgbbbggaaagaaaggggggggggggggggggggggg",
+        "ggggggggggggggbbbbgbbbggaaagaaaagggggggggggggggggggggg",
+        "gggggggggggggggbbbbbbbggaaaaaaaagggggggggggggggggggggg",
+        "ggggggggggggggbbggbbbbggaaaagaaagggggggggggggggggggggg",
+        "ggggggggggggggbgggbbbbbaaaaaaagagggggggggggggggggggggg",
+        "ggggggggggggggbbbbbbbbbaaaaaaaaagggggggggggggggggggggg",
+        "gggggggggggggggggggggbbaaggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg"
+      ]
+    }
+  ],
+  "objects": [
+    {
+      "instanceId": "wall-stone-solid-aac35489",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1184,
+      "y": 1152
+    },
+    {
+      "instanceId": "wall-stone-solid-13855d73",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1312,
+      "y": 1152
+    },
+    {
+      "instanceId": "wall-stone-solid-8425fe92",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1248,
+      "y": 1152
+    },
+    {
+      "instanceId": "wall-stone-solid-f73e40af",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1312,
+      "y": 1152
+    },
+    {
+      "instanceId": "wall-stone-solid-0fba30e0",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1376,
+      "y": 1152
+    },
+    {
+      "instanceId": "wall-stone-solid-c2b03d6d",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1440,
+      "y": 1152
+    },
+    {
+      "instanceId": "wall-stone-solid-447cd04f",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1504,
+      "y": 1152
+    },
+    {
+      "instanceId": "wall-stone-solid-d6701694",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1568,
+      "y": 1152
+    },
+    {
+      "instanceId": "wall-stone-solid-c1801440",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1632,
+      "y": 1152
+    },
+    {
+      "instanceId": "wall-stone-solid-1141c5c9",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1696,
+      "y": 1152
+    },
+    {
+      "instanceId": "wall-stone-solid-6e331882",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1760,
+      "y": 1152
+    },
+    {
+      "instanceId": "wall-stone-solid-89a6cc0e",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1760,
+      "y": 1216
+    },
+    {
+      "instanceId": "wall-stone-solid-5151c2f9",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1824,
+      "y": 1216
+    },
+    {
+      "instanceId": "wall-stone-solid-3b2e1b6c",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1888,
+      "y": 1216
+    },
+    {
+      "instanceId": "wall-stone-solid-e53d8d96",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1952,
+      "y": 1216
+    },
+    {
+      "instanceId": "wall-stone-solid-c9249970",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 2016,
+      "y": 1216
+    },
+    {
+      "instanceId": "wall-stone-solid-603c40ef",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1184,
+      "y": 1216
+    },
+    {
+      "instanceId": "wall-stone-solid-c89e87f7",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1120,
+      "y": 1216
+    },
+    {
+      "instanceId": "wall-stone-solid-79cc19ae",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1056,
+      "y": 1216
+    },
+    {
+      "instanceId": "wall-stone-solid-4a2d2318",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 992,
+      "y": 1216
+    },
+    {
+      "instanceId": "wall-stone-solid-196d8cd3",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 928,
+      "y": 1216
+    },
+    {
+      "instanceId": "wall-stone-solid-490c299e",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 928,
+      "y": 1280
+    },
+    {
+      "instanceId": "wall-stone-solid-a822aed1",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 928,
+      "y": 1344
+    },
+    {
+      "instanceId": "wall-stone-solid-8a64597d",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 928,
+      "y": 1408
+    },
+    {
+      "instanceId": "wall-stone-solid-9512d3c7",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 928,
+      "y": 1472
+    },
+    {
+      "instanceId": "wall-stone-solid-0843e299",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 928,
+      "y": 1536
+    },
+    {
+      "instanceId": "wall-stone-solid-c341d153",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 928,
+      "y": 1600
+    },
+    {
+      "instanceId": "wall-stone-solid-5d9228c9",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 928,
+      "y": 1664
+    },
+    {
+      "instanceId": "wall-stone-solid-abd98d11",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 864,
+      "y": 1664
+    },
+    {
+      "instanceId": "wall-stone-solid-683fc9bf",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 864,
+      "y": 1728
+    },
+    {
+      "instanceId": "wall-stone-solid-84bafd76",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 864,
+      "y": 1792
+    },
+    {
+      "instanceId": "wall-stone-solid-24e8e313",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 864,
+      "y": 1856
+    },
+    {
+      "instanceId": "wall-stone-solid-62d7d7f4",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 864,
+      "y": 1920
+    },
+    {
+      "instanceId": "wall-stone-solid-bc4f633a",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 2016,
+      "y": 1280
+    },
+    {
+      "instanceId": "wall-stone-solid-a8bbfec8",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 2016,
+      "y": 1344
+    },
+    {
+      "instanceId": "wall-stone-solid-fc8e6935",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 2016,
+      "y": 1408
+    },
+    {
+      "instanceId": "wall-stone-solid-af3ca743",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 2016,
+      "y": 1472
+    },
+    {
+      "instanceId": "wall-stone-solid-84274ea7",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 2016,
+      "y": 1536
+    },
+    {
+      "instanceId": "wall-stone-solid-c25a2b41",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 2016,
+      "y": 1536
+    },
+    {
+      "instanceId": "wall-stone-solid-a743896b",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 2016,
+      "y": 1600
+    },
+    {
+      "instanceId": "wall-stone-solid-ef22a8c3",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 2080,
+      "y": 1600
+    },
+    {
+      "instanceId": "wall-stone-solid-f228b33a",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 2080,
+      "y": 1664
+    },
+    {
+      "instanceId": "wall-stone-solid-ff87d0cd",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 2080,
+      "y": 1728
+    },
+    {
+      "instanceId": "wall-stone-solid-2371afe7",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 2080,
+      "y": 1792
+    },
+    {
+      "instanceId": "wall-stone-solid-067c0da5",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 2080,
+      "y": 1856
+    },
+    {
+      "instanceId": "wall-stone-solid-757923cf",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 2080,
+      "y": 1920
+    },
+    {
+      "instanceId": "wall-stone-solid-d2ad81e6",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 928,
+      "y": 1920
+    },
+    {
+      "instanceId": "wall-stone-solid-bc860396",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 992,
+      "y": 1920
+    },
+    {
+      "instanceId": "wall-stone-solid-5429f55a",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1056,
+      "y": 1920
+    },
+    {
+      "instanceId": "wall-stone-solid-40858334",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1120,
+      "y": 1920
+    },
+    {
+      "instanceId": "wall-stone-solid-53ad40d4",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1184,
+      "y": 1920
+    },
+    {
+      "instanceId": "wall-stone-solid-b19c4cb4",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1248,
+      "y": 1920
+    },
+    {
+      "instanceId": "wall-stone-solid-d8f19109",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1312,
+      "y": 1920
+    },
+    {
+      "instanceId": "wall-stone-solid-5bac74c8",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 2016,
+      "y": 1920
+    },
+    {
+      "instanceId": "wall-stone-solid-32319f91",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1952,
+      "y": 1920
+    },
+    {
+      "instanceId": "wall-stone-solid-c0cd5ee4",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1888,
+      "y": 1920
+    },
+    {
+      "instanceId": "wall-stone-solid-6d392940",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1824,
+      "y": 1920
+    },
+    {
+      "instanceId": "wall-stone-solid-c6887ac2",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1760,
+      "y": 1920
+    },
+    {
+      "instanceId": "wall-stone-solid-bd963c5e",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1696,
+      "y": 1920
+    },
+    {
+      "instanceId": "wall-stone-solid-c000384f",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1632,
+      "y": 1920
+    },
+    {
+      "instanceId": "wall-stone-solid-c0500171",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1312,
+      "y": 1984
+    },
+    {
+      "instanceId": "wall-stone-solid-0333858a",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1312,
+      "y": 2048
+    },
+    {
+      "instanceId": "wall-stone-solid-16123392",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1312,
+      "y": 2112
+    },
+    {
+      "instanceId": "wall-stone-solid-33d6e658",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1312,
+      "y": 2176
+    },
+    {
+      "instanceId": "wall-stone-solid-55cecc5b",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1312,
+      "y": 2240
+    },
+    {
+      "instanceId": "wall-stone-solid-426c825f",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1632,
+      "y": 1920
+    },
+    {
+      "instanceId": "wall-stone-solid-a1db4247",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1632,
+      "y": 1984
+    },
+    {
+      "instanceId": "wall-stone-solid-b9a0bfd4",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1632,
+      "y": 2048
+    },
+    {
+      "instanceId": "wall-stone-solid-f037c0d5",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1632,
+      "y": 2112
+    },
+    {
+      "instanceId": "wall-stone-solid-77d5a0b3",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1632,
+      "y": 2176
+    },
+    {
+      "instanceId": "wall-stone-solid-49e2ba97",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1632,
+      "y": 2240
+    },
+    {
+      "instanceId": "wall-stone-solid-1a3572eb",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1568,
+      "y": 2240
+    },
+    {
+      "instanceId": "wall-stone-solid-214a4268",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1376,
+      "y": 2240
+    },
+    {
+      "instanceId": "wall-stone-solid-c942093f",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1184,
+      "y": 1280
+    },
+    {
+      "instanceId": "wall-stone-solid-0ae6a804",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1184,
+      "y": 1280
+    },
+    {
+      "instanceId": "wall-stone-solid-51ee64b2",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1184,
+      "y": 1344
+    },
+    {
+      "instanceId": "wall-stone-solid-9f4c933b",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1184,
+      "y": 1408
+    },
+    {
+      "instanceId": "wall-stone-solid-bc0869d2",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1184,
+      "y": 1472
+    },
+    {
+      "instanceId": "wall-stone-solid-84b593aa",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1184,
+      "y": 1536
+    },
+    {
+      "instanceId": "wall-stone-solid-e44ee51c",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1184,
+      "y": 1600
+    },
+    {
+      "instanceId": "wall-stone-solid-412896e6",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1760,
+      "y": 1280
+    },
+    {
+      "instanceId": "wall-stone-solid-f305a8d6",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1760,
+      "y": 1344
+    },
+    {
+      "instanceId": "wall-stone-solid-c7086bc5",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1760,
+      "y": 1408
+    },
+    {
+      "instanceId": "wall-stone-solid-a36c41b6",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1760,
+      "y": 1472
+    },
+    {
+      "instanceId": "wall-stone-solid-b7b28600",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1760,
+      "y": 1536
+    },
+    {
+      "instanceId": "wall-stone-solid-15b4d06f",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-05",
+      "x": 1760,
+      "y": 1600
+    },
+    {
+      "instanceId": "house-world-solid-879a2459",
+      "objectId": "house.world.solid",
+      "visualId": "cottage-blue",
+      "x": 1056,
+      "y": 1920
+    },
+    {
+      "instanceId": "house-world-solid-c89ca675",
+      "objectId": "house.world.solid",
+      "visualId": "cottage-blue",
+      "x": 1888,
+      "y": 1920
+    },
+    {
+      "instanceId": "collectible-purple-berry-2c34c335",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 992,
+      "y": 1344
+    },
+    {
+      "instanceId": "collectible-purple-berry-d1705222",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1056,
+      "y": 1344
+    },
+    {
+      "instanceId": "collectible-purple-berry-86d7d0e6",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1056,
+      "y": 1408
+    },
+    {
+      "instanceId": "collectible-purple-berry-7c065d27",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1056,
+      "y": 1472
+    },
+    {
+      "instanceId": "collectible-purple-berry-f5f0dbfc",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1120,
+      "y": 1408
+    },
+    {
+      "instanceId": "collectible-purple-berry-c7ccda80",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 992,
+      "y": 1280
+    },
+    {
+      "instanceId": "collectible-purple-berry-fef86634",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 928,
+      "y": 1280
+    },
+    {
+      "instanceId": "collectible-purple-berry-5fabfe7e",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 928,
+      "y": 1344
+    },
+    {
+      "instanceId": "collectible-purple-berry-b0404bc6",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 928,
+      "y": 1408
+    },
+    {
+      "instanceId": "collectible-purple-berry-5b6fe3c8",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 992,
+      "y": 1408
+    },
+    {
+      "instanceId": "collectible-purple-berry-884c435d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1120,
+      "y": 1344
+    },
+    {
+      "instanceId": "collectible-purple-berry-ef11d6d9",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1120,
+      "y": 1280
+    },
+    {
+      "instanceId": "collectible-purple-berry-d80b4cf9",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1056,
+      "y": 1280
+    },
+    {
+      "instanceId": "collectible-purple-berry-f3996cb3",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 992,
+      "y": 1472
+    },
+    {
+      "instanceId": "collectible-purple-berry-8f1cfeae",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 992,
+      "y": 1536
+    },
+    {
+      "instanceId": "collectible-purple-berry-10e92790",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1056,
+      "y": 1536
+    },
+    {
+      "instanceId": "collectible-purple-berry-26fa2485",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1056,
+      "y": 1600
+    },
+    {
+      "instanceId": "collectible-purple-berry-3e06c65a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1120,
+      "y": 1600
+    },
+    {
+      "instanceId": "collectible-purple-berry-7fe43ab0",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1120,
+      "y": 1536
+    },
+    {
+      "instanceId": "collectible-purple-berry-72f0cb71",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1120,
+      "y": 1472
+    },
+    {
+      "instanceId": "collectible-purple-berry-664eb99e",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 608,
+      "y": 384
+    },
+    {
+      "instanceId": "collectible-purple-berry-d80b749b",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 608,
+      "y": 320
+    },
+    {
+      "instanceId": "collectible-purple-berry-9a1399e8",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 672,
+      "y": 256
+    },
+    {
+      "instanceId": "collectible-purple-berry-2589e139",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 736,
+      "y": 256
+    },
+    {
+      "instanceId": "collectible-purple-berry-554028f4",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 800,
+      "y": 256
+    },
+    {
+      "instanceId": "collectible-purple-berry-94cc6dd2",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 864,
+      "y": 256
+    },
+    {
+      "instanceId": "collectible-purple-berry-47ae5a63",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 928,
+      "y": 256
+    },
+    {
+      "instanceId": "collectible-purple-berry-ab0fb68d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 992,
+      "y": 320
+    },
+    {
+      "instanceId": "collectible-purple-berry-be87ba11",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1056,
+      "y": 320
+    },
+    {
+      "instanceId": "collectible-purple-berry-9e60b844",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1120,
+      "y": 320
+    },
+    {
+      "instanceId": "collectible-purple-berry-bfab3309",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1184,
+      "y": 320
+    },
+    {
+      "instanceId": "collectible-purple-berry-714916d0",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1248,
+      "y": 320
+    },
+    {
+      "instanceId": "collectible-purple-berry-a0cd7413",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1312,
+      "y": 384
+    },
+    {
+      "instanceId": "collectible-purple-berry-4bfff92e",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1376,
+      "y": 384
+    },
+    {
+      "instanceId": "collectible-purple-berry-58fb4df2",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1440,
+      "y": 448
+    },
+    {
+      "instanceId": "collectible-purple-berry-637fc06c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1504,
+      "y": 448
+    },
+    {
+      "instanceId": "collectible-purple-berry-f54a725c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1568,
+      "y": 512
+    },
+    {
+      "instanceId": "collectible-purple-berry-ae21380d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1632,
+      "y": 512
+    },
+    {
+      "instanceId": "collectible-purple-berry-a64b21aa",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1696,
+      "y": 576
+    },
+    {
+      "instanceId": "collectible-purple-berry-dcc82d11",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1760,
+      "y": 576
+    },
+    {
+      "instanceId": "collectible-purple-berry-7e474a8c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1824,
+      "y": 640
+    },
+    {
+      "instanceId": "collectible-purple-berry-872091bf",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1888,
+      "y": 640
+    },
+    {
+      "instanceId": "collectible-purple-berry-e8e71e0b",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1952,
+      "y": 640
+    },
+    {
+      "instanceId": "collectible-purple-berry-6ffa1068",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1760,
+      "y": 640
+    },
+    {
+      "instanceId": "collectible-purple-berry-e724f57e",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1696,
+      "y": 640
+    },
+    {
+      "instanceId": "collectible-purple-berry-0e94fb50",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1632,
+      "y": 640
+    },
+    {
+      "instanceId": "collectible-purple-berry-840e1539",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1568,
+      "y": 640
+    },
+    {
+      "instanceId": "collectible-purple-berry-0d2d483d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1504,
+      "y": 640
+    },
+    {
+      "instanceId": "collectible-purple-berry-9e627b7f",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1440,
+      "y": 640
+    },
+    {
+      "instanceId": "collectible-purple-berry-09ebded8",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1376,
+      "y": 640
+    },
+    {
+      "instanceId": "collectible-purple-berry-e387797b",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1312,
+      "y": 640
+    },
+    {
+      "instanceId": "collectible-purple-berry-036413e2",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1248,
+      "y": 640
+    },
+    {
+      "instanceId": "collectible-purple-berry-b2794f1c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1184,
+      "y": 640
+    },
+    {
+      "instanceId": "collectible-purple-berry-5d9bdc7a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1120,
+      "y": 640
+    },
+    {
+      "instanceId": "collectible-purple-berry-94d039dc",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1056,
+      "y": 704
+    },
+    {
+      "instanceId": "collectible-purple-berry-53754e93",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 992,
+      "y": 704
+    },
+    {
+      "instanceId": "collectible-purple-berry-858b834b",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 928,
+      "y": 768
+    },
+    {
+      "instanceId": "collectible-purple-berry-0622bd49",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 864,
+      "y": 768
+    },
+    {
+      "instanceId": "collectible-purple-berry-fcc1e71e",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 800,
+      "y": 768
+    },
+    {
+      "instanceId": "collectible-purple-berry-6c93b076",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 736,
+      "y": 768
+    },
+    {
+      "instanceId": "collectible-purple-berry-b2aebea4",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 672,
+      "y": 768
+    },
+    {
+      "instanceId": "collectible-purple-berry-99f61dba",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 608,
+      "y": 832
+    },
+    {
+      "instanceId": "collectible-purple-berry-d8063e92",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 544,
+      "y": 832
+    },
+    {
+      "instanceId": "collectible-purple-berry-6542de10",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 480,
+      "y": 832
+    },
+    {
+      "instanceId": "collectible-purple-berry-44787c6c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 480,
+      "y": 896
+    },
+    {
+      "instanceId": "collectible-purple-berry-6c428907",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 416,
+      "y": 896
+    },
+    {
+      "instanceId": "collectible-purple-berry-64875bad",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 352,
+      "y": 896
+    },
+    {
+      "instanceId": "collectible-purple-berry-793765fd",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 288,
+      "y": 896
+    },
+    {
+      "instanceId": "collectible-purple-berry-df8cc009",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 288,
+      "y": 832
+    },
+    {
+      "instanceId": "collectible-purple-berry-e643c21a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 288,
+      "y": 768
+    },
+    {
+      "instanceId": "collectible-purple-berry-e22e4905",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 224,
+      "y": 704
+    },
+    {
+      "instanceId": "collectible-purple-berry-640bc3d6",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 224,
+      "y": 640
+    },
+    {
+      "instanceId": "collectible-purple-berry-5afb38c9",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 160,
+      "y": 640
+    },
+    {
+      "instanceId": "collectible-purple-berry-81eac508",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 160,
+      "y": 576
+    },
+    {
+      "instanceId": "collectible-purple-berry-bc4e2d23",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 224,
+      "y": 576
+    },
+    {
+      "instanceId": "collectible-purple-berry-3ff50a22",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 288,
+      "y": 512
+    },
+    {
+      "instanceId": "collectible-purple-berry-24184626",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 352,
+      "y": 512
+    },
+    {
+      "instanceId": "collectible-purple-berry-16ef24d1",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 416,
+      "y": 448
+    },
+    {
+      "instanceId": "collectible-purple-berry-fa085e44",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 480,
+      "y": 384
+    },
+    {
+      "instanceId": "collectible-purple-berry-53649cec",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 544,
+      "y": 320
+    },
+    {
+      "instanceId": "collectible-purple-berry-8343f181",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 608,
+      "y": 256
+    },
+    {
+      "instanceId": "collectible-purple-berry-46023c26",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 864,
+      "y": 320
+    },
+    {
+      "instanceId": "collectible-purple-berry-35f3f1f4",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 928,
+      "y": 320
+    },
+    {
+      "instanceId": "collectible-purple-berry-665f79c7",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1120,
+      "y": 384
+    },
+    {
+      "instanceId": "collectible-purple-berry-14c0251d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1184,
+      "y": 384
+    },
+    {
+      "instanceId": "collectible-purple-berry-81b14835",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1248,
+      "y": 384
+    },
+    {
+      "instanceId": "collectible-purple-berry-c3812d40",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1440,
+      "y": 384
+    },
+    {
+      "instanceId": "collectible-purple-berry-a869c390",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1504,
+      "y": 384
+    },
+    {
+      "instanceId": "collectible-purple-berry-4d0a819a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1568,
+      "y": 384
+    },
+    {
+      "instanceId": "collectible-purple-berry-4cf4e2f6",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1632,
+      "y": 384
+    },
+    {
+      "instanceId": "collectible-purple-berry-8f738b9c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1696,
+      "y": 448
+    },
+    {
+      "instanceId": "collectible-purple-berry-81efda5d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1760,
+      "y": 448
+    },
+    {
+      "instanceId": "collectible-purple-berry-5ca4082a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1824,
+      "y": 512
+    },
+    {
+      "instanceId": "collectible-purple-berry-2b879e8a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1888,
+      "y": 512
+    },
+    {
+      "instanceId": "collectible-purple-berry-f4a12c51",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1952,
+      "y": 576
+    },
+    {
+      "instanceId": "collectible-purple-berry-a9f1da9d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2016,
+      "y": 576
+    },
+    {
+      "instanceId": "collectible-purple-berry-dea3e79b",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2080,
+      "y": 640
+    },
+    {
+      "instanceId": "collectible-purple-berry-392aede2",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2144,
+      "y": 640
+    },
+    {
+      "instanceId": "collectible-purple-berry-e0dbb92e",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2144,
+      "y": 704
+    },
+    {
+      "instanceId": "collectible-purple-berry-714ea35d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2208,
+      "y": 704
+    },
+    {
+      "instanceId": "collectible-purple-berry-7d856c03",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2208,
+      "y": 768
+    },
+    {
+      "instanceId": "collectible-purple-berry-4d6e3c89",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2272,
+      "y": 768
+    },
+    {
+      "instanceId": "collectible-purple-berry-18e10a7a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2336,
+      "y": 768
+    },
+    {
+      "instanceId": "collectible-purple-berry-4f9716f1",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2400,
+      "y": 768
+    },
+    {
+      "instanceId": "collectible-purple-berry-a6638311",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2464,
+      "y": 768
+    },
+    {
+      "instanceId": "collectible-purple-berry-527c034a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2528,
+      "y": 704
+    },
+    {
+      "instanceId": "collectible-purple-berry-97129ad9",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2592,
+      "y": 704
+    },
+    {
+      "instanceId": "collectible-purple-berry-effcd353",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2656,
+      "y": 640
+    },
+    {
+      "instanceId": "collectible-purple-berry-969594bd",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2720,
+      "y": 576
+    },
+    {
+      "instanceId": "collectible-purple-berry-d1cd8218",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2784,
+      "y": 512
+    },
+    {
+      "instanceId": "collectible-purple-berry-cfdf220a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2848,
+      "y": 512
+    },
+    {
+      "instanceId": "collectible-purple-berry-a754b10e",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2848,
+      "y": 448
+    },
+    {
+      "instanceId": "collectible-purple-berry-717eadf1",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2848,
+      "y": 384
+    },
+    {
+      "instanceId": "collectible-purple-berry-5d63792f",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2912,
+      "y": 320
+    },
+    {
+      "instanceId": "collectible-purple-berry-829e5077",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2912,
+      "y": 256
+    },
+    {
+      "instanceId": "collectible-purple-berry-e58da4e7",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2976,
+      "y": 192
+    },
+    {
+      "instanceId": "collectible-purple-berry-f0c657e4",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2976,
+      "y": 128
+    },
+    {
+      "instanceId": "collectible-purple-berry-c0a1d125",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2912,
+      "y": 128
+    },
+    {
+      "instanceId": "collectible-purple-berry-fe60709f",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2848,
+      "y": 128
+    },
+    {
+      "instanceId": "collectible-purple-berry-9cfa0d54",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2784,
+      "y": 192
+    },
+    {
+      "instanceId": "collectible-purple-berry-18a20cc3",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2720,
+      "y": 256
+    },
+    {
+      "instanceId": "collectible-purple-berry-53c00227",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2720,
+      "y": 320
+    },
+    {
+      "instanceId": "collectible-purple-berry-f4994cb3",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2720,
+      "y": 384
+    },
+    {
+      "instanceId": "collectible-purple-berry-011ac50c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2720,
+      "y": 448
+    },
+    {
+      "instanceId": "collectible-purple-berry-71fbc4f0",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2720,
+      "y": 512
+    },
+    {
+      "instanceId": "collectible-purple-berry-967ff903",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2720,
+      "y": 640
+    },
+    {
+      "instanceId": "collectible-purple-berry-a018f897",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2720,
+      "y": 704
+    },
+    {
+      "instanceId": "collectible-purple-berry-e84051e1",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2720,
+      "y": 768
+    },
+    {
+      "instanceId": "collectible-purple-berry-c0985111",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2720,
+      "y": 832
+    },
+    {
+      "instanceId": "collectible-purple-berry-9616ae81",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2720,
+      "y": 896
+    },
+    {
+      "instanceId": "collectible-purple-berry-aa1e5514",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2720,
+      "y": 960
+    },
+    {
+      "instanceId": "collectible-purple-berry-9ffec3c0",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2720,
+      "y": 1024
+    },
+    {
+      "instanceId": "collectible-purple-berry-651589d8",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2720,
+      "y": 1088
+    },
+    {
+      "instanceId": "collectible-purple-berry-a1bf625c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2720,
+      "y": 1152
+    },
+    {
+      "instanceId": "collectible-purple-berry-c9f6822e",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2720,
+      "y": 1216
+    },
+    {
+      "instanceId": "collectible-purple-berry-5203748f",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2784,
+      "y": 1280
+    },
+    {
+      "instanceId": "collectible-purple-berry-837564b8",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2784,
+      "y": 1344
+    },
+    {
+      "instanceId": "collectible-purple-berry-cf5ff8f6",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2848,
+      "y": 1408
+    },
+    {
+      "instanceId": "collectible-purple-berry-be8a6f44",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2848,
+      "y": 1472
+    },
+    {
+      "instanceId": "collectible-purple-berry-513c08d2",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2848,
+      "y": 1536
+    },
+    {
+      "instanceId": "collectible-purple-berry-a9a52f2d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2848,
+      "y": 1600
+    },
+    {
+      "instanceId": "collectible-purple-berry-b8cb3c21",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2848,
+      "y": 1664
+    },
+    {
+      "instanceId": "collectible-purple-berry-22ce724c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2848,
+      "y": 1728
+    },
+    {
+      "instanceId": "collectible-purple-berry-52b2bea7",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2784,
+      "y": 1792
+    },
+    {
+      "instanceId": "collectible-purple-berry-9f350594",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2784,
+      "y": 1856
+    },
+    {
+      "instanceId": "collectible-purple-berry-3759c823",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2784,
+      "y": 1920
+    },
+    {
+      "instanceId": "collectible-purple-berry-fc5d1494",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2720,
+      "y": 1920
+    },
+    {
+      "instanceId": "collectible-purple-berry-fbcbb317",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2720,
+      "y": 1856
+    },
+    {
+      "instanceId": "collectible-purple-berry-19ad5ade",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2720,
+      "y": 1792
+    },
+    {
+      "instanceId": "collectible-purple-berry-6769c6cb",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2720,
+      "y": 1728
+    },
+    {
+      "instanceId": "collectible-purple-berry-d3356496",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2720,
+      "y": 1664
+    },
+    {
+      "instanceId": "collectible-purple-berry-a3862155",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2656,
+      "y": 1600
+    },
+    {
+      "instanceId": "collectible-purple-berry-b5c5c7e6",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2656,
+      "y": 1536
+    },
+    {
+      "instanceId": "collectible-purple-berry-99cdab32",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2656,
+      "y": 1472
+    },
+    {
+      "instanceId": "collectible-purple-berry-8cb80278",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2656,
+      "y": 1408
+    },
+    {
+      "instanceId": "collectible-purple-berry-158205da",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2656,
+      "y": 1344
+    },
+    {
+      "instanceId": "collectible-purple-berry-99ee394e",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2656,
+      "y": 1280
+    },
+    {
+      "instanceId": "collectible-purple-berry-cc8900db",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2656,
+      "y": 1216
+    },
+    {
+      "instanceId": "collectible-purple-berry-7b274eed",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2656,
+      "y": 1152
+    },
+    {
+      "instanceId": "collectible-purple-berry-7e7d0458",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2656,
+      "y": 1088
+    },
+    {
+      "instanceId": "collectible-purple-berry-d1936d6a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2656,
+      "y": 1024
+    },
+    {
+      "instanceId": "collectible-purple-berry-da13ce53",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2656,
+      "y": 960
+    },
+    {
+      "instanceId": "collectible-purple-berry-ad501ae8",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2656,
+      "y": 896
+    },
+    {
+      "instanceId": "collectible-purple-berry-afe0bf5a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2656,
+      "y": 832
+    },
+    {
+      "instanceId": "collectible-purple-berry-106f846e",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2656,
+      "y": 768
+    },
+    {
+      "instanceId": "collectible-purple-berry-e0981b88",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2592,
+      "y": 640
+    },
+    {
+      "instanceId": "collectible-purple-berry-4961b960",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2528,
+      "y": 640
+    },
+    {
+      "instanceId": "collectible-purple-berry-2f7cfd7d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2528,
+      "y": 576
+    },
+    {
+      "instanceId": "collectible-purple-berry-38d63b97",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2464,
+      "y": 576
+    },
+    {
+      "instanceId": "collectible-purple-berry-dde175e2",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2400,
+      "y": 512
+    },
+    {
+      "instanceId": "collectible-purple-berry-aef914f7",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2336,
+      "y": 448
+    },
+    {
+      "instanceId": "collectible-purple-berry-0326206b",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2272,
+      "y": 448
+    },
+    {
+      "instanceId": "collectible-purple-berry-bddceff3",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2208,
+      "y": 384
+    },
+    {
+      "instanceId": "collectible-purple-berry-2ed42475",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2144,
+      "y": 384
+    },
+    {
+      "instanceId": "collectible-purple-berry-cac1dfad",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2080,
+      "y": 320
+    },
+    {
+      "instanceId": "collectible-purple-berry-3b7ad9db",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2016,
+      "y": 320
+    },
+    {
+      "instanceId": "collectible-purple-berry-83f38a59",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1952,
+      "y": 320
+    },
+    {
+      "instanceId": "collectible-purple-berry-78c2d747",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1888,
+      "y": 320
+    },
+    {
+      "instanceId": "collectible-purple-berry-c88094ec",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1824,
+      "y": 320
+    },
+    {
+      "instanceId": "collectible-purple-berry-9c80e3e5",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1760,
+      "y": 320
+    },
+    {
+      "instanceId": "collectible-purple-berry-744764ea",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1696,
+      "y": 384
+    },
+    {
+      "instanceId": "collectible-purple-berry-97bb601c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1376,
+      "y": 448
+    },
+    {
+      "instanceId": "collectible-purple-berry-df2585a8",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1312,
+      "y": 512
+    },
+    {
+      "instanceId": "collectible-purple-berry-210c3468",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1248,
+      "y": 512
+    },
+    {
+      "instanceId": "collectible-purple-berry-5be12c58",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1184,
+      "y": 512
+    },
+    {
+      "instanceId": "collectible-purple-berry-9735c5e7",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1120,
+      "y": 512
+    },
+    {
+      "instanceId": "collectible-purple-berry-e32c8c33",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1120,
+      "y": 576
+    },
+    {
+      "instanceId": "collectible-purple-berry-d0c013a6",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1376,
+      "y": 512
+    },
+    {
+      "instanceId": "collectible-purple-berry-9064187e",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1440,
+      "y": 512
+    },
+    {
+      "instanceId": "collectible-purple-berry-d6a15739",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1504,
+      "y": 512
+    },
+    {
+      "instanceId": "collectible-purple-berry-cf141e5e",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1696,
+      "y": 512
+    },
+    {
+      "instanceId": "collectible-purple-berry-bb2ed435",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1760,
+      "y": 512
+    },
+    {
+      "instanceId": "collectible-purple-berry-3fa811c3",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1952,
+      "y": 512
+    },
+    {
+      "instanceId": "collectible-purple-berry-6ec6b5e4",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2016,
+      "y": 512
+    },
+    {
+      "instanceId": "collectible-purple-berry-db47ea8f",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2080,
+      "y": 576
+    },
+    {
+      "instanceId": "collectible-purple-berry-e181e9dc",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2144,
+      "y": 576
+    },
+    {
+      "instanceId": "collectible-purple-berry-058fc282",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2208,
+      "y": 576
+    },
+    {
+      "instanceId": "collectible-purple-berry-93be6c88",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2272,
+      "y": 576
+    },
+    {
+      "instanceId": "collectible-purple-berry-c26877f3",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2336,
+      "y": 576
+    },
+    {
+      "instanceId": "collectible-purple-berry-7c5cd0f4",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2400,
+      "y": 576
+    },
+    {
+      "instanceId": "collectible-purple-berry-56f3e6c5",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2592,
+      "y": 576
+    },
+    {
+      "instanceId": "collectible-purple-berry-1d89bc59",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2656,
+      "y": 576
+    },
+    {
+      "instanceId": "collectible-purple-berry-99dae9c4",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2784,
+      "y": 576
+    },
+    {
+      "instanceId": "collectible-purple-berry-12e1e645",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2848,
+      "y": 576
+    },
+    {
+      "instanceId": "collectible-purple-berry-1bbe6bba",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2912,
+      "y": 576
+    },
+    {
+      "instanceId": "collectible-purple-berry-e2f5c881",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2976,
+      "y": 576
+    },
+    {
+      "instanceId": "collectible-purple-berry-a4b0aff9",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3040,
+      "y": 576
+    },
+    {
+      "instanceId": "collectible-purple-berry-fa8078c8",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3104,
+      "y": 576
+    },
+    {
+      "instanceId": "collectible-purple-berry-a3299522",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3168,
+      "y": 512
+    },
+    {
+      "instanceId": "collectible-purple-berry-a4c8b2db",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3232,
+      "y": 512
+    },
+    {
+      "instanceId": "collectible-purple-berry-3bc66c45",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3296,
+      "y": 512
+    },
+    {
+      "instanceId": "collectible-purple-berry-2c7d2a31",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3296,
+      "y": 448
+    },
+    {
+      "instanceId": "collectible-purple-berry-41dd1808",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3232,
+      "y": 384
+    },
+    {
+      "instanceId": "collectible-purple-berry-92c33515",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3232,
+      "y": 320
+    },
+    {
+      "instanceId": "collectible-purple-berry-0ef8d3f2",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3168,
+      "y": 320
+    },
+    {
+      "instanceId": "collectible-purple-berry-669fadb4",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3168,
+      "y": 256
+    },
+    {
+      "instanceId": "collectible-purple-berry-4090409b",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3104,
+      "y": 256
+    },
+    {
+      "instanceId": "collectible-purple-berry-0cb24804",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3040,
+      "y": 256
+    },
+    {
+      "instanceId": "collectible-purple-berry-a708359a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2976,
+      "y": 256
+    },
+    {
+      "instanceId": "collectible-purple-berry-9b092ec0",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2848,
+      "y": 320
+    },
+    {
+      "instanceId": "collectible-purple-berry-54570730",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2784,
+      "y": 320
+    },
+    {
+      "instanceId": "collectible-purple-berry-6a0c67df",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2656,
+      "y": 320
+    },
+    {
+      "instanceId": "collectible-purple-berry-08226c12",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2592,
+      "y": 320
+    },
+    {
+      "instanceId": "collectible-purple-berry-39ac79ef",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2528,
+      "y": 320
+    },
+    {
+      "instanceId": "collectible-purple-berry-0ac1b7a8",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2464,
+      "y": 320
+    },
+    {
+      "instanceId": "collectible-purple-berry-e441fcd1",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2400,
+      "y": 320
+    },
+    {
+      "instanceId": "collectible-purple-berry-f7cad3c6",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2336,
+      "y": 320
+    },
+    {
+      "instanceId": "collectible-purple-berry-1080460f",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2272,
+      "y": 320
+    },
+    {
+      "instanceId": "collectible-purple-berry-0cc31f4a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2080,
+      "y": 384
+    },
+    {
+      "instanceId": "collectible-purple-berry-a1c12f2f",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2016,
+      "y": 384
+    },
+    {
+      "instanceId": "collectible-purple-berry-c6caf566",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1952,
+      "y": 384
+    },
+    {
+      "instanceId": "collectible-purple-berry-d5cd99ac",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1888,
+      "y": 384
+    },
+    {
+      "instanceId": "collectible-purple-berry-267908db",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1824,
+      "y": 384
+    },
+    {
+      "instanceId": "collectible-purple-berry-f4e8cf77",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1760,
+      "y": 384
+    },
+    {
+      "instanceId": "collectible-purple-berry-00f76716",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1312,
+      "y": 448
+    },
+    {
+      "instanceId": "collectible-purple-berry-a8bd7a22",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1248,
+      "y": 448
+    },
+    {
+      "instanceId": "collectible-purple-berry-fcd1d06c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1184,
+      "y": 448
+    },
+    {
+      "instanceId": "collectible-purple-berry-589c1eb0",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1120,
+      "y": 448
+    },
+    {
+      "instanceId": "collectible-purple-berry-88b5f5f7",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1056,
+      "y": 448
+    },
+    {
+      "instanceId": "collectible-purple-berry-86bee515",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 992,
+      "y": 448
+    },
+    {
+      "instanceId": "collectible-purple-berry-621dd031",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 928,
+      "y": 512
+    },
+    {
+      "instanceId": "collectible-purple-berry-eb43ea55",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 864,
+      "y": 512
+    },
+    {
+      "instanceId": "collectible-purple-berry-9e663eef",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 800,
+      "y": 512
+    },
+    {
+      "instanceId": "collectible-purple-berry-99f261a0",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 736,
+      "y": 512
+    },
+    {
+      "instanceId": "collectible-purple-berry-160f0f9b",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 672,
+      "y": 512
+    },
+    {
+      "instanceId": "collectible-purple-berry-df020204",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 608,
+      "y": 576
+    },
+    {
+      "instanceId": "collectible-purple-berry-bdd071de",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 544,
+      "y": 576
+    },
+    {
+      "instanceId": "collectible-purple-berry-89f08ce9",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 480,
+      "y": 576
+    },
+    {
+      "instanceId": "collectible-purple-berry-478d28a0",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 416,
+      "y": 576
+    },
+    {
+      "instanceId": "collectible-purple-berry-5f322c7c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 416,
+      "y": 640
+    },
+    {
+      "instanceId": "collectible-purple-berry-688a1b3f",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 352,
+      "y": 640
+    },
+    {
+      "instanceId": "collectible-purple-berry-bd79c65d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 288,
+      "y": 704
+    },
+    {
+      "instanceId": "collectible-purple-berry-4ddbf9a0",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 224,
+      "y": 768
+    },
+    {
+      "instanceId": "collectible-purple-berry-119a4825",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 160,
+      "y": 768
+    },
+    {
+      "instanceId": "collectible-purple-berry-c47bc3b3",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 160,
+      "y": 832
+    },
+    {
+      "instanceId": "collectible-purple-berry-c2d03357",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 96,
+      "y": 832
+    },
+    {
+      "instanceId": "collectible-purple-berry-7eedf9d9",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 96,
+      "y": 896
+    },
+    {
+      "instanceId": "collectible-purple-berry-c5afefba",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 32,
+      "y": 896
+    },
+    {
+      "instanceId": "collectible-purple-berry-b6b36b8a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 32,
+      "y": 960
+    },
+    {
+      "instanceId": "collectible-purple-berry-c6c69d5d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 32,
+      "y": 1024
+    },
+    {
+      "instanceId": "collectible-purple-berry-a7a0ab7f",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 32,
+      "y": 1088
+    },
+    {
+      "instanceId": "collectible-purple-berry-b9bc4fac",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 32,
+      "y": 1152
+    },
+    {
+      "instanceId": "collectible-purple-berry-3d267614",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 32,
+      "y": 1216
+    },
+    {
+      "instanceId": "collectible-purple-berry-5e5838f5",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 32,
+      "y": 1280
+    },
+    {
+      "instanceId": "collectible-purple-berry-65ee9e4a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 96,
+      "y": 1344
+    },
+    {
+      "instanceId": "collectible-purple-berry-4d5cc726",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 96,
+      "y": 1408
+    },
+    {
+      "instanceId": "collectible-purple-berry-34582fe7",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 96,
+      "y": 1472
+    },
+    {
+      "instanceId": "collectible-purple-berry-b22c812b",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 96,
+      "y": 1536
+    },
+    {
+      "instanceId": "collectible-purple-berry-bc7a29b6",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 96,
+      "y": 1600
+    },
+    {
+      "instanceId": "collectible-purple-berry-0244c814",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 96,
+      "y": 1664
+    },
+    {
+      "instanceId": "collectible-purple-berry-06bbe5af",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 96,
+      "y": 1728
+    },
+    {
+      "instanceId": "collectible-purple-berry-177f9c19",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 160,
+      "y": 1728
+    },
+    {
+      "instanceId": "collectible-purple-berry-b75537c3",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 224,
+      "y": 1792
+    },
+    {
+      "instanceId": "collectible-purple-berry-eb9b1388",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 288,
+      "y": 1792
+    },
+    {
+      "instanceId": "collectible-purple-berry-15c7c0d2",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 352,
+      "y": 1792
+    },
+    {
+      "instanceId": "collectible-purple-berry-f7969495",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 416,
+      "y": 1792
+    },
+    {
+      "instanceId": "collectible-purple-berry-46a61f07",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 480,
+      "y": 1792
+    },
+    {
+      "instanceId": "collectible-purple-berry-0c6407f2",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 544,
+      "y": 1792
+    },
+    {
+      "instanceId": "collectible-purple-berry-feb7f964",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 608,
+      "y": 1792
+    },
+    {
+      "instanceId": "collectible-purple-berry-24432aee",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 672,
+      "y": 1728
+    },
+    {
+      "instanceId": "collectible-purple-berry-66fa370d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 736,
+      "y": 1728
+    },
+    {
+      "instanceId": "collectible-purple-berry-ed9f6002",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 800,
+      "y": 1728
+    },
+    {
+      "instanceId": "collectible-purple-berry-39312c8a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 800,
+      "y": 1664
+    },
+    {
+      "instanceId": "collectible-purple-berry-015eca03",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 864,
+      "y": 1664
+    },
+    {
+      "instanceId": "collectible-purple-berry-8dd5b85e",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 928,
+      "y": 1600
+    },
+    {
+      "instanceId": "collectible-purple-berry-8db4af5a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 928,
+      "y": 1536
+    },
+    {
+      "instanceId": "collectible-purple-berry-1e5e7dc3",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 992,
+      "y": 1472
+    },
+    {
+      "instanceId": "collectible-purple-berry-d37b760f",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 992,
+      "y": 1408
+    },
+    {
+      "instanceId": "collectible-purple-berry-d364be1b",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 992,
+      "y": 1344
+    },
+    {
+      "instanceId": "collectible-purple-berry-f03413c1",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 992,
+      "y": 1280
+    },
+    {
+      "instanceId": "collectible-purple-berry-d9850524",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 992,
+      "y": 1216
+    },
+    {
+      "instanceId": "collectible-purple-berry-738e963b",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 992,
+      "y": 1152
+    },
+    {
+      "instanceId": "collectible-purple-berry-38894d43",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 928,
+      "y": 1152
+    },
+    {
+      "instanceId": "collectible-purple-berry-24805b3d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 864,
+      "y": 1152
+    },
+    {
+      "instanceId": "collectible-purple-berry-8d23396f",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 800,
+      "y": 1152
+    },
+    {
+      "instanceId": "collectible-purple-berry-e58e2459",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 736,
+      "y": 1152
+    },
+    {
+      "instanceId": "collectible-purple-berry-519dd4f5",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 672,
+      "y": 1152
+    },
+    {
+      "instanceId": "collectible-purple-berry-8bc41f63",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 672,
+      "y": 1216
+    },
+    {
+      "instanceId": "collectible-purple-berry-a8caf14e",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 608,
+      "y": 1216
+    },
+    {
+      "instanceId": "collectible-purple-berry-d5d57981",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 608,
+      "y": 1280
+    },
+    {
+      "instanceId": "collectible-purple-berry-62aae095",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 608,
+      "y": 1344
+    },
+    {
+      "instanceId": "collectible-purple-berry-05052297",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 544,
+      "y": 1408
+    },
+    {
+      "instanceId": "collectible-purple-berry-bf27c8f0",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 544,
+      "y": 1472
+    },
+    {
+      "instanceId": "collectible-purple-berry-7366f971",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 544,
+      "y": 1536
+    },
+    {
+      "instanceId": "collectible-purple-berry-0082c3b0",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 480,
+      "y": 1600
+    },
+    {
+      "instanceId": "collectible-purple-berry-057318c2",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 480,
+      "y": 1664
+    },
+    {
+      "instanceId": "collectible-purple-berry-a25419cf",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 480,
+      "y": 1728
+    },
+    {
+      "instanceId": "collectible-purple-berry-ee62e912",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 416,
+      "y": 1856
+    },
+    {
+      "instanceId": "collectible-purple-berry-547e0369",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 416,
+      "y": 1920
+    },
+    {
+      "instanceId": "collectible-purple-berry-6d7947c0",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 352,
+      "y": 1984
+    },
+    {
+      "instanceId": "collectible-purple-berry-c7e6fb2b",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 352,
+      "y": 2048
+    },
+    {
+      "instanceId": "collectible-purple-berry-9a5c9e8d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 416,
+      "y": 1984
+    },
+    {
+      "instanceId": "collectible-purple-berry-9eaa1abb",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 480,
+      "y": 1920
+    },
+    {
+      "instanceId": "collectible-purple-berry-c3863999",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 480,
+      "y": 1856
+    },
+    {
+      "instanceId": "collectible-purple-berry-bbeb20dc",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 544,
+      "y": 1664
+    },
+    {
+      "instanceId": "collectible-purple-berry-2e389f34",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 608,
+      "y": 1600
+    },
+    {
+      "instanceId": "collectible-purple-berry-973efc66",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 608,
+      "y": 1536
+    },
+    {
+      "instanceId": "collectible-purple-berry-8d949a42",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 608,
+      "y": 1472
+    },
+    {
+      "instanceId": "collectible-purple-berry-3f1a5783",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 608,
+      "y": 1408
+    },
+    {
+      "instanceId": "collectible-purple-berry-b75ca3ea",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 672,
+      "y": 1344
+    },
+    {
+      "instanceId": "collectible-purple-berry-98e26d71",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 672,
+      "y": 1280
+    },
+    {
+      "instanceId": "collectible-purple-berry-1db23087",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 736,
+      "y": 1216
+    },
+    {
+      "instanceId": "collectible-purple-berry-5aefe709",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 736,
+      "y": 1088
+    },
+    {
+      "instanceId": "collectible-purple-berry-f5839607",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 736,
+      "y": 1024
+    },
+    {
+      "instanceId": "collectible-purple-berry-48b55e73",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 800,
+      "y": 960
+    },
+    {
+      "instanceId": "collectible-purple-berry-03efd584",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 800,
+      "y": 896
+    },
+    {
+      "instanceId": "collectible-purple-berry-86fb4cd5",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 800,
+      "y": 832
+    },
+    {
+      "instanceId": "collectible-purple-berry-2b3420b8",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 864,
+      "y": 704
+    },
+    {
+      "instanceId": "collectible-purple-berry-c4715d08",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 864,
+      "y": 640
+    },
+    {
+      "instanceId": "collectible-purple-berry-928cbae7",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 800,
+      "y": 640
+    },
+    {
+      "instanceId": "collectible-purple-berry-56a3c903",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 800,
+      "y": 704
+    },
+    {
+      "instanceId": "collectible-purple-berry-a1beb01c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 736,
+      "y": 704
+    },
+    {
+      "instanceId": "collectible-purple-berry-dfa318ba",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 672,
+      "y": 832
+    },
+    {
+      "instanceId": "collectible-purple-berry-2741503c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 544,
+      "y": 896
+    },
+    {
+      "instanceId": "collectible-purple-berry-c853c029",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 480,
+      "y": 960
+    },
+    {
+      "instanceId": "collectible-purple-berry-f59c7977",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 416,
+      "y": 1024
+    },
+    {
+      "instanceId": "collectible-purple-berry-99f85882",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 416,
+      "y": 1088
+    },
+    {
+      "instanceId": "collectible-purple-berry-b205f951",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 352,
+      "y": 1152
+    },
+    {
+      "instanceId": "collectible-purple-berry-e327e94c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 352,
+      "y": 1216
+    },
+    {
+      "instanceId": "collectible-purple-berry-2ec40db7",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 288,
+      "y": 1280
+    },
+    {
+      "instanceId": "collectible-purple-berry-c9c5059a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 288,
+      "y": 1344
+    },
+    {
+      "instanceId": "collectible-purple-berry-7ff8166f",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 288,
+      "y": 1408
+    },
+    {
+      "instanceId": "collectible-purple-berry-b82aba38",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 224,
+      "y": 1472
+    },
+    {
+      "instanceId": "collectible-purple-berry-abeedef0",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 224,
+      "y": 1536
+    },
+    {
+      "instanceId": "collectible-purple-berry-193ffaba",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 224,
+      "y": 1600
+    },
+    {
+      "instanceId": "collectible-purple-berry-dd986ea1",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 224,
+      "y": 1664
+    },
+    {
+      "instanceId": "collectible-purple-berry-e8974888",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 224,
+      "y": 1728
+    },
+    {
+      "instanceId": "collectible-purple-berry-4f670233",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 224,
+      "y": 1856
+    },
+    {
+      "instanceId": "collectible-purple-berry-e0115bd5",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 224,
+      "y": 1920
+    },
+    {
+      "instanceId": "collectible-purple-berry-e1370886",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 224,
+      "y": 1984
+    },
+    {
+      "instanceId": "collectible-purple-berry-104226c4",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 224,
+      "y": 2048
+    },
+    {
+      "instanceId": "collectible-purple-berry-aa23d1c6",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 224,
+      "y": 2112
+    },
+    {
+      "instanceId": "collectible-purple-berry-5bd0b858",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 288,
+      "y": 2176
+    },
+    {
+      "instanceId": "collectible-purple-berry-aeb7ed75",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 288,
+      "y": 2240
+    },
+    {
+      "instanceId": "collectible-purple-berry-7d200e0a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 288,
+      "y": 2304
+    },
+    {
+      "instanceId": "collectible-purple-berry-d7d21a9d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 352,
+      "y": 2368
+    },
+    {
+      "instanceId": "collectible-purple-berry-50f97d47",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 352,
+      "y": 2432
+    },
+    {
+      "instanceId": "collectible-purple-berry-fd72d1a4",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 352,
+      "y": 2496
+    },
+    {
+      "instanceId": "collectible-purple-berry-b54639b1",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 352,
+      "y": 2560
+    },
+    {
+      "instanceId": "collectible-purple-berry-258f8299",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 352,
+      "y": 2624
+    },
+    {
+      "instanceId": "collectible-purple-berry-35e67ad2",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 352,
+      "y": 2688
+    },
+    {
+      "instanceId": "collectible-purple-berry-a6f2c559",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 416,
+      "y": 2752
+    },
+    {
+      "instanceId": "collectible-purple-berry-7d536ba7",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 416,
+      "y": 2816
+    },
+    {
+      "instanceId": "collectible-purple-berry-42c0949b",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 416,
+      "y": 2880
+    },
+    {
+      "instanceId": "collectible-purple-berry-d8573e7b",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 416,
+      "y": 2944
+    },
+    {
+      "instanceId": "collectible-purple-berry-ebee25c3",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 480,
+      "y": 2944
+    },
+    {
+      "instanceId": "collectible-purple-berry-5d0c921c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 544,
+      "y": 2944
+    },
+    {
+      "instanceId": "collectible-purple-berry-f9b0d0d8",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 608,
+      "y": 2944
+    },
+    {
+      "instanceId": "collectible-purple-berry-1dac4903",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 672,
+      "y": 2944
+    },
+    {
+      "instanceId": "collectible-purple-berry-4b761b63",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 736,
+      "y": 2944
+    },
+    {
+      "instanceId": "collectible-purple-berry-e470754d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 800,
+      "y": 2944
+    },
+    {
+      "instanceId": "collectible-purple-berry-7cb1d662",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 864,
+      "y": 2944
+    },
+    {
+      "instanceId": "collectible-purple-berry-dd3b9f8a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 928,
+      "y": 2944
+    },
+    {
+      "instanceId": "collectible-purple-berry-9654a820",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 992,
+      "y": 2944
+    },
+    {
+      "instanceId": "collectible-purple-berry-2f4b4e4c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1056,
+      "y": 2944
+    },
+    {
+      "instanceId": "collectible-purple-berry-91633345",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1120,
+      "y": 2944
+    },
+    {
+      "instanceId": "collectible-purple-berry-a5858b66",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1184,
+      "y": 2944
+    },
+    {
+      "instanceId": "collectible-purple-berry-f84652df",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1248,
+      "y": 2880
+    },
+    {
+      "instanceId": "collectible-purple-berry-913db357",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1312,
+      "y": 2880
+    },
+    {
+      "instanceId": "collectible-purple-berry-20e0c4c2",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1376,
+      "y": 2880
+    },
+    {
+      "instanceId": "collectible-purple-berry-a0e7f51c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1440,
+      "y": 2816
+    },
+    {
+      "instanceId": "collectible-purple-berry-df6da5ec",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1504,
+      "y": 2816
+    },
+    {
+      "instanceId": "collectible-purple-berry-b3d2556f",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1568,
+      "y": 2752
+    },
+    {
+      "instanceId": "collectible-purple-berry-c0674535",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1632,
+      "y": 2752
+    },
+    {
+      "instanceId": "collectible-purple-berry-001c01b4",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1632,
+      "y": 2688
+    },
+    {
+      "instanceId": "collectible-purple-berry-38f669da",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1696,
+      "y": 2624
+    },
+    {
+      "instanceId": "collectible-purple-berry-05f63dd2",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1632,
+      "y": 2624
+    },
+    {
+      "instanceId": "collectible-purple-berry-64a01c62",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1568,
+      "y": 2560
+    },
+    {
+      "instanceId": "collectible-purple-berry-53a574c9",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1504,
+      "y": 2560
+    },
+    {
+      "instanceId": "collectible-purple-berry-6c817af9",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1440,
+      "y": 2560
+    },
+    {
+      "instanceId": "collectible-purple-berry-b1c149cf",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1376,
+      "y": 2496
+    },
+    {
+      "instanceId": "collectible-purple-berry-7a75943a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1312,
+      "y": 2496
+    },
+    {
+      "instanceId": "collectible-purple-berry-defe9029",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1248,
+      "y": 2496
+    },
+    {
+      "instanceId": "collectible-purple-berry-c63bfa02",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1184,
+      "y": 2496
+    },
+    {
+      "instanceId": "collectible-purple-berry-c59f4209",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1120,
+      "y": 2496
+    },
+    {
+      "instanceId": "collectible-purple-berry-573d998e",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1056,
+      "y": 2496
+    },
+    {
+      "instanceId": "collectible-purple-berry-afee7fce",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 992,
+      "y": 2496
+    },
+    {
+      "instanceId": "collectible-purple-berry-2022c3d5",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 928,
+      "y": 2496
+    },
+    {
+      "instanceId": "collectible-purple-berry-0ed1a5e9",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 864,
+      "y": 2496
+    },
+    {
+      "instanceId": "collectible-purple-berry-7f1fa701",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 800,
+      "y": 2496
+    },
+    {
+      "instanceId": "collectible-purple-berry-1b807eaa",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 736,
+      "y": 2496
+    },
+    {
+      "instanceId": "collectible-purple-berry-c52a8036",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 672,
+      "y": 2560
+    },
+    {
+      "instanceId": "collectible-purple-berry-5e187e0d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 608,
+      "y": 2560
+    },
+    {
+      "instanceId": "collectible-purple-berry-64f56322",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 544,
+      "y": 2560
+    },
+    {
+      "instanceId": "collectible-purple-berry-c1aa3862",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 480,
+      "y": 2560
+    },
+    {
+      "instanceId": "collectible-purple-berry-775bba5c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 416,
+      "y": 2560
+    },
+    {
+      "instanceId": "collectible-purple-berry-831c3364",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 416,
+      "y": 2496
+    },
+    {
+      "instanceId": "collectible-purple-berry-59116fc9",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 416,
+      "y": 2432
+    },
+    {
+      "instanceId": "collectible-purple-berry-d1310102",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 480,
+      "y": 2368
+    },
+    {
+      "instanceId": "collectible-purple-berry-d4e6d865",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 480,
+      "y": 2304
+    },
+    {
+      "instanceId": "collectible-purple-berry-4b6cc7a5",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 480,
+      "y": 2240
+    },
+    {
+      "instanceId": "collectible-purple-berry-5b9dc5ad",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 480,
+      "y": 2176
+    },
+    {
+      "instanceId": "collectible-purple-berry-7ad44c72",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 544,
+      "y": 2112
+    },
+    {
+      "instanceId": "collectible-purple-berry-e9498f43",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 544,
+      "y": 2048
+    },
+    {
+      "instanceId": "collectible-purple-berry-07667c0b",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 544,
+      "y": 1984
+    },
+    {
+      "instanceId": "collectible-purple-berry-d60161d1",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 544,
+      "y": 1920
+    },
+    {
+      "instanceId": "collectible-purple-berry-f573cba4",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 480,
+      "y": 1984
+    },
+    {
+      "instanceId": "collectible-purple-berry-9f5d08c6",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 480,
+      "y": 2048
+    },
+    {
+      "instanceId": "collectible-purple-berry-f7a84b41",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 480,
+      "y": 2112
+    },
+    {
+      "instanceId": "collectible-purple-berry-a1a5e470",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 480,
+      "y": 2432
+    },
+    {
+      "instanceId": "collectible-purple-berry-63bbf73c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 480,
+      "y": 2496
+    },
+    {
+      "instanceId": "collectible-purple-berry-9cc6f47c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 480,
+      "y": 2624
+    },
+    {
+      "instanceId": "collectible-purple-berry-b02a54ff",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 480,
+      "y": 2688
+    },
+    {
+      "instanceId": "collectible-purple-berry-26931b61",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 480,
+      "y": 2752
+    },
+    {
+      "instanceId": "collectible-purple-berry-a2382329",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 480,
+      "y": 2816
+    },
+    {
+      "instanceId": "collectible-purple-berry-21c16fcc",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 480,
+      "y": 2880
+    },
+    {
+      "instanceId": "collectible-purple-berry-5a0a1188",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 544,
+      "y": 2880
+    },
+    {
+      "instanceId": "collectible-purple-berry-94aaa42d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 608,
+      "y": 2880
+    },
+    {
+      "instanceId": "collectible-purple-berry-56aa3dae",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1184,
+      "y": 2880
+    },
+    {
+      "instanceId": "collectible-purple-berry-3a5c7137",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1248,
+      "y": 2816
+    },
+    {
+      "instanceId": "collectible-purple-berry-4016d470",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1312,
+      "y": 2816
+    },
+    {
+      "instanceId": "collectible-purple-berry-faddea44",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1312,
+      "y": 2752
+    },
+    {
+      "instanceId": "collectible-purple-berry-ef9f9402",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1312,
+      "y": 2688
+    },
+    {
+      "instanceId": "collectible-purple-berry-48f4820c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1312,
+      "y": 2624
+    },
+    {
+      "instanceId": "collectible-purple-berry-a90ea76d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1248,
+      "y": 2624
+    },
+    {
+      "instanceId": "collectible-purple-berry-ea5dc422",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1248,
+      "y": 2560
+    },
+    {
+      "instanceId": "collectible-purple-berry-257df680",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1184,
+      "y": 2560
+    },
+    {
+      "instanceId": "collectible-purple-berry-98566d42",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 992,
+      "y": 2432
+    },
+    {
+      "instanceId": "collectible-purple-berry-089dc84c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 992,
+      "y": 2368
+    },
+    {
+      "instanceId": "collectible-purple-berry-565ac60b",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 992,
+      "y": 2304
+    },
+    {
+      "instanceId": "collectible-purple-berry-50ec1d91",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 992,
+      "y": 2240
+    },
+    {
+      "instanceId": "collectible-purple-berry-7efb9379",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 992,
+      "y": 2176
+    },
+    {
+      "instanceId": "collectible-purple-berry-1662b2d7",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 992,
+      "y": 2112
+    },
+    {
+      "instanceId": "collectible-purple-berry-74eb5db8",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 992,
+      "y": 2048
+    },
+    {
+      "instanceId": "collectible-purple-berry-3c555a87",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 992,
+      "y": 1984
+    },
+    {
+      "instanceId": "collectible-purple-berry-72d25bea",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 992,
+      "y": 1920
+    },
+    {
+      "instanceId": "collectible-purple-berry-89866675",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 992,
+      "y": 1856
+    },
+    {
+      "instanceId": "collectible-purple-berry-7dcf53c4",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 992,
+      "y": 1792
+    },
+    {
+      "instanceId": "collectible-purple-berry-34122a48",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 992,
+      "y": 1728
+    },
+    {
+      "instanceId": "collectible-purple-berry-51305b78",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 992,
+      "y": 1664
+    },
+    {
+      "instanceId": "collectible-purple-berry-45a8177b",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 928,
+      "y": 1664
+    },
+    {
+      "instanceId": "collectible-purple-berry-c8335656",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 864,
+      "y": 1728
+    },
+    {
+      "instanceId": "collectible-purple-berry-63568e4a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 800,
+      "y": 1792
+    },
+    {
+      "instanceId": "collectible-purple-berry-88ef33c0",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 736,
+      "y": 1856
+    },
+    {
+      "instanceId": "collectible-purple-berry-19bd63a5",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 672,
+      "y": 1920
+    },
+    {
+      "instanceId": "collectible-purple-berry-46899aa8",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 608,
+      "y": 1920
+    },
+    {
+      "instanceId": "collectible-purple-berry-a624b599",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 608,
+      "y": 1984
+    },
+    {
+      "instanceId": "collectible-purple-berry-27cc410c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 608,
+      "y": 2048
+    },
+    {
+      "instanceId": "collectible-purple-berry-b28d72f9",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 608,
+      "y": 2112
+    },
+    {
+      "instanceId": "collectible-purple-berry-af6bb49d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 608,
+      "y": 2176
+    },
+    {
+      "instanceId": "collectible-purple-berry-e78fd3cc",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 608,
+      "y": 2240
+    },
+    {
+      "instanceId": "collectible-purple-berry-6bdcb00f",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 672,
+      "y": 2304
+    },
+    {
+      "instanceId": "collectible-purple-berry-89577361",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 672,
+      "y": 2368
+    },
+    {
+      "instanceId": "collectible-purple-berry-39ecb114",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 736,
+      "y": 2432
+    },
+    {
+      "instanceId": "collectible-purple-berry-d5a8acf9",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 800,
+      "y": 2432
+    },
+    {
+      "instanceId": "collectible-purple-berry-a46b43cc",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 864,
+      "y": 2432
+    },
+    {
+      "instanceId": "collectible-purple-berry-7a344ec5",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 992,
+      "y": 2560
+    },
+    {
+      "instanceId": "collectible-purple-berry-b8f32a3f",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 992,
+      "y": 2624
+    },
+    {
+      "instanceId": "collectible-purple-berry-f9e96bed",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1056,
+      "y": 2688
+    },
+    {
+      "instanceId": "collectible-purple-berry-095c76b4",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1056,
+      "y": 2752
+    },
+    {
+      "instanceId": "collectible-purple-berry-6dc7674f",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1120,
+      "y": 2752
+    },
+    {
+      "instanceId": "collectible-purple-berry-bbcda47e",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1120,
+      "y": 2816
+    },
+    {
+      "instanceId": "collectible-purple-berry-8e544871",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1184,
+      "y": 2816
+    },
+    {
+      "instanceId": "collectible-purple-berry-2bbf86f4",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1376,
+      "y": 2816
+    },
+    {
+      "instanceId": "collectible-purple-berry-770d6efb",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1504,
+      "y": 2752
+    },
+    {
+      "instanceId": "collectible-purple-berry-b73cf0d3",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1696,
+      "y": 2752
+    },
+    {
+      "instanceId": "collectible-purple-berry-31e1b6b7",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1696,
+      "y": 2688
+    },
+    {
+      "instanceId": "collectible-purple-berry-fb363b3a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1760,
+      "y": 2688
+    },
+    {
+      "instanceId": "collectible-purple-berry-ffe890f0",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1824,
+      "y": 2688
+    },
+    {
+      "instanceId": "collectible-purple-berry-4890119e",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1888,
+      "y": 2688
+    },
+    {
+      "instanceId": "collectible-purple-berry-257dcbb8",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1952,
+      "y": 2624
+    },
+    {
+      "instanceId": "collectible-purple-berry-27a9d635",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2016,
+      "y": 2624
+    },
+    {
+      "instanceId": "collectible-purple-berry-1c6998e0",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2080,
+      "y": 2560
+    },
+    {
+      "instanceId": "collectible-purple-berry-7cc78823",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2144,
+      "y": 2560
+    },
+    {
+      "instanceId": "collectible-purple-berry-0b035208",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2208,
+      "y": 2560
+    },
+    {
+      "instanceId": "collectible-purple-berry-456e4ef1",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2272,
+      "y": 2496
+    },
+    {
+      "instanceId": "collectible-purple-berry-1d3b07d7",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2336,
+      "y": 2496
+    },
+    {
+      "instanceId": "collectible-purple-berry-4418dfa2",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2400,
+      "y": 2432
+    },
+    {
+      "instanceId": "collectible-purple-berry-ccbc67ac",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2464,
+      "y": 2432
+    },
+    {
+      "instanceId": "collectible-purple-berry-6ff440b0",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2528,
+      "y": 2368
+    },
+    {
+      "instanceId": "collectible-purple-berry-c3a03113",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2592,
+      "y": 2304
+    },
+    {
+      "instanceId": "collectible-purple-berry-db943368",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2656,
+      "y": 2304
+    },
+    {
+      "instanceId": "collectible-purple-berry-8c287448",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2720,
+      "y": 2240
+    },
+    {
+      "instanceId": "collectible-purple-berry-55ec5d0e",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2784,
+      "y": 2176
+    },
+    {
+      "instanceId": "collectible-purple-berry-e43df96c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2848,
+      "y": 2176
+    },
+    {
+      "instanceId": "collectible-purple-berry-4f6b2d93",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2912,
+      "y": 2112
+    },
+    {
+      "instanceId": "collectible-purple-berry-5d7c5d03",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2976,
+      "y": 2048
+    },
+    {
+      "instanceId": "collectible-purple-berry-18920323",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3040,
+      "y": 2048
+    },
+    {
+      "instanceId": "collectible-purple-berry-7b038f35",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3104,
+      "y": 1984
+    },
+    {
+      "instanceId": "collectible-purple-berry-bf027e98",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3168,
+      "y": 1984
+    },
+    {
+      "instanceId": "collectible-purple-berry-37d74a61",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3040,
+      "y": 1984
+    },
+    {
+      "instanceId": "collectible-purple-berry-5a8423d3",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2976,
+      "y": 1984
+    },
+    {
+      "instanceId": "collectible-purple-berry-c4445b10",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2912,
+      "y": 2048
+    },
+    {
+      "instanceId": "collectible-purple-berry-87230aae",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2848,
+      "y": 2112
+    },
+    {
+      "instanceId": "collectible-purple-berry-f28e88d0",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2784,
+      "y": 2112
+    },
+    {
+      "instanceId": "collectible-purple-berry-4f11b595",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2720,
+      "y": 2112
+    },
+    {
+      "instanceId": "collectible-purple-berry-80fa8a56",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2656,
+      "y": 2176
+    },
+    {
+      "instanceId": "collectible-purple-berry-1c60967e",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2592,
+      "y": 2240
+    },
+    {
+      "instanceId": "collectible-purple-berry-fd519045",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2528,
+      "y": 2240
+    },
+    {
+      "instanceId": "collectible-purple-berry-1131708c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2528,
+      "y": 2304
+    },
+    {
+      "instanceId": "collectible-purple-berry-925d355d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2464,
+      "y": 2304
+    },
+    {
+      "instanceId": "collectible-purple-berry-d8731773",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2464,
+      "y": 2368
+    },
+    {
+      "instanceId": "collectible-purple-berry-990d81a3",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2336,
+      "y": 2560
+    },
+    {
+      "instanceId": "collectible-purple-berry-304393af",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2272,
+      "y": 2560
+    },
+    {
+      "instanceId": "collectible-purple-berry-a1b7a057",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2272,
+      "y": 2624
+    },
+    {
+      "instanceId": "collectible-purple-berry-c79d2e1f",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2208,
+      "y": 2624
+    },
+    {
+      "instanceId": "collectible-purple-berry-3317f607",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2272,
+      "y": 2432
+    },
+    {
+      "instanceId": "collectible-purple-berry-618dd2e5",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2272,
+      "y": 2368
+    },
+    {
+      "instanceId": "collectible-purple-berry-db4253d8",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2336,
+      "y": 2304
+    },
+    {
+      "instanceId": "collectible-purple-berry-283f2923",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2336,
+      "y": 2240
+    },
+    {
+      "instanceId": "collectible-purple-berry-c8f7afa8",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2336,
+      "y": 2176
+    },
+    {
+      "instanceId": "collectible-purple-berry-b716b9fd",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2400,
+      "y": 2112
+    },
+    {
+      "instanceId": "collectible-purple-berry-65b428b7",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2400,
+      "y": 2048
+    },
+    {
+      "instanceId": "collectible-purple-berry-a335406c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2400,
+      "y": 1984
+    },
+    {
+      "instanceId": "collectible-purple-berry-6fb14258",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2336,
+      "y": 2048
+    },
+    {
+      "instanceId": "collectible-purple-berry-d3a2becc",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2272,
+      "y": 2112
+    },
+    {
+      "instanceId": "collectible-purple-berry-3ab83c33",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2208,
+      "y": 2176
+    },
+    {
+      "instanceId": "collectible-purple-berry-6be72fff",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2144,
+      "y": 2240
+    },
+    {
+      "instanceId": "collectible-purple-berry-34381d35",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2144,
+      "y": 2304
+    },
+    {
+      "instanceId": "collectible-purple-berry-2ad65832",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2080,
+      "y": 2368
+    },
+    {
+      "instanceId": "collectible-purple-berry-28465a43",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2016,
+      "y": 2432
+    },
+    {
+      "instanceId": "collectible-purple-berry-1796a55d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2016,
+      "y": 2496
+    },
+    {
+      "instanceId": "collectible-purple-berry-bb470318",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1952,
+      "y": 2560
+    },
+    {
+      "instanceId": "collectible-purple-berry-b05c0615",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1888,
+      "y": 2560
+    },
+    {
+      "instanceId": "collectible-purple-berry-138b37d0",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1888,
+      "y": 2624
+    },
+    {
+      "instanceId": "collectible-purple-berry-0cc10bd8",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1824,
+      "y": 2624
+    },
+    {
+      "instanceId": "collectible-purple-berry-76b241c1",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1760,
+      "y": 2624
+    },
+    {
+      "instanceId": "collectible-purple-berry-91054038",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1824,
+      "y": 2560
+    },
+    {
+      "instanceId": "collectible-purple-berry-481e2a24",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1952,
+      "y": 2496
+    },
+    {
+      "instanceId": "collectible-purple-berry-1427dc83",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2080,
+      "y": 2432
+    },
+    {
+      "instanceId": "collectible-purple-berry-1aff563d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2144,
+      "y": 2368
+    },
+    {
+      "instanceId": "collectible-purple-berry-6936bbb4",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2208,
+      "y": 2304
+    },
+    {
+      "instanceId": "collectible-purple-berry-f2662036",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2208,
+      "y": 2240
+    },
+    {
+      "instanceId": "collectible-purple-berry-1d782c70",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2272,
+      "y": 2176
+    },
+    {
+      "instanceId": "collectible-purple-berry-ac64055c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2336,
+      "y": 2112
+    },
+    {
+      "instanceId": "collectible-purple-berry-00afae00",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2464,
+      "y": 1984
+    },
+    {
+      "instanceId": "collectible-purple-berry-441681b7",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2464,
+      "y": 1920
+    },
+    {
+      "instanceId": "collectible-purple-berry-5cf66d24",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2464,
+      "y": 1856
+    },
+    {
+      "instanceId": "collectible-purple-berry-71686721",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2528,
+      "y": 1856
+    },
+    {
+      "instanceId": "collectible-purple-berry-c2c79a5f",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2528,
+      "y": 1792
+    },
+    {
+      "instanceId": "collectible-purple-berry-16d3831a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2528,
+      "y": 1728
+    },
+    {
+      "instanceId": "collectible-purple-berry-75524aa4",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2528,
+      "y": 1664
+    },
+    {
+      "instanceId": "collectible-purple-berry-4d59a2c1",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2528,
+      "y": 1600
+    },
+    {
+      "instanceId": "collectible-purple-berry-e7e68ad0",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2528,
+      "y": 1536
+    },
+    {
+      "instanceId": "collectible-purple-berry-78021f83",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2528,
+      "y": 1472
+    },
+    {
+      "instanceId": "collectible-purple-berry-126625cb",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2528,
+      "y": 1408
+    },
+    {
+      "instanceId": "collectible-purple-berry-5292de57",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2528,
+      "y": 1344
+    },
+    {
+      "instanceId": "collectible-purple-berry-edd6ec68",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2528,
+      "y": 1280
+    },
+    {
+      "instanceId": "collectible-purple-berry-02eafbe3",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2528,
+      "y": 1216
+    },
+    {
+      "instanceId": "collectible-purple-berry-d13948cf",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2528,
+      "y": 1152
+    },
+    {
+      "instanceId": "collectible-purple-berry-7c24a751",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2528,
+      "y": 1088
+    },
+    {
+      "instanceId": "collectible-purple-berry-6cd7864c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2528,
+      "y": 1024
+    },
+    {
+      "instanceId": "collectible-purple-berry-b85bbf96",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2528,
+      "y": 960
+    },
+    {
+      "instanceId": "collectible-purple-berry-3e2816be",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2464,
+      "y": 960
+    },
+    {
+      "instanceId": "collectible-purple-berry-2dc425a4",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2464,
+      "y": 1024
+    },
+    {
+      "instanceId": "collectible-purple-berry-7fb155df",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2400,
+      "y": 1088
+    },
+    {
+      "instanceId": "collectible-purple-berry-18740092",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2336,
+      "y": 1152
+    },
+    {
+      "instanceId": "collectible-purple-berry-979cc6d0",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2336,
+      "y": 1216
+    },
+    {
+      "instanceId": "collectible-purple-berry-8d3014dc",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2336,
+      "y": 1280
+    },
+    {
+      "instanceId": "collectible-purple-berry-5b3f7078",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2336,
+      "y": 1344
+    },
+    {
+      "instanceId": "collectible-purple-berry-b742dc1a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2336,
+      "y": 1408
+    },
+    {
+      "instanceId": "collectible-purple-berry-820ed94a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2272,
+      "y": 1472
+    },
+    {
+      "instanceId": "collectible-purple-berry-7093ef11",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2272,
+      "y": 1536
+    },
+    {
+      "instanceId": "collectible-purple-berry-d5add3d1",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2272,
+      "y": 1600
+    },
+    {
+      "instanceId": "collectible-purple-berry-6d4aece7",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2208,
+      "y": 1664
+    },
+    {
+      "instanceId": "collectible-purple-berry-39c3ea22",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2208,
+      "y": 1728
+    },
+    {
+      "instanceId": "collectible-purple-berry-c7df8603",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2208,
+      "y": 1792
+    },
+    {
+      "instanceId": "collectible-purple-berry-995dcc10",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2208,
+      "y": 1856
+    },
+    {
+      "instanceId": "collectible-purple-berry-70baa5d3",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2208,
+      "y": 1920
+    },
+    {
+      "instanceId": "collectible-purple-berry-61e36e33",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2208,
+      "y": 1984
+    },
+    {
+      "instanceId": "collectible-purple-berry-cbc9de71",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2208,
+      "y": 2048
+    },
+    {
+      "instanceId": "collectible-purple-berry-c5930d21",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2144,
+      "y": 2112
+    },
+    {
+      "instanceId": "collectible-purple-berry-5855e304",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2144,
+      "y": 2176
+    },
+    {
+      "instanceId": "collectible-purple-berry-4d3c512b",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2080,
+      "y": 2496
+    },
+    {
+      "instanceId": "collectible-purple-berry-d05ecbca",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2080,
+      "y": 2624
+    },
+    {
+      "instanceId": "collectible-purple-berry-73ac9279",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2080,
+      "y": 2688
+    },
+    {
+      "instanceId": "collectible-purple-berry-19c77a26",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2016,
+      "y": 2752
+    },
+    {
+      "instanceId": "collectible-purple-berry-061d9882",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2016,
+      "y": 2816
+    },
+    {
+      "instanceId": "collectible-purple-berry-cebd2800",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2016,
+      "y": 2880
+    },
+    {
+      "instanceId": "collectible-purple-berry-e3ce6a11",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2016,
+      "y": 2944
+    },
+    {
+      "instanceId": "collectible-purple-berry-3bf70687",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2080,
+      "y": 2944
+    },
+    {
+      "instanceId": "collectible-purple-berry-bf1dc707",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2144,
+      "y": 2944
+    },
+    {
+      "instanceId": "collectible-purple-berry-b607db79",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2208,
+      "y": 2944
+    },
+    {
+      "instanceId": "collectible-purple-berry-cf3f638d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2272,
+      "y": 2944
+    },
+    {
+      "instanceId": "collectible-purple-berry-df7f91a1",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2336,
+      "y": 2944
+    },
+    {
+      "instanceId": "collectible-purple-berry-69e130c6",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2400,
+      "y": 2944
+    },
+    {
+      "instanceId": "collectible-purple-berry-04d6331c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2464,
+      "y": 2944
+    },
+    {
+      "instanceId": "collectible-purple-berry-e925f354",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2528,
+      "y": 2944
+    },
+    {
+      "instanceId": "collectible-purple-berry-519f3d0e",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2592,
+      "y": 2880
+    },
+    {
+      "instanceId": "collectible-purple-berry-3683b485",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2592,
+      "y": 2816
+    },
+    {
+      "instanceId": "collectible-purple-berry-6d5f63df",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2656,
+      "y": 2752
+    },
+    {
+      "instanceId": "collectible-purple-berry-22b1baa2",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2720,
+      "y": 2688
+    },
+    {
+      "instanceId": "collectible-purple-berry-8d4bad5c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2784,
+      "y": 2688
+    },
+    {
+      "instanceId": "collectible-purple-berry-059ed798",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2848,
+      "y": 2624
+    },
+    {
+      "instanceId": "collectible-purple-berry-3df0ca37",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2912,
+      "y": 2560
+    },
+    {
+      "instanceId": "collectible-purple-berry-ad2d6f09",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2976,
+      "y": 2496
+    },
+    {
+      "instanceId": "collectible-purple-berry-fa5c43b8",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3040,
+      "y": 2432
+    },
+    {
+      "instanceId": "collectible-purple-berry-bc7fbe3f",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3104,
+      "y": 2368
+    },
+    {
+      "instanceId": "collectible-purple-berry-e8cca377",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3168,
+      "y": 2304
+    },
+    {
+      "instanceId": "collectible-purple-berry-09122a86",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3168,
+      "y": 2240
+    },
+    {
+      "instanceId": "collectible-purple-berry-c09b8735",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3232,
+      "y": 2176
+    },
+    {
+      "instanceId": "collectible-purple-berry-d11d9f77",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3296,
+      "y": 2112
+    },
+    {
+      "instanceId": "collectible-purple-berry-78711a9d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3360,
+      "y": 2048
+    },
+    {
+      "instanceId": "collectible-purple-berry-f999950f",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3360,
+      "y": 1984
+    },
+    {
+      "instanceId": "collectible-purple-berry-128227de",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3424,
+      "y": 1920
+    },
+    {
+      "instanceId": "collectible-purple-berry-daf8b17d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3424,
+      "y": 1856
+    },
+    {
+      "instanceId": "collectible-purple-berry-ab85ef99",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3424,
+      "y": 1792
+    },
+    {
+      "instanceId": "collectible-purple-berry-81a7ce55",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3424,
+      "y": 1728
+    },
+    {
+      "instanceId": "collectible-purple-berry-54014265",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3424,
+      "y": 1664
+    },
+    {
+      "instanceId": "collectible-purple-berry-8f281f80",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3424,
+      "y": 1600
+    },
+    {
+      "instanceId": "collectible-purple-berry-4b71bb1a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3424,
+      "y": 1536
+    },
+    {
+      "instanceId": "collectible-purple-berry-83f4e3f4",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3424,
+      "y": 1472
+    },
+    {
+      "instanceId": "collectible-purple-berry-464646ba",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3424,
+      "y": 1408
+    },
+    {
+      "instanceId": "collectible-purple-berry-4bbb5d80",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3424,
+      "y": 1344
+    },
+    {
+      "instanceId": "collectible-purple-berry-0fb2922b",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3424,
+      "y": 1280
+    },
+    {
+      "instanceId": "collectible-purple-berry-8364ab90",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3424,
+      "y": 1216
+    },
+    {
+      "instanceId": "collectible-purple-berry-59a56517",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3424,
+      "y": 1152
+    },
+    {
+      "instanceId": "collectible-purple-berry-633d4ed6",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3424,
+      "y": 1088
+    },
+    {
+      "instanceId": "collectible-purple-berry-010af254",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3424,
+      "y": 1024
+    },
+    {
+      "instanceId": "collectible-purple-berry-0f37dafa",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3424,
+      "y": 960
+    },
+    {
+      "instanceId": "collectible-purple-berry-c7a221cc",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3424,
+      "y": 896
+    },
+    {
+      "instanceId": "collectible-purple-berry-add7d7c7",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3360,
+      "y": 1024
+    },
+    {
+      "instanceId": "collectible-purple-berry-6b0a4f36",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3360,
+      "y": 1088
+    },
+    {
+      "instanceId": "collectible-purple-berry-fcfb0dad",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3360,
+      "y": 1152
+    },
+    {
+      "instanceId": "collectible-purple-berry-66598459",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3296,
+      "y": 1216
+    },
+    {
+      "instanceId": "collectible-purple-berry-3f168476",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3296,
+      "y": 1280
+    },
+    {
+      "instanceId": "collectible-purple-berry-3235d850",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3296,
+      "y": 1344
+    },
+    {
+      "instanceId": "collectible-purple-berry-5b0564c6",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3232,
+      "y": 1408
+    },
+    {
+      "instanceId": "collectible-purple-berry-e04a5608",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3232,
+      "y": 1472
+    },
+    {
+      "instanceId": "collectible-purple-berry-5d9a2d5d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3168,
+      "y": 1536
+    },
+    {
+      "instanceId": "collectible-purple-berry-1314d457",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3168,
+      "y": 1600
+    },
+    {
+      "instanceId": "collectible-purple-berry-b643077b",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3168,
+      "y": 1664
+    },
+    {
+      "instanceId": "collectible-purple-berry-3dcedc06",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3104,
+      "y": 1728
+    },
+    {
+      "instanceId": "collectible-purple-berry-4f43e6a6",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3104,
+      "y": 1792
+    },
+    {
+      "instanceId": "collectible-purple-berry-6bf8682b",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3040,
+      "y": 1856
+    },
+    {
+      "instanceId": "collectible-purple-berry-d3d37e1a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3040,
+      "y": 1920
+    },
+    {
+      "instanceId": "collectible-purple-berry-98f7b0ba",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2976,
+      "y": 2112
+    },
+    {
+      "instanceId": "collectible-purple-berry-cac95a83",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2976,
+      "y": 2176
+    },
+    {
+      "instanceId": "collectible-purple-berry-224e1a1e",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2976,
+      "y": 2240
+    },
+    {
+      "instanceId": "collectible-purple-berry-c1253a07",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2912,
+      "y": 2304
+    },
+    {
+      "instanceId": "collectible-purple-berry-68d9cb03",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2912,
+      "y": 2368
+    },
+    {
+      "instanceId": "collectible-purple-berry-1b6316b6",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2912,
+      "y": 2432
+    },
+    {
+      "instanceId": "collectible-purple-berry-24b19ddc",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2848,
+      "y": 2496
+    },
+    {
+      "instanceId": "collectible-purple-berry-f5f3096d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2848,
+      "y": 2560
+    },
+    {
+      "instanceId": "collectible-purple-berry-d0b1eac3",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2848,
+      "y": 2688
+    },
+    {
+      "instanceId": "collectible-purple-berry-14c8d90e",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2848,
+      "y": 2752
+    },
+    {
+      "instanceId": "collectible-purple-berry-71bed762",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2784,
+      "y": 2816
+    },
+    {
+      "instanceId": "collectible-purple-berry-431b01de",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2784,
+      "y": 2880
+    },
+    {
+      "instanceId": "collectible-purple-berry-d6ffa3c8",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2784,
+      "y": 2944
+    },
+    {
+      "instanceId": "collectible-purple-berry-02a39f7b",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2848,
+      "y": 2944
+    },
+    {
+      "instanceId": "collectible-purple-berry-8ddfa057",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2848,
+      "y": 2880
+    },
+    {
+      "instanceId": "collectible-purple-berry-293128ec",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2912,
+      "y": 2816
+    },
+    {
+      "instanceId": "collectible-purple-berry-8ce340de",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2976,
+      "y": 2752
+    },
+    {
+      "instanceId": "collectible-purple-berry-e3f78830",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2976,
+      "y": 2688
+    },
+    {
+      "instanceId": "collectible-purple-berry-5cbdcfde",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3040,
+      "y": 2624
+    },
+    {
+      "instanceId": "collectible-purple-berry-a769ca3d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3104,
+      "y": 2560
+    },
+    {
+      "instanceId": "collectible-purple-berry-aa77d438",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3104,
+      "y": 2496
+    },
+    {
+      "instanceId": "collectible-purple-berry-dafa5eeb",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3168,
+      "y": 2432
+    },
+    {
+      "instanceId": "collectible-purple-berry-62715fde",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3232,
+      "y": 2368
+    },
+    {
+      "instanceId": "collectible-purple-berry-ac33c1be",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3296,
+      "y": 2304
+    },
+    {
+      "instanceId": "collectible-purple-berry-eea4f80c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3296,
+      "y": 2240
+    },
+    {
+      "instanceId": "collectible-purple-berry-1a4eafed",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3360,
+      "y": 2176
+    },
+    {
+      "instanceId": "collectible-purple-berry-a6878579",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3360,
+      "y": 2112
+    },
+    {
+      "instanceId": "collectible-purple-berry-c2f6817a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3424,
+      "y": 1984
+    },
+    {
+      "instanceId": "collectible-purple-berry-1a1ea4c8",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3424,
+      "y": 832
+    },
+    {
+      "instanceId": "collectible-purple-berry-00dc2f66",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3424,
+      "y": 768
+    },
+    {
+      "instanceId": "collectible-purple-berry-41059bf6",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3424,
+      "y": 704
+    },
+    {
+      "instanceId": "collectible-purple-berry-9a0e5b5a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3360,
+      "y": 768
+    },
+    {
+      "instanceId": "collectible-purple-berry-f7ac88b8",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3360,
+      "y": 832
+    },
+    {
+      "instanceId": "collectible-purple-berry-d0047db1",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3296,
+      "y": 896
+    },
+    {
+      "instanceId": "collectible-purple-berry-37b0aff5",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3296,
+      "y": 960
+    },
+    {
+      "instanceId": "collectible-purple-berry-a924201b",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3232,
+      "y": 1024
+    },
+    {
+      "instanceId": "collectible-purple-berry-e3a90260",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3168,
+      "y": 1088
+    },
+    {
+      "instanceId": "collectible-purple-berry-3fb995ff",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3104,
+      "y": 1152
+    },
+    {
+      "instanceId": "collectible-purple-berry-453943af",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3104,
+      "y": 1216
+    },
+    {
+      "instanceId": "collectible-purple-berry-0364720a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3040,
+      "y": 1280
+    },
+    {
+      "instanceId": "collectible-purple-berry-24803812",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3040,
+      "y": 1344
+    },
+    {
+      "instanceId": "collectible-purple-berry-ec2eff8d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2976,
+      "y": 1408
+    },
+    {
+      "instanceId": "collectible-purple-berry-1cde32f9",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2976,
+      "y": 1472
+    },
+    {
+      "instanceId": "collectible-purple-berry-888770e3",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2976,
+      "y": 1536
+    },
+    {
+      "instanceId": "collectible-purple-berry-87af1840",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2912,
+      "y": 1600
+    },
+    {
+      "instanceId": "collectible-purple-berry-d56c4da3",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2912,
+      "y": 1664
+    },
+    {
+      "instanceId": "collectible-purple-berry-cb35c7fa",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2848,
+      "y": 1792
+    },
+    {
+      "instanceId": "collectible-purple-berry-a2449209",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2848,
+      "y": 1856
+    },
+    {
+      "instanceId": "collectible-purple-berry-e961ff77",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2848,
+      "y": 1920
+    },
+    {
+      "instanceId": "collectible-purple-berry-69c294a2",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2848,
+      "y": 1984
+    },
+    {
+      "instanceId": "collectible-purple-berry-0ae3567d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2848,
+      "y": 2048
+    },
+    {
+      "instanceId": "collectible-purple-berry-9ead6727",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2784,
+      "y": 2240
+    },
+    {
+      "instanceId": "collectible-purple-berry-e5212263",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2784,
+      "y": 2304
+    },
+    {
+      "instanceId": "collectible-purple-berry-c1c6a1a3",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2784,
+      "y": 2368
+    },
+    {
+      "instanceId": "collectible-purple-berry-7c3ca314",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2784,
+      "y": 2432
+    },
+    {
+      "instanceId": "collectible-purple-berry-0f131401",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2784,
+      "y": 2496
+    },
+    {
+      "instanceId": "collectible-purple-berry-99cc82a5",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2784,
+      "y": 2560
+    },
+    {
+      "instanceId": "collectible-purple-berry-eaa1265e",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2784,
+      "y": 2624
+    },
+    {
+      "instanceId": "collectible-purple-berry-2a0c91d4",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2784,
+      "y": 2752
+    },
+    {
+      "instanceId": "collectible-purple-berry-f93f48e3",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2720,
+      "y": 2944
+    },
+    {
+      "instanceId": "collectible-purple-berry-07f4e8c1",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2656,
+      "y": 2944
+    },
+    {
+      "instanceId": "collectible-purple-berry-47c34c8a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2592,
+      "y": 2944
+    },
+    {
+      "instanceId": "collectible-purple-berry-87afe185",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1952,
+      "y": 2944
+    },
+    {
+      "instanceId": "collectible-purple-berry-6b1ce5e5",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1888,
+      "y": 2944
+    },
+    {
+      "instanceId": "collectible-purple-berry-0bc644bc",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1824,
+      "y": 2944
+    },
+    {
+      "instanceId": "collectible-purple-berry-0073173f",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1952,
+      "y": 2880
+    },
+    {
+      "instanceId": "collectible-purple-berry-65c21134",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2080,
+      "y": 2752
+    },
+    {
+      "instanceId": "collectible-purple-berry-8ccfa1ff",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2016,
+      "y": 2688
+    },
+    {
+      "instanceId": "collectible-purple-berry-dc87d37d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1952,
+      "y": 2688
+    },
+    {
+      "instanceId": "collectible-purple-berry-a854193a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1888,
+      "y": 2752
+    },
+    {
+      "instanceId": "collectible-purple-berry-dd48e31c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1824,
+      "y": 2816
+    },
+    {
+      "instanceId": "collectible-purple-berry-f4bacaf8",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1760,
+      "y": 2880
+    },
+    {
+      "instanceId": "collectible-purple-berry-05a869fa",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1696,
+      "y": 2944
+    },
+    {
+      "instanceId": "collectible-purple-berry-eae6ef89",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1632,
+      "y": 2944
+    },
+    {
+      "instanceId": "collectible-purple-berry-0aa7faae",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1568,
+      "y": 2944
+    },
+    {
+      "instanceId": "collectible-purple-berry-fe191ca6",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1504,
+      "y": 2944
+    },
+    {
+      "instanceId": "collectible-purple-berry-5688cab0",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1440,
+      "y": 2944
+    },
+    {
+      "instanceId": "collectible-purple-berry-9fa62755",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1376,
+      "y": 2944
+    },
+    {
+      "instanceId": "collectible-purple-berry-f53111ec",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1312,
+      "y": 2944
+    },
+    {
+      "instanceId": "collectible-purple-berry-59d12797",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1248,
+      "y": 2944
+    },
+    {
+      "instanceId": "collectible-purple-berry-ae981833",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1056,
+      "y": 2880
+    },
+    {
+      "instanceId": "collectible-purple-berry-10c1afe5",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 992,
+      "y": 2880
+    },
+    {
+      "instanceId": "collectible-purple-berry-eb748b28",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 992,
+      "y": 2816
+    },
+    {
+      "instanceId": "collectible-purple-berry-9a167204",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 928,
+      "y": 2816
+    },
+    {
+      "instanceId": "collectible-purple-berry-90be081d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 928,
+      "y": 2752
+    },
+    {
+      "instanceId": "collectible-purple-berry-af81209b",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 864,
+      "y": 2752
+    },
+    {
+      "instanceId": "collectible-purple-berry-5f99807a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 864,
+      "y": 2688
+    },
+    {
+      "instanceId": "collectible-purple-berry-40b03c27",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 800,
+      "y": 2688
+    },
+    {
+      "instanceId": "collectible-purple-berry-37a74387",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 736,
+      "y": 2688
+    },
+    {
+      "instanceId": "collectible-purple-berry-a2d95a3a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 672,
+      "y": 2624
+    },
+    {
+      "instanceId": "collectible-purple-berry-3f3ec8e8",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 608,
+      "y": 2624
+    },
+    {
+      "instanceId": "collectible-purple-berry-11263484",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 544,
+      "y": 2624
+    },
+    {
+      "instanceId": "collectible-purple-berry-eafb3371",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 416,
+      "y": 2624
+    },
+    {
+      "instanceId": "tree-world-solid-3ce0dcc9",
+      "objectId": "tree.world.solid",
+      "visualId": "snow-pine",
+      "x": 1440,
+      "y": 1472
+    },
+    {
+      "instanceId": "rock-world-wall-solid-4cf11ede",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-03",
+      "x": 1312,
+      "y": 1344
+    },
+    {
+      "instanceId": "rock-world-wall-solid-8530f82e",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "field-14",
+      "x": 1632,
+      "y": 1344
+    },
+    {
+      "instanceId": "collectible-purple-berry-9728818e",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1888,
+      "y": 1344
+    },
+    {
+      "instanceId": "collectible-purple-berry-7a8e3ce1",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1824,
+      "y": 1344
+    },
+    {
+      "instanceId": "collectible-purple-berry-b7e2b81d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1824,
+      "y": 1280
+    },
+    {
+      "instanceId": "collectible-purple-berry-12ca132d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1888,
+      "y": 1280
+    },
+    {
+      "instanceId": "collectible-purple-berry-77ae2585",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1952,
+      "y": 1280
+    },
+    {
+      "instanceId": "collectible-purple-berry-645541d4",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1952,
+      "y": 1344
+    },
+    {
+      "instanceId": "collectible-purple-berry-2ce8d45f",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1824,
+      "y": 1216
+    },
+    {
+      "instanceId": "collectible-purple-berry-4cdc5031",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1952,
+      "y": 1216
+    },
+    {
+      "instanceId": "collectible-purple-berry-9396058b",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1888,
+      "y": 1216
+    },
+    {
+      "instanceId": "decoration-world-solid-b3c142d7",
+      "objectId": "decoration.world.solid",
+      "visualId": "lantern-post",
+      "x": 1760,
+      "y": 1600
+    },
+    {
+      "instanceId": "decoration-world-solid-0e832423",
+      "objectId": "decoration.world.solid",
+      "visualId": "lantern-post",
+      "x": 928,
+      "y": 1600
+    },
+    {
+      "instanceId": "decoration-world-solid-c82afaef",
+      "objectId": "decoration.world.solid",
+      "visualId": "cooking-cauldron",
+      "x": 1504,
+      "y": 1664
+    },
+    {
+      "instanceId": "decoration-world-solid-f941d390",
+      "objectId": "decoration.world.solid",
+      "visualId": "cooking-cauldron",
+      "x": 1440,
+      "y": 1664
+    },
+    {
+      "instanceId": "decoration-world-solid-1c7688bd",
+      "objectId": "decoration.world.solid",
+      "visualId": "campfire",
+      "x": 1440,
+      "y": 1792
+    },
+    {
+      "instanceId": "decoration-world-solid-b432b413",
+      "objectId": "decoration.world.solid",
+      "visualId": "campfire",
+      "x": 1504,
+      "y": 1792
+    },
+    {
+      "instanceId": "decoration-world-solid-776faec3",
+      "objectId": "decoration.world.solid",
+      "visualId": "stone-birdbath",
+      "x": 1888,
+      "y": 1536
+    },
+    {
+      "instanceId": "decoration-world-solid-9c1e75b2",
+      "objectId": "decoration.world.solid",
+      "visualId": "birdhouse",
+      "x": 2080,
+      "y": 1984
+    },
+    {
+      "instanceId": "decoration-world-solid-e7a9ff8d",
+      "objectId": "decoration.world.solid",
+      "visualId": "flower-planter",
+      "x": 2016,
+      "y": 1536
+    },
+    {
+      "instanceId": "decoration-world-solid-900e0862",
+      "objectId": "decoration.world.solid",
+      "visualId": "flower-planter",
+      "x": 928,
+      "y": 1536
+    },
+    {
+      "instanceId": "decoration-world-solid-a71aa8d9",
+      "objectId": "decoration.world.solid",
+      "visualId": "birdhouse",
+      "x": 928,
+      "y": 2048
+    }
+  ],
+  "player": {
+    "spawn": {
+      "x": 32,
+      "y": 32
+    },
+    "entries": {}
+  },
+  "exits": [],
+  "enemySafeZones": [
+    {
+      "x": 960,
+      "y": 1216,
+      "w": 1088,
+      "h": 640
+    },
+    {
+      "x": 1152,
+      "y": 1088,
+      "w": 576,
+      "h": 192
+    },
+    {
+      "x": 1728,
+      "y": 1142,
+      "w": 64,
+      "h": 64
+    },
+    {
+      "x": 896,
+      "y": 1600,
+      "w": 64,
+      "h": 320
+    },
+    {
+      "x": 1344,
+      "y": 1856,
+      "w": 256,
+      "h": 320
+    },
+    {
+      "x": 1408,
+      "y": 2176,
+      "w": 128,
+      "h": 64
+    }
+  ]
+}

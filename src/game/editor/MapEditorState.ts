@@ -88,6 +88,14 @@ export class MapEditorState {
   private savingValue = false;
   private statusValue = 'Ready';
   private revisionValue = 0;
+  /**
+   * Cached dirty flag. Comparing against the saved snapshot requires a full
+   * JSON.stringify of the map — doing that per state read (pointermove and
+   * update handlers read `value` many times per second) churned megabytes of
+   * GC per stroke. Instead we flip the flag only at mutation points:
+   * mutate/undo/redo/save.
+   */
+  private dirtyValue = false;
 
   constructor(map: MapFile, initialTileId: WorldTileId, initialObjectId: ObjectArchetypeId, initialObjectVisualId: string) {
     this.mapValue = structuredClone(map) as EditableMap;
@@ -109,7 +117,7 @@ export class MapEditorState {
       direction: this.directionValue,
       selectedInstanceId: this.selectedInstanceIdValue,
       selectedSafeZoneIndex: this.selectedSafeZoneIndexValue,
-      dirty: serialize(this.mapValue) !== this.savedSnapshot,
+      dirty: this.dirtyValue,
       canUndo: this.undoStack.length > 0,
       canRedo: this.redoStack.length > 0,
       saving: this.savingValue,
@@ -126,9 +134,13 @@ export class MapEditorState {
 
   setTool(tool: EditorTool): void {
     this.toolValue = tool;
-    if (tool === 'select') this.statusValue = 'Select an object, then click its destination';
+    // Zones are only visible (and selectable) in the safe-zone tool, so a
+    // stale zone selection must not survive switching to another tool.
+    if (tool !== 'safe-zone') this.selectedSafeZoneIndexValue = undefined;
+    if (tool === 'select') this.statusValue = 'Drag any highlighted object to move it';
     else if (tool === 'safe-zone') this.statusValue = 'Drag across tiles to draw a rectangular safe zone';
     else if (tool === 'terrain') this.statusValue = `Drag to paint ${this.tileIdValue}`;
+    else if (tool === 'object') this.statusValue = `Drag to stamp ${this.objectIdValue} / ${this.objectVisualIdValue}`;
     else this.statusValue = `${tool} tool active`;
     this.emit();
   }
@@ -179,7 +191,7 @@ export class MapEditorState {
   selectInstance(instanceId?: string): void {
     this.selectedInstanceIdValue = instanceId;
     if (instanceId) this.selectedSafeZoneIndexValue = undefined;
-    this.statusValue = instanceId ? `Selected ${instanceId} — Delete removes it` : 'Selection cleared';
+    this.statusValue = instanceId ? `Selected ${instanceId} — drag to move or Delete to remove` : 'Selection cleared';
     this.emit();
   }
 
@@ -206,6 +218,7 @@ export class MapEditorState {
     if (this.undoStack.length > 100) this.undoStack.shift();
     this.redoStack = [];
     this.revisionValue += 1;
+    this.dirtyValue = true;
     this.statusValue = label;
     this.emit();
     return true;
@@ -219,6 +232,7 @@ export class MapEditorState {
     this.selectedInstanceIdValue = undefined;
     this.selectedSafeZoneIndexValue = undefined;
     this.revisionValue += 1;
+    this.dirtyValue = serialize(this.mapValue) !== this.savedSnapshot;
     this.statusValue = 'Undid last change';
     this.emit();
   }
@@ -231,6 +245,7 @@ export class MapEditorState {
     this.selectedInstanceIdValue = undefined;
     this.selectedSafeZoneIndexValue = undefined;
     this.revisionValue += 1;
+    this.dirtyValue = serialize(this.mapValue) !== this.savedSnapshot;
     this.statusValue = 'Redid change';
     this.emit();
   }
@@ -250,6 +265,7 @@ export class MapEditorState {
       const result = await response.json() as { ok?: boolean; error?: string };
       if (!response.ok || !result.ok) throw new Error(result.error ?? `Save failed (${response.status})`);
       this.savedSnapshot = serialize(this.mapValue);
+      this.dirtyValue = false;
       this.statusValue = `Saved ${this.mapValue.mapId}.map.json`;
     } catch (error) {
       this.statusValue = error instanceof Error ? error.message : String(error);
