@@ -13,6 +13,10 @@ import {
 import { isWorldTileId, type WorldTileId } from '../../content/terrain/TileCatalog';
 import type { WorldDimensions } from '../../world/WorldDimensions';
 import { ObjectFactory } from '../objects/ObjectFactory';
+import {
+  TerrainTransitionLayer,
+  TerrainTransitionRenderer,
+} from './TerrainTransitionRenderer';
 import { TileFactory } from './TileFactory';
 
 export interface BuiltMap {
@@ -37,6 +41,7 @@ interface MapBuilderContext {
 export class MapBuilder {
   private readonly tileFactory: TileFactory;
   private readonly objectFactory: ObjectFactory;
+  private transitionLayer?: TerrainTransitionLayer;
 
   constructor(private readonly ctx: MapBuilderContext) {
     this.tileFactory = new TileFactory({
@@ -50,6 +55,7 @@ export class MapBuilder {
       staticGroup: ctx.collisionTiles,
       behaviorGroups: ctx.behaviorGroups,
     });
+    ctx.scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.transitionLayer?.destroy());
   }
 
   build(): BuiltMap {
@@ -69,6 +75,14 @@ export class MapBuilder {
         terrainGrid[tileY] = targetRow;
       });
     }
+
+    this.transitionLayer?.destroy();
+    this.transitionLayer = new TerrainTransitionRenderer({
+      scene: this.ctx.scene,
+      tileFactory: this.tileFactory,
+      dimensions: this.ctx.dimensions,
+      seed: this.ctx.seed,
+    }).render(terrainGrid);
 
     for (const object of this.ctx.map.objects) {
       if (!isObjectArchetypeId(object.objectId)) {

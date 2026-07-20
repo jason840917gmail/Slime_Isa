@@ -16,12 +16,14 @@ http://localhost:3000/?editor=crystal-caverns
 
 ## Tools
 
+The selected terrain tile or object visual follows the mouse cursor as a translucent preview, snapped to the tile under the pointer, so you always see what a click will place. Left-click-drag draws; right- or middle-drag pans the map from any tool.
+
 - **Pan (`H`)**: click-drag the canvas. Right- or middle-drag also pans while another tool is active. Arrow keys or WASD move the camera; the mouse wheel zooms.
 - **Paint (`B`)**: open a terrain group, select a miniature, then click-drag across map cells. Fast strokes are interpolated without gaps and one drag is one undo step.
-- **Object (`O`)**: open an object group, select an exact visual miniature, then click to create a stable instance. The editor always places the chosen visual; it does not randomize variants.
-- **Select / Move (`V`)**: click an object once to select it. Press `Delete` or `Backspace` to remove it, or click another cell to move it. `Ctrl+Z` restores a deleted object.
-- **Erase (`X`)**: click to remove the nearest object, a safe zone under the pointer, or restore the first terrain type. Click-drag a rectangle to remove multiple objects and safe zones in one undoable action.
-- **Monster Safe Zone (`Z`)**: click-drag empty space to create a bright green, tile-aligned rectangle where enemies cannot spawn or enter. Left-click a zone to select it, left-drag it to move it, and right-click it (or press `Delete`) to remove it. Right-drag empty space still pans. Safe zones work independently of a map's spawn configuration.
+- **Object (`O`)**: open an object group, select an exact visual miniature, then click or drag to stamp instances — one per crossed tile, committed as a single undoable stroke. The editor always places the chosen visual; it does not randomize variants.
+- **Select / Move (`V`)**: every movable object receives a visible grab rectangle. Press inside a rectangle, drag the object, and release to snap it into the destination cell as one undoable move. Click without dragging to select it; press `Delete` or `Backspace` to remove the selection.
+- **Erase (`X`)**: click to remove the nearest object or restore the first terrain type. Click-drag a rectangle to remove multiple objects in one undoable action. Safe zones are managed with the Monster Safe Zone tool instead.
+- **Monster Safe Zone (`Z`)**: safe-zone rectangles are only visible while this tool is active, so they never clutter painting or object placement. Click-drag empty space to create a bright green, tile-aligned rectangle where enemies cannot spawn or enter. Left-click a zone to select it, left-drag it to move it, and right-click it (or press `Delete`) to remove it. Right-drag empty space still pans. Safe zones work independently of a map's spawn configuration.
 - **Monster Spawns (`M`)**: opens the encounter-rules dialog. Enable or disable spawning, choose monster types, set their weights and optional per-type caps, then configure spawn distance, refill interval, and total population.
 - **Player Spawn (`P`)**: places the default player spawn.
 - **Entry Point (`I`)**: choose a direction and place that incoming entry point.

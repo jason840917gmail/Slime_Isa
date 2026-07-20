@@ -13,13 +13,17 @@ import {
   type WorldTileId,
 } from '../content/terrain/TileCatalog';
 import { ObjectFactory } from '../features/objects/ObjectFactory';
+import {
+  TerrainTransitionLayer,
+  TerrainTransitionRenderer,
+} from '../features/world/TerrainTransitionRenderer';
 import { TileFactory } from '../features/world/TileFactory';
 import type { LoadedMap } from '../infrastructure/maps/MapRepository';
 import { getAsset } from '../infrastructure/assets/manifest';
 import { AREAS } from '../world/Area';
 import { connectionAt } from './MapConnections';
 import { mountMapEditorPanel, type ContentPreviewUrls } from './MapEditorPanel';
-import { MapEditorState, type EditableMap, type EditableObjectInstance } from './MapEditorState';
+import { MapEditorState, type EditableMap, type EditableObjectInstance, type EditorTool } from './MapEditorState';
 
 interface MapEditorSceneData {
   loadedMap?: LoadedMap;
@@ -40,6 +44,24 @@ interface PaintDrag {
   last: TilePoint;
 }
 
+interface ObjectStampDrag {
+  readonly objectId: ObjectArchetypeId;
+  readonly visualId: string;
+  readonly cells: Map<string, TilePoint>;
+  readonly previews: Phaser.GameObjects.Image[];
+  last: TilePoint;
+}
+
+interface ObjectMoveDrag {
+  readonly instanceId: string;
+  readonly image: Phaser.GameObjects.Image;
+  readonly startX: number;
+  readonly startY: number;
+  readonly pointerOffsetX: number;
+  readonly pointerOffsetY: number;
+  moved: boolean;
+}
+
 interface SafeZoneMove {
   readonly index: number;
   readonly w: number;
@@ -52,18 +74,43 @@ interface SafeZoneMove {
   y: number;
 }
 
+/**
+ * True while the user is editing DOM UI (dialog fields, selects, content
+ * editable) — editor hotkeys and camera keys must not fire then, otherwise
+ * typing in the New Map / Monster Spawns dialogs switches tools, and
+ * Backspace can delete a selected object instead of editing text.
+ */
+function isUiEditingActive(target: EventTarget | null): boolean {
+  if (document.querySelector('dialog[open]')) return true;
+  if (!(target instanceof HTMLElement)) return false;
+  return target instanceof HTMLInputElement
+    || target instanceof HTMLTextAreaElement
+    || target instanceof HTMLSelectElement
+    || target.isContentEditable;
+}
+
 export class MapEditorScene extends Phaser.Scene {
   private loadedMap!: LoadedMap;
   private editor!: MapEditorState;
   private collisionGroup!: Phaser.Physics.Arcade.StaticGroup;
   private renderedObjects: Phaser.GameObjects.GameObject[] = [];
+  private overlayObjects: Phaser.GameObjects.GameObject[] = [];
   private renderedTerrain = new Map<string, Phaser.GameObjects.Image>();
+  private renderedInstances = new Map<string, Phaser.GameObjects.Image>();
+  private transitionLayer?: TerrainTransitionLayer;
   private unsubscribeState?: () => void;
   private unmountPanel?: () => void;
   private lastRevision = -1;
+  private lastTool: EditorTool = 'pan';
   private panPointer?: { x: number; y: number };
   private paintDrag?: PaintDrag;
+  private objectStampDrag?: ObjectStampDrag;
+  private objectMoveDrag?: ObjectMoveDrag;
+  private moveHandles?: Phaser.GameObjects.Graphics;
   private previewTileFactory!: TileFactory;
+  private previewObjectFactory!: ObjectFactory;
+  private cursorGhost?: Phaser.GameObjects.Image;
+  private cursorGhostKey?: string;
   private eraseDragStart?: { x: number; y: number };
   private eraseDragMarker?: Phaser.GameObjects.Graphics;
   private safeZoneDragStart?: { x: number; y: number };
@@ -99,6 +146,11 @@ export class MapEditorScene extends Phaser.Scene {
       seed: this.areaSeed(),
       physicsEnabled: false,
     });
+    this.previewObjectFactory = new ObjectFactory({
+      scene: this,
+      staticGroup: this.collisionGroup,
+      physicsEnabled: false,
+    });
 
     this.cameras.main.setBounds(0, 0, this.loadedMap.dimensions.width, this.loadedMap.dimensions.height);
     this.cameras.main.setZoom(0.8);
@@ -109,10 +161,13 @@ export class MapEditorScene extends Phaser.Scene {
     if (!panel) throw new Error('Missing map editor panel');
     this.unmountPanel = mountMapEditorPanel(panel, this.editor, this.buildContentPreviews());
     this.unsubscribeState = this.editor.subscribe((state) => {
+      const toolChanged = state.tool !== this.lastTool;
+      this.lastTool = state.tool;
       if (state.revision !== this.lastRevision) {
         this.lastRevision = state.revision;
         this.renderDocument();
       } else {
+        if (toolChanged) this.renderOverlays();
         this.renderSelectionMarker();
       }
     });
@@ -124,6 +179,7 @@ export class MapEditorScene extends Phaser.Scene {
 
   update(_time: number, delta: number): void {
     if (!this.cursors || !this.wasd) return;
+    if (isUiEditingActive(document.activeElement)) return;
     const speed = (650 * delta / 1000) / this.cameras.main.zoom;
     if (this.cursors.left.isDown || this.wasd.left.isDown) this.cameras.main.scrollX -= speed;
     if (this.cursors.right.isDown || this.wasd.right.isDown) this.cameras.main.scrollX += speed;
@@ -149,6 +205,14 @@ export class MapEditorScene extends Phaser.Scene {
         this.beginPaintDrag(world.x, world.y);
         return;
       }
+      if (this.editor.value.tool === 'object') {
+        this.beginObjectStampDrag(world.x, world.y);
+        return;
+      }
+      if (this.editor.value.tool === 'select') {
+        this.beginObjectMoveDrag(world.x, world.y);
+        return;
+      }
       if (this.editor.value.tool === 'erase') {
         this.eraseDragStart = { x: world.x, y: world.y };
         this.renderEraseDrag(world.x, world.y);
@@ -163,6 +227,8 @@ export class MapEditorScene extends Phaser.Scene {
       this.applyTool(world.x, world.y);
     });
     this.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
+      const worldPoint = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
+      this.updateCursorGhost(worldPoint.x, worldPoint.y);
       if (!pointer.isDown) return;
       if (this.panPointer) {
         const dx = pointer.x - this.panPointer.x;
@@ -172,9 +238,17 @@ export class MapEditorScene extends Phaser.Scene {
         this.panPointer = { x: pointer.x, y: pointer.y };
         return;
       }
-      const world = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
+      const world = worldPoint;
       if (this.paintDrag) {
         this.extendPaintDrag(world.x, world.y);
+        return;
+      }
+      if (this.objectStampDrag) {
+        this.extendObjectStampDrag(world.x, world.y);
+        return;
+      }
+      if (this.objectMoveDrag) {
+        this.updateObjectMoveDrag(world.x, world.y);
         return;
       }
       if (this.safeZoneMove) {
@@ -190,6 +264,8 @@ export class MapEditorScene extends Phaser.Scene {
     this.input.on('pointerup', (pointer: Phaser.Input.Pointer) => {
       const world = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
       if (this.paintDrag) this.finishPaintDrag();
+      if (this.objectStampDrag) this.finishObjectStampDrag();
+      if (this.objectMoveDrag) this.finishObjectMoveDrag();
       if (this.eraseDragStart) {
         this.finishEraseDrag(world.x, world.y);
       }
@@ -213,6 +289,7 @@ export class MapEditorScene extends Phaser.Scene {
       H: 'pan', B: 'terrain', O: 'object', V: 'select', X: 'erase', Z: 'safe-zone', P: 'spawn', I: 'entry', E: 'exit',
     };
     keyboard.on('keydown', (event: KeyboardEvent) => {
+      if (isUiEditingActive(event.target)) return;
       if (event.ctrlKey && event.key.toLowerCase() === 's') {
         event.preventDefault();
         void this.editor.save();
@@ -257,27 +334,11 @@ export class MapEditorScene extends Phaser.Scene {
           this.setTerrain(draft, tileX, tileY, this.editor.value.tileId);
         });
         break;
-      case 'object':
-        this.editor.mutate(`Placed ${this.editor.value.objectId} / ${this.editor.value.objectVisualId}`, (draft) => {
-          draft.objects.push({
-            instanceId: this.createInstanceId(this.editor.value.objectId),
-            objectId: this.editor.value.objectId,
-            visualId: this.editor.value.objectVisualId,
-            x: centerX,
-            y: (tileY + 1) * map.tileSize,
-          });
-        });
-        break;
       case 'erase': {
         const object = this.nearestObject(worldX, worldY, map.tileSize * 0.7);
         if (object) {
           this.editor.mutate(`Removed ${object.instanceId}`, (draft) => {
             draft.objects = draft.objects.filter((candidate) => candidate.instanceId !== object.instanceId);
-          });
-        } else if (this.safeZoneAt(worldX, worldY)) {
-          const zone = this.safeZoneAt(worldX, worldY)!;
-          this.editor.mutate('Removed monster safe zone', (draft) => {
-            draft.enemySafeZones = draft.enemySafeZones.filter((candidate) => candidate !== zone);
           });
         } else {
           this.editor.mutate(`Cleared terrain at ${tileX}, ${tileY}`, (draft) => {
@@ -286,22 +347,8 @@ export class MapEditorScene extends Phaser.Scene {
         }
         break;
       }
-      case 'select': {
-        const selectedId = this.editor.value.selectedInstanceId;
-        if (selectedId) {
-          this.editor.mutate(`Moved ${selectedId}`, (draft) => {
-            const object = draft.objects.find((candidate) => candidate.instanceId === selectedId);
-            if (object) {
-              object.x = centerX;
-              object.y = (tileY + 1) * map.tileSize;
-            }
-          });
-          this.editor.selectInstance(undefined);
-        } else {
-          this.editor.selectInstance(this.nearestObject(worldX, worldY, map.tileSize)?.instanceId);
-        }
+      case 'select':
         break;
-      }
       case 'spawn':
         this.editor.mutate(`Moved player spawn to ${tileX}, ${tileY}`, (draft) => {
           draft.player.spawn = { x: centerX, y: centerY };
@@ -394,6 +441,196 @@ export class MapEditorScene extends Phaser.Scene {
         y += stepY;
       }
     }
+  }
+
+  // ── Object stamping (left-drag places one object per crossed tile) ────────
+
+  private beginObjectStampDrag(worldX: number, worldY: number): void {
+    const start = this.tileAt(worldX, worldY);
+    if (!start) return;
+    this.objectStampDrag = {
+      objectId: this.editor.value.objectId,
+      visualId: this.editor.value.objectVisualId,
+      cells: new Map(),
+      previews: [],
+      last: start,
+    };
+    this.addObjectStampCell(start.x, start.y);
+  }
+
+  private extendObjectStampDrag(worldX: number, worldY: number): void {
+    const drag = this.objectStampDrag;
+    const next = this.tileAt(worldX, worldY);
+    if (!drag || !next) return;
+    this.visitTileLine(drag.last, next, (tileX, tileY) => this.addObjectStampCell(tileX, tileY));
+    drag.last = next;
+  }
+
+  private addObjectStampCell(tileX: number, tileY: number): void {
+    const drag = this.objectStampDrag;
+    if (!drag) return;
+    const key = `${tileX},${tileY}`;
+    if (drag.cells.has(key)) return;
+    drag.cells.set(key, { x: tileX, y: tileY });
+    const map = this.editor.value.map;
+    const preview = this.previewObjectFactory.create(drag.objectId, {
+      x: tileX * map.tileSize + map.tileSize / 2,
+      y: (tileY + 1) * map.tileSize,
+      visualId: drag.visualId,
+      depth: 85,
+    });
+    preview.setAlpha(0.65);
+    drag.previews.push(preview);
+    this.editor.notify(`Stamping ${drag.objectId} / ${drag.visualId} — ${drag.cells.size} positions`);
+  }
+
+  private finishObjectStampDrag(): void {
+    const drag = this.objectStampDrag;
+    this.objectStampDrag = undefined;
+    if (!drag) return;
+    const map = this.editor.value.map;
+    this.editor.mutate(`Placed ${drag.cells.size} × ${drag.objectId} / ${drag.visualId}`, (draft) => {
+      for (const cell of drag.cells.values()) {
+        draft.objects.push({
+          instanceId: this.createInstanceId(drag.objectId),
+          objectId: drag.objectId,
+          visualId: drag.visualId,
+          x: cell.x * map.tileSize + map.tileSize / 2,
+          y: (cell.y + 1) * map.tileSize,
+        });
+      }
+    });
+    for (const preview of drag.previews) preview.destroy();
+  }
+
+  private beginObjectMoveDrag(worldX: number, worldY: number): void {
+    const hit = this.movableObjectAt(worldX, worldY);
+    if (!hit) {
+      this.editor.selectInstance(undefined);
+      return;
+    }
+    this.objectMoveDrag = {
+      instanceId: hit.instanceId,
+      image: hit.image,
+      startX: hit.image.x,
+      startY: hit.image.y,
+      pointerOffsetX: hit.image.x - worldX,
+      pointerOffsetY: hit.image.y - worldY,
+      moved: false,
+    };
+    hit.image.setDepth(120).setAlpha(0.82);
+    this.editor.selectInstance(hit.instanceId);
+    this.editor.notify(`Dragging ${hit.instanceId} — release to place`);
+  }
+
+  private updateObjectMoveDrag(worldX: number, worldY: number): void {
+    const drag = this.objectMoveDrag;
+    if (!drag) return;
+    const map = this.editor.value.map;
+    const width = map.size.columns * map.tileSize;
+    const height = map.size.rows * map.tileSize;
+    const x = Phaser.Math.Clamp(worldX + drag.pointerOffsetX, 0, width);
+    const y = Phaser.Math.Clamp(worldY + drag.pointerOffsetY, 1, height);
+    drag.image.setPosition(x, y);
+    drag.moved ||= Phaser.Math.Distance.Between(drag.startX, drag.startY, x, y) >= 2;
+    this.drawMoveHandles();
+    this.renderSelectionMarker();
+  }
+
+  private finishObjectMoveDrag(): void {
+    const drag = this.objectMoveDrag;
+    this.objectMoveDrag = undefined;
+    if (!drag) return;
+    const map = this.editor.value.map;
+    const tileX = Phaser.Math.Clamp(Math.floor(drag.image.x / map.tileSize), 0, map.size.columns - 1);
+    const tileY = Phaser.Math.Clamp(Math.floor((drag.image.y - 1) / map.tileSize), 0, map.size.rows - 1);
+    const targetX = tileX * map.tileSize + map.tileSize / 2;
+    const targetY = (tileY + 1) * map.tileSize;
+    if (!drag.moved) {
+      drag.image.setPosition(drag.startX, drag.startY).setDepth(2).setAlpha(1);
+      this.drawMoveHandles();
+      this.renderSelectionMarker();
+      return;
+    }
+    const changed = this.editor.mutate(`Moved ${drag.instanceId}`, (draft) => {
+      const object = draft.objects.find((candidate) => candidate.instanceId === drag.instanceId);
+      if (!object) return;
+      object.x = targetX;
+      object.y = targetY;
+    });
+    if (!changed) {
+      drag.image.setPosition(drag.startX, drag.startY).setDepth(2).setAlpha(1);
+      this.drawMoveHandles();
+    }
+    this.editor.selectInstance(drag.instanceId);
+  }
+
+  private movableObjectAt(worldX: number, worldY: number): { instanceId: string; image: Phaser.GameObjects.Image } | undefined {
+    const objects = this.editor.value.map.objects;
+    for (let index = objects.length - 1; index >= 0; index -= 1) {
+      const object = objects[index];
+      const image = this.renderedInstances.get(object.instanceId);
+      if (!image) continue;
+      const bounds = image.getBounds();
+      const padding = 5 / this.cameras.main.zoom;
+      if (
+        worldX >= bounds.x - padding
+        && worldX <= bounds.right + padding
+        && worldY >= bounds.y - padding
+        && worldY <= bounds.bottom + padding
+      ) return { instanceId: object.instanceId, image };
+    }
+    return undefined;
+  }
+
+  // ── Cursor ghost (selected terrain/object follows the pointer) ────────────
+
+  private updateCursorGhost(worldX: number, worldY: number): void {
+    const { tool } = this.editor.value;
+    const tile = this.tileAt(worldX, worldY);
+    const dragActive = this.paintDrag !== undefined || this.objectStampDrag !== undefined;
+
+    if (!tile || dragActive || (tool !== 'terrain' && tool !== 'object')) {
+      this.cursorGhost?.setVisible(false);
+      return;
+    }
+
+    const key = tool === 'terrain'
+      ? `terrain:${this.editor.value.tileId}`
+      : `object:${this.editor.value.objectId}:${this.editor.value.objectVisualId}`;
+
+    let ghost = this.cursorGhost;
+    if (this.cursorGhostKey !== key || !ghost) {
+      ghost?.destroy();
+      ghost = this.createCursorGhost(tool);
+      this.cursorGhost = ghost;
+      this.cursorGhostKey = key;
+    }
+
+    const map = this.editor.value.map;
+    if (tool === 'terrain') {
+      ghost.setPosition(tile.x * map.tileSize, tile.y * map.tileSize);
+    } else {
+      ghost.setPosition(
+        tile.x * map.tileSize + map.tileSize / 2,
+        (tile.y + 1) * map.tileSize,
+      );
+    }
+    ghost.setVisible(true);
+  }
+
+  private createCursorGhost(tool: EditorTool): Phaser.GameObjects.Image {
+    if (tool === 'terrain') {
+      return this.previewTileFactory.create(this.editor.value.tileId, 0, 0)
+        .setDepth(95)
+        .setAlpha(0.55);
+    }
+    return this.previewObjectFactory.create(this.editor.value.objectId, {
+      x: 0,
+      y: 0,
+      visualId: this.editor.value.objectVisualId,
+      depth: 95,
+    }).setAlpha(0.65);
   }
 
   private tileAt(worldX: number, worldY: number): TilePoint | undefined {
@@ -566,11 +803,6 @@ export class MapEditorScene extends Phaser.Scene {
     return nearest;
   }
 
-  private safeZoneAt(x: number, y: number): { x: number; y: number; w: number; h: number } | undefined {
-    const index = this.safeZoneIndexAt(x, y);
-    return index === undefined ? undefined : this.editor.value.map.enemySafeZones[index];
-  }
-
   private safeZoneIndexAt(x: number, y: number): number | undefined {
     const zones = this.editor.value.map.enemySafeZones;
     for (let index = zones.length - 1; index >= 0; index -= 1) {
@@ -626,23 +858,22 @@ export class MapEditorScene extends Phaser.Scene {
         .filter((object) => object.x >= left && object.x <= right && object.y >= top && object.y <= bottom)
         .map((object) => object.instanceId),
     );
-    const safeZones = map.enemySafeZones.filter((zone) => (
-      zone.x < right && zone.x + zone.w > left && zone.y < bottom && zone.y + zone.h > top
-    ));
-    if (instanceIds.size === 0 && safeZones.length === 0) {
-      this.editor.notify('No objects or safe zones inside erase selection');
+    if (instanceIds.size === 0) {
+      this.editor.notify('No objects inside erase selection');
       return;
     }
-    this.editor.mutate(`Deleted ${instanceIds.size} objects and ${safeZones.length} safe zones`, (draft) => {
+    this.editor.mutate(`Deleted ${instanceIds.size} objects`, (draft) => {
       draft.objects = draft.objects.filter((object) => !instanceIds.has(object.instanceId));
-      draft.enemySafeZones = draft.enemySafeZones.filter((zone) => !safeZones.includes(zone));
     });
   }
 
   private renderDocument(): void {
+    this.transitionLayer?.destroy();
+    this.transitionLayer = undefined;
     for (const object of this.renderedObjects) object.destroy();
     this.renderedObjects = [];
     this.renderedTerrain.clear();
+    this.renderedInstances.clear();
     const state = this.editor.value;
     const seed = this.areaSeed();
     const tileFactory = new TileFactory({
@@ -658,17 +889,27 @@ export class MapEditorScene extends Phaser.Scene {
       physicsEnabled: false,
     });
 
+    const terrainGrid: WorldTileId[][] = [];
     const layer = state.map.layers[0];
     layer.rows.forEach((row, tileY) => {
+      const targetRow: WorldTileId[] = [];
       for (let tileX = 0; tileX < row.length; tileX += 1) {
         const tileId = layer.legend[row[tileX]];
         if (isWorldTileId(tileId)) {
           const terrain = tileFactory.create(tileId, tileX, tileY);
           this.renderedTerrain.set(`${tileX},${tileY}`, terrain);
           this.renderedObjects.push(terrain);
+          targetRow[tileX] = tileId;
         }
       }
+      terrainGrid[tileY] = targetRow;
     });
+    this.transitionLayer = new TerrainTransitionRenderer({
+      scene: this,
+      tileFactory,
+      dimensions: this.loadedMap.dimensions,
+      seed,
+    }).render(terrainGrid);
     for (const object of state.map.objects) {
       if (!getObjectArchetypeIds().includes(object.objectId as ObjectArchetypeId)) continue;
       const image = objectFactory.create(object.objectId as ObjectArchetypeId, {
@@ -678,11 +919,56 @@ export class MapEditorScene extends Phaser.Scene {
         initialState: object.initialState,
       });
       image.setData('instanceId', object.instanceId);
+      this.renderedInstances.set(object.instanceId, image);
       this.renderedObjects.push(image);
     }
-    this.renderGrid(state.map);
-    this.renderMapMarkers(state.map);
+    this.renderOverlays();
     this.renderSelectionMarker();
+  }
+
+  private renderOverlays(): void {
+    for (const object of this.overlayObjects) object.destroy();
+    this.overlayObjects = [];
+    this.moveHandles = undefined;
+    const map = this.editor.value.map;
+    this.renderGrid(map);
+    this.renderMapMarkers(map);
+    if (this.editor.value.tool === 'select') this.renderMoveHandles();
+  }
+
+  private renderMoveHandles(): void {
+    this.moveHandles = this.add.graphics().setDepth(94).setName('editor-move-handles');
+    this.overlayObjects.push(this.moveHandles);
+    this.drawMoveHandles();
+  }
+
+  private drawMoveHandles(): void {
+    const graphics = this.moveHandles;
+    if (!graphics || this.editor.value.tool !== 'select') return;
+    graphics.clear();
+    for (const [instanceId, image] of this.renderedInstances) {
+      const bounds = image.getBounds();
+      const selected = instanceId === this.editor.value.selectedInstanceId;
+      const padding = selected ? 5 : 3;
+      const color = selected ? 0xffe078 : 0x69e4b1;
+      graphics.fillStyle(color, selected ? 0.14 : 0.055).fillRect(
+        bounds.x - padding,
+        bounds.y - padding,
+        bounds.width + padding * 2,
+        bounds.height + padding * 2,
+      );
+      graphics.lineStyle(selected ? 3 : 1, color, selected ? 1 : 0.62).strokeRect(
+        bounds.x - padding,
+        bounds.y - padding,
+        bounds.width + padding * 2,
+        bounds.height + padding * 2,
+      );
+      graphics.fillStyle(color, selected ? 1 : 0.75).fillCircle(
+        bounds.centerX,
+        bounds.y - padding,
+        selected ? 5 : 3,
+      );
+    }
   }
 
   private renderGrid(map: EditableMap): void {
@@ -693,7 +979,7 @@ export class MapEditorScene extends Phaser.Scene {
     for (let x = 0; x <= width; x += map.tileSize) graphics.lineBetween(x, 0, x, height);
     for (let y = 0; y <= height; y += map.tileSize) graphics.lineBetween(0, y, width, y);
     graphics.lineStyle(3, 0xf4cf7a, 0.8).strokeRect(0, 0, width, height);
-    this.renderedObjects.push(graphics);
+    this.overlayObjects.push(graphics);
   }
 
   private renderMapMarkers(map: EditableMap): void {
@@ -706,28 +992,32 @@ export class MapEditorScene extends Phaser.Scene {
       const label = this.add.text(point.x, point.y - 18, direction[0].toUpperCase(), {
         fontFamily: 'Trebuchet MS', fontSize: '13px', color: '#d9f8ff', backgroundColor: '#102b35', padding: { x: 4, y: 2 },
       }).setOrigin(0.5).setDepth(91);
-      this.renderedObjects.push(label);
+      this.overlayObjects.push(label);
     }
     for (const exit of map.exits) {
       graphics.fillStyle(0xffb84d, 0.2).fillRect(exit.zone.x, exit.zone.y, exit.zone.w, exit.zone.h);
       graphics.lineStyle(3, 0xffb84d, 0.9).strokeRect(exit.zone.x, exit.zone.y, exit.zone.w, exit.zone.h);
     }
-    for (const [index, zone] of map.enemySafeZones.entries()) {
-      graphics.fillStyle(0x20ff63, 0.24).fillRect(zone.x, zone.y, zone.w, zone.h);
-      graphics.lineStyle(6, 0x65ff91, 1).strokeRect(zone.x, zone.y, zone.w, zone.h);
-      const label = this.add.text(zone.x + zone.w / 2, zone.y + zone.h / 2, `SAFE ${index + 1}`, {
-        fontFamily: 'Trebuchet MS', fontSize: '14px', color: '#effff3', backgroundColor: '#0b4a20', padding: { x: 6, y: 3 },
-      }).setOrigin(0.5).setDepth(91);
-      this.renderedObjects.push(label);
+    // Safe zones are only visible while the safe-zone tool is active, so
+    // their bright rectangles do not clutter normal editing.
+    if (this.editor.value.tool === 'safe-zone') {
+      for (const [index, zone] of map.enemySafeZones.entries()) {
+        graphics.fillStyle(0x20ff63, 0.24).fillRect(zone.x, zone.y, zone.w, zone.h);
+        graphics.lineStyle(6, 0x65ff91, 1).strokeRect(zone.x, zone.y, zone.w, zone.h);
+        const label = this.add.text(zone.x + zone.w / 2, zone.y + zone.h / 2, `SAFE ${index + 1}`, {
+          fontFamily: 'Trebuchet MS', fontSize: '14px', color: '#effff3', backgroundColor: '#0b4a20', padding: { x: 6, y: 3 },
+        }).setOrigin(0.5).setDepth(91);
+        this.overlayObjects.push(label);
+      }
     }
-    this.renderedObjects.push(graphics);
+    this.overlayObjects.push(graphics);
   }
 
   private renderSelectionMarker(): void {
     const existing = this.children.getByName('editor-selection-marker');
     existing?.destroy();
     const selectedZoneIndex = this.editor.value.selectedSafeZoneIndex;
-    if (selectedZoneIndex !== undefined) {
+    if (selectedZoneIndex !== undefined && this.editor.value.tool === 'safe-zone') {
       const zone = this.editor.value.map.enemySafeZones[selectedZoneIndex];
       if (!zone) return;
       const marker = this.add.graphics().setName('editor-selection-marker').setDepth(100);
@@ -737,10 +1027,17 @@ export class MapEditorScene extends Phaser.Scene {
     }
     const selectedId = this.editor.value.selectedInstanceId;
     if (!selectedId) return;
-    const object = this.editor.value.map.objects.find((candidate) => candidate.instanceId === selectedId);
-    if (!object) return;
+    const image = this.renderedInstances.get(selectedId);
+    if (!image) return;
+    const bounds = image.getBounds();
     const marker = this.add.graphics().setName('editor-selection-marker').setDepth(100);
-    marker.lineStyle(4, 0xffe08a, 1).strokeCircle(object.x, object.y - 24, 44);
+    marker.lineStyle(3, 0xfff0a8, 1).strokeRect(
+      bounds.x - 8,
+      bounds.y - 8,
+      bounds.width + 16,
+      bounds.height + 16,
+    );
+    marker.fillStyle(0xfff0a8, 1).fillCircle(bounds.centerX, bounds.y - 8, 6);
   }
 
   private initialTileId(): WorldTileId {
@@ -806,12 +1103,17 @@ export class MapEditorScene extends Phaser.Scene {
   }
 
   private destroyEditor(): void {
+    this.transitionLayer?.destroy();
     this.eraseDragMarker?.destroy();
     this.safeZoneDragMarker?.destroy();
     for (const preview of this.paintDrag?.previews ?? []) preview.destroy();
+    for (const preview of this.objectStampDrag?.previews ?? []) preview.destroy();
+    this.cursorGhost?.destroy();
     this.unsubscribeState?.();
     this.unmountPanel?.();
     this.renderedObjects = [];
+    this.overlayObjects = [];
     this.renderedTerrain.clear();
+    this.renderedInstances.clear();
   }
 }

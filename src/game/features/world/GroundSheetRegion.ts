@@ -103,3 +103,44 @@ export function resolveGroundSheetFrame(
   const row = region.startRow + reflectedIndex(tileY, region.height);
   return row * sheetColumns + column;
 }
+
+// ── sheet-order strategy ─────────────────────────────────────────────────────
+
+export interface OrderedGroundFrame {
+  readonly frame: number;
+  readonly flipX: boolean;
+  readonly flipY: boolean;
+}
+
+/**
+ * Maps each full-sheet block in natural row/column order. Repeated blocks are
+ * true mirrored copies: both frame order and sprite pixels flip. This is the
+ * important difference from reflected frame indices alone — without flipping
+ * the sprite, the opposite frame edges touch and still create a visible cut.
+ *
+ * A 19x19 authored sheet therefore appears unchanged in the first block. The
+ * next horizontal block is the entire sheet mirrored horizontally, and the
+ * next vertical block is mirrored vertically, so pixels meet continuously at
+ * every repeat boundary without shrinking the source into a repetitive patch.
+ */
+export function resolveSheetOrderFrame(
+  sheetColumns: number,
+  sheetRows: number,
+  tileX: number,
+  tileY: number,
+): OrderedGroundFrame {
+  const blockX = Math.floor(tileX / sheetColumns);
+  const blockY = Math.floor(tileY / sheetRows);
+  const flipX = Math.abs(blockX) % 2 === 1;
+  const flipY = Math.abs(blockY) % 2 === 1;
+  const localColumn = ((tileX % sheetColumns) + sheetColumns) % sheetColumns;
+  const localRow = ((tileY % sheetRows) + sheetRows) % sheetRows;
+  const column = flipX ? sheetColumns - 1 - localColumn : localColumn;
+  const row = flipY ? sheetRows - 1 - localRow : localRow;
+
+  return {
+    frame: row * sheetColumns + column,
+    flipX,
+    flipY,
+  };
+}

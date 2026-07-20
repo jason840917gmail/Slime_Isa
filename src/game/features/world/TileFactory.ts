@@ -8,7 +8,11 @@ import {
 import { getAsset } from '../../infrastructure/assets/manifest';
 import type { AssetId } from '../../infrastructure/assets/manifest';
 import type { WorldDimensions } from '../../world/WorldDimensions';
-import { createGroundSheetSelection, type GroundSheetSelection } from './GroundSheetSelection';
+import {
+  createGroundSheetSelection,
+  type GroundFrameStrategy,
+  type GroundSheetSelection,
+} from './GroundSheetSelection';
 
 interface TileFactoryContext {
   readonly scene: Phaser.Scene;
@@ -16,6 +20,13 @@ interface TileFactoryContext {
   readonly dimensions: WorldDimensions;
   readonly seed: number;
   readonly physicsEnabled?: boolean;
+}
+
+interface ResolvedTileVisual {
+  readonly textureKey: string;
+  readonly frame?: number;
+  readonly flipX: boolean;
+  readonly flipY: boolean;
 }
 
 function tileHash(tileX: number, tileY: number, seed: number): number {
@@ -26,44 +37,72 @@ function tileHash(tileX: number, tileY: number, seed: number): number {
 }
 
 export class TileFactory {
-  private readonly groundSelections = new Map<AssetId, GroundSheetSelection>();
+  private readonly groundSelections = new Map<string, GroundSheetSelection>();
 
   constructor(private readonly ctx: TileFactoryContext) {}
 
   create(tileId: WorldTileId, tileX: number, tileY: number): Phaser.GameObjects.Image {
-    const definition = getTileDefinition(tileId);
     const worldX = tileX * this.ctx.dimensions.tileSize;
     const worldY = tileY * this.ctx.dimensions.tileSize;
-    const assetIndex = tileHash(tileX, tileY, this.ctx.seed) % definition.visual.assetIds.length;
-    const asset = getAsset(definition.visual.assetIds[assetIndex]);
-    const frame = definition.visual.selection === 'ground-sheet-region'
-      ? this.groundSelection(definition.visual.assetIds[assetIndex]).frameAt(tileX, tileY)
-      : undefined;
+    const visual = this.resolveVisual(tileId, tileX, tileY);
     const bodyBounds = getTileBodyBounds(tileId, this.ctx.dimensions.tileSize);
 
     if (!bodyBounds || this.ctx.physicsEnabled === false) {
-      return this.ctx.scene.add.image(worldX, worldY, asset.runtime.textureKey, frame).setOrigin(0);
+      return this.ctx.scene.add.image(worldX, worldY, visual.textureKey, visual.frame)
+        .setOrigin(0)
+        .setFlip(visual.flipX, visual.flipY);
     }
 
     const image = this.ctx.collisionTiles.create(
       worldX + this.ctx.dimensions.tileSize / 2,
       worldY + this.ctx.dimensions.tileSize / 2,
-      asset.runtime.textureKey,
-      frame,
+      visual.textureKey,
+      visual.frame,
     ) as Phaser.Physics.Arcade.Image;
     const body = image.body as Phaser.Physics.Arcade.StaticBody;
     image.setDepth(1);
+    image.setFlip(visual.flipX, visual.flipY);
     body.setSize(bodyBounds.width, bodyBounds.height);
     body.setOffset(bodyBounds.offsetX, bodyBounds.offsetY);
     image.refreshBody();
     return image;
   }
 
-  private groundSelection(assetId: AssetId): GroundSheetSelection {
-    const existing = this.groundSelections.get(assetId);
+  /** Creates a visual-only copy aligned to this world cell (used by edge transitions). */
+  createOverlay(tileId: WorldTileId, tileX: number, tileY: number, depth: number): Phaser.GameObjects.Image {
+    const visual = this.resolveVisual(tileId, tileX, tileY);
+    return this.ctx.scene.add.image(
+      tileX * this.ctx.dimensions.tileSize,
+      tileY * this.ctx.dimensions.tileSize,
+      visual.textureKey,
+      visual.frame,
+    ).setOrigin(0).setFlip(visual.flipX, visual.flipY).setDepth(depth);
+  }
+
+  private resolveVisual(tileId: WorldTileId, tileX: number, tileY: number): ResolvedTileVisual {
+    const definition = getTileDefinition(tileId);
+    const assetIndex = tileHash(tileX, tileY, this.ctx.seed) % definition.visual.assetIds.length;
+    const assetId = definition.visual.assetIds[assetIndex];
+    const asset = getAsset(assetId);
+    const selection = definition.visual.selection;
+    const groundFrame = selection === 'seeded-hash'
+      ? undefined
+      : this.groundSelection(assetId, selection).resolveAt(tileX, tileY);
+
+    return {
+      textureKey: asset.runtime.textureKey,
+      frame: groundFrame?.frame,
+      flipX: groundFrame?.flipX ?? false,
+      flipY: groundFrame?.flipY ?? false,
+    };
+  }
+
+  private groundSelection(assetId: AssetId, strategy: GroundFrameStrategy): GroundSheetSelection {
+    const key = `${assetId}:${strategy}`;
+    const existing = this.groundSelections.get(key);
     if (existing) return existing;
-    const selection = createGroundSheetSelection(assetId, this.ctx.seed);
-    this.groundSelections.set(assetId, selection);
+    const selection = createGroundSheetSelection(assetId, this.ctx.seed, strategy);
+    this.groundSelections.set(key, selection);
     return selection;
   }
 }

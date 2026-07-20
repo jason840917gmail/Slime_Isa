@@ -3,7 +3,8 @@
   "version": 1,
   "ignore": [
     "Originals/**",
-    "MAPS/FOREST/ChatGPT*.png"
+    "MAPS/FOREST/ChatGPT*.png",
+    "MAPS/walls/stone-wall-networks-source.png"
   ],
   "bundles": {
     "boot": [
@@ -11,7 +12,12 @@
       "sheet.grounds.19x19.highland-green",
       "sheet.grounds.19x19.amberleaf",
       "sheet.grounds.19x19.frozen",
+      "sheet.grounds.19x19.sanddessert",
       "sheet.decorations.8x3",
+      "sheet.walls.horizontal.8x1",
+      "sheet.walls.corners.4x2",
+      "sheet.walls.t-junctions.7x1",
+      "sheet.walls.vertical.1x8",
       "sheet.rocks.3x1",
       "sheet.rocks.8x3",
       "sheet.trees.8x6",
@@ -75,6 +81,17 @@
       },
       "runtime": { "textureKey": "grounds-19x19-frozen" },
       "tags": ["ground", "frozen"],
+      "status": "ready"
+    },
+    "sheet.grounds.19x19.sanddessert": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/grounds/64x64-tile_19x19_sanddessert.png",
+        "frame": { "w": 64, "h": 64, "cols": 19, "rows": 19 },
+        "expect": { "w": 1216, "h": 1216 }
+      },
+      "runtime": { "textureKey": "grounds-19x19-sanddessert" },
+      "tags": ["ground", "sanddessert"],
       "status": "ready"
     },
     "sheet.decorations.8x3": {
@@ -247,6 +264,54 @@
       "runtime": { "textureKey": "purple-berry" },
       "render": { "origin": [0.5, 0.5] },
       "tags": ["object", "collectible", "food"],
+      "status": "ready"
+    },
+    "sheet.walls.horizontal.8x1": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/walls/70x70-8x1tiles_horizontals.png",
+        "frame": { "w": 70, "h": 70, "cols": 8, "rows": 1 },
+        "expect": { "w": 560, "h": 70 }
+      },
+      "runtime": { "textureKey": "walls-horizontal-8x1" },
+      "render": { "origin": [0.5, 1], "pixelArt": true },
+      "tags": ["object", "wall", "stone", "horizontal"],
+      "status": "ready"
+    },
+    "sheet.walls.corners.4x2": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/walls/70x70-4x2tiles_corners.png",
+        "frame": { "w": 70, "h": 70, "cols": 4, "rows": 2 },
+        "expect": { "w": 280, "h": 140 }
+      },
+      "runtime": { "textureKey": "walls-corners-4x2" },
+      "render": { "origin": [0.5, 1], "pixelArt": true },
+      "tags": ["object", "wall", "stone", "corner"],
+      "status": "ready"
+    },
+    "sheet.walls.t-junctions.7x1": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/walls/70x70-7x1tiles_Ts.png",
+        "frame": { "w": 70, "h": 70, "cols": 7, "rows": 1 },
+        "expect": { "w": 490, "h": 70 }
+      },
+      "runtime": { "textureKey": "walls-t-junctions-7x1" },
+      "render": { "origin": [0.5, 1], "pixelArt": true },
+      "tags": ["object", "wall", "stone", "junction"],
+      "status": "ready"
+    },
+    "sheet.walls.vertical.1x8": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/walls/70x70-8x1tiles_verticals.png",
+        "frame": { "w": 70, "h": 70, "cols": 1, "rows": 8 },
+        "expect": { "w": 70, "h": 560 }
+      },
+      "runtime": { "textureKey": "walls-vertical-1x8" },
+      "render": { "origin": [0.5, 1], "pixelArt": true },
+      "tags": ["object", "wall", "stone", "vertical"],
       "status": "ready"
     }
   }

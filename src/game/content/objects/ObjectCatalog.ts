@@ -7,6 +7,7 @@ import decorationWorldFloorJson from './decorations/decoration-world-floor.json'
 import decorationWorldSolidJson from './decorations/decoration-world-solid.json';
 import houseWorldSolidJson from './houses/house-world-solid.json';
 import treeWorldSolidJson from './trees/tree-world-solid.json';
+import wallStoneSolidJson from './walls/wall-stone-solid.json';
 
 export interface ColliderBounds {
   readonly width: number;
@@ -48,6 +49,7 @@ const OBJECT_FILES = {
   'rock.world-wall.decorative': worldWallDecorativeJson,
   'rock.world-wall.solid': worldWallSolidJson,
   'tree.world.solid': treeWorldSolidJson,
+  'wall.stone.solid': wallStoneSolidJson,
 } as const;
 
 export type ObjectArchetypeId = keyof typeof OBJECT_FILES;

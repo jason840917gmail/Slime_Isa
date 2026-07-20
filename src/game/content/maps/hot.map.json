@@ -1,0 +1,852 @@
+{
+  "$schema": "./maps.schema.json",
+  "version": 1,
+  "mapId": "hot",
+  "tileSize": 64,
+  "size": {
+    "columns": 54,
+    "rows": 54
+  },
+  "layers": [
+    {
+      "id": "ground",
+      "encoding": "legend-chars-v1",
+      "legend": {
+        "g": "sanddessert-ground",
+        "a": "deep-water",
+        "b": "grass-a"
+      },
+      "rows": [
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggbbbbbbbbbbggggggg",
+        "gggggggggggggggggggggggggggggggggggggbbbbbbbbbbggggggg",
+        "gggggggggggggggggggggggggggggggggggggbbbbbbbbbbggggggg",
+        "gggggggggggggggggggggggggggggggggggggbbbaaaaabbggggggg",
+        "gggggggggggggggggggggggggggggggggggggbbbaaaaabbggggggg",
+        "gggggggggggggggggggggggggggggggggggggbbbaaaaabbggggggg",
+        "gggggggggggggggggggggggggggggggggggggbbbaaaaabbggggggg",
+        "gggggggggggggggggggggggggggggggggggggbbbaaaaabbggggggg",
+        "gggggggggggggggggggggggggggggggggggggbbbbbbbbbbggggggg",
+        "gggggggggggggggggggggggggggggggggggggbbbbbbbbbbggggggg",
+        "gggggggggggggggggggggggggggggggggggggbbbbbbbbbbggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg"
+      ]
+    }
+  ],
+  "objects": [
+    {
+      "instanceId": "rock-world-wall-solid-d2b72c55",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 352,
+      "y": 576
+    },
+    {
+      "instanceId": "rock-world-wall-solid-133e701c",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 608,
+      "y": 576
+    },
+    {
+      "instanceId": "rock-world-wall-solid-a8c6d835",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 928,
+      "y": 448
+    },
+    {
+      "instanceId": "rock-world-wall-solid-580f5857",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 1056,
+      "y": 704
+    },
+    {
+      "instanceId": "rock-world-wall-solid-c67dda6d",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 1376,
+      "y": 832
+    },
+    {
+      "instanceId": "rock-world-wall-solid-c8b8ed68",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 992,
+      "y": 1152
+    },
+    {
+      "instanceId": "rock-world-wall-solid-da5f0aa9",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 928,
+      "y": 1152
+    },
+    {
+      "instanceId": "rock-world-wall-solid-e19737f9",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 1440,
+      "y": 1600
+    },
+    {
+      "instanceId": "rock-world-wall-solid-6870a956",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 288,
+      "y": 1088
+    },
+    {
+      "instanceId": "rock-world-wall-solid-26b68ceb",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 2528,
+      "y": 1216
+    },
+    {
+      "instanceId": "rock-world-wall-solid-2a0da52b",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 2144,
+      "y": 192
+    },
+    {
+      "instanceId": "rock-world-wall-solid-668f8351",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 1824,
+      "y": 1280
+    },
+    {
+      "instanceId": "rock-world-wall-solid-7b117b15",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 2272,
+      "y": 1600
+    },
+    {
+      "instanceId": "rock-world-wall-solid-00748c22",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 1568,
+      "y": 2816
+    },
+    {
+      "instanceId": "rock-world-wall-solid-090e3e76",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 1440,
+      "y": 2112
+    },
+    {
+      "instanceId": "rock-world-wall-solid-e057ef5f",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 1952,
+      "y": 2752
+    },
+    {
+      "instanceId": "rock-world-wall-solid-f235dac4",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 1952,
+      "y": 2304
+    },
+    {
+      "instanceId": "rock-world-wall-solid-cf7f7f38",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 1632,
+      "y": 640
+    },
+    {
+      "instanceId": "rock-world-wall-solid-e39ad9ec",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 3104,
+      "y": 576
+    },
+    {
+      "instanceId": "rock-world-wall-solid-6bc66946",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 3168,
+      "y": 576
+    },
+    {
+      "instanceId": "rock-world-wall-solid-72a77c84",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 3296,
+      "y": 1344
+    },
+    {
+      "instanceId": "rock-world-wall-solid-c35a8d7d",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 3296,
+      "y": 1408
+    },
+    {
+      "instanceId": "rock-world-wall-solid-fa8e2f88",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 3296,
+      "y": 1472
+    },
+    {
+      "instanceId": "rock-world-wall-solid-b00e66d5",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 2976,
+      "y": 1728
+    },
+    {
+      "instanceId": "rock-world-wall-solid-7ed13a5c",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 3296,
+      "y": 2048
+    },
+    {
+      "instanceId": "rock-world-wall-solid-eb7505bc",
+      "objectId": "rock.world-wall.solid",
+      "visualId": "large-01",
+      "x": 3296,
+      "y": 2112
+    },
+    {
+      "instanceId": "tree-world-solid-240947c6",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 1952,
+      "y": 1600
+    },
+    {
+      "instanceId": "tree-world-solid-2c013344",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 2272,
+      "y": 1152
+    },
+    {
+      "instanceId": "tree-world-solid-6f92d249",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 1888,
+      "y": 896
+    },
+    {
+      "instanceId": "tree-world-solid-3ce7de47",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 2016,
+      "y": 448
+    },
+    {
+      "instanceId": "tree-world-solid-f7a8c50f",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 1568,
+      "y": 256
+    },
+    {
+      "instanceId": "tree-world-solid-fd984485",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 1504,
+      "y": 1216
+    },
+    {
+      "instanceId": "tree-world-solid-10df9557",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 736,
+      "y": 960
+    },
+    {
+      "instanceId": "tree-world-solid-8e4cde4e",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 1248,
+      "y": 1920
+    },
+    {
+      "instanceId": "tree-world-solid-5ec7d9d2",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 1568,
+      "y": 1984
+    },
+    {
+      "instanceId": "tree-world-solid-f540a1d8",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 1632,
+      "y": 2624
+    },
+    {
+      "instanceId": "tree-world-solid-4b133d2d",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 1312,
+      "y": 2560
+    },
+    {
+      "instanceId": "tree-world-solid-1805b4e1",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 2080,
+      "y": 1856
+    },
+    {
+      "instanceId": "tree-world-solid-13f5b352",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 2784,
+      "y": 1920
+    },
+    {
+      "instanceId": "tree-world-solid-678840bc",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 2208,
+      "y": 2304
+    },
+    {
+      "instanceId": "tree-world-solid-66cc72ca",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 3168,
+      "y": 960
+    },
+    {
+      "instanceId": "tree-world-solid-ef533c63",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 2912,
+      "y": 1472
+    },
+    {
+      "instanceId": "tree-world-solid-c7ea4917",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 2784,
+      "y": 768
+    },
+    {
+      "instanceId": "tree-world-solid-fd8096d0",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 2400,
+      "y": 768
+    },
+    {
+      "instanceId": "tree-world-solid-cb54294b",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 3040,
+      "y": 256
+    },
+    {
+      "instanceId": "tree-world-solid-55bb086f",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 2528,
+      "y": 384
+    },
+    {
+      "instanceId": "tree-world-solid-4ba3b8f2",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-01",
+      "x": 2528,
+      "y": 2048
+    },
+    {
+      "instanceId": "tree-world-solid-a3a9db2d",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-01",
+      "x": 2656,
+      "y": 2048
+    },
+    {
+      "instanceId": "tree-world-solid-36c97f16",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-01",
+      "x": 2912,
+      "y": 2432
+    },
+    {
+      "instanceId": "tree-world-solid-62e5c668",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-01",
+      "x": 2720,
+      "y": 2560
+    },
+    {
+      "instanceId": "tree-world-solid-d1f585ff",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-01",
+      "x": 2528,
+      "y": 2368
+    },
+    {
+      "instanceId": "tree-world-solid-03186aac",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-01",
+      "x": 2400,
+      "y": 2560
+    },
+    {
+      "instanceId": "tree-world-solid-10a865a1",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-01",
+      "x": 2400,
+      "y": 2176
+    },
+    {
+      "instanceId": "tree-world-solid-c8006f35",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-01",
+      "x": 2976,
+      "y": 1984
+    },
+    {
+      "instanceId": "tree-world-solid-d79b00d3",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-01",
+      "x": 2976,
+      "y": 2688
+    },
+    {
+      "instanceId": "wall-stone-solid-2200d087",
+      "objectId": "wall.stone.solid",
+      "visualId": "junction-03",
+      "x": 736,
+      "y": 1600
+    },
+    {
+      "instanceId": "wall-stone-solid-438960c1",
+      "objectId": "wall.stone.solid",
+      "visualId": "junction-01",
+      "x": 736,
+      "y": 2432
+    },
+    {
+      "instanceId": "wall-stone-solid-0329f721",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 672,
+      "y": 1600
+    },
+    {
+      "instanceId": "wall-stone-solid-e6bf1600",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 608,
+      "y": 1600
+    },
+    {
+      "instanceId": "wall-stone-solid-abc5a5b9",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 544,
+      "y": 1600
+    },
+    {
+      "instanceId": "wall-stone-solid-0d5ed771",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 480,
+      "y": 1600
+    },
+    {
+      "instanceId": "wall-stone-solid-112f1f57",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 480,
+      "y": 1600
+    },
+    {
+      "instanceId": "wall-stone-solid-be174a97",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 416,
+      "y": 1600
+    },
+    {
+      "instanceId": "wall-stone-solid-90981847",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 224,
+      "y": 1600
+    },
+    {
+      "instanceId": "wall-stone-solid-8b843d5f",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 160,
+      "y": 1600
+    },
+    {
+      "instanceId": "wall-stone-solid-c119298b",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 160,
+      "y": 1600
+    },
+    {
+      "instanceId": "wall-stone-solid-a5fafb52",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 96,
+      "y": 1600
+    },
+    {
+      "instanceId": "wall-stone-solid-080d1d1e",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 32,
+      "y": 1600
+    },
+    {
+      "instanceId": "wall-stone-solid-78063511",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 736,
+      "y": 1600
+    },
+    {
+      "instanceId": "wall-stone-solid-bf6c7578",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 736,
+      "y": 1664
+    },
+    {
+      "instanceId": "wall-stone-solid-8f70a47d",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 736,
+      "y": 1664
+    },
+    {
+      "instanceId": "wall-stone-solid-21b33365",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 736,
+      "y": 1728
+    },
+    {
+      "instanceId": "wall-stone-solid-e35a3a54",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 736,
+      "y": 1728
+    },
+    {
+      "instanceId": "wall-stone-solid-df236807",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 736,
+      "y": 1792
+    },
+    {
+      "instanceId": "wall-stone-solid-883502dd",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 736,
+      "y": 1920
+    },
+    {
+      "instanceId": "wall-stone-solid-0525eb33",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 736,
+      "y": 1856
+    },
+    {
+      "instanceId": "wall-stone-solid-e7898fdf",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 736,
+      "y": 1920
+    },
+    {
+      "instanceId": "wall-stone-solid-b8236942",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 736,
+      "y": 1984
+    },
+    {
+      "instanceId": "wall-stone-solid-a6fb06ce",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 736,
+      "y": 2048
+    },
+    {
+      "instanceId": "wall-stone-solid-168c143e",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 736,
+      "y": 2112
+    },
+    {
+      "instanceId": "wall-stone-solid-e955653f",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 736,
+      "y": 2176
+    },
+    {
+      "instanceId": "wall-stone-solid-d64e42df",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 736,
+      "y": 2240
+    },
+    {
+      "instanceId": "wall-stone-solid-2d1a88fc",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 736,
+      "y": 2304
+    },
+    {
+      "instanceId": "wall-stone-solid-5f9e3504",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 736,
+      "y": 2368
+    },
+    {
+      "instanceId": "wall-stone-solid-6e2783cc",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 736,
+      "y": 2432
+    },
+    {
+      "instanceId": "wall-stone-solid-fc646a80",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 672,
+      "y": 2432
+    },
+    {
+      "instanceId": "wall-stone-solid-0efc7c96",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 608,
+      "y": 2432
+    },
+    {
+      "instanceId": "wall-stone-solid-b666dc56",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 544,
+      "y": 2432
+    },
+    {
+      "instanceId": "wall-stone-solid-d2a8203c",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 480,
+      "y": 2432
+    },
+    {
+      "instanceId": "wall-stone-solid-017eacf0",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 416,
+      "y": 2432
+    },
+    {
+      "instanceId": "wall-stone-solid-484accc1",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 352,
+      "y": 2432
+    },
+    {
+      "instanceId": "wall-stone-solid-9b5b4adb",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 288,
+      "y": 2432
+    },
+    {
+      "instanceId": "wall-stone-solid-90df778e",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 224,
+      "y": 2432
+    },
+    {
+      "instanceId": "wall-stone-solid-7f58c32e",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 160,
+      "y": 2432
+    },
+    {
+      "instanceId": "wall-stone-solid-a8a5a5cf",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 96,
+      "y": 2432
+    },
+    {
+      "instanceId": "wall-stone-solid-06d2e0c5",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 32,
+      "y": 2432
+    },
+    {
+      "instanceId": "house-world-solid-f194a047",
+      "objectId": "house.world.solid",
+      "visualId": "cottage-blue",
+      "x": 96,
+      "y": 1984
+    },
+    {
+      "instanceId": "house-world-solid-dd65c1f0",
+      "objectId": "house.world.solid",
+      "visualId": "cottage-blue",
+      "x": 544,
+      "y": 1984
+    },
+    {
+      "instanceId": "house-world-solid-c17db15e",
+      "objectId": "house.world.solid",
+      "visualId": "forge-red",
+      "x": 288,
+      "y": 2304
+    },
+    {
+      "instanceId": "decoration-world-solid-55376535",
+      "objectId": "decoration.world.solid",
+      "visualId": "lantern-post",
+      "x": 32,
+      "y": 2112
+    },
+    {
+      "instanceId": "decoration-world-solid-de19d1b0",
+      "objectId": "decoration.world.solid",
+      "visualId": "lantern-post",
+      "x": 544,
+      "y": 2112
+    },
+    {
+      "instanceId": "decoration-world-solid-8567040a",
+      "objectId": "decoration.world.solid",
+      "visualId": "campfire",
+      "x": 352,
+      "y": 1984
+    },
+    {
+      "instanceId": "decoration-world-solid-d787e9e1",
+      "objectId": "decoration.world.solid",
+      "visualId": "cooking-cauldron",
+      "x": 352,
+      "y": 1920
+    }
+  ],
+  "player": {
+    "spawn": {
+      "x": 32,
+      "y": 32
+    },
+    "entries": {
+      "south": {
+        "x": 1728,
+        "y": 3200
+      },
+      "north": {
+        "x": 1728,
+        "y": 256
+      }
+    }
+  },
+  "exits": [
+    {
+      "zone": {
+        "x": 0,
+        "y": 0,
+        "w": 3456,
+        "h": 32
+      },
+      "to": "emberleef",
+      "entry": "south"
+    },
+    {
+      "zone": {
+        "x": 0,
+        "y": 3424,
+        "w": 3456,
+        "h": 32
+      },
+      "to": "icege",
+      "entry": "north"
+    }
+  ],
+  "enemySafeZones": [
+    {
+      "x": 0,
+      "y": 1536,
+      "w": 768,
+      "h": 896
+    },
+    {
+      "x": 2368,
+      "y": 1920,
+      "w": 640,
+      "h": 704
+    }
+  ]
+}

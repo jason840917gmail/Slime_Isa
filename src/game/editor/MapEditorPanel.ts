@@ -30,6 +30,7 @@ function terrainGroup(tileId: string): string {
   if (tileId.startsWith('grass-')) return 'Grass';
   if (tileId.startsWith('amberleaf-')) return 'Amberleaf';
   if (tileId.startsWith('frozen-')) return 'Frozen';
+  if (tileId.startsWith('sanddessert-')) return 'Sand Dessert';
   if (tileId.includes('water')) return 'Water';
   if (tileId.startsWith('forest-') || tileId === 'tree-wall') return 'Forest';
   if (tileId.startsWith('cavern-') || tileId.startsWith('crystal-')) return 'Crystal Cavern';
@@ -42,6 +43,7 @@ function objectGroup(objectId: string): string {
   if (objectId === 'decoration.world.solid') return 'Solid Decorations';
   if (objectId.startsWith('tree.')) return 'Solid Trees';
   if (objectId.startsWith('house.')) return 'Solid Houses';
+  if (objectId.startsWith('wall.')) return 'Stone Walls';
   if (objectId.includes('mineable')) return 'Mineable Rocks';
   if (objectId.includes('decorative')) return 'Decorative Rocks';
   if (objectId.includes('solid')) return 'Solid Rocks';
@@ -117,7 +119,7 @@ export function mountMapEditorPanel(
           <kbd>M</kbd><span>Monster Spawns</span>
         </button>
       </div>
-      <p class="editor-help">Paint and Pan support click-drag. Safe Zone draws an area where monsters cannot spawn or enter.</p>
+      <p class="editor-help">Paint, objects, and Pan support click-drag. Select / Move shows grab areas for direct drag-and-drop.</p>
     </section>
     <section class="editor-section">
       <div class="editor-section-title"><span>02</span><h2>Direction</h2></div>
