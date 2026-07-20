@@ -47,7 +47,6 @@ import {
 } from '../features/world-navigation/AreaNavigation';
 import { WorldDebugRenderer } from '../dev/WorldDebugRenderer';
 import { CombatController } from '../features/combat/CombatController';
-import { placeHouses as placeWorldHouses } from '../features/houses/HousePlacement';
 import { MapBuilder, type BuiltMap } from '../features/world/MapBuilder';
 import type { LoadedMap } from '../infrastructure/maps/MapRepository';
 import type { WorldDimensions } from '../world/WorldDimensions';
@@ -112,7 +111,6 @@ export class WorldScene extends Phaser.Scene {
   private levelUpNoticeHandler?: (payload: { level: number }) => void;
   private questCompleteHandler?: (payload: { questId: string; title: string; rewards: { coins?: number; xp?: number } }) => void;
   private restoredFromAreaTransition = false;
-  private respawnHomeOnLoad = false;
   private debugRenderer?: WorldDebugRenderer;
   private disposables = new DisposableBag();
 
@@ -130,7 +128,6 @@ export class WorldScene extends Phaser.Scene {
     this.worldDimensions = this.loadedMap.dimensions;
     this.builtMap = undefined;
     this.entryEdge = request.entryEdge;
-    this.respawnHomeOnLoad = request.respawnHome;
     this.transitioning = false;
     this.transitionReadyAt = this.time.now + EDGE_TRANSITION_GRACE_MS;
   }
@@ -153,7 +150,6 @@ export class WorldScene extends Phaser.Scene {
     this.createSlimeAnimations();
     this.createPlayer();
     this.createFriends(this.friendCountForArea());
-    this.placeHouses(this.currentArea.hasPlayerHome ? 1 : 0, this.currentArea.hasPlayerHome ? Math.min(6, this.friends.getLength()) : 0);
     this.createCrystalTrial();
     this.houseSystem = new HouseSystem({
       scene: this,
@@ -336,7 +332,6 @@ export class WorldScene extends Phaser.Scene {
 
   private restoreAreaTransitionHandoff(): boolean {
     const restored = restoreAreaTransition();
-    if (restored.respawnHome) this.respawnHomeOnLoad = true;
     if (restored.restored) {
       WorldScene.sessionStarted = true;
     }
@@ -567,20 +562,6 @@ export class WorldScene extends Phaser.Scene {
         this.transitionTo(exit.to as AreaId, exit.entry as Direction);
       });
     }
-  }
-
-  private placeHouses(playerCount = 1, friendCount = 3): void {
-    const result = placeWorldHouses({
-      scene: this,
-      terrainGrid: this.terrainGrid,
-      dimensions: this.worldDimensions,
-      collisionTiles: this.collisionTiles,
-      player: this.player,
-      friends: this.friends,
-      shouldMovePlayerHome: !this.entryEdge || this.respawnHomeOnLoad,
-    }, playerCount, friendCount);
-    this.houses = result.houses;
-    this.playerHouse = result.playerHouse;
   }
 
   private collectPurple(_playerObj: any, purpleObj: any): void {

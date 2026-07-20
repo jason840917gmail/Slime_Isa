@@ -1,255 +1,403 @@
-# Map editor: right-side object inspector
+# Map editor: right-side object template inspector
+
+> **Status: Completed for v1.** The reusable template inspector, grouped Object Content palette, independent draft state, live previews, responsive layout, and atomic update persistence are implemented and verified. Duplicate visual templates and cloned object definitions remain explicitly tracked as follow-up creation workflows.
 
 ## Goal
 
-Add a right-side inspector to the development-only map editor. It should let a level designer inspect a placed object, adjust its map placement, and tune the selected reusable visual's collider and visual alignment while seeing the result on the canvas.
+Add a right-side template inspector to the development-only map editor. It lets a level designer select a reusable object template from **Object Content**, preview its geometry on the canvas, and edit the template's visual alignment and collider.
 
-The inspector must clearly separate:
+The inspector does not edit placed map instances. Every saved template change affects all existing and future map instances that reference the same `objectId + visualId`.
 
-- **Instance changes**: affect only the selected object in the open map and are saved by **Save map**.
-- **Definition changes**: affect every use of the same `objectId + visualId` in every map and are saved by **Save definition**.
+The workflow must support two different creation operations:
 
-This distinction is essential. Collider and visual-alignment values belong to the reusable object definition under `src/game/content/objects/`; they must not be copied into map instances.
+- **Duplicate visual template**: create another `visualId` under the same object archetype. The new template may reuse the same artwork while owning an independent display name, collider, and visual offset.
+- **Clone object definition**: create a new object archetype and JSON file when physics, behavior, destructibility, tags, or the available visuals may need to diverge later.
+
+These operations must remain distinct. A collider variation should not require a new gameplay archetype.
+
+## Implementation resume
+
+The completed v1 implementation now provides:
+
+- Template-only editing selected from **Object Content**; placed map instances remain map-editing concerns.
+- Artwork grouping by `assetId + frame`, with sibling display names, visual IDs, and collider summaries.
+- A compact right inspector with read-only identity metadata, display-name editing, visual offset controls, collider controls for solid objects, shared-impact warning, reset, save, and responsive close/reopen behavior.
+- Independent template draft state and navigation protection, separate from map undo/redo and map save state. Invalid numeric drafts remain visible in the field while the canvas keeps the last valid geometry.
+- Shared runtime/editor rendering with fixed map anchors, offset artwork, preserved collider world position, matching-instance overlays, and a focused fallback preview when no instance is visible.
+- Optional `displayName` and `visualOffset` schema/model support, server-side validation, and the development-only `/__map-editor/object-template/update` endpoint with atomic JSON replacement.
+- Browser smoke coverage for wide and narrow layouts, inspector drawer behavior, grouped sibling selection, invalid draft handling, solid collider editing/reset, and valid/invalid persistence responses.
+
+Validation completed with `pnpm check`, which passed asset, object, map, type, and production-build checks.
+
+The remaining creation workflows are not part of the completed v1 slice: duplicate visual template, clone object definition, dynamic object catalog discovery, shared Node validation extraction, and their expanded browser coverage remain follow-up work.
+
+## Definition ownership
+
+Object definitions under `src/game/content/objects/` are the source of truth for reusable object behavior and presentation.
+
+Definition fields have three ownership levels:
+
+| Owner | Fields | Purpose |
+| --- | --- | --- |
+| Object archetype | `objectId`, `physics`, `behavior`, `destructible`, `tags` | Gameplay properties shared by every template in the definition |
+| Variant group | `assetId` | Media source shared by its frame templates |
+| Visual template | `visualId`, `displayName`, `frame`, `visualOffset`, `collider` | Reusable appearance and geometry selected by maps |
+
+The stable template identity is `objectId + visualId`. Maps continue to store that identity with instance placement and optional typed state. Template properties must never be copied into map instances.
+
+`asset/assets.json` remains responsible for media-loading metadata such as paths, dimensions, texture keys, and default render origin. Object-specific visual alignment belongs in the object definition because it describes how a reusable game object uses that media.
 
 ## Current constraints
 
-- The editor currently has a 340 px left panel and a canvas, but no right panel.
+- The editor has a 328 px left panel, a flexible canvas, and a compact 180 px inspector rail on wide screens; narrow screens use a 240 px closable drawer.
 - A map object stores `instanceId`, `objectId`, `visualId`, `x`, `y`, and optional `initialState`.
-- Object colliders are frame-specific values in JSON object definitions:
+- Object colliders are frame-specific values in JSON object definitions.
+- Solid object templates require a collider. Decorative templates must not have one.
+- `scripts/check-objects.mjs` validates object files, asset/frame references, and collider bounds.
+- The editor renders objects with physics disabled, so it needs an explicit collider overlay for template previews.
+- Terrain definitions use a different model in `TileCatalog.ts` and are outside this task.
 
-  ```json
-  {
-    "width": 42,
-    "height": 16,
+## Template data model
+
+Extend each object frame template with optional `displayName` and `visualOffset` fields:
+
+```json
+{
+  "visualId": "wood-fence-narrow",
+  "displayName": "Narrow Passage",
+  "frame": 0,
+  "visualOffset": { "x": -4, "y": 2 },
+  "collider": {
+    "width": 72,
+    "height": 20,
     "offsetX": 28,
-    "offsetY": 59
+    "offsetY": 72
   }
-  ```
+}
+```
 
-- Solid object frames are required to have a collider. Decorative frames must not have one.
-- `scripts/check-objects.mjs` already validates object files, asset/frame references, and collider bounds.
-- Terrain definitions are different: `TileCatalog.ts` stores static physics as insets, not object-style collider bounds. Editing that TypeScript file safely is a separate task.
-- The editor renders objects with physics disabled, so it needs an explicit collider overlay to preview definition changes.
+### Display name
+
+- `displayName` is the human-readable template name shown beneath an artwork thumbnail.
+- It is optional for backward compatibility.
+- When omitted, the editor derives a title from `visualId`.
+- `visualId` remains the unique stable identifier used by maps and runtime resolution.
+- Duplicating a template requires a new display name and a unique `visualId`. The editor generates a slug from the name and lets the user adjust it before creation.
+
+### Visual offset
+
+- `visualOffset.x`: horizontal art offset in unscaled source-frame pixels; positive moves the art right.
+- `visualOffset.y`: vertical art offset in unscaled source-frame pixels; positive moves the art down.
+- The default is `{ "x": 0, "y": 0 }` when omitted.
+- Both values must be integers.
+- The offset is applied after resolving the asset's render origin.
+
+This is a visual-only offset. It must not change:
+
+- stored map `x` or `y`;
+- the map anchor or snapping semantics;
+- the collider's world-space rectangle;
+- depth-ordering semantics.
+
+The runtime and editor must use the same object-rendering implementation. If a single Phaser image cannot keep the anchor and body fixed while moving only the art, introduce a small body/visual composition with the image as an offset child.
+
+### Collider
+
+The collider remains expressed in unscaled source-frame pixels:
+
+```json
+{
+  "width": 42,
+  "height": 16,
+  "offsetX": 28,
+  "offsetY": 59
+}
+```
+
+It must satisfy:
+
+```text
+width >= 1
+height >= 1
+offsetX >= 0
+offsetY >= 0
+offsetX + width <= frame width
+offsetY + height <= frame height
+```
 
 ## Product decisions
 
 ### Scope for the first version
 
-The first version edits **placed object instances and object visual definitions only**.
+The first version edits visual-template geometry only:
 
-Terrain inspector support is out of scope for this task. Do not add a browser endpoint that rewrites `TileCatalog.ts` as text. A later task can move editable terrain data to a validated serializable catalog or add a deliberate TypeScript-aware authoring mechanism.
+- optional display name;
+- visual offset;
+- collider.
+
+Object-level physics, behavior, destructibility, and tags are visible but read-only. Asset ID and frame index are also read-only when editing an existing template.
+
+The first version does not edit map placement, `instanceId`, `initialState`, terrain definitions, or arbitrary object-level gameplay properties.
 
 ### Selection behavior
 
-- The inspector is populated when an object is selected with **Select / Move (`V`)**.
-- With no object selected, show an empty state: “Select an object to inspect its placement and visual definition.”
-- Changing tools may leave the object selected, but definition overlays are shown only while the Select tool is active.
-- If the selected object is deleted, clear the inspector immediately.
-- Palette selection alone does not open an editable definition. A placed instance must be selected so the canvas provides spatial context.
+- Selecting an artwork or template in **Object Content** opens the template inspector. A placed map object is not required.
+- Selecting a placed object with **Select / Move (`V`)** continues to support map manipulation but does not open or change the template inspector.
+- Clicking an artwork thumbnail selects its default template. Clicking one of its named siblings selects that exact `visualId`.
+- If no palette template is selected, show: “Select an object template from Object Content to edit its shared definition.”
+- Changing map tools may leave the palette template selected.
+- Template overlays remain visible while the inspector is open, regardless of the active map tool, but must not intercept canvas input.
+- Switching templates with an unsaved draft requires confirmation to discard the draft or remain on the current template.
 
-### Definition identity and impact
+### Global impact
 
-A definition edit targets one exact pair: `objectId + visualId`. The server resolves that pair to its owning JSON file and frame entry; the browser never sends a filesystem path.
+Show a persistent notice above editable controls:
 
-The inspector must display a persistent warning above definition controls:
+> Shared template — saved changes affect every existing and future map object using this template.
 
-> Shared definition — changes affect every map using this visual.
+During preview and after save, update every visible instance matching the selected `objectId + visualId`, not only one instance.
 
-Identifiers, asset ID, and frame index are read-only in this task. Renaming IDs or changing frames can invalidate authored maps and deserves a separate workflow.
+## Grouped object palette
+
+Templates that share `assetId + frame` are artwork siblings and must appear under one thumbnail. Do not repeat identical thumbnails for sibling templates.
+
+Example:
+
+```text
+[Wood Fence thumbnail] Wood Fence
+  Standard             Collider 100 x 24
+  Narrow Passage       Collider 72 x 20
+  Shifted Left         Collider 90 x 24
+  + New template
+```
+
+Each sibling row shows:
+
+- display name, falling back to a title derived from `visualId`;
+- collider dimensions for solid objects, or `No physics` for decorative objects;
+- a dirty indicator when it owns the active unsaved draft;
+- the full `visualId` in a tooltip or secondary metadata treatment.
+
+The inspector reports how many templates share the artwork, for example: “Shares artwork with 2 other templates.” Sibling membership is derived from `assetId + frame`; no parent-template pointer is required. Duplicated templates are independent and do not inherit later changes from their source.
 
 ## Inspector layout
 
-On wide screens, use a three-column editor shell:
+On wide screens, use the implemented three-column editor shell:
 
 ```text
-340 px tools | flexible canvas | 300–340 px inspector
+328 px tools | flexible canvas | 180 px template inspector
 ```
 
-Keep the current industrial “Field Cartographer” visual language. The inspector should feel like a compact measuring instrument: dense numeric controls, clear units, high-contrast overlays, and restrained motion.
+Keep the industrial “Field Cartographer” visual language. The inspector should feel like a compact measuring instrument: dense numeric controls, clear pixel units, high-contrast overlays, and restrained motion.
 
-At narrow widths, the inspector becomes a canvas-side drawer rather than shrinking the canvas to an unusable size. It must be closable and reopenable from an **Inspector** button. The empty state should not reserve the full right-column width on narrow screens.
+At narrow widths, the inspector becomes a closable canvas-side drawer up to 240 px wide. An **Inspector** button reopens it. A closed or empty inspector must not reserve the full right-column width.
 
-### Section 1 — Selection (read-only)
+### Section 1 — Template identity
 
-- Thumbnail
-- Human-readable visual name
-- `instanceId`
+- Artwork thumbnail
+- Template display name
 - `objectId`
 - `visualId`
-- Physics: `Static` or `None`
 - Asset ID and frame index
+- Artwork-sibling count
+- Physics: `Static` or `None`
+- Read-only behavior, destructibility, and tags
 
-Long IDs must wrap or truncate with their full value available via `title`; they must not overflow the panel.
+Long IDs must wrap or truncate with their complete value available through `title`. They must not overflow the panel.
 
-### Section 2 — Placement (map instance)
+### Section 2 — Visual alignment
 
-- `x` in world pixels
-- `y` in world pixels
-- **Snap to cell anchor** action
+- Integer `x` and `y` controls in source-frame pixels
+- **Reset to 0, 0** action
+- A concise reminder that the art moves while the anchor and collider remain fixed
 
-Placement values update the selected map instance through `MapEditorState.mutate`, participate in map undo/redo, mark only the map as dirty, and refresh the canvas immediately. Use finite numeric values and constrain the anchor to the map's pixel bounds.
+### Section 3 — Collider
 
-Do not expose `initialState` as arbitrary JSON in the first version. Behavior-specific state needs typed controls rather than an unsafe generic editor.
-
-### Section 3 — Visual alignment (shared definition)
-
-Add a frame-specific definition field:
-
-```json
-"visualOffset": { "x": 0, "y": 0 }
-```
-
-- `x`: horizontal render offset in pixels; positive moves the art right.
-- `y`: vertical render offset in pixels; positive moves the art down.
-- Default is `{ "x": 0, "y": 0 }` when omitted.
-- Values are integers.
-- Include **Reset to 0, 0**.
-
-This is a **visual-only** offset. It moves the rendered art relative to the object's map anchor but must not move:
-
-- the stored map `x`/`y`;
-- the collision body in world space;
-- selection/snap anchor semantics;
-- depth ordering semantics.
-
-The runtime and editor must use the same object-rendering implementation so their alignment matches. If the existing Phaser image/body coupling cannot preserve a fixed collider while moving only the art, introduce a small object view/body composition instead of silently turning this into a whole-object placement offset.
-
-### Section 4 — Collider (shared definition)
-
-Show this section only for an archetype whose `physics` is not `null`.
+Show controls only when the archetype's `physics` is not `null`:
 
 - `width`: integer, minimum 1
 - `height`: integer, minimum 1
 - `offsetX`: integer, minimum 0
 - `offsetY`: integer, minimum 0
-- **Reset changes** restores the last server-saved values
 
-The collider is expressed in unscaled source-frame pixels. It must remain inside the source frame:
+For decorative templates, show “This object has no physics” instead. This task must not toggle physics.
 
-```text
-offsetX + width  <= frame width
-offsetY + height <= frame height
-```
+### Section 4 — Actions
 
-For decorative objects, show “This object has no physics” rather than controls. This task must not toggle an archetype between decorative and solid, because that is behavior-level content editing rather than frame tuning.
+- **Reset changes**: restore the last server-saved display name, visual offset, and collider.
+- **Save template**: update the selected `objectId + visualId` only.
+- **Duplicate visual template**: open a dialog for the new display name and unique `visualId`, then add an independent sibling using the same `assetId + frame` and the current draft geometry.
+- **Clone object definition**: open a dialog for a new unique `objectId`, then create a new validated object JSON file containing the complete archetype.
+
+The two creation actions must use distinct labels and explanatory text so users understand whether they are creating geometry for the same gameplay object or a new gameplay archetype.
 
 ## Canvas feedback
 
-While a selected object is being inspected, draw these overlays above the map content:
+When a template is selected, draw a non-interactive preview overlay for all visible matching instances:
 
-- Object anchor: small crosshair at the stored map `x`/`y`.
-- Source-frame bounds: thin dashed outline around the rendered frame.
-- Collider: translucent red/orange rectangle with a solid outline.
-- Visual-offset guide: line from the object anchor to the offset art anchor when the offset is non-zero.
+- fixed object anchor: small crosshair at each stored map `x`/`y`;
+- source-frame bounds: thin dashed outline around the offset rendered frame;
+- collider: translucent red/orange rectangle with a solid outline;
+- visual-offset guide: line from the fixed object anchor to the offset art anchor when the offset is non-zero.
 
-Numeric edits preview immediately without saving. Invalid drafts retain the last valid canvas preview and show an inline field error. Overlay geometry must remain correct when the camera pans or zooms.
+The inspector should also provide a focused preview when the selected template has no visible instance on the current map. This preview uses the same renderer and overlay geometry as map objects rather than a separate approximation.
 
-As a follow-up enhancement, collider edges may become draggable handles. Numeric fields plus the live overlay are sufficient for this task; do not make drag handles a hidden completion requirement.
+Numeric edits preview immediately without saving. Invalid drafts retain the last valid canvas preview and show an inline field error. Geometry must remain correct while the camera pans or zooms.
+
+Collider drag handles are a possible follow-up. Numeric controls plus live overlays are sufficient for this task.
 
 ## Editing and save model
 
-Maintain two independent draft/dirty states:
+Map and template edits have independent state:
 
 | Change | Owner | Undo/redo | Save action |
 | --- | --- | --- | --- |
-| Instance `x`/`y` | Open map | Existing map history | Save map |
-| Collider | Object visual definition | Definition draft reset in v1 | Save definition |
-| Visual offset | Object visual definition | Definition draft reset in v1 | Save definition |
+| Map instances and map content | Open map | Existing map history | Save map |
+| Display name | Object visual template | Reset draft in v1 | Save template |
+| Collider | Object visual template | Reset draft in v1 | Save template |
+| Visual offset | Object visual template | Reset draft in v1 | Save template |
 
-- **Save map** must never write object catalog files.
-- **Save definition** must never write the open map.
-- `Ctrl+S` continues to mean **Save map**. Do not overload it based on focus.
-- An unsaved definition draft gets its own dirty badge.
-- Switching selection with an unsaved definition draft requires a confirmation: discard the draft or remain on the current selection.
-- Browser navigation warnings must trigger when either the map or definition draft is dirty.
-- After a successful definition save, re-render all visible instances using the affected `objectId + visualId`, not only the selected one.
+- **Save map** must never write object definition files.
+- **Save template** must never write the open map.
+- `Ctrl+S` continues to mean **Save map** regardless of focus.
+- The template draft has its own dirty badge.
+- Browser navigation warnings trigger when either map state or template state is dirty.
 - A failed save keeps the draft and displays the server error.
-
-Definition edits do not join the existing map undo stack. Mixing globally persisted content changes into a snapshot of one map would make undo semantics misleading. A **Reset changes** action is enough for v1.
+- Successful saves and creation operations refresh the object catalog, grouped palette, focused preview, and all matching visible instances.
+- Template edits do not join map undo/redo because they are global content changes rather than one map's history.
 
 ## Development-only definition API
 
-Extend the Vite development plugin with a dedicated endpoint such as:
+Use explicit operations rather than one ambiguous write endpoint:
 
 ```text
-POST /__map-editor/object-definition
+POST /__map-editor/object-template/update
+POST /__map-editor/object-template/duplicate
+POST /__map-editor/object-definition/clone
 ```
+
+### Update template
 
 The request contains stable IDs and editable values only:
 
 ```json
 {
-  "objectId": "rock.amber-ore.mineable",
-  "visualId": "amber-ore",
-  "collider": { "width": 42, "height": 16, "offsetX": 28, "offsetY": 59 },
+  "objectId": "decoration.world.solid",
+  "visualId": "wood-fence",
+  "displayName": "Standard",
+  "collider": { "width": 100, "height": 24, "offsetX": 14, "offsetY": 68 },
   "visualOffset": { "x": 0, "y": -4 }
 }
 ```
 
-Server requirements:
+The server updates only the matching frame template's editable fields.
+
+### Duplicate visual template
+
+The request identifies the source and new template without providing a path:
+
+```json
+{
+  "objectId": "decoration.world.solid",
+  "sourceVisualId": "wood-fence",
+  "visualId": "wood-fence-narrow",
+  "displayName": "Narrow Passage",
+  "collider": { "width": 72, "height": 20, "offsetX": 28, "offsetY": 72 },
+  "visualOffset": { "x": -4, "y": 2 }
+}
+```
+
+The server inserts a sibling under the source template's variant group, reusing its `assetId + frame`.
+
+### Clone object definition
+
+The request contains the source and new stable IDs:
+
+```json
+{
+  "sourceObjectId": "decoration.world.solid",
+  "objectId": "decoration.village.solid"
+}
+```
+
+The server clones the complete definition, updates `objectId`, derives an allowed destination under `src/game/content/objects/`, validates it, and registers it with the server-owned catalog mechanism. It must never accept a client filesystem path.
+
+The current `ObjectCatalog.ts` uses a hard-coded import table. Clone support therefore requires replacing that table with build-time discovery of validated object JSON modules, such as a typed `import.meta.glob` catalog. A newly cloned file must become available after Vite reloads the affected module; the endpoint must not rewrite TypeScript source or append imports as text.
+
+### Server requirements
 
 1. Reject non-`POST` requests and oversized bodies.
-2. Validate `objectId` and `visualId` against the loaded catalog.
-3. Resolve the owning file from a server-owned allowlist derived from object definitions; never accept a client path.
-4. Read the current JSON file and update only the matching frame's `collider` and `visualOffset`.
-5. Enforce integer/range/frame-bound rules server-side. Client validation is not sufficient.
-6. Preserve all unrelated JSON properties and frame entries.
-7. Validate the complete updated object definition with the same rules used by `objects:check`.
-8. Write to a temporary file and atomically rename it over the target.
-9. Return the normalized saved definition, including resolved frame dimensions.
+2. Validate object and visual IDs against catalog rules.
+3. Resolve owning and destination files from server-owned rules; never accept client paths.
+4. Enforce unique `objectId` and `visualId` values for creation operations.
+5. Enforce display-name, integer, range, frame-bound, and physics/collider rules server-side.
+6. Preserve unrelated JSON properties, variant groups, and frame templates during updates and duplication.
+7. Validate the complete resulting object definition using the same rules as `objects:check`.
+8. Write to a temporary file and atomically rename it over the destination.
+9. Return normalized saved data, including source-frame dimensions and refreshed sibling metadata.
+10. Keep all endpoints development-only and out of the production build.
 
-The endpoint exists only in the Vite development server and must not be included in the production build.
-
-Avoid duplicating validator logic between the script and endpoint. Extract reusable object validation into `scripts/lib/` or another Node-only module that both can call.
+Avoid duplicating validation logic. Extract reusable object validation into a Node-only module shared by `scripts/check-objects.mjs` and the Vite development plugin.
 
 ## Required data-model changes
 
 Update all owners of the object definition format:
 
-- `ObjectFrameVariant` in `ObjectCatalog.ts`
-- `objects.schema.json`
-- `scripts/check-objects.mjs` or its extracted shared validator
-- `ObjectFactory` resolution/rendering
-- Editor preview and definition DTO types
+- `ObjectFrameVariant` in `ObjectCatalog.ts`;
+- `objects.schema.json`;
+- `scripts/check-objects.mjs` or its extracted validator;
+- `ObjectFactory` resolution and body/visual rendering;
+- object-definition discovery in `ObjectCatalog.ts`, replacing the hard-coded import table so cloned definitions are loadable without generated TypeScript edits;
+- grouped object-palette read models;
+- editor preview and definition DTO types;
+- development-only Vite authoring endpoints.
 
-`visualOffset` belongs on `ObjectFrameVariant`, beside `collider`, because alignment can differ per frame within one spritesheet. It does not belong in `asset/assets.json`: the asset manifest owns media metadata, and this setting is object-visual placement behavior.
+`displayName` and `visualOffset` belong on `ObjectFrameVariant` beside `collider` because they can differ between templates that reuse the same artwork.
 
 ## Suggested implementation slices
 
-1. Add and validate `visualOffset` in the object definition model; preserve zero-offset runtime behavior.
-2. Make `ObjectFactory` apply the offset without moving the world collider.
-3. Add a read model that resolves inspector metadata for an `objectId + visualId`.
-4. Add independent definition draft state and the dev-only atomic save endpoint.
-5. Add the right-side inspector and responsive drawer behavior.
-6. Add canvas overlays and live draft previews.
-7. Update `docs/MAP_EDITOR.md` with the global-impact/save distinction.
+1. Add and validate optional `displayName` and `visualOffset`, preserving generated names and zero-offset behavior for existing definitions.
+2. Make `ObjectFactory` apply visual offset without moving the world anchor or collider.
+3. Replace the hard-coded object import table with typed build-time JSON discovery, preserving the `ObjectArchetypeId` and validation guarantees used by maps and runtime code.
+4. Group palette choices by `assetId + frame` and expose named sibling templates.
+5. Add a template read model and independent draft state.
+6. Add shared Node validation and atomic update, duplicate, and clone endpoints.
+7. Add the right-side inspector and responsive drawer.
+8. Add canvas overlays and live preview for every matching visible instance plus a focused fallback preview.
+9. Update `docs/MAP_EDITOR.md` with template ownership, global impact, and separate save behavior.
 
-Keep DOM rendering and event cleanup in the editor UI layer. Keep map mutations in `MapEditorState`. Do not put filesystem concerns in `MapEditorScene` or reusable runtime factories.
+Keep DOM rendering and event cleanup in the editor UI layer. Keep map mutations in `MapEditorState`. Do not put filesystem concerns in `MapEditorScene` or runtime factories.
 
 ## Acceptance criteria
 
-- Selecting a placed object opens the inspector with the correct instance and visual metadata.
-- Editing instance `x`/`y` moves only that instance, supports map undo/redo, and marks the map dirty.
-- Collider and visual-offset edits preview immediately and mark a separate definition draft dirty.
-- Saving a definition updates only the matching `objectId + visualId` JSON frame.
-- Saving a definition visibly updates every matching instance currently on the canvas.
-- Reloading the editor and launching the map show the saved visual alignment and collider behavior consistently.
-- A visual offset does not change the object's stored map coordinates or its collider's world-space rectangle.
-- Invalid collider dimensions or out-of-frame bounds cannot be saved and produce a useful inline/server error.
-- Decorative objects never receive collider controls or collider data.
+- Selecting an Object Content palette entry opens the correct reusable template without requiring a placed object.
+- Selecting or moving a placed map object does not change the template inspector or expose placement controls there.
+- Templates sharing `assetId + frame` appear under one thumbnail with distinct names, IDs, and geometry summaries.
+- Collider and visual-offset edits preview immediately and mark only the template draft dirty.
+- Every visible instance using the selected `objectId + visualId` updates during preview and after save.
+- A focused preview remains available when the current map has no matching instance.
+- Saving updates only the matching frame template and never writes the open map.
+- Reloading the editor and launching the map use the saved visual alignment and collider consistently.
+- Visual offset does not change stored map coordinates, anchor behavior, depth semantics, or collider world position.
+- Invalid collider dimensions and out-of-frame bounds cannot be saved and produce useful inline and server errors.
+- Decorative templates never receive collider controls or collider data.
+- Duplicate visual template creates a unique sibling under the same artwork thumbnail without changing the source.
+- Clone object definition creates a unique validated object archetype without changing the source.
+- The grouped palette refreshes after duplication or cloning.
 - `Save map`, `Ctrl+S`, and map undo/redo retain their current behavior.
-- Unsaved map changes and unsaved definition changes are independently visible and protected on navigation/selection changes.
-- The editor is usable at wide and narrow desktop viewport sizes without covering required save/status controls.
-- All DOM/global listeners added for the inspector have explicit cleanup.
+- Unsaved map and template changes are independently visible and protected during navigation and template switching.
+- The editor remains usable at wide and narrow desktop viewport sizes without covering required save/status controls.
+- All DOM and global listeners added for the inspector have explicit cleanup.
 - `pnpm objects:check`, `pnpm maps:check`, `pnpm typecheck`, and `pnpm build` pass.
-- A browser smoke test covers selecting an object, editing both scopes, rejecting invalid bounds, saving, reloading, and playing the map.
+- A browser smoke test covers grouped sibling selection, offset preview, collider validation, update/save/reload, duplicate template, clone definition, and map play.
 
 ## Explicitly out of scope
 
+- Editing placed map coordinates or arbitrary `initialState` in the template inspector
 - Editing `TileCatalog.ts` or terrain physics
-- Renaming `objectId` or `visualId`
-- Changing asset IDs or spritesheet frame indices
-- Toggling object physics, behavior, destructibility, or tags
-- Arbitrary `initialState` JSON editing
+- Renaming an existing `objectId` or `visualId`
+- Changing an existing template's asset ID or frame index
+- Editing physics, behavior, destructibility, or tags in the inspector
 - Per-map collider or visual-offset overrides
+- Collider drag handles
 - Production/server content authoring

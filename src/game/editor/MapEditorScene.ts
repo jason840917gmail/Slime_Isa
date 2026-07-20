@@ -3,6 +3,7 @@ import Phaser from 'phaser';
 import type { MapDirection } from '../content/maps/mapFormat';
 import {
   getObjectArchetypeIds,
+  getObjectVisualChoice,
   getObjectVisualChoices,
   type ObjectArchetypeId,
 } from '../content/objects/ObjectCatalog';
@@ -12,7 +13,7 @@ import {
   isWorldTileId,
   type WorldTileId,
 } from '../content/terrain/TileCatalog';
-import { ObjectFactory } from '../features/objects/ObjectFactory';
+import { getObjectAnchor, ObjectFactory, setObjectAnchor } from '../features/objects/ObjectFactory';
 import {
   TerrainTransitionLayer,
   TerrainTransitionRenderer,
@@ -22,8 +23,10 @@ import type { LoadedMap } from '../infrastructure/maps/MapRepository';
 import { getAsset } from '../infrastructure/assets/manifest';
 import { AREAS } from '../world/Area';
 import { connectionAt } from './MapConnections';
+import { mountMapEditorInspector } from './MapEditorInspector';
 import { mountMapEditorPanel, type ContentPreviewUrls } from './MapEditorPanel';
 import { MapEditorState, type EditableMap, type EditableObjectInstance, type EditorTool } from './MapEditorState';
+import { ObjectTemplateEditorState } from './ObjectTemplateEditorState';
 
 interface MapEditorSceneData {
   loadedMap?: LoadedMap;
@@ -92,6 +95,7 @@ function isUiEditingActive(target: EventTarget | null): boolean {
 export class MapEditorScene extends Phaser.Scene {
   private loadedMap!: LoadedMap;
   private editor!: MapEditorState;
+  private templateEditor!: ObjectTemplateEditorState;
   private collisionGroup!: Phaser.Physics.Arcade.StaticGroup;
   private renderedObjects: Phaser.GameObjects.GameObject[] = [];
   private overlayObjects: Phaser.GameObjects.GameObject[] = [];
@@ -99,8 +103,11 @@ export class MapEditorScene extends Phaser.Scene {
   private renderedInstances = new Map<string, Phaser.GameObjects.Image>();
   private transitionLayer?: TerrainTransitionLayer;
   private unsubscribeState?: () => void;
+  private unsubscribeTemplate?: () => void;
   private unmountPanel?: () => void;
+  private unmountInspector?: () => void;
   private lastRevision = -1;
+  private lastTemplateRevision = -1;
   private lastTool: EditorTool = 'pan';
   private panPointer?: { x: number; y: number };
   private paintDrag?: PaintDrag;
@@ -110,6 +117,7 @@ export class MapEditorScene extends Phaser.Scene {
   private previewTileFactory!: TileFactory;
   private previewObjectFactory!: ObjectFactory;
   private cursorGhost?: Phaser.GameObjects.Image;
+  private templatePreview?: Phaser.GameObjects.Image;
   private cursorGhostKey?: string;
   private eraseDragStart?: { x: number; y: number };
   private eraseDragMarker?: Phaser.GameObjects.Graphics;
@@ -138,6 +146,7 @@ export class MapEditorScene extends Phaser.Scene {
       initialObject.objectId,
       initialObject.visualId,
     );
+    this.templateEditor = new ObjectTemplateEditorState(initialObject.objectId, initialObject.visualId);
     this.collisionGroup = this.physics.add.staticGroup();
     this.previewTileFactory = new TileFactory({
       scene: this,
@@ -159,7 +168,11 @@ export class MapEditorScene extends Phaser.Scene {
 
     const panel = document.querySelector<HTMLElement>('[data-map-editor-panel]');
     if (!panel) throw new Error('Missing map editor panel');
-    this.unmountPanel = mountMapEditorPanel(panel, this.editor, this.buildContentPreviews());
+    const inspector = document.querySelector<HTMLElement>('[data-map-editor-inspector]');
+    if (!inspector) throw new Error('Missing map editor inspector');
+    const previews = this.buildContentPreviews();
+    this.unmountPanel = mountMapEditorPanel(panel, this.editor, previews, this.templateEditor);
+    this.unmountInspector = mountMapEditorInspector(inspector, this.templateEditor, { objects: previews.objects });
     this.unsubscribeState = this.editor.subscribe((state) => {
       const toolChanged = state.tool !== this.lastTool;
       this.lastTool = state.tool;
@@ -170,6 +183,12 @@ export class MapEditorScene extends Phaser.Scene {
         if (toolChanged) this.renderOverlays();
         this.renderSelectionMarker();
       }
+    });
+    this.lastTemplateRevision = this.templateEditor.value.revision;
+    this.unsubscribeTemplate = this.templateEditor.subscribe((state) => {
+      if (state.revision === this.lastTemplateRevision) return;
+      this.lastTemplateRevision = state.revision;
+      if (this.lastRevision >= 0) this.renderDocument();
     });
 
     this.bindPointer();
@@ -512,10 +531,10 @@ export class MapEditorScene extends Phaser.Scene {
     this.objectMoveDrag = {
       instanceId: hit.instanceId,
       image: hit.image,
-      startX: hit.image.x,
-      startY: hit.image.y,
-      pointerOffsetX: hit.image.x - worldX,
-      pointerOffsetY: hit.image.y - worldY,
+      startX: getObjectAnchor(hit.image)[0],
+      startY: getObjectAnchor(hit.image)[1],
+      pointerOffsetX: getObjectAnchor(hit.image)[0] - worldX,
+      pointerOffsetY: getObjectAnchor(hit.image)[1] - worldY,
       moved: false,
     };
     hit.image.setDepth(120).setAlpha(0.82);
@@ -531,7 +550,7 @@ export class MapEditorScene extends Phaser.Scene {
     const height = map.size.rows * map.tileSize;
     const x = Phaser.Math.Clamp(worldX + drag.pointerOffsetX, 0, width);
     const y = Phaser.Math.Clamp(worldY + drag.pointerOffsetY, 1, height);
-    drag.image.setPosition(x, y);
+    setObjectAnchor(drag.image, x, y);
     drag.moved ||= Phaser.Math.Distance.Between(drag.startX, drag.startY, x, y) >= 2;
     this.drawMoveHandles();
     this.renderSelectionMarker();
@@ -542,12 +561,14 @@ export class MapEditorScene extends Phaser.Scene {
     this.objectMoveDrag = undefined;
     if (!drag) return;
     const map = this.editor.value.map;
-    const tileX = Phaser.Math.Clamp(Math.floor(drag.image.x / map.tileSize), 0, map.size.columns - 1);
-    const tileY = Phaser.Math.Clamp(Math.floor((drag.image.y - 1) / map.tileSize), 0, map.size.rows - 1);
+    const [anchorX, anchorY] = getObjectAnchor(drag.image);
+    const tileX = Phaser.Math.Clamp(Math.floor(anchorX / map.tileSize), 0, map.size.columns - 1);
+    const tileY = Phaser.Math.Clamp(Math.floor((anchorY - 1) / map.tileSize), 0, map.size.rows - 1);
     const targetX = tileX * map.tileSize + map.tileSize / 2;
     const targetY = (tileY + 1) * map.tileSize;
     if (!drag.moved) {
-      drag.image.setPosition(drag.startX, drag.startY).setDepth(2).setAlpha(1);
+      setObjectAnchor(drag.image, drag.startX, drag.startY);
+      drag.image.setDepth(2).setAlpha(1);
       this.drawMoveHandles();
       this.renderSelectionMarker();
       return;
@@ -559,7 +580,8 @@ export class MapEditorScene extends Phaser.Scene {
       object.y = targetY;
     });
     if (!changed) {
-      drag.image.setPosition(drag.startX, drag.startY).setDepth(2).setAlpha(1);
+      setObjectAnchor(drag.image, drag.startX, drag.startY);
+      drag.image.setDepth(2).setAlpha(1);
       this.drawMoveHandles();
     }
     this.editor.selectInstance(drag.instanceId);
@@ -611,7 +633,8 @@ export class MapEditorScene extends Phaser.Scene {
     if (tool === 'terrain') {
       ghost.setPosition(tile.x * map.tileSize, tile.y * map.tileSize);
     } else {
-      ghost.setPosition(
+      setObjectAnchor(
+        ghost,
         tile.x * map.tileSize + map.tileSize / 2,
         (tile.y + 1) * map.tileSize,
       );
@@ -870,6 +893,8 @@ export class MapEditorScene extends Phaser.Scene {
   private renderDocument(): void {
     this.transitionLayer?.destroy();
     this.transitionLayer = undefined;
+    this.templatePreview?.destroy();
+    this.templatePreview = undefined;
     for (const object of this.renderedObjects) object.destroy();
     this.renderedObjects = [];
     this.renderedTerrain.clear();
@@ -933,7 +958,70 @@ export class MapEditorScene extends Phaser.Scene {
     const map = this.editor.value.map;
     this.renderGrid(map);
     this.renderMapMarkers(map);
+    this.renderTemplateOverlays();
     if (this.editor.value.tool === 'select') this.renderMoveHandles();
+  }
+
+  private renderTemplateOverlays(): void {
+    const template = this.templateEditor.value;
+    const selected = template.selected;
+    this.templatePreview?.destroy();
+    this.templatePreview = undefined;
+    if (!selected || !template.draft) return;
+
+    const resolved = getObjectVisualChoice(selected.objectId, selected.visualId);
+    if (!resolved) return;
+
+    const graphics = this.add.graphics().setDepth(108).setName('editor-template-overlays');
+    let matchCount = 0;
+    const drawGeometry = (image: Phaser.GameObjects.Image): void => {
+      const [anchorX, anchorY] = getObjectAnchor(image);
+      const bounds = image.getBounds();
+      const frameX = bounds.x - resolved.visualOffset.x;
+      const frameY = bounds.y - resolved.visualOffset.y;
+      graphics.lineStyle(2, 0xffe078, 0.95).strokeRect(frameX, frameY, bounds.width, bounds.height);
+      graphics.lineStyle(2, 0xffe078, 0.7);
+      graphics.lineBetween(anchorX - 8, anchorY, anchorX + 8, anchorY);
+      graphics.lineBetween(anchorX, anchorY - 8, anchorX, anchorY + 8);
+      if (resolved.visualOffset.x !== 0 || resolved.visualOffset.y !== 0) {
+        graphics.lineStyle(2, 0x75d9ff, 0.9).lineBetween(anchorX, anchorY, image.x, image.y);
+      }
+      if (resolved.physics !== null && resolved.collider) {
+        graphics.fillStyle(0xff684d, 0.24).fillRect(
+          frameX + resolved.collider.offsetX,
+          frameY + resolved.collider.offsetY,
+          resolved.collider.width,
+          resolved.collider.height,
+        );
+        graphics.lineStyle(2, 0xff8b63, 1).strokeRect(
+          frameX + resolved.collider.offsetX,
+          frameY + resolved.collider.offsetY,
+          resolved.collider.width,
+          resolved.collider.height,
+        );
+      }
+    };
+    for (const object of this.editor.value.map.objects) {
+      if (object.objectId !== selected.objectId || object.visualId !== selected.visualId) continue;
+      const image = this.renderedInstances.get(object.instanceId);
+      if (!image) continue;
+      matchCount += 1;
+      drawGeometry(image);
+    }
+    if (matchCount === 0) {
+      const map = this.editor.value.map;
+      const view = this.cameras.main.worldView;
+      const anchorX = Phaser.Math.Clamp(view.centerX, map.tileSize / 2, map.size.columns * map.tileSize - map.tileSize / 2);
+      const anchorY = Phaser.Math.Clamp(view.centerY, 1, map.size.rows * map.tileSize);
+      this.templatePreview = this.previewObjectFactory.create(selected.objectId, {
+        x: anchorX,
+        y: anchorY,
+        visualId: selected.visualId,
+        depth: 107,
+      }).setAlpha(0.62);
+      drawGeometry(this.templatePreview);
+    }
+    this.overlayObjects.push(graphics);
   }
 
   private renderMoveHandles(): void {
@@ -1109,8 +1197,11 @@ export class MapEditorScene extends Phaser.Scene {
     for (const preview of this.paintDrag?.previews ?? []) preview.destroy();
     for (const preview of this.objectStampDrag?.previews ?? []) preview.destroy();
     this.cursorGhost?.destroy();
+    this.templatePreview?.destroy();
     this.unsubscribeState?.();
+    this.unsubscribeTemplate?.();
     this.unmountPanel?.();
+    this.unmountInspector?.();
     this.renderedObjects = [];
     this.overlayObjects = [];
     this.renderedTerrain.clear();

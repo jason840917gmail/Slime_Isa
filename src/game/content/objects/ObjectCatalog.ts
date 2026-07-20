@@ -16,9 +16,16 @@ export interface ColliderBounds {
   readonly offsetY: number;
 }
 
+export interface VisualOffset {
+  readonly x: number;
+  readonly y: number;
+}
+
 export interface ObjectFrameVariant {
   readonly visualId: string;
+  readonly displayName?: string;
   readonly frame: number;
+  readonly visualOffset?: VisualOffset;
   readonly collider?: ColliderBounds;
 }
 
@@ -57,6 +64,7 @@ export type ObjectArchetypeId = keyof typeof OBJECT_FILES;
 /** Serializable layer-three map data: definition reference plus mutable state. */
 export interface ObjectInstance {
   readonly objectId: ObjectArchetypeId;
+  readonly visualId: string;
   readonly x: number;
   readonly y: number;
   readonly state?: Readonly<Record<string, boolean | number | string>>;
@@ -82,23 +90,79 @@ export interface ObjectVisualChoice {
   readonly key: string;
   readonly objectId: ObjectArchetypeId;
   readonly visualId: string;
+  readonly displayName: string;
   readonly assetId: AssetId;
   readonly frame: number;
+  readonly visualOffset: VisualOffset;
+  readonly collider?: ColliderBounds;
+  readonly physics: ObjectArchetypeDefinition['physics'];
   readonly tags: readonly string[];
+}
+
+export type EditableObjectVisual = Pick<ObjectVisualChoice, 'displayName' | 'visualOffset' | 'collider'>;
+
+const OBJECT_VISUAL_OVERRIDES = new Map<string, EditableObjectVisual>();
+
+function visualKey(objectId: ObjectArchetypeId, visualId: string): string {
+  return `${objectId}::${visualId}`;
+}
+
+function createObjectVisualChoice(
+  objectId: ObjectArchetypeId,
+  assetId: AssetId,
+  frame: ObjectFrameVariant,
+): ObjectVisualChoice {
+  const object = getObjectArchetype(objectId);
+  const override = OBJECT_VISUAL_OVERRIDES.get(visualKey(objectId, frame.visualId));
+  return {
+    key: visualKey(objectId, frame.visualId),
+    objectId,
+    visualId: frame.visualId,
+    displayName: override?.displayName ?? frame.displayName ?? frame.visualId,
+    assetId,
+    frame: frame.frame,
+    visualOffset: override?.visualOffset ?? frame.visualOffset ?? { x: 0, y: 0 },
+    collider: override?.collider ?? frame.collider,
+    physics: object.physics,
+    tags: object.tags,
+  };
 }
 
 export function getObjectVisualChoices(): readonly ObjectVisualChoice[] {
   return getObjectArchetypeIds().flatMap((objectId) => {
     const object = getObjectArchetype(objectId);
-    return object.variants.flatMap((variant) => variant.frames.map((frame) => ({
-      key: `${objectId}::${frame.visualId}`,
-      objectId,
-      visualId: frame.visualId,
-      assetId: variant.assetId,
-      frame: frame.frame,
-      tags: object.tags,
-    })));
+    return object.variants.flatMap((variant) => variant.frames.map((frame) => (
+      createObjectVisualChoice(objectId, variant.assetId, frame)
+    )));
   });
+}
+
+export function getObjectVisualChoice(
+  objectId: ObjectArchetypeId,
+  visualId: string,
+): ObjectVisualChoice | undefined {
+  const object = getObjectArchetype(objectId);
+  for (const variant of object.variants) {
+    const frame = variant.frames.find((candidate) => candidate.visualId === visualId);
+    if (frame) return createObjectVisualChoice(objectId, variant.assetId, frame);
+  }
+  return undefined;
+}
+
+export function setObjectVisualOverride(
+  objectId: ObjectArchetypeId,
+  visualId: string,
+  override: EditableObjectVisual,
+): void {
+  OBJECT_VISUAL_OVERRIDES.set(visualKey(objectId, visualId), {
+    displayName: override.displayName,
+    visualOffset: { ...override.visualOffset },
+    collider: override.collider ? { ...override.collider } : undefined,
+  });
+}
+
+export function clearObjectVisualOverride(objectId: ObjectArchetypeId, visualId: string): void {
+  OBJECT_VISUAL_OVERRIDES.delete(visualKey(objectId, visualId));
 }
 
 export function hasObjectVisual(objectId: ObjectArchetypeId, visualId: string): boolean {

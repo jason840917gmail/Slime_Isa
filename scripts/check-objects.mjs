@@ -63,6 +63,17 @@ function validateBounds(file, objectId, field, bounds, frame) {
   }
 }
 
+function validateVisualOffset(file, objectId, field, offset) {
+  if (!isRecord(offset)) {
+    fail(file, objectId, field, 'must be an object');
+    return;
+  }
+  validateKeys(file, objectId, field, offset, new Set(['x', 'y']));
+  for (const property of ['x', 'y']) {
+    if (!Number.isInteger(offset[property])) fail(file, objectId, `${field}.${property}`, 'must be an integer');
+  }
+}
+
 const objectFiles = listObjectFiles(objectRoot);
 
 for (const absolutePath of objectFiles) {
@@ -149,7 +160,7 @@ for (const absolutePath of objectFiles) {
           fail(file, objectId, frameField, 'must be an object');
           continue;
         }
-        validateKeys(file, objectId, frameField, frameEntry, new Set(['visualId', 'frame', 'collider']));
+        validateKeys(file, objectId, frameField, frameEntry, new Set(['visualId', 'frame', 'displayName', 'visualOffset', 'collider']));
 
         if (typeof frameEntry.visualId !== 'string' || !/^[a-z0-9]+([.-][a-z0-9-]+)*$/.test(frameEntry.visualId)) {
           fail(file, objectId, `${frameField}.visualId`, 'must be a lowercase stable visual ID');
@@ -165,6 +176,16 @@ for (const absolutePath of objectFiles) {
           fail(file, objectId, `${frameField}.frame`, `duplicate frame ${frameEntry.frame} in asset group`);
         } else {
           seenFrames.add(frameEntry.frame);
+        }
+
+        if (frameEntry.displayName !== undefined
+            && (typeof frameEntry.displayName !== 'string'
+              || frameEntry.displayName.trim().length === 0
+              || frameEntry.displayName.length > 80)) {
+          fail(file, objectId, `${frameField}.displayName`, 'must contain 1 to 80 characters');
+        }
+        if (frameEntry.visualOffset !== undefined) {
+          validateVisualOffset(file, objectId, `${frameField}.visualOffset`, frameEntry.visualOffset);
         }
 
         if (hasPhysics && frameEntry.collider === undefined) {

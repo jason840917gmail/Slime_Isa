@@ -7,7 +7,7 @@ import { gameEvents } from '../../core/EventBus';
 import { gameState } from '../../core/GameState';
 import { Enemy } from '../../enemies/Enemy';
 import { EnemySpawner } from '../../enemies/EnemySpawner';
-import { ENEMY_CONFIGS, SPAWN_TABLE_MEDIUM } from '../../enemies/library/EnemyTypes';
+import { ENEMY_CONFIGS } from '../../enemies/library/EnemyTypes';
 import { projectilePool } from '../../enemies/Projectile';
 import { worldProgress } from '../progression/WorldProgress';
 import { UI_THEME } from '../../presentation/theme';
@@ -42,7 +42,7 @@ export class CombatController {
   readonly targets: Phaser.Physics.Arcade.Group;
   private weapon: Weapon;
   private combo: ComboSystem;
-  private spawner: EnemySpawner;
+  private spawner?: EnemySpawner;
   private activeBoss?: Enemy;
   private bossHealthBar?: BossHealthBar;
   private comboText: Phaser.GameObjects.Text;
@@ -51,13 +51,6 @@ export class CombatController {
   constructor(private readonly ctx: CombatControllerContext) {
     const { scene, player } = ctx;
     const spawnConfig = ctx.spawns;
-    const spawnTable = spawnConfig
-      ? spawnConfig.enemies.map((entry) => ({
-          config: ENEMY_CONFIGS[entry.type],
-          weight: entry.weight,
-          maxAlive: entry.maxAlive,
-        }))
-      : SPAWN_TABLE_MEDIUM;
     this.targets = scene.physics.add.group();
     this.comboText = scene.add.text(scene.cameras.main.width / 2, scene.cameras.main.height - 130, '', {
       fontFamily: UI_THEME.fontFamily,
@@ -102,25 +95,30 @@ export class CombatController {
       playAnimation: ctx.playAnimation,
     });
 
-    this.spawner = new EnemySpawner({
-      scene,
-      getPlayer: () => player,
-      maxPopulation: spawnConfig?.maxPopulation ?? 16,
-      spawnRadius: spawnConfig?.radius.max ?? 500,
-      despawnRadius: (spawnConfig?.radius.max ?? 500) + 300,
-      minSpawnDistance: spawnConfig?.radius.min ?? 200,
-      spawnIntervalMs: spawnConfig?.intervalMs ?? 1500,
-      spawnTable,
-      worldWidth: ctx.dimensions.width,
-      worldHeight: ctx.dimensions.height,
-      targetGroup: this.targets,
-      getSafeZones: () => this.safeZones(),
-      enemyContext: this.enemyContext(),
-    });
+    if (spawnConfig) {
+      this.spawner = new EnemySpawner({
+        scene,
+        getPlayer: () => player,
+        maxPopulation: spawnConfig.maxPopulation,
+        spawnRadius: spawnConfig.radius.max,
+        despawnRadius: spawnConfig.radius.max + 300,
+        minSpawnDistance: spawnConfig.radius.min,
+        spawnIntervalMs: spawnConfig.intervalMs,
+        spawnTable: spawnConfig.enemies.map((entry) => ({
+          config: ENEMY_CONFIGS[entry.type],
+          weight: entry.weight,
+          maxAlive: entry.maxAlive,
+        })),
+        worldWidth: ctx.dimensions.width,
+        worldHeight: ctx.dimensions.height,
+        targetGroup: this.targets,
+        getSafeZones: () => this.safeZones(),
+        enemyContext: this.enemyContext(),
+      });
 
-    this.spawner.seed(Math.min(8, spawnConfig?.maxPopulation ?? 16));
-    this.spawnBossIfNeeded();
-    this.spawnDummy(player.x + 80, player.y + 20);
+      this.spawner.seed(Math.min(8, spawnConfig.maxPopulation));
+      this.spawnBossIfNeeded();
+    }
     scene.physics.add.collider(this.targets, ctx.collisionTiles);
     scene.physics.add.collider(player, this.targets);
     scene.physics.add.overlap(player, projectilePool.enemyGroup(scene), (_player, projectile) => {
@@ -133,7 +131,7 @@ export class CombatController {
 
   update(time: number, delta: number): void {
     this.combo.update();
-    this.spawner.update(time, delta);
+    this.spawner?.update(time, delta);
     this.bossHealthBar?.update();
   }
 
@@ -148,7 +146,7 @@ export class CombatController {
   }
 
   destroy(): void {
-    this.spawner.destroy();
+    this.spawner?.destroy();
     this.bossHealthBar?.destroy();
     this.combo.reset();
     this.comboText.destroy();

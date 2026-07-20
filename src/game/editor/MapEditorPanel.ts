@@ -1,7 +1,8 @@
-import { getObjectVisualChoices } from '../content/objects/ObjectCatalog';
+import { getObjectVisualChoices, type ObjectVisualChoice } from '../content/objects/ObjectCatalog';
 import { getTileDefinition, getTileIds } from '../content/terrain/TileCatalog';
 import { getAuthoredMapIds } from '../infrastructure/maps/MapRepository';
 import { ENEMY_CONFIGS } from '../enemies/library/EnemyTypes';
+import { ObjectTemplateEditorState } from './ObjectTemplateEditorState';
 import type { EditorTool, MapEditorState } from './MapEditorState';
 import { connectionAt, MAP_DIRECTIONS } from './MapConnections';
 
@@ -24,6 +25,16 @@ export interface ContentPreviewUrls {
 
 function titleFromId(id: string): string {
   return id.split(/[.-]/).map((part) => `${part[0]?.toUpperCase() ?? ''}${part.slice(1)}`).join(' ');
+}
+
+function escapeHtml(value: string): string {
+  return value.replace(/[&<>'"]/g, (character) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    "'": '&#39;',
+    '"': '&quot;',
+  })[character] ?? character);
 }
 
 function terrainGroup(tileId: string): string {
@@ -65,10 +76,28 @@ function renderGroups(items: ReadonlyArray<{ readonly group: string; readonly ht
   )).join('');
 }
 
+function renderObjectArtworkGroup(choices: readonly ObjectVisualChoice[], previews: ContentPreviewUrls): string {
+  const first = choices[0];
+  if (!first) return '';
+  const siblingRows = choices.map((choice) => `
+    <button class="editor-palette-sibling" type="button" data-object="${escapeHtml(choice.objectId)}" data-visual="${escapeHtml(choice.visualId)}" title="${escapeHtml(choice.visualId)}">
+      <span>${escapeHtml(choice.displayName === choice.visualId ? titleFromId(choice.visualId) : choice.displayName)}</span>
+      <small>${escapeHtml(choice.visualId)} · ${choice.physics ? `Collider ${choice.collider?.width ?? '?'} × ${choice.collider?.height ?? '?'}` : 'No physics'}</small>
+    </button>`).join('');
+  return `<div class="editor-palette-artwork">
+    <button class="editor-palette-item" type="button" data-object="${escapeHtml(first.objectId)}" data-visual="${escapeHtml(first.visualId)}" title="${escapeHtml(first.visualId)}">
+      <span class="editor-palette-preview"><img src="${escapeHtml(previews.objects[first.key] ?? '')}" alt="" /></span>
+      <span class="editor-palette-copy"><strong>${escapeHtml(titleFromId(first.objectId))}</strong><small>${escapeHtml(first.assetId)} · frame ${first.frame} · ${choices.length} template${choices.length === 1 ? '' : 's'}</small></span>
+    </button>
+    <div class="editor-palette-siblings">${siblingRows}</div>
+  </div>`;
+}
+
 export function mountMapEditorPanel(
   host: HTMLElement,
   editor: MapEditorState,
   previews: ContentPreviewUrls,
+  templateEditor: ObjectTemplateEditorState,
 ): () => void {
   const mapIds = getAuthoredMapIds();
   const enemyTypes = Object.keys(ENEMY_CONFIGS);
@@ -82,12 +111,16 @@ export function mountMapEditorPanel(
       </button>`,
     };
   }));
-  const objectButtons = renderGroups(getObjectVisualChoices().map((choice) => ({
-    group: objectGroup(choice.objectId),
-    html: `<button class="editor-palette-item" type="button" data-object="${choice.objectId}" data-visual="${choice.visualId}">
-      <span class="editor-palette-preview"><img src="${previews.objects[choice.key]}" alt="" /></span>
-      <span class="editor-palette-copy"><strong>${titleFromId(choice.objectId)} · ${titleFromId(choice.visualId)}</strong><small>${choice.tags.join(' / ')}</small></span>
-    </button>`,
+  const objectArtworkGroups = new Map<string, ObjectVisualChoice[]>();
+  for (const choice of getObjectVisualChoices()) {
+    const key = `${choice.assetId}::${choice.frame}`;
+    const group = objectArtworkGroups.get(key) ?? [];
+    group.push(choice);
+    objectArtworkGroups.set(key, group);
+  }
+  const objectButtons = renderGroups([...objectArtworkGroups.values()].map((choices) => ({
+    group: objectGroup(choices[0].objectId),
+    html: renderObjectArtworkGroup(choices, previews),
   })));
 
   host.innerHTML = `
@@ -220,7 +253,13 @@ export function mountMapEditorPanel(
     if (tool) editor.setTool(tool);
     if (target.dataset.tile) editor.setTile(target.dataset.tile as Parameters<typeof editor.setTile>[0]);
     if (target.dataset.object && target.dataset.visual) {
-      editor.setObject(target.dataset.object as Parameters<typeof editor.setObject>[0], target.dataset.visual);
+      const objectId = target.dataset.object as Parameters<typeof editor.setObject>[0];
+      const visualId = target.dataset.visual;
+      if (!templateEditor.select(objectId, visualId)) {
+        if (!window.confirm('Discard the unsaved template draft and select another template?')) return;
+        templateEditor.discardAndSelect(objectId, visualId);
+      }
+      editor.setObject(objectId, visualId);
     }
     if (target.dataset.direction) editor.setDirection(target.dataset.direction as Parameters<typeof editor.setDirection>[0]);
     if (target.dataset.command === 'undo') editor.undo();
@@ -358,7 +397,7 @@ export function mountMapEditorPanel(
   monsterForm?.addEventListener('submit', monsterSubmitHandler);
 
   const beforeUnloadHandler = (event: BeforeUnloadEvent): void => {
-    if (!editor.value.dirty) return;
+    if (!editor.value.dirty && !templateEditor.value.dirty) return;
     event.preventDefault();
   };
   window.addEventListener('beforeunload', beforeUnloadHandler);
@@ -406,8 +445,18 @@ export function mountMapEditorPanel(
     }
   });
 
+  const unsubscribeTemplate = templateEditor.subscribe((state) => {
+    host.querySelectorAll<HTMLElement>('[data-object]').forEach((button) => {
+      button.classList.toggle(
+        'is-template-active',
+        button.dataset.object === state.selected?.objectId && button.dataset.visual === state.selected?.visualId,
+      );
+    });
+  });
+
   return () => {
     unsubscribe();
+    unsubscribeTemplate();
     host.removeEventListener('click', clickHandler);
     mapSelect?.removeEventListener('change', changeHandler);
     host.removeEventListener('change', connectionChangeHandler);
