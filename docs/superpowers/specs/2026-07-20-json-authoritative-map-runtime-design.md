@@ -20,6 +20,10 @@ Make authored map JSON the source of truth for map houses and for whether an are
 - Add a future-work idea for exact authored enemy spawn coordinates and authored house interaction metadata to `docs/task/ideas.md`.
 - Add a dedicated task document describing that future map-format extension without implementing it now.
 
+## Implementation constraint
+
+Only files required for this fix may be modified. Existing unrelated edits and untracked files in the working tree must be preserved and must not be overwritten, reverted, or deleted.
+
 ## Validation
 
 - Run the project map validation, strict TypeScript checks, and production build through the complete local check command.
