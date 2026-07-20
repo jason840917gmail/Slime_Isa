@@ -43,7 +43,10 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
           </table>
         </details>`}
       </div>
-      ${isEditor ? '<aside class="map-editor-panel" data-map-editor-panel></aside>' : ''}
+      ${isEditor ? `
+        <aside class="map-editor-panel" data-map-editor-panel></aside>
+        <aside class="map-editor-inspector" data-map-editor-inspector></aside>
+      ` : ''}
       ${devPanel}
     </section>
   `;

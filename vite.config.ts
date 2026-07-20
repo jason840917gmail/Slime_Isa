@@ -7,6 +7,7 @@ import { parseMapFile, type MapFile } from './src/game/content/maps/mapFormat';
 import { hasObjectVisual, isObjectArchetypeId } from './src/game/content/objects/ObjectCatalog';
 import { isWorldTileId } from './src/game/content/terrain/TileCatalog';
 import { ENEMY_CONFIGS } from './src/game/enemies/library/EnemyTypes';
+import { ASSET_MANIFEST, type AssetId } from './src/game/infrastructure/assets/manifest';
 import {
   edgeEntryPoint,
   edgeExitZone,
@@ -17,6 +18,138 @@ import {
 import type { Direction } from './src/game/world/Area';
 
 const MAX_EDITOR_BODY_BYTES = 2 * 1024 * 1024;
+const OBJECT_ID_PATTERN = /^[a-z0-9]+([.-][a-z0-9-]+)+$/;
+const OBJECT_DEFINITION_ROOT = path.resolve(process.cwd(), 'src/game/content/objects');
+
+interface MutableObjectFrame {
+  [key: string]: unknown;
+  visualId: string;
+  frame: number;
+}
+
+interface MutableObjectVariant {
+  assetId: string;
+  frames: MutableObjectFrame[];
+}
+
+interface MutableObjectDefinition {
+  [key: string]: unknown;
+  objectId: string;
+  variants: MutableObjectVariant[];
+  physics: unknown;
+}
+
+interface ObjectVisualOffsetPayload {
+  readonly x: number;
+  readonly y: number;
+}
+
+interface ObjectColliderPayload {
+  readonly width: number;
+  readonly height: number;
+  readonly offsetX: number;
+  readonly offsetY: number;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+function validateRecordKeys(value: Record<string, unknown>, allowed: readonly string[], label: string): void {
+  const allowedKeys = new Set(allowed);
+  for (const key of Object.keys(value)) {
+    if (!allowedKeys.has(key)) throw new Error(`${label}.${key}: unknown property`);
+  }
+}
+
+async function findObjectDefinitionPath(directory: string, objectId: string): Promise<string | undefined> {
+  const entries = await fs.readdir(directory, { withFileTypes: true });
+  const expectedFilename = `${objectId.replaceAll('.', '-')}.json`;
+  for (const entry of entries) {
+    const candidate = path.resolve(directory, entry.name);
+    if (entry.isDirectory()) {
+      const nested = await findObjectDefinitionPath(candidate, objectId);
+      if (nested) return nested;
+      continue;
+    }
+    if (!entry.isFile() || entry.name !== expectedFilename || entry.name === 'objects.schema.json') continue;
+    const parsed = JSON.parse(await fs.readFile(candidate, 'utf8')) as { objectId?: unknown };
+    if (parsed.objectId === objectId) return candidate;
+  }
+  return undefined;
+}
+
+function frameDimensions(assetId: string): { readonly width: number; readonly height: number } | undefined {
+  if (!(assetId in ASSET_MANIFEST.assets)) throw new Error(`Unknown asset '${assetId}'`);
+  const asset = ASSET_MANIFEST.assets[assetId as AssetId];
+  if (asset.source.kind !== 'spritesheet') return undefined;
+  return { width: asset.source.frame.w, height: asset.source.frame.h };
+}
+
+function validateObjectVisualUpdate(
+  payload: Record<string, unknown>,
+  definition: MutableObjectDefinition,
+): {
+  readonly frame: MutableObjectFrame;
+  readonly displayName: string;
+  readonly visualOffset: ObjectVisualOffsetPayload;
+  readonly collider?: ObjectColliderPayload;
+} {
+  validateRecordKeys(payload, ['objectId', 'visualId', 'displayName', 'visualOffset', 'collider'], 'payload');
+  const objectId = payload.objectId;
+  const visualId = payload.visualId;
+  if (typeof objectId !== 'string' || !OBJECT_ID_PATTERN.test(objectId) || !isObjectArchetypeId(objectId)) {
+    throw new Error(`Unknown object '${String(objectId)}'`);
+  }
+  if (definition.objectId !== objectId) throw new Error(`Object definition ID mismatch for '${objectId}'`);
+  if (typeof visualId !== 'string' || !/^[a-z0-9]+([.-][a-z0-9-]+)*$/.test(visualId)) {
+    throw new Error('Visual ID must be a lowercase stable ID');
+  }
+  const variant = definition.variants.find((candidate) => candidate.frames.some((frame) => frame.visualId === visualId));
+  const frame = variant?.frames.find((candidate) => candidate.visualId === visualId);
+  if (!variant || !frame) throw new Error(`Unknown visual '${visualId}' for '${objectId}'`);
+
+  const displayName = payload.displayName;
+  if (typeof displayName !== 'string' || displayName.trim().length === 0 || displayName.length > 80) {
+    throw new Error('Display name must contain 1 to 80 characters');
+  }
+  const visualOffsetValue = payload.visualOffset;
+  if (!isRecord(visualOffsetValue)) throw new Error('Visual offset is required');
+  validateRecordKeys(visualOffsetValue, ['x', 'y'], 'visualOffset');
+  if (!Number.isInteger(visualOffsetValue.x) || !Number.isInteger(visualOffsetValue.y)) {
+    throw new Error('Visual offset values must be whole pixels');
+  }
+  const visualOffset = { x: visualOffsetValue.x, y: visualOffsetValue.y };
+  const colliderValue = payload.collider;
+  if (definition.physics === null) {
+    if (colliderValue !== undefined) throw new Error('Decorative objects cannot have colliders');
+    return { frame, displayName, visualOffset };
+  }
+  if (!isRecord(colliderValue)) throw new Error('Solid objects require a collider');
+  validateRecordKeys(colliderValue, ['width', 'height', 'offsetX', 'offsetY'], 'collider');
+  const colliderProperties = ['width', 'height', 'offsetX', 'offsetY'] as const;
+  for (const property of colliderProperties) {
+    const minimum = property.startsWith('offset') ? 0 : 1;
+    const value = colliderValue[property];
+    if (!Number.isInteger(value) || value < minimum) {
+      throw new Error(`Collider ${property} must be an integer >= ${minimum}`);
+    }
+  }
+  const collider = {
+    width: colliderValue.width,
+    height: colliderValue.height,
+    offsetX: colliderValue.offsetX,
+    offsetY: colliderValue.offsetY,
+  };
+  const dimensions = frameDimensions(variant.assetId);
+  if (dimensions && collider.offsetX + collider.width > dimensions.width) {
+    throw new Error(`Collider exceeds frame width ${dimensions.width}`);
+  }
+  if (dimensions && collider.offsetY + collider.height > dimensions.height) {
+    throw new Error(`Collider exceeds frame height ${dimensions.height}`);
+  }
+  return { frame, displayName, visualOffset, collider };
+}
 
 function validateMapReferences(map: MapFile): string[] {
   const issues: string[] = [];
@@ -127,6 +260,49 @@ function mapEditorSavePlugin(): Plugin {
             ok: false,
             error: code === 'EEXIST' ? 'A map with that ID already exists' : error instanceof Error ? error.message : String(error),
           }));
+        }
+      });
+
+      server.middlewares.use('/__map-editor/object-template/update', async (request, response) => {
+        response.setHeader('Content-Type', 'application/json; charset=utf-8');
+        if (request.method !== 'POST') {
+          response.statusCode = 405;
+          response.end(JSON.stringify({ ok: false, error: 'POST required' }));
+          return;
+        }
+
+        let temporaryPath: string | undefined;
+        try {
+          const payload = JSON.parse(await readRequestBody(request)) as Record<string, unknown>;
+          const objectId = payload.objectId;
+          if (typeof objectId !== 'string') throw new Error('Object ID is required');
+          const definitionPath = await findObjectDefinitionPath(OBJECT_DEFINITION_ROOT, objectId);
+          if (!definitionPath) throw new Error(`Object definition '${objectId}' was not found`);
+          const definition = JSON.parse(await fs.readFile(definitionPath, 'utf8')) as MutableObjectDefinition;
+          const update = validateObjectVisualUpdate(payload, definition);
+
+          update.frame.displayName = update.displayName;
+          update.frame.visualOffset = update.visualOffset;
+          if (definition.physics === null) delete update.frame.collider;
+          else update.frame.collider = update.collider;
+
+          temporaryPath = `${definitionPath}.${process.pid}.${Date.now()}.tmp`;
+          await fs.writeFile(temporaryPath, `${JSON.stringify(definition, null, 2)}\n`, 'utf8');
+          await fs.rename(temporaryPath, definitionPath);
+          temporaryPath = undefined;
+          response.statusCode = 200;
+          response.end(JSON.stringify({
+            ok: true,
+            objectId,
+            visualId: payload.visualId,
+            displayName: update.displayName,
+            visualOffset: update.visualOffset,
+            collider: update.collider,
+          }));
+        } catch (error) {
+          if (temporaryPath) await fs.rm(temporaryPath, { force: true });
+          response.statusCode = 400;
+          response.end(JSON.stringify({ ok: false, error: error instanceof Error ? error.message : String(error) }));
         }
       });
 
