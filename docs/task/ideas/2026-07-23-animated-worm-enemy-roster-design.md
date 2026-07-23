@@ -43,7 +43,38 @@ Alternative approaches were rejected:
 
 ## Active enemy definitions
 
-`EnemyConfig` gains a stable enemy ID and requires a visual set. Regular enemies no longer use a procedural `textureKey` as their identity or render source.
+Active definitions move to `src/game/content/enemies/enemy-types.json`, with a matching schema and a typed loader in `EnemyTypes.ts`. This JSON is the single source used by runtime code, repository checks, authored-map validation, and the map editor.
+
+The final runtime contract is:
+
+```ts
+interface EnemyConfig {
+  id: 'worm-archer' | 'worm-swordsman' | 'worm-brawler';
+  visualSetId: EnemyVisualSetId;
+  body: {
+    width: number;
+    height: number;
+    centerOffsetX: number;
+    centerOffsetY: number;
+  };
+  maxHp: number;
+  ai: EnemyAIConfig;
+  drop: EnemyDrop;
+  projectile?: {
+    assetId: 'enemy.projectile.worm-arrow';
+    damage: number;
+  };
+  impactEffect?: {
+    visualSetId: 'effect.enemy.worm-brawler-hit';
+    clipId: 'hit';
+    distance: number;
+  };
+}
+```
+
+`textureKey`, `defaultClip`, `scale`, and `tint` are removed from active regular-enemy definitions. Visual scale and origin belong to the visual set. The enemy ID replaces `textureKey` in `enemy.died` analytics/event payloads.
+
+`Enemy` remains an Arcade Sprite for compatibility but uses an invisible `__WHITE` render anchor at scale `1`. Body width, height, and center offsets are stable world-unit geometry and do not depend on source-frame dimensions.
 
 The three roles are:
 
@@ -90,7 +121,11 @@ Side clips face right in source art. Runtime uses horizontal flipping for left.
 
 The sheets contain contiguous populated frames but use different layouts and frame counts. Initial frame lists will be inferred by visual inspection. The JSON files are the correction point if an inferred boundary is wrong; no frame ranges are hardcoded inside `Enemy`.
 
-The brawler impact effect may use a separate effect visual definition because it is not anchored character state. The arrow remains a static projectile image.
+`VisualCatalog.ts` explicitly imports all three enemy visual-set JSON files and the brawler-effect visual set, and extends `VisualSetId` accordingly. Visual sets are not assumed to be auto-discovered at runtime.
+
+Idle and walk clips use `repeat: -1`. Attack and death clips use `repeat: 0`. The brawler impact clip uses frames `[0, 1, 2]`, `repeat: 0`, and a visually reviewed frame rate.
+
+The arrow remains a static projectile image.
 
 ## Runtime animation state
 
@@ -122,11 +157,43 @@ Clip playback changes only when the resolved clip or flip changes. Attack and de
 
 Death disables physics/gameplay immediately, plays the directional death clip once, then fades or destroys the enemy. A short timeout remains as a defensive fallback if animation completion does not fire.
 
-## Attack visuals
+## Attack sequence and damage
 
-The projectile API receives the firing enemy's projectile texture key or asset-derived configuration. The archer uses the authored arrow image and rotates it to its travel vector.
+The current long-lived `attack` AI state is not treated as one animation. A typed attack sequence coordinates gameplay and visuals:
 
-The brawler hit animation is spawned as a short-lived effect at the attack/contact point. Its animation and object are explicitly destroyed after completion or scene shutdown.
+1. When attack range and cooldown allow, `Enemy` starts one sequence, stores a monotonically increasing sequence ID, locks direction toward the player, stops movement, starts the one-shot attack clip, and starts the telegraph.
+2. `attackWindupMs` marks the impact/fire moment. The delayed callback captures the sequence ID and does nothing if the enemy died, was interrupted, left the scene, or started another sequence.
+3. At impact, the archer fires once. A melee enemy checks range once, applies `contactDamage` once, and the brawler spawns one hit effect only when that geometric hit succeeds.
+4. The sequence remains active through a short recovery period or animation completion, whichever is later. It then returns the AI to `chase`, or `flee` for a ranged enemy inside its flee range.
+5. Cooldown begins when the sequence starts. A new sequence cannot begin while another is active.
+
+The untyped `_lastAttackAt` property is replaced by explicit `Enemy` fields. Continuous per-update proximity damage is removed; `contactDamage` becomes melee attack damage delivered only at the impact point.
+
+Taking damage during windup cancels the pending timer and sequence, enters hit stun, and returns to chase afterward. Death and scene shutdown cancel every pending attack timer.
+
+## Projectile and impact visuals
+
+The archer projectile contract is concrete:
+
+- manifest asset ID: `enemy.projectile.worm-arrow`;
+- source: `asset/MAPS/enemies/16x10-1x1-worm-arrow.png`;
+- render origin: `[0.5, 0.5]`;
+- rotation: `atan2(dy, dx)` on every activation;
+- speed: `ai.projectileSpeed`;
+- damage: `config.projectile.damage`;
+- physics body: reset to the authored image dimensions on every activation.
+
+`ProjectilePool.fire` resolves the texture key before activation and resets texture, origin, body size, rotation, scale, alpha, tint, velocity, damage, and lifetime timer. The overlap handler reads the pooled projectile's damage and recycles it through one public pool method instead of manually hiding the sprite. Scene cleanup destroys every pooled sprite and timer.
+
+The brawler effect contract is concrete:
+
+- manifest asset ID: `effect.enemy.worm-brawler-hit`;
+- visual-set ID: `effect.enemy.worm-brawler-hit`;
+- clip ID: `hit`;
+- frames: `[0, 1, 2]`;
+- placement: enemy position plus the locked attack direction multiplied by `impactEffect.distance`;
+- rotation: follows attack direction;
+- lifecycle: destroy on animation completion, defensive timeout, or scene shutdown.
 
 Swordsman attacks use the character sheet's attack animation and do not require a separate effect asset.
 
@@ -134,13 +201,33 @@ Swordsman attacks use the character sheet's attack animation and do not require 
 
 Only the three worm IDs remain in `ENEMY_CONFIGS`, so the map editor automatically exposes only complete enemies.
 
-Every authored map spawn entry is rewritten to one of the three new IDs. Existing weights are aggregated by role:
+Every authored map spawn entry uses this deterministic mapping:
 
-- Ranged old types → `worm-archer`
-- Durable or weapon-like old types → `worm-swordsman`
-- Fast, swarm, leap, or contact old types → `worm-brawler`
+| Removed ID | Replacement |
+| --- | --- |
+| `blob` | `worm-brawler` |
+| `spike` | `worm-swordsman` |
+| `bouncer` | `worm-brawler` |
+| `caster` | `worm-archer` |
+| `swarmer` | `worm-brawler` |
+| `armored` | `worm-swordsman` |
+| `mimic` | `worm-swordsman` |
+| `spider` | `worm-archer` |
 
-Weights are normalized per map, duplicate entries are merged, and existing `maxAlive` limits are preserved conservatively. Maps that previously exposed one incomplete special enemy receive one suitable worm type rather than retaining an invalid ID.
+Duplicate replacement entries are merged by summing weights. Weights are not rescaled because only their ratios matter. If every merged source entry has `maxAlive`, the replacement cap is their sum; if any source entry is uncapped, the replacement is uncapped.
+
+This produces the following production-map tables:
+
+| Map | Spawn table |
+| --- | --- |
+| `meadow-crossing` | brawler 80, swordsman 20 |
+| `gloop-forest` | brawler 65, swordsman 20, archer 15 |
+| `crystal-caverns` | brawler 30, swordsman 40, archer 30 |
+| `icege` | swordsman 10 |
+
+Map-editor defaults become brawler 50, swordsman 30, and archer 20.
+
+The same production tables are updated in `scripts/lib/procedural-map-generator.mjs`; running `pnpm maps:bake` must not restore removed IDs.
 
 ## Removed concepts
 
@@ -166,11 +253,11 @@ Before removal, preserve for each concept:
 
 The future idea document is not imported by runtime code.
 
-Procedural enemy texture generation and the procedural enemy projectile are removed when no active consumer remains. Generic boss UI or progression infrastructure may stay if it has no active boss-specific wiring.
+Blobfather-specific imports, spawning, rewards, and health-bar wiring are removed from `CombatController`. Generic boss UI or progression infrastructure may stay if it has no active boss-specific wiring. Procedural enemy texture generation and the procedural enemy projectile are removed when no active consumer remains.
 
 ## Validation
 
-Repository validation must enforce:
+Add `scripts/check-enemies.mjs`, include it as `enemies:check` in `pnpm check`, and make it read `enemy-types.json`, all visual-set JSON files, and `asset/assets.json`. It enforces:
 
 - every active enemy has a unique stable ID;
 - every active enemy references a known visual set;
@@ -181,12 +268,23 @@ Repository validation must enforce:
 - no authored map references a removed enemy ID;
 - no removed enemy appears in the editor roster or runtime spawn tables.
 
+`scripts/check-maps.mjs` also reads `enemy-types.json` and rejects unknown `spawns.enemies[*].type` values. This moves enemy-reference checking into repository validation while runtime map loading retains its defensive assertion.
+
+Spritesheet manifest frame geometry gains optional `count`, meaning the number of populated contiguous source frames. It must be greater than zero and no larger than `cols × rows`. The new character assets declare:
+
+- archer: `count: 36`;
+- swordsman: `count: 38`;
+- brawler: `count: 43`.
+
+`visuals:check` validates clip and frame-visual indices against `count` when present, otherwise against full grid capacity. This prevents clips from silently selecting transparent padding cells.
+
 ## Verification
 
 Run:
 
 - `pnpm assets:check`
 - `pnpm visuals:check`
+- `pnpm enemies:check`
 - `pnpm maps:check`
 - `pnpm typecheck`
 - `pnpm build`
