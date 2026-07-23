@@ -20,13 +20,13 @@ The removed enemy concepts and their current gameplay definitions must remain do
 
 The ready runtime art is under `asset/MAPS/enemies/`:
 
-| Asset | Geometry | Purpose |
-| --- | --- | --- |
-| `64x64-8x6-worm-archer.png` | 8 columns × 6 rows, 64×64 frames | Archer character |
-| `64x64-4x10-worm-swordsman.png` | 4 columns × 10 rows, 64×64 frames | Swordsman character |
-| `64x64-8x6-worm-brawler.png` | 8 columns × 6 rows, 64×64 frames | Brawler character |
-| `16x10-1x1-worm-arrow.png` | 16×10 image | Archer projectile |
-| `16x20-1x3-worm-brawler_hits.png` | 1 column × 3 rows, 16×20 frames | Brawler impact effect |
+| Stable asset ID | Asset | Geometry | Purpose |
+| --- | --- | --- | --- |
+| `enemy.worm.archer` | `64x64-8x6-worm-archer.png` | 8 columns × 6 rows, 64×64 frames | Archer character |
+| `enemy.worm.swordsman` | `64x64-4x10-worm-swordsman.png` | 4 columns × 10 rows, 64×64 frames | Swordsman character |
+| `enemy.worm.brawler` | `64x64-8x6-worm-brawler.png` | 8 columns × 6 rows, 64×64 frames | Brawler character |
+| `enemy.projectile.worm-arrow` | `16x10-1x1-worm-arrow.png` | 16×10 image | Archer projectile |
+| `effect.enemy.worm-brawler-hit` | `16x20-1x3-worm-brawler_hits.png` | 1 column × 3 rows, 16×20 frames | Brawler impact effect |
 
 These assets use transparency and must be cataloged in `asset/assets.json` with stable IDs. Character sheets, the arrow, and the hit effect belong to the boot bundle.
 
@@ -43,7 +43,20 @@ Alternative approaches were rejected:
 
 ## Active enemy definitions
 
-Active definitions move to `src/game/content/enemies/enemy-types.json`, with a matching schema and a typed loader in `EnemyTypes.ts`. This JSON is the single source used by runtime code, repository checks, authored-map validation, and the map editor.
+Active definitions move to `src/game/content/enemies/enemy-types.json`, with a matching schema and a typed loader in `EnemyTypes.ts`. Its top-level shape is:
+
+```json
+{
+  "$schema": "./enemy-types.schema.json",
+  "types": {
+    "worm-archer": {},
+    "worm-swordsman": {},
+    "worm-brawler": {}
+  }
+}
+```
+
+The object key must equal each record's `id`. This JSON is the single source used by runtime code, repository checks, authored-map validation, and the map editor.
 
 The final runtime contract is:
 
@@ -97,7 +110,36 @@ The three roles are:
 - Lower health than the swordsman.
 - Uses the authored three-frame impact effect when its melee attack connects.
 
-Existing balance values may be reused by role where sensible, but the new IDs are authoritative.
+The new IDs and values below are authoritative initial balance.
+
+The initial concrete records use these values:
+
+| Field | Archer | Swordsman | Brawler |
+| --- | ---: | ---: | ---: |
+| `visualSetId` | `enemy.worm.archer` | `enemy.worm.swordsman` | `enemy.worm.brawler` |
+| `maxHp` | 40 | 90 | 55 |
+| Body `width × height` | 36 × 24 | 36 × 26 | 34 × 24 |
+| Body center offset | `[0, 10]` | `[0, 9]` | `[0, 10]` |
+| `aggroRange` | 280 | 220 | 240 |
+| `attackRange` | 220 | 38 | 34 |
+| `fleeRange` | 120 | omitted | omitted |
+| `wanderSpeed` | 30 | 28 | 50 |
+| `chaseSpeed` | 80 | 75 | 130 |
+| `attackCooldownMs` | 2200 | 1500 | 1100 |
+| `attackWindupMs` | 600 | 400 | 250 |
+| `attackRecoveryMs` | 350 | 400 | 250 |
+| `contactDamage` | 6 | 16 | 12 |
+| `isRanged` | true | false | false |
+| `projectileSpeed` | 180 | omitted | omitted |
+| `knockbackResist` | 0 | 0.45 | 0.1 |
+
+Drops:
+
+- Archer: 45 XP, 10 coins, 15% chance of one shard.
+- Swordsman: 50 XP, 10 coins, 20% chance of one shard.
+- Brawler: 40 XP and 8 coins.
+
+Archer projectile damage is `12`. Brawler impact distance is `22` world units. `attackRecoveryMs` becomes a required AI value for all active enemies.
 
 ## Visual-set organization
 
@@ -121,7 +163,26 @@ Side clips face right in source art. Runtime uses horizontal flipping for left.
 
 The sheets contain contiguous populated frames but use different layouts and frame counts. Initial frame lists will be inferred by visual inspection. The JSON files are the correction point if an inferred boundary is wrong; no frame ranges are hardcoded inside `Enemy`.
 
-`VisualCatalog.ts` explicitly imports all three enemy visual-set JSON files and the brawler-effect visual set, and extends `VisualSetId` accordingly. Visual sets are not assumed to be auto-discovered at runtime.
+The initial inferred frame lists are:
+
+| Clip | Archer | Swordsman | Brawler |
+| --- | --- | --- | --- |
+| `idle-side` | 0–3 | 8–11 | 0–3 |
+| `walk-side` | 4–7 | 20–23 | 4–7 |
+| `attack-side` | 8–10 | 30–33 | 8–10 |
+| `die-side` | 11–13 | 34–37 | 11–13 |
+| `idle-up` | 14–17 | 4–7 | 14–17 |
+| `walk-up` | 18–20 | 16–19 | 18–21 |
+| `attack-up` | 21–24 | 27–29 | 22–24 |
+| `die-up` | 25–27 | 34–37 shared | 25–27 |
+| `idle-down` | 28–31 | 0–3 | 28–31 |
+| `walk-down` | 28–31 shared | 12–15 | 32–34 |
+| `attack-down` | 32–34 | 24–26 | 35–38 |
+| `die-down` | 35 | 34–37 shared | 39–42 |
+
+Ranges are inclusive. These lists are deliberately data-only and may be corrected later without changing enemy code.
+
+`VisualCatalog.ts` explicitly imports all three enemy visual-set JSON files and the brawler-effect visual set. Literal visual-set IDs are `enemy.worm.archer`, `enemy.worm.swordsman`, `enemy.worm.brawler`, and `effect.enemy.worm-brawler-hit`; `VisualSetId` is extended with those values. Visual sets are not assumed to be auto-discovered at runtime.
 
 Idle and walk clips use `repeat: -1`. Attack and death clips use `repeat: 0`. The brawler impact clip uses frames `[0, 1, 2]`, `repeat: 0`, and a visually reviewed frame rate.
 
@@ -150,10 +211,12 @@ Animation selection is derived from AI state:
 | --- | --- |
 | Idle or stationary | `idle-<direction>` |
 | Wander, chase, or flee with velocity | `walk-<direction>` |
-| Attack | `attack-<direction>` |
+| Active attack sequence | `attack-<direction>` |
 | Dead | `die-<direction>` |
 
 Clip playback changes only when the resolved clip or flip changes. Attack and death clips are not restarted each update.
+
+The long-lived AI `attack` state does not select an attack clip by itself. While it is waiting for cooldown and has no active sequence, velocity determines walk versus idle normally; a stationary cooldown wait displays `idle-<direction>`.
 
 Death disables physics/gameplay immediately, plays the directional death clip once, then fades or destroys the enemy. A short timeout remains as a defensive fallback if animation completion does not fire.
 
@@ -164,12 +227,16 @@ The current long-lived `attack` AI state is not treated as one animation. A type
 1. When attack range and cooldown allow, `Enemy` starts one sequence, stores a monotonically increasing sequence ID, locks direction toward the player, stops movement, starts the one-shot attack clip, and starts the telegraph.
 2. `attackWindupMs` marks the impact/fire moment. The delayed callback captures the sequence ID and does nothing if the enemy died, was interrupted, left the scene, or started another sequence.
 3. At impact, the archer fires once. A melee enemy checks range once, applies `contactDamage` once, and the brawler spawns one hit effect only when that geometric hit succeeds.
-4. The sequence remains active through a short recovery period or animation completion, whichever is later. It then returns the AI to `chase`, or `flee` for a ranged enemy inside its flee range.
+4. The sequence remains active through `attackWindupMs + attackRecoveryMs` and until animation completion, whichever is later. It then returns the AI to `chase`, or `flee` for a ranged enemy inside its flee range.
 5. Cooldown begins when the sequence starts. A new sequence cannot begin while another is active.
 
 The untyped `_lastAttackAt` property is replaced by explicit `Enemy` fields. Continuous per-update proximity damage is removed; `contactDamage` becomes melee attack damage delivered only at the impact point.
 
 Taking damage during windup cancels the pending timer and sequence, enters hit stun, and returns to chase afterward. Death and scene shutdown cancel every pending attack timer.
+
+Animation completion has a bounded defensive fallback. Attack completion is forced after
+`max(attackWindupMs + attackRecoveryMs, clipDurationMs) + 250ms`, capped at `2000ms`.
+Death cleanup is forced after `clipDurationMs + 250ms`, capped at `1500ms`.
 
 ## Projectile and impact visuals
 
