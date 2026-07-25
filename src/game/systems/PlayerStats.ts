@@ -92,6 +92,6 @@ export function getStats(): DerivedStats {
     weaponArcRad,
     lifeStealPct: vampiric * PERK_BALANCE.lifeStealPerVampiricGooRank,
     damageTakenMult: Math.max(0.5, 1 - skin * PERK_BALANCE.damageReductionPerThickSkinRank),
-    iFrameMs: 600,
+    iFrameMs: 500,
   };
 }

@@ -2721,7 +2721,7 @@
   "spawns": {
     "enemies": [
       {
-        "type": "mimic",
+        "type": "worm-swordsman",
         "weight": 10
       }
     ],

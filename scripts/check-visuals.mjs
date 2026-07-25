@@ -13,6 +13,9 @@ const clipPattern = /^[a-z0-9]+([.-][a-z0-9-]+)*$/;
 const errors = [];
 const visualSetIds = new Map();
 const runtimeKeys = new Map();
+const requiredClipsByVisualSet = new Map([
+  ['character.player.slime', ['knockback']],
+]);
 
 function listVisualSetFiles(directory) {
   const files = [];
@@ -127,6 +130,12 @@ for (const absolutePath of listVisualSetFiles(visualRoot)) {
     continue;
   }
 
+  for (const requiredClip of requiredClipsByVisualSet.get(visualSetId) ?? []) {
+    if (!definition.clips[requiredClip]) {
+      fail(file, visualSetId, `clips.${requiredClip}`, 'required by the visual contract');
+    }
+  }
+
   for (const [clipId, clip] of Object.entries(definition.clips)) {
     const field = `clips.${clipId}`;
     if (!clipPattern.test(clipId)) {
@@ -159,6 +168,12 @@ for (const absolutePath of listVisualSetFiles(visualRoot)) {
     if (!Number.isInteger(clip.repeat) || clip.repeat < -1) {
       fail(file, visualSetId, `${field}.repeat`, 'must be an integer >= -1');
     }
+  }
+}
+
+for (const visualSetId of requiredClipsByVisualSet.keys()) {
+  if (!visualSetIds.has(visualSetId)) {
+    fail('<catalog>', visualSetId, 'visualSetId', 'required visual set is missing');
   }
 }
 

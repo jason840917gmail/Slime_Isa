@@ -24,10 +24,8 @@ export interface EnemyStateContext {
   dirToPlayer: Phaser.Math.Vector2;
   /** Config-driven behavior parameters. */
   config: EnemyAIConfig;
-  /** Fire a projectile (for ranged enemies). */
-  fireProjectile?: (x: number, y: number, dx: number, dy: number) => void;
-  /** Apply a telegraph flash before attacking. */
-  telegraph?: (durationMs: number) => void;
+  /** Requests one typed attack sequence; Enemy owns timing and effects. */
+  requestAttack?: (direction: Phaser.Math.Vector2) => void;
   /** Areas enemies should not enter, such as the player's house. */
   safeZones?: EnemySafeZone[];
 }
@@ -37,9 +35,9 @@ export interface EnemyAIConfig {
   aggroRange: number;
   /** Attack range — switch from chase to attack. */
   attackRange: number;
-  /** Leap/charge attack range (for bouncers). */
+  /** Optional leap/charge attack range. */
   leapRange?: number;
-  /** Flee range — caster keeps this distance. */
+  /** Distance a ranged or evasive enemy tries to maintain. */
   fleeRange?: number;
   /** Move speed while wandering. */
   wanderSpeed: number;
@@ -49,13 +47,17 @@ export interface EnemyAIConfig {
   attackCooldownMs: number;
   /** Attack windup (telegraph) in ms. */
   attackWindupMs: number;
+  /** Recovery after the impact/fire moment in ms. */
+  attackRecoveryMs: number;
   /** Contact damage dealt to the player on touch. */
   contactDamage: number;
+  /** Player knockback speed applied by an accepted attack. */
+  knockbackStrength: number;
   /** Whether the enemy uses ranged attacks. */
   isRanged: boolean;
   /** Projectile speed (if ranged). */
   projectileSpeed?: number;
-  /** Whether the enemy leaps (bouncer). */
+  /** Whether the enemy uses a leap/charge attack. */
   isLeaper?: boolean;
   /** Knockback resistance (0 = full knockback, 1 = immune). */
   knockbackResist: number;
@@ -158,7 +160,7 @@ function stateChase(ctx: EnemyStateContext): StateResult {
     return 'wander';
   }
 
-  // Caster types flee to maintain distance instead of closing in.
+  // Ranged or evasive enemies flee to maintain distance instead of closing in.
   if (config.fleeRange && distToPlayer < config.fleeRange) {
     return 'flee';
   }
@@ -168,7 +170,7 @@ function stateChase(ctx: EnemyStateContext): StateResult {
     return 'attack';
   }
 
-  // Leap check for bouncers.
+  // Optional leap/charge check.
   if (config.isLeaper && config.leapRange && distToPlayer <= config.leapRange) {
     body.setVelocity(0, 0);
     return 'attack';
@@ -179,7 +181,7 @@ function stateChase(ctx: EnemyStateContext): StateResult {
 }
 
 function stateAttack(ctx: EnemyStateContext): StateResult {
-  const { enemy, dirToPlayer, distToPlayer, config, time, fireProjectile, telegraph } = ctx;
+  const { enemy, dirToPlayer, distToPlayer, config, requestAttack } = ctx;
   const body = enemy.body as Phaser.Physics.Arcade.Body;
 
   // If the player moved away, resume chasing.
@@ -187,38 +189,8 @@ function stateAttack(ctx: EnemyStateContext): StateResult {
     return 'chase';
   }
 
-  // Ranged: fire projectile.
-  if (config.isRanged && fireProjectile) {
-    const cooldown = (enemy as any)._lastAttackAt as number;
-    if (!cooldown || time >= cooldown + config.attackCooldownMs) {
-      telegraph?.(config.attackWindupMs);
-      enemy.scene.time.delayedCall(config.attackWindupMs, () => {
-        if (!enemy.active) return;
-        fireProjectile(enemy.x, enemy.y, dirToPlayer.x, dirToPlayer.y);
-      });
-      (enemy as any)._lastAttackAt = time;
-    }
-    // After firing, reposition.
-    body.setVelocity(0, 0);
-    return 'continue';
-  }
-
-  // Melee / leaper: telegraph then lunge.
-  const cooldown = (enemy as any)._lastAttackAt as number;
-  if (!cooldown || time >= cooldown + config.attackCooldownMs) {
-    telegraph?.(config.attackWindupMs);
-    enemy.scene.time.delayedCall(config.attackWindupMs, () => {
-      if (!enemy.active) return;
-      const lungeSpeed = config.isLeaper ? config.chaseSpeed * 2.2 : config.chaseSpeed * 1.4;
-      body.setVelocity(dirToPlayer.x * lungeSpeed, dirToPlayer.y * lungeSpeed);
-    });
-    (enemy as any)._lastAttackAt = time;
-  }
-
-  // Stop between attacks.
-  if (time > (cooldown ?? 0) + config.attackWindupMs + 200) {
-    body.setVelocity(0, 0);
-  }
+  body.setVelocity(0, 0);
+  requestAttack?.(dirToPlayer.clone());
   return 'continue';
 }
 

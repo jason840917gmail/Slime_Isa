@@ -1,5 +1,4 @@
 import Phaser from 'phaser';
-import { BLOBFATHER } from '../../boss/BossDefs';
 import { ComboSystem } from '../../combat/ComboSystem';
 import { TargetDummy } from '../../combat/TargetDummy';
 import type { Weapon } from '../../combat/Weapon';
@@ -7,13 +6,12 @@ import { gameEvents } from '../../core/EventBus';
 import { gameState } from '../../core/GameState';
 import { Enemy } from '../../enemies/Enemy';
 import { EnemySpawner } from '../../enemies/EnemySpawner';
-import { ENEMY_CONFIGS } from '../../enemies/library/EnemyTypes';
+import { getEnemyConfig } from '../../enemies/library/EnemyTypes';
 import { projectilePool } from '../../enemies/Projectile';
-import { worldProgress } from '../progression/WorldProgress';
 import { UI_THEME } from '../../presentation/theme';
 import { getStats } from '../../systems/PlayerStats';
 import { playerInventory } from '../../systems/Inventory';
-import { BossHealthBar } from '../../ui/BossHealthBar';
+import { getAsset, type AssetId } from '../../infrastructure/assets/manifest';
 import { floatingText } from '../../ui/FloatingText';
 import { createGooGauntlet } from '../../weapons/library/GooGauntlet';
 import type { WorldDimensions } from '../../world/WorldDimensions';
@@ -33,7 +31,13 @@ export interface CombatControllerContext {
   playAnimation: (key: string) => void;
   canAttack: () => boolean;
   isDodging: () => boolean;
-  applyPlayerDamage: (amount: number, source: string) => void;
+  applyPlayerDamage: (
+    amount: number,
+    source: string,
+    impactX: number,
+    impactY: number,
+    knockbackStrength: number,
+  ) => void;
   healPlayer: (amount: number) => number;
   spawnItemDropIcon: (x: number, y: number, itemId: string, count: number, index: number, total: number) => void;
 }
@@ -43,10 +47,9 @@ export class CombatController {
   private weapon: Weapon;
   private combo: ComboSystem;
   private spawner?: EnemySpawner;
-  private activeBoss?: Enemy;
-  private bossHealthBar?: BossHealthBar;
   private comboText: Phaser.GameObjects.Text;
   private attacking = false;
+  private readonly projectileWorldColliders: Phaser.Physics.Arcade.Collider[] = [];
 
   constructor(private readonly ctx: CombatControllerContext) {
     const { scene, player } = ctx;
@@ -105,7 +108,7 @@ export class CombatController {
         minSpawnDistance: spawnConfig.radius.min,
         spawnIntervalMs: spawnConfig.intervalMs,
         spawnTable: spawnConfig.enemies.map((entry) => ({
-          config: ENEMY_CONFIGS[entry.type],
+          config: getEnemyConfig(entry.type),
           weight: entry.weight,
           maxAlive: entry.maxAlive,
         })),
@@ -117,27 +120,50 @@ export class CombatController {
       });
 
       this.spawner.seed(Math.min(8, spawnConfig.maxPopulation));
-      this.spawnBossIfNeeded();
     }
     scene.physics.add.collider(this.targets, ctx.collisionTiles);
     scene.physics.add.collider(player, this.targets);
+    const recycleOnWorldCollision: Phaser.Types.Physics.Arcade.ArcadePhysicsCallback = (projectile) => {
+      projectilePool.recycle(projectile as Phaser.Physics.Arcade.Image);
+    };
+    this.projectileWorldColliders.push(
+      scene.physics.add.collider(
+        projectilePool.enemyGroup(scene),
+        ctx.collisionTiles,
+        recycleOnWorldCollision,
+      ),
+      scene.physics.add.collider(
+        projectilePool.playerGroup(scene),
+        ctx.collisionTiles,
+        recycleOnWorldCollision,
+      ),
+    );
     scene.physics.add.overlap(player, projectilePool.enemyGroup(scene), (_player, projectile) => {
       const sprite = projectile as Phaser.Physics.Arcade.Image;
-      if (!ctx.isDodging()) ctx.applyPlayerDamage(12, 'projectile');
-      floatingText.spawn(scene, sprite.x, sprite.y - 10, 'hit', 'orange');
-      sprite.setActive(false).setVisible(false).setVelocity(0, 0);
+      if (!sprite.active) return;
+      if (!ctx.isDodging()) {
+        const velocity = (sprite.body as Phaser.Physics.Arcade.Body).velocity.clone();
+        if (velocity.lengthSq() > 0) velocity.normalize();
+        ctx.applyPlayerDamage(
+          projectilePool.damageFor(sprite),
+          'projectile',
+          velocity.x,
+          velocity.y,
+          projectilePool.knockbackFor(sprite),
+        );
+      }
+      projectilePool.recycle(sprite);
     });
   }
 
   update(time: number, delta: number): void {
     this.combo.update();
     this.spawner?.update(time, delta);
-    this.bossHealthBar?.update();
   }
 
-  tryAttack(aimDirection?: Phaser.Math.Vector2): boolean {
+  tryAttack(): boolean {
     if (this.attacking || !this.ctx.canAttack()) return false;
-    return this.weapon.attack(this.ctx.scene.time.now, aimDirection);
+    return this.weapon.attack(this.ctx.scene.time.now);
   }
 
   spawnDummy(x: number, y: number): void {
@@ -146,8 +172,8 @@ export class CombatController {
   }
 
   destroy(): void {
+    this.projectileWorldColliders.forEach((collider) => collider.destroy());
     this.spawner?.destroy();
-    this.bossHealthBar?.destroy();
     this.combo.reset();
     this.comboText.destroy();
   }
@@ -155,13 +181,45 @@ export class CombatController {
   private enemyContext() {
     return {
       getPlayer: () => this.ctx.player,
-      onContactDamage: (_enemy: Enemy, amount: number) => {
-        if (!this.ctx.isDodging()) this.ctx.applyPlayerDamage(amount, 'enemy');
+      onContactDamage: (enemy: Enemy, amount: number) => {
+        if (this.ctx.isDodging()) return;
+        const impact = new Phaser.Math.Vector2(
+          this.ctx.player.x - enemy.x,
+          this.ctx.player.y - enemy.y,
+        );
+        if (impact.lengthSq() > 0) impact.normalize();
+        this.ctx.applyPlayerDamage(
+          amount,
+          enemy.config.id,
+          impact.x,
+          impact.y,
+          enemy.config.ai.knockbackStrength,
+        );
       },
       onDeath: (enemy: Enemy) => this.onEnemyDeath(enemy),
       getSafeZones: () => this.safeZones(),
-      fireProjectile: (x: number, y: number, dx: number, dy: number, speed: number) => {
-        projectilePool.fire(this.ctx.scene, x, y, dx, dy, speed, 'enemy-projectile', 'enemy', 12);
+      fireProjectile: (
+        x: number,
+        y: number,
+        dx: number,
+        dy: number,
+        speed: number,
+        assetId: AssetId,
+        damage: number,
+        knockbackStrength: number,
+      ) => {
+        projectilePool.fire(
+          this.ctx.scene,
+          x,
+          y,
+          dx,
+          dy,
+          speed,
+          getAsset(assetId).runtime.textureKey,
+          'enemy',
+          damage,
+          knockbackStrength,
+        );
       },
     };
   }
@@ -174,37 +232,6 @@ export class CombatController {
     ];
   }
 
-  private spawnBossIfNeeded(): void {
-    if (this.ctx.areaId !== BLOBFATHER.areaId || worldProgress.isBossDefeated(BLOBFATHER.id)) return;
-    const position = this.ctx.findSpawnPoint(new Phaser.Math.Vector2(
-      this.ctx.dimensions.width * 0.68,
-      this.ctx.dimensions.height * 0.5,
-    ));
-    const boss = new Enemy(this.ctx.scene, position.x, position.y, BLOBFATHER.config, this.enemyContext());
-    this.targets.add(boss);
-    this.activeBoss = boss;
-    this.bossHealthBar = new BossHealthBar(this.ctx.scene, boss, BLOBFATHER.name);
-    this.showBossIntro(BLOBFATHER.name);
-  }
-
-  private showBossIntro(name: string): void {
-    const { scene } = this.ctx;
-    scene.cameras.main.shake(450, 0.01);
-    const card = scene.add.container(scene.cameras.main.width / 2, 116).setScrollFactor(0).setDepth(240).setAlpha(0);
-    const background = scene.add.graphics();
-    background.fillStyle(0x1f0808, 0.92).fillRoundedRect(-210, -28, 420, 56, 14);
-    background.lineStyle(2, 0xff5a5a, 0.9).strokeRoundedRect(-210, -28, 420, 56, 14);
-    card.add(background);
-    card.add(scene.add.text(0, 0, name, {
-      fontFamily: UI_THEME.fontFamily,
-      fontSize: '26px',
-      color: '#ffe0d0',
-      stroke: '#0a0505',
-      strokeThickness: 6,
-    }).setOrigin(0.5));
-    scene.tweens.add({ targets: card, alpha: 1, y: 132, duration: 280, yoyo: true, hold: 1200, onComplete: () => card.destroy() });
-  }
-
   private applyLifeSteal(damageDealt: number): void {
     const percentage = getStats().lifeStealPct;
     if (damageDealt <= 0 || percentage <= 0) return;
@@ -215,19 +242,11 @@ export class CombatController {
   private onEnemyDeath(enemy: Enemy): void {
     const { drop } = enemy.config;
     const { scene } = this.ctx;
-    gameEvents.emit('enemy.died', { enemyId: enemy.enemyId, areaId: this.ctx.areaId, kind: enemy.config.textureKey });
-
-    if (enemy === this.activeBoss) {
-      worldProgress.defeatBoss(BLOBFATHER.id);
-      this.bossHealthBar?.defeat();
-      this.bossHealthBar = undefined;
-      this.activeBoss = undefined;
-      gameState.addCoins(BLOBFATHER.reward.coins);
-      gameState.addXp(BLOBFATHER.reward.xp);
-      scene.cameras.main.shake(700, 0.018);
-      floatingText.spawn(scene, enemy.x, enemy.y - 70, `${BLOBFATHER.name} DEFEATED!`, 'yellow', true);
-      floatingText.spawn(scene, enemy.x, enemy.y - 46, `+${BLOBFATHER.reward.coins}c  +${BLOBFATHER.reward.xp} XP`, 'green', true);
-    }
+    gameEvents.emit('enemy.died', {
+      enemyId: enemy.enemyId,
+      areaId: this.ctx.areaId,
+      kind: enemy.config.id,
+    });
 
     if (drop.xp > 0) {
       gameState.addXp(drop.xp);

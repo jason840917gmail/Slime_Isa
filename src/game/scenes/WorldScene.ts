@@ -14,7 +14,11 @@ import { gameEvents } from '../core/EventBus';
 import { saveSystem } from '../core/SaveSystem';
 import { createControls, createFakeControls, type Controls, type InputBindings } from '../core/Input';
 import { HouseSystem } from '../systems/HouseSystem';
-import { HealthSystem, type DamageRequest } from '../systems/HealthSystem';
+import {
+  HealthSystem,
+  type AcceptedDamageResult,
+  type DamageRequest,
+} from '../systems/HealthSystem';
 import { StatusEffectManager } from '../systems/StatusEffects';
 import { getStats } from '../systems/PlayerStats';
 import { AbilitySystem } from '../systems/AbilitySystem';
@@ -99,6 +103,7 @@ export class WorldScene extends Phaser.Scene {
   private abilityBar?: AbilityBar;
   private lastBedPos: Phaser.Math.Vector2 | null = null;
   private iFrameFlashActive = false;
+  private playerKnockbackUntil = 0;
   private combatController?: CombatController;
   private dungeonSwitches?: Phaser.Physics.Arcade.StaticGroup;
   private dungeonChests?: Phaser.Physics.Arcade.StaticGroup;
@@ -183,7 +188,15 @@ export class WorldScene extends Phaser.Scene {
       scene: this,
       getPlayer: () => this.player,
       getStatus: () => this.statusEffects!,
-      onHit: () => this.onPlayerHit(),
+      applyKnockback: (direction, strength, durationMs) => {
+        this.playerKnockbackUntil = Math.max(
+          this.playerKnockbackUntil,
+          this.time.now + durationMs,
+        );
+        this.playerController.applyKnockback(direction, strength, durationMs);
+        this.playAnimation('slime-knockback', true);
+      },
+      onHit: (result) => this.onPlayerHit(result),
       onDeath: () => this.onPlayerDeath(),
     });
     this.healthBar = new HealthBar(this, this.player);
@@ -430,6 +443,11 @@ export class WorldScene extends Phaser.Scene {
     }
 
     const direction = this.playerController.readDirection();
+
+    if (this.playerController.isMovementSuppressed()) {
+      this.playerController.move(direction);
+      return;
+    }
 
     if (this.actionLocked) {
       this.player.setVelocity(0, 0);
@@ -722,13 +740,18 @@ export class WorldScene extends Phaser.Scene {
     return tileId ? isTileCollidable(tileId) : false;
   }
 
-  private playAnimation(key: string): void {
-    if (this.currentAnimation === key) {
+  private playAnimation(key: string, forceRestart = false): void {
+    if (this.healthSystem?.isDead() && key !== 'slime-die') return;
+    const knockbackHasPriority = this.time.now < this.playerKnockbackUntil;
+    const isForcedKnockback = forceRestart && key === 'slime-knockback';
+    if (knockbackHasPriority && key !== 'slime-die' && !isForcedKnockback) return;
+
+    if (this.currentAnimation === key && !forceRestart) {
       return;
     }
 
     this.currentAnimation = key;
-    this.playerVisual?.play(key, true);
+    this.playerVisual?.play(key, !forceRestart);
   }
 
   private handleActionInput(direction: Phaser.Math.Vector2): boolean {
@@ -752,9 +775,7 @@ export class WorldScene extends Phaser.Scene {
     }
 
     if (Phaser.Input.Keyboard.JustDown(this.controls.trick)) {
-      // Aim toward current movement direction if moving, else use facing.
-      const moveDir = this.playerController.readDirection();
-      this.combatController?.tryAttack(moveDir.lengthSq() > 0 ? moveDir : undefined);
+      this.combatController?.tryAttack();
       return true;
     }
 
@@ -777,6 +798,7 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private playActionAnimation(key: string): void {
+    if (this.healthSystem?.isDead() || this.time.now < this.playerKnockbackUntil) return;
     const clip = findVisualClipByRuntimeKey('character.player.slime', key);
     if (!clip) return;
 
@@ -788,8 +810,7 @@ export class WorldScene extends Phaser.Scene {
 
     const unlock = () => {
       this.actionLocked = false;
-      this.currentAnimation = '';
-      this.playerVisual?.play('slime-idle', true);
+      this.playAnimation('slime-idle');
     };
 
     if (clip.repeat === 0) {
@@ -873,9 +894,16 @@ export class WorldScene extends Phaser.Scene {
 
   // ── Phase 1: health / damage / death / XP / items ──
 
-  private onPlayerHit(): void {
+  private onPlayerHit(result: AcceptedDamageResult): void {
     this.healthBar?.flash();
-    floatingText.spawn(this, this.player.x, this.player.y - 30, `-${gameState.hp}`, 'red', true);
+    floatingText.spawn(
+      this,
+      this.player.x,
+      this.player.y - 30,
+      `-${result.actualHpLost}`,
+      'red',
+      true,
+    );
     // Red flash tween on the sprite.
     if (!this.iFrameFlashActive) {
       this.iFrameFlashActive = true;
@@ -888,7 +916,8 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private onPlayerDeath(): void {
-    this.playAnimation('slime-idle');
+    this.playerKnockbackUntil = 0;
+    this.playAnimation('slime-die', true);
     this.player.setVelocity(0, 0);
     this.player.rotation = 0;
     this.cameras.main.shake(400, 0.012);
@@ -913,6 +942,8 @@ export class WorldScene extends Phaser.Scene {
     this.healthSystem.respawn();
     this.statusEffects?.clear();
     this.player.setPosition(pos.x, pos.y);
+    this.playerKnockbackUntil = 0;
+    this.playAnimation('slime-idle', true);
     this.playerVisual?.clearTint();
     this.playerVisual?.setAlpha(1);
 
@@ -1011,12 +1042,10 @@ export class WorldScene extends Phaser.Scene {
       this.craftingUI?.toggle();
     });
 
-    // Left-click = attack toward mouse pointer.
+    // Left-click triggers an attack in the player's current facing direction.
     this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
       if (pointer.leftButtonDown()) {
-        const worldPoint = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
-        const aim = new Phaser.Math.Vector2(worldPoint.x - this.player.x, worldPoint.y - this.player.y);
-        this.combatController?.tryAttack(aim);
+        this.combatController?.tryAttack();
       }
     });
   }
@@ -1038,8 +1067,14 @@ export class WorldScene extends Phaser.Scene {
       playAnimation: (key) => this.playAnimation(key),
       canAttack: () => !this.actionLocked && !this.paused && !this.healthSystem?.isDead(),
       isDodging: () => this.playerController.isDodging(),
-      applyPlayerDamage: (amount, source) => {
-        this.healthSystem?.applyDamage({ amount, source }, this.time.now);
+      applyPlayerDamage: (amount, source, impactX, impactY, knockbackStrength) => {
+        this.healthSystem?.applyDamage({
+          amount,
+          source,
+          knockX: impactX,
+          knockY: impactY,
+          knockStrength: knockbackStrength,
+        }, this.time.now);
       },
       healPlayer: (amount) => this.healthSystem?.heal(amount) ?? 0,
       spawnItemDropIcon: (x, y, itemId, count, index, total) => {
@@ -1077,10 +1112,7 @@ export class WorldScene extends Phaser.Scene {
       const dx = this.player.x;
       req.knockX = dx > this.worldDimensions.width / 2 ? -1 : 1;
       req.knockY = 0;
-      const dmg = this.healthSystem?.applyDamage(req, this.time.now) ?? 0;
-      if (dmg > 0) {
-        floatingText.spawn(this, this.player.x, this.player.y - 30, `-${dmg}`, 'red', true);
-      }
+      this.healthSystem?.applyDamage(req, this.time.now);
     });
 
     kb.on('keydown-TWO', () => {
