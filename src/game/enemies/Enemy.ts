@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
 import { floatingText } from '../ui/FloatingText';
 import { runState, type EnemyState, type EnemyAIConfig, type EnemySafeZone } from './EnemyAI';
+import { getVisualClip, type VisualSetId } from '../content/visuals/VisualCatalog';
+import { AnimatedVisual } from '../features/visuals/AnimatedVisual';
 
 /**
  * Enemy base class. Extends Arcade sprite with HP, a state-machine AI,
@@ -25,6 +27,8 @@ export interface EnemyDrop {
 
 export interface EnemyConfig {
   textureKey: string;
+  visualSetId?: VisualSetId;
+  defaultClip?: string;
   maxHp: number;
   scale: number;
   bodyWidth: number;
@@ -58,6 +62,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   private hitFlashUntil = 0;
   private telegraphUntil = 0;
   private hitStunUntil = 0;
+  private visual?: AnimatedVisual;
 
   constructor(scene: Phaser.Scene, x: number, y: number, config: EnemyConfig, ctx: EnemyContext) {
     super(scene, x, y, config.textureKey);
@@ -74,14 +79,25 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.setScale(config.scale);
     this.setCollideWorldBounds(true);
 
-    if (config.tint !== undefined) {
-      this.setTint(config.tint);
-    }
-
     const body = this.body as Phaser.Physics.Arcade.Body;
     body.setSize(config.bodyWidth, config.bodyHeight);
     body.setBounce(0.2);
     body.setCollideWorldBounds(true);
+
+    if (config.visualSetId) {
+      this.setVisible(false);
+      this.visual = new AnimatedVisual(scene, this, config.visualSetId, {
+        depth: 8,
+        initialFrame: 0,
+      });
+      if (config.defaultClip) {
+        this.visual.play(getVisualClip(config.visualSetId, config.defaultClip).runtimeKey);
+      }
+    }
+
+    if (config.tint !== undefined) {
+      this.setRenderTint(config.tint);
+    }
 
     this.healthBar = scene.add.graphics().setDepth(40);
   }
@@ -91,10 +107,11 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     this.hp = Math.max(0, this.hp - amount);
     this.hitFlashUntil = this.scene.time.now + 120;
-    this.setTintFill(0xff5a5a);
+    this.setRenderTintFill(0xff5a5a);
 
     const big = amount > 15;
-    floatingText.spawn(this.scene, this.x, this.y - this.displayHeight / 2 - 8, `-${amount}`, big ? 'yellow' : 'white', big);
+    const bounds = this.getVisualBounds();
+    floatingText.spawn(this.scene, this.x, bounds.top - 8, `-${amount}`, big ? 'yellow' : 'white', big);
 
     // Knockback (reduced by resistance, with a base boost so every hit
     // produces a visible bash-back even on heavy enemies).
@@ -137,30 +154,42 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.scene.time.delayedCall(450, () => dust.destroy());
 
     // Fade out + shrink, then remove.
-    this.scene.tweens.add({
-      targets: this,
-      alpha: 0,
-      scale: this.config.scale * 0.5,
-      duration: 400,
-      onComplete: () => {
-        this.destroy();
-      },
-    });
+    if (this.visual) {
+      this.visual.sprite.anims.stop();
+      this.scene.tweens.add({
+        targets: this.visual.effects,
+        alpha: 0,
+        scaleX: 0.5,
+        scaleY: 0.5,
+        duration: 400,
+        onUpdate: () => this.visual?.update(),
+        onComplete: () => this.destroy(),
+      });
+    } else {
+      this.scene.tweens.add({
+        targets: this,
+        alpha: 0,
+        scale: this.config.scale * 0.5,
+        duration: 400,
+        onComplete: () => this.destroy(),
+      });
+    }
 
     this.ctx.onDeath(this);
   }
 
   preUpdate(time: number, delta: number): void {
     super.preUpdate(time, delta);
+    this.visual?.update();
 
     if (this.dead) return;
 
     // Hit flash recovery.
     if (this.hitFlashUntil > 0 && time > this.hitFlashUntil) {
       if (this.config.tint !== undefined) {
-        this.setTint(this.config.tint);
+        this.setRenderTint(this.config.tint);
       } else {
-        this.clearTint();
+        this.clearRenderTint();
       }
       this.hitFlashUntil = 0;
     }
@@ -170,12 +199,12 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       if (time < this.telegraphUntil) {
         // Pulsing red tint.
         const pulse = Math.sin(time * 0.03) * 0.5 + 0.5;
-        this.setTint(Phaser.Display.Color.GetColor(255, Math.floor(90 + pulse * 50), 90));
+        this.setRenderTint(Phaser.Display.Color.GetColor(255, Math.floor(90 + pulse * 50), 90));
       } else {
         if (this.config.tint !== undefined) {
-          this.setTint(this.config.tint);
+          this.setRenderTint(this.config.tint);
         } else {
-          this.clearTint();
+          this.clearRenderTint();
         }
         this.telegraphUntil = 0;
       }
@@ -238,10 +267,11 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     const g = this.healthBar;
     g.clear();
 
-    const w = Math.max(28, this.displayWidth * 0.8);
+    const bounds = this.getVisualBounds();
+    const w = Math.max(28, bounds.width * 0.8);
     const h = 4;
     const x = this.x - w / 2;
-    const y = this.y - this.displayHeight / 2 - 8;
+    const y = bounds.top - 8;
 
     g.fillStyle(0x0a1f15, 0.8);
     g.fillRoundedRect(x, y, w, h, 2);
@@ -254,6 +284,27 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
 
   destroy(fromScene?: boolean): void {
     this.healthBar.destroy();
+    this.visual?.destroy();
+    this.visual = undefined;
     super.destroy(fromScene);
+  }
+
+  private getVisualBounds(): Phaser.Geom.Rectangle {
+    return this.visual?.getBounds() ?? this.getBounds();
+  }
+
+  private setRenderTint(color: number): void {
+    if (this.visual) this.visual.setTint(color);
+    else this.setTint(color);
+  }
+
+  private setRenderTintFill(color: number): void {
+    if (this.visual) this.visual.setTintFill(color);
+    else this.setTintFill(color);
+  }
+
+  private clearRenderTint(): void {
+    if (this.visual) this.visual.clearTint();
+    else this.clearTint();
   }
 }

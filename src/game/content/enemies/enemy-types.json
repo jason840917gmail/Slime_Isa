@@ -1,0 +1,24 @@
+{
+  "types": {
+    "worm-archer": {
+      "id": "worm-archer", "visualSetId": "enemy.worm.archer", "maxHp": 40,
+      "body": { "width": 36, "height": 24, "centerOffsetX": 0, "centerOffsetY": 10 },
+      "ai": { "aggroRange": 280, "attackRange": 220, "fleeRange": 120, "wanderSpeed": 30, "chaseSpeed": 80, "attackCooldownMs": 2200, "attackWindupMs": 600, "attackRecoveryMs": 350, "contactDamage": 6, "isRanged": true, "projectileSpeed": 180, "knockbackResist": 0 },
+      "drop": { "xp": 45, "coins": 10, "items": [{ "itemId": "shard", "chance": 0.15 }] },
+      "projectile": { "assetId": "enemy.projectile.worm-arrow", "damage": 12 }
+    },
+    "worm-swordsman": {
+      "id": "worm-swordsman", "visualSetId": "enemy.worm.swordsman", "maxHp": 90,
+      "body": { "width": 36, "height": 26, "centerOffsetX": 0, "centerOffsetY": 9 },
+      "ai": { "aggroRange": 220, "attackRange": 38, "wanderSpeed": 28, "chaseSpeed": 75, "attackCooldownMs": 1500, "attackWindupMs": 400, "attackRecoveryMs": 400, "contactDamage": 16, "isRanged": false, "knockbackResist": 0.45 },
+      "drop": { "xp": 50, "coins": 10, "items": [{ "itemId": "shard", "chance": 0.2 }] }
+    },
+    "worm-brawler": {
+      "id": "worm-brawler", "visualSetId": "enemy.worm.brawler", "maxHp": 55,
+      "body": { "width": 34, "height": 24, "centerOffsetX": 0, "centerOffsetY": 10 },
+      "ai": { "aggroRange": 240, "attackRange": 34, "wanderSpeed": 50, "chaseSpeed": 130, "attackCooldownMs": 1100, "attackWindupMs": 250, "attackRecoveryMs": 250, "contactDamage": 12, "isRanged": false, "knockbackResist": 0.1 },
+      "drop": { "xp": 40, "coins": 8 },
+      "impactEffect": { "visualSetId": "effect.enemy.worm-brawler-hit", "clipId": "hit", "distance": 22 }
+    }
+  }
+}

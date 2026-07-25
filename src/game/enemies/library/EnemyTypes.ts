@@ -9,6 +9,8 @@ export const ENEMY_CONFIGS: Record<string, EnemyConfig> = {
   // 1. Blob — slow, easy, contact damage only
   blob: {
     textureKey: 'enemy-blob',
+    visualSetId: 'enemy.blob',
+    defaultClip: 'idle',
     maxHp: 40,
     scale: 1.4,
     bodyWidth: 28,

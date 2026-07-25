@@ -181,6 +181,13 @@ for (const [id, asset] of Object.entries(assets)) {
     if (!frame || !Number.isInteger(frame.w) || !Number.isInteger(frame.h) || frame.w < 1 || frame.h < 1) {
       fail(id, 'source.frame', 'spritesheet requires integer frame { w, h }');
     }
+    if (frame && frame.count !== undefined) {
+      const capacity = frame.cols * frame.rows;
+      if (!Number.isInteger(frame.count) || frame.count < 1 || !Number.isInteger(capacity)
+        || frame.count > capacity) {
+        fail(id, 'source.frame.count', `must be inside 1..${capacity}`);
+      }
+    }
   }
 
   if (asset.frames !== undefined) {
@@ -192,7 +199,8 @@ for (const [id, asset] of Object.entries(assets)) {
       if (!Number.isInteger(source.frame.cols) || !Number.isInteger(source.frame.rows)) {
         fail(id, 'source.frame', 'cols and rows are required when per-frame metadata is declared');
       }
-      const declaredFrameCount = source.frame.cols * source.frame.rows;
+      const declaredFrameCount = source.frame.count
+        ?? source.frame.cols * source.frame.rows;
       const seenFrameNames = new Set();
 
       for (const [frameIndexText, frameMetadata] of Object.entries(asset.frames)) {

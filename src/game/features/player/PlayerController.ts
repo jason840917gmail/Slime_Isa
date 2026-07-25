@@ -32,7 +32,8 @@ export class PlayerController {
   }
 
   updateVisuals(): void {
-    const { sprite, nameTag } = this.ctx.entity;
+    const { sprite, visual, nameTag } = this.ctx.entity;
+    visual.update();
     nameTag.setPosition(sprite.x, sprite.y - 56);
   }
 
@@ -61,13 +62,15 @@ export class PlayerController {
     player.rotation = 0;
 
     if (direction.lengthSq() === 0) {
-      player.setFlipX(false);
+      this.ctx.entity.visual.setFlipX(false);
       this.ctx.playAnimation('slime-idle');
       return;
     }
 
     this.facing.set(direction.x, direction.y).normalize();
-    player.setFlipX(Math.abs(direction.x) >= Math.abs(direction.y) && direction.x > 0);
+    this.ctx.entity.visual.setFlipX(
+      Math.abs(direction.x) >= Math.abs(direction.y) && direction.x > 0,
+    );
 
     if (wantsBoost) this.ctx.playAnimation('slime-roll');
     else if (Math.abs(direction.y) > Math.abs(direction.x)) {

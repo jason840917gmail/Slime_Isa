@@ -9,6 +9,11 @@ This folder contains the asset and implementation notes for the game.
 - [Terrain And Tile Guide](./terrain-tile-guide.md)
 - [Friends And Houses Guide](./friends-and-houses-guide.md)
 
+## Knowledge Notes
+
+- [Knowledge index](./knowledge/README.md)
+- [Character sprites and animated visuals](./knowledge/character-sprites-guide.md)
+
 ## Recommended Reading Order
 
 1. Read the overview first to understand the shared size contract used by the game.

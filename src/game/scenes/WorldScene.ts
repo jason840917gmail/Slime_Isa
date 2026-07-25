@@ -1,5 +1,4 @@
 import Phaser from 'phaser';
-import { SLIME_ANIM_MAP, SLIME_ANIMS } from '../slimeAnimations';
 import { Friend } from '../Friend';
 import { House } from '../House';
 import {
@@ -38,6 +37,9 @@ import { PLAYER_CONFIG } from '../content/player';
 import { DisposableBag } from '../shared/lifecycle/Disposable';
 import { createPlayerEntity } from '../features/player/PlayerFactory';
 import { PlayerController } from '../features/player/PlayerController';
+import { findVisualClipByRuntimeKey } from '../content/visuals/VisualCatalog';
+import { AnimatedVisual } from '../features/visuals/AnimatedVisual';
+import { registerAllVisualSetAnimations } from '../features/visuals/AnimationRegistrar';
 import { CrystalTrialController } from '../features/dungeon/CrystalTrialController';
 import {
   clearOneShotNavigationParams,
@@ -65,6 +67,7 @@ interface WorldSceneData {
 export class WorldScene extends Phaser.Scene {
   private static sessionStarted = false;
   private player!: Phaser.Physics.Arcade.Sprite;
+  private playerVisual?: AnimatedVisual;
   private collisionTiles!: Phaser.Physics.Arcade.StaticGroup;
   private friends!: Phaser.Physics.Arcade.Group;
   private controls: Controls = createFakeControls();
@@ -146,8 +149,8 @@ export class WorldScene extends Phaser.Scene {
 
     // Phase 1: World entities (no cross-system side effects)
     this.createCollisionLayer();
+    registerAllVisualSetAnimations(this);
     this.buildWorld();
-    this.createSlimeAnimations();
     this.createPlayer();
     this.createFriends(this.friendCountForArea());
     this.createCrystalTrial();
@@ -188,6 +191,7 @@ export class WorldScene extends Phaser.Scene {
       scene: this,
       dimensions: this.worldDimensions,
       getPlayer: () => this.player,
+      getPlayerVisual: () => this.playerVisual!,
       isActionLocked: () => this.actionLocked,
       setActionLocked: (locked) => { this.actionLocked = locked; },
       getFacing: () => this.playerController.facing,
@@ -303,6 +307,8 @@ export class WorldScene extends Phaser.Scene {
     this.craftingUI?.destroy();
     this.combatController?.destroy();
     this.healthSystem?.destroy();
+    this.playerVisual?.destroy();
+    this.playerVisual = undefined;
     if (this.levelUpNoticeHandler) {
       gameEvents.off('level.up', this.levelUpNoticeHandler);
       this.levelUpNoticeHandler = undefined;
@@ -493,16 +499,11 @@ export class WorldScene extends Phaser.Scene {
     this.dungeonChests = this.physics.add.staticGroup();
   }
 
-  private createSlimeAnimations(): void {
-    for (const clip of SLIME_ANIMS) {
-      this.makeAnimation(clip.key, clip.frames, clip.frameRate, clip.repeat);
-    }
-  }
-
   private createPlayer(): void {
     const spawnPoint = this.findSpawnPoint(this.getEntryAnchor());
-    const entity = createPlayerEntity(this, spawnPoint, () => this.playAnimation('slime-idle'));
+    const entity = createPlayerEntity(this, spawnPoint);
     this.player = entity.sprite;
+    this.playerVisual = entity.visual;
     this.playerController = new PlayerController({
       scene: this,
       entity,
@@ -727,7 +728,7 @@ export class WorldScene extends Phaser.Scene {
     }
 
     this.currentAnimation = key;
-    this.player.play(key, true);
+    this.playerVisual?.play(key, true);
   }
 
   private handleActionInput(direction: Phaser.Math.Vector2): boolean {
@@ -776,23 +777,23 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private playActionAnimation(key: string): void {
-    const clip = SLIME_ANIM_MAP[key];
+    const clip = findVisualClipByRuntimeKey('character.player.slime', key);
     if (!clip) return;
 
     this.actionLocked = true;
     this.currentAnimation = key;
     this.player.setVelocity(0, 0);
     this.player.rotation = 0;
-    this.player.play(key, true);
+    this.playerVisual?.play(key, true);
 
     const unlock = () => {
       this.actionLocked = false;
       this.currentAnimation = '';
-      this.player.play('slime-idle', true);
+      this.playerVisual?.play('slime-idle', true);
     };
 
     if (clip.repeat === 0) {
-      this.player.once(Phaser.Animations.Events.ANIMATION_COMPLETE_KEY + key, unlock);
+      this.playerVisual?.onceComplete(key, unlock);
       return;
     }
 
@@ -878,9 +879,9 @@ export class WorldScene extends Phaser.Scene {
     // Red flash tween on the sprite.
     if (!this.iFrameFlashActive) {
       this.iFrameFlashActive = true;
-      this.player.setTintFill(0xff5a5a);
+      this.playerVisual?.setTintFill(0xff5a5a);
       this.time.delayedCall(120, () => {
-        this.player.clearTint();
+        this.playerVisual?.clearTint();
         this.iFrameFlashActive = false;
       });
     }
@@ -912,8 +913,8 @@ export class WorldScene extends Phaser.Scene {
     this.healthSystem.respawn();
     this.statusEffects?.clear();
     this.player.setPosition(pos.x, pos.y);
-    this.player.clearTint();
-    this.player.setAlpha(1);
+    this.playerVisual?.clearTint();
+    this.playerVisual?.setAlpha(1);
 
     this.cameras.main.pan(pos.x, pos.y, 350, 'Power2');
     this.cameras.main.zoomTo(DEFAULT_ZOOM, 350);
@@ -1124,16 +1125,4 @@ export class WorldScene extends Phaser.Scene {
     });
   }
 
-  private makeAnimation(key: string, frames: number[], frameRate: number, repeat = -1): void {
-    if (this.anims.exists(key)) {
-      return;
-    }
-
-    this.anims.create({
-      key,
-      frames: frames.map((frame) => ({ key: 'slime', frame })),
-      frameRate,
-      repeat,
-    });
-  }
 }

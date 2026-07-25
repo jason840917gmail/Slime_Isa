@@ -30,7 +30,13 @@
         { "visualId": "pine-05", "frame": 21, "collider": { "width": 36, "height": 34, "offsetX": 46, "offsetY": 133 } },
         { "visualId": "pine-06", "frame": 22, "collider": { "width": 36, "height": 34, "offsetX": 46, "offsetY": 133 } },
         { "visualId": "pine-07", "frame": 23, "collider": { "width": 36, "height": 34, "offsetX": 46, "offsetY": 133 } },
-        { "visualId": "snow-pine", "frame": 24, "collider": { "width": 38, "height": 34, "offsetX": 45, "offsetY": 133 } },
+        {
+          "visualId": "snow-pine",
+          "frame": 24,
+          "visualSetId": "object.tree.world",
+          "animationClip": "snow-pine-idle",
+          "collider": { "width": 38, "height": 34, "offsetX": 45, "offsetY": 133 }
+        },
         { "visualId": "green-tree-01", "frame": 25, "collider": { "width": 42, "height": 42, "offsetX": 43, "offsetY": 125 } },
         { "visualId": "green-tree-02", "frame": 26, "collider": { "width": 42, "height": 42, "offsetX": 43, "offsetY": 125 } },
         { "visualId": "green-tree-03", "frame": 27, "collider": { "width": 42, "height": 42, "offsetX": 43, "offsetY": 125 } },
