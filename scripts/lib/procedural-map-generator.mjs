@@ -9,9 +9,8 @@ const AREA_DEFINITIONS = {
     seed: 0,
     neighbors: { east: 'gloop-forest' },
     enemies: [
-      { type: 'blob', weight: 50 },
-      { type: 'swarmer', weight: 30 },
-      { type: 'spike', weight: 20 },
+      { type: 'worm-brawler', weight: 80 },
+      { type: 'worm-swordsman', weight: 20 },
     ],
   },
   'gloop-forest': {
@@ -19,12 +18,9 @@ const AREA_DEFINITIONS = {
     seed: 37,
     neighbors: { west: 'meadow-crossing', east: 'crystal-caverns' },
     enemies: [
-      { type: 'blob', weight: 25 },
-      { type: 'swarmer', weight: 25 },
-      { type: 'spike', weight: 20 },
-      { type: 'bouncer', weight: 15 },
-      { type: 'caster', weight: 10 },
-      { type: 'spider', weight: 5 },
+      { type: 'worm-brawler', weight: 65 },
+      { type: 'worm-swordsman', weight: 20 },
+      { type: 'worm-archer', weight: 15 },
     ],
   },
   'crystal-caverns': {
@@ -32,13 +28,9 @@ const AREA_DEFINITIONS = {
     seed: 81,
     neighbors: { west: 'gloop-forest' },
     enemies: [
-      { type: 'spike', weight: 20 },
-      { type: 'bouncer', weight: 20 },
-      { type: 'caster', weight: 15 },
-      { type: 'armored', weight: 15 },
-      { type: 'spider', weight: 15 },
-      { type: 'swarmer', weight: 10 },
-      { type: 'mimic', weight: 5 },
+      { type: 'worm-brawler', weight: 30 },
+      { type: 'worm-swordsman', weight: 40 },
+      { type: 'worm-archer', weight: 30 },
     ],
   },
 };

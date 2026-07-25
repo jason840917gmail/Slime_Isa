@@ -18,6 +18,7 @@ export interface PlayerControllerContext {
 export class PlayerController {
   readonly facing = new Phaser.Math.Vector2(0, 1);
   private dodgeInvulnerableUntil = 0;
+  private movementSuppressedUntil = 0;
 
   constructor(private readonly ctx: PlayerControllerContext) {}
 
@@ -39,6 +40,10 @@ export class PlayerController {
 
   move(direction: Phaser.Math.Vector2): void {
     const player = this.ctx.entity.sprite;
+    if (this.ctx.scene.time.now < this.movementSuppressedUntil) {
+      player.rotation = 0;
+      return;
+    }
     const controls = this.ctx.getControls();
     const statusEffects = this.ctx.getStatusEffects();
     const wantsBoost = controls.boost.isDown;
@@ -109,5 +114,19 @@ export class PlayerController {
 
   isDodging(): boolean {
     return this.ctx.scene.time.now < this.dodgeInvulnerableUntil;
+  }
+
+  isMovementSuppressed(): boolean {
+    return this.ctx.scene.time.now < this.movementSuppressedUntil;
+  }
+
+  applyKnockback(direction: Phaser.Math.Vector2, strength: number, durationMs: number): void {
+    if (direction.lengthSq() === 0 || strength <= 0) return;
+    const normalized = direction.clone().normalize();
+    this.movementSuppressedUntil = Math.max(
+      this.movementSuppressedUntil,
+      this.ctx.scene.time.now + durationMs,
+    );
+    this.ctx.entity.sprite.setVelocity(normalized.x * strength, normalized.y * strength);
   }
 }

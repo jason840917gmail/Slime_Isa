@@ -325,9 +325,9 @@ export function mountMapEditorPanel(
     if (!monsterForm) return;
     const spawns = editor.value.map.spawns;
     const defaults = new Map([
-      ['blob', { weight: 50 }],
-      ['swarmer', { weight: 30 }],
-      ['spike', { weight: 20 }],
+      ['worm-brawler', { weight: 50 }],
+      ['worm-swordsman', { weight: 30 }],
+      ['worm-archer', { weight: 20 }],
     ]);
     const configured = new Map((spawns?.enemies ?? []).map((enemy) => [enemy.type, enemy]));
     const enabled = monsterForm.elements.namedItem('enabled') as HTMLInputElement | null;

@@ -22,6 +22,11 @@ import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
+const enemyCatalog = JSON.parse(readFileSync(
+  join(repoRoot, 'src', 'game', 'content', 'enemies', 'enemy-types.json'),
+  'utf8',
+));
+const activeEnemyIds = new Set(Object.keys(enemyCatalog.types ?? {}));
 const mapsDir = process.argv[2]
   ? resolve(process.cwd(), process.argv[2])
   : join(repoRoot, 'src', 'game', 'content', 'maps');
@@ -237,6 +242,8 @@ function validateMap(data, label) {
           }
           if (typeof enemy.type !== 'string' || enemy.type.length === 0) {
             fail(label, `${path}.type`, 'required non-empty string (EnemyTypes key)');
+          } else if (!activeEnemyIds.has(enemy.type)) {
+            fail(label, `${path}.type`, `unknown active enemy ID '${enemy.type}'`);
           }
           if (!isNumber(enemy.weight) || enemy.weight <= 0) {
             fail(label, `${path}.weight`, 'expected number > 0');

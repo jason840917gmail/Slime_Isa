@@ -214,14 +214,14 @@ class GameStateImpl {
   damage(amount: number, source?: string): number {
     if (amount <= 0 || this.data.hp <= 0) return 0;
     const newHp = Math.max(0, this.data.hp - amount);
-    const delta = newHp - this.data.hp;
+    const actualHpLost = this.data.hp - newHp;
     this.data.hp = newHp;
-    gameEvents.emit('player.damage', { amount, source, crit: false });
-    this.emitHp(delta);
+    gameEvents.emit('player.damage', { amount: actualHpLost, source, crit: false });
+    this.emitHp(-actualHpLost);
     if (this.data.hp <= 0) {
       gameEvents.emit('player.death', {});
     }
-    return amount;
+    return actualHpLost;
   }
 
   heal(amount: number): number {

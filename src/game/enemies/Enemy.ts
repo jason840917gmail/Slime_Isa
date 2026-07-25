@@ -1,16 +1,11 @@
 import Phaser from 'phaser';
+
+import type { AssetId } from '../infrastructure/assets/manifest';
+import { getAsset } from '../infrastructure/assets/manifest';
+import { getVisualClip, getVisualSet, type VisualSetId } from '../content/visuals/VisualCatalog';
+import { AnimatedVisual } from '../features/visuals/AnimatedVisual';
 import { floatingText } from '../ui/FloatingText';
 import { runState, type EnemyState, type EnemyAIConfig, type EnemySafeZone } from './EnemyAI';
-import { getVisualClip, type VisualSetId } from '../content/visuals/VisualCatalog';
-import { AnimatedVisual } from '../features/visuals/AnimatedVisual';
-
-/**
- * Enemy base class. Extends Arcade sprite with HP, a state-machine AI,
- * knockback, contact damage, telegraphed attacks, and death/drop logic.
- *
- * Enemy type instances are created by factory functions in the library/
- * folder; this class handles the shared lifecycle.
- */
 
 export interface EnemyItemDrop {
   itemId: string;
@@ -21,51 +16,80 @@ export interface EnemyItemDrop {
 export interface EnemyDrop {
   xp: number;
   coins: number;
-  /** Each item rolls independently when the enemy dies. */
   items?: readonly EnemyItemDrop[];
 }
 
 export interface EnemyConfig {
-  textureKey: string;
-  visualSetId?: VisualSetId;
-  defaultClip?: string;
+  id: string;
+  visualSetId: VisualSetId;
   maxHp: number;
-  scale: number;
-  bodyWidth: number;
-  bodyHeight: number;
+  body: {
+    width: number;
+    height: number;
+    centerOffsetX: number;
+    centerOffsetY: number;
+  };
   ai: EnemyAIConfig;
   drop: EnemyDrop;
-  /** Tint applied to the sprite (optional, for color variants). */
-  tint?: number;
+  projectile?: {
+    assetId: AssetId;
+    damage: number;
+  };
+  impactEffect?: {
+    visualSetId: VisualSetId;
+    clipId: string;
+    distance: number;
+  };
 }
 
 export interface EnemyContext {
   getPlayer: () => Phaser.Physics.Arcade.Sprite;
   onContactDamage: (enemy: Enemy, amount: number) => void;
   onDeath: (enemy: Enemy) => void;
-  fireProjectile?: (x: number, y: number, dx: number, dy: number, speed: number) => void;
+  fireProjectile?: (
+    x: number,
+    y: number,
+    dx: number,
+    dy: number,
+    speed: number,
+    assetId: AssetId,
+    damage: number,
+    knockbackStrength: number,
+  ) => void;
   getSafeZones?: () => EnemySafeZone[];
 }
+
+type VisualDirection = 'side' | 'up' | 'down';
+type VisualAction = 'idle' | 'walk' | 'attack' | 'knockback' | 'die';
 
 let enemyIdCounter = 0;
 
 export class Enemy extends Phaser.Physics.Arcade.Sprite {
-  public readonly enemyId: number;
-  public readonly config: EnemyConfig;
-  public maxHp: number;
-  public hp: number;
-  public dead = false;
+  readonly enemyId: number;
+  readonly config: EnemyConfig;
+  readonly maxHp: number;
+  hp: number;
+  dead = false;
 
   private aiState: EnemyState = 'idle';
-  private ctx: EnemyContext;
-  private healthBar: Phaser.GameObjects.Graphics;
+  private readonly ctx: EnemyContext;
+  private readonly healthBar: Phaser.GameObjects.Graphics;
+  private readonly visual: AnimatedVisual;
+  private direction: VisualDirection = 'down';
+  private sideFlipped = false;
+  private currentClipId = '';
   private hitFlashUntil = 0;
-  private telegraphUntil = 0;
   private hitStunUntil = 0;
-  private visual?: AnimatedVisual;
+  private attackActive = false;
+  private attackReadyAt = 0;
+  private attackSequenceId = 0;
+  private attackVector = new Phaser.Math.Vector2(0, 1);
+  private attackTimers: Phaser.Time.TimerEvent[] = [];
+  private deathTimer?: Phaser.Time.TimerEvent;
+  private deathFinishing = false;
 
   constructor(scene: Phaser.Scene, x: number, y: number, config: EnemyConfig, ctx: EnemyContext) {
-    super(scene, x, y, config.textureKey);
+    super(scene, x, y, '__WHITE');
     this.enemyId = ++enemyIdCounter;
     this.config = config;
     this.ctx = ctx;
@@ -74,74 +98,219 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     scene.add.existing(this);
     scene.physics.add.existing(this);
-
-    this.setDepth(8);
-    this.setScale(config.scale);
-    this.setCollideWorldBounds(true);
+    this.setVisible(false).setDepth(8).setCollideWorldBounds(true);
 
     const body = this.body as Phaser.Physics.Arcade.Body;
-    body.setSize(config.bodyWidth, config.bodyHeight);
-    body.setBounce(0.2);
-    body.setCollideWorldBounds(true);
+    body.setSize(config.body.width, config.body.height, false);
+    body.setOffset(
+      this.displayOriginX - config.body.width / 2 + config.body.centerOffsetX,
+      this.displayOriginY - config.body.height / 2 + config.body.centerOffsetY,
+    );
+    body.setBounce(0.2).setCollideWorldBounds(true);
 
-    if (config.visualSetId) {
-      this.setVisible(false);
-      this.visual = new AnimatedVisual(scene, this, config.visualSetId, {
-        depth: 8,
-        initialFrame: 0,
-      });
-      if (config.defaultClip) {
-        this.visual.play(getVisualClip(config.visualSetId, config.defaultClip).runtimeKey);
-      }
-    }
-
-    if (config.tint !== undefined) {
-      this.setRenderTint(config.tint);
-    }
-
+    this.visual = new AnimatedVisual(scene, this, config.visualSetId, {
+      depth: 8,
+      initialFrame: 0,
+    });
     this.healthBar = scene.add.graphics().setDepth(40);
+    this.playVisual('idle');
   }
 
   takeDamage(amount: number, knockX: number, knockY: number, knockStrength: number): void {
     if (this.dead) return;
-
+    this.cancelAttack();
     this.hp = Math.max(0, this.hp - amount);
     this.hitFlashUntil = this.scene.time.now + 120;
-    this.setRenderTintFill(0xff5a5a);
+    this.visual.setTintFill(0xff5a5a);
 
-    const big = amount > 15;
-    const bounds = this.getVisualBounds();
-    floatingText.spawn(this.scene, this.x, bounds.top - 8, `-${amount}`, big ? 'yellow' : 'white', big);
-
-    // Knockback (reduced by resistance, with a base boost so every hit
-    // produces a visible bash-back even on heavy enemies).
-    const resist = this.config.ai.knockbackResist;
-    const finalStrength = (knockStrength + 120) * (1 - resist);
-    if (finalStrength > 0) {
-      this.setVelocity(knockX * finalStrength, knockY * finalStrength);
-    }
-
-    // Hit-stun: freeze AI movement so the knockback actually pushes the enemy
-    // back instead of being immediately overwritten by chase velocity.
-    const stunMs = 320 + Math.min(280, finalStrength * 0.35);
-    this.hitStunUntil = this.scene.time.now + stunMs;
-
-    // Interrupt attack telegraph on hit.
-    this.telegraphUntil = 0;
+    const bounds = this.visual.getBounds();
+    floatingText.spawn(
+      this.scene,
+      this.x,
+      bounds.top - 8,
+      `-${amount}`,
+      amount > 15 ? 'yellow' : 'white',
+      amount > 15,
+    );
 
     if (this.hp <= 0) {
       this.die();
+      return;
     }
+
+    const finalStrength = (knockStrength + 120) * (1 - this.config.ai.knockbackResist);
+    if (finalStrength > 0) this.setVelocity(knockX * finalStrength, knockY * finalStrength);
+    const hitStunDuration = 320 + Math.min(280, finalStrength * 0.35);
+    this.hitStunUntil = Math.max(
+      this.hitStunUntil,
+      this.scene.time.now + hitStunDuration,
+    );
+    this.playVisual('knockback', true);
+  }
+
+  preUpdate(time: number, delta: number): void {
+    super.preUpdate(time, delta);
+    this.visual.update();
+    if (this.dead) return;
+
+    if (this.hitFlashUntil > 0 && time > this.hitFlashUntil) {
+      this.visual.clearTint();
+      this.hitFlashUntil = 0;
+    }
+    const player = this.ctx.getPlayer();
+    if (!player?.active) {
+      this.setVelocity(0, 0);
+      this.syncMovementVisual();
+      return;
+    }
+
+    if (time < this.hitStunUntil) {
+      const body = this.body as Phaser.Physics.Arcade.Body;
+      body.velocity.scale(0.94);
+      this.drawHealthBar();
+      return;
+    }
+
+    const dx = player.x - this.x;
+    const dy = player.y - this.y;
+    const dist = Math.hypot(dx, dy);
+    const dir = dist > 0
+      ? new Phaser.Math.Vector2(dx / dist, dy / dist)
+      : new Phaser.Math.Vector2();
+
+    const nextState = runState(this.aiState, {
+      enemy: this,
+      player,
+      time,
+      delta,
+      distToPlayer: dist,
+      dirToPlayer: dir,
+      config: this.config.ai,
+      requestAttack: (direction) => this.beginAttack(direction, time),
+      safeZones: this.ctx.getSafeZones?.(),
+    });
+    if (nextState !== 'continue') this.aiState = nextState;
+
+    if (!this.attackActive) {
+      const velocity = (this.body as Phaser.Physics.Arcade.Body).velocity;
+      this.updateDirection(velocity);
+      this.syncMovementVisual();
+    }
+    this.drawHealthBar();
+  }
+
+  destroy(fromScene?: boolean): void {
+    this.cancelAttack();
+    this.deathTimer?.remove();
+    this.healthBar.destroy();
+    this.visual.destroy();
+    super.destroy(fromScene);
+  }
+
+  private beginAttack(direction: Phaser.Math.Vector2, time: number): void {
+    if (this.attackActive || time < this.attackReadyAt || this.dead) return;
+    this.attackActive = true;
+    this.attackReadyAt = time + this.config.ai.attackCooldownMs;
+    this.attackSequenceId += 1;
+    const sequenceId = this.attackSequenceId;
+    this.attackVector = direction.lengthSq() > 0 ? direction.clone().normalize() : this.attackVector;
+    this.updateDirection(this.attackVector);
+    this.playVisual('attack');
+
+    this.attackTimers.push(this.scene.time.delayedCall(
+      this.config.ai.attackWindupMs,
+      () => this.resolveAttack(sequenceId),
+    ));
+
+    const clip = getVisualClip(this.config.visualSetId, `attack-${this.direction}`);
+    const clipDuration = clip.frames.length / clip.frameRate * 1000;
+    const sequenceDuration = Math.min(
+      2000,
+      Math.max(
+        this.config.ai.attackWindupMs + this.config.ai.attackRecoveryMs,
+        clipDuration,
+      ) + 250,
+    );
+    this.attackTimers.push(this.scene.time.delayedCall(
+      sequenceDuration,
+      () => this.finishAttack(sequenceId),
+    ));
+  }
+
+  private resolveAttack(sequenceId: number): void {
+    if (!this.attackActive || sequenceId !== this.attackSequenceId || this.dead) return;
+    const player = this.ctx.getPlayer();
+    if (!player?.active) return;
+
+    if (this.config.projectile && this.ctx.fireProjectile) {
+      this.ctx.fireProjectile(
+        this.x,
+        this.y,
+        this.attackVector.x,
+        this.attackVector.y,
+        this.config.ai.projectileSpeed ?? 200,
+        this.config.projectile.assetId,
+        this.config.projectile.damage,
+        this.config.ai.knockbackStrength,
+      );
+      return;
+    }
+
+    const distance = Phaser.Math.Distance.Between(this.x, this.y, player.x, player.y);
+    if (distance > this.config.ai.attackRange * 1.35) return;
+    this.ctx.onContactDamage(this, this.config.ai.contactDamage);
+    if (this.config.impactEffect) this.spawnImpactEffect();
+  }
+
+  private finishAttack(sequenceId: number): void {
+    if (!this.attackActive || sequenceId !== this.attackSequenceId || this.dead) return;
+    this.attackTimers.forEach((timer) => timer.remove());
+    this.attackTimers = [];
+    this.attackActive = false;
+    const player = this.ctx.getPlayer();
+    const distance = player
+      ? Phaser.Math.Distance.Between(this.x, this.y, player.x, player.y)
+      : Number.POSITIVE_INFINITY;
+    this.aiState = this.config.ai.fleeRange && distance < this.config.ai.fleeRange
+      ? 'flee'
+      : 'chase';
+    this.syncMovementVisual();
+  }
+
+  private cancelAttack(): void {
+    this.attackSequenceId += 1;
+    this.attackTimers.forEach((timer) => timer.remove());
+    this.attackTimers = [];
+    this.attackActive = false;
   }
 
   private die(): void {
+    if (this.dead) return;
     this.dead = true;
     this.aiState = 'dead';
-    this.setActive(false);
+    this.cancelAttack();
     this.setVelocity(0, 0);
+    (this.body as Phaser.Physics.Arcade.Body).enable = false;
     this.healthBar.clear();
+    this.visual.clearTint();
+    this.playVisual('die');
+    this.ctx.onDeath(this);
 
-    // Death particles.
+    const clip = getVisualClip(this.config.visualSetId, `die-${this.direction}`);
+    const runtimeKey = clip.runtimeKey;
+    const finish = () => this.finishDeath();
+    this.visual.onceComplete(runtimeKey, finish);
+    this.deathTimer = this.scene.time.delayedCall(
+      Math.min(1500, clip.frames.length / clip.frameRate * 1000 + 250),
+      finish,
+    );
+  }
+
+  private finishDeath(): void {
+    if (this.deathFinishing) return;
+    this.deathFinishing = true;
+    this.deathTimer?.remove();
+
     const dust = this.scene.add.particles(this.x, this.y, 'xp-orb', {
       lifespan: 400,
       speed: { min: 30, max: 80 },
@@ -152,159 +321,80 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     }).setDepth(7);
     dust.emitParticle(10);
     this.scene.time.delayedCall(450, () => dust.destroy());
-
-    // Fade out + shrink, then remove.
-    if (this.visual) {
-      this.visual.sprite.anims.stop();
-      this.scene.tweens.add({
-        targets: this.visual.effects,
-        alpha: 0,
-        scaleX: 0.5,
-        scaleY: 0.5,
-        duration: 400,
-        onUpdate: () => this.visual?.update(),
-        onComplete: () => this.destroy(),
-      });
-    } else {
-      this.scene.tweens.add({
-        targets: this,
-        alpha: 0,
-        scale: this.config.scale * 0.5,
-        duration: 400,
-        onComplete: () => this.destroy(),
-      });
-    }
-
-    this.ctx.onDeath(this);
+    this.scene.tweens.add({
+      targets: this.visual.effects,
+      alpha: 0,
+      duration: 250,
+      onUpdate: () => this.visual.update(),
+      onComplete: () => this.destroy(),
+    });
   }
 
-  preUpdate(time: number, delta: number): void {
-    super.preUpdate(time, delta);
-    this.visual?.update();
+  private spawnImpactEffect(): void {
+    const effect = this.config.impactEffect;
+    if (!effect) return;
+    const definition = getVisualSet(effect.visualSetId);
+    const asset = getAsset(definition.assetId);
+    const clip = getVisualClip(effect.visualSetId, effect.clipId);
+    const sprite = this.scene.add.sprite(
+      this.x + this.attackVector.x * effect.distance,
+      this.y + this.attackVector.y * effect.distance,
+      asset.runtime.textureKey,
+      0,
+    ).setDepth(12).setRotation(Math.atan2(this.attackVector.y, this.attackVector.x));
+    let cleaned = false;
+    const cleanup = () => {
+      if (cleaned) return;
+      cleaned = true;
+      sprite.destroy();
+    };
+    sprite.once(Phaser.Animations.Events.ANIMATION_COMPLETE_KEY + clip.runtimeKey, cleanup);
+    sprite.play(clip.runtimeKey);
+    this.scene.time.delayedCall(500, cleanup);
+  }
 
-    if (this.dead) return;
-
-    // Hit flash recovery.
-    if (this.hitFlashUntil > 0 && time > this.hitFlashUntil) {
-      if (this.config.tint !== undefined) {
-        this.setRenderTint(this.config.tint);
-      } else {
-        this.clearRenderTint();
-      }
-      this.hitFlashUntil = 0;
+  private updateDirection(vector: Phaser.Math.Vector2): void {
+    if (vector.lengthSq() < 1) return;
+    if (Math.abs(vector.x) > Math.abs(vector.y)) {
+      this.direction = 'side';
+      this.sideFlipped = vector.x < 0;
+    } else {
+      this.direction = vector.y < 0 ? 'up' : 'down';
+      this.sideFlipped = false;
     }
+    this.visual.setFlipX(this.sideFlipped);
+  }
 
-    // Telegraph flash (red pulse before attacking).
-    if (this.telegraphUntil > 0) {
-      if (time < this.telegraphUntil) {
-        // Pulsing red tint.
-        const pulse = Math.sin(time * 0.03) * 0.5 + 0.5;
-        this.setRenderTint(Phaser.Display.Color.GetColor(255, Math.floor(90 + pulse * 50), 90));
-      } else {
-        if (this.config.tint !== undefined) {
-          this.setRenderTint(this.config.tint);
-        } else {
-          this.clearRenderTint();
-        }
-        this.telegraphUntil = 0;
-      }
-    }
+  private syncMovementVisual(): void {
+    if (this.attackActive || this.dead) return;
+    const velocity = (this.body as Phaser.Physics.Arcade.Body).velocity;
+    this.playVisual(velocity.lengthSq() > 4 ? 'walk' : 'idle');
+  }
 
-    // Run AI state machine — skip while in hit-stun so knockback isn't
-    // immediately cancelled by chase/wander velocity.
-    const player = this.ctx.getPlayer();
-    if (!player || !player.active) {
-      const body = this.body as Phaser.Physics.Arcade.Body;
-      body.setVelocity(0, 0);
-      return;
-    }
-
-    const inHitStun = time < this.hitStunUntil;
-
-    if (inHitStun) {
-      // Let the knockback velocity play out; light drag so the bash carries.
-      const body = this.body as Phaser.Physics.Arcade.Body;
-      body.velocity.scale(0.94);
-      this.drawHealthBar();
-      return;
-    }
-
-    const dx = player.x - this.x;
-    const dy = player.y - this.y;
-    const dist = Math.hypot(dx, dy);
-    const dir = dist > 0 ? new Phaser.Math.Vector2(dx / dist, dy / dist) : new Phaser.Math.Vector2(0, 0);
-
-    const nextState = runState(this.aiState, {
-      enemy: this,
-      player,
-      time,
-      delta,
-      distToPlayer: dist,
-      dirToPlayer: dir,
-      config: this.config.ai,
-      fireProjectile: this.ctx.fireProjectile
-        ? (fx, fy, fdx, fdy) => this.ctx.fireProjectile!(fx, fy, fdx, fdy, this.config.ai.projectileSpeed ?? 200)
-        : undefined,
-      telegraph: (durationMs) => {
-        this.telegraphUntil = time + durationMs;
-      },
-      safeZones: this.ctx.getSafeZones?.(),
-    });
-
-    if (nextState !== 'continue') {
-      this.aiState = nextState;
-    }
-
-    // Contact damage: if overlapping the player, deal damage.
-    if (dist < (this.config.bodyWidth * this.config.scale + 24) / 2) {
-      this.ctx.onContactDamage(this, this.config.ai.contactDamage);
-    }
-
-    this.drawHealthBar();
+  private playVisual(action: VisualAction, forceRestart = false): void {
+    const clipId = `${action}-${this.direction}`;
+    if (this.currentClipId === clipId && !forceRestart) return;
+    this.currentClipId = clipId;
+    this.visual.play(
+      getVisualClip(this.config.visualSetId, clipId).runtimeKey,
+      !forceRestart,
+    );
   }
 
   private drawHealthBar(): void {
-    const g = this.healthBar;
-    g.clear();
-
-    const bounds = this.getVisualBounds();
-    const w = Math.max(28, bounds.width * 0.8);
-    const h = 4;
-    const x = this.x - w / 2;
+    const bounds = this.visual.getBounds();
+    const width = Math.max(28, bounds.width * 0.8);
     const y = bounds.top - 8;
-
-    g.fillStyle(0x0a1f15, 0.8);
-    g.fillRoundedRect(x, y, w, h, 2);
-
-    const pct = this.maxHp > 0 ? Phaser.Math.Clamp(this.hp / this.maxHp, 0, 1) : 0;
+    this.healthBar.clear();
+    this.healthBar.fillStyle(0x0a1f15, 0.8).fillRoundedRect(this.x - width / 2, y, width, 4, 2);
+    const pct = Phaser.Math.Clamp(this.hp / this.maxHp, 0, 1);
     const fill = pct <= 0.25 ? 0xff5a5a : pct <= 0.5 ? 0xff9a3c : 0xff6b6b;
-    g.fillStyle(fill, 1);
-    g.fillRoundedRect(x + 1, y + 1, Math.max(0, (w - 2) * pct), h - 2, 2);
-  }
-
-  destroy(fromScene?: boolean): void {
-    this.healthBar.destroy();
-    this.visual?.destroy();
-    this.visual = undefined;
-    super.destroy(fromScene);
-  }
-
-  private getVisualBounds(): Phaser.Geom.Rectangle {
-    return this.visual?.getBounds() ?? this.getBounds();
-  }
-
-  private setRenderTint(color: number): void {
-    if (this.visual) this.visual.setTint(color);
-    else this.setTint(color);
-  }
-
-  private setRenderTintFill(color: number): void {
-    if (this.visual) this.visual.setTintFill(color);
-    else this.setTintFill(color);
-  }
-
-  private clearRenderTint(): void {
-    if (this.visual) this.visual.clearTint();
-    else this.clearTint();
+    this.healthBar.fillStyle(fill, 1).fillRoundedRect(
+      this.x - width / 2 + 1,
+      y + 1,
+      Math.max(0, (width - 2) * pct),
+      2,
+      2,
+    );
   }
 }

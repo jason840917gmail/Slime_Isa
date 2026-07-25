@@ -87,18 +87,16 @@ export class Weapon {
     return Phaser.Math.Clamp(1 - remaining / total, 0, 1);
   }
 
-  attack(time: number, aimDir?: Phaser.Math.Vector2): boolean {
+  attack(time: number): boolean {
     const scene = this.ctx.scene;
     if (!this.isReady(time)) return false;
 
     const player = this.ctx.getPlayer();
 
-    // Aim: explicit override (mouse) → facing → default right.
-    const dir = aimDir && aimDir.lengthSq() > 0
-      ? aimDir.clone().normalize()
-      : this.ctx.getFacing().lengthSq() > 0
-        ? this.ctx.getFacing().clone().normalize()
-        : new Phaser.Math.Vector2(1, 0);
+    // Facing is captured once so the attack direction stays locked.
+    const dir = this.ctx.getFacing().lengthSq() > 0
+      ? this.ctx.getFacing().clone().normalize()
+      : new Phaser.Math.Vector2(1, 0);
 
     const stats = getStats();
     const damage = Math.round(this.def.baseDamage * (stats.attack / 10));

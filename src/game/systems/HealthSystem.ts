@@ -18,8 +18,10 @@ export interface HealthSystemContext {
   scene: Phaser.Scene;
   getPlayer: () => Phaser.Physics.Arcade.Sprite;
   getStatus: () => StatusEffectManager;
-  /** Called when i-frames start (e.g. to flash the sprite). */
-  onHit?: () => void;
+  /** Applies accepted-hit knockback without allowing movement to overwrite it. */
+  applyKnockback?: (direction: Phaser.Math.Vector2, strength: number, durationMs: number) => void;
+  /** Called after an accepted hit so the scene can render feedback. */
+  onHit?: (result: AcceptedDamageResult) => void;
   /** Called when the player dies (scene decides respawn / game over). */
   onDeath?: () => void;
 }
@@ -34,6 +36,23 @@ export interface DamageRequest {
   /** True = ignore defense mitigation. */
   trueDamage?: boolean;
 }
+
+export interface AcceptedDamageResult {
+  status: 'accepted';
+  requestedDamage: number;
+  mitigatedDamage: number;
+  actualHpLost: number;
+}
+
+export interface RejectedDamageResult {
+  status: 'rejected';
+  reason: 'dead' | 'invulnerable' | 'invalid';
+  requestedDamage: number;
+  mitigatedDamage: 0;
+  actualHpLost: 0;
+}
+
+export type DamageResult = AcceptedDamageResult | RejectedDamageResult;
 
 export class HealthSystem {
   private ctx: HealthSystemContext;
@@ -54,31 +73,38 @@ export class HealthSystem {
     return this.dead;
   }
 
-  applyDamage(req: DamageRequest, time: number): number {
-    if (this.dead) return 0;
-    if (this.isInvulnerable(time)) return 0;
-    if (req.amount <= 0) return 0;
+  applyDamage(req: DamageRequest, time: number): DamageResult {
+    if (this.dead) return this.rejected(req.amount, 'dead');
+    if (this.isInvulnerable(time)) return this.rejected(req.amount, 'invulnerable');
+    if (!Number.isFinite(req.amount) || req.amount <= 0) return this.rejected(req.amount, 'invalid');
 
     const stats = getStats();
     const mitigated = req.trueDamage ? req.amount : Math.max(1, req.amount - stats.defense);
     const final = Math.round(mitigated * stats.damageTakenMult);
+    const actualHpLost = gameState.damage(final, req.source);
+    if (actualHpLost <= 0) return this.rejected(req.amount, 'dead');
 
-    gameState.damage(final, req.source);
+    if (!gameState.isDead()) {
+      this.iFrameUntil = time + stats.iFrameMs;
 
-    this.iFrameUntil = time + stats.iFrameMs;
-
-    // Knockback
-    const player = this.ctx.getPlayer();
-    if (req.knockX !== undefined || req.knockY !== undefined) {
-      const strength = req.knockStrength ?? 220;
-      const kx = (req.knockX ?? 0) * strength;
-      const ky = (req.knockY ?? 0) * strength;
-      player.setVelocity(kx, ky);
+      if (req.knockX !== undefined || req.knockY !== undefined) {
+        const strength = req.knockStrength ?? 220;
+        const direction = new Phaser.Math.Vector2(req.knockX ?? 0, req.knockY ?? 0);
+        if (direction.lengthSq() > 0) {
+          this.ctx.applyKnockback?.(direction.normalize(), strength, 160);
+        }
+      }
     }
 
-    this.ctx.onHit?.();
+    const result: AcceptedDamageResult = {
+      status: 'accepted',
+      requestedDamage: req.amount,
+      mitigatedDamage: final,
+      actualHpLost,
+    };
+    this.ctx.onHit?.(result);
 
-    return final;
+    return result;
   }
 
   heal(amount: number): number {
@@ -106,5 +132,18 @@ export class HealthSystem {
 
   destroy(): void {
     gameEvents.off('player.death', this.handleDeath, this);
+  }
+
+  private rejected(
+    requestedDamage: number,
+    reason: RejectedDamageResult['reason'],
+  ): RejectedDamageResult {
+    return {
+      status: 'rejected',
+      reason,
+      requestedDamage,
+      mitigatedDamage: 0,
+      actualHpLost: 0,
+    };
   }
 }

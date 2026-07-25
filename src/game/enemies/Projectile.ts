@@ -15,6 +15,7 @@ interface PooledProjectile {
   active: boolean;
   owner: ProjectileOwner;
   damage: number;
+  knockbackStrength: number;
   lifetimeTimer: Phaser.Time.TimerEvent | null;
 }
 
@@ -44,6 +45,7 @@ class ProjectilePoolImpl {
     textureKey: string,
     owner: ProjectileOwner,
     damage: number,
+    knockbackStrength: number,
     lifetimeMs = 3000,
   ): void {
     const groups = this.ensureGroups(scene);
@@ -55,11 +57,30 @@ class ProjectilePoolImpl {
       sprite.setDepth(6);
       const group = owner === 'enemy' ? groups.enemy : groups.player;
       group.add(sprite);
-      slot = { sprite, active: false, owner, damage: 0, lifetimeTimer: null };
+      slot = {
+        sprite,
+        active: false,
+        owner,
+        damage: 0,
+        knockbackStrength: 0,
+        lifetimeTimer: null,
+      };
       pool.push(slot);
     }
 
-    this.activate(scene, slot, x, y, dx, dy, speed, textureKey, damage, lifetimeMs);
+    this.activate(
+      scene,
+      slot,
+      x,
+      y,
+      dx,
+      dy,
+      speed,
+      textureKey,
+      damage,
+      knockbackStrength,
+      lifetimeMs,
+    );
   }
 
   private getPool(scene: Phaser.Scene): PooledProjectile[] {
@@ -81,16 +102,20 @@ class ProjectilePoolImpl {
     speed: number,
     textureKey: string,
     damage: number,
+    knockbackStrength: number,
     lifetimeMs: number,
   ): void {
     slot.active = true;
     slot.damage = damage;
+    slot.knockbackStrength = knockbackStrength;
     slot.sprite.setTexture(textureKey);
     slot.sprite.setPosition(x, y);
-    slot.sprite.setActive(true).setVisible(true).setAlpha(1);
-    slot.sprite.setScale(1);
+    slot.sprite.clearTint().setOrigin(0.5).setActive(true).setVisible(true).setAlpha(1);
+    slot.sprite.setScale(1).setRotation(Math.atan2(dy, dx));
+    const body = slot.sprite.body as Phaser.Physics.Arcade.Body;
+    body.enable = true;
+    body.setSize(slot.sprite.width, slot.sprite.height, true);
     slot.sprite.setVelocity(dx * speed, dy * speed);
-    slot.sprite.setRotation(Math.atan2(dy, dx));
 
     if (slot.lifetimeTimer) slot.lifetimeTimer.remove();
     slot.lifetimeTimer = scene.time.delayedCall(lifetimeMs, () => {
@@ -101,10 +126,26 @@ class ProjectilePoolImpl {
   private deactivate(slot: PooledProjectile): void {
     slot.active = false;
     slot.sprite.setActive(false).setVisible(false).setVelocity(0, 0);
+    (slot.sprite.body as Phaser.Physics.Arcade.Body).enable = false;
     if (slot.lifetimeTimer) {
       slot.lifetimeTimer.remove();
       slot.lifetimeTimer = null;
     }
+  }
+
+  damageFor(sprite: Phaser.Physics.Arcade.Image): number {
+    return this.getPool(sprite.scene).find((slot) => slot.sprite === sprite)?.damage ?? 0;
+  }
+
+  knockbackFor(sprite: Phaser.Physics.Arcade.Image): number {
+    return this.getPool(sprite.scene).find(
+      (slot) => slot.sprite === sprite,
+    )?.knockbackStrength ?? 0;
+  }
+
+  recycle(sprite: Phaser.Physics.Arcade.Image): void {
+    const slot = this.getPool(sprite.scene).find((candidate) => candidate.sprite === sprite);
+    if (slot) this.deactivate(slot);
   }
 
   /** Get the enemy-projectile group for overlap setup. */

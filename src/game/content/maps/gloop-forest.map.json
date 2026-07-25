@@ -552,16 +552,6 @@
   "exits": [
     {
       "zone": {
-        "x": 0,
-        "y": 0,
-        "w": 32,
-        "h": 3456
-      },
-      "to": "meadow-crossing",
-      "entry": "east"
-    },
-    {
-      "zone": {
         "x": 3424,
         "y": 0,
         "w": 32,
@@ -569,33 +559,31 @@
       },
       "to": "crystal-caverns",
       "entry": "west"
+    },
+    {
+      "zone": {
+        "x": 0,
+        "y": 0,
+        "w": 32,
+        "h": 3456
+      },
+      "to": "meadow-crossing",
+      "entry": "east"
     }
   ],
   "spawns": {
     "enemies": [
       {
-        "type": "blob",
-        "weight": 25
+        "type": "worm-brawler",
+        "weight": 65
       },
       {
-        "type": "swarmer",
-        "weight": 25
-      },
-      {
-        "type": "spike",
+        "type": "worm-swordsman",
         "weight": 20
       },
       {
-        "type": "bouncer",
+        "type": "worm-archer",
         "weight": 15
-      },
-      {
-        "type": "caster",
-        "weight": 10
-      },
-      {
-        "type": "spider",
-        "weight": 5
       }
     ],
     "radius": {

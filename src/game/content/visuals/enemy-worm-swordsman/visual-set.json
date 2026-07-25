@@ -7,14 +7,17 @@
     "idle-side": { "runtimeKey": "enemy-worm-swordsman-idle-side", "frames": [8, 9, 10, 11], "frameRate": 5, "repeat": -1 },
     "walk-side": { "runtimeKey": "enemy-worm-swordsman-walk-side", "frames": [20, 21, 22, 23], "frameRate": 8, "repeat": -1 },
     "attack-side": { "runtimeKey": "enemy-worm-swordsman-attack-side", "frames": [30, 31, 32, 33], "frameRate": 9, "repeat": 0 },
+    "knockback-side": { "runtimeKey": "enemy-worm-swordsman-knockback-side", "frames": [8], "frameRate": 8, "repeat": 0 },
     "die-side": { "runtimeKey": "enemy-worm-swordsman-die-side", "frames": [34, 35, 36, 37], "frameRate": 7, "repeat": 0 },
     "idle-up": { "runtimeKey": "enemy-worm-swordsman-idle-up", "frames": [4, 5, 6, 7], "frameRate": 5, "repeat": -1 },
     "walk-up": { "runtimeKey": "enemy-worm-swordsman-walk-up", "frames": [16, 17, 18, 19], "frameRate": 8, "repeat": -1 },
     "attack-up": { "runtimeKey": "enemy-worm-swordsman-attack-up", "frames": [27, 28, 29], "frameRate": 9, "repeat": 0 },
+    "knockback-up": { "runtimeKey": "enemy-worm-swordsman-knockback-up", "frames": [4], "frameRate": 8, "repeat": 0 },
     "die-up": { "runtimeKey": "enemy-worm-swordsman-die-up", "frames": [34, 35, 36, 37], "frameRate": 7, "repeat": 0 },
     "idle-down": { "runtimeKey": "enemy-worm-swordsman-idle-down", "frames": [0, 1, 2, 3], "frameRate": 5, "repeat": -1 },
     "walk-down": { "runtimeKey": "enemy-worm-swordsman-walk-down", "frames": [12, 13, 14, 15], "frameRate": 8, "repeat": -1 },
     "attack-down": { "runtimeKey": "enemy-worm-swordsman-attack-down", "frames": [24, 25, 26], "frameRate": 9, "repeat": 0 },
+    "knockback-down": { "runtimeKey": "enemy-worm-swordsman-knockback-down", "frames": [0], "frameRate": 8, "repeat": 0 },
     "die-down": { "runtimeKey": "enemy-worm-swordsman-die-down", "frames": [34, 35, 36, 37], "frameRate": 7, "repeat": 0 }
   }
 }

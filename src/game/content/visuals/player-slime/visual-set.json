@@ -92,6 +92,12 @@
       "frameRate": 14,
       "repeat": 0
     },
+    "knockback": {
+      "runtimeKey": "slime-knockback",
+      "frames": [24],
+      "frameRate": 8,
+      "repeat": 0
+    },
     "die": {
       "runtimeKey": "slime-die",
       "frames": [26, 27, 28, 29, 30, 31, 31, 31],
