@@ -53,4 +53,4 @@
 
 ## Status
 
-There are no automated gameplay tests or CI yet. Every change must at minimum pass `pnpm build` and receive a browser smoke test when it affects scene startup or runtime wiring.
+There are no automated gameplay tests or CI yet.

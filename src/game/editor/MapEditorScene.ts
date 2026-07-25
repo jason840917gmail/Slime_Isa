@@ -159,6 +159,7 @@ export class MapEditorScene extends Phaser.Scene {
       scene: this,
       staticGroup: this.collisionGroup,
       physicsEnabled: false,
+      animatedVisualsEnabled: false,
     });
 
     this.cameras.main.setBounds(0, 0, this.loadedMap.dimensions.width, this.loadedMap.dimensions.height);
@@ -912,6 +913,7 @@ export class MapEditorScene extends Phaser.Scene {
       scene: this,
       staticGroup: this.collisionGroup,
       physicsEnabled: false,
+      animatedVisualsEnabled: false,
     });
 
     const terrainGrid: WorldTileId[][] = [];

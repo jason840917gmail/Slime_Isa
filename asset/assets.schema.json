@@ -88,7 +88,12 @@
         "w": { "type": "integer", "minimum": 1 },
         "h": { "type": "integer", "minimum": 1 },
         "cols": { "type": "integer", "minimum": 1 },
-        "rows": { "type": "integer", "minimum": 1 }
+        "rows": { "type": "integer", "minimum": 1 },
+        "count": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Populated contiguous frames from index zero; defaults to cols × rows."
+        }
       }
     },
     "sourceImage": {

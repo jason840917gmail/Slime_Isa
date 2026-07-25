@@ -5,6 +5,7 @@ import { isTileCollidable, type WorldTileId } from '../content/terrain/TileCatal
 import { hitboxPool } from '../combat/Hitbox';
 import { TargetDummy } from '../combat/TargetDummy';
 import type { WorldDimensions } from '../world/WorldDimensions';
+import type { AnimatedVisual } from '../features/visuals/AnimatedVisual';
 
 /**
  * AbilitySystem — owns jump + teleport (preview of Phase 2 ability framework).
@@ -52,6 +53,7 @@ export interface AbilitySystemContext {
   scene: Phaser.Scene;
   dimensions: WorldDimensions;
   getPlayer: () => Phaser.Physics.Arcade.Sprite;
+  getPlayerVisual: () => AnimatedVisual;
   isActionLocked: () => boolean;
   setActionLocked: (locked: boolean) => void;
   getFacing: () => Phaser.Math.Vector2;
@@ -106,6 +108,7 @@ export class AbilitySystem {
     }
 
     const player = this.ctx.getPlayer();
+    const visual = this.ctx.getPlayerVisual();
     const start = new Phaser.Math.Vector2(player.x, player.y);
     const target = this.raycast(start, dir, JUMP_DISTANCE);
 
@@ -130,16 +133,20 @@ export class AbilitySystem {
     const midX = (start.x + target.x) / 2;
     const midY = (start.y + target.y) / 2 - JUMP_ARC_HEIGHT;
 
-    const baseScale = 0.28;
-    player.setScale(baseScale);
+    visual.resetEffects();
 
     // Up: stretch tall + rise to midpoint.
     scene.tweens.add({
       targets: player,
       x: midX,
       y: midY,
-      scaleX: baseScale * 0.82,
-      scaleY: baseScale * 1.35,
+      duration: JUMP_DURATION_MS / 2,
+      ease: 'Quad.Out',
+    });
+    scene.tweens.add({
+      targets: visual.effects,
+      scaleX: 0.82,
+      scaleY: 1.35,
       duration: JUMP_DURATION_MS / 2,
       ease: 'Quad.Out',
     });
@@ -148,17 +155,15 @@ export class AbilitySystem {
       targets: player,
       x: target.x,
       y: target.y,
-      scaleX: baseScale * 1.18,
-      scaleY: baseScale * 0.7,
       duration: JUMP_DURATION_MS / 2,
       delay: JUMP_DURATION_MS / 2,
       ease: 'Quad.In',
       onComplete: () => {
         // Squash rebound.
         scene.tweens.add({
-          targets: player,
-          scaleX: baseScale,
-          scaleY: baseScale,
+          targets: visual.effects,
+          scaleX: 1,
+          scaleY: 1,
           duration: 120,
           ease: 'Back.Out',
         });
@@ -178,6 +183,14 @@ export class AbilitySystem {
         this.ctx.setActionLocked(false);
         this.ctx.playAnimation('slime-idle');
       },
+    });
+    scene.tweens.add({
+      targets: visual.effects,
+      scaleX: 1.18,
+      scaleY: 0.7,
+      duration: JUMP_DURATION_MS / 2,
+      delay: JUMP_DURATION_MS / 2,
+      ease: 'Quad.In',
     });
 
     // Shadow fades as we "rise" and returns at landing.
@@ -217,6 +230,7 @@ export class AbilitySystem {
     if (dir.lengthSq() === 0) dir.set(0, -1);
 
     const player = this.ctx.getPlayer();
+    const visual = this.ctx.getPlayerVisual();
     const start = new Phaser.Math.Vector2(player.x, player.y);
     const target = this.raycast(start, dir, TELEPORT_DISTANCE);
 
@@ -231,9 +245,10 @@ export class AbilitySystem {
     // Vanish.
     player.setVelocity(0, 0);
     scene.tweens.add({
-      targets: player,
+      targets: visual.effects,
       alpha: 0,
-      scale: 0.1,
+      scaleX: 0.36,
+      scaleY: 0.36,
       duration: 120,
       ease: 'Quad.In',
       onComplete: () => {
@@ -241,9 +256,10 @@ export class AbilitySystem {
         // Reappear.
         this.spawnFlash(target.x, target.y, 0xa3f0c0);
         scene.tweens.add({
-          targets: player,
+          targets: visual.effects,
           alpha: 1,
-          scale: 0.28,
+          scaleX: 1,
+          scaleY: 1,
           duration: 180,
           ease: 'Back.Out',
           onComplete: () => {
@@ -275,6 +291,7 @@ export class AbilitySystem {
     }
 
     const player = this.ctx.getPlayer();
+    const visual = this.ctx.getPlayerVisual();
     gameState.useEnergy(SLAM_ENERGY_COST);
 
     this.busy = true;
@@ -284,15 +301,15 @@ export class AbilitySystem {
 
     // Windup: rise slightly.
     scene.tweens.add({
-      targets: player,
-      scaleY: 0.38,
+      targets: visual.effects,
+      scaleY: 1.36,
       duration: 200,
       ease: 'Quad.Out',
       onComplete: () => {
         // Slam down: squash flat + shockwave.
         scene.tweens.add({
-          targets: player,
-          scaleY: 0.18,
+          targets: visual.effects,
+          scaleY: 0.64,
           duration: 120,
           ease: 'Quad.In',
           onComplete: () => {
@@ -335,8 +352,8 @@ export class AbilitySystem {
 
             // Rebound.
             scene.tweens.add({
-              targets: player,
-              scaleY: 0.28,
+              targets: visual.effects,
+              scaleY: 1,
               duration: 150,
               ease: 'Back.Out',
               onComplete: () => {
@@ -370,6 +387,7 @@ export class AbilitySystem {
     }
 
     const player = this.ctx.getPlayer();
+    const visual = this.ctx.getPlayerVisual();
     const facing = this.ctx.getFacing();
     const dir = facing.lengthSq() > 0 ? facing.clone().normalize() : new Phaser.Math.Vector2(1, 0);
 
@@ -388,8 +406,6 @@ export class AbilitySystem {
       targets: player,
       x: stretchX,
       y: stretchY,
-      scaleX: 0.42,
-      scaleY: 0.18,
       duration: 180,
       ease: 'Quad.Out',
       onComplete: () => {
@@ -439,8 +455,6 @@ export class AbilitySystem {
           targets: player,
           x: player.x - dir.x * LASH_RANGE * 0.3,
           y: player.y - dir.y * LASH_RANGE * 0.3,
-          scaleX: 0.28,
-          scaleY: 0.28,
           duration: 200,
           ease: 'Quad.In',
           onComplete: () => {
@@ -449,7 +463,21 @@ export class AbilitySystem {
             this.ctx.playAnimation('slime-idle');
           },
         });
+        scene.tweens.add({
+          targets: visual.effects,
+          scaleX: 1,
+          scaleY: 1,
+          duration: 200,
+          ease: 'Quad.In',
+        });
       },
+    });
+    scene.tweens.add({
+      targets: visual.effects,
+      scaleX: 1.5,
+      scaleY: 0.64,
+      duration: 180,
+      ease: 'Quad.Out',
     });
 
     this.cooldownUntil['stretch-lash'] = scene.time.now + LASH_COOLDOWN_MS;

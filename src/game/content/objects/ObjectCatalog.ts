@@ -1,4 +1,5 @@
 import type { AssetId } from '../../infrastructure/assets/manifest';
+import type { VisualSetId } from '../visuals/VisualCatalog';
 import amberOreMineableJson from './rocks/rock-amber-ore-mineable.json';
 import worldWallDecorativeJson from './rocks/rock-world-wall-decorative.json';
 import worldWallSolidJson from './rocks/rock-world-wall-solid.json';
@@ -25,6 +26,8 @@ export interface ObjectFrameVariant {
   readonly visualId: string;
   readonly displayName?: string;
   readonly frame: number;
+  readonly visualSetId?: VisualSetId;
+  readonly animationClip?: string;
   readonly visualOffset?: VisualOffset;
   readonly collider?: ColliderBounds;
 }
@@ -93,6 +96,8 @@ export interface ObjectVisualChoice {
   readonly displayName: string;
   readonly assetId: AssetId;
   readonly frame: number;
+  readonly visualSetId?: VisualSetId;
+  readonly animationClip?: string;
   readonly visualOffset: VisualOffset;
   readonly collider?: ColliderBounds;
   readonly physics: ObjectArchetypeDefinition['physics'];
@@ -121,6 +126,8 @@ function createObjectVisualChoice(
     displayName: override?.displayName ?? frame.displayName ?? frame.visualId,
     assetId,
     frame: frame.frame,
+    visualSetId: frame.visualSetId,
+    animationClip: frame.animationClip,
     visualOffset: override?.visualOffset ?? frame.visualOffset ?? { x: 0, y: 0 },
     collider: override?.collider ?? frame.collider,
     physics: object.physics,

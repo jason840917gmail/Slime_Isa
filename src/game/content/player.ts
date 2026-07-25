@@ -1,13 +1,13 @@
 export const PLAYER_CONFIG = {
   name: 'bob',
-  textureKey: 'slime',
-  scale: 0.28,
   depth: 10,
   body: {
-    width: 108,
-    height: 80,
-    offsetX: 74,
-    offsetY: 140,
+    // Stable world-unit geometry migrated from the former 0.28-scaled
+    // 108x80 body. Visual-set scale changes never affect this body.
+    width: 30.24,
+    height: 22.4,
+    centerOffsetX: 0,
+    centerOffsetY: 14.56,
   },
   movement: {
     baseSpeed: 230,

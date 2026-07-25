@@ -19,7 +19,7 @@ export type WeaponId = 'goo-gauntlet' | 'splat-spear' | 'bouncy-bow' | 'sticky-w
 export interface WeaponDef {
   id: WeaponId;
   name: string;
-  /** Animation key to play on attack (from slimeAnimations.ts). */
+  /** Runtime animation key to play on attack (from the player's visual set). */
   animKey: string;
   /** Base damage before stat scaling. */
   baseDamage: number;

@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 const objectRoot = join(repoRoot, 'src', 'game', 'content', 'objects');
+const visualRoot = join(repoRoot, 'src', 'game', 'content', 'visuals');
 const manifest = JSON.parse(readFileSync(join(repoRoot, 'asset', 'assets.json'), 'utf8'));
 const idPattern = /^[a-z0-9]+([.-][a-z0-9-]+)+$/;
 const errors = [];
@@ -22,6 +23,16 @@ function listObjectFiles(directory) {
     }
   }
   return files.sort();
+}
+
+function listVisualSetFiles(directory) {
+  const files = [];
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const path = join(directory, entry.name);
+    if (entry.isDirectory()) files.push(...listVisualSetFiles(path));
+    if (entry.isFile() && entry.name === 'visual-set.json') files.push(path);
+  }
+  return files;
 }
 
 function fail(file, objectId, field, message) {
@@ -75,6 +86,12 @@ function validateVisualOffset(file, objectId, field, offset) {
 }
 
 const objectFiles = listObjectFiles(objectRoot);
+const visualSets = new Map(
+  listVisualSetFiles(visualRoot).map((path) => {
+    const definition = JSON.parse(readFileSync(path, 'utf8'));
+    return [definition.visualSetId, definition];
+  }),
+);
 
 for (const absolutePath of objectFiles) {
   const file = relative(objectRoot, absolutePath).replaceAll('\\', '/');
@@ -160,7 +177,21 @@ for (const absolutePath of objectFiles) {
           fail(file, objectId, frameField, 'must be an object');
           continue;
         }
-        validateKeys(file, objectId, frameField, frameEntry, new Set(['visualId', 'frame', 'displayName', 'visualOffset', 'collider']));
+        validateKeys(
+          file,
+          objectId,
+          frameField,
+          frameEntry,
+          new Set([
+            'visualId',
+            'frame',
+            'displayName',
+            'visualOffset',
+            'visualSetId',
+            'animationClip',
+            'collider',
+          ]),
+        );
 
         if (typeof frameEntry.visualId !== 'string' || !/^[a-z0-9]+([.-][a-z0-9-]+)*$/.test(frameEntry.visualId)) {
           fail(file, objectId, `${frameField}.visualId`, 'must be a lowercase stable visual ID');
@@ -186,6 +217,44 @@ for (const absolutePath of objectFiles) {
         }
         if (frameEntry.visualOffset !== undefined) {
           validateVisualOffset(file, objectId, `${frameField}.visualOffset`, frameEntry.visualOffset);
+        }
+
+        const hasVisualSet = frameEntry.visualSetId !== undefined;
+        const hasAnimationClip = frameEntry.animationClip !== undefined;
+        if (hasVisualSet !== hasAnimationClip) {
+          fail(
+            file,
+            objectId,
+            frameField,
+            'visualSetId and animationClip must be declared together',
+          );
+        } else if (hasVisualSet) {
+          const visualSet = visualSets.get(frameEntry.visualSetId);
+          if (!visualSet) {
+            fail(
+              file,
+              objectId,
+              `${frameField}.visualSetId`,
+              `unknown visual set '${frameEntry.visualSetId}'`,
+            );
+          } else {
+            if (visualSet.assetId !== group.assetId) {
+              fail(
+                file,
+                objectId,
+                `${frameField}.visualSetId`,
+                `visual set asset '${visualSet.assetId}' does not match '${group.assetId}'`,
+              );
+            }
+            if (!visualSet.clips?.[frameEntry.animationClip]) {
+              fail(
+                file,
+                objectId,
+                `${frameField}.animationClip`,
+                `unknown clip '${frameEntry.animationClip}'`,
+              );
+            }
+          }
         }
 
         if (hasPhysics && frameEntry.collider === undefined) {

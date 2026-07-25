@@ -8,6 +8,8 @@ import {
   type VisualOffset,
 } from '../../content/objects/ObjectCatalog';
 import { getAsset } from '../../infrastructure/assets/manifest';
+import { getVisualClip, type VisualSetId } from '../../content/visuals/VisualCatalog';
+import { AnimatedVisual } from '../visuals/AnimatedVisual';
 
 export interface CreateObjectOptions {
   readonly x: number;
@@ -22,11 +24,14 @@ interface ObjectFactoryContext {
   readonly staticGroup: Phaser.Physics.Arcade.StaticGroup;
   readonly behaviorGroups?: Readonly<Record<string, Phaser.Physics.Arcade.StaticGroup>>;
   readonly physicsEnabled?: boolean;
+  readonly animatedVisualsEnabled?: boolean;
 }
 
 interface ResolvedVisual {
   readonly textureKey: string;
   readonly frame?: number;
+  readonly visualSetId?: VisualSetId;
+  readonly animationClip?: string;
   readonly origin: readonly [number, number];
   readonly visualOffset: VisualOffset;
   readonly collider?: ColliderBounds;
@@ -51,6 +56,8 @@ function resolveVisual(objectId: ObjectArchetypeId, visualId: string): ResolvedV
   return {
     textureKey: asset.runtime.textureKey,
     frame,
+    visualSetId: choice.visualSetId,
+    animationClip: choice.animationClip,
     origin: configuredOrigin
       ? [configuredOrigin[0], configuredOrigin[1]]
       : [0.5, 1],
@@ -77,6 +84,7 @@ export function setObjectAnchor(image: Phaser.GameObjects.Image, x: number, y: n
       body.updateFromGameObject();
     }
   }
+  (image.getData('animatedVisual') as AnimatedVisual | undefined)?.update();
 }
 
 /** Creates an object from immutable content data without coupling it to a scene class. */
@@ -118,6 +126,27 @@ export class ObjectFactory {
       );
     } else if (behaviorGroup) {
       (image as Phaser.Physics.Arcade.Image).refreshBody();
+    }
+
+    if (
+      visual.visualSetId
+      && visual.animationClip
+      && this.ctx.animatedVisualsEnabled !== false
+    ) {
+      const animatedVisual = new AnimatedVisual(
+        this.ctx.scene,
+        image,
+        visual.visualSetId,
+        {
+          depth: options.depth ?? 2,
+          initialFrame: visual.frame,
+        },
+      );
+      animatedVisual.play(
+        getVisualClip(visual.visualSetId, visual.animationClip).runtimeKey,
+      );
+      image.setData('animatedVisual', animatedVisual);
+      image.setVisible(false);
     }
 
     return image;

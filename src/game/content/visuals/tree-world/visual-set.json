@@ -1,0 +1,24 @@
+{
+  "$schema": "../visual-set.schema.json",
+  "visualSetId": "object.tree.world",
+  "assetId": "sheet.trees.8x6",
+  "defaults": {
+    "origin": [0.5, 1],
+    "scale": [1, 1],
+    "sourceOffset": [0, 0]
+  },
+  "frameVisuals": {
+    "24": {
+      "scale": [1, 1],
+      "sourceOffset": [0, 0]
+    }
+  },
+  "clips": {
+    "snow-pine-idle": {
+      "runtimeKey": "tree-snow-pine-idle",
+      "frames": [24],
+      "frameRate": 2,
+      "repeat": -1
+    }
+  }
+}

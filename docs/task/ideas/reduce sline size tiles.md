@@ -1,0 +1,1 @@
+reduce size from 256 to 64 , at the end we are scaling donw to 72, less espensive approach 

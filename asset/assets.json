@@ -33,7 +33,12 @@
       "terrain.cavern.floor",
       "terrain.cavern.crystal-floor",
       "terrain.cavern.crystal-wall",
-      "collectible.purple-berry"
+      "collectible.purple-berry",
+      "enemy.worm.archer",
+      "enemy.worm.swordsman",
+      "enemy.worm.brawler",
+      "enemy.projectile.worm-arrow",
+      "effect.enemy.worm-brawler-hit"
     ]
   },
   "assets": {
@@ -48,7 +53,7 @@
       "render": { "origin": [0.5, 0.5], "pixelArt": true },
       "tags": ["player", "animated"],
       "status": "ready",
-      "notes": "Named animation clips (slime-idle, slime-walk, ...) live in src/game/slimeAnimations.ts."
+      "notes": "Visual transforms and named clips live in src/game/content/visuals/player-slime/visual-set.json."
     },
     "sheet.grounds.19x19.highland-green": {
       "source": {
@@ -264,6 +269,65 @@
       "runtime": { "textureKey": "purple-berry" },
       "render": { "origin": [0.5, 0.5] },
       "tags": ["object", "collectible", "food"],
+      "status": "ready"
+    },
+    "enemy.worm.archer": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/enemies/64x64-8x6-worm-archer.png",
+        "frame": { "w": 64, "h": 64, "cols": 8, "rows": 6, "count": 36 },
+        "expect": { "w": 512, "h": 384 }
+      },
+      "runtime": { "textureKey": "enemy-worm-archer" },
+      "render": { "origin": [0.5, 0.5] },
+      "tags": ["enemy", "animated"],
+      "status": "ready"
+    },
+    "enemy.worm.swordsman": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/enemies/64x64-4x10-worm-swordsman.png",
+        "frame": { "w": 64, "h": 64, "cols": 4, "rows": 10, "count": 38 },
+        "expect": { "w": 256, "h": 640 }
+      },
+      "runtime": { "textureKey": "enemy-worm-swordsman" },
+      "render": { "origin": [0.5, 0.5] },
+      "tags": ["enemy", "animated"],
+      "status": "ready"
+    },
+    "enemy.worm.brawler": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/enemies/64x64-8x6-worm-brawler.png",
+        "frame": { "w": 64, "h": 64, "cols": 8, "rows": 6, "count": 43 },
+        "expect": { "w": 512, "h": 384 }
+      },
+      "runtime": { "textureKey": "enemy-worm-brawler" },
+      "render": { "origin": [0.5, 0.5] },
+      "tags": ["enemy", "animated"],
+      "status": "ready"
+    },
+    "enemy.projectile.worm-arrow": {
+      "source": {
+        "kind": "image",
+        "path": "MAPS/enemies/16x10-1x1-worm-arrow.png",
+        "expect": { "w": 16, "h": 10 }
+      },
+      "runtime": { "textureKey": "enemy-worm-arrow" },
+      "render": { "origin": [0.5, 0.5] },
+      "tags": ["enemy", "projectile"],
+      "status": "ready"
+    },
+    "effect.enemy.worm-brawler-hit": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/enemies/16x20-1x3-worm-brawler_hits.png",
+        "frame": { "w": 16, "h": 20, "cols": 1, "rows": 3, "count": 3 },
+        "expect": { "w": 16, "h": 60 }
+      },
+      "runtime": { "textureKey": "effect-enemy-worm-brawler-hit" },
+      "render": { "origin": [0.5, 0.5] },
+      "tags": ["enemy", "effect", "animated"],
       "status": "ready"
     },
     "sheet.walls.horizontal.8x1": {
