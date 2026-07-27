@@ -76,6 +76,8 @@ The following require separate follow-up designs:
 - polygon, circle, or skeletal collision shapes;
 - animation blending or state-machine graph editing;
 - per-frame movement-body resizing;
+- replacing current player weapon hitboxes or enemy attack timing/damage with
+  character tracks;
 - enemy spawn-area authoring; and
 - changing map files from Character Studio.
 
@@ -124,6 +126,21 @@ The visual catalog must discover validated `visual-set.json` files instead of
 maintaining a hand-written TypeScript import list. The character catalog must
 similarly discover validated `character.json` files. Character Studio must
 never rewrite TypeScript imports to register duplicated content.
+
+Discovery is provided by a Vite `characterContentModulesPlugin` virtual module,
+not by client-side filesystem assumptions. For normal builds and development,
+the plugin emits imports for:
+
+- `src/game/content/characters/**/character.json`;
+- `src/game/content/characters/**/visual-set.json`; and
+- `src/game/content/visuals/**/visual-set.json`.
+
+The plugin accepts server-owned character and non-character visual roots for
+tests. Both browser code and server authoring endpoints receive the same roots,
+so a fixture catalog and post-duplication reload see the same files. After a
+duplicate, the development plugin invalidates the virtual module and requests
+a full page reload. Production builds use only repository roots; clients
+cannot supply or alter them.
 
 The runtime may expose typed player and enemy adapters over the package catalog
 so existing controllers retain focused interfaces. Gameplay systems must not
@@ -211,11 +228,11 @@ Normative enemy example:
 | Field | Rule and editor metadata |
 | --- | --- |
 | `version` | Required integer `1`; hidden read-only field. |
-| `characterId` | Required unique kebab-case stable ID; read-only after creation. |
+| `characterId` | Required unique `^[a-z0-9]+(?:-[a-z0-9]+)*$` stable ID, 1–80 characters; read-only after creation. |
 | `displayName` | Required trimmed string, 1–80 characters; Identity section. |
 | `kind` | Required `player` or `enemy`; read-only after creation. |
 | `runtimeRole` | Optional; only `primary-player` is valid and only on `player`. |
-| `visualSetId` | Required unique known visual-set ID owned by the same package; read-only after creation. |
+| `visualSetId` | Required unique `^[a-z0-9]+(?:[.-][a-z0-9-]+)+$` ID, 3–120 characters, owned by the same package; read-only after creation. |
 | `body.width`, `body.height` | Finite numbers greater than zero, world units; Body section. |
 | `body.centerOffsetX`, `body.centerOffsetY` | Finite numbers, world units from the character anchor; Body section. |
 | `hitboxes` | Map of unique stable IDs to version-1 rectangle definitions. |
@@ -274,6 +291,43 @@ player:
 | `impactEffect.clipId` | Known clip in that visual set | Effects |
 | `impactEffect.distance` | Finite number `>= 0` | world units, Effects |
 
+The common required fields are `version`, `characterId`, `displayName`, `kind`,
+`visualSetId`, `body`, `hitboxes`, and `animationTracks`. `hitboxes` and
+`animationTracks` may be empty objects. `runtimeRole` is optional. Every object
+uses `additionalProperties: false`.
+
+The complete enemy `ai` required set is `aggroRange`, `attackRange`,
+`wanderSpeed`, `chaseSpeed`, `attackCooldownMs`, `attackWindupMs`,
+`attackRecoveryMs`, `contactDamage`, `knockbackStrength`, `isRanged`, and
+`knockbackResist`. `leapRange`, `fleeRange`, `projectileSpeed`, and `isLeaper`
+are optional subject to these cross-field rules:
+
+- `isRanged: true` requires `projectile` and `ai.projectileSpeed`;
+- `isRanged: false` forbids `projectile` and `ai.projectileSpeed`;
+- `isLeaper: true` requires `ai.leapRange`;
+- absent or false `isLeaper` forbids `ai.leapRange`; and
+- `impactEffect` is independent and optional for either melee or ranged
+  enemies.
+
+`drop` requires `xp` and `coins`; `items` is optional. `projectile`, when
+allowed, requires exactly `assetId` and `damage`. `impactEffect`, when present,
+requires exactly `visualSetId`, `clipId`, and `distance`.
+
+### Hitbox and animation-track shapes
+
+Hitbox IDs, clip IDs, and event IDs use
+`^[a-z0-9]+(?:[.-][a-z0-9-]+)*$` and are limited to 1–80 characters.
+
+A hitbox requires exactly `shape`, `width`, `height`, `offsetX`, `offsetY`, and
+`mirrorX`. Version 1 accepts only `shape: "rectangle"`;
+`width` and `height` are finite numbers greater than zero; offsets are finite
+numbers; and `mirrorX` is boolean.
+
+An animation-track value allows exactly optional `hitboxSpans` and `events`
+arrays; omitted arrays behave as empty. A hitbox span requires exactly
+`hitboxId`, integer `from >= 0`, and integer `through >= from`. An event
+requires exactly integer `at >= 0`, `eventId`, and optional JSON `payload`.
+
 JSON Schema supplies constraints and carries `x-editor` annotations for
 `section`, `label`, `unit`, `step`, and `help`. Runtime validation owns
 cross-field and catalog-reference rules that JSON Schema cannot express.
@@ -325,6 +379,25 @@ removes persisted Phaser runtime keys and exposes authoring concepts directly:
 }
 ```
 
+The visual set requires exactly `version`, `visualSetId`, `assetId`,
+`defaults`, optional `frameVisuals`, and `clips`, plus optional `$schema`.
+`visualSetId` uses the 3–120-character dotted-ID rule above. `assetId` uses the
+same syntax and must resolve through the manifest. `clips` requires at least
+one entry.
+
+`defaults` requires exactly `origin`, `scale`, and `sourceOffset`.
+`origin` is two finite numbers from `0` through `1`; `scale` is two finite
+numbers greater than zero; `sourceOffset` is two finite numbers.
+`frameVisuals` keys are non-negative decimal source-frame indices. Each frame
+override contains at least one of `origin`, `scale`, or `sourceOffset`, uses the
+same ranges, and rejects other fields.
+
+Every clip ID uses the 1–80-character stable-ID rule above. A clip requires
+exactly a non-empty `frames` array, `framesPerSecond`, and `loop`. Frames are
+non-negative integers within the manifest source-frame count;
+`framesPerSecond` is finite, greater than zero, and no more than 240; `loop` is
+boolean.
+
 The shared runtime-key helper returns the collision-proof opaque encoding
 `visual:<visualSetId.length>:<visualSetId>:<clipId>`. Callers never construct
 or persist this value themselves.
@@ -343,6 +416,12 @@ transform overrides are not part of the first version.
 
 Timeline and track positions are zero-based indices into a clip's ordered
 `frames` array. `from` and `through` are both inclusive.
+
+Spans are persisted sorted by `from`. Spans for the same hitbox may not overlap
+or be adjacent; direct editing merges overlapping or adjacent spans into one
+continuous activation before validation. Spans for different hitboxes may
+overlap. Events remain in persisted array order, and multiple events at one
+position dispatch in that order.
 
 Frame and clip commands update tracks deterministically:
 
@@ -404,6 +483,26 @@ choose collision targets, or select animations. Existing player weapon and
 enemy combat owners continue to calculate damage and knockback from their
 configured properties.
 
+### Version-1 combat coexistence
+
+Character tracks are authored, previewed, validated, and exposed through the
+opt-in runner/controller interfaces in version 1. They do not silently replace
+existing combat:
+
+- player weapon and ability sector hitboxes remain owned by their weapon or
+  ability definitions and are not copied into `character.json`;
+- enemy `attackWindupMs`, melee range checks, projectile timing, damage, and
+  impact effects retain their current production behavior; and
+- no current production controller opts into character-track hitboxes during
+  this feature.
+
+The studio still supports named character hitboxes so content can be prepared
+and the generic runtime interfaces can be tested. Connecting those tracks to
+player weapons, melee enemies, projectiles, parries, or damage is a separate
+combat-integration design that must explicitly choose which existing owner it
+replaces. This avoids duplicate damage paths and preserves current combat
+behavior throughout this specification.
+
 ## Runtime interfaces
 
 The content and runtime boundary exposes independently understandable units:
@@ -428,7 +527,11 @@ Defines the read interface needed by rendering and registration:
 `runtimeKey(visualSetId, clipId)`. `VisualCatalogResolver` reads saved content;
 `DraftVisualResolver` reads one validated editor projection. This injection
 allows the preview to use runtime composition without mutating the saved
-catalog.
+catalog. `DraftVisualResolver.runtimeKey()` delegates to
+`PreviewAnimationRegistrar.previewRuntimeKey(sessionId, previewRevision,
+visualSetId, clipId)`; the same registrar uses that exact helper when
+registering Phaser animations. Preview playback can therefore request only
+keys that the current preview revision registered.
 
 ### `AnimatedVisual`
 
@@ -463,6 +566,9 @@ Playback semantics are deterministic:
   is crossed;
 - a looping clip increments `loopIteration` and may dispatch the same markers
   once again in the new iteration;
+- crossing a loop boundary first deactivates all hitboxes from the previous
+  iteration, then enters position zero with fresh activation IDs, even when a
+  span ended at the previous last position and another begins at zero;
 - pause causes no transitions or dispatches; resume continues the same
   playback ID;
 - replacing, stopping, completing a non-looping clip, destroying the owner, or
@@ -473,6 +579,11 @@ Playback semantics are deterministic:
 - if elapsed time crosses more than four complete loops in one update, the
   runner processes hitbox end state but suppresses historical event replay and
   emits one diagnostic, preventing an unbounded catch-up burst.
+
+An activation ID is the stable tuple
+`(playbackId, loopIteration, clipId, hitboxId, spanIndex)`. Merged span order
+defines `spanIndex`. This ID resets hit-once bookkeeping at every new span and
+loop iteration.
 
 ### `CharacterHitboxController`
 
@@ -673,6 +784,30 @@ Duplicate request:
 The `{}` values above stand for the complete draft documents described by
 their schemas; partial patch payloads are not accepted.
 
+Success responses use `{ "ok": true, "data": { ... } }`. Failures use:
+
+```json
+{
+  "ok": false,
+  "error": {
+    "code": "validation",
+    "message": "Character package is invalid",
+    "issues": [
+      {
+        "path": "visualSet.clips.jump.frames[4]",
+        "message": "Frame 92 is outside 0..47"
+      }
+    ]
+  }
+}
+```
+
+Stable error codes are `invalid-request`, `not-found`, `validation`,
+`conflict`, `recovery`, and `unknown-commit`. Conflict responses include the
+current revision. `unknown-commit` means the connection failed after the
+directory transaction may have committed; the client reloads the package and
+compares returned content before offering retry.
+
 Loading returns both documents plus a SHA-256 revision hash calculated from
 their normalized saved contents. All reads and writes for one character ID run
 inside a development-server package mutex. The mutex covers revision checking,
@@ -683,45 +818,60 @@ Updating:
 
 1. resolves the server-owned package directory from the stable character ID;
 2. reloads both files and compares the revision hash;
-3. validates request shape and body-size limits;
-4. validates the character and visual set together;
-5. validates asset, clip, hitbox, projectile, effect, and drop
+3. requires submitted `character.characterId`, `character.kind`,
+   `character.visualSetId`, `character.runtimeRole`,
+   `visualSet.visualSetId`, and `visualSet.assetId` to equal the saved baseline;
+4. validates request shape and body-size limits;
+5. validates the character and visual set together;
+6. validates asset, clip, hitbox, projectile, effect, and drop
    references;
-6. writes a complete normalized package into a sibling temporary directory;
-7. renames the saved directory to a uniquely named backup directory;
-8. renames the complete temporary directory to the package's target name;
-9. restores the backup if the second rename fails;
-10. removes the backup after the new target validates from disk;
-11. returns the normalized package and new revision; and
-12. preserves the draft and reports exact field errors on failure.
+7. writes a complete normalized package into a sibling temporary directory;
+8. renames the saved directory to a uniquely named backup directory;
+9. renames the complete temporary directory to the package's target name;
+10. restores the backup if the second rename fails;
+11. removes the backup after the new target validates from disk;
+12. returns the normalized package and new revision; and
+13. preserves the draft and reports exact field errors on failure.
+
+Update therefore cannot rename a package, change its kind, switch its
+spritesheet, or grant/remove the primary-player role. Those identity operations
+remain outside version 1.
 
 An external-edit conflict must not overwrite disk. The UI offers reload or
 duplicate-draft recovery.
 
 At development-server startup and before each package operation, recovery
-checks sibling temporary and backup directories. A valid target wins and stale
-temporary/backup directories are removed. If the target is missing and one
-valid backup exists, the backup is restored. Multiple backups or an invalid
-backup stop authoring with a recovery error instead of guessing. This makes
-process interruption between directory renames recoverable.
+checks only transaction artifacts named
+`.character-studio-<encoded-character-id>-<transaction-uuid>.tmp` or `.bak`.
+A package operation examines artifacts matching its exact encoded character ID
+while holding that package's mutex; it never classifies another package's
+artifacts. Startup recovery parses each artifact's owner, acquires that owner's
+mutex, and recovers owners independently. A valid target wins and its stale
+artifacts are removed. If the target is missing and one valid backup exists,
+the backup is restored. Multiple backups or an invalid backup stop authoring
+for that package with a recovery error instead of guessing. This makes process
+interruption between directory renames recoverable without cross-package
+cleanup races.
 
 Duplicating:
 
 1. resolves the source by stable ID;
 2. receives the current validated client draft, not only the saved source;
-3. validates a new display name and kebab-case character ID;
-4. derives the visual-set ID server-side as
+3. requires the draft's source `characterId`, `kind`, `visualSetId`, and
+   `assetId` to match the saved source baseline;
+4. validates a new display name and kebab-case character ID;
+5. derives the visual-set ID server-side as
    `enemy.<dot-separated-character-id>` for enemies or
    `character.<dot-separated-character-id>` for players;
-5. refuses a character-directory, character-ID, or visual-set-ID collision;
-6. replaces the draft's package-owned IDs and removes `runtimeRole` from a
+6. refuses a character-directory, character-ID, or visual-set-ID collision;
+7. replaces the draft's package-owned IDs and removes `runtimeRole` from a
    duplicated player;
-7. preserves the spritesheet asset reference, frames, transforms, gameplay
+8. preserves the spritesheet asset reference, frames, transforms, gameplay
    properties, hitboxes, and tracks;
-8. validates the resulting package;
-9. creates the destination through a sibling temporary directory and one final
+9. validates the resulting package;
+10. creates the destination through a sibling temporary directory and one final
    rename while holding source and destination package locks; and
-10. returns `reloadRequired: true` and the new character ID.
+11. returns `reloadRequired: true` and the new character ID.
 
 Using the current draft allows duplication to preserve unsaved work and
 provides the conflict-recovery path. Duplication never modifies the source and
@@ -814,6 +964,10 @@ and the animated tree still renders before Character Studio editing begins.
 - content migration; and
 - behavior-preserving checks and smoke tests.
 
+Exit check: `characters:check`, migration fixtures, typecheck, build, and
+runtime parity smoke tests pass for the player, all worms, the brawler impact
+effect, and the animated tree.
+
 ### Slice 2: read-only studio
 
 - package GET endpoint and revision hashing;
@@ -825,6 +979,9 @@ and the animated tree still renders before Character Studio editing begins.
 - animation list and read-only timeline; and
 - real arbitrary-clip playback.
 
+Exit check: Playwright opens every package and every saved clip, while preview
+resolver tests prove draft keys cannot collide with saved keys.
+
 ### Slice 3: free-form animation editing
 
 - clip and timeline editing;
@@ -834,6 +991,10 @@ and the animated tree still renders before Character Studio editing begins.
 - package mutex, recoverable directory transaction, complete-package update,
   and draft-based duplication.
 
+Exit check: Node transaction/command suites and Playwright edit-save-reload,
+conflict, duplicate-draft, virtual-module invalidation, and page-reload cases
+pass against fixture roots.
+
 ### Slice 4: visual alignment
 
 - default and source-frame transform editing;
@@ -841,6 +1002,9 @@ and the animated tree still renders before Character Studio editing begins.
 - frame bounds and offset guides;
 - multi-frame copy/reset operations; and
 - transform persistence.
+
+Exit check: transform unit tests and browser drag/numeric/save/reload cases
+prove visual changes never alter the stable body.
 
 This is the first usable checkpoint: existing characters can be opened,
 duplicated, animated with arbitrary clip names, aligned, previewed, validated,
@@ -852,7 +1016,12 @@ and saved.
 - named rectangular hitboxes;
 - hitbox activation spans;
 - generic event markers; and
-- runtime track execution.
+- side-effect-free preview execution plus opt-in runtime track and hitbox
+  primitives; existing combat remains unchanged.
+
+Exit check: timeline mutation, loop/event ordering, activation-ID, hit-once,
+cleanup, mirroring, and preview-side-effect tests pass; current combat smoke
+tests remain unchanged.
 
 ### Slice 6: gameplay properties
 
@@ -861,12 +1030,19 @@ and saved.
   fields; and
 - units, ranges, descriptions, and reset controls.
 
+Exit check: every schema field round-trips through the inspector, cross-field
+errors render at exact paths, and player/enemy runtime adapter parity tests
+pass.
+
 ### Slice 7: integration and verification
 
 - conflict-recovery UI and interrupted-transaction recovery tests;
 - map-editor links;
 - documentation; and
 - end-to-end browser and runtime smoke tests.
+
+Exit check: `pnpm check`, `pnpm test:character-studio`, map-editor navigation,
+and final gameplay smoke tests pass with no production fixture writes.
 
 ## Verification
 
@@ -882,10 +1058,13 @@ The implementation adds:
   character-content root; and
 - `characters:check` and `test:characters` in `pnpm check`.
 
-The Playwright suite launches Vite with a server-only fixture-root option,
-copies package fixtures into a temporary writable directory, and never writes
-production character content. Browser tests remain an explicit command rather
-than part of every production build.
+The Playwright suite copies package fixtures into a temporary writable
+directory and launches Vite with test roots passed to
+`characterContentModulesPlugin`. The virtual client catalog and server
+endpoints therefore share the fixture roots through initial load, duplication,
+module invalidation, and full reload. Tests never write production character
+content. Browser tests remain an explicit command rather than part of every
+production build.
 
 Automated verification covers:
 
