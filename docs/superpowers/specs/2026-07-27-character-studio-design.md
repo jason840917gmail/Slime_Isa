@@ -147,9 +147,17 @@ the plugin emits imports for:
 The plugin accepts server-owned character and non-character visual roots for
 tests. Both browser code and server authoring endpoints receive the same roots,
 so a fixture catalog and post-duplication reload see the same files. After a
-duplicate, the development plugin invalidates the virtual module and requests
-a full page reload. Production builds use only repository roots; clients
-cannot supply or alter them.
+duplicate, the development plugin invalidates the virtual module without
+pushing an immediate websocket reload. The client receives the new character
+ID, changes the URL, and initiates navigation as described below. Production
+builds use only repository roots; clients cannot supply or alter them.
+
+Discovery accepts only non-hidden package directories and exact
+`character.json` / `visual-set.json` filenames. It excludes every path segment
+beginning `.character-studio-`, including transaction `.tmp` and `.bak`
+artifacts. Development startup runs transaction recovery before emitting the
+virtual module; production builds ignore artifacts and fail with a recovery
+instruction if an artifact owns the only valid copy of a package.
 
 The runtime may expose typed player and enemy adapters over the package catalog
 so existing controllers retain focused interfaces. Gameplay systems must not
@@ -358,7 +366,7 @@ removes persisted Phaser runtime keys and exposes authoring concepts directly:
 
 ```json
 {
-  "$schema": "../visual-set.schema.json",
+  "$schema": "../../visuals/visual-set.schema.json",
   "version": 1,
   "visualSetId": "enemy.worm.swordsman",
   "assetId": "enemy.worm.swordsman",
@@ -412,8 +420,10 @@ non-negative integers within the manifest source-frame count;
 boolean.
 
 The shared runtime-key helper returns the collision-proof opaque encoding
-`visual:<visualSetId.length>:<visualSetId>:<clipId>`. Callers never construct
-or persist this value themselves.
+`visual:<visualSetId.length>:<visualSetId>:<clipId>`. The length is an
+un-padded base-10 ASCII character count; the ID grammar is ASCII-only, so this
+also equals its UTF-8 byte length. Callers never construct or persist this
+value themselves.
 
 Clip IDs are stable programmatic references. Renaming a clip updates
 package-local animation-track references but cannot rewrite arbitrary
@@ -602,8 +612,12 @@ Playback semantics are deterministic:
   state but suppress callbacks and side effects unless a future explicit event
   preview feature is added; and
 - if elapsed time crosses more than four complete loops in one update, the
-  runner processes hitbox end state but suppresses historical event replay and
-  emits one diagnostic, preventing an unbounded catch-up burst.
+  runner computes the absolute target loop and position from clip-start
+  elapsed time, disables all prior hitboxes, sets `loopIteration` and position
+  directly to that target, activates every span containing the target position
+  in canonical order with target-iteration activation IDs, suppresses all
+  events in the skipped interval including the target position, and emits one
+  diagnostic. The next normal position transition resumes ordinary dispatch.
 
 An activation ID is the stable tuple
 `(playbackId, loopIteration, clipId, hitboxId, spanIndex)`. Merged span order
@@ -840,12 +854,15 @@ compares returned content before offering retry.
 Loading returns both documents plus a SHA-256 revision hash calculated from
 their normalized saved contents. Canonical serialization recursively sorts
 object keys, preserves array order, emits UTF-8 JSON without insignificant
-whitespace, and hashes a length-prefixed character-document byte sequence
-followed by a length-prefixed visual-document byte sequence. All reads and
-writes for one character ID run inside a development-server package mutex. The
-mutex covers revision checking, validation, directory replacement, and the
-final response; concurrent saves therefore cannot pass the same revision
-check.
+whitespace, preserves optional-field omission and `$schema`, and inserts no
+schema defaults. The hash input is an unsigned 64-bit big-endian byte length
+followed by the character-document UTF-8 bytes, then another unsigned 64-bit
+big-endian byte length followed by the visual-document UTF-8 bytes. Saved files
+use normalized values with two-space indentation and one trailing newline, but
+formatting does not affect the hash. All reads and writes for one character ID
+run inside a development-server package mutex. The mutex covers revision
+checking, validation, directory replacement, and the final response;
+concurrent saves therefore cannot pass the same revision check.
 
 Updating:
 
@@ -859,12 +876,24 @@ Updating:
 6. validates asset, clip, hitbox, projectile, effect, and drop
    references;
 7. writes a complete normalized package into a sibling temporary directory;
-8. renames the saved directory to a uniquely named backup directory;
-9. renames the complete temporary directory to the package's target name;
-10. restores the backup if the second rename fails;
-11. removes the backup after the new target validates from disk;
-12. returns the normalized package and new revision; and
-13. preserves the draft and reports exact field errors on failure.
+8. renames the saved directory to a uniquely named backup directory, which is
+   the commit linearization point for external path-based edits;
+9. recalculates the backup's canonical revision and compares it again with
+   `expectedRevision`; on mismatch it restores the backup only if the target
+   path is still absent, otherwise preserves all copies and returns `conflict`;
+10. attempts one atomic rename of the complete temporary directory to the
+    package's target name;
+11. if that rename fails because an external writer recreated the target, it
+    leaves that target untouched, preserves the temporary directory and backup,
+    and returns `conflict`; for another rename failure it restores the backup
+    when the target is absent and returns `recovery`;
+12. reloads the new target and requires both schema validity and a canonical
+    revision equal to the intended normalized package;
+13. if that verification fails, it preserves the target and backup and returns
+    `unknown-commit` rather than guessing which copy should win;
+14. removes the backup only after successful verification;
+15. returns the normalized package and new revision; and
+16. preserves the draft and reports exact field errors on failure.
 
 Update therefore cannot rename a package, change its kind, switch its
 spritesheet, or grant/remove the primary-player role. Those identity operations
@@ -925,8 +954,12 @@ Top-level `displayName` describes the package in the studio. Player
 fields are intentionally independent.
 
 Newly created files require a browser page reload so Vite's eager content
-discovery includes them. Character Studio reloads directly into the new
-character after a successful duplicate. A development-server restart is not
+discovery includes them. The server invalidates the virtual catalog and returns
+the new ID but does not force navigation. After receiving success, the client
+sets the destination to
+`?studio=characters&character=<encoded-new-character-id>` with
+`window.location.assign()`. The new page load imports the invalidated virtual
+catalog and opens that character. A development-server restart is not
 required.
 
 The endpoint does not modify map files or TypeScript source.
