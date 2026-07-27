@@ -87,6 +87,7 @@ Editable character content moves into self-contained packages:
 
 ```text
 src/game/content/characters/
+├── character.schema.json
 ├── player-slime/
 │   ├── character.json
 │   └── visual-set.json
@@ -121,6 +122,14 @@ src/game/content/characters/
 
 `asset/assets.json` remains the source of truth for media paths, texture keys,
 spritesheet frame dimensions, columns, rows, and frame count.
+
+The character schema lives at
+`src/game/content/characters/character.schema.json`. Package character files
+use `$schema: "../character.schema.json"`. The visual schema remains at
+`src/game/content/visuals/visual-set.schema.json`; character-package visual
+sets use `$schema: "../../visuals/visual-set.schema.json"`, while
+non-character sets under `content/visuals/<folder>/` use
+`$schema: "../visual-set.schema.json"`.
 
 The visual catalog must discover validated `visual-set.json` files instead of
 maintaining a hand-written TypeScript import list. The character catalog must
@@ -291,10 +300,14 @@ player:
 | `impactEffect.clipId` | Known clip in that visual set | Effects |
 | `impactEffect.distance` | Finite number `>= 0` | world units, Effects |
 
-The common required fields are `version`, `characterId`, `displayName`, `kind`,
+The root allows optional string `$schema` plus `version`, `characterId`,
+`displayName`, `kind`, `runtimeRole`, `visualSetId`, `body`, `hitboxes`,
+`animationTracks`, and the kind-specific `player` or `enemy` object. The common
+required fields are `version`, `characterId`, `displayName`, `kind`,
 `visualSetId`, `body`, `hitboxes`, and `animationTracks`. `hitboxes` and
-`animationTracks` may be empty objects. `runtimeRole` is optional. Every object
-uses `additionalProperties: false`.
+`animationTracks` may be empty objects. `runtimeRole` is optional. Every
+schema-owned object uses `additionalProperties: false`, except the explicitly
+free-form event `payload` value described below.
 
 The complete enemy `ai` required set is `aggroRange`, `attackRange`,
 `wanderSpeed`, `chaseSpeed`, `attackCooldownMs`, `attackWindupMs`,
@@ -417,11 +430,12 @@ transform overrides are not part of the first version.
 Timeline and track positions are zero-based indices into a clip's ordered
 `frames` array. `from` and `through` are both inclusive.
 
-Spans are persisted sorted by `from`. Spans for the same hitbox may not overlap
-or be adjacent; direct editing merges overlapping or adjacent spans into one
-continuous activation before validation. Spans for different hitboxes may
-overlap. Events remain in persisted array order, and multiple events at one
-position dispatch in that order.
+Spans are persisted in canonical `(from, through, hitboxId)` ascending order.
+Spans for the same hitbox may not overlap or be adjacent; direct editing merges
+overlapping or adjacent spans into one continuous activation before
+validation. Spans for different hitboxes may overlap. Events intentionally
+remain in persisted array order, and multiple events at one position dispatch
+in that order. Canonical JSON preserves array order.
 
 Frame and clip commands update tracks deterministically:
 
@@ -457,6 +471,11 @@ Events are deliberately as free-form as clip IDs. An event contains:
 complete serialized package remains subject to the editor request-size limit.
 There is no fixed event registry in version 1. Validation checks JSON shape and
 timeline bounds, not business meaning.
+
+`payload` is the sole `additionalProperties: false` exception: it accepts any
+recursive JSON value (`null`, boolean, finite number, string, array, or object
+with arbitrary string keys and JSON values). It cannot contain `undefined`,
+non-finite numbers, functions, binary values, or cyclic references.
 
 At runtime the track runner emits
 `{ characterId, clipId, playbackId, loopIteration, position, eventId, payload }`
@@ -547,7 +566,9 @@ uses a `PreviewAnimationRegistrar` with revision-scoped keys prefixed by a
 studio session ID and preview revision. Before registering a new preview
 revision, it stops playback and removes the previous revision's Phaser
 animations. Draft edits therefore cannot collide with saved runtime
-animations or retain stale frame sequences.
+animations or retain stale frame sequences. The registrar implements
+`dispose()`, which stops its active preview, removes every animation key owned
+by its studio session, and detaches registration listeners.
 
 ### `CharacterAnimationTrackRunner`
 
@@ -562,6 +583,10 @@ Playback semantics are deterministic:
   dispatches position-zero events once;
 - normal advancement processes every crossed timeline position in order, even
   when a low frame rate causes multiple positions to be crossed in one update;
+- entering a position first deactivates spans that are no longer active, then
+  activates spans beginning at that position in canonical span order, then
+  dispatches that position's events in persisted array order; event consumers
+  therefore observe the final active-hitbox state for that position;
 - an event dispatches once per playback ID and loop iteration when its position
   is crossed;
 - a looping clip increments `loopIteration` and may dispatch the same markers
@@ -687,6 +712,10 @@ toggleable overlays for:
 - current source-frame and timeline-position labels.
 
 Mirroring is a preview/runtime behavior and does not duplicate source clips.
+`CharacterPreviewScene` owns the draft resolver, preview registrar, track
+preview, geometry handles, and listeners through explicit disposables. Scene
+shutdown and destroy both call the idempotent disposal path, leaving no global
+Phaser animation keys or callbacks owned by the closed studio.
 
 ### Inspector
 
@@ -775,7 +804,7 @@ Duplicate request:
 {
   "sourceCharacterId": "worm-swordsman",
   "characterId": "worm-swordsman-ice",
-  "displayName": "Ice Worm Swordsman",
+  "newDisplayName": "Ice Worm Swordsman",
   "character": {},
   "visualSet": {}
 }
@@ -809,10 +838,14 @@ directory transaction may have committed; the client reloads the package and
 compares returned content before offering retry.
 
 Loading returns both documents plus a SHA-256 revision hash calculated from
-their normalized saved contents. All reads and writes for one character ID run
-inside a development-server package mutex. The mutex covers revision checking,
-validation, directory replacement, and the final response; concurrent saves
-therefore cannot pass the same revision check.
+their normalized saved contents. Canonical serialization recursively sorts
+object keys, preserves array order, emits UTF-8 JSON without insignificant
+whitespace, and hashes a length-prefixed character-document byte sequence
+followed by a length-prefixed visual-document byte sequence. All reads and
+writes for one character ID run inside a development-server package mutex. The
+mutex covers revision checking, validation, directory replacement, and the
+final response; concurrent saves therefore cannot pass the same revision
+check.
 
 Updating:
 
@@ -843,15 +876,23 @@ duplicate-draft recovery.
 At development-server startup and before each package operation, recovery
 checks only transaction artifacts named
 `.character-studio-<encoded-character-id>-<transaction-uuid>.tmp` or `.bak`.
+A temporary directory includes a server-written `transaction.json` containing
+the transaction UUID, operation kind (`update` or `duplicate`), source ID when
+applicable, target ID, and pre-transaction revision when applicable. This
+manifest is transaction metadata, not package content; successful commit or
+recovery removes it from the target before final package validation.
 A package operation examines artifacts matching its exact encoded character ID
 while holding that package's mutex; it never classifies another package's
 artifacts. Startup recovery parses each artifact's owner, acquires that owner's
 mutex, and recovers owners independently. A valid target wins and its stale
-artifacts are removed. If the target is missing and one valid backup exists,
-the backup is restored. Multiple backups or an invalid backup stop authoring
-for that package with a recovery error instead of guessing. This makes process
-interruption between directory renames recoverable without cross-package
-cleanup races.
+artifacts are removed. For an update, if the target is missing and one valid
+backup exists, the backup is restored. For a duplicate, if the target and
+backup are both absent and one complete valid temporary package exists,
+recovery finishes the duplicate by renaming that temporary directory to the
+target. Multiple candidates, an invalid artifact, or a manifest mismatch stop
+authoring for that package with a recovery error instead of guessing. This
+makes process interruption between directory renames recoverable without
+cross-package cleanup races.
 
 Duplicating:
 
@@ -859,7 +900,8 @@ Duplicating:
 2. receives the current validated client draft, not only the saved source;
 3. requires the draft's source `characterId`, `kind`, `visualSetId`, and
    `assetId` to match the saved source baseline;
-4. validates a new display name and kebab-case character ID;
+4. validates `newDisplayName` and the new kebab-case character ID, then
+   replaces `character.displayName` with `newDisplayName`;
 5. derives the visual-set ID server-side as
    `enemy.<dot-separated-character-id>` for enemies or
    `character.<dot-separated-character-id>` for players;
@@ -870,12 +912,17 @@ Duplicating:
    properties, hitboxes, and tracks;
 9. validates the resulting package;
 10. creates the destination through a sibling temporary directory and one final
-   rename while holding source and destination package locks; and
+   rename while holding source and destination package locks acquired in
+   lexicographic character-ID order; and
 11. returns `reloadRequired: true` and the new character ID.
 
 Using the current draft allows duplication to preserve unsaved work and
 provides the conflict-recovery path. Duplication never modifies the source and
 does not require the source revision to remain current.
+
+Top-level `displayName` describes the package in the studio. Player
+`player.name` remains the gameplay-facing name and is copied unchanged; the two
+fields are intentionally independent.
 
 Newly created files require a browser page reload so Vite's eager content
 discovery includes them. Character Studio reloads directly into the new
@@ -992,8 +1039,9 @@ resolver tests prove draft keys cannot collide with saved keys.
   and draft-based duplication.
 
 Exit check: Node transaction/command suites and Playwright edit-save-reload,
-conflict, duplicate-draft, virtual-module invalidation, and page-reload cases
-pass against fixture roots.
+conflict, duplicate-draft, interrupted-update recovery, interrupted-duplicate
+recovery, virtual-module invalidation, and page-reload cases pass against
+fixture roots.
 
 ### Slice 4: visual alignment
 
@@ -1036,7 +1084,7 @@ pass.
 
 ### Slice 7: integration and verification
 
-- conflict-recovery UI and interrupted-transaction recovery tests;
+- conflict, recovery, and unknown-commit UI polish;
 - map-editor links;
 - documentation; and
 - end-to-end browser and runtime smoke tests.
