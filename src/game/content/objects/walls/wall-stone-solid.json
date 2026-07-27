@@ -9,6 +9,12 @@
         {
           "visualId": "horizontal-01",
           "frame": 0,
+          "occlusionBounds": {
+            "width": 70,
+            "height": 70,
+            "offsetX": 0,
+            "offsetY": 0
+          },
           "collider": {
             "width": 59,
             "height": 58,
@@ -19,6 +25,12 @@
         {
           "visualId": "horizontal-02",
           "frame": 1,
+          "occlusionBounds": {
+            "width": 70,
+            "height": 70,
+            "offsetX": 0,
+            "offsetY": 0
+          },
           "collider": {
             "width": 70,
             "height": 58,
@@ -29,6 +41,12 @@
         {
           "visualId": "horizontal-03",
           "frame": 2,
+          "occlusionBounds": {
+            "width": 70,
+            "height": 70,
+            "offsetX": 0,
+            "offsetY": 0
+          },
           "collider": {
             "width": 70,
             "height": 58,
@@ -39,6 +57,12 @@
         {
           "visualId": "horizontal-04",
           "frame": 3,
+          "occlusionBounds": {
+            "width": 70,
+            "height": 70,
+            "offsetX": 0,
+            "offsetY": 0
+          },
           "collider": {
             "width": 70,
             "height": 58,
@@ -49,6 +73,12 @@
         {
           "visualId": "horizontal-05",
           "frame": 4,
+          "occlusionBounds": {
+            "width": 70,
+            "height": 70,
+            "offsetX": 0,
+            "offsetY": 0
+          },
           "collider": {
             "width": 70,
             "height": 58,
@@ -59,6 +89,12 @@
         {
           "visualId": "horizontal-06",
           "frame": 5,
+          "occlusionBounds": {
+            "width": 70,
+            "height": 70,
+            "offsetX": 0,
+            "offsetY": 0
+          },
           "collider": {
             "width": 70,
             "height": 58,
@@ -69,6 +105,12 @@
         {
           "visualId": "horizontal-07",
           "frame": 6,
+          "occlusionBounds": {
+            "width": 70,
+            "height": 70,
+            "offsetX": 0,
+            "offsetY": 0
+          },
           "collider": {
             "width": 70,
             "height": 59,
@@ -79,6 +121,12 @@
         {
           "visualId": "horizontal-08",
           "frame": 7,
+          "occlusionBounds": {
+            "width": 70,
+            "height": 70,
+            "offsetX": 0,
+            "offsetY": 0
+          },
           "collider": {
             "width": 58,
             "height": 59,
@@ -94,11 +142,17 @@
         {
           "visualId": "corner-01",
           "frame": 0,
+          "occlusionBounds": {
+            "width": 70,
+            "height": 70,
+            "offsetX": 0,
+            "offsetY": 0
+          },
           "collider": {
-            "width": 68,
-            "height": 68,
-            "offsetX": 2,
-            "offsetY": 2
+            "width": 47,
+            "height": 60,
+            "offsetX": 17,
+            "offsetY": 8
           },
           "displayName": "corner-01",
           "visualOffset": {
@@ -109,6 +163,12 @@
         {
           "visualId": "corner-02",
           "frame": 1,
+          "occlusionBounds": {
+            "width": 70,
+            "height": 70,
+            "offsetX": 0,
+            "offsetY": 0
+          },
           "collider": {
             "width": 68,
             "height": 68,
@@ -119,6 +179,12 @@
         {
           "visualId": "corner-03",
           "frame": 2,
+          "occlusionBounds": {
+            "width": 70,
+            "height": 70,
+            "offsetX": 0,
+            "offsetY": 0
+          },
           "collider": {
             "width": 68,
             "height": 67,
@@ -134,6 +200,12 @@
         {
           "visualId": "corner-04",
           "frame": 3,
+          "occlusionBounds": {
+            "width": 70,
+            "height": 70,
+            "offsetX": 0,
+            "offsetY": 0
+          },
           "collider": {
             "width": 67,
             "height": 67,
@@ -144,6 +216,12 @@
         {
           "visualId": "corner-05",
           "frame": 4,
+          "occlusionBounds": {
+            "width": 70,
+            "height": 70,
+            "offsetX": 0,
+            "offsetY": 0
+          },
           "collider": {
             "width": 67,
             "height": 67,
@@ -154,6 +232,12 @@
         {
           "visualId": "corner-06",
           "frame": 5,
+          "occlusionBounds": {
+            "width": 70,
+            "height": 70,
+            "offsetX": 0,
+            "offsetY": 0
+          },
           "collider": {
             "width": 66,
             "height": 68,
@@ -169,6 +253,12 @@
         {
           "visualId": "corner-07",
           "frame": 6,
+          "occlusionBounds": {
+            "width": 70,
+            "height": 70,
+            "offsetX": 0,
+            "offsetY": 0
+          },
           "collider": {
             "width": 66,
             "height": 66,
@@ -179,6 +269,12 @@
         {
           "visualId": "corner-08",
           "frame": 7,
+          "occlusionBounds": {
+            "width": 70,
+            "height": 70,
+            "offsetX": 0,
+            "offsetY": 0
+          },
           "collider": {
             "width": 66,
             "height": 67,
@@ -194,6 +290,12 @@
         {
           "visualId": "junction-01",
           "frame": 0,
+          "occlusionBounds": {
+            "width": 70,
+            "height": 70,
+            "offsetX": 0,
+            "offsetY": 0
+          },
           "collider": {
             "width": 70,
             "height": 70,
@@ -204,6 +306,12 @@
         {
           "visualId": "junction-02",
           "frame": 1,
+          "occlusionBounds": {
+            "width": 70,
+            "height": 70,
+            "offsetX": 0,
+            "offsetY": 0
+          },
           "collider": {
             "width": 70,
             "height": 70,
@@ -214,6 +322,12 @@
         {
           "visualId": "junction-03",
           "frame": 2,
+          "occlusionBounds": {
+            "width": 70,
+            "height": 70,
+            "offsetX": 0,
+            "offsetY": 0
+          },
           "collider": {
             "width": 70,
             "height": 70,
@@ -224,6 +338,12 @@
         {
           "visualId": "junction-04",
           "frame": 3,
+          "occlusionBounds": {
+            "width": 70,
+            "height": 70,
+            "offsetX": 0,
+            "offsetY": 0
+          },
           "collider": {
             "width": 70,
             "height": 70,
@@ -234,6 +354,12 @@
         {
           "visualId": "junction-05",
           "frame": 4,
+          "occlusionBounds": {
+            "width": 70,
+            "height": 70,
+            "offsetX": 0,
+            "offsetY": 0
+          },
           "collider": {
             "width": 70,
             "height": 68,
@@ -244,6 +370,12 @@
         {
           "visualId": "junction-06",
           "frame": 5,
+          "occlusionBounds": {
+            "width": 70,
+            "height": 70,
+            "offsetX": 0,
+            "offsetY": 0
+          },
           "collider": {
             "width": 66,
             "height": 70,
@@ -254,6 +386,12 @@
         {
           "visualId": "junction-07",
           "frame": 6,
+          "occlusionBounds": {
+            "width": 70,
+            "height": 70,
+            "offsetX": 0,
+            "offsetY": 0
+          },
           "collider": {
             "width": 67,
             "height": 70,
@@ -269,6 +407,12 @@
         {
           "visualId": "vertical-01",
           "frame": 0,
+          "occlusionBounds": {
+            "width": 70,
+            "height": 70,
+            "offsetX": 0,
+            "offsetY": 0
+          },
           "collider": {
             "width": 54,
             "height": 70,
@@ -279,6 +423,12 @@
         {
           "visualId": "vertical-02",
           "frame": 1,
+          "occlusionBounds": {
+            "width": 70,
+            "height": 70,
+            "offsetX": 0,
+            "offsetY": 0
+          },
           "collider": {
             "width": 54,
             "height": 70,
@@ -294,6 +444,12 @@
         {
           "visualId": "vertical-03",
           "frame": 2,
+          "occlusionBounds": {
+            "width": 70,
+            "height": 70,
+            "offsetX": 0,
+            "offsetY": 0
+          },
           "collider": {
             "width": 54,
             "height": 70,
@@ -304,6 +460,12 @@
         {
           "visualId": "vertical-04",
           "frame": 3,
+          "occlusionBounds": {
+            "width": 70,
+            "height": 70,
+            "offsetX": 0,
+            "offsetY": 0
+          },
           "collider": {
             "width": 54,
             "height": 70,
@@ -314,6 +476,12 @@
         {
           "visualId": "vertical-05",
           "frame": 4,
+          "occlusionBounds": {
+            "width": 70,
+            "height": 70,
+            "offsetX": 0,
+            "offsetY": 0
+          },
           "collider": {
             "width": 54,
             "height": 70,
@@ -324,6 +492,12 @@
         {
           "visualId": "vertical-06",
           "frame": 5,
+          "occlusionBounds": {
+            "width": 70,
+            "height": 70,
+            "offsetX": 0,
+            "offsetY": 0
+          },
           "collider": {
             "width": 54,
             "height": 70,
@@ -334,6 +508,12 @@
         {
           "visualId": "vertical-07",
           "frame": 6,
+          "occlusionBounds": {
+            "width": 70,
+            "height": 70,
+            "offsetX": 0,
+            "offsetY": 0
+          },
           "collider": {
             "width": 54,
             "height": 70,
@@ -344,6 +524,12 @@
         {
           "visualId": "vertical-08",
           "frame": 7,
+          "occlusionBounds": {
+            "width": 70,
+            "height": 70,
+            "offsetX": 0,
+            "offsetY": 0
+          },
           "collider": {
             "width": 54,
             "height": 51,

@@ -2873,6 +2873,13 @@
       "visualId": "barn-red",
       "x": 2464,
       "y": 1984
+    },
+    {
+      "instanceId": "tree-world-solid-f150a543",
+      "objectId": "tree.world.solid",
+      "visualId": "shadow-pine-01",
+      "x": 1120,
+      "y": 2304
     }
   ],
   "player": {

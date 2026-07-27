@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { floatingText } from '../ui/FloatingText';
+import { resolveBodyBottom, resolveWorldDepth } from '../presentation/WorldDepth';
 
 /**
  * Target dummy for combat practice. Has HP, takes damage, shows a
@@ -27,7 +28,6 @@ export class TargetDummy extends Phaser.Physics.Arcade.Sprite {
     this.spawnY = y;
     this.maxHp = 100;
     this.hp = 100;
-    this.setDepth(8);
     this.setScale(1.6);
     this.setCollideWorldBounds(true);
 
@@ -36,7 +36,8 @@ export class TargetDummy extends Phaser.Physics.Arcade.Sprite {
     body.setOffset(4, 0);
     body.setBounce(0.3);
 
-    this.healthBar = scene.add.graphics().setDepth(40);
+    this.syncDepth();
+    this.healthBar = scene.add.graphics().setDepth(this.healthBarDepth());
     this.drawHealthBar();
   }
 
@@ -84,6 +85,8 @@ export class TargetDummy extends Phaser.Physics.Arcade.Sprite {
 
   preUpdate(time: number, delta: number): void {
     super.preUpdate(time, delta);
+    this.syncDepth();
+    this.healthBar.setDepth(this.healthBarDepth());
 
     if (this.hitFlashUntil > 0 && time > this.hitFlashUntil) {
       this.clearTint();
@@ -103,6 +106,20 @@ export class TargetDummy extends Phaser.Physics.Arcade.Sprite {
     }
 
     this.drawHealthBar();
+  }
+
+  private syncDepth(): void {
+    const body = this.body as Phaser.Physics.Arcade.Body;
+    this.setDepth(resolveWorldDepth(resolveBodyBottom(body), {
+      stableId: `target-dummy:${this.spawnX}:${this.spawnY}`,
+    }).depth);
+  }
+
+  private healthBarDepth(): number {
+    return resolveWorldDepth(resolveBodyBottom(this.body as Phaser.Physics.Arcade.Body), {
+      stableId: `target-dummy:${this.spawnX}:${this.spawnY}`,
+      attachmentSlot: 7,
+    }).depth;
   }
 
   private drawHealthBar(): void {

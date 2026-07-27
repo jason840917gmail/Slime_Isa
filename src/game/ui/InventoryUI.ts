@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { gameEvents } from '../core/EventBus';
 import { playerInventory, itemRegistry } from '../systems/Inventory';
+import { resolveScreenUiDepth } from '../presentation/WorldDepth';
 
 const FONT = 'Aptos, Segoe UI Variable, sans-serif';
 const COLS = 6;
@@ -62,7 +63,7 @@ export class InventoryUI {
     const cam = scene.cameras.main;
     const panelW = 700;
     const panelH = 360;
-    const container = scene.add.container(cam.width / 2, cam.height / 2).setScrollFactor(0).setDepth(290);
+    const container = scene.add.container(cam.width / 2, cam.height / 2).setScrollFactor(0).setDepth(resolveScreenUiDepth(90));
     this.container = container;
     this.clickRegions = [];
 

@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { gameEvents } from '../core/EventBus';
 import { getQuestDef, type QuestState } from '../quests/Quest';
 import { questTracker } from '../quests/QuestTracker';
+import { resolveScreenUiDepth } from '../presentation/WorldDepth';
 
 const FONT = 'Aptos, Segoe UI Variable, sans-serif';
 
@@ -55,7 +56,7 @@ export class QuestJournal {
     const cam = scene.cameras.main;
     const panelW = 620;
     const panelH = 420;
-    const container = scene.add.container(cam.width / 2, cam.height / 2).setScrollFactor(0).setDepth(315);
+    const container = scene.add.container(cam.width / 2, cam.height / 2).setScrollFactor(0).setDepth(resolveScreenUiDepth(115));
     this.container = container;
 
     container.add(scene.add.rectangle(0, 0, cam.width, cam.height, 0x020906, 0.7).setOrigin(0.5));

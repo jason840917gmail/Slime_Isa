@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { Friend } from './Friend';
+import { resolveScreenUiDepth } from './presentation/WorldDepth';
 
 type ReplyGroup = {
   keywords: string[];
@@ -92,7 +93,7 @@ export class ChatUI {
 
     const cam = scene.cameras.main;
 
-    this.box = scene.add.graphics().setScrollFactor(0).setDepth(70).setVisible(false);
+    this.box = scene.add.graphics().setScrollFactor(0).setDepth(resolveScreenUiDepth(20)).setVisible(false);
 
     this.hintText = scene.add
       .text(16, cam.height - 30, 'Press  /  to chat', {
@@ -103,7 +104,7 @@ export class ChatUI {
         strokeThickness: 3,
       })
       .setScrollFactor(0)
-      .setDepth(71);
+      .setDepth(resolveScreenUiDepth(21));
 
     this.inputEl = document.createElement('input');
     this.inputEl.type = 'text';
@@ -231,7 +232,7 @@ export class ChatUI {
       stroke: '#0a1f15',
       strokeThickness: 3,
       wordWrap: { width: cam.width - 48 },
-    }).setScrollFactor(0).setDepth(71);
+    }).setScrollFactor(0).setDepth(resolveScreenUiDepth(21));
 
     this.logTexts.push(line);
     while (this.logTexts.length > this.maxLog) {

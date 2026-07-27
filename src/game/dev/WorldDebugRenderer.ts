@@ -3,6 +3,7 @@ import { hitboxPool, type HitboxConfig } from '../combat/Hitbox';
 import { devToolsState } from '../devTools';
 import type { House } from '../House';
 import type { WorldDimensions } from '../world/WorldDimensions';
+import { resolveExplicitDepth } from '../presentation/WorldDepth';
 
 type DebugGroup = Phaser.GameObjects.Group | Phaser.Physics.Arcade.Group | Phaser.Physics.Arcade.StaticGroup;
 
@@ -28,7 +29,9 @@ export class WorldDebugRenderer {
 
   update(): void {
     if (!import.meta.env.DEV) return;
-    const g = this.graphics ?? this.ctx.scene.add.graphics().setDepth(1000).setScrollFactor(1);
+    const g = this.graphics ?? this.ctx.scene.add.graphics()
+      .setDepth(resolveExplicitDepth('editor-template-overlay', 10))
+      .setScrollFactor(1);
     this.graphics = g;
     g.clear();
     if (!devToolsState.enabled) {

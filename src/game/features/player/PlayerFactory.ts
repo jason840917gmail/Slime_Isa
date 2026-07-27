@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { PLAYER_CONFIG } from '../../content/player';
 import { UI_THEME } from '../../presentation/theme';
 import { AnimatedVisual } from '../visuals/AnimatedVisual';
+import { resolveBodyBottom, resolveWorldDepth } from '../../presentation/WorldDepth';
 
 export interface PlayerEntity {
   sprite: Phaser.Physics.Arcade.Sprite;
@@ -16,7 +17,6 @@ export function createPlayerEntity(
   const sprite = scene.physics.add.sprite(spawnPoint.x, spawnPoint.y, '__WHITE');
   sprite.setVisible(false);
   sprite.setCollideWorldBounds(true);
-  sprite.setDepth(PLAYER_CONFIG.depth);
   const body = sprite.body as Phaser.Physics.Arcade.Body;
   body.setSize(PLAYER_CONFIG.body.width, PLAYER_CONFIG.body.height, false);
   body.setOffset(
@@ -24,8 +24,12 @@ export function createPlayerEntity(
     sprite.displayOriginY - PLAYER_CONFIG.body.height / 2 + PLAYER_CONFIG.body.centerOffsetY,
   );
 
+  const playerDepth = resolveWorldDepth(resolveBodyBottom(body), { stableId: 'player' }).depth;
+  sprite.setDepth(playerDepth);
+
   const visual = new AnimatedVisual(scene, sprite, 'character.player.slime', {
-    depth: PLAYER_CONFIG.depth,
+    depth: playerDepth,
+    getDepth: () => sprite.depth,
     initialFrame: 0,
   });
   visual.play('slime-idle');
@@ -36,7 +40,10 @@ export function createPlayerEntity(
     color: UI_THEME.colors.text,
     stroke: UI_THEME.colors.shadow,
     strokeThickness: 4,
-  }).setOrigin(0.5).setDepth(PLAYER_CONFIG.depth + 1);
+  }).setOrigin(0.5).setDepth(resolveWorldDepth(resolveBodyBottom(body), {
+    stableId: 'player',
+    attachmentSlot: 7,
+  }).depth);
 
   return { sprite, visual, nameTag };
 }

@@ -3,6 +3,7 @@ import { AREAS, type AreaId } from '../world/Area';
 import { BIOMES } from '../world/Biome';
 import { worldProgress } from '../features/progression/WorldProgress';
 import { UI_THEME } from '../presentation/theme';
+import { resolveScreenUiDepth } from '../presentation/WorldDepth';
 
 const FONT = UI_THEME.fontFamily;
 
@@ -48,7 +49,7 @@ export class WorldMapUI {
     worldProgress.discoverArea(currentArea);
     const discovered = worldProgress.discovered();
 
-    const container = scene.add.container(cam.width / 2, cam.height / 2).setScrollFactor(0).setDepth(310);
+    const container = scene.add.container(cam.width / 2, cam.height / 2).setScrollFactor(0).setDepth(resolveScreenUiDepth(110));
     this.container = container;
     container.add(scene.add.rectangle(0, 0, cam.width, cam.height, 0x020906, 0.72).setOrigin(0.5));
 

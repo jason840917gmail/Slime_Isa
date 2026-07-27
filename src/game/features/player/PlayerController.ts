@@ -6,6 +6,7 @@ import { floatingText } from '../../ui/FloatingText';
 import type { StatusEffectManager } from '../../systems/StatusEffects';
 import { getStats } from '../../systems/PlayerStats';
 import type { PlayerEntity } from './PlayerFactory';
+import { resolveBodyBottom, resolveWorldDepth } from '../../presentation/WorldDepth';
 
 export interface PlayerControllerContext {
   scene: Phaser.Scene;
@@ -35,7 +36,14 @@ export class PlayerController {
   updateVisuals(): void {
     const { sprite, visual, nameTag } = this.ctx.entity;
     visual.update();
-    nameTag.setPosition(sprite.x, sprite.y - 56);
+    const body = sprite.body as Phaser.Physics.Arcade.Body;
+    sprite.setDepth(resolveWorldDepth(resolveBodyBottom(body), { stableId: 'player' }).depth);
+    nameTag
+      .setPosition(sprite.x, sprite.y - 56)
+      .setDepth(resolveWorldDepth(resolveBodyBottom(body), {
+        stableId: 'player',
+        attachmentSlot: 7,
+      }).depth);
   }
 
   move(direction: Phaser.Math.Vector2): void {
@@ -105,7 +113,10 @@ export class PlayerController {
       alpha: { start: 0.4, end: 0 },
       quantity: 6,
       emitting: false,
-    }).setDepth(4);
+    }).setDepth(resolveWorldDepth(resolveBodyBottom(player.body as Phaser.Physics.Arcade.Body), {
+      stableId: 'player',
+      attachmentSlot: -4,
+    }).depth);
     dust.emitParticle(6);
     scene.time.delayedCall(300, () => dust.destroy());
     floatingText.spawn(scene, player.x, player.y - 30, 'DODGE', 'cyan');

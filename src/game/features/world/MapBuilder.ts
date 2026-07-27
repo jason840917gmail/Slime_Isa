@@ -12,7 +12,7 @@ import {
 } from '../../content/objects/ObjectCatalog';
 import { isWorldTileId, type WorldTileId } from '../../content/terrain/TileCatalog';
 import type { WorldDimensions } from '../../world/WorldDimensions';
-import { ObjectFactory } from '../objects/ObjectFactory';
+import { ObjectFactory, type ObjectOccluderRegistration } from '../objects/ObjectFactory';
 import {
   TerrainTransitionLayer,
   TerrainTransitionRenderer,
@@ -35,6 +35,7 @@ interface MapBuilderContext {
   readonly collisionTiles: Phaser.Physics.Arcade.StaticGroup;
   readonly seed: number;
   readonly behaviorGroups?: Readonly<Record<string, Phaser.Physics.Arcade.StaticGroup>>;
+  readonly registerOccluder?: (registration: ObjectOccluderRegistration) => { dispose(): void };
 }
 
 /** Builds validated authored-map data through the same tile/object factories as runtime content. */
@@ -54,6 +55,7 @@ export class MapBuilder {
       scene: ctx.scene,
       staticGroup: ctx.collisionTiles,
       behaviorGroups: ctx.behaviorGroups,
+      registerOccluder: ctx.registerOccluder,
     });
     ctx.scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.transitionLayer?.destroy());
   }
@@ -92,6 +94,7 @@ export class MapBuilder {
         x: object.x,
         y: object.y,
         visualId: object.visualId,
+        sortId: object.instanceId,
         initialState: object.initialState,
       });
     }

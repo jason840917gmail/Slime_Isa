@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { resolveWorldDepth } from '../presentation/WorldDepth';
 
 /**
  * Pooled transient hitbox. A physics zone that appears at a position, deals
@@ -56,6 +57,7 @@ interface PooledHitbox {
   handler: HitHandler | null;
   hitSet: Set<Phaser.GameObjects.GameObject>;
   removeTimer: Phaser.Time.TimerEvent | null;
+  sortId: string;
 }
 
 class HitboxPoolImpl {
@@ -90,7 +92,7 @@ class HitboxPoolImpl {
     scene.physics.add.existing(zone, true);
     zone.setVisible(false);
 
-    const vfx = scene.add.graphics().setDepth(45).setVisible(false);
+    const vfx = scene.add.graphics().setVisible(false);
 
     const slot: PooledHitbox = {
       zone,
@@ -100,6 +102,7 @@ class HitboxPoolImpl {
       handler: null,
       hitSet: new Set(),
       removeTimer: null,
+      sortId: `hitbox:${pool.length}`,
     };
     pool.push(slot);
     return slot;
@@ -116,6 +119,10 @@ class HitboxPoolImpl {
     slot.config = config;
     slot.handler = handler;
     slot.hitSet = config.hitSet ?? new Set();
+    slot.vfx.setDepth(resolveWorldDepth(config.y, {
+      stableId: slot.sortId,
+      attachmentSlot: 2,
+    }).depth);
 
     const body = slot.zone.body as Phaser.Physics.Arcade.StaticBody;
     body.setSize(config.width, config.height);

@@ -6,6 +6,7 @@ import { hitboxPool } from '../combat/Hitbox';
 import { TargetDummy } from '../combat/TargetDummy';
 import type { WorldDimensions } from '../world/WorldDimensions';
 import type { AnimatedVisual } from '../features/visuals/AnimatedVisual';
+import { resolveWorldDepth } from '../presentation/WorldDepth';
 
 /**
  * AbilitySystem — owns jump + teleport (preview of Phase 2 ability framework).
@@ -124,7 +125,7 @@ export class AbilitySystem {
 
     // Ground shadow stays at the start position.
     const shadow = scene.add.ellipse(start.x, start.y, 40, 16, 0x000000, 0.35)
-      .setDepth(3)
+      .setDepth(resolveWorldDepth(start.y, { stableId: 'player-jump-shadow', attachmentSlot: -6 }).depth)
       .setAlpha(0.35);
 
     // Freeze physics-driven movement; we drive position manually.
@@ -175,7 +176,11 @@ export class AbilitySystem {
           alpha: { start: 0.6, end: 0 },
           quantity: 8,
           emitting: false,
-        }).setDepth(4);
+        }).setDepth(resolveWorldDepth(target.y, {
+          band: 'reveal-effects',
+          stableId: 'player-jump-dust',
+          attachmentSlot: -5,
+        }).depth);
         dust.emitParticle(8);
         scene.time.delayedCall(400, () => dust.destroy());
 
@@ -314,7 +319,11 @@ export class AbilitySystem {
           ease: 'Quad.In',
           onComplete: () => {
             // Shockwave ring.
-            const ring = scene.add.circle(player.x, player.y, 10, 0x88ffaa, 0.5).setDepth(44);
+            const ring = scene.add.circle(player.x, player.y, 10, 0x88ffaa, 0.5).setDepth(resolveWorldDepth(player.y, {
+              band: 'reveal-effects',
+              stableId: 'player-squash-slam',
+              attachmentSlot: -2,
+            }).depth);
             scene.tweens.add({
               targets: ring,
               scale: SLAM_RADIUS / 10,
@@ -412,7 +421,11 @@ export class AbilitySystem {
         // Lash VFX: a line from player to the lash tip.
         const tipX = player.x + dir.x * LASH_RANGE * 0.5;
         const tipY = player.y + dir.y * LASH_RANGE * 0.5;
-        const lash = scene.add.graphics().setDepth(44);
+        const lash = scene.add.graphics().setDepth(resolveWorldDepth(player.y, {
+          band: 'reveal-effects',
+          stableId: 'player-stretch-lash',
+          attachmentSlot: -2,
+        }).depth);
         lash.lineStyle(4, 0xff9a3c, 0.8);
         lash.beginPath();
         lash.moveTo(player.x, player.y);
@@ -527,7 +540,11 @@ export class AbilitySystem {
 
   private spawnFlash(x: number, y: number, color: number): void {
     const scene = this.ctx.scene;
-    const flash = scene.add.circle(x, y, 10, color, 0.9).setDepth(60);
+    const flash = scene.add.circle(x, y, 10, color, 0.9).setDepth(resolveWorldDepth(y, {
+      band: 'reveal-effects',
+      stableId: `ability-flash:${color}`,
+      attachmentSlot: -1,
+    }).depth);
     scene.tweens.add({
       targets: flash,
       scale: 6,

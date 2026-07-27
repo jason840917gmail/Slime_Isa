@@ -10,12 +10,31 @@ import {
 import { getAsset } from '../../infrastructure/assets/manifest';
 import { getVisualClip, type VisualSetId } from '../../content/visuals/VisualCatalog';
 import { AnimatedVisual } from '../visuals/AnimatedVisual';
+import {
+  resolveExplicitDepth,
+  resolveWorldDepth,
+  type DepthMode,
+} from '../../presentation/WorldDepth';
+import type {
+  SourceFrameDimensions,
+  SourceOcclusionBounds,
+} from '../../presentation/WorldOcclusion';
+
+export interface ObjectOccluderRegistration {
+  readonly id: string;
+  readonly owner: Phaser.GameObjects.Image;
+  readonly sourceFrame: SourceFrameDimensions;
+  readonly bounds: SourceOcclusionBounds;
+  readonly getDepth: () => number;
+}
 
 export interface CreateObjectOptions {
   readonly x: number;
   readonly y: number;
   readonly visualId: string;
   readonly depth?: number;
+  readonly depthMode?: DepthMode;
+  readonly sortId?: string;
   readonly initialState?: Readonly<Record<string, unknown>>;
 }
 
@@ -25,6 +44,7 @@ interface ObjectFactoryContext {
   readonly behaviorGroups?: Readonly<Record<string, Phaser.Physics.Arcade.StaticGroup>>;
   readonly physicsEnabled?: boolean;
   readonly animatedVisualsEnabled?: boolean;
+  readonly registerOccluder?: (registration: ObjectOccluderRegistration) => { dispose(): void };
 }
 
 interface ResolvedVisual {
@@ -35,6 +55,8 @@ interface ResolvedVisual {
   readonly origin: readonly [number, number];
   readonly visualOffset: VisualOffset;
   readonly collider?: ColliderBounds;
+  readonly occlusionBounds?: SourceOcclusionBounds;
+  readonly sourceFrame?: SourceFrameDimensions;
 }
 
 function resolveVisual(objectId: ObjectArchetypeId, visualId: string): ResolvedVisual {
@@ -63,6 +85,10 @@ function resolveVisual(objectId: ObjectArchetypeId, visualId: string): ResolvedV
       : [0.5, 1],
     visualOffset: choice.visualOffset,
     collider: choice.collider,
+    occlusionBounds: choice.occlusionBounds,
+    sourceFrame: 'frame' in asset.source
+      ? { width: asset.source.frame.w, height: asset.source.frame.h }
+      : undefined,
   };
 }
 
@@ -78,6 +104,11 @@ export function setObjectAnchor(image: Phaser.GameObjects.Image, x: number, y: n
   image.setPosition(x + (visualOffset?.x ?? 0), y + (visualOffset?.y ?? 0));
   image.setData('objectAnchorX', x);
   image.setData('objectAnchorY', y);
+  if (image.getData('depthMode') !== 'explicit') {
+    image.setDepth(resolveWorldDepth(y, {
+      stableId: String(image.getData('sortId') ?? image.getData('objectId') ?? 'object'),
+    }).depth);
+  }
   const body = image.body as Phaser.Physics.Arcade.StaticBody | Phaser.Physics.Arcade.Body | null;
   if (body) {
     if ('updateFromGameObject' in body && typeof body.updateFromGameObject === 'function') {
@@ -85,6 +116,20 @@ export function setObjectAnchor(image: Phaser.GameObjects.Image, x: number, y: n
     }
   }
   (image.getData('animatedVisual') as AnimatedVisual | undefined)?.update();
+}
+
+export function setObjectDepthMode(
+  image: Phaser.GameObjects.Image,
+  mode: DepthMode,
+  explicitDepth?: number,
+): void {
+  image.setData('depthMode', mode);
+  if (mode === 'explicit') {
+    image.setDepth(explicitDepth ?? resolveExplicitDepth('editor-drag-lift'));
+    return;
+  }
+  const [x, y] = getObjectAnchor(image);
+  setObjectAnchor(image, x, y);
 }
 
 /** Creates an object from immutable content data without coupling it to a scene class. */
@@ -105,9 +150,13 @@ export class ObjectFactory {
 
     image.setOrigin(visual.origin[0], visual.origin[1]);
     image.setData('visualOffset', visual.visualOffset);
-    setObjectAnchor(image, options.x, options.y);
-    image.setDepth(options.depth ?? 2);
     image.setData('objectId', objectId);
+    image.setData('sortId', options.sortId ?? `${objectId}:${options.x}:${options.y}`);
+    image.setData('depthMode', options.depthMode ?? 'world-sorted');
+    setObjectAnchor(image, options.x, options.y);
+    if (options.depthMode === 'explicit') {
+      image.setDepth(options.depth ?? image.depth);
+    }
     for (const [key, value] of Object.entries(options.initialState ?? {})) {
       image.setData(key, value);
     }
@@ -138,7 +187,8 @@ export class ObjectFactory {
         image,
         visual.visualSetId,
         {
-          depth: options.depth ?? 2,
+          depth: image.depth,
+          getDepth: () => image.depth,
           initialFrame: visual.frame,
         },
       );
@@ -147,6 +197,17 @@ export class ObjectFactory {
       );
       image.setData('animatedVisual', animatedVisual);
       image.setVisible(false);
+    }
+
+    if (visual.occlusionBounds && visual.sourceFrame && this.ctx.registerOccluder) {
+      const registration = this.ctx.registerOccluder({
+        id: String(image.getData('sortId')),
+        owner: image,
+        sourceFrame: visual.sourceFrame,
+        bounds: visual.occlusionBounds,
+        getDepth: () => image.depth,
+      });
+      image.setData('occlusionRegistration', registration);
     }
 
     return image;

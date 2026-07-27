@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { resolveScreenUiDepth } from './presentation/WorldDepth';
 
 export interface ShopCallbacks {
   onBuyBoost: () => void;
@@ -32,7 +33,7 @@ export class ShopUI {
           fontSize: '18px',
           color: '#ccebd0',
         })
-        .setDepth(60),
+        .setDepth(resolveScreenUiDepth(40)),
     );
 
     const boostBtn = scene.add
@@ -69,7 +70,7 @@ export class ShopUI {
     this.container.add(closeBtn);
 
     this.container.setScrollFactor(0);
-    this.container.setDepth(60);
+    this.container.setDepth(resolveScreenUiDepth(40));
     this.container.setVisible(false);
   }
 

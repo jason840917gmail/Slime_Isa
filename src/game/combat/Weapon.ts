@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { getStats } from '../systems/PlayerStats';
 import { hitboxPool, type HitHandler } from './Hitbox';
+import { resolveBodyBottom, resolveWorldDepth } from '../presentation/WorldDepth';
 
 const SWING_VISUAL_PADDING = 8;
 
@@ -169,7 +170,10 @@ export class Weapon {
     const arcWidth = stats.weaponArcRad;
 
     // Crescent slash trail centered on the player, oriented to the attack dir.
-    const swing = scene.add.graphics().setDepth(44);
+    const swing = scene.add.graphics().setDepth(resolveWorldDepth(resolveBodyBottom(player.body as Phaser.Physics.Arcade.Body), {
+      stableId: 'player-swing',
+      attachmentSlot: 2,
+    }).depth);
     swing.fillStyle(color, 0.45);
     swing.beginPath();
     swing.arc(px, py, outerR, angle - arcWidth / 2, angle + arcWidth / 2, false);

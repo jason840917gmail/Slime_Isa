@@ -3,6 +3,7 @@ import { gameEvents } from '../core/EventBus';
 import { gameState } from '../core/GameState';
 import { rollPerkChoices, getPerkDef } from '../systems/PlayerStats';
 import type { PerkChoice } from '../core/types';
+import { resolveScreenUiDepth } from '../presentation/WorldDepth';
 
 /**
  * Level-up modal. On the `level.up` event, rolls 3 perks and presents them
@@ -49,7 +50,7 @@ export class LevelUpModal {
     const cx = cam.width / 2;
     const cy = cam.height / 2;
 
-    const container = scene.add.container(cx, cy).setScrollFactor(0).setDepth(300);
+    const container = scene.add.container(cx, cy).setScrollFactor(0).setDepth(resolveScreenUiDepth(100));
     this.container = container;
 
     const dim = scene.add.rectangle(0, 0, cam.width, cam.height, 0x000000, 0.55).setOrigin(0.5);

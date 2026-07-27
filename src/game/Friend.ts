@@ -1,7 +1,11 @@
 import Phaser from 'phaser';
 import { House } from './House';
+import { resolveBodyBottom, resolveWorldDepth } from './presentation/WorldDepth';
+
+let friendIdCounter = 0;
 
 export class Friend extends Phaser.Physics.Arcade.Sprite {
+  readonly friendId = ++friendIdCounter;
   public home?: House;
   public hp = 40;
   public maxHp = 40;
@@ -28,7 +32,9 @@ export class Friend extends Phaser.Physics.Arcade.Sprite {
     body.setCollideWorldBounds(true);
     body.setSize(28, 28);
 
-    this.setDepth(9);
+    this.setDepth(resolveWorldDepth(resolveBodyBottom(body), {
+      stableId: `friend:${this.friendId}`,
+    }).depth);
     this.setScale(1);
 
     this.pickNewTarget();
@@ -51,6 +57,10 @@ export class Friend extends Phaser.Physics.Arcade.Sprite {
 
   preUpdate(time: number, delta: number): void {
     super.preUpdate(time, delta);
+    const body = this.body as Phaser.Physics.Arcade.Body;
+    this.setDepth(resolveWorldDepth(resolveBodyBottom(body), {
+      stableId: `friend:${this.friendId}`,
+    }).depth);
 
     if (time >= this.nextFaceChangeAt) {
       this.applyRandomFace();
@@ -79,7 +89,10 @@ export class Friend extends Phaser.Physics.Arcade.Sprite {
     if (this.earsImage) {
       this.earsImage.setPosition(this.x, this.y - Math.max(8, this.displayHeight * 0.28));
       this.earsImage.setTint(this.tintTopLeft ?? this.tint);
-      this.earsImage.setDepth(this.depth + 1);
+      this.earsImage.setDepth(resolveWorldDepth(resolveBodyBottom(body), {
+        stableId: `friend:${this.friendId}`,
+        attachmentSlot: 1,
+      }).depth);
     }
 
     const dx = this.wanderTarget.x - this.x;
@@ -101,7 +114,10 @@ export class Friend extends Phaser.Physics.Arcade.Sprite {
     if (this.earsImage) {
       this.earsImage.setTexture(key);
     } else {
-      this.earsImage = this.scene.add.image(this.x, this.y - 8, key).setOrigin(0.5, 0.5).setDepth(this.depth + 1);
+      this.earsImage = this.scene.add.image(this.x, this.y - 8, key).setOrigin(0.5, 0.5).setDepth(resolveWorldDepth(resolveBodyBottom(this.body as Phaser.Physics.Arcade.Body), {
+        stableId: `friend:${this.friendId}`,
+        attachmentSlot: 1,
+      }).depth);
     }
 
     // match current tint
