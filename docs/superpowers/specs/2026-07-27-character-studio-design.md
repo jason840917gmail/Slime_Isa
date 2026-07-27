@@ -133,9 +133,11 @@ depend on editor document types.
 
 Character definitions use a discriminated `kind` field. Shared fields are
 validated identically, while player and enemy properties retain distinct
-owners and constraints.
+owners and constraints. The fields in this section are the complete editable
+version-1 property surface. Adding another gameplay property requires a
+schema, runtime-adapter, validator, and inspector-metadata change.
 
-Illustrative shape:
+Normative enemy example:
 
 ```json
 {
@@ -173,26 +175,27 @@ Illustrative shape:
       "events": [
         {
           "at": 2,
-          "event": "play-sound",
-          "value": "sword-whoosh"
+          "eventId": "attack-impact",
+          "payload": {
+            "strength": 1
+          }
         }
       ]
     }
   },
   "enemy": {
     "maxHp": 90,
-    "movement": {
-      "wanderSpeed": 28,
-      "chaseSpeed": 75
-    },
-    "combat": {
+    "ai": {
       "aggroRange": 220,
       "attackRange": 38,
+      "wanderSpeed": 28,
+      "chaseSpeed": 75,
       "attackCooldownMs": 1500,
       "attackWindupMs": 400,
       "attackRecoveryMs": 400,
       "contactDamage": 37,
       "knockbackStrength": 260,
+      "isRanged": false,
       "knockbackResist": 0.45
     },
     "drop": {
@@ -203,25 +206,93 @@ Illustrative shape:
 }
 ```
 
-The final schema should preserve the existing runtime concepts instead of
-inventing a generic property bag. The property inspector is schema-backed and
-uses explicit labels, descriptions, units, ranges, and validation. Complex AI
-graphs are not inferred from the current numeric AI configuration.
+### Common fields
 
-Player duplication does not replace the active primary player. A duplicated
-player package is independently addressable content but has no primary runtime
-role until programmatic configuration selects it. Duplicated enemies become
-complete catalog entries and therefore become available to map spawn rules.
+| Field | Rule and editor metadata |
+| --- | --- |
+| `version` | Required integer `1`; hidden read-only field. |
+| `characterId` | Required unique kebab-case stable ID; read-only after creation. |
+| `displayName` | Required trimmed string, 1–80 characters; Identity section. |
+| `kind` | Required `player` or `enemy`; read-only after creation. |
+| `runtimeRole` | Optional; only `primary-player` is valid and only on `player`. |
+| `visualSetId` | Required unique known visual-set ID owned by the same package; read-only after creation. |
+| `body.width`, `body.height` | Finite numbers greater than zero, world units; Body section. |
+| `body.centerOffsetX`, `body.centerOffsetY` | Finite numbers, world units from the character anchor; Body section. |
+| `hitboxes` | Map of unique stable IDs to version-1 rectangle definitions. |
+| `animationTracks` | Map keyed by a known clip ID in the package visual set. |
 
-## Visual-set schema version 2
+Exactly one saved player package has `runtimeRole: "primary-player"`.
+Duplicating that package removes `runtimeRole`; duplication never changes the
+active player. The Character Library lists every player package and marks the
+primary one, so a non-primary duplicate remains reopenable. Changing the
+primary player is not part of version 1 and remains a programmatic content
+operation.
 
-The authored clip format removes persisted Phaser runtime keys and exposes the
-authoring concepts directly:
+### Player fields
+
+The `player` object is required when `kind` is `player` and forbidden for an
+enemy. It contains the exact editable values currently owned by
+`PLAYER_CONFIG`:
+
+| Field | Rule | Unit / inspector section |
+| --- | --- | --- |
+| `name` | Non-empty string, at most 80 characters | Identity |
+| `movement.baseSpeed` | Finite number `>= 0` | world units/second, Movement |
+| `movement.boostSpeed` | Finite number `>= 0` | world units/second, Movement |
+| `movement.dodgeSpeed` | Finite number `>= 0` | world units/second, Movement |
+| `movement.dodgeInvulnerabilityMs` | Integer `>= 0` | milliseconds, Movement |
+| `progression.baseMaxHp` | Finite number `> 0` | points, Progression |
+| `progression.baseMaxEnergy` | Finite number `> 0` | points, Progression |
+| `progression.hpPerLevel` | Finite number `>= 0` | points/level, Progression |
+| `progression.attackPerLevel` | Finite number `>= 0` | points/level, Progression |
+| `progression.defensePerLevel` | Finite number `>= 0` | points/level, Progression |
+| `progression.energyPerLevel` | Finite number `>= 0` | points/level, Progression |
+
+### Enemy fields
+
+The `enemy` object is required when `kind` is `enemy` and forbidden for a
+player:
+
+| Field | Rule | Unit / inspector section |
+| --- | --- | --- |
+| `maxHp` | Finite number `> 0` | points, Combat |
+| `ai.aggroRange`, `ai.attackRange` | Finite number `>= 0` | world units, AI |
+| `ai.leapRange`, `ai.fleeRange` | Optional finite number `>= 0` | world units, AI |
+| `ai.wanderSpeed`, `ai.chaseSpeed` | Finite number `>= 0` | world units/second, Movement |
+| `ai.attackCooldownMs`, `ai.attackWindupMs`, `ai.attackRecoveryMs` | Integer `>= 0` | milliseconds, Combat |
+| `ai.contactDamage`, `ai.knockbackStrength` | Finite number `>= 0` | points / world units per second, Combat |
+| `ai.isRanged`, `ai.isLeaper` | Required boolean / optional boolean | AI |
+| `ai.projectileSpeed` | Required finite number `> 0` when ranged; otherwise optional | world units/second, Combat |
+| `ai.knockbackResist` | Finite number from `0` through `1` | ratio, Combat |
+| `drop.xp`, `drop.coins` | Integer `>= 0` | rewards, Drop |
+| `drop.items[*].itemId` | Known item-catalog ID | Drop |
+| `drop.items[*].chance` | Finite number from `0` through `1` | probability, Drop |
+| `drop.items[*].count` | Optional integer `>= 1` | quantity, Drop |
+| `projectile.assetId` | Optional known manifest projectile asset ID; required when ranged | Projectile |
+| `projectile.damage` | Finite number `>= 0` | points, Projectile |
+| `impactEffect.visualSetId` | Optional known non-character visual-set ID | Effects |
+| `impactEffect.clipId` | Known clip in that visual set | Effects |
+| `impactEffect.distance` | Finite number `>= 0` | world units, Effects |
+
+JSON Schema supplies constraints and carries `x-editor` annotations for
+`section`, `label`, `unit`, `step`, and `help`. Runtime validation owns
+cross-field and catalog-reference rules that JSON Schema cannot express.
+Character Studio uses these annotations for fields but retains purpose-built
+body, hitbox, item-drop, projectile, and effect controls instead of rendering
+an arbitrary recursive JSON form.
+
+Duplicated enemies become complete catalog entries and therefore become
+available to map spawn rules after the required page reload.
+
+## Visual-set schema version 1
+
+The current unversioned visual-set format is legacy version 0. Version 1
+removes persisted Phaser runtime keys and exposes authoring concepts directly:
 
 ```json
 {
   "$schema": "../visual-set.schema.json",
-  "version": 2,
+  "version": 1,
   "visualSetId": "enemy.worm.swordsman",
   "assetId": "enemy.worm.swordsman",
   "defaults": {
@@ -244,23 +315,94 @@ authoring concepts directly:
       "frames": [28, 29, 30, 31],
       "framesPerSecond": 10,
       "loop": false
+    },
+    "sword-swing": {
+      "frames": [16, 17, 18, 19, 20],
+      "framesPerSecond": 12,
+      "loop": false
     }
   }
 }
 ```
 
+The shared runtime-key helper returns the collision-proof opaque encoding
+`visual:<visualSetId.length>:<visualSetId>:<clipId>`. Callers never construct
+or persist this value themselves.
+
 Clip IDs are stable programmatic references. Renaming a clip updates
 package-local animation-track references but cannot rewrite arbitrary
-TypeScript callers. The editor must warn that a rename may require code
-changes.
+TypeScript callers. The rename and delete confirmations list known
+package-local references and explicitly warn that programmatic callers may
+require code changes.
 
 `frameVisuals` remains keyed by source-frame index. A source frame therefore
 has consistent alignment wherever it appears. Per-occurrence timeline
 transform overrides are not part of the first version.
 
-Timeline positions in `animationTracks` refer to positions in a clip's ordered
-frame sequence, not source-frame indices. This distinction supports repeated
-source frames.
+## Timeline mutation semantics
+
+Timeline and track positions are zero-based indices into a clip's ordered
+`frames` array. `from` and `through` are both inclusive.
+
+Frame and clip commands update tracks deterministically:
+
+- inserting positions before a marker or span shifts the affected indices;
+- inserting inside a hitbox span extends `through`, so the new position is
+  active;
+- removing a position deletes events at that position, shifts later events,
+  and shrinks or shifts spans; a span with no remaining positions is removed;
+- reordering existing frame occurrences leaves event and span positions
+  unchanged because tracks describe playback time, not source-frame identity;
+- duplicating a clip copies its frame sequence and all associated tracks under
+  the new clip ID;
+- renaming a clip moves its package-local track entry to the new key; and
+- deleting a clip requires confirmation and deletes its package-local tracks.
+
+Repeated source frames are valid and remain distinct timeline positions.
+
+## Event contract
+
+Events are deliberately as free-form as clip IDs. An event contains:
+
+```json
+{
+  "at": 2,
+  "eventId": "attack-impact",
+  "payload": {
+    "strength": 1
+  }
+}
+```
+
+`eventId` is a non-empty stable ID. `payload` is optional JSON data and the
+complete serialized package remains subject to the editor request-size limit.
+There is no fixed event registry in version 1. Validation checks JSON shape and
+timeline bounds, not business meaning.
+
+At runtime the track runner emits
+`{ characterId, clipId, playbackId, loopIteration, position, eventId, payload }`
+through a caller-provided callback. Programmatic consumers decide what an
+event means. Typed sound, effect, movement-impulse, and invulnerability tracks
+remain future extensions.
+
+## Hitbox coordinate and ownership contract
+
+Body and hitbox values use world units. Their coordinate origin is the stable
+character anchor: positive X points right and positive Y points down. A
+rectangle's offset locates its center relative to that anchor.
+
+When `mirrorX` is true, runtime facing multiplies `offsetX` by `1` or `-1`;
+width and height do not change. The preview supplies facing explicitly and
+draws the resolved rectangle.
+
+`CharacterHitboxController` owns pooled Arcade overlap geometry and receives
+active hitbox IDs from the track runner. Entity-specific combat code supplies
+the target group and an `onHit(hitboxId, target, activationId)` callback.
+The controller records targets per activation ID and reports each target at
+most once during one continuous activation span. It does not calculate damage,
+choose collision targets, or select animations. Existing player weapon and
+enemy combat owners continue to calculate damage and knockback from their
+configured properties.
 
 ## Runtime interfaces
 
@@ -278,11 +420,31 @@ Discovers and validates saved visual sets. It resolves source-frame transforms
 and freely named clips. It derives opaque runtime animation keys through one
 shared helper.
 
+### `VisualDefinitionResolver`
+
+Defines the read interface needed by rendering and registration:
+`getVisualSet(visualSetId)`, `getClip(visualSetId, clipId)`,
+`resolveFrameVisual(visualSetId, sourceFrame)`, and
+`runtimeKey(visualSetId, clipId)`. `VisualCatalogResolver` reads saved content;
+`DraftVisualResolver` reads one validated editor projection. This injection
+allows the preview to use runtime composition without mutating the saved
+catalog.
+
 ### `AnimatedVisual`
 
 Continues to render separately from the stable physics anchor. It gains a
 clip-ID-oriented API such as `playClip(clipId)` and must not require semantic
-action names.
+action names. It receives a `VisualDefinitionResolver`, defaulting to the saved
+catalog resolver in gameplay.
+
+### `AnimationRegistrar`
+
+Registers saved definitions under the shared opaque runtime key. The editor
+uses a `PreviewAnimationRegistrar` with revision-scoped keys prefixed by a
+studio session ID and preview revision. Before registering a new preview
+revision, it stops playback and removes the previous revision's Phaser
+animations. Draft edits therefore cannot collide with saved runtime
+animations or retain stale frame sequences.
 
 ### `CharacterAnimationTrackRunner`
 
@@ -290,11 +452,50 @@ Observes the current clip and timeline position, activates or disables named
 hitboxes, and dispatches named events. It does not decide which animation to
 play or what an event means.
 
+Playback semantics are deterministic:
+
+- starting or force-restarting a clip creates a new `playbackId`, sets loop
+  iteration to zero, disables all prior hitboxes, enters position zero, and
+  dispatches position-zero events once;
+- normal advancement processes every crossed timeline position in order, even
+  when a low frame rate causes multiple positions to be crossed in one update;
+- an event dispatches once per playback ID and loop iteration when its position
+  is crossed;
+- a looping clip increments `loopIteration` and may dispatch the same markers
+  once again in the new iteration;
+- pause causes no transitions or dispatches; resume continues the same
+  playback ID;
+- replacing, stopping, completing a non-looping clip, destroying the owner, or
+  cancelling an attack disables every active hitbox immediately;
+- gameplay never scrubs; editor scrub and frame-step recompute visible hitbox
+  state but suppress callbacks and side effects unless a future explicit event
+  preview feature is added; and
+- if elapsed time crosses more than four complete loops in one update, the
+  runner processes hitbox end state but suppresses historical event replay and
+  emits one diagnostic, preventing an unbounded catch-up burst.
+
+### `CharacterHitboxController`
+
+Owns active Arcade overlap geometry and hit-once-per-activation bookkeeping
+according to the coordinate and ownership contract above. It depends only on
+the scene physics service, anchor/facing accessors, a target group, and an
+`onHit` callback.
+
 ### Player and enemy adapters
 
 Translate validated character packages into the focused configuration consumed
 by existing gameplay systems. They preserve current gameplay behavior during
 the content migration.
+
+### `CharacterClipUsageRegistry`
+
+Code-owned runtime integrations register clip IDs they request for a character
+or character kind. This registry is not persisted content, does not define
+editor animation slots, and does not prevent authors from creating arbitrary
+additional clips. Repository validation checks that every registered
+programmatic usage resolves. Character Studio shows these known usages during
+rename/delete confirmation while still warning that dynamically constructed
+or otherwise unregistered string calls cannot be rewritten.
 
 Missing programmatically requested clips fail loudly with the character ID,
 visual-set ID, and clip ID.
@@ -335,7 +536,9 @@ Previous and next frames can appear as low-opacity onion skins.
 
 ### Character library
 
-Lists the primary player and active enemies with search and kind grouping.
+Lists every player package and active enemy with search and kind grouping. The
+primary player carries a visible badge; non-primary player duplicates remain
+editable.
 Selecting another character with a dirty draft requires confirmation.
 Duplicate asks for a display name and unique stable character ID.
 
@@ -418,14 +621,17 @@ rendered safely.
 saved package
   -> CharacterCatalog and VisualCatalog
   -> CharacterDocumentState draft
-  -> validated preview projection
+  -> validated preview projection + previewRevision
+  -> DraftVisualResolver
+  -> PreviewAnimationRegistrar revision-scoped keys
   -> CharacterPreviewScene
-  -> AnimatedVisual + geometry overlays + track preview
+  -> AnimatedVisual + geometry overlays + side-effect-free track preview
 ```
 
 Drafting never mutates the saved runtime catalogs. Successful save returns a
 normalized document and new revision, after which the editor refreshes the
-saved baseline.
+saved baseline. Invalid drafts do not register animations; the preview keeps
+the last valid projection while the inspector displays current errors.
 
 ## Development-only persistence API
 
@@ -438,10 +644,40 @@ POST /__character-studio/package/duplicate
 ```
 
 The browser sends stable IDs and serializable document values, never
-filesystem paths.
+filesystem paths. Each request body is limited to 2 MiB, matching the existing
+development editor's defensive payload limit.
 
-Loading returns both documents plus a revision hash calculated from their
-saved contents.
+Update request:
+
+```json
+{
+  "characterId": "worm-swordsman",
+  "expectedRevision": "<sha256>",
+  "character": {},
+  "visualSet": {}
+}
+```
+
+Duplicate request:
+
+```json
+{
+  "sourceCharacterId": "worm-swordsman",
+  "characterId": "worm-swordsman-ice",
+  "displayName": "Ice Worm Swordsman",
+  "character": {},
+  "visualSet": {}
+}
+```
+
+The `{}` values above stand for the complete draft documents described by
+their schemas; partial patch payloads are not accepted.
+
+Loading returns both documents plus a SHA-256 revision hash calculated from
+their normalized saved contents. All reads and writes for one character ID run
+inside a development-server package mutex. The mutex covers revision checking,
+validation, directory replacement, and the final response; concurrent saves
+therefore cannot pass the same revision check.
 
 Updating:
 
@@ -449,26 +685,52 @@ Updating:
 2. reloads both files and compares the revision hash;
 3. validates request shape and body-size limits;
 4. validates the character and visual set together;
-5. validates asset, clip, hitbox, event, projectile, effect, and drop
+5. validates asset, clip, hitbox, projectile, effect, and drop
    references;
-6. writes both normalized documents to temporary files;
-7. replaces both files with rollback protection if either replacement fails;
-8. returns the normalized package and new revision; and
-9. preserves the draft and reports exact field errors on failure.
+6. writes a complete normalized package into a sibling temporary directory;
+7. renames the saved directory to a uniquely named backup directory;
+8. renames the complete temporary directory to the package's target name;
+9. restores the backup if the second rename fails;
+10. removes the backup after the new target validates from disk;
+11. returns the normalized package and new revision; and
+12. preserves the draft and reports exact field errors on failure.
 
 An external-edit conflict must not overwrite disk. The UI offers reload or
 duplicate-draft recovery.
 
+At development-server startup and before each package operation, recovery
+checks sibling temporary and backup directories. A valid target wins and stale
+temporary/backup directories are removed. If the target is missing and one
+valid backup exists, the backup is restored. Multiple backups or an invalid
+backup stop authoring with a recovery error instead of guessing. This makes
+process interruption between directory renames recoverable.
+
 Duplicating:
 
 1. resolves the source by stable ID;
-2. validates the new stable character and visual-set IDs;
-3. refuses existing destinations;
-4. copies both documents while regenerating package-owned IDs;
-5. preserves the spritesheet asset reference, frames, transforms, gameplay
+2. receives the current validated client draft, not only the saved source;
+3. validates a new display name and kebab-case character ID;
+4. derives the visual-set ID server-side as
+   `enemy.<dot-separated-character-id>` for enemies or
+   `character.<dot-separated-character-id>` for players;
+5. refuses a character-directory, character-ID, or visual-set-ID collision;
+6. replaces the draft's package-owned IDs and removes `runtimeRole` from a
+   duplicated player;
+7. preserves the spritesheet asset reference, frames, transforms, gameplay
    properties, hitboxes, and tracks;
-6. creates the new directory through temporary output and a final rename; and
-7. opens the duplicate only after successful creation.
+8. validates the resulting package;
+9. creates the destination through a sibling temporary directory and one final
+   rename while holding source and destination package locks; and
+10. returns `reloadRequired: true` and the new character ID.
+
+Using the current draft allows duplication to preserve unsaved work and
+provides the conflict-recovery path. Duplication never modifies the source and
+does not require the source revision to remain current.
+
+Newly created files require a browser page reload so Vite's eager content
+discovery includes them. Character Studio reloads directly into the new
+character after a successful duplicate. A development-server restart is not
+required.
 
 The endpoint does not modify map files or TypeScript source.
 
@@ -490,6 +752,7 @@ Validation includes:
 - finite origins, scales, and offsets;
 - positive body and hitbox dimensions;
 - known clip and hitbox references;
+- known programmatic clip usages from `CharacterClipUsageRegistry`;
 - timeline positions within the referenced clip sequence;
 - valid per-kind player and enemy properties;
 - known projectile, effect, and drop references; and
@@ -516,17 +779,30 @@ Migration must preserve current gameplay and stable IDs:
    package while keeping a focused runtime export.
 3. Split active entries in `content/enemies/enemy-types.json` into enemy
    packages while retaining the enemy lookup API.
-4. Move the player and three enemy visual sets beside their character files.
-5. Discover visual sets and character definitions automatically.
-6. Convert existing clip `runtimeKey`, `frameRate`, and `repeat` fields to
-   derived runtime keys, `framesPerSecond`, and `loop`.
-7. Preserve every existing clip ID and frame sequence.
-8. Update player and enemy animation callers to request freely named clip IDs
-   without introducing schema-required actions.
-9. Keep authored map enemy IDs unchanged.
+4. Move only the player and three enemy visual sets beside their character
+   files.
+5. Keep non-character sets, including `effect.enemy.worm-brawler-hit` and
+   `object.tree.world`, under `content/visuals/`.
+6. Discover visual sets from both
+   `content/characters/**/visual-set.json` and
+   `content/visuals/**/visual-set.json`; discover character definitions only
+   from `content/characters/**/character.json`.
+7. Treat every current unversioned visual set as legacy version 0 and migrate
+   all six current sets to version 1.
+8. Convert legacy clip `runtimeKey`, `frameRate`, and `repeat` fields to
+   derived runtime keys, `framesPerSecond`, and `loop`. Current `repeat: -1`
+   becomes `loop: true`; current `repeat: 0` becomes `loop: false`. Any other
+   legacy repeat value is rejected because no current content uses it.
+9. Preserve every existing visual-set ID, clip ID, source-frame transform, and
+   frame sequence, including effect and object clips.
+10. Update every animation caller and completion listener to use the shared
+    visual resolver and freely named clip IDs without introducing
+    schema-required actions.
+11. Keep authored map enemy IDs unchanged.
 
 The migration is complete only when the player and all three active worms
-behave identically before Character Studio editing begins.
+behave identically, the brawler impact effect still completes and cleans up,
+and the animated tree still renders before Character Studio editing begins.
 
 ## Delivery slices
 
@@ -540,6 +816,8 @@ behave identically before Character Studio editing begins.
 
 ### Slice 2: read-only studio
 
+- package GET endpoint and revision hashing;
+- `CharacterDocumentState` read-only draft projection;
 - dedicated route and navigation;
 - character library;
 - spritesheet grid;
@@ -553,7 +831,8 @@ behave identically before Character Studio editing begins.
 - frames-per-second and looping;
 - playback, scrubbing, stepping, zoom, and onion skin;
 - undo/redo and dirty-state protection; and
-- visual-set save support.
+- package mutex, recoverable directory transaction, complete-package update,
+  and draft-based duplication.
 
 ### Slice 4: visual alignment
 
@@ -582,35 +861,58 @@ and saved.
   fields; and
 - units, ranges, descriptions, and reset controls.
 
-### Slice 7: persistence completion and integration
+### Slice 7: integration and verification
 
-- revision-aware package updates;
-- complete package duplication;
-- conflict recovery;
+- conflict-recovery UI and interrupted-transaction recovery tests;
 - map-editor links;
 - documentation; and
 - end-to-end browser and runtime smoke tests.
 
 ## Verification
 
+The implementation adds:
+
+- `scripts/check-characters.mjs` and a `characters:check` package command for
+  package/schema/catalog/programmatic-clip-reference validation;
+- Node built-in `node:test` suites under `scripts/tests/character-studio/` and
+  a `test:characters` package command for validators, editor commands, track
+  playback, transaction recovery, and migration fixtures;
+- `@playwright/test`, `tests/character-studio.spec.ts`, and a
+  `test:character-studio` command for browser behavior against a test-only
+  character-content root; and
+- `characters:check` and `test:characters` in `pnpm check`.
+
+The Playwright suite launches Vite with a server-only fixture-root option,
+copies package fixtures into a temporary writable directory, and never writes
+production character content. Browser tests remain an explicit command rather
+than part of every production build.
+
 Automated verification covers:
 
 - character and visual schema validation;
 - catalog discovery and duplicate-ID rejection;
-- version-1 visual-set migration;
+- unversioned legacy visual-set migration to version 1;
 - generated runtime-key uniqueness;
+- registered programmatic clip usages and rename/delete warnings;
 - JSON load/edit/save/reload round trips;
 - package duplication with independent IDs and files;
+- duplicate-draft conflict recovery and required page reload;
 - external-revision conflicts;
+- concurrent update serialization and interrupted directory-swap recovery;
 - frame-range and frames-per-second validation;
 - arbitrary clip IDs, including `jump`;
-- repeated source frames and timeline-position semantics;
+- repeated source frames plus insert/remove/reorder/rename/delete track
+  semantics;
+- loop, pause/resume, skipped-position, completion, cancellation, and destroy
+  behavior in the track runner;
 - stable-body invariants under frame offset, scale, origin, and mirroring;
-- hitbox-span activation and cleanup;
+- hitbox mirroring, hit-once activation, cancellation, and cleanup;
 - undo/redo command coalescing;
 - failed-save draft preservation;
 - runtime adapter parity with current player and enemy values;
 - map references to migrated enemy IDs;
+- brawler impact-effect and animated-tree parity after visual discovery
+  migration;
 - editor loading, empty, dirty, invalid, conflict, and save states;
 - asset, visual, character/enemy, object, and map repository checks;
 - strict TypeScript checks and production build; and
