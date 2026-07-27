@@ -6,55 +6,365 @@
     {
       "assetId": "sheet.walls.horizontal.8x1",
       "frames": [
-        { "visualId": "horizontal-01", "frame": 0, "collider": { "width": 59, "height": 58, "offsetX": 11, "offsetY": 7 } },
-        { "visualId": "horizontal-02", "frame": 1, "collider": { "width": 70, "height": 58, "offsetX": 0, "offsetY": 7 } },
-        { "visualId": "horizontal-03", "frame": 2, "collider": { "width": 70, "height": 58, "offsetX": 0, "offsetY": 7 } },
-        { "visualId": "horizontal-04", "frame": 3, "collider": { "width": 70, "height": 58, "offsetX": 0, "offsetY": 7 } },
-        { "visualId": "horizontal-05", "frame": 4, "collider": { "width": 70, "height": 58, "offsetX": 0, "offsetY": 7 } },
-        { "visualId": "horizontal-06", "frame": 5, "collider": { "width": 70, "height": 58, "offsetX": 0, "offsetY": 7 } },
-        { "visualId": "horizontal-07", "frame": 6, "collider": { "width": 70, "height": 59, "offsetX": 0, "offsetY": 7 } },
-        { "visualId": "horizontal-08", "frame": 7, "collider": { "width": 58, "height": 59, "offsetX": 0, "offsetY": 6 } }
+        {
+          "visualId": "horizontal-01",
+          "frame": 0,
+          "collider": {
+            "width": 59,
+            "height": 58,
+            "offsetX": 11,
+            "offsetY": 7
+          }
+        },
+        {
+          "visualId": "horizontal-02",
+          "frame": 1,
+          "collider": {
+            "width": 70,
+            "height": 58,
+            "offsetX": 0,
+            "offsetY": 7
+          }
+        },
+        {
+          "visualId": "horizontal-03",
+          "frame": 2,
+          "collider": {
+            "width": 70,
+            "height": 58,
+            "offsetX": 0,
+            "offsetY": 7
+          }
+        },
+        {
+          "visualId": "horizontal-04",
+          "frame": 3,
+          "collider": {
+            "width": 70,
+            "height": 58,
+            "offsetX": 0,
+            "offsetY": 7
+          }
+        },
+        {
+          "visualId": "horizontal-05",
+          "frame": 4,
+          "collider": {
+            "width": 70,
+            "height": 58,
+            "offsetX": 0,
+            "offsetY": 7
+          }
+        },
+        {
+          "visualId": "horizontal-06",
+          "frame": 5,
+          "collider": {
+            "width": 70,
+            "height": 58,
+            "offsetX": 0,
+            "offsetY": 7
+          }
+        },
+        {
+          "visualId": "horizontal-07",
+          "frame": 6,
+          "collider": {
+            "width": 70,
+            "height": 59,
+            "offsetX": 0,
+            "offsetY": 7
+          }
+        },
+        {
+          "visualId": "horizontal-08",
+          "frame": 7,
+          "collider": {
+            "width": 58,
+            "height": 59,
+            "offsetX": 0,
+            "offsetY": 6
+          }
+        }
       ]
     },
     {
       "assetId": "sheet.walls.corners.4x2",
       "frames": [
-        { "visualId": "corner-01", "frame": 0, "collider": { "width": 68, "height": 68, "offsetX": 2, "offsetY": 2 } },
-        { "visualId": "corner-02", "frame": 1, "collider": { "width": 68, "height": 68, "offsetX": 2, "offsetY": 2 } },
-        { "visualId": "corner-03", "frame": 2, "collider": { "width": 68, "height": 67, "offsetX": 0, "offsetY": 3 } },
-        { "visualId": "corner-04", "frame": 3, "collider": { "width": 67, "height": 67, "offsetX": 0, "offsetY": 3 } },
-        { "visualId": "corner-05", "frame": 4, "collider": { "width": 67, "height": 67, "offsetX": 3, "offsetY": 0 } },
-        { "visualId": "corner-06", "frame": 5, "collider": { "width": 66, "height": 68, "offsetX": 4, "offsetY": 0 } },
-        { "visualId": "corner-07", "frame": 6, "collider": { "width": 66, "height": 66, "offsetX": 0, "offsetY": 0 } },
-        { "visualId": "corner-08", "frame": 7, "collider": { "width": 66, "height": 67, "offsetX": 0, "offsetY": 0 } }
+        {
+          "visualId": "corner-01",
+          "frame": 0,
+          "collider": {
+            "width": 68,
+            "height": 68,
+            "offsetX": 2,
+            "offsetY": 2
+          },
+          "displayName": "corner-01",
+          "visualOffset": {
+            "x": 12,
+            "y": 4
+          }
+        },
+        {
+          "visualId": "corner-02",
+          "frame": 1,
+          "collider": {
+            "width": 68,
+            "height": 68,
+            "offsetX": 2,
+            "offsetY": 2
+          }
+        },
+        {
+          "visualId": "corner-03",
+          "frame": 2,
+          "collider": {
+            "width": 68,
+            "height": 67,
+            "offsetX": 0,
+            "offsetY": 3
+          },
+          "displayName": "corner-03",
+          "visualOffset": {
+            "x": 0,
+            "y": 4
+          }
+        },
+        {
+          "visualId": "corner-04",
+          "frame": 3,
+          "collider": {
+            "width": 67,
+            "height": 67,
+            "offsetX": 0,
+            "offsetY": 3
+          }
+        },
+        {
+          "visualId": "corner-05",
+          "frame": 4,
+          "collider": {
+            "width": 67,
+            "height": 67,
+            "offsetX": 3,
+            "offsetY": 0
+          }
+        },
+        {
+          "visualId": "corner-06",
+          "frame": 5,
+          "collider": {
+            "width": 66,
+            "height": 68,
+            "offsetX": 4,
+            "offsetY": 0
+          },
+          "displayName": "corner-06",
+          "visualOffset": {
+            "x": 12,
+            "y": 0
+          }
+        },
+        {
+          "visualId": "corner-07",
+          "frame": 6,
+          "collider": {
+            "width": 66,
+            "height": 66,
+            "offsetX": 0,
+            "offsetY": 0
+          }
+        },
+        {
+          "visualId": "corner-08",
+          "frame": 7,
+          "collider": {
+            "width": 66,
+            "height": 67,
+            "offsetX": 0,
+            "offsetY": 0
+          }
+        }
       ]
     },
     {
       "assetId": "sheet.walls.t-junctions.7x1",
       "frames": [
-        { "visualId": "junction-01", "frame": 0, "collider": { "width": 70, "height": 70, "offsetX": 0, "offsetY": 0 } },
-        { "visualId": "junction-02", "frame": 1, "collider": { "width": 70, "height": 70, "offsetX": 0, "offsetY": 0 } },
-        { "visualId": "junction-03", "frame": 2, "collider": { "width": 70, "height": 70, "offsetX": 0, "offsetY": 0 } },
-        { "visualId": "junction-04", "frame": 3, "collider": { "width": 70, "height": 70, "offsetX": 0, "offsetY": 0 } },
-        { "visualId": "junction-05", "frame": 4, "collider": { "width": 70, "height": 68, "offsetX": 0, "offsetY": 2 } },
-        { "visualId": "junction-06", "frame": 5, "collider": { "width": 66, "height": 70, "offsetX": 0, "offsetY": 0 } },
-        { "visualId": "junction-07", "frame": 6, "collider": { "width": 67, "height": 70, "offsetX": 3, "offsetY": 0 } }
+        {
+          "visualId": "junction-01",
+          "frame": 0,
+          "collider": {
+            "width": 70,
+            "height": 70,
+            "offsetX": 0,
+            "offsetY": 0
+          }
+        },
+        {
+          "visualId": "junction-02",
+          "frame": 1,
+          "collider": {
+            "width": 70,
+            "height": 70,
+            "offsetX": 0,
+            "offsetY": 0
+          }
+        },
+        {
+          "visualId": "junction-03",
+          "frame": 2,
+          "collider": {
+            "width": 70,
+            "height": 70,
+            "offsetX": 0,
+            "offsetY": 0
+          }
+        },
+        {
+          "visualId": "junction-04",
+          "frame": 3,
+          "collider": {
+            "width": 70,
+            "height": 70,
+            "offsetX": 0,
+            "offsetY": 0
+          }
+        },
+        {
+          "visualId": "junction-05",
+          "frame": 4,
+          "collider": {
+            "width": 70,
+            "height": 68,
+            "offsetX": 0,
+            "offsetY": 2
+          }
+        },
+        {
+          "visualId": "junction-06",
+          "frame": 5,
+          "collider": {
+            "width": 66,
+            "height": 70,
+            "offsetX": 0,
+            "offsetY": 0
+          }
+        },
+        {
+          "visualId": "junction-07",
+          "frame": 6,
+          "collider": {
+            "width": 67,
+            "height": 70,
+            "offsetX": 3,
+            "offsetY": 0
+          }
+        }
       ]
     },
     {
       "assetId": "sheet.walls.vertical.1x8",
       "frames": [
-        { "visualId": "vertical-01", "frame": 0, "collider": { "width": 54, "height": 70, "offsetX": 9, "offsetY": 0 } },
-        { "visualId": "vertical-02", "frame": 1, "collider": { "width": 54, "height": 70, "offsetX": 9, "offsetY": 0 } },
-        { "visualId": "vertical-03", "frame": 2, "collider": { "width": 54, "height": 70, "offsetX": 8, "offsetY": 0 } },
-        { "visualId": "vertical-04", "frame": 3, "collider": { "width": 54, "height": 70, "offsetX": 8, "offsetY": 0 } },
-        { "visualId": "vertical-05", "frame": 4, "collider": { "width": 54, "height": 70, "offsetX": 7, "offsetY": 0 } },
-        { "visualId": "vertical-06", "frame": 5, "collider": { "width": 54, "height": 70, "offsetX": 7, "offsetY": 0 } },
-        { "visualId": "vertical-07", "frame": 6, "collider": { "width": 54, "height": 70, "offsetX": 9, "offsetY": 0 } },
-        { "visualId": "vertical-08", "frame": 7, "collider": { "width": 54, "height": 51, "offsetX": 9, "offsetY": 0 } }
+        {
+          "visualId": "vertical-01",
+          "frame": 0,
+          "collider": {
+            "width": 54,
+            "height": 70,
+            "offsetX": 9,
+            "offsetY": 0
+          }
+        },
+        {
+          "visualId": "vertical-02",
+          "frame": 1,
+          "collider": {
+            "width": 54,
+            "height": 70,
+            "offsetX": 9,
+            "offsetY": 0
+          },
+          "displayName": "vertical-02",
+          "visualOffset": {
+            "x": 6,
+            "y": 0
+          }
+        },
+        {
+          "visualId": "vertical-03",
+          "frame": 2,
+          "collider": {
+            "width": 54,
+            "height": 70,
+            "offsetX": 8,
+            "offsetY": 0
+          }
+        },
+        {
+          "visualId": "vertical-04",
+          "frame": 3,
+          "collider": {
+            "width": 54,
+            "height": 70,
+            "offsetX": 8,
+            "offsetY": 0
+          }
+        },
+        {
+          "visualId": "vertical-05",
+          "frame": 4,
+          "collider": {
+            "width": 54,
+            "height": 70,
+            "offsetX": 7,
+            "offsetY": 0
+          }
+        },
+        {
+          "visualId": "vertical-06",
+          "frame": 5,
+          "collider": {
+            "width": 54,
+            "height": 70,
+            "offsetX": 7,
+            "offsetY": 0
+          }
+        },
+        {
+          "visualId": "vertical-07",
+          "frame": 6,
+          "collider": {
+            "width": 54,
+            "height": 70,
+            "offsetX": 9,
+            "offsetY": 0
+          }
+        },
+        {
+          "visualId": "vertical-08",
+          "frame": 7,
+          "collider": {
+            "width": 54,
+            "height": 51,
+            "offsetX": 13,
+            "offsetY": 0
+          },
+          "displayName": "vertical-08",
+          "visualOffset": {
+            "x": 7,
+            "y": 0
+          }
+        }
       ]
     }
   ],
-  "physics": { "body": "static" },
-  "tags": ["wall", "stone", "solid"]
+  "physics": {
+    "body": "static"
+  },
+  "tags": [
+    "wall",
+    "stone",
+    "solid"
+  ]
 }

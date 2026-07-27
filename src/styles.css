@@ -1043,6 +1043,7 @@ body {
 .editor-inspector-toggle:focus-visible,
 .editor-inspector-reopen:focus-visible,
 .editor-template-form input:focus-visible,
+.editor-template-dialog input:focus-visible,
 .editor-inspector-secondary:focus-visible,
 .editor-inspector-save:focus-visible {
   outline: 2px solid var(--inspector-gold);
@@ -1329,6 +1330,37 @@ body {
   box-shadow: 0 0 0 2px rgba(214, 183, 94, 0.13);
 }
 
+.editor-inspector-check {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 9px;
+  align-items: start;
+  color: #d9cfac;
+  cursor: pointer;
+}
+
+.editor-inspector-check input {
+  width: 15px;
+  height: 15px;
+  margin: 1px 0 0;
+  accent-color: var(--inspector-gold);
+}
+
+.editor-inspector-check strong,
+.editor-inspector-check small {
+  display: block;
+}
+
+.editor-inspector-check strong {
+  font-size: 10px;
+}
+
+.editor-inspector-check small {
+  margin-top: 4px;
+  color: var(--inspector-muted);
+  font-size: 9px;
+}
+
 .editor-inspector-error {
   display: block;
   min-height: 0;
@@ -1390,6 +1422,10 @@ body {
   gap: 7px;
 }
 
+.editor-inspector-save-as {
+  grid-column: 1 / -1;
+}
+
 .editor-inspector-action-row .editor-inspector-secondary {
   margin-top: 0;
 }
@@ -1404,6 +1440,67 @@ body {
 
 .editor-inspector-status:not(:empty) {
   color: #c9bd91;
+}
+
+.editor-template-dialog {
+  width: min(360px, calc(100vw - 32px));
+  border: 1px solid var(--inspector-gold);
+  padding: 0;
+  background: #151b15;
+  color: #d9cfac;
+  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.75);
+}
+
+.editor-template-dialog::backdrop {
+  background: rgba(5, 8, 5, 0.72);
+}
+
+.editor-template-dialog form {
+  display: grid;
+  gap: 13px;
+  padding: 18px;
+}
+
+.editor-template-dialog h3,
+.editor-template-dialog p {
+  margin: 0;
+}
+
+.editor-template-dialog h3 {
+  margin-top: 5px;
+  color: #f0e5bd;
+  font: 700 20px Georgia, serif;
+}
+
+.editor-template-dialog p {
+  color: var(--inspector-muted);
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.editor-template-dialog code {
+  color: #e7d384;
+}
+
+.editor-template-dialog input {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid #536049;
+  border-radius: 0;
+  padding: 9px 8px;
+  outline: none;
+  background: var(--inspector-inset);
+  color: #f0e5bd;
+}
+
+.editor-template-dialog footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.editor-template-dialog footer .editor-inspector-secondary {
+  margin-top: 0;
 }
 
 .editor-palette-artwork {

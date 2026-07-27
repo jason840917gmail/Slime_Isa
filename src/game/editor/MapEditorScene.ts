@@ -5,6 +5,7 @@ import {
   getObjectArchetypeIds,
   getObjectVisualChoice,
   getObjectVisualChoices,
+  isObjectArchetypeId,
   type ObjectArchetypeId,
 } from '../content/objects/ObjectCatalog';
 import {
@@ -108,6 +109,8 @@ export class MapEditorScene extends Phaser.Scene {
   private unmountInspector?: () => void;
   private lastRevision = -1;
   private lastTemplateRevision = -1;
+  private lastShowAllMatchingOverlays = false;
+  private lastSelectedInstanceId?: string;
   private lastTool: EditorTool = 'pan';
   private panPointer?: { x: number; y: number };
   private paintDrag?: PaintDrag;
@@ -139,7 +142,13 @@ export class MapEditorScene extends Phaser.Scene {
 
   create(): void {
     const initialTile = this.initialTileId();
-    const initialObject = getObjectVisualChoices()[0];
+    const query = new URLSearchParams(window.location.search);
+    const requestedObjectId = query.get('templateObject');
+    const requestedVisualId = query.get('templateVisual');
+    const requestedObject = requestedObjectId && requestedVisualId && isObjectArchetypeId(requestedObjectId)
+      ? getObjectVisualChoice(requestedObjectId, requestedVisualId)
+      : undefined;
+    const initialObject = requestedObject ?? getObjectVisualChoices()[0];
     this.editor = new MapEditorState(
       this.loadedMap.map,
       initialTile,
@@ -173,21 +182,34 @@ export class MapEditorScene extends Phaser.Scene {
     if (!inspector) throw new Error('Missing map editor inspector');
     const previews = this.buildContentPreviews();
     this.unmountPanel = mountMapEditorPanel(panel, this.editor, previews, this.templateEditor);
-    this.unmountInspector = mountMapEditorInspector(inspector, this.templateEditor, { objects: previews.objects });
+    this.unmountInspector = mountMapEditorInspector(
+      inspector,
+      this.templateEditor,
+      { objects: previews.objects },
+      this.editor,
+    );
     this.unsubscribeState = this.editor.subscribe((state) => {
       const toolChanged = state.tool !== this.lastTool;
+      const selectionChanged = state.selectedInstanceId !== this.lastSelectedInstanceId;
       this.lastTool = state.tool;
+      this.lastSelectedInstanceId = state.selectedInstanceId;
       if (state.revision !== this.lastRevision) {
         this.lastRevision = state.revision;
         this.renderDocument();
       } else {
-        if (toolChanged) this.renderOverlays();
+        if (toolChanged || selectionChanged) this.renderOverlays();
         this.renderSelectionMarker();
       }
     });
     this.lastTemplateRevision = this.templateEditor.value.revision;
+    this.lastShowAllMatchingOverlays = this.templateEditor.value.showAllMatchingOverlays;
     this.unsubscribeTemplate = this.templateEditor.subscribe((state) => {
-      if (state.revision === this.lastTemplateRevision) return;
+      const overlayScopeChanged = state.showAllMatchingOverlays !== this.lastShowAllMatchingOverlays;
+      this.lastShowAllMatchingOverlays = state.showAllMatchingOverlays;
+      if (state.revision === this.lastTemplateRevision) {
+        if (overlayScopeChanged && this.lastRevision >= 0) this.renderOverlays();
+        return;
+      }
       this.lastTemplateRevision = state.revision;
       if (this.lastRevision >= 0) this.renderDocument();
     });
@@ -975,7 +997,6 @@ export class MapEditorScene extends Phaser.Scene {
     if (!resolved) return;
 
     const graphics = this.add.graphics().setDepth(108).setName('editor-template-overlays');
-    let matchCount = 0;
     const drawGeometry = (image: Phaser.GameObjects.Image): void => {
       const [anchorX, anchorY] = getObjectAnchor(image);
       const bounds = image.getBounds();
@@ -1003,14 +1024,20 @@ export class MapEditorScene extends Phaser.Scene {
         );
       }
     };
-    for (const object of this.editor.value.map.objects) {
-      if (object.objectId !== selected.objectId || object.visualId !== selected.visualId) continue;
+    const matchingObjects = this.editor.value.map.objects.filter((object) => (
+      object.objectId === selected.objectId && object.visualId === selected.visualId
+    ));
+    const selectedInstanceId = this.editor.value.selectedInstanceId;
+    const selectedMatch = matchingObjects.find((object) => object.instanceId === selectedInstanceId);
+    const overlayTargets = template.showAllMatchingOverlays
+      ? matchingObjects
+      : selectedMatch ? [selectedMatch] : [];
+    for (const object of overlayTargets) {
       const image = this.renderedInstances.get(object.instanceId);
       if (!image) continue;
-      matchCount += 1;
       drawGeometry(image);
     }
-    if (matchCount === 0) {
+    if (overlayTargets.length === 0) {
       const map = this.editor.value.map;
       const view = this.cameras.main.worldView;
       const anchorX = Phaser.Math.Clamp(view.centerX, map.tileSize / 2, map.size.columns * map.tileSize - map.tileSize / 2);
