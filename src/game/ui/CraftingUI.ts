@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { gameEvents } from '../core/EventBus';
 import { playerInventory, itemRegistry } from '../systems/Inventory';
 import { RECIPES, canCraft, craft, itemName, type RecipeDef } from '../crafting/Crafting';
+import { resolveScreenUiDepth } from '../presentation/WorldDepth';
 
 const FONT = 'Aptos, Segoe UI Variable, sans-serif';
 
@@ -63,7 +64,7 @@ export class CraftingUI {
     const cam = scene.cameras.main;
     const panelW = 610;
     const panelH = 430;
-    const container = scene.add.container(cam.width / 2, cam.height / 2).setScrollFactor(0).setDepth(318);
+    const container = scene.add.container(cam.width / 2, cam.height / 2).setScrollFactor(0).setDepth(resolveScreenUiDepth(118));
     this.container = container;
     this.clickRegions = [];
 

@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import type { WorldDimensions } from './world/WorldDimensions';
+import { resolveScreenUiDepth } from './presentation/WorldDepth';
 
 const MINIMAP_SIZE = 180;
 const MINIMAP_MARGIN = 16;
@@ -14,7 +15,7 @@ export class Minimap {
   ) {
     this.graphics = scene.add.graphics();
     this.graphics.setScrollFactor(0);
-    this.graphics.setDepth(80);
+    this.graphics.setDepth(resolveScreenUiDepth(30));
   }
 
   update(

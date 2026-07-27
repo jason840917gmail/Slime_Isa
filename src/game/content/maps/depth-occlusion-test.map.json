@@ -1,0 +1,73 @@
+{
+  "$schema": "./maps.schema.json",
+  "version": 1,
+  "mapId": "depth-occlusion-test",
+  "tileSize": 64,
+  "size": {
+    "columns": 12,
+    "rows": 8
+  },
+  "layers": [
+    {
+      "id": "ground",
+      "encoding": "legend-chars-v1",
+      "legend": {
+        "g": "grass-a"
+      },
+      "rows": [
+        "gggggggggggg",
+        "gggggggggggg",
+        "gggggggggggg",
+        "gggggggggggg",
+        "gggggggggggg",
+        "gggggggggggg",
+        "gggggggggggg",
+        "gggggggggggg"
+      ]
+    }
+  ],
+  "objects": [
+    {
+      "instanceId": "depth-tree-north",
+      "objectId": "tree.world.solid",
+      "visualId": "shadow-pine-01",
+      "x": 288,
+      "y": 192
+    },
+    {
+      "instanceId": "depth-tree-south",
+      "objectId": "tree.world.solid",
+      "visualId": "shadow-pine-02",
+      "x": 288,
+      "y": 384
+    },
+    {
+      "instanceId": "depth-tree-equal-y",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-01",
+      "x": 480,
+      "y": 256
+    },
+    {
+      "instanceId": "depth-house-west",
+      "objectId": "house.world.solid",
+      "visualId": "barn-red",
+      "x": 704,
+      "y": 320
+    },
+    {
+      "instanceId": "depth-house-east",
+      "objectId": "house.world.solid",
+      "visualId": "cottage-blue",
+      "x": 640,
+      "y": 320
+    }
+  ],
+  "player": {
+    "spawn": {
+      "x": 288,
+      "y": 96
+    },
+    "entries": {}
+  }
+}

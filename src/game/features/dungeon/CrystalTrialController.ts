@@ -6,6 +6,7 @@ import type { AreaId } from '../../world/Area';
 import type { WorldDimensions } from '../../world/WorldDimensions';
 import { worldProgress } from '../progression/WorldProgress';
 import { UI_THEME } from '../../presentation/theme';
+import { resolveWorldDepth } from '../../presentation/WorldDepth';
 
 const TRIAL_ID = 'crystal-caverns-switch-trial';
 
@@ -44,7 +45,10 @@ export class CrystalTrialController {
       this.ctx.findSpawnPoint(new Phaser.Math.Vector2(center.x + 170, center.y + 95)),
     ];
 
-    const ring = scene.add.graphics().setDepth(1.5);
+    const ring = scene.add.graphics().setDepth(resolveWorldDepth(center.y, {
+      band: 'ground-decals',
+      stableId: 'crystal-trial-ring',
+    }).depth);
     ring.lineStyle(3, 0x9cf0ff, 0.38);
     ring.strokeEllipse(center.x, center.y + 12, 520, 330);
     ring.lineStyle(1, 0x496d89, 0.5);
@@ -56,7 +60,10 @@ export class CrystalTrialController {
       color: '#d8fbff',
       stroke: '#102033',
       strokeThickness: 4,
-    }).setOrigin(0.5).setDepth(6);
+    }).setOrigin(0.5).setDepth(resolveWorldDepth(center.y - 205, {
+      band: 'reveal-effects',
+      stableId: 'crystal-trial-title',
+    }).depth);
 
     switchPositions.forEach((position, index) => {
       const switchSprite = this.ctx.switches.create(
@@ -64,7 +71,9 @@ export class CrystalTrialController {
         position.y,
         completed ? 'crystal-switch-on' : 'crystal-switch-off',
       ) as Phaser.Physics.Arcade.Image;
-      switchSprite.setDepth(4).setData('switchIndex', index).refreshBody();
+      switchSprite.setDepth(resolveWorldDepth(position.y, {
+        stableId: `crystal-switch:${index}`,
+      }).depth).setData('switchIndex', index).refreshBody();
     });
 
     const chest = this.ctx.chests.create(
@@ -72,7 +81,9 @@ export class CrystalTrialController {
       chestPos.y,
       completed ? 'crystal-chest-open' : 'crystal-chest-closed',
     ) as Phaser.Physics.Arcade.Image;
-    chest.setDepth(4).refreshBody();
+    chest.setDepth(resolveWorldDepth(chestPos.y, {
+      stableId: 'crystal-chest',
+    }).depth).refreshBody();
   }
 
   activateSwitch(switchObject: Phaser.GameObjects.GameObject): void {

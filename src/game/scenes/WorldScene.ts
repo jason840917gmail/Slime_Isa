@@ -53,7 +53,10 @@ import {
 } from '../features/world-navigation/AreaNavigation';
 import { WorldDebugRenderer } from '../dev/WorldDebugRenderer';
 import { CombatController } from '../features/combat/CombatController';
+import { OcclusionController } from '../features/occlusion/OcclusionController';
+import { DepthDiagnostics } from '../features/occlusion/DepthDiagnostics';
 import { MapBuilder, type BuiltMap } from '../features/world/MapBuilder';
+import { resolveBodyBottom, resolveScreenUiDepth, resolveWorldDepth } from '../presentation/WorldDepth';
 import type { LoadedMap } from '../infrastructure/maps/MapRepository';
 import type { WorldDimensions } from '../world/WorldDimensions';
 
@@ -120,6 +123,8 @@ export class WorldScene extends Phaser.Scene {
   private questCompleteHandler?: (payload: { questId: string; title: string; rewards: { coins?: number; xp?: number } }) => void;
   private restoredFromAreaTransition = false;
   private debugRenderer?: WorldDebugRenderer;
+  private occlusionController?: OcclusionController;
+  private depthDiagnostics?: DepthDiagnostics;
   private disposables = new DisposableBag();
 
   constructor() {
@@ -155,8 +160,14 @@ export class WorldScene extends Phaser.Scene {
     // Phase 1: World entities (no cross-system side effects)
     this.createCollisionLayer();
     registerAllVisualSetAnimations(this);
+    this.occlusionController = new OcclusionController(this);
     this.buildWorld();
     this.createPlayer();
+    this.depthDiagnostics = new DepthDiagnostics({
+      scene: this,
+      getPlayer: () => this.player,
+      getOcclusionController: () => this.occlusionController,
+    });
     this.createFriends(this.friendCountForArea());
     this.createCrystalTrial();
     this.houseSystem = new HouseSystem({
@@ -319,6 +330,10 @@ export class WorldScene extends Phaser.Scene {
     this.questJournal?.destroy();
     this.craftingUI?.destroy();
     this.combatController?.destroy();
+    this.occlusionController?.destroy();
+    this.occlusionController = undefined;
+    this.depthDiagnostics?.destroy();
+    this.depthDiagnostics = undefined;
     this.healthSystem?.destroy();
     this.playerVisual?.destroy();
     this.playerVisual = undefined;
@@ -428,6 +443,8 @@ export class WorldScene extends Phaser.Scene {
     this.abilityBar?.update();
     this.abilitySystem?.update();
     this.combatController?.update(this.time.now, delta);
+    this.occlusionController?.update();
+    this.depthDiagnostics?.update();
     // Passive energy regen (scaled by Quick Recovery perk).
     if (!this.healthSystem?.isDead()) {
       const stats = getStats();
@@ -505,6 +522,7 @@ export class WorldScene extends Phaser.Scene {
       behaviorGroups: {
         'collectible.purple-berry': this.purpleFoods,
       },
+      registerOccluder: (registration) => this.occlusionController!.registerOccluder(registration),
     }).build();
     this.terrainGrid = this.builtMap.terrainGrid;
   }
@@ -528,6 +546,15 @@ export class WorldScene extends Phaser.Scene {
       getControls: () => this.controls,
       getStatusEffects: () => this.statusEffects,
       playAnimation: (key) => this.playAnimation(key),
+    });
+    this.occlusionController?.registerActor({
+      id: 'player',
+      owner: entity.sprite,
+      visual: entity.visual,
+      getGroundAnchorY: () => resolveBodyBottom(entity.sprite.body as Phaser.Physics.Arcade.Body),
+      getDepth: () => entity.sprite.depth,
+      isEligible: () => entity.sprite.active,
+      silhouetteColor: 0x73d7ff,
     });
   }
 
@@ -679,7 +706,7 @@ export class WorldScene extends Phaser.Scene {
       })
       .setOrigin(0.5, 0)
       .setScrollFactor(0)
-      .setDepth(50);
+      .setDepth(resolveScreenUiDepth(0));
 
     // Dev-only debug hint (kept small + dim; not gameplay controls).
     this.add
@@ -692,7 +719,7 @@ export class WorldScene extends Phaser.Scene {
       })
       .setOrigin(0, 1)
       .setScrollFactor(0)
-      .setDepth(50);
+      .setDepth(resolveScreenUiDepth(1));
   }
 
   private getEntryAnchor(): Phaser.Math.Vector2 | undefined {
@@ -990,7 +1017,10 @@ export class WorldScene extends Phaser.Scene {
     const offsetX = (index - (total - 1) / 2) * 30;
 
     if (texture && this.textures.exists(texture)) {
-      const icon = this.add.image(x, y, texture).setDepth(24).setScale(1.35).setAlpha(0);
+      const icon = this.add.image(x, y, texture)
+        .setDepth(resolveWorldDepth(y, { band: 'reveal-effects', stableId: `item-drop:${itemId}:${index}` }).depth)
+        .setScale(1.35)
+        .setAlpha(0);
       this.tweens.add({
         targets: icon,
         x: x + offsetX,
@@ -1080,6 +1110,15 @@ export class WorldScene extends Phaser.Scene {
       spawnItemDropIcon: (x, y, itemId, count, index, total) => {
         this.spawnItemDropIcon(x, y, itemId, count, index, total);
       },
+      registerRevealActor: (enemy, visual) => this.occlusionController?.registerActor({
+        id: `enemy:${enemy.enemyId}`,
+        owner: enemy,
+        visual,
+        getGroundAnchorY: () => resolveBodyBottom(enemy.body as Phaser.Physics.Arcade.Body),
+        getDepth: () => enemy.depth,
+        isEligible: () => enemy.isRevealEligible(),
+        silhouetteColor: 0xff936d,
+      }),
     });
   }
 

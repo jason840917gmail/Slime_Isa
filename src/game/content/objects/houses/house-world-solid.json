@@ -9,6 +9,12 @@
         {
           "visualId": "barn-red",
           "frame": 0,
+          "occlusionBounds": {
+            "width": 300,
+            "height": 300,
+            "offsetX": 10,
+            "offsetY": 10
+          },
           "collider": {
             "width": 277,
             "height": 150,
@@ -24,6 +30,12 @@
         {
           "visualId": "forge-red",
           "frame": 1,
+          "occlusionBounds": {
+            "width": 300,
+            "height": 300,
+            "offsetX": 10,
+            "offsetY": 10
+          },
           "collider": {
             "width": 280,
             "height": 180,
@@ -39,6 +51,12 @@
         {
           "visualId": "cottage-blue",
           "frame": 2,
+          "occlusionBounds": {
+            "width": 255,
+            "height": 190,
+            "offsetX": 27,
+            "offsetY": 50
+          },
           "collider": {
             "width": 277,
             "height": 170,

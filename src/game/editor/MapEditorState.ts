@@ -200,7 +200,7 @@ export class MapEditorState {
     if (index !== undefined) this.selectedInstanceIdValue = undefined;
     this.statusValue = index === undefined
       ? 'Safe-zone selection cleared'
-      : `Selected safe zone ${index + 1} — drag to move or right-click to delete`;
+      : `Selected safe zone ${index + 1} — drag to move or press Delete to remove`;
     this.emit();
   }
 

@@ -13,6 +13,22 @@ type VisualAnchor = Phaser.GameObjects.GameObject & {
   readonly y: number;
 };
 
+export interface AnimatedVisualRenderState {
+  readonly textureKey: string;
+  readonly frame: number | string;
+  readonly sourceFrame: { readonly width: number; readonly height: number };
+  readonly x: number;
+  readonly y: number;
+  readonly originX: number;
+  readonly originY: number;
+  readonly scaleX: number;
+  readonly scaleY: number;
+  readonly alpha: number;
+  readonly flipX: boolean;
+  readonly flipY: boolean;
+  readonly rotation: number;
+}
+
 export interface VisualEffects {
   scaleX: number;
   scaleY: number;
@@ -20,7 +36,8 @@ export interface VisualEffects {
 }
 
 export interface AnimatedVisualOptions {
-  readonly depth: number;
+  readonly depth?: number;
+  readonly getDepth?: () => number;
   readonly initialFrame?: number;
 }
 
@@ -36,6 +53,9 @@ export class AnimatedVisual {
 
   private frameIndex: number;
   private transform: ResolvedVisualTransform;
+  private readonly depthResolver?: () => number;
+  private depth: number;
+  private readonly sourceFrame: { readonly width: number; readonly height: number };
   private destroyed = false;
 
   constructor(
@@ -47,12 +67,17 @@ export class AnimatedVisual {
     const definition = getVisualSet(visualSetId);
     const asset = getAsset(definition.assetId);
     const textureKey = asset.runtime.textureKey;
+    this.sourceFrame = 'frame' in asset.source
+      ? { width: asset.source.frame.w, height: asset.source.frame.h }
+      : { width: 1, height: 1 };
+    this.depthResolver = options.getDepth;
+    this.depth = options.depth ?? 0;
     this.frameIndex = options.initialFrame ?? 0;
     this.transform = resolveFrameVisual(visualSetId, this.frameIndex);
     this.sprite = asset.source.kind === 'spritesheet'
       ? scene.add.sprite(anchor.x, anchor.y, textureKey, this.frameIndex)
       : scene.add.sprite(anchor.x, anchor.y, textureKey);
-    this.sprite.setDepth(options.depth);
+    this.sprite.setDepth(this.depth);
     this.sprite.on(Phaser.Animations.Events.ANIMATION_UPDATE, this.handleAnimationUpdate);
     this.anchor.once(Phaser.GameObjects.Events.DESTROY, this.handleAnchorDestroy);
     this.scene.events.once(Phaser.Scenes.Events.SHUTDOWN, this.handleSceneShutdown);
@@ -102,6 +127,7 @@ export class AnimatedVisual {
   }
 
   setDepth(depth: number): this {
+    this.depth = depth;
     this.sprite.setDepth(depth);
     return this;
   }
@@ -132,6 +158,36 @@ export class AnimatedVisual {
 
   getBounds(): Phaser.Geom.Rectangle {
     return this.sprite.getBounds();
+  }
+
+  getRenderState(): AnimatedVisualRenderState {
+    return {
+      textureKey: this.sprite.texture.key,
+      frame: this.sprite.frame.name,
+      sourceFrame: this.sourceFrame,
+      x: this.sprite.x,
+      y: this.sprite.y,
+      originX: this.sprite.originX,
+      originY: this.sprite.originY,
+      scaleX: this.sprite.scaleX,
+      scaleY: this.sprite.scaleY,
+      alpha: this.sprite.alpha,
+      flipX: this.sprite.flipX,
+      flipY: this.sprite.flipY,
+      rotation: this.sprite.rotation,
+    };
+  }
+
+  mirrorTo(target: Phaser.GameObjects.Sprite, alpha = 0.72): void {
+    const state = this.getRenderState();
+    target
+      .setTexture(state.textureKey, state.frame)
+      .setPosition(state.x, state.y)
+      .setOrigin(state.originX, state.originY)
+      .setScale(state.scaleX, state.scaleY)
+      .setFlip(state.flipX, state.flipY)
+      .setRotation(state.rotation)
+      .setAlpha(alpha);
   }
 
   destroy(): void {
@@ -167,6 +223,7 @@ export class AnimatedVisual {
       .setScale(resolvedScaleX, resolvedScaleY)
       .setAlpha(this.effects.alpha)
       .setPosition(this.anchor.x + offsetX, this.anchor.y + offsetY);
+    this.sprite.setDepth(this.depthResolver?.() ?? this.depth);
   }
 
   private readonly handleAnimationUpdate = (

@@ -9,16 +9,33 @@
         {
           "visualId": "shadow-pine-01",
           "frame": 0,
+          "occlusionBounds": {
+            "width": 110,
+            "height": 130,
+            "offsetX": 8,
+            "offsetY": 0
+          },
           "collider": {
-            "width": 34,
+            "width": 68,
             "height": 40,
-            "offsetX": 47,
-            "offsetY": 125
+            "offsetX": 28,
+            "offsetY": 116
+          },
+          "displayName": "shadow-pine-01",
+          "visualOffset": {
+            "x": 0,
+            "y": 0
           }
         },
         {
           "visualId": "shadow-pine-02",
           "frame": 1,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 34,
             "height": 40,
@@ -29,6 +46,12 @@
         {
           "visualId": "ancient-bare-01",
           "frame": 2,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 54,
             "height": 48,
@@ -39,6 +62,12 @@
         {
           "visualId": "frost-bare",
           "frame": 3,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 48,
             "height": 48,
@@ -54,6 +83,12 @@
         {
           "visualId": "ancient-bare-02",
           "frame": 4,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 54,
             "height": 48,
@@ -64,6 +99,12 @@
         {
           "visualId": "ancient-bare-03",
           "frame": 5,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 54,
             "height": 48,
@@ -74,6 +115,12 @@
         {
           "visualId": "ancient-bare-04",
           "frame": 6,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 54,
             "height": 48,
@@ -84,6 +131,12 @@
         {
           "visualId": "ancient-bare-05",
           "frame": 7,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 54,
             "height": 48,
@@ -94,6 +147,12 @@
         {
           "visualId": "ancient-bare-06",
           "frame": 8,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 54,
             "height": 48,
@@ -104,6 +163,12 @@
         {
           "visualId": "golden-tree-01",
           "frame": 9,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 40,
             "height": 42,
@@ -114,6 +179,12 @@
         {
           "visualId": "golden-tree-02",
           "frame": 10,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 40,
             "height": 42,
@@ -124,6 +195,12 @@
         {
           "visualId": "autumn-tree-01",
           "frame": 11,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 40,
             "height": 42,
@@ -134,6 +211,12 @@
         {
           "visualId": "autumn-tree-02",
           "frame": 12,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 40,
             "height": 42,
@@ -144,6 +227,12 @@
         {
           "visualId": "autumn-tree-03",
           "frame": 13,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 40,
             "height": 42,
@@ -154,6 +243,12 @@
         {
           "visualId": "autumn-tree-04",
           "frame": 14,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 40,
             "height": 42,
@@ -164,6 +259,12 @@
         {
           "visualId": "autumn-tree-05",
           "frame": 15,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 40,
             "height": 42,
@@ -174,6 +275,12 @@
         {
           "visualId": "red-tree",
           "frame": 16,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 42,
             "height": 42,
@@ -184,6 +291,12 @@
         {
           "visualId": "pine-01",
           "frame": 17,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 36,
             "height": 34,
@@ -194,6 +307,12 @@
         {
           "visualId": "pine-02",
           "frame": 18,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 36,
             "height": 34,
@@ -204,6 +323,12 @@
         {
           "visualId": "pine-03",
           "frame": 19,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 36,
             "height": 34,
@@ -214,6 +339,12 @@
         {
           "visualId": "pine-04",
           "frame": 20,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 36,
             "height": 34,
@@ -224,6 +355,12 @@
         {
           "visualId": "pine-05",
           "frame": 21,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 36,
             "height": 34,
@@ -234,6 +371,12 @@
         {
           "visualId": "pine-06",
           "frame": 22,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 36,
             "height": 34,
@@ -244,6 +387,12 @@
         {
           "visualId": "pine-07",
           "frame": 23,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 36,
             "height": 34,
@@ -271,6 +420,12 @@
         {
           "visualId": "green-tree-01",
           "frame": 25,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 42,
             "height": 42,
@@ -281,6 +436,12 @@
         {
           "visualId": "green-tree-02",
           "frame": 26,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 42,
             "height": 42,
@@ -291,6 +452,12 @@
         {
           "visualId": "green-tree-03",
           "frame": 27,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 42,
             "height": 42,
@@ -301,6 +468,12 @@
         {
           "visualId": "green-tree-04",
           "frame": 28,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 42,
             "height": 42,
@@ -311,6 +484,12 @@
         {
           "visualId": "green-tree-05",
           "frame": 29,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 42,
             "height": 42,
@@ -321,6 +500,12 @@
         {
           "visualId": "green-tree-06",
           "frame": 30,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 42,
             "height": 42,
@@ -331,6 +516,12 @@
         {
           "visualId": "green-tree-07",
           "frame": 31,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 42,
             "height": 42,
@@ -341,6 +532,12 @@
         {
           "visualId": "grove-tree-01",
           "frame": 32,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 44,
             "height": 42,
@@ -351,6 +548,12 @@
         {
           "visualId": "grove-tree-02",
           "frame": 33,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 44,
             "height": 42,
@@ -361,6 +564,12 @@
         {
           "visualId": "grove-tree-03",
           "frame": 34,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 44,
             "height": 42,
@@ -371,6 +580,12 @@
         {
           "visualId": "grove-tree-04",
           "frame": 35,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 44,
             "height": 42,
@@ -381,6 +596,12 @@
         {
           "visualId": "grove-tree-05",
           "frame": 36,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 44,
             "height": 42,
@@ -391,6 +612,12 @@
         {
           "visualId": "grove-tree-06",
           "frame": 37,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 44,
             "height": 42,
@@ -401,6 +628,12 @@
         {
           "visualId": "grove-tree-07",
           "frame": 38,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 44,
             "height": 42,
@@ -411,6 +644,12 @@
         {
           "visualId": "grove-tree-08",
           "frame": 39,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 44,
             "height": 42,
@@ -421,6 +660,12 @@
         {
           "visualId": "grove-tree-09",
           "frame": 40,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 44,
             "height": 42,
@@ -431,6 +676,12 @@
         {
           "visualId": "grove-tree-10",
           "frame": 41,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 44,
             "height": 42,
@@ -441,6 +692,12 @@
         {
           "visualId": "grove-tree-11",
           "frame": 42,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 148,
+            "offsetX": 8,
+            "offsetY": 12
+          },
           "collider": {
             "width": 44,
             "height": 42,
@@ -456,6 +713,12 @@
         {
           "visualId": "ancient-green",
           "frame": 0,
+          "occlusionBounds": {
+            "width": 220,
+            "height": 220,
+            "offsetX": 18,
+            "offsetY": 18
+          },
           "collider": {
             "width": 120,
             "height": 58,
@@ -466,6 +729,12 @@
         {
           "visualId": "ancient-dark",
           "frame": 1,
+          "occlusionBounds": {
+            "width": 220,
+            "height": 220,
+            "offsetX": 18,
+            "offsetY": 18
+          },
           "collider": {
             "width": 120,
             "height": 58,
@@ -476,6 +745,12 @@
         {
           "visualId": "ancient-blossom",
           "frame": 2,
+          "occlusionBounds": {
+            "width": 220,
+            "height": 220,
+            "offsetX": 18,
+            "offsetY": 18
+          },
           "collider": {
             "width": 120,
             "height": 58,

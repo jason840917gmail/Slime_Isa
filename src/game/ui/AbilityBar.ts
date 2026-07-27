@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import type { AbilitySystem, AbilityId } from '../systems/AbilitySystem';
+import { resolveScreenUiDepth } from '../presentation/WorldDepth';
 
 /**
  * Bottom-center ability bar. Shows the two level-gated abilities (jump,
@@ -50,28 +51,28 @@ export class AbilityBar {
       const cx = x + cell / 2;
       const cy = y + cell / 2;
 
-      const bg = scene.add.graphics().setScrollFactor(0).setDepth(60);
+      const bg = scene.add.graphics().setScrollFactor(0).setDepth(resolveScreenUiDepth(50));
       this.drawBg(bg, cx, cy, cell);
 
       const icon = scene.add
         .text(cx, cy - 6, def.glyph, { fontFamily: FONT, fontSize: '22px', color: '#f4fff7' })
         .setOrigin(0.5)
         .setScrollFactor(0)
-        .setDepth(61);
+        .setDepth(resolveScreenUiDepth(51));
 
       const label = scene.add
         .text(cx, cy + 16, def.hotkey, { fontFamily: FONT, fontSize: '10px', color: '#88c899' })
         .setOrigin(0.5)
         .setScrollFactor(0)
-        .setDepth(61);
+        .setDepth(resolveScreenUiDepth(51));
 
-      const cooldown = scene.add.graphics().setScrollFactor(0).setDepth(62);
+      const cooldown = scene.add.graphics().setScrollFactor(0).setDepth(resolveScreenUiDepth(52));
 
       const locked = scene.add
         .text(cx, cy, '', { fontFamily: FONT, fontSize: '11px', color: '#ffd86b', stroke: '#0a1f15', strokeThickness: 3 })
         .setOrigin(0.5)
         .setScrollFactor(0)
-        .setDepth(63);
+        .setDepth(resolveScreenUiDepth(53));
 
       this.slots.push({ id: def.id, key: def.key, bg, icon, label, cooldown, locked });
     });

@@ -186,6 +186,7 @@ for (const absolutePath of objectFiles) {
             'frame',
             'displayName',
             'visualOffset',
+            'occlusionBounds',
             'visualSetId',
             'animationClip',
             'collider',
@@ -216,6 +217,17 @@ for (const absolutePath of objectFiles) {
 
         const hasVisualSet = frameEntry.visualSetId !== undefined;
         const hasAnimationClip = frameEntry.animationClip !== undefined;
+
+        if (frameEntry.occlusionBounds !== undefined) {
+          if (asset.source.kind !== 'spritesheet') {
+            fail(file, objectId, `${frameField}.occlusionBounds`, 'procedural object variants cannot define occlusion bounds');
+          } else if (hasVisualSet || hasAnimationClip) {
+            fail(file, objectId, `${frameField}.occlusionBounds`, 'animated object variants cannot define occlusion bounds');
+          } else if (frame) {
+            validateBounds(file, objectId, `${frameField}.occlusionBounds`, frameEntry.occlusionBounds, frame);
+          }
+        }
+
         if (hasVisualSet !== hasAnimationClip) {
           fail(
             file,

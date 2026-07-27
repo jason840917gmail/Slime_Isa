@@ -7,6 +7,7 @@ import {
 } from '../../content/terrain/TileCatalog';
 import { getAsset } from '../../infrastructure/assets/manifest';
 import type { AssetId } from '../../infrastructure/assets/manifest';
+import { DEPTH_BANDS } from '../../presentation/WorldDepth';
 import type { WorldDimensions } from '../../world/WorldDimensions';
 import {
   createGroundSheetSelection,
@@ -60,7 +61,7 @@ export class TileFactory {
       visual.frame,
     ) as Phaser.Physics.Arcade.Image;
     const body = image.body as Phaser.Physics.Arcade.StaticBody;
-    image.setDepth(1);
+    image.setDepth(DEPTH_BANDS['ground-terrain']);
     image.setFlip(visual.flipX, visual.flipY);
     body.setSize(bodyBounds.width, bodyBounds.height);
     body.setOffset(bodyBounds.offsetX, bodyBounds.offsetY);
@@ -76,7 +77,7 @@ export class TileFactory {
       tileY * this.ctx.dimensions.tileSize,
       visual.textureKey,
       visual.frame,
-    ).setOrigin(0).setFlip(visual.flipX, visual.flipY).setDepth(depth);
+    ).setOrigin(0).setFlip(visual.flipX, visual.flipY).setDepth(depth + DEPTH_BANDS['ground-decals']);
   }
 
   private resolveVisual(tileId: WorldTileId, tileX: number, tileY: number): ResolvedTileVisual {

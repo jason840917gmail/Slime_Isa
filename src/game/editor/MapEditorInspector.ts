@@ -6,6 +6,7 @@ import {
   type ObjectTemplateEditorState,
   type ObjectTemplateViewState,
 } from './ObjectTemplateEditorState';
+import { EDITOR_GEOMETRY_STYLES, type EditorGeometryKey } from './EditorGeometryStyles';
 import type { MapEditorState } from './MapEditorState';
 
 export interface InspectorPreviewUrls {
@@ -103,6 +104,8 @@ function renderInspector(
   const { selected, draft, errors } = state;
   const imagePreview = previews.objects[selected.key] ?? '';
   const collider = draft.collider;
+  const occlusion = draft.occlusionBounds;
+  const occlusionSupported = Boolean(state.frameDimensions && !selected.visualSetId && !selected.animationClip);
   host.innerHTML = `
     <header class="map-editor-inspector-header">
       <div><span class="editor-inspector-kicker">Instrument panel</span><h2>Template inspector</h2></div>
@@ -123,8 +126,8 @@ function renderInspector(
             ${renderError(errors.displayName)}
           </label>
         </section>
-        <section class="editor-inspector-section">
-          <div class="editor-inspector-section-title"><span>02</span><h3>Visual alignment</h3></div>
+        <section class="editor-inspector-section editor-geometry-section editor-geometry-frame">
+          <div class="editor-inspector-section-title"><span>02</span><h3><span class="editor-geometry-swatch" aria-hidden="true"></span>Visual alignment</h3></div>
           <p class="editor-inspector-help">Moves the art in source-frame pixels. The map anchor and collider stay fixed.</p>
           <div class="editor-inspector-grid">
             ${renderNumberField('Horizontal', 'visualOffsetX', draft.visualOffset.x, errors.visualOffsetX, 'template-offset-x')}
@@ -132,8 +135,8 @@ function renderInspector(
           </div>
           <button type="button" class="editor-inspector-secondary" data-command="reset-offset">Reset to 0, 0</button>
         </section>
-        <section class="editor-inspector-section">
-          <div class="editor-inspector-section-title"><span>03</span><h3>Collider</h3></div>
+        <section class="editor-inspector-section editor-geometry-section editor-geometry-collider">
+          <div class="editor-inspector-section-title"><span>03</span><h3><span class="editor-geometry-swatch" aria-hidden="true"></span>Collider</h3></div>
           ${selected.physics === null
             ? '<p class="editor-inspector-no-physics">This object has no physics.</p>'
             : `<p class="editor-inspector-help">Source-frame pixels · ${state.frameDimensions ? `${state.frameDimensions.width} × ${state.frameDimensions.height}` : 'frame bounds unavailable'}</p>
@@ -145,12 +148,32 @@ function renderInspector(
               </div>
               ${renderError(errors.collider)}`}
         </section>
+        <section class="editor-inspector-section editor-geometry-section editor-geometry-occlusion">
+          <div class="editor-inspector-section-title"><span>04</span><h3><span class="editor-geometry-swatch" aria-hidden="true"></span>Occlusion</h3></div>
+          <p class="editor-inspector-help">The art's opaque pixels define the reveal shape. These bounds only crop the source-alpha scan for performance.</p>
+          <label class="editor-inspector-check">
+            <input type="checkbox" data-template-occlusion-toggle ${occlusion ? 'checked' : ''} ${occlusionSupported ? '' : 'disabled'} />
+            <span><strong>Occludes actors</strong><small>${occlusionSupported ? 'Reveal only the hidden pixels of the player and engaged enemies' : 'Requires a static spritesheet frame'}</small></span>
+          </label>
+          ${occlusion ? `<div class="editor-inspector-grid">
+            ${renderNumberField('Width', 'occlusionWidth', occlusion.width, errors.occlusionWidth, 'template-occlusion-width')}
+            ${renderNumberField('Height', 'occlusionHeight', occlusion.height, errors.occlusionHeight, 'template-occlusion-height')}
+            ${renderNumberField('Offset X', 'occlusionOffsetX', occlusion.offsetX, errors.occlusionOffsetX, 'template-occlusion-offset-x')}
+            ${renderNumberField('Offset Y', 'occlusionOffsetY', occlusion.offsetY, errors.occlusionOffsetY, 'template-occlusion-offset-y')}
+          </div>${renderError(errors.occlusionBounds)}` : ''}
+        </section>
         <section class="editor-inspector-section">
-          <div class="editor-inspector-section-title"><span>04</span><h3>Canvas boxes</h3></div>
+          <div class="editor-inspector-section-title"><span>05</span><h3>Canvas boxes</h3></div>
+          <p class="editor-inspector-help">Colors and line styles match the guides on the map. Toggle individual layers when boxes overlap.</p>
           <label class="editor-inspector-check">
             <input type="checkbox" data-overlay-scope="all-matching" ${state.showAllMatchingOverlays ? 'checked' : ''} />
-            <span><strong>Show boxes for all matching instances</strong><small>Visual frame and collision geometry</small></span>
+            <span><strong>Show boxes for all matching instances</strong><small>Visual frame, collision, and occlusion geometry</small></span>
           </label>
+          <div class="editor-geometry-toggle-list">
+            ${renderGeometryToggle('frame', state.showFrameOverlay, true, 'Visual frame', 'Yellow frame and anchor guide')}
+            ${renderGeometryToggle('collider', state.showColliderOverlay, selected.physics !== null && Boolean(collider), 'Collider', 'Red solid geometry used for physics')}
+            ${renderGeometryToggle('occlusion', state.showOcclusionOverlay, Boolean(occlusion && occlusionSupported), 'Occlusion', 'Blue scan region and reveal shape')}
+          </div>
         </section>
         <section class="editor-inspector-section editor-inspector-actions">
           <div class="editor-inspector-action-row">
@@ -185,6 +208,21 @@ function renderInspector(
     </div>`;
 }
 
+function renderGeometryToggle(
+  key: EditorGeometryKey,
+  checked: boolean,
+  enabled: boolean,
+  label: string,
+  description: string,
+): string {
+  const style = EDITOR_GEOMETRY_STYLES[key];
+  return `<label class="editor-inspector-check editor-geometry-toggle editor-geometry-${key}" style="--editor-geometry-color: ${style.css}">
+    <input type="checkbox" data-overlay-geometry="${key}" ${checked ? 'checked' : ''} ${enabled ? '' : 'disabled'} />
+    <span class="editor-geometry-swatch" aria-hidden="true"></span>
+    <span><strong>${label}</strong><small>${description}</small></span>
+  </label>`;
+}
+
 function updateCollider(
   templateEditor: ObjectTemplateEditorState,
   field: keyof ColliderBounds,
@@ -193,6 +231,18 @@ function updateCollider(
   const draft = templateEditor.value.draft;
   if (!draft?.collider) return;
   templateEditor.updateDraft({ collider: { ...draft.collider, [field]: value } });
+}
+
+function updateOcclusion(
+  templateEditor: ObjectTemplateEditorState,
+  field: 'width' | 'height' | 'offsetX' | 'offsetY',
+  value: number,
+): void {
+  const draft = templateEditor.value.draft;
+  if (!draft?.occlusionBounds) return;
+  templateEditor.updateDraft({
+    occlusionBounds: { ...draft.occlusionBounds, [field]: value },
+  });
 }
 
 export function mountMapEditorInspector(
@@ -296,8 +346,28 @@ export function mountMapEditorInspector(
     const target = event.target as HTMLInputElement;
     const field = target.dataset.templateField;
     if (!field) {
+      if (target.dataset.templateOcclusionToggle !== undefined) {
+        const current = templateEditor.value.draft?.occlusionBounds;
+        const dimensions = templateEditor.value.frameDimensions;
+        templateEditor.updateDraft({
+          occlusionBounds: target.checked
+            ? current ?? {
+              width: dimensions?.width ?? 1,
+              height: dimensions?.height ?? 1,
+              offsetX: 0,
+              offsetY: 0,
+            }
+            : undefined,
+        });
+        return;
+      }
       if (target.dataset.overlayScope === 'all-matching') {
         templateEditor.setShowAllMatchingOverlays(target.checked);
+        return;
+      }
+      const geometryKey = target.dataset.overlayGeometry;
+      if (geometryKey === 'frame' || geometryKey === 'collider' || geometryKey === 'occlusion') {
+        templateEditor.setOverlayVisibility(geometryKey, target.checked);
       }
       return;
     }
@@ -311,6 +381,10 @@ export function mountMapEditorInspector(
     if (field === 'width' || field === 'height' || field === 'offsetX' || field === 'offsetY') {
       updateCollider(templateEditor, field, value);
     }
+    if (field === 'occlusionWidth') updateOcclusion(templateEditor, 'width', value);
+    if (field === 'occlusionHeight') updateOcclusion(templateEditor, 'height', value);
+    if (field === 'occlusionOffsetX') updateOcclusion(templateEditor, 'offsetX', value);
+    if (field === 'occlusionOffsetY') updateOcclusion(templateEditor, 'offsetY', value);
   };
 
   const submitHandler = (event: SubmitEvent): void => {

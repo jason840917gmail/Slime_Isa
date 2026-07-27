@@ -2,11 +2,13 @@ import {
   getObjectVisualChoice,
   setObjectVisualOverride,
   type ColliderBounds,
+  type OcclusionBounds,
   type EditableObjectVisual,
   type ObjectArchetypeId,
   type ObjectVisualChoice,
 } from '../content/objects/ObjectCatalog';
 import { getAsset } from '../infrastructure/assets/manifest';
+import type { EditorGeometryKey } from './EditorGeometryStyles';
 
 export interface SourceFrameDimensions {
   readonly width: number;
@@ -21,6 +23,9 @@ export interface ObjectTemplateViewState {
   readonly frameDimensions?: SourceFrameDimensions;
   readonly errors: Readonly<Record<string, string>>;
   readonly showAllMatchingOverlays: boolean;
+  readonly showFrameOverlay: boolean;
+  readonly showColliderOverlay: boolean;
+  readonly showOcclusionOverlay: boolean;
   readonly dirty: boolean;
   readonly saving: boolean;
   readonly status: string;
@@ -38,11 +43,16 @@ function cloneCollider(collider?: ColliderBounds): ColliderBounds | undefined {
   return collider ? { ...collider } : undefined;
 }
 
+function cloneOcclusionBounds(bounds?: OcclusionBounds): OcclusionBounds | undefined {
+  return bounds ? { ...bounds } : undefined;
+}
+
 function cloneDraft(draft: ObjectTemplateDraft): ObjectTemplateDraft {
   return {
     displayName: draft.displayName,
     visualOffset: { ...draft.visualOffset },
     collider: cloneCollider(draft.collider),
+    occlusionBounds: cloneOcclusionBounds(draft.occlusionBounds),
   };
 }
 
@@ -55,6 +65,7 @@ function draftFromChoice(choice: ObjectVisualChoice): ObjectTemplateDraft {
     displayName: choice.displayName,
     visualOffset: { ...choice.visualOffset },
     collider: cloneCollider(choice.collider),
+    occlusionBounds: cloneOcclusionBounds(choice.occlusionBounds),
   };
 }
 
@@ -81,6 +92,26 @@ export function validateObjectTemplateDraft(
 
   if (!isInteger(draft.visualOffset.x)) errors.visualOffsetX = 'Use a whole number of pixels.';
   if (!isInteger(draft.visualOffset.y)) errors.visualOffsetY = 'Use a whole number of pixels.';
+
+  if (draft.occlusionBounds) {
+    if (!dimensions) {
+      errors.occlusionBounds = 'Occlusion requires an authoritative spritesheet frame.';
+    } else if (choice.visualSetId || choice.animationClip) {
+      errors.occlusionBounds = 'Animated object templates cannot occlude actors yet.';
+    } else {
+      const { width, height, offsetX, offsetY } = draft.occlusionBounds;
+      if (!isInteger(width) || width < 1) errors.occlusionWidth = 'Width must be a positive whole number.';
+      if (!isInteger(height) || height < 1) errors.occlusionHeight = 'Height must be a positive whole number.';
+      if (!isInteger(offsetX) || offsetX < 0) errors.occlusionOffsetX = 'Offset must be 0 or more.';
+      if (!isInteger(offsetY) || offsetY < 0) errors.occlusionOffsetY = 'Offset must be 0 or more.';
+      if (isInteger(width) && isInteger(offsetX) && offsetX + width > dimensions.width) {
+        errors.occlusionWidth = `Occlusion must fit inside the ${dimensions.width}px frame.`;
+      }
+      if (isInteger(height) && isInteger(offsetY) && offsetY + height > dimensions.height) {
+        errors.occlusionHeight = `Occlusion must fit inside the ${dimensions.height}px frame.`;
+      }
+    }
+  }
 
   if (choice.physics === null) {
     if (draft.collider) errors.collider = 'Decorative templates cannot have a collider.';
@@ -111,6 +142,9 @@ export class ObjectTemplateEditorState {
   private savedDraft?: ObjectTemplateDraft;
   private errorsValue: Readonly<Record<string, string>> = {};
   private showAllMatchingOverlaysValue = false;
+  private showFrameOverlayValue = true;
+  private showColliderOverlayValue = true;
+  private showOcclusionOverlayValue = true;
   private dirtyValue = false;
   private savingValue = false;
   private statusValue = 'Select an object template to inspect';
@@ -128,6 +162,9 @@ export class ObjectTemplateEditorState {
       frameDimensions: this.selectedValue ? getSourceFrameDimensions(this.selectedValue) : undefined,
       errors: this.errorsValue,
       showAllMatchingOverlays: this.showAllMatchingOverlaysValue,
+      showFrameOverlay: this.showFrameOverlayValue,
+      showColliderOverlay: this.showColliderOverlayValue,
+      showOcclusionOverlay: this.showOcclusionOverlayValue,
       dirty: this.dirtyValue,
       saving: this.savingValue,
       status: this.statusValue,
@@ -172,6 +209,20 @@ export class ObjectTemplateEditorState {
     this.emit();
   }
 
+  setOverlayVisibility(key: EditorGeometryKey, visible: boolean): void {
+    if (key === 'frame') {
+      if (this.showFrameOverlayValue === visible) return;
+      this.showFrameOverlayValue = visible;
+    } else if (key === 'collider') {
+      if (this.showColliderOverlayValue === visible) return;
+      this.showColliderOverlayValue = visible;
+    } else {
+      if (this.showOcclusionOverlayValue === visible) return;
+      this.showOcclusionOverlayValue = visible;
+    }
+    this.emit();
+  }
+
   updateDraft(patch: Partial<ObjectTemplateDraft>): boolean {
     if (!this.selectedValue || !this.draftValue) return false;
     const next: ObjectTemplateDraft = {
@@ -182,6 +233,9 @@ export class ObjectTemplateEditorState {
       collider: patch.collider === undefined
         ? cloneCollider(this.draftValue.collider)
         : cloneCollider(patch.collider),
+      occlusionBounds: 'occlusionBounds' in patch
+        ? cloneOcclusionBounds(patch.occlusionBounds)
+        : cloneOcclusionBounds(this.draftValue.occlusionBounds),
     };
     const errors = validateObjectTemplateDraft(this.selectedValue, next);
     this.errorsValue = errors;
@@ -248,6 +302,7 @@ export class ObjectTemplateEditorState {
           displayName: draft.displayName,
           visualOffset: draft.visualOffset,
           collider: draft.collider,
+          occlusionBounds: draft.occlusionBounds,
         }),
       });
       const result = await response.json() as { ok?: boolean; error?: string };
@@ -295,6 +350,7 @@ export class ObjectTemplateEditorState {
           displayName,
           visualOffset: draft.visualOffset,
           collider: draft.collider,
+          occlusionBounds: draft.occlusionBounds,
         }),
       });
       const result = await response.json() as {

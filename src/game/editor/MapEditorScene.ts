@@ -14,7 +14,18 @@ import {
   isWorldTileId,
   type WorldTileId,
 } from '../content/terrain/TileCatalog';
-import { getObjectAnchor, ObjectFactory, setObjectAnchor } from '../features/objects/ObjectFactory';
+import {
+  getObjectAnchor,
+  ObjectFactory,
+  setObjectAnchor,
+  setObjectDepthMode,
+} from '../features/objects/ObjectFactory';
+import { resolveExplicitDepth } from '../presentation/WorldDepth';
+import {
+  buildSourceAlphaMask,
+  resolveWorldOcclusionRectangle,
+  resolveWorldAlphaMaskRuns,
+} from '../presentation/WorldOcclusion';
 import {
   TerrainTransitionLayer,
   TerrainTransitionRenderer,
@@ -24,6 +35,7 @@ import type { LoadedMap } from '../infrastructure/maps/MapRepository';
 import { getAsset } from '../infrastructure/assets/manifest';
 import { AREAS } from '../world/Area';
 import { connectionAt } from './MapConnections';
+import { EDITOR_GEOMETRY_STYLES, EDITOR_SELECTION_STYLE } from './EditorGeometryStyles';
 import { mountMapEditorInspector } from './MapEditorInspector';
 import { mountMapEditorPanel, type ContentPreviewUrls } from './MapEditorPanel';
 import { MapEditorState, type EditableMap, type EditableObjectInstance, type EditorTool } from './MapEditorState';
@@ -109,7 +121,12 @@ export class MapEditorScene extends Phaser.Scene {
   private unmountInspector?: () => void;
   private lastRevision = -1;
   private lastTemplateRevision = -1;
-  private lastShowAllMatchingOverlays = false;
+  private lastTemplateOverlaySettings = {
+    showAllMatchingOverlays: false,
+    showFrameOverlay: true,
+    showColliderOverlay: true,
+    showOcclusionOverlay: true,
+  };
   private lastSelectedInstanceId?: string;
   private lastTool: EditorTool = 'pan';
   private panPointer?: { x: number; y: number };
@@ -202,12 +219,19 @@ export class MapEditorScene extends Phaser.Scene {
       }
     });
     this.lastTemplateRevision = this.templateEditor.value.revision;
-    this.lastShowAllMatchingOverlays = this.templateEditor.value.showAllMatchingOverlays;
+    this.lastTemplateOverlaySettings = this.templateOverlaySettings();
     this.unsubscribeTemplate = this.templateEditor.subscribe((state) => {
-      const overlayScopeChanged = state.showAllMatchingOverlays !== this.lastShowAllMatchingOverlays;
-      this.lastShowAllMatchingOverlays = state.showAllMatchingOverlays;
+      const previousOverlaySettings = this.lastTemplateOverlaySettings;
+      const nextOverlaySettings = this.templateOverlaySettings();
+      const overlaySettingsChanged = (
+        state.showAllMatchingOverlays !== previousOverlaySettings.showAllMatchingOverlays
+        || state.showFrameOverlay !== previousOverlaySettings.showFrameOverlay
+        || state.showColliderOverlay !== previousOverlaySettings.showColliderOverlay
+        || state.showOcclusionOverlay !== previousOverlaySettings.showOcclusionOverlay
+      );
+      this.lastTemplateOverlaySettings = nextOverlaySettings;
       if (state.revision === this.lastTemplateRevision) {
-        if (overlayScopeChanged && this.lastRevision >= 0) this.renderOverlays();
+        if (overlaySettingsChanged && this.lastRevision >= 0) this.renderOverlays();
         return;
       }
       this.lastTemplateRevision = state.revision;
@@ -232,14 +256,11 @@ export class MapEditorScene extends Phaser.Scene {
   private bindPointer(): void {
     this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
       const world = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
-      if (this.editor.value.tool === 'safe-zone' && pointer.rightButtonDown()) {
-        const zoneIndex = this.safeZoneIndexAt(world.x, world.y);
-        if (zoneIndex !== undefined) {
-          this.deleteSafeZone(zoneIndex);
-          return;
-        }
+      if (pointer.rightButtonDown()) {
+        this.pickContentAt(world.x, world.y);
+        return;
       }
-      if (this.editor.value.tool === 'pan' || pointer.rightButtonDown() || pointer.middleButtonDown()) {
+      if (this.editor.value.tool === 'pan' || pointer.middleButtonDown()) {
         this.panPointer = { x: pointer.x, y: pointer.y };
         return;
       }
@@ -320,6 +341,29 @@ export class MapEditorScene extends Phaser.Scene {
       this.cameras.main.setZoom(zoom);
       this.editor.notify(`Zoom ${Math.round(zoom * 100)}%`);
     });
+  }
+
+  private pickContentAt(worldX: number, worldY: number): void {
+    const objectHit = this.movableObjectAt(worldX, worldY);
+    if (objectHit) {
+      const objectId = objectHit.object.objectId;
+      if (!isObjectArchetypeId(objectId)) return;
+      this.editor.setObject(objectId, objectHit.object.visualId);
+      this.editor.selectInstance(objectHit.instanceId);
+      this.templateEditor.select(objectId, objectHit.object.visualId);
+      this.editor.notify(`Picked ${objectId} / ${objectHit.object.visualId}`);
+      return;
+    }
+
+    const tile = this.tileAt(worldX, worldY);
+    if (!tile) return;
+    const layer = this.editor.value.map.layers[0];
+    const row = layer?.rows[tile.y];
+    const tileId = row ? layer.legend[row[tile.x]] : undefined;
+    if (typeof tileId !== 'string' || !isWorldTileId(tileId)) return;
+    this.editor.setTile(tileId);
+    this.editor.selectInstance(undefined);
+    this.editor.notify(`Picked ${tileId}`);
   }
 
   private bindKeyboard(): void {
@@ -443,7 +487,7 @@ export class MapEditorScene extends Phaser.Scene {
       drag.hiddenTerrain.set(key, existing);
     }
     const preview = this.previewTileFactory.create(drag.tileId, tileX, tileY);
-    preview.setDepth(85).setAlpha(1);
+    preview.setDepth(resolveExplicitDepth('editor-drag-lift')).setAlpha(1);
     drag.previews.push(preview);
     this.editor.notify(`Painting ${drag.tileId} — ${drag.cells.size} tiles`);
   }
@@ -519,7 +563,8 @@ export class MapEditorScene extends Phaser.Scene {
       x: tileX * map.tileSize + map.tileSize / 2,
       y: (tileY + 1) * map.tileSize,
       visualId: drag.visualId,
-      depth: 85,
+      depthMode: 'explicit',
+      depth: resolveExplicitDepth('editor-cursor'),
     });
     preview.setAlpha(0.65);
     drag.previews.push(preview);
@@ -560,7 +605,8 @@ export class MapEditorScene extends Phaser.Scene {
       pointerOffsetY: getObjectAnchor(hit.image)[1] - worldY,
       moved: false,
     };
-    hit.image.setDepth(120).setAlpha(0.82);
+    setObjectDepthMode(hit.image, 'explicit', resolveExplicitDepth('editor-drag-lift'));
+    hit.image.setAlpha(0.82);
     this.editor.selectInstance(hit.instanceId);
     this.editor.notify(`Dragging ${hit.instanceId} — release to place`);
   }
@@ -591,7 +637,8 @@ export class MapEditorScene extends Phaser.Scene {
     const targetY = (tileY + 1) * map.tileSize;
     if (!drag.moved) {
       setObjectAnchor(drag.image, drag.startX, drag.startY);
-      drag.image.setDepth(2).setAlpha(1);
+      setObjectDepthMode(drag.image, 'world-sorted');
+      drag.image.setAlpha(1);
       this.drawMoveHandles();
       this.renderSelectionMarker();
       return;
@@ -604,14 +651,17 @@ export class MapEditorScene extends Phaser.Scene {
     });
     if (!changed) {
       setObjectAnchor(drag.image, drag.startX, drag.startY);
-      drag.image.setDepth(2).setAlpha(1);
+      setObjectDepthMode(drag.image, 'world-sorted');
+      drag.image.setAlpha(1);
       this.drawMoveHandles();
     }
     this.editor.selectInstance(drag.instanceId);
   }
 
-  private movableObjectAt(worldX: number, worldY: number): { instanceId: string; image: Phaser.GameObjects.Image } | undefined {
+  private movableObjectAt(worldX: number, worldY: number): { instanceId: string; image: Phaser.GameObjects.Image; object: EditableObjectInstance } | undefined {
     const objects = this.editor.value.map.objects;
+    let hit: { instanceId: string; image: Phaser.GameObjects.Image; object: EditableObjectInstance } | undefined;
+    let hitDepth = Number.NEGATIVE_INFINITY;
     for (let index = objects.length - 1; index >= 0; index -= 1) {
       const object = objects[index];
       const image = this.renderedInstances.get(object.instanceId);
@@ -623,9 +673,14 @@ export class MapEditorScene extends Phaser.Scene {
         && worldX <= bounds.right + padding
         && worldY >= bounds.y - padding
         && worldY <= bounds.bottom + padding
-      ) return { instanceId: object.instanceId, image };
+      ) {
+        if (!hit || image.depth > hitDepth) {
+          hit = { instanceId: object.instanceId, image, object };
+          hitDepth = image.depth;
+        }
+      }
     }
-    return undefined;
+    return hit;
   }
 
   // ── Cursor ghost (selected terrain/object follows the pointer) ────────────
@@ -668,14 +723,15 @@ export class MapEditorScene extends Phaser.Scene {
   private createCursorGhost(tool: EditorTool): Phaser.GameObjects.Image {
     if (tool === 'terrain') {
       return this.previewTileFactory.create(this.editor.value.tileId, 0, 0)
-        .setDepth(95)
+        .setDepth(resolveExplicitDepth('editor-cursor'))
         .setAlpha(0.55);
     }
     return this.previewObjectFactory.create(this.editor.value.objectId, {
       x: 0,
       y: 0,
       visualId: this.editor.value.objectVisualId,
-      depth: 95,
+      depthMode: 'explicit',
+      depth: resolveExplicitDepth('editor-cursor'),
     }).setAlpha(0.65);
   }
 
@@ -729,7 +785,7 @@ export class MapEditorScene extends Phaser.Scene {
     const rect = this.safeZoneDragRect;
     if (!rect) return;
     this.safeZoneDragMarker?.destroy();
-    this.safeZoneDragMarker = this.add.graphics().setDepth(110).setName('editor-safe-zone-draft');
+    this.safeZoneDragMarker = this.add.graphics().setDepth(resolveExplicitDepth('editor-selection-marker', 1)).setName('editor-safe-zone-draft');
     this.safeZoneDragMarker.fillStyle(0x20ff63, 0.3).fillRect(rect.x, rect.y, rect.w, rect.h);
     this.safeZoneDragMarker.lineStyle(6, 0x65ff91, 1).strokeRect(rect.x, rect.y, rect.w, rect.h);
     this.editor.notify(`Safe zone ${rect.w} × ${rect.h} px`);
@@ -776,7 +832,7 @@ export class MapEditorScene extends Phaser.Scene {
     move.x = Phaser.Math.Clamp(worldX - move.offsetX, 0, width - move.w);
     move.y = Phaser.Math.Clamp(worldY - move.offsetY, 0, height - move.h);
     this.safeZoneDragMarker?.destroy();
-    this.safeZoneDragMarker = this.add.graphics().setDepth(112).setName('editor-safe-zone-move');
+    this.safeZoneDragMarker = this.add.graphics().setDepth(resolveExplicitDepth('editor-selection-marker', 2)).setName('editor-safe-zone-move');
     this.safeZoneDragMarker.fillStyle(0x20ff63, 0.34).fillRect(move.x, move.y, move.w, move.h);
     this.safeZoneDragMarker.lineStyle(7, 0xa0ffb9, 1).strokeRect(move.x, move.y, move.w, move.h);
     this.editor.notify(`Moving safe zone ${move.index + 1}`);
@@ -875,7 +931,7 @@ export class MapEditorScene extends Phaser.Scene {
     const top = Math.min(this.eraseDragStart.y, worldY);
     const width = Math.abs(worldX - this.eraseDragStart.x);
     const height = Math.abs(worldY - this.eraseDragStart.y);
-    this.eraseDragMarker = this.add.graphics().setDepth(110).setName('editor-erase-selection');
+    this.eraseDragMarker = this.add.graphics().setDepth(resolveExplicitDepth('editor-selection-marker', 3)).setName('editor-erase-selection');
     this.eraseDragMarker.fillStyle(0xff5f56, 0.14).fillRect(left, top, width, height);
     this.eraseDragMarker.lineStyle(3, 0xff8b75, 0.95).strokeRect(left, top, width, height);
   }
@@ -965,6 +1021,7 @@ export class MapEditorScene extends Phaser.Scene {
         x: object.x,
         y: object.y,
         visualId: object.visualId,
+        sortId: object.instanceId,
         initialState: object.initialState,
       });
       image.setData('instanceId', object.instanceId);
@@ -996,32 +1053,90 @@ export class MapEditorScene extends Phaser.Scene {
     const resolved = getObjectVisualChoice(selected.objectId, selected.visualId);
     if (!resolved) return;
 
-    const graphics = this.add.graphics().setDepth(108).setName('editor-template-overlays');
+    const graphics = this.add.graphics().setDepth(resolveExplicitDepth('editor-template-overlay')).setName('editor-template-overlays');
+    const asset = getAsset(resolved.assetId);
+    const alphaMasks = new Map<string, ReturnType<typeof buildSourceAlphaMask>>();
     const drawGeometry = (image: Phaser.GameObjects.Image): void => {
       const [anchorX, anchorY] = getObjectAnchor(image);
       const bounds = image.getBounds();
       const frameX = bounds.x - resolved.visualOffset.x;
       const frameY = bounds.y - resolved.visualOffset.y;
-      graphics.lineStyle(2, 0xffe078, 0.95).strokeRect(frameX, frameY, bounds.width, bounds.height);
-      graphics.lineStyle(2, 0xffe078, 0.7);
-      graphics.lineBetween(anchorX - 8, anchorY, anchorX + 8, anchorY);
-      graphics.lineBetween(anchorX, anchorY - 8, anchorX, anchorY + 8);
-      if (resolved.visualOffset.x !== 0 || resolved.visualOffset.y !== 0) {
-        graphics.lineStyle(2, 0x75d9ff, 0.9).lineBetween(anchorX, anchorY, image.x, image.y);
+      const drawOutlinedRect = (
+        x: number,
+        y: number,
+        width: number,
+        height: number,
+        color: number,
+        lineWidth: number,
+      ): void => {
+        graphics.lineStyle(lineWidth + 3, EDITOR_SELECTION_STYLE.shadow, 0.85).strokeRect(x, y, width, height);
+        graphics.lineStyle(lineWidth, color, 0.98).strokeRect(x, y, width, height);
+      };
+      if (template.showFrameOverlay) {
+        drawOutlinedRect(
+          frameX,
+          frameY,
+          bounds.width,
+          bounds.height,
+          EDITOR_GEOMETRY_STYLES.frame.phaser,
+          2,
+        );
+        graphics.lineStyle(2, EDITOR_GEOMETRY_STYLES.frame.phaser, 0.72);
+        graphics.lineBetween(anchorX - 8, anchorY, anchorX + 8, anchorY);
+        graphics.lineBetween(anchorX, anchorY - 8, anchorX, anchorY + 8);
+        if (resolved.visualOffset.x !== 0 || resolved.visualOffset.y !== 0) {
+          graphics.lineStyle(2, EDITOR_SELECTION_STYLE.phaser, 0.9).lineBetween(anchorX, anchorY, image.x, image.y);
+        }
       }
-      if (resolved.physics !== null && resolved.collider) {
-        graphics.fillStyle(0xff684d, 0.24).fillRect(
-          frameX + resolved.collider.offsetX,
-          frameY + resolved.collider.offsetY,
+      if (template.showColliderOverlay && resolved.physics !== null && resolved.collider) {
+        const colliderX = frameX + resolved.collider.offsetX;
+        const colliderY = frameY + resolved.collider.offsetY;
+        graphics.fillStyle(EDITOR_GEOMETRY_STYLES.collider.phaser, 0.22).fillRect(
+          colliderX,
+          colliderY,
           resolved.collider.width,
           resolved.collider.height,
         );
-        graphics.lineStyle(2, 0xff8b63, 1).strokeRect(
-          frameX + resolved.collider.offsetX,
-          frameY + resolved.collider.offsetY,
+        drawOutlinedRect(
+          colliderX,
+          colliderY,
           resolved.collider.width,
           resolved.collider.height,
+          EDITOR_GEOMETRY_STYLES.collider.phaser,
+          3,
         );
+      }
+      if (template.showOcclusionOverlay && template.draft?.occlusionBounds && template.frameDimensions) {
+        const occlusionRectangle = resolveWorldOcclusionRectangle(
+          image,
+          template.frameDimensions,
+          template.draft.occlusionBounds,
+        );
+        graphics.fillStyle(EDITOR_GEOMETRY_STYLES.occlusion.phaser, 0.08).fillRect(
+          occlusionRectangle.x,
+          occlusionRectangle.y,
+          occlusionRectangle.width,
+          occlusionRectangle.height,
+        );
+        drawOutlinedRect(
+          occlusionRectangle.x,
+          occlusionRectangle.y,
+          occlusionRectangle.width,
+          occlusionRectangle.height,
+          EDITOR_GEOMETRY_STYLES.occlusion.phaser,
+          2,
+        );
+        const frameName = String(image.frame.name);
+        const sourceMask = alphaMasks.get(frameName) ?? buildSourceAlphaMask(
+          template.frameDimensions,
+          (x, y) => this.textures.getPixelAlpha(x, y, asset.runtime.textureKey, image.frame.name),
+          template.draft.occlusionBounds,
+        );
+        alphaMasks.set(frameName, sourceMask);
+        graphics.fillStyle(EDITOR_GEOMETRY_STYLES.occlusion.phaser, 0.2);
+        for (const occlusion of resolveWorldAlphaMaskRuns(image, template.frameDimensions, sourceMask)) {
+          graphics.fillRect(occlusion.x, occlusion.y, occlusion.width, occlusion.height);
+        }
       }
     };
     const matchingObjects = this.editor.value.map.objects.filter((object) => (
@@ -1046,7 +1161,8 @@ export class MapEditorScene extends Phaser.Scene {
         x: anchorX,
         y: anchorY,
         visualId: selected.visualId,
-        depth: 107,
+        depthMode: 'explicit',
+        depth: resolveExplicitDepth('editor-template-overlay'),
       }).setAlpha(0.62);
       drawGeometry(this.templatePreview);
     }
@@ -1054,7 +1170,7 @@ export class MapEditorScene extends Phaser.Scene {
   }
 
   private renderMoveHandles(): void {
-    this.moveHandles = this.add.graphics().setDepth(94).setName('editor-move-handles');
+    this.moveHandles = this.add.graphics().setDepth(resolveExplicitDepth('editor-selection-marker')).setName('editor-move-handles');
     this.overlayObjects.push(this.moveHandles);
     this.drawMoveHandles();
   }
@@ -1089,7 +1205,7 @@ export class MapEditorScene extends Phaser.Scene {
   }
 
   private renderGrid(map: EditableMap): void {
-    const graphics = this.add.graphics().setDepth(80);
+    const graphics = this.add.graphics().setDepth(resolveExplicitDepth('editor-template-overlay'));
     graphics.lineStyle(1, 0xf4cf7a, 0.13);
     const width = map.size.columns * map.tileSize;
     const height = map.size.rows * map.tileSize;
@@ -1100,7 +1216,7 @@ export class MapEditorScene extends Phaser.Scene {
   }
 
   private renderMapMarkers(map: EditableMap): void {
-    const graphics = this.add.graphics().setDepth(90);
+    const graphics = this.add.graphics().setDepth(resolveExplicitDepth('editor-template-overlay', 1));
     graphics.fillStyle(0x62ff9b, 0.9).fillCircle(map.player.spawn.x, map.player.spawn.y, 12);
     graphics.lineStyle(3, 0x0a1b15, 1).strokeCircle(map.player.spawn.x, map.player.spawn.y, 12);
     for (const [direction, point] of Object.entries(map.player.entries)) {
@@ -1108,7 +1224,7 @@ export class MapEditorScene extends Phaser.Scene {
       graphics.fillStyle(0x67d8ff, 0.9).fillCircle(point.x, point.y, 10);
       const label = this.add.text(point.x, point.y - 18, direction[0].toUpperCase(), {
         fontFamily: 'Trebuchet MS', fontSize: '13px', color: '#d9f8ff', backgroundColor: '#102b35', padding: { x: 4, y: 2 },
-      }).setOrigin(0.5).setDepth(91);
+      }).setOrigin(0.5).setDepth(resolveExplicitDepth('editor-template-overlay', 2));
       this.overlayObjects.push(label);
     }
     for (const exit of map.exits) {
@@ -1123,7 +1239,7 @@ export class MapEditorScene extends Phaser.Scene {
         graphics.lineStyle(6, 0x65ff91, 1).strokeRect(zone.x, zone.y, zone.w, zone.h);
         const label = this.add.text(zone.x + zone.w / 2, zone.y + zone.h / 2, `SAFE ${index + 1}`, {
           fontFamily: 'Trebuchet MS', fontSize: '14px', color: '#effff3', backgroundColor: '#0b4a20', padding: { x: 6, y: 3 },
-        }).setOrigin(0.5).setDepth(91);
+        }).setOrigin(0.5).setDepth(resolveExplicitDepth('editor-template-overlay', 2));
         this.overlayObjects.push(label);
       }
     }
@@ -1137,9 +1253,11 @@ export class MapEditorScene extends Phaser.Scene {
     if (selectedZoneIndex !== undefined && this.editor.value.tool === 'safe-zone') {
       const zone = this.editor.value.map.enemySafeZones[selectedZoneIndex];
       if (!zone) return;
-      const marker = this.add.graphics().setName('editor-selection-marker').setDepth(100);
-      marker.lineStyle(3, 0xffffff, 1).strokeRect(zone.x - 8, zone.y - 8, zone.w + 16, zone.h + 16);
-      marker.fillStyle(0xffffff, 1).fillCircle(zone.x + zone.w, zone.y + zone.h, 6);
+      const marker = this.add.graphics().setName('editor-selection-marker').setDepth(resolveExplicitDepth('editor-selection-marker'));
+      marker.lineStyle(5, EDITOR_SELECTION_STYLE.shadow, 0.9).strokeRect(zone.x - 8, zone.y - 8, zone.w + 16, zone.h + 16);
+      marker.lineStyle(3, EDITOR_SELECTION_STYLE.phaser, 1).strokeRect(zone.x - 8, zone.y - 8, zone.w + 16, zone.h + 16);
+      marker.fillStyle(EDITOR_SELECTION_STYLE.shadow, 0.95).fillCircle(zone.x + zone.w, zone.y + zone.h, 8);
+      marker.fillStyle(EDITOR_SELECTION_STYLE.phaser, 1).fillCircle(zone.x + zone.w, zone.y + zone.h, 5);
       return;
     }
     const selectedId = this.editor.value.selectedInstanceId;
@@ -1147,14 +1265,36 @@ export class MapEditorScene extends Phaser.Scene {
     const image = this.renderedInstances.get(selectedId);
     if (!image) return;
     const bounds = image.getBounds();
-    const marker = this.add.graphics().setName('editor-selection-marker').setDepth(100);
-    marker.lineStyle(3, 0xfff0a8, 1).strokeRect(
+    const marker = this.add.graphics().setName('editor-selection-marker').setDepth(resolveExplicitDepth('editor-selection-marker'));
+    marker.lineStyle(5, EDITOR_SELECTION_STYLE.shadow, 0.9).strokeRect(
       bounds.x - 8,
       bounds.y - 8,
       bounds.width + 16,
       bounds.height + 16,
     );
-    marker.fillStyle(0xfff0a8, 1).fillCircle(bounds.centerX, bounds.y - 8, 6);
+    marker.lineStyle(3, EDITOR_SELECTION_STYLE.phaser, 1).strokeRect(
+      bounds.x - 8,
+      bounds.y - 8,
+      bounds.width + 16,
+      bounds.height + 16,
+    );
+    marker.fillStyle(EDITOR_SELECTION_STYLE.shadow, 0.95).fillCircle(bounds.centerX, bounds.y - 8, 8);
+    marker.fillStyle(EDITOR_SELECTION_STYLE.phaser, 1).fillCircle(bounds.centerX, bounds.y - 8, 5);
+  }
+
+  private templateOverlaySettings(): {
+    showAllMatchingOverlays: boolean;
+    showFrameOverlay: boolean;
+    showColliderOverlay: boolean;
+    showOcclusionOverlay: boolean;
+  } {
+    const state = this.templateEditor.value;
+    return {
+      showAllMatchingOverlays: state.showAllMatchingOverlays,
+      showFrameOverlay: state.showFrameOverlay,
+      showColliderOverlay: state.showColliderOverlay,
+      showOcclusionOverlay: state.showOcclusionOverlay,
+    };
   }
 
   private initialTileId(): WorldTileId {

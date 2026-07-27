@@ -17,6 +17,13 @@ export interface ColliderBounds {
   readonly offsetY: number;
 }
 
+export interface OcclusionBounds {
+  readonly width: number;
+  readonly height: number;
+  readonly offsetX: number;
+  readonly offsetY: number;
+}
+
 export interface VisualOffset {
   readonly x: number;
   readonly y: number;
@@ -30,6 +37,7 @@ export interface ObjectFrameVariant {
   readonly animationClip?: string;
   readonly visualOffset?: VisualOffset;
   readonly collider?: ColliderBounds;
+  readonly occlusionBounds?: OcclusionBounds;
 }
 
 export interface ObjectVariantGroup {
@@ -100,11 +108,15 @@ export interface ObjectVisualChoice {
   readonly animationClip?: string;
   readonly visualOffset: VisualOffset;
   readonly collider?: ColliderBounds;
+  readonly occlusionBounds?: OcclusionBounds;
   readonly physics: ObjectArchetypeDefinition['physics'];
   readonly tags: readonly string[];
 }
 
-export type EditableObjectVisual = Pick<ObjectVisualChoice, 'displayName' | 'visualOffset' | 'collider'>;
+export type EditableObjectVisual = Pick<
+  ObjectVisualChoice,
+  'displayName' | 'visualOffset' | 'collider' | 'occlusionBounds'
+>;
 
 const OBJECT_VISUAL_OVERRIDES = new Map<string, EditableObjectVisual>();
 
@@ -130,6 +142,7 @@ function createObjectVisualChoice(
     animationClip: frame.animationClip,
     visualOffset: override?.visualOffset ?? frame.visualOffset ?? { x: 0, y: 0 },
     collider: override?.collider ?? frame.collider,
+    occlusionBounds: override?.occlusionBounds ?? frame.occlusionBounds,
     physics: object.physics,
     tags: object.tags,
   };
@@ -165,6 +178,7 @@ export function setObjectVisualOverride(
     displayName: override.displayName,
     visualOffset: { ...override.visualOffset },
     collider: override.collider ? { ...override.collider } : undefined,
+    occlusionBounds: override.occlusionBounds ? { ...override.occlusionBounds } : undefined,
   });
 }
 

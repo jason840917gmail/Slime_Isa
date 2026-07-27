@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { House } from '../House';
 import { gameState } from '../core/GameState';
 import { gameEvents } from '../core/EventBus';
+import { resolveScreenUiDepth } from '../presentation/WorldDepth';
 
 /**
  * Extracted from WorldScene (AGENTS.md flagged HouseUI + EnterPrompt + Sleep as
@@ -160,7 +161,7 @@ export class HouseSystem {
     const cx = cam.width / 2;
     const cy = cam.height / 2;
 
-    const container = scene.add.container(cx, cy).setScrollFactor(0).setDepth(200);
+    const container = scene.add.container(cx, cy).setScrollFactor(0).setDepth(resolveScreenUiDepth(60));
 
     const bg = scene.add.graphics();
     bg.fillStyle(0x071612, 0.96);
@@ -244,7 +245,7 @@ export class HouseSystem {
         strokeThickness: 4,
       })
       .setOrigin(0.5)
-      .setDepth(95)
+      .setDepth(resolveScreenUiDepth(61))
       .setScrollFactor(0);
 
     this.enterPrompt = t;
@@ -292,7 +293,7 @@ export class HouseSystem {
         fontSize: '18px',
         color: '#dfefff',
       })
-      .setDepth(95)
+      .setDepth(resolveScreenUiDepth(61))
       .setOrigin(0.5)
       .setScrollFactor(0);
 

@@ -6,6 +6,7 @@ import { getVisualClip, getVisualSet, type VisualSetId } from '../content/visual
 import { AnimatedVisual } from '../features/visuals/AnimatedVisual';
 import { floatingText } from '../ui/FloatingText';
 import { runState, type EnemyState, type EnemyAIConfig, type EnemySafeZone } from './EnemyAI';
+import { resolveBodyBottom, resolveWorldDepth } from '../presentation/WorldDepth';
 
 export interface EnemyItemDrop {
   itemId: string;
@@ -57,6 +58,7 @@ export interface EnemyContext {
     knockbackStrength: number,
   ) => void;
   getSafeZones?: () => EnemySafeZone[];
+  registerRevealActor?: (enemy: Enemy, visual: AnimatedVisual) => void;
 }
 
 type VisualDirection = 'side' | 'up' | 'down';
@@ -98,7 +100,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     scene.add.existing(this);
     scene.physics.add.existing(this);
-    this.setVisible(false).setDepth(8).setCollideWorldBounds(true);
+    this.setVisible(false).setCollideWorldBounds(true);
 
     const body = this.body as Phaser.Physics.Arcade.Body;
     body.setSize(config.body.width, config.body.height, false);
@@ -108,11 +110,15 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     );
     body.setBounce(0.2).setCollideWorldBounds(true);
 
+    this.setDepth(resolveWorldDepth(resolveBodyBottom(body), { stableId: `enemy:${this.enemyId}` }).depth);
+
     this.visual = new AnimatedVisual(scene, this, config.visualSetId, {
-      depth: 8,
+      depth: this.depth,
+      getDepth: () => this.depth,
       initialFrame: 0,
     });
-    this.healthBar = scene.add.graphics().setDepth(40);
+    this.healthBar = scene.add.graphics();
+    this.ctx.registerRevealActor?.(this, this.visual);
     this.playVisual('idle');
   }
 
@@ -150,6 +156,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
 
   preUpdate(time: number, delta: number): void {
     super.preUpdate(time, delta);
+    this.syncDepth();
     this.visual.update();
     if (this.dead) return;
 
@@ -318,7 +325,10 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       alpha: { start: 0.6, end: 0 },
       quantity: 10,
       emitting: false,
-    }).setDepth(7);
+    }).setDepth(resolveWorldDepth(this.y, {
+      band: 'reveal-effects',
+      stableId: `death:${this.enemyId}`,
+    }).depth);
     dust.emitParticle(10);
     this.scene.time.delayedCall(450, () => dust.destroy());
     this.scene.tweens.add({
@@ -341,7 +351,11 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       this.y + this.attackVector.y * effect.distance,
       asset.runtime.textureKey,
       0,
-    ).setDepth(12).setRotation(Math.atan2(this.attackVector.y, this.attackVector.x));
+    ).setDepth(resolveWorldDepth(this.y, {
+      band: 'world-entities',
+      stableId: `impact:${this.enemyId}`,
+      attachmentSlot: 2,
+    }).depth).setRotation(Math.atan2(this.attackVector.y, this.attackVector.x));
     let cleaned = false;
     const cleanup = () => {
       if (cleaned) return;
@@ -385,6 +399,10 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     const bounds = this.visual.getBounds();
     const width = Math.max(28, bounds.width * 0.8);
     const y = bounds.top - 8;
+    this.healthBar.setDepth(resolveWorldDepth(resolveBodyBottom(this.body as Phaser.Physics.Arcade.Body), {
+      stableId: `enemy:${this.enemyId}`,
+      attachmentSlot: 7,
+    }).depth);
     this.healthBar.clear();
     this.healthBar.fillStyle(0x0a1f15, 0.8).fillRoundedRect(this.x - width / 2, y, width, 4, 2);
     const pct = Phaser.Math.Clamp(this.hp / this.maxHp, 0, 1);
@@ -396,5 +414,17 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       2,
       2,
     );
+  }
+
+  isRevealEligible(): boolean {
+    return this.active
+      && !this.dead
+      && (this.attackActive || this.aiState === 'chase' || this.aiState === 'attack' || this.aiState === 'flee');
+  }
+
+  private syncDepth(): void {
+    this.setDepth(resolveWorldDepth(resolveBodyBottom(this.body as Phaser.Physics.Arcade.Body), {
+      stableId: `enemy:${this.enemyId}`,
+    }).depth);
   }
 }

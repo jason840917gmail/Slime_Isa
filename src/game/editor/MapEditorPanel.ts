@@ -152,7 +152,7 @@ export function mountMapEditorPanel(
           <kbd>M</kbd><span>Monster Spawns</span>
         </button>
       </div>
-      <p class="editor-help">Paint, objects, and Pan support click-drag. Select / Move shows grab areas for direct drag-and-drop.</p>
+      <p class="editor-help">Paint and Object support click-drag. Right-click picks the object or terrain under the cursor. Middle-drag pans; Select / Move shows grab areas for direct drag-and-drop.</p>
     </section>
     <section class="editor-section">
       <div class="editor-section-title"><span>02</span><h2>Direction</h2></div>

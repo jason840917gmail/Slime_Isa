@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { gameEvents } from '../core/EventBus';
 import { gameState } from '../core/GameState';
+import { resolveBodyBottom, resolveWorldDepth } from '../presentation/WorldDepth';
 
 /**
  * World-space health bar that floats above a target sprite (the player).
@@ -18,7 +19,7 @@ export class HealthBar {
     this.scene = scene;
     this.target = target;
     this.offsetY = offsetY;
-    this.graphics = scene.add.graphics().setDepth(40);
+    this.graphics = scene.add.graphics();
 
     gameEvents.on('hp.changed', this.onChange, this);
     this.draw();
@@ -42,6 +43,10 @@ export class HealthBar {
 
   private draw(): void {
     const g = this.graphics;
+    g.setDepth(resolveWorldDepth(resolveBodyBottom(this.target.body as Phaser.Physics.Arcade.Body), {
+      stableId: 'player',
+      attachmentSlot: 7,
+    }).depth);
     const x = this.target.x - 22;
     const y = this.target.y + this.offsetY;
     const w = 44;

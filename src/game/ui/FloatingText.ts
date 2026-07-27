@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { resolveWorldDepth } from '../presentation/WorldDepth';
 
 /**
  * Pooled floating combat text. Rises + fades, crits bigger/yellow.
@@ -23,6 +24,7 @@ const COLORS: Record<Color, string> = {
 interface PooledText {
   text: Phaser.GameObjects.Text;
   busy: boolean;
+  sortId: string;
 }
 
 class FloatingTextPool {
@@ -47,11 +49,18 @@ class FloatingTextPool {
           strokeThickness: 4,
         })
         .setOrigin(0.5)
-        .setDepth(150)
+        .setDepth(resolveWorldDepth(y, {
+          band: 'reveal-effects',
+          stableId: `floating:${pool.length}`,
+        }).depth)
         .setScale(0.1)
         .setAlpha(0);
 
-      const entry: PooledText = { text: newText, busy: false };
+      const entry: PooledText = {
+        text: newText,
+        busy: false,
+        sortId: `floating:${pool.length}`,
+      };
       pool.push(entry);
       this.activate(entry, x, y, content, color, big);
     }
@@ -76,6 +85,10 @@ class FloatingTextPool {
       .setAlpha(1)
       .setScale(big ? 1.1 : 0.9)
       .setVisible(true);
+    t.setDepth(resolveWorldDepth(y, {
+      band: 'reveal-effects',
+      stableId: slot.sortId,
+    }).depth);
 
     const scene = t.scene;
     scene.tweens.add({

@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { gameEvents } from './core/EventBus';
 import { gameState } from './core/GameState';
 import { UI_THEME } from './presentation/theme';
+import { resolveScreenUiDepth } from './presentation/WorldDepth';
 
 /**
  * Heads-up display. Event-driven: subscribes to GameState changes via
@@ -42,7 +43,7 @@ export class HUD {
         strokeThickness: 4,
       })
       .setScrollFactor(0)
-      .setDepth(50) as Phaser.GameObjects.Text;
+      .setDepth(resolveScreenUiDepth(0)) as Phaser.GameObjects.Text;
 
     y += 22;
     this.coinsText = scene.add
@@ -54,7 +55,7 @@ export class HUD {
         strokeThickness: 4,
       })
       .setScrollFactor(0)
-      .setDepth(50) as Phaser.GameObjects.Text;
+      .setDepth(resolveScreenUiDepth(0)) as Phaser.GameObjects.Text;
 
     y += 22;
     this.friendCountText = scene.add
@@ -66,30 +67,30 @@ export class HUD {
         strokeThickness: 4,
       })
       .setScrollFactor(0)
-      .setDepth(50) as Phaser.GameObjects.Text;
+      .setDepth(resolveScreenUiDepth(0)) as Phaser.GameObjects.Text;
 
     y += 26;
-    this.hpBar = scene.add.graphics().setScrollFactor(0).setDepth(50);
+    this.hpBar = scene.add.graphics().setScrollFactor(0).setDepth(resolveScreenUiDepth(1));
     this.hpLabel = scene.add
       .text(this.barX, y, '', { fontFamily: font, fontSize: '11px', color: '#f4fff7', stroke: '#0a1f15', strokeThickness: 3 })
       .setScrollFactor(0)
-      .setDepth(51) as Phaser.GameObjects.Text;
+      .setDepth(resolveScreenUiDepth(2)) as Phaser.GameObjects.Text;
     this.hpLabel.setPosition(this.barX + this.barW + 8, y);
     y += this.barH + this.barGap;
 
-    this.xpBar = scene.add.graphics().setScrollFactor(0).setDepth(50);
+    this.xpBar = scene.add.graphics().setScrollFactor(0).setDepth(resolveScreenUiDepth(3));
     this.xpLabel = scene.add
       .text(this.barX, y, '', { fontFamily: font, fontSize: '11px', color: '#cfe6ff', stroke: '#0a1f15', strokeThickness: 3 })
       .setScrollFactor(0)
-      .setDepth(51) as Phaser.GameObjects.Text;
+      .setDepth(resolveScreenUiDepth(4)) as Phaser.GameObjects.Text;
     this.xpLabel.setPosition(this.barX + this.barW + 8, y);
     y += this.barH + this.barGap;
 
-    this.energyBar = scene.add.graphics().setScrollFactor(0).setDepth(50);
+    this.energyBar = scene.add.graphics().setScrollFactor(0).setDepth(resolveScreenUiDepth(5));
     this.energyLabel = scene.add
       .text(this.barX, y, '', { fontFamily: font, fontSize: '11px', color: '#ffe680', stroke: '#0a1f15', strokeThickness: 3 })
       .setScrollFactor(0)
-      .setDepth(51) as Phaser.GameObjects.Text;
+      .setDepth(resolveScreenUiDepth(6)) as Phaser.GameObjects.Text;
     this.energyLabel.setPosition(this.barX + this.barW + 8, y);
 
     gameEvents.on('coins.changed', this.onCoinsChanged, this);

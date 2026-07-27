@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import type { Enemy } from '../enemies/Enemy';
+import { resolveScreenUiDepth } from '../presentation/WorldDepth';
 
 const FONT = 'Aptos, Segoe UI Variable, sans-serif';
 
@@ -15,7 +16,7 @@ export class BossHealthBar {
     this.boss = boss;
 
     const cam = scene.cameras.main;
-    this.container = scene.add.container(cam.width / 2, cam.height - 74).setScrollFactor(0).setDepth(220);
+    this.container = scene.add.container(cam.width / 2, cam.height - 74).setScrollFactor(0).setDepth(resolveScreenUiDepth(70));
 
     const width = 520;
     const bg = scene.add.graphics();

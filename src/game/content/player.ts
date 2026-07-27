@@ -1,6 +1,5 @@
 export const PLAYER_CONFIG = {
   name: 'bob',
-  depth: 10,
   body: {
     // Stable world-unit geometry migrated from the former 0.28-scaled
     // 108x80 body. Visual-set scale changes never affect this body.

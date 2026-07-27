@@ -6,6 +6,7 @@ import { gameEvents } from '../../core/EventBus';
 import { gameState } from '../../core/GameState';
 import { Enemy } from '../../enemies/Enemy';
 import { EnemySpawner } from '../../enemies/EnemySpawner';
+import type { AnimatedVisual } from '../visuals/AnimatedVisual';
 import { getEnemyConfig } from '../../enemies/library/EnemyTypes';
 import { projectilePool } from '../../enemies/Projectile';
 import { UI_THEME } from '../../presentation/theme';
@@ -16,6 +17,7 @@ import { floatingText } from '../../ui/FloatingText';
 import { createGooGauntlet } from '../../weapons/library/GooGauntlet';
 import type { WorldDimensions } from '../../world/WorldDimensions';
 import type { MapEnemySafeZone, MapSpawns } from '../../content/maps/mapFormat';
+import { resolveScreenUiDepth } from '../../presentation/WorldDepth';
 
 export interface CombatControllerContext {
   scene: Phaser.Scene;
@@ -40,6 +42,7 @@ export interface CombatControllerContext {
   ) => void;
   healPlayer: (amount: number) => number;
   spawnItemDropIcon: (x: number, y: number, itemId: string, count: number, index: number, total: number) => void;
+  registerRevealActor?: (enemy: Enemy, visual: AnimatedVisual) => void;
 }
 
 export class CombatController {
@@ -61,7 +64,7 @@ export class CombatController {
       color: '#ffe680',
       stroke: '#0a1f15',
       strokeThickness: 4,
-    }).setOrigin(0.5).setScrollFactor(0).setDepth(55).setAlpha(0);
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(resolveScreenUiDepth(10)).setAlpha(0);
 
     this.combo = new ComboSystem(scene, {
       onComboHit: (count, multiplier) => {
@@ -159,6 +162,7 @@ export class CombatController {
   update(time: number, delta: number): void {
     this.combo.update();
     this.spawner?.update(time, delta);
+    projectilePool.update(this.ctx.scene);
   }
 
   tryAttack(): boolean {
@@ -198,6 +202,7 @@ export class CombatController {
       },
       onDeath: (enemy: Enemy) => this.onEnemyDeath(enemy),
       getSafeZones: () => this.safeZones(),
+      registerRevealActor: this.ctx.registerRevealActor,
       fireProjectile: (
         x: number,
         y: number,

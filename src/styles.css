@@ -1240,6 +1240,22 @@ body {
   border-bottom: 1px solid var(--inspector-line);
 }
 
+.editor-geometry-section {
+  border-left: 3px solid var(--editor-geometry-color);
+}
+
+.editor-geometry-frame {
+  --editor-geometry-color: #ffd166;
+}
+
+.editor-geometry-collider {
+  --editor-geometry-color: #ff4d5d;
+}
+
+.editor-geometry-occlusion {
+  --editor-geometry-color: #38bdf8;
+}
+
 .editor-inspector-section-title {
   display: flex;
   align-items: baseline;
@@ -1253,6 +1269,9 @@ body {
 }
 
 .editor-inspector-section-title h3 {
+  display: flex;
+  align-items: center;
+  gap: 7px;
   margin: 0;
   color: #aab89f;
   font-size: 10px;
@@ -1330,6 +1349,17 @@ body {
   box-shadow: 0 0 0 2px rgba(214, 183, 94, 0.13);
 }
 
+.editor-geometry-swatch {
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  border: 1px solid rgba(9, 14, 12, 0.85);
+  border-radius: 2px;
+  background: var(--editor-geometry-color);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--editor-geometry-color) 72%, white 28%);
+}
+
 .editor-inspector-check {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
@@ -1337,6 +1367,38 @@ body {
   align-items: start;
   color: #d9cfac;
   cursor: pointer;
+}
+
+.editor-geometry-toggle-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 11px;
+  border-top: 1px solid var(--inspector-line);
+}
+
+.editor-geometry-toggle {
+  grid-template-columns: auto auto minmax(0, 1fr);
+  gap: 8px;
+  padding: 5px 6px;
+  border: 1px solid transparent;
+}
+
+.editor-geometry-toggle:hover {
+  border-color: color-mix(in srgb, var(--editor-geometry-color) 48%, transparent);
+  background: color-mix(in srgb, var(--editor-geometry-color) 7%, transparent);
+}
+
+.editor-geometry-toggle input {
+  accent-color: var(--editor-geometry-color);
+}
+
+.editor-geometry-toggle .editor-geometry-swatch {
+  margin-top: 2px;
+}
+
+.editor-geometry-toggle input:disabled + .editor-geometry-swatch {
+  opacity: 0.35;
 }
 
 .editor-inspector-check input {

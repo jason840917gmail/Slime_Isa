@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { resolveBodyCenterY, resolveWorldDepth } from '../presentation/WorldDepth';
 
 /**
  * Pooled projectile system. Supports both enemy projectiles (damage player)
@@ -17,6 +18,8 @@ interface PooledProjectile {
   damage: number;
   knockbackStrength: number;
   lifetimeTimer: Phaser.Time.TimerEvent | null;
+  sortId: string;
+  lastGroundY: number;
 }
 
 class ProjectilePoolImpl {
@@ -54,7 +57,6 @@ class ProjectilePoolImpl {
 
     if (!slot) {
       const sprite = scene.physics.add.image(x, y, textureKey) as Phaser.Physics.Arcade.Image;
-      sprite.setDepth(6);
       const group = owner === 'enemy' ? groups.enemy : groups.player;
       group.add(sprite);
       slot = {
@@ -64,6 +66,8 @@ class ProjectilePoolImpl {
         damage: 0,
         knockbackStrength: 0,
         lifetimeTimer: null,
+        sortId: `projectile:${owner}:${pool.length}`,
+        lastGroundY: Number.NaN,
       };
       pool.push(slot);
     }
@@ -116,6 +120,8 @@ class ProjectilePoolImpl {
     body.enable = true;
     body.setSize(slot.sprite.width, slot.sprite.height, true);
     slot.sprite.setVelocity(dx * speed, dy * speed);
+    slot.lastGroundY = Number.NaN;
+    this.updateDepth(slot);
 
     if (slot.lifetimeTimer) slot.lifetimeTimer.remove();
     slot.lifetimeTimer = scene.time.delayedCall(lifetimeMs, () => {
@@ -133,6 +139,15 @@ class ProjectilePoolImpl {
     }
   }
 
+  update(scene: Phaser.Scene): void {
+    for (const slot of this.pools.get(scene) ?? []) {
+      if (!slot.active) continue;
+      const body = slot.sprite.body as Phaser.Physics.Arcade.Body;
+      const groundY = resolveBodyCenterY(body);
+      if (groundY !== slot.lastGroundY) this.updateDepth(slot, groundY);
+    }
+  }
+
   damageFor(sprite: Phaser.Physics.Arcade.Image): number {
     return this.getPool(sprite.scene).find((slot) => slot.sprite === sprite)?.damage ?? 0;
   }
@@ -146,6 +161,13 @@ class ProjectilePoolImpl {
   recycle(sprite: Phaser.Physics.Arcade.Image): void {
     const slot = this.getPool(sprite.scene).find((candidate) => candidate.sprite === sprite);
     if (slot) this.deactivate(slot);
+  }
+
+  private updateDepth(slot: PooledProjectile, groundY?: number): void {
+    const body = slot.sprite.body as Phaser.Physics.Arcade.Body;
+    const nextGroundY = groundY ?? resolveBodyCenterY(body);
+    slot.lastGroundY = nextGroundY;
+    slot.sprite.setDepth(resolveWorldDepth(nextGroundY, { stableId: slot.sortId }).depth);
   }
 
   /** Get the enemy-projectile group for overlap setup. */

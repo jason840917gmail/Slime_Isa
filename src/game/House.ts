@@ -1,6 +1,10 @@
 import Phaser from 'phaser';
+import { resolveWorldDepth } from './presentation/WorldDepth';
+
+let houseIdCounter = 0;
 
 export class House {
+  readonly houseId = ++houseIdCounter;
   public sprite: Phaser.Physics.Arcade.Image;
   public doorZone: Phaser.GameObjects.Zone;
   public bed?: Phaser.Physics.Arcade.Image;
@@ -14,12 +18,14 @@ export class House {
     // center-based static image
     this.sprite = scene.physics.add.staticImage(x, y, textureKey);
     this.sprite.setOrigin(0.5, 0.5);
-    this.sprite.setDepth(2);
 
     // door area near bottom center of the house
     const doorOffsetY = Math.round((this.sprite.displayHeight ?? 64) / 2) - 10;
     this.doorZone = scene.add.zone(x, y + doorOffsetY, 28, 18);
     scene.physics.add.existing(this.doorZone, true);
+    this.sprite.setDepth(resolveWorldDepth(this.doorZone.y, {
+      stableId: `legacy-house:${this.houseId}`,
+    }).depth);
 
     if (bedKey) {
       // Place the bed slightly inside / in front of the house toward the bottom-left
@@ -30,7 +36,9 @@ export class House {
 
       this.bed = scene.physics.add.staticImage(bx, by, bedKey);
       this.bed.setOrigin(0.5, 0.5);
-      this.bed.setDepth(2);
+      this.bed.setDepth(resolveWorldDepth(by, {
+        stableId: `legacy-house-bed:${this.houseId}`,
+      }).depth);
 
       const bw = Math.max(16, (this.bed.width ?? 24));
       const bh = Math.max(8, (this.bed.height ?? 12));
@@ -41,6 +49,10 @@ export class House {
 
   getDoorPosition(): Phaser.Math.Vector2 {
     return new Phaser.Math.Vector2(this.doorZone.x, this.doorZone.y);
+  }
+
+  getGroundAnchorY(): number {
+    return this.doorZone.y;
   }
 
   getBedPosition(): Phaser.Math.Vector2 | null {

@@ -55,6 +55,27 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 
+interface ObjectOcclusionPayload {
+  readonly width: number;
+  readonly height: number;
+  readonly offsetX: number;
+  readonly offsetY: number;
+}
+
+function requireInteger(value: unknown, minimum: number, label: string): number {
+  if (typeof value !== 'number' || !Number.isInteger(value) || value < minimum) {
+    throw new Error(`${label} must be an integer >= ${minimum}`);
+  }
+  return value;
+}
+
+function requireWholePixel(value: unknown): number {
+  if (typeof value !== 'number' || !Number.isInteger(value)) {
+    throw new Error('Visual offset values must be whole pixels');
+  }
+  return value;
+}
+
 function validateRecordKeys(value: Record<string, unknown>, allowed: readonly string[], label: string): void {
   const allowedKeys = new Set(allowed);
   for (const key of Object.keys(value)) {
@@ -82,8 +103,14 @@ async function findObjectDefinitionPath(directory: string, objectId: string): Pr
 function frameDimensions(assetId: string): { readonly width: number; readonly height: number } | undefined {
   if (!(assetId in ASSET_MANIFEST.assets)) throw new Error(`Unknown asset '${assetId}'`);
   const asset = ASSET_MANIFEST.assets[assetId as AssetId];
-  if (asset.source.kind !== 'spritesheet') return undefined;
-  return { width: asset.source.frame.w, height: asset.source.frame.h };
+  const source: unknown = asset.source;
+  if (!isRecord(source) || source.kind !== 'spritesheet' || !isRecord(source.frame)) return undefined;
+  const width = source.frame.w;
+  const height = source.frame.h;
+  if (typeof width !== 'number' || typeof height !== 'number') {
+    throw new Error(`Spritesheet asset '${assetId}' has invalid frame dimensions`);
+  }
+  return { width, height };
 }
 
 function validateObjectVisualUpdate(
@@ -94,8 +121,9 @@ function validateObjectVisualUpdate(
   readonly displayName: string;
   readonly visualOffset: ObjectVisualOffsetPayload;
   readonly collider?: ObjectColliderPayload;
+  readonly occlusionBounds?: ObjectOcclusionPayload;
 } {
-  validateRecordKeys(payload, ['objectId', 'visualId', 'displayName', 'visualOffset', 'collider'], 'payload');
+  validateRecordKeys(payload, ['objectId', 'visualId', 'displayName', 'visualOffset', 'collider', 'occlusionBounds'], 'payload');
   const objectId = payload.objectId;
   const visualId = payload.visualId;
   if (typeof objectId !== 'string' || !OBJECT_ID_PATTERN.test(objectId) || !isObjectArchetypeId(objectId)) {
@@ -116,30 +144,45 @@ function validateObjectVisualUpdate(
   const visualOffsetValue = payload.visualOffset;
   if (!isRecord(visualOffsetValue)) throw new Error('Visual offset is required');
   validateRecordKeys(visualOffsetValue, ['x', 'y'], 'visualOffset');
-  if (!Number.isInteger(visualOffsetValue.x) || !Number.isInteger(visualOffsetValue.y)) {
-    throw new Error('Visual offset values must be whole pixels');
-  }
-  const visualOffset = { x: visualOffsetValue.x, y: visualOffsetValue.y };
+  const visualOffset = {
+    x: requireWholePixel(visualOffsetValue.x),
+    y: requireWholePixel(visualOffsetValue.y),
+  };
   const colliderValue = payload.collider;
+  const occlusionValue = payload.occlusionBounds;
+  let occlusionBounds: ObjectOcclusionPayload | undefined;
+  if (occlusionValue !== undefined) {
+    if (!isRecord(occlusionValue)) throw new Error('Occlusion bounds must be an object');
+    validateRecordKeys(occlusionValue, ['width', 'height', 'offsetX', 'offsetY'], 'occlusionBounds');
+    occlusionBounds = {
+      width: requireInteger(occlusionValue.width, 1, 'Occlusion width'),
+      height: requireInteger(occlusionValue.height, 1, 'Occlusion height'),
+      offsetX: requireInteger(occlusionValue.offsetX, 0, 'Occlusion offsetX'),
+      offsetY: requireInteger(occlusionValue.offsetY, 0, 'Occlusion offsetY'),
+    };
+    const dimensions = frameDimensions(variant.assetId);
+    if (!dimensions) throw new Error('Procedural object templates cannot define occlusion bounds');
+    if (frame.visualSetId !== undefined || frame.animationClip !== undefined) {
+      throw new Error('Animated object templates cannot define occlusion bounds');
+    }
+    if (occlusionBounds.offsetX + occlusionBounds.width > dimensions.width) {
+      throw new Error(`Occlusion bounds exceed frame width ${dimensions.width}`);
+    }
+    if (occlusionBounds.offsetY + occlusionBounds.height > dimensions.height) {
+      throw new Error(`Occlusion bounds exceed frame height ${dimensions.height}`);
+    }
+  }
   if (definition.physics === null) {
     if (colliderValue !== undefined) throw new Error('Decorative objects cannot have colliders');
-    return { frame, displayName, visualOffset };
+    return { frame, displayName, visualOffset, occlusionBounds };
   }
   if (!isRecord(colliderValue)) throw new Error('Solid objects require a collider');
   validateRecordKeys(colliderValue, ['width', 'height', 'offsetX', 'offsetY'], 'collider');
-  const colliderProperties = ['width', 'height', 'offsetX', 'offsetY'] as const;
-  for (const property of colliderProperties) {
-    const minimum = property.startsWith('offset') ? 0 : 1;
-    const value = colliderValue[property];
-    if (!Number.isInteger(value) || value < minimum) {
-      throw new Error(`Collider ${property} must be an integer >= ${minimum}`);
-    }
-  }
   const collider = {
-    width: colliderValue.width,
-    height: colliderValue.height,
-    offsetX: colliderValue.offsetX,
-    offsetY: colliderValue.offsetY,
+    width: requireInteger(colliderValue.width, 1, 'Collider width'),
+    height: requireInteger(colliderValue.height, 1, 'Collider height'),
+    offsetX: requireInteger(colliderValue.offsetX, 0, 'Collider offsetX'),
+    offsetY: requireInteger(colliderValue.offsetY, 0, 'Collider offsetY'),
   };
   const dimensions = frameDimensions(variant.assetId);
   if (dimensions && collider.offsetX + collider.width > dimensions.width) {
@@ -148,7 +191,7 @@ function validateObjectVisualUpdate(
   if (dimensions && collider.offsetY + collider.height > dimensions.height) {
     throw new Error(`Collider exceeds frame height ${dimensions.height}`);
   }
-  return { frame, displayName, visualOffset, collider };
+  return { frame, displayName, visualOffset, collider, occlusionBounds };
 }
 
 async function validateMapReferences(map: MapFile): Promise<string[]> {
@@ -195,7 +238,7 @@ async function readRequestBody(request: NodeJS.ReadableStream): Promise<string> 
   const chunks: Buffer[] = [];
   let size = 0;
   for await (const chunk of request) {
-    const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk as Uint8Array);
+    const buffer = typeof chunk === 'string' ? Buffer.from(chunk) : Buffer.from(chunk);
     size += buffer.length;
     if (size > MAX_EDITOR_BODY_BYTES) throw new Error('Map payload exceeds the 2 MB editor limit');
     chunks.push(buffer);
@@ -300,6 +343,8 @@ function mapEditorSavePlugin(): Plugin {
           update.frame.visualOffset = update.visualOffset;
           if (definition.physics === null) delete update.frame.collider;
           else update.frame.collider = update.collider;
+          if (update.occlusionBounds) update.frame.occlusionBounds = update.occlusionBounds;
+          else delete update.frame.occlusionBounds;
 
           temporaryPath = `${definitionPath}.${process.pid}.${Date.now()}.tmp`;
           await fs.writeFile(temporaryPath, `${JSON.stringify(definition, null, 2)}\n`, 'utf8');
@@ -313,6 +358,7 @@ function mapEditorSavePlugin(): Plugin {
             displayName: update.displayName,
             visualOffset: update.visualOffset,
             collider: update.collider,
+            occlusionBounds: update.occlusionBounds,
           }));
         } catch (error) {
           if (temporaryPath) await fs.rm(temporaryPath, { force: true });
@@ -334,7 +380,7 @@ function mapEditorSavePlugin(): Plugin {
           const payload = JSON.parse(await readRequestBody(request)) as Record<string, unknown>;
           validateRecordKeys(
             payload,
-            ['objectId', 'sourceVisualId', 'visualId', 'displayName', 'visualOffset', 'collider'],
+            ['objectId', 'sourceVisualId', 'visualId', 'displayName', 'visualOffset', 'collider', 'occlusionBounds'],
             'payload',
           );
           const objectId = payload.objectId;
@@ -366,6 +412,7 @@ function mapEditorSavePlugin(): Plugin {
             displayName: payload.displayName,
             visualOffset: payload.visualOffset,
             collider: payload.collider,
+            occlusionBounds: payload.occlusionBounds,
           }, definition);
 
           const duplicatedFrame: MutableObjectFrame = {
@@ -376,6 +423,8 @@ function mapEditorSavePlugin(): Plugin {
           };
           if (definition.physics === null) delete duplicatedFrame.collider;
           else duplicatedFrame.collider = update.collider;
+          if (update.occlusionBounds) duplicatedFrame.occlusionBounds = update.occlusionBounds;
+          else delete duplicatedFrame.occlusionBounds;
           sourceVariant.frames.push(duplicatedFrame);
 
           temporaryPath = `${definitionPath}.${process.pid}.${Date.now()}.tmp`;
@@ -390,6 +439,7 @@ function mapEditorSavePlugin(): Plugin {
             displayName: update.displayName,
             visualOffset: update.visualOffset,
             collider: update.collider,
+            occlusionBounds: update.occlusionBounds,
           }));
         } catch (error) {
           if (temporaryPath) await fs.rm(temporaryPath, { force: true });
