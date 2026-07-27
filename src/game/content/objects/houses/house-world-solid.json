@@ -6,12 +6,59 @@
     {
       "assetId": "sheet.houses.3x1",
       "frames": [
-        { "visualId": "barn-red", "frame": 0, "collider": { "width": 270, "height": 92, "offsetX": 22, "offsetY": 224 } },
-        { "visualId": "forge-red", "frame": 1, "collider": { "width": 280, "height": 96, "offsetX": 20, "offsetY": 220 } },
-        { "visualId": "cottage-blue", "frame": 2, "collider": { "width": 286, "height": 92, "offsetX": 17, "offsetY": 224 } }
+        {
+          "visualId": "barn-red",
+          "frame": 0,
+          "collider": {
+            "width": 277,
+            "height": 150,
+            "offsetX": 22,
+            "offsetY": 157
+          },
+          "displayName": "barn-red",
+          "visualOffset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "visualId": "forge-red",
+          "frame": 1,
+          "collider": {
+            "width": 280,
+            "height": 180,
+            "offsetX": 20,
+            "offsetY": 120
+          },
+          "displayName": "forge-red",
+          "visualOffset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "visualId": "cottage-blue",
+          "frame": 2,
+          "collider": {
+            "width": 277,
+            "height": 170,
+            "offsetX": 17,
+            "offsetY": 120
+          },
+          "displayName": "cottage-blue",
+          "visualOffset": {
+            "x": 0,
+            "y": 0
+          }
+        }
       ]
     }
   ],
-  "physics": { "body": "static" },
-  "tags": ["house", "solid"]
+  "physics": {
+    "body": "static"
+  },
+  "tags": [
+    "house",
+    "solid"
+  ]
 }

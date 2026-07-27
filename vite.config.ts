@@ -4,7 +4,7 @@ import path from 'node:path';
 import { defineConfig, type Plugin } from 'vite';
 
 import { parseMapFile, type MapFile } from './src/game/content/maps/mapFormat';
-import { hasObjectVisual, isObjectArchetypeId } from './src/game/content/objects/ObjectCatalog';
+import { isObjectArchetypeId } from './src/game/content/objects/ObjectCatalog';
 import { isWorldTileId } from './src/game/content/terrain/TileCatalog';
 import { ENEMY_CONFIGS } from './src/game/enemies/library/EnemyTypes';
 import { ASSET_MANIFEST, type AssetId } from './src/game/infrastructure/assets/manifest';
@@ -151,17 +151,32 @@ function validateObjectVisualUpdate(
   return { frame, displayName, visualOffset, collider };
 }
 
-function validateMapReferences(map: MapFile): string[] {
+async function validateMapReferences(map: MapFile): Promise<string[]> {
   const issues: string[] = [];
+  const objectDefinitions = new Map<string, Promise<MutableObjectDefinition | undefined>>();
+  const loadObjectDefinition = (objectId: string): Promise<MutableObjectDefinition | undefined> => {
+    const cached = objectDefinitions.get(objectId);
+    if (cached) return cached;
+    const pending = (async () => {
+      const definitionPath = await findObjectDefinitionPath(OBJECT_DEFINITION_ROOT, objectId);
+      if (!definitionPath) return undefined;
+      return JSON.parse(await fs.readFile(definitionPath, 'utf8')) as MutableObjectDefinition;
+    })();
+    objectDefinitions.set(objectId, pending);
+    return pending;
+  };
   for (const [layerIndex, layer] of map.layers.entries()) {
     for (const [token, tileId] of Object.entries(layer.legend)) {
       if (!isWorldTileId(tileId)) issues.push(`layers[${layerIndex}].legend['${token}']: unknown tile '${tileId}'`);
     }
   }
   for (const [objectIndex, object] of map.objects.entries()) {
-    if (!isObjectArchetypeId(object.objectId)) {
+    const definition = await loadObjectDefinition(object.objectId);
+    if (!definition) {
       issues.push(`objects[${objectIndex}].objectId: unknown object '${object.objectId}'`);
-    } else if (!hasObjectVisual(object.objectId, object.visualId)) {
+    } else if (!definition.variants.some((variant) => (
+      variant.frames.some((frame) => frame.visualId === object.visualId)
+    ))) {
       issues.push(`objects[${objectIndex}].visualId: unknown visual '${object.visualId}' for '${object.objectId}'`);
     }
   }
@@ -243,7 +258,7 @@ function mapEditorSavePlugin(): Plugin {
             exits: [],
             enemySafeZones: [],
           }, 'new-map');
-          const referenceIssues = validateMapReferences(map);
+          const referenceIssues = await validateMapReferences(map);
           if (referenceIssues.length > 0) throw new Error(referenceIssues.join('\n'));
 
           const mapsDirectory = path.resolve(process.cwd(), 'src/game/content/maps');
@@ -306,6 +321,83 @@ function mapEditorSavePlugin(): Plugin {
         }
       });
 
+      server.middlewares.use('/__map-editor/object-template/duplicate', async (request, response) => {
+        response.setHeader('Content-Type', 'application/json; charset=utf-8');
+        if (request.method !== 'POST') {
+          response.statusCode = 405;
+          response.end(JSON.stringify({ ok: false, error: 'POST required' }));
+          return;
+        }
+
+        let temporaryPath: string | undefined;
+        try {
+          const payload = JSON.parse(await readRequestBody(request)) as Record<string, unknown>;
+          validateRecordKeys(
+            payload,
+            ['objectId', 'sourceVisualId', 'visualId', 'displayName', 'visualOffset', 'collider'],
+            'payload',
+          );
+          const objectId = payload.objectId;
+          const sourceVisualId = payload.sourceVisualId;
+          const visualId = payload.visualId;
+          if (typeof objectId !== 'string' || !isObjectArchetypeId(objectId)) {
+            throw new Error(`Unknown object '${String(objectId)}'`);
+          }
+          if (typeof sourceVisualId !== 'string') throw new Error('Source visual ID is required');
+          if (typeof visualId !== 'string' || !/^[a-z0-9]+([.-][a-z0-9-]+)*$/.test(visualId)) {
+            throw new Error('Visual ID must be a lowercase stable ID');
+          }
+
+          const definitionPath = await findObjectDefinitionPath(OBJECT_DEFINITION_ROOT, objectId);
+          if (!definitionPath) throw new Error(`Object definition '${objectId}' was not found`);
+          const definition = JSON.parse(await fs.readFile(definitionPath, 'utf8')) as MutableObjectDefinition;
+          if (definition.variants.some((variant) => (
+            variant.frames.some((frame) => frame.visualId === visualId)
+          ))) {
+            throw new Error(`Visual '${visualId}' already exists for '${objectId}'`);
+          }
+          const sourceVariant = definition.variants.find((variant) => (
+            variant.frames.some((frame) => frame.visualId === sourceVisualId)
+          ));
+          if (!sourceVariant) throw new Error(`Unknown visual '${sourceVisualId}' for '${objectId}'`);
+          const update = validateObjectVisualUpdate({
+            objectId,
+            visualId: sourceVisualId,
+            displayName: payload.displayName,
+            visualOffset: payload.visualOffset,
+            collider: payload.collider,
+          }, definition);
+
+          const duplicatedFrame: MutableObjectFrame = {
+            ...update.frame,
+            visualId,
+            displayName: update.displayName,
+            visualOffset: update.visualOffset,
+          };
+          if (definition.physics === null) delete duplicatedFrame.collider;
+          else duplicatedFrame.collider = update.collider;
+          sourceVariant.frames.push(duplicatedFrame);
+
+          temporaryPath = `${definitionPath}.${process.pid}.${Date.now()}.tmp`;
+          await fs.writeFile(temporaryPath, `${JSON.stringify(definition, null, 2)}\n`, 'utf8');
+          await fs.rename(temporaryPath, definitionPath);
+          temporaryPath = undefined;
+          response.statusCode = 201;
+          response.end(JSON.stringify({
+            ok: true,
+            objectId,
+            visualId,
+            displayName: update.displayName,
+            visualOffset: update.visualOffset,
+            collider: update.collider,
+          }));
+        } catch (error) {
+          if (temporaryPath) await fs.rm(temporaryPath, { force: true });
+          response.statusCode = 400;
+          response.end(JSON.stringify({ ok: false, error: error instanceof Error ? error.message : String(error) }));
+        }
+      });
+
       server.middlewares.use('/__map-editor/save', async (request, response) => {
         response.setHeader('Content-Type', 'application/json; charset=utf-8');
         if (request.method !== 'POST') {
@@ -318,7 +410,7 @@ function mapEditorSavePlugin(): Plugin {
         try {
           const raw = await readRequestBody(request);
           const map = parseMapFile(JSON.parse(raw), 'editor-save');
-          const referenceIssues = validateMapReferences(map);
+          const referenceIssues = await validateMapReferences(map);
           if (referenceIssues.length > 0) throw new Error(referenceIssues.join('\n'));
 
           const mapsDirectory = path.resolve(process.cwd(), 'src/game/content/maps');
@@ -373,7 +465,7 @@ function mapEditorSavePlugin(): Plugin {
           const filesToWrite: Array<{ target: string; value: unknown }> = [{ target: targetPath, value: map }];
           for (const [targetMapId, targetData] of updatedTargets) {
             const validatedTarget = parseMapFile(targetData, targetMapId);
-            const targetIssues = validateMapReferences(validatedTarget);
+            const targetIssues = await validateMapReferences(validatedTarget);
             if (targetIssues.length > 0) throw new Error(targetIssues.join('\n'));
             filesToWrite.push({
               target: path.join(mapsDirectory, `${targetMapId}.map.json`),

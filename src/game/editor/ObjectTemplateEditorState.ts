@@ -20,10 +20,16 @@ export interface ObjectTemplateViewState {
   readonly draft?: ObjectTemplateDraft;
   readonly frameDimensions?: SourceFrameDimensions;
   readonly errors: Readonly<Record<string, string>>;
+  readonly showAllMatchingOverlays: boolean;
   readonly dirty: boolean;
   readonly saving: boolean;
   readonly status: string;
   readonly revision: number;
+}
+
+export interface DuplicatedObjectTemplate {
+  readonly objectId: ObjectArchetypeId;
+  readonly visualId: string;
 }
 
 type Listener = (state: ObjectTemplateViewState) => void;
@@ -104,6 +110,7 @@ export class ObjectTemplateEditorState {
   private draftValue?: ObjectTemplateDraft;
   private savedDraft?: ObjectTemplateDraft;
   private errorsValue: Readonly<Record<string, string>> = {};
+  private showAllMatchingOverlaysValue = false;
   private dirtyValue = false;
   private savingValue = false;
   private statusValue = 'Select an object template to inspect';
@@ -120,6 +127,7 @@ export class ObjectTemplateEditorState {
       draft: this.draftValue ? cloneDraft(this.draftValue) : undefined,
       frameDimensions: this.selectedValue ? getSourceFrameDimensions(this.selectedValue) : undefined,
       errors: this.errorsValue,
+      showAllMatchingOverlays: this.showAllMatchingOverlaysValue,
       dirty: this.dirtyValue,
       saving: this.savingValue,
       status: this.statusValue,
@@ -156,6 +164,12 @@ export class ObjectTemplateEditorState {
   discardAndSelect(objectId: ObjectArchetypeId, visualId: string): boolean {
     this.discardChanges();
     return this.select(objectId, visualId, true);
+  }
+
+  setShowAllMatchingOverlays(showAll: boolean): void {
+    if (this.showAllMatchingOverlaysValue === showAll) return;
+    this.showAllMatchingOverlaysValue = showAll;
+    this.emit();
   }
 
   updateDraft(patch: Partial<ObjectTemplateDraft>): boolean {
@@ -245,6 +259,59 @@ export class ObjectTemplateEditorState {
       this.errorsValue = {};
     } catch (error) {
       this.statusValue = error instanceof Error ? error.message : String(error);
+    } finally {
+      this.savingValue = false;
+      this.revisionValue += 1;
+      this.emit();
+    }
+  }
+
+  async saveAsNewTemplate(
+    visualId: string,
+    displayName: string,
+  ): Promise<DuplicatedObjectTemplate | undefined> {
+    const selected = this.selectedValue;
+    const draft = this.draftValue;
+    if (!selected || !draft || this.savingValue) return undefined;
+    const candidate = { ...cloneDraft(draft), displayName };
+    const errors = validateObjectTemplateDraft(selected, candidate);
+    if (Object.keys(errors).length > 0) {
+      this.statusValue = Object.values(errors)[0] ?? 'Fix template errors before saving';
+      this.emit();
+      return undefined;
+    }
+
+    this.savingValue = true;
+    this.statusValue = 'Saving new template...';
+    this.emit();
+    try {
+      const response = await fetch('/__map-editor/object-template/duplicate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          objectId: selected.objectId,
+          sourceVisualId: selected.visualId,
+          visualId,
+          displayName,
+          visualOffset: draft.visualOffset,
+          collider: draft.collider,
+        }),
+      });
+      const result = await response.json() as {
+        ok?: boolean;
+        error?: string;
+        objectId?: ObjectArchetypeId;
+        visualId?: string;
+      };
+      if (!response.ok || !result.ok || !result.objectId || !result.visualId) {
+        throw new Error(result.error ?? `Template creation failed (${response.status})`);
+      }
+      this.statusValue = `Created ${displayName}`;
+      this.errorsValue = {};
+      return { objectId: result.objectId, visualId: result.visualId };
+    } catch (error) {
+      this.statusValue = error instanceof Error ? error.message : String(error);
+      throw error;
     } finally {
       this.savingValue = false;
       this.revisionValue += 1;

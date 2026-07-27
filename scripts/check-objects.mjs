@@ -170,7 +170,6 @@ for (const absolutePath of objectFiles) {
 
       const frame = asset.source.kind === 'spritesheet' ? asset.source.frame : null;
       const frameCount = frame ? frame.cols * frame.rows : 1;
-      const seenFrames = new Set();
       for (const [frameEntryIndex, frameEntry] of group.frames.entries()) {
         const frameField = `${groupField}.frames.${frameEntryIndex}`;
         if (!isRecord(frameEntry)) {
@@ -203,10 +202,6 @@ for (const absolutePath of objectFiles) {
 
         if (!Number.isInteger(frameEntry.frame) || frameEntry.frame < 0 || frameEntry.frame >= frameCount) {
           fail(file, objectId, `${frameField}.frame`, `must be inside spritesheet range 0..${frameCount - 1}`);
-        } else if (seenFrames.has(frameEntry.frame)) {
-          fail(file, objectId, `${frameField}.frame`, `duplicate frame ${frameEntry.frame} in asset group`);
-        } else {
-          seenFrames.add(frameEntry.frame);
         }
 
         if (frameEntry.displayName !== undefined
