@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+﻿import Phaser from 'phaser';
 import { resolveWorldDepth } from '../presentation/WorldDepth';
 
 /**
@@ -7,18 +7,18 @@ import { resolveWorldDepth } from '../presentation/WorldDepth';
  * Use `FloatingText.spawn(scene, x, y, text, color, big)` from anywhere.
  */
 
-const FONT = 'Aptos, Segoe UI Variable, sans-serif';
+const FONT = 'Trebuchet MS, Segoe UI Variable, sans-serif';
 const POOL_SIZE = 24;
 
 type Color = 'white' | 'yellow' | 'orange' | 'green' | 'red' | 'cyan';
 
 const COLORS: Record<Color, string> = {
   white: '#ffffff',
-  yellow: '#ffe680',
-  orange: '#ff9a3c',
+  yellow: '#ffdf8a',
+  orange: '#ffad66',
   green: '#7be08a',
-  red: '#ff5a5a',
-  cyan: '#6be0ff',
+  red: '#ff6f88',
+  cyan: '#72d8ff',
 };
 
 interface PooledText {
@@ -45,7 +45,7 @@ class FloatingTextPool {
           fontFamily: FONT,
           fontSize: big ? '22px' : '15px',
           color: COLORS[color],
-          stroke: '#0a1f15',
+          stroke: '#0b1020',
           strokeThickness: 4,
         })
         .setOrigin(0.5)

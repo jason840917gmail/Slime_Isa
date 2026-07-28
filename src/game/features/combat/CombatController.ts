@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+﻿import Phaser from 'phaser';
 import { ComboSystem } from '../../combat/ComboSystem';
 import { TargetDummy } from '../../combat/TargetDummy';
 import type { Weapon } from '../../combat/Weapon';
@@ -61,14 +61,14 @@ export class CombatController {
     this.comboText = scene.add.text(scene.cameras.main.width / 2, scene.cameras.main.height - 130, '', {
       fontFamily: UI_THEME.fontFamily,
       fontSize: '20px',
-      color: '#ffe680',
-      stroke: '#0a1f15',
+      color: '#ffdf8a',
+      stroke: '#0b1020',
       strokeThickness: 4,
     }).setOrigin(0.5).setScrollFactor(0).setDepth(resolveScreenUiDepth(10)).setAlpha(0);
 
     this.combo = new ComboSystem(scene, {
       onComboHit: (count, multiplier) => {
-        this.comboText.setText(`${count}x COMBO  ×${multiplier.toFixed(2)}`).setAlpha(1);
+        this.comboText.setText(`${count}x COMBO  Ã—${multiplier.toFixed(2)}`).setAlpha(1);
         scene.tweens.add({ targets: this.comboText, scale: { from: 1.2, to: 1 }, duration: 150, ease: 'Back.Out' });
       },
       onComboReset: () => this.comboText.setAlpha(0),

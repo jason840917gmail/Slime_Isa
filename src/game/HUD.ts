@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+﻿import Phaser from 'phaser';
 import { gameEvents } from './core/EventBus';
 import { gameState } from './core/GameState';
 import { UI_THEME } from './presentation/theme';
@@ -10,7 +10,7 @@ import { resolveScreenUiDepth } from './presentation/WorldDepth';
  *
  * Layout (screen-space, top-left):
  *   Level + coins + friends (text)
- *   HP bar (red→green) under the text
+ *   HP bar (redâ†’green) under the text
  *   XP bar (cyan) under HP
  *   Energy bar (yellow) under XP
  */
@@ -39,7 +39,7 @@ export class HUD {
         fontFamily: font,
         fontSize: '16px',
         color: '#a3f0c0',
-        stroke: '#163033',
+        stroke: '#081022',
         strokeThickness: 4,
       })
       .setScrollFactor(0)
@@ -50,8 +50,8 @@ export class HUD {
       .text(this.barX, y, `Coins: ${gameState.coins}`, {
         fontFamily: font,
         fontSize: '16px',
-        color: '#ffd86b',
-        stroke: '#163033',
+        color: '#ffd277',
+        stroke: '#081022',
         strokeThickness: 4,
       })
       .setScrollFactor(0)
@@ -62,8 +62,8 @@ export class HUD {
       .text(this.barX, y, `Friends: ${gameState.totalFriends}`, {
         fontFamily: font,
         fontSize: '16px',
-        color: '#ffd86b',
-        stroke: '#163033',
+        color: '#ffd277',
+        stroke: '#081022',
         strokeThickness: 4,
       })
       .setScrollFactor(0)
@@ -72,7 +72,7 @@ export class HUD {
     y += 26;
     this.hpBar = scene.add.graphics().setScrollFactor(0).setDepth(resolveScreenUiDepth(1));
     this.hpLabel = scene.add
-      .text(this.barX, y, '', { fontFamily: font, fontSize: '11px', color: '#f4fff7', stroke: '#0a1f15', strokeThickness: 3 })
+      .text(this.barX, y, '', { fontFamily: font, fontSize: '11px', color: '#f5f7ff', stroke: '#0b1020', strokeThickness: 3 })
       .setScrollFactor(0)
       .setDepth(resolveScreenUiDepth(2)) as Phaser.GameObjects.Text;
     this.hpLabel.setPosition(this.barX + this.barW + 8, y);
@@ -80,7 +80,7 @@ export class HUD {
 
     this.xpBar = scene.add.graphics().setScrollFactor(0).setDepth(resolveScreenUiDepth(3));
     this.xpLabel = scene.add
-      .text(this.barX, y, '', { fontFamily: font, fontSize: '11px', color: '#cfe6ff', stroke: '#0a1f15', strokeThickness: 3 })
+      .text(this.barX, y, '', { fontFamily: font, fontSize: '11px', color: '#cfe6ff', stroke: '#0b1020', strokeThickness: 3 })
       .setScrollFactor(0)
       .setDepth(resolveScreenUiDepth(4)) as Phaser.GameObjects.Text;
     this.xpLabel.setPosition(this.barX + this.barW + 8, y);
@@ -88,7 +88,7 @@ export class HUD {
 
     this.energyBar = scene.add.graphics().setScrollFactor(0).setDepth(resolveScreenUiDepth(5));
     this.energyLabel = scene.add
-      .text(this.barX, y, '', { fontFamily: font, fontSize: '11px', color: '#ffe680', stroke: '#0a1f15', strokeThickness: 3 })
+      .text(this.barX, y, '', { fontFamily: font, fontSize: '11px', color: '#ffdf8a', stroke: '#0b1020', strokeThickness: 3 })
       .setScrollFactor(0)
       .setDepth(resolveScreenUiDepth(6)) as Phaser.GameObjects.Text;
     this.energyLabel.setPosition(this.barX + this.barW + 8, y);
@@ -126,13 +126,13 @@ export class HUD {
     const { barX, barW, barH } = this;
     const y = this.hpBarY();
     g.clear();
-    g.fillStyle(0x0a1f15, 0.9);
+    g.fillStyle(0x0b1020, 0.9);
     g.fillRoundedRect(barX, y, barW, barH, 4);
-    g.lineStyle(1.5, 0x2b4f57, 0.9);
+    g.lineStyle(1.5, 0x3b5c78, 0.9);
     g.strokeRoundedRect(barX, y, barW, barH, 4);
 
     const pct = maxHp > 0 ? Phaser.Math.Clamp(hp / maxHp, 0, 1) : 0;
-    const fill = pct <= 0.25 ? 0xff5a5a : pct <= 0.5 ? 0xff9a3c : 0x7be08a;
+    const fill = pct <= 0.25 ? 0xff6f88 : pct <= 0.5 ? 0xffad66 : 0x7be08a;
     g.fillStyle(fill, 1);
     g.fillRoundedRect(barX + 1, y + 1, Math.max(0, (barW - 2) * pct), barH - 2, 3);
 
@@ -144,13 +144,13 @@ export class HUD {
     const { barX, barW, barH } = this;
     const y = this.xpBarY();
     g.clear();
-    g.fillStyle(0x0a1f15, 0.9);
+    g.fillStyle(0x0b1020, 0.9);
     g.fillRoundedRect(barX, y, barW, barH, 4);
-    g.lineStyle(1.5, 0x2b4f57, 0.9);
+    g.lineStyle(1.5, 0x3b5c78, 0.9);
     g.strokeRoundedRect(barX, y, barW, barH, 4);
 
     const pct = need > 0 ? Phaser.Math.Clamp(into / need, 0, 1) : 0;
-    g.fillStyle(0x6be0ff, 1);
+    g.fillStyle(0x72d8ff, 1);
     g.fillRoundedRect(barX + 1, y + 1, Math.max(0, (barW - 2) * pct), barH - 2, 3);
 
     this.xpLabel.setText(need > 0 ? `${Math.floor(into)} / ${need}` : `MAX`);
@@ -162,13 +162,13 @@ export class HUD {
     const { barX, barW, barH } = this;
     const y = this.energyBarY();
     g.clear();
-    g.fillStyle(0x0a1f15, 0.9);
+    g.fillStyle(0x0b1020, 0.9);
     g.fillRoundedRect(barX, y, barW, barH, 4);
-    g.lineStyle(1.5, 0x2b4f57, 0.9);
+    g.lineStyle(1.5, 0x3b5c78, 0.9);
     g.strokeRoundedRect(barX, y, barW, barH, 4);
 
     const pct = maxEnergy > 0 ? Phaser.Math.Clamp(energy / maxEnergy, 0, 1) : 0;
-    g.fillStyle(0xffe680, 1);
+    g.fillStyle(0xffdf8a, 1);
     g.fillRoundedRect(barX + 1, y + 1, Math.max(0, (barW - 2) * pct), barH - 2, 3);
 
     this.energyLabel.setText(`${Math.ceil(energy)} / ${maxEnergy}`);

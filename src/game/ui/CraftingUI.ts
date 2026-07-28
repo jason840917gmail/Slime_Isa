@@ -1,10 +1,10 @@
-import Phaser from 'phaser';
+﻿import Phaser from 'phaser';
 import { gameEvents } from '../core/EventBus';
 import { playerInventory, itemRegistry } from '../systems/Inventory';
 import { RECIPES, canCraft, craft, itemName, type RecipeDef } from '../crafting/Crafting';
 import { resolveScreenUiDepth } from '../presentation/WorldDepth';
 
-const FONT = 'Aptos, Segoe UI Variable, sans-serif';
+const FONT = 'Trebuchet MS, Segoe UI Variable, sans-serif';
 
 export interface CraftingUIContext {
   scene: Phaser.Scene;
@@ -68,19 +68,19 @@ export class CraftingUI {
     this.container = container;
     this.clickRegions = [];
 
-    container.add(scene.add.rectangle(0, 0, cam.width, cam.height, 0x020906, 0.7).setOrigin(0.5));
+    container.add(scene.add.rectangle(0, 0, cam.width, cam.height, 0x080f20, 0.7).setOrigin(0.5));
     const bg = scene.add.graphics();
-    bg.fillStyle(0x071612, 0.98);
+    bg.fillStyle(0x101a31, 0.98);
     bg.fillRoundedRect(-panelW / 2, -panelH / 2, panelW, panelH, 16);
-    bg.lineStyle(2, 0x44cc88, 0.85);
+    bg.lineStyle(2, 0x73e2b1, 0.85);
     bg.strokeRoundedRect(-panelW / 2, -panelH / 2, panelW, panelH, 16);
     container.add(bg);
 
     container.add(scene.add.text(-panelW / 2 + 24, -panelH / 2 + 28, 'Crafting', {
       fontFamily: FONT,
       fontSize: '22px',
-      color: '#dffff0',
-      stroke: '#0a1f15',
+      color: '#e7fff5',
+      stroke: '#0b1020',
       strokeThickness: 5,
     }).setOrigin(0, 0.5));
 
@@ -123,7 +123,7 @@ export class CraftingUI {
     const card = scene.add.graphics();
     card.fillStyle(available ? 0x102a1f : 0x121a16, 0.96);
     card.fillRoundedRect(left - 12, y - 34, 540, 78, 10);
-    card.lineStyle(selected ? 3 : 1.5, selected ? 0xffe680 : available ? 0x44cc88 : 0x335c45, selected ? 1 : available ? 0.9 : 0.5);
+    card.lineStyle(selected ? 3 : 1.5, selected ? 0xffdf8a : available ? 0x73e2b1 : 0x3b5c78, selected ? 1 : available ? 0.9 : 0.5);
     card.strokeRoundedRect(left - 12, y - 34, 540, 78, 10);
     container.add(card);
 
@@ -133,11 +133,11 @@ export class CraftingUI {
     });
 
     if (selected) {
-      container.add(scene.add.text(left - 30, y + 2, '▶', {
+      container.add(scene.add.text(left - 30, y + 2, 'â–¶', {
         fontFamily: FONT,
         fontSize: '18px',
-        color: '#ffe680',
-        stroke: '#0a1f15',
+        color: '#ffdf8a',
+        stroke: '#0b1020',
         strokeThickness: 4,
       }).setOrigin(0.5));
     }
@@ -150,23 +150,23 @@ export class CraftingUI {
     container.add(scene.add.text(left + 50, y - 20, recipe.name, {
       fontFamily: FONT,
       fontSize: '15px',
-      color: available ? '#f4fff7' : '#8aa090',
-      stroke: '#0a1f15',
+      color: available ? '#f5f7ff' : '#8aa090',
+      stroke: '#0b1020',
       strokeThickness: 3,
     }).setOrigin(0, 0.5));
 
     container.add(scene.add.text(left + 50, y + 2, recipe.description, {
       fontFamily: FONT,
       fontSize: '11px',
-      color: '#ccebd0',
+      color: '#d7f6e9',
       wordWrap: { width: 315 },
     }).setOrigin(0, 0.5));
 
-    const costs = recipe.ingredients.map((i) => `${itemName(i.itemId)} ${playerInventory.count(i.itemId)}/${i.count}`).join('  ·  ');
+    const costs = recipe.ingredients.map((i) => `${itemName(i.itemId)} ${playerInventory.count(i.itemId)}/${i.count}`).join('  Â·  ');
     container.add(scene.add.text(left + 50, y + 24, costs, {
       fontFamily: FONT,
       fontSize: '11px',
-      color: available ? '#ffd86b' : '#b08080',
+      color: available ? '#ffd277' : '#b08080',
     }).setOrigin(0, 0.5));
 
     const buttonX = left + 440;
@@ -174,16 +174,16 @@ export class CraftingUI {
     const buttonW = 96;
     const buttonH = 38;
     const buttonBg = scene.add.graphics();
-    buttonBg.fillStyle(available ? 0x88ffaa : 0x223028, available ? 1 : 0.65);
+    buttonBg.fillStyle(available ? 0x86f0c3 : 0x253552, available ? 1 : 0.65);
     buttonBg.fillRoundedRect(buttonX - buttonW / 2, buttonY - buttonH / 2, buttonW, buttonH, 8);
-    buttonBg.lineStyle(1.5, available ? 0xdffff0 : 0x405048, available ? 0.85 : 0.45);
+    buttonBg.lineStyle(1.5, available ? 0xe7fff5 : 0x4a6075, available ? 0.85 : 0.45);
     buttonBg.strokeRoundedRect(buttonX - buttonW / 2, buttonY - buttonH / 2, buttonW, buttonH, 8);
     container.add(buttonBg);
 
     const btn = scene.add.text(buttonX, buttonY, `Craft x${recipe.output.count}`, {
       fontFamily: FONT,
       fontSize: '13px',
-      color: available ? '#071612' : '#405048',
+      color: available ? '#101a31' : '#4a6075',
     }).setOrigin(0.5).setAlpha(available ? 1 : 0.75);
     container.add(btn);
 

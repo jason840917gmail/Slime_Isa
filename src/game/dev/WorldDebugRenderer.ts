@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+﻿import Phaser from 'phaser';
 import { hitboxPool, type HitboxConfig } from '../combat/Hitbox';
 import { devToolsState } from '../devTools';
 import type { House } from '../House';
@@ -68,12 +68,12 @@ export class WorldDebugRenderer {
   }
 
   private drawVisualBounds(g: Phaser.GameObjects.Graphics): void {
-    this.drawObjectBounds(g, this.ctx.getPlayer(), 0x55a7ff, 0.95);
-    this.forChildren(this.ctx.getFriends(), (child) => this.drawObjectBounds(g, child, 0x55a7ff, 0.75));
-    this.forChildren(this.ctx.getCombatTargets(), (child) => this.drawObjectBounds(g, child, 0x55a7ff, 0.85));
-    this.forChildren(this.ctx.getPurpleFoods(), (child) => this.drawObjectBounds(g, child, 0x55a7ff, 0.55));
-    this.forChildren(this.ctx.getGrapeChips(), (child) => this.drawObjectBounds(g, child, 0x55a7ff, 0.55));
-    for (const entry of this.ctx.getHouses()) this.drawObjectBounds(g, entry.house.sprite, 0x55a7ff, 0.65);
+    this.drawObjectBounds(g, this.ctx.getPlayer(), 0x72d8ff, 0.95);
+    this.forChildren(this.ctx.getFriends(), (child) => this.drawObjectBounds(g, child, 0x72d8ff, 0.75));
+    this.forChildren(this.ctx.getCombatTargets(), (child) => this.drawObjectBounds(g, child, 0x72d8ff, 0.85));
+    this.forChildren(this.ctx.getPurpleFoods(), (child) => this.drawObjectBounds(g, child, 0x72d8ff, 0.55));
+    this.forChildren(this.ctx.getGrapeChips(), (child) => this.drawObjectBounds(g, child, 0x72d8ff, 0.55));
+    for (const entry of this.ctx.getHouses()) this.drawObjectBounds(g, entry.house.sprite, 0x72d8ff, 0.65);
   }
 
   private drawHitBoxes(g: Phaser.GameObjects.Graphics): void {
@@ -84,12 +84,12 @@ export class WorldDebugRenderer {
   }
 
   private drawInteractionZones(g: Phaser.GameObjects.Graphics): void {
-    for (const entry of this.ctx.getHouses()) this.drawBody(g, this.bodyOf(entry.house.doorZone), 0x43f28f, 0.9);
-    for (const zone of this.ctx.getTransitionZones()) this.drawBody(g, this.bodyOf(zone), 0x43f28f, 0.85);
-    this.forChildren(this.ctx.getPurpleFoods(), (child) => this.drawBody(g, this.bodyOf(child), 0x43f28f, 0.75));
-    this.forChildren(this.ctx.getGrapeChips(), (child) => this.drawBody(g, this.bodyOf(child), 0x43f28f, 0.75));
-    this.forChildren(this.ctx.getDungeonSwitches(), (child) => this.drawBody(g, this.bodyOf(child), 0x43f28f, 0.85));
-    this.forChildren(this.ctx.getDungeonChests(), (child) => this.drawBody(g, this.bodyOf(child), 0x43f28f, 0.85));
+    for (const entry of this.ctx.getHouses()) this.drawBody(g, this.bodyOf(entry.house.doorZone), 0x73e2b1, 0.9);
+    for (const zone of this.ctx.getTransitionZones()) this.drawBody(g, this.bodyOf(zone), 0x73e2b1, 0.85);
+    this.forChildren(this.ctx.getPurpleFoods(), (child) => this.drawBody(g, this.bodyOf(child), 0x73e2b1, 0.75));
+    this.forChildren(this.ctx.getGrapeChips(), (child) => this.drawBody(g, this.bodyOf(child), 0x73e2b1, 0.75));
+    this.forChildren(this.ctx.getDungeonSwitches(), (child) => this.drawBody(g, this.bodyOf(child), 0x73e2b1, 0.85));
+    this.forChildren(this.ctx.getDungeonChests(), (child) => this.drawBody(g, this.bodyOf(child), 0x73e2b1, 0.85));
   }
 
   private drawAttackBoxes(g: Phaser.GameObjects.Graphics): void {
@@ -104,16 +104,16 @@ export class WorldDebugRenderer {
       const halfArc = (config.arcWidth ?? Math.PI / 2) / 2;
       const inner = config.innerRadius ?? 0;
       const outer = config.outerRadius ?? Math.max(config.width, config.height) / 2;
-      g.fillStyle(0xb685ff, 0.12).lineStyle(3, 0xb685ff, 0.95).beginPath();
+      g.fillStyle(0xa78bfa, 0.12).lineStyle(3, 0xa78bfa, 0.95).beginPath();
       g.arc(originX, originY, outer, angle - halfArc, angle + halfArc, false);
       if (inner > 0) g.arc(originX, originY, inner, angle + halfArc, angle - halfArc, true);
       else g.lineTo(originX, originY);
       g.closePath().fillPath().strokePath();
-      this.strokeRect(g, config.x - config.width / 2, config.y - config.height / 2, config.width, config.height, 0xb685ff, 0.42, 1);
+      this.strokeRect(g, config.x - config.width / 2, config.y - config.height / 2, config.width, config.height, 0xa78bfa, 0.42, 1);
       return;
     }
-    this.fillRect(g, config.x - config.width / 2, config.y - config.height / 2, config.width, config.height, 0xb685ff, 0.12);
-    this.strokeRect(g, config.x - config.width / 2, config.y - config.height / 2, config.width, config.height, 0xb685ff, 0.95, 3);
+    this.fillRect(g, config.x - config.width / 2, config.y - config.height / 2, config.width, config.height, 0xa78bfa, 0.12);
+    this.strokeRect(g, config.x - config.width / 2, config.y - config.height / 2, config.width, config.height, 0xa78bfa, 0.95, 3);
   }
 
   private drawObjectBounds(g: Phaser.GameObjects.Graphics, object: Phaser.GameObjects.GameObject | null | undefined, color: number, alpha: number): void {

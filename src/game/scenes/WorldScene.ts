@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+﻿import Phaser from 'phaser';
 import { Friend } from '../Friend';
 import { House } from '../House';
 import {
@@ -690,7 +690,7 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private createOverlay(): void {
-    const font = 'Aptos, Segoe UI Variable, sans-serif';
+    const font = 'Trebuchet MS, Segoe UI Variable, sans-serif';
     const cam = this.cameras.main;
     const centerX = cam.width / 2;
 
@@ -701,7 +701,7 @@ export class WorldScene extends Phaser.Scene {
         fontFamily: font,
         fontSize: '24px',
         color: '#f2ffef',
-        stroke: '#163033',
+        stroke: '#081022',
         strokeThickness: 5,
       })
       .setOrigin(0.5, 0)
@@ -714,7 +714,7 @@ export class WorldScene extends Phaser.Scene {
         fontFamily: font,
         fontSize: '12px',
         color: '#6a8a78',
-        stroke: '#163033',
+        stroke: '#081022',
         strokeThickness: 3,
       })
       .setOrigin(0, 1)
@@ -919,7 +919,7 @@ export class WorldScene extends Phaser.Scene {
     }
   }
 
-  // ── Phase 1: health / damage / death / XP / items ──
+  // â”€â”€ Phase 1: health / damage / death / XP / items â”€â”€
 
   private onPlayerHit(result: AcceptedDamageResult): void {
     this.healthBar?.flash();
@@ -934,7 +934,7 @@ export class WorldScene extends Phaser.Scene {
     // Red flash tween on the sprite.
     if (!this.iFrameFlashActive) {
       this.iFrameFlashActive = true;
-      this.playerVisual?.setTintFill(0xff5a5a);
+      this.playerVisual?.setTintFill(0xff6f88);
       this.time.delayedCall(120, () => {
         this.playerVisual?.clearTint();
         this.iFrameFlashActive = false;
@@ -1080,7 +1080,7 @@ export class WorldScene extends Phaser.Scene {
     });
   }
 
-  // ── Phase 2: combat ──
+  // â”€â”€ Phase 2: combat â”€â”€
 
   private createCombatSystem(): void {
     this.combatController = new CombatController({

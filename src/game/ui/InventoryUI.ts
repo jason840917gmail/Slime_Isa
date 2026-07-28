@@ -1,9 +1,9 @@
-import Phaser from 'phaser';
+﻿import Phaser from 'phaser';
 import { gameEvents } from '../core/EventBus';
 import { playerInventory, itemRegistry } from '../systems/Inventory';
 import { resolveScreenUiDepth } from '../presentation/WorldDepth';
 
-const FONT = 'Aptos, Segoe UI Variable, sans-serif';
+const FONT = 'Trebuchet MS, Segoe UI Variable, sans-serif';
 const COLS = 6;
 const CELL = 52;
 const GAP = 6;
@@ -70,16 +70,16 @@ export class InventoryUI {
     container.add(scene.add.rectangle(0, 0, cam.width, cam.height, 0x000000, 0.5).setOrigin(0.5));
 
     const bg = scene.add.graphics();
-    bg.fillStyle(0x071612, 0.97);
+    bg.fillStyle(0x101a31, 0.97);
     bg.fillRoundedRect(-panelW / 2, -panelH / 2, panelW, panelH, 12);
-    bg.lineStyle(2, 0x335c45, 0.8);
+    bg.lineStyle(2, 0x3b5c78, 0.8);
     bg.strokeRoundedRect(-panelW / 2, -panelH / 2, panelW, panelH, 12);
     container.add(bg);
 
     container.add(scene.add.text(-panelW / 2 + 18, -panelH / 2 + 18, 'Inventory', {
       fontFamily: FONT,
       fontSize: '18px',
-      color: '#ccebd0',
+      color: '#d7f6e9',
     }).setOrigin(0, 0));
 
     container.add(scene.add.text(panelW / 2 - 18, -panelH / 2 + 20, 'Tab / Esc to close', {
@@ -111,8 +111,8 @@ export class InventoryUI {
       const selected = !!slot && slot.itemId === this.selectedItemId;
 
       const slotBg = scene.add
-        .rectangle(x, y, CELL, CELL, selected ? 0x183a28 : 0x122a1e, 0.95)
-        .setStrokeStyle(selected ? 3 : 1, selected ? 0xffe680 : 0x2b4f57, selected ? 1 : 0.7);
+        .rectangle(x, y, CELL, CELL, selected ? 0x244e56 : 0x182b46, 0.95)
+        .setStrokeStyle(selected ? 3 : 1, selected ? 0xffdf8a : 0x3b5c78, selected ? 1 : 0.7);
       this.container.add(slotBg);
 
       if (!slot) continue;
@@ -126,8 +126,8 @@ export class InventoryUI {
         this.container.add(scene.add.text(x + CELL / 2 - 4, y + CELL / 2 - 4, `${slot.count}`, {
           fontFamily: FONT,
           fontSize: '11px',
-          color: '#ffd86b',
-          stroke: '#0a1f15',
+          color: '#ffd277',
+          stroke: '#0b1020',
           strokeThickness: 3,
         }).setOrigin(1, 1));
       }
@@ -144,9 +144,9 @@ export class InventoryUI {
     if (!this.container) return;
 
     const detailBg = scene.add.graphics();
-    detailBg.fillStyle(0x0d2118, 0.96);
+    detailBg.fillStyle(0x172543, 0.96);
     detailBg.fillRoundedRect(x, y, width, height, 10);
-    detailBg.lineStyle(1.5, 0x335c45, 0.8);
+    detailBg.lineStyle(1.5, 0x3b5c78, 0.8);
     detailBg.strokeRoundedRect(x, y, width, height, 10);
     this.container.add(detailBg);
 
@@ -167,19 +167,19 @@ export class InventoryUI {
     this.container.add(scene.add.text(x + 58, y + 16, def.name, {
       fontFamily: FONT,
       fontSize: '16px',
-      color: '#f4fff7',
-      stroke: '#0a1f15',
+      color: '#f5f7ff',
+      stroke: '#0b1020',
       strokeThickness: 3,
     }).setOrigin(0, 0));
-    this.container.add(scene.add.text(x + 58, y + 42, `${def.category}  ·  x${count}`, {
+    this.container.add(scene.add.text(x + 58, y + 42, `${def.category}  Â·  x${count}`, {
       fontFamily: FONT,
       fontSize: '11px',
-      color: '#ffd86b',
+      color: '#ffd277',
     }).setOrigin(0, 0));
     this.container.add(scene.add.text(x + 16, y + 82, def.description, {
       fontFamily: FONT,
       fontSize: '12px',
-      color: '#ccebd0',
+      color: '#d7f6e9',
       wordWrap: { width: width - 32 },
     }).setOrigin(0, 0));
 
@@ -188,25 +188,25 @@ export class InventoryUI {
         def.use.healHp ? `Heal HP +${def.use.healHp}` : '',
         def.use.healEnergy ? `Energy +${def.use.healEnergy}` : '',
         def.use.cureStatus?.length ? `Cures ${def.use.cureStatus.join(', ')}` : '',
-      ].filter(Boolean).join('  ·  ');
+      ].filter(Boolean).join('  Â·  ');
       this.container.add(scene.add.text(x + 16, y + 148, effects, {
         fontFamily: FONT,
         fontSize: '11px',
-        color: '#88ffaa',
+        color: '#86f0c3',
         wordWrap: { width: width - 32 },
       }).setOrigin(0, 0));
     }
 
     if (def.use) {
-      this.addButton(x + 16, y + height - 52, 92, 34, 'Use', 0x88ffaa, () => {
+      this.addButton(x + 16, y + height - 52, 92, 34, 'Use', 0x86f0c3, () => {
         if (!this.selectedItemId) return;
         this.ctx.onUseItem(this.selectedItemId);
       });
     } else {
-      this.addButton(x + 16, y + height - 52, 92, 34, 'No Use', 0x223028, undefined);
+      this.addButton(x + 16, y + height - 52, 92, 34, 'No Use', 0x253552, undefined);
     }
 
-    this.addButton(x + 124, y + height - 52, 92, 34, 'Delete 1', 0xff8a6b, () => {
+    this.addButton(x + 124, y + height - 52, 92, 34, 'Delete 1', 0xff8f7a, () => {
       if (!this.selectedItemId) return;
       playerInventory.remove(this.selectedItemId, 1);
       if (playerInventory.count(this.selectedItemId) <= 0) this.selectedItemId = undefined;
@@ -220,13 +220,13 @@ export class InventoryUI {
     const enabled = !!onClick;
     const bg = scene.add
       .rectangle(x + width / 2, y + height / 2, width, height, color, enabled ? 1 : 0.55)
-      .setStrokeStyle(1.5, enabled ? 0xdffff0 : 0x405048, enabled ? 0.9 : 0.45);
+      .setStrokeStyle(1.5, enabled ? 0xe7fff5 : 0x4a6075, enabled ? 0.9 : 0.45);
     this.container.add(bg);
 
     this.container.add(scene.add.text(x + width / 2, y + height / 2, label, {
       fontFamily: FONT,
       fontSize: '12px',
-      color: enabled ? '#071612' : '#809080',
+      color: enabled ? '#101a31' : '#809080',
     }).setOrigin(0.5));
 
     if (!enabled) return;

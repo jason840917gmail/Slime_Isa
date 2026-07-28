@@ -14,6 +14,12 @@ This folder contains the asset and implementation notes for the game.
 - [Knowledge index](./knowledge/README.md)
 - [Character sprites and animated visuals](./knowledge/character-sprites-guide.md)
 
+## Media Generation
+
+- [Magnific MCP Guide](./magnific-mcp-guide.md)
+- [Character animation video prompt](./Prompts/videos/character_videos.md)
+- [Modernized pixel-stylized top-down visual guide](./visual-style-guide.md)
+
 ## Recommended Reading Order
 
 1. Read the overview first to understand the shared size contract used by the game.

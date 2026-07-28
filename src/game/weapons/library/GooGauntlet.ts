@@ -1,7 +1,7 @@
-import { Weapon, type WeaponDef, type WeaponContext } from '../../combat/Weapon';
+﻿import { Weapon, type WeaponDef, type WeaponContext } from '../../combat/Weapon';
 
 /**
- * Goo Gauntlet — the starter melee weapon. Short-range punch combo with
+ * Goo Gauntlet â€” the starter melee weapon. Short-range punch combo with
  * knockback. Unlocked from level 1.
  */
 const DEFS: Record<'goo-gauntlet', WeaponDef> = {
@@ -16,7 +16,7 @@ const DEFS: Record<'goo-gauntlet', WeaponDef> = {
     hitboxOffset: 36,
     hitboxDurationMs: 140,
     knockStrength: 200,
-    vfxColor: 0x88ffaa,
+    vfxColor: 0x86f0c3,
     unlockLevel: 1,
     iconKey: 'weapon-gauntlet',
     description: 'A gooey punch. Short range, solid knockback. Your starter weapon.',

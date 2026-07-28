@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+﻿import Phaser from 'phaser';
 
 import type { AssetId } from '../infrastructure/assets/manifest';
 import { getAsset } from '../infrastructure/assets/manifest';
@@ -127,7 +127,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.cancelAttack();
     this.hp = Math.max(0, this.hp - amount);
     this.hitFlashUntil = this.scene.time.now + 120;
-    this.visual.setTintFill(0xff5a5a);
+    this.visual.setTintFill(0xff6f88);
 
     const bounds = this.visual.getBounds();
     floatingText.spawn(
@@ -404,9 +404,9 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       attachmentSlot: 7,
     }).depth);
     this.healthBar.clear();
-    this.healthBar.fillStyle(0x0a1f15, 0.8).fillRoundedRect(this.x - width / 2, y, width, 4, 2);
+    this.healthBar.fillStyle(0x0b1020, 0.8).fillRoundedRect(this.x - width / 2, y, width, 4, 2);
     const pct = Phaser.Math.Clamp(this.hp / this.maxHp, 0, 1);
-    const fill = pct <= 0.25 ? 0xff5a5a : pct <= 0.5 ? 0xff9a3c : 0xff6b6b;
+    const fill = pct <= 0.25 ? 0xff6f88 : pct <= 0.5 ? 0xffad66 : 0xff6b6b;
     this.healthBar.fillStyle(fill, 1).fillRoundedRect(
       this.x - width / 2 + 1,
       y + 1,

@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+﻿import Phaser from 'phaser';
 import { assertAssetBundleTextures, loadAssetBundle } from './AssetLoader';
 
 export class ProceduralAssetScene extends Phaser.Scene {
@@ -66,7 +66,7 @@ export class ProceduralAssetScene extends Phaser.Scene {
 
     graphics.fillStyle(0x263c5d, 1);
     graphics.fillRect(0, 0, 64, 64);
-    graphics.fillStyle(0x6be0ff, 0.55);
+    graphics.fillStyle(0x72d8ff, 0.55);
     graphics.fillTriangle(16, 48, 26, 14, 34, 48);
     graphics.fillTriangle(38, 52, 46, 24, 56, 52);
     graphics.fillStyle(0xffffff, 0.35);
@@ -127,7 +127,7 @@ export class ProceduralAssetScene extends Phaser.Scene {
     graphics.generateTexture('purple-berry', 16, 16);
     graphics.clear();
 
-    // Grape chip bag texture — small purple snack bag with crinkly top
+    // Grape chip bag texture â€” small purple snack bag with crinkly top
     graphics.fillStyle(0x4a1f5e, 1);
     graphics.fillRoundedRect(2, 3, 12, 11, 1.5);
     // bag seal
@@ -295,7 +295,7 @@ export class ProceduralAssetScene extends Phaser.Scene {
     graphics.generateTexture('skin-helmet', 128, 128);
     graphics.clear();
 
-    // Spots (random white spots) — will be tinted by player skin
+    // Spots (random white spots) â€” will be tinted by player skin
     graphics.fillStyle(0xffffff, 1);
     for (let i = 0; i < 12; i += 1) {
       const x = Phaser.Math.Between(24, 104);
@@ -318,9 +318,9 @@ export class ProceduralAssetScene extends Phaser.Scene {
     graphics.generateTexture('skin-halo', 128, 128);
     graphics.clear();
 
-    // ── Phase 1: consumables, materials, XP orbs, perk icons ──
+    // â”€â”€ Phase 1: consumables, materials, XP orbs, perk icons â”€â”€
 
-    // HP potion — small red vial with cork
+    // HP potion â€” small red vial with cork
     graphics.fillStyle(0x2b1a1a, 1);
     graphics.fillRoundedRect(3, 6, 10, 12, 2);
     graphics.fillStyle(0xff4d5a, 1);
@@ -332,10 +332,10 @@ export class ProceduralAssetScene extends Phaser.Scene {
     graphics.generateTexture('hp-potion', 16, 20);
     graphics.clear();
 
-    // Energy potion — small yellow vial, fizzy bubbles
+    // Energy potion â€” small yellow vial, fizzy bubbles
     graphics.fillStyle(0x2b2a1a, 1);
     graphics.fillRoundedRect(3, 6, 10, 12, 2);
-    graphics.fillStyle(0xffe680, 1);
+    graphics.fillStyle(0xffdf8a, 1);
     graphics.fillRoundedRect(4, 8, 8, 9, 2);
     graphics.fillStyle(0x8b5a3c, 1);
     graphics.fillRect(5, 4, 6, 3);
@@ -346,7 +346,7 @@ export class ProceduralAssetScene extends Phaser.Scene {
     graphics.generateTexture('energy-potion', 16, 20);
     graphics.clear();
 
-    // Sticky silk clump — white-ish webby blob
+    // Sticky silk clump â€” white-ish webby blob
     graphics.fillStyle(0xeaf4f0, 0.95);
     graphics.fillCircle(8, 8, 6);
     graphics.lineStyle(1, 0xb8c9c1, 0.9);
@@ -359,8 +359,8 @@ export class ProceduralAssetScene extends Phaser.Scene {
     graphics.generateTexture('silk-clump', 16, 16);
     graphics.clear();
 
-    // Crystal shard — faceted cyan crystal
-    graphics.fillStyle(0x6be0ff, 1);
+    // Crystal shard â€” faceted cyan crystal
+    graphics.fillStyle(0x72d8ff, 1);
     graphics.fillTriangle(8, 1, 14, 8, 8, 15);
     graphics.fillTriangle(8, 1, 2, 8, 8, 15);
     graphics.fillStyle(0xffffff, 0.55);
@@ -368,7 +368,7 @@ export class ProceduralAssetScene extends Phaser.Scene {
     graphics.generateTexture('shard', 16, 16);
     graphics.clear();
 
-    // Crystal Caverns trial switch — dim and lit variants.
+    // Crystal Caverns trial switch â€” dim and lit variants.
     graphics.fillStyle(0x16212f, 1);
     graphics.fillRoundedRect(2, 10, 28, 14, 5);
     graphics.lineStyle(2, 0x3f5870, 1);
@@ -389,14 +389,14 @@ export class ProceduralAssetScene extends Phaser.Scene {
     graphics.generateTexture('crystal-switch-on', 32, 32);
     graphics.clear();
 
-    // Crystal trial chest — locked and opened reward state.
+    // Crystal trial chest â€” locked and opened reward state.
     graphics.fillStyle(0x1b2638, 1);
     graphics.fillRoundedRect(4, 16, 40, 24, 5);
     graphics.fillStyle(0x4d6f86, 1);
     graphics.fillRoundedRect(6, 10, 36, 16, 5);
     graphics.lineStyle(2, 0x9cf0ff, 0.9);
     graphics.strokeRoundedRect(4, 10, 40, 30, 5);
-    graphics.fillStyle(0xffe680, 1);
+    graphics.fillStyle(0xffdf8a, 1);
     graphics.fillRoundedRect(21, 22, 6, 8, 2);
     graphics.generateTexture('crystal-chest-closed', 48, 48);
     graphics.clear();
@@ -412,7 +412,7 @@ export class ProceduralAssetScene extends Phaser.Scene {
     graphics.generateTexture('crystal-chest-open', 48, 48);
     graphics.clear();
 
-    // XP orb — glowing green orb with bright core
+    // XP orb â€” glowing green orb with bright core
     graphics.fillStyle(0x1a3a24, 1);
     graphics.fillCircle(8, 8, 7);
     graphics.fillStyle(0x7be08a, 1);
@@ -425,12 +425,12 @@ export class ProceduralAssetScene extends Phaser.Scene {
     // Perk icons (32x32)
     graphics.fillStyle(0x7be08a, 1);
     graphics.fillCircle(16, 16, 12);
-    graphics.fillStyle(0x0a1f15, 1);
+    graphics.fillStyle(0x0b1020, 1);
     graphics.fillRect(14, 8, 4, 16);
     graphics.generateTexture('perk-tanky', 32, 32);
     graphics.clear();
 
-    graphics.fillStyle(0xff5a5a, 1);
+    graphics.fillStyle(0xff6f88, 1);
     graphics.fillTriangle(16, 4, 26, 24, 6, 24);
     graphics.fillStyle(0xffffff, 0.8);
     graphics.fillTriangle(16, 8, 22, 22, 10, 22);
@@ -444,14 +444,14 @@ export class ProceduralAssetScene extends Phaser.Scene {
     graphics.generateTexture('perk-skin', 32, 32);
     graphics.clear();
 
-    graphics.fillStyle(0x6be0ff, 1);
+    graphics.fillStyle(0x72d8ff, 1);
     graphics.fillCircle(16, 16, 11);
     graphics.fillStyle(0xffffff, 0.8);
     graphics.fillTriangle(16, 6, 22, 18, 10, 18);
     graphics.generateTexture('perk-quick', 32, 32);
     graphics.clear();
 
-    graphics.fillStyle(0xffe680, 1);
+    graphics.fillStyle(0xffdf8a, 1);
     const starPoints: Phaser.Math.Vector2[] = [];
     for (let i = 0; i < 10; i += 1) {
       const r = i % 2 === 0 ? 12 : 5;
@@ -462,7 +462,7 @@ export class ProceduralAssetScene extends Phaser.Scene {
     graphics.generateTexture('perk-crit', 32, 32);
     graphics.clear();
 
-    graphics.fillStyle(0xff9a3c, 1);
+    graphics.fillStyle(0xffad66, 1);
     graphics.fillRoundedRect(6, 10, 20, 14, 4);
     graphics.fillStyle(0x4a2a10, 1);
     graphics.fillRect(8, 14, 16, 2);
@@ -470,31 +470,31 @@ export class ProceduralAssetScene extends Phaser.Scene {
     graphics.generateTexture('perk-well', 32, 32);
     graphics.clear();
 
-    // Quick Recovery — lightning bolt
-    graphics.fillStyle(0xffe680, 1);
+    // Quick Recovery â€” lightning bolt
+    graphics.fillStyle(0xffdf8a, 1);
     graphics.fillTriangle(14, 4, 20, 14, 15, 14);
     graphics.fillTriangle(15, 14, 12, 28, 18, 16);
     graphics.generateTexture('perk-recovery', 32, 32);
     graphics.clear();
 
-    // Long Reach — extended spear tip
-    graphics.lineStyle(4, 0x88ffaa, 1);
+    // Long Reach â€” extended spear tip
+    graphics.lineStyle(4, 0x86f0c3, 1);
     graphics.lineBetween(7, 24, 24, 7);
-    graphics.fillStyle(0xdffff0, 1);
+    graphics.fillStyle(0xe7fff5, 1);
     graphics.fillTriangle(24, 7, 23, 16, 16, 9);
     graphics.generateTexture('perk-reach', 32, 32);
     graphics.clear();
 
-    // Wide Swing — half-moon slash
-    graphics.fillStyle(0x88ffaa, 0.95);
+    // Wide Swing â€” half-moon slash
+    graphics.fillStyle(0x86f0c3, 0.95);
     graphics.slice(16, 16, 13, Math.PI, 0, false);
     graphics.fillPath();
-    graphics.fillStyle(0x0a1f15, 1);
+    graphics.fillStyle(0x0b1020, 1);
     graphics.fillCircle(16, 16, 6);
     graphics.generateTexture('perk-wide', 32, 32);
     graphics.clear();
 
-    // Vampiric Goo — red drop
+    // Vampiric Goo â€” red drop
     graphics.fillStyle(0xc8324a, 1);
     graphics.fillCircle(16, 19, 8);
     graphics.fillTriangle(16, 4, 8, 19, 24, 19);
@@ -506,15 +506,15 @@ export class ProceduralAssetScene extends Phaser.Scene {
     // Default perk icon (fallback)
     graphics.fillStyle(0x88c899, 1);
     graphics.fillRoundedRect(6, 6, 20, 20, 6);
-    graphics.fillStyle(0x0a1f15, 1);
+    graphics.fillStyle(0x0b1020, 1);
     graphics.fillCircle(16, 16, 4);
     graphics.generateTexture('perk-default', 32, 32);
     graphics.clear();
 
-    // ── Phase 2: weapon icons (32x32) ──
+    // â”€â”€ Phase 2: weapon icons (32x32) â”€â”€
 
-    // Goo Gauntlet — green slime fist
-    graphics.fillStyle(0x88ffaa, 1);
+    // Goo Gauntlet â€” green slime fist
+    graphics.fillStyle(0x86f0c3, 1);
     graphics.fillRoundedRect(8, 8, 16, 16, 4);
     graphics.fillStyle(0x4b844b, 1);
     graphics.fillRoundedRect(10, 10, 12, 12, 3);
@@ -523,7 +523,7 @@ export class ProceduralAssetScene extends Phaser.Scene {
     graphics.generateTexture('weapon-gauntlet', 32, 32);
     graphics.clear();
 
-    // Splat Spear — brown shaft + tip
+    // Splat Spear â€” brown shaft + tip
     graphics.fillStyle(0x8b5a3c, 1);
     graphics.fillRect(14, 6, 4, 18);
     graphics.fillStyle(0xc0c0c0, 1);
@@ -531,12 +531,12 @@ export class ProceduralAssetScene extends Phaser.Scene {
     graphics.generateTexture('weapon-spear', 32, 32);
     graphics.clear();
 
-    // Bouncy Bow — curved arc
+    // Bouncy Bow â€” curved arc
     graphics.lineStyle(3, 0x8b5a3c, 1);
     graphics.beginPath();
     graphics.arc(16, 16, 10, -Math.PI / 3, Math.PI / 3, false);
     graphics.strokePath();
-    graphics.lineStyle(1, 0xffe680, 1);
+    graphics.lineStyle(1, 0xffdf8a, 1);
     graphics.beginPath();
     graphics.moveTo(21, 7);
     graphics.lineTo(21, 25);
@@ -544,7 +544,7 @@ export class ProceduralAssetScene extends Phaser.Scene {
     graphics.generateTexture('weapon-bow', 32, 32);
     graphics.clear();
 
-    // Sticky Whip — coiled line
+    // Sticky Whip â€” coiled line
     graphics.lineStyle(3, 0xeaf4f0, 1);
     graphics.beginPath();
     graphics.moveTo(6, 16);
@@ -555,17 +555,17 @@ export class ProceduralAssetScene extends Phaser.Scene {
     graphics.generateTexture('weapon-whip', 32, 32);
     graphics.clear();
 
-    // Bubble Wand — wand + bubble
+    // Bubble Wand â€” wand + bubble
     graphics.fillStyle(0x8b5a3c, 1);
     graphics.fillRect(14, 14, 4, 14);
-    graphics.fillStyle(0x6be0ff, 0.6);
+    graphics.fillStyle(0x72d8ff, 0.6);
     graphics.fillCircle(16, 8, 6);
     graphics.fillStyle(0xffffff, 0.5);
     graphics.fillCircle(14, 6, 2);
     graphics.generateTexture('weapon-wand', 32, 32);
     graphics.clear();
 
-    // Slam Hammer — big head + handle
+    // Slam Hammer â€” big head + handle
     graphics.fillStyle(0x4a4a4a, 1);
     graphics.fillRect(8, 6, 16, 10);
     graphics.fillStyle(0x6a6a6a, 1);
@@ -578,7 +578,7 @@ export class ProceduralAssetScene extends Phaser.Scene {
     // Target dummy texture (for combat practice)
     graphics.fillStyle(0x9a6a3a, 1);
     graphics.fillRoundedRect(8, 4, 16, 24, 4);
-    graphics.fillStyle(0xffd86b, 1);
+    graphics.fillStyle(0xffd277, 1);
     graphics.fillCircle(16, 12, 4);
     graphics.fillStyle(0x2b2b2b, 1);
     graphics.fillCircle(14, 11, 1);
