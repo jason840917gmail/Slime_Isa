@@ -45,8 +45,8 @@ export function registerVisualSetAnimations(
     scene.anims.create({
       key: clip.runtimeKey,
       frames,
-      frameRate: clip.frameRate,
-      repeat: clip.repeat,
+      frameRate: clip.framesPerSecond,
+      repeat: clip.loop ? -1 : 0,
     });
     ownedKeys.add(clip.runtimeKey);
   }

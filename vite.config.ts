@@ -3,10 +3,12 @@ import path from 'node:path';
 
 import { defineConfig, type Plugin } from 'vite';
 
+import { characterContentModulesPlugin } from './src/game/content/characters/characterContentModulesPlugin';
+
 import { parseMapFile, type MapFile } from './src/game/content/maps/mapFormat';
 import { isObjectArchetypeId } from './src/game/content/objects/ObjectCatalog';
 import { isWorldTileId } from './src/game/content/terrain/TileCatalog';
-import { ENEMY_CONFIGS } from './src/game/enemies/library/EnemyTypes';
+import enemyTypesJson from './src/game/content/enemies/enemy-types.json';
 import { ASSET_MANIFEST, type AssetId } from './src/game/infrastructure/assets/manifest';
 import {
   edgeEntryPoint,
@@ -20,6 +22,7 @@ import type { Direction } from './src/game/world/Area';
 const MAX_EDITOR_BODY_BYTES = 2 * 1024 * 1024;
 const OBJECT_ID_PATTERN = /^[a-z0-9]+([.-][a-z0-9-]+)+$/;
 const OBJECT_DEFINITION_ROOT = path.resolve(process.cwd(), 'src/game/content/objects');
+const ENEMY_CONFIGS = enemyTypesJson.types;
 
 interface MutableObjectFrame {
   [key: string]: unknown;
@@ -561,7 +564,7 @@ function connectionTarget(map: MapFile, direction: Direction): string | undefine
 
 export default defineConfig({
   base: './',
-  plugins: [mapEditorSavePlugin()],
+  plugins: [characterContentModulesPlugin(), mapEditorSavePlugin()],
   server: {
     open: false,
   },

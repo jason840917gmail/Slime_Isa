@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "character.schema.json",
+  "title": "Slime Isa character package",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "characterId", "displayName", "kind", "visualSetId", "body", "hitboxes", "animationTracks"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "const": 1 },
+    "characterId": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$", "minLength": 1, "maxLength": 80 },
+    "displayName": { "type": "string", "minLength": 1, "maxLength": 80 },
+    "kind": { "enum": ["player", "enemy"] },
+    "runtimeRole": { "const": "primary-player" },
+    "visualSetId": { "type": "string", "pattern": "^[a-z0-9]+(?:[.-][a-z0-9-]+)+$", "minLength": 3, "maxLength": 120 },
+    "body": { "$ref": "#/$defs/body" },
+    "hitboxes": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/hitbox" },
+      "propertyNames": { "$ref": "#/$defs/stableId" }
+    },
+    "animationTracks": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/track" },
+      "propertyNames": { "$ref": "#/$defs/stableId" }
+    },
+    "player": { "$ref": "#/$defs/player" },
+    "enemy": { "$ref": "#/$defs/enemy" }
+  },
+  "allOf": [
+    { "if": { "properties": { "kind": { "const": "player" } } }, "then": { "required": ["player"], "not": { "required": ["enemy"] } } },
+    { "if": { "properties": { "kind": { "const": "enemy" } } }, "then": { "required": ["enemy"], "not": { "required": ["player", "runtimeRole"] } } }
+  ],
+  "$defs": {
+    "stableId": { "type": "string", "pattern": "^[a-z0-9]+(?:[.-][a-z0-9-]+)*$", "minLength": 1, "maxLength": 80 },
+    "numberPair": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 },
+    "body": {
+      "type": "object", "additionalProperties": false,
+      "required": ["width", "height", "centerOffsetX", "centerOffsetY"],
+      "properties": {
+        "width": { "type": "number", "exclusiveMinimum": 0 }, "height": { "type": "number", "exclusiveMinimum": 0 },
+        "centerOffsetX": { "type": "number" }, "centerOffsetY": { "type": "number" }
+      }
+    },
+    "hitbox": {
+      "type": "object", "additionalProperties": false,
+      "required": ["shape", "width", "height", "offsetX", "offsetY", "mirrorX"],
+      "properties": {
+        "shape": { "const": "rectangle" }, "width": { "type": "number", "exclusiveMinimum": 0 }, "height": { "type": "number", "exclusiveMinimum": 0 },
+        "offsetX": { "type": "number" }, "offsetY": { "type": "number" }, "mirrorX": { "type": "boolean" }
+      }
+    },
+    "span": {
+      "type": "object", "additionalProperties": false, "required": ["hitboxId", "from", "through"],
+      "properties": { "hitboxId": { "$ref": "#/$defs/stableId" }, "from": { "type": "integer", "minimum": 0 }, "through": { "type": "integer", "minimum": 0 } }
+    },
+    "event": {
+      "type": "object", "additionalProperties": false, "required": ["at", "eventId"],
+      "properties": { "at": { "type": "integer", "minimum": 0 }, "eventId": { "$ref": "#/$defs/stableId" }, "payload": {} }
+    },
+    "track": {
+      "type": "object", "additionalProperties": false,
+      "properties": { "hitboxSpans": { "type": "array", "items": { "$ref": "#/$defs/span" } }, "events": { "type": "array", "items": { "$ref": "#/$defs/event" } } }
+    },
+    "player": {
+      "type": "object", "additionalProperties": false, "required": ["name", "movement", "progression"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "movement": {
+          "type": "object", "additionalProperties": false, "required": ["baseSpeed", "boostSpeed", "dodgeSpeed", "dodgeInvulnerabilityMs"],
+          "properties": { "baseSpeed": { "type": "number", "minimum": 0 }, "boostSpeed": { "type": "number", "minimum": 0 }, "dodgeSpeed": { "type": "number", "minimum": 0 }, "dodgeInvulnerabilityMs": { "type": "integer", "minimum": 0 } }
+        },
+        "progression": {
+          "type": "object", "additionalProperties": false, "required": ["baseMaxHp", "baseMaxEnergy", "hpPerLevel", "attackPerLevel", "defensePerLevel", "energyPerLevel"],
+          "properties": { "baseMaxHp": { "type": "number", "exclusiveMinimum": 0 }, "baseMaxEnergy": { "type": "number", "exclusiveMinimum": 0 }, "hpPerLevel": { "type": "number", "minimum": 0 }, "attackPerLevel": { "type": "number", "minimum": 0 }, "defensePerLevel": { "type": "number", "minimum": 0 }, "energyPerLevel": { "type": "number", "minimum": 0 } }
+        }
+      }
+    },
+    "enemy": {
+      "type": "object", "additionalProperties": false, "required": ["maxHp", "ai", "drop"],
+      "properties": {
+        "maxHp": { "type": "number", "exclusiveMinimum": 0 },
+        "ai": {
+          "type": "object", "additionalProperties": false,
+          "required": ["aggroRange", "attackRange", "wanderSpeed", "chaseSpeed", "attackCooldownMs", "attackWindupMs", "attackRecoveryMs", "contactDamage", "knockbackStrength", "isRanged", "knockbackResist"],
+          "properties": {
+            "aggroRange": { "type": "number", "minimum": 0 }, "attackRange": { "type": "number", "minimum": 0 }, "leapRange": { "type": "number", "minimum": 0 }, "fleeRange": { "type": "number", "minimum": 0 },
+            "wanderSpeed": { "type": "number", "minimum": 0 }, "chaseSpeed": { "type": "number", "minimum": 0 }, "attackCooldownMs": { "type": "integer", "minimum": 0 }, "attackWindupMs": { "type": "integer", "minimum": 0 }, "attackRecoveryMs": { "type": "integer", "minimum": 0 },
+            "contactDamage": { "type": "number", "minimum": 0 }, "knockbackStrength": { "type": "number", "minimum": 0 }, "isRanged": { "type": "boolean" }, "isLeaper": { "type": "boolean" }, "projectileSpeed": { "type": "number", "exclusiveMinimum": 0 }, "knockbackResist": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        },
+        "drop": {
+          "type": "object", "additionalProperties": false, "required": ["xp", "coins"],
+          "properties": { "xp": { "type": "integer", "minimum": 0 }, "coins": { "type": "integer", "minimum": 0 }, "items": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["itemId", "chance"], "properties": { "itemId": { "type": "string" }, "chance": { "type": "number", "minimum": 0, "maximum": 1 }, "count": { "type": "integer", "minimum": 1 } } } } }
+        },
+        "projectile": { "type": "object", "additionalProperties": false, "required": ["assetId", "damage"], "properties": { "assetId": { "type": "string" }, "damage": { "type": "number", "minimum": 0 } } },
+        "impactEffect": { "type": "object", "additionalProperties": false, "required": ["visualSetId", "clipId", "distance"], "properties": { "visualSetId": { "type": "string" }, "clipId": { "$ref": "#/$defs/stableId" }, "distance": { "type": "number", "minimum": 0 } } }
+      }
+    }
+  }
+}

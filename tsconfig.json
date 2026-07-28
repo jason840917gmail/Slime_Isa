@@ -4,6 +4,10 @@
     "useDefineForClassFields": true,
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "baseUrl": ".",
+    "paths": {
+      "virtual-character-content": ["src/game/content/characters/virtual-character-content.ts"]
+    },
     "resolveJsonModule": true,
     "strict": true,
     "noUnusedLocals": true,
@@ -13,7 +17,7 @@
     "noEmit": true,
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
-    "types": ["vite/client"]
+    "types": ["vite/client", "node"]
   },
   "include": ["src"]
 }

@@ -1,19 +1,29 @@
-import enemyTypesJson from '../../content/enemies/enemy-types.json';
 import type { EnemyConfig } from '../Enemy';
+import type { AssetId } from '../../infrastructure/assets/manifest';
+import { getEnemyGameplay, getEnemyPackages } from '../../content/characters/CharacterCatalog';
 
-export type EnemyTypeId = keyof typeof enemyTypesJson.types;
+const enemyEntries = getEnemyPackages().map((entry) => {
+  const gameplay = getEnemyGameplay(entry.character);
+  return [entry.character.characterId, {
+    id: entry.character.characterId,
+    visualSetId: entry.character.visualSetId,
+    maxHp: gameplay.maxHp,
+    body: entry.character.body,
+    ai: gameplay.ai,
+    drop: gameplay.drop,
+    projectile: gameplay.projectile
+      ? { ...gameplay.projectile, assetId: gameplay.projectile.assetId as AssetId }
+      : undefined,
+    impactEffect: gameplay.impactEffect,
+  } satisfies EnemyConfig] as const;
+});
 
-/** The only active enemy catalog. Maps and the editor persist these IDs. */
-export const ENEMY_CONFIGS = enemyTypesJson.types as unknown as Readonly<
-  Record<EnemyTypeId, EnemyConfig>
->;
-
+export const ENEMY_CONFIGS = Object.fromEntries(enemyEntries) as Readonly<Record<string, EnemyConfig>>;
+export type EnemyTypeId = keyof typeof ENEMY_CONFIGS;
 export const ENEMY_TYPE_IDS = Object.keys(ENEMY_CONFIGS) as EnemyTypeId[];
 
 export function getEnemyConfig(id: string): EnemyConfig {
-  const config = (ENEMY_CONFIGS as Readonly<Record<string, EnemyConfig | undefined>>)[id];
-  if (!config) {
-    throw new Error(`Unknown enemy type '${id}'. Expected one of: ${ENEMY_TYPE_IDS.join(', ')}`);
-  }
+  const config = ENEMY_CONFIGS[id];
+  if (!config) throw new Error(`Unknown enemy type '${id}'. Expected one of: ${ENEMY_TYPE_IDS.join(', ')}`);
   return config;
 }

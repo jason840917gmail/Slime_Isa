@@ -2,7 +2,9 @@ import Phaser from 'phaser';
 
 import {
   getVisualSet,
+  getVisualClip,
   resolveFrameVisual,
+  visualRuntimeKey,
   type ResolvedVisualTransform,
   type VisualSetId,
 } from '../../content/visuals/VisualCatalog';
@@ -85,15 +87,16 @@ export class AnimatedVisual {
   }
 
   play(runtimeKey: string, ignoreIfPlaying = true): this {
-    this.sprite.play(runtimeKey, ignoreIfPlaying);
+    this.sprite.play(this.resolveRuntimeKey(runtimeKey), ignoreIfPlaying);
     const currentFrame = this.sprite.anims.currentFrame?.textureFrame;
     this.setFrameIndex(typeof currentFrame === 'number' ? currentFrame : Number(currentFrame) || 0);
     return this;
   }
 
   onceComplete(runtimeKey: string, callback: () => void): this {
+    const resolvedRuntimeKey = this.resolveRuntimeKey(runtimeKey);
     this.sprite.once(
-      Phaser.Animations.Events.ANIMATION_COMPLETE_KEY + runtimeKey,
+      Phaser.Animations.Events.ANIMATION_COMPLETE_KEY + resolvedRuntimeKey,
       callback,
     );
     return this;
@@ -206,6 +209,16 @@ export class AnimatedVisual {
     this.frameIndex = frameIndex;
     this.transform = resolveFrameVisual(this.visualSetId, frameIndex);
     this.applyTransform();
+  }
+
+  private resolveRuntimeKey(value: string): string {
+    if (this.scene.anims.exists(value)) return value;
+    const clipId = value.startsWith('slime-') ? value.slice('slime-'.length) : value;
+    try {
+      return getVisualClip(this.visualSetId, clipId).runtimeKey;
+    } catch {
+      return visualRuntimeKey(this.visualSetId, value);
+    }
   }
 
   private applyTransform(): void {
