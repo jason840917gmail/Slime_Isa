@@ -9,13 +9,16 @@
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.node.json",
     "assets:check": "node scripts/check-assets.mjs",
     "visuals:check": "node scripts/check-visuals.mjs",
+    "characters:check": "node scripts/check-characters.mjs",
     "enemies:check": "node scripts/check-enemies.mjs",
     "objects:check": "node scripts/check-objects.mjs",
     "maps:check": "node scripts/check-maps.mjs",
     "maps:bake": "node scripts/bake-production-maps.mjs",
+    "test:characters": "node --test scripts/tests/character-studio/*.test.mjs",
+    "test:character-studio": "node --test scripts/tests/character-studio/*.test.mjs",
     "test:depth": "node scripts/test-depth.mjs",
     "build": "pnpm typecheck && vite build",
-    "check": "pnpm assets:check && pnpm visuals:check && pnpm enemies:check && pnpm objects:check && pnpm maps:check && pnpm test:depth && pnpm typecheck && pnpm build",
+    "check": "pnpm assets:check && pnpm visuals:check && pnpm characters:check && pnpm enemies:check && pnpm objects:check && pnpm maps:check && pnpm test:depth && pnpm typecheck && pnpm build",
     "preview": "vite preview --port 3000"
   },
   "dependencies": {
