@@ -1,0 +1,12 @@
+{
+  "$schema": "../../visuals/visual-set.schema.json",
+  "version": 1,
+  "visualSetId": "enemy.worm.swordsman",
+  "assetId": "enemy.worm.swordsman",
+  "defaults": { "origin": [0.5, 0.5], "scale": [1, 1], "sourceOffset": [0, 0] },
+  "clips": {
+    "idle-side": { "frames": [8, 9, 10, 11], "framesPerSecond": 5, "loop": true }, "walk-side": { "frames": [20, 21, 22, 23], "framesPerSecond": 8, "loop": true }, "attack-side": { "frames": [30, 31, 32, 33], "framesPerSecond": 9, "loop": false }, "knockback-side": { "frames": [8], "framesPerSecond": 8, "loop": false }, "die-side": { "frames": [34, 35, 36, 37], "framesPerSecond": 7, "loop": false },
+    "idle-up": { "frames": [4, 5, 6, 7], "framesPerSecond": 5, "loop": true }, "walk-up": { "frames": [16, 17, 18, 19], "framesPerSecond": 8, "loop": true }, "attack-up": { "frames": [27, 28, 29], "framesPerSecond": 9, "loop": false }, "knockback-up": { "frames": [4], "framesPerSecond": 8, "loop": false }, "die-up": { "frames": [34, 35, 36, 37], "framesPerSecond": 7, "loop": false },
+    "idle-down": { "frames": [0, 1, 2, 3], "framesPerSecond": 5, "loop": true }, "walk-down": { "frames": [12, 13, 14, 15], "framesPerSecond": 8, "loop": true }, "attack-down": { "frames": [24, 25, 26], "framesPerSecond": 9, "loop": false }, "knockback-down": { "frames": [0], "framesPerSecond": 8, "loop": false }, "die-down": { "frames": [34, 35, 36, 37], "framesPerSecond": 7, "loop": false }
+  }
+}

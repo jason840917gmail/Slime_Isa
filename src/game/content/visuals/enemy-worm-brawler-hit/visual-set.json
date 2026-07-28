@@ -1,9 +1,8 @@
 {
   "$schema": "../visual-set.schema.json",
+  "version": 1,
   "visualSetId": "effect.enemy.worm-brawler-hit",
   "assetId": "effect.enemy.worm-brawler-hit",
   "defaults": { "origin": [0.5, 0.5], "scale": [1, 1], "sourceOffset": [0, 0] },
-  "clips": {
-    "hit": { "runtimeKey": "effect-enemy-worm-brawler-hit", "frames": [0, 1, 2], "frameRate": 12, "repeat": 0 }
-  }
+  "clips": { "hit": { "frames": [0, 1, 2], "framesPerSecond": 12, "loop": false } }
 }

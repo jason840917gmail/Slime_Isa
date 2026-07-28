@@ -1,0 +1,16 @@
+{
+  "$schema": "../character.schema.json",
+  "version": 1,
+  "characterId": "worm-swordsman",
+  "displayName": "Worm Swordsman",
+  "kind": "enemy",
+  "visualSetId": "enemy.worm.swordsman",
+  "body": { "width": 36, "height": 26, "centerOffsetX": 0, "centerOffsetY": 9 },
+  "hitboxes": { "sword": { "shape": "rectangle", "width": 34, "height": 18, "offsetX": 25, "offsetY": 2, "mirrorX": true } },
+  "animationTracks": { "attack-side": { "hitboxSpans": [{ "hitboxId": "sword", "from": 1, "through": 2 }] } },
+  "enemy": {
+    "maxHp": 90,
+    "ai": { "aggroRange": 220, "attackRange": 38, "wanderSpeed": 28, "chaseSpeed": 75, "attackCooldownMs": 1500, "attackWindupMs": 400, "attackRecoveryMs": 400, "contactDamage": 37, "knockbackStrength": 260, "isRanged": false, "knockbackResist": 0.45 },
+    "drop": { "xp": 50, "coins": 10, "items": [{ "itemId": "shard", "chance": 0.2 }] }
+  }
+}

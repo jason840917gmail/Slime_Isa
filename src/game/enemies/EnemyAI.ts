@@ -1,10 +1,25 @@
-import Phaser from 'phaser';
-
 /**
  * Enemy AI states. Composable behaviors — the Enemy class delegates per-state
  * logic to functions in EnemyAI.ts. States transition via return values.
  */
 export type EnemyState = 'idle' | 'wander' | 'chase' | 'attack' | 'flee' | 'dead';
+
+export interface EnemyDirection {
+  readonly x: number;
+  readonly y: number;
+  clone(): EnemyDirection;
+}
+
+export interface EnemyVelocityBody {
+  setVelocity(x: number, y: number): void;
+  velocity: { scale(amount: number): void };
+}
+
+export interface EnemyStateEntity {
+  readonly x: number;
+  readonly y: number;
+  readonly body: unknown;
+}
 
 export interface EnemySafeZone {
   x: number;
@@ -14,18 +29,18 @@ export interface EnemySafeZone {
 }
 
 export interface EnemyStateContext {
-  enemy: Phaser.Physics.Arcade.Sprite;
-  player: Phaser.Physics.Arcade.Sprite;
+  enemy: EnemyStateEntity;
+  player: { readonly x: number; readonly y: number };
   time: number;
   delta: number;
   /** Distance to player. */
   distToPlayer: number;
   /** Normalized direction to player. */
-  dirToPlayer: Phaser.Math.Vector2;
+  dirToPlayer: EnemyDirection;
   /** Config-driven behavior parameters. */
   config: EnemyAIConfig;
   /** Requests one typed attack sequence; Enemy owns timing and effects. */
-  requestAttack?: (direction: Phaser.Math.Vector2) => void;
+  requestAttack?: (direction: EnemyDirection) => void;
   /** Areas enemies should not enter, such as the player's house. */
   safeZones?: EnemySafeZone[];
 }
@@ -97,7 +112,7 @@ function avoidSafeZones(ctx: EnemyStateContext): StateResult | null {
     if (ctx.enemy.x < zone.x || ctx.enemy.x > zone.x + zone.w
       || ctx.enemy.y < zone.y || ctx.enemy.y > zone.y + zone.h) continue;
 
-    const body = ctx.enemy.body as Phaser.Physics.Arcade.Body;
+    const body = ctx.enemy.body as EnemyVelocityBody;
     const distances = [
       { distance: ctx.enemy.x - zone.x, x: -1, y: 0 },
       { distance: zone.x + zone.w - ctx.enemy.x, x: 1, y: 0 },
@@ -108,9 +123,9 @@ function avoidSafeZones(ctx: EnemyStateContext): StateResult | null {
     for (const candidate of distances.slice(1)) {
       if (candidate.distance < nearest.distance) nearest = candidate;
     }
-    const away = new Phaser.Math.Vector2(nearest.x, nearest.y);
-    away.normalize().scale(ctx.config.chaseSpeed * 1.25);
-    body.setVelocity(away.x, away.y);
+    const length = Math.hypot(nearest.x, nearest.y) || 1;
+    const speed = ctx.config.chaseSpeed * 1.25;
+    body.setVelocity((nearest.x / length) * speed, (nearest.y / length) * speed);
     return 'flee';
   }
 
@@ -119,7 +134,7 @@ function avoidSafeZones(ctx: EnemyStateContext): StateResult | null {
 
 function stateIdle(ctx: EnemyStateContext): StateResult {
   const { enemy, distToPlayer, config } = ctx;
-  const body = enemy.body as Phaser.Physics.Arcade.Body;
+  const body = enemy.body as EnemyVelocityBody;
   body.setVelocity(0, 0);
 
   if (distToPlayer <= config.aggroRange) {
@@ -132,7 +147,7 @@ function stateIdle(ctx: EnemyStateContext): StateResult {
 
 function stateWander(ctx: EnemyStateContext): StateResult {
   const { enemy, distToPlayer, config } = ctx;
-  const body = enemy.body as Phaser.Physics.Arcade.Body;
+  const body = enemy.body as EnemyVelocityBody;
 
   if (distToPlayer <= config.aggroRange) {
     body.setVelocity(0, 0);
@@ -154,7 +169,7 @@ function stateWander(ctx: EnemyStateContext): StateResult {
 
 function stateChase(ctx: EnemyStateContext): StateResult {
   const { enemy, dirToPlayer, distToPlayer, config } = ctx;
-  const body = enemy.body as Phaser.Physics.Arcade.Body;
+  const body = enemy.body as EnemyVelocityBody;
 
   if (distToPlayer > config.aggroRange * 1.5) {
     return 'wander';
@@ -182,7 +197,7 @@ function stateChase(ctx: EnemyStateContext): StateResult {
 
 function stateAttack(ctx: EnemyStateContext): StateResult {
   const { enemy, dirToPlayer, distToPlayer, config, requestAttack } = ctx;
-  const body = enemy.body as Phaser.Physics.Arcade.Body;
+  const body = enemy.body as EnemyVelocityBody;
 
   // If the player moved away, resume chasing.
   if (distToPlayer > config.attackRange * 1.3) {
@@ -196,7 +211,7 @@ function stateAttack(ctx: EnemyStateContext): StateResult {
 
 function stateFlee(ctx: EnemyStateContext): StateResult {
   const { enemy, dirToPlayer, distToPlayer, config } = ctx;
-  const body = enemy.body as Phaser.Physics.Arcade.Body;
+  const body = enemy.body as EnemyVelocityBody;
 
   // If far enough, stop fleeing and attack.
   if (config.fleeRange && distToPlayer >= config.fleeRange) {

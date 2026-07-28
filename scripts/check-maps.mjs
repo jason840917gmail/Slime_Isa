@@ -22,11 +22,18 @@ import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
-const enemyCatalog = JSON.parse(readFileSync(
-  join(repoRoot, 'src', 'game', 'content', 'enemies', 'enemy-types.json'),
-  'utf8',
-));
-const activeEnemyIds = new Set(Object.keys(enemyCatalog.types ?? {}));
+const characterRoot = join(repoRoot, 'src', 'game', 'content', 'characters');
+const enemyFiles = [];
+function collectEnemyFiles(directory) {
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    if (entry.name.startsWith('.')) continue;
+    const file = join(directory, entry.name);
+    if (entry.isDirectory()) collectEnemyFiles(file);
+    else if (entry.name === 'character.json') enemyFiles.push(file);
+  }
+}
+collectEnemyFiles(characterRoot);
+const activeEnemyIds = new Set(enemyFiles.map((file) => JSON.parse(readFileSync(file, 'utf8'))).filter((value) => value.kind === 'enemy').map((value) => value.characterId));
 const mapsDir = process.argv[2]
   ? resolve(process.cwd(), process.argv[2])
   : join(repoRoot, 'src', 'game', 'content', 'maps');

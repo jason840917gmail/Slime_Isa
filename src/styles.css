@@ -352,12 +352,47 @@ body {
   letter-spacing: -0.02em;
 }
 
-.editor-game-link {
+.editor-header-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  min-width: 122px;
+}
+
+.editor-nav-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #5d5338;
+  padding: 6px 8px;
   color: #c9b46d;
-  font-size: 10px;
+  background: rgba(214, 183, 94, 0.06);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
   text-decoration: none;
   text-transform: uppercase;
-  writing-mode: vertical-rl;
+  transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+}
+
+.editor-nav-link:hover,
+.editor-nav-link:focus-visible {
+  border-color: #d6b75e;
+  background: rgba(214, 183, 94, 0.16);
+  transform: translateY(-1px);
+}
+
+.editor-nav-link--studio {
+  color: #a7dcae;
+}
+
+.editor-game-link {
+  min-height: 28px;
+  color: #c9b46d;
 }
 
 .editor-map-strip {
