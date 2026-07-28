@@ -5,10 +5,19 @@ import { WorldScene } from './scenes/WorldScene';
 import { MapLoadScene } from './scenes/MapLoadScene';
 import { bindDevToolsPanel, createDevToolsPanel } from './devTools';
 
-export async function createGame(container: HTMLDivElement): Promise<Phaser.Game> {
+export async function createGame(container: HTMLDivElement): Promise<Phaser.Game | undefined> {
   const editorMapId = import.meta.env.DEV
     ? new URLSearchParams(window.location.search).get('editor')
     : null;
+  const characterStudio = import.meta.env.DEV
+    ? new URLSearchParams(window.location.search).get('studio') === 'characters'
+    : false;
+  if (characterStudio) {
+    document.title = 'Character Studio — Field Cartographer';
+    const { mountCharacterStudio } = await import('./editor/CharacterStudio');
+    mountCharacterStudio(container);
+    return undefined;
+  }
   const isEditor = editorMapId !== null;
   const editorScenes = isEditor
     ? await Promise.all([

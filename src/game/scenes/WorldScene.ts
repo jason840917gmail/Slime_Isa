@@ -41,7 +41,7 @@ import { PLAYER_CONFIG } from '../content/player';
 import { DisposableBag } from '../shared/lifecycle/Disposable';
 import { createPlayerEntity } from '../features/player/PlayerFactory';
 import { PlayerController } from '../features/player/PlayerController';
-import { findVisualClipByRuntimeKey } from '../content/visuals/VisualCatalog';
+import { findVisualClipByRuntimeKey, getVisualClip } from '../content/visuals/VisualCatalog';
 import { AnimatedVisual } from '../features/visuals/AnimatedVisual';
 import { registerAllVisualSetAnimations } from '../features/visuals/AnimationRegistrar';
 import { CrystalTrialController } from '../features/dungeon/CrystalTrialController';
@@ -826,26 +826,28 @@ export class WorldScene extends Phaser.Scene {
 
   private playActionAnimation(key: string): void {
     if (this.healthSystem?.isDead() || this.time.now < this.playerKnockbackUntil) return;
-    const clip = findVisualClipByRuntimeKey('character.player.slime', key);
+    const clip = key.startsWith('slime-')
+      ? getVisualClip('character.player.slime', key.slice('slime-'.length))
+      : findVisualClipByRuntimeKey('character.player.slime', key);
     if (!clip) return;
 
     this.actionLocked = true;
     this.currentAnimation = key;
     this.player.setVelocity(0, 0);
     this.player.rotation = 0;
-    this.playerVisual?.play(key, true);
+    this.playerVisual?.play(clip.runtimeKey, true);
 
     const unlock = () => {
       this.actionLocked = false;
       this.playAnimation('slime-idle');
     };
 
-    if (clip.repeat === 0) {
-      this.playerVisual?.onceComplete(key, unlock);
+    if (!clip.loop) {
+      this.playerVisual?.onceComplete(clip.runtimeKey, unlock);
       return;
     }
 
-    const durationMs = Math.max(1, Math.round((clip.frames.length / clip.frameRate) * 1000));
+    const durationMs = Math.max(1, Math.round((clip.frames.length / clip.framesPerSecond) * 1000));
     this.time.delayedCall(durationMs, unlock);
   }
 

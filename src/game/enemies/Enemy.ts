@@ -6,6 +6,13 @@ import { getVisualClip, getVisualSet, type VisualSetId } from '../content/visual
 import { AnimatedVisual } from '../features/visuals/AnimatedVisual';
 import { floatingText } from '../ui/FloatingText';
 import { runState, type EnemyState, type EnemyAIConfig, type EnemySafeZone } from './EnemyAI';
+import {
+  applyEnemyDamage,
+  canResolveEnemyAttack,
+  cancelEnemyAttack,
+  finishEnemyAttack,
+  tryBeginEnemyAttack,
+} from './enemyCombatLifecycle';
 import { resolveBodyBottom, resolveWorldDepth } from '../presentation/WorldDepth';
 
 export interface EnemyItemDrop {
@@ -125,7 +132,8 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   takeDamage(amount: number, knockX: number, knockY: number, knockStrength: number): void {
     if (this.dead) return;
     this.cancelAttack();
-    this.hp = Math.max(0, this.hp - amount);
+    const damageResult = applyEnemyDamage(this.hp, this.maxHp, amount);
+    this.hp = damageResult.hp;
     this.hitFlashUntil = this.scene.time.now + 120;
     this.visual.setTintFill(0xff5a5a);
 
@@ -139,7 +147,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       amount > 15,
     );
 
-    if (this.hp <= 0) {
+    if (damageResult.defeated) {
       this.die();
       return;
     }
@@ -214,13 +222,20 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     super.destroy(fromScene);
   }
 
-  private beginAttack(direction: Phaser.Math.Vector2, time: number): void {
-    if (this.attackActive || time < this.attackReadyAt || this.dead) return;
-    this.attackActive = true;
-    this.attackReadyAt = time + this.config.ai.attackCooldownMs;
-    this.attackSequenceId += 1;
-    const sequenceId = this.attackSequenceId;
-    this.attackVector = direction.lengthSq() > 0 ? direction.clone().normalize() : this.attackVector;
+  private beginAttack(direction: { readonly x: number; readonly y: number }, time: number): void {
+    if (this.dead) return;
+    const start = tryBeginEnemyAttack({
+      active: this.attackActive,
+      readyAt: this.attackReadyAt,
+      sequenceId: this.attackSequenceId,
+    }, time, this.config.ai.attackCooldownMs);
+    if (!start.started || start.sequenceId === undefined) return;
+    this.attackActive = start.state.active;
+    this.attackReadyAt = start.state.readyAt;
+    this.attackSequenceId = start.state.sequenceId;
+    const sequenceId = start.sequenceId;
+    const directionVector = new Phaser.Math.Vector2(direction.x, direction.y);
+    this.attackVector = directionVector.lengthSq() > 0 ? directionVector.normalize() : this.attackVector;
     this.updateDirection(this.attackVector);
     this.playVisual('attack');
 
@@ -230,7 +245,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     ));
 
     const clip = getVisualClip(this.config.visualSetId, `attack-${this.direction}`);
-    const clipDuration = clip.frames.length / clip.frameRate * 1000;
+    const clipDuration = clip.frames.length / clip.framesPerSecond * 1000;
     const sequenceDuration = Math.min(
       2000,
       Math.max(
@@ -245,7 +260,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   }
 
   private resolveAttack(sequenceId: number): void {
-    if (!this.attackActive || sequenceId !== this.attackSequenceId || this.dead) return;
+    if (!canResolveEnemyAttack({ active: this.attackActive, readyAt: this.attackReadyAt, sequenceId: this.attackSequenceId }, sequenceId) || this.dead) return;
     const player = this.ctx.getPlayer();
     if (!player?.active) return;
 
@@ -270,10 +285,15 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   }
 
   private finishAttack(sequenceId: number): void {
-    if (!this.attackActive || sequenceId !== this.attackSequenceId || this.dead) return;
+    if (!canResolveEnemyAttack({ active: this.attackActive, readyAt: this.attackReadyAt, sequenceId: this.attackSequenceId }, sequenceId) || this.dead) return;
+    const finished = finishEnemyAttack({
+      active: this.attackActive,
+      readyAt: this.attackReadyAt,
+      sequenceId: this.attackSequenceId,
+    }, sequenceId);
     this.attackTimers.forEach((timer) => timer.remove());
     this.attackTimers = [];
-    this.attackActive = false;
+    this.attackActive = finished.active;
     const player = this.ctx.getPlayer();
     const distance = player
       ? Phaser.Math.Distance.Between(this.x, this.y, player.x, player.y)
@@ -285,7 +305,12 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   }
 
   private cancelAttack(): void {
-    this.attackSequenceId += 1;
+    const cancelled = cancelEnemyAttack({
+      active: this.attackActive,
+      readyAt: this.attackReadyAt,
+      sequenceId: this.attackSequenceId,
+    });
+    this.attackSequenceId = cancelled.sequenceId;
     this.attackTimers.forEach((timer) => timer.remove());
     this.attackTimers = [];
     this.attackActive = false;
@@ -308,7 +333,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     const finish = () => this.finishDeath();
     this.visual.onceComplete(runtimeKey, finish);
     this.deathTimer = this.scene.time.delayedCall(
-      Math.min(1500, clip.frames.length / clip.frameRate * 1000 + 250),
+      Math.min(1500, clip.frames.length / clip.framesPerSecond * 1000 + 250),
       finish,
     );
   }

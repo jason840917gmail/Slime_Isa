@@ -1,0 +1,39 @@
+{
+  "$schema": "../character.schema.json",
+  "version": 1,
+  "characterId": "player-slime",
+  "displayName": "Player Slime",
+  "kind": "player",
+  "runtimeRole": "primary-player",
+  "visualSetId": "character.player.slime",
+  "body": {
+    "width": 30.24,
+    "height": 22.4,
+    "centerOffsetX": 0,
+    "centerOffsetY": 14.56
+  },
+  "hitboxes": {},
+  "animationTracks": {
+    "idle": {
+      "events": [],
+      "hitboxSpans": []
+    }
+  },
+  "player": {
+    "name": "bob",
+    "movement": {
+      "baseSpeed": 230,
+      "boostSpeed": 360,
+      "dodgeSpeed": 420,
+      "dodgeInvulnerabilityMs": 400
+    },
+    "progression": {
+      "baseMaxHp": 100,
+      "baseMaxEnergy": 100,
+      "hpPerLevel": 12,
+      "attackPerLevel": 2,
+      "defensePerLevel": 1,
+      "energyPerLevel": 4
+    }
+  }
+}
