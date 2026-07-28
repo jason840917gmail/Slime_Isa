@@ -1,11 +1,11 @@
-import Phaser from 'phaser';
+﻿import Phaser from 'phaser';
 import { floatingText } from '../ui/FloatingText';
 import { resolveBodyBottom, resolveWorldDepth } from '../presentation/WorldDepth';
 
 /**
  * Target dummy for combat practice. Has HP, takes damage, shows a
  * world-space health bar, gets knocked back, and respawns after a short
- * delay. Does not fight back — pure damage sponge for M2 playtesting.
+ * delay. Does not fight back â€” pure damage sponge for M2 playtesting.
  *
  * In Phase 3 this is replaced by the real Enemy class with AI.
  */
@@ -46,7 +46,7 @@ export class TargetDummy extends Phaser.Physics.Arcade.Sprite {
 
     this.hp = Math.max(0, this.hp - amount);
     this.hitFlashUntil = this.scene.time.now + 120;
-    this.setTintFill(0xff5a5a);
+    this.setTintFill(0xff6f88);
 
     floatingText.spawn(this.scene, this.x, this.y - 24, `-${amount}`, amount > 15 ? 'yellow' : 'white', amount > 15);
 
@@ -134,11 +134,11 @@ export class TargetDummy extends Phaser.Physics.Arcade.Sprite {
     const w = 44;
     const h = 5;
 
-    g.fillStyle(0x0a1f15, 0.85);
+    g.fillStyle(0x0b1020, 0.85);
     g.fillRoundedRect(x, y, w, h, 3);
 
     const pct = this.maxHp > 0 ? Phaser.Math.Clamp(this.hp / this.maxHp, 0, 1) : 0;
-    const fill = pct <= 0.25 ? 0xff5a5a : pct <= 0.5 ? 0xff9a3c : 0x7be08a;
+    const fill = pct <= 0.25 ? 0xff6f88 : pct <= 0.5 ? 0xffad66 : 0x7be08a;
     g.fillStyle(fill, 1);
     g.fillRoundedRect(x + 1, y + 1, Math.max(0, (w - 2) * pct), h - 2, 2);
   }

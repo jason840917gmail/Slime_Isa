@@ -1,8 +1,20 @@
 :root {
   color-scheme: dark;
-  font-family: Aptos, "Segoe UI Variable", "Trebuchet MS", sans-serif;
-  background: #0a0f12;
-  color: #f4fff7;
+  font-family: "Trebuchet MS", "Segoe UI Variable", sans-serif;
+  background: #0b1020;
+  color: #f5f7ff;
+  --ui-bg: #0b1020;
+  --ui-surface: #111b32;
+  --ui-surface-raised: #192642;
+  --ui-border: #3b5c78;
+  --ui-ink: #f5f7ff;
+  --ui-muted: #a7bbd6;
+  --ui-mint: #86f0c3;
+  --ui-cyan: #72d8ff;
+  --ui-amber: #ffd277;
+  --ui-violet: #a78bfa;
+  --ui-danger: #ff6f88;
+  --ui-shadow: #081022;
 }
 
 * {
@@ -49,7 +61,7 @@ body {
   height: 100%;
   border-radius: 0;
   border: none;
-  background: #112028;
+  background: var(--ui-bg);
   display: block;
 }
 
@@ -60,11 +72,11 @@ body {
   padding: 12px;
   background:
     radial-gradient(circle at 12% 8%, rgba(38, 92, 72, 0.32), transparent 28%),
-    linear-gradient(135deg, #070c13 0%, #111225 54%, #071311 100%);
+    linear-gradient(135deg, #070d1d 0%, #111b32 54%, #09182a 100%);
 }
 
 .game-shell.is-dev-mode .canvas-frame {
-  border: 2px solid #34305f;
+  border: 2px solid #35446b;
   border-radius: 4px;
   box-shadow: 0 0 0 1px rgba(102, 245, 159, 0.08), 0 18px 60px rgba(0, 0, 0, 0.45);
 }
@@ -83,13 +95,13 @@ body {
 /* ── development panel ── */
 .development-panel {
   overflow: auto;
-  border: 2px solid #34305f;
+  border: 2px solid #35446b;
   border-radius: 4px;
   background:
-    linear-gradient(180deg, rgba(24, 22, 46, 0.96), rgba(11, 11, 24, 0.98)),
+    linear-gradient(180deg, rgba(25, 38, 66, 0.96), rgba(8, 16, 34, 0.98)),
     repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.03) 0 1px, transparent 1px 4px);
   box-shadow: inset 0 0 0 1px rgba(165, 154, 255, 0.12), 0 18px 60px rgba(0, 0, 0, 0.45);
-  color: #dedbff;
+  color: #d7e7f8;
   font-family: "Trebuchet MS", Aptos, sans-serif;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -1708,4 +1720,114 @@ body {
   color: #ffd86b;
   font-size: 10px;
   font-weight: 600;
+}
+
+/* â”€â”€ modernized pixel-stylized top-down system â”€â”€ */
+.game-shell.is-map-editor {
+  background:
+    linear-gradient(rgba(114, 216, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(114, 216, 255, 0.035) 1px, transparent 1px),
+    radial-gradient(circle at 72% 18%, rgba(134, 240, 195, 0.18), transparent 34%),
+    var(--ui-bg);
+}
+
+.game-shell.is-map-editor .canvas-frame {
+  border-color: var(--ui-border);
+  background: var(--ui-bg);
+  box-shadow: 0 0 0 3px var(--ui-shadow), 0 22px 70px rgba(0, 0, 0, 0.58);
+}
+
+.development-panel,
+.map-editor-panel,
+.map-editor-inspector,
+.editor-new-map-dialog {
+  border-color: var(--ui-border);
+  background-color: var(--ui-surface);
+  color: var(--ui-ink);
+  font-family: "Trebuchet MS", "Segoe UI Variable", sans-serif;
+}
+
+.map-editor-header,
+.map-editor-inspector-header,
+.editor-map-strip,
+.editor-status {
+  border-color: rgba(59, 92, 120, 0.72);
+  background: rgba(17, 27, 50, 0.96);
+}
+
+.map-editor-mark,
+.editor-inspector-empty-mark {
+  border-color: var(--ui-amber);
+  background: var(--ui-amber);
+  color: var(--ui-shadow);
+  box-shadow: 4px 4px 0 rgba(8, 16, 34, 0.9);
+}
+
+.map-editor-header h1,
+.map-editor-inspector-header h2,
+.editor-new-map-dialog header h2,
+.editor-inspector-empty strong {
+  color: var(--ui-ink);
+}
+
+.map-editor-header p,
+.editor-inspector-kicker,
+.editor-map-strip label,
+.editor-dirty,
+.editor-palette-copy small,
+.editor-status small,
+.editor-inspector-empty p {
+  color: var(--ui-muted);
+}
+
+.editor-map-strip select,
+.editor-inspector-toggle,
+.editor-inspector-reopen,
+.editor-palette-sibling {
+  border-color: var(--ui-border);
+  background: var(--ui-surface-raised);
+  color: var(--ui-ink);
+}
+
+.editor-new-map,
+.editor-inspector-toggle:hover,
+.editor-inspector-reopen:hover,
+.editor-palette-sibling:hover {
+  border-color: var(--ui-mint);
+  background: #25425a;
+  color: var(--ui-mint);
+}
+
+.editor-palette-item.is-active,
+.editor-palette-sibling.is-template-active,
+.editor-palette-item.is-template-active {
+  border-color: var(--ui-amber);
+  box-shadow: inset 3px 0 0 var(--ui-amber);
+  background: #25425a;
+  color: var(--ui-ink);
+}
+
+.editor-status-light {
+  background: var(--ui-mint);
+  box-shadow: 0 0 10px rgba(134, 240, 195, 0.5);
+}
+
+.keymap-panel {
+  border-color: rgba(114, 216, 255, 0.48);
+  background: rgba(11, 16, 32, 0.88);
+  color: #d7e7f8;
+}
+
+.keymap-panel summary {
+  background: #203b59;
+}
+
+.keymap-panel summary::after,
+.keymap-panel td.k {
+  color: var(--ui-amber);
+}
+
+.keymap-panel .lock {
+  background: #332948;
+  color: var(--ui-amber);
 }

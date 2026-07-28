@@ -1,8 +1,8 @@
-import Phaser from 'phaser';
+﻿import Phaser from 'phaser';
 import type { Enemy } from '../enemies/Enemy';
 import { resolveScreenUiDepth } from '../presentation/WorldDepth';
 
-const FONT = 'Aptos, Segoe UI Variable, sans-serif';
+const FONT = 'Trebuchet MS, Segoe UI Variable, sans-serif';
 
 export class BossHealthBar {
   private scene: Phaser.Scene;
@@ -20,7 +20,7 @@ export class BossHealthBar {
 
     const width = 520;
     const bg = scene.add.graphics();
-    bg.fillStyle(0x071612, 0.94);
+    bg.fillStyle(0x101a31, 0.94);
     bg.fillRoundedRect(-width / 2 - 14, -28, width + 28, 56, 12);
     bg.lineStyle(2, 0x8b2f2f, 0.9);
     bg.strokeRoundedRect(-width / 2 - 14, -28, width + 28, 56, 12);
@@ -35,7 +35,7 @@ export class BossHealthBar {
     }).setOrigin(0, 0.5));
 
     this.container.add(scene.add.rectangle(0, 9, width, 14, 0x240909, 1).setOrigin(0.5));
-    this.fill = scene.add.rectangle(-width / 2, 9, width, 14, 0xff5a5a, 1).setOrigin(0, 0.5);
+    this.fill = scene.add.rectangle(-width / 2, 9, width, 14, 0xff6f88, 1).setOrigin(0, 0.5);
     this.container.add(this.fill);
 
     this.hpText = scene.add.text(width / 2, -17, '', {
@@ -53,7 +53,7 @@ export class BossHealthBar {
     if (!this.boss.active && !this.boss.dead) return;
     const pct = this.boss.maxHp > 0 ? Phaser.Math.Clamp(this.boss.hp / this.boss.maxHp, 0, 1) : 0;
     this.fill.width = 520 * pct;
-    this.fill.fillColor = pct <= 0.25 ? 0xff3030 : pct <= 0.5 ? 0xff8a3c : 0xff5a5a;
+    this.fill.fillColor = pct <= 0.25 ? 0xff3030 : pct <= 0.5 ? 0xff8a3c : 0xff6f88;
     this.hpText.setText(`${Math.max(0, this.boss.hp)} / ${this.boss.maxHp}`);
   }
 

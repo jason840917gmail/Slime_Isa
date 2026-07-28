@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+﻿import Phaser from 'phaser';
 import { gameEvents } from '../core/EventBus';
 import { gameState } from '../core/GameState';
 import { rollPerkChoices, getPerkDef } from '../systems/PlayerStats';
@@ -12,7 +12,7 @@ import { resolveScreenUiDepth } from '../presentation/WorldDepth';
  *
  * Click a card or press 1/2/3 to pick. The game stays paused until a perk is chosen.
  */
-const FONT = 'Aptos, Segoe UI Variable, sans-serif';
+const FONT = 'Trebuchet MS, Segoe UI Variable, sans-serif';
 
 export interface LevelUpModalContext {
   scene: Phaser.Scene;
@@ -62,7 +62,7 @@ export class LevelUpModal {
           fontFamily: FONT,
           fontSize: '32px',
           color: '#a3f0c0',
-          stroke: '#0a1f15',
+          stroke: '#0b1020',
           strokeThickness: 6,
         })
         .setOrigin(0.5),
@@ -79,9 +79,9 @@ export class LevelUpModal {
       const card = scene.add.container(x, 10);
 
       const bg = scene.add.graphics();
-      bg.fillStyle(0x0e2a1f, 0.96);
+      bg.fillStyle(0x173947, 0.96);
       bg.fillRoundedRect(-cardW / 2, -cardH / 2, cardW, cardH, 10);
-      bg.lineStyle(2, 0x44cc88, 0.9);
+      bg.lineStyle(2, 0x73e2b1, 0.9);
       bg.strokeRoundedRect(-cardW / 2, -cardH / 2, cardW, cardH, 10);
       card.add(bg);
 
@@ -107,8 +107,8 @@ export class LevelUpModal {
           .text(0, -8, choice.title, {
             fontFamily: FONT,
             fontSize: '15px',
-            color: '#f4fff7',
-            stroke: '#0a1f15',
+            color: '#f5f7ff',
+            stroke: '#0b1020',
             strokeThickness: 3,
             align: 'center',
             wordWrap: { width: cardW - 16 },
@@ -121,7 +121,7 @@ export class LevelUpModal {
           .text(0, 40, choice.description, {
             fontFamily: FONT,
             fontSize: '11px',
-            color: '#ccebd0',
+            color: '#d7f6e9',
             align: 'center',
             wordWrap: { width: cardW - 18 },
           })
@@ -132,7 +132,7 @@ export class LevelUpModal {
         .text(0, cardH / 2 - 16, `[${i + 1}]`, {
           fontFamily: FONT,
           fontSize: '12px',
-          color: '#ffd86b',
+          color: '#ffd277',
         })
         .setOrigin(0.5);
       card.add(numLabel);

@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+﻿import Phaser from 'phaser';
 import { resolveWorldDepth } from '../presentation/WorldDepth';
 
 /**
@@ -134,7 +134,7 @@ class HitboxPoolImpl {
 
     // VFX slash rect.
     if (config.showVfx ?? true) {
-      const color = config.vfxColor ?? 0x88ffaa;
+      const color = config.vfxColor ?? 0x86f0c3;
       slot.vfx.clear();
       slot.vfx.fillStyle(color, 0.35);
       slot.vfx.fillRoundedRect(

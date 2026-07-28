@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+﻿import Phaser from 'phaser';
 import type { AbilitySystem, AbilityId } from '../systems/AbilitySystem';
 import { resolveScreenUiDepth } from '../presentation/WorldDepth';
 
@@ -8,7 +8,7 @@ import { resolveScreenUiDepth } from '../presentation/WorldDepth';
  * cooldown overlay once unlocked. Communicates "abilities are earned by
  * leveling" without text.
  */
-const FONT = 'Aptos, Segoe UI Variable, sans-serif';
+const FONT = 'Trebuchet MS, Segoe UI Variable, sans-serif';
 
 export interface AbilityBarContext {
   scene: Phaser.Scene;
@@ -26,10 +26,10 @@ interface Slot {
 }
 
 const DEFS: { id: AbilityId; key: string; glyph: string; hotkey: string }[] = [
-  { id: 'jump', key: 'Space', glyph: '⤴', hotkey: 'Space' },
-  { id: 'squash-slam', key: 'T', glyph: '◉', hotkey: 'T' },
-  { id: 'stretch-lash', key: 'R', glyph: '⟶', hotkey: 'R' },
-  { id: 'teleport', key: 'Y', glyph: '✦', hotkey: 'Y' },
+  { id: 'jump', key: 'Space', glyph: 'â¤´', hotkey: 'Space' },
+  { id: 'squash-slam', key: 'T', glyph: 'â—‰', hotkey: 'T' },
+  { id: 'stretch-lash', key: 'R', glyph: 'âŸ¶', hotkey: 'R' },
+  { id: 'teleport', key: 'Y', glyph: 'âœ¦', hotkey: 'Y' },
 ];
 
 export class AbilityBar {
@@ -55,7 +55,7 @@ export class AbilityBar {
       this.drawBg(bg, cx, cy, cell);
 
       const icon = scene.add
-        .text(cx, cy - 6, def.glyph, { fontFamily: FONT, fontSize: '22px', color: '#f4fff7' })
+        .text(cx, cy - 6, def.glyph, { fontFamily: FONT, fontSize: '22px', color: '#f5f7ff' })
         .setOrigin(0.5)
         .setScrollFactor(0)
         .setDepth(resolveScreenUiDepth(51));
@@ -69,7 +69,7 @@ export class AbilityBar {
       const cooldown = scene.add.graphics().setScrollFactor(0).setDepth(resolveScreenUiDepth(52));
 
       const locked = scene.add
-        .text(cx, cy, '', { fontFamily: FONT, fontSize: '11px', color: '#ffd86b', stroke: '#0a1f15', strokeThickness: 3 })
+        .text(cx, cy, '', { fontFamily: FONT, fontSize: '11px', color: '#ffd277', stroke: '#0b1020', strokeThickness: 3 })
         .setOrigin(0.5)
         .setScrollFactor(0)
         .setDepth(resolveScreenUiDepth(53));
@@ -98,7 +98,7 @@ export class AbilityBar {
       slot.locked.setVisible(false);
       slot.icon.setAlpha(1);
 
-      // Cooldown sweep — we don't expose remaining ms directly; approximate
+      // Cooldown sweep â€” we don't expose remaining ms directly; approximate
       // by re-drawing each frame. Read via a small reflection: the system
       // exposes isBusy + we can ask via a method. For now, no overlay when
       // not busy (ready). A fuller cooldown ring is added in Phase 2.
@@ -106,16 +106,16 @@ export class AbilityBar {
       if (sys.isBusy()) {
         const cx = slot.icon.x;
         const cy = slot.icon.y;
-        slot.cooldown.fillStyle(0x0a1f15, 0.5);
+        slot.cooldown.fillStyle(0x0b1020, 0.5);
         slot.cooldown.fillRoundedRect(cx - 22, cy - 22, 44, 44, 6);
       }
     }
   }
 
   private drawBg(g: Phaser.GameObjects.Graphics, cx: number, cy: number, cell: number): void {
-    g.fillStyle(0x0a1f15, 0.85);
+    g.fillStyle(0x0b1020, 0.85);
     g.fillRoundedRect(cx - cell / 2, cy - cell / 2, cell, cell, 8);
-    g.lineStyle(2, 0x335c45, 0.8);
+    g.lineStyle(2, 0x3b5c78, 0.8);
     g.strokeRoundedRect(cx - cell / 2, cy - cell / 2, cell, cell, 8);
   }
 

@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+﻿import Phaser from 'phaser';
 import { getStats } from '../systems/PlayerStats';
 import { hitboxPool, type HitHandler } from './Hitbox';
 import { resolveBodyBottom, resolveWorldDepth } from '../presentation/WorldDepth';
@@ -162,7 +162,7 @@ export class Weapon {
     const angle = Math.atan2(dir.y, dir.x);
     const stats = getStats();
     const reach = (this.def.hitboxOffset + this.def.hitboxWidth / 2) * stats.weaponReachMult;
-    const color = isCrit ? 0xffe680 : this.def.vfxColor;
+    const color = isCrit ? 0xffdf8a : this.def.vfxColor;
     const px = player.x;
     const py = player.y;
     const outerR = reach + SWING_VISUAL_PADDING;
@@ -187,7 +187,7 @@ export class Weapon {
     swing.arc(px, py, reach, angle - arcWidth / 2, angle + arcWidth / 2, false);
     swing.strokePath();
 
-    // Flash + fade — the slash appears and vanishes in ~160ms.
+    // Flash + fade â€” the slash appears and vanishes in ~160ms.
     scene.tweens.add({
       targets: swing,
       alpha: { from: 1, to: 0 },

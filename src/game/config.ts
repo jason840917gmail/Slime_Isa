@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+﻿import Phaser from 'phaser';
 
 import { BootScene } from './scenes/BootScene';
 import { WorldScene } from './scenes/WorldScene';
@@ -17,14 +17,14 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
       ])
     : [];
   const devPanel = import.meta.env.DEV && !isEditor ? createDevToolsPanel() : '';
-  if (isEditor) document.title = `Field Cartographer — ${editorMapId}`;
+  if (isEditor) document.title = `Field Cartographer â€” ${editorMapId}`;
 
   container.innerHTML = `
     <section class="game-shell${import.meta.env.DEV && !isEditor ? ' is-dev-mode' : ''}${isEditor ? ' is-map-editor' : ''}">
       <div class="canvas-frame">
         <div id="game-root"></div>
         ${isEditor ? '' : `<details class="keymap-panel" open>
-          <summary>⌨ Controls</summary>
+          <summary>âŒ¨ Controls</summary>
           <table>
             <tr><td class="k">Arrows / IJKL</td><td>Move</td></tr>
             <tr><td class="k">E / Click</td><td>Attack</td></tr>
@@ -39,7 +39,7 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
             <tr><td class="k">U</td><td>Quest Journal</td></tr>
             <tr><td class="k">C</td><td>Crafting</td></tr>
             <tr><td class="k">/</td><td>Chat</td></tr>
-            <tr><td class="k">1–8</td><td>Debug cheats</td></tr>
+            <tr><td class="k">1â€“8</td><td>Debug cheats</td></tr>
           </table>
         </details>`}
       </div>
@@ -64,12 +64,14 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
   return new Phaser.Game({
     type: Phaser.AUTO,
     parent: gameRoot,
-    backgroundColor: '#112028',
+    backgroundColor: '#0b1020',
     scale: {
       mode: Phaser.Scale.EXPAND,
       width: 1280,
       height: 720,
     },
+    // Keep authored edges crisp while allowing modernized pixel-stylized
+    // source art to use richer shading than strict native-resolution sprites.
     pixelArt: true,
     roundPixels: true,
     physics: {

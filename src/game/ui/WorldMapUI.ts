@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+﻿import Phaser from 'phaser';
 import { AREAS, type AreaId } from '../world/Area';
 import { BIOMES } from '../world/Biome';
 import { worldProgress } from '../features/progression/WorldProgress';
@@ -51,22 +51,22 @@ export class WorldMapUI {
 
     const container = scene.add.container(cam.width / 2, cam.height / 2).setScrollFactor(0).setDepth(resolveScreenUiDepth(110));
     this.container = container;
-    container.add(scene.add.rectangle(0, 0, cam.width, cam.height, 0x020906, 0.72).setOrigin(0.5));
+    container.add(scene.add.rectangle(0, 0, cam.width, cam.height, 0x080f20, 0.72).setOrigin(0.5));
 
     const panelW = 560;
     const panelH = 330;
     const bg = scene.add.graphics();
-    bg.fillStyle(0x071612, 0.98);
+    bg.fillStyle(0x101a31, 0.98);
     bg.fillRoundedRect(-panelW / 2, -panelH / 2, panelW, panelH, 16);
-    bg.lineStyle(2, 0x44cc88, 0.85);
+    bg.lineStyle(2, 0x73e2b1, 0.85);
     bg.strokeRoundedRect(-panelW / 2, -panelH / 2, panelW, panelH, 16);
     container.add(bg);
 
     container.add(scene.add.text(0, -panelH / 2 + 28, 'World Map', {
       fontFamily: FONT,
       fontSize: '24px',
-      color: '#dffff0',
-      stroke: '#0a1f15',
+      color: '#e7fff5',
+      stroke: '#0b1020',
       strokeThickness: 5,
     }).setOrigin(0.5));
 
@@ -100,9 +100,9 @@ export class WorldMapUI {
       for (const targetId of Object.values(area.neighbors)) {
         if (!targetId || !discovered.has(targetId)) continue;
         const to = this.mapPoint(targetId);
-        g.lineStyle(4, 0x335c45, 0.95);
+        g.lineStyle(4, 0x3b5c78, 0.95);
         g.lineBetween(from.x, from.y, to.x, to.y);
-        g.lineStyle(1.5, 0x88ffaa, 0.55);
+        g.lineStyle(1.5, 0x86f0c3, 0.55);
         g.lineBetween(from.x, from.y, to.x, to.y);
       }
     }
@@ -120,20 +120,20 @@ export class WorldMapUI {
 
       node.fillStyle(isDiscovered ? biome.ambientTint : 0x203028, isDiscovered ? 1 : 0.8);
       node.fillCircle(p.x, p.y, isCurrent ? 26 : 22);
-      node.lineStyle(isCurrent ? 4 : 2, isCurrent ? 0xffe680 : 0x44cc88, isDiscovered ? 1 : 0.35);
+      node.lineStyle(isCurrent ? 4 : 2, isCurrent ? 0xffdf8a : 0x73e2b1, isDiscovered ? 1 : 0.35);
       node.strokeCircle(p.x, p.y, isCurrent ? 26 : 22);
       container.add(node);
 
-      container.add(scene.add.text(p.x, p.y - 4, isDiscovered ? '●' : '?', {
+      container.add(scene.add.text(p.x, p.y - 4, isDiscovered ? 'â—' : '?', {
         fontFamily: FONT,
         fontSize: isCurrent ? '18px' : '16px',
-        color: isCurrent ? '#ffe680' : '#dffff0',
+        color: isCurrent ? '#ffdf8a' : '#e7fff5',
       }).setOrigin(0.5));
 
       container.add(scene.add.text(p.x, p.y + 34, isDiscovered ? area.name : 'Unknown', {
         fontFamily: FONT,
         fontSize: '12px',
-        color: isDiscovered ? '#dffff0' : '#668070',
+        color: isDiscovered ? '#e7fff5' : '#668070',
         align: 'center',
         wordWrap: { width: 120 },
       }).setOrigin(0.5, 0));

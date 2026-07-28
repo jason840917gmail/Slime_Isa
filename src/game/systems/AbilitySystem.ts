@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+﻿import Phaser from 'phaser';
 import { gameState } from '../core/GameState';
 import { floatingText } from '../ui/FloatingText';
 import { isTileCollidable, type WorldTileId } from '../content/terrain/TileCatalog';
@@ -9,7 +9,7 @@ import type { AnimatedVisual } from '../features/visuals/AnimatedVisual';
 import { resolveWorldDepth } from '../presentation/WorldDepth';
 
 /**
- * AbilitySystem — owns jump + teleport (preview of Phase 2 ability framework).
+ * AbilitySystem â€” owns jump + teleport (preview of Phase 2 ability framework).
  *
  * Both are level-gated:
  *   - Jump:      unlocked at level 2. A directional leap with a parabolic arc
@@ -244,7 +244,7 @@ export class AbilitySystem {
     gameState.useEnergy(TELEPORT_ENERGY_COST);
 
     // Afterimage at origin.
-    this.spawnFlash(start.x, start.y, 0x6be0ff);
+    this.spawnFlash(start.x, start.y, 0x72d8ff);
     this.ctx.playAnimation('slime-teleport');
 
     // Vanish.
@@ -280,7 +280,7 @@ export class AbilitySystem {
     return true;
   }
 
-  /** Squash Slam — AoE shockwave around the player. Unlocks at level 3. */
+  /** Squash Slam â€” AoE shockwave around the player. Unlocks at level 3. */
   trySquashSlam(): boolean {
     if (this.busy) return false;
     if (!this.isUnlocked('squash-slam')) {
@@ -319,7 +319,7 @@ export class AbilitySystem {
           ease: 'Quad.In',
           onComplete: () => {
             // Shockwave ring.
-            const ring = scene.add.circle(player.x, player.y, 10, 0x88ffaa, 0.5).setDepth(resolveWorldDepth(player.y, {
+            const ring = scene.add.circle(player.x, player.y, 10, 0x86f0c3, 0.5).setDepth(resolveWorldDepth(player.y, {
               band: 'reveal-effects',
               stableId: 'player-squash-slam',
               attachmentSlot: -2,
@@ -346,7 +346,7 @@ export class AbilitySystem {
                 damage: SLAM_DAMAGE,
                 durationMs: 200,
                 knockStrength: 320,
-                vfxColor: 0x88ffaa,
+                vfxColor: 0x86f0c3,
                 showVfx: false,
               }, (target: Phaser.GameObjects.GameObject, dmg: number, _kx: number, _ky: number, kStr: number) => {
                 if (target instanceof TargetDummy) {
@@ -380,7 +380,7 @@ export class AbilitySystem {
     return true;
   }
 
-  /** Stretch Lash — long-range tongue/whip attack in facing direction. Lv 4. */
+  /** Stretch Lash â€” long-range tongue/whip attack in facing direction. Lv 4. */
   tryStretchLash(): boolean {
     if (this.busy) return false;
     if (!this.isUnlocked('stretch-lash')) {
@@ -426,7 +426,7 @@ export class AbilitySystem {
           stableId: 'player-stretch-lash',
           attachmentSlot: -2,
         }).depth);
-        lash.lineStyle(4, 0xff9a3c, 0.8);
+        lash.lineStyle(4, 0xffad66, 0.8);
         lash.beginPath();
         lash.moveTo(player.x, player.y);
         lash.lineTo(tipX, tipY);
@@ -453,7 +453,7 @@ export class AbilitySystem {
             knockX: dir.x,
             knockY: dir.y,
             knockStrength: 280,
-            vfxColor: 0xff9a3c,
+            vfxColor: 0xffad66,
             showVfx: false,
           }, (target: Phaser.GameObjects.GameObject, dmg: number, kx: number, ky: number, kStr: number) => {
             if (target instanceof TargetDummy) {
@@ -505,13 +505,13 @@ export class AbilitySystem {
     this.busy = false;
   }
 
-  // ── helpers ──
+  // â”€â”€ helpers â”€â”€
 
   private notifyLocked(ability: AbilityId): void {
     const scene = this.ctx.scene;
     const need = UNLOCK_LEVEL[ability];
     const player = this.ctx.getPlayer();
-    floatingText.spawn(scene, player.x, player.y - 30, `Locked — Lv ${need}`, 'red');
+    floatingText.spawn(scene, player.x, player.y - 30, `Locked â€” Lv ${need}`, 'red');
   }
 
   /** March from `start` in `dir` up to `maxDist`; stop just before a solid tile. */

@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+﻿import Phaser from 'phaser';
 import type { WorldDimensions } from './world/WorldDimensions';
 import { resolveScreenUiDepth } from './presentation/WorldDepth';
 
@@ -34,7 +34,7 @@ export class Minimap {
 
     // Background with bright border
     const pad = 6;
-    g.fillStyle(0x0a1f15, 0.95);
+    g.fillStyle(0x0b1020, 0.95);
     g.fillRoundedRect(
       baseX - pad,
       baseY - pad,
@@ -42,7 +42,7 @@ export class Minimap {
       this.size + pad * 2,
       8,
     );
-    g.lineStyle(3, 0x44cc88, 1);
+    g.lineStyle(3, 0x73e2b1, 1);
     g.strokeRoundedRect(
       baseX - pad,
       baseY - pad,
@@ -52,7 +52,7 @@ export class Minimap {
     );
 
     // Inner map area
-    g.fillStyle(0x122a1e, 0.85);
+    g.fillStyle(0x182b46, 0.85);
     g.fillRect(baseX, baseY, this.size, this.size);
 
     const toMinimap = (wx: number, wy: number) => ({
@@ -75,7 +75,7 @@ export class Minimap {
     // Player dot
     if (player) {
       const p = toMinimap(player.x, player.y);
-      g.fillStyle(0x6be0ff, 1);
+      g.fillStyle(0x72d8ff, 1);
       g.fillCircle(p.mx, p.my, 4);
     }
 

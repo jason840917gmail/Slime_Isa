@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+﻿import Phaser from 'phaser';
 import { Friend } from './Friend';
 import { resolveScreenUiDepth } from './presentation/WorldDepth';
 
@@ -65,7 +65,7 @@ const FALLBACK_NAMES = [
   'pip', 'moss', 'fern', 'bramble', 'clover', 'briar', 'wisp', 'sprig', 'dusty', 'robin',
 ];
 
-const FONT = 'Aptos, Segoe UI Variable, sans-serif';
+const FONT = 'Trebuchet MS, Segoe UI Variable, sans-serif';
 
 export class ChatUI {
   private inputEl: HTMLInputElement;
@@ -99,8 +99,8 @@ export class ChatUI {
       .text(16, cam.height - 30, 'Press  /  to chat', {
         fontFamily: FONT,
         fontSize: '14px',
-        color: '#ffd86b',
-        stroke: '#163033',
+        color: '#ffd277',
+        stroke: '#081022',
         strokeThickness: 3,
       })
       .setScrollFactor(0)
@@ -119,8 +119,8 @@ export class ChatUI {
       'transform: translateX(-50%)',
       'width: min(480px, 90vw)',
       'padding: 10px 14px',
-      'font: 16px Aptos, "Segoe UI Variable", sans-serif',
-      'border: 2px solid #44cc88',
+      'font: 16px Trebuchet MS, "Segoe UI Variable", sans-serif',
+      'border: 2px solid #73e2b1',
       'border-radius: 10px',
       'background: rgba(10, 31, 21, 0.96)',
       'color: #fff',
@@ -197,7 +197,7 @@ export class ChatUI {
       this.close();
       return;
     }
-    this.addLog(this.getPlayerName(), msg, 0x6be0ff);
+    this.addLog(this.getPlayerName(), msg, 0x72d8ff);
     this.close();
 
     const friends = this.getFriends();
@@ -229,7 +229,7 @@ export class ChatUI {
       fontFamily: FONT,
       fontSize: '15px',
       color: colorHex,
-      stroke: '#0a1f15',
+      stroke: '#0b1020',
       strokeThickness: 3,
       wordWrap: { width: cam.width - 48 },
     }).setScrollFactor(0).setDepth(resolveScreenUiDepth(21));
@@ -267,9 +267,9 @@ export class ChatUI {
     const boxH = cam.height - 24 - topY;
     if (boxH <= 0) return;
 
-    this.box.fillStyle(0x0a1f15, 0.78);
+    this.box.fillStyle(0x0b1020, 0.78);
     this.box.fillRoundedRect(12, topY, cam.width - 24, boxH, 10);
-    this.box.lineStyle(2, 0x44cc88, 0.9);
+    this.box.lineStyle(2, 0x73e2b1, 0.9);
     this.box.strokeRoundedRect(12, topY, cam.width - 24, boxH, 10);
   }
 

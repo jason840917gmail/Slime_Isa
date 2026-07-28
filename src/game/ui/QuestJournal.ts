@@ -1,10 +1,10 @@
-import Phaser from 'phaser';
+﻿import Phaser from 'phaser';
 import { gameEvents } from '../core/EventBus';
 import { getQuestDef, type QuestState } from '../quests/Quest';
 import { questTracker } from '../quests/QuestTracker';
 import { resolveScreenUiDepth } from '../presentation/WorldDepth';
 
-const FONT = 'Aptos, Segoe UI Variable, sans-serif';
+const FONT = 'Trebuchet MS, Segoe UI Variable, sans-serif';
 
 export interface QuestJournalContext {
   scene: Phaser.Scene;
@@ -59,19 +59,19 @@ export class QuestJournal {
     const container = scene.add.container(cam.width / 2, cam.height / 2).setScrollFactor(0).setDepth(resolveScreenUiDepth(115));
     this.container = container;
 
-    container.add(scene.add.rectangle(0, 0, cam.width, cam.height, 0x020906, 0.7).setOrigin(0.5));
+    container.add(scene.add.rectangle(0, 0, cam.width, cam.height, 0x080f20, 0.7).setOrigin(0.5));
     const bg = scene.add.graphics();
-    bg.fillStyle(0x071612, 0.98);
+    bg.fillStyle(0x101a31, 0.98);
     bg.fillRoundedRect(-panelW / 2, -panelH / 2, panelW, panelH, 16);
-    bg.lineStyle(2, 0x44cc88, 0.85);
+    bg.lineStyle(2, 0x73e2b1, 0.85);
     bg.strokeRoundedRect(-panelW / 2, -panelH / 2, panelW, panelH, 16);
     container.add(bg);
 
     container.add(scene.add.text(0, -panelH / 2 + 28, 'Quest Journal', {
       fontFamily: FONT,
       fontSize: '24px',
-      color: '#dffff0',
-      stroke: '#0a1f15',
+      color: '#e7fff5',
+      stroke: '#0b1020',
       strokeThickness: 5,
     }).setOrigin(0.5));
 
@@ -88,7 +88,7 @@ export class QuestJournal {
     container.add(scene.add.text(-panelW / 2 + 28, y, 'Active', {
       fontFamily: FONT,
       fontSize: '16px',
-      color: '#ffe680',
+      color: '#ffdf8a',
     }).setOrigin(0, 0.5));
     y += 28;
 
@@ -109,7 +109,7 @@ export class QuestJournal {
     container.add(scene.add.text(-panelW / 2 + 28, y, 'Completed', {
       fontFamily: FONT,
       fontSize: '16px',
-      color: '#88ffaa',
+      color: '#86f0c3',
     }).setOrigin(0, 0.5));
     y += 28;
 
@@ -138,8 +138,8 @@ export class QuestJournal {
     container.add(scene.add.text(left, y, `${def.title}  [${status}]`, {
       fontFamily: FONT,
       fontSize: compact ? '13px' : '15px',
-      color: state.status === 'completed' ? '#88ffaa' : '#f4fff7',
-      stroke: '#0a1f15',
+      color: state.status === 'completed' ? '#86f0c3' : '#f5f7ff',
+      stroke: '#0b1020',
       strokeThickness: 3,
     }).setOrigin(0, 0.5));
     y += compact ? 22 : 26;
@@ -148,7 +148,7 @@ export class QuestJournal {
       container.add(scene.add.text(left + 10, y, def.description, {
         fontFamily: FONT,
         fontSize: '12px',
-        color: '#ccebd0',
+        color: '#d7f6e9',
         wordWrap: { width: 530 },
       }).setOrigin(0, 0));
       y += 42;
@@ -157,20 +157,20 @@ export class QuestJournal {
     for (const obj of def.objectives) {
       const progress = Math.min(obj.target, state.progress[obj.id] ?? 0);
       const done = progress >= obj.target;
-      container.add(scene.add.text(left + 16, y, `${done ? '✓' : '•'} ${obj.label}: ${progress}/${obj.target}`, {
+      container.add(scene.add.text(left + 16, y, `${done ? 'âœ“' : 'â€¢'} ${obj.label}: ${progress}/${obj.target}`, {
         fontFamily: FONT,
         fontSize: '12px',
-        color: done ? '#88ffaa' : '#d8e8d0',
+        color: done ? '#86f0c3' : '#d8e8d0',
       }).setOrigin(0, 0.5));
       y += 20;
     }
 
     if (!compact) {
-      const reward = [`${def.rewards.coins ?? 0} coins`, `${def.rewards.xp ?? 0} XP`].join('  ·  ');
+      const reward = [`${def.rewards.coins ?? 0} coins`, `${def.rewards.xp ?? 0} XP`].join('  Â·  ');
       container.add(scene.add.text(left + 16, y, `Reward: ${reward}`, {
         fontFamily: FONT,
         fontSize: '12px',
-        color: '#ffd86b',
+        color: '#ffd277',
       }).setOrigin(0, 0.5));
       y += 22;
     }

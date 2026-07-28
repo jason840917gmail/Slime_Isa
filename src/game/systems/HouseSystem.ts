@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+﻿import Phaser from 'phaser';
 import { House } from '../House';
 import { gameState } from '../core/GameState';
 import { gameEvents } from '../core/EventBus';
@@ -25,7 +25,7 @@ export interface HouseSystemContext {
 }
 
 const ENTER_PROMPT_THRESHOLD = 96;
-const FONT = 'Aptos, Segoe UI Variable, sans-serif';
+const FONT = 'Trebuchet MS, Segoe UI Variable, sans-serif';
 
 export class HouseSystem {
   private ctx: HouseSystemContext;
@@ -164,9 +164,9 @@ export class HouseSystem {
     const container = scene.add.container(cx, cy).setScrollFactor(0).setDepth(resolveScreenUiDepth(60));
 
     const bg = scene.add.graphics();
-    bg.fillStyle(0x071612, 0.96);
+    bg.fillStyle(0x101a31, 0.96);
     bg.fillRoundedRect(-140, -80, 280, 160, 12);
-    bg.lineStyle(2, 0x335c45, 0.6);
+    bg.lineStyle(2, 0x3b5c78, 0.6);
     bg.strokeRoundedRect(-140, -80, 280, 160, 12);
     container.add(bg);
 
@@ -175,7 +175,7 @@ export class HouseSystem {
         .text(0, -52, 'House', {
           fontFamily: FONT,
           fontSize: '18px',
-          color: '#ccebd0',
+          color: '#d7f6e9',
         })
         .setOrigin(0.5),
     );
@@ -198,7 +198,7 @@ export class HouseSystem {
       .text(0, 44, 'Leave', {
         fontFamily: FONT,
         fontSize: '14px',
-        color: '#ffd86b',
+        color: '#ffd277',
       })
       .setOrigin(0.5)
       .setInteractive({ useHandCursor: true })
@@ -241,7 +241,7 @@ export class HouseSystem {
         fontFamily: FONT,
         fontSize: '14px',
         color: '#ffffff',
-        stroke: '#163033',
+        stroke: '#081022',
         strokeThickness: 4,
       })
       .setOrigin(0.5)

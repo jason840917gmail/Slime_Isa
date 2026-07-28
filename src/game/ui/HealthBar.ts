@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+﻿import Phaser from 'phaser';
 import { gameEvents } from '../core/EventBus';
 import { gameState } from '../core/GameState';
 import { resolveBodyBottom, resolveWorldDepth } from '../presentation/WorldDepth';
@@ -52,13 +52,13 @@ export class HealthBar {
     const w = 44;
     const h = 6;
 
-    g.fillStyle(0x0a1f15, 0.85);
+    g.fillStyle(0x0b1020, 0.85);
     g.fillRoundedRect(x, y, w, h, 3);
-    g.lineStyle(1, 0x2b4f57, 0.8);
+    g.lineStyle(1, 0x3b5c78, 0.8);
     g.strokeRoundedRect(x, y, w, h, 3);
 
     const pct = gameState.maxHp > 0 ? Phaser.Math.Clamp(gameState.hp / gameState.maxHp, 0, 1) : 0;
-    const fill = pct <= 0.25 ? 0xff5a5a : pct <= 0.5 ? 0xff9a3c : 0x7be08a;
+    const fill = pct <= 0.25 ? 0xff6f88 : pct <= 0.5 ? 0xffad66 : 0x7be08a;
     g.fillStyle(fill, 1);
     g.fillRoundedRect(x + 1, y + 1, Math.max(0, (w - 2) * pct), h - 2, 2);
   }
