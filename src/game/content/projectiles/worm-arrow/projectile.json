@@ -1,0 +1,24 @@
+{
+  "$schema": "../projectile.schema.json",
+  "version": 1,
+  "projectileId": "worm-arrow",
+  "displayName": "Worm Arrow",
+  "assetId": "enemy.projectile.worm-arrow",
+  "animation": {
+    "frames": [0],
+    "framesPerSecond": 12,
+    "loop": true,
+    "loopMode": "wrap"
+  },
+  "body": {
+    "width": 16,
+    "height": 10,
+    "centerOffsetX": 0,
+    "centerOffsetY": 0
+  },
+  "movement": {
+    "defaultSpeed": 180,
+    "lifetimeMs": 3000,
+    "rotateToVelocity": true
+  }
+}

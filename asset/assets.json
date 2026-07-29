@@ -3,6 +3,7 @@
   "version": 1,
   "ignore": [
     "Originals/**",
+    "MAPS/enemies/64x64-8x10-spider_slime.png",
     "MAPS/FOREST/ChatGPT*.png",
     "MAPS/walls/stone-wall-networks-source.png"
   ],
@@ -38,7 +39,8 @@
       "enemy.worm.swordsman",
       "enemy.worm.brawler",
       "enemy.projectile.worm-arrow",
-      "effect.enemy.worm-brawler-hit"
+      "effect.enemy.worm-brawler-hit",
+      "character.enemy.slime-spider"
     ]
   },
   "assets": {
@@ -46,12 +48,31 @@
       "source": {
         "kind": "spritesheet",
         "path": "characters/slime_normalized.png",
-        "frame": { "w": 256, "h": 256, "cols": 8, "rows": 8 },
-        "expect": { "w": 2048, "h": 2048 }
+        "frame": {
+          "w": 256,
+          "h": 256,
+          "cols": 8,
+          "rows": 8
+        },
+        "expect": {
+          "w": 2048,
+          "h": 2048
+        }
       },
-      "runtime": { "textureKey": "slime" },
-      "render": { "origin": [0.5, 0.5], "pixelArt": true },
-      "tags": ["player", "animated"],
+      "runtime": {
+        "textureKey": "slime"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "player",
+        "animated"
+      ],
       "status": "ready",
       "notes": "Visual transforms and named clips live in src/game/content/visuals/player-slime/visual-set.json."
     },
@@ -59,85 +80,201 @@
       "source": {
         "kind": "spritesheet",
         "path": "MAPS/grounds/64x64-tile_19x19_HighlandGreen.png",
-        "frame": { "w": 64, "h": 64, "cols": 19, "rows": 19 },
-        "expect": { "w": 1216, "h": 1216 }
+        "frame": {
+          "w": 64,
+          "h": 64,
+          "cols": 19,
+          "rows": 19
+        },
+        "expect": {
+          "w": 1216,
+          "h": 1216
+        }
       },
-      "runtime": { "textureKey": "grounds-19x19-HighlandGreen" },
-      "tags": ["ground", "meadow"],
+      "runtime": {
+        "textureKey": "grounds-19x19-HighlandGreen"
+      },
+      "tags": [
+        "ground",
+        "meadow"
+      ],
       "status": "ready"
     },
     "sheet.grounds.19x19.amberleaf": {
       "source": {
         "kind": "spritesheet",
         "path": "MAPS/grounds/64x64-tile_19x19_amberleaf.png",
-        "frame": { "w": 64, "h": 64, "cols": 19, "rows": 19 },
-        "expect": { "w": 1216, "h": 1216 }
+        "frame": {
+          "w": 64,
+          "h": 64,
+          "cols": 19,
+          "rows": 19
+        },
+        "expect": {
+          "w": 1216,
+          "h": 1216
+        }
       },
-      "runtime": { "textureKey": "grounds-19x19-amberleaf" },
-      "tags": ["ground", "amberleaf"],
+      "runtime": {
+        "textureKey": "grounds-19x19-amberleaf"
+      },
+      "tags": [
+        "ground",
+        "amberleaf"
+      ],
       "status": "ready"
     },
     "sheet.grounds.19x19.frozen": {
       "source": {
         "kind": "spritesheet",
         "path": "MAPS/grounds/64x64-tile_19x19_frozen.png",
-        "frame": { "w": 64, "h": 64, "cols": 19, "rows": 19 },
-        "expect": { "w": 1216, "h": 1216 }
+        "frame": {
+          "w": 64,
+          "h": 64,
+          "cols": 19,
+          "rows": 19
+        },
+        "expect": {
+          "w": 1216,
+          "h": 1216
+        }
       },
-      "runtime": { "textureKey": "grounds-19x19-frozen" },
-      "tags": ["ground", "frozen"],
+      "runtime": {
+        "textureKey": "grounds-19x19-frozen"
+      },
+      "tags": [
+        "ground",
+        "frozen"
+      ],
       "status": "ready"
     },
     "sheet.grounds.19x19.sanddessert": {
       "source": {
         "kind": "spritesheet",
         "path": "MAPS/grounds/64x64-tile_19x19_sanddessert.png",
-        "frame": { "w": 64, "h": 64, "cols": 19, "rows": 19 },
-        "expect": { "w": 1216, "h": 1216 }
+        "frame": {
+          "w": 64,
+          "h": 64,
+          "cols": 19,
+          "rows": 19
+        },
+        "expect": {
+          "w": 1216,
+          "h": 1216
+        }
       },
-      "runtime": { "textureKey": "grounds-19x19-sanddessert" },
-      "tags": ["ground", "sanddessert"],
+      "runtime": {
+        "textureKey": "grounds-19x19-sanddessert"
+      },
+      "tags": [
+        "ground",
+        "sanddessert"
+      ],
       "status": "ready"
     },
     "sheet.decorations.8x3": {
       "source": {
         "kind": "spritesheet",
         "path": "MAPS/decorations/128x128-tile_8x3.png",
-        "frame": { "w": 128, "h": 128, "cols": 8, "rows": 3 },
-        "expect": { "w": 1024, "h": 384 }
+        "frame": {
+          "w": 128,
+          "h": 128,
+          "cols": 8,
+          "rows": 3
+        },
+        "expect": {
+          "w": 1024,
+          "h": 384
+        }
       },
-      "runtime": { "textureKey": "decorations-8x3" },
-      "render": { "origin": [0.5, 1], "pixelArt": true },
-      "tags": ["object", "decoration", "prop"],
+      "runtime": {
+        "textureKey": "decorations-8x3"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "object",
+        "decoration",
+        "prop"
+      ],
       "status": "ready"
     },
     "sheet.houses.3x1": {
       "source": {
         "kind": "spritesheet",
         "path": "MAPS/Houses/320-3x1.png",
-        "frame": { "w": 320, "h": 320, "cols": 3, "rows": 1 },
-        "expect": { "w": 960, "h": 320 }
+        "frame": {
+          "w": 320,
+          "h": 320,
+          "cols": 3,
+          "rows": 1
+        },
+        "expect": {
+          "w": 960,
+          "h": 320
+        }
       },
-      "runtime": { "textureKey": "houses-3x1" },
-      "render": { "origin": [0.5, 1], "pixelArt": true },
-      "tags": ["object", "house"],
+      "runtime": {
+        "textureKey": "houses-3x1"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "object",
+        "house"
+      ],
       "status": "ready"
     },
     "sheet.rocks.3x1": {
       "source": {
         "kind": "spritesheet",
         "path": "MAPS/rocks/128x128-tile_3x1.png",
-        "frame": { "w": 128, "h": 128, "cols": 3, "rows": 1 },
-        "expect": { "w": 384, "h": 128 }
+        "frame": {
+          "w": 128,
+          "h": 128,
+          "cols": 3,
+          "rows": 1
+        },
+        "expect": {
+          "w": 384,
+          "h": 128
+        }
       },
-      "runtime": { "textureKey": "rocks-3x1" },
-      "render": { "origin": [0.5, 1], "pixelArt": true },
+      "runtime": {
+        "textureKey": "rocks-3x1"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": true
+      },
       "frames": {
-        "0": { "name": "rounded-boulder" },
-        "1": { "name": "large-boulder" },
-        "2": { "name": "purple-crystal-cluster" }
+        "0": {
+          "name": "rounded-boulder"
+        },
+        "1": {
+          "name": "large-boulder"
+        },
+        "2": {
+          "name": "purple-crystal-cluster"
+        }
       },
-      "tags": ["object", "rock"],
+      "tags": [
+        "object",
+        "rock"
+      ],
       "status": "ready",
       "notes": "Large static rock objects; all three frames are runtime candidates."
     },
@@ -145,38 +282,105 @@
       "source": {
         "kind": "spritesheet",
         "path": "MAPS/rocks/96x96-tile_8x3.png",
-        "frame": { "w": 96, "h": 96, "cols": 8, "rows": 3 },
-        "expect": { "w": 768, "h": 288 }
+        "frame": {
+          "w": 96,
+          "h": 96,
+          "cols": 8,
+          "rows": 3
+        },
+        "expect": {
+          "w": 768,
+          "h": 288
+        }
       },
-      "runtime": { "textureKey": "rocks-8x3" },
-      "render": { "origin": [0.5, 1], "pixelArt": true },
+      "runtime": {
+        "textureKey": "rocks-8x3"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": true
+      },
       "frames": {
-        "0": { "name": "amber-ore-01" },
-        "1": { "name": "amber-ore-02" },
-        "2": { "name": "amber-ore-03" },
-        "3": { "name": "amber-ore-04" },
-        "4": { "name": "amber-ore-05" },
-        "5": { "name": "amber-ore-06" },
-        "6": { "name": "amber-ore-07" },
-        "7": { "name": "amber-ore-08" },
-        "8": { "name": "ember-rock" },
-        "9": { "name": "blue-crystal-rock" },
-        "10": { "name": "ember-pillar" },
-        "11": { "name": "blue-ore-rock" },
-        "12": { "name": "stone-pillar-01" },
-        "13": { "name": "blue-crystal-cluster" },
-        "14": { "name": "stone-pillar-02" },
-        "15": { "name": "purple-crystal-rock" },
-        "16": { "name": "flat-stone" },
-        "17": { "name": "tall-stone" },
-        "18": { "name": "round-pebble" },
-        "19": { "name": "square-pebble" },
-        "20": { "name": "moss-boulder" },
-        "21": { "name": "moss-rock" },
-        "22": { "name": "large-stone" },
-        "23": { "name": "tall-boulder" }
+        "0": {
+          "name": "amber-ore-01"
+        },
+        "1": {
+          "name": "amber-ore-02"
+        },
+        "2": {
+          "name": "amber-ore-03"
+        },
+        "3": {
+          "name": "amber-ore-04"
+        },
+        "4": {
+          "name": "amber-ore-05"
+        },
+        "5": {
+          "name": "amber-ore-06"
+        },
+        "6": {
+          "name": "amber-ore-07"
+        },
+        "7": {
+          "name": "amber-ore-08"
+        },
+        "8": {
+          "name": "ember-rock"
+        },
+        "9": {
+          "name": "blue-crystal-rock"
+        },
+        "10": {
+          "name": "ember-pillar"
+        },
+        "11": {
+          "name": "blue-ore-rock"
+        },
+        "12": {
+          "name": "stone-pillar-01"
+        },
+        "13": {
+          "name": "blue-crystal-cluster"
+        },
+        "14": {
+          "name": "stone-pillar-02"
+        },
+        "15": {
+          "name": "purple-crystal-rock"
+        },
+        "16": {
+          "name": "flat-stone"
+        },
+        "17": {
+          "name": "tall-stone"
+        },
+        "18": {
+          "name": "round-pebble"
+        },
+        "19": {
+          "name": "square-pebble"
+        },
+        "20": {
+          "name": "moss-boulder"
+        },
+        "21": {
+          "name": "moss-rock"
+        },
+        "22": {
+          "name": "large-stone"
+        },
+        "23": {
+          "name": "tall-boulder"
+        }
       },
-      "tags": ["object", "rock"],
+      "tags": [
+        "object",
+        "rock"
+      ],
       "status": "ready",
       "notes": "Rock artwork only. Collider geometry and behavior live in individual object archetype files."
     },
@@ -184,198 +388,531 @@
       "source": {
         "kind": "spritesheet",
         "path": "MAPS/trees/128X170-tiles_8x6.png",
-        "frame": { "w": 128, "h": 170, "cols": 8, "rows": 6 },
-        "expect": { "w": 1024, "h": 1020 }
+        "frame": {
+          "w": 128,
+          "h": 170,
+          "cols": 8,
+          "rows": 6
+        },
+        "expect": {
+          "w": 1024,
+          "h": 1020
+        }
       },
-      "runtime": { "textureKey": "trees-8x6" },
-      "render": { "origin": [0.5, 1], "pixelArt": true },
-      "tags": ["object", "tree"],
+      "runtime": {
+        "textureKey": "trees-8x6"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "object",
+        "tree"
+      ],
       "status": "ready"
     },
     "sheet.trees.3x1": {
       "source": {
         "kind": "spritesheet",
         "path": "MAPS/trees/256x256-Tile_3x1.png",
-        "frame": { "w": 256, "h": 256, "cols": 3, "rows": 1 },
-        "expect": { "w": 768, "h": 256 }
+        "frame": {
+          "w": 256,
+          "h": 256,
+          "cols": 3,
+          "rows": 1
+        },
+        "expect": {
+          "w": 768,
+          "h": 256
+        }
       },
-      "runtime": { "textureKey": "trees-3x1" },
-      "render": { "origin": [0.5, 1], "pixelArt": true },
-      "tags": ["object", "tree"],
+      "runtime": {
+        "textureKey": "trees-3x1"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "object",
+        "tree"
+      ],
       "status": "ready"
     },
     "terrain.water.0": {
-      "source": { "kind": "procedural", "generator": "water" },
-      "runtime": { "textureKey": "water" },
-      "tags": ["ground", "water"],
+      "source": {
+        "kind": "procedural",
+        "generator": "water"
+      },
+      "runtime": {
+        "textureKey": "water"
+      },
+      "tags": [
+        "ground",
+        "water"
+      ],
       "status": "ready"
     },
     "terrain.water.1": {
-      "source": { "kind": "procedural", "generator": "water-1" },
-      "runtime": { "textureKey": "water-1" },
-      "tags": ["ground", "water"],
+      "source": {
+        "kind": "procedural",
+        "generator": "water-1"
+      },
+      "runtime": {
+        "textureKey": "water-1"
+      },
+      "tags": [
+        "ground",
+        "water"
+      ],
       "status": "ready"
     },
     "terrain.water.2": {
-      "source": { "kind": "procedural", "generator": "water-2" },
-      "runtime": { "textureKey": "water-2" },
-      "tags": ["ground", "water"],
+      "source": {
+        "kind": "procedural",
+        "generator": "water-2"
+      },
+      "runtime": {
+        "textureKey": "water-2"
+      },
+      "tags": [
+        "ground",
+        "water"
+      ],
       "status": "ready"
     },
     "terrain.deep-water": {
-      "source": { "kind": "procedural", "generator": "deep-water" },
-      "runtime": { "textureKey": "deep-water" },
-      "tags": ["ground", "water"],
+      "source": {
+        "kind": "procedural",
+        "generator": "deep-water"
+      },
+      "runtime": {
+        "textureKey": "deep-water"
+      },
+      "tags": [
+        "ground",
+        "water"
+      ],
       "status": "ready"
     },
     "terrain.forest.floor": {
-      "source": { "kind": "procedural", "generator": "forest-floor" },
-      "runtime": { "textureKey": "forest-floor" },
-      "tags": ["ground", "forest"],
+      "source": {
+        "kind": "procedural",
+        "generator": "forest-floor"
+      },
+      "runtime": {
+        "textureKey": "forest-floor"
+      },
+      "tags": [
+        "ground",
+        "forest"
+      ],
       "status": "ready"
     },
     "terrain.forest.moss": {
-      "source": { "kind": "procedural", "generator": "forest-moss" },
-      "runtime": { "textureKey": "forest-moss" },
-      "tags": ["ground", "forest"],
+      "source": {
+        "kind": "procedural",
+        "generator": "forest-moss"
+      },
+      "runtime": {
+        "textureKey": "forest-moss"
+      },
+      "tags": [
+        "ground",
+        "forest"
+      ],
       "status": "ready"
     },
     "terrain.forest.tree-wall": {
-      "source": { "kind": "procedural", "generator": "tree-wall" },
-      "runtime": { "textureKey": "tree-wall" },
-      "tags": ["ground", "forest", "wall"],
+      "source": {
+        "kind": "procedural",
+        "generator": "tree-wall"
+      },
+      "runtime": {
+        "textureKey": "tree-wall"
+      },
+      "tags": [
+        "ground",
+        "forest",
+        "wall"
+      ],
       "status": "ready"
     },
     "terrain.cavern.floor": {
-      "source": { "kind": "procedural", "generator": "cavern-floor" },
-      "runtime": { "textureKey": "cavern-floor" },
-      "tags": ["ground", "cavern"],
+      "source": {
+        "kind": "procedural",
+        "generator": "cavern-floor"
+      },
+      "runtime": {
+        "textureKey": "cavern-floor"
+      },
+      "tags": [
+        "ground",
+        "cavern"
+      ],
       "status": "ready"
     },
     "terrain.cavern.crystal-floor": {
-      "source": { "kind": "procedural", "generator": "crystal-floor" },
-      "runtime": { "textureKey": "crystal-floor" },
-      "tags": ["ground", "cavern"],
+      "source": {
+        "kind": "procedural",
+        "generator": "crystal-floor"
+      },
+      "runtime": {
+        "textureKey": "crystal-floor"
+      },
+      "tags": [
+        "ground",
+        "cavern"
+      ],
       "status": "ready"
     },
     "terrain.cavern.crystal-wall": {
-      "source": { "kind": "procedural", "generator": "crystal-wall" },
-      "runtime": { "textureKey": "crystal-wall" },
-      "tags": ["ground", "cavern", "wall"],
+      "source": {
+        "kind": "procedural",
+        "generator": "crystal-wall"
+      },
+      "runtime": {
+        "textureKey": "crystal-wall"
+      },
+      "tags": [
+        "ground",
+        "cavern",
+        "wall"
+      ],
       "status": "ready"
     },
     "collectible.purple-berry": {
-      "source": { "kind": "procedural", "generator": "purple-berry" },
-      "runtime": { "textureKey": "purple-berry" },
-      "render": { "origin": [0.5, 0.5] },
-      "tags": ["object", "collectible", "food"],
+      "source": {
+        "kind": "procedural",
+        "generator": "purple-berry"
+      },
+      "runtime": {
+        "textureKey": "purple-berry"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ]
+      },
+      "tags": [
+        "object",
+        "collectible",
+        "food"
+      ],
       "status": "ready"
     },
     "enemy.worm.archer": {
       "source": {
         "kind": "spritesheet",
         "path": "MAPS/enemies/64x64-8x6-worm-archer.png",
-        "frame": { "w": 64, "h": 64, "cols": 8, "rows": 6, "count": 36 },
-        "expect": { "w": 512, "h": 384 }
+        "frame": {
+          "w": 64,
+          "h": 64,
+          "cols": 8,
+          "rows": 6,
+          "count": 36
+        },
+        "expect": {
+          "w": 512,
+          "h": 384
+        }
       },
-      "runtime": { "textureKey": "enemy-worm-archer" },
-      "render": { "origin": [0.5, 0.5] },
-      "tags": ["enemy", "animated"],
+      "runtime": {
+        "textureKey": "enemy-worm-archer"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ]
+      },
+      "tags": [
+        "enemy",
+        "animated"
+      ],
       "status": "ready"
     },
     "enemy.worm.swordsman": {
       "source": {
         "kind": "spritesheet",
         "path": "MAPS/enemies/64x64-4x10-worm-swordsman.png",
-        "frame": { "w": 64, "h": 64, "cols": 4, "rows": 10, "count": 38 },
-        "expect": { "w": 256, "h": 640 }
+        "frame": {
+          "w": 64,
+          "h": 64,
+          "cols": 4,
+          "rows": 10,
+          "count": 38
+        },
+        "expect": {
+          "w": 256,
+          "h": 640
+        }
       },
-      "runtime": { "textureKey": "enemy-worm-swordsman" },
-      "render": { "origin": [0.5, 0.5] },
-      "tags": ["enemy", "animated"],
+      "runtime": {
+        "textureKey": "enemy-worm-swordsman"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ]
+      },
+      "tags": [
+        "enemy",
+        "animated"
+      ],
       "status": "ready"
     },
     "enemy.worm.brawler": {
       "source": {
         "kind": "spritesheet",
         "path": "MAPS/enemies/64x64-8x6-worm-brawler.png",
-        "frame": { "w": 64, "h": 64, "cols": 8, "rows": 6, "count": 43 },
-        "expect": { "w": 512, "h": 384 }
+        "frame": {
+          "w": 64,
+          "h": 64,
+          "cols": 8,
+          "rows": 6,
+          "count": 43
+        },
+        "expect": {
+          "w": 512,
+          "h": 384
+        }
       },
-      "runtime": { "textureKey": "enemy-worm-brawler" },
-      "render": { "origin": [0.5, 0.5] },
-      "tags": ["enemy", "animated"],
+      "runtime": {
+        "textureKey": "enemy-worm-brawler"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ]
+      },
+      "tags": [
+        "enemy",
+        "animated"
+      ],
       "status": "ready"
     },
     "enemy.projectile.worm-arrow": {
       "source": {
         "kind": "image",
         "path": "MAPS/enemies/16x10-1x1-worm-arrow.png",
-        "expect": { "w": 16, "h": 10 }
+        "expect": {
+          "w": 16,
+          "h": 10
+        }
       },
-      "runtime": { "textureKey": "enemy-worm-arrow" },
-      "render": { "origin": [0.5, 0.5] },
-      "tags": ["enemy", "projectile"],
+      "runtime": {
+        "textureKey": "enemy-worm-arrow"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ]
+      },
+      "tags": [
+        "enemy",
+        "projectile"
+      ],
       "status": "ready"
     },
     "effect.enemy.worm-brawler-hit": {
       "source": {
         "kind": "spritesheet",
         "path": "MAPS/enemies/16x20-1x3-worm-brawler_hits.png",
-        "frame": { "w": 16, "h": 20, "cols": 1, "rows": 3, "count": 3 },
-        "expect": { "w": 16, "h": 60 }
+        "frame": {
+          "w": 16,
+          "h": 20,
+          "cols": 1,
+          "rows": 3,
+          "count": 3
+        },
+        "expect": {
+          "w": 16,
+          "h": 60
+        }
       },
-      "runtime": { "textureKey": "effect-enemy-worm-brawler-hit" },
-      "render": { "origin": [0.5, 0.5] },
-      "tags": ["enemy", "effect", "animated"],
+      "runtime": {
+        "textureKey": "effect-enemy-worm-brawler-hit"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ]
+      },
+      "tags": [
+        "enemy",
+        "effect",
+        "animated"
+      ],
       "status": "ready"
     },
     "sheet.walls.horizontal.8x1": {
       "source": {
         "kind": "spritesheet",
         "path": "MAPS/walls/70x70-8x1tiles_horizontals.png",
-        "frame": { "w": 70, "h": 70, "cols": 8, "rows": 1 },
-        "expect": { "w": 560, "h": 70 }
+        "frame": {
+          "w": 70,
+          "h": 70,
+          "cols": 8,
+          "rows": 1
+        },
+        "expect": {
+          "w": 560,
+          "h": 70
+        }
       },
-      "runtime": { "textureKey": "walls-horizontal-8x1" },
-      "render": { "origin": [0.5, 1], "pixelArt": true },
-      "tags": ["object", "wall", "stone", "horizontal"],
+      "runtime": {
+        "textureKey": "walls-horizontal-8x1"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "object",
+        "wall",
+        "stone",
+        "horizontal"
+      ],
       "status": "ready"
     },
     "sheet.walls.corners.4x2": {
       "source": {
         "kind": "spritesheet",
         "path": "MAPS/walls/70x70-4x2tiles_corners.png",
-        "frame": { "w": 70, "h": 70, "cols": 4, "rows": 2 },
-        "expect": { "w": 280, "h": 140 }
+        "frame": {
+          "w": 70,
+          "h": 70,
+          "cols": 4,
+          "rows": 2
+        },
+        "expect": {
+          "w": 280,
+          "h": 140
+        }
       },
-      "runtime": { "textureKey": "walls-corners-4x2" },
-      "render": { "origin": [0.5, 1], "pixelArt": true },
-      "tags": ["object", "wall", "stone", "corner"],
+      "runtime": {
+        "textureKey": "walls-corners-4x2"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "object",
+        "wall",
+        "stone",
+        "corner"
+      ],
       "status": "ready"
     },
     "sheet.walls.t-junctions.7x1": {
       "source": {
         "kind": "spritesheet",
         "path": "MAPS/walls/70x70-7x1tiles_Ts.png",
-        "frame": { "w": 70, "h": 70, "cols": 7, "rows": 1 },
-        "expect": { "w": 490, "h": 70 }
+        "frame": {
+          "w": 70,
+          "h": 70,
+          "cols": 7,
+          "rows": 1
+        },
+        "expect": {
+          "w": 490,
+          "h": 70
+        }
       },
-      "runtime": { "textureKey": "walls-t-junctions-7x1" },
-      "render": { "origin": [0.5, 1], "pixelArt": true },
-      "tags": ["object", "wall", "stone", "junction"],
+      "runtime": {
+        "textureKey": "walls-t-junctions-7x1"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "object",
+        "wall",
+        "stone",
+        "junction"
+      ],
       "status": "ready"
     },
     "sheet.walls.vertical.1x8": {
       "source": {
         "kind": "spritesheet",
         "path": "MAPS/walls/70x70-8x1tiles_verticals.png",
-        "frame": { "w": 70, "h": 70, "cols": 1, "rows": 8 },
-        "expect": { "w": 70, "h": 560 }
+        "frame": {
+          "w": 70,
+          "h": 70,
+          "cols": 1,
+          "rows": 8
+        },
+        "expect": {
+          "w": 70,
+          "h": 560
+        }
       },
-      "runtime": { "textureKey": "walls-vertical-1x8" },
-      "render": { "origin": [0.5, 1], "pixelArt": true },
-      "tags": ["object", "wall", "stone", "vertical"],
+      "runtime": {
+        "textureKey": "walls-vertical-1x8"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "object",
+        "wall",
+        "stone",
+        "vertical"
+      ],
+      "status": "ready"
+    },
+    "character.enemy.slime-spider": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "characters/authored/character-enemy-slime-spider.png",
+        "frame": {
+          "w": 64,
+          "h": 64,
+          "cols": 8,
+          "rows": 10,
+          "count": 80
+        },
+        "expect": {
+          "w": 512,
+          "h": 640
+        }
+      },
+      "runtime": {
+        "textureKey": "character-character-enemy-slime-spider"
+      },
+      "tags": [
+        "character",
+        "enemy"
+      ],
       "status": "ready"
     }
   }

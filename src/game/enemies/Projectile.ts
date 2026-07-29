@@ -1,5 +1,10 @@
 import Phaser from 'phaser';
 import { resolveBodyCenterY, resolveWorldDepth } from '../presentation/WorldDepth';
+import { getProjectileDefinition } from '../content/projectiles/ProjectileCatalog';
+import type { ProjectileDefinition } from '../content/projectiles/types';
+import { ASSET_MANIFEST, getAsset, type AssetId } from '../infrastructure/assets/manifest';
+import { animationFrameIndexAtStep } from '../shared/animationLoop';
+import { applyArcadeBodyGeometry } from '../shared/collisionShapes';
 
 /**
  * Pooled projectile system. Supports both enemy projectiles (damage player)
@@ -20,6 +25,8 @@ interface PooledProjectile {
   lifetimeTimer: Phaser.Time.TimerEvent | null;
   sortId: string;
   lastGroundY: number;
+  definition?: ProjectileDefinition;
+  animationStartedAt: number;
 }
 
 class ProjectilePoolImpl {
@@ -50,6 +57,7 @@ class ProjectilePoolImpl {
     damage: number,
     knockbackStrength: number,
     lifetimeMs = 3000,
+    definition?: ProjectileDefinition,
   ): void {
     const groups = this.ensureGroups(scene);
     const pool = this.getPool(scene);
@@ -68,6 +76,7 @@ class ProjectilePoolImpl {
         lifetimeTimer: null,
         sortId: `projectile:${owner}:${pool.length}`,
         lastGroundY: Number.NaN,
+        animationStartedAt: 0,
       };
       pool.push(slot);
     }
@@ -84,6 +93,37 @@ class ProjectilePoolImpl {
       damage,
       knockbackStrength,
       lifetimeMs,
+      definition,
+    );
+  }
+
+  fireDefinition(
+    scene: Phaser.Scene,
+    x: number,
+    y: number,
+    dx: number,
+    dy: number,
+    projectileId: string,
+    owner: ProjectileOwner,
+    damage: number,
+    knockbackStrength: number,
+    speed = getProjectileDefinition(projectileId).movement.defaultSpeed,
+  ): void {
+    const definition = getProjectileDefinition(projectileId);
+    if (!(definition.assetId in ASSET_MANIFEST.assets)) throw new Error(`Projectile '${projectileId}' references unknown asset '${definition.assetId}'`);
+    this.fire(
+      scene,
+      x,
+      y,
+      dx,
+      dy,
+      speed,
+      getAsset(definition.assetId as AssetId).runtime.textureKey,
+      owner,
+      damage,
+      knockbackStrength,
+      definition.movement.lifetimeMs,
+      definition,
     );
   }
 
@@ -108,17 +148,26 @@ class ProjectilePoolImpl {
     damage: number,
     knockbackStrength: number,
     lifetimeMs: number,
+    definition?: ProjectileDefinition,
   ): void {
     slot.active = true;
     slot.damage = damage;
     slot.knockbackStrength = knockbackStrength;
+    slot.definition = definition;
+    slot.animationStartedAt = scene.time.now;
     slot.sprite.setTexture(textureKey);
     slot.sprite.setPosition(x, y);
     slot.sprite.clearTint().setOrigin(0.5).setActive(true).setVisible(true).setAlpha(1);
-    slot.sprite.setScale(1).setRotation(Math.atan2(dy, dx));
+    slot.sprite.setScale(1).setRotation(definition?.movement.rotateToVelocity === false ? 0 : Math.atan2(dy, dx));
     const body = slot.sprite.body as Phaser.Physics.Arcade.Body;
     body.enable = true;
-    body.setSize(slot.sprite.width, slot.sprite.height, true);
+    applyArcadeBodyGeometry(body, slot.sprite.displayOriginX, slot.sprite.displayOriginY, definition?.body ?? {
+      width: slot.sprite.width,
+      height: slot.sprite.height,
+      centerOffsetX: 0,
+      centerOffsetY: 0,
+    });
+    this.updateAnimationFrame(slot, 0);
     slot.sprite.setVelocity(dx * speed, dy * speed);
     slot.lastGroundY = Number.NaN;
     this.updateDepth(slot);
@@ -142,6 +191,12 @@ class ProjectilePoolImpl {
   update(scene: Phaser.Scene): void {
     for (const slot of this.pools.get(scene) ?? []) {
       if (!slot.active) continue;
+      const animation = slot.definition?.animation;
+      if (animation) {
+        const step = Math.floor(Math.max(0, scene.time.now - slot.animationStartedAt) / (1000 / animation.framesPerSecond));
+        const position = animation.loop ? animationFrameIndexAtStep(animation, step) : Math.min(step, animation.frames.length - 1);
+        this.updateAnimationFrame(slot, position);
+      }
       const body = slot.sprite.body as Phaser.Physics.Arcade.Body;
       const groundY = resolveBodyCenterY(body);
       if (groundY !== slot.lastGroundY) this.updateDepth(slot, groundY);
@@ -168,6 +223,15 @@ class ProjectilePoolImpl {
     const nextGroundY = groundY ?? resolveBodyCenterY(body);
     slot.lastGroundY = nextGroundY;
     slot.sprite.setDepth(resolveWorldDepth(nextGroundY, { stableId: slot.sortId }).depth);
+  }
+
+  private updateAnimationFrame(slot: PooledProjectile, position: number): void {
+    const definition = slot.definition;
+    if (!definition?.animation || !(definition.assetId in ASSET_MANIFEST.assets)) return;
+    const asset = getAsset(definition.assetId as AssetId);
+    if (asset.source.kind !== 'spritesheet') return;
+    const frame = definition.animation.frames[Math.max(0, Math.min(position, definition.animation.frames.length - 1))];
+    if (frame !== undefined) slot.sprite.setFrame(frame);
   }
 
   /** Get the enemy-projectile group for overlap setup. */

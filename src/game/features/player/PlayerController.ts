@@ -4,7 +4,7 @@ import { gameState } from '../../core/GameState';
 import type { Controls } from '../../core/Input';
 import { floatingText } from '../../ui/FloatingText';
 import type { StatusEffectManager } from '../../systems/StatusEffects';
-import { getStats } from '../../systems/PlayerStats';
+import { getStats, resolveMovementSpeed } from '../../systems/PlayerStats';
 import type { PlayerEntity } from './PlayerFactory';
 import { resolveBodyBottom, resolveWorldDepth } from '../../presentation/WorldDepth';
 
@@ -56,9 +56,10 @@ export class PlayerController {
     const statusEffects = this.ctx.getStatusEffects();
     const wantsBoost = controls.boost.isDown;
     const stats = getStats();
-    const speed = wantsBoost
+    const baseSpeed = wantsBoost
       ? PLAYER_CONFIG.movement.boostSpeed + gameState.boostBonus
-      : stats.speed;
+      : stats.movementSpeed;
+    const speed = resolveMovementSpeed(baseSpeed, 0, statusEffects?.speedMultiplier ?? 1);
 
     if (statusEffects?.isRooted()) {
       player.setVelocity(0, 0);
@@ -68,7 +69,7 @@ export class PlayerController {
     }
 
     if (direction.lengthSq() > 0) {
-      direction.normalize().scale(speed * (statusEffects?.speedMultiplier ?? 1));
+      direction.normalize().scale(speed);
     }
 
     player.setVelocity(direction.x, direction.y);
@@ -101,10 +102,8 @@ export class PlayerController {
 
     this.dodgeInvulnerableUntil = scene.time.now + PLAYER_CONFIG.movement.dodgeInvulnerabilityMs;
     this.ctx.playAnimation('slime-roll');
-    player.setVelocity(
-      dodgeDirection.x * PLAYER_CONFIG.movement.dodgeSpeed,
-      dodgeDirection.y * PLAYER_CONFIG.movement.dodgeSpeed,
-    );
+    const dodgeSpeed = resolveMovementSpeed(PLAYER_CONFIG.movement.dodgeSpeed);
+    player.setVelocity(dodgeDirection.x * dodgeSpeed, dodgeDirection.y * dodgeSpeed);
 
     const dust = scene.add.particles(player.x, player.y, 'xp-orb', {
       lifespan: 280,

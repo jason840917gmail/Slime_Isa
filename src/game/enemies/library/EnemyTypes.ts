@@ -12,7 +12,11 @@ const enemyEntries = getEnemyPackages().map((entry) => {
     ai: gameplay.ai,
     drop: gameplay.drop,
     projectile: gameplay.projectile
-      ? { ...gameplay.projectile, assetId: gameplay.projectile.assetId as AssetId }
+      ? {
+        damage: gameplay.projectile.damage,
+        ...(gameplay.projectile.projectileId ? { projectileId: gameplay.projectile.projectileId } : {}),
+        ...(gameplay.projectile.assetId ? { assetId: gameplay.projectile.assetId as AssetId } : {}),
+      }
       : undefined,
     impactEffect: gameplay.impactEffect,
   } satisfies EnemyConfig] as const;

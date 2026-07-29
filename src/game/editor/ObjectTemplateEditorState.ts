@@ -123,6 +123,13 @@ export function validateObjectTemplateDraft(
     return errors;
   }
   const { width, height, offsetX, offsetY } = draft.collider;
+  const shape = draft.collider.shape ?? 'rectangle';
+  if (shape !== 'rectangle' && shape !== 'circle' && shape !== 'ellipse') errors.shape = 'Choose rectangle, circle, or ellipse.';
+  if (shape === 'circle' && (!Number.isInteger(draft.collider.radius) || (draft.collider.radius ?? 0) < 1)) errors.radius = 'Circle radius must be a positive whole number.';
+  if (shape === 'ellipse') {
+    if (!Number.isInteger(draft.collider.radiusX) || (draft.collider.radiusX ?? 0) < 1) errors.radiusX = 'Ellipse radius X must be a positive whole number.';
+    if (!Number.isInteger(draft.collider.radiusY) || (draft.collider.radiusY ?? 0) < 1) errors.radiusY = 'Ellipse radius Y must be a positive whole number.';
+  }
   if (!isInteger(width) || width < 1) errors.width = 'Width must be a positive whole number.';
   if (!isInteger(height) || height < 1) errors.height = 'Height must be a positive whole number.';
   if (!isInteger(offsetX) || offsetX < 0) errors.offsetX = 'Offset must be a whole number of 0 or more.';

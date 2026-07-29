@@ -6,7 +6,9 @@
     "moduleResolution": "Bundler",
     "baseUrl": ".",
     "paths": {
-      "virtual-character-content": ["src/game/content/characters/virtual-character-content.ts"]
+      "virtual-character-content": ["src/game/content/characters/virtual-character-content.ts"],
+      "virtual-projectile-content": ["src/game/content/projectiles/virtual-projectile-content.ts"],
+      "virtual-weapon-content": ["src/game/content/weapons/virtual-weapon-content.ts"]
     },
     "resolveJsonModule": true,
     "strict": true,

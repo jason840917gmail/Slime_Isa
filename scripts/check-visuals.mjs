@@ -25,6 +25,7 @@ for (const file of roots.flatMap(files).sort()) {
     for (const frame of clip.frames ?? []) if (!Number.isInteger(frame) || frame < 0 || frame >= count) errors.push(`${file}: ${clipId} frame ${frame} outside 0..${count - 1}`);
     if (!Number.isFinite(clip.framesPerSecond) || clip.framesPerSecond <= 0 || clip.framesPerSecond > 240) errors.push(`${file}: ${clipId} framesPerSecond invalid`);
     if (typeof clip.loop !== 'boolean') errors.push(`${file}: ${clipId} loop must be boolean`);
+    if (clip.loopMode !== undefined && clip.loopMode !== 'wrap' && clip.loopMode !== 'ping-pong') errors.push(`${file}: ${clipId} loopMode must be 'wrap' or 'ping-pong'`);
     const runtimeKey = `visual:${value.visualSetId.length}:${value.visualSetId}:${clipId}`;
     if (runtimeKeys.has(runtimeKey)) errors.push(`${file}: duplicate runtime key '${runtimeKey}'`); runtimeKeys.add(runtimeKey);
   }

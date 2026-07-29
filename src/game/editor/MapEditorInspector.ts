@@ -8,6 +8,7 @@ import {
 } from './ObjectTemplateEditorState';
 import { EDITOR_GEOMETRY_STYLES, type EditorGeometryKey } from './EditorGeometryStyles';
 import type { MapEditorState } from './MapEditorState';
+import type { CollisionShape } from '../shared/collisionShapes';
 
 export interface InspectorPreviewUrls {
   readonly objects: Readonly<Record<string, string>>;
@@ -43,6 +44,11 @@ function renderNumberField(
     <input type="number" step="1" data-template-field="${field}" data-testid="${testId}" value="${value}" />
     ${renderError(error)}
   </label>`;
+}
+
+function renderShapeField(shape: CollisionShape | undefined): string {
+  const selected = shape ?? 'rectangle';
+  return `<label class="editor-inspector-field"><span>Shape<small>collision primitive</small></span><select data-template-field="shape"><option value="rectangle" ${selected === 'rectangle' ? 'selected' : ''}>Rectangle</option><option value="circle" ${selected === 'circle' ? 'selected' : ''}>Circle</option><option value="ellipse" ${selected === 'ellipse' ? 'selected' : ''}>Ellipse</option></select></label>`;
 }
 
 function renderIds(state: ObjectTemplateViewState, previewUrl: string): string {
@@ -145,6 +151,10 @@ function renderInspector(
                 ${renderNumberField('Height', 'height', collider?.height ?? 1, errors.height, 'template-collider-height')}
                 ${renderNumberField('Offset X', 'offsetX', collider?.offsetX ?? 0, errors.offsetX, 'template-collider-offset-x')}
                 ${renderNumberField('Offset Y', 'offsetY', collider?.offsetY ?? 0, errors.offsetY, 'template-collider-offset-y')}
+              </div>
+              <div class="editor-inspector-grid">
+                ${renderShapeField(collider?.shape)}
+                ${collider?.shape === 'circle' ? renderNumberField('Radius', 'radius', collider.radius ?? Math.min(collider.width, collider.height) / 2, errors.radius, 'template-collider-radius') : collider?.shape === 'ellipse' ? `${renderNumberField('Radius X', 'radiusX', collider.radiusX ?? collider.width / 2, errors.radiusX, 'template-collider-radius-x')}${renderNumberField('Radius Y', 'radiusY', collider.radiusY ?? collider.height / 2, errors.radiusY, 'template-collider-radius-y')}` : ''}
               </div>
               ${renderError(errors.collider)}`}
         </section>
@@ -375,10 +385,31 @@ export function mountMapEditorInspector(
       templateEditor.updateDraft({ displayName: target.value });
       return;
     }
+    if (field === 'shape') {
+      const draft = templateEditor.value.draft;
+      if (!draft?.collider) return;
+      const shape: CollisionShape = target.value === 'circle' || target.value === 'ellipse' ? target.value : 'rectangle';
+      const collider = { ...draft.collider, shape };
+      if (shape === 'circle') {
+        collider.radius ??= Math.min(collider.width, collider.height) / 2;
+        delete collider.radiusX;
+        delete collider.radiusY;
+      } else if (shape === 'ellipse') {
+        collider.radiusX ??= collider.width / 2;
+        collider.radiusY ??= collider.height / 2;
+        delete collider.radius;
+      } else {
+        delete collider.radius;
+        delete collider.radiusX;
+        delete collider.radiusY;
+      }
+      templateEditor.updateDraft({ collider });
+      return;
+    }
     const value = Number(target.value);
     if (field === 'visualOffsetX') templateEditor.updateDraft({ visualOffset: { x: value, y: templateEditor.value.draft?.visualOffset.y ?? 0 } });
     if (field === 'visualOffsetY') templateEditor.updateDraft({ visualOffset: { x: templateEditor.value.draft?.visualOffset.x ?? 0, y: value } });
-    if (field === 'width' || field === 'height' || field === 'offsetX' || field === 'offsetY') {
+    if (field === 'width' || field === 'height' || field === 'offsetX' || field === 'offsetY' || field === 'radius' || field === 'radiusX' || field === 'radiusY') {
       updateCollider(templateEditor, field, value);
     }
     if (field === 'occlusionWidth') updateOcclusion(templateEditor, 'width', value);

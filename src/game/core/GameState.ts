@@ -1,6 +1,7 @@
 import { gameEvents } from './EventBus';
 import { PLAYER_CONFIG } from '../content/player';
 import { PERK_BALANCE } from '../content/perks';
+import type { CharacterAttributeSet } from '../content/characters/types';
 
 /**
  * Single source of truth for persistent player state.
@@ -50,6 +51,10 @@ export interface GameStateData {
   maxEnergyBonus: number;
   skillPoints: number;
   perks: Record<string, number>;
+  attributes: CharacterAttributeSet;
+  equipment: {
+    weaponId: string;
+  };
 }
 
 const DEFAULT_DATA: GameStateData = {
@@ -65,16 +70,20 @@ const DEFAULT_DATA: GameStateData = {
   maxEnergyBonus: 0,
   skillPoints: 0,
   perks: {},
+  attributes: { ...PLAYER_CONFIG.attributes },
+  equipment: { weaponId: 'goo-gauntlet' },
 };
 
 class GameStateImpl {
-  private data: GameStateData = { ...DEFAULT_DATA };
+  private data: GameStateData = { ...DEFAULT_DATA, attributes: { ...DEFAULT_DATA.attributes }, equipment: { ...DEFAULT_DATA.equipment } };
 
   load(data: Partial<GameStateData>): void {
     this.data = {
       ...DEFAULT_DATA,
       ...data,
       perks: { ...(data.perks ?? {}) },
+      attributes: { ...DEFAULT_DATA.attributes, ...(data.attributes ?? {}) },
+      equipment: { ...DEFAULT_DATA.equipment, ...(data.equipment ?? {}) },
       schemaVersion: SAVE_SCHEMA_VERSION,
     };
 
@@ -87,7 +96,7 @@ class GameStateImpl {
   }
 
   reset(): void {
-    this.data = { ...DEFAULT_DATA, perks: {} };
+    this.data = { ...DEFAULT_DATA, perks: {}, attributes: { ...DEFAULT_DATA.attributes }, equipment: { ...DEFAULT_DATA.equipment } };
     gameEvents.emit('coins.changed', { coins: this.data.coins, delta: 0 });
     gameEvents.emit('boost.changed', { boostBonus: this.data.boostBonus, delta: 0 });
     gameEvents.emit('friend.count', { count: this.data.totalFriends });
@@ -191,6 +200,23 @@ class GameStateImpl {
 
   perkRank(perkId: string): number {
     return this.data.perks[perkId] ?? 0;
+  }
+
+  get attributes(): CharacterAttributeSet {
+    return { ...this.data.attributes };
+  }
+
+  addAttribute(attribute: keyof CharacterAttributeSet, amount: number): void {
+    if (!Number.isFinite(amount) || amount === 0) return;
+    this.data.attributes[attribute] = Math.max(0, this.data.attributes[attribute] + amount);
+  }
+
+  get equippedWeaponId(): string {
+    return this.data.equipment.weaponId;
+  }
+
+  equipWeapon(weaponId: string): void {
+    if (weaponId.trim().length > 0) this.data.equipment.weaponId = weaponId;
   }
 
   // ── HP ──

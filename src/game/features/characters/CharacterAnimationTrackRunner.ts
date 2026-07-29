@@ -4,6 +4,7 @@ import type {
   HitboxSpanDocument,
   VisualSetDocument,
 } from '../../content/characters/types';
+import { animationCycleFrameCount, animationFrameIndexAtStep } from '../../shared/animationLoop';
 
 export interface CharacterTrackEvent {
   readonly characterId: string;
@@ -48,6 +49,7 @@ export class CharacterAnimationTrackRunner {
   private playbackId = 0;
   private loopIteration = 0;
   private position = -1;
+  private absoluteStep = 0;
   private paused = false;
   private destroyed = false;
   private active = new Map<string, ActiveSpan>();
@@ -78,6 +80,7 @@ export class CharacterAnimationTrackRunner {
     this.elapsedMs = 0;
     this.loopIteration = 0;
     this.position = -1;
+    this.absoluteStep = 0;
     this.paused = false;
     this.playbackId += 1;
     this.enterPosition(0, true);
@@ -88,6 +91,7 @@ export class CharacterAnimationTrackRunner {
     this.clipId = undefined;
     this.position = -1;
     this.elapsedMs = 0;
+    this.absoluteStep = 0;
   }
 
   cancel(): void { this.stop(); }
@@ -100,6 +104,7 @@ export class CharacterAnimationTrackRunner {
     const nextPosition = Math.max(0, Math.min(Math.floor(position), clip.frames.length - 1));
     this.disableAll();
     this.position = nextPosition;
+    this.absoluteStep = nextPosition;
     for (const { span, index } of spansAt(this.trackSpans, nextPosition)) this.activate(span, index);
   }
 
@@ -107,14 +112,15 @@ export class CharacterAnimationTrackRunner {
     if (this.destroyed || this.paused || !this.clipId) return;
     const clip = this.visualSet.clips[this.clipId];
     const durationMs = 1000 / clip.framesPerSecond;
-    const clipDuration = clip.frames.length * durationMs;
     this.elapsedMs += Math.max(0, deltaMs);
-    const absolutePosition = Math.floor(this.elapsedMs / durationMs);
-    const targetLoop = Math.floor(absolutePosition / clip.frames.length);
-    const targetPosition = absolutePosition % clip.frames.length;
-    if (!clip.loop && absolutePosition >= clip.frames.length) {
+    const targetStep = Math.floor(this.elapsedMs / durationMs);
+    const cycleLength = animationCycleFrameCount(clip);
+    const targetLoop = Math.floor(targetStep / cycleLength);
+    const targetPosition = animationFrameIndexAtStep(clip, targetStep);
+    if (!clip.loop && targetStep >= clip.frames.length) {
       this.disableAll();
       this.position = clip.frames.length - 1;
+      this.absoluteStep = clip.frames.length;
       this.callbacks.onComplete?.();
       this.paused = true;
       return;
@@ -124,17 +130,20 @@ export class CharacterAnimationTrackRunner {
       this.disableAll();
       this.loopIteration = targetLoop;
       this.position = targetPosition;
+      this.absoluteStep = targetStep;
       for (const { span, index } of spansAt(this.trackSpans, targetPosition)) this.activate(span, index);
       return;
     }
-    while (this.loopIteration < targetLoop) {
-      this.disableAll();
-      this.loopIteration += 1;
-      this.position = -1;
-      this.enterPosition(0, false);
+    while (this.absoluteStep < targetStep) {
+      this.absoluteStep += 1;
+      const nextLoop = Math.floor(this.absoluteStep / cycleLength);
+      if (nextLoop !== this.loopIteration) {
+        this.disableAll();
+        this.loopIteration = nextLoop;
+        this.position = -1;
+      }
+      this.enterPosition(animationFrameIndexAtStep(clip, this.absoluteStep), false);
     }
-    while (this.position < targetPosition) this.enterPosition(this.position + 1, false);
-    void clipDuration;
   }
 
   destroy(): void { if (this.destroyed) return; this.destroyed = true; this.disableAll(); }

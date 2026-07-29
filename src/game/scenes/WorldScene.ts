@@ -42,6 +42,7 @@ import { DisposableBag } from '../shared/lifecycle/Disposable';
 import { createPlayerEntity } from '../features/player/PlayerFactory';
 import { PlayerController } from '../features/player/PlayerController';
 import { findVisualClipByRuntimeKey, getVisualClip } from '../content/visuals/VisualCatalog';
+import { animationCycleDurationMs } from '../shared/animationLoop';
 import { AnimatedVisual } from '../features/visuals/AnimatedVisual';
 import { registerAllVisualSetAnimations } from '../features/visuals/AnimationRegistrar';
 import { CrystalTrialController } from '../features/dungeon/CrystalTrialController';
@@ -847,7 +848,7 @@ export class WorldScene extends Phaser.Scene {
       return;
     }
 
-    const durationMs = Math.max(1, Math.round((clip.frames.length / clip.framesPerSecond) * 1000));
+    const durationMs = Math.max(1, Math.round(animationCycleDurationMs(clip)));
     this.time.delayedCall(durationMs, unlock);
   }
 

@@ -125,6 +125,14 @@ export class WorldDebugRenderer {
 
   private drawBody(g: Phaser.GameObjects.Graphics, body: Phaser.Physics.Arcade.Body | Phaser.Physics.Arcade.StaticBody | null | undefined, color: number, alpha: number): void {
     if (!body) return;
+    if ('isCircle' in body && body.isCircle) {
+      const radius = Math.min(body.width, body.height) / 2;
+      const centerX = body.x + body.width / 2;
+      const centerY = body.y + body.height / 2;
+      g.fillStyle(color, 0.06).fillCircle(centerX, centerY, radius);
+      g.lineStyle(2, color, alpha).strokeCircle(centerX, centerY, radius);
+      return;
+    }
     this.fillRect(g, body.x, body.y, body.width, body.height, color, 0.06);
     this.strokeRect(g, body.x, body.y, body.width, body.height, color, alpha, 2);
   }

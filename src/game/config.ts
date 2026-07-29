@@ -12,10 +12,28 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
   const characterStudio = import.meta.env.DEV
     ? new URLSearchParams(window.location.search).get('studio') === 'characters'
     : false;
+  const projectileStudio = import.meta.env.DEV
+    ? new URLSearchParams(window.location.search).get('studio') === 'projectiles'
+    : false;
+  const weaponStudio = import.meta.env.DEV
+    ? new URLSearchParams(window.location.search).get('studio') === 'weapons'
+    : false;
   if (characterStudio) {
     document.title = 'Character Studio — Field Cartographer';
     const { mountCharacterStudio } = await import('./editor/CharacterStudio');
     mountCharacterStudio(container);
+    return undefined;
+  }
+  if (projectileStudio) {
+    document.title = 'Projectile Studio — Field Cartographer';
+    const { mountProjectileStudio } = await import('./editor/ProjectileStudio');
+    mountProjectileStudio(container);
+    return undefined;
+  }
+  if (weaponStudio) {
+    document.title = 'Weapon Studio — Field Cartographer';
+    const { mountWeaponStudio } = await import('./editor/WeaponStudio');
+    mountWeaponStudio(container);
     return undefined;
   }
   const isEditor = editorMapId !== null;

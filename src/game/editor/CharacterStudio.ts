@@ -1,10 +1,14 @@
 import { characterPackages } from 'virtual-character-content';
 
+import './character-studio.css';
+
 import { ASSET_MANIFEST, getAsset } from '../infrastructure/assets/manifest';
 import { resolveAssetUrl } from '../infrastructure/assets/assetUrls';
 import type { CharacterStudioAssetCatalog, CharacterStudioAssetEntry } from '../content/characters/characterAssetCatalog';
 import { CharacterDocumentState, type CharacterDocumentSnapshot } from './CharacterDocumentState';
-import type { CharacterPackage, JsonValue } from '../content/characters/types';
+import { animationCycleFrameCount, animationFrameIndexAtStep } from '../shared/animationLoop';
+import { resolveCollisionShapeDimensions, type CollisionShape } from '../shared/collisionShapes';
+import type { CharacterPackage, JsonValue, VisualClipDocument, VisualLoopMode } from '../content/characters/types';
 
 interface PackageResponse {
   readonly character: CharacterPackage['character'];
@@ -127,6 +131,22 @@ function renderAssetShelf(state: AssetShelfState, currentAssetId: string, form: 
   </section></div>`;
 }
 
+function syncAssetCreationControls(container: HTMLDivElement, state: AssetShelfState, currentAssetId: string, form: CreationFormState): void {
+  const hasIdentity = form.characterId.trim().length > 0 && form.displayName.trim().length > 0;
+  const selectedAssetId = state.selectedAssetId ?? currentAssetId;
+  const hasSelectedAsset = state.catalog?.assets.some((entry) => entry.assetId === selectedAssetId) ?? false;
+  const createButton = container.querySelector<HTMLButtonElement>('[data-action="create-package"]');
+  const importButton = container.querySelector<HTMLButtonElement>('[data-action="upload-create"]');
+  if (createButton) {
+    createButton.disabled = state.submitting === true || !hasIdentity || !hasSelectedAsset;
+    createButton.title = hasIdentity ? (hasSelectedAsset ? 'Create the character package' : 'Choose a source sheet first') : 'Enter stable ID and display name first';
+  }
+  if (importButton) {
+    importButton.disabled = state.submitting === true || !hasIdentity;
+    importButton.title = hasIdentity ? 'Import a PNG and create the character package' : 'Enter stable ID and display name first';
+  }
+}
+
 function renderStudioModal(activeModal: ActiveStudioModal | undefined): string {
   if (!activeModal) return '';
   const { request } = activeModal;
@@ -176,8 +196,11 @@ function renderInspector(snapshot: CharacterDocumentSnapshot): string {
   const frame = snapshot.selectedSourceFrame;
   const transform = visualSet.frameVisuals?.[String(frame)] ?? {};
   const numberField = (label: string, path: string, value: unknown, unit: string): string => `<label class="studio-field"><span>${label}<small>${unit}</small></span><input type="number" step="0.01" data-number-path="${path}" value="${escapeHtml(value)}" /></label>`;
+  const shapeField = (path: string, shape: CollisionShape | undefined): string => `<label class="studio-field"><span>Shape<small>collision primitive</small></span><select data-collision-shape-path="${path}"><option value="rectangle" ${(shape ?? 'rectangle') === 'rectangle' ? 'selected' : ''}>Rectangle</option><option value="circle" ${shape === 'circle' ? 'selected' : ''}>Circle</option><option value="ellipse" ${shape === 'ellipse' ? 'selected' : ''}>Ellipse</option></select></label>`;
   const booleanField = (label: string, path: string, checked: boolean, detail: string): string => `<label class="studio-toggle-field"><input type="checkbox" data-boolean-path="${path}" ${checked ? 'checked' : ''} /><span><strong>${label}</strong><small>${detail}</small></span></label>`;
   const body = character.body;
+  const bodyShape = body.shape ?? 'rectangle';
+  const attributes = character.attributes ?? { strength: 10, vitality: 10, agility: 10, intellect: 10 };
   const gameplay = (character.kind === 'player' ? character.player : character.enemy) as unknown as { maxHp: number; ai: { aggroRange: number; attackRange: number; wanderSpeed: number; chaseSpeed: number; attackCooldownMs: number; contactDamage: number; knockbackStrength: number; knockbackResist: number } };
   const gameplayFields = character.kind === 'player' && character.player
     ? `<div class="studio-field-grid">${numberField('Base speed', 'player.movement.baseSpeed', character.player.movement.baseSpeed, 'world units/s')}${numberField('Boost speed', 'player.movement.boostSpeed', character.player.movement.boostSpeed, 'world units/s')}${numberField('Dodge speed', 'player.movement.dodgeSpeed', character.player.movement.dodgeSpeed, 'world units/s')}${numberField('Dodge i-frames', 'player.movement.dodgeInvulnerabilityMs', character.player.movement.dodgeInvulnerabilityMs, 'milliseconds')}${numberField('Base max HP', 'player.progression.baseMaxHp', character.player.progression.baseMaxHp, 'points')}${numberField('Base max energy', 'player.progression.baseMaxEnergy', character.player.progression.baseMaxEnergy, 'points')}${numberField('HP / level', 'player.progression.hpPerLevel', character.player.progression.hpPerLevel, 'points')}${numberField('Attack / level', 'player.progression.attackPerLevel', character.player.progression.attackPerLevel, 'points')}</div>`
@@ -191,8 +214,10 @@ function renderInspector(snapshot: CharacterDocumentSnapshot): string {
   return `<div class="studio-inspector-scroll">
     ${capabilityFields ? `<section class="studio-inspector-section"><div class="studio-section-heading"><span class="studio-kicker">Capabilities</span><strong>Supported runtime modes</strong></div>${capabilityFields}${advancedEnemyFields}</section>` : ''}
     <section class="studio-inspector-section"><div class="studio-section-heading"><span class="studio-kicker">Visual</span><strong>Alignment</strong></div><p class="studio-help">Artwork shifts around the anchor. It never changes the stable movement body.</p><div class="studio-field-grid">${numberField('Origin X', 'visual.defaults.origin.0', visualSet.defaults.origin[0], 'normalized')}${numberField('Origin Y', 'visual.defaults.origin.1', visualSet.defaults.origin[1], 'normalized')}${numberField('Scale X', 'visual.defaults.scale.0', visualSet.defaults.scale[0], 'multiplier')}${numberField('Scale Y', 'visual.defaults.scale.1', visualSet.defaults.scale[1], 'multiplier')}</div><div class="studio-subheading">Frame ${frame} override <button type="button" class="studio-link-button" data-action="reset-frame-visual">reset</button></div><div class="studio-field-grid">${numberField('Offset X', 'visual.frame.sourceOffset.0', transform.sourceOffset?.[0] ?? 0, 'source px')}${numberField('Offset Y', 'visual.frame.sourceOffset.1', transform.sourceOffset?.[1] ?? 0, 'source px')}</div></section>
-    <section class="studio-inspector-section"><div class="studio-section-heading"><span class="studio-kicker">Body</span><strong>Stable movement body</strong></div><div class="studio-field-grid">${numberField('Width', 'body.width', body.width, 'world units')}${numberField('Height', 'body.height', body.height, 'world units')}${numberField('Center X', 'body.centerOffsetX', body.centerOffsetX, 'world units')}${numberField('Center Y', 'body.centerOffsetY', body.centerOffsetY, 'world units')}</div></section>
+    <section class="studio-inspector-section"><div class="studio-section-heading"><span class="studio-kicker">Body</span><strong>Stable movement body</strong></div><p class="studio-help">Circles use native Arcade Physics. Ellipses keep their authored geometry for hitbox math and use a conservative rectangle for world/tile movement collision.</p><div class="studio-field-grid">${shapeField('body.shape', bodyShape)}${bodyShape === 'circle' ? numberField('Radius', 'body.radius', body.radius ?? Math.min(body.width, body.height) / 2, 'world units') : bodyShape === 'ellipse' ? `${numberField('Radius X', 'body.radiusX', body.radiusX ?? body.width / 2, 'world units')}${numberField('Radius Y', 'body.radiusY', body.radiusY ?? body.height / 2, 'world units')}` : `${numberField('Width', 'body.width', body.width, 'world units')}${numberField('Height', 'body.height', body.height, 'world units')}`}${numberField('Center X', 'body.centerOffsetX', body.centerOffsetX, 'world units')}${numberField('Center Y', 'body.centerOffsetY', body.centerOffsetY, 'world units')}</div></section>
+    <section class="studio-inspector-section"><div class="studio-section-heading"><span class="studio-kicker">Attributes</span><strong>Base character attributes</strong></div><p class="studio-help">Movement speed is separate and comes from movement, equipment, or temporary effects. These values are the neutral foundation for future weapon and ability scaling.</p><div class="studio-field-grid">${numberField('Strength', 'attributes.strength', attributes.strength, 'base points')}${numberField('Vitality', 'attributes.vitality', attributes.vitality, 'base points')}${numberField('Agility', 'attributes.agility', attributes.agility, 'base points')}${numberField('Intellect', 'attributes.intellect', attributes.intellect, 'base points')}</div></section>
     <section class="studio-inspector-section"><div class="studio-section-heading"><span class="studio-kicker">Gameplay</span><strong>${character.kind === 'player' ? 'Player progression' : 'Enemy behavior'}</strong></div>${gameplayFields}</section>
+    <section class="studio-inspector-section studio-collision-shape-section"><div class="studio-section-heading"><span class="studio-kicker">Collision shapes</span><strong>Named geometry</strong></div><p class="studio-help">Use circles for rounded bodies. Ellipses are resolved by the authored hitbox system and previewed precisely in the Studio.</p>${Object.entries(character.hitboxes).map(([hitboxId, hitbox]) => { const shape = hitbox.shape ?? 'rectangle'; return `<div class="studio-collision-shape-row"><strong>${escapeHtml(hitboxId)}</strong>${shapeField(`hitbox.${hitboxId}.shape`, shape)}${shape === 'circle' ? numberField('Radius', `hitbox.${hitboxId}.radius`, hitbox.radius ?? Math.min(hitbox.width, hitbox.height) / 2, 'world') : shape === 'ellipse' ? `${numberField('Radius X', `hitbox.${hitboxId}.radiusX`, hitbox.radiusX ?? hitbox.width / 2, 'world')}${numberField('Radius Y', `hitbox.${hitboxId}.radiusY`, hitbox.radiusY ?? hitbox.height / 2, 'world')}` : ''}</div>`; }).join('') || '<p class="studio-empty-note">Add a named hitbox to author a shape.</p>'}</section>
     <section class="studio-inspector-section"><div class="studio-section-heading"><span class="studio-kicker">Hitboxes</span><strong>Named attack geometry</strong><button type="button" class="studio-icon-button" data-action="add-hitbox">+</button></div>${Object.entries(character.hitboxes).map(([hitboxId, hitbox]) => `<div class="studio-hitbox-row studio-hitbox-row--expanded"><span class="hitbox-chip">${escapeHtml(hitboxId)}</span>${numberField('W', `hitbox.${hitboxId}.width`, hitbox.width, 'world')}${numberField('H', `hitbox.${hitboxId}.height`, hitbox.height, 'world')}${numberField('Offset X', `hitbox.${hitboxId}.offsetX`, hitbox.offsetX, 'world')}${numberField('Offset Y', `hitbox.${hitboxId}.offsetY`, hitbox.offsetY, 'world')}<label class="studio-hitbox-mirror"><input type="checkbox" data-boolean-path="hitbox.${hitboxId}.mirrorX" ${hitbox.mirrorX ? 'checked' : ''} /><span>MIRROR</span></label><button type="button" class="studio-icon-button is-danger" data-remove-hitbox="${escapeHtml(hitboxId)}">×</button></div>`).join('') || '<p class="studio-empty-note">No named hitboxes yet.</p>'}</section>
   </div>`;
 }
@@ -210,9 +235,10 @@ function renderStudio(snapshot: CharacterDocumentSnapshot, assetShelf: AssetShel
   const previewRow = Math.floor(selectedFrame / info.columns);
   const transform = visualSet.frameVisuals?.[String(selectedFrame)] ?? {};
   const previewScale = numberValue(visualSet.defaults.scale[0], 1) * 2.8;
-  const bodyWidth = character.body.width * 3;
-  const bodyHeight = character.body.height * 3;
-  const hitboxGuides = Object.entries(character.hitboxes).map(([hitboxId, hitbox]) => `<span class="stage-hitbox" style="width:${hitbox.width * 3}px;height:${hitbox.height * 3}px;transform:translate(-50%,-50%) translate(${hitbox.offsetX * 3}px,${hitbox.offsetY * 3}px)" title="${escapeHtml(hitboxId)}"><small>${escapeHtml(hitboxId)}</small></span>`).join('');
+  const bodyDimensions = resolveCollisionShapeDimensions(character.body);
+  const bodyWidth = bodyDimensions.width * 3;
+  const bodyHeight = bodyDimensions.height * 3;
+  const hitboxGuides = Object.entries(character.hitboxes).map(([hitboxId, hitbox]) => { const dimensions = resolveCollisionShapeDimensions(hitbox); const shapeStyle = dimensions.shape === 'rectangle' ? '' : 'border-radius:50%;'; return `<span class="stage-hitbox stage-hitbox--${dimensions.shape}" style="width:${dimensions.width * 3}px;height:${dimensions.height * 3}px;${shapeStyle}transform:translate(-50%,-50%) translate(${hitbox.offsetX * 3}px,${hitbox.offsetY * 3}px)" title="${escapeHtml(hitboxId)}"><small>${escapeHtml(hitboxId)}</small></span>`; }).join('');
   const trackSpans = track.hitboxSpans ?? [];
   const selectedSpans = trackSpans.filter((span) => span.from <= selectedTimelineIndex && selectedTimelineIndex <= span.through);
   const selectedEvents = (track.events ?? []).filter((event) => event.at === selectedTimelineIndex);
@@ -236,6 +262,28 @@ function renderStudio(snapshot: CharacterDocumentSnapshot, assetShelf: AssetShel
     ${renderAssetShelf(assetShelf, String(visualSet.assetId), creationForm)}
     ${renderStudioModal(activeModal)}
   </main>`;
+}
+
+function decorateLoopModeControl(container: HTMLDivElement, clip: VisualClipDocument | undefined): void {
+  const loopToggle = container.querySelector<HTMLInputElement>('[data-clip-loop]');
+  const loopLabel = loopToggle?.closest('label');
+  if (!loopToggle || !loopLabel || container.querySelector('[data-clip-loop-mode]')) return;
+  const label = document.createElement('label');
+  label.className = 'studio-inline-field';
+  label.append('MODE ');
+  const select = document.createElement('select');
+  select.className = 'studio-inline-select';
+  select.dataset.clipLoopMode = '';
+  select.disabled = !loopToggle.checked;
+  for (const [value, text] of [['wrap', 'WRAP'], ['ping-pong', 'PING-PONG']] as const) {
+    const option = document.createElement('option');
+    option.value = value;
+    option.textContent = text;
+    option.selected = (clip?.loopMode ?? 'wrap') === value;
+    select.append(option);
+  }
+  label.append(select);
+  loopLabel.after(label);
 }
 
 function updatePlaybackFrameDom(container: HTMLDivElement, snapshot: CharacterDocumentSnapshot): void {
@@ -286,6 +334,66 @@ async function loadAssetCatalog(): Promise<CharacterStudioAssetCatalog> {
   return payload.data;
 }
 
+const STUDIO_SCROLL_REGION_SELECTORS = [
+  '.studio-workbench',
+  '.studio-roster',
+  '.studio-inspector-scroll',
+  '.studio-sheet-grid',
+  '.studio-clip-tabs',
+  '.studio-timeline',
+] as const;
+
+interface StudioScrollPosition {
+  readonly selector: string;
+  readonly top: number;
+  readonly left: number;
+}
+
+function captureStudioScroll(container: HTMLDivElement): StudioScrollPosition[] {
+  return STUDIO_SCROLL_REGION_SELECTORS.flatMap((selector) => {
+    const region = container.querySelector<HTMLElement>(selector);
+    return region ? [{ selector, top: region.scrollTop, left: region.scrollLeft }] : [];
+  });
+}
+
+function restoreStudioScroll(container: HTMLDivElement, positions: readonly StudioScrollPosition[]): void {
+  for (const position of positions) {
+    const region = container.querySelector<HTMLElement>(position.selector);
+    if (!region) continue;
+    region.scrollTop = position.top;
+    region.scrollLeft = position.left;
+  }
+}
+
+function ensureProjectileStudioLink(container: HTMLDivElement, returnEditor: string): void {
+  const footer = container.querySelector<HTMLElement>('.studio-library-footer');
+  if (!footer) return;
+  if (!footer.querySelector('[data-projectile-studio-link]')) {
+    const link = document.createElement('a');
+    link.className = 'studio-button studio-button--outline studio-button--navigation';
+    link.href = `?studio=projectiles&editor=${encodeURIComponent(returnEditor)}`;
+    link.dataset.projectileStudioLink = 'true';
+    link.textContent = 'PROJECTILE STUDIO';
+    footer.append(link);
+  }
+  if (footer.querySelector('[data-weapon-studio-link]')) return;
+  const link = document.createElement('a');
+  link.className = 'studio-button studio-button--outline studio-button--navigation';
+  link.href = `?studio=weapons&editor=${encodeURIComponent(returnEditor)}`;
+  link.dataset.weaponStudioLink = 'true';
+  link.textContent = 'WEAPON STUDIO';
+  footer.append(link);
+}
+
+function decorateBodyPreview(container: HTMLDivElement, body: CharacterDocumentSnapshot['character']['body']): void {
+  const stageBody = container.querySelector<HTMLElement>('[data-preview-stage] .stage-body');
+  if (!stageBody) return;
+  const shape = body.shape ?? 'rectangle';
+  stageBody.classList.remove('stage-body--rectangle', 'stage-body--circle', 'stage-body--ellipse');
+  stageBody.classList.add(`stage-body--${shape}`);
+  stageBody.style.borderRadius = shape === 'rectangle' ? '0' : '50%';
+}
+
 async function createPackageRequest(form: CreationFormState): Promise<{ readonly characterId: string; readonly revision: string; readonly reloadRequired: true }> {
   const response = await fetch('/__character-studio/package/create', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
   const payload = await response.json() as { ok: boolean; data?: { characterId: string; revision: string; reloadRequired: true }; error?: { message?: string } };
@@ -294,6 +402,7 @@ async function createPackageRequest(form: CreationFormState): Promise<{ readonly
 }
 
 export function mountCharacterStudio(container: HTMLDivElement): () => void {
+  container.classList.add('is-character-studio-host');
   let currentState: CharacterDocumentState | undefined;
   let unsubscribe: (() => void) | undefined;
   let disposed = false;
@@ -320,9 +429,25 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
       updatePlaybackFrameDom(container, snapshot);
       return;
     }
+    const scrollPositions = captureStudioScroll(container);
     container.innerHTML = renderStudio(snapshot, assetShelf, creationForm, returnEditor, playTimer !== undefined, activeModal);
+    ensureProjectileStudioLink(container, returnEditor);
+    decorateBodyPreview(container, snapshot.character.body);
+    decorateLoopModeControl(container, snapshot.visualSet.clips[snapshot.selectedClipId]);
+    syncAssetCreationControls(container, assetShelf, String(snapshot.visualSet.assetId), creationForm);
+    restoreStudioScroll(container, scrollPositions);
   };
-  const rerenderShelf = (): void => { if (!disposed && currentState) container.innerHTML = renderStudio(currentState.value, assetShelf, creationForm, returnEditor, playTimer !== undefined, activeModal); };
+  const rerenderShelf = (): void => {
+    if (!disposed && currentState) {
+      const scrollPositions = captureStudioScroll(container);
+      container.innerHTML = renderStudio(currentState.value, assetShelf, creationForm, returnEditor, playTimer !== undefined, activeModal);
+      ensureProjectileStudioLink(container, returnEditor);
+      decorateBodyPreview(container, currentState.value.character.body);
+      decorateLoopModeControl(container, currentState.value.visualSet.clips[currentState.value.selectedClipId]);
+      syncAssetCreationControls(container, assetShelf, String(currentState.value.visualSet.assetId), creationForm);
+      restoreStudioScroll(container, scrollPositions);
+    }
+  };
   const settleModal = (result: StudioModalResult): void => {
     const modal = activeModal;
     if (!modal) return;
@@ -527,19 +652,22 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
         }
         const clip = currentState.value.visualSet.clips[currentState.value.selectedClipId];
         if (!clip) break;
-        let index = currentState.value.selectedTimelineIndex;
+        currentState.selectTimelineIndex(0);
+        let playbackStep = 0;
+        const cycleLength = animationCycleFrameCount(clip);
         playTimer = window.setInterval(() => {
           if (!currentState) {
             stopPlayback();
             return;
           }
-          index += 1;
-          if (index >= clip.frames.length) {
-            if (!clip.loop) {
-              stopPlayback();
-              index = Math.max(clip.frames.length - 1, 0);
-            } else index = 0;
+          playbackStep += 1;
+          if (playbackStep >= clip.frames.length && !clip.loop) {
+            stopPlayback();
+            playbackStep = Math.max(clip.frames.length - 1, 0);
+          } else if (clip.loop) {
+            playbackStep %= cycleLength;
           }
+          const index = animationFrameIndexAtStep(clip, playbackStep);
           playbackTick = true;
           try { currentState.selectTimelineIndex(index); } finally { playbackTick = false; }
         }, 1000 / Math.max(clip.framesPerSecond, 0.1));
@@ -703,7 +831,14 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
       return;
     }
     if (!currentState) return;
-    if (target.matches('[data-clip-fps], [data-clip-loop]')) { stopPlayback(); currentState.updatePlayback(Number((container.querySelector('[data-clip-fps]') as HTMLInputElement)?.value ?? 8), (container.querySelector('[data-clip-loop]') as HTMLInputElement)?.checked ?? true); return; }
+    if (target.matches('[data-clip-fps], [data-clip-loop], [data-clip-loop-mode]')) {
+      stopPlayback();
+      const loopMode: VisualLoopMode = container.querySelector<HTMLSelectElement>('[data-clip-loop-mode]')?.value === 'ping-pong' ? 'ping-pong' : 'wrap';
+      const fps = Number(container.querySelector<HTMLInputElement>('[data-clip-fps]')?.value ?? 8);
+      const loop = container.querySelector<HTMLInputElement>('[data-clip-loop]')?.checked ?? true;
+      currentState.updatePlayback(fps, loop, loopMode);
+      return;
+    }
     const booleanPath = target.dataset.booleanPath;
     if (booleanPath) {
       if (booleanPath === 'enemy.ai.isRanged') {
@@ -719,11 +854,20 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
       else currentState.updateGameplay(selectPath.split('.'), target.value);
       return;
     }
+    const collisionShapePath = target.dataset.collisionShapePath;
+    if (collisionShapePath) {
+      const shape = target.value === 'circle' || target.value === 'ellipse' ? target.value : 'rectangle';
+      const parts = collisionShapePath.split('.');
+      if (parts[0] === 'body') currentState.updateBody({ shape });
+      else if (parts[0] === 'hitbox' && parts[1]) currentState.updateHitbox(parts[1], { shape });
+      return;
+    }
     const path = target.dataset.numberPath;
     if (!path) return;
     const parts = path.split('.');
     const value = Number(target.value);
     if (parts[0] === 'body') currentState.updateBody({ [parts[1] ?? 'width']: value });
+    else if (parts[0] === 'attributes') currentState.updateAttributes({ [parts[1] ?? 'strength']: value });
     else if (parts[0] === 'visual') { if (parts[1] === 'defaults') currentState.updateDefaults({ [parts[2] ?? 'scale']: [value, value] as [number, number] }); else currentState.updateFrameVisual(currentState.value.selectedSourceFrame, { sourceOffset: [value, value] as [number, number] }); }
     else if (parts[0] === 'hitbox') currentState.updateHitbox(parts[1] ?? '', { [parts[2] ?? 'width']: value });
     else currentState.updateGameplay(parts, value as JsonValue);
@@ -744,5 +888,5 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
   container.addEventListener('keydown', onKeydown);
   renderLoading('Loading Character Studio…');
   void choosePackage(currentId);
-  return () => { activeModal?.resolve(undefined); activeModal = undefined; disposed = true; stopPlayback(); clearTimelineDrag(); unsubscribe?.(); container.removeEventListener('click', onClick); container.removeEventListener('dragstart', onDragStart); container.removeEventListener('dragover', onDragOver); container.removeEventListener('drop', onDrop); container.removeEventListener('dragend', onDragEnd); container.removeEventListener('pointerdown', onPointerDown); container.removeEventListener('pointermove', onPointerMove); container.removeEventListener('pointerup', onPointerUp); container.removeEventListener('pointercancel', onPointerCancel); container.removeEventListener('change', onChange); container.removeEventListener('submit', onSubmit); container.removeEventListener('input', onInput); container.removeEventListener('keydown', onKeydown); };
+  return () => { activeModal?.resolve(undefined); activeModal = undefined; disposed = true; stopPlayback(); clearTimelineDrag(); unsubscribe?.(); container.removeEventListener('click', onClick); container.removeEventListener('dragstart', onDragStart); container.removeEventListener('dragover', onDragOver); container.removeEventListener('drop', onDrop); container.removeEventListener('dragend', onDragEnd); container.removeEventListener('pointerdown', onPointerDown); container.removeEventListener('pointermove', onPointerMove); container.removeEventListener('pointerup', onPointerUp); container.removeEventListener('pointercancel', onPointerCancel); container.removeEventListener('change', onChange); container.removeEventListener('submit', onSubmit); container.removeEventListener('input', onInput); container.removeEventListener('keydown', onKeydown); container.classList.remove('is-character-studio-host'); };
 }

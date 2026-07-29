@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "projectile.schema.json",
+  "title": "Slime Isa projectile definition",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "projectileId", "displayName", "assetId", "body", "movement"],
+  "properties": {
+    "version": { "const": 1 },
+    "projectileId": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+    "displayName": { "type": "string", "minLength": 1, "maxLength": 80 },
+    "assetId": { "type": "string" },
+    "animation": {
+      "type": "object", "additionalProperties": false,
+      "required": ["frames", "framesPerSecond", "loop"],
+      "properties": {
+        "frames": { "type": "array", "minItems": 1, "items": { "type": "integer", "minimum": 0 } },
+        "framesPerSecond": { "type": "number", "exclusiveMinimum": 0, "maximum": 240 },
+        "loop": { "type": "boolean" },
+        "loopMode": { "enum": ["wrap", "ping-pong"] }
+      }
+    },
+    "body": {
+      "type": "object", "additionalProperties": false,
+      "required": ["width", "height", "centerOffsetX", "centerOffsetY"],
+      "properties": {
+        "shape": { "enum": ["rectangle", "circle", "ellipse"] },
+        "width": { "type": "number", "exclusiveMinimum": 0 },
+        "height": { "type": "number", "exclusiveMinimum": 0 },
+        "radius": { "type": "number", "exclusiveMinimum": 0 },
+        "radiusX": { "type": "number", "exclusiveMinimum": 0 },
+        "radiusY": { "type": "number", "exclusiveMinimum": 0 },
+        "centerOffsetX": { "type": "number" },
+        "centerOffsetY": { "type": "number" }
+      },
+      "allOf": [
+        { "if": { "required": ["shape"], "properties": { "shape": { "const": "circle" } } }, "then": { "required": ["radius"] } },
+        { "if": { "required": ["shape"], "properties": { "shape": { "const": "ellipse" } } }, "then": { "required": ["radiusX", "radiusY"] } }
+      ]
+    },
+    "movement": {
+      "type": "object", "additionalProperties": false,
+      "required": ["defaultSpeed", "lifetimeMs", "rotateToVelocity"],
+      "properties": {
+        "defaultSpeed": { "type": "number", "exclusiveMinimum": 0 },
+        "lifetimeMs": { "type": "integer", "minimum": 1 },
+        "rotateToVelocity": { "type": "boolean" }
+      }
+    }
+  }
+}

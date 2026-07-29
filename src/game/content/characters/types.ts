@@ -1,7 +1,17 @@
 import type { AssetId } from '../../infrastructure/assets/manifest';
+import type { CollisionShape } from '../../shared/collisionShapes';
 
 export type CharacterKind = 'player' | 'enemy';
 export type Pair = [number, number];
+export type VisualLoopMode = 'wrap' | 'ping-pong';
+
+/** Core character attributes. Movement speed is intentionally not included. */
+export interface CharacterAttributeSet {
+  strength: number;
+  vitality: number;
+  agility: number;
+  intellect: number;
+}
 
 export interface VisualTransformDocument {
   origin?: Pair;
@@ -19,6 +29,8 @@ export interface VisualClipDocument {
   frames: number[];
   framesPerSecond: number;
   loop: boolean;
+  /** Defaults to wrap for packages authored before ping-pong playback existed. */
+  loopMode?: VisualLoopMode;
 }
 
 export interface VisualSetDocument {
@@ -32,16 +44,24 @@ export interface VisualSetDocument {
 }
 
 export interface CharacterBodyDocument {
+  /** Defaults to rectangle for packages authored before shape support. */
+  shape?: CollisionShape;
   width: number;
   height: number;
+  radius?: number;
+  radiusX?: number;
+  radiusY?: number;
   centerOffsetX: number;
   centerOffsetY: number;
 }
 
 export interface CharacterHitboxDocument {
-  shape: 'rectangle';
+  shape: CollisionShape;
   width: number;
   height: number;
+  radius?: number;
+  radiusX?: number;
+  radiusY?: number;
   offsetX: number;
   offsetY: number;
   mirrorX: boolean;
@@ -115,7 +135,8 @@ export interface EnemyGameplayDocument {
     items?: EnemyDropItemDocument[];
   };
   projectile?: {
-    assetId: AssetId | string;
+    projectileId?: string;
+    assetId?: AssetId | string;
     damage: number;
   };
   impactEffect?: {
@@ -133,6 +154,7 @@ export interface CharacterDocument {
   kind: CharacterKind;
   runtimeRole?: 'primary-player';
   visualSetId: string;
+  attributes?: CharacterAttributeSet;
   body: CharacterBodyDocument;
   hitboxes: Record<string, CharacterHitboxDocument>;
   animationTracks: Record<string, AnimationTrackDocument>;

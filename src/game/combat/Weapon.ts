@@ -2,6 +2,8 @@
 import { getStats } from '../systems/PlayerStats';
 import { hitboxPool, type HitHandler } from './Hitbox';
 import { resolveBodyBottom, resolveWorldDepth } from '../presentation/WorldDepth';
+import { resolveScaledValue } from './CombatScaling';
+import type { WeaponDefinition } from '../content/weapons/types';
 
 const SWING_VISUAL_PADDING = 8;
 
@@ -15,34 +17,8 @@ const SWING_VISUAL_PADDING = 8;
  * the same pattern (see weapons/library/).
  */
 
-export type WeaponId = 'goo-gauntlet' | 'splat-spear' | 'bouncy-bow' | 'sticky-whip' | 'bubble-wand' | 'slam-hammer';
-
-export interface WeaponDef {
-  id: WeaponId;
-  name: string;
-  /** Runtime animation key to play on attack (from the player's visual set). */
-  animKey: string;
-  /** Base damage before stat scaling. */
-  baseDamage: number;
-  /** Cooldown between attacks in ms. */
-  cooldownMs: number;
-  /** Hitbox dimensions relative to the player. */
-  hitboxWidth: number;
-  hitboxHeight: number;
-  /** Distance from player center to hitbox center. */
-  hitboxOffset: number;
-  /** How long the hitbox lives in ms. */
-  hitboxDurationMs: number;
-  /** Knockback strength. */
-  knockStrength: number;
-  /** VFX color for the slash rect. */
-  vfxColor: number;
-  /** Unlock level (1 = starter). */
-  unlockLevel: number;
-  /** Icon texture key (from BootScene). */
-  iconKey: string;
-  description: string;
-}
+export type WeaponId = string;
+export type WeaponDef = WeaponDefinition;
 
 export interface WeaponContext {
   scene: Phaser.Scene;
@@ -59,18 +35,20 @@ export class Weapon {
   public readonly def: WeaponDef;
   protected ctx: WeaponContext;
   private cooldownUntil = 0;
+  private cooldownDurationMs: number;
 
   constructor(def: WeaponDef, ctx: WeaponContext) {
     this.def = def;
     this.ctx = ctx;
+    this.cooldownDurationMs = def.cooldownMs;
   }
 
   get id(): WeaponId {
-    return this.def.id;
+    return this.def.weaponId;
   }
 
   get name(): string {
-    return this.def.name;
+    return this.def.displayName;
   }
 
   get iconKey(): string {
@@ -83,7 +61,7 @@ export class Weapon {
 
   cooldownProgress(time: number): number {
     if (time >= this.cooldownUntil) return 1;
-    const total = this.def.cooldownMs;
+    const total = this.cooldownDurationMs;
     const remaining = this.cooldownUntil - time;
     return Phaser.Math.Clamp(1 - remaining / total, 0, 1);
   }
@@ -100,13 +78,17 @@ export class Weapon {
       : new Phaser.Math.Vector2(1, 0);
 
     const stats = getStats();
-    const damage = Math.round(this.def.baseDamage * (stats.attack / 10));
+    const damage = Math.round(resolveScaledValue(
+      this.def.baseDamage * (stats.attack / 10),
+      this.def.scaling?.damage,
+      stats.attributes,
+    ));
     const isCrit = Math.random() < stats.critChance;
     const finalDamage = isCrit ? Math.round(damage * stats.critMult) : damage;
 
     // Hit shape uses the same crescent sector as the drawn slash. This keeps
     // diagonal/up/down swings aligned with what the player sees.
-    const reachMult = stats.weaponReachMult;
+    const reachMult = stats.weaponReachMult * resolveScaledValue(1, this.def.scaling?.reach, stats.attributes);
     const totalReach = (this.def.hitboxOffset + this.def.hitboxWidth / 2) * reachMult;
     const outerRadius = totalReach + SWING_VISUAL_PADDING;
     const angle = Math.atan2(dir.y, dir.x);
@@ -123,7 +105,7 @@ export class Weapon {
         durationMs: this.def.hitboxDurationMs,
         knockX: dir.x,
         knockY: dir.y,
-        knockStrength: this.def.knockStrength,
+        knockStrength: resolveScaledValue(this.def.knockStrength, this.def.scaling?.knockback, stats.attributes),
         vfxColor: this.def.vfxColor,
         showVfx: false,
         shape: 'sector',
@@ -153,7 +135,8 @@ export class Weapon {
       this.ctx.onAttackEnd();
     });
 
-    this.cooldownUntil = time + this.def.cooldownMs;
+    this.cooldownDurationMs = resolveScaledValue(this.def.cooldownMs, this.def.scaling?.cooldown, stats.attributes, 1);
+    this.cooldownUntil = time + this.cooldownDurationMs;
     return true;
   }
 

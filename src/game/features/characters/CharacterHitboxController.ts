@@ -1,12 +1,15 @@
 import type { CharacterDocument } from '../../content/characters/types';
 import {
   characterHitboxesIntersect,
+  geometryToRectangle,
+  resolveCharacterHitboxGeometry,
   type CharacterHitboxRectangle,
-  resolveCharacterHitboxRectangle,
+  type CharacterHitboxGeometry,
 } from './characterHitboxGeometry';
 
 export interface CharacterHitboxTarget {
   getBounds(): CharacterHitboxRectangle;
+  getCollisionGeometry?: () => CharacterHitboxGeometry;
 }
 
 export interface CharacterHitboxTargetCollection {
@@ -23,6 +26,8 @@ export interface CharacterHitboxControllerOptions {
 export interface ResolvedCharacterHitbox {
   readonly hitboxId: string;
   readonly activationId: string;
+  readonly geometry: CharacterHitboxGeometry;
+  /** Kept for debug consumers that still draw rectangular bounds. */
   readonly rectangle: CharacterHitboxRectangle;
 }
 
@@ -43,10 +48,12 @@ export class CharacterHitboxController {
   activate(hitboxId: string, activationId: string): void {
     const hitbox = this.character.hitboxes[hitboxId];
     if (!hitbox) throw new Error(`Unknown hitbox '${hitboxId}'`);
+    const geometry = this.resolveGeometry(hitbox);
     this.active.set(hitboxId, {
       hitboxId,
       activationId,
-      rectangle: this.resolveRectangle(hitbox),
+      geometry,
+      rectangle: geometryToRectangle(geometry),
     });
     this.hitTargets.set(activationId, new Set());
   }
@@ -73,7 +80,7 @@ export class CharacterHitboxController {
       for (const candidate of targets) {
         const target = candidate;
         if (alreadyHit.has(target)) continue;
-        if (!characterHitboxesIntersect(active.rectangle, target.getBounds())) continue;
+        if (!characterHitboxesIntersect(active.geometry, target.getCollisionGeometry?.() ?? target.getBounds())) continue;
         alreadyHit.add(target);
         this.options.onHit(active.hitboxId, target, active.activationId);
       }
@@ -83,13 +90,14 @@ export class CharacterHitboxController {
   getResolvedHitboxes(): readonly ResolvedCharacterHitbox[] {
     return [...this.active.values()].map((entry) => ({
       ...entry,
+      geometry: { ...entry.geometry },
       rectangle: { ...entry.rectangle },
     }));
   }
 
   destroy(): void { this.deactivateAll(); }
 
-  private resolveRectangle(hitbox: CharacterDocument['hitboxes'][string]): CharacterHitboxRectangle {
-    return resolveCharacterHitboxRectangle(hitbox, this.options.anchor, this.options.facingX());
+  private resolveGeometry(hitbox: CharacterDocument['hitboxes'][string]): CharacterHitboxGeometry {
+    return resolveCharacterHitboxGeometry(hitbox, this.options.anchor, this.options.facingX());
   }
 }

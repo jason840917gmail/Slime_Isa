@@ -19,6 +19,7 @@ import type {
   SourceFrameDimensions,
   SourceOcclusionBounds,
 } from '../../presentation/WorldOcclusion';
+import { resolveCollisionShapeDimensions } from '../../shared/collisionShapes';
 
 export interface ObjectOccluderRegistration {
   readonly id: string;
@@ -168,11 +169,23 @@ export class ObjectFactory {
         throw new Error(`Solid object '${objectId}' has no collider for its selected frame`);
       }
       const body = physicsImage.body as Phaser.Physics.Arcade.StaticBody;
-      body.setSize(visual.collider.width, visual.collider.height);
-      body.setOffset(
-        visual.collider.offsetX - visual.visualOffset.x,
-        visual.collider.offsetY - visual.visualOffset.y,
-      );
+      const collider = visual.collider;
+      const dimensions = resolveCollisionShapeDimensions(collider);
+      if (dimensions.shape === 'circle') {
+        body.setCircle(
+          dimensions.radius ?? Math.min(collider.width, collider.height) / 2,
+          collider.offsetX - visual.visualOffset.x,
+          collider.offsetY - visual.visualOffset.y,
+        );
+      } else {
+        // Arcade has no native ellipse. Its authored bounds remain a safe
+        // conservative fallback for static world collision.
+        body.setSize(dimensions.width, dimensions.height, false);
+        body.setOffset(
+          collider.offsetX - visual.visualOffset.x,
+          collider.offsetY - visual.visualOffset.y,
+        );
+      }
     } else if (behaviorGroup) {
       (image as Phaser.Physics.Arcade.Image).refreshBody();
     }
