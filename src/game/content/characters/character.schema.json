@@ -13,6 +13,14 @@
     "kind": { "enum": ["player", "enemy"] },
     "runtimeRole": { "const": "primary-player" },
     "visualSetId": { "type": "string", "pattern": "^[a-z0-9]+(?:[.-][a-z0-9-]+)+$", "minLength": 3, "maxLength": 120 },
+    "attributes": {
+      "type": "object", "additionalProperties": false,
+      "required": ["strength", "vitality", "agility", "intellect"],
+      "properties": {
+        "strength": { "type": "number", "minimum": 0 }, "vitality": { "type": "number", "minimum": 0 },
+        "agility": { "type": "number", "minimum": 0 }, "intellect": { "type": "number", "minimum": 0 }
+      }
+    },
     "body": { "$ref": "#/$defs/body" },
     "hitboxes": {
       "type": "object",
@@ -38,17 +46,28 @@
       "type": "object", "additionalProperties": false,
       "required": ["width", "height", "centerOffsetX", "centerOffsetY"],
       "properties": {
+        "shape": { "enum": ["rectangle", "circle", "ellipse"] },
         "width": { "type": "number", "exclusiveMinimum": 0 }, "height": { "type": "number", "exclusiveMinimum": 0 },
+        "radius": { "type": "number", "exclusiveMinimum": 0 }, "radiusX": { "type": "number", "exclusiveMinimum": 0 }, "radiusY": { "type": "number", "exclusiveMinimum": 0 },
         "centerOffsetX": { "type": "number" }, "centerOffsetY": { "type": "number" }
-      }
+      },
+      "allOf": [
+        { "if": { "required": ["shape"], "properties": { "shape": { "const": "circle" } } }, "then": { "required": ["radius"], "not": { "anyOf": [{ "required": ["radiusX"] }, { "required": ["radiusY"] }] } } },
+        { "if": { "required": ["shape"], "properties": { "shape": { "const": "ellipse" } } }, "then": { "required": ["radiusX", "radiusY"], "not": { "required": ["radius"] } } }
+      ]
     },
     "hitbox": {
       "type": "object", "additionalProperties": false,
       "required": ["shape", "width", "height", "offsetX", "offsetY", "mirrorX"],
       "properties": {
-        "shape": { "const": "rectangle" }, "width": { "type": "number", "exclusiveMinimum": 0 }, "height": { "type": "number", "exclusiveMinimum": 0 },
+        "shape": { "enum": ["rectangle", "circle", "ellipse"] }, "width": { "type": "number", "exclusiveMinimum": 0 }, "height": { "type": "number", "exclusiveMinimum": 0 },
+        "radius": { "type": "number", "exclusiveMinimum": 0 }, "radiusX": { "type": "number", "exclusiveMinimum": 0 }, "radiusY": { "type": "number", "exclusiveMinimum": 0 },
         "offsetX": { "type": "number" }, "offsetY": { "type": "number" }, "mirrorX": { "type": "boolean" }
-      }
+      },
+      "allOf": [
+        { "if": { "required": ["shape"], "properties": { "shape": { "const": "circle" } } }, "then": { "required": ["radius"], "not": { "anyOf": [{ "required": ["radiusX"] }, { "required": ["radiusY"] }] } } },
+        { "if": { "required": ["shape"], "properties": { "shape": { "const": "ellipse" } } }, "then": { "required": ["radiusX", "radiusY"], "not": { "required": ["radius"] } } }
+      ]
     },
     "span": {
       "type": "object", "additionalProperties": false, "required": ["hitboxId", "from", "through"],
@@ -93,7 +112,7 @@
           "type": "object", "additionalProperties": false, "required": ["xp", "coins"],
           "properties": { "xp": { "type": "integer", "minimum": 0 }, "coins": { "type": "integer", "minimum": 0 }, "items": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["itemId", "chance"], "properties": { "itemId": { "type": "string" }, "chance": { "type": "number", "minimum": 0, "maximum": 1 }, "count": { "type": "integer", "minimum": 1 } } } } }
         },
-        "projectile": { "type": "object", "additionalProperties": false, "required": ["assetId", "damage"], "properties": { "assetId": { "type": "string" }, "damage": { "type": "number", "minimum": 0 } } },
+        "projectile": { "type": "object", "additionalProperties": false, "required": ["damage"], "properties": { "projectileId": { "$ref": "#/$defs/stableId" }, "assetId": { "type": "string" }, "damage": { "type": "number", "minimum": 0 } }, "anyOf": [{ "required": ["projectileId"] }, { "required": ["assetId"] }] },
         "impactEffect": { "type": "object", "additionalProperties": false, "required": ["visualSetId", "clipId", "distance"], "properties": { "visualSetId": { "type": "string" }, "clipId": { "$ref": "#/$defs/stableId" }, "distance": { "type": "number", "minimum": 0 } } }
       }
     }

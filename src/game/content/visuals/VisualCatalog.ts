@@ -4,6 +4,7 @@ import { validateVisualSetDocument } from '../characters/validation';
 import { characterPackages, visualSets } from 'virtual-character-content';
 import type {
   VisualClipDocument,
+  VisualLoopMode,
   VisualSetDocument,
 } from '../characters/types';
 
@@ -19,7 +20,8 @@ export interface ResolvedVisualTransform {
   readonly sourceOffset: readonly [number, number];
 }
 
-export interface VisualClip extends VisualClipDocument {
+export interface VisualClip extends Omit<VisualClipDocument, 'loopMode'> {
+  readonly loopMode: VisualLoopMode;
   readonly runtimeKey: string;
 }
 
@@ -54,6 +56,7 @@ function normalizeVisualSet(value: VisualSetDocument): VisualSetDefinition {
   if (issues.length > 0) throw new Error(issues.map((entry) => `${entry.path}: ${entry.message}`).join('\n'));
   const clips = Object.fromEntries(Object.entries(value.clips).map(([clipId, clip]) => [clipId, {
     ...clip,
+    loopMode: clip.loopMode ?? 'wrap',
     runtimeKey: visualRuntimeKey(value.visualSetId, clipId),
   }])) as Record<string, VisualClip>;
   return {

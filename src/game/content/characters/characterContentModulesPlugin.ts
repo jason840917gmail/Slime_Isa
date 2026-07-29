@@ -13,9 +13,17 @@ import {
 } from './characterAssetCatalog';
 import { normalizeCharacterPackage, validateCharacterPackage, type CharacterValidationIssue } from './validation';
 import type { CharacterDocument, CharacterPackage, VisualSetDocument } from './types';
+import type { ProjectileDefinition } from '../projectiles/types';
+import { validateProjectileDefinition } from '../projectiles/validation';
+import type { WeaponDefinition } from '../weapons/types';
+import { validateWeaponDefinition } from '../weapons/validation';
 
 const VIRTUAL_ID = 'virtual-character-content';
 const RESOLVED_VIRTUAL_ID = `\0${VIRTUAL_ID}`;
+const PROJECTILE_VIRTUAL_ID = 'virtual-projectile-content';
+const RESOLVED_PROJECTILE_VIRTUAL_ID = `\0${PROJECTILE_VIRTUAL_ID}`;
+const WEAPON_VIRTUAL_ID = 'virtual-weapon-content';
+const RESOLVED_WEAPON_VIRTUAL_ID = `\0${WEAPON_VIRTUAL_ID}`;
 const ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const ASSET_ID_PATTERN = /^[a-z0-9]+(?:\.[a-z0-9-]+)+$/;
 const MAX_BODY_BYTES = 2 * 1024 * 1024;
@@ -25,6 +33,8 @@ const AUTHORING_ASSET_DIRECTORY = 'characters/authored';
 export interface CharacterContentRootOptions {
   readonly characterRoot?: string;
   readonly visualRoot?: string;
+  readonly projectileRoot?: string;
+  readonly weaponRoot?: string;
   readonly assetRoot?: string;
   readonly assetManifestPath?: string;
 }
@@ -123,6 +133,34 @@ async function findFiles(root: string, fileName: 'character.json' | 'visual-set.
     const absolutePath = path.join(root, entry.name);
     if (entry.isFile() && entry.name === fileName) files.push(absolutePath);
     else if (entry.isDirectory()) files.push(...await findFiles(absolutePath, fileName));
+  }
+  return files.sort();
+}
+
+async function findProjectileFiles(root: string): Promise<string[]> {
+  const files: string[] = [];
+  for (const entry of await fs.readdir(root, { withFileTypes: true }).catch((error: unknown) => {
+    if (error instanceof Error && 'code' in error && (error as NodeJS.ErrnoException).code === 'ENOENT') return [];
+    throw error;
+  })) {
+    if (entry.name.startsWith('.') || entry.name.startsWith('.character-studio-')) continue;
+    const absolutePath = path.join(root, entry.name);
+    if (entry.isFile() && entry.name === 'projectile.json') files.push(absolutePath);
+    else if (entry.isDirectory()) files.push(...await findProjectileFiles(absolutePath));
+  }
+  return files.sort();
+}
+
+async function findWeaponFiles(root: string): Promise<string[]> {
+  const files: string[] = [];
+  for (const entry of await fs.readdir(root, { withFileTypes: true }).catch((error: unknown) => {
+    if (error instanceof Error && 'code' in error && (error as NodeJS.ErrnoException).code === 'ENOENT') return [];
+    throw error;
+  })) {
+    if (entry.name.startsWith('.') || entry.name.startsWith('.character-studio-')) continue;
+    const absolutePath = path.join(root, entry.name);
+    if (entry.isFile() && entry.name === 'weapon.json') files.push(absolutePath);
+    else if (entry.isDirectory()) files.push(...await findWeaponFiles(absolutePath));
   }
   return files.sort();
 }
@@ -241,6 +279,153 @@ async function assetCatalogHandler(
   jsonResponse(response, 200, { ok: true, data } satisfies AssetCatalogResponse);
 }
 
+function projectileRepositoryPath(root: string, projectileId: string): string {
+  if (!ID_PATTERN.test(projectileId)) throw new Error('Invalid projectile ID');
+  const resolvedRoot = path.resolve(root);
+  const target = path.resolve(resolvedRoot, projectileId);
+  if (path.dirname(target) !== resolvedRoot) throw new Error('Invalid projectile package path');
+  return target;
+}
+
+async function readProjectile(root: string, projectileId: string): Promise<ProjectileDefinition> {
+  return await readJson(path.join(projectileRepositoryPath(root, projectileId), 'projectile.json')) as ProjectileDefinition;
+}
+
+function projectileRevision(projectile: ProjectileDefinition): string {
+  return createHash('sha256').update(canonicalValue(projectile)).digest('hex');
+}
+
+async function projectileCatalogHandler(
+  root: string,
+  assetRoot: string,
+  manifestPath: string,
+  response: ServerResponse,
+): Promise<void> {
+  const manifest = JSON.parse(await fs.readFile(manifestPath, 'utf8')) as CharacterStudioAssetManifestInput;
+  validateAssetSourcePaths(assetRoot, manifest);
+  const projectiles: Array<ProjectileDefinition & { readonly revision: string }> = [];
+  for (const file of await findProjectileFiles(root)) {
+    const projectile = await readJson(file) as ProjectileDefinition;
+    const issues = validateProjectileDefinition(projectile, manifest);
+    if (issues.length > 0) throw new Error(`${path.basename(path.dirname(file))}: ${issues.join('; ')}`);
+    projectiles.push({ ...projectile, revision: projectileRevision(projectile) });
+  }
+  projectiles.sort((left, right) => left.projectileId.localeCompare(right.projectileId));
+  const revision = createHash('sha256').update(canonicalValue(projectiles)).digest('hex');
+  jsonResponse(response, 200, ok({ version: 1, revision, projectiles }));
+}
+
+async function projectilePackageHandler(
+  root: string,
+  manifestPath: string,
+  request: IncomingMessage,
+  response: ServerResponse,
+  server: ViteDevServer,
+  operation: 'get' | 'create' | 'update',
+  requestedId?: string,
+): Promise<void> {
+  if (operation === 'get') {
+    if (!requestedId) { jsonResponse(response, 400, failure('invalid-request', 'Projectile ID is required')); return; }
+    try {
+      const projectile = await readProjectile(root, requestedId);
+      jsonResponse(response, 200, ok({ projectile, revision: projectileRevision(projectile) }));
+    } catch {
+      jsonResponse(response, 404, failure('not-found', `Projectile '${requestedId}' was not found`));
+    }
+    return;
+  }
+
+  const payload = await requestBody(request);
+  const projectile = payload.projectile as ProjectileDefinition | undefined;
+  if (!projectile) { jsonResponse(response, 400, failure('invalid-request', 'A projectile definition is required')); return; }
+  const issues = validateProjectileDefinition(projectile, JSON.parse(await fs.readFile(manifestPath, 'utf8')) as CharacterStudioAssetManifestInput);
+  if (issues.length > 0) { jsonResponse(response, 400, failure('validation', 'Projectile definition is invalid', issues.map((message) => ({ path: message.split(':')[0], message })))); return; }
+  const projectileId = projectile.projectileId;
+  const target = projectileRepositoryPath(root, projectileId);
+  if (operation === 'update') {
+    let current: ProjectileDefinition;
+    try { current = await readProjectile(root, projectileId); } catch { jsonResponse(response, 404, failure('not-found', `Projectile '${projectileId}' was not found`)); return; }
+    if (payload.expectedRevision !== projectileRevision(current)) { jsonResponse(response, 409, failure('conflict', 'The projectile changed on disk.', undefined, projectileRevision(current))); return; }
+  } else {
+    try { await fs.access(target); jsonResponse(response, 409, failure('conflict', `Projectile '${projectileId}' already exists`)); return; } catch { /* expected */ }
+  }
+  await fs.mkdir(target, { recursive: true });
+  const temporary = path.join(target, `projectile.${process.pid}.${Date.now()}.tmp`);
+  await fs.writeFile(temporary, `${JSON.stringify(projectile, null, 2)}\n`, 'utf8');
+  await fs.rename(temporary, path.join(target, 'projectile.json'));
+  invalidateCatalog(server);
+  jsonResponse(response, operation === 'create' ? 201 : 200, ok({ projectile, revision: projectileRevision(projectile), reloadRequired: true }));
+}
+
+function weaponRepositoryPath(root: string, weaponId: string): string {
+  if (!ID_PATTERN.test(weaponId)) throw new Error('Invalid weapon ID');
+  const resolvedRoot = path.resolve(root);
+  const target = path.resolve(resolvedRoot, weaponId);
+  if (path.dirname(target) !== resolvedRoot) throw new Error('Invalid weapon package path');
+  return target;
+}
+
+async function readWeapon(root: string, weaponId: string): Promise<WeaponDefinition> {
+  return await readJson(path.join(weaponRepositoryPath(root, weaponId), 'weapon.json')) as WeaponDefinition;
+}
+
+function weaponRevision(weapon: WeaponDefinition): string {
+  return createHash('sha256').update(canonicalValue(weapon)).digest('hex');
+}
+
+async function weaponCatalogHandler(root: string, response: ServerResponse): Promise<void> {
+  const weapons: Array<WeaponDefinition & { readonly revision: string }> = [];
+  for (const file of await findWeaponFiles(root)) {
+    const weapon = await readJson(file) as WeaponDefinition;
+    const issues = validateWeaponDefinition(weapon);
+    if (issues.length > 0) throw new Error(`${path.basename(path.dirname(file))}: ${issues.join('; ')}`);
+    weapons.push({ ...weapon, revision: weaponRevision(weapon) });
+  }
+  weapons.sort((left, right) => left.weaponId.localeCompare(right.weaponId));
+  const revision = createHash('sha256').update(canonicalValue(weapons)).digest('hex');
+  jsonResponse(response, 200, ok({ version: 1, revision, weapons }));
+}
+
+async function weaponPackageHandler(
+  root: string,
+  request: IncomingMessage,
+  response: ServerResponse,
+  server: ViteDevServer,
+  operation: 'get' | 'create' | 'update',
+  requestedId?: string,
+): Promise<void> {
+  if (operation === 'get') {
+    if (!requestedId) { jsonResponse(response, 400, failure('invalid-request', 'Weapon ID is required')); return; }
+    try {
+      const weapon = await readWeapon(root, requestedId);
+      jsonResponse(response, 200, ok({ weapon, revision: weaponRevision(weapon) }));
+    } catch {
+      jsonResponse(response, 404, failure('not-found', `Weapon '${requestedId}' was not found`));
+    }
+    return;
+  }
+  const payload = await requestBody(request);
+  const weapon = payload.weapon as WeaponDefinition | undefined;
+  if (!weapon) { jsonResponse(response, 400, failure('invalid-request', 'A weapon definition is required')); return; }
+  const issues = validateWeaponDefinition(weapon);
+  if (issues.length > 0) { jsonResponse(response, 400, failure('validation', 'Weapon definition is invalid', issues.map((message) => ({ path: message.split(':')[0], message })))); return; }
+  const weaponId = weapon.weaponId;
+  const target = weaponRepositoryPath(root, weaponId);
+  if (operation === 'update') {
+    let current: WeaponDefinition;
+    try { current = await readWeapon(root, weaponId); } catch { jsonResponse(response, 404, failure('not-found', `Weapon '${weaponId}' was not found`)); return; }
+    if (payload.expectedRevision !== weaponRevision(current)) { jsonResponse(response, 409, failure('conflict', 'The weapon changed on disk.', undefined, weaponRevision(current))); return; }
+  } else {
+    try { await fs.access(target); jsonResponse(response, 409, failure('conflict', `Weapon '${weaponId}' already exists`)); return; } catch { /* expected */ }
+  }
+  await fs.mkdir(target, { recursive: true });
+  const temporary = path.join(target, `weapon.${process.pid}.${Date.now()}.tmp`);
+  await fs.writeFile(temporary, `${JSON.stringify(weapon, null, 2)}\n`, 'utf8');
+  await fs.rename(temporary, path.join(target, 'weapon.json'));
+  invalidateCatalog(server);
+  jsonResponse(response, operation === 'create' ? 201 : 200, ok({ weapon, revision: weaponRevision(weapon), reloadRequired: true }));
+}
+
 function jsonResponse(response: ServerResponse, statusCode: number, value: unknown): void {
   response.statusCode = statusCode;
   response.setHeader('Content-Type', 'application/json; charset=utf-8');
@@ -336,12 +521,12 @@ function multipartMetadata(multipart: MultipartPayload): Record<string, unknown>
   return metadataValue;
 }
 
-function pngDimensions(buffer: Buffer): { readonly width: number; readonly height: number } {
+function pngDimensions(buffer: Buffer): { readonly w: number; readonly h: number } {
   if (buffer.length < 24 || buffer.subarray(0, 8).toString('hex') !== '89504e470d0a1a0a') throw new Error('Spritesheet must be a readable PNG');
   const width = buffer.readUInt32BE(16);
   const height = buffer.readUInt32BE(20);
   if (width < 1 || height < 1) throw new Error('PNG dimensions must be positive');
-  return { width, height };
+  return { w: width, h: height };
 }
 
 function requiredText(fields: Readonly<Record<string, unknown>>, key: string, message: string): string {
@@ -638,7 +823,7 @@ async function starterPackage(root: string, request: PackageCreationRequest): Pr
   visualSet.visualSetId = visualSetId;
   visualSet.assetId = request.assetId;
   visualSet.frameVisuals = undefined;
-  visualSet.clips = { idle: { frames: [0], framesPerSecond: 8, loop: true } };
+  visualSet.clips = { idle: { frames: [0], framesPerSecond: 8, loop: true, loopMode: 'wrap' } };
   return { character, visualSet };
 }
 
@@ -665,9 +850,9 @@ async function prepareAssetRegistration(assetRoot: string, manifestPath: string,
   const frameWidth = requiredInteger(metadataValue, 'frameWidth', 1);
   const frameHeight = requiredInteger(metadataValue, 'frameHeight', 1);
   const dimensions = pngDimensions(multipart.file);
-  if (dimensions.width % frameWidth !== 0 || dimensions.height % frameHeight !== 0) throw new Error(`PNG dimensions ${dimensions.width}x${dimensions.height} do not divide evenly by ${frameWidth}x${frameHeight}`);
-  const columns = dimensions.width / frameWidth;
-  const rows = dimensions.height / frameHeight;
+  if (dimensions.w % frameWidth !== 0 || dimensions.h % frameHeight !== 0) throw new Error(`PNG dimensions ${dimensions.w}x${dimensions.h} do not divide evenly by ${frameWidth}x${frameHeight}`);
+  const columns = dimensions.w / frameWidth;
+  const rows = dimensions.h / frameHeight;
   const capacity = columns * rows;
   const populatedCount = metadataValue.populatedCount === undefined ? capacity : Number(metadataValue.populatedCount);
   if (!Number.isInteger(populatedCount) || populatedCount < 1 || populatedCount > capacity) throw new Error(`populatedCount must be inside 1..${capacity}`);
@@ -877,6 +1062,10 @@ async function writePackageTransaction(root: string, characterId: string, packag
 function invalidateCatalog(server: ViteDevServer): void {
   const module = server.moduleGraph.getModuleById(RESOLVED_VIRTUAL_ID);
   if (module) server.moduleGraph.invalidateModule(module);
+  const projectileModule = server.moduleGraph.getModuleById(RESOLVED_PROJECTILE_VIRTUAL_ID);
+  if (projectileModule) server.moduleGraph.invalidateModule(projectileModule);
+  const weaponModule = server.moduleGraph.getModuleById(RESOLVED_WEAPON_VIRTUAL_ID);
+  if (weaponModule) server.moduleGraph.invalidateModule(weaponModule);
 }
 
 async function packageHandler(
@@ -967,14 +1156,33 @@ export function characterContentModulesPlugin(options: CharacterContentRootOptio
   const roots: Required<CharacterContentRootOptions> = {
     characterRoot: path.resolve(options.characterRoot ?? path.join(process.cwd(), 'src/game/content/characters')),
     visualRoot: path.resolve(options.visualRoot ?? path.join(process.cwd(), 'src/game/content/visuals')),
+    projectileRoot: path.resolve(options.projectileRoot ?? path.join(process.cwd(), 'src/game/content/projectiles')),
+    weaponRoot: path.resolve(options.weaponRoot ?? path.join(process.cwd(), 'src/game/content/weapons')),
     assetRoot,
     assetManifestPath,
   };
   const invalidate = (server: ViteDevServer): void => invalidateCatalog(server);
   return {
     name: 'slime-character-content-modules',
-    resolveId(id) { return id === VIRTUAL_ID ? RESOLVED_VIRTUAL_ID : undefined; },
+    resolveId(id) {
+      if (id === VIRTUAL_ID) return RESOLVED_VIRTUAL_ID;
+      if (id === PROJECTILE_VIRTUAL_ID) return RESOLVED_PROJECTILE_VIRTUAL_ID;
+      if (id === WEAPON_VIRTUAL_ID) return RESOLVED_WEAPON_VIRTUAL_ID;
+      return undefined;
+    },
     async load(id) {
+      if (id === RESOLVED_PROJECTILE_VIRTUAL_ID) {
+        const projectileFiles = await findProjectileFiles(roots.projectileRoot);
+        const imports = projectileFiles.map((file, index) => `import projectile${index} from ${JSON.stringify(file)};`).join('\n');
+        const definitions = projectileFiles.map((_, index) => `projectile${index}`).join(',');
+        return `${imports}\nexport const projectileDefinitions = [${definitions}];`;
+      }
+      if (id === RESOLVED_WEAPON_VIRTUAL_ID) {
+        const weaponFiles = await findWeaponFiles(roots.weaponRoot);
+        const imports = weaponFiles.map((file, index) => `import weapon${index} from ${JSON.stringify(file)};`).join('\n');
+        const definitions = weaponFiles.map((_, index) => `weapon${index}`).join(',');
+        return `${imports}\nexport const weaponDefinitions = [${definitions}];`;
+      }
       if (id !== RESOLVED_VIRTUAL_ID) return undefined;
       const files = await discover(roots);
       const characterImports: string[] = [];
@@ -993,7 +1201,7 @@ export function characterContentModulesPlugin(options: CharacterContentRootOptio
     },
     handleHotUpdate(context) {
       const changed = context.file.replaceAll('\\', '/');
-      if (changed.endsWith('/character.json') || changed.endsWith('/visual-set.json')) {
+      if (changed.endsWith('/character.json') || changed.endsWith('/visual-set.json') || changed.endsWith('/projectile.json') || changed.endsWith('/weapon.json')) {
         invalidate(context.server);
         return [];
       }
@@ -1037,6 +1245,34 @@ export function characterContentModulesPlugin(options: CharacterContentRootOptio
         });
         void next;
       });
+      server.middlewares.use('/__character-studio/projectile/create', (request, response, next) => {
+        if (request.method !== 'POST') { jsonResponse(response, 405, failure('invalid-request', 'POST required')); return; }
+        void projectilePackageHandler(roots.projectileRoot, roots.assetManifestPath, request, response, server, 'create').catch((error: unknown) => {
+          jsonResponse(response, 400, failure('projectile-creation', error instanceof Error ? error.message : String(error)));
+        });
+        void next;
+      });
+      server.middlewares.use('/__character-studio/projectile/update', (request, response, next) => {
+        if (request.method !== 'POST') { jsonResponse(response, 405, failure('invalid-request', 'POST required')); return; }
+        void projectilePackageHandler(roots.projectileRoot, roots.assetManifestPath, request, response, server, 'update').catch((error: unknown) => {
+          jsonResponse(response, 400, failure('projectile-update', error instanceof Error ? error.message : String(error)));
+        });
+        void next;
+      });
+      server.middlewares.use('/__character-studio/weapon/create', (request, response, next) => {
+        if (request.method !== 'POST') { jsonResponse(response, 405, failure('invalid-request', 'POST required')); return; }
+        void weaponPackageHandler(roots.weaponRoot, request, response, server, 'create').catch((error: unknown) => {
+          jsonResponse(response, 400, failure('weapon-creation', error instanceof Error ? error.message : String(error)));
+        });
+        void next;
+      });
+      server.middlewares.use('/__character-studio/weapon/update', (request, response, next) => {
+        if (request.method !== 'POST') { jsonResponse(response, 405, failure('invalid-request', 'POST required')); return; }
+        void weaponPackageHandler(roots.weaponRoot, request, response, server, 'update').catch((error: unknown) => {
+          jsonResponse(response, 400, failure('weapon-update', error instanceof Error ? error.message : String(error)));
+        });
+        void next;
+      });
       server.middlewares.use((request, response, next) => {
         const requestPath = request.url?.split('?')[0];
         if (requestPath === '/__character-studio/assets') {
@@ -1046,11 +1282,26 @@ export function characterContentModulesPlugin(options: CharacterContentRootOptio
           });
           return;
         }
+        if (requestPath === '/__character-studio/projectiles') {
+          if (request.method !== 'GET') { jsonResponse(response, 405, failure('invalid-request', 'GET required')); return; }
+          void projectileCatalogHandler(roots.projectileRoot, roots.assetRoot, roots.assetManifestPath, response).catch((error: unknown) => {
+            jsonResponse(response, 500, failure('projectile-catalog', error instanceof Error ? error.message : String(error)));
+          });
+          return;
+        }
+        if (requestPath === '/__character-studio/weapons') {
+          if (request.method !== 'GET') { jsonResponse(response, 405, failure('invalid-request', 'GET required')); return; }
+          void weaponCatalogHandler(roots.weaponRoot, response).catch((error: unknown) => {
+            jsonResponse(response, 500, failure('weapon-catalog', error instanceof Error ? error.message : String(error)));
+          });
+          return;
+        }
         const match = requestPath?.match(/^\/__character-studio\/package\/([^/]+)$/);
         if (!match) { next(); return; }
         void packageHandler(roots.characterRoot, roots.assetManifestPath, request, response, server, 'get', decodeURIComponent(match[1])).catch((error: unknown) => {
           jsonResponse(response, 400, failure('unknown-commit', error instanceof Error ? error.message : String(error)));
         });
+        return;
       });
     },
   };

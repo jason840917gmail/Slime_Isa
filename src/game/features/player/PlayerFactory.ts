@@ -3,6 +3,7 @@ import { PLAYER_CONFIG } from '../../content/player';
 import { UI_THEME } from '../../presentation/theme';
 import { AnimatedVisual } from '../visuals/AnimatedVisual';
 import { resolveBodyBottom, resolveWorldDepth } from '../../presentation/WorldDepth';
+import { applyArcadeBodyGeometry } from '../../shared/collisionShapes';
 
 export interface PlayerEntity {
   sprite: Phaser.Physics.Arcade.Sprite;
@@ -18,11 +19,7 @@ export function createPlayerEntity(
   sprite.setVisible(false);
   sprite.setCollideWorldBounds(true);
   const body = sprite.body as Phaser.Physics.Arcade.Body;
-  body.setSize(PLAYER_CONFIG.body.width, PLAYER_CONFIG.body.height, false);
-  body.setOffset(
-    sprite.displayOriginX - PLAYER_CONFIG.body.width / 2 + PLAYER_CONFIG.body.centerOffsetX,
-    sprite.displayOriginY - PLAYER_CONFIG.body.height / 2 + PLAYER_CONFIG.body.centerOffsetY,
-  );
+  applyArcadeBodyGeometry(body, sprite.displayOriginX, sprite.displayOriginY, PLAYER_CONFIG.body);
 
   const playerDepth = resolveWorldDepth(resolveBodyBottom(body), { stableId: 'player' }).depth;
   sprite.setDepth(playerDepth);

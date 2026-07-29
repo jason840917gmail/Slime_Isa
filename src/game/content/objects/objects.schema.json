@@ -41,11 +41,19 @@
       "required": ["width", "height", "offsetX", "offsetY"],
       "additionalProperties": false,
       "properties": {
+        "shape": { "enum": ["rectangle", "circle", "ellipse"] },
         "width": { "type": "integer", "minimum": 1 },
         "height": { "type": "integer", "minimum": 1 },
+        "radius": { "type": "integer", "minimum": 1 },
+        "radiusX": { "type": "integer", "minimum": 1 },
+        "radiusY": { "type": "integer", "minimum": 1 },
         "offsetX": { "type": "integer", "minimum": 0 },
         "offsetY": { "type": "integer", "minimum": 0 }
-      }
+      },
+      "allOf": [
+        { "if": { "required": ["shape"], "properties": { "shape": { "const": "circle" } } }, "then": { "required": ["radius"] } },
+        { "if": { "required": ["shape"], "properties": { "shape": { "const": "ellipse" } } }, "then": { "required": ["radiusX", "radiusY"] } }
+      ]
     },
     "frameVariant": {
       "type": "object",

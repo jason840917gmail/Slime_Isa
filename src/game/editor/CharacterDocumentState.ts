@@ -12,11 +12,13 @@ import {
 import { cloneCharacterPackage, normalizeCharacterPackage, validateCharacterPackage, type CharacterValidationIssue } from '../content/characters/validation';
 import type {
   CharacterBodyDocument,
+  CharacterAttributeSet,
   CharacterEventDocument,
   CharacterHitboxDocument,
   CharacterPackage,
   HitboxSpanDocument,
   JsonValue,
+  VisualLoopMode,
   VisualTransformDocument,
 } from '../content/characters/types';
 
@@ -151,7 +153,7 @@ export class CharacterDocumentState {
   addClip(clipId: string): boolean {
     return this.mutate(`Added ${clipId}`, (draft) => {
       if (draft.visualSet.clips[clipId] || !/^[a-z0-9]+(?:[.-][a-z0-9-]+)*$/.test(clipId)) return;
-      draft.visualSet.clips[clipId] = { frames: [this.selectedSourceFrame], framesPerSecond: 8, loop: true };
+      draft.visualSet.clips[clipId] = { frames: [], framesPerSecond: 8, loop: true, loopMode: 'wrap' };
       this.selectedClipId = clipId;
       this.selectedTimelineIndex = 0;
       draft.character.animationTracks[clipId] = {};
@@ -235,10 +237,10 @@ export class CharacterDocumentState {
     });
   }
 
-  updatePlayback(framesPerSecond: number, loop: boolean): boolean {
+  updatePlayback(framesPerSecond: number, loop: boolean, loopMode: VisualLoopMode): boolean {
     return this.mutate('Updated playback', (draft) => {
       const clip = draft.visualSet.clips[this.selectedClipId];
-      if (clip) { clip.framesPerSecond = framesPerSecond; clip.loop = loop; }
+      if (clip) { clip.framesPerSecond = framesPerSecond; clip.loop = loop; clip.loopMode = loopMode; }
     });
   }
 
@@ -258,13 +260,56 @@ export class CharacterDocumentState {
   }
 
   updateBody(body: Partial<CharacterBodyDocument>): boolean {
-    return this.mutate('Updated stable body', (draft) => { draft.character.body = { ...draft.character.body, ...clone(body) }; });
+    return this.mutate('Updated stable body', (draft) => {
+      draft.character.body = { ...draft.character.body, ...clone(body) };
+      if (draft.character.body.shape === 'circle') {
+        draft.character.body.radius ??= Math.min(draft.character.body.width, draft.character.body.height) / 2;
+        delete draft.character.body.radiusX;
+        delete draft.character.body.radiusY;
+      } else if (draft.character.body.shape === 'ellipse') {
+        draft.character.body.radiusX ??= draft.character.body.width / 2;
+        draft.character.body.radiusY ??= draft.character.body.height / 2;
+        delete draft.character.body.radius;
+      } else {
+        delete draft.character.body.shape;
+        delete draft.character.body.radius;
+        delete draft.character.body.radiusX;
+        delete draft.character.body.radiusY;
+      }
+    });
+  }
+
+  updateAttributes(attributes: Partial<CharacterAttributeSet>): boolean {
+    return this.mutate('Updated character attributes', (draft) => {
+      draft.character.attributes = {
+        strength: 10,
+        vitality: 10,
+        agility: 10,
+        intellect: 10,
+        ...(draft.character.attributes ?? {}),
+        ...clone(attributes),
+      };
+    });
   }
 
   updateHitbox(hitboxId: string, hitbox: Partial<CharacterHitboxDocument>): boolean {
     return this.mutate(`Updated ${hitboxId} hitbox`, (draft) => {
       const current = draft.character.hitboxes[hitboxId] ?? { shape: 'rectangle' as const, width: 1, height: 1, offsetX: 0, offsetY: 0, mirrorX: false };
       draft.character.hitboxes[hitboxId] = { ...current, ...clone(hitbox) };
+      const next = draft.character.hitboxes[hitboxId];
+      if (next.shape === 'circle') {
+        next.radius ??= Math.min(next.width, next.height) / 2;
+        delete next.radiusX;
+        delete next.radiusY;
+      } else if (next.shape === 'ellipse') {
+        next.radiusX ??= next.width / 2;
+        next.radiusY ??= next.height / 2;
+        delete next.radius;
+      } else {
+        delete next.radius;
+        delete next.radiusX;
+        delete next.radiusY;
+      }
     });
   }
 

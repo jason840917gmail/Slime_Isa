@@ -4,7 +4,7 @@ interface CharacterStudioVisualSet {
   assetId: string;
   defaults: { origin: [number, number]; scale: [number, number]; sourceOffset: [number, number] };
   frameVisuals?: Record<string, { origin?: [number, number]; scale?: [number, number]; sourceOffset?: [number, number] }>;
-  clips: Record<string, { frames: number[]; framesPerSecond: number; loop: boolean }>;
+  clips: Record<string, { frames: number[]; framesPerSecond: number; loop: boolean; loopMode?: 'wrap' | 'ping-pong' }>;
 }
 
 interface CharacterStudioCharacter {
@@ -15,7 +15,7 @@ interface CharacterStudioCharacter {
   runtimeRole?: 'primary-player';
   visualSetId: string;
   body: { width: number; height: number; centerOffsetX: number; centerOffsetY: number };
-  hitboxes: Record<string, { shape: 'rectangle'; width: number; height: number; offsetX: number; offsetY: number; mirrorX: boolean }>;
+  hitboxes: Record<string, { shape: 'rectangle' | 'circle' | 'ellipse'; width: number; height: number; radius?: number; radiusX?: number; radiusY?: number; offsetX: number; offsetY: number; mirrorX: boolean }>;
   animationTracks: Record<string, { hitboxSpans?: Array<{ hitboxId: string; from: number; through: number }>; events?: Array<{ at: number; eventId: string; payload?: unknown }> }>;
   player?: { name: string; movement: { baseSpeed: number; boostSpeed: number; dodgeSpeed: number; dodgeInvulnerabilityMs: number }; progression: { baseMaxHp: number; baseMaxEnergy: number; hpPerLevel: number; attackPerLevel: number; defensePerLevel: number; energyPerLevel: number } };
   enemy?: { maxHp: number; ai: { aggroRange: number; attackRange: number; wanderSpeed: number; chaseSpeed: number; attackCooldownMs: number; attackWindupMs: number; attackRecoveryMs: number; contactDamage: number; knockbackStrength: number; isRanged: boolean; knockbackResist: number; leapRange?: number; fleeRange?: number; isLeaper?: boolean; projectileSpeed?: number }; drop: { xp: number; coins: number; items?: Array<{ itemId: string; chance: number; count?: number }> }; projectile?: { assetId: string; damage: number }; impactEffect?: { visualSetId: string; clipId: string; distance: number } };

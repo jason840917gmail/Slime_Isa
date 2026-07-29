@@ -1,5 +1,6 @@
 import type { AssetId } from '../../infrastructure/assets/manifest';
 import type { VisualSetId } from '../visuals/VisualCatalog';
+import type { CollisionShape } from '../../shared/collisionShapes';
 import amberOreMineableJson from './rocks/rock-amber-ore-mineable.json';
 import worldWallDecorativeJson from './rocks/rock-world-wall-decorative.json';
 import worldWallSolidJson from './rocks/rock-world-wall-solid.json';
@@ -11,8 +12,12 @@ import treeWorldSolidJson from './trees/tree-world-solid.json';
 import wallStoneSolidJson from './walls/wall-stone-solid.json';
 
 export interface ColliderBounds {
+  readonly shape?: CollisionShape;
   readonly width: number;
   readonly height: number;
+  readonly radius?: number;
+  readonly radiusX?: number;
+  readonly radiusY?: number;
   readonly offsetX: number;
   readonly offsetY: number;
 }

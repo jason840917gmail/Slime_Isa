@@ -6,6 +6,12 @@
   "kind": "player",
   "runtimeRole": "primary-player",
   "visualSetId": "character.player.slime",
+  "attributes": {
+    "strength": 10,
+    "vitality": 10,
+    "agility": 10,
+    "intellect": 10
+  },
   "body": {
     "width": 30.24,
     "height": 22.4,
@@ -15,6 +21,22 @@
   "hitboxes": {},
   "animationTracks": {
     "idle": {
+      "events": [],
+      "hitboxSpans": []
+    },
+    "walk": {
+      "events": [],
+      "hitboxSpans": []
+    },
+    "teleport": {
+      "events": [],
+      "hitboxSpans": []
+    },
+    "attack-2": {
+      "events": [],
+      "hitboxSpans": []
+    },
+    "hurt": {
       "events": [],
       "hitboxSpans": []
     }

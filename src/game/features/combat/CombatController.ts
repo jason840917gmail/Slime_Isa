@@ -1,10 +1,10 @@
 ﻿import Phaser from 'phaser';
 import { ComboSystem } from '../../combat/ComboSystem';
 import { TargetDummy } from '../../combat/TargetDummy';
-import type { Weapon } from '../../combat/Weapon';
+import { Weapon } from '../../combat/Weapon';
 import { gameEvents } from '../../core/EventBus';
 import { gameState } from '../../core/GameState';
-import { Enemy } from '../../enemies/Enemy';
+import { Enemy, type ProjectileReference } from '../../enemies/Enemy';
 import { EnemySpawner } from '../../enemies/EnemySpawner';
 import type { AnimatedVisual } from '../visuals/AnimatedVisual';
 import { getEnemyConfig } from '../../enemies/library/EnemyTypes';
@@ -12,9 +12,9 @@ import { projectilePool } from '../../enemies/Projectile';
 import { UI_THEME } from '../../presentation/theme';
 import { getStats } from '../../systems/PlayerStats';
 import { playerInventory } from '../../systems/Inventory';
-import { getAsset, type AssetId } from '../../infrastructure/assets/manifest';
+import { getAsset } from '../../infrastructure/assets/manifest';
 import { floatingText } from '../../ui/FloatingText';
-import { createGooGauntlet } from '../../weapons/library/GooGauntlet';
+import { getWeaponDefinition } from '../../content/weapons/WeaponCatalog';
 import type { WorldDimensions } from '../../world/WorldDimensions';
 import type { MapEnemySafeZone, MapSpawns } from '../../content/maps/mapFormat';
 import { resolveScreenUiDepth } from '../../presentation/WorldDepth';
@@ -78,7 +78,7 @@ export class CombatController {
       },
     });
 
-    this.weapon = createGooGauntlet({
+    this.weapon = new Weapon(getWeaponDefinition(gameState.equippedWeaponId), {
       scene,
       getPlayer: () => player,
       getFacing: ctx.getFacing,
@@ -209,22 +209,16 @@ export class CombatController {
         dx: number,
         dy: number,
         speed: number,
-        assetId: AssetId,
+        projectile: ProjectileReference,
         damage: number,
         knockbackStrength: number,
       ) => {
-        projectilePool.fire(
-          this.ctx.scene,
-          x,
-          y,
-          dx,
-          dy,
-          speed,
-          getAsset(assetId).runtime.textureKey,
-          'enemy',
-          damage,
-          knockbackStrength,
-        );
+        if (projectile.projectileId) {
+          projectilePool.fireDefinition(this.ctx.scene, x, y, dx, dy, projectile.projectileId, 'enemy', damage, knockbackStrength, speed);
+          return;
+        }
+        if (!projectile.assetId) throw new Error('Projectile reference has no projectile ID or asset ID');
+        projectilePool.fire(this.ctx.scene, x, y, dx, dy, speed, getAsset(projectile.assetId).runtime.textureKey, 'enemy', damage, knockbackStrength);
       },
     };
   }

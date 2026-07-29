@@ -40,6 +40,7 @@ import { mountMapEditorInspector } from './MapEditorInspector';
 import { mountMapEditorPanel, type ContentPreviewUrls } from './MapEditorPanel';
 import { MapEditorState, type EditableMap, type EditableObjectInstance, type EditorTool } from './MapEditorState';
 import { ObjectTemplateEditorState } from './ObjectTemplateEditorState';
+import { resolveCollisionShapeDimensions } from '../shared/collisionShapes';
 
 interface MapEditorSceneData {
   loadedMap?: LoadedMap;
@@ -1089,22 +1090,46 @@ export class MapEditorScene extends Phaser.Scene {
         }
       }
       if (template.showColliderOverlay && resolved.physics !== null && resolved.collider) {
+        const dimensions = resolveCollisionShapeDimensions(resolved.collider);
         const colliderX = frameX + resolved.collider.offsetX;
         const colliderY = frameY + resolved.collider.offsetY;
-        graphics.fillStyle(EDITOR_GEOMETRY_STYLES.collider.phaser, 0.22).fillRect(
-          colliderX,
-          colliderY,
-          resolved.collider.width,
-          resolved.collider.height,
-        );
-        drawOutlinedRect(
-          colliderX,
-          colliderY,
-          resolved.collider.width,
-          resolved.collider.height,
-          EDITOR_GEOMETRY_STYLES.collider.phaser,
-          3,
-        );
+        if (dimensions.shape === 'rectangle') {
+          graphics.fillStyle(EDITOR_GEOMETRY_STYLES.collider.phaser, 0.22).fillRect(
+            colliderX,
+            colliderY,
+            dimensions.width,
+            dimensions.height,
+          );
+          drawOutlinedRect(
+            colliderX,
+            colliderY,
+            dimensions.width,
+            dimensions.height,
+            EDITOR_GEOMETRY_STYLES.collider.phaser,
+            3,
+          );
+        } else {
+          const centerX = colliderX + dimensions.width / 2;
+          const centerY = colliderY + dimensions.height / 2;
+          graphics.fillStyle(EDITOR_GEOMETRY_STYLES.collider.phaser, 0.22).fillEllipse(
+            centerX,
+            centerY,
+            dimensions.width,
+            dimensions.height,
+          );
+          graphics.lineStyle(3, EDITOR_SELECTION_STYLE.shadow, 0.85).strokeEllipse(
+            centerX,
+            centerY,
+            dimensions.width,
+            dimensions.height,
+          );
+          graphics.lineStyle(3, EDITOR_GEOMETRY_STYLES.collider.phaser, 0.98).strokeEllipse(
+            centerX,
+            centerY,
+            dimensions.width,
+            dimensions.height,
+          );
+        }
       }
       if (template.showOcclusionOverlay && template.draft?.occlusionBounds && template.frameDimensions) {
         const occlusionRectangle = resolveWorldOcclusionRectangle(

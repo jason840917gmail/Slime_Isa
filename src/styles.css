@@ -1374,7 +1374,8 @@ body {
   text-transform: none;
 }
 
-.editor-template-form input {
+.editor-template-form input,
+.editor-template-form select {
   width: 100%;
   min-width: 0;
   border: 1px solid #536049;
@@ -1391,7 +1392,8 @@ body {
   font-family: 'Courier New', monospace;
 }
 
-.editor-template-form input:focus {
+.editor-template-form input:focus,
+.editor-template-form select:focus {
   border-color: var(--inspector-gold);
   box-shadow: 0 0 0 2px rgba(214, 183, 94, 0.13);
 }

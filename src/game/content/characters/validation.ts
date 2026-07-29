@@ -173,7 +173,7 @@ export function validateVisualSetDocument(
   for (const [clipId, clip] of Object.entries(isRecord(value.clips) ? value.clips : {})) {
     const clipPath = `${path}.clips.${clipId}`;
     if (!ID_PATTERN.test(clipId) || clipId.length > 80) issue(issues, clipPath, 'clip ID must be a lowercase stable ID');
-    checkKeys(issues, clip, clipPath, new Set(['frames', 'framesPerSecond', 'loop']));
+    checkKeys(issues, clip, clipPath, new Set(['frames', 'framesPerSecond', 'loop', 'loopMode']));
     if (!isRecord(clip)) {
       issue(issues, clipPath, 'must be an object');
       continue;
@@ -186,6 +186,7 @@ export function validateVisualSetDocument(
     }
     finite(issues, clip.framesPerSecond, `${clipPath}.framesPerSecond`, (entry) => entry > 0 && entry <= 240, 'must be greater than zero and no more than 240');
     if (typeof clip.loop !== 'boolean') issue(issues, `${clipPath}.loop`, 'must be boolean');
+    if (clip.loopMode !== undefined && clip.loopMode !== 'wrap' && clip.loopMode !== 'ping-pong') issue(issues, `${clipPath}.loopMode`, "must be 'wrap' or 'ping-pong'");
   }
   return issues;
 }
@@ -195,11 +196,46 @@ function validateBody(issues: CharacterValidationIssue[], body: unknown): void {
     issue(issues, 'character.body', 'must be an object');
     return;
   }
-  checkKeys(issues, body, 'character.body', new Set(['width', 'height', 'centerOffsetX', 'centerOffsetY']));
+  checkKeys(issues, body, 'character.body', new Set(['shape', 'width', 'height', 'radius', 'radiusX', 'radiusY', 'centerOffsetX', 'centerOffsetY']));
+  validateShapeFields(issues, body, 'character.body', false);
   finite(issues, body.width, 'character.body.width', (entry) => entry > 0, 'must be greater than zero');
   finite(issues, body.height, 'character.body.height', (entry) => entry > 0, 'must be greater than zero');
   finite(issues, body.centerOffsetX, 'character.body.centerOffsetX', () => true, 'must be finite');
   finite(issues, body.centerOffsetY, 'character.body.centerOffsetY', () => true, 'must be finite');
+}
+
+function validateShapeFields(
+  issues: CharacterValidationIssue[],
+  value: Record<string, unknown>,
+  path: string,
+  shapeRequired: boolean,
+): void {
+  const shape = value.shape;
+  if (shapeRequired && shape === undefined) issue(issues, `${path}.shape`, 'is required');
+  if (shape !== undefined && shape !== 'rectangle' && shape !== 'circle' && shape !== 'ellipse') {
+    issue(issues, `${path}.shape`, "must be 'rectangle', 'circle', or 'ellipse'");
+  }
+  if (shape === 'circle') {
+    finite(issues, value.radius, `${path}.radius`, (entry) => entry > 0, 'must be greater than zero for a circle');
+    if (value.radiusX !== undefined || value.radiusY !== undefined) issue(issues, `${path}.radiusX`, 'radiusX/radiusY are only allowed for an ellipse');
+  } else if (shape === 'ellipse') {
+    finite(issues, value.radiusX, `${path}.radiusX`, (entry) => entry > 0, 'must be greater than zero for an ellipse');
+    finite(issues, value.radiusY, `${path}.radiusY`, (entry) => entry > 0, 'must be greater than zero for an ellipse');
+    if (value.radius !== undefined) issue(issues, `${path}.radius`, 'radius is only allowed for a circle');
+  } else {
+    if (value.radius !== undefined || value.radiusX !== undefined || value.radiusY !== undefined) issue(issues, `${path}.radius`, 'shape radii require circle or ellipse');
+  }
+}
+
+function validateAttributes(issues: CharacterValidationIssue[], attributes: unknown): void {
+  if (!isRecord(attributes)) {
+    issue(issues, 'character.attributes', 'must be an object');
+    return;
+  }
+  checkKeys(issues, attributes, 'character.attributes', new Set(['strength', 'vitality', 'agility', 'intellect']));
+  for (const field of ['strength', 'vitality', 'agility', 'intellect'] as const) {
+    finite(issues, attributes[field], `character.attributes.${field}`, (entry) => entry >= 0, 'must be zero or greater');
+  }
 }
 
 function validateHitbox(issues: CharacterValidationIssue[], value: unknown, path: string): value is CharacterHitboxDocument {
@@ -207,8 +243,8 @@ function validateHitbox(issues: CharacterValidationIssue[], value: unknown, path
     issue(issues, path, 'must be an object');
     return false;
   }
-  checkKeys(issues, value, path, new Set(['shape', 'width', 'height', 'offsetX', 'offsetY', 'mirrorX']));
-  if (value.shape !== 'rectangle') issue(issues, `${path}.shape`, "must be 'rectangle'");
+  checkKeys(issues, value, path, new Set(['shape', 'width', 'height', 'radius', 'radiusX', 'radiusY', 'offsetX', 'offsetY', 'mirrorX']));
+  validateShapeFields(issues, value, path, true);
   finite(issues, value.width, `${path}.width`, (entry) => entry > 0, 'must be greater than zero');
   finite(issues, value.height, `${path}.height`, (entry) => entry > 0, 'must be greater than zero');
   finite(issues, value.offsetX, `${path}.offsetX`, () => true, 'must be finite');
@@ -258,8 +294,10 @@ function validateEnemy(issues: CharacterValidationIssue[], enemy: unknown, optio
   if (enemy.projectile !== undefined) {
     if (!isRecord(enemy.projectile)) issue(issues, 'character.enemy.projectile', 'must be an object');
     else {
-      checkKeys(issues, enemy.projectile, 'character.enemy.projectile', new Set(['assetId', 'damage']));
-      stringValue(issues, enemy.projectile.assetId, 'character.enemy.projectile.assetId', (entry) => entry in (options.assetManifest?.assets ?? ASSET_MANIFEST.assets), 'must reference a known manifest asset');
+      checkKeys(issues, enemy.projectile, 'character.enemy.projectile', new Set(['projectileId', 'assetId', 'damage']));
+      if (enemy.projectile.projectileId === undefined && enemy.projectile.assetId === undefined) issue(issues, 'character.enemy.projectile', 'must reference a projectile ID or manifest asset');
+      if (enemy.projectile.projectileId !== undefined) stringValue(issues, enemy.projectile.projectileId, 'character.enemy.projectile.projectileId', (entry) => ID_PATTERN.test(entry), 'must be a lowercase stable projectile ID');
+      if (enemy.projectile.assetId !== undefined) stringValue(issues, enemy.projectile.assetId, 'character.enemy.projectile.assetId', (entry) => entry in (options.assetManifest?.assets ?? ASSET_MANIFEST.assets), 'must reference a known manifest asset');
       finite(issues, enemy.projectile.damage, 'character.enemy.projectile.damage', (entry) => entry >= 0, 'must be zero or greater');
     }
   }
@@ -284,7 +322,7 @@ export function validateCharacterDocument(
     issue(issues, 'character', 'must be an object');
     return issues;
   }
-  checkKeys(issues, value, 'character', new Set(['$schema', 'version', 'characterId', 'displayName', 'kind', 'runtimeRole', 'visualSetId', 'body', 'hitboxes', 'animationTracks', 'player', 'enemy']));
+  checkKeys(issues, value, 'character', new Set(['$schema', 'version', 'characterId', 'displayName', 'kind', 'runtimeRole', 'visualSetId', 'attributes', 'body', 'hitboxes', 'animationTracks', 'player', 'enemy']));
   if (value.version !== 1) issue(issues, 'character.version', 'must be version 1');
   const hasCharacterId = stringValue(issues, value.characterId, 'character.characterId', (entry) => CHARACTER_ID_PATTERN.test(entry) && entry.length <= 80, 'must be a lowercase kebab-case ID');
   const characterId = hasCharacterId && typeof value.characterId === 'string' ? value.characterId : undefined;
@@ -297,6 +335,7 @@ export function validateCharacterDocument(
   const visualSetId = hasVisualSetId && typeof value.visualSetId === 'string' ? value.visualSetId : undefined;
   if (visualSetId && visualSet?.visualSetId !== visualSetId) issue(issues, 'character.visualSetId', 'must match the package visual set ID');
   if (visualSetId && !options.allowDuplicateIdentity && options.visualSetIds?.has(visualSetId)) issue(issues, 'character.visualSetId', `duplicate visual set ID '${visualSetId}'`);
+  if (value.attributes !== undefined) validateAttributes(issues, value.attributes);
   validateBody(issues, value.body);
   if (!isRecord(value.hitboxes)) issue(issues, 'character.hitboxes', 'must be an object');
   for (const [hitboxId, hitbox] of Object.entries(isRecord(value.hitboxes) ? value.hitboxes : {})) {

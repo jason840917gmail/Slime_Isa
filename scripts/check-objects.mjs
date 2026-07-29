@@ -55,7 +55,12 @@ function validateBounds(file, objectId, field, bounds, frame) {
     fail(file, objectId, field, 'must be an object');
     return;
   }
-  validateKeys(file, objectId, field, bounds, new Set(['width', 'height', 'offsetX', 'offsetY']));
+  validateKeys(file, objectId, field, bounds, new Set(['shape', 'width', 'height', 'radius', 'radiusX', 'radiusY', 'offsetX', 'offsetY']));
+
+  const shape = bounds.shape ?? 'rectangle';
+  if (!['rectangle', 'circle', 'ellipse'].includes(shape)) fail(file, objectId, `${field}.shape`, 'must be rectangle, circle, or ellipse');
+  if (shape === 'circle' && (!Number.isInteger(bounds.radius) || bounds.radius < 1)) fail(file, objectId, `${field}.radius`, 'must be a positive integer for a circle');
+  if (shape === 'ellipse' && (!Number.isInteger(bounds.radiusX) || bounds.radiusX < 1 || !Number.isInteger(bounds.radiusY) || bounds.radiusY < 1)) fail(file, objectId, field, 'ellipse radii must be positive integers');
 
   for (const property of ['width', 'height', 'offsetX', 'offsetY']) {
     const minimum = property.startsWith('offset') ? 0 : 1;

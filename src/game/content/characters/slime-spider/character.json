@@ -1,0 +1,59 @@
+{
+  "$schema": "../character.schema.json",
+  "version": 1,
+  "characterId": "slime-spider",
+  "displayName": "slime spider",
+  "kind": "enemy",
+  "visualSetId": "enemy.slime.spider",
+  "body": {
+    "width": 30,
+    "height": 30,
+    "centerOffsetX": 0,
+    "centerOffsetY": 0
+  },
+  "hitboxes": {},
+  "animationTracks": {
+    "idle-front": {
+      "events": [],
+      "hitboxSpans": []
+    },
+    "walk-front": {
+      "events": [],
+      "hitboxSpans": []
+    },
+    "idle-side": {}
+  },
+  "enemy": {
+    "maxHp": 40,
+    "ai": {
+      "aggroRange": 280,
+      "attackRange": 220,
+      "fleeRange": 120,
+      "wanderSpeed": 30,
+      "chaseSpeed": 80,
+      "attackCooldownMs": 2200,
+      "attackWindupMs": 600,
+      "attackRecoveryMs": 350,
+      "contactDamage": 22,
+      "knockbackStrength": 180,
+      "isRanged": true,
+      "projectileSpeed": 180,
+      "knockbackResist": 0
+    },
+    "drop": {
+      "xp": 45,
+      "coins": 10,
+      "items": [
+        {
+          "itemId": "shard",
+          "chance": 0.15
+        }
+      ]
+    },
+    "projectile": {
+      "projectileId": "worm-arrow",
+      "assetId": "enemy.projectile.worm-arrow",
+      "damage": 50
+    }
+  }
+}

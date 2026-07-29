@@ -47,6 +47,7 @@ export function registerVisualSetAnimations(
       frames,
       frameRate: clip.framesPerSecond,
       repeat: clip.loop ? -1 : 0,
+      yoyo: clip.loop && clip.loopMode === 'ping-pong',
     });
     ownedKeys.add(clip.runtimeKey);
   }

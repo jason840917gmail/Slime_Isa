@@ -59,25 +59,37 @@ for (const file of listFiles(characterRoot, 'visual-set.json')) {
   if (!isRecord(value.clips) || Object.keys(value.clips).length === 0) { fail(file, 'clips', 'must be non-empty'); continue; }
   for (const [clipId, clip] of Object.entries(value.clips)) {
     if (!idPattern.test(clipId)) fail(file, `clips.${clipId}`, 'invalid clip ID');
-    keys(file, `clips.${clipId}`, clip, new Set(['frames', 'framesPerSecond', 'loop']));
+    keys(file, `clips.${clipId}`, clip, new Set(['frames', 'framesPerSecond', 'loop', 'loopMode']));
     if (!Array.isArray(clip.frames) || clip.frames.length === 0) fail(file, `clips.${clipId}.frames`, 'must be non-empty');
     for (const [index, frame] of (clip.frames ?? []).entries()) if (!Number.isInteger(frame) || frame < 0 || frame >= count) fail(file, `clips.${clipId}.frames[${index}]`, `outside 0..${count - 1}`);
     finite(file, `clips.${clipId}.framesPerSecond`, clip.framesPerSecond, (entry) => entry > 0 && entry <= 240, 'must be between 0 and 240');
     if (typeof clip.loop !== 'boolean') fail(file, `clips.${clipId}.loop`, 'must be boolean');
+    if (clip.loopMode !== undefined && clip.loopMode !== 'wrap' && clip.loopMode !== 'ping-pong') fail(file, `clips.${clipId}.loopMode`, "must be 'wrap' or 'ping-pong'");
   }
 }
 
 for (const file of listFiles(characterRoot, 'character.json')) {
   let value;
   try { value = JSON.parse(readFileSync(file, 'utf8')); } catch (error) { fail(file, 'json', error.message); continue; }
-  keys(file, 'character', value, new Set(['$schema', 'version', 'characterId', 'displayName', 'kind', 'runtimeRole', 'visualSetId', 'body', 'hitboxes', 'animationTracks', 'player', 'enemy']));
+  keys(file, 'character', value, new Set(['$schema', 'version', 'characterId', 'displayName', 'kind', 'runtimeRole', 'visualSetId', 'attributes', 'body', 'hitboxes', 'animationTracks', 'player', 'enemy']));
   if (value.version !== 1) fail(file, 'version', 'must be 1');
   if (!characterIdPattern.test(value.characterId ?? '')) fail(file, 'characterId', 'must be lowercase kebab-case');
   if (characterIds.has(value.characterId)) fail(file, 'characterId', `duplicates ${characterIds.get(value.characterId)}`); else characterIds.set(value.characterId, relative(root, file));
   if (value.kind === 'player' && value.runtimeRole === 'primary-player') primaryPlayers.push(value.characterId);
   if (!visualIds.has(value.visualSetId)) fail(file, 'visualSetId', `no package visual set '${value.visualSetId}'`);
+  if (value.attributes !== undefined) {
+    keys(file, 'attributes', value.attributes, new Set(['strength', 'vitality', 'agility', 'intellect']));
+    for (const field of ['strength', 'vitality', 'agility', 'intellect']) finite(file, `attributes.${field}`, value.attributes[field], (entry) => entry >= 0, 'must be zero or greater');
+  }
   if (!isRecord(value.body)) fail(file, 'body', 'must be an object');
-  else { for (const field of ['width', 'height']) finite(file, `body.${field}`, value.body[field], (entry) => entry > 0, 'must be greater than zero'); for (const field of ['centerOffsetX', 'centerOffsetY']) finite(file, `body.${field}`, value.body[field], () => true, 'must be finite'); }
+  else {
+    const shape = value.body.shape ?? 'rectangle';
+    if (!['rectangle', 'circle', 'ellipse'].includes(shape)) fail(file, 'body.shape', 'must be rectangle, circle, or ellipse');
+    if (shape === 'circle') finite(file, 'body.radius', value.body.radius, (entry) => entry > 0, 'must be greater than zero for a circle');
+    if (shape === 'ellipse') { finite(file, 'body.radiusX', value.body.radiusX, (entry) => entry > 0, 'must be greater than zero for an ellipse'); finite(file, 'body.radiusY', value.body.radiusY, (entry) => entry > 0, 'must be greater than zero for an ellipse'); }
+    for (const field of ['width', 'height']) finite(file, `body.${field}`, value.body[field], (entry) => entry > 0, 'must be greater than zero');
+    for (const field of ['centerOffsetX', 'centerOffsetY']) finite(file, `body.${field}`, value.body[field], () => true, 'must be finite');
+  }
   if (value.kind === 'player' && !isRecord(value.player)) fail(file, 'player', 'required for players');
   if (value.kind === 'enemy' && !isRecord(value.enemy)) fail(file, 'enemy', 'required for enemies');
 }

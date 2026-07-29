@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "weapon.schema.json",
+  "title": "Slime Isa weapon definition",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "weaponId", "displayName", "category", "animKey", "baseDamage", "cooldownMs", "hitboxWidth", "hitboxHeight", "hitboxOffset", "hitboxDurationMs", "knockStrength", "vfxColor", "unlockLevel", "iconKey", "description"],
+  "properties": {
+    "version": { "const": 1 },
+    "weaponId": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+    "displayName": { "type": "string", "minLength": 1, "maxLength": 80 },
+    "category": { "enum": ["melee", "ranged"] },
+    "animKey": { "type": "string" },
+    "baseDamage": { "type": "number", "minimum": 0 },
+    "cooldownMs": { "type": "number", "exclusiveMinimum": 0 },
+    "hitboxWidth": { "type": "number", "exclusiveMinimum": 0 },
+    "hitboxHeight": { "type": "number", "exclusiveMinimum": 0 },
+    "hitboxOffset": { "type": "number" },
+    "hitboxDurationMs": { "type": "number", "exclusiveMinimum": 0 },
+    "knockStrength": { "type": "number", "minimum": 0 },
+    "scaling": { "type": "object" },
+    "vfxColor": { "type": "integer", "minimum": 0 },
+    "unlockLevel": { "type": "integer", "minimum": 1 },
+    "iconKey": { "type": "string" },
+    "description": { "type": "string", "maxLength": 240 }
+  }
+}
+

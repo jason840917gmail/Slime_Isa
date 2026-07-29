@@ -2,6 +2,7 @@ import { gameState } from '../core/GameState';
 import type { PerkChoice } from '../core/types';
 import { PLAYER_CONFIG } from '../content/player';
 import { PERK_BALANCE, PERK_DEFS, PERK_IDS, type PerkId } from '../content/perks';
+import type { CharacterAttributeSet } from '../content/characters/types';
 
 /**
  * Derived player stats. Reads level + perks from GameState and produces the
@@ -12,10 +13,12 @@ import { PERK_BALANCE, PERK_DEFS, PERK_IDS, type PerkId } from '../content/perks
  */
 
 export interface DerivedStats {
+  attributes: CharacterAttributeSet;
   maxHp: number;
   attack: number;
   defense: number;
-  speed: number;
+  movementSpeed: number;
+  movementSpeedCap: number;
   critChance: number;
   critMult: number;
   maxEnergy: number;
@@ -35,6 +38,12 @@ export interface DerivedStats {
 
 const BASE_WEAPON_ARC_RAD = 0.8;
 const MAX_WEAPON_ARC_RAD = Math.PI;
+export const MAX_MOVEMENT_SPEED = 480;
+
+export function resolveMovementSpeed(baseSpeed: number, flatBonus = 0, multiplier = 1): number {
+  if (!Number.isFinite(baseSpeed) || !Number.isFinite(flatBonus) || !Number.isFinite(multiplier)) return 0;
+  return Math.min(MAX_MOVEMENT_SPEED, Math.max(0, (baseSpeed + flatBonus) * Math.max(0, multiplier)));
+}
 
 export const ALL_PERK_IDS = [...PERK_IDS];
 
@@ -80,10 +89,12 @@ export function getStats(): DerivedStats {
   const weaponArcRad = BASE_WEAPON_ARC_RAD + (MAX_WEAPON_ARC_RAD - BASE_WEAPON_ARC_RAD) * (wideSwing / 3);
 
   return {
+    attributes: gameState.attributes,
     maxHp: gameState.maxHp,
     attack: Math.round(baseAttack * (1 + fangs * PERK_BALANCE.attackMultiplierPerSharpFangsRank)),
     defense: baseDefense,
-    speed: PLAYER_CONFIG.movement.baseSpeed + quick * PERK_BALANCE.speedPerQuickStepsRank,
+    movementSpeed: resolveMovementSpeed(PLAYER_CONFIG.movement.baseSpeed, quick * PERK_BALANCE.speedPerQuickStepsRank),
+    movementSpeedCap: MAX_MOVEMENT_SPEED,
     critChance: 0.05 + crit * PERK_BALANCE.critChancePerLuckyCritRank,
     critMult: 1.75,
     maxEnergy: gameState.maxEnergy,

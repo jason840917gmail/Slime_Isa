@@ -3,6 +3,7 @@
 import type { AssetId } from '../infrastructure/assets/manifest';
 import { getAsset } from '../infrastructure/assets/manifest';
 import { getVisualClip, getVisualSet, type VisualSetId } from '../content/visuals/VisualCatalog';
+import { animationCycleDurationMs } from '../shared/animationLoop';
 import { AnimatedVisual } from '../features/visuals/AnimatedVisual';
 import { floatingText } from '../ui/FloatingText';
 import { runState, type EnemyState, type EnemyAIConfig, type EnemySafeZone } from './EnemyAI';
@@ -14,6 +15,7 @@ import {
   tryBeginEnemyAttack,
 } from './enemyCombatLifecycle';
 import { resolveBodyBottom, resolveWorldDepth } from '../presentation/WorldDepth';
+import { applyArcadeBodyGeometry } from '../shared/collisionShapes';
 
 export interface EnemyItemDrop {
   itemId: string;
@@ -27,20 +29,30 @@ export interface EnemyDrop {
   items?: readonly EnemyItemDrop[];
 }
 
+export interface ProjectileReference {
+  projectileId?: string;
+  assetId?: AssetId;
+}
+
 export interface EnemyConfig {
   id: string;
   visualSetId: VisualSetId;
   maxHp: number;
   body: {
+    shape?: 'rectangle' | 'circle' | 'ellipse';
     width: number;
     height: number;
+    radius?: number;
+    radiusX?: number;
+    radiusY?: number;
     centerOffsetX: number;
     centerOffsetY: number;
   };
   ai: EnemyAIConfig;
   drop: EnemyDrop;
   projectile?: {
-    assetId: AssetId;
+    projectileId?: string;
+    assetId?: AssetId;
     damage: number;
   };
   impactEffect?: {
@@ -60,7 +72,7 @@ export interface EnemyContext {
     dx: number,
     dy: number,
     speed: number,
-    assetId: AssetId,
+    projectile: ProjectileReference,
     damage: number,
     knockbackStrength: number,
   ) => void;
@@ -110,11 +122,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.setVisible(false).setCollideWorldBounds(true);
 
     const body = this.body as Phaser.Physics.Arcade.Body;
-    body.setSize(config.body.width, config.body.height, false);
-    body.setOffset(
-      this.displayOriginX - config.body.width / 2 + config.body.centerOffsetX,
-      this.displayOriginY - config.body.height / 2 + config.body.centerOffsetY,
-    );
+    applyArcadeBodyGeometry(body, this.displayOriginX, this.displayOriginY, config.body);
     body.setBounce(0.2).setCollideWorldBounds(true);
 
     this.setDepth(resolveWorldDepth(resolveBodyBottom(body), { stableId: `enemy:${this.enemyId}` }).depth);
@@ -245,7 +253,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     ));
 
     const clip = getVisualClip(this.config.visualSetId, `attack-${this.direction}`);
-    const clipDuration = clip.frames.length / clip.framesPerSecond * 1000;
+    const clipDuration = animationCycleDurationMs(clip);
     const sequenceDuration = Math.min(
       2000,
       Math.max(
@@ -271,7 +279,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.attackVector.x,
         this.attackVector.y,
         this.config.ai.projectileSpeed ?? 200,
-        this.config.projectile.assetId,
+        this.config.projectile,
         this.config.projectile.damage,
         this.config.ai.knockbackStrength,
       );
@@ -333,7 +341,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     const finish = () => this.finishDeath();
     this.visual.onceComplete(runtimeKey, finish);
     this.deathTimer = this.scene.time.delayedCall(
-      Math.min(1500, clip.frames.length / clip.framesPerSecond * 1000 + 250),
+      Math.min(1500, animationCycleDurationMs(clip) + 250),
       finish,
     );
   }

@@ -1,0 +1,67 @@
+{
+  "$schema": "../../visuals/visual-set.schema.json",
+  "version": 1,
+  "visualSetId": "enemy.slime.spider",
+  "assetId": "character.enemy.slime-spider",
+  "defaults": {
+    "origin": [
+      0.5,
+      0.5
+    ],
+    "scale": [
+      1,
+      1
+    ],
+    "sourceOffset": [
+      0,
+      0
+    ]
+  },
+  "clips": {
+    "idle-front": {
+      "frames": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "framesPerSecond": 8,
+      "loop": true,
+      "loopMode": "ping-pong"
+    },
+    "walk-front": {
+      "frames": [
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22
+      ],
+      "framesPerSecond": 8,
+      "loop": true,
+      "loopMode": "wrap"
+    },
+    "idle-side": {
+      "frames": [
+        22
+      ],
+      "framesPerSecond": 8,
+      "loop": true,
+      "loopMode": "wrap"
+    }
+  }
+}
