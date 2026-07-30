@@ -23,7 +23,10 @@ flowchart LR
     E --> G
 ```
 
-`asset/assets.json` owns media-loading facts. A visual set in `src/game/content/visuals/<name>/visual-set.json` owns how that media is rendered:
+`asset/assets.json` owns media-loading facts. A character visual set in
+`src/game/content/characters/<name>/visual-set.json` owns how that media is
+rendered. Loose world or effect visual sets use
+`src/game/content/visuals/<name>/visual-set.json` instead:
 
 - default origin, scale, and source-frame offset;
 - optional per-frame transform overrides;
@@ -107,7 +110,9 @@ The current map editor deliberately uses its static image path. A future visual-
 ## Adding another animated thing
 
 1. Add or confirm its stable entry in `asset/assets.json`.
-2. Add `src/game/content/visuals/<name>/visual-set.json`.
+2. Add `src/game/content/characters/<name>/visual-set.json` for a character or
+   enemy, or `src/game/content/visuals/<name>/visual-set.json` for a loose
+   world/effect visual.
 3. Define defaults, optional frame overrides, and one or more clips.
 4. Reference its `visualSetId` and default clip from the owning player, enemy, or object definition.
 5. Keep collision and gameplay values outside the visual-set JSON.
@@ -121,8 +126,8 @@ The current map editor deliberately uses its static image path. A future visual-
 - [`src/game/content/visuals/VisualCatalog.ts`](../../src/game/content/visuals/VisualCatalog.ts) — typed loading, validation, and transform resolution.
 - [`src/game/features/visuals/AnimationRegistrar.ts`](../../src/game/features/visuals/AnimationRegistrar.ts) — generic Phaser animation registration.
 - [`src/game/features/visuals/AnimatedVisual.ts`](../../src/game/features/visuals/AnimatedVisual.ts) — render sprite, frame transforms, playback, effects, and cleanup.
-- [`src/game/content/visuals/player-slime/visual-set.json`](../../src/game/content/visuals/player-slime/visual-set.json) — migrated slime clips and visual defaults.
-- [`src/game/content/visuals/enemy-blob/visual-set.json`](../../src/game/content/visuals/enemy-blob/visual-set.json) — procedural one-frame enemy example.
+- [`src/game/content/characters/player-slime/visual-set.json`](../../src/game/content/characters/player-slime/visual-set.json) — migrated slime clips and visual defaults.
+- [`src/game/content/characters/slime-spider/visual-set.json`](../../src/game/content/characters/slime-spider/visual-set.json) — directional enemy package example.
 - [`src/game/content/visuals/tree-world/visual-set.json`](../../src/game/content/visuals/tree-world/visual-set.json) — one-frame authored tree example.
 - [`src/game/features/player/PlayerFactory.ts`](../../src/game/features/player/PlayerFactory.ts) — player anchor and visual composition.
 - [`src/game/enemies/Enemy.ts`](../../src/game/enemies/Enemy.ts) — enemy integration and visual effects.

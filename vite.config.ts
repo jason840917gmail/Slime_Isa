@@ -1,4 +1,4 @@
-import { promises as fs } from 'node:fs';
+import { promises as fs, readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 
 import { defineConfig, type Plugin } from 'vite';
@@ -8,7 +8,6 @@ import { characterContentModulesPlugin } from './src/game/content/characters/cha
 import { parseMapFile, type MapFile } from './src/game/content/maps/mapFormat';
 import { isObjectArchetypeId } from './src/game/content/objects/ObjectCatalog';
 import { isWorldTileId } from './src/game/content/terrain/TileCatalog';
-import enemyTypesJson from './src/game/content/enemies/enemy-types.json';
 import { ASSET_MANIFEST, type AssetId } from './src/game/infrastructure/assets/manifest';
 import {
   edgeEntryPoint,
@@ -22,7 +21,24 @@ import type { Direction } from './src/game/world/Area';
 const MAX_EDITOR_BODY_BYTES = 2 * 1024 * 1024;
 const OBJECT_ID_PATTERN = /^[a-z0-9]+([.-][a-z0-9-]+)+$/;
 const OBJECT_DEFINITION_ROOT = path.resolve(process.cwd(), 'src/game/content/objects');
-const ENEMY_CONFIGS = enemyTypesJson.types;
+const CHARACTER_DEFINITION_ROOT = path.resolve(process.cwd(), 'src/game/content/characters');
+
+function discoverEnemyIds(directory: string): string[] {
+  const ids: string[] = [];
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const candidate = path.join(directory, entry.name);
+    if (entry.isDirectory()) {
+      ids.push(...discoverEnemyIds(candidate));
+      continue;
+    }
+    if (!entry.isFile() || entry.name !== 'character.json') continue;
+    const character = JSON.parse(readFileSync(candidate, 'utf8')) as { characterId?: unknown; kind?: unknown };
+    if (character.kind === 'enemy' && typeof character.characterId === 'string') ids.push(character.characterId);
+  }
+  return ids;
+}
+
+const ENEMY_IDS = new Set(discoverEnemyIds(CHARACTER_DEFINITION_ROOT));
 
 interface MutableObjectFrame {
   [key: string]: unknown;
@@ -227,7 +243,14 @@ async function validateMapReferences(map: MapFile): Promise<string[]> {
     }
   }
   for (const [enemyIndex, enemy] of (map.spawns?.enemies ?? []).entries()) {
-    if (!(enemy.type in ENEMY_CONFIGS)) issues.push(`spawns.enemies[${enemyIndex}].type: unknown enemy '${enemy.type}'`);
+    if (!ENEMY_IDS.has(enemy.type)) issues.push(`spawns.enemies[${enemyIndex}].type: unknown enemy '${enemy.type}'`);
+  }
+  for (const [areaIndex, area] of (map.enemySpawnAreas ?? []).entries()) {
+    for (const [enemyIndex, enemy] of area.enemies.entries()) {
+      if (!ENEMY_IDS.has(enemy.type)) {
+        issues.push(`enemySpawnAreas[${areaIndex}].enemies[${enemyIndex}].type: unknown enemy '${enemy.type}'`);
+      }
+    }
   }
   for (const [exitIndex, exit] of (map.exits ?? []).entries()) {
     if (!['north', 'east', 'south', 'west'].includes(exit.entry)) {

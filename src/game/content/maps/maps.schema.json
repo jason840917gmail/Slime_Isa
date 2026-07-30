@@ -65,6 +65,11 @@
         }
       }
     },
+    "enemySpawnAreas": {
+      "type": "array",
+      "description": "Authored enemy camps. When present, runtime uses these areas instead of legacy random spawning.",
+      "items": { "$ref": "#/$defs/enemySpawnArea" }
+    },
     "spawns": { "$ref": "#/$defs/spawns" }
   },
   "$defs": {
@@ -173,7 +178,7 @@
             "max": { "type": "number", "exclusiveMinimum": 0 }
           }
         },
-        "intervalMs": { "type": "number", "exclusiveMinimum": 0 },
+        "intervalMs": { "type": "integer", "minimum": 1 },
         "maxPopulation": { "type": "integer", "minimum": 1 },
         "safeZones": {
           "type": "array",
@@ -190,6 +195,60 @@
           }
         }
       }
+    },
+    "enemySpawnArea": {
+      "type": "object",
+      "required": ["id", "stayPerimeter", "pursuePerimeter", "enemies", "intervalMs", "maxPopulation"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "stayPerimeter": { "$ref": "#/$defs/enemyPerimeter" },
+        "pursuePerimeter": { "$ref": "#/$defs/enemyPerimeter" },
+        "enemies": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/spawnEnemy" }
+        },
+        "intervalMs": { "type": "number", "exclusiveMinimum": 0 },
+        "maxPopulation": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "spawnEnemy": {
+      "type": "object",
+      "required": ["type", "weight"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "type": "string", "minLength": 1 },
+        "weight": { "type": "integer", "minimum": 1 },
+        "maxAlive": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "enemyPerimeter": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["shape", "x", "y", "radius"],
+          "additionalProperties": false,
+          "properties": {
+            "shape": { "const": "circle" },
+            "x": { "type": "integer" },
+            "y": { "type": "integer" },
+            "radius": { "type": "integer", "minimum": 1 }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["shape", "x", "y", "w", "h"],
+          "additionalProperties": false,
+          "properties": {
+            "shape": { "const": "rectangle" },
+            "x": { "type": "integer" },
+            "y": { "type": "integer" },
+            "w": { "type": "integer", "minimum": 1 },
+            "h": { "type": "integer", "minimum": 1 }
+          }
+        }
+      ]
     }
   }
 }

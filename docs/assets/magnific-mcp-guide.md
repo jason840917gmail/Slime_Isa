@@ -103,7 +103,8 @@ focused on one action, one facing direction, and one fixed camera view.
 
 For character animation, use the project prompt guide:
 
-- [Character Animation Video Prompt](./Prompts/videos/character_videos.md)
+- [Character Animation Video Prompt](./character-animation-video-prompt.md)
+- [Character Animation Video Prompt Template](./character-animation-video-prompt-template.md)
 
 That guide is the source for the character-animation constraints: fixed
 direction, centered in-place motion, unchanged proportions and equipment,

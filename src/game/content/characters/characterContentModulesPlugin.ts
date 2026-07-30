@@ -30,6 +30,44 @@ const MAX_BODY_BYTES = 2 * 1024 * 1024;
 const MAX_UPLOAD_BYTES = 32 * 1024 * 1024;
 const AUTHORING_ASSET_DIRECTORY = 'characters/authored';
 
+const PLAYER_STARTER_CLIP_IDS = [
+  'idle',
+  'walk',
+  'hop',
+  'squash',
+  'stretch',
+  'roll',
+  'teleport',
+  'eat',
+  'attack-1',
+  'attack-2',
+  'attack-3',
+  'hurt',
+  'knockback',
+  'die',
+  'charge',
+  'cast',
+  'trick',
+] as const;
+
+const ENEMY_STARTER_CLIP_IDS = [
+  'idle-side',
+  'walk-side',
+  'attack-side',
+  'knockback-side',
+  'die-side',
+  'idle-up',
+  'walk-up',
+  'attack-up',
+  'knockback-up',
+  'die-up',
+  'idle-down',
+  'walk-down',
+  'attack-down',
+  'knockback-down',
+  'die-down',
+] as const;
+
 export interface CharacterContentRootOptions {
   readonly characterRoot?: string;
   readonly visualRoot?: string;
@@ -782,6 +820,30 @@ function cloneValue<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
 }
 
+function starterClips(template: VisualSetDocument, kind: PackageCreationRequest['kind']): VisualSetDocument['clips'] {
+  const requiredIds = kind === 'player' ? PLAYER_STARTER_CLIP_IDS : ENEMY_STARTER_CLIP_IDS;
+  const clipIds = new Set<string>([...requiredIds, ...Object.keys(template.clips)]);
+  const fallback = template.clips.idle ?? Object.values(template.clips)[0];
+  if (!fallback) throw new Error('Starter package has no animation clip to use as a default');
+
+  return Object.fromEntries([...clipIds].map((clipId) => {
+    const source = template.clips[clipId] ?? fallback;
+    return [clipId, {
+      frames: [0],
+      framesPerSecond: source.framesPerSecond,
+      loop: source.loop,
+      loopMode: source.loopMode ?? 'wrap',
+    }];
+  }));
+}
+
+function starterAnimationTracks(clips: VisualSetDocument['clips']): CharacterDocument['animationTracks'] {
+  return Object.fromEntries(Object.keys(clips).map((clipId) => [clipId, {
+    events: [],
+    hitboxSpans: [],
+  }]));
+}
+
 async function starterPackage(root: string, request: PackageCreationRequest): Promise<CharacterPackage> {
   const files = await discover({ characterRoot: root, visualRoot: root });
   const candidates: CharacterPackage[] = [];
@@ -809,7 +871,6 @@ async function starterPackage(root: string, request: PackageCreationRequest): Pr
   character.visualSetId = visualSetId;
   character.runtimeRole = undefined;
   character.hitboxes = {};
-  character.animationTracks = { idle: {} };
   if (request.kind === 'player') {
     character.kind = 'player';
     character.player = cloneValue(template.character.player!);
@@ -823,7 +884,8 @@ async function starterPackage(root: string, request: PackageCreationRequest): Pr
   visualSet.visualSetId = visualSetId;
   visualSet.assetId = request.assetId;
   visualSet.frameVisuals = undefined;
-  visualSet.clips = { idle: { frames: [0], framesPerSecond: 8, loop: true, loopMode: 'wrap' } };
+  visualSet.clips = starterClips(template.visualSet, request.kind);
+  character.animationTracks = starterAnimationTracks(visualSet.clips);
   return { character, visualSet };
 }
 

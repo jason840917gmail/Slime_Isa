@@ -25,7 +25,7 @@ Then open `http://localhost:3000`.
 
 The Phaser project follows a feature-first structure. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for dependency rules, state ownership, persistence, and conventions for new features.
 
-Asset authors should follow [docs/ADDING_ASSETS.md](docs/ADDING_ASSETS.md), which explains the media manifest, reusable object archetypes, and map-instance layers.
+Asset authors should start with [docs/assets/README.md](docs/assets/README.md), which covers generation, sheet preparation, media registration, reusable object archetypes, character visuals, and map-instance layers.
 
 Map authors should follow [docs/AUTHORED_MAPS.md](docs/AUTHORED_MAPS.md) for the JSON workflow, content rules, preview URL, and validation commands.
 

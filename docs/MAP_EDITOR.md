@@ -24,7 +24,7 @@ The selected terrain tile or object visual follows the mouse cursor as a translu
 - **Select / Move (`V`)**: every movable object receives a visible grab rectangle. Press inside a rectangle, drag the object, and release to snap it into the destination cell as one undoable move. Click without dragging to select it; press `Delete` or `Backspace` to remove the selection.
 - **Erase (`X`)**: click to remove the nearest object or restore the first terrain type. Click-drag a rectangle to remove multiple objects in one undoable action. Safe zones are managed with the Monster Safe Zone tool instead.
 - **Monster Safe Zone (`Z`)**: safe-zone rectangles are only visible while this tool is active, so they never clutter painting or object placement. Click-drag empty space to create a bright green, tile-aligned rectangle where enemies cannot spawn or enter. Left-click a zone to select it, left-drag it to move it, and press `Delete` to remove it. Safe zones work independently of a map's spawn configuration.
-- **Monster Spawns (`M`)**: opens the encounter-rules dialog. Enable or disable spawning, choose monster types, set their weights and optional per-type caps, then configure spawn distance, refill interval, and total population.
+- **Enemy Area (`M`)**: activates camp authoring. Choose circle or rectangle, drag a camp onto the map, then move it directly or use **Edit selected** to set its stay/pursue perimeters, enemy types, weights, per-type caps, respawn cooldown, and population cap.
 - **Player Spawn (`P`)**: places the default player spawn.
 - **Entry Point (`I`)**: choose a direction and place that incoming entry point.
 - **Exit Zone (`E`)**: choose a direction after assigning that edge in Map Connections. The physical boundary zone is generated automatically.
@@ -40,6 +40,14 @@ Saving creates the opposite entry point and return exit in the target map, makin
 Use `Ctrl+Z` and `Ctrl+Y` for undo/redo and `Ctrl+S` to save. The editor warns before leaving with unsaved work.
 
 Safe zones are stored in map-level `enemySafeZones` as `{ x, y, w, h }`. They appear in bright green, are constrained to the map bounds, block respawning, and steer active monsters through the nearest rectangle edge. Older nested `spawns.safeZones` arrays remain supported when loading existing maps.
+
+Enemy camps are stored in map-level `enemySpawnAreas`. Each area has an amber
+`stayPerimeter` and containing cyan `pursuePerimeter`, both either circles or
+rectangles. Areas are visible only with the Enemy Area tool. Runtime refills an
+active camp from its own weighted roster and cooldown; leaving the pursue
+perimeter makes its enemies return home instead of following the player across
+the map. Maps without authored camps continue using the legacy random spawn
+configuration until they are migrated.
 
 ## Saving and validation
 

@@ -16,6 +16,7 @@ import {
 } from './enemyCombatLifecycle';
 import { resolveBodyBottom, resolveWorldDepth } from '../presentation/WorldDepth';
 import { applyArcadeBodyGeometry } from '../shared/collisionShapes';
+import type { MapEnemySpawnArea } from '../content/maps/mapFormat';
 
 export interface EnemyItemDrop {
   itemId: string;
@@ -77,6 +78,7 @@ export interface EnemyContext {
     knockbackStrength: number,
   ) => void;
   getSafeZones?: () => EnemySafeZone[];
+  spawnArea?: MapEnemySpawnArea;
   registerRevealActor?: (enemy: Enemy, visual: AnimatedVisual) => void;
 }
 
@@ -211,6 +213,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       config: this.config.ai,
       requestAttack: (direction) => this.beginAttack(direction, time),
       safeZones: this.ctx.getSafeZones?.(),
+      spawnArea: this.ctx.spawnArea,
     });
     if (nextState !== 'continue') this.aiState = nextState;
 

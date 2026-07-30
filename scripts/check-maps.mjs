@@ -8,7 +8,8 @@
  *   2. Layer rows match size; every row char is defined in the layer legend.
  *   3. instanceId values are unique within a map; object positions are in
  *      bounds.
- *   4. player spawn/entries, exits, and spawns blocks are well-formed.
+ *   4. player spawn/entries, exits, legacy spawns, and authored enemy areas
+ *      are well-formed.
  *
  * Reference validation (tile/archetype/enemy/area IDs against TS catalogs)
  * intentionally runs at load-time — catalogs stay single-owned in TypeScript.
@@ -47,11 +48,77 @@ const fail = (label, field, message) => errors.push(`[${label}] ${field}: ${mess
 const isRecord = (v) => typeof v === 'object' && v !== null && !Array.isArray(v);
 const isPositiveInt = (v) => Number.isInteger(v) && v > 0;
 const isNumber = (v) => typeof v === 'number' && Number.isFinite(v);
+const isIntegerNumber = (v) => isNumber(v) && Number.isInteger(v);
 
 function checkPoint(value, path, label) {
   if (!isRecord(value) || !isNumber(value.x) || !isNumber(value.y)) {
     fail(label, path, 'expected { x, y } numbers');
   }
+}
+
+function perimeterBounds(perimeter) {
+  return perimeter.shape === 'circle'
+    ? {
+      minX: perimeter.x - perimeter.radius,
+      minY: perimeter.y - perimeter.radius,
+      maxX: perimeter.x + perimeter.radius,
+      maxY: perimeter.y + perimeter.radius,
+    }
+    : {
+      minX: perimeter.x,
+      minY: perimeter.y,
+      maxX: perimeter.x + perimeter.w,
+      maxY: perimeter.y + perimeter.h,
+    };
+}
+
+function validateEnemyPerimeter(value, path, label, pixelWidth, pixelHeight) {
+  if (!isRecord(value) || (value.shape !== 'circle' && value.shape !== 'rectangle')) {
+    fail(label, path, 'expected a circle or rectangle perimeter');
+    return null;
+  }
+  if (!isIntegerNumber(value.x) || !isIntegerNumber(value.y)) {
+    fail(label, path, 'expected integer x/y');
+    return null;
+  }
+  if (value.shape === 'circle') {
+    if (!isIntegerNumber(value.radius) || value.radius <= 0) {
+      fail(label, `${path}.radius`, 'expected positive integer');
+      return null;
+    }
+  } else if (!isIntegerNumber(value.w) || value.w <= 0 || !isIntegerNumber(value.h) || value.h <= 0) {
+    fail(label, path, 'expected positive integer w/h');
+    return null;
+  }
+  const bounds = perimeterBounds(value);
+  if (pixelWidth !== null && pixelHeight !== null
+    && (bounds.minX < 0 || bounds.minY < 0 || bounds.maxX > pixelWidth || bounds.maxY > pixelHeight)) {
+    fail(label, path, `perimeter must fit inside ${pixelWidth}x${pixelHeight} map bounds`);
+  }
+  return value;
+}
+
+function validateEnemyEntries(value, path, label) {
+  if (!Array.isArray(value) || value.length === 0) {
+    fail(label, path, 'expected a non-empty array');
+    return;
+  }
+  value.forEach((enemy, index) => {
+    const enemyPath = `${path}[${index}]`;
+    if (!isRecord(enemy)) {
+      fail(label, enemyPath, 'expected an object');
+      return;
+    }
+    if (typeof enemy.type !== 'string' || enemy.type.length === 0) {
+      fail(label, `${enemyPath}.type`, 'required non-empty string (EnemyTypes key)');
+    } else if (!activeEnemyIds.has(enemy.type)) {
+      fail(label, `${enemyPath}.type`, `unknown active enemy ID '${enemy.type}'`);
+    }
+    if (!isPositiveInt(enemy.weight)) fail(label, `${enemyPath}.weight`, 'expected positive integer');
+    if (enemy.maxAlive !== undefined && !isPositiveInt(enemy.maxAlive)) {
+      fail(label, `${enemyPath}.maxAlive`, 'expected positive integer');
+    }
+  });
 }
 
 function validateMap(data, label) {
@@ -301,6 +368,48 @@ function validateMap(data, label) {
           && (zone.x < 0 || zone.y < 0 || zone.x + zone.w > pixelWidth || zone.y + zone.h > pixelHeight)) {
           fail(label, `enemySafeZones[${index}]`, `rectangle must fit inside ${pixelWidth}x${pixelHeight} map bounds`);
         }
+      });
+    }
+  }
+
+  if (data.enemySpawnAreas !== undefined) {
+    if (!Array.isArray(data.enemySpawnAreas)) {
+      fail(label, 'enemySpawnAreas', 'expected an array (may be empty)');
+    } else {
+      const areaIds = new Set();
+      data.enemySpawnAreas.forEach((area, index) => {
+        const path = `enemySpawnAreas[${index}]`;
+        if (!isRecord(area)) {
+          fail(label, path, 'expected an object');
+          return;
+        }
+        if (typeof area.id !== 'string' || area.id.length === 0) {
+          fail(label, `${path}.id`, 'required non-empty stable ID');
+        } else if (areaIds.has(area.id)) {
+          fail(label, `${path}.id`, `duplicate '${area.id}'`);
+        } else {
+          areaIds.add(area.id);
+        }
+
+        const stay = validateEnemyPerimeter(area.stayPerimeter, `${path}.stayPerimeter`, label, pixelWidth, pixelHeight);
+        const pursue = validateEnemyPerimeter(area.pursuePerimeter, `${path}.pursuePerimeter`, label, pixelWidth, pixelHeight);
+        if (stay && pursue) {
+          if (stay.shape !== pursue.shape) {
+            fail(label, path, 'stayPerimeter and pursuePerimeter must use the same shape');
+          } else if (stay.shape === 'circle' && pursue.shape === 'circle') {
+            if (Math.hypot(stay.x - pursue.x, stay.y - pursue.y) + stay.radius > pursue.radius) {
+              fail(label, path, 'stayPerimeter must fit inside pursuePerimeter');
+            }
+          } else if (stay.shape === 'rectangle' && pursue.shape === 'rectangle'
+            && (stay.x < pursue.x || stay.y < pursue.y
+              || stay.x + stay.w > pursue.x + pursue.w
+              || stay.y + stay.h > pursue.y + pursue.h)) {
+            fail(label, path, 'stayPerimeter must fit inside pursuePerimeter');
+          }
+        }
+        validateEnemyEntries(area.enemies, `${path}.enemies`, label);
+        if (!isPositiveInt(area.intervalMs)) fail(label, `${path}.intervalMs`, 'expected positive integer');
+        if (!isPositiveInt(area.maxPopulation)) fail(label, `${path}.maxPopulation`, 'expected positive integer');
       });
     }
   }

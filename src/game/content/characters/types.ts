@@ -113,6 +113,7 @@ export interface EnemyDropItemDocument {
 export interface EnemyGameplayDocument {
   maxHp: number;
   ai: {
+    behavior?: 'standard' | 'slime-spider';
     aggroRange: number;
     attackRange: number;
     leapRange?: number;

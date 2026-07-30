@@ -9,24 +9,43 @@
     "width": 30,
     "height": 30,
     "centerOffsetX": 0,
-    "centerOffsetY": 0
+    "centerOffsetY": 0,
+    "shape": "ellipse",
+    "radiusX": 15,
+    "radiusY": 12
   },
   "hitboxes": {},
   "animationTracks": {
-    "idle-front": {
+    "idle-down": {
       "events": [],
       "hitboxSpans": []
     },
-    "walk-front": {
+    "walk-down": {
       "events": [],
       "hitboxSpans": []
     },
-    "idle-side": {}
+    "idle-side": {
+      "events": [],
+      "hitboxSpans": []
+    },
+    "walk-side": {
+      "events": [],
+      "hitboxSpans": []
+    },
+    "idle-up": {
+      "events": [],
+      "hitboxSpans": []
+    },
+    "walk-up": {
+      "events": [],
+      "hitboxSpans": []
+    }
   },
   "enemy": {
     "maxHp": 40,
     "ai": {
       "aggroRange": 280,
+      "behavior": "slime-spider",
       "attackRange": 220,
       "fleeRange": 120,
       "wanderSpeed": 30,

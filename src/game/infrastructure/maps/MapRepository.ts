@@ -59,6 +59,14 @@ function validateReferences(map: MapFile): void {
     }
   });
 
+  map.enemySpawnAreas?.forEach((area, areaIndex) => {
+    area.enemies.forEach((enemy, enemyIndex) => {
+      if (!(enemy.type in ENEMY_CONFIGS)) {
+        issues.push(`enemySpawnAreas[${areaIndex}].enemies[${enemyIndex}].type: unknown enemy ID '${enemy.type}'`);
+      }
+    });
+  });
+
   map.exits?.forEach((exit, exitIndex) => {
     if (!MAP_MODULES[`/src/game/content/maps/${exit.to}.map.json`]) {
       issues.push(`exits[${exitIndex}].to: unknown authored map '${exit.to}'`);

@@ -18,7 +18,7 @@
     ]
   },
   "clips": {
-    "idle-front": {
+    "idle-down": {
       "frames": [
         0,
         1,
@@ -30,11 +30,11 @@
         7,
         8
       ],
-      "framesPerSecond": 8,
+      "framesPerSecond": 12,
       "loop": true,
       "loopMode": "ping-pong"
     },
-    "walk-front": {
+    "walk-down": {
       "frames": [
         9,
         10,
@@ -51,17 +51,165 @@
         21,
         22
       ],
-      "framesPerSecond": 8,
+      "framesPerSecond": 16,
       "loop": true,
       "loopMode": "wrap"
     },
     "idle-side": {
       "frames": [
-        22
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31
       ],
       "framesPerSecond": 8,
       "loop": true,
+      "loopMode": "ping-pong"
+    },
+    "walk-side": {
+      "frames": [
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54
+      ],
+      "framesPerSecond": 16,
+      "loop": true,
       "loopMode": "wrap"
+    },
+    "idle-up": {
+      "frames": [
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62
+      ],
+      "framesPerSecond": 8,
+      "loop": true,
+      "loopMode": "ping-pong"
+    },
+    "walk-up": {
+      "frames": [
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79
+      ],
+      "framesPerSecond": 16,
+      "loop": true,
+      "loopMode": "wrap"
+    },
+    "attack-down": {
+      "frames": [
+        7,
+        8,
+        7
+      ],
+      "framesPerSecond": 10,
+      "loop": false
+    },
+    "attack-side": {
+      "frames": [
+        23,
+        24,
+        23
+      ],
+      "framesPerSecond": 10,
+      "loop": false
+    },
+    "attack-up": {
+      "frames": [
+        56,
+        57,
+        56
+      ],
+      "framesPerSecond": 10,
+      "loop": false
+    },
+    "knockback-down": {
+      "frames": [
+        8
+      ],
+      "framesPerSecond": 8,
+      "loop": false
+    },
+    "knockback-side": {
+      "frames": [
+        24
+      ],
+      "framesPerSecond": 8,
+      "loop": false
+    },
+    "knockback-up": {
+      "frames": [
+        57
+      ],
+      "framesPerSecond": 8,
+      "loop": false
+    },
+    "die-down": {
+      "frames": [
+        7,
+        8
+      ],
+      "framesPerSecond": 7,
+      "loop": false
+    },
+    "die-side": {
+      "frames": [
+        23,
+        24
+      ],
+      "framesPerSecond": 7,
+      "loop": false
+    },
+    "die-up": {
+      "frames": [
+        56,
+        57
+      ],
+      "framesPerSecond": 7,
+      "loop": false
     }
   }
 }

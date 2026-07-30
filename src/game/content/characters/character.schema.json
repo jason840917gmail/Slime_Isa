@@ -103,6 +103,7 @@
           "type": "object", "additionalProperties": false,
           "required": ["aggroRange", "attackRange", "wanderSpeed", "chaseSpeed", "attackCooldownMs", "attackWindupMs", "attackRecoveryMs", "contactDamage", "knockbackStrength", "isRanged", "knockbackResist"],
           "properties": {
+            "behavior": { "enum": ["standard", "slime-spider"] },
             "aggroRange": { "type": "number", "minimum": 0 }, "attackRange": { "type": "number", "minimum": 0 }, "leapRange": { "type": "number", "minimum": 0 }, "fleeRange": { "type": "number", "minimum": 0 },
             "wanderSpeed": { "type": "number", "minimum": 0 }, "chaseSpeed": { "type": "number", "minimum": 0 }, "attackCooldownMs": { "type": "integer", "minimum": 0 }, "attackWindupMs": { "type": "integer", "minimum": 0 }, "attackRecoveryMs": { "type": "integer", "minimum": 0 },
             "contactDamage": { "type": "number", "minimum": 0 }, "knockbackStrength": { "type": "number", "minimum": 0 }, "isRanged": { "type": "boolean" }, "isLeaper": { "type": "boolean" }, "projectileSpeed": { "type": "number", "exclusiveMinimum": 0 }, "knockbackResist": { "type": "number", "minimum": 0, "maximum": 1 }

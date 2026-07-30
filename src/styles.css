@@ -261,6 +261,8 @@ body {
 .swatch-hit { color: #ff4d6d; }
 .swatch-interaction { color: #43f28f; }
 .swatch-attack { color: #b685ff; }
+.swatch-enemy-stay { color: #ffc65c; }
+.swatch-enemy-pursue { color: #5ee7ff; }
 
 @media (max-width: 980px) {
   .game-shell.is-dev-mode {
@@ -651,6 +653,104 @@ body {
   gap: 8px;
   border-top: 1px solid #4a4d37;
   padding-top: 14px;
+}
+
+.editor-enemy-area-section {
+  background:
+    linear-gradient(135deg, rgba(94, 231, 255, 0.08), transparent 48%),
+    linear-gradient(315deg, rgba(255, 198, 92, 0.08), transparent 52%);
+}
+
+.editor-area-shape-field {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 8px;
+  color: #dfe8d5;
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.editor-area-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 9px;
+}
+
+.editor-area-actions strong {
+  color: #f4d58b;
+  font: 700 11px Georgia, serif;
+}
+
+.editor-area-actions button {
+  border: 1px solid #56889a;
+  padding: 7px 9px;
+  color: #c9f4ff;
+  background: #14313b;
+  cursor: pointer;
+  font: 800 9px Bahnschrift, sans-serif;
+  text-transform: uppercase;
+}
+
+.editor-area-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+
+.editor-area-perimeter-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.editor-area-perimeter-grid.is-hidden {
+  display: none;
+}
+
+.editor-area-perimeter-grid fieldset {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  min-width: 0;
+  border: 1px solid #455a54;
+  padding: 10px;
+  background: rgba(16, 27, 26, 0.72);
+}
+
+.editor-area-perimeter-grid fieldset:first-child {
+  border-color: rgba(255, 198, 92, 0.52);
+}
+
+.editor-area-perimeter-grid fieldset:last-child {
+  border-color: rgba(94, 231, 255, 0.52);
+}
+
+.editor-area-perimeter-grid legend {
+  padding: 0 4px;
+  color: #dbe5d2;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.editor-area-perimeter-grid label {
+  display: grid;
+  gap: 3px;
+  color: #879b91;
+  font-size: 9px;
+}
+
+.editor-area-perimeter-grid input,
+.editor-area-perimeter-grid select {
+  min-width: 0;
+  padding: 6px;
+}
+
+.editor-enemy-area-dialog {
+  width: min(860px, calc(100vw - 32px));
 }
 
 .editor-dirty.is-dirty {

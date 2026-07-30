@@ -317,6 +317,19 @@ export default defineConfig({
     assert.notEqual(reloaded.fixtureEnemy.ai.isLeaper, true);
     assert.equal(reloaded.fixtureEnemy.ai.attackWindupMs > 0, true);
     assert.equal(reloaded.fixtureEnemy.body.width > 0, true);
+
+    const createdPlayer = JSON.parse(await fs.readFile(path.join(characterRoot, 'fixture-player', 'character.json'), 'utf8'));
+    const createdPlayerVisual = JSON.parse(await fs.readFile(path.join(characterRoot, 'fixture-player', 'visual-set.json'), 'utf8'));
+    const createdEnemy = JSON.parse(await fs.readFile(path.join(characterRoot, 'fixture-raider', 'character.json'), 'utf8'));
+    const createdEnemyVisual = JSON.parse(await fs.readFile(path.join(characterRoot, 'fixture-raider', 'visual-set.json'), 'utf8'));
+    for (const visualSet of [createdPlayerVisual, createdEnemyVisual]) {
+      for (const clip of Object.values(visualSet.clips)) assert.deepEqual(clip.frames, [0]);
+    }
+    assert.deepEqual(Object.keys(createdPlayer.animationTracks).sort(), Object.keys(createdPlayerVisual.clips).sort());
+    assert.deepEqual(Object.keys(createdEnemy.animationTracks).sort(), Object.keys(createdEnemyVisual.clips).sort());
+    for (const clipId of ['idle-side', 'walk-side', 'attack-side', 'knockback-side', 'die-side', 'idle-up', 'walk-up', 'attack-up', 'knockback-up', 'die-up', 'idle-down', 'walk-down', 'attack-down', 'knockback-down', 'die-down']) {
+      assert.deepEqual(createdEnemyVisual.clips[clipId].frames, [0]);
+    }
     assert.equal(await hashDirectory(mapsRoot), mapsBefore);
     assert.equal((await fs.readFile(path.join(characterRoot, 'fixture-raider', 'character.json'), 'utf8')).includes('Fixture Raider'), true);
   } finally {

@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 
 import type {
   MapExit,
+  MapEnemySpawnArea,
   MapEnemySafeZone,
   MapFile,
   MapPoint,
@@ -25,6 +26,7 @@ export interface BuiltMap {
   readonly entries: MapFile['player']['entries'];
   readonly exits: readonly MapExit[];
   readonly enemySafeZones: readonly MapEnemySafeZone[];
+  readonly enemySpawnAreas: readonly MapEnemySpawnArea[];
   readonly spawns?: MapSpawns;
 }
 
@@ -112,6 +114,7 @@ export class MapBuilder {
       entries: this.ctx.map.player.entries,
       exits: this.ctx.map.exits ?? [],
       enemySafeZones: this.ctx.map.enemySafeZones ?? this.ctx.map.spawns?.safeZones ?? [],
+      enemySpawnAreas: this.ctx.map.enemySpawnAreas ?? [],
       spawns: this.ctx.map.spawns,
     };
   }

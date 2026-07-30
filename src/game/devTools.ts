@@ -5,6 +5,7 @@ export interface DevToolsState {
   hitBoxes: boolean;
   interactionZones: boolean;
   attackBoxes: boolean;
+  enemyBoundaries: boolean;
 }
 
 type DevToolKey = keyof Omit<DevToolsState, 'enabled'>;
@@ -15,6 +16,7 @@ const TOGGLES: Array<{ key: DevToolKey; label: string; description: string }> = 
   { key: 'hitBoxes', label: 'Hit boxes', description: 'Arcade physics bodies' },
   { key: 'interactionZones', label: 'Interaction zones', description: 'Doors, pickups, transitions' },
   { key: 'attackBoxes', label: 'Attack boxes', description: 'Active weapon hit areas' },
+  { key: 'enemyBoundaries', label: 'Enemy boundaries', description: 'Stay and pursue perimeters' },
 ];
 
 export const devToolsState: DevToolsState = {
@@ -24,6 +26,7 @@ export const devToolsState: DevToolsState = {
   hitBoxes: true,
   interactionZones: true,
   attackBoxes: true,
+  enemyBoundaries: false,
 };
 
 export function createDevToolsPanel(): string {
@@ -63,6 +66,8 @@ export function createDevToolsPanel(): string {
         <p><span class="swatch swatch-hit"></span> Physics hit boxes</p>
         <p><span class="swatch swatch-interaction"></span> Interactions</p>
         <p><span class="swatch swatch-attack"></span> Attacks</p>
+        <p><span class="swatch swatch-enemy-stay"></span> Enemy stay</p>
+        <p><span class="swatch swatch-enemy-pursue"></span> Enemy pursue</p>
       </section>
     </aside>
   `;

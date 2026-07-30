@@ -2,6 +2,7 @@ import { getObjectVisualChoices, type ObjectVisualChoice } from '../content/obje
 import { getTileDefinition, getTileIds } from '../content/terrain/TileCatalog';
 import { getAuthoredMapIds } from '../infrastructure/maps/MapRepository';
 import { ENEMY_CONFIGS } from '../enemies/library/EnemyTypes';
+import type { MapEnemyAreaPerimeter, MapEnemyAreaShape } from '../content/maps/mapFormat';
 import { ObjectTemplateEditorState } from './ObjectTemplateEditorState';
 import type { EditorTool, MapEditorState } from './MapEditorState';
 import { connectionAt, MAP_DIRECTIONS } from './MapConnections';
@@ -13,6 +14,7 @@ const TOOLS: ReadonlyArray<{ id: EditorTool; key: string; label: string }> = [
   { id: 'select', key: 'V', label: 'Select / Move' },
   { id: 'erase', key: 'X', label: 'Erase / Box Delete' },
   { id: 'safe-zone', key: 'Z', label: 'Monster Safe Zone' },
+  { id: 'enemy-area', key: 'M', label: 'Enemy Area' },
   { id: 'spawn', key: 'P', label: 'Player Spawn' },
   { id: 'entry', key: 'I', label: 'Entry Point' },
   { id: 'exit', key: 'E', label: 'Exit Zone' },
@@ -151,14 +153,24 @@ export function mountMapEditorPanel(
         ${TOOLS.map((tool) => `<button type="button" data-tool="${tool.id}" data-testid="tool-${tool.id}">
           <kbd>${tool.key}</kbd><span>${tool.label}</span>
         </button>`).join('')}
-        <button type="button" data-command="monster-settings" data-testid="monster-settings-button">
-          <kbd>M</kbd><span>Monster Spawns</span>
-        </button>
       </div>
-      <p class="editor-help">Paint and Object support click-drag. Right-click picks the object or terrain under the cursor. Middle-drag pans; Select / Move shows grab areas for direct drag-and-drop.</p>
+      <p class="editor-help">Enemy Area draws a camp on the map. Amber is the stay perimeter; cyan is the pursue perimeter. Click an existing camp to move it, or edit its rules below.</p>
+    </section>
+    <section class="editor-section editor-enemy-area-section">
+      <div class="editor-section-title"><span>02</span><h2>Enemy Areas</h2></div>
+      <label class="editor-area-shape-field">New area shape<select data-enemy-area-shape>
+        <option value="rectangle">Rectangle</option>
+        <option value="circle">Circle</option>
+      </select></label>
+      <div class="editor-area-actions">
+        <strong data-enemy-area-count>0 authored camps</strong>
+        <button type="button" data-command="monster-settings" data-testid="monster-settings-button">Map defaults</button>
+        <button type="button" data-command="edit-enemy-area" data-testid="edit-enemy-area-button">Edit selected</button>
+      </div>
+      <p class="editor-help">Each camp gets its own monster roster, respawn cooldown, and population cap. Enemies return to amber when the player leaves cyan.</p>
     </section>
     <section class="editor-section">
-      <div class="editor-section-title"><span>02</span><h2>Direction</h2></div>
+      <div class="editor-section-title"><span>03</span><h2>Direction</h2></div>
       <div class="editor-direction-grid">
         ${['north', 'east', 'south', 'west'].map((direction) => (
           `<button type="button" data-direction="${direction}">${direction}</button>`
@@ -167,7 +179,7 @@ export function mountMapEditorPanel(
       <p class="editor-help">Used by entry and exit tools.</p>
     </section>
     <section class="editor-section editor-connections-section">
-      <div class="editor-section-title"><span>03</span><h2>Map Connections</h2></div>
+      <div class="editor-section-title"><span>04</span><h2>Map Connections</h2></div>
       <div class="editor-connections-grid">
         ${MAP_DIRECTIONS.map((direction) => `<label data-connection-label="${direction}">
           <span>${direction}</span>
@@ -183,11 +195,11 @@ export function mountMapEditorPanel(
       <p class="editor-help">Connections are two-way. Saving also creates the matching entry and return exit in the linked map.</p>
     </section>
     <section class="editor-section editor-palette-section">
-      <div class="editor-section-title"><span>04</span><h2>Terrain Content</h2></div>
+      <div class="editor-section-title"><span>05</span><h2>Terrain Content</h2></div>
       <div class="editor-palette" data-editor-terrain>${tileButtons}</div>
     </section>
     <section class="editor-section editor-palette-section">
-      <div class="editor-section-title"><span>05</span><h2>Object Content</h2></div>
+      <div class="editor-section-title"><span>06</span><h2>Object Content</h2></div>
       <div class="editor-palette" data-editor-objects>${objectButtons}</div>
     </section>
     <footer class="editor-status" aria-live="polite">
@@ -210,6 +222,58 @@ export function mountMapEditorPanel(
         <footer>
           <button type="button" data-command="cancel-new-map">Cancel</button>
           <button class="editor-create-map" type="submit">Create map</button>
+        </footer>
+      </form>
+    </dialog>
+    <dialog class="editor-new-map-dialog editor-monster-dialog editor-enemy-area-dialog" data-enemy-area-dialog>
+      <form data-enemy-area-form>
+        <header><p>Enemy camp authoring</p><h2>Edit enemy area</h2></header>
+        <label>Area ID<input name="id" readonly /></label>
+        <label>Shape<select name="shape">
+          <option value="rectangle">Rectangle</option>
+          <option value="circle">Circle</option>
+        </select></label>
+        <div class="editor-area-perimeter-grid" data-area-rectangle-fields>
+          <fieldset><legend>Stay perimeter / amber</legend>
+            <label>X<input name="stayX" type="number" step="1" /></label>
+            <label>Y<input name="stayY" type="number" step="1" /></label>
+            <label>Width<input name="stayW" type="number" min="1" step="1" /></label>
+            <label>Height<input name="stayH" type="number" min="1" step="1" /></label>
+          </fieldset>
+          <fieldset><legend>Pursue perimeter / cyan</legend>
+            <label>X<input name="pursueX" type="number" step="1" /></label>
+            <label>Y<input name="pursueY" type="number" step="1" /></label>
+            <label>Width<input name="pursueW" type="number" min="1" step="1" /></label>
+            <label>Height<input name="pursueH" type="number" min="1" step="1" /></label>
+          </fieldset>
+        </div>
+        <div class="editor-area-perimeter-grid" data-area-circle-fields>
+          <fieldset><legend>Stay perimeter / amber</legend>
+            <label>Center X<input name="stayCX" type="number" step="1" /></label>
+            <label>Center Y<input name="stayCY" type="number" step="1" /></label>
+            <label>Radius<input name="stayR" type="number" min="1" step="1" /></label>
+          </fieldset>
+          <fieldset><legend>Pursue perimeter / cyan</legend>
+            <label>Center X<input name="pursueCX" type="number" step="1" /></label>
+            <label>Center Y<input name="pursueCY" type="number" step="1" /></label>
+            <label>Radius<input name="pursueR" type="number" min="1" step="1" /></label>
+          </fieldset>
+        </div>
+        <div class="editor-monster-list" aria-label="Enemy area roster">
+          ${enemyTypes.map((type) => `<div class="editor-monster-row" data-area-enemy-row="${type}">
+            <label><input name="area-enemy-${type}" type="checkbox" /><strong>${titleFromId(type)}</strong></label>
+            <label>Weight<input name="area-weight-${type}" type="number" min="1" max="1000" step="1" value="10" /></label>
+            <label>Max alive<input name="area-max-${type}" type="number" min="1" max="100" step="1" placeholder="Any" /></label>
+          </div>`).join('')}
+        </div>
+        <div class="editor-monster-rules">
+          <label>Respawn cooldown (ms)<input name="intervalMs" type="number" min="100" step="1" value="1500" required /></label>
+          <label>Population cap<input name="maxPopulation" type="number" min="1" step="1" value="8" required /></label>
+        </div>
+        <p class="editor-new-map-error" data-enemy-area-error></p>
+        <footer>
+          <button type="button" data-command="cancel-enemy-area">Cancel</button>
+          <button class="editor-create-map" type="submit">Apply area rules</button>
         </footer>
       </form>
     </dialog>
@@ -245,6 +309,9 @@ export function mountMapEditorPanel(
   const mapSelect = host.querySelector<HTMLSelectElement>('#editor-map-select');
   const newMapDialog = host.querySelector<HTMLDialogElement>('[data-new-map-dialog]');
   const newMapForm = host.querySelector<HTMLFormElement>('[data-new-map-form]');
+  const enemyAreaDialog = host.querySelector<HTMLDialogElement>('[data-enemy-area-dialog]');
+  const enemyAreaForm = host.querySelector<HTMLFormElement>('[data-enemy-area-form]');
+  const enemyAreaShape = host.querySelector<HTMLSelectElement>('[data-enemy-area-shape]');
   const monsterDialog = host.querySelector<HTMLDialogElement>('[data-monster-dialog]');
   const monsterForm = host.querySelector<HTMLFormElement>('[data-monster-form]');
   if (mapSelect) mapSelect.value = editor.value.map.mapId;
@@ -270,6 +337,15 @@ export function mountMapEditorPanel(
     if (target.dataset.command === 'save') void editor.save();
     if (target.dataset.command === 'new-map') newMapDialog?.showModal();
     if (target.dataset.command === 'cancel-new-map') newMapDialog?.close();
+    if (target.dataset.command === 'edit-enemy-area') {
+      if (!editor.value.selectedEnemyAreaId) {
+        editor.notify('Select an enemy area first');
+      } else {
+        populateEnemyAreaForm();
+        enemyAreaDialog?.showModal();
+      }
+    }
+    if (target.dataset.command === 'cancel-enemy-area') enemyAreaDialog?.close();
     if (target.dataset.command === 'monster-settings') {
       populateMonsterForm();
       monsterDialog?.showModal();
@@ -283,6 +359,10 @@ export function mountMapEditorPanel(
     if (mapId && mapId !== editor.value.map.mapId) window.location.assign(`?editor=${encodeURIComponent(mapId)}`);
   };
   mapSelect?.addEventListener('change', changeHandler);
+
+  enemyAreaShape?.addEventListener('change', () => {
+    editor.setEnemyAreaShape(enemyAreaShape.value as MapEnemyAreaShape);
+  });
 
   const connectionChangeHandler = (event: Event): void => {
     const select = (event.target as HTMLElement).closest<HTMLSelectElement>('[data-connection-direction]');
@@ -323,6 +403,121 @@ export function mountMapEditorPanel(
     }
   };
   newMapForm?.addEventListener('submit', createMapHandler);
+
+  const setInputValue = (name: string, value: number | string): void => {
+    const input = enemyAreaForm?.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement | null;
+    if (input) input.value = String(typeof value === 'number' ? Math.round(value) : value);
+  };
+
+  const setPerimeterFormValues = (prefix: 'stay' | 'pursue', perimeter: MapEnemyAreaPerimeter): void => {
+    if (perimeter.shape === 'circle') {
+      setInputValue(`${prefix}CX`, perimeter.x);
+      setInputValue(`${prefix}CY`, perimeter.y);
+      setInputValue(`${prefix}R`, perimeter.radius);
+      return;
+    }
+    setInputValue(`${prefix}X`, perimeter.x);
+    setInputValue(`${prefix}Y`, perimeter.y);
+    setInputValue(`${prefix}W`, perimeter.w);
+    setInputValue(`${prefix}H`, perimeter.h);
+  };
+
+  const syncEnemyAreaShapeFields = (shape: MapEnemyAreaShape): void => {
+    enemyAreaForm?.querySelector<HTMLElement>('[data-area-rectangle-fields]')?.classList.toggle('is-hidden', shape !== 'rectangle');
+    enemyAreaForm?.querySelector<HTMLElement>('[data-area-circle-fields]')?.classList.toggle('is-hidden', shape !== 'circle');
+  };
+
+  const populateEnemyAreaForm = (): void => {
+    if (!enemyAreaForm) return;
+    const area = editor.value.map.enemySpawnAreas.find((candidate) => candidate.id === editor.value.selectedEnemyAreaId);
+    if (!area) return;
+    const shape = area.stayPerimeter.shape;
+    const shapeInput = enemyAreaForm.elements.namedItem('shape') as HTMLSelectElement | null;
+    if (shapeInput) shapeInput.value = shape;
+    setInputValue('id', area.id);
+    setPerimeterFormValues('stay', area.stayPerimeter);
+    setPerimeterFormValues('pursue', area.pursuePerimeter);
+    const configured = new Map(area.enemies.map((enemy) => [enemy.type, enemy]));
+    for (const type of enemyTypes) {
+      const entry = configured.get(type);
+      const checked = enemyAreaForm.elements.namedItem(`area-enemy-${type}`) as HTMLInputElement | null;
+      const weight = enemyAreaForm.elements.namedItem(`area-weight-${type}`) as HTMLInputElement | null;
+      const maxAlive = enemyAreaForm.elements.namedItem(`area-max-${type}`) as HTMLInputElement | null;
+      if (checked) checked.checked = entry !== undefined;
+      if (weight) weight.value = String(Math.round(entry?.weight ?? 10));
+      if (maxAlive) maxAlive.value = entry?.maxAlive === undefined ? '' : String(Math.round(entry.maxAlive));
+    }
+    setInputValue('intervalMs', area.intervalMs);
+    setInputValue('maxPopulation', area.maxPopulation);
+    const error = enemyAreaForm.querySelector<HTMLElement>('[data-enemy-area-error]');
+    if (error) error.textContent = '';
+    syncEnemyAreaShapeFields(shape);
+  };
+
+  const enemyAreaShapeChangeHandler = (): void => {
+    const shape = (enemyAreaForm?.elements.namedItem('shape') as HTMLSelectElement | null)?.value as MapEnemyAreaShape | undefined;
+    if (shape) syncEnemyAreaShapeFields(shape);
+  };
+  const enemyAreaShapeField = enemyAreaForm?.elements.namedItem('shape') as HTMLSelectElement | null;
+  enemyAreaShapeField?.addEventListener('change', enemyAreaShapeChangeHandler);
+
+  const readNumber = (values: FormData, name: string): number => Math.round(Number(values.get(name)));
+  const readEnemyAreaPerimeter = (values: FormData, prefix: 'stay' | 'pursue', shape: MapEnemyAreaShape): MapEnemyAreaPerimeter => (
+    shape === 'circle'
+      ? { shape, x: readNumber(values, `${prefix}CX`), y: readNumber(values, `${prefix}CY`), radius: readNumber(values, `${prefix}R`) }
+      : { shape, x: readNumber(values, `${prefix}X`), y: readNumber(values, `${prefix}Y`), w: readNumber(values, `${prefix}W`), h: readNumber(values, `${prefix}H`) }
+  );
+
+  const enemyAreaSubmitHandler = (event: SubmitEvent): void => {
+    event.preventDefault();
+    if (!enemyAreaForm) return;
+    const areaId = editor.value.selectedEnemyAreaId;
+    const current = editor.value.map.enemySpawnAreas.find((area) => area.id === areaId);
+    if (!areaId || !current) return;
+    const values = new FormData(enemyAreaForm);
+    const error = enemyAreaForm.querySelector<HTMLElement>('[data-enemy-area-error]');
+    const shape = values.get('shape') as MapEnemyAreaShape;
+    const enemies = enemyTypes.flatMap((type) => {
+      if (values.get(`area-enemy-${type}`) !== 'on') return [];
+      const maxAlive = readNumber(values, `area-max-${type}`);
+      return [{
+        type,
+        weight: readNumber(values, `area-weight-${type}`),
+        ...(maxAlive > 0 ? { maxAlive } : {}),
+      }];
+    });
+    if (enemies.length === 0) {
+      if (error) error.textContent = 'Select at least one enemy type.';
+      return;
+    }
+    const stayPerimeter = readEnemyAreaPerimeter(values, 'stay', shape);
+    const pursuePerimeter = readEnemyAreaPerimeter(values, 'pursue', shape);
+    if (shape === 'circle') {
+      if (stayPerimeter.shape !== 'circle' || pursuePerimeter.shape !== 'circle'
+        || stayPerimeter.radius <= 0 || pursuePerimeter.radius <= 0
+        || Math.hypot(stayPerimeter.x - pursuePerimeter.x, stayPerimeter.y - pursuePerimeter.y) + stayPerimeter.radius > pursuePerimeter.radius) {
+        if (error) error.textContent = 'The cyan pursue circle must contain the amber stay circle.';
+        return;
+      }
+    } else if (stayPerimeter.shape !== 'rectangle' || pursuePerimeter.shape !== 'rectangle'
+      || stayPerimeter.w <= 0 || stayPerimeter.h <= 0 || pursuePerimeter.w <= 0 || pursuePerimeter.h <= 0
+      || stayPerimeter.x < pursuePerimeter.x || stayPerimeter.y < pursuePerimeter.y
+      || stayPerimeter.x + stayPerimeter.w > pursuePerimeter.x + pursuePerimeter.w
+      || stayPerimeter.y + stayPerimeter.h > pursuePerimeter.y + pursuePerimeter.h) {
+      if (error) error.textContent = 'The cyan pursue rectangle must contain the amber stay rectangle.';
+      return;
+    }
+    editor.updateEnemySpawnArea(areaId, {
+      id: current.id,
+      stayPerimeter,
+      pursuePerimeter,
+      enemies,
+      intervalMs: readNumber(values, 'intervalMs'),
+      maxPopulation: readNumber(values, 'maxPopulation'),
+    });
+    enemyAreaDialog?.close();
+  };
+  enemyAreaForm?.addEventListener('submit', enemyAreaSubmitHandler);
 
   const populateMonsterForm = (): void => {
     if (!monsterForm) return;
@@ -409,6 +604,15 @@ export function mountMapEditorPanel(
     host.querySelectorAll<HTMLElement>('[data-tool]').forEach((button) => {
       button.classList.toggle('is-active', button.dataset.tool === state.tool);
     });
+    const shapeSelect = host.querySelector<HTMLSelectElement>('[data-enemy-area-shape]');
+    if (shapeSelect) shapeSelect.value = state.enemyAreaShape;
+    const areaCount = host.querySelector<HTMLElement>('[data-enemy-area-count]');
+    if (areaCount) {
+      const count = state.map.enemySpawnAreas.length;
+      areaCount.textContent = `${count} authored camp${count === 1 ? '' : 's'}`;
+    }
+    const editArea = host.querySelector<HTMLButtonElement>('[data-command="edit-enemy-area"]');
+    if (editArea) editArea.disabled = !state.selectedEnemyAreaId;
     host.querySelectorAll<HTMLElement>('[data-tile]').forEach((button) => {
       button.classList.toggle('is-active', button.dataset.tile === state.tileId);
     });
@@ -444,7 +648,8 @@ export function mountMapEditorPanel(
       const safeZoneCount = state.map.enemySafeZones.length;
       selection.textContent = state.selectedInstanceId
         ?? (state.selectedSafeZoneIndex !== undefined ? `Safe zone ${state.selectedSafeZoneIndex + 1} selected` : undefined)
-        ?? `${state.map.objects.length} objects / ${safeZoneCount} safe zones / ${state.map.size.columns}x${state.map.size.rows}`;
+        ?? (state.selectedEnemyAreaId ? `Enemy area ${state.selectedEnemyAreaId} selected` : undefined)
+        ?? `${state.map.objects.length} objects / ${safeZoneCount} safe zones / ${state.map.enemySpawnAreas.length} enemy areas / ${state.map.size.columns}x${state.map.size.rows}`;
     }
   });
 
@@ -464,6 +669,8 @@ export function mountMapEditorPanel(
     mapSelect?.removeEventListener('change', changeHandler);
     host.removeEventListener('change', connectionChangeHandler);
     newMapForm?.removeEventListener('submit', createMapHandler);
+    enemyAreaForm?.removeEventListener('submit', enemyAreaSubmitHandler);
+    enemyAreaShapeField?.removeEventListener('change', enemyAreaShapeChangeHandler);
     monsterForm?.removeEventListener('submit', monsterSubmitHandler);
     window.removeEventListener('beforeunload', beforeUnloadHandler);
     host.innerHTML = '';
