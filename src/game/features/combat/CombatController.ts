@@ -16,7 +16,7 @@ import { getAsset } from '../../infrastructure/assets/manifest';
 import { floatingText } from '../../ui/FloatingText';
 import { getWeaponDefinition } from '../../content/weapons/WeaponCatalog';
 import type { WorldDimensions } from '../../world/WorldDimensions';
-import type { MapEnemySafeZone, MapSpawns } from '../../content/maps/mapFormat';
+import type { MapEnemySafeZone, MapEnemySpawnArea, MapSpawns } from '../../content/maps/mapFormat';
 import { resolveScreenUiDepth } from '../../presentation/WorldDepth';
 
 export interface CombatControllerContext {
@@ -25,6 +25,7 @@ export interface CombatControllerContext {
   collisionTiles: Phaser.Physics.Arcade.StaticGroup;
   dimensions: WorldDimensions;
   spawns?: MapSpawns;
+  enemySpawnAreas: readonly MapEnemySpawnArea[];
   enemySafeZones: readonly MapEnemySafeZone[];
   areaId: string;
   getFacing: () => Phaser.Math.Vector2;
@@ -101,20 +102,22 @@ export class CombatController {
       playAnimation: ctx.playAnimation,
     });
 
-    if (spawnConfig) {
+    if (ctx.enemySpawnAreas.length > 0 || spawnConfig) {
       this.spawner = new EnemySpawner({
         scene,
         getPlayer: () => player,
-        maxPopulation: spawnConfig.maxPopulation,
-        spawnRadius: spawnConfig.radius.max,
-        despawnRadius: spawnConfig.radius.max + 300,
-        minSpawnDistance: spawnConfig.radius.min,
-        spawnIntervalMs: spawnConfig.intervalMs,
-        spawnTable: spawnConfig.enemies.map((entry) => ({
+        maxPopulation: spawnConfig?.maxPopulation ?? 0,
+        spawnRadius: spawnConfig?.radius.max ?? 0,
+        despawnRadius: (spawnConfig?.radius.max ?? 0) + 300,
+        minSpawnDistance: spawnConfig?.radius.min ?? 0,
+        spawnIntervalMs: spawnConfig?.intervalMs ?? 0,
+        spawnTable: spawnConfig?.enemies.map((entry) => ({
           config: getEnemyConfig(entry.type),
           weight: entry.weight,
           maxAlive: entry.maxAlive,
-        })),
+        })) ?? [],
+        spawnAreas: ctx.enemySpawnAreas,
+        createEnemyContext: (area) => this.enemyContext(area),
         worldWidth: ctx.dimensions.width,
         worldHeight: ctx.dimensions.height,
         targetGroup: this.targets,
@@ -122,7 +125,7 @@ export class CombatController {
         enemyContext: this.enemyContext(),
       });
 
-      this.spawner.seed(Math.min(8, spawnConfig.maxPopulation));
+      this.spawner.seed(Math.min(8, spawnConfig?.maxPopulation ?? 8));
     }
     scene.physics.add.collider(this.targets, ctx.collisionTiles);
     scene.physics.add.collider(player, this.targets);
@@ -182,8 +185,9 @@ export class CombatController {
     this.comboText.destroy();
   }
 
-  private enemyContext() {
+  private enemyContext(spawnArea?: MapEnemySpawnArea) {
     return {
+      spawnArea,
       getPlayer: () => this.ctx.player,
       onContactDamage: (enemy: Enemy, amount: number) => {
         if (this.ctx.isDodging()) return;

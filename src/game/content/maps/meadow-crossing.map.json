@@ -2918,30 +2918,105 @@
       "h": 1216
     }
   ],
-  "spawns": {
-    "enemies": [
-      {
-        "type": "worm-archer",
-        "weight": 20,
-        "maxAlive": 2
+  "enemySpawnAreas": [
+    {
+      "id": "enemy-area-01",
+      "stayPerimeter": {
+        "shape": "circle",
+        "x": 621,
+        "y": 804,
+        "radius": 256
       },
-      {
-        "type": "worm-swordsman",
-        "weight": 30,
-        "maxAlive": 2
+      "pursuePerimeter": {
+        "shape": "circle",
+        "x": 621,
+        "y": 804,
+        "radius": 576
       },
-      {
-        "type": "worm-brawler",
-        "weight": 50,
-        "maxAlive": 2
-      }
-    ],
-    "radius": {
-      "min": 200,
-      "max": 500
+      "enemies": [
+        {
+          "type": "slime-spider",
+          "weight": 50,
+          "maxAlive": 10
+        }
+      ],
+      "intervalMs": 1500,
+      "maxPopulation": 8
     },
-    "intervalMs": 1500,
-    "maxPopulation": 6,
-    "safeZones": []
-  }
+    {
+      "id": "enemy-area-02",
+      "stayPerimeter": {
+        "shape": "rectangle",
+        "x": 1536,
+        "y": 512,
+        "w": 1536,
+        "h": 512
+      },
+      "pursuePerimeter": {
+        "shape": "rectangle",
+        "x": 1408,
+        "y": 384,
+        "w": 1792,
+        "h": 768
+      },
+      "enemies": [
+        {
+          "type": "worm-archer",
+          "weight": 30
+        }
+      ],
+      "intervalMs": 1500,
+      "maxPopulation": 8
+    },
+    {
+      "id": "enemy-area-03",
+      "stayPerimeter": {
+        "shape": "rectangle",
+        "x": 192,
+        "y": 2880,
+        "w": 896,
+        "h": 384
+      },
+      "pursuePerimeter": {
+        "shape": "rectangle",
+        "x": 64,
+        "y": 2752,
+        "w": 1152,
+        "h": 640
+      },
+      "enemies": [
+        {
+          "type": "worm-brawler",
+          "weight": 20
+        }
+      ],
+      "intervalMs": 1500,
+      "maxPopulation": 8
+    },
+    {
+      "id": "enemy-area-04",
+      "stayPerimeter": {
+        "shape": "rectangle",
+        "x": 1216,
+        "y": 2752,
+        "w": 2048,
+        "h": 576
+      },
+      "pursuePerimeter": {
+        "shape": "rectangle",
+        "x": 1088,
+        "y": 2624,
+        "w": 2304,
+        "h": 832
+      },
+      "enemies": [
+        {
+          "type": "worm-swordsman",
+          "weight": 10
+        }
+      ],
+      "intervalMs": 1500,
+      "maxPopulation": 8
+    }
+  ]
 }

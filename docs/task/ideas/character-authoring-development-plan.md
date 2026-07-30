@@ -59,7 +59,7 @@ runtime catalog rules intact.
 This plan follows:
 
 - [`2026-07-27-character-studio-design.md`](../../superpowers/specs/2026-07-27-character-studio-design.md)
-- [`ADDING_ASSETS.md`](../../ADDING_ASSETS.md)
+- [`adding-assets.md`](../../assets/adding-assets.md)
 - [`2026-07-23-animated-worm-enemy-roster-design.md`](2026-07-23-animated-worm-enemy-roster-design.md)
 - [`future-enemy-types.md`](future-enemy-types.md)
 - [`2026-07-24-combat-hit-feedback-and-parry-design.md`](2026-07-24-combat-hit-feedback-and-parry-design.md)
@@ -113,14 +113,17 @@ never sends or receives an arbitrary filesystem path.
 The wizard offers code-owned starter templates, but templates are convenience
 presets and do not become schema-required actions:
 
-- **Player starter**: one looping `idle` clip using frame `0`, a reviewed body,
-  and player values copied from the current primary player as an editable
-  baseline. The new package never receives `runtimeRole` automatically.
-- **Melee enemy starter**: one looping `idle` clip and the current enemy melee
+- **Player starter**: a complete baseline animation set copied from the current
+  primary player, with every clip reduced to its first source frame. This
+  includes movement, action, knockback, and death clips. Player values are also
+  copied as an editable baseline, and the new package never receives
+  `runtimeRole` automatically.
+- **Melee enemy starter**: all directional idle, walk, attack, knockback, and
+  death clips are created with frame `0`, alongside the current enemy melee
   baseline.
-- **Ranged enemy starter**: one looping `idle` clip and the current ranged
-  baseline, with the projectile fields left unset until a valid projectile is
-  selected.
+- **Ranged enemy starter**: the same complete directional animation contract
+  is created with frame `0`, alongside the current ranged baseline. Projectile
+  fields remain available for a valid reusable projectile selection.
 
 The author must review the stable body, visual scale, origin, gameplay values,
 and initial clip before the package can be created. `idle` is a starter clip,

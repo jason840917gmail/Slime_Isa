@@ -1,6 +1,15 @@
 import Phaser from 'phaser';
 
-import type { MapDirection } from '../content/maps/mapFormat';
+import type {
+  MapDirection,
+  MapEnemyAreaPerimeter,
+  MapEnemySpawnArea,
+} from '../content/maps/mapFormat';
+import {
+  perimeterBounds,
+  perimeterContains,
+  translatePerimeter,
+} from '../content/maps/enemySpawnAreaGeometry';
 import {
   getObjectArchetypeIds,
   getObjectVisualChoice,
@@ -33,6 +42,7 @@ import {
 import { TileFactory } from '../features/world/TileFactory';
 import type { LoadedMap } from '../infrastructure/maps/MapRepository';
 import { getAsset } from '../infrastructure/assets/manifest';
+import { ENEMY_CONFIGS } from '../enemies/library/EnemyTypes';
 import { AREAS } from '../world/Area';
 import { connectionAt } from './MapConnections';
 import { EDITOR_GEOMETRY_STYLES, EDITOR_SELECTION_STYLE } from './EditorGeometryStyles';
@@ -91,6 +101,29 @@ interface SafeZoneMove {
   y: number;
 }
 
+interface EnemyAreaMove {
+  readonly id: string;
+  readonly stayPerimeter: MapEnemyAreaPerimeter;
+  readonly pursuePerimeter: MapEnemyAreaPerimeter;
+  readonly startPointerX: number;
+  readonly startPointerY: number;
+  dx: number;
+  dy: number;
+  moved: boolean;
+}
+
+type EnemyAreaResizeTarget = 'stay' | 'pursue';
+
+interface EnemyAreaResize {
+  readonly id: string;
+  readonly target: EnemyAreaResizeTarget;
+  readonly stayPerimeter: MapEnemyAreaPerimeter;
+  readonly pursuePerimeter: MapEnemyAreaPerimeter;
+  resizedStayPerimeter?: MapEnemyAreaPerimeter;
+  resizedPursuePerimeter?: MapEnemyAreaPerimeter;
+  moved: boolean;
+}
+
 /**
  * True while the user is editing DOM UI (dialog fields, selects, content
  * editable) — editor hotkeys and camera keys must not fire then, otherwise
@@ -104,6 +137,17 @@ function isUiEditingActive(target: EventTarget | null): boolean {
     || target instanceof HTMLTextAreaElement
     || target instanceof HTMLSelectElement
     || target.isContentEditable;
+}
+
+function sameEnemyAreaPerimeter(left: MapEnemyAreaPerimeter, right: MapEnemyAreaPerimeter): boolean {
+  if (left.shape !== right.shape) return false;
+  if (left.shape === 'circle' && right.shape === 'circle') {
+    return left.x === right.x && left.y === right.y && left.radius === right.radius;
+  }
+  if (left.shape === 'rectangle' && right.shape === 'rectangle') {
+    return left.x === right.x && left.y === right.y && left.w === right.w && left.h === right.h;
+  }
+  return false;
 }
 
 export class MapEditorScene extends Phaser.Scene {
@@ -129,6 +173,7 @@ export class MapEditorScene extends Phaser.Scene {
     showOcclusionOverlay: true,
   };
   private lastSelectedInstanceId?: string;
+  private lastSelectedEnemyAreaId?: string;
   private lastTool: EditorTool = 'pan';
   private panPointer?: { x: number; y: number };
   private paintDrag?: PaintDrag;
@@ -146,6 +191,11 @@ export class MapEditorScene extends Phaser.Scene {
   private safeZoneDragRect?: { x: number; y: number; w: number; h: number };
   private safeZoneDragMarker?: Phaser.GameObjects.Graphics;
   private safeZoneMove?: SafeZoneMove;
+  private enemyAreaDragStart?: { x: number; y: number };
+  private enemyAreaDrag?: MapEnemySpawnArea;
+  private enemyAreaDragMarker?: Phaser.GameObjects.Graphics;
+  private enemyAreaMove?: EnemyAreaMove;
+  private enemyAreaResize?: EnemyAreaResize;
   private cursors?: Phaser.Types.Input.Keyboard.CursorKeys;
   private wasd?: Record<'up' | 'down' | 'left' | 'right', Phaser.Input.Keyboard.Key>;
 
@@ -208,9 +258,11 @@ export class MapEditorScene extends Phaser.Scene {
     );
     this.unsubscribeState = this.editor.subscribe((state) => {
       const toolChanged = state.tool !== this.lastTool;
-      const selectionChanged = state.selectedInstanceId !== this.lastSelectedInstanceId;
+      const selectionChanged = state.selectedInstanceId !== this.lastSelectedInstanceId
+        || state.selectedEnemyAreaId !== this.lastSelectedEnemyAreaId;
       this.lastTool = state.tool;
       this.lastSelectedInstanceId = state.selectedInstanceId;
+      this.lastSelectedEnemyAreaId = state.selectedEnemyAreaId;
       if (state.revision !== this.lastRevision) {
         this.lastRevision = state.revision;
         this.renderDocument();
@@ -288,6 +340,18 @@ export class MapEditorScene extends Phaser.Scene {
         else this.beginSafeZoneMove(zoneIndex, world.x, world.y);
         return;
       }
+      if (this.editor.value.tool === 'enemy-area') {
+        const area = this.enemyAreaAt(world.x, world.y);
+        const selectedArea = this.selectedEnemyArea();
+        const resizeTarget = selectedArea
+          ? this.enemyAreaResizeHandleAt(selectedArea, world.x, world.y)
+          : undefined;
+        if (selectedArea && resizeTarget) {
+          this.beginEnemyAreaResize(selectedArea, resizeTarget);
+        } else if (area) this.beginEnemyAreaMove(area, world.x, world.y);
+        else this.beginEnemyAreaDrag(world.x, world.y);
+        return;
+      }
       this.applyTool(world.x, world.y);
     });
     this.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
@@ -319,11 +383,20 @@ export class MapEditorScene extends Phaser.Scene {
         this.updateSafeZoneMove(world.x, world.y);
         return;
       }
+      if (this.enemyAreaMove) {
+        this.updateEnemyAreaMove(world.x, world.y);
+        return;
+      }
+      if (this.enemyAreaResize) {
+        this.updateEnemyAreaResize(world.x, world.y);
+        return;
+      }
       if (this.editor.value.tool === 'erase' && this.eraseDragStart) {
         this.renderEraseDrag(world.x, world.y);
         return;
       }
       if (this.safeZoneDragStart) this.updateSafeZoneDrag(world.x, world.y);
+      if (this.enemyAreaDragStart) this.updateEnemyAreaDrag(world.x, world.y);
     });
     this.input.on('pointerup', (pointer: Phaser.Input.Pointer) => {
       const world = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
@@ -335,6 +408,9 @@ export class MapEditorScene extends Phaser.Scene {
       }
       if (this.safeZoneDragStart) this.finishSafeZoneDrag(world.x, world.y);
       if (this.safeZoneMove) this.finishSafeZoneMove();
+      if (this.enemyAreaDragStart) this.finishEnemyAreaDrag(world.x, world.y);
+      if (this.enemyAreaMove) this.finishEnemyAreaMove();
+      if (this.enemyAreaResize) this.finishEnemyAreaResize(world.x, world.y);
       this.panPointer = undefined;
     });
     this.input.on('wheel', (_pointer: Phaser.Input.Pointer, _objects: unknown[], _dx: number, dy: number) => {
@@ -345,6 +421,12 @@ export class MapEditorScene extends Phaser.Scene {
   }
 
   private pickContentAt(worldX: number, worldY: number): void {
+    if (this.editor.value.tool === 'enemy-area') {
+      const area = this.enemyAreaAt(worldX, worldY);
+      this.editor.selectEnemyArea(area?.id);
+      this.editor.notify(area ? `Picked enemy area ${area.id}` : 'No enemy area at cursor');
+      return;
+    }
     const objectHit = this.movableObjectAt(worldX, worldY);
     if (objectHit) {
       const objectId = objectHit.object.objectId;
@@ -373,9 +455,18 @@ export class MapEditorScene extends Phaser.Scene {
     this.cursors = keyboard.createCursorKeys();
     this.wasd = keyboard.addKeys({ up: 'W', down: 'S', left: 'A', right: 'D' }) as typeof this.wasd;
     const toolKeys: Readonly<Record<string, Parameters<MapEditorState['setTool']>[0]>> = {
-      H: 'pan', B: 'terrain', O: 'object', V: 'select', X: 'erase', Z: 'safe-zone', P: 'spawn', I: 'entry', E: 'exit',
+      H: 'pan', B: 'terrain', O: 'object', V: 'select', X: 'erase', Z: 'safe-zone', M: 'enemy-area', P: 'spawn', I: 'entry', E: 'exit',
     };
     keyboard.on('keydown', (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        // Let an open native dialog consume Escape so its form is cancelled
+        // without affecting the map editor behind it.
+        if (document.querySelector('dialog[open]')) return;
+        if (isUiEditingActive(event.target)) return;
+        event.preventDefault();
+        this.cancelEditorAction();
+        return;
+      }
       if (isUiEditingActive(event.target)) return;
       if (event.ctrlKey && event.key.toLowerCase() === 's') {
         event.preventDefault();
@@ -402,9 +493,63 @@ export class MapEditorScene extends Phaser.Scene {
         this.deleteSafeZone(this.editor.value.selectedSafeZoneIndex);
         return;
       }
+      if ((event.key === 'Delete' || event.key === 'Backspace') && this.editor.value.selectedEnemyAreaId) {
+        event.preventDefault();
+        this.deleteEnemyArea(this.editor.value.selectedEnemyAreaId);
+        return;
+      }
       const tool = toolKeys[event.key.toUpperCase()];
       if (tool) this.editor.setTool(tool);
     });
+  }
+
+  private cancelEditorAction(): void {
+    const objectPlacementActive = this.editor.value.tool === 'object';
+    this.panPointer = undefined;
+
+    const paintDrag = this.paintDrag;
+    this.paintDrag = undefined;
+    if (paintDrag) {
+      for (const preview of paintDrag.previews) preview.destroy();
+      for (const terrain of paintDrag.hiddenTerrain.values()) terrain.setVisible(true);
+    }
+
+    const objectStampDrag = this.objectStampDrag;
+    this.objectStampDrag = undefined;
+    if (objectStampDrag) {
+      for (const preview of objectStampDrag.previews) preview.destroy();
+    }
+
+    const objectMoveDrag = this.objectMoveDrag;
+    this.objectMoveDrag = undefined;
+    if (objectMoveDrag) {
+      setObjectAnchor(objectMoveDrag.image, objectMoveDrag.startX, objectMoveDrag.startY);
+      setObjectDepthMode(objectMoveDrag.image, 'world-sorted');
+      objectMoveDrag.image.setAlpha(1);
+    }
+
+    this.eraseDragStart = undefined;
+    this.eraseDragMarker?.destroy();
+    this.eraseDragMarker = undefined;
+
+    this.safeZoneDragStart = undefined;
+    this.safeZoneDragRect = undefined;
+    this.safeZoneMove = undefined;
+    this.safeZoneDragMarker?.destroy();
+    this.safeZoneDragMarker = undefined;
+
+    this.enemyAreaDragStart = undefined;
+    this.enemyAreaDrag = undefined;
+    this.enemyAreaMove = undefined;
+    this.enemyAreaResize = undefined;
+    this.enemyAreaDragMarker?.destroy();
+    this.enemyAreaDragMarker = undefined;
+
+    this.cursorGhost?.setVisible(false);
+    if (objectPlacementActive) {
+      this.editor.setTool('pan');
+    }
+    this.editor.clearSelection();
   }
 
   private applyTool(worldX: number, worldY: number): void {
@@ -867,6 +1012,364 @@ export class MapEditorScene extends Phaser.Scene {
     this.editor.notify(`Deleted safe zone ${index + 1} — Ctrl+Z restores it`);
   }
 
+  private enemyAreaAt(x: number, y: number): MapEnemySpawnArea | undefined {
+    const areas = this.editor.value.map.enemySpawnAreas;
+    for (let index = areas.length - 1; index >= 0; index -= 1) {
+      const area = areas[index];
+      if (perimeterContains(area.pursuePerimeter, x, y)) return area;
+    }
+    return undefined;
+  }
+
+  private beginEnemyAreaDrag(worldX: number, worldY: number): void {
+    const tile = this.tileAt(worldX, worldY);
+    if (!tile) return;
+    const map = this.editor.value.map;
+    this.enemyAreaDragStart = this.editor.value.enemyAreaShape === 'circle'
+      ? { x: tile.x * map.tileSize + map.tileSize / 2, y: tile.y * map.tileSize + map.tileSize / 2 }
+      : { x: tile.x * map.tileSize, y: tile.y * map.tileSize };
+    this.updateEnemyAreaDrag(worldX, worldY);
+  }
+
+  private updateEnemyAreaDrag(worldX: number, worldY: number): void {
+    const start = this.enemyAreaDragStart;
+    if (!start) return;
+    const map = this.editor.value.map;
+    const width = map.size.columns * map.tileSize;
+    const height = map.size.rows * map.tileSize;
+    const shape = this.editor.value.enemyAreaShape;
+    const stayPerimeter = shape === 'circle'
+      ? this.circleFromDrag(start.x, start.y, worldX, worldY, map.tileSize, width, height)
+      : this.rectangleFromDrag(start.x, start.y, worldX, worldY, map.tileSize, width, height);
+    const pursuePerimeter: MapEnemyAreaPerimeter = stayPerimeter.shape === 'circle'
+      ? {
+        ...stayPerimeter,
+        radius: Math.min(
+          Math.min(start.x, width - start.x, start.y, height - start.y),
+          stayPerimeter.radius + map.tileSize * 2,
+        ),
+      }
+      : this.expandRectangle(stayPerimeter, map.tileSize * 2, width, height);
+    this.enemyAreaDrag = {
+      id: 'draft',
+      stayPerimeter,
+      pursuePerimeter,
+      enemies: [],
+      intervalMs: 1500,
+      maxPopulation: 8,
+    };
+    this.renderEnemyAreaDraft(this.enemyAreaDrag, 'editor-enemy-area-draft');
+    this.editor.notify(`Enemy area — ${shape} stay perimeter`);
+  }
+
+  private finishEnemyAreaDrag(worldX: number, worldY: number): void {
+    if (!this.enemyAreaDragStart) return;
+    this.updateEnemyAreaDrag(worldX, worldY);
+    const draft = this.enemyAreaDrag;
+    this.enemyAreaDragStart = undefined;
+    this.enemyAreaDrag = undefined;
+    this.enemyAreaDragMarker?.destroy();
+    this.enemyAreaDragMarker = undefined;
+    if (!draft) return;
+    const area: MapEnemySpawnArea = {
+      ...draft,
+      id: this.createEnemyAreaId(),
+      enemies: Object.keys(ENEMY_CONFIGS).slice(0, 3).map((type, index) => ({
+        type,
+        weight: [50, 30, 20][index] ?? 10,
+      })),
+    };
+    this.editor.mutate(`Created enemy area ${area.id}`, (map) => {
+      map.enemySpawnAreas.push(area);
+    });
+    this.editor.selectEnemyArea(area.id);
+    this.editor.notify(`Created ${area.id} — edit its enemy roster and cooldown`);
+  }
+
+  private beginEnemyAreaMove(area: MapEnemySpawnArea, worldX: number, worldY: number): void {
+    this.editor.selectEnemyArea(area.id);
+    this.enemyAreaMove = {
+      id: area.id,
+      stayPerimeter: structuredClone(area.stayPerimeter),
+      pursuePerimeter: structuredClone(area.pursuePerimeter),
+      startPointerX: worldX,
+      startPointerY: worldY,
+      dx: 0,
+      dy: 0,
+      moved: false,
+    };
+    this.editor.notify(`Dragging ${area.id} — release to move the camp`);
+  }
+
+  private selectedEnemyArea(): MapEnemySpawnArea | undefined {
+    const selectedId = this.editor.value.selectedEnemyAreaId;
+    return selectedId
+      ? this.editor.value.map.enemySpawnAreas.find((area) => area.id === selectedId)
+      : undefined;
+  }
+
+  private enemyAreaResizeHandleAt(area: MapEnemySpawnArea, worldX: number, worldY: number): EnemyAreaResizeTarget | undefined {
+    const hitRadius = Math.max(20 / this.cameras.main.zoom, this.editor.value.map.tileSize * 0.3);
+    const candidates: Array<{ target: EnemyAreaResizeTarget; distance: number }> = (['stay', 'pursue'] as const).map((target) => {
+      const handle = this.enemyAreaResizeHandlePosition(target === 'stay' ? area.stayPerimeter : area.pursuePerimeter);
+      return { target, distance: Math.hypot(worldX - handle.x, worldY - handle.y) };
+    });
+    candidates.sort((left, right) => left.distance - right.distance);
+    const hit = candidates[0];
+    return hit && hit.distance <= hitRadius ? hit.target : undefined;
+  }
+
+  private enemyAreaResizeHandlePosition(perimeter: MapEnemyAreaPerimeter): { x: number; y: number } {
+    return perimeter.shape === 'circle'
+      ? { x: perimeter.x, y: perimeter.y + perimeter.radius }
+      : { x: perimeter.x + perimeter.w, y: perimeter.y + perimeter.h };
+  }
+
+  private beginEnemyAreaResize(area: MapEnemySpawnArea, target: EnemyAreaResizeTarget): void {
+    this.editor.selectEnemyArea(area.id);
+    this.enemyAreaResize = {
+      id: area.id,
+      target,
+      stayPerimeter: structuredClone(area.stayPerimeter),
+      pursuePerimeter: structuredClone(area.pursuePerimeter),
+      moved: false,
+    };
+    this.editor.notify(`Resize ${target} perimeter for ${area.id} — drag the ${target} tab`);
+  }
+
+  private updateEnemyAreaMove(worldX: number, worldY: number): void {
+    const move = this.enemyAreaMove;
+    if (!move) return;
+    const map = this.editor.value.map;
+    const width = map.size.columns * map.tileSize;
+    const height = map.size.rows * map.tileSize;
+    const bounds = perimeterBounds(move.pursuePerimeter);
+    move.dx = Math.round(Phaser.Math.Clamp(worldX - move.startPointerX, -bounds.minX, width - bounds.maxX));
+    move.dy = Math.round(Phaser.Math.Clamp(worldY - move.startPointerY, -bounds.minY, height - bounds.maxY));
+    move.moved ||= Math.hypot(move.dx, move.dy) >= 2;
+    this.renderEnemyAreaDraft({
+      id: move.id,
+      stayPerimeter: translatePerimeter(move.stayPerimeter, move.dx, move.dy),
+      pursuePerimeter: translatePerimeter(move.pursuePerimeter, move.dx, move.dy),
+      enemies: [],
+      intervalMs: 1500,
+      maxPopulation: 8,
+    }, 'editor-enemy-area-move');
+    this.editor.notify(`Moving ${move.id}`);
+  }
+
+  private finishEnemyAreaMove(): void {
+    const move = this.enemyAreaMove;
+    this.enemyAreaMove = undefined;
+    this.enemyAreaDragMarker?.destroy();
+    this.enemyAreaDragMarker = undefined;
+    if (!move) return;
+    if (!move.moved) {
+      this.editor.selectEnemyArea(move.id);
+      return;
+    }
+    this.editor.mutate(`Moved enemy area ${move.id}`, (map) => {
+      const index = map.enemySpawnAreas.findIndex((candidate) => candidate.id === move.id);
+      const area = map.enemySpawnAreas[index];
+      if (!area) return;
+      map.enemySpawnAreas[index] = {
+        ...area,
+        stayPerimeter: translatePerimeter(move.stayPerimeter, move.dx, move.dy),
+        pursuePerimeter: translatePerimeter(move.pursuePerimeter, move.dx, move.dy),
+      };
+    });
+    this.editor.selectEnemyArea(move.id);
+  }
+
+  private updateEnemyAreaResize(worldX: number, worldY: number): void {
+    const resize = this.enemyAreaResize;
+    if (!resize) return;
+    const map = this.editor.value.map;
+    const width = map.size.columns * map.tileSize;
+    const height = map.size.rows * map.tileSize;
+    const stay = resize.stayPerimeter;
+    let stayPerimeter: MapEnemyAreaPerimeter;
+    let pursuePerimeter: MapEnemyAreaPerimeter;
+
+    if (resize.target === 'stay' && stay.shape === 'circle' && resize.pursuePerimeter.shape === 'circle') {
+      const centerOffset = Math.hypot(resize.pursuePerimeter.x - stay.x, resize.pursuePerimeter.y - stay.y);
+      const maxStayRadius = Math.floor(
+        Math.min(
+          Math.min(stay.x, width - stay.x, stay.y, height - stay.y),
+          resize.pursuePerimeter.radius - centerOffset,
+        ) / map.tileSize,
+      ) * map.tileSize;
+      const radius = Math.min(
+        Math.max(map.tileSize, maxStayRadius),
+        Math.max(map.tileSize, Math.round(Math.hypot(worldX - stay.x, worldY - stay.y) / map.tileSize) * map.tileSize),
+      );
+      stayPerimeter = { ...stay, radius };
+      pursuePerimeter = resize.pursuePerimeter;
+    } else if (resize.target === 'pursue' && stay.shape === 'circle' && resize.pursuePerimeter.shape === 'circle') {
+      const centerOffset = Math.hypot(resize.pursuePerimeter.x - stay.x, resize.pursuePerimeter.y - stay.y);
+      const minPursueRadius = Math.ceil((centerOffset + stay.radius) / map.tileSize) * map.tileSize;
+      const maxPursueRadius = Math.floor(
+        Math.min(
+          resize.pursuePerimeter.x,
+          width - resize.pursuePerimeter.x,
+          resize.pursuePerimeter.y,
+          height - resize.pursuePerimeter.y,
+        ) / map.tileSize,
+      ) * map.tileSize;
+      const radius = Math.max(
+        minPursueRadius,
+        Math.min(maxPursueRadius, Math.max(map.tileSize, Math.round(Math.hypot(worldX - resize.pursuePerimeter.x, worldY - resize.pursuePerimeter.y) / map.tileSize) * map.tileSize)),
+      );
+      stayPerimeter = stay;
+      pursuePerimeter = { ...resize.pursuePerimeter, radius };
+    } else if (resize.target === 'stay' && stay.shape === 'rectangle' && resize.pursuePerimeter.shape === 'rectangle') {
+      const maxWidth = Math.min(width - stay.x, resize.pursuePerimeter.x + resize.pursuePerimeter.w - stay.x);
+      const maxHeight = Math.min(height - stay.y, resize.pursuePerimeter.y + resize.pursuePerimeter.h - stay.y);
+      const nextWidth = Math.min(maxWidth, Math.max(map.tileSize, Math.ceil(Math.max(0, worldX - stay.x) / map.tileSize) * map.tileSize));
+      const nextHeight = Math.min(maxHeight, Math.max(map.tileSize, Math.ceil(Math.max(0, worldY - stay.y) / map.tileSize) * map.tileSize));
+      stayPerimeter = { ...stay, w: nextWidth, h: nextHeight };
+      pursuePerimeter = resize.pursuePerimeter;
+    } else if (resize.target === 'pursue' && stay.shape === 'rectangle' && resize.pursuePerimeter.shape === 'rectangle') {
+      const minWidth = Math.max(map.tileSize, stay.x + stay.w - resize.pursuePerimeter.x);
+      const minHeight = Math.max(map.tileSize, stay.y + stay.h - resize.pursuePerimeter.y);
+      const maxWidth = width - resize.pursuePerimeter.x;
+      const maxHeight = height - resize.pursuePerimeter.y;
+      const nextWidth = Math.max(minWidth, Math.min(maxWidth, Math.max(map.tileSize, Math.ceil(Math.max(0, worldX - resize.pursuePerimeter.x) / map.tileSize) * map.tileSize)));
+      const nextHeight = Math.max(minHeight, Math.min(maxHeight, Math.max(map.tileSize, Math.ceil(Math.max(0, worldY - resize.pursuePerimeter.y) / map.tileSize) * map.tileSize)));
+      stayPerimeter = stay;
+      pursuePerimeter = { ...resize.pursuePerimeter, w: nextWidth, h: nextHeight };
+    } else {
+      return;
+    }
+
+    resize.resizedStayPerimeter = stayPerimeter;
+    resize.resizedPursuePerimeter = pursuePerimeter;
+    resize.moved ||= !sameEnemyAreaPerimeter(stayPerimeter, resize.stayPerimeter)
+      || !sameEnemyAreaPerimeter(pursuePerimeter, resize.pursuePerimeter);
+    this.renderEnemyAreaDraft({
+      id: resize.id,
+      stayPerimeter,
+      pursuePerimeter,
+      enemies: [],
+      intervalMs: 1500,
+      maxPopulation: 8,
+    }, 'editor-enemy-area-resize');
+    this.editor.notify(`Resizing ${resize.id}`);
+  }
+
+  private finishEnemyAreaResize(worldX: number, worldY: number): void {
+    const resize = this.enemyAreaResize;
+    if (!resize) return;
+    this.updateEnemyAreaResize(worldX, worldY);
+    this.enemyAreaResize = undefined;
+    this.enemyAreaDragMarker?.destroy();
+    this.enemyAreaDragMarker = undefined;
+    if (!resize.moved || !resize.resizedStayPerimeter || !resize.resizedPursuePerimeter) {
+      this.editor.selectEnemyArea(resize.id);
+      return;
+    }
+    const resizedStayPerimeter = resize.resizedStayPerimeter;
+    const resizedPursuePerimeter = resize.resizedPursuePerimeter;
+    this.editor.mutate(`Resized enemy area ${resize.id}`, (editableMap) => {
+      const index = editableMap.enemySpawnAreas.findIndex((candidate) => candidate.id === resize.id);
+      const current = editableMap.enemySpawnAreas[index];
+      if (!current) return;
+      editableMap.enemySpawnAreas[index] = {
+        ...current,
+        stayPerimeter: resizedStayPerimeter,
+        pursuePerimeter: resizedPursuePerimeter,
+      };
+    });
+    this.editor.selectEnemyArea(resize.id);
+  }
+
+  private deleteEnemyArea(areaId: string): void {
+    if (!this.editor.value.map.enemySpawnAreas.some((area) => area.id === areaId)) return;
+    this.editor.mutate(`Deleted enemy area ${areaId}`, (map) => {
+      map.enemySpawnAreas = map.enemySpawnAreas.filter((area) => area.id !== areaId);
+    });
+    this.editor.selectEnemyArea(undefined);
+    this.editor.notify(`Deleted ${areaId} — Ctrl+Z restores it`);
+  }
+
+  private circleFromDrag(
+    centerX: number,
+    centerY: number,
+    worldX: number,
+    worldY: number,
+    tileSize: number,
+    width: number,
+    height: number,
+  ): MapEnemyAreaPerimeter {
+    const maxRadius = Math.max(tileSize, Math.min(centerX, width - centerX, centerY, height - centerY));
+    const radius = Math.min(maxRadius, Math.max(tileSize, Math.round(Math.hypot(worldX - centerX, worldY - centerY) / tileSize) * tileSize));
+    return { shape: 'circle', x: centerX, y: centerY, radius };
+  }
+
+  private rectangleFromDrag(
+    startX: number,
+    startY: number,
+    worldX: number,
+    worldY: number,
+    tileSize: number,
+    width: number,
+    height: number,
+  ): MapEnemyAreaPerimeter {
+    const targetX = Phaser.Math.Clamp(worldX, 0, width);
+    const targetY = Phaser.Math.Clamp(worldY, 0, height);
+    const x = Math.max(0, Math.min(startX, targetX));
+    const y = Math.max(0, Math.min(startY, targetY));
+    const w = Math.min(width - x, Math.max(tileSize, Math.ceil(Math.abs(targetX - startX) / tileSize) * tileSize));
+    const h = Math.min(height - y, Math.max(tileSize, Math.ceil(Math.abs(targetY - startY) / tileSize) * tileSize));
+    return { shape: 'rectangle', x, y, w, h };
+  }
+
+  private expandRectangle(perimeter: MapEnemyAreaPerimeter, padding: number, width: number, height: number): MapEnemyAreaPerimeter {
+    if (perimeter.shape !== 'rectangle') return perimeter;
+    const x = Math.max(0, perimeter.x - padding);
+    const y = Math.max(0, perimeter.y - padding);
+    return {
+      shape: 'rectangle',
+      x,
+      y,
+      w: Math.min(width - x, perimeter.x + perimeter.w + padding - x),
+      h: Math.min(height - y, perimeter.y + perimeter.h + padding - y),
+    };
+  }
+
+  private renderEnemyAreaDraft(area: MapEnemySpawnArea, name: string): void {
+    this.enemyAreaDragMarker?.destroy();
+    const marker = this.add.graphics().setDepth(resolveExplicitDepth('editor-selection-marker', 3)).setName(name);
+    this.drawEnemyAreaPerimeter(marker, area.pursuePerimeter, 0x5ee7ff, 0.06, 4);
+    this.drawEnemyAreaPerimeter(marker, area.stayPerimeter, 0xffc65c, 0.12, 5);
+    this.enemyAreaDragMarker = marker;
+  }
+
+  private drawEnemyAreaPerimeter(
+    graphics: Phaser.GameObjects.Graphics,
+    perimeter: MapEnemyAreaPerimeter,
+    color: number,
+    fillAlpha: number,
+    lineWidth: number,
+  ): void {
+    graphics.fillStyle(color, fillAlpha);
+    graphics.lineStyle(lineWidth, color, 0.9);
+    if (perimeter.shape === 'circle') {
+      graphics.fillCircle(perimeter.x, perimeter.y, perimeter.radius);
+      graphics.strokeCircle(perimeter.x, perimeter.y, perimeter.radius);
+    } else {
+      graphics.fillRect(perimeter.x, perimeter.y, perimeter.w, perimeter.h);
+      graphics.strokeRect(perimeter.x, perimeter.y, perimeter.w, perimeter.h);
+    }
+  }
+
+  private createEnemyAreaId(): string {
+    const ids = new Set(this.editor.value.map.enemySpawnAreas.map((area) => area.id));
+    let index = 1;
+    while (ids.has(`enemy-area-${String(index).padStart(2, '0')}`)) index += 1;
+    return `enemy-area-${String(index).padStart(2, '0')}`;
+  }
+
   private placeExit(direction: MapDirection): void {
     const target = connectionAt(direction, this.editor.value.map)?.to;
     if (!target) {
@@ -1177,7 +1680,7 @@ export class MapEditorScene extends Phaser.Scene {
       if (!image) continue;
       drawGeometry(image);
     }
-    if (overlayTargets.length === 0) {
+    if (overlayTargets.length === 0 && this.editor.value.tool === 'object') {
       const map = this.editor.value.map;
       const view = this.cameras.main.worldView;
       const anchorX = Phaser.Math.Clamp(view.centerX, map.tileSize / 2, map.size.columns * map.tileSize - map.tileSize / 2);
@@ -1268,6 +1771,22 @@ export class MapEditorScene extends Phaser.Scene {
         this.overlayObjects.push(label);
       }
     }
+    if (this.editor.value.tool === 'enemy-area') {
+      for (const area of map.enemySpawnAreas) {
+        this.drawEnemyAreaPerimeter(graphics, area.pursuePerimeter, 0x5ee7ff, 0.06, 4);
+        this.drawEnemyAreaPerimeter(graphics, area.stayPerimeter, 0xffc65c, 0.14, 5);
+        const bounds = perimeterBounds(area.stayPerimeter);
+        const selected = area.id === this.editor.value.selectedEnemyAreaId;
+        const label = this.add.text(bounds.minX + 10, bounds.minY + 10, `${area.id}\n${area.maxPopulation} max · ${area.intervalMs}ms`, {
+          fontFamily: 'Trebuchet MS',
+          fontSize: selected ? '14px' : '12px',
+          color: selected ? '#fff1ba' : '#e7faff',
+          backgroundColor: selected ? '#5d4215' : '#12323b',
+          padding: { x: 6, y: 4 },
+        }).setDepth(resolveExplicitDepth('editor-template-overlay', 2));
+        this.overlayObjects.push(label);
+      }
+    }
     this.overlayObjects.push(graphics);
   }
 
@@ -1283,6 +1802,29 @@ export class MapEditorScene extends Phaser.Scene {
       marker.lineStyle(3, EDITOR_SELECTION_STYLE.phaser, 1).strokeRect(zone.x - 8, zone.y - 8, zone.w + 16, zone.h + 16);
       marker.fillStyle(EDITOR_SELECTION_STYLE.shadow, 0.95).fillCircle(zone.x + zone.w, zone.y + zone.h, 8);
       marker.fillStyle(EDITOR_SELECTION_STYLE.phaser, 1).fillCircle(zone.x + zone.w, zone.y + zone.h, 5);
+      return;
+    }
+    const selectedAreaId = this.editor.value.selectedEnemyAreaId;
+    if (selectedAreaId && this.editor.value.tool === 'enemy-area') {
+      const area = this.editor.value.map.enemySpawnAreas.find((candidate) => candidate.id === selectedAreaId);
+      if (!area) return;
+      const marker = this.add.graphics().setName('editor-selection-marker').setDepth(resolveExplicitDepth('editor-selection-marker'));
+      const pursue = perimeterBounds(area.pursuePerimeter);
+      const stay = perimeterBounds(area.stayPerimeter);
+      marker.lineStyle(8, 0x062d3a, 0.95);
+      if (area.pursuePerimeter.shape === 'circle') marker.strokeCircle(area.pursuePerimeter.x, area.pursuePerimeter.y, area.pursuePerimeter.radius);
+      else marker.strokeRect(pursue.minX - 8, pursue.minY - 8, pursue.maxX - pursue.minX + 16, pursue.maxY - pursue.minY + 16);
+      marker.lineStyle(4, 0x5ee7ff, 1);
+      if (area.pursuePerimeter.shape === 'circle') marker.strokeCircle(area.pursuePerimeter.x, area.pursuePerimeter.y, area.pursuePerimeter.radius);
+      else marker.strokeRect(pursue.minX - 8, pursue.minY - 8, pursue.maxX - pursue.minX + 16, pursue.maxY - pursue.minY + 16);
+      marker.lineStyle(8, 0x4a2b09, 0.95);
+      if (area.stayPerimeter.shape === 'circle') marker.strokeCircle(area.stayPerimeter.x, area.stayPerimeter.y, area.stayPerimeter.radius);
+      else marker.strokeRect(stay.minX - 8, stay.minY - 8, stay.maxX - stay.minX + 16, stay.maxY - stay.minY + 16);
+      marker.lineStyle(4, 0xffc65c, 1);
+      if (area.stayPerimeter.shape === 'circle') marker.strokeCircle(area.stayPerimeter.x, area.stayPerimeter.y, area.stayPerimeter.radius);
+      else marker.strokeRect(stay.minX - 8, stay.minY - 8, stay.maxX - stay.minX + 16, stay.maxY - stay.minY + 16);
+      this.drawEnemyAreaResizeHandle(marker, area.pursuePerimeter, 0x5ee7ff);
+      this.drawEnemyAreaResizeHandle(marker, area.stayPerimeter, 0xffc65c);
       return;
     }
     const selectedId = this.editor.value.selectedInstanceId;
@@ -1305,6 +1847,18 @@ export class MapEditorScene extends Phaser.Scene {
     );
     marker.fillStyle(EDITOR_SELECTION_STYLE.shadow, 0.95).fillCircle(bounds.centerX, bounds.y - 8, 8);
     marker.fillStyle(EDITOR_SELECTION_STYLE.phaser, 1).fillCircle(bounds.centerX, bounds.y - 8, 5);
+  }
+
+  private drawEnemyAreaResizeHandle(
+    marker: Phaser.GameObjects.Graphics,
+    perimeter: MapEnemyAreaPerimeter,
+    color: number,
+  ): void {
+    const handle = this.enemyAreaResizeHandlePosition(perimeter);
+    marker.fillStyle(0x061016, 1).fillRect(handle.x - 16, handle.y - 16, 32, 32);
+    marker.lineStyle(3, color, 1).strokeRect(handle.x - 14, handle.y - 14, 28, 28);
+    marker.fillStyle(color, 1).fillRect(handle.x - 10, handle.y - 10, 20, 20);
+    marker.fillStyle(0xf7fbff, 0.9).fillRect(handle.x - 2, handle.y - 2, 4, 4);
   }
 
   private templateOverlaySettings(): {
@@ -1388,6 +1942,7 @@ export class MapEditorScene extends Phaser.Scene {
     this.transitionLayer?.destroy();
     this.eraseDragMarker?.destroy();
     this.safeZoneDragMarker?.destroy();
+    this.enemyAreaDragMarker?.destroy();
     for (const preview of this.paintDrag?.previews ?? []) preview.destroy();
     for (const preview of this.objectStampDrag?.previews ?? []) preview.destroy();
     this.cursorGhost?.destroy();

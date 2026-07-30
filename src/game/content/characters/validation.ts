@@ -264,7 +264,8 @@ function validateEnemy(issues: CharacterValidationIssue[], enemy: unknown, optio
   finite(issues, enemy.maxHp, 'character.enemy.maxHp', (entry) => entry > 0, 'must be greater than zero');
   if (!isRecord(ai)) issue(issues, 'character.enemy.ai', 'must be an object');
   else {
-    checkKeys(issues, ai, 'character.enemy.ai', new Set(['aggroRange', 'attackRange', 'leapRange', 'fleeRange', 'wanderSpeed', 'chaseSpeed', 'attackCooldownMs', 'attackWindupMs', 'attackRecoveryMs', 'contactDamage', 'knockbackStrength', 'isRanged', 'isLeaper', 'projectileSpeed', 'knockbackResist']));
+    checkKeys(issues, ai, 'character.enemy.ai', new Set(['behavior', 'aggroRange', 'attackRange', 'leapRange', 'fleeRange', 'wanderSpeed', 'chaseSpeed', 'attackCooldownMs', 'attackWindupMs', 'attackRecoveryMs', 'contactDamage', 'knockbackStrength', 'isRanged', 'isLeaper', 'projectileSpeed', 'knockbackResist']));
+    if (ai.behavior !== undefined && ai.behavior !== 'standard' && ai.behavior !== 'slime-spider') issue(issues, 'character.enemy.ai.behavior', "must be 'standard' or 'slime-spider'");
     for (const field of ['aggroRange', 'attackRange', 'wanderSpeed', 'chaseSpeed', 'contactDamage', 'knockbackStrength'] as const) finite(issues, ai[field], `character.enemy.ai.${field}`, (entry) => entry >= 0, 'must be zero or greater');
     for (const field of ['attackCooldownMs', 'attackWindupMs', 'attackRecoveryMs'] as const) integer(issues, ai[field], `character.enemy.ai.${field}`, (entry) => entry >= 0, 'must be a non-negative integer');
     for (const field of ['leapRange', 'fleeRange'] as const) if (ai[field] !== undefined) finite(issues, ai[field], `character.enemy.ai.${field}`, (entry) => entry >= 0, 'must be zero or greater');

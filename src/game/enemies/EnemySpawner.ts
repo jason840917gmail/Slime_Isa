@@ -1,6 +1,12 @@
 import Phaser from 'phaser';
 import { Enemy, type EnemyConfig, type EnemyContext } from './Enemy';
 import type { EnemySafeZone } from './EnemyAI';
+import type { MapEnemySpawnArea } from '../content/maps/mapFormat';
+import { getEnemyConfig } from './library/EnemyTypes';
+import {
+  enemySpawnAreaContainsPlayer,
+  randomPointInPerimeter,
+} from '../content/maps/enemySpawnAreaGeometry';
 
 /**
  * Area-aware enemy spawner. Manages population caps, despawns enemies that
@@ -28,6 +34,10 @@ export interface SpawnerContext {
   minSpawnDistance: number;
   /** Available enemy types + weights. */
   spawnTable: SpawnEntry[];
+  /** Authored camps. When non-empty, these replace legacy player-relative spawning. */
+  spawnAreas?: readonly MapEnemySpawnArea[];
+  /** Gives each enemy its immutable camp boundary context. */
+  createEnemyContext?: (area?: MapEnemySpawnArea) => EnemyContext;
   /** World bounds for clamping spawn positions. */
   worldWidth: number;
   worldHeight: number;
@@ -42,6 +52,8 @@ export interface SpawnerContext {
 export class EnemySpawner {
   private ctx: SpawnerContext;
   private enemies: Enemy[] = [];
+  private readonly areaByEnemy = new Map<Enemy, MapEnemySpawnArea | undefined>();
+  private readonly areaLastSpawnAt = new Map<string, number>();
   private lastSpawnAt = 0;
   private spawnIntervalMs = 1500;
 
@@ -60,6 +72,14 @@ export class EnemySpawner {
 
   /** Initial population — spawns up to cap immediately. */
   seed(count: number): void {
+    if (this.ctx.spawnAreas && this.ctx.spawnAreas.length > 0) {
+      const player = this.ctx.getPlayer();
+      for (const area of this.ctx.spawnAreas) {
+        if (!player || !enemySpawnAreaContainsPlayer(area, player.x, player.y)) continue;
+        for (let i = 0; i < Math.min(count, area.maxPopulation); i += 1) this.spawnOne(area);
+      }
+      return;
+    }
     for (let i = 0; i < count; i += 1) {
       this.spawnOne();
     }
@@ -71,14 +91,18 @@ export class EnemySpawner {
     if (player) {
       this.enemies = this.enemies.filter((e) => {
         if (!e.active && !e.dead) {
+          this.areaByEnemy.delete(e);
           e.destroy();
           return false;
         }
         if (e.dead) {
+          this.areaByEnemy.delete(e);
           return false; // already handled by death tween
         }
+        if (this.areaByEnemy.get(e)) return true;
         const d = Phaser.Math.Distance.Between(player.x, player.y, e.x, e.y);
         if (d > this.ctx.despawnRadius) {
+          this.areaByEnemy.delete(e);
           e.destroy();
           return false;
         }
@@ -87,20 +111,48 @@ export class EnemySpawner {
     }
 
     // Spawn over time to maintain population.
+    if (this.ctx.spawnAreas && this.ctx.spawnAreas.length > 0) {
+      for (const area of this.ctx.spawnAreas) {
+        if (!enemySpawnAreaContainsPlayer(area, player.x, player.y)) continue;
+        const areaCount = this.countForArea(area);
+        const lastSpawnAt = this.areaLastSpawnAt.get(area.id) ?? 0;
+        if (time > lastSpawnAt + area.intervalMs && areaCount < area.maxPopulation) {
+          this.spawnOne(area);
+          this.areaLastSpawnAt.set(area.id, time);
+        }
+      }
+      return;
+    }
+
     if (time > this.lastSpawnAt + this.spawnIntervalMs && this.count < this.ctx.maxPopulation) {
       this.spawnOne();
       this.lastSpawnAt = time;
     }
   }
 
-  spawnOne(): Enemy | null {
+  spawnOne(area?: MapEnemySpawnArea): Enemy | null {
     const player = this.ctx.getPlayer();
     if (!player) return null;
 
+    if (!area && this.ctx.spawnAreas && this.ctx.spawnAreas.length > 0) {
+      area = this.ctx.spawnAreas.find((candidate) => (
+        enemySpawnAreaContainsPlayer(candidate, player.x, player.y)
+        && this.countForArea(candidate) < candidate.maxPopulation
+      ));
+      if (!area) return null;
+    }
+
+    const areaSpawnTable = area?.enemies.map((entry) => ({
+      config: getEnemyConfig(entry.type),
+      weight: entry.weight,
+      maxAlive: entry.maxAlive,
+    })) ?? this.ctx.spawnTable;
+
     // Pick a weighted random enemy type.
-    const availableEntries = this.ctx.spawnTable.filter((candidate) => (
+    const availableEntries = areaSpawnTable.filter((candidate) => (
       candidate.maxAlive === undefined
-      || this.enemies.filter((enemy) => !enemy.dead && enemy.config === candidate.config).length < candidate.maxAlive
+      || this.enemies.filter((enemy) => !enemy.dead && enemy.config === candidate.config
+        && this.areaByEnemy.get(enemy)?.id === area?.id).length < candidate.maxAlive
     ));
     if (availableEntries.length === 0) return null;
 
@@ -115,21 +167,36 @@ export class EnemySpawner {
       }
     }
 
-    const spawnPoint = this.findSpawnPoint(player);
+    const spawnPoint = this.findSpawnPoint(player, area);
     if (!spawnPoint) return null;
 
-    const enemy = new Enemy(this.ctx.scene, spawnPoint.x, spawnPoint.y, entry.config, this.ctx.enemyContext);
+    const enemyContext = this.ctx.createEnemyContext?.(area) ?? { ...this.ctx.enemyContext, spawnArea: area };
+    const enemy = new Enemy(this.ctx.scene, spawnPoint.x, spawnPoint.y, entry.config, enemyContext);
     if (this.ctx.targetGroup) {
       this.ctx.targetGroup.add(enemy);
     }
     this.enemies.push(enemy);
+    this.areaByEnemy.set(enemy, area);
     return enemy;
   }
 
-  private findSpawnPoint(player: Phaser.Physics.Arcade.Sprite): Phaser.Math.Vector2 | null {
+  private countForArea(area: MapEnemySpawnArea): number {
+    return this.enemies.filter((enemy) => !enemy.dead && this.areaByEnemy.get(enemy)?.id === area.id).length;
+  }
+
+  private findSpawnPoint(player: Phaser.Physics.Arcade.Sprite, area?: MapEnemySpawnArea): Phaser.Math.Vector2 | null {
     const safeZones = this.ctx.getSafeZones?.() ?? [];
 
     for (let attempt = 0; attempt < 32; attempt += 1) {
+      if (area) {
+        const candidate = randomPointInPerimeter(area.stayPerimeter);
+        const blocked = safeZones.some((zone) => (
+          candidate.x >= zone.x && candidate.x <= zone.x + zone.w
+          && candidate.y >= zone.y && candidate.y <= zone.y + zone.h
+        ));
+        if (!blocked) return new Phaser.Math.Vector2(candidate.x, candidate.y);
+        continue;
+      }
       const angle = Math.random() * Math.PI * 2;
       const dist = this.ctx.minSpawnDistance + Math.random() * (this.ctx.spawnRadius - this.ctx.minSpawnDistance);
       const x = Phaser.Math.Clamp(player.x + Math.cos(angle) * dist, 40, this.ctx.worldWidth - 40);
@@ -149,5 +216,7 @@ export class EnemySpawner {
       if (e.active) e.destroy();
     }
     this.enemies = [];
+    this.areaByEnemy.clear();
+    this.areaLastSpawnAt.clear();
   }
 }

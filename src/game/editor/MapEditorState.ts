@@ -1,5 +1,8 @@
 import type {
+  MapEnemyAreaPerimeter,
+  MapEnemyAreaShape,
   MapDirection,
+  MapEnemySpawnArea,
   MapEnemySpawn,
   MapEnemySafeZone,
   MapFile,
@@ -10,7 +13,7 @@ import type { ObjectArchetypeId } from '../content/objects/ObjectCatalog';
 import type { WorldTileId } from '../content/terrain/TileCatalog';
 import { connectionAt, edgeEntryPoint, edgeExitZone, exitDirection, OPPOSITE_DIRECTION } from './MapConnections';
 
-export type EditorTool = 'pan' | 'terrain' | 'object' | 'select' | 'erase' | 'safe-zone' | 'spawn' | 'entry' | 'exit';
+export type EditorTool = 'pan' | 'terrain' | 'object' | 'select' | 'erase' | 'safe-zone' | 'enemy-area' | 'spawn' | 'entry' | 'exit';
 
 export interface EditableObjectInstance {
   instanceId: string;
@@ -40,6 +43,7 @@ export interface EditableMap {
   };
   exits: Array<{ zone: MapZone; to: string; entry: string }>;
   enemySafeZones: MapEnemySafeZone[];
+  enemySpawnAreas: MapEnemySpawnArea[];
   spawns?: {
     enemies: MapEnemySpawn[];
     radius: { min: number; max: number };
@@ -58,6 +62,8 @@ export interface EditorViewState {
   readonly direction: MapDirection;
   readonly selectedInstanceId?: string;
   readonly selectedSafeZoneIndex?: number;
+  readonly selectedEnemyAreaId?: string;
+  readonly enemyAreaShape: MapEnemyAreaShape;
   readonly dirty: boolean;
   readonly canUndo: boolean;
   readonly canRedo: boolean;
@@ -70,6 +76,39 @@ type Listener = (state: EditorViewState) => void;
 
 function serialize(map: EditableMap): string {
   return JSON.stringify(map);
+}
+
+function normalizeEnemyPerimeter(perimeter: MapEnemyAreaPerimeter): MapEnemyAreaPerimeter {
+  if (perimeter.shape === 'circle') {
+    return {
+      ...perimeter,
+      x: Math.round(perimeter.x),
+      y: Math.round(perimeter.y),
+      radius: Math.max(1, Math.round(perimeter.radius)),
+    };
+  }
+  return {
+    ...perimeter,
+    x: Math.round(perimeter.x),
+    y: Math.round(perimeter.y),
+    w: Math.max(1, Math.round(perimeter.w)),
+    h: Math.max(1, Math.round(perimeter.h)),
+  };
+}
+
+function normalizeEnemySpawnArea(area: MapEnemySpawnArea): MapEnemySpawnArea {
+  return {
+    ...area,
+    stayPerimeter: normalizeEnemyPerimeter(area.stayPerimeter),
+    pursuePerimeter: normalizeEnemyPerimeter(area.pursuePerimeter),
+    enemies: area.enemies.map((enemy) => ({
+      ...enemy,
+      weight: Math.max(1, Math.round(enemy.weight)),
+      ...(enemy.maxAlive === undefined ? {} : { maxAlive: Math.max(1, Math.round(enemy.maxAlive)) }),
+    })),
+    intervalMs: Math.max(1, Math.round(area.intervalMs)),
+    maxPopulation: Math.max(1, Math.round(area.maxPopulation)),
+  };
 }
 
 export class MapEditorState {
@@ -85,6 +124,8 @@ export class MapEditorState {
   private directionValue: MapDirection = 'east';
   private selectedInstanceIdValue?: string;
   private selectedSafeZoneIndexValue?: number;
+  private selectedEnemyAreaIdValue?: string;
+  private enemyAreaShapeValue: MapEnemyAreaShape = 'rectangle';
   private savingValue = false;
   private statusValue = 'Ready';
   private revisionValue = 0;
@@ -101,6 +142,7 @@ export class MapEditorState {
     this.mapValue = structuredClone(map) as EditableMap;
     this.mapValue.exits ??= [];
     this.mapValue.enemySafeZones ??= [...structuredClone(map.spawns?.safeZones ?? [])];
+    this.mapValue.enemySpawnAreas = (this.mapValue.enemySpawnAreas ?? []).map(normalizeEnemySpawnArea);
     this.savedSnapshot = serialize(this.mapValue);
     this.tileIdValue = initialTileId;
     this.objectIdValue = initialObjectId;
@@ -117,6 +159,8 @@ export class MapEditorState {
       direction: this.directionValue,
       selectedInstanceId: this.selectedInstanceIdValue,
       selectedSafeZoneIndex: this.selectedSafeZoneIndexValue,
+      selectedEnemyAreaId: this.selectedEnemyAreaIdValue,
+      enemyAreaShape: this.enemyAreaShapeValue,
       dirty: this.dirtyValue,
       canUndo: this.undoStack.length > 0,
       canRedo: this.redoStack.length > 0,
@@ -137,8 +181,10 @@ export class MapEditorState {
     // Zones are only visible (and selectable) in the safe-zone tool, so a
     // stale zone selection must not survive switching to another tool.
     if (tool !== 'safe-zone') this.selectedSafeZoneIndexValue = undefined;
+    if (tool !== 'enemy-area') this.selectedEnemyAreaIdValue = undefined;
     if (tool === 'select') this.statusValue = 'Drag any highlighted object to move it';
     else if (tool === 'safe-zone') this.statusValue = 'Drag across tiles to draw a rectangular safe zone';
+    else if (tool === 'enemy-area') this.statusValue = `Drag to author a ${this.enemyAreaShapeValue} enemy area`;
     else if (tool === 'terrain') this.statusValue = `Drag to paint ${this.tileIdValue}`;
     else if (tool === 'object') this.statusValue = `Drag to stamp ${this.objectIdValue} / ${this.objectVisualIdValue}`;
     else this.statusValue = `${tool} tool active`;
@@ -165,6 +211,12 @@ export class MapEditorState {
     this.emit();
   }
 
+  setEnemyAreaShape(shape: MapEnemyAreaShape): void {
+    this.enemyAreaShapeValue = shape;
+    if (this.toolValue === 'enemy-area') this.statusValue = `Drag to author a ${shape} enemy area`;
+    this.emit();
+  }
+
   setConnection(direction: MapDirection, targetMapId?: string): void {
     const previousTarget = connectionAt(direction, this.mapValue)?.to;
     const label = targetMapId
@@ -188,6 +240,13 @@ export class MapEditorState {
     });
   }
 
+  updateEnemySpawnArea(areaId: string, area: MapEnemySpawnArea): void {
+    this.mutate(`Updated enemy area ${areaId}`, (map) => {
+      const index = map.enemySpawnAreas.findIndex((candidate) => candidate.id === areaId);
+      if (index >= 0) map.enemySpawnAreas[index] = normalizeEnemySpawnArea(area);
+    });
+  }
+
   selectInstance(instanceId?: string): void {
     this.selectedInstanceIdValue = instanceId;
     if (instanceId) this.selectedSafeZoneIndexValue = undefined;
@@ -201,6 +260,26 @@ export class MapEditorState {
     this.statusValue = index === undefined
       ? 'Safe-zone selection cleared'
       : `Selected safe zone ${index + 1} — drag to move or press Delete to remove`;
+    this.emit();
+  }
+
+  selectEnemyArea(areaId?: string): void {
+    this.selectedEnemyAreaIdValue = areaId;
+    if (areaId) {
+      this.selectedInstanceIdValue = undefined;
+      this.selectedSafeZoneIndexValue = undefined;
+    }
+    this.statusValue = areaId
+      ? `Selected enemy area ${areaId} — drag to move or edit its rules`
+      : 'Enemy-area selection cleared';
+    this.emit();
+  }
+
+  clearSelection(): void {
+    this.selectedInstanceIdValue = undefined;
+    this.selectedSafeZoneIndexValue = undefined;
+    this.selectedEnemyAreaIdValue = undefined;
+    this.statusValue = 'Selection cleared';
     this.emit();
   }
 
@@ -231,6 +310,7 @@ export class MapEditorState {
     this.mapValue = JSON.parse(previous) as EditableMap;
     this.selectedInstanceIdValue = undefined;
     this.selectedSafeZoneIndexValue = undefined;
+    this.selectedEnemyAreaIdValue = undefined;
     this.revisionValue += 1;
     this.dirtyValue = serialize(this.mapValue) !== this.savedSnapshot;
     this.statusValue = 'Undid last change';
@@ -244,6 +324,7 @@ export class MapEditorState {
     this.mapValue = JSON.parse(next) as EditableMap;
     this.selectedInstanceIdValue = undefined;
     this.selectedSafeZoneIndexValue = undefined;
+    this.selectedEnemyAreaIdValue = undefined;
     this.revisionValue += 1;
     this.dirtyValue = serialize(this.mapValue) !== this.savedSnapshot;
     this.statusValue = 'Redid change';

@@ -494,6 +494,7 @@ export class WorldScene extends Phaser.Scene {
       getDungeonChests: () => this.dungeonChests,
       getHouses: () => this.houses,
       getTransitionZones: () => this.transitionZones,
+      getEnemySpawnAreas: () => this.builtMap?.enemySpawnAreas ?? [],
     });
   }
 
@@ -1092,6 +1093,7 @@ export class WorldScene extends Phaser.Scene {
       collisionTiles: this.collisionTiles,
       dimensions: this.worldDimensions,
       spawns: this.builtMap?.spawns,
+      enemySpawnAreas: this.builtMap?.enemySpawnAreas ?? [],
       enemySafeZones: this.builtMap?.enemySafeZones ?? [],
       areaId: this.currentArea.id,
       getFacing: () => this.playerController.facing,

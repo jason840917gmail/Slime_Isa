@@ -1,6 +1,7 @@
 ﻿import Phaser from 'phaser';
 import { hitboxPool, type HitboxConfig } from '../combat/Hitbox';
 import { devToolsState } from '../devTools';
+import type { MapEnemyAreaPerimeter, MapEnemySpawnArea } from '../content/maps/mapFormat';
 import type { House } from '../House';
 import type { WorldDimensions } from '../world/WorldDimensions';
 import { resolveExplicitDepth } from '../presentation/WorldDepth';
@@ -20,6 +21,7 @@ export interface WorldDebugContext {
   getDungeonChests: () => Phaser.Physics.Arcade.StaticGroup | undefined;
   getHouses: () => Array<{ house: House }>;
   getTransitionZones: () => Phaser.GameObjects.Zone[];
+  getEnemySpawnAreas: () => readonly MapEnemySpawnArea[];
 }
 
 export class WorldDebugRenderer {
@@ -45,6 +47,7 @@ export class WorldDebugRenderer {
     if (devToolsState.hitBoxes) this.drawHitBoxes(g);
     if (devToolsState.interactionZones) this.drawInteractionZones(g);
     if (devToolsState.attackBoxes) this.drawAttackBoxes(g);
+    if (devToolsState.enemyBoundaries) this.drawEnemyBoundaries(g);
   }
 
   destroy(): void {
@@ -94,6 +97,30 @@ export class WorldDebugRenderer {
 
   private drawAttackBoxes(g: Phaser.GameObjects.Graphics): void {
     for (const config of hitboxPool.getActiveConfigs(this.ctx.scene)) this.drawAttackShape(g, config);
+  }
+
+  private drawEnemyBoundaries(g: Phaser.GameObjects.Graphics): void {
+    for (const area of this.ctx.getEnemySpawnAreas()) {
+      this.drawEnemyPerimeter(g, area.pursuePerimeter, 0x5ee7ff, 0.06, 3);
+      this.drawEnemyPerimeter(g, area.stayPerimeter, 0xffc65c, 0.08, 3);
+    }
+  }
+
+  private drawEnemyPerimeter(
+    g: Phaser.GameObjects.Graphics,
+    perimeter: MapEnemyAreaPerimeter,
+    color: number,
+    fillAlpha: number,
+    lineWidth: number,
+  ): void {
+    g.fillStyle(color, fillAlpha).lineStyle(lineWidth, color, 0.95);
+    if (perimeter.shape === 'circle') {
+      g.fillCircle(perimeter.x, perimeter.y, perimeter.radius);
+      g.strokeCircle(perimeter.x, perimeter.y, perimeter.radius);
+    } else {
+      g.fillRect(perimeter.x, perimeter.y, perimeter.w, perimeter.h);
+      g.strokeRect(perimeter.x, perimeter.y, perimeter.w, perimeter.h);
+    }
   }
 
   private drawAttackShape(g: Phaser.GameObjects.Graphics, config: HitboxConfig): void {

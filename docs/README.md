@@ -2,30 +2,25 @@
 
 This folder contains the asset and implementation notes for the game.
 
-## Asset Docs
+## Asset Creation And Integration
 
-- [Asset Sheet Overview](./asset-sheet-spec.md)
-- [Slime Sheet Guide](./slime-sheet-guide.md)
-- [Terrain And Tile Guide](./terrain-tile-guide.md)
-- [Friends And Houses Guide](./friends-and-houses-guide.md)
+All operational documentation for generating, preparing, registering, and
+incorporating new art now lives in the [Asset Creation And Integration](./assets/README.md)
+folder. Start there for the recommended workflow and links to every asset guide.
 
 ## Knowledge Notes
 
 - [Knowledge index](./knowledge/README.md)
-- [Character sprites and animated visuals](./knowledge/character-sprites-guide.md)
 
-## Media Generation
-
-- [Magnific MCP Guide](./magnific-mcp-guide.md)
-- [Character animation video prompt](./Prompts/videos/character_videos.md)
-- [Modernized pixel-stylized top-down visual guide](./visual-style-guide.md)
+The character-sprite integration guide is now maintained in the asset folder:
+[Character sprites and animated visuals](./assets/character-sprites-guide.md)
 
 ## Recommended Reading Order
 
-1. Read the overview first to understand the shared size contract used by the game.
-2. Read the slime guide when preparing animated character sheets.
-3. Read the terrain guide when preparing ground, wall, and prop textures.
-4. Read the friends and houses guide when preparing NPC parts, buildings, and interaction props.
+1. Read [Asset Creation And Integration](./assets/README.md) first.
+2. Follow the shared sheet contract and the focused art-type guide.
+3. Use the generation prompt and Magnific guide when creating source art.
+4. Register the finished media and integrate it into a character, object, projectile, or map.
 
 ## Current Safe Defaults
 

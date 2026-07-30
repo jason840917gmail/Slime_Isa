@@ -1,8 +1,16 @@
+import { runSlimeSpiderState } from './ai/SlimeSpiderAI';
+import type { MapEnemySpawnArea } from '../content/maps/mapFormat';
+import {
+  insetPerimeter,
+  perimeterContains,
+} from '../content/maps/enemySpawnAreaGeometry';
+
 /**
  * Enemy AI states. Composable behaviors — the Enemy class delegates per-state
  * logic to functions in EnemyAI.ts. States transition via return values.
  */
 export type EnemyState = 'idle' | 'wander' | 'chase' | 'attack' | 'flee' | 'dead';
+export type EnemyAIBehavior = 'standard' | 'slime-spider';
 
 export interface EnemyDirection {
   readonly x: number;
@@ -13,6 +21,8 @@ export interface EnemyDirection {
 export interface EnemyVelocityBody {
   setVelocity(x: number, y: number): void;
   velocity: { scale(amount: number): void };
+  width?: number;
+  height?: number;
 }
 
 export interface EnemyStateEntity {
@@ -43,9 +53,13 @@ export interface EnemyStateContext {
   requestAttack?: (direction: EnemyDirection) => void;
   /** Areas enemies should not enter, such as the player's house. */
   safeZones?: EnemySafeZone[];
+  /** Optional authored camp controlling spawn, home, and pursuit boundaries. */
+  spawnArea?: MapEnemySpawnArea;
 }
 
 export interface EnemyAIConfig {
+  /** Optional specialized controller; omitted means the standard behavior. */
+  behavior?: EnemyAIBehavior;
   /** Detection range — switch from wander to chase. */
   aggroRange: number;
   /** Attack range — switch from chase to attack. */
@@ -85,7 +99,11 @@ export function runState(state: EnemyState, ctx: EnemyStateContext): StateResult
   if (state !== 'dead') {
     const safeZoneResult = avoidSafeZones(ctx);
     if (safeZoneResult) return safeZoneResult;
+    const spawnAreaResult = enforceSpawnArea(ctx);
+    if (spawnAreaResult) return spawnAreaResult;
   }
+
+  if (ctx.config.behavior === 'slime-spider') return runSlimeSpiderState(state, ctx);
 
   switch (state) {
     case 'idle':
@@ -102,6 +120,72 @@ export function runState(state: EnemyState, ctx: EnemyStateContext): StateResult
       return 'continue';
   }
   return 'continue';
+}
+
+function enforceSpawnArea(ctx: EnemyStateContext): StateResult | null {
+  const area = ctx.spawnArea;
+  if (!area) return null;
+
+  const playerInsidePursue = perimeterContains(area.pursuePerimeter, ctx.player.x, ctx.player.y);
+  const body = ctx.enemy.body as EnemyVelocityBody;
+  const clearance = Math.max(28, Math.max(body.width ?? 0, body.height ?? 0) * 0.5 + 8);
+  const stayInterior = insetPerimeter(area.stayPerimeter, clearance);
+  const pursueInterior = insetPerimeter(area.pursuePerimeter, pursueClearance(area, clearance));
+  const enemyInsideStayInterior = perimeterContains(stayInterior, ctx.enemy.x, ctx.enemy.y);
+  const enemyInsidePursueInterior = perimeterContains(pursueInterior, ctx.enemy.x, ctx.enemy.y);
+
+  // A camp is dormant once the player leaves its pursue perimeter. While
+  // returning, or after reaching the pursue limit, aim for the stay interior
+  // rather than the exact perimeter edge. This prevents an enemy from
+  // oscillating or stopping on a boundary due to inclusive containment.
+  if (!playerInsidePursue || !enemyInsidePursueInterior) {
+    if (enemyInsideStayInterior) {
+      body.setVelocity(0, 0);
+      return 'idle';
+    }
+    const target = perimeterCenter(stayInterior);
+    const dx = target.x - ctx.enemy.x;
+    const dy = target.y - ctx.enemy.y;
+    const length = Math.hypot(dx, dy);
+    if (length <= 1) {
+      body.setVelocity(0, 0);
+      return 'idle';
+    }
+    const speed = Math.max(ctx.config.chaseSpeed * 1.25, ctx.config.wanderSpeed * 1.5);
+    body.setVelocity((dx / length) * speed, (dy / length) * speed);
+    return 'idle';
+  }
+
+  // Inside the pursuit interior, the normal AI may leave the stay perimeter
+  // and chase the player. The pursuit guard above takes over before the enemy
+  // can touch the outer border and sends it all the way home.
+  return null;
+}
+
+function perimeterCenter(perimeter: MapEnemySpawnArea['stayPerimeter']): { x: number; y: number } {
+  return perimeter.shape === 'circle'
+    ? { x: perimeter.x, y: perimeter.y }
+    : { x: perimeter.x + perimeter.w / 2, y: perimeter.y + perimeter.h / 2 };
+}
+
+function pursueClearance(area: MapEnemySpawnArea, desired: number): number {
+  const stay = area.stayPerimeter;
+  const pursue = area.pursuePerimeter;
+  if (stay.shape === 'circle' && pursue.shape === 'circle') {
+    const centerOffset = Math.hypot(stay.x - pursue.x, stay.y - pursue.y);
+    const shell = pursue.radius - centerOffset - stay.radius;
+    return Math.min(desired, Math.max(8, shell / 2));
+  }
+  if (stay.shape === 'rectangle' && pursue.shape === 'rectangle') {
+    const shell = Math.min(
+      stay.x - pursue.x,
+      stay.y - pursue.y,
+      pursue.x + pursue.w - (stay.x + stay.w),
+      pursue.y + pursue.h - (stay.y + stay.h),
+    );
+    return Math.min(desired, Math.max(8, shell / 2));
+  }
+  return desired;
 }
 
 function avoidSafeZones(ctx: EnemyStateContext): StateResult | null {

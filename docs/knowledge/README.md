@@ -1,3 +1,3 @@
 # Knowledge Notes
 
-- [Character sprites and animated visuals](./character-sprites-guide.md)
+- [Character sprites and animated visuals](../assets/character-sprites-guide.md)
