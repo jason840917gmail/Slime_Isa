@@ -914,6 +914,72 @@
         "enemy"
       ],
       "status": "ready"
+    },
+    "enemy.projectile.generated-64": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "characters/authored/projectiles-64x64.png",
+        "frame": {
+          "w": 64,
+          "h": 64,
+          "cols": 3,
+          "rows": 4,
+          "count": 12
+        },
+        "expect": {
+          "w": 192,
+          "h": 256
+        }
+      },
+      "runtime": {
+        "textureKey": "enemy-projectiles-generated-64"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "enemy",
+        "projectile",
+        "generated"
+      ],
+      "status": "ready"
+    },
+    "weapon.player.generated-64": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "characters/authored/weapons-64x64.png",
+        "frame": {
+          "w": 64,
+          "h": 64,
+          "cols": 3,
+          "rows": 3,
+          "count": 9
+        },
+        "expect": {
+          "w": 192,
+          "h": 192
+        }
+      },
+      "runtime": {
+        "textureKey": "weapon-player-generated-64"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "player",
+        "weapon",
+        "generated"
+      ],
+      "status": "ready"
     }
   }
 }

@@ -32,7 +32,13 @@ for (const projectile of projectiles) {
   if (shape === 'ellipse' && (!(projectile.body?.radiusX > 0) || !(projectile.body?.radiusY > 0))) errors.push(`[${projectile.projectileId}] ellipse body radii must be positive`);
   if (!(projectile.body?.width > 0) || !(projectile.body?.height > 0)) errors.push(`[${projectile.projectileId}] body dimensions must be positive`);
   if (!(projectile.movement?.defaultSpeed > 0) || !(projectile.movement?.lifetimeMs > 0)) errors.push(`[${projectile.projectileId}] movement values must be positive`);
-  if (projectile.animation && (!Array.isArray(projectile.animation.frames) || projectile.animation.frames.length === 0)) errors.push(`[${projectile.projectileId}] animation frames must be non-empty`);
+  const animations = projectile.animations;
+  if (!animations?.move || !animations?.impact) errors.push(`[${projectile.projectileId}] animations must include move and impact clips`);
+  for (const [animationId, animation] of Object.entries(animations ?? {})) {
+    if (!Array.isArray(animation.frames) || animation.frames.length === 0) errors.push(`[${projectile.projectileId}] ${animationId} animation frames must be non-empty`);
+    if (!Number.isInteger(animation.framesPerSecond) || animation.framesPerSecond < 1 || animation.framesPerSecond > 240) errors.push(`[${projectile.projectileId}] ${animationId} animation FPS must be an integer from 1 to 240`);
+    if (animation.frames.some((frame) => !Number.isInteger(frame) || frame < 0)) errors.push(`[${projectile.projectileId}] ${animationId} animation frames must be non-negative integers`);
+  }
 }
 if (errors.length) { console.error(`projectiles:check failed with ${errors.length} error(s):`); errors.forEach((error) => console.error(`  - ${error}`)); process.exit(1); }
 console.log(`projectiles:check OK - ${projectiles.length} reusable projectile profile(s).`);

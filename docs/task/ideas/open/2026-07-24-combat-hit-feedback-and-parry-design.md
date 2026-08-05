@@ -1,5 +1,10 @@
 # Combat Hit Feedback and Future Parry Design
 
+## Status
+
+Open — the damage-feedback implementation is complete; the future parry and
+authored attack-hitbox editor remain deliberately separate work.
+
 ## Goals
 
 Make enemy attacks readable and dangerous, ensure damage feedback always reports the real HP loss, and define a future hitbox-based parry system that can later be authored through an enemy/character editor.

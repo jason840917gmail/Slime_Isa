@@ -1,5 +1,7 @@
 # Animated worm enemy roster implementation plan
 
+Status: completed and verified.
+
 1. Register the three character sheets, arrow, and hit sheet in the asset manifest; add populated frame counts to the manifest schema and validators.
 2. Add archer, swordsman, brawler, and brawler-effect visual sets with the reviewed frame lists.
 3. Add the JSON enemy catalog and validator; make maps validate against its three stable IDs.

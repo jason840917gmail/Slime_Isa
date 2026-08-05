@@ -173,7 +173,7 @@ export function validateVisualSetDocument(
   for (const [clipId, clip] of Object.entries(isRecord(value.clips) ? value.clips : {})) {
     const clipPath = `${path}.clips.${clipId}`;
     if (!ID_PATTERN.test(clipId) || clipId.length > 80) issue(issues, clipPath, 'clip ID must be a lowercase stable ID');
-    checkKeys(issues, clip, clipPath, new Set(['frames', 'framesPerSecond', 'loop', 'loopMode']));
+    checkKeys(issues, clip, clipPath, new Set(['frames', 'framesPerSecond', 'loop', 'loopMode', 'sourceOffset']));
     if (!isRecord(clip)) {
       issue(issues, clipPath, 'must be an object');
       continue;
@@ -187,6 +187,7 @@ export function validateVisualSetDocument(
     finite(issues, clip.framesPerSecond, `${clipPath}.framesPerSecond`, (entry) => entry > 0 && entry <= 240, 'must be greater than zero and no more than 240');
     if (typeof clip.loop !== 'boolean') issue(issues, `${clipPath}.loop`, 'must be boolean');
     if (clip.loopMode !== undefined && clip.loopMode !== 'wrap' && clip.loopMode !== 'ping-pong') issue(issues, `${clipPath}.loopMode`, "must be 'wrap' or 'ping-pong'");
+    if (clip.sourceOffset !== undefined) pair(issues, clip.sourceOffset, `${clipPath}.sourceOffset`, () => true, 'must be finite');
   }
   return issues;
 }

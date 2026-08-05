@@ -2,6 +2,19 @@
 
 These enemies were removed from the active roster because they only had temporary procedural textures. They are design ideas, not valid map enemy IDs. Reintroduce one only after it has an authored spritesheet, a `visual-set.json`, an entry in `enemy-types.json`, and complete idle, walk, attack, and death behavior.
 
+## Status
+
+Open — future content concepts. Keep these entries out of runtime catalogs until
+the art, behavior, balance, and validation package for a concept is complete.
+
+## Completion checklist for a reintroduction
+
+1. Commission and register the authored spritesheet and effects.
+2. Add a visual set with idle, walk, attack, and death clips in every required direction.
+3. Add the enemy definition, AI behavior, drops, and projectile or impact assets.
+4. Add validator coverage and a focused combat/browser smoke scenario.
+5. Add the stable enemy ID to maps and editor choices only after all checks pass.
+
 ## Archived concepts
 
 | Concept | Intended role | Previous tuning and drops | Art/behavior needed |

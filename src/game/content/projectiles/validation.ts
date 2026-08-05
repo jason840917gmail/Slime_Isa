@@ -1,5 +1,33 @@
 import type { CharacterStudioAssetManifestInput } from '../characters/characterAssetCatalog';
-import type { ProjectileDefinition } from './types';
+import type { ProjectileAnimationDocument, ProjectileDefinition } from './types';
+
+function validateIntegerPair(value: unknown, path: string, issues: string[]): value is readonly [number, number] {
+  if (!Array.isArray(value) || value.length !== 2 || value.some((entry) => typeof entry !== 'number' || !Number.isInteger(entry))) {
+    issues.push(`${path}: must contain exactly two integers`);
+    return false;
+  }
+  return true;
+}
+
+function validateAnimationClip(
+  animation: unknown,
+  path: string,
+  issues: string[],
+): animation is ProjectileAnimationDocument {
+  if (animation === null || typeof animation !== 'object' || Array.isArray(animation)) {
+    issues.push(`${path}: must be an object`);
+    return false;
+  }
+  const clip = animation as Partial<ProjectileAnimationDocument>;
+  if (!Array.isArray(clip.frames) || clip.frames.length === 0) issues.push(`${path}.frames: must contain at least one frame`);
+  if (typeof clip.framesPerSecond !== 'number' || !Number.isInteger(clip.framesPerSecond) || clip.framesPerSecond < 1 || clip.framesPerSecond > 240) issues.push(`${path}.framesPerSecond: must be an integer between 1 and 240`);
+  if (typeof clip.loop !== 'boolean') issues.push(`${path}.loop: must be boolean`);
+  if (clip.loopMode !== undefined && clip.loopMode !== 'wrap' && clip.loopMode !== 'ping-pong') issues.push(`${path}.loopMode: must be 'wrap' or 'ping-pong'`);
+  for (const [index, frame] of (Array.isArray(clip.frames) ? clip.frames : []).entries()) {
+    if (!Number.isInteger(frame) || frame < 0) issues.push(`${path}.frames[${index}]: must be a non-negative integer`);
+  }
+  return true;
+}
 
 export function validateProjectileDefinition(
   value: unknown,
@@ -13,14 +41,27 @@ export function validateProjectileDefinition(
   if (typeof projectile.displayName !== 'string' || projectile.displayName.trim().length === 0 || projectile.displayName.length > 80) issues.push('projectile.displayName: must be between 1 and 80 characters');
   if (typeof projectile.assetId !== 'string' || !projectile.assetId) issues.push('projectile.assetId: must reference an asset');
   else if (manifest?.assets && !(projectile.assetId in manifest.assets)) issues.push(`projectile.assetId: unknown manifest asset '${projectile.assetId}'`);
-  const animation = projectile.animation;
-  if (animation !== undefined) {
-    if (typeof animation !== 'object' || !Array.isArray(animation.frames) || animation.frames.length === 0) issues.push('projectile.animation.frames: must contain at least one frame');
-    if (typeof animation.framesPerSecond !== 'number' || !Number.isFinite(animation.framesPerSecond) || animation.framesPerSecond <= 0 || animation.framesPerSecond > 240) issues.push('projectile.animation.framesPerSecond: must be between 0 and 240');
-    if (typeof animation.loop !== 'boolean') issues.push('projectile.animation.loop: must be boolean');
-    if (animation.loopMode !== undefined && animation.loopMode !== 'wrap' && animation.loopMode !== 'ping-pong') issues.push("projectile.animation.loopMode: must be 'wrap' or 'ping-pong'");
-    for (const [index, frame] of (Array.isArray(animation.frames) ? animation.frames : []).entries()) {
-      if (!Number.isInteger(frame) || frame < 0) issues.push(`projectile.animation.frames[${index}]: must be a non-negative integer`);
+  if (projectile.animations !== undefined) {
+    if (typeof projectile.animations !== 'object' || projectile.animations === null || Array.isArray(projectile.animations)) issues.push('projectile.animations: must be an object');
+    else {
+      const animations = projectile.animations as Partial<NonNullable<ProjectileDefinition['animations']>>;
+      validateAnimationClip(animations.move, 'projectile.animations.move', issues);
+      validateAnimationClip(animations.impact, 'projectile.animations.impact', issues);
+    }
+  } else if (projectile.animation !== undefined) {
+    validateAnimationClip(projectile.animation, 'projectile.animation', issues);
+  } else {
+    issues.push('projectile.animations: move and impact clips are required');
+  }
+  if (projectile.visual !== undefined) {
+    if (typeof projectile.visual !== 'object' || projectile.visual === null || Array.isArray(projectile.visual)) issues.push('projectile.visual: must be an object');
+    else {
+      const visual = projectile.visual as { sourceOffset?: unknown; frameOffsets?: unknown };
+      validateIntegerPair(visual.sourceOffset, 'projectile.visual.sourceOffset', issues);
+      if (visual.frameOffsets !== undefined) {
+        if (typeof visual.frameOffsets !== 'object' || visual.frameOffsets === null || Array.isArray(visual.frameOffsets)) issues.push('projectile.visual.frameOffsets: must be an object');
+        else for (const [frame, offset] of Object.entries(visual.frameOffsets)) validateIntegerPair(offset, `projectile.visual.frameOffsets.${frame}`, issues);
+      }
     }
   }
   const body = projectile.body;

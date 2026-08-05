@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { resolveBodyCenterY, resolveWorldDepth } from '../presentation/WorldDepth';
 import { getProjectileDefinition } from '../content/projectiles/ProjectileCatalog';
-import type { ProjectileDefinition } from '../content/projectiles/types';
+import type { ProjectileAnimationDocument, ProjectileDefinition } from '../content/projectiles/types';
 import { ASSET_MANIFEST, getAsset, type AssetId } from '../infrastructure/assets/manifest';
 import { animationFrameIndexAtStep } from '../shared/animationLoop';
 import { applyArcadeBodyGeometry } from '../shared/collisionShapes';
@@ -18,6 +18,7 @@ export type ProjectileOwner = 'enemy' | 'player';
 
 interface PooledProjectile {
   sprite: Phaser.Physics.Arcade.Image;
+  visual: Phaser.GameObjects.Image;
   active: boolean;
   owner: ProjectileOwner;
   damage: number;
@@ -27,6 +28,7 @@ interface PooledProjectile {
   lastGroundY: number;
   definition?: ProjectileDefinition;
   animationStartedAt: number;
+  animationState: 'move' | 'impact';
 }
 
 class ProjectilePoolImpl {
@@ -65,10 +67,12 @@ class ProjectilePoolImpl {
 
     if (!slot) {
       const sprite = scene.physics.add.image(x, y, textureKey) as Phaser.Physics.Arcade.Image;
+      const visual = scene.add.image(x, y, textureKey);
       const group = owner === 'enemy' ? groups.enemy : groups.player;
       group.add(sprite);
       slot = {
         sprite,
+        visual,
         active: false,
         owner,
         damage: 0,
@@ -77,6 +81,7 @@ class ProjectilePoolImpl {
         sortId: `projectile:${owner}:${pool.length}`,
         lastGroundY: Number.NaN,
         animationStartedAt: 0,
+        animationState: 'move',
       };
       pool.push(slot);
     }
@@ -155,10 +160,13 @@ class ProjectilePoolImpl {
     slot.knockbackStrength = knockbackStrength;
     slot.definition = definition;
     slot.animationStartedAt = scene.time.now;
+    slot.animationState = 'move';
     slot.sprite.setTexture(textureKey);
     slot.sprite.setPosition(x, y);
-    slot.sprite.clearTint().setOrigin(0.5).setActive(true).setVisible(true).setAlpha(1);
+    slot.sprite.clearTint().setOrigin(0.5).setActive(true).setVisible(false).setAlpha(0);
     slot.sprite.setScale(1).setRotation(definition?.movement.rotateToVelocity === false ? 0 : Math.atan2(dy, dx));
+    slot.visual.setTexture(textureKey).clearTint().setOrigin(0.5).setActive(true).setVisible(true).setAlpha(1);
+    slot.visual.setScale(1).setRotation(slot.sprite.rotation);
     const body = slot.sprite.body as Phaser.Physics.Arcade.Body;
     body.enable = true;
     applyArcadeBodyGeometry(body, slot.sprite.displayOriginX, slot.sprite.displayOriginY, definition?.body ?? {
@@ -180,7 +188,9 @@ class ProjectilePoolImpl {
 
   private deactivate(slot: PooledProjectile): void {
     slot.active = false;
+    slot.animationState = 'move';
     slot.sprite.setActive(false).setVisible(false).setVelocity(0, 0);
+    slot.visual.setActive(false).setVisible(false);
     (slot.sprite.body as Phaser.Physics.Arcade.Body).enable = false;
     if (slot.lifetimeTimer) {
       slot.lifetimeTimer.remove();
@@ -191,12 +201,17 @@ class ProjectilePoolImpl {
   update(scene: Phaser.Scene): void {
     for (const slot of this.pools.get(scene) ?? []) {
       if (!slot.active) continue;
-      const animation = slot.definition?.animation;
+      const animation = this.animationFor(slot);
       if (animation) {
         const step = Math.floor(Math.max(0, scene.time.now - slot.animationStartedAt) / (1000 / animation.framesPerSecond));
+        if (slot.animationState === 'impact' && !animation.loop && step >= animation.frames.length) {
+          this.deactivate(slot);
+          continue;
+        }
         const position = animation.loop ? animationFrameIndexAtStep(animation, step) : Math.min(step, animation.frames.length - 1);
         this.updateAnimationFrame(slot, position);
       }
+      this.syncVisual(slot);
       const body = slot.sprite.body as Phaser.Physics.Arcade.Body;
       const groundY = resolveBodyCenterY(body);
       if (groundY !== slot.lastGroundY) this.updateDepth(slot, groundY);
@@ -215,23 +230,65 @@ class ProjectilePoolImpl {
 
   recycle(sprite: Phaser.Physics.Arcade.Image): void {
     const slot = this.getPool(sprite.scene).find((candidate) => candidate.sprite === sprite);
-    if (slot) this.deactivate(slot);
+    if (!slot || !slot.active || slot.animationState === 'impact') return;
+    const impact = slot.definition?.animations?.impact;
+    if (!impact || impact.frames.length === 0) {
+      this.deactivate(slot);
+      return;
+    }
+    slot.animationState = 'impact';
+    slot.animationStartedAt = sprite.scene.time.now;
+    slot.sprite.setVelocity(0, 0);
+    (slot.sprite.body as Phaser.Physics.Arcade.Body).enable = false;
+    if (slot.lifetimeTimer) {
+      slot.lifetimeTimer.remove();
+      slot.lifetimeTimer = null;
+    }
+    this.updateAnimationFrame(slot, 0);
   }
 
   private updateDepth(slot: PooledProjectile, groundY?: number): void {
     const body = slot.sprite.body as Phaser.Physics.Arcade.Body;
     const nextGroundY = groundY ?? resolveBodyCenterY(body);
     slot.lastGroundY = nextGroundY;
-    slot.sprite.setDepth(resolveWorldDepth(nextGroundY, { stableId: slot.sortId }).depth);
+    const depth = resolveWorldDepth(nextGroundY, { stableId: slot.sortId }).depth;
+    slot.sprite.setDepth(depth);
+    slot.visual.setDepth(depth);
   }
 
   private updateAnimationFrame(slot: PooledProjectile, position: number): void {
     const definition = slot.definition;
-    if (!definition?.animation || !(definition.assetId in ASSET_MANIFEST.assets)) return;
+    const animation = this.animationFor(slot);
+    if (!definition || !animation || !(definition.assetId in ASSET_MANIFEST.assets)) return;
     const asset = getAsset(definition.assetId as AssetId);
     if (asset.source.kind !== 'spritesheet') return;
-    const frame = definition.animation.frames[Math.max(0, Math.min(position, definition.animation.frames.length - 1))];
-    if (frame !== undefined) slot.sprite.setFrame(frame);
+    const frame = animation.frames[Math.max(0, Math.min(position, animation.frames.length - 1))];
+    if (frame !== undefined) {
+      slot.sprite.setFrame(frame);
+      slot.visual.setFrame(frame);
+      this.syncVisual(slot, frame);
+    }
+  }
+
+  private syncVisual(slot: PooledProjectile, frame?: number): void {
+    const definition = slot.definition;
+    if (!definition) return;
+    const currentFrame = (frame ?? Number(slot.sprite.frame.name)) || 0;
+    const offset = definition.visual?.frameOffsets?.[String(currentFrame)] ?? definition.visual?.sourceOffset ?? [0, 0];
+    const rotation = slot.sprite.rotation;
+    const cos = Math.cos(rotation);
+    const sin = Math.sin(rotation);
+    const offsetX = offset[0] * cos - offset[1] * sin;
+    const offsetY = offset[0] * sin + offset[1] * cos;
+    slot.visual
+      .setPosition(slot.sprite.x + offsetX, slot.sprite.y + offsetY)
+      .setRotation(rotation)
+      .setDepth(slot.sprite.depth);
+  }
+
+  private animationFor(slot: PooledProjectile): ProjectileAnimationDocument | undefined {
+    if (slot.animationState === 'impact') return slot.definition?.animations?.impact;
+    return slot.definition?.animations?.move ?? slot.definition?.animation;
   }
 
   /** Get the enemy-projectile group for overlap setup. */
@@ -250,6 +307,7 @@ class ProjectilePoolImpl {
       for (const p of pool) {
         if (p.lifetimeTimer) p.lifetimeTimer.remove();
         p.sprite.destroy();
+        p.visual.destroy();
       }
       this.pools.delete(scene);
     }

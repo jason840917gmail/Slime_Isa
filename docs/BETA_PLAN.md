@@ -25,12 +25,9 @@ Completed so far:
 - Phase 7 crafting first slice is in place: recipe system, crafting UI, consumable brewing, keyboard/mouse controls, and inventory material use/delete flow.
 
 Left off here:
-- Phase 7 is active.
+- Phase 7 first slice is complete; no Crystal Caverns expansion is currently planned.
 - Latest completed slice: Crystal Caverns switch trial. Two pressure switches unlock a persistent crystal chest that rewards coins, XP, Crystal Shards, and a Slime Tonic.
 - Verified: `pnpm build` passes and the dev server serves the new Crystal Trial source.
-
-Next recommended slice:
-- Continue Phase 7 by expanding the Crystal Caverns trial into a fuller dungeon loop: add a second puzzle, a key/locked gate, and a mini-boss or mimic chest before the major treasure.
 
 ---
 
@@ -350,9 +347,9 @@ entrance).
 
 Goal: Zelda-style substance between combat encounters.
 
-Status: **in progress**. Crafting is implemented, and the first Crystal Caverns
-trial slice is implemented. The current stopping point is after the two-switch
-trial chest; the next work should turn this into a fuller dungeon path.
+Status: **current slice complete**. Crafting and the first Crystal Caverns trial
+are implemented. Further Crystal Caverns dungeon expansion is removed from the
+active roadmap.
 
 ### New files
 - `src/game/dungeon/Dungeon.ts` — multi-room area with locked doors, keys, switches, a mini-boss, a treasure.
@@ -363,10 +360,9 @@ trial chest; the next work should turn this into a fuller dungeon path.
 - `src/game/ui/CraftingUI.ts`.
 
 ### Concrete tasks
-1. In progress: at least **1 full dungeon** (Crystal Caverns depth) with 6 rooms, 2 puzzles, 1 mini-boss, 1 treasure (Splat Spear upgrade or ability tome).
-2. Started: puzzles reuse physics. Implemented first step-on switch trial in Crystal Caverns with 2 switches and a persistent reward chest.
-3. Pending: crafting upgrades weapons (tier I→II→III) with material costs; gives collectibles long-term value.
-4. Done first slice: cauldron-style recipe crafting brews potions from foraged materials.
+1. Completed first puzzle slice: Crystal Caverns uses two step-on switches and a persistent reward chest.
+2. Completed first crafting slice: cauldron-style recipe crafting brews potions from foraged materials.
+3. Weapon-tier upgrades remain a separate future decision and are not part of the Crystal Caverns expansion plan.
 
 ### Implemented Phase 7 slices
 - `src/game/crafting/Crafting.ts` and `src/game/ui/CraftingUI.ts`: recipe crafting UI, keyboard navigation, mouse click regions, and crafted-item feedback.
@@ -376,15 +372,6 @@ trial chest; the next work should turn this into a fuller dungeon path.
 - Crystal trial reward: `+90 coins`, `+120 XP`, `+4 Crystal Shards`, `+1 Slime Tonic`.
 - Crystal trial persistence key: `slime-isa:dungeon-completed`.
 - New generated textures in `BootScene`: crystal switches and crystal chest open/closed states.
-
-### Left off / next action
-- Add the second dungeon puzzle after the Crystal Trial chest.
-- Add a locked gate/key or a mimic/mini-boss encounter after puzzle 2.
-- Decide whether the major treasure should be a Splat Spear unlock, weapon upgrade, or ability tome.
-
-### Milestone 7
-Clear the cavern dungeon: solve 2 puzzles, get the key, beat mini-boss, open
-treasure, forge a weapon upgrade at the anvil, feel stronger in combat.
 
 ---
 

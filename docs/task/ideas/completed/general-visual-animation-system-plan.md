@@ -1,6 +1,6 @@
 # General visual animation system implementation plan
 
-Status: implemented; verification is tracked in the final phase.
+Status: completed and verified.
 
 ## Phase 1: Content model and validation
 
@@ -63,12 +63,12 @@ Status: implemented; verification is tracked in the final phase.
 6. Keep all non-animated objects on the existing image path.
 7. Ensure editor selection and object movement continue to use the stable object anchor.
 
-## Phase 7: Documentation and future editor hook
+## Phase 7: Documentation and editor hook
 
 1. Update the character-sprite knowledge guide with the visual-set pipeline.
 2. Document source-offset units, mirroring, and transform precedence.
 3. Document how maps and object archetypes reference visual sets.
-4. Add a follow-up idea for a visual-set editor panel with frame preview and JSON persistence.
+4. Add the visual-set editor panel with frame preview and JSON persistence.
 
 ## Phase 8: Verification
 

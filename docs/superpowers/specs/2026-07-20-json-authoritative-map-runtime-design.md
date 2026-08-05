@@ -17,7 +17,8 @@ Make authored map JSON the source of truth for map houses and for whether an are
 ## Documentation
 
 - Mark the reported bug completed and summarize the solution in `docs/task/bugs.md`.
-- Add a future-work idea for exact authored enemy spawn coordinates and authored house interaction metadata to `docs/task/ideas.md`.
+- Track authored enemy spawn coordinates and authored house interaction metadata
+  in [`docs/task/ideas/completed/authored-map-entity-spawns.md`](../../task/ideas/completed/authored-map-entity-spawns.md).
 - Add a dedicated task document describing that future map-format extension without implementing it now.
 
 ## Implementation constraint

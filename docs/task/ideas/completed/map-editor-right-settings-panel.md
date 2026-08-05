@@ -1,6 +1,6 @@
 # Map editor: right-side object template inspector
 
-> **Status: Completed for v1.** The reusable template inspector, grouped Object Content palette, independent draft state, live previews, responsive layout, and atomic update persistence are implemented and verified. Duplicate visual templates and cloned object definitions remain explicitly tracked as follow-up creation workflows.
+> **Status: Completed.** The reusable template inspector, grouped Object Content palette, independent draft state, live previews, responsive layout, atomic update persistence, duplicate templates, cloned object definitions, and browser coverage are implemented and verified.
 
 ## Goal
 
@@ -29,7 +29,7 @@ The completed v1 implementation now provides:
 
 Validation completed with `pnpm check`, which passed asset, object, map, type, and production-build checks.
 
-The remaining creation workflows are not part of the completed v1 slice: duplicate visual template, clone object definition, dynamic object catalog discovery, shared Node validation extraction, and their expanded browser coverage remain follow-up work.
+The creation workflows, dynamic catalog handling, shared validation, and browser coverage are complete for the editor slice.
 
 ## Definition ownership
 

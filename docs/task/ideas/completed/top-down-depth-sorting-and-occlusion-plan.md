@@ -1,6 +1,9 @@
 # Top-down depth sorting and actor occlusion
 
-Status: **Planned — not started**
+Status: **Completed and verified**
+
+The anchor-based depth, occlusion metadata, editor overlays, runtime reveal
+behavior, diagnostics, and production content coverage are implemented.
 
 This document is the implementation tracker for replacing fixed world depths
 with ground-anchor Y-sorting and keeping actors readable behind tall scenery.
@@ -327,83 +330,83 @@ for mathematical ordering or lifecycle correctness.
 
 ### Phase 1 — Depth policy and diagnostics
 
-- [ ] Add named depth bands and one depth-resolution function.
-- [ ] Define stable tie and attachment biases.
-- [ ] Add development diagnostics showing anchor Y and resolved depth.
-- [ ] Document that visual offset and elevation do not alter sorting.
-- [ ] Add `pnpm test:depth` coverage for ordering, anchor formulas, equal-Y
+- [x] Add named depth bands and one depth-resolution function.
+- [x] Define stable tie and attachment biases.
+- [x] Add development diagnostics showing anchor Y and resolved depth.
+- [x] Document that visual offset and elevation do not alter sorting.
+- [x] Add `pnpm test:depth` coverage for ordering, anchor formulas, equal-Y
       ties, attachments, and band separation.
 
 ### Phase 2 — Atomic world-sorting migration
 
-- [ ] Apply anchor-based depth in `ObjectFactory`.
-- [ ] Recalculate depth when `setObjectAnchor` moves an editor object.
-- [ ] Add sorted versus explicit/editor depth modes.
-- [ ] Migrate legacy `House` and bed depth to explicit ground anchors.
-- [ ] Migrate player anchor and `AnimatedVisual`.
-- [ ] Migrate all three worm enemies.
-- [ ] Migrate friends and attached ears.
-- [ ] Migrate enemy health bars and player/friend name labels.
-- [ ] Migrate pooled enemy and future player projectiles.
-- [ ] Migrate combat effects to spawn/impact-Y sorting and floating text to the
+- [x] Apply anchor-based depth in `ObjectFactory`.
+- [x] Recalculate depth when `setObjectAnchor` moves an editor object.
+- [x] Add sorted versus explicit/editor depth modes.
+- [x] Migrate legacy `House` and bed depth to explicit ground anchors.
+- [x] Migrate player anchor and `AnimatedVisual`.
+- [x] Migrate all three worm enemies.
+- [x] Migrate friends and attached ears.
+- [x] Migrate enemy health bars and player/friend name labels.
+- [x] Migrate pooled enemy and future player projectiles.
+- [x] Migrate combat effects to spawn/impact-Y sorting and floating text to the
       reveal/world-effects band.
-- [ ] Verify knockback, death, respawn, and pooled reuse preserve correct depth.
-- [ ] Verify trees, houses, walls, rocks, and small props against all actors.
-- [ ] Remove replaced fixed world depth values.
-- [ ] Merge this phase atomically; do not leave mixed fixed/sorted gameplay.
+- [x] Verify knockback, death, respawn, and pooled reuse preserve correct depth.
+- [x] Verify trees, houses, walls, rocks, and small props against all actors.
+- [x] Remove replaced fixed world depth values.
+- [x] Merge this phase atomically; do not leave mixed fixed/sorted gameplay.
 
 ### Phase 3 — Occlusion data contract
 
-- [ ] Add `occlusionBounds` to object TypeScript types and JSON schema.
-- [ ] Validate positive integer dimensions and non-negative offsets.
-- [ ] Validate bounds against spritesheet frame dimensions.
-- [ ] Resolve world occlusion rectangles from object anchors and visual data.
-- [ ] Reject occlusion bounds for procedural and animated object templates in
+- [x] Add `occlusionBounds` to object TypeScript types and JSON schema.
+- [x] Validate positive integer dimensions and non-negative offsets.
+- [x] Validate bounds against spritesheet frame dimensions.
+- [x] Resolve world occlusion rectangles from object anchors and visual data.
+- [x] Reject occlusion bounds for procedural and animated object templates in
       the first implementation.
-- [ ] Ensure Save As copies current occlusion data without changing the source.
-- [ ] Extend `pnpm objects:check` coverage.
-- [ ] Add transform tests covering origin, scale, flip, visual offset, and
+- [x] Ensure Save As copies current occlusion data without changing the source.
+- [x] Extend `pnpm objects:check` coverage.
+- [x] Add transform tests covering origin, scale, flip, visual offset, and
       animated source offset.
 
 ### Phase 4 — Map-editor authoring
 
-- [ ] Add the Occludes actors checkbox and numeric fields.
-- [ ] Preserve inspector scroll/focus while editing occlusion fields.
-- [ ] Render a distinct occlusion overlay in the template preview.
-- [ ] Persist/reset/update/duplicate occlusion data.
-- [ ] Keep occlusion UI absent or disabled for unsupported procedural frames
+- [x] Add the Occludes actors checkbox and numeric fields.
+- [x] Preserve inspector scroll/focus while editing occlusion fields.
+- [x] Render a distinct occlusion overlay in the template preview.
+- [x] Persist/reset/update/duplicate occlusion data.
+- [x] Keep occlusion UI absent or disabled for unsupported procedural frames
       until valid source dimensions are available.
-- [ ] Add `pnpm smoke:depth-editor` for enable, edit, validation, reset, save,
+- [x] Add `pnpm smoke:depth-editor` for enable, edit, validation, reset, save,
       duplicate, and cleanup.
 
 ### Phase 5 — Runtime silhouettes
 
-- [ ] Add a scene-owned occlusion controller with explicit cleanup.
-- [ ] Register authored static occluders.
-- [ ] Register player and active/engaged enemies as reveal actors.
-- [ ] Add the `256px` spatial grid, camera margins, diagnostics, and performance
+- [x] Add a scene-owned occlusion controller with explicit cleanup.
+- [x] Register authored static occluders.
+- [x] Register player and active/engaged enemies as reveal actors.
+- [x] Add the `256px` spatial grid, camera margins, diagnostics, and performance
       fixture.
-- [ ] Mirror animated frame transforms into reveal silhouettes.
-- [ ] Support overlapping occluders without silhouette flicker.
-- [ ] Verify actor activation, death, pooling, scene transitions, and cleanup.
-- [ ] Add `pnpm smoke:depth-game` deterministic depth/visibility assertions.
+- [x] Mirror animated frame transforms into reveal silhouettes.
+- [x] Support overlapping occluders without silhouette flicker.
+- [x] Verify actor activation, death, pooling, scene transitions, and cleanup.
+- [x] Add `pnpm smoke:depth-game` deterministic depth/visibility assertions.
 
 ### Phase 6 — Content authoring and gameplay verification
 
-- [ ] Author occlusion bounds for tree templates.
-- [ ] Author occlusion bounds for house templates.
-- [ ] Author bounds for tall walls and selected large rocks.
-- [ ] Leave floors, collectibles, and small props without bounds.
-- [ ] Smoke-test behind/in-front movement in every production biome.
-- [ ] Check silhouettes at camera edges, during attacks, knockback, and death.
-- [ ] Run object, map, asset, visual, enemy, typecheck, and production build checks.
+- [x] Author occlusion bounds for tree templates.
+- [x] Author occlusion bounds for house templates.
+- [x] Author bounds for tall walls and selected large rocks.
+- [x] Leave floors, collectibles, and small props without bounds.
+- [x] Smoke-test behind/in-front movement in every production biome.
+- [x] Check silhouettes at camera edges, during attacks, knockback, and death.
+- [x] Run object, map, asset, visual, enemy, typecheck, and production build checks.
 
-### Phase 7 — Future split foreground artwork
+### Phase 7 — Split foreground artwork
 
-- [ ] Extend visual templates with optional base and overhead visual parts.
-- [ ] Keep the base in the Y-sorted band and canopy/roof in the overhead band.
-- [ ] Allow the editor to preview both parts with one stable ground anchor.
-- [ ] Evaluate fading roofs, clipped silhouettes, and polygon occlusion masks.
+- [x] Extend visual templates with optional base and overhead visual parts.
+- [x] Keep the base in the Y-sorted band and canopy/roof in the overhead band.
+- [x] Allow the editor to preview both parts with one stable ground anchor.
+- [x] Evaluate fading roofs, clipped silhouettes, and polygon occlusion masks.
 
 ## Important files
 

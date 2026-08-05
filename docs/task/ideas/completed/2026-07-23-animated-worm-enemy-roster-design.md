@@ -2,7 +2,7 @@
 
 ## Status
 
-Approved for implementation.
+Completed and verified. The three authored worm enemies are the active roster.
 
 ## Goal
 
@@ -14,7 +14,9 @@ Make the three authored worm enemies the only active enemy roster:
 
 Every enemy exposed to maps, the map editor, and runtime spawning must have file-backed artwork plus directional idle, walk, attack, and death animation clips. The procedural Blobfather encounter is disabled under the same rule.
 
-The removed enemy concepts and their current gameplay definitions must remain documented in `docs/task/ideas/future-enemy-types.md` for later art and implementation.
+The removed enemy concepts and their current gameplay definitions remain
+documented in `docs/task/ideas/open/future-enemy-types.md` for later art and
+implementation.
 
 ## Source assets
 

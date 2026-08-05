@@ -11,6 +11,28 @@
     "displayName": { "type": "string", "minLength": 1, "maxLength": 80 },
     "category": { "enum": ["melee", "ranged"] },
     "animKey": { "type": "string" },
+    "assetId": { "type": "string" },
+    "animations": {
+      "type": "object", "additionalProperties": false,
+      "required": ["idle", "attack", "impact"],
+      "properties": {
+        "idle": { "$ref": "#/$defs/animation" },
+        "attack": { "$ref": "#/$defs/animation" },
+        "impact": { "$ref": "#/$defs/animation" }
+      }
+    },
+    "visual": {
+      "type": "object", "additionalProperties": false,
+      "required": ["sourceOffset"],
+      "properties": {
+        "sourceOffset": {
+          "type": "array",
+          "prefixItems": [{ "type": "integer" }, { "type": "integer" }],
+          "minItems": 2,
+          "maxItems": 2
+        }
+      }
+    },
     "baseDamage": { "type": "number", "minimum": 0 },
     "cooldownMs": { "type": "number", "exclusiveMinimum": 0 },
     "hitboxWidth": { "type": "number", "exclusiveMinimum": 0 },
@@ -23,6 +45,17 @@
     "unlockLevel": { "type": "integer", "minimum": 1 },
     "iconKey": { "type": "string" },
     "description": { "type": "string", "maxLength": 240 }
+  },
+  "$defs": {
+    "animation": {
+      "type": "object", "additionalProperties": false,
+      "required": ["frames", "framesPerSecond", "loop"],
+      "properties": {
+        "frames": { "type": "array", "minItems": 1, "items": { "type": "integer", "minimum": 0 } },
+        "framesPerSecond": { "type": "integer", "minimum": 1, "maximum": 240 },
+        "loop": { "type": "boolean" },
+        "loopMode": { "enum": ["wrap", "ping-pong"] }
+      }
+    }
   }
 }
-

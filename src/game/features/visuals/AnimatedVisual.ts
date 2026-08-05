@@ -54,6 +54,7 @@ export class AnimatedVisual {
   readonly effects: VisualEffects = { scaleX: 1, scaleY: 1, alpha: 1 };
 
   private frameIndex: number;
+  private activeClipId?: string;
   private transform: ResolvedVisualTransform;
   private readonly depthResolver?: () => number;
   private depth: number;
@@ -87,7 +88,10 @@ export class AnimatedVisual {
   }
 
   play(runtimeKey: string, ignoreIfPlaying = true): this {
-    this.sprite.play(this.resolveRuntimeKey(runtimeKey), ignoreIfPlaying);
+    const resolvedRuntimeKey = this.resolveRuntimeKey(runtimeKey);
+    this.activeClipId = Object.entries(getVisualSet(this.visualSetId).clips)
+      .find(([, clip]) => clip.runtimeKey === resolvedRuntimeKey)?.[0];
+    this.sprite.play(resolvedRuntimeKey, ignoreIfPlaying);
     const currentFrame = this.sprite.anims.currentFrame?.textureFrame;
     this.setFrameIndex(typeof currentFrame === 'number' ? currentFrame : Number(currentFrame) || 0);
     return this;
@@ -205,9 +209,8 @@ export class AnimatedVisual {
   }
 
   private setFrameIndex(frameIndex: number): void {
-    if (this.frameIndex === frameIndex) return;
     this.frameIndex = frameIndex;
-    this.transform = resolveFrameVisual(this.visualSetId, frameIndex);
+    this.transform = resolveFrameVisual(this.visualSetId, frameIndex, this.activeClipId);
     this.applyTransform();
   }
 

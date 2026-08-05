@@ -6,6 +6,11 @@ export interface WeaponDefinition {
   readonly displayName: string;
   readonly category: 'melee' | 'ranged';
   readonly animKey: string;
+  readonly assetId?: string;
+  readonly animations?: WeaponAnimationSet;
+  readonly visual?: {
+    readonly sourceOffset: readonly [number, number];
+  };
   readonly baseDamage: number;
   readonly cooldownMs: number;
   readonly hitboxWidth: number;
@@ -25,3 +30,15 @@ export interface WeaponDefinition {
   readonly description: string;
 }
 
+export interface WeaponAnimationDocument {
+  readonly frames: readonly number[];
+  readonly framesPerSecond: number;
+  readonly loop: boolean;
+  readonly loopMode?: 'wrap' | 'ping-pong';
+}
+
+export interface WeaponAnimationSet {
+  readonly idle: WeaponAnimationDocument;
+  readonly attack: WeaponAnimationDocument;
+  readonly impact: WeaponAnimationDocument;
+}

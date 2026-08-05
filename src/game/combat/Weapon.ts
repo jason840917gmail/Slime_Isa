@@ -146,8 +146,9 @@ export class Weapon {
     const stats = getStats();
     const reach = (this.def.hitboxOffset + this.def.hitboxWidth / 2) * stats.weaponReachMult;
     const color = isCrit ? 0xffdf8a : this.def.vfxColor;
-    const px = player.x;
-    const py = player.y;
+    const visualOffset = this.def.visual?.sourceOffset ?? [0, 0];
+    const px = player.x + visualOffset[0] * Math.cos(angle) - visualOffset[1] * Math.sin(angle);
+    const py = player.y + visualOffset[0] * Math.sin(angle) + visualOffset[1] * Math.cos(angle);
     const outerR = reach + SWING_VISUAL_PADDING;
     const innerR = 8; // starts from the player's body, not from inside
     const arcWidth = stats.weaponArcRad;

@@ -833,6 +833,7 @@ function starterClips(template: VisualSetDocument, kind: PackageCreationRequest[
       framesPerSecond: source.framesPerSecond,
       loop: source.loop,
       loopMode: source.loopMode ?? 'wrap',
+      ...(source.sourceOffset ? { sourceOffset: cloneValue(source.sourceOffset) } : {}),
     }];
   }));
 }
