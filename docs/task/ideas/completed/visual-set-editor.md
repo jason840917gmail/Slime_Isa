@@ -2,13 +2,14 @@
 
 ## Status
 
-- [ ] Future idea
+- [x] Implemented in Character Studio
 
 ## Goal
 
-Add a map-editor panel that creates and edits `visual-set.json` files without placing animation data inside map files.
+Character Studio creates and edits `visual-set.json` files without placing
+animation data inside map files.
 
-## Proposed workflow
+## Implemented workflow
 
 1. Select a stable asset from `asset/assets.json`.
 2. Create or open a visual set.

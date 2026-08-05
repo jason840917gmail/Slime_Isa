@@ -41,7 +41,7 @@ export interface VisualSetDefinition {
 export interface VisualDefinitionResolver {
   getVisualSet(visualSetId: string): VisualSetDefinition;
   getClip(visualSetId: string, clipId: string): VisualClip;
-  resolveFrameVisual(visualSetId: string, sourceFrame: number): ResolvedVisualTransform;
+  resolveFrameVisual(visualSetId: string, sourceFrame: number, clipId?: string): ResolvedVisualTransform;
   runtimeKey(visualSetId: string, clipId: string): string;
 }
 
@@ -109,13 +109,14 @@ export function findVisualClipByRuntimeKey(visualSetId: VisualSetId, runtimeKey:
   return Object.values(getVisualSet(visualSetId).clips).find((clip) => clip.runtimeKey === runtimeKey);
 }
 
-export function resolveFrameVisual(visualSetId: VisualSetId, frameIndex: number): ResolvedVisualTransform {
+export function resolveFrameVisual(visualSetId: VisualSetId, frameIndex: number, clipId?: string): ResolvedVisualTransform {
   const definition = getVisualSet(visualSetId);
   const frame = definition.frameVisuals?.[String(frameIndex)];
+  const clip = clipId ? definition.clips[clipId] : undefined;
   return {
     origin: frame?.origin ?? definition.defaults.origin,
     scale: frame?.scale ?? definition.defaults.scale,
-    sourceOffset: frame?.sourceOffset ?? definition.defaults.sourceOffset,
+    sourceOffset: frame?.sourceOffset ?? clip?.sourceOffset ?? definition.defaults.sourceOffset,
   };
 }
 

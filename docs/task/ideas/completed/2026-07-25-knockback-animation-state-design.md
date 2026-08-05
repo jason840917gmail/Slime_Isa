@@ -1,5 +1,9 @@
 # Knockback Animation State Design
 
+## Status
+
+Completed and verified.
+
 ## Goal
 
 Knockback must look like a character sliding backward from an impact while continuing to face the direction it was facing before the hit. Knockback velocity is a temporary physical effect, not intentional movement, and must never make a character turn around or play a walking animation.

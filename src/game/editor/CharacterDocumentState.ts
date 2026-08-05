@@ -248,6 +248,20 @@ export class CharacterDocumentState {
     return this.mutate('Updated default visual alignment', (draft) => { draft.visualSet.defaults = { ...draft.visualSet.defaults, ...clone(transform) }; });
   }
 
+  updateAnimationVisual(sourceOffset: [number, number]): boolean {
+    return this.mutate(`Updated ${this.selectedClipId} animation alignment`, (draft) => {
+      const clip = draft.visualSet.clips[this.selectedClipId];
+      if (clip) clip.sourceOffset = clone(sourceOffset);
+    });
+  }
+
+  resetAnimationVisual(): boolean {
+    return this.mutate(`Reset ${this.selectedClipId} animation alignment`, (draft) => {
+      const clip = draft.visualSet.clips[this.selectedClipId];
+      if (clip) delete clip.sourceOffset;
+    });
+  }
+
   updateFrameVisual(frame: number, transform: VisualTransformDocument): boolean {
     return this.mutate(`Updated frame ${frame} alignment`, (draft) => {
       draft.visualSet.frameVisuals ??= {};

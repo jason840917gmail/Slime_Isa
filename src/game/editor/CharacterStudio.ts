@@ -1,6 +1,7 @@
 import { characterPackages } from 'virtual-character-content';
 
 import './character-studio.css';
+import { ensureStudioModeTabs } from './StudioModeTabs';
 
 import { ASSET_MANIFEST, getAsset } from '../infrastructure/assets/manifest';
 import { resolveAssetUrl } from '../infrastructure/assets/assetUrls';
@@ -68,6 +69,15 @@ function numberValue(value: unknown, fallback = 0): number {
   return typeof value === 'number' ? value : fallback;
 }
 
+function integerValue(value: unknown, fallback = 0): number {
+  const numeric = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(numeric) ? Math.round(numeric) : fallback;
+}
+
+function integerInputValue(value: unknown, fallback = 0): string {
+  return String(integerValue(value, fallback));
+}
+
 function assetFrameInfo(assetId: string): { width: number; height: number; columns: number; rows: number; count: number; url: string } {
   const asset = getAsset(assetId as never);
   if (!('path' in asset.source)) return { width: 1, height: 1, columns: 1, rows: 1, count: 1, url: '' };
@@ -78,6 +88,16 @@ function assetFrameInfo(assetId: string): { width: number; height: number; colum
   }
   const count = 'count' in asset.source.frame && asset.source.frame.count ? asset.source.frame.count : asset.source.frame.cols * asset.source.frame.rows;
   return { width: asset.source.frame.w, height: asset.source.frame.h, columns: asset.source.frame.cols, rows: asset.source.frame.rows, count, url: resolveAssetUrl(asset.source.path) };
+}
+
+function resolvePreviewTransform(visualSet: CharacterPackage['visualSet'], frame: number, clipId?: string): { origin: readonly [number, number]; scale: readonly [number, number]; sourceOffset: readonly [number, number] } {
+  const override = visualSet.frameVisuals?.[String(frame)];
+  const clip = clipId ? visualSet.clips[clipId] : undefined;
+  return {
+    origin: override?.origin ?? visualSet.defaults.origin,
+    scale: override?.scale ?? visualSet.defaults.scale,
+    sourceOffset: override?.sourceOffset ?? clip?.sourceOffset ?? visualSet.defaults.sourceOffset,
+  };
 }
 
 function manifestTags(value: unknown): readonly string[] {
@@ -159,7 +179,7 @@ function renderStudioModal(activeModal: ActiveStudioModal | undefined): string {
       <header class="studio-modal-header"><span class="studio-kicker">Character Studio</span><h2 id="${titleId}">${escapeHtml(request.title)}</h2></header>
       <p class="studio-modal-message" id="${messageId}">${escapeHtml(request.message)}</p>
       <form class="studio-modal-form" data-studio-modal-form>
-        ${fields.map((field, index) => `<label class="studio-modal-field"><span>${escapeHtml(field.label)}${field.optional ? '<small>optional</small>' : ''}</span><input type="${field.inputType ?? 'text'}" name="${escapeHtml(field.id)}" data-modal-field="${escapeHtml(field.id)}" value="${escapeHtml(field.value ?? '')}" placeholder="${escapeHtml(field.placeholder ?? '')}" ${field.optional ? '' : 'required'} ${index === 0 ? 'data-modal-autofocus' : ''} autocomplete="off" /></label>`).join('')}
+        ${fields.map((field, index) => { const isNumber = field.inputType === 'number'; const rawValue = field.value ?? ''; const value = isNumber && rawValue.trim() ? integerInputValue(rawValue) : rawValue; return `<label class="studio-modal-field"><span>${escapeHtml(field.label)}${field.optional ? '<small>optional</small>' : ''}</span><input type="${field.inputType ?? 'text'}" name="${escapeHtml(field.id)}" data-modal-field="${escapeHtml(field.id)}" value="${escapeHtml(value)}" placeholder="${escapeHtml(field.placeholder ?? '')}" ${isNumber ? 'step="1" inputmode="numeric"' : ''} ${field.optional ? '' : 'required'} ${index === 0 ? 'data-modal-autofocus' : ''} autocomplete="off" /></label>`; }).join('')}
         <footer class="studio-modal-actions">${request.kind !== 'alert' ? `<button type="button" class="studio-button studio-button--quiet" data-modal-action="cancel">${escapeHtml(request.cancelLabel ?? 'CANCEL')}</button>` : ''}<button type="submit" class="studio-button ${request.danger ? 'studio-button--danger' : 'studio-button--save'}">${escapeHtml(primaryLabel)}</button></footer>
       </form>
     </section>
@@ -195,7 +215,10 @@ function renderInspector(snapshot: CharacterDocumentSnapshot): string {
   const { character, visualSet } = snapshot;
   const frame = snapshot.selectedSourceFrame;
   const transform = visualSet.frameVisuals?.[String(frame)] ?? {};
-  const numberField = (label: string, path: string, value: unknown, unit: string): string => `<label class="studio-field"><span>${label}<small>${unit}</small></span><input type="number" step="0.01" data-number-path="${path}" value="${escapeHtml(value)}" /></label>`;
+  const animation = visualSet.clips[snapshot.selectedClipId];
+  const animationOffset = animation?.sourceOffset ?? visualSet.defaults.sourceOffset;
+  const resolvedTransform = resolvePreviewTransform(visualSet, frame, snapshot.selectedClipId);
+  const numberField = (label: string, path: string, value: unknown, unit: string): string => `<label class="studio-field"><span>${label}<small>${unit}</small></span><input type="number" step="1" inputmode="numeric" data-number-path="${path}" value="${escapeHtml(integerInputValue(value))}" /></label>`;
   const shapeField = (path: string, shape: CollisionShape | undefined): string => `<label class="studio-field"><span>Shape<small>collision primitive</small></span><select data-collision-shape-path="${path}"><option value="rectangle" ${(shape ?? 'rectangle') === 'rectangle' ? 'selected' : ''}>Rectangle</option><option value="circle" ${shape === 'circle' ? 'selected' : ''}>Circle</option><option value="ellipse" ${shape === 'ellipse' ? 'selected' : ''}>Ellipse</option></select></label>`;
   const behaviorField = character.kind === 'enemy' && character.enemy
     ? `<label class="studio-field studio-field--wide"><span>AI behavior<small>runtime controller</small></span><select data-select-path="enemy.ai.behavior"><option value="standard" ${(character.enemy.ai.behavior ?? 'standard') === 'standard' ? 'selected' : ''}>Standard</option><option value="slime-spider" ${character.enemy.ai.behavior === 'slime-spider' ? 'selected' : ''}>Slime spider</option></select></label>`
@@ -216,7 +239,7 @@ function renderInspector(snapshot: CharacterDocumentSnapshot): string {
     : '';
   return `<div class="studio-inspector-scroll">
     ${capabilityFields ? `<section class="studio-inspector-section"><div class="studio-section-heading"><span class="studio-kicker">Capabilities</span><strong>Supported runtime modes</strong></div>${capabilityFields}${advancedEnemyFields}</section>` : ''}
-    <section class="studio-inspector-section"><div class="studio-section-heading"><span class="studio-kicker">Visual</span><strong>Alignment</strong></div><p class="studio-help">Artwork shifts around the anchor. It never changes the stable movement body.</p><div class="studio-field-grid">${numberField('Origin X', 'visual.defaults.origin.0', visualSet.defaults.origin[0], 'normalized')}${numberField('Origin Y', 'visual.defaults.origin.1', visualSet.defaults.origin[1], 'normalized')}${numberField('Scale X', 'visual.defaults.scale.0', visualSet.defaults.scale[0], 'multiplier')}${numberField('Scale Y', 'visual.defaults.scale.1', visualSet.defaults.scale[1], 'multiplier')}</div><div class="studio-subheading">Frame ${frame} override <button type="button" class="studio-link-button" data-action="reset-frame-visual">reset</button></div><div class="studio-field-grid">${numberField('Offset X', 'visual.frame.sourceOffset.0', transform.sourceOffset?.[0] ?? 0, 'source px')}${numberField('Offset Y', 'visual.frame.sourceOffset.1', transform.sourceOffset?.[1] ?? 0, 'source px')}</div></section>
+    <section class="studio-inspector-section"><div class="studio-section-heading"><span class="studio-kicker">Visual</span><strong>Alignment</strong></div><p class="studio-help">Offsets resolve from default to animation to frame. More specific values override the level before them.</p><div class="studio-field-grid">${numberField('Default offset X', 'visual.defaults.sourceOffset.0', visualSet.defaults.sourceOffset[0], 'source px')}${numberField('Default offset Y', 'visual.defaults.sourceOffset.1', visualSet.defaults.sourceOffset[1], 'source px')}${numberField('Scale X', 'visual.defaults.scale.0', visualSet.defaults.scale[0], 'multiplier')}${numberField('Scale Y', 'visual.defaults.scale.1', visualSet.defaults.scale[1], 'multiplier')}</div><div class="studio-subheading">Animation ${escapeHtml(snapshot.selectedClipId)} offset <button type="button" class="studio-link-button" data-action="reset-animation-visual">reset</button></div><div class="studio-field-grid">${numberField('Offset X', 'visual.animation.sourceOffset.0', animationOffset[0], animation?.sourceOffset ? 'source px override' : 'uses default')}${numberField('Offset Y', 'visual.animation.sourceOffset.1', animationOffset[1], animation?.sourceOffset ? 'source px override' : 'uses default')}</div><div class="studio-subheading">Frame ${frame} override <button type="button" class="studio-link-button" data-action="reset-frame-visual">reset</button></div><div class="studio-field-grid">${numberField('Offset X', 'visual.frame.sourceOffset.0', resolvedTransform.sourceOffset[0], transform.sourceOffset ? 'source px override' : 'uses animation')}${numberField('Offset Y', 'visual.frame.sourceOffset.1', resolvedTransform.sourceOffset[1], transform.sourceOffset ? 'source px override' : 'uses animation')}</div></section>
     <section class="studio-inspector-section"><div class="studio-section-heading"><span class="studio-kicker">Body</span><strong>Stable movement body</strong></div><p class="studio-help">Circles use native Arcade Physics. Ellipses keep their authored geometry for hitbox math and use a conservative rectangle for world/tile movement collision.</p><div class="studio-field-grid">${shapeField('body.shape', bodyShape)}${bodyShape === 'circle' ? numberField('Radius', 'body.radius', body.radius ?? Math.min(body.width, body.height) / 2, 'world units') : bodyShape === 'ellipse' ? `${numberField('Radius X', 'body.radiusX', body.radiusX ?? body.width / 2, 'world units')}${numberField('Radius Y', 'body.radiusY', body.radiusY ?? body.height / 2, 'world units')}` : `${numberField('Width', 'body.width', body.width, 'world units')}${numberField('Height', 'body.height', body.height, 'world units')}`}${numberField('Center X', 'body.centerOffsetX', body.centerOffsetX, 'world units')}${numberField('Center Y', 'body.centerOffsetY', body.centerOffsetY, 'world units')}</div></section>
     <section class="studio-inspector-section"><div class="studio-section-heading"><span class="studio-kicker">Attributes</span><strong>Base character attributes</strong></div><p class="studio-help">Movement speed is separate and comes from movement, equipment, or temporary effects. These values are the neutral foundation for future weapon and ability scaling.</p><div class="studio-field-grid">${numberField('Strength', 'attributes.strength', attributes.strength, 'base points')}${numberField('Vitality', 'attributes.vitality', attributes.vitality, 'base points')}${numberField('Agility', 'attributes.agility', attributes.agility, 'base points')}${numberField('Intellect', 'attributes.intellect', attributes.intellect, 'base points')}</div></section>
     <section class="studio-inspector-section"><div class="studio-section-heading"><span class="studio-kicker">Gameplay</span><strong>${character.kind === 'player' ? 'Player progression' : 'Enemy behavior'}</strong></div>${gameplayFields}</section>
@@ -236,8 +259,10 @@ function renderStudio(snapshot: CharacterDocumentSnapshot, assetShelf: AssetShel
   const selectedFrame = timeline[selectedTimelineIndex] ?? snapshot.selectedSourceFrame;
   const previewColumn = selectedFrame % info.columns;
   const previewRow = Math.floor(selectedFrame / info.columns);
-  const transform = visualSet.frameVisuals?.[String(selectedFrame)] ?? {};
-  const previewScale = numberValue(visualSet.defaults.scale[0], 1) * 2.8;
+  const transform = resolvePreviewTransform(visualSet, selectedFrame, selectedClipId);
+  const previewScale = numberValue(transform.scale[0], 1) * 2.8;
+  const originOffsetX = -numberValue(transform.origin[0], 0.5) * info.width * previewScale;
+  const originOffsetY = -numberValue(transform.origin[1], 0.5) * info.height * previewScale;
   const bodyDimensions = resolveCollisionShapeDimensions(character.body);
   const bodyWidth = bodyDimensions.width * 3;
   const bodyHeight = bodyDimensions.height * 3;
@@ -256,9 +281,9 @@ function renderStudio(snapshot: CharacterDocumentSnapshot, assetShelf: AssetShel
     <div class="studio-layout">
       <aside class="studio-library"><div class="studio-panel-title"><div><span class="studio-kicker">Catalog</span><h1>Characters</h1></div><span class="studio-count">${characterPackages.length.toString().padStart(2, '0')}</span></div><label class="studio-search"><span>⌕</span><input type="search" placeholder="Filter roster" data-library-search /></label><div class="studio-roster" data-roster>${characterPackages.map((entry) => `<button type="button" class="studio-roster-item${entry.characterId === character.characterId ? ' is-active' : ''}" data-character-id="${escapeHtml(entry.characterId)}" data-character-name="${escapeHtml(entry.character.displayName)}"><span class="roster-glyph ${entry.character.kind}">${entry.character.kind === 'player' ? '●' : '◆'}</span><span><strong>${escapeHtml(entry.character.displayName)}</strong><small>${entry.character.kind === 'player' ? 'PLAYER' : 'ENEMY'} ${entry.character.runtimeRole ? '· PRIMARY' : ''}</small></span><em>${entry.characterId === character.characterId ? 'OPEN' : ''}</em></button>`).join('')}</div><div class="studio-library-footer"><button type="button" class="studio-button studio-button--outline studio-button--create" data-action="new-character">NEW CHARACTER</button><button type="button" class="studio-button studio-button--outline" data-action="duplicate">DUPLICATE PACKAGE</button><a class="studio-button studio-button--outline studio-button--navigation" href="?editor=${encodeURIComponent(returnEditor)}" data-testid="map-editor-link">↗ OPEN FIELD CARTOGRAPHER</a></div></aside>
       <section class="studio-workbench"><div class="studio-workbench-heading"><div><span class="studio-kicker">${character.kind === 'player' ? 'Player package' : 'Enemy package'}</span><h2>${escapeHtml(character.displayName)} <span>${escapeHtml(character.characterId)}</span></h2></div><div class="studio-workbench-meta"><span>ASSET <b>${escapeHtml(visualSet.assetId)}</b></span><span>GRID <b>${info.columns} × ${info.rows}</b></span><span>FRAMES <b>${info.count}</b></span></div></div>
-        <section class="studio-preview-card"><div class="studio-preview-toolbar"><span class="studio-kicker">ANCHOR-LOCKED PREVIEW</span><div class="studio-toolbar-actions"><button type="button" class="studio-pill is-active" data-action="toggle-grid">GRID</button><button type="button" class="studio-pill is-active" data-action="toggle-body">BODY</button><button type="button" class="studio-pill" data-action="toggle-mirror">MIRROR</button><button type="button" class="studio-pill" data-action="toggle-onion">ONION</button></div></div><div class="studio-stage" data-preview-stage><span class="stage-axis stage-axis-x"></span><span class="stage-axis stage-axis-y"></span><span class="stage-anchor">+</span><span class="stage-label">WORLD ANCHOR</span><span class="stage-body" style="width:${bodyWidth}px;height:${bodyHeight}px;transform:translate(-50%,-50%) translate(${character.body.centerOffsetX * 3}px,${character.body.centerOffsetY * 3}px)"></span>${hitboxGuides}<span class="stage-sprite" style="--sheet-url:url('${info.url}');--frame-w:${info.width}px;--frame-h:${info.height}px;--sheet-w:${info.width * info.columns}px;--sheet-h:${info.height * info.rows}px;--frame-x:${previewColumn * info.width}px;--frame-y:${previewRow * info.height}px;--preview-scale:${previewScale};--offset-x:${numberValue(transform.sourceOffset?.[0]) * 2.2}px;--offset-y:${numberValue(transform.sourceOffset?.[1]) * 2.2}px"></span><span class="stage-caption"><b>${escapeHtml(selectedClipId)}</b><span>POSITION ${selectedTimelineIndex + 1} / ${timeline.length} · SOURCE ${selectedFrame}</span></span></div><div class="studio-preview-footer"><span><i class="legend-dot legend-dot--amber"></i> art transform</span><span><i class="legend-dot legend-dot--red"></i> stable body</span><span><i class="legend-dot legend-dot--cyan"></i> hitbox</span><label>ZOOM <input type="range" min="0.6" max="2" step="0.1" value="1" data-preview-zoom /></label></div></section>
+        <section class="studio-preview-card"><div class="studio-preview-toolbar"><span class="studio-kicker">ANCHOR-LOCKED PREVIEW</span><div class="studio-toolbar-actions"><button type="button" class="studio-pill is-active" data-action="toggle-grid">GRID</button><button type="button" class="studio-pill is-active" data-action="toggle-body">BODY</button><button type="button" class="studio-pill" data-action="toggle-mirror">MIRROR</button><button type="button" class="studio-pill" data-action="toggle-onion">ONION</button></div></div><div class="studio-stage" data-preview-stage><span class="stage-axis stage-axis-x"></span><span class="stage-axis stage-axis-y"></span><span class="stage-anchor">+</span><span class="stage-label">WORLD ANCHOR</span><span class="stage-body" style="width:${bodyWidth}px;height:${bodyHeight}px;transform:translate(-50%,-50%) translate(${character.body.centerOffsetX * 3}px,${character.body.centerOffsetY * 3}px)"></span>${hitboxGuides}<span class="stage-sprite" style="--sheet-url:url('${info.url}');--frame-w:${info.width}px;--frame-h:${info.height}px;--sheet-w:${info.width * info.columns}px;--sheet-h:${info.height * info.rows}px;--frame-x:${previewColumn * info.width}px;--frame-y:${previewRow * info.height}px;--preview-scale:${previewScale};--origin-offset-x:${originOffsetX}px;--origin-offset-y:${originOffsetY}px;--offset-x:${numberValue(transform.sourceOffset[0]) * previewScale}px;--offset-y:${numberValue(transform.sourceOffset[1]) * previewScale}px"></span><span class="stage-caption"><b>${escapeHtml(selectedClipId)}</b><span>POSITION ${selectedTimelineIndex + 1} / ${timeline.length} · SOURCE ${selectedFrame}</span></span></div><div class="studio-preview-footer"><span><i class="legend-dot legend-dot--amber"></i> art transform</span><span><i class="legend-dot legend-dot--red"></i> stable body</span><span><i class="legend-dot legend-dot--cyan"></i> hitbox</span><label>ZOOM <input type="range" min="1" max="2" step="1" value="1" data-preview-zoom /></label></div></section>
         <section class="studio-sheet-panel"><div class="studio-section-bar"><div><span class="studio-kicker">Source sheet</span><strong>Click frames to select · click again to deselect</strong></div><span class="studio-muted">${info.width} × ${info.height} px cells</span></div><div class="studio-sheet-grid">${Array.from({ length: info.count }, (_, frame) => renderFrameTile(frame, info, selectedSourceFrames.has(frame), false, true, usedSourceFrames.has(frame))).join('')}</div><div class="studio-sheet-actions"><button type="button" class="studio-button studio-button--accent" data-action="append-frame">+ APPEND SELECTED</button><button type="button" class="studio-button studio-button--quiet" data-action="insert-frame">INSERT AT PLAYHEAD</button><span class="studio-selection-note">focused source ${snapshot.selectedSourceFrame} · ${selectedSourceFrames.size} selected · ${usedSourceFrames.size} used</span></div></section>
-        <section class="studio-timeline-panel"><div class="studio-section-bar"><div><span class="studio-kicker">Animation timeline</span><strong>Editing <span class="studio-inline-clip-name">${escapeHtml(selectedClipId)}</span></strong></div><span class="studio-muted">Drag frames to reorder · cyan = active hitbox · ◆ = event</span><div class="studio-clip-actions"><button type="button" class="studio-icon-button" data-action="add-clip" title="Create a new animation clip" aria-label="Create a new animation clip">+</button><button type="button" class="studio-icon-button" data-action="rename-clip" title="Rename the current animation clip" aria-label="Rename the current animation clip">✎</button><button type="button" class="studio-icon-button" data-action="duplicate-clip" title="Duplicate the current animation clip" aria-label="Duplicate the current animation clip">⧉</button><button type="button" class="studio-icon-button is-danger" data-action="remove-clip" title="Remove the current animation clip" aria-label="Remove the current animation clip">×</button></div></div><div class="studio-clip-tabs">${Object.entries(visualSet.clips).map(([id, entry]) => `<button type="button" class="studio-clip-tab${id === selectedClipId ? ' is-active' : ''}" data-clip-id="${escapeHtml(id)}" title="Edit ${escapeHtml(id)}"><span>${escapeHtml(id)}</span><small>${entry.frames.length}F</small></button>`).join('')}</div><div class="studio-timeline"><div class="timeline-ruler">${timeline.map((_, index) => `<span>${String(index).padStart(2, '0')}</span>`).join('')}</div><div class="timeline-frames">${timeline.map((frame, index) => `<button type="button" class="timeline-frame${index === selectedTimelineIndex ? ' is-active' : ''}" data-timeline-index="${index}" draggable="true" title="Frame ${index}. Drag to reorder.">${renderFrameTile(frame, info, false, true, false)}<span class="timeline-frame-number">${index}</span>${(track.events ?? []).filter((event) => event.at === index).map((event) => `<i class="event-marker" title="${escapeHtml(event.eventId)}" aria-label="Event: ${escapeHtml(event.eventId)}">◆</i>`).join('')}</button>`).join('')}</div>${hitboxTrackRows}</div><div class="studio-timeline-selection"><span><b data-timeline-selection-frame>FRAME ${String(selectedTimelineIndex).padStart(2, '0')}</b></span><span><strong>HITBOX</strong> <span data-timeline-selection-hitbox>${spanSummary}</span></span><span><strong>EVENTS</strong> <span data-timeline-selection-events>${eventSummary}</span></span></div><div class="studio-timeline-help"><div><b>+ HITBOX SPAN</b><p>Marks a named hitbox active from the selected frame through an inclusive end frame. Runtime collision callbacks use these cyan cells.</p></div><div><b>+ EVENT</b><p>Adds a one-frame event ID for runtime listeners. It is metadata only; it does not change the sprite by itself.</p></div></div><div class="studio-playback"><button type="button" class="studio-button studio-button--play${playing ? ' is-playing' : ''}" data-action="play" aria-pressed="${playing}" title="${playing ? 'Stop clip playback' : 'Play this clip'}">${playing ? '■ STOP CLIP' : '▶ PLAY CLIP'}</button><button type="button" class="studio-button studio-button--quiet" data-action="previous-frame">‹</button><button type="button" class="studio-button studio-button--quiet" data-action="next-frame">›</button><button type="button" class="studio-button studio-button--quiet" data-action="add-span" title="Mark a hitbox active across a range of frames">+ HITBOX SPAN</button><button type="button" class="studio-button studio-button--quiet" data-action="add-event" title="Add a one-frame runtime event marker">+ EVENT</button><label class="studio-inline-field">FPS <input type="number" min="0.1" max="240" step="0.5" value="${clip?.framesPerSecond ?? 8}" data-clip-fps /></label><label class="studio-switch"><input type="checkbox" ${clip?.loop ? 'checked' : ''} data-clip-loop /><span></span> LOOP</label><button type="button" class="studio-button studio-button--quiet is-danger" data-action="remove-frame" ${timeline.length <= 1 ? 'disabled' : ''}>REMOVE FRAME</button></div></section>
+        <section class="studio-timeline-panel"><div class="studio-section-bar"><div><span class="studio-kicker">Animation timeline</span><strong>Editing <span class="studio-inline-clip-name">${escapeHtml(selectedClipId)}</span></strong></div><span class="studio-muted">Drag frames to reorder · cyan = active hitbox · ◆ = event</span><div class="studio-clip-actions"><button type="button" class="studio-icon-button" data-action="add-clip" title="Create a new animation clip" aria-label="Create a new animation clip">+</button><button type="button" class="studio-icon-button" data-action="rename-clip" title="Rename the current animation clip" aria-label="Rename the current animation clip">✎</button><button type="button" class="studio-icon-button" data-action="duplicate-clip" title="Duplicate the current animation clip" aria-label="Duplicate the current animation clip">⧉</button><button type="button" class="studio-icon-button is-danger" data-action="remove-clip" title="Remove the current animation clip" aria-label="Remove the current animation clip">×</button></div></div><div class="studio-clip-tabs">${Object.entries(visualSet.clips).map(([id, entry]) => `<button type="button" class="studio-clip-tab${id === selectedClipId ? ' is-active' : ''}" data-clip-id="${escapeHtml(id)}" title="Edit ${escapeHtml(id)}"><span>${escapeHtml(id)}</span><small>${entry.frames.length}F</small></button>`).join('')}</div><div class="studio-timeline"><div class="timeline-ruler">${timeline.map((_, index) => `<span>${String(index).padStart(2, '0')}</span>`).join('')}</div><div class="timeline-frames">${timeline.map((frame, index) => `<button type="button" class="timeline-frame${index === selectedTimelineIndex ? ' is-active' : ''}" data-timeline-index="${index}" draggable="true" title="Frame ${index}. Drag to reorder.">${renderFrameTile(frame, info, false, true, false)}<span class="timeline-frame-number">${index}</span>${(track.events ?? []).filter((event) => event.at === index).map((event) => `<i class="event-marker" title="${escapeHtml(event.eventId)}" aria-label="Event: ${escapeHtml(event.eventId)}">◆</i>`).join('')}</button>`).join('')}</div>${hitboxTrackRows}</div><div class="studio-timeline-selection"><span><b data-timeline-selection-frame>FRAME ${String(selectedTimelineIndex).padStart(2, '0')}</b></span><span><strong>HITBOX</strong> <span data-timeline-selection-hitbox>${spanSummary}</span></span><span><strong>EVENTS</strong> <span data-timeline-selection-events>${eventSummary}</span></span></div><div class="studio-timeline-help"><div><b>+ HITBOX SPAN</b><p>Marks a named hitbox active from the selected frame through an inclusive end frame. Runtime collision callbacks use these cyan cells.</p></div><div><b>+ EVENT</b><p>Adds a one-frame event ID for runtime listeners. It is metadata only; it does not change the sprite by itself.</p></div></div><div class="studio-playback"><button type="button" class="studio-button studio-button--play${playing ? ' is-playing' : ''}" data-action="play" aria-pressed="${playing}" title="${playing ? 'Stop clip playback' : 'Play this clip'}">${playing ? '■ STOP CLIP' : '▶ PLAY CLIP'}</button><button type="button" class="studio-button studio-button--quiet" data-action="previous-frame">‹</button><button type="button" class="studio-button studio-button--quiet" data-action="next-frame">›</button><button type="button" class="studio-button studio-button--quiet" data-action="add-span" title="Mark a hitbox active across a range of frames">+ HITBOX SPAN</button><button type="button" class="studio-button studio-button--quiet" data-action="add-event" title="Add a one-frame runtime event marker">+ EVENT</button><label class="studio-inline-field">FPS <input type="number" min="1" max="240" step="1" inputmode="numeric" value="${integerInputValue(clip?.framesPerSecond, 8)}" data-clip-fps /></label><label class="studio-switch"><input type="checkbox" ${clip?.loop ? 'checked' : ''} data-clip-loop /><span></span> LOOP</label><button type="button" class="studio-button studio-button--quiet is-danger" data-action="remove-frame" ${timeline.length <= 1 ? 'disabled' : ''}>REMOVE FRAME</button></div></section>
       </section>
       <aside class="studio-inspector"><div class="studio-inspector-heading"><span class="studio-kicker">Inspector</span><h2>${escapeHtml(character.displayName)}</h2><p>${character.kind === 'player' ? 'Primary player runtime package' : 'Enemy runtime package'}</p></div>${renderInspector(snapshot)}${snapshot.errors.length > 0 ? `<section class="studio-errors"><div class="studio-section-heading"><span class="studio-kicker">Validation</span><strong>${snapshot.errors.length} issue${snapshot.errors.length === 1 ? '' : 's'}</strong></div>${snapshot.errors.map((error) => `<p><b>${escapeHtml(error.path)}</b> ${escapeHtml(error.message)}</p>`).join('')}</section>` : ''}</aside>
     </div>
@@ -296,16 +321,20 @@ function updatePlaybackFrameDom(container: HTMLDivElement, snapshot: CharacterDo
   const index = Math.max(0, Math.min(snapshot.selectedTimelineIndex, timeline.length - 1));
   const frame = timeline[index] ?? 0;
   const info = assetFrameInfo(String(snapshot.visualSet.assetId));
-  const transform = snapshot.visualSet.frameVisuals?.[String(frame)] ?? {};
+  const transform = resolvePreviewTransform(snapshot.visualSet, frame, snapshot.selectedClipId);
   const previewColumn = frame % info.columns;
   const previewRow = Math.floor(frame / info.columns);
-  const previewScale = numberValue(snapshot.visualSet.defaults.scale[0], 1) * 2.8;
+  const previewScale = numberValue(transform.scale[0], 1) * 2.8;
+  const originOffsetX = -numberValue(transform.origin[0], 0.5) * info.width * previewScale;
+  const originOffsetY = -numberValue(transform.origin[1], 0.5) * info.height * previewScale;
   const sprite = container.querySelector<HTMLElement>('.stage-sprite');
   sprite?.style.setProperty('--frame-x', `${previewColumn * info.width}px`);
   sprite?.style.setProperty('--frame-y', `${previewRow * info.height}px`);
   sprite?.style.setProperty('--preview-scale', String(previewScale));
-  sprite?.style.setProperty('--offset-x', `${numberValue(transform.sourceOffset?.[0]) * 2.2}px`);
-  sprite?.style.setProperty('--offset-y', `${numberValue(transform.sourceOffset?.[1]) * 2.2}px`);
+  sprite?.style.setProperty('--origin-offset-x', `${originOffsetX}px`);
+  sprite?.style.setProperty('--origin-offset-y', `${originOffsetY}px`);
+  sprite?.style.setProperty('--offset-x', `${numberValue(transform.sourceOffset[0]) * previewScale}px`);
+  sprite?.style.setProperty('--offset-y', `${numberValue(transform.sourceOffset[1]) * previewScale}px`);
   container.querySelectorAll<HTMLElement>('.timeline-frame.is-active').forEach((item) => item.classList.remove('is-active'));
   container.querySelector<HTMLElement>(`.timeline-frame[data-timeline-index="${index}"]`)?.classList.add('is-active');
   const caption = container.querySelector<HTMLElement>('.stage-caption span');
@@ -434,6 +463,7 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
     }
     const scrollPositions = captureStudioScroll(container);
     container.innerHTML = renderStudio(snapshot, assetShelf, creationForm, returnEditor, playTimer !== undefined, activeModal);
+    ensureStudioModeTabs(container, returnEditor, 'characters');
     ensureProjectileStudioLink(container, returnEditor);
     decorateBodyPreview(container, snapshot.character.body);
     decorateLoopModeControl(container, snapshot.visualSet.clips[snapshot.selectedClipId]);
@@ -444,6 +474,7 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
     if (!disposed && currentState) {
       const scrollPositions = captureStudioScroll(container);
       container.innerHTML = renderStudio(currentState.value, assetShelf, creationForm, returnEditor, playTimer !== undefined, activeModal);
+      ensureStudioModeTabs(container, returnEditor, 'characters');
       ensureProjectileStudioLink(container, returnEditor);
       decorateBodyPreview(container, currentState.value.character.body);
       decorateLoopModeControl(container, currentState.value.visualSet.clips[currentState.value.selectedClipId]);
@@ -569,9 +600,11 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
     creationForm = form;
     const values = await promptModal({ title: 'Import PNG source', message: 'Define the spritesheet grid for this new character package. Leave populated frames empty to use the full grid.', fields: [{ id: 'assetId', label: 'New asset ID', value: `character.${form.kind}.new`, placeholder: 'character.enemy.ice-worm' }, { id: 'frameWidth', label: 'Frame width (px)', value: '64', inputType: 'number' }, { id: 'frameHeight', label: 'Frame height (px)', value: '64', inputType: 'number' }, { id: 'populatedCount', label: 'Populated frames', placeholder: 'Optional', inputType: 'number', optional: true }], confirmLabel: 'IMPORT & CREATE' });
     const assetId = values?.assetId?.trim().toLowerCase();
-    const frameWidth = values?.frameWidth?.trim();
-    const frameHeight = values?.frameHeight?.trim();
-    if (!assetId || !frameWidth || !frameHeight) return;
+    const frameWidthText = values?.frameWidth?.trim();
+    const frameHeightText = values?.frameHeight?.trim();
+    if (!assetId || !frameWidthText || !frameHeightText) return;
+    const frameWidth = integerInputValue(frameWidthText, 64);
+    const frameHeight = integerInputValue(frameHeightText, 64);
     const populatedCount = values?.populatedCount?.trim();
     const metadata: Record<string, string> = {
       assetId,
@@ -582,7 +615,7 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
       characterId: form.characterId,
       displayName: form.displayName,
     };
-    if (populatedCount) metadata.populatedCount = populatedCount;
+    if (populatedCount) metadata.populatedCount = integerInputValue(populatedCount);
     const body = new FormData();
     body.append('metadata', JSON.stringify(metadata));
     body.append('file', file, file.name);
@@ -632,8 +665,8 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
         const lastFrame = Math.max(from, (currentState.value.visualSet.clips[currentState.value.selectedClipId]?.frames.length ?? 1) - 1);
         const throughValues = await promptModal({ title: 'Set hitbox span', message: `This hitbox will stay active from frame ${from} through the end frame, inclusive.`, fields: [{ id: 'through', label: `End frame (${from}-${lastFrame})`, value: String(from), inputType: 'number' }], confirmLabel: 'ADD SPAN' });
         if (!throughValues) break;
-        const throughValue = Number(throughValues.through);
-        if (Number.isInteger(throughValue)) currentState.addSpan({ hitboxId, from, through: Math.max(from, Math.min(throughValue, lastFrame)) });
+        const throughValue = integerValue(throughValues.through, from);
+        currentState.addSpan({ hitboxId, from, through: Math.max(from, Math.min(throughValue, lastFrame)) });
         break;
       }
       case 'add-event': {
@@ -646,6 +679,7 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
       case 'previous-frame': currentState.selectTimelineIndex(currentState.value.selectedTimelineIndex - 1); break;
       case 'next-frame': currentState.selectTimelineIndex(currentState.value.selectedTimelineIndex + 1); break;
       case 'add-hitbox': { const id = await promptClipId('Create named hitbox', 'attack', 'Hitbox ID', 'Choose a stable lowercase hitbox ID. You can use this name when authoring hitbox spans on the timeline.'); if (id) currentState.addHitbox(id); break; }
+      case 'reset-animation-visual': currentState.resetAnimationVisual(); break;
       case 'reset-frame-visual': currentState.resetFrameVisual(currentState.value.selectedSourceFrame); break;
       case 'play': {
         if (playTimer !== undefined) {
@@ -837,7 +871,7 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
     if (target.matches('[data-clip-fps], [data-clip-loop], [data-clip-loop-mode]')) {
       stopPlayback();
       const loopMode: VisualLoopMode = container.querySelector<HTMLSelectElement>('[data-clip-loop-mode]')?.value === 'ping-pong' ? 'ping-pong' : 'wrap';
-      const fps = Number(container.querySelector<HTMLInputElement>('[data-clip-fps]')?.value ?? 8);
+      const fps = Math.min(240, Math.max(1, integerValue(container.querySelector<HTMLInputElement>('[data-clip-fps]')?.value, 8)));
       const loop = container.querySelector<HTMLInputElement>('[data-clip-loop]')?.checked ?? true;
       currentState.updatePlayback(fps, loop, loopMode);
       return;
@@ -868,11 +902,34 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
     const path = target.dataset.numberPath;
     if (!path) return;
     const parts = path.split('.');
-    const value = Number(target.value);
+    const value = integerValue(target.value);
     if (parts[0] === 'body') currentState.updateBody({ [parts[1] ?? 'width']: value });
     else if (parts[0] === 'attributes') currentState.updateAttributes({ [parts[1] ?? 'strength']: value });
-    else if (parts[0] === 'visual') { if (parts[1] === 'defaults') currentState.updateDefaults({ [parts[2] ?? 'scale']: [value, value] as [number, number] }); else currentState.updateFrameVisual(currentState.value.selectedSourceFrame, { sourceOffset: [value, value] as [number, number] }); }
-    else if (parts[0] === 'hitbox') currentState.updateHitbox(parts[1] ?? '', { [parts[2] ?? 'width']: value });
+    else if (parts[0] === 'visual') {
+      const axis = parts[3] === '1' ? 1 : 0;
+      if (parts[1] === 'defaults') {
+        const property = parts[2] === 'origin' || parts[2] === 'scale' || parts[2] === 'sourceOffset' ? parts[2] : 'scale';
+        const current = currentState.value.visualSet.defaults[property];
+        const next = [...current] as [number, number];
+        next[axis] = value;
+        if (property === 'origin') currentState.updateDefaults({ origin: next });
+        else if (property === 'scale') currentState.updateDefaults({ scale: next });
+        else currentState.updateDefaults({ sourceOffset: next });
+      } else if (parts[1] === 'animation') {
+        const clip = currentState.value.visualSet.clips[currentState.value.selectedClipId];
+        const currentOffset = clip?.sourceOffset ?? currentState.value.visualSet.defaults.sourceOffset;
+        const next = [...currentOffset] as [number, number];
+        next[axis] = value;
+        currentState.updateAnimationVisual(next);
+      } else {
+        const frame = currentState.value.selectedSourceFrame;
+        const currentFrame = currentState.value.visualSet.frameVisuals?.[String(frame)];
+        const currentOffset = currentFrame?.sourceOffset ?? currentState.value.visualSet.defaults.sourceOffset;
+        const next = [...currentOffset] as [number, number];
+        next[axis] = value;
+        currentState.updateFrameVisual(frame, { sourceOffset: next });
+      }
+    } else if (parts[0] === 'hitbox') currentState.updateHitbox(parts[1] ?? '', { [parts[2] ?? 'width']: value });
     else currentState.updateGameplay(parts, value as JsonValue);
   };
   const onInput = (event: Event): void => { const target = event.target as HTMLInputElement; if (target.matches('[data-library-search]')) { const queryText = target.value.toLowerCase(); container.querySelectorAll<HTMLElement>('[data-character-id]').forEach((item) => { item.hidden = !(item.dataset.characterName ?? '').toLowerCase().includes(queryText); }); } };

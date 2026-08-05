@@ -31,6 +31,8 @@ export interface VisualClipDocument {
   loop: boolean;
   /** Defaults to wrap for packages authored before ping-pong playback existed. */
   loopMode?: VisualLoopMode;
+  /** Optional animation-wide artwork offset between the default and frame-specific offsets. */
+  sourceOffset?: Pair;
 }
 
 export interface VisualSetDocument {

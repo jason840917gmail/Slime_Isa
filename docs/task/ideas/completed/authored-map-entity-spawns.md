@@ -3,6 +3,8 @@
 ## Status
 
 - [x] Core implementation complete
+- [x] Browser smoke coverage complete
+- [x] Production maps migrated to authored enemy camps
 
 ## Goal
 
@@ -62,9 +64,7 @@ Add authored ownership and interaction metadata for houses, doors, and beds.
 Runtime house systems must consume that data instead of creating extra house or
 bed sprites.
 
-## Remaining work
+## Completion notes
 
-- [ ] Add focused browser smoke coverage for create, move, edit, delete, and
-  save/reload of circle and rectangle camps.
-- [ ] Migrate production maps from legacy random spawning to authored camps
-  once designers choose the desired camp layouts.
+The editor workflow, runtime boundary behavior, focused browser coverage, and
+production-map migration are complete for the authored enemy-camp slice.

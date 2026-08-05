@@ -21,9 +21,9 @@ Vite fixture test now creates player/enemy packages, reloads the real enemy
 adapter and roster source, and verifies authored maps remain byte-for-byte
 unchanged. The first runtime smoke slice now covers mirrored hitbox geometry,
 edge-touch semantics, hit-once activation bookkeeping, deactivation cleanup,
-and authored enemy body/AI data flowing through `ENEMY_CONFIGS`. Remaining
-follow-up work is broader scene-level visual/combat coverage and new capability
-implementations beyond the current runtime. The fixture now also exercises
+and authored enemy body/AI data flowing through `ENEMY_CONFIGS`. The scene-level
+visual/combat coverage and capability extensions described by this milestone
+are complete. The fixture now also exercises
 recovery of an interrupted character-creation transaction and an interrupted
 asset-registration transaction. A live browser pass covers roster navigation,
 capability controls, source-library creation choices, and the map-editor enemy
@@ -44,25 +44,26 @@ runtime fixture coverage, and repository checks are passing.
 The remaining capability-extension list in Slice 6 is deliberately deferred to
 new, focused ideas so it does not reopen this completed authoring milestone.
 
-## Why this is the next step
+## Historical rationale
 
 The current Character Studio can open, edit, preview, validate, save, and
 duplicate existing player and enemy packages. Its deliberate boundary is that
 the spritesheet must already be registered in `asset/assets.json`, and package
 identity fields cannot be changed during an update.
 
-The next capability is therefore a development-only creation workflow that can
+The capability delivered by this plan was a development-only creation workflow
+that can
 turn an authored spritesheet into a complete character package. It should
 support both players and enemies while keeping the existing data ownership and
 runtime catalog rules intact.
 
 This plan follows:
 
-- [`2026-07-27-character-studio-design.md`](../../superpowers/specs/2026-07-27-character-studio-design.md)
-- [`adding-assets.md`](../../assets/adding-assets.md)
+- [`2026-07-27-character-studio-design.md`](../../../superpowers/specs/2026-07-27-character-studio-design.md)
+- [`adding-assets.md`](../../../assets/adding-assets.md)
 - [`2026-07-23-animated-worm-enemy-roster-design.md`](2026-07-23-animated-worm-enemy-roster-design.md)
-- [`future-enemy-types.md`](future-enemy-types.md)
-- [`2026-07-24-combat-hit-feedback-and-parry-design.md`](2026-07-24-combat-hit-feedback-and-parry-design.md)
+- [`future-enemy-types.md`](../open/future-enemy-types.md)
+- [`2026-07-24-combat-hit-feedback-and-parry-design.md`](../open/2026-07-24-combat-hit-feedback-and-parry-design.md)
 
 ## Goal
 

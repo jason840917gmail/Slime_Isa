@@ -1,5 +1,7 @@
 # Combat Hit Feedback Implementation Plan
 
+Status: completed and verified.
+
 1. Make `GameState.damage` return the actual clamped HP loss and make `HealthSystem.applyDamage` return an accepted/rejected `DamageResult`.
 2. Route that result to `WorldScene` so floating text shows actual HP lost and accepted hits alone trigger feedback.
 3. Extend enemy melee and projectile damage requests with normalized incoming direction and per-enemy knockback strength.

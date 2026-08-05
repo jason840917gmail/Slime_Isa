@@ -4,11 +4,23 @@
   "projectileId": "worm-arrow",
   "displayName": "Worm Arrow",
   "assetId": "enemy.projectile.worm-arrow",
-  "animation": {
-    "frames": [0],
-    "framesPerSecond": 12,
-    "loop": true,
-    "loopMode": "wrap"
+  "visual": {
+    "sourceOffset": [0, 0],
+    "frameOffsets": {}
+  },
+  "animations": {
+    "move": {
+      "frames": [0],
+      "framesPerSecond": 12,
+      "loop": true,
+      "loopMode": "wrap"
+    },
+    "impact": {
+      "frames": [0],
+      "framesPerSecond": 12,
+      "loop": false,
+      "loopMode": "wrap"
+    }
   },
   "body": {
     "width": 16,

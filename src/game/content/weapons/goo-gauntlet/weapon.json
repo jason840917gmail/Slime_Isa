@@ -5,6 +5,12 @@
   "displayName": "Goo Gauntlet",
   "category": "melee",
   "animKey": "slime-trick",
+  "visual": { "sourceOffset": [0, 0] },
+  "animations": {
+    "idle": { "frames": [0], "framesPerSecond": 8, "loop": true, "loopMode": "wrap" },
+    "attack": { "frames": [0], "framesPerSecond": 12, "loop": false, "loopMode": "wrap" },
+    "impact": { "frames": [0], "framesPerSecond": 12, "loop": false, "loopMode": "wrap" }
+  },
   "baseDamage": 12,
   "cooldownMs": 320,
   "hitboxWidth": 64,
@@ -22,4 +28,3 @@
   "iconKey": "weapon-gauntlet",
   "description": "A gooey punch. Short range, solid knockback. Your starter weapon."
 }
-

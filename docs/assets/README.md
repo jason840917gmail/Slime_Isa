@@ -66,10 +66,10 @@ verified together.
 
 ## Related implementation plans
 
-The operational guides live here. Deeper feature plans remain under
-`docs/task/ideas/` and are linked here for discovery:
+The operational guides live here. Deeper feature plans are organized under
+[`docs/task/ideas/`](../task/ideas/README.md):
 
-- [Character authoring development plan](../task/ideas/character-authoring-development-plan.md)
-- [Animated enemy roster design](../task/ideas/2026-07-23-animated-worm-enemy-roster-design.md)
-- [General visual animation system](../task/ideas/general-visual-animation-system.md)
-- [Visual set editor idea](../task/ideas/visual-set-editor.md)
+- [Character authoring development plan](../task/ideas/completed/character-authoring-development-plan.md)
+- [Animated enemy roster design](../task/ideas/completed/2026-07-23-animated-worm-enemy-roster-design.md)
+- [General visual animation system](../task/ideas/completed/general-visual-animation-system.md)
+- [Visual set editor](../task/ideas/completed/visual-set-editor.md)

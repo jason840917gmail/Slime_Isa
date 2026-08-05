@@ -80,7 +80,8 @@
         },
         "framesPerSecond": { "type": "number", "exclusiveMinimum": 0, "maximum": 240 },
         "loop": { "type": "boolean" },
-        "loopMode": { "type": "string", "enum": ["wrap", "ping-pong"] }
+        "loopMode": { "type": "string", "enum": ["wrap", "ping-pong"] },
+        "sourceOffset": { "$ref": "#/$defs/pair" }
       }
     }
   }
