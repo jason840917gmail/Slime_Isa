@@ -18,8 +18,8 @@ Create two Markdown files under a new root-level `prompts/` directory:
 1. `weapon-spritesheet-prompt-template.md`
    - Generic, model-neutral template for future melee and ranged weapon sheets.
    - Captures reference-image handling, sheet geometry, row/column semantics,
-     pivot/anchor stability, art direction, transparency, negative constraints,
-     export rules, and an artist QA checklist.
+     pivot/anchor stability, art direction, solid-background/no-alpha export
+     rules, negative constraints, and an artist QA checklist.
 2. `sword-attack-3x10.md`
    - Copy/paste-ready sword prompt using the generic rules.
    - Includes an explicit `[ATTACH REFERENCE IMAGE HERE]` placeholder because
@@ -32,12 +32,13 @@ No bitmap is generated and no runtime manifest or gameplay code is changed.
 - Grid: 10 columns × 3 rows.
 - Cell size: 64×64 px, matching the current authored weapon convention.
 - Full image: 640×192 px.
-- Background: fully transparent RGBA; no purple, white, checkerboard, or solid
-  matte background.
+- Background: one flat solid chroma purple, exactly `#8000FF`, filling the
+  entire canvas and every cell; no gradients, checkerboard, texture, or
+  background scenery.
 - Every cell is a separate uniform frame with no gutters, labels, borders, or
   frame lines.
-- The weapon's logical hand/attachment pivot stays in a consistent location in
-  every frame; transparent padding absorbs motion and size changes.
+- The weapon's logical attachment pivot stays in a consistent location in every
+  frame; the purple field absorbs motion and size changes.
 - No blade, glow, slash trail, or impact effect may be cropped by its cell.
 
 ## Approved row mapping
@@ -86,12 +87,13 @@ The generic template will also enforce these useful rules:
   silhouette and use them only where the phase calls for them.
 - Keep the weapon visually centered around its pivot, while allowing the blade
   and effects to travel within the cell.
-- Do not put the character, hands, UI, text, damage numbers, enemies, or scenery
-  into the sheet unless explicitly requested.
+- Do not put a character, UI, text, damage numbers, enemies, or scenery into the
+  sheet unless explicitly requested.
 - Avoid duplicate frames, frozen poses, missing recovery frames, accidental
   extra rows/columns, and inconsistent facing.
 - Export at exact integer dimensions with nearest-neighbor-friendly hard edges;
-  do not add anti-aliased resampling or a background matte.
+  preserve the solid `#8000FF` background as a clean flat chroma field and do
+  not add anti-aliased resampling.
 
 ## Verification
 
@@ -101,6 +103,7 @@ The prompt documents are complete when:
 - The sword prompt is directly usable after attaching a reference image.
 - Both files agree on the 10×3 grid, 64×64 cells, row directions, pivot rules,
   and frame phases.
-- The prompt explicitly requests a transparent PNG and exact 640×192 output.
+- The prompt explicitly requests a solid `#8000FF` background and exact 640×192
+  output.
 - The prompt includes positive art direction and a negative prompt/checklist that
   addresses common spritesheet-generation failures.
