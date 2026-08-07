@@ -1,0 +1,57 @@
+<style>
+  .weapon-board { max-width: 1120px; margin: 0 auto; color: #d7e7ff; }
+  .weapon-board h2 { margin-bottom: .35rem; letter-spacing: .04em; }
+  .weapon-board .subtitle { max-width: 760px; }
+  .weapon-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 18px; margin-top: 22px; }
+  .weapon-card { background: linear-gradient(145deg, rgba(18,31,58,.96), rgba(10,18,35,.96)); border: 1px solid rgba(112,173,255,.26); border-radius: 16px; padding: 18px; box-shadow: 0 16px 34px rgba(0,0,0,.22); }
+  .weapon-card h3 { margin: 0 0 12px; color: #fff; }
+  .flow { display: grid; gap: 9px; }
+  .flow-row { display: grid; grid-template-columns: 1fr 28px 1fr; align-items: center; gap: 8px; }
+  .node { border: 1px solid rgba(119,217,255,.34); background: rgba(31,74,110,.3); border-radius: 10px; padding: 10px; text-align: center; }
+  .node strong { display: block; color: #fff; }
+  .node small { color: #a8c2df; }
+  .arrow { text-align: center; color: #7ce3ff; font-size: 22px; }
+  .timeline { display: flex; align-items: stretch; gap: 3px; height: 96px; }
+  .phase { flex: 1; padding: 12px 8px; border-radius: 9px; display: flex; flex-direction: column; justify-content: space-between; }
+  .phase b { color: #07111e; }
+  .phase small { color: rgba(7,17,30,.76); }
+  .windup { background: #7ea6d8; }
+  .active { background: #ffcd62; flex: 1.25; }
+  .recovery { background: #8592a7; }
+  .callout { margin-top: 14px; padding: 12px; border-left: 3px solid #ffcd62; background: rgba(255,205,98,.08); color: #dfeaff; }
+  .sheet { display: flex; gap: 8px; margin-top: 12px; }
+  .frame { width: 60px; height: 60px; border: 1px solid rgba(255,255,255,.18); border-radius: 8px; display: grid; place-items: center; background: radial-gradient(circle at 62% 38%, #bdf7ff 0 7%, #3dcae8 8% 12%, transparent 13%), linear-gradient(135deg, transparent 42%, #e6f7ff 43% 50%, #1689ba 51% 57%, transparent 58%); color: #bcd7f3; font-size: 12px; }
+  .frame.active-frame { outline: 2px solid #ffcd62; box-shadow: 0 0 0 4px rgba(255,205,98,.12); }
+  .legend { display: flex; gap: 14px; margin-top: 12px; color: #a8c2df; font-size: 13px; }
+  .legend i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; }
+  @media (max-width: 800px) { .weapon-grid { grid-template-columns: 1fr; } }
+</style>
+
+<div class="weapon-board">
+  <h2>Weapon layer + attack event design</h2>
+  <p class="subtitle">The character supplies a reusable body action. The weapon supplies its own authored frames. Gameplay damage fires from an explicit attack-frame event.</p>
+
+  <div class="weapon-grid">
+    <section class="weapon-card">
+      <h3>Runtime relationship</h3>
+      <div class="flow">
+        <div class="flow-row"><div class="node"><strong>Player anchor</strong><small>physics position + facing</small></div><div class="arrow">↓</div><div class="node"><strong>Character visual</strong><small>play animKey: slime-trick</small></div></div>
+        <div class="flow-row"><div class="node"><strong>Player anchor</strong><small>same x/y, same cleanup</small></div><div class="arrow">↓</div><div class="node"><strong>Weapon visual</strong><small>idle / attack / impact frames</small></div></div>
+        <div class="flow-row"><div class="node"><strong>Attack input</strong><small>CombatController</small></div><div class="arrow">→</div><div class="node"><strong>Weapon attack timeline</strong><small>visual frames + events</small></div></div>
+      </div>
+      <div class="callout">Attachment is logical rather than a baked character sheet: one slime can equip every weapon without duplicating body art.</div>
+    </section>
+
+    <section class="weapon-card">
+      <h3>Attack timing</h3>
+      <div class="timeline">
+        <div class="phase windup"><b>Wind-up</b><small>character + weapon pose</small></div>
+        <div class="phase active"><b>ACTIVE EVENT</b><small>spawn hitbox once</small></div>
+        <div class="phase recovery"><b>Recovery</b><small>return to idle</small></div>
+      </div>
+      <div class="legend"><span><i style="background:#ffcd62"></i>damage event</span><span><i style="background:#7ce3ff"></i>visual frame</span></div>
+      <h3 style="margin-top:20px">Example weapon sheet</h3>
+      <div class="sheet"><div class="frame">0<br>idle</div><div class="frame">1<br>wind</div><div class="frame active-frame">2<br>hit</div><div class="frame">3<br>follow</div><div class="frame">4<br>impact</div></div>
+    </section>
+  </div>
+</div>

@@ -4,13 +4,18 @@
   "title": "Slime Isa weapon definition",
   "type": "object",
   "additionalProperties": false,
-  "required": ["version", "weaponId", "displayName", "category", "animKey", "baseDamage", "cooldownMs", "hitboxWidth", "hitboxHeight", "hitboxOffset", "hitboxDurationMs", "knockStrength", "vfxColor", "unlockLevel", "iconKey", "description"],
+  "required": ["version", "weaponId", "displayName", "category", "baseDamage", "cooldownMs", "hitboxWidth", "hitboxHeight", "hitboxOffset", "hitboxDurationMs", "knockStrength", "vfxColor", "unlockLevel", "iconKey", "description"],
+  "anyOf": [
+    { "required": ["characterActionId"] },
+    { "required": ["animKey"] }
+  ],
   "properties": {
     "version": { "const": 1 },
     "weaponId": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
     "displayName": { "type": "string", "minLength": 1, "maxLength": 80 },
     "category": { "enum": ["melee", "ranged"] },
     "animKey": { "type": "string" },
+    "characterActionId": { "type": "string", "minLength": 1 },
     "assetId": { "type": "string" },
     "animations": {
       "type": "object", "additionalProperties": false,
@@ -30,9 +35,16 @@
           "prefixItems": [{ "type": "integer" }, { "type": "integer" }],
           "minItems": 2,
           "maxItems": 2
-        }
+        },
+        "animationOffsets": { "type": "object", "additionalProperties": { "$ref": "#/$defs/offset" } },
+        "frameOffsets": { "type": "object", "additionalProperties": { "$ref": "#/$defs/offset" } },
+        "origin": { "$ref": "#/$defs/offset" },
+        "scale": { "$ref": "#/$defs/offset" },
+        "facingMode": { "enum": ["vector", "horizontal-flip"] }
       }
     },
+    "hitboxes": { "type": "object", "minProperties": 1, "additionalProperties": { "$ref": "#/$defs/hitbox" } },
+    "attackTrack": { "$ref": "#/$defs/attackTrack" },
     "baseDamage": { "type": "number", "minimum": 0 },
     "cooldownMs": { "type": "number", "exclusiveMinimum": 0 },
     "hitboxWidth": { "type": "number", "exclusiveMinimum": 0 },
@@ -55,6 +67,65 @@
         "framesPerSecond": { "type": "integer", "minimum": 1, "maximum": 240 },
         "loop": { "type": "boolean" },
         "loopMode": { "enum": ["wrap", "ping-pong"] }
+      }
+    },
+    "offset": {
+      "type": "array",
+      "prefixItems": [{ "type": "number" }, { "type": "number" }],
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "hitbox": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["shape", "width", "height", "offsetX", "offsetY"],
+      "properties": {
+        "shape": { "enum": ["rectangle", "circle", "ellipse", "sector"] },
+        "width": { "type": "number", "exclusiveMinimum": 0 },
+        "height": { "type": "number", "exclusiveMinimum": 0 },
+        "radius": { "type": "number", "minimum": 0 },
+        "radiusX": { "type": "number", "minimum": 0 },
+        "radiusY": { "type": "number", "minimum": 0 },
+        "offsetX": { "type": "number" },
+        "offsetY": { "type": "number" },
+        "innerRadius": { "type": "number", "minimum": 0 },
+        "outerRadius": { "type": "number", "minimum": 0 },
+        "arcWidthRad": { "type": "number", "minimum": 0, "maximum": 6.283185307179586 },
+        "damageMultiplier": { "type": "number", "minimum": 0 },
+        "knockbackMultiplier": { "type": "number", "minimum": 0 }
+      }
+    },
+    "attackTrack": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["hitboxSpans"],
+      "properties": {
+        "hitboxSpans": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["hitboxId", "from", "through"],
+            "properties": {
+              "hitboxId": { "type": "string", "minLength": 1 },
+              "from": { "type": "integer", "minimum": 0 },
+              "through": { "type": "integer", "minimum": 0 }
+            }
+          }
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["at", "eventId"],
+            "properties": {
+              "at": { "type": "integer", "minimum": 0 },
+              "eventId": { "type": "string", "minLength": 1 },
+              "payload": {}
+            }
+          }
+        }
       }
     }
   }

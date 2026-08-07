@@ -29,14 +29,18 @@ export interface HitboxConfig {
   vfxColor?: number;
   /** Show a visible slash rect (combat VFX). */
   showVfx?: boolean;
-  /** Optional sector hit shape for crescent melee swings. */
-  shape?: 'rect' | 'sector';
+  /** Authored hit shape. */
+  shape?: 'rect' | 'sector' | 'circle' | 'ellipse';
   originX?: number;
   originY?: number;
   angle?: number;
   arcWidth?: number;
   innerRadius?: number;
   outerRadius?: number;
+  radiusX?: number;
+  radiusY?: number;
+  /** Track-driven hitboxes stay active until their span closes. */
+  autoDeactivate?: boolean;
   /** Unique set of target objects already hit (prevents multi-hit per swing). */
   hitSet?: Set<Phaser.GameObjects.GameObject>;
 }
@@ -49,7 +53,13 @@ export type HitHandler = (
   knockStrength: number,
 ) => void;
 
+export interface HitboxActivationHandle {
+  readonly isActive: boolean;
+  deactivate(): void;
+}
+
 interface PooledHitbox {
+  scene: Phaser.Scene;
   zone: Phaser.GameObjects.Zone;
   vfx: Phaser.GameObjects.Graphics;
   active: boolean;
@@ -57,6 +67,8 @@ interface PooledHitbox {
   handler: HitHandler | null;
   hitSet: Set<Phaser.GameObjects.GameObject>;
   removeTimer: Phaser.Time.TimerEvent | null;
+  targets: Phaser.GameObjects.Group | Phaser.Physics.Arcade.Group | Phaser.Physics.Arcade.StaticGroup | null;
+  activationToken: number;
   sortId: string;
 }
 
@@ -67,7 +79,7 @@ class HitboxPoolImpl {
     targets: Phaser.GameObjects.Group | Phaser.Physics.Arcade.Group | Phaser.Physics.Arcade.StaticGroup,
     config: HitboxConfig,
     handler: HitHandler,
-  ): void {
+  ): HitboxActivationHandle {
     const pool = this.getPool(scene);
     let slot = pool.find((p) => !p.active);
 
@@ -76,6 +88,13 @@ class HitboxPoolImpl {
     }
 
     this.activate(scene, slot, targets, config, handler);
+    const token = slot.activationToken;
+    return {
+      get isActive(): boolean { return slot.active && slot.activationToken === token; },
+      deactivate: () => {
+        if (slot.active && slot.activationToken === token) this.deactivate(slot);
+      },
+    };
   }
 
   private getPool(scene: Phaser.Scene): PooledHitbox[] {
@@ -95,6 +114,7 @@ class HitboxPoolImpl {
     const vfx = scene.add.graphics().setVisible(false);
 
     const slot: PooledHitbox = {
+      scene,
       zone,
       vfx,
       active: false,
@@ -102,6 +122,8 @@ class HitboxPoolImpl {
       handler: null,
       hitSet: new Set(),
       removeTimer: null,
+      targets: null,
+      activationToken: 0,
       sortId: `hitbox:${pool.length}`,
     };
     pool.push(slot);
@@ -116,9 +138,11 @@ class HitboxPoolImpl {
     handler: HitHandler,
   ): void {
     slot.active = true;
+    slot.activationToken += 1;
     slot.config = config;
     slot.handler = handler;
     slot.hitSet = config.hitSet ?? new Set();
+    slot.targets = targets;
     slot.vfx.setDepth(resolveWorldDepth(config.y, {
       stableId: slot.sortId,
       attachmentSlot: 2,
@@ -161,36 +185,37 @@ class HitboxPoolImpl {
       });
     }
 
-    // Overlap with targets.
-    const overlapFn = () => {
-      if (!slot.active || !slot.config || !slot.handler) return;
-      const children = targets.getChildren();
-      for (const child of children) {
-        if (slot.hitSet.has(child)) continue;
-        const childBody = (child as Phaser.Physics.Arcade.Sprite).body as Phaser.Physics.Arcade.Body | undefined;
-        if (!childBody) continue;
-        const hit = this.intersects(child as Phaser.Physics.Arcade.Sprite, slot.config);
-        if (hit) {
-          slot.hitSet.add(child);
-          slot.handler(
-            child,
-            slot.config.damage,
-            slot.config.knockX ?? 0,
-            slot.config.knockY ?? 0,
-            slot.config.knockStrength ?? 0,
-          );
-        }
-      }
-    };
-
-    // Check overlap immediately + once more next frame.
-    overlapFn();
-    scene.time.delayedCall(16, overlapFn);
+    // Check immediately; update() continues checking while active.
+    this.checkOverlap(slot);
 
     if (slot.removeTimer) slot.removeTimer.remove();
-    slot.removeTimer = scene.time.delayedCall(config.durationMs, () => {
-      this.deactivate(slot);
-    });
+    if (config.autoDeactivate ?? true) {
+      slot.removeTimer = scene.time.delayedCall(config.durationMs, () => this.deactivate(slot));
+    }
+  }
+
+  update(scene: Phaser.Scene): void {
+    const pool = this.pools.get(scene);
+    if (!pool) return;
+    for (const slot of pool) this.checkOverlap(slot);
+  }
+
+  private checkOverlap(slot: PooledHitbox): void {
+    if (!slot.active || !slot.config || !slot.handler || !slot.targets) return;
+    for (const child of slot.targets.getChildren()) {
+      if (slot.hitSet.has(child)) continue;
+      const childBody = (child as Phaser.Physics.Arcade.Sprite).body as Phaser.Physics.Arcade.Body | undefined;
+      if (!childBody) continue;
+      if (!this.intersects(child as Phaser.Physics.Arcade.Sprite, slot.config)) continue;
+      slot.hitSet.add(child);
+      slot.handler(
+        child,
+        slot.config.damage,
+        slot.config.knockX ?? 0,
+        slot.config.knockY ?? 0,
+        slot.config.knockStrength ?? 0,
+      );
+    }
   }
 
   private intersects(target: Phaser.Physics.Arcade.Sprite, config: HitboxConfig): boolean {
@@ -198,10 +223,32 @@ class HitboxPoolImpl {
       return this.intersectsSector(target, config);
     }
 
+    if (config.shape === 'circle' || config.shape === 'ellipse') {
+      return this.intersectsEllipse(target, config);
+    }
+
     return Phaser.Geom.Intersects.RectangleToRectangle(
       new Phaser.Geom.Rectangle(config.x - config.width / 2, config.y - config.height / 2, config.width, config.height),
       target.getBounds(),
     );
+  }
+
+  private intersectsEllipse(target: Phaser.Physics.Arcade.Sprite, config: HitboxConfig): boolean {
+    const centerX = config.x;
+    const centerY = config.y;
+    const radiusX = config.shape === 'circle'
+      ? config.radiusX ?? config.width / 2
+      : config.radiusX ?? config.width / 2;
+    const radiusY = config.shape === 'circle'
+      ? config.radiusY ?? radiusX
+      : config.radiusY ?? config.height / 2;
+    const bounds = target.getBounds();
+    const targetPadding = Math.max(bounds.width, bounds.height) / 2;
+    const dx = bounds.centerX - centerX;
+    const dy = bounds.centerY - centerY;
+    const normalizedX = dx / Math.max(1, radiusX + targetPadding);
+    const normalizedY = dy / Math.max(1, radiusY + targetPadding);
+    return normalizedX * normalizedX + normalizedY * normalizedY <= 1;
   }
 
   private intersectsSector(target: Phaser.Physics.Arcade.Sprite, config: HitboxConfig): boolean {
@@ -235,8 +282,11 @@ class HitboxPoolImpl {
     slot.active = false;
     slot.config = null;
     slot.handler = null;
+    slot.targets = null;
     slot.hitSet.clear();
+    slot.scene.tweens.killTweensOf(slot.vfx);
     slot.vfx.clear();
+    slot.vfx.setAlpha(1);
     slot.vfx.setVisible(false);
     slot.zone.setVisible(false);
     if (slot.removeTimer) {

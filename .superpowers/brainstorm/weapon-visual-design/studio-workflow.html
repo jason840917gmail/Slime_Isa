@@ -1,0 +1,65 @@
+<style>
+  .studio-board { max-width: 1160px; margin: 0 auto; color: #dce9ff; }
+  .studio-board h2 { letter-spacing: .04em; margin-bottom: .35rem; }
+  .studio-board .subtitle { max-width: 850px; }
+  .studio-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 22px; }
+  .studio-panel { background: linear-gradient(145deg, rgba(18,31,58,.97), rgba(9,16,31,.97)); border: 1px solid rgba(112,173,255,.28); border-radius: 16px; overflow: hidden; box-shadow: 0 16px 34px rgba(0,0,0,.24); }
+  .studio-head { padding: 16px 18px; border-bottom: 1px solid rgba(255,255,255,.1); display: flex; justify-content: space-between; align-items: end; }
+  .studio-head b { color: #fff; font-size: 18px; }
+  .studio-head small { color: #7ce3ff; letter-spacing: .12em; }
+  .studio-body { padding: 16px 18px 20px; }
+  .mini-label { color: #89a7cc; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 7px; }
+  .select { padding: 9px 11px; border-radius: 8px; border: 1px solid rgba(124,227,255,.3); background: rgba(44,77,111,.3); color: #eff8ff; margin-bottom: 15px; }
+  .character-preview { height: 132px; border: 1px solid rgba(124,227,255,.18); border-radius: 10px; display: grid; place-items: center; background: radial-gradient(circle, rgba(92,220,255,.16), transparent 48%), #0b172b; position: relative; }
+  .slime { width: 56px; height: 46px; background: #63d8b2; border-radius: 48% 48% 42% 42%; box-shadow: inset 0 -8px rgba(20,93,93,.3), 0 0 24px rgba(99,216,178,.25); position: relative; }
+  .slime:after { content: ''; position: absolute; width: 62px; height: 12px; right: -38px; top: 19px; border-top: 5px solid #7ce3ff; transform: rotate(-28deg); opacity: .9; }
+  .anchor-dot { position: absolute; left: calc(50% + 28px); top: 50%; width: 8px; height: 8px; border: 2px solid #ffcd62; border-radius: 50%; transform: translate(-50%,-50%); }
+  .clip-list { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
+  .clip { padding: 7px 9px; border: 1px solid rgba(255,255,255,.15); border-radius: 7px; color: #a7c3e4; font-size: 12px; }
+  .clip.selected { border-color: #ffcd62; color: #fff; background: rgba(255,205,98,.12); }
+  .rows { display: grid; gap: 7px; margin-top: 12px; }
+  .row { display: grid; grid-template-columns: 82px repeat(5, 1fr); gap: 4px; align-items: center; }
+  .row > span:first-child { color: #a7c3e4; font-size: 12px; }
+  .cell { height: 23px; border-radius: 4px; border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.04); text-align: center; font-size: 11px; line-height: 21px; color: #8ea8c7; }
+  .cell.on { background: rgba(255,205,98,.82); color: #142033; border-color: #ffcd62; }
+  .cell.event { background: rgba(124,227,255,.82); color: #102138; border-color: #7ce3ff; }
+  .hitbox-list { display: grid; gap: 7px; margin: 10px 0 16px; }
+  .hitbox { display: flex; justify-content: space-between; align-items: center; padding: 9px 10px; border: 1px solid rgba(255,255,255,.13); border-radius: 8px; }
+  .hitbox strong { color: #fff; }
+  .hitbox small { color: #91aed0; }
+  .button { display: inline-block; padding: 8px 10px; border: 1px solid rgba(124,227,255,.3); border-radius: 7px; color: #bcecff; font-size: 12px; margin-right: 6px; }
+  .button.primary { color: #091425; background: #7ce3ff; border-color: #7ce3ff; }
+  .note { margin-top: 15px; padding: 11px 12px; border-left: 3px solid #ffcd62; background: rgba(255,205,98,.08); color: #cfdef3; font-size: 13px; }
+  @media (max-width: 850px) { .studio-columns { grid-template-columns: 1fr; } }
+</style>
+
+<div class="studio-board">
+  <h2>Studio workflow: character contract + weapon hitbox authoring</h2>
+  <p class="subtitle">Character Studio owns reusable action clips and the combined preview. Weapon Studio owns attachment alignment, named weapon hitboxes, attack-frame spans, and impact events.</p>
+
+  <div class="studio-columns">
+    <section class="studio-panel">
+      <header class="studio-head"><div><small>CHARACTER STUDIO</small><br><b>Action contract</b></div><span>01</span></header>
+      <div class="studio-body">
+        <div class="mini-label">Preview character</div>
+        <div class="character-preview"><div class="slime"></div><div class="anchor-dot"></div></div>
+        <div class="mini-label" style="margin-top:14px">Weapon action clip</div>
+        <div class="clip-list"><span class="clip">idle</span><span class="clip selected">trick</span><span class="clip">cast</span><span class="clip">hop</span></div>
+        <div class="note">Expose available clips and let the weapon preview use one. Character hitboxes/events remain available here for character-owned attacks and enemy behavior.</div>
+      </div>
+    </section>
+
+    <section class="studio-panel">
+      <header class="studio-head"><div><small>WEAPON STUDIO</small><br><b>Weapon timeline</b></div><span>02</span></header>
+      <div class="studio-body">
+        <div class="mini-label">Attachment preview</div>
+        <div class="select">Character: Player Slime · Action: trick · Anchor: player center + offset</div>
+        <div class="hitbox-list"><div class="hitbox"><span><strong>primary</strong><br><small>sector · reach 64 · arc 90°</small></span><span>EDIT</span></div><div class="hitbox"><span><strong>tip</strong><br><small>circle · radius 12 · offset 48</small></span><span>EDIT</span></div></div>
+        <div class="mini-label">Attack frames + active spans</div>
+        <div class="rows"><div class="row"><span>frames</span><div class="cell">0</div><div class="cell">1</div><div class="cell">2</div><div class="cell">3</div><div class="cell">4</div></div><div class="row"><span>primary</span><div class="cell"></div><div class="cell on">●</div><div class="cell on">●</div><div class="cell"></div><div class="cell on">●</div></div><div class="row"><span>events</span><div class="cell"></div><div class="cell event">◆</div><div class="cell"></div><div class="cell"></div><div class="cell event">◆</div></div></div>
+        <div style="margin-top:15px"><span class="button primary">+ HITBOX SPAN</span><span class="button">+ EVENT</span><span class="button">PLAY PREVIEW</span></div>
+        <div class="note">Every named hitbox can have multiple active windows. The same hitbox can turn on, turn off, and turn on again later in one attack.</div>
+      </div>
+    </section>
+  </div>
+</div>
