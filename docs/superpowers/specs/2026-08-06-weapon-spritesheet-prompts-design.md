@@ -9,7 +9,7 @@ Approved by the user on 2026-08-06.
 Add a reusable prompt system for generating weapon animation spritesheets that
 fits Slime Isa's existing modernized pixel-stylized top-down art direction and
 current 64×64 weapon-cell convention. Add a concrete prompt for a sword attack
-sheet with three directional rows and ten frames per row.
+sheet with three directional rows and six frames per row.
 
 ## Scope
 
@@ -20,7 +20,7 @@ Create two Markdown files under a new root-level `prompts/` directory:
    - Captures reference-image handling, sheet geometry, row/column semantics,
      pivot/anchor stability, art direction, solid-background/no-alpha export
      rules, negative constraints, and an artist QA checklist.
-2. `sword-attack-3x10.md`
+2. `sword-attack-3x6.md`
    - Copy/paste-ready sword prompt using the generic rules.
    - Includes an explicit `[ATTACH REFERENCE IMAGE HERE]` placeholder because
      the user will supply the sword reference image separately.
@@ -29,9 +29,9 @@ No bitmap is generated and no runtime manifest or gameplay code is changed.
 
 ## Approved sheet contract
 
-- Grid: 10 columns × 3 rows.
+- Grid: 6 columns × 3 rows.
 - Cell size: 64×64 px, matching the current authored weapon convention.
-- Full image: 640×192 px.
+- Full image: 384×192 px.
 - Background: one flat solid chroma purple, exactly `#8000FF`, filling the
   entire canvas and every cell; no gradients, checkerboard, texture, or
   background scenery.
@@ -54,9 +54,9 @@ Each row must read left-to-right as one complete attack:
 
 | Columns | Phase | Requirement |
 | --- | --- | --- |
-| 1–3 | Preparation / wind-up | Neutral start, raise or draw back, then a clear loaded pose. |
-| 4–6 | Attack / active contact | Acceleration, strongest swing, and readable contact or maximum reach. |
-| 7–10 | Follow-through / recovery | Overshoot, deceleration, return toward neutral, and a clean endpoint. |
+| 1–2 | Preparation / wind-up | Neutral start, raise or draw back, then a clear loaded pose. |
+| 3–4 | Attack / active contact | Release, strongest swing, and readable contact or maximum reach. |
+| 5–6 | Follow-through / recovery | Overshoot, deceleration, and a clean completed endpoint. |
 
 The progression must not jump directly from idle to impact. The contact moment
 must be visually distinct without permanently baking gameplay hitboxes into the
@@ -101,9 +101,9 @@ The prompt documents are complete when:
 
 - The reusable template can be adapted by replacing bracketed inputs.
 - The sword prompt is directly usable after attaching a reference image.
-- Both files agree on the 10×3 grid, 64×64 cells, row directions, pivot rules,
+- Both files agree on the 6×3 grid, 64×64 cells, row directions, pivot rules,
   and frame phases.
-- The prompt explicitly requests a solid `#8000FF` background and exact 640×192
+- The prompt explicitly requests a solid `#8000FF` background and exact 384×192
   output.
 - The prompt includes positive art direction and a negative prompt/checklist that
   addresses common spritesheet-generation failures.

@@ -1099,7 +1099,8 @@ export class WorldScene extends Phaser.Scene {
       getFacing: () => this.playerController.facing,
       getSafeZones: () => this.getEnemySafeZones(),
       findSpawnPoint: (anchor) => this.findSpawnPoint(anchor),
-      playAnimation: (key) => this.playAnimation(key),
+      playCharacterAction: (actionId) => this.playAnimation(`slime-${actionId}`),
+      setActionLocked: (locked) => { this.actionLocked = locked; },
       canAttack: () => !this.actionLocked && !this.paused && !this.healthSystem?.isDead(),
       isDodging: () => this.playerController.isDodging(),
       applyPlayerDamage: (amount, source, impactX, impactY, knockbackStrength) => {

@@ -1,0 +1,60 @@
+<style>
+  .preview-board { max-width: 1160px; margin: 0 auto; color: #dce9ff; }
+  .preview-board h2 { letter-spacing: .04em; margin-bottom: .35rem; }
+  .preview-board .subtitle { max-width: 860px; }
+  .preview-shell { margin-top: 22px; display: grid; grid-template-columns: 1.1fr .9fr; gap: 18px; }
+  .preview-card { background: linear-gradient(145deg, rgba(18,31,58,.97), rgba(9,16,31,.97)); border: 1px solid rgba(112,173,255,.28); border-radius: 16px; overflow: hidden; box-shadow: 0 16px 34px rgba(0,0,0,.24); }
+  .preview-header { padding: 15px 18px; border-bottom: 1px solid rgba(255,255,255,.1); display: flex; justify-content: space-between; align-items: end; }
+  .preview-header small { color: #7ce3ff; letter-spacing: .12em; }
+  .preview-header b { color: #fff; font-size: 17px; }
+  .preview-body { padding: 18px; }
+  .stage { height: 250px; border-radius: 12px; border: 1px solid rgba(124,227,255,.18); display: grid; place-items: center; background: radial-gradient(circle at 50% 52%, rgba(94,220,255,.2), transparent 35%), linear-gradient(160deg, #0c1a31, #071020); position: relative; overflow: hidden; }
+  .stage:before, .stage:after { content: ''; position: absolute; background: rgba(124,227,255,.12); }
+  .stage:before { width: 100%; height: 1px; }
+  .stage:after { height: 100%; width: 1px; }
+  .slime { width: 74px; height: 60px; background: #63d8b2; border-radius: 48% 48% 42% 42%; box-shadow: inset 0 -10px rgba(20,93,93,.3), 0 0 30px rgba(99,216,178,.35); position: relative; z-index: 2; }
+  .slime:after { content: ''; position: absolute; width: 94px; height: 19px; right: -68px; top: 11px; border-top: 8px solid #e8fbff; border-right: 5px solid #35c8e6; transform: rotate(-32deg); filter: drop-shadow(0 0 8px rgba(124,227,255,.8)); }
+  .anchor { position: absolute; left: calc(50% + 44px); top: calc(50% - 5px); width: 9px; height: 9px; border: 2px solid #ffcd62; border-radius: 50%; z-index: 3; }
+  .stage-caption { position: absolute; bottom: 12px; left: 14px; right: 14px; display: flex; justify-content: space-between; color: #9db8db; font-size: 12px; z-index: 3; }
+  .controls { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+  .control { padding: 8px 11px; border-radius: 7px; border: 1px solid rgba(124,227,255,.3); color: #bcecff; font-size: 12px; }
+  .control.primary { background: #7ce3ff; color: #091425; border-color: #7ce3ff; }
+  .time { margin-left: auto; color: #a8c2df; font-size: 12px; }
+  .track { margin-top: 13px; }
+  .track-title { display: flex; justify-content: space-between; color: #a8c2df; font-size: 12px; margin-bottom: 5px; }
+  .track-row { display: grid; grid-template-columns: 84px repeat(8, 1fr); gap: 4px; }
+  .track-row span { height: 28px; line-height: 28px; text-align: center; border-radius: 5px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); color: #90aace; font-size: 11px; }
+  .track-row span:first-child { background: none; border: none; text-align: left; color: #dce9ff; }
+  .track-row .active { background: rgba(124,227,255,.28); border-color: #7ce3ff; color: #fff; }
+  .track-row .hit { background: rgba(255,205,98,.83); border-color: #ffcd62; color: #172036; }
+  .side-list { display: grid; gap: 10px; }
+  .side-item { padding: 12px; border: 1px solid rgba(255,255,255,.12); border-radius: 9px; }
+  .side-item strong { display: block; color: #fff; }
+  .side-item small { color: #9db8db; }
+  .side-note { margin-top: 14px; padding: 11px 12px; border-left: 3px solid #ffcd62; background: rgba(255,205,98,.08); color: #cfdef3; font-size: 13px; }
+  @media (max-width: 850px) { .preview-shell { grid-template-columns: 1fr; } }
+</style>
+
+<div class="preview-board">
+  <h2>Creation-time combined preview</h2>
+  <p class="subtitle">Both studios use the same preview controller. Character and weapon playback start together, remain independently authored, and share one elapsed-time scrubber.</p>
+  <div class="preview-shell">
+    <section class="preview-card">
+      <header class="preview-header"><div><small>COMPOSITE STAGE</small><br><b>Player Slime + Goo Gauntlet</b></div><span>ATTACK PREVIEW</span></header>
+      <div class="preview-body">
+        <div class="stage"><div class="slime"></div><div class="anchor"></div><div class="stage-caption"><span>CHARACTER CLIP: trick</span><span>WEAPON: attack frame 2</span></div></div>
+        <div class="controls"><span class="control primary">▶ PLAY</span><span class="control">‹ FRAME</span><span class="control">FRAME ›</span><span class="time">0.143s / 0.429s</span></div>
+      </div>
+    </section>
+    <section class="preview-card">
+      <header class="preview-header"><div><small>SHARED TIMELINE</small><br><b>Elapsed-time scrubber</b></div><span>FPS INDEPENDENT</span></header>
+      <div class="preview-body">
+        <div class="track"><div class="track-title"><span>Character action · 14 FPS</span><span>frame 2</span></div><div class="track-row"><span>character</span><span>48</span><span>49</span><span class="active">50</span><span>51</span><span>52</span><span>51</span><span>50</span><span>idle</span></div></div>
+        <div class="track"><div class="track-title"><span>Weapon attack · 12 FPS</span><span>frame 2</span></div><div class="track-row"><span>weapon</span><span>0</span><span>1</span><span class="active">2</span><span>3</span><span>4</span><span>4</span><span>4</span><span>idle</span></div></div>
+        <div class="track"><div class="track-title"><span>Weapon hitboxes + events</span><span>active now</span></div><div class="track-row"><span>primary</span><span></span><span class="hit">●</span><span class="hit">●</span><span></span><span class="hit">●</span><span></span><span></span><span></span></div></div>
+        <div class="side-list" style="margin-top:18px"><div class="side-item"><strong>Live attachment controls</strong><small>offset X/Y · origin · scale · facing · depth layer</small></div><div class="side-item"><strong>Live gameplay guides</strong><small>all named hitboxes · active spans · event markers</small></div></div>
+        <div class="side-note">The preview is authoritative for authoring: if the character, weapon, offset, or hitbox looks wrong here, it is not ready to save.</div>
+      </div>
+    </section>
+  </div>
+</div>

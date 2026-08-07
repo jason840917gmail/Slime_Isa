@@ -1,0 +1,965 @@
+{
+  "schema_version": 2,
+  "source_type": "video",
+  "source_image_path": "C:\\Users\\e323170\\Downloads\\magnific_using-the-attached-sword-_SyJTLhtUb8.mp4",
+  "video_metadata": {
+    "path": "C:\\Users\\e323170\\Downloads\\magnific_using-the-attached-sword-_SyJTLhtUb8.mp4",
+    "width": 1440,
+    "height": 1440,
+    "frame_count": 217,
+    "fps": 24.0,
+    "duration_seconds": 9.041666666666666
+  },
+  "video_settings": {
+    "start_frame": 0,
+    "end_frame": 216,
+    "sample_every": 1,
+    "target_fps": null,
+    "max_frames": 256,
+    "remove_near_duplicates": false,
+    "duplicate_threshold": 0.995,
+    "frame_width": 256,
+    "frame_height": 256,
+    "lock_frame_aspect": true,
+    "resize_mode": "stretch",
+    "remove_background": true,
+    "background_color": [
+      34,
+      12,
+      61
+    ],
+    "tolerance": 32,
+    "trim_transparent": false,
+    "anchor": "center",
+    "sheet_columns": 8,
+    "sheet_rows": 2,
+    "seed_frame_count": 10,
+    "resize_overrides": {
+      "0": {
+        "target_width": 256,
+        "target_height": 256,
+        "mode": "stretch"
+      },
+      "1": {
+        "target_width": 64,
+        "target_height": 64,
+        "mode": "fit"
+      },
+      "2": {
+        "target_width": 64,
+        "target_height": 64,
+        "mode": "fit"
+      },
+      "3": {
+        "target_width": 256,
+        "target_height": 25,
+        "mode": "fit"
+      },
+      "11": {
+        "target_width": 64,
+        "target_height": 64,
+        "mode": "fit"
+      },
+      "29": {
+        "target_width": 64,
+        "target_height": 64,
+        "mode": "fit"
+      },
+      "30": {
+        "target_width": 256,
+        "target_height": 256,
+        "mode": "stretch"
+      },
+      "31": {
+        "target_width": 256,
+        "target_height": 256,
+        "mode": "stretch"
+      },
+      "32": {
+        "target_width": 256,
+        "target_height": 256,
+        "mode": "stretch"
+      },
+      "33": {
+        "target_width": 64,
+        "target_height": 64,
+        "mode": "fit"
+      },
+      "34": {
+        "target_width": 64,
+        "target_height": 64,
+        "mode": "fit"
+      },
+      "35": {
+        "target_width": 256,
+        "target_height": 256,
+        "mode": "stretch"
+      },
+      "37": {
+        "target_width": 256,
+        "target_height": 256,
+        "mode": "stretch"
+      },
+      "38": {
+        "target_width": 256,
+        "target_height": 256,
+        "mode": "stretch"
+      },
+      "39": {
+        "target_width": 256,
+        "target_height": 256,
+        "mode": "stretch"
+      },
+      "40": {
+        "target_width": 256,
+        "target_height": 256,
+        "mode": "stretch"
+      },
+      "41": {
+        "target_width": 256,
+        "target_height": 256,
+        "mode": "stretch"
+      },
+      "42": {
+        "target_width": 256,
+        "target_height": 256,
+        "mode": "stretch"
+      },
+      "43": {
+        "target_width": 256,
+        "target_height": 256,
+        "mode": "stretch"
+      },
+      "44": {
+        "target_width": 256,
+        "target_height": 256,
+        "mode": "stretch"
+      },
+      "48": {
+        "target_width": 256,
+        "target_height": 256,
+        "mode": "stretch"
+      },
+      "52": {
+        "target_width": 256,
+        "target_height": 256,
+        "mode": "stretch"
+      },
+      "57": {
+        "target_width": 256,
+        "target_height": 256,
+        "mode": "stretch"
+      },
+      "88": {
+        "target_width": 256,
+        "target_height": 256,
+        "mode": "stretch"
+      },
+      "89": {
+        "target_width": 256,
+        "target_height": 256,
+        "mode": "stretch"
+      },
+      "208": {
+        "target_width": 256,
+        "target_height": 256,
+        "mode": "stretch"
+      },
+      "216": {
+        "target_width": 256,
+        "target_height": 25,
+        "mode": "fit"
+      }
+    }
+  },
+  "settings": {
+    "tile_width": 256,
+    "tile_height": 256,
+    "lock_tile_aspect": true,
+    "selection_columns": 1,
+    "selection_rows": 1,
+    "sheet_columns": 8,
+    "sheet_rows": 2,
+    "match_sheet_to_grid": false,
+    "remove_background": true,
+    "tile_background_engine": "exact_key",
+    "background_color": [
+      34,
+      12,
+      61
+    ],
+    "tolerance": 32,
+    "trim_transparent": false,
+    "scale_mode": "none",
+    "padding": 0,
+    "anchor": "center",
+    "edge_bleed": 1
+  },
+  "tiles": [
+    {
+      "tile_id": "8b2988d244dc4031a6f660af2978507b",
+      "name": "frame_0000",
+      "source_rect": [
+        0,
+        0,
+        1440,
+        1440
+      ],
+      "source_revision_id": null,
+      "source_type": "video",
+      "source_frame_index": 0,
+      "source_timestamp_ms": 0,
+      "source_path": "C:\\Users\\e323170\\Downloads\\magnific_using-the-attached-sword-_SyJTLhtUb8.mp4",
+      "resize_size": [
+        256,
+        256
+      ],
+      "resize_mode": "stretch"
+    },
+    {
+      "tile_id": "77229e7e128a4e77b26611357040511f",
+      "name": "frame_0030",
+      "source_rect": [
+        0,
+        0,
+        1440,
+        1440
+      ],
+      "source_revision_id": null,
+      "source_type": "video",
+      "source_frame_index": 30,
+      "source_timestamp_ms": 1250,
+      "source_path": "C:\\Users\\e323170\\Downloads\\magnific_using-the-attached-sword-_SyJTLhtUb8.mp4",
+      "resize_size": [
+        256,
+        256
+      ],
+      "resize_mode": "stretch"
+    },
+    {
+      "tile_id": "748b102413ee4b52b4cfa3049e50942c",
+      "name": "frame_0031",
+      "source_rect": [
+        0,
+        0,
+        1440,
+        1440
+      ],
+      "source_revision_id": null,
+      "source_type": "video",
+      "source_frame_index": 31,
+      "source_timestamp_ms": 1292,
+      "source_path": "C:\\Users\\e323170\\Downloads\\magnific_using-the-attached-sword-_SyJTLhtUb8.mp4",
+      "resize_size": [
+        256,
+        256
+      ],
+      "resize_mode": "stretch"
+    },
+    {
+      "tile_id": "de74c56a9c2d4f7b9fd209948393e81c",
+      "name": "frame_0032",
+      "source_rect": [
+        0,
+        0,
+        1440,
+        1440
+      ],
+      "source_revision_id": null,
+      "source_type": "video",
+      "source_frame_index": 32,
+      "source_timestamp_ms": 1333,
+      "source_path": "C:\\Users\\e323170\\Downloads\\magnific_using-the-attached-sword-_SyJTLhtUb8.mp4",
+      "resize_size": [
+        256,
+        256
+      ],
+      "resize_mode": "stretch"
+    },
+    {
+      "tile_id": "9a9ef05171b248e3bd21da7d9bab933d",
+      "name": "frame_0035",
+      "source_rect": [
+        0,
+        0,
+        1440,
+        1440
+      ],
+      "source_revision_id": null,
+      "source_type": "video",
+      "source_frame_index": 35,
+      "source_timestamp_ms": 1458,
+      "source_path": "C:\\Users\\e323170\\Downloads\\magnific_using-the-attached-sword-_SyJTLhtUb8.mp4",
+      "resize_size": [
+        256,
+        256
+      ],
+      "resize_mode": "stretch"
+    },
+    {
+      "tile_id": "ac6afcf2f72c4c6f99042f0a46496d8f",
+      "name": "frame_0037",
+      "source_rect": [
+        0,
+        0,
+        1440,
+        1440
+      ],
+      "source_revision_id": null,
+      "source_type": "video",
+      "source_frame_index": 37,
+      "source_timestamp_ms": 1542,
+      "source_path": "C:\\Users\\e323170\\Downloads\\magnific_using-the-attached-sword-_SyJTLhtUb8.mp4",
+      "resize_size": [
+        256,
+        256
+      ],
+      "resize_mode": "stretch"
+    },
+    {
+      "tile_id": "9dd4c827979c45969ae690714c78cb88",
+      "name": "frame_0038",
+      "source_rect": [
+        0,
+        0,
+        1440,
+        1440
+      ],
+      "source_revision_id": null,
+      "source_type": "video",
+      "source_frame_index": 38,
+      "source_timestamp_ms": 1583,
+      "source_path": "C:\\Users\\e323170\\Downloads\\magnific_using-the-attached-sword-_SyJTLhtUb8.mp4",
+      "resize_size": [
+        256,
+        256
+      ],
+      "resize_mode": "stretch"
+    },
+    {
+      "tile_id": "fb4fc06af5bb46bc88f034dc0d335106",
+      "name": "frame_0039",
+      "source_rect": [
+        0,
+        0,
+        1440,
+        1440
+      ],
+      "source_revision_id": null,
+      "source_type": "video",
+      "source_frame_index": 39,
+      "source_timestamp_ms": 1625,
+      "source_path": "C:\\Users\\e323170\\Downloads\\magnific_using-the-attached-sword-_SyJTLhtUb8.mp4",
+      "resize_size": [
+        256,
+        256
+      ],
+      "resize_mode": "stretch"
+    },
+    {
+      "tile_id": "ef81029153604e259be2cf03dca60276",
+      "name": "frame_0040",
+      "source_rect": [
+        0,
+        0,
+        1440,
+        1440
+      ],
+      "source_revision_id": null,
+      "source_type": "video",
+      "source_frame_index": 40,
+      "source_timestamp_ms": 1667,
+      "source_path": "C:\\Users\\e323170\\Downloads\\magnific_using-the-attached-sword-_SyJTLhtUb8.mp4",
+      "resize_size": [
+        256,
+        256
+      ],
+      "resize_mode": "stretch"
+    },
+    {
+      "tile_id": "4ec694cec7fb4ea38a42128e2ccc1081",
+      "name": "frame_0041",
+      "source_rect": [
+        0,
+        0,
+        1440,
+        1440
+      ],
+      "source_revision_id": null,
+      "source_type": "video",
+      "source_frame_index": 41,
+      "source_timestamp_ms": 1708,
+      "source_path": "C:\\Users\\e323170\\Downloads\\magnific_using-the-attached-sword-_SyJTLhtUb8.mp4",
+      "resize_size": [
+        256,
+        256
+      ],
+      "resize_mode": "stretch"
+    },
+    {
+      "tile_id": "a486fdc3e78f42e6a48d5a9d21bfa103",
+      "name": "frame_0042",
+      "source_rect": [
+        0,
+        0,
+        1440,
+        1440
+      ],
+      "source_revision_id": null,
+      "source_type": "video",
+      "source_frame_index": 42,
+      "source_timestamp_ms": 1750,
+      "source_path": "C:\\Users\\e323170\\Downloads\\magnific_using-the-attached-sword-_SyJTLhtUb8.mp4",
+      "resize_size": [
+        256,
+        256
+      ],
+      "resize_mode": "stretch"
+    },
+    {
+      "tile_id": "69174957a8bb42c192e1cd17d3a070e5",
+      "name": "frame_0043",
+      "source_rect": [
+        0,
+        0,
+        1440,
+        1440
+      ],
+      "source_revision_id": null,
+      "source_type": "video",
+      "source_frame_index": 43,
+      "source_timestamp_ms": 1792,
+      "source_path": "C:\\Users\\e323170\\Downloads\\magnific_using-the-attached-sword-_SyJTLhtUb8.mp4",
+      "resize_size": [
+        256,
+        256
+      ],
+      "resize_mode": "stretch"
+    },
+    {
+      "tile_id": "35e81591d90546c2b920dd6de44f6d63",
+      "name": "frame_0048",
+      "source_rect": [
+        0,
+        0,
+        1440,
+        1440
+      ],
+      "source_revision_id": null,
+      "source_type": "video",
+      "source_frame_index": 48,
+      "source_timestamp_ms": 2000,
+      "source_path": "C:\\Users\\e323170\\Downloads\\magnific_using-the-attached-sword-_SyJTLhtUb8.mp4",
+      "resize_size": [
+        256,
+        256
+      ],
+      "resize_mode": "stretch"
+    },
+    {
+      "tile_id": "a7aa8f248e6e446cad7017c64892624b",
+      "name": "frame_0052",
+      "source_rect": [
+        0,
+        0,
+        1440,
+        1440
+      ],
+      "source_revision_id": null,
+      "source_type": "video",
+      "source_frame_index": 52,
+      "source_timestamp_ms": 2167,
+      "source_path": "C:\\Users\\e323170\\Downloads\\magnific_using-the-attached-sword-_SyJTLhtUb8.mp4",
+      "resize_size": [
+        256,
+        256
+      ],
+      "resize_mode": "stretch"
+    },
+    {
+      "tile_id": "af6395edc944476e954d2fcd1bacd1b4",
+      "name": "frame_0057",
+      "source_rect": [
+        0,
+        0,
+        1440,
+        1440
+      ],
+      "source_revision_id": null,
+      "source_type": "video",
+      "source_frame_index": 57,
+      "source_timestamp_ms": 2375,
+      "source_path": "C:\\Users\\e323170\\Downloads\\magnific_using-the-attached-sword-_SyJTLhtUb8.mp4",
+      "resize_size": [
+        256,
+        256
+      ],
+      "resize_mode": "stretch"
+    },
+    {
+      "tile_id": "a145ef092cc14cafb5e1d391a125c7c2",
+      "name": "frame_0088",
+      "source_rect": [
+        0,
+        0,
+        1440,
+        1440
+      ],
+      "source_revision_id": null,
+      "source_type": "video",
+      "source_frame_index": 88,
+      "source_timestamp_ms": 3667,
+      "source_path": "C:\\Users\\e323170\\Downloads\\magnific_using-the-attached-sword-_SyJTLhtUb8.mp4",
+      "resize_size": [
+        256,
+        256
+      ],
+      "resize_mode": "stretch"
+    }
+  ],
+  "video_sources": [
+    {
+      "path": "C:\\Users\\e323170\\Downloads\\magnific_using-the-attached-sword-_SyJTLhtUb8.mp4",
+      "metadata": {
+        "path": "C:\\Users\\e323170\\Downloads\\magnific_using-the-attached-sword-_SyJTLhtUb8.mp4",
+        "width": 1440,
+        "height": 1440,
+        "frame_count": 217,
+        "fps": 24.0,
+        "duration_seconds": 9.041666666666666
+      },
+      "video_settings": {
+        "start_frame": 0,
+        "end_frame": 216,
+        "sample_every": 1,
+        "target_fps": null,
+        "max_frames": 256,
+        "remove_near_duplicates": false,
+        "duplicate_threshold": 0.995,
+        "frame_width": 256,
+        "frame_height": 256,
+        "lock_frame_aspect": true,
+        "resize_mode": "stretch",
+        "remove_background": true,
+        "background_color": [
+          34,
+          12,
+          61
+        ],
+        "tolerance": 32,
+        "trim_transparent": false,
+        "anchor": "center",
+        "sheet_columns": 8,
+        "sheet_rows": 2,
+        "seed_frame_count": 10,
+        "resize_overrides": {
+          "0": {
+            "target_width": 256,
+            "target_height": 256,
+            "mode": "stretch"
+          },
+          "1": {
+            "target_width": 64,
+            "target_height": 64,
+            "mode": "fit"
+          },
+          "2": {
+            "target_width": 64,
+            "target_height": 64,
+            "mode": "fit"
+          },
+          "3": {
+            "target_width": 256,
+            "target_height": 25,
+            "mode": "fit"
+          },
+          "11": {
+            "target_width": 64,
+            "target_height": 64,
+            "mode": "fit"
+          },
+          "29": {
+            "target_width": 64,
+            "target_height": 64,
+            "mode": "fit"
+          },
+          "30": {
+            "target_width": 256,
+            "target_height": 256,
+            "mode": "stretch"
+          },
+          "31": {
+            "target_width": 256,
+            "target_height": 256,
+            "mode": "stretch"
+          },
+          "32": {
+            "target_width": 256,
+            "target_height": 256,
+            "mode": "stretch"
+          },
+          "33": {
+            "target_width": 64,
+            "target_height": 64,
+            "mode": "fit"
+          },
+          "34": {
+            "target_width": 64,
+            "target_height": 64,
+            "mode": "fit"
+          },
+          "35": {
+            "target_width": 256,
+            "target_height": 256,
+            "mode": "stretch"
+          },
+          "37": {
+            "target_width": 256,
+            "target_height": 256,
+            "mode": "stretch"
+          },
+          "38": {
+            "target_width": 256,
+            "target_height": 256,
+            "mode": "stretch"
+          },
+          "39": {
+            "target_width": 256,
+            "target_height": 256,
+            "mode": "stretch"
+          },
+          "40": {
+            "target_width": 256,
+            "target_height": 256,
+            "mode": "stretch"
+          },
+          "41": {
+            "target_width": 256,
+            "target_height": 256,
+            "mode": "stretch"
+          },
+          "42": {
+            "target_width": 256,
+            "target_height": 256,
+            "mode": "stretch"
+          },
+          "43": {
+            "target_width": 256,
+            "target_height": 256,
+            "mode": "stretch"
+          },
+          "44": {
+            "target_width": 256,
+            "target_height": 256,
+            "mode": "stretch"
+          },
+          "48": {
+            "target_width": 256,
+            "target_height": 256,
+            "mode": "stretch"
+          },
+          "52": {
+            "target_width": 256,
+            "target_height": 256,
+            "mode": "stretch"
+          },
+          "57": {
+            "target_width": 256,
+            "target_height": 256,
+            "mode": "stretch"
+          },
+          "88": {
+            "target_width": 256,
+            "target_height": 256,
+            "mode": "stretch"
+          },
+          "89": {
+            "target_width": 256,
+            "target_height": 256,
+            "mode": "stretch"
+          },
+          "208": {
+            "target_width": 256,
+            "target_height": 256,
+            "mode": "stretch"
+          },
+          "216": {
+            "target_width": 256,
+            "target_height": 25,
+            "mode": "fit"
+          }
+        }
+      },
+      "frame_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        123,
+        124,
+        125,
+        126,
+        127,
+        128,
+        129,
+        130,
+        131,
+        132,
+        133,
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141,
+        142,
+        143,
+        144,
+        145,
+        146,
+        147,
+        148,
+        149,
+        150,
+        151,
+        152,
+        153,
+        154,
+        155,
+        156,
+        157,
+        158,
+        159,
+        160,
+        161,
+        162,
+        163,
+        164,
+        165,
+        166,
+        167,
+        168,
+        169,
+        170,
+        171,
+        172,
+        173,
+        174,
+        175,
+        176,
+        177,
+        178,
+        179,
+        180,
+        181,
+        182,
+        183,
+        184,
+        185,
+        186,
+        187,
+        188,
+        189,
+        190,
+        191,
+        192,
+        193,
+        194,
+        195,
+        196,
+        197,
+        198,
+        199,
+        200,
+        201,
+        202,
+        203,
+        204,
+        205,
+        206,
+        207,
+        208,
+        209,
+        210,
+        211,
+        212,
+        213,
+        214,
+        215,
+        216
+      ],
+      "selected_frame_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        48,
+        52,
+        57,
+        88
+      ]
+    }
+  ]
+}

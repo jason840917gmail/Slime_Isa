@@ -18,6 +18,8 @@ import { getWeaponDefinition } from '../../content/weapons/WeaponCatalog';
 import type { WorldDimensions } from '../../world/WorldDimensions';
 import type { MapEnemySafeZone, MapEnemySpawnArea, MapSpawns } from '../../content/maps/mapFormat';
 import { resolveScreenUiDepth } from '../../presentation/WorldDepth';
+import { hitboxPool } from '../../combat/Hitbox';
+import { WeaponVisual } from './WeaponVisual';
 
 export interface CombatControllerContext {
   scene: Phaser.Scene;
@@ -31,7 +33,8 @@ export interface CombatControllerContext {
   getFacing: () => Phaser.Math.Vector2;
   getSafeZones: () => MapEnemySafeZone[];
   findSpawnPoint: (anchor: Phaser.Math.Vector2) => Phaser.Math.Vector2;
-  playAnimation: (key: string) => void;
+  playCharacterAction: (actionId: string) => void;
+  setActionLocked: (locked: boolean) => void;
   canAttack: () => boolean;
   isDodging: () => boolean;
   applyPlayerDamage: (
@@ -49,6 +52,7 @@ export interface CombatControllerContext {
 export class CombatController {
   readonly targets: Phaser.Physics.Arcade.Group;
   private weapon: Weapon;
+  private weaponVisual: WeaponVisual;
   private combo: ComboSystem;
   private spawner?: EnemySpawner;
   private comboText: Phaser.GameObjects.Text;
@@ -96,11 +100,23 @@ export class CombatController {
       },
       onAttackStart: () => {
         this.attacking = true;
+        ctx.setActionLocked(true);
         player.setVelocity(0, 0);
       },
-      onAttackEnd: () => { this.attacking = false; },
-      playAnimation: ctx.playAnimation,
+      onAttackEnd: () => {
+        this.attacking = false;
+        ctx.setActionLocked(false);
+        ctx.playCharacterAction('idle');
+        this.weaponVisual?.play('idle', true);
+      },
+      playCharacterAction: ctx.playCharacterAction,
+      playWeaponAnimation: (animationId, forceRestart) => this.weaponVisual?.play(animationId, forceRestart),
     });
+    this.weaponVisual = new WeaponVisual(scene, player, this.weapon.def, {
+      getDepth: () => player.depth + 0.01,
+      getFacing: ctx.getFacing,
+    });
+    this.weaponVisual.play('idle', true);
 
     if (ctx.enemySpawnAreas.length > 0 || spawnConfig) {
       this.spawner = new EnemySpawner({
@@ -165,6 +181,9 @@ export class CombatController {
   update(time: number, delta: number): void {
     this.combo.update();
     this.spawner?.update(time, delta);
+    this.weapon.update(delta);
+    this.weaponVisual.update();
+    hitboxPool.update(this.ctx.scene);
     projectilePool.update(this.ctx.scene);
   }
 
@@ -179,6 +198,9 @@ export class CombatController {
   }
 
   destroy(): void {
+    this.weapon.destroy();
+    this.weaponVisual.destroy();
+    this.ctx.setActionLocked(false);
     this.projectileWorldColliders.forEach((collider) => collider.destroy());
     this.spawner?.destroy();
     this.combo.reset();

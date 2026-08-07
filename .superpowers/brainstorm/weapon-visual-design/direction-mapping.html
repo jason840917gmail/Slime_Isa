@@ -1,0 +1,60 @@
+<style>
+  .board { max-width: 1120px; margin: 0 auto; color: #e6edf7; }
+  .board h2 { margin-bottom: .35rem; }
+  .board .subtitle { max-width: 820px; }
+  .choices { display: grid; gap: 16px; margin-top: 22px; }
+  .choice { background: linear-gradient(145deg, rgba(18,31,58,.96), rgba(10,18,35,.96)); border: 1px solid rgba(112,173,255,.26); border-radius: 16px; padding: 18px; }
+  .choice h3 { margin: 0 0 6px; color: #fff; }
+  .choice p { margin: 0 0 12px; color: #b8cce3; }
+  .sheet { display: grid; grid-template-columns: 94px repeat(10, minmax(36px, 1fr)); gap: 4px; align-items: center; }
+  .label { color: #9bb8d8; font-size: 12px; text-align: right; padding-right: 7px; }
+  .cell { min-height: 42px; border-radius: 7px; display: grid; place-items: center; color: #07111e; font-size: 11px; font-weight: 700; }
+  .wind { background: #7ea6d8; }
+  .active { background: #ffcd62; }
+  .recover { background: #8592a7; }
+  .tiny { display: block; font-weight: 500; opacity: .7; }
+  .legend { display: flex; gap: 14px; margin-top: 12px; color: #a8c2df; font-size: 13px; flex-wrap: wrap; }
+  .legend i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; }
+  @media (max-width: 800px) { .sheet { grid-template-columns: 78px repeat(10, minmax(24px, 1fr)); } .cell { font-size: 9px; } }
+</style>
+
+<div class="board">
+  <h2>Choose the three attack-row directions</h2>
+  <p class="subtitle">Each option keeps one attack moving left-to-right across 10 columns: wind-up → swing → contact → follow-through → recovery. The prompt will also require transparent background, equal cells, no cropped weapon, and consistent pivot placement.</p>
+
+  <div class="choices">
+    <div class="choice" data-choice="a" onclick="toggleSelect(this)">
+      <h3>A · Side / Down / Up — recommended</h3>
+      <p>Best reusable 3-row set for a top-down game. Side can be mirrored for left/right at runtime; down and up cover the two vertical attack poses.</p>
+      <div class="sheet">
+        <div></div><div class="label">1</div><div class="label">2</div><div class="label">3</div><div class="label">4</div><div class="label">5</div><div class="label">6</div><div class="label">7</div><div class="label">8</div><div class="label">9</div><div class="label">10</div>
+        <div class="label">SIDE →</div><div class="cell wind">prep</div><div class="cell wind">raise</div><div class="cell wind">coil</div><div class="cell active">swing</div><div class="cell active">contact</div><div class="cell active">arc</div><div class="cell recover">extend</div><div class="cell recover">brake</div><div class="cell recover">return</div><div class="cell recover">idle</div>
+        <div class="label">DOWN ↓</div><div class="cell wind">prep</div><div class="cell wind">raise</div><div class="cell wind">coil</div><div class="cell active">swing</div><div class="cell active">contact</div><div class="cell active">arc</div><div class="cell recover">extend</div><div class="cell recover">brake</div><div class="cell recover">return</div><div class="cell recover">idle</div>
+        <div class="label">UP ↑</div><div class="cell wind">prep</div><div class="cell wind">raise</div><div class="cell wind">coil</div><div class="cell active">swing</div><div class="cell active">contact</div><div class="cell active">arc</div><div class="cell recover">extend</div><div class="cell recover">brake</div><div class="cell recover">return</div><div class="cell recover">idle</div>
+      </div>
+    </div>
+
+    <div class="choice" data-choice="b" onclick="toggleSelect(this)">
+      <h3>B · Left / Down / Up</h3>
+      <p>Author all three directions explicitly. More literal, but duplicates the side attack if the game can mirror sprites safely.</p>
+      <div class="sheet">
+        <div></div><div class="label">1</div><div class="label">2</div><div class="label">3</div><div class="label">4</div><div class="label">5</div><div class="label">6</div><div class="label">7</div><div class="label">8</div><div class="label">9</div><div class="label">10</div>
+        <div class="label">LEFT ←</div><div class="cell wind">prep</div><div class="cell wind">raise</div><div class="cell wind">coil</div><div class="cell active">swing</div><div class="cell active">contact</div><div class="cell active">arc</div><div class="cell recover">extend</div><div class="cell recover">brake</div><div class="cell recover">return</div><div class="cell recover">idle</div>
+        <div class="label">DOWN ↓</div><div class="cell wind">prep</div><div class="cell wind">raise</div><div class="cell wind">coil</div><div class="cell active">swing</div><div class="cell active">contact</div><div class="cell active">arc</div><div class="cell recover">extend</div><div class="cell recover">brake</div><div class="cell recover">return</div><div class="cell recover">idle</div>
+        <div class="label">UP ↑</div><div class="cell wind">prep</div><div class="cell wind">raise</div><div class="cell wind">coil</div><div class="cell active">swing</div><div class="cell active">contact</div><div class="cell active">arc</div><div class="cell recover">extend</div><div class="cell recover">brake</div><div class="cell recover">return</div><div class="cell recover">idle</div>
+      </div>
+    </div>
+
+    <div class="choice" data-choice="c" onclick="toggleSelect(this)">
+      <h3>C · Side / Down / Diagonal</h3>
+      <p>Prioritizes a visually distinct third attack. Useful if the weapon has a special diagonal move, but it leaves upward coverage to mirroring or another sheet.</p>
+      <div class="sheet">
+        <div></div><div class="label">1</div><div class="label">2</div><div class="label">3</div><div class="label">4</div><div class="label">5</div><div class="label">6</div><div class="label">7</div><div class="label">8</div><div class="label">9</div><div class="label">10</div>
+        <div class="label">SIDE →</div><div class="cell wind">prep</div><div class="cell wind">raise</div><div class="cell wind">coil</div><div class="cell active">swing</div><div class="cell active">contact</div><div class="cell active">arc</div><div class="cell recover">extend</div><div class="cell recover">brake</div><div class="cell recover">return</div><div class="cell recover">idle</div>
+        <div class="label">DOWN ↓</div><div class="cell wind">prep</div><div class="cell wind">raise</div><div class="cell wind">coil</div><div class="cell active">swing</div><div class="cell active">contact</div><div class="cell active">arc</div><div class="cell recover">extend</div><div class="cell recover">brake</div><div class="cell recover">return</div><div class="cell recover">idle</div>
+        <div class="label">DIAG ↘</div><div class="cell wind">prep</div><div class="cell wind">raise</div><div class="cell wind">coil</div><div class="cell active">swing</div><div class="cell active">contact</div><div class="cell active">arc</div><div class="cell recover">extend</div><div class="cell recover">brake</div><div class="cell recover">return</div><div class="cell recover">idle</div>
+      </div>
+    </div>
+  </div>
+  <div class="legend"><span><i style="background:#7ea6d8"></i>wind-up / preparation</span><span><i style="background:#ffcd62"></i>active swing / contact</span><span><i style="background:#8592a7"></i>follow-through / recovery</span></div>
+</div>

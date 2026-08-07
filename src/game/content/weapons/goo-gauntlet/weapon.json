@@ -5,11 +5,45 @@
   "displayName": "Goo Gauntlet",
   "category": "melee",
   "animKey": "slime-trick",
-  "visual": { "sourceOffset": [0, 0] },
+  "characterActionId": "trick",
+  "visual": { "sourceOffset": [0, 0], "facingMode": "vector" },
   "animations": {
     "idle": { "frames": [0], "framesPerSecond": 8, "loop": true, "loopMode": "wrap" },
-    "attack": { "frames": [0], "framesPerSecond": 12, "loop": false, "loopMode": "wrap" },
-    "impact": { "frames": [0], "framesPerSecond": 12, "loop": false, "loopMode": "wrap" }
+    "attack": { "frames": [0, 1, 2, 3, 4], "framesPerSecond": 14, "loop": false, "loopMode": "wrap" },
+    "impact": { "frames": [4], "framesPerSecond": 14, "loop": false, "loopMode": "wrap" }
+  },
+  "hitboxes": {
+    "punch": {
+      "shape": "sector",
+      "width": 64,
+      "height": 56,
+      "offsetX": 36,
+      "offsetY": 0,
+      "innerRadius": 0,
+      "outerRadius": 68,
+      "arcWidthRad": 1.35,
+      "damageMultiplier": 1,
+      "knockbackMultiplier": 1
+    },
+    "impact": {
+      "shape": "circle",
+      "width": 36,
+      "height": 36,
+      "radius": 18,
+      "offsetX": 52,
+      "offsetY": 0,
+      "damageMultiplier": 0.35,
+      "knockbackMultiplier": 0.6
+    }
+  },
+  "attackTrack": {
+    "hitboxSpans": [
+      { "hitboxId": "punch", "from": 1, "through": 2 },
+      { "hitboxId": "impact", "from": 3, "through": 3 }
+    ],
+    "events": [
+      { "at": 2, "eventId": "weapon.impact", "payload": { "effect": "goo-burst" } }
+    ]
   },
   "baseDamage": 12,
   "cooldownMs": 320,
