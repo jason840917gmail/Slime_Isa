@@ -14,9 +14,13 @@ The foundation owns clip timing, keyframes, playback, looping, scrubbing,
 timeline editing, and generic animation events. Entity types provide adapters
 for their own visuals and gameplay tracks.
 
-The result should make it possible to author a timed animation once and assign
-it to a character, enemy, or weapon host without maintaining three different
-animation models or three different timeline implementations.
+The result should make it possible to author a timed animation using the same
+schema, editor, and player for a character, enemy, or weapon host without
+maintaining three different animation models or three different timeline
+implementations. Raw frame references remain local to the owning asset package:
+the first pass does not promise that a character's source tile can be assigned
+directly to a weapon or enemy. Cross-asset retargeting would require a separate
+explicit frame-mapping feature.
 
 ## Recommendation
 
@@ -102,6 +106,12 @@ with its owning package:
 Those metadata structures must use the shared keyframe occurrence index when
 they need to follow a tile through a drag, duplicate, reorder, or delete.
 
+New draft clips may temporarily contain zero source frames while the editor is
+waiting for the author to use `ADD TILES`. Empty draft clips cannot play,
+preview, or save. The editor shows an actionable validation message and keeps
+the draft editable. Every normalized runtime clip and every successfully saved
+clip must contain at least one source frame and a keyframe at timeline cell `0`.
+
 ### Timeline semantics
 
 For a normalized clip:
@@ -183,14 +193,37 @@ hurtboxes, enemy AI, or combat effects.
 Each entity provides an `AnimationHostAdapter` with responsibilities such as:
 
 ```ts
+interface AnimationPlaybackContext {
+  readonly previousTimelineFrame: number | null;
+  readonly timelineFrame: number;
+  readonly direction: 1 | -1;
+  readonly cycle: number;
+  readonly isScrub: boolean;
+}
+
 interface AnimationHostAdapter {
-  applyAnimationFrame(state: AnimationPlaybackState): void;
-  dispatchAnimationEvent(eventId: string, payload: unknown): void;
+  applyAnimationFrame(
+    state: AnimationPlaybackState,
+    context: AnimationPlaybackContext,
+  ): void;
+  dispatchAnimationEvent(
+    event: AnimationEventDocument,
+    context: AnimationPlaybackContext,
+  ): void;
+  resetDomainTracks(context: AnimationPlaybackContext): void;
 }
 ```
 
 Character, enemy, and weapon adapters can then update their own visuals and
-domain tracks without duplicating timeline math.
+domain tracks without duplicating timeline math. Playback dispatch is
+deterministic: starting a clip applies cell `0` and emits events authored at
+cell `0` once; advancing across multiple cells emits every crossed event in
+playback order; skipped render updates do not skip events; and a loop crossing
+processes the end segment before the beginning segment. Ping-pong reports its
+direction through the context and does not emit the same boundary event twice
+merely because the playhead reverses. Scrubbing applies the visual frame and
+calls `resetDomainTracks`, but does not emit gameplay events. Studios may opt
+into an explicit non-gameplay event-preview mode.
 
 Attack tracks remain one-shot even when malformed legacy data says loop. Idle
 and impact clips retain their configured wrap or ping-pong behavior. Ping-pong
@@ -209,6 +242,24 @@ interface AnimationEventDocument {
   readonly payload?: JsonValue;
 }
 ```
+
+The canonical package-level track shape is:
+
+```ts
+interface AnimationTrackDocument {
+  readonly events?: readonly AnimationEventDocument[];
+}
+
+interface AnimationTrackBundle {
+  readonly animationTracks: Readonly<Record<string, AnimationTrackDocument>>;
+}
+```
+
+The `animationTracks[clipId]` entry is the shared home for generic events.
+Domain packages extend the corresponding entry with their own track data or
+keep a domain-owned parallel track keyed by the same `clipId`; they do not
+invent alternate timeline coordinates. Character `animationTracks` and the
+weapon attack-track event data converge on this contract during migration.
 
 The shared editor can render and edit generic event rows. Event consumers remain
 domain-owned:
@@ -262,14 +313,22 @@ existing domain meaning but use the shared timeline frame count.
 
 `CharacterTimeline` and `CharacterDocumentState` delegate all visual timing
 mutations to the shared timeline module. Character-specific source offsets and
-hitbox editing stay in the character feature.
+hitbox editing stay in the character feature. The current behavior that shifts
+character events and hitbox spans when visual frames are inserted or removed is
+replaced by the shared rule: visual edits leave absolute domain-track positions
+unchanged, then validate them against the new timeline. A transaction that
+would leave a track outside the clip is rejected with an actionable message;
+there is no silent compatibility shift after migration.
 
 ### Enemies
 
 Enemies use the same normalized clip, player, editor, and event semantics as
-characters. Enemy-specific attack, hurtbox, AI, and effect tracks are adapters,
-not alternate animation implementations. Existing enemy animation data is
-normalized through the same legacy boundary.
+characters. In the current codebase an enemy is represented by
+`CharacterDocument.kind === 'enemy'`; the first migration keeps that ownership
+inside Character Studio and does not create a separate Enemy Studio or a second
+enemy animation package. Enemy-specific attack, hurtbox, AI, and effect tracks
+are adapters, not alternate animation implementations. Existing enemy
+animation data is normalized through the same legacy boundary.
 
 ### Weapons
 
@@ -278,6 +337,19 @@ Weapon clips migrate from the weapon-only timing helpers to the shared module.
 `WeaponAttackTrackRunner` becomes a host adapter and uses the shared timeline
 frame count for completion, events, and bounds. Weapon Studio uses the shared
 editor and provides weapon-specific transform and attack-track inspectors.
+
+The weapon-specific rules already approved in the weapon timed-keyframe design
+remain normative under the shared model: occurrence transforms move with their
+authored keyframe; legacy clips normalize to one frame per tile; duration/FPS
+rescaling uses the specified raw-time and forward-pass formula; absent LEFT
+continues to mirror RIGHT; absent vertical packages continue to fall back to
+root; custom directional packages own their timing; and dirty saves materialize
+explicit timing only for authored packages already present in the draft.
+
+`WeaponAnimationDocument` becomes a domain extension of
+`AnimationClipDocument`, and its normalized form combines
+`NormalizedAnimationClipDocument` with weapon occurrence transforms. It is not
+a second timing model.
 
 ## Save and migration policy
 
@@ -306,8 +378,10 @@ strict timing order, timeline bounds, capacity, and track positions.
    existing character behavior.
 4. Adapt the weapon runtime and editor, including the source picker, duration
    blocks, attack tracks, and scroll/focus preservation.
-5. Add the enemy runtime/editor adapter using the same contracts; do not create
-   an enemy-specific timeline implementation.
+5. Add the enemy adapter through the existing `CharacterDocument.kind ===
+   'enemy'` path using the same contracts; do not create an enemy-specific
+   timeline implementation or studio unless a later product decision requires
+   a separate authoring surface.
 6. Extract the shared timeline view and picker so all three studios render the
    same interaction model.
 7. Remove duplicated timing math and update validators/check commands.
