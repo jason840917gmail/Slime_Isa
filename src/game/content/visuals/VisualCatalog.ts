@@ -2,6 +2,7 @@ import type { AssetId } from '../../infrastructure/assets/manifest';
 import { getAsset } from '../../infrastructure/assets/manifest';
 import { validateVisualSetDocument } from '../characters/validation';
 import { characterPackages, visualSets } from 'virtual-character-content';
+import { normalizeAnimationClip } from '../../shared/animation';
 import type {
   VisualClipDocument,
   VisualLoopMode,
@@ -22,6 +23,8 @@ export interface ResolvedVisualTransform {
 
 export interface VisualClip extends Omit<VisualClipDocument, 'loopMode'> {
   readonly loopMode: VisualLoopMode;
+  keyframeTimes: number[];
+  readonly durationSeconds: number;
   readonly runtimeKey: string;
 }
 
@@ -55,7 +58,7 @@ function normalizeVisualSet(value: VisualSetDocument): VisualSetDefinition {
   const issues = validateVisualSetDocument(value);
   if (issues.length > 0) throw new Error(issues.map((entry) => `${entry.path}: ${entry.message}`).join('\n'));
   const clips = Object.fromEntries(Object.entries(value.clips).map(([clipId, clip]) => [clipId, {
-    ...clip,
+    ...normalizeAnimationClip(clip),
     loopMode: clip.loopMode ?? 'wrap',
     runtimeKey: visualRuntimeKey(value.visualSetId, clipId),
   }])) as Record<string, VisualClip>;

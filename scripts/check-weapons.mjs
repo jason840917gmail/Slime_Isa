@@ -7,6 +7,11 @@ import { fileURLToPath } from 'node:url';
 const root = fileURLToPath(new URL('..', import.meta.url));
 const weaponRoot = join(root, 'src', 'game', 'content', 'weapons');
 const errors = [];
+function timelineFrameCount(animation) {
+  return animation?.keyframeTimes !== undefined && animation?.durationSeconds !== undefined
+    ? Math.max(1, Math.round(animation.durationSeconds * animation.framesPerSecond))
+    : Math.max(1, animation?.frames?.length ?? 0);
+}
 function files(directory) {
   const output = [];
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
@@ -22,7 +27,22 @@ if (weapons.length === 0) errors.push('weapon catalog must not be empty');
 const ids = new Set();
 function validateAnimation(weapon, label, animation) {
   const frameCount = animation?.frames?.length ?? 0;
+  const timelineFrames = timelineFrameCount(animation);
   if (frameCount < 1) errors.push(`[${weapon.weaponId}] ${label} must contain at least one tile`);
+  const hasTimes = animation?.keyframeTimes !== undefined;
+  const hasDuration = animation?.durationSeconds !== undefined;
+  if (hasTimes !== hasDuration) errors.push(`[${weapon.weaponId}] ${label} keyframeTimes and durationSeconds must be authored together`);
+  if (hasDuration && (!(animation.durationSeconds > 0) || !Number.isFinite(animation.durationSeconds))) errors.push(`[${weapon.weaponId}] ${label} durationSeconds must be positive`);
+  if (hasTimes) {
+    if (!Array.isArray(animation.keyframeTimes) || animation.keyframeTimes.length !== frameCount) errors.push(`[${weapon.weaponId}] ${label} keyframeTimes must match frames length`);
+    for (let index = 0; index < (animation.keyframeTimes ?? []).length; index += 1) {
+      const time = animation.keyframeTimes[index];
+      if (!Number.isInteger(time) || time < 0 || time >= timelineFrames) errors.push(`[${weapon.weaponId}] ${label} keyframeTimes[${index}] outside timeline`);
+      if (index === 0 && time !== 0) errors.push(`[${weapon.weaponId}] ${label} keyframeTimes must start at 0`);
+      if (index > 0 && time <= animation.keyframeTimes[index - 1]) errors.push(`[${weapon.weaponId}] ${label} keyframeTimes must be strictly increasing`);
+    }
+    if (frameCount > timelineFrames) errors.push(`[${weapon.weaponId}] ${label} has more keyframes than timeline frames`);
+  }
   for (const [position, transform] of Object.entries(animation?.frameTransforms ?? {})) {
     if (!/^\d+$/.test(position) || Number(position) >= frameCount) errors.push(`[${weapon.weaponId}] ${label} transform '${position}' is outside the animation`);
     for (const field of ['offset', 'scale']) {
@@ -34,7 +54,7 @@ function validateAnimation(weapon, label, animation) {
 }
 function validateTrack(weapon, label, animation, track, hitboxes) {
   if (!track) return;
-  const frameCount = animation?.frames?.length ?? 0;
+  const frameCount = timelineFrameCount(animation);
   const spansByHitbox = new Map();
   for (const span of track.hitboxSpans ?? []) {
     if (!hitboxes[span.hitboxId]) errors.push(`[${weapon.weaponId}] ${label} span references missing hitbox '${span.hitboxId}'`);

@@ -4,10 +4,11 @@ import type { AssetId } from '../../infrastructure/assets/manifest';
 import { getAsset } from '../../infrastructure/assets/manifest';
 import type {
   NormalizedWeaponDefinition,
-  WeaponAnimationDocument,
+  NormalizedWeaponAnimationDocument,
   WeaponAttackDirection,
   WeaponPlaybackAnimationId,
 } from '../../content/weapons/types';
+import { AnimationPlayer, type AnimationPlaybackState } from '../../shared/animation';
 
 type WeaponVisualAnchor = Phaser.GameObjects.GameObject & {
   readonly x: number;
@@ -15,20 +16,6 @@ type WeaponVisualAnchor = Phaser.GameObjects.GameObject & {
 };
 
 type WeaponFacingMode = NonNullable<NonNullable<NormalizedWeaponDefinition['visual']>['facingMode']>;
-
-const registeredKeys = new WeakMap<Phaser.Animations.AnimationManager, Set<string>>();
-
-function ownedKeys(manager: Phaser.Animations.AnimationManager): Set<string> {
-  const current = registeredKeys.get(manager);
-  if (current) return current;
-  const next = new Set<string>();
-  registeredKeys.set(manager, next);
-  return next;
-}
-
-function runtimeKey(weaponId: string, animationId: string): string {
-  return `weapon:${weaponId}:${animationId}`;
-}
 
 /** Render-only weapon layer attached to a stable player anchor. */
 export class WeaponVisual {
@@ -43,6 +30,9 @@ export class WeaponVisual {
   private frameIndex = 0;
   private framePosition = 0;
   private destroyed = false;
+  private readonly player = new AnimationPlayer({
+    onFrame: (state) => this.applyPlaybackFrame(state),
+  });
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -70,8 +60,6 @@ export class WeaponVisual {
         ? scene.add.sprite(anchor.x, anchor.y, textureKey, 0)
         : scene.add.sprite(anchor.x, anchor.y, textureKey);
       this.sprite.setDepth(this.depthResolver());
-      this.sprite.on(Phaser.Animations.Events.ANIMATION_UPDATE, this.handleAnimationUpdate);
-      this.registerAnimations();
     }
 
     this.anchor.once(Phaser.GameObjects.Events.DESTROY, this.handleAnchorDestroy);
@@ -80,23 +68,16 @@ export class WeaponVisual {
   }
 
   play(animationId: WeaponPlaybackAnimationId, forceRestart = true): void {
+    if (!forceRestart && !this.player.state.paused) return;
     this.activeAnimationId = animationId;
     this.frameIndex = 0;
     this.framePosition = 0;
-    const sprite = this.sprite;
-    if (!sprite || !this.asset) return;
-    const key = runtimeKey(this.definition.weaponId, animationId);
-    if (this.asset.source.kind === 'spritesheet' && this.scene.anims.exists(key)) {
-      sprite.play(key, !forceRestart);
-      const currentFrame = sprite.anims.currentFrame?.textureFrame;
-      this.frameIndex = typeof currentFrame === 'number' ? currentFrame : Number(currentFrame) || 0;
-    } else {
-      sprite.setFrame(0);
-    }
+    this.player.start(this.animationClip(animationId), [], forceRestart);
     this.applyTransform();
   }
 
-  update(): void {
+  update(deltaMs: number): void {
+    this.player.update(deltaMs);
     this.applyTransform();
   }
 
@@ -107,33 +88,13 @@ export class WeaponVisual {
   destroy(): void {
     if (this.destroyed) return;
     this.destroyed = true;
-    this.sprite?.off(Phaser.Animations.Events.ANIMATION_UPDATE, this.handleAnimationUpdate);
     this.anchor.off(Phaser.GameObjects.Events.DESTROY, this.handleAnchorDestroy);
     this.scene.events.off(Phaser.Scenes.Events.SHUTDOWN, this.handleSceneShutdown);
+    this.player.destroy();
     this.sprite?.destroy();
   }
 
-  private registerAnimations(): void {
-    if (!this.asset || this.asset.source.kind !== 'spritesheet') return;
-    const keys = ownedKeys(this.scene.anims);
-    const textureKey = this.asset.runtime.textureKey;
-    for (const animationId of ['idle', 'attack-right', 'attack-left', 'attack-up', 'attack-down', 'impact'] as const) {
-      const clip = this.animationClip(animationId);
-      const key = runtimeKey(this.definition.weaponId, animationId);
-      if (this.scene.anims.exists(key)) continue;
-      const frames = this.clampedFrames(clip);
-      this.scene.anims.create({
-        key,
-        frames: frames.map((frame) => ({ key: textureKey, frame })),
-        frameRate: clip.framesPerSecond,
-        repeat: clip.loop ? -1 : 0,
-        yoyo: clip.loop && clip.loopMode === 'ping-pong',
-      });
-      keys.add(key);
-    }
-  }
-
-  private animationClip(animationId = this.activeAnimationId): WeaponAnimationDocument {
+  private animationClip(animationId = this.activeAnimationId): NormalizedWeaponAnimationDocument {
     if (animationId === 'idle' || animationId === 'impact') return this.definition.animations[animationId];
     return this.definition.directionalAttacks[animationId.slice('attack-'.length) as WeaponAttackDirection].animation;
   }
@@ -142,13 +103,6 @@ export class WeaponVisual {
     return this.activeAnimationId.startsWith('attack-')
       ? this.activeAnimationId.slice('attack-'.length) as WeaponAttackDirection
       : undefined;
-  }
-
-  private clampedFrames(clip: WeaponAnimationDocument): number[] {
-    const count = this.asset && 'frame' in this.asset.source
-      ? this.asset.source.frame.cols * this.asset.source.frame.rows
-      : 1;
-    return clip.frames.map((frame) => Phaser.Math.Clamp(frame, 0, Math.max(0, count - 1)));
   }
 
   private applyTransform(): void {
@@ -202,16 +156,12 @@ export class WeaponVisual {
       .setDepth(this.depthResolver());
   }
 
-  private readonly handleAnimationUpdate = (
-    _animation: Phaser.Animations.Animation,
-    frame: Phaser.Animations.AnimationFrame,
-  ): void => {
-    this.frameIndex = typeof frame.textureFrame === 'number'
-      ? frame.textureFrame
-      : Number(frame.textureFrame) || 0;
-    this.framePosition = Math.max(0, frame.index - 1);
+  private applyPlaybackFrame(state: AnimationPlaybackState): void {
+    this.frameIndex = state.sourceFrame;
+    this.framePosition = state.occurrenceIndex;
+    this.sprite?.setFrame(this.frameIndex);
     this.applyTransform();
-  };
+  }
 
   private readonly handleAnchorDestroy = (): void => { this.destroy(); };
   private readonly handleSceneShutdown = (): void => { this.destroy(); };

@@ -43,6 +43,11 @@ function frameCount(assetId) {
   if (!asset) return undefined;
   return asset.source.kind === 'spritesheet' ? asset.source.frame.count ?? asset.source.frame.cols * asset.source.frame.rows : 1;
 }
+function timelineFrameCount(clip) {
+  return clip.keyframeTimes !== undefined && clip.durationSeconds !== undefined
+    ? Math.max(1, Math.round(clip.durationSeconds * clip.framesPerSecond))
+    : Math.max(1, clip.frames.length);
+}
 
 for (const file of listFiles(characterRoot, 'visual-set.json')) {
   let value;
@@ -59,10 +64,24 @@ for (const file of listFiles(characterRoot, 'visual-set.json')) {
   if (!isRecord(value.clips) || Object.keys(value.clips).length === 0) { fail(file, 'clips', 'must be non-empty'); continue; }
   for (const [clipId, clip] of Object.entries(value.clips)) {
     if (!idPattern.test(clipId)) fail(file, `clips.${clipId}`, 'invalid clip ID');
-    keys(file, `clips.${clipId}`, clip, new Set(['frames', 'framesPerSecond', 'loop', 'loopMode']));
+    keys(file, `clips.${clipId}`, clip, new Set(['frames', 'keyframeTimes', 'durationSeconds', 'framesPerSecond', 'loop', 'loopMode', 'sourceOffset']));
     if (!Array.isArray(clip.frames) || clip.frames.length === 0) fail(file, `clips.${clipId}.frames`, 'must be non-empty');
     for (const [index, frame] of (clip.frames ?? []).entries()) if (!Number.isInteger(frame) || frame < 0 || frame >= count) fail(file, `clips.${clipId}.frames[${index}]`, `outside 0..${count - 1}`);
     finite(file, `clips.${clipId}.framesPerSecond`, clip.framesPerSecond, (entry) => entry > 0 && entry <= 240, 'must be between 0 and 240');
+    const hasTimes = clip.keyframeTimes !== undefined;
+    const hasDuration = clip.durationSeconds !== undefined;
+    if (hasTimes !== hasDuration) fail(file, `clips.${clipId}`, 'keyframeTimes and durationSeconds must be authored together');
+    if (hasDuration) finite(file, `clips.${clipId}.durationSeconds`, clip.durationSeconds, (entry) => entry > 0, 'must be greater than zero');
+    if (hasTimes) {
+      if (!Array.isArray(clip.keyframeTimes) || clip.keyframeTimes.length !== clip.frames.length) fail(file, `clips.${clipId}.keyframeTimes`, 'must match frames length');
+      const timelineFrames = timelineFrameCount(clip);
+      for (const [index, time] of (clip.keyframeTimes ?? []).entries()) {
+        if (!Number.isInteger(time) || time < 0 || time >= timelineFrames) fail(file, `clips.${clipId}.keyframeTimes[${index}]`, `outside 0..${timelineFrames - 1}`);
+        if (index === 0 && time !== 0) fail(file, `clips.${clipId}.keyframeTimes[0]`, 'must be zero');
+        if (index > 0 && time <= clip.keyframeTimes[index - 1]) fail(file, `clips.${clipId}.keyframeTimes`, 'must be strictly increasing');
+      }
+      if (clip.frames.length > timelineFrames) fail(file, `clips.${clipId}`, 'cannot fit all keyframes in its timeline');
+    }
     if (typeof clip.loop !== 'boolean') fail(file, `clips.${clipId}.loop`, 'must be boolean');
     if (clip.loopMode !== undefined && clip.loopMode !== 'wrap' && clip.loopMode !== 'ping-pong') fail(file, `clips.${clipId}.loopMode`, "must be 'wrap' or 'ping-pong'");
   }

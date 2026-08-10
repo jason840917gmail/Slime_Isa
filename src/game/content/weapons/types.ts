@@ -1,4 +1,10 @@
 import type { AttributeScaling } from '../../combat/CombatScaling';
+import type {
+  AnimationClipDocument,
+  AnimationEventDocument,
+  AnimationJsonValue,
+  NormalizedAnimationClipDocument,
+} from '../../shared/animation';
 
 export interface WeaponDefinition {
   readonly version: 1;
@@ -66,10 +72,8 @@ export interface WeaponHitboxSpanDocument {
   readonly through: number;
 }
 
-export interface WeaponEventDocument {
-  readonly at: number;
-  readonly eventId: string;
-  readonly payload?: unknown;
+export interface WeaponEventDocument extends AnimationEventDocument {
+  readonly payload?: AnimationJsonValue;
 }
 
 export interface WeaponAttackTrackDocument {
@@ -77,12 +81,12 @@ export interface WeaponAttackTrackDocument {
   readonly events?: readonly WeaponEventDocument[];
 }
 
-export interface WeaponAnimationDocument {
-  readonly frames: readonly number[];
-  readonly framesPerSecond: number;
-  readonly loop: boolean;
-  readonly loopMode?: 'wrap' | 'ping-pong';
+export interface WeaponAnimationDocument extends AnimationClipDocument {
   /** Per-occurrence visual edits keyed by position in `frames`, not source frame number. */
+  readonly frameTransforms?: Readonly<Record<string, WeaponFrameTransformDocument>>;
+}
+
+export interface NormalizedWeaponAnimationDocument extends NormalizedAnimationClipDocument {
   readonly frameTransforms?: Readonly<Record<string, WeaponFrameTransformDocument>>;
 }
 
@@ -107,7 +111,7 @@ export interface WeaponDirectionalAttackDocument {
 export type WeaponDirectionalPresentation = 'legacy-vector' | 'authored' | 'mirror-right';
 
 export interface NormalizedWeaponDirectionalAttack {
-  readonly animation: WeaponAnimationDocument;
+  readonly animation: NormalizedWeaponAnimationDocument;
   readonly characterActionId: string;
   readonly attackTrack?: WeaponAttackTrackDocument;
   readonly hitboxes: Readonly<Record<string, WeaponHitboxDocument>>;
@@ -121,9 +125,15 @@ export interface WeaponAnimationSet {
   readonly impact: WeaponAnimationDocument;
 }
 
+export interface NormalizedWeaponAnimationSet {
+  readonly idle: NormalizedWeaponAnimationDocument;
+  readonly attack: NormalizedWeaponAnimationDocument;
+  readonly impact: NormalizedWeaponAnimationDocument;
+}
+
 export interface NormalizedWeaponDefinition extends WeaponDefinition {
   readonly characterActionId: string;
-  readonly animations: WeaponAnimationSet;
+  readonly animations: NormalizedWeaponAnimationSet;
   readonly directionalAttacks: Readonly<Record<WeaponAttackDirection, NormalizedWeaponDirectionalAttack>>;
   readonly visual: NonNullable<WeaponDefinition['visual']>;
   readonly hitboxes: Readonly<Record<string, WeaponHitboxDocument>>;

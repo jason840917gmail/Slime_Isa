@@ -3,6 +3,7 @@ import './character-studio.css';
 import { characterPackages } from 'virtual-character-content';
 import type { CharacterStudioAssetCatalog, CharacterStudioAssetEntry } from '../content/characters/characterAssetCatalog';
 import type {
+  NormalizedWeaponAnimationDocument,
   WeaponAnimationDocument,
   WeaponAnimationSet,
   WeaponAttackDirection,
@@ -15,7 +16,18 @@ import type {
   WeaponHitboxShape,
 } from '../content/weapons/types';
 import { resolveAssetUrl } from '../infrastructure/assets/assetUrls';
+import {
+  deleteKeyframes,
+  duplicateKeyframe,
+  evenKeyframeTimes,
+  expandAnimationClip,
+  normalizeAnimationClip,
+  rescaleKeyframeTimes,
+  timelineFrameCount,
+} from '../shared/animation';
+import type { AnimationJsonValue } from '../shared/animation';
 import { ensureStudioModeTabs } from './StudioModeTabs';
+import { createAnimationTimelineView, toggleTimelineSelection } from './AnimationTimelineView';
 
 type WeaponAnimationId = 'idle' | 'attack' | 'impact';
 type WeaponInspectorTab = 'identity' | 'combat' | 'visual';
@@ -58,6 +70,8 @@ interface WeaponStudioState {
   readonly dirty: boolean;
   readonly saving: boolean;
   readonly assetShelfOpen: boolean;
+  readonly sourceTilePickerOpen: boolean;
+  readonly selectedPickerFrames: readonly number[];
   readonly importing: boolean;
   readonly importForm: { readonly assetId: string; readonly frameWidth: string; readonly frameHeight: string; readonly populatedCount: string };
   readonly notice?: string;
@@ -78,7 +92,7 @@ interface MutableWeaponScaling {
 }
 
 type MutableWeaponHitbox = { -readonly [Key in keyof WeaponHitboxDocument]: WeaponHitboxDocument[Key] };
-type MutableWeaponTrack = { hitboxSpans: Array<{ hitboxId: string; from: number; through: number }>; events: Array<{ at: number; eventId: string; payload?: unknown }> };
+type MutableWeaponTrack = { hitboxSpans: Array<{ hitboxId: string; from: number; through: number }>; events: Array<{ at: number; eventId: string; payload?: AnimationJsonValue }> };
 type Mutable<T> = { -readonly [Key in keyof T]: T[Key] };
 type MutableWeaponAnimation = Omit<Mutable<WeaponAnimationDocument>, 'frames' | 'frameTransforms'> & { frames: number[]; frameTransforms?: Record<string, WeaponFrameTransformDocument> };
 type MutableDirectionalAttack = Omit<Mutable<WeaponDirectionalAttackDocument>, 'animation' | 'attackTrack' | 'hitboxes'> & { animation: MutableWeaponAnimation; attackTrack?: MutableWeaponTrack; hitboxes?: Record<string, MutableWeaponHitbox> };
@@ -132,8 +146,11 @@ function weaponHitboxes(weapon: WeaponDefinition, direction?: WeaponAttackDirect
 }
 
 function weaponTrack(weapon: WeaponDefinition, animation: WeaponAnimationDocument, direction?: WeaponAttackDirection): WeaponAttackTrackDocument {
+  const timelineFrames = animation.keyframeTimes !== undefined && animation.durationSeconds !== undefined
+    ? timelineFrameCount(animation)
+    : Math.max(1, animation.frames.length);
   return (direction ? authoredDirectionalAttack(weapon, direction)?.attackTrack : undefined) ?? weapon.attackTrack ?? {
-    hitboxSpans: [{ hitboxId: Object.keys(weaponHitboxes(weapon, direction))[0] ?? 'primary', from: 0, through: Math.max(0, animation.frames.length - 1) }],
+    hitboxSpans: [{ hitboxId: Object.keys(weaponHitboxes(weapon, direction))[0] ?? 'primary', from: 0, through: Math.max(0, timelineFrames - 1) }],
     events: [],
   };
 }
@@ -234,9 +251,19 @@ function syncWeaponInspectorTabs(container: HTMLDivElement, state: WeaponStudioS
 function defaultWeaponAnimations(info: ReturnType<typeof assetInfo>): WeaponAnimationSet {
   const attackFrames = Array.from({ length: Math.min(info.count, 4) }, (_, index) => index);
   return {
-    idle: { frames: [0], framesPerSecond: 8, loop: true, loopMode: 'wrap' },
-    attack: { frames: attackFrames.length > 0 ? attackFrames : [0], framesPerSecond: 12, loop: false, loopMode: 'wrap' },
-    impact: { frames: [Math.max(info.count - 1, 0)], framesPerSecond: 12, loop: false, loopMode: 'wrap' },
+    idle: { frames: [0], keyframeTimes: [0], durationSeconds: 0.125, framesPerSecond: 8, loop: true, loopMode: 'wrap' },
+    attack: { frames: attackFrames.length > 0 ? attackFrames : [0], keyframeTimes: attackFrames.length > 0 ? attackFrames : [0], durationSeconds: Math.max(1, attackFrames.length) / 12, framesPerSecond: 12, loop: false, loopMode: 'wrap' },
+    impact: { frames: [Math.max(info.count - 1, 0)], keyframeTimes: [0], durationSeconds: 1 / 12, framesPerSecond: 12, loop: false, loopMode: 'wrap' },
+  };
+}
+
+function normalizedWeaponAnimation(clip: WeaponAnimationDocument): NormalizedWeaponAnimationDocument {
+  const sourceFrames = clip.frames.length > 0 ? clip.frames : [0];
+  const normalized = normalizeAnimationClip({ ...clip, frames: sourceFrames });
+  const frameTransforms = Object.fromEntries(Object.entries(clip.frameTransforms ?? {}).filter(([position]) => Number(position) >= 0 && Number(position) < normalized.frames.length));
+  return {
+    ...normalized,
+    ...(Object.keys(frameTransforms).length > 0 ? { frameTransforms } : {}),
   };
 }
 
@@ -245,7 +272,7 @@ function weaponAnimations(weapon: WeaponDefinition | undefined, info: ReturnType
   const fallback = defaultWeaponAnimations(info);
   const clamp = (clip: WeaponAnimationDocument): WeaponAnimationDocument => {
     const frames = clip.frames.map((frame) => Math.max(0, Math.min(integerValue(frame), info.count - 1))).filter((frame) => Number.isInteger(frame));
-    return { ...clip, frames: frames.length > 0 ? frames : [0] };
+    return normalizedWeaponAnimation({ ...clip, frames: frames.length > 0 ? frames : [0] });
   };
   return {
     idle: clamp(current?.idle ?? fallback.idle),
@@ -266,7 +293,7 @@ function directionalAttack(
     .map((frame) => Math.max(0, Math.min(integerValue(frame), info.count - 1)))
     .filter((frame) => Number.isInteger(frame));
   return {
-    animation: { ...animation, frames: frames.length > 0 ? frames : [0] },
+    animation: normalizedWeaponAnimation({ ...animation, frames: frames.length > 0 ? frames : [0] }),
     characterActionId: authored?.characterActionId ?? weapon.characterActionId ?? weapon.animKey?.replace(/^slime-/, '') ?? 'trick',
     hitboxes: authored?.hitboxes ?? weaponHitboxes(weapon),
     ...((authored?.attackTrack ?? weapon.attackTrack) ? { attackTrack: authored?.attackTrack ?? weapon.attackTrack } : {}),
@@ -277,10 +304,10 @@ function selectedWeaponAnimation(
   weapon: WeaponDefinition,
   info: ReturnType<typeof assetInfo>,
   state: Pick<WeaponStudioState, 'selectedAnimation' | 'selectedAttackDirection'>,
-): WeaponAnimationDocument {
+): NormalizedWeaponAnimationDocument {
   return state.selectedAnimation === 'attack'
-    ? directionalAttack(weapon, info, state.selectedAttackDirection).animation
-    : weaponAnimations(weapon, info)[state.selectedAnimation];
+    ? normalizedWeaponAnimation(directionalAttack(weapon, info, state.selectedAttackDirection).animation)
+    : normalizedWeaponAnimation(weaponAnimations(weapon, info)[state.selectedAnimation]);
 }
 
 function selectedAnimationFieldPath(state: Pick<WeaponStudioState, 'selectedAnimation' | 'selectedAttackDirection'>): string {
@@ -341,35 +368,6 @@ function remapFrameTransforms(
   return Object.keys(remapped).length > 0 ? remapped : undefined;
 }
 
-function remapAttackTrack(track: WeaponAttackTrackDocument, newToOldPositions: readonly number[]): MutableWeaponTrack {
-  const spans: MutableWeaponTrack['hitboxSpans'] = [];
-  const hitboxIds = new Set(track.hitboxSpans.map((span) => span.hitboxId));
-  for (const hitboxId of hitboxIds) {
-    const activeOldPositions = new Set<number>();
-    for (const span of track.hitboxSpans.filter((candidate) => candidate.hitboxId === hitboxId)) {
-      for (let position = span.from; position <= span.through; position += 1) activeOldPositions.add(position);
-    }
-    const activeNewPositions = newToOldPositions
-      .map((oldPosition, newPosition) => activeOldPositions.has(oldPosition) ? newPosition : -1)
-      .filter((position) => position >= 0);
-    let start: number | undefined;
-    let previous: number | undefined;
-    for (const position of activeNewPositions) {
-      if (start === undefined) start = position;
-      else if (previous !== undefined && position !== previous + 1) {
-        spans.push({ hitboxId, from: start, through: previous });
-        start = position;
-      }
-      previous = position;
-    }
-    if (start !== undefined && previous !== undefined) spans.push({ hitboxId, from: start, through: previous });
-  }
-  const events = newToOldPositions.flatMap((oldPosition, newPosition) => (track.events ?? [])
-    .filter((event) => event.at === oldPosition)
-    .map((event) => ({ ...clone(event), at: newPosition })));
-  return { hitboxSpans: spans, events };
-}
-
 function weaponPreviewTransformStyle(
   weapon: WeaponDefinition,
   info: ReturnType<typeof assetInfo>,
@@ -408,11 +406,12 @@ function renderAnimationTile(
   selected: boolean,
   transformed: boolean,
   disabled = false,
+  holdLength = 1,
 ): string {
   const info = assetInfo(entry);
   const column = frame % info.columns;
   const row = Math.floor(frame / info.columns);
-  return `<button type="button" draggable="${!disabled}" class="weapon-sequence-tile${selected ? ' is-selected' : ''}${transformed ? ' is-transformed' : ''}" data-weapon-animation-position="${position}" title="Animation position ${position + 1}, source tile ${frame}.${disabled ? ' Mirrored from RIGHT.' : ' Ctrl-click for multi-select; drag to reorder.'}"><span class="weapon-sequence-index">${String(position + 1).padStart(2, '0')}</span><span class="studio-frame-image" style="--thumb-w:${info.width}px;--thumb-h:${info.height}px;--sheet-thumb-w:${info.width * info.columns}px;--sheet-thumb-h:${info.height * info.rows}px;--sheet-offset-x:${-column * info.width}px;--sheet-offset-y:${-row * info.height}px"><img src="${escapeHtml(info.url)}" alt="" aria-hidden="true" draggable="false" /></span><small>SRC ${frame}</small><i aria-hidden="true"></i></button>`;
+  return `<button type="button" draggable="${!disabled}" class="weapon-sequence-tile${selected ? ' is-selected' : ''}${transformed ? ' is-transformed' : ''}" style="--tile-hold:${holdLength}" data-weapon-animation-position="${position}" title="Keyframe ${position + 1}, source tile ${frame}, holds ${holdLength} timeline frame${holdLength === 1 ? '' : 's'}.${disabled ? ' Mirrored from RIGHT.' : ' Ctrl-click for multi-select; drag to reorder.'}"><span class="weapon-sequence-index">${String(position + 1).padStart(2, '0')}</span><span class="studio-frame-image" style="--thumb-w:${info.width}px;--thumb-h:${info.height}px;--sheet-thumb-w:${info.width * info.columns}px;--sheet-thumb-h:${info.height * info.rows}px;--sheet-offset-x:${-column * info.width}px;--sheet-offset-y:${-row * info.height}px"><img src="${escapeHtml(info.url)}" alt="" aria-hidden="true" draggable="false" /></span><small>SRC ${frame} Â· HOLD ${holdLength}F</small><i aria-hidden="true"></i></button>`;
 }
 
 function renderDirectionTabs(weapon: WeaponDefinition, info: ReturnType<typeof assetInfo>, state: WeaponStudioState): string {
@@ -536,12 +535,14 @@ function renderWeaponHitboxEditor(weapon: WeaponDefinition, state: WeaponStudioS
 function renderWeaponTrackEditor(weapon: WeaponDefinition, attack: WeaponAnimationDocument, direction: WeaponAttackDirection, locked = false): string {
   const hitboxes = weaponHitboxes(weapon, direction);
   const track = weaponTrack(weapon, attack, direction);
-  const cells = (hitboxId: string): string => attack.frames.map((_, index) => `<button type="button" class="timeline-cell${track.hitboxSpans.some((span) => span.hitboxId === hitboxId && span.from <= index && index <= span.through) ? ' is-hot' : ''}" data-weapon-span-toggle="${escapeHtml(hitboxId)}" data-weapon-span-frame="${index}" aria-label="${escapeHtml(hitboxId)} frame ${index}" ${locked ? 'disabled' : ''}></button>`).join('');
-  const eventInputs = attack.frames.map((_, index) => {
+  const timelineFrames = createAnimationTimelineView(normalizedWeaponAnimation(attack)).timelineFrames;
+  const timeline = Array.from({ length: timelineFrames }, (_, index) => index);
+  const cells = (hitboxId: string): string => timeline.map((index) => `<button type="button" class="timeline-cell${track.hitboxSpans.some((span) => span.hitboxId === hitboxId && span.from <= index && index <= span.through) ? ' is-hot' : ''}" data-weapon-span-toggle="${escapeHtml(hitboxId)}" data-weapon-span-frame="${index}" aria-label="${escapeHtml(hitboxId)} timeline frame ${index}" ${locked ? 'disabled' : ''}></button>`).join('');
+  const eventInputs = timeline.map((index) => {
     const event = track.events?.find((candidate) => candidate.at === index);
     return `<label class="weapon-event-cell"><span>${index}</span><input type="text" value="${escapeHtml(event?.eventId ?? '')}" placeholder="event" data-weapon-event-frame="${index}" ${locked ? 'disabled' : ''}/></label>`;
   }).join('');
-  return `<section class="studio-track-editor"><div class="studio-section-bar"><div><span class="studio-kicker">Attack event track</span><strong>Hitbox activation windows</strong></div><span class="studio-muted">Click cells to toggle inclusive active frames</span></div><div class="studio-timeline"><div class="timeline-ruler">${attack.frames.map((_, index) => `<span>${String(index).padStart(2, '0')}</span>`).join('')}</div>${Object.keys(hitboxes).map((hitboxId) => `<div class="timeline-track-row"><span class="timeline-track-label" title="${escapeHtml(hitboxId)}">${escapeHtml(hitboxId)}</span>${cells(hitboxId)}</div>`).join('')}<div class="timeline-track-row timeline-event-row"><span class="timeline-track-label">EVENTS</span>${eventInputs}</div></div><p class="studio-help">Events are stable IDs such as <code>weapon.impact</code>. The runtime receives them at the exact attack-frame position.</p></section>`;
+  return `<section class="studio-track-editor"><div class="studio-section-bar"><div><span class="studio-kicker">Attack event track</span><strong>Hitbox activation windows</strong></div><span class="studio-muted">${timelineFrames} timeline frames · click cells to toggle inclusive windows</span></div><div class="studio-timeline"><div class="timeline-ruler">${timeline.map((index) => `<span>${String(index).padStart(2, '0')}</span>`).join('')}</div>${Object.keys(hitboxes).map((hitboxId) => `<div class="timeline-track-row"><span class="timeline-track-label" title="${escapeHtml(hitboxId)}">${escapeHtml(hitboxId)}</span>${cells(hitboxId)}</div>`).join('')}<div class="timeline-track-row timeline-event-row"><span class="timeline-track-label">EVENTS</span>${eventInputs}</div></div><p class="studio-help">Events are stable IDs such as <code>weapon.impact</code>. The runtime receives them at the exact timeline frame position.</p></section>`;
 }
 
 function renderWeaponPreview(
@@ -553,9 +554,11 @@ function renderWeaponPreview(
 ): string {
   const animationId = state.selectedAnimation;
   const animation = selectedWeaponAnimation(weapon, info, state);
-  const position = Math.min(state.previewStep, Math.max(0, animation.frames.length - 1));
+  const expanded = normalizeAnimationClip(animation);
+  const position = Math.min(state.previewStep, Math.max(0, timelineFrameCount(expanded) - 1));
   if (!character) return renderWeaponPreviewLegacy(weapon, info, animationId, position, state.selectedAttackDirection);
-  const weaponFrame = animation.frames[position % Math.max(1, animation.frames.length)] ?? 0;
+  const expandedPlayback = expandAnimationClip(expanded);
+  const weaponFrame = expandedPlayback.sourceFrames[position] ?? 0;
   const weaponColumn = weaponFrame % info.columns;
   const weaponRow = Math.floor(weaponFrame / info.columns);
   const actionDirection = animationId === 'attack' ? state.selectedAttackDirection : undefined;
@@ -570,14 +573,14 @@ function renderWeaponPreview(
   const characterScale = (characterFrameVisual.scale ?? characterVisual?.defaults.scale ?? [1, 1])[0] * 2.8;
   const characterOrigin = characterFrameVisual.origin ?? characterVisual?.defaults.origin ?? [0.5, 0.5];
   const characterSprite = characterInfo.url ? `<span class="stage-sprite stage-character-sprite" style="--sheet-url:url('${escapeHtml(characterInfo.url)}');--frame-w:${characterInfo.width}px;--frame-h:${characterInfo.height}px;--sheet-w:${characterInfo.width * characterInfo.columns}px;--sheet-h:${characterInfo.height * characterInfo.rows}px;--frame-x:${characterColumn * characterInfo.width}px;--frame-y:${characterRow * characterInfo.height}px;--preview-scale:${characterScale};--origin-offset-x:${-characterOrigin[0] * characterInfo.width * characterScale}px;--origin-offset-y:${-characterOrigin[1] * characterInfo.height * characterScale}px;--offset-x:${characterSourceOffset[0] * characterScale}px;--offset-y:${characterSourceOffset[1] * characterScale}px"></span>` : '<span class="stage-character-fallback">CHARACTER</span>';
-  const spriteStyle = `--sheet-url:url('${escapeHtml(info.url)}');--frame-w:${info.width}px;--frame-h:${info.height}px;--sheet-w:${info.width * info.columns}px;--sheet-h:${info.height * info.rows}px;--frame-x:${weaponColumn * info.width}px;--frame-y:${weaponRow * info.height}px;${weaponPreviewTransformStyle(weapon, info, animationId, position, state.selectedAttackDirection)}`;
+  const spriteStyle = `--sheet-url:url('${escapeHtml(info.url)}');--frame-w:${info.width}px;--frame-h:${info.height}px;--sheet-w:${info.width * info.columns}px;--sheet-h:${info.height * info.rows}px;--frame-x:${weaponColumn * info.width}px;--frame-y:${weaponRow * info.height}px;${weaponPreviewTransformStyle(weapon, info, animationId, expandedPlayback.occurrenceIndices[position] ?? 0, state.selectedAttackDirection)}`;
   const weaponSprite = info.url ? `<span class="stage-sprite stage-weapon-sprite is-tool-${state.transformTool}${lockedMirror ? ' is-mirror-locked' : ''}" ${lockedMirror ? '' : 'data-weapon-preview-transform'} style="${spriteStyle}"></span>` : '<span class="weapon-preview-effect"></span>';
   const previousPosition = Math.max(0, position - 1);
-  const previousFrame = animation.frames[previousPosition] ?? weaponFrame;
+  const previousFrame = expandedPlayback.sourceFrames[previousPosition] ?? weaponFrame;
   const onionSprite = state.onionSkin && info.url && position > 0
-    ? `<span class="stage-sprite stage-weapon-sprite weapon-onion-sprite" aria-hidden="true" style="--sheet-url:url('${escapeHtml(info.url)}');--frame-w:${info.width}px;--frame-h:${info.height}px;--sheet-w:${info.width * info.columns}px;--sheet-h:${info.height * info.rows}px;--frame-x:${(previousFrame % info.columns) * info.width}px;--frame-y:${Math.floor(previousFrame / info.columns) * info.height}px;${weaponPreviewTransformStyle(weapon, info, animationId, previousPosition, state.selectedAttackDirection)}"></span>`
+    ? `<span class="stage-sprite stage-weapon-sprite weapon-onion-sprite" aria-hidden="true" style="--sheet-url:url('${escapeHtml(info.url)}');--frame-w:${info.width}px;--frame-h:${info.height}px;--sheet-w:${info.width * info.columns}px;--sheet-h:${info.height * info.rows}px;--frame-x:${(previousFrame % info.columns) * info.width}px;--frame-y:${Math.floor(previousFrame / info.columns) * info.height}px;${weaponPreviewTransformStyle(weapon, info, animationId, expandedPlayback.occurrenceIndices[previousPosition] ?? 0, state.selectedAttackDirection)}"></span>`
     : '';
-  const length = animation.frames.length;
+  const length = expandedPlayback.timelineFrameCount;
   return `<section class="studio-preview-card weapon-preview-card"><div class="studio-preview-toolbar"><span class="studio-kicker">COMBINED PREVIEW</span><span class="studio-muted">${animationId.toUpperCase()}${animationId === 'attack' ? ` / ${state.selectedAttackDirection.toUpperCase()}` : ''} · position ${position + 1}/${length} · ${escapeHtml(character?.character.displayName ?? 'character')} + weapon</span><button type="button" class="studio-button studio-button--quiet" data-action="play-weapon-preview">${state.previewPlaying ? '■ STOP' : '▶ PLAY'}</button></div><div class="studio-stage weapon-stage is-transform-${state.transformTool}"><span class="stage-axis stage-axis-x"></span><span class="stage-axis stage-axis-y"></span><span class="stage-anchor">+</span><span class="stage-label">PLAYER ANCHOR</span>${characterSprite}${onionSprite}${weaponSprite}${renderWeaponHitboxGuides(weapon, position, actionDirection)}<span class="stage-caption"><b>${escapeHtml(weapon.displayName)}</b><span>CHARACTER ACTION ${escapeHtml(characterAction?.id ?? weapon.characterActionId ?? 'trick')} · WEAPON TILE ${weaponFrame} · ${lockedMirror ? 'MIRROR RIGHT' : `${state.transformTool.toUpperCase()} TOOL`}</span></span></div><div class="studio-preview-footer"><span><i class="legend-dot legend-dot--cyan"></i> character layer</span><span><i class="legend-dot legend-dot--amber"></i> selected weapon tile</span><span><i class="legend-dot legend-dot--red"></i> named hitboxes</span><span>${lockedMirror ? 'LEFT is linked to RIGHT' : `Drag artwork to ${state.transformTool}`}</span></div></section>`;
 }
 
@@ -611,23 +614,25 @@ function renderWeaponAnimationPanel(weapon: WeaponDefinition, source: CharacterS
   const info = assetInfo(source);
   const animations = weaponAnimations(weapon, info);
   const animation = selectedWeaponAnimation(weapon, info, state);
+  const timelineView = createAnimationTimelineView(animation);
   const fieldPath = selectedAnimationFieldPath(state);
   const selected = new Set(state.selectedAnimationPositions);
   const locked = state.selectedAnimation === 'attack' && state.selectedAttackDirection === 'left' && isMirroredLeft(weapon);
   const directionControls = state.selectedAnimation === 'attack'
     ? `${renderDirectionTabs(weapon, info, state)}${renderLeftMirrorControl(weapon, state)}${renderDirectionalCharacterActionField(state)}`
     : '';
-  const attackCount = directionalAttack(weapon, info, state.selectedAttackDirection).animation.frames.length;
+  const attackCount = timelineFrameCount(directionalAttack(weapon, info, state.selectedAttackDirection).animation);
   const trackEditor = state.selectedAnimation === 'attack'
     ? renderWeaponTrackEditor(weapon, animation, state.selectedAttackDirection, locked)
     : '';
-  const sequenceTiles = animation.frames.map((frame, position) => renderAnimationTile(
+  const sequenceTiles = timelineView.keyframes.map((keyframe) => renderAnimationTile(
     source,
-    frame,
-    position,
-    selected.has(position),
-    animation.frameTransforms?.[String(position)] !== undefined,
+    keyframe.sourceFrame,
+    keyframe.index,
+    selected.has(keyframe.index),
+    animation.frameTransforms?.[String(keyframe.index)] !== undefined,
     locked,
+    keyframe.hold,
   )).join('');
   return `<section class="studio-timeline-panel weapon-animation-panel">
     <div class="studio-section-bar"><div><span class="studio-kicker">Animation timeline</span><strong>Editing ${state.selectedAnimation}${state.selectedAnimation === 'attack' ? ` / ${state.selectedAttackDirection}` : ''}</strong></div><span class="studio-muted">Source tiles feed an independently editable animation sequence</span></div>
@@ -643,13 +648,14 @@ function updateCombinedPreviewDom(container: HTMLDivElement, weapon: WeaponDefin
   const source = state.assets?.assets.find((entry) => entry.assetId === weapon.assetId && isWeaponAsset(entry));
   const info = assetInfo(source);
   const animation = selectedWeaponAnimation(weapon, info, state);
-  const position = Math.min(Math.max(state.previewStep, 0), Math.max(0, animation.frames.length - 1));
-  const weaponFrame = animation.frames[position] ?? 0;
+  const expanded = expandAnimationClip(animation);
+  const position = Math.min(Math.max(state.previewStep, 0), Math.max(0, expanded.timelineFrameCount - 1));
+  const weaponFrame = expanded.sourceFrames[position] ?? 0;
   const weaponSprite = container.querySelector<HTMLElement>('.stage-weapon-sprite:not(.weapon-onion-sprite)');
   if (weaponSprite) {
     weaponSprite.style.setProperty('--frame-x', `${(weaponFrame % info.columns) * info.width}px`);
     weaponSprite.style.setProperty('--frame-y', `${Math.floor(weaponFrame / info.columns) * info.height}px`);
-    const transform = frameTransformAt(animation, position);
+    const transform = frameTransformAt(animation, expanded.occurrenceIndices[position] ?? 0);
     const mirroredLeft = state.selectedAnimation === 'attack' && state.selectedAttackDirection === 'left' && isMirroredLeft(weapon);
     const baseScale = weapon.visual?.scale ?? [1, 1];
     const scale = [baseScale[0] * transform.scale[0], baseScale[1] * transform.scale[1]] as const;
@@ -747,6 +753,46 @@ function renderWeaponAssetField(state: WeaponStudioState): string {
   return `<label class="studio-field studio-field--wide"><span>Source sheet<small>weapon-tagged spritesheet</small></span><div class="studio-source-picker"><select data-weapon-field="assetId"><option value="">Choose weapon source</option>${options}</select><button type="button" class="studio-button studio-button--quiet" data-action="open-weapon-source-library">SOURCE LIBRARY</button></div></label>`;
 }
 
+function renderWeaponTilePicker(state: WeaponStudioState): string {
+  if (!state.sourceTilePickerOpen || !state.draft) return '';
+  const source = state.assets?.assets.find((entry) => entry.assetId === state.draft?.assetId && isWeaponAsset(entry));
+  const info = assetInfo(source);
+  const animation = selectedWeaponAnimation(state.draft, info, state);
+  const locked = state.selectedAnimation === 'attack' && state.selectedAttackDirection === 'left' && isMirroredLeft(state.draft);
+  return `<div class="studio-asset-shelf-backdrop weapon-tile-picker-backdrop" data-weapon-tile-picker-backdrop><section class="studio-asset-shelf weapon-tile-picker" role="dialog" aria-modal="true" aria-labelledby="weapon-tile-picker-title"><header class="studio-asset-shelf-heading"><div><span class="studio-kicker">Animation keyframe picker</span><h2 id="weapon-tile-picker-title">Add source tiles</h2><p>Select one or more source tiles, then add them to this animation. Existing keyframes stay independent.</p></div><button type="button" class="studio-icon-button" data-action="close-weapon-tile-picker" aria-label="Close animation keyframe picker">X</button></header><div class="studio-sheet-grid projectile-frame-grid weapon-picker-grid">${Array.from({ length: info.count }, (_, frame) => renderWeaponFrameTile(source, frame, state.selectedPickerFrames.includes(frame), locked)).join('')}</div><footer class="weapon-tile-picker-footer"><span>${state.selectedPickerFrames.length} source tiles selected · ${animation.frames.length} keyframes · ${timelineFrameCount(animation)} timeline frames</span><div><button type="button" class="studio-button studio-button--quiet" data-action="close-weapon-tile-picker">CANCEL</button><button type="button" class="studio-button studio-button--accent" data-action="add-selected-weapon-tiles" ${state.selectedPickerFrames.length === 0 || locked ? 'disabled' : ''}>ADD TO ANIMATION</button></div></footer></section></div>`;
+}
+
+interface WeaponStudioViewportSnapshot {
+  readonly workbench?: { readonly top: number; readonly left: number };
+  readonly inspector?: { readonly top: number; readonly left: number };
+  readonly window: { readonly x: number; readonly y: number };
+  readonly focusedField?: string;
+}
+
+function captureWeaponStudioViewport(container: HTMLDivElement): WeaponStudioViewportSnapshot {
+  const active = document.activeElement as HTMLElement | null;
+  const workbench = container.querySelector<HTMLElement>('.studio-workbench');
+  const inspector = container.querySelector<HTMLElement>('.studio-inspector-scroll');
+  return {
+    workbench: workbench ? { top: workbench.scrollTop, left: workbench.scrollLeft } : undefined,
+    inspector: inspector ? { top: inspector.scrollTop, left: inspector.scrollLeft } : undefined,
+    window: { x: window.scrollX, y: window.scrollY },
+    focusedField: active?.dataset.weaponField,
+  };
+}
+
+function restoreWeaponStudioViewport(container: HTMLDivElement, snapshot: WeaponStudioViewportSnapshot): void {
+  const workbench = container.querySelector<HTMLElement>('.studio-workbench');
+  const inspector = container.querySelector<HTMLElement>('.studio-inspector-scroll');
+  if (workbench && snapshot.workbench) { workbench.scrollTop = snapshot.workbench.top; workbench.scrollLeft = snapshot.workbench.left; }
+  if (inspector && snapshot.inspector) { inspector.scrollTop = snapshot.inspector.top; inspector.scrollLeft = snapshot.inspector.left; }
+  window.scrollTo(snapshot.window.x, snapshot.window.y);
+  if (snapshot.focusedField) {
+    const field = [...container.querySelectorAll<HTMLElement>('[data-weapon-field]')].find((entry) => entry.dataset.weaponField === snapshot.focusedField);
+    field?.focus({ preventScroll: true });
+  }
+}
+
 function renderStudio(state: WeaponStudioState, returnEditor: string): string {
   const weapon = state.draft;
   const scaling = weapon?.scaling ?? {};
@@ -774,7 +820,7 @@ async function loadAssets(): Promise<CharacterStudioAssetCatalog> {
 export function mountWeaponStudio(container: HTMLDivElement): () => void {
   container.classList.add('is-character-studio-host');
   const returnEditor = new URLSearchParams(window.location.search).get('editor') ?? 'meadow-crossing';
-  let state: WeaponStudioState = { weapons: [], selectedId: '', selectedAnimation: 'attack', selectedAttackDirection: 'right', selectedAnimationPositions: [0], transformTool: 'move', onionSkin: false, selectedInspectorTab: 'visual', selectedPreviewFrame: 0, selectedCharacterId: selectedCharacter()?.characterId ?? '', previewStep: 0, previewPlaying: false, dirty: false, saving: false, assetShelfOpen: false, importing: false, importForm: { assetId: 'weapon.player.new', frameWidth: '16', frameHeight: '16', populatedCount: '' } };
+  let state: WeaponStudioState = { weapons: [], selectedId: '', selectedAnimation: 'attack', selectedAttackDirection: 'right', selectedAnimationPositions: [0], transformTool: 'move', onionSkin: false, selectedInspectorTab: 'visual', selectedPreviewFrame: 0, selectedCharacterId: selectedCharacter()?.characterId ?? '', previewStep: 0, previewPlaying: false, dirty: false, saving: false, assetShelfOpen: false, sourceTilePickerOpen: false, selectedPickerFrames: [], importing: false, importForm: { assetId: 'weapon.player.new', frameWidth: '16', frameHeight: '16', populatedCount: '' } };
   let previewTimer: number | undefined;
   let history: WeaponDefinition[] = [];
   let future: WeaponDefinition[] = [];
@@ -820,7 +866,9 @@ export function mountWeaponStudio(container: HTMLDivElement): () => void {
     state = { ...state, previewPlaying: false };
   };
   const render = (): void => {
+    const viewport = captureWeaponStudioViewport(container);
     container.innerHTML = renderStudio(state, returnEditor);
+    if (state.sourceTilePickerOpen) container.insertAdjacentHTML('beforeend', renderWeaponTilePicker(state));
     ensureStudioModeTabs(container, returnEditor, 'weapons');
     if (state.draft) {
       const presentation = container.querySelector<HTMLElement>('[data-weapon-presentation]');
@@ -851,6 +899,26 @@ export function mountWeaponStudio(container: HTMLDivElement): () => void {
         const options = characterPackages.map((entry) => `<option value="${escapeHtml(entry.characterId)}" ${entry.characterId === state.selectedCharacterId ? 'selected' : ''}>${escapeHtml(entry.character.displayName)} · ${escapeHtml(entry.characterId)}</option>`).join('');
         identity.insertAdjacentHTML('beforeend', `<label class="studio-field studio-field--wide"><span>Preview character<small>existing anchor + action</small></span><select data-weapon-character-id>${options}</select></label>`);
       }
+      container.querySelector('.weapon-tile-bank')?.remove();
+      const animationPanel = container.querySelector<HTMLElement>('.weapon-animation-panel');
+      if (animationPanel) {
+        const source = state.assets?.assets.find((entry) => entry.assetId === state.draft?.assetId && isWeaponAsset(entry));
+        const animation = selectedWeaponAnimation(state.draft, assetInfo(source), state);
+        const timelineFrames = timelineFrameCount(animation);
+        const toolbar = animationPanel.querySelector<HTMLElement>('.weapon-sequence-toolbar');
+        if (toolbar && !toolbar.querySelector('[data-action="open-weapon-tile-picker"]')) {
+          toolbar.insertAdjacentHTML('afterbegin', `<button type="button" class="studio-button studio-button--save" data-action="open-weapon-tile-picker" ${leftMirrorLocked() ? 'disabled' : ''}>+ ADD TILES</button><button type="button" class="studio-button studio-button--quiet" data-action="distribute-weapon-tiles" ${leftMirrorLocked() ? 'disabled' : ''}>DISTRIBUTE EVENLY</button>`);
+        }
+        const sequence = animationPanel.querySelector<HTMLElement>('.weapon-animation-sequence');
+        if (sequence && !animationPanel.querySelector('[data-weapon-timeline-ruler]')) {
+          sequence.insertAdjacentHTML('beforebegin', `<div class="weapon-timeline-ruler" data-weapon-timeline-ruler>${Array.from({ length: timelineFrames }, (_, index) => `<span>${String(index).padStart(2, '0')}</span>`).join('')}</div>`);
+        }
+        const settings = animationPanel.querySelector<HTMLElement>('.weapon-clip-settings');
+        if (settings && !settings.querySelector('[data-weapon-duration-field]')) {
+          const fieldPath = selectedAnimationFieldPath(state);
+          settings.insertAdjacentHTML('afterbegin', `<label class="studio-field weapon-duration-field" data-weapon-duration-field><span>Duration<small>seconds · ${timelineFrames} effective frames</small></span><input type="number" min="0.01" max="60" step="0.01" inputmode="decimal" value="${Number(animation.durationSeconds).toFixed(3)}" data-weapon-field="${fieldPath}.durationSeconds" ${leftMirrorLocked() ? 'disabled' : ''}/></label>`);
+        }
+      }
       const inspectorScroll = identity?.parentElement;
       const sections = inspectorScroll ? Array.from(inspectorScroll.querySelectorAll<HTMLElement>(':scope > .studio-inspector-section')) : [];
       sections[0]?.setAttribute('data-weapon-inspector-group', 'identity');
@@ -859,8 +927,10 @@ export function mountWeaponStudio(container: HTMLDivElement): () => void {
       container.querySelector<HTMLElement>('.studio-weapon-hitbox-section')?.setAttribute('data-weapon-inspector-group', 'combat');
       reflowWeaponStudio(container, state.draft, state);
     }
+    restoreWeaponStudioViewport(container, viewport);
+    window.requestAnimationFrame(() => restoreWeaponStudioViewport(container, viewport));
   };
-  const select = (weapon: WeaponDefinition, revision?: string): void => { stopPreview(); history = []; future = []; state = { ...state, selectedId: weapon.weaponId, selectedAnimation: 'attack', selectedAttackDirection: 'right', selectedAnimationPositions: [0], transformTool: 'move', selectedInspectorTab: 'visual', selectedPreviewFrame: 0, previewStep: 0, previewPlaying: false, draft: clone(weapon), revision, dirty: false, assetShelfOpen: false, notice: undefined }; render(); };
+  const select = (weapon: WeaponDefinition, revision?: string): void => { stopPreview(); history = []; future = []; state = { ...state, selectedId: weapon.weaponId, selectedAnimation: 'attack', selectedAttackDirection: 'right', selectedAnimationPositions: [0], transformTool: 'move', selectedInspectorTab: 'visual', selectedPreviewFrame: 0, previewStep: 0, previewPlaying: false, draft: clone(weapon), revision, dirty: false, assetShelfOpen: false, sourceTilePickerOpen: false, selectedPickerFrames: [], notice: undefined }; render(); };
   const importSource = async (file: File): Promise<void> => {
     const assetId = state.importForm.assetId.trim().toLowerCase();
     const frameWidth = integerValue(state.importForm.frameWidth);
@@ -902,32 +972,60 @@ export function mountWeaponStudio(container: HTMLDivElement): () => void {
     const numericPaths = new Set(['baseDamage', 'cooldownMs', 'hitboxWidth', 'hitboxHeight', 'hitboxOffset', 'hitboxDurationMs', 'knockStrength', 'unlockLevel', 'scaling.damage.strength', 'scaling.damage.agility', 'scaling.damage.intellect', 'scaling.cooldown.agility', 'scaling.knockback.strength', 'visual.sourceOffset.0', 'visual.sourceOffset.1']);
     const value = numericPaths.has(path) ? integerValue(rawValue) : rawValue;
     const info = assetInfo(state.assets?.assets.find((entry) => entry.assetId === draft.assetId && isWeaponAsset(entry)));
-    const directionalAnimationMatch = path.match(/^directionalAttacks\.(right|left|up|down)\.animation\.(frames|framesPerSecond|loop|loopMode)$/);
-    const animationMatch = path.match(/^animations\.(idle|attack|impact)\.(frames|framesPerSecond|loop|loopMode)$/);
+    const directionalAnimationMatch = path.match(/^directionalAttacks\.(right|left|up|down)\.animation\.(frames|durationSeconds|framesPerSecond|loop|loopMode)$/);
+    const animationMatch = path.match(/^animations\.(idle|attack|impact)\.(frames|durationSeconds|framesPerSecond|loop|loopMode)$/);
     if (directionalAnimationMatch) {
       const direction = directionalAnimationMatch[1] as WeaponAttackDirection;
-      const fieldName = directionalAnimationMatch[2] as 'frames' | 'framesPerSecond' | 'loop' | 'loopMode';
+      const fieldName = directionalAnimationMatch[2] as 'frames' | 'durationSeconds' | 'framesPerSecond' | 'loop' | 'loopMode';
       const attack = ensureDirectionalAttackDraft(draft, info, direction);
       const next = clone(attack.animation) as MutableWeaponAnimation;
       if (fieldName === 'frames') {
         const frames = String(rawValue).split(',').map((entry) => Number(entry.trim())).filter((entry) => Number.isInteger(entry) && entry >= 0);
         next.frames = frames.length > 0 ? frames : [0];
+        const timelineFrames = Math.max(timelineFrameCount(next), next.frames.length);
+        next.durationSeconds = timelineFrames / next.framesPerSecond;
+        next.keyframeTimes = evenKeyframeTimes(timelineFrames, next.frames.length);
         next.frameTransforms = Object.fromEntries(Object.entries(next.frameTransforms ?? {}).filter(([position]) => Number(position) < next.frames.length));
-      } else if (fieldName === 'framesPerSecond') next.framesPerSecond = Math.min(240, Math.max(1, integerValue(rawValue, 12)));
+      } else if (fieldName === 'durationSeconds' || fieldName === 'framesPerSecond') {
+        const nextFramesPerSecond = fieldName === 'framesPerSecond' ? Math.min(240, Math.max(1, integerValue(rawValue, 12))) : next.framesPerSecond;
+        const nextDurationSeconds = fieldName === 'durationSeconds' ? Math.max(0.01, Number.isFinite(Number(rawValue)) ? Number(rawValue) : (next.durationSeconds ?? 1 / next.framesPerSecond)) : next.durationSeconds ?? next.frames.length / next.framesPerSecond;
+        try {
+          next.keyframeTimes = rescaleKeyframeTimes(normalizedWeaponAnimation(next), nextDurationSeconds, nextFramesPerSecond);
+          next.durationSeconds = nextDurationSeconds;
+          next.framesPerSecond = nextFramesPerSecond;
+        } catch (error) {
+          state = { ...state, notice: error instanceof Error ? error.message : String(error) };
+          return;
+        }
+      }
       else if (fieldName === 'loop') next.loop = Boolean(rawValue);
       else next.loopMode = rawValue === 'ping-pong' ? 'ping-pong' : 'wrap';
       attack.animation = next;
     } else if (animationMatch) {
       const animationId = animationMatch[1] as WeaponAnimationId;
-      const fieldName = animationMatch[2] as 'frames' | 'framesPerSecond' | 'loop' | 'loopMode';
+      const fieldName = animationMatch[2] as 'frames' | 'durationSeconds' | 'framesPerSecond' | 'loop' | 'loopMode';
       const animations = weaponAnimations(draft, info);
       const next = clone(animations[animationId]) as MutableWeaponAnimation;
       if (fieldName === 'frames') {
         const frames = String(rawValue).split(',').map((entry) => Number(entry.trim())).filter((entry) => Number.isInteger(entry) && entry >= 0);
         next.frames = frames.length > 0 ? frames : [0];
+        const timelineFrames = Math.max(timelineFrameCount(next), next.frames.length);
+        next.durationSeconds = timelineFrames / next.framesPerSecond;
+        next.keyframeTimes = evenKeyframeTimes(timelineFrames, next.frames.length);
         next.frameTransforms = Object.fromEntries(Object.entries(next.frameTransforms ?? {}).filter(([position]) => Number(position) < next.frames.length));
       }
-      else if (fieldName === 'framesPerSecond') next.framesPerSecond = Math.min(240, Math.max(1, integerValue(rawValue, 12)));
+      else if (fieldName === 'durationSeconds' || fieldName === 'framesPerSecond') {
+        const nextFramesPerSecond = fieldName === 'framesPerSecond' ? Math.min(240, Math.max(1, integerValue(rawValue, 12))) : next.framesPerSecond;
+        const nextDurationSeconds = fieldName === 'durationSeconds' ? Math.max(0.01, Number.isFinite(Number(rawValue)) ? Number(rawValue) : (next.durationSeconds ?? 1 / next.framesPerSecond)) : next.durationSeconds ?? next.frames.length / next.framesPerSecond;
+        try {
+          next.keyframeTimes = rescaleKeyframeTimes(normalizedWeaponAnimation(next), nextDurationSeconds, nextFramesPerSecond);
+          next.durationSeconds = nextDurationSeconds;
+          next.framesPerSecond = nextFramesPerSecond;
+        } catch (error) {
+          state = { ...state, notice: error instanceof Error ? error.message : String(error) };
+          return;
+        }
+      }
       else if (fieldName === 'loop') next.loop = Boolean(rawValue);
       else next.loopMode = rawValue === 'ping-pong' ? 'ping-pong' : 'wrap';
       draft.animations = { ...animations, [animationId]: next };
@@ -1080,7 +1178,7 @@ export function mountWeaponStudio(container: HTMLDivElement): () => void {
     state = { ...state, draft, dirty: true, notice: undefined };
     render();
   };
-  const commitAnimationOrder = (newFrames: number[], newToOldPositions: number[], selectedPositions: number[]): void => {
+  const commitAnimationOrder = (newFrames: number[], newToOldPositions: number[], selectedPositions: number[], nextKeyframeTimes?: readonly number[], nextDurationSeconds?: number): void => {
     if (!state.draft || newFrames.length === 0 || leftMirrorLocked()) return;
     rememberDraft();
     const draft = clone(state.draft) as MutableWeaponDraft;
@@ -1089,25 +1187,48 @@ export function mountWeaponStudio(container: HTMLDivElement): () => void {
     const previousAnimation = selectedWeaponAnimation(draft, info, state);
     const nextAnimation = clone(previousAnimation) as MutableWeaponAnimation;
     nextAnimation.frames = newFrames;
+    nextAnimation.keyframeTimes = [...(nextKeyframeTimes ?? previousAnimation.keyframeTimes)];
+    if (nextDurationSeconds !== undefined) nextAnimation.durationSeconds = nextDurationSeconds;
     const nextFrameTransforms = remapFrameTransforms(previousAnimation.frameTransforms, newToOldPositions);
     if (nextFrameTransforms) nextAnimation.frameTransforms = { ...nextFrameTransforms };
     else delete nextAnimation.frameTransforms;
     writeSelectedAnimation(draft, info, state, nextAnimation);
-    if (state.selectedAnimation === 'attack') {
-      const currentTrack = weaponTrack(draft, previousAnimation, state.selectedAttackDirection);
-      ensureDirectionalAttackDraft(draft, info, state.selectedAttackDirection).attackTrack = remapAttackTrack(currentTrack, newToOldPositions);
-    }
+    if (state.selectedAnimation === 'attack') ensureDirectionalAttackDraft(draft, info, state.selectedAttackDirection).attackTrack ??= clone(weaponTrack(draft, previousAnimation, state.selectedAttackDirection)) as MutableWeaponTrack;
     const selected = selectedPositions.length > 0 ? selectedPositions : [0];
     const previewStep = selected[selected.length - 1] ?? 0;
     state = { ...state, draft, selectedAnimationPositions: selected, previewStep, selectedPreviewFrame: newFrames[previewStep] ?? 0, dirty: true, notice: undefined };
     render();
   };
-  const addSourceTile = (frame: number): void => {
+  const addSourceTiles = (frames: readonly number[]): void => {
     if (!state.draft) return;
+    if (frames.length === 0 || leftMirrorLocked()) return;
     const source = state.assets?.assets.find((entry) => entry.assetId === state.draft?.assetId && isWeaponAsset(entry));
     const animation = selectedWeaponAnimation(state.draft, assetInfo(source), state);
-    const nextPosition = animation.frames.length;
-    commitAnimationOrder([...animation.frames, frame], [...animation.frames.map((_, position) => position), -1], [nextPosition]);
+    const nextFrames = [...animation.frames, ...frames];
+    const nextTimelineFrames = Math.max(timelineFrameCount(animation), nextFrames.length);
+    const nextDurationSeconds = nextTimelineFrames === timelineFrameCount(animation)
+      ? animation.durationSeconds
+      : nextTimelineFrames / animation.framesPerSecond;
+    commitAnimationOrder(nextFrames, [...animation.frames.map((_, position) => position), ...frames.map(() => -1)], [nextFrames.length - 1], evenKeyframeTimes(nextTimelineFrames, nextFrames.length), nextDurationSeconds);
+  };
+  const addSourceTile = (frame: number): void => {
+    addSourceTiles([frame]);
+  };
+  const distributeSelectedAnimation = (): void => {
+    if (!state.draft || leftMirrorLocked()) return;
+    rememberDraft();
+    const draft = clone(state.draft) as MutableWeaponDraft;
+    const source = state.assets?.assets.find((entry) => entry.assetId === draft.assetId && isWeaponAsset(entry));
+    const animation = selectedWeaponAnimation(draft, assetInfo(source), state);
+    try {
+      const next = { ...animation, keyframeTimes: evenKeyframeTimes(timelineFrameCount(animation), animation.frames.length) };
+      writeSelectedAnimation(draft, assetInfo(source), state, next);
+      state = { ...state, draft, selectedAnimationPositions: [0], previewStep: 0, selectedPreviewFrame: next.frames[0] ?? 0, dirty: true, notice: undefined };
+      render();
+    } catch (error) {
+      state = { ...state, notice: error instanceof Error ? error.message : String(error) };
+      render();
+    }
   };
   const deleteSelectedTiles = (): void => {
     if (!state.draft) return;
@@ -1116,9 +1237,10 @@ export function mountWeaponStudio(container: HTMLDivElement): () => void {
     const selected = new Set(state.selectedAnimationPositions);
     if (animation.frames.length <= 1 || selected.size === 0) return;
     const order = animation.frames.map((_, position) => position).filter((position) => !selected.has(position));
-    if (order.length === 0) order.push(Math.max(0, animation.frames.length - 1));
+    if (order.length === 0) return;
     const nextSelection = [Math.min(state.previewStep, order.length - 1)];
-    commitAnimationOrder(order.map((position) => animation.frames[position] ?? 0), order, nextSelection);
+    const deleted = deleteKeyframes(animation, [...selected]);
+    commitAnimationOrder(deleted.frames, order, nextSelection, deleted.keyframeTimes);
   };
   const moveSelectedTiles = (direction: -1 | 1): void => {
     if (!state.draft) return;
@@ -1144,9 +1266,21 @@ export function mountWeaponStudio(container: HTMLDivElement): () => void {
     const animation = selectedWeaponAnimation(state.draft, assetInfo(source), state);
     const selected = state.selectedAnimationPositions.filter((position) => position >= 0 && position < animation.frames.length).sort((left, right) => left - right);
     if (selected.length === 0) return;
+    if (selected.length === 1) {
+      try {
+        const duplicated = duplicateKeyframe(animation, selected[0]);
+        commitAnimationOrder(duplicated.frames, duplicated.newToOldPositions, [duplicated.newIndex], duplicated.keyframeTimes);
+      } catch (error) {
+        state = { ...state, notice: error instanceof Error ? error.message : String(error) };
+        render();
+      }
+      return;
+    }
     const order = [...animation.frames.map((_, position) => position), ...selected];
     const firstNew = animation.frames.length;
-    commitAnimationOrder(order.map((position) => animation.frames[position] ?? 0), order, selected.map((_, index) => firstNew + index));
+    const nextFrames = order.map((position) => animation.frames[position] ?? 0);
+    const nextTimelineFrames = Math.max(timelineFrameCount(animation), nextFrames.length);
+    commitAnimationOrder(nextFrames, order, selected.map((_, index) => firstNew + index), evenKeyframeTimes(nextTimelineFrames, nextFrames.length), nextTimelineFrames / animation.framesPerSecond);
   };
   const reorderSelectedTilesBefore = (targetPosition: number): void => {
     if (!state.draft || draggedAnimationPosition === undefined) return;
@@ -1237,6 +1371,8 @@ export function mountWeaponStudio(container: HTMLDivElement): () => void {
     const target = event.target as HTMLElement;
     const shelfBackdrop = target.closest<HTMLElement>('[data-weapon-shelf-backdrop]');
     if (shelfBackdrop && target === shelfBackdrop) { state = { ...state, assetShelfOpen: false, notice: undefined }; render(); return; }
+    const tilePickerBackdrop = target.closest<HTMLElement>('[data-weapon-tile-picker-backdrop]');
+    if (tilePickerBackdrop && target === tilePickerBackdrop) { state = { ...state, sourceTilePickerOpen: false, notice: undefined }; render(); return; }
     const weaponButton = target.closest<HTMLElement>('[data-weapon-id]');
     if (weaponButton) { const weapon = state.weapons.find((entry) => entry.weaponId === weaponButton.dataset.weaponId); if (weapon) select(weapon, weapon.revision); return; }
     const animationId = target.closest<HTMLElement>('[data-weapon-animation-id]')?.dataset.weaponAnimationId;
@@ -1249,7 +1385,16 @@ export function mountWeaponStudio(container: HTMLDivElement): () => void {
       return;
     }
     const sourceTile = target.closest<HTMLElement>('[data-weapon-source-frame]');
-    if (sourceTile) { addSourceTile(Number(sourceTile.dataset.weaponSourceFrame)); return; }
+    if (sourceTile) {
+      const frame = Number(sourceTile.dataset.weaponSourceFrame);
+      if (state.sourceTilePickerOpen) {
+        const selected = new Set(state.selectedPickerFrames);
+        if (selected.has(frame)) selected.delete(frame); else selected.add(frame);
+        state = { ...state, selectedPickerFrames: [...selected].sort((left, right) => left - right) };
+        render();
+      } else addSourceTile(frame);
+      return;
+    }
     const sequenceTile = target.closest<HTMLElement>('[data-weapon-animation-position]');
     if (sequenceTile && state.draft) {
       const position = Number(sequenceTile.dataset.weaponAnimationPosition);
@@ -1262,9 +1407,8 @@ export function mountWeaponStudio(container: HTMLDivElement): () => void {
         const through = Math.max(anchor, position);
         selectedPositions = Array.from({ length: through - from + 1 }, (_, index) => from + index);
       } else if (event.ctrlKey || event.metaKey) {
-        const selected = new Set(state.selectedAnimationPositions);
-        if (selected.has(position) && selected.size > 1) selected.delete(position); else selected.add(position);
-        selectedPositions = [...selected].sort((left, right) => left - right);
+        selectedPositions = toggleTimelineSelection(state.selectedAnimationPositions, position);
+        if (selectedPositions.length === 0) selectedPositions = [position];
       } else selectedPositions = [position];
       state = { ...state, selectedAnimationPositions: selectedPositions, selectedPreviewFrame: animation.frames[position] ?? 0, previewStep: position };
       render();
@@ -1278,6 +1422,10 @@ export function mountWeaponStudio(container: HTMLDivElement): () => void {
       return;
     }
     if (action === 'new-weapon') { select(makeNewWeapon()); return; }
+    if (action === 'open-weapon-tile-picker') { state = { ...state, sourceTilePickerOpen: true, selectedPickerFrames: [], notice: undefined }; render(); return; }
+    if (action === 'close-weapon-tile-picker') { state = { ...state, sourceTilePickerOpen: false, selectedPickerFrames: [], notice: undefined }; render(); return; }
+    if (action === 'add-selected-weapon-tiles') { const frames = [...state.selectedPickerFrames]; state = { ...state, sourceTilePickerOpen: false, selectedPickerFrames: [] }; addSourceTiles(frames); return; }
+    if (action === 'distribute-weapon-tiles') { distributeSelectedAnimation(); return; }
     if (action === 'create-custom-left') { createCustomLeft(); return; }
     if (action === 'restore-mirrored-left') { restoreMirroredLeft(); return; }
     const transformTool = target.closest<HTMLElement>('[data-weapon-transform-tool]')?.dataset.weaponTransformTool as WeaponTransformTool | undefined;
@@ -1302,10 +1450,11 @@ export function mountWeaponStudio(container: HTMLDivElement): () => void {
         if (!state.draft) { stopPreview(); return; }
         const currentSource = state.assets?.assets.find((entry) => entry.assetId === state.draft?.assetId && isWeaponAsset(entry));
         const currentAnimation = selectedWeaponAnimation(state.draft, assetInfo(currentSource), state);
+        const currentTimelineFrames = timelineFrameCount(currentAnimation);
         const next = state.previewStep + 1;
-        if (next >= currentAnimation.frames.length) {
+        if (next >= currentTimelineFrames) {
           if (currentAnimation.loop) state = { ...state, previewStep: 0 };
-          else { stopPreview(); state = { ...state, previewStep: Math.max(0, currentAnimation.frames.length - 1) }; }
+          else { stopPreview(); state = { ...state, previewStep: Math.max(0, currentTimelineFrames - 1) }; }
         } else state = { ...state, previewStep: next };
         if (state.draft) updateCombinedPreviewDom(container, state.draft, state);
       }, 1000 / Math.max(1, animation.framesPerSecond));

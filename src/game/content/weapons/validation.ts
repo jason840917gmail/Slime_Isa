@@ -1,7 +1,14 @@
 import type { WeaponAnimationDocument, WeaponDefinition, WeaponHitboxDocument, WeaponAttackTrackDocument } from './types';
+import { timelineFrameCount } from '../../shared/animation';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+function animationTimelineFrameCount(animation: WeaponAnimationDocument): number {
+  return animation.keyframeTimes !== undefined && animation.durationSeconds !== undefined
+    ? timelineFrameCount(animation)
+    : Math.max(1, animation.frames.length);
 }
 
 function validateAnimation(animation: unknown, path: string, issues: string[]): void {
@@ -14,6 +21,27 @@ function validateAnimation(animation: unknown, path: string, issues: string[]): 
   if (typeof clip.framesPerSecond !== 'number' || !Number.isInteger(clip.framesPerSecond) || clip.framesPerSecond < 1 || clip.framesPerSecond > 240) issues.push(`${path}.framesPerSecond: must be an integer between 1 and 240`);
   if (typeof clip.loop !== 'boolean') issues.push(`${path}.loop: must be boolean`);
   if (clip.loopMode !== undefined && clip.loopMode !== 'wrap' && clip.loopMode !== 'ping-pong') issues.push(`${path}.loopMode: must be 'wrap' or 'ping-pong'`);
+  const hasTimes = clip.keyframeTimes !== undefined;
+  const hasDuration = clip.durationSeconds !== undefined;
+  if (hasTimes !== hasDuration) issues.push(`${path}: keyframeTimes and durationSeconds must be authored together`);
+  if (hasDuration && (typeof clip.durationSeconds !== 'number' || !Number.isFinite(clip.durationSeconds) || clip.durationSeconds <= 0)) {
+    issues.push(`${path}.durationSeconds: must be positive and finite`);
+  }
+  if (hasTimes) {
+    if (!Array.isArray(clip.keyframeTimes)) issues.push(`${path}.keyframeTimes: must be an array`);
+    else {
+      if (Array.isArray(clip.frames) && clip.keyframeTimes.length !== clip.frames.length) issues.push(`${path}.keyframeTimes: must match frames length`);
+      const timelineFrames = typeof clip.durationSeconds === 'number' && Number.isFinite(clip.durationSeconds) && typeof clip.framesPerSecond === 'number'
+        ? Math.max(1, Math.round(clip.durationSeconds * clip.framesPerSecond))
+        : 0;
+      clip.keyframeTimes.forEach((time, index) => {
+        if (!Number.isInteger(time) || time < 0 || (timelineFrames > 0 && time >= timelineFrames)) issues.push(`${path}.keyframeTimes[${index}]: must be an integer inside the clip timeline`);
+        if (index === 0 && time !== 0) issues.push(`${path}.keyframeTimes[0]: must be 0`);
+        if (index > 0 && time <= clip.keyframeTimes![index - 1]) issues.push(`${path}.keyframeTimes: values must be strictly increasing`);
+      });
+      if (Array.isArray(clip.frames) && timelineFrames > 0 && clip.frames.length > timelineFrames) issues.push(`${path}: cannot fit all keyframes in its timeline`);
+    }
+  }
   if (clip.frameTransforms !== undefined) {
     if (!isRecord(clip.frameTransforms)) issues.push(`${path}.frameTransforms: must be an object keyed by animation position`);
     else for (const [position, rawTransform] of Object.entries(clip.frameTransforms)) {
@@ -34,7 +62,7 @@ function validateAnimation(animation: unknown, path: string, issues: string[]): 
       if (rawTransform.rotationDeg !== undefined && (typeof rawTransform.rotationDeg !== 'number' || !Number.isFinite(rawTransform.rotationDeg))) {
         issues.push(`${transformPath}.rotationDeg: must be a finite number`);
       }
-      if (clip.frames && Number.isInteger(Number(position)) && Number(position) >= clip.frames.length) issues.push(`${transformPath}: must reference a position inside frames`);
+       if (clip.frames && Number.isInteger(Number(position)) && Number(position) >= clip.frames.length) issues.push(`${transformPath}: must reference a position inside frames`);
     }
   }
 }
@@ -88,7 +116,7 @@ function validateAttackTrack(
     issues.push(`${path}.hitboxSpans: must be an array`);
   } else {
     const spansByHitbox = new Map<string, Array<{ from: number; through: number }>>();
-    const attackFrameCount = animation?.frames.length ?? weapon.animations?.attack?.frames.length;
+    const attackFrameCount = animation ? animationTimelineFrameCount(animation) : weapon.animations?.attack ? animationTimelineFrameCount(weapon.animations.attack) : undefined;
     track.hitboxSpans.forEach((rawSpan, index) => {
       const spanPath = `${path}.hitboxSpans[${index}]`;
       if (!isRecord(rawSpan)) {
@@ -124,7 +152,7 @@ function validateAttackTrack(
       const at = typeof event.at === 'number' ? event.at : Number.NaN;
       if (!Number.isInteger(at) || at < 0) issues.push(`${eventPath}.at: must be a non-negative integer`);
       if (typeof event.eventId !== 'string' || !event.eventId.trim()) issues.push(`${eventPath}.eventId: must be a non-empty string`);
-      const attackFrameCount = animation?.frames.length ?? weapon.animations?.attack?.frames.length;
+       const attackFrameCount = animation ? animationTimelineFrameCount(animation) : weapon.animations?.attack ? animationTimelineFrameCount(weapon.animations.attack) : undefined;
       if (attackFrameCount !== undefined && Number.isInteger(at) && at >= attackFrameCount) issues.push(`${eventPath}.at: must be inside the selected attack animation`);
     });
   }

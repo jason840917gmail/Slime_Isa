@@ -1,11 +1,14 @@
 import type {
+  NormalizedWeaponAnimationDocument,
   NormalizedWeaponDefinition,
   NormalizedWeaponDirectionalAttack,
   WeaponAttackDirection,
+  WeaponAnimationDocument,
   WeaponDefinition,
   WeaponHitboxDocument,
   WeaponAnimationSet,
 } from './types';
+import { normalizeAnimationClip } from '../../shared/animation';
 
 const DEFAULT_ACTION_ID = 'trick';
 
@@ -35,11 +38,23 @@ function defaultAnimations(): WeaponAnimationSet {
   };
 }
 
+function normalizeWeaponAnimation(animation: WeaponAnimationDocument): NormalizedWeaponAnimationDocument {
+  return {
+    ...normalizeAnimationClip(animation),
+    ...(animation.frameTransforms ? { frameTransforms: animation.frameTransforms } : {}),
+  };
+}
+
 export function normalizeWeaponDefinition(definition: WeaponDefinition): NormalizedWeaponDefinition {
   const characterActionId = definition.characterActionId?.trim()
     || legacyActionId(definition.animKey)
     || DEFAULT_ACTION_ID;
-  const animations = definition.animations ?? defaultAnimations();
+  const authoredAnimations = definition.animations ?? defaultAnimations();
+  const animations = {
+    idle: normalizeWeaponAnimation(authoredAnimations.idle),
+    attack: normalizeWeaponAnimation(authoredAnimations.attack),
+    impact: normalizeWeaponAnimation(authoredAnimations.impact),
+  };
   const hitboxes = definition.hitboxes ?? { primary: legacyPrimaryHitbox(definition) };
   const visual = {
     sourceOffset: definition.visual?.sourceOffset ?? [0, 0] as const,
@@ -56,7 +71,7 @@ export function normalizeWeaponDefinition(definition: WeaponDefinition): Normali
     fallback: Pick<NormalizedWeaponDirectionalAttack, 'animation' | 'characterActionId' | 'attackTrack' | 'hitboxes'>,
     presentation: NormalizedWeaponDirectionalAttack['presentation'],
   ): NormalizedWeaponDirectionalAttack => ({
-    animation: authored?.animation ?? fallback.animation,
+    animation: authored?.animation ? normalizeWeaponAnimation(authored.animation) : fallback.animation,
     characterActionId: authored?.characterActionId?.trim() || fallback.characterActionId,
     hitboxes: authored?.hitboxes ?? fallback.hitboxes,
     authored: authored !== undefined,

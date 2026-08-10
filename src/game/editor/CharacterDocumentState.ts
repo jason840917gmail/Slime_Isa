@@ -10,6 +10,7 @@ import {
   reorderTimelineFrame,
 } from './CharacterTimeline';
 import { cloneCharacterPackage, normalizeCharacterPackage, validateCharacterPackage, type CharacterValidationIssue } from '../content/characters/validation';
+import { AnimationTimelineError, normalizeAnimationClip, rescaleKeyframeTimes } from '../shared/animation';
 import type {
   CharacterBodyDocument,
   CharacterAttributeSet,
@@ -237,10 +238,26 @@ export class CharacterDocumentState {
     });
   }
 
-  updatePlayback(framesPerSecond: number, loop: boolean, loopMode: VisualLoopMode): boolean {
+  updatePlayback(framesPerSecond: number, loop: boolean, loopMode: VisualLoopMode, durationSeconds?: number): boolean {
     return this.mutate('Updated playback', (draft) => {
       const clip = draft.visualSet.clips[this.selectedClipId];
-      if (clip) { clip.framesPerSecond = framesPerSecond; clip.loop = loop; clip.loopMode = loopMode; }
+      if (!clip) return;
+      const nextDuration = durationSeconds === undefined ? clip.durationSeconds : durationSeconds;
+      if (nextDuration !== undefined && clip.frames.length > 0) {
+        try {
+          const normalized = normalizeAnimationClip(clip);
+          clip.keyframeTimes = rescaleKeyframeTimes(normalized, nextDuration, framesPerSecond);
+          clip.durationSeconds = nextDuration;
+        } catch (error) {
+          if (error instanceof AnimationTimelineError) return;
+          throw error;
+        }
+      } else if (nextDuration !== undefined) {
+        clip.durationSeconds = nextDuration;
+      }
+      clip.framesPerSecond = framesPerSecond;
+      clip.loop = loop;
+      clip.loopMode = loopMode;
     });
   }
 

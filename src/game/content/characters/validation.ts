@@ -7,6 +7,7 @@ import type {
   JsonValue,
   VisualSetDocument,
 } from './types';
+import { timelineFrameCount } from '../../shared/animation';
 
 export interface CharacterValidationIssue {
   readonly path: string;
@@ -173,7 +174,7 @@ export function validateVisualSetDocument(
   for (const [clipId, clip] of Object.entries(isRecord(value.clips) ? value.clips : {})) {
     const clipPath = `${path}.clips.${clipId}`;
     if (!ID_PATTERN.test(clipId) || clipId.length > 80) issue(issues, clipPath, 'clip ID must be a lowercase stable ID');
-    checkKeys(issues, clip, clipPath, new Set(['frames', 'framesPerSecond', 'loop', 'loopMode', 'sourceOffset']));
+    checkKeys(issues, clip, clipPath, new Set(['frames', 'keyframeTimes', 'durationSeconds', 'framesPerSecond', 'loop', 'loopMode', 'sourceOffset']));
     if (!isRecord(clip)) {
       issue(issues, clipPath, 'must be an object');
       continue;
@@ -187,6 +188,26 @@ export function validateVisualSetDocument(
     finite(issues, clip.framesPerSecond, `${clipPath}.framesPerSecond`, (entry) => entry > 0 && entry <= 240, 'must be greater than zero and no more than 240');
     if (typeof clip.loop !== 'boolean') issue(issues, `${clipPath}.loop`, 'must be boolean');
     if (clip.loopMode !== undefined && clip.loopMode !== 'wrap' && clip.loopMode !== 'ping-pong') issue(issues, `${clipPath}.loopMode`, "must be 'wrap' or 'ping-pong'");
+    const hasTimes = clip.keyframeTimes !== undefined;
+    const hasDuration = clip.durationSeconds !== undefined;
+    if (hasTimes !== hasDuration) issue(issues, clipPath, 'keyframeTimes and durationSeconds must be authored together');
+    if (hasDuration) finite(issues, clip.durationSeconds, `${clipPath}.durationSeconds`, (entry) => entry > 0, 'must be greater than zero');
+    if (hasTimes) {
+      if (!Array.isArray(clip.keyframeTimes)) issue(issues, `${clipPath}.keyframeTimes`, 'must be an array');
+      else {
+        const keyframeTimes = clip.keyframeTimes;
+        if (Array.isArray(clip.frames) && keyframeTimes.length !== clip.frames.length) issue(issues, `${clipPath}.keyframeTimes`, 'must match frames length');
+        const timelineFrames = typeof clip.durationSeconds === 'number' && Number.isFinite(clip.durationSeconds) && typeof clip.framesPerSecond === 'number'
+          ? timelineFrameCount({ durationSeconds: clip.durationSeconds, framesPerSecond: clip.framesPerSecond })
+          : 0;
+        keyframeTimes.forEach((time, index) => {
+          if (!Number.isInteger(time) || time < 0 || (timelineFrames > 0 && time >= timelineFrames)) issue(issues, `${clipPath}.keyframeTimes[${index}]`, 'must be an integer inside the clip timeline');
+          if (index === 0 && time !== 0) issue(issues, `${clipPath}.keyframeTimes[0]`, 'must be zero');
+          if (index > 0 && time <= keyframeTimes[index - 1]) issue(issues, `${clipPath}.keyframeTimes`, 'values must be strictly increasing');
+        });
+        if (Array.isArray(clip.frames) && timelineFrames > 0 && clip.frames.length > timelineFrames) issue(issues, clipPath, 'cannot fit all keyframes in its timeline');
+      }
+    }
     if (clip.sourceOffset !== undefined) pair(issues, clip.sourceOffset, `${clipPath}.sourceOffset`, () => true, 'must be finite');
   }
   return issues;
@@ -351,7 +372,11 @@ export function validateCharacterDocument(
     if (!clips[clipId]) issue(issues, trackPath, `unknown clip '${clipId}'`);
     if (!isRecord(track)) { issue(issues, trackPath, 'must be an object'); continue; }
     checkKeys(issues, track, trackPath, new Set(['hitboxSpans', 'events']));
-    const frameLength = clips[clipId]?.frames.length ?? 0;
+    const frameLength = clips[clipId]
+      ? clips[clipId].keyframeTimes !== undefined && clips[clipId].durationSeconds !== undefined
+        ? timelineFrameCount(clips[clipId])
+        : clips[clipId].frames.length
+      : 0;
     for (const [index, span] of (Array.isArray(track.hitboxSpans) ? track.hitboxSpans : []).entries()) {
       const spanPath = `${trackPath}.hitboxSpans[${index}]`;
       if (!isRecord(span)) { issue(issues, spanPath, 'must be an object'); continue; }
