@@ -1,9 +1,16 @@
 import type { AssetId } from '../../infrastructure/assets/manifest';
 import type { CollisionShape } from '../../shared/collisionShapes';
+import type {
+  AnimationClipDocument,
+  AnimationEventDocument,
+  AnimationJsonValue,
+  AnimationLoopMode,
+  AnimationTrackDocument as SharedAnimationTrackDocument,
+} from '../../shared/animation';
 
 export type CharacterKind = 'player' | 'enemy';
 export type Pair = [number, number];
-export type VisualLoopMode = 'wrap' | 'ping-pong';
+export type VisualLoopMode = AnimationLoopMode;
 
 /** Core character attributes. Movement speed is intentionally not included. */
 export interface CharacterAttributeSet {
@@ -25,8 +32,10 @@ export interface VisualDefaultsDocument {
   sourceOffset: Pair;
 }
 
-export interface VisualClipDocument {
+export interface VisualClipDocument extends AnimationClipDocument {
   frames: number[];
+  keyframeTimes?: number[];
+  durationSeconds?: number;
   framesPerSecond: number;
   loop: boolean;
   /** Defaults to wrap for packages authored before ping-pong playback existed. */
@@ -75,15 +84,13 @@ export interface HitboxSpanDocument {
   through: number;
 }
 
-export type JsonValue = null | boolean | number | string | JsonValue[] | { [key: string]: JsonValue };
+export type JsonValue = AnimationJsonValue;
 
-export interface CharacterEventDocument {
-  at: number;
-  eventId: string;
+export interface CharacterEventDocument extends AnimationEventDocument {
   payload?: JsonValue;
 }
 
-export interface AnimationTrackDocument {
+export interface AnimationTrackDocument extends SharedAnimationTrackDocument {
   hitboxSpans?: HitboxSpanDocument[];
   events?: CharacterEventDocument[];
 }

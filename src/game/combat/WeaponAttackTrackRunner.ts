@@ -1,8 +1,12 @@
 import type {
-  WeaponAnimationDocument,
+  NormalizedWeaponAnimationDocument,
   WeaponAttackTrackDocument,
   WeaponEventDocument,
 } from '../content/weapons/types';
+import {
+  AnimationPlayer,
+  type AnimationPlaybackContext,
+} from '../shared/animation';
 
 export interface WeaponTrackEvent extends WeaponEventDocument {
   readonly playbackId: number;
@@ -31,109 +35,80 @@ interface ActiveSpan {
   readonly activationId: string;
 }
 
-function spansAt(track: WeaponAttackTrackDocument, position: number): Array<{ span: WeaponAttackTrackDocument['hitboxSpans'][number]; index: number }> {
-  return track.hitboxSpans
-    .map((span, index) => ({ span, index }))
-    .filter(({ span }) => span.from <= position && position <= span.through);
-}
-
-/** Drives weapon hitbox windows and events from an authored attack clip. */
+/** Drives weapon hitbox windows and events through the shared animation player. */
 export class WeaponAttackTrackRunner {
-  private elapsedMs = 0;
-  private playbackId = 0;
-  private position = -1;
-  private absoluteStep = 0;
-  private paused = true;
+  private readonly playbackClip: NormalizedWeaponAnimationDocument;
+  private readonly active = new Map<string, ActiveSpan>();
+  private readonly player: AnimationPlayer;
   private destroyed = false;
-  private active = new Map<string, ActiveSpan>();
 
   constructor(
-    private readonly clip: WeaponAnimationDocument,
+    clip: NormalizedWeaponAnimationDocument,
     private readonly track: WeaponAttackTrackDocument,
     private readonly callbacks: WeaponAttackTrackRunnerCallbacks = {},
-  ) {}
+  ) {
+    // Combat attacks are always one-shot, even if malformed legacy data says loop.
+    this.playbackClip = { ...clip, loop: false };
+    this.player = new AnimationPlayer({
+      onFrame: (_state, context) => this.applyPosition(context),
+      onEvent: (event, context) => this.dispatchEvent(event, context),
+      onComplete: () => {
+        this.disableAll();
+        this.callbacks.onComplete?.();
+      },
+      onDiagnostic: callbacks.onDiagnostic,
+    });
+  }
 
   get state(): WeaponAttackTrackRunnerState {
+    const state = this.player.state;
     return {
-      playbackId: this.playbackId,
-      position: Math.max(0, this.position),
-      elapsedMs: this.elapsedMs,
-      paused: this.paused,
+      playbackId: state.playbackId,
+      position: state.timelineFrame,
+      elapsedMs: state.elapsedMs,
+      paused: state.paused,
       activeHitboxes: new Set(this.active.keys()),
     };
   }
 
   start(forceRestart = true): void {
-    if (this.destroyed || (!forceRestart && !this.paused)) return;
+    if (this.destroyed || (!forceRestart && !this.player.state.paused)) return;
     this.disableAll();
-    this.elapsedMs = 0;
-    this.position = -1;
-    this.absoluteStep = 0;
-    this.paused = false;
-    this.playbackId += 1;
-    this.enterPosition(0);
+    this.player.start(this.playbackClip, this.track.events ?? [], forceRestart);
   }
 
   cancel(): void {
     this.disableAll();
-    this.paused = true;
-    this.position = -1;
-    this.elapsedMs = 0;
-    this.absoluteStep = 0;
+    this.player.stop();
   }
 
-  pause(): void { this.paused = true; }
-  resume(): void { this.paused = false; }
-
-  update(deltaMs: number): void {
-    if (this.destroyed || this.paused) return;
-    const frameDurationMs = 1000 / Math.max(1, this.clip.framesPerSecond);
-    this.elapsedMs += Math.max(0, deltaMs);
-    const targetStep = Math.floor(this.elapsedMs / frameDurationMs);
-    if (targetStep >= this.clip.frames.length) {
-      while (this.absoluteStep < this.clip.frames.length - 1) {
-        this.absoluteStep += 1;
-        this.enterPosition(this.absoluteStep);
-      }
-      this.disableAll();
-      this.position = Math.max(0, this.clip.frames.length - 1);
-      this.paused = true;
-      this.callbacks.onComplete?.();
-      return;
-    }
-
-    while (this.absoluteStep < targetStep) {
-      this.absoluteStep += 1;
-      this.enterPosition(this.absoluteStep);
-    }
-  }
+  pause(): void { this.player.pause(); }
+  resume(): void { this.player.resume(); }
+  update(deltaMs: number): void { this.player.update(deltaMs); }
 
   destroy(): void {
     if (this.destroyed) return;
     this.destroyed = true;
     this.cancel();
+    this.player.destroy();
   }
 
-  private enterPosition(position: number): void {
+  private applyPosition(context: AnimationPlaybackContext): void {
     for (const [hitboxId, activeSpan] of this.active) {
-      if (!this.track.hitboxSpans.some((span) => span.hitboxId === hitboxId && span.from <= position && position <= span.through)) {
+      if (!this.track.hitboxSpans.some((span) => span.hitboxId === hitboxId && span.from <= context.timelineFrame && context.timelineFrame <= span.through)) {
         this.deactivate(activeSpan);
       }
     }
-    for (const { span, index } of spansAt(this.track, position)) {
-      if (!this.active.has(span.hitboxId)) {
-        this.activate(span.hitboxId, index);
+    for (const [index, span] of this.track.hitboxSpans.entries()) {
+      if (span.from <= context.timelineFrame && context.timelineFrame <= span.through && !this.active.has(span.hitboxId)) {
+        this.activate(span.hitboxId, index, context);
       }
-    }
-    this.position = position;
-    for (const event of this.track.events ?? []) {
-      if (event.at !== position) continue;
-      this.callbacks.onEvent?.({ ...event, playbackId: this.playbackId, position });
     }
   }
 
-  private activate(hitboxId: string, spanIndex: number): void {
-    const activationId = `${this.playbackId}:${hitboxId}:${spanIndex}`;
+  private activate(hitboxId: string, spanIndex: number, context: AnimationPlaybackContext): void {
+    const state = this.player.state;
+    const activationId = `${state.playbackId}:${context.cycle}:${hitboxId}:${spanIndex}`;
     const activeSpan = { hitboxId, spanIndex, activationId };
     this.active.set(hitboxId, activeSpan);
     this.callbacks.onHitboxActivated?.(hitboxId, activationId);
@@ -147,5 +122,13 @@ export class WeaponAttackTrackRunner {
   private disableAll(): void {
     for (const activeSpan of this.active.values()) this.deactivate(activeSpan);
     this.active.clear();
+  }
+
+  private dispatchEvent(event: WeaponEventDocument, context: AnimationPlaybackContext): void {
+    this.callbacks.onEvent?.({
+      ...event,
+      playbackId: this.player.state.playbackId,
+      position: context.timelineFrame,
+    });
   }
 }

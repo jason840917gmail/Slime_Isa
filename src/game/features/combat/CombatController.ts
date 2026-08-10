@@ -151,7 +151,7 @@ export class CombatController {
     this.combo.update();
     this.spawner?.update(time, delta);
     this.weapon.update(delta);
-    this.weaponVisual.update();
+    this.weaponVisual.update(delta);
     hitboxPool.update(this.ctx.scene);
     projectilePool.update(this.ctx.scene);
   }

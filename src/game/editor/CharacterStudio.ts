@@ -2,12 +2,14 @@ import { characterPackages } from 'virtual-character-content';
 
 import './character-studio.css';
 import { ensureStudioModeTabs } from './StudioModeTabs';
+import { createAnimationTimelineView } from './AnimationTimelineView';
 
 import { ASSET_MANIFEST, getAsset } from '../infrastructure/assets/manifest';
 import { resolveAssetUrl } from '../infrastructure/assets/assetUrls';
 import type { CharacterStudioAssetCatalog, CharacterStudioAssetEntry } from '../content/characters/characterAssetCatalog';
 import { CharacterDocumentState, type CharacterDocumentSnapshot } from './CharacterDocumentState';
 import { animationCycleFrameCount, animationFrameIndexAtStep } from '../shared/animationLoop';
+import { keyframeIndexAtTimelineFrame, normalizeAnimationClip, timelineFrameCount } from '../shared/animation';
 import { resolveCollisionShapeDimensions, type CollisionShape } from '../shared/collisionShapes';
 import type { CharacterPackage, JsonValue, VisualClipDocument, VisualLoopMode } from '../content/characters/types';
 
@@ -211,6 +213,13 @@ function renderFrameTile(frame: number, info: ReturnType<typeof assetFrameInfo>,
   </${tag}>`;
 }
 
+function renderCharacterSourceTilePicker(snapshot: CharacterDocumentSnapshot): string {
+  const info = assetFrameInfo(String(snapshot.visualSet.assetId));
+  const selected = new Set(snapshot.selectedSourceFrames);
+  const focused = selected.size > 0 ? `${selected.size} selected` : `focused source ${snapshot.selectedSourceFrame}`;
+  return `<div class="studio-asset-shelf-backdrop character-tile-picker-backdrop" data-character-tile-picker-backdrop><section class="studio-asset-shelf character-tile-picker" role="dialog" aria-modal="true" aria-labelledby="character-tile-picker-title"><header class="studio-asset-shelf-heading"><div><span class="studio-kicker">Animation keyframe picker</span><h2 id="character-tile-picker-title">Add source tiles</h2><p>Select source tiles for this animation. They become keyframes and can hold for multiple timeline frames.</p></div><button type="button" class="studio-icon-button" data-action="close-character-tile-picker" aria-label="Close animation keyframe picker">×</button></header><div class="studio-sheet-grid character-picker-grid">${Array.from({ length: info.count }, (_, frame) => renderFrameTile(frame, info, selected.has(frame), false, true, snapshot.visualSet.clips[snapshot.selectedClipId]?.frames.includes(frame) ?? false)).join('')}</div><footer class="character-tile-picker-footer"><span>${escapeHtml(focused)} · ${info.count} available</span><div><button type="button" class="studio-button studio-button--quiet" data-action="insert-frame">INSERT AT PLAYHEAD</button><button type="button" class="studio-button studio-button--accent" data-action="append-frame">ADD TO ANIMATION</button></div></footer></section></div>`;
+}
+
 function renderInspector(snapshot: CharacterDocumentSnapshot): string {
   const { character, visualSet } = snapshot;
   const frame = snapshot.selectedSourceFrame;
@@ -254,7 +263,11 @@ function renderStudio(snapshot: CharacterDocumentSnapshot, assetShelf: AssetShel
   const info = assetFrameInfo(String(visualSet.assetId));
   const usedSourceFrames = new Set(clip?.frames ?? []);
   const selectedSourceFrames = new Set(snapshot.selectedSourceFrames);
+  const normalizedClip = clip && clip.frames.length > 0 ? normalizeAnimationClip(clip) : undefined;
   const timeline = clip?.frames ?? [];
+  const timelineView = normalizedClip ? createAnimationTimelineView(normalizedClip) : undefined;
+  const timelineFrames = timelineView?.timelineFrames ?? 0;
+  const selectedTimelineFrame = normalizedClip?.keyframeTimes[selectedTimelineIndex] ?? selectedTimelineIndex;
   const track = character.animationTracks[selectedClipId] ?? {};
   const selectedFrame = timeline[selectedTimelineIndex] ?? snapshot.selectedSourceFrame;
   const previewColumn = selectedFrame % info.columns;
@@ -268,13 +281,13 @@ function renderStudio(snapshot: CharacterDocumentSnapshot, assetShelf: AssetShel
   const bodyHeight = bodyDimensions.height * 3;
   const hitboxGuides = Object.entries(character.hitboxes).map(([hitboxId, hitbox]) => { const dimensions = resolveCollisionShapeDimensions(hitbox); const shapeStyle = dimensions.shape === 'rectangle' ? '' : 'border-radius:50%;'; return `<span class="stage-hitbox stage-hitbox--${dimensions.shape}" style="width:${dimensions.width * 3}px;height:${dimensions.height * 3}px;${shapeStyle}transform:translate(-50%,-50%) translate(${hitbox.offsetX * 3}px,${hitbox.offsetY * 3}px)" title="${escapeHtml(hitboxId)}"><small>${escapeHtml(hitboxId)}</small></span>`; }).join('');
   const trackSpans = track.hitboxSpans ?? [];
-  const selectedSpans = trackSpans.filter((span) => span.from <= selectedTimelineIndex && selectedTimelineIndex <= span.through);
-  const selectedEvents = (track.events ?? []).filter((event) => event.at === selectedTimelineIndex);
+  const selectedSpans = trackSpans.filter((span) => span.from <= selectedTimelineFrame && selectedTimelineFrame <= span.through);
+  const selectedEvents = (track.events ?? []).filter((event) => event.at === selectedTimelineFrame);
   const spanSummary = selectedSpans.length > 0 ? selectedSpans.map((span) => `${escapeHtml(span.hitboxId)} · frames ${span.from}–${span.through}`).join(' / ') : 'none on this frame';
   const eventSummary = selectedEvents.length > 0 ? selectedEvents.map((event) => escapeHtml(event.eventId)).join(' / ') : 'none on this frame';
   const trackHitboxIds = Array.from(new Set([...Object.keys(character.hitboxes), ...trackSpans.map((span) => span.hitboxId)]));
   const hitboxTrackRows = trackHitboxIds.length > 0
-    ? trackHitboxIds.map((hitboxId) => `<div class="timeline-track-row"><span class="timeline-track-label" title="${escapeHtml(hitboxId)}">${escapeHtml(hitboxId)}</span>${timeline.map((_, index) => `<span class="timeline-cell${trackSpans.some((span) => span.hitboxId === hitboxId && span.from <= index && index <= span.through) ? ' is-hot' : ''}"></span>`).join('')}</div>`).join('')
+    ? trackHitboxIds.map((hitboxId) => `<div class="timeline-track-row"><span class="timeline-track-label" title="${escapeHtml(hitboxId)}">${escapeHtml(hitboxId)}</span>${Array.from({ length: timelineFrames }, (_, index) => `<span class="timeline-cell${trackSpans.some((span) => span.hitboxId === hitboxId && span.from <= index && index <= span.through) ? ' is-hot' : ''}"></span>`).join('')}</div>`).join('')
     : '<div class="timeline-track-row"><span class="timeline-track-label">HITBOX</span><span class="timeline-track-empty">Add a named hitbox to author active frames.</span></div>';
   return `<main class="character-studio ${statusClass(snapshot)}" data-studio-root>
     <header class="studio-topbar"><a class="studio-brand" href="?" aria-label="Back to game"><span class="brand-mark">✦</span><span><small>FIELD CARTOGRAPHER</small><strong>CHARACTER STUDIO</strong></span></a><div class="studio-topbar-actions"><span class="studio-save-state"><i></i>${escapeHtml(snapshot.statusMessage)}</span><button type="button" class="studio-button studio-button--quiet" data-action="undo" ${snapshot.dirty ? '' : 'disabled'}>↶</button><button type="button" class="studio-button studio-button--quiet" data-action="redo">↷</button><button type="button" class="studio-button studio-button--save" data-action="save" ${snapshot.errors.length > 0 || !snapshot.dirty ? 'disabled' : ''}>SAVE DRAFT</button></div></header>
@@ -283,7 +296,7 @@ function renderStudio(snapshot: CharacterDocumentSnapshot, assetShelf: AssetShel
       <section class="studio-workbench"><div class="studio-workbench-heading"><div><span class="studio-kicker">${character.kind === 'player' ? 'Player package' : 'Enemy package'}</span><h2>${escapeHtml(character.displayName)} <span>${escapeHtml(character.characterId)}</span></h2></div><div class="studio-workbench-meta"><span>ASSET <b>${escapeHtml(visualSet.assetId)}</b></span><span>GRID <b>${info.columns} × ${info.rows}</b></span><span>FRAMES <b>${info.count}</b></span></div></div>
         <section class="studio-preview-card"><div class="studio-preview-toolbar"><span class="studio-kicker">ANCHOR-LOCKED PREVIEW</span><div class="studio-toolbar-actions"><button type="button" class="studio-pill is-active" data-action="toggle-grid">GRID</button><button type="button" class="studio-pill is-active" data-action="toggle-body">BODY</button><button type="button" class="studio-pill" data-action="toggle-mirror">MIRROR</button><button type="button" class="studio-pill" data-action="toggle-onion">ONION</button></div></div><div class="studio-stage" data-preview-stage><span class="stage-axis stage-axis-x"></span><span class="stage-axis stage-axis-y"></span><span class="stage-anchor">+</span><span class="stage-label">WORLD ANCHOR</span><span class="stage-body" style="width:${bodyWidth}px;height:${bodyHeight}px;transform:translate(-50%,-50%) translate(${character.body.centerOffsetX * 3}px,${character.body.centerOffsetY * 3}px)"></span>${hitboxGuides}<span class="stage-sprite" style="--sheet-url:url('${info.url}');--frame-w:${info.width}px;--frame-h:${info.height}px;--sheet-w:${info.width * info.columns}px;--sheet-h:${info.height * info.rows}px;--frame-x:${previewColumn * info.width}px;--frame-y:${previewRow * info.height}px;--preview-scale:${previewScale};--origin-offset-x:${originOffsetX}px;--origin-offset-y:${originOffsetY}px;--offset-x:${numberValue(transform.sourceOffset[0]) * previewScale}px;--offset-y:${numberValue(transform.sourceOffset[1]) * previewScale}px"></span><span class="stage-caption"><b>${escapeHtml(selectedClipId)}</b><span>POSITION ${selectedTimelineIndex + 1} / ${timeline.length} · SOURCE ${selectedFrame}</span></span></div><div class="studio-preview-footer"><span><i class="legend-dot legend-dot--amber"></i> art transform</span><span><i class="legend-dot legend-dot--red"></i> stable body</span><span><i class="legend-dot legend-dot--cyan"></i> hitbox</span><label>ZOOM <input type="range" min="1" max="2" step="1" value="1" data-preview-zoom /></label></div></section>
         <section class="studio-sheet-panel"><div class="studio-section-bar"><div><span class="studio-kicker">Source sheet</span><strong>Click frames to select · click again to deselect</strong></div><span class="studio-muted">${info.width} × ${info.height} px cells</span></div><div class="studio-sheet-grid">${Array.from({ length: info.count }, (_, frame) => renderFrameTile(frame, info, selectedSourceFrames.has(frame), false, true, usedSourceFrames.has(frame))).join('')}</div><div class="studio-sheet-actions"><button type="button" class="studio-button studio-button--accent" data-action="append-frame">+ APPEND SELECTED</button><button type="button" class="studio-button studio-button--quiet" data-action="insert-frame">INSERT AT PLAYHEAD</button><span class="studio-selection-note">focused source ${snapshot.selectedSourceFrame} · ${selectedSourceFrames.size} selected · ${usedSourceFrames.size} used</span></div></section>
-        <section class="studio-timeline-panel"><div class="studio-section-bar"><div><span class="studio-kicker">Animation timeline</span><strong>Editing <span class="studio-inline-clip-name">${escapeHtml(selectedClipId)}</span></strong></div><span class="studio-muted">Drag frames to reorder · cyan = active hitbox · ◆ = event</span><div class="studio-clip-actions"><button type="button" class="studio-icon-button" data-action="add-clip" title="Create a new animation clip" aria-label="Create a new animation clip">+</button><button type="button" class="studio-icon-button" data-action="rename-clip" title="Rename the current animation clip" aria-label="Rename the current animation clip">✎</button><button type="button" class="studio-icon-button" data-action="duplicate-clip" title="Duplicate the current animation clip" aria-label="Duplicate the current animation clip">⧉</button><button type="button" class="studio-icon-button is-danger" data-action="remove-clip" title="Remove the current animation clip" aria-label="Remove the current animation clip">×</button></div></div><div class="studio-clip-tabs">${Object.entries(visualSet.clips).map(([id, entry]) => `<button type="button" class="studio-clip-tab${id === selectedClipId ? ' is-active' : ''}" data-clip-id="${escapeHtml(id)}" title="Edit ${escapeHtml(id)}"><span>${escapeHtml(id)}</span><small>${entry.frames.length}F</small></button>`).join('')}</div><div class="studio-timeline"><div class="timeline-ruler">${timeline.map((_, index) => `<span>${String(index).padStart(2, '0')}</span>`).join('')}</div><div class="timeline-frames">${timeline.map((frame, index) => `<button type="button" class="timeline-frame${index === selectedTimelineIndex ? ' is-active' : ''}" data-timeline-index="${index}" draggable="true" title="Frame ${index}. Drag to reorder.">${renderFrameTile(frame, info, false, true, false)}<span class="timeline-frame-number">${index}</span>${(track.events ?? []).filter((event) => event.at === index).map((event) => `<i class="event-marker" title="${escapeHtml(event.eventId)}" aria-label="Event: ${escapeHtml(event.eventId)}">◆</i>`).join('')}</button>`).join('')}</div>${hitboxTrackRows}</div><div class="studio-timeline-selection"><span><b data-timeline-selection-frame>FRAME ${String(selectedTimelineIndex).padStart(2, '0')}</b></span><span><strong>HITBOX</strong> <span data-timeline-selection-hitbox>${spanSummary}</span></span><span><strong>EVENTS</strong> <span data-timeline-selection-events>${eventSummary}</span></span></div><div class="studio-timeline-help"><div><b>+ HITBOX SPAN</b><p>Marks a named hitbox active from the selected frame through an inclusive end frame. Runtime collision callbacks use these cyan cells.</p></div><div><b>+ EVENT</b><p>Adds a one-frame event ID for runtime listeners. It is metadata only; it does not change the sprite by itself.</p></div></div><div class="studio-playback"><button type="button" class="studio-button studio-button--play${playing ? ' is-playing' : ''}" data-action="play" aria-pressed="${playing}" title="${playing ? 'Stop clip playback' : 'Play this clip'}">${playing ? '■ STOP CLIP' : '▶ PLAY CLIP'}</button><button type="button" class="studio-button studio-button--quiet" data-action="previous-frame">‹</button><button type="button" class="studio-button studio-button--quiet" data-action="next-frame">›</button><button type="button" class="studio-button studio-button--quiet" data-action="add-span" title="Mark a hitbox active across a range of frames">+ HITBOX SPAN</button><button type="button" class="studio-button studio-button--quiet" data-action="add-event" title="Add a one-frame runtime event marker">+ EVENT</button><label class="studio-inline-field">FPS <input type="number" min="1" max="240" step="1" inputmode="numeric" value="${integerInputValue(clip?.framesPerSecond, 8)}" data-clip-fps /></label><label class="studio-switch"><input type="checkbox" ${clip?.loop ? 'checked' : ''} data-clip-loop /><span></span> LOOP</label><button type="button" class="studio-button studio-button--quiet is-danger" data-action="remove-frame" ${timeline.length <= 1 ? 'disabled' : ''}>REMOVE FRAME</button></div></section>
+        <section class="studio-timeline-panel"><div class="studio-section-bar"><div><span class="studio-kicker">Animation timeline</span><strong>Editing <span class="studio-inline-clip-name">${escapeHtml(selectedClipId)}</span></strong></div><span class="studio-muted">Drag keyframes to reorder · blocks show their hold length · ◆ = event</span><div class="studio-clip-actions"><button type="button" class="studio-icon-button" data-action="add-clip" title="Create a new animation clip" aria-label="Create a new animation clip">+</button><button type="button" class="studio-icon-button" data-action="rename-clip" title="Rename the current animation clip" aria-label="Rename the current animation clip">✎</button><button type="button" class="studio-icon-button" data-action="duplicate-clip" title="Duplicate the current animation clip" aria-label="Duplicate the current animation clip">⧉</button><button type="button" class="studio-icon-button is-danger" data-action="remove-clip" title="Remove the current animation clip" aria-label="Remove the current animation clip">×</button></div></div><div class="studio-clip-tabs">${Object.entries(visualSet.clips).map(([id, entry]) => `<button type="button" class="studio-clip-tab${id === selectedClipId ? ' is-active' : ''}" data-clip-id="${escapeHtml(id)}" title="Edit ${escapeHtml(id)}"><span>${escapeHtml(id)}</span><small>${entry.frames.length}K · ${entry.durationSeconds?.toFixed(2) ?? (entry.frames.length / entry.framesPerSecond).toFixed(2)}s</small></button>`).join('')}</div><div class="studio-timeline"><div class="timeline-ruler">${Array.from({ length: timelineView?.timelineFrames ?? 0 }, (_, index) => `<span>${String(index).padStart(2, '0')}</span>`).join('')}</div><div class="timeline-frames">${timeline.map((frame, index) => { const keyframe = timelineView?.keyframes[index]; const hold = keyframe?.hold ?? 1; const start = keyframe?.start ?? index; return `<button type="button" class="timeline-frame${index === selectedTimelineIndex ? ' is-active' : ''}" data-timeline-index="${index}" draggable="true" title="Keyframe ${index}. Holds ${hold} timeline frame${hold === 1 ? '' : 's'}. Drag to reorder." style="--timeline-hold:${Math.max(1, hold)}"><span class="timeline-frame-hold">${hold}F</span>${renderFrameTile(frame, info, false, true, false)}<span class="timeline-frame-number">${start}</span>${(track.events ?? []).filter((event) => event.at >= start && event.at < start + hold).map((event) => `<i class="event-marker" title="${escapeHtml(event.eventId)}" aria-label="Event: ${escapeHtml(event.eventId)}">◆</i>`).join('')}</button>`; }).join('')}</div>${hitboxTrackRows}</div><div class="studio-timeline-selection"><span><b data-timeline-selection-frame>KEYFRAME ${String(selectedTimelineIndex).padStart(2, '0')} · FRAME ${String(selectedTimelineFrame).padStart(2, '0')}</b></span><span><strong>HITBOX</strong> <span data-timeline-selection-hitbox>${spanSummary}</span></span><span><strong>EVENTS</strong> <span data-timeline-selection-events>${eventSummary}</span></span></div><div class="studio-timeline-help"><div><b>+ HITBOX SPAN</b><p>Marks a named hitbox active from the selected timeline frame through an inclusive end frame. Runtime collision callbacks use these timeline cells.</p></div><div><b>+ EVENT</b><p>Adds a one-frame event ID for runtime listeners. It is metadata only; it does not change the sprite by itself.</p></div></div><div class="studio-playback"><button type="button" class="studio-button studio-button--play${playing ? ' is-playing' : ''}" data-action="play" aria-pressed="${playing}" title="${playing ? 'Stop clip playback' : 'Play this clip'}">${playing ? '■ STOP CLIP' : '▶ PLAY CLIP'}</button><button type="button" class="studio-button studio-button--quiet" data-action="previous-frame">‹</button><button type="button" class="studio-button studio-button--quiet" data-action="next-frame">›</button><button type="button" class="studio-button studio-button--quiet" data-action="add-span" title="Mark a hitbox active across a range of timeline frames">+ HITBOX SPAN</button><button type="button" class="studio-button studio-button--quiet" data-action="add-event" title="Add a one-frame runtime event marker">+ EVENT</button><label class="studio-inline-field">FPS <input type="number" min="1" max="240" step="1" inputmode="numeric" value="${integerInputValue(clip?.framesPerSecond, 8)}" data-clip-fps /></label><label class="studio-inline-field">DURATION <input type="number" min="0.01" max="60" step="0.01" inputmode="decimal" value="${Number(clip?.durationSeconds ?? (timeline.length / Math.max(clip?.framesPerSecond ?? 8, 1))).toFixed(2)}" data-clip-duration /></label><label class="studio-switch"><input type="checkbox" ${clip?.loop ? 'checked' : ''} data-clip-loop /><span></span> LOOP</label><button type="button" class="studio-button studio-button--quiet is-danger" data-action="remove-frame" ${timeline.length <= 1 ? 'disabled' : ''}>REMOVE KEYFRAME</button></div></section>
       </section>
       <aside class="studio-inspector"><div class="studio-inspector-heading"><span class="studio-kicker">Inspector</span><h2>${escapeHtml(character.displayName)}</h2><p>${character.kind === 'player' ? 'Primary player runtime package' : 'Enemy runtime package'}</p></div>${renderInspector(snapshot)}${snapshot.errors.length > 0 ? `<section class="studio-errors"><div class="studio-section-heading"><span class="studio-kicker">Validation</span><strong>${snapshot.errors.length} issue${snapshot.errors.length === 1 ? '' : 's'}</strong></div>${snapshot.errors.map((error) => `<p><b>${escapeHtml(error.path)}</b> ${escapeHtml(error.message)}</p>`).join('')}</section>` : ''}</aside>
     </div>
@@ -338,14 +351,16 @@ function updatePlaybackFrameDom(container: HTMLDivElement, snapshot: CharacterDo
   container.querySelectorAll<HTMLElement>('.timeline-frame.is-active').forEach((item) => item.classList.remove('is-active'));
   container.querySelector<HTMLElement>(`.timeline-frame[data-timeline-index="${index}"]`)?.classList.add('is-active');
   const caption = container.querySelector<HTMLElement>('.stage-caption span');
-  if (caption) caption.textContent = `POSITION ${index + 1} / ${timeline.length} · SOURCE ${frame}`;
+  const normalizedClip = normalizeAnimationClip(clip);
+  const timelineFrame = normalizedClip.keyframeTimes[index] ?? index;
+  if (caption) caption.textContent = `KEYFRAME ${index + 1} / ${timeline.length} · FRAME ${timelineFrame + 1} / ${timelineFrameCount(normalizedClip)} · SOURCE ${frame}`;
   const track = snapshot.character.animationTracks[snapshot.selectedClipId] ?? {};
-  const selectedSpans = (track.hitboxSpans ?? []).filter((span) => span.from <= index && index <= span.through);
-  const selectedEvents = (track.events ?? []).filter((event) => event.at === index);
+  const selectedSpans = (track.hitboxSpans ?? []).filter((span) => span.from <= timelineFrame && timelineFrame <= span.through);
+  const selectedEvents = (track.events ?? []).filter((event) => event.at === timelineFrame);
   const spanSummary = selectedSpans.length > 0 ? selectedSpans.map((span) => `${span.hitboxId} · frames ${span.from}–${span.through}`).join(' / ') : 'none on this frame';
   const eventSummary = selectedEvents.length > 0 ? selectedEvents.map((event) => event.eventId).join(' / ') : 'none on this frame';
   const frameSummary = container.querySelector<HTMLElement>('[data-timeline-selection-frame]');
-  if (frameSummary) frameSummary.textContent = `FRAME ${String(index).padStart(2, '0')}`;
+  if (frameSummary) frameSummary.textContent = `KEYFRAME ${String(index).padStart(2, '0')} · FRAME ${String(timelineFrame).padStart(2, '0')}`;
   const hitboxSummary = container.querySelector<HTMLElement>('[data-timeline-selection-hitbox]');
   if (hitboxSummary) hitboxSummary.textContent = spanSummary;
   const eventSummaryElement = container.querySelector<HTMLElement>('[data-timeline-selection-events]');
@@ -441,6 +456,7 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
   let playTimer: number | undefined;
   let playbackTick = false;
   let activeModal: ActiveStudioModal | undefined;
+  let sourceTilePickerOpen = false;
   let assetShelf: AssetShelfState = { open: false, loading: false };
   let creationForm: CreationFormState = { kind: 'enemy', template: 'melee-enemy', characterId: '', displayName: '', assetId: '' };
   const query = new URLSearchParams(window.location.search);
@@ -455,31 +471,53 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
   };
 
   const renderLoading = (message: string): void => { container.innerHTML = `<main class="character-studio studio-loading"><div><span class="studio-loading-orb">✦</span><p>${escapeHtml(message)}</p></div></main>`; };
-  const rerender = (snapshot: CharacterDocumentSnapshot): void => {
+  const ensureTimelineTilePickerButton = (): void => {
+    const actions = container.querySelector<HTMLElement>('.studio-timeline-panel .studio-clip-actions');
+    if (!actions || actions.querySelector('[data-action="open-character-tile-picker"]')) return;
+    actions.insertAdjacentHTML('afterbegin', '<button type="button" class="studio-button studio-button--save studio-timeline-add-tiles" data-action="open-character-tile-picker">+ ADD TILES</button>');
+  };
+  const renderViewport = (snapshot: CharacterDocumentSnapshot): void => {
+    const scrollPositions = captureStudioScroll(container);
+    const active = document.activeElement as HTMLElement | null;
+    const windowPosition = { x: window.scrollX, y: window.scrollY };
+    const focusedSource = active?.dataset.sourceFrame;
     if (disposed) return;
     if (playbackTick && playTimer !== undefined) {
       updatePlaybackFrameDom(container, snapshot);
       return;
     }
-    const scrollPositions = captureStudioScroll(container);
     container.innerHTML = renderStudio(snapshot, assetShelf, creationForm, returnEditor, playTimer !== undefined, activeModal);
+    container.querySelector('.studio-sheet-panel')?.classList.add('is-source-bank-hidden');
+    if (sourceTilePickerOpen) container.insertAdjacentHTML('beforeend', renderCharacterSourceTilePicker(snapshot));
     ensureStudioModeTabs(container, returnEditor, 'characters');
     ensureProjectileStudioLink(container, returnEditor);
+    ensureTimelineTilePickerButton();
     decorateBodyPreview(container, snapshot.character.body);
     decorateLoopModeControl(container, snapshot.visualSet.clips[snapshot.selectedClipId]);
     syncAssetCreationControls(container, assetShelf, String(snapshot.visualSet.assetId), creationForm);
     restoreStudioScroll(container, scrollPositions);
+    window.scrollTo(windowPosition.x, windowPosition.y);
+    if (focusedSource) container.querySelector<HTMLElement>(`[data-source-frame="${focusedSource}"]`)?.focus({ preventScroll: true });
+    window.requestAnimationFrame(() => { restoreStudioScroll(container, scrollPositions); window.scrollTo(windowPosition.x, windowPosition.y); });
+  };
+  const rerender = (snapshot: CharacterDocumentSnapshot): void => {
+    if (disposed) return;
+    renderViewport(snapshot);
   };
   const rerenderShelf = (): void => {
     if (!disposed && currentState) {
       const scrollPositions = captureStudioScroll(container);
       container.innerHTML = renderStudio(currentState.value, assetShelf, creationForm, returnEditor, playTimer !== undefined, activeModal);
+      container.querySelector('.studio-sheet-panel')?.classList.add('is-source-bank-hidden');
+      if (sourceTilePickerOpen) container.insertAdjacentHTML('beforeend', renderCharacterSourceTilePicker(currentState.value));
       ensureStudioModeTabs(container, returnEditor, 'characters');
       ensureProjectileStudioLink(container, returnEditor);
+      ensureTimelineTilePickerButton();
       decorateBodyPreview(container, currentState.value.character.body);
       decorateLoopModeControl(container, currentState.value.visualSet.clips[currentState.value.selectedClipId]);
       syncAssetCreationControls(container, assetShelf, String(currentState.value.visualSet.assetId), creationForm);
       restoreStudioScroll(container, scrollPositions);
+      window.requestAnimationFrame(() => restoreStudioScroll(container, scrollPositions));
     }
   };
   const settleModal = (result: StudioModalResult): void => {
@@ -634,6 +672,8 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
   const handleAction = async (action: string, actionElement?: HTMLElement): Promise<void> => {
     if (action === 'new-character') { stopPlayback(); void openAssetShelf(); return; }
     if (action === 'close-asset-shelf') { assetShelf = { open: false, loading: false }; rerenderShelf(); return; }
+    if (action === 'open-character-tile-picker') { if (currentState) { sourceTilePickerOpen = true; rerender(currentState.value); } return; }
+    if (action === 'close-character-tile-picker') { sourceTilePickerOpen = false; if (currentState) rerender(currentState.value); return; }
     if (action === 'select-asset') {
       const assetId = actionElement?.dataset.assetId;
       if (assetId) { creationForm = { ...creationForm, assetId }; assetShelf = { ...assetShelf, selectedAssetId: assetId, notice: undefined }; rerenderShelf(); }
@@ -650,19 +690,21 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
       case 'rename-clip': { const id = await promptClipId('Rename current animation', currentState.value.selectedClipId); if (id) currentState.renameClip(id); break; }
       case 'duplicate-clip': { const id = await promptClipId('Duplicate current animation', `${currentState.value.selectedClipId}-copy`); if (id) currentState.duplicateClip(id); break; }
       case 'remove-clip': if (await confirmModal({ title: 'Remove animation?', message: `Remove '${currentState.value.selectedClipId}' and its package-local hitbox/event track? This cannot be undone after saving.`, confirmLabel: 'REMOVE ANIMATION', danger: true })) currentState.removeClip(); break;
-      case 'append-frame': { const frames = currentState.value.selectedSourceFrames.length > 0 ? currentState.value.selectedSourceFrames : [currentState.value.selectedSourceFrame]; currentState.appendSelectedFrames(frames); break; }
-      case 'insert-frame': { const frames = currentState.value.selectedSourceFrames.length > 0 ? currentState.value.selectedSourceFrames : [currentState.value.selectedSourceFrame]; currentState.insertSelectedFrames(frames); break; }
+      case 'append-frame': { const frames = currentState.value.selectedSourceFrames.length > 0 ? currentState.value.selectedSourceFrames : [currentState.value.selectedSourceFrame]; sourceTilePickerOpen = false; currentState.appendSelectedFrames(frames); break; }
+      case 'insert-frame': { const frames = currentState.value.selectedSourceFrames.length > 0 ? currentState.value.selectedSourceFrames : [currentState.value.selectedSourceFrame]; sourceTilePickerOpen = false; currentState.insertSelectedFrames(frames); break; }
       case 'add-span': {
         const hitboxIds = Object.keys(currentState.value.character.hitboxes);
         if (hitboxIds.length === 0) {
           await alertModal('No hitbox available', 'Add a named hitbox in the Inspector before creating a hitbox span.');
           break;
         }
-        const from = currentState.value.selectedTimelineIndex;
+        const clip = currentState.value.visualSet.clips[currentState.value.selectedClipId];
+        const normalizedClip = clip && clip.frames.length > 0 ? normalizeAnimationClip(clip) : undefined;
+        const from = normalizedClip?.keyframeTimes[currentState.value.selectedTimelineIndex] ?? currentState.value.selectedTimelineIndex;
         const hitboxValues = hitboxIds.length === 1 ? undefined : await promptModal({ title: 'Choose hitbox', message: 'Select the named hitbox that should be active during this range.', fields: [{ id: 'hitboxId', label: `Hitbox ID (${hitboxIds.join(', ')})`, value: hitboxIds[0] }], confirmLabel: 'NEXT' });
         const hitboxId = hitboxIds.length === 1 ? hitboxIds[0] : hitboxValues?.hitboxId?.trim();
         if (!hitboxId || !hitboxIds.includes(hitboxId)) break;
-        const lastFrame = Math.max(from, (currentState.value.visualSet.clips[currentState.value.selectedClipId]?.frames.length ?? 1) - 1);
+        const lastFrame = Math.max(from, normalizedClip ? timelineFrameCount(normalizedClip) - 1 : (clip?.frames.length ?? 1) - 1);
         const throughValues = await promptModal({ title: 'Set hitbox span', message: `This hitbox will stay active from frame ${from} through the end frame, inclusive.`, fields: [{ id: 'through', label: `End frame (${from}-${lastFrame})`, value: String(from), inputType: 'number' }], confirmLabel: 'ADD SPAN' });
         if (!throughValues) break;
         const throughValue = integerValue(throughValues.through, from);
@@ -672,7 +714,9 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
       case 'add-event': {
         const eventValues = await promptModal({ title: 'Add animation event', message: 'Adds a one-frame runtime marker at the selected timeline position. It does not change the artwork by itself.', fields: [{ id: 'eventId', label: 'Event ID', value: 'attack-impact', placeholder: 'attack-impact' }], confirmLabel: 'ADD EVENT' });
         const eventId = eventValues?.eventId?.trim().toLowerCase();
-        if (eventId) currentState.addEvent({ at: currentState.value.selectedTimelineIndex, eventId });
+        const clip = currentState.value.visualSet.clips[currentState.value.selectedClipId];
+        const normalizedClip = clip && clip.frames.length > 0 ? normalizeAnimationClip(clip) : undefined;
+        if (eventId) currentState.addEvent({ at: normalizedClip?.keyframeTimes[currentState.value.selectedTimelineIndex] ?? currentState.value.selectedTimelineIndex, eventId });
         break;
       }
       case 'remove-frame': currentState.removeSelectedFrame(); break;
@@ -691,20 +735,22 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
         if (!clip) break;
         currentState.selectTimelineIndex(0);
         let playbackStep = 0;
-        const cycleLength = animationCycleFrameCount(clip);
+        const normalizedClip = normalizeAnimationClip(clip);
+        const cycleLength = animationCycleFrameCount(normalizedClip);
         playTimer = window.setInterval(() => {
           if (!currentState) {
             stopPlayback();
             return;
           }
           playbackStep += 1;
-          if (playbackStep >= clip.frames.length && !clip.loop) {
+          if (playbackStep >= timelineFrameCount(normalizedClip) && !clip.loop) {
             stopPlayback();
-            playbackStep = Math.max(clip.frames.length - 1, 0);
+            playbackStep = Math.max(timelineFrameCount(normalizedClip) - 1, 0);
           } else if (clip.loop) {
             playbackStep %= cycleLength;
           }
-          const index = animationFrameIndexAtStep(clip, playbackStep);
+          const timelineFrame = animationFrameIndexAtStep(normalizedClip, playbackStep);
+          const index = keyframeIndexAtTimelineFrame(normalizedClip, timelineFrame);
           playbackTick = true;
           try { currentState.selectTimelineIndex(index); } finally { playbackTick = false; }
         }, 1000 / Math.max(clip.framesPerSecond, 0.1));
@@ -832,6 +878,8 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
     if (modalAction === 'cancel') { settleModal(undefined); return; }
     const modalBackdrop = target.closest<HTMLElement>('[data-studio-modal-backdrop]');
     if (modalBackdrop && target === modalBackdrop) { settleModal(undefined); return; }
+    const tilePickerBackdrop = target.closest<HTMLElement>('[data-character-tile-picker-backdrop]');
+    if (tilePickerBackdrop && target === tilePickerBackdrop) { sourceTilePickerOpen = false; if (currentState) rerender(currentState.value); return; }
     const characterButton = target.closest<HTMLElement>('[data-character-id]');
     if (characterButton?.dataset.characterId) { void choosePackage(characterButton.dataset.characterId); return; }
     const clipButton = target.closest<HTMLElement>('[data-clip-id]');
@@ -868,12 +916,13 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
       return;
     }
     if (!currentState) return;
-    if (target.matches('[data-clip-fps], [data-clip-loop], [data-clip-loop-mode]')) {
+    if (target.matches('[data-clip-fps], [data-clip-duration], [data-clip-loop], [data-clip-loop-mode]')) {
       stopPlayback();
       const loopMode: VisualLoopMode = container.querySelector<HTMLSelectElement>('[data-clip-loop-mode]')?.value === 'ping-pong' ? 'ping-pong' : 'wrap';
       const fps = Math.min(240, Math.max(1, integerValue(container.querySelector<HTMLInputElement>('[data-clip-fps]')?.value, 8)));
+      const duration = Math.min(60, Math.max(0.01, Number(container.querySelector<HTMLInputElement>('[data-clip-duration]')?.value ?? 0)));
       const loop = container.querySelector<HTMLInputElement>('[data-clip-loop]')?.checked ?? true;
-      currentState.updatePlayback(fps, loop, loopMode);
+      currentState.updatePlayback(fps, loop, loopMode, Number.isFinite(duration) ? duration : undefined);
       return;
     }
     const booleanPath = target.dataset.booleanPath;

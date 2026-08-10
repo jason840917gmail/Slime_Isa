@@ -7,6 +7,7 @@ import {
   type VisualSetId,
 } from '../../content/visuals/VisualCatalog';
 import { getAsset } from '../../infrastructure/assets/manifest';
+import { expandAnimationClip } from '../../shared/animation';
 
 const registeredByManager = new WeakMap<Phaser.Animations.AnimationManager, Set<string>>();
 
@@ -38,9 +39,10 @@ export function registerVisualSetAnimations(
       continue;
     }
 
+    const expanded = expandAnimationClip(clip);
     const frames = asset.source.kind === 'spritesheet'
-      ? clip.frames.map((frame) => ({ key: textureKey, frame }))
-      : clip.frames.map(() => ({ key: textureKey }));
+      ? expanded.sourceFrames.map((frame) => ({ key: textureKey, frame }))
+      : expanded.sourceFrames.map(() => ({ key: textureKey }));
 
     scene.anims.create({
       key: clip.runtimeKey,
