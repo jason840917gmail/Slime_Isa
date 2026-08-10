@@ -140,13 +140,20 @@ last keyframe, or deleting a selection that contains every keyframe, is rejected
 with a message that a clip must contain at least one tile.
 
 Duplicating a keyframe copies its source tile and transform into the midpoint of
-the longest available hold. The midpoint is `floor((start + end) / 2)`; if it is
-occupied, the helper scans right first and then left for the nearest free cell.
-If no free timeline cell exists, duplication is rejected. Adding tiles from the
-picker automatically applies the deterministic even-distribution formula to the
-full visual keyframe set, as requested. Duplicate, drag, reorder, and delete use
-their local timing rules; a separate `DISTRIBUTE EVENLY` button can explicitly
-reapply the formula at any time. Track edits preserve absolute frame positions.
+the longest available hold. Holds are inclusive `[start, end]` cell ranges; the
+midpoint is `floor((start + end) / 2)`. If it is occupied, the helper scans right
+through `end` first and then left down to `start + 1` for the nearest free cell.
+Ties between equally long holds choose the earliest hold. If no free timeline cell
+exists, duplication is rejected. With multi-selection, selected occurrences are
+sorted by time and duplicated in that order, each using the current state after
+the previous insertion. Deletion removes every selected occurrence as one
+transaction; it is rejected if the selection would leave zero keyframes. “Last
+keyframe” therefore means the only remaining keyframe, not merely the final block
+in time. Adding tiles from the picker automatically applies the deterministic
+even-distribution formula to the full visual keyframe set, as requested.
+Duplicate, drag, reorder, and delete use their local timing rules; a separate
+`DISTRIBUTE EVENLY` button can explicitly reapply the formula at any time. Track
+edits preserve absolute frame positions.
 If deleting or moving visual keys leaves a track outside the clip, validation
 reports it and the edit is transactional rather than silently rewriting the
 track.
@@ -232,10 +239,13 @@ similarly rejects the change rather than dropping content.
 
 Legacy clips materialize explicit timing in the in-memory draft when the author
 opens a clip. Any successful Weapon Studio save of a dirty weapon writes explicit
-`durationSeconds` and `keyframeTimes` for every animation clip, even if the edit
-was only in identity or combat fields. An untouched weapon that is never saved
-remains in its original compact legacy form. Changing a legacy clip's duration or
-adding a tile uses even distribution.
+`durationSeconds` and `keyframeTimes` for every authored animation package that
+already exists in the draft, even if the edit was only in identity or combat
+fields. It does not serialize normalized fallback packages or create a missing
+directional package; absent LEFT remains the RIGHT mirror, and absent vertical
+packages remain root fallbacks. An untouched weapon that is never saved remains
+in its original compact legacy form. Changing a legacy clip's duration or adding
+a tile uses even distribution.
 
 ### Scroll and focus preservation
 
