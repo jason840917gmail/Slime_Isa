@@ -47,11 +47,27 @@ interface WeaponAnimationDocument {
 }
 ```
 
+Keep the authored type permissive for legacy JSON, but introduce a separate
+normalized type used by runtime/editor consumers:
+
+```ts
+interface NormalizedWeaponAnimationDocument extends WeaponAnimationDocument {
+  readonly keyframeTimes: readonly number[];
+  readonly durationSeconds: number;
+}
+```
+
+`NormalizedWeaponDefinition` uses this required-timing animation type for root
+and directional clips. The catalog normalization boundary is responsible for
+creating it from a legacy clip or rejecting a partial timing pair.
+
 `durationSeconds` and `keyframeTimes` are an all-or-none authored pair. A document
-with only one of them is invalid in the authored validator and is normalized as a
-legacy clip only at a catalog boundary that explicitly records a diagnostic.
-Normalized animation data always contains both values, including for fallback
-root and directional attack packages.
+with only one of them is invalid everywhere; it is never silently treated as a
+legacy clip. Only a document with both fields absent is legacy. Normalized
+animation data always contains both values, including for fallback root and
+directional attack packages. The authored validator reports the partial-pair
+error before catalog/runtime use, and the runtime rejects an invalid definition
+instead of guessing.
 
 `frames` remains the ordered source-tile list and `frameTransforms` remains keyed
 by authored tile occurrence. `keyframeTimes[i]` is the integer timeline frame at
@@ -114,14 +130,19 @@ Add a focused weapon timeline module that owns:
 - deterministic even distribution and collision checks.
 
 Visual keyframe edits do not silently move hitbox spans or events: those tracks
-are independent absolute timeline tracks. A visual reorder moves the source tile,
-its occurrence transform, and its keyframe time together; hitbox/event positions
-stay on their existing timeline frames. Deleting a visual keyframe leaves valid
-track positions untouched, with the previous/next visual tile filling the time.
-Duplicating a visual keyframe copies its source tile and transform, inserts it at
-the next available visual position, and runs the explicit distribution command
-only when the user requests it. Track edits themselves preserve their absolute
-frame positions.
+are independent absolute timeline tracks. Dragging a block changes its time to the
+nearest legal free cell; the keyframe, source tile, and occurrence transform move
+together, then the keyframes are sorted by time. Deleting a keyframe removes its
+source tile and transform; if it was first, the remaining keyframe times are
+rebased by subtracting the new first time so the new first keyframe is at `0`.
+The remaining intervals are preserved. Duplicating a keyframe copies its source
+tile and transform into the midpoint of the longest available hold; if no free
+timeline cell exists, the operation is rejected. Button-based add and duplicate
+operations expose `DISTRIBUTE EVENLY` as an explicit action; that action replaces
+all visual keyframe times with the deterministic even-distribution formula.
+Track edits themselves preserve their absolute frame positions. If deleting or
+moving visual keys leaves a track outside the clip, validation reports it and the
+edit is transactional rather than silently rewriting the track.
 
 Runtime, Weapon Studio, validation, and deterministic checks must use these
 helpers rather than implementing separate timing math.
@@ -139,11 +160,14 @@ interface ExpandedWeaponAnimation {
 }
 ```
 
-The runtime passes this structure, or its `timelineFrameCount`, into the weapon
-visual and attack-track runner rather than allowing consumers to infer timing
-from `clip.frames.length`. The expanded sequence is used for Phaser playback;
-the occurrence index maps each displayed frame back to the authored tile
-occurrence, allowing `WeaponVisual` to:
+`expandWeaponAnimation(clip)` is the single producer of this structure. `WeaponVisual`
+receives the complete `ExpandedWeaponAnimation` for each registered clip and uses
+`sourceFrames` for Phaser texture frames plus `occurrenceIndices` for transforms.
+`WeaponAttackTrackRunner` keeps its existing clip input for FPS and events but
+also receives the explicit `timelineFrameCount`; it never infers completion from
+`clip.frames.length`. The expanded sequence is used for Phaser playback; the
+occurrence index maps each displayed frame back to the authored tile occurrence,
+allowing `WeaponVisual` to:
 
 - render the correct source tile for every held frame;
 - apply one occurrence's transform throughout its whole hold;
@@ -167,10 +191,15 @@ The animation panel contains:
 2. Clip timing controls: duration in seconds and FPS.
 3. A duration-block animation track with a frame ruler.
 4. An `ADD TILES` button that opens a modal source-tile picker.
-5. Tile selection, reorder, duplicate, delete, and manual keyframe movement.
-6. A selected-keyframe inspector showing source tile, start frame, derived hold
+ 5. Tile selection, reorder, duplicate, delete, and manual keyframe movement.
+ 6. A selected-keyframe inspector showing source tile, start frame, derived hold
    length, and transform controls.
 7. Aligned hitbox and event tracks for attack clips.
+
+The preview playhead, block positions, ruler cells, default attack spans, and
+preview hitbox guides all use timeline positions from `0` through `N - 1`, never
+the source-tile occurrence count. `previewStep` is therefore a timeline frame;
+the selected tile occurrence is resolved through the shared keyframe lookup.
 
 The source picker uses the selected weapon asset's existing spritesheet metadata.
 It is a temporary modal selection surface, not saved as part of the weapon
@@ -179,17 +208,27 @@ keyframe set across the clip. Manual movement afterward writes explicit
 `keyframeTimes`.
 
 When duration or FPS changes, the old timeline count `N` and new count `N'` are
-used to rescale each keyframe with `round(oldTime * N' / N)`, then the result is
-clamped monotonically to preserve `0 = t0 < ... < tK-1 < N'`. The same operation
-does not alter absolute hitbox/event positions; positions outside the new range
-are surfaced as validation errors for the author to correct. If the new timeline
-cannot fit every keyframe at a unique frame, the editor shows an actionable
-validation message rather than silently dropping tiles.
+used to rescale each keyframe with `raw[i] = round(oldTime[i] * N' / N)`. The
+shared helper then applies this deterministic forward pass:
+
+```text
+result[0] = 0
+result[i] = min(newN - (K - i), max(result[i - 1] + 1, raw[i]))
+```
+
+The operation is rejected before mutation when `K > newN`. It does not alter
+absolute hitbox/event positions. If an existing span or event would fall outside
+`[0, newN)`, the editor transaction is rejected, the prior duration/FPS remains
+unchanged, and an actionable validation message identifies the offending track.
+If the new timeline cannot fit every keyframe at a unique frame, the editor
+similarly rejects the change rather than dropping content.
 
 Legacy clips materialize explicit timing in the in-memory draft when the author
 opens a clip. Saving writes the timing pair. Changing a legacy clip's duration or
 adding a tile uses even distribution; simply opening and saving without a timing
-edit may retain the compact legacy form if no explicit timing was needed.
+edit, moving a keyframe, or changing a tile writes the timing pair. An untouched
+legacy clip may remain compact when saved, but any timeline-affecting edit always
+persists both explicit timing fields.
 
 ### Scroll and focus preservation
 
