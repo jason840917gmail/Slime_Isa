@@ -131,18 +131,25 @@ Add a focused weapon timeline module that owns:
 
 Visual keyframe edits do not silently move hitbox spans or events: those tracks
 are independent absolute timeline tracks. Dragging a block changes its time to the
-nearest legal free cell; the keyframe, source tile, and occurrence transform move
-together, then the keyframes are sorted by time. Deleting a keyframe removes its
-source tile and transform; if it was first, the remaining keyframe times are
-rebased by subtracting the new first time so the new first keyframe is at `0`.
-The remaining intervals are preserved. Duplicating a keyframe copies its source
-tile and transform into the midpoint of the longest available hold; if no free
-timeline cell exists, the operation is rejected. Button-based add and duplicate
-operations expose `DISTRIBUTE EVENLY` as an explicit action; that action replaces
-all visual keyframe times with the deterministic even-distribution formula.
-Track edits themselves preserve their absolute frame positions. If deleting or
-moving visual keys leaves a track outside the clip, validation reports it and the
-edit is transactional rather than silently rewriting the track.
+nearest legal free cell; ties resolve toward the lower frame. The keyframe,
+source tile, and occurrence transform move together, then keyframes are sorted by
+time. Deleting a keyframe removes its source tile and transform; if it was first,
+the remaining keyframe times are rebased by subtracting the new first time so the
+new first keyframe is at `0`. The remaining intervals are preserved. Deleting the
+last keyframe, or deleting a selection that contains every keyframe, is rejected
+with a message that a clip must contain at least one tile.
+
+Duplicating a keyframe copies its source tile and transform into the midpoint of
+the longest available hold. The midpoint is `floor((start + end) / 2)`; if it is
+occupied, the helper scans right first and then left for the nearest free cell.
+If no free timeline cell exists, duplication is rejected. Adding tiles from the
+picker automatically applies the deterministic even-distribution formula to the
+full visual keyframe set, as requested. Duplicate, drag, reorder, and delete use
+their local timing rules; a separate `DISTRIBUTE EVENLY` button can explicitly
+reapply the formula at any time. Track edits preserve absolute frame positions.
+If deleting or moving visual keys leaves a track outside the clip, validation
+reports it and the edit is transactional rather than silently rewriting the
+track.
 
 Runtime, Weapon Studio, validation, and deterministic checks must use these
 helpers rather than implementing separate timing math.
@@ -224,11 +231,11 @@ If the new timeline cannot fit every keyframe at a unique frame, the editor
 similarly rejects the change rather than dropping content.
 
 Legacy clips materialize explicit timing in the in-memory draft when the author
-opens a clip. Saving writes the timing pair. Changing a legacy clip's duration or
-adding a tile uses even distribution; simply opening and saving without a timing
-edit, moving a keyframe, or changing a tile writes the timing pair. An untouched
-legacy clip may remain compact when saved, but any timeline-affecting edit always
-persists both explicit timing fields.
+opens a clip. Any successful Weapon Studio save of a dirty weapon writes explicit
+`durationSeconds` and `keyframeTimes` for every animation clip, even if the edit
+was only in identity or combat fields. An untouched weapon that is never saved
+remains in its original compact legacy form. Changing a legacy clip's duration or
+adding a tile uses even distribution.
 
 ### Scroll and focus preservation
 
