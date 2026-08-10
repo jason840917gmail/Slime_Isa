@@ -11,6 +11,8 @@ export interface WeaponDefinition {
   readonly characterActionId?: string;
   readonly assetId?: string;
   readonly animations?: WeaponAnimationSet;
+  /** Direction-specific weapon artwork, character pairing, and combat timing. */
+  readonly directionalAttacks?: Partial<Readonly<Record<WeaponAuthoredAttackDirection, WeaponDirectionalAttackDocument>>>;
   readonly hitboxes?: Readonly<Record<string, WeaponHitboxDocument>>;
   readonly attackTrack?: WeaponAttackTrackDocument;
   readonly visual?: {
@@ -80,6 +82,37 @@ export interface WeaponAnimationDocument {
   readonly framesPerSecond: number;
   readonly loop: boolean;
   readonly loopMode?: 'wrap' | 'ping-pong';
+  /** Per-occurrence visual edits keyed by position in `frames`, not source frame number. */
+  readonly frameTransforms?: Readonly<Record<string, WeaponFrameTransformDocument>>;
+}
+
+export interface WeaponFrameTransformDocument {
+  readonly offset?: readonly [number, number];
+  readonly scale?: readonly [number, number];
+  readonly rotationDeg?: number;
+}
+
+export type WeaponAttackDirection = 'right' | 'left' | 'up' | 'down';
+/** `side` is accepted only as migration input from the original three-direction format. */
+export type WeaponAuthoredAttackDirection = WeaponAttackDirection | 'side';
+export type WeaponPlaybackAnimationId = 'idle' | 'attack-right' | 'attack-left' | 'attack-up' | 'attack-down' | 'impact';
+
+export interface WeaponDirectionalAttackDocument {
+  readonly animation: WeaponAnimationDocument;
+  readonly characterActionId?: string;
+  readonly attackTrack?: WeaponAttackTrackDocument;
+  readonly hitboxes?: Readonly<Record<string, WeaponHitboxDocument>>;
+}
+
+export type WeaponDirectionalPresentation = 'legacy-vector' | 'authored' | 'mirror-right';
+
+export interface NormalizedWeaponDirectionalAttack {
+  readonly animation: WeaponAnimationDocument;
+  readonly characterActionId: string;
+  readonly attackTrack?: WeaponAttackTrackDocument;
+  readonly hitboxes: Readonly<Record<string, WeaponHitboxDocument>>;
+  readonly authored: boolean;
+  readonly presentation: WeaponDirectionalPresentation;
 }
 
 export interface WeaponAnimationSet {
@@ -91,6 +124,7 @@ export interface WeaponAnimationSet {
 export interface NormalizedWeaponDefinition extends WeaponDefinition {
   readonly characterActionId: string;
   readonly animations: WeaponAnimationSet;
+  readonly directionalAttacks: Readonly<Record<WeaponAttackDirection, NormalizedWeaponDirectionalAttack>>;
   readonly visual: NonNullable<WeaponDefinition['visual']>;
   readonly hitboxes: Readonly<Record<string, WeaponHitboxDocument>>;
   readonly attackTrack?: WeaponAttackTrackDocument;

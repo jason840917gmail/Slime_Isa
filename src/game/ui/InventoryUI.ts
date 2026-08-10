@@ -1,6 +1,7 @@
 ﻿import Phaser from 'phaser';
 import { gameEvents } from '../core/EventBus';
 import { playerInventory, itemRegistry } from '../systems/Inventory';
+import { playerWeaponLoadout } from '../systems/WeaponLoadout';
 import { resolveScreenUiDepth } from '../presentation/WorldDepth';
 
 const FONT = 'Trebuchet MS, Segoe UI Variable, sans-serif';
@@ -12,6 +13,8 @@ export interface InventoryUIContext {
   scene: Phaser.Scene;
   onPausedChange: (paused: boolean) => void;
   onUseItem: (itemId: string) => void;
+  onEquipWeapon: (weaponId: string) => void;
+  onAssignWeapon: (weaponId: string, slotIndex: number) => void;
 }
 
 export class InventoryUI {
@@ -24,6 +27,8 @@ export class InventoryUI {
   constructor(ctx: InventoryUIContext) {
     this.ctx = ctx;
     gameEvents.on('inventory.changed', this.refresh, this);
+    gameEvents.on('weapon.loadout.changed', this.refresh, this);
+    gameEvents.on('weapon.equipped', this.refresh, this);
 
     const kb = ctx.scene.input.keyboard;
     if (kb) {
@@ -183,7 +188,33 @@ export class InventoryUI {
       wordWrap: { width: width - 32 },
     }).setOrigin(0, 0));
 
-    if (def.use) {
+    if (def.equipment) {
+      const weaponId = def.equipment.weaponId;
+      const assignedIndex = playerWeaponLoadout.slots().indexOf(weaponId);
+      const equipped = playerWeaponLoadout.equippedWeaponId() === weaponId;
+      this.container.add(scene.add.text(x + 16, y + 134, equipped ? 'EQUIPPED' : assignedIndex >= 0 ? `HOTBAR SLOT ${assignedIndex + 1}` : 'NOT ON HOTBAR', {
+        fontFamily: FONT,
+        fontSize: '10px',
+        fontStyle: 'bold',
+        color: equipped ? '#ffdf8a' : '#86f0c3',
+      }).setOrigin(0, 0));
+      this.container.add(scene.add.text(x + 16, y + 154, 'Assign number key', {
+        fontFamily: FONT,
+        fontSize: '10px',
+        color: '#88aeb5',
+      }).setOrigin(0, 0));
+      for (let slotIndex = 0; slotIndex < 5; slotIndex += 1) {
+        this.addButton(
+          x + 16 + slotIndex * 40,
+          y + 174,
+          34,
+          30,
+          `${slotIndex + 1}`,
+          assignedIndex === slotIndex ? 0xffd277 : 0x2b6070,
+          () => this.ctx.onAssignWeapon(weaponId, slotIndex),
+        );
+      }
+    } else if (def.use) {
       const effects = [
         def.use.healHp ? `Heal HP +${def.use.healHp}` : '',
         def.use.healEnergy ? `Energy +${def.use.healEnergy}` : '',
@@ -197,7 +228,16 @@ export class InventoryUI {
       }).setOrigin(0, 0));
     }
 
-    if (def.use) {
+    if (def.equipment) {
+      this.addButton(x + 16, y + height - 52, 112, 34, 'Equip Now', 0xffd277, () => {
+        this.ctx.onEquipWeapon(def.equipment!.weaponId);
+      });
+      this.container.add(scene.add.text(x + 140, y + height - 35, 'Equipment is kept', {
+        fontFamily: FONT,
+        fontSize: '9px',
+        color: '#6f8794',
+      }).setOrigin(0, 0.5));
+    } else if (def.use) {
       this.addButton(x + 16, y + height - 52, 92, 34, 'Use', 0x86f0c3, () => {
         if (!this.selectedItemId) return;
         this.ctx.onUseItem(this.selectedItemId);
@@ -206,11 +246,13 @@ export class InventoryUI {
       this.addButton(x + 16, y + height - 52, 92, 34, 'No Use', 0x253552, undefined);
     }
 
-    this.addButton(x + 124, y + height - 52, 92, 34, 'Delete 1', 0xff8f7a, () => {
-      if (!this.selectedItemId) return;
-      playerInventory.remove(this.selectedItemId, 1);
-      if (playerInventory.count(this.selectedItemId) <= 0) this.selectedItemId = undefined;
-    });
+    if (!def.equipment) {
+      this.addButton(x + 124, y + height - 52, 92, 34, 'Delete 1', 0xff8f7a, () => {
+        if (!this.selectedItemId) return;
+        playerInventory.remove(this.selectedItemId, 1);
+        if (playerInventory.count(this.selectedItemId) <= 0) this.selectedItemId = undefined;
+      });
+    }
   }
 
   private addButton(x: number, y: number, width: number, height: number, label: string, color: number, onClick?: () => void): void {
@@ -265,6 +307,8 @@ export class InventoryUI {
 
   destroy(): void {
     gameEvents.off('inventory.changed', this.refresh, this);
+    gameEvents.off('weapon.loadout.changed', this.refresh, this);
+    gameEvents.off('weapon.equipped', this.refresh, this);
     this.escKey?.off('down');
     this.ctx.scene.input.off('pointerdown', this.handlePointerDown, this);
     this.container?.destroy();

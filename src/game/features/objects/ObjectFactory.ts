@@ -4,6 +4,7 @@ import {
   getObjectArchetype,
   getObjectVisualChoice,
   type ColliderBounds,
+  type DepthBounds,
   type ObjectArchetypeId,
   type VisualOffset,
 } from '../../content/objects/ObjectCatalog';
@@ -12,6 +13,7 @@ import { getVisualClip, type VisualSetId } from '../../content/visuals/VisualCat
 import { AnimatedVisual } from '../visuals/AnimatedVisual';
 import {
   resolveExplicitDepth,
+  resolveObjectDepthAnchorY,
   resolveWorldDepth,
   type DepthMode,
 } from '../../presentation/WorldDepth';
@@ -57,6 +59,7 @@ interface ResolvedVisual {
   readonly visualOffset: VisualOffset;
   readonly collider?: ColliderBounds;
   readonly occlusionBounds?: SourceOcclusionBounds;
+  readonly depthBounds?: DepthBounds;
   readonly sourceFrame?: SourceFrameDimensions;
 }
 
@@ -87,6 +90,7 @@ function resolveVisual(objectId: ObjectArchetypeId, visualId: string): ResolvedV
     visualOffset: choice.visualOffset,
     collider: choice.collider,
     occlusionBounds: choice.occlusionBounds,
+    depthBounds: choice.depthBounds,
     sourceFrame: 'frame' in asset.source
       ? { width: asset.source.frame.w, height: asset.source.frame.h }
       : undefined,
@@ -102,11 +106,21 @@ export function getObjectAnchor(image: Phaser.GameObjects.Image): readonly [numb
 
 export function setObjectAnchor(image: Phaser.GameObjects.Image, x: number, y: number): void {
   const visualOffset = image.getData('visualOffset') as VisualOffset | undefined;
+  const sourceFrame = image.getData('sourceFrame') as SourceFrameDimensions | undefined;
+  const depthBounds = image.getData('depthBounds') as DepthBounds | undefined;
   image.setPosition(x + (visualOffset?.x ?? 0), y + (visualOffset?.y ?? 0));
   image.setData('objectAnchorX', x);
   image.setData('objectAnchorY', y);
+  const depthAnchorY = sourceFrame
+    ? resolveObjectDepthAnchorY(y, {
+      sourceFrameHeight: sourceFrame.height,
+      originY: image.originY,
+      bounds: depthBounds,
+    })
+    : y;
+  image.setData('depthAnchorY', depthAnchorY);
   if (image.getData('depthMode') !== 'explicit') {
-    image.setDepth(resolveWorldDepth(y, {
+    image.setDepth(resolveWorldDepth(depthAnchorY, {
       stableId: String(image.getData('sortId') ?? image.getData('objectId') ?? 'object'),
     }).depth);
   }
@@ -154,6 +168,9 @@ export class ObjectFactory {
     image.setData('objectId', objectId);
     image.setData('sortId', options.sortId ?? `${objectId}:${options.x}:${options.y}`);
     image.setData('depthMode', options.depthMode ?? 'world-sorted');
+    if (visual.sourceFrame) image.setData('sourceFrame', visual.sourceFrame);
+    if (visual.occlusionBounds) image.setData('occlusionBounds', visual.occlusionBounds);
+    if (visual.depthBounds) image.setData('depthBounds', visual.depthBounds);
     setObjectAnchor(image, options.x, options.y);
     if (options.depthMode === 'explicit') {
       image.setDepth(options.depth ?? image.depth);

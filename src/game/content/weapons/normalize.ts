@@ -1,5 +1,7 @@
 import type {
   NormalizedWeaponDefinition,
+  NormalizedWeaponDirectionalAttack,
+  WeaponAttackDirection,
   WeaponDefinition,
   WeaponHitboxDocument,
   WeaponAnimationSet,
@@ -37,6 +39,7 @@ export function normalizeWeaponDefinition(definition: WeaponDefinition): Normali
   const characterActionId = definition.characterActionId?.trim()
     || legacyActionId(definition.animKey)
     || DEFAULT_ACTION_ID;
+  const animations = definition.animations ?? defaultAnimations();
   const hitboxes = definition.hitboxes ?? { primary: legacyPrimaryHitbox(definition) };
   const visual = {
     sourceOffset: definition.visual?.sourceOffset ?? [0, 0] as const,
@@ -46,11 +49,42 @@ export function normalizeWeaponDefinition(definition: WeaponDefinition): Normali
     ...(definition.visual?.scale ? { scale: definition.visual.scale } : {}),
     ...(definition.visual?.facingMode ? { facingMode: definition.visual.facingMode } : {}),
   };
+  const authoredDirections = definition.directionalAttacks;
+  const rightSource = authoredDirections?.right ?? authoredDirections?.side;
+  const resolveAttack = (
+    authored: typeof rightSource,
+    fallback: Pick<NormalizedWeaponDirectionalAttack, 'animation' | 'characterActionId' | 'attackTrack' | 'hitboxes'>,
+    presentation: NormalizedWeaponDirectionalAttack['presentation'],
+  ): NormalizedWeaponDirectionalAttack => ({
+    animation: authored?.animation ?? fallback.animation,
+    characterActionId: authored?.characterActionId?.trim() || fallback.characterActionId,
+    hitboxes: authored?.hitboxes ?? fallback.hitboxes,
+    authored: authored !== undefined,
+    presentation,
+    ...((authored?.attackTrack ?? fallback.attackTrack)
+      ? { attackTrack: authored?.attackTrack ?? fallback.attackTrack }
+      : {}),
+  });
+  const baseAttack = {
+    animation: animations.attack,
+    characterActionId,
+    hitboxes,
+    ...(definition.attackTrack ? { attackTrack: definition.attackTrack } : {}),
+  };
+  const rightAttack = resolveAttack(rightSource, baseAttack, rightSource ? 'authored' : 'legacy-vector');
+  const leftSource = authoredDirections?.left;
+  const directionalAttacks: Readonly<Record<WeaponAttackDirection, NormalizedWeaponDirectionalAttack>> = {
+    right: rightAttack,
+    left: resolveAttack(leftSource, rightAttack, leftSource ? 'authored' : 'mirror-right'),
+    up: resolveAttack(authoredDirections?.up, baseAttack, authoredDirections?.up ? 'authored' : 'legacy-vector'),
+    down: resolveAttack(authoredDirections?.down, baseAttack, authoredDirections?.down ? 'authored' : 'legacy-vector'),
+  };
 
   return {
     ...definition,
     characterActionId,
-    animations: definition.animations ?? defaultAnimations(),
+    animations,
+    directionalAttacks,
     visual,
     hitboxes,
     ...(definition.attackTrack ? { attackTrack: definition.attackTrack } : {}),

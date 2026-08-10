@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "weaponId": "basic-sword",
+  "displayName": "Basic sword",
+  "category": "melee",
+  "characterActionId": "attack-1",
+  "animations": {
+    "idle": {
+      "frames": [
+        0
+      ],
+      "framesPerSecond": 8,
+      "loop": true,
+      "loopMode": "wrap"
+    },
+    "attack": {
+      "frames": [
+        1,
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "framesPerSecond": 12,
+      "loop": false,
+      "loopMode": "wrap"
+    },
+    "impact": {
+      "frames": [
+        16
+      ],
+      "framesPerSecond": 12,
+      "loop": false,
+      "loopMode": "wrap"
+    }
+  },
+  "visual": {
+    "sourceOffset": [
+      0,
+      0
+    ]
+  },
+  "hitboxes": {
+    "primary": {
+      "shape": "sector",
+      "width": 32,
+      "height": 18,
+      "offsetX": 24,
+      "offsetY": 0,
+      "outerRadius": 33,
+      "arcWidthRad": 1.35
+    }
+  },
+  "attackTrack": {
+    "hitboxSpans": [
+      {
+        "hitboxId": "primary",
+        "from": 0,
+        "through": 0
+      }
+    ],
+    "events": []
+  },
+  "baseDamage": 20,
+  "cooldownMs": 500,
+  "hitboxWidth": 32,
+  "hitboxHeight": 18,
+  "hitboxOffset": 24,
+  "hitboxDurationMs": 120,
+  "knockStrength": 120,
+  "scaling": {
+    "damage": {
+      "strength": 2
+    },
+    "cooldown": {
+      "agility": 0.25
+    },
+    "knockback": {
+      "strength": 0.25
+    }
+  },
+  "vfxColor": 8843459,
+  "unlockLevel": 1,
+  "iconKey": "weapon-generic",
+  "description": "A reusable weapon definition.",
+  "assetId": "weapon.player.sword-tiles",
+  "revision": "9c25c65f60cc90a4f16bbf56e426e4ff3c3c09f3fea57df5aa387ac39b2eb968"
+}

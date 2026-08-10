@@ -40,7 +40,8 @@
       "enemy.worm.brawler",
       "enemy.projectile.worm-arrow",
       "effect.enemy.worm-brawler-hit",
-      "character.enemy.slime-spider"
+      "character.enemy.slime-spider",
+      "weapon.player.sword-tiles"
     ]
   },
   "assets": {
@@ -945,6 +946,38 @@
         "enemy",
         "projectile",
         "generated"
+      ],
+      "status": "ready"
+    },
+    "weapon.player.sword-tiles": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/weapons/120x120_9x2_swordTiles.png",
+        "frame": {
+          "w": 120,
+          "h": 120,
+          "cols": 9,
+          "rows": 2,
+          "count": 18
+        },
+        "expect": {
+          "w": 1080,
+          "h": 240
+        }
+      },
+      "runtime": {
+        "textureKey": "weapon-player-sword-tiles"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "weapon",
+        "animated"
       ],
       "status": "ready"
     }

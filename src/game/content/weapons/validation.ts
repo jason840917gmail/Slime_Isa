@@ -14,19 +14,42 @@ function validateAnimation(animation: unknown, path: string, issues: string[]): 
   if (typeof clip.framesPerSecond !== 'number' || !Number.isInteger(clip.framesPerSecond) || clip.framesPerSecond < 1 || clip.framesPerSecond > 240) issues.push(`${path}.framesPerSecond: must be an integer between 1 and 240`);
   if (typeof clip.loop !== 'boolean') issues.push(`${path}.loop: must be boolean`);
   if (clip.loopMode !== undefined && clip.loopMode !== 'wrap' && clip.loopMode !== 'ping-pong') issues.push(`${path}.loopMode: must be 'wrap' or 'ping-pong'`);
+  if (clip.frameTransforms !== undefined) {
+    if (!isRecord(clip.frameTransforms)) issues.push(`${path}.frameTransforms: must be an object keyed by animation position`);
+    else for (const [position, rawTransform] of Object.entries(clip.frameTransforms)) {
+      const transformPath = `${path}.frameTransforms.${position}`;
+      if (!/^\d+$/.test(position)) issues.push(`${transformPath}: key must be a non-negative animation position`);
+      if (!isRecord(rawTransform)) {
+        issues.push(`${transformPath}: must be an object`);
+        continue;
+      }
+      for (const field of ['offset', 'scale'] as const) {
+        const pair = rawTransform[field];
+        if (pair !== undefined && (!Array.isArray(pair) || pair.length !== 2 || pair.some((entry) => typeof entry !== 'number' || !Number.isFinite(entry)))) {
+          issues.push(`${transformPath}.${field}: must contain exactly two finite numbers`);
+        } else if (field === 'scale' && pair?.some((entry) => entry <= 0)) {
+          issues.push(`${transformPath}.scale: values must be greater than zero`);
+        }
+      }
+      if (rawTransform.rotationDeg !== undefined && (typeof rawTransform.rotationDeg !== 'number' || !Number.isFinite(rawTransform.rotationDeg))) {
+        issues.push(`${transformPath}.rotationDeg: must be a finite number`);
+      }
+      if (clip.frames && Number.isInteger(Number(position)) && Number(position) >= clip.frames.length) issues.push(`${transformPath}: must reference a position inside frames`);
+    }
+  }
 }
 
 function validateNumber(value: unknown, path: string, issues: string[], minimum = 0): void {
   if (typeof value !== 'number' || !Number.isFinite(value) || value < minimum) issues.push(`${path}: must be a finite number >= ${minimum}`);
 }
 
-function validateHitboxes(value: unknown, issues: string[]): void {
+function validateHitboxes(value: unknown, issues: string[], rootPath = 'weapon.hitboxes'): void {
   if (!isRecord(value)) {
-    issues.push('weapon.hitboxes: must be an object keyed by stable hitbox IDs');
+    issues.push(`${rootPath}: must be an object keyed by stable hitbox IDs`);
     return;
   }
   for (const [hitboxId, rawHitbox] of Object.entries(value)) {
-    const path = `weapon.hitboxes.${hitboxId}`;
+    const path = `${rootPath}.${hitboxId}`;
     if (!isRecord(rawHitbox)) {
       issues.push(`${path}: must be an object`);
       continue;
@@ -47,32 +70,39 @@ function validateHitboxes(value: unknown, issues: string[]): void {
   }
 }
 
-function validateAttackTrack(value: unknown, weapon: Partial<WeaponDefinition>, issues: string[]): void {
+function validateAttackTrack(
+  value: unknown,
+  weapon: Partial<WeaponDefinition>,
+  issues: string[],
+  path = 'weapon.attackTrack',
+  animation?: WeaponAnimationDocument,
+  authoredHitboxes?: unknown,
+): void {
   if (!isRecord(value)) {
-    issues.push('weapon.attackTrack: must be an object');
+    issues.push(`${path}: must be an object`);
     return;
   }
   const track = value as Partial<WeaponAttackTrackDocument>;
-  const hitboxes = isRecord(weapon.hitboxes) ? weapon.hitboxes : {};
+  const hitboxes = isRecord(authoredHitboxes) ? authoredHitboxes : isRecord(weapon.hitboxes) ? weapon.hitboxes : {};
   if (!Array.isArray(track.hitboxSpans)) {
-    issues.push('weapon.attackTrack.hitboxSpans: must be an array');
+    issues.push(`${path}.hitboxSpans: must be an array`);
   } else {
     const spansByHitbox = new Map<string, Array<{ from: number; through: number }>>();
-    const attackFrameCount = weapon.animations?.attack?.frames.length;
+    const attackFrameCount = animation?.frames.length ?? weapon.animations?.attack?.frames.length;
     track.hitboxSpans.forEach((rawSpan, index) => {
-      const path = `weapon.attackTrack.hitboxSpans[${index}]`;
+      const spanPath = `${path}.hitboxSpans[${index}]`;
       if (!isRecord(rawSpan)) {
-        issues.push(`${path}: must be an object`);
+        issues.push(`${spanPath}: must be an object`);
         return;
       }
       const hitboxId = rawSpan.hitboxId;
       const from = typeof rawSpan.from === 'number' ? rawSpan.from : Number.NaN;
       const through = typeof rawSpan.through === 'number' ? rawSpan.through : Number.NaN;
-      if (typeof hitboxId !== 'string' || !hitboxId) issues.push(`${path}.hitboxId: must reference a named hitbox`);
-      else if (!(hitboxId in hitboxes)) issues.push(`${path}.hitboxId: '${hitboxId}' is not defined in weapon.hitboxes`);
-      if (!Number.isInteger(from) || from < 0) issues.push(`${path}.from: must be a non-negative integer`);
-      if (!Number.isInteger(through) || through < 0 || (Number.isInteger(from) && through < from)) issues.push(`${path}.through: must be an integer >= from`);
-      if (attackFrameCount !== undefined && Number.isInteger(through) && through >= attackFrameCount) issues.push(`${path}.through: must be inside animations.attack.frames`);
+      if (typeof hitboxId !== 'string' || !hitboxId) issues.push(`${spanPath}.hitboxId: must reference a named hitbox`);
+      else if (!(hitboxId in hitboxes)) issues.push(`${spanPath}.hitboxId: '${hitboxId}' is not defined in weapon.hitboxes`);
+      if (!Number.isInteger(from) || from < 0) issues.push(`${spanPath}.from: must be a non-negative integer`);
+      if (!Number.isInteger(through) || through < 0 || (Number.isInteger(from) && through < from)) issues.push(`${spanPath}.through: must be an integer >= from`);
+      if (attackFrameCount !== undefined && Number.isInteger(through) && through >= attackFrameCount) issues.push(`${spanPath}.through: must be inside the selected attack animation`);
       if (typeof hitboxId === 'string' && Number.isInteger(from) && Number.isInteger(through)) {
         const spans = spansByHitbox.get(hitboxId) ?? [];
         spans.push({ from, through });
@@ -82,20 +112,20 @@ function validateAttackTrack(value: unknown, weapon: Partial<WeaponDefinition>, 
     for (const [hitboxId, spans] of spansByHitbox) {
       spans.sort((left, right) => left.from - right.from);
       for (let index = 1; index < spans.length; index += 1) {
-        if (spans[index].from <= spans[index - 1].through) issues.push(`weapon.attackTrack.hitboxSpans: '${hitboxId}' has overlapping windows`);
+        if (spans[index].from <= spans[index - 1].through) issues.push(`${path}.hitboxSpans: '${hitboxId}' has overlapping windows`);
       }
     }
   }
   if (track.events !== undefined) {
-    if (!Array.isArray(track.events)) issues.push('weapon.attackTrack.events: must be an array');
+    if (!Array.isArray(track.events)) issues.push(`${path}.events: must be an array`);
     else track.events.forEach((event, index) => {
-      const path = `weapon.attackTrack.events[${index}]`;
-      if (!isRecord(event)) { issues.push(`${path}: must be an object`); return; }
+      const eventPath = `${path}.events[${index}]`;
+      if (!isRecord(event)) { issues.push(`${eventPath}: must be an object`); return; }
       const at = typeof event.at === 'number' ? event.at : Number.NaN;
-      if (!Number.isInteger(at) || at < 0) issues.push(`${path}.at: must be a non-negative integer`);
-      if (typeof event.eventId !== 'string' || !event.eventId.trim()) issues.push(`${path}.eventId: must be a non-empty string`);
-      const attackFrameCount = weapon.animations?.attack?.frames.length;
-      if (attackFrameCount !== undefined && Number.isInteger(at) && at >= attackFrameCount) issues.push(`${path}.at: must be inside animations.attack.frames`);
+      if (!Number.isInteger(at) || at < 0) issues.push(`${eventPath}.at: must be a non-negative integer`);
+      if (typeof event.eventId !== 'string' || !event.eventId.trim()) issues.push(`${eventPath}.eventId: must be a non-empty string`);
+      const attackFrameCount = animation?.frames.length ?? weapon.animations?.attack?.frames.length;
+      if (attackFrameCount !== undefined && Number.isInteger(at) && at >= attackFrameCount) issues.push(`${eventPath}.at: must be inside the selected attack animation`);
     });
   }
 }
@@ -116,6 +146,23 @@ export function validateWeaponDefinition(value: unknown): string[] {
     validateAnimation(weapon.animations.idle, 'weapon.animations.idle', issues);
     validateAnimation(weapon.animations.attack, 'weapon.animations.attack', issues);
     validateAnimation(weapon.animations.impact, 'weapon.animations.impact', issues);
+  }
+  if (weapon.directionalAttacks !== undefined) {
+    if (!isRecord(weapon.directionalAttacks)) issues.push('weapon.directionalAttacks: must be an object');
+    else for (const direction of ['right', 'left', 'up', 'down', 'side'] as const) {
+      const attack = weapon.directionalAttacks[direction];
+      if (attack === undefined) continue;
+      const path = `weapon.directionalAttacks.${direction}`;
+      if (!isRecord(attack)) {
+        issues.push(`${path}: must be an object`);
+        continue;
+      }
+      validateAnimation(attack.animation, `${path}.animation`, issues);
+      if (attack.characterActionId !== undefined && (typeof attack.characterActionId !== 'string' || !attack.characterActionId.trim())) issues.push(`${path}.characterActionId: must be a non-empty string`);
+      if (attack.hitboxes !== undefined) validateHitboxes(attack.hitboxes, issues, `${path}.hitboxes`);
+      const inheritedHitboxes = direction === 'left' ? weapon.directionalAttacks.right?.hitboxes : undefined;
+      if (attack.attackTrack !== undefined) validateAttackTrack(attack.attackTrack, weapon, issues, `${path}.attackTrack`, attack.animation as WeaponAnimationDocument, attack.hitboxes ?? inheritedHitboxes);
+    }
   }
   if (weapon.hitboxes !== undefined) validateHitboxes(weapon.hitboxes, issues);
   if (weapon.attackTrack !== undefined) {

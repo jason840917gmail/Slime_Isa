@@ -91,16 +91,17 @@ Phaser's stable display-list order and cannot oscillate between frames.
 Do not use a sprite's `.y` indiscriminately:
 
 - player, enemies, and friends: Arcade body bottom;
-- every authored object, solid or decorative: persisted `objectAnchorY`; collider
-  edits must never change render order;
+- every authored object, solid or decorative: persisted `objectAnchorY`; an
+  optional source-frame `depthBounds` rectangle can replace that anchor with its
+  lower edge. Collider edits remain independent and never change render order;
 - legacy houses and beds: an explicit base point owned by `House` (initially the
   door/base Y derived at construction), with their creation index as ID;
 - projectiles: physics body center Y because they occupy a flight plane;
 - attached visuals: owner's ground anchor and depth plus attachment slot.
 
-These formulas become named resolver functions with unit tests. A future content
-override may be added only when an asset cannot represent its ground point with
-these contracts.
+These formulas become named resolver functions with unit tests. The editor
+exposes `depthBounds` as a separate source-frame layer, independent of map tile
+size, art alignment, and collision geometry.
 
 ### Sorted and explicit modes
 

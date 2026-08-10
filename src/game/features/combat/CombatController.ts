@@ -63,7 +63,7 @@ export class CombatController {
     const { scene, player } = ctx;
     const spawnConfig = ctx.spawns;
     this.targets = scene.physics.add.group();
-    this.comboText = scene.add.text(scene.cameras.main.width / 2, scene.cameras.main.height - 130, '', {
+    this.comboText = scene.add.text(scene.cameras.main.width / 2, scene.cameras.main.height - 215, '', {
       fontFamily: UI_THEME.fontFamily,
       fontSize: '20px',
       color: '#ffdf8a',
@@ -83,40 +83,9 @@ export class CombatController {
       },
     });
 
-    this.weapon = new Weapon(getWeaponDefinition(gameState.equippedWeaponId), {
-      scene,
-      getPlayer: () => player,
-      getFacing: ctx.getFacing,
-      getTargets: () => this.targets,
-      hitHandler: (target, damage, knockX, knockY, knockStrength) => {
-        const finalDamage = Math.round(damage * this.combo.registerHit());
-        if (target instanceof Enemy) {
-          const hpBefore = target.hp;
-          target.takeDamage(finalDamage, knockX, knockY, knockStrength);
-          this.applyLifeSteal(Math.max(0, hpBefore - target.hp));
-        } else if (target instanceof TargetDummy) {
-          target.takeDamage(finalDamage, knockX, knockY, knockStrength);
-        }
-      },
-      onAttackStart: () => {
-        this.attacking = true;
-        ctx.setActionLocked(true);
-        player.setVelocity(0, 0);
-      },
-      onAttackEnd: () => {
-        this.attacking = false;
-        ctx.setActionLocked(false);
-        ctx.playCharacterAction('idle');
-        this.weaponVisual?.play('idle', true);
-      },
-      playCharacterAction: ctx.playCharacterAction,
-      playWeaponAnimation: (animationId, forceRestart) => this.weaponVisual?.play(animationId, forceRestart),
-    });
-    this.weaponVisual = new WeaponVisual(scene, player, this.weapon.def, {
-      getDepth: () => player.depth + 0.01,
-      getFacing: ctx.getFacing,
-    });
-    this.weaponVisual.play('idle', true);
+    const initialWeapon = this.createWeaponRuntime(gameState.equippedWeaponId);
+    this.weapon = initialWeapon.weapon;
+    this.weaponVisual = initialWeapon.visual;
 
     if (ctx.enemySpawnAreas.length > 0 || spawnConfig) {
       this.spawner = new EnemySpawner({
@@ -192,6 +161,26 @@ export class CombatController {
     return this.weapon.attack(this.ctx.scene.time.now);
   }
 
+  equipWeapon(weaponId: string): boolean {
+    if (this.attacking || weaponId === this.weapon.def.weaponId) return !this.attacking;
+    let next: { weapon: Weapon; visual: WeaponVisual };
+    try {
+      next = this.createWeaponRuntime(weaponId);
+    } catch {
+      return false;
+    }
+    this.weapon.destroy();
+    this.weaponVisual.destroy();
+    this.weapon = next.weapon;
+    this.weaponVisual = next.visual;
+    this.ctx.playCharacterAction('idle');
+    return true;
+  }
+
+  equippedWeaponId(): string {
+    return this.weapon.def.weaponId;
+  }
+
   spawnDummy(x: number, y: number): void {
     const dummy = new TargetDummy(this.ctx.scene, x, y);
     this.targets.add(dummy);
@@ -205,6 +194,45 @@ export class CombatController {
     this.spawner?.destroy();
     this.combo.reset();
     this.comboText.destroy();
+  }
+
+  private createWeaponRuntime(weaponId: string): { weapon: Weapon; visual: WeaponVisual } {
+    const { scene, player } = this.ctx;
+    const weapon = new Weapon(getWeaponDefinition(weaponId), {
+      scene,
+      getPlayer: () => player,
+      getFacing: this.ctx.getFacing,
+      getTargets: () => this.targets,
+      hitHandler: (target, damage, knockX, knockY, knockStrength) => {
+        const finalDamage = Math.round(damage * this.combo.registerHit());
+        if (target instanceof Enemy) {
+          const hpBefore = target.hp;
+          target.takeDamage(finalDamage, knockX, knockY, knockStrength);
+          this.applyLifeSteal(Math.max(0, hpBefore - target.hp));
+        } else if (target instanceof TargetDummy) {
+          target.takeDamage(finalDamage, knockX, knockY, knockStrength);
+        }
+      },
+      onAttackStart: () => {
+        this.attacking = true;
+        this.ctx.setActionLocked(true);
+        player.setVelocity(0, 0);
+      },
+      onAttackEnd: () => {
+        this.attacking = false;
+        this.ctx.setActionLocked(false);
+        this.ctx.playCharacterAction('idle');
+        this.weaponVisual?.play('idle', true);
+      },
+      playCharacterAction: this.ctx.playCharacterAction,
+      playWeaponAnimation: (animationId, forceRestart) => this.weaponVisual?.play(animationId, forceRestart),
+    });
+    const visual = new WeaponVisual(scene, player, weapon.def, {
+      getDepth: () => player.depth + 0.01,
+      getFacing: this.ctx.getFacing,
+    });
+    visual.play('idle', true);
+    return { weapon, visual };
   }
 
   private enemyContext(spawnArea?: MapEnemySpawnArea) {

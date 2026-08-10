@@ -20,6 +20,46 @@ function files(directory) {
 const weapons = files(weaponRoot).map((file) => JSON.parse(readFileSync(file, 'utf8')));
 if (weapons.length === 0) errors.push('weapon catalog must not be empty');
 const ids = new Set();
+function validateAnimation(weapon, label, animation) {
+  const frameCount = animation?.frames?.length ?? 0;
+  if (frameCount < 1) errors.push(`[${weapon.weaponId}] ${label} must contain at least one tile`);
+  for (const [position, transform] of Object.entries(animation?.frameTransforms ?? {})) {
+    if (!/^\d+$/.test(position) || Number(position) >= frameCount) errors.push(`[${weapon.weaponId}] ${label} transform '${position}' is outside the animation`);
+    for (const field of ['offset', 'scale']) {
+      if (transform[field] !== undefined && (!Array.isArray(transform[field]) || transform[field].length !== 2 || transform[field].some((value) => !Number.isFinite(value)))) errors.push(`[${weapon.weaponId}] ${label} transform '${position}.${field}' must be two finite numbers`);
+      if (field === 'scale' && transform[field]?.some((value) => value <= 0)) errors.push(`[${weapon.weaponId}] ${label} transform '${position}.scale' must be positive`);
+    }
+    if (transform.rotationDeg !== undefined && !Number.isFinite(transform.rotationDeg)) errors.push(`[${weapon.weaponId}] ${label} transform '${position}.rotationDeg' must be finite`);
+  }
+}
+function validateTrack(weapon, label, animation, track, hitboxes) {
+  if (!track) return;
+  const frameCount = animation?.frames?.length ?? 0;
+  const spansByHitbox = new Map();
+  for (const span of track.hitboxSpans ?? []) {
+    if (!hitboxes[span.hitboxId]) errors.push(`[${weapon.weaponId}] ${label} span references missing hitbox '${span.hitboxId}'`);
+    if (!Number.isInteger(span.from) || !Number.isInteger(span.through) || span.from > span.through || span.through >= frameCount) errors.push(`[${weapon.weaponId}] invalid ${label} span for '${span.hitboxId}'`);
+    const spans = spansByHitbox.get(span.hitboxId) ?? [];
+    spans.push(span);
+    spansByHitbox.set(span.hitboxId, spans);
+  }
+  for (const [hitboxId, spans] of spansByHitbox) {
+    spans.sort((left, right) => left.from - right.from);
+    for (let index = 1; index < spans.length; index += 1) {
+      if (spans[index].from <= spans[index - 1].through) errors.push(`[${weapon.weaponId}] overlapping ${label} spans for '${hitboxId}'`);
+    }
+  }
+  for (const event of track.events ?? []) {
+    if (!Number.isInteger(event.at) || event.at < 0 || event.at >= frameCount) errors.push(`[${weapon.weaponId}] ${label} event '${event.eventId}' is outside the attack clip`);
+  }
+}
+function validateHitboxSet(weapon, label, hitboxes) {
+  for (const [hitboxId, hitbox] of Object.entries(hitboxes)) {
+    if (!['rectangle', 'circle', 'ellipse', 'sector'].includes(hitbox.shape)) errors.push(`[${weapon.weaponId}] ${label} hitbox '${hitboxId}' has an invalid shape`);
+    if (!(hitbox.width > 0) || !(hitbox.height > 0)) errors.push(`[${weapon.weaponId}] ${label} hitbox '${hitboxId}' must have positive dimensions`);
+    if (hitbox.shape === 'sector' && !(hitbox.outerRadius >= 0)) errors.push(`[${weapon.weaponId}] ${label} sector hitbox '${hitboxId}' needs an outerRadius`);
+  }
+}
 for (const weapon of weapons) {
   if (ids.has(weapon.weaponId)) errors.push(`[${weapon.weaponId}] duplicate weapon ID`);
   ids.add(weapon.weaponId);
@@ -29,31 +69,17 @@ for (const weapon of weapons) {
     if (!(weapon[field] >= 0)) errors.push(`[${weapon.weaponId}] ${field} must be zero or greater`);
   }
   const hitboxes = weapon.hitboxes ?? {};
-  if (weapon.attackTrack) {
-    const frameCount = weapon.animations?.attack?.frames?.length ?? 0;
-    const spansByHitbox = new Map();
-    for (const span of weapon.attackTrack.hitboxSpans ?? []) {
-      if (!hitboxes[span.hitboxId]) errors.push(`[${weapon.weaponId}] attack span references missing hitbox '${span.hitboxId}'`);
-      if (!Number.isInteger(span.from) || !Number.isInteger(span.through) || span.from > span.through || span.through >= frameCount) errors.push(`[${weapon.weaponId}] invalid attack span for '${span.hitboxId}'`);
-      const spans = spansByHitbox.get(span.hitboxId) ?? [];
-      spans.push(span);
-      spansByHitbox.set(span.hitboxId, spans);
-    }
-    for (const [hitboxId, spans] of spansByHitbox) {
-      spans.sort((left, right) => left.from - right.from);
-      for (let index = 1; index < spans.length; index += 1) {
-        if (spans[index].from <= spans[index - 1].through) errors.push(`[${weapon.weaponId}] overlapping attack spans for '${hitboxId}'`);
-      }
-    }
-    for (const event of weapon.attackTrack.events ?? []) {
-      if (!Number.isInteger(event.at) || event.at < 0 || event.at >= frameCount) errors.push(`[${weapon.weaponId}] attack event '${event.eventId}' is outside the attack clip`);
-    }
+  for (const [animationId, animation] of Object.entries(weapon.animations ?? {})) validateAnimation(weapon, `animations.${animationId}`, animation);
+  validateTrack(weapon, 'attack', weapon.animations?.attack, weapon.attackTrack, hitboxes);
+  for (const direction of ['right', 'left', 'up', 'down', 'side']) {
+    const attack = weapon.directionalAttacks?.[direction];
+    if (!attack) continue;
+    const directionHitboxes = attack.hitboxes ?? (direction === 'left' ? weapon.directionalAttacks?.right?.hitboxes : undefined) ?? hitboxes;
+    validateAnimation(weapon, `directionalAttacks.${direction}.animation`, attack.animation);
+    validateTrack(weapon, `${direction} attack`, attack.animation, attack.attackTrack ?? weapon.attackTrack, directionHitboxes);
+    if (attack.hitboxes) validateHitboxSet(weapon, `directionalAttacks.${direction}`, attack.hitboxes);
   }
-  for (const [hitboxId, hitbox] of Object.entries(hitboxes)) {
-    if (!['rectangle', 'circle', 'ellipse', 'sector'].includes(hitbox.shape)) errors.push(`[${weapon.weaponId}] hitbox '${hitboxId}' has an invalid shape`);
-    if (!(hitbox.width > 0) || !(hitbox.height > 0)) errors.push(`[${weapon.weaponId}] hitbox '${hitboxId}' must have positive dimensions`);
-    if (hitbox.shape === 'sector' && !(hitbox.outerRadius >= 0)) errors.push(`[${weapon.weaponId}] sector hitbox '${hitboxId}' needs an outerRadius`);
-  }
+  validateHitboxSet(weapon, 'root', hitboxes);
 }
 if (errors.length) { console.error(`weapons:check failed with ${errors.length} error(s):`); errors.forEach((error) => console.error(`  - ${error}`)); process.exit(1); }
 console.log(`weapons:check OK - ${weapons.length} reusable weapon definition(s).`);

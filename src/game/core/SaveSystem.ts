@@ -20,6 +20,8 @@ class SaveSystem {
     gameEvents.on('energy.changed', this.scheduleSave, this);
     gameEvents.on('perk.taken', this.scheduleSave, this);
     gameEvents.on('inventory.changed', this.scheduleSave, this);
+    gameEvents.on('weapon.loadout.changed', this.scheduleSave, this);
+    gameEvents.on('weapon.equipped', this.scheduleSave, this);
     gameEvents.on('quest.changed', this.scheduleSave, this);
     gameEvents.on('world.progress.changed', this.scheduleSave, this);
   }

@@ -28,7 +28,7 @@ Projectile and Weapon Studio deliberately use the right inspector for authoring.
 
 ### Numeric field rule
 
-All authoring number controls use `step="1"`, integer input formatting, and integer normalization on update. Do not use `parseFloat`, fractional step values, or decimal-only display formatting for studio fields. This applies to dimensions, offsets, speeds, durations, damage, FPS, attributes, coefficients, and scale values.
+Gameplay number controls use `step="1"`, integer input formatting, and integer normalization on update. Visual transform controls may use fractional steps where sub-pixel offsets, scale, or rotation are required for animation cleanup. This applies specifically to animation-occurrence transforms and existing scale/coefficient controls; gameplay dimensions and timing remain integer-authored.
 
 The rule is about authored editor values. Boolean fields, IDs, labels, animation names, loop modes, and source paths remain non-numeric values.
 
@@ -178,11 +178,15 @@ Weapon source sheets use the shared asset catalog with the `weapon` tag. The sou
 
 ### Center features
 
-- Weapon artwork preview around the character anchor.
+- Combined character-and-weapon preview around the character anchor, with Move, Scale, and Rotate drag tools plus onion skin.
 - Separate red gameplay hitbox guide and artwork layer.
-- Source-sheet frame tiles.
+- SOURCE TILES bank containing immutable spritesheet tiles; clicking appends an occurrence.
+- ANIMATION TILES strip containing the ordered clip occurrences, with multi-select, range-select, duplicate, delete, button reordering, and drag reordering.
 - IDLE, ATTACK, and IMPACT animation tabs.
-- Frame selection, frame lists, FPS, loop, and loop mode.
+- A grouped four-direction ATTACK selector: RIGHT and LEFT appear under SIDE, while UP and DOWN appear under VERTICAL. Each direction owns its weapon clip, character-action pairing, hitbox geometry, hitbox track, and events.
+- LEFT mirrors RIGHT by default. `MAKE CUSTOM LEFT` creates an independent left-facing package when mirrored artwork, offsets, timing, or hit points are not sufficient; `RESTORE RIGHT MIRROR` returns it to the linked mirror.
+- Per-occurrence offset X/Y, scale X/Y, and rotation controls. Repeated uses of one source tile remain independently editable.
+- Frame selection, advanced source-ID list, FPS, loop, and loop mode.
 - Preview updates after editing visual offset, hitbox fields, frame, animation, or source asset.
 
 ### Inspector fields
@@ -192,17 +196,19 @@ Weapon source sheets use the shared asset catalog with the `weapon` tag. The sou
 | Identity | Stable weapon ID, display name, melee/ranged category, character action key, description, tagged source asset, Source Library button |
 | Combat profile | Base damage, cooldown, hitbox width/height, hitbox offset, active duration, knockback, unlock level |
 | Attribute scaling | Damage, cooldown, and knockback coefficients by character attribute |
-| Visual | Attachment offset X/Y in source pixels |
-| Animation data | IDLE, ATTACK, and IMPACT frame lists, FPS, loop, loop mode |
+| Visual | Global attachment offset X/Y and global weapon scale X/Y in source pixels/multipliers |
+| Animation data | IDLE and IMPACT clips; directional RIGHT/LEFT/UP/DOWN ATTACK packages; ordered occurrences; per-occurrence offset, scale, rotation; FPS, loop, loop mode |
 | Presentation | Character action relationship and separate weapon-layer behavior |
 
 ### Weapon visual offset
 
-The current weapon document stores a profile-level offset:
+The weapon document stores profile-level transforms:
 
-`visual.sourceOffset`
+`visual.sourceOffset` and `visual.scale`
 
-The preview multiplies that source-pixel offset by the same visible stage scale used by the weapon sprite. It is intentionally independent from `hitboxOffset`, which moves the red gameplay guide. If per-animation or per-frame weapon alignment is needed later, add it as a documented extension using the same precedence contract as Character Studio rather than adding another ad-hoc field.
+The preview multiplies source-pixel offsets by the same visible stage scale used by the weapon sprite. These values remain independent from `hitboxOffset`, which moves the red gameplay guide. Each animation occurrence may add `animation.frameTransforms[position]` with offset, scale, and rotation. Position—not source tile ID—is the key, so repeated source tiles can form different poses.
+
+Attack data is authored under `directionalAttacks.right`, `.left`, `.up`, and `.down`. The legacy `.side` package remains readable and is migrated to `.right` when edited. An absent `.left` package inherits RIGHT and uses a true horizontal mirror: local `(x, y)` becomes `(-x, y)`, so vertical offsets and hit-point height are preserved. Missing RIGHT, UP, or DOWN data normalizes to the legacy root attack package. This preserves old weapons while allowing every direction to be materialized independently.
 
 ## 5. Change checklist for future fields
 

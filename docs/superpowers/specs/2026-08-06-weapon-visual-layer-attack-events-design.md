@@ -4,6 +4,25 @@
 
 Approved by the user on 2026-08-06.
 
+The directional attack and per-animation-tile editing extension was completed on 2026-08-08.
+
+## 2026-08-08 completed extension
+
+Direction ownership is split deliberately: the weapon owns RIGHT, LEFT, UP, and DOWN weapon clips, tile transforms, hitbox geometry, hitbox spans, events, and the character-action ID paired with each direction. The character package continues to own the actual character body clips. Combat captures facing at attack start, resolves it to one of those four directions, and starts the matching weapon package and character action together.
+
+Weapon Studio groups RIGHT and LEFT under a SIDE heading, but they remain separate resolved directions. LEFT is linked to RIGHT by default and uses a true horizontal mirror: artwork flips on X, local offset `(x, y)` becomes `(-x, y)`, and the vertical offset is preserved. This same rule applies to hitbox centers. `MAKE CUSTOM LEFT` materializes a fully independent LEFT package for weapons whose artwork, tile transforms, timing, action, or hit points need hand-authored left-facing adjustments. `RESTORE RIGHT MIRROR` removes that override and returns LEFT to the linked mirror.
+
+Runtime facing is bucketed to the dominant cardinal axis at attack start. The selected package, sector angle, local hitbox offsets, knockback direction, and fallback VFX all use that same captured RIGHT/LEFT/UP/DOWN vector, preventing diagonal input from drifting away from cardinal authored artwork.
+
+Weapon animation entries now support `frameTransforms` keyed by animation position. The key is the occurrence index in `frames`, not the source tile ID, so two uses of the same source tile may have different offsets, scales, and rotations. The runtime composes occurrence transforms with the profile-level visual transform.
+
+Weapon Studio exposes two separate collections:
+
+1. SOURCE TILES is the immutable spritesheet library; clicking appends a tile occurrence.
+2. ANIMATION TILES is the ordered clip; occurrences support single/range/multi-selection, deletion, duplication, button or drag reordering, and per-selection move/scale/rotation.
+
+The combined preview supports direct drag manipulation with Move, Scale, and Rotate tools, an onion-skin toggle, exact numeric controls, Reset Tile, and undo/redo. The always-visible transform panel links directly to the global scale controls under Inspector → Visual.
+
 ## Summary
 
 Upgrade the weapon system so equipped weapons render as a separate visual layer attached to the player’s existing gameplay anchor. Character action clips remain reusable and are selected by the weapon through `animKey`; weapon source sheets author the weapon’s idle, attack, and impact frames. Weapon attack timing becomes event-driven: named weapon hitboxes activate on authored attack-frame spans, and optional frame events support impact effects and other presentation hooks.
@@ -133,6 +152,23 @@ interface WeaponEventDocument {
   readonly eventId: string;
   readonly payload?: JsonValue;
 }
+
+interface WeaponFrameTransformDocument {
+  readonly offset?: readonly [number, number];
+  readonly scale?: readonly [number, number];
+  readonly rotationDeg?: number;
+}
+
+type WeaponAttackDirection = 'right' | 'left' | 'up' | 'down';
+
+type WeaponAuthoredAttackDirection = WeaponAttackDirection | 'side'; // `side` is legacy input
+
+interface WeaponDirectionalAttackDocument {
+  readonly animation: WeaponAnimationDocument;
+  readonly characterActionId?: string;
+  readonly attackTrack?: WeaponAttackTrackDocument;
+  readonly hitboxes?: Readonly<Record<string, WeaponHitboxDocument>>;
+}
 ```
 
 The weapon definition adds:
@@ -159,9 +195,11 @@ Weapon hitbox geometry should be converted into the existing `HitboxConfig` at a
 
 - Weapon visual offsets, frame offsets, origin, and source-sheet alignment are authored in source pixels, then multiplied by the resolved visual scale.
 - Weapon hitbox dimensions and offsets are authored in world units, independent of source pixels and sprite scale.
-- The default `vector` facing mode assumes the source frame points right. The local +X axis and local offsets rotate to `atan2(facing.y, facing.x)`.
-- `horizontal-flip` leaves the weapon unrotated and mirrors only for left-facing horizontal presentation; it is intended for flat or character-specific art.
-- Hitbox local offsets rotate with the facing vector. Sector hitboxes use the captured attack angle; rectangle/circle/ellipse geometry uses the rotated local center and shape dimensions.
+- Legacy `vector` presentation assumes the source frame points right. The local +X axis and local offsets rotate to `atan2(facing.y, facing.x)`.
+- Authored RIGHT, LEFT, UP, and DOWN packages render without automatic rotation. Authors arrange each package tile by tile.
+- When LEFT has no explicit package, it mirrors RIGHT horizontally. Local `(x, y)` resolves to `(-x, y)` for visual offsets and hitbox centers; it is not a 180-degree rotation.
+- Directional hitbox geometry may override the legacy/root hitbox collection. A mirrored LEFT package inherits RIGHT geometry, while custom LEFT, UP, and DOWN packages can own distinct hit points.
+- Sector hitboxes use the captured attack angle; rectangle/circle/ellipse geometry uses the resolved directional center and shape dimensions.
 - Origin is normalized 0–1 and scale is a positive multiplier. Source offsets do not change the player body or gameplay anchor.
 
 ### Weapon hitbox lifecycle
@@ -250,6 +288,7 @@ Editor save controls must remain disabled or show actionable validation errors. 
 ## Migration
 
 - Keep legacy singleton weapon fields readable during the transition.
+- Keep `directionalAttacks.side` readable as migration input. Resolve it as RIGHT, mirror it for LEFT, and write `.right` when Weapon Studio first edits that package.
 - Introduce separate authored and normalized types. The authored type accepts the legacy `animKey` alias or the new `characterActionId`; `NormalizedWeaponDefinition` always contains a resolved `characterActionId`, resolved hitboxes, resolved visual defaults, and explicit attack-track mode. Apply `normalizeWeaponDefinition()` at the catalog boundary, editor load/save boundary, and runtime weapon-construction boundary so every consumer sees the canonical form.
 - Normalize old fields to a `primary` weapon hitbox at load time.
 - Normalize missing attack tracks to a marked legacy immediate-hit fallback; new definitions and Studio saves use explicit tracks.

@@ -1,4 +1,4 @@
-export type EditorGeometryKey = 'frame' | 'collider' | 'occlusion';
+export type EditorGeometryKey = 'frame' | 'collider' | 'depth' | 'occlusion';
 
 export interface EditorGeometryStyle {
   readonly label: string;
@@ -19,6 +19,12 @@ export const EDITOR_GEOMETRY_STYLES: Readonly<Record<EditorGeometryKey, EditorGe
     shortLabel: 'COLLIDER',
     css: '#ff4d5d',
     phaser: 0xff4d5d,
+  },
+  depth: {
+    label: 'Depth bound',
+    shortLabel: 'DEPTH',
+    css: '#ff9f43',
+    phaser: 0xff9f43,
   },
   occlusion: {
     label: 'Occlusion',

@@ -3,7 +3,7 @@ import type { InventorySlot } from '../../core/types';
 import type { QuestState } from '../../quests/Quest';
 import type { AreaId } from '../../world/Area';
 
-export const SAVE_SCHEMA_VERSION = 2;
+export const SAVE_SCHEMA_VERSION = 3;
 
 export interface WorldProgressData {
   discoveredAreas: AreaId[];

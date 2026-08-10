@@ -523,6 +523,18 @@ export class ProceduralAssetScene extends Phaser.Scene {
     graphics.generateTexture('weapon-gauntlet', 32, 32);
     graphics.clear();
 
+    // Generic sword — used by authored sword weapons without a dedicated UI icon
+    graphics.fillStyle(0xd9edf2, 1);
+    graphics.fillTriangle(17, 3, 20, 17, 14, 17);
+    graphics.fillStyle(0x7ea6b4, 1);
+    graphics.fillRect(15, 16, 4, 8);
+    graphics.fillStyle(0xffd277, 1);
+    graphics.fillRect(10, 20, 14, 3);
+    graphics.fillStyle(0x8b5a3c, 1);
+    graphics.fillRect(15, 23, 4, 6);
+    graphics.generateTexture('weapon-generic', 32, 32);
+    graphics.clear();
+
     // Splat Spear â€” brown shaft + tip
     graphics.fillStyle(0x8b5a3c, 1);
     graphics.fillRect(14, 6, 4, 18);

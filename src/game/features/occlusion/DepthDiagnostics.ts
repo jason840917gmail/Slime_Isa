@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 
+import { devToolsState } from '../../devTools';
 import { resolveBodyBottom } from '../../presentation/WorldDepth';
 import type {
   OcclusionActorDiagnostics,
@@ -40,6 +41,10 @@ export class DepthDiagnostics {
 
   update(): void {
     if (!this.element) return;
+    const visible = devToolsState.enabled
+      && (devToolsState.occlusionBounds || devToolsState.depthBounds || devToolsState.depthAnchors);
+    this.element.style.display = visible ? 'block' : 'none';
+    if (!visible) return;
     const player = this.ctx.getPlayer();
     const body = player.body as Phaser.Physics.Arcade.Body | null;
     const anchorY = body ? resolveBodyBottom(body) : player.y;

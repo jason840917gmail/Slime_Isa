@@ -35,6 +35,23 @@ test('anchor resolvers use body geometry and preserve authored object anchors', 
   assert.equal(depth.resolveWorldDepth(depth.MAX_SORT_ANCHOR_Y + 50).groundAnchorY, depth.MAX_SORT_ANCHOR_Y);
 });
 
+test('custom object depth bounds resolve their lower edge independently of the tile anchor', () => {
+  assert.equal(depth.resolveObjectDepthAnchorY(500, {
+    sourceFrameHeight: 128,
+    originY: 1,
+    bounds: { offsetY: 104, height: 24 },
+  }), 500);
+  assert.equal(depth.resolveObjectDepthAnchorY(500, {
+    sourceFrameHeight: 128,
+    originY: 1,
+    bounds: { offsetY: 80, height: 24 },
+  }), 476);
+  assert.equal(depth.resolveObjectDepthAnchorY(500, {
+    sourceFrameHeight: 128,
+    originY: 1,
+  }), 500);
+});
+
 test('stable ties and attachment slots are deterministic and local', () => {
   const first = depth.resolveWorldDepth(200, { stableId: 'tree-a' });
   const second = depth.resolveWorldDepth(200, { stableId: 'tree-a' });

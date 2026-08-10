@@ -81,6 +81,13 @@ interface ObjectOcclusionPayload {
   readonly offsetY: number;
 }
 
+interface ObjectDepthPayload {
+  readonly width: number;
+  readonly height: number;
+  readonly offsetX: number;
+  readonly offsetY: number;
+}
+
 function requireInteger(value: unknown, minimum: number, label: string): number {
   if (typeof value !== 'number' || !Number.isInteger(value) || value < minimum) {
     throw new Error(`${label} must be an integer >= ${minimum}`);
@@ -141,8 +148,9 @@ function validateObjectVisualUpdate(
   readonly visualOffset: ObjectVisualOffsetPayload;
   readonly collider?: ObjectColliderPayload;
   readonly occlusionBounds?: ObjectOcclusionPayload;
+  readonly depthBounds?: ObjectDepthPayload;
 } {
-  validateRecordKeys(payload, ['objectId', 'visualId', 'displayName', 'visualOffset', 'collider', 'occlusionBounds'], 'payload');
+  validateRecordKeys(payload, ['objectId', 'visualId', 'displayName', 'visualOffset', 'collider', 'depthBounds', 'occlusionBounds'], 'payload');
   const objectId = payload.objectId;
   const visualId = payload.visualId;
   if (typeof objectId !== 'string' || !OBJECT_ID_PATTERN.test(objectId) || !isObjectArchetypeId(objectId)) {
@@ -168,7 +176,27 @@ function validateObjectVisualUpdate(
     y: requireWholePixel(visualOffsetValue.y),
   };
   const colliderValue = payload.collider;
+  const depthValue = payload.depthBounds;
   const occlusionValue = payload.occlusionBounds;
+  let depthBounds: ObjectDepthPayload | undefined;
+  if (depthValue !== undefined) {
+    if (!isRecord(depthValue)) throw new Error('Depth bounds must be an object');
+    validateRecordKeys(depthValue, ['width', 'height', 'offsetX', 'offsetY'], 'depthBounds');
+    depthBounds = {
+      width: requireInteger(depthValue.width, 1, 'Depth width'),
+      height: requireInteger(depthValue.height, 1, 'Depth height'),
+      offsetX: requireInteger(depthValue.offsetX, 0, 'Depth offsetX'),
+      offsetY: requireInteger(depthValue.offsetY, 0, 'Depth offsetY'),
+    };
+    const dimensions = frameDimensions(variant.assetId);
+    if (!dimensions) throw new Error('Procedural object templates cannot define depth bounds');
+    if (depthBounds.offsetX + depthBounds.width > dimensions.width) {
+      throw new Error(`Depth bounds exceed frame width ${dimensions.width}`);
+    }
+    if (depthBounds.offsetY + depthBounds.height > dimensions.height) {
+      throw new Error(`Depth bounds exceed frame height ${dimensions.height}`);
+    }
+  }
   let occlusionBounds: ObjectOcclusionPayload | undefined;
   if (occlusionValue !== undefined) {
     if (!isRecord(occlusionValue)) throw new Error('Occlusion bounds must be an object');
@@ -193,7 +221,7 @@ function validateObjectVisualUpdate(
   }
   if (definition.physics === null) {
     if (colliderValue !== undefined) throw new Error('Decorative objects cannot have colliders');
-    return { frame, displayName, visualOffset, occlusionBounds };
+    return { frame, displayName, visualOffset, depthBounds, occlusionBounds };
   }
   if (!isRecord(colliderValue)) throw new Error('Solid objects require a collider');
   validateRecordKeys(colliderValue, ['width', 'height', 'offsetX', 'offsetY'], 'collider');
@@ -210,7 +238,7 @@ function validateObjectVisualUpdate(
   if (dimensions && collider.offsetY + collider.height > dimensions.height) {
     throw new Error(`Collider exceeds frame height ${dimensions.height}`);
   }
-  return { frame, displayName, visualOffset, collider, occlusionBounds };
+  return { frame, displayName, visualOffset, collider, depthBounds, occlusionBounds };
 }
 
 async function validateMapReferences(map: MapFile): Promise<string[]> {
@@ -369,6 +397,8 @@ function mapEditorSavePlugin(): Plugin {
           update.frame.visualOffset = update.visualOffset;
           if (definition.physics === null) delete update.frame.collider;
           else update.frame.collider = update.collider;
+          if (update.depthBounds) update.frame.depthBounds = update.depthBounds;
+          else delete update.frame.depthBounds;
           if (update.occlusionBounds) update.frame.occlusionBounds = update.occlusionBounds;
           else delete update.frame.occlusionBounds;
 
@@ -384,6 +414,7 @@ function mapEditorSavePlugin(): Plugin {
             displayName: update.displayName,
             visualOffset: update.visualOffset,
             collider: update.collider,
+            depthBounds: update.depthBounds,
             occlusionBounds: update.occlusionBounds,
           }));
         } catch (error) {
@@ -406,7 +437,7 @@ function mapEditorSavePlugin(): Plugin {
           const payload = JSON.parse(await readRequestBody(request)) as Record<string, unknown>;
           validateRecordKeys(
             payload,
-            ['objectId', 'sourceVisualId', 'visualId', 'displayName', 'visualOffset', 'collider', 'occlusionBounds'],
+            ['objectId', 'sourceVisualId', 'visualId', 'displayName', 'visualOffset', 'collider', 'depthBounds', 'occlusionBounds'],
             'payload',
           );
           const objectId = payload.objectId;
@@ -438,6 +469,7 @@ function mapEditorSavePlugin(): Plugin {
             displayName: payload.displayName,
             visualOffset: payload.visualOffset,
             collider: payload.collider,
+            depthBounds: payload.depthBounds,
             occlusionBounds: payload.occlusionBounds,
           }, definition);
 
@@ -449,6 +481,8 @@ function mapEditorSavePlugin(): Plugin {
           };
           if (definition.physics === null) delete duplicatedFrame.collider;
           else duplicatedFrame.collider = update.collider;
+          if (update.depthBounds) duplicatedFrame.depthBounds = update.depthBounds;
+          else delete duplicatedFrame.depthBounds;
           if (update.occlusionBounds) duplicatedFrame.occlusionBounds = update.occlusionBounds;
           else delete duplicatedFrame.occlusionBounds;
           sourceVariant.frames.push(duplicatedFrame);
@@ -465,6 +499,7 @@ function mapEditorSavePlugin(): Plugin {
             displayName: update.displayName,
             visualOffset: update.visualOffset,
             collider: update.collider,
+            depthBounds: update.depthBounds,
             occlusionBounds: update.occlusionBounds,
           }));
         } catch (error) {

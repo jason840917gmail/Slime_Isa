@@ -3,7 +3,13 @@ import { getStats } from '../systems/PlayerStats';
 import { hitboxPool, type HitHandler, type HitboxActivationHandle, type HitboxConfig } from './Hitbox';
 import { resolveBodyBottom, resolveWorldDepth } from '../presentation/WorldDepth';
 import { resolveScaledValue } from './CombatScaling';
-import type { NormalizedWeaponDefinition, WeaponHitboxDocument } from '../content/weapons/types';
+import type {
+  NormalizedWeaponDefinition,
+  WeaponAttackDirection,
+  WeaponAttackTrackDocument,
+  WeaponHitboxDocument,
+  WeaponPlaybackAnimationId,
+} from '../content/weapons/types';
 import { WeaponAttackTrackRunner, type WeaponTrackEvent } from './WeaponAttackTrackRunner';
 
 const SWING_VISUAL_PADDING = 8;
@@ -20,12 +26,14 @@ export interface WeaponContext {
   onAttackStart: () => void;
   onAttackEnd: () => void;
   playCharacterAction: (actionId: string) => void;
-  playWeaponAnimation: (animationId: 'idle' | 'attack' | 'impact', forceRestart?: boolean) => void;
+  playWeaponAnimation: (animationId: WeaponPlaybackAnimationId, forceRestart?: boolean) => void;
   onWeaponEvent?: (event: WeaponTrackEvent) => void;
 }
 
 interface AttackSnapshot {
   readonly direction: Phaser.Math.Vector2;
+  readonly attackDirection: WeaponAttackDirection;
+  readonly hitboxes: Readonly<Record<string, WeaponHitboxDocument>>;
   readonly angle: number;
   readonly arcWidth: number;
   readonly finalDamage: number;
@@ -39,6 +47,29 @@ interface ActiveHitbox {
   readonly handle: HitboxActivationHandle;
 }
 
+export function resolveWeaponAttackDirection(direction: Phaser.Math.Vector2): WeaponAttackDirection {
+  if (Math.abs(direction.x) >= Math.abs(direction.y)) return direction.x < 0 ? 'left' : 'right';
+  return direction.y < 0 ? 'up' : 'down';
+}
+
+function resolveDirectionalOffset(
+  attackDirection: WeaponAttackDirection,
+  offsetX: number,
+  offsetY: number,
+): readonly [number, number] {
+  if (attackDirection === 'right') return [offsetX, offsetY];
+  if (attackDirection === 'left') return [-offsetX, offsetY];
+  if (attackDirection === 'up') return [offsetY, -offsetX];
+  return [-offsetY, offsetX];
+}
+
+function resolveAttackVector(attackDirection: WeaponAttackDirection): Phaser.Math.Vector2 {
+  if (attackDirection === 'right') return new Phaser.Math.Vector2(1, 0);
+  if (attackDirection === 'left') return new Phaser.Math.Vector2(-1, 0);
+  if (attackDirection === 'up') return new Phaser.Math.Vector2(0, -1);
+  return new Phaser.Math.Vector2(0, 1);
+}
+
 /**
  * Owns weapon gameplay timing. The weapon visual is deliberately separate:
  * this class only tells it which clip to play and when authored events fire.
@@ -48,7 +79,7 @@ export class Weapon {
   protected ctx: WeaponContext;
   private cooldownUntil = 0;
   private cooldownDurationMs: number;
-  private readonly trackRunner?: WeaponAttackTrackRunner;
+  private trackRunner?: WeaponAttackTrackRunner;
   private readonly activeHitboxes = new Map<string, ActiveHitbox>();
   private attackSnapshot?: AttackSnapshot;
   private legacyEndTimer: Phaser.Time.TimerEvent | null = null;
@@ -59,17 +90,6 @@ export class Weapon {
     this.def = def;
     this.ctx = ctx;
     this.cooldownDurationMs = def.cooldownMs;
-    if (def.attackTrack) {
-      this.trackRunner = new WeaponAttackTrackRunner(def.animations.attack, def.attackTrack, {
-        onHitboxActivated: (hitboxId, activationId) => this.activateAuthoredHitbox(hitboxId, activationId),
-        onHitboxDeactivated: (hitboxId, activationId) => this.deactivateAuthoredHitbox(hitboxId, activationId),
-        onEvent: (event) => {
-          if (event.eventId === 'weapon.impact') this.ctx.playWeaponAnimation('impact', true);
-          this.ctx.onWeaponEvent?.(event);
-        },
-        onComplete: () => this.finishAttack(),
-      });
-    }
   }
 
   get id(): WeaponId {
@@ -110,9 +130,14 @@ export class Weapon {
     const isCrit = Math.random() < stats.critChance;
     const finalDamage = isCrit ? Math.round(damage * stats.critMult) : damage;
     const reachMultiplier = stats.weaponReachMult * resolveScaledValue(1, this.def.scaling?.reach, stats.attributes);
+    const attackDirection = resolveWeaponAttackDirection(direction);
+    const attackVector = resolveAttackVector(attackDirection);
+    const directionalAttack = this.def.directionalAttacks[attackDirection];
     const snapshot: AttackSnapshot = {
-      direction,
-      angle: Math.atan2(direction.y, direction.x),
+      direction: attackVector,
+      attackDirection,
+      hitboxes: directionalAttack.hitboxes,
+      angle: Math.atan2(attackVector.y, attackVector.x),
       arcWidth: stats.weaponArcRad,
       finalDamage,
       isCrit,
@@ -126,13 +151,17 @@ export class Weapon {
     this.cooldownUntil = time + this.cooldownDurationMs;
 
     this.ctx.onAttackStart();
-    this.ctx.playCharacterAction(this.def.characterActionId);
-    this.ctx.playWeaponAnimation('attack', true);
+    this.ctx.playCharacterAction(directionalAttack.characterActionId);
+    this.ctx.playWeaponAnimation(`attack-${attackDirection}`, true);
     this.ctx.getPlayer().setVelocity(0, 0);
     this.spawnSwingVfx(this.ctx.getPlayer(), snapshot);
 
     if (snapshot.isCrit) this.ctx.scene.cameras.main.shake(80, 0.006);
 
+    this.trackRunner?.destroy();
+    this.trackRunner = directionalAttack.attackTrack
+      ? this.createTrackRunner(directionalAttack.animation, directionalAttack.attackTrack)
+      : undefined;
     if (this.trackRunner) {
       this.trackRunner.start(true);
     } else {
@@ -141,6 +170,21 @@ export class Weapon {
       this.legacyEndTimer = this.ctx.scene.time.delayedCall(animDuration, () => this.finishAttack());
     }
     return true;
+  }
+
+  private createTrackRunner(
+    clip: NormalizedWeaponDefinition['animations']['attack'],
+    track: WeaponAttackTrackDocument,
+  ): WeaponAttackTrackRunner {
+    return new WeaponAttackTrackRunner(clip, track, {
+      onHitboxActivated: (hitboxId, activationId) => this.activateAuthoredHitbox(hitboxId, activationId),
+      onHitboxDeactivated: (hitboxId, activationId) => this.deactivateAuthoredHitbox(hitboxId, activationId),
+      onEvent: (event) => {
+        if (event.eventId === 'weapon.impact') this.ctx.playWeaponAnimation('impact', true);
+        this.ctx.onWeaponEvent?.(event);
+      },
+      onComplete: () => this.finishAttack(),
+    });
   }
 
   update(delta: number): void {
@@ -164,7 +208,7 @@ export class Weapon {
 
   private activateAuthoredHitbox(hitboxId: string, activationId: string): void {
     const snapshot = this.attackSnapshot;
-    const hitbox = this.def.hitboxes[hitboxId];
+    const hitbox = snapshot?.hitboxes[hitboxId];
     const targets = this.ctx.getTargets();
     if (!snapshot || !hitbox || !targets) return;
 
@@ -203,8 +247,9 @@ export class Weapon {
     const player = this.ctx.getPlayer();
     const offsetX = hitbox.offsetX * snapshot.reachMultiplier;
     const offsetY = hitbox.offsetY * snapshot.reachMultiplier;
-    const x = player.x + offsetX * snapshot.direction.x - offsetY * snapshot.direction.y;
-    const y = player.y + offsetX * snapshot.direction.y + offsetY * snapshot.direction.x;
+    const [resolvedOffsetX, resolvedOffsetY] = resolveDirectionalOffset(snapshot.attackDirection, offsetX, offsetY);
+    const x = player.x + resolvedOffsetX;
+    const y = player.y + resolvedOffsetY;
     const damage = snapshot.finalDamage * (hitbox.damageMultiplier ?? 1);
     const knockStrength = snapshot.knockStrength * (hitbox.knockbackMultiplier ?? 1);
 
@@ -258,9 +303,10 @@ export class Weapon {
   protected spawnSwingVfx(player: Phaser.Physics.Arcade.Sprite, snapshot: AttackSnapshot): void {
     const scene = this.ctx.scene;
     const visualOffset = this.def.visual.sourceOffset;
-    const px = player.x + visualOffset[0] * snapshot.direction.x - visualOffset[1] * snapshot.direction.y;
-    const py = player.y + visualOffset[0] * snapshot.direction.y + visualOffset[1] * snapshot.direction.x;
-    const primary = this.def.hitboxes.primary ?? Object.values(this.def.hitboxes)[0];
+    const [visualOffsetX, visualOffsetY] = resolveDirectionalOffset(snapshot.attackDirection, visualOffset[0], visualOffset[1]);
+    const px = player.x + visualOffsetX;
+    const py = player.y + visualOffsetY;
+    const primary = snapshot.hitboxes.primary ?? Object.values(snapshot.hitboxes)[0];
     const reach = (primary?.outerRadius ?? this.def.hitboxOffset + this.def.hitboxWidth / 2) * snapshot.reachMultiplier;
     const color = snapshot.isCrit ? 0xffdf8a : this.def.vfxColor;
     const outerR = reach + SWING_VISUAL_PADDING;
