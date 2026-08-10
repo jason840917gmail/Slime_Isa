@@ -170,6 +170,7 @@ export class MapEditorScene extends Phaser.Scene {
     showAllMatchingOverlays: false,
     showFrameOverlay: true,
     showColliderOverlay: true,
+    showDepthOverlay: true,
     showOcclusionOverlay: true,
   };
   private lastSelectedInstanceId?: string;
@@ -280,6 +281,7 @@ export class MapEditorScene extends Phaser.Scene {
         state.showAllMatchingOverlays !== previousOverlaySettings.showAllMatchingOverlays
         || state.showFrameOverlay !== previousOverlaySettings.showFrameOverlay
         || state.showColliderOverlay !== previousOverlaySettings.showColliderOverlay
+        || state.showDepthOverlay !== previousOverlaySettings.showDepthOverlay
         || state.showOcclusionOverlay !== previousOverlaySettings.showOcclusionOverlay
       );
       this.lastTemplateOverlaySettings = nextOverlaySettings;
@@ -1592,6 +1594,47 @@ export class MapEditorScene extends Phaser.Scene {
           graphics.lineStyle(2, EDITOR_SELECTION_STYLE.phaser, 0.9).lineBetween(anchorX, anchorY, image.x, image.y);
         }
       }
+      if (template.showDepthOverlay && template.draft?.depthBounds && template.frameDimensions) {
+        const depthRectangle = resolveWorldOcclusionRectangle(
+          {
+            x: image.x - resolved.visualOffset.x,
+            y: image.y - resolved.visualOffset.y,
+            originX: image.originX,
+            originY: image.originY,
+            scaleX: image.scaleX,
+            scaleY: image.scaleY,
+            flipX: image.flipX,
+            flipY: image.flipY,
+          },
+          template.frameDimensions,
+          template.draft.depthBounds,
+        );
+        graphics.fillStyle(EDITOR_GEOMETRY_STYLES.depth.phaser, 0.1).fillRect(
+          depthRectangle.x,
+          depthRectangle.y,
+          depthRectangle.width,
+          depthRectangle.height,
+        );
+        drawOutlinedRect(
+          depthRectangle.x,
+          depthRectangle.y,
+          depthRectangle.width,
+          depthRectangle.height,
+          EDITOR_GEOMETRY_STYLES.depth.phaser,
+          3,
+        );
+        graphics.lineStyle(4, EDITOR_GEOMETRY_STYLES.depth.phaser, 1).lineBetween(
+          depthRectangle.x,
+          depthRectangle.y + depthRectangle.height,
+          depthRectangle.x + depthRectangle.width,
+          depthRectangle.y + depthRectangle.height,
+        );
+        graphics.fillStyle(EDITOR_GEOMETRY_STYLES.depth.phaser, 1).fillCircle(
+          depthRectangle.x + depthRectangle.width / 2,
+          depthRectangle.y + depthRectangle.height,
+          5,
+        );
+      }
       if (template.showColliderOverlay && resolved.physics !== null && resolved.collider) {
         const dimensions = resolveCollisionShapeDimensions(resolved.collider);
         const colliderX = frameX + resolved.collider.offsetX;
@@ -1865,6 +1908,7 @@ export class MapEditorScene extends Phaser.Scene {
     showAllMatchingOverlays: boolean;
     showFrameOverlay: boolean;
     showColliderOverlay: boolean;
+    showDepthOverlay: boolean;
     showOcclusionOverlay: boolean;
   } {
     const state = this.templateEditor.value;
@@ -1872,6 +1916,7 @@ export class MapEditorScene extends Phaser.Scene {
       showAllMatchingOverlays: state.showAllMatchingOverlays,
       showFrameOverlay: state.showFrameOverlay,
       showColliderOverlay: state.showColliderOverlay,
+      showDepthOverlay: state.showDepthOverlay,
       showOcclusionOverlay: state.showOcclusionOverlay,
     };
   }

@@ -2,7 +2,12 @@ import Phaser from 'phaser';
 
 import type { AssetId } from '../../infrastructure/assets/manifest';
 import { getAsset } from '../../infrastructure/assets/manifest';
-import type { NormalizedWeaponDefinition, WeaponAnimationDocument } from '../../content/weapons/types';
+import type {
+  NormalizedWeaponDefinition,
+  WeaponAnimationDocument,
+  WeaponAttackDirection,
+  WeaponPlaybackAnimationId,
+} from '../../content/weapons/types';
 
 type WeaponVisualAnchor = Phaser.GameObjects.GameObject & {
   readonly x: number;
@@ -34,8 +39,9 @@ export class WeaponVisual {
   private readonly depthResolver: () => number;
   private readonly facing: () => Phaser.Math.Vector2;
   private readonly asset?: ReturnType<typeof getAsset>;
-  private activeAnimationId: 'idle' | 'attack' | 'impact' = 'idle';
+  private activeAnimationId: WeaponPlaybackAnimationId = 'idle';
   private frameIndex = 0;
+  private framePosition = 0;
   private destroyed = false;
 
   constructor(
@@ -73,9 +79,10 @@ export class WeaponVisual {
     this.applyTransform();
   }
 
-  play(animationId: 'idle' | 'attack' | 'impact', forceRestart = true): void {
+  play(animationId: WeaponPlaybackAnimationId, forceRestart = true): void {
     this.activeAnimationId = animationId;
     this.frameIndex = 0;
+    this.framePosition = 0;
     const sprite = this.sprite;
     if (!sprite || !this.asset) return;
     const key = runtimeKey(this.definition.weaponId, animationId);
@@ -110,8 +117,8 @@ export class WeaponVisual {
     if (!this.asset || this.asset.source.kind !== 'spritesheet') return;
     const keys = ownedKeys(this.scene.anims);
     const textureKey = this.asset.runtime.textureKey;
-    for (const animationId of ['idle', 'attack', 'impact'] as const) {
-      const clip = this.definition.animations[animationId];
+    for (const animationId of ['idle', 'attack-right', 'attack-left', 'attack-up', 'attack-down', 'impact'] as const) {
+      const clip = this.animationClip(animationId);
       const key = runtimeKey(this.definition.weaponId, animationId);
       if (this.scene.anims.exists(key)) continue;
       const frames = this.clampedFrames(clip);
@@ -126,6 +133,17 @@ export class WeaponVisual {
     }
   }
 
+  private animationClip(animationId = this.activeAnimationId): WeaponAnimationDocument {
+    if (animationId === 'idle' || animationId === 'impact') return this.definition.animations[animationId];
+    return this.definition.directionalAttacks[animationId.slice('attack-'.length) as WeaponAttackDirection].animation;
+  }
+
+  private activeDirection(): WeaponAttackDirection | undefined {
+    return this.activeAnimationId.startsWith('attack-')
+      ? this.activeAnimationId.slice('attack-'.length) as WeaponAttackDirection
+      : undefined;
+  }
+
   private clampedFrames(clip: WeaponAnimationDocument): number[] {
     const count = this.asset && 'frame' in this.asset.source
       ? this.asset.source.frame.cols * this.asset.source.frame.rows
@@ -138,30 +156,48 @@ export class WeaponVisual {
     if (this.destroyed || !sprite) return;
     const visual = this.definition.visual;
     const origin = visual.origin ?? [0.5, 0.5];
-    const scale = visual.scale ?? [1, 1];
+    const baseScale = visual.scale ?? [1, 1];
     const mode: WeaponFacingMode = visual.facingMode ?? 'vector';
     const facing = this.facing().lengthSq() > 0
       ? this.facing().clone().normalize()
       : new Phaser.Math.Vector2(1, 0);
-    const angle = Math.atan2(facing.y, facing.x);
-    const flipX = mode === 'horizontal-flip' && facing.x < 0;
-    const offset = visual.frameOffsets?.[String(this.frameIndex)]
-      ?? visual.animationOffsets?.[this.activeAnimationId]
+    const direction = this.activeDirection();
+    const directionalAttack = direction ? this.definition.directionalAttacks[direction] : undefined;
+    const presentation = directionalAttack?.presentation ?? 'legacy-vector';
+    const usesAuthoredDirection = presentation !== 'legacy-vector';
+    const facingAngle = Math.atan2(facing.y, facing.x);
+    const angle = usesAuthoredDirection ? 0 : mode === 'vector' ? facingAngle : 0;
+    const flipX = usesAuthoredDirection
+      ? presentation === 'mirror-right'
+      : mode === 'horizontal-flip' && facing.x < 0;
+    const animationOffsetKey = presentation === 'mirror-right'
+      ? 'attack-right'
+      : direction ? `attack-${direction}` : this.activeAnimationId;
+    const baseOffset = visual.frameOffsets?.[String(this.frameIndex)]
+      ?? visual.animationOffsets?.[animationOffsetKey]
+      ?? (direction ? visual.animationOffsets?.attack : undefined)
       ?? visual.sourceOffset;
-    const scaledOffsetX = offset[0] * scale[0];
-    const scaledOffsetY = offset[1] * scale[1];
-    const offsetX = mode === 'vector'
+    const frameTransform = this.animationClip().frameTransforms?.[String(this.framePosition)];
+    const occurrenceOffset = frameTransform?.offset ?? [0, 0];
+    const occurrenceScale = frameTransform?.scale ?? [1, 1];
+    const scaleX = baseScale[0] * occurrenceScale[0];
+    const scaleY = baseScale[1] * occurrenceScale[1];
+    const scaledOffsetX = (baseOffset[0] + occurrenceOffset[0]) * baseScale[0];
+    const scaledOffsetY = (baseOffset[1] + occurrenceOffset[1]) * baseScale[1];
+    const rotatesWithFacing = !usesAuthoredDirection && mode === 'vector';
+    const offsetX = rotatesWithFacing
       ? scaledOffsetX * Math.cos(angle) - scaledOffsetY * Math.sin(angle)
       : scaledOffsetX * (flipX ? -1 : 1);
-    const offsetY = mode === 'vector'
+    const offsetY = rotatesWithFacing
       ? scaledOffsetX * Math.sin(angle) + scaledOffsetY * Math.cos(angle)
       : scaledOffsetY;
+    const localRotation = Phaser.Math.DegToRad(frameTransform?.rotationDeg ?? 0);
 
     sprite
       .setOrigin(origin[0], origin[1])
-      .setScale(scale[0], scale[1])
+      .setScale(scaleX, scaleY)
       .setFlipX(flipX)
-      .setRotation(mode === 'vector' ? angle : 0)
+      .setRotation(angle + localRotation)
       .setPosition(this.anchor.x + offsetX, this.anchor.y + offsetY)
       .setDepth(this.depthResolver());
   }
@@ -173,6 +209,7 @@ export class WeaponVisual {
     this.frameIndex = typeof frame.textureFrame === 'number'
       ? frame.textureFrame
       : Number(frame.textureFrame) || 0;
+    this.framePosition = Math.max(0, frame.index - 1);
     this.applyTransform();
   };
 

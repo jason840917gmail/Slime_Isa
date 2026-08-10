@@ -17,7 +17,7 @@ Last updated: 2026-06-23
 Completed so far:
 - Phase 0 foundation is functionally in place: `EventBus`, `GameState`, centralized input, save handoff, and extracted house/HUD-style systems exist, though `WorldScene` still needs later cleanup.
 - Phase 1 player core is in place: HP, XP, levels, energy, perks, inventory, status effects, respawn, level-up modal, health bar, ability bar, and inventory actions.
-- Phase 2 combat is in place: starter weapon, combo/hitbox system, target dummy, attack/dodge, gated abilities, reach/arc perks, and life-steal perk.
+- Phase 2 combat is in place: inventory-owned weapons, a persistent five-slot 1–5 equipment hotbar, live weapon replacement, combo/hitbox system, target dummy, attack/dodge, gated abilities, reach/arc perks, and life-steal perk.
 - Phase 3 enemies are in place: enemy AI, spawner, projectiles, drops, contact damage, knockback/stun, safe home zone, and biome spawn tables.
 - Phase 4 world expansion first slice is in place: Meadow, Gloop Forest, Crystal Caverns, biome tiles, area transitions, world map, discovered areas, and death return-to-home behavior.
 - Phase 5 quest first slice is in place: quest tracker, quest journal, starter quest, event-driven progress, rewards, and quest persistence.
@@ -141,7 +141,7 @@ animations plus new attack anims.
 - `src/game/abilities/AbilityTree.ts` — node graph; points spent in `LevelUpModal` unlock nodes.
 - `src/game/abilities/library/` — one file per ability (see list below).
 - `src/game/weapons/library/` — one file per weapon.
-- `src/game/ui/WeaponWheel.ts` — switch weapon (1–6 keys or wheel).
+- `src/game/ui/WeaponHotbar.ts` — switch among five inventory-owned weapon/tool slots with keys 1–5; assignment lives in Inventory.
 - `src/game/ui/AbilityBar.ts` — bottom HUD slots with cooldown overlays (Zelda-ish).
 - `src/game/data/weapons.json`, `src/game/data/abilities.json`.
 

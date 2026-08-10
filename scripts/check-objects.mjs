@@ -79,6 +79,28 @@ function validateBounds(file, objectId, field, bounds, frame) {
   }
 }
 
+function validateDepthBounds(file, objectId, field, bounds, frame) {
+  if (!isRecord(bounds)) {
+    fail(file, objectId, field, 'must be an object');
+    return;
+  }
+  validateKeys(file, objectId, field, bounds, new Set(['width', 'height', 'offsetX', 'offsetY']));
+  for (const property of ['width', 'height', 'offsetX', 'offsetY']) {
+    const minimum = property.startsWith('offset') ? 0 : 1;
+    if (!Number.isInteger(bounds[property]) || bounds[property] < minimum) {
+      fail(file, objectId, `${field}.${property}`, `must be an integer >= ${minimum}`);
+    }
+  }
+  if (Number.isInteger(bounds.offsetX) && Number.isInteger(bounds.width)
+      && bounds.offsetX + bounds.width > frame.w) {
+    fail(file, objectId, field, `horizontal depth bound exceeds frame width ${frame.w}`);
+  }
+  if (Number.isInteger(bounds.offsetY) && Number.isInteger(bounds.height)
+      && bounds.offsetY + bounds.height > frame.h) {
+    fail(file, objectId, field, `vertical depth bound exceeds frame height ${frame.h}`);
+  }
+}
+
 function validateVisualOffset(file, objectId, field, offset) {
   if (!isRecord(offset)) {
     fail(file, objectId, field, 'must be an object');
@@ -191,6 +213,7 @@ for (const absolutePath of objectFiles) {
             'frame',
             'displayName',
             'visualOffset',
+            'depthBounds',
             'occlusionBounds',
             'visualSetId',
             'animationClip',
@@ -230,6 +253,14 @@ for (const absolutePath of objectFiles) {
             fail(file, objectId, `${frameField}.occlusionBounds`, 'animated object variants cannot define occlusion bounds');
           } else if (frame) {
             validateBounds(file, objectId, `${frameField}.occlusionBounds`, frameEntry.occlusionBounds, frame);
+          }
+        }
+
+        if (frameEntry.depthBounds !== undefined) {
+          if (asset.source.kind !== 'spritesheet') {
+            fail(file, objectId, `${frameField}.depthBounds`, 'procedural object variants cannot define depth bounds');
+          } else if (frame) {
+            validateDepthBounds(file, objectId, `${frameField}.depthBounds`, frameEntry.depthBounds, frame);
           }
         }
 

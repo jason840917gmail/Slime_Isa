@@ -61,12 +61,13 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
             <tr><td class="k">R</td><td>Stretch Lash <span class="lock">Lv 4</span></td></tr>
             <tr><td class="k">Y</td><td>Teleport <span class="lock">Lv 5</span></td></tr>
             <tr><td class="k">F</td><td>Interact / Shop</td></tr>
+            <tr><td class="k">1–5</td><td>Equip inventory weapon</td></tr>
             <tr><td class="k">Tab</td><td>Inventory</td></tr>
             <tr><td class="k">M</td><td>World Map</td></tr>
             <tr><td class="k">U</td><td>Quest Journal</td></tr>
             <tr><td class="k">C</td><td>Crafting</td></tr>
             <tr><td class="k">/</td><td>Chat</td></tr>
-            <tr><td class="k">1â€“8</td><td>Debug cheats</td></tr>
+            <tr><td class="k">Shift + 1–8</td><td>Debug cheats</td></tr>
           </table>
         </details>`}
       </div>

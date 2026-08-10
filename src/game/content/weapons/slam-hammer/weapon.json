@@ -1,0 +1,55 @@
+{
+  "$schema": "../weapon.schema.json",
+  "version": 1,
+  "weaponId": "slam-hammer",
+  "displayName": "Slam Hammer",
+  "category": "melee",
+  "characterActionId": "attack-2",
+  "visual": {
+    "sourceOffset": [0, 0],
+    "facingMode": "vector"
+  },
+  "animations": {
+    "idle": { "frames": [0], "framesPerSecond": 6, "loop": true, "loopMode": "wrap" },
+    "attack": { "frames": [0, 1, 2, 3], "framesPerSecond": 7, "loop": false, "loopMode": "wrap" },
+    "impact": { "frames": [3], "framesPerSecond": 7, "loop": false, "loopMode": "wrap" }
+  },
+  "hitboxes": {
+    "hammer-head": {
+      "shape": "sector",
+      "width": 88,
+      "height": 72,
+      "offsetX": 46,
+      "offsetY": 0,
+      "innerRadius": 10,
+      "outerRadius": 78,
+      "arcWidthRad": 1.05,
+      "damageMultiplier": 1,
+      "knockbackMultiplier": 1.35
+    }
+  },
+  "attackTrack": {
+    "hitboxSpans": [
+      { "hitboxId": "hammer-head", "from": 2, "through": 2 }
+    ],
+    "events": [
+      { "at": 2, "eventId": "weapon.impact", "payload": { "effect": "hammer-slam" } }
+    ]
+  },
+  "baseDamage": 32,
+  "cooldownMs": 850,
+  "hitboxWidth": 88,
+  "hitboxHeight": 72,
+  "hitboxOffset": 46,
+  "hitboxDurationMs": 170,
+  "knockStrength": 310,
+  "scaling": {
+    "damage": { "strength": 1.2 },
+    "cooldown": { "agility": 0.12 },
+    "knockback": { "strength": 0.75 }
+  },
+  "vfxColor": 16758868,
+  "unlockLevel": 1,
+  "iconKey": "weapon-hammer",
+  "description": "A slow, heavy tool with a compact arc and crushing knockback."
+}

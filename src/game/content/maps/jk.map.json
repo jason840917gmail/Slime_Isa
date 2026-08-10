@@ -1,0 +1,1376 @@
+{
+  "$schema": "./maps.schema.json",
+  "version": 1,
+  "mapId": "jk",
+  "tileSize": 64,
+  "size": {
+    "columns": 54,
+    "rows": 54
+  },
+  "layers": [
+    {
+      "id": "ground",
+      "encoding": "legend-chars-v1",
+      "legend": {
+        "g": "sanddessert-ground",
+        "a": "grass-a",
+        "b": "water"
+      },
+      "rows": [
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "ggggggggggggggggggggggggggggggggggggggggggggggggggaagg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggaaagg",
+        "ggggggggggggggggggggggggggggggggggggggggggggggggaaaagg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggaaaaggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggaaaaaaggg",
+        "ggggggggggggggggggggggggggggggggggggggggggggaaaaaaaggg",
+        "ggggggggggggggggggggggggggggggggggggggggggggaaaaaagggg",
+        "ggggggggggggggggggggggggggggggggggggggggggggaaaaaggggg",
+        "ggggggggggggggggggggggggggggggggggggggaaaaaaaaaaaaaaag",
+        "ggggggggggggggggggggggggggggggggggggggaaaaaaaaaaaaaaag",
+        "gggggggggggggggggggggggggggggggggggaaaaaaabbbbaaaaaaag",
+        "gggggggggggggggggggggggggggggggggggaagaabbbbbaaaaaaaag",
+        "gggggggggggggggggggggggggggggggggggaagaabbbbbbaaabbaag",
+        "gggggggggggggggggggggggggggggggggggaggaaabbbbbbabbbaag",
+        "gggggggggggggggggggggggggggggggggggagaaaabbbbbbbbbbaag",
+        "gggggggggggggggggggggggggggggggggggaaaaaabbbbbbbbaaaag",
+        "ggggggggggggggggggggggggggggggggggggggaaabbbbbbbbaaaag",
+        "ggggggggggggggggggggggggggggggggggggggaaaaaabbbbbaaaag",
+        "ggggggggggggggggggggggggggggggggggggggaaaaaaaaaaaaaaag",
+        "ggggggggggggggggggggggggggggggggggggggaaaaaaaaaaaaaaag",
+        "ggggggggggggggggggggggggggggggggggggggaaaaaaaaaaaaaaag",
+        "gggggggggggggggggggggggggggggggggggggggggaaggggagggggg",
+        "ggggggggggggggggggggggggggggggggggggggggaaaggggagggggg",
+        "ggggggggggggggggggggggggggggggggggggggggaaaggggaaggggg",
+        "ggggggggggggggggggggggggggggggggggggggggaaaggaaagggggg",
+        "ggggggggggggggggggggggggggggggggggggggggaagggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg"
+      ]
+    }
+  ],
+  "objects": [
+    {
+      "instanceId": "tree-world-solid-7cff8fc4",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 544,
+      "y": 768
+    },
+    {
+      "instanceId": "tree-world-solid-3f956923",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 864,
+      "y": 896
+    },
+    {
+      "instanceId": "tree-world-solid-651c53be",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 1056,
+      "y": 896
+    },
+    {
+      "instanceId": "tree-world-solid-b9829229",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 992,
+      "y": 1408
+    },
+    {
+      "instanceId": "tree-world-solid-02056988",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 416,
+      "y": 1344
+    },
+    {
+      "instanceId": "tree-world-solid-1ba8208f",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 1760,
+      "y": 1024
+    },
+    {
+      "instanceId": "tree-world-solid-ecab415f",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 1248,
+      "y": 192
+    },
+    {
+      "instanceId": "tree-world-solid-26b740fb",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 544,
+      "y": 320
+    },
+    {
+      "instanceId": "tree-world-solid-61d56cde",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 544,
+      "y": 384
+    },
+    {
+      "instanceId": "tree-world-solid-c561d705",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 1248,
+      "y": 1984
+    },
+    {
+      "instanceId": "tree-world-solid-8dba1706",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 288,
+      "y": 2240
+    },
+    {
+      "instanceId": "tree-world-solid-82920de8",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 1248,
+      "y": 2752
+    },
+    {
+      "instanceId": "tree-world-solid-577a4fe7",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 800,
+      "y": 2048
+    },
+    {
+      "instanceId": "tree-world-solid-ebf025b1",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 1952,
+      "y": 1856
+    },
+    {
+      "instanceId": "tree-world-solid-75aaf793",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 2208,
+      "y": 512
+    },
+    {
+      "instanceId": "tree-world-solid-43d60eaf",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 2144,
+      "y": 512
+    },
+    {
+      "instanceId": "tree-world-solid-cb8fab66",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 1952,
+      "y": 2752
+    },
+    {
+      "instanceId": "tree-world-solid-a8b63e98",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 2720,
+      "y": 3200
+    },
+    {
+      "instanceId": "tree-world-solid-de16dbb2",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 2720,
+      "y": 3136
+    },
+    {
+      "instanceId": "tree-world-solid-d208c8d1",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 800,
+      "y": 2752
+    },
+    {
+      "instanceId": "tree-world-solid-d11b9372",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 1056,
+      "y": 2368
+    },
+    {
+      "instanceId": "tree-world-solid-0248604d",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 416,
+      "y": 3136
+    },
+    {
+      "instanceId": "tree-world-solid-142ea6c0",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 1568,
+      "y": 1344
+    },
+    {
+      "instanceId": "tree-world-solid-20c0498e",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 1632,
+      "y": 448
+    },
+    {
+      "instanceId": "tree-world-solid-2046fd82",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-02",
+      "x": 1632,
+      "y": 512
+    },
+    {
+      "instanceId": "tree-world-solid-0a3f0f0b",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-01",
+      "x": 2528,
+      "y": 1600
+    },
+    {
+      "instanceId": "tree-world-solid-16e1b84f",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-01",
+      "x": 2784,
+      "y": 1600
+    },
+    {
+      "instanceId": "tree-world-solid-a8367508",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-01",
+      "x": 2976,
+      "y": 1664
+    },
+    {
+      "instanceId": "tree-world-solid-73762987",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-01",
+      "x": 3040,
+      "y": 1792
+    },
+    {
+      "instanceId": "tree-world-solid-504f5df7",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-01",
+      "x": 3232,
+      "y": 1664
+    },
+    {
+      "instanceId": "tree-world-solid-96c06856",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-01",
+      "x": 3232,
+      "y": 2112
+    },
+    {
+      "instanceId": "tree-world-solid-30cbd2f6",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-01",
+      "x": 3040,
+      "y": 2240
+    },
+    {
+      "instanceId": "tree-world-solid-de7409ed",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-01",
+      "x": 2656,
+      "y": 2304
+    },
+    {
+      "instanceId": "tree-world-solid-4d57184c",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-01",
+      "x": 2528,
+      "y": 2112
+    },
+    {
+      "instanceId": "tree-world-solid-b938634c",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-01",
+      "x": 3360,
+      "y": 2304
+    },
+    {
+      "instanceId": "tree-world-solid-33cfadb8",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-01",
+      "x": 3360,
+      "y": 1536
+    },
+    {
+      "instanceId": "tree-world-solid-633b6b04",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-01",
+      "x": 2528,
+      "y": 1984
+    },
+    {
+      "instanceId": "collectible-purple-berry-4575e3ac",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3104,
+      "y": 1216
+    },
+    {
+      "instanceId": "collectible-purple-berry-1a8abd4c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3104,
+      "y": 1344
+    },
+    {
+      "instanceId": "collectible-purple-berry-8023ef09",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3040,
+      "y": 1344
+    },
+    {
+      "instanceId": "collectible-purple-berry-2b0bb769",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3104,
+      "y": 1344
+    },
+    {
+      "instanceId": "collectible-purple-berry-f2edf0a8",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3168,
+      "y": 1344
+    },
+    {
+      "instanceId": "collectible-purple-berry-e5f82d77",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3168,
+      "y": 1280
+    },
+    {
+      "instanceId": "collectible-purple-berry-c8abcf82",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3168,
+      "y": 1216
+    },
+    {
+      "instanceId": "collectible-purple-berry-8fbe2e92",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3168,
+      "y": 1152
+    },
+    {
+      "instanceId": "collectible-purple-berry-b924dee5",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3232,
+      "y": 1152
+    },
+    {
+      "instanceId": "collectible-purple-berry-33cf50b9",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3232,
+      "y": 1088
+    },
+    {
+      "instanceId": "collectible-purple-berry-b706b565",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3296,
+      "y": 1024
+    },
+    {
+      "instanceId": "collectible-purple-berry-85dace30",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3232,
+      "y": 1024
+    },
+    {
+      "instanceId": "collectible-purple-berry-276eb5df",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3168,
+      "y": 1024
+    },
+    {
+      "instanceId": "collectible-purple-berry-681488a9",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3168,
+      "y": 1088
+    },
+    {
+      "instanceId": "collectible-purple-berry-8a7b2c42",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3104,
+      "y": 1280
+    },
+    {
+      "instanceId": "collectible-purple-berry-0556b62b",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2976,
+      "y": 1344
+    },
+    {
+      "instanceId": "collectible-purple-berry-354c3f05",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2912,
+      "y": 1344
+    },
+    {
+      "instanceId": "collectible-purple-berry-ac9edc41",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2912,
+      "y": 1408
+    },
+    {
+      "instanceId": "collectible-purple-berry-1082f29e",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2912,
+      "y": 1472
+    },
+    {
+      "instanceId": "collectible-purple-berry-9e4de126",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2912,
+      "y": 1536
+    },
+    {
+      "instanceId": "collectible-purple-berry-e0d576bc",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2976,
+      "y": 1536
+    },
+    {
+      "instanceId": "collectible-purple-berry-e125327c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3040,
+      "y": 1536
+    },
+    {
+      "instanceId": "collectible-purple-berry-1e7553f2",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3040,
+      "y": 1600
+    },
+    {
+      "instanceId": "collectible-purple-berry-d7604cb2",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3104,
+      "y": 1600
+    },
+    {
+      "instanceId": "collectible-purple-berry-bd00bd3e",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3104,
+      "y": 1664
+    },
+    {
+      "instanceId": "collectible-purple-berry-e46598e1",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3168,
+      "y": 1664
+    },
+    {
+      "instanceId": "collectible-purple-berry-94d701ec",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3040,
+      "y": 1664
+    },
+    {
+      "instanceId": "collectible-purple-berry-2e1c239c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3040,
+      "y": 1728
+    },
+    {
+      "instanceId": "collectible-purple-berry-b287dab1",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3040,
+      "y": 1792
+    },
+    {
+      "instanceId": "collectible-purple-berry-db4b6a5f",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2976,
+      "y": 1664
+    },
+    {
+      "instanceId": "collectible-purple-berry-117559dd",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2976,
+      "y": 1600
+    },
+    {
+      "instanceId": "collectible-purple-berry-719d4327",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2912,
+      "y": 1600
+    },
+    {
+      "instanceId": "collectible-purple-berry-1077c141",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2848,
+      "y": 1600
+    },
+    {
+      "instanceId": "collectible-purple-berry-7d9b706e",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2848,
+      "y": 1536
+    },
+    {
+      "instanceId": "collectible-purple-berry-8ac14a32",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2784,
+      "y": 1536
+    },
+    {
+      "instanceId": "collectible-purple-berry-a162d29a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2784,
+      "y": 1600
+    },
+    {
+      "instanceId": "collectible-purple-berry-013eee66",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2720,
+      "y": 1664
+    },
+    {
+      "instanceId": "collectible-purple-berry-da7b8052",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2720,
+      "y": 1728
+    },
+    {
+      "instanceId": "collectible-purple-berry-94d369fd",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2656,
+      "y": 1728
+    },
+    {
+      "instanceId": "collectible-purple-berry-8a1f3aa7",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2656,
+      "y": 1664
+    },
+    {
+      "instanceId": "collectible-purple-berry-08e61a39",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2592,
+      "y": 1664
+    },
+    {
+      "instanceId": "collectible-purple-berry-a211872a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2528,
+      "y": 1664
+    },
+    {
+      "instanceId": "collectible-purple-berry-e36ceb8f",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2528,
+      "y": 1728
+    },
+    {
+      "instanceId": "collectible-purple-berry-24ae77db",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2528,
+      "y": 1792
+    },
+    {
+      "instanceId": "collectible-purple-berry-8aea4c2e",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2528,
+      "y": 1856
+    },
+    {
+      "instanceId": "collectible-purple-berry-9454eb53",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2528,
+      "y": 1920
+    },
+    {
+      "instanceId": "collectible-purple-berry-a8f6167e",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2528,
+      "y": 1984
+    },
+    {
+      "instanceId": "collectible-purple-berry-3bb61f7f",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2528,
+      "y": 2048
+    },
+    {
+      "instanceId": "collectible-purple-berry-0c1fd788",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2528,
+      "y": 2112
+    },
+    {
+      "instanceId": "collectible-purple-berry-e762a976",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2528,
+      "y": 2176
+    },
+    {
+      "instanceId": "collectible-purple-berry-bef17e1e",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2592,
+      "y": 2176
+    },
+    {
+      "instanceId": "collectible-purple-berry-f500ac49",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2656,
+      "y": 2240
+    },
+    {
+      "instanceId": "collectible-purple-berry-3549e05a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2720,
+      "y": 2240
+    },
+    {
+      "instanceId": "collectible-purple-berry-0f75fb51",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2592,
+      "y": 2240
+    },
+    {
+      "instanceId": "collectible-purple-berry-8ec80d61",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2656,
+      "y": 2112
+    },
+    {
+      "instanceId": "collectible-purple-berry-24c6e49e",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2720,
+      "y": 2112
+    },
+    {
+      "instanceId": "collectible-purple-berry-8ca7b099",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2720,
+      "y": 2176
+    },
+    {
+      "instanceId": "collectible-purple-berry-2ee5f070",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2784,
+      "y": 2240
+    },
+    {
+      "instanceId": "collectible-purple-berry-799ea9c7",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2720,
+      "y": 2304
+    },
+    {
+      "instanceId": "collectible-purple-berry-4a8cf91d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2720,
+      "y": 2368
+    },
+    {
+      "instanceId": "collectible-purple-berry-2f4d8aa3",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2656,
+      "y": 2368
+    },
+    {
+      "instanceId": "collectible-purple-berry-5d23e131",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2656,
+      "y": 2432
+    },
+    {
+      "instanceId": "collectible-purple-berry-02aa7126",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2656,
+      "y": 2496
+    },
+    {
+      "instanceId": "collectible-purple-berry-b7d89007",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2720,
+      "y": 2432
+    },
+    {
+      "instanceId": "collectible-purple-berry-2c43dd9d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2848,
+      "y": 2304
+    },
+    {
+      "instanceId": "collectible-purple-berry-eb1cb0cb",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2912,
+      "y": 2240
+    },
+    {
+      "instanceId": "collectible-purple-berry-17fc2508",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2976,
+      "y": 2240
+    },
+    {
+      "instanceId": "collectible-purple-berry-ee74eb5c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 2976,
+      "y": 2176
+    },
+    {
+      "instanceId": "collectible-purple-berry-c84a5ee0",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3040,
+      "y": 2176
+    },
+    {
+      "instanceId": "collectible-purple-berry-3061fa82",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3104,
+      "y": 2176
+    },
+    {
+      "instanceId": "collectible-purple-berry-96e108cf",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3168,
+      "y": 2176
+    },
+    {
+      "instanceId": "collectible-purple-berry-0b7877ea",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3232,
+      "y": 2176
+    },
+    {
+      "instanceId": "collectible-purple-berry-2545500d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3168,
+      "y": 2240
+    },
+    {
+      "instanceId": "collectible-purple-berry-58db0b1f",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3168,
+      "y": 2304
+    },
+    {
+      "instanceId": "collectible-purple-berry-b72b9268",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3232,
+      "y": 2304
+    },
+    {
+      "instanceId": "collectible-purple-berry-463a1a06",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3232,
+      "y": 2240
+    },
+    {
+      "instanceId": "collectible-purple-berry-4bba76ba",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3296,
+      "y": 2240
+    },
+    {
+      "instanceId": "collectible-purple-berry-b76d2dad",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3296,
+      "y": 2176
+    },
+    {
+      "instanceId": "collectible-purple-berry-c3a68b7e",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3296,
+      "y": 2112
+    },
+    {
+      "instanceId": "collectible-purple-berry-9e73f808",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3232,
+      "y": 2112
+    },
+    {
+      "instanceId": "collectible-purple-berry-5d546cd1",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3168,
+      "y": 2048
+    },
+    {
+      "instanceId": "collectible-purple-berry-8c367689",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3104,
+      "y": 1984
+    },
+    {
+      "instanceId": "collectible-purple-berry-a0bfd276",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3168,
+      "y": 1984
+    },
+    {
+      "instanceId": "collectible-purple-berry-f43cfc44",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3168,
+      "y": 1920
+    },
+    {
+      "instanceId": "collectible-purple-berry-0e56b200",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3232,
+      "y": 1920
+    },
+    {
+      "instanceId": "collectible-purple-berry-54a036d6",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3232,
+      "y": 1856
+    },
+    {
+      "instanceId": "collectible-purple-berry-138ac991",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3296,
+      "y": 1792
+    },
+    {
+      "instanceId": "collectible-purple-berry-da976ffb",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3360,
+      "y": 1728
+    },
+    {
+      "instanceId": "collectible-purple-berry-3e0a9ed6",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3360,
+      "y": 1664
+    },
+    {
+      "instanceId": "collectible-purple-berry-7dd372f6",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3424,
+      "y": 1664
+    },
+    {
+      "instanceId": "collectible-purple-berry-73f63132",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3296,
+      "y": 1664
+    },
+    {
+      "instanceId": "collectible-purple-berry-71b257ef",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3296,
+      "y": 1600
+    },
+    {
+      "instanceId": "collectible-purple-berry-d1855421",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3296,
+      "y": 1536
+    },
+    {
+      "instanceId": "collectible-purple-berry-a7e02e0f",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3296,
+      "y": 1472
+    },
+    {
+      "instanceId": "collectible-purple-berry-3c8bbd19",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3296,
+      "y": 1408
+    },
+    {
+      "instanceId": "collectible-purple-berry-5ea61454",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3232,
+      "y": 1408
+    },
+    {
+      "instanceId": "collectible-purple-berry-97166f52",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3168,
+      "y": 1408
+    },
+    {
+      "instanceId": "collectible-purple-berry-7eb4c2b1",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3104,
+      "y": 1472
+    },
+    {
+      "instanceId": "collectible-purple-berry-04611005",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 3040,
+      "y": 1472
+    },
+    {
+      "instanceId": "wall-stone-solid-2f136f7c",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 2400,
+      "y": 640
+    },
+    {
+      "instanceId": "wall-stone-solid-9f8d6a21",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 2464,
+      "y": 640
+    },
+    {
+      "instanceId": "wall-stone-solid-78230ab0",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 2528,
+      "y": 640
+    },
+    {
+      "instanceId": "wall-stone-solid-14506de9",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 2592,
+      "y": 640
+    },
+    {
+      "instanceId": "wall-stone-solid-cb302174",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 2656,
+      "y": 640
+    },
+    {
+      "instanceId": "wall-stone-solid-21b68349",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 2720,
+      "y": 640
+    },
+    {
+      "instanceId": "wall-stone-solid-be293c90",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 2784,
+      "y": 640
+    },
+    {
+      "instanceId": "wall-stone-solid-c653cd77",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 2848,
+      "y": 640
+    },
+    {
+      "instanceId": "wall-stone-solid-4ee68459",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 2400,
+      "y": 704
+    },
+    {
+      "instanceId": "wall-stone-solid-59789bc2",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 2400,
+      "y": 768
+    },
+    {
+      "instanceId": "wall-stone-solid-a35e3e18",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 2400,
+      "y": 896
+    },
+    {
+      "instanceId": "wall-stone-solid-b5aed9c2",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 2400,
+      "y": 832
+    },
+    {
+      "instanceId": "wall-stone-solid-1e54cf7e",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 2400,
+      "y": 960
+    },
+    {
+      "instanceId": "wall-stone-solid-2d88d459",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 2400,
+      "y": 1024
+    },
+    {
+      "instanceId": "wall-stone-solid-579d5c2d",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 2528,
+      "y": 1024
+    },
+    {
+      "instanceId": "wall-stone-solid-d1e7c9f0",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 2464,
+      "y": 1024
+    },
+    {
+      "instanceId": "wall-stone-solid-a0d47c06",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 2848,
+      "y": 704
+    },
+    {
+      "instanceId": "wall-stone-solid-62bc601d",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 2848,
+      "y": 768
+    },
+    {
+      "instanceId": "wall-stone-solid-f0739e0e",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 2848,
+      "y": 832
+    },
+    {
+      "instanceId": "wall-stone-solid-db047572",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 2848,
+      "y": 896
+    },
+    {
+      "instanceId": "wall-stone-solid-9b1486f1",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 2848,
+      "y": 960
+    },
+    {
+      "instanceId": "wall-stone-solid-e8e1f45d",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 2848,
+      "y": 1024
+    },
+    {
+      "instanceId": "wall-stone-solid-602f0743",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 2784,
+      "y": 1024
+    },
+    {
+      "instanceId": "wall-stone-solid-f3d907f7",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 2720,
+      "y": 1024
+    },
+    {
+      "instanceId": "wall-stone-solid-117e8e10",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 2528,
+      "y": 1088
+    },
+    {
+      "instanceId": "wall-stone-solid-a4304606",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 2528,
+      "y": 1152
+    },
+    {
+      "instanceId": "wall-stone-solid-98ad6d53",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 2528,
+      "y": 1216
+    },
+    {
+      "instanceId": "wall-stone-solid-740f0527",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 2528,
+      "y": 1280
+    },
+    {
+      "instanceId": "wall-stone-solid-13193187",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 2528,
+      "y": 1408
+    },
+    {
+      "instanceId": "wall-stone-solid-3269dec8",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 2528,
+      "y": 1344
+    },
+    {
+      "instanceId": "wall-stone-solid-bc83258a",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 2528,
+      "y": 1408
+    },
+    {
+      "instanceId": "wall-stone-solid-f27d7193",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 2528,
+      "y": 1472
+    },
+    {
+      "instanceId": "wall-stone-solid-a502decb",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 2720,
+      "y": 1088
+    },
+    {
+      "instanceId": "wall-stone-solid-dab3a373",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 2720,
+      "y": 1152
+    },
+    {
+      "instanceId": "wall-stone-solid-3ff39923",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 2720,
+      "y": 1216
+    },
+    {
+      "instanceId": "wall-stone-solid-1eb4c444",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 2720,
+      "y": 1280
+    },
+    {
+      "instanceId": "wall-stone-solid-af390ac1",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 2720,
+      "y": 1344
+    },
+    {
+      "instanceId": "wall-stone-solid-1a5fdda6",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 2720,
+      "y": 1408
+    },
+    {
+      "instanceId": "wall-stone-solid-d6eb5ffa",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 2720,
+      "y": 1472
+    },
+    {
+      "instanceId": "house-world-solid-74b30aa4",
+      "objectId": "house.world.solid",
+      "visualId": "cottage-blue",
+      "x": 2592,
+      "y": 960
+    }
+  ],
+  "player": {
+    "spawn": {
+      "x": 32,
+      "y": 32
+    },
+    "entries": {}
+  },
+  "exits": [],
+  "enemySafeZones": [
+    {
+      "x": 2304,
+      "y": 576,
+      "w": 640,
+      "h": 448
+    },
+    {
+      "x": 2496,
+      "y": 1024,
+      "w": 256,
+      "h": 448
+    },
+    {
+      "x": 2803,
+      "y": 950,
+      "w": 384,
+      "h": 512
+    },
+    {
+      "x": 3200,
+      "y": 896,
+      "w": 128,
+      "h": 576
+    },
+    {
+      "x": 2240,
+      "y": 1536,
+      "w": 384,
+      "h": 448
+    },
+    {
+      "x": 2422,
+      "y": 1464,
+      "w": 960,
+      "h": 832
+    },
+    {
+      "x": 2560,
+      "y": 2304,
+      "w": 192,
+      "h": 320
+    },
+    {
+      "x": 2944,
+      "y": 2304,
+      "w": 192,
+      "h": 256
+    },
+    {
+      "x": 2880,
+      "y": 2496,
+      "w": 64,
+      "h": 64
+    }
+  ],
+  "enemySpawnAreas": []
+}

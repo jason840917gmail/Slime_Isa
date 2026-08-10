@@ -59,14 +59,20 @@
           },
           "collider": {
             "width": 277,
-            "height": 170,
-            "offsetX": 17,
-            "offsetY": 120
+            "height": 159,
+            "offsetX": 19,
+            "offsetY": 108
           },
           "displayName": "cottage-blue",
           "visualOffset": {
             "x": 0,
             "y": 0
+          },
+          "depthBounds": {
+            "width": 297,
+            "height": 283,
+            "offsetX": 0,
+            "offsetY": 0
           }
         }
       ]

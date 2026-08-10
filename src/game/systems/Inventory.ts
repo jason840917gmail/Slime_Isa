@@ -1,5 +1,6 @@
 import { gameEvents } from '../core/EventBus';
 import type { InventorySlot, ItemDef } from '../core/types';
+import { getWeaponDefinitions } from '../content/weapons/WeaponCatalog';
 
 /**
  * Slot-based inventory with categories + stacking.
@@ -73,6 +74,22 @@ class ItemRegistryImpl {
 }
 
 export const itemRegistry = new ItemRegistryImpl();
+
+for (const weapon of getWeaponDefinitions()) {
+  itemRegistry.register({
+    id: weapon.weaponId,
+    name: weapon.displayName,
+    category: 'weapon',
+    icon: weapon.iconKey,
+    description: weapon.description,
+    maxStack: 1,
+    equipment: { weaponId: weapon.weaponId },
+  });
+}
+
+export function weaponItemFor(weaponId: string): ItemDef | undefined {
+  return itemRegistry.all().find((item) => item.equipment?.weaponId === weaponId);
+}
 
 export class Inventory {
   private slots: InventorySlot[] = [];

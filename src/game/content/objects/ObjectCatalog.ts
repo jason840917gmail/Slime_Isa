@@ -29,6 +29,14 @@ export interface OcclusionBounds {
   readonly offsetY: number;
 }
 
+/** Source-frame rectangle whose lower edge supplies the object's sort anchor. */
+export interface DepthBounds {
+  readonly width: number;
+  readonly height: number;
+  readonly offsetX: number;
+  readonly offsetY: number;
+}
+
 export interface VisualOffset {
   readonly x: number;
   readonly y: number;
@@ -43,6 +51,7 @@ export interface ObjectFrameVariant {
   readonly visualOffset?: VisualOffset;
   readonly collider?: ColliderBounds;
   readonly occlusionBounds?: OcclusionBounds;
+  readonly depthBounds?: DepthBounds;
 }
 
 export interface ObjectVariantGroup {
@@ -114,13 +123,14 @@ export interface ObjectVisualChoice {
   readonly visualOffset: VisualOffset;
   readonly collider?: ColliderBounds;
   readonly occlusionBounds?: OcclusionBounds;
+  readonly depthBounds?: DepthBounds;
   readonly physics: ObjectArchetypeDefinition['physics'];
   readonly tags: readonly string[];
 }
 
 export type EditableObjectVisual = Pick<
   ObjectVisualChoice,
-  'displayName' | 'visualOffset' | 'collider' | 'occlusionBounds'
+  'displayName' | 'visualOffset' | 'collider' | 'occlusionBounds' | 'depthBounds'
 >;
 
 const OBJECT_VISUAL_OVERRIDES = new Map<string, EditableObjectVisual>();
@@ -148,6 +158,7 @@ function createObjectVisualChoice(
     visualOffset: override?.visualOffset ?? frame.visualOffset ?? { x: 0, y: 0 },
     collider: override?.collider ?? frame.collider,
     occlusionBounds: override?.occlusionBounds ?? frame.occlusionBounds,
+    depthBounds: override?.depthBounds ?? frame.depthBounds,
     physics: object.physics,
     tags: object.tags,
   };
@@ -184,6 +195,7 @@ export function setObjectVisualOverride(
     visualOffset: { ...override.visualOffset },
     collider: override.collider ? { ...override.collider } : undefined,
     occlusionBounds: override.occlusionBounds ? { ...override.occlusionBounds } : undefined,
+    depthBounds: override.depthBounds ? { ...override.depthBounds } : undefined,
   });
 }
 

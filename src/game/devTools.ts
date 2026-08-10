@@ -3,6 +3,9 @@ export interface DevToolsState {
   worldBounds: boolean;
   visualBounds: boolean;
   hitBoxes: boolean;
+  occlusionBounds: boolean;
+  depthBounds: boolean;
+  depthAnchors: boolean;
   interactionZones: boolean;
   attackBoxes: boolean;
   enemyBoundaries: boolean;
@@ -12,8 +15,11 @@ type DevToolKey = keyof Omit<DevToolsState, 'enabled'>;
 
 const TOGGLES: Array<{ key: DevToolKey; label: string; description: string }> = [
   { key: 'worldBounds', label: 'World bounds', description: 'World and camera extents' },
-  { key: 'visualBounds', label: 'Visual bounds', description: 'Rendered sprite rectangles' },
-  { key: 'hitBoxes', label: 'Hit boxes', description: 'Arcade physics bodies' },
+  { key: 'visualBounds', label: 'Visual bounds', description: 'Rendered sprite rectangles, including objects' },
+  { key: 'hitBoxes', label: 'Colliders', description: 'Arcade physics bodies' },
+  { key: 'occlusionBounds', label: 'Occlusion bounds', description: 'Object scan regions that hide actors' },
+  { key: 'depthBounds', label: 'Depth bounds', description: 'Object regions that set front/behind sorting' },
+  { key: 'depthAnchors', label: 'Depth anchors', description: 'Ground points used for front/behind sorting' },
   { key: 'interactionZones', label: 'Interaction zones', description: 'Doors, pickups, transitions' },
   { key: 'attackBoxes', label: 'Attack boxes', description: 'Active weapon hit areas' },
   { key: 'enemyBoundaries', label: 'Enemy boundaries', description: 'Stay and pursue perimeters' },
@@ -24,6 +30,9 @@ export const devToolsState: DevToolsState = {
   worldBounds: false,
   visualBounds: true,
   hitBoxes: true,
+  occlusionBounds: false,
+  depthBounds: false,
+  depthAnchors: false,
   interactionZones: true,
   attackBoxes: true,
   enemyBoundaries: false,
@@ -63,7 +72,10 @@ export function createDevToolsPanel(): string {
         <h3>Legend</h3>
         <p><span class="swatch swatch-world"></span> World/camera</p>
         <p><span class="swatch swatch-visual"></span> Visual bounds</p>
-        <p><span class="swatch swatch-hit"></span> Physics hit boxes</p>
+        <p><span class="swatch swatch-hit"></span> Colliders</p>
+        <p><span class="swatch swatch-occlusion"></span> Occlusion bounds</p>
+        <p><span class="swatch swatch-depth-bounds"></span> Depth bounds</p>
+        <p><span class="swatch swatch-depth-anchor"></span> Depth anchors</p>
         <p><span class="swatch swatch-interaction"></span> Interactions</p>
         <p><span class="swatch swatch-attack"></span> Attacks</p>
         <p><span class="swatch swatch-enemy-stay"></span> Enemy stay</p>

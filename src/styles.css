@@ -257,10 +257,13 @@ body {
 }
 
 .swatch-world { color: #ffe66d; }
-.swatch-visual { color: #55a7ff; }
+.swatch-visual { color: #72d8ff; }
 .swatch-hit { color: #ff4d6d; }
-.swatch-interaction { color: #43f28f; }
-.swatch-attack { color: #b685ff; }
+.swatch-occlusion { color: #38bdf8; }
+.swatch-depth-bounds { color: #ff9f43; }
+.swatch-depth-anchor { color: #ffd166; }
+.swatch-interaction { color: #73e2b1; }
+.swatch-attack { color: #a78bfa; }
 .swatch-enemy-stay { color: #ffc65c; }
 .swatch-enemy-pursue { color: #5ee7ff; }
 
@@ -1397,6 +1400,10 @@ body {
 
 .editor-geometry-collider {
   --editor-geometry-color: #ff4d5d;
+}
+
+.editor-geometry-depth {
+  --editor-geometry-color: #ff9f43;
 }
 
 .editor-geometry-occlusion {

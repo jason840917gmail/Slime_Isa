@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "./objects.schema.json",
   "title": "Slime Isa object archetype",
-  "description": "One reusable game object per file. The object owns behavior and frame-specific collider geometry.",
+  "description": "One reusable game object per file. The object owns behavior and frame-specific collider, depth, and occlusion geometry.",
   "type": "object",
   "required": ["objectId", "selection", "variants", "physics", "tags"],
   "additionalProperties": false,
@@ -55,6 +55,17 @@
         { "if": { "required": ["shape"], "properties": { "shape": { "const": "ellipse" } } }, "then": { "required": ["radiusX", "radiusY"] } }
       ]
     },
+    "depthBounds": {
+      "type": "object",
+      "required": ["width", "height", "offsetX", "offsetY"],
+      "additionalProperties": false,
+      "properties": {
+        "width": { "type": "integer", "minimum": 1 },
+        "height": { "type": "integer", "minimum": 1 },
+        "offsetX": { "type": "integer", "minimum": 0 },
+        "offsetY": { "type": "integer", "minimum": 0 }
+      }
+    },
     "frameVariant": {
       "type": "object",
       "required": ["visualId", "frame"],
@@ -67,6 +78,7 @@
         "frame": { "type": "integer", "minimum": 0 },
         "displayName": { "type": "string", "minLength": 1, "maxLength": 80 },
         "visualOffset": { "$ref": "#/$defs/visualOffset" },
+        "depthBounds": { "$ref": "#/$defs/depthBounds" },
         "occlusionBounds": { "$ref": "#/$defs/bounds" },
         "visualSetId": {
           "type": "string",

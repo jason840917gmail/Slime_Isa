@@ -21,7 +21,9 @@ export interface PerkChoice {
   icon?: string;
 }
 
-export type ItemCategory = 'consumable' | 'material' | 'key' | 'collectible';
+export const WEAPON_HOTBAR_SLOT_COUNT = 5;
+
+export type ItemCategory = 'consumable' | 'material' | 'key' | 'collectible' | 'weapon' | 'tool';
 
 export interface ItemDef {
   id: string;
@@ -34,6 +36,10 @@ export interface ItemDef {
   maxStack: number;
   /** For consumables: effect on use. */
   use?: ItemUse;
+  /** Equipment items resolve to a reusable weapon definition at runtime. */
+  equipment?: {
+    weaponId: string;
+  };
 }
 
 export interface ItemUse {

@@ -4,7 +4,15 @@ import { devToolsState } from '../devTools';
 import type { MapEnemyAreaPerimeter, MapEnemySpawnArea } from '../content/maps/mapFormat';
 import type { House } from '../House';
 import type { WorldDimensions } from '../world/WorldDimensions';
-import { resolveExplicitDepth } from '../presentation/WorldDepth';
+import {
+  resolveBodyBottom,
+  resolveExplicitDepth,
+} from '../presentation/WorldDepth';
+import {
+  resolveWorldOcclusionRectangle,
+  type SourceFrameDimensions,
+  type SourceOcclusionBounds,
+} from '../presentation/WorldOcclusion';
 
 type DebugGroup = Phaser.GameObjects.Group | Phaser.Physics.Arcade.Group | Phaser.Physics.Arcade.StaticGroup;
 
@@ -45,6 +53,9 @@ export class WorldDebugRenderer {
     if (devToolsState.worldBounds) this.drawWorld(g);
     if (devToolsState.visualBounds) this.drawVisualBounds(g);
     if (devToolsState.hitBoxes) this.drawHitBoxes(g);
+    if (devToolsState.occlusionBounds) this.drawOcclusionBounds(g);
+    if (devToolsState.depthBounds) this.drawDepthBounds(g);
+    if (devToolsState.depthAnchors) this.drawDepthAnchors(g);
     if (devToolsState.interactionZones) this.drawInteractionZones(g);
     if (devToolsState.attackBoxes) this.drawAttackBoxes(g);
     if (devToolsState.enemyBoundaries) this.drawEnemyBoundaries(g);
@@ -76,6 +87,7 @@ export class WorldDebugRenderer {
     this.forChildren(this.ctx.getCombatTargets(), (child) => this.drawObjectBounds(g, child, 0x72d8ff, 0.85));
     this.forChildren(this.ctx.getPurpleFoods(), (child) => this.drawObjectBounds(g, child, 0x72d8ff, 0.55));
     this.forChildren(this.ctx.getGrapeChips(), (child) => this.drawObjectBounds(g, child, 0x72d8ff, 0.55));
+    this.forWorldObjects((object) => this.drawObjectBounds(g, object, 0x72d8ff, 0.75));
     for (const entry of this.ctx.getHouses()) this.drawObjectBounds(g, entry.house.sprite, 0x72d8ff, 0.65);
   }
 
@@ -84,6 +96,68 @@ export class WorldDebugRenderer {
     this.forChildren(this.ctx.getFriends(), (child) => this.drawBody(g, this.bodyOf(child), 0xff4d6d, 0.7));
     this.forChildren(this.ctx.getCombatTargets(), (child) => this.drawBody(g, this.bodyOf(child), 0xff4d6d, 0.9));
     this.forChildren(this.ctx.getCollisionTiles(), (child) => this.drawBody(g, this.bodyOf(child), 0xff4d6d, 0.35));
+  }
+
+  private drawOcclusionBounds(g: Phaser.GameObjects.Graphics): void {
+    this.forWorldObjects((object) => {
+      const sourceFrame = object.getData('sourceFrame') as SourceFrameDimensions | undefined;
+      const bounds = object.getData('occlusionBounds') as SourceOcclusionBounds | undefined;
+      if (!sourceFrame || !bounds) return;
+      const rectangle = resolveWorldOcclusionRectangle({
+        x: object.x,
+        y: object.y,
+        originX: object.originX,
+        originY: object.originY,
+        scaleX: object.scaleX,
+        scaleY: object.scaleY,
+        flipX: object.flipX,
+        flipY: object.flipY,
+      }, sourceFrame, bounds);
+      this.fillRect(g, rectangle.x, rectangle.y, rectangle.width, rectangle.height, 0x38bdf8, 0.08);
+      this.strokeRect(g, rectangle.x, rectangle.y, rectangle.width, rectangle.height, 0x38bdf8, 0.95, 2);
+    });
+  }
+
+  private drawDepthBounds(g: Phaser.GameObjects.Graphics): void {
+    this.forWorldObjects((object) => {
+      const sourceFrame = object.getData('sourceFrame') as SourceFrameDimensions | undefined;
+      const bounds = object.getData('depthBounds') as SourceOcclusionBounds | undefined;
+      if (!sourceFrame || !bounds) return;
+      const visualOffset = object.getData('visualOffset') as { x: number; y: number } | undefined;
+      const rectangle = resolveWorldOcclusionRectangle({
+        x: object.x - (visualOffset?.x ?? 0),
+        y: object.y - (visualOffset?.y ?? 0),
+        originX: object.originX,
+        originY: object.originY,
+        scaleX: object.scaleX,
+        scaleY: object.scaleY,
+        flipX: object.flipX,
+        flipY: object.flipY,
+      }, sourceFrame, bounds);
+      this.fillRect(g, rectangle.x, rectangle.y, rectangle.width, rectangle.height, 0xff9f43, 0.1);
+      this.strokeRect(g, rectangle.x, rectangle.y, rectangle.width, rectangle.height, 0xff9f43, 0.95, 2);
+      g.lineStyle(3, 0xff9f43, 1).lineBetween(
+        rectangle.x,
+        rectangle.y + rectangle.height,
+        rectangle.x + rectangle.width,
+        rectangle.y + rectangle.height,
+      );
+    });
+  }
+
+  private drawDepthAnchors(g: Phaser.GameObjects.Graphics): void {
+    this.drawActorDepthAnchor(g, this.ctx.getPlayer(), 0x73d7ff, 0.95);
+    this.forChildren(this.ctx.getFriends(), (child) => this.drawActorDepthAnchor(g, child, 0x73d7ff, 0.7));
+    this.forChildren(this.ctx.getCombatTargets(), (child) => this.drawActorDepthAnchor(g, child, 0xa78bfa, 0.85));
+    this.forWorldObjects((object) => {
+      const x = object.getData('objectAnchorX') as number | undefined;
+      const y = object.getData('depthAnchorY') as number | undefined;
+      if (typeof x !== 'number' || typeof y !== 'number') return;
+      this.drawDepthAnchor(g, x, y, 0xffd166, 0.95);
+    });
+    for (const entry of this.ctx.getHouses()) {
+      this.drawDepthAnchor(g, entry.house.sprite.x, entry.house.getGroundAnchorY(), 0xffd166, 0.75);
+    }
   }
 
   private drawInteractionZones(g: Phaser.GameObjects.Graphics): void {
@@ -150,6 +224,23 @@ export class WorldDebugRenderer {
     this.strokeRect(g, bounds.x, bounds.y, bounds.width, bounds.height, color, alpha, 2);
   }
 
+  private drawActorDepthAnchor(
+    g: Phaser.GameObjects.Graphics,
+    object: Phaser.GameObjects.GameObject | null | undefined,
+    color: number,
+    alpha: number,
+  ): void {
+    const body = this.bodyOf(object);
+    if (!body) return;
+    this.drawDepthAnchor(g, body.x + body.width / 2, resolveBodyBottom(body), color, alpha);
+  }
+
+  private drawDepthAnchor(g: Phaser.GameObjects.Graphics, x: number, y: number, color: number, alpha: number): void {
+    this.fillRect(g, x - 5, y - 5, 10, 10, color, 0.16);
+    this.strokeRect(g, x - 5, y - 5, 10, 10, color, alpha, 2);
+    g.lineStyle(2, color, alpha).lineBetween(x - 14, y, x + 14, y);
+  }
+
   private drawBody(g: Phaser.GameObjects.Graphics, body: Phaser.Physics.Arcade.Body | Phaser.Physics.Arcade.StaticBody | null | undefined, color: number, alpha: number): void {
     if (!body) return;
     if ('isCircle' in body && body.isCircle) {
@@ -167,6 +258,14 @@ export class WorldDebugRenderer {
   private forChildren(group: DebugGroup | null | undefined, callback: (child: Phaser.GameObjects.GameObject) => void): void {
     if (!group) return;
     for (const child of group.getChildren()) callback(child);
+  }
+
+  private forWorldObjects(callback: (object: Phaser.GameObjects.Image) => void): void {
+    for (const child of this.ctx.scene.children.list) {
+      const object = child as Phaser.GameObjects.Image;
+      if (typeof object.getData('objectId') !== 'string') continue;
+      callback(object);
+    }
   }
 
   private bodyOf(object: Phaser.GameObjects.GameObject | null | undefined): Phaser.Physics.Arcade.Body | Phaser.Physics.Arcade.StaticBody | null {

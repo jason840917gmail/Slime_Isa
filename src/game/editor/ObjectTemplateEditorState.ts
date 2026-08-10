@@ -2,6 +2,7 @@ import {
   getObjectVisualChoice,
   setObjectVisualOverride,
   type ColliderBounds,
+  type DepthBounds,
   type OcclusionBounds,
   type EditableObjectVisual,
   type ObjectArchetypeId,
@@ -26,6 +27,7 @@ export interface ObjectTemplateViewState {
   readonly showFrameOverlay: boolean;
   readonly showColliderOverlay: boolean;
   readonly showOcclusionOverlay: boolean;
+  readonly showDepthOverlay: boolean;
   readonly dirty: boolean;
   readonly saving: boolean;
   readonly status: string;
@@ -47,12 +49,17 @@ function cloneOcclusionBounds(bounds?: OcclusionBounds): OcclusionBounds | undef
   return bounds ? { ...bounds } : undefined;
 }
 
+function cloneDepthBounds(bounds?: DepthBounds): DepthBounds | undefined {
+  return bounds ? { ...bounds } : undefined;
+}
+
 function cloneDraft(draft: ObjectTemplateDraft): ObjectTemplateDraft {
   return {
     displayName: draft.displayName,
     visualOffset: { ...draft.visualOffset },
     collider: cloneCollider(draft.collider),
     occlusionBounds: cloneOcclusionBounds(draft.occlusionBounds),
+    depthBounds: cloneDepthBounds(draft.depthBounds),
   };
 }
 
@@ -66,6 +73,7 @@ function draftFromChoice(choice: ObjectVisualChoice): ObjectTemplateDraft {
     visualOffset: { ...choice.visualOffset },
     collider: cloneCollider(choice.collider),
     occlusionBounds: cloneOcclusionBounds(choice.occlusionBounds),
+    depthBounds: cloneDepthBounds(choice.depthBounds),
   };
 }
 
@@ -130,6 +138,24 @@ export function validateObjectTemplateDraft(
     if (!Number.isInteger(draft.collider.radiusX) || (draft.collider.radiusX ?? 0) < 1) errors.radiusX = 'Ellipse radius X must be a positive whole number.';
     if (!Number.isInteger(draft.collider.radiusY) || (draft.collider.radiusY ?? 0) < 1) errors.radiusY = 'Ellipse radius Y must be a positive whole number.';
   }
+
+  if (draft.depthBounds) {
+    if (!dimensions) {
+      errors.depthBounds = 'Depth bounds require an authoritative spritesheet frame.';
+    } else {
+      const { width, height, offsetX, offsetY } = draft.depthBounds;
+      if (!isInteger(width) || width < 1) errors.depthWidth = 'Width must be a positive whole number.';
+      if (!isInteger(height) || height < 1) errors.depthHeight = 'Height must be a positive whole number.';
+      if (!isInteger(offsetX) || offsetX < 0) errors.depthOffsetX = 'Offset must be 0 or more.';
+      if (!isInteger(offsetY) || offsetY < 0) errors.depthOffsetY = 'Offset must be 0 or more.';
+      if (isInteger(width) && isInteger(offsetX) && offsetX + width > dimensions.width) {
+        errors.depthWidth = `Depth bound must fit inside the ${dimensions.width}px frame.`;
+      }
+      if (isInteger(height) && isInteger(offsetY) && offsetY + height > dimensions.height) {
+        errors.depthHeight = `Depth bound must fit inside the ${dimensions.height}px frame.`;
+      }
+    }
+  }
   if (!isInteger(width) || width < 1) errors.width = 'Width must be a positive whole number.';
   if (!isInteger(height) || height < 1) errors.height = 'Height must be a positive whole number.';
   if (!isInteger(offsetX) || offsetX < 0) errors.offsetX = 'Offset must be a whole number of 0 or more.';
@@ -152,6 +178,7 @@ export class ObjectTemplateEditorState {
   private showFrameOverlayValue = true;
   private showColliderOverlayValue = true;
   private showOcclusionOverlayValue = true;
+  private showDepthOverlayValue = true;
   private dirtyValue = false;
   private savingValue = false;
   private statusValue = 'Select an object template to inspect';
@@ -172,6 +199,7 @@ export class ObjectTemplateEditorState {
       showFrameOverlay: this.showFrameOverlayValue,
       showColliderOverlay: this.showColliderOverlayValue,
       showOcclusionOverlay: this.showOcclusionOverlayValue,
+      showDepthOverlay: this.showDepthOverlayValue,
       dirty: this.dirtyValue,
       saving: this.savingValue,
       status: this.statusValue,
@@ -223,9 +251,12 @@ export class ObjectTemplateEditorState {
     } else if (key === 'collider') {
       if (this.showColliderOverlayValue === visible) return;
       this.showColliderOverlayValue = visible;
-    } else {
+    } else if (key === 'occlusion') {
       if (this.showOcclusionOverlayValue === visible) return;
       this.showOcclusionOverlayValue = visible;
+    } else {
+      if (this.showDepthOverlayValue === visible) return;
+      this.showDepthOverlayValue = visible;
     }
     this.emit();
   }
@@ -243,6 +274,9 @@ export class ObjectTemplateEditorState {
       occlusionBounds: 'occlusionBounds' in patch
         ? cloneOcclusionBounds(patch.occlusionBounds)
         : cloneOcclusionBounds(this.draftValue.occlusionBounds),
+      depthBounds: 'depthBounds' in patch
+        ? cloneDepthBounds(patch.depthBounds)
+        : cloneDepthBounds(this.draftValue.depthBounds),
     };
     const errors = validateObjectTemplateDraft(this.selectedValue, next);
     this.errorsValue = errors;
@@ -310,6 +344,7 @@ export class ObjectTemplateEditorState {
           visualOffset: draft.visualOffset,
           collider: draft.collider,
           occlusionBounds: draft.occlusionBounds,
+          depthBounds: draft.depthBounds,
         }),
       });
       const result = await response.json() as { ok?: boolean; error?: string };
@@ -358,6 +393,7 @@ export class ObjectTemplateEditorState {
           visualOffset: draft.visualOffset,
           collider: draft.collider,
           occlusionBounds: draft.occlusionBounds,
+          depthBounds: draft.depthBounds,
         }),
       });
       const result = await response.json() as {

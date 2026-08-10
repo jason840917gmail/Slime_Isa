@@ -22,12 +22,14 @@ import {
 import { StatusEffectManager } from '../systems/StatusEffects';
 import { getStats } from '../systems/PlayerStats';
 import { AbilitySystem } from '../systems/AbilitySystem';
-import { playerInventory, itemRegistry } from '../systems/Inventory';
+import { playerInventory, itemRegistry, weaponItemFor } from '../systems/Inventory';
+import { playerWeaponLoadout } from '../systems/WeaponLoadout';
 import { floatingText } from '../ui/FloatingText';
 import { HealthBar } from '../ui/HealthBar';
 import { LevelUpModal } from '../ui/LevelUpModal';
 import { InventoryUI } from '../ui/InventoryUI';
 import { AbilityBar } from '../ui/AbilityBar';
+import { WeaponHotbar } from '../ui/WeaponHotbar';
 import { hitboxPool } from '../combat/Hitbox';
 import { projectilePool } from '../enemies/Projectile';
 import { AREAS, type AreaDef, type AreaId, type Direction } from '../world/Area';
@@ -105,6 +107,7 @@ export class WorldScene extends Phaser.Scene {
   private craftingUI?: CraftingUI;
   private abilitySystem?: AbilitySystem;
   private abilityBar?: AbilityBar;
+  private weaponHotbar?: WeaponHotbar;
   private lastBedPos: Phaser.Math.Vector2 | null = null;
   private iFrameFlashActive = false;
   private playerKnockbackUntil = 0;
@@ -157,6 +160,7 @@ export class WorldScene extends Phaser.Scene {
       gameState.reset();
       WorldScene.sessionStarted = true;
     }
+    playerWeaponLoadout.initializeStarterLoadout();
 
     // Phase 1: World entities (no cross-system side effects)
     this.createCollisionLayer();
@@ -232,6 +236,8 @@ export class WorldScene extends Phaser.Scene {
       scene: this,
       onPausedChange: (p) => { this.setSimulationPaused('inventory', p); },
       onUseItem: (itemId) => this.useItem(itemId),
+      onEquipWeapon: (weaponId) => this.equipWeaponFromInventory(weaponId),
+      onAssignWeapon: (weaponId, slotIndex) => this.assignWeaponSlot(weaponId, slotIndex),
     });
     this.worldMapUI = new WorldMapUI({
       scene: this,
@@ -257,6 +263,10 @@ export class WorldScene extends Phaser.Scene {
 
     // Phase 2: combat system
     this.createCombatSystem();
+    this.weaponHotbar = new WeaponHotbar({
+      scene: this,
+      onEquipSlot: (slotIndex) => this.equipWeaponSlot(slotIndex),
+    });
 
     this.bindHotkeys();
     this.bindDebugCheats();
@@ -323,6 +333,7 @@ export class WorldScene extends Phaser.Scene {
     this.houseSystem?.destroy();
     this.abilitySystem?.destroy();
     this.abilityBar?.destroy();
+    this.weaponHotbar?.destroy();
     this.statusEffects?.destroy();
     this.debugRenderer?.destroy();
     this.levelUpModal?.destroy();
@@ -354,6 +365,7 @@ export class WorldScene extends Phaser.Scene {
     this.transitionZones.forEach((zone) => zone.destroy());
     this.transitionZones = [];
     this.combatController = undefined;
+    this.weaponHotbar = undefined;
     this.dungeonSwitches = undefined;
     this.dungeonChests = undefined;
     this.dungeonController = undefined;
@@ -712,7 +724,7 @@ export class WorldScene extends Phaser.Scene {
 
     // Dev-only debug hint (kept small + dim; not gameplay controls).
     this.add
-      .text(24, cam.height - 24, 'Debug: 1 dmg  2 xp  3 heal  4 coins  5 potion  6 burn  7 slow  8 dummy', {
+      .text(24, cam.height - 24, 'Debug: Shift+1 dmg  +2 xp  +3 heal  +4 coins  +5 potion  +6 burn  +7 slow  +8 dummy', {
         fontFamily: font,
         fontSize: '12px',
         color: '#6a8a78',
@@ -1057,8 +1069,18 @@ export class WorldScene extends Phaser.Scene {
     // before the browser moves focus.
     kb.on('keydown-TAB', (event: KeyboardEvent) => {
       event.preventDefault();
-      if (this.levelUpModal?.isOpen()) return;
+      if (this.levelUpModal?.isOpen() || this.actionLocked) return;
       this.inventoryUI?.toggle();
+    });
+
+    const weaponKeys = ['keydown-ONE', 'keydown-TWO', 'keydown-THREE', 'keydown-FOUR', 'keydown-FIVE'] as const;
+    weaponKeys.forEach((eventName, slotIndex) => {
+      const equipHandler = (event: KeyboardEvent) => {
+        if (event.shiftKey || event.repeat || this.paused || this.healthSystem?.isDead()) return;
+        this.equipWeaponSlot(slotIndex);
+      };
+      kb.on(eventName, equipHandler);
+      this.disposables.add(() => kb.off(eventName, equipHandler));
     });
 
     kb.on('keydown-M', () => {
@@ -1082,6 +1104,43 @@ export class WorldScene extends Phaser.Scene {
         this.combatController?.tryAttack();
       }
     });
+  }
+
+  private equipWeaponSlot(slotIndex: number): void {
+    const result = playerWeaponLoadout.equipSlot(slotIndex, (weaponId) => this.combatController?.equipWeapon(weaponId) ?? false);
+    if (result.ok) {
+      if (result.changed) {
+        const item = weaponItemFor(result.weaponId);
+        floatingText.spawn(this, this.player.x, this.player.y - 48, `${item?.name ?? result.weaponId} equipped`, 'yellow', true);
+      }
+      return;
+    }
+    const message = result.reason === 'empty'
+      ? `Slot ${slotIndex + 1} is empty`
+      : result.reason === 'not-owned'
+        ? 'Weapon not in inventory'
+        : result.reason === 'busy'
+          ? 'Finish the attack first'
+          : 'Weapon is unavailable';
+    floatingText.spawn(this, this.player.x, this.player.y - 42, message, 'white');
+  }
+
+  private equipWeaponFromInventory(weaponId: string): void {
+    const slotIndex = playerWeaponLoadout.ensureAssigned(weaponId);
+    if (slotIndex === null) {
+      floatingText.spawn(this, this.player.x, this.player.y - 42, 'Hotbar is full — choose a slot', 'white');
+      return;
+    }
+    this.equipWeaponSlot(slotIndex);
+  }
+
+  private assignWeaponSlot(weaponId: string, slotIndex: number): void {
+    const assignment = playerWeaponLoadout.assignWeapon(slotIndex, weaponId);
+    if (!assignment.ok) {
+      floatingText.spawn(this, this.player.x, this.player.y - 42, 'Weapon not in inventory', 'white');
+      return;
+    }
+    if (assignment.equipAssignedWeapon) this.equipWeaponSlot(slotIndex);
   }
 
   // â”€â”€ Phase 2: combat â”€â”€
@@ -1145,9 +1204,10 @@ export class WorldScene extends Phaser.Scene {
 
     const guard = () => !this.paused && !this.healthSystem?.isDead();
 
-    // [1] = debug damage 20 hp, [2] = give XP, [3] = heal full,
-    // [4] = give coins, [5] = give potion, [6] = apply burn, [7] = apply slow.
-    kb.on('keydown-ONE', () => {
+    // Shift+[1] = debug damage, Shift+[2] = XP, Shift+[3] = heal,
+    // Shift+[4] = coins, Shift+[5] = potion, Shift+[6/7] = status, Shift+[8] = dummy.
+    kb.on('keydown-ONE', (event: KeyboardEvent) => {
+      if (!event.shiftKey) return;
       if (!guard()) return;
       if (this.playerController.isDodging()) {
         floatingText.spawn(this, this.player.x, this.player.y - 30, 'DODGED!', 'cyan', true);
@@ -1160,42 +1220,49 @@ export class WorldScene extends Phaser.Scene {
       this.healthSystem?.applyDamage(req, this.time.now);
     });
 
-    kb.on('keydown-TWO', () => {
+    kb.on('keydown-TWO', (event: KeyboardEvent) => {
+      if (!event.shiftKey) return;
       if (!guard()) return;
       gameState.addXp(25);
       floatingText.spawn(this, this.player.x, this.player.y - 30, '+25 XP', 'cyan');
     });
 
-    kb.on('keydown-THREE', () => {
+    kb.on('keydown-THREE', (event: KeyboardEvent) => {
+      if (!event.shiftKey) return;
       if (!guard()) return;
       this.healthSystem?.heal(gameState.maxHp);
       floatingText.spawn(this, this.player.x, this.player.y - 30, 'FULL HEAL', 'green', true);
     });
 
-    kb.on('keydown-FOUR', () => {
+    kb.on('keydown-FOUR', (event: KeyboardEvent) => {
+      if (!event.shiftKey) return;
       if (!guard()) return;
       gameState.addCoins(100);
     });
 
-    kb.on('keydown-FIVE', () => {
+    kb.on('keydown-FIVE', (event: KeyboardEvent) => {
+      if (!event.shiftKey) return;
       if (!guard()) return;
       playerInventory.add('hp-potion', 1);
       floatingText.spawn(this, this.player.x, this.player.y - 30, '+potion', 'green');
     });
 
-    kb.on('keydown-SIX', () => {
+    kb.on('keydown-SIX', (event: KeyboardEvent) => {
+      if (!event.shiftKey) return;
       if (!guard()) return;
       this.statusEffects?.apply('burn');
       floatingText.spawn(this, this.player.x, this.player.y - 30, 'BURN!', 'orange');
     });
 
-    kb.on('keydown-SEVEN', () => {
+    kb.on('keydown-SEVEN', (event: KeyboardEvent) => {
+      if (!event.shiftKey) return;
       if (!guard()) return;
       this.statusEffects?.apply('slow');
       floatingText.spawn(this, this.player.x, this.player.y - 30, 'SLOWED', 'cyan');
     });
 
-    kb.on('keydown-EIGHT', () => {
+    kb.on('keydown-EIGHT', (event: KeyboardEvent) => {
+      if (!event.shiftKey) return;
       if (!guard()) return;
       this.combatController?.spawnDummy(this.player.x + Phaser.Math.Between(60, 140), this.player.y + Phaser.Math.Between(-60, 60));
       floatingText.spawn(this, this.player.x, this.player.y - 30, '+dummy', 'white');

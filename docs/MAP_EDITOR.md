@@ -29,7 +29,7 @@ The selected terrain tile or object visual follows the mouse cursor as a translu
 - **Entry Point (`I`)**: choose a direction and place that incoming entry point.
 - **Exit Zone (`E`)**: choose a direction after assigning that edge in Map Connections. The physical boundary zone is generated automatically.
 
-When a template is selected in the inspector, its canvas guides use a fixed visual legend: yellow is the visual frame and anchor, red is the collider, and blue is the occlusion scan region/reveal shape. The neutral white outline marks the selected object. The **Canvas boxes** controls can hide each guide independently or show the same guides on every matching instance.
+When a template is selected in the inspector, its canvas guides use a fixed visual legend: yellow is the visual frame and anchor, orange is the depth bound and its sorting edge, red is the collider, and blue is the occlusion scan region/reveal shape. The neutral white outline marks the selected object. The **Canvas boxes** controls can hide each guide independently or show the same guides on every matching instance. The depth bound is a separate source-frame rectangle; its lower edge controls front/behind sorting and does not change the map tile size or collider.
 
 ## Connecting maps
 

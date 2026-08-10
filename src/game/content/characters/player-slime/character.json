@@ -39,6 +39,10 @@
     "hurt": {
       "events": [],
       "hitboxSpans": []
+    },
+    "attack-1": {
+      "events": [],
+      "hitboxSpans": []
     }
   },
   "player": {

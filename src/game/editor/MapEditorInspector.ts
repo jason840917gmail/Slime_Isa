@@ -1,6 +1,7 @@
 import {
   getObjectVisualChoices,
   type ColliderBounds,
+  type DepthBounds,
 } from '../content/objects/ObjectCatalog';
 import {
   type ObjectTemplateEditorState,
@@ -111,7 +112,8 @@ function renderInspector(
   const imagePreview = previews.objects[selected.key] ?? '';
   const collider = draft.collider;
   const occlusion = draft.occlusionBounds;
-  const occlusionSupported = Boolean(state.frameDimensions && !selected.visualSetId && !selected.animationClip);
+  const depthBounds = draft.depthBounds;
+  const frameGeometrySupported = Boolean(state.frameDimensions);
   host.innerHTML = `
     <header class="map-editor-inspector-header">
       <div><span class="editor-inspector-kicker">Instrument panel</span><h2>Template inspector</h2></div>
@@ -158,12 +160,26 @@ function renderInspector(
               </div>
               ${renderError(errors.collider)}`}
         </section>
+        <section class="editor-inspector-section editor-geometry-section editor-geometry-depth">
+          <div class="editor-inspector-section-title"><span>04</span><h3><span class="editor-geometry-swatch" aria-hidden="true"></span>Depth bound</h3></div>
+          <p class="editor-inspector-help">A separate source-frame rectangle for front/behind sorting. Its lower edge becomes the object's depth anchor; it does not change the tile size, art, or collider.</p>
+          <label class="editor-inspector-check">
+            <input type="checkbox" data-template-depth-toggle ${depthBounds ? 'checked' : ''} ${frameGeometrySupported ? '' : 'disabled'} />
+            <span><strong>Use custom depth bound</strong><small>${frameGeometrySupported ? 'Edit the sorting region in source-frame pixels' : 'Requires an authoritative spritesheet frame'}</small></span>
+          </label>
+          ${depthBounds ? `<div class="editor-inspector-grid">
+            ${renderNumberField('Width', 'depthWidth', depthBounds.width, errors.depthWidth, 'template-depth-width')}
+            ${renderNumberField('Height', 'depthHeight', depthBounds.height, errors.depthHeight, 'template-depth-height')}
+            ${renderNumberField('Offset X', 'depthOffsetX', depthBounds.offsetX, errors.depthOffsetX, 'template-depth-offset-x')}
+            ${renderNumberField('Offset Y', 'depthOffsetY', depthBounds.offsetY, errors.depthOffsetY, 'template-depth-offset-y')}
+          </div>${renderError(errors.depthBounds)}` : ''}
+        </section>
         <section class="editor-inspector-section editor-geometry-section editor-geometry-occlusion">
-          <div class="editor-inspector-section-title"><span>04</span><h3><span class="editor-geometry-swatch" aria-hidden="true"></span>Occlusion</h3></div>
+          <div class="editor-inspector-section-title"><span>05</span><h3><span class="editor-geometry-swatch" aria-hidden="true"></span>Occlusion</h3></div>
           <p class="editor-inspector-help">The art's opaque pixels define the reveal shape. These bounds only crop the source-alpha scan for performance.</p>
           <label class="editor-inspector-check">
-            <input type="checkbox" data-template-occlusion-toggle ${occlusion ? 'checked' : ''} ${occlusionSupported ? '' : 'disabled'} />
-            <span><strong>Occludes actors</strong><small>${occlusionSupported ? 'Reveal only the hidden pixels of the player and engaged enemies' : 'Requires a static spritesheet frame'}</small></span>
+            <input type="checkbox" data-template-occlusion-toggle ${occlusion ? 'checked' : ''} ${frameGeometrySupported && !selected.visualSetId && !selected.animationClip ? '' : 'disabled'} />
+            <span><strong>Occludes actors</strong><small>${frameGeometrySupported && !selected.visualSetId && !selected.animationClip ? 'Reveal only the hidden pixels of the player and engaged enemies' : 'Requires a static spritesheet frame'}</small></span>
           </label>
           ${occlusion ? `<div class="editor-inspector-grid">
             ${renderNumberField('Width', 'occlusionWidth', occlusion.width, errors.occlusionWidth, 'template-occlusion-width')}
@@ -173,16 +189,17 @@ function renderInspector(
           </div>${renderError(errors.occlusionBounds)}` : ''}
         </section>
         <section class="editor-inspector-section">
-          <div class="editor-inspector-section-title"><span>05</span><h3>Canvas boxes</h3></div>
+          <div class="editor-inspector-section-title"><span>06</span><h3>Canvas boxes</h3></div>
           <p class="editor-inspector-help">Colors and line styles match the guides on the map. Toggle individual layers when boxes overlap.</p>
           <label class="editor-inspector-check">
             <input type="checkbox" data-overlay-scope="all-matching" ${state.showAllMatchingOverlays ? 'checked' : ''} />
-            <span><strong>Show boxes for all matching instances</strong><small>Visual frame, collision, and occlusion geometry</small></span>
+            <span><strong>Show boxes for all matching instances</strong><small>Visual frame, depth, collision, and occlusion geometry</small></span>
           </label>
           <div class="editor-geometry-toggle-list">
             ${renderGeometryToggle('frame', state.showFrameOverlay, true, 'Visual frame', 'Yellow frame and anchor guide')}
             ${renderGeometryToggle('collider', state.showColliderOverlay, selected.physics !== null && Boolean(collider), 'Collider', 'Red solid geometry used for physics')}
-            ${renderGeometryToggle('occlusion', state.showOcclusionOverlay, Boolean(occlusion && occlusionSupported), 'Occlusion', 'Blue scan region and reveal shape')}
+            ${renderGeometryToggle('depth', state.showDepthOverlay, Boolean(depthBounds && frameGeometrySupported), 'Depth bound', 'Orange rectangle and sorting edge')}
+            ${renderGeometryToggle('occlusion', state.showOcclusionOverlay, Boolean(occlusion && frameGeometrySupported && !selected.visualSetId && !selected.animationClip), 'Occlusion', 'Blue scan region and reveal shape')}
           </div>
         </section>
         <section class="editor-inspector-section editor-inspector-actions">
@@ -252,6 +269,18 @@ function updateOcclusion(
   if (!draft?.occlusionBounds) return;
   templateEditor.updateDraft({
     occlusionBounds: { ...draft.occlusionBounds, [field]: value },
+  });
+}
+
+function updateDepthBounds(
+  templateEditor: ObjectTemplateEditorState,
+  field: keyof DepthBounds,
+  value: number,
+): void {
+  const draft = templateEditor.value.draft;
+  if (!draft?.depthBounds) return;
+  templateEditor.updateDraft({
+    depthBounds: { ...draft.depthBounds, [field]: value },
   });
 }
 
@@ -371,12 +400,27 @@ export function mountMapEditorInspector(
         });
         return;
       }
+      if (target.dataset.templateDepthToggle !== undefined) {
+        const current = templateEditor.value.draft?.depthBounds;
+        const dimensions = templateEditor.value.frameDimensions;
+        templateEditor.updateDraft({
+          depthBounds: target.checked
+            ? current ?? {
+              width: dimensions?.width ?? 1,
+              height: dimensions?.height ?? 1,
+              offsetX: 0,
+              offsetY: 0,
+            }
+            : undefined,
+        });
+        return;
+      }
       if (target.dataset.overlayScope === 'all-matching') {
         templateEditor.setShowAllMatchingOverlays(target.checked);
         return;
       }
       const geometryKey = target.dataset.overlayGeometry;
-      if (geometryKey === 'frame' || geometryKey === 'collider' || geometryKey === 'occlusion') {
+      if (geometryKey === 'frame' || geometryKey === 'collider' || geometryKey === 'occlusion' || geometryKey === 'depth') {
         templateEditor.setOverlayVisibility(geometryKey, target.checked);
       }
       return;
@@ -416,6 +460,10 @@ export function mountMapEditorInspector(
     if (field === 'occlusionHeight') updateOcclusion(templateEditor, 'height', value);
     if (field === 'occlusionOffsetX') updateOcclusion(templateEditor, 'offsetX', value);
     if (field === 'occlusionOffsetY') updateOcclusion(templateEditor, 'offsetY', value);
+    if (field === 'depthWidth') updateDepthBounds(templateEditor, 'width', value);
+    if (field === 'depthHeight') updateDepthBounds(templateEditor, 'height', value);
+    if (field === 'depthOffsetX') updateDepthBounds(templateEditor, 'offsetX', value);
+    if (field === 'depthOffsetY') updateDepthBounds(templateEditor, 'offsetY', value);
   };
 
   const submitHandler = (event: SubmitEvent): void => {

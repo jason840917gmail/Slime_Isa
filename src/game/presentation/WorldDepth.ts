@@ -116,6 +116,17 @@ export interface BodyGeometry {
   readonly height: number;
 }
 
+export interface ObjectDepthBounds {
+  readonly height: number;
+  readonly offsetY: number;
+}
+
+export interface ObjectDepthGeometry {
+  readonly sourceFrameHeight: number;
+  readonly originY: number;
+  readonly bounds?: ObjectDepthBounds;
+}
+
 export function resolveBodyBottom(body: BodyGeometry): number {
   return body.y + body.height;
 }
@@ -126,4 +137,19 @@ export function resolveBodyCenterY(body: BodyGeometry): number {
 
 export function resolveObjectGroundAnchorY(objectAnchorY: number): number {
   return objectAnchorY;
+}
+
+/**
+ * Resolves an authored source-frame depth rectangle to a world-space sort Y.
+ * The rectangle's lower edge is the only part that affects front/behind order.
+ */
+export function resolveObjectDepthAnchorY(
+  objectAnchorY: number,
+  geometry: ObjectDepthGeometry,
+): number {
+  if (!geometry.bounds) return objectAnchorY;
+  return objectAnchorY
+    + geometry.bounds.offsetY
+    + geometry.bounds.height
+    - geometry.sourceFrameHeight * geometry.originY;
 }

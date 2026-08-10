@@ -2,6 +2,7 @@ import { gameEvents } from './EventBus';
 import { PLAYER_CONFIG } from '../content/player';
 import { PERK_BALANCE } from '../content/perks';
 import type { CharacterAttributeSet } from '../content/characters/types';
+import { WEAPON_HOTBAR_SLOT_COUNT } from './types';
 
 /**
  * Single source of truth for persistent player state.
@@ -12,7 +13,7 @@ import type { CharacterAttributeSet } from '../content/characters/types';
  * quest flags — all flowing through the same emit-on-change pipeline.
  */
 
-const SAVE_SCHEMA_VERSION = 1;
+const SAVE_SCHEMA_VERSION = 2;
 
 // ── Level curve ──
 // xpForLevel(n) = total XP required to REACH level n from level 1.
@@ -54,6 +55,7 @@ export interface GameStateData {
   attributes: CharacterAttributeSet;
   equipment: {
     weaponId: string;
+    weaponSlots: Array<string | null>;
   };
 }
 
@@ -71,11 +73,26 @@ const DEFAULT_DATA: GameStateData = {
   skillPoints: 0,
   perks: {},
   attributes: { ...PLAYER_CONFIG.attributes },
-  equipment: { weaponId: 'goo-gauntlet' },
+  equipment: {
+    weaponId: 'goo-gauntlet',
+    weaponSlots: ['goo-gauntlet', 'basic-sword', null, null, null],
+  },
 };
 
+function normalizeWeaponSlots(value: unknown): Array<string | null> {
+  const input = Array.isArray(value) ? value : DEFAULT_DATA.equipment.weaponSlots;
+  return Array.from({ length: WEAPON_HOTBAR_SLOT_COUNT }, (_, index) => {
+    const entry = input[index];
+    return typeof entry === 'string' && entry.trim().length > 0 ? entry : null;
+  });
+}
+
 class GameStateImpl {
-  private data: GameStateData = { ...DEFAULT_DATA, attributes: { ...DEFAULT_DATA.attributes }, equipment: { ...DEFAULT_DATA.equipment } };
+  private data: GameStateData = {
+    ...DEFAULT_DATA,
+    attributes: { ...DEFAULT_DATA.attributes },
+    equipment: { ...DEFAULT_DATA.equipment, weaponSlots: [...DEFAULT_DATA.equipment.weaponSlots] },
+  };
 
   load(data: Partial<GameStateData>): void {
     this.data = {
@@ -83,7 +100,11 @@ class GameStateImpl {
       ...data,
       perks: { ...(data.perks ?? {}) },
       attributes: { ...DEFAULT_DATA.attributes, ...(data.attributes ?? {}) },
-      equipment: { ...DEFAULT_DATA.equipment, ...(data.equipment ?? {}) },
+      equipment: {
+        ...DEFAULT_DATA.equipment,
+        ...(data.equipment ?? {}),
+        weaponSlots: normalizeWeaponSlots(data.equipment?.weaponSlots),
+      },
       schemaVersion: SAVE_SCHEMA_VERSION,
     };
 
@@ -93,22 +114,33 @@ class GameStateImpl {
     this.emitHp(0);
     this.emitEnergy(0);
     this.emitXp(0);
+    gameEvents.emit('weapon.loadout.changed', { slots: [...this.data.equipment.weaponSlots] });
+    gameEvents.emit('weapon.equipped', { weaponId: this.data.equipment.weaponId });
   }
 
   reset(): void {
-    this.data = { ...DEFAULT_DATA, perks: {}, attributes: { ...DEFAULT_DATA.attributes }, equipment: { ...DEFAULT_DATA.equipment } };
+    this.data = {
+      ...DEFAULT_DATA,
+      perks: {},
+      attributes: { ...DEFAULT_DATA.attributes },
+      equipment: { ...DEFAULT_DATA.equipment, weaponSlots: [...DEFAULT_DATA.equipment.weaponSlots] },
+    };
     gameEvents.emit('coins.changed', { coins: this.data.coins, delta: 0 });
     gameEvents.emit('boost.changed', { boostBonus: this.data.boostBonus, delta: 0 });
     gameEvents.emit('friend.count', { count: this.data.totalFriends });
     this.emitHp(0);
     this.emitEnergy(0);
     this.emitXp(0);
+    gameEvents.emit('weapon.loadout.changed', { slots: [...this.data.equipment.weaponSlots] });
+    gameEvents.emit('weapon.equipped', { weaponId: this.data.equipment.weaponId });
   }
 
   serialize(): GameStateData {
     return {
       ...this.data,
       perks: { ...this.data.perks },
+      attributes: { ...this.data.attributes },
+      equipment: { ...this.data.equipment, weaponSlots: [...this.data.equipment.weaponSlots] },
     };
   }
 
@@ -215,8 +247,23 @@ class GameStateImpl {
     return this.data.equipment.weaponId;
   }
 
-  equipWeapon(weaponId: string): void {
-    if (weaponId.trim().length > 0) this.data.equipment.weaponId = weaponId;
+  get weaponSlots(): readonly (string | null)[] {
+    return [...this.data.equipment.weaponSlots];
+  }
+
+  setWeaponSlots(slots: readonly (string | null)[]): void {
+    const normalized = normalizeWeaponSlots(slots);
+    if (normalized.every((entry, index) => entry === this.data.equipment.weaponSlots[index])) return;
+    this.data.equipment.weaponSlots = normalized;
+    gameEvents.emit('weapon.loadout.changed', { slots: [...normalized] });
+  }
+
+  equipWeapon(weaponId: string): boolean {
+    const normalized = weaponId.trim();
+    if (!normalized || normalized === this.data.equipment.weaponId) return false;
+    this.data.equipment.weaponId = normalized;
+    gameEvents.emit('weapon.equipped', { weaponId: normalized });
+    return true;
   }
 
   // ── HP ──

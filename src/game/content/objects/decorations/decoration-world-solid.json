@@ -80,10 +80,15 @@
           "visualId": "cooking-cauldron",
           "frame": 7,
           "collider": {
-            "width": 70,
-            "height": 28,
-            "offsetX": 27,
-            "offsetY": 94
+            "width": 87,
+            "height": 61,
+            "offsetX": 20,
+            "offsetY": 60
+          },
+          "displayName": "cooking-cauldron",
+          "visualOffset": {
+            "x": 0,
+            "y": 0
           }
         },
         {
@@ -126,9 +131,20 @@
           "frame": 11,
           "collider": {
             "width": 96,
-            "height": 28,
+            "height": 60,
             "offsetX": 18,
-            "offsetY": 97
+            "offsetY": 59
+          },
+          "displayName": "canvas-tent",
+          "visualOffset": {
+            "x": 0,
+            "y": 0
+          },
+          "occlusionBounds": {
+            "width": 86,
+            "height": 60,
+            "offsetX": 17,
+            "offsetY": 9
           }
         },
         {
@@ -181,9 +197,14 @@
           "frame": 16,
           "collider": {
             "width": 20,
-            "height": 20,
+            "height": 24,
             "offsetX": 50,
-            "offsetY": 97
+            "offsetY": 91
+          },
+          "displayName": "birdhouse",
+          "visualOffset": {
+            "x": 0,
+            "y": 0
           }
         },
         {
@@ -191,9 +212,26 @@
           "frame": 17,
           "collider": {
             "width": 80,
-            "height": 24,
+            "height": 56,
             "offsetX": 23,
-            "offsetY": 90
+            "offsetY": 55
+          },
+          "displayName": "flower-planter",
+          "visualOffset": {
+            "x": 0,
+            "y": 0
+          },
+          "occlusionBounds": {
+            "width": 80,
+            "height": 41,
+            "offsetX": 20,
+            "offsetY": 20
+          },
+          "depthBounds": {
+            "width": 80,
+            "height": 80,
+            "offsetX": 21,
+            "offsetY": 30
           }
         },
         {
