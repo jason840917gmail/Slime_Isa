@@ -775,6 +775,125 @@
   z-index: 5;
 }
 
+#app.is-character-studio-host .weapon-hitbox-guides {
+  position: absolute;
+  z-index: 5;
+  inset: 0;
+  pointer-events: none;
+}
+
+#app.is-character-studio-host .weapon-stage .stage-hitbox {
+  border-width: 2px;
+  border-color: rgba(121, 232, 225, 0.98);
+  background: rgba(121, 232, 225, 0.14);
+  box-shadow: 0 0 0 1px rgba(3, 9, 18, 0.72), 0 0 14px rgba(121, 232, 225, 0.28);
+}
+
+#app.is-character-studio-host .weapon-stage .stage-hitbox.is-hot {
+  border-color: var(--studio-red);
+  background: rgba(255, 126, 142, 0.25);
+  box-shadow: 0 0 0 1px rgba(3, 9, 18, 0.78), 0 0 18px rgba(255, 126, 142, 0.5);
+}
+
+#app.is-character-studio-host .weapon-stage .stage-hitbox small {
+  z-index: 2;
+  border: 1px solid rgba(121, 232, 225, 0.58);
+  color: var(--studio-cyan);
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+#app.is-character-studio-host .weapon-stage .stage-hitbox.is-hot small {
+  border-color: rgba(255, 126, 142, 0.72);
+  color: var(--studio-red);
+}
+
+#app.is-character-studio-host .stage-hitbox-select {
+  position: absolute;
+  z-index: 3;
+  top: 50%;
+  left: 50%;
+  padding: 2px 5px;
+  border: 1px solid rgba(121, 232, 225, 0.58);
+  border-radius: 2px;
+  color: var(--studio-cyan);
+  background: rgba(4, 10, 19, 0.92);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  pointer-events: auto;
+  font: inherit;
+  font-size: 9px;
+  transform: translate(-50%, calc(-20px - var(--hitbox-label-index, 0) * 18px));
+  white-space: nowrap;
+}
+
+#app.is-character-studio-host .stage-hitbox-select:hover,
+#app.is-character-studio-host .stage-hitbox-select:focus-visible,
+#app.is-character-studio-host .stage-hitbox.is-selected .stage-hitbox-select {
+  border-color: var(--studio-amber);
+  color: var(--studio-amber);
+  outline: none;
+}
+
+#app.is-character-studio-host .stage-hitbox-select:focus-visible {
+  box-shadow: 0 0 0 3px rgba(255, 200, 107, 0.16);
+}
+
+#app.is-character-studio-host .weapon-stage .stage-hitbox--sector {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+#app.is-character-studio-host .weapon-hitbox-sector {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+#app.is-character-studio-host .weapon-hitbox-sector-area,
+#app.is-character-studio-host .weapon-hitbox-sector-boundary {
+  vector-effect: non-scaling-stroke;
+  stroke: var(--studio-cyan);
+  stroke-width: 2px;
+  filter: drop-shadow(0 0 5px rgba(121, 232, 225, 0.45));
+}
+
+#app.is-character-studio-host .weapon-hitbox-sector-area {
+  fill: rgba(121, 232, 225, 0.14);
+}
+
+#app.is-character-studio-host .weapon-hitbox-sector-boundary {
+  fill: none;
+}
+
+#app.is-character-studio-host .weapon-stage .stage-hitbox--sector.is-hot .weapon-hitbox-sector-area,
+#app.is-character-studio-host .weapon-stage .stage-hitbox--sector.is-hot .weapon-hitbox-sector-boundary {
+  stroke: var(--studio-red);
+  filter: drop-shadow(0 0 7px rgba(255, 126, 142, 0.62));
+}
+
+#app.is-character-studio-host .weapon-stage .stage-hitbox--sector.is-hot .weapon-hitbox-sector-area {
+  fill: rgba(255, 126, 142, 0.25);
+}
+
+#app.is-character-studio-host .weapon-stage .stage-hitbox.is-invalid {
+  width: 0;
+  height: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+#app.is-character-studio-host .weapon-stage .stage-hitbox.is-invalid small {
+  top: 8px;
+  left: 8px;
+  border-color: rgba(255, 126, 142, 0.72);
+  color: var(--studio-red);
+}
+
 #app.is-character-studio-host .weapon-stage .stage-caption {
   z-index: 7;
 }
@@ -1024,32 +1143,108 @@
   background: rgba(3, 8, 16, 0.38);
 }
 
-#app.is-character-studio-host .timeline-ruler,
-#app.is-character-studio-host .timeline-frames,
-#app.is-character-studio-host .timeline-track-row {
+#app.is-character-studio-host .timeline-ruler-row,
+#app.is-character-studio-host .timeline-frame-row {
   display: grid;
-  grid-auto-columns: minmax(56px, 1fr);
-  grid-auto-flow: column;
-  gap: 5px;
-  min-width: max-content;
+  grid-template-columns: 52px minmax(0, 1fr);
+  min-width: calc(52px + var(--timeline-frame-count, 1) * 74px);
+}
+
+#app.is-character-studio-host .timeline-ruler,
+#app.is-character-studio-host .timeline-frames {
+  display: grid;
+  grid-template-columns: repeat(var(--timeline-frame-count, 1), minmax(74px, 1fr));
+  min-width: calc(var(--timeline-frame-count, 1) * 74px);
+}
+
+#app.is-character-studio-host .studio-timeline.is-resizing {
+  user-select: none;
+}
+
+#app.is-character-studio-host .studio-timeline.is-resizing .timeline-ruler-row,
+#app.is-character-studio-host .studio-timeline.is-resizing .timeline-frame-row {
+  min-width: calc(52px + var(--timeline-frame-count, 1) * var(--timeline-resize-frame-width, 74px));
+}
+
+#app.is-character-studio-host .studio-timeline.is-resizing .timeline-ruler,
+#app.is-character-studio-host .studio-timeline.is-resizing .timeline-frames {
+  grid-template-columns: repeat(var(--timeline-frame-count, 1), var(--timeline-resize-frame-width, 74px));
+  min-width: calc(var(--timeline-frame-count, 1) * var(--timeline-resize-frame-width, 74px));
+}
+
+#app.is-character-studio-host .studio-timeline.is-resizing .timeline-track-row {
+  grid-template-columns: 52px repeat(var(--timeline-frame-count, 1), var(--timeline-resize-frame-width, 74px));
+  min-width: calc(52px + var(--timeline-frame-count, 1) * var(--timeline-resize-frame-width, 74px));
+}
+
+#app.is-character-studio-host .timeline-lane-label {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  display: flex;
+  align-items: flex-start;
+  padding: 2px 8px 0 0;
+  color: var(--studio-muted);
+  background: rgba(3, 8, 16, 0.94);
+  font-size: 8px;
+  letter-spacing: 0.08em;
 }
 
 #app.is-character-studio-host .timeline-ruler {
-  padding: 0 3px 6px;
+  min-height: 22px;
+  padding-bottom: 6px;
   color: var(--studio-dim);
   font-size: 9px;
-  text-align: center;
+}
+
+#app.is-character-studio-host .timeline-ruler-tick {
+  position: relative;
+  min-width: 0;
+  border-left: 1px solid rgba(123, 158, 194, 0.12);
+}
+
+#app.is-character-studio-host .timeline-ruler-tick.is-labelled {
+  border-left-color: rgba(121, 232, 225, 0.42);
+}
+
+#app.is-character-studio-host .timeline-ruler-tick b {
+  position: absolute;
+  top: 0;
+  left: 4px;
+  color: var(--studio-cyan);
+  font-size: 9px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 #app.is-character-studio-host .timeline-frame {
   position: relative;
   display: grid;
-  min-width: 56px;
+  width: auto;
+  min-width: 0;
   padding: 2px;
   border: 1px solid var(--studio-border);
   border-radius: 4px;
   background: rgba(13, 25, 43, 0.78);
   cursor: grab;
+}
+
+#app.is-character-studio-host .timeline-frame-select {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  min-height: 72px;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  cursor: inherit;
+}
+
+#app.is-character-studio-host .timeline-frame[aria-disabled="true"] {
+  cursor: default;
 }
 
 #app.is-character-studio-host .timeline-frame:hover,
@@ -1060,6 +1255,40 @@
 
 #app.is-character-studio-host .timeline-frame.is-active {
   box-shadow: 0 0 0 1px rgba(121, 232, 225, 0.22);
+}
+
+#app.is-character-studio-host .timeline-frame.is-resizing {
+  z-index: 2;
+  border-color: var(--studio-cyan);
+  cursor: ew-resize;
+  box-shadow: 0 0 0 1px rgba(121, 232, 225, 0.28), 0 0 18px rgba(121, 232, 225, 0.16);
+}
+
+#app.is-character-studio-host .timeline-frame.is-selected {
+  border-color: var(--studio-amber);
+  color: var(--studio-amber);
+  background: rgba(255, 200, 107, 0.11);
+  box-shadow: inset 0 -3px var(--studio-amber), 0 0 14px rgba(255, 200, 107, 0.1);
+}
+
+#app.is-character-studio-host .timeline-frame.is-transformed > i {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--studio-cyan);
+  box-shadow: 0 0 8px rgba(121, 232, 225, 0.6);
+}
+
+#app.is-character-studio-host .timeline-frame-source {
+  position: absolute;
+  bottom: 4px;
+  left: 6px;
+  color: var(--studio-dim);
+  font-size: 8px;
+  font-variant-numeric: tabular-nums;
 }
 
 #app.is-character-studio-host .timeline-frame-number {
@@ -1080,7 +1309,10 @@
 }
 
 #app.is-character-studio-host .timeline-track-row {
+  display: grid;
+  grid-template-columns: 52px repeat(var(--timeline-frame-count, 1), minmax(74px, 1fr));
   align-items: center;
+  min-width: calc(52px + var(--timeline-frame-count, 1) * 74px);
   margin-top: 7px;
   padding-top: 7px;
   border-top: 1px solid rgba(123, 158, 194, 0.11);
@@ -1106,7 +1338,7 @@
 }
 
 #app.is-character-studio-host .timeline-cell {
-  min-width: 56px;
+  min-width: 0;
   height: 9px;
   border: 1px solid rgba(123, 158, 194, 0.13);
   background: rgba(123, 158, 194, 0.07);
@@ -2018,11 +2250,19 @@
   background: rgba(3, 9, 18, 0.5);
 }
 
+#app.is-character-studio-host .weapon-animation-panel > .weapon-tile-bank {
+  display: none !important;
+}
+
 #app.is-character-studio-host .weapon-tile-bank.is-locked,
 #app.is-character-studio-host .weapon-animation-bank.is-locked,
 #app.is-character-studio-host .weapon-frame-transform.is-locked,
 #app.is-character-studio-host .studio-weapon-hitbox-section.is-locked {
   border-style: dashed;
+}
+
+#app.is-character-studio-host .studio-weapon-hitbox-section .studio-hitbox-row .studio-field {
+  display: grid;
 }
 
 #app.is-character-studio-host .weapon-tile-bank.is-locked .studio-sheet-grid,
@@ -2036,6 +2276,162 @@
   margin: 0;
   padding: 0;
   border: 0;
+}
+
+#app.is-character-studio-host .weapon-combat-ownership {
+  display: grid;
+  gap: 3px;
+  margin-top: 10px;
+  padding: 8px 9px;
+  border: 1px solid rgba(121, 232, 225, 0.16);
+  border-radius: 4px;
+  background: rgba(121, 232, 225, 0.045);
+}
+
+#app.is-character-studio-host .weapon-combat-ownership strong {
+  color: var(--studio-cyan);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+#app.is-character-studio-host .weapon-combat-ownership span {
+  color: var(--studio-muted);
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+#app.is-character-studio-host .weapon-scaling-compact {
+  display: grid;
+  gap: 7px;
+}
+
+#app.is-character-studio-host .weapon-scaling-group {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid rgba(117, 168, 255, 0.16);
+  border-radius: 4px;
+  background: rgba(3, 9, 18, 0.34);
+}
+
+#app.is-character-studio-host .weapon-scaling-group > strong {
+  color: var(--studio-ink);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+#app.is-character-studio-host .weapon-scaling-fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+#app.is-character-studio-host .weapon-scaling-secondary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+#app.is-character-studio-host .weapon-scaling-secondary .weapon-scaling-fields {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+#app.is-character-studio-host .weapon-scaling-field > span {
+  color: var(--studio-cyan);
+  font-size: 8px;
+  letter-spacing: 0.06em;
+}
+
+#app.is-character-studio-host .weapon-scaling-field small {
+  display: none;
+}
+
+#app.is-character-studio-host .weapon-hitbox-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 9px;
+}
+
+#app.is-character-studio-host .weapon-hitbox-selector-tab {
+  display: grid;
+  gap: 2px;
+  min-width: 82px;
+  padding: 6px 8px;
+  border: 1px solid rgba(117, 168, 255, 0.2);
+  border-radius: 3px;
+  color: var(--studio-muted);
+  background: rgba(3, 9, 18, 0.42);
+  cursor: pointer;
+  text-align: left;
+}
+
+#app.is-character-studio-host .weapon-hitbox-selector-tab strong {
+  overflow: hidden;
+  color: var(--studio-ink);
+  font-size: 9px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#app.is-character-studio-host .weapon-hitbox-selector-tab small {
+  color: var(--studio-dim);
+  font-size: 8px;
+  letter-spacing: 0.06em;
+}
+
+#app.is-character-studio-host .weapon-hitbox-selector-tab:hover,
+#app.is-character-studio-host .weapon-hitbox-selector-tab:focus-visible,
+#app.is-character-studio-host .weapon-hitbox-selector-tab.is-active {
+  border-color: var(--studio-cyan);
+  background: rgba(121, 232, 225, 0.08);
+  outline: none;
+}
+
+#app.is-character-studio-host .weapon-hitbox-selector-tab.is-active strong,
+#app.is-character-studio-host .weapon-hitbox-selector-tab.is-active small {
+  color: var(--studio-cyan);
+}
+
+#app.is-character-studio-host fieldset.studio-hitbox-row.weapon-hitbox-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 9px;
+  margin-top: 10px;
+  padding: 9px;
+  border: 1px solid rgba(117, 168, 255, 0.2);
+  border-radius: 4px;
+  background: rgba(3, 9, 18, 0.34);
+}
+
+#app.is-character-studio-host .weapon-hitbox-geometry-grid,
+#app.is-character-studio-host .weapon-hitbox-effects-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  min-width: 0;
+}
+
+#app.is-character-studio-host .weapon-hitbox-geometry-grid .studio-field--shape,
+#app.is-character-studio-host .weapon-hitbox-geometry-grid.is-circle .studio-field:nth-of-type(2),
+#app.is-character-studio-host .weapon-hitbox-geometry-grid.is-sector .weapon-hitbox-arc-field,
+#app.is-character-studio-host .weapon-hitbox-geometry-note {
+  grid-column: 1 / -1;
+}
+
+#app.is-character-studio-host .weapon-hitbox-effects-grid {
+  padding-top: 8px;
+  border-top: 1px solid rgba(117, 168, 255, 0.12);
+}
+
+#app.is-character-studio-host .weapon-hitbox-geometry-note {
+  margin: 0;
+  color: var(--studio-dim);
+  font-size: 9px;
+  line-height: 1.45;
 }
 
 #app.is-character-studio-host .weapon-bank-heading {
@@ -2096,6 +2492,20 @@
   color: var(--studio-red, #ff7e8e);
 }
 
+#app.is-character-studio-host .weapon-animation-panel > .weapon-sequence-toolbar {
+  margin: 10px 12px 0;
+  border-top: 1px solid var(--studio-border);
+  border-bottom: 0;
+}
+
+#app.is-character-studio-host .studio-timeline.is-locked {
+  border-style: dashed;
+}
+
+#app.is-character-studio-host .studio-timeline.is-locked .timeline-frames {
+  opacity: 0.48;
+}
+
 #app.is-character-studio-host .weapon-animation-sequence {
   display: flex;
   gap: 7px;
@@ -2151,18 +2561,90 @@
 }
 
 #app.is-character-studio-host .timeline-frame {
-  width: max(74px, calc(var(--timeline-hold, 1) * 54px));
-  min-width: max(74px, calc(var(--timeline-hold, 1) * 54px));
+  width: auto;
+  min-width: 0;
   position: relative;
 }
 
 #app.is-character-studio-host .timeline-frame-hold {
   position: absolute;
-  right: 5px;
+  right: 12px;
   top: 4px;
   color: var(--studio-amber);
   font-size: 9px;
   font-variant-numeric: tabular-nums;
+}
+
+#app.is-character-studio-host .timeline-frame-hold-controls {
+  position: absolute;
+  right: 11px;
+  bottom: 3px;
+  z-index: 2;
+  display: inline-flex;
+  gap: 2px;
+}
+
+#app.is-character-studio-host .timeline-frame-hold-controls > span {
+  display: inline-grid;
+  width: 14px;
+  height: 14px;
+  place-items: center;
+  border: 1px solid rgba(121, 232, 225, 0.35);
+  border-radius: 3px;
+  color: var(--studio-cyan);
+  background: rgba(3, 9, 18, 0.84);
+  cursor: pointer;
+  font-size: 11px;
+  line-height: 1;
+}
+
+#app.is-character-studio-host .timeline-frame-hold-controls > span:hover:not([aria-disabled="true"]) {
+  border-color: var(--studio-cyan);
+  background: rgba(121, 232, 225, 0.15);
+}
+
+#app.is-character-studio-host .timeline-frame-hold-controls > span[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.3;
+}
+
+#app.is-character-studio-host .timeline-frame-resize-handle {
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  bottom: -1px;
+  z-index: 4;
+  width: 10px;
+  cursor: ew-resize;
+  touch-action: none;
+}
+
+#app.is-character-studio-host .timeline-frame-resize-handle > i {
+  position: absolute;
+  top: 50%;
+  right: 1px;
+  width: 3px;
+  height: 28px;
+  border-radius: 3px;
+  opacity: 0;
+  background: var(--studio-cyan);
+  box-shadow: 0 0 8px rgba(121, 232, 225, 0.72);
+  transform: translateY(-50%);
+  transition: opacity 120ms ease, height 120ms ease;
+}
+
+#app.is-character-studio-host .timeline-frame:hover .timeline-frame-resize-handle > i,
+#app.is-character-studio-host .timeline-frame.is-active .timeline-frame-resize-handle > i,
+#app.is-character-studio-host .timeline-frame.is-selected .timeline-frame-resize-handle > i,
+#app.is-character-studio-host .timeline-frame.is-resizing .timeline-frame-resize-handle > i,
+#app.is-character-studio-host .timeline-frame-resize-handle:focus-visible > i {
+  height: 38px;
+  opacity: 1;
+}
+
+#app.is-character-studio-host .timeline-frame-resize-handle:focus-visible {
+  outline: 2px solid var(--studio-amber);
+  outline-offset: 1px;
 }
 
 #app.is-character-studio-host .weapon-animation-sequence {
