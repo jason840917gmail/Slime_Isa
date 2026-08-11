@@ -10,8 +10,8 @@ Character Studio and Weapon Studio use the same seconds-first ruler. The authore
 
 - Ruler labels use seconds, such as `0.00s`, `0.04s`, and `0.17s`.
 - Every keyframe tile occupies the exact ruler columns covered by its authored hold.
-- A tile shows `START 0.17s` and `HOLD 0.17s / 4F`; compact visual labels may omit the words while the tooltip retains them.
-- The selected-keyframe summary shows elapsed time first and its explicitly labeled start frame second, for example `TIME 0.17s / START F04`.
+- A tile uses the compact visible format `@0.17s` for start and `0.17s / 4F` for hold. Its tooltip uses the full format `Keyframe 02. Start 0.17 seconds (frame 4). Hold 0.17 seconds (4 frames). Source 3.`
+- The selected-keyframe summary uses the canonical order `TIME 0.17s / START F04 / KEYFRAME 02 / SOURCE 3`.
 - Decrease and increase controls continue changing the hold by exactly one playback frame.
 
 ## Design
@@ -26,7 +26,7 @@ The shared timeline view model will expose formatted start time and hold duratio
 
 The shared panel will render the ruler and keyframe lane on the same frame-column grid. Authored playback frame `f` maps to one-based CSS grid column `f + 1`. A keyframe starting at `s` with hold `n` uses `grid-column: (s + 1) / span n`, so it occupies exactly `n` ruler columns. Ruler, tile, hitbox, and event lanes use the same column definition and no independent duration width calculation. Character hitbox/event tracks continue using these frame columns.
 
-Seconds are the primary presentation. Tiles show start time plus hold seconds and hold frames. Selection summaries use `KEYFRAME nn / TIME 0.00s / START Fnn / SOURCE n`. Frame counts remain visible because sprite animation editing is discrete and decrease/increase operations must remain deterministic.
+Seconds are the primary presentation. Tiles show `@<start seconds>` plus `<hold seconds> / <hold frames>F`. Tooltips always use the full Start/Hold wording above. Selection summaries use `TIME <seconds> / START F<frame> / KEYFRAME <index> / SOURCE <source frame>`. Frame counts remain visible because sprite animation editing is discrete and decrease/increase operations must remain deterministic.
 
 ## Alternatives rejected
 
@@ -41,6 +41,6 @@ Seconds are the primary presentation. Tiles show start time plus hold seconds an
 - Test thirteen playback frames with stride two produces tick frames `[0, 2, 4, 6, 8, 10, 12]` without duplicating the final tick; test fourteen frames additionally forces final tick thirteen.
 - Test that keyframe grid starts and spans match `keyframeTimes` and calculated holds.
 - Test seconds formatting and frame-count preservation on tiles and selection summaries in both studios.
-- Test in both studios that decrease and increase change the targeted hold by exactly one playback frame and change duration by exactly `1 / framesPerSecond` seconds.
+- Test in both studios that decrease and increase change the targeted hold and total playback-frame count by exactly one. Compare duration against `totalPlaybackFrames / framesPerSecond` with absolute tolerance `1e-9` rather than direct floating-point equality.
 - Test minimum-hold decrease is a no-op and final-keyframe increase changes duration without shifting starts.
 - Run `pnpm typecheck`, `pnpm build`, character and weapon validators, and both Studio regression suites.
