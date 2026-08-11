@@ -257,8 +257,8 @@ export class Weapon {
       const outerRadius = (hitbox.outerRadius ?? hitbox.offsetX + hitbox.width / 2) * snapshot.reachMultiplier;
       const innerRadius = (hitbox.innerRadius ?? 0) * snapshot.reachMultiplier;
       return {
-        x: player.x,
-        y: player.y,
+        x,
+        y,
         width: outerRadius * 2,
         height: outerRadius * 2,
         damage,
@@ -269,8 +269,8 @@ export class Weapon {
         vfxColor: this.def.vfxColor,
         showVfx: false,
         shape: 'sector',
-        originX: player.x,
-        originY: player.y,
+        originX: x,
+        originY: y,
         angle: snapshot.angle,
         arcWidth: hitbox.arcWidthRad ?? snapshot.arcWidth,
         innerRadius,

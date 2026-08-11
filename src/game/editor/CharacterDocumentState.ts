@@ -10,7 +10,7 @@ import {
   reorderTimelineFrame,
 } from './CharacterTimeline';
 import { cloneCharacterPackage, normalizeCharacterPackage, validateCharacterPackage, type CharacterValidationIssue } from '../content/characters/validation';
-import { AnimationTimelineError, normalizeAnimationClip, rescaleKeyframeTimes } from '../shared/animation';
+import { AnimationTimelineError, holdLengthAtKeyframe, normalizeAnimationClip, rescaleKeyframeTimes, resizeKeyframeHold } from '../shared/animation';
 import type {
   CharacterBodyDocument,
   CharacterAttributeSet,
@@ -235,6 +235,32 @@ export class CharacterDocumentState {
       reorderTimelineFrame(draft.visualSet, this.selectedClipId, from, to);
       this.selectedTimelineIndex = to;
       this.selectedSourceFrame = draft.visualSet.clips[this.selectedClipId]?.frames[to] ?? this.selectedSourceFrame;
+    });
+  }
+
+  adjustKeyframeHold(index: number, delta: number): boolean {
+    if (!Number.isInteger(index) || !Number.isFinite(delta) || delta === 0) return false;
+    const selectedClip = this.draft.visualSet.clips[this.selectedClipId];
+    if (!selectedClip || index < 0 || index >= selectedClip.frames.length) return false;
+    const normalizedSelectedClip = normalizeAnimationClip(selectedClip);
+    return this.setKeyframeHold(index, holdLengthAtKeyframe(normalizedSelectedClip, index) + Math.round(delta));
+  }
+
+  setKeyframeHold(index: number, requestedHold: number): boolean {
+    if (!Number.isInteger(index) || !Number.isFinite(requestedHold)) return false;
+    const selectedClip = this.draft.visualSet.clips[this.selectedClipId];
+    if (!selectedClip || index < 0 || index >= selectedClip.frames.length) return false;
+    const normalizedSelectedClip = normalizeAnimationClip(selectedClip);
+    const currentHold = holdLengthAtKeyframe(normalizedSelectedClip, index);
+    const nextHold = Math.max(1, Math.round(requestedHold));
+    if (nextHold === currentHold) return false;
+    return this.mutate('Adjusted keyframe hold', (draft) => {
+      const clip = draft.visualSet.clips[this.selectedClipId];
+      if (!clip || clip.frames.length === 0) return;
+      const normalized = normalizeAnimationClip(clip);
+      const resized = resizeKeyframeHold(normalized, index, nextHold);
+      clip.keyframeTimes = resized.keyframeTimes;
+      clip.durationSeconds = resized.durationSeconds;
     });
   }
 

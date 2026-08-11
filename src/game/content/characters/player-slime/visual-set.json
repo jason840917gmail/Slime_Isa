@@ -146,12 +146,15 @@
     },
     "attack-1": {
       "frames": [
-        48,
-        49,
-        50
+        48
       ],
-      "framesPerSecond": 14,
-      "loop": false
+      "framesPerSecond": 12,
+      "loop": false,
+      "keyframeTimes": [
+        0
+      ],
+      "durationSeconds": 0.42,
+      "loopMode": "wrap"
     },
     "attack-2": {
       "frames": [

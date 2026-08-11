@@ -85,6 +85,21 @@ export function holdLengthAtKeyframe(clip: NormalizedAnimationClipDocument, keyf
   return Math.max(0, next - start);
 }
 
+/** Resize one keyframe block and preserve the timing of every later block. */
+export function resizeKeyframeHold(
+  clip: NormalizedAnimationClipDocument,
+  keyframeIndex: number,
+  requestedHold: number,
+): { keyframeTimes: number[]; durationSeconds: number } {
+  if (keyframeIndex < 0 || keyframeIndex >= clip.keyframeTimes.length) throw new AnimationTimelineError('Unknown keyframe.');
+  const currentHold = holdLengthAtKeyframe(clip, keyframeIndex);
+  const nextHold = Math.max(1, Math.round(requestedHold));
+  const delta = nextHold - currentHold;
+  const keyframeTimes = clip.keyframeTimes.map((time, index) => index > keyframeIndex ? time + delta : time);
+  const nextTimelineFrames = timelineFrameCount(clip) + delta;
+  return { keyframeTimes, durationSeconds: nextTimelineFrames / clip.framesPerSecond };
+}
+
 export function expandAnimationClip(clip: NormalizedAnimationClipDocument): ExpandedAnimation {
   const timelineFrames = timelineFrameCount(clip);
   const sourceFrames: number[] = [];

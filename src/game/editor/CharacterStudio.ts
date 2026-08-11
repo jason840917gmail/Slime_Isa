@@ -2,14 +2,16 @@ import { characterPackages } from 'virtual-character-content';
 
 import './character-studio.css';
 import { ensureStudioModeTabs } from './StudioModeTabs';
-import { createAnimationTimelineView } from './AnimationTimelineView';
+import { createAnimationTimelineView, createEmptyAnimationTimelineView, renderTimelineHoldControls, renderTimelineKeyframeTimingLabels, renderTimelineResizeHandle } from './AnimationTimelineView';
+import { renderAnimationTimelinePanel } from './AnimationTimelinePanel';
+import { TimelineHoldResizeController } from './AnimationTimelineResize';
 
 import { ASSET_MANIFEST, getAsset } from '../infrastructure/assets/manifest';
 import { resolveAssetUrl } from '../infrastructure/assets/assetUrls';
 import type { CharacterStudioAssetCatalog, CharacterStudioAssetEntry } from '../content/characters/characterAssetCatalog';
 import { CharacterDocumentState, type CharacterDocumentSnapshot } from './CharacterDocumentState';
 import { animationCycleFrameCount, animationFrameIndexAtStep } from '../shared/animationLoop';
-import { keyframeIndexAtTimelineFrame, normalizeAnimationClip, timelineFrameCount } from '../shared/animation';
+import { holdLengthAtKeyframe, keyframeIndexAtTimelineFrame, normalizeAnimationClip, timelineFrameCount } from '../shared/animation';
 import { resolveCollisionShapeDimensions, type CollisionShape } from '../shared/collisionShapes';
 import type { CharacterPackage, JsonValue, VisualClipDocument, VisualLoopMode } from '../content/characters/types';
 
@@ -266,8 +268,13 @@ function renderStudio(snapshot: CharacterDocumentSnapshot, assetShelf: AssetShel
   const normalizedClip = clip && clip.frames.length > 0 ? normalizeAnimationClip(clip) : undefined;
   const timeline = clip?.frames ?? [];
   const timelineView = normalizedClip ? createAnimationTimelineView(normalizedClip) : undefined;
-  const timelineFrames = timelineView?.timelineFrames ?? 0;
+  const timelineModel = timelineView ?? createEmptyAnimationTimelineView(clip?.framesPerSecond ?? 1);
+  const timelineFrames = timelineModel.timelineFrames;
   const selectedTimelineFrame = normalizedClip?.keyframeTimes[selectedTimelineIndex] ?? selectedTimelineIndex;
+  const selectedTimelineKeyframe = timelineModel.keyframes[selectedTimelineIndex] ?? timelineModel.keyframes[0];
+  const timelineSelectionSummary = selectedTimelineKeyframe
+    ? `TIME ${selectedTimelineKeyframe.startTimeLabel} / START ${selectedTimelineKeyframe.startFrameLabel} / KEYFRAME ${selectedTimelineKeyframe.indexLabel} / SOURCE ${selectedTimelineKeyframe.sourceFrame}`
+    : 'NO KEYFRAME SELECTED';
   const track = character.animationTracks[selectedClipId] ?? {};
   const selectedFrame = timeline[selectedTimelineIndex] ?? snapshot.selectedSourceFrame;
   const previewColumn = selectedFrame % info.columns;
@@ -289,14 +296,27 @@ function renderStudio(snapshot: CharacterDocumentSnapshot, assetShelf: AssetShel
   const hitboxTrackRows = trackHitboxIds.length > 0
     ? trackHitboxIds.map((hitboxId) => `<div class="timeline-track-row"><span class="timeline-track-label" title="${escapeHtml(hitboxId)}">${escapeHtml(hitboxId)}</span>${Array.from({ length: timelineFrames }, (_, index) => `<span class="timeline-cell${trackSpans.some((span) => span.hitboxId === hitboxId && span.from <= index && index <= span.through) ? ' is-hot' : ''}"></span>`).join('')}</div>`).join('')
     : '<div class="timeline-track-row"><span class="timeline-track-label">HITBOX</span><span class="timeline-track-empty">Add a named hitbox to author active frames.</span></div>';
+  const animationTimelinePanel = renderAnimationTimelinePanel({
+    titleHtml: `Editing <span class="studio-inline-clip-name">${escapeHtml(selectedClipId)}</span>`,
+    hint: 'Drag keyframes to reorder · blocks show their hold length · ◆ = event',
+    addTilesAction: 'open-character-tile-picker',
+    headerActionsHtml: `<button type="button" class="studio-icon-button" data-action="add-clip" title="Create a new animation clip" aria-label="Create a new animation clip">+</button><button type="button" class="studio-icon-button" data-action="rename-clip" title="Rename the current animation clip" aria-label="Rename the current animation clip">✎</button><button type="button" class="studio-icon-button" data-action="duplicate-clip" title="Duplicate the current animation clip" aria-label="Duplicate the current animation clip">⧉</button><button type="button" class="studio-icon-button is-danger" data-action="remove-clip" title="Remove the current animation clip" aria-label="Remove the current animation clip">×</button>`,
+    clipTabsHtml: Object.entries(visualSet.clips).map(([id, entry]) => `<button type="button" class="studio-clip-tab${id === selectedClipId ? ' is-active' : ''}" data-clip-id="${escapeHtml(id)}" title="Edit ${escapeHtml(id)}"><span>${escapeHtml(id)}</span><small>${entry.frames.length}K · ${entry.durationSeconds?.toFixed(2) ?? (entry.frames.length / entry.framesPerSecond).toFixed(2)}s</small></button>`).join(''),
+    timelineView: timelineModel,
+    renderKeyframe: (keyframe) => `<div class="timeline-frame${keyframe.index === selectedTimelineIndex ? ' is-active' : ''}" data-timeline-index="${keyframe.index}" draggable="true" title="${keyframe.tooltip} Drag to reorder." style="grid-column:${keyframe.gridColumnStart} / span ${keyframe.gridColumnSpan}"><button type="button" class="timeline-frame-select" aria-label="Select keyframe ${keyframe.indexLabel}">${renderTimelineKeyframeTimingLabels(keyframe)}${renderFrameTile(keyframe.sourceFrame, info, false, true, false)}</button>${renderTimelineHoldControls(keyframe.index, keyframe.hold)}${renderTimelineResizeHandle(keyframe)}${(track.events ?? []).filter((event) => event.at >= keyframe.start && event.at < keyframe.start + keyframe.hold).map((event) => `<i class="event-marker" title="${escapeHtml(event.eventId)}" aria-label="Event: ${escapeHtml(event.eventId)}">◆</i>`).join('')}</div>`,
+    timelineRowsHtml: hitboxTrackRows,
+    selectionHtml: `<div class="studio-timeline-selection"><span><b data-timeline-selection-frame>${timelineSelectionSummary}</b></span><span><strong>HITBOX</strong> <span data-timeline-selection-hitbox>${spanSummary}</span></span><span><strong>EVENTS</strong> <span data-timeline-selection-events>${eventSummary}</span></span></div>`,
+    helpHtml: '<div class="studio-timeline-help"><div><b>+ HITBOX SPAN</b><p>Marks a named hitbox active from the selected timeline frame through an inclusive end frame. Runtime collision callbacks use these timeline cells.</p></div><div><b>+ EVENT</b><p>Adds a one-frame event ID for runtime listeners. It is metadata only; it does not change the sprite by itself.</p></div></div>',
+    playbackHtml: `<div class="studio-playback"><button type="button" class="studio-button studio-button--play${playing ? ' is-playing' : ''}" data-action="play" aria-pressed="${playing}" title="${playing ? 'Stop clip playback' : 'Play this clip'}">${playing ? '■ STOP CLIP' : '▶ PLAY CLIP'}</button><button type="button" class="studio-button studio-button--quiet" data-action="previous-frame">‹</button><button type="button" class="studio-button studio-button--quiet" data-action="next-frame">›</button><button type="button" class="studio-button studio-button--quiet" data-action="add-span" title="Mark a hitbox active across a range of timeline frames">+ HITBOX SPAN</button><button type="button" class="studio-button studio-button--quiet" data-action="add-event" title="Add a one-frame runtime event marker">+ EVENT</button><label class="studio-inline-field">FPS <input type="number" min="1" max="240" step="1" inputmode="numeric" value="${integerInputValue(clip?.framesPerSecond, 8)}" data-clip-fps /></label><label class="studio-inline-field">DURATION <input type="number" min="0.01" max="60" step="0.01" inputmode="decimal" value="${Number(clip?.durationSeconds ?? (timeline.length / Math.max(clip?.framesPerSecond ?? 8, 1))).toFixed(2)}" data-clip-duration /></label><label class="studio-switch"><input type="checkbox" ${clip?.loop ? 'checked' : ''} data-clip-loop /><span></span> LOOP</label><button type="button" class="studio-button studio-button--quiet is-danger" data-action="remove-frame" ${timeline.length <= 1 ? 'disabled' : ''}>REMOVE KEYFRAME</button></div>`,
+  });
   return `<main class="character-studio ${statusClass(snapshot)}" data-studio-root>
     <header class="studio-topbar"><a class="studio-brand" href="?" aria-label="Back to game"><span class="brand-mark">✦</span><span><small>FIELD CARTOGRAPHER</small><strong>CHARACTER STUDIO</strong></span></a><div class="studio-topbar-actions"><span class="studio-save-state"><i></i>${escapeHtml(snapshot.statusMessage)}</span><button type="button" class="studio-button studio-button--quiet" data-action="undo" ${snapshot.dirty ? '' : 'disabled'}>↶</button><button type="button" class="studio-button studio-button--quiet" data-action="redo">↷</button><button type="button" class="studio-button studio-button--save" data-action="save" ${snapshot.errors.length > 0 || !snapshot.dirty ? 'disabled' : ''}>SAVE DRAFT</button></div></header>
     <div class="studio-layout">
       <aside class="studio-library"><div class="studio-panel-title"><div><span class="studio-kicker">Catalog</span><h1>Characters</h1></div><span class="studio-count">${characterPackages.length.toString().padStart(2, '0')}</span></div><label class="studio-search"><span>⌕</span><input type="search" placeholder="Filter roster" data-library-search /></label><div class="studio-roster" data-roster>${characterPackages.map((entry) => `<button type="button" class="studio-roster-item${entry.characterId === character.characterId ? ' is-active' : ''}" data-character-id="${escapeHtml(entry.characterId)}" data-character-name="${escapeHtml(entry.character.displayName)}"><span class="roster-glyph ${entry.character.kind}">${entry.character.kind === 'player' ? '●' : '◆'}</span><span><strong>${escapeHtml(entry.character.displayName)}</strong><small>${entry.character.kind === 'player' ? 'PLAYER' : 'ENEMY'} ${entry.character.runtimeRole ? '· PRIMARY' : ''}</small></span><em>${entry.characterId === character.characterId ? 'OPEN' : ''}</em></button>`).join('')}</div><div class="studio-library-footer"><button type="button" class="studio-button studio-button--outline studio-button--create" data-action="new-character">NEW CHARACTER</button><button type="button" class="studio-button studio-button--outline" data-action="duplicate">DUPLICATE PACKAGE</button><a class="studio-button studio-button--outline studio-button--navigation" href="?editor=${encodeURIComponent(returnEditor)}" data-testid="map-editor-link">↗ OPEN FIELD CARTOGRAPHER</a></div></aside>
       <section class="studio-workbench"><div class="studio-workbench-heading"><div><span class="studio-kicker">${character.kind === 'player' ? 'Player package' : 'Enemy package'}</span><h2>${escapeHtml(character.displayName)} <span>${escapeHtml(character.characterId)}</span></h2></div><div class="studio-workbench-meta"><span>ASSET <b>${escapeHtml(visualSet.assetId)}</b></span><span>GRID <b>${info.columns} × ${info.rows}</b></span><span>FRAMES <b>${info.count}</b></span></div></div>
-        <section class="studio-preview-card"><div class="studio-preview-toolbar"><span class="studio-kicker">ANCHOR-LOCKED PREVIEW</span><div class="studio-toolbar-actions"><button type="button" class="studio-pill is-active" data-action="toggle-grid">GRID</button><button type="button" class="studio-pill is-active" data-action="toggle-body">BODY</button><button type="button" class="studio-pill" data-action="toggle-mirror">MIRROR</button><button type="button" class="studio-pill" data-action="toggle-onion">ONION</button></div></div><div class="studio-stage" data-preview-stage><span class="stage-axis stage-axis-x"></span><span class="stage-axis stage-axis-y"></span><span class="stage-anchor">+</span><span class="stage-label">WORLD ANCHOR</span><span class="stage-body" style="width:${bodyWidth}px;height:${bodyHeight}px;transform:translate(-50%,-50%) translate(${character.body.centerOffsetX * 3}px,${character.body.centerOffsetY * 3}px)"></span>${hitboxGuides}<span class="stage-sprite" style="--sheet-url:url('${info.url}');--frame-w:${info.width}px;--frame-h:${info.height}px;--sheet-w:${info.width * info.columns}px;--sheet-h:${info.height * info.rows}px;--frame-x:${previewColumn * info.width}px;--frame-y:${previewRow * info.height}px;--preview-scale:${previewScale};--origin-offset-x:${originOffsetX}px;--origin-offset-y:${originOffsetY}px;--offset-x:${numberValue(transform.sourceOffset[0]) * previewScale}px;--offset-y:${numberValue(transform.sourceOffset[1]) * previewScale}px"></span><span class="stage-caption"><b>${escapeHtml(selectedClipId)}</b><span>POSITION ${selectedTimelineIndex + 1} / ${timeline.length} · SOURCE ${selectedFrame}</span></span></div><div class="studio-preview-footer"><span><i class="legend-dot legend-dot--amber"></i> art transform</span><span><i class="legend-dot legend-dot--red"></i> stable body</span><span><i class="legend-dot legend-dot--cyan"></i> hitbox</span><label>ZOOM <input type="range" min="1" max="2" step="1" value="1" data-preview-zoom /></label></div></section>
+        <section class="studio-preview-card"><div class="studio-preview-toolbar"><span class="studio-kicker">ANCHOR-LOCKED PREVIEW</span><div class="studio-toolbar-actions"><button type="button" class="studio-pill is-active" data-action="toggle-grid">GRID</button><button type="button" class="studio-pill is-active" data-action="toggle-body">BODY</button><button type="button" class="studio-pill" data-action="toggle-mirror">MIRROR</button><button type="button" class="studio-pill" data-action="toggle-onion">ONION</button></div></div><div class="studio-stage" data-preview-stage><span class="stage-axis stage-axis-x"></span><span class="stage-axis stage-axis-y"></span><span class="stage-anchor">+</span><span class="stage-label">WORLD ANCHOR</span><span class="stage-body" style="width:${bodyWidth}px;height:${bodyHeight}px;transform:translate(-50%,-50%) translate(${character.body.centerOffsetX * 3}px,${character.body.centerOffsetY * 3}px)"></span>${hitboxGuides}<span class="stage-sprite" style="--sheet-url:url('${info.url}');--frame-w:${info.width}px;--frame-h:${info.height}px;--sheet-w:${info.width * info.columns}px;--sheet-h:${info.height * info.rows}px;--frame-x:${previewColumn * info.width}px;--frame-y:${previewRow * info.height}px;--preview-scale:${previewScale};--origin-offset-x:${originOffsetX}px;--origin-offset-y:${originOffsetY}px;--offset-x:${numberValue(transform.sourceOffset[0]) * previewScale}px;--offset-y:${numberValue(transform.sourceOffset[1]) * previewScale}px"></span><span class="stage-caption"><b>${escapeHtml(selectedClipId)}</b><span>TIME ${selectedTimelineKeyframe?.startTimeLabel ?? '0.00s'} · KEYFRAME ${selectedTimelineIndex + 1} / ${timeline.length} · SOURCE ${selectedFrame}</span></span></div><div class="studio-preview-footer"><span><i class="legend-dot legend-dot--amber"></i> art transform</span><span><i class="legend-dot legend-dot--red"></i> stable body</span><span><i class="legend-dot legend-dot--cyan"></i> hitbox</span><label>ZOOM <input type="range" min="1" max="2" step="1" value="1" data-preview-zoom /></label></div></section>
         <section class="studio-sheet-panel"><div class="studio-section-bar"><div><span class="studio-kicker">Source sheet</span><strong>Click frames to select · click again to deselect</strong></div><span class="studio-muted">${info.width} × ${info.height} px cells</span></div><div class="studio-sheet-grid">${Array.from({ length: info.count }, (_, frame) => renderFrameTile(frame, info, selectedSourceFrames.has(frame), false, true, usedSourceFrames.has(frame))).join('')}</div><div class="studio-sheet-actions"><button type="button" class="studio-button studio-button--accent" data-action="append-frame">+ APPEND SELECTED</button><button type="button" class="studio-button studio-button--quiet" data-action="insert-frame">INSERT AT PLAYHEAD</button><span class="studio-selection-note">focused source ${snapshot.selectedSourceFrame} · ${selectedSourceFrames.size} selected · ${usedSourceFrames.size} used</span></div></section>
-        <section class="studio-timeline-panel"><div class="studio-section-bar"><div><span class="studio-kicker">Animation timeline</span><strong>Editing <span class="studio-inline-clip-name">${escapeHtml(selectedClipId)}</span></strong></div><span class="studio-muted">Drag keyframes to reorder · blocks show their hold length · ◆ = event</span><div class="studio-clip-actions"><button type="button" class="studio-icon-button" data-action="add-clip" title="Create a new animation clip" aria-label="Create a new animation clip">+</button><button type="button" class="studio-icon-button" data-action="rename-clip" title="Rename the current animation clip" aria-label="Rename the current animation clip">✎</button><button type="button" class="studio-icon-button" data-action="duplicate-clip" title="Duplicate the current animation clip" aria-label="Duplicate the current animation clip">⧉</button><button type="button" class="studio-icon-button is-danger" data-action="remove-clip" title="Remove the current animation clip" aria-label="Remove the current animation clip">×</button></div></div><div class="studio-clip-tabs">${Object.entries(visualSet.clips).map(([id, entry]) => `<button type="button" class="studio-clip-tab${id === selectedClipId ? ' is-active' : ''}" data-clip-id="${escapeHtml(id)}" title="Edit ${escapeHtml(id)}"><span>${escapeHtml(id)}</span><small>${entry.frames.length}K · ${entry.durationSeconds?.toFixed(2) ?? (entry.frames.length / entry.framesPerSecond).toFixed(2)}s</small></button>`).join('')}</div><div class="studio-timeline"><div class="timeline-ruler">${Array.from({ length: timelineView?.timelineFrames ?? 0 }, (_, index) => `<span>${String(index).padStart(2, '0')}</span>`).join('')}</div><div class="timeline-frames">${timeline.map((frame, index) => { const keyframe = timelineView?.keyframes[index]; const hold = keyframe?.hold ?? 1; const start = keyframe?.start ?? index; return `<button type="button" class="timeline-frame${index === selectedTimelineIndex ? ' is-active' : ''}" data-timeline-index="${index}" draggable="true" title="Keyframe ${index}. Holds ${hold} timeline frame${hold === 1 ? '' : 's'}. Drag to reorder." style="--timeline-hold:${Math.max(1, hold)}"><span class="timeline-frame-hold">${hold}F</span>${renderFrameTile(frame, info, false, true, false)}<span class="timeline-frame-number">${start}</span>${(track.events ?? []).filter((event) => event.at >= start && event.at < start + hold).map((event) => `<i class="event-marker" title="${escapeHtml(event.eventId)}" aria-label="Event: ${escapeHtml(event.eventId)}">◆</i>`).join('')}</button>`; }).join('')}</div>${hitboxTrackRows}</div><div class="studio-timeline-selection"><span><b data-timeline-selection-frame>KEYFRAME ${String(selectedTimelineIndex).padStart(2, '0')} · FRAME ${String(selectedTimelineFrame).padStart(2, '0')}</b></span><span><strong>HITBOX</strong> <span data-timeline-selection-hitbox>${spanSummary}</span></span><span><strong>EVENTS</strong> <span data-timeline-selection-events>${eventSummary}</span></span></div><div class="studio-timeline-help"><div><b>+ HITBOX SPAN</b><p>Marks a named hitbox active from the selected timeline frame through an inclusive end frame. Runtime collision callbacks use these timeline cells.</p></div><div><b>+ EVENT</b><p>Adds a one-frame event ID for runtime listeners. It is metadata only; it does not change the sprite by itself.</p></div></div><div class="studio-playback"><button type="button" class="studio-button studio-button--play${playing ? ' is-playing' : ''}" data-action="play" aria-pressed="${playing}" title="${playing ? 'Stop clip playback' : 'Play this clip'}">${playing ? '■ STOP CLIP' : '▶ PLAY CLIP'}</button><button type="button" class="studio-button studio-button--quiet" data-action="previous-frame">‹</button><button type="button" class="studio-button studio-button--quiet" data-action="next-frame">›</button><button type="button" class="studio-button studio-button--quiet" data-action="add-span" title="Mark a hitbox active across a range of timeline frames">+ HITBOX SPAN</button><button type="button" class="studio-button studio-button--quiet" data-action="add-event" title="Add a one-frame runtime event marker">+ EVENT</button><label class="studio-inline-field">FPS <input type="number" min="1" max="240" step="1" inputmode="numeric" value="${integerInputValue(clip?.framesPerSecond, 8)}" data-clip-fps /></label><label class="studio-inline-field">DURATION <input type="number" min="0.01" max="60" step="0.01" inputmode="decimal" value="${Number(clip?.durationSeconds ?? (timeline.length / Math.max(clip?.framesPerSecond ?? 8, 1))).toFixed(2)}" data-clip-duration /></label><label class="studio-switch"><input type="checkbox" ${clip?.loop ? 'checked' : ''} data-clip-loop /><span></span> LOOP</label><button type="button" class="studio-button studio-button--quiet is-danger" data-action="remove-frame" ${timeline.length <= 1 ? 'disabled' : ''}>REMOVE KEYFRAME</button></div></section>
+        ${animationTimelinePanel}
       </section>
       <aside class="studio-inspector"><div class="studio-inspector-heading"><span class="studio-kicker">Inspector</span><h2>${escapeHtml(character.displayName)}</h2><p>${character.kind === 'player' ? 'Primary player runtime package' : 'Enemy runtime package'}</p></div>${renderInspector(snapshot)}${snapshot.errors.length > 0 ? `<section class="studio-errors"><div class="studio-section-heading"><span class="studio-kicker">Validation</span><strong>${snapshot.errors.length} issue${snapshot.errors.length === 1 ? '' : 's'}</strong></div>${snapshot.errors.map((error) => `<p><b>${escapeHtml(error.path)}</b> ${escapeHtml(error.message)}</p>`).join('')}</section>` : ''}</aside>
     </div>
@@ -353,14 +373,15 @@ function updatePlaybackFrameDom(container: HTMLDivElement, snapshot: CharacterDo
   const caption = container.querySelector<HTMLElement>('.stage-caption span');
   const normalizedClip = normalizeAnimationClip(clip);
   const timelineFrame = normalizedClip.keyframeTimes[index] ?? index;
-  if (caption) caption.textContent = `KEYFRAME ${index + 1} / ${timeline.length} · FRAME ${timelineFrame + 1} / ${timelineFrameCount(normalizedClip)} · SOURCE ${frame}`;
+  const timelineKeyframe = createAnimationTimelineView(normalizedClip).keyframes[index];
+  if (caption && timelineKeyframe) caption.textContent = `TIME ${timelineKeyframe.startTimeLabel} / KEYFRAME ${index + 1} OF ${timeline.length} / SOURCE ${frame}`;
   const track = snapshot.character.animationTracks[snapshot.selectedClipId] ?? {};
   const selectedSpans = (track.hitboxSpans ?? []).filter((span) => span.from <= timelineFrame && timelineFrame <= span.through);
   const selectedEvents = (track.events ?? []).filter((event) => event.at === timelineFrame);
   const spanSummary = selectedSpans.length > 0 ? selectedSpans.map((span) => `${span.hitboxId} · frames ${span.from}–${span.through}`).join(' / ') : 'none on this frame';
   const eventSummary = selectedEvents.length > 0 ? selectedEvents.map((event) => event.eventId).join(' / ') : 'none on this frame';
   const frameSummary = container.querySelector<HTMLElement>('[data-timeline-selection-frame]');
-  if (frameSummary) frameSummary.textContent = `KEYFRAME ${String(index).padStart(2, '0')} · FRAME ${String(timelineFrame).padStart(2, '0')}`;
+  if (frameSummary && timelineKeyframe) frameSummary.textContent = `TIME ${timelineKeyframe.startTimeLabel} / START ${timelineKeyframe.startFrameLabel} / KEYFRAME ${timelineKeyframe.indexLabel} / SOURCE ${timelineKeyframe.sourceFrame}`;
   const hitboxSummary = container.querySelector<HTMLElement>('[data-timeline-selection-hitbox]');
   if (hitboxSummary) hitboxSummary.textContent = spanSummary;
   const eventSummaryElement = container.querySelector<HTMLElement>('[data-timeline-selection-events]');
@@ -470,13 +491,55 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
     }
   };
 
-  const renderLoading = (message: string): void => { container.innerHTML = `<main class="character-studio studio-loading"><div><span class="studio-loading-orb">✦</span><p>${escapeHtml(message)}</p></div></main>`; };
-  const ensureTimelineTilePickerButton = (): void => {
-    const actions = container.querySelector<HTMLElement>('.studio-timeline-panel .studio-clip-actions');
-    if (!actions || actions.querySelector('[data-action="open-character-tile-picker"]')) return;
-    actions.insertAdjacentHTML('afterbegin', '<button type="button" class="studio-button studio-button--save studio-timeline-add-tiles" data-action="open-character-tile-picker">+ ADD TILES</button>');
-  };
+  const resizeValidationToken = (snapshot: CharacterDocumentSnapshot): string => [
+    snapshot.character.characterId,
+    snapshot.selectedClipId,
+    snapshot.revision,
+    snapshot.previewRevision,
+  ].join('|');
+  const resizeController = new TimelineHoldResizeController({
+    resolveContext: (keyframeIndex, handle) => {
+      const snapshot = currentState?.value;
+      const clip = snapshot?.visualSet.clips[snapshot.selectedClipId];
+      const tile = handle.closest<HTMLElement>('.timeline-frame');
+      const lane = tile?.closest<HTMLElement>('.timeline-frames');
+      const timeline = tile?.closest<HTMLElement>('.studio-timeline');
+      if (!snapshot || !clip || !tile || !lane || !timeline || keyframeIndex < 0 || keyframeIndex >= clip.frames.length) return undefined;
+      const normalized = normalizeAnimationClip(clip);
+      return {
+        keyframeIndex,
+        sourceFrame: normalized.frames[keyframeIndex],
+        startFrame: normalized.keyframeTimes[keyframeIndex],
+        originalHold: holdLengthAtKeyframe(normalized, keyframeIndex),
+        framesPerSecond: normalized.framesPerSecond,
+        timelineFrames: timelineFrameCount(normalized),
+        validationToken: resizeValidationToken(snapshot),
+        timeline,
+        lane,
+        tile,
+      };
+    },
+    commitHold: (commit) => {
+      const snapshot = currentState?.value;
+      const clip = snapshot?.visualSet.clips[snapshot.selectedClipId];
+      if (!snapshot || !clip || resizeValidationToken(snapshot) !== commit.validationToken) return false;
+      const normalized = normalizeAnimationClip(clip);
+      if (normalized.frames[commit.keyframeIndex] !== commit.sourceFrame
+        || normalized.keyframeTimes[commit.keyframeIndex] !== commit.startFrame
+        || holdLengthAtKeyframe(normalized, commit.keyframeIndex) !== commit.originalHold) return false;
+      stopPlayback();
+      return currentState?.setKeyframeHold(commit.keyframeIndex, commit.requestedHold) ?? false;
+    },
+    afterCommit: (keyframeIndex) => queueMicrotask(() => {
+      if (disposed) return;
+      const handle = container.querySelector<HTMLElement>(`[data-timeline-resize-handle][data-keyframe-index="${keyframeIndex}"]`);
+      (handle ?? container.querySelector<HTMLElement>('.studio-timeline'))?.focus({ preventScroll: true });
+    }),
+  });
+
+  const renderLoading = (message: string): void => { resizeController.cancel(); container.innerHTML = `<main class="character-studio studio-loading"><div><span class="studio-loading-orb">✦</span><p>${escapeHtml(message)}</p></div></main>`; };
   const renderViewport = (snapshot: CharacterDocumentSnapshot): void => {
+    resizeController.cancel();
     const scrollPositions = captureStudioScroll(container);
     const active = document.activeElement as HTMLElement | null;
     const windowPosition = { x: window.scrollX, y: window.scrollY };
@@ -491,7 +554,6 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
     if (sourceTilePickerOpen) container.insertAdjacentHTML('beforeend', renderCharacterSourceTilePicker(snapshot));
     ensureStudioModeTabs(container, returnEditor, 'characters');
     ensureProjectileStudioLink(container, returnEditor);
-    ensureTimelineTilePickerButton();
     decorateBodyPreview(container, snapshot.character.body);
     decorateLoopModeControl(container, snapshot.visualSet.clips[snapshot.selectedClipId]);
     syncAssetCreationControls(container, assetShelf, String(snapshot.visualSet.assetId), creationForm);
@@ -506,13 +568,13 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
   };
   const rerenderShelf = (): void => {
     if (!disposed && currentState) {
+      resizeController.cancel();
       const scrollPositions = captureStudioScroll(container);
       container.innerHTML = renderStudio(currentState.value, assetShelf, creationForm, returnEditor, playTimer !== undefined, activeModal);
       container.querySelector('.studio-sheet-panel')?.classList.add('is-source-bank-hidden');
       if (sourceTilePickerOpen) container.insertAdjacentHTML('beforeend', renderCharacterSourceTilePicker(currentState.value));
       ensureStudioModeTabs(container, returnEditor, 'characters');
       ensureProjectileStudioLink(container, returnEditor);
-      ensureTimelineTilePickerButton();
       decorateBodyPreview(container, currentState.value.character.body);
       decorateLoopModeControl(container, currentState.value.visualSet.clips[currentState.value.selectedClipId]);
       syncAssetCreationControls(container, assetShelf, String(currentState.value.visualSet.assetId), creationForm);
@@ -787,6 +849,7 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
   };
   const onDragStart = (event: DragEvent): void => {
     const target = event.target as HTMLElement;
+    if (target.closest('[data-timeline-resize-handle]')) { event.preventDefault(); return; }
     const timelineButton = target.closest<HTMLElement>('[data-timeline-index]');
     if (!timelineButton?.dataset.timelineIndex) return;
     nativeDragActive = true;
@@ -817,6 +880,7 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
   };
   const onDragEnd = (): void => { clearTimelineDrag(); };
   const onPointerDown = (event: PointerEvent): void => {
+    if (resizeController.pointerDown(event)) return;
     if (event.button !== 0) return;
     const target = (event.target as HTMLElement).closest<HTMLElement>('[data-timeline-index]');
     if (!target?.dataset.timelineIndex) return;
@@ -826,6 +890,7 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
     pointerDragActive = false;
   };
   const onPointerMove = (event: PointerEvent): void => {
+    if (resizeController.pointerMove(event)) return;
     if (nativeDragActive || pointerDragSource === undefined || pointerDragId !== event.pointerId || !pointerDragStart) return;
     if (!pointerDragActive) {
       const moved = Math.abs(event.clientX - pointerDragStart.x) + Math.abs(event.clientY - pointerDragStart.y);
@@ -841,6 +906,7 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
     setTimelineDropTarget(target);
   };
   const onPointerUp = (event: PointerEvent): void => {
+    if (resizeController.pointerUp(event)) return;
     if (nativeDragActive || pointerDragSource === undefined || pointerDragId !== event.pointerId) return;
     if (pointerDragActive) {
       const target = document.elementFromPoint(event.clientX, event.clientY)?.closest<HTMLElement>('[data-timeline-index]');
@@ -849,7 +915,7 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
     }
     clearTimelineDrag();
   };
-  const onPointerCancel = (): void => { if (!nativeDragActive) clearTimelineDrag(); };
+  const onPointerCancel = (event: PointerEvent): void => { if (resizeController.pointerCancel(event)) return; if (!nativeDragActive) clearTimelineDrag(); };
   const onSubmit = (event: Event): void => {
     const form = event.target as HTMLFormElement;
     if (!form.matches('[data-studio-modal-form]') || !activeModal) return;
@@ -867,12 +933,14 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
     settleModal(values);
   };
   const onKeydown = (event: KeyboardEvent): void => {
+    if (resizeController.keyDown(event)) return;
     if (activeModal && event.key === 'Escape') {
       event.preventDefault();
       settleModal(undefined);
     }
   };
-  const onClick = (event: Event): void => {
+  const onClick = (event: MouseEvent): void => {
+    if (resizeController.click(event)) return;
     const target = event.target as HTMLElement;
     const modalAction = target.closest<HTMLElement>('[data-modal-action]')?.dataset.modalAction;
     if (modalAction === 'cancel') { settleModal(undefined); return; }
@@ -884,6 +952,8 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
     if (characterButton?.dataset.characterId) { void choosePackage(characterButton.dataset.characterId); return; }
     const clipButton = target.closest<HTMLElement>('[data-clip-id]');
     if (clipButton?.dataset.clipId) { stopPlayback(); currentState?.selectClip(clipButton.dataset.clipId); return; }
+    const holdAction = target.closest<HTMLElement>('[data-action="adjust-keyframe-hold"]');
+    if (holdAction) { stopPlayback(); currentState?.adjustKeyframeHold(integerValue(holdAction.dataset.keyframeIndex, -1), integerValue(holdAction.dataset.holdDelta, 0)); return; }
     const timelineButton = target.closest<HTMLElement>('[data-timeline-index]');
     if (timelineButton?.dataset.timelineIndex) { stopPlayback(); currentState?.selectTimelineIndex(Number(timelineButton.dataset.timelineIndex)); return; }
     const frameButton = target.closest<HTMLElement>('[data-source-frame]');
@@ -997,5 +1067,5 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
   container.addEventListener('keydown', onKeydown);
   renderLoading('Loading Character Studio…');
   void choosePackage(currentId);
-  return () => { activeModal?.resolve(undefined); activeModal = undefined; disposed = true; stopPlayback(); clearTimelineDrag(); unsubscribe?.(); container.removeEventListener('click', onClick); container.removeEventListener('dragstart', onDragStart); container.removeEventListener('dragover', onDragOver); container.removeEventListener('drop', onDrop); container.removeEventListener('dragend', onDragEnd); container.removeEventListener('pointerdown', onPointerDown); container.removeEventListener('pointermove', onPointerMove); container.removeEventListener('pointerup', onPointerUp); container.removeEventListener('pointercancel', onPointerCancel); container.removeEventListener('change', onChange); container.removeEventListener('submit', onSubmit); container.removeEventListener('input', onInput); container.removeEventListener('keydown', onKeydown); container.classList.remove('is-character-studio-host'); };
+  return () => { activeModal?.resolve(undefined); activeModal = undefined; disposed = true; resizeController.dispose(); stopPlayback(); clearTimelineDrag(); unsubscribe?.(); container.removeEventListener('click', onClick); container.removeEventListener('dragstart', onDragStart); container.removeEventListener('dragover', onDragOver); container.removeEventListener('drop', onDrop); container.removeEventListener('dragend', onDragEnd); container.removeEventListener('pointerdown', onPointerDown); container.removeEventListener('pointermove', onPointerMove); container.removeEventListener('pointerup', onPointerUp); container.removeEventListener('pointercancel', onPointerCancel); container.removeEventListener('change', onChange); container.removeEventListener('submit', onSubmit); container.removeEventListener('input', onInput); container.removeEventListener('keydown', onKeydown); container.classList.remove('is-character-studio-host'); };
 }

@@ -8,7 +8,6 @@ import type {
 import {
   AnimationTimelineError,
   duplicateKeyframe,
-  evenKeyframeTimes,
   normalizeAnimationClip,
   timelineFrameCount,
 } from '../shared/animation';
@@ -42,14 +41,6 @@ function materializeClip(clip: VisualSetDocument['clips'][string]): void {
   clip.keyframeTimes = [...normalized.keyframeTimes];
 }
 
-function distributeClip(clip: VisualSetDocument['clips'][string]): void {
-  if (clip.frames.length === 0) return;
-  materializeClip(clip);
-  const frames = Math.max(timelineFrameCount(clip), clip.frames.length);
-  if (frames !== timelineFrameCount(clip)) clip.durationSeconds = frames / clip.framesPerSecond;
-  clip.keyframeTimes = evenKeyframeTimes(frames, clip.frames.length);
-}
-
 export function insertTimelineFrames(
   character: CharacterDocument,
   visualSet: VisualSetDocument,
@@ -60,13 +51,17 @@ export function insertTimelineFrames(
   const clip = visualSet.clips[clipId];
   if (!clip || frames.length === 0) return;
   const position = Math.max(0, Math.min(index, clip.frames.length));
+  materializeClip(clip);
+  const previousTimelineFrames = timelineFrameCount(clip);
+  const insertionTime = position < clip.keyframeTimes!.length ? clip.keyframeTimes![position] : previousTimelineFrames;
+  const previousKeyframeTimes = [...(clip.keyframeTimes ?? [])];
   clip.frames.splice(position, 0, ...frames);
-  try {
-    distributeClip(clip);
-  } catch (error) {
-    if (!(error instanceof AnimationTimelineError)) throw error;
-    clip.frames.splice(position, frames.length);
-  }
+  clip.keyframeTimes = [
+    ...previousKeyframeTimes.slice(0, position),
+    ...frames.map((_, offset) => insertionTime + offset),
+    ...previousKeyframeTimes.slice(position).map((time) => time + frames.length),
+  ];
+  clip.durationSeconds = (previousTimelineFrames + frames.length) / clip.framesPerSecond;
   trackFor(character, clipId);
 }
 
