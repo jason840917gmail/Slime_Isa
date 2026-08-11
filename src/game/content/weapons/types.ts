@@ -6,6 +6,9 @@ import type {
   NormalizedAnimationClipDocument,
 } from '../../shared/animation';
 
+/** Compatibility value used only while normalizing pre-authored sector hitboxes. */
+export const LEGACY_WEAPON_SECTOR_ARC_RAD = 0.8;
+
 export interface WeaponDefinition {
   readonly version: 1;
   readonly weaponId: string;
@@ -40,7 +43,6 @@ export interface WeaponDefinition {
     readonly damage?: AttributeScaling;
     readonly cooldown?: AttributeScaling;
     readonly knockback?: AttributeScaling;
-    readonly reach?: AttributeScaling;
   };
   readonly vfxColor: number;
   readonly unlockLevel: number;

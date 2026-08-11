@@ -7,10 +7,10 @@ import type {
   WeaponHitboxDocument,
   WeaponHitboxShape,
 } from '../content/weapons/types';
+import { LEGACY_WEAPON_SECTOR_ARC_RAD } from '../content/weapons/types';
 import { timelineFrameCount } from '../shared/animation';
 
 export const WEAPON_HITBOX_PREVIEW_SCALE = 2;
-export const BASE_WEAPON_ARC_PREVIEW_RAD = 0.8;
 
 export interface ResolvedWeaponHitboxPreview {
   readonly attack: NormalizedWeaponDirectionalAttack;
@@ -167,7 +167,7 @@ export function resolveWeaponHitboxPreviewGeometry(
   if (hitbox.shape === 'sector') {
     const outerRadius = hitbox.outerRadius ?? hitbox.offsetX + hitbox.width / 2;
     const innerRadius = hitbox.innerRadius ?? 0;
-    const rawArcWidth = hitbox.arcWidthRad ?? BASE_WEAPON_ARC_PREVIEW_RAD;
+    const rawArcWidth = hitbox.arcWidthRad ?? LEGACY_WEAPON_SECTOR_ARC_RAD;
     if (![outerRadius, innerRadius, rawArcWidth, hitbox.offsetX, hitbox.offsetY].every(finite)) return invalidGeometry(hitbox.shape, 'Non-finite sector geometry');
     if (outerRadius <= 0) return invalidGeometry(hitbox.shape, 'Outer radius must be positive');
     if (innerRadius < 0 || innerRadius >= outerRadius) return invalidGeometry(hitbox.shape, 'Inner radius must be smaller than outer radius');

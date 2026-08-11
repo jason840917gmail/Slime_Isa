@@ -93,6 +93,7 @@ function validateHitboxes(value: unknown, issues: string[], rootPath = 'weapon.h
     }
     if (hitbox.shape === 'sector') {
       if (hitbox.outerRadius === undefined) issues.push(`${path}.outerRadius: is required for sector hitboxes`);
+      if (hitbox.arcWidthRad === undefined) issues.push(`${path}.arcWidthRad: is required for sector hitboxes`);
       if (hitbox.arcWidthRad !== undefined && hitbox.arcWidthRad > Math.PI * 2) issues.push(`${path}.arcWidthRad: must be <= 2π`);
     }
   }

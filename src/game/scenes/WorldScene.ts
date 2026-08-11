@@ -438,10 +438,9 @@ export class WorldScene extends Phaser.Scene {
   }
 
   update(_time: number, delta: number): void {
-    this.debugRenderer?.update();
-
     if (this.paused) {
       this.player.setVelocity(0, 0);
+      this.debugRenderer?.update();
       return;
     }
 
@@ -469,6 +468,7 @@ export class WorldScene extends Phaser.Scene {
     if (this.healthSystem?.isDead()) {
       this.player.setVelocity(0, 0);
       this.player.rotation = 0;
+      this.debugRenderer?.update();
       return;
     }
 
@@ -476,20 +476,24 @@ export class WorldScene extends Phaser.Scene {
 
     if (this.playerController.isMovementSuppressed()) {
       this.playerController.move(direction);
+      this.debugRenderer?.update();
       return;
     }
 
     if (this.actionLocked) {
       this.player.setVelocity(0, 0);
       this.player.rotation = 0;
+      this.debugRenderer?.update();
       return;
     }
 
     if (this.handleActionInput(direction)) {
+      this.debugRenderer?.update();
       return;
     }
 
     this.playerController.move(direction);
+    this.debugRenderer?.update();
   }
 
   private createDebugRenderer(): void {

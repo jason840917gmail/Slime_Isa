@@ -96,9 +96,9 @@ No extra preview handles are added.
 ## Geometry and Coordinates
 
 Hitbox guides remain static relative to the player anchor and do not inherit the
-weapon tile's occurrence offset, scale, or rotation. The preview displays base
-authored geometry with a reach multiplier of `1`; it does not simulate runtime
-perks such as Long Reach or Wide Swing.
+weapon tile's occurrence offset, scale, or rotation. The preview displays the
+same authored geometry used at runtime. Player progression does not scale weapon
+reach or arc width.
 
 The preview uses the same directional coordinate convention as runtime:
 
@@ -118,10 +118,10 @@ Sector guides originate at the player anchor. Their cardinal facing angle is
 derived from direction: Right `0`, Left `π`, Up `-π/2`, and Down `π/2`. The inner
 radius defaults to `0`; the outer radius uses `outerRadius` and retains the legacy
 fallback `offsetX + width / 2` only for malformed pre-validation input. Arc width
-uses authored `arcWidthRad`. When that optional value is absent, the preview uses
-the no-perk runtime baseline of `0.8` radians and does not imply the current
-player's Wide Swing rank. The Studio's existing world-unit-to-preview scale
-remains the source of display dimensions.
+uses authored `arcWidthRad`, which is required for newly validated sector
+hitboxes. Pre-authored documents missing that property normalize to the legacy
+`0.8`-radian value. The Studio's existing world-unit-to-preview scale remains the
+source of display dimensions.
 
 SVG sector paths clamp finite arc widths to `[0, 2π]`. A full-circle sector is
 drawn with two arc segments. A zero-width sector renders its two radial boundary
@@ -199,7 +199,7 @@ Automated checks must cover:
 - attack overlays being absent for Idle and Impact;
 - immediate geometry updates after Inspector mutations;
 - rectangle, circle, and ellipse runtime radius precedence;
-- sector direction angles, baseline arc fallback, zero/full arc handling, and
+- sector direction angles, legacy arc fallback, zero/full arc handling, and
   invalid draft guards;
 - synthetic no-track presentation remaining distinct from authored-track timing;
 - scoped `ATTACK / DIRECTION` panel headings;
