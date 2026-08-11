@@ -477,23 +477,6 @@ export class ProceduralAssetScene extends Phaser.Scene {
     graphics.generateTexture('perk-recovery', 32, 32);
     graphics.clear();
 
-    // Long Reach â€” extended spear tip
-    graphics.lineStyle(4, 0x86f0c3, 1);
-    graphics.lineBetween(7, 24, 24, 7);
-    graphics.fillStyle(0xe7fff5, 1);
-    graphics.fillTriangle(24, 7, 23, 16, 16, 9);
-    graphics.generateTexture('perk-reach', 32, 32);
-    graphics.clear();
-
-    // Wide Swing â€” half-moon slash
-    graphics.fillStyle(0x86f0c3, 0.95);
-    graphics.slice(16, 16, 13, Math.PI, 0, false);
-    graphics.fillPath();
-    graphics.fillStyle(0x0b1020, 1);
-    graphics.fillCircle(16, 16, 6);
-    graphics.generateTexture('perk-wide', 32, 32);
-    graphics.clear();
-
     // Vampiric Goo â€” red drop
     graphics.fillStyle(0xc8324a, 1);
     graphics.fillCircle(16, 19, 8);

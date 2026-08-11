@@ -1,8 +1,8 @@
 import Phaser from 'phaser';
 import { getStats } from '../systems/PlayerStats';
 import { hitboxPool, type HitHandler, type HitboxActivationHandle, type HitboxConfig } from './Hitbox';
-import { resolveBodyBottom, resolveWorldDepth } from '../presentation/WorldDepth';
 import { resolveScaledValue } from './CombatScaling';
+import { LEGACY_WEAPON_SECTOR_ARC_RAD } from '../content/weapons/types';
 import type {
   NormalizedWeaponDefinition,
   WeaponAttackDirection,
@@ -11,8 +11,6 @@ import type {
   WeaponPlaybackAnimationId,
 } from '../content/weapons/types';
 import { WeaponAttackTrackRunner, type WeaponTrackEvent } from './WeaponAttackTrackRunner';
-
-const SWING_VISUAL_PADDING = 8;
 
 export type WeaponId = string;
 export type WeaponDef = NormalizedWeaponDefinition;
@@ -35,11 +33,9 @@ interface AttackSnapshot {
   readonly attackDirection: WeaponAttackDirection;
   readonly hitboxes: Readonly<Record<string, WeaponHitboxDocument>>;
   readonly angle: number;
-  readonly arcWidth: number;
   readonly finalDamage: number;
   readonly isCrit: boolean;
   readonly knockStrength: number;
-  readonly reachMultiplier: number;
 }
 
 interface ActiveHitbox {
@@ -129,7 +125,6 @@ export class Weapon {
     ));
     const isCrit = Math.random() < stats.critChance;
     const finalDamage = isCrit ? Math.round(damage * stats.critMult) : damage;
-    const reachMultiplier = stats.weaponReachMult * resolveScaledValue(1, this.def.scaling?.reach, stats.attributes);
     const attackDirection = resolveWeaponAttackDirection(direction);
     const attackVector = resolveAttackVector(attackDirection);
     const directionalAttack = this.def.directionalAttacks[attackDirection];
@@ -138,11 +133,9 @@ export class Weapon {
       attackDirection,
       hitboxes: directionalAttack.hitboxes,
       angle: Math.atan2(attackVector.y, attackVector.x),
-      arcWidth: stats.weaponArcRad,
       finalDamage,
       isCrit,
       knockStrength: resolveScaledValue(this.def.knockStrength, this.def.scaling?.knockback, stats.attributes),
-      reachMultiplier,
     };
     this.attackSnapshot = snapshot;
     this.attacking = true;
@@ -154,7 +147,6 @@ export class Weapon {
     this.ctx.playCharacterAction(directionalAttack.characterActionId);
     this.ctx.playWeaponAnimation(`attack-${attackDirection}`, true);
     this.ctx.getPlayer().setVelocity(0, 0);
-    this.spawnSwingVfx(this.ctx.getPlayer(), snapshot);
 
     if (snapshot.isCrit) this.ctx.scene.cameras.main.shake(80, 0.006);
 
@@ -245,17 +237,19 @@ export class Weapon {
 
   private toHitboxConfig(hitbox: WeaponHitboxDocument, snapshot: AttackSnapshot): HitboxConfig {
     const player = this.ctx.getPlayer();
-    const offsetX = hitbox.offsetX * snapshot.reachMultiplier;
-    const offsetY = hitbox.offsetY * snapshot.reachMultiplier;
-    const [resolvedOffsetX, resolvedOffsetY] = resolveDirectionalOffset(snapshot.attackDirection, offsetX, offsetY);
+    const [resolvedOffsetX, resolvedOffsetY] = resolveDirectionalOffset(
+      snapshot.attackDirection,
+      hitbox.offsetX,
+      hitbox.offsetY,
+    );
     const x = player.x + resolvedOffsetX;
     const y = player.y + resolvedOffsetY;
     const damage = snapshot.finalDamage * (hitbox.damageMultiplier ?? 1);
     const knockStrength = snapshot.knockStrength * (hitbox.knockbackMultiplier ?? 1);
 
     if (hitbox.shape === 'sector') {
-      const outerRadius = (hitbox.outerRadius ?? hitbox.offsetX + hitbox.width / 2) * snapshot.reachMultiplier;
-      const innerRadius = (hitbox.innerRadius ?? 0) * snapshot.reachMultiplier;
+      const outerRadius = hitbox.outerRadius ?? hitbox.offsetX + hitbox.width / 2;
+      const innerRadius = hitbox.innerRadius ?? 0;
       return {
         x,
         y,
@@ -272,20 +266,20 @@ export class Weapon {
         originX: x,
         originY: y,
         angle: snapshot.angle,
-        arcWidth: hitbox.arcWidthRad ?? snapshot.arcWidth,
+        arcWidth: hitbox.arcWidthRad ?? LEGACY_WEAPON_SECTOR_ARC_RAD,
         innerRadius,
         outerRadius,
         autoDeactivate: false,
       };
     }
 
-    const radiusX = (hitbox.radiusX ?? hitbox.radius ?? hitbox.width / 2) * snapshot.reachMultiplier;
-    const radiusY = (hitbox.radiusY ?? hitbox.radius ?? hitbox.height / 2) * snapshot.reachMultiplier;
+    const radiusX = hitbox.radiusX ?? hitbox.radius ?? hitbox.width / 2;
+    const radiusY = hitbox.radiusY ?? hitbox.radius ?? hitbox.height / 2;
     return {
       x,
       y,
-      width: hitbox.shape === 'circle' ? radiusX * 2 : hitbox.width * snapshot.reachMultiplier,
-      height: hitbox.shape === 'circle' ? radiusY * 2 : hitbox.height * snapshot.reachMultiplier,
+      width: hitbox.shape === 'circle' ? radiusX * 2 : hitbox.width,
+      height: hitbox.shape === 'circle' ? radiusY * 2 : hitbox.height,
       radiusX,
       radiusY,
       damage,
@@ -298,40 +292,5 @@ export class Weapon {
       shape: hitbox.shape === 'rectangle' ? 'rect' : hitbox.shape,
       autoDeactivate: false,
     };
-  }
-
-  protected spawnSwingVfx(player: Phaser.Physics.Arcade.Sprite, snapshot: AttackSnapshot): void {
-    const scene = this.ctx.scene;
-    const visualOffset = this.def.visual.sourceOffset;
-    const [visualOffsetX, visualOffsetY] = resolveDirectionalOffset(snapshot.attackDirection, visualOffset[0], visualOffset[1]);
-    const px = player.x + visualOffsetX;
-    const py = player.y + visualOffsetY;
-    const primary = snapshot.hitboxes.primary ?? Object.values(snapshot.hitboxes)[0];
-    const reach = (primary?.outerRadius ?? this.def.hitboxOffset + this.def.hitboxWidth / 2) * snapshot.reachMultiplier;
-    const color = snapshot.isCrit ? 0xffdf8a : this.def.vfxColor;
-    const outerR = reach + SWING_VISUAL_PADDING;
-    const innerR = 8;
-
-    const swing = scene.add.graphics().setDepth(resolveWorldDepth(resolveBodyBottom(player.body as Phaser.Physics.Arcade.Body), {
-      stableId: 'player-swing',
-      attachmentSlot: 2,
-    }).depth);
-    swing.fillStyle(color, 0.45);
-    swing.beginPath();
-    swing.arc(px, py, outerR, snapshot.angle - snapshot.arcWidth / 2, snapshot.angle + snapshot.arcWidth / 2, false);
-    swing.arc(px, py, innerR, snapshot.angle + snapshot.arcWidth / 2, snapshot.angle - snapshot.arcWidth / 2, true);
-    swing.closePath();
-    swing.fillPath();
-    swing.lineStyle(3, color, 0.9);
-    swing.beginPath();
-    swing.arc(px, py, reach, snapshot.angle - snapshot.arcWidth / 2, snapshot.angle + snapshot.arcWidth / 2, false);
-    swing.strokePath();
-    scene.tweens.add({
-      targets: swing,
-      alpha: { from: 1, to: 0 },
-      duration: 160,
-      ease: 'Quad.Out',
-      onComplete: () => swing.destroy(),
-    });
   }
 }

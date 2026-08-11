@@ -24,10 +24,6 @@ export interface DerivedStats {
   maxEnergy: number;
   /** Energy regen per second. */
   energyRegenPerSec: number;
-  /** Weapon reach multiplier (1 = base, 1.25 = +25% per rank). */
-  weaponReachMult: number;
-  /** Weapon attack cone width in radians. Max rank reaches PI = 180 degrees. */
-  weaponArcRad: number;
   /** Percent of enemy melee damage returned as HP. */
   lifeStealPct: number;
   /** Damage taken multiplier (lower = tankier). 0.9 = 10% reduction. */
@@ -36,8 +32,6 @@ export interface DerivedStats {
   iFrameMs: number;
 }
 
-const BASE_WEAPON_ARC_RAD = 0.8;
-const MAX_WEAPON_ARC_RAD = Math.PI;
 export const MAX_MOVEMENT_SPEED = 480;
 
 export function resolveMovementSpeed(baseSpeed: number, flatBonus = 0, multiplier = 1): number {
@@ -83,10 +77,7 @@ export function getStats(): DerivedStats {
   const quick = gameState.perkRank('quick-steps');
   const crit = gameState.perkRank('lucky-crit');
   const recovery = gameState.perkRank('quick-recovery');
-  const reach = gameState.perkRank('long-reach');
-  const wideSwing = gameState.perkRank('wide-swing');
   const vampiric = gameState.perkRank('vampiric-goo');
-  const weaponArcRad = BASE_WEAPON_ARC_RAD + (MAX_WEAPON_ARC_RAD - BASE_WEAPON_ARC_RAD) * (wideSwing / 3);
 
   return {
     attributes: gameState.attributes,
@@ -99,8 +90,6 @@ export function getStats(): DerivedStats {
     critMult: 1.75,
     maxEnergy: gameState.maxEnergy,
     energyRegenPerSec: 8 * (1 + recovery * PERK_BALANCE.energyRegenMultiplierPerQuickRecoveryRank),
-    weaponReachMult: 1 + reach * PERK_BALANCE.reachMultiplierPerLongReachRank,
-    weaponArcRad,
     lifeStealPct: vampiric * PERK_BALANCE.lifeStealPerVampiricGooRank,
     damageTakenMult: Math.max(0.5, 1 - skin * PERK_BALANCE.damageReductionPerThickSkinRank),
     iFrameMs: 500,

@@ -21,7 +21,7 @@ const TOGGLES: Array<{ key: DevToolKey; label: string; description: string }> = 
   { key: 'depthBounds', label: 'Depth bounds', description: 'Object regions that set front/behind sorting' },
   { key: 'depthAnchors', label: 'Depth anchors', description: 'Ground points used for front/behind sorting' },
   { key: 'interactionZones', label: 'Interaction zones', description: 'Doors, pickups, transitions' },
-  { key: 'attackBoxes', label: 'Attack boxes', description: 'Active weapon hit areas' },
+  { key: 'attackBoxes', label: 'Active attack hitboxes', description: 'Live authored collision shapes and timing' },
   { key: 'enemyBoundaries', label: 'Enemy boundaries', description: 'Stay and pursue perimeters' },
 ];
 
@@ -77,7 +77,7 @@ export function createDevToolsPanel(): string {
         <p><span class="swatch swatch-depth-bounds"></span> Depth bounds</p>
         <p><span class="swatch swatch-depth-anchor"></span> Depth anchors</p>
         <p><span class="swatch swatch-interaction"></span> Interactions</p>
-        <p><span class="swatch swatch-attack"></span> Attacks</p>
+        <p><span class="swatch swatch-attack"></span> Active attack hitboxes</p>
         <p><span class="swatch swatch-enemy-stay"></span> Enemy stay</p>
         <p><span class="swatch swatch-enemy-pursue"></span> Enemy pursue</p>
       </section>

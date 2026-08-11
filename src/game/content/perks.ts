@@ -6,8 +6,6 @@ export const PERK_IDS = [
   'lucky-crit',
   'deep-well',
   'quick-recovery',
-  'long-reach',
-  'wide-swing',
   'vampiric-goo',
 ] as const;
 
@@ -29,8 +27,6 @@ export const PERK_DEFS: Readonly<Record<PerkId, PerkDef>> = {
   'lucky-crit': { id: 'lucky-crit', title: 'Lucky Crit', description: '+8% crit chance per rank', icon: 'perk-crit', maxRank: 3 },
   'deep-well': { id: 'deep-well', title: 'Deep Well', description: '+20 max energy per rank', icon: 'perk-well', maxRank: 3 },
   'quick-recovery': { id: 'quick-recovery', title: 'Quick Recovery', description: '+50% energy regen per rank', icon: 'perk-recovery', maxRank: 3 },
-  'long-reach': { id: 'long-reach', title: 'Long Reach', description: '+25% weapon reach per rank', icon: 'perk-reach', maxRank: 3 },
-  'wide-swing': { id: 'wide-swing', title: 'Wide Swing', description: 'Widen attack cone; max rank is 180 degrees', icon: 'perk-wide', maxRank: 3 },
   'vampiric-goo': { id: 'vampiric-goo', title: 'Vampiric Goo', description: '+6% life steal per rank on enemy hits', icon: 'perk-lifesteal', maxRank: 3 },
 };
 
@@ -42,6 +38,5 @@ export const PERK_BALANCE = {
   critChancePerLuckyCritRank: 0.08,
   maxEnergyPerDeepWellRank: 20,
   energyRegenMultiplierPerQuickRecoveryRank: 0.5,
-  reachMultiplierPerLongReachRank: 0.25,
   lifeStealPerVampiricGooRank: 0.06,
 } as const;

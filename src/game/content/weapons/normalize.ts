@@ -8,6 +8,7 @@ import type {
   WeaponHitboxDocument,
   WeaponAnimationSet,
 } from './types';
+import { LEGACY_WEAPON_SECTOR_ARC_RAD } from './types';
 import { normalizeAnimationClip } from '../../shared/animation';
 
 const DEFAULT_ACTION_ID = 'trick';
@@ -27,7 +28,19 @@ function legacyPrimaryHitbox(definition: WeaponDefinition): WeaponHitboxDocument
     offsetY: 0,
     innerRadius: 0,
     outerRadius: definition.hitboxOffset + definition.hitboxWidth / 2,
+    arcWidthRad: LEGACY_WEAPON_SECTOR_ARC_RAD,
   };
+}
+
+function normalizeHitboxes(
+  hitboxes: Readonly<Record<string, WeaponHitboxDocument>>,
+): Readonly<Record<string, WeaponHitboxDocument>> {
+  return Object.fromEntries(Object.entries(hitboxes).map(([hitboxId, hitbox]) => [
+    hitboxId,
+    hitbox.shape === 'sector' && hitbox.arcWidthRad === undefined
+      ? { ...hitbox, arcWidthRad: LEGACY_WEAPON_SECTOR_ARC_RAD }
+      : hitbox,
+  ]));
 }
 
 function defaultAnimations(): WeaponAnimationSet {
@@ -55,7 +68,7 @@ export function normalizeWeaponDefinition(definition: WeaponDefinition): Normali
     attack: normalizeWeaponAnimation(authoredAnimations.attack),
     impact: normalizeWeaponAnimation(authoredAnimations.impact),
   };
-  const hitboxes = definition.hitboxes ?? { primary: legacyPrimaryHitbox(definition) };
+  const hitboxes = normalizeHitboxes(definition.hitboxes ?? { primary: legacyPrimaryHitbox(definition) });
   const visual = {
     sourceOffset: definition.visual?.sourceOffset ?? [0, 0] as const,
     ...(definition.visual?.animationOffsets ? { animationOffsets: definition.visual.animationOffsets } : {}),
@@ -73,7 +86,7 @@ export function normalizeWeaponDefinition(definition: WeaponDefinition): Normali
   ): NormalizedWeaponDirectionalAttack => ({
     animation: authored?.animation ? normalizeWeaponAnimation(authored.animation) : fallback.animation,
     characterActionId: authored?.characterActionId?.trim() || fallback.characterActionId,
-    hitboxes: authored?.hitboxes ?? fallback.hitboxes,
+    hitboxes: normalizeHitboxes(authored?.hitboxes ?? fallback.hitboxes),
     authored: authored !== undefined,
     presentation,
     ...((authored?.attackTrack ?? fallback.attackTrack)

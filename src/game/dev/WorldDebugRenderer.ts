@@ -57,7 +57,7 @@ export class WorldDebugRenderer {
     if (devToolsState.depthBounds) this.drawDepthBounds(g);
     if (devToolsState.depthAnchors) this.drawDepthAnchors(g);
     if (devToolsState.interactionZones) this.drawInteractionZones(g);
-    if (devToolsState.attackBoxes) this.drawAttackBoxes(g);
+    if (devToolsState.attackBoxes) this.drawActiveAttackHitboxes(g);
     if (devToolsState.enemyBoundaries) this.drawEnemyBoundaries(g);
   }
 
@@ -169,7 +169,7 @@ export class WorldDebugRenderer {
     this.forChildren(this.ctx.getDungeonChests(), (child) => this.drawBody(g, this.bodyOf(child), 0x73e2b1, 0.85));
   }
 
-  private drawAttackBoxes(g: Phaser.GameObjects.Graphics): void {
+  private drawActiveAttackHitboxes(g: Phaser.GameObjects.Graphics): void {
     for (const config of hitboxPool.getActiveConfigs(this.ctx.scene)) this.drawAttackShape(g, config);
   }
 
@@ -210,7 +210,13 @@ export class WorldDebugRenderer {
       if (inner > 0) g.arc(originX, originY, inner, angle + halfArc, angle - halfArc, true);
       else g.lineTo(originX, originY);
       g.closePath().fillPath().strokePath();
-      this.strokeRect(g, config.x - config.width / 2, config.y - config.height / 2, config.width, config.height, 0xa78bfa, 0.42, 1);
+      return;
+    }
+    if (config.shape === 'circle' || config.shape === 'ellipse') {
+      const radiusX = config.radiusX ?? config.width / 2;
+      const radiusY = config.radiusY ?? config.height / 2;
+      g.fillStyle(0xa78bfa, 0.12).fillEllipse(config.x, config.y, radiusX * 2, radiusY * 2);
+      g.lineStyle(3, 0xa78bfa, 0.95).strokeEllipse(config.x, config.y, radiusX * 2, radiusY * 2);
       return;
     }
     this.fillRect(g, config.x - config.width / 2, config.y - config.height / 2, config.width, config.height, 0xa78bfa, 0.12);

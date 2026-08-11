@@ -77,7 +77,12 @@ function validateHitboxSet(weapon, label, hitboxes) {
   for (const [hitboxId, hitbox] of Object.entries(hitboxes)) {
     if (!['rectangle', 'circle', 'ellipse', 'sector'].includes(hitbox.shape)) errors.push(`[${weapon.weaponId}] ${label} hitbox '${hitboxId}' has an invalid shape`);
     if (!(hitbox.width > 0) || !(hitbox.height > 0)) errors.push(`[${weapon.weaponId}] ${label} hitbox '${hitboxId}' must have positive dimensions`);
-    if (hitbox.shape === 'sector' && !(hitbox.outerRadius >= 0)) errors.push(`[${weapon.weaponId}] ${label} sector hitbox '${hitboxId}' needs an outerRadius`);
+    if (hitbox.shape === 'sector') {
+      if (!(hitbox.outerRadius >= 0)) errors.push(`[${weapon.weaponId}] ${label} sector hitbox '${hitboxId}' needs an outerRadius`);
+      if (!Number.isFinite(hitbox.arcWidthRad) || hitbox.arcWidthRad < 0 || hitbox.arcWidthRad > Math.PI * 2) {
+        errors.push(`[${weapon.weaponId}] ${label} sector hitbox '${hitboxId}' needs an arcWidthRad between 0 and 2π`);
+      }
+    }
   }
 }
 for (const weapon of weapons) {

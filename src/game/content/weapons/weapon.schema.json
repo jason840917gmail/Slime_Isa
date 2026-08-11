@@ -123,6 +123,12 @@
       "type": "object",
       "additionalProperties": false,
       "required": ["shape", "width", "height", "offsetX", "offsetY"],
+      "allOf": [
+        {
+          "if": { "properties": { "shape": { "const": "sector" } }, "required": ["shape"] },
+          "then": { "required": ["outerRadius", "arcWidthRad"] }
+        }
+      ],
       "properties": {
         "shape": { "enum": ["rectangle", "circle", "ellipse", "sector"] },
         "width": { "type": "number", "exclusiveMinimum": 0 },

@@ -100,7 +100,6 @@ interface MutableWeaponScaling {
   damage?: MutableWeaponScalingGroup;
   cooldown?: MutableWeaponScalingGroup;
   knockback?: MutableWeaponScalingGroup;
-  reach?: MutableWeaponScalingGroup;
 }
 
 type MutableWeaponHitbox = { -readonly [Key in keyof WeaponHitboxDocument]: WeaponHitboxDocument[Key] };
