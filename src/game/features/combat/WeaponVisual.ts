@@ -14,13 +14,9 @@ type WeaponVisualAnchor = Phaser.GameObjects.GameObject & {
   readonly y: number;
 };
 
-/** Temporary weapon adapter; Task 9 will share this clock with combat tracks. */
+/** Weapon host adapter over the shared clock and layered visual renderer. */
 export class WeaponVisual implements LayeredAnimationHost {
-  private readonly clock = new AnimationClock({
-    onComplete: () => {
-      if (this.activeAnimationId !== 'idle') this.play('idle', true);
-    },
-  });
+  private readonly clock: AnimationClock;
   private readonly visual: LayeredAnimationVisual;
   private activeAnimationId: WeaponPlaybackAnimationId = 'idle';
   private destroyed = false;
@@ -29,11 +25,13 @@ export class WeaponVisual implements LayeredAnimationHost {
     private readonly scene: Phaser.Scene,
     private readonly anchor: WeaponVisualAnchor,
     private readonly definition: NormalizedWeaponDefinition,
+    clock: AnimationClock,
     private readonly options: {
       readonly getDepth: () => number;
       readonly getFacing: () => Phaser.Math.Vector2;
     },
   ) {
+    this.clock = clock;
     this.visual = new LayeredAnimationVisual(scene, this, this.clock, definition.animations.idle, {
       onDiagnostic: (message) => {
         if (import.meta.env.DEV) console.warn(`[weapon:${definition.weaponId}] ${message}`);
@@ -48,11 +46,11 @@ export class WeaponVisual implements LayeredAnimationHost {
     this.activeAnimationId = animationId;
     const animation = this.animation(animationId);
     this.visual.setAnimation(animation);
-    this.clock.start(animation, [], forceRestart);
+    void forceRestart;
   }
 
   update(deltaMs: number): void {
-    this.clock.update(deltaMs);
+    void deltaMs;
     this.visual.updateAnchor();
   }
 
@@ -86,7 +84,6 @@ export class WeaponVisual implements LayeredAnimationHost {
     this.anchor.off(Phaser.GameObjects.Events.DESTROY, this.handleAnchorDestroy);
     this.scene.events.off(Phaser.Scenes.Events.SHUTDOWN, this.handleSceneShutdown);
     this.visual.destroy();
-    this.clock.destroy();
   }
 
   private animation(animationId: WeaponPlaybackAnimationId) {
