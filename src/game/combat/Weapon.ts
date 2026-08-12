@@ -1,11 +1,10 @@
 import Phaser from 'phaser';
 import { getStats } from '../systems/PlayerStats';
-import { hitboxPool, type HitHandler, type HitboxActivationHandle, type HitboxConfig } from './Hitbox';
+import { hitboxPool, type HitboxActivationHandle, type HitboxConfig } from './Hitbox';
 import { resolveScaledValue } from './CombatScaling';
 import { LEGACY_WEAPON_SECTOR_ARC_RAD } from '../content/weapons/types';
-import type {
-  NormalizedLayeredAnimationDocument,
-} from '../shared/animation';
+import { AnimationClock, layeredTimelineFrameCount } from '../shared/animation';
+import type { DamageApplicationResult } from './DamageableTarget';
 import type {
   NormalizedWeaponDefinition,
   WeaponAttackDirection,
@@ -23,7 +22,7 @@ export interface WeaponContext {
   getPlayer: () => Phaser.Physics.Arcade.Sprite;
   getFacing: () => Phaser.Math.Vector2;
   getTargets: () => Phaser.GameObjects.Group | Phaser.Physics.Arcade.Group | Phaser.Physics.Arcade.StaticGroup | null;
-  hitHandler: HitHandler;
+  applyHit: (request: WeaponHitRequest) => DamageApplicationResult;
   onAttackStart: () => void;
   onAttackEnd: () => void;
   playCharacterAction: (actionId: string) => void;
@@ -39,6 +38,19 @@ interface AttackSnapshot {
   readonly finalDamage: number;
   readonly isCrit: boolean;
   readonly knockStrength: number;
+}
+
+export interface WeaponHitRequest {
+  readonly target: Phaser.GameObjects.GameObject;
+  readonly damage: number;
+  readonly knockX: number;
+  readonly knockY: number;
+  readonly knockStrength: number;
+  readonly weaponId: string;
+  readonly hitboxId: string;
+  readonly attackDirection: WeaponAttackDirection;
+  readonly attackVector: readonly [number, number];
+  readonly playbackId: number;
 }
 
 interface ActiveHitbox {
@@ -79,6 +91,7 @@ export class Weapon {
   private cooldownUntil = 0;
   private cooldownDurationMs: number;
   private trackRunner?: WeaponAttackTrackRunner;
+  readonly clock: AnimationClock;
   private readonly activeHitboxes = new Map<string, ActiveHitbox>();
   private attackSnapshot?: AttackSnapshot;
   private legacyEndTimer: Phaser.Time.TimerEvent | null = null;
@@ -89,6 +102,10 @@ export class Weapon {
     this.def = def;
     this.ctx = ctx;
     this.cooldownDurationMs = def.cooldownMs;
+    this.clock = new AnimationClock({
+      onEvent: (event, context) => this.ctx.onWeaponEvent?.({ ...event, playbackId: this.clock.state.playbackId, position: context.timelineFrame }),
+      onComplete: () => this.finishAttack(),
+    });
   }
 
   get id(): WeaponId {
@@ -153,42 +170,38 @@ export class Weapon {
 
     if (snapshot.isCrit) this.ctx.scene.cameras.main.shake(80, 0.006);
 
+    const firstHitboxId = Object.keys(directionalAttack.hitboxes)[0];
+    const track = directionalAttack.attackTrack ?? {
+      hitboxSpans: firstHitboxId ? [{ hitboxId: firstHitboxId, from: 0, through: Math.max(0, layeredTimelineFrameCount(directionalAttack.animation) - 1) }] : [],
+      events: [],
+    };
     this.trackRunner?.destroy();
-    this.trackRunner = directionalAttack.attackTrack
-      ? this.createTrackRunner(directionalAttack.animation, directionalAttack.attackTrack)
-      : undefined;
-    if (this.trackRunner) {
-      this.trackRunner.start(true);
-    } else {
-      this.activateAuthoredHitbox('primary', 'legacy:primary');
-      const animDuration = Math.max(this.def.hitboxDurationMs, 200);
-      this.legacyEndTimer = this.ctx.scene.time.delayedCall(animDuration, () => this.finishAttack());
-    }
+    this.trackRunner = this.createTrackRunner(track);
+    this.clock.start(directionalAttack.animation, track.events ?? [], true);
     return true;
   }
 
-  private createTrackRunner(
-    clip: NormalizedLayeredAnimationDocument,
-    track: WeaponAttackTrackDocument,
-  ): WeaponAttackTrackRunner {
-    return new WeaponAttackTrackRunner(clip, track, {
+  private createTrackRunner(track: WeaponAttackTrackDocument): WeaponAttackTrackRunner {
+    return new WeaponAttackTrackRunner(this.clock, track, {
       onHitboxActivated: (hitboxId, activationId) => this.activateAuthoredHitbox(hitboxId, activationId),
       onHitboxDeactivated: (hitboxId, activationId) => this.deactivateAuthoredHitbox(hitboxId, activationId),
-      onEvent: (event) => {
-        this.ctx.onWeaponEvent?.(event);
-      },
-      onComplete: () => this.finishAttack(),
     });
   }
 
   update(delta: number): void {
-    this.trackRunner?.update(delta);
+    this.clock.update(delta);
+  }
+
+  startIdle(): void {
+    this.ctx.playWeaponAnimation('idle', true);
+    this.clock.start(this.def.animations.idle, [], true);
   }
 
   cancel(): void {
     this.legacyEndTimer?.remove();
     this.legacyEndTimer = null;
     this.trackRunner?.cancel();
+    this.clock.stop();
     this.deactivateAllHitboxes();
     if (this.attacking) this.finishAttack();
   }
@@ -197,6 +210,7 @@ export class Weapon {
     if (this.destroyed) return;
     this.cancel();
     this.trackRunner?.destroy();
+    this.clock.destroy();
     this.destroyed = true;
   }
 
@@ -210,7 +224,9 @@ export class Weapon {
       this.ctx.scene,
       targets,
       this.toHitboxConfig(hitbox, snapshot),
-      this.ctx.hitHandler,
+      (target, damage, knockX, knockY, knockStrength) => {
+        this.ctx.applyHit({ target, damage, knockX, knockY, knockStrength, weaponId: this.def.weaponId, hitboxId, attackDirection: snapshot.attackDirection, attackVector: [snapshot.direction.x, snapshot.direction.y], playbackId: this.clock.state.playbackId });
+      },
     );
     this.activeHitboxes.set(hitboxId, { activationId, handle });
   }
@@ -235,6 +251,7 @@ export class Weapon {
     this.attacking = false;
     this.attackSnapshot = undefined;
     this.ctx.onAttackEnd();
+    if (!this.destroyed) this.startIdle();
   }
 
   private toHitboxConfig(hitbox: WeaponHitboxDocument, snapshot: AttackSnapshot): HitboxConfig {

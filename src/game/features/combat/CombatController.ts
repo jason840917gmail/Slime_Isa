@@ -203,15 +203,16 @@ export class CombatController {
       getPlayer: () => player,
       getFacing: this.ctx.getFacing,
       getTargets: () => this.targets,
-      hitHandler: (target, damage, knockX, knockY, knockStrength) => {
+      applyHit: ({ target, damage, knockX, knockY, knockStrength }) => {
         const finalDamage = Math.round(damage * this.combo.registerHit());
         if (target instanceof Enemy) {
-          const hpBefore = target.hp;
-          target.takeDamage(finalDamage, knockX, knockY, knockStrength);
-          this.applyLifeSteal(Math.max(0, hpBefore - target.hp));
+          const result = target.applyDamage({ amount: finalDamage, knockX, knockY, knockStrength });
+          this.applyLifeSteal(result.actualDamage);
+          return result;
         } else if (target instanceof TargetDummy) {
-          target.takeDamage(finalDamage, knockX, knockY, knockStrength);
+          return target.applyDamage({ amount: finalDamage, knockX, knockY, knockStrength });
         }
+        return { status: 'rejected', actualDamage: 0, defeated: false, reason: 'invalid' };
       },
       onAttackStart: () => {
         this.attacking = true;
@@ -222,16 +223,15 @@ export class CombatController {
         this.attacking = false;
         this.ctx.setActionLocked(false);
         this.ctx.playCharacterAction('idle');
-        this.weaponVisual?.play('idle', true);
       },
       playCharacterAction: this.ctx.playCharacterAction,
       playWeaponAnimation: (animationId, forceRestart) => this.weaponVisual?.play(animationId, forceRestart),
     });
-    const visual = new WeaponVisual(scene, player, weapon.def, {
+    const visual = new WeaponVisual(scene, player, weapon.def, weapon.clock, {
       getDepth: () => player.depth + 0.01,
       getFacing: this.ctx.getFacing,
     });
-    visual.play('idle', true);
+    weapon.startIdle();
     return { weapon, visual };
   }
 
