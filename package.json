@@ -18,6 +18,8 @@
     "maps:bake": "node scripts/bake-production-maps.mjs",
     "test:characters": "node --test scripts/tests/character-studio/*.test.mjs",
     "test:character-studio": "node --test scripts/tests/character-studio/*.test.mjs",
+    "test:weapon-studio": "node --test scripts/tests/weapon-studio/*.test.mjs",
+    "test:animation": "node --test scripts/tests/shared-animation/*.test.mjs",
     "test:depth": "node scripts/test-depth.mjs",
     "build": "pnpm typecheck && vite build",
     "check": "pnpm assets:check && pnpm visuals:check && pnpm characters:check && pnpm projectiles:check && pnpm weapons:check && pnpm enemies:check && pnpm objects:check && pnpm maps:check && pnpm test:depth && pnpm typecheck && pnpm build",
