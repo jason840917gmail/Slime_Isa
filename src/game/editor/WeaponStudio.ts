@@ -32,6 +32,7 @@ import { ensureStudioModeTabs } from './StudioModeTabs';
 import { createAnimationTimelineView, formatAnimationTimelineSeconds, previewTargetAtKeyframe, renderTimelineHoldControls, renderTimelineKeyframeTimingLabels, renderTimelineResizeHandle, toggleTimelineSelection, type AnimationTimelineKeyframeView } from './AnimationTimelineView';
 import { renderAnimationTimelinePanel, renderAnimationTimelineRuler } from './AnimationTimelinePanel';
 import { TimelineHoldResizeController } from './AnimationTimelineResize';
+import { mountLayeredWeaponStudio } from './LayeredWeaponStudio';
 import {
   resolveWeaponHitboxPreview,
   resolveWeaponHitboxPreviewGeometry,
@@ -912,7 +913,7 @@ async function loadAssets(): Promise<CharacterStudioAssetCatalog> {
   return payload.data;
 }
 
-export function mountWeaponStudio(container: HTMLDivElement): () => void {
+export function mountLegacyWeaponStudio(container: HTMLDivElement): () => void {
   container.classList.add('is-character-studio-host');
   const returnEditor = new URLSearchParams(window.location.search).get('editor') ?? 'meadow-crossing';
   let state: WeaponStudioState = { weapons: [], selectedId: '', selectedAnimation: 'attack', selectedAttackDirection: 'right', selectedHitboxId: 'primary', selectedAnimationPositions: [0], transformTool: 'move', onionSkin: false, selectedInspectorTab: 'visual', selectedPreviewFrame: 0, selectedCharacterId: selectedCharacter()?.characterId ?? '', previewStep: 0, previewPlaying: false, dirty: false, saving: false, assetShelfOpen: false, sourceTilePickerOpen: false, selectedPickerFrames: [], importing: false, importForm: { assetId: 'weapon.player.new', frameWidth: '16', frameHeight: '16', populatedCount: '' } };
@@ -1814,4 +1815,9 @@ export function mountWeaponStudio(container: HTMLDivElement): () => void {
     resizeController?.dispose();
     container.classList.remove('is-character-studio-host');
   };
+}
+
+/** Active studio mount. The legacy editor remains exported only for migration diagnostics. */
+export function mountWeaponStudio(container: HTMLDivElement): () => void {
+  return mountLayeredWeaponStudio(container);
 }

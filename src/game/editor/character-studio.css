@@ -2797,6 +2797,216 @@
   cursor: crosshair;
 }
 
+/* Layered Weapon Studio: one shared seconds clock with stacked visual lanes. */
+#app.is-character-studio-host .layered-weapon-studio .studio-layout {
+  grid-template-columns: 212px minmax(0, 1fr) 330px;
+}
+
+#app.is-character-studio-host .layered-weapon-studio .studio-workbench {
+  padding: 16px 18px 36px;
+}
+
+#app.is-character-studio-host .layered-scope-strip {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px 14px;
+  margin: 10px 0;
+  border: 1px solid var(--studio-border);
+  border-radius: 6px;
+  background: rgba(8, 15, 28, 0.86);
+}
+
+#app.is-character-studio-host .layered-scope-strip .studio-clip-tabs {
+  min-width: 0;
+  padding: 8px 9px 0;
+}
+
+#app.is-character-studio-host .layered-direction-tabs {
+  display: flex;
+  grid-column: 1;
+  gap: 5px;
+  min-width: 0;
+  padding: 0 9px 8px;
+  overflow-x: auto;
+}
+
+#app.is-character-studio-host .layered-clock-controls {
+  display: flex;
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-items: center;
+  gap: 9px;
+  padding-right: 10px;
+}
+
+#app.is-character-studio-host .layered-clock-controls label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--studio-muted);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+#app.is-character-studio-host .layered-clock-controls input {
+  width: 60px;
+  padding: 6px;
+  border: 1px solid var(--studio-border);
+  border-radius: 3px;
+  color: var(--studio-ink);
+  background: rgba(2, 7, 15, 0.74);
+  font-variant-numeric: tabular-nums;
+}
+
+#app.is-character-studio-host .layered-timeline-panel {
+  position: relative;
+  overflow: hidden;
+}
+
+#app.is-character-studio-host .layered-timeline-panel .studio-timeline {
+  --timeline-label-width: 96px;
+  position: relative;
+  padding: 8px 8px 12px;
+}
+
+#app.is-character-studio-host .layered-timeline-lane {
+  grid-template-columns: var(--timeline-label-width) minmax(0, 1fr);
+  min-width: calc(var(--timeline-label-width) + var(--timeline-frame-count) * 58px);
+  min-height: 86px;
+}
+
+#app.is-character-studio-host .layered-timeline-lane-label {
+  position: sticky;
+  left: 0;
+  z-index: 7;
+  padding: 10px 8px;
+  background: rgba(3, 8, 16, 0.98);
+}
+
+#app.is-character-studio-host .layered-timeline-blocks {
+  grid-template-columns: repeat(var(--timeline-frame-count), minmax(58px, 1fr));
+  min-width: calc(var(--timeline-frame-count) * 58px);
+}
+
+#app.is-character-studio-host .layered-timeline-block {
+  min-height: 80px;
+  overflow: visible;
+}
+
+#app.is-character-studio-host .layered-timeline-block .timeline-frame-select {
+  min-height: 74px;
+}
+
+#app.is-character-studio-host .layered-timeline-block .timeline-tile-preview,
+#app.is-character-studio-host .projectile-frame-option .projectile-frame-preview {
+  display: block;
+  width: min(54px, calc(var(--frame-w) * 0.45));
+  height: min(54px, calc(var(--frame-h) * 0.45));
+  background-image: var(--sheet-url);
+  background-repeat: no-repeat;
+  background-size: calc(var(--sheet-w) * 0.45) calc(var(--sheet-h) * 0.45);
+  background-position: calc(var(--frame-x) * -0.45) calc(var(--frame-y) * -0.45);
+  image-rendering: pixelated;
+}
+
+#app.is-character-studio-host .layered-frame-missing {
+  color: var(--studio-red);
+  font-size: 8px;
+}
+
+#app.is-character-studio-host .layered-timeline-block .timeline-frame-hold {
+  position: absolute;
+  right: 6px;
+  top: 5px;
+}
+
+#app.is-character-studio-host .layered-timeline-block .timeline-frame-hold-controls {
+  position: absolute;
+  right: 8px;
+  bottom: 5px;
+  z-index: 4;
+}
+
+#app.is-character-studio-host .layered-timeline-block .timeline-frame-hold-controls button,
+#app.is-character-studio-host .layered-block-delete {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 1px solid var(--studio-border);
+  color: var(--studio-cyan);
+  background: rgba(2, 7, 15, 0.9);
+  cursor: pointer;
+}
+
+#app.is-character-studio-host .layered-block-delete {
+  position: absolute;
+  z-index: 4;
+  right: 48px;
+  bottom: 5px;
+  color: var(--studio-red);
+}
+
+#app.is-character-studio-host .layered-timeline-block .timeline-frame-resize-handle {
+  right: -5px;
+  z-index: 8;
+}
+
+#app.is-character-studio-host .layered-timeline-playhead {
+  top: 8px;
+  bottom: 12px;
+  left: calc(8px + var(--timeline-label-width) + (100% - 16px - var(--timeline-label-width)) * (var(--timeline-playhead) - 1) / var(--timeline-frame-count));
+}
+
+#app.is-character-studio-host .layered-host-row {
+  grid-template-columns: var(--timeline-label-width) repeat(var(--timeline-frame-count), minmax(58px, 1fr));
+  min-width: calc(var(--timeline-label-width) + var(--timeline-frame-count) * 58px);
+}
+
+#app.is-character-studio-host .layered-track-label {
+  width: var(--timeline-label-width);
+  padding: 3px 8px;
+  border: 0;
+  text-align: left;
+  cursor: pointer;
+}
+
+#app.is-character-studio-host .layered-track-label.is-selected {
+  color: var(--studio-amber);
+}
+
+#app.is-character-studio-host .layered-preview .stage-weapon-sprite.is-selected-layer {
+  filter: drop-shadow(0 0 15px rgba(255, 200, 107, 0.5));
+}
+
+#app.is-character-studio-host .layered-inspector-tabs {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+#app.is-character-studio-host .layered-hitbox-tabs,
+#app.is-character-studio-host .layered-layer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+#app.is-character-studio-host .layered-hitbox-editor {
+  display: grid;
+  gap: 12px;
+}
+
+#app.is-character-studio-host .layered-tile-picker-backdrop {
+  z-index: 70;
+}
+
+@media (max-width: 1180px) {
+  #app.is-character-studio-host .layered-weapon-studio .studio-layout {
+    grid-template-columns: 190px minmax(0, 1fr) 300px;
+  }
+}
+
 #app.is-character-studio-host .weapon-onion-sprite {
   z-index: 2;
   opacity: 0.24;
