@@ -1,6 +1,7 @@
 ﻿import Phaser from 'phaser';
 
 import type { AssetId } from '../infrastructure/assets/manifest';
+import { acceptedDamage, rejectedDamage, type DamageApplicationRequest, type DamageApplicationResult } from '../combat/DamageableTarget';
 import { getAsset } from '../infrastructure/assets/manifest';
 import { getVisualClip, getVisualSet, type VisualSetId } from '../content/visuals/VisualCatalog';
 import { animationCycleDurationMs } from '../shared/animationLoop';
@@ -139,8 +140,11 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.playVisual('idle');
   }
 
-  takeDamage(amount: number, knockX: number, knockY: number, knockStrength: number): void {
-    if (this.dead) return;
+  applyDamage(request: DamageApplicationRequest): DamageApplicationResult {
+    const { amount, knockX, knockY, knockStrength } = request;
+    if (this.dead) return rejectedDamage('dead');
+    if (!Number.isFinite(amount) || amount < 0) return rejectedDamage('invalid');
+    const hpBefore = this.hp;
     this.cancelAttack();
     const damageResult = applyEnemyDamage(this.hp, this.maxHp, amount);
     this.hp = damageResult.hp;
@@ -159,7 +163,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     if (damageResult.defeated) {
       this.die();
-      return;
+      return acceptedDamage(hpBefore, this.hp);
     }
 
     const finalStrength = (knockStrength + 120) * (1 - this.config.ai.knockbackResist);
@@ -170,6 +174,11 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       this.scene.time.now + hitStunDuration,
     );
     this.playVisual('knockback', true);
+    return acceptedDamage(hpBefore, this.hp);
+  }
+
+  takeDamage(amount: number, knockX: number, knockY: number, knockStrength: number): DamageApplicationResult {
+    return this.applyDamage({ amount, knockX, knockY, knockStrength });
   }
 
   preUpdate(time: number, delta: number): void {

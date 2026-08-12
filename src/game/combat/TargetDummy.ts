@@ -1,6 +1,7 @@
 ﻿import Phaser from 'phaser';
 import { floatingText } from '../ui/FloatingText';
 import { resolveBodyBottom, resolveWorldDepth } from '../presentation/WorldDepth';
+import { acceptedDamage, rejectedDamage, type DamageApplicationRequest, type DamageApplicationResult } from './DamageableTarget';
 
 /**
  * Target dummy for combat practice. Has HP, takes damage, shows a
@@ -41,8 +42,11 @@ export class TargetDummy extends Phaser.Physics.Arcade.Sprite {
     this.drawHealthBar();
   }
 
-  takeDamage(amount: number, knockX: number, knockY: number, knockStrength: number): void {
-    if (this.dead) return;
+  applyDamage(request: DamageApplicationRequest): DamageApplicationResult {
+    const { amount, knockX, knockY, knockStrength } = request;
+    if (this.dead) return rejectedDamage('dead');
+    if (!Number.isFinite(amount) || amount < 0) return rejectedDamage('invalid');
+    const hpBefore = this.hp;
 
     this.hp = Math.max(0, this.hp - amount);
     this.hitFlashUntil = this.scene.time.now + 120;
@@ -59,6 +63,11 @@ export class TargetDummy extends Phaser.Physics.Arcade.Sprite {
     if (this.hp <= 0) {
       this.die();
     }
+    return acceptedDamage(hpBefore, this.hp);
+  }
+
+  takeDamage(amount: number, knockX: number, knockY: number, knockStrength: number): DamageApplicationResult {
+    return this.applyDamage({ amount, knockX, knockY, knockStrength });
   }
 
   private die(): void {
