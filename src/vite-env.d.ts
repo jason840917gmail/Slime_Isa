@@ -25,3 +25,7 @@ declare module 'virtual-character-content' {
   export const characterPackages: ReadonlyArray<{ readonly characterId: string; readonly character: CharacterStudioCharacter; readonly visualSet: CharacterStudioVisualSet }>;
   export const visualSets: readonly CharacterStudioVisualSet[];
 }
+
+declare module 'virtual-effect-content' {
+  export const effectDefinitions: readonly unknown[];
+}

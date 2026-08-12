@@ -12,6 +12,7 @@
     "characters:check": "node scripts/check-characters.mjs",
     "projectiles:check": "node scripts/check-projectiles.mjs",
     "weapons:check": "node scripts/check-weapons.mjs",
+    "effects:check": "node scripts/check-effects.mjs",
     "enemies:check": "node scripts/check-enemies.mjs",
     "objects:check": "node scripts/check-objects.mjs",
     "maps:check": "node scripts/check-maps.mjs",
@@ -22,7 +23,7 @@
     "test:animation": "node --test scripts/tests/shared-animation/*.test.mjs",
     "test:depth": "node scripts/test-depth.mjs",
     "build": "pnpm typecheck && vite build",
-    "check": "pnpm assets:check && pnpm visuals:check && pnpm characters:check && pnpm projectiles:check && pnpm weapons:check && pnpm enemies:check && pnpm objects:check && pnpm maps:check && pnpm test:depth && pnpm typecheck && pnpm build",
+    "check": "pnpm assets:check && pnpm visuals:check && pnpm characters:check && pnpm projectiles:check && pnpm effects:check && pnpm weapons:check && pnpm enemies:check && pnpm objects:check && pnpm maps:check && pnpm test:depth && pnpm typecheck && pnpm build",
     "preview": "vite preview --port 3000"
   },
   "dependencies": {

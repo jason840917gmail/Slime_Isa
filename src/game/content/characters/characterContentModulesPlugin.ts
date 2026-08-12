@@ -17,6 +17,8 @@ import type { ProjectileDefinition } from '../projectiles/types';
 import { validateProjectileDefinition } from '../projectiles/validation';
 import type { AuthoredWeaponDefinition } from '../weapons/types';
 import { validateWeaponDefinition } from '../weapons/validation';
+import type { EffectDefinition } from '../effects/types';
+import { validateEffectDefinition } from '../effects/validation';
 
 const VIRTUAL_ID = 'virtual-character-content';
 const RESOLVED_VIRTUAL_ID = `\0${VIRTUAL_ID}`;
@@ -24,6 +26,8 @@ const PROJECTILE_VIRTUAL_ID = 'virtual-projectile-content';
 const RESOLVED_PROJECTILE_VIRTUAL_ID = `\0${PROJECTILE_VIRTUAL_ID}`;
 const WEAPON_VIRTUAL_ID = 'virtual-weapon-content';
 const RESOLVED_WEAPON_VIRTUAL_ID = `\0${WEAPON_VIRTUAL_ID}`;
+const EFFECT_VIRTUAL_ID = 'virtual-effect-content';
+const RESOLVED_EFFECT_VIRTUAL_ID = `\0${EFFECT_VIRTUAL_ID}`;
 const ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const ASSET_ID_PATTERN = /^[a-z0-9]+(?:\.[a-z0-9-]+)+$/;
 const MAX_BODY_BYTES = 2 * 1024 * 1024;
@@ -73,6 +77,7 @@ export interface CharacterContentRootOptions {
   readonly visualRoot?: string;
   readonly projectileRoot?: string;
   readonly weaponRoot?: string;
+  readonly effectRoot?: string;
   readonly assetRoot?: string;
   readonly assetManifestPath?: string;
 }
@@ -161,7 +166,7 @@ interface CharacterCreationTransaction {
   readonly characterId: string;
 }
 
-async function findFiles(root: string, fileName: 'character.json' | 'visual-set.json'): Promise<string[]> {
+async function findFiles(root: string, fileName: 'character.json' | 'visual-set.json' | 'effect.json'): Promise<string[]> {
   const files: string[] = [];
   for (const entry of await fs.readdir(root, { withFileTypes: true }).catch((error: unknown) => {
     if (error instanceof Error && 'code' in error && (error as NodeJS.ErrnoException).code === 'ENOENT') return [];
@@ -409,6 +414,68 @@ async function readWeapon(root: string, weaponId: string): Promise<AuthoredWeapo
 
 function weaponRevision(weapon: AuthoredWeaponDefinition): string {
   return createHash('sha256').update(canonicalValue(weapon)).digest('hex');
+}
+
+async function findEffectFiles(root: string): Promise<string[]> {
+  try { return await findFiles(root, 'effect.json'); } catch { return []; }
+}
+
+function effectRepositoryPath(root: string, effectId: string): string {
+  if (!ID_PATTERN.test(effectId)) throw new Error('Effect ID must be lowercase kebab-case');
+  const target = path.resolve(root, effectId);
+  if (!pathIsInside(root, target)) throw new Error('Effect path escapes the repository root');
+  return target;
+}
+
+function effectRevision(effect: EffectDefinition): string {
+  return createHash('sha256').update(canonicalValue(effect)).digest('hex');
+}
+
+async function readEffect(root: string, effectId: string): Promise<EffectDefinition> {
+  return await readJson(path.join(effectRepositoryPath(root, effectId), 'effect.json')) as EffectDefinition;
+}
+
+async function effectCatalogHandler(root: string, response: ServerResponse): Promise<void> {
+  const effects: Array<EffectDefinition & { readonly revision: string }> = [];
+  for (const file of await findEffectFiles(root)) {
+    const effect = await readJson(file) as EffectDefinition;
+    const issues = validateEffectDefinition(effect);
+    if (issues.length > 0) throw new Error(`${path.basename(path.dirname(file))}: ${issues.join('; ')}`);
+    effects.push({ ...effect, revision: effectRevision(effect) });
+  }
+  effects.sort((left, right) => left.effectId.localeCompare(right.effectId));
+  jsonResponse(response, 200, ok({ version: 1, revision: createHash('sha256').update(canonicalValue(effects)).digest('hex'), effects }));
+}
+
+async function effectPackageHandler(
+  root: string,
+  request: IncomingMessage,
+  response: ServerResponse,
+  server: ViteDevServer,
+  operation: 'create' | 'update',
+): Promise<void> {
+  const payload = await requestBody(request);
+  const effect = payload.effect as EffectDefinition | undefined;
+  const issues = validateEffectDefinition(effect);
+  if (issues.length > 0 || !effect) { jsonResponse(response, 400, failure('validation', 'Effect definition is invalid', issues.map((message) => ({ path: message.split(':')[0], message })))); return; }
+  const target = effectRepositoryPath(root, effect.effectId);
+  if (operation === 'update') {
+    let current: EffectDefinition;
+    try { current = await readEffect(root, effect.effectId); } catch { jsonResponse(response, 404, failure('not-found', `Effect '${effect.effectId}' was not found`)); return; }
+    if (payload.expectedRevision !== effectRevision(current)) { jsonResponse(response, 409, failure('conflict', 'The effect changed on disk.', undefined, effectRevision(current))); return; }
+  } else {
+    try { await fs.access(target); jsonResponse(response, 409, failure('conflict', `Effect '${effect.effectId}' already exists`)); return; } catch { /* expected */ }
+  }
+  await fs.mkdir(target, { recursive: true });
+  const temporary = path.join(target, `effect.${process.pid}.${Date.now()}.tmp`);
+  try {
+    await fs.writeFile(temporary, `${JSON.stringify(effect, null, 2)}\n`, 'utf8');
+    await fs.rename(temporary, path.join(target, 'effect.json'));
+  } finally {
+    await fs.rm(temporary, { force: true }).catch(() => undefined);
+  }
+  invalidateCatalog(server);
+  jsonResponse(response, operation === 'create' ? 201 : 200, ok({ effect, revision: effectRevision(effect), reloadRequired: true }));
 }
 
 async function weaponCatalogHandler(root: string, response: ServerResponse): Promise<void> {
@@ -1129,6 +1196,8 @@ function invalidateCatalog(server: ViteDevServer): void {
   if (projectileModule) server.moduleGraph.invalidateModule(projectileModule);
   const weaponModule = server.moduleGraph.getModuleById(RESOLVED_WEAPON_VIRTUAL_ID);
   if (weaponModule) server.moduleGraph.invalidateModule(weaponModule);
+  const effectModule = server.moduleGraph.getModuleById(RESOLVED_EFFECT_VIRTUAL_ID);
+  if (effectModule) server.moduleGraph.invalidateModule(effectModule);
 }
 
 async function packageHandler(
@@ -1221,6 +1290,7 @@ export function characterContentModulesPlugin(options: CharacterContentRootOptio
     visualRoot: path.resolve(options.visualRoot ?? path.join(process.cwd(), 'src/game/content/visuals')),
     projectileRoot: path.resolve(options.projectileRoot ?? path.join(process.cwd(), 'src/game/content/projectiles')),
     weaponRoot: path.resolve(options.weaponRoot ?? path.join(process.cwd(), 'src/game/content/weapons')),
+    effectRoot: path.resolve(options.effectRoot ?? path.join(process.cwd(), 'src/game/content/effects')),
     assetRoot,
     assetManifestPath,
   };
@@ -1231,6 +1301,7 @@ export function characterContentModulesPlugin(options: CharacterContentRootOptio
       if (id === VIRTUAL_ID) return RESOLVED_VIRTUAL_ID;
       if (id === PROJECTILE_VIRTUAL_ID) return RESOLVED_PROJECTILE_VIRTUAL_ID;
       if (id === WEAPON_VIRTUAL_ID) return RESOLVED_WEAPON_VIRTUAL_ID;
+      if (id === EFFECT_VIRTUAL_ID) return RESOLVED_EFFECT_VIRTUAL_ID;
       return undefined;
     },
     async load(id) {
@@ -1245,6 +1316,12 @@ export function characterContentModulesPlugin(options: CharacterContentRootOptio
         const imports = weaponFiles.map((file, index) => `import weapon${index} from ${JSON.stringify(file)};`).join('\n');
         const definitions = weaponFiles.map((_, index) => `weapon${index}`).join(',');
         return `${imports}\nexport const weaponDefinitions = [${definitions}];`;
+      }
+      if (id === RESOLVED_EFFECT_VIRTUAL_ID) {
+        const effectFiles = await findEffectFiles(roots.effectRoot);
+        const imports = effectFiles.map((file, index) => `import effect${index} from ${JSON.stringify(file)};`).join('\n');
+        const definitions = effectFiles.map((_, index) => `effect${index}`).join(',');
+        return `${imports}\nexport const effectDefinitions = [${definitions}];`;
       }
       if (id !== RESOLVED_VIRTUAL_ID) return undefined;
       const files = await discover(roots);
@@ -1336,6 +1413,16 @@ export function characterContentModulesPlugin(options: CharacterContentRootOptio
         });
         void next;
       });
+      server.middlewares.use('/__character-studio/effect/create', (request, response, next) => {
+        if (request.method !== 'POST') { jsonResponse(response, 405, failure('invalid-request', 'POST required')); return; }
+        void effectPackageHandler(roots.effectRoot, request, response, server, 'create').catch((error: unknown) => jsonResponse(response, 400, failure('effect-creation', error instanceof Error ? error.message : String(error))));
+        void next;
+      });
+      server.middlewares.use('/__character-studio/effect/update', (request, response, next) => {
+        if (request.method !== 'POST') { jsonResponse(response, 405, failure('invalid-request', 'POST required')); return; }
+        void effectPackageHandler(roots.effectRoot, request, response, server, 'update').catch((error: unknown) => jsonResponse(response, 400, failure('effect-update', error instanceof Error ? error.message : String(error))));
+        void next;
+      });
       server.middlewares.use((request, response, next) => {
         const requestPath = request.url?.split('?')[0];
         if (requestPath === '/__character-studio/assets') {
@@ -1357,6 +1444,11 @@ export function characterContentModulesPlugin(options: CharacterContentRootOptio
           void weaponCatalogHandler(roots.weaponRoot, response).catch((error: unknown) => {
             jsonResponse(response, 500, failure('weapon-catalog', error instanceof Error ? error.message : String(error)));
           });
+          return;
+        }
+        if (requestPath === '/__character-studio/effects') {
+          if (request.method !== 'GET') { jsonResponse(response, 405, failure('invalid-request', 'GET required')); return; }
+          void effectCatalogHandler(roots.effectRoot, response).catch((error: unknown) => jsonResponse(response, 500, failure('effect-catalog', error instanceof Error ? error.message : String(error))));
           return;
         }
         const match = requestPath?.match(/^\/__character-studio\/package\/([^/]+)$/);
