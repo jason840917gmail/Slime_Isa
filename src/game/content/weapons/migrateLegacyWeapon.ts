@@ -103,7 +103,7 @@ export function migrateLegacyAnimation(
 
   return {
     version: 2,
-    durationSeconds: normalized.durationSeconds,
+    durationSeconds: frameCount / normalized.framesPerSecond,
     framesPerSecond: normalized.framesPerSecond,
     loop: forceOneShot ? false : normalized.loop,
     loopMode: normalized.loopMode,
