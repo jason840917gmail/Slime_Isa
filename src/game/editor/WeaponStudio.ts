@@ -587,7 +587,14 @@ function renderWeaponTrackEditor(weapon: WeaponDefinition, direction: WeaponAtta
   const preview = resolveWeaponHitboxPreview(weapon, direction);
   const hitboxes = preview.attack.hitboxes;
   const track = preview.track;
-  const timelineView = createAnimationTimelineView(preview.attack.animation);
+  const timelineView = createAnimationTimelineView({
+    frames: [0],
+    keyframeTimes: [0],
+    durationSeconds: preview.attack.animation.durationSeconds,
+    framesPerSecond: preview.attack.animation.framesPerSecond,
+    loop: false,
+    loopMode: 'wrap',
+  });
   const timelineFrames = timelineView.timelineFrames;
   const timeline = Array.from({ length: timelineFrames }, (_, index) => index);
   const cells = (hitboxId: string): string => timeline.map((index) => `<button type="button" class="timeline-cell${track.hitboxSpans.some((span) => span.hitboxId === hitboxId && span.from <= index && index <= span.through) ? ' is-hot' : ''}" data-weapon-span-toggle="${escapeHtml(hitboxId)}" data-weapon-span-frame="${index}" aria-label="${escapeHtml(hitboxId)} timeline frame ${index}" ${locked ? 'disabled' : ''}></button>`).join('');
@@ -1585,7 +1592,7 @@ export function mountWeaponStudio(container: HTMLDivElement): () => void {
       const draft = state.draft;
       const source = state.assets?.assets.find((entry) => entry.assetId === draft.assetId && isWeaponAsset(entry));
       const animation = selectedWeaponAnimation(draft, assetInfo(source), state);
-      const timelineFrames = timelineFrameCount(animation);
+  const timelineFrames = timelineFrameCount(normalizedWeaponAnimation(animation));
       const nextStep = action === 'previous-weapon-frame'
         ? Math.max(0, state.previewStep - 1)
         : Math.min(Math.max(0, timelineFrames - 1), state.previewStep + 1);

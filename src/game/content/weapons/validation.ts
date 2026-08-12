@@ -1,5 +1,13 @@
-import type { WeaponAnimationDocument, WeaponDefinition, WeaponHitboxDocument, WeaponAttackTrackDocument } from './types';
-import { timelineFrameCount } from '../../shared/animation';
+import type {
+  AuthoredWeaponDefinition,
+  LayeredWeaponDefinition,
+  LegacyWeaponDefinition,
+  WeaponAnimationDocument,
+  WeaponDefinition,
+  WeaponHitboxDocument,
+  WeaponAttackTrackDocument,
+} from './types';
+import { layeredTimelineFrameCount, timelineFrameCount, validateLayeredAnimationDocument } from '../../shared/animation';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -160,13 +168,30 @@ function validateAttackTrack(
 }
 
 export function validateWeaponDefinition(value: unknown): string[] {
-  const issues: string[] = [];
   if (value === null || typeof value !== 'object' || Array.isArray(value)) return ['weapon: must be an object'];
-  const weapon = value as Partial<WeaponDefinition>;
-  if (weapon.version !== 1) issues.push('weapon.version: must be 1');
+  const authored = value as Partial<AuthoredWeaponDefinition>;
+  if (authored.version !== 1 && authored.version !== 2) return ['weapon.version: must be 1 or 2'];
+  return authored.version === 1
+    ? validateLegacyWeaponDefinition(authored as LegacyWeaponDefinition)
+    : validateLayeredWeaponDefinition(authored as LayeredWeaponDefinition);
+}
+
+function validateCommonWeaponFields(weapon: Partial<AuthoredWeaponDefinition>, issues: string[]): void {
   if (typeof weapon.weaponId !== 'string' || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(weapon.weaponId)) issues.push('weapon.weaponId: must be a lowercase kebab-case ID');
   if (typeof weapon.displayName !== 'string' || weapon.displayName.trim().length === 0 || weapon.displayName.length > 80) issues.push('weapon.displayName: must be between 1 and 80 characters');
   if (weapon.category !== 'melee' && weapon.category !== 'ranged') issues.push("weapon.category: must be 'melee' or 'ranged'");
+  for (const field of ['baseDamage', 'cooldownMs', 'hitboxWidth', 'hitboxHeight', 'hitboxOffset', 'hitboxDurationMs', 'knockStrength'] as const) {
+    if (typeof weapon[field] !== 'number' || !Number.isFinite(weapon[field]) || weapon[field] < 0) issues.push(`weapon.${field}: must be zero or greater`);
+  }
+  if (typeof weapon.vfxColor !== 'number' || !Number.isInteger(weapon.vfxColor) || weapon.vfxColor < 0) issues.push('weapon.vfxColor: must be a non-negative integer');
+  if (typeof weapon.unlockLevel !== 'number' || !Number.isInteger(weapon.unlockLevel) || weapon.unlockLevel < 1) issues.push('weapon.unlockLevel: must be a positive integer');
+  if (typeof weapon.iconKey !== 'string') issues.push('weapon.iconKey: must be a string');
+  if (typeof weapon.description !== 'string') issues.push('weapon.description: must be a string');
+}
+
+function validateLegacyWeaponDefinition(weapon: LegacyWeaponDefinition): string[] {
+  const issues: string[] = [];
+  validateCommonWeaponFields(weapon, issues);
   const hasActionId = typeof weapon.characterActionId === 'string' && weapon.characterActionId.trim().length > 0;
   const hasLegacyAnimation = typeof weapon.animKey === 'string' && weapon.animKey.length > 0;
   if (!hasActionId && !hasLegacyAnimation) issues.push('weapon.characterActionId: must be provided (or legacy weapon.animKey must be non-empty)');
@@ -202,12 +227,93 @@ export function validateWeaponDefinition(value: unknown): string[] {
     const sourceOffset = weapon.visual.sourceOffset;
     if (!Array.isArray(sourceOffset) || sourceOffset.length !== 2 || sourceOffset.some((entry) => typeof entry !== 'number' || !Number.isInteger(entry))) issues.push('weapon.visual.sourceOffset: must contain exactly two integers');
   }
-  for (const field of ['baseDamage', 'cooldownMs', 'hitboxWidth', 'hitboxHeight', 'hitboxOffset', 'hitboxDurationMs', 'knockStrength'] as const) {
-    if (typeof weapon[field] !== 'number' || !Number.isFinite(weapon[field]) || weapon[field] < 0) issues.push(`weapon.${field}: must be zero or greater`);
+  return issues;
+}
+
+function validateLayeredTrack(
+  value: unknown,
+  path: string,
+  timelineFrames: number,
+  hitboxes: Readonly<Record<string, WeaponHitboxDocument>>,
+  issues: string[],
+): void {
+  if (!isRecord(value)) {
+    issues.push(`${path}: must be an object`);
+    return;
   }
-  if (typeof weapon.vfxColor !== 'number' || !Number.isInteger(weapon.vfxColor) || weapon.vfxColor < 0) issues.push('weapon.vfxColor: must be a non-negative integer');
-  if (typeof weapon.unlockLevel !== 'number' || !Number.isInteger(weapon.unlockLevel) || weapon.unlockLevel < 1) issues.push('weapon.unlockLevel: must be a positive integer');
-  if (typeof weapon.iconKey !== 'string') issues.push('weapon.iconKey: must be a string');
-  if (typeof weapon.description !== 'string') issues.push('weapon.description: must be a string');
+  const spans = value.hitboxSpans;
+  if (!Array.isArray(spans)) issues.push(`${path}.hitboxSpans: must be an array`);
+  else {
+    const byHitbox = new Map<string, Array<{ readonly from: number; readonly through: number }>>();
+    spans.forEach((span, index) => {
+      const spanPath = `${path}.hitboxSpans[${index}]`;
+      if (!isRecord(span)) { issues.push(`${spanPath}: must be an object`); return; }
+      const hitboxId = span.hitboxId;
+      const from = typeof span.from === 'number' ? span.from : Number.NaN;
+      const through = typeof span.through === 'number' ? span.through : Number.NaN;
+      if (typeof hitboxId !== 'string' || !(hitboxId in hitboxes)) issues.push(`${spanPath}.hitboxId: must reference a directional hitbox`);
+      if (!Number.isInteger(from) || from < 0) issues.push(`${spanPath}.from: must be a non-negative integer`);
+      if (!Number.isInteger(through) || through < from || through >= timelineFrames) issues.push(`${spanPath}.through: must be inside the attack timeline and >= from`);
+      if (typeof hitboxId === 'string' && Number.isInteger(from) && Number.isInteger(through)) {
+        const previous = byHitbox.get(hitboxId) ?? [];
+        previous.push({ from, through });
+        byHitbox.set(hitboxId, previous);
+      }
+    });
+    for (const [hitboxId, hitboxSpans] of byHitbox) {
+      hitboxSpans.sort((left, right) => left.from - right.from);
+      for (let index = 1; index < hitboxSpans.length; index += 1) {
+        if (hitboxSpans[index].from <= hitboxSpans[index - 1].through) issues.push(`${path}.hitboxSpans: '${hitboxId}' has overlapping windows`);
+      }
+    }
+  }
+  if (value.events !== undefined) {
+    if (!Array.isArray(value.events)) issues.push(`${path}.events: must be an array`);
+    else value.events.forEach((event, index) => {
+      const eventPath = `${path}.events[${index}]`;
+      if (!isRecord(event)) { issues.push(`${eventPath}: must be an object`); return; }
+      if (!Number.isInteger(event.at) || (event.at as number) < 0 || (event.at as number) >= timelineFrames) issues.push(`${eventPath}.at: must be inside the attack timeline`);
+      if (typeof event.eventId !== 'string' || !event.eventId.trim()) issues.push(`${eventPath}.eventId: must be non-empty`);
+      if (event.eventId === 'weapon.impact') issues.push(`${eventPath}.eventId: legacy weapon.impact events are forbidden in version 2`);
+    });
+  }
+}
+
+function validateLayeredWeaponDefinition(weapon: LayeredWeaponDefinition): string[] {
+  const issues: string[] = [];
+  validateCommonWeaponFields(weapon, issues);
+  if (typeof weapon.characterActionId !== 'string' || !weapon.characterActionId.trim()) issues.push('weapon.characterActionId: must be non-empty');
+  if (weapon.onHitEffectId !== undefined && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(weapon.onHitEffectId)) issues.push('weapon.onHitEffectId: must be a lowercase kebab-case ID');
+  const rawWeapon = weapon as unknown as Record<string, unknown>;
+  for (const forbidden of ['animKey', 'assetId', 'visual', 'attackTrack', 'hitboxes']) {
+    if (forbidden in rawWeapon) issues.push(`weapon.${forbidden}: is forbidden in version 2`);
+  }
+  if (!isRecord(weapon.animations) || !('idle' in weapon.animations)) issues.push('weapon.animations.idle: is required');
+  else {
+    issues.push(...validateLayeredAnimationDocument(weapon.animations.idle, { path: 'weapon.animations.idle' }));
+    for (const forbidden of ['attack', 'impact']) {
+      if (forbidden in weapon.animations) issues.push(`weapon.animations.${forbidden}: is forbidden in version 2`);
+    }
+  }
+  if (!isRecord(weapon.directionalAttacks)) {
+    issues.push('weapon.directionalAttacks: must be an object');
+    return issues;
+  }
+  for (const direction of ['right', 'up', 'down'] as const) {
+    if (!(direction in weapon.directionalAttacks)) issues.push(`weapon.directionalAttacks.${direction}: is required`);
+  }
+  for (const [direction, rawAttack] of Object.entries(weapon.directionalAttacks)) {
+    const path = `weapon.directionalAttacks.${direction}`;
+    if (!['right', 'left', 'up', 'down'].includes(direction)) { issues.push(`${path}: direction is not supported in version 2`); continue; }
+    if (!isRecord(rawAttack)) { issues.push(`${path}: must be an object`); continue; }
+    issues.push(...validateLayeredAnimationDocument(rawAttack.animation, { path: `${path}.animation`, allowLoop: false }));
+    if (typeof rawAttack.characterActionId !== 'string' || !rawAttack.characterActionId.trim()) issues.push(`${path}.characterActionId: must be non-empty`);
+    validateHitboxes(rawAttack.hitboxes, issues, `${path}.hitboxes`);
+    if (rawAttack.attackTrack !== undefined && isRecord(rawAttack.hitboxes)) {
+      let timelineFrames = 0;
+      try { timelineFrames = layeredTimelineFrameCount(rawAttack.animation as never); } catch { /* animation issues already reported */ }
+      if (timelineFrames > 0) validateLayeredTrack(rawAttack.attackTrack, `${path}.attackTrack`, timelineFrames, rawAttack.hitboxes as Readonly<Record<string, WeaponHitboxDocument>>, issues);
+    }
+  }
   return issues;
 }

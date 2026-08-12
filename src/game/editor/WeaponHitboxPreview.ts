@@ -8,7 +8,7 @@ import type {
   WeaponHitboxShape,
 } from '../content/weapons/types';
 import { LEGACY_WEAPON_SECTOR_ARC_RAD } from '../content/weapons/types';
-import { timelineFrameCount } from '../shared/animation';
+import { layeredTimelineFrameCount } from '../shared/animation';
 
 export const WEAPON_HITBOX_PREVIEW_SCALE = 2;
 
@@ -17,6 +17,10 @@ export interface ResolvedWeaponHitboxPreview {
   readonly direction: WeaponAttackDirection;
   readonly track: WeaponAttackTrackDocument;
   readonly trackMode: 'authored' | 'synthetic';
+}
+
+export function weaponHitboxPreviewTimelineFrameCount(preview: ResolvedWeaponHitboxPreview): number {
+  return layeredTimelineFrameCount(preview.attack.animation);
 }
 
 export interface WeaponHitboxPreviewGeometry {
@@ -130,7 +134,7 @@ export function resolveWeaponHitboxPreview(
   const attack = normalizeWeaponDefinition(weapon).directionalAttacks[direction];
   if (attack.attackTrack) return { attack, direction, track: attack.attackTrack, trackMode: 'authored' };
   const firstHitboxId = Object.keys(attack.hitboxes)[0];
-  const timelineFrames = timelineFrameCount(attack.animation);
+  const timelineFrames = layeredTimelineFrameCount(attack.animation);
   return {
     attack,
     direction,

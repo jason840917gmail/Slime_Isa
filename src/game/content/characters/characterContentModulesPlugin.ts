@@ -15,7 +15,7 @@ import { normalizeCharacterPackage, validateCharacterPackage, type CharacterVali
 import type { CharacterDocument, CharacterPackage, VisualSetDocument } from './types';
 import type { ProjectileDefinition } from '../projectiles/types';
 import { validateProjectileDefinition } from '../projectiles/validation';
-import type { WeaponDefinition } from '../weapons/types';
+import type { AuthoredWeaponDefinition } from '../weapons/types';
 import { validateWeaponDefinition } from '../weapons/validation';
 
 const VIRTUAL_ID = 'virtual-character-content';
@@ -403,18 +403,18 @@ function weaponRepositoryPath(root: string, weaponId: string): string {
   return target;
 }
 
-async function readWeapon(root: string, weaponId: string): Promise<WeaponDefinition> {
-  return await readJson(path.join(weaponRepositoryPath(root, weaponId), 'weapon.json')) as WeaponDefinition;
+async function readWeapon(root: string, weaponId: string): Promise<AuthoredWeaponDefinition> {
+  return await readJson(path.join(weaponRepositoryPath(root, weaponId), 'weapon.json')) as AuthoredWeaponDefinition;
 }
 
-function weaponRevision(weapon: WeaponDefinition): string {
+function weaponRevision(weapon: AuthoredWeaponDefinition): string {
   return createHash('sha256').update(canonicalValue(weapon)).digest('hex');
 }
 
 async function weaponCatalogHandler(root: string, response: ServerResponse): Promise<void> {
-  const weapons: Array<WeaponDefinition & { readonly revision: string }> = [];
+  const weapons: Array<AuthoredWeaponDefinition & { readonly revision: string }> = [];
   for (const file of await findWeaponFiles(root)) {
-    const weapon = await readJson(file) as WeaponDefinition;
+    const weapon = await readJson(file) as AuthoredWeaponDefinition;
     const issues = validateWeaponDefinition(weapon);
     if (issues.length > 0) throw new Error(`${path.basename(path.dirname(file))}: ${issues.join('; ')}`);
     weapons.push({ ...weapon, revision: weaponRevision(weapon) });
@@ -443,14 +443,14 @@ async function weaponPackageHandler(
     return;
   }
   const payload = await requestBody(request);
-  const weapon = payload.weapon as WeaponDefinition | undefined;
+  const weapon = payload.weapon as AuthoredWeaponDefinition | undefined;
   if (!weapon) { jsonResponse(response, 400, failure('invalid-request', 'A weapon definition is required')); return; }
   const issues = validateWeaponDefinition(weapon);
   if (issues.length > 0) { jsonResponse(response, 400, failure('validation', 'Weapon definition is invalid', issues.map((message) => ({ path: message.split(':')[0], message })))); return; }
   const weaponId = weapon.weaponId;
   const target = weaponRepositoryPath(root, weaponId);
   if (operation === 'update') {
-    let current: WeaponDefinition;
+    let current: AuthoredWeaponDefinition;
     try { current = await readWeapon(root, weaponId); } catch { jsonResponse(response, 404, failure('not-found', `Weapon '${weaponId}' was not found`)); return; }
     if (payload.expectedRevision !== weaponRevision(current)) { jsonResponse(response, 409, failure('conflict', 'The weapon changed on disk.', undefined, weaponRevision(current))); return; }
   } else {
