@@ -1,49 +1,174 @@
 {
   "$schema": "../weapon.schema.json",
-  "version": 1,
+  "version": 2,
   "weaponId": "goo-gauntlet",
   "displayName": "Goo Gauntlet",
   "category": "melee",
-  "animKey": "slime-trick",
   "characterActionId": "trick",
-  "visual": { "sourceOffset": [0, 0], "facingMode": "vector" },
   "animations": {
-    "idle": { "frames": [0], "framesPerSecond": 8, "loop": true, "loopMode": "wrap" },
-    "attack": { "frames": [0, 1, 2, 3, 4], "framesPerSecond": 14, "loop": false, "loopMode": "wrap" },
-    "impact": { "frames": [4], "framesPerSecond": 14, "loop": false, "loopMode": "wrap" }
-  },
-  "hitboxes": {
-    "punch": {
-      "shape": "sector",
-      "width": 64,
-      "height": 56,
-      "offsetX": 36,
-      "offsetY": 0,
-      "innerRadius": 0,
-      "outerRadius": 68,
-      "arcWidthRad": 1.35,
-      "damageMultiplier": 1,
-      "knockbackMultiplier": 1
-    },
-    "impact": {
-      "shape": "circle",
-      "width": 36,
-      "height": 36,
-      "radius": 18,
-      "offsetX": 52,
-      "offsetY": 0,
-      "damageMultiplier": 0.35,
-      "knockbackMultiplier": 0.6
+    "idle": {
+      "version": 2,
+      "durationSeconds": 0.125,
+      "framesPerSecond": 8,
+      "loop": true,
+      "loopMode": "wrap",
+      "layers": []
     }
   },
-  "attackTrack": {
-    "hitboxSpans": [
-      { "hitboxId": "punch", "from": 1, "through": 2 },
-      { "hitboxId": "impact", "from": 3, "through": 3 }
-    ],
-    "events": [
-      { "at": 2, "eventId": "weapon.impact", "payload": { "effect": "goo-burst" } }
-    ]
+  "directionalAttacks": {
+    "right": {
+      "animation": {
+        "version": 2,
+        "durationSeconds": 0.35714285714285715,
+        "framesPerSecond": 14,
+        "loop": false,
+        "loopMode": "wrap",
+        "layers": []
+      },
+      "characterActionId": "trick",
+      "hitboxes": {
+        "punch": {
+          "shape": "sector",
+          "width": 64,
+          "height": 56,
+          "offsetX": 36,
+          "offsetY": 0,
+          "innerRadius": 0,
+          "outerRadius": 68,
+          "arcWidthRad": 1.35,
+          "damageMultiplier": 1,
+          "knockbackMultiplier": 1
+        },
+        "impact": {
+          "shape": "circle",
+          "width": 36,
+          "height": 36,
+          "radius": 18,
+          "offsetX": 52,
+          "offsetY": 0,
+          "damageMultiplier": 0.35,
+          "knockbackMultiplier": 0.6
+        }
+      },
+      "attackTrack": {
+        "hitboxSpans": [
+          {
+            "hitboxId": "punch",
+            "from": 1,
+            "through": 2
+          },
+          {
+            "hitboxId": "impact",
+            "from": 3,
+            "through": 3
+          }
+        ],
+        "events": []
+      }
+    },
+    "up": {
+      "animation": {
+        "version": 2,
+        "durationSeconds": 0.35714285714285715,
+        "framesPerSecond": 14,
+        "loop": false,
+        "loopMode": "wrap",
+        "layers": []
+      },
+      "characterActionId": "trick",
+      "hitboxes": {
+        "punch": {
+          "shape": "sector",
+          "width": 64,
+          "height": 56,
+          "offsetX": 36,
+          "offsetY": 0,
+          "innerRadius": 0,
+          "outerRadius": 68,
+          "arcWidthRad": 1.35,
+          "damageMultiplier": 1,
+          "knockbackMultiplier": 1
+        },
+        "impact": {
+          "shape": "circle",
+          "width": 36,
+          "height": 36,
+          "radius": 18,
+          "offsetX": 52,
+          "offsetY": 0,
+          "damageMultiplier": 0.35,
+          "knockbackMultiplier": 0.6
+        }
+      },
+      "attackTrack": {
+        "hitboxSpans": [
+          {
+            "hitboxId": "punch",
+            "from": 1,
+            "through": 2
+          },
+          {
+            "hitboxId": "impact",
+            "from": 3,
+            "through": 3
+          }
+        ],
+        "events": []
+      }
+    },
+    "down": {
+      "animation": {
+        "version": 2,
+        "durationSeconds": 0.35714285714285715,
+        "framesPerSecond": 14,
+        "loop": false,
+        "loopMode": "wrap",
+        "layers": []
+      },
+      "characterActionId": "trick",
+      "hitboxes": {
+        "punch": {
+          "shape": "sector",
+          "width": 64,
+          "height": 56,
+          "offsetX": 36,
+          "offsetY": 0,
+          "innerRadius": 0,
+          "outerRadius": 68,
+          "arcWidthRad": 1.35,
+          "damageMultiplier": 1,
+          "knockbackMultiplier": 1
+        },
+        "impact": {
+          "shape": "circle",
+          "width": 36,
+          "height": 36,
+          "radius": 18,
+          "offsetX": 52,
+          "offsetY": 0,
+          "damageMultiplier": 0.35,
+          "knockbackMultiplier": 0.6
+        }
+      },
+      "attackTrack": {
+        "hitboxSpans": [
+          {
+            "hitboxId": "punch",
+            "from": 1,
+            "through": 2
+          },
+          {
+            "hitboxId": "impact",
+            "from": 3,
+            "through": 3
+          }
+        ],
+        "events": []
+      }
+    }
+  },
+  "presentation": {
+    "facingMode": "vector"
   },
   "baseDamage": 12,
   "cooldownMs": 320,
@@ -53,9 +178,16 @@
   "hitboxDurationMs": 140,
   "knockStrength": 200,
   "scaling": {
-    "damage": { "strength": 0.65, "agility": 0.1 },
-    "cooldown": { "agility": 0.35 },
-    "knockback": { "strength": 0.35 }
+    "damage": {
+      "strength": 0.65,
+      "agility": 0.1
+    },
+    "cooldown": {
+      "agility": 0.35
+    },
+    "knockback": {
+      "strength": 0.35
+    }
   },
   "vfxColor": 8849603,
   "unlockLevel": 1,

@@ -10,6 +10,8 @@ export interface LayeredAnimationValidationOptions {
   readonly assetLookup?: (assetId: string) => LayeredAnimationAssetDescriptor | undefined;
   readonly allowLoop?: boolean;
   readonly allowEmptyDraft?: boolean;
+  /** Domain adapters such as character-only weapons may intentionally render no visual lanes. */
+  readonly allowNoVisualLayers?: boolean;
   readonly path?: string;
 }
 
@@ -92,7 +94,7 @@ export function validateLayeredAnimationDocument(
     issues.push(`${path}.layers: must be an array`);
     return issues;
   }
-  if (!options.allowEmptyDraft && animation.layers.length === 0) issues.push(`${path}.layers: must contain at least one layer`);
+  if (!options.allowEmptyDraft && !options.allowNoVisualLayers && animation.layers.length === 0) issues.push(`${path}.layers: must contain at least one layer`);
 
   const layerIds = new Set<string>();
   animation.layers.forEach((layer, layerIndex) => {

@@ -290,7 +290,7 @@ function validateLayeredWeaponDefinition(weapon: LayeredWeaponDefinition): strin
   }
   if (!isRecord(weapon.animations) || !('idle' in weapon.animations)) issues.push('weapon.animations.idle: is required');
   else {
-    issues.push(...validateLayeredAnimationDocument(weapon.animations.idle, { path: 'weapon.animations.idle' }));
+    issues.push(...validateLayeredAnimationDocument(weapon.animations.idle, { path: 'weapon.animations.idle', allowNoVisualLayers: true }));
     for (const forbidden of ['attack', 'impact']) {
       if (forbidden in weapon.animations) issues.push(`weapon.animations.${forbidden}: is forbidden in version 2`);
     }
@@ -306,7 +306,7 @@ function validateLayeredWeaponDefinition(weapon: LayeredWeaponDefinition): strin
     const path = `weapon.directionalAttacks.${direction}`;
     if (!['right', 'left', 'up', 'down'].includes(direction)) { issues.push(`${path}: direction is not supported in version 2`); continue; }
     if (!isRecord(rawAttack)) { issues.push(`${path}: must be an object`); continue; }
-    issues.push(...validateLayeredAnimationDocument(rawAttack.animation, { path: `${path}.animation`, allowLoop: false }));
+    issues.push(...validateLayeredAnimationDocument(rawAttack.animation, { path: `${path}.animation`, allowLoop: false, allowNoVisualLayers: true }));
     if (typeof rawAttack.characterActionId !== 'string' || !rawAttack.characterActionId.trim()) issues.push(`${path}.characterActionId: must be non-empty`);
     validateHitboxes(rawAttack.hitboxes, issues, `${path}.hitboxes`);
     if (rawAttack.attackTrack !== undefined && isRecord(rawAttack.hitboxes)) {
