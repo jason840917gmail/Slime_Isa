@@ -20,6 +20,9 @@ import type { MapEnemySafeZone, MapEnemySpawnArea, MapSpawns } from '../../conte
 import { resolveScreenUiDepth } from '../../presentation/WorldDepth';
 import { hitboxPool } from '../../combat/Hitbox';
 import { WeaponVisual } from './WeaponVisual';
+import { contactPointAtTargetEdge } from '../../combat/ContactPoint';
+import { shouldSpawnConfirmedHitEffect } from '../../combat/ConfirmedHitEffect';
+import { WorldEffectPool } from '../effects/WorldEffectPool';
 
 export interface CombatControllerContext {
   scene: Phaser.Scene;
@@ -57,12 +60,14 @@ export class CombatController {
   private spawner?: EnemySpawner;
   private comboText: Phaser.GameObjects.Text;
   private attacking = false;
+  private readonly effects: WorldEffectPool;
   private readonly projectileWorldColliders: Phaser.Physics.Arcade.Collider[] = [];
 
   constructor(private readonly ctx: CombatControllerContext) {
     const { scene, player } = ctx;
     const spawnConfig = ctx.spawns;
     this.targets = scene.physics.add.group();
+    this.effects = new WorldEffectPool(scene);
     this.comboText = scene.add.text(scene.cameras.main.width / 2, scene.cameras.main.height - 215, '', {
       fontFamily: UI_THEME.fontFamily,
       fontSize: '20px',
@@ -152,6 +157,7 @@ export class CombatController {
     this.spawner?.update(time, delta);
     this.weapon.update(delta);
     this.weaponVisual.update(delta);
+    this.effects.update(delta);
     hitboxPool.update(this.ctx.scene);
     projectilePool.update(this.ctx.scene);
   }
@@ -189,6 +195,7 @@ export class CombatController {
   destroy(): void {
     this.weapon.destroy();
     this.weaponVisual.destroy();
+    this.effects.destroy();
     this.ctx.setActionLocked(false);
     this.projectileWorldColliders.forEach((collider) => collider.destroy());
     this.spawner?.destroy();
@@ -203,16 +210,25 @@ export class CombatController {
       getPlayer: () => player,
       getFacing: this.ctx.getFacing,
       getTargets: () => this.targets,
-      applyHit: ({ target, damage, knockX, knockY, knockStrength }) => {
+      applyHit: ({ target, damage, knockX, knockY, knockStrength, attackDirection, attackVector }) => {
         const finalDamage = Math.round(damage * this.combo.registerHit());
+        let result;
+        let hitTarget: Enemy | TargetDummy | undefined;
         if (target instanceof Enemy) {
-          const result = target.applyDamage({ amount: finalDamage, knockX, knockY, knockStrength });
+          hitTarget = target;
+          result = target.applyDamage({ amount: finalDamage, knockX, knockY, knockStrength });
           this.applyLifeSteal(result.actualDamage);
-          return result;
         } else if (target instanceof TargetDummy) {
-          return target.applyDamage({ amount: finalDamage, knockX, knockY, knockStrength });
+          hitTarget = target;
+          result = target.applyDamage({ amount: finalDamage, knockX, knockY, knockStrength });
+        } else {
+          result = { status: 'rejected' as const, actualDamage: 0, defeated: false, reason: 'invalid' as const };
         }
-        return { status: 'rejected', actualDamage: 0, defeated: false, reason: 'invalid' };
+        if (hitTarget && shouldSpawnConfirmedHitEffect(weapon.def.onHitEffectId, result)) {
+          const point = contactPointAtTargetEdge(hitTarget.getBounds(), { x: attackVector[0], y: attackVector[1] });
+          this.effects.spawn({ effectId: weapon.def.onHitEffectId!, direction: attackDirection, x: point.x, y: point.y, depth: hitTarget.depth + 0.2 });
+        }
+        return result;
       },
       onAttackStart: () => {
         this.attacking = true;
