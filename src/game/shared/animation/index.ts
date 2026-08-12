@@ -4,3 +4,5 @@ export * from './player';
 export * from './clock';
 export * from './layered';
 export * from './layeredValidation';
+export * from './layeredTransform';
+export * from './LayeredAnimationPlayer';
