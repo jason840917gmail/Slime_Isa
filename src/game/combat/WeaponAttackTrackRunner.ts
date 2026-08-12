@@ -1,11 +1,8 @@
-import type {
-  NormalizedWeaponAnimationDocument,
-  WeaponAttackTrackDocument,
-  WeaponEventDocument,
-} from '../content/weapons/types';
+import type { WeaponAttackTrackDocument, WeaponEventDocument } from '../content/weapons/types';
 import {
-  AnimationPlayer,
+  AnimationClock,
   type AnimationPlaybackContext,
+  type NormalizedLayeredAnimationDocument,
 } from '../shared/animation';
 
 export interface WeaponTrackEvent extends WeaponEventDocument {
@@ -37,20 +34,19 @@ interface ActiveSpan {
 
 /** Drives weapon hitbox windows and events through the shared animation player. */
 export class WeaponAttackTrackRunner {
-  private readonly playbackClip: NormalizedWeaponAnimationDocument;
+  private readonly playbackClip: NormalizedLayeredAnimationDocument;
   private readonly active = new Map<string, ActiveSpan>();
-  private readonly player: AnimationPlayer;
+  private readonly player: AnimationClock;
   private destroyed = false;
 
   constructor(
-    clip: NormalizedWeaponAnimationDocument,
+    clip: NormalizedLayeredAnimationDocument,
     private readonly track: WeaponAttackTrackDocument,
     private readonly callbacks: WeaponAttackTrackRunnerCallbacks = {},
   ) {
     // Combat attacks are always one-shot, even if malformed legacy data says loop.
     this.playbackClip = { ...clip, loop: false };
-    this.player = new AnimationPlayer({
-      onFrame: (_state, context) => this.applyPosition(context),
+    this.player = new AnimationClock({
       onEvent: (event, context) => this.dispatchEvent(event, context),
       onComplete: () => {
         this.disableAll();
@@ -58,6 +54,7 @@ export class WeaponAttackTrackRunner {
       },
       onDiagnostic: callbacks.onDiagnostic,
     });
+    this.player.subscribeFrame('track', (_state, context) => this.applyPosition(context));
   }
 
   get state(): WeaponAttackTrackRunnerState {

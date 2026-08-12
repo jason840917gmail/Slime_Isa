@@ -198,7 +198,7 @@ test('Weapon Studio targeting keeps hold edits and preview aligned to the clicke
 function weaponFixture(overrides = {}) {
   const clip = { frames: [0], framesPerSecond: 10, loop: false, loopMode: 'wrap', durationSeconds: 0.4, keyframeTimes: [0] };
   return {
-    version: 2,
+    version: 1,
     weaponId: 'fixture-weapon',
     displayName: 'Fixture Weapon',
     category: 'blade',

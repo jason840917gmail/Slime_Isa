@@ -1,8 +1,8 @@
 import { weaponDefinitions as authoredDefinitions } from 'virtual-weapon-content';
 import { normalizeWeaponDefinition } from './normalize';
-import type { NormalizedWeaponDefinition, WeaponDefinition } from './types';
+import type { AuthoredWeaponDefinition, NormalizedWeaponDefinition } from './types';
 
-const definitions = authoredDefinitions as unknown as readonly WeaponDefinition[];
+const definitions = authoredDefinitions as unknown as readonly AuthoredWeaponDefinition[];
 const normalizedDefinitions = definitions.map(normalizeWeaponDefinition);
 const byId = new Map(normalizedDefinitions.map((definition) => [definition.weaponId, definition]));
 

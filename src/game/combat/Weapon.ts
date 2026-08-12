@@ -4,6 +4,9 @@ import { hitboxPool, type HitHandler, type HitboxActivationHandle, type HitboxCo
 import { resolveScaledValue } from './CombatScaling';
 import { LEGACY_WEAPON_SECTOR_ARC_RAD } from '../content/weapons/types';
 import type {
+  NormalizedLayeredAnimationDocument,
+} from '../shared/animation';
+import type {
   NormalizedWeaponDefinition,
   WeaponAttackDirection,
   WeaponAttackTrackDocument,
@@ -165,14 +168,13 @@ export class Weapon {
   }
 
   private createTrackRunner(
-    clip: NormalizedWeaponDefinition['animations']['attack'],
+    clip: NormalizedLayeredAnimationDocument,
     track: WeaponAttackTrackDocument,
   ): WeaponAttackTrackRunner {
     return new WeaponAttackTrackRunner(clip, track, {
       onHitboxActivated: (hitboxId, activationId) => this.activateAuthoredHitbox(hitboxId, activationId),
       onHitboxDeactivated: (hitboxId, activationId) => this.deactivateAuthoredHitbox(hitboxId, activationId),
       onEvent: (event) => {
-        if (event.eventId === 'weapon.impact') this.ctx.playWeaponAnimation('impact', true);
         this.ctx.onWeaponEvent?.(event);
       },
       onComplete: () => this.finishAttack(),
