@@ -478,6 +478,85 @@ async function effectPackageHandler(
   jsonResponse(response, operation === 'create' ? 201 : 200, ok({ effect, revision: effectRevision(effect), reloadRequired: true }));
 }
 
+async function weaponEffectPackageHandler(
+  weaponRoot: string,
+  effectRoot: string,
+  request: IncomingMessage,
+  response: ServerResponse,
+  server: ViteDevServer,
+): Promise<void> {
+  const payload = await requestBody(request);
+  const weapon = payload.weapon as AuthoredWeaponDefinition | undefined;
+  const effect = payload.effect as EffectDefinition | undefined;
+  const weaponOperation = payload.weaponOperation === 'create' ? 'create' : 'update';
+  const effectOperation = payload.effectOperation === 'create' ? 'create' : 'update';
+  if (!weapon) { jsonResponse(response, 400, failure('invalid-request', 'A weapon definition is required')); return; }
+  const weaponIssues = validateWeaponDefinition(weapon);
+  const effectIssues = effect ? validateEffectDefinition(effect) : [];
+  if (weaponIssues.length || effectIssues.length) {
+    const issues = [...weaponIssues, ...effectIssues].map((message) => ({ path: message.split(':')[0], message }));
+    jsonResponse(response, 400, failure('validation', 'Weapon package is invalid', issues));
+    return;
+  }
+
+  const weaponTarget = path.join(weaponRepositoryPath(weaponRoot, weapon.weaponId), 'weapon.json');
+  const effectTarget = effect ? path.join(effectRepositoryPath(effectRoot, effect.effectId), 'effect.json') : undefined;
+  let currentWeapon: AuthoredWeaponDefinition | undefined;
+  let currentEffect: EffectDefinition | undefined;
+  try { currentWeapon = await readWeapon(weaponRoot, weapon.weaponId); } catch { /* absent */ }
+  if (weaponOperation === 'create' && currentWeapon) { jsonResponse(response, 409, failure('conflict', `Weapon '${weapon.weaponId}' already exists`)); return; }
+  if (weaponOperation === 'update' && !currentWeapon) { jsonResponse(response, 404, failure('not-found', `Weapon '${weapon.weaponId}' was not found`)); return; }
+  if (weaponOperation === 'update' && payload.expectedWeaponRevision !== weaponRevision(currentWeapon!)) {
+    jsonResponse(response, 409, failure('conflict', 'The weapon changed on disk.', undefined, weaponRevision(currentWeapon!))); return;
+  }
+  if (effect && effectTarget) {
+    try { currentEffect = await readEffect(effectRoot, effect.effectId); } catch { /* absent */ }
+    if (effectOperation === 'create' && currentEffect) { jsonResponse(response, 409, failure('conflict', `Effect '${effect.effectId}' already exists`)); return; }
+    if (effectOperation === 'update' && !currentEffect) { jsonResponse(response, 404, failure('not-found', `Effect '${effect.effectId}' was not found`)); return; }
+    if (effectOperation === 'update' && payload.expectedEffectRevision !== effectRevision(currentEffect!)) {
+      jsonResponse(response, 409, failure('conflict', 'The effect changed on disk.', undefined, effectRevision(currentEffect!))); return;
+    }
+  }
+
+  await fs.mkdir(path.dirname(weaponTarget), { recursive: true });
+  if (effectTarget) await fs.mkdir(path.dirname(effectTarget), { recursive: true });
+  const transactionId = `${process.pid}.${Date.now()}.${randomUUID()}`;
+  const weaponTemporary = path.join(path.dirname(weaponTarget), `weapon.${transactionId}.tmp`);
+  const effectTemporary = effectTarget ? path.join(path.dirname(effectTarget), `effect.${transactionId}.tmp`) : undefined;
+  const weaponOriginal = currentWeapon ? `${JSON.stringify(currentWeapon, null, 2)}\n` : undefined;
+  const effectOriginal = currentEffect ? `${JSON.stringify(currentEffect, null, 2)}\n` : undefined;
+  let weaponCommitted = false;
+  let effectCommitted = false;
+  try {
+    await fs.writeFile(weaponTemporary, `${JSON.stringify(weapon, null, 2)}\n`, 'utf8');
+    if (effect && effectTemporary) await fs.writeFile(effectTemporary, `${JSON.stringify(effect, null, 2)}\n`, 'utf8');
+    if (effectTarget && effectTemporary) { await fs.rename(effectTemporary, effectTarget); effectCommitted = true; }
+    await fs.rename(weaponTemporary, weaponTarget);
+    weaponCommitted = true;
+  } catch (error) {
+    if (weaponCommitted) {
+      if (weaponOriginal !== undefined) await fs.writeFile(weaponTarget, weaponOriginal, 'utf8');
+      else await fs.rm(weaponTarget, { force: true });
+    }
+    if (effectCommitted && effectTarget) {
+      if (effectOriginal !== undefined) await fs.writeFile(effectTarget, effectOriginal, 'utf8');
+      else await fs.rm(effectTarget, { force: true });
+    }
+    if (effectTarget && effectOriginal === undefined) await fs.rmdir(path.dirname(effectTarget)).catch(() => undefined);
+    if (weaponOriginal === undefined) await fs.rmdir(path.dirname(weaponTarget)).catch(() => undefined);
+    throw error;
+  } finally {
+    await fs.rm(weaponTemporary, { force: true }).catch(() => undefined);
+    if (effectTemporary) await fs.rm(effectTemporary, { force: true }).catch(() => undefined);
+  }
+  invalidateCatalog(server);
+  jsonResponse(response, weaponOperation === 'create' ? 201 : 200, ok({
+    weaponRevision: weaponRevision(weapon),
+    ...(effect ? { effectRevision: effectRevision(effect) } : {}),
+    reloadRequired: true,
+  }));
+}
+
 async function weaponCatalogHandler(root: string, response: ServerResponse): Promise<void> {
   const weapons: Array<AuthoredWeaponDefinition & { readonly revision: string }> = [];
   for (const file of await findWeaponFiles(root)) {
@@ -1341,7 +1420,7 @@ export function characterContentModulesPlugin(options: CharacterContentRootOptio
     },
     handleHotUpdate(context) {
       const changed = context.file.replaceAll('\\', '/');
-      if (changed.endsWith('/character.json') || changed.endsWith('/visual-set.json') || changed.endsWith('/projectile.json') || changed.endsWith('/weapon.json')) {
+      if (changed.endsWith('/character.json') || changed.endsWith('/visual-set.json') || changed.endsWith('/projectile.json') || changed.endsWith('/weapon.json') || changed.endsWith('/effect.json')) {
         invalidate(context.server);
         return [];
       }
@@ -1410,6 +1489,13 @@ export function characterContentModulesPlugin(options: CharacterContentRootOptio
         if (request.method !== 'POST') { jsonResponse(response, 405, failure('invalid-request', 'POST required')); return; }
         void weaponPackageHandler(roots.weaponRoot, request, response, server, 'update').catch((error: unknown) => {
           jsonResponse(response, 400, failure('weapon-update', error instanceof Error ? error.message : String(error)));
+        });
+        void next;
+      });
+      server.middlewares.use('/__character-studio/weapon/save-package', (request, response, next) => {
+        if (request.method !== 'POST') { jsonResponse(response, 405, failure('invalid-request', 'POST required')); return; }
+        void weaponEffectPackageHandler(roots.weaponRoot, roots.effectRoot, request, response, server).catch((error: unknown) => {
+          jsonResponse(response, 400, failure('weapon-package-save', error instanceof Error ? error.message : String(error)));
         });
         void next;
       });

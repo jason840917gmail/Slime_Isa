@@ -1,74 +1,491 @@
 {
-  "version": 1,
+  "$schema": "../weapon.schema.json",
+  "version": 2,
   "weaponId": "basic-sword",
   "displayName": "Basic sword",
   "category": "melee",
   "characterActionId": "attack-1",
   "animations": {
     "idle": {
-      "frames": [
-        0
-      ],
+      "version": 2,
+      "durationSeconds": 0.125,
       "framesPerSecond": 8,
       "loop": true,
-      "loopMode": "wrap"
-    },
-    "attack": {
-      "frames": [
-        1,
-        0,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8
-      ],
-      "framesPerSecond": 12,
-      "loop": false,
-      "loopMode": "wrap"
-    },
-    "impact": {
-      "frames": [
-        16
-      ],
-      "framesPerSecond": 12,
-      "loop": false,
-      "loopMode": "wrap"
+      "loopMode": "wrap",
+      "layers": [
+        {
+          "layerId": "base",
+          "displayName": "Basic sword",
+          "assetId": "weapon.player.sword-tiles",
+          "depthOffset": 0,
+          "transform": {
+            "offset": [
+              0,
+              0
+            ],
+            "scale": [
+              0.5,
+              0.5
+            ]
+          },
+          "blocks": [
+            {
+              "from": 0,
+              "through": 0,
+              "sourceFrame": 0
+            }
+          ]
+        }
+      ]
     }
   },
-  "visual": {
-    "sourceOffset": [
-      0,
-      0
-    ],
-    "scale": [
-      0.5,
-      0.5
-    ]
-  },
-  "hitboxes": {
-    "primary": {
-      "shape": "sector",
-      "width": 32,
-      "height": 18,
-      "offsetX": 24,
-      "offsetY": 0,
-      "outerRadius": 33,
-      "arcWidthRad": 1.35
-    }
-  },
-  "attackTrack": {
-    "hitboxSpans": [
-      {
-        "hitboxId": "primary",
-        "from": 0,
-        "through": 0
+  "directionalAttacks": {
+    "right": {
+      "animation": {
+        "version": 2,
+        "durationSeconds": 0.4166666666666667,
+        "framesPerSecond": 24,
+        "loop": false,
+        "loopMode": "wrap",
+        "layers": [
+          {
+            "layerId": "base",
+            "displayName": "Basic sword",
+            "assetId": "weapon.player.sword-tiles",
+            "depthOffset": 0,
+            "transform": {
+              "offset": [
+                0,
+                0
+              ],
+              "scale": [
+                0.5,
+                0.5
+              ]
+            },
+            "blocks": [
+              {
+                "from": 0,
+                "through": 3,
+                "sourceFrame": 0,
+                "transform": {
+                  "offset": [
+                    35.05,
+                    -12.56
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 0
+                }
+              },
+              {
+                "from": 4,
+                "through": 4,
+                "sourceFrame": 1,
+                "transform": {
+                  "offset": [
+                    42.33,
+                    -16.53
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 0
+                }
+              },
+              {
+                "from": 5,
+                "through": 5,
+                "sourceFrame": 2,
+                "transform": {
+                  "offset": [
+                    43.65,
+                    -0.66
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 0
+                }
+              },
+              {
+                "from": 6,
+                "through": 6,
+                "sourceFrame": 3,
+                "transform": {
+                  "offset": [
+                    57.54,
+                    15.21
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 0
+                }
+              },
+              {
+                "from": 7,
+                "through": 7,
+                "sourceFrame": 4,
+                "transform": {
+                  "offset": [
+                    69.44,
+                    29.1
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 0
+                }
+              },
+              {
+                "from": 8,
+                "through": 8,
+                "sourceFrame": 5,
+                "transform": {
+                  "offset": [
+                    66.8,
+                    46.96
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 0
+                }
+              },
+              {
+                "from": 9,
+                "through": 9,
+                "sourceFrame": 6,
+                "transform": {
+                  "offset": [
+                    60.19,
+                    62.17
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 0
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "characterActionId": "attack-1",
+      "hitboxes": {
+        "primary": {
+          "shape": "sector",
+          "width": 42,
+          "height": 18,
+          "offsetX": 10,
+          "offsetY": 15,
+          "outerRadius": 57,
+          "arcWidthRad": 2.2165681500327987
+        }
+      },
+      "attackTrack": {
+        "hitboxSpans": [
+          {
+            "hitboxId": "primary",
+            "from": 4,
+            "through": 8
+          }
+        ],
+        "events": []
       }
-    ],
-    "events": []
+    },
+    "up": {
+      "animation": {
+        "version": 2,
+        "durationSeconds": 0.3333333333333333,
+        "framesPerSecond": 12,
+        "loop": false,
+        "loopMode": "wrap",
+        "layers": [
+          {
+            "layerId": "base",
+            "displayName": "Basic sword",
+            "assetId": "weapon.player.sword-tiles",
+            "depthOffset": 0,
+            "transform": {
+              "offset": [
+                0,
+                0
+              ],
+              "scale": [
+                0.5,
+                0.5
+              ]
+            },
+            "blocks": [
+              {
+                "from": 0,
+                "through": 0,
+                "sourceFrame": 1,
+                "transform": {
+                  "offset": [
+                    44.31,
+                    -32.41
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 0
+                }
+              },
+              {
+                "from": 1,
+                "through": 1,
+                "sourceFrame": 0,
+                "transform": {
+                  "offset": [
+                    26.45,
+                    -45.63
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 0
+                }
+              },
+              {
+                "from": 2,
+                "through": 2,
+                "sourceFrame": 15,
+                "transform": {
+                  "offset": [
+                    -3.31,
+                    -48.28
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 0
+                }
+              },
+              {
+                "from": 3,
+                "through": 3,
+                "sourceFrame": 14,
+                "transform": {
+                  "offset": [
+                    -48.94,
+                    -27.78
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 0
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "characterActionId": "attack-1",
+      "hitboxes": {
+        "primary": {
+          "shape": "sector",
+          "width": 32,
+          "height": 18,
+          "offsetX": 0,
+          "offsetY": 0,
+          "outerRadius": 57,
+          "arcWidthRad": 2.2165681500327987
+        }
+      },
+      "attackTrack": {
+        "hitboxSpans": [
+          {
+            "hitboxId": "primary",
+            "from": 1,
+            "through": 3
+          }
+        ],
+        "events": []
+      }
+    },
+    "down": {
+      "animation": {
+        "version": 2,
+        "durationSeconds": 0.2916666666666667,
+        "framesPerSecond": 24,
+        "loop": false,
+        "loopMode": "wrap",
+        "layers": [
+          {
+            "layerId": "base",
+            "displayName": "Basic sword",
+            "assetId": "weapon.player.sword-tiles",
+            "depthOffset": 0,
+            "transform": {
+              "offset": [
+                0,
+                0
+              ],
+              "scale": [
+                0.5,
+                0.5
+              ]
+            },
+            "blocks": [
+              {
+                "from": 0,
+                "through": 0,
+                "sourceFrame": 7,
+                "transform": {
+                  "offset": [
+                    40.34,
+                    82.01
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 0
+                }
+              },
+              {
+                "from": 1,
+                "through": 1,
+                "sourceFrame": 7,
+                "transform": {
+                  "offset": [
+                    33.07,
+                    87.3
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 0
+                }
+              },
+              {
+                "from": 2,
+                "through": 2,
+                "sourceFrame": 8,
+                "transform": {
+                  "offset": [
+                    27.12,
+                    97.22
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 0
+                }
+              },
+              {
+                "from": 3,
+                "through": 3,
+                "sourceFrame": 8,
+                "transform": {
+                  "offset": [
+                    13.89,
+                    92.59
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 0
+                }
+              },
+              {
+                "from": 4,
+                "through": 4,
+                "sourceFrame": 9,
+                "transform": {
+                  "offset": [
+                    1.32,
+                    95.9
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 0
+                }
+              },
+              {
+                "from": 5,
+                "through": 5,
+                "sourceFrame": 10,
+                "transform": {
+                  "offset": [
+                    -22.49,
+                    85.98
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 0
+                }
+              },
+              {
+                "from": 6,
+                "through": 6,
+                "sourceFrame": 11,
+                "transform": {
+                  "offset": [
+                    -40.34,
+                    79.37
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 0
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "characterActionId": "attack-1",
+      "hitboxes": {
+        "primary": {
+          "shape": "sector",
+          "width": 32,
+          "height": 18,
+          "offsetX": 15,
+          "offsetY": 0,
+          "outerRadius": 57,
+          "arcWidthRad": 2.2165681500327987
+        }
+      },
+      "attackTrack": {
+        "hitboxSpans": [
+          {
+            "hitboxId": "primary",
+            "from": 1,
+            "through": 5
+          }
+        ],
+        "events": []
+      }
+    }
   },
+  "presentation": {
+    "facingMode": "vector"
+  },
+  "onHitEffectId": "basic-sword-impact",
   "baseDamage": 20,
   "cooldownMs": 500,
   "hitboxWidth": 37,
@@ -90,351 +507,5 @@
   "vfxColor": 8843459,
   "unlockLevel": 1,
   "iconKey": "weapon-generic",
-  "description": "A reusable weapon definition.",
-  "assetId": "weapon.player.sword-tiles",
-  "revision": "7cae8f5e9ad0a6a1d751f144d0e2ba03b346a577c72b604b9c264ba231214a25",
-  "directionalAttacks": {
-    "right": {
-      "animation": {
-        "frames": [
-          0,
-          1,
-          2,
-          3,
-          4,
-          5,
-          6
-        ],
-        "framesPerSecond": 24,
-        "loop": false,
-        "loopMode": "wrap",
-        "keyframeTimes": [
-          0,
-          4,
-          5,
-          6,
-          7,
-          8,
-          9
-        ],
-        "durationSeconds": 0.4166666666666667,
-        "frameTransforms": {
-          "0": {
-            "offset": [
-              35.05,
-              -12.56
-            ],
-            "scale": [
-              1,
-              1
-            ],
-            "rotationDeg": 0
-          },
-          "1": {
-            "offset": [
-              42.33,
-              -16.53
-            ],
-            "scale": [
-              1,
-              1
-            ],
-            "rotationDeg": 0
-          },
-          "2": {
-            "offset": [
-              43.65,
-              -0.66
-            ],
-            "scale": [
-              1,
-              1
-            ],
-            "rotationDeg": 0
-          },
-          "3": {
-            "offset": [
-              57.54,
-              15.21
-            ],
-            "scale": [
-              1,
-              1
-            ],
-            "rotationDeg": 0
-          },
-          "4": {
-            "offset": [
-              69.44,
-              29.1
-            ],
-            "scale": [
-              1,
-              1
-            ],
-            "rotationDeg": 0
-          },
-          "5": {
-            "offset": [
-              66.8,
-              46.96
-            ],
-            "scale": [
-              1,
-              1
-            ],
-            "rotationDeg": 0
-          },
-          "6": {
-            "offset": [
-              60.19,
-              62.17
-            ],
-            "scale": [
-              1,
-              1
-            ],
-            "rotationDeg": 0
-          }
-        }
-      },
-      "characterActionId": "attack-1",
-      "hitboxes": {
-        "primary": {
-          "shape": "sector",
-          "width": 42,
-          "height": 18,
-          "offsetX": 24,
-          "offsetY": 15,
-          "outerRadius": 57,
-          "arcWidthRad": 2.2165681500327987
-        }
-      },
-      "attackTrack": {
-        "hitboxSpans": [
-          {
-            "hitboxId": "primary",
-            "from": 4,
-            "through": 8
-          }
-        ],
-        "events": []
-      }
-    },
-    "up": {
-      "animation": {
-        "frames": [
-          1,
-          0,
-          15,
-          14
-        ],
-        "framesPerSecond": 12,
-        "loop": false,
-        "loopMode": "wrap",
-        "keyframeTimes": [
-          0,
-          1,
-          2,
-          3
-        ],
-        "durationSeconds": 0.33,
-        "frameTransforms": {
-          "0": {
-            "offset": [
-              44.31,
-              -32.41
-            ],
-            "scale": [
-              1,
-              1
-            ],
-            "rotationDeg": 0
-          },
-          "1": {
-            "offset": [
-              26.45,
-              -45.63
-            ],
-            "scale": [
-              1,
-              1
-            ],
-            "rotationDeg": 0
-          },
-          "2": {
-            "offset": [
-              -3.31,
-              -48.28
-            ],
-            "scale": [
-              1,
-              1
-            ],
-            "rotationDeg": 0
-          },
-          "3": {
-            "offset": [
-              -48.94,
-              -27.78
-            ],
-            "scale": [
-              1,
-              1
-            ],
-            "rotationDeg": 0
-          }
-        }
-      },
-      "characterActionId": "attack-1",
-      "hitboxes": {
-        "primary": {
-          "shape": "sector",
-          "width": 32,
-          "height": 18,
-          "offsetX": 9,
-          "offsetY": 0,
-          "outerRadius": 57,
-          "arcWidthRad": 2.2165681500327987
-        }
-      },
-      "attackTrack": {
-        "hitboxSpans": [
-          {
-            "hitboxId": "primary",
-            "from": 1,
-            "through": 3
-          }
-        ],
-        "events": []
-      }
-    },
-    "down": {
-      "animation": {
-        "frames": [
-          7,
-          7,
-          8,
-          8,
-          9,
-          10,
-          11
-        ],
-        "framesPerSecond": 24,
-        "loop": false,
-        "loopMode": "wrap",
-        "keyframeTimes": [
-          0,
-          1,
-          2,
-          3,
-          4,
-          5,
-          6
-        ],
-        "durationSeconds": 0.3,
-        "frameTransforms": {
-          "0": {
-            "offset": [
-              40.34,
-              82.01
-            ],
-            "scale": [
-              1,
-              1
-            ],
-            "rotationDeg": 0
-          },
-          "1": {
-            "offset": [
-              33.07,
-              87.3
-            ],
-            "scale": [
-              1,
-              1
-            ],
-            "rotationDeg": 0
-          },
-          "2": {
-            "offset": [
-              27.12,
-              97.22
-            ],
-            "scale": [
-              1,
-              1
-            ],
-            "rotationDeg": 0
-          },
-          "3": {
-            "offset": [
-              13.89,
-              92.59
-            ],
-            "scale": [
-              1,
-              1
-            ],
-            "rotationDeg": 0
-          },
-          "4": {
-            "offset": [
-              1.32,
-              95.9
-            ],
-            "scale": [
-              1,
-              1
-            ],
-            "rotationDeg": 0
-          },
-          "5": {
-            "offset": [
-              -22.49,
-              85.98
-            ],
-            "scale": [
-              1,
-              1
-            ],
-            "rotationDeg": 0
-          },
-          "6": {
-            "offset": [
-              -40.34,
-              79.37
-            ],
-            "scale": [
-              1,
-              1
-            ],
-            "rotationDeg": 0
-          }
-        }
-      },
-      "characterActionId": "attack-1",
-      "hitboxes": {
-        "primary": {
-          "shape": "sector",
-          "width": 32,
-          "height": 18,
-          "offsetX": 35,
-          "offsetY": 0,
-          "outerRadius": 57,
-          "arcWidthRad": 2.2165681500327987
-        }
-      },
-      "attackTrack": {
-        "hitboxSpans": [
-          {
-            "hitboxId": "primary",
-            "from": 1,
-            "through": 5
-          }
-        ],
-        "events": []
-      }
-    }
-  }
+  "description": "A reusable weapon definition."
 }

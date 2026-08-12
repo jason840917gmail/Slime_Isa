@@ -29,6 +29,7 @@ import {
   renderLayeredBlockResizeHandle,
 } from './LayeredAnimationTimelineView';
 import { ensureStudioModeTabs } from './StudioModeTabs';
+import { resolveWeaponHitboxPreviewGeometry, WEAPON_HITBOX_PREVIEW_SCALE } from './WeaponHitboxPreview';
 
 const DIRECTIONS = ['right', 'left', 'up', 'down'] as const satisfies readonly WeaponAttackDirection[];
 const EFFECT_DIRECTIONS = DIRECTIONS satisfies readonly EffectDirection[];
@@ -337,11 +338,29 @@ function layerPreviewSprite(state: StudioState, layer: AnimationVisualLayerDocum
   return `<span class="stage-sprite stage-weapon-sprite${layer.layerId === state.selectedLayerId ? ' is-selected-layer' : ''}" data-preview-layer="${escapeHtml(layer.layerId)}" style="z-index:${3 + layerIndex};--sheet-url:url('${escapeHtml(info.url)}');--frame-w:${info.width}px;--frame-h:${info.height}px;--sheet-w:${info.width * info.columns}px;--sheet-h:${info.height * info.rows}px;--frame-x:${column * info.width}px;--frame-y:${row * info.height}px;--preview-scale-x:${scale[0]};--preview-scale-y:${scale[1]};--origin-offset-x:${-origin[0] * info.width * scale[0]}px;--origin-offset-y:${-origin[1] * info.height * scale[1]}px;--offset-x:${offset[0] * 2.8}px;--offset-y:${offset[1] * 2.8}px;--weapon-rotation:${rotation}deg;--weapon-flip-x:${flipX ? -1 : 1}"></span>`;
 }
 
+function renderPreviewHitboxes(state: StudioState): string {
+  if (state.scope !== 'attack') return '';
+  const attack = selectedAttack(state);
+  if (!attack) return '';
+  const spans = attack.attackTrack?.hitboxSpans ?? [];
+  return `<span class="weapon-hitbox-guides">${Object.entries(attack.hitboxes).map(([hitboxId, hitbox], index) => {
+    const geometry = resolveWeaponHitboxPreviewGeometry(hitbox, state.direction);
+    const active = spans.some((span) => span.hitboxId === hitboxId && span.from <= state.playhead && state.playhead <= span.through);
+    const selected = hitboxId === state.selectedHitboxId || (!state.selectedHitboxId && index === 0);
+    const classes = `stage-hitbox stage-hitbox--${geometry.shape}${active ? ' is-hot' : ''}${selected ? ' is-selected' : ''}${geometry.valid ? '' : ' is-invalid'}`;
+    const label = `<button type="button" class="stage-hitbox-select" style="--hitbox-label-index:${index}" data-select-hitbox="${escapeHtml(hitboxId)}">${escapeHtml(hitboxId)}</button>`;
+    if (!geometry.valid) return `<span class="${classes}" style="transform:translate(-50%,-50%)">${label}</span>`;
+    const style = `width:${geometry.width * WEAPON_HITBOX_PREVIEW_SCALE}px;height:${geometry.height * WEAPON_HITBOX_PREVIEW_SCALE}px;transform:translate(-50%,-50%) translate(${geometry.centerX * WEAPON_HITBOX_PREVIEW_SCALE}px,${geometry.centerY * WEAPON_HITBOX_PREVIEW_SCALE}px)`;
+    const sector = geometry.shape === 'sector' ? `<svg class="weapon-hitbox-sector" viewBox="${geometry.sectorViewBox}" aria-hidden="true"><path class="weapon-hitbox-sector-area" fill-rule="evenodd" d="${geometry.sectorAreaPath ?? ''}"></path>${geometry.sectorBoundaryPath ? `<path class="weapon-hitbox-sector-boundary" d="${geometry.sectorBoundaryPath}"></path>` : ''}</svg>` : '';
+    return `<span class="${classes}" style="${style}">${sector}${label}</span>`;
+  }).join('')}</span>`;
+}
+
 function renderPreview(state: StudioState, animation: LayeredAnimationDocument): string {
   const duration = layeredTimelineFrameCount(animation) / animation.framesPerSecond;
   const activeLayers = resolvedLayerAt(animation, state.playhead);
   const effectOnly = state.scope === 'effect';
-  return `<section class="studio-preview-card weapon-preview-card layered-preview-card"><div class="studio-preview-toolbar"><span class="studio-kicker">COMBINED PREVIEW</span><span class="studio-muted">${state.scope.toUpperCase()}${state.scope === 'idle' ? '' : ` / ${(state.scope === 'effect' ? state.effectDirection : state.direction).toUpperCase()}`} · ${Number(state.playhead / animation.framesPerSecond).toFixed(2)}s / ${duration.toFixed(2)}s · ${activeLayers.length} active layer${activeLayers.length === 1 ? '' : 's'}</span><button type="button" class="studio-button studio-button--quiet" data-action="play-preview">${state.playing ? '■ STOP' : '▶ PLAY'}</button></div><div class="studio-stage weapon-stage layered-preview"><span class="stage-axis stage-axis-x"></span><span class="stage-axis stage-axis-y"></span><span class="stage-anchor">+</span><span class="stage-label">${effectOnly ? 'ENEMY CONTACT' : 'PLAYER ANCHOR'}</span>${effectOnly ? '' : characterSprite(state)}${activeLayers.map(({ layer, layerIndex, block }) => layerPreviewSprite(state, layer, block, layerIndex)).join('')}<span class="stage-caption"><b>${escapeHtml(state.scope === 'effect' ? state.effectDraft?.displayName : state.draft?.displayName)}</b><span>${activeLayers.map(({ layer, block }) => `${escapeHtml(layer.displayName)} · TILE ${block.sourceFrame}`).join('  /  ') || 'NO VISUAL AT PLAYHEAD'}</span></span></div><div class="studio-preview-footer"><span><i class="legend-dot legend-dot--cyan"></i> shared clock</span><span><i class="legend-dot legend-dot--amber"></i> selected visual layer</span><span>Effects preview at enemy contact; gameplay only spawns them after confirmed damage.</span></div></section>`;
+  return `<section class="studio-preview-card weapon-preview-card layered-preview-card"><div class="studio-preview-toolbar"><span class="studio-kicker">COMBINED PREVIEW</span><span class="studio-muted">${state.scope.toUpperCase()}${state.scope === 'idle' ? '' : ` / ${(state.scope === 'effect' ? state.effectDirection : state.direction).toUpperCase()}`} · ${Number(state.playhead / animation.framesPerSecond).toFixed(2)}s / ${duration.toFixed(2)}s · ${activeLayers.length} active layer${activeLayers.length === 1 ? '' : 's'}</span><button type="button" class="studio-button studio-button--quiet" data-action="play-preview">${state.playing ? '■ STOP' : '▶ PLAY'}</button></div><div class="studio-stage weapon-stage layered-preview"><span class="stage-axis stage-axis-x"></span><span class="stage-axis stage-axis-y"></span><span class="stage-anchor">+</span><span class="stage-label">${effectOnly ? 'ENEMY CONTACT' : 'PLAYER ANCHOR'}</span>${effectOnly ? '' : characterSprite(state)}${activeLayers.map(({ layer, layerIndex, block }) => layerPreviewSprite(state, layer, block, layerIndex)).join('')}${renderPreviewHitboxes(state)}<span class="stage-caption"><b>${escapeHtml(state.scope === 'effect' ? state.effectDraft?.displayName : state.draft?.displayName)}</b><span>${activeLayers.map(({ layer, block }) => `${escapeHtml(layer.displayName)} · TILE ${block.sourceFrame}`).join('  /  ') || 'NO VISUAL AT PLAYHEAD'}</span></span></div><div class="studio-preview-footer"><span><i class="legend-dot legend-dot--cyan"></i> shared clock</span><span><i class="legend-dot legend-dot--amber"></i> selected visual layer</span><span><i class="legend-dot legend-dot--red"></i> hitbox active window</span><span>Effects spawn only after confirmed damage.</span></div></section>`;
 }
 
 function selectedAttack(state: StudioState) {
@@ -542,27 +561,23 @@ async function savePackage(state: StudioState): Promise<Partial<StudioState>> {
     });
     if (effectIssues.length) throw new Error(effectIssues[0]);
   }
-  let effectRevision = state.effectRevision;
-  let effectIsNew = state.effectIsNew;
-  if (state.effectDraft && state.effectDirty) {
-    const effectResponse = await fetch(`/__character-studio/effect/${state.effectIsNew ? 'create' : 'update'}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ effect: state.effectDraft, ...(state.effectIsNew ? {} : { expectedRevision: state.effectRevision }) }),
-    });
-    const effectPayload = await effectResponse.json() as { ok?: boolean; data?: { revision: string }; error?: { message?: string } };
-    if (!effectResponse.ok || !effectPayload.ok || !effectPayload.data) throw new Error(effectPayload.error?.message ?? 'Effect save failed');
-    effectRevision = effectPayload.data.revision;
-    effectIsNew = false;
-  }
-  const weaponResponse = await fetch(`/__character-studio/weapon/${state.revision ? 'update' : 'create'}`, {
+  const response = await fetch('/__character-studio/weapon/save-package', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ weapon: state.draft, ...(state.revision ? { expectedRevision: state.revision } : {}) }),
+    body: JSON.stringify({
+      weapon: state.draft,
+      weaponOperation: state.revision ? 'update' : 'create',
+      ...(state.revision ? { expectedWeaponRevision: state.revision } : {}),
+      ...(state.effectDraft && state.effectDirty ? {
+        effect: state.effectDraft,
+        effectOperation: state.effectIsNew ? 'create' : 'update',
+        ...(state.effectIsNew ? {} : { expectedEffectRevision: state.effectRevision }),
+      } : {}),
+    }),
   });
-  const weaponPayload = await weaponResponse.json() as { ok?: boolean; data?: { revision: string }; error?: { message?: string } };
-  if (!weaponResponse.ok || !weaponPayload.ok || !weaponPayload.data) throw new Error(weaponPayload.error?.message ?? 'Weapon save failed');
-  return { revision: weaponPayload.data.revision, effectRevision, effectIsNew, effectDirty: false, dirty: false, notice: 'Saved. Reload the game to use changed content.' };
+  const payload = await response.json() as { ok?: boolean; data?: { weaponRevision: string; effectRevision?: string }; error?: { message?: string } };
+  if (!response.ok || !payload.ok || !payload.data) throw new Error(payload.error?.message ?? 'Weapon package save failed');
+  return { revision: payload.data.weaponRevision, effectRevision: payload.data.effectRevision ?? state.effectRevision, effectIsNew: false, effectDirty: false, dirty: false, notice: 'Saved. Reload the game to use changed content.' };
 }
 
 export function mountLayeredWeaponStudio(container: HTMLDivElement): () => void {

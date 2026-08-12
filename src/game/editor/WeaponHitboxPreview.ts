@@ -1,9 +1,9 @@
 import { normalizeWeaponDefinition } from '../content/weapons/normalize';
 import type {
   NormalizedWeaponDirectionalAttack,
+  AuthoredWeaponDefinition,
   WeaponAttackDirection,
   WeaponAttackTrackDocument,
-  WeaponDefinition,
   WeaponHitboxDocument,
   WeaponHitboxShape,
 } from '../content/weapons/types';
@@ -128,7 +128,7 @@ export function weaponHitboxPreviewAngle(direction: WeaponAttackDirection): numb
 }
 
 export function resolveWeaponHitboxPreview(
-  weapon: WeaponDefinition,
+  weapon: AuthoredWeaponDefinition,
   direction: WeaponAttackDirection,
 ): ResolvedWeaponHitboxPreview {
   const attack = normalizeWeaponDefinition(weapon).directionalAttacks[direction];

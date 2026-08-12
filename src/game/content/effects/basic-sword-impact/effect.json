@@ -1,0 +1,111 @@
+{
+  "$schema": "../effect.schema.json",
+  "version": 1,
+  "effectId": "basic-sword-impact",
+  "displayName": "Basic Sword impact",
+  "mirrorLeftFromRight": true,
+  "directions": {
+    "right": {
+      "version": 2,
+      "durationSeconds": 0.08333333333333333,
+      "framesPerSecond": 12,
+      "loop": false,
+      "loopMode": "wrap",
+      "layers": [
+        {
+          "layerId": "base",
+          "displayName": "Basic sword",
+          "assetId": "weapon.player.sword-tiles",
+          "depthOffset": 0,
+          "transform": {
+            "offset": [
+              0,
+              0
+            ],
+            "scale": [
+              0.5,
+              0.5
+            ]
+          },
+          "blocks": [
+            {
+              "from": 0,
+              "through": 0,
+              "sourceFrame": 16
+            }
+          ]
+        }
+      ]
+    },
+    "up": {
+      "version": 2,
+      "durationSeconds": 0.08333333333333333,
+      "framesPerSecond": 12,
+      "loop": false,
+      "loopMode": "wrap",
+      "layers": [
+        {
+          "layerId": "base",
+          "displayName": "Basic sword",
+          "assetId": "weapon.player.sword-tiles",
+          "depthOffset": 0,
+          "transform": {
+            "offset": [
+              0,
+              0
+            ],
+            "scale": [
+              0.5,
+              0.5
+            ]
+          },
+          "blocks": [
+            {
+              "from": 0,
+              "through": 0,
+              "sourceFrame": 16,
+              "transform": {
+                "rotationDeg": -90
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "down": {
+      "version": 2,
+      "durationSeconds": 0.08333333333333333,
+      "framesPerSecond": 12,
+      "loop": false,
+      "loopMode": "wrap",
+      "layers": [
+        {
+          "layerId": "base",
+          "displayName": "Basic sword",
+          "assetId": "weapon.player.sword-tiles",
+          "depthOffset": 0,
+          "transform": {
+            "offset": [
+              0,
+              0
+            ],
+            "scale": [
+              0.5,
+              0.5
+            ]
+          },
+          "blocks": [
+            {
+              "from": 0,
+              "through": 0,
+              "sourceFrame": 16,
+              "transform": {
+                "rotationDeg": 90
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

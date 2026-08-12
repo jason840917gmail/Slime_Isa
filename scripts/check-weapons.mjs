@@ -1,111 +1,117 @@
 #!/usr/bin/env node
-/** Validates reusable weapon definitions. */
+/** Validates reusable v1/v2 weapon definitions without importing browser code. */
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const weaponRoot = join(root, 'src', 'game', 'content', 'weapons');
+const effectRoot = join(root, 'src', 'game', 'content', 'effects');
 const errors = [];
-function timelineFrameCount(animation) {
-  return animation?.keyframeTimes !== undefined && animation?.durationSeconds !== undefined
-    ? Math.max(1, Math.round(animation.durationSeconds * animation.framesPerSecond))
-    : Math.max(1, animation?.frames?.length ?? 0);
-}
+const ids = new Set();
+const effectIds = new Set();
+
 function files(directory) {
   const output = [];
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
     if (entry.name.startsWith('.')) continue;
-    const path = join(directory, entry.name);
-    if (entry.isDirectory()) output.push(...files(path));
-    else if (entry.name === 'weapon.json') output.push(path);
+    const target = join(directory, entry.name);
+    if (entry.isDirectory()) output.push(...files(target));
+    else if (entry.name === 'weapon.json') output.push(target);
   }
   return output;
 }
-const weapons = files(weaponRoot).map((file) => JSON.parse(readFileSync(file, 'utf8')));
-if (weapons.length === 0) errors.push('weapon catalog must not be empty');
-const ids = new Set();
-function validateAnimation(weapon, label, animation) {
-  const frameCount = animation?.frames?.length ?? 0;
-  const timelineFrames = timelineFrameCount(animation);
-  if (frameCount < 1) errors.push(`[${weapon.weaponId}] ${label} must contain at least one tile`);
-  const hasTimes = animation?.keyframeTimes !== undefined;
-  const hasDuration = animation?.durationSeconds !== undefined;
-  if (hasTimes !== hasDuration) errors.push(`[${weapon.weaponId}] ${label} keyframeTimes and durationSeconds must be authored together`);
-  if (hasDuration && (!(animation.durationSeconds > 0) || !Number.isFinite(animation.durationSeconds))) errors.push(`[${weapon.weaponId}] ${label} durationSeconds must be positive`);
-  if (hasTimes) {
-    if (!Array.isArray(animation.keyframeTimes) || animation.keyframeTimes.length !== frameCount) errors.push(`[${weapon.weaponId}] ${label} keyframeTimes must match frames length`);
-    for (let index = 0; index < (animation.keyframeTimes ?? []).length; index += 1) {
-      const time = animation.keyframeTimes[index];
-      if (!Number.isInteger(time) || time < 0 || time >= timelineFrames) errors.push(`[${weapon.weaponId}] ${label} keyframeTimes[${index}] outside timeline`);
-      if (index === 0 && time !== 0) errors.push(`[${weapon.weaponId}] ${label} keyframeTimes must start at 0`);
-      if (index > 0 && time <= animation.keyframeTimes[index - 1]) errors.push(`[${weapon.weaponId}] ${label} keyframeTimes must be strictly increasing`);
-    }
-    if (frameCount > timelineFrames) errors.push(`[${weapon.weaponId}] ${label} has more keyframes than timeline frames`);
+
+function effectFiles(directory) {
+  const output = [];
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const target = join(directory, entry.name);
+    if (entry.isDirectory()) output.push(...effectFiles(target));
+    else if (entry.name === 'effect.json') output.push(target);
   }
-  for (const [position, transform] of Object.entries(animation?.frameTransforms ?? {})) {
-    if (!/^\d+$/.test(position) || Number(position) >= frameCount) errors.push(`[${weapon.weaponId}] ${label} transform '${position}' is outside the animation`);
-    for (const field of ['offset', 'scale']) {
-      if (transform[field] !== undefined && (!Array.isArray(transform[field]) || transform[field].length !== 2 || transform[field].some((value) => !Number.isFinite(value)))) errors.push(`[${weapon.weaponId}] ${label} transform '${position}.${field}' must be two finite numbers`);
-      if (field === 'scale' && transform[field]?.some((value) => value <= 0)) errors.push(`[${weapon.weaponId}] ${label} transform '${position}.scale' must be positive`);
-    }
-    if (transform.rotationDeg !== undefined && !Number.isFinite(transform.rotationDeg)) errors.push(`[${weapon.weaponId}] ${label} transform '${position}.rotationDeg' must be finite`);
+  return output;
+}
+for (const file of effectFiles(effectRoot)) effectIds.add(JSON.parse(readFileSync(file, 'utf8')).effectId);
+
+function legacyFrameCount(animation) {
+  return animation?.keyframeTimes !== undefined && animation?.durationSeconds !== undefined
+    ? Math.max(1, Math.round(animation.durationSeconds * animation.framesPerSecond))
+    : Math.max(1, animation?.frames?.length ?? 0);
+}
+
+function layeredFrameCount(weapon, label, animation) {
+  const product = animation?.durationSeconds * animation?.framesPerSecond;
+  const count = Math.round(product);
+  if (!(count >= 1) || Math.abs(product - count) > 1e-6) errors.push(`[${weapon.weaponId}] ${label} duration and FPS must resolve to whole frames`);
+  return count;
+}
+
+function validateHitboxes(weapon, label, hitboxes) {
+  for (const [id, hitbox] of Object.entries(hitboxes ?? {})) {
+    if (!['rectangle', 'circle', 'ellipse', 'sector'].includes(hitbox.shape)) errors.push(`[${weapon.weaponId}] ${label}.${id} has an invalid shape`);
+    if (!(hitbox.width > 0) || !(hitbox.height > 0)) errors.push(`[${weapon.weaponId}] ${label}.${id} needs positive dimensions`);
+    if (hitbox.shape === 'sector' && (!(hitbox.outerRadius >= 0) || !(hitbox.arcWidthRad >= 0 && hitbox.arcWidthRad <= Math.PI * 2))) errors.push(`[${weapon.weaponId}] ${label}.${id} has invalid sector geometry`);
   }
 }
-function validateTrack(weapon, label, animation, track, hitboxes) {
+
+function validateTrack(weapon, label, frameCount, track, hitboxes, forbidImpact) {
   if (!track) return;
-  const frameCount = timelineFrameCount(animation);
-  const spansByHitbox = new Map();
+  const byHitbox = new Map();
   for (const span of track.hitboxSpans ?? []) {
-    if (!hitboxes[span.hitboxId]) errors.push(`[${weapon.weaponId}] ${label} span references missing hitbox '${span.hitboxId}'`);
-    if (!Number.isInteger(span.from) || !Number.isInteger(span.through) || span.from > span.through || span.through >= frameCount) errors.push(`[${weapon.weaponId}] invalid ${label} span for '${span.hitboxId}'`);
-    const spans = spansByHitbox.get(span.hitboxId) ?? [];
-    spans.push(span);
-    spansByHitbox.set(span.hitboxId, spans);
+    if (!hitboxes?.[span.hitboxId]) errors.push(`[${weapon.weaponId}] ${label} references missing hitbox '${span.hitboxId}'`);
+    if (!Number.isInteger(span.from) || !Number.isInteger(span.through) || span.from < 0 || span.through < span.from || span.through >= frameCount) errors.push(`[${weapon.weaponId}] ${label} has an invalid span`);
+    const spans = byHitbox.get(span.hitboxId) ?? [];
+    spans.push(span); byHitbox.set(span.hitboxId, spans);
   }
-  for (const [hitboxId, spans] of spansByHitbox) {
-    spans.sort((left, right) => left.from - right.from);
-    for (let index = 1; index < spans.length; index += 1) {
-      if (spans[index].from <= spans[index - 1].through) errors.push(`[${weapon.weaponId}] overlapping ${label} spans for '${hitboxId}'`);
-    }
+  for (const [id, spans] of byHitbox) {
+    spans.sort((a, b) => a.from - b.from);
+    for (let index = 1; index < spans.length; index += 1) if (spans[index].from <= spans[index - 1].through) errors.push(`[${weapon.weaponId}] ${label} has overlapping '${id}' spans`);
   }
   for (const event of track.events ?? []) {
-    if (!Number.isInteger(event.at) || event.at < 0 || event.at >= frameCount) errors.push(`[${weapon.weaponId}] ${label} event '${event.eventId}' is outside the attack clip`);
+    if (!Number.isInteger(event.at) || event.at < 0 || event.at >= frameCount) errors.push(`[${weapon.weaponId}] ${label} event '${event.eventId}' is outside the timeline`);
+    if (forbidImpact && event.eventId === 'weapon.impact') errors.push(`[${weapon.weaponId}] ${label} retains forbidden weapon.impact`);
   }
 }
-function validateHitboxSet(weapon, label, hitboxes) {
-  for (const [hitboxId, hitbox] of Object.entries(hitboxes)) {
-    if (!['rectangle', 'circle', 'ellipse', 'sector'].includes(hitbox.shape)) errors.push(`[${weapon.weaponId}] ${label} hitbox '${hitboxId}' has an invalid shape`);
-    if (!(hitbox.width > 0) || !(hitbox.height > 0)) errors.push(`[${weapon.weaponId}] ${label} hitbox '${hitboxId}' must have positive dimensions`);
-    if (hitbox.shape === 'sector') {
-      if (!(hitbox.outerRadius >= 0)) errors.push(`[${weapon.weaponId}] ${label} sector hitbox '${hitboxId}' needs an outerRadius`);
-      if (!Number.isFinite(hitbox.arcWidthRad) || hitbox.arcWidthRad < 0 || hitbox.arcWidthRad > Math.PI * 2) {
-        errors.push(`[${weapon.weaponId}] ${label} sector hitbox '${hitboxId}' needs an arcWidthRad between 0 and 2π`);
-      }
+
+function validateLayered(weapon, label, animation, allowLoop) {
+  const frameCount = layeredFrameCount(weapon, label, animation);
+  if (!allowLoop && animation.loop) errors.push(`[${weapon.weaponId}] ${label} must not loop`);
+  for (const layer of animation.layers ?? []) {
+    let previousThrough = -1;
+    for (const block of [...(layer.blocks ?? [])].sort((a, b) => a.from - b.from)) {
+      if (!Number.isInteger(block.from) || !Number.isInteger(block.through) || block.from < 0 || block.through < block.from || block.through >= frameCount) errors.push(`[${weapon.weaponId}] ${label}.${layer.layerId} has an invalid block`);
+      if (block.from <= previousThrough) errors.push(`[${weapon.weaponId}] ${label}.${layer.layerId} has overlapping blocks`);
+      previousThrough = block.through;
     }
   }
+  return frameCount;
 }
+
+const weapons = files(weaponRoot).map((file) => JSON.parse(readFileSync(file, 'utf8')));
+if (!weapons.length) errors.push('weapon catalog must not be empty');
 for (const weapon of weapons) {
   if (ids.has(weapon.weaponId)) errors.push(`[${weapon.weaponId}] duplicate weapon ID`);
   ids.add(weapon.weaponId);
+  if (![1, 2].includes(weapon.version)) errors.push(`[${weapon.weaponId}] version must be 1 or 2`);
   if (!['melee', 'ranged'].includes(weapon.category)) errors.push(`[${weapon.weaponId}] category must be melee or ranged`);
-  if (!(weapon.characterActionId || weapon.animKey)) errors.push(`[${weapon.weaponId}] characterActionId or animKey is required`);
-  for (const field of ['baseDamage', 'cooldownMs', 'hitboxWidth', 'hitboxHeight', 'hitboxDurationMs', 'knockStrength']) {
-    if (!(weapon[field] >= 0)) errors.push(`[${weapon.weaponId}] ${field} must be zero or greater`);
+  if (!(weapon.characterActionId || weapon.animKey)) errors.push(`[${weapon.weaponId}] character action is required`);
+  if (weapon.version === 1) {
+    for (const animation of Object.values(weapon.animations ?? {})) if (!animation?.frames?.length) errors.push(`[${weapon.weaponId}] legacy animation needs frames`);
+    const rootHitboxes = weapon.hitboxes ?? {};
+    validateHitboxes(weapon, 'hitboxes', rootHitboxes);
+    if (weapon.animations?.attack) validateTrack(weapon, 'attack', legacyFrameCount(weapon.animations.attack), weapon.attackTrack, rootHitboxes, false);
+    continue;
   }
-  const hitboxes = weapon.hitboxes ?? {};
-  for (const [animationId, animation] of Object.entries(weapon.animations ?? {})) validateAnimation(weapon, `animations.${animationId}`, animation);
-  validateTrack(weapon, 'attack', weapon.animations?.attack, weapon.attackTrack, hitboxes);
-  for (const direction of ['right', 'left', 'up', 'down', 'side']) {
-    const attack = weapon.directionalAttacks?.[direction];
-    if (!attack) continue;
-    const directionHitboxes = attack.hitboxes ?? (direction === 'left' ? weapon.directionalAttacks?.right?.hitboxes : undefined) ?? hitboxes;
-    validateAnimation(weapon, `directionalAttacks.${direction}.animation`, attack.animation);
-    validateTrack(weapon, `${direction} attack`, attack.animation, attack.attackTrack ?? weapon.attackTrack, directionHitboxes);
-    if (attack.hitboxes) validateHitboxSet(weapon, `directionalAttacks.${direction}`, attack.hitboxes);
+  for (const forbidden of ['assetId', 'visual', 'hitboxes', 'attackTrack', 'animKey']) if (forbidden in weapon) errors.push(`[${weapon.weaponId}] v2 forbids root ${forbidden}`);
+  if ('impact' in (weapon.animations ?? {}) || 'attack' in (weapon.animations ?? {})) errors.push(`[${weapon.weaponId}] v2 animations may only contain idle`);
+  if (weapon.onHitEffectId && !effectIds.has(weapon.onHitEffectId)) errors.push(`[${weapon.weaponId}] onHitEffectId '${weapon.onHitEffectId}' is missing`);
+  validateLayered(weapon, 'idle', weapon.animations?.idle, true);
+  for (const direction of ['right', 'up', 'down']) if (!weapon.directionalAttacks?.[direction]) errors.push(`[${weapon.weaponId}] missing ${direction} attack`);
+  for (const [direction, attack] of Object.entries(weapon.directionalAttacks ?? {})) {
+    const frameCount = validateLayered(weapon, `${direction} attack`, attack.animation, false);
+    validateHitboxes(weapon, `${direction}.hitboxes`, attack.hitboxes);
+    validateTrack(weapon, `${direction}.track`, frameCount, attack.attackTrack, attack.hitboxes, true);
   }
-  validateHitboxSet(weapon, 'root', hitboxes);
 }
 if (errors.length) { console.error(`weapons:check failed with ${errors.length} error(s):`); errors.forEach((error) => console.error(`  - ${error}`)); process.exit(1); }
 console.log(`weapons:check OK - ${weapons.length} reusable weapon definition(s).`);
-
