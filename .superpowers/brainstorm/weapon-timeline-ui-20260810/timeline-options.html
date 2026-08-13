@@ -1,0 +1,79 @@
+<style>
+  :root { --ink:#eaf4f2; --muted:#91aaa9; --panel:#101c2c; --panel-2:#17283b; --line:#2f4c5b; --mint:#86f0c3; --amber:#ffd277; --cyan:#65d9e6; --danger:#ff8f7a; }
+  .timeline-brief { color:var(--muted); max-width:980px; margin-bottom:22px; }
+  .timeline-options { display:grid; gap:18px; }
+  .timeline-option { background:#0d1725; border:1px solid #2a4253; border-radius:14px; padding:18px; cursor:pointer; transition:.18s ease; }
+  .timeline-option:hover { border-color:var(--mint); transform:translateY(-1px); }
+  .timeline-option.selected { border-color:var(--amber); box-shadow:0 0 0 2px #ffd27733, 0 12px 32px #0004; }
+  .timeline-option h3 { margin:0 0 4px; color:var(--ink); }
+  .timeline-option p { margin:0 0 14px; color:var(--muted); }
+  .mock-editor { background:#0a1220; border:1px solid #263b4c; border-radius:10px; overflow:hidden; }
+  .mock-toolbar { display:flex; align-items:center; gap:9px; padding:9px 12px; background:#132238; border-bottom:1px solid #263b4c; color:#cbe7df; font-size:12px; }
+  .mock-pill { border:1px solid #416372; border-radius:5px; padding:3px 7px; color:#b9d5d2; }
+  .mock-pill.active { background:#265f62; border-color:var(--mint); color:#effff7; }
+  .mock-ruler { margin-left:118px; display:flex; justify-content:space-between; color:#66818a; font-size:10px; padding:7px 14px 4px 0; }
+  .mock-track { display:grid; grid-template-columns:118px 1fr; min-height:54px; border-top:1px solid #203648; }
+  .mock-track-label { padding:14px 10px; color:#9ab7b5; font-size:11px; font-weight:700; letter-spacing:.08em; }
+  .mock-lane { position:relative; display:flex; align-items:center; gap:6px; padding:8px 14px 8px 0; background:linear-gradient(90deg, transparent 24.9%, #1b3445 25%, transparent 25.2%, transparent 49.9%, #1b3445 50%, transparent 50.2%, transparent 74.9%, #1b3445 75%, transparent 75.2%); }
+  .tile-block { height:34px; min-width:68px; border-radius:6px; border:1px solid #4b8490; background:#214e60; display:flex; align-items:center; gap:7px; padding:0 8px; color:#effff7; font-size:11px; position:relative; }
+  .tile-block strong { color:var(--mint); font-size:12px; }
+  .tile-block.hold { min-width:188px; background:#284c58; border-color:#73c7bd; }
+  .tile-block.hold:after { content:'hold · 5 frames'; position:absolute; right:8px; bottom:-15px; color:#75aaa9; font-size:9px; }
+  .tile-block.short { min-width:54px; background:#382f4f; border-color:#a18ee0; }
+  .point { width:12px; height:12px; background:var(--amber); transform:rotate(45deg); margin:0 17px; box-shadow:0 0 0 4px #ffd27722; }
+  .time-band { margin:0 14px 12px 118px; border:1px dashed #3a5b66; border-radius:6px; padding:8px 10px; color:#9fc2bd; font-size:11px; }
+  .time-band b { color:var(--amber); }
+  .popup { position:absolute; top:39px; left:138px; width:268px; background:#17283b; border:1px solid #5c8b8f; border-radius:8px; padding:10px; box-shadow:0 18px 32px #0008; z-index:3; }
+  .popup-title { color:#d7f6e9; font-size:11px; font-weight:700; letter-spacing:.08em; margin-bottom:8px; }
+  .popup-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
+  .source-chip { background:#0f1b2b; border:1px solid #355064; border-radius:5px; padding:7px 3px; text-align:center; color:#a7c3c2; font-size:9px; }
+  .source-chip.selected { border-color:var(--mint); color:#effff7; }
+  .source-chip span { display:block; height:22px; margin-bottom:3px; background:linear-gradient(135deg,#78e6c1 20%,#2a7f83 21% 48%,#d6fff0 49% 57%,#2b5163 58%); image-rendering:pixelated; }
+  .popup-footer { display:flex; justify-content:space-between; align-items:center; margin-top:9px; color:#88a9aa; font-size:10px; }
+  .add-button { background:#86f0c3; color:#0b1c20; border:0; border-radius:5px; padding:6px 9px; font-weight:700; }
+  .callout { margin-top:12px; color:#9fc2bd; font-size:11px; }
+  .callout b { color:var(--amber); }
+  @media (min-width:1000px) { .timeline-options { grid-template-columns:1fr 1fr; } .timeline-option:first-child { grid-column:1 / -1; } }
+</style>
+
+<h2>Weapon timeline: choose the time model</h2>
+<p class="timeline-brief">The source sheet becomes a picker opened from <b>Add Tiles</b>. The animation timeline stores tile occurrences with explicit duration, so one sword tile can hold for five frames without duplicating it. Click the direction that matches what you want the editor to feel like.</p>
+
+<div class="timeline-options" data-multiselect>
+  <div class="timeline-option" data-choice="godot-duration" onclick="toggleSelect(this)">
+    <h3>A · Godot-style duration blocks <span style="color:#86f0c3;font-size:11px">recommended</span></h3>
+    <p>Separate the visual tile track from time. Each tile block has a start and duration; dragging its right edge changes how many animation frames it holds.</p>
+    <div class="mock-editor">
+      <div class="mock-toolbar"><span class="mock-pill active">ANIMATION TILES</span><span class="mock-pill">ATTACK · RIGHT</span><button class="add-button">＋ ADD TILES</button></div>
+      <div class="mock-ruler"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span></div>
+      <div class="mock-track"><div class="mock-track-label">FRAME</div><div class="mock-lane"><div class="tile-block short"><strong>#01</strong> sword</div><div class="tile-block hold"><strong>#02</strong> slash pose</div><div class="tile-block short"><strong>#03</strong> end</div></div></div>
+      <div class="mock-track"><div class="mock-track-label">HITBOX</div><div class="mock-lane"><div class="point"></div><div class="point"></div><div class="point"></div></div></div>
+      <div class="time-band"><b>Selected tile #02</b> · starts at frame 1 · duration 5 frames · source tile can be changed without changing timing</div>
+    </div>
+    <div class="callout"><b>Best fit:</b> compact timelines, readable holds, and future hitbox/event tracks aligned to the same frame ruler.</div>
+  </div>
+
+  <div class="timeline-option" data-choice="point-hold" onclick="toggleSelect(this)">
+    <h3>B · Point keys with hold values</h3>
+    <p>Each tile is a diamond/key at its start frame. A selected key exposes a “hold frames” value in the inspector.</p>
+    <div class="mock-editor">
+      <div class="mock-toolbar"><span class="mock-pill active">ANIMATION TILES</span><button class="add-button">＋ ADD TILES</button></div>
+      <div class="mock-ruler"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span></div>
+      <div class="mock-track"><div class="mock-track-label">FRAME</div><div class="mock-lane"><div class="point"></div><div class="point" style="margin-left:33px"></div><div class="point" style="margin-left:118px"></div></div></div>
+      <div class="time-band"><b>Selected key #02</b> · source tile 7 · hold frames <b>5</b> · edit duration in inspector</div>
+    </div>
+    <div class="callout"><b>Trade-off:</b> keeps the strip compact, but timing is less visible because the hold lives in a field instead of the track.</div>
+  </div>
+
+  <div class="timeline-option" data-choice="popup-preview" onclick="toggleSelect(this)">
+    <h3>C · Same duration blocks, with the picker open</h3>
+    <p>Shows the interaction for selecting artwork: the source tiles are hidden until Add Tiles is clicked, then selected tiles append to the actual animation.</p>
+    <div class="mock-editor" style="position:relative">
+      <div class="mock-toolbar"><span class="mock-pill active">ANIMATION TILES</span><button class="add-button">＋ ADD TILES</button></div>
+      <div class="mock-ruler"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span></div>
+      <div class="mock-track"><div class="mock-track-label">FRAME</div><div class="mock-lane"><div class="tile-block short"><strong>#01</strong> start</div><div class="tile-block hold"><strong>#07</strong> slash pose</div></div></div>
+      <div class="popup"><div class="popup-title">SOURCE TILES · select to add</div><div class="popup-grid"><div class="source-chip"><span></span>0</div><div class="source-chip selected"><span></span>1 ✓</div><div class="source-chip"><span></span>2</div><div class="source-chip"><span></span>3</div><div class="source-chip"><span></span>4</div><div class="source-chip"><span></span>5</div><div class="source-chip"><span></span>6</div><div class="source-chip"><span></span>7</div></div><div class="popup-footer"><span>Selected tiles append in order</span><button class="add-button">ADD 1 TILE</button></div></div>
+    </div>
+    <div class="callout"><b>Shared behavior:</b> this popup is part of A or B; it is not a third data model.</div>
+  </div>
+</div>

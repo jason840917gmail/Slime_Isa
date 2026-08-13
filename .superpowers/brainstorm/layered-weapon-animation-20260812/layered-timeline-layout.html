@@ -1,0 +1,58 @@
+<h2>Layered timeline layout</h2>
+<p class="subtitle">One shared clock, separate visual lanes. The selected layer owns the tiles and asset controls shown below.</p>
+
+<div class="mockup">
+  <div class="mockup-header" style="display:flex;justify-content:space-between;align-items:center">
+    <span>ANIMATION TIMELINE · ATTACK / RIGHT</span>
+    <span><button class="mock-button">+ ADD LAYER</button> <button class="mock-button">PLAY</button></span>
+  </div>
+  <div class="mockup-body" style="background:#07111f;padding:14px;overflow:auto">
+    <div style="display:grid;grid-template-columns:180px repeat(10,minmax(54px,1fr));gap:3px;min-width:900px;align-items:stretch">
+      <div style="color:#71d9d5;font-size:11px">SECONDS</div>
+      <div style="color:#71d9d5;font-size:11px">0.00</div><div style="color:#71d9d5;font-size:11px">0.04</div><div style="color:#71d9d5;font-size:11px">0.08</div><div style="color:#71d9d5;font-size:11px">0.13</div><div style="color:#71d9d5;font-size:11px">0.17</div><div style="color:#71d9d5;font-size:11px">0.21</div><div style="color:#71d9d5;font-size:11px">0.25</div><div style="color:#71d9d5;font-size:11px">0.29</div><div style="color:#71d9d5;font-size:11px">0.33</div><div style="color:#71d9d5;font-size:11px">0.38</div>
+
+      <div style="border:1px solid #59d2ce;background:#102837;padding:8px"><strong>⚔ SWORD</strong><br><small>weapon.player.sword</small><br><span style="color:#71d9d5">selected · depth 0</span></div>
+      <div style="grid-column:2 / span 3;background:#17334a;border:1px solid #437593;padding:12px;text-align:center">TILE 00 · 3F</div>
+      <div style="grid-column:5 / span 2;background:#17334a;border:1px solid #437593;padding:12px;text-align:center">TILE 03 · 2F</div>
+      <div style="grid-column:7 / span 3;background:#17334a;border:1px solid #437593;padding:12px;text-align:center">TILE 06 · 3F</div>
+      <div style="grid-column:10 / span 2;background:#17334a;border:1px solid #437593;padding:12px;text-align:center">TILE 09 · 2F</div>
+
+      <div style="border:1px solid #34546c;padding:8px"><strong>〰 TRAIL</strong><br><small>effect.slash.cyan</small><br><span style="color:#88a6ba">depth +1 · visible</span></div>
+      <div style="grid-column:2 / span 2;background:repeating-linear-gradient(135deg,#0c1825 0 6px,#0f2232 6px 12px);border:1px dashed #294459;text-align:center;padding:12px;color:#57758a">empty</div>
+      <div style="grid-column:4 / span 3;background:#16464a;border:1px solid #45aba6;padding:12px;text-align:center">TILE 02 · 3F</div>
+      <div style="grid-column:7 / span 3;background:#16464a;border:1px solid #45aba6;padding:12px;text-align:center">TILE 05 · 3F</div>
+      <div style="grid-column:10 / span 2;background:repeating-linear-gradient(135deg,#0c1825 0 6px,#0f2232 6px 12px);border:1px dashed #294459;text-align:center;padding:12px;color:#57758a">empty</div>
+
+      <div style="border:1px solid #34546c;padding:8px"><strong>ϟ LIGHTNING</strong><br><small>effect.lightning.arc</small><br><span style="color:#88a6ba">depth +2 · visible</span></div>
+      <div style="grid-column:2 / span 4;background:repeating-linear-gradient(135deg,#0c1825 0 6px,#0f2232 6px 12px);border:1px dashed #294459;text-align:center;padding:12px;color:#57758a">empty</div>
+      <div style="grid-column:6 / span 2;background:#5a4c19;border:1px solid #e0c354;padding:12px;text-align:center">TILE 04 · 2F</div>
+      <div style="grid-column:8 / span 4;background:repeating-linear-gradient(135deg,#0c1825 0 6px,#0f2232 6px 12px);border:1px dashed #294459;text-align:center;padding:12px;color:#57758a">empty</div>
+
+      <div style="border:1px solid #713d53;padding:8px"><strong>HITBOXES</strong><br><small>combat track</small></div>
+      <div style="grid-column:2 / span 4"></div><div style="grid-column:6 / span 3;background:#70324c;border:1px solid #e6638c;text-align:center;padding:6px">primary active</div><div style="grid-column:9 / span 3"></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-top:16px;border-top:1px solid #233d53;padding-top:14px">
+      <label><span class="label">Selected layer</span><div class="mock-input">SWORD</div></label>
+      <label><span class="label">Source asset</span><div class="mock-input">weapon.player.sword ▾</div></label>
+      <label><span class="label">Depth</span><div class="mock-input">0</div></label>
+      <label><span class="label">Controls</span><div><button class="mock-button">▲</button> <button class="mock-button">▼</button> <button class="mock-button">HIDE</button> <button class="mock-button">DELETE</button></div></label>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:20px">
+  <h3>Interaction proposal</h3>
+  <ul>
+    <li>Selecting a lane makes its asset shelf, tile transforms, and Add Tiles controls active.</li>
+    <li>Empty cells are explicit transparent time; dragging a block changes that tile’s hold duration.</li>
+    <li>Layer order controls default draw order; a numeric depth offset resolves special cases.</li>
+    <li>Hitboxes and events remain non-visual tracks under the same ruler.</li>
+  </ul>
+</div>
+
+<div class="options">
+  <div class="option" data-choice="approve-layer-layout" onclick="toggleSelect(this)">
+    <div class="letter">✓</div><div class="content"><h3>Approve this layout direction</h3><p>Continue with the data flow, contact-effect behavior, migration, and tests.</p></div>
+  </div>
+</div>
