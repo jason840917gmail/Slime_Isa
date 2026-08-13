@@ -70,14 +70,16 @@
                 "sourceFrame": 0,
                 "transform": {
                   "offset": [
-                    35.05,
+                    20,
                     -12.56
                   ],
                   "scale": [
                     1,
                     1
                   ],
-                  "rotationDeg": 0
+                  "rotationDeg": 0,
+                  "flipX": false,
+                  "flipY": false
                 }
               },
               {
@@ -86,14 +88,16 @@
                 "sourceFrame": 1,
                 "transform": {
                   "offset": [
-                    42.33,
-                    -16.53
+                    25,
+                    -8
                   ],
                   "scale": [
                     1,
                     1
                   ],
-                  "rotationDeg": 0
+                  "rotationDeg": 0,
+                  "flipX": false,
+                  "flipY": false
                 }
               },
               {
@@ -102,14 +106,16 @@
                 "sourceFrame": 2,
                 "transform": {
                   "offset": [
-                    43.65,
+                    30,
                     -0.66
                   ],
                   "scale": [
                     1,
                     1
                   ],
-                  "rotationDeg": 0
+                  "rotationDeg": 0,
+                  "flipX": false,
+                  "flipY": false
                 }
               },
               {
@@ -118,14 +124,16 @@
                 "sourceFrame": 3,
                 "transform": {
                   "offset": [
-                    57.54,
-                    15.21
+                    36,
+                    12
                   ],
                   "scale": [
                     1,
                     1
                   ],
-                  "rotationDeg": 0
+                  "rotationDeg": 0,
+                  "flipX": false,
+                  "flipY": false
                 }
               },
               {
@@ -134,14 +142,16 @@
                 "sourceFrame": 4,
                 "transform": {
                   "offset": [
-                    69.44,
-                    29.1
+                    36,
+                    18
                   ],
                   "scale": [
                     1,
                     1
                   ],
-                  "rotationDeg": 0
+                  "rotationDeg": 0,
+                  "flipX": false,
+                  "flipY": false
                 }
               },
               {
@@ -150,14 +160,16 @@
                 "sourceFrame": 5,
                 "transform": {
                   "offset": [
-                    66.8,
-                    46.96
+                    36,
+                    28
                   ],
                   "scale": [
                     1,
                     1
                   ],
-                  "rotationDeg": 0
+                  "rotationDeg": 0,
+                  "flipX": false,
+                  "flipY": false
                 }
               },
               {
@@ -166,17 +178,42 @@
                 "sourceFrame": 6,
                 "transform": {
                   "offset": [
-                    60.19,
-                    62.17
+                    30,
+                    38
                   ],
                   "scale": [
                     1,
                     1
                   ],
-                  "rotationDeg": 0
+                  "rotationDeg": 0,
+                  "flipX": false,
+                  "flipY": false
                 }
               }
             ]
+          },
+          {
+            "layerId": "layer-2",
+            "displayName": "Layer 2",
+            "assetId": "weapon.player.sword-tiles",
+            "depthOffset": 1,
+            "blocks": [
+              {
+                "from": 6,
+                "through": 8,
+                "sourceFrame": 16
+              }
+            ],
+            "transform": {
+              "scale": [
+                1,
+                1
+              ],
+              "offset": [
+                60,
+                0
+              ]
+            }
           }
         ]
       },
@@ -186,7 +223,7 @@
           "shape": "sector",
           "width": 42,
           "height": 18,
-          "offsetX": 10,
+          "offsetX": 14,
           "offsetY": 15,
           "outerRadius": 57,
           "arcWidthRad": 2.2165681500327987

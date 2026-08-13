@@ -11,6 +11,8 @@ let timelinePanel;
 let timelineResize;
 let animation;
 let weaponHitboxPreview;
+let weaponHitboxGuides;
+let layeredWeaponHitboxControls;
 let CharacterDocumentState;
 
 async function loadTypeScriptModule(entryPoint) {
@@ -27,12 +29,14 @@ async function loadTypeScriptModule(entryPoint) {
 }
 
 before(async () => {
-  [timelineView, timelinePanel, timelineResize, animation, weaponHitboxPreview] = await Promise.all([
+  [timelineView, timelinePanel, timelineResize, animation, weaponHitboxPreview, weaponHitboxGuides, layeredWeaponHitboxControls] = await Promise.all([
     loadTypeScriptModule('src/game/editor/AnimationTimelineView.ts'),
     loadTypeScriptModule('src/game/editor/AnimationTimelinePanel.ts'),
     loadTypeScriptModule('src/game/editor/AnimationTimelineResize.ts'),
     loadTypeScriptModule('src/game/shared/animation/timeline.ts'),
     loadTypeScriptModule('src/game/editor/WeaponHitboxPreview.ts'),
+    loadTypeScriptModule('src/game/editor/WeaponHitboxGuides.ts'),
+    loadTypeScriptModule('src/game/editor/LayeredWeaponHitboxControls.ts'),
   ]);
   ({ CharacterDocumentState } = await loadTypeScriptModule('src/game/editor/CharacterDocumentState.ts'));
 });
@@ -325,4 +329,70 @@ test('weapon sector preview handles cardinal angles and SVG edge cases', () => {
   assert.equal(invalid.valid, false);
   assert.match(invalid.invalidReason, /smaller than outer radius/);
   assert.equal(weaponHitboxPreview.weaponAttackTrackScopeLabel('down'), 'ATTACK / DOWN');
+});
+
+test('layered hitbox controls expose only the dimensions used by each runtime shape', () => {
+  const sector = {
+    shape: 'sector', width: 42, height: 18, offsetX: 10, offsetY: 15,
+    innerRadius: 2, outerRadius: 57, arcWidthRad: Math.PI / 2,
+  };
+  const sectorHtml = layeredWeaponHitboxControls.renderLayeredWeaponHitboxControls('primary', sector);
+
+  assert.match(sectorHtml, />Outer radius</);
+  assert.match(sectorHtml, />Arc width</);
+  assert.match(sectorHtml, /data-weapon-field="hitbox:primary:outerRadius"/);
+  assert.match(sectorHtml, /data-weapon-field="hitbox:primary:arcWidthDeg"/);
+  assert.match(sectorHtml, /data-weapon-field="hitbox:primary:offsetX"/);
+  assert.match(sectorHtml, /data-weapon-field="hitbox:primary:offsetY"/);
+  assert.doesNotMatch(sectorHtml, /data-weapon-field="hitbox:primary:width"/);
+  assert.doesNotMatch(sectorHtml, /data-weapon-field="hitbox:primary:height"/);
+
+  const rectangleHtml = layeredWeaponHitboxControls.renderLayeredWeaponHitboxControls('guard', {
+    shape: 'rectangle', width: 32, height: 12, offsetX: 20, offsetY: -4,
+  });
+  assert.match(rectangleHtml, /data-weapon-field="hitbox:guard:width"/);
+  assert.match(rectangleHtml, /data-weapon-field="hitbox:guard:height"/);
+  assert.doesNotMatch(rectangleHtml, /data-weapon-field="hitbox:guard:outerRadius"/);
+
+  const widened = layeredWeaponHitboxControls.updateWeaponHitboxControl(sector, 'outerRadius', '80');
+  const halfCircle = layeredWeaponHitboxControls.updateWeaponHitboxControl(widened, 'arcWidthDeg', '180');
+  assert.equal(widened.outerRadius, 80);
+  assert.equal(halfCircle.arcWidthRad, Math.PI);
+});
+
+test('shared hitbox preview markup visibly follows live dimensions, offsets, and activation', () => {
+  const base = {
+    shape: 'sector', width: 42, height: 18, offsetX: 10, offsetY: 15,
+    innerRadius: 0, outerRadius: 30, arcWidthRad: Math.PI / 2,
+  };
+  const options = {
+    hitboxes: { primary: base },
+    track: { hitboxSpans: [{ hitboxId: 'primary', from: 2, through: 4 }] },
+    direction: 'right',
+    timelineFrame: 3,
+    selectedHitboxId: 'primary',
+  };
+  const baseline = weaponHitboxGuides.renderWeaponHitboxGuides(options);
+  assert.match(baseline, /stage-hitbox--sector is-hot is-selected/);
+  assert.match(baseline, /width:120px;height:120px/);
+  assert.match(baseline, /translate\(20px,30px\)/);
+  assert.match(baseline, /data-weapon-hitbox-id="primary"/);
+  assert.match(baseline, /data-select-hitbox="primary"/);
+  assert.match(baseline, /data-select-weapon-hitbox="primary"/);
+
+  const resized = weaponHitboxGuides.renderWeaponHitboxGuides({
+    ...options,
+    hitboxes: { primary: { ...base, outerRadius: 50 } },
+  });
+  assert.match(resized, /width:200px;height:200px/);
+  assert.notEqual(resized, baseline);
+
+  const moved = weaponHitboxGuides.renderWeaponHitboxGuides({
+    ...options,
+    hitboxes: { primary: { ...base, offsetX: 18, offsetY: -6 } },
+  });
+  assert.match(moved, /translate\(36px,-12px\)/);
+
+  const inactive = weaponHitboxGuides.renderWeaponHitboxGuides({ ...options, timelineFrame: 1 });
+  assert.doesNotMatch(inactive, / is-hot/);
 });

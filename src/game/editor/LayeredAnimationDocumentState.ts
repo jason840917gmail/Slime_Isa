@@ -1,6 +1,7 @@
 import {
   layeredTimelineFrameCount,
   normalizeLayeredAnimation,
+  type AnimationBlockTransformDocument,
   type AnimationVisualBlockDocument,
   type AnimationVisualLayerDocument,
   type LayeredAnimationDocument,
@@ -180,6 +181,25 @@ export class LayeredAnimationDocumentState {
     const layer = this.animation.layers.find((candidate) => candidate.layerId === layerId);
     const block = layer?.blocks[blockIndex];
     return block ? this.resizeBlock(layerId, blockIndex, block.through + Math.round(delta)) : false;
+  }
+
+  setBlockTransform(
+    layerId: string,
+    blockIndex: number,
+    transform?: AnimationBlockTransformDocument,
+  ): boolean {
+    if (transform) {
+      const values = [
+        ...(transform.offset ?? []),
+        ...(transform.scale ?? []),
+        transform.rotationDeg,
+      ].filter((value): value is number => value !== undefined);
+      if (values.some((value) => !Number.isFinite(value))) return false;
+      if (transform.scale?.some((value) => value <= 0)) return false;
+    }
+    return this.updateBlock(layerId, blockIndex, (block) => transform
+      ? { ...block, transform: clone(transform) }
+      : { from: block.from, through: block.through, sourceFrame: block.sourceFrame });
   }
 
   deleteBlock(layerId: string, blockIndex: number): boolean {

@@ -33,12 +33,11 @@ import { createAnimationTimelineView, formatAnimationTimelineSeconds, previewTar
 import { renderAnimationTimelinePanel, renderAnimationTimelineRuler } from './AnimationTimelinePanel';
 import { TimelineHoldResizeController } from './AnimationTimelineResize';
 import { mountLayeredWeaponStudio } from './LayeredWeaponStudio';
+import { renderWeaponHitboxGuides as renderSharedWeaponHitboxGuides } from './WeaponHitboxGuides';
 import {
   resolveWeaponHitboxPreview,
-  resolveWeaponHitboxPreviewGeometry,
   weaponAttackTrackScopeLabel,
   weaponHitboxIsActive,
-  WEAPON_HITBOX_PREVIEW_SCALE,
 } from './WeaponHitboxPreview';
 
 type WeaponAnimationId = 'idle' | 'attack' | 'impact';
@@ -653,26 +652,13 @@ function renderWeaponPreview(
 
 function renderWeaponHitboxGuides(weapon: WeaponDefinition, position: number, direction: WeaponAttackDirection, requestedHitboxId: string): string {
   const preview = resolveWeaponHitboxPreview(weapon, direction);
-  const selectedHitboxId = resolvedSelectedHitboxId(preview.attack.hitboxes, requestedHitboxId);
-  return Object.entries(preview.attack.hitboxes).map(([hitboxId, hitbox], hitboxIndex) => {
-    const geometry = resolveWeaponHitboxPreviewGeometry(hitbox, direction);
-    const isActive = weaponHitboxIsActive(preview, hitboxId, position);
-    const title = geometry.valid ? hitboxId : `${hitboxId}: ${geometry.invalidReason ?? 'Invalid geometry'}`;
-    const classes = `stage-hitbox stage-hitbox--${geometry.shape}${isActive ? ' is-hot' : ''}${hitboxId === selectedHitboxId ? ' is-selected' : ''}${geometry.valid ? '' : ' is-invalid'}`;
-    const selectButton = `<button type="button" class="stage-hitbox-select" style="--hitbox-label-index:${hitboxIndex}" data-select-weapon-hitbox="${escapeHtml(hitboxId)}" aria-label="Edit ${escapeHtml(hitboxId)}">${escapeHtml(hitboxId)}</button>`;
-    if (!geometry.valid) {
-      return `<span class="${classes}" data-weapon-hitbox-id="${escapeHtml(hitboxId)}" data-weapon-hitbox-invalid style="transform:translate(-50%,-50%)" title="${escapeHtml(title)}">${selectButton}</span>`;
-    }
-    const width = geometry.width * WEAPON_HITBOX_PREVIEW_SCALE;
-    const height = geometry.height * WEAPON_HITBOX_PREVIEW_SCALE;
-    const offsetX = geometry.centerX * WEAPON_HITBOX_PREVIEW_SCALE;
-    const offsetY = geometry.centerY * WEAPON_HITBOX_PREVIEW_SCALE;
-    const style = `width:${width}px;height:${height}px;transform:translate(-50%,-50%) translate(${offsetX}px,${offsetY}px)`;
-    const shape = geometry.shape === 'sector'
-      ? `<svg class="weapon-hitbox-sector" viewBox="${geometry.sectorViewBox}" aria-hidden="true"><path class="weapon-hitbox-sector-area" fill-rule="evenodd" d="${geometry.sectorAreaPath ?? ''}"></path>${geometry.sectorBoundaryPath ? `<path class="weapon-hitbox-sector-boundary" d="${geometry.sectorBoundaryPath}"></path>` : ''}</svg>`
-      : '';
-    return `<span class="${classes}" data-weapon-hitbox-id="${escapeHtml(hitboxId)}" style="${style}" title="${escapeHtml(title)}">${shape}${selectButton}</span>`;
-  }).join('');
+  return renderSharedWeaponHitboxGuides({
+    hitboxes: preview.attack.hitboxes,
+    track: preview.track,
+    direction,
+    timelineFrame: position,
+    selectedHitboxId: requestedHitboxId,
+  });
 }
 
 function renderWeaponPreviewLegacy(weapon: WeaponDefinition, info: ReturnType<typeof assetInfo>, animationId: WeaponAnimationId, position: number, direction: WeaponAttackDirection): string {
