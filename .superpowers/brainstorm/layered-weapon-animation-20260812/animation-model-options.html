@@ -1,0 +1,64 @@
+<h2>Weapon animation + confirmed-hit effects</h2>
+<p class="subtitle">Compare how the Studio could separate effects that always follow a swing from effects that only appear after an enemy is hit.</p>
+
+<div class="cards" style="grid-template-columns:repeat(3,minmax(280px,1fr));align-items:stretch">
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:18px;background:#07111f">
+      <div class="label">OPTION A · SEPARATE CLIPS</div>
+      <div style="display:flex;gap:6px;margin:10px 0"><span class="mock-button">ATTACK R</span><span class="mock-button">IMPACT R</span></div>
+      <div style="border:1px solid #24435d;padding:8px;margin-top:8px">
+        <small>SWORD</small><div style="height:26px;background:linear-gradient(90deg,#18334c 0 25%,#296080 25% 75%,#18334c 75%);margin-top:5px"></div>
+      </div>
+      <div style="text-align:center;color:#6fdad4;margin:12px 0">enemy hit → switch to Impact Right</div>
+      <div style="border:1px solid #24435d;padding:8px">
+        <small>IMPACT</small><div style="height:26px;background:radial-gradient(circle,#fff6a3 0 12%,#f5a94d 13% 35%,transparent 38%);margin-top:5px"></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A · Directional Impact tab</h3>
+      <p>Keep Attack and Impact as separate directional animations.</p>
+      <div class="pros-cons"><div class="pros"><h4>Pros</h4><ul><li>Smallest data change</li><li>Easy to understand</li></ul></div><div class="cons"><h4>Cons</h4><ul><li>Cannot layer trails over the sword</li><li>Impact replaces the weapon clip</li><li>Does not solve reusable effects</li></ul></div></div>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)" style="border-color:#6fdad4">
+    <div class="card-image" style="padding:18px;background:#07111f">
+      <div class="label">OPTION B · RECOMMENDED</div>
+      <div style="display:flex;gap:6px;margin:10px 0"><span class="mock-button">ATTACK / RIGHT</span><span class="mock-button">+ LAYER</span></div>
+      <div style="display:grid;grid-template-columns:70px 1fr;gap:5px;align-items:center">
+        <small>⚔ SWORD</small><div style="height:28px;background:linear-gradient(90deg,#153049 0 20%,#2b7090 20% 78%,#153049 78%)"></div>
+        <small>〰 TRAIL</small><div style="height:28px;background:linear-gradient(90deg,transparent 0 28%,#46d5d0 28% 68%,transparent 68%)"></div>
+        <small>ϟ LIGHTNING</small><div style="height:28px;background:linear-gradient(90deg,transparent 0 42%,#f8df68 42% 58%,transparent 58%)"></div>
+        <small>HITBOX</small><div style="height:12px;background:linear-gradient(90deg,transparent 0 40%,#e85f84 40% 67%,transparent 67%)"></div>
+      </div>
+      <div style="text-align:center;color:#6fdad4;margin:12px 0">confirmed collision → spawn directional On Hit at contact</div>
+      <div style="display:flex;justify-content:center;gap:8px"><span class="mock-button">DEFAULT</span><span class="mock-button">RIGHT</span><span class="mock-button">LEFT ↔</span><span class="mock-button">UP</span><span class="mock-button">DOWN</span></div>
+    </div>
+    <div class="card-body">
+      <h3>B · Layered animation + On Hit package</h3>
+      <p>Attack layers share one clock. Confirmed-hit artwork is a separate directional effect spawned at contact.</p>
+      <div class="pros-cons"><div class="pros"><h4>Pros</h4><ul><li>Godot-like synchronized layers</li><li>Each layer can use its own asset</li><li>Impact only appears on real hits</li><li>Generalizes to characters and enemies</li></ul></div><div class="cons"><h4>Cons</h4><ul><li>New layer editor and runtime sprites</li><li>Needs migration from single-layer clips</li></ul></div></div>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:18px;background:#07111f">
+      <div class="label">OPTION C · FULL TRACK GRAPH</div>
+      <div style="display:grid;grid-template-columns:75px 1fr;gap:5px;align-items:center;margin-top:12px">
+        <small>SPRITE</small><div style="height:24px;background:#245f7e"></div>
+        <small>VFX</small><div style="height:24px;background:#337e79"></div>
+        <small>SPAWN</small><div style="height:24px;background:repeating-linear-gradient(90deg,transparent 0 25px,#f3bd55 25px 29px)"></div>
+        <small>AUDIO</small><div style="height:24px;background:repeating-linear-gradient(135deg,#25364c 0 6px,#17283d 6px 12px)"></div>
+        <small>HITBOX</small><div style="height:24px;background:#71364f"></div>
+        <small>EVENT</small><div style="height:24px;background:repeating-linear-gradient(90deg,transparent 0 35px,#af74d7 35px 39px)"></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C · Arbitrary Godot-style tracks</h3>
+      <p>Every animation can contain sprite, VFX, audio, hitbox, event, and spawn tracks.</p>
+      <div class="pros-cons"><div class="pros"><h4>Pros</h4><ul><li>Maximum flexibility</li><li>One universal sequencing system</li></ul></div><div class="cons"><h4>Cons</h4><ul><li>Much larger editor/runtime project</li><li>Easy to author conflicting behavior</li><li>Harder validation and migration</li></ul></div></div>
+    </div>
+  </div>
+</div>
+
+<p class="subtitle" style="margin-top:20px">My recommendation is <strong>B</strong>: visual layers and combat contact effects remain separate, while both use the shared animation foundation.</p>

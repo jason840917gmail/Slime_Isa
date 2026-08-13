@@ -1,0 +1,60 @@
+<h2>How should the preview hitbox follow a sword frame?</h2>
+<p class="subtitle">Each card shows the same three-frame swing. The red shape is the active hitbox; the cyan cross is the player anchor.</p>
+
+<style>
+  .swing-strip { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:10px 0 4px; }
+  .swing-frame { position:relative; min-height:150px; overflow:hidden; border:1px solid rgba(121,232,225,.18); background:linear-gradient(rgba(121,232,225,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(121,232,225,.035) 1px,transparent 1px),#07111f; background-size:18px 18px; }
+  .anchor { position:absolute; left:50%; top:67%; color:#79e8e1; font:bold 18px monospace; transform:translate(-50%,-50%); }
+  .sword { position:absolute; left:50%; top:67%; width:12px; height:76px; border:2px solid #e9fbff; border-radius:7px 7px 2px 2px; background:linear-gradient(90deg,#436d87,#dffcff 45%,#70d8db 55%,#23435d); transform-origin:50% 92%; box-shadow:0 0 8px rgba(121,232,225,.38); }
+  .sword::after { content:""; position:absolute; left:-10px; bottom:4px; width:28px; height:5px; border:2px solid #ffc86b; background:#493b2a; }
+  .pose-1 { transform:translate(-50%,-92%) rotate(-46deg) translateY(-5px); }
+  .pose-2 { transform:translate(-50%,-92%) rotate(0deg) translateY(-14px); }
+  .pose-3 { transform:translate(-50%,-92%) rotate(53deg) translateY(-8px); }
+  .hitbox { position:absolute; width:34px; height:76px; border:2px solid #ff7e8e; border-radius:18px; background:rgba(255,126,142,.16); box-shadow:0 0 10px rgba(255,126,142,.32); transform-origin:50% 90%; }
+  .static-hit { left:50%; top:67%; transform:translate(16px,-86%) rotate(0deg); }
+  .follow-1 { left:50%; top:67%; transform:translate(-50%,-90%) rotate(-46deg) translateY(-5px); }
+  .follow-2 { left:50%; top:67%; transform:translate(-50%,-90%) rotate(0deg) translateY(-14px); }
+  .follow-3 { left:50%; top:67%; transform:translate(-50%,-90%) rotate(53deg) translateY(-8px); }
+  .manual-1 { left:23%; top:28%; transform:rotate(-58deg); }
+  .manual-2 { left:42%; top:9%; transform:rotate(-4deg); }
+  .manual-3 { left:59%; top:31%; transform:rotate(67deg); }
+  .frame-label { position:absolute; left:6px; bottom:5px; color:#7395b3; font:10px monospace; }
+  .recommend { color:#79e8e1; font-weight:700; }
+</style>
+
+<div class="cards">
+  <div class="card" data-choice="static" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="swing-strip">
+        <div class="swing-frame"><span class="anchor">+</span><span class="sword pose-1"></span><span class="hitbox static-hit"></span><small class="frame-label">0.00s</small></div>
+        <div class="swing-frame"><span class="anchor">+</span><span class="sword pose-2"></span><span class="hitbox static-hit"></span><small class="frame-label">0.08s</small></div>
+        <div class="swing-frame"><span class="anchor">+</span><span class="sword pose-3"></span><span class="hitbox static-hit"></span><small class="frame-label">0.17s</small></div>
+      </div>
+    </div>
+    <div class="card-body"><h3>A — Current static model</h3><p>The window activates one player-relative hitbox. The sword moves through it, but the hitbox stays fixed.</p></div>
+  </div>
+
+  <div class="card" data-choice="follow-frame" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="swing-strip">
+        <div class="swing-frame"><span class="anchor">+</span><span class="sword pose-1"></span><span class="hitbox follow-1"></span><small class="frame-label">0.00s</small></div>
+        <div class="swing-frame"><span class="anchor">+</span><span class="sword pose-2"></span><span class="hitbox follow-2"></span><small class="frame-label">0.08s</small></div>
+        <div class="swing-frame"><span class="anchor">+</span><span class="sword pose-3"></span><span class="hitbox follow-3"></span><small class="frame-label">0.17s</small></div>
+      </div>
+    </div>
+    <div class="card-body"><h3>B — Follow the frame transform <span class="recommend">Recommended</span></h3><p>Position, rotation, and scale come from the current weapon tile. One authored hitbox rides with the swing.</p></div>
+  </div>
+
+  <div class="card" data-choice="manual-per-frame" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="swing-strip">
+        <div class="swing-frame"><span class="anchor">+</span><span class="sword pose-1"></span><span class="hitbox manual-1"></span><small class="frame-label">0.00s</small></div>
+        <div class="swing-frame"><span class="anchor">+</span><span class="sword pose-2"></span><span class="hitbox manual-2"></span><small class="frame-label">0.08s</small></div>
+        <div class="swing-frame"><span class="anchor">+</span><span class="sword pose-3"></span><span class="hitbox manual-3"></span><small class="frame-label">0.17s</small></div>
+      </div>
+    </div>
+    <div class="card-body"><h3>C — Manual hitbox per tile</h3><p>Maximum control, but adds another transform track and considerably more authoring work.</p></div>
+  </div>
+</div>
+
+<p class="subtitle">For the preview-only experiment, B applies the existing tile transform without changing combat runtime.</p>
