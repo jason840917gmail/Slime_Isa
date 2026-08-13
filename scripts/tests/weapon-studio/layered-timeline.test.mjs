@@ -1,5 +1,6 @@
 import test, { before } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
@@ -7,6 +8,7 @@ import { build } from 'esbuild';
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 let stateModule;
 let viewModule;
+let inspectorModule;
 
 async function loadTypeScriptModule(entryPoint) {
   const result = await build({ absWorkingDir: repositoryRoot, entryPoints: [entryPoint], bundle: true, format: 'esm', platform: 'node', write: false });
@@ -14,9 +16,10 @@ async function loadTypeScriptModule(entryPoint) {
 }
 
 before(async () => {
-  [stateModule, viewModule] = await Promise.all([
+  [stateModule, viewModule, inspectorModule] = await Promise.all([
     loadTypeScriptModule('src/game/editor/LayeredAnimationDocumentState.ts'),
     loadTypeScriptModule('src/game/editor/LayeredAnimationTimelineView.ts'),
+    loadTypeScriptModule('src/game/editor/LayeredAnimationBlockInspector.ts'),
   ]);
 });
 
@@ -58,6 +61,56 @@ test('block move and right-edge resize snap to frames and preserve transparent g
   assert.equal(state.value.animation.layers[0].blocks[0].through, 4);
   assert.equal(state.deleteBlock('base', 0), true);
   assert.equal(state.value.animation.layers[0].blocks[0].from, 5);
+});
+
+test('selected tile visual controls render every authored occurrence transform value', () => {
+  const block = {
+    from: 4,
+    through: 6,
+    sourceFrame: 9,
+    transform: { offset: [35.05, -12.56], scale: [1.25, 0.75], rotationDeg: 17 },
+  };
+  const html = inspectorModule.renderLayeredAnimationBlockInspector({ block, framesPerSecond: 24, timelineFrames: 12 });
+  assert.match(html, /Selected tile/);
+  assert.match(html, /data-block-timing-field="startSeconds"/);
+  assert.match(html, /Tile offset X/);
+  assert.match(html, /Tile offset Y/);
+  assert.match(html, /Tile scale X/);
+  assert.match(html, /Tile scale Y/);
+  assert.match(html, /Tile rotation/);
+  assert.match(html, /value="35\.05"[^>]*data-block-transform-field="offsetX"/);
+  assert.match(html, /value="-12\.56"[^>]*data-block-transform-field="offsetY"/);
+  assert.match(html, /value="1\.25"[^>]*data-block-transform-field="scaleX"/);
+  assert.match(html, /value="0\.75"[^>]*data-block-transform-field="scaleY"/);
+  assert.match(html, /value="17"[^>]*data-block-transform-field="rotationDeg"/);
+  assert.match(html, /data-action="reset-block-transform"/);
+});
+
+test('Basic sword authored block offsets remain visible in the selected-tile inspector', async () => {
+  const weapon = JSON.parse(await readFile(path.join(repositoryRoot, 'src/game/content/weapons/basic-sword/weapon.json'), 'utf8'));
+  const block = weapon.directionalAttacks.right.animation.layers[0].blocks[0];
+  assert.ok(block.transform?.offset, 'Basic sword first attack block must keep its authored offset');
+  const html = inspectorModule.renderLayeredAnimationBlockInspector({
+    block,
+    framesPerSecond: weapon.directionalAttacks.right.animation.framesPerSecond,
+    timelineFrames: 10,
+  });
+  assert.match(html, new RegExp(`value="${block.transform.offset[0]}"[^>]*data-block-transform-field="offsetX"`));
+  assert.match(html, new RegExp(`value="${block.transform.offset[1]}"[^>]*data-block-transform-field="offsetY"`));
+});
+
+test('tile transform edits target one block and preserve its timing and source frame', () => {
+  const state = new stateModule.LayeredAnimationDocumentState(fixture());
+  assert.equal(state.setBlockTransform('base', 1, {
+    offset: [42.33, -16.53], scale: [1.1, 0.9], rotationDeg: 12,
+  }), true);
+  assert.deepEqual(state.value.animation.layers[0].blocks[1], {
+    from: 6, through: 7, sourceFrame: 2,
+    transform: { offset: [42.33, -16.53], scale: [1.1, 0.9], rotationDeg: 12 },
+  });
+  assert.equal(state.value.animation.layers[0].blocks[0].transform, undefined);
+  assert.equal(state.setBlockTransform('base', 1), true);
+  assert.deepEqual(state.value.animation.layers[0].blocks[1], { from: 6, through: 7, sourceFrame: 2 });
 });
 
 test('duration guards visual blocks, hitbox spans, and events while FPS preserves frame indices', () => {

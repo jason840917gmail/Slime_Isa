@@ -12,24 +12,26 @@ import type {
   LegacyWeaponDefinition,
   WeaponAttackDirection,
   WeaponAttackTrackDocument,
-  WeaponHitboxDocument,
 } from '../content/weapons/types';
 import { validateWeaponDefinition } from '../content/weapons/validation';
 import { resolveAssetUrl } from '../infrastructure/assets/assetUrls';
 import {
   layeredTimelineFrameCount,
+  normalizeAnimationBlockTransform,
   type AnimationVisualLayerDocument,
   type LayeredAnimationDocument,
 } from '../shared/animation';
 import { LayeredAnimationDocumentState } from './LayeredAnimationDocumentState';
+import { renderLayeredAnimationBlockInspector } from './LayeredAnimationBlockInspector';
 import { renderLayeredAnimationTimelinePanel } from './LayeredAnimationTimelinePanel';
+import { renderLayeredWeaponHitboxControls, updateWeaponHitboxControl } from './LayeredWeaponHitboxControls';
 import {
   createLayeredAnimationTimelineView,
   renderLayeredBlockHoldControls,
   renderLayeredBlockResizeHandle,
 } from './LayeredAnimationTimelineView';
 import { ensureStudioModeTabs } from './StudioModeTabs';
-import { resolveWeaponHitboxPreviewGeometry, WEAPON_HITBOX_PREVIEW_SCALE } from './WeaponHitboxPreview';
+import { renderWeaponHitboxGuides } from './WeaponHitboxGuides';
 
 const DIRECTIONS = ['right', 'left', 'up', 'down'] as const satisfies readonly WeaponAttackDirection[];
 const EFFECT_DIRECTIONS = DIRECTIONS satisfies readonly EffectDirection[];
@@ -76,6 +78,17 @@ interface ResizeDrag {
   readonly originalThrough: number;
   readonly startX: number;
   readonly frameWidth: number;
+}
+
+interface MoveDrag {
+  readonly pointerId: number;
+  readonly layerId: string;
+  readonly blockIndex: number;
+  readonly originalFrom: number;
+  readonly startX: number;
+  readonly frameWidth: number;
+  readonly blockElement: HTMLElement;
+  previewDelta: number;
 }
 
 function clone<T>(value: T): T { return structuredClone(value); }
@@ -342,18 +355,13 @@ function renderPreviewHitboxes(state: StudioState): string {
   if (state.scope !== 'attack') return '';
   const attack = selectedAttack(state);
   if (!attack) return '';
-  const spans = attack.attackTrack?.hitboxSpans ?? [];
-  return `<span class="weapon-hitbox-guides">${Object.entries(attack.hitboxes).map(([hitboxId, hitbox], index) => {
-    const geometry = resolveWeaponHitboxPreviewGeometry(hitbox, state.direction);
-    const active = spans.some((span) => span.hitboxId === hitboxId && span.from <= state.playhead && state.playhead <= span.through);
-    const selected = hitboxId === state.selectedHitboxId || (!state.selectedHitboxId && index === 0);
-    const classes = `stage-hitbox stage-hitbox--${geometry.shape}${active ? ' is-hot' : ''}${selected ? ' is-selected' : ''}${geometry.valid ? '' : ' is-invalid'}`;
-    const label = `<button type="button" class="stage-hitbox-select" style="--hitbox-label-index:${index}" data-select-hitbox="${escapeHtml(hitboxId)}">${escapeHtml(hitboxId)}</button>`;
-    if (!geometry.valid) return `<span class="${classes}" style="transform:translate(-50%,-50%)">${label}</span>`;
-    const style = `width:${geometry.width * WEAPON_HITBOX_PREVIEW_SCALE}px;height:${geometry.height * WEAPON_HITBOX_PREVIEW_SCALE}px;transform:translate(-50%,-50%) translate(${geometry.centerX * WEAPON_HITBOX_PREVIEW_SCALE}px,${geometry.centerY * WEAPON_HITBOX_PREVIEW_SCALE}px)`;
-    const sector = geometry.shape === 'sector' ? `<svg class="weapon-hitbox-sector" viewBox="${geometry.sectorViewBox}" aria-hidden="true"><path class="weapon-hitbox-sector-area" fill-rule="evenodd" d="${geometry.sectorAreaPath ?? ''}"></path>${geometry.sectorBoundaryPath ? `<path class="weapon-hitbox-sector-boundary" d="${geometry.sectorBoundaryPath}"></path>` : ''}</svg>` : '';
-    return `<span class="${classes}" style="${style}">${sector}${label}</span>`;
-  }).join('')}</span>`;
+  return `<span class="weapon-hitbox-guides" data-weapon-hitbox-guides>${renderWeaponHitboxGuides({
+    hitboxes: attack.hitboxes,
+    track: attack.attackTrack,
+    direction: state.direction,
+    timelineFrame: state.playhead,
+    selectedHitboxId: state.selectedHitboxId,
+  })}</span>`;
 }
 
 function renderPreview(state: StudioState, animation: LayeredAnimationDocument): string {
@@ -406,13 +414,14 @@ function renderBlock(state: StudioState, animation: LayeredAnimationDocument, la
   const asset = state.assets?.assets.find((entry) => entry.assetId === layer.assetId);
   const hold = block.through - block.from + 1;
   const selected = layerId === state.selectedLayerId && blockIndex === state.selectedBlockIndex;
-  return `<article class="timeline-frame layered-timeline-block${selected ? ' is-selected' : ''}" style="grid-column:${block.from + 1} / span ${hold}" data-layer-block data-layer-id="${escapeHtml(layerId)}" data-block-index="${blockIndex}"><button type="button" class="timeline-frame-select" data-select-block data-layer-id="${escapeHtml(layerId)}" data-block-index="${blockIndex}">${frameSprite(asset, block.sourceFrame, 'timeline-tile-preview')}<b class="timeline-frame-number">${String(block.from).padStart(2, '0')}</b><small class="timeline-frame-source">SRC ${block.sourceFrame}</small><span class="timeline-frame-hold">${Number(hold / animation.framesPerSecond).toFixed(2)}s / ${hold}F</span></button>${renderLayeredBlockHoldControls(layerId, blockIndex, hold)}<button type="button" class="layered-block-delete" data-delete-block data-layer-id="${escapeHtml(layerId)}" data-block-index="${blockIndex}" aria-label="Delete block">×</button>${renderLayeredBlockResizeHandle(layerId, blockIndex, hold)}</article>`;
+  const startSeconds = Number(block.from / animation.framesPerSecond).toFixed(2);
+  return `<article class="timeline-frame layered-timeline-block${selected ? ' is-selected' : ''}" style="grid-column:${block.from + 1} / span ${hold}" data-layer-block data-layer-id="${escapeHtml(layerId)}" data-block-index="${blockIndex}"><button type="button" class="timeline-frame-select" data-select-block data-layer-id="${escapeHtml(layerId)}" data-block-index="${blockIndex}" aria-label="Select tile from source frame ${block.sourceFrame}, starting at ${startSeconds} seconds. Drag horizontally to change its start time." title="Drag horizontally to change start time">${frameSprite(asset, block.sourceFrame, 'timeline-tile-preview')}<b class="timeline-frame-number">${String(block.from).padStart(2, '0')}</b><small class="timeline-frame-source">SRC ${block.sourceFrame}</small><span class="timeline-frame-hold">${Number(hold / animation.framesPerSecond).toFixed(2)}s / ${hold}F</span></button>${renderLayeredBlockHoldControls(layerId, blockIndex, hold)}<button type="button" class="layered-block-delete" data-delete-block data-layer-id="${escapeHtml(layerId)}" data-block-index="${blockIndex}" aria-label="Delete block">×</button>${renderLayeredBlockResizeHandle(layerId, blockIndex, hold)}</article>`;
 }
 
 function renderTimeline(state: StudioState, animation: LayeredAnimationDocument): string {
   return renderLayeredAnimationTimelinePanel({
     titleHtml: `Editing ${escapeHtml(state.scope)}${state.scope === 'idle' ? '' : ` / ${escapeHtml(state.scope === 'effect' ? state.effectDirection : state.direction)}`}`,
-    hint: 'Each layer has its own source · blocks share one seconds clock · drag the right edge to resize',
+    hint: 'Click empty time to place · drag tile to move · drag edge to resize',
     timeline: createLayeredAnimationTimelineView(animation),
     selectedLayerId: state.selectedLayerId,
     selectedBlockIndex: state.selectedBlockIndex,
@@ -441,11 +450,7 @@ function renderCombatInspector(state: StudioState): string {
   const hitboxes = attack?.hitboxes ?? {};
   const selectedId = state.selectedHitboxId && hitboxes[state.selectedHitboxId] ? state.selectedHitboxId : Object.keys(hitboxes)[0];
   const hitbox = selectedId ? hitboxes[selectedId] : undefined;
-  return `<section class="studio-inspector-section"><div class="studio-section-heading"><span class="studio-kicker">Combat profile</span><strong>Damage and timing</strong></div><div class="studio-field-grid">${inputField('Base damage', 'baseDamage', weapon.baseDamage, { type: 'number', step: '1' })}${inputField('Cooldown', 'cooldownMs', weapon.cooldownMs, { type: 'number', step: '1', hint: 'milliseconds' })}${inputField('Knockback', 'knockStrength', weapon.knockStrength, { type: 'number', step: '1' })}${inputField('Unlock level', 'unlockLevel', weapon.unlockLevel, { type: 'number', step: '1' })}</div></section><section class="studio-inspector-section"><div class="studio-section-heading"><span class="studio-kicker">Directional collision</span><strong>${state.direction.toUpperCase()} hitboxes</strong><button type="button" class="studio-icon-button" data-action="add-hitbox" aria-label="Add hitbox">+</button></div><div class="layered-hitbox-tabs">${Object.keys(hitboxes).map((id) => `<button type="button" class="studio-pill${id === selectedId ? ' is-active' : ''}" data-select-hitbox="${escapeHtml(id)}">${escapeHtml(id)}</button>`).join('')}</div>${hitbox && selectedId ? renderHitboxFields(selectedId, hitbox) : '<p class="studio-empty-note">Add a hitbox for this direction.</p>'}</section>`;
-}
-
-function renderHitboxFields(hitboxId: string, hitbox: WeaponHitboxDocument): string {
-  return `<div class="layered-hitbox-editor"><div class="studio-field-grid"><label class="studio-field"><span>Shape<small>runtime primitive</small></span><select data-hitbox-field="shape" data-hitbox-id="${escapeHtml(hitboxId)}">${['rectangle', 'circle', 'ellipse', 'sector'].map((shape) => `<option value="${shape}" ${hitbox.shape === shape ? 'selected' : ''}>${shape}</option>`).join('')}</select></label>${inputField('Width', `hitbox:${hitboxId}:width`, hitbox.width, { type: 'number', step: '1' })}${inputField('Height', `hitbox:${hitboxId}:height`, hitbox.height, { type: 'number', step: '1' })}${inputField('Offset X', `hitbox:${hitboxId}:offsetX`, hitbox.offsetX, { type: 'number', step: '1' })}${inputField('Offset Y', `hitbox:${hitboxId}:offsetY`, hitbox.offsetY, { type: 'number', step: '1' })}${hitbox.shape === 'sector' ? `${inputField('Outer radius', `hitbox:${hitboxId}:outerRadius`, hitbox.outerRadius ?? 1, { type: 'number', step: '1' })}${inputField('Arc radians', `hitbox:${hitboxId}:arcWidthRad`, hitbox.arcWidthRad ?? 1.35, { type: 'number', step: '0.01' })}` : ''}</div><button type="button" class="studio-button studio-button--danger" data-action="delete-hitbox" data-hitbox-id="${escapeHtml(hitboxId)}">DELETE HITBOX</button></div>`;
+  return `<section class="studio-inspector-section"><div class="studio-section-heading"><span class="studio-kicker">Combat profile</span><strong>Damage and timing</strong></div><div class="studio-field-grid">${inputField('Base damage', 'baseDamage', weapon.baseDamage, { type: 'number', step: '1' })}${inputField('Cooldown', 'cooldownMs', weapon.cooldownMs, { type: 'number', step: '1', hint: 'milliseconds' })}${inputField('Knockback', 'knockStrength', weapon.knockStrength, { type: 'number', step: '1' })}${inputField('Unlock level', 'unlockLevel', weapon.unlockLevel, { type: 'number', step: '1' })}</div></section><section class="studio-inspector-section"><div class="studio-section-heading"><span class="studio-kicker">Directional collision</span><strong>${state.direction.toUpperCase()} hitboxes</strong><button type="button" class="studio-icon-button" data-action="add-hitbox" aria-label="Add hitbox">+</button></div><p class="studio-help">Select a hitbox here or click its label in the preview. Geometry updates in the preview while you edit it; active time remains in the attack track.</p><div class="layered-hitbox-tabs">${Object.keys(hitboxes).map((id) => `<button type="button" class="studio-pill${id === selectedId ? ' is-active' : ''}" data-select-hitbox="${escapeHtml(id)}">${escapeHtml(id)}</button>`).join('')}</div>${hitbox && selectedId ? renderLayeredWeaponHitboxControls(selectedId, hitbox) : '<p class="studio-empty-note">Add a hitbox for this direction.</p>'}</section>`;
 }
 
 function renderLayerInspector(state: StudioState, animation: LayeredAnimationDocument): string {
@@ -453,7 +458,13 @@ function renderLayerInspector(state: StudioState, animation: LayeredAnimationDoc
   if (!layer) return `<section class="studio-inspector-section"><p class="studio-empty-note">Add a visual layer to start this animation.</p></section>`;
   const options = spritesheetAssets(state.assets).map((asset) => `<option value="${escapeHtml(asset.assetId)}" ${asset.assetId === layer.assetId ? 'selected' : ''}>${escapeHtml(asset.assetId)}</option>`).join('');
   const transform = layer.transform ?? {};
-  return `<section class="studio-inspector-section"><div class="studio-section-heading"><span class="studio-kicker">Visual layer</span><strong>${escapeHtml(layer.displayName)}</strong></div>${inputField('Layer name', 'layer:displayName', layer.displayName)}<label class="studio-field studio-field--wide"><span>Source sheet<small>one source per layer</small></span><select data-layer-field="assetId">${options}</select></label><div class="studio-field-grid">${inputField('Depth', 'layer:depthOffset', layer.depthOffset, { type: 'number', step: '0.1' })}${inputField('Offset X', 'layer:offsetX', transform.offset?.[0] ?? 0, { type: 'number', step: '0.1' })}${inputField('Offset Y', 'layer:offsetY', transform.offset?.[1] ?? 0, { type: 'number', step: '0.1' })}${inputField('Scale X', 'layer:scaleX', transform.scale?.[0] ?? 1, { type: 'number', step: '0.01' })}${inputField('Scale Y', 'layer:scaleY', transform.scale?.[1] ?? 1, { type: 'number', step: '0.01' })}${inputField('Rotation', 'layer:rotationDeg', transform.rotationDeg ?? 0, { type: 'number', step: '1', hint: 'degrees' })}</div><div class="layered-layer-actions"><button type="button" class="studio-button studio-button--quiet" data-action="layer-up">↑ FRONT</button><button type="button" class="studio-button studio-button--quiet" data-action="layer-down">↓ BACK</button><button type="button" class="studio-button studio-button--danger" data-action="delete-layer">DELETE LAYER</button></div></section>`;
+  const block = state.selectedBlockIndex === undefined ? undefined : layer.blocks[state.selectedBlockIndex];
+  const blockInspector = block ? renderLayeredAnimationBlockInspector({
+    block,
+    framesPerSecond: animation.framesPerSecond,
+    timelineFrames: layeredTimelineFrameCount(animation),
+  }) : `<p class="studio-empty-note layered-block-inspector-note">Select a tile to edit its timing and visual transform.</p>`;
+  return `<section class="studio-inspector-section"><div class="studio-section-heading"><span class="studio-kicker">Visual layer</span><strong>${escapeHtml(layer.displayName)}</strong></div>${inputField('Layer name', 'layer:displayName', layer.displayName)}<label class="studio-field studio-field--wide"><span>Source sheet<small>one source per layer</small></span><select data-layer-field="assetId">${options}</select></label><div class="studio-field-grid">${inputField('Depth', 'layer:depthOffset', layer.depthOffset, { type: 'number', step: '0.1' })}${inputField('Layer offset X', 'layer:offsetX', transform.offset?.[0] ?? 0, { type: 'number', step: '0.1' })}${inputField('Layer offset Y', 'layer:offsetY', transform.offset?.[1] ?? 0, { type: 'number', step: '0.1' })}${inputField('Layer scale X', 'layer:scaleX', transform.scale?.[0] ?? 1, { type: 'number', step: '0.01' })}${inputField('Layer scale Y', 'layer:scaleY', transform.scale?.[1] ?? 1, { type: 'number', step: '0.01' })}${inputField('Layer rotation', 'layer:rotationDeg', transform.rotationDeg ?? 0, { type: 'number', step: '1', hint: 'degrees' })}</div>${blockInspector}<div class="layered-layer-actions"><button type="button" class="studio-button studio-button--quiet" data-action="layer-up">↑ FRONT</button><button type="button" class="studio-button studio-button--quiet" data-action="layer-down">↓ BACK</button><button type="button" class="studio-button studio-button--danger" data-action="delete-layer">DELETE LAYER</button></div></section>`;
 }
 
 function renderOnHitInspector(state: StudioState): string {
@@ -510,17 +521,18 @@ function updateWeaponField(state: StudioState, field: string, value: string): St
     const [, hitboxId, hitboxField] = field.split(':');
     const attack = selectedAttack(state);
     if (!attack || !hitboxId || !hitboxField) return state;
-    const nextValue = hitboxField === 'shape' ? value : Number(value);
-    if (hitboxField !== 'shape' && !Number.isFinite(nextValue)) return state;
     const sourceDirection = state.direction === 'left' && !state.draft.directionalAttacks.left ? 'right' : state.direction;
     const hitbox = attack.hitboxes[hitboxId];
+    if (!hitbox) return state;
+    const nextHitbox = updateWeaponHitboxControl(hitbox, hitboxField, value);
+    if (nextHitbox === hitbox) return state;
     return {
       ...state,
       draft: {
         ...state.draft,
         directionalAttacks: {
           ...state.draft.directionalAttacks,
-          [sourceDirection]: { ...attack, hitboxes: { ...attack.hitboxes, [hitboxId]: { ...hitbox, [hitboxField]: nextValue } } },
+          [sourceDirection]: { ...attack, hitboxes: { ...attack.hitboxes, [hitboxId]: nextHitbox } },
         },
       },
       dirty: true,
@@ -589,6 +601,8 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement): () => void 
     pickerFrames: [], dirty: false, saving: false, playing: false,
   };
   let resize: ResizeDrag | undefined;
+  let move: MoveDrag | undefined;
+  let suppressedBlockClick: string | undefined;
   let playbackTimer: number | undefined;
 
   const stopPlayback = (): void => {
@@ -628,6 +642,26 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement): () => void 
     const sourceDirection = state.direction === 'left' && !state.draft.directionalAttacks.left ? 'right' : state.direction;
     mutate({ ...state, draft: { ...state.draft, directionalAttacks: { ...state.draft.directionalAttacks, [sourceDirection]: update(attack) } }, dirty: true });
   };
+  const refreshHitboxPreview = (): void => {
+    const guides = container.querySelector<HTMLElement>('[data-weapon-hitbox-guides]');
+    const attack = selectedAttack(state);
+    if (!guides || !attack) return;
+    guides.innerHTML = renderWeaponHitboxGuides({
+      hitboxes: attack.hitboxes,
+      track: attack.attackTrack,
+      direction: state.direction,
+      timelineFrame: state.playhead,
+      selectedHitboxId: state.selectedHitboxId,
+    });
+    container.querySelector<HTMLElement>('.layered-weapon-studio')?.classList.add('is-dirty');
+    const saveButton = container.querySelector<HTMLButtonElement>('[data-action="save"]');
+    if (saveButton) saveButton.disabled = false;
+    const saveState = container.querySelector<HTMLElement>('.studio-save-state');
+    if (saveState) {
+      saveState.classList.remove('is-error');
+      saveState.innerHTML = '<i></i>Unsaved layered package';
+    }
+  };
 
   const handleClick = (event: MouseEvent): void => {
     const target = event.target instanceof Element ? event.target : undefined;
@@ -654,6 +688,8 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement): () => void 
     if (blockButton) {
       const layerId = blockButton.dataset.layerId!;
       const blockIndex = Number(blockButton.dataset.blockIndex);
+      const blockKey = `${layerId}:${blockIndex}`;
+      if (suppressedBlockClick === blockKey) { suppressedBlockClick = undefined; return; }
       const block = animationFor(state)?.layers.find((layer) => layer.layerId === layerId)?.blocks[blockIndex];
       mutate({ ...state, selectedLayerId: layerId, selectedBlockIndex: blockIndex, playhead: block?.from ?? state.playhead, inspectorTab: 'layer' }); return;
     }
@@ -663,6 +699,16 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement): () => void 
     if (hold) { mutateAnimation((document) => document.adjustBlockHold(hold.dataset.layerId!, Number(hold.dataset.blockIndex), Number(hold.dataset.blockHoldDelta))); return; }
     const deleteBlock = target.closest<HTMLElement>('[data-delete-block]');
     if (deleteBlock) { mutateAnimation((document) => document.deleteBlock(deleteBlock.dataset.layerId!, Number(deleteBlock.dataset.blockIndex))); return; }
+    const emptyLane = target.closest<HTMLElement>('.layered-timeline-blocks');
+    if (emptyLane && target === emptyLane) {
+      const animation = animationFor(state);
+      const layerId = emptyLane.closest<HTMLElement>('[data-layer-id]')?.dataset.layerId;
+      if (!animation || !layerId) return;
+      const bounds = emptyLane.getBoundingClientRect();
+      const frameCount = layeredTimelineFrameCount(animation);
+      const frame = Math.max(0, Math.min(frameCount - 1, Math.floor((event.clientX - bounds.left) / (bounds.width / frameCount))));
+      mutate({ ...state, selectedLayerId: layerId, selectedBlockIndex: undefined, playhead: frame, inspectorTab: 'layer' }); return;
+    }
     const pickerFrame = target.closest<HTMLElement>('[data-picker-frame]');
     if (pickerFrame) { const frame = Number(pickerFrame.dataset.pickerFrame); mutate({ ...state, pickerFrames: state.pickerFrames.includes(frame) ? state.pickerFrames.filter((value) => value !== frame) : [...state.pickerFrames, frame] }); return; }
     const hitboxSelect = target.closest<HTMLElement>('[data-select-hitbox]');
@@ -683,6 +729,11 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement): () => void 
     if (action === 'delete-layer' && state.selectedLayerId) { mutateAnimation((document) => document.deleteLayer(state.selectedLayerId!)); return; }
     if (action === 'layer-up' && state.selectedLayerId) { mutateAnimation((document) => document.moveLayer(state.selectedLayerId!, 1)); return; }
     if (action === 'layer-down' && state.selectedLayerId) { mutateAnimation((document) => document.moveLayer(state.selectedLayerId!, -1)); return; }
+    if (action === 'reset-block-transform' && state.selectedLayerId && state.selectedBlockIndex !== undefined) {
+      const layerId = state.selectedLayerId;
+      const blockIndex = state.selectedBlockIndex;
+      mutateAnimation((document) => document.setBlockTransform(layerId, blockIndex)); return;
+    }
     if (action === 'add-hitbox') {
       updateAttack((attack) => { let index = 2; while (attack.hitboxes[`hitbox-${index}`]) index += 1; const id = `hitbox-${index}`; state = { ...state, selectedHitboxId: id }; return { ...attack, hitboxes: { ...attack.hitboxes, [id]: { shape: 'rectangle', width: 32, height: 24, offsetX: 24, offsetY: 0 } } }; }); return;
     }
@@ -726,8 +777,36 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement): () => void 
     }
     const layerField = target.dataset.layerField;
     if (layerField === 'assetId') { mutate(withLayer(state, (layer) => ({ ...layer, assetId: target.value }))); return; }
-    const hitboxField = target.dataset.hitboxField;
-    if (hitboxField === 'shape') { mutate(updateWeaponField(state, `hitbox:${target.dataset.hitboxId}:shape`, target.value)); return; }
+    const blockTimingField = target.dataset.blockTimingField;
+    if (blockTimingField === 'startSeconds' && state.selectedLayerId && state.selectedBlockIndex !== undefined) {
+      const animation = animationFor(state);
+      const seconds = Number(target.value);
+      if (animation && Number.isFinite(seconds)) mutateAnimation((document) => document.moveBlock(state.selectedLayerId!, state.selectedBlockIndex!, seconds * animation.framesPerSecond));
+      return;
+    }
+    const blockTransformField = target.dataset.blockTransformField;
+    if (blockTransformField && state.selectedLayerId && state.selectedBlockIndex !== undefined) {
+      const animation = animationFor(state);
+      const block = animation?.layers.find((layer) => layer.layerId === state.selectedLayerId)?.blocks[state.selectedBlockIndex];
+      const numericValue = Number(target.value);
+      if (!block || !Number.isFinite(numericValue)) return;
+      const transform = normalizeAnimationBlockTransform(block.transform);
+      const offset = [...transform.offset] as [number, number];
+      const scale = [...transform.scale] as [number, number];
+      if (blockTransformField === 'offsetX') offset[0] = numericValue;
+      else if (blockTransformField === 'offsetY') offset[1] = numericValue;
+      else if (blockTransformField === 'scaleX') scale[0] = numericValue;
+      else if (blockTransformField === 'scaleY') scale[1] = numericValue;
+      const rotationDeg = blockTransformField === 'rotationDeg' ? numericValue : transform.rotationDeg;
+      mutateAnimation((document) => document.setBlockTransform(state.selectedLayerId!, state.selectedBlockIndex!, {
+        offset,
+        scale,
+        rotationDeg,
+        flipX: transform.flipX,
+        flipY: transform.flipY,
+      }));
+      return;
+    }
     const animationField = target.dataset.animationField;
     if (animationField) {
       const value = Number(target.value);
@@ -735,30 +814,130 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement): () => void 
     }
   };
 
+  const handleInput = (event: Event): void => {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement)) return;
+    const field = target.dataset.weaponField;
+    if (!field?.startsWith('hitbox:') || target.value.trim() === '') return;
+    const next = updateWeaponField(state, field, target.value);
+    if (next === state) return;
+    state = next;
+    refreshHitboxPreview();
+  };
+
   const handlePointerDown = (event: PointerEvent): void => {
-    const handle = event.target instanceof Element ? event.target.closest<HTMLElement>('[data-layer-resize-handle]') : undefined;
-    if (!handle || event.button !== 0) return;
-    const animation = animationFor(state); const lane = handle.closest<HTMLElement>('.layered-timeline-blocks');
-    if (!animation || !lane) return;
-    const layerId = handle.dataset.layerId!; const blockIndex = Number(handle.dataset.blockIndex);
+    if (!(event.target instanceof Element) || event.button !== 0) return;
+    const resizeHandle = event.target.closest<HTMLElement>('[data-layer-resize-handle]');
+    if (resizeHandle) {
+      const animation = animationFor(state); const lane = resizeHandle.closest<HTMLElement>('.layered-timeline-blocks');
+      if (!animation || !lane) return;
+      const layerId = resizeHandle.dataset.layerId!; const blockIndex = Number(resizeHandle.dataset.blockIndex);
+      const block = animation.layers.find((layer) => layer.layerId === layerId)?.blocks[blockIndex];
+      if (!block) return;
+      event.preventDefault(); event.stopPropagation();
+      resize = { pointerId: event.pointerId, layerId, blockIndex, originalThrough: block.through, startX: event.clientX, frameWidth: lane.getBoundingClientRect().width / layeredTimelineFrameCount(animation) };
+      resizeHandle.setPointerCapture(event.pointerId);
+      return;
+    }
+    const moveHandle = event.target.closest<HTMLElement>('[data-select-block]');
+    const lane = moveHandle?.closest<HTMLElement>('.layered-timeline-blocks');
+    const blockElement = moveHandle?.closest<HTMLElement>('[data-layer-block]');
+    const animation = animationFor(state);
+    if (!moveHandle || !lane || !blockElement || !animation) return;
+    const layerId = moveHandle.dataset.layerId!; const blockIndex = Number(moveHandle.dataset.blockIndex);
     const block = animation.layers.find((layer) => layer.layerId === layerId)?.blocks[blockIndex];
     if (!block) return;
-    event.preventDefault(); event.stopPropagation();
-    resize = { pointerId: event.pointerId, layerId, blockIndex, originalThrough: block.through, startX: event.clientX, frameWidth: lane.getBoundingClientRect().width / layeredTimelineFrameCount(animation) };
-    handle.setPointerCapture(event.pointerId);
+    move = {
+      pointerId: event.pointerId,
+      layerId,
+      blockIndex,
+      originalFrom: block.from,
+      startX: event.clientX,
+      frameWidth: lane.getBoundingClientRect().width / layeredTimelineFrameCount(animation),
+      blockElement,
+      previewDelta: 0,
+    };
+    blockElement.classList.add('is-moving');
+    moveHandle.setPointerCapture(event.pointerId);
   };
-  const handlePointerUp = (event: PointerEvent): void => {
-    if (!resize || resize.pointerId !== event.pointerId) return;
+
+  const handlePointerMove = (event: PointerEvent): void => {
+    if (!move || move.pointerId !== event.pointerId) return;
     event.preventDefault();
-    const delta = Math.round((event.clientX - resize.startX) / resize.frameWidth);
-    const current = resize; resize = undefined;
-    if (delta !== 0) mutateAnimation((document) => document.resizeBlock(current.layerId, current.blockIndex, current.originalThrough + delta));
+    const animation = animationFor(state);
+    const layer = animation?.layers.find((candidate) => candidate.layerId === move?.layerId);
+    const block = layer?.blocks[move.blockIndex];
+    if (!animation || !layer || !block) return;
+    const hold = block.through - block.from + 1;
+    const requestedDelta = Math.round((event.clientX - move.startX) / move.frameWidth);
+    const delta = Math.max(-move.originalFrom, Math.min(layeredTimelineFrameCount(animation) - hold - move.originalFrom, requestedDelta));
+    if (delta === move.previewDelta) return;
+    move.previewDelta = delta;
+    const from = move.originalFrom + delta;
+    const through = from + hold - 1;
+    const blocked = layer.blocks.some((candidate, index) => index !== move!.blockIndex && candidate.from <= through && from <= candidate.through);
+    move.blockElement.style.transform = `translateX(${delta * move.frameWidth}px)`;
+    move.blockElement.classList.toggle('is-blocked', blocked);
+    const startLabel = move.blockElement.querySelector<HTMLElement>('.timeline-frame-number');
+    if (startLabel) startLabel.textContent = String(from).padStart(2, '0');
+  };
+
+  const clearMovePreview = (drag: MoveDrag): void => {
+    drag.blockElement.classList.remove('is-moving', 'is-blocked');
+    drag.blockElement.style.removeProperty('transform');
+  };
+
+  const handlePointerUp = (event: PointerEvent): void => {
+    if (resize && resize.pointerId === event.pointerId) {
+      event.preventDefault();
+      const delta = Math.round((event.clientX - resize.startX) / resize.frameWidth);
+      const current = resize; resize = undefined;
+      if (delta !== 0) mutateAnimation((document) => document.resizeBlock(current.layerId, current.blockIndex, current.originalThrough + delta));
+      return;
+    }
+    if (!move || move.pointerId !== event.pointerId) return;
+    const current = move; move = undefined;
+    clearMovePreview(current);
+    if (current.previewDelta === 0) return;
+    event.preventDefault();
+    const blockKey = `${current.layerId}:${current.blockIndex}`;
+    suppressedBlockClick = blockKey;
+    window.setTimeout(() => { if (suppressedBlockClick === blockKey) suppressedBlockClick = undefined; }, 0);
+    mutateAnimation((document) => document.moveBlock(current.layerId, current.blockIndex, current.originalFrom + current.previewDelta));
+  };
+
+  const handlePointerCancel = (event: PointerEvent): void => {
+    if (resize?.pointerId === event.pointerId) resize = undefined;
+    if (move?.pointerId !== event.pointerId) return;
+    const current = move; move = undefined; clearMovePreview(current);
+    const animation = animationFor(state);
+    const startLabel = current.blockElement.querySelector<HTMLElement>('.timeline-frame-number');
+    if (animation && startLabel) startLabel.textContent = String(current.originalFrom).padStart(2, '0');
+  };
+
+  const handleKeyDown = (event: KeyboardEvent): void => {
+    const blockButton = event.target instanceof Element ? event.target.closest<HTMLElement>('[data-select-block]') : undefined;
+    if (!blockButton || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+    const animation = animationFor(state);
+    const layerId = blockButton.dataset.layerId!; const blockIndex = Number(blockButton.dataset.blockIndex);
+    const block = animation?.layers.find((layer) => layer.layerId === layerId)?.blocks[blockIndex];
+    if (!animation || !block) return;
+    event.preventDefault();
+    const hold = block.through - block.from + 1;
+    const requestedFrom = event.key === 'Home' ? 0
+      : event.key === 'End' ? layeredTimelineFrameCount(animation) - hold
+        : block.from + (event.key === 'ArrowLeft' ? -1 : 1);
+    mutateAnimation((document) => document.moveBlock(layerId, blockIndex, requestedFrom));
   };
 
   container.addEventListener('click', handleClick);
   container.addEventListener('change', handleChange);
+  container.addEventListener('input', handleInput);
   container.addEventListener('pointerdown', handlePointerDown);
+  container.addEventListener('pointermove', handlePointerMove);
   container.addEventListener('pointerup', handlePointerUp);
+  container.addEventListener('pointercancel', handlePointerCancel);
+  container.addEventListener('keydown', handleKeyDown);
   render();
   void Promise.all([
     loadJson<WeaponCatalogResponse>('/__character-studio/weapons'),
@@ -774,8 +953,12 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement): () => void 
     stopPlayback();
     container.removeEventListener('click', handleClick);
     container.removeEventListener('change', handleChange);
+    container.removeEventListener('input', handleInput);
     container.removeEventListener('pointerdown', handlePointerDown);
+    container.removeEventListener('pointermove', handlePointerMove);
     container.removeEventListener('pointerup', handlePointerUp);
+    container.removeEventListener('pointercancel', handlePointerCancel);
+    container.removeEventListener('keydown', handleKeyDown);
     container.classList.remove('is-character-studio-host');
     container.replaceChildren();
   };
