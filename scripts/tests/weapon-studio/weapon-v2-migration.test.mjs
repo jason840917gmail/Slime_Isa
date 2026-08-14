@@ -94,12 +94,27 @@ test('normalization accepts both package versions and coerces attacks to one sho
   assert.equal(current.directionalAttacks.left.presentation, 'mirror-right');
 });
 
+test('v2 weapons inherit missing UP from DOWN without duplicating gameplay data', () => {
+  const weapon = migration.migrateLegacyWeaponDefinition(weaponFixture());
+  delete weapon.directionalAttacks.up;
+  assert.deepEqual(validation.validateWeaponDefinition(weapon), []);
+  const normalized = normalize.normalizeWeaponDefinition(weapon);
+  const up = normalized.directionalAttacks.up;
+  const down = normalized.directionalAttacks.down;
+  assert.equal(up.presentation, 'mirror-down');
+  assert.equal(up.sourceDirection, 'down');
+  assert.equal(up.mirrorX, false);
+  assert.equal(up.mirrorY, true);
+  assert.deepEqual(up.hitboxes, down.hitboxes);
+  assert.deepEqual(up.attackTrack, down.attackTrack);
+  assert.equal(up.characterActionId, down.characterActionId);
+});
+
 test('v2 validation rejects missing directions and root legacy fields', () => {
   const valid = migration.migrateLegacyWeaponDefinition(weaponFixture());
   assert.deepEqual(validation.validateWeaponDefinition(valid), []);
   const invalid = { ...valid, assetId: 'weapon.fixture', directionalAttacks: { right: valid.directionalAttacks.right } };
   const issues = validation.validateWeaponDefinition(invalid);
   assert.ok(issues.some((issue) => issue.includes('weapon.assetId: is forbidden')));
-  assert.ok(issues.some((issue) => issue.includes('directionalAttacks.up: is required')));
   assert.ok(issues.some((issue) => issue.includes('directionalAttacks.down: is required')));
 });

@@ -73,8 +73,8 @@ export interface LayeredWeaponDefinition extends WeaponCombatDefinition {
   readonly directionalAttacks: {
     readonly right: LayeredWeaponDirectionalAttackDocument;
     readonly left?: LayeredWeaponDirectionalAttackDocument;
-    readonly up: LayeredWeaponDirectionalAttackDocument;
     readonly down: LayeredWeaponDirectionalAttackDocument;
+    readonly up?: LayeredWeaponDirectionalAttackDocument;
   };
   readonly presentation?: {
     readonly facingMode?: 'vector' | 'horizontal-flip';
@@ -144,7 +144,7 @@ export interface WeaponDirectionalAttackDocument {
   readonly hitboxes?: Readonly<Record<string, WeaponHitboxDocument>>;
 }
 
-export type WeaponDirectionalPresentation = 'legacy-vector' | 'authored' | 'mirror-right';
+export type WeaponDirectionalPresentation = 'legacy-vector' | 'authored' | 'mirror-right' | 'mirror-down';
 
 export interface NormalizedWeaponDirectionalAttack {
   readonly animation: NormalizedLayeredAnimationDocument;
@@ -153,6 +153,9 @@ export interface NormalizedWeaponDirectionalAttack {
   readonly hitboxes: Readonly<Record<string, WeaponHitboxDocument>>;
   readonly authored: boolean;
   readonly presentation: WeaponDirectionalPresentation;
+  readonly sourceDirection: WeaponAttackDirection;
+  readonly mirrorX: boolean;
+  readonly mirrorY: boolean;
 }
 
 export interface WeaponAnimationSet {

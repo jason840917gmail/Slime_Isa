@@ -9,12 +9,15 @@ export interface EffectDefinition {
   readonly default?: LayeredAnimationDocument;
   readonly directions?: Partial<Readonly<Record<EffectDirection, LayeredAnimationDocument>>>;
   readonly mirrorLeftFromRight?: boolean;
+  readonly mirrorUpFromDown?: boolean;
 }
 
 export interface NormalizedEffectVariant {
   readonly animation: NormalizedLayeredAnimationDocument;
-  readonly mirrored: boolean;
+  readonly authored: boolean;
   readonly source: EffectDirection | 'default';
+  readonly mirrorX: boolean;
+  readonly mirrorY: boolean;
 }
 
 export interface NormalizedEffectDefinition {

@@ -37,7 +37,12 @@ for (const file of files) {
   ids.add(effect.effectId);
   validateAnimation(effect, 'default', effect.default);
   for (const [direction, animation] of Object.entries(effect.directions ?? {})) validateAnimation(effect, direction, animation);
-  const resolves = (direction) => effect.directions?.[direction] ?? (direction === 'left' && effect.mirrorLeftFromRight ? effect.directions?.right : undefined) ?? effect.default;
+  const resolves = (direction) => effect.directions?.[direction]
+    ?? (direction === 'left' && effect.mirrorLeftFromRight ? effect.directions?.right : undefined)
+    ?? (direction === 'up' && effect.mirrorUpFromDown ? effect.directions?.down : undefined)
+    ?? effect.default;
+  if (effect.mirrorLeftFromRight && !effect.directions?.left && !effect.directions?.right) errors.push(`[${effect.effectId}] mirrorLeftFromRight requires a Right variant when LEFT is not authored`);
+  if (effect.mirrorUpFromDown && !effect.directions?.up && !effect.directions?.down) errors.push(`[${effect.effectId}] mirrorUpFromDown requires a Down variant when UP is not authored`);
   for (const direction of ['right', 'left', 'up', 'down']) if (!resolves(direction)) errors.push(`[${effect.effectId}] direction '${direction}' does not resolve`);
   if (effect.effectId !== relative(effectRoot, file).split(/[\\/]/)[0]) errors.push(`[${effect.effectId}] directory ID mismatch`);
 }

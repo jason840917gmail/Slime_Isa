@@ -1,4 +1,9 @@
-import { normalizeLayeredAnimation } from '../../shared/animation';
+import {
+  DOWN_UP_INHERITANCE,
+  normalizeLayeredAnimation,
+  resolveDirectionalVariant,
+  RIGHT_LEFT_INHERITANCE,
+} from '../../shared/animation';
 import { migrateLegacyWeaponDefinition, normalizeWeaponHitboxes } from './migrateLegacyWeapon';
 import type {
   AuthoredWeaponDefinition,
@@ -12,27 +17,35 @@ function normalizeLayeredWeaponDefinition(
   definition: LayeredWeaponDefinition,
   sourceVersion: 1 | 2,
 ): NormalizedWeaponDefinition {
-  const right = definition.directionalAttacks.right;
-  const normalizeDirection = (
-    authored: typeof right,
-    presentation: NormalizedWeaponDirectionalAttack['presentation'],
-    isAuthored: boolean,
-  ): NormalizedWeaponDirectionalAttack => ({
-    animation: normalizeLayeredAnimation({ ...authored.animation, loop: false }),
-    characterActionId: authored.characterActionId,
-    hitboxes: normalizeWeaponHitboxes(authored.hitboxes),
-    ...(authored.attackTrack ? { attackTrack: authored.attackTrack } : {}),
-    authored: isAuthored,
-    presentation,
+  const resolvedDirections: Array<[WeaponAttackDirection, NormalizedWeaponDirectionalAttack]> = (['right', 'left', 'up', 'down'] as const).map((direction) => {
+    const resolved = resolveDirectionalVariant(
+      definition.directionalAttacks,
+      direction,
+      { pairs: [RIGHT_LEFT_INHERITANCE, DOWN_UP_INHERITANCE] },
+    );
+    if (!resolved || resolved.sourceDirection === 'default') {
+      throw new Error(`Weapon '${definition.weaponId}' does not resolve direction '${direction}'`);
+    }
+    const authored = resolved.value;
+    const presentation: NormalizedWeaponDirectionalAttack['presentation'] = resolved.authored
+      ? 'authored'
+      : resolved.mirrorX
+        ? 'mirror-right'
+        : 'mirror-down';
+    const normalized: NormalizedWeaponDirectionalAttack = {
+      animation: normalizeLayeredAnimation({ ...authored.animation, loop: false }),
+      characterActionId: authored.characterActionId,
+      hitboxes: normalizeWeaponHitboxes(authored.hitboxes),
+      ...(authored.attackTrack ? { attackTrack: authored.attackTrack } : {}),
+      authored: resolved.authored,
+      presentation,
+      sourceDirection: resolved.sourceDirection,
+      mirrorX: resolved.mirrorX,
+      mirrorY: resolved.mirrorY,
+    };
+    return [direction, normalized];
   });
-  const directionalAttacks: Readonly<Record<WeaponAttackDirection, NormalizedWeaponDirectionalAttack>> = {
-    right: normalizeDirection(right, 'authored', true),
-    left: definition.directionalAttacks.left
-      ? normalizeDirection(definition.directionalAttacks.left, 'authored', true)
-      : normalizeDirection(right, 'mirror-right', false),
-    up: normalizeDirection(definition.directionalAttacks.up, 'authored', true),
-    down: normalizeDirection(definition.directionalAttacks.down, 'authored', true),
-  };
+  const directionalAttacks = Object.fromEntries(resolvedDirections) as Readonly<Record<WeaponAttackDirection, NormalizedWeaponDirectionalAttack>>;
   return {
     sourceVersion,
     weaponId: definition.weaponId,

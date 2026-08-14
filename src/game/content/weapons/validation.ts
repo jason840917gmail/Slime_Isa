@@ -299,7 +299,7 @@ function validateLayeredWeaponDefinition(weapon: LayeredWeaponDefinition): strin
     issues.push('weapon.directionalAttacks: must be an object');
     return issues;
   }
-  for (const direction of ['right', 'up', 'down'] as const) {
+  for (const direction of ['right', 'down'] as const) {
     if (!(direction in weapon.directionalAttacks)) issues.push(`weapon.directionalAttacks.${direction}: is required`);
   }
   for (const [direction, rawAttack] of Object.entries(weapon.directionalAttacks)) {

@@ -1,4 +1,9 @@
-import { normalizeLayeredAnimation } from '../../shared/animation';
+import {
+  DOWN_UP_INHERITANCE,
+  normalizeLayeredAnimation,
+  resolveDirectionalVariant,
+  RIGHT_LEFT_INHERITANCE,
+} from '../../shared/animation';
 import type { EffectDefinition, EffectDirection, NormalizedEffectDefinition, NormalizedEffectVariant } from './types';
 
 export const EFFECT_DIRECTIONS = ['right', 'left', 'up', 'down'] as const satisfies readonly EffectDirection[];
@@ -7,13 +12,25 @@ export function resolveEffectVariant(
   effect: EffectDefinition,
   direction: EffectDirection,
 ): NormalizedEffectVariant | undefined {
-  const exact = effect.directions?.[direction];
-  if (exact) return { animation: normalizeLayeredAnimation({ ...exact, loop: false }), mirrored: false, source: direction };
-  if (direction === 'left' && effect.mirrorLeftFromRight && effect.directions?.right) {
-    return { animation: normalizeLayeredAnimation({ ...effect.directions.right, loop: false }), mirrored: true, source: 'right' };
-  }
-  if (effect.default) return { animation: normalizeLayeredAnimation({ ...effect.default, loop: false }), mirrored: false, source: 'default' };
-  return undefined;
+  const resolved = resolveDirectionalVariant(
+    effect.directions ?? {},
+    direction,
+    {
+      pairs: [
+        { ...RIGHT_LEFT_INHERITANCE, enabled: effect.mirrorLeftFromRight === true },
+        { ...DOWN_UP_INHERITANCE, enabled: effect.mirrorUpFromDown === true },
+      ],
+      defaultValue: effect.default,
+    },
+  );
+  if (!resolved) return undefined;
+  return {
+    animation: normalizeLayeredAnimation({ ...resolved.value, loop: false }),
+    authored: resolved.authored,
+    source: resolved.sourceDirection,
+    mirrorX: resolved.mirrorX,
+    mirrorY: resolved.mirrorY,
+  };
 }
 
 export function normalizeEffectDefinition(effect: EffectDefinition): NormalizedEffectDefinition {

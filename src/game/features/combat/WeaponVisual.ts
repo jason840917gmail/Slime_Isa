@@ -67,6 +67,7 @@ export class WeaponVisual implements LayeredAnimationHost {
     const legacyVector = attack?.presentation === 'legacy-vector';
     const mirrorX = attack?.presentation === 'mirror-right'
       || (!attack && this.definition.presentation.facingMode === 'horizontal-flip' && facing.x < 0);
+    const mirrorY = attack?.presentation === 'mirror-down';
     return {
       x: this.anchor.x,
       y: this.anchor.y,
@@ -75,6 +76,7 @@ export class WeaponVisual implements LayeredAnimationHost {
         ? Math.atan2(facing.y, facing.x)
         : 0,
       mirrorX,
+      mirrorY,
     };
   }
 

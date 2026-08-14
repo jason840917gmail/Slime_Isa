@@ -9,6 +9,7 @@ import { migrateLegacyAnimation, migrateLegacyWeaponDefinition } from '../conten
 import type {
   AuthoredWeaponDefinition,
   LayeredWeaponDefinition,
+  LayeredWeaponDirectionalAttackDocument,
   LegacyWeaponDefinition,
   WeaponAttackDirection,
   WeaponAttackTrackDocument,
@@ -16,8 +17,12 @@ import type {
 import { validateWeaponDefinition } from '../content/weapons/validation';
 import { resolveAssetUrl } from '../infrastructure/assets/assetUrls';
 import {
+  DOWN_UP_INHERITANCE,
   layeredTimelineFrameCount,
+  materializeDirectionalAnimation,
   normalizeAnimationBlockTransform,
+  resolveDirectionalVariant,
+  RIGHT_LEFT_INHERITANCE,
   type AnimationVisualLayerDocument,
   type LayeredAnimationDocument,
 } from '../shared/animation';
@@ -32,9 +37,13 @@ import {
 } from './LayeredAnimationTimelineView';
 import { ensureStudioModeTabs } from './StudioModeTabs';
 import { renderWeaponHitboxGuides } from './WeaponHitboxGuides';
+import { resolveDirectionalStudioState } from './DirectionalInheritanceState';
+import { directionalModeDescription, directionalStatusLabel } from './DirectionalInheritanceView';
+import { adjustPreviewZoom } from './PreviewZoom';
 
 const DIRECTIONS = ['right', 'left', 'up', 'down'] as const satisfies readonly WeaponAttackDirection[];
 const EFFECT_DIRECTIONS = DIRECTIONS satisfies readonly EffectDirection[];
+const WEAPON_DIRECTIONAL_PAIRS = [RIGHT_LEFT_INHERITANCE, DOWN_UP_INHERITANCE] as const;
 
 type AnimationScope = 'idle' | 'attack' | 'effect';
 type InspectorTab = 'identity' | 'combat' | 'layer' | 'on-hit';
@@ -62,6 +71,7 @@ interface StudioState {
   readonly selectedBlockIndex?: number;
   readonly selectedHitboxId?: string;
   readonly playhead: number;
+  readonly previewZoom: number;
   readonly inspectorTab: InspectorTab;
   readonly pickerOpen: boolean;
   readonly pickerFrames: readonly number[];
@@ -120,13 +130,37 @@ function animationFor(state: StudioState): LayeredAnimationDocument | undefined 
   if (!weapon) return undefined;
   if (state.scope === 'idle') return weapon.animations.idle;
   if (state.scope === 'attack') {
-    const attack = state.direction === 'left' && !weapon.directionalAttacks.left
-      ? weapon.directionalAttacks.right
-      : weapon.directionalAttacks[state.direction];
-    return attack?.animation;
+    return resolveWeaponAttack(weapon, state.direction)?.attack.animation;
   }
   if (!state.effectDraft) return undefined;
   return resolveEffectVariant(state.effectDraft, state.effectDirection)?.animation;
+}
+
+function resolveWeaponAttack(
+  weapon: LayeredWeaponDefinition,
+  direction: WeaponAttackDirection,
+) {
+  const resolved = resolveDirectionalStudioState(
+    weapon.directionalAttacks,
+    direction,
+    { pairs: WEAPON_DIRECTIONAL_PAIRS },
+  );
+  if (!resolved || resolved.sourceDirection === 'default') return undefined;
+  return { ...resolved, attack: resolved.value as LayeredWeaponDirectionalAttackDocument };
+}
+
+function resolveEffectDocumentVariant(effect: EffectDefinition, direction: EffectDirection) {
+  return resolveDirectionalVariant(
+    effect.directions ?? {},
+    direction,
+    {
+      pairs: [
+        { ...RIGHT_LEFT_INHERITANCE, enabled: effect.mirrorLeftFromRight === true },
+        { ...DOWN_UP_INHERITANCE, enabled: effect.mirrorUpFromDown === true },
+      ],
+      defaultValue: effect.default,
+    },
+  );
 }
 
 function replaceAnimation(state: StudioState, animation: LayeredAnimationDocument): StudioState {
@@ -135,8 +169,9 @@ function replaceAnimation(state: StudioState, animation: LayeredAnimationDocumen
     return { ...state, draft: { ...state.draft, animations: { idle: animation } }, dirty: true };
   }
   if (state.scope === 'attack') {
-    const sourceDirection = state.direction === 'left' && !state.draft.directionalAttacks.left ? 'right' : state.direction;
-    const attack = state.draft.directionalAttacks[sourceDirection];
+    const resolved = resolveWeaponAttack(state.draft, state.direction);
+    if (!resolved?.authored) return { ...state, notice: `${state.direction.toUpperCase()} is inherited. Make it custom before editing.` };
+    const attack = state.draft.directionalAttacks[state.direction];
     if (!attack) return state;
     return {
       ...state,
@@ -144,13 +179,15 @@ function replaceAnimation(state: StudioState, animation: LayeredAnimationDocumen
         ...state.draft,
         directionalAttacks: {
           ...state.draft.directionalAttacks,
-          [sourceDirection]: { ...attack, animation },
+          [state.direction]: { ...attack, animation },
         },
       },
       dirty: true,
     };
   }
   if (!state.effectDraft) return state;
+  const resolved = resolveEffectDocumentVariant(state.effectDraft, state.effectDirection);
+  if (!resolved?.authored) return { ...state, notice: `${state.effectDirection.toUpperCase()} is inherited. Make it custom before editing.` };
   const directions = { ...(state.effectDraft.directions ?? {}), [state.effectDirection]: { ...animation, loop: false } };
   return {
     ...state,
@@ -278,7 +315,7 @@ function createWeaponDraft(assetId: string): LayeredWeaponDefinition {
     category: 'melee',
     characterActionId: 'attack-1',
     animations: { idle: emptyAnimation(assetId, true) },
-    directionalAttacks: { right: attack(), up: attack(), down: attack() },
+    directionalAttacks: { right: attack(), down: attack() },
     presentation: { facingMode: 'vector' },
     baseDamage: 10,
     cooldownMs: 500,
@@ -313,8 +350,11 @@ function resolvedLayerAt(animation: LayeredAnimationDocument, timelineFrame: num
 function characterSprite(state: StudioState): string {
   const character = characterPackages.find((entry) => entry.characterId === 'player-slime') ?? characterPackages[0];
   const asset = state.assets?.assets.find((entry) => entry.assetId === character?.visualSet.assetId);
+  const resolvedAttack = state.scope === 'attack' && state.draft
+    ? resolveWeaponAttack(state.draft, state.direction)
+    : undefined;
   const actionId = state.scope === 'attack'
-    ? state.draft?.directionalAttacks[state.direction]?.characterActionId ?? state.draft?.characterActionId
+    ? resolvedAttack?.attack.characterActionId ?? state.draft?.characterActionId
     : 'idle';
   const clip = character?.visualSet.clips[actionId ?? 'idle'] ?? character?.visualSet.clips.idle;
   const sourceFrame = clip?.frames[state.playhead % Math.max(1, clip.frames.length)] ?? 0;
@@ -329,7 +369,25 @@ function characterSprite(state: StudioState): string {
   return `<span class="stage-sprite stage-character-sprite" style="--sheet-url:url('${escapeHtml(info.url)}');--frame-w:${info.width}px;--frame-h:${info.height}px;--sheet-w:${info.width * info.columns}px;--sheet-h:${info.height * info.rows}px;--frame-x:${column * info.width}px;--frame-y:${row * info.height}px;--preview-scale:${scale};--origin-offset-x:${-origin[0] * info.width * scale}px;--origin-offset-y:${-origin[1] * info.height * scale}px;--offset-x:${offset[0] * scale}px;--offset-y:${offset[1] * scale}px"></span>`;
 }
 
-function layerPreviewSprite(state: StudioState, layer: AnimationVisualLayerDocument, block: AnimationVisualLayerDocument['blocks'][number], layerIndex: number): string {
+function previewMirrorAxes(state: StudioState): { readonly mirrorX: boolean; readonly mirrorY: boolean } {
+  if (state.scope === 'attack' && state.draft) {
+    const resolved = resolveWeaponAttack(state.draft, state.direction);
+    return { mirrorX: resolved?.mirrorX ?? false, mirrorY: resolved?.mirrorY ?? false };
+  }
+  if (state.scope === 'effect' && state.effectDraft) {
+    const resolved = resolveEffectVariant(state.effectDraft, state.effectDirection);
+    return { mirrorX: resolved?.mirrorX ?? false, mirrorY: resolved?.mirrorY ?? false };
+  }
+  return { mirrorX: false, mirrorY: false };
+}
+
+function layerPreviewSprite(
+  state: StudioState,
+  layer: AnimationVisualLayerDocument,
+  block: AnimationVisualLayerDocument['blocks'][number],
+  layerIndex: number,
+  mirror: { readonly mirrorX: boolean; readonly mirrorY: boolean },
+): string {
   const asset = state.assets?.assets.find((entry) => entry.assetId === layer.assetId);
   const info = assetInfo(asset);
   if (!info.url) return '';
@@ -340,15 +398,17 @@ function layerPreviewSprite(state: StudioState, layer: AnimationVisualLayerDocum
     (transform.scale?.[1] ?? 1) * (blockTransform.scale?.[1] ?? 1) * 2.8,
   ] as const;
   const origin = transform.origin ?? [0.5, 0.5];
-  const offset = [
+  const authoredOffset = [
     (transform.offset?.[0] ?? 0) + (blockTransform.offset?.[0] ?? 0),
     (transform.offset?.[1] ?? 0) + (blockTransform.offset?.[1] ?? 0),
   ] as const;
+  const offset = [mirror.mirrorX ? -authoredOffset[0] : authoredOffset[0], mirror.mirrorY ? -authoredOffset[1] : authoredOffset[1]] as const;
   const column = block.sourceFrame % info.columns;
   const row = Math.floor(block.sourceFrame / info.columns);
-  const flipX = Boolean(blockTransform.flipX) !== Boolean(transform.flipX);
-  const rotation = (transform.rotationDeg ?? 0) + (blockTransform.rotationDeg ?? 0);
-  return `<span class="stage-sprite stage-weapon-sprite${layer.layerId === state.selectedLayerId ? ' is-selected-layer' : ''}" data-preview-layer="${escapeHtml(layer.layerId)}" style="z-index:${3 + layerIndex};--sheet-url:url('${escapeHtml(info.url)}');--frame-w:${info.width}px;--frame-h:${info.height}px;--sheet-w:${info.width * info.columns}px;--sheet-h:${info.height * info.rows}px;--frame-x:${column * info.width}px;--frame-y:${row * info.height}px;--preview-scale-x:${scale[0]};--preview-scale-y:${scale[1]};--origin-offset-x:${-origin[0] * info.width * scale[0]}px;--origin-offset-y:${-origin[1] * info.height * scale[1]}px;--offset-x:${offset[0] * 2.8}px;--offset-y:${offset[1] * 2.8}px;--weapon-rotation:${rotation}deg;--weapon-flip-x:${flipX ? -1 : 1}"></span>`;
+  const flipX = Boolean(mirror.mirrorX) !== Boolean(blockTransform.flipX) !== Boolean(transform.flipX);
+  const flipY = Boolean(mirror.mirrorY) !== Boolean(blockTransform.flipY) !== Boolean(transform.flipY);
+  const rotation = (mirror.mirrorX !== mirror.mirrorY ? -1 : 1) * ((transform.rotationDeg ?? 0) + (blockTransform.rotationDeg ?? 0));
+  return `<span class="stage-sprite stage-weapon-sprite${layer.layerId === state.selectedLayerId ? ' is-selected-layer' : ''}" data-preview-layer="${escapeHtml(layer.layerId)}" style="z-index:${3 + layerIndex};--sheet-url:url('${escapeHtml(info.url)}');--frame-w:${info.width}px;--frame-h:${info.height}px;--sheet-w:${info.width * info.columns}px;--sheet-h:${info.height * info.rows}px;--frame-x:${column * info.width}px;--frame-y:${row * info.height}px;--preview-scale-x:${scale[0]};--preview-scale-y:${scale[1]};--origin-offset-x:${-origin[0] * info.width * scale[0]}px;--origin-offset-y:${-origin[1] * info.height * scale[1]}px;--offset-x:${offset[0] * 2.8}px;--offset-y:${offset[1] * 2.8}px;--weapon-rotation:${rotation}deg;--weapon-flip-x:${flipX ? -1 : 1};--weapon-flip-y:${flipY ? -1 : 1}"></span>`;
 }
 
 function renderPreviewHitboxes(state: StudioState): string {
@@ -368,13 +428,93 @@ function renderPreview(state: StudioState, animation: LayeredAnimationDocument):
   const duration = layeredTimelineFrameCount(animation) / animation.framesPerSecond;
   const activeLayers = resolvedLayerAt(animation, state.playhead);
   const effectOnly = state.scope === 'effect';
-  return `<section class="studio-preview-card weapon-preview-card layered-preview-card"><div class="studio-preview-toolbar"><span class="studio-kicker">COMBINED PREVIEW</span><span class="studio-muted">${state.scope.toUpperCase()}${state.scope === 'idle' ? '' : ` / ${(state.scope === 'effect' ? state.effectDirection : state.direction).toUpperCase()}`} · ${Number(state.playhead / animation.framesPerSecond).toFixed(2)}s / ${duration.toFixed(2)}s · ${activeLayers.length} active layer${activeLayers.length === 1 ? '' : 's'}</span><button type="button" class="studio-button studio-button--quiet" data-action="play-preview">${state.playing ? '■ STOP' : '▶ PLAY'}</button></div><div class="studio-stage weapon-stage layered-preview"><span class="stage-axis stage-axis-x"></span><span class="stage-axis stage-axis-y"></span><span class="stage-anchor">+</span><span class="stage-label">${effectOnly ? 'ENEMY CONTACT' : 'PLAYER ANCHOR'}</span>${effectOnly ? '' : characterSprite(state)}${activeLayers.map(({ layer, layerIndex, block }) => layerPreviewSprite(state, layer, block, layerIndex)).join('')}${renderPreviewHitboxes(state)}<span class="stage-caption"><b>${escapeHtml(state.scope === 'effect' ? state.effectDraft?.displayName : state.draft?.displayName)}</b><span>${activeLayers.map(({ layer, block }) => `${escapeHtml(layer.displayName)} · TILE ${block.sourceFrame}`).join('  /  ') || 'NO VISUAL AT PLAYHEAD'}</span></span></div><div class="studio-preview-footer"><span><i class="legend-dot legend-dot--cyan"></i> shared clock</span><span><i class="legend-dot legend-dot--amber"></i> selected visual layer</span><span><i class="legend-dot legend-dot--red"></i> hitbox active window</span><span>Effects spawn only after confirmed damage.</span></div></section>`;
+  const mirror = previewMirrorAxes(state);
+  const zoomPercent = Math.round(state.previewZoom * 100);
+  return `<section class="studio-preview-card weapon-preview-card layered-preview-card"><div class="studio-preview-toolbar"><span class="studio-kicker">COMBINED PREVIEW</span><span class="studio-muted">${state.scope.toUpperCase()}${state.scope === 'idle' ? '' : ` / ${(state.scope === 'effect' ? state.effectDirection : state.direction).toUpperCase()}`} · ${Number(state.playhead / animation.framesPerSecond).toFixed(2)}s / ${duration.toFixed(2)}s · ${activeLayers.length} active layer${activeLayers.length === 1 ? '' : 's'}</span><div class="layered-preview-toolbar-actions"><div class="layered-preview-zoom-controls" aria-label="Preview zoom"><button type="button" class="studio-button studio-button--quiet" data-action="preview-zoom-out" aria-label="Zoom preview out" title="Zoom preview out">−</button><span>${zoomPercent}%</span><button type="button" class="studio-button studio-button--quiet" data-action="preview-zoom-in" aria-label="Zoom preview in" title="Zoom preview in">+</button><button type="button" class="studio-link-button" data-action="preview-zoom-reset">RESET</button></div><button type="button" class="studio-button studio-button--quiet" data-action="play-preview">${state.playing ? '■ STOP' : '▶ PLAY'}</button></div></div><div class="studio-stage weapon-stage layered-preview" style="--preview-zoom:${state.previewZoom}" title="Use the mouse wheel to zoom the preview"><div class="layered-preview-scene"><span class="stage-axis stage-axis-x"></span><span class="stage-axis stage-axis-y"></span><span class="stage-anchor">+</span><span class="stage-label">${effectOnly ? 'ENEMY CONTACT' : 'PLAYER ANCHOR'}</span>${effectOnly ? '' : characterSprite(state)}${activeLayers.map(({ layer, layerIndex, block }) => layerPreviewSprite(state, layer, block, layerIndex, mirror)).join('')}${renderPreviewHitboxes(state)}<span class="stage-caption"><b>${escapeHtml(state.scope === 'effect' ? state.effectDraft?.displayName : state.draft?.displayName)}</b><span>${activeLayers.map(({ layer, block }) => `${escapeHtml(layer.displayName)} · TILE ${block.sourceFrame}`).join('  /  ') || 'NO VISUAL AT PLAYHEAD'}</span></span></div></div><div class="studio-preview-footer"><span><i class="legend-dot legend-dot--cyan"></i> shared clock</span><span><i class="legend-dot legend-dot--amber"></i> selected visual layer</span><span><i class="legend-dot legend-dot--red"></i> hitbox active window</span><span>Wheel over preview to zoom · Effects spawn only after confirmed damage.</span></div></section>`;
 }
 
 function selectedAttack(state: StudioState) {
   if (!state.draft) return undefined;
-  return state.draft.directionalAttacks[state.direction]
-    ?? (state.direction === 'left' ? state.draft.directionalAttacks.right : undefined);
+  return resolveWeaponAttack(state.draft, state.direction)?.attack;
+}
+
+function renderDirectionalMode(state: StudioState): string {
+  if (state.scope === 'idle') return '';
+  const direction = state.scope === 'attack' ? state.direction : state.effectDirection;
+  const pairs = state.scope === 'attack'
+    ? WEAPON_DIRECTIONAL_PAIRS
+    : [
+        { ...RIGHT_LEFT_INHERITANCE, enabled: state.effectDraft?.mirrorLeftFromRight === true },
+        { ...DOWN_UP_INHERITANCE, enabled: state.effectDraft?.mirrorUpFromDown === true },
+      ];
+  const resolved = state.scope === 'attack' && state.draft
+    ? resolveWeaponAttack(state.draft, direction)
+    : state.scope === 'effect' && state.effectDraft
+      ? resolveEffectDocumentVariant(state.effectDraft, direction)
+      : undefined;
+  const status = directionalStatusLabel(direction, resolved, pairs);
+  const description = directionalModeDescription(direction, resolved, pairs);
+  const pair = pairs.find((candidate) => candidate.child === direction);
+  const scopeAttribute = 'data-mirror-direction';
+  const action = pair && pair.enabled && resolved && !resolved.authored
+    ? `<button type="button" class="studio-button studio-button--accent" data-action="make-custom-direction" ${scopeAttribute}="${direction}">MAKE CUSTOM ${direction.toUpperCase()}</button>`
+    : pair && pair.enabled && resolved?.authored
+      ? `<button type="button" class="studio-button studio-button--quiet" data-action="restore-direction-mirror" ${scopeAttribute}="${direction}">RESTORE ${pair.master.toUpperCase()} MIRROR</button>`
+      : '';
+  return `<div class="layered-direction-mode${resolved && !resolved.authored ? ' is-inherited' : ''}"><span class="studio-kicker">${state.scope === 'effect' ? 'EFFECT DIRECTION' : 'ATTACK DIRECTION'}</span><strong>${direction.toUpperCase()} · ${status}</strong><small>${escapeHtml(description)}</small>${action}</div>`;
+}
+
+function makeCustomWeaponDirection(
+  weapon: LayeredWeaponDefinition,
+  direction: WeaponAttackDirection,
+): LayeredWeaponDefinition | undefined {
+  if (direction !== 'left' && direction !== 'up') return undefined;
+  const resolved = resolveWeaponAttack(weapon, direction);
+  if (!resolved || resolved.authored) return undefined;
+  const attack = clone(resolved.attack);
+  return {
+    ...weapon,
+    directionalAttacks: {
+      ...weapon.directionalAttacks,
+      [direction]: {
+        ...attack,
+        animation: materializeDirectionalAnimation(attack.animation, {
+          mirrorX: resolved.mirrorX,
+          mirrorY: resolved.mirrorY,
+        }),
+      },
+    },
+  };
+}
+
+function makeCustomEffectDirection(effect: EffectDefinition, direction: EffectDirection): EffectDefinition | undefined {
+  if (direction !== 'left' && direction !== 'up') return undefined;
+  const resolved = resolveEffectDocumentVariant(effect, direction);
+  if (!resolved || resolved.authored) return undefined;
+  return {
+    ...effect,
+    directions: {
+      ...(effect.directions ?? {}),
+      [direction]: materializeDirectionalAnimation(resolved.value, {
+        mirrorX: resolved.mirrorX,
+        mirrorY: resolved.mirrorY,
+      }),
+    },
+  };
+}
+
+function restoreWeaponDirection(weapon: LayeredWeaponDefinition, direction: WeaponAttackDirection): LayeredWeaponDefinition {
+  if (direction !== 'left' && direction !== 'up') return weapon;
+  const directionalAttacks = { ...weapon.directionalAttacks };
+  delete directionalAttacks[direction];
+  return { ...weapon, directionalAttacks };
+}
+
+function restoreEffectDirection(effect: EffectDefinition, direction: EffectDirection): EffectDefinition {
+  if (direction !== 'left' && direction !== 'up') return effect;
+  const directions = { ...(effect.directions ?? {}) };
+  delete directions[direction];
+  return { ...effect, directions };
 }
 
 function toggleSpan(track: WeaponAttackTrackDocument, hitboxId: string, frame: number): WeaponAttackTrackDocument {
@@ -403,9 +543,10 @@ function renderAttackRows(state: StudioState, animation: LayeredAnimationDocumen
   if (state.scope !== 'attack') return '';
   const attack = selectedAttack(state);
   if (!attack) return '';
+  const locked = state.draft ? !(resolveWeaponAttack(state.draft, state.direction)?.authored ?? false) : false;
   const frameCount = layeredTimelineFrameCount(animation);
   const track = attack.attackTrack ?? { hitboxSpans: [], events: [] };
-  return Object.keys(attack.hitboxes).map((hitboxId) => `<div class="timeline-track-row layered-host-row"><button type="button" class="timeline-track-label layered-track-label${hitboxId === state.selectedHitboxId ? ' is-selected' : ''}" data-select-hitbox="${escapeHtml(hitboxId)}">${escapeHtml(hitboxId)}</button>${Array.from({ length: frameCount }, (_, frame) => `<button type="button" class="timeline-cell${track.hitboxSpans.some((span) => span.hitboxId === hitboxId && span.from <= frame && frame <= span.through) ? ' is-hot' : ''}" data-toggle-hitbox-frame="${frame}" data-hitbox-id="${escapeHtml(hitboxId)}" aria-label="Toggle ${escapeHtml(hitboxId)} at frame ${frame}"></button>`).join('')}</div>`).join('');
+  return Object.keys(attack.hitboxes).map((hitboxId) => `<div class="timeline-track-row layered-host-row"><button type="button" class="timeline-track-label layered-track-label${hitboxId === state.selectedHitboxId ? ' is-selected' : ''}" data-select-hitbox="${escapeHtml(hitboxId)}">${escapeHtml(hitboxId)}</button>${Array.from({ length: frameCount }, (_, frame) => `<button type="button" class="timeline-cell${track.hitboxSpans.some((span) => span.hitboxId === hitboxId && span.from <= frame && frame <= span.through) ? ' is-hot' : ''}" data-toggle-hitbox-frame="${frame}" data-hitbox-id="${escapeHtml(hitboxId)}" aria-label="Toggle ${escapeHtml(hitboxId)} at frame ${frame}"${locked ? ' disabled' : ''}></button>`).join('')}</div>`).join('');
 }
 
 function renderBlock(state: StudioState, animation: LayeredAnimationDocument, layerId: string, blockIndex: number): string {
@@ -447,10 +588,11 @@ function renderIdentityInspector(state: StudioState): string {
 function renderCombatInspector(state: StudioState): string {
   const weapon = state.draft!;
   const attack = selectedAttack(state);
+  const attackIsInherited = !(resolveWeaponAttack(state.draft!, state.direction)?.authored ?? false);
   const hitboxes = attack?.hitboxes ?? {};
   const selectedId = state.selectedHitboxId && hitboxes[state.selectedHitboxId] ? state.selectedHitboxId : Object.keys(hitboxes)[0];
   const hitbox = selectedId ? hitboxes[selectedId] : undefined;
-  return `<section class="studio-inspector-section"><div class="studio-section-heading"><span class="studio-kicker">Combat profile</span><strong>Damage and timing</strong></div><div class="studio-field-grid">${inputField('Base damage', 'baseDamage', weapon.baseDamage, { type: 'number', step: '1' })}${inputField('Cooldown', 'cooldownMs', weapon.cooldownMs, { type: 'number', step: '1', hint: 'milliseconds' })}${inputField('Knockback', 'knockStrength', weapon.knockStrength, { type: 'number', step: '1' })}${inputField('Unlock level', 'unlockLevel', weapon.unlockLevel, { type: 'number', step: '1' })}</div></section><section class="studio-inspector-section"><div class="studio-section-heading"><span class="studio-kicker">Directional collision</span><strong>${state.direction.toUpperCase()} hitboxes</strong><button type="button" class="studio-icon-button" data-action="add-hitbox" aria-label="Add hitbox">+</button></div><p class="studio-help">Select a hitbox here or click its label in the preview. Geometry updates in the preview while you edit it; active time remains in the attack track.</p><div class="layered-hitbox-tabs">${Object.keys(hitboxes).map((id) => `<button type="button" class="studio-pill${id === selectedId ? ' is-active' : ''}" data-select-hitbox="${escapeHtml(id)}">${escapeHtml(id)}</button>`).join('')}</div>${hitbox && selectedId ? renderLayeredWeaponHitboxControls(selectedId, hitbox) : '<p class="studio-empty-note">Add a hitbox for this direction.</p>'}</section>`;
+  return `<section class="studio-inspector-section"><div class="studio-section-heading"><span class="studio-kicker">Combat profile</span><strong>Damage and timing</strong></div><div class="studio-field-grid">${inputField('Base damage', 'baseDamage', weapon.baseDamage, { type: 'number', step: '1' })}${inputField('Cooldown', 'cooldownMs', weapon.cooldownMs, { type: 'number', step: '1', hint: 'milliseconds' })}${inputField('Knockback', 'knockStrength', weapon.knockStrength, { type: 'number', step: '1' })}${inputField('Unlock level', 'unlockLevel', weapon.unlockLevel, { type: 'number', step: '1' })}</div></section><section class="studio-inspector-section"><div class="studio-section-heading"><span class="studio-kicker">Directional collision</span><strong>${state.direction.toUpperCase()} hitboxes</strong><button type="button" class="studio-icon-button" data-action="add-hitbox" aria-label="Add hitbox"${attackIsInherited ? ' disabled' : ''}>+</button></div><p class="studio-help">Select a hitbox here or click its label in the preview. Geometry updates in the preview while you edit it; active time remains in the attack track.</p><div class="layered-hitbox-tabs">${Object.keys(hitboxes).map((id) => `<button type="button" class="studio-pill${id === selectedId ? ' is-active' : ''}" data-select-hitbox="${escapeHtml(id)}">${escapeHtml(id)}</button>`).join('')}</div>${hitbox && selectedId ? renderLayeredWeaponHitboxControls(selectedId, hitbox, attackIsInherited) : '<p class="studio-empty-note">Add a hitbox for this direction.</p>'}</section>`;
 }
 
 function renderLayerInspector(state: StudioState, animation: LayeredAnimationDocument): string {
@@ -481,7 +623,21 @@ function renderInspector(state: StudioState, animation: LayeredAnimationDocument
 
 function renderScopeControls(state: StudioState, animation: LayeredAnimationDocument): string {
   const effectReady = Boolean(state.effectDraft);
-  return `<section class="layered-scope-strip"><div class="studio-clip-tabs"><button type="button" class="studio-clip-tab${state.scope === 'idle' ? ' is-active' : ''}" data-scope="idle"><span>IDLE</span><small>${state.draft?.animations.idle.layers.length ?? 0} layers</small></button><button type="button" class="studio-clip-tab${state.scope === 'attack' ? ' is-active' : ''}" data-scope="attack"><span>ATTACK</span><small>directional</small></button><button type="button" class="studio-clip-tab${state.scope === 'effect' ? ' is-active' : ''}" data-scope="effect" ${effectReady ? '' : 'disabled'}><span>ON-HIT EFFECT</span><small>${effectReady ? 'contact' : 'none assigned'}</small></button></div>${state.scope === 'attack' ? `<div class="layered-direction-tabs">${DIRECTIONS.map((direction) => `<button type="button" class="studio-pill${state.direction === direction ? ' is-active' : ''}" data-direction="${direction}">${direction.toUpperCase()}${direction === 'left' && !state.draft?.directionalAttacks.left ? ' · MIRROR R' : ''}</button>`).join('')}</div>` : state.scope === 'effect' ? `<div class="layered-direction-tabs">${EFFECT_DIRECTIONS.map((direction) => `<button type="button" class="studio-pill${state.effectDirection === direction ? ' is-active' : ''}" data-effect-direction="${direction}">${direction.toUpperCase()}</button>`).join('')}</div>` : ''}<div class="layered-clock-controls"><label>FPS <input type="number" min="1" max="240" step="1" value="${animation.framesPerSecond}" data-animation-field="fps" /></label><label>DURATION <input type="number" min="0.01" max="60" step="0.01" value="${animation.durationSeconds}" data-animation-field="duration" /><span>s</span></label></div></section>`;
+  const attackTabs = DIRECTIONS.map((direction) => {
+    const resolved = state.draft ? resolveWeaponAttack(state.draft, direction) : undefined;
+    const status = directionalStatusLabel(direction, resolved, WEAPON_DIRECTIONAL_PAIRS);
+    return `<button type="button" class="studio-pill${state.direction === direction ? ' is-active' : ''}" data-direction="${direction}">${direction.toUpperCase()}<small>${status}</small></button>`;
+  }).join('');
+  const effectTabs = EFFECT_DIRECTIONS.map((direction) => {
+    const resolved = state.effectDraft ? resolveEffectDocumentVariant(state.effectDraft, direction) : undefined;
+    const pairs = [
+      { ...RIGHT_LEFT_INHERITANCE, enabled: state.effectDraft?.mirrorLeftFromRight === true },
+      { ...DOWN_UP_INHERITANCE, enabled: state.effectDraft?.mirrorUpFromDown === true },
+    ];
+    const status = directionalStatusLabel(direction, resolved, pairs);
+    return `<button type="button" class="studio-pill${state.effectDirection === direction ? ' is-active' : ''}" data-effect-direction="${direction}">${direction.toUpperCase()}<small>${status}</small></button>`;
+  }).join('');
+  return `<section class="layered-scope-strip"><div class="studio-clip-tabs"><button type="button" class="studio-clip-tab${state.scope === 'idle' ? ' is-active' : ''}" data-scope="idle"><span>IDLE</span><small>${state.draft?.animations.idle.layers.length ?? 0} layers</small></button><button type="button" class="studio-clip-tab${state.scope === 'attack' ? ' is-active' : ''}" data-scope="attack"><span>ATTACK</span><small>directional</small></button><button type="button" class="studio-clip-tab${state.scope === 'effect' ? ' is-active' : ''}" data-scope="effect" ${effectReady ? '' : 'disabled'}><span>ON-HIT EFFECT</span><small>${effectReady ? 'contact' : 'none assigned'}</small></button></div>${state.scope === 'attack' ? `<div class="layered-direction-tabs">${attackTabs}</div>` : state.scope === 'effect' ? `<div class="layered-direction-tabs">${effectTabs}</div>` : ''}${renderDirectionalMode(state)}<div class="layered-clock-controls"><label>FPS <input type="number" min="1" max="240" step="1" value="${animation.framesPerSecond}" data-animation-field="fps" /></label><label>DURATION <input type="number" min="0.01" max="60" step="0.01" value="${animation.durationSeconds}" data-animation-field="duration" /><span>s</span></label></div></section>`;
 }
 
 function renderPicker(state: StudioState, animation: LayeredAnimationDocument): string {
@@ -519,10 +675,9 @@ function updateWeaponField(state: StudioState, field: string, value: string): St
   if (!state.draft) return state;
   if (field.startsWith('hitbox:')) {
     const [, hitboxId, hitboxField] = field.split(':');
-    const attack = selectedAttack(state);
-    if (!attack || !hitboxId || !hitboxField) return state;
-    const sourceDirection = state.direction === 'left' && !state.draft.directionalAttacks.left ? 'right' : state.direction;
-    const hitbox = attack.hitboxes[hitboxId];
+    const resolved = resolveWeaponAttack(state.draft, state.direction);
+    if (!resolved?.authored || !hitboxId || !hitboxField) return resolved ? { ...state, notice: `${state.direction.toUpperCase()} is inherited. Make it custom before editing.` } : state;
+    const hitbox = resolved.attack.hitboxes[hitboxId];
     if (!hitbox) return state;
     const nextHitbox = updateWeaponHitboxControl(hitbox, hitboxField, value);
     if (nextHitbox === hitbox) return state;
@@ -532,7 +687,7 @@ function updateWeaponField(state: StudioState, field: string, value: string): St
         ...state.draft,
         directionalAttacks: {
           ...state.draft.directionalAttacks,
-          [sourceDirection]: { ...attack, hitboxes: { ...attack.hitboxes, [hitboxId]: nextHitbox } },
+          [state.direction]: { ...resolved.attack, hitboxes: { ...resolved.attack.hitboxes, [hitboxId]: nextHitbox } },
         },
       },
       dirty: true,
@@ -597,7 +752,7 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement): () => void 
   const returnEditor = new URLSearchParams(window.location.search).get('editor') ?? 'meadow-crossing';
   let state: StudioState = {
     weapons: [], effects: [], selectedId: '', scope: 'attack', direction: 'right', effectDirection: 'right',
-    effectIsNew: false, effectDirty: false, playhead: 0, inspectorTab: 'layer', pickerOpen: false,
+     effectIsNew: false, effectDirty: false, playhead: 0, previewZoom: 1, inspectorTab: 'layer', pickerOpen: false,
     pickerFrames: [], dirty: false, saving: false, playing: false,
   };
   let resize: ResizeDrag | undefined;
@@ -628,7 +783,7 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement): () => void 
     const animation = prepared.draft.directionalAttacks.right.animation;
     state = selectionForAnimation({
       ...state, ...prepared, selectedId: entry.weaponId, revision: entry.revision, scope: 'attack', direction: 'right',
-      effectDirection: 'right', playhead: 0, dirty: entry.version === 1, inspectorTab: 'layer', pickerOpen: false,
+      effectDirection: 'right', playhead: 0, previewZoom: 1, dirty: entry.version === 1, inspectorTab: 'layer', pickerOpen: false,
       notice: entry.version === 1 ? 'Legacy weapon migrated in memory. Save to commit version 2.' : undefined,
     }, animation);
     render();
@@ -637,10 +792,13 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement): () => void 
   const mutateAnimation = (operation: (document: LayeredAnimationDocumentState) => boolean): void => mutate(transformAnimationState(state, operation));
   const updateAttack = (update: (attack: NonNullable<ReturnType<typeof selectedAttack>>) => NonNullable<ReturnType<typeof selectedAttack>>): void => {
     if (!state.draft) return;
-    const attack = selectedAttack(state);
-    if (!attack) return;
-    const sourceDirection = state.direction === 'left' && !state.draft.directionalAttacks.left ? 'right' : state.direction;
-    mutate({ ...state, draft: { ...state.draft, directionalAttacks: { ...state.draft.directionalAttacks, [sourceDirection]: update(attack) } }, dirty: true });
+    const resolved = resolveWeaponAttack(state.draft, state.direction);
+    if (!resolved) return;
+    if (!resolved.authored) {
+      mutate({ ...state, notice: `${state.direction.toUpperCase()} is inherited. Make it custom before editing.` });
+      return;
+    }
+    mutate({ ...state, draft: { ...state.draft, directionalAttacks: { ...state.draft.directionalAttacks, [state.direction]: update(resolved.attack) } }, dirty: true });
   };
   const refreshHitboxPreview = (): void => {
     const guides = container.querySelector<HTMLElement>('[data-weapon-hitbox-guides]');
@@ -717,6 +875,47 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement): () => void 
     if (hitboxCell) { updateAttack((attack) => ({ ...attack, attackTrack: toggleSpan(attack.attackTrack ?? { hitboxSpans: [], events: [] }, hitboxCell.dataset.hitboxId!, Number(hitboxCell.dataset.toggleHitboxFrame)) })); return; }
     const action = target.closest<HTMLElement>('[data-action]')?.dataset.action;
     if (!action) return;
+    if (action === 'make-custom-direction') {
+      const rawDirection = target.closest<HTMLElement>('[data-mirror-direction]')?.dataset.mirrorDirection;
+      if (!rawDirection) return;
+      if (state.scope === 'attack' && state.draft) {
+        const direction = rawDirection as WeaponAttackDirection;
+        const draft = makeCustomWeaponDirection(state.draft, direction);
+        if (!draft) return;
+        const next = { ...state, draft, dirty: true, notice: `Custom ${direction.toUpperCase()} direction created.` };
+        const animation = animationFor(next);
+        mutate(animation ? selectionForAnimation(next, animation) : next);
+      } else if (state.scope === 'effect' && state.effectDraft) {
+        const direction = rawDirection as EffectDirection;
+        const effectDraft = makeCustomEffectDirection(state.effectDraft, direction);
+        if (!effectDraft) return;
+        const next = { ...state, effectDraft, effectDirty: true, notice: `Custom ${direction.toUpperCase()} effect direction created.` };
+        const animation = animationFor(next);
+        mutate(animation ? selectionForAnimation(next, animation) : next);
+      }
+      return;
+    }
+    if (action === 'restore-direction-mirror') {
+      const rawDirection = target.closest<HTMLElement>('[data-mirror-direction]')?.dataset.mirrorDirection;
+      if (!rawDirection) return;
+      if (state.scope === 'attack' && state.draft) {
+        const direction = rawDirection as WeaponAttackDirection;
+        const draft = restoreWeaponDirection(state.draft, direction);
+        const next = { ...state, draft, dirty: true, selectedLayerId: undefined, selectedBlockIndex: undefined, selectedHitboxId: undefined, notice: `Restored ${direction.toUpperCase()} mirror.` };
+        const animation = animationFor(next);
+        mutate(animation ? selectionForAnimation(next, animation) : next);
+      } else if (state.scope === 'effect' && state.effectDraft) {
+        const direction = rawDirection as EffectDirection;
+        const effectDraft = restoreEffectDirection(state.effectDraft, direction);
+        const next = { ...state, effectDraft, effectDirty: true, selectedLayerId: undefined, selectedBlockIndex: undefined, notice: `Restored ${direction.toUpperCase()} mirror.` };
+        const animation = animationFor(next);
+        mutate(animation ? selectionForAnimation(next, animation) : next);
+      }
+      return;
+    }
+    if (action === 'preview-zoom-in') { mutate({ ...state, previewZoom: adjustPreviewZoom(state.previewZoom, -1) }); return; }
+    if (action === 'preview-zoom-out') { mutate({ ...state, previewZoom: adjustPreviewZoom(state.previewZoom, 1) }); return; }
+    if (action === 'preview-zoom-reset') { mutate({ ...state, previewZoom: 1 }); return; }
     if (action === 'add-layer') {
       const animation = animationFor(state); const fallbackAsset = spritesheetAssets(state.assets)[0]?.assetId;
       if (!animation || !fallbackAsset) return;
@@ -745,7 +944,7 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement): () => void 
       const animation = animationFor({ ...state, scope: state.scope === 'effect' ? 'attack' : state.scope }) ?? animationFor({ ...state, scope: 'attack' });
       if (!state.draft || !animation) return;
       const effectId = `${state.draft.weaponId}-impact`;
-      const effect: EffectDefinition = { version: 1, effectId, displayName: `${state.draft.displayName} impact`, mirrorLeftFromRight: true, directions: { right: { ...clone(animation), loop: false }, up: { ...clone(animation), loop: false }, down: { ...clone(animation), loop: false } } };
+      const effect: EffectDefinition = { version: 1, effectId, displayName: `${state.draft.displayName} impact`, mirrorLeftFromRight: true, mirrorUpFromDown: true, directions: { right: { ...clone(animation), loop: false }, down: { ...clone(animation), loop: false } } };
       mutate({ ...state, draft: { ...state.draft, onHitEffectId: effectId }, effectDraft: effect, effectRevision: undefined, effectIsNew: true, effectDirty: true, dirty: true, scope: 'effect', effectDirection: 'right', playhead: 0 }); return;
     }
     if (action === 'new-weapon') {
@@ -823,6 +1022,14 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement): () => void 
     if (next === state) return;
     state = next;
     refreshHitboxPreview();
+  };
+
+  const handleWheel = (event: WheelEvent): void => {
+    const target = event.target instanceof Element ? event.target.closest<HTMLElement>('.layered-preview') : undefined;
+    if (!target) return;
+    event.preventDefault();
+    const previewZoom = adjustPreviewZoom(state.previewZoom, event.deltaY);
+    if (previewZoom !== state.previewZoom) mutate({ ...state, previewZoom });
   };
 
   const handlePointerDown = (event: PointerEvent): void => {
@@ -933,6 +1140,7 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement): () => void 
   container.addEventListener('click', handleClick);
   container.addEventListener('change', handleChange);
   container.addEventListener('input', handleInput);
+  container.addEventListener('wheel', handleWheel, { passive: false });
   container.addEventListener('pointerdown', handlePointerDown);
   container.addEventListener('pointermove', handlePointerMove);
   container.addEventListener('pointerup', handlePointerUp);
@@ -954,6 +1162,7 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement): () => void 
     container.removeEventListener('click', handleClick);
     container.removeEventListener('change', handleChange);
     container.removeEventListener('input', handleInput);
+    container.removeEventListener('wheel', handleWheel);
     container.removeEventListener('pointerdown', handlePointerDown);
     container.removeEventListener('pointermove', handlePointerMove);
     container.removeEventListener('pointerup', handlePointerUp);

@@ -42,7 +42,7 @@ export class WorldEffectPool {
     }
     let slot = this.slots.find((candidate) => !candidate.active);
     if (!slot) {
-      const adapter = new WorldEffectAdapter(request.x, request.y, request.depth, variant.mirrored);
+      const adapter = new WorldEffectAdapter(request.x, request.y, request.depth, variant.mirrorX, variant.mirrorY);
       let created: EffectSlot;
       const clock = new AnimationClock({ onComplete: () => this.release(created) });
       const visual = new LayeredAnimationVisual(this.scene, adapter, clock, variant.animation, {
@@ -53,7 +53,7 @@ export class WorldEffectPool {
       slot = created;
     }
     slot.timeout?.remove();
-    slot.adapter.reset(request.x, request.y, request.depth, variant.mirrored);
+    slot.adapter.reset(request.x, request.y, request.depth, variant.mirrorX, variant.mirrorY);
     slot.visual.setAnimation(variant.animation);
     slot.visual.setVisible(true);
     slot.active = true;
