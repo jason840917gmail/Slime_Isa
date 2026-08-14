@@ -11,6 +11,7 @@
     "effectId": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
     "displayName": { "type": "string", "minLength": 1, "maxLength": 80 },
     "mirrorLeftFromRight": { "type": "boolean" },
+    "mirrorUpFromDown": { "type": "boolean" },
     "default": { "$ref": "#/$defs/animation" },
     "directions": {
       "type": "object",

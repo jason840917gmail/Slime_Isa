@@ -106,7 +106,7 @@ for (const weapon of weapons) {
   if ('impact' in (weapon.animations ?? {}) || 'attack' in (weapon.animations ?? {})) errors.push(`[${weapon.weaponId}] v2 animations may only contain idle`);
   if (weapon.onHitEffectId && !effectIds.has(weapon.onHitEffectId)) errors.push(`[${weapon.weaponId}] onHitEffectId '${weapon.onHitEffectId}' is missing`);
   validateLayered(weapon, 'idle', weapon.animations?.idle, true);
-  for (const direction of ['right', 'up', 'down']) if (!weapon.directionalAttacks?.[direction]) errors.push(`[${weapon.weaponId}] missing ${direction} attack`);
+  for (const direction of ['right', 'down']) if (!weapon.directionalAttacks?.[direction]) errors.push(`[${weapon.weaponId}] missing ${direction} attack`);
   for (const [direction, attack] of Object.entries(weapon.directionalAttacks ?? {})) {
     const frameCount = validateLayered(weapon, `${direction} attack`, attack.animation, false);
     validateHitboxes(weapon, `${direction}.hitboxes`, attack.hitboxes);

@@ -638,7 +638,7 @@
   background-size: calc(var(--sheet-w) * var(--preview-scale-x, var(--preview-scale, 1))) calc(var(--sheet-h) * var(--preview-scale-y, var(--preview-scale, 1)));
   background-position: calc(var(--frame-x) * -1 * var(--preview-scale-x, var(--preview-scale, 1))) calc(var(--frame-y) * -1 * var(--preview-scale-y, var(--preview-scale, 1)));
   filter: drop-shadow(0 18px 14px rgba(0, 0, 0, 0.32));
-  transform: translate(var(--origin-offset-x, -50%), var(--origin-offset-y, -50%)) translate(var(--offset-x, 0px), var(--offset-y, 0px)) rotate(var(--weapon-rotation, 0deg)) scaleX(var(--weapon-flip-x, 1));
+  transform: translate(var(--origin-offset-x, -50%), var(--origin-offset-y, -50%)) translate(var(--offset-x, 0px), var(--offset-y, 0px)) rotate(var(--weapon-rotation, 0deg)) scale(var(--weapon-flip-x, 1), var(--weapon-flip-y, 1));
 }
 
 #app.is-character-studio-host .stage-character-sprite {
@@ -1148,6 +1148,44 @@
   display: grid;
   grid-template-columns: 52px minmax(0, 1fr);
   min-width: calc(52px + var(--timeline-frame-count, 1) * 74px);
+}
+
+#app.is-character-studio-host .layered-preview-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+#app.is-character-studio-host .layered-preview-zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--studio-cyan);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+#app.is-character-studio-host .layered-preview-zoom-controls .studio-button {
+  min-width: 24px;
+  min-height: 24px;
+  padding: 2px 6px;
+}
+
+#app.is-character-studio-host .layered-preview-zoom-controls .studio-link-button {
+  margin-left: 2px;
+}
+
+#app.is-character-studio-host .layered-preview {
+  cursor: zoom-in;
+}
+
+#app.is-character-studio-host .layered-preview-scene {
+  position: absolute;
+  inset: 0;
+  transform: scale(var(--preview-zoom, 1));
+  transform-origin: center;
+  will-change: transform;
 }
 
 #app.is-character-studio-host .timeline-ruler,
@@ -2829,6 +2867,58 @@
   min-width: 0;
   padding: 0 9px 8px;
   overflow-x: auto;
+}
+
+#app.is-character-studio-host .layered-direction-tabs .studio-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+#app.is-character-studio-host .layered-direction-tabs .studio-pill small {
+  color: var(--studio-muted);
+  font-size: 8px;
+  letter-spacing: 0.04em;
+}
+
+#app.is-character-studio-host .layered-direction-mode {
+  display: grid;
+  grid-column: 1;
+  gap: 3px;
+  margin: 0 9px 8px;
+  padding: 8px 10px;
+  border-left: 2px solid var(--studio-border);
+  background: rgba(2, 7, 15, 0.54);
+}
+
+#app.is-character-studio-host .layered-direction-mode.is-inherited {
+  border-left-color: var(--studio-cyan);
+  background: rgba(121, 232, 225, 0.06);
+}
+
+#app.is-character-studio-host .layered-direction-mode strong {
+  color: var(--studio-ink);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+}
+
+#app.is-character-studio-host .layered-direction-mode small {
+  color: var(--studio-muted);
+  font-size: 10px;
+}
+
+#app.is-character-studio-host .layered-direction-mode .studio-button {
+  justify-self: start;
+  margin-top: 4px;
+}
+
+#app.is-character-studio-host .layered-hitbox-lock-note {
+  margin: 0 0 8px;
+  color: var(--studio-cyan);
+}
+
+#app.is-character-studio-host .layered-hitbox-editor.is-inherited {
+  opacity: 0.82;
 }
 
 #app.is-character-studio-host .layered-clock-controls {

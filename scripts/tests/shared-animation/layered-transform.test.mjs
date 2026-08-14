@@ -28,7 +28,7 @@ function layerFixture(overrides = {}) {
 
 test('layer and block transforms compose before host rotation', () => {
   const output = transformModule.composeAnimationVisualTransform(layerFixture(), {
-    x: 100, y: 200, baseDepth: 4, rotationRad: Math.PI / 2, mirrorX: false,
+    x: 100, y: 200, baseDepth: 4, rotationRad: Math.PI / 2, mirrorX: false, mirrorY: false,
   });
   assert.ok(Math.abs(output.x - 97) < 1e-9);
   assert.ok(Math.abs(output.y - 212) < 1e-9);
@@ -42,7 +42,7 @@ test('layer and block transforms compose before host rotation', () => {
 
 test('host mirroring reflects X, negates local rotation, and participates in XOR flipping', () => {
   const output = transformModule.composeAnimationVisualTransform(layerFixture(), {
-    x: 100, y: 200, baseDepth: 4, rotationRad: 0, mirrorX: true,
+    x: 100, y: 200, baseDepth: 4, rotationRad: 0, mirrorX: true, mirrorY: false,
   });
   assert.deepEqual([output.x, output.y], [88, 203]);
   assert.equal(output.flipX, false);
@@ -56,8 +56,18 @@ test('double authored X flips cancel without changing positive scale', () => {
     blockTransform: { ...layerFixture().blockTransform, flipX: true },
   });
   const output = transformModule.composeAnimationVisualTransform(layer, {
-    x: 0, y: 0, baseDepth: 0, rotationRad: 0, mirrorX: false,
+    x: 0, y: 0, baseDepth: 0, rotationRad: 0, mirrorX: false, mirrorY: false,
   });
   assert.equal(output.flipX, false);
   assert.deepEqual([output.scaleX, output.scaleY], [1, 6]);
+});
+
+test('vertical mirroring reflects Y, negates local rotation, and participates in flipY XOR', () => {
+  const output = transformModule.composeAnimationVisualTransform(layerFixture(), {
+    x: 100, y: 200, baseDepth: 4, rotationRad: 0, mirrorX: false, mirrorY: true,
+  });
+  assert.deepEqual([output.x, output.y], [112, 197]);
+  assert.equal(output.flipX, true);
+  assert.equal(output.flipY, true);
+  assert.ok(Math.abs(output.rotationRad - (-20 * Math.PI / 180)) < 1e-9);
 });

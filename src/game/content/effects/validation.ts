@@ -17,6 +17,7 @@ export function validateEffectDefinition(
   if (typeof effect.effectId !== 'string' || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(effect.effectId)) issues.push('effect.effectId: must be a lowercase kebab-case ID');
   if (typeof effect.displayName !== 'string' || !effect.displayName.trim() || effect.displayName.length > 80) issues.push('effect.displayName: must contain 1 to 80 characters');
   if (effect.mirrorLeftFromRight !== undefined && typeof effect.mirrorLeftFromRight !== 'boolean') issues.push('effect.mirrorLeftFromRight: must be boolean');
+  if (effect.mirrorUpFromDown !== undefined && typeof effect.mirrorUpFromDown !== 'boolean') issues.push('effect.mirrorUpFromDown: must be boolean');
   if (effect.default !== undefined) issues.push(...validateLayeredAnimationDocument(effect.default, { ...options, path: 'effect.default', allowLoop: false }));
   if (effect.directions !== undefined) {
     if (!isRecord(effect.directions)) issues.push('effect.directions: must be an object');
@@ -25,7 +26,12 @@ export function validateEffectDefinition(
       else issues.push(...validateLayeredAnimationDocument(animation, { ...options, path: `effect.directions.${direction}`, allowLoop: false }));
     }
   }
-  if (effect.mirrorLeftFromRight && !effect.directions?.right && !effect.default) issues.push('effect.mirrorLeftFromRight: requires a Right variant or Default fallback');
+  if (effect.mirrorLeftFromRight === true && !effect.directions?.left && !effect.directions?.right) {
+    issues.push('effect.mirrorLeftFromRight: requires a Right variant when LEFT is not authored');
+  }
+  if (effect.mirrorUpFromDown === true && !effect.directions?.up && !effect.directions?.down) {
+    issues.push('effect.mirrorUpFromDown: requires a Down variant when UP is not authored');
+  }
   for (const direction of EFFECT_DIRECTIONS) {
     try {
       if (!resolveEffectVariant(effect, direction)) issues.push(`effect: direction '${direction}' does not resolve to a usable variant`);

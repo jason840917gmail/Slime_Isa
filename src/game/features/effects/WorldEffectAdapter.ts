@@ -6,16 +6,25 @@ export class WorldEffectAdapter implements LayeredAnimationHost {
     private y: number,
     private baseDepth: number,
     private mirrorX: boolean,
+    private mirrorY: boolean,
   ) {}
 
-  reset(x: number, y: number, baseDepth: number, mirrorX: boolean): void {
+  reset(x: number, y: number, baseDepth: number, mirrorX: boolean, mirrorY: boolean): void {
     this.x = x;
     this.y = y;
     this.baseDepth = baseDepth;
     this.mirrorX = mirrorX;
+    this.mirrorY = mirrorY;
   }
 
   getAnimationHostTransform() {
-    return { x: this.x, y: this.y, baseDepth: this.baseDepth, rotationRad: 0, mirrorX: this.mirrorX };
+    return {
+      x: this.x,
+      y: this.y,
+      baseDepth: this.baseDepth,
+      rotationRad: 0,
+      mirrorX: this.mirrorX,
+      mirrorY: this.mirrorY,
+    };
   }
 }

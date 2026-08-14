@@ -20,8 +20,24 @@ const lookup = (id) => id === 'effect.spark' ? { kind: 'spritesheet', frameCount
 test('effect resolution prefers exact, then mirrored Left, then Default', () => {
   const effect = { version: 1, effectId: 'slash', displayName: 'Slash', default: animation(), directions: { right: { ...animation(), layers: [{ ...animation().layers[0], layerId: 'right' }] }, up: { ...animation(), layers: [{ ...animation().layers[0], layerId: 'up' }] } }, mirrorLeftFromRight: true };
   assert.equal(effects.resolveEffectVariant(effect, 'up').source, 'up');
-  assert.deepEqual(effects.resolveEffectVariant(effect, 'left'), { animation: effects.resolveEffectVariant(effect, 'right').animation, mirrored: true, source: 'right' });
+  assert.deepEqual(effects.resolveEffectVariant(effect, 'left'), { animation: effects.resolveEffectVariant(effect, 'right').animation, authored: false, mirrorX: true, mirrorY: false, source: 'right' });
   assert.equal(effects.resolveEffectVariant(effect, 'down').source, 'default');
+});
+
+test('effect resolution mirrors DOWN into missing UP and keeps exact UP custom', () => {
+  const inherited = { version: 1, effectId: 'slash', displayName: 'Slash', mirrorLeftFromRight: true, mirrorUpFromDown: true, directions: { right: animation(), down: animation() } };
+  const up = effects.resolveEffectVariant(inherited, 'up');
+  assert.equal(up.source, 'down');
+  assert.equal(up.authored, false);
+  assert.equal(up.mirrorX, false);
+  assert.equal(up.mirrorY, true);
+
+  const exact = { ...inherited, default: animation(), directions: { ...inherited.directions, up: animation() } };
+  const exactUp = effects.resolveEffectVariant(exact, 'up');
+  assert.equal(exactUp.source, 'up');
+  assert.equal(exactUp.authored, true);
+  assert.equal(exactUp.mirrorY, false);
+  assert.deepEqual(validation.validateEffectDefinition(exact, { assetLookup: lookup }), []);
 });
 
 test('effect validation requires all directions and usable non-looping variants', () => {
