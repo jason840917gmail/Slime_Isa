@@ -51,7 +51,7 @@
     "right": {
       "animation": {
         "version": 2,
-        "durationSeconds": 0.25,
+        "durationSeconds": 0.5,
         "framesPerSecond": 24,
         "loop": false,
         "loopMode": "wrap",
@@ -68,7 +68,7 @@
                 "sourceFrame": 0,
                 "transform": {
                   "offset": [
-                    20,
+                    0,
                     10
                   ],
                   "scale": [
@@ -100,7 +100,7 @@
               },
               {
                 "from": 3,
-                "through": 3,
+                "through": 4,
                 "sourceFrame": 0,
                 "transform": {
                   "offset": [
@@ -117,12 +117,12 @@
                 }
               },
               {
-                "from": 4,
-                "through": 5,
+                "from": 5,
+                "through": 8,
                 "sourceFrame": 1,
                 "transform": {
                   "offset": [
-                    50,
+                    55,
                     10
                   ],
                   "scale": [
@@ -130,6 +130,42 @@
                     1
                   ],
                   "rotationDeg": 46,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 9,
+                "through": 9,
+                "sourceFrame": 0,
+                "transform": {
+                  "offset": [
+                    40,
+                    10
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 52,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 10,
+                "through": 11,
+                "sourceFrame": 0,
+                "transform": {
+                  "offset": [
+                    20,
+                    10
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 52,
                   "flipX": false,
                   "flipY": false
                 }
@@ -150,7 +186,7 @@
           "shape": "rectangle",
           "width": 80,
           "height": 24,
-          "offsetX": 80,
+          "offsetX": 60,
           "offsetY": 10,
           "outerRadius": 48,
           "arcWidthRad": 1.35
@@ -160,8 +196,8 @@
         "hitboxSpans": [
           {
             "hitboxId": "primary",
-            "from": 3,
-            "through": 5
+            "from": 4,
+            "through": 8
           }
         ],
         "events": []
@@ -170,7 +206,7 @@
     "down": {
       "animation": {
         "version": 2,
-        "durationSeconds": 0.25,
+        "durationSeconds": 0.5,
         "framesPerSecond": 24,
         "loop": false,
         "loopMode": "wrap",
@@ -201,7 +237,7 @@
               },
               {
                 "from": 1,
-                "through": 1,
+                "through": 2,
                 "sourceFrame": 0,
                 "transform": {
                   "offset": [
@@ -218,8 +254,8 @@
                 }
               },
               {
-                "from": 2,
-                "through": 3,
+                "from": 3,
+                "through": 4,
                 "sourceFrame": 0,
                 "transform": {
                   "offset": [
@@ -236,8 +272,8 @@
                 }
               },
               {
-                "from": 4,
-                "through": 5,
+                "from": 5,
+                "through": 8,
                 "sourceFrame": 1,
                 "transform": {
                   "offset": [
@@ -249,6 +285,42 @@
                     1
                   ],
                   "rotationDeg": 138,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 9,
+                "through": 10,
+                "sourceFrame": 0,
+                "transform": {
+                  "offset": [
+                    0,
+                    45
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 143,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 11,
+                "through": 11,
+                "sourceFrame": 0,
+                "transform": {
+                  "offset": [
+                    0,
+                    25
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 143,
                   "flipX": false,
                   "flipY": false
                 }
@@ -269,7 +341,7 @@
           "shape": "rectangle",
           "width": 24,
           "height": 80,
-          "offsetX": 80,
+          "offsetX": 60,
           "offsetY": 0,
           "outerRadius": 48,
           "arcWidthRad": 1.35
@@ -279,8 +351,8 @@
         "hitboxSpans": [
           {
             "hitboxId": "primary",
-            "from": 2,
-            "through": 5
+            "from": 4,
+            "through": 8
           }
         ],
         "events": []
@@ -289,7 +361,7 @@
     "up": {
       "animation": {
         "version": 2,
-        "durationSeconds": 0.25,
+        "durationSeconds": 0.5,
         "framesPerSecond": 24,
         "loop": false,
         "loopMode": "wrap",
@@ -320,7 +392,7 @@
               },
               {
                 "from": 1,
-                "through": 1,
+                "through": 2,
                 "sourceFrame": 0,
                 "transform": {
                   "offset": [
@@ -337,8 +409,8 @@
                 }
               },
               {
-                "from": 2,
-                "through": 3,
+                "from": 3,
+                "through": 4,
                 "sourceFrame": 0,
                 "transform": {
                   "offset": [
@@ -355,8 +427,8 @@
                 }
               },
               {
-                "from": 4,
-                "through": 5,
+                "from": 5,
+                "through": 8,
                 "sourceFrame": 1,
                 "transform": {
                   "offset": [
@@ -368,6 +440,42 @@
                     1
                   ],
                   "rotationDeg": -138,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 9,
+                "through": 10,
+                "sourceFrame": 0,
+                "transform": {
+                  "offset": [
+                    0,
+                    -30
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": -143,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 11,
+                "through": 11,
+                "sourceFrame": 0,
+                "transform": {
+                  "offset": [
+                    0,
+                    -15
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": -143,
                   "flipX": false,
                   "flipY": false
                 }
@@ -389,7 +497,7 @@
           "shape": "rectangle",
           "width": 24,
           "height": 80,
-          "offsetX": 60,
+          "offsetX": 40,
           "offsetY": 0,
           "outerRadius": 48,
           "arcWidthRad": 1.35
@@ -399,8 +507,8 @@
         "hitboxSpans": [
           {
             "hitboxId": "primary",
-            "from": 2,
-            "through": 5
+            "from": 4,
+            "through": 8
           }
         ],
         "events": []
@@ -411,12 +519,12 @@
     "facingMode": "vector"
   },
   "baseDamage": 10,
-  "cooldownMs": 500,
+  "cooldownMs": 800,
   "hitboxWidth": 42,
   "hitboxHeight": 24,
   "hitboxOffset": 24,
   "hitboxDurationMs": 100,
-  "knockStrength": 100,
+  "knockStrength": 200,
   "vfxColor": 7989473,
   "unlockLevel": 1,
   "iconKey": "weapon-generic",

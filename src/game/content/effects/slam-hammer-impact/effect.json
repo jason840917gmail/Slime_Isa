@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "effectId": "basic-spear-impact",
-  "displayName": "Basic Spear impact",
+  "effectId": "slam-hammer-impact",
+  "displayName": "Slam Hammer impact",
   "mirrorLeftFromRight": true,
   "mirrorUpFromDown": true,
   "directions": {
@@ -21,7 +21,7 @@
             {
               "from": 0,
               "through": 0,
-              "sourceFrame": 2,
+              "sourceFrame": 1,
               "transform": {
                 "offset": [
                   0,
@@ -43,8 +43,8 @@
               0
             ],
             "scale": [
-              0.4,
-              0.4
+              0.3,
+              0.3
             ],
             "rotationDeg": 0,
             "flipX": false,
@@ -73,7 +73,7 @@
             {
               "from": 0,
               "through": 0,
-              "sourceFrame": 2,
+              "sourceFrame": 1,
               "transform": {
                 "offset": [
                   0,
@@ -95,60 +95,8 @@
               0
             ],
             "scale": [
-              0.4,
-              0.4
-            ],
-            "rotationDeg": 0,
-            "flipX": false,
-            "flipY": false,
-            "origin": [
-              0.5,
-              0.5
-            ]
-          }
-        }
-      ]
-    },
-    "up": {
-      "version": 2,
-      "durationSeconds": 1,
-      "framesPerSecond": 1,
-      "loop": false,
-      "loopMode": "wrap",
-      "layers": [
-        {
-          "layerId": "layer-1",
-          "displayName": "Layer 1",
-          "assetId": "effect.weapon.hit-tiles",
-          "depthOffset": 0,
-          "blocks": [
-            {
-              "from": 0,
-              "through": 0,
-              "sourceFrame": 2,
-              "transform": {
-                "offset": [
-                  0,
-                  0
-                ],
-                "scale": [
-                  1,
-                  1
-                ],
-                "rotationDeg": 0,
-                "flipX": false,
-                "flipY": false
-              }
-            }
-          ],
-          "transform": {
-            "offset": [
-              0,
-              0
-            ],
-            "scale": [
-              0.4,
-              0.4
+              0.3,
+              0.3
             ],
             "rotationDeg": 0,
             "flipX": false,

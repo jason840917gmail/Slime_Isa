@@ -562,12 +562,12 @@
   },
   "onHitEffectId": "basic-sword-impact",
   "baseDamage": 20,
-  "cooldownMs": 500,
+  "cooldownMs": 1200,
   "hitboxWidth": 37,
   "hitboxHeight": 24,
   "hitboxOffset": 24,
   "hitboxDurationMs": 120,
-  "knockStrength": 120,
+  "knockStrength": 140,
   "scaling": {
     "damage": {
       "strength": 2

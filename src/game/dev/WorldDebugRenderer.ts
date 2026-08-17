@@ -94,7 +94,10 @@ export class WorldDebugRenderer {
   private drawHitBoxes(g: Phaser.GameObjects.Graphics): void {
     this.drawBody(g, this.ctx.getPlayer().body, 0xff4d6d, 0.95);
     this.forChildren(this.ctx.getFriends(), (child) => this.drawBody(g, this.bodyOf(child), 0xff4d6d, 0.7));
-    this.forChildren(this.ctx.getCombatTargets(), (child) => this.drawBody(g, this.bodyOf(child), 0xff4d6d, 0.9));
+    this.forChildren(this.ctx.getCombatTargets(), (child) => {
+      if (!child.active) return;
+      this.drawBody(g, this.bodyOf(child), 0xff4d6d, 0.9);
+    });
     this.forChildren(this.ctx.getCollisionTiles(), (child) => this.drawBody(g, this.bodyOf(child), 0xff4d6d, 0.35));
   }
 
@@ -248,11 +251,11 @@ export class WorldDebugRenderer {
   }
 
   private drawBody(g: Phaser.GameObjects.Graphics, body: Phaser.Physics.Arcade.Body | Phaser.Physics.Arcade.StaticBody | null | undefined, color: number, alpha: number): void {
-    if (!body) return;
+    if (!body || !body.enable) return;
     if ('isCircle' in body && body.isCircle) {
-      const radius = Math.min(body.width, body.height) / 2;
-      const centerX = body.x + body.width / 2;
-      const centerY = body.y + body.height / 2;
+      const radius = body.halfWidth;
+      const centerX = body.center.x;
+      const centerY = body.center.y;
       g.fillStyle(color, 0.06).fillCircle(centerX, centerY, radius);
       g.lineStyle(2, color, alpha).strokeCircle(centerX, centerY, radius);
       return;

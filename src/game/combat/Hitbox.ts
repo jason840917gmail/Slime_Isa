@@ -1,5 +1,6 @@
 ﻿import Phaser from 'phaser';
 import { resolveWorldDepth } from '../presentation/WorldDepth';
+import { attackIntersectsCombatBody, resolveCombatBodyGeometry } from './CombatBodyGeometry';
 
 /**
  * Pooled transient hitbox. A physics zone that appears at a position, deals
@@ -204,9 +205,8 @@ class HitboxPoolImpl {
     if (!slot.active || !slot.config || !slot.handler || !slot.targets) return;
     for (const child of slot.targets.getChildren()) {
       if (slot.hitSet.has(child)) continue;
-      const childBody = (child as Phaser.Physics.Arcade.Sprite).body as Phaser.Physics.Arcade.Body | undefined;
-      if (!childBody) continue;
-      if (!this.intersects(child as Phaser.Physics.Arcade.Sprite, slot.config)) continue;
+      const targetGeometry = resolveCombatBodyGeometry(child as Phaser.Physics.Arcade.Sprite);
+      if (!attackIntersectsCombatBody(slot.config, targetGeometry)) continue;
       slot.hitSet.add(child);
       slot.handler(
         child,
@@ -216,66 +216,6 @@ class HitboxPoolImpl {
         slot.config.knockStrength ?? 0,
       );
     }
-  }
-
-  private intersects(target: Phaser.Physics.Arcade.Sprite, config: HitboxConfig): boolean {
-    if (config.shape === 'sector') {
-      return this.intersectsSector(target, config);
-    }
-
-    if (config.shape === 'circle' || config.shape === 'ellipse') {
-      return this.intersectsEllipse(target, config);
-    }
-
-    return Phaser.Geom.Intersects.RectangleToRectangle(
-      new Phaser.Geom.Rectangle(config.x - config.width / 2, config.y - config.height / 2, config.width, config.height),
-      target.getBounds(),
-    );
-  }
-
-  private intersectsEllipse(target: Phaser.Physics.Arcade.Sprite, config: HitboxConfig): boolean {
-    const centerX = config.x;
-    const centerY = config.y;
-    const radiusX = config.shape === 'circle'
-      ? config.radiusX ?? config.width / 2
-      : config.radiusX ?? config.width / 2;
-    const radiusY = config.shape === 'circle'
-      ? config.radiusY ?? radiusX
-      : config.radiusY ?? config.height / 2;
-    const bounds = target.getBounds();
-    const targetPadding = Math.max(bounds.width, bounds.height) / 2;
-    const dx = bounds.centerX - centerX;
-    const dy = bounds.centerY - centerY;
-    const normalizedX = dx / Math.max(1, radiusX + targetPadding);
-    const normalizedY = dy / Math.max(1, radiusY + targetPadding);
-    return normalizedX * normalizedX + normalizedY * normalizedY <= 1;
-  }
-
-  private intersectsSector(target: Phaser.Physics.Arcade.Sprite, config: HitboxConfig): boolean {
-    const originX = config.originX ?? config.x;
-    const originY = config.originY ?? config.y;
-    const angle = config.angle ?? 0;
-    const arcHalf = (config.arcWidth ?? Math.PI / 2) / 2;
-    const innerRadius = config.innerRadius ?? 0;
-    const outerRadius = config.outerRadius ?? Math.max(config.width, config.height) / 2;
-    const bounds = target.getBounds();
-    const centerX = bounds.centerX;
-    const centerY = bounds.centerY;
-    const radius = Math.max(bounds.width, bounds.height) / 2;
-    const dx = centerX - originX;
-    const dy = centerY - originY;
-    const dist = Math.hypot(dx, dy);
-
-    if (dist > outerRadius + radius) return false;
-    if (dist + radius < innerRadius) return false;
-
-    if (dist <= radius) return true;
-
-    const angleToTarget = Math.atan2(dy, dx);
-    const angleDelta = Math.abs(Phaser.Math.Angle.Wrap(angleToTarget - angle));
-    const anglePadding = Math.asin(Phaser.Math.Clamp(radius / Math.max(dist, 1), 0, 1));
-
-    return angleDelta <= arcHalf + anglePadding;
   }
 
   private deactivate(slot: PooledHitbox): void {
