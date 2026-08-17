@@ -4,10 +4,12 @@ import { WEAPON_HOTBAR_SLOT_COUNT } from '../core/types';
 import { resolveScreenUiDepth } from '../presentation/WorldDepth';
 import { playerWeaponLoadout } from '../systems/WeaponLoadout';
 import { weaponItemFor } from '../systems/Inventory';
+import { createWeaponThumbnail } from './WeaponThumbnail';
 
 const FONT = 'Trebuchet MS, Segoe UI Variable, sans-serif';
 const CELL = 56;
 const GAP = 8;
+const THUMBNAIL_SIZE = 30;
 
 export interface WeaponHotbarContext {
   readonly scene: Phaser.Scene;
@@ -95,8 +97,13 @@ export class WeaponHotbar {
         color: active ? '#17202a' : '#d9eef0',
       }).setOrigin(0.5));
 
-      if (owned && item && scene.textures.exists(item.icon)) {
-        slot.add(scene.add.image(3, -3, item.icon).setDisplaySize(30, 30));
+      const thumbnail = owned && weaponId
+        ? createWeaponThumbnail(scene, weaponId, { x: 3, y: -3, size: THUMBNAIL_SIZE })
+        : undefined;
+      if (thumbnail) {
+        slot.add(thumbnail);
+      } else if (owned && item && scene.textures.exists(item.icon)) {
+        slot.add(scene.add.image(3, -3, item.icon).setDisplaySize(THUMBNAIL_SIZE, THUMBNAIL_SIZE));
       } else {
         slot.add(scene.add.text(3, -3, weaponId ? '×' : '·', {
           fontFamily: FONT,

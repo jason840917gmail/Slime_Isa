@@ -7,15 +7,15 @@
   "directions": {
     "right": {
       "version": 2,
-      "durationSeconds": 0.08333333333333333,
-      "framesPerSecond": 12,
+      "durationSeconds": 1,
+      "framesPerSecond": 1,
       "loop": false,
       "loopMode": "wrap",
       "layers": [
         {
           "layerId": "base",
           "displayName": "Basic sword",
-          "assetId": "weapon.player.sword-tiles",
+          "assetId": "effect.weapon.hit-tiles",
           "depthOffset": 0,
           "transform": {
             "offset": [
@@ -23,6 +23,13 @@
               0
             ],
             "scale": [
+              0.3,
+              0.3
+            ],
+            "rotationDeg": 0,
+            "flipX": false,
+            "flipY": false,
+            "origin": [
               0.5,
               0.5
             ]
@@ -31,7 +38,20 @@
             {
               "from": 0,
               "through": 0,
-              "sourceFrame": 16
+              "sourceFrame": 0,
+              "transform": {
+                "offset": [
+                  0,
+                  0
+                ],
+                "scale": [
+                  1,
+                  1
+                ],
+                "rotationDeg": 0,
+                "flipX": false,
+                "flipY": false
+              }
             }
           ]
         }
@@ -39,7 +59,7 @@
     },
     "up": {
       "version": 2,
-      "durationSeconds": 0.08333333333333333,
+      "durationSeconds": 1,
       "framesPerSecond": 12,
       "loop": false,
       "loopMode": "wrap",
@@ -47,7 +67,7 @@
         {
           "layerId": "base",
           "displayName": "Basic sword",
-          "assetId": "weapon.player.sword-tiles",
+          "assetId": "effect.weapon.hit-tiles",
           "depthOffset": 0,
           "transform": {
             "offset": [
@@ -55,6 +75,13 @@
               0
             ],
             "scale": [
+              0.3,
+              0.3
+            ],
+            "rotationDeg": 0,
+            "flipX": false,
+            "flipY": false,
+            "origin": [
               0.5,
               0.5
             ]
@@ -62,10 +89,20 @@
           "blocks": [
             {
               "from": 0,
-              "through": 0,
-              "sourceFrame": 16,
+              "through": 11,
+              "sourceFrame": 0,
               "transform": {
-                "rotationDeg": -90
+                "offset": [
+                  0,
+                  0
+                ],
+                "scale": [
+                  1,
+                  1
+                ],
+                "rotationDeg": 0,
+                "flipX": false,
+                "flipY": false
               }
             }
           ]
@@ -74,7 +111,7 @@
     },
     "down": {
       "version": 2,
-      "durationSeconds": 0.08333333333333333,
+      "durationSeconds": 1,
       "framesPerSecond": 12,
       "loop": false,
       "loopMode": "wrap",
@@ -82,7 +119,7 @@
         {
           "layerId": "base",
           "displayName": "Basic sword",
-          "assetId": "weapon.player.sword-tiles",
+          "assetId": "effect.weapon.hit-tiles",
           "depthOffset": 0,
           "transform": {
             "offset": [
@@ -90,6 +127,13 @@
               0
             ],
             "scale": [
+              0.3,
+              0.3
+            ],
+            "rotationDeg": 0,
+            "flipX": false,
+            "flipY": false,
+            "origin": [
               0.5,
               0.5
             ]
@@ -97,10 +141,20 @@
           "blocks": [
             {
               "from": 0,
-              "through": 0,
-              "sourceFrame": 16,
+              "through": 11,
+              "sourceFrame": 0,
               "transform": {
-                "rotationDeg": 90
+                "offset": [
+                  0,
+                  0
+                ],
+                "scale": [
+                  1,
+                  1
+                ],
+                "rotationDeg": 0,
+                "flipX": false,
+                "flipY": false
               }
             }
           ]

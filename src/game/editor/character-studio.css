@@ -2279,6 +2279,11 @@
   margin: 10px 12px 0;
 }
 
+#app.is-character-studio-host .layered-direction-action {
+  grid-column: 1;
+  margin: 0 9px 8px;
+}
+
 #app.is-character-studio-host .weapon-tile-bank,
 #app.is-character-studio-host .weapon-animation-bank,
 #app.is-character-studio-host .weapon-frame-transform {
