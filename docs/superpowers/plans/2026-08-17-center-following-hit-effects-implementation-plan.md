@@ -4,9 +4,10 @@
 `docs/superpowers/specs/2026-08-17-center-following-hit-effects-design.md`
 
 **Goal:** Spawn confirmed weapon-hit effects at the damaged target's `x`/`y`
-anchor and follow only that position until the target is destroyed or the effect
-finishes. Preserve spawn-time depth, direction, mirroring, animation transforms,
-and lifetime.
+anchor and follow its position plus current world-sort depth until the target is
+destroyed or the effect finishes. Preserve spawn-time direction, mirroring,
+animation transforms, and lifetime; weapon hits keep a fixed `+0.2` front-depth
+offset relative to the target.
 
 **Scope:** The world-effect adapter and pool, confirmed-hit dispatch in
 `CombatController`, focused lifecycle tests, architecture wording, and gameplay
@@ -52,7 +53,7 @@ that boundary is not safe, leave the runtime changes uncommitted and report it.
 baseline issue if it remains; do not weaken asset validation or create a fake
 asset as part of this feature.
 
-## Task 1: Add a Position-Only Effect Adapter Update
+## Task 1: Add Position and Depth Effect Adapter Updates
 
 **Files**
 
@@ -62,16 +63,17 @@ asset as part of this feature.
 **Tests first**
 
 1. Construct an adapter with known position, depth, and mirror values.
-2. Call the new position-only method with a different `x` and `y`.
-3. Assert `getAnimationHostTransform()` exposes the new coordinates while
-   preserving base depth, zero rotation, `mirrorX`, and `mirrorY` exactly.
+2. Call the position and depth mutators with different values.
+3. Assert `getAnimationHostTransform()` exposes the new coordinates/depth while
+   preserving zero rotation, `mirrorX`, and `mirrorY` exactly.
 4. Reset the same adapter for pooled reuse and prove the new spawn-time depth and
    mirrors replace the previous instance's values.
 
 **Implementation**
 
-1. Add `setPosition(x: number, y: number): void` to `WorldEffectAdapter`.
-2. Change only the private `x` and `y` fields in that method.
+1. Add `setPosition(x: number, y: number): void` and
+   `setDepth(baseDepth: number): void` to `WorldEffectAdapter`.
+2. Keep each mutator limited to its own private transform fields.
 3. Keep `reset` as the complete spawn/reuse operation for position, depth, and
    both mirror axes.
 4. Do not add target knowledge or event listeners to the adapter; it remains a
@@ -98,14 +100,16 @@ pnpm typecheck
 
 Use a small fake event-emitting target and a real `WorldEffectAdapter` to cover:
 
-1. Attaching immediately copies the target's finite `x` and `y`.
+1. Attaching immediately copies the target's finite `x`, `y`, and front-relative
+   depth.
 2. `update()` follows movement even when `target.active === false`.
-3. Changing target depth, scale, rotation, active state, or visibility never
-   changes the adapter's non-position transform.
-4. A non-finite coordinate retains the adapter's last valid value for that axis
-   while the other finite axis can still update.
-5. A target `destroy` event performs one final finite position sync, removes the
-   listener/reference, and leaves the adapter frozen there.
+3. Target depth follows with its fixed front offset, while target scale,
+   rotation, active state, or visibility never changes the adapter's other
+   presentation transforms.
+4. A non-finite coordinate or depth retains the adapter's last valid value for
+   that component while other finite components can still update.
+5. A target `destroy` event performs one final finite position/depth sync,
+   removes the listener/reference, and leaves the adapter frozen there.
 6. Explicit disposal removes the exact listener and is safe to call repeatedly.
 7. Disposing an old attachment before reuse prevents later movement or destroy
    events from changing the reused adapter.
@@ -114,32 +118,35 @@ Use a small fake event-emitting target and a real `WorldEffectAdapter` to cover:
 **Implementation**
 
 1. Define and export the narrow structural `WorldEffectPositionTarget` contract:
-   a Phaser game object with readable `x`/`y` and the normal `once`/`off`
+   a Phaser game object with readable `x`/`y`/`depth` and the normal `once`/`off`
    destruction-event lifecycle. Do not import `Enemy` or `TargetDummy`.
 2. Encapsulate one target, one adapter, and the exact destroy callback in a small
    idempotent attachment object. The pool slot owns at most one such object.
-3. Synchronize each finite axis independently so invalid target data cannot
-   poison a previously valid render transform.
+3. Synchronize finite `x`, `y`, and target-relative depth independently so
+   invalid target data cannot poison a previously valid render transform.
 4. On target destruction, synchronize once, detach without canceling the effect,
    and make all later updates no-ops.
 5. Extend `WorldEffectSpawnRequest` with optional
-   `followPositionOf?: WorldEffectPositionTarget`; retain `x`/`y` for static
-   callers and as the initial fallback.
+   `followPositionOf?: WorldEffectPositionTarget` and
+   `followDepthOffset?: number`; retain `x`/`y`/`depth` for static callers and as
+   initial fallbacks.
 6. Extend `EffectSlot` with its optional attachment. Before reusing a slot, clear
    its old timeout and dispose its old attachment before resetting the adapter.
 7. When a follow target is supplied, create the attachment after adapter reset
    and before the animation starts.
 8. In `WorldEffectPool.update`, update the attachment before advancing the clock
    and calling `visual.updateAnchor()`. This ensures the current frame uses the
-   latest target coordinates.
+   latest target coordinates and world-sort depth.
 9. Centralize slot attachment cleanup and call it from animation completion,
    safety-timeout release, reuse, explicit pool destruction, and scene shutdown.
-10. Preserve fixed world-space behavior when `followPositionOf` is omitted.
+10. Preserve fixed world-space position/depth behavior when `followPositionOf`
+    is omitted.
 
 **Implementation guardrails**
 
 - Do not detach merely because `active`, `visible`, or the Arcade body is false.
-- Do not copy target depth or any visual transform other than `x`/`y`.
+- Do not copy target transforms other than `x`/`y` and target-relative world-sort
+  depth.
 - Do not parent effect sprites to the target.
 - Do not let a target-destroy callback release or cancel the effect.
 - Do not expose mutable pool-slot state solely for tests; test the attachment
@@ -187,7 +194,7 @@ pnpm typecheck
 
    - `x: hitTarget.x`;
    - `y: hitTarget.y`;
-   - `depth: hitTarget.depth + 0.2` captured at spawn;
+   - `depth: hitTarget.depth + 0.2`, refreshed from target depth each pool update;
    - the attack snapshot's existing cardinal direction; and
    - `followPositionOf: hitTarget`.
 
@@ -223,8 +230,8 @@ pnpm typecheck
 1. Replace the architecture statement that positions the effect at the target
    contact edge.
 2. State that accepted positive damage spawns at the damaged object's `x`/`y`
-   center and follows only position until effect completion or target
-   destruction.
+   center and follows position plus target-relative world-sort depth until effect
+   completion or target destruction.
 3. Preserve the rule that timeline events cannot synthesize hit effects or
    bypass damage confirmation.
 4. Keep content/editor/schema ownership unchanged. The Weapon Studio help-copy
@@ -256,9 +263,9 @@ typecheck, and build pass independently.
    square; confirm damage still occurs and the effect appears at target center.
 4. Hit from all four cardinal directions; confirm the effect direction/mirroring
    remains correct while placement stays centered.
-5. Knock an enemy back during a longer effect and confirm only the effect's
-   position follows. Watch for depth changes, animation restarts, or transform
-   jumps.
+5. Knock an enemy back during a longer effect and confirm the effect's position
+   and front-relative depth follow. Watch for depth changes behind the enemy,
+   animation restarts, or transform jumps.
 6. Land a fatal hit; confirm the effect follows during the existing death object
    lifetime and freezes cleanly if the target is destroyed before it completes.
 7. Hit a target dummy through its inactive/death state and confirm position
@@ -277,10 +284,10 @@ typecheck, and build pass independently.
 Implementation is complete only when:
 
 - A confirmed positive-damage weapon hit spawns exactly at `target.x`/`target.y`.
-- The effect follows only `x`/`y` while the target exists, including knockback
-  and inactive-but-not-destroyed states.
-- Depth, direction, mirrors, rotation, scale, authored offsets, animation
-  progress, and lifetime remain fixed from spawn.
+- The effect follows `x`/`y` and target-relative world-sort depth while the target
+  exists, including knockback and inactive-but-not-destroyed states.
+- Direction, mirrors, rotation, scale, authored offsets, animation progress, and
+  lifetime remain fixed from spawn.
 - Target destruction freezes the effect at the final valid center without
   canceling it.
 - Completion, timeout, reuse, pool destruction, and scene shutdown remove all

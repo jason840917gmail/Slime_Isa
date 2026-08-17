@@ -22,6 +22,10 @@ export class WorldEffectAdapter implements LayeredAnimationHost {
     this.y = y;
   }
 
+  setDepth(baseDepth: number): void {
+    this.baseDepth = baseDepth;
+  }
+
   getAnimationHostTransform() {
     return {
       x: this.x,

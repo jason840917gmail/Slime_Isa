@@ -231,6 +231,7 @@ export class CombatController {
             y: hitTarget.y,
             depth: hitTarget.depth + 0.2,
             followPositionOf: hitTarget,
+            followDepthOffset: 0.2,
           });
         }
         return result;
