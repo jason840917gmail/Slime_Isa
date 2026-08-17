@@ -7,21 +7,34 @@
   "directions": {
     "right": {
       "version": 2,
-      "durationSeconds": 0.25,
-      "framesPerSecond": 24,
+      "durationSeconds": 1,
+      "framesPerSecond": 1,
       "loop": false,
       "loopMode": "wrap",
       "layers": [
         {
-          "layerId": "base",
-          "displayName": "Spear",
+          "layerId": "layer-1",
+          "displayName": "Layer 1",
           "assetId": "effect.weapon.hit-tiles",
           "depthOffset": 0,
           "blocks": [
             {
               "from": 0,
               "through": 0,
-              "sourceFrame": 2
+              "sourceFrame": 2,
+              "transform": {
+                "offset": [
+                  0,
+                  0
+                ],
+                "scale": [
+                  1,
+                  1
+                ],
+                "rotationDeg": 0,
+                "flipX": false,
+                "flipY": false
+              }
             }
           ],
           "transform": {
@@ -30,8 +43,8 @@
               0
             ],
             "scale": [
-              0.5,
-              0.5
+              0.4,
+              0.4
             ],
             "rotationDeg": 0,
             "flipX": false,
@@ -46,92 +59,101 @@
     },
     "down": {
       "version": 2,
-      "durationSeconds": 0.25,
-      "framesPerSecond": 24,
+      "durationSeconds": 1,
+      "framesPerSecond": 1,
       "loop": false,
       "loopMode": "wrap",
       "layers": [
         {
-          "layerId": "base",
-          "displayName": "Spear",
-          "assetId": "weapon.player.hammer-spear-tiles",
+          "layerId": "layer-1",
+          "displayName": "Layer 1",
+          "assetId": "effect.weapon.hit-tiles",
           "depthOffset": 0,
           "blocks": [
             {
               "from": 0,
-              "through": 1,
-              "sourceFrame": 0,
+              "through": 0,
+              "sourceFrame": 2,
               "transform": {
                 "offset": [
-                  20,
-                  10
+                  0,
+                  0
                 ],
                 "scale": [
                   1,
                   1
                 ],
-                "rotationDeg": 52,
-                "flipX": false,
-                "flipY": false
-              }
-            },
-            {
-              "from": 2,
-              "through": 2,
-              "sourceFrame": 0,
-              "transform": {
-                "offset": [
-                  30,
-                  10
-                ],
-                "scale": [
-                  1,
-                  1
-                ],
-                "rotationDeg": 52,
-                "flipX": false,
-                "flipY": false
-              }
-            },
-            {
-              "from": 3,
-              "through": 3,
-              "sourceFrame": 0,
-              "transform": {
-                "offset": [
-                  40,
-                  10
-                ],
-                "scale": [
-                  1,
-                  1
-                ],
-                "rotationDeg": 52,
-                "flipX": false,
-                "flipY": false
-              }
-            },
-            {
-              "from": 4,
-              "through": 5,
-              "sourceFrame": 1,
-              "transform": {
-                "offset": [
-                  50,
-                  10
-                ],
-                "scale": [
-                  1,
-                  1
-                ],
-                "rotationDeg": 46,
+                "rotationDeg": 0,
                 "flipX": false,
                 "flipY": false
               }
             }
           ],
           "transform": {
+            "offset": [
+              0,
+              0
+            ],
             "scale": [
+              0.4,
+              0.4
+            ],
+            "rotationDeg": 0,
+            "flipX": false,
+            "flipY": false,
+            "origin": [
+              0.5,
+              0.5
+            ]
+          }
+        }
+      ]
+    },
+    "up": {
+      "version": 2,
+      "durationSeconds": 1,
+      "framesPerSecond": 1,
+      "loop": false,
+      "loopMode": "wrap",
+      "layers": [
+        {
+          "layerId": "layer-1",
+          "displayName": "Layer 1",
+          "assetId": "effect.weapon.hit-tiles",
+          "depthOffset": 0,
+          "blocks": [
+            {
+              "from": 0,
+              "through": 0,
+              "sourceFrame": 2,
+              "transform": {
+                "offset": [
+                  0,
+                  0
+                ],
+                "scale": [
+                  1,
+                  1
+                ],
+                "rotationDeg": 0,
+                "flipX": false,
+                "flipY": false
+              }
+            }
+          ],
+          "transform": {
+            "offset": [
+              0,
+              0
+            ],
+            "scale": [
+              0.4,
+              0.4
+            ],
+            "rotationDeg": 0,
+            "flipX": false,
+            "flipY": false,
+            "origin": [
               0.5,
               0.5
             ]
