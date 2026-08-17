@@ -23,10 +23,11 @@ test('position updates preserve the effect transform contract', async () => {
   const adapter = new WorldEffectAdapter(10, 20, 4.5, true, false);
 
   adapter.setPosition(90, 120);
+  adapter.setDepth(7.25);
   assert.deepEqual(adapter.getAnimationHostTransform(), {
     x: 90,
     y: 120,
-    baseDepth: 4.5,
+    baseDepth: 7.25,
     rotationRad: 0,
     mirrorX: true,
     mirrorY: false,
@@ -38,6 +39,7 @@ test('reset replaces all pooled spawn-time values after a position-only update',
   const adapter = new WorldEffectAdapter(10, 20, 4.5, true, false);
 
   adapter.setPosition(90, 120);
+  adapter.setDepth(7.25);
   adapter.reset(30, 40, 8.25, false, true);
 
   assert.deepEqual(adapter.getAnimationHostTransform(), {

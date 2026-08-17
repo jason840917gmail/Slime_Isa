@@ -27,7 +27,8 @@ contracts remain unchanged.
   current `x` and `y` anchor.
 - Follow the target's `x` and `y` while that target object exists, including
   movement caused by knockback.
-- Keep all non-position presentation values fixed at spawn time.
+- Keep all presentation values except target-relative position/depth fixed at spawn
+  time.
 - Let the effect finish independently after the target is destroyed by freezing
   it at the target's last valid position.
 - Ensure pooled slots never retain a target or destruction listener across
@@ -39,8 +40,8 @@ contracts remain unchanged.
 
 - Contact-edge, collision-body-center, visual-bounds-center, or visual-bounds
   offset calculations for effect placement.
-- Following target depth, rotation, scale, visibility, active state, animation,
-  or facing.
+- Following target rotation, scale, visibility, active state, animation, or
+  facing.
 - Parenting effect sprites to an enemy display object or container.
 - Changing damage acceptance, hit suppression, collision detection, attack
   direction, effect content documents, asset metadata, or editor schemas.
@@ -66,6 +67,7 @@ Conceptually:
 interface WorldEffectPositionTarget extends Phaser.GameObjects.GameObject {
   readonly x: number;
   readonly y: number;
+  readonly depth: number;
 }
 
 interface WorldEffectSpawnRequest {
@@ -75,6 +77,7 @@ interface WorldEffectSpawnRequest {
   readonly y: number;
   readonly depth: number;
   readonly followPositionOf?: WorldEffectPositionTarget;
+  readonly followDepthOffset?: number;
 }
 ```
 
@@ -85,7 +88,7 @@ effects module.
 For a confirmed hit, `CombatController` supplies:
 
 - `x: hitTarget.x` and `y: hitTarget.y`;
-- `depth: hitTarget.depth + 0.2`, captured once;
+- `depth: hitTarget.depth + 0.2`, refreshed from target depth each pool update;
 - the already captured cardinal attack direction; and
 - `followPositionOf: hitTarget`.
 
@@ -104,21 +107,23 @@ On spawn:
 
 1. Clear any timeout and attachment left by the slot's previous use.
 2. Reset the adapter with the request's spawn-time position, depth, and mirrors.
-3. If a follow target exists, validate and copy its current finite `x` and `y`
-   into the adapter, store the target, and register a one-shot destroy listener.
+3. If a follow target exists, validate and copy its current finite `x`, `y`, and
+   target-relative depth into the adapter, store the target, and register a
+   one-shot destroy listener.
 4. Start the effect animation and safety timeout as today.
 
 On every active-pool update:
 
-1. If the slot remains attached, copy only the target's current finite `x` and
-   `y` into the adapter.
+1. If the slot remains attached, copy the target's current finite `x`, `y`, and
+   target-relative depth into the adapter.
 2. Advance the effect clock.
 3. Ask the layered visual to update its anchor.
 
-Position synchronization happens before the visual anchor update so the rendered
-sprites observe the target's latest coordinates in that frame. `WorldEffectAdapter`
-therefore gains a position-only method such as `setPosition(x, y)`. That method
-must not modify base depth or mirror state.
+Position/depth synchronization happens before the visual anchor update so the
+rendered sprites observe the target's latest coordinates and sort depth in that
+frame. `WorldEffectAdapter` therefore gains position/depth mutators such as
+`setPosition(x, y)` and `setDepth(baseDepth)`. These methods must not modify
+mirrors or animation state.
 
 An inactive target is still an existing target: `active === false` alone does not
 detach or stop following. This permits death or disable sequences that move or
@@ -128,9 +133,10 @@ the lifecycle boundary.
 ## Destruction and Cleanup
 
 When the followed target emits `DESTROY`, the slot copies the target's final
-finite `x` and `y`, removes its attachment record, and continues playing at that
-fixed position. If either coordinate is non-finite, the adapter retains its most
-recent valid coordinate for that axis. The effect is not canceled.
+finite `x`, `y`, and target-relative depth, removes its attachment record, and
+continues playing at those fixed values. If a coordinate or depth is non-finite,
+the adapter retains its most recent valid value for that component. The effect is
+not canceled.
 
 All attachment cleanup is idempotent and centralized. It must unregister the
 exact listener when the target has not already destroyed itself, then clear both
@@ -156,8 +162,8 @@ For each qualifying target:
 1. Apply damage through the existing target-specific adapter.
 2. Read the hit target's current `x`, `y`, and depth.
 3. Spawn one effect with the target as its optional position-follow source.
-4. During subsequent pool updates, copy only target `x` and `y` until target
-   destruction or effect release.
+4. During subsequent pool updates, copy target `x`, `y`, and target-relative
+   depth until target destruction or effect release.
 5. If target destruction occurs first, freeze at the final valid center and let
    the scene-owned animation finish.
 
@@ -169,12 +175,12 @@ activation suppression rules.
 
 ## Presentation Invariants
 
-Once an effect spawns, all values except `x` and `y` are immutable for that
-instance:
+Once an effect spawns, all values except `x`, `y`, and target-relative base depth
+are immutable for that instance:
 
 - effect definition and animation variant;
 - cardinal direction and derived mirroring;
-- base depth and per-layer depth offsets;
+- target-relative base-depth offset and per-layer depth offsets;
 - block/layer position offsets;
 - scale and rotation; and
 - clock state and completion lifetime.
@@ -189,7 +195,7 @@ target never re-resolves the effect definition or restarts the animation.
 - `WorldEffectPool` owns optional attachment state and all related listener
   cleanup because the effect lifetime is scene-owned.
 - `WorldEffectAdapter` remains the small bridge between pooled placement and the
-  shared layered renderer; it accepts position-only updates.
+  shared layered renderer; it accepts position/depth updates.
 - `LayeredAnimationVisual` remains unchanged and reads the adapter transform
   through its existing anchor update.
 - `docs/ARCHITECTURE.md` must describe confirmed-hit effects as centered on and
@@ -234,3 +240,15 @@ outlive its normal animation duration.
   references or listeners.
 - Collision and damage behavior remain unchanged, and decorative objects without
   collision bodies remain non-collidable.
+
+## Amendment: Target-Relative World Depth
+
+The implementation revealed one required sorting invariant: a fixed effect depth
+can fall behind its target when the target moves downward through the Y-sorted
+world. The confirmed-hit effect therefore also follows the target's current
+world-sort `depth` with the spawn request's fixed front offset (`+0.2` for weapon
+hits). Position and this target-relative depth freeze together at the target's
+last valid values on destruction. Direction, mirroring, scale, rotation,
+animation state, authored offsets, and lifetime remain fixed. This amendment
+supersedes only the earlier "only position follows" and fixed-depth statements;
+all damage, pooling, and cleanup contracts remain unchanged.

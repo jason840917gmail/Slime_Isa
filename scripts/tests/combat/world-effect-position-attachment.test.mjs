@@ -19,9 +19,10 @@ async function load(entry) {
 }
 
 class FakeTarget {
-  constructor(x, y) {
+  constructor(x, y, depth = 0) {
     this.x = x;
     this.y = y;
+    this.depth = depth;
     this.active = true;
     this.listeners = new Map();
   }
@@ -50,14 +51,14 @@ class FakeTarget {
 test('attachment starts at and follows the target center, including inactive targets', async () => {
   const { WorldEffectAdapter } = await load('src/game/features/effects/WorldEffectAdapter.ts');
   const { WorldEffectPositionAttachment } = await load('src/game/features/effects/WorldEffectPositionAttachment.ts');
-  const target = new FakeTarget(10, 20);
+  const target = new FakeTarget(10, 20, 3);
   const adapter = new WorldEffectAdapter(0, 0, 5, true, false);
-  const attachment = new WorldEffectPositionAttachment(adapter, target, 'destroy', 0, 0);
+  const attachment = new WorldEffectPositionAttachment(adapter, target, 'destroy', 0, 0, 5, 0.2);
 
   assert.deepEqual(adapter.getAnimationHostTransform(), {
     x: 10,
     y: 20,
-    baseDepth: 5,
+    baseDepth: 3.2,
     rotationRad: 0,
     mirrorX: true,
     mirrorY: false,
@@ -65,39 +66,45 @@ test('attachment starts at and follows the target center, including inactive tar
 
   target.x = 80;
   target.y = 90;
+  target.depth = 8;
   target.active = false;
   attachment.update();
   assert.deepEqual([adapter.getAnimationHostTransform().x, adapter.getAnimationHostTransform().y], [80, 90]);
+  assert.equal(adapter.getAnimationHostTransform().baseDepth, 8.2);
 });
 
 test('attachment preserves the last valid coordinate for non-finite target axes', async () => {
   const { WorldEffectAdapter } = await load('src/game/features/effects/WorldEffectAdapter.ts');
   const { WorldEffectPositionAttachment } = await load('src/game/features/effects/WorldEffectPositionAttachment.ts');
-  const target = new FakeTarget(10, 20);
+  const target = new FakeTarget(10, 20, 2);
   const adapter = new WorldEffectAdapter(3, 4, 5, false, true);
-  const attachment = new WorldEffectPositionAttachment(adapter, target, 'destroy', 3, 4);
+  const attachment = new WorldEffectPositionAttachment(adapter, target, 'destroy', 3, 4, 5, 0.2);
 
   target.x = Number.NaN;
   target.y = 50;
+  target.depth = Number.NaN;
   attachment.update();
 
   assert.deepEqual([adapter.getAnimationHostTransform().x, adapter.getAnimationHostTransform().y], [10, 50]);
+  assert.equal(adapter.getAnimationHostTransform().baseDepth, 2.2);
 });
 
 test('target destruction freezes the final position and removes the listener', async () => {
   const { WorldEffectAdapter } = await load('src/game/features/effects/WorldEffectAdapter.ts');
   const { WorldEffectPositionAttachment } = await load('src/game/features/effects/WorldEffectPositionAttachment.ts');
-  const target = new FakeTarget(10, 20);
+  const target = new FakeTarget(10, 20, 2);
   const adapter = new WorldEffectAdapter(0, 0, 5, false, false);
-  new WorldEffectPositionAttachment(adapter, target, 'destroy', 0, 0);
+  new WorldEffectPositionAttachment(adapter, target, 'destroy', 0, 0, 5, 0.2);
 
   target.x = 45;
   target.y = 55;
+  target.depth = 12;
   target.emit('destroy');
   target.x = 100;
   target.y = 110;
 
   assert.deepEqual([adapter.getAnimationHostTransform().x, adapter.getAnimationHostTransform().y], [45, 55]);
+  assert.equal(adapter.getAnimationHostTransform().baseDepth, 12.2);
   assert.equal(target.listenerCount(), 0);
 });
 
@@ -105,35 +112,40 @@ test('disposing an attachment prevents stale target events from moving a reused 
   const { WorldEffectAdapter } = await load('src/game/features/effects/WorldEffectAdapter.ts');
   const { WorldEffectPositionAttachment } = await load('src/game/features/effects/WorldEffectPositionAttachment.ts');
   const adapter = new WorldEffectAdapter(0, 0, 5, false, false);
-  const oldTarget = new FakeTarget(10, 20);
-  const oldAttachment = new WorldEffectPositionAttachment(adapter, oldTarget, 'destroy', 0, 0);
+  const oldTarget = new FakeTarget(10, 20, 2);
+  const oldAttachment = new WorldEffectPositionAttachment(adapter, oldTarget, 'destroy', 0, 0, 5, 0.2);
 
   oldAttachment.dispose();
-  const newTarget = new FakeTarget(70, 80);
-  new WorldEffectPositionAttachment(adapter, newTarget, 'destroy', 70, 80);
+  const newTarget = new FakeTarget(70, 80, 7);
+  new WorldEffectPositionAttachment(adapter, newTarget, 'destroy', 70, 80, 9, 0.2);
   oldTarget.x = 1000;
   oldTarget.y = 1000;
   oldTarget.emit('destroy');
 
   assert.deepEqual([adapter.getAnimationHostTransform().x, adapter.getAnimationHostTransform().y], [70, 80]);
+  assert.equal(adapter.getAnimationHostTransform().baseDepth, 7.2);
   assert.equal(oldTarget.listenerCount(), 0);
 });
 
 test('two attachments follow independent targets', async () => {
   const { WorldEffectAdapter } = await load('src/game/features/effects/WorldEffectAdapter.ts');
   const { WorldEffectPositionAttachment } = await load('src/game/features/effects/WorldEffectPositionAttachment.ts');
-  const firstTarget = new FakeTarget(10, 20);
-  const secondTarget = new FakeTarget(30, 40);
+  const firstTarget = new FakeTarget(10, 20, 1);
+  const secondTarget = new FakeTarget(30, 40, 2);
   const firstAdapter = new WorldEffectAdapter(0, 0, 1, false, false);
   const secondAdapter = new WorldEffectAdapter(0, 0, 2, false, false);
-  const first = new WorldEffectPositionAttachment(firstAdapter, firstTarget, 'destroy', 0, 0);
-  const second = new WorldEffectPositionAttachment(secondAdapter, secondTarget, 'destroy', 0, 0);
+  const first = new WorldEffectPositionAttachment(firstAdapter, firstTarget, 'destroy', 0, 0, 0, 0.2);
+  const second = new WorldEffectPositionAttachment(secondAdapter, secondTarget, 'destroy', 0, 0, 0, 0.2);
 
   firstTarget.x = 100;
+  firstTarget.depth = 11;
   secondTarget.y = 200;
+  secondTarget.depth = 22;
   first.update();
   second.update();
 
   assert.deepEqual([firstAdapter.getAnimationHostTransform().x, firstAdapter.getAnimationHostTransform().y], [100, 20]);
+  assert.equal(firstAdapter.getAnimationHostTransform().baseDepth, 11.2);
   assert.deepEqual([secondAdapter.getAnimationHostTransform().x, secondAdapter.getAnimationHostTransform().y], [30, 200]);
+  assert.equal(secondAdapter.getAnimationHostTransform().baseDepth, 22.2);
 });

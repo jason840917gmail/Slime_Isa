@@ -26,6 +26,7 @@ export interface WorldEffectSpawnRequest {
   readonly y: number;
   readonly depth: number;
   readonly followPositionOf?: WorldEffectPositionTarget;
+  readonly followDepthOffset?: number;
 }
 
 /** Scene-owned pool; confirmed effects are independent of weapon lifecycle. */
@@ -69,6 +70,8 @@ export class WorldEffectPool {
         Phaser.GameObjects.Events.DESTROY,
         request.x,
         request.y,
+        request.depth,
+        request.followDepthOffset ?? 0,
       );
     }
     slot.visual.setAnimation(variant.animation);
