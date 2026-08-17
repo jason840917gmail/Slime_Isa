@@ -17,6 +17,11 @@ export class WorldEffectAdapter implements LayeredAnimationHost {
     this.mirrorY = mirrorY;
   }
 
+  setPosition(x: number, y: number): void {
+    this.x = x;
+    this.y = y;
+  }
+
   getAnimationHostTransform() {
     return {
       x: this.x,

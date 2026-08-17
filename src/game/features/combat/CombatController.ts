@@ -20,7 +20,6 @@ import type { MapEnemySafeZone, MapEnemySpawnArea, MapSpawns } from '../../conte
 import { resolveScreenUiDepth } from '../../presentation/WorldDepth';
 import { hitboxPool } from '../../combat/Hitbox';
 import { WeaponVisual } from './WeaponVisual';
-import { contactPointAtTargetEdge } from '../../combat/ContactPoint';
 import { shouldSpawnConfirmedHitEffect } from '../../combat/ConfirmedHitEffect';
 import { WorldEffectPool } from '../effects/WorldEffectPool';
 
@@ -210,7 +209,7 @@ export class CombatController {
       getPlayer: () => player,
       getFacing: this.ctx.getFacing,
       getTargets: () => this.targets,
-      applyHit: ({ target, damage, knockX, knockY, knockStrength, attackDirection, attackVector }) => {
+      applyHit: ({ target, damage, knockX, knockY, knockStrength, attackDirection }) => {
         const finalDamage = Math.round(damage * this.combo.registerHit());
         let result;
         let hitTarget: Enemy | TargetDummy | undefined;
@@ -225,8 +224,14 @@ export class CombatController {
           result = { status: 'rejected' as const, actualDamage: 0, defeated: false, reason: 'invalid' as const };
         }
         if (hitTarget && shouldSpawnConfirmedHitEffect(weapon.def.onHitEffectId, result)) {
-          const point = contactPointAtTargetEdge(hitTarget.getBounds(), { x: attackVector[0], y: attackVector[1] });
-          this.effects.spawn({ effectId: weapon.def.onHitEffectId!, direction: attackDirection, x: point.x, y: point.y, depth: hitTarget.depth + 0.2 });
+          this.effects.spawn({
+            effectId: weapon.def.onHitEffectId!,
+            direction: attackDirection,
+            x: hitTarget.x,
+            y: hitTarget.y,
+            depth: hitTarget.depth + 0.2,
+            followPositionOf: hitTarget,
+          });
         }
         return result;
       },

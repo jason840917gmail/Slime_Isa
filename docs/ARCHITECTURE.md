@@ -36,7 +36,7 @@ scenes -> features -> content/shared
 
 `shared/animation` owns timeline timing, layered visual documents, frame resolution, and playback order. Domain adapters for characters, enemies, weapons, projectiles, and effects may select content and provide a world anchor, but must not copy the clock, renderer, transform composition, or layered timeline editor. Every visual layer and combat/event track for one animation consumes the same master frame.
 
-Weapon definitions version 2 store Idle and directional Attack animations as layered documents. Hitbox activation remains a weapon-owned directional track on that same clock. Reusable contact visuals live in `content/effects`; `onHitEffectId` is dispatched only after a target accepts positive damage and is positioned at the target contact edge. Timeline events must never synthesize weapon impact effects or bypass confirmed damage.
+Weapon definitions version 2 store Idle and directional Attack animations as layered documents. Hitbox activation remains a weapon-owned directional track on that same clock. Reusable contact visuals live in `content/effects`; `onHitEffectId` is dispatched only after a target accepts positive damage, starts at the damaged object's `x`/`y` anchor, and follows only that position until the effect finishes or the target is destroyed. Timeline events must never synthesize weapon impact effects or bypass confirmed damage.
 
 ## Current composition
 
