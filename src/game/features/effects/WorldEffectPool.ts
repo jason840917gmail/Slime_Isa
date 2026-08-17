@@ -5,12 +5,17 @@ import type { EffectDirection } from '../../content/effects/types';
 import { AnimationClock } from '../../shared/animation';
 import { LayeredAnimationVisual } from '../visuals/LayeredAnimationVisual';
 import { WorldEffectAdapter } from './WorldEffectAdapter';
+import {
+  WorldEffectPositionAttachment,
+  type WorldEffectPositionTarget,
+} from './WorldEffectPositionAttachment';
 
 interface EffectSlot {
   readonly adapter: WorldEffectAdapter;
   readonly clock: AnimationClock;
   readonly visual: LayeredAnimationVisual;
   timeout?: Phaser.Time.TimerEvent;
+  attachment?: WorldEffectPositionAttachment;
   active: boolean;
 }
 
@@ -20,6 +25,7 @@ export interface WorldEffectSpawnRequest {
   readonly x: number;
   readonly y: number;
   readonly depth: number;
+  readonly followPositionOf?: WorldEffectPositionTarget;
 }
 
 /** Scene-owned pool; confirmed effects are independent of weapon lifecycle. */
@@ -53,7 +59,18 @@ export class WorldEffectPool {
       slot = created;
     }
     slot.timeout?.remove();
+    slot.attachment?.dispose();
+    slot.attachment = undefined;
     slot.adapter.reset(request.x, request.y, request.depth, variant.mirrorX, variant.mirrorY);
+    if (request.followPositionOf) {
+      slot.attachment = new WorldEffectPositionAttachment(
+        slot.adapter,
+        request.followPositionOf,
+        Phaser.GameObjects.Events.DESTROY,
+        request.x,
+        request.y,
+      );
+    }
     slot.visual.setAnimation(variant.animation);
     slot.visual.setVisible(true);
     slot.active = true;
@@ -64,14 +81,24 @@ export class WorldEffectPool {
   }
 
   update(deltaMs: number): void {
-    for (const slot of this.slots) if (slot.active) { slot.clock.update(deltaMs); slot.visual.updateAnchor(); }
+    for (const slot of this.slots) if (slot.active) {
+      slot.attachment?.update();
+      slot.clock.update(deltaMs);
+      slot.visual.updateAnchor();
+    }
   }
 
   destroy(): void {
     if (this.destroyed) return;
     this.destroyed = true;
     this.scene.events.off(Phaser.Scenes.Events.SHUTDOWN, this.handleShutdown);
-    for (const slot of this.slots) { slot.timeout?.remove(); slot.visual.destroy(); slot.clock.destroy(); }
+    for (const slot of this.slots) {
+      slot.timeout?.remove();
+      slot.attachment?.dispose();
+      slot.attachment = undefined;
+      slot.visual.destroy();
+      slot.clock.destroy();
+    }
     this.slots.length = 0;
   }
 
@@ -80,6 +107,8 @@ export class WorldEffectPool {
     slot.active = false;
     slot.timeout?.remove();
     slot.timeout = undefined;
+    slot.attachment?.dispose();
+    slot.attachment = undefined;
     slot.clock.stop();
     slot.visual.setVisible(false);
   }
