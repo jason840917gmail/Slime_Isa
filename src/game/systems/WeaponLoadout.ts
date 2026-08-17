@@ -3,7 +3,12 @@ import { gameState } from '../core/GameState';
 import { WEAPON_HOTBAR_SLOT_COUNT } from '../core/types';
 import { playerInventory, weaponItemFor } from './Inventory';
 
-export const STARTER_WEAPON_IDS = ['goo-gauntlet', 'basic-sword'] as const;
+export const STARTER_WEAPON_IDS = ['goo-gauntlet', 'basic-sword', 'basic-spear', 'slam-hammer'] as const;
+
+const STARTER_WEAPON_PREFERRED_SLOTS: Readonly<Record<string, number>> = {
+  'basic-spear': 3,
+  'slam-hammer': 2,
+};
 
 export type WeaponEquipFailure = 'empty' | 'not-owned' | 'busy' | 'unknown';
 
@@ -58,8 +63,24 @@ class WeaponLoadout {
     }
 
     for (const weaponId of STARTER_WEAPON_IDS) {
+      const preferredIndex = STARTER_WEAPON_PREFERRED_SLOTS[weaponId];
+      const currentIndex = slots.indexOf(weaponId);
+      if (
+        preferredIndex === undefined
+        || currentIndex < 0
+        || currentIndex === preferredIndex
+        || slots[preferredIndex] !== null
+      ) continue;
+      slots[currentIndex] = null;
+      slots[preferredIndex] = weaponId;
+    }
+
+    for (const weaponId of STARTER_WEAPON_IDS) {
       if (!this.ownsWeapon(weaponId) || seen.has(weaponId)) continue;
-      const emptyIndex = slots.indexOf(null);
+      const preferredIndex = STARTER_WEAPON_PREFERRED_SLOTS[weaponId];
+      const emptyIndex = preferredIndex !== undefined && slots[preferredIndex] === null
+        ? preferredIndex
+        : slots.indexOf(null);
       if (emptyIndex < 0) break;
       slots[emptyIndex] = weaponId;
       seen.add(weaponId);

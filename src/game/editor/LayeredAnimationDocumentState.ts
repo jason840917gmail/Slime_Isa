@@ -7,11 +7,6 @@ import {
   type LayeredAnimationDocument,
 } from '../shared/animation';
 
-export interface LayeredAnimationTrackExtents {
-  readonly hitboxSpans?: readonly { readonly through: number }[];
-  readonly events?: readonly { readonly at: number }[];
-}
-
 export interface LayeredAnimationSelection {
   readonly layerId?: string;
   readonly blockIndex?: number;
@@ -183,6 +178,34 @@ export class LayeredAnimationDocumentState {
     return block ? this.resizeBlock(layerId, blockIndex, block.through + Math.round(delta)) : false;
   }
 
+  duplicateBlock(layerId: string, blockIndex: number): boolean {
+    const frameCount = layeredTimelineFrameCount(this.animation);
+    const layer = this.animation.layers.find((candidate) => candidate.layerId === layerId);
+    const block = layer?.blocks[blockIndex];
+    if (!layer || !block) return false;
+
+    const hold = block.through - block.from;
+    const from = block.through + 1;
+    const through = from + hold;
+    if (from < 0 || through >= frameCount) return false;
+    if (layer.blocks.some((candidate, index) => index !== blockIndex && candidate.from <= through && from <= candidate.through)) return false;
+
+    const duplicate: AnimationVisualBlockDocument = {
+      ...clone(block),
+      from,
+      through,
+    };
+    let duplicatedIndex = -1;
+    const accepted = this.updateLayer(layerId, (current) => {
+      const blocks = [...current.blocks, duplicate].sort((left, right) => left.from - right.from);
+      duplicatedIndex = blocks.indexOf(duplicate);
+      return { ...current, blocks };
+    });
+    if (!accepted || duplicatedIndex < 0) return false;
+    this.selection = { layerId, blockIndex: duplicatedIndex, playhead: from };
+    return true;
+  }
+
   setBlockTransform(
     layerId: string,
     blockIndex: number,
@@ -215,23 +238,37 @@ export class LayeredAnimationDocumentState {
 
   setFramesPerSecond(framesPerSecond: number): boolean {
     if (!Number.isInteger(framesPerSecond) || framesPerSecond < 1 || framesPerSecond > 240) return false;
-    const frameCount = layeredTimelineFrameCount(this.animation);
-    this.animation = { ...this.animation, framesPerSecond, durationSeconds: frameCount / framesPerSecond };
+    if (framesPerSecond === this.animation.framesPerSecond) return true;
+    const previousFramesPerSecond = this.animation.framesPerSecond;
+    const frameCount = Math.round(this.animation.durationSeconds * framesPerSecond);
+    if (frameCount < 1) return false;
+    // FPS changes the editor's sampling grid. It never changes authored clip duration.
+    const layers = this.animation.layers.flatMap((layer) => {
+      const blocks = reprojectBlocks(layer.blocks, previousFramesPerSecond, framesPerSecond, frameCount);
+      return blocks.length > 0 || layer.blocks.length === 0 ? [{ ...layer, blocks }] : [];
+    });
+    this.animation = { ...this.animation, framesPerSecond, layers };
+    this.reconcileSelection(
+      Math.round(this.selection.playhead / previousFramesPerSecond * framesPerSecond),
+      this.selection.layerId,
+      this.selection.blockIndex,
+    );
     return true;
   }
 
-  setDurationSeconds(durationSeconds: number, tracks: LayeredAnimationTrackExtents = {}): boolean {
+  setDurationSeconds(durationSeconds: number): boolean {
     if (!Number.isFinite(durationSeconds) || durationSeconds <= 0) return false;
-    const requestedFrames = Math.max(1, Math.round(durationSeconds * this.animation.framesPerSecond));
-    const occupiedThrough = Math.max(
-      -1,
-      ...this.animation.layers.flatMap((layer) => layer.blocks.map((block) => block.through)),
-      ...(tracks.hitboxSpans ?? []).map((span) => span.through),
-      ...(tracks.events ?? []).map((event) => event.at),
-    );
-    if (occupiedThrough >= requestedFrames) return false;
-    this.animation = { ...this.animation, durationSeconds: requestedFrames / this.animation.framesPerSecond };
-    this.selection = { ...this.selection, playhead: clampedFrame(this.selection.playhead, requestedFrames) };
+    const requestedFrames = Math.round(durationSeconds * this.animation.framesPerSecond);
+    if (requestedFrames < 1) return false;
+    // Duration is the clip boundary. Earlier authored timing stays fixed; only the tail is trimmed.
+    const layers = this.animation.layers.flatMap((layer) => {
+      const blocks = layer.blocks
+        .filter((block) => block.from < requestedFrames)
+        .map((block) => ({ ...block, through: Math.min(block.through, requestedFrames - 1) }));
+      return blocks.length > 0 || layer.blocks.length === 0 ? [{ ...layer, blocks }] : [];
+    });
+    this.animation = { ...this.animation, durationSeconds, layers };
+    this.reconcileSelection(this.selection.playhead, this.selection.layerId, this.selection.blockIndex);
     return true;
   }
 
@@ -272,4 +309,36 @@ export class LayeredAnimationDocumentState {
     if (accepted) this.selection = { layerId, blockIndex: nextIndex, playhead: this.animation.layers.find((layer) => layer.layerId === layerId)?.blocks[nextIndex]?.from ?? this.selection.playhead };
     return accepted;
   }
+
+  private reconcileSelection(playhead: number, layerId?: string, blockIndex?: number): void {
+    const selectedLayer = this.animation.layers.find((layer) => layer.layerId === layerId) ?? this.animation.layers[0];
+    const nextBlockIndex = selectedLayer?.blocks.length && blockIndex !== undefined
+      ? Math.min(blockIndex, selectedLayer.blocks.length - 1)
+      : undefined;
+    this.selection = {
+      layerId: selectedLayer?.layerId,
+      blockIndex: nextBlockIndex,
+      playhead: clampedFrame(playhead, layeredTimelineFrameCount(this.animation)),
+    };
+  }
+}
+
+function reprojectBlocks(
+  blocks: readonly AnimationVisualBlockDocument[],
+  previousFramesPerSecond: number,
+  framesPerSecond: number,
+  frameCount: number,
+): AnimationVisualBlockDocument[] {
+  let previousThrough = -1;
+  return [...blocks]
+    .sort((left, right) => left.from - right.from || left.through - right.through)
+    .flatMap((block) => {
+      const projectedFrom = Math.round(block.from / previousFramesPerSecond * framesPerSecond);
+      const projectedThrough = Math.round((block.through + 1) / previousFramesPerSecond * framesPerSecond) - 1;
+      const from = Math.max(projectedFrom, previousThrough + 1);
+      const through = Math.min(projectedThrough, frameCount - 1);
+      if (from > through) return [];
+      previousThrough = through;
+      return [{ ...block, from, through }];
+    });
 }

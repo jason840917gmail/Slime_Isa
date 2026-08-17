@@ -1,0 +1,425 @@
+{
+  "version": 2,
+  "weaponId": "basic-spear",
+  "displayName": "Basic Spear",
+  "category": "melee",
+  "characterActionId": "attack-1",
+  "animations": {
+    "idle": {
+      "version": 2,
+      "durationSeconds": 0.08333333333333333,
+      "framesPerSecond": 12,
+      "loop": true,
+      "loopMode": "wrap",
+      "layers": [
+        {
+          "layerId": "base",
+          "displayName": "Base",
+          "assetId": "weapon.player.hammer-spear-tiles",
+          "depthOffset": 0,
+          "blocks": [
+            {
+              "from": 0,
+              "through": 0,
+              "sourceFrame": 0,
+              "transform": {
+                "offset": [
+                  10,
+                  -10
+                ],
+                "scale": [
+                  1,
+                  1
+                ],
+                "rotationDeg": 0,
+                "flipX": false,
+                "flipY": false
+              }
+            }
+          ],
+          "transform": {
+            "scale": [
+              0.8,
+              0.8
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "directionalAttacks": {
+    "right": {
+      "animation": {
+        "version": 2,
+        "durationSeconds": 0.25,
+        "framesPerSecond": 24,
+        "loop": false,
+        "loopMode": "wrap",
+        "layers": [
+          {
+            "layerId": "base",
+            "displayName": "Spear",
+            "assetId": "weapon.player.hammer-spear-tiles",
+            "depthOffset": 0,
+            "blocks": [
+              {
+                "from": 0,
+                "through": 1,
+                "sourceFrame": 0,
+                "transform": {
+                  "offset": [
+                    20,
+                    10
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 52,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 2,
+                "through": 2,
+                "sourceFrame": 0,
+                "transform": {
+                  "offset": [
+                    30,
+                    10
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 52,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 3,
+                "through": 3,
+                "sourceFrame": 0,
+                "transform": {
+                  "offset": [
+                    40,
+                    10
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 52,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 4,
+                "through": 5,
+                "sourceFrame": 1,
+                "transform": {
+                  "offset": [
+                    50,
+                    10
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 46,
+                  "flipX": false,
+                  "flipY": false
+                }
+              }
+            ],
+            "transform": {
+              "scale": [
+                0.5,
+                0.5
+              ]
+            }
+          }
+        ]
+      },
+      "characterActionId": "attack-1",
+      "hitboxes": {
+        "primary": {
+          "shape": "rectangle",
+          "width": 80,
+          "height": 24,
+          "offsetX": 80,
+          "offsetY": 10,
+          "outerRadius": 48,
+          "arcWidthRad": 1.35
+        }
+      },
+      "attackTrack": {
+        "hitboxSpans": [
+          {
+            "hitboxId": "primary",
+            "from": 3,
+            "through": 5
+          }
+        ],
+        "events": []
+      }
+    },
+    "down": {
+      "animation": {
+        "version": 2,
+        "durationSeconds": 0.25,
+        "framesPerSecond": 24,
+        "loop": false,
+        "loopMode": "wrap",
+        "layers": [
+          {
+            "layerId": "base",
+            "displayName": "Base",
+            "assetId": "weapon.player.hammer-spear-tiles",
+            "depthOffset": 0,
+            "blocks": [
+              {
+                "from": 0,
+                "through": 0,
+                "sourceFrame": 0,
+                "transform": {
+                  "offset": [
+                    0,
+                    0
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 143,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 1,
+                "through": 1,
+                "sourceFrame": 0,
+                "transform": {
+                  "offset": [
+                    0,
+                    25
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 143,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 2,
+                "through": 3,
+                "sourceFrame": 0,
+                "transform": {
+                  "offset": [
+                    0,
+                    45
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 143,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 4,
+                "through": 5,
+                "sourceFrame": 1,
+                "transform": {
+                  "offset": [
+                    0,
+                    50
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 138,
+                  "flipX": false,
+                  "flipY": false
+                }
+              }
+            ],
+            "transform": {
+              "scale": [
+                0.5,
+                0.5
+              ]
+            }
+          }
+        ]
+      },
+      "characterActionId": "attack-1",
+      "hitboxes": {
+        "primary": {
+          "shape": "rectangle",
+          "width": 24,
+          "height": 80,
+          "offsetX": 80,
+          "offsetY": 0,
+          "outerRadius": 48,
+          "arcWidthRad": 1.35
+        }
+      },
+      "attackTrack": {
+        "hitboxSpans": [
+          {
+            "hitboxId": "primary",
+            "from": 2,
+            "through": 5
+          }
+        ],
+        "events": []
+      }
+    },
+    "up": {
+      "animation": {
+        "version": 2,
+        "durationSeconds": 0.25,
+        "framesPerSecond": 24,
+        "loop": false,
+        "loopMode": "wrap",
+        "layers": [
+          {
+            "layerId": "base",
+            "displayName": "Base",
+            "assetId": "weapon.player.hammer-spear-tiles",
+            "depthOffset": 0,
+            "blocks": [
+              {
+                "from": 0,
+                "through": 0,
+                "sourceFrame": 0,
+                "transform": {
+                  "offset": [
+                    0,
+                    10
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": -143,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 1,
+                "through": 1,
+                "sourceFrame": 0,
+                "transform": {
+                  "offset": [
+                    0,
+                    -15
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": -143,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 2,
+                "through": 3,
+                "sourceFrame": 0,
+                "transform": {
+                  "offset": [
+                    0,
+                    -30
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": -143,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 4,
+                "through": 5,
+                "sourceFrame": 1,
+                "transform": {
+                  "offset": [
+                    0,
+                    -40
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": -138,
+                  "flipX": false,
+                  "flipY": false
+                }
+              }
+            ],
+            "transform": {
+              "scale": [
+                0.5,
+                0.5
+              ],
+              "flipY": true
+            }
+          }
+        ]
+      },
+      "characterActionId": "attack-1",
+      "hitboxes": {
+        "primary": {
+          "shape": "rectangle",
+          "width": 24,
+          "height": 80,
+          "offsetX": 60,
+          "offsetY": 0,
+          "outerRadius": 48,
+          "arcWidthRad": 1.35
+        }
+      },
+      "attackTrack": {
+        "hitboxSpans": [
+          {
+            "hitboxId": "primary",
+            "from": 2,
+            "through": 5
+          }
+        ],
+        "events": []
+      }
+    }
+  },
+  "presentation": {
+    "facingMode": "vector"
+  },
+  "baseDamage": 10,
+  "cooldownMs": 500,
+  "hitboxWidth": 42,
+  "hitboxHeight": 24,
+  "hitboxOffset": 24,
+  "hitboxDurationMs": 100,
+  "knockStrength": 100,
+  "vfxColor": 7989473,
+  "unlockLevel": 1,
+  "iconKey": "weapon-generic",
+  "description": "A reusable layered weapon definition.",
+  "onHitEffectId": "basic-spear-impact"
+}

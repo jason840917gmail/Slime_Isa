@@ -102,8 +102,12 @@ test('validation accepts adjacent blocks and rejects overlap and out-of-range bl
 });
 
 test('validation rejects duplicate layers, non-spritesheets, invalid timing, and invalid scale', () => {
+  const nonAligned = animationFixture({ durationSeconds: 0.55 });
+  assert.equal(layered.layeredTimelineFrameCount(nonAligned), 6);
+  assert.deepEqual(validation.validateLayeredAnimationDocument(nonAligned, { assetLookup }), []);
+
   const invalid = animationFixture({
-    durationSeconds: 0.55,
+    durationSeconds: 0.5,
     layers: [
       {
         layerId: 'same', displayName: 'First', assetId: 'effect.image', depthOffset: 0,
@@ -116,7 +120,6 @@ test('validation rejects duplicate layers, non-spritesheets, invalid timing, and
     ],
   });
   const issues = validation.validateLayeredAnimationDocument(invalid, { assetLookup });
-  assert.ok(issues.some((issue) => issue.includes('must be a positive whole number')));
   assert.ok(issues.some((issue) => issue.includes("'same' is duplicated")));
   assert.ok(issues.some((issue) => issue.includes('must be a spritesheet')));
   assert.ok(issues.some((issue) => issue.includes("unknown asset 'missing.asset'")));

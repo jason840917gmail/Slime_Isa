@@ -41,7 +41,9 @@
       "enemy.projectile.worm-arrow",
       "effect.enemy.worm-brawler-hit",
       "character.enemy.slime-spider",
-      "weapon.player.sword-tiles"
+      "weapon.player.sword-tiles",
+      "effect.weapon.hit-tiles",
+      "weapon.player.hammer-spear-tiles"
     ]
   },
   "assets": {
@@ -974,6 +976,71 @@
           0.5
         ],
         "pixelArt": true
+      },
+      "tags": [
+        "weapon",
+        "animated"
+      ],
+      "status": "ready"
+    },
+    "effect.weapon.hit-tiles": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/weapons/126x126_3x1_Hits.png",
+        "frame": {
+          "w": 126,
+          "h": 126,
+          "cols": 3,
+          "rows": 1,
+          "count": 3
+        },
+        "expect": {
+          "w": 378,
+          "h": 126
+        }
+      },
+      "runtime": {
+        "textureKey": "effect-weapon-hit-tiles"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "pixelArt": false
+      },
+      "tags": [
+        "effect",
+        "weapon",
+        "animated"
+      ],
+      "status": "ready"
+    },
+    "weapon.player.hammer-spear-tiles": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/weapons/126x126_2x2_HammerAndSpear.png",
+        "frame": {
+          "w": 126,
+          "h": 126,
+          "cols": 2,
+          "rows": 2,
+          "count": 4
+        },
+        "expect": {
+          "w": 252,
+          "h": 252
+        }
+      },
+      "runtime": {
+        "textureKey": "weapon-player-hammer-spear-tiles"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "pixelArt": false
       },
       "tags": [
         "weapon",

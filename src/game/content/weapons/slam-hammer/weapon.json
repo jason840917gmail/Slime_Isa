@@ -4,7 +4,7 @@
   "weaponId": "slam-hammer",
   "displayName": "Slam Hammer",
   "category": "melee",
-  "characterActionId": "attack-2",
+  "characterActionId": "attack-1",
   "animations": {
     "idle": {
       "version": 2,
@@ -19,68 +19,207 @@
     "right": {
       "animation": {
         "version": 2,
-        "durationSeconds": 0.5714285714285714,
-        "framesPerSecond": 7,
+        "durationSeconds": 0.5,
+        "framesPerSecond": 24,
         "loop": false,
         "loopMode": "wrap",
-        "layers": []
-      },
-      "characterActionId": "attack-2",
-      "hitboxes": {
-        "hammer-head": {
-          "shape": "sector",
-          "width": 88,
-          "height": 72,
-          "offsetX": 46,
-          "offsetY": 0,
-          "innerRadius": 10,
-          "outerRadius": 78,
-          "arcWidthRad": 1.05,
-          "damageMultiplier": 1,
-          "knockbackMultiplier": 1.35
-        }
-      },
-      "attackTrack": {
-        "hitboxSpans": [
+        "layers": [
           {
-            "hitboxId": "hammer-head",
-            "from": 2,
-            "through": 2
+            "layerId": "layer-1",
+            "displayName": "Layer 1",
+            "assetId": "weapon.player.hammer-spear-tiles",
+            "depthOffset": 0,
+            "blocks": [
+              {
+                "from": 0,
+                "through": 1,
+                "sourceFrame": 2,
+                "transform": {
+                  "offset": [
+                    0,
+                    -20
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": -40,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 2,
+                "through": 2,
+                "sourceFrame": 2,
+                "transform": {
+                  "offset": [
+                    10,
+                    -20
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": -20,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 3,
+                "through": 3,
+                "sourceFrame": 2,
+                "transform": {
+                  "offset": [
+                    30,
+                    -10
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 0,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 4,
+                "through": 4,
+                "sourceFrame": 2,
+                "transform": {
+                  "offset": [
+                    40,
+                    10
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 40,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 5,
+                "through": 8,
+                "sourceFrame": 2,
+                "transform": {
+                  "offset": [
+                    45,
+                    25
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 60,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 9,
+                "through": 9,
+                "sourceFrame": 2,
+                "transform": {
+                  "offset": [
+                    40,
+                    10
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 40,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 10,
+                "through": 11,
+                "sourceFrame": 2,
+                "transform": {
+                  "offset": [
+                    30,
+                    -10
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 0,
+                  "flipX": false,
+                  "flipY": false
+                }
+              }
+            ],
+            "transform": {
+              "scale": [
+                0.5,
+                0.5
+              ]
+            }
+          },
+          {
+            "layerId": "layer-2",
+            "displayName": "Layer 2",
+            "assetId": "weapon.player.hammer-spear-tiles",
+            "depthOffset": 1,
+            "blocks": [
+              {
+                "from": 5,
+                "through": 6,
+                "sourceFrame": 3,
+                "transform": {
+                  "offset": [
+                    54.5,
+                    20
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 40,
+                  "flipX": false,
+                  "flipY": false
+                }
+              }
+            ],
+            "transform": {
+              "scale": [
+                0.5,
+                0.5
+              ]
+            }
           }
-        ],
-        "events": []
-      }
-    },
-    "up": {
-      "animation": {
-        "version": 2,
-        "durationSeconds": 0.5714285714285714,
-        "framesPerSecond": 7,
-        "loop": false,
-        "loopMode": "wrap",
-        "layers": []
+        ]
       },
-      "characterActionId": "attack-2",
+      "characterActionId": "attack-1",
       "hitboxes": {
         "hammer-head": {
-          "shape": "sector",
+          "shape": "circle",
           "width": 88,
           "height": 72,
-          "offsetX": 46,
-          "offsetY": 0,
+          "offsetX": 70,
+          "offsetY": 10,
           "innerRadius": 10,
           "outerRadius": 78,
           "arcWidthRad": 1.05,
           "damageMultiplier": 1,
-          "knockbackMultiplier": 1.35
+          "knockbackMultiplier": 1.35,
+          "radius": 40
         }
       },
       "attackTrack": {
         "hitboxSpans": [
           {
             "hitboxId": "hammer-head",
-            "from": 2,
-            "through": 2
+            "from": 4,
+            "through": 8
           }
         ],
         "events": []
@@ -89,33 +228,454 @@
     "down": {
       "animation": {
         "version": 2,
-        "durationSeconds": 0.5714285714285714,
-        "framesPerSecond": 7,
+        "durationSeconds": 0.5,
+        "framesPerSecond": 24,
         "loop": false,
         "loopMode": "wrap",
-        "layers": []
+        "layers": [
+          {
+            "layerId": "layer-1",
+            "displayName": "Layer 1",
+            "assetId": "weapon.player.hammer-spear-tiles",
+            "depthOffset": 0,
+            "blocks": [
+              {
+                "from": 0,
+                "through": 1,
+                "sourceFrame": 2,
+                "transform": {
+                  "offset": [
+                    40,
+                    15
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 50,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 2,
+                "through": 2,
+                "sourceFrame": 2,
+                "transform": {
+                  "offset": [
+                    40,
+                    40
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 80,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 3,
+                "through": 3,
+                "sourceFrame": 2,
+                "transform": {
+                  "offset": [
+                    25,
+                    50
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 110,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 4,
+                "through": 4,
+                "sourceFrame": 2,
+                "transform": {
+                  "offset": [
+                    10,
+                    55
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 125,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 5,
+                "through": 8,
+                "sourceFrame": 2,
+                "transform": {
+                  "offset": [
+                    -10,
+                    55
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 145,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 9,
+                "through": 9,
+                "sourceFrame": 2,
+                "transform": {
+                  "offset": [
+                    10,
+                    55
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 125,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 10,
+                "through": 10,
+                "sourceFrame": 2,
+                "transform": {
+                  "offset": [
+                    25,
+                    50
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 110,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 11,
+                "through": 11,
+                "sourceFrame": 2,
+                "transform": {
+                  "offset": [
+                    40,
+                    40
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 80,
+                  "flipX": false,
+                  "flipY": false
+                }
+              }
+            ],
+            "transform": {
+              "scale": [
+                0.5,
+                0.5
+              ]
+            }
+          },
+          {
+            "layerId": "layer-2",
+            "displayName": "Layer 2",
+            "assetId": "weapon.player.hammer-spear-tiles",
+            "depthOffset": 1,
+            "blocks": [
+              {
+                "from": 5,
+                "through": 7,
+                "sourceFrame": 3,
+                "transform": {
+                  "offset": [
+                    -10.25,
+                    65
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 140,
+                  "flipX": false,
+                  "flipY": false
+                }
+              }
+            ],
+            "transform": {
+              "scale": [
+                0.5,
+                0.5
+              ]
+            }
+          }
+        ]
       },
-      "characterActionId": "attack-2",
+      "characterActionId": "attack-1",
       "hitboxes": {
         "hammer-head": {
-          "shape": "sector",
+          "shape": "circle",
           "width": 88,
           "height": 72,
-          "offsetX": 46,
+          "offsetX": 80,
           "offsetY": 0,
           "innerRadius": 10,
           "outerRadius": 78,
           "arcWidthRad": 1.05,
           "damageMultiplier": 1,
-          "knockbackMultiplier": 1.35
+          "knockbackMultiplier": 1.35,
+          "radius": 40
         }
       },
       "attackTrack": {
         "hitboxSpans": [
           {
             "hitboxId": "hammer-head",
-            "from": 2,
-            "through": 2
+            "from": 4,
+            "through": 8
+          }
+        ],
+        "events": []
+      }
+    },
+    "up": {
+      "animation": {
+        "version": 2,
+        "durationSeconds": 0.5,
+        "framesPerSecond": 24,
+        "loop": false,
+        "loopMode": "wrap",
+        "layers": [
+          {
+            "layerId": "layer-1",
+            "displayName": "Layer 1",
+            "assetId": "weapon.player.hammer-spear-tiles",
+            "depthOffset": 0,
+            "blocks": [
+              {
+                "from": 0,
+                "through": 1,
+                "sourceFrame": 2,
+                "transform": {
+                  "offset": [
+                    40,
+                    0
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": -50,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 2,
+                "through": 2,
+                "sourceFrame": 2,
+                "transform": {
+                  "offset": [
+                    40,
+                    -25
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": -80,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 3,
+                "through": 3,
+                "sourceFrame": 2,
+                "transform": {
+                  "offset": [
+                    25,
+                    -35
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": -110,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 4,
+                "through": 4,
+                "sourceFrame": 2,
+                "transform": {
+                  "offset": [
+                    10,
+                    -40
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": -125,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 5,
+                "through": 8,
+                "sourceFrame": 2,
+                "transform": {
+                  "offset": [
+                    -10,
+                    -40
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": -145,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 9,
+                "through": 9,
+                "sourceFrame": 2,
+                "transform": {
+                  "offset": [
+                    10,
+                    -40
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": -125,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 10,
+                "through": 10,
+                "sourceFrame": 2,
+                "transform": {
+                  "offset": [
+                    25,
+                    -35
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": -110,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 11,
+                "through": 11,
+                "sourceFrame": 2,
+                "transform": {
+                  "offset": [
+                    40,
+                    -25
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": -80,
+                  "flipX": false,
+                  "flipY": false
+                }
+              }
+            ],
+            "transform": {
+              "scale": [
+                0.5,
+                0.5
+              ],
+              "flipY": true
+            }
+          },
+          {
+            "layerId": "layer-2",
+            "displayName": "Layer 2",
+            "assetId": "weapon.player.hammer-spear-tiles",
+            "depthOffset": 1,
+            "blocks": [
+              {
+                "from": 5,
+                "through": 7,
+                "sourceFrame": 3,
+                "transform": {
+                  "offset": [
+                    -10.25,
+                    -50
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": -140,
+                  "flipX": false,
+                  "flipY": false
+                }
+              }
+            ],
+            "transform": {
+              "scale": [
+                0.5,
+                0.5
+              ],
+              "flipY": true
+            }
+          }
+        ]
+      },
+      "characterActionId": "attack-1",
+      "hitboxes": {
+        "hammer-head": {
+          "shape": "circle",
+          "width": 88,
+          "height": 72,
+          "offsetX": 65,
+          "offsetY": 0,
+          "innerRadius": 10,
+          "outerRadius": 78,
+          "arcWidthRad": 1.05,
+          "damageMultiplier": 1,
+          "knockbackMultiplier": 1.35,
+          "radius": 40
+        }
+      },
+      "attackTrack": {
+        "hitboxSpans": [
+          {
+            "hitboxId": "hammer-head",
+            "from": 4,
+            "through": 8
           }
         ],
         "events": []
@@ -125,13 +685,13 @@
   "presentation": {
     "facingMode": "vector"
   },
-  "baseDamage": 32,
-  "cooldownMs": 850,
+  "baseDamage": 50,
+  "cooldownMs": 1,
   "hitboxWidth": 88,
   "hitboxHeight": 72,
   "hitboxOffset": 46,
   "hitboxDurationMs": 170,
-  "knockStrength": 310,
+  "knockStrength": 500,
   "scaling": {
     "damage": {
       "strength": 1.2

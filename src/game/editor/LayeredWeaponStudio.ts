@@ -163,6 +163,48 @@ function resolveEffectDocumentVariant(effect: EffectDefinition, direction: Effec
   );
 }
 
+function reconcileWeaponAttackTrack(
+  track: WeaponAttackTrackDocument,
+  previousAnimation: LayeredAnimationDocument,
+  nextAnimation: LayeredAnimationDocument,
+): WeaponAttackTrackDocument {
+  const frameCount = layeredTimelineFrameCount(nextAnimation);
+  const fpsChanged = previousAnimation.framesPerSecond !== nextAnimation.framesPerSecond;
+  const projectFrom = (frame: number): number => fpsChanged
+    ? Math.round(frame / previousAnimation.framesPerSecond * nextAnimation.framesPerSecond)
+    : frame;
+  const projectThrough = (frame: number): number => fpsChanged
+    ? Math.round((frame + 1) / previousAnimation.framesPerSecond * nextAnimation.framesPerSecond) - 1
+    : frame;
+
+  const spans = track.hitboxSpans
+    .flatMap((span) => {
+      const from = projectFrom(span.from);
+      const through = Math.min(projectThrough(span.through), frameCount - 1);
+      return from >= 0 && from < frameCount && through >= from ? [{ ...span, from, through }] : [];
+    })
+    .sort((left, right) => left.from - right.from || left.through - right.through || left.hitboxId.localeCompare(right.hitboxId));
+  const mergedSpans: Array<{ readonly hitboxId: string; readonly from: number; readonly through: number }> = [];
+  for (const span of spans) {
+    const previous = mergedSpans[mergedSpans.length - 1];
+    if (previous && previous.hitboxId === span.hitboxId && previous.through + 1 >= span.from) {
+      mergedSpans[mergedSpans.length - 1] = { ...previous, through: Math.max(previous.through, span.through) };
+    } else {
+      mergedSpans.push(span);
+    }
+  }
+
+  const events = track.events?.flatMap((event) => {
+    const at = projectFrom(event.at);
+    return at >= 0 && at < frameCount ? [{ ...event, at }] : [];
+  });
+  return {
+    ...track,
+    hitboxSpans: mergedSpans,
+    ...(track.events ? { events } : {}),
+  };
+}
+
 function replaceAnimation(state: StudioState, animation: LayeredAnimationDocument): StudioState {
   if (!state.draft) return state;
   if (state.scope === 'idle') {
@@ -173,13 +215,17 @@ function replaceAnimation(state: StudioState, animation: LayeredAnimationDocumen
     if (!resolved?.authored) return { ...state, notice: `${state.direction.toUpperCase()} is inherited. Make it custom before editing.` };
     const attack = state.draft.directionalAttacks[state.direction];
     if (!attack) return state;
+    const previousAnimation = animationFor(state);
+    const attackTrack = attack.attackTrack && previousAnimation
+      ? reconcileWeaponAttackTrack(attack.attackTrack, previousAnimation, animation)
+      : attack.attackTrack;
     return {
       ...state,
       draft: {
         ...state.draft,
         directionalAttacks: {
           ...state.draft.directionalAttacks,
-          [state.direction]: { ...attack, animation },
+          [state.direction]: { ...attack, animation, ...(attackTrack ? { attackTrack } : {}) },
         },
       },
       dirty: true,
@@ -208,6 +254,7 @@ function selectionForAnimation(state: StudioState, animation: LayeredAnimationDo
 function transformAnimationState(
   state: StudioState,
   operation: (document: LayeredAnimationDocumentState) => boolean,
+  failureNotice = 'That edit could not be applied inside the animation duration.',
 ): StudioState {
   const animation = animationFor(state);
   if (!animation) return state;
@@ -215,7 +262,7 @@ function transformAnimationState(
   if (state.selectedLayerId) document.selectLayer(state.selectedLayerId);
   if (state.selectedLayerId && state.selectedBlockIndex !== undefined) document.selectBlock(state.selectedLayerId, state.selectedBlockIndex);
   document.setPlayhead(state.playhead);
-  if (!operation(document)) return { ...state, notice: 'That edit would overlap another block or leave the timeline.' };
+  if (!operation(document)) return { ...state, notice: failureNotice };
   const value = document.value;
   return {
     ...replaceAnimation(state, value.animation),
@@ -347,8 +394,21 @@ function resolvedLayerAt(animation: LayeredAnimationDocument, timelineFrame: num
   });
 }
 
+function previewPlayerCharacter() {
+  return characterPackages.find((entry) => entry.characterId === 'player-slime') ?? characterPackages[0];
+}
+
+function availableCharacterActions(): readonly string[] {
+  const character = previewPlayerCharacter();
+  if (!character) return [];
+  return Object.entries(character.visualSet.clips)
+    .filter(([, clip]) => clip.frames.length > 0)
+    .map(([actionId]) => actionId)
+    .sort((left, right) => left.localeCompare(right));
+}
+
 function characterSprite(state: StudioState): string {
-  const character = characterPackages.find((entry) => entry.characterId === 'player-slime') ?? characterPackages[0];
+  const character = previewPlayerCharacter();
   const asset = state.assets?.assets.find((entry) => entry.assetId === character?.visualSet.assetId);
   const resolvedAttack = state.scope === 'attack' && state.draft
     ? resolveWeaponAttack(state.draft, state.direction)
@@ -425,7 +485,7 @@ function renderPreviewHitboxes(state: StudioState): string {
 }
 
 function renderPreview(state: StudioState, animation: LayeredAnimationDocument): string {
-  const duration = layeredTimelineFrameCount(animation) / animation.framesPerSecond;
+  const duration = animation.durationSeconds;
   const activeLayers = resolvedLayerAt(animation, state.playhead);
   const effectOnly = state.scope === 'effect';
   const mirror = previewMirrorAxes(state);
@@ -580,9 +640,25 @@ function selectedLayer(state: StudioState, animation: LayeredAnimationDocument):
   return animation.layers.find((layer) => layer.layerId === state.selectedLayerId) ?? animation.layers[0];
 }
 
+function renderCharacterActionOptions(selectedAction: string): string {
+  const actions = availableCharacterActions();
+  const resolvedSelection = actions.includes(selectedAction) ? selectedAction : actions[0] ?? selectedAction;
+  return actions.map((actionId) => `<option value="${escapeHtml(actionId)}" ${actionId === resolvedSelection ? 'selected' : ''}>${escapeHtml(actionId.replaceAll('-', ' '))}</option>`).join('')
+    || `<option value="${escapeHtml(selectedAction)}" selected>${escapeHtml(selectedAction)}</option>`;
+}
+
+function renderDirectionalCharacterAction(state: StudioState): string {
+  if (state.scope !== 'attack' || !state.draft) return '';
+  const resolved = resolveWeaponAttack(state.draft, state.direction);
+  if (!resolved) return '';
+  const locked = !resolved.authored;
+  const selectedAction = resolved.attack.characterActionId ?? state.draft.characterActionId;
+  return `<label class="studio-field studio-field--wide weapon-direction-action layered-direction-action"><span>${state.direction.toUpperCase()} character action<small>${locked ? 'inherited from its master direction' : 'body clip paired with this weapon direction'}</small></span><select data-weapon-field="directionalAttacks.${state.direction}.characterActionId" aria-label="${state.direction} character action"${locked ? ' disabled' : ''}>${renderCharacterActionOptions(selectedAction)}</select></label>`;
+}
+
 function renderIdentityInspector(state: StudioState): string {
   const weapon = state.draft!;
-  return `<section class="studio-inspector-section"><div class="studio-section-heading"><span class="studio-kicker">Identity</span><strong>Reusable weapon package</strong></div><div class="studio-field-grid">${inputField('Stable ID', 'weaponId', weapon.weaponId, { hint: 'lowercase kebab-case' })}${inputField('Display name', 'displayName', weapon.displayName)}</div><label class="studio-field studio-field--wide"><span>Category<small>combat family</small></span><select data-weapon-field="category"><option value="melee" ${weapon.category === 'melee' ? 'selected' : ''}>Melee</option><option value="ranged" ${weapon.category === 'ranged' ? 'selected' : ''}>Ranged</option></select></label>${inputField('Default character action', 'characterActionId', weapon.characterActionId)}${inputField('Description', 'description', weapon.description)}</section>`;
+  return `<section class="studio-inspector-section"><div class="studio-section-heading"><span class="studio-kicker">Identity</span><strong>Reusable weapon package</strong></div><div class="studio-field-grid">${inputField('Stable ID', 'weaponId', weapon.weaponId, { hint: 'lowercase kebab-case' })}${inputField('Display name', 'displayName', weapon.displayName)}</div><label class="studio-field studio-field--wide"><span>Category<small>combat family</small></span><select data-weapon-field="category"><option value="melee" ${weapon.category === 'melee' ? 'selected' : ''}>Melee</option><option value="ranged" ${weapon.category === 'ranged' ? 'selected' : ''}>Ranged</option></select></label><label class="studio-field studio-field--wide"><span>Default character action<small>fallback when a direction has no override</small></span><select data-weapon-field="characterActionId" aria-label="Default character action">${renderCharacterActionOptions(weapon.characterActionId)}</select></label>${inputField('Description', 'description', weapon.description)}</section>`;
 }
 
 function renderCombatInspector(state: StudioState): string {
@@ -637,7 +713,7 @@ function renderScopeControls(state: StudioState, animation: LayeredAnimationDocu
     const status = directionalStatusLabel(direction, resolved, pairs);
     return `<button type="button" class="studio-pill${state.effectDirection === direction ? ' is-active' : ''}" data-effect-direction="${direction}">${direction.toUpperCase()}<small>${status}</small></button>`;
   }).join('');
-  return `<section class="layered-scope-strip"><div class="studio-clip-tabs"><button type="button" class="studio-clip-tab${state.scope === 'idle' ? ' is-active' : ''}" data-scope="idle"><span>IDLE</span><small>${state.draft?.animations.idle.layers.length ?? 0} layers</small></button><button type="button" class="studio-clip-tab${state.scope === 'attack' ? ' is-active' : ''}" data-scope="attack"><span>ATTACK</span><small>directional</small></button><button type="button" class="studio-clip-tab${state.scope === 'effect' ? ' is-active' : ''}" data-scope="effect" ${effectReady ? '' : 'disabled'}><span>ON-HIT EFFECT</span><small>${effectReady ? 'contact' : 'none assigned'}</small></button></div>${state.scope === 'attack' ? `<div class="layered-direction-tabs">${attackTabs}</div>` : state.scope === 'effect' ? `<div class="layered-direction-tabs">${effectTabs}</div>` : ''}${renderDirectionalMode(state)}<div class="layered-clock-controls"><label>FPS <input type="number" min="1" max="240" step="1" value="${animation.framesPerSecond}" data-animation-field="fps" /></label><label>DURATION <input type="number" min="0.01" max="60" step="0.01" value="${animation.durationSeconds}" data-animation-field="duration" /><span>s</span></label></div></section>`;
+  return `<section class="layered-scope-strip"><div class="studio-clip-tabs"><button type="button" class="studio-clip-tab${state.scope === 'idle' ? ' is-active' : ''}" data-scope="idle"><span>IDLE</span><small>${state.draft?.animations.idle.layers.length ?? 0} layers</small></button><button type="button" class="studio-clip-tab${state.scope === 'attack' ? ' is-active' : ''}" data-scope="attack"><span>ATTACK</span><small>directional</small></button><button type="button" class="studio-clip-tab${state.scope === 'effect' ? ' is-active' : ''}" data-scope="effect" ${effectReady ? '' : 'disabled'}><span>ON-HIT EFFECT</span><small>${effectReady ? 'contact' : 'none assigned'}</small></button></div>${state.scope === 'attack' ? `<div class="layered-direction-tabs">${attackTabs}</div>${renderDirectionalCharacterAction(state)}` : state.scope === 'effect' ? `<div class="layered-direction-tabs">${effectTabs}</div>` : ''}${renderDirectionalMode(state)}<div class="layered-clock-controls"><label>FPS <input type="number" min="1" max="240" step="1" value="${animation.framesPerSecond}" data-animation-field="fps" /></label><label>DURATION <input type="number" min="0.01" max="60" step="0.01" value="${animation.durationSeconds}" data-animation-field="duration" /><span>s</span></label></div></section>`;
 }
 
 function renderPicker(state: StudioState, animation: LayeredAnimationDocument): string {
@@ -673,6 +749,29 @@ function withLayer(state: StudioState, update: (layer: AnimationVisualLayerDocum
 
 function updateWeaponField(state: StudioState, field: string, value: string): StudioState {
   if (!state.draft) return state;
+  const directionalActionMatch = field.match(/^directionalAttacks\.(right|left|up|down)\.characterActionId$/);
+  if (directionalActionMatch) {
+    const direction = directionalActionMatch[1] as WeaponAttackDirection;
+    const resolved = resolveWeaponAttack(state.draft, direction);
+    const attack = state.draft.directionalAttacks[direction];
+    if (!resolved || !attack) return state;
+    if (!resolved.authored) return { ...state, notice: `${direction.toUpperCase()} is inherited. Make it custom before editing.` };
+    const actions = availableCharacterActions();
+    const requested = value.trim().toLowerCase();
+    const characterActionId = actions.includes(requested) ? requested : actions[0] ?? state.draft.characterActionId;
+    return {
+      ...state,
+      draft: {
+        ...state.draft,
+        directionalAttacks: {
+          ...state.draft.directionalAttacks,
+          [direction]: { ...attack, characterActionId },
+        },
+      },
+      dirty: true,
+      notice: undefined,
+    };
+  }
   if (field.startsWith('hitbox:')) {
     const [, hitboxId, hitboxField] = field.split(':');
     const resolved = resolveWeaponAttack(state.draft, state.direction);
@@ -789,7 +888,7 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement): () => void 
     render();
   };
   const mutate = (next: StudioState): void => { state = next; render(); };
-  const mutateAnimation = (operation: (document: LayeredAnimationDocumentState) => boolean): void => mutate(transformAnimationState(state, operation));
+  const mutateAnimation = (operation: (document: LayeredAnimationDocumentState) => boolean, failureNotice?: string): void => mutate(transformAnimationState(state, operation, failureNotice));
   const updateAttack = (update: (attack: NonNullable<ReturnType<typeof selectedAttack>>) => NonNullable<ReturnType<typeof selectedAttack>>): void => {
     if (!state.draft) return;
     const resolved = resolveWeaponAttack(state.draft, state.direction);
@@ -924,7 +1023,7 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement): () => void 
     }
     if (action === 'add-layer-tiles') { mutate({ ...state, pickerOpen: true, pickerFrames: [] }); return; }
     if (action === 'close-picker') { mutate({ ...state, pickerOpen: false, pickerFrames: [] }); return; }
-    if (action === 'confirm-picker') { const frames = [...state.pickerFrames]; state = { ...state, pickerOpen: false, pickerFrames: [] }; mutateAnimation((document) => Boolean(state.selectedLayerId && document.insertTiles(state.selectedLayerId, frames, state.playhead))); return; }
+    if (action === 'confirm-picker') { const frames = [...state.pickerFrames]; state = { ...state, pickerOpen: false, pickerFrames: [] }; mutateAnimation((document) => Boolean(state.selectedLayerId && document.insertTiles(state.selectedLayerId, frames, state.playhead)), 'There is not enough empty time for those tiles. Increase the animation duration first.'); return; }
     if (action === 'delete-layer' && state.selectedLayerId) { mutateAnimation((document) => document.deleteLayer(state.selectedLayerId!)); return; }
     if (action === 'layer-up' && state.selectedLayerId) { mutateAnimation((document) => document.moveLayer(state.selectedLayerId!, 1)); return; }
     if (action === 'layer-down' && state.selectedLayerId) { mutateAnimation((document) => document.moveLayer(state.selectedLayerId!, -1)); return; }
@@ -932,6 +1031,11 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement): () => void 
       const layerId = state.selectedLayerId;
       const blockIndex = state.selectedBlockIndex;
       mutateAnimation((document) => document.setBlockTransform(layerId, blockIndex)); return;
+    }
+    if (action === 'duplicate-block' && state.selectedLayerId && state.selectedBlockIndex !== undefined) {
+      const layerId = state.selectedLayerId;
+      const blockIndex = state.selectedBlockIndex;
+      mutateAnimation((document) => document.duplicateBlock(layerId, blockIndex), 'There is not enough room for a duplicate tile. Increase the animation duration first.'); return;
     }
     if (action === 'add-hitbox') {
       updateAttack((attack) => { let index = 2; while (attack.hitboxes[`hitbox-${index}`]) index += 1; const id = `hitbox-${index}`; state = { ...state, selectedHitboxId: id }; return { ...attack, hitboxes: { ...attack.hitboxes, [id]: { shape: 'rectangle', width: 32, height: 24, offsetX: 24, offsetY: 0 } } }; }); return;

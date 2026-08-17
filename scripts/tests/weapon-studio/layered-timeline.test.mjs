@@ -113,15 +113,34 @@ test('tile transform edits target one block and preserve its timing and source f
   assert.deepEqual(state.value.animation.layers[0].blocks[1], { from: 6, through: 7, sourceFrame: 2 });
 });
 
-test('duration guards visual blocks, hitbox spans, and events while FPS preserves frame indices', () => {
+test('duration is authoritative and trims visual blocks without changing earlier timing', () => {
   const state = new stateModule.LayeredAnimationDocumentState(fixture());
-  assert.equal(state.setDurationSeconds(0.7), false);
-  assert.equal(state.setDurationSeconds(0.9, { events: [{ at: 9 }] }), false);
-  assert.equal(state.setDurationSeconds(0.9, { hitboxSpans: [{ through: 8 }] }), true);
-  assert.equal(state.value.animation.durationSeconds, 0.9);
+  assert.equal(state.setDurationSeconds(0.7), true);
+  assert.equal(state.value.animation.durationSeconds, 0.7);
+  assert.deepEqual(state.value.animation.layers[0].blocks.map(({ from, through }) => ({ from, through })), [
+    { from: 0, through: 2 },
+    { from: 6, through: 6 },
+  ]);
+  assert.equal(state.setDurationSeconds(0.75), true);
+  assert.equal(state.value.animation.durationSeconds, 0.75);
+  assert.deepEqual(state.value.animation.layers[0].blocks.map(({ from, through }) => ({ from, through })), [
+    { from: 0, through: 2 },
+    { from: 6, through: 6 },
+  ]);
+});
+
+test('FPS re-samples block timing while preserving the authored duration', () => {
+  const state = new stateModule.LayeredAnimationDocumentState(fixture());
+  assert.equal(state.setDurationSeconds(0.75), true);
   assert.equal(state.setFramesPerSecond(20), true);
-  assert.equal(state.value.animation.durationSeconds, 0.45);
-  assert.deepEqual(state.value.animation.layers[0].blocks, fixture().layers[0].blocks);
+  assert.equal(state.value.animation.durationSeconds, 0.75);
+  assert.deepEqual(state.value.animation.layers[0].blocks.map(({ from, through }) => ({ from, through })), [
+    { from: 0, through: 5 },
+    { from: 12, through: 14 },
+  ]);
+  assert.deepEqual(state.value.animation.layers[1].blocks.map(({ from, through }) => ({ from, through })), [
+    { from: 6, through: 9 },
+  ]);
 });
 
 test('preview mute/solo state, layer order, and view geometry are deterministic', () => {

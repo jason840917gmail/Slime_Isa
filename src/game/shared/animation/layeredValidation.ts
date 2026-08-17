@@ -77,18 +77,7 @@ export function validateLayeredAnimationDocument(
   let timelineFrames = 0;
   try {
     timelineFrames = layeredTimelineFrameCount(animation);
-  } catch {
-    if (
-      typeof animation.durationSeconds === 'number'
-      && Number.isFinite(animation.durationSeconds)
-      && animation.durationSeconds > 0
-      && Number.isInteger(animation.framesPerSecond)
-      && animation.framesPerSecond >= 1
-      && animation.framesPerSecond <= 240
-    ) {
-      issues.push(`${path}: durationSeconds multiplied by framesPerSecond must be a positive whole number`);
-    }
-  }
+  } catch { /* individual duration and FPS issues are reported above */ }
 
   if (!Array.isArray(animation.layers)) {
     issues.push(`${path}.layers: must be an array`);

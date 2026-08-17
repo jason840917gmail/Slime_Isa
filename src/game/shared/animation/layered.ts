@@ -12,7 +12,6 @@ import type {
 } from './types';
 
 export const LAYER_ORDER_DEPTH_STEP = 0.001;
-const TIMELINE_INTEGRAL_TOLERANCE = 1e-6;
 
 const DEFAULT_BLOCK_TRANSFORM: NormalizedAnimationBlockTransform = {
   offset: [0, 0],
@@ -25,6 +24,7 @@ const DEFAULT_BLOCK_TRANSFORM: NormalizedAnimationBlockTransform = {
 export function layeredTimelineFrameCount(
   animation: Pick<LayeredAnimationDocument, 'durationSeconds' | 'framesPerSecond'>,
 ): number {
+  // Duration is authored in seconds; FPS only determines the editor/runtime sampling grid.
   const product = animation.durationSeconds * animation.framesPerSecond;
   const rounded = Math.round(product);
   if (
@@ -34,9 +34,8 @@ export function layeredTimelineFrameCount(
     || animation.framesPerSecond < 1
     || animation.framesPerSecond > 240
     || rounded < 1
-    || Math.abs(product - rounded) > TIMELINE_INTEGRAL_TOLERANCE
   ) {
-    throw new Error('Layered animation duration and FPS must resolve to a positive whole frame count');
+    throw new Error('Layered animation duration and FPS must resolve to at least one timeline frame');
   }
   return rounded;
 }
