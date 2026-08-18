@@ -1,0 +1,520 @@
+{
+  "$schema": "../weapon.schema.json",
+  "version": 2,
+  "weaponId": "wooden-axe",
+  "displayName": "Wooden Axe",
+  "category": "melee",
+  "characterActionId": "attack-1",
+  "animations": {
+    "idle": {
+      "version": 2,
+      "durationSeconds": 0.16666666666666666,
+      "framesPerSecond": 6,
+      "loop": true,
+      "loopMode": "wrap",
+      "layers": [
+        {
+          "layerId": "axe",
+          "displayName": "Wooden axe",
+          "assetId": "weapon.player.wooden-axe-tiles",
+          "depthOffset": 0,
+          "transform": {
+            "offset": [
+              0,
+              0
+            ],
+            "scale": [
+              0.58,
+              0.58
+            ],
+            "rotationDeg": 0,
+            "flipX": false,
+            "flipY": false
+          },
+          "blocks": [
+            {
+              "from": 0,
+              "through": 0,
+              "sourceFrame": 0,
+              "transform": {
+                "offset": [
+                  0,
+                  -8
+                ],
+                "scale": [
+                  1,
+                  1
+                ],
+                "rotationDeg": 0,
+                "flipX": false,
+                "flipY": false
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "directionalAttacks": {
+    "right": {
+      "animation": {
+        "version": 2,
+        "durationSeconds": 0.5,
+        "framesPerSecond": 12,
+        "loop": false,
+        "loopMode": "wrap",
+        "layers": [
+          {
+            "layerId": "axe",
+            "displayName": "Wooden axe",
+            "assetId": "weapon.player.wooden-axe-tiles",
+            "depthOffset": 0,
+            "transform": {
+              "offset": [
+                0,
+                0
+              ],
+              "scale": [
+                0.62,
+                0.62
+              ],
+              "rotationDeg": 0,
+              "flipX": false,
+              "flipY": false
+            },
+            "blocks": [
+              {
+                "from": 0,
+                "through": 0,
+                "sourceFrame": 1,
+                "transform": {
+                  "offset": [
+                    8,
+                    -22
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": -65,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 1,
+                "through": 1,
+                "sourceFrame": 1,
+                "transform": {
+                  "offset": [
+                    16,
+                    -14
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": -45,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 2,
+                "through": 2,
+                "sourceFrame": 1,
+                "transform": {
+                  "offset": [
+                    24,
+                    -4
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": -20,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 3,
+                "through": 3,
+                "sourceFrame": 1,
+                "transform": {
+                  "offset": [
+                    28,
+                    8
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 10,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 4,
+                "through": 4,
+                "sourceFrame": 1,
+                "transform": {
+                  "offset": [
+                    20,
+                    16
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 35,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 5,
+                "through": 5,
+                "sourceFrame": 1,
+                "transform": {
+                  "offset": [
+                    10,
+                    12
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 55,
+                  "flipX": false,
+                  "flipY": false
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "characterActionId": "attack-1",
+      "hitboxes": {
+        "axe-head": {
+          "shape": "sector",
+          "width": 58,
+          "height": 46,
+          "offsetX": 42,
+          "offsetY": 0,
+          "outerRadius": 64,
+          "arcWidthRad": 1.2,
+          "damageMultiplier": 1,
+          "knockbackMultiplier": 0.35
+        }
+      },
+      "attackTrack": {
+        "hitboxSpans": [
+          {
+            "hitboxId": "axe-head",
+            "from": 2,
+            "through": 3
+          }
+        ],
+        "events": []
+      }
+    },
+    "down": {
+      "animation": {
+        "version": 2,
+        "durationSeconds": 0.5,
+        "framesPerSecond": 12,
+        "loop": false,
+        "loopMode": "wrap",
+        "layers": [
+          {
+            "layerId": "axe",
+            "displayName": "Wooden axe",
+            "assetId": "weapon.player.wooden-axe-tiles",
+            "depthOffset": 0,
+            "transform": {
+              "offset": [
+                0,
+                0
+              ],
+              "scale": [
+                0.62,
+                0.62
+              ],
+              "rotationDeg": 0,
+              "flipX": false,
+              "flipY": false
+            },
+            "blocks": [
+              {
+                "from": 0,
+                "through": 0,
+                "sourceFrame": 0,
+                "transform": {
+                  "offset": [
+                    0,
+                    -18
+                  ],
+                  "rotationDeg": -65
+                }
+              },
+              {
+                "from": 1,
+                "through": 1,
+                "sourceFrame": 0,
+                "transform": {
+                  "offset": [
+                    0,
+                    -12
+                  ],
+                  "rotationDeg": -42
+                }
+              },
+              {
+                "from": 2,
+                "through": 2,
+                "sourceFrame": 0,
+                "transform": {
+                  "offset": [
+                    0,
+                    -2
+                  ],
+                  "rotationDeg": -18
+                }
+              },
+              {
+                "from": 3,
+                "through": 3,
+                "sourceFrame": 0,
+                "transform": {
+                  "offset": [
+                    0,
+                    10
+                  ],
+                  "rotationDeg": 12
+                }
+              },
+              {
+                "from": 4,
+                "through": 4,
+                "sourceFrame": 0,
+                "transform": {
+                  "offset": [
+                    0,
+                    16
+                  ],
+                  "rotationDeg": 38
+                }
+              },
+              {
+                "from": 5,
+                "through": 5,
+                "sourceFrame": 0,
+                "transform": {
+                  "offset": [
+                    0,
+                    10
+                  ],
+                  "rotationDeg": 58
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "characterActionId": "attack-1",
+      "hitboxes": {
+        "axe-head": {
+          "shape": "sector",
+          "width": 58,
+          "height": 46,
+          "offsetX": 42,
+          "offsetY": 0,
+          "outerRadius": 64,
+          "arcWidthRad": 1.2,
+          "damageMultiplier": 1,
+          "knockbackMultiplier": 0.35
+        }
+      },
+      "attackTrack": {
+        "hitboxSpans": [
+          {
+            "hitboxId": "axe-head",
+            "from": 2,
+            "through": 3
+          }
+        ],
+        "events": []
+      }
+    },
+    "up": {
+      "animation": {
+        "version": 2,
+        "durationSeconds": 0.5,
+        "framesPerSecond": 12,
+        "loop": false,
+        "loopMode": "wrap",
+        "layers": [
+          {
+            "layerId": "axe",
+            "displayName": "Wooden axe",
+            "assetId": "weapon.player.wooden-axe-tiles",
+            "depthOffset": 0,
+            "transform": {
+              "offset": [
+                0,
+                0
+              ],
+              "scale": [
+                0.62,
+                0.62
+              ],
+              "rotationDeg": 0,
+              "flipX": false,
+              "flipY": false
+            },
+            "blocks": [
+              {
+                "from": 0,
+                "through": 0,
+                "sourceFrame": 2,
+                "transform": {
+                  "offset": [
+                    0,
+                    -18
+                  ],
+                  "rotationDeg": -65
+                }
+              },
+              {
+                "from": 1,
+                "through": 1,
+                "sourceFrame": 2,
+                "transform": {
+                  "offset": [
+                    0,
+                    -12
+                  ],
+                  "rotationDeg": -42
+                }
+              },
+              {
+                "from": 2,
+                "through": 2,
+                "sourceFrame": 2,
+                "transform": {
+                  "offset": [
+                    0,
+                    -2
+                  ],
+                  "rotationDeg": -18
+                }
+              },
+              {
+                "from": 3,
+                "through": 3,
+                "sourceFrame": 2,
+                "transform": {
+                  "offset": [
+                    0,
+                    10
+                  ],
+                  "rotationDeg": 12
+                }
+              },
+              {
+                "from": 4,
+                "through": 4,
+                "sourceFrame": 2,
+                "transform": {
+                  "offset": [
+                    0,
+                    16
+                  ],
+                  "rotationDeg": 38
+                }
+              },
+              {
+                "from": 5,
+                "through": 5,
+                "sourceFrame": 2,
+                "transform": {
+                  "offset": [
+                    0,
+                    10
+                  ],
+                  "rotationDeg": 58
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "characterActionId": "attack-1",
+      "hitboxes": {
+        "axe-head": {
+          "shape": "sector",
+          "width": 58,
+          "height": 46,
+          "offsetX": 42,
+          "offsetY": 0,
+          "outerRadius": 64,
+          "arcWidthRad": 1.2,
+          "damageMultiplier": 1,
+          "knockbackMultiplier": 0.35
+        }
+      },
+      "attackTrack": {
+        "hitboxSpans": [
+          {
+            "hitboxId": "axe-head",
+            "from": 2,
+            "through": 3
+          }
+        ],
+        "events": []
+      }
+    }
+  },
+  "presentation": {
+    "facingMode": "vector"
+  },
+  "baseDamage": 12,
+  "cooldownMs": 900,
+  "hitboxWidth": 58,
+  "hitboxHeight": 46,
+  "hitboxOffset": 42,
+  "hitboxDurationMs": 160,
+  "knockStrength": 70,
+  "damageModifiers": [
+    {
+      "targetTag": "wood",
+      "modifier": 1
+    },
+    {
+      "targetTag": "resource",
+      "modifier": 0.1
+    },
+    {
+      "targetTag": "enemy",
+      "modifier": 0.2
+    }
+  ],
+  "scaling": {
+    "damage": {
+      "strength": 0.8
+    },
+    "cooldown": {
+      "agility": 0.15
+    },
+    "knockback": {
+      "strength": 0.2
+    }
+  },
+  "vfxColor": 14311290,
+  "unlockLevel": 1,
+  "iconKey": "weapon-generic",
+  "description": "A practical starter hatchet. Good against wood, poor against enemies.",
+  "onResourceHitEffectId": "wooden-axe-impact"
+}

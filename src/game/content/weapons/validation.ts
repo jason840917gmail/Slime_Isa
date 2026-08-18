@@ -187,6 +187,30 @@ function validateCommonWeaponFields(weapon: Partial<AuthoredWeaponDefinition>, i
   if (typeof weapon.unlockLevel !== 'number' || !Number.isInteger(weapon.unlockLevel) || weapon.unlockLevel < 1) issues.push('weapon.unlockLevel: must be a positive integer');
   if (typeof weapon.iconKey !== 'string') issues.push('weapon.iconKey: must be a string');
   if (typeof weapon.description !== 'string') issues.push('weapon.description: must be a string');
+  if (weapon.damageModifiers !== undefined) {
+    if (!Array.isArray(weapon.damageModifiers)) {
+      issues.push('weapon.damageModifiers: must be an array');
+    } else {
+      const tags = new Set<string>();
+      weapon.damageModifiers.forEach((entry, index) => {
+        const path = `weapon.damageModifiers[${index}]`;
+        if (!isRecord(entry)) {
+          issues.push(`${path}: must be an object`);
+          return;
+        }
+        if (typeof entry.targetTag !== 'string' || !entry.targetTag.trim()) {
+          issues.push(`${path}.targetTag: must be a non-empty string`);
+        } else if (tags.has(entry.targetTag)) {
+          issues.push(`${path}.targetTag: duplicate '${entry.targetTag}'`);
+        } else {
+          tags.add(entry.targetTag);
+        }
+        if (typeof entry.modifier !== 'number' || !Number.isFinite(entry.modifier) || entry.modifier < 0) {
+          issues.push(`${path}.modifier: must be a finite number >= 0`);
+        }
+      });
+    }
+  }
 }
 
 function validateLegacyWeaponDefinition(weapon: LegacyWeaponDefinition): string[] {
@@ -284,6 +308,7 @@ function validateLayeredWeaponDefinition(weapon: LayeredWeaponDefinition): strin
   validateCommonWeaponFields(weapon, issues);
   if (typeof weapon.characterActionId !== 'string' || !weapon.characterActionId.trim()) issues.push('weapon.characterActionId: must be non-empty');
   if (weapon.onHitEffectId !== undefined && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(weapon.onHitEffectId)) issues.push('weapon.onHitEffectId: must be a lowercase kebab-case ID');
+  if (weapon.onResourceHitEffectId !== undefined && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(weapon.onResourceHitEffectId)) issues.push('weapon.onResourceHitEffectId: must be a lowercase kebab-case ID');
   const rawWeapon = weapon as unknown as Record<string, unknown>;
   for (const forbidden of ['animKey', 'assetId', 'visual', 'attackTrack', 'hitboxes']) {
     if (forbidden in rawWeapon) issues.push(`weapon.${forbidden}: is forbidden in version 2`);

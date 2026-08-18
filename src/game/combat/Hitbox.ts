@@ -54,6 +54,12 @@ export type HitHandler = (
   knockStrength: number,
 ) => void;
 
+export type HitboxTargetGroup =
+  | Phaser.GameObjects.Group
+  | Phaser.Physics.Arcade.Group
+  | Phaser.Physics.Arcade.StaticGroup;
+export type HitboxTargets = HitboxTargetGroup | readonly HitboxTargetGroup[];
+
 export interface HitboxActivationHandle {
   readonly isActive: boolean;
   deactivate(): void;
@@ -68,7 +74,7 @@ interface PooledHitbox {
   handler: HitHandler | null;
   hitSet: Set<Phaser.GameObjects.GameObject>;
   removeTimer: Phaser.Time.TimerEvent | null;
-  targets: Phaser.GameObjects.Group | Phaser.Physics.Arcade.Group | Phaser.Physics.Arcade.StaticGroup | null;
+  targets: HitboxTargets | null;
   activationToken: number;
   sortId: string;
 }
@@ -77,7 +83,7 @@ class HitboxPoolImpl {
   private pools = new Map<Phaser.Scene, PooledHitbox[]>();
   spawn(
     scene: Phaser.Scene,
-    targets: Phaser.GameObjects.Group | Phaser.Physics.Arcade.Group | Phaser.Physics.Arcade.StaticGroup,
+    targets: HitboxTargets,
     config: HitboxConfig,
     handler: HitHandler,
   ): HitboxActivationHandle {
@@ -134,7 +140,7 @@ class HitboxPoolImpl {
   private activate(
     scene: Phaser.Scene,
     slot: PooledHitbox,
-    targets: Phaser.GameObjects.Group | Phaser.Physics.Arcade.Group | Phaser.Physics.Arcade.StaticGroup,
+    targets: HitboxTargets,
     config: HitboxConfig,
     handler: HitHandler,
   ): void {
@@ -203,7 +209,11 @@ class HitboxPoolImpl {
 
   private checkOverlap(slot: PooledHitbox): void {
     if (!slot.active || !slot.config || !slot.handler || !slot.targets) return;
-    for (const child of slot.targets.getChildren()) {
+    const groups = Array.isArray(slot.targets) ? slot.targets : [slot.targets];
+    const visited = new Set<Phaser.GameObjects.GameObject>();
+    for (const group of groups) for (const child of group.getChildren()) {
+      if (visited.has(child)) continue;
+      visited.add(child);
       if (slot.hitSet.has(child)) continue;
       const targetGeometry = resolveCombatBodyGeometry(child as Phaser.Physics.Arcade.Sprite);
       if (!attackIntersectsCombatBody(slot.config, targetGeometry)) continue;

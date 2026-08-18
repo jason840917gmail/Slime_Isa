@@ -30,6 +30,13 @@ export interface BuiltMap {
   readonly spawns?: MapSpawns;
 }
 
+export interface BuiltObjectRegistration {
+  readonly image: Phaser.GameObjects.Image;
+  readonly objectId: string;
+  readonly instanceId: string;
+  readonly initialState?: Readonly<Record<string, unknown>>;
+}
+
 interface MapBuilderContext {
   readonly scene: Phaser.Scene;
   readonly map: MapFile;
@@ -37,6 +44,7 @@ interface MapBuilderContext {
   readonly collisionTiles: Phaser.Physics.Arcade.StaticGroup;
   readonly seed: number;
   readonly behaviorGroups?: Readonly<Record<string, Phaser.Physics.Arcade.StaticGroup>>;
+  readonly onObjectCreated?: (registration: BuiltObjectRegistration) => void;
   readonly registerOccluder?: (registration: ObjectOccluderRegistration) => { dispose(): void };
 }
 
@@ -92,11 +100,17 @@ export class MapBuilder {
       if (!isObjectArchetypeId(object.objectId)) {
         throw new Error(`Map '${this.ctx.map.mapId}' reached MapBuilder with invalid object '${object.objectId}'`);
       }
-      this.objectFactory.create(object.objectId, {
+      const image = this.objectFactory.create(object.objectId, {
         x: object.x,
         y: object.y,
         visualId: object.visualId,
         sortId: object.instanceId,
+        initialState: object.initialState,
+      });
+      this.ctx.onObjectCreated?.({
+        image,
+        objectId: object.objectId,
+        instanceId: object.instanceId,
         initialState: object.initialState,
       });
     }

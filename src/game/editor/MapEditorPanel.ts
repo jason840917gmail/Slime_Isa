@@ -51,6 +51,7 @@ function terrainGroup(tileId: string): string {
 }
 
 function objectGroup(objectId: string): string {
+  if (objectId.startsWith('resource.')) return 'Resource Nodes';
   if (objectId.startsWith('collectible.')) return 'Collectibles';
   if (objectId === 'decoration.world.floor') return 'Floor Decorations';
   if (objectId === 'decoration.world.solid') return 'Solid Decorations';

@@ -177,6 +177,9 @@
   "hitboxOffset": 36,
   "hitboxDurationMs": 140,
   "knockStrength": 200,
+  "damageModifiers": [
+    { "targetTag": "resource", "modifier": 0.1 }
+  ],
   "scaling": {
     "damage": {
       "strength": 0.65,

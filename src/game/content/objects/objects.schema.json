@@ -29,6 +29,8 @@
       "pattern": "^[a-z0-9]+([.-][a-z0-9-]+)+$"
     },
     "destructible": { "$ref": "#/$defs/destructible" },
+    "resourceNode": { "$ref": "#/$defs/resourceNode" },
+    "resourcePile": { "$ref": "#/$defs/resourcePile" },
     "tags": {
       "type": "array",
       "items": { "type": "string", "pattern": "^[a-z0-9-]+$" },
@@ -77,6 +79,7 @@
         },
         "frame": { "type": "integer", "minimum": 0 },
         "displayName": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "scale": { "type": "number", "minimum": 0.05, "maximum": 8 },
         "visualOffset": { "$ref": "#/$defs/visualOffset" },
         "depthBounds": { "$ref": "#/$defs/depthBounds" },
         "occlusionBounds": { "$ref": "#/$defs/bounds" },
@@ -135,6 +138,34 @@
           "items": { "type": "string", "minLength": 1 },
           "uniqueItems": true
         }
+      }
+    },
+    "resourceNode": {
+      "type": "object",
+      "required": ["health", "dropItem", "dropCount"],
+      "additionalProperties": false,
+      "properties": {
+        "health": { "type": "integer", "minimum": 1 },
+        "dropItem": { "type": "string", "minLength": 1 },
+        "dropCount": { "type": "integer", "minimum": 1 },
+        "replacement": {
+          "type": "object",
+          "required": ["objectId", "visualId"],
+          "additionalProperties": false,
+          "properties": {
+            "objectId": { "type": "string", "minLength": 1 },
+            "visualId": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    },
+    "resourcePile": {
+      "type": "object",
+      "required": ["itemId", "amount"],
+      "additionalProperties": false,
+      "properties": {
+        "itemId": { "type": "string", "minLength": 1 },
+        "amount": { "type": "integer", "minimum": 1 }
       }
     }
   }

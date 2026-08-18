@@ -21,6 +21,7 @@
       "sheet.walls.vertical.1x8",
       "sheet.rocks.3x1",
       "sheet.rocks.8x3",
+      "sheet.resources.4x2",
       "sheet.trees.8x6",
       "sheet.trees.3x1",
       "sheet.houses.3x1",
@@ -43,6 +44,8 @@
       "character.enemy.slime-spider",
       "weapon.player.sword-tiles",
       "effect.weapon.hit-tiles",
+      "weapon.player.wooden-axe-tiles",
+      "effect.resource.impact-tiles",
       "weapon.player.hammer-spear-tiles"
     ]
   },
@@ -386,6 +389,51 @@
       ],
       "status": "ready",
       "notes": "Rock artwork only. Collider geometry and behavior live in individual object archetype files."
+    },
+    "sheet.resources.4x2": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/resources/128x128-tile_4x2-resource-piles.png",
+        "frame": {
+          "w": 128,
+          "h": 128,
+          "cols": 4,
+          "rows": 2,
+          "count": 8
+        },
+        "expect": {
+          "w": 512,
+          "h": 256
+        }
+      },
+      "runtime": {
+        "textureKey": "resources-4x2"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": false
+      },
+      "frames": {
+        "0": { "name": "wood-pile" },
+        "1": { "name": "stone-pile" },
+        "2": { "name": "iron-ore-pile" },
+        "3": { "name": "charcoal-pile" },
+        "4": { "name": "wood-icon" },
+        "5": { "name": "stone-icon" },
+        "6": { "name": "iron-ore-icon" },
+        "7": { "name": "charcoal-icon" }
+      },
+      "tags": [
+        "object",
+        "resource",
+        "material",
+        "inventory"
+      ],
+      "status": "ready",
+      "notes": "Top row contains map-scale resource piles; bottom row contains matching inventory thumbnails."
     },
     "sheet.trees.8x6": {
       "source": {
@@ -1012,6 +1060,97 @@
       "tags": [
         "effect",
         "weapon",
+        "animated"
+      ],
+      "status": "ready"
+    },
+    "weapon.player.wooden-axe-tiles": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/weapons/128x128-tile_3x1-wooden-axe.png",
+        "frame": {
+          "w": 128,
+          "h": 128,
+          "cols": 3,
+          "rows": 1,
+          "count": 3
+        },
+        "expect": {
+          "w": 384,
+          "h": 128
+        }
+      },
+      "runtime": {
+        "textureKey": "weapon-player-wooden-axe-tiles"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "pixelArt": false
+      },
+      "frames": {
+        "0": {
+          "name": "down"
+        },
+        "1": {
+          "name": "side-right"
+        },
+        "2": {
+          "name": "up"
+        }
+      },
+      "tags": [
+        "weapon",
+        "tool",
+        "animated"
+      ],
+      "status": "ready"
+    },
+    "effect.resource.impact-tiles": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/weapons/128x128-tile_4x1-resource-impact.png",
+        "frame": {
+          "w": 128,
+          "h": 128,
+          "cols": 4,
+          "rows": 1,
+          "count": 4
+        },
+        "expect": {
+          "w": 512,
+          "h": 128
+        }
+      },
+      "runtime": {
+        "textureKey": "effect-resource-impact-tiles"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "pixelArt": false
+      },
+      "frames": {
+        "0": {
+          "name": "contact"
+        },
+        "1": {
+          "name": "burst"
+        },
+        "2": {
+          "name": "peak"
+        },
+        "3": {
+          "name": "dissipate"
+        }
+      },
+      "tags": [
+        "effect",
+        "resource",
         "animated"
       ],
       "status": "ready"

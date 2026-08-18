@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { getStats } from '../systems/PlayerStats';
-import { hitboxPool, type HitboxActivationHandle, type HitboxConfig } from './Hitbox';
+import { hitboxPool, type HitboxActivationHandle, type HitboxConfig, type HitboxTargets } from './Hitbox';
 import { resolveScaledValue } from './CombatScaling';
 import { LEGACY_WEAPON_SECTOR_ARC_RAD } from '../content/weapons/types';
 import { AnimationClock, layeredTimelineFrameCount } from '../shared/animation';
@@ -21,7 +21,7 @@ export interface WeaponContext {
   scene: Phaser.Scene;
   getPlayer: () => Phaser.Physics.Arcade.Sprite;
   getFacing: () => Phaser.Math.Vector2;
-  getTargets: () => Phaser.GameObjects.Group | Phaser.Physics.Arcade.Group | Phaser.Physics.Arcade.StaticGroup | null;
+  getTargets: () => HitboxTargets | null;
   applyHit: (request: WeaponHitRequest) => DamageApplicationResult;
   onAttackStart: () => void;
   onAttackEnd: () => void;

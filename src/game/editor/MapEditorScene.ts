@@ -1565,8 +1565,8 @@ export class MapEditorScene extends Phaser.Scene {
     const drawGeometry = (image: Phaser.GameObjects.Image): void => {
       const [anchorX, anchorY] = getObjectAnchor(image);
       const bounds = image.getBounds();
-      const frameX = bounds.x - resolved.visualOffset.x;
-      const frameY = bounds.y - resolved.visualOffset.y;
+      const frameX = bounds.x - resolved.visualOffset.x * Math.abs(image.scaleX);
+      const frameY = bounds.y - resolved.visualOffset.y * Math.abs(image.scaleY);
       const drawOutlinedRect = (
         x: number,
         y: number,
@@ -1597,8 +1597,8 @@ export class MapEditorScene extends Phaser.Scene {
       if (template.showDepthOverlay && template.draft?.depthBounds && template.frameDimensions) {
         const depthRectangle = resolveWorldOcclusionRectangle(
           {
-            x: image.x - resolved.visualOffset.x,
-            y: image.y - resolved.visualOffset.y,
+            x: image.x - resolved.visualOffset.x * Math.abs(image.scaleX),
+            y: image.y - resolved.visualOffset.y * Math.abs(image.scaleY),
             originX: image.originX,
             originY: image.originY,
             scaleX: image.scaleX,
@@ -1637,43 +1637,47 @@ export class MapEditorScene extends Phaser.Scene {
       }
       if (template.showColliderOverlay && resolved.physics !== null && resolved.collider) {
         const dimensions = resolveCollisionShapeDimensions(resolved.collider);
-        const colliderX = frameX + resolved.collider.offsetX;
-        const colliderY = frameY + resolved.collider.offsetY;
+        const scaleX = Math.abs(image.scaleX);
+        const scaleY = Math.abs(image.scaleY);
+        const colliderX = frameX + resolved.collider.offsetX * scaleX;
+        const colliderY = frameY + resolved.collider.offsetY * scaleY;
         if (dimensions.shape === 'rectangle') {
           graphics.fillStyle(EDITOR_GEOMETRY_STYLES.collider.phaser, 0.22).fillRect(
             colliderX,
             colliderY,
-            dimensions.width,
-            dimensions.height,
+            dimensions.width * scaleX,
+            dimensions.height * scaleY,
           );
           drawOutlinedRect(
             colliderX,
             colliderY,
-            dimensions.width,
-            dimensions.height,
+            dimensions.width * scaleX,
+            dimensions.height * scaleY,
             EDITOR_GEOMETRY_STYLES.collider.phaser,
             3,
           );
         } else {
-          const centerX = colliderX + dimensions.width / 2;
-          const centerY = colliderY + dimensions.height / 2;
+          const colliderWidth = dimensions.width * scaleX;
+          const colliderHeight = dimensions.height * scaleY;
+          const centerX = colliderX + colliderWidth / 2;
+          const centerY = colliderY + colliderHeight / 2;
           graphics.fillStyle(EDITOR_GEOMETRY_STYLES.collider.phaser, 0.22).fillEllipse(
             centerX,
             centerY,
-            dimensions.width,
-            dimensions.height,
+            colliderWidth,
+            colliderHeight,
           );
           graphics.lineStyle(3, EDITOR_SELECTION_STYLE.shadow, 0.85).strokeEllipse(
             centerX,
             centerY,
-            dimensions.width,
-            dimensions.height,
+            colliderWidth,
+            colliderHeight,
           );
           graphics.lineStyle(3, EDITOR_GEOMETRY_STYLES.collider.phaser, 0.98).strokeEllipse(
             centerX,
             centerY,
-            dimensions.width,
-            dimensions.height,
+            colliderWidth,
+            colliderHeight,
           );
         }
       }

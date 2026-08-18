@@ -105,6 +105,7 @@ for (const weapon of weapons) {
   for (const forbidden of ['assetId', 'visual', 'hitboxes', 'attackTrack', 'animKey']) if (forbidden in weapon) errors.push(`[${weapon.weaponId}] v2 forbids root ${forbidden}`);
   if ('impact' in (weapon.animations ?? {}) || 'attack' in (weapon.animations ?? {})) errors.push(`[${weapon.weaponId}] v2 animations may only contain idle`);
   if (weapon.onHitEffectId && !effectIds.has(weapon.onHitEffectId)) errors.push(`[${weapon.weaponId}] onHitEffectId '${weapon.onHitEffectId}' is missing`);
+  if (weapon.onResourceHitEffectId && !effectIds.has(weapon.onResourceHitEffectId)) errors.push(`[${weapon.weaponId}] onResourceHitEffectId '${weapon.onResourceHitEffectId}' is missing`);
   validateLayered(weapon, 'idle', weapon.animations?.idle, true);
   for (const direction of ['right', 'down']) if (!weapon.directionalAttacks?.[direction]) errors.push(`[${weapon.weaponId}] missing ${direction} attack`);
   for (const [direction, attack] of Object.entries(weapon.directionalAttacks ?? {})) {

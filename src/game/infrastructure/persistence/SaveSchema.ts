@@ -9,6 +9,10 @@ export interface WorldProgressData {
   discoveredAreas: AreaId[];
   defeatedBossIds: string[];
   completedDungeonIds: string[];
+  resourceStates?: Record<string, {
+    stage: 'node' | 'pile' | 'depleted';
+    value: number;
+  }>;
 }
 
 export interface GameSaveData {

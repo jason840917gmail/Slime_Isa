@@ -17,8 +17,10 @@
         "cooldownMs": { "type": "number", "minimum": 0 }, "hitboxWidth": { "type": "number", "minimum": 0 },
         "hitboxHeight": { "type": "number", "minimum": 0 }, "hitboxOffset": { "type": "number" },
         "hitboxDurationMs": { "type": "number", "minimum": 0 }, "knockStrength": { "type": "number", "minimum": 0 },
-        "scaling": { "type": "object" }, "vfxColor": { "type": "integer", "minimum": 0 },
-        "unlockLevel": { "type": "integer", "minimum": 1 }, "iconKey": { "type": "string" }, "description": { "type": "string" }
+        "scaling": { "type": "object" },
+        "damageModifiers": { "type": "array", "items": { "$ref": "#/\u0024defs/damageModifier" } },
+        "vfxColor": { "type": "integer", "minimum": 0 },
+        "unlockLevel": { "type": "integer", "minimum": 1 }, "iconKey": { "type": "string" }, "description": { "type": "string" }, "onResourceHitEffectId": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" }
       }
     },
     "legacyWeapon": {
@@ -42,12 +44,13 @@
             "animations": { "type": "object", "additionalProperties": false, "required": ["idle"], "properties": { "idle": { "$ref": "#/$defs/layeredAnimation" } } },
             "directionalAttacks": { "type": "object", "additionalProperties": false, "required": ["right", "down"], "properties": { "right": { "$ref": "#/$defs/layeredAttack" }, "left": { "$ref": "#/$defs/layeredAttack" }, "up": { "$ref": "#/$defs/layeredAttack" }, "down": { "$ref": "#/$defs/layeredAttack" } } },
             "presentation": { "type": "object", "additionalProperties": false, "properties": { "facingMode": { "enum": ["vector", "horizontal-flip"] } } },
-            "onHitEffectId": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
-            "baseDamage": { "type": "number" }, "cooldownMs": { "type": "number" }, "hitboxWidth": { "type": "number" }, "hitboxHeight": { "type": "number" }, "hitboxOffset": { "type": "number" }, "hitboxDurationMs": { "type": "number" }, "knockStrength": { "type": "number" }, "scaling": { "type": "object" }, "vfxColor": { "type": "integer" }, "unlockLevel": { "type": "integer" }, "iconKey": { "type": "string" }, "description": { "type": "string" }
+            "onHitEffectId": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" }, "onResourceHitEffectId": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+            "baseDamage": { "type": "number" }, "cooldownMs": { "type": "number" }, "hitboxWidth": { "type": "number" }, "hitboxHeight": { "type": "number" }, "hitboxOffset": { "type": "number" }, "hitboxDurationMs": { "type": "number" }, "knockStrength": { "type": "number" }, "scaling": { "type": "object" }, "damageModifiers": { "type": "array", "items": { "$ref": "#/\u0024defs/damageModifier" } }, "vfxColor": { "type": "integer" }, "unlockLevel": { "type": "integer" }, "iconKey": { "type": "string" }, "description": { "type": "string" }
           }
         }
       ]
     },
+    "damageModifier": { "type": "object", "additionalProperties": false, "required": ["targetTag", "modifier"], "properties": { "targetTag": { "type": "string", "minLength": 1 }, "modifier": { "type": "number", "minimum": 0 } } },
     "pair": { "type": "array", "prefixItems": [{ "type": "number" }, { "type": "number" }], "minItems": 2, "maxItems": 2 },
     "transform": { "type": "object", "additionalProperties": false, "properties": { "offset": { "$ref": "#/$defs/pair" }, "scale": { "$ref": "#/$defs/pair" }, "origin": { "$ref": "#/$defs/pair" }, "rotationDeg": { "type": "number" }, "flipX": { "type": "boolean" }, "flipY": { "type": "boolean" } } },
     "blockTransform": { "type": "object", "additionalProperties": false, "properties": { "offset": { "$ref": "#/$defs/pair" }, "scale": { "$ref": "#/$defs/pair" }, "rotationDeg": { "type": "number" }, "flipX": { "type": "boolean" }, "flipY": { "type": "boolean" } } },

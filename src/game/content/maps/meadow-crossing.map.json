@@ -2880,6 +2880,55 @@
       "visualId": "shadow-pine-01",
       "x": 1120,
       "y": 2304
+    },
+    {
+      "instanceId": "resource-wood-pile-b356418c",
+      "objectId": "resource.wood-pile",
+      "visualId": "wood-pile",
+      "x": 1248,
+      "y": 2240
+    },
+    {
+      "instanceId": "tree-world-solid-df8bbca4",
+      "objectId": "tree.world.solid",
+      "visualId": "golden-tree-01",
+      "x": 1760,
+      "y": 2368
+    },
+    {
+      "instanceId": "tree-world-solid-f63b08cd",
+      "objectId": "tree.world.solid",
+      "visualId": "golden-tree-01",
+      "x": 1824,
+      "y": 2368
+    },
+    {
+      "instanceId": "tree-world-solid-c6bd6904",
+      "objectId": "tree.world.solid",
+      "visualId": "golden-tree-01",
+      "x": 1888,
+      "y": 2368
+    },
+    {
+      "instanceId": "tree-world-solid-f8721fff",
+      "objectId": "tree.world.solid",
+      "visualId": "golden-tree-01",
+      "x": 1888,
+      "y": 2304
+    },
+    {
+      "instanceId": "tree-world-solid-34c65b0e",
+      "objectId": "tree.world.solid",
+      "visualId": "golden-tree-01",
+      "x": 1824,
+      "y": 2304
+    },
+    {
+      "instanceId": "tree-world-solid-60a2f8e7",
+      "objectId": "tree.world.solid",
+      "visualId": "golden-tree-01",
+      "x": 1760,
+      "y": 2304
     }
   ],
   "player": {

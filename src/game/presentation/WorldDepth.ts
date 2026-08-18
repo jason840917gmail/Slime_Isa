@@ -125,6 +125,7 @@ export interface ObjectDepthGeometry {
   readonly sourceFrameHeight: number;
   readonly originY: number;
   readonly bounds?: ObjectDepthBounds;
+  readonly scaleY?: number;
 }
 
 export function resolveBodyBottom(body: BodyGeometry): number {
@@ -148,8 +149,8 @@ export function resolveObjectDepthAnchorY(
   geometry: ObjectDepthGeometry,
 ): number {
   if (!geometry.bounds) return objectAnchorY;
+  const scaleY = Math.abs(geometry.scaleY ?? 1);
   return objectAnchorY
-    + geometry.bounds.offsetY
-    + geometry.bounds.height
-    - geometry.sourceFrameHeight * geometry.originY;
+    + (geometry.bounds.offsetY + geometry.bounds.height
+      - geometry.sourceFrameHeight * geometry.originY) * scaleY;
 }

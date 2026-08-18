@@ -22,6 +22,9 @@ import { hitboxPool } from '../../combat/Hitbox';
 import { WeaponVisual } from './WeaponVisual';
 import { shouldSpawnConfirmedHitEffect } from '../../combat/ConfirmedHitEffect';
 import { WorldEffectPool } from '../effects/WorldEffectPool';
+import { resolveDamageModifier } from '../../combat/DamageModifiers';
+import type { ResourceNodeController } from '../resources/ResourceNodeController';
+import type { HitboxTargets } from '../../combat/Hitbox';
 
 export interface CombatControllerContext {
   scene: Phaser.Scene;
@@ -49,6 +52,8 @@ export interface CombatControllerContext {
   healPlayer: (amount: number) => number;
   spawnItemDropIcon: (x: number, y: number, itemId: string, count: number, index: number, total: number) => void;
   registerRevealActor?: (enemy: Enemy, visual: AnimatedVisual) => void;
+  getResourceTargets?: () => Phaser.GameObjects.Group | null;
+  resourceNodes?: ResourceNodeController;
 }
 
 export class CombatController {
@@ -208,9 +213,26 @@ export class CombatController {
       scene,
       getPlayer: () => player,
       getFacing: this.ctx.getFacing,
-      getTargets: () => this.targets,
+      getTargets: (): HitboxTargets => {
+        const resourceTargets = this.ctx.getResourceTargets?.();
+        return resourceTargets ? [this.targets, resourceTargets] : this.targets;
+      },
       applyHit: ({ target, damage, knockX, knockY, knockStrength, attackDirection }) => {
-        const finalDamage = Math.round(damage * this.combo.registerHit());
+        const comboDamage = damage * this.combo.registerHit();
+        const isResourceTarget = this.ctx.resourceNodes?.isResourceTarget(target) === true;
+        const targetTags = target instanceof Enemy
+          ? ['enemy']
+          : isResourceTarget
+            ? this.ctx.resourceNodes!.tagsFor(target)
+            : [];
+        const damageModifier = resolveDamageModifier(weapon.def.damageModifiers, targetTags);
+        const finalDamage = Math.max(1, Math.round(comboDamage * damageModifier));
+        const resourceHitAnchor = isResourceTarget
+          ? (() => {
+              const image = target as Phaser.GameObjects.GameObject & { readonly x: number; readonly y: number; readonly depth: number };
+              return { x: image.x, y: image.y, depth: image.depth };
+            })()
+          : undefined;
         let result;
         let hitTarget: Enemy | TargetDummy | undefined;
         if (target instanceof Enemy) {
@@ -220,6 +242,8 @@ export class CombatController {
         } else if (target instanceof TargetDummy) {
           hitTarget = target;
           result = target.applyDamage({ amount: finalDamage, knockX, knockY, knockStrength });
+        } else if (isResourceTarget) {
+          result = this.ctx.resourceNodes.applyDamage(target, finalDamage);
         } else {
           result = { status: 'rejected' as const, actualDamage: 0, defeated: false, reason: 'invalid' as const };
         }
@@ -232,6 +256,14 @@ export class CombatController {
             depth: hitTarget.depth + 0.2,
             followPositionOf: hitTarget,
             followDepthOffset: 0.2,
+          });
+        } else if (resourceHitAnchor && shouldSpawnConfirmedHitEffect(weapon.def.onResourceHitEffectId, result)) {
+          this.effects.spawn({
+            effectId: weapon.def.onResourceHitEffectId!,
+            direction: attackDirection,
+            x: resourceHitAnchor.x,
+            y: resourceHitAnchor.y,
+            depth: resourceHitAnchor.depth + 0.2,
           });
         }
         return result;

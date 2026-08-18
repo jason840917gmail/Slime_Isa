@@ -49,6 +49,12 @@ test('custom object depth bounds resolve their lower edge independently of the t
   assert.equal(depth.resolveObjectDepthAnchorY(500, {
     sourceFrameHeight: 128,
     originY: 1,
+    scaleY: 0.5,
+    bounds: { offsetY: 80, height: 24 },
+  }), 488);
+  assert.equal(depth.resolveObjectDepthAnchorY(500, {
+    sourceFrameHeight: 128,
+    originY: 1,
   }), 500);
 });
 

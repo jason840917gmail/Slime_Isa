@@ -3,16 +3,33 @@ import type { WorldProgressData } from '../../infrastructure/persistence/SaveSch
 import type { AreaId } from '../../world/Area';
 import { gameEvents } from '../../core/EventBus';
 
+export type ResourceProgressStage = 'node' | 'pile' | 'depleted';
+export interface ResourceProgressState {
+  readonly stage: ResourceProgressStage;
+  readonly value: number;
+}
+
 class WorldProgress {
   private discoveredAreas = new Set<AreaId>();
   private defeatedBossIds = new Set<string>();
   private completedDungeonIds = new Set<string>();
+  private resourceStates = new Map<string, ResourceProgressState>();
   private loaded = false;
 
   load(data: WorldProgressData): void {
     this.discoveredAreas = new Set(data.discoveredAreas);
     this.defeatedBossIds = new Set(data.defeatedBossIds);
     this.completedDungeonIds = new Set(data.completedDungeonIds);
+    this.resourceStates = new Map(
+      Object.entries(data.resourceStates ?? {}).filter(([, state]) => (
+        state !== null
+        && typeof state === 'object'
+        && (state.stage === 'node' || state.stage === 'pile' || state.stage === 'depleted')
+        && typeof state.value === 'number'
+        && Number.isFinite(state.value)
+        && state.value >= 0
+      )) as Array<[string, ResourceProgressState]>,
+    );
     this.loaded = true;
   }
 
@@ -22,6 +39,7 @@ class WorldProgress {
       discoveredAreas: [...this.discoveredAreas],
       defeatedBossIds: [...this.defeatedBossIds],
       completedDungeonIds: [...this.completedDungeonIds],
+      resourceStates: Object.fromEntries(this.resourceStates),
     };
   }
 
@@ -59,6 +77,20 @@ class WorldProgress {
   isDungeonCompleted(dungeonId: string): boolean {
     this.ensureLoaded();
     return this.completedDungeonIds.has(dungeonId);
+  }
+
+  resourceState(mapId: string, instanceId: string): ResourceProgressState | undefined {
+    this.ensureLoaded();
+    return this.resourceStates.get(`${mapId}:${instanceId}`);
+  }
+
+  setResourceState(mapId: string, instanceId: string, state: ResourceProgressState): void {
+    this.ensureLoaded();
+    const key = `${mapId}:${instanceId}`;
+    const previous = this.resourceStates.get(key);
+    if (previous?.stage === state.stage && previous.value === state.value) return;
+    this.resourceStates.set(key, { stage: state.stage, value: Math.max(0, state.value) });
+    gameEvents.emit('world.progress.changed', {});
   }
 
   private ensureLoaded(): void {

@@ -1452,6 +1452,16 @@ body {
   gap: 9px;
 }
 
+.editor-inspector-inline-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.editor-inspector-inline-actions .editor-inspector-secondary {
+  margin-top: 10px;
+}
+
 .editor-inspector-field {
   display: grid;
   min-width: 0;

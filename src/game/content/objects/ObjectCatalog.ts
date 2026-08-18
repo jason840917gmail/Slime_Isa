@@ -9,6 +9,7 @@ import decorationWorldFloorJson from './decorations/decoration-world-floor.json'
 import decorationWorldSolidJson from './decorations/decoration-world-solid.json';
 import houseWorldSolidJson from './houses/house-world-solid.json';
 import treeWorldSolidJson from './trees/tree-world-solid.json';
+import woodPileJson from './resources/resource-wood-pile.json';
 import wallStoneSolidJson from './walls/wall-stone-solid.json';
 
 export interface ColliderBounds {
@@ -46,6 +47,8 @@ export interface ObjectFrameVariant {
   readonly visualId: string;
   readonly displayName?: string;
   readonly frame: number;
+  /** Uniform world scale applied to the visual and its authored geometry. */
+  readonly scale?: number;
   readonly visualSetId?: VisualSetId;
   readonly animationClip?: string;
   readonly visualOffset?: VisualOffset;
@@ -69,6 +72,19 @@ export interface ObjectArchetypeDefinition {
     readonly health: number;
     readonly drops: readonly string[];
   };
+  readonly resourceNode?: {
+    readonly health: number;
+    readonly dropItem: string;
+    readonly dropCount: number;
+    readonly replacement?: {
+      readonly objectId: string;
+      readonly visualId: string;
+    };
+  };
+  readonly resourcePile?: {
+    readonly itemId: string;
+    readonly amount: number;
+  };
   readonly tags: readonly string[];
 }
 
@@ -81,6 +97,7 @@ const OBJECT_FILES = {
   'rock.world-wall.decorative': worldWallDecorativeJson,
   'rock.world-wall.solid': worldWallSolidJson,
   'tree.world.solid': treeWorldSolidJson,
+  'resource.wood-pile': woodPileJson,
   'wall.stone.solid': wallStoneSolidJson,
 } as const;
 
@@ -118,6 +135,7 @@ export interface ObjectVisualChoice {
   readonly displayName: string;
   readonly assetId: AssetId;
   readonly frame: number;
+  readonly scale: number;
   readonly visualSetId?: VisualSetId;
   readonly animationClip?: string;
   readonly visualOffset: VisualOffset;
@@ -130,7 +148,7 @@ export interface ObjectVisualChoice {
 
 export type EditableObjectVisual = Pick<
   ObjectVisualChoice,
-  'displayName' | 'visualOffset' | 'collider' | 'occlusionBounds' | 'depthBounds'
+  'displayName' | 'scale' | 'visualOffset' | 'collider' | 'occlusionBounds' | 'depthBounds'
 >;
 
 const OBJECT_VISUAL_OVERRIDES = new Map<string, EditableObjectVisual>();
@@ -153,6 +171,7 @@ function createObjectVisualChoice(
     displayName: override?.displayName ?? frame.displayName ?? frame.visualId,
     assetId,
     frame: frame.frame,
+    scale: override?.scale ?? frame.scale ?? 1,
     visualSetId: frame.visualSetId,
     animationClip: frame.animationClip,
     visualOffset: override?.visualOffset ?? frame.visualOffset ?? { x: 0, y: 0 },
@@ -192,6 +211,7 @@ export function setObjectVisualOverride(
 ): void {
   OBJECT_VISUAL_OVERRIDES.set(visualKey(objectId, visualId), {
     displayName: override.displayName,
+    scale: override.scale,
     visualOffset: { ...override.visualOffset },
     collider: override.collider ? { ...override.collider } : undefined,
     occlusionBounds: override.occlusionBounds ? { ...override.occlusionBounds } : undefined,

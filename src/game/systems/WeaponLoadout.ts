@@ -3,7 +3,7 @@ import { gameState } from '../core/GameState';
 import { WEAPON_HOTBAR_SLOT_COUNT } from '../core/types';
 import { playerInventory, weaponItemFor } from './Inventory';
 
-export const STARTER_WEAPON_IDS = ['goo-gauntlet', 'basic-sword', 'basic-spear', 'slam-hammer'] as const;
+export const STARTER_WEAPON_IDS = ['goo-gauntlet', 'basic-sword', 'basic-spear', 'slam-hammer', 'wooden-axe'] as const;
 
 const STARTER_WEAPON_PREFERRED_SLOTS: Readonly<Record<string, number>> = {
   'basic-spear': 3,
