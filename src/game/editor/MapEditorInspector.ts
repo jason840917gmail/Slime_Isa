@@ -47,6 +47,14 @@ function renderNumberField(
   </label>`;
 }
 
+function renderScaleField(value: number, error: string | undefined): string {
+  return `<label class="editor-inspector-field">
+    <span>Scale<small>multiplier</small></span>
+    <input type="number" min="0.05" max="8" step="0.05" data-template-field="scale" data-testid="template-scale" value="${value}" />
+    ${renderError(error)}
+  </label>`;
+}
+
 function renderShapeField(shape: CollisionShape | undefined): string {
   const selected = shape ?? 'rectangle';
   return `<label class="editor-inspector-field"><span>Shape<small>collision primitive</small></span><select data-template-field="shape"><option value="rectangle" ${selected === 'rectangle' ? 'selected' : ''}>Rectangle</option><option value="circle" ${selected === 'circle' ? 'selected' : ''}>Circle</option><option value="ellipse" ${selected === 'ellipse' ? 'selected' : ''}>Ellipse</option></select></label>`;
@@ -136,12 +144,16 @@ function renderInspector(
         </section>
         <section class="editor-inspector-section editor-geometry-section editor-geometry-frame">
           <div class="editor-inspector-section-title"><span>02</span><h3><span class="editor-geometry-swatch" aria-hidden="true"></span>Visual alignment</h3></div>
-          <p class="editor-inspector-help">Moves the art in source-frame pixels. The map anchor and collider stay fixed.</p>
+          <p class="editor-inspector-help">Scale the complete object uniformly, or move its art in source-frame pixels. The map anchor stays fixed and collision/depth/occlusion geometry follows the scale.</p>
           <div class="editor-inspector-grid">
+            ${renderScaleField(draft.scale, errors.scale)}
             ${renderNumberField('Horizontal', 'visualOffsetX', draft.visualOffset.x, errors.visualOffsetX, 'template-offset-x')}
             ${renderNumberField('Vertical', 'visualOffsetY', draft.visualOffset.y, errors.visualOffsetY, 'template-offset-y')}
           </div>
-          <button type="button" class="editor-inspector-secondary" data-command="reset-offset">Reset to 0, 0</button>
+          <div class="editor-inspector-inline-actions">
+            <button type="button" class="editor-inspector-secondary" data-command="reset-scale">Reset scale to 1</button>
+            <button type="button" class="editor-inspector-secondary" data-command="reset-offset">Reset offset to 0, 0</button>
+          </div>
         </section>
         <section class="editor-inspector-section editor-geometry-section editor-geometry-collider">
           <div class="editor-inspector-section-title"><span>03</span><h3><span class="editor-geometry-swatch" aria-hidden="true"></span>Collider</h3></div>
@@ -364,6 +376,7 @@ export function mountMapEditorInspector(
       const draft = templateEditor.value.draft;
       if (draft) templateEditor.updateDraft({ visualOffset: { x: 0, y: 0 } });
     }
+    if (target.dataset.command === 'reset-scale') templateEditor.updateDraft({ scale: 1 });
     if (target.dataset.command === 'reset-template') templateEditor.resetChanges();
     if (target.dataset.command === 'save-as-template' && !mapEditor.value.dirty) {
       const state = templateEditor.value;
@@ -427,6 +440,10 @@ export function mountMapEditorInspector(
     }
     if (field === 'displayName') {
       templateEditor.updateDraft({ displayName: target.value });
+      return;
+    }
+    if (field === 'scale') {
+      templateEditor.updateDraft({ scale: Number(target.value) });
       return;
     }
     if (field === 'shape') {

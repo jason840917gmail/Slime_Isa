@@ -11,6 +11,12 @@ import type {
 /** Compatibility value used only while normalizing pre-authored sector hitboxes. */
 export const LEGACY_WEAPON_SECTOR_ARC_RAD = 0.8;
 
+/** Numeric damage multiplier selected by a target's most specific matching tag. */
+export interface WeaponDamageModifier {
+  readonly targetTag: string;
+  readonly modifier: number;
+}
+
 export interface WeaponCombatDefinition {
   readonly weaponId: string;
   readonly displayName: string;
@@ -22,6 +28,8 @@ export interface WeaponCombatDefinition {
   readonly hitboxOffset: number;
   readonly hitboxDurationMs: number;
   readonly knockStrength: number;
+  /** Optional target-tag modifiers. Missing tags use normal damage (1.0). */
+  readonly damageModifiers?: readonly WeaponDamageModifier[];
   readonly scaling?: {
     readonly damage?: AttributeScaling;
     readonly cooldown?: AttributeScaling;
@@ -31,6 +39,8 @@ export interface WeaponCombatDefinition {
   readonly unlockLevel: number;
   readonly iconKey: string;
   readonly description: string;
+  /** Optional confirmed effect used only for accepted resource-node hits. */
+  readonly onResourceHitEffectId?: string;
 }
 
 /** Existing single-layer storage shape retained as migration input. */
@@ -182,5 +192,6 @@ export interface NormalizedWeaponDefinition extends WeaponCombatDefinition {
     readonly facingMode: 'vector' | 'horizontal-flip';
   };
   readonly onHitEffectId?: string;
+  readonly onResourceHitEffectId?: string;
   readonly legacyImmediateHit: boolean;
 }

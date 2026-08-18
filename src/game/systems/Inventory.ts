@@ -13,6 +13,15 @@ import { getWeaponDefinitions } from '../content/weapons/WeaponCatalog';
 const MAX_SLOTS = 24;
 
 const DEFAULT_DEFS: Record<string, ItemDef> = {
+  wood: {
+    id: 'wood',
+    name: 'Wood',
+    category: 'material',
+    icon: 'resources-4x2',
+    iconFrame: 4,
+    description: 'Freshly gathered timber for tools, weapons, and building.',
+    maxStack: 99,
+  },
   'hp-potion': {
     id: 'hp-potion',
     name: 'Slime Tonic',

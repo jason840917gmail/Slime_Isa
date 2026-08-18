@@ -112,6 +112,12 @@ function validateVisualOffset(file, objectId, field, offset) {
   }
 }
 
+function validateVisualScale(file, objectId, field, scale) {
+  if (typeof scale !== 'number' || !Number.isFinite(scale) || scale < 0.05 || scale > 8) {
+    fail(file, objectId, field, 'must be a finite number between 0.05 and 8');
+  }
+}
+
 const objectFiles = listObjectFiles(objectRoot);
 const visualSets = new Map(
   listVisualSetFiles(visualRoot).map((path) => {
@@ -136,7 +142,7 @@ for (const absolutePath of objectFiles) {
     objectId,
     'object',
     object,
-    new Set(['$schema', 'objectId', 'selection', 'variants', 'physics', 'behavior', 'destructible', 'tags']),
+    new Set(['$schema', 'objectId', 'selection', 'variants', 'physics', 'behavior', 'destructible', 'resourceNode', 'resourcePile', 'tags']),
   );
 
   if (typeof object.objectId !== 'string' || !idPattern.test(object.objectId)) {
@@ -212,6 +218,7 @@ for (const absolutePath of objectFiles) {
             'visualId',
             'frame',
             'displayName',
+            'scale',
             'visualOffset',
             'depthBounds',
             'occlusionBounds',
@@ -241,6 +248,9 @@ for (const absolutePath of objectFiles) {
         }
         if (frameEntry.visualOffset !== undefined) {
           validateVisualOffset(file, objectId, `${frameField}.visualOffset`, frameEntry.visualOffset);
+        }
+        if (frameEntry.scale !== undefined) {
+          validateVisualScale(file, objectId, `${frameField}.scale`, frameEntry.scale);
         }
 
         const hasVisualSet = frameEntry.visualSetId !== undefined;
@@ -323,6 +333,38 @@ for (const absolutePath of objectFiles) {
     if (!Array.isArray(object.destructible.drops)
         || object.destructible.drops.some((drop) => typeof drop !== 'string' || drop.length === 0)) {
       fail(file, objectId, 'destructible.drops', 'must contain non-empty item IDs');
+    }
+  }
+
+  if (object.resourceNode !== undefined) {
+    validateKeys(file, objectId, 'resourceNode', object.resourceNode, new Set(['health', 'dropItem', 'dropCount', 'replacement']));
+    if (!Number.isInteger(object.resourceNode.health) || object.resourceNode.health < 1) {
+      fail(file, objectId, 'resourceNode.health', 'must be an integer >= 1');
+    }
+    if (typeof object.resourceNode.dropItem !== 'string' || object.resourceNode.dropItem.length === 0) {
+      fail(file, objectId, 'resourceNode.dropItem', 'must be a non-empty item ID');
+    }
+    if (!Number.isInteger(object.resourceNode.dropCount) || object.resourceNode.dropCount < 1) {
+      fail(file, objectId, 'resourceNode.dropCount', 'must be an integer >= 1');
+    }
+    if (object.resourceNode.replacement !== undefined) {
+      validateKeys(file, objectId, 'resourceNode.replacement', object.resourceNode.replacement, new Set(['objectId', 'visualId']));
+      if (typeof object.resourceNode.replacement.objectId !== 'string' || object.resourceNode.replacement.objectId.length === 0) {
+        fail(file, objectId, 'resourceNode.replacement.objectId', 'must be a non-empty object ID');
+      }
+      if (typeof object.resourceNode.replacement.visualId !== 'string' || object.resourceNode.replacement.visualId.length === 0) {
+        fail(file, objectId, 'resourceNode.replacement.visualId', 'must be a non-empty visual ID');
+      }
+    }
+  }
+
+  if (object.resourcePile !== undefined) {
+    validateKeys(file, objectId, 'resourcePile', object.resourcePile, new Set(['itemId', 'amount']));
+    if (typeof object.resourcePile.itemId !== 'string' || object.resourcePile.itemId.length === 0) {
+      fail(file, objectId, 'resourcePile.itemId', 'must be a non-empty item ID');
+    }
+    if (!Number.isInteger(object.resourcePile.amount) || object.resourcePile.amount < 1) {
+      fail(file, objectId, 'resourcePile.amount', 'must be an integer >= 1');
     }
   }
 }

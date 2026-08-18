@@ -764,7 +764,18 @@
   "physics": {
     "body": "static"
   },
+  "resourceNode": {
+    "health": 40,
+    "dropItem": "wood",
+    "dropCount": 10,
+    "replacement": {
+      "objectId": "resource.wood-pile",
+      "visualId": "wood-pile"
+    }
+  },
   "tags": [
+    "wood",
+    "resource",
     "tree",
     "solid"
   ]

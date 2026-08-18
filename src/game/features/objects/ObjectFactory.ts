@@ -56,6 +56,7 @@ interface ResolvedVisual {
   readonly visualSetId?: VisualSetId;
   readonly animationClip?: string;
   readonly origin: readonly [number, number];
+  readonly scale: number;
   readonly visualOffset: VisualOffset;
   readonly collider?: ColliderBounds;
   readonly occlusionBounds?: SourceOcclusionBounds;
@@ -87,6 +88,7 @@ function resolveVisual(objectId: ObjectArchetypeId, visualId: string): ResolvedV
     origin: configuredOrigin
       ? [configuredOrigin[0], configuredOrigin[1]]
       : [0.5, 1],
+    scale: choice.scale,
     visualOffset: choice.visualOffset,
     collider: choice.collider,
     occlusionBounds: choice.occlusionBounds,
@@ -95,6 +97,22 @@ function resolveVisual(objectId: ObjectArchetypeId, visualId: string): ResolvedV
       ? { width: asset.source.frame.w, height: asset.source.frame.h }
       : undefined,
   };
+}
+
+function applyResolvedVisual(
+  image: Phaser.GameObjects.Image,
+  objectId: ObjectArchetypeId,
+  visual: ResolvedVisual,
+): void {
+  image.setTexture(visual.textureKey, visual.frame);
+  image.setOrigin(visual.origin[0], visual.origin[1]);
+  image.setScale(visual.scale);
+  image.setData('visualOffset', visual.visualOffset);
+  image.setData('visualScale', visual.scale);
+  image.setData('objectId', objectId);
+  image.setData('sourceFrame', visual.sourceFrame);
+  image.setData('occlusionBounds', visual.occlusionBounds);
+  image.setData('depthBounds', visual.depthBounds);
 }
 
 export function getObjectAnchor(image: Phaser.GameObjects.Image): readonly [number, number] {
@@ -106,9 +124,14 @@ export function getObjectAnchor(image: Phaser.GameObjects.Image): readonly [numb
 
 export function setObjectAnchor(image: Phaser.GameObjects.Image, x: number, y: number): void {
   const visualOffset = image.getData('visualOffset') as VisualOffset | undefined;
+  const scaleX = Math.abs(image.scaleX);
+  const scaleY = Math.abs(image.scaleY);
   const sourceFrame = image.getData('sourceFrame') as SourceFrameDimensions | undefined;
   const depthBounds = image.getData('depthBounds') as DepthBounds | undefined;
-  image.setPosition(x + (visualOffset?.x ?? 0), y + (visualOffset?.y ?? 0));
+  image.setPosition(
+    x + (visualOffset?.x ?? 0) * scaleX,
+    y + (visualOffset?.y ?? 0) * scaleY,
+  );
   image.setData('objectAnchorX', x);
   image.setData('objectAnchorY', y);
   const depthAnchorY = sourceFrame
@@ -116,6 +139,7 @@ export function setObjectAnchor(image: Phaser.GameObjects.Image, x: number, y: n
       sourceFrameHeight: sourceFrame.height,
       originY: image.originY,
       bounds: depthBounds,
+      scaleY,
     })
     : y;
   image.setData('depthAnchorY', depthAnchorY);
@@ -131,6 +155,18 @@ export function setObjectAnchor(image: Phaser.GameObjects.Image, x: number, y: n
     }
   }
   (image.getData('animatedVisual') as AnimatedVisual | undefined)?.update();
+}
+
+/** Applies a reusable object visual to an existing image while preserving its world anchor. */
+export function applyObjectVisual(
+  image: Phaser.GameObjects.Image,
+  objectId: ObjectArchetypeId,
+  visualId: string,
+): void {
+  const visual = resolveVisual(objectId, visualId);
+  const [anchorX, anchorY] = getObjectAnchor(image);
+  applyResolvedVisual(image, objectId, visual);
+  setObjectAnchor(image, anchorX, anchorY);
 }
 
 export function setObjectDepthMode(
@@ -163,14 +199,9 @@ export class ObjectFactory {
         ? behaviorGroup.create(options.x, options.y, visual.textureKey, visual.frame) as Phaser.Physics.Arcade.Image
       : this.ctx.scene.add.image(options.x, options.y, visual.textureKey, visual.frame);
 
-    image.setOrigin(visual.origin[0], visual.origin[1]);
-    image.setData('visualOffset', visual.visualOffset);
-    image.setData('objectId', objectId);
+    applyResolvedVisual(image, objectId, visual);
     image.setData('sortId', options.sortId ?? `${objectId}:${options.x}:${options.y}`);
     image.setData('depthMode', options.depthMode ?? 'world-sorted');
-    if (visual.sourceFrame) image.setData('sourceFrame', visual.sourceFrame);
-    if (visual.occlusionBounds) image.setData('occlusionBounds', visual.occlusionBounds);
-    if (visual.depthBounds) image.setData('depthBounds', visual.depthBounds);
     setObjectAnchor(image, options.x, options.y);
     if (options.depthMode === 'explicit') {
       image.setDepth(options.depth ?? image.depth);
@@ -188,19 +219,21 @@ export class ObjectFactory {
       const body = physicsImage.body as Phaser.Physics.Arcade.StaticBody;
       const collider = visual.collider;
       const dimensions = resolveCollisionShapeDimensions(collider);
+      const scaleX = Math.abs(image.scaleX);
+      const scaleY = Math.abs(image.scaleY);
       if (dimensions.shape === 'circle') {
         body.setCircle(
-          dimensions.radius ?? Math.min(collider.width, collider.height) / 2,
-          collider.offsetX - visual.visualOffset.x,
-          collider.offsetY - visual.visualOffset.y,
+          (dimensions.radius ?? Math.min(collider.width, collider.height) / 2) * Math.min(scaleX, scaleY),
+          (collider.offsetX - visual.visualOffset.x) * scaleX,
+          (collider.offsetY - visual.visualOffset.y) * scaleY,
         );
       } else {
         // Arcade has no native ellipse. Its authored bounds remain a safe
         // conservative fallback for static world collision.
-        body.setSize(dimensions.width, dimensions.height, false);
+        body.setSize(dimensions.width * scaleX, dimensions.height * scaleY, false);
         body.setOffset(
-          collider.offsetX - visual.visualOffset.x,
-          collider.offsetY - visual.visualOffset.y,
+          (collider.offsetX - visual.visualOffset.x) * scaleX,
+          (collider.offsetY - visual.visualOffset.y) * scaleY,
         );
       }
     } else if (behaviorGroup) {
@@ -225,6 +258,7 @@ export class ObjectFactory {
       animatedVisual.play(
         getVisualClip(visual.visualSetId, visual.animationClip).runtimeKey,
       );
+      animatedVisual.setScaleMultiplier(visual.scale);
       image.setData('animatedVisual', animatedVisual);
       image.setVisible(false);
     }

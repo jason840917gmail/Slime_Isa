@@ -31,6 +31,8 @@ export interface ItemDef {
   category: ItemCategory;
   /** Texture key from BootScene. */
   icon: string;
+  /** Optional spritesheet frame for content sheets that contain multiple icons. */
+  iconFrame?: number;
   description: string;
   /** Max stack size; 1 = unique. */
   maxStack: number;

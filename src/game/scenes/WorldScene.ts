@@ -56,6 +56,7 @@ import {
 } from '../features/world-navigation/AreaNavigation';
 import { WorldDebugRenderer } from '../dev/WorldDebugRenderer';
 import { CombatController } from '../features/combat/CombatController';
+import { ResourceNodeController } from '../features/resources/ResourceNodeController';
 import { OcclusionController } from '../features/occlusion/OcclusionController';
 import { DepthDiagnostics } from '../features/occlusion/DepthDiagnostics';
 import { MapBuilder, type BuiltMap } from '../features/world/MapBuilder';
@@ -95,6 +96,9 @@ export class WorldScene extends Phaser.Scene {
   private houseSystem!: HouseSystem;
   private inputBindings?: InputBindings;
   private purpleFoods!: Phaser.Physics.Arcade.StaticGroup;
+  private resourceTargets!: Phaser.GameObjects.Group;
+  private interactionTargets!: Phaser.GameObjects.Group;
+  private resourceNodes?: ResourceNodeController;
   private grapeChips!: Phaser.Physics.Arcade.StaticGroup;
   private playerController!: PlayerController;
   private healthSystem?: HealthSystem;
@@ -342,6 +346,8 @@ export class WorldScene extends Phaser.Scene {
     this.questJournal?.destroy();
     this.craftingUI?.destroy();
     this.combatController?.destroy();
+    this.resourceNodes?.destroy();
+    this.resourceNodes = undefined;
     this.occlusionController?.destroy();
     this.occlusionController = undefined;
     this.depthDiagnostics?.destroy();
@@ -449,6 +455,7 @@ export class WorldScene extends Phaser.Scene {
     this.playerController.updateVisuals();
 
     this.houseSystem.update();
+    this.resourceNodes?.update(this.player);
     this.statusEffects?.update(this.time.now, delta);
     this.healthSystem?.update(this.time.now);
     this.healthBar?.update();
@@ -531,6 +538,13 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private buildWorld(): void {
+    this.resourceNodes = new ResourceNodeController({
+      scene: this,
+      mapId: this.loadedMap.map.mapId,
+      collisionGroup: this.collisionTiles,
+      targetGroup: this.resourceTargets,
+      interactionGroup: this.interactionTargets,
+    });
     this.builtMap = new MapBuilder({
       scene: this,
       map: this.loadedMap.map,
@@ -540,6 +554,7 @@ export class WorldScene extends Phaser.Scene {
       behaviorGroups: {
         'collectible.purple-berry': this.purpleFoods,
       },
+      onObjectCreated: (registration) => this.resourceNodes?.register(registration),
       registerOccluder: (registration) => this.occlusionController!.registerOccluder(registration),
     }).build();
     this.terrainGrid = this.builtMap.terrainGrid;
@@ -548,6 +563,8 @@ export class WorldScene extends Phaser.Scene {
   private createCollisionLayer(): void {
     this.collisionTiles = this.physics.add.staticGroup();
     this.purpleFoods = this.physics.add.staticGroup();
+    this.resourceTargets = this.add.group();
+    this.interactionTargets = this.add.group();
     this.grapeChips = this.physics.add.staticGroup();
     this.dungeonSwitches = this.physics.add.staticGroup();
     this.dungeonChests = this.physics.add.staticGroup();
@@ -802,6 +819,10 @@ export class WorldScene extends Phaser.Scene {
   private handleActionInput(direction: Phaser.Math.Vector2): boolean {
     if (Phaser.Input.Keyboard.JustDown(this.controls.interact)) {
       if (this.houseSystem.handleInteract()) {
+        return true;
+      }
+
+      if (this.resourceNodes?.tryInteract(this.player)) {
         return true;
       }
 
@@ -1188,6 +1209,8 @@ export class WorldScene extends Phaser.Scene {
         isEligible: () => enemy.isRevealEligible(),
         silhouetteColor: 0xff936d,
       }),
+      getResourceTargets: () => this.resourceTargets,
+      resourceNodes: this.resourceNodes,
     });
   }
 

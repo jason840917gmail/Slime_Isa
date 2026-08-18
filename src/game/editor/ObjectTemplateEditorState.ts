@@ -56,6 +56,7 @@ function cloneDepthBounds(bounds?: DepthBounds): DepthBounds | undefined {
 function cloneDraft(draft: ObjectTemplateDraft): ObjectTemplateDraft {
   return {
     displayName: draft.displayName,
+    scale: draft.scale,
     visualOffset: { ...draft.visualOffset },
     collider: cloneCollider(draft.collider),
     occlusionBounds: cloneOcclusionBounds(draft.occlusionBounds),
@@ -70,6 +71,7 @@ function serializeDraft(draft: ObjectTemplateDraft): string {
 function draftFromChoice(choice: ObjectVisualChoice): ObjectTemplateDraft {
   return {
     displayName: choice.displayName,
+    scale: choice.scale,
     visualOffset: { ...choice.visualOffset },
     collider: cloneCollider(choice.collider),
     occlusionBounds: cloneOcclusionBounds(choice.occlusionBounds),
@@ -97,6 +99,10 @@ export function validateObjectTemplateDraft(
   const errors: Record<string, string> = {};
   const dimensions = getSourceFrameDimensions(choice);
   if (draft.displayName.trim().length === 0) errors.displayName = 'Template name is required.';
+
+  if (!Number.isFinite(draft.scale) || draft.scale < 0.05 || draft.scale > 8) {
+    errors.scale = 'Scale must be between 0.05 and 8.';
+  }
 
   if (!isInteger(draft.visualOffset.x)) errors.visualOffsetX = 'Use a whole number of pixels.';
   if (!isInteger(draft.visualOffset.y)) errors.visualOffsetY = 'Use a whole number of pixels.';
@@ -265,6 +271,7 @@ export class ObjectTemplateEditorState {
     if (!this.selectedValue || !this.draftValue) return false;
     const next: ObjectTemplateDraft = {
       displayName: patch.displayName ?? this.draftValue.displayName,
+      scale: patch.scale ?? this.draftValue.scale,
       visualOffset: patch.visualOffset
         ? { ...this.draftValue.visualOffset, ...patch.visualOffset }
         : { ...this.draftValue.visualOffset },
@@ -341,6 +348,7 @@ export class ObjectTemplateEditorState {
           objectId: selected.objectId,
           visualId: selected.visualId,
           displayName: draft.displayName,
+          scale: draft.scale,
           visualOffset: draft.visualOffset,
           collider: draft.collider,
           occlusionBounds: draft.occlusionBounds,
@@ -390,6 +398,7 @@ export class ObjectTemplateEditorState {
           sourceVisualId: selected.visualId,
           visualId,
           displayName,
+          scale: draft.scale,
           visualOffset: draft.visualOffset,
           collider: draft.collider,
           occlusionBounds: draft.occlusionBounds,

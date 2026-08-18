@@ -1,0 +1,60 @@
+{
+  "$schema": "../effect.schema.json",
+  "version": 1,
+  "effectId": "wooden-axe-impact",
+  "displayName": "Wooden Axe resource impact",
+  "default": {
+    "version": 2,
+    "durationSeconds": 0.3333333333333333,
+    "framesPerSecond": 12,
+    "loop": false,
+    "loopMode": "wrap",
+    "layers": [
+      {
+        "layerId": "impact",
+        "displayName": "Wood impact",
+        "assetId": "effect.resource.impact-tiles",
+        "depthOffset": 0,
+        "transform": {
+          "offset": [
+            0,
+            0
+          ],
+          "scale": [
+            0.65,
+            0.65
+          ],
+          "rotationDeg": 0,
+          "flipX": false,
+          "flipY": false,
+          "origin": [
+            0.5,
+            0.5
+          ]
+        },
+        "blocks": [
+          {
+            "from": 0,
+            "through": 0,
+            "sourceFrame": 0
+          },
+          {
+            "from": 1,
+            "through": 1,
+            "sourceFrame": 1
+          },
+          {
+            "from": 2,
+            "through": 2,
+            "sourceFrame": 2
+          },
+          {
+            "from": 3,
+            "through": 3,
+            "sourceFrame": 3
+          }
+        ]
+      }
+    ]
+  }
+}

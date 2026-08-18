@@ -63,6 +63,10 @@ interface ObjectVisualOffsetPayload {
   readonly y: number;
 }
 
+interface ObjectVisualScalePayload {
+  readonly value: number;
+}
+
 interface ObjectColliderPayload {
   readonly width: number;
   readonly height: number;
@@ -98,6 +102,13 @@ function requireInteger(value: unknown, minimum: number, label: string): number 
 function requireWholePixel(value: unknown): number {
   if (typeof value !== 'number' || !Number.isInteger(value)) {
     throw new Error('Visual offset values must be whole pixels');
+  }
+  return value;
+}
+
+function requireVisualScale(value: unknown): number {
+  if (typeof value !== 'number' || !Number.isFinite(value) || value < 0.05 || value > 8) {
+    throw new Error('Visual scale must be a finite number between 0.05 and 8');
   }
   return value;
 }
@@ -145,12 +156,13 @@ function validateObjectVisualUpdate(
 ): {
   readonly frame: MutableObjectFrame;
   readonly displayName: string;
+  readonly scale: ObjectVisualScalePayload['value'];
   readonly visualOffset: ObjectVisualOffsetPayload;
   readonly collider?: ObjectColliderPayload;
   readonly occlusionBounds?: ObjectOcclusionPayload;
   readonly depthBounds?: ObjectDepthPayload;
 } {
-  validateRecordKeys(payload, ['objectId', 'visualId', 'displayName', 'visualOffset', 'collider', 'depthBounds', 'occlusionBounds'], 'payload');
+  validateRecordKeys(payload, ['objectId', 'visualId', 'displayName', 'scale', 'visualOffset', 'collider', 'depthBounds', 'occlusionBounds'], 'payload');
   const objectId = payload.objectId;
   const visualId = payload.visualId;
   if (typeof objectId !== 'string' || !OBJECT_ID_PATTERN.test(objectId) || !isObjectArchetypeId(objectId)) {
@@ -168,6 +180,7 @@ function validateObjectVisualUpdate(
   if (typeof displayName !== 'string' || displayName.trim().length === 0 || displayName.length > 80) {
     throw new Error('Display name must contain 1 to 80 characters');
   }
+  const scale = payload.scale === undefined ? 1 : requireVisualScale(payload.scale);
   const visualOffsetValue = payload.visualOffset;
   if (!isRecord(visualOffsetValue)) throw new Error('Visual offset is required');
   validateRecordKeys(visualOffsetValue, ['x', 'y'], 'visualOffset');
@@ -221,7 +234,7 @@ function validateObjectVisualUpdate(
   }
   if (definition.physics === null) {
     if (colliderValue !== undefined) throw new Error('Decorative objects cannot have colliders');
-    return { frame, displayName, visualOffset, depthBounds, occlusionBounds };
+    return { frame, displayName, scale, visualOffset, depthBounds, occlusionBounds };
   }
   if (!isRecord(colliderValue)) throw new Error('Solid objects require a collider');
   validateRecordKeys(colliderValue, ['width', 'height', 'offsetX', 'offsetY'], 'collider');
@@ -238,7 +251,7 @@ function validateObjectVisualUpdate(
   if (dimensions && collider.offsetY + collider.height > dimensions.height) {
     throw new Error(`Collider exceeds frame height ${dimensions.height}`);
   }
-  return { frame, displayName, visualOffset, collider, depthBounds, occlusionBounds };
+  return { frame, displayName, scale, visualOffset, collider, depthBounds, occlusionBounds };
 }
 
 async function validateMapReferences(map: MapFile): Promise<string[]> {
@@ -301,9 +314,18 @@ async function readRequestBody(request: NodeJS.ReadableStream): Promise<string> 
 }
 
 function mapEditorSavePlugin(): Plugin {
+  const suppressMapHotUpdates = new Set<string>();
   return {
     name: 'slime-map-editor-save',
     apply: 'serve',
+    handleHotUpdate(context) {
+      const file = path.resolve(context.file);
+      // The editor already owns the current map state. Suppress only the
+      // watcher event caused by its atomic save; unrelated manual map edits
+      // continue through Vite's normal HMR path.
+      if (suppressMapHotUpdates.delete(file)) return [];
+      return undefined;
+    },
     configureServer(server) {
       server.middlewares.use('/__map-editor/create', async (request, response) => {
         response.setHeader('Content-Type', 'application/json; charset=utf-8');
@@ -394,6 +416,7 @@ function mapEditorSavePlugin(): Plugin {
           const update = validateObjectVisualUpdate(payload, definition);
 
           update.frame.displayName = update.displayName;
+          update.frame.scale = update.scale;
           update.frame.visualOffset = update.visualOffset;
           if (definition.physics === null) delete update.frame.collider;
           else update.frame.collider = update.collider;
@@ -412,6 +435,7 @@ function mapEditorSavePlugin(): Plugin {
             objectId,
             visualId: payload.visualId,
             displayName: update.displayName,
+            scale: update.scale,
             visualOffset: update.visualOffset,
             collider: update.collider,
             depthBounds: update.depthBounds,
@@ -437,7 +461,7 @@ function mapEditorSavePlugin(): Plugin {
           const payload = JSON.parse(await readRequestBody(request)) as Record<string, unknown>;
           validateRecordKeys(
             payload,
-            ['objectId', 'sourceVisualId', 'visualId', 'displayName', 'visualOffset', 'collider', 'depthBounds', 'occlusionBounds'],
+            ['objectId', 'sourceVisualId', 'visualId', 'displayName', 'scale', 'visualOffset', 'collider', 'depthBounds', 'occlusionBounds'],
             'payload',
           );
           const objectId = payload.objectId;
@@ -467,6 +491,7 @@ function mapEditorSavePlugin(): Plugin {
             objectId,
             visualId: sourceVisualId,
             displayName: payload.displayName,
+            scale: payload.scale,
             visualOffset: payload.visualOffset,
             collider: payload.collider,
             depthBounds: payload.depthBounds,
@@ -477,6 +502,7 @@ function mapEditorSavePlugin(): Plugin {
             ...update.frame,
             visualId,
             displayName: update.displayName,
+            scale: update.scale,
             visualOffset: update.visualOffset,
           };
           if (definition.physics === null) delete duplicatedFrame.collider;
@@ -589,6 +615,7 @@ function mapEditorSavePlugin(): Plugin {
             await fs.writeFile(temporary, `${JSON.stringify(file.value, null, 2)}\n`, 'utf8');
           }
           for (let index = 0; index < filesToWrite.length; index += 1) {
+            suppressMapHotUpdates.add(path.resolve(filesToWrite[index].target));
             await fs.rename(temporaryPaths[index], filesToWrite[index].target);
           }
           temporaryPaths.length = 0;

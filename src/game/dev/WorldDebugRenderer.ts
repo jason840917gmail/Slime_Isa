@@ -128,8 +128,8 @@ export class WorldDebugRenderer {
       if (!sourceFrame || !bounds) return;
       const visualOffset = object.getData('visualOffset') as { x: number; y: number } | undefined;
       const rectangle = resolveWorldOcclusionRectangle({
-        x: object.x - (visualOffset?.x ?? 0),
-        y: object.y - (visualOffset?.y ?? 0),
+        x: object.x - (visualOffset?.x ?? 0) * Math.abs(object.scaleX),
+        y: object.y - (visualOffset?.y ?? 0) * Math.abs(object.scaleY),
         originX: object.originX,
         originY: object.originY,
         scaleX: object.scaleX,

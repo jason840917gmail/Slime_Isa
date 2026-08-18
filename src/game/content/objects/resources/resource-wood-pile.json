@@ -1,0 +1,33 @@
+{
+  "$schema": "../objects.schema.json",
+  "objectId": "resource.wood-pile",
+  "selection": "authored",
+  "variants": [
+    {
+      "assetId": "sheet.resources.4x2",
+      "frames": [
+        {
+          "visualId": "wood-pile",
+          "frame": 0,
+          "displayName": "Wood pile",
+          "scale": 0.6,
+          "visualOffset": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      ]
+    }
+  ],
+  "physics": null,
+  "resourcePile": {
+    "itemId": "wood",
+    "amount": 10
+  },
+  "tags": [
+    "resource",
+    "wood",
+    "pile",
+    "collectible"
+  ]
+}

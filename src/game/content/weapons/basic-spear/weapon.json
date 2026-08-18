@@ -525,6 +525,9 @@
   "hitboxOffset": 24,
   "hitboxDurationMs": 100,
   "knockStrength": 200,
+  "damageModifiers": [
+    { "targetTag": "resource", "modifier": 0.1 }
+  ],
   "vfxColor": 7989473,
   "unlockLevel": 1,
   "iconKey": "weapon-generic",
