@@ -56,7 +56,6 @@ function normalizeLayeredWeaponDefinition(
     directionalAttacks,
     presentation: { facingMode: definition.presentation?.facingMode ?? 'vector' },
     ...(definition.onHitEffectId ? { onHitEffectId: definition.onHitEffectId } : {}),
-    ...(definition.onResourceHitEffectId ? { onResourceHitEffectId: definition.onResourceHitEffectId } : {}),
     baseDamage: definition.baseDamage,
     cooldownMs: definition.cooldownMs,
     hitboxWidth: definition.hitboxWidth,

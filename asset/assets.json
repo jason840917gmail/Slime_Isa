@@ -46,7 +46,9 @@
       "effect.weapon.hit-tiles",
       "weapon.player.wooden-axe-tiles",
       "effect.resource.impact-tiles",
-      "weapon.player.hammer-spear-tiles"
+      "weapon.player.hammer-spear-tiles",
+      "weapon.player.pickaxe-tiles",
+      "effect.resource.stone-impact-tiles"
     ]
   },
   "assets": {
@@ -1108,6 +1110,44 @@
       ],
       "status": "ready"
     },
+    "weapon.player.pickaxe-tiles": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/weapons/128x128-tile_3x1-pickaxe.png",
+        "frame": {
+          "w": 128,
+          "h": 128,
+          "cols": 3,
+          "rows": 1,
+          "count": 3
+        },
+        "expect": {
+          "w": 384,
+          "h": 128
+        }
+      },
+      "runtime": {
+        "textureKey": "weapon-player-pickaxe-tiles"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "pixelArt": false
+      },
+      "frames": {
+        "0": { "name": "down" },
+        "1": { "name": "side-right" },
+        "2": { "name": "up" }
+      },
+      "tags": [
+        "weapon",
+        "tool",
+        "animated"
+      ],
+      "status": "ready"
+    },
     "effect.resource.impact-tiles": {
       "source": {
         "kind": "spritesheet",
@@ -1151,6 +1191,46 @@
       "tags": [
         "effect",
         "resource",
+        "animated"
+      ],
+      "status": "ready"
+    },
+    "effect.resource.stone-impact-tiles": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/weapons/128x128-tile_4x1-stone-impact.png",
+        "frame": {
+          "w": 128,
+          "h": 128,
+          "cols": 4,
+          "rows": 1,
+          "count": 4
+        },
+        "expect": {
+          "w": 512,
+          "h": 128
+        }
+      },
+      "runtime": {
+        "textureKey": "effect-resource-stone-impact-tiles"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "pixelArt": false
+      },
+      "frames": {
+        "0": { "name": "contact" },
+        "1": { "name": "burst" },
+        "2": { "name": "peak" },
+        "3": { "name": "dissipate" }
+      },
+      "tags": [
+        "effect",
+        "resource",
+        "stone",
         "animated"
       ],
       "status": "ready"

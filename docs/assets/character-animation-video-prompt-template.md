@@ -27,7 +27,7 @@ uses that convention, then map it to the runtime name during import.
 
 ```text
 Create a clean character-animation video for frame extraction and sprite-sheet
-creation in Slime Isa's modernized pixel-stylized top-down 2D game style.
+creation in Slime Isa's polished stylized top-down 2D game style.
 
 The character is [CHARACTER_DESCRIPTION]. Preserve the exact character design,
 silhouette, proportions, colors, palette, facial features, clothing, weapons,
@@ -54,9 +54,9 @@ screen position in every frame. Do not zoom, pan, tilt, rotate, shake, cut, or
 change perspective. Keep the entire character visible with generous empty
 space around the head, feet, equipment, weapons, and effects.
 
-Use modernized pixel-stylized 2D game art: chunky readable silhouettes,
-deliberate pixel clusters, saturated colors, selective highlights, and cool
-shadows. Keep edges crisp and preserve the same visual language in every frame.
+Use polished stylized 2D game art: chunky readable silhouettes, deliberate
+shape clusters, saturated colors, selective highlights, and cool shadows. Keep
+edges crisp and preserve the same visual language in every frame.
 Do not switch to photorealism, glossy 3D, painterly illustration, low-poly
 rendering, or a different art style.
 

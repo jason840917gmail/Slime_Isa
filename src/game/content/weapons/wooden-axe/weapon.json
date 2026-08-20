@@ -59,7 +59,7 @@
     "right": {
       "animation": {
         "version": 2,
-        "durationSeconds": 0.5,
+        "durationSeconds": 0.6666666666666666,
         "framesPerSecond": 12,
         "loop": false,
         "loopMode": "wrap",
@@ -125,8 +125,8 @@
                 "sourceFrame": 1,
                 "transform": {
                   "offset": [
-                    24,
-                    -4
+                    20,
+                    -10
                   ],
                   "scale": [
                     1,
@@ -144,7 +144,7 @@
                 "transform": {
                   "offset": [
                     28,
-                    8
+                    -10
                   ],
                   "scale": [
                     1,
@@ -161,32 +161,32 @@
                 "sourceFrame": 1,
                 "transform": {
                   "offset": [
-                    20,
-                    16
+                    35,
+                    0
                   ],
                   "scale": [
                     1,
                     1
                   ],
-                  "rotationDeg": 35,
+                  "rotationDeg": 50,
                   "flipX": false,
                   "flipY": false
                 }
               },
               {
                 "from": 5,
-                "through": 5,
+                "through": 7,
                 "sourceFrame": 1,
                 "transform": {
                   "offset": [
-                    10,
-                    12
+                    35,
+                    20
                   ],
                   "scale": [
                     1,
                     1
                   ],
-                  "rotationDeg": 55,
+                  "rotationDeg": 80,
                   "flipX": false,
                   "flipY": false
                 }
@@ -198,11 +198,11 @@
       "characterActionId": "attack-1",
       "hitboxes": {
         "axe-head": {
-          "shape": "sector",
-          "width": 58,
-          "height": 46,
-          "offsetX": 42,
-          "offsetY": 0,
+          "shape": "rectangle",
+          "width": 30,
+          "height": 30,
+          "offsetX": 50,
+          "offsetY": 20,
           "outerRadius": 64,
           "arcWidthRad": 1.2,
           "damageMultiplier": 1,
@@ -213,8 +213,8 @@
         "hitboxSpans": [
           {
             "hitboxId": "axe-head",
-            "from": 2,
-            "through": 3
+            "from": 5,
+            "through": 6
           }
         ],
         "events": []
@@ -489,6 +489,10 @@
   "knockStrength": 70,
   "damageModifiers": [
     {
+      "targetTag": "stone",
+      "modifier": 0
+    },
+    {
       "targetTag": "wood",
       "modifier": 1
     },
@@ -515,6 +519,5 @@
   "vfxColor": 14311290,
   "unlockLevel": 1,
   "iconKey": "weapon-generic",
-  "description": "A practical starter hatchet. Good against wood, poor against enemies.",
-  "onResourceHitEffectId": "wooden-axe-impact"
+  "description": "A practical starter hatchet. Good against wood, poor against enemies."
 }

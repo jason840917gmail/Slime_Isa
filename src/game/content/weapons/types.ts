@@ -39,8 +39,6 @@ export interface WeaponCombatDefinition {
   readonly unlockLevel: number;
   readonly iconKey: string;
   readonly description: string;
-  /** Optional confirmed effect used only for accepted resource-node hits. */
-  readonly onResourceHitEffectId?: string;
 }
 
 /** Existing single-layer storage shape retained as migration input. */
@@ -192,6 +190,5 @@ export interface NormalizedWeaponDefinition extends WeaponCombatDefinition {
     readonly facingMode: 'vector' | 'horizontal-flip';
   };
   readonly onHitEffectId?: string;
-  readonly onResourceHitEffectId?: string;
   readonly legacyImmediateHit: boolean;
 }

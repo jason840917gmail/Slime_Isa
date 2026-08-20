@@ -7,7 +7,7 @@ Approved by the user on 2026-08-06.
 ## Goal
 
 Add a reusable prompt system for generating weapon animation spritesheets that
-fits Slime Isa's existing modernized pixel-stylized top-down art direction and
+fits Slime Isa's existing polished stylized top-down art direction and
 current 64×64 weapon-cell convention. Add a concrete prompt for a sword attack
 sheet with three directional rows and six frames per row.
 
@@ -64,8 +64,8 @@ art.
 
 ## Art direction
 
-The prompts must use the project's existing direction: modernized pixel-stylized
-top-down 2D game art, chunky readable silhouettes, deliberate pixel clusters,
+The prompts must use the project's existing direction: polished stylized
+top-down 2D game art, chunky readable silhouettes, deliberate shape clusters,
 deep cool outlines, cool shadows, selective highlights, and controlled material
 gradients only when useful. Use the existing palette language as a guide:
 deep-night outline/shadow, cyan or mint energy accents, and restrained warm

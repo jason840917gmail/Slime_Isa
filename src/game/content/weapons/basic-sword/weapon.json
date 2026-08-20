@@ -569,6 +569,7 @@
   "hitboxDurationMs": 120,
   "knockStrength": 140,
   "damageModifiers": [
+    { "targetTag": "stone", "modifier": 0 },
     { "targetTag": "resource", "modifier": 0.1 }
   ],
   "scaling": {

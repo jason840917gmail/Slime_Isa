@@ -6,7 +6,11 @@ const MODES: readonly { id: StudioMode; label: string }[] = [
   { id: 'weapons', label: 'WEAPONS' },
 ];
 
-export function ensureStudioModeTabs(container: HTMLDivElement, returnEditor: string, active: StudioMode): void {
+export function ensureStudioModeTabs(
+  container: HTMLDivElement,
+  returnEditor: string,
+  active: StudioMode,
+): void {
   const actions = container.querySelector<HTMLElement>('.studio-topbar-actions');
   if (!actions || actions.querySelector('[data-studio-mode-tabs]')) return;
   const tabs = document.createElement('nav');
@@ -16,7 +20,8 @@ export function ensureStudioModeTabs(container: HTMLDivElement, returnEditor: st
   for (const mode of MODES) {
     const link = document.createElement('a');
     link.className = `studio-mode-tab${mode.id === active ? ' is-active' : ''}`;
-    link.href = `?studio=${mode.id}&editor=${encodeURIComponent(returnEditor)}`;
+    const query = new URLSearchParams({ studio: mode.id, ...(returnEditor ? { editor: returnEditor } : {}) });
+    link.href = `?${query.toString()}`;
     link.textContent = mode.label;
     if (mode.id === active) link.setAttribute('aria-current', 'page');
     tabs.append(link);

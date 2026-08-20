@@ -24,17 +24,15 @@ combat weapon.
   - `{ "targetTag": "wood", "modifier": 1 }`
   - `{ "targetTag": "resource", "modifier": 0.1 }`
   - `{ "targetTag": "enemy", "modifier": 0.2 }`
-- Add `wooden-axe-impact` under `src/game/content/effects/` using the default
+- Add `wood-impact` under `src/game/content/effects/` using the default
   directional variant and asset `effect.resource.impact-tiles`. Store it on the
-  weapon as `onResourceHitEffectId`, not the generic `onHitEffectId`, so wood
-  chips never appear when the axe hits an enemy. The effect is independent of
-  the axe visual and resolves at the confirmed resource impact position through
-  the existing effect pool.
-- Extend the authored/normalized weapon contract and schema with optional
-  `onResourceHitEffectId`. Resource-hit effect spawning captures the resource
-  image’s x/y/depth before damage is applied, then spawns the effect as a static
-  world anchor after a positive resource hit; it must not follow the image when
-  a tree becomes a wood pile.
+  tree resource node as `hitEffectId`, not on the weapon or generic
+  `onHitEffectId`, so wood chips never appear when the axe hits an enemy. The
+  effect is independent of the axe visual and resolves at the confirmed
+  resource impact position through the existing effect pool.
+- Resource-hit effect spawning snapshots the resource's effect ID and image
+  x/y/depth before damage is applied, then spawns the effect after positive
+  damage; a final hit may remove the source node without losing its feedback.
 - Import the new weapon/effect definitions into the virtual content catalogs.
 - Add `wooden-axe` to the starter weapon IDs so a fresh game grants it and the
   existing five-slot hotbar can assign it automatically.
@@ -54,7 +52,7 @@ damage.
    starter weapons.
 3. The axe uses the generated directional art and mirrors the side pose left.
 4. Chopping a tree applies normal damage (`wood: 1`) and confirmed contact
-   spawns `wooden-axe-impact` independently at the target.
+   spawns the resource node's `wood-impact` independently at the target.
 5. Hitting an enemy applies 20% of the axe’s calculated damage and does not
    spawn the resource impact effect; resource and enemy modifier resolution does
    not change existing weapons’ behavior.

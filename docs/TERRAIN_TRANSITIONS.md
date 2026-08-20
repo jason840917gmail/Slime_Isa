@@ -55,7 +55,8 @@ Scatter small sprites (snow dust, leaves, pebbles, crystal shards, foam) along d
 
 Artists create edge, corner, inner-corner, and junction frames. An 8-neighbor bitmask selects the correct frame (typically a 16-, 47-, or Wang-tile set).
 
-- **Advantages:** highest intentional pixel-art quality; precise shorelines, paths, cliffs, and biome borders.
+- **Advantages:** highest intentional art-directed quality; precise shorelines,
+  paths, cliffs, and biome borders.
 - **Disadvantages:** significant art workload; transition pairs can grow combinatorially; requires strict atlas conventions.
 - **Best use:** important recurring pairs such as grass/water or snow/stone where generic blending is insufficient.
 

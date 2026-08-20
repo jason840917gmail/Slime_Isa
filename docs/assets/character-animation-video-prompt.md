@@ -1,12 +1,12 @@
 ## Character Animation Video Prompt
 
 Create a clean character-animation video intended for frame extraction and
-sprite-sheet creation in Slime Isa's modernized pixel-stylized top-down style.
+sprite-sheet creation in Slime Isa's polished stylized top-down style.
 
 ### Visual Style Contract
 
-* Use modernized pixel-stylized 2D game art: chunky readable silhouettes, deliberate pixel clusters, saturated slime-family colors, selective highlights, and cool shadows.
-* Do not require strict native low-resolution pixel art. Preserve the polished shape language of the reference while keeping edges and details crisp enough for gameplay.
+* Use polished stylized 2D game art: chunky readable silhouettes, deliberate shape clusters, saturated slime-family colors, selective highlights, and cool shadows.
+* Preserve the polished shape language of the reference while keeping edges and details crisp enough for gameplay.
 * Use a fixed top-down game camera and stable character scale. Preserve the same visual language for every frame in the animation.
 * Avoid photorealism, glossy 3D rendering, soft painterly illustration, low-poly geometry, or style drift.
 
@@ -16,7 +16,7 @@ sprite-sheet creation in Slime Isa's modernized pixel-stylized top-down style.
 * The character must never rotate, turn around, change direction, or look toward another direction unless explicitly requested.
 * The character must perform only this action: **[ACTION]**.
 * Do not add secondary actions, gestures, facial reactions, attacks, objects, particles, or environmental interactions.
-* Preserve the character's exact design, clothing, proportions, colors, equipment, palette, and modernized pixel-stylized visual style throughout every frame.
+* Preserve the character's exact design, clothing, proportions, colors, equipment, palette, and polished stylized visual language throughout every frame.
 
 ### Positioning Rules
 
@@ -47,7 +47,7 @@ sprite-sheet creation in Slime Isa's modernized pixel-stylized top-down style.
 * Frame rate: **12 frames per second**
 * Animation speed: **[SLOW / NORMAL / FAST]**
 * Camera view: **TOP-DOWN**
-* Visual style: **modernized pixel-stylized top-down 2D game art**
+* Visual style: **polished stylized top-down 2D game art**
 * Character scale: **FULL BODY**
 * Audio: **none; no voice, music, or sound effects**
 
@@ -58,7 +58,7 @@ The motion must form a smooth, seamless animation cycle. The final pose should
 connect naturally to the first pose without a visible jump.
 
 Maintain consistent anatomy, proportions, clothing, equipment, colors,
-perspective, camera distance, character placement, and pixel-stylized shading
+perspective, camera distance, character placement, and stylized shading
 in every frame.
 
 ### Strict Negative Instructions
@@ -85,7 +85,7 @@ Do not switch to photorealistic, glossy 3D, painterly, or low-poly rendering.
 ### Final Prompt Example
 
 Create a seamless 5-second animation of the provided character running in
-place in modernized pixel-stylized top-down 2D game art. The character must
+place in polished stylized top-down 2D game art. The character must
 face right for the entire video and must never turn, rotate, or look in another
 direction. Animate only a normal running cycle. Keep the character perfectly
 centered and fixed in the same screen position while the arms, legs, hair,
@@ -97,7 +97,7 @@ color is only a removable background and is not part of the game's visual
 palette. Use a fixed top-down game camera with no zooming, panning, rotation,
 shaking, or perspective changes. Keep the entire character visible and
 maintain identical size, proportions, clothing, colors, equipment, and
-modernized pixel-stylized visual style in every frame.
+polished stylized visual language in every frame.
 
 The animation should last 5 seconds at 12 frames per second, contain no audio
 or sound effects, and form a seamless loop. Begin and end at matching points in

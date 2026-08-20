@@ -1,0 +1,153 @@
+{
+  "$schema": "../weapon.schema.json",
+  "version": 2,
+  "weaponId": "pickaxe",
+  "displayName": "Pickaxe",
+  "category": "melee",
+  "characterActionId": "attack-1",
+  "animations": {
+    "idle": {
+      "version": 2,
+      "durationSeconds": 0.1666666667,
+      "framesPerSecond": 6,
+      "loop": true,
+      "loopMode": "wrap",
+      "layers": [
+        {
+          "layerId": "pickaxe",
+          "displayName": "Pickaxe",
+          "assetId": "weapon.player.pickaxe-tiles",
+          "depthOffset": 0,
+          "transform": { "offset": [0, 0], "scale": [0.58, 0.58] },
+          "blocks": [{ "from": 0, "through": 0, "sourceFrame": 0 }]
+        }
+      ]
+    }
+  },
+  "directionalAttacks": {
+    "right": {
+      "animation": {
+        "version": 2,
+        "durationSeconds": 0.5,
+        "framesPerSecond": 12,
+        "loop": false,
+        "loopMode": "wrap",
+        "layers": [
+          {
+            "layerId": "pickaxe",
+            "displayName": "Pickaxe",
+            "assetId": "weapon.player.pickaxe-tiles",
+            "depthOffset": 0,
+            "transform": { "offset": [0, 0], "scale": [0.62, 0.62] },
+            "blocks": [{ "from": 0, "through": 5, "sourceFrame": 1 }]
+          }
+        ]
+      },
+      "characterActionId": "attack-1",
+      "hitboxes": {
+        "pickaxe-head": {
+          "shape": "sector",
+          "width": 58,
+          "height": 46,
+          "offsetX": 42,
+          "offsetY": 0,
+          "outerRadius": 64,
+          "arcWidthRad": 1.2,
+          "damageMultiplier": 1,
+          "knockbackMultiplier": 0.2
+        }
+      },
+      "attackTrack": { "hitboxSpans": [{ "hitboxId": "pickaxe-head", "from": 2, "through": 3 }], "events": [] }
+    },
+    "down": {
+      "animation": {
+        "version": 2,
+        "durationSeconds": 0.5,
+        "framesPerSecond": 12,
+        "loop": false,
+        "loopMode": "wrap",
+        "layers": [
+          {
+            "layerId": "pickaxe",
+            "displayName": "Pickaxe",
+            "assetId": "weapon.player.pickaxe-tiles",
+            "depthOffset": 0,
+            "transform": { "offset": [0, 0], "scale": [0.62, 0.62] },
+            "blocks": [{ "from": 0, "through": 5, "sourceFrame": 0 }]
+          }
+        ]
+      },
+      "characterActionId": "attack-1",
+      "hitboxes": {
+        "pickaxe-head": {
+          "shape": "sector",
+          "width": 58,
+          "height": 46,
+          "offsetX": 42,
+          "offsetY": 0,
+          "outerRadius": 64,
+          "arcWidthRad": 1.2,
+          "damageMultiplier": 1,
+          "knockbackMultiplier": 0.2
+        }
+      },
+      "attackTrack": { "hitboxSpans": [{ "hitboxId": "pickaxe-head", "from": 2, "through": 3 }], "events": [] }
+    },
+    "up": {
+      "animation": {
+        "version": 2,
+        "durationSeconds": 0.5,
+        "framesPerSecond": 12,
+        "loop": false,
+        "loopMode": "wrap",
+        "layers": [
+          {
+            "layerId": "pickaxe",
+            "displayName": "Pickaxe",
+            "assetId": "weapon.player.pickaxe-tiles",
+            "depthOffset": 0,
+            "transform": { "offset": [0, 0], "scale": [0.62, 0.62] },
+            "blocks": [{ "from": 0, "through": 5, "sourceFrame": 2 }]
+          }
+        ]
+      },
+      "characterActionId": "attack-1",
+      "hitboxes": {
+        "pickaxe-head": {
+          "shape": "sector",
+          "width": 58,
+          "height": 46,
+          "offsetX": 42,
+          "offsetY": 0,
+          "outerRadius": 64,
+          "arcWidthRad": 1.2,
+          "damageMultiplier": 1,
+          "knockbackMultiplier": 0.2
+        }
+      },
+      "attackTrack": { "hitboxSpans": [{ "hitboxId": "pickaxe-head", "from": 2, "through": 3 }], "events": [] }
+    }
+  },
+  "presentation": { "facingMode": "vector" },
+  "baseDamage": 12,
+  "cooldownMs": 900,
+  "hitboxWidth": 58,
+  "hitboxHeight": 46,
+  "hitboxOffset": 42,
+  "hitboxDurationMs": 160,
+  "knockStrength": 70,
+  "damageModifiers": [
+    { "targetTag": "stone", "modifier": 1 },
+    { "targetTag": "resource", "modifier": 0 },
+    { "targetTag": "enemy", "modifier": 0.2 }
+  ],
+  "scaling": {
+    "damage": { "strength": 0.8 },
+    "cooldown": { "agility": 0.15 },
+    "knockback": { "strength": 0.2 }
+  },
+  "vfxColor": 11259375,
+  "unlockLevel": 1,
+  "iconKey": "weapon-player-pickaxe-tiles",
+  "description": "A sturdy mining tool. Excellent against stone, poor against enemies."
+}

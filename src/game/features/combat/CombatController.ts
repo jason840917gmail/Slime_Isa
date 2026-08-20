@@ -25,6 +25,7 @@ import { WorldEffectPool } from '../effects/WorldEffectPool';
 import { resolveDamageModifier } from '../../combat/DamageModifiers';
 import type { ResourceNodeController } from '../resources/ResourceNodeController';
 import type { HitboxTargets } from '../../combat/Hitbox';
+import { rejectedDamage } from '../../combat/DamageableTarget';
 
 export interface CombatControllerContext {
   scene: Phaser.Scene;
@@ -218,7 +219,6 @@ export class CombatController {
         return resourceTargets ? [this.targets, resourceTargets] : this.targets;
       },
       applyHit: ({ target, damage, knockX, knockY, knockStrength, attackDirection }) => {
-        const comboDamage = damage * this.combo.registerHit();
         const isResourceTarget = this.ctx.resourceNodes?.isResourceTarget(target) === true;
         const targetTags = target instanceof Enemy
           ? ['enemy']
@@ -226,7 +226,10 @@ export class CombatController {
             ? this.ctx.resourceNodes!.tagsFor(target)
             : [];
         const damageModifier = resolveDamageModifier(weapon.def.damageModifiers, targetTags);
-        const finalDamage = Math.max(1, Math.round(comboDamage * damageModifier));
+        if (damageModifier <= 0) return rejectedDamage('invalid');
+        const comboDamage = damage * this.combo.registerHit();
+        const finalDamage = Math.max(0, Math.round(comboDamage * damageModifier));
+        if (finalDamage <= 0) return rejectedDamage('invalid');
         const resourceHitAnchor = isResourceTarget
           ? (() => {
               const image = target as Phaser.GameObjects.GameObject & { readonly x: number; readonly y: number; readonly depth: number };
@@ -243,10 +246,14 @@ export class CombatController {
           hitTarget = target;
           result = target.applyDamage({ amount: finalDamage, knockX, knockY, knockStrength });
         } else if (isResourceTarget) {
-          result = this.ctx.resourceNodes.applyDamage(target, finalDamage);
+          result = this.ctx.resourceNodes!.applyDamage(target, finalDamage);
         } else {
           result = { status: 'rejected' as const, actualDamage: 0, defeated: false, reason: 'invalid' as const };
         }
+        const resourceHitEffectId = 'resourceHitEffectId' in result
+          && typeof result.resourceHitEffectId === 'string'
+          ? result.resourceHitEffectId
+          : undefined;
         if (hitTarget && shouldSpawnConfirmedHitEffect(weapon.def.onHitEffectId, result)) {
           this.effects.spawn({
             effectId: weapon.def.onHitEffectId!,
@@ -257,13 +264,20 @@ export class CombatController {
             followPositionOf: hitTarget,
             followDepthOffset: 0.2,
           });
-        } else if (resourceHitAnchor && shouldSpawnConfirmedHitEffect(weapon.def.onResourceHitEffectId, result)) {
+        } else if (
+          resourceHitAnchor
+          && shouldSpawnConfirmedHitEffect(resourceHitEffectId, result)
+        ) {
           this.effects.spawn({
-            effectId: weapon.def.onResourceHitEffectId!,
+            effectId: resourceHitEffectId!,
             direction: attackDirection,
             x: resourceHitAnchor.x,
             y: resourceHitAnchor.y,
             depth: resourceHitAnchor.depth + 0.2,
+            ...(target.active ? {
+              followPositionOf: target as Phaser.GameObjects.GameObject & { readonly x: number; readonly y: number; readonly depth: number },
+              followDepthOffset: 0.2,
+            } : {}),
           });
         }
         return result;

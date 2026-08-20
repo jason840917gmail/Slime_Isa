@@ -20,7 +20,7 @@
         "scaling": { "type": "object" },
         "damageModifiers": { "type": "array", "items": { "$ref": "#/\u0024defs/damageModifier" } },
         "vfxColor": { "type": "integer", "minimum": 0 },
-        "unlockLevel": { "type": "integer", "minimum": 1 }, "iconKey": { "type": "string" }, "description": { "type": "string" }, "onResourceHitEffectId": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" }
+        "unlockLevel": { "type": "integer", "minimum": 1 }, "iconKey": { "type": "string" }, "description": { "type": "string" }
       }
     },
     "legacyWeapon": {
@@ -44,7 +44,7 @@
             "animations": { "type": "object", "additionalProperties": false, "required": ["idle"], "properties": { "idle": { "$ref": "#/$defs/layeredAnimation" } } },
             "directionalAttacks": { "type": "object", "additionalProperties": false, "required": ["right", "down"], "properties": { "right": { "$ref": "#/$defs/layeredAttack" }, "left": { "$ref": "#/$defs/layeredAttack" }, "up": { "$ref": "#/$defs/layeredAttack" }, "down": { "$ref": "#/$defs/layeredAttack" } } },
             "presentation": { "type": "object", "additionalProperties": false, "properties": { "facingMode": { "enum": ["vector", "horizontal-flip"] } } },
-            "onHitEffectId": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" }, "onResourceHitEffectId": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+            "onHitEffectId": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
             "baseDamage": { "type": "number" }, "cooldownMs": { "type": "number" }, "hitboxWidth": { "type": "number" }, "hitboxHeight": { "type": "number" }, "hitboxOffset": { "type": "number" }, "hitboxDurationMs": { "type": "number" }, "knockStrength": { "type": "number" }, "scaling": { "type": "object" }, "damageModifiers": { "type": "array", "items": { "$ref": "#/\u0024defs/damageModifier" } }, "vfxColor": { "type": "integer" }, "unlockLevel": { "type": "integer" }, "iconKey": { "type": "string" }, "description": { "type": "string" }
           }
         }

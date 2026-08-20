@@ -2929,6 +2929,27 @@
       "visualId": "golden-tree-01",
       "x": 1760,
       "y": 2304
+    },
+    {
+      "instanceId": "resource-stone-node-meadow-01",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 1472,
+      "y": 2304
+    },
+    {
+      "instanceId": "resource-stone-node-meadow-02",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 1536,
+      "y": 2432
+    },
+    {
+      "instanceId": "resource-stone-node-meadow-03",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 2240,
+      "y": 2304
     }
   ],
   "player": {

@@ -10,6 +10,8 @@ import decorationWorldSolidJson from './decorations/decoration-world-solid.json'
 import houseWorldSolidJson from './houses/house-world-solid.json';
 import treeWorldSolidJson from './trees/tree-world-solid.json';
 import woodPileJson from './resources/resource-wood-pile.json';
+import stoneNodeJson from './resources/resource-stone-node.json';
+import stonePileJson from './resources/resource-stone-pile.json';
 import wallStoneSolidJson from './walls/wall-stone-solid.json';
 
 export interface ColliderBounds {
@@ -76,6 +78,10 @@ export interface ObjectArchetypeDefinition {
     readonly health: number;
     readonly dropItem: string;
     readonly dropCount: number;
+    /** Optional material-oriented feedback package played after positive damage. */
+    readonly hitEffectId?: string;
+    readonly persistHealth?: boolean;
+    readonly depletionMessage?: string;
     readonly replacement?: {
       readonly objectId: string;
       readonly visualId: string;
@@ -98,6 +104,8 @@ const OBJECT_FILES = {
   'rock.world-wall.solid': worldWallSolidJson,
   'tree.world.solid': treeWorldSolidJson,
   'resource.wood-pile': woodPileJson,
+  'resource.stone-node': stoneNodeJson,
+  'resource.stone-pile': stonePileJson,
   'wall.stone.solid': wallStoneSolidJson,
 } as const;
 

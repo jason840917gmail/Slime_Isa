@@ -768,6 +768,9 @@
     "health": 40,
     "dropItem": "wood",
     "dropCount": 10,
+    "hitEffectId": "wood-impact",
+    "persistHealth": true,
+    "depletionMessage": "Tree felled",
     "replacement": {
       "objectId": "resource.wood-pile",
       "visualId": "wood-pile"

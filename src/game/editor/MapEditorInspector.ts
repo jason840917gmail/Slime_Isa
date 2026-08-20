@@ -60,7 +60,7 @@ function renderShapeField(shape: CollisionShape | undefined): string {
   return `<label class="editor-inspector-field"><span>Shape<small>collision primitive</small></span><select data-template-field="shape"><option value="rectangle" ${selected === 'rectangle' ? 'selected' : ''}>Rectangle</option><option value="circle" ${selected === 'circle' ? 'selected' : ''}>Circle</option><option value="ellipse" ${selected === 'ellipse' ? 'selected' : ''}>Ellipse</option></select></label>`;
 }
 
-function renderIds(state: ObjectTemplateViewState, previewUrl: string): string {
+function renderIds(state: ObjectTemplateViewState, previewUrl: string, objectStudioUrl: string): string {
   const selected = state.selected;
   if (!selected) return '';
   const dimensions = state.frameDimensions;
@@ -85,10 +85,12 @@ function renderIds(state: ObjectTemplateViewState, previewUrl: string): string {
       <div><dt>Physics</dt><dd>${selected.physics ? 'Static' : 'None'}</dd></div>
     </dl>
     <div class="editor-inspector-tags">${selected.tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join('')}</div>
+    <a class="editor-inspector-secondary" href="${escapeHtml(objectStudioUrl)}">Edit animation in Object Studio ↗</a>
   </div>`;
 }
 
 interface InspectorUiState {
+  readonly mapId: string;
   readonly mapDirty: boolean;
   readonly saveAsOpen: boolean;
   readonly saveAsVisualId: string;
@@ -128,7 +130,7 @@ function renderInspector(
       <button type="button" class="editor-inspector-toggle" data-inspector-toggle aria-label="Close inspector">×</button>
     </header>
     <div class="editor-inspector-scroll">
-      ${renderIds(state, imagePreview)}
+      ${renderIds(state, imagePreview, `?studio=objects&editor=${encodeURIComponent(ui.mapId)}&object=${encodeURIComponent(selected.objectId)}&visual=${encodeURIComponent(selected.visualId)}`)}
       <div class="editor-inspector-warning">
         <span>Shared template</span>
         <p>Saved changes affect every existing and future map object using this visual.</p>
@@ -334,6 +336,7 @@ export function mountMapEditorInspector(
       return;
     }
     renderInspector(host, templateEditor.value, previews, {
+      mapId: mapEditor.value.map.mapId,
       mapDirty: mapEditor.value.dirty,
       saveAsOpen,
       saveAsVisualId,

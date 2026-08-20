@@ -308,7 +308,6 @@ function validateLayeredWeaponDefinition(weapon: LayeredWeaponDefinition): strin
   validateCommonWeaponFields(weapon, issues);
   if (typeof weapon.characterActionId !== 'string' || !weapon.characterActionId.trim()) issues.push('weapon.characterActionId: must be non-empty');
   if (weapon.onHitEffectId !== undefined && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(weapon.onHitEffectId)) issues.push('weapon.onHitEffectId: must be a lowercase kebab-case ID');
-  if (weapon.onResourceHitEffectId !== undefined && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(weapon.onResourceHitEffectId)) issues.push('weapon.onResourceHitEffectId: must be a lowercase kebab-case ID');
   const rawWeapon = weapon as unknown as Record<string, unknown>;
   for (const forbidden of ['animKey', 'assetId', 'visual', 'attackTrack', 'hitboxes']) {
     if (forbidden in rawWeapon) issues.push(`weapon.${forbidden}: is forbidden in version 2`);

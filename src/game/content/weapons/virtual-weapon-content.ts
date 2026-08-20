@@ -3,5 +3,6 @@ import basicSword from './basic-sword/weapon.json';
 import basicSpear from './basic-spear/weapon.json';
 import slamHammer from './slam-hammer/weapon.json';
 import woodenAxe from './wooden-axe/weapon.json';
+import pickaxe from './pickaxe/weapon.json';
 
-export const weaponDefinitions = [gooGauntlet, basicSword, basicSpear, slamHammer, woodenAxe];
+export const weaponDefinitions = [gooGauntlet, basicSword, basicSpear, slamHammer, woodenAxe, pickaxe];

@@ -9,8 +9,8 @@ This roadmap is ordered for visible progress. A milestone is complete only when
 the player can perform the loop in the running game and the authored map/editor
 workflow supports the content it introduces.
 
-The first four Wood Gathering tiles are implemented in code and content but
-remain `[~]` until the fresh-game playtest in 1.5 verifies the complete loop.
+The Wood Gathering tiles are implemented in code and content. The complete
+loop has been verified in a fresh-game playtest.
 
 ## How To Use The Checklist
 
@@ -25,7 +25,7 @@ remain `[~]` until the fresh-game playtest in 1.5 verifies the complete loop.
 
 | Milestone | Player-visible result | Status |
 |---|---|---|
-| 1. Wood gathering | Chop a visible tree and collect wood | `[~]` |
+| 1. Wood gathering | Chop a visible tree and collect wood | `[x]` |
 | 2. Stone and starter tools | Gather stone and craft/use basic tools | `[ ]` |
 | 3. Home exterior | Find and use one authored player home | `[ ]` |
 | 4. Home interior | Enter a real interior, move inside, and return outside | `[ ]` |
@@ -62,7 +62,7 @@ Use this shape when adding a new task:
 - Done when: the weapon catalog and combat pipeline validate and apply numeric
   resource modifiers.
 
-### [~] 1.1 — Add wood as a persistent material
+### [x] 1.1 — Add wood as a persistent material
 
 - Build: define the stable wood item, stack rules, inventory display, and save data.
 - Current: `wood` is registered, stackable, shown in the inventory, and included
@@ -70,7 +70,7 @@ Use this shape when adding a new task:
 - Player proof: wood appears as a named resource instead of an anonymous pickup.
 - Done when: collect, reload, and still have the same wood count.
 
-### [~] 1.2 — Author harvestable tree objects
+### [x] 1.2 — Author harvestable tree objects
 
 - Build: create tree object definitions with a harvest state, drop payload, and
   collision layer; place several instances in an authored map.
@@ -79,7 +79,7 @@ Use this shape when adding a new task:
 - Player proof: trees are visible world objects that occupy space.
 - Done when: the runtime and map validator accept the same tree IDs.
 
-### [~] 1.3 — Add wood visuals and feedback
+### [x] 1.3 — Add wood visuals and feedback
 
 - Build: add the tree variants, hit/harvest feedback, wood pickup icon, and a
   small collection notification.
@@ -88,7 +88,7 @@ Use this shape when adding a new task:
 - Player proof: chopping feels like an action, not an invisible counter change.
 - Done when: the player can identify the tree, the hit, and the reward.
 
-### [~] 1.4 — Add the starter gathering tool
+### [x] 1.4 — Add the starter gathering tool
 
 - Build: add a starter axe or equivalent tool, equip/use flow, and the resource
   interaction that lets it harvest wood.
@@ -98,30 +98,48 @@ Use this shape when adding a new task:
 - Player proof: the tool visibly performs the action and produces wood.
 - Done when: the player can harvest several trees without a debug shortcut.
 
-### [ ] 1.5 — Verify the first playtest loop
+### [x] 1.5 — Verify the first playtest loop
 
 - Build: add any missing pickup, HUD, sound, or save feedback needed to make the
   loop readable.
 - Player proof: explore → find tree → harvest → collect → see inventory.
+- Current: user-verified in a fresh-game playtest; the complete loop works
+  reliably.
 - Done when: a five-minute fresh-game playtest completes the loop reliably.
 
-**Milestone 1 complete when:** the player can gather and keep wood through a
-normal play session.
+**Milestone 1 complete:** the player can gather and keep wood through a normal
+play session, verified in the running game.
 
 ## 2. Stone And Starter Tools
 
 ### [ ] 2.1 — Author stone resource nodes
 
-- Build: add stone material, visible rock nodes, collision, and map placement.
+- Build: add stone material, visible rock nodes, collision, map placement, deterministic three-pile drops, and reload-safe depletion state.
+- Current: stone nodes use the large stone frame, carry 40 health, break into up to three adjacent small stone piles, and three test nodes are authored in Meadow Crossing. Partial node health resets on reload while broken piles and their remaining amounts persist.
 - Player proof: wood and stone are distinct resources with distinct visuals.
 - Done when: both resources can be collected and saved.
 
 ### [ ] 2.2 — Add basic tool recipes
 
-- Build: make simple survival recipes for the starter axe, pick, or equivalent
-  harvesting tools; keep these recipes portable where appropriate.
+- Build: make simple survival recipes for the starter axe, pick, or equivalent harvesting tools; keep these recipes portable where appropriate.
+- Current: the Pickaxe is available in the sixth starter hotbar slot for testing, with directional art and an independent stone-chip impact effect. Crafting the Pickaxe remains a follow-up once the first recipe tier is authored.
 - Player proof: gathered materials turn into a usable tool.
 - Done when: a new save can craft and equip the basic tools without cheats.
+
+### [~] 2.4 — Add shared Object Studio animation authoring
+
+- Build: create a dedicated Object Studio using the shared Weapon/Character
+  animation component. Keep a static base image required, with optional idle
+  animation and resource-owned hit-effect packages. Add an Edit object link and
+  animated preview to Map Studio without introducing per-instance overrides.
+- Player proof: authored object motion and material-hit feedback are visible in
+  the editor and consistent across every placed instance.
+- Current: Object Studio route, shared object animation preview, static fallback,
+  resource-owned hit effects, Map Studio linking, and runtime cleanup are
+  implemented. A manual editor playtest remains before marking this task done.
+- Done when: an object with no idle clip falls back to its static image, an
+  authored idle clip updates all instances, and a resource hit effect plays only
+  after positive damage.
 
 ### [ ] 2.3 — Enforce tool-gated harvesting
 

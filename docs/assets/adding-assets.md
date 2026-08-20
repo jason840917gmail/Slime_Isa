@@ -3,7 +3,7 @@
 Game content has three layers. Never mix their responsibilities.
 
 1. **Asset manifest:** file identity and loading.
-2. **Object file:** reusable appearance, collider, and behavior.
+2. **Object file:** reusable appearance, scale, collider, and behavior.
 3. **Map instance:** object ID, exact visual ID, position, and mutable state.
 
 ## 1. Register the media
@@ -19,7 +19,7 @@ Put the source file under `asset/`, then register it in `asset/assets.json`.
     "expect": { "w": 384, "h": 170 }
   },
   "runtime": { "textureKey": "trees-oak" },
-  "render": { "origin": [0.5, 1], "pixelArt": true },
+  "render": { "origin": [0.5, 1] },
   "frames": {
     "0": { "name": "oak-small" },
     "1": { "name": "oak-medium" },
@@ -36,6 +36,8 @@ Manifest rules:
 
 - Use stable dotted asset IDs.
 - Paths are relative to `asset/`, use `/`, and match filename casing.
+- Name spritesheets with their frame size and grid when practical, for example
+  `128x128-tile_4x2-resource-piles.png`.
 - Frame entries describe the sheet; they do not define game objects.
 - Never put colliders, solidity, health, drops, damage, AI, or interactions here.
 - Run `pnpm assets:check` after editing the manifest.
@@ -58,6 +60,7 @@ Example: `tree.oak.solid` becomes `tree-oak-solid.json`.
         {
           "visualId": "oak-small",
           "frame": 0,
+          "scale": 1,
           "collider": { "width": 30, "height": 40, "offsetX": 49, "offsetY": 125 }
         }
       ]
@@ -73,6 +76,7 @@ Register the JSON import in `ObjectCatalog.ts`. This keeps object IDs available 
 Object rules:
 
 - The object file owns every collider and gameplay behavior.
+- `scale` is an optional uniform visual multiplier. It defaults to `1`; the runtime applies it to the artwork and authored collider, depth, and occlusion geometry while preserving the map anchor.
 - Every frame used by a solid object must define its collider.
 - Decorative objects use `"physics": null` and define no colliders.
 - Interactive objects may declare a stable `behavior` ID; the scene composition registers the matching behavior group.
@@ -120,7 +124,7 @@ The separate `rock-amber-mineable.json` can use a different boundary and behavio
 
 ## 3. Place object instances
 
-Maps reference object and visual IDs—not asset IDs, paths, texture keys, frames, or colliders.
+Maps reference object and visual IDs—not asset IDs, paths, texture keys, frames, colliders, or scale. Scale is shared by every map instance using that visual template.
 
 ```json
 {

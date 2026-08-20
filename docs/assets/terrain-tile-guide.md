@@ -15,7 +15,8 @@ Any texture that is meant to behave like a terrain tile should be designed aroun
 - Ground and obstacle textures are treated as single tiles.
 - Keep tile edges clean so repeated placement does not show seams.
 - Design repeatable tiles so they can sit next to copies of themselves.
-- Avoid blurry antialiasing because the game uses pixel-art rendering.
+- Avoid blurry antialiasing; keep material edges crisp and readable at gameplay
+  scale.
 
 ## Collision Rules
 

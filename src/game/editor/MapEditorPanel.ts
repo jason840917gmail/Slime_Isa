@@ -132,6 +132,7 @@ export function mountMapEditorPanel(
       <div><p>Slime Isa / Worldworks</p><h1>Field Cartographer</h1></div>
       <nav class="editor-header-actions" aria-label="Editor navigation">
         <a class="editor-nav-link editor-nav-link--studio" href="?studio=characters&amp;editor=${encodeURIComponent(editor.value.map.mapId)}" data-testid="character-studio-link">Character Studio</a>
+        <a class="editor-nav-link editor-nav-link--studio" href="?studio=objects&amp;editor=${encodeURIComponent(editor.value.map.mapId)}" data-testid="object-studio-link">Object Studio</a>
         <a class="editor-nav-link editor-game-link" href="?area=${editor.value.map.mapId}">Play map</a>
       </nav>
     </header>

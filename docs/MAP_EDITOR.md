@@ -29,7 +29,7 @@ The selected terrain tile or object visual follows the mouse cursor as a translu
 - **Entry Point (`I`)**: choose a direction and place that incoming entry point.
 - **Exit Zone (`E`)**: choose a direction after assigning that edge in Map Connections. The physical boundary zone is generated automatically.
 
-When a template is selected in the inspector, its canvas guides use a fixed visual legend: yellow is the visual frame and anchor, orange is the depth bound and its sorting edge, red is the collider, and blue is the occlusion scan region/reveal shape. The neutral white outline marks the selected object. The **Canvas boxes** controls can hide each guide independently or show the same guides on every matching instance. The depth bound is a separate source-frame rectangle; its lower edge controls front/behind sorting and does not change the map tile size or collider.
+When a template is selected in the inspector, its canvas guides use a fixed visual legend: yellow is the visual frame and anchor, orange is the depth bound and its sorting edge, red is the collider, and blue is the occlusion scan region/reveal shape. The **Visual alignment** section includes a uniform scale multiplier; it preserves the map anchor and scales the artwork and its authored geometry together. The neutral white outline marks the selected object. The **Canvas boxes** controls can hide each guide independently or show the same guides on every matching instance. The depth bound is a separate source-frame rectangle; its lower edge controls front/behind sorting and does not change the map tile size.
 
 ## Connecting maps
 
@@ -37,7 +37,7 @@ The **Map Connections** section has North, East, South, and West dropdowns conta
 
 Saving creates the opposite entry point and return exit in the target map, making the connection two-way. If that target edge already belongs to another map, saving stops with a conflict message instead of silently replacing it.
 
-Use `Ctrl+Z` and `Ctrl+Y` for undo/redo and `Ctrl+S` to save. The editor warns before leaving with unsaved work.
+Use `Ctrl+Z` and `Ctrl+Y` for undo/redo and `Ctrl+S` to save. Saving persists the map without reloading the editor. The editor warns before leaving with unsaved work.
 
 Safe zones are stored in map-level `enemySafeZones` as `{ x, y, w, h }`. They appear in bright green, are constrained to the map bounds, block respawning, and steer active monsters through the nearest rectangle edge. Older nested `spawns.safeZones` arrays remain supported when loading existing maps.
 

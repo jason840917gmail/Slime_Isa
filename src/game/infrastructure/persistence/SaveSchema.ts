@@ -3,16 +3,26 @@ import type { InventorySlot } from '../../core/types';
 import type { QuestState } from '../../quests/Quest';
 import type { AreaId } from '../../world/Area';
 
-export const SAVE_SCHEMA_VERSION = 3;
+export const SAVE_SCHEMA_VERSION = 4;
+
+export interface ResourcePileProgressData {
+  id: string;
+  cellX: number;
+  cellY: number;
+  amount: number;
+}
+
+export interface ResourceProgressStateData {
+  stage: 'node' | 'pile' | 'destroyed' | 'depleted';
+  value: number;
+  piles?: ResourcePileProgressData[];
+}
 
 export interface WorldProgressData {
   discoveredAreas: AreaId[];
   defeatedBossIds: string[];
   completedDungeonIds: string[];
-  resourceStates?: Record<string, {
-    stage: 'node' | 'pile' | 'depleted';
-    value: number;
-  }>;
+  resourceStates?: Record<string, ResourceProgressStateData>;
 }
 
 export interface GameSaveData {

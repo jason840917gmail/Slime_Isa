@@ -1,0 +1,33 @@
+{
+  "$schema": "../objects.schema.json",
+  "objectId": "resource.stone-pile",
+  "selection": "authored",
+  "variants": [
+    {
+      "assetId": "sheet.resources.4x2",
+      "frames": [
+        {
+          "visualId": "stone-pile",
+          "frame": 5,
+          "displayName": "Stone pile",
+          "scale": 0.6,
+          "visualOffset": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      ]
+    }
+  ],
+  "physics": null,
+  "resourcePile": {
+    "itemId": "stone",
+    "amount": 10
+  },
+  "tags": [
+    "stone",
+    "resource",
+    "pile",
+    "collectible"
+  ]
+}

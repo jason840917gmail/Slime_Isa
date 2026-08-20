@@ -21,10 +21,10 @@ The completed v1 implementation now provides:
 
 - Template-only editing selected from **Object Content**; placed map instances remain map-editing concerns.
 - Artwork grouping by `assetId + frame`, with sibling display names, visual IDs, and collider summaries.
-- A compact right inspector with read-only identity metadata, display-name editing, visual offset controls, collider controls for solid objects, shared-impact warning, reset, save, and responsive close/reopen behavior.
+- A compact right inspector with read-only identity metadata, display-name editing, uniform visual scale and offset controls, collider controls for solid objects, shared-impact warning, reset, save, and responsive close/reopen behavior.
 - Independent template draft state and navigation protection, separate from map undo/redo and map save state. Invalid numeric drafts remain visible in the field while the canvas keeps the last valid geometry.
 - Shared runtime/editor rendering with fixed map anchors, offset artwork, preserved collider world position, matching-instance overlays, and a focused fallback preview when no instance is visible.
-- Optional `displayName` and `visualOffset` schema/model support, server-side validation, and the development-only `/__map-editor/object-template/update` endpoint with atomic JSON replacement.
+- Optional `displayName`, uniform `scale`, and `visualOffset` schema/model support, server-side validation, and the development-only `/__map-editor/object-template/update` endpoint with atomic JSON replacement.
 - Browser smoke coverage for wide and narrow layouts, inspector drawer behavior, grouped sibling selection, invalid draft handling, solid collider editing/reset, and valid/invalid persistence responses.
 
 Validation completed with `pnpm check`, which passed asset, object, map, type, and production-build checks.
@@ -41,7 +41,7 @@ Definition fields have three ownership levels:
 | --- | --- | --- |
 | Object archetype | `objectId`, `physics`, `behavior`, `destructible`, `tags` | Gameplay properties shared by every template in the definition |
 | Variant group | `assetId` | Media source shared by its frame templates |
-| Visual template | `visualId`, `displayName`, `frame`, `visualOffset`, `collider` | Reusable appearance and geometry selected by maps |
+| Visual template | `visualId`, `displayName`, `frame`, `scale`, `visualOffset`, `collider` | Reusable appearance and geometry selected by maps |
 
 The stable template identity is `objectId + visualId`. Maps continue to store that identity with instance placement and optional typed state. Template properties must never be copied into map instances.
 
@@ -59,13 +59,14 @@ The stable template identity is `objectId + visualId`. Maps continue to store th
 
 ## Template data model
 
-Extend each object frame template with optional `displayName` and `visualOffset` fields:
+Extend each object frame template with optional `displayName`, uniform `scale`, and `visualOffset` fields:
 
 ```json
 {
   "visualId": "wood-fence-narrow",
   "displayName": "Narrow Passage",
   "frame": 0,
+  "scale": 1,
   "visualOffset": { "x": -4, "y": 2 },
   "collider": {
     "width": 72,
@@ -83,6 +84,13 @@ Extend each object frame template with optional `displayName` and `visualOffset`
 - When omitted, the editor derives a title from `visualId`.
 - `visualId` remains the unique stable identifier used by maps and runtime resolution.
 - Duplicating a template requires a new display name and a unique `visualId`. The editor generates a slug from the name and lets the user adjust it before creation.
+
+### Uniform scale
+
+- `scale` is a positive uniform multiplier for the visual template; it defaults to `1`.
+- The editor accepts values from `0.05` through `8`.
+- Scaling preserves the map anchor and applies to the artwork, collider, depth bound, and occlusion geometry together.
+- Geometry continues to be authored in unscaled source-frame pixels; the runtime converts it to world space using the template scale.
 
 ### Visual offset
 
@@ -132,6 +140,7 @@ offsetY + height <= frame height
 The first version edits visual-template geometry only:
 
 - optional display name;
+- uniform visual scale;
 - visual offset;
 - collider.
 

@@ -60,6 +60,8 @@ import { ResourceNodeController } from '../features/resources/ResourceNodeContro
 import { OcclusionController } from '../features/occlusion/OcclusionController';
 import { DepthDiagnostics } from '../features/occlusion/DepthDiagnostics';
 import { MapBuilder, type BuiltMap } from '../features/world/MapBuilder';
+import type { CreateObjectOptions } from '../features/objects/ObjectFactory';
+import type { ObjectArchetypeId } from '../content/objects/ObjectCatalog';
 import { resolveBodyBottom, resolveScreenUiDepth, resolveWorldDepth } from '../presentation/WorldDepth';
 import type { LoadedMap } from '../infrastructure/maps/MapRepository';
 import type { WorldDimensions } from '../world/WorldDimensions';
@@ -538,14 +540,8 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private buildWorld(): void {
-    this.resourceNodes = new ResourceNodeController({
-      scene: this,
-      mapId: this.loadedMap.map.mapId,
-      collisionGroup: this.collisionTiles,
-      targetGroup: this.resourceTargets,
-      interactionGroup: this.interactionTargets,
-    });
-    this.builtMap = new MapBuilder({
+    let mapBuilder: MapBuilder;
+    mapBuilder = new MapBuilder({
       scene: this,
       map: this.loadedMap.map,
       dimensions: this.worldDimensions,
@@ -554,9 +550,23 @@ export class WorldScene extends Phaser.Scene {
       behaviorGroups: {
         'collectible.purple-berry': this.purpleFoods,
       },
+      onTerrainBuilt: (terrainGrid) => { this.terrainGrid = terrainGrid; },
       onObjectCreated: (registration) => this.resourceNodes?.register(registration),
       registerOccluder: (registration) => this.occlusionController!.registerOccluder(registration),
-    }).build();
+    });
+    this.resourceNodes = new ResourceNodeController({
+      scene: this,
+      mapId: this.loadedMap.map.mapId,
+      dimensions: this.worldDimensions,
+      collisionGroup: this.collisionTiles,
+      targetGroup: this.resourceTargets,
+      interactionGroup: this.interactionTargets,
+      createObject: (objectId: ObjectArchetypeId, options: CreateObjectOptions) => (
+        mapBuilder.createDynamicObject(objectId, options)
+      ),
+      isCellBlocked: (cellX, cellY, sourceInstanceId) => this.isResourceDropCellBlocked(cellX, cellY, sourceInstanceId),
+    });
+    this.builtMap = mapBuilder.build();
     this.terrainGrid = this.builtMap.terrainGrid;
   }
 
@@ -800,6 +810,16 @@ export class WorldScene extends Phaser.Scene {
   private isSolidTile(tileX: number, tileY: number): boolean {
     const tileId = this.terrainGrid[tileY]?.[tileX];
     return tileId ? isTileCollidable(tileId) : false;
+  }
+
+  private isResourceDropCellBlocked(cellX: number, cellY: number, sourceInstanceId: string): boolean {
+    if (!this.isWithinWorld(cellX, cellY) || this.isSolidTile(cellX, cellY)) return true;
+    return this.loadedMap.map.objects.some((object) => {
+      if (object.instanceId === sourceInstanceId) return false;
+      const objectCellX = Math.floor(object.x / this.worldDimensions.tileSize);
+      const objectCellY = Math.floor((object.y - 1) / this.worldDimensions.tileSize);
+      return objectCellX === cellX && objectCellY === cellY;
+    });
   }
 
   private playAnimation(key: string, forceRestart = false): void {
@@ -1098,7 +1118,7 @@ export class WorldScene extends Phaser.Scene {
       this.inventoryUI?.toggle();
     });
 
-    const weaponKeys = ['keydown-ONE', 'keydown-TWO', 'keydown-THREE', 'keydown-FOUR', 'keydown-FIVE'] as const;
+    const weaponKeys = ['keydown-ONE', 'keydown-TWO', 'keydown-THREE', 'keydown-FOUR', 'keydown-FIVE', 'keydown-SIX'] as const;
     weaponKeys.forEach((eventName, slotIndex) => {
       const equipHandler = (event: KeyboardEvent) => {
         if (event.shiftKey || event.repeat || this.paused || this.healthSystem?.isDead()) return;
