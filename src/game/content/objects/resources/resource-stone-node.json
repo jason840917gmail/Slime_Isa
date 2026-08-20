@@ -1,0 +1,54 @@
+{
+  "$schema": "../objects.schema.json",
+  "objectId": "resource.stone-node",
+  "selection": "authored",
+  "variants": [
+    {
+      "assetId": "sheet.resources.4x2",
+      "frames": [
+        {
+          "visualId": "stone-node",
+          "frame": 1,
+          "displayName": "Stone node",
+          "scale": 0.75,
+          "occlusionBounds": {
+            "width": 112,
+            "height": 96,
+            "offsetX": 8,
+            "offsetY": 8
+          },
+          "collider": {
+            "width": 105,
+            "height": 48,
+            "offsetX": 17,
+            "offsetY": 68
+          },
+          "visualOffset": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      ]
+    }
+  ],
+  "physics": {
+    "body": "static"
+  },
+  "resourceNode": {
+    "health": 40,
+    "dropItem": "stone",
+    "dropCount": 30,
+    "hitEffectId": "stone-impact",
+    "persistHealth": false,
+    "depletionMessage": "Stone broken",
+    "replacement": {
+      "objectId": "resource.stone-pile",
+      "visualId": "stone-pile"
+    }
+  },
+  "tags": [
+    "stone",
+    "resource",
+    "solid"
+  ]
+}

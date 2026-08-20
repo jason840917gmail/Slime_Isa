@@ -10,10 +10,11 @@ import type {
 } from '../../content/maps/mapFormat';
 import {
   isObjectArchetypeId,
+  type ObjectArchetypeId,
 } from '../../content/objects/ObjectCatalog';
 import { isWorldTileId, type WorldTileId } from '../../content/terrain/TileCatalog';
 import type { WorldDimensions } from '../../world/WorldDimensions';
-import { ObjectFactory, type ObjectOccluderRegistration } from '../objects/ObjectFactory';
+import { ObjectFactory, type CreateObjectOptions, type ObjectOccluderRegistration } from '../objects/ObjectFactory';
 import {
   TerrainTransitionLayer,
   TerrainTransitionRenderer,
@@ -45,6 +46,7 @@ interface MapBuilderContext {
   readonly seed: number;
   readonly behaviorGroups?: Readonly<Record<string, Phaser.Physics.Arcade.StaticGroup>>;
   readonly onObjectCreated?: (registration: BuiltObjectRegistration) => void;
+  readonly onTerrainBuilt?: (terrainGrid: WorldTileId[][]) => void;
   readonly registerOccluder?: (registration: ObjectOccluderRegistration) => { dispose(): void };
 }
 
@@ -95,6 +97,7 @@ export class MapBuilder {
       dimensions: this.ctx.dimensions,
       seed: this.ctx.seed,
     }).render(terrainGrid);
+    this.ctx.onTerrainBuilt?.(terrainGrid);
 
     for (const object of this.ctx.map.objects) {
       if (!isObjectArchetypeId(object.objectId)) {
@@ -131,5 +134,12 @@ export class MapBuilder {
       enemySpawnAreas: this.ctx.map.enemySpawnAreas ?? [],
       spawns: this.ctx.map.spawns,
     };
+  }
+
+  createDynamicObject(
+    objectId: ObjectArchetypeId,
+    options: CreateObjectOptions,
+  ): Phaser.GameObjects.Image {
+    return this.objectFactory.create(objectId, options);
   }
 }

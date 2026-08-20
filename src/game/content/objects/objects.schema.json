@@ -148,6 +148,9 @@
         "health": { "type": "integer", "minimum": 1 },
         "dropItem": { "type": "string", "minLength": 1 },
         "dropCount": { "type": "integer", "minimum": 1 },
+        "hitEffectId": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+        "persistHealth": { "type": "boolean" },
+        "depletionMessage": { "type": "string", "minLength": 1, "maxLength": 80 },
         "replacement": {
           "type": "object",
           "required": ["objectId", "visualId"],

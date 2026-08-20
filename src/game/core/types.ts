@@ -21,7 +21,7 @@ export interface PerkChoice {
   icon?: string;
 }
 
-export const WEAPON_HOTBAR_SLOT_COUNT = 5;
+export const WEAPON_HOTBAR_SLOT_COUNT = 6;
 
 export type ItemCategory = 'consumable' | 'material' | 'key' | 'collectible' | 'weapon' | 'tool';
 

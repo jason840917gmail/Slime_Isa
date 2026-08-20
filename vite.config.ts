@@ -21,6 +21,8 @@ import type { Direction } from './src/game/world/Area';
 const MAX_EDITOR_BODY_BYTES = 2 * 1024 * 1024;
 const OBJECT_ID_PATTERN = /^[a-z0-9]+([.-][a-z0-9-]+)+$/;
 const OBJECT_DEFINITION_ROOT = path.resolve(process.cwd(), 'src/game/content/objects');
+const OBJECT_VISUAL_ROOT = path.resolve(process.cwd(), 'src/game/content/visuals');
+const EFFECT_DEFINITION_ROOT = path.resolve(process.cwd(), 'src/game/content/effects');
 const CHARACTER_DEFINITION_ROOT = path.resolve(process.cwd(), 'src/game/content/characters');
 
 function discoverEnemyIds(directory: string): string[] {
@@ -56,6 +58,7 @@ interface MutableObjectDefinition {
   objectId: string;
   variants: MutableObjectVariant[];
   physics: unknown;
+  resourceNode?: Record<string, unknown>;
 }
 
 interface ObjectVisualOffsetPayload {
@@ -137,6 +140,68 @@ async function findObjectDefinitionPath(directory: string, objectId: string): Pr
   return undefined;
 }
 
+async function findContentFiles(directory: string, fileName: string): Promise<string[]> {
+  const files: string[] = [];
+  for (const entry of await fs.readdir(directory, { withFileTypes: true }).catch((error: unknown) => {
+    if (error instanceof Error && 'code' in error && (error as NodeJS.ErrnoException).code === 'ENOENT') return [];
+    throw error;
+  })) {
+    if (entry.name.startsWith('.')) continue;
+    const candidate = path.join(directory, entry.name);
+    if (entry.isDirectory()) files.push(...await findContentFiles(candidate, fileName));
+    else if (entry.isFile() && (fileName === '.json' ? entry.name.endsWith('.json') : entry.name === fileName)) files.push(candidate);
+  }
+  return files.sort();
+}
+
+function objectStudioRevision(value: unknown): string {
+  return JSON.stringify(value);
+}
+
+async function readObjectStudioCatalog(): Promise<{
+  readonly objects: readonly Record<string, unknown>[];
+  readonly visualSets: readonly Record<string, unknown>[];
+  readonly effects: readonly Record<string, unknown>[];
+}> {
+  const [objectFiles, visualFiles, effectFiles] = await Promise.all([
+    findContentFiles(OBJECT_DEFINITION_ROOT, '.json'),
+    findContentFiles(OBJECT_VISUAL_ROOT, 'visual-set.json'),
+    findContentFiles(EFFECT_DEFINITION_ROOT, 'effect.json'),
+  ]);
+  const objects: Record<string, unknown>[] = [];
+  for (const file of objectFiles) {
+    if (path.basename(file) === 'objects.schema.json') continue;
+    const value = JSON.parse(await fs.readFile(file, 'utf8')) as Record<string, unknown>;
+    if (typeof value.objectId === 'string') objects.push({ ...value, revision: objectStudioRevision(value) });
+  }
+  const visualSets: Record<string, unknown>[] = [];
+  for (const file of visualFiles) {
+    const value = JSON.parse(await fs.readFile(file, 'utf8')) as Record<string, unknown>;
+    if (typeof value.visualSetId === 'string') visualSets.push(value);
+  }
+  const effects: Record<string, unknown>[] = [];
+  for (const file of effectFiles) {
+    const value = JSON.parse(await fs.readFile(file, 'utf8')) as Record<string, unknown>;
+    if (typeof value.effectId === 'string') effects.push({
+      effectId: value.effectId,
+      displayName: value.displayName,
+      revision: objectStudioRevision(value),
+    });
+  }
+  return { objects, visualSets, effects };
+}
+
+function objectStudioVisualFrame(
+  definition: MutableObjectDefinition,
+  visualId: string,
+): MutableObjectFrame {
+  const frame = definition.variants
+    .flatMap((variant) => variant.frames)
+    .find((candidate) => candidate.visualId === visualId);
+  if (!frame) throw new Error(`Unknown visual '${visualId}' for '${definition.objectId}'`);
+  return frame;
+}
+
 function frameDimensions(assetId: string): { readonly width: number; readonly height: number } | undefined {
   if (!(assetId in ASSET_MANIFEST.assets)) throw new Error(`Unknown asset '${assetId}'`);
   const asset = ASSET_MANIFEST.assets[assetId as AssetId];
@@ -148,6 +213,51 @@ function frameDimensions(assetId: string): { readonly width: number; readonly he
     throw new Error(`Spritesheet asset '${assetId}' has invalid frame dimensions`);
   }
   return { width, height };
+}
+
+function frameCount(assetId: string): number {
+  if (!(assetId in ASSET_MANIFEST.assets)) throw new Error(`Unknown asset '${assetId}'`);
+  const source: unknown = ASSET_MANIFEST.assets[assetId as AssetId].source;
+  if (!isRecord(source) || source.kind !== 'spritesheet' || !isRecord(source.frame)) return 1;
+  return requireInteger(source.frame.cols, 1, `Asset '${assetId}' columns`) * requireInteger(source.frame.rows, 1, `Asset '${assetId}' rows`);
+}
+
+function pathIsInside(root: string, target: string): boolean {
+  const relativeTarget = path.relative(path.resolve(root), path.resolve(target));
+  return relativeTarget === '' || (relativeTarget !== '..' && !relativeTarget.startsWith(`..${path.sep}`) && !path.isAbsolute(relativeTarget));
+}
+
+function validateObjectStudioVisualSet(
+  value: Record<string, unknown>,
+  expectedId: string,
+  expectedAssetId: string,
+): void {
+  validateRecordKeys(value, ['version', 'visualSetId', 'assetId', 'defaults', 'frameVisuals', 'clips'], 'visualSet');
+  if (!/^[a-z0-9]+(?:[.-][a-z0-9-]+)*$/.test(expectedId)) throw new Error('Visual set ID must be a lowercase stable ID');
+  if (value.version !== 1 || value.visualSetId !== expectedId) throw new Error('Visual set identity does not match the selected object template');
+  if (value.assetId !== expectedAssetId) throw new Error(`Visual set asset must match '${expectedAssetId}'`);
+  const defaults = value.defaults;
+  if (!isRecord(defaults)) throw new Error('Visual set defaults are required');
+  validateRecordKeys(defaults, ['origin', 'scale', 'sourceOffset'], 'visualSet.defaults');
+  for (const key of ['origin', 'scale', 'sourceOffset']) {
+    const vector = defaults[key];
+    if (!Array.isArray(vector) || vector.length !== 2 || vector.some((entry) => typeof entry !== 'number' || !Number.isFinite(entry))) {
+      throw new Error(`visualSet.defaults.${key} must be a finite two-number array`);
+    }
+  }
+  const clips = value.clips;
+  if (!isRecord(clips)) throw new Error('Visual set clips are required');
+  const count = frameCount(expectedAssetId);
+  for (const [clipId, rawClip] of Object.entries(clips)) {
+    if (!/^[a-z0-9]+(?:[.-][a-z0-9-]+)*$/.test(clipId) || !isRecord(rawClip)) throw new Error(`Invalid visual clip '${clipId}'`);
+    validateRecordKeys(rawClip, ['frames', 'framesPerSecond', 'loop', 'loopMode', 'sourceOffset'], `visualSet.clips.${clipId}`);
+    if (!Array.isArray(rawClip.frames) || rawClip.frames.length === 0 || rawClip.frames.some((frame) => !Number.isInteger(frame) || frame < 0 || frame >= count)) {
+      throw new Error(`visualSet.clips.${clipId}.frames must contain source frames from 0 to ${count - 1}`);
+    }
+    if (typeof rawClip.framesPerSecond !== 'number' || !Number.isFinite(rawClip.framesPerSecond) || rawClip.framesPerSecond <= 0 || rawClip.framesPerSecond > 240) throw new Error(`visualSet.clips.${clipId}.framesPerSecond must be between 0 and 240`);
+    if (typeof rawClip.loop !== 'boolean') throw new Error(`visualSet.clips.${clipId}.loop must be a boolean`);
+    if (rawClip.loopMode !== undefined && rawClip.loopMode !== 'wrap' && rawClip.loopMode !== 'ping-pong') throw new Error(`visualSet.clips.${clipId}.loopMode is invalid`);
+  }
 }
 
 function validateObjectVisualUpdate(
@@ -327,6 +437,114 @@ function mapEditorSavePlugin(): Plugin {
       return undefined;
     },
     configureServer(server) {
+      server.middlewares.use('/__object-studio/catalog', async (request, response) => {
+        response.setHeader('Content-Type', 'application/json; charset=utf-8');
+        if (request.method !== 'GET') {
+          response.statusCode = 405;
+          response.end(JSON.stringify({ ok: false, error: 'GET required' }));
+          return;
+        }
+        try {
+          response.statusCode = 200;
+          response.end(JSON.stringify({ ok: true, data: await readObjectStudioCatalog() }));
+        } catch (error) {
+          response.statusCode = 500;
+          response.end(JSON.stringify({ ok: false, error: error instanceof Error ? error.message : String(error) }));
+        }
+      });
+
+      server.middlewares.use('/__object-studio/save', async (request, response) => {
+        response.setHeader('Content-Type', 'application/json; charset=utf-8');
+        if (request.method !== 'POST') {
+          response.statusCode = 405;
+          response.end(JSON.stringify({ ok: false, error: 'POST required' }));
+          return;
+        }
+        let temporaryPath: string | undefined;
+        let temporaryVisualPath: string | undefined;
+        let visualTargetPath: string | undefined;
+        try {
+          const payload = JSON.parse(await readRequestBody(request)) as Record<string, unknown>;
+          validateRecordKeys(payload, ['objectId', 'visualId', 'visualSetId', 'animationClip', 'visualSet', 'hitEffectId'], 'payload');
+          const objectId = payload.objectId;
+          const visualId = payload.visualId;
+          if (typeof objectId !== 'string' || !isObjectArchetypeId(objectId)) throw new Error(`Unknown object '${String(objectId)}'`);
+          if (typeof visualId !== 'string') throw new Error('Visual ID is required');
+          const definitionPath = await findObjectDefinitionPath(OBJECT_DEFINITION_ROOT, objectId);
+          if (!definitionPath) throw new Error(`Object definition '${objectId}' was not found`);
+          const definition = JSON.parse(await fs.readFile(definitionPath, 'utf8')) as MutableObjectDefinition;
+          const frame = objectStudioVisualFrame(definition, visualId);
+          const owningVariant = definition.variants.find((variant) => variant.frames.includes(frame));
+          if (!owningVariant) throw new Error(`Visual '${visualId}' has no asset variant`);
+          const catalog = await readObjectStudioCatalog();
+          const visualSets = new Map(catalog.visualSets.map((visualSet) => [String(visualSet.visualSetId), visualSet]));
+          const effectIds = new Set(catalog.effects.map((effect) => String(effect.effectId)));
+
+          const visualSetId = payload.visualSetId === null ? undefined : payload.visualSetId;
+          const animationClip = payload.animationClip === null ? undefined : payload.animationClip;
+          if ((visualSetId === undefined) !== (animationClip === undefined)) {
+            throw new Error('Idle visual set and animation clip must be selected together');
+          }
+          if (visualSetId !== undefined || animationClip !== undefined) {
+            if (typeof visualSetId !== 'string' || typeof animationClip !== 'string') throw new Error('Idle visual set and animation clip must be strings');
+            const visualSet = visualSets.get(visualSetId);
+            if (!visualSet) throw new Error(`Unknown visual set '${visualSetId}'`);
+            const clips = visualSet.clips;
+            if (!isRecord(clips) || !(animationClip in clips)) throw new Error(`Unknown animation clip '${animationClip}' for '${visualSetId}'`);
+            frame.visualSetId = visualSetId;
+            frame.animationClip = animationClip;
+          } else {
+            delete frame.visualSetId;
+            delete frame.animationClip;
+          }
+
+          const visualSetPayload = payload.visualSet;
+          if (visualSetPayload !== undefined) {
+            if (!isRecord(visualSetPayload) || typeof visualSetId !== 'string') throw new Error('A visual set document is required when saving animation content');
+            validateObjectStudioVisualSet(visualSetPayload, visualSetId, owningVariant.assetId);
+            if (animationClip && (!isRecord(visualSetPayload.clips) || !(animationClip in visualSetPayload.clips))) throw new Error(`Visual set does not contain selected clip '${animationClip}'`);
+            visualTargetPath = path.resolve(OBJECT_VISUAL_ROOT, visualSetId, 'visual-set.json');
+            if (!pathIsInside(OBJECT_VISUAL_ROOT, visualTargetPath)) throw new Error('Invalid visual set output path');
+            temporaryVisualPath = `${visualTargetPath}.${process.pid}.${Date.now()}.tmp`;
+            await fs.mkdir(path.dirname(visualTargetPath), { recursive: true });
+            await fs.writeFile(temporaryVisualPath, `${JSON.stringify(visualSetPayload, null, 2)}\n`, 'utf8');
+          }
+
+          if (definition.resourceNode) {
+            const nextHitEffectId = payload.hitEffectId === null
+              ? undefined
+              : payload.hitEffectId === undefined
+                ? definition.resourceNode.hitEffectId
+                : payload.hitEffectId;
+            if (nextHitEffectId !== undefined) {
+              if (typeof nextHitEffectId !== 'string' || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(nextHitEffectId)) throw new Error('Resource hit effect must be a lowercase kebab-case ID');
+              if (!effectIds.has(nextHitEffectId)) throw new Error(`Unknown resource hit effect '${nextHitEffectId}'`);
+              definition.resourceNode.hitEffectId = nextHitEffectId;
+            } else {
+              delete definition.resourceNode.hitEffectId;
+            }
+          } else if (payload.hitEffectId !== undefined && payload.hitEffectId !== null) {
+            throw new Error(`Object '${objectId}' is not a resource node`);
+          }
+
+          temporaryPath = `${definitionPath}.${process.pid}.${Date.now()}.tmp`;
+          await fs.writeFile(temporaryPath, `${JSON.stringify(definition, null, 2)}\n`, 'utf8');
+          if (temporaryVisualPath && visualTargetPath) {
+            await fs.rename(temporaryVisualPath, visualTargetPath);
+            temporaryVisualPath = undefined;
+          }
+          await fs.rename(temporaryPath, definitionPath);
+          temporaryPath = undefined;
+          response.statusCode = 200;
+          response.end(JSON.stringify({ ok: true, objectId, visualId, reloadRequired: true }));
+        } catch (error) {
+          if (temporaryPath) await fs.rm(temporaryPath, { force: true });
+          if (temporaryVisualPath) await fs.rm(temporaryVisualPath, { force: true });
+          response.statusCode = 400;
+          response.end(JSON.stringify({ ok: false, error: error instanceof Error ? error.message : String(error) }));
+        }
+      });
+
       server.middlewares.use('/__map-editor/create', async (request, response) => {
         response.setHeader('Content-Type', 'application/json; charset=utf-8');
         if (request.method !== 'POST') {

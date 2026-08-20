@@ -14,7 +14,7 @@ The current catalog identifies these exact slugs. If Magnific changes its
 catalog, verify them with `images_models_list({ search: "cinematic" })` and
 `video_models_list({ search: "Seedance 1.5 Pro" })` before updating this guide.
 
-Project visual direction: [Modernized Pixel-Stylized Top-Down Visual
+Project visual direction: [Polished Stylized Top-Down Visual
 Guide](./visual-style-guide.md).
 
 ## Standard call sequence
@@ -42,7 +42,7 @@ for a square image:
 ```ts
 const imageArguments = {
   mode: "cinematic",
-  prompt: "A modernized pixel-stylized top-down 2D game asset of the Sticky Spider-Slime...",
+  prompt: "A polished stylized top-down 2D game asset of the Sticky Spider-Slime...",
   aspectRatio: "1:1",
   resolution: "1k",
 };
@@ -82,7 +82,7 @@ const videoArguments = {
         aspectRatio: "1:1",
         resolution: "1080p",
         withSoundEffects: false,
-        prompt: "Create a seamless modernized pixel-stylized top-down character animation...",
+        prompt: "Create a seamless polished stylized top-down character animation...",
       },
     ],
   },
@@ -108,7 +108,7 @@ For character animation, use the project prompt guide:
 
 That guide is the source for the character-animation constraints: fixed
 direction, centered in-place motion, unchanged proportions and equipment,
-modernized pixel-stylized top-down 2D visual language, solid `#FF00FF`
+polished stylized top-down 2D visual language, solid `#FF00FF`
 chroma-purple background, fixed camera, no extra actions, no audio, and
 seamless looping. Its duration is five seconds for Magnific output.
 

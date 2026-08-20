@@ -1,6 +1,6 @@
 # Studio Tabs Contract
 
-This document is the working reference for Character Studio, Projectile Studio, and Weapon Studio. It records the layout, data ownership, fields, preview rules, source-sheet workflow, and validation expectations so the same behavior is not implemented three different ways.
+This document is the working reference for Character Studio, Projectile Studio, Weapon Studio, and Object Studio. It records the layout, data ownership, fields, preview rules, source-sheet workflow, and validation expectations so the same behavior is not implemented three different ways.
 
 ## 1. Shared architecture
 
@@ -11,7 +11,8 @@ The three tabs are editor views over different authored documents. They share th
 | Character editor | `src/game/editor/CharacterStudio.ts` and `CharacterDocumentState.ts` | Character package, visual set, clips, body, hitboxes, runtime behavior |
 | Projectile editor | `src/game/editor/ProjectileStudio.ts` | Reusable projectile profile, move/impact clips, visual alignment, flight body |
 | Weapon editor | `src/game/editor/WeaponStudio.ts` | Reusable weapon profile, idle/attack/impact clips, visual alignment, combat values |
-| Shared tab navigation | `src/game/editor/StudioModeTabs.ts` | Switches between Characters, Projectiles, and Weapons |
+| Object editor | `src/game/editor/ObjectStudio.ts` | Shared object visual templates, optional idle clips, material-owned hit effects |
+| Shared tab navigation | `src/game/editor/StudioModeTabs.ts` | Switches between Characters, Projectiles, Weapons, and Objects |
 | Media catalog | `asset/assets.json` and `characterAssetCatalog.ts` | Registered source paths, frame dimensions, grid size, tags, and runtime texture metadata |
 | Editor server | `src/game/content/characters/characterContentModulesPlugin.ts` | Loads catalogs, imports PNG sheets, validates data, and writes authored packages |
 | Runtime definitions | `src/game/content/characters`, `projectiles`, and `weapons` | TypeScript types, schemas, validators, and runtime-facing content |
@@ -210,7 +211,26 @@ The preview multiplies source-pixel offsets by the same visible stage scale used
 
 Attack data is authored under `directionalAttacks.right`, `.left`, `.up`, and `.down`. The legacy `.side` package remains readable and is migrated to `.right` when edited. An absent `.left` package inherits RIGHT and uses a true horizontal mirror: local `(x, y)` becomes `(-x, y)`, so vertical offsets and hit-point height are preserved. Missing RIGHT, UP, or DOWN data normalizes to the legacy root attack package. This preserves old weapons while allowing every direction to be materialized independently.
 
-## 5. Change checklist for future fields
+## 5. Object Studio
+
+Object Studio edits one shared visual template used by every map instance of
+the selected object/visual pair. It owns optional idle visual-set references,
+source-frame ordering for the idle clip, and the resource node's material-owned
+`hitEffectId`. The required static frame remains the fallback when an optional
+animation package cannot load. Geometry stays in Map Studio; its Edit object
+link preserves the map and selected template query when returning.
+
+The first editor route is `?studio=objects` with these development endpoints:
+
+- `GET /__object-studio/catalog`
+- `POST /__object-studio/save`
+
+Object Studio validates visual-set frame references and resource effect IDs
+before an atomic content write. It uses the same visual-set clip model and
+`AnimatedVisual` runtime component as Character Studio, while Weapon Studio
+continues to own enemy-confirmed weapon effects.
+
+## 6. Change checklist for future fields
 
 When adding a field to any tab, update all of these layers together:
 
@@ -240,7 +260,7 @@ For source sheets specifically, verify all six states:
 - imported asset is selected on the current draft;
 - animation frames remain inside the new sheet's frame count.
 
-## 6. Verification procedure
+## 7. Verification procedure
 
 For each tab, manually verify:
 

@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 const objectRoot = join(repoRoot, 'src', 'game', 'content', 'objects');
 const visualRoot = join(repoRoot, 'src', 'game', 'content', 'visuals');
+const effectRoot = join(repoRoot, 'src', 'game', 'content', 'effects');
 const manifest = JSON.parse(readFileSync(join(repoRoot, 'asset', 'assets.json'), 'utf8'));
 const idPattern = /^[a-z0-9]+([.-][a-z0-9-]+)+$/;
 const errors = [];
@@ -112,6 +113,20 @@ function validateVisualOffset(file, objectId, field, offset) {
   }
 }
 
+function listEffectIds(directory) {
+  const ids = new Set();
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const path = join(directory, entry.name);
+    if (entry.isDirectory()) {
+      for (const id of listEffectIds(path)) ids.add(id);
+    } else if (entry.isFile() && entry.name === 'effect.json') {
+      const definition = JSON.parse(readFileSync(path, 'utf8'));
+      if (typeof definition.effectId === 'string') ids.add(definition.effectId);
+    }
+  }
+  return ids;
+}
+
 function validateVisualScale(file, objectId, field, scale) {
   if (typeof scale !== 'number' || !Number.isFinite(scale) || scale < 0.05 || scale > 8) {
     fail(file, objectId, field, 'must be a finite number between 0.05 and 8');
@@ -125,6 +140,7 @@ const visualSets = new Map(
     return [definition.visualSetId, definition];
   }),
 );
+const effectIds = listEffectIds(effectRoot);
 
 for (const absolutePath of objectFiles) {
   const file = relative(objectRoot, absolutePath).replaceAll('\\', '/');
@@ -337,7 +353,7 @@ for (const absolutePath of objectFiles) {
   }
 
   if (object.resourceNode !== undefined) {
-    validateKeys(file, objectId, 'resourceNode', object.resourceNode, new Set(['health', 'dropItem', 'dropCount', 'replacement']));
+    validateKeys(file, objectId, 'resourceNode', object.resourceNode, new Set(['health', 'dropItem', 'dropCount', 'hitEffectId', 'persistHealth', 'depletionMessage', 'replacement']));
     if (!Number.isInteger(object.resourceNode.health) || object.resourceNode.health < 1) {
       fail(file, objectId, 'resourceNode.health', 'must be an integer >= 1');
     }
@@ -346,6 +362,22 @@ for (const absolutePath of objectFiles) {
     }
     if (!Number.isInteger(object.resourceNode.dropCount) || object.resourceNode.dropCount < 1) {
       fail(file, objectId, 'resourceNode.dropCount', 'must be an integer >= 1');
+    }
+    if (object.resourceNode.hitEffectId !== undefined) {
+      if (typeof object.resourceNode.hitEffectId !== 'string' || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(object.resourceNode.hitEffectId)) {
+        fail(file, objectId, 'resourceNode.hitEffectId', 'must be a lowercase kebab-case effect ID');
+      } else if (!effectIds.has(object.resourceNode.hitEffectId)) {
+        fail(file, objectId, 'resourceNode.hitEffectId', `unknown effect '${object.resourceNode.hitEffectId}'`);
+      }
+    }
+    if (object.resourceNode.persistHealth !== undefined && typeof object.resourceNode.persistHealth !== 'boolean') {
+      fail(file, objectId, 'resourceNode.persistHealth', 'must be a boolean');
+    }
+    if (object.resourceNode.depletionMessage !== undefined
+        && (typeof object.resourceNode.depletionMessage !== 'string'
+          || object.resourceNode.depletionMessage.trim().length === 0
+          || object.resourceNode.depletionMessage.length > 80)) {
+      fail(file, objectId, 'resourceNode.depletionMessage', 'must contain 1 to 80 characters');
     }
     if (object.resourceNode.replacement !== undefined) {
       validateKeys(file, objectId, 'resourceNode.replacement', object.resourceNode.replacement, new Set(['objectId', 'visualId']));

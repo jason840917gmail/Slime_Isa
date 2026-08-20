@@ -16,7 +16,7 @@ export interface WeaponHotbarContext {
   readonly onEquipSlot: (slotIndex: number) => void;
 }
 
-/** Five-slot field-tool belt. Inventory ownership is the authority for availability. */
+/** Six-slot field-tool belt. Inventory ownership is the authority for availability. */
 export class WeaponHotbar {
   private root?: Phaser.GameObjects.Container;
 

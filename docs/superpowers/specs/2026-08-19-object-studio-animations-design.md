@@ -1,8 +1,9 @@
 # Object Studio Animations and Resource Hit Effects
 
-**Status: approved design, implementation pending.** This document extends the
-Stone Gathering task with shared object-animation authoring. It is intentionally
-small and focused on the first Object Studio slice.
+**Status: implementation in progress; manual editor playtest pending.** This
+document extends the Stone Gathering task with shared object-animation
+authoring. It is intentionally small and focused on the first Object Studio
+slice.
 
 ## Goal
 
@@ -100,8 +101,8 @@ overrides.
    `resourceNode.hitEffectId` against the effect catalog before writing.
 3. Add `resourceNode.hitEffectId` to the object catalog/schema/checker and
    validate that referenced effect IDs exist.
-4. Migrate the wood and stone effects away from weapon-owned
-   `onResourceHitEffectId`; update weapon types, schema, normalization,
+4. Migrate the wood and stone effects away from weapon-owned resource-effect
+   fields; update weapon types, schema, normalization,
    migration helpers, UI, virtual content imports, and the effect IDs/packages.
 5. Add a resource-owned hit-effect snapshot to the damage result and use it in
    `CombatController` after positive damage is accepted, before any depleted

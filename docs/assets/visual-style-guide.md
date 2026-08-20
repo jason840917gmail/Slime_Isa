@@ -1,19 +1,19 @@
-# Modernized Pixel-Stylized Top-Down Visual Guide
+# Polished Stylized Top-Down Visual Guide
 
-Slime Isa uses a modernized pixel-stylized 2D top-down presentation. The
-style keeps the clarity and charm of pixel art without requiring every source
-image or concept illustration to be authored at a tiny native resolution.
+Slime Isa uses a polished, stylized 2D top-down presentation. The style keeps
+strong gameplay readability while allowing rich material detail, expressive
+silhouettes, and high-quality source art at any useful working resolution.
 
 ## Core direction
 
 - Use a fixed, readable top-down game camera with stable character scale.
-- Favor chunky silhouettes, deliberate pixel clusters, and clear value steps.
+- Favor chunky silhouettes, deliberate shape clusters, and clear value steps.
 - Use polished highlights and controlled gradients only when they improve
   material readability; avoid photorealism and glossy 3D rendering.
 - Keep character designs expressive and contemporary rather than forcing a
   strict retro sprite treatment.
-- Preserve the existing runtime frame contracts, source-frame dimensions, and
-  nearest-filter rendering for authored gameplay sprites.
+- Preserve the existing runtime frame contracts and source-frame dimensions;
+  use clean filtering that keeps edges and material detail readable.
 - Do not mix visual techniques inside one character set. Front, side, back,
   attack, and death views must share the same palette, lighting, camera, and
   rendering language.
@@ -54,13 +54,13 @@ The HUD, menus, chat, map editor, and development panels share the same night
 field, cool slate surfaces, mint interaction accent, cyan information accent,
 warm reward accent, and coral danger feedback. UI should feel like a playful
 field atlas: compact, high-contrast, and tactile, with restrained shadows and
-small pixel-inspired details.
+small graphic details.
 
 ## Asset generation
 
 Use the Magnific MCP guide for model selection and call sequencing. Prompts
-should describe the target as `modernized pixel-stylized top-down 2D game art`
-and should explicitly preserve silhouette, palette, camera, scale, and action
+should describe the target as `polished stylized top-down 2D game art` and
+should explicitly preserve silhouette, palette, camera, scale, and action
 constraints. Concepts may be generated at 1k or larger, but runtime assets
 must still be authored into the project's established frame and manifest
 contracts before they are loaded by gameplay.

@@ -75,7 +75,7 @@ const DEFAULT_DATA: GameStateData = {
   attributes: { ...PLAYER_CONFIG.attributes },
   equipment: {
     weaponId: 'goo-gauntlet',
-    weaponSlots: ['goo-gauntlet', 'basic-sword', null, null, null],
+    weaponSlots: ['goo-gauntlet', 'basic-sword', null, null, null, null],
   },
 };
 

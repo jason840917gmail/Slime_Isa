@@ -165,6 +165,9 @@ export function applyObjectVisual(
 ): void {
   const visual = resolveVisual(objectId, visualId);
   const [anchorX, anchorY] = getObjectAnchor(image);
+  (image.getData('animatedVisual') as AnimatedVisual | undefined)?.destroy();
+  image.setData('animatedVisual', undefined);
+  image.setVisible(true);
   applyResolvedVisual(image, objectId, visual);
   setObjectAnchor(image, anchorX, anchorY);
 }
@@ -245,22 +248,33 @@ export class ObjectFactory {
       && visual.animationClip
       && this.ctx.animatedVisualsEnabled !== false
     ) {
-      const animatedVisual = new AnimatedVisual(
-        this.ctx.scene,
-        image,
-        visual.visualSetId,
-        {
-          depth: image.depth,
-          getDepth: () => image.depth,
-          initialFrame: visual.frame,
-        },
-      );
-      animatedVisual.play(
-        getVisualClip(visual.visualSetId, visual.animationClip).runtimeKey,
-      );
-      animatedVisual.setScaleMultiplier(visual.scale);
-      image.setData('animatedVisual', animatedVisual);
-      image.setVisible(false);
+      let animatedVisual: AnimatedVisual | undefined;
+      try {
+        const clip = getVisualClip(visual.visualSetId, visual.animationClip);
+        animatedVisual = new AnimatedVisual(
+          this.ctx.scene,
+          image,
+          visual.visualSetId,
+          {
+            depth: image.depth,
+            getDepth: () => image.depth,
+            initialFrame: visual.frame,
+          },
+        );
+        animatedVisual.play(clip.runtimeKey);
+        animatedVisual.setScaleMultiplier(visual.scale);
+        image.setData('animatedVisual', animatedVisual);
+        // The required base image remains visible until the animated layer is
+        // completely registered and playing successfully.
+        image.setVisible(false);
+      } catch (error) {
+        animatedVisual?.destroy();
+        image.setData('animatedVisual', undefined);
+        image.setVisible(true);
+        if (import.meta.env.DEV) {
+          console.warn(`Object '${objectId}' optional idle animation '${visual.animationClip}' fell back to its static image.`, error);
+        }
+      }
     }
 
     if (visual.occlusionBounds && visual.sourceFrame && this.ctx.registerOccluder) {

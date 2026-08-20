@@ -262,7 +262,7 @@ matching edge spawn**.
 ### Concrete tasks
 1. Define 6 biomes × 4+ areas each (≥ 24 area instances). World is now ~20–40× bigger.
 2. Each area 48×48 to 64×64 tiles. Edge transition zones at N/E/S/W borders.
-3. Transition VFX: pixelate/wipe + 350ms fade (match `WorldScene.ts:768` pan timing style).
+3. Transition VFX: wipe + 350ms fade (match `WorldScene.ts:768` pan timing style).
 4. Camera per-area bounds; `cameras.main.setBounds` driven by area size.
 5. Streamline spawn rules per biome (enemy density, friend density, decorations).
 6. Add **fast-travel shrines** unlocked by discovery (Zelda towers/bonfires).

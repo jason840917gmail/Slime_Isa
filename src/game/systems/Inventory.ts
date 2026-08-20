@@ -22,6 +22,15 @@ const DEFAULT_DEFS: Record<string, ItemDef> = {
     description: 'Freshly gathered timber for tools, weapons, and building.',
     maxStack: 99,
   },
+  stone: {
+    id: 'stone',
+    name: 'Stone',
+    category: 'material',
+    icon: 'resources-4x2',
+    iconFrame: 5,
+    description: 'Rough stone gathered from broken rock nodes.',
+    maxStack: 99,
+  },
   'hp-potion': {
     id: 'hp-potion',
     name: 'Slime Tonic',

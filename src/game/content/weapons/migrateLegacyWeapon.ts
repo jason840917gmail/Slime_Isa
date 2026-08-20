@@ -174,7 +174,6 @@ export function migrateLegacyWeaponDefinition(
     directionalAttacks: { right, ...(left ? { left } : {}), up, down },
     presentation: { facingMode: definition.visual?.facingMode ?? 'vector' },
     ...(options.onHitEffectId ? { onHitEffectId: options.onHitEffectId } : {}),
-    ...(definition.onResourceHitEffectId ? { onResourceHitEffectId: definition.onResourceHitEffectId } : {}),
     baseDamage: definition.baseDamage,
     cooldownMs: definition.cooldownMs,
     hitboxWidth: definition.hitboxWidth,

@@ -116,14 +116,15 @@ small stone piles distributed around its original map cell.
   destroyed source with a list of spawned pile records and remaining amounts.
 - Add the Pickaxe weapon definition, its three-direction sprite asset, and an
   independent stone-chip impact effect asset/content definition. Use IDs
-  `weapon.player.pickaxe-tiles`, `pickaxe-stone-impact`, and
+  `weapon.player.pickaxe-tiles`, `stone-impact`, and
   `effect.resource.stone-impact-tiles`; register the assets in
   `asset/assets.json` and boot content, and import the definitions into
   `virtual-weapon-content.ts` and `virtual-effect-content.ts`. Use the standard
   frame mapping (down `0`, side-right `1`, up `2`, left mirrored from right),
-  and store the effect as `onResourceHitEffectId`, never `onHitEffectId`.
-  The effect is resource-only and anchored at the confirmed hit position, not
-  attached to the Pickaxe visual.
+  and store the effect as the stone node's resource-owned `hitEffectId`, never
+  on the Pickaxe or generic enemy-hit definition. The effect is resource-only
+  and anchored at the confirmed hit position, not attached to the Pickaxe
+  visual.
 - Expand the hotbar to six slots for testing so the Pickaxe is immediately
   owned and assigned while all existing starter tools remain available.
 - Add stone to the item registry and inventory icon mapping using the existing

@@ -3,10 +3,17 @@ import type { WorldProgressData } from '../../infrastructure/persistence/SaveSch
 import type { AreaId } from '../../world/Area';
 import { gameEvents } from '../../core/EventBus';
 
-export type ResourceProgressStage = 'node' | 'pile' | 'depleted';
+export type ResourceProgressStage = 'node' | 'pile' | 'destroyed' | 'depleted';
+export interface ResourcePileProgress {
+  readonly id: string;
+  readonly cellX: number;
+  readonly cellY: number;
+  readonly amount: number;
+}
 export interface ResourceProgressState {
   readonly stage: ResourceProgressStage;
   readonly value: number;
+  readonly piles?: readonly ResourcePileProgress[];
 }
 
 class WorldProgress {
@@ -20,16 +27,42 @@ class WorldProgress {
     this.discoveredAreas = new Set(data.discoveredAreas);
     this.defeatedBossIds = new Set(data.defeatedBossIds);
     this.completedDungeonIds = new Set(data.completedDungeonIds);
-    this.resourceStates = new Map(
-      Object.entries(data.resourceStates ?? {}).filter(([, state]) => (
-        state !== null
-        && typeof state === 'object'
-        && (state.stage === 'node' || state.stage === 'pile' || state.stage === 'depleted')
-        && typeof state.value === 'number'
-        && Number.isFinite(state.value)
-        && state.value >= 0
-      )) as Array<[string, ResourceProgressState]>,
-    );
+    this.resourceStates = new Map();
+    for (const [key, state] of Object.entries(data.resourceStates ?? {})) {
+      if (!state || typeof state !== 'object') continue;
+      if (
+        state.stage !== 'node'
+        && state.stage !== 'pile'
+        && state.stage !== 'destroyed'
+        && state.stage !== 'depleted'
+      ) continue;
+      if (typeof state.value !== 'number' || !Number.isFinite(state.value) || state.value < 0) continue;
+      const piles = Array.isArray(state.piles)
+        ? state.piles.flatMap((pile) => {
+            if (!pile || typeof pile !== 'object') return [];
+            if (
+              typeof pile.id !== 'string'
+              || !pile.id
+              || !Number.isInteger(pile.cellX)
+              || !Number.isInteger(pile.cellY)
+              || typeof pile.amount !== 'number'
+              || !Number.isFinite(pile.amount)
+              || pile.amount < 0
+            ) return [];
+            return [{
+              id: pile.id,
+              cellX: pile.cellX,
+              cellY: pile.cellY,
+              amount: Math.max(0, pile.amount),
+            }];
+          })
+        : undefined;
+      this.resourceStates.set(key, {
+        stage: state.stage,
+        value: Math.max(0, state.value),
+        ...(piles && piles.length > 0 ? { piles } : {}),
+      });
+    }
     this.loaded = true;
   }
 
@@ -39,7 +72,13 @@ class WorldProgress {
       discoveredAreas: [...this.discoveredAreas],
       defeatedBossIds: [...this.defeatedBossIds],
       completedDungeonIds: [...this.completedDungeonIds],
-      resourceStates: Object.fromEntries(this.resourceStates),
+      resourceStates: Object.fromEntries(
+        [...this.resourceStates.entries()].map(([key, state]) => [key, {
+          stage: state.stage,
+          value: state.value,
+          ...(state.piles ? { piles: state.piles.map((pile) => ({ ...pile })) } : {}),
+        }]),
+      ),
     };
   }
 
@@ -88,8 +127,15 @@ class WorldProgress {
     this.ensureLoaded();
     const key = `${mapId}:${instanceId}`;
     const previous = this.resourceStates.get(key);
-    if (previous?.stage === state.stage && previous.value === state.value) return;
-    this.resourceStates.set(key, { stage: state.stage, value: Math.max(0, state.value) });
+    const normalized: ResourceProgressState = {
+      stage: state.stage,
+      value: Math.max(0, state.value),
+      ...(state.piles && state.piles.length > 0
+        ? { piles: state.piles.map((pile) => ({ ...pile, amount: Math.max(0, pile.amount) })) }
+        : {}),
+    };
+    if (JSON.stringify(previous) === JSON.stringify(normalized)) return;
+    this.resourceStates.set(key, normalized);
     gameEvents.emit('world.progress.changed', {});
   }
 
