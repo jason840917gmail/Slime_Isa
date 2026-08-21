@@ -41,7 +41,7 @@ legacy behavior during migration.
 4. Click-drag an existing camp to move both perimeters together.
 5. Use **Edit selected** to change either perimeter's dimensions, enemy types,
    weights, per-type caps, respawn cooldown, or population cap.
-6. Delete the selected camp with `Delete`/`Backspace`, then save normally.
+6. Click **Delete selected**, confirm the prompt, then save normally.
 
 The camp overlays are visible only while the Enemy Area tool is selected. Amber
 means stay; cyan means pursue.

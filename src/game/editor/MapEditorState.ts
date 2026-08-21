@@ -247,6 +247,17 @@ export class MapEditorState {
     });
   }
 
+  deleteEnemySpawnArea(areaId: string): boolean {
+    const deleted = this.mutate(`Deleted enemy area ${areaId}`, (map) => {
+      map.enemySpawnAreas = map.enemySpawnAreas.filter((area) => area.id !== areaId);
+    });
+    if (deleted && this.selectedEnemyAreaIdValue === areaId) {
+      this.selectedEnemyAreaIdValue = undefined;
+      this.emit();
+    }
+    return deleted;
+  }
+
   selectInstance(instanceId?: string): void {
     this.selectedInstanceIdValue = instanceId;
     if (instanceId) this.selectedSafeZoneIndexValue = undefined;
@@ -270,7 +281,7 @@ export class MapEditorState {
       this.selectedSafeZoneIndexValue = undefined;
     }
     this.statusValue = areaId
-      ? `Selected enemy area ${areaId} — drag to move or edit its rules`
+      ? `Selected enemy area ${areaId} — drag to move, resize from a corner, edit, or delete`
       : 'Enemy-area selection cleared';
     this.emit();
   }

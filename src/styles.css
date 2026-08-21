@@ -675,11 +675,15 @@ body {
 }
 
 .editor-area-actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  display: grid;
   gap: 8px;
   margin-top: 9px;
+}
+
+.editor-area-action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 .editor-area-actions strong {
@@ -700,6 +704,18 @@ body {
 .editor-area-actions button:disabled {
   cursor: not-allowed;
   opacity: 0.42;
+}
+
+.editor-area-actions .editor-area-delete {
+  border-color: #a65d66;
+  color: #ffd1ce;
+  background: #3a2028;
+}
+
+.editor-area-actions .editor-area-delete:hover:not(:disabled) {
+  border-color: #ff8c84;
+  color: #fff0e9;
+  background: #5a2933;
 }
 
 .editor-area-perimeter-grid {
