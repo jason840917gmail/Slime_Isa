@@ -1,0 +1,39 @@
+{
+  "$schema": "../../../animation-package.schema.json",
+  "version": 1,
+  "animationId": "weapon.pickaxe.attack.up",
+  "displayName": "Pickaxe up attack",
+  "description": "Shared up attack animation extracted from Pickaxe.",
+  "animation": {
+    "version": 2,
+    "durationSeconds": 0.5,
+    "framesPerSecond": 12,
+    "loop": false,
+    "loopMode": "wrap",
+    "layers": [
+      {
+        "layerId": "pickaxe",
+        "displayName": "Pickaxe",
+        "assetId": "weapon.player.pickaxe-tiles",
+        "depthOffset": 0,
+        "transform": {
+          "offset": [
+            0,
+            0
+          ],
+          "scale": [
+            0.62,
+            0.62
+          ]
+        },
+        "blocks": [
+          {
+            "from": 0,
+            "through": 5,
+            "sourceFrame": 2
+          }
+        ]
+      }
+    ]
+  }
+}

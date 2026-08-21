@@ -1,0 +1,48 @@
+{
+  "$schema": "../../../animation-package.schema.json",
+  "version": 1,
+  "animationId": "weapon.basic-spear.idle",
+  "displayName": "Basic Spear idle",
+  "description": "Shared idle animation extracted from Basic Spear.",
+  "animation": {
+    "version": 2,
+    "durationSeconds": 0.08333333333333333,
+    "framesPerSecond": 12,
+    "loop": true,
+    "loopMode": "wrap",
+    "layers": [
+      {
+        "layerId": "base",
+        "displayName": "Base",
+        "assetId": "weapon.player.hammer-spear-tiles",
+        "depthOffset": 0,
+        "blocks": [
+          {
+            "from": 0,
+            "through": 0,
+            "sourceFrame": 0,
+            "transform": {
+              "offset": [
+                10,
+                -10
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 0,
+              "flipX": false,
+              "flipY": false
+            }
+          }
+        ],
+        "transform": {
+          "scale": [
+            0.8,
+            0.8
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,183 @@
+{
+  "$schema": "../../../animation-package.schema.json",
+  "version": 1,
+  "animationId": "weapon.basic-sword.attack.right",
+  "displayName": "Basic sword right attack",
+  "description": "Shared right attack animation extracted from Basic sword.",
+  "animation": {
+    "version": 2,
+    "durationSeconds": 0.4166666666666667,
+    "framesPerSecond": 24,
+    "loop": false,
+    "loopMode": "wrap",
+    "layers": [
+      {
+        "layerId": "base",
+        "displayName": "Basic sword",
+        "assetId": "weapon.player.sword-tiles",
+        "depthOffset": 0,
+        "transform": {
+          "offset": [
+            0,
+            0
+          ],
+          "scale": [
+            0.5,
+            0.5
+          ]
+        },
+        "blocks": [
+          {
+            "from": 0,
+            "through": 3,
+            "sourceFrame": 0,
+            "transform": {
+              "offset": [
+                20,
+                -12.56
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 0,
+              "flipX": false,
+              "flipY": false
+            }
+          },
+          {
+            "from": 4,
+            "through": 4,
+            "sourceFrame": 1,
+            "transform": {
+              "offset": [
+                25,
+                -8
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 0,
+              "flipX": false,
+              "flipY": false
+            }
+          },
+          {
+            "from": 5,
+            "through": 5,
+            "sourceFrame": 2,
+            "transform": {
+              "offset": [
+                30,
+                -0.66
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 0,
+              "flipX": false,
+              "flipY": false
+            }
+          },
+          {
+            "from": 6,
+            "through": 6,
+            "sourceFrame": 3,
+            "transform": {
+              "offset": [
+                36,
+                12
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 0,
+              "flipX": false,
+              "flipY": false
+            }
+          },
+          {
+            "from": 7,
+            "through": 7,
+            "sourceFrame": 4,
+            "transform": {
+              "offset": [
+                36,
+                18
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 0,
+              "flipX": false,
+              "flipY": false
+            }
+          },
+          {
+            "from": 8,
+            "through": 8,
+            "sourceFrame": 5,
+            "transform": {
+              "offset": [
+                36,
+                28
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 0,
+              "flipX": false,
+              "flipY": false
+            }
+          },
+          {
+            "from": 9,
+            "through": 9,
+            "sourceFrame": 6,
+            "transform": {
+              "offset": [
+                30,
+                38
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 0,
+              "flipX": false,
+              "flipY": false
+            }
+          }
+        ]
+      },
+      {
+        "layerId": "layer-2",
+        "displayName": "Layer 2",
+        "assetId": "weapon.player.sword-tiles",
+        "depthOffset": 1,
+        "blocks": [
+          {
+            "from": 6,
+            "through": 8,
+            "sourceFrame": 16
+          }
+        ],
+        "transform": {
+          "scale": [
+            1,
+            1
+          ],
+          "offset": [
+            60,
+            0
+          ]
+        }
+      }
+    ]
+  }
+}

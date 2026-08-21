@@ -52,6 +52,34 @@ export class LayeredAnimationDocumentState {
     };
   }
 
+  replace(animation: LayeredAnimationDocument): void {
+    this.animation = clone(animation);
+    this.selection = {
+      layerId: animation.layers[0]?.layerId,
+      blockIndex: animation.layers[0]?.blocks.length ? 0 : undefined,
+      playhead: 0,
+    };
+    this.hiddenLayerIds.clear();
+    this.soloLayerId = undefined;
+  }
+
+  restore(value: LayeredAnimationDocumentStateValue): void {
+    this.animation = clone(value.animation);
+    const frameCount = layeredTimelineFrameCount(this.animation);
+    const selectedLayer = this.animation.layers.find((layer) => layer.layerId === value.selection.layerId) ?? this.animation.layers[0];
+    const selectedBlockIndex = selectedLayer && value.selection.blockIndex !== undefined && selectedLayer.blocks[value.selection.blockIndex]
+      ? value.selection.blockIndex
+      : undefined;
+    this.selection = {
+      layerId: selectedLayer?.layerId,
+      blockIndex: selectedBlockIndex,
+      playhead: clampedFrame(value.selection.playhead, frameCount),
+    };
+    this.hiddenLayerIds.clear();
+    value.hiddenLayerIds.forEach((layerId) => this.hiddenLayerIds.add(layerId));
+    this.soloLayerId = value.soloLayerId;
+  }
+
   selectLayer(layerId: string): boolean {
     const layer = this.animation.layers.find((candidate) => candidate.layerId === layerId);
     if (!layer) return false;
@@ -92,6 +120,32 @@ export class LayeredAnimationDocumentState {
   setLayerDepth(layerId: string, depthOffset: number): boolean {
     if (!Number.isFinite(depthOffset)) return false;
     return this.updateLayer(layerId, (layer) => ({ ...layer, depthOffset }));
+  }
+
+  setLayerTransform(layerId: string, transform: AnimationVisualLayerDocument['transform']): boolean {
+    if (transform) {
+      const values = [
+        ...(transform.offset ?? []),
+        ...(transform.scale ?? []),
+        transform.rotationDeg,
+        ...(transform.origin ?? []),
+      ].filter((value): value is number => value !== undefined);
+      if (values.some((value) => !Number.isFinite(value))) return false;
+      if (transform.scale?.some((value) => value <= 0)) return false;
+    }
+    return this.updateLayer(layerId, (layer) => ({ ...layer, ...(transform ? { transform: clone(transform) } : { transform: undefined }) }));
+  }
+
+  setLoop(loop: boolean): boolean {
+    if (this.animation.loop === loop) return true;
+    this.animation = { ...this.animation, loop };
+    return true;
+  }
+
+  setLoopMode(loopMode: 'wrap' | 'ping-pong'): boolean {
+    if (loopMode !== 'wrap' && loopMode !== 'ping-pong') return false;
+    this.animation = { ...this.animation, loopMode };
+    return true;
   }
 
   moveLayer(layerId: string, delta: -1 | 1): boolean {
@@ -146,6 +200,42 @@ export class LayeredAnimationDocumentState {
       const blocks = [...layer.blocks, ...additions].sort((left, right) => left.from - right.from);
       insertedIndex = blocks.indexOf(additions[0]);
       return { ...layer, blocks };
+    });
+    if (!accepted || insertedIndex < 0) return false;
+    this.selection = { layerId, blockIndex: insertedIndex, playhead: start };
+    return true;
+  }
+
+  /**
+   * Places source tiles at the playhead without changing the authored duration.
+   * Empty cells are inserted normally; occupied cells are split and replaced so
+   * Add Tiles remains useful even when a lane already contains a full hold.
+   */
+  placeTiles(layerId: string, sourceFrames: readonly number[], from = this.selection.playhead): boolean {
+    if (this.insertTiles(layerId, sourceFrames, from)) return true;
+    if (sourceFrames.length === 0 || sourceFrames.some((frame) => !Number.isInteger(frame) || frame < 0)) return false;
+    const frameCount = layeredTimelineFrameCount(this.animation);
+    const start = Math.round(from);
+    const through = start + sourceFrames.length - 1;
+    if (start < 0 || through >= frameCount) return false;
+
+    let insertedIndex = -1;
+    const additions = sourceFrames.map((sourceFrame, index): AnimationVisualBlockDocument => ({
+      from: start + index,
+      through: start + index,
+      sourceFrame,
+    }));
+    const accepted = this.updateLayer(layerId, (layer) => {
+      const blocks = layer.blocks.flatMap((block) => {
+        if (block.through < start || block.from > through) return [block];
+        const split: AnimationVisualBlockDocument[] = [];
+        if (block.from < start) split.push({ ...block, through: start - 1 });
+        if (block.through > through) split.push({ ...block, from: through + 1 });
+        return split;
+      });
+      const nextBlocks = [...blocks, ...additions].sort((left, right) => left.from - right.from || left.through - right.through);
+      insertedIndex = nextBlocks.indexOf(additions[0]);
+      return { ...layer, blocks: nextBlocks };
     });
     if (!accepted || insertedIndex < 0) return false;
     this.selection = { layerId, blockIndex: insertedIndex, playhead: start };
@@ -258,17 +348,22 @@ export class LayeredAnimationDocumentState {
 
   setDurationSeconds(durationSeconds: number): boolean {
     if (!Number.isFinite(durationSeconds) || durationSeconds <= 0) return false;
+    const previousFrameCount = layeredTimelineFrameCount(this.animation);
     const requestedFrames = Math.round(durationSeconds * this.animation.framesPerSecond);
     if (requestedFrames < 1) return false;
-    // Duration is the clip boundary. Earlier authored timing stays fixed; only the tail is trimmed.
+    // Duration owns the timeline length. Rescale every authored occurrence just
+    // like the weapon editor rescales its timed keyframes; FPS only changes the
+    // sampling grid while this authored duration remains exact.
     const layers = this.animation.layers.flatMap((layer) => {
-      const blocks = layer.blocks
-        .filter((block) => block.from < requestedFrames)
-        .map((block) => ({ ...block, through: Math.min(block.through, requestedFrames - 1) }));
+      const blocks = reprojectBlocksByTimeline(layer.blocks, previousFrameCount, requestedFrames);
       return blocks.length > 0 || layer.blocks.length === 0 ? [{ ...layer, blocks }] : [];
     });
     this.animation = { ...this.animation, durationSeconds, layers };
-    this.reconcileSelection(this.selection.playhead, this.selection.layerId, this.selection.blockIndex);
+    this.reconcileSelection(
+      Math.round(this.selection.playhead / previousFrameCount * requestedFrames),
+      this.selection.layerId,
+      this.selection.blockIndex,
+    );
     return true;
   }
 
@@ -329,12 +424,21 @@ function reprojectBlocks(
   framesPerSecond: number,
   frameCount: number,
 ): AnimationVisualBlockDocument[] {
+  return reprojectBlocksByTimeline(blocks, previousFramesPerSecond, framesPerSecond, frameCount);
+}
+
+function reprojectBlocksByTimeline(
+  blocks: readonly AnimationVisualBlockDocument[],
+  previousTimelineFrames: number,
+  timelineFrames: number,
+  frameCount = timelineFrames,
+): AnimationVisualBlockDocument[] {
   let previousThrough = -1;
   return [...blocks]
     .sort((left, right) => left.from - right.from || left.through - right.through)
     .flatMap((block) => {
-      const projectedFrom = Math.round(block.from / previousFramesPerSecond * framesPerSecond);
-      const projectedThrough = Math.round((block.through + 1) / previousFramesPerSecond * framesPerSecond) - 1;
+      const projectedFrom = Math.round(block.from / previousTimelineFrames * timelineFrames);
+      const projectedThrough = Math.round((block.through + 1) / previousTimelineFrames * timelineFrames) - 1;
       const from = Math.max(projectedFrom, previousThrough + 1);
       const through = Math.min(projectedThrough, frameCount - 1);
       if (from > through) return [];

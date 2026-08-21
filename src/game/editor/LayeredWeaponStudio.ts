@@ -5,6 +5,8 @@ import type { CharacterStudioAssetCatalog, CharacterStudioAssetEntry } from '../
 import type { EffectDefinition, EffectDirection } from '../content/effects/types';
 import { resolveEffectVariant } from '../content/effects/normalize';
 import { validateEffectDefinition } from '../content/effects/validation';
+import { getAnimationPackage } from '../content/animations/AnimationCatalog';
+import type { AnimationPackageCatalog, AnimationPackageCatalogEntry } from '../content/animations/types';
 import { migrateLegacyAnimation, migrateLegacyWeaponDefinition } from '../content/weapons/migrateLegacyWeapon';
 import type {
   AuthoredWeaponDefinition,
@@ -18,6 +20,7 @@ import { validateWeaponDefinition } from '../content/weapons/validation';
 import { resolveAssetUrl } from '../infrastructure/assets/assetUrls';
 import {
   DOWN_UP_INHERITANCE,
+  layeredAnimationFrameAtStep,
   layeredTimelineFrameCount,
   materializeDirectionalAnimation,
   normalizeAnimationBlockTransform,
@@ -28,6 +31,11 @@ import {
 } from '../shared/animation';
 import { LayeredAnimationDocumentState } from './LayeredAnimationDocumentState';
 import { renderLayeredAnimationBlockInspector } from './LayeredAnimationBlockInspector';
+import {
+  renderLayeredAnimationPreviewPanel,
+  syncLayeredAnimationPreviewPlaybackButton,
+  updateLayeredAnimationPreviewPlayback,
+} from './LayeredAnimationPreviewPanel';
 import { renderLayeredAnimationTimelinePanel } from './LayeredAnimationTimelinePanel';
 import { renderLayeredWeaponHitboxControls, updateWeaponHitboxControl } from './LayeredWeaponHitboxControls';
 import {
@@ -36,10 +44,12 @@ import {
   renderLayeredBlockResizeHandle,
 } from './LayeredAnimationTimelineView';
 import { ensureStudioModeTabs } from './StudioModeTabs';
+import { renderStudioLibraryTree } from './StudioLibraryTree';
 import { renderWeaponHitboxGuides } from './WeaponHitboxGuides';
 import { resolveDirectionalStudioState } from './DirectionalInheritanceState';
 import { directionalModeDescription, directionalStatusLabel } from './DirectionalInheritanceView';
 import { adjustPreviewZoom } from './PreviewZoom';
+import { handleStudioHistoryShortcut } from './StudioHistoryShortcut';
 
 const DIRECTIONS = ['right', 'left', 'up', 'down'] as const satisfies readonly WeaponAttackDirection[];
 const EFFECT_DIRECTIONS = DIRECTIONS satisfies readonly EffectDirection[];
@@ -57,6 +67,9 @@ interface StudioState {
   readonly assets?: CharacterStudioAssetCatalog;
   readonly weapons: readonly CatalogWeapon[];
   readonly effects: readonly CatalogEffect[];
+  readonly animationPackages: readonly AnimationPackageCatalogEntry[];
+  readonly librarySearch: string;
+  readonly expandedFolders: ReadonlySet<string>;
   readonly selectedId: string;
   readonly draft?: LayeredWeaponDefinition;
   readonly revision?: string;
@@ -72,6 +85,7 @@ interface StudioState {
   readonly selectedHitboxId?: string;
   readonly playhead: number;
   readonly previewZoom: number;
+  readonly previewSplit: number;
   readonly inspectorTab: InspectorTab;
   readonly pickerOpen: boolean;
   readonly pickerFrames: readonly number[];
@@ -79,6 +93,23 @@ interface StudioState {
   readonly saving: boolean;
   readonly playing: boolean;
   readonly notice?: string;
+}
+
+interface WeaponHistorySnapshot {
+  readonly draft?: LayeredWeaponDefinition;
+  readonly effectDraft?: EffectDefinition;
+  readonly effectIsNew: boolean;
+  readonly effectDirty: boolean;
+  readonly dirty: boolean;
+  readonly selectedId: string;
+  readonly scope: AnimationScope;
+  readonly direction: WeaponAttackDirection;
+  readonly effectDirection: EffectDirection;
+  readonly selectedLayerId?: string;
+  readonly selectedBlockIndex?: number;
+  readonly selectedHitboxId?: string;
+  readonly playhead: number;
+  readonly inspectorTab: InspectorTab;
 }
 
 interface ResizeDrag {
@@ -101,7 +132,68 @@ interface MoveDrag {
   previewDelta: number;
 }
 
+interface WorkbenchSplitDrag {
+  readonly pointerId: number;
+  readonly startY: number;
+  readonly startRatio: number;
+  readonly availableHeight: number;
+  readonly workbench: HTMLElement;
+  lastRatio: number;
+}
+
 function clone<T>(value: T): T { return structuredClone(value); }
+
+function captureWeaponHistory(state: StudioState): WeaponHistorySnapshot {
+  return clone({
+    draft: state.draft,
+    effectDraft: state.effectDraft,
+    effectIsNew: state.effectIsNew,
+    effectDirty: state.effectDirty,
+    dirty: state.dirty,
+    selectedId: state.selectedId,
+    scope: state.scope,
+    direction: state.direction,
+    effectDirection: state.effectDirection,
+    selectedLayerId: state.selectedLayerId,
+    selectedBlockIndex: state.selectedBlockIndex,
+    selectedHitboxId: state.selectedHitboxId,
+    playhead: state.playhead,
+    inspectorTab: state.inspectorTab,
+  });
+}
+
+function weaponHistoryContent(snapshot: WeaponHistorySnapshot): unknown {
+  return {
+    draft: snapshot.draft,
+    effectDraft: snapshot.effectDraft,
+    effectIsNew: snapshot.effectIsNew,
+    effectDirty: snapshot.effectDirty,
+    dirty: snapshot.dirty,
+    selectedId: snapshot.selectedId,
+  };
+}
+
+function restoreWeaponHistory(state: StudioState, snapshot: WeaponHistorySnapshot): StudioState {
+  return {
+    ...state,
+    draft: snapshot.draft ? clone(snapshot.draft) : undefined,
+    effectDraft: snapshot.effectDraft ? clone(snapshot.effectDraft) : undefined,
+    effectIsNew: snapshot.effectIsNew,
+    effectDirty: snapshot.effectDirty,
+    dirty: snapshot.dirty,
+    selectedId: snapshot.selectedId,
+    scope: snapshot.scope,
+    direction: snapshot.direction,
+    effectDirection: snapshot.effectDirection,
+    selectedLayerId: snapshot.selectedLayerId,
+    selectedBlockIndex: snapshot.selectedBlockIndex,
+    selectedHitboxId: snapshot.selectedHitboxId,
+    playhead: snapshot.playhead,
+    inspectorTab: snapshot.inspectorTab,
+    notice: undefined,
+    playing: false,
+  };
+}
 
 function escapeHtml(value: unknown): string {
   return String(value ?? '').replace(/[&<>"']/g, (character) => ({
@@ -208,7 +300,7 @@ function reconcileWeaponAttackTrack(
 function replaceAnimation(state: StudioState, animation: LayeredAnimationDocument): StudioState {
   if (!state.draft) return state;
   if (state.scope === 'idle') {
-    return { ...state, draft: { ...state.draft, animations: { idle: animation } }, dirty: true };
+    return { ...state, draft: { ...state.draft, animations: { ...state.draft.animations, idle: animation } }, dirty: true };
   }
   if (state.scope === 'attack') {
     const resolved = resolveWeaponAttack(state.draft, state.direction);
@@ -318,7 +410,7 @@ function prepareWeapon(entry: CatalogWeapon, effects: readonly CatalogEffect[]):
   if (source.version === 2) {
     const effect = source.onHitEffectId ? effects.find((candidate) => candidate.effectId === source.onHitEffectId) : undefined;
     return {
-      draft: clone(source),
+      draft: hydrateSharedWeaponAnimations(source),
       effectDraft: effect ? clone(stripEffectRevision(effect)) : undefined,
       effectRevision: effect?.revision,
       effectIsNew: false,
@@ -337,6 +429,13 @@ function prepareWeapon(entry: CatalogWeapon, effects: readonly CatalogEffect[]):
   };
 }
 
+export interface LayeredWeaponStudioOptions {
+  readonly initialWeaponId?: string;
+  readonly onSelectAnimation?: (animationId: string) => void;
+  readonly expandedFolders?: ReadonlySet<string>;
+  readonly onExpandedFoldersChange?: (expandedFolders: ReadonlySet<string>) => void;
+}
+
 function emptyAnimation(assetId: string, loop: boolean): LayeredAnimationDocument {
   return {
     version: 2,
@@ -345,6 +444,65 @@ function emptyAnimation(assetId: string, loop: boolean): LayeredAnimationDocumen
     loop,
     loopMode: 'wrap',
     layers: [{ layerId: 'base', displayName: 'Base', assetId, depthOffset: 0, blocks: [{ from: 0, through: 0, sourceFrame: 0 }] }],
+  };
+}
+
+function timelineAnimation(timeline: {
+  readonly durationSeconds: number;
+  readonly framesPerSecond: number;
+  readonly loop: boolean;
+  readonly loopMode?: 'wrap' | 'ping-pong';
+}): LayeredAnimationDocument {
+  return {
+    version: 2,
+    durationSeconds: timeline.durationSeconds,
+    framesPerSecond: timeline.framesPerSecond,
+    loop: timeline.loop,
+    loopMode: timeline.loopMode ?? 'wrap',
+    layers: [],
+  };
+}
+
+function hydrateSharedAnimation(
+  animationId: string | undefined,
+  timeline: {
+    readonly durationSeconds: number;
+    readonly framesPerSecond: number;
+    readonly loop: boolean;
+    readonly loopMode?: 'wrap' | 'ping-pong';
+  } | undefined,
+  embedded: LayeredAnimationDocument | undefined,
+  loop: boolean,
+): LayeredAnimationDocument {
+  const shared = animationId ? getAnimationPackage(animationId)?.animation : undefined;
+  return shared ? clone(shared) : timeline ? timelineAnimation(timeline) : embedded ? clone(embedded) : timelineAnimation({ durationSeconds: 1 / 12, framesPerSecond: 12, loop });
+}
+
+function hydrateSharedWeaponAnimations(source: LayeredWeaponDefinition): LayeredWeaponDefinition {
+  const animations = source.animations as LayeredWeaponDefinition['animations'] & {
+    readonly idle?: LayeredAnimationDocument;
+  };
+  const idle = hydrateSharedAnimation(
+    animations.idleAnimationId,
+    animations.idleTimeline,
+    animations.idle,
+    true,
+  );
+  const directionalAttacks = Object.fromEntries(
+    Object.entries(source.directionalAttacks).map(([direction, attack]) => [direction, {
+      ...attack,
+      animation: hydrateSharedAnimation(
+        attack.animationId,
+        attack.animationTimeline,
+        attack.animation,
+        false,
+      ),
+    }]),
+  ) as LayeredWeaponDefinition['directionalAttacks'];
+  return {
+    ...clone(source),
+    animations: { ...source.animations, idle },
+    directionalAttacks,
   };
 }
 
@@ -489,8 +647,14 @@ function renderPreview(state: StudioState, animation: LayeredAnimationDocument):
   const activeLayers = resolvedLayerAt(animation, state.playhead);
   const effectOnly = state.scope === 'effect';
   const mirror = previewMirrorAxes(state);
-  const zoomPercent = Math.round(state.previewZoom * 100);
-  return `<section class="studio-preview-card weapon-preview-card layered-preview-card"><div class="studio-preview-toolbar"><span class="studio-kicker">COMBINED PREVIEW</span><span class="studio-muted">${state.scope.toUpperCase()}${state.scope === 'idle' ? '' : ` / ${(state.scope === 'effect' ? state.effectDirection : state.direction).toUpperCase()}`} · ${Number(state.playhead / animation.framesPerSecond).toFixed(2)}s / ${duration.toFixed(2)}s · ${activeLayers.length} active layer${activeLayers.length === 1 ? '' : 's'}</span><div class="layered-preview-toolbar-actions"><div class="layered-preview-zoom-controls" aria-label="Preview zoom"><button type="button" class="studio-button studio-button--quiet" data-action="preview-zoom-out" aria-label="Zoom preview out" title="Zoom preview out">−</button><span>${zoomPercent}%</span><button type="button" class="studio-button studio-button--quiet" data-action="preview-zoom-in" aria-label="Zoom preview in" title="Zoom preview in">+</button><button type="button" class="studio-link-button" data-action="preview-zoom-reset">RESET</button></div><button type="button" class="studio-button studio-button--quiet" data-action="play-preview">${state.playing ? '■ STOP' : '▶ PLAY'}</button></div></div><div class="studio-stage weapon-stage layered-preview" style="--preview-zoom:${state.previewZoom}" title="Use the mouse wheel to zoom the preview"><div class="layered-preview-scene"><span class="stage-axis stage-axis-x"></span><span class="stage-axis stage-axis-y"></span><span class="stage-anchor">+</span><span class="stage-label">${effectOnly ? 'ENEMY CONTACT' : 'PLAYER ANCHOR'}</span>${effectOnly ? '' : characterSprite(state)}${activeLayers.map(({ layer, layerIndex, block }) => layerPreviewSprite(state, layer, block, layerIndex, mirror)).join('')}${renderPreviewHitboxes(state)}<span class="stage-caption"><b>${escapeHtml(state.scope === 'effect' ? state.effectDraft?.displayName : state.draft?.displayName)}</b><span>${activeLayers.map(({ layer, block }) => `${escapeHtml(layer.displayName)} · TILE ${block.sourceFrame}`).join('  /  ') || 'NO VISUAL AT PLAYHEAD'}</span></span></div></div><div class="studio-preview-footer"><span><i class="legend-dot legend-dot--cyan"></i> shared clock</span><span><i class="legend-dot legend-dot--amber"></i> selected visual layer</span><span><i class="legend-dot legend-dot--red"></i> hitbox active window</span><span>Wheel over preview to zoom · Effects spawn only after confirmed damage.</span></div></section>`;
+  return renderLayeredAnimationPreviewPanel({
+    kicker: 'COMBINED PREVIEW',
+    summaryHtml: `${state.scope.toUpperCase()}${state.scope === 'idle' ? '' : ` / ${(state.scope === 'effect' ? state.effectDirection : state.direction).toUpperCase()}`} · ${Number(state.playhead / animation.framesPerSecond).toFixed(2)}s / ${duration.toFixed(2)}s · ${activeLayers.length} active layer${activeLayers.length === 1 ? '' : 's'}`,
+    previewZoom: state.previewZoom,
+    playing: state.playing,
+    sceneHtml: `<span class="stage-axis stage-axis-x"></span><span class="stage-axis stage-axis-y"></span><span class="stage-anchor">+</span><span class="stage-label">${effectOnly ? 'ENEMY CONTACT' : 'PLAYER ANCHOR'}</span>${effectOnly ? '' : characterSprite(state)}${activeLayers.map(({ layer, layerIndex, block }) => layerPreviewSprite(state, layer, block, layerIndex, mirror)).join('')}${renderPreviewHitboxes(state)}<span class="stage-caption"><b>${escapeHtml(state.scope === 'effect' ? state.effectDraft?.displayName : state.draft?.displayName)}</b><span>${activeLayers.map(({ layer, block }) => `${escapeHtml(layer.displayName)} · TILE ${block.sourceFrame}`).join('  /  ') || 'NO VISUAL AT PLAYHEAD'}</span></span>`,
+    footerHtml: '<span><i class="legend-dot legend-dot--cyan"></i> shared clock</span><span><i class="legend-dot legend-dot--amber"></i> selected visual layer</span><span><i class="legend-dot legend-dot--red"></i> hitbox active window</span><span>Wheel over preview to zoom · Effects spawn only after confirmed damage.</span>',
+  });
 }
 
 function selectedAttack(state: StudioState) {
@@ -622,7 +786,7 @@ function renderBlock(state: StudioState, animation: LayeredAnimationDocument, la
 function renderTimeline(state: StudioState, animation: LayeredAnimationDocument): string {
   return renderLayeredAnimationTimelinePanel({
     titleHtml: `Editing ${escapeHtml(state.scope)}${state.scope === 'idle' ? '' : ` / ${escapeHtml(state.scope === 'effect' ? state.effectDirection : state.direction)}`}`,
-    hint: 'Click empty time to place · drag tile to move · drag edge to resize',
+    hint: 'Click time to place the playhead · drag tile to move · drag edge to resize',
     timeline: createLayeredAnimationTimelineView(animation),
     selectedLayerId: state.selectedLayerId,
     selectedBlockIndex: state.selectedBlockIndex,
@@ -724,13 +888,24 @@ function renderPicker(state: StudioState, animation: LayeredAnimationDocument): 
   return `<div class="studio-asset-shelf-backdrop layered-tile-picker-backdrop" data-picker-backdrop><section class="studio-asset-shelf weapon-tile-picker" role="dialog" aria-modal="true" aria-labelledby="layered-tile-picker-title"><header class="studio-asset-shelf-heading"><div><span class="studio-kicker">${escapeHtml(layer?.displayName ?? 'Layer')} source</span><h2 id="layered-tile-picker-title">Add tiles to animation</h2><p>Source tiles stay in this popup. The timeline only shows authored blocks and their hold time.</p></div><button type="button" class="studio-icon-button" data-action="close-picker" aria-label="Close">×</button></header><div class="studio-sheet-grid projectile-frame-grid weapon-picker-grid">${Array.from({ length: info.count }, (_, frame) => `<button type="button" class="projectile-frame-option${state.pickerFrames.includes(frame) ? ' is-selected' : ''}" data-picker-frame="${frame}" aria-pressed="${state.pickerFrames.includes(frame)}">${frameSprite(asset, frame, 'projectile-frame-preview')}<span>${String(frame).padStart(2, '0')}</span></button>`).join('')}</div><footer class="weapon-tile-picker-footer"><span>${state.pickerFrames.length} selected · inserted at playhead ${state.playhead}</span><div><button type="button" class="studio-button studio-button--quiet" data-action="close-picker">CANCEL</button><button type="button" class="studio-button studio-button--accent" data-action="confirm-picker" ${state.pickerFrames.length ? '' : 'disabled'}>ADD TO LAYER</button></div></footer></section></div>`;
 }
 
+function renderWeaponLibrary(state: StudioState, returnEditor: string): string {
+  return renderStudioLibraryTree({
+    weapons: state.weapons,
+    animations: state.animationPackages,
+    search: state.librarySearch,
+    expandedFolders: state.expandedFolders,
+    selectedWeaponId: state.selectedId,
+    footerHtml: `<button type="button" class="studio-button studio-button--outline" data-action="new-weapon">NEW WEAPON</button><a class="studio-button studio-button--outline studio-button--navigation" href="?studio=characters&amp;editor=${encodeURIComponent(returnEditor)}">↗ CHARACTER STUDIO</a>`,
+  });
+}
+
 function renderStudio(state: StudioState, returnEditor: string): string {
   const animation = animationFor(state);
   if (!state.draft || !animation) {
     return `<main class="character-studio weapon-studio layered-weapon-studio"><header class="studio-topbar"><a class="studio-brand" href="?"><span class="brand-mark">✦</span><span><small>FIELD CARTOGRAPHER</small><strong>WEAPON STUDIO</strong></span></a><div class="studio-topbar-actions"><span class="studio-save-state"><i></i>${escapeHtml(state.notice ?? 'Loading layered weapon library…')}</span></div></header><section class="studio-empty-state"><span class="studio-loading-orb">✦</span><h2>${escapeHtml(state.notice ?? 'Loading weapons')}</h2></section></main>`;
   }
   const isNew = !state.revision;
-  return `<main class="character-studio weapon-studio layered-weapon-studio${state.dirty || state.effectDirty ? ' is-dirty' : ''}"><header class="studio-topbar"><a class="studio-brand" href="?" aria-label="Back to game"><span class="brand-mark">✦</span><span><small>FIELD CARTOGRAPHER</small><strong>WEAPON STUDIO</strong></span></a><div class="studio-topbar-actions"><span class="studio-save-state${state.notice ? ' is-error' : ''}"><i></i>${escapeHtml(state.notice ?? (state.dirty || state.effectDirty ? 'Unsaved layered package' : 'Saved library'))}</span><button type="button" class="studio-button studio-button--save" data-action="save" ${(!state.dirty && !state.effectDirty) || state.saving ? 'disabled' : ''}>${state.saving ? 'SAVING…' : isNew ? 'CREATE WEAPON' : 'SAVE WEAPON'}</button></div></header><div class="studio-layout"><aside class="studio-library"><div class="studio-panel-title"><div><span class="studio-kicker">Equipment library</span><h1>Weapons</h1></div><span class="studio-count">${String(state.weapons.length).padStart(2, '0')}</span></div><div class="studio-roster">${state.weapons.map((weapon) => `<button type="button" class="studio-roster-item${weapon.weaponId === state.selectedId ? ' is-active' : ''}" data-weapon-id="${escapeHtml(weapon.weaponId)}"><span class="roster-glyph player">◆</span><span><strong>${escapeHtml(weapon.displayName)}</strong><small>V${weapon.version} · ${weapon.category.toUpperCase()}</small></span><em>${weapon.weaponId === state.selectedId ? 'OPEN' : ''}</em></button>`).join('')}</div><div class="studio-library-footer"><button type="button" class="studio-button studio-button--outline" data-action="new-weapon">NEW WEAPON</button><a class="studio-button studio-button--outline studio-button--navigation" href="?studio=characters&editor=${encodeURIComponent(returnEditor)}">↗ CHARACTER STUDIO</a></div></aside><section class="studio-workbench"><div class="studio-workbench-heading"><div><span class="studio-kicker">Layered animation package</span><h2>${escapeHtml(state.draft.displayName)} <span>V2</span></h2></div><div class="studio-workbench-meta"><span>WEAPON <b>${escapeHtml(state.draft.weaponId)}</b></span><span>PLAYHEAD <b>${Number(state.playhead / animation.framesPerSecond).toFixed(2)}s</b></span><span>LAYERS <b>${animation.layers.length}</b></span></div></div>${renderPreview(state, animation)}${renderScopeControls(state, animation)}${renderTimeline(state, animation)}</section>${renderInspector(state, animation)}</div>${renderPicker(state, animation)}</main>`;
+  return `<main class="character-studio weapon-studio layered-weapon-studio${state.dirty || state.effectDirty ? ' is-dirty' : ''}"><header class="studio-topbar"><a class="studio-brand" href="?" aria-label="Back to game"><span class="brand-mark">✦</span><span><small>FIELD CARTOGRAPHER</small><strong>WEAPON STUDIO</strong></span></a><div class="studio-topbar-actions"><span class="studio-save-state${state.notice ? ' is-error' : ''}"><i></i>${escapeHtml(state.notice ?? (state.dirty || state.effectDirty ? 'Unsaved layered package' : 'Saved library'))}</span><button type="button" class="studio-button studio-button--save" data-action="save" ${(!state.dirty && !state.effectDirty) || state.saving ? 'disabled' : ''}>${state.saving ? 'SAVING…' : isNew ? 'CREATE WEAPON' : 'SAVE WEAPON'}</button></div></header><div class="studio-layout">${renderWeaponLibrary(state, returnEditor)}<section class="studio-workbench" style="--preview-split:${state.previewSplit}fr;--controls-split:${100 - state.previewSplit}fr"><div class="studio-workbench-heading"><div><span class="studio-kicker">Layered animation package</span><h2>${escapeHtml(state.draft.displayName)} <span>V2</span></h2></div><div class="studio-workbench-meta"><span>WEAPON <b>${escapeHtml(state.draft.weaponId)}</b></span><span>PLAYHEAD <b>${Number(state.playhead / animation.framesPerSecond).toFixed(2)}s</b></span><span>LAYERS <b>${animation.layers.length}</b></span></div></div>${renderPreview(state, animation)}<button type="button" class="layered-workbench-splitter" data-workbench-splitter aria-label="Resize preview and timeline" aria-valuemin="25" aria-valuemax="75" aria-valuenow="${state.previewSplit}" title="Drag to resize preview and timeline"><span></span></button><div class="layered-workbench-bottom layered-workbench-bottom--with-scope">${renderScopeControls(state, animation)}${renderTimeline(state, animation)}</div></section>${renderInspector(state, animation)}</div>${renderPicker(state, animation)}</main>`;
 }
 
 async function loadJson<T>(url: string): Promise<T> {
@@ -814,10 +989,74 @@ function updateWeaponField(state: StudioState, field: string, value: string): St
   return { ...state, draft: { ...state.draft, [field]: numericFields.has(field) ? Number(value) : value }, dirty: true };
 }
 
+function stripSharedAnimationCopies(weapon: LayeredWeaponDefinition): LayeredWeaponDefinition {
+  const animations = { ...weapon.animations } as Record<string, unknown>;
+  if (animations.idleAnimationId) delete animations.idle;
+  const directionalAttacks = Object.fromEntries(
+    Object.entries(weapon.directionalAttacks).map(([direction, attack]) => {
+      const next = { ...attack } as Record<string, unknown>;
+      if (next.animationId) delete next.animation;
+      return [direction, next];
+    }),
+  ) as unknown as LayeredWeaponDefinition['directionalAttacks'];
+  return { ...weapon, animations: animations as unknown as LayeredWeaponDefinition['animations'], directionalAttacks };
+}
+
+interface SharedAnimationEdit {
+  readonly animationId: string;
+  readonly animation: LayeredAnimationDocument;
+}
+
+function sharedAnimationEdits(weapon: LayeredWeaponDefinition): readonly SharedAnimationEdit[] {
+  const edits: SharedAnimationEdit[] = [];
+  const seen = new Set<string>();
+  const add = (animationId: string | undefined, animation: LayeredAnimationDocument | undefined): void => {
+    if (!animationId || !animation || seen.has(animationId)) return;
+    seen.add(animationId);
+    edits.push({ animationId, animation });
+  };
+  add(weapon.animations.idleAnimationId, weapon.animations.idle);
+  for (const attack of Object.values(weapon.directionalAttacks)) add(attack.animationId, attack.animation);
+  return edits;
+}
+
+async function saveSharedAnimationEdits(weapon: LayeredWeaponDefinition): Promise<void> {
+  const edits = sharedAnimationEdits(weapon);
+  if (edits.length === 0) return;
+  const catalog = await loadJson<AnimationPackageCatalog>('/__animation-library/catalog');
+  const writes = edits.map((edit) => {
+    const entry = catalog.packages.find((candidate) => candidate.animationId === edit.animationId) as AnimationPackageCatalogEntry | undefined;
+    if (!entry) throw new Error(`Shared animation package '${edit.animationId}' was not found`);
+    return {
+      packagePath: entry.packagePath,
+      expectedRevision: entry.revision,
+      operation: 'update' as const,
+      package: {
+        $schema: entry.$schema,
+        version: entry.version,
+        animationId: entry.animationId,
+        displayName: entry.displayName,
+        description: entry.description,
+        animation: edit.animation,
+      },
+    };
+  });
+  const response = await fetch('/__animation-library/transaction', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ expectedCatalogRevision: catalog.revision, writes }),
+  });
+  const payload = await response.json() as { ok?: boolean; error?: { message?: string } };
+  if (!response.ok || !payload.ok) throw new Error(payload.error?.message ?? 'Shared animations could not be saved');
+}
+
 async function savePackage(state: StudioState): Promise<Partial<StudioState>> {
   if (!state.draft) throw new Error('No weapon is open');
   const weaponIssues = validateWeaponDefinition(state.draft);
   if (weaponIssues.length) throw new Error(weaponIssues[0]);
+  const weaponForSave = stripSharedAnimationCopies(state.draft);
+  const saveIssues = validateWeaponDefinition(weaponForSave);
+  if (saveIssues.length) throw new Error(saveIssues[0]);
   if (state.effectDraft) {
     const effectIssues = validateEffectDefinition(state.effectDraft, {
       assetLookup: (assetId) => {
@@ -827,11 +1066,12 @@ async function savePackage(state: StudioState): Promise<Partial<StudioState>> {
     });
     if (effectIssues.length) throw new Error(effectIssues[0]);
   }
+  await saveSharedAnimationEdits(state.draft);
   const response = await fetch('/__character-studio/weapon/save-package', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      weapon: state.draft,
+      weapon: weaponForSave,
       weaponOperation: state.revision ? 'update' : 'create',
       ...(state.revision ? { expectedWeaponRevision: state.revision } : {}),
       ...(state.effectDraft && state.effectDirty ? {
@@ -846,23 +1086,30 @@ async function savePackage(state: StudioState): Promise<Partial<StudioState>> {
   return { revision: payload.data.weaponRevision, effectRevision: payload.data.effectRevision ?? state.effectRevision, effectIsNew: false, effectDirty: false, dirty: false, notice: 'Saved. Reload the game to use changed content.' };
 }
 
-export function mountLayeredWeaponStudio(container: HTMLDivElement): () => void {
+export function mountLayeredWeaponStudio(container: HTMLDivElement, options: LayeredWeaponStudioOptions = {}): () => void {
   container.classList.add('is-character-studio-host');
   const returnEditor = new URLSearchParams(window.location.search).get('editor') ?? 'meadow-crossing';
   let state: StudioState = {
-    weapons: [], effects: [], selectedId: '', scope: 'attack', direction: 'right', effectDirection: 'right',
-     effectIsNew: false, effectDirty: false, playhead: 0, previewZoom: 1, inspectorTab: 'layer', pickerOpen: false,
+    weapons: [], effects: [], animationPackages: [], librarySearch: '', expandedFolders: new Set(options.expandedFolders ?? ['weapons', 'animations']), selectedId: '', scope: 'attack', direction: 'right', effectDirection: 'right',
+    effectIsNew: false, effectDirty: false, playhead: 0, previewZoom: 1, previewSplit: 55, inspectorTab: 'layer', pickerOpen: false,
     pickerFrames: [], dirty: false, saving: false, playing: false,
   };
   let resize: ResizeDrag | undefined;
   let move: MoveDrag | undefined;
+  let splitDrag: WorkbenchSplitDrag | undefined;
   let suppressedBlockClick: string | undefined;
   let playbackTimer: number | undefined;
+  let playbackGeneration = 0;
+  let playbackStep = 0;
+  const undoStack: WeaponHistorySnapshot[] = [];
+  const redoStack: WeaponHistorySnapshot[] = [];
 
   const stopPlayback = (): void => {
+    playbackGeneration += 1;
     if (playbackTimer !== undefined) window.clearInterval(playbackTimer);
     playbackTimer = undefined;
     state = { ...state, playing: false };
+    syncLayeredAnimationPreviewPlaybackButton(container, false);
   };
   const render = (): void => {
     const workbench = container.querySelector<HTMLElement>('.studio-workbench');
@@ -878,6 +1125,8 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement): () => void 
   };
   const selectCatalogWeapon = (entry: CatalogWeapon): void => {
     stopPlayback();
+    undoStack.length = 0;
+    redoStack.length = 0;
     const prepared = prepareWeapon(entry, state.effects);
     const animation = prepared.draft.directionalAttacks.right.animation;
     state = selectionForAnimation({
@@ -887,8 +1136,29 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement): () => void 
     }, animation);
     render();
   };
-  const mutate = (next: StudioState): void => { state = next; render(); };
+  const mutate = (next: StudioState): void => {
+    const before = captureWeaponHistory(state);
+    const after = captureWeaponHistory(next);
+    if (JSON.stringify(weaponHistoryContent(before)) !== JSON.stringify(weaponHistoryContent(after))) {
+      undoStack.push(before);
+      if (undoStack.length > 100) undoStack.shift();
+      redoStack.length = 0;
+    }
+    state = next;
+    render();
+  };
   const mutateAnimation = (operation: (document: LayeredAnimationDocumentState) => boolean, failureNotice?: string): void => mutate(transformAnimationState(state, operation, failureNotice));
+  const applyHistory = (redo: boolean): boolean => {
+    const stack = redo ? redoStack : undoStack;
+    const snapshot = stack.pop();
+    if (!snapshot) return false;
+    const current = captureWeaponHistory(state);
+    (redo ? undoStack : redoStack).push(current);
+    state = restoreWeaponHistory(state, snapshot);
+    stopPlayback();
+    render();
+    return true;
+  };
   const updateAttack = (update: (attack: NonNullable<ReturnType<typeof selectedAttack>>) => NonNullable<ReturnType<typeof selectedAttack>>): void => {
     if (!state.draft) return;
     const resolved = resolveWeaponAttack(state.draft, state.direction);
@@ -926,6 +1196,13 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement): () => void 
     if (target === target.closest('[data-picker-backdrop]')) { mutate({ ...state, pickerOpen: false, pickerFrames: [] }); return; }
     const weaponButton = target.closest<HTMLElement>('[data-weapon-id]');
     if (weaponButton) { const entry = state.weapons.find((weapon) => weapon.weaponId === weaponButton.dataset.weaponId); if (entry) selectCatalogWeapon(entry); return; }
+    const animationButton = target.closest<HTMLElement>('[data-animation-id]');
+    if (animationButton?.dataset.animationId) {
+      if ((state.dirty || state.effectDirty) && !window.confirm('Discard unsaved weapon changes?')) return;
+      const animationId = animationButton.dataset.animationId;
+      queueMicrotask(() => options.onSelectAnimation?.(animationId));
+      return;
+    }
     const tab = target.closest<HTMLElement>('[data-inspector-tab]');
     if (tab) { mutate({ ...state, inspectorTab: tab.dataset.inspectorTab as InspectorTab }); return; }
     const scope = target.closest<HTMLElement>('[data-scope]')?.dataset.scope as AnimationScope | undefined;
@@ -1023,7 +1300,7 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement): () => void 
     }
     if (action === 'add-layer-tiles') { mutate({ ...state, pickerOpen: true, pickerFrames: [] }); return; }
     if (action === 'close-picker') { mutate({ ...state, pickerOpen: false, pickerFrames: [] }); return; }
-    if (action === 'confirm-picker') { const frames = [...state.pickerFrames]; state = { ...state, pickerOpen: false, pickerFrames: [] }; mutateAnimation((document) => Boolean(state.selectedLayerId && document.insertTiles(state.selectedLayerId, frames, state.playhead)), 'There is not enough empty time for those tiles. Increase the animation duration first.'); return; }
+    if (action === 'confirm-picker') { const frames = [...state.pickerFrames]; state = { ...state, pickerOpen: false, pickerFrames: [] }; mutateAnimation((document) => Boolean(state.selectedLayerId && document.placeTiles(state.selectedLayerId, frames, state.playhead)), 'Those tiles could not be placed inside the animation duration.'); return; }
     if (action === 'delete-layer' && state.selectedLayerId) { mutateAnimation((document) => document.deleteLayer(state.selectedLayerId!)); return; }
     if (action === 'layer-up' && state.selectedLayerId) { mutateAnimation((document) => document.moveLayer(state.selectedLayerId!, 1)); return; }
     if (action === 'layer-down' && state.selectedLayerId) { mutateAnimation((document) => document.moveLayer(state.selectedLayerId!, -1)); return; }
@@ -1058,8 +1335,23 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement): () => void 
     if (action === 'play-preview') {
       if (state.playing) { stopPlayback(); render(); return; }
       const animation = animationFor(state); if (!animation) return;
-      const frames = layeredTimelineFrameCount(animation); state = { ...state, playing: true, playhead: 0 }; render();
-      playbackTimer = window.setInterval(() => { const current = animationFor(state); if (!current) return; const next = state.playhead + 1; if (next >= frames) { stopPlayback(); state = { ...state, playhead: current.loop ? 0 : frames - 1 }; render(); return; } state = { ...state, playhead: next }; render(); }, 1000 / animation.framesPerSecond); return;
+      if (playbackTimer !== undefined) window.clearInterval(playbackTimer);
+      playbackTimer = undefined;
+      const generation = ++playbackGeneration;
+      playbackStep = 0;
+      state = { ...state, playing: true, playhead: 0 }; render();
+      playbackTimer = window.setInterval(() => {
+        if (generation !== playbackGeneration || !state.playing) return;
+        const current = animationFor(state);
+        if (!current) { stopPlayback(); render(); return; }
+        const frames = layeredTimelineFrameCount(current);
+        const nextStep = playbackStep + 1;
+        if (nextStep >= frames && !current.loop) { stopPlayback(); state = { ...state, playhead: frames - 1 }; render(); return; }
+        playbackStep = nextStep;
+        const next = layeredAnimationFrameAtStep(current, playbackStep);
+        state = { ...state, playhead: next };
+        updateLayeredAnimationPreviewPlayback(container, renderPreview(state, current), next, next / current.framesPerSecond);
+      }, 1000 / animation.framesPerSecond); return;
     }
     if (action === 'save') {
       state = { ...state, saving: true, notice: undefined }; render();
@@ -1092,7 +1384,8 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement): () => void 
       const animation = animationFor(state);
       const block = animation?.layers.find((layer) => layer.layerId === state.selectedLayerId)?.blocks[state.selectedBlockIndex];
       const numericValue = Number(target.value);
-      if (!block || !Number.isFinite(numericValue)) return;
+      const isFlipField = blockTransformField === 'flipX' || blockTransformField === 'flipY';
+      if (!block || (!isFlipField && !Number.isFinite(numericValue))) return;
       const transform = normalizeAnimationBlockTransform(block.transform);
       const offset = [...transform.offset] as [number, number];
       const scale = [...transform.scale] as [number, number];
@@ -1105,8 +1398,8 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement): () => void 
         offset,
         scale,
         rotationDeg,
-        flipX: transform.flipX,
-        flipY: transform.flipY,
+        flipX: blockTransformField === 'flipX' && target instanceof HTMLInputElement ? target.checked : transform.flipX,
+        flipY: blockTransformField === 'flipY' && target instanceof HTMLInputElement ? target.checked : transform.flipY,
       }));
       return;
     }
@@ -1120,6 +1413,12 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement): () => void 
   const handleInput = (event: Event): void => {
     const target = event.target;
     if (!(target instanceof HTMLInputElement)) return;
+    if (target.dataset.studioLibrarySearch !== undefined) {
+      state = { ...state, librarySearch: target.value };
+      render();
+      container.querySelector<HTMLInputElement>('[data-studio-library-search]')?.focus();
+      return;
+    }
     const field = target.dataset.weaponField;
     if (!field?.startsWith('hitbox:') || target.value.trim() === '') return;
     const next = updateWeaponField(state, field, target.value);
@@ -1136,8 +1435,41 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement): () => void 
     if (previewZoom !== state.previewZoom) mutate({ ...state, previewZoom });
   };
 
+  const applyWorkbenchSplit = (workbench: HTMLElement, requestedRatio: number): number => {
+    const ratio = Math.max(25, Math.min(75, requestedRatio));
+    workbench.style.setProperty('--preview-split', `${ratio}fr`);
+    workbench.style.setProperty('--controls-split', `${100 - ratio}fr`);
+    workbench.querySelector<HTMLElement>('[data-workbench-splitter]')?.setAttribute('aria-valuenow', String(ratio));
+    return ratio;
+  };
+
+  const clearWorkbenchSplitState = (): void => {
+    container.querySelector<HTMLElement>('.layered-weapon-studio')?.classList.remove('is-splitting');
+  };
+
   const handlePointerDown = (event: PointerEvent): void => {
     if (!(event.target instanceof Element) || event.button !== 0) return;
+    const splitHandle = event.target.closest<HTMLElement>('[data-workbench-splitter]');
+    if (splitHandle) {
+      const workbench = splitHandle.closest<HTMLElement>('.studio-workbench');
+      const preview = workbench?.querySelector<HTMLElement>('.layered-preview-card');
+      const bottom = workbench?.querySelector<HTMLElement>('.layered-workbench-bottom');
+      if (!workbench || !preview || !bottom) return;
+      const previewRect = preview.getBoundingClientRect();
+      const bottomRect = bottom.getBoundingClientRect();
+      event.preventDefault();
+      splitDrag = {
+        pointerId: event.pointerId,
+        startY: splitHandle.getBoundingClientRect().top + splitHandle.getBoundingClientRect().height / 2,
+        startRatio: state.previewSplit,
+        availableHeight: previewRect.height + bottomRect.height,
+        workbench,
+        lastRatio: state.previewSplit,
+      };
+      container.querySelector<HTMLElement>('.layered-weapon-studio')?.classList.add('is-splitting');
+      if (event.isTrusted) splitHandle.setPointerCapture(event.pointerId);
+      return;
+    }
     const resizeHandle = event.target.closest<HTMLElement>('[data-layer-resize-handle]');
     if (resizeHandle) {
       const animation = animationFor(state); const lane = resizeHandle.closest<HTMLElement>('.layered-timeline-blocks');
@@ -1173,6 +1505,11 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement): () => void 
   };
 
   const handlePointerMove = (event: PointerEvent): void => {
+    if (splitDrag && splitDrag.pointerId === event.pointerId) {
+      event.preventDefault();
+      splitDrag.lastRatio = applyWorkbenchSplit(splitDrag.workbench, splitDrag.startRatio + ((event.clientY - splitDrag.startY) / splitDrag.availableHeight) * 100);
+      return;
+    }
     if (!move || move.pointerId !== event.pointerId) return;
     event.preventDefault();
     const animation = animationFor(state);
@@ -1199,6 +1536,14 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement): () => void 
   };
 
   const handlePointerUp = (event: PointerEvent): void => {
+    if (splitDrag && splitDrag.pointerId === event.pointerId) {
+      event.preventDefault();
+      const current = splitDrag;
+      splitDrag = undefined;
+      state = { ...state, previewSplit: current.lastRatio };
+      clearWorkbenchSplitState();
+      return;
+    }
     if (resize && resize.pointerId === event.pointerId) {
       event.preventDefault();
       const delta = Math.round((event.clientX - resize.startX) / resize.frameWidth);
@@ -1218,6 +1563,14 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement): () => void 
   };
 
   const handlePointerCancel = (event: PointerEvent): void => {
+    if (splitDrag?.pointerId === event.pointerId) {
+      const current = splitDrag;
+      splitDrag = undefined;
+      applyWorkbenchSplit(current.workbench, current.startRatio);
+      state = { ...state, previewSplit: current.startRatio };
+      clearWorkbenchSplitState();
+      return;
+    }
     if (resize?.pointerId === event.pointerId) resize = undefined;
     if (move?.pointerId !== event.pointerId) return;
     const current = move; move = undefined; clearMovePreview(current);
@@ -1227,6 +1580,17 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement): () => void 
   };
 
   const handleKeyDown = (event: KeyboardEvent): void => {
+    if (handleStudioHistoryShortcut(event, () => applyHistory(false), () => applyHistory(true))) return;
+    const splitHandle = event.target instanceof Element ? event.target.closest<HTMLElement>('[data-workbench-splitter]') : undefined;
+    if (splitHandle && ['ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) {
+      const workbench = splitHandle.closest<HTMLElement>('.studio-workbench');
+      if (!workbench) return;
+      event.preventDefault();
+      const nextRatio = event.key === 'Home' ? 25 : event.key === 'End' ? 75 : state.previewSplit + (event.key === 'ArrowUp' ? -5 : 5);
+      const previewSplit = applyWorkbenchSplit(workbench, nextRatio);
+      state = { ...state, previewSplit };
+      return;
+    }
     const blockButton = event.target instanceof Element ? event.target.closest<HTMLElement>('[data-select-block]') : undefined;
     if (!blockButton || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
     const animation = animationFor(state);
@@ -1241,6 +1605,16 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement): () => void 
     mutateAnimation((document) => document.moveBlock(layerId, blockIndex, requestedFrom));
   };
 
+  const handleToggle = (event: Event): void => {
+    const folder = event.target;
+    if (!(folder instanceof HTMLDetailsElement) || !folder.dataset.libraryFolder) return;
+    const expandedFolders = new Set(state.expandedFolders);
+    if (folder.open) expandedFolders.add(folder.dataset.libraryFolder);
+    else expandedFolders.delete(folder.dataset.libraryFolder);
+    state = { ...state, expandedFolders };
+    options.onExpandedFoldersChange?.(expandedFolders);
+  };
+
   container.addEventListener('click', handleClick);
   container.addEventListener('change', handleChange);
   container.addEventListener('input', handleInput);
@@ -1250,14 +1624,17 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement): () => void 
   container.addEventListener('pointerup', handlePointerUp);
   container.addEventListener('pointercancel', handlePointerCancel);
   container.addEventListener('keydown', handleKeyDown);
+  container.addEventListener('toggle', handleToggle, true);
   render();
   void Promise.all([
     loadJson<WeaponCatalogResponse>('/__character-studio/weapons'),
     loadJson<EffectCatalogResponse>('/__character-studio/effects'),
     loadJson<CharacterStudioAssetCatalog>('/__character-studio/assets'),
-  ]).then(([weaponCatalog, effectCatalog, assets]) => {
-    state = { ...state, weapons: weaponCatalog.weapons, effects: effectCatalog.effects, assets };
-    const selected = weaponCatalog.weapons[0];
+    loadJson<AnimationPackageCatalog>('/__animation-library/catalog'),
+  ]).then(([weaponCatalog, effectCatalog, assets, animationCatalog]) => {
+    state = { ...state, weapons: weaponCatalog.weapons, effects: effectCatalog.effects, assets, animationPackages: animationCatalog.packages };
+    const requestedWeaponId = options.initialWeaponId ?? new URLSearchParams(window.location.search).get('weapon') ?? undefined;
+    const selected = weaponCatalog.weapons.find((weapon) => weapon.weaponId === requestedWeaponId) ?? weaponCatalog.weapons[0];
     if (selected) selectCatalogWeapon(selected); else { state = { ...state, notice: 'No weapon packages found.' }; render(); }
   }).catch((error: unknown) => { state = { ...state, notice: error instanceof Error ? error.message : String(error) }; render(); });
 
@@ -1272,6 +1649,7 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement): () => void 
     container.removeEventListener('pointerup', handlePointerUp);
     container.removeEventListener('pointercancel', handlePointerCancel);
     container.removeEventListener('keydown', handleKeyDown);
+    container.removeEventListener('toggle', handleToggle, true);
     container.classList.remove('is-character-studio-host');
     container.replaceChildren();
   };

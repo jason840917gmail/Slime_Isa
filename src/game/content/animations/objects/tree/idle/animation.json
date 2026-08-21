@@ -1,0 +1,45 @@
+{
+  "$schema": "../../../animation-package.schema.json",
+  "version": 1,
+  "animationId": "object.tree.idle",
+  "displayName": "snow-pine idle",
+  "description": "Shared idle animation extracted from snow-pine.",
+  "animation": {
+    "version": 2,
+    "durationSeconds": 0.5,
+    "framesPerSecond": 2,
+    "loop": true,
+    "loopMode": "wrap",
+    "layers": [
+      {
+        "layerId": "base",
+        "displayName": "Base",
+        "assetId": "sheet.trees.8x6",
+        "depthOffset": 0,
+        "transform": {
+          "origin": [
+            0.5,
+            1
+          ]
+        },
+        "blocks": [
+          {
+            "from": 0,
+            "through": 0,
+            "sourceFrame": 24,
+            "transform": {
+              "offset": [
+                0,
+                0
+              ],
+              "scale": [
+                1,
+                1
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

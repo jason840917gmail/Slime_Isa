@@ -403,8 +403,6 @@
         {
           "visualId": "snow-pine",
           "frame": 24,
-          "visualSetId": "object.tree.world",
-          "animationClip": "snow-pine-idle",
           "collider": {
             "width": 50,
             "height": 40,
@@ -415,7 +413,8 @@
           "visualOffset": {
             "x": 0,
             "y": 0
-          }
+          },
+          "idleAnimationId": "object.tree.idle"
         },
         {
           "visualId": "green-tree-01",

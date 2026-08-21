@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 const objectRoot = join(repoRoot, 'src', 'game', 'content', 'objects');
-const visualRoot = join(repoRoot, 'src', 'game', 'content', 'visuals');
+const animationRoot = join(repoRoot, 'src', 'game', 'content', 'animations');
 const effectRoot = join(repoRoot, 'src', 'game', 'content', 'effects');
 const manifest = JSON.parse(readFileSync(join(repoRoot, 'asset', 'assets.json'), 'utf8'));
 const idPattern = /^[a-z0-9]+([.-][a-z0-9-]+)+$/;
@@ -26,12 +26,12 @@ function listObjectFiles(directory) {
   return files.sort();
 }
 
-function listVisualSetFiles(directory) {
+function listAnimationFiles(directory) {
   const files = [];
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
     const path = join(directory, entry.name);
-    if (entry.isDirectory()) files.push(...listVisualSetFiles(path));
-    if (entry.isFile() && entry.name === 'visual-set.json') files.push(path);
+    if (entry.isDirectory()) files.push(...listAnimationFiles(path));
+    else if (entry.isFile() && entry.name === 'animation.json') files.push(path);
   }
   return files;
 }
@@ -134,10 +134,10 @@ function validateVisualScale(file, objectId, field, scale) {
 }
 
 const objectFiles = listObjectFiles(objectRoot);
-const visualSets = new Map(
-  listVisualSetFiles(visualRoot).map((path) => {
+const animations = new Map(
+  listAnimationFiles(animationRoot).map((path) => {
     const definition = JSON.parse(readFileSync(path, 'utf8'));
-    return [definition.visualSetId, definition];
+    return [definition.animationId, definition];
   }),
 );
 const effectIds = listEffectIds(effectRoot);
@@ -238,8 +238,8 @@ for (const absolutePath of objectFiles) {
             'visualOffset',
             'depthBounds',
             'occlusionBounds',
-            'visualSetId',
-            'animationClip',
+            'idleAnimationId',
+            'onHitAnimationId',
             'collider',
           ]),
         );
@@ -269,13 +269,25 @@ for (const absolutePath of objectFiles) {
           validateVisualScale(file, objectId, `${frameField}.scale`, frameEntry.scale);
         }
 
-        const hasVisualSet = frameEntry.visualSetId !== undefined;
-        const hasAnimationClip = frameEntry.animationClip !== undefined;
+        const hasIdleAnimation = frameEntry.idleAnimationId !== undefined;
+        const hasOnHitAnimation = frameEntry.onHitAnimationId !== undefined;
+
+        for (const [field, expectedLoop] of [['idleAnimationId', true], ['onHitAnimationId', false]]) {
+          const value = frameEntry[field];
+          if (value === undefined) continue;
+          if (typeof value !== 'string' || !idPattern.test(value)) {
+            fail(file, objectId, `${frameField}.${field}`, 'must be a lowercase dotted animation ID');
+          } else if (!animations.has(value)) {
+            fail(file, objectId, `${frameField}.${field}`, `unknown animation '${value}'`);
+          } else if (animations.get(value).animation.loop !== expectedLoop) {
+            fail(file, objectId, `${frameField}.${field}`, `animation '${value}' has the wrong loop contract`);
+          }
+        }
 
         if (frameEntry.occlusionBounds !== undefined) {
           if (asset.source.kind !== 'spritesheet') {
             fail(file, objectId, `${frameField}.occlusionBounds`, 'procedural object variants cannot define occlusion bounds');
-          } else if (hasVisualSet || hasAnimationClip) {
+          } else if (hasIdleAnimation || hasOnHitAnimation) {
             fail(file, objectId, `${frameField}.occlusionBounds`, 'animated object variants cannot define occlusion bounds');
           } else if (frame) {
             validateBounds(file, objectId, `${frameField}.occlusionBounds`, frameEntry.occlusionBounds, frame);
@@ -287,42 +299,6 @@ for (const absolutePath of objectFiles) {
             fail(file, objectId, `${frameField}.depthBounds`, 'procedural object variants cannot define depth bounds');
           } else if (frame) {
             validateDepthBounds(file, objectId, `${frameField}.depthBounds`, frameEntry.depthBounds, frame);
-          }
-        }
-
-        if (hasVisualSet !== hasAnimationClip) {
-          fail(
-            file,
-            objectId,
-            frameField,
-            'visualSetId and animationClip must be declared together',
-          );
-        } else if (hasVisualSet) {
-          const visualSet = visualSets.get(frameEntry.visualSetId);
-          if (!visualSet) {
-            fail(
-              file,
-              objectId,
-              `${frameField}.visualSetId`,
-              `unknown visual set '${frameEntry.visualSetId}'`,
-            );
-          } else {
-            if (visualSet.assetId !== group.assetId) {
-              fail(
-                file,
-                objectId,
-                `${frameField}.visualSetId`,
-                `visual set asset '${visualSet.assetId}' does not match '${group.assetId}'`,
-              );
-            }
-            if (!visualSet.clips?.[frameEntry.animationClip]) {
-              fail(
-                file,
-                objectId,
-                `${frameField}.animationClip`,
-                `unknown clip '${frameEntry.animationClip}'`,
-              );
-            }
           }
         }
 

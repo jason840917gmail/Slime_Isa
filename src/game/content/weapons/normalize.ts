@@ -4,6 +4,7 @@ import {
   resolveDirectionalVariant,
   RIGHT_LEFT_INHERITANCE,
 } from '../../shared/animation';
+import { resolveAnimationDefinition } from '../animations/AnimationCatalog';
 import { migrateLegacyWeaponDefinition, normalizeWeaponHitboxes } from './migrateLegacyWeapon';
 import type {
   AuthoredWeaponDefinition,
@@ -11,15 +12,59 @@ import type {
   NormalizedWeaponDefinition,
   NormalizedWeaponDirectionalAttack,
   WeaponAttackDirection,
+  WeaponAnimationTimelineDocument,
 } from './types';
+
+function emptyLayeredAnimation(timeline?: WeaponAnimationTimelineDocument) {
+  return {
+    version: 2 as const,
+    durationSeconds: timeline?.durationSeconds ?? 1,
+    framesPerSecond: timeline?.framesPerSecond ?? 8,
+    loop: timeline?.loop ?? true,
+    loopMode: timeline?.loopMode ?? 'wrap' as const,
+    layers: [],
+  };
+}
+
+function resolveSharedAnimation(
+  animationId: string | undefined,
+  embeddedAnimation: LayeredWeaponDefinition['animations']['idle'] | undefined,
+  timeline: WeaponAnimationTimelineDocument | undefined,
+  label: string,
+) {
+  if (animationId) {
+    const resolved = resolveAnimationDefinition(animationId);
+    if (!resolved.ok) throw new Error(`${label}: ${resolved.diagnostic.message}`);
+    return resolved.animation;
+  }
+  return embeddedAnimation ?? emptyLayeredAnimation(timeline);
+}
 
 function normalizeLayeredWeaponDefinition(
   definition: LayeredWeaponDefinition,
   sourceVersion: 1 | 2,
 ): NormalizedWeaponDefinition {
+  const idleAnimation = resolveSharedAnimation(
+    definition.animations.idleAnimationId,
+    definition.animations.idle,
+    definition.animations.idleTimeline,
+    `Weapon '${definition.weaponId}' idle animation`,
+  );
+  const resolvedAttackDefinitions = Object.fromEntries(Object.entries(definition.directionalAttacks).map(([direction, attack]) => [
+    direction,
+    {
+      ...attack,
+      animation: resolveSharedAnimation(
+        attack.animationId,
+        attack.animation,
+        attack.animationTimeline,
+        `Weapon '${definition.weaponId}' ${direction} attack animation`,
+      ),
+    },
+  ])) as LayeredWeaponDefinition['directionalAttacks'];
   const resolvedDirections: Array<[WeaponAttackDirection, NormalizedWeaponDirectionalAttack]> = (['right', 'left', 'up', 'down'] as const).map((direction) => {
     const resolved = resolveDirectionalVariant(
-      definition.directionalAttacks,
+      resolvedAttackDefinitions,
       direction,
       { pairs: [RIGHT_LEFT_INHERITANCE, DOWN_UP_INHERITANCE] },
     );
@@ -52,7 +97,7 @@ function normalizeLayeredWeaponDefinition(
     displayName: definition.displayName,
     category: definition.category,
     characterActionId: definition.characterActionId,
-    animations: { idle: normalizeLayeredAnimation(definition.animations.idle) },
+    animations: { idle: normalizeLayeredAnimation(idleAnimation) },
     directionalAttacks,
     presentation: { facingMode: definition.presentation?.facingMode ?? 'vector' },
     ...(definition.onHitEffectId ? { onHitEffectId: definition.onHitEffectId } : {}),
@@ -69,7 +114,7 @@ function normalizeLayeredWeaponDefinition(
     unlockLevel: definition.unlockLevel,
     iconKey: definition.iconKey,
     description: definition.description,
-    legacyImmediateHit: sourceVersion === 1 && definition.directionalAttacks.right.attackTrack === undefined,
+    legacyImmediateHit: sourceVersion === 1 && resolvedAttackDefinitions.right.attackTrack === undefined,
   };
 }
 

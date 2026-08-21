@@ -126,27 +126,49 @@ play session, verified in the running game.
 - Player proof: gathered materials turn into a usable tool.
 - Done when: a new save can craft and equip the basic tools without cheats.
 
-### [~] 2.4 — Add shared Object Studio animation authoring
-
-- Build: create a dedicated Object Studio using the shared Weapon/Character
-  animation component. Keep a static base image required, with optional idle
-  animation and resource-owned hit-effect packages. Add an Edit object link and
-  animated preview to Map Studio without introducing per-instance overrides.
-- Player proof: authored object motion and material-hit feedback are visible in
-  the editor and consistent across every placed instance.
-- Current: Object Studio route, shared object animation preview, static fallback,
-  resource-owned hit effects, Map Studio linking, and runtime cleanup are
-  implemented. A manual editor playtest remains before marking this task done.
-- Done when: an object with no idle clip falls back to its static image, an
-  authored idle clip updates all instances, and a resource hit effect plays only
-  after positive damage.
-
 ### [ ] 2.3 — Enforce tool-gated harvesting
 
 - Build: give resource nodes a required tool tier and show a clear feedback state
   when the tool is insufficient.
 - Player proof: the player understands why a harder node cannot be harvested yet.
 - Done when: the gate works consistently in runtime and authored maps.
+
+### [ ] 2.4 — Build the shared animation library
+
+- Build: extract complete layered animation packages, recursive catalog
+  discovery, package validation, and stable-ID references. Weapon Studio is the
+  first authoring surface; Map Studio will consume the same packages through a
+  reusable picker and shared object-template fields.
+- Player proof: weapons preserve their authored visuals after migration, and
+  authored object animation can be reused by every instance of one visual
+  template without per-instance data.
+- Current: the approved design and existing shared timeline/runtime primitives
+  are present; the previous dedicated object authoring slice has been
+  withdrawn pending package migration.
+- Done when: the shared catalog, weapon migration, Weapon Studio package editor,
+  Map Studio picker, object runtime adapter, and focused fallback tests pass.
+
+### [ ] 2.5 — Add new object authoring to Map Studio
+
+- Build: add a New Object workflow to Map Studio that selects an existing
+  behavior family, chooses or imports a registered spritesheet, selects a source
+  frame, authors a stable visual ID and geometry, optionally assigns shared idle
+  and on-hit animation IDs, and saves the visual template into the owning object
+  definition. The first slice supports floor decorations, solid decorations,
+  and other existing object families; entirely new gameplay archetypes remain
+  developer-authored.
+- Player proof: a creator can add a new decoration or solid visual, place it on
+  an authored map, and see the same collision, depth, and animation after reload
+  without hand-editing JSON.
+- Current: Map Studio can place, edit, and duplicate existing templates, but it
+  cannot choose a different source asset/frame or create a new palette entry
+  from a registered or newly imported spritesheet. The implementation is
+  specified in the
+  [Map Studio new-object authoring plan](./superpowers/plans/2026-08-20-map-studio-new-object-authoring-implementation-plan.md).
+- Done when: an existing or imported spritesheet can produce a validated floor
+  decoration and solid object from the UI; both appear in Object Content, can be
+  placed and saved, survive reload, and pass asset, object, animation, map,
+  typecheck, and build verification.
 
 **Milestone 2 complete when:** wood and stone form a readable starting economy
 and basic tools open the first small progression gate.

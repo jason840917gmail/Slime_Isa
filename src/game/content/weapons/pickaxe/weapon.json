@@ -6,43 +6,10 @@
   "category": "melee",
   "characterActionId": "attack-1",
   "animations": {
-    "idle": {
-      "version": 2,
-      "durationSeconds": 0.1666666667,
-      "framesPerSecond": 6,
-      "loop": true,
-      "loopMode": "wrap",
-      "layers": [
-        {
-          "layerId": "pickaxe",
-          "displayName": "Pickaxe",
-          "assetId": "weapon.player.pickaxe-tiles",
-          "depthOffset": 0,
-          "transform": { "offset": [0, 0], "scale": [0.58, 0.58] },
-          "blocks": [{ "from": 0, "through": 0, "sourceFrame": 0 }]
-        }
-      ]
-    }
+    "idleAnimationId": "weapon.pickaxe.idle"
   },
   "directionalAttacks": {
     "right": {
-      "animation": {
-        "version": 2,
-        "durationSeconds": 0.5,
-        "framesPerSecond": 12,
-        "loop": false,
-        "loopMode": "wrap",
-        "layers": [
-          {
-            "layerId": "pickaxe",
-            "displayName": "Pickaxe",
-            "assetId": "weapon.player.pickaxe-tiles",
-            "depthOffset": 0,
-            "transform": { "offset": [0, 0], "scale": [0.62, 0.62] },
-            "blocks": [{ "from": 0, "through": 5, "sourceFrame": 1 }]
-          }
-        ]
-      },
       "characterActionId": "attack-1",
       "hitboxes": {
         "pickaxe-head": {
@@ -57,26 +24,19 @@
           "knockbackMultiplier": 0.2
         }
       },
-      "attackTrack": { "hitboxSpans": [{ "hitboxId": "pickaxe-head", "from": 2, "through": 3 }], "events": [] }
+      "attackTrack": {
+        "hitboxSpans": [
+          {
+            "hitboxId": "pickaxe-head",
+            "from": 2,
+            "through": 3
+          }
+        ],
+        "events": []
+      },
+      "animationId": "weapon.pickaxe.attack.right"
     },
     "down": {
-      "animation": {
-        "version": 2,
-        "durationSeconds": 0.5,
-        "framesPerSecond": 12,
-        "loop": false,
-        "loopMode": "wrap",
-        "layers": [
-          {
-            "layerId": "pickaxe",
-            "displayName": "Pickaxe",
-            "assetId": "weapon.player.pickaxe-tiles",
-            "depthOffset": 0,
-            "transform": { "offset": [0, 0], "scale": [0.62, 0.62] },
-            "blocks": [{ "from": 0, "through": 5, "sourceFrame": 0 }]
-          }
-        ]
-      },
       "characterActionId": "attack-1",
       "hitboxes": {
         "pickaxe-head": {
@@ -91,26 +51,19 @@
           "knockbackMultiplier": 0.2
         }
       },
-      "attackTrack": { "hitboxSpans": [{ "hitboxId": "pickaxe-head", "from": 2, "through": 3 }], "events": [] }
+      "attackTrack": {
+        "hitboxSpans": [
+          {
+            "hitboxId": "pickaxe-head",
+            "from": 2,
+            "through": 3
+          }
+        ],
+        "events": []
+      },
+      "animationId": "weapon.pickaxe.attack.down"
     },
     "up": {
-      "animation": {
-        "version": 2,
-        "durationSeconds": 0.5,
-        "framesPerSecond": 12,
-        "loop": false,
-        "loopMode": "wrap",
-        "layers": [
-          {
-            "layerId": "pickaxe",
-            "displayName": "Pickaxe",
-            "assetId": "weapon.player.pickaxe-tiles",
-            "depthOffset": 0,
-            "transform": { "offset": [0, 0], "scale": [0.62, 0.62] },
-            "blocks": [{ "from": 0, "through": 5, "sourceFrame": 2 }]
-          }
-        ]
-      },
       "characterActionId": "attack-1",
       "hitboxes": {
         "pickaxe-head": {
@@ -125,10 +78,22 @@
           "knockbackMultiplier": 0.2
         }
       },
-      "attackTrack": { "hitboxSpans": [{ "hitboxId": "pickaxe-head", "from": 2, "through": 3 }], "events": [] }
+      "attackTrack": {
+        "hitboxSpans": [
+          {
+            "hitboxId": "pickaxe-head",
+            "from": 2,
+            "through": 3
+          }
+        ],
+        "events": []
+      },
+      "animationId": "weapon.pickaxe.attack.up"
     }
   },
-  "presentation": { "facingMode": "vector" },
+  "presentation": {
+    "facingMode": "vector"
+  },
   "baseDamage": 12,
   "cooldownMs": 900,
   "hitboxWidth": 58,
@@ -137,14 +102,29 @@
   "hitboxDurationMs": 160,
   "knockStrength": 70,
   "damageModifiers": [
-    { "targetTag": "stone", "modifier": 1 },
-    { "targetTag": "resource", "modifier": 0 },
-    { "targetTag": "enemy", "modifier": 0.2 }
+    {
+      "targetTag": "stone",
+      "modifier": 1
+    },
+    {
+      "targetTag": "resource",
+      "modifier": 0
+    },
+    {
+      "targetTag": "enemy",
+      "modifier": 0.2
+    }
   ],
   "scaling": {
-    "damage": { "strength": 0.8 },
-    "cooldown": { "agility": 0.15 },
-    "knockback": { "strength": 0.2 }
+    "damage": {
+      "strength": 0.8
+    },
+    "cooldown": {
+      "agility": 0.15
+    },
+    "knockback": {
+      "strength": 0.2
+    }
   },
   "vfxColor": 11259375,
   "unlockLevel": 1,

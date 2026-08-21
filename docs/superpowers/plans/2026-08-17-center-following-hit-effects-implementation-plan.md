@@ -48,10 +48,9 @@ that boundary is not safe, leave the runtime changes uncommitted and report it.
 - `pnpm check`
 - `git diff --check`
 
-`pnpm check` currently may stop at the known missing
-`characters/authored/projectiles-64x64.png` asset. Reproduce and report that as a
-baseline issue if it remains; do not weaken asset validation or create a fake
-asset as part of this feature.
+`pnpm check` must stop on any missing manifest asset. The stale generated
+projectile entry that previously referenced a missing source file was removed;
+do not weaken asset validation or create a fake asset to satisfy a manifest.
 
 ## Task 1: Add Position and Depth Effect Adapter Updates
 

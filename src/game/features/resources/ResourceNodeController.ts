@@ -29,14 +29,23 @@ interface ResourceRecord {
   maxHealth: number;
   itemId: string;
   remaining: number;
+  depletionPending?: boolean;
   readonly anchorX: number;
   readonly anchorY: number;
 }
 
-export interface ResourceDamageApplicationResult extends DamageApplicationResult {
+export interface AcceptedObjectDamageEvent extends DamageApplicationResult {
+  readonly status: 'accepted';
+  readonly target: Phaser.GameObjects.Image;
+  readonly acceptedDamage: number;
   /** Snapshotted before depletion so the final hit still has material feedback. */
   readonly resourceHitEffectId?: string;
+  /** Snapshotted before a resource visual is replaced. */
+  readonly onHitAnimationId?: string;
+  readonly depleted: boolean;
 }
+
+export type ResourceDamageApplicationResult = DamageApplicationResult | AcceptedObjectDamageEvent;
 
 interface ResourceNodeControllerContext {
   readonly scene: Phaser.Scene;
@@ -187,6 +196,7 @@ export class ResourceNodeController {
 
     const before = record.health;
     const resourceHitEffectId = getObjectArchetype(record.objectId).resourceNode?.hitEffectId;
+    const onHitAnimationId = record.image.getData('onHitAnimationId') as string | undefined;
     record.health = Math.max(0, record.health - amount);
     record.image.setData('resourceHealth', record.health);
     const node = getObjectArchetype(record.objectId).resourceNode;
@@ -197,11 +207,36 @@ export class ResourceNodeController {
     });
     floatingText.spawn(this.ctx.scene, record.image.x, record.image.y - 54, `-${Math.round(amount)}`, 'white');
 
-    if (record.health <= 0) this.replaceWithPile(record);
-    return { ...acceptedDamage(before, record.health), ...(resourceHitEffectId ? { resourceHitEffectId } : {}) };
+    if (record.health <= 0) {
+      record.depletionPending = true;
+      this.ctx.targetGroup.remove(record.image, false, false);
+      const body = record.image.body as Phaser.Physics.Arcade.StaticBody | Phaser.Physics.Arcade.Body | null;
+      if (body) body.enable = false;
+      this.saveState(record, 'depleted', 0);
+    }
+    const result = acceptedDamage(before, record.health);
+    return {
+      ...result,
+      status: 'accepted',
+      target: record.image,
+      acceptedDamage: result.actualDamage,
+      depleted: result.defeated,
+      ...(resourceHitEffectId ? { resourceHitEffectId } : {}),
+      ...(onHitAnimationId ? { onHitAnimationId } : {}),
+    };
+  }
+
+  completeDepletion(target: Phaser.GameObjects.GameObject): void {
+    const record = this.records.get(target);
+    if (!record || record.kind !== 'node' || !record.depletionPending) return;
+    record.depletionPending = false;
+    this.replaceWithPile(record);
   }
 
   destroy(): void {
+    for (const record of [...this.records.values()]) {
+      if (record.depletionPending) this.completeDepletion(record.image);
+    }
     this.prompt.destroy();
     this.records.clear();
     this.reservedCells.clear();

@@ -6,8 +6,9 @@
 
 ## Goal
 
-Character Studio creates and edits `visual-set.json` files without placing
-animation data inside map files.
+Character Studio creates and edits character `visual-set.json` files without
+placing animation data inside map files. World-object animation now lives in
+the shared animation library.
 
 ## Implemented workflow
 
@@ -20,7 +21,9 @@ animation data inside map files.
 7. Save the visual-set JSON beside related visual definitions.
 8. Avility to see the animations in action.
 
-Maps continue to reference stable object or archetype IDs. Object definitions reference `visualSetId` and clip IDs, so changing animation artwork does not rewrite authored maps.
+Maps continue to reference stable object or archetype IDs. Object definitions
+reference shared `idleAnimationId` and `onHitAnimationId` package IDs, so
+changing animation artwork does not rewrite authored maps or templates.
 
 ## Guardrails
 

@@ -1,0 +1,39 @@
+{
+  "$schema": "../../../animation-package.schema.json",
+  "version": 1,
+  "animationId": "weapon.pickaxe.idle",
+  "displayName": "Pickaxe idle",
+  "description": "Shared idle animation extracted from Pickaxe.",
+  "animation": {
+    "version": 2,
+    "durationSeconds": 0.1666666667,
+    "framesPerSecond": 6,
+    "loop": true,
+    "loopMode": "wrap",
+    "layers": [
+      {
+        "layerId": "pickaxe",
+        "displayName": "Pickaxe",
+        "assetId": "weapon.player.pickaxe-tiles",
+        "depthOffset": 0,
+        "transform": {
+          "offset": [
+            0,
+            0
+          ],
+          "scale": [
+            0.58,
+            0.58
+          ]
+        },
+        "blocks": [
+          {
+            "from": 0,
+            "through": 0,
+            "sourceFrame": 0
+          }
+        ]
+      }
+    ]
+  }
+}

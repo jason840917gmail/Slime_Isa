@@ -7,7 +7,6 @@ import brawlerVisual from './worm-brawler/visual-set.json';
 import swordsmanCharacter from './worm-swordsman/character.json';
 import swordsmanVisual from './worm-swordsman/visual-set.json';
 import brawlerHitVisual from '../visuals/enemy-worm-brawler-hit/visual-set.json';
-import treeVisual from '../visuals/tree-world/visual-set.json';
 
 export const characterPackages = [
   { characterId: 'player-slime', character: playerCharacter, visualSet: playerVisual },
@@ -16,4 +15,4 @@ export const characterPackages = [
   { characterId: 'worm-swordsman', character: swordsmanCharacter, visualSet: swordsmanVisual },
 ];
 
-export const visualSets = [...characterPackages.map((entry) => entry.visualSet), brawlerHitVisual, treeVisual];
+export const visualSets = [...characterPackages.map((entry) => entry.visualSet), brawlerHitVisual];

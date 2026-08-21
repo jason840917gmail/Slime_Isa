@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const weaponRoot = join(root, 'src', 'game', 'content', 'weapons');
+const animationRoot = join(root, 'src', 'game', 'content', 'animations');
 const effectRoot = join(root, 'src', 'game', 'content', 'effects');
 const errors = [];
 const ids = new Set();
@@ -31,7 +32,21 @@ function effectFiles(directory) {
   }
   return output;
 }
+
+function animationFiles(directory) {
+  const output = [];
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const target = join(directory, entry.name);
+    if (entry.isDirectory()) output.push(...animationFiles(target));
+    else if (entry.name === 'animation.json') output.push(target);
+  }
+  return output;
+}
 for (const file of effectFiles(effectRoot)) effectIds.add(JSON.parse(readFileSync(file, 'utf8')).effectId);
+const animations = new Map(animationFiles(animationRoot).map((file) => {
+  const value = JSON.parse(readFileSync(file, 'utf8'));
+  return [value.animationId, value];
+}));
 
 function legacyFrameCount(animation) {
   return animation?.keyframeTimes !== undefined && animation?.durationSeconds !== undefined
@@ -74,6 +89,10 @@ function validateTrack(weapon, label, frameCount, track, hitboxes, forbidImpact)
 }
 
 function validateLayered(weapon, label, animation, allowLoop) {
+  if (!animation) {
+    errors.push(`[${weapon.weaponId}] ${label} must resolve to a shared animation package`);
+    return 0;
+  }
   const frameCount = layeredFrameCount(weapon, label, animation);
   if (!allowLoop && animation.loop) errors.push(`[${weapon.weaponId}] ${label} must not loop`);
   for (const layer of animation.layers ?? []) {
@@ -105,10 +124,18 @@ for (const weapon of weapons) {
   for (const forbidden of ['assetId', 'visual', 'hitboxes', 'attackTrack', 'animKey']) if (forbidden in weapon) errors.push(`[${weapon.weaponId}] v2 forbids root ${forbidden}`);
   if ('impact' in (weapon.animations ?? {}) || 'attack' in (weapon.animations ?? {})) errors.push(`[${weapon.weaponId}] v2 animations may only contain idle`);
   if (weapon.onHitEffectId && !effectIds.has(weapon.onHitEffectId)) errors.push(`[${weapon.weaponId}] onHitEffectId '${weapon.onHitEffectId}' is missing`);
-  validateLayered(weapon, 'idle', weapon.animations?.idle, true);
+  const idleAnimation = weapon.animations?.idleAnimationId
+    ? animations.get(weapon.animations.idleAnimationId)?.animation
+    : weapon.animations?.idle ?? weapon.animations?.idleTimeline;
+  if (weapon.animations?.idleAnimationId && !animations.has(weapon.animations.idleAnimationId)) errors.push(`[${weapon.weaponId}] idle animation '${weapon.animations.idleAnimationId}' is missing`);
+  validateLayered(weapon, 'idle', idleAnimation, true);
   for (const direction of ['right', 'down']) if (!weapon.directionalAttacks?.[direction]) errors.push(`[${weapon.weaponId}] missing ${direction} attack`);
   for (const [direction, attack] of Object.entries(weapon.directionalAttacks ?? {})) {
-    const frameCount = validateLayered(weapon, `${direction} attack`, attack.animation, false);
+    const attackAnimation = attack.animationId
+      ? animations.get(attack.animationId)?.animation
+      : attack.animation ?? attack.animationTimeline;
+    if (attack.animationId && !animations.has(attack.animationId)) errors.push(`[${weapon.weaponId}] ${direction} attack animation '${attack.animationId}' is missing`);
+    const frameCount = validateLayered(weapon, `${direction} attack`, attackAnimation, false);
     validateHitboxes(weapon, `${direction}.hitboxes`, attack.hitboxes);
     validateTrack(weapon, `${direction}.track`, frameCount, attack.attackTrack, attack.hitboxes, true);
   }

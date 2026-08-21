@@ -6,217 +6,10 @@
   "category": "melee",
   "characterActionId": "attack-1",
   "animations": {
-    "idle": {
-      "version": 2,
-      "durationSeconds": 0.125,
-      "framesPerSecond": 8,
-      "loop": true,
-      "loopMode": "wrap",
-      "layers": [
-        {
-          "layerId": "base",
-          "displayName": "Basic sword",
-          "assetId": "weapon.player.sword-tiles",
-          "depthOffset": 0,
-          "transform": {
-            "offset": [
-              0,
-              0
-            ],
-            "scale": [
-              0.5,
-              0.5
-            ]
-          },
-          "blocks": [
-            {
-              "from": 0,
-              "through": 0,
-              "sourceFrame": 0
-            }
-          ]
-        }
-      ]
-    }
+    "idleAnimationId": "weapon.basic-sword.idle"
   },
   "directionalAttacks": {
     "right": {
-      "animation": {
-        "version": 2,
-        "durationSeconds": 0.4166666666666667,
-        "framesPerSecond": 24,
-        "loop": false,
-        "loopMode": "wrap",
-        "layers": [
-          {
-            "layerId": "base",
-            "displayName": "Basic sword",
-            "assetId": "weapon.player.sword-tiles",
-            "depthOffset": 0,
-            "transform": {
-              "offset": [
-                0,
-                0
-              ],
-              "scale": [
-                0.5,
-                0.5
-              ]
-            },
-            "blocks": [
-              {
-                "from": 0,
-                "through": 3,
-                "sourceFrame": 0,
-                "transform": {
-                  "offset": [
-                    20,
-                    -12.56
-                  ],
-                  "scale": [
-                    1,
-                    1
-                  ],
-                  "rotationDeg": 0,
-                  "flipX": false,
-                  "flipY": false
-                }
-              },
-              {
-                "from": 4,
-                "through": 4,
-                "sourceFrame": 1,
-                "transform": {
-                  "offset": [
-                    25,
-                    -8
-                  ],
-                  "scale": [
-                    1,
-                    1
-                  ],
-                  "rotationDeg": 0,
-                  "flipX": false,
-                  "flipY": false
-                }
-              },
-              {
-                "from": 5,
-                "through": 5,
-                "sourceFrame": 2,
-                "transform": {
-                  "offset": [
-                    30,
-                    -0.66
-                  ],
-                  "scale": [
-                    1,
-                    1
-                  ],
-                  "rotationDeg": 0,
-                  "flipX": false,
-                  "flipY": false
-                }
-              },
-              {
-                "from": 6,
-                "through": 6,
-                "sourceFrame": 3,
-                "transform": {
-                  "offset": [
-                    36,
-                    12
-                  ],
-                  "scale": [
-                    1,
-                    1
-                  ],
-                  "rotationDeg": 0,
-                  "flipX": false,
-                  "flipY": false
-                }
-              },
-              {
-                "from": 7,
-                "through": 7,
-                "sourceFrame": 4,
-                "transform": {
-                  "offset": [
-                    36,
-                    18
-                  ],
-                  "scale": [
-                    1,
-                    1
-                  ],
-                  "rotationDeg": 0,
-                  "flipX": false,
-                  "flipY": false
-                }
-              },
-              {
-                "from": 8,
-                "through": 8,
-                "sourceFrame": 5,
-                "transform": {
-                  "offset": [
-                    36,
-                    28
-                  ],
-                  "scale": [
-                    1,
-                    1
-                  ],
-                  "rotationDeg": 0,
-                  "flipX": false,
-                  "flipY": false
-                }
-              },
-              {
-                "from": 9,
-                "through": 9,
-                "sourceFrame": 6,
-                "transform": {
-                  "offset": [
-                    30,
-                    38
-                  ],
-                  "scale": [
-                    1,
-                    1
-                  ],
-                  "rotationDeg": 0,
-                  "flipX": false,
-                  "flipY": false
-                }
-              }
-            ]
-          },
-          {
-            "layerId": "layer-2",
-            "displayName": "Layer 2",
-            "assetId": "weapon.player.sword-tiles",
-            "depthOffset": 1,
-            "blocks": [
-              {
-                "from": 6,
-                "through": 8,
-                "sourceFrame": 16
-              }
-            ],
-            "transform": {
-              "scale": [
-                1,
-                1
-              ],
-              "offset": [
-                60,
-                0
-              ]
-            }
-          }
-        ]
-      },
       "characterActionId": "attack-1",
       "hitboxes": {
         "primary": {
@@ -238,134 +31,10 @@
           }
         ],
         "events": []
-      }
+      },
+      "animationId": "weapon.basic-sword.attack.right"
     },
     "up": {
-      "animation": {
-        "version": 2,
-        "durationSeconds": 0.3333333333333333,
-        "framesPerSecond": 12,
-        "loop": false,
-        "loopMode": "wrap",
-        "layers": [
-          {
-            "layerId": "base",
-            "displayName": "Basic sword",
-            "assetId": "weapon.player.sword-tiles",
-            "depthOffset": 0,
-            "transform": {
-              "offset": [
-                0,
-                0
-              ],
-              "scale": [
-                0.5,
-                0.5
-              ]
-            },
-            "blocks": [
-              {
-                "from": 0,
-                "through": 0,
-                "sourceFrame": 1,
-                "transform": {
-                  "offset": [
-                    20,
-                    -10
-                  ],
-                  "scale": [
-                    1,
-                    1
-                  ],
-                  "rotationDeg": 0,
-                  "flipX": false,
-                  "flipY": false
-                }
-              },
-              {
-                "from": 1,
-                "through": 1,
-                "sourceFrame": 0,
-                "transform": {
-                  "offset": [
-                    10,
-                    -12
-                  ],
-                  "scale": [
-                    1,
-                    1
-                  ],
-                  "rotationDeg": 0,
-                  "flipX": false,
-                  "flipY": false
-                }
-              },
-              {
-                "from": 2,
-                "through": 2,
-                "sourceFrame": 15,
-                "transform": {
-                  "offset": [
-                    0,
-                    -14
-                  ],
-                  "scale": [
-                    1,
-                    1
-                  ],
-                  "rotationDeg": 0,
-                  "flipX": false,
-                  "flipY": false
-                }
-              },
-              {
-                "from": 3,
-                "through": 3,
-                "sourceFrame": 14,
-                "transform": {
-                  "offset": [
-                    -16,
-                    -8
-                  ],
-                  "scale": [
-                    1,
-                    1
-                  ],
-                  "rotationDeg": 0,
-                  "flipX": false,
-                  "flipY": false
-                }
-              }
-            ]
-          },
-          {
-            "layerId": "layer-2",
-            "displayName": "Layer 2",
-            "assetId": "weapon.player.sword-tiles",
-            "depthOffset": 1,
-            "blocks": [
-              {
-                "from": 3,
-                "through": 3,
-                "sourceFrame": 16,
-                "transform": {
-                  "offset": [
-                    0,
-                    -26
-                  ],
-                  "scale": [
-                    1,
-                    1
-                  ],
-                  "rotationDeg": 220,
-                  "flipX": false,
-                  "flipY": false
-                }
-              }
-            ]
-          }
-        ]
-      },
       "characterActionId": "attack-1",
       "hitboxes": {
         "primary": {
@@ -387,152 +56,10 @@
           }
         ],
         "events": []
-      }
+      },
+      "animationId": "weapon.basic-sword.attack.up"
     },
     "down": {
-      "animation": {
-        "version": 2,
-        "durationSeconds": 0.2916666666666667,
-        "framesPerSecond": 24,
-        "loop": false,
-        "loopMode": "wrap",
-        "layers": [
-          {
-            "layerId": "base",
-            "displayName": "Basic sword",
-            "assetId": "weapon.player.sword-tiles",
-            "depthOffset": 0,
-            "transform": {
-              "offset": [
-                0,
-                0
-              ],
-              "scale": [
-                0.5,
-                0.5
-              ]
-            },
-            "blocks": [
-              {
-                "from": 0,
-                "through": 1,
-                "sourceFrame": 7,
-                "transform": {
-                  "offset": [
-                    20,
-                    40
-                  ],
-                  "scale": [
-                    1,
-                    1
-                  ],
-                  "rotationDeg": 0,
-                  "flipX": false,
-                  "flipY": false
-                }
-              },
-              {
-                "from": 2,
-                "through": 2,
-                "sourceFrame": 8,
-                "transform": {
-                  "offset": [
-                    12.25,
-                    42.75
-                  ],
-                  "scale": [
-                    1,
-                    1
-                  ],
-                  "rotationDeg": 0,
-                  "flipX": false,
-                  "flipY": false
-                }
-              },
-              {
-                "from": 3,
-                "through": 3,
-                "sourceFrame": 9,
-                "transform": {
-                  "offset": [
-                    1.32,
-                    45
-                  ],
-                  "scale": [
-                    1,
-                    1
-                  ],
-                  "rotationDeg": 0,
-                  "flipX": false,
-                  "flipY": false
-                }
-              },
-              {
-                "from": 4,
-                "through": 4,
-                "sourceFrame": 10,
-                "transform": {
-                  "offset": [
-                    -15,
-                    40
-                  ],
-                  "scale": [
-                    1,
-                    1
-                  ],
-                  "rotationDeg": 0,
-                  "flipX": false,
-                  "flipY": false
-                }
-              },
-              {
-                "from": 5,
-                "through": 6,
-                "sourceFrame": 11,
-                "transform": {
-                  "offset": [
-                    -22,
-                    32
-                  ],
-                  "scale": [
-                    1,
-                    1
-                  ],
-                  "rotationDeg": 0,
-                  "flipX": false,
-                  "flipY": false
-                }
-              }
-            ]
-          },
-          {
-            "layerId": "layer-2",
-            "displayName": "Layer 2",
-            "assetId": "weapon.player.sword-tiles",
-            "depthOffset": 1,
-            "blocks": [
-              {
-                "from": 5,
-                "through": 6,
-                "sourceFrame": 16,
-                "transform": {
-                  "offset": [
-                    0,
-                    50
-                  ],
-                  "scale": [
-                    1,
-                    1
-                  ],
-                  "rotationDeg": 40,
-                  "flipX": false,
-                  "flipY": false
-                }
-              }
-            ]
-          }
-        ]
-      },
       "characterActionId": "attack-1",
       "hitboxes": {
         "primary": {
@@ -554,7 +81,8 @@
           }
         ],
         "events": []
-      }
+      },
+      "animationId": "weapon.basic-sword.attack.down"
     }
   },
   "presentation": {
@@ -569,8 +97,14 @@
   "hitboxDurationMs": 120,
   "knockStrength": 140,
   "damageModifiers": [
-    { "targetTag": "stone", "modifier": 0 },
-    { "targetTag": "resource", "modifier": 0.1 }
+    {
+      "targetTag": "stone",
+      "modifier": 0
+    },
+    {
+      "targetTag": "resource",
+      "modifier": 0.1
+    }
   ],
   "scaling": {
     "damage": {

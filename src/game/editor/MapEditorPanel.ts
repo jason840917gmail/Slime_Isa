@@ -4,6 +4,7 @@ import { getAuthoredMapIds } from '../infrastructure/maps/MapRepository';
 import { ENEMY_CONFIGS } from '../enemies/library/EnemyTypes';
 import type { MapEnemyAreaPerimeter, MapEnemyAreaShape } from '../content/maps/mapFormat';
 import { ObjectTemplateEditorState } from './ObjectTemplateEditorState';
+import { mountMapEditorObjectAuthoring } from './MapEditorObjectAuthoring';
 import type { EditorTool, MapEditorState } from './MapEditorState';
 import { connectionAt, MAP_DIRECTIONS } from './MapConnections';
 
@@ -132,7 +133,6 @@ export function mountMapEditorPanel(
       <div><p>Slime Isa / Worldworks</p><h1>Field Cartographer</h1></div>
       <nav class="editor-header-actions" aria-label="Editor navigation">
         <a class="editor-nav-link editor-nav-link--studio" href="?studio=characters&amp;editor=${encodeURIComponent(editor.value.map.mapId)}" data-testid="character-studio-link">Character Studio</a>
-        <a class="editor-nav-link editor-nav-link--studio" href="?studio=objects&amp;editor=${encodeURIComponent(editor.value.map.mapId)}" data-testid="object-studio-link">Object Studio</a>
         <a class="editor-nav-link editor-game-link" href="?area=${editor.value.map.mapId}">Play map</a>
       </nav>
     </header>
@@ -201,7 +201,7 @@ export function mountMapEditorPanel(
       <div class="editor-palette" data-editor-terrain>${tileButtons}</div>
     </section>
     <section class="editor-section editor-palette-section">
-      <div class="editor-section-title"><span>06</span><h2>Object Content</h2></div>
+      <div class="editor-section-title"><span>06</span><h2>Object Content</h2><button type="button" class="editor-section-action" data-object-authoring-command="open">New object</button></div>
       <div class="editor-palette" data-editor-objects>${objectButtons}</div>
     </section>
     <footer class="editor-status" aria-live="polite">
@@ -307,6 +307,8 @@ export function mountMapEditorPanel(
       </form>
     </dialog>
   `;
+
+  const unmountObjectAuthoring = mountMapEditorObjectAuthoring(host, { mapId: editor.value.map.mapId });
 
   const mapSelect = host.querySelector<HTMLSelectElement>('#editor-map-select');
   const newMapDialog = host.querySelector<HTMLDialogElement>('[data-new-map-dialog]');
@@ -675,6 +677,7 @@ export function mountMapEditorPanel(
     enemyAreaShapeField?.removeEventListener('change', enemyAreaShapeChangeHandler);
     monsterForm?.removeEventListener('submit', monsterSubmitHandler);
     window.removeEventListener('beforeunload', beforeUnloadHandler);
+    unmountObjectAuthoring();
     host.innerHTML = '';
   };
 }

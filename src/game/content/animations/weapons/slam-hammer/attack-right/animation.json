@@ -1,0 +1,210 @@
+{
+  "$schema": "../../../animation-package.schema.json",
+  "version": 1,
+  "animationId": "weapon.slam-hammer.attack.right",
+  "displayName": "Slam Hammer right attack",
+  "description": "Shared right attack animation extracted from Slam Hammer.",
+  "animation": {
+    "version": 2,
+    "durationSeconds": 0.5,
+    "framesPerSecond": 24,
+    "loop": false,
+    "loopMode": "wrap",
+    "layers": [
+      {
+        "layerId": "layer-1",
+        "displayName": "Layer 1",
+        "assetId": "weapon.player.hammer-spear-tiles",
+        "depthOffset": 0,
+        "blocks": [
+          {
+            "from": 0,
+            "through": 1,
+            "sourceFrame": 2,
+            "transform": {
+              "offset": [
+                0,
+                -20
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": -40,
+              "flipX": false,
+              "flipY": false
+            }
+          },
+          {
+            "from": 2,
+            "through": 2,
+            "sourceFrame": 2,
+            "transform": {
+              "offset": [
+                10,
+                -20
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": -20,
+              "flipX": false,
+              "flipY": false
+            }
+          },
+          {
+            "from": 3,
+            "through": 3,
+            "sourceFrame": 2,
+            "transform": {
+              "offset": [
+                30,
+                -10
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 0,
+              "flipX": false,
+              "flipY": false
+            }
+          },
+          {
+            "from": 4,
+            "through": 4,
+            "sourceFrame": 2,
+            "transform": {
+              "offset": [
+                40,
+                10
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 40,
+              "flipX": false,
+              "flipY": false
+            }
+          },
+          {
+            "from": 5,
+            "through": 8,
+            "sourceFrame": 2,
+            "transform": {
+              "offset": [
+                45,
+                25
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 60,
+              "flipX": false,
+              "flipY": false
+            }
+          },
+          {
+            "from": 9,
+            "through": 9,
+            "sourceFrame": 2,
+            "transform": {
+              "offset": [
+                40,
+                10
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 40,
+              "flipX": false,
+              "flipY": false
+            }
+          },
+          {
+            "from": 10,
+            "through": 11,
+            "sourceFrame": 2,
+            "transform": {
+              "offset": [
+                30,
+                -10
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 0,
+              "flipX": false,
+              "flipY": false
+            }
+          }
+        ],
+        "transform": {
+          "offset": [
+            0,
+            0
+          ],
+          "scale": [
+            0.5,
+            0.5
+          ],
+          "rotationDeg": 0,
+          "flipX": false,
+          "flipY": false,
+          "origin": [
+            0.5,
+            0.5
+          ]
+        }
+      },
+      {
+        "layerId": "layer-2",
+        "displayName": "Layer 2",
+        "assetId": "weapon.player.hammer-spear-tiles",
+        "depthOffset": 1,
+        "blocks": [
+          {
+            "from": 5,
+            "through": 6,
+            "sourceFrame": 3,
+            "transform": {
+              "offset": [
+                54.5,
+                20
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 40,
+              "flipX": false,
+              "flipY": false
+            }
+          }
+        ],
+        "transform": {
+          "offset": [
+            0,
+            0
+          ],
+          "scale": [
+            0.5,
+            0.5
+          ],
+          "rotationDeg": 0,
+          "flipX": false,
+          "flipY": false,
+          "origin": [
+            0.5,
+            0.5
+          ]
+        }
+      }
+    ]
+  }
+}

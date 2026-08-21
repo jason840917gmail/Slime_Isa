@@ -9,8 +9,8 @@ import {
   type VisualOffset,
 } from '../../content/objects/ObjectCatalog';
 import { getAsset } from '../../infrastructure/assets/manifest';
-import { getVisualClip, type VisualSetId } from '../../content/visuals/VisualCatalog';
-import { AnimatedVisual } from '../visuals/AnimatedVisual';
+import { animationDefinitionResolver } from '../../content/animations/AnimationCatalog';
+import { ObjectAnimationAdapter } from './ObjectAnimationAdapter';
 import {
   resolveExplicitDepth,
   resolveObjectDepthAnchorY,
@@ -53,8 +53,8 @@ interface ObjectFactoryContext {
 interface ResolvedVisual {
   readonly textureKey: string;
   readonly frame?: number;
-  readonly visualSetId?: VisualSetId;
-  readonly animationClip?: string;
+  readonly idleAnimationId?: string;
+  readonly onHitAnimationId?: string;
   readonly origin: readonly [number, number];
   readonly scale: number;
   readonly visualOffset: VisualOffset;
@@ -83,8 +83,8 @@ function resolveVisual(objectId: ObjectArchetypeId, visualId: string): ResolvedV
   return {
     textureKey: asset.runtime.textureKey,
     frame,
-    visualSetId: choice.visualSetId,
-    animationClip: choice.animationClip,
+    idleAnimationId: choice.idleAnimationId,
+    onHitAnimationId: choice.onHitAnimationId,
     origin: configuredOrigin
       ? [configuredOrigin[0], configuredOrigin[1]]
       : [0.5, 1],
@@ -113,6 +113,8 @@ function applyResolvedVisual(
   image.setData('sourceFrame', visual.sourceFrame);
   image.setData('occlusionBounds', visual.occlusionBounds);
   image.setData('depthBounds', visual.depthBounds);
+  image.setData('idleAnimationId', visual.idleAnimationId);
+  image.setData('onHitAnimationId', visual.onHitAnimationId);
 }
 
 export function getObjectAnchor(image: Phaser.GameObjects.Image): readonly [number, number] {
@@ -154,7 +156,7 @@ export function setObjectAnchor(image: Phaser.GameObjects.Image, x: number, y: n
       body.updateFromGameObject();
     }
   }
-  (image.getData('animatedVisual') as AnimatedVisual | undefined)?.update();
+  (image.getData('objectAnimationAdapter') as ObjectAnimationAdapter | undefined)?.updateAnchor();
 }
 
 /** Applies a reusable object visual to an existing image while preserving its world anchor. */
@@ -165,8 +167,8 @@ export function applyObjectVisual(
 ): void {
   const visual = resolveVisual(objectId, visualId);
   const [anchorX, anchorY] = getObjectAnchor(image);
-  (image.getData('animatedVisual') as AnimatedVisual | undefined)?.destroy();
-  image.setData('animatedVisual', undefined);
+  (image.getData('objectAnimationAdapter') as ObjectAnimationAdapter | undefined)?.dispose();
+  image.setData('objectAnimationAdapter', undefined);
   image.setVisible(true);
   applyResolvedVisual(image, objectId, visual);
   setObjectAnchor(image, anchorX, anchorY);
@@ -188,7 +190,23 @@ export function setObjectDepthMode(
 
 /** Creates an object from immutable content data without coupling it to a scene class. */
 export class ObjectFactory {
-  constructor(private readonly ctx: ObjectFactoryContext) {}
+  private readonly animationAdapters = new Set<ObjectAnimationAdapter>();
+
+  constructor(private readonly ctx: ObjectFactoryContext) {
+    ctx.scene.events.on(Phaser.Scenes.Events.UPDATE, this.handleSceneUpdate);
+    ctx.scene.events.once(Phaser.Scenes.Events.SHUTDOWN, this.handleSceneShutdown);
+  }
+
+  update(deltaMs: number): void {
+    for (const adapter of this.animationAdapters) adapter.update(deltaMs);
+  }
+
+  destroy(): void {
+    this.ctx.scene.events.off(Phaser.Scenes.Events.UPDATE, this.handleSceneUpdate);
+    this.ctx.scene.events.off(Phaser.Scenes.Events.SHUTDOWN, this.handleSceneShutdown);
+    for (const adapter of this.animationAdapters) adapter.dispose();
+    this.animationAdapters.clear();
+  }
 
   create(objectId: ObjectArchetypeId, options: CreateObjectOptions): Phaser.GameObjects.Image {
     const archetype = getObjectArchetype(objectId);
@@ -244,35 +262,28 @@ export class ObjectFactory {
     }
 
     if (
-      visual.visualSetId
-      && visual.animationClip
+      (visual.idleAnimationId || visual.onHitAnimationId)
       && this.ctx.animatedVisualsEnabled !== false
     ) {
-      let animatedVisual: AnimatedVisual | undefined;
       try {
-        const clip = getVisualClip(visual.visualSetId, visual.animationClip);
-        animatedVisual = new AnimatedVisual(
-          this.ctx.scene,
-          image,
-          visual.visualSetId,
-          {
-            depth: image.depth,
-            getDepth: () => image.depth,
-            initialFrame: visual.frame,
-          },
-        );
-        animatedVisual.play(clip.runtimeKey);
-        animatedVisual.setScaleMultiplier(visual.scale);
-        image.setData('animatedVisual', animatedVisual);
-        // The required base image remains visible until the animated layer is
-        // completely registered and playing successfully.
-        image.setVisible(false);
+        const adapter = new ObjectAnimationAdapter({
+          scene: this.ctx.scene,
+          anchor: image,
+          resolver: animationDefinitionResolver,
+          objectId,
+          idleAnimationId: visual.idleAnimationId,
+          onHitAnimationId: visual.onHitAnimationId,
+        });
+        this.animationAdapters.add(adapter);
+        image.setData('objectAnimationAdapter', adapter);
+        image.once('destroy', () => {
+          adapter.dispose();
+          this.animationAdapters.delete(adapter);
+        });
       } catch (error) {
-        animatedVisual?.destroy();
-        image.setData('animatedVisual', undefined);
         image.setVisible(true);
         if (import.meta.env.DEV) {
-          console.warn(`Object '${objectId}' optional idle animation '${visual.animationClip}' fell back to its static image.`, error);
+          console.warn(`Object '${objectId}' shared animation fell back to its static image.`, error);
         }
       }
     }
@@ -290,4 +301,12 @@ export class ObjectFactory {
 
     return image;
   }
+
+  private readonly handleSceneUpdate = (_time: number, delta: number): void => {
+    this.update(delta);
+  };
+
+  private readonly handleSceneShutdown = (): void => {
+    this.destroy();
+  };
 }

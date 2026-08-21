@@ -1,0 +1,180 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "sourcePath": "src/game/content/weapons/basic-spear/weapon.json",
+      "sourceField": "animations.idle",
+      "destinationPath": "src/game/content/animations/weapons/basic-spear/idle/animation.json",
+      "destinationId": "weapon.basic-spear.idle",
+      "decision": "existing-migrated-reference"
+    },
+    {
+      "sourcePath": "src/game/content/weapons/basic-spear/weapon.json",
+      "sourceField": "directionalAttacks.right.animation",
+      "destinationPath": "src/game/content/animations/weapons/basic-spear/attack-right/animation.json",
+      "destinationId": "weapon.basic-spear.attack.right",
+      "decision": "existing-migrated-reference"
+    },
+    {
+      "sourcePath": "src/game/content/weapons/basic-spear/weapon.json",
+      "sourceField": "directionalAttacks.down.animation",
+      "destinationPath": "src/game/content/animations/weapons/basic-spear/attack-down/animation.json",
+      "destinationId": "weapon.basic-spear.attack.down",
+      "decision": "existing-migrated-reference"
+    },
+    {
+      "sourcePath": "src/game/content/weapons/basic-spear/weapon.json",
+      "sourceField": "directionalAttacks.up.animation",
+      "destinationPath": "src/game/content/animations/weapons/basic-spear/attack-up/animation.json",
+      "destinationId": "weapon.basic-spear.attack.up",
+      "decision": "existing-migrated-reference"
+    },
+    {
+      "sourcePath": "src/game/content/weapons/basic-sword/weapon.json",
+      "sourceField": "animations.idle",
+      "destinationPath": "src/game/content/animations/weapons/basic-sword/idle/animation.json",
+      "destinationId": "weapon.basic-sword.idle",
+      "decision": "existing-migrated-reference"
+    },
+    {
+      "sourcePath": "src/game/content/weapons/basic-sword/weapon.json",
+      "sourceField": "directionalAttacks.right.animation",
+      "destinationPath": "src/game/content/animations/weapons/basic-sword/attack-right/animation.json",
+      "destinationId": "weapon.basic-sword.attack.right",
+      "decision": "existing-migrated-reference"
+    },
+    {
+      "sourcePath": "src/game/content/weapons/basic-sword/weapon.json",
+      "sourceField": "directionalAttacks.up.animation",
+      "destinationPath": "src/game/content/animations/weapons/basic-sword/attack-up/animation.json",
+      "destinationId": "weapon.basic-sword.attack.up",
+      "decision": "existing-migrated-reference"
+    },
+    {
+      "sourcePath": "src/game/content/weapons/basic-sword/weapon.json",
+      "sourceField": "directionalAttacks.down.animation",
+      "destinationPath": "src/game/content/animations/weapons/basic-sword/attack-down/animation.json",
+      "destinationId": "weapon.basic-sword.attack.down",
+      "decision": "existing-migrated-reference"
+    },
+    {
+      "sourcePath": "src/game/content/weapons/goo-gauntlet/weapon.json",
+      "sourceField": "animations.idle",
+      "destinationPath": null,
+      "destinationId": "weapon.goo-gauntlet.idle",
+      "decision": "visual-less-timeline-kept-on-definition"
+    },
+    {
+      "sourcePath": "src/game/content/weapons/goo-gauntlet/weapon.json",
+      "sourceField": "directionalAttacks.right.animation",
+      "destinationPath": null,
+      "destinationId": "weapon.goo-gauntlet.attack.right",
+      "decision": "visual-less-timeline-kept-on-definition"
+    },
+    {
+      "sourcePath": "src/game/content/weapons/goo-gauntlet/weapon.json",
+      "sourceField": "directionalAttacks.up.animation",
+      "destinationPath": null,
+      "destinationId": "weapon.goo-gauntlet.attack.up",
+      "decision": "visual-less-timeline-kept-on-definition"
+    },
+    {
+      "sourcePath": "src/game/content/weapons/goo-gauntlet/weapon.json",
+      "sourceField": "directionalAttacks.down.animation",
+      "destinationPath": null,
+      "destinationId": "weapon.goo-gauntlet.attack.down",
+      "decision": "visual-less-timeline-kept-on-definition"
+    },
+    {
+      "sourcePath": "src/game/content/weapons/pickaxe/weapon.json",
+      "sourceField": "animations.idle",
+      "destinationPath": "src/game/content/animations/weapons/pickaxe/idle/animation.json",
+      "destinationId": "weapon.pickaxe.idle",
+      "decision": "existing-migrated-reference"
+    },
+    {
+      "sourcePath": "src/game/content/weapons/pickaxe/weapon.json",
+      "sourceField": "directionalAttacks.right.animation",
+      "destinationPath": "src/game/content/animations/weapons/pickaxe/attack-right/animation.json",
+      "destinationId": "weapon.pickaxe.attack.right",
+      "decision": "existing-migrated-reference"
+    },
+    {
+      "sourcePath": "src/game/content/weapons/pickaxe/weapon.json",
+      "sourceField": "directionalAttacks.down.animation",
+      "destinationPath": "src/game/content/animations/weapons/pickaxe/attack-down/animation.json",
+      "destinationId": "weapon.pickaxe.attack.down",
+      "decision": "existing-migrated-reference"
+    },
+    {
+      "sourcePath": "src/game/content/weapons/pickaxe/weapon.json",
+      "sourceField": "directionalAttacks.up.animation",
+      "destinationPath": "src/game/content/animations/weapons/pickaxe/attack-up/animation.json",
+      "destinationId": "weapon.pickaxe.attack.up",
+      "decision": "existing-migrated-reference"
+    },
+    {
+      "sourcePath": "src/game/content/weapons/slam-hammer/weapon.json",
+      "sourceField": "animations.idle",
+      "destinationPath": null,
+      "destinationId": "weapon.slam-hammer.idle",
+      "decision": "visual-less-timeline-kept-on-definition"
+    },
+    {
+      "sourcePath": "src/game/content/weapons/slam-hammer/weapon.json",
+      "sourceField": "directionalAttacks.right.animation",
+      "destinationPath": "src/game/content/animations/weapons/slam-hammer/attack-right/animation.json",
+      "destinationId": "weapon.slam-hammer.attack.right",
+      "decision": "existing-migrated-reference"
+    },
+    {
+      "sourcePath": "src/game/content/weapons/slam-hammer/weapon.json",
+      "sourceField": "directionalAttacks.down.animation",
+      "destinationPath": "src/game/content/animations/weapons/slam-hammer/attack-down/animation.json",
+      "destinationId": "weapon.slam-hammer.attack.down",
+      "decision": "existing-migrated-reference"
+    },
+    {
+      "sourcePath": "src/game/content/weapons/slam-hammer/weapon.json",
+      "sourceField": "directionalAttacks.up.animation",
+      "destinationPath": "src/game/content/animations/weapons/slam-hammer/attack-up/animation.json",
+      "destinationId": "weapon.slam-hammer.attack.up",
+      "decision": "existing-migrated-reference"
+    },
+    {
+      "sourcePath": "src/game/content/weapons/wooden-axe/weapon.json",
+      "sourceField": "animations.idle",
+      "destinationPath": "src/game/content/animations/weapons/wooden-axe/idle/animation.json",
+      "destinationId": "weapon.wooden-axe.idle",
+      "decision": "existing-migrated-reference"
+    },
+    {
+      "sourcePath": "src/game/content/weapons/wooden-axe/weapon.json",
+      "sourceField": "directionalAttacks.right.animation",
+      "destinationPath": "src/game/content/animations/weapons/wooden-axe/attack-right/animation.json",
+      "destinationId": "weapon.wooden-axe.attack.right",
+      "decision": "existing-migrated-reference"
+    },
+    {
+      "sourcePath": "src/game/content/weapons/wooden-axe/weapon.json",
+      "sourceField": "directionalAttacks.down.animation",
+      "destinationPath": "src/game/content/animations/weapons/wooden-axe/attack-down/animation.json",
+      "destinationId": "weapon.wooden-axe.attack.down",
+      "decision": "existing-migrated-reference"
+    },
+    {
+      "sourcePath": "src/game/content/weapons/wooden-axe/weapon.json",
+      "sourceField": "directionalAttacks.up.animation",
+      "destinationPath": "src/game/content/animations/weapons/wooden-axe/attack-up/animation.json",
+      "destinationId": "weapon.wooden-axe.attack.up",
+      "decision": "existing-migrated-reference"
+    },
+    {
+      "sourcePath": "src/game/content/objects/trees/tree-world-solid.json",
+      "sourceField": "variants[0].frames[24].visualSetId + animationClip",
+      "destinationPath": "src/game/content/animations/objects/tree/idle/animation.json",
+      "destinationId": "object.tree.idle",
+      "decision": "existing-migrated-reference"
+    }
+  ]
+}

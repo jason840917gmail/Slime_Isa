@@ -40,6 +40,30 @@ export function layeredTimelineFrameCount(
   return rounded;
 }
 
+/** Number of sampled frames in one playback cycle, excluding repeated endpoints. */
+export function layeredAnimationCycleFrameCount(
+  animation: Pick<LayeredAnimationDocument, 'durationSeconds' | 'framesPerSecond' | 'loop' | 'loopMode'>,
+): number {
+  const frameCount = layeredTimelineFrameCount(animation);
+  return animation.loop && animation.loopMode === 'ping-pong' && frameCount > 1
+    ? frameCount * 2 - 2
+    : frameCount;
+}
+
+/** Resolve an absolute playback step to the authored layered timeline frame. */
+export function layeredAnimationFrameAtStep(
+  animation: Pick<LayeredAnimationDocument, 'durationSeconds' | 'framesPerSecond' | 'loop' | 'loopMode'>,
+  step: number,
+): number {
+  const frameCount = layeredTimelineFrameCount(animation);
+  if (frameCount <= 1) return 0;
+  const cycleLength = layeredAnimationCycleFrameCount(animation);
+  const offset = Math.max(0, Math.floor(step)) % cycleLength;
+  return animation.loop && animation.loopMode === 'ping-pong' && offset >= frameCount
+    ? cycleLength - offset
+    : offset;
+}
+
 export function normalizeAnimationBlockTransform(
   transform?: AnimationBlockTransformDocument,
 ): NormalizedAnimationBlockTransform {

@@ -99,9 +99,9 @@ Use this migration pattern when a Phaser subclass already owns substantial gamep
 
 ### World object: factory-selected visual path
 
-`ObjectFactory` keeps ordinary objects as lightweight images. An object visual that declares both `visualSetId` and `animationClip` receives a stable anchor plus `AnimatedVisual`. Authored collision and map position remain attached to the anchor.
+`ObjectFactory` keeps ordinary objects as lightweight images. An object visual that declares a shared `idleAnimationId` or `onHitAnimationId` receives a stable anchor plus the shared layered animation adapter. Authored collision and map position remain attached to the anchor.
 
-The current map editor deliberately uses its static image path. A future visual-set editor can edit the JSON source and preview clips without changing map files; maps should continue to store stable object/archetype IDs.
+The map editor selects shared animation packages without embedding timeline data in object templates or map files; maps continue to store stable object/archetype IDs.
 
 ### Composite object: plain wrapper
 
@@ -110,11 +110,11 @@ The current map editor deliberately uses its static image path. A future visual-
 ## Adding another animated thing
 
 1. Add or confirm its stable entry in `asset/assets.json`.
-2. Add `src/game/content/characters/<name>/visual-set.json` for a character or
-   enemy, or `src/game/content/visuals/<name>/visual-set.json` for a loose
-   world/effect visual.
-3. Define defaults, optional frame overrides, and one or more clips.
-4. Reference its `visualSetId` and default clip from the owning player, enemy, or object definition.
+2. Add a shared `src/game/content/animations/<domain>/<name>/<slot>/animation.json`
+   package for reusable layered animation, or a character visual set when the
+   animation is character-specific.
+3. Define the layered timing, visual layers, source frames, and transforms.
+4. Reference the package by its stable `animationId` from the owning weapon or object definition.
 5. Keep collision and gameplay values outside the visual-set JSON.
 6. Run `pnpm assets:check`, `pnpm visuals:check`, the relevant content checks, and `pnpm build`.
 7. Smoke-test playback, effects, collision alignment, and cleanup during scene transitions.
@@ -124,11 +124,12 @@ The current map editor deliberately uses its static image path. A future visual-
 - [`asset/assets.json`](../../asset/assets.json) — media paths, texture keys, sheet geometry, and bundles.
 - [`src/game/content/visuals/visual-set.schema.json`](../../src/game/content/visuals/visual-set.schema.json) — editor-friendly JSON contract.
 - [`src/game/content/visuals/VisualCatalog.ts`](../../src/game/content/visuals/VisualCatalog.ts) — typed loading, validation, and transform resolution.
+- [`src/game/content/animations/AnimationCatalog.ts`](../../src/game/content/animations/AnimationCatalog.ts) — shared layered animation package resolution.
+- [`src/game/features/objects/ObjectAnimationAdapter.ts`](../../src/game/features/objects/ObjectAnimationAdapter.ts) — object host for shared idle and on-hit animation packages.
 - [`src/game/features/visuals/AnimationRegistrar.ts`](../../src/game/features/visuals/AnimationRegistrar.ts) — generic Phaser animation registration.
 - [`src/game/features/visuals/AnimatedVisual.ts`](../../src/game/features/visuals/AnimatedVisual.ts) — render sprite, frame transforms, playback, effects, and cleanup.
 - [`src/game/content/characters/player-slime/visual-set.json`](../../src/game/content/characters/player-slime/visual-set.json) — migrated slime clips and visual defaults.
 - [`src/game/content/characters/slime-spider/visual-set.json`](../../src/game/content/characters/slime-spider/visual-set.json) — directional enemy package example.
-- [`src/game/content/visuals/tree-world/visual-set.json`](../../src/game/content/visuals/tree-world/visual-set.json) — one-frame authored tree example.
 - [`src/game/features/player/PlayerFactory.ts`](../../src/game/features/player/PlayerFactory.ts) — player anchor and visual composition.
 - [`src/game/enemies/Enemy.ts`](../../src/game/enemies/Enemy.ts) — enemy integration and visual effects.
 - [`src/game/features/objects/ObjectFactory.ts`](../../src/game/features/objects/ObjectFactory.ts) — static versus animated object creation.
