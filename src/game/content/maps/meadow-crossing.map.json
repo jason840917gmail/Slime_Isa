@@ -2964,6 +2964,13 @@
       "visualId": "tree-autumn-01",
       "x": 1184,
       "y": 2496
+    },
+    {
+      "instanceId": "tree-world-solid-7a35aaf8",
+      "objectId": "tree.world.solid",
+      "visualId": "tree-autumn-01",
+      "x": 1312,
+      "y": 2560
     }
   ],
   "player": {

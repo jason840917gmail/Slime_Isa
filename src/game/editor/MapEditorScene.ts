@@ -113,10 +113,17 @@ interface EnemyAreaMove {
 }
 
 type EnemyAreaResizeTarget = 'stay' | 'pursue';
+type EnemyAreaResizeCorner = 'nw' | 'ne' | 'sw' | 'se';
+
+interface EnemyAreaResizeHandle {
+  readonly target: EnemyAreaResizeTarget;
+  readonly corner: EnemyAreaResizeCorner;
+}
 
 interface EnemyAreaResize {
   readonly id: string;
   readonly target: EnemyAreaResizeTarget;
+  readonly corner: EnemyAreaResizeCorner;
   readonly stayPerimeter: MapEnemyAreaPerimeter;
   readonly pursuePerimeter: MapEnemyAreaPerimeter;
   resizedStayPerimeter?: MapEnemyAreaPerimeter;
@@ -347,7 +354,7 @@ export class MapEditorScene extends Phaser.Scene {
           ? this.enemyAreaResizeHandleAt(selectedArea, world.x, world.y)
           : undefined;
         if (selectedArea && resizeTarget) {
-          this.beginEnemyAreaResize(selectedArea, resizeTarget);
+          this.beginEnemyAreaResize(selectedArea, resizeTarget.target, resizeTarget.corner);
         } else if (area) this.beginEnemyAreaMove(area, world.x, world.y);
         else this.beginEnemyAreaDrag(world.x, world.y);
         return;
@@ -1078,33 +1085,47 @@ export class MapEditorScene extends Phaser.Scene {
       : undefined;
   }
 
-  private enemyAreaResizeHandleAt(area: MapEnemySpawnArea, worldX: number, worldY: number): EnemyAreaResizeTarget | undefined {
+  private enemyAreaResizeHandleAt(area: MapEnemySpawnArea, worldX: number, worldY: number): EnemyAreaResizeHandle | undefined {
     const hitRadius = Math.max(20 / this.cameras.main.zoom, this.editor.value.map.tileSize * 0.3);
-    const candidates: Array<{ target: EnemyAreaResizeTarget; distance: number }> = (['stay', 'pursue'] as const).map((target) => {
-      const handle = this.enemyAreaResizeHandlePosition(target === 'stay' ? area.stayPerimeter : area.pursuePerimeter);
-      return { target, distance: Math.hypot(worldX - handle.x, worldY - handle.y) };
-    });
+    const candidates: Array<EnemyAreaResizeHandle & { distance: number }> = (['stay', 'pursue'] as const).flatMap((target) => (
+      (['nw', 'ne', 'sw', 'se'] as const).map((corner) => {
+        const perimeter = target === 'stay' ? area.stayPerimeter : area.pursuePerimeter;
+        const handle = this.enemyAreaResizeHandlePosition(perimeter, corner);
+        return { target, corner, distance: Math.hypot(worldX - handle.x, worldY - handle.y) };
+      })
+    ));
     candidates.sort((left, right) => left.distance - right.distance);
     const hit = candidates[0];
-    return hit && hit.distance <= hitRadius ? hit.target : undefined;
+    return hit && hit.distance <= hitRadius ? { target: hit.target, corner: hit.corner } : undefined;
   }
 
-  private enemyAreaResizeHandlePosition(perimeter: MapEnemyAreaPerimeter): { x: number; y: number } {
-    return perimeter.shape === 'circle'
-      ? { x: perimeter.x, y: perimeter.y + perimeter.radius }
-      : { x: perimeter.x + perimeter.w, y: perimeter.y + perimeter.h };
+  private enemyAreaResizeHandlePosition(
+    perimeter: MapEnemyAreaPerimeter,
+    corner: EnemyAreaResizeCorner,
+  ): { x: number; y: number } {
+    const east = corner.includes('e') ? 1 : -1;
+    const south = corner.includes('s') ? 1 : -1;
+    if (perimeter.shape === 'circle') {
+      const offset = perimeter.radius * Math.SQRT1_2;
+      return { x: perimeter.x + east * offset, y: perimeter.y + south * offset };
+    }
+    return {
+      x: east > 0 ? perimeter.x + perimeter.w : perimeter.x,
+      y: south > 0 ? perimeter.y + perimeter.h : perimeter.y,
+    };
   }
 
-  private beginEnemyAreaResize(area: MapEnemySpawnArea, target: EnemyAreaResizeTarget): void {
+  private beginEnemyAreaResize(area: MapEnemySpawnArea, target: EnemyAreaResizeTarget, corner: EnemyAreaResizeCorner): void {
     this.editor.selectEnemyArea(area.id);
     this.enemyAreaResize = {
       id: area.id,
       target,
+      corner,
       stayPerimeter: structuredClone(area.stayPerimeter),
       pursuePerimeter: structuredClone(area.pursuePerimeter),
       moved: false,
     };
-    this.editor.notify(`Resize ${target} perimeter for ${area.id} — drag the ${target} tab`);
+    this.editor.notify(`Resize ${target} perimeter for ${area.id} from the ${corner.toUpperCase()} corner`);
   }
 
   private updateEnemyAreaMove(worldX: number, worldY: number): void {
@@ -1157,60 +1178,21 @@ export class MapEditorScene extends Phaser.Scene {
     const map = this.editor.value.map;
     const width = map.size.columns * map.tileSize;
     const height = map.size.rows * map.tileSize;
-    const stay = resize.stayPerimeter;
-    let stayPerimeter: MapEnemyAreaPerimeter;
-    let pursuePerimeter: MapEnemyAreaPerimeter;
-
-    if (resize.target === 'stay' && stay.shape === 'circle' && resize.pursuePerimeter.shape === 'circle') {
-      const centerOffset = Math.hypot(resize.pursuePerimeter.x - stay.x, resize.pursuePerimeter.y - stay.y);
-      const maxStayRadius = Math.floor(
-        Math.min(
-          Math.min(stay.x, width - stay.x, stay.y, height - stay.y),
-          resize.pursuePerimeter.radius - centerOffset,
-        ) / map.tileSize,
-      ) * map.tileSize;
-      const radius = Math.min(
-        Math.max(map.tileSize, maxStayRadius),
-        Math.max(map.tileSize, Math.round(Math.hypot(worldX - stay.x, worldY - stay.y) / map.tileSize) * map.tileSize),
-      );
-      stayPerimeter = { ...stay, radius };
-      pursuePerimeter = resize.pursuePerimeter;
-    } else if (resize.target === 'pursue' && stay.shape === 'circle' && resize.pursuePerimeter.shape === 'circle') {
-      const centerOffset = Math.hypot(resize.pursuePerimeter.x - stay.x, resize.pursuePerimeter.y - stay.y);
-      const minPursueRadius = Math.ceil((centerOffset + stay.radius) / map.tileSize) * map.tileSize;
-      const maxPursueRadius = Math.floor(
-        Math.min(
-          resize.pursuePerimeter.x,
-          width - resize.pursuePerimeter.x,
-          resize.pursuePerimeter.y,
-          height - resize.pursuePerimeter.y,
-        ) / map.tileSize,
-      ) * map.tileSize;
-      const radius = Math.max(
-        minPursueRadius,
-        Math.min(maxPursueRadius, Math.max(map.tileSize, Math.round(Math.hypot(worldX - resize.pursuePerimeter.x, worldY - resize.pursuePerimeter.y) / map.tileSize) * map.tileSize)),
-      );
-      stayPerimeter = stay;
-      pursuePerimeter = { ...resize.pursuePerimeter, radius };
-    } else if (resize.target === 'stay' && stay.shape === 'rectangle' && resize.pursuePerimeter.shape === 'rectangle') {
-      const maxWidth = Math.min(width - stay.x, resize.pursuePerimeter.x + resize.pursuePerimeter.w - stay.x);
-      const maxHeight = Math.min(height - stay.y, resize.pursuePerimeter.y + resize.pursuePerimeter.h - stay.y);
-      const nextWidth = Math.min(maxWidth, Math.max(map.tileSize, Math.ceil(Math.max(0, worldX - stay.x) / map.tileSize) * map.tileSize));
-      const nextHeight = Math.min(maxHeight, Math.max(map.tileSize, Math.ceil(Math.max(0, worldY - stay.y) / map.tileSize) * map.tileSize));
-      stayPerimeter = { ...stay, w: nextWidth, h: nextHeight };
-      pursuePerimeter = resize.pursuePerimeter;
-    } else if (resize.target === 'pursue' && stay.shape === 'rectangle' && resize.pursuePerimeter.shape === 'rectangle') {
-      const minWidth = Math.max(map.tileSize, stay.x + stay.w - resize.pursuePerimeter.x);
-      const minHeight = Math.max(map.tileSize, stay.y + stay.h - resize.pursuePerimeter.y);
-      const maxWidth = width - resize.pursuePerimeter.x;
-      const maxHeight = height - resize.pursuePerimeter.y;
-      const nextWidth = Math.max(minWidth, Math.min(maxWidth, Math.max(map.tileSize, Math.ceil(Math.max(0, worldX - resize.pursuePerimeter.x) / map.tileSize) * map.tileSize)));
-      const nextHeight = Math.max(minHeight, Math.min(maxHeight, Math.max(map.tileSize, Math.ceil(Math.max(0, worldY - resize.pursuePerimeter.y) / map.tileSize) * map.tileSize)));
-      stayPerimeter = stay;
-      pursuePerimeter = { ...resize.pursuePerimeter, w: nextWidth, h: nextHeight };
-    } else {
-      return;
-    }
+    const perimeter = resize.target === 'stay' ? resize.stayPerimeter : resize.pursuePerimeter;
+    const constraint = resize.target === 'stay' ? resize.pursuePerimeter : resize.stayPerimeter;
+    const resizedPerimeter = this.resizeEnemyAreaPerimeter(
+      perimeter,
+      resize.target,
+      resize.corner,
+      constraint,
+      worldX,
+      worldY,
+      map.tileSize,
+      width,
+      height,
+    );
+    const stayPerimeter = resize.target === 'stay' ? resizedPerimeter : resize.stayPerimeter;
+    const pursuePerimeter = resize.target === 'pursue' ? resizedPerimeter : resize.pursuePerimeter;
 
     resize.resizedStayPerimeter = stayPerimeter;
     resize.resizedPursuePerimeter = pursuePerimeter;
@@ -1224,7 +1206,63 @@ export class MapEditorScene extends Phaser.Scene {
       intervalMs: 1500,
       maxPopulation: 8,
     }, 'editor-enemy-area-resize');
-    this.editor.notify(`Resizing ${resize.id}`);
+    this.editor.notify(`Resizing ${resize.id} from the ${resize.corner.toUpperCase()} corner`);
+  }
+
+  private resizeEnemyAreaPerimeter(
+    perimeter: MapEnemyAreaPerimeter,
+    target: EnemyAreaResizeTarget,
+    corner: EnemyAreaResizeCorner,
+    constraint: MapEnemyAreaPerimeter,
+    worldX: number,
+    worldY: number,
+    tileSize: number,
+    width: number,
+    height: number,
+  ): MapEnemyAreaPerimeter {
+    if (perimeter.shape === 'circle' && constraint.shape === 'circle') {
+      const centerOffset = Math.hypot(perimeter.x - constraint.x, perimeter.y - constraint.y);
+      const mapRadius = Math.min(perimeter.x, width - perimeter.x, perimeter.y, height - perimeter.y);
+      const minRadius = target === 'stay'
+        ? tileSize
+        : Math.ceil(Math.max(tileSize, centerOffset + constraint.radius) / tileSize) * tileSize;
+      const maxRadius = Math.floor((target === 'stay'
+        ? Math.min(mapRadius, constraint.radius - centerOffset)
+        : mapRadius) / tileSize) * tileSize;
+      if (maxRadius < minRadius) return perimeter;
+      const requestedRadius = Math.max(tileSize, Math.round(Math.hypot(worldX - perimeter.x, worldY - perimeter.y) / tileSize) * tileSize);
+      return { ...perimeter, radius: Math.min(maxRadius, Math.max(minRadius, requestedRadius)) };
+    }
+    if (perimeter.shape !== 'rectangle' || constraint.shape !== 'rectangle') return perimeter;
+
+    const relatedBounds = perimeterBounds(constraint);
+    const minSize = tileSize;
+    const snappedX = Math.max(0, Math.min(width, Math.round(worldX / tileSize) * tileSize));
+    const snappedY = Math.max(0, Math.min(height, Math.round(worldY / tileSize) * tileSize));
+    let x = perimeter.x;
+    let y = perimeter.y;
+    let right = perimeter.x + perimeter.w;
+    let bottom = perimeter.y + perimeter.h;
+
+    if (corner.includes('w')) {
+      const minX = target === 'stay' ? relatedBounds.minX : 0;
+      const maxX = target === 'pursue' ? relatedBounds.minX : width;
+      x = Phaser.Math.Clamp(snappedX, minX, Math.min(maxX, right - minSize));
+    } else {
+      const minRight = target === 'pursue' ? relatedBounds.maxX : x + minSize;
+      const maxRight = target === 'stay' ? relatedBounds.maxX : width;
+      right = Phaser.Math.Clamp(snappedX, Math.max(minRight, x + minSize), maxRight);
+    }
+    if (corner.includes('n')) {
+      const minY = target === 'stay' ? relatedBounds.minY : 0;
+      const maxY = target === 'pursue' ? relatedBounds.minY : height;
+      y = Phaser.Math.Clamp(snappedY, minY, Math.min(maxY, bottom - minSize));
+    } else {
+      const minBottom = target === 'pursue' ? relatedBounds.maxY : y + minSize;
+      const maxBottom = target === 'stay' ? relatedBounds.maxY : height;
+      bottom = Phaser.Math.Clamp(snappedY, Math.max(minBottom, y + minSize), maxBottom);
+    }
+    return { shape: 'rectangle', x, y, w: right - x, h: bottom - y };
   }
 
   private finishEnemyAreaResize(worldX: number, worldY: number): void {
@@ -1849,11 +1887,13 @@ export class MapEditorScene extends Phaser.Scene {
     perimeter: MapEnemyAreaPerimeter,
     color: number,
   ): void {
-    const handle = this.enemyAreaResizeHandlePosition(perimeter);
-    marker.fillStyle(0x061016, 1).fillRect(handle.x - 16, handle.y - 16, 32, 32);
-    marker.lineStyle(3, color, 1).strokeRect(handle.x - 14, handle.y - 14, 28, 28);
-    marker.fillStyle(color, 1).fillRect(handle.x - 10, handle.y - 10, 20, 20);
-    marker.fillStyle(0xf7fbff, 0.9).fillRect(handle.x - 2, handle.y - 2, 4, 4);
+    for (const corner of ['nw', 'ne', 'sw', 'se'] as const) {
+      const handle = this.enemyAreaResizeHandlePosition(perimeter, corner);
+      marker.fillStyle(0x061016, 1).fillRect(handle.x - 16, handle.y - 16, 32, 32);
+      marker.lineStyle(3, color, 1).strokeRect(handle.x - 14, handle.y - 14, 28, 28);
+      marker.fillStyle(color, 1).fillRect(handle.x - 10, handle.y - 10, 20, 20);
+      marker.fillStyle(0xf7fbff, 0.9).fillRect(handle.x - 2, handle.y - 2, 4, 4);
+    }
   }
 
   private templateOverlaySettings(): {

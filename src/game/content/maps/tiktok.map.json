@@ -1,0 +1,3140 @@
+{
+  "$schema": "./maps.schema.json",
+  "version": 1,
+  "mapId": "tiktok",
+  "tileSize": 64,
+  "size": {
+    "columns": 54,
+    "rows": 54
+  },
+  "layers": [
+    {
+      "id": "ground",
+      "encoding": "legend-chars-v1",
+      "legend": {
+        "g": "forest-floor"
+      },
+      "rows": [
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggg"
+      ]
+    }
+  ],
+  "objects": [
+    {
+      "instanceId": "wall-stone-solid-8d8de3a8",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 480,
+      "y": 512
+    },
+    {
+      "instanceId": "wall-stone-solid-cce1afb3",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 608,
+      "y": 512
+    },
+    {
+      "instanceId": "wall-stone-solid-f2d8230b",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 544,
+      "y": 512
+    },
+    {
+      "instanceId": "wall-stone-solid-28f1508e",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 416,
+      "y": 512
+    },
+    {
+      "instanceId": "wall-stone-solid-9ae81ac1",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 416,
+      "y": 448
+    },
+    {
+      "instanceId": "wall-stone-solid-10ebeb58",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 416,
+      "y": 384
+    },
+    {
+      "instanceId": "wall-stone-solid-4fd0f53a",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 416,
+      "y": 320
+    },
+    {
+      "instanceId": "wall-stone-solid-122a7654",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 416,
+      "y": 256
+    },
+    {
+      "instanceId": "wall-stone-solid-2236d002",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 416,
+      "y": 192
+    },
+    {
+      "instanceId": "wall-stone-solid-214ad0a8",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 416,
+      "y": 128
+    },
+    {
+      "instanceId": "wall-stone-solid-9ef39672",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 416,
+      "y": 64
+    },
+    {
+      "instanceId": "wall-stone-solid-9b4e07ff",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 96,
+      "y": 64
+    },
+    {
+      "instanceId": "wall-stone-solid-6e85db10",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 96,
+      "y": 128
+    },
+    {
+      "instanceId": "wall-stone-solid-734dd41b",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 96,
+      "y": 192
+    },
+    {
+      "instanceId": "wall-stone-solid-d40150ba",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 96,
+      "y": 320
+    },
+    {
+      "instanceId": "wall-stone-solid-591d0c8b",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 96,
+      "y": 256
+    },
+    {
+      "instanceId": "wall-stone-solid-48b52c14",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 96,
+      "y": 384
+    },
+    {
+      "instanceId": "wall-stone-solid-92def39f",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 96,
+      "y": 448
+    },
+    {
+      "instanceId": "wall-stone-solid-ce9f4ded",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 96,
+      "y": 512
+    },
+    {
+      "instanceId": "wall-stone-solid-39346349",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 96,
+      "y": 576
+    },
+    {
+      "instanceId": "wall-stone-solid-41c01c64",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 96,
+      "y": 640
+    },
+    {
+      "instanceId": "wall-stone-solid-8e05ef9a",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 96,
+      "y": 768
+    },
+    {
+      "instanceId": "wall-stone-solid-f7085db7",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 96,
+      "y": 704
+    },
+    {
+      "instanceId": "wall-stone-solid-e1feb35e",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 96,
+      "y": 832
+    },
+    {
+      "instanceId": "wall-stone-solid-95913ab7",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 96,
+      "y": 896
+    },
+    {
+      "instanceId": "wall-stone-solid-6506c15d",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 96,
+      "y": 960
+    },
+    {
+      "instanceId": "wall-stone-solid-917da66d",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 480,
+      "y": 704
+    },
+    {
+      "instanceId": "wall-stone-solid-a71d7bb4",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 416,
+      "y": 704
+    },
+    {
+      "instanceId": "wall-stone-solid-678b81db",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 544,
+      "y": 704
+    },
+    {
+      "instanceId": "wall-stone-solid-26686334",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 608,
+      "y": 704
+    },
+    {
+      "instanceId": "wall-stone-solid-61fd41d9",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 672,
+      "y": 704
+    },
+    {
+      "instanceId": "wall-stone-solid-4f995541",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 416,
+      "y": 768
+    },
+    {
+      "instanceId": "wall-stone-solid-2408a0d2",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 608,
+      "y": 832
+    },
+    {
+      "instanceId": "wall-stone-solid-e3292177",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 480,
+      "y": 768
+    },
+    {
+      "instanceId": "wall-stone-solid-a5b3e2cd",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 544,
+      "y": 768
+    },
+    {
+      "instanceId": "wall-stone-solid-7aea934f",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 608,
+      "y": 896
+    },
+    {
+      "instanceId": "wall-stone-solid-a10902ea",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 544,
+      "y": 960
+    },
+    {
+      "instanceId": "wall-stone-solid-7a488a02",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 480,
+      "y": 960
+    },
+    {
+      "instanceId": "wall-stone-solid-1712a812",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 416,
+      "y": 960
+    },
+    {
+      "instanceId": "wall-stone-solid-8739eee6",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 352,
+      "y": 1024
+    },
+    {
+      "instanceId": "wall-stone-solid-a9c42933",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 352,
+      "y": 1088
+    },
+    {
+      "instanceId": "wall-stone-solid-c2b53cb5",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 352,
+      "y": 1152
+    },
+    {
+      "instanceId": "wall-stone-solid-213eacdb",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 352,
+      "y": 1216
+    },
+    {
+      "instanceId": "wall-stone-solid-21253a18",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 416,
+      "y": 1280
+    },
+    {
+      "instanceId": "wall-stone-solid-9dc0c653",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 352,
+      "y": 1280
+    },
+    {
+      "instanceId": "wall-stone-solid-aafe020e",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 96,
+      "y": 1024
+    },
+    {
+      "instanceId": "wall-stone-solid-756b5a84",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 96,
+      "y": 1088
+    },
+    {
+      "instanceId": "wall-stone-solid-9f646d62",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 32,
+      "y": 1088
+    },
+    {
+      "instanceId": "wall-stone-solid-fe8c8263",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 96,
+      "y": 1152
+    },
+    {
+      "instanceId": "wall-stone-solid-bf1c0e62",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 96,
+      "y": 1216
+    },
+    {
+      "instanceId": "wall-stone-solid-e87991fd",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 96,
+      "y": 1280
+    },
+    {
+      "instanceId": "wall-stone-solid-d1ddddcd",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 96,
+      "y": 1344
+    },
+    {
+      "instanceId": "wall-stone-solid-3b083412",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 96,
+      "y": 1408
+    },
+    {
+      "instanceId": "wall-stone-solid-c3bdc625",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 224,
+      "y": 1408
+    },
+    {
+      "instanceId": "wall-stone-solid-537998fc",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 160,
+      "y": 1408
+    },
+    {
+      "instanceId": "wall-stone-solid-564b687c",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 288,
+      "y": 1408
+    },
+    {
+      "instanceId": "wall-stone-solid-ed29f8d0",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 352,
+      "y": 1408
+    },
+    {
+      "instanceId": "wall-stone-solid-1c2a6575",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 416,
+      "y": 1408
+    },
+    {
+      "instanceId": "wall-stone-solid-b3a8a9c0",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 480,
+      "y": 1408
+    },
+    {
+      "instanceId": "wall-stone-solid-a543b063",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 480,
+      "y": 1280
+    },
+    {
+      "instanceId": "wall-stone-solid-67ee7e81",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 544,
+      "y": 1280
+    },
+    {
+      "instanceId": "wall-stone-solid-f2b081b6",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 608,
+      "y": 1280
+    },
+    {
+      "instanceId": "wall-stone-solid-d756705c",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 736,
+      "y": 1280
+    },
+    {
+      "instanceId": "wall-stone-solid-422c2e16",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 800,
+      "y": 1280
+    },
+    {
+      "instanceId": "wall-stone-solid-2008ad09",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 480,
+      "y": 1472
+    },
+    {
+      "instanceId": "wall-stone-solid-bcfa7395",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 480,
+      "y": 1664
+    },
+    {
+      "instanceId": "wall-stone-solid-852a31ce",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 480,
+      "y": 1728
+    },
+    {
+      "instanceId": "wall-stone-solid-4005ab97",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 480,
+      "y": 1792
+    },
+    {
+      "instanceId": "wall-stone-solid-3f273e83",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 416,
+      "y": 1792
+    },
+    {
+      "instanceId": "wall-stone-solid-087d9248",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 352,
+      "y": 1792
+    },
+    {
+      "instanceId": "wall-stone-solid-ed8f2721",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 288,
+      "y": 1792
+    },
+    {
+      "instanceId": "wall-stone-solid-7fefa560",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 224,
+      "y": 1792
+    },
+    {
+      "instanceId": "wall-stone-solid-4e97922f",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 160,
+      "y": 1792
+    },
+    {
+      "instanceId": "wall-stone-solid-1851c270",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 96,
+      "y": 1792
+    },
+    {
+      "instanceId": "wall-stone-solid-db65b73e",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 96,
+      "y": 1792
+    },
+    {
+      "instanceId": "wall-stone-solid-202ebf12",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 32,
+      "y": 1792
+    },
+    {
+      "instanceId": "wall-stone-solid-a6ae3675",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 672,
+      "y": 1920
+    },
+    {
+      "instanceId": "wall-stone-solid-7688edd3",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 672,
+      "y": 1984
+    },
+    {
+      "instanceId": "wall-stone-solid-db32a000",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 608,
+      "y": 1984
+    },
+    {
+      "instanceId": "wall-stone-solid-5592a047",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 608,
+      "y": 2048
+    },
+    {
+      "instanceId": "wall-stone-solid-6a581341",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 736,
+      "y": 1920
+    },
+    {
+      "instanceId": "wall-stone-solid-a32e883c",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 800,
+      "y": 1920
+    },
+    {
+      "instanceId": "wall-stone-solid-d39d0af3",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 864,
+      "y": 1920
+    },
+    {
+      "instanceId": "wall-stone-solid-4d7b7011",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 928,
+      "y": 1920
+    },
+    {
+      "instanceId": "wall-stone-solid-456f7661",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 992,
+      "y": 1920
+    },
+    {
+      "instanceId": "wall-stone-solid-46678360",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1056,
+      "y": 1920
+    },
+    {
+      "instanceId": "wall-stone-solid-196eba9b",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1120,
+      "y": 1920
+    },
+    {
+      "instanceId": "wall-stone-solid-500a50a7",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1184,
+      "y": 1920
+    },
+    {
+      "instanceId": "wall-stone-solid-2591fd69",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1248,
+      "y": 1920
+    },
+    {
+      "instanceId": "wall-stone-solid-d4acd9ef",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1312,
+      "y": 1920
+    },
+    {
+      "instanceId": "wall-stone-solid-9adf718d",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1376,
+      "y": 1920
+    },
+    {
+      "instanceId": "wall-stone-solid-0436d89e",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1440,
+      "y": 1920
+    },
+    {
+      "instanceId": "wall-stone-solid-97631591",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1504,
+      "y": 1920
+    },
+    {
+      "instanceId": "wall-stone-solid-d83725c7",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1568,
+      "y": 1920
+    },
+    {
+      "instanceId": "wall-stone-solid-8fed54f4",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1632,
+      "y": 1920
+    },
+    {
+      "instanceId": "wall-stone-solid-3f000684",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1696,
+      "y": 1920
+    },
+    {
+      "instanceId": "wall-stone-solid-32fcc2d9",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1696,
+      "y": 1856
+    },
+    {
+      "instanceId": "wall-stone-solid-1a682192",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1760,
+      "y": 1856
+    },
+    {
+      "instanceId": "wall-stone-solid-27e43ada",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1760,
+      "y": 1792
+    },
+    {
+      "instanceId": "wall-stone-solid-aa969065",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1760,
+      "y": 1728
+    },
+    {
+      "instanceId": "wall-stone-solid-37959316",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1760,
+      "y": 1664
+    },
+    {
+      "instanceId": "wall-stone-solid-d7aa8bf3",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1760,
+      "y": 1600
+    },
+    {
+      "instanceId": "wall-stone-solid-6fe1ffc1",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1760,
+      "y": 1536
+    },
+    {
+      "instanceId": "wall-stone-solid-02a8f8b8",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1760,
+      "y": 1472
+    },
+    {
+      "instanceId": "wall-stone-solid-d9aa8463",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1760,
+      "y": 1408
+    },
+    {
+      "instanceId": "wall-stone-solid-200d9c2d",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 672,
+      "y": 1792
+    },
+    {
+      "instanceId": "wall-stone-solid-cb28b5e4",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 736,
+      "y": 1792
+    },
+    {
+      "instanceId": "wall-stone-solid-27ddcf50",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 800,
+      "y": 1792
+    },
+    {
+      "instanceId": "wall-stone-solid-b233222e",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 864,
+      "y": 1792
+    },
+    {
+      "instanceId": "wall-stone-solid-9b0e5bd1",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 928,
+      "y": 1792
+    },
+    {
+      "instanceId": "wall-stone-solid-9cfe85ef",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 992,
+      "y": 1792
+    },
+    {
+      "instanceId": "wall-stone-solid-4df9e674",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1056,
+      "y": 1792
+    },
+    {
+      "instanceId": "wall-stone-solid-38568e65",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1120,
+      "y": 1792
+    },
+    {
+      "instanceId": "wall-stone-solid-10b19a18",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1184,
+      "y": 1792
+    },
+    {
+      "instanceId": "wall-stone-solid-220b4f48",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1248,
+      "y": 1792
+    },
+    {
+      "instanceId": "wall-stone-solid-abfa4e64",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1312,
+      "y": 1792
+    },
+    {
+      "instanceId": "wall-stone-solid-4f36a6e8",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1376,
+      "y": 1792
+    },
+    {
+      "instanceId": "wall-stone-solid-9bfb2c90",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1440,
+      "y": 1792
+    },
+    {
+      "instanceId": "wall-stone-solid-17f0258e",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1504,
+      "y": 1792
+    },
+    {
+      "instanceId": "wall-stone-solid-80ba5cf1",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1568,
+      "y": 1792
+    },
+    {
+      "instanceId": "wall-stone-solid-a7363b26",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1568,
+      "y": 1728
+    },
+    {
+      "instanceId": "wall-stone-solid-1e3d4404",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1568,
+      "y": 1664
+    },
+    {
+      "instanceId": "wall-stone-solid-8bca2d1f",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1568,
+      "y": 1600
+    },
+    {
+      "instanceId": "wall-stone-solid-810fc8bb",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1568,
+      "y": 1536
+    },
+    {
+      "instanceId": "wall-stone-solid-3b0a954c",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1568,
+      "y": 1472
+    },
+    {
+      "instanceId": "wall-stone-solid-c00a2850",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1568,
+      "y": 1408
+    },
+    {
+      "instanceId": "wall-stone-solid-dbf5c7fb",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 672,
+      "y": 1728
+    },
+    {
+      "instanceId": "wall-stone-solid-e9a906d2",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 672,
+      "y": 1664
+    },
+    {
+      "instanceId": "wall-stone-solid-403142b8",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 672,
+      "y": 1600
+    },
+    {
+      "instanceId": "wall-stone-solid-9fc04798",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 672,
+      "y": 1536
+    },
+    {
+      "instanceId": "wall-stone-solid-bf9111f8",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 672,
+      "y": 1472
+    },
+    {
+      "instanceId": "wall-stone-solid-30856be0",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 864,
+      "y": 1280
+    },
+    {
+      "instanceId": "wall-stone-solid-2af7da1a",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 928,
+      "y": 1280
+    },
+    {
+      "instanceId": "wall-stone-solid-334a2419",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 992,
+      "y": 1280
+    },
+    {
+      "instanceId": "wall-stone-solid-685398c8",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1056,
+      "y": 1280
+    },
+    {
+      "instanceId": "wall-stone-solid-294afd45",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1120,
+      "y": 1280
+    },
+    {
+      "instanceId": "wall-stone-solid-b98026d4",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1184,
+      "y": 1280
+    },
+    {
+      "instanceId": "wall-stone-solid-cdcbe5a1",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1248,
+      "y": 1216
+    },
+    {
+      "instanceId": "wall-stone-solid-d49dfde3",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1312,
+      "y": 1216
+    },
+    {
+      "instanceId": "wall-stone-solid-8f7fc7ce",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1376,
+      "y": 1280
+    },
+    {
+      "instanceId": "wall-stone-solid-9f96e11b",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1376,
+      "y": 1216
+    },
+    {
+      "instanceId": "wall-stone-solid-d5ee4cd2",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1440,
+      "y": 1216
+    },
+    {
+      "instanceId": "wall-stone-solid-87e3f810",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1440,
+      "y": 1152
+    },
+    {
+      "instanceId": "wall-stone-solid-ebcf6f92",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1440,
+      "y": 1088
+    },
+    {
+      "instanceId": "wall-stone-solid-205921bb",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1440,
+      "y": 1024
+    },
+    {
+      "instanceId": "wall-stone-solid-2a0369fa",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1440,
+      "y": 960
+    },
+    {
+      "instanceId": "wall-stone-solid-c2fb5fd0",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1440,
+      "y": 896
+    },
+    {
+      "instanceId": "wall-stone-solid-2b6f4826",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1440,
+      "y": 832
+    },
+    {
+      "instanceId": "wall-stone-solid-027737a1",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1440,
+      "y": 768
+    },
+    {
+      "instanceId": "wall-stone-solid-96da479b",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1440,
+      "y": 704
+    },
+    {
+      "instanceId": "wall-stone-solid-8924813a",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 864,
+      "y": 1600
+    },
+    {
+      "instanceId": "wall-stone-solid-b77c57d2",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 864,
+      "y": 1664
+    },
+    {
+      "instanceId": "wall-stone-solid-70b4689a",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 864,
+      "y": 1728
+    },
+    {
+      "instanceId": "wall-stone-solid-54418aae",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 992,
+      "y": 1664
+    },
+    {
+      "instanceId": "wall-stone-solid-9e18c32a",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1056,
+      "y": 1664
+    },
+    {
+      "instanceId": "wall-stone-solid-ff9d8239",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1120,
+      "y": 1664
+    },
+    {
+      "instanceId": "wall-stone-solid-defbf9ae",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1184,
+      "y": 1664
+    },
+    {
+      "instanceId": "wall-stone-solid-69be9b8c",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1248,
+      "y": 1664
+    },
+    {
+      "instanceId": "wall-stone-solid-89324130",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1248,
+      "y": 1600
+    },
+    {
+      "instanceId": "wall-stone-solid-a2eced56",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1248,
+      "y": 1536
+    },
+    {
+      "instanceId": "wall-stone-solid-2b83c60d",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1248,
+      "y": 1472
+    },
+    {
+      "instanceId": "wall-stone-solid-8def0d74",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1184,
+      "y": 1472
+    },
+    {
+      "instanceId": "wall-stone-solid-fdbf202c",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1120,
+      "y": 1472
+    },
+    {
+      "instanceId": "wall-stone-solid-4f4fce57",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1056,
+      "y": 1472
+    },
+    {
+      "instanceId": "wall-stone-solid-7b07bd21",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 992,
+      "y": 1472
+    },
+    {
+      "instanceId": "wall-stone-solid-1a2efdc2",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 992,
+      "y": 1536
+    },
+    {
+      "instanceId": "wall-stone-solid-b4c5a124",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 992,
+      "y": 1600
+    },
+    {
+      "instanceId": "wall-stone-solid-3399d8b7",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1376,
+      "y": 1728
+    },
+    {
+      "instanceId": "wall-stone-solid-0b86ea1b",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1376,
+      "y": 1664
+    },
+    {
+      "instanceId": "wall-stone-solid-e2087fd4",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1376,
+      "y": 1600
+    },
+    {
+      "instanceId": "wall-stone-solid-40bfddf2",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1376,
+      "y": 1536
+    },
+    {
+      "instanceId": "wall-stone-solid-98f099e8",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1376,
+      "y": 1472
+    },
+    {
+      "instanceId": "wall-stone-solid-686e12eb",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1376,
+      "y": 1408
+    },
+    {
+      "instanceId": "wall-stone-solid-b9005b1e",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1312,
+      "y": 1408
+    },
+    {
+      "instanceId": "wall-stone-solid-a065a66b",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1248,
+      "y": 1408
+    },
+    {
+      "instanceId": "wall-stone-solid-8002079c",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1184,
+      "y": 1408
+    },
+    {
+      "instanceId": "wall-stone-solid-55c8a1c5",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1120,
+      "y": 1408
+    },
+    {
+      "instanceId": "wall-stone-solid-c5ffc53c",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 1056,
+      "y": 1408
+    },
+    {
+      "instanceId": "wall-stone-solid-06ba4b9f",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 992,
+      "y": 1408
+    },
+    {
+      "instanceId": "wall-stone-solid-8a45b2ea",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 928,
+      "y": 1408
+    },
+    {
+      "instanceId": "wall-stone-solid-6956eec9",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 864,
+      "y": 1408
+    },
+    {
+      "instanceId": "wall-stone-solid-0386c619",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 800,
+      "y": 1408
+    },
+    {
+      "instanceId": "wall-stone-solid-66333114",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 800,
+      "y": 1472
+    },
+    {
+      "instanceId": "wall-stone-solid-945c4bee",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 800,
+      "y": 1536
+    },
+    {
+      "instanceId": "wall-stone-solid-c33d4cc9",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 800,
+      "y": 1600
+    },
+    {
+      "instanceId": "wall-stone-solid-989643c9",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 800,
+      "y": 1664
+    },
+    {
+      "instanceId": "wall-stone-solid-1bfc2e25",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-02",
+      "x": 800,
+      "y": 1728
+    },
+    {
+      "instanceId": "wall-stone-solid-c8801b39",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-01",
+      "x": 1248,
+      "y": 1280
+    },
+    {
+      "instanceId": "wall-stone-solid-4ce6ac09",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-01",
+      "x": 1312,
+      "y": 1280
+    },
+    {
+      "instanceId": "wall-stone-solid-275990f8",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-01",
+      "x": 1568,
+      "y": 1344
+    },
+    {
+      "instanceId": "wall-stone-solid-072116c5",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-01",
+      "x": 1568,
+      "y": 1280
+    },
+    {
+      "instanceId": "wall-stone-solid-3acb87bc",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-01",
+      "x": 1824,
+      "y": 1408
+    },
+    {
+      "instanceId": "wall-stone-solid-cfa120d9",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-01",
+      "x": 1888,
+      "y": 1408
+    },
+    {
+      "instanceId": "wall-stone-solid-8166fa62",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-01",
+      "x": 1952,
+      "y": 1408
+    },
+    {
+      "instanceId": "wall-stone-solid-d914f9a3",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-01",
+      "x": 1952,
+      "y": 1472
+    },
+    {
+      "instanceId": "wall-stone-solid-a95f04b7",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-01",
+      "x": 1952,
+      "y": 1536
+    },
+    {
+      "instanceId": "wall-stone-solid-07803739",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-01",
+      "x": 1952,
+      "y": 1600
+    },
+    {
+      "instanceId": "wall-stone-solid-95d930a8",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-01",
+      "x": 1888,
+      "y": 1600
+    },
+    {
+      "instanceId": "wall-stone-solid-43b1b135",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-01",
+      "x": 1888,
+      "y": 1664
+    },
+    {
+      "instanceId": "wall-stone-solid-3f8582fa",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-01",
+      "x": 1888,
+      "y": 1728
+    },
+    {
+      "instanceId": "wall-stone-solid-fe5700b7",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-01",
+      "x": 1888,
+      "y": 1792
+    },
+    {
+      "instanceId": "wall-stone-solid-5fdc4291",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-01",
+      "x": 1888,
+      "y": 1856
+    },
+    {
+      "instanceId": "wall-stone-solid-b6a36707",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-01",
+      "x": 1888,
+      "y": 1920
+    },
+    {
+      "instanceId": "wall-stone-solid-a01e59da",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-01",
+      "x": 1888,
+      "y": 1984
+    },
+    {
+      "instanceId": "wall-stone-solid-4ccc4efc",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-01",
+      "x": 1888,
+      "y": 2048
+    },
+    {
+      "instanceId": "wall-stone-solid-6182b400",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-01",
+      "x": 672,
+      "y": 704
+    },
+    {
+      "instanceId": "wall-stone-solid-503ea595",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-01",
+      "x": 736,
+      "y": 704
+    },
+    {
+      "instanceId": "wall-stone-solid-eb6a7d8b",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-01",
+      "x": 800,
+      "y": 704
+    },
+    {
+      "instanceId": "wall-stone-solid-d2efdc09",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-01",
+      "x": 864,
+      "y": 704
+    },
+    {
+      "instanceId": "wall-stone-solid-07880c38",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-01",
+      "x": 928,
+      "y": 704
+    },
+    {
+      "instanceId": "wall-stone-solid-f82815f9",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-01",
+      "x": 992,
+      "y": 704
+    },
+    {
+      "instanceId": "wall-stone-solid-58d161e6",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-01",
+      "x": 1056,
+      "y": 704
+    },
+    {
+      "instanceId": "wall-stone-solid-850eb490",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-01",
+      "x": 1120,
+      "y": 704
+    },
+    {
+      "instanceId": "wall-stone-solid-ed9eb7c9",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-01",
+      "x": 1184,
+      "y": 704
+    },
+    {
+      "instanceId": "wall-stone-solid-a94f3805",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-01",
+      "x": 1248,
+      "y": 704
+    },
+    {
+      "instanceId": "wall-stone-solid-8ddc5589",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-01",
+      "x": 1312,
+      "y": 704
+    },
+    {
+      "instanceId": "wall-stone-solid-4b751bee",
+      "objectId": "wall.stone.solid",
+      "visualId": "horizontal-01",
+      "x": 1376,
+      "y": 704
+    },
+    {
+      "instanceId": "house-world-solid-b75cc71e",
+      "objectId": "house.world.solid",
+      "visualId": "forge-red",
+      "x": 224,
+      "y": 1728
+    },
+    {
+      "instanceId": "house-world-solid-f9f3164d",
+      "objectId": "house.world.solid",
+      "visualId": "cottage-blue",
+      "x": 800,
+      "y": 1024
+    },
+    {
+      "instanceId": "house-world-solid-779a93bb",
+      "objectId": "house.world.solid",
+      "visualId": "cottage-blue",
+      "x": 1184,
+      "y": 1024
+    },
+    {
+      "instanceId": "collectible-purple-berry-659f2ed8",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1824,
+      "y": 1536
+    },
+    {
+      "instanceId": "collectible-purple-berry-7d5512c8",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1824,
+      "y": 1472
+    },
+    {
+      "instanceId": "collectible-purple-berry-f4a9440a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1824,
+      "y": 1472
+    },
+    {
+      "instanceId": "collectible-purple-berry-42a42ca1",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1888,
+      "y": 1472
+    },
+    {
+      "instanceId": "collectible-purple-berry-ef4307d2",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1888,
+      "y": 1536
+    },
+    {
+      "instanceId": "collectible-purple-berry-50f12b32",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1888,
+      "y": 1600
+    },
+    {
+      "instanceId": "collectible-purple-berry-e898fd1f",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1824,
+      "y": 1600
+    },
+    {
+      "instanceId": "collectible-purple-berry-76f22f67",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1824,
+      "y": 1664
+    },
+    {
+      "instanceId": "collectible-purple-berry-8f8839fc",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1824,
+      "y": 1728
+    },
+    {
+      "instanceId": "collectible-purple-berry-790ea69e",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1824,
+      "y": 1792
+    },
+    {
+      "instanceId": "collectible-purple-berry-5650838f",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1824,
+      "y": 1856
+    },
+    {
+      "instanceId": "collectible-purple-berry-1e71220b",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1824,
+      "y": 1920
+    },
+    {
+      "instanceId": "collectible-purple-berry-8ed8bd41",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1824,
+      "y": 1984
+    },
+    {
+      "instanceId": "collectible-purple-berry-87593852",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1760,
+      "y": 1984
+    },
+    {
+      "instanceId": "collectible-purple-berry-5a03a866",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1760,
+      "y": 2048
+    },
+    {
+      "instanceId": "collectible-purple-berry-c84af160",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1696,
+      "y": 2048
+    },
+    {
+      "instanceId": "collectible-purple-berry-9a29d775",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1632,
+      "y": 2048
+    },
+    {
+      "instanceId": "collectible-purple-berry-4181e99d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1568,
+      "y": 2048
+    },
+    {
+      "instanceId": "collectible-purple-berry-4fa0d6fc",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1504,
+      "y": 2048
+    },
+    {
+      "instanceId": "collectible-purple-berry-fcf64707",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1504,
+      "y": 1984
+    },
+    {
+      "instanceId": "collectible-purple-berry-e566b37e",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1568,
+      "y": 1984
+    },
+    {
+      "instanceId": "collectible-purple-berry-6bd3e8cd",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1632,
+      "y": 1984
+    },
+    {
+      "instanceId": "collectible-purple-berry-bb22fcc5",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1696,
+      "y": 1984
+    },
+    {
+      "instanceId": "collectible-purple-berry-806a74a6",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1440,
+      "y": 1984
+    },
+    {
+      "instanceId": "collectible-purple-berry-8b5c7251",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1376,
+      "y": 1984
+    },
+    {
+      "instanceId": "collectible-purple-berry-dacd6979",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1312,
+      "y": 1984
+    },
+    {
+      "instanceId": "collectible-purple-berry-558e649c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1312,
+      "y": 2048
+    },
+    {
+      "instanceId": "collectible-purple-berry-1c71686e",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1376,
+      "y": 2048
+    },
+    {
+      "instanceId": "collectible-purple-berry-656ee341",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1440,
+      "y": 2048
+    },
+    {
+      "instanceId": "collectible-purple-berry-e38cb47b",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1248,
+      "y": 1984
+    },
+    {
+      "instanceId": "collectible-purple-berry-c2782780",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1184,
+      "y": 1984
+    },
+    {
+      "instanceId": "collectible-purple-berry-d87b007c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1184,
+      "y": 2048
+    },
+    {
+      "instanceId": "collectible-purple-berry-dbaea2ca",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1248,
+      "y": 2048
+    },
+    {
+      "instanceId": "collectible-purple-berry-53852c97",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1120,
+      "y": 1984
+    },
+    {
+      "instanceId": "collectible-purple-berry-2529cc41",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1120,
+      "y": 1920
+    },
+    {
+      "instanceId": "collectible-purple-berry-e15f21aa",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1056,
+      "y": 1920
+    },
+    {
+      "instanceId": "collectible-purple-berry-44be545d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1056,
+      "y": 1984
+    },
+    {
+      "instanceId": "collectible-purple-berry-f41b1fa0",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1120,
+      "y": 2048
+    },
+    {
+      "instanceId": "collectible-purple-berry-7e12119e",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1056,
+      "y": 2048
+    },
+    {
+      "instanceId": "collectible-purple-berry-b1c79f10",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1312,
+      "y": 1920
+    },
+    {
+      "instanceId": "collectible-purple-berry-72e11d4d",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1376,
+      "y": 1920
+    },
+    {
+      "instanceId": "collectible-purple-berry-48c94f0a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1248,
+      "y": 1920
+    },
+    {
+      "instanceId": "collectible-purple-berry-06b9bb87",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1184,
+      "y": 1920
+    },
+    {
+      "instanceId": "collectible-purple-berry-c845f77a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1440,
+      "y": 1920
+    },
+    {
+      "instanceId": "collectible-purple-berry-a9c345db",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1504,
+      "y": 1920
+    },
+    {
+      "instanceId": "collectible-purple-berry-e0e2f364",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1568,
+      "y": 1920
+    },
+    {
+      "instanceId": "collectible-purple-berry-141feea0",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1632,
+      "y": 1920
+    },
+    {
+      "instanceId": "collectible-purple-berry-0f9bf2b0",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1696,
+      "y": 1920
+    },
+    {
+      "instanceId": "collectible-purple-berry-ee21bf2c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1760,
+      "y": 1920
+    },
+    {
+      "instanceId": "collectible-purple-berry-1fc1e9f7",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1760,
+      "y": 1856
+    },
+    {
+      "instanceId": "collectible-purple-berry-2bcd5068",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 1696,
+      "y": 1856
+    },
+    {
+      "instanceId": "collectible-purple-berry-cb03e8e2",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 992,
+      "y": 1984
+    },
+    {
+      "instanceId": "collectible-purple-berry-d9ade135",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 992,
+      "y": 2048
+    },
+    {
+      "instanceId": "collectible-purple-berry-841707c2",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 992,
+      "y": 1920
+    },
+    {
+      "instanceId": "collectible-purple-berry-abbffb22",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 928,
+      "y": 1984
+    },
+    {
+      "instanceId": "collectible-purple-berry-d3f72bb7",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 864,
+      "y": 1984
+    },
+    {
+      "instanceId": "collectible-purple-berry-a8db8f3e",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 864,
+      "y": 2048
+    },
+    {
+      "instanceId": "collectible-purple-berry-9070db97",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 928,
+      "y": 2048
+    },
+    {
+      "instanceId": "collectible-purple-berry-fce59a3c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 928,
+      "y": 1920
+    },
+    {
+      "instanceId": "collectible-purple-berry-74f125c5",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 800,
+      "y": 1984
+    },
+    {
+      "instanceId": "collectible-purple-berry-433ac8da",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 736,
+      "y": 2048
+    },
+    {
+      "instanceId": "collectible-purple-berry-97960874",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 800,
+      "y": 2048
+    },
+    {
+      "instanceId": "collectible-purple-berry-76b3ef2c",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 736,
+      "y": 1984
+    },
+    {
+      "instanceId": "collectible-purple-berry-e3959a63",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 864,
+      "y": 1920
+    },
+    {
+      "instanceId": "collectible-purple-berry-ad4cce11",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 800,
+      "y": 1920
+    },
+    {
+      "instanceId": "collectible-purple-berry-5b7324f0",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 736,
+      "y": 1920
+    },
+    {
+      "instanceId": "collectible-purple-berry-4cff9631",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 672,
+      "y": 1984
+    },
+    {
+      "instanceId": "collectible-purple-berry-71e6a2cb",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 672,
+      "y": 2048
+    },
+    {
+      "instanceId": "collectible-purple-berry-1f7c2e9e",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 608,
+      "y": 1152
+    },
+    {
+      "instanceId": "collectible-purple-berry-47a7207a",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 992,
+      "y": 768
+    },
+    {
+      "instanceId": "tree-world-solid-71df931d",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 608,
+      "y": 1152
+    },
+    {
+      "instanceId": "tree-world-solid-cc9e7561",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1248,
+      "y": 1152
+    },
+    {
+      "instanceId": "tree-world-solid-8b4cb91e",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 992,
+      "y": 832
+    },
+    {
+      "instanceId": "tree-world-solid-5206612f",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1632,
+      "y": 960
+    },
+    {
+      "instanceId": "tree-world-solid-d826a5ab",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1760,
+      "y": 960
+    },
+    {
+      "instanceId": "tree-world-solid-1224a8e3",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1696,
+      "y": 832
+    },
+    {
+      "instanceId": "tree-world-solid-ec85941d",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1824,
+      "y": 832
+    },
+    {
+      "instanceId": "tree-world-solid-b31fe954",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1888,
+      "y": 960
+    },
+    {
+      "instanceId": "tree-world-solid-4d9d5b98",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1952,
+      "y": 832
+    },
+    {
+      "instanceId": "tree-world-solid-8e2c2a73",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 2016,
+      "y": 960
+    },
+    {
+      "instanceId": "tree-world-solid-aec0f123",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 2080,
+      "y": 832
+    },
+    {
+      "instanceId": "tree-world-solid-ff9ed12f",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 2144,
+      "y": 960
+    },
+    {
+      "instanceId": "tree-world-solid-5fa3afb5",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 2208,
+      "y": 832
+    },
+    {
+      "instanceId": "tree-world-solid-de3a62d9",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1568,
+      "y": 832
+    },
+    {
+      "instanceId": "tree-world-solid-5ced33f2",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1632,
+      "y": 832
+    },
+    {
+      "instanceId": "tree-world-solid-526bac5f",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1568,
+      "y": 960
+    },
+    {
+      "instanceId": "tree-world-solid-81511968",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1696,
+      "y": 960
+    },
+    {
+      "instanceId": "tree-world-solid-031aba76",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1824,
+      "y": 960
+    },
+    {
+      "instanceId": "tree-world-solid-d5cec95a",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1952,
+      "y": 960
+    },
+    {
+      "instanceId": "tree-world-solid-3154fefd",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 2144,
+      "y": 960
+    },
+    {
+      "instanceId": "tree-world-solid-3713fcf1",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 2080,
+      "y": 960
+    },
+    {
+      "instanceId": "tree-world-solid-28d4f15c",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 2208,
+      "y": 960
+    },
+    {
+      "instanceId": "tree-world-solid-7e8480a2",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 2144,
+      "y": 832
+    },
+    {
+      "instanceId": "tree-world-solid-d55fa999",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 2016,
+      "y": 832
+    },
+    {
+      "instanceId": "tree-world-solid-4b9cc2fe",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1888,
+      "y": 832
+    },
+    {
+      "instanceId": "tree-world-solid-02601ae9",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1760,
+      "y": 832
+    },
+    {
+      "instanceId": "tree-world-solid-6ba64d05",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1568,
+      "y": 1088
+    },
+    {
+      "instanceId": "tree-world-solid-08eadbb2",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1632,
+      "y": 1088
+    },
+    {
+      "instanceId": "tree-world-solid-19d5d97e",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1696,
+      "y": 1024
+    },
+    {
+      "instanceId": "tree-world-solid-974ac25a",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1696,
+      "y": 1088
+    },
+    {
+      "instanceId": "tree-world-solid-f5a375e7",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1632,
+      "y": 960
+    },
+    {
+      "instanceId": "tree-world-solid-1a613aea",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1568,
+      "y": 1024
+    },
+    {
+      "instanceId": "tree-world-solid-2af5895d",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1632,
+      "y": 960
+    },
+    {
+      "instanceId": "tree-world-solid-dfa8cca8",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1632,
+      "y": 1024
+    },
+    {
+      "instanceId": "tree-world-solid-3a65aaf1",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1760,
+      "y": 1024
+    },
+    {
+      "instanceId": "tree-world-solid-38480616",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1824,
+      "y": 1024
+    },
+    {
+      "instanceId": "tree-world-solid-c14d3a29",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1824,
+      "y": 1024
+    },
+    {
+      "instanceId": "tree-world-solid-93553400",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1888,
+      "y": 1024
+    },
+    {
+      "instanceId": "tree-world-solid-02669c31",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1952,
+      "y": 1024
+    },
+    {
+      "instanceId": "tree-world-solid-7b16b5f5",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 2016,
+      "y": 1024
+    },
+    {
+      "instanceId": "tree-world-solid-a2608c54",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 2080,
+      "y": 1024
+    },
+    {
+      "instanceId": "tree-world-solid-d3b3bbf8",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 2144,
+      "y": 960
+    },
+    {
+      "instanceId": "tree-world-solid-7430d149",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 2208,
+      "y": 1024
+    },
+    {
+      "instanceId": "tree-world-solid-3e6226e6",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 2144,
+      "y": 1024
+    },
+    {
+      "instanceId": "tree-world-solid-e3f6b8df",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1760,
+      "y": 1088
+    },
+    {
+      "instanceId": "tree-world-solid-cf1f3324",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1888,
+      "y": 1088
+    },
+    {
+      "instanceId": "tree-world-solid-86a14faa",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1824,
+      "y": 1088
+    },
+    {
+      "instanceId": "tree-world-solid-4f6e5fe0",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1952,
+      "y": 1088
+    },
+    {
+      "instanceId": "tree-world-solid-b3756abe",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 2016,
+      "y": 1088
+    },
+    {
+      "instanceId": "tree-world-solid-ee114b65",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 2080,
+      "y": 1088
+    },
+    {
+      "instanceId": "tree-world-solid-020895c5",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 2144,
+      "y": 1088
+    },
+    {
+      "instanceId": "tree-world-solid-c8752f30",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 2208,
+      "y": 1088
+    },
+    {
+      "instanceId": "tree-world-solid-74b07474",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1568,
+      "y": 896
+    },
+    {
+      "instanceId": "tree-world-solid-85366e57",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1632,
+      "y": 832
+    },
+    {
+      "instanceId": "tree-world-solid-58e73511",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1632,
+      "y": 896
+    },
+    {
+      "instanceId": "tree-world-solid-283cc779",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1696,
+      "y": 896
+    },
+    {
+      "instanceId": "tree-world-solid-91a486d0",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1760,
+      "y": 896
+    },
+    {
+      "instanceId": "tree-world-solid-7d4100fa",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1824,
+      "y": 896
+    },
+    {
+      "instanceId": "tree-world-solid-270c48c0",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1888,
+      "y": 896
+    },
+    {
+      "instanceId": "tree-world-solid-5951fa46",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1952,
+      "y": 896
+    },
+    {
+      "instanceId": "tree-world-solid-e832a1cf",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 2016,
+      "y": 896
+    },
+    {
+      "instanceId": "tree-world-solid-91f15ac2",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 2080,
+      "y": 896
+    },
+    {
+      "instanceId": "tree-world-solid-e7a238b1",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 2144,
+      "y": 896
+    },
+    {
+      "instanceId": "tree-world-solid-5126e108",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 2208,
+      "y": 896
+    },
+    {
+      "instanceId": "tree-world-solid-7ec30be8",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1568,
+      "y": 768
+    },
+    {
+      "instanceId": "tree-world-solid-de932b20",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1632,
+      "y": 768
+    },
+    {
+      "instanceId": "tree-world-solid-ae5db887",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1696,
+      "y": 768
+    },
+    {
+      "instanceId": "tree-world-solid-2429fa62",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1760,
+      "y": 768
+    },
+    {
+      "instanceId": "tree-world-solid-54d7ecfd",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1824,
+      "y": 768
+    },
+    {
+      "instanceId": "tree-world-solid-12ac0bb5",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1888,
+      "y": 768
+    },
+    {
+      "instanceId": "tree-world-solid-b94fd025",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 1952,
+      "y": 768
+    },
+    {
+      "instanceId": "tree-world-solid-a2578f40",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 2016,
+      "y": 768
+    },
+    {
+      "instanceId": "tree-world-solid-f39d50c0",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 2080,
+      "y": 832
+    },
+    {
+      "instanceId": "tree-world-solid-41422dfc",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 2080,
+      "y": 768
+    },
+    {
+      "instanceId": "tree-world-solid-fbeef5aa",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 2144,
+      "y": 768
+    },
+    {
+      "instanceId": "tree-world-solid-6c2120ef",
+      "objectId": "tree.world.solid",
+      "visualId": "green-tree-03",
+      "x": 2208,
+      "y": 768
+    },
+    {
+      "instanceId": "resource-stone-node-0a6cd761",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 544,
+      "y": 1408
+    },
+    {
+      "instanceId": "resource-stone-node-4612cf0e",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 608,
+      "y": 1408
+    },
+    {
+      "instanceId": "resource-stone-node-950a7f50",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 608,
+      "y": 1472
+    },
+    {
+      "instanceId": "resource-stone-node-63c56b39",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 544,
+      "y": 1472
+    },
+    {
+      "instanceId": "resource-stone-node-63e4e8e6",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 736,
+      "y": 1408
+    },
+    {
+      "instanceId": "resource-stone-node-3b7dd6bc",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 1504,
+      "y": 1152
+    },
+    {
+      "instanceId": "resource-stone-node-f7869273",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 672,
+      "y": 1280
+    },
+    {
+      "instanceId": "resource-stone-node-8b6d2f1a",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 544,
+      "y": 2048
+    },
+    {
+      "instanceId": "resource-stone-node-754f71ec",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 480,
+      "y": 1536
+    },
+    {
+      "instanceId": "resource-stone-node-3bc8183a",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 480,
+      "y": 1600
+    },
+    {
+      "instanceId": "resource-stone-node-603474a6",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 736,
+      "y": 1472
+    },
+    {
+      "instanceId": "resource-stone-node-f9240083",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 416,
+      "y": 1536
+    },
+    {
+      "instanceId": "resource-stone-node-4483b787",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 416,
+      "y": 1600
+    },
+    {
+      "instanceId": "resource-stone-node-a4e03d24",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 1120,
+      "y": 1536
+    },
+    {
+      "instanceId": "resource-stone-node-1589a049",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 1056,
+      "y": 1536
+    },
+    {
+      "instanceId": "resource-stone-node-252ebfaf",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 1184,
+      "y": 1536
+    },
+    {
+      "instanceId": "resource-stone-node-00a814da",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 1056,
+      "y": 1600
+    },
+    {
+      "instanceId": "resource-stone-node-e66e4ef9",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 1120,
+      "y": 1600
+    },
+    {
+      "instanceId": "resource-stone-node-bdf999c2",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 1184,
+      "y": 1600
+    },
+    {
+      "instanceId": "resource-stone-node-8a70c155",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 1760,
+      "y": 1280
+    },
+    {
+      "instanceId": "resource-stone-node-07fbec44",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 1632,
+      "y": 1280
+    },
+    {
+      "instanceId": "resource-stone-node-bc1a20d3",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 1696,
+      "y": 1216
+    },
+    {
+      "instanceId": "resource-stone-node-995a17c0",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 1696,
+      "y": 1280
+    },
+    {
+      "instanceId": "resource-stone-node-13b6b83a",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 1632,
+      "y": 1216
+    },
+    {
+      "instanceId": "resource-stone-node-35926966",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 1760,
+      "y": 1216
+    },
+    {
+      "instanceId": "resource-stone-node-5b397caf",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 2016,
+      "y": 1344
+    },
+    {
+      "instanceId": "resource-stone-node-304ca67f",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 1952,
+      "y": 1280
+    },
+    {
+      "instanceId": "resource-stone-node-2e22e5e0",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 2080,
+      "y": 1600
+    },
+    {
+      "instanceId": "resource-stone-node-fd71be9d",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 2016,
+      "y": 1792
+    },
+    {
+      "instanceId": "resource-stone-node-990f209d",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 2080,
+      "y": 1920
+    },
+    {
+      "instanceId": "resource-stone-node-ce044493",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 2016,
+      "y": 1984
+    },
+    {
+      "instanceId": "resource-stone-node-970da3ac",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 2272,
+      "y": 1408
+    },
+    {
+      "instanceId": "resource-stone-node-178700d6",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 2208,
+      "y": 1664
+    },
+    {
+      "instanceId": "resource-stone-node-9b257b54",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 1504,
+      "y": 1408
+    },
+    {
+      "instanceId": "resource-stone-node-f5be07c1",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 1440,
+      "y": 1664
+    },
+    {
+      "instanceId": "resource-stone-node-4406c188",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 928,
+      "y": 1728
+    },
+    {
+      "instanceId": "resource-stone-node-3ec356c7",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 96,
+      "y": 1984
+    },
+    {
+      "instanceId": "resource-stone-node-11942eb6",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 224,
+      "y": 1984
+    },
+    {
+      "instanceId": "resource-stone-node-8f72fc3d",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 1504,
+      "y": 1088
+    },
+    {
+      "instanceId": "resource-stone-node-5b179d39",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 1568,
+      "y": 1088
+    },
+    {
+      "instanceId": "tree-world-solid-945b2300",
+      "objectId": "tree.world.solid",
+      "visualId": "tree-autumn-01",
+      "x": 2016,
+      "y": 2304
+    },
+    {
+      "instanceId": "tree-world-solid-160916d8",
+      "objectId": "tree.world.solid",
+      "visualId": "tree-autumn-01",
+      "x": 2272,
+      "y": 2240
+    },
+    {
+      "instanceId": "tree-world-solid-db7e766c",
+      "objectId": "tree.world.solid",
+      "visualId": "tree-autumn-01",
+      "x": 1760,
+      "y": 2304
+    },
+    {
+      "instanceId": "tree-world-solid-d63f9ce2",
+      "objectId": "tree.world.solid",
+      "visualId": "tree-autumn-01",
+      "x": 1952,
+      "y": 2432
+    },
+    {
+      "instanceId": "tree-world-solid-ca309bf3",
+      "objectId": "tree.world.solid",
+      "visualId": "tree-autumn-01",
+      "x": 2144,
+      "y": 2368
+    },
+    {
+      "instanceId": "tree-world-solid-2a5f05bd",
+      "objectId": "tree.world.solid",
+      "visualId": "tree-autumn-01",
+      "x": 2144,
+      "y": 2176
+    },
+    {
+      "instanceId": "tree-world-solid-aa4445b4",
+      "objectId": "tree.world.solid",
+      "visualId": "tree-autumn-01",
+      "x": 1824,
+      "y": 2240
+    },
+    {
+      "instanceId": "tree-world-solid-f3a10a3f",
+      "objectId": "tree.world.solid",
+      "visualId": "tree-autumn-01",
+      "x": 1952,
+      "y": 2176
+    },
+    {
+      "instanceId": "tree-world-solid-2070615b",
+      "objectId": "tree.world.solid",
+      "visualId": "tree-autumn-01",
+      "x": 1888,
+      "y": 2304
+    },
+    {
+      "instanceId": "tree-world-solid-295d5e62",
+      "objectId": "tree.world.solid",
+      "visualId": "tree-autumn-01",
+      "x": 1696,
+      "y": 2432
+    },
+    {
+      "instanceId": "tree-world-solid-9b4d67d6",
+      "objectId": "tree.world.solid",
+      "visualId": "tree-autumn-01",
+      "x": 1952,
+      "y": 2496
+    },
+    {
+      "instanceId": "tree-world-solid-3040d4f3",
+      "objectId": "tree.world.solid",
+      "visualId": "tree-autumn-01",
+      "x": 2080,
+      "y": 2496
+    },
+    {
+      "instanceId": "tree-world-solid-02366830",
+      "objectId": "tree.world.solid",
+      "visualId": "tree-autumn-01",
+      "x": 2144,
+      "y": 2496
+    },
+    {
+      "instanceId": "tree-world-solid-d05d5276",
+      "objectId": "tree.world.solid",
+      "visualId": "tree-autumn-01",
+      "x": 2336,
+      "y": 2432
+    },
+    {
+      "instanceId": "tree-world-solid-5bb5dc89",
+      "objectId": "tree.world.solid",
+      "visualId": "tree-autumn-01",
+      "x": 2336,
+      "y": 2368
+    },
+    {
+      "instanceId": "tree-world-solid-d4f06038",
+      "objectId": "tree.world.solid",
+      "visualId": "tree-autumn-01",
+      "x": 2400,
+      "y": 2368
+    }
+  ],
+  "player": {
+    "spawn": {
+      "x": 992,
+      "y": 1056
+    },
+    "entries": {}
+  },
+  "exits": [],
+  "enemySafeZones": [
+    {
+      "x": 640,
+      "y": 704,
+      "w": 704,
+      "h": 384
+    },
+    {
+      "x": 1464,
+      "y": 579,
+      "w": 832,
+      "h": 512
+    },
+    {
+      "x": 2176,
+      "y": 1088,
+      "w": 128,
+      "h": 960
+    },
+    {
+      "x": 1792,
+      "y": 1408,
+      "w": 128,
+      "h": 128
+    },
+    {
+      "x": 1792,
+      "y": 1536,
+      "w": 64,
+      "h": 512
+    },
+    {
+      "x": 704,
+      "y": 1920,
+      "w": 1024,
+      "h": 128
+    },
+    {
+      "x": 1664,
+      "y": 1856,
+      "w": 128,
+      "h": 192
+    },
+    {
+      "x": 640,
+      "y": 1920,
+      "w": 64,
+      "h": 128
+    },
+    {
+      "x": 704,
+      "y": 1408,
+      "w": 832,
+      "h": 320
+    },
+    {
+      "x": 0,
+      "y": 1344,
+      "w": 576,
+      "h": 384
+    }
+  ],
+  "enemySpawnAreas": [
+    {
+      "id": "enemy-area-01",
+      "stayPerimeter": {
+        "shape": "rectangle",
+        "x": 128,
+        "y": 192,
+        "w": 3200,
+        "h": 2880
+      },
+      "pursuePerimeter": {
+        "shape": "rectangle",
+        "x": 64,
+        "y": 128,
+        "w": 3328,
+        "h": 3008
+      },
+      "enemies": [
+        {
+          "type": "slime-spider",
+          "weight": 20
+        },
+        {
+          "type": "worm-archer",
+          "weight": 30
+        },
+        {
+          "type": "worm-brawler",
+          "weight": 10
+        },
+        {
+          "type": "worm-swordsman",
+          "weight": 20
+        }
+      ],
+      "intervalMs": 1500,
+      "maxPopulation": 8
+    }
+  ]
+}

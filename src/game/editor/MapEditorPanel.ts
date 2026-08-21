@@ -191,10 +191,13 @@ export function mountMapEditorPanel(
       </select></label>
       <div class="editor-area-actions">
         <strong data-enemy-area-count>0 authored camps</strong>
-        <button type="button" data-command="monster-settings" data-testid="monster-settings-button">Map defaults</button>
-        <button type="button" data-command="edit-enemy-area" data-testid="edit-enemy-area-button">Edit selected</button>
+        <div class="editor-area-action-buttons">
+          <button type="button" data-command="monster-settings" data-testid="monster-settings-button">Map defaults</button>
+          <button type="button" data-command="edit-enemy-area" data-testid="edit-enemy-area-button">Edit selected</button>
+          <button type="button" class="editor-area-delete" data-command="delete-enemy-area" data-testid="delete-enemy-area-button" disabled>Delete selected</button>
+        </div>
       </div>
-      <p class="editor-help">Each camp gets its own monster roster, respawn cooldown, and population cap. Enemies return to amber when the player leaves cyan.</p>
+      <p class="editor-help">Each camp gets its own monster roster, respawn cooldown, and population cap. Select a camp to use its four corner resize handles or delete it. Enemies return to amber when the player leaves cyan.</p>
     </section>
     <section class="editor-section">
       <div class="editor-section-title"><span>03</span><h2>Direction</h2></div>
@@ -394,6 +397,14 @@ export function mountMapEditorPanel(
       } else {
         populateEnemyAreaForm();
         enemyAreaDialog?.showModal();
+      }
+    }
+    if (target.dataset.command === 'delete-enemy-area') {
+      const areaId = editor.value.selectedEnemyAreaId;
+      if (!areaId) {
+        editor.notify('Select an enemy area first');
+      } else if (window.confirm(`Delete enemy area ${areaId}?`)) {
+        editor.deleteEnemySpawnArea(areaId);
       }
     }
     if (target.dataset.command === 'cancel-enemy-area') enemyAreaDialog?.close();
@@ -664,6 +675,8 @@ export function mountMapEditorPanel(
     }
     const editArea = host.querySelector<HTMLButtonElement>('[data-command="edit-enemy-area"]');
     if (editArea) editArea.disabled = !state.selectedEnemyAreaId;
+    const deleteArea = host.querySelector<HTMLButtonElement>('[data-command="delete-enemy-area"]');
+    if (deleteArea) deleteArea.disabled = !state.selectedEnemyAreaId;
     host.querySelectorAll<HTMLElement>('[data-tile]').forEach((button) => {
       button.classList.toggle('is-active', button.dataset.tile === state.tileId);
     });
