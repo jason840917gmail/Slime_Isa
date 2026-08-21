@@ -758,6 +758,29 @@
           }
         }
       ]
+    },
+    {
+      "assetId": "sheet.trees.autumn.6x2",
+      "frames": [
+        {
+          "visualId": "tree-autumn-01",
+          "frame": 0,
+          "displayName": "Autumntree",
+          "scale": 1,
+          "visualOffset": {
+            "x": 0,
+            "y": 0
+          },
+          "collider": {
+            "width": 54,
+            "height": 41,
+            "offsetX": 37,
+            "offsetY": 122
+          },
+          "idleAnimationId": "object.tree.autumn.idle",
+          "onHitAnimationId": "object.tree.autumn.leaf-fall"
+        }
+      ]
     }
   ],
   "physics": {

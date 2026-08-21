@@ -198,7 +198,6 @@ export class MapEditorScene extends Phaser.Scene {
   private enemyAreaMove?: EnemyAreaMove;
   private enemyAreaResize?: EnemyAreaResize;
   private cursors?: Phaser.Types.Input.Keyboard.CursorKeys;
-  private wasd?: Record<'up' | 'down' | 'left' | 'right', Phaser.Input.Keyboard.Key>;
 
   constructor() {
     super('map-editor');
@@ -298,13 +297,13 @@ export class MapEditorScene extends Phaser.Scene {
   }
 
   update(_time: number, delta: number): void {
-    if (!this.cursors || !this.wasd) return;
+    if (!this.cursors) return;
     if (isUiEditingActive(document.activeElement)) return;
     const speed = (650 * delta / 1000) / this.cameras.main.zoom;
-    if (this.cursors.left.isDown || this.wasd.left.isDown) this.cameras.main.scrollX -= speed;
-    if (this.cursors.right.isDown || this.wasd.right.isDown) this.cameras.main.scrollX += speed;
-    if (this.cursors.up.isDown || this.wasd.up.isDown) this.cameras.main.scrollY -= speed;
-    if (this.cursors.down.isDown || this.wasd.down.isDown) this.cameras.main.scrollY += speed;
+    if (this.cursors.left.isDown) this.cameras.main.scrollX -= speed;
+    if (this.cursors.right.isDown) this.cameras.main.scrollX += speed;
+    if (this.cursors.up.isDown) this.cameras.main.scrollY -= speed;
+    if (this.cursors.down.isDown) this.cameras.main.scrollY += speed;
   }
 
   private bindPointer(): void {
@@ -454,10 +453,6 @@ export class MapEditorScene extends Phaser.Scene {
     const keyboard = this.input.keyboard;
     if (!keyboard) return;
     this.cursors = keyboard.createCursorKeys();
-    this.wasd = keyboard.addKeys({ up: 'W', down: 'S', left: 'A', right: 'D' }) as typeof this.wasd;
-    const toolKeys: Readonly<Record<string, Parameters<MapEditorState['setTool']>[0]>> = {
-      H: 'pan', B: 'terrain', O: 'object', V: 'select', X: 'erase', Z: 'safe-zone', M: 'enemy-area', P: 'spawn', I: 'entry', E: 'exit',
-    };
     keyboard.on('keydown', (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         // Let an open native dialog consume Escape so its form is cancelled
@@ -484,23 +479,6 @@ export class MapEditorScene extends Phaser.Scene {
         this.editor.redo();
         return;
       }
-      if ((event.key === 'Delete' || event.key === 'Backspace') && this.editor.value.selectedInstanceId) {
-        event.preventDefault();
-        this.deleteSelectedObject();
-        return;
-      }
-      if ((event.key === 'Delete' || event.key === 'Backspace') && this.editor.value.selectedSafeZoneIndex !== undefined) {
-        event.preventDefault();
-        this.deleteSafeZone(this.editor.value.selectedSafeZoneIndex);
-        return;
-      }
-      if ((event.key === 'Delete' || event.key === 'Backspace') && this.editor.value.selectedEnemyAreaId) {
-        event.preventDefault();
-        this.deleteEnemyArea(this.editor.value.selectedEnemyAreaId);
-        return;
-      }
-      const tool = toolKeys[event.key.toUpperCase()];
-      if (tool) this.editor.setTool(tool);
     });
   }
 
@@ -1004,15 +982,6 @@ export class MapEditorScene extends Phaser.Scene {
     this.editor.selectSafeZone(move.index);
   }
 
-  private deleteSafeZone(index: number): void {
-    if (!this.editor.value.map.enemySafeZones[index]) return;
-    this.editor.mutate(`Deleted safe zone ${index + 1}`, (draft) => {
-      draft.enemySafeZones.splice(index, 1);
-    });
-    this.editor.selectSafeZone(undefined);
-    this.editor.notify(`Deleted safe zone ${index + 1} — Ctrl+Z restores it`);
-  }
-
   private enemyAreaAt(x: number, y: number): MapEnemySpawnArea | undefined {
     const areas = this.editor.value.map.enemySpawnAreas;
     for (let index = areas.length - 1; index >= 0; index -= 1) {
@@ -1284,15 +1253,6 @@ export class MapEditorScene extends Phaser.Scene {
     this.editor.selectEnemyArea(resize.id);
   }
 
-  private deleteEnemyArea(areaId: string): void {
-    if (!this.editor.value.map.enemySpawnAreas.some((area) => area.id === areaId)) return;
-    this.editor.mutate(`Deleted enemy area ${areaId}`, (map) => {
-      map.enemySpawnAreas = map.enemySpawnAreas.filter((area) => area.id !== areaId);
-    });
-    this.editor.selectEnemyArea(undefined);
-    this.editor.notify(`Deleted ${areaId} — Ctrl+Z restores it`);
-  }
-
   private circleFromDrag(
     centerX: number,
     centerY: number,
@@ -1417,16 +1377,6 @@ export class MapEditorScene extends Phaser.Scene {
       if (x >= zone.x && x <= zone.x + zone.w && y >= zone.y && y <= zone.y + zone.h) return index;
     }
     return undefined;
-  }
-
-  private deleteSelectedObject(): void {
-    const selectedId = this.editor.value.selectedInstanceId;
-    if (!selectedId) return;
-    this.editor.mutate(`Deleted ${selectedId}`, (draft) => {
-      draft.objects = draft.objects.filter((object) => object.instanceId !== selectedId);
-    });
-    this.editor.selectInstance(undefined);
-    this.editor.notify(`Deleted ${selectedId} — Ctrl+Z restores it`);
   }
 
   private renderEraseDrag(worldX: number, worldY: number): void {

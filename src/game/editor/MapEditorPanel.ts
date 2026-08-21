@@ -8,17 +8,17 @@ import { mountMapEditorObjectAuthoring } from './MapEditorObjectAuthoring';
 import type { EditorTool, MapEditorState } from './MapEditorState';
 import { connectionAt, MAP_DIRECTIONS } from './MapConnections';
 
-const TOOLS: ReadonlyArray<{ id: EditorTool; key: string; label: string }> = [
-  { id: 'pan', key: 'H', label: 'Pan' },
-  { id: 'terrain', key: 'B', label: 'Paint' },
-  { id: 'object', key: 'O', label: 'Object' },
-  { id: 'select', key: 'V', label: 'Select / Move' },
-  { id: 'erase', key: 'X', label: 'Erase / Box Delete' },
-  { id: 'safe-zone', key: 'Z', label: 'Monster Safe Zone' },
-  { id: 'enemy-area', key: 'M', label: 'Enemy Area' },
-  { id: 'spawn', key: 'P', label: 'Player Spawn' },
-  { id: 'entry', key: 'I', label: 'Entry Point' },
-  { id: 'exit', key: 'E', label: 'Exit Zone' },
+const TOOLS: ReadonlyArray<{ id: EditorTool; label: string }> = [
+  { id: 'pan', label: 'Pan' },
+  { id: 'terrain', label: 'Paint' },
+  { id: 'object', label: 'Object' },
+  { id: 'select', label: 'Select / Move' },
+  { id: 'erase', label: 'Erase / Box Delete' },
+  { id: 'safe-zone', label: 'Monster Safe Zone' },
+  { id: 'enemy-area', label: 'Enemy Area' },
+  { id: 'spawn', label: 'Player Spawn' },
+  { id: 'entry', label: 'Entry Point' },
+  { id: 'exit', label: 'Exit Zone' },
 ];
 
 export interface ContentPreviewUrls {
@@ -97,6 +97,33 @@ function renderObjectArtworkGroup(choices: readonly ObjectVisualChoice[], previe
   </div>`;
 }
 
+function objectChoiceMatchesQuery(choice: ObjectVisualChoice, query: string): boolean {
+  return [choice.objectId, choice.visualId, choice.displayName, choice.assetId, ...choice.tags]
+    .join(' ')
+    .toLowerCase()
+    .includes(query);
+}
+
+function renderObjectPalette(
+  groups: readonly (readonly ObjectVisualChoice[])[],
+  previews: ContentPreviewUrls,
+  query: string,
+): string {
+  const normalizedQuery = query.trim().toLowerCase();
+  const filteredGroups = groups
+    .map((choices) => normalizedQuery
+      ? choices.filter((choice) => objectChoiceMatchesQuery(choice, normalizedQuery))
+      : choices)
+    .filter((choices) => choices.length > 0);
+  if (filteredGroups.length === 0) {
+    return `<p class="editor-palette-empty">No object visuals match “${escapeHtml(query.trim())}”.</p>`;
+  }
+  return renderGroups(filteredGroups.map((choices) => ({
+    group: objectGroup(choices[0].objectId),
+    html: renderObjectArtworkGroup(choices, previews),
+  })));
+}
+
 export function mountMapEditorPanel(
   host: HTMLElement,
   editor: MapEditorState,
@@ -122,10 +149,8 @@ export function mountMapEditorPanel(
     group.push(choice);
     objectArtworkGroups.set(key, group);
   }
-  const objectButtons = renderGroups([...objectArtworkGroups.values()].map((choices) => ({
-    group: objectGroup(choices[0].objectId),
-    html: renderObjectArtworkGroup(choices, previews),
-  })));
+  const objectChoiceGroups = [...objectArtworkGroups.values()];
+  const objectButtons = renderObjectPalette(objectChoiceGroups, previews, '');
 
   host.innerHTML = `
     <header class="map-editor-header">
@@ -153,7 +178,7 @@ export function mountMapEditorPanel(
       <div class="editor-section-title"><span>01</span><h2>Tools</h2></div>
       <div class="editor-tool-grid">
         ${TOOLS.map((tool) => `<button type="button" data-tool="${tool.id}" data-testid="tool-${tool.id}">
-          <kbd>${tool.key}</kbd><span>${tool.label}</span>
+          <span>${tool.label}</span>
         </button>`).join('')}
       </div>
       <p class="editor-help">Enemy Area draws a camp on the map. Amber is the stay perimeter; cyan is the pursue perimeter. Click an existing camp to move it, or edit its rules below.</p>
@@ -202,6 +227,14 @@ export function mountMapEditorPanel(
     </section>
     <section class="editor-section editor-palette-section">
       <div class="editor-section-title"><span>06</span><h2>Object Content</h2><button type="button" class="editor-section-action" data-object-authoring-command="open">New object</button></div>
+      <div class="editor-palette-search">
+        <label for="editor-object-search">Search object visuals</label>
+        <div class="editor-palette-search-controls">
+          <input id="editor-object-search" type="search" placeholder="tree-autumn-01" autocomplete="off" data-editor-object-search />
+          <button type="button" data-command="clear-object-search" aria-label="Clear object search">Clear</button>
+        </div>
+        <p>Search by visual ID, name, asset, or tag.</p>
+      </div>
       <div class="editor-palette" data-editor-objects>${objectButtons}</div>
     </section>
     <footer class="editor-status" aria-live="polite">
@@ -318,6 +351,13 @@ export function mountMapEditorPanel(
   const enemyAreaShape = host.querySelector<HTMLSelectElement>('[data-enemy-area-shape]');
   const monsterDialog = host.querySelector<HTMLDialogElement>('[data-monster-dialog]');
   const monsterForm = host.querySelector<HTMLFormElement>('[data-monster-form]');
+  const objectSearchInput = host.querySelector<HTMLInputElement>('[data-editor-object-search]');
+  const objectPalette = host.querySelector<HTMLElement>('[data-editor-objects]');
+  const rerenderObjectPalette = (): void => {
+    if (objectPalette) objectPalette.innerHTML = renderObjectPalette(objectChoiceGroups, previews, objectSearchInput?.value ?? '');
+  };
+  const objectSearchInputHandler = (): void => rerenderObjectPalette();
+  objectSearchInput?.addEventListener('input', objectSearchInputHandler);
   if (mapSelect) mapSelect.value = editor.value.map.mapId;
 
   const clickHandler = (event: MouseEvent): void => {
@@ -341,6 +381,13 @@ export function mountMapEditorPanel(
     if (target.dataset.command === 'save') void editor.save();
     if (target.dataset.command === 'new-map') newMapDialog?.showModal();
     if (target.dataset.command === 'cancel-new-map') newMapDialog?.close();
+    if (target.dataset.command === 'clear-object-search') {
+      if (objectSearchInput) {
+        objectSearchInput.value = '';
+        rerenderObjectPalette();
+        objectSearchInput.focus();
+      }
+    }
     if (target.dataset.command === 'edit-enemy-area') {
       if (!editor.value.selectedEnemyAreaId) {
         editor.notify('Select an enemy area first');
@@ -676,6 +723,7 @@ export function mountMapEditorPanel(
     enemyAreaForm?.removeEventListener('submit', enemyAreaSubmitHandler);
     enemyAreaShapeField?.removeEventListener('change', enemyAreaShapeChangeHandler);
     monsterForm?.removeEventListener('submit', monsterSubmitHandler);
+    objectSearchInput?.removeEventListener('input', objectSearchInputHandler);
     window.removeEventListener('beforeunload', beforeUnloadHandler);
     unmountObjectAuthoring();
     host.innerHTML = '';
