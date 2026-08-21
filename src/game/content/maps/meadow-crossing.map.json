@@ -2950,6 +2950,20 @@
       "visualId": "stone-node",
       "x": 2240,
       "y": 2304
+    },
+    {
+      "instanceId": "tree-world-solid-72987829",
+      "objectId": "tree.world.solid",
+      "visualId": "tree-autumn-01",
+      "x": 1312,
+      "y": 2496
+    },
+    {
+      "instanceId": "tree-world-solid-5a7752c3",
+      "objectId": "tree.world.solid",
+      "visualId": "tree-autumn-01",
+      "x": 1184,
+      "y": 2496
     }
   ],
   "player": {

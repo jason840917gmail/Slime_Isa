@@ -841,7 +841,7 @@ body {
 
 .editor-tool-grid button {
   display: grid;
-  grid-template-columns: 22px 1fr;
+  grid-template-columns: 1fr;
   align-items: center;
   min-height: 38px;
   padding: 6px;
@@ -959,6 +959,76 @@ body {
 .editor-palette {
   display: grid;
   gap: 6px;
+}
+
+.editor-palette-search {
+  display: grid;
+  gap: 5px;
+  margin-bottom: 8px;
+}
+
+.editor-palette-search > label {
+  color: var(--ui-muted);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.editor-palette-search-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px;
+}
+
+.editor-palette-search input {
+  min-width: 0;
+  border: 1px solid var(--ui-border);
+  border-radius: 0;
+  padding: 8px 9px;
+  outline: none;
+  background: var(--ui-surface-raised);
+  color: var(--ui-ink);
+  font: 600 11px Bahnschrift, "Arial Narrow", sans-serif;
+}
+
+.editor-palette-search input::placeholder {
+  color: var(--ui-muted);
+  opacity: 0.7;
+}
+
+.editor-palette-search input:focus {
+  border-color: var(--ui-mint);
+  box-shadow: 0 0 0 2px rgba(134, 240, 195, 0.16);
+}
+
+.editor-palette-search button {
+  border: 1px solid var(--ui-border);
+  padding: 7px 9px;
+  background: var(--ui-surface-raised);
+  color: var(--ui-ink);
+  cursor: pointer;
+  font: 800 9px Bahnschrift, "Arial Narrow", sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.editor-palette-search button:hover {
+  border-color: var(--ui-mint);
+  color: var(--ui-mint);
+}
+
+.editor-palette-search > p,
+.editor-palette-empty {
+  margin: 0;
+  color: var(--ui-muted);
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+.editor-palette-empty {
+  border: 1px dashed var(--ui-border);
+  padding: 12px;
 }
 
 .editor-palette-group {
