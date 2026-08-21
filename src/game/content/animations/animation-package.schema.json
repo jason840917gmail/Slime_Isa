@@ -1,0 +1,86 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Slime Isa shared animation package",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "version", "animationId", "displayName", "description", "animation"],
+  "properties": {
+    "$schema": { "type": "string", "minLength": 1 },
+    "version": { "const": 1 },
+    "animationId": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+(?:-[a-z0-9]+)*)+$"
+    },
+    "displayName": { "type": "string", "minLength": 1 },
+    "description": { "type": "string", "minLength": 1 },
+    "animation": { "$ref": "#/$defs/layeredAnimation" }
+  },
+  "$defs": {
+    "pair": {
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "blockTransform": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "offset": { "$ref": "#/$defs/pair" },
+        "scale": { "$ref": "#/$defs/pair" },
+        "rotationDeg": { "type": "number" },
+        "flipX": { "type": "boolean" },
+        "flipY": { "type": "boolean" }
+      }
+    },
+    "layerTransform": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "offset": { "$ref": "#/$defs/pair" },
+        "scale": { "$ref": "#/$defs/pair" },
+        "rotationDeg": { "type": "number" },
+        "flipX": { "type": "boolean" },
+        "flipY": { "type": "boolean" },
+        "origin": { "$ref": "#/$defs/pair" }
+      }
+    },
+    "block": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "through", "sourceFrame"],
+      "properties": {
+        "from": { "type": "integer", "minimum": 0 },
+        "through": { "type": "integer", "minimum": 0 },
+        "sourceFrame": { "type": "integer", "minimum": 0 },
+        "transform": { "$ref": "#/$defs/blockTransform" }
+      }
+    },
+    "layer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["layerId", "displayName", "assetId", "depthOffset", "blocks"],
+      "properties": {
+        "layerId": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+        "displayName": { "type": "string", "minLength": 1 },
+        "assetId": { "type": "string", "minLength": 1 },
+        "depthOffset": { "type": "number" },
+        "transform": { "$ref": "#/$defs/layerTransform" },
+        "blocks": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/block" } }
+      }
+    },
+    "layeredAnimation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "durationSeconds", "framesPerSecond", "loop", "layers"],
+      "properties": {
+        "version": { "const": 2 },
+        "durationSeconds": { "type": "number", "exclusiveMinimum": 0 },
+        "framesPerSecond": { "type": "integer", "minimum": 1, "maximum": 240 },
+        "loop": { "type": "boolean" },
+        "loopMode": { "enum": ["wrap", "ping-pong"] },
+        "layers": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/layer" } }
+      }
+    }
+  }
+}

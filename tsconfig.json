@@ -8,8 +8,9 @@
     "paths": {
       "virtual-character-content": ["src/game/content/characters/virtual-character-content.ts"],
       "virtual-projectile-content": ["src/game/content/projectiles/virtual-projectile-content.ts"],
-      "virtual-weapon-content": ["src/game/content/weapons/virtual-weapon-content.ts"]
-      ,"virtual-effect-content": ["src/game/content/effects/virtual-effect-content.ts"]
+      "virtual-weapon-content": ["src/game/content/weapons/virtual-weapon-content.ts"],
+      "virtual-effect-content": ["src/game/content/effects/virtual-effect-content.ts"],
+      "virtual-animation-content": ["src/game/content/animations/virtual-animation-content.ts"]
     },
     "resolveJsonModule": true,
     "strict": true,

@@ -32,6 +32,7 @@ import { ensureStudioModeTabs } from './StudioModeTabs';
 import { createAnimationTimelineView, formatAnimationTimelineSeconds, previewTargetAtKeyframe, renderTimelineHoldControls, renderTimelineKeyframeTimingLabels, renderTimelineResizeHandle, toggleTimelineSelection, type AnimationTimelineKeyframeView } from './AnimationTimelineView';
 import { renderAnimationTimelinePanel, renderAnimationTimelineRuler } from './AnimationTimelinePanel';
 import { TimelineHoldResizeController } from './AnimationTimelineResize';
+import { mountAnimationStudio } from './AnimationStudio';
 import { mountLayeredWeaponStudio } from './LayeredWeaponStudio';
 import { renderWeaponHitboxGuides as renderSharedWeaponHitboxGuides } from './WeaponHitboxGuides';
 import {
@@ -1805,5 +1806,50 @@ export function mountLegacyWeaponStudio(container: HTMLDivElement): () => void {
 
 /** Active studio mount. The legacy editor remains exported only for migration diagnostics. */
 export function mountWeaponStudio(container: HTMLDivElement): () => void {
-  return mountLayeredWeaponStudio(container);
+  let activeCleanup: (() => void) | undefined;
+  let disposed = false;
+  let expandedFolders = new Set<string>(['weapons', 'animations']);
+
+  const updateUrl = (selection: { readonly weaponId?: string; readonly animationId?: string }): void => {
+    const query = new URLSearchParams(window.location.search);
+    query.set('studio', 'weapons');
+    if (selection.weaponId) query.set('weapon', selection.weaponId); else query.delete('weapon');
+    if (selection.animationId) query.set('animation', selection.animationId); else query.delete('animation');
+    window.history.replaceState(null, '', `?${query.toString()}`);
+  };
+  const rememberFolders = (folders: ReadonlySet<string>): void => { expandedFolders = new Set(folders); };
+
+  const showWeapon = (weaponId?: string): void => {
+    if (disposed) return;
+    activeCleanup?.();
+    updateUrl({ weaponId });
+    activeCleanup = mountLayeredWeaponStudio(container, {
+      initialWeaponId: weaponId,
+      expandedFolders,
+      onExpandedFoldersChange: rememberFolders,
+      onSelectAnimation: showAnimation,
+    });
+  };
+  const showAnimation = (animationId: string): void => {
+    if (disposed) return;
+    activeCleanup?.();
+    updateUrl({ animationId });
+    activeCleanup = mountAnimationStudio(container, {
+      initialAnimationId: animationId,
+      expandedFolders,
+      onExpandedFoldersChange: rememberFolders,
+      onSelectWeapon: showWeapon,
+    });
+  };
+
+  const query = new URLSearchParams(window.location.search);
+  const requestedAnimation = query.get('animation');
+  if (requestedAnimation) showAnimation(requestedAnimation);
+  else showWeapon(query.get('weapon') ?? undefined);
+
+  return () => {
+    disposed = true;
+    activeCleanup?.();
+    activeCleanup = undefined;
+  };
 }

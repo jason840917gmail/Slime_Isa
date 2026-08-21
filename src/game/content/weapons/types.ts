@@ -66,7 +66,11 @@ export interface LegacyWeaponDefinition extends WeaponCombatDefinition {
 export type WeaponDefinition = LegacyWeaponDefinition;
 
 export interface LayeredWeaponDirectionalAttackDocument {
+  /** Stable shared-library ID. The embedded animation remains typed for the temporary editor compatibility boundary. */
+  readonly animationId?: string;
   readonly animation: LayeredAnimationDocument;
+  /** Timeline retained by visual-less migrated attacks that have no package. */
+  readonly animationTimeline?: WeaponAnimationTimelineDocument;
   readonly characterActionId: string;
   readonly attackTrack?: WeaponAttackTrackDocument;
   readonly hitboxes: Readonly<Record<string, WeaponHitboxDocument>>;
@@ -76,7 +80,11 @@ export interface LayeredWeaponDefinition extends WeaponCombatDefinition {
   readonly version: 2;
   readonly characterActionId: string;
   readonly animations: {
+    /** Stable shared-library ID used by migrated definitions. */
+    readonly idleAnimationId?: string;
+    /** Temporary compatibility value for old editor drafts. */
     readonly idle: LayeredAnimationDocument;
+    readonly idleTimeline?: WeaponAnimationTimelineDocument;
   };
   readonly directionalAttacks: {
     readonly right: LayeredWeaponDirectionalAttackDocument;
@@ -128,6 +136,14 @@ export interface WeaponAttackTrackDocument {
 export interface WeaponAnimationDocument extends AnimationClipDocument {
   /** Per-occurrence visual edits keyed by position in `frames`, not source frame number. */
   readonly frameTransforms?: Readonly<Record<string, WeaponFrameTransformDocument>>;
+}
+
+export interface WeaponAnimationTimelineDocument {
+  readonly version: 2;
+  readonly durationSeconds: number;
+  readonly framesPerSecond: number;
+  readonly loop: boolean;
+  readonly loopMode?: 'wrap' | 'ping-pong';
 }
 
 export interface NormalizedWeaponAnimationDocument extends NormalizedAnimationClipDocument {

@@ -1,0 +1,150 @@
+{
+  "$schema": "../../../animation-package.schema.json",
+  "version": 1,
+  "animationId": "weapon.basic-sword.attack.down",
+  "displayName": "Basic sword down attack",
+  "description": "Shared down attack animation extracted from Basic sword.",
+  "animation": {
+    "version": 2,
+    "durationSeconds": 0.2916666666666667,
+    "framesPerSecond": 24,
+    "loop": false,
+    "loopMode": "wrap",
+    "layers": [
+      {
+        "layerId": "base",
+        "displayName": "Basic sword",
+        "assetId": "weapon.player.sword-tiles",
+        "depthOffset": 0,
+        "transform": {
+          "offset": [
+            0,
+            0
+          ],
+          "scale": [
+            0.5,
+            0.5
+          ]
+        },
+        "blocks": [
+          {
+            "from": 0,
+            "through": 1,
+            "sourceFrame": 7,
+            "transform": {
+              "offset": [
+                20,
+                40
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 0,
+              "flipX": false,
+              "flipY": false
+            }
+          },
+          {
+            "from": 2,
+            "through": 2,
+            "sourceFrame": 8,
+            "transform": {
+              "offset": [
+                12.25,
+                42.75
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 0,
+              "flipX": false,
+              "flipY": false
+            }
+          },
+          {
+            "from": 3,
+            "through": 3,
+            "sourceFrame": 9,
+            "transform": {
+              "offset": [
+                1.32,
+                45
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 0,
+              "flipX": false,
+              "flipY": false
+            }
+          },
+          {
+            "from": 4,
+            "through": 4,
+            "sourceFrame": 10,
+            "transform": {
+              "offset": [
+                -15,
+                40
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 0,
+              "flipX": false,
+              "flipY": false
+            }
+          },
+          {
+            "from": 5,
+            "through": 6,
+            "sourceFrame": 11,
+            "transform": {
+              "offset": [
+                -22,
+                32
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 0,
+              "flipX": false,
+              "flipY": false
+            }
+          }
+        ]
+      },
+      {
+        "layerId": "layer-2",
+        "displayName": "Layer 2",
+        "assetId": "weapon.player.sword-tiles",
+        "depthOffset": 1,
+        "blocks": [
+          {
+            "from": 5,
+            "through": 6,
+            "sourceFrame": 16,
+            "transform": {
+              "offset": [
+                0,
+                50
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 40,
+              "flipX": false,
+              "flipY": false
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

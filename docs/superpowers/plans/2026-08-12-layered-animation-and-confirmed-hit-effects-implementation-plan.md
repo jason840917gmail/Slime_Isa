@@ -16,7 +16,9 @@
 - `pnpm effects:check` — effect package and Boot-bundle validation.
 - `pnpm check` — final repository validation.
 
-If `pnpm check` still encounters the pre-existing missing `enemy.projectile.generated-64` asset, record that as a baseline failure and do not weaken asset validation to hide it.
+If `pnpm check` encounters a missing asset, record it as a validation failure
+and do not weaken asset validation to hide it. The obsolete generated projectile
+manifest entry has been removed.
 
 ## Task 1: Add the shared layered document, resolver, and validator
 

@@ -9,6 +9,7 @@ import {
   type ObjectVisualChoice,
 } from '../content/objects/ObjectCatalog';
 import { getAsset } from '../infrastructure/assets/manifest';
+import { getAnimationPackage } from '../content/animations/AnimationCatalog';
 import type { EditorGeometryKey } from './EditorGeometryStyles';
 
 export interface SourceFrameDimensions {
@@ -57,6 +58,8 @@ function cloneDraft(draft: ObjectTemplateDraft): ObjectTemplateDraft {
   return {
     displayName: draft.displayName,
     scale: draft.scale,
+    idleAnimationId: draft.idleAnimationId,
+    onHitAnimationId: draft.onHitAnimationId,
     visualOffset: { ...draft.visualOffset },
     collider: cloneCollider(draft.collider),
     occlusionBounds: cloneOcclusionBounds(draft.occlusionBounds),
@@ -72,6 +75,8 @@ function draftFromChoice(choice: ObjectVisualChoice): ObjectTemplateDraft {
   return {
     displayName: choice.displayName,
     scale: choice.scale,
+    idleAnimationId: choice.idleAnimationId,
+    onHitAnimationId: choice.onHitAnimationId,
     visualOffset: { ...choice.visualOffset },
     collider: cloneCollider(choice.collider),
     occlusionBounds: cloneOcclusionBounds(choice.occlusionBounds),
@@ -110,7 +115,7 @@ export function validateObjectTemplateDraft(
   if (draft.occlusionBounds) {
     if (!dimensions) {
       errors.occlusionBounds = 'Occlusion requires an authoritative spritesheet frame.';
-    } else if (choice.visualSetId || choice.animationClip) {
+    } else if (draft.idleAnimationId || draft.onHitAnimationId) {
       errors.occlusionBounds = 'Animated object templates cannot occlude actors yet.';
     } else {
       const { width, height, offsetX, offsetY } = draft.occlusionBounds;
@@ -125,6 +130,17 @@ export function validateObjectTemplateDraft(
         errors.occlusionHeight = `Occlusion must fit inside the ${dimensions.height}px frame.`;
       }
     }
+  }
+
+  if (draft.idleAnimationId !== undefined) {
+    const animation = getAnimationPackage(draft.idleAnimationId);
+    if (!animation) errors.idleAnimationId = 'Choose an animation from the shared catalog.';
+    else if (!animation.animation.loop) errors.idleAnimationId = 'Idle animation packages must loop.';
+  }
+  if (draft.onHitAnimationId !== undefined) {
+    const animation = getAnimationPackage(draft.onHitAnimationId);
+    if (!animation) errors.onHitAnimationId = 'Choose an animation from the shared catalog.';
+    else if (animation.animation.loop) errors.onHitAnimationId = 'On-hit animation packages must play once.';
   }
 
   if (choice.physics === null) {
@@ -272,6 +288,8 @@ export class ObjectTemplateEditorState {
     const next: ObjectTemplateDraft = {
       displayName: patch.displayName ?? this.draftValue.displayName,
       scale: patch.scale ?? this.draftValue.scale,
+      idleAnimationId: patch.idleAnimationId === '' ? undefined : patch.idleAnimationId ?? this.draftValue.idleAnimationId,
+      onHitAnimationId: patch.onHitAnimationId === '' ? undefined : patch.onHitAnimationId ?? this.draftValue.onHitAnimationId,
       visualOffset: patch.visualOffset
         ? { ...this.draftValue.visualOffset, ...patch.visualOffset }
         : { ...this.draftValue.visualOffset },
@@ -353,6 +371,8 @@ export class ObjectTemplateEditorState {
           collider: draft.collider,
           occlusionBounds: draft.occlusionBounds,
           depthBounds: draft.depthBounds,
+          idleAnimationId: draft.idleAnimationId ?? null,
+          onHitAnimationId: draft.onHitAnimationId ?? null,
         }),
       });
       const result = await response.json() as { ok?: boolean; error?: string };
@@ -403,6 +423,8 @@ export class ObjectTemplateEditorState {
           collider: draft.collider,
           occlusionBounds: draft.occlusionBounds,
           depthBounds: draft.depthBounds,
+          idleAnimationId: draft.idleAnimationId ?? null,
+          onHitAnimationId: draft.onHitAnimationId ?? null,
         }),
       });
       const result = await response.json() as {

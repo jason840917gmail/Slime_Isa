@@ -6,25 +6,16 @@
   "category": "melee",
   "characterActionId": "trick",
   "animations": {
-    "idle": {
+    "idleTimeline": {
       "version": 2,
       "durationSeconds": 0.125,
       "framesPerSecond": 8,
       "loop": true,
-      "loopMode": "wrap",
-      "layers": []
+      "loopMode": "wrap"
     }
   },
   "directionalAttacks": {
     "right": {
-      "animation": {
-        "version": 2,
-        "durationSeconds": 0.35714285714285715,
-        "framesPerSecond": 14,
-        "loop": false,
-        "loopMode": "wrap",
-        "layers": []
-      },
       "characterActionId": "trick",
       "hitboxes": {
         "punch": {
@@ -64,17 +55,16 @@
           }
         ],
         "events": []
+      },
+      "animationTimeline": {
+        "version": 2,
+        "durationSeconds": 0.35714285714285715,
+        "framesPerSecond": 14,
+        "loop": false,
+        "loopMode": "wrap"
       }
     },
     "up": {
-      "animation": {
-        "version": 2,
-        "durationSeconds": 0.35714285714285715,
-        "framesPerSecond": 14,
-        "loop": false,
-        "loopMode": "wrap",
-        "layers": []
-      },
       "characterActionId": "trick",
       "hitboxes": {
         "punch": {
@@ -114,17 +104,16 @@
           }
         ],
         "events": []
+      },
+      "animationTimeline": {
+        "version": 2,
+        "durationSeconds": 0.35714285714285715,
+        "framesPerSecond": 14,
+        "loop": false,
+        "loopMode": "wrap"
       }
     },
     "down": {
-      "animation": {
-        "version": 2,
-        "durationSeconds": 0.35714285714285715,
-        "framesPerSecond": 14,
-        "loop": false,
-        "loopMode": "wrap",
-        "layers": []
-      },
       "characterActionId": "trick",
       "hitboxes": {
         "punch": {
@@ -164,6 +153,13 @@
           }
         ],
         "events": []
+      },
+      "animationTimeline": {
+        "version": 2,
+        "durationSeconds": 0.35714285714285715,
+        "framesPerSecond": 14,
+        "loop": false,
+        "loopMode": "wrap"
       }
     }
   },
@@ -178,8 +174,14 @@
   "hitboxDurationMs": 140,
   "knockStrength": 200,
   "damageModifiers": [
-    { "targetTag": "stone", "modifier": 0 },
-    { "targetTag": "resource", "modifier": 0.1 }
+    {
+      "targetTag": "stone",
+      "modifier": 0
+    },
+    {
+      "targetTag": "resource",
+      "modifier": 0.1
+    }
   ],
   "scaling": {
     "damage": {

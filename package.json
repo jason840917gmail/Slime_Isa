@@ -8,6 +8,7 @@
     "dev": "vite --port 3000",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.node.json",
     "assets:check": "node scripts/check-assets.mjs",
+    "animations:check": "node scripts/check-animations.mjs",
     "visuals:check": "node scripts/check-visuals.mjs",
     "characters:check": "node scripts/check-characters.mjs",
     "projectiles:check": "node scripts/check-projectiles.mjs",
@@ -21,10 +22,12 @@
     "test:character-studio": "node --test scripts/tests/character-studio/*.test.mjs",
     "test:weapon-studio": "node --test scripts/tests/weapon-studio/*.test.mjs",
     "test:animation": "node --test scripts/tests/shared-animation/*.test.mjs",
+    "test:animation-packages": "node --test scripts/tests/animation-packages/*.test.mjs",
     "test:combat": "node --test scripts/tests/combat/*.test.mjs",
+    "test:object-animation": "node --test scripts/tests/object-animation/*.test.mjs",
     "test:depth": "node scripts/test-depth.mjs",
     "build": "pnpm typecheck && vite build",
-    "check": "pnpm assets:check && pnpm visuals:check && pnpm characters:check && pnpm projectiles:check && pnpm effects:check && pnpm weapons:check && pnpm enemies:check && pnpm objects:check && pnpm maps:check && pnpm test:depth && pnpm typecheck && pnpm build",
+    "check": "pnpm assets:check && pnpm animations:check && pnpm visuals:check && pnpm characters:check && pnpm projectiles:check && pnpm effects:check && pnpm weapons:check && pnpm enemies:check && pnpm objects:check && pnpm maps:check && pnpm test:animation-packages && pnpm test:animation && pnpm test:weapon-studio && pnpm test:combat && pnpm test:object-animation && pnpm test:depth && pnpm typecheck && pnpm build",
     "preview": "vite preview --port 3000"
   },
   "dependencies": {

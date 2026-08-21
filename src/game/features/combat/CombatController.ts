@@ -20,6 +20,7 @@ import type { MapEnemySafeZone, MapEnemySpawnArea, MapSpawns } from '../../conte
 import { resolveScreenUiDepth } from '../../presentation/WorldDepth';
 import { hitboxPool } from '../../combat/Hitbox';
 import { WeaponVisual } from './WeaponVisual';
+import { ObjectAnimationAdapter } from '../objects/ObjectAnimationAdapter';
 import { shouldSpawnConfirmedHitEffect } from '../../combat/ConfirmedHitEffect';
 import { WorldEffectPool } from '../effects/WorldEffectPool';
 import { resolveDamageModifier } from '../../combat/DamageModifiers';
@@ -254,6 +255,21 @@ export class CombatController {
           && typeof result.resourceHitEffectId === 'string'
           ? result.resourceHitEffectId
           : undefined;
+        const acceptedObjectEvent = isResourceTarget
+          && result.status === 'accepted'
+          && 'acceptedDamage' in result
+          ? result
+          : undefined;
+        if (acceptedObjectEvent?.depleted) {
+          const adapter = acceptedObjectEvent.target.getData('objectAnimationAdapter') as ObjectAnimationAdapter | undefined;
+          const playbackStarted = acceptedObjectEvent.acceptedDamage > 0 && acceptedObjectEvent.onHitAnimationId
+            ? adapter?.animateOnHit(acceptedObjectEvent.onHitAnimationId, () => this.ctx.resourceNodes?.completeDepletion(acceptedObjectEvent.target)) ?? false
+            : false;
+          if (!playbackStarted) this.ctx.resourceNodes?.completeDepletion(acceptedObjectEvent.target);
+        } else if (acceptedObjectEvent && acceptedObjectEvent.acceptedDamage > 0 && acceptedObjectEvent.onHitAnimationId) {
+          (acceptedObjectEvent.target.getData('objectAnimationAdapter') as ObjectAnimationAdapter | undefined)
+            ?.animateOnHit(acceptedObjectEvent.onHitAnimationId);
+        }
         if (hitTarget && shouldSpawnConfirmedHitEffect(weapon.def.onHitEffectId, result)) {
           this.effects.spawn({
             effectId: weapon.def.onHitEffectId!,

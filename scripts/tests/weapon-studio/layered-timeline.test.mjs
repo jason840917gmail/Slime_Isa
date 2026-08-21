@@ -9,6 +9,8 @@ const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url))
 let stateModule;
 let viewModule;
 let inspectorModule;
+let layeredModule;
+let sharedStateModule;
 
 async function loadTypeScriptModule(entryPoint) {
   const result = await build({ absWorkingDir: repositoryRoot, entryPoints: [entryPoint], bundle: true, format: 'esm', platform: 'node', write: false });
@@ -16,10 +18,12 @@ async function loadTypeScriptModule(entryPoint) {
 }
 
 before(async () => {
-  [stateModule, viewModule, inspectorModule] = await Promise.all([
+  [stateModule, viewModule, inspectorModule, layeredModule, sharedStateModule] = await Promise.all([
     loadTypeScriptModule('src/game/editor/LayeredAnimationDocumentState.ts'),
     loadTypeScriptModule('src/game/editor/LayeredAnimationTimelineView.ts'),
     loadTypeScriptModule('src/game/editor/LayeredAnimationBlockInspector.ts'),
+    loadTypeScriptModule('src/game/shared/animation/layered.ts'),
+    loadTypeScriptModule('src/game/editor/SharedAnimationDocumentState.ts'),
   ]);
 });
 
@@ -32,6 +36,15 @@ function fixture() {
     ],
   };
 }
+
+test('layered preview playback honors wrap and ping-pong loop modes', () => {
+  const animation = { durationSeconds: 0.3, framesPerSecond: 10, loop: true, loopMode: 'wrap' };
+  assert.deepEqual([0, 1, 2, 3, 4].map((step) => layeredModule.layeredAnimationFrameAtStep(animation, step)), [0, 1, 2, 0, 1]);
+  assert.deepEqual([0, 1, 2, 3, 4, 5].map((step) => layeredModule.layeredAnimationFrameAtStep({ ...animation, loopMode: 'ping-pong' }, step)), [0, 1, 2, 1, 0, 1]);
+  const state = new stateModule.LayeredAnimationDocumentState(fixture());
+  assert.equal(state.setLoopMode('ping-pong'), true);
+  assert.equal(state.value.animation.loopMode, 'ping-pong');
+});
 
 test('clicked block duration controls mutate their own lane without relying on selection', () => {
   const state = new stateModule.LayeredAnimationDocumentState(fixture());
@@ -51,6 +64,41 @@ test('Add Tiles scopes to one lane and rejects overlap or overflow atomically', 
     { from: 8, through: 8, sourceFrame: 8 }, { from: 9, through: 9, sourceFrame: 9 },
   ]);
   assert.equal(state.insertTiles('trail', [10, 11], 9), false);
+});
+
+test('Add Tiles replaces occupied cells without changing the master duration', () => {
+  const state = new stateModule.LayeredAnimationDocumentState(fixture());
+  assert.equal(state.placeTiles('base', [8, 9], 2), true);
+  assert.equal(state.value.animation.durationSeconds, 1);
+  assert.deepEqual(state.value.animation.layers[0].blocks, [
+    { from: 0, through: 1, sourceFrame: 1 },
+    { from: 2, through: 2, sourceFrame: 8 },
+    { from: 3, through: 3, sourceFrame: 9 },
+    { from: 6, through: 7, sourceFrame: 2 },
+  ]);
+});
+
+test('shared animation history undoes and redoes authored edits without recording selection changes', () => {
+  const state = new sharedStateModule.SharedAnimationDocumentState({
+    $schema: './animation.schema.json',
+    version: 1,
+    animationId: 'weapon.test.attack',
+    displayName: 'Test attack',
+    description: 'Test package',
+    animation: fixture(),
+  });
+  assert.equal(state.mutateAnimation((document) => document.placeTiles('base', [8], 2)), true);
+  assert.equal(state.canUndo, true);
+  assert.equal(state.value.animation.animation.layers[0].blocks.some((block) => block.sourceFrame === 8), true);
+  assert.equal(state.undo(), true);
+  assert.equal(state.value.animation.animation.layers[0].blocks.some((block) => block.sourceFrame === 8), false);
+  assert.equal(state.canRedo, true);
+  assert.equal(state.redo(), true);
+  assert.equal(state.value.animation.animation.layers[0].blocks.some((block) => block.sourceFrame === 8), true);
+
+  const historyDepthBeforeSelection = state.canUndo;
+  assert.equal(state.mutateAnimation((document) => document.selectBlock('base', 0)), true);
+  assert.equal(state.canUndo, historyDepthBeforeSelection);
 });
 
 test('block move and right-edge resize snap to frames and preserve transparent gaps', () => {
@@ -83,16 +131,18 @@ test('selected tile visual controls render every authored occurrence transform v
   assert.match(html, /value="1\.25"[^>]*data-block-transform-field="scaleX"/);
   assert.match(html, /value="0\.75"[^>]*data-block-transform-field="scaleY"/);
   assert.match(html, /value="17"[^>]*data-block-transform-field="rotationDeg"/);
+  assert.match(html, /data-block-transform-field="flipX"/);
+  assert.match(html, /data-block-transform-field="flipY"/);
   assert.match(html, /data-action="reset-block-transform"/);
 });
 
 test('Basic sword authored block offsets remain visible in the selected-tile inspector', async () => {
-  const weapon = JSON.parse(await readFile(path.join(repositoryRoot, 'src/game/content/weapons/basic-sword/weapon.json'), 'utf8'));
-  const block = weapon.directionalAttacks.right.animation.layers[0].blocks[0];
+  const animationPackage = JSON.parse(await readFile(path.join(repositoryRoot, 'src/game/content/animations/weapons/basic-sword/attack-right/animation.json'), 'utf8'));
+  const block = animationPackage.animation.layers[0].blocks[0];
   assert.ok(block.transform?.offset, 'Basic sword first attack block must keep its authored offset');
   const html = inspectorModule.renderLayeredAnimationBlockInspector({
     block,
-    framesPerSecond: weapon.directionalAttacks.right.animation.framesPerSecond,
+    framesPerSecond: animationPackage.animation.framesPerSecond,
     timelineFrames: 10,
   });
   assert.match(html, new RegExp(`value="${block.transform.offset[0]}"[^>]*data-block-transform-field="offsetX"`));
@@ -113,20 +163,21 @@ test('tile transform edits target one block and preserve its timing and source f
   assert.deepEqual(state.value.animation.layers[0].blocks[1], { from: 6, through: 7, sourceFrame: 2 });
 });
 
-test('duration is authoritative and trims visual blocks without changing earlier timing', () => {
+test('duration is authoritative and rescales visual blocks like weapon keyframes', () => {
   const state = new stateModule.LayeredAnimationDocumentState(fixture());
   assert.equal(state.setDurationSeconds(0.7), true);
   assert.equal(state.value.animation.durationSeconds, 0.7);
   assert.deepEqual(state.value.animation.layers[0].blocks.map(({ from, through }) => ({ from, through })), [
-    { from: 0, through: 2 },
-    { from: 6, through: 6 },
+    { from: 0, through: 1 },
+    { from: 4, through: 5 },
   ]);
   assert.equal(state.setDurationSeconds(0.75), true);
   assert.equal(state.value.animation.durationSeconds, 0.75);
   assert.deepEqual(state.value.animation.layers[0].blocks.map(({ from, through }) => ({ from, through })), [
-    { from: 0, through: 2 },
-    { from: 6, through: 6 },
+    { from: 0, through: 1 },
+    { from: 5, through: 6 },
   ]);
+  assert.equal(viewModule.createLayeredAnimationTimelineView(state.value.animation).effectiveDurationSeconds, 0.75);
 });
 
 test('FPS re-samples block timing while preserving the authored duration', () => {
@@ -135,11 +186,11 @@ test('FPS re-samples block timing while preserving the authored duration', () =>
   assert.equal(state.setFramesPerSecond(20), true);
   assert.equal(state.value.animation.durationSeconds, 0.75);
   assert.deepEqual(state.value.animation.layers[0].blocks.map(({ from, through }) => ({ from, through })), [
-    { from: 0, through: 5 },
-    { from: 12, through: 14 },
+    { from: 0, through: 3 },
+    { from: 10, through: 11 },
   ]);
   assert.deepEqual(state.value.animation.layers[1].blocks.map(({ from, through }) => ({ from, through })), [
-    { from: 6, through: 9 },
+    { from: 4, through: 7 },
   ]);
 });
 

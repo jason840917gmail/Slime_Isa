@@ -83,13 +83,13 @@
         "visualOffset": { "$ref": "#/$defs/visualOffset" },
         "depthBounds": { "$ref": "#/$defs/depthBounds" },
         "occlusionBounds": { "$ref": "#/$defs/bounds" },
-        "visualSetId": {
+        "idleAnimationId": {
           "type": "string",
-          "pattern": "^[a-z0-9]+([.-][a-z0-9-]+)+$"
+          "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+(?:-[a-z0-9]+)*)+$"
         },
-        "animationClip": {
+        "onHitAnimationId": {
           "type": "string",
-          "pattern": "^[a-z0-9]+([.-][a-z0-9-]+)*$"
+          "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+(?:-[a-z0-9]+)*)+$"
         },
         "collider": { "$ref": "#/$defs/bounds" }
       }

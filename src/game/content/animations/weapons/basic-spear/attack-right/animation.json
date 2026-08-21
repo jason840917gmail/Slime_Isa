@@ -1,0 +1,138 @@
+{
+  "$schema": "../../../animation-package.schema.json",
+  "version": 1,
+  "animationId": "weapon.basic-spear.attack.right",
+  "displayName": "Basic Spear right attack",
+  "description": "Shared right attack animation extracted from Basic Spear.",
+  "animation": {
+    "version": 2,
+    "durationSeconds": 0.5,
+    "framesPerSecond": 24,
+    "loop": false,
+    "loopMode": "wrap",
+    "layers": [
+      {
+        "layerId": "base",
+        "displayName": "Spear",
+        "assetId": "weapon.player.hammer-spear-tiles",
+        "depthOffset": 0,
+        "blocks": [
+          {
+            "from": 0,
+            "through": 1,
+            "sourceFrame": 0,
+            "transform": {
+              "offset": [
+                0,
+                10
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 52,
+              "flipX": false,
+              "flipY": false
+            }
+          },
+          {
+            "from": 2,
+            "through": 2,
+            "sourceFrame": 0,
+            "transform": {
+              "offset": [
+                30,
+                10
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 52,
+              "flipX": false,
+              "flipY": false
+            }
+          },
+          {
+            "from": 3,
+            "through": 4,
+            "sourceFrame": 0,
+            "transform": {
+              "offset": [
+                40,
+                10
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 52,
+              "flipX": false,
+              "flipY": false
+            }
+          },
+          {
+            "from": 5,
+            "through": 8,
+            "sourceFrame": 1,
+            "transform": {
+              "offset": [
+                55,
+                10
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 46,
+              "flipX": false,
+              "flipY": false
+            }
+          },
+          {
+            "from": 9,
+            "through": 9,
+            "sourceFrame": 0,
+            "transform": {
+              "offset": [
+                40,
+                10
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 52,
+              "flipX": false,
+              "flipY": false
+            }
+          },
+          {
+            "from": 10,
+            "through": 11,
+            "sourceFrame": 0,
+            "transform": {
+              "offset": [
+                20,
+                10
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 52,
+              "flipX": false,
+              "flipY": false
+            }
+          }
+        ],
+        "transform": {
+          "scale": [
+            0.5,
+            0.5
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -3,6 +3,7 @@ import {
   type ColliderBounds,
   type DepthBounds,
 } from '../content/objects/ObjectCatalog';
+import { getAnimationPackages } from '../content/animations/AnimationCatalog';
 import {
   type ObjectTemplateEditorState,
   type ObjectTemplateViewState,
@@ -60,7 +61,42 @@ function renderShapeField(shape: CollisionShape | undefined): string {
   return `<label class="editor-inspector-field"><span>Shape<small>collision primitive</small></span><select data-template-field="shape"><option value="rectangle" ${selected === 'rectangle' ? 'selected' : ''}>Rectangle</option><option value="circle" ${selected === 'circle' ? 'selected' : ''}>Circle</option><option value="ellipse" ${selected === 'ellipse' ? 'selected' : ''}>Ellipse</option></select></label>`;
 }
 
-function renderIds(state: ObjectTemplateViewState, previewUrl: string, objectStudioUrl: string): string {
+type AnimationPickerField = 'idleAnimationId' | 'onHitAnimationId';
+
+function renderAnimationField(
+  label: string,
+  field: AnimationPickerField,
+  value: string | undefined,
+  error: string | undefined,
+): string {
+  const selected = value ? getAnimationPackages().find((entry) => entry.animationId === value) : undefined;
+  const commandSuffix = field === 'idleAnimationId' ? 'idle' : 'on-hit';
+  return `<div class="editor-inspector-field editor-inspector-field-wide editor-animation-reference"><span>${label}<small>shared animation package</small></span><div class="editor-animation-reference-value"><div>${selected ? `<strong>${escapeHtml(selected.displayName)}</strong><small>${escapeHtml(selected.animationId)}</small>` : '<strong>None</strong><small>Static object visual</small>'}</div><button type="button" class="editor-inspector-secondary" data-command="browse-animation-${commandSuffix}">Browse</button><button type="button" class="editor-inspector-secondary" data-command="clear-animation-${commandSuffix}" ${value ? '' : 'disabled'}>Clear</button></div>${renderError(error)}</div>`;
+}
+
+function renderAnimationPreview(animationId: string | undefined): string {
+  const entry = animationId ? getAnimationPackages().find((candidate) => candidate.animationId === animationId) : undefined;
+  if (!entry) return '<div class="editor-animation-picker-preview is-empty"><strong>No animation selected</strong><p>The object will use its static visual for this slot.</p></div>';
+  const frameCount = Math.max(1, Math.round(entry.animation.durationSeconds * entry.animation.framesPerSecond));
+  return `<div class="editor-animation-picker-preview"><span class="editor-inspector-kicker">Package preview</span><h4>${escapeHtml(entry.displayName)}</h4><code>${escapeHtml(entry.animationId)}</code><p>${escapeHtml(entry.description)}</p><div class="editor-animation-preview-meta"><span>${entry.animation.loop ? 'Looping' : 'One shot'}</span><span>${entry.animation.framesPerSecond} FPS</span><span>${frameCount} frames</span></div><div class="editor-animation-preview-timeline">${entry.animation.layers.map((layer) => `<div><strong>${escapeHtml(layer.displayName)}</strong><span>${layer.blocks.map((block) => `<i style="--from:${block.from};--span:${block.through - block.from + 1};--frames:${frameCount}" title="Frame ${block.sourceFrame}"></i>`).join('')}</span></div>`).join('')}</div></div>`;
+}
+
+function renderAnimationPicker(ui: InspectorUiState): string {
+  if (!ui.animationPickerField) return '';
+  const loop = ui.animationPickerField === 'idleAnimationId';
+  const search = ui.animationPickerSearch.trim().toLowerCase();
+  const packages = getAnimationPackages().filter((entry) => entry.animation.loop === loop && (
+    !search || [entry.displayName, entry.animationId, entry.description].some((value) => value.toLowerCase().includes(search))
+  ));
+  const grouped = new Map<string, typeof packages>();
+  for (const entry of packages) {
+    const folder = entry.animationId.split('.').slice(0, -1).join(' / ') || 'root';
+    grouped.set(folder, [...(grouped.get(folder) ?? []), entry]);
+  }
+  return `<dialog class="editor-template-dialog editor-animation-picker" data-animation-picker-dialog><form data-animation-picker-form><header><span class="editor-inspector-kicker">Shared animation library</span><h3>${loop ? 'Choose idle animation' : 'Choose on-hit animation'}</h3><p>${loop ? 'Only looping packages are shown.' : 'Only one-shot packages are shown.'}</p></header><label class="editor-inspector-field"><span>Search<small>name, ID, or description</small></span><input type="search" value="${escapeHtml(ui.animationPickerSearch)}" data-animation-picker-search autofocus /></label><div class="editor-animation-picker-layout"><div class="editor-animation-picker-tree"><button type="button" class="editor-animation-picker-item${ui.animationPickerSelectedId ? '' : ' is-selected'}" data-animation-picker-id=""><strong>None</strong><small>Use the static visual</small></button>${[...grouped.entries()].map(([folder, entries]) => `<section><h4>${escapeHtml(folder)}</h4>${entries.map((entry) => `<button type="button" class="editor-animation-picker-item${entry.animationId === ui.animationPickerSelectedId ? ' is-selected' : ''}" data-animation-picker-id="${escapeHtml(entry.animationId)}"><strong>${escapeHtml(entry.displayName)}</strong><small>${escapeHtml(entry.animationId)}</small></button>`).join('')}</section>`).join('')}${packages.length === 0 ? '<p class="editor-inspector-help">No compatible packages match this search.</p>' : ''}</div>${renderAnimationPreview(ui.animationPickerSelectedId)}</div><footer><button type="button" class="editor-inspector-secondary" data-command="cancel-animation-picker">Cancel</button><button type="submit" class="editor-inspector-save">Use selection</button></footer></form></dialog>`;
+}
+
+function renderIds(state: ObjectTemplateViewState, previewUrl: string): string {
   const selected = state.selected;
   if (!selected) return '';
   const dimensions = state.frameDimensions;
@@ -85,7 +121,6 @@ function renderIds(state: ObjectTemplateViewState, previewUrl: string, objectStu
       <div><dt>Physics</dt><dd>${selected.physics ? 'Static' : 'None'}</dd></div>
     </dl>
     <div class="editor-inspector-tags">${selected.tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join('')}</div>
-    <a class="editor-inspector-secondary" href="${escapeHtml(objectStudioUrl)}">Edit animation in Object Studio ↗</a>
   </div>`;
 }
 
@@ -96,6 +131,9 @@ interface InspectorUiState {
   readonly saveAsVisualId: string;
   readonly saveAsDisplayName: string;
   readonly saveAsError: string;
+  readonly animationPickerField?: AnimationPickerField;
+  readonly animationPickerSearch: string;
+  readonly animationPickerSelectedId?: string;
 }
 
 function renderInspector(
@@ -130,7 +168,7 @@ function renderInspector(
       <button type="button" class="editor-inspector-toggle" data-inspector-toggle aria-label="Close inspector">×</button>
     </header>
     <div class="editor-inspector-scroll">
-      ${renderIds(state, imagePreview, `?studio=objects&editor=${encodeURIComponent(ui.mapId)}&object=${encodeURIComponent(selected.objectId)}&visual=${encodeURIComponent(selected.visualId)}`)}
+      ${renderIds(state, imagePreview)}
       <div class="editor-inspector-warning">
         <span>Shared template</span>
         <p>Saved changes affect every existing and future map object using this visual.</p>
@@ -174,6 +212,12 @@ function renderInspector(
               </div>
               ${renderError(errors.collider)}`}
         </section>
+        <section class="editor-inspector-section">
+          <div class="editor-inspector-section-title"><span>03</span><h3>Object animations</h3></div>
+          <p class="editor-inspector-help">Choose reusable shared packages. Idle loops; on-hit plays once after accepted damage.</p>
+          ${renderAnimationField('Idle animation', 'idleAnimationId', draft.idleAnimationId, errors.idleAnimationId)}
+          ${renderAnimationField('On-hit animation', 'onHitAnimationId', draft.onHitAnimationId, errors.onHitAnimationId)}
+        </section>
         <section class="editor-inspector-section editor-geometry-section editor-geometry-depth">
           <div class="editor-inspector-section-title"><span>04</span><h3><span class="editor-geometry-swatch" aria-hidden="true"></span>Depth bound</h3></div>
           <p class="editor-inspector-help">A separate source-frame rectangle for front/behind sorting. Its lower edge becomes the object's depth anchor; it does not change the tile size, art, or collider.</p>
@@ -192,8 +236,8 @@ function renderInspector(
           <div class="editor-inspector-section-title"><span>05</span><h3><span class="editor-geometry-swatch" aria-hidden="true"></span>Occlusion</h3></div>
           <p class="editor-inspector-help">The art's opaque pixels define the reveal shape. These bounds only crop the source-alpha scan for performance.</p>
           <label class="editor-inspector-check">
-            <input type="checkbox" data-template-occlusion-toggle ${occlusion ? 'checked' : ''} ${frameGeometrySupported && !selected.visualSetId && !selected.animationClip ? '' : 'disabled'} />
-            <span><strong>Occludes actors</strong><small>${frameGeometrySupported && !selected.visualSetId && !selected.animationClip ? 'Reveal only the hidden pixels of the player and engaged enemies' : 'Requires a static spritesheet frame'}</small></span>
+            <input type="checkbox" data-template-occlusion-toggle ${occlusion ? 'checked' : ''} ${frameGeometrySupported && !draft.idleAnimationId && !draft.onHitAnimationId ? '' : 'disabled'} />
+            <span><strong>Occludes actors</strong><small>${frameGeometrySupported && !draft.idleAnimationId && !draft.onHitAnimationId ? 'Reveal only the hidden pixels of the player and engaged enemies' : 'Requires a static spritesheet frame'}</small></span>
           </label>
           ${occlusion ? `<div class="editor-inspector-grid">
             ${renderNumberField('Width', 'occlusionWidth', occlusion.width, errors.occlusionWidth, 'template-occlusion-width')}
@@ -213,7 +257,7 @@ function renderInspector(
             ${renderGeometryToggle('frame', state.showFrameOverlay, true, 'Visual frame', 'Yellow frame and anchor guide')}
             ${renderGeometryToggle('collider', state.showColliderOverlay, selected.physics !== null && Boolean(collider), 'Collider', 'Red solid geometry used for physics')}
             ${renderGeometryToggle('depth', state.showDepthOverlay, Boolean(depthBounds && frameGeometrySupported), 'Depth bound', 'Orange rectangle and sorting edge')}
-            ${renderGeometryToggle('occlusion', state.showOcclusionOverlay, Boolean(occlusion && frameGeometrySupported && !selected.visualSetId && !selected.animationClip), 'Occlusion', 'Blue scan region and reveal shape')}
+            ${renderGeometryToggle('occlusion', state.showOcclusionOverlay, Boolean(occlusion && frameGeometrySupported && !draft.idleAnimationId && !draft.onHitAnimationId), 'Occlusion', 'Blue scan region and reveal shape')}
           </div>
         </section>
         <section class="editor-inspector-section editor-inspector-actions">
@@ -246,6 +290,7 @@ function renderInspector(
             </footer>
           </form>
         </dialog>` : ''}
+      ${renderAnimationPicker(ui)}
     </div>`;
 }
 
@@ -309,6 +354,9 @@ export function mountMapEditorInspector(
   let saveAsVisualId = '';
   let saveAsDisplayName = '';
   let saveAsError = '';
+  let animationPickerField: AnimationPickerField | undefined;
+  let animationPickerSearch = '';
+  let animationPickerSelectedId: string | undefined;
   const render = (): void => {
     const scrollTop = host.querySelector<HTMLElement>('.editor-inspector-scroll')?.scrollTop ?? 0;
     const activeInput = document.activeElement instanceof HTMLInputElement
@@ -342,9 +390,14 @@ export function mountMapEditorInspector(
       saveAsVisualId,
       saveAsDisplayName,
       saveAsError,
+      animationPickerField,
+      animationPickerSearch,
+      animationPickerSelectedId,
     });
     const saveAsDialog = host.querySelector<HTMLDialogElement>('[data-save-as-dialog]');
     if (saveAsDialog && !saveAsDialog.open) saveAsDialog.showModal();
+    const animationPickerDialog = host.querySelector<HTMLDialogElement>('[data-animation-picker-dialog]');
+    if (animationPickerDialog && !animationPickerDialog.open) animationPickerDialog.showModal();
     const scroll = host.querySelector<HTMLElement>('.editor-inspector-scroll');
     if (scroll) scroll.scrollTop = scrollTop;
     if (activeField) {
@@ -368,7 +421,7 @@ export function mountMapEditorInspector(
   };
 
   const clickHandler = (event: MouseEvent): void => {
-    const target = (event.target as HTMLElement).closest<HTMLElement>('[data-inspector-toggle], [data-command]');
+    const target = (event.target as HTMLElement).closest<HTMLElement>('[data-inspector-toggle], [data-command], [data-animation-picker-id]');
     if (!target) return;
     if (target.dataset.inspectorToggle !== undefined || target.hasAttribute('data-inspector-toggle')) {
       open = !open;
@@ -393,6 +446,38 @@ export function mountMapEditorInspector(
     if (target.dataset.command === 'cancel-save-as') {
       saveAsOpen = false;
       saveAsError = '';
+      render();
+    }
+    const browseField = target.dataset.command === 'browse-animation-idle'
+      ? 'idleAnimationId'
+      : target.dataset.command === 'browse-animation-on-hit'
+        ? 'onHitAnimationId'
+        : undefined;
+    if (browseField) {
+      animationPickerField = browseField;
+      animationPickerSearch = '';
+      animationPickerSelectedId = templateEditor.value.draft?.[browseField];
+      render();
+      return;
+    }
+    const clearField = target.dataset.command === 'clear-animation-idle'
+      ? 'idleAnimationId'
+      : target.dataset.command === 'clear-animation-on-hit'
+        ? 'onHitAnimationId'
+        : undefined;
+    if (clearField) {
+      templateEditor.updateDraft({ [clearField]: '' });
+      return;
+    }
+    if (target.dataset.command === 'cancel-animation-picker') {
+      animationPickerField = undefined;
+      animationPickerSearch = '';
+      animationPickerSelectedId = undefined;
+      render();
+      return;
+    }
+    if (target.dataset.animationPickerId !== undefined) {
+      animationPickerSelectedId = target.dataset.animationPickerId || undefined;
       render();
     }
   };
@@ -447,6 +532,10 @@ export function mountMapEditorInspector(
     }
     if (field === 'scale') {
       templateEditor.updateDraft({ scale: Number(target.value) });
+      return;
+    }
+    if (field === 'idleAnimationId' || field === 'onHitAnimationId') {
+      templateEditor.updateDraft({ [field]: target.value });
       return;
     }
     if (field === 'shape') {
@@ -524,6 +613,14 @@ export function mountMapEditorInspector(
       })();
       return;
     }
+    if (form.hasAttribute('data-animation-picker-form')) {
+      if (animationPickerField) templateEditor.updateDraft({ [animationPickerField]: animationPickerSelectedId ?? '' });
+      animationPickerField = undefined;
+      animationPickerSearch = '';
+      animationPickerSelectedId = undefined;
+      render();
+      return;
+    }
     void templateEditor.save();
   };
 
@@ -531,6 +628,11 @@ export function mountMapEditorInspector(
     const target = event.target as HTMLInputElement;
     if (target.dataset.saveAsField === 'visualId') saveAsVisualId = target.value;
     if (target.dataset.saveAsField === 'displayName') saveAsDisplayName = target.value;
+    if (target.dataset.animationPickerSearch !== undefined) {
+      animationPickerSearch = target.value;
+      render();
+      host.querySelector<HTMLInputElement>('[data-animation-picker-search]')?.focus();
+    }
   };
 
   host.addEventListener('click', clickHandler);

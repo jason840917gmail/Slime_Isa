@@ -1,0 +1,136 @@
+{
+  "$schema": "../../../../animation-package.schema.json",
+  "version": 1,
+  "animationId": "object.tree.autumn.leaf-fall",
+  "displayName": "autumn tree hit leaves",
+  "description": "Six-frame one-shot hit reaction with several autumn leaves scattering from the canopy to the ground.",
+  "animation": {
+    "version": 2,
+    "durationSeconds": 0.6,
+    "framesPerSecond": 10,
+    "loop": false,
+    "loopMode": "wrap",
+    "layers": [
+      {
+        "layerId": "base",
+        "displayName": "Autumn tree",
+        "assetId": "sheet.trees.autumn.6x2",
+        "depthOffset": 0,
+        "transform": {
+          "offset": [
+            0,
+            6
+          ],
+          "scale": [
+            1,
+            1
+          ],
+          "rotationDeg": 0,
+          "flipX": false,
+          "flipY": false,
+          "origin": [
+            0.5,
+            1
+          ]
+        },
+        "blocks": [
+          {
+            "from": 0,
+            "through": 0,
+            "sourceFrame": 6,
+            "transform": {
+              "offset": [
+                0,
+                0
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 0,
+              "flipX": false,
+              "flipY": false
+            }
+          },
+          {
+            "from": 1,
+            "through": 1,
+            "sourceFrame": 7,
+            "transform": {
+              "offset": [
+                2.5,
+                0
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 0,
+              "flipX": false,
+              "flipY": false
+            }
+          },
+          {
+            "from": 2,
+            "through": 2,
+            "sourceFrame": 8,
+            "transform": {
+              "offset": [
+                0.5,
+                0
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 0,
+              "flipX": false,
+              "flipY": false
+            }
+          },
+          {
+            "from": 3,
+            "through": 3,
+            "sourceFrame": 9,
+            "transform": {
+              "offset": [
+                0.5,
+                0
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 0,
+              "flipX": false,
+              "flipY": false
+            }
+          },
+          {
+            "from": 4,
+            "through": 4,
+            "sourceFrame": 10,
+            "transform": {
+              "offset": [
+                -2.25,
+                0
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 0,
+              "flipX": false,
+              "flipY": false
+            }
+          },
+          {
+            "from": 5,
+            "through": 5,
+            "sourceFrame": 11
+          }
+        ]
+      }
+    ]
+  }
+}

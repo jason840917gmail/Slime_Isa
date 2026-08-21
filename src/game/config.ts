@@ -16,7 +16,7 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
     ? new URLSearchParams(window.location.search).get('studio') === 'projectiles'
     : false;
   const weaponStudio = import.meta.env.DEV
-    ? new URLSearchParams(window.location.search).get('studio') === 'weapons'
+    ? ['weapons', 'animations'].includes(new URLSearchParams(window.location.search).get('studio') ?? '')
     : false;
   if (characterStudio) {
     document.title = 'Character Studio — Field Cartographer';

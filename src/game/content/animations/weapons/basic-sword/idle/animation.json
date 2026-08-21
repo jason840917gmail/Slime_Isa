@@ -1,0 +1,39 @@
+{
+  "$schema": "../../../animation-package.schema.json",
+  "version": 1,
+  "animationId": "weapon.basic-sword.idle",
+  "displayName": "Basic sword idle",
+  "description": "Shared idle animation extracted from Basic sword.",
+  "animation": {
+    "version": 2,
+    "durationSeconds": 0.125,
+    "framesPerSecond": 8,
+    "loop": true,
+    "loopMode": "wrap",
+    "layers": [
+      {
+        "layerId": "base",
+        "displayName": "Basic sword",
+        "assetId": "weapon.player.sword-tiles",
+        "depthOffset": 0,
+        "transform": {
+          "offset": [
+            0,
+            0
+          ],
+          "scale": [
+            0.5,
+            0.5
+          ]
+        },
+        "blocks": [
+          {
+            "from": 0,
+            "through": 0,
+            "sourceFrame": 0
+          }
+        ]
+      }
+    ]
+  }
+}

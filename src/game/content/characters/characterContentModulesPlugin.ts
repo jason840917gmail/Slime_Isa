@@ -1073,14 +1073,14 @@ async function prepareAssetRegistration(assetRoot: string, manifestPath: string,
   if (await fileExists(target)) throw new Error(`Asset source '${sourcePath}' already exists`);
   const textureKey = `character-${assetId.replaceAll('.', '-')}`;
   if (textureKeyExists(manifest, textureKey)) throw new Error(`Texture key '${textureKey}' already exists`);
-  const kind = metadataValue.kind === 'enemy' ? 'enemy' : 'player';
+  const kind = metadataValue.kind === 'enemy' ? 'enemy' : metadataValue.kind === 'object' ? 'object' : 'player';
   const extraTags = Array.isArray(metadataValue.tags)
     ? metadataValue.tags.filter((tag): tag is string => typeof tag === 'string' && /^[a-z0-9-]+$/.test(tag))
     : [];
   manifest.assets[assetId] = {
     source: { kind: 'spritesheet', path: sourcePath, frame: { w: frameWidth, h: frameHeight, cols: columns, rows, count: populatedCount }, expect: dimensions },
     runtime: { textureKey },
-    tags: [...new Set(['character', kind, ...extraTags])],
+    tags: [...new Set([...(kind === 'object' ? ['object'] : ['character']), kind, ...extraTags])],
     status: 'ready',
   };
   const bootBundle = Array.isArray(manifest.bundles.boot) ? [...manifest.bundles.boot] : [];

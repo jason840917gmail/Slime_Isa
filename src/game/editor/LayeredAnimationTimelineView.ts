@@ -39,7 +39,7 @@ export function createLayeredAnimationTimelineView(animation: LayeredAnimationDo
   return {
     timelineFrames,
     framesPerSecond: animation.framesPerSecond,
-    effectiveDurationSeconds: timelineFrames / animation.framesPerSecond,
+    effectiveDurationSeconds: animation.durationSeconds,
     rulerTicks: Array.from({ length: timelineFrames }, (_, frame) => ({
       frame,
       gridColumn: frame + 1,

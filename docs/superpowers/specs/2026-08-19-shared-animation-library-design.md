@@ -1,9 +1,8 @@
 # Shared Animation Library and Weapon Studio Browser
 
 **Status: approved design; implementation has not started.** This document
-supersedes the Object Studio animation direction in
-`2026-08-19-object-studio-animations-design.md`. Object Studio will be
-removed rather than extended.
+supersedes the withdrawn Object Studio animation direction. Object Studio will
+be removed rather than extended.
 
 ## Goal
 

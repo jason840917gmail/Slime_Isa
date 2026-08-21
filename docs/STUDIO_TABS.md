@@ -1,6 +1,9 @@
 # Studio Tabs Contract
 
-This document is the working reference for Character Studio, Projectile Studio, Weapon Studio, and Object Studio. It records the layout, data ownership, fields, preview rules, source-sheet workflow, and validation expectations so the same behavior is not implemented three different ways.
+This document is the working reference for Character Studio, Projectile Studio,
+and Weapon Studio. Shared layered animation packages are authored through
+Weapon Studio and consumed by runtime adapters and Map Studio; object animation
+does not have a separate editor route.
 
 ## 1. Shared architecture
 
@@ -11,8 +14,8 @@ The three tabs are editor views over different authored documents. They share th
 | Character editor | `src/game/editor/CharacterStudio.ts` and `CharacterDocumentState.ts` | Character package, visual set, clips, body, hitboxes, runtime behavior |
 | Projectile editor | `src/game/editor/ProjectileStudio.ts` | Reusable projectile profile, move/impact clips, visual alignment, flight body |
 | Weapon editor | `src/game/editor/WeaponStudio.ts` | Reusable weapon profile, idle/attack/impact clips, visual alignment, combat values |
-| Object editor | `src/game/editor/ObjectStudio.ts` | Shared object visual templates, optional idle clips, material-owned hit effects |
-| Shared tab navigation | `src/game/editor/StudioModeTabs.ts` | Switches between Characters, Projectiles, Weapons, and Objects |
+| Shared tab navigation | `src/game/editor/StudioModeTabs.ts` | Switches between Characters, Projectiles, and Weapons |
+| Shared animation library | `src/game/content/animations/` and `src/game/shared/animation/` | Complete layered packages, stable IDs, validation, catalog resolution, timing, rendering, and transforms |
 | Media catalog | `asset/assets.json` and `characterAssetCatalog.ts` | Registered source paths, frame dimensions, grid size, tags, and runtime texture metadata |
 | Editor server | `src/game/content/characters/characterContentModulesPlugin.ts` | Loads catalogs, imports PNG sheets, validates data, and writes authored packages |
 | Runtime definitions | `src/game/content/characters`, `projectiles`, and `weapons` | TypeScript types, schemas, validators, and runtime-facing content |
@@ -211,24 +214,26 @@ The preview multiplies source-pixel offsets by the same visible stage scale used
 
 Attack data is authored under `directionalAttacks.right`, `.left`, `.up`, and `.down`. The legacy `.side` package remains readable and is migrated to `.right` when edited. An absent `.left` package inherits RIGHT and uses a true horizontal mirror: local `(x, y)` becomes `(-x, y)`, so vertical offsets and hit-point height are preserved. Missing RIGHT, UP, or DOWN data normalizes to the legacy root attack package. This preserves old weapons while allowing every direction to be materialized independently.
 
-## 5. Object Studio
+## 5. Shared animation packages
 
-Object Studio edits one shared visual template used by every map instance of
-the selected object/visual pair. It owns optional idle visual-set references,
-source-frame ordering for the idle clip, and the resource node's material-owned
-`hitEffectId`. The required static frame remains the fallback when an optional
-animation package cannot load. Geometry stays in Map Studio; its Edit object
-link preserves the map and selected template query when returning.
+The shared animation library owns complete layered packages under
+`src/game/content/animations/`. Each package has one `animation.json` wrapper
+with searchable metadata, a stable globally unique `animationId`, and one
+validated layered animation document. Package assets always resolve through the
+global `asset/assets.json` catalog.
 
-The first editor route is `?studio=objects` with these development endpoints:
+Weapon Studio is the first authoring surface for these packages. Its future
+library view will browse weapons and animation packages together while reusing
+the existing layered timeline, source picker, preview, and validation
+components. Selecting a package opens the standalone shared animation editor;
+the editor state must not depend on a fake weapon wrapper.
 
-- `GET /__object-studio/catalog`
-- `POST /__object-studio/save`
-
-Object Studio validates visual-set frame references and resource effect IDs
-before an atomic content write. It uses the same visual-set clip model and
-`AnimatedVisual` runtime component as Character Studio, while Weapon Studio
-continues to own enemy-confirmed weapon effects.
+Weapon definitions and object templates store animation IDs only. Map Studio
+will provide a reusable searchable picker for object-template `idleAnimationId`
+and `onHitAnimationId` fields, but it will not contain a second timeline editor.
+Runtime adapters resolve IDs through the shared catalog and provide anchors;
+the shared clock, layered renderer, and transforms remain in
+`src/game/shared/animation`.
 
 ## 6. Change checklist for future fields
 

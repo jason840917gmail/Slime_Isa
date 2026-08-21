@@ -23,6 +23,7 @@
       "sheet.rocks.8x3",
       "sheet.resources.4x2",
       "sheet.trees.8x6",
+      "sheet.trees.autumn.6x2",
       "sheet.trees.3x1",
       "sheet.houses.3x1",
       "terrain.water.0",
@@ -467,6 +468,40 @@
         "tree"
       ],
       "status": "ready"
+    },
+    "sheet.trees.autumn.6x2": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/trees/autumn-tree-idle-leaf-fall-6x2.png",
+        "frame": {
+          "w": 128,
+          "h": 170,
+          "cols": 6,
+          "rows": 2,
+          "count": 12
+        },
+        "expect": {
+          "w": 768,
+          "h": 340
+        }
+      },
+      "runtime": {
+        "textureKey": "trees-autumn-6x2"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "object",
+        "tree",
+        "animation"
+      ],
+      "status": "ready",
+      "notes": "Top row contains six idle frames; bottom row contains six hit-reaction frames with several falling leaves per frame."
     },
     "sheet.trees.3x1": {
       "source": {
@@ -965,39 +1000,6 @@
       "tags": [
         "character",
         "enemy"
-      ],
-      "status": "ready"
-    },
-    "enemy.projectile.generated-64": {
-      "source": {
-        "kind": "spritesheet",
-        "path": "characters/authored/projectiles-64x64.png",
-        "frame": {
-          "w": 64,
-          "h": 64,
-          "cols": 3,
-          "rows": 4,
-          "count": 12
-        },
-        "expect": {
-          "w": 192,
-          "h": 256
-        }
-      },
-      "runtime": {
-        "textureKey": "enemy-projectiles-generated-64"
-      },
-      "render": {
-        "origin": [
-          0.5,
-          0.5
-        ],
-        "pixelArt": true
-      },
-      "tags": [
-        "enemy",
-        "projectile",
-        "generated"
       ],
       "status": "ready"
     },

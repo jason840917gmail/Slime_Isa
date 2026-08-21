@@ -1,5 +1,4 @@
 import type { AssetId } from '../../infrastructure/assets/manifest';
-import type { VisualSetId } from '../visuals/VisualCatalog';
 import type { CollisionShape } from '../../shared/collisionShapes';
 import amberOreMineableJson from './rocks/rock-amber-ore-mineable.json';
 import worldWallDecorativeJson from './rocks/rock-world-wall-decorative.json';
@@ -51,8 +50,8 @@ export interface ObjectFrameVariant {
   readonly frame: number;
   /** Uniform world scale applied to the visual and its authored geometry. */
   readonly scale?: number;
-  readonly visualSetId?: VisualSetId;
-  readonly animationClip?: string;
+  readonly idleAnimationId?: string;
+  readonly onHitAnimationId?: string;
   readonly visualOffset?: VisualOffset;
   readonly collider?: ColliderBounds;
   readonly occlusionBounds?: OcclusionBounds;
@@ -144,8 +143,8 @@ export interface ObjectVisualChoice {
   readonly assetId: AssetId;
   readonly frame: number;
   readonly scale: number;
-  readonly visualSetId?: VisualSetId;
-  readonly animationClip?: string;
+  readonly idleAnimationId?: string;
+  readonly onHitAnimationId?: string;
   readonly visualOffset: VisualOffset;
   readonly collider?: ColliderBounds;
   readonly occlusionBounds?: OcclusionBounds;
@@ -156,7 +155,7 @@ export interface ObjectVisualChoice {
 
 export type EditableObjectVisual = Pick<
   ObjectVisualChoice,
-  'displayName' | 'scale' | 'visualOffset' | 'collider' | 'occlusionBounds' | 'depthBounds'
+  'displayName' | 'scale' | 'visualOffset' | 'collider' | 'occlusionBounds' | 'depthBounds' | 'idleAnimationId' | 'onHitAnimationId'
 >;
 
 const OBJECT_VISUAL_OVERRIDES = new Map<string, EditableObjectVisual>();
@@ -180,12 +179,12 @@ function createObjectVisualChoice(
     assetId,
     frame: frame.frame,
     scale: override?.scale ?? frame.scale ?? 1,
-    visualSetId: frame.visualSetId,
-    animationClip: frame.animationClip,
     visualOffset: override?.visualOffset ?? frame.visualOffset ?? { x: 0, y: 0 },
-    collider: override?.collider ?? frame.collider,
-    occlusionBounds: override?.occlusionBounds ?? frame.occlusionBounds,
-    depthBounds: override?.depthBounds ?? frame.depthBounds,
+    collider: override ? override.collider : frame.collider,
+    occlusionBounds: override ? override.occlusionBounds : frame.occlusionBounds,
+    depthBounds: override ? override.depthBounds : frame.depthBounds,
+    idleAnimationId: override ? override.idleAnimationId : frame.idleAnimationId,
+    onHitAnimationId: override ? override.onHitAnimationId : frame.onHitAnimationId,
     physics: object.physics,
     tags: object.tags,
   };
@@ -224,6 +223,8 @@ export function setObjectVisualOverride(
     collider: override.collider ? { ...override.collider } : undefined,
     occlusionBounds: override.occlusionBounds ? { ...override.occlusionBounds } : undefined,
     depthBounds: override.depthBounds ? { ...override.depthBounds } : undefined,
+    idleAnimationId: override.idleAnimationId,
+    onHitAnimationId: override.onHitAnimationId,
   });
 }
 
