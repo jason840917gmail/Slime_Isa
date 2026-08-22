@@ -15,6 +15,7 @@ import { resolveScreenUiDepth } from './presentation/WorldDepth';
  *   Energy bar (yellow) under XP
  */
 export class HUD {
+  private readonly scene: Phaser.Scene;
   private coinsText: Phaser.GameObjects.Text;
   private friendCountText: Phaser.GameObjects.Text;
   private levelText: Phaser.GameObjects.Text;
@@ -24,13 +25,17 @@ export class HUD {
   private hpLabel: Phaser.GameObjects.Text;
   private xpLabel: Phaser.GameObjects.Text;
   private energyLabel: Phaser.GameObjects.Text;
+  private xpIntoLevel = 0;
+  private xpForNext = 0;
+  private currentLevel = gameState.level;
 
-  private readonly barX = 24;
-  private readonly barW = 220;
+  private barX = 24;
+  private barW = 220;
   private readonly barH = 12;
   private readonly barGap = 18;
 
   constructor(scene: Phaser.Scene) {
+    this.scene = scene;
     const font = UI_THEME.fontFamily;
 
     let y = 24;
@@ -101,7 +106,25 @@ export class HUD {
     gameEvents.on('level.up', this.onLevelUp, this);
 
     this.drawHp(gameState.hp, gameState.maxHp);
-    this.drawXp(0, 0, gameState.level);
+    this.drawXp(this.xpIntoLevel, this.xpForNext, this.currentLevel);
+    this.drawEnergy(gameState.energy, gameState.maxEnergy);
+    this.resize(scene.scale.width || scene.cameras.main.width);
+    scene.scale.on('resize', this.handleResize, this);
+  }
+
+  resize(viewWidth: number): void {
+    this.barX = Phaser.Math.Clamp(viewWidth * 0.03, 16, 24);
+    this.barW = Phaser.Math.Clamp(viewWidth * 0.22, 150, 220);
+
+    this.levelText.setX(this.barX);
+    this.coinsText.setX(this.barX);
+    this.friendCountText.setX(this.barX);
+    this.hpLabel.setPosition(this.barX + this.barW + 8, this.hpBarY());
+    this.xpLabel.setPosition(this.barX + this.barW + 8, this.xpBarY());
+    this.energyLabel.setPosition(this.barX + this.barW + 8, this.energyBarY());
+
+    this.drawHp(gameState.hp, gameState.maxHp);
+    this.drawXp(this.xpIntoLevel, this.xpForNext, this.currentLevel);
     this.drawEnergy(gameState.energy, gameState.maxEnergy);
   }
 
@@ -114,6 +137,7 @@ export class HUD {
   }
 
   updateLevel(level: number): void {
+    this.currentLevel = level;
     this.levelText.setText(`Level ${level}`);
   }
 
@@ -140,6 +164,8 @@ export class HUD {
   }
 
   private drawXp(into: number, need: number, level: number): void {
+    this.xpIntoLevel = into;
+    this.xpForNext = need;
     const g = this.xpBar;
     const { barX, barW, barH } = this;
     const y = this.xpBarY();
@@ -184,6 +210,10 @@ export class HUD {
     return this.xpBarY() + this.barH + this.barGap;
   }
 
+  private handleResize = (size: Phaser.Structs.Size): void => {
+    this.resize(size.width);
+  };
+
   private onCoinsChanged = (payload: { coins: number }): void => this.updateCoins(payload.coins);
   private onFriendCountChanged = (payload: { count: number }): void => this.updateFriendCount(payload.count);
   private onHpChanged = (payload: { hp: number; maxHp: number }): void => this.drawHp(payload.hp, payload.maxHp);
@@ -196,6 +226,7 @@ export class HUD {
   private onLevelUp = (payload: { level: number }): void => this.updateLevel(payload.level);
 
   destroy(): void {
+    this.scene.scale.off('resize', this.handleResize, this);
     gameEvents.off('coins.changed', this.onCoinsChanged, this);
     gameEvents.off('friend.count', this.onFriendCountChanged, this);
     gameEvents.off('hp.changed', this.onHpChanged, this);

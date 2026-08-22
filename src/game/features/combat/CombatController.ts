@@ -38,7 +38,6 @@ export interface CombatControllerContext {
   enemySafeZones: readonly MapEnemySafeZone[];
   areaId: string;
   getFacing: () => Phaser.Math.Vector2;
-  getSafeZones: () => MapEnemySafeZone[];
   findSpawnPoint: (anchor: Phaser.Math.Vector2) => Phaser.Math.Vector2;
   playCharacterAction: (actionId: string) => void;
   setActionLocked: (locked: boolean) => void;
@@ -363,7 +362,6 @@ export class CombatController {
 
   private safeZones(): MapEnemySafeZone[] {
     return [
-      ...this.ctx.getSafeZones(),
       ...this.ctx.enemySafeZones,
       ...(this.ctx.spawns?.safeZones ?? []),
     ];

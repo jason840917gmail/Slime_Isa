@@ -54,6 +54,7 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
           <summary>âŒ¨ Controls</summary>
           <table>
             <tr><td class="k">Arrows / IJKL</td><td>Move</td></tr>
+            <tr><td class="k">Mouse Wheel</td><td>Zoom camera</td></tr>
             <tr><td class="k">E / Click</td><td>Attack</td></tr>
             <tr><td class="k">Q</td><td>Roll / dodge (i-frames)</td></tr>
             <tr><td class="k">Space</td><td>Jump <span class="lock">Lv 2</span></td></tr>

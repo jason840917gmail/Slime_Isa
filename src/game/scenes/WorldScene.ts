@@ -1,4 +1,4 @@
-﻿import Phaser from 'phaser';
+import Phaser from 'phaser';
 import { Friend } from '../Friend';
 import { House } from '../House';
 import {
@@ -28,7 +28,6 @@ import { floatingText } from '../ui/FloatingText';
 import { HealthBar } from '../ui/HealthBar';
 import { LevelUpModal } from '../ui/LevelUpModal';
 import { InventoryUI } from '../ui/InventoryUI';
-import { AbilityBar } from '../ui/AbilityBar';
 import { WeaponHotbar } from '../ui/WeaponHotbar';
 import { hitboxPool } from '../combat/Hitbox';
 import { projectilePool } from '../enemies/Projectile';
@@ -62,13 +61,13 @@ import { DepthDiagnostics } from '../features/occlusion/DepthDiagnostics';
 import { MapBuilder, type BuiltMap } from '../features/world/MapBuilder';
 import type { CreateObjectOptions } from '../features/objects/ObjectFactory';
 import type { ObjectArchetypeId } from '../content/objects/ObjectCatalog';
-import { resolveBodyBottom, resolveScreenUiDepth, resolveWorldDepth } from '../presentation/WorldDepth';
+import { resolveBodyBottom, resolveWorldDepth } from '../presentation/WorldDepth';
 import type { LoadedMap } from '../infrastructure/maps/MapRepository';
 import type { WorldDimensions } from '../world/WorldDimensions';
 
-const DEFAULT_ZOOM = 1;
-const HOUSE_ZOOM = 1;
-const PLAYER_HOUSE_SAFE_RADIUS = 540;
+const DEFAULT_ZOOM = 0.75;
+const CAMERA_ZOOM_LEVELS = [0.5, 0.625, 0.75, 0.875, 1, 1.125, 1.25] as const;
+const CAMERA_ZOOM_DURATION_MS = 140;
 const EDGE_TRANSITION_GRACE_MS = 650;
 
 interface WorldSceneData {
@@ -112,7 +111,6 @@ export class WorldScene extends Phaser.Scene {
   private questJournal?: QuestJournal;
   private craftingUI?: CraftingUI;
   private abilitySystem?: AbilitySystem;
-  private abilityBar?: AbilityBar;
   private weaponHotbar?: WeaponHotbar;
   private lastBedPos: Phaser.Math.Vector2 | null = null;
   private iFrameFlashActive = false;
@@ -135,6 +133,9 @@ export class WorldScene extends Phaser.Scene {
   private debugRenderer?: WorldDebugRenderer;
   private occlusionController?: OcclusionController;
   private depthDiagnostics?: DepthDiagnostics;
+  private targetCameraZoom = DEFAULT_ZOOM;
+  private uiCamera?: Phaser.Cameras.Scene2D.Camera;
+  private cameraLayerAssignments = new WeakMap<Phaser.GameObjects.GameObject, 'world' | 'ui'>();
   private disposables = new DisposableBag();
 
   constructor() {
@@ -189,7 +190,7 @@ export class WorldScene extends Phaser.Scene {
       setActionLocked: (locked) => { this.actionLocked = locked; },
       playIdle: () => this.playAnimation('slime-idle'),
       defaultZoom: DEFAULT_ZOOM,
-      houseZoom: HOUSE_ZOOM,
+      resetCameraZoom: () => { this.targetCameraZoom = DEFAULT_ZOOM; },
     });
     this.createPhysics();
     this.createCamera();
@@ -200,7 +201,6 @@ export class WorldScene extends Phaser.Scene {
     this.createHUD();
     this.createControls();
     this.createShopUI();
-    this.createOverlay();
     this.createChatUI();
 
     // Phase 1 systems: health, status, level-up modal, inventory UI
@@ -262,11 +262,6 @@ export class WorldScene extends Phaser.Scene {
         floatingText.spawn(this, this.player.x, this.player.y - 44, `Crafted: ${recipe.name}`, 'green', true);
       },
     });
-    this.abilityBar = new AbilityBar({
-      scene: this,
-      getAbilitySystem: () => this.abilitySystem,
-    });
-
     // Phase 2: combat system
     this.createCombatSystem();
     this.weaponHotbar = new WeaponHotbar({
@@ -325,6 +320,7 @@ export class WorldScene extends Phaser.Scene {
     gameEvents.emit('area.enter', { areaId: this.currentArea.id });
     clearOneShotNavigationParams();
     showAreaTitleCard(this, this.currentArea.name, BIOMES[this.currentArea.biome].titleColor);
+    this.syncCameraLayers();
   }
 
   private resetSceneStateForAreaLoad(): void {
@@ -338,7 +334,6 @@ export class WorldScene extends Phaser.Scene {
     this.chatUI?.destroy();
     this.houseSystem?.destroy();
     this.abilitySystem?.destroy();
-    this.abilityBar?.destroy();
     this.weaponHotbar?.destroy();
     this.statusEffects?.destroy();
     this.debugRenderer?.destroy();
@@ -446,6 +441,8 @@ export class WorldScene extends Phaser.Scene {
   }
 
   update(_time: number, delta: number): void {
+    this.syncCameraLayers();
+
     if (this.paused) {
       this.player.setVelocity(0, 0);
       this.debugRenderer?.update();
@@ -461,7 +458,6 @@ export class WorldScene extends Phaser.Scene {
     this.statusEffects?.update(this.time.now, delta);
     this.healthSystem?.update(this.time.now);
     this.healthBar?.update();
-    this.abilityBar?.update();
     this.abilitySystem?.update();
     this.combatController?.update(this.time.now, delta);
     this.occlusionController?.update();
@@ -723,8 +719,90 @@ export class WorldScene extends Phaser.Scene {
     this.cameras.main.resetFX();
     this.cameras.main.setBounds(0, 0, this.worldDimensions.width, this.worldDimensions.height);
     this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
+    this.targetCameraZoom = DEFAULT_ZOOM;
     this.cameras.main.setZoom(DEFAULT_ZOOM);
     this.cameras.main.setRoundPixels(true);
+
+    const uiCamera = this.cameras.add(
+      0,
+      0,
+      this.scale.width,
+      this.scale.height,
+      false,
+      'screen-ui',
+    );
+    uiCamera.setScroll(0, 0);
+    uiCamera.setZoom(1);
+    uiCamera.setRoundPixels(true);
+    this.uiCamera = uiCamera;
+    this.disposables.add(() => {
+      this.cameras.remove(uiCamera, true);
+      if (this.uiCamera === uiCamera) this.uiCamera = undefined;
+    });
+
+    this.input.on('wheel', this.handleCameraWheel, this);
+    this.disposables.add(() => this.input.off('wheel', this.handleCameraWheel, this));
+  }
+
+  private syncCameraLayers(): void {
+    const uiCamera = this.uiCamera;
+    if (!uiCamera) return;
+
+    for (const child of this.children.list) {
+      const scrollable = child as Phaser.GameObjects.GameObject & {
+        scrollFactorX?: number;
+        scrollFactorY?: number;
+      };
+      const layer: 'world' | 'ui' = scrollable.scrollFactorX === 0 && scrollable.scrollFactorY === 0
+        ? 'ui'
+        : 'world';
+
+      if (this.cameraLayerAssignments.get(child) === layer) continue;
+
+      if (layer === 'ui') {
+        this.cameras.main.ignore(child);
+      } else {
+        uiCamera.ignore(child);
+      }
+      this.cameraLayerAssignments.set(child, layer);
+    }
+  }
+
+  private handleCameraWheel(
+    _pointer: Phaser.Input.Pointer,
+    _objects: unknown[],
+    _deltaX: number,
+    deltaY: number,
+  ): void {
+    if (deltaY === 0) {
+      return;
+    }
+
+    const currentIndex = CAMERA_ZOOM_LEVELS.reduce(
+      (closestIndex, zoom, index, levels) =>
+        Math.abs(levels[closestIndex] - this.targetCameraZoom) <= Math.abs(zoom - this.targetCameraZoom)
+          ? closestIndex
+          : index,
+      0,
+    );
+    const direction = deltaY < 0 ? 1 : -1;
+    const nextIndex = Math.max(
+      0,
+      Math.min(CAMERA_ZOOM_LEVELS.length - 1, currentIndex + direction),
+    );
+    const nextZoom = CAMERA_ZOOM_LEVELS[nextIndex];
+
+    if (nextZoom === this.targetCameraZoom) {
+      return;
+    }
+
+    this.targetCameraZoom = nextZoom;
+    this.cameras.main.zoomTo(
+      nextZoom,
+      CAMERA_ZOOM_DURATION_MS,
+      Phaser.Math.Easing.Sine.Out,
+      true,
+    );
   }
 
   private createControls(): void {
@@ -732,39 +810,6 @@ export class WorldScene extends Phaser.Scene {
       this.playActionAnimation('slime-eat');
     });
     this.controls = this.inputBindings.controls;
-  }
-
-  private createOverlay(): void {
-    const font = 'Trebuchet MS, Segoe UI Variable, sans-serif';
-    const cam = this.cameras.main;
-    const centerX = cam.width / 2;
-
-    // Objective banner only. Full controls live in the HTML controls panel
-    // (see config.ts) so they aren't duplicated on the canvas.
-    this.add
-      .text(centerX, 24, `Explore ${this.currentArea.name}`, {
-        fontFamily: font,
-        fontSize: '24px',
-        color: '#f2ffef',
-        stroke: '#081022',
-        strokeThickness: 5,
-      })
-      .setOrigin(0.5, 0)
-      .setScrollFactor(0)
-      .setDepth(resolveScreenUiDepth(0));
-
-    // Dev-only debug hint (kept small + dim; not gameplay controls).
-    this.add
-      .text(24, cam.height - 24, 'Debug: Shift+1 dmg  +2 xp  +3 heal  +4 coins  +5 potion  +6 burn  +7 slow  +8 dummy', {
-        fontFamily: font,
-        fontSize: '12px',
-        color: '#6a8a78',
-        stroke: '#081022',
-        strokeThickness: 3,
-      })
-      .setOrigin(0, 1)
-      .setScrollFactor(0)
-      .setDepth(resolveScreenUiDepth(1));
   }
 
   private getEntryAnchor(): Phaser.Math.Vector2 | undefined {
@@ -974,6 +1019,8 @@ export class WorldScene extends Phaser.Scene {
 
   private handleResize(gameSize: Phaser.Structs.Size): void {
     this.cameras.main.setViewport(0, 0, gameSize.width, gameSize.height);
+    this.uiCamera?.setViewport(0, 0, gameSize.width, gameSize.height);
+    this.hud?.resize(gameSize.width);
 
     if (this.shopUI) {
       this.shopUI.setPosition(160, gameSize.height - 210);
@@ -1036,6 +1083,7 @@ export class WorldScene extends Phaser.Scene {
     this.playerVisual?.setAlpha(1);
 
     this.cameras.main.pan(pos.x, pos.y, 350, 'Power2');
+    this.targetCameraZoom = DEFAULT_ZOOM;
     this.cameras.main.zoomTo(DEFAULT_ZOOM, 350);
     this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
 
@@ -1201,7 +1249,6 @@ export class WorldScene extends Phaser.Scene {
       enemySafeZones: this.builtMap?.enemySafeZones ?? [],
       areaId: this.currentArea.id,
       getFacing: () => this.playerController.facing,
-      getSafeZones: () => this.getEnemySafeZones(),
       findSpawnPoint: (anchor) => this.findSpawnPoint(anchor),
       playCharacterAction: (actionId) => this.playAnimation(`slime-${actionId}`),
       setActionLocked: (locked) => { this.actionLocked = locked; },
@@ -1232,17 +1279,6 @@ export class WorldScene extends Phaser.Scene {
       getResourceTargets: () => this.resourceTargets,
       resourceNodes: this.resourceNodes,
     });
-  }
-
-  private getEnemySafeZones(): Array<{ x: number; y: number; w: number; h: number }> {
-    if (!this.playerHouse) return [];
-    const size = PLAYER_HOUSE_SAFE_RADIUS * 2;
-    return [{
-      x: this.playerHouse.sprite.x - PLAYER_HOUSE_SAFE_RADIUS,
-      y: this.playerHouse.sprite.y - PLAYER_HOUSE_SAFE_RADIUS,
-      w: size,
-      h: size,
-    }];
   }
 
   private bindDebugCheats(): void {
