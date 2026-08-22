@@ -77,7 +77,7 @@ export class AbilityBar {
       this.slots.push({ id: def.id, key: def.key, bg, icon, label, cooldown, locked });
     });
 
-    scene.scale.on('resize', (size: Phaser.Structs.Size) => this.handleResize(size.width, size.height), this);
+    scene.scale.on('resize', this.handleResize, this);
   }
 
   update(): void {
@@ -119,12 +119,14 @@ export class AbilityBar {
     g.strokeRoundedRect(cx - cell / 2, cy - cell / 2, cell, cell, 8);
   }
 
-  private handleResize(w: number, _h: number): void {
+  private handleResize(size: Phaser.Structs.Size): void {
+    const w = size.width;
+    const h = size.height;
     const cell = 52;
     const gap = 10;
     const totalW = DEFS.length * cell + (DEFS.length - 1) * gap;
     const startX = w / 2 - totalW / 2;
-    const y = _h - 70;
+    const y = h - 70;
     this.slots.forEach((slot, i) => {
       const x = startX + i * (cell + gap);
       const cx = x + cell / 2;
@@ -139,6 +141,7 @@ export class AbilityBar {
   }
 
   destroy(): void {
+    this.ctx.scene.scale.off('resize', this.handleResize, this);
     for (const s of this.slots) {
       s.bg.destroy();
       s.icon.destroy();

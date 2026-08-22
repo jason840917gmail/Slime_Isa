@@ -4,19 +4,19 @@ This guide documents the camera system, zoom behavior, and the minimap implement
 
 ## Camera Zoom Constants
 
-All zoom values are defined as constants at the top of `src/game/scenes/WorldScene.ts`.
+Gameplay zoom values are defined as constants at the top of `src/game/scenes/WorldScene.ts`.
 
 ```typescript
-const DEFAULT_ZOOM = 1.7;
-const HOUSE_ZOOM   = 1;
+const DEFAULT_ZOOM = 0.75;
+const CAMERA_ZOOM_LEVELS = [0.5, 0.625, 0.75, 0.875, 1, 1.125, 1.25];
 ```
 
-| Constant | Value | Purpose |
-|----------|-------|---------|
-| `DEFAULT_ZOOM` | `1.7` | Normal gameplay zoom. Makes the slime and world feel appropriately sized. |
-| `HOUSE_ZOOM` | `1` | Zoom level when viewing a house interior. Shows more context around the building. |
+| Setting | Value | Purpose |
+|---------|-------|---------|
+| `DEFAULT_ZOOM` | `0.75` | Normal gameplay zoom; shows more world while keeping sprites readable. |
+| `CAMERA_ZOOM_LEVELS` | `0.5`–`1.25` | Stepped zoom targets selected with the mouse wheel. |
 
-**Rule:** Never hardcode zoom numbers anywhere else. If you change `DEFAULT_ZOOM`, every transition (entering and leaving houses) stays consistent automatically.
+Mouse-wheel zoom is smooth between the discrete targets. Stepping instead of using arbitrary fractional values helps pixel-art assets stay visually stable. The minimum and maximum levels prevent the camera from becoming either too distant or too tight.
 
 ## Camera Lifecycle
 
@@ -29,16 +29,16 @@ const HOUSE_ZOOM   = 1;
 
 ### House Transitions
 
-**Entering a house (`F` key near a house door):**
+The legacy house flow, when enabled, uses the normal gameplay zoom rather than a separate house-specific zoom:
 
 ```
 stopFollow()      → stop tracking the player
 pan(house.x, y)   → glide camera to house center
-zoomTo(HOUSE_ZOOM, 350) → zoom out to 1 over 350 ms
+zoomTo(DEFAULT_ZOOM, 350) → use the normal gameplay zoom
 showHouseUI()     → display Sleep / Leave menu
 ```
 
-**Leaving a house (`Leave` button or `F` key):**
+Leaving a house (`Leave` button or `F` key) returns to the player and the normal zoom:
 
 ```
 pan(player.x, y)          → glide back to player
@@ -46,27 +46,29 @@ zoomTo(DEFAULT_ZOOM, 350) → zoom back in over 350 ms
 startFollow(player)       → resume smooth tracking
 ```
 
-**Past bug:** `closeHouse()` used to call `zoomTo(1, 350)` instead of `zoomTo(DEFAULT_ZOOM, 350)`. This meant after leaving a house, the camera stayed zoomed out to `1` instead of returning to `1.7`, breaking the intended gameplay feel and causing UI positioning bugs.
-
 ## Why Zoom Breaks Screen-Space UI
 
-Phaser 3's `setScrollFactor(0)` only ignores **camera scroll** (panning). It does **not** ignore **camera zoom**. When the main camera is zoomed to `1.7`:
+Phaser 3's `setScrollFactor(0)` only ignores **camera scroll** (panning). It does **not** ignore **camera zoom**. At the default gameplay zoom of `0.75`:
 
-- A Graphics object with `setScrollFactor(0)` still gets scaled 1.7×.
-- A 160 px box becomes 272 px on screen.
+- A Graphics object with `setScrollFactor(0)` still gets scaled by the camera.
+- A 160 px box becomes 120 px on screen.
 - A coordinate at `y = camera.height - 160` is pushed off the bottom of the viewport.
 
-This is why the minimap disappeared on initial load (zoom = 1.7) but appeared after entering a house (zoom = 1).
+The same principle applies to every gameplay zoom level: UI that must remain a fixed screen size needs either camera-aware positioning or a dedicated UI camera.
+
+The runtime now uses a dedicated `screen-ui` camera at `1×` zoom. World objects render only through the follow camera, while screen UI objects render only through `screen-ui`. This keeps the HUD, minimap, controls, and action bars anchored to the viewport while the world camera zooms.
 
 ## Minimap Architecture
 
-The minimap uses a **world-coordinate Graphics object** (scrollFactor = 1 by default). Every frame it recalculates its position so it stays visually anchored to the viewport corner.
+The minimap uses a **screen-coordinate Graphics object** rendered by the `screen-ui` camera. Every frame it recalculates its size and position so it stays visually anchored to the viewport corner and scales down on compact screens.
 
 ```typescript
-const viewW = camera.width / zoom;
-const viewH = camera.height / zoom;
-const baseX = camera.scrollX + MINIMAP_MARGIN / zoom;
-const baseY = camera.scrollY + viewH - MINIMAP_MARGIN / zoom - size;
+const size = clamp(Math.min(camera.width, camera.height) * 0.24, 128, 180);
+const margin = clamp(Math.min(camera.width, camera.height) * 0.025, 12, 16);
+const viewW = camera.width / camera.zoom;
+const viewH = camera.height / camera.zoom;
+const baseX = margin;
+const baseY = camera.height - margin - size;
 ```
 
 All drawn shapes are also scaled by `1 / zoom` so their on-screen pixel size stays constant regardless of zoom level:
@@ -88,13 +90,14 @@ All drawn shapes are also scaled by `1 / zoom` so their on-screen pixel size sta
 ## Key Learnings
 
 1. **Never rely on `setScrollFactor(0)` for zoomed cameras.** It does not create true screen-space UI. Use world-coordinate positioning recalculated every frame, or use a dedicated UI camera.
-2. **Hardcoded zoom values are a trap.** When `zoomTo(1)` was written for house transitions, nobody noticed it clashed with the `setZoom(1.7)` initialization. Always use named constants.
-3. **Zoom affects viewport dimensions in world space.** `camera.width / zoom` gives you the actual width of the world visible on screen. This is essential for placing UI relative to screen edges.
-4. **EXPAND vs FIT scale mode.** `EXPAND` fills the entire browser window with the canvas. `FIT` preserves aspect ratio and adds letterbox bars. We use `EXPAND` for a true fullscreen experience.
+2. **Camera zoom is not screen resizing.** `Phaser.Scale.EXPAND` and the CSS canvas sizing control the physical game viewport. Camera zoom controls how much of the world is visible inside that viewport.
+3. **Stepped zoom is friendlier to pixel art.** The game uses `0.5` through `1.25` targets and smooth transitions, giving players a wider view without making the default composition as small as the old `0.5` experiment.
+4. **Zoom affects viewport dimensions in world space.** `camera.width / zoom` gives you the actual width of the world visible on screen. This is essential for placing UI relative to screen edges.
+5. **EXPAND vs FIT scale mode.** `EXPAND` fills the entire browser window with the canvas. `FIT` preserves aspect ratio and adds letterbox bars. We use `EXPAND` for a true fullscreen experience.
 
 ## Safe Patterns
 
 - Define zoom constants at the module level.
 - Pass zoom values only through those constants.
-- When drawing screen-space UI inside a zoomed scene, divide all coordinates and stroke widths by `camera.zoom`.
-- For complex UI, consider a second Phaser Camera with its own `setZoom(1)` and `setScrollFactor(0)` objects layered on top.
+- Render screen-space UI through the dedicated `screen-ui` camera at `1×` zoom.
+- If a UI element must remain on the world camera, divide its coordinates and stroke widths by `camera.zoom` explicitly.

@@ -29,11 +29,14 @@ export class Minimap {
 
     const viewW = camera.width / camera.zoom;
     const viewH = camera.height / camera.zoom;
-    const baseX = MINIMAP_MARGIN;
-    const baseY = camera.height - MINIMAP_MARGIN - this.size;
+    const viewportShortSide = Math.min(camera.width, camera.height);
+    this.size = Phaser.Math.Clamp(viewportShortSide * 0.24, 128, MINIMAP_SIZE);
+    const margin = Phaser.Math.Clamp(viewportShortSide * 0.025, 12, MINIMAP_MARGIN);
+    const baseX = margin;
+    const baseY = camera.height - margin - this.size;
 
     // Background with bright border
-    const pad = 6;
+    const pad = Phaser.Math.Clamp(this.size * 0.033, 4, 6);
     g.fillStyle(0x0b1020, 0.95);
     g.fillRoundedRect(
       baseX - pad,

@@ -48,17 +48,6 @@ export class WeaponHotbar {
     const root = scene.add.container(0, 0).setScrollFactor(0).setDepth(resolveScreenUiDepth(54));
     this.root = root;
 
-    const equippedItem = weaponItemFor(playerWeaponLoadout.equippedWeaponId());
-    root.add(scene.add.text(cam.width / 2, centerY - 42, `FIELD TOOLS  ·  ${equippedItem?.name ?? 'NO WEAPON'}`, {
-      fontFamily: FONT,
-      fontSize: '10px',
-      fontStyle: 'bold',
-      color: '#c8ead9',
-      stroke: '#081022',
-      strokeThickness: 4,
-      letterSpacing: 1.5,
-    }).setOrigin(0.5));
-
     for (let index = 0; index < WEAPON_HOTBAR_SLOT_COUNT; index += 1) {
       const weaponId = playerWeaponLoadout.slots()[index];
       const owned = !!weaponId && playerWeaponLoadout.ownsWeapon(weaponId);
@@ -111,14 +100,6 @@ export class WeaponHotbar {
           color: weaponId ? '#ff8f7a' : '#52657a',
         }).setOrigin(0.5));
       }
-
-      const shortName = item?.name.split(/\s+/)[0]?.toUpperCase() ?? (weaponId ? 'LOCKED' : 'EMPTY');
-      slot.add(scene.add.text(0, CELL / 2 - 7, shortName.slice(0, 9), {
-        fontFamily: FONT,
-        fontSize: '8px',
-        fontStyle: 'bold',
-        color: active ? '#ffdf8a' : owned ? '#a9d8cf' : '#59697a',
-      }).setOrigin(0.5, 1));
 
       const hitArea = scene.add.rectangle(0, 0, CELL, CELL, 0xffffff, 0.001).setInteractive({ useHandCursor: owned });
       hitArea.on('pointerdown', (

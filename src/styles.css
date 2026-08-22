@@ -2507,6 +2507,8 @@ body {
   top: 12px;
   right: 12px;
   min-width: 170px;
+  max-height: calc(100% - 24px);
+  overflow: auto;
   border-radius: 8px;
   border: 1px solid rgba(61, 140, 91, 0.5);
   background: rgba(10, 26, 26, 0.88);
@@ -2547,6 +2549,26 @@ body {
   color: #ffd86b;
   font-size: 10px;
   font-weight: 600;
+}
+
+@media (max-width: 720px) {
+  .keymap-panel {
+    top: 8px;
+    right: 8px;
+    min-width: 0;
+    max-width: min(220px, calc(100% - 16px));
+    max-height: calc(100% - 16px);
+    font-size: 10px;
+  }
+
+  .keymap-panel summary {
+    padding: 5px 8px;
+    font-size: 11px;
+  }
+
+  .keymap-panel td {
+    padding: 4px 7px;
+  }
 }
 
 /* â”€â”€ modernized pixel-stylized top-down system â”€â”€ */
