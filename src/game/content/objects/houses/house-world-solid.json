@@ -11,7 +11,7 @@
           "frame": 0,
           "occlusionBounds": {
             "width": 300,
-            "height": 300,
+            "height": 160,
             "offsetX": 10,
             "offsetY": 10
           },
@@ -25,14 +25,21 @@
           "visualOffset": {
             "x": 0,
             "y": 0
+          },
+          "scale": 1,
+          "depthBounds": {
+            "width": 320,
+            "height": 160,
+            "offsetX": 0,
+            "offsetY": 0
           }
         },
         {
           "visualId": "forge-red",
           "frame": 1,
           "occlusionBounds": {
-            "width": 300,
-            "height": 300,
+            "width": 270,
+            "height": 200,
             "offsetX": 10,
             "offsetY": 10
           },
@@ -46,6 +53,13 @@
           "visualOffset": {
             "x": 0,
             "y": 0
+          },
+          "scale": 1,
+          "depthBounds": {
+            "width": 320,
+            "height": 140,
+            "offsetX": 0,
+            "offsetY": 0
           }
         },
         {

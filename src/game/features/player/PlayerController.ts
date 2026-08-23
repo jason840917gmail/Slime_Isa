@@ -7,6 +7,7 @@ import type { StatusEffectManager } from '../../systems/StatusEffects';
 import { getStats, resolveMovementSpeed } from '../../systems/PlayerStats';
 import type { PlayerEntity } from './PlayerFactory';
 import { resolveBodyBottom, resolveWorldDepth } from '../../presentation/WorldDepth';
+import { resolvePhysicsPresentationPosition } from '../../presentation/PhysicsPresentation';
 
 export interface PlayerControllerContext {
   scene: Phaser.Scene;
@@ -18,6 +19,7 @@ export interface PlayerControllerContext {
 
 export class PlayerController {
   readonly facing = new Phaser.Math.Vector2(0, 1);
+  private readonly presentationPosition = new Phaser.Math.Vector2();
   private dodgeInvulnerableUntil = 0;
   private movementSuppressedUntil = 0;
 
@@ -37,9 +39,14 @@ export class PlayerController {
     const { sprite, visual, nameTag } = this.ctx.entity;
     visual.update();
     const body = sprite.body as Phaser.Physics.Arcade.Body;
+    const presentationPosition = resolvePhysicsPresentationPosition(
+      this.ctx.scene,
+      sprite,
+      this.presentationPosition,
+    );
     sprite.setDepth(resolveWorldDepth(resolveBodyBottom(body), { stableId: 'player' }).depth);
     nameTag
-      .setPosition(sprite.x, sprite.y - 56)
+      .setPosition(presentationPosition.x, presentationPosition.y - 56)
       .setDepth(resolveWorldDepth(resolveBodyBottom(body), {
         stableId: 'player',
         attachmentSlot: 7,

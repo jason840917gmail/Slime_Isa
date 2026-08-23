@@ -4,7 +4,10 @@ export type WorldEffectPositionTarget = Pick<Phaser.GameObjects.GameObject, 'onc
   readonly x: number;
   readonly y: number;
   readonly depth: number;
+  readonly body?: unknown;
 };
+
+type PositionResolver = (target: WorldEffectPositionTarget) => { readonly x: number; readonly y: number };
 
 interface PositionSink {
   setPosition(x: number, y: number): void;
@@ -26,6 +29,7 @@ export class WorldEffectPositionAttachment {
     initialY: number,
     initialDepth: number,
     private readonly depthOffset: number,
+    private readonly resolvePosition?: PositionResolver,
   ) {
     this.target = target;
     this.x = initialX;
@@ -50,8 +54,9 @@ export class WorldEffectPositionAttachment {
   private sync(): void {
     const target = this.target;
     if (!target) return;
-    if (Number.isFinite(target.x)) this.x = target.x;
-    if (Number.isFinite(target.y)) this.y = target.y;
+    const position = this.resolvePosition?.(target) ?? target;
+    if (Number.isFinite(position.x)) this.x = position.x;
+    if (Number.isFinite(position.y)) this.y = position.y;
     if (Number.isFinite(target.depth) && Number.isFinite(this.depthOffset)) {
       const nextDepth = target.depth + this.depthOffset;
       if (Number.isFinite(nextDepth)) this.depth = nextDepth;

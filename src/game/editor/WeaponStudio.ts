@@ -1827,6 +1827,7 @@ export function mountWeaponStudio(container: HTMLDivElement): () => void {
       initialWeaponId: weaponId,
       expandedFolders,
       onExpandedFoldersChange: rememberFolders,
+      onSelectWeapon: (selectedWeaponId) => updateUrl({ weaponId: selectedWeaponId }),
       onSelectAnimation: showAnimation,
     });
   };

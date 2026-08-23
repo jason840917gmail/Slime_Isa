@@ -162,6 +162,8 @@ function invalidateAnimationCatalog(server: ViteDevServer): void {
   if (module) server.moduleGraph.invalidateModule(module);
 }
 
+type BeforeAnimationWrite = (paths: readonly string[]) => void;
+
 function safePackagePath(root: string, packagePath: string): string {
   const normalized = packagePath.replaceAll('\\', '/');
   if (!normalized.endsWith('/animation.json') || normalized.startsWith('/') || normalized.split('/').some((segment) => segment === '..' || segment === '.' || !/^[a-z0-9][a-z0-9-]*$/.test(segment) && segment !== 'animation.json')) {
@@ -297,6 +299,7 @@ async function findObjectDefinitionFiles(root: string): Promise<string[]> {
 export async function applyAnimationLibraryTransaction(
   root: string,
   transaction: AnimationLibraryTransaction,
+  beforeWrite?: BeforeAnimationWrite,
 ): Promise<AnimationLibraryTransactionResult> {
   const catalog = await readCatalog(root);
   if (transaction.expectedCatalogRevision && transaction.expectedCatalogRevision !== catalog.revision) {
@@ -378,6 +381,10 @@ export async function applyAnimationLibraryTransaction(
   }
 
   const createFolders = [...new Set(transaction.createFolders ?? [])].map((folder) => safeFolderPath(root, folder));
+  beforeWrite?.([
+    ...normalizedWrites.map((write) => write.absolutePath),
+    ...[...deletePaths].map((relativePath) => safePackagePath(root, relativePath)),
+  ]);
   const touchedPaths = [...new Set([...deletePaths, ...writePaths])];
   const stageRoot = await fs.mkdtemp(path.join(root, '.animation-library-transaction-'));
   const backups = new Map<string, string>();
@@ -422,7 +429,7 @@ export async function applyAnimationLibraryTransaction(
   }
 }
 
-async function saveAnimationPackage(root: string, request: IncomingMessage, response: ServerResponse): Promise<void> {
+async function saveAnimationPackage(root: string, request: IncomingMessage, response: ServerResponse, beforeWrite?: BeforeAnimationWrite): Promise<void> {
   if (request.method !== 'POST') {
     jsonResponse(response, 405, { ok: false, error: { code: 'invalid-request', message: 'POST required' } });
     return;
@@ -444,7 +451,7 @@ async function saveAnimationPackage(root: string, request: IncomingMessage, resp
       ...(typeof payload.expectedRevision === 'string' ? { expectedRevision: payload.expectedRevision } : {}),
       package: packageValue as AnimationPackageDocument,
     }],
-  });
+  }, beforeWrite);
   jsonResponse(response, 200, {
     ok: true,
     data: {
@@ -457,6 +464,10 @@ async function saveAnimationPackage(root: string, request: IncomingMessage, resp
 
 export function animationContentModulesPlugin(options: AnimationContentRootOptions = {}): Plugin {
   const root = path.resolve(options.animationRoot ?? path.join(process.cwd(), 'src/game/content/animations'));
+  const suppressHotUpdates = new Set<string>();
+  const suppressEditorWriteUpdates: BeforeAnimationWrite = (paths) => {
+    for (const file of paths) suppressHotUpdates.add(path.resolve(file));
+  };
   return {
     name: 'slime-animation-content-modules',
     resolveId(id) {
@@ -470,7 +481,14 @@ export function animationContentModulesPlugin(options: AnimationContentRootOptio
       return `${imports}\nexport const animationPackages = [${values}];`;
     },
     handleHotUpdate(context) {
-      if (pathIsInside(root, path.resolve(context.file))) {
+      const changed = path.resolve(context.file);
+      const relativeChanged = path.relative(root, changed);
+      if (relativeChanged.split(path.sep)[0]?.startsWith('.animation-library-transaction-')) return [];
+      if (suppressHotUpdates.delete(changed)) {
+        invalidateAnimationCatalog(context.server);
+        return [];
+      }
+      if (pathIsInside(root, changed)) {
         invalidateAnimationCatalog(context.server);
         context.server.ws.send({ type: 'full-reload' });
         return [];
@@ -479,7 +497,7 @@ export function animationContentModulesPlugin(options: AnimationContentRootOptio
     },
     configureServer(server) {
       server.middlewares.use('/__animation-library/save', (request, response) => {
-        void saveAnimationPackage(root, request, response)
+        void saveAnimationPackage(root, request, response, suppressEditorWriteUpdates)
           .then(() => invalidateAnimationCatalog(server))
           .catch((error: unknown) => jsonResponse(response, 400, {
             ok: false,
@@ -493,7 +511,7 @@ export function animationContentModulesPlugin(options: AnimationContentRootOptio
         }
         void readRequestBody(request)
           .then((body) => JSON.parse(body) as AnimationLibraryTransaction)
-          .then((transaction) => applyAnimationLibraryTransaction(root, transaction))
+          .then((transaction) => applyAnimationLibraryTransaction(root, transaction, suppressEditorWriteUpdates))
           .then((result) => {
             invalidateAnimationCatalog(server);
             jsonResponse(response, 200, { ok: true, data: { catalog: result.catalog } });

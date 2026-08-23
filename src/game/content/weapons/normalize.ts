@@ -6,6 +6,7 @@ import {
 } from '../../shared/animation';
 import { resolveAnimationDefinition } from '../animations/AnimationCatalog';
 import { migrateLegacyWeaponDefinition, normalizeWeaponHitboxes } from './migrateLegacyWeapon';
+import { resolveWeaponPresentationOffsetY } from './presentation';
 import type {
   AuthoredWeaponDefinition,
   LayeredWeaponDefinition,
@@ -81,6 +82,7 @@ function normalizeLayeredWeaponDefinition(
       animation: normalizeLayeredAnimation({ ...authored.animation, loop: false }),
       characterActionId: authored.characterActionId,
       hitboxes: normalizeWeaponHitboxes(authored.hitboxes),
+      presentationOffsetY: resolveWeaponPresentationOffsetY(resolved.mirrorY),
       ...(authored.attackTrack ? { attackTrack: authored.attackTrack } : {}),
       authored: resolved.authored,
       presentation,

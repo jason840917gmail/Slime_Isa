@@ -13,11 +13,11 @@
       "characterActionId": "attack-1",
       "hitboxes": {
         "pickaxe-head": {
-          "shape": "sector",
-          "width": 58,
-          "height": 46,
+          "shape": "rectangle",
+          "width": 40,
+          "height": 40,
           "offsetX": 42,
-          "offsetY": 0,
+          "offsetY": 15,
           "outerRadius": 64,
           "arcWidthRad": 1.2,
           "damageMultiplier": 1,
@@ -28,8 +28,8 @@
         "hitboxSpans": [
           {
             "hitboxId": "pickaxe-head",
-            "from": 2,
-            "through": 3
+            "from": 4,
+            "through": 5
           }
         ],
         "events": []
@@ -40,9 +40,9 @@
       "characterActionId": "attack-1",
       "hitboxes": {
         "pickaxe-head": {
-          "shape": "sector",
-          "width": 58,
-          "height": 46,
+          "shape": "rectangle",
+          "width": 40,
+          "height": 40,
           "offsetX": 42,
           "offsetY": 0,
           "outerRadius": 64,
@@ -55,40 +55,13 @@
         "hitboxSpans": [
           {
             "hitboxId": "pickaxe-head",
-            "from": 2,
-            "through": 3
+            "from": 4,
+            "through": 5
           }
         ],
         "events": []
       },
       "animationId": "weapon.pickaxe.attack.down"
-    },
-    "up": {
-      "characterActionId": "attack-1",
-      "hitboxes": {
-        "pickaxe-head": {
-          "shape": "sector",
-          "width": 58,
-          "height": 46,
-          "offsetX": 42,
-          "offsetY": 0,
-          "outerRadius": 64,
-          "arcWidthRad": 1.2,
-          "damageMultiplier": 1,
-          "knockbackMultiplier": 0.2
-        }
-      },
-      "attackTrack": {
-        "hitboxSpans": [
-          {
-            "hitboxId": "pickaxe-head",
-            "from": 2,
-            "through": 3
-          }
-        ],
-        "events": []
-      },
-      "animationId": "weapon.pickaxe.attack.up"
     }
   },
   "presentation": {

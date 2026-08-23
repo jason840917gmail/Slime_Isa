@@ -167,6 +167,12 @@ export class CombatController {
     projectilePool.update(this.ctx.scene);
   }
 
+  updatePresentation(): void {
+    this.weaponVisual.updatePresentation();
+    this.effects.updatePresentation();
+    projectilePool.updatePresentation(this.ctx.scene);
+  }
+
   tryAttack(): boolean {
     if (this.attacking || !this.ctx.canAttack()) return false;
     return this.weapon.attack(this.ctx.scene.time.now);

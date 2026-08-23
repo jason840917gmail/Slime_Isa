@@ -8,6 +8,7 @@ import { validateEffectDefinition } from '../content/effects/validation';
 import { getAnimationPackage } from '../content/animations/AnimationCatalog';
 import type { AnimationPackageCatalog, AnimationPackageCatalogEntry } from '../content/animations/types';
 import { migrateLegacyAnimation, migrateLegacyWeaponDefinition } from '../content/weapons/migrateLegacyWeapon';
+import { resolveWeaponPresentationOffsetY } from '../content/weapons/presentation';
 import type {
   AuthoredWeaponDefinition,
   LayeredWeaponDefinition,
@@ -431,6 +432,7 @@ function prepareWeapon(entry: CatalogWeapon, effects: readonly CatalogEffect[]):
 
 export interface LayeredWeaponStudioOptions {
   readonly initialWeaponId?: string;
+  readonly onSelectWeapon?: (weaponId: string) => void;
   readonly onSelectAnimation?: (animationId: string) => void;
   readonly expandedFolders?: ReadonlySet<string>;
   readonly onExpandedFoldersChange?: (expandedFolders: ReadonlySet<string>) => void;
@@ -605,6 +607,7 @@ function layerPreviewSprite(
   block: AnimationVisualLayerDocument['blocks'][number],
   layerIndex: number,
   mirror: { readonly mirrorX: boolean; readonly mirrorY: boolean },
+  presentationOffsetY: number,
 ): string {
   const asset = state.assets?.assets.find((entry) => entry.assetId === layer.assetId);
   const info = assetInfo(asset);
@@ -620,7 +623,10 @@ function layerPreviewSprite(
     (transform.offset?.[0] ?? 0) + (blockTransform.offset?.[0] ?? 0),
     (transform.offset?.[1] ?? 0) + (blockTransform.offset?.[1] ?? 0),
   ] as const;
-  const offset = [mirror.mirrorX ? -authoredOffset[0] : authoredOffset[0], mirror.mirrorY ? -authoredOffset[1] : authoredOffset[1]] as const;
+  const offset = [
+    mirror.mirrorX ? -authoredOffset[0] : authoredOffset[0],
+    (mirror.mirrorY ? -authoredOffset[1] : authoredOffset[1]) + presentationOffsetY,
+  ] as const;
   const column = block.sourceFrame % info.columns;
   const row = Math.floor(block.sourceFrame / info.columns);
   const flipX = Boolean(mirror.mirrorX) !== Boolean(blockTransform.flipX) !== Boolean(transform.flipX);
@@ -629,7 +635,7 @@ function layerPreviewSprite(
   return `<span class="stage-sprite stage-weapon-sprite${layer.layerId === state.selectedLayerId ? ' is-selected-layer' : ''}" data-preview-layer="${escapeHtml(layer.layerId)}" style="z-index:${3 + layerIndex};--sheet-url:url('${escapeHtml(info.url)}');--frame-w:${info.width}px;--frame-h:${info.height}px;--sheet-w:${info.width * info.columns}px;--sheet-h:${info.height * info.rows}px;--frame-x:${column * info.width}px;--frame-y:${row * info.height}px;--preview-scale-x:${scale[0]};--preview-scale-y:${scale[1]};--origin-offset-x:${-origin[0] * info.width * scale[0]}px;--origin-offset-y:${-origin[1] * info.height * scale[1]}px;--offset-x:${offset[0] * 2.8}px;--offset-y:${offset[1] * 2.8}px;--weapon-rotation:${rotation}deg;--weapon-flip-x:${flipX ? -1 : 1};--weapon-flip-y:${flipY ? -1 : 1}"></span>`;
 }
 
-function renderPreviewHitboxes(state: StudioState): string {
+function renderPreviewHitboxes(state: StudioState, presentationOffsetY: number): string {
   if (state.scope !== 'attack') return '';
   const attack = selectedAttack(state);
   if (!attack) return '';
@@ -639,7 +645,14 @@ function renderPreviewHitboxes(state: StudioState): string {
     direction: state.direction,
     timelineFrame: state.playhead,
     selectedHitboxId: state.selectedHitboxId,
+    presentationOffsetY,
   })}</span>`;
+}
+
+function weaponPresentationOffsetY(state: StudioState): number {
+  if (state.scope !== 'attack' || !state.draft) return 0;
+  const resolved = resolveWeaponAttack(state.draft, state.direction);
+  return resolveWeaponPresentationOffsetY(resolved?.mirrorY ?? false);
 }
 
 function renderPreview(state: StudioState, animation: LayeredAnimationDocument): string {
@@ -647,12 +660,13 @@ function renderPreview(state: StudioState, animation: LayeredAnimationDocument):
   const activeLayers = resolvedLayerAt(animation, state.playhead);
   const effectOnly = state.scope === 'effect';
   const mirror = previewMirrorAxes(state);
+  const presentationOffsetY = weaponPresentationOffsetY(state);
   return renderLayeredAnimationPreviewPanel({
     kicker: 'COMBINED PREVIEW',
     summaryHtml: `${state.scope.toUpperCase()}${state.scope === 'idle' ? '' : ` / ${(state.scope === 'effect' ? state.effectDirection : state.direction).toUpperCase()}`} · ${Number(state.playhead / animation.framesPerSecond).toFixed(2)}s / ${duration.toFixed(2)}s · ${activeLayers.length} active layer${activeLayers.length === 1 ? '' : 's'}`,
     previewZoom: state.previewZoom,
     playing: state.playing,
-    sceneHtml: `<span class="stage-axis stage-axis-x"></span><span class="stage-axis stage-axis-y"></span><span class="stage-anchor">+</span><span class="stage-label">${effectOnly ? 'ENEMY CONTACT' : 'PLAYER ANCHOR'}</span>${effectOnly ? '' : characterSprite(state)}${activeLayers.map(({ layer, layerIndex, block }) => layerPreviewSprite(state, layer, block, layerIndex, mirror)).join('')}${renderPreviewHitboxes(state)}<span class="stage-caption"><b>${escapeHtml(state.scope === 'effect' ? state.effectDraft?.displayName : state.draft?.displayName)}</b><span>${activeLayers.map(({ layer, block }) => `${escapeHtml(layer.displayName)} · TILE ${block.sourceFrame}`).join('  /  ') || 'NO VISUAL AT PLAYHEAD'}</span></span>`,
+    sceneHtml: `<span class="stage-axis stage-axis-x"></span><span class="stage-axis stage-axis-y"></span><span class="stage-anchor">+</span><span class="stage-label">${effectOnly ? 'ENEMY CONTACT' : 'PLAYER ANCHOR'}</span>${effectOnly ? '' : characterSprite(state)}${activeLayers.map(({ layer, layerIndex, block }) => layerPreviewSprite(state, layer, block, layerIndex, mirror, presentationOffsetY)).join('')}${renderPreviewHitboxes(state, presentationOffsetY)}<span class="stage-caption"><b>${escapeHtml(state.scope === 'effect' ? state.effectDraft?.displayName : state.draft?.displayName)}</b><span>${activeLayers.map(({ layer, block }) => `${escapeHtml(layer.displayName)} · TILE ${block.sourceFrame}`).join('  / ') || 'NO VISUAL AT PLAYHEAD'}</span></span>`,
     footerHtml: '<span><i class="legend-dot legend-dot--cyan"></i> shared clock</span><span><i class="legend-dot legend-dot--amber"></i> selected visual layer</span><span><i class="legend-dot legend-dot--red"></i> hitbox active window</span><span>Wheel over preview to zoom · Effects spawn only after confirmed damage.</span>',
   });
 }
@@ -1179,6 +1193,7 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement, options: Lay
       direction: state.direction,
       timelineFrame: state.playhead,
       selectedHitboxId: state.selectedHitboxId,
+      presentationOffsetY: weaponPresentationOffsetY(state),
     });
     container.querySelector<HTMLElement>('.layered-weapon-studio')?.classList.add('is-dirty');
     const saveButton = container.querySelector<HTMLButtonElement>('[data-action="save"]');
@@ -1195,7 +1210,7 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement, options: Lay
     if (!target) return;
     if (target === target.closest('[data-picker-backdrop]')) { mutate({ ...state, pickerOpen: false, pickerFrames: [] }); return; }
     const weaponButton = target.closest<HTMLElement>('[data-weapon-id]');
-    if (weaponButton) { const entry = state.weapons.find((weapon) => weapon.weaponId === weaponButton.dataset.weaponId); if (entry) selectCatalogWeapon(entry); return; }
+    if (weaponButton) { const entry = state.weapons.find((weapon) => weapon.weaponId === weaponButton.dataset.weaponId); if (entry) { options.onSelectWeapon?.(entry.weaponId); selectCatalogWeapon(entry); } return; }
     const animationButton = target.closest<HTMLElement>('[data-animation-id]');
     if (animationButton?.dataset.animationId) {
       if ((state.dirty || state.effectDirty) && !window.confirm('Discard unsaved weapon changes?')) return;
@@ -1330,7 +1345,9 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement, options: Lay
     }
     if (action === 'new-weapon') {
       const assetId = spritesheetAssets(state.assets).find((asset) => asset.tags.includes('weapon'))?.assetId ?? spritesheetAssets(state.assets)[0]?.assetId ?? '';
-      const draft = createWeaponDraft(assetId); mutate(selectionForAnimation({ ...state, selectedId: '', draft, revision: undefined, effectDraft: undefined, effectRevision: undefined, effectIsNew: false, effectDirty: false, dirty: true, scope: 'attack', direction: 'right', playhead: 0, notice: undefined }, draft.directionalAttacks.right.animation)); return;
+      const draft = createWeaponDraft(assetId);
+      options.onSelectWeapon?.(draft.weaponId);
+      mutate(selectionForAnimation({ ...state, selectedId: '', draft, revision: undefined, effectDraft: undefined, effectRevision: undefined, effectIsNew: false, effectDirty: false, dirty: true, scope: 'attack', direction: 'right', playhead: 0, notice: undefined }, draft.directionalAttacks.right.animation)); return;
     }
     if (action === 'play-preview') {
       if (state.playing) { stopPlayback(); render(); return; }
@@ -1354,6 +1371,7 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement, options: Lay
       }, 1000 / animation.framesPerSecond); return;
     }
     if (action === 'save') {
+      if (state.draft) options.onSelectWeapon?.(state.draft.weaponId);
       state = { ...state, saving: true, notice: undefined }; render();
       void savePackage(state).then((saved) => { state = { ...state, ...saved, saving: false }; render(); }).catch((error: unknown) => { state = { ...state, saving: false, notice: error instanceof Error ? error.message : String(error) }; render(); });
     }

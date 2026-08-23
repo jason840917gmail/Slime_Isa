@@ -3,6 +3,7 @@ import { getStats } from '../systems/PlayerStats';
 import { hitboxPool, type HitboxActivationHandle, type HitboxConfig, type HitboxTargets } from './Hitbox';
 import { resolveScaledValue } from './CombatScaling';
 import { LEGACY_WEAPON_SECTOR_ARC_RAD } from '../content/weapons/types';
+import { resolveWeaponPresentationOffsetY } from '../content/weapons/presentation';
 import { AnimationClock, layeredTimelineFrameCount } from '../shared/animation';
 import type { DamageApplicationResult } from './DamageableTarget';
 import type {
@@ -34,6 +35,7 @@ interface AttackSnapshot {
   readonly direction: Phaser.Math.Vector2;
   readonly attackDirection: WeaponAttackDirection;
   readonly hitboxes: Readonly<Record<string, WeaponHitboxDocument>>;
+  readonly presentationOffsetY: number;
   readonly angle: number;
   readonly finalDamage: number;
   readonly isCrit: boolean;
@@ -152,6 +154,8 @@ export class Weapon {
       direction: attackVector,
       attackDirection,
       hitboxes: directionalAttack.hitboxes,
+      presentationOffsetY: directionalAttack.presentationOffsetY
+        ?? resolveWeaponPresentationOffsetY(directionalAttack.mirrorY),
       angle: Math.atan2(attackVector.y, attackVector.x),
       finalDamage,
       isCrit,
@@ -262,7 +266,7 @@ export class Weapon {
       hitbox.offsetY,
     );
     const x = player.x + resolvedOffsetX;
-    const y = player.y + resolvedOffsetY;
+    const y = player.y + resolvedOffsetY + snapshot.presentationOffsetY;
     const damage = snapshot.finalDamage * (hitbox.damageMultiplier ?? 1);
     const knockStrength = snapshot.knockStrength * (hitbox.knockbackMultiplier ?? 1);
 

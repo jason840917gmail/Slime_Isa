@@ -3,6 +3,10 @@ import Phaser from 'phaser';
 import { getEffectDefinition } from '../../content/effects/EffectCatalog';
 import type { EffectDirection } from '../../content/effects/types';
 import { AnimationClock } from '../../shared/animation';
+import {
+  resolvePhysicsPresentationPosition,
+  type PhysicsPresentationTarget,
+} from '../../presentation/PhysicsPresentation';
 import { LayeredAnimationVisual } from '../visuals/LayeredAnimationVisual';
 import { WorldEffectAdapter } from './WorldEffectAdapter';
 import {
@@ -32,6 +36,7 @@ export interface WorldEffectSpawnRequest {
 /** Scene-owned pool; confirmed effects are independent of weapon lifecycle. */
 export class WorldEffectPool {
   private readonly slots: EffectSlot[] = [];
+  private readonly presentationPosition = new Phaser.Math.Vector2();
   private readonly diagnostics = new Set<string>();
   private destroyed = false;
 
@@ -72,6 +77,11 @@ export class WorldEffectPool {
         request.y,
         request.depth,
         request.followDepthOffset ?? 0,
+        (target) => resolvePhysicsPresentationPosition(
+          this.scene,
+          target as unknown as PhysicsPresentationTarget,
+          this.presentationPosition,
+        ),
       );
     }
     slot.visual.setAnimation(variant.animation);
@@ -87,6 +97,13 @@ export class WorldEffectPool {
     for (const slot of this.slots) if (slot.active) {
       slot.attachment?.update();
       slot.clock.update(deltaMs);
+      slot.visual.updateAnchor();
+    }
+  }
+
+  updatePresentation(): void {
+    for (const slot of this.slots) if (slot.active) {
+      slot.attachment?.update();
       slot.visual.updateAnchor();
     }
   }

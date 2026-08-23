@@ -218,6 +218,8 @@
 }
 
 #app.is-character-studio-host .studio-inspector {
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
   border-left: 1px solid var(--studio-border);
 }
@@ -930,6 +932,17 @@
   border-color: var(--studio-cyan);
   color: var(--studio-cyan);
   background: rgba(121, 232, 225, 0.08);
+}
+
+#app.is-character-studio-host .studio-mode-tab--map {
+  border-color: rgba(255, 200, 107, 0.32);
+  color: var(--studio-amber);
+}
+
+#app.is-character-studio-host .studio-mode-tab--map:hover {
+  border-color: var(--studio-amber);
+  color: var(--studio-amber);
+  background: rgba(255, 200, 107, 0.1);
 }
 
 #app.is-character-studio-host .stage-body {
@@ -1778,9 +1791,14 @@
 }
 
 #app.is-character-studio-host .studio-inspector-scroll {
+  flex: 1 1 auto;
   min-height: 0;
   padding-bottom: 30px;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scroll-behavior: smooth;
 }
 
 #app.is-character-studio-host .studio-inspector-section,

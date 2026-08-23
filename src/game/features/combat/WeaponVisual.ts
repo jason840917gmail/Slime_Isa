@@ -8,6 +8,7 @@ import type {
 import { AnimationClock } from '../../shared/animation';
 import { LayeredAnimationVisual } from '../visuals/LayeredAnimationVisual';
 import type { LayeredAnimationHost } from '../visuals/LayeredAnimationHost';
+import { resolvePhysicsPresentationPosition } from '../../presentation/PhysicsPresentation';
 
 type WeaponVisualAnchor = Phaser.GameObjects.GameObject & {
   readonly x: number;
@@ -19,6 +20,7 @@ export class WeaponVisual implements LayeredAnimationHost {
   private readonly clock: AnimationClock;
   private readonly visual: LayeredAnimationVisual;
   private activeAnimationId: WeaponPlaybackAnimationId = 'idle';
+  private readonly presentationPosition = new Phaser.Math.Vector2();
   private destroyed = false;
 
   constructor(
@@ -54,11 +56,20 @@ export class WeaponVisual implements LayeredAnimationHost {
     this.visual.updateAnchor();
   }
 
+  updatePresentation(): void {
+    this.visual.updateAnchor();
+  }
+
   setVisible(visible: boolean): void {
     this.visual.setVisible(visible);
   }
 
   getAnimationHostTransform() {
+    const position = resolvePhysicsPresentationPosition(
+      this.scene,
+      this.anchor,
+      this.presentationPosition,
+    );
     const direction = this.activeDirection();
     const attack = direction ? this.definition.directionalAttacks[direction] : undefined;
     const facing = this.options.getFacing().lengthSq() > 0
@@ -69,8 +80,8 @@ export class WeaponVisual implements LayeredAnimationHost {
       || (!attack && this.definition.presentation.facingMode === 'horizontal-flip' && facing.x < 0);
     const mirrorY = attack?.presentation === 'mirror-down';
     return {
-      x: this.anchor.x,
-      y: this.anchor.y,
+      x: position.x,
+      y: position.y + (attack?.presentationOffsetY ?? 0),
       baseDepth: this.options.getDepth(),
       rotationRad: legacyVector && this.definition.presentation.facingMode === 'vector'
         ? Math.atan2(facing.y, facing.x)
