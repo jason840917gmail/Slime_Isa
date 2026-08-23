@@ -25,9 +25,10 @@
     "test:animation-packages": "node --test scripts/tests/animation-packages/*.test.mjs",
     "test:combat": "node --test scripts/tests/combat/*.test.mjs",
     "test:object-animation": "node --test scripts/tests/object-animation/*.test.mjs",
+    "test:rendering": "node --test scripts/tests/rendering/*.test.mjs",
     "test:depth": "node scripts/test-depth.mjs",
     "build": "pnpm typecheck && vite build",
-    "check": "pnpm assets:check && pnpm animations:check && pnpm visuals:check && pnpm characters:check && pnpm projectiles:check && pnpm effects:check && pnpm weapons:check && pnpm enemies:check && pnpm objects:check && pnpm maps:check && pnpm test:animation-packages && pnpm test:animation && pnpm test:weapon-studio && pnpm test:combat && pnpm test:object-animation && pnpm test:depth && pnpm typecheck && pnpm build",
+    "check": "pnpm assets:check && pnpm animations:check && pnpm visuals:check && pnpm characters:check && pnpm projectiles:check && pnpm effects:check && pnpm weapons:check && pnpm enemies:check && pnpm objects:check && pnpm maps:check && pnpm test:animation-packages && pnpm test:animation && pnpm test:weapon-studio && pnpm test:combat && pnpm test:object-animation && pnpm test:rendering && pnpm test:depth && pnpm typecheck && pnpm build",
     "preview": "vite preview --port 3000"
   },
   "dependencies": {

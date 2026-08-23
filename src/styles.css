@@ -88,8 +88,6 @@ body {
 
 .canvas-frame canvas {
   display: block;
-  width: 100%;
-  height: 100%;
 }
 
 /* ── development panel ── */
@@ -678,6 +676,26 @@ body {
   display: grid;
   gap: 8px;
   margin-top: 9px;
+}
+
+.dev-runtime-metric {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  border: 1px solid #34305f;
+  padding: 9px 10px;
+  background: rgba(24, 29, 53, 0.8);
+  color: #9691bd;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.dev-runtime-metric strong {
+  color: #75ff9d;
+  font-size: 15px;
+  letter-spacing: 0.04em;
 }
 
 .editor-area-action-buttons {

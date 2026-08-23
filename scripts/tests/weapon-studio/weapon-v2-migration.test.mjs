@@ -105,6 +105,7 @@ test('v2 weapons inherit missing UP from DOWN without duplicating gameplay data'
   assert.equal(up.sourceDirection, 'down');
   assert.equal(up.mirrorX, false);
   assert.equal(up.mirrorY, true);
+  assert.equal(up.presentationOffsetY, 20);
   assert.deepEqual(up.hitboxes, down.hitboxes);
   assert.deepEqual(up.attackTrack, down.attackTrack);
   assert.equal(up.characterActionId, down.characterActionId);

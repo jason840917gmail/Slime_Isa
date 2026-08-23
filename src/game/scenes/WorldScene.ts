@@ -54,6 +54,7 @@ import {
   restoreAreaTransition,
 } from '../features/world-navigation/AreaNavigation';
 import { WorldDebugRenderer } from '../dev/WorldDebugRenderer';
+import { RenderingDiagnostics } from '../dev/RenderingDiagnostics';
 import { CombatController } from '../features/combat/CombatController';
 import { ResourceNodeController } from '../features/resources/ResourceNodeController';
 import { OcclusionController } from '../features/occlusion/OcclusionController';
@@ -62,12 +63,11 @@ import { MapBuilder, type BuiltMap } from '../features/world/MapBuilder';
 import type { CreateObjectOptions } from '../features/objects/ObjectFactory';
 import type { ObjectArchetypeId } from '../content/objects/ObjectCatalog';
 import { resolveBodyBottom, resolveWorldDepth } from '../presentation/WorldDepth';
+import { ResponsiveCameraController } from '../presentation/ResponsiveCameraController';
 import type { LoadedMap } from '../infrastructure/maps/MapRepository';
 import type { WorldDimensions } from '../world/WorldDimensions';
+import { updateDevToolsCameraZoom } from '../devTools';
 
-const DEFAULT_ZOOM = 0.75;
-const CAMERA_ZOOM_LEVELS = [0.5, 0.625, 0.75, 0.875, 1, 1.125, 1.25] as const;
-const CAMERA_ZOOM_DURATION_MS = 140;
 const EDGE_TRANSITION_GRACE_MS = 650;
 
 interface WorldSceneData {
@@ -133,7 +133,8 @@ export class WorldScene extends Phaser.Scene {
   private debugRenderer?: WorldDebugRenderer;
   private occlusionController?: OcclusionController;
   private depthDiagnostics?: DepthDiagnostics;
-  private targetCameraZoom = DEFAULT_ZOOM;
+  private cameraController?: ResponsiveCameraController;
+  private renderingDiagnostics?: RenderingDiagnostics;
   private uiCamera?: Phaser.Cameras.Scene2D.Camera;
   private cameraLayerAssignments = new WeakMap<Phaser.GameObjects.GameObject, 'world' | 'ui'>();
   private disposables = new DisposableBag();
@@ -189,11 +190,13 @@ export class WorldScene extends Phaser.Scene {
       isActionLocked: () => this.actionLocked,
       setActionLocked: (locked) => { this.actionLocked = locked; },
       playIdle: () => this.playAnimation('slime-idle'),
-      defaultZoom: DEFAULT_ZOOM,
-      resetCameraZoom: () => { this.targetCameraZoom = DEFAULT_ZOOM; },
+      resetCameraZoom: () => this.cameraController?.resetZoom(),
+      stopCameraFollow: () => this.cameraController?.stopFollow(),
+      startCameraFollow: () => this.cameraController?.startFollow(this.player),
     });
     this.createPhysics();
     this.createCamera();
+    this.createRenderingDiagnostics();
     this.createDebugRenderer();
 
     // Phase 2: UI systems
@@ -337,6 +340,9 @@ export class WorldScene extends Phaser.Scene {
     this.weaponHotbar?.destroy();
     this.statusEffects?.destroy();
     this.debugRenderer?.destroy();
+    this.renderingDiagnostics?.destroy();
+    this.renderingDiagnostics = undefined;
+    this.cameraController = undefined;
     this.levelUpModal?.destroy();
     this.inventoryUI?.destroy();
     this.worldMapUI?.destroy();
@@ -451,8 +457,6 @@ export class WorldScene extends Phaser.Scene {
 
     this.minimap.update(this.cameras.main, this.player, this.friends, this.houses);
 
-    this.playerController.updateVisuals();
-
     this.houseSystem.update();
     this.resourceNodes?.update(this.player);
     this.statusEffects?.update(this.time.now, delta);
@@ -517,6 +521,18 @@ export class WorldScene extends Phaser.Scene {
       getTransitionZones: () => this.transitionZones,
       getEnemySpawnAreas: () => this.builtMap?.enemySpawnAreas ?? [],
     });
+  }
+
+  private createRenderingDiagnostics(): void {
+    this.renderingDiagnostics = new RenderingDiagnostics(
+      this,
+      () => this.cameras.main,
+      () => {
+        const bounds = this.playerVisual?.getBounds();
+        return bounds ? { width: bounds.width, height: bounds.height } : undefined;
+      },
+      () => this.cameraController?.presentationState,
+    );
   }
 
   private friendCountForArea(): number {
@@ -718,10 +734,14 @@ export class WorldScene extends Phaser.Scene {
     this.physics.world.resume();
     this.cameras.main.resetFX();
     this.cameras.main.setBounds(0, 0, this.worldDimensions.width, this.worldDimensions.height);
-    this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
-    this.targetCameraZoom = DEFAULT_ZOOM;
-    this.cameras.main.setZoom(DEFAULT_ZOOM);
-    this.cameras.main.setRoundPixels(true);
+    this.cameraController = new ResponsiveCameraController(this, this.cameras.main);
+    this.cameraController.resetZoom();
+    this.cameraController.startFollow(this.player, true);
+
+    this.events.on(Phaser.Scenes.Events.POST_UPDATE, this.handlePresentationPostUpdate, this);
+    this.disposables.add(() => {
+      this.events.off(Phaser.Scenes.Events.POST_UPDATE, this.handlePresentationPostUpdate, this);
+    });
 
     const uiCamera = this.cameras.add(
       0,
@@ -774,35 +794,19 @@ export class WorldScene extends Phaser.Scene {
     _deltaX: number,
     deltaY: number,
   ): void {
-    if (deltaY === 0) {
-      return;
-    }
+    this.cameraController?.stepZoom(deltaY);
+  }
 
-    const currentIndex = CAMERA_ZOOM_LEVELS.reduce(
-      (closestIndex, zoom, index, levels) =>
-        Math.abs(levels[closestIndex] - this.targetCameraZoom) <= Math.abs(zoom - this.targetCameraZoom)
-          ? closestIndex
-          : index,
-      0,
-    );
-    const direction = deltaY < 0 ? 1 : -1;
-    const nextIndex = Math.max(
-      0,
-      Math.min(CAMERA_ZOOM_LEVELS.length - 1, currentIndex + direction),
-    );
-    const nextZoom = CAMERA_ZOOM_LEVELS[nextIndex];
-
-    if (nextZoom === this.targetCameraZoom) {
-      return;
-    }
-
-    this.targetCameraZoom = nextZoom;
-    this.cameras.main.zoomTo(
-      nextZoom,
-      CAMERA_ZOOM_DURATION_MS,
-      Phaser.Math.Easing.Sine.Out,
-      true,
-    );
+  private handlePresentationPostUpdate(_time: number, delta: number): void {
+    this.playerController?.updateVisuals();
+    this.friends?.children.each((child) => {
+      if (child instanceof Friend) child.updatePresentation();
+      return true;
+    });
+    this.combatController?.updatePresentation();
+    this.cameraController?.update(delta);
+    updateDevToolsCameraZoom(this.cameraController?.zoom ?? this.cameras.main.zoom);
+    this.renderingDiagnostics?.update(this.time.now);
   }
 
   private createControls(): void {
@@ -1083,9 +1087,8 @@ export class WorldScene extends Phaser.Scene {
     this.playerVisual?.setAlpha(1);
 
     this.cameras.main.pan(pos.x, pos.y, 350, 'Power2');
-    this.targetCameraZoom = DEFAULT_ZOOM;
-    this.cameras.main.zoomTo(DEFAULT_ZOOM, 350);
-    this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
+    this.cameraController?.resetZoom();
+    this.cameraController?.startFollow(this.player);
 
     floatingText.spawn(this, pos.x, pos.y - 40, 'Respawned', 'green', true);
   }

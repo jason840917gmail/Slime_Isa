@@ -22,15 +22,107 @@
             0
           ],
           "scale": [
-            0.62,
-            0.62
+            0.5,
+            0.5
+          ],
+          "rotationDeg": 0,
+          "flipX": false,
+          "flipY": false,
+          "origin": [
+            0.5,
+            0.5
           ]
         },
         "blocks": [
           {
             "from": 0,
+            "through": 0,
+            "sourceFrame": 0,
+            "transform": {
+              "offset": [
+                30,
+                0
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 60,
+              "flipX": false,
+              "flipY": false
+            }
+          },
+          {
+            "from": 1,
+            "through": 1,
+            "sourceFrame": 0,
+            "transform": {
+              "offset": [
+                30,
+                20
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 90,
+              "flipX": false,
+              "flipY": false
+            }
+          },
+          {
+            "from": 2,
+            "through": 2,
+            "sourceFrame": 0,
+            "transform": {
+              "offset": [
+                30,
+                40
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 120,
+              "flipX": false,
+              "flipY": false
+            }
+          },
+          {
+            "from": 3,
+            "through": 3,
+            "sourceFrame": 0,
+            "transform": {
+              "offset": [
+                10,
+                50
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 160,
+              "flipX": false,
+              "flipY": false
+            }
+          },
+          {
+            "from": 4,
             "through": 5,
-            "sourceFrame": 0
+            "sourceFrame": 0,
+            "transform": {
+              "offset": [
+                0,
+                55
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 190,
+              "flipX": false,
+              "flipY": false
+            }
           }
         ]
       }

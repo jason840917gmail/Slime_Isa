@@ -175,6 +175,8 @@ export interface NormalizedWeaponDirectionalAttack {
   readonly characterActionId: string;
   readonly attackTrack?: WeaponAttackTrackDocument;
   readonly hitboxes: Readonly<Record<string, WeaponHitboxDocument>>;
+  /** Final screen-space correction shared by the weapon layers and combat geometry. */
+  readonly presentationOffsetY: number;
   readonly authored: boolean;
   readonly presentation: WeaponDirectionalPresentation;
   readonly sourceDirection: WeaponAttackDirection;

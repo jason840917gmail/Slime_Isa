@@ -20,8 +20,9 @@ export interface HouseSystemContext {
   isActionLocked: () => boolean;
   setActionLocked: (locked: boolean) => void;
   playIdle: () => void;
-  defaultZoom: number;
   resetCameraZoom: () => void;
+  stopCameraFollow: () => void;
+  startCameraFollow: () => void;
 }
 
 const ENTER_PROMPT_THRESHOLD = 96;
@@ -143,10 +144,9 @@ export class HouseSystem {
 
     const scene = this.ctx.scene;
     const cam = scene.cameras.main;
-    cam.stopFollow();
+    this.ctx.stopCameraFollow();
     cam.pan(house.sprite.x, house.sprite.y, 350, 'Power2');
     this.ctx.resetCameraZoom();
-    cam.zoomTo(this.ctx.defaultZoom, 350);
 
     const door = house.getDoorPosition();
     this.ctx.getPlayer().setPosition(door.x, door.y + 12);
@@ -226,8 +226,7 @@ export class HouseSystem {
     const cam = scene.cameras.main;
     this.ctx.resetCameraZoom();
     cam.pan(player.x, player.y, 350, 'Power2');
-    cam.zoomTo(this.ctx.defaultZoom, 350);
-    cam.startFollow(player, true, 0.08, 0.08);
+    this.ctx.startCameraFollow();
 
     gameEvents.emit('house.leave', {});
   }

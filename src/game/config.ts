@@ -95,19 +95,22 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
     parent: gameRoot,
     backgroundColor: '#0b1020',
     scale: {
-      mode: Phaser.Scale.EXPAND,
+      mode: Phaser.Scale.RESIZE,
       width: 1280,
       height: 720,
+      autoRound: false,
     },
     // Keep authored edges crisp while allowing modernized pixel-stylized
     // source art to use richer shading than strict native-resolution sprites.
-    pixelArt: true,
+    pixelArt: false,
     roundPixels: true,
     physics: {
       default: 'arcade',
       arcade: {
         gravity: { y: 0, x: 0 },
         debug: false,
+        fps: 60,
+        fixedStep: true,
       },
     },
     scene: [BootScene, MapLoadScene, WorldScene, ...editorScenes],

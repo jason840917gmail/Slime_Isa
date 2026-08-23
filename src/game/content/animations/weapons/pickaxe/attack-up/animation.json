@@ -24,13 +24,33 @@
           "scale": [
             0.62,
             0.62
+          ],
+          "rotationDeg": 0,
+          "flipX": false,
+          "flipY": false,
+          "origin": [
+            0.5,
+            0.5
           ]
         },
         "blocks": [
           {
             "from": 0,
             "through": 5,
-            "sourceFrame": 2
+            "sourceFrame": 2,
+            "transform": {
+              "offset": [
+                0,
+                0
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 0,
+              "flipX": false,
+              "flipY": false
+            }
           }
         ]
       }

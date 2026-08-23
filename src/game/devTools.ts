@@ -38,6 +38,21 @@ export const devToolsState: DevToolsState = {
   enemyBoundaries: false,
 };
 
+let displayedCameraZoom = 1;
+
+export function formatCameraZoom(zoom: number): string {
+  if (!Number.isFinite(zoom) || zoom <= 0) return '—';
+  return `${Number(zoom.toFixed(3))}×`;
+}
+
+export function updateDevToolsCameraZoom(zoom: number): void {
+  if (!Number.isFinite(zoom) || zoom <= 0 || zoom === displayedCameraZoom) return;
+  displayedCameraZoom = zoom;
+  document.querySelectorAll<HTMLElement>('[data-dev-camera-zoom]').forEach((element) => {
+    element.textContent = formatCameraZoom(zoom);
+  });
+}
+
 export function createDevToolsPanel(): string {
   const rows = TOGGLES.map((toggle) => `
     <label class="dev-toggle-row">
@@ -61,6 +76,10 @@ export function createDevToolsPanel(): string {
       </header>
       <section class="dev-card">
         <h3>Runtime</h3>
+        <div class="dev-runtime-metric">
+          <span>Camera zoom</span>
+          <strong data-dev-camera-zoom>${formatCameraZoom(displayedCameraZoom)}</strong>
+        </div>
         <button class="dev-runtime-button" type="button" data-dev-enabled="true">Enable Overlays</button>
         <p class="dev-note">Visible only in Vite dev mode.</p>
       </section>
@@ -93,6 +112,10 @@ export function bindDevToolsPanel(root: ParentNode): void {
     button.textContent = devToolsState.enabled ? 'Disable Overlays' : 'Enable Overlays';
     button.classList.toggle('is-active', devToolsState.enabled);
   };
+
+  root.querySelectorAll<HTMLElement>('[data-dev-camera-zoom]').forEach((element) => {
+    element.textContent = formatCameraZoom(displayedCameraZoom);
+  });
 
   button?.addEventListener('click', () => {
     devToolsState.enabled = !devToolsState.enabled;

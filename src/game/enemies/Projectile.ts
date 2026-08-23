@@ -5,6 +5,7 @@ import type { ProjectileAnimationDocument, ProjectileDefinition } from '../conte
 import { ASSET_MANIFEST, getAsset, type AssetId } from '../infrastructure/assets/manifest';
 import { animationFrameIndexAtStep } from '../shared/animationLoop';
 import { applyArcadeBodyGeometry } from '../shared/collisionShapes';
+import { resolvePhysicsPresentationPosition } from '../presentation/PhysicsPresentation';
 
 /**
  * Pooled projectile system. Supports both enemy projectiles (damage player)
@@ -34,6 +35,7 @@ interface PooledProjectile {
 class ProjectilePoolImpl {
   private pools = new Map<Phaser.Scene, PooledProjectile[]>();
   private groups = new Map<Phaser.Scene, { enemy: Phaser.Physics.Arcade.Group; player: Phaser.Physics.Arcade.Group }>();
+  private readonly presentationPosition = new Phaser.Math.Vector2();
 
   ensureGroups(scene: Phaser.Scene): { enemy: Phaser.Physics.Arcade.Group; player: Phaser.Physics.Arcade.Group } {
     let groups = this.groups.get(scene);
@@ -256,6 +258,18 @@ class ProjectilePoolImpl {
     slot.visual.setDepth(depth);
   }
 
+  updatePresentation(scene: Phaser.Scene): void {
+    for (const slot of this.pools.get(scene) ?? []) {
+      if (!slot.active) continue;
+      const position = resolvePhysicsPresentationPosition(
+        scene,
+        slot.sprite,
+        this.presentationPosition,
+      );
+      this.syncVisual(slot, undefined, position.x, position.y);
+    }
+  }
+
   private updateAnimationFrame(slot: PooledProjectile, position: number): void {
     const definition = slot.definition;
     const animation = this.animationFor(slot);
@@ -270,7 +284,12 @@ class ProjectilePoolImpl {
     }
   }
 
-  private syncVisual(slot: PooledProjectile, frame?: number): void {
+  private syncVisual(
+    slot: PooledProjectile,
+    frame?: number,
+    baseX = slot.sprite.x,
+    baseY = slot.sprite.y,
+  ): void {
     const definition = slot.definition;
     if (!definition) return;
     const currentFrame = (frame ?? Number(slot.sprite.frame.name)) || 0;
@@ -281,7 +300,7 @@ class ProjectilePoolImpl {
     const offsetX = offset[0] * cos - offset[1] * sin;
     const offsetY = offset[0] * sin + offset[1] * cos;
     slot.visual
-      .setPosition(slot.sprite.x + offsetX, slot.sprite.y + offsetY)
+      .setPosition(baseX + offsetX, baseY + offsetY)
       .setRotation(rotation)
       .setDepth(slot.sprite.depth);
   }

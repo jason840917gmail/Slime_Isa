@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { House } from './House';
+import { resolvePhysicsPresentationPosition } from './presentation/PhysicsPresentation';
 import { resolveBodyBottom, resolveWorldDepth } from './presentation/WorldDepth';
 
 let friendIdCounter = 0;
@@ -20,21 +21,23 @@ export class Friend extends Phaser.Physics.Arcade.Sprite {
   private nextColorChangeAt = 0;
 
   private earVariants = ['friend-ear-cat', 'friend-ear-bunny', 'friend-ear-dog', 'friend-ear-fox'];
+  private readonly visualImage: Phaser.GameObjects.Image;
   private earsImage?: Phaser.GameObjects.Image;
+  private readonly presentationPosition = new Phaser.Math.Vector2();
   private nextEarChangeAt = 0;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, 'friend');
     scene.add.existing(this);
     scene.physics.add.existing(this);
+    this.setVisible(false);
+    this.visualImage = scene.add.image(x, y, 'friend');
 
     const body = this.body as Phaser.Physics.Arcade.Body;
     body.setCollideWorldBounds(true);
     body.setSize(28, 28);
 
-    this.setDepth(resolveWorldDepth(resolveBodyBottom(body), {
-      stableId: `friend:${this.friendId}`,
-    }).depth);
+    this.syncPresentation();
     this.setScale(1);
 
     this.pickNewTarget();
@@ -57,11 +60,6 @@ export class Friend extends Phaser.Physics.Arcade.Sprite {
 
   preUpdate(time: number, delta: number): void {
     super.preUpdate(time, delta);
-    const body = this.body as Phaser.Physics.Arcade.Body;
-    this.setDepth(resolveWorldDepth(resolveBodyBottom(body), {
-      stableId: `friend:${this.friendId}`,
-    }).depth);
-
     if (time >= this.nextFaceChangeAt) {
       this.applyRandomFace();
       this.nextFaceChangeAt = time + Phaser.Math.Between(800, 4200);
@@ -85,16 +83,6 @@ export class Friend extends Phaser.Physics.Arcade.Sprite {
       return;
     }
 
-    // update attached ear sprite position & tint
-    if (this.earsImage) {
-      this.earsImage.setPosition(this.x, this.y - Math.max(8, this.displayHeight * 0.28));
-      this.earsImage.setTint(this.tintTopLeft ?? this.tint);
-      this.earsImage.setDepth(resolveWorldDepth(resolveBodyBottom(body), {
-        stableId: `friend:${this.friendId}`,
-        attachmentSlot: 1,
-      }).depth);
-    }
-
     const dx = this.wanderTarget.x - this.x;
     const dy = this.wanderTarget.y - this.y;
     const dist2 = dx * dx + dy * dy;
@@ -106,6 +94,10 @@ export class Friend extends Phaser.Physics.Arcade.Sprite {
 
     const vec = new Phaser.Math.Vector2(dx, dy).normalize().scale(this.speed);
     (this.body as Phaser.Physics.Arcade.Body).setVelocity(vec.x, vec.y);
+  }
+
+  updatePresentation(): void {
+    this.syncPresentation();
   }
 
   private applyRandomEars(): void {
@@ -121,28 +113,53 @@ export class Friend extends Phaser.Physics.Arcade.Sprite {
     }
 
     // match current tint
-    this.earsImage.setTint(this.tintTopLeft ?? this.tint);
+    this.earsImage.setTint(this.visualImage.tintTopLeft);
   }
 
   private applyRandomFace(): void {
     const key = this.faceVariants[Phaser.Math.Between(0, this.faceVariants.length - 1)];
-    this.setTexture(key);
+    this.visualImage.setTexture(key);
   }
 
   private applyRandomColor(): void {
     const color = this.colorVariants[Phaser.Math.Between(0, this.colorVariants.length - 1)];
-    this.setTint(color);
+    this.visualImage.setTint(color);
     if (this.earsImage) {
       this.earsImage.setTint(color);
     }
   }
 
   destroy(fromScene?: boolean): void {
+    this.visualImage.destroy();
     if (this.earsImage) {
       this.earsImage.destroy();
       this.earsImage = undefined;
     }
 
     super.destroy(fromScene);
+  }
+
+  private syncPresentation(): void {
+    if (!this.body || !this.visualImage.active) return;
+    const body = this.body as Phaser.Physics.Arcade.Body;
+    const position = resolvePhysicsPresentationPosition(
+      this.scene,
+      this,
+      this.presentationPosition,
+    );
+    const depth = resolveWorldDepth(resolveBodyBottom(body), {
+      stableId: `friend:${this.friendId}`,
+    }).depth;
+    this.setDepth(depth);
+    this.visualImage.setPosition(position.x, position.y).setDepth(depth);
+    if (this.earsImage) {
+      this.earsImage
+        .setPosition(position.x, position.y - Math.max(8, this.visualImage.displayHeight * 0.28))
+        .setTint(this.visualImage.tintTopLeft)
+        .setDepth(resolveWorldDepth(resolveBodyBottom(body), {
+          stableId: `friend:${this.friendId}`,
+          attachmentSlot: 1,
+        }).depth);
+    }
   }
 }

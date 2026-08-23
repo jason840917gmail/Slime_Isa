@@ -9,6 +9,7 @@ import {
   type VisualSetId,
 } from '../../content/visuals/VisualCatalog';
 import { getAsset } from '../../infrastructure/assets/manifest';
+import { resolvePhysicsPresentationPosition } from '../../presentation/PhysicsPresentation';
 
 type VisualAnchor = Phaser.GameObjects.GameObject & {
   readonly x: number;
@@ -59,6 +60,7 @@ export class AnimatedVisual {
   private readonly depthResolver?: () => number;
   private depth: number;
   private readonly sourceFrame: { readonly width: number; readonly height: number };
+  private readonly presentationPosition = new Phaser.Math.Vector2();
   private destroyed = false;
 
   constructor(
@@ -83,6 +85,7 @@ export class AnimatedVisual {
     this.sprite.setDepth(this.depth);
     this.sprite.on(Phaser.Animations.Events.ANIMATION_UPDATE, this.handleAnimationUpdate);
     this.anchor.once(Phaser.GameObjects.Events.DESTROY, this.handleAnchorDestroy);
+    this.scene.events.on(Phaser.Scenes.Events.POST_UPDATE, this.handlePresentationUpdate);
     this.scene.events.once(Phaser.Scenes.Events.SHUTDOWN, this.handleSceneShutdown);
     this.applyTransform();
   }
@@ -204,6 +207,7 @@ export class AnimatedVisual {
     this.scene.tweens.killTweensOf(this.sprite);
     this.sprite.off(Phaser.Animations.Events.ANIMATION_UPDATE, this.handleAnimationUpdate);
     this.anchor.off(Phaser.GameObjects.Events.DESTROY, this.handleAnchorDestroy);
+    this.scene.events.off(Phaser.Scenes.Events.POST_UPDATE, this.handlePresentationUpdate);
     this.scene.events.off(Phaser.Scenes.Events.SHUTDOWN, this.handleSceneShutdown);
     this.sprite.destroy();
   }
@@ -233,12 +237,17 @@ export class AnimatedVisual {
     const verticalDirection = this.sprite.flipY ? -1 : 1;
     const offsetX = this.transform.sourceOffset[0] * resolvedScaleX * horizontalDirection;
     const offsetY = this.transform.sourceOffset[1] * resolvedScaleY * verticalDirection;
+    const anchorPosition = resolvePhysicsPresentationPosition(
+      this.scene,
+      this.anchor,
+      this.presentationPosition,
+    );
 
     this.sprite
       .setOrigin(this.transform.origin[0], this.transform.origin[1])
       .setScale(resolvedScaleX, resolvedScaleY)
       .setAlpha(this.effects.alpha)
-      .setPosition(this.anchor.x + offsetX, this.anchor.y + offsetY);
+      .setPosition(anchorPosition.x + offsetX, anchorPosition.y + offsetY);
     this.sprite.setDepth(this.depthResolver?.() ?? this.depth);
   }
 
@@ -254,6 +263,10 @@ export class AnimatedVisual {
 
   private readonly handleAnchorDestroy = (): void => {
     this.destroy();
+  };
+
+  private readonly handlePresentationUpdate = (): void => {
+    this.applyTransform();
   };
 
   private readonly handleSceneShutdown = (): void => {

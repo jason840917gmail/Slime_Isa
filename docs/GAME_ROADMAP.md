@@ -535,3 +535,26 @@ Start with Milestone 1 only:
 
 When those six tiles are checked, the game already has a new playable loop. Then
 move to stone and the first tool gate instead of expanding every resource at once.
+
+## Cross-Cutting Rendering Quality
+
+### [~] R.1 — Stabilize pixel rendering during movement
+
+- Build: replace the unsuccessful fractional-grid snapping path with fixed-step
+  physics plus interpolated presentation transforms, a responsive camera
+  deadzone, refresh-independent camera damping, and intentional high-DPI output
+  scaling without mass-rescaling source artwork.
+- Current: the core runtime fix is implemented: default integer `1.0` zoom,
+  explicit smooth overview levels, fixed-step presentation interpolation,
+  post-physics visual synchronization, responsive deadzone, time-based camera
+  damping, ten-speed tuning ladder, and expanded diagnostics/tests. Hardware
+  capture and device-pixel/output-scaling approval remain. The plan is documented in
+  [World Motion Rendering Instability](./task/bugs/world-motion-rendering-instability.md).
+- Player proof: terrain, characters, attachments, projectiles, and effects remain
+  stable while moving; the camera stays still inside its responsive deadzone and
+  follows the interpolated player smoothly outside it. Normal gameplay defaults
+  to integer `1.0` zoom; fractional wheel levels remain smooth overview modes.
+- Done when: default `1.0` zoom, fractional overview zoom, and the ten-speed
+  movement ladder pass the documented refresh-rate/device-pixel motion matrix,
+  responsive resize keeps the canvas and screen UI aligned, teleports reset
+  interpolation, wheel zoom remains stable, and complete verification passes.
