@@ -1,5 +1,6 @@
 import { gameEvents } from '../core/EventBus';
 import type { InventorySlot, ItemDef } from '../core/types';
+import { getBaseItemDefinitions } from '../content/items/ItemCatalog';
 import { getWeaponDefinitions } from '../content/weapons/WeaponCatalog';
 
 /**
@@ -12,71 +13,8 @@ import { getWeaponDefinitions } from '../content/weapons/WeaponCatalog';
 
 const MAX_SLOTS = 24;
 
-const DEFAULT_DEFS: Record<string, ItemDef> = {
-  wood: {
-    id: 'wood',
-    name: 'Wood',
-    category: 'material',
-    icon: 'resources-4x2',
-    iconFrame: 4,
-    description: 'Freshly gathered timber for tools, weapons, and building.',
-    maxStack: 99,
-  },
-  stone: {
-    id: 'stone',
-    name: 'Stone',
-    category: 'material',
-    icon: 'resources-4x2',
-    iconFrame: 5,
-    description: 'Rough stone gathered from broken rock nodes.',
-    maxStack: 99,
-  },
-  'hp-potion': {
-    id: 'hp-potion',
-    name: 'Slime Tonic',
-    category: 'consumable',
-    icon: 'hp-potion',
-    description: 'Restores 40 HP.',
-    maxStack: 9,
-    use: { healHp: 40 },
-  },
-  'energy-potion': {
-    id: 'energy-potion',
-    name: 'Fizzy Brew',
-    category: 'consumable',
-    icon: 'energy-potion',
-    description: 'Restores 50 energy.',
-    maxStack: 9,
-    use: { healEnergy: 50 },
-  },
-  'purple-berry-mat': {
-    id: 'purple-berry-mat',
-    name: 'Purple Berry',
-    category: 'material',
-    icon: 'purple-berry',
-    description: 'A sweet foraged berry. Used in brewing.',
-    maxStack: 99,
-  },
-  'silk-clump': {
-    id: 'silk-clump',
-    name: 'Sticky Silk',
-    category: 'material',
-    icon: 'silk-clump',
-    description: 'Clumpy silk from a spider-slime.',
-    maxStack: 99,
-  },
-  'shard': {
-    id: 'shard',
-    name: 'Crystal Shard',
-    category: 'collectible',
-    icon: 'shard',
-    description: 'A glittering crystal. Could power something.',
-    maxStack: 99,
-  },
-};
-
 class ItemRegistryImpl {
-  private defs: Record<string, ItemDef> = { ...DEFAULT_DEFS };
+  private defs: Record<string, ItemDef> = { ...getBaseItemDefinitions() };
 
   register(def: ItemDef): void {
     this.defs[def.id] = def;
@@ -99,6 +37,7 @@ for (const weapon of getWeaponDefinitions()) {
     name: weapon.displayName,
     category: 'weapon',
     icon: weapon.iconKey,
+    ...(weapon.iconFrame !== undefined ? { iconFrame: weapon.iconFrame } : {}),
     description: weapon.description,
     maxStack: 1,
     equipment: { weaponId: weapon.weaponId },
@@ -111,6 +50,48 @@ export function weaponItemFor(weaponId: string): ItemDef | undefined {
 
 export class Inventory {
   private slots: InventorySlot[] = [];
+
+  transact(
+    removals: readonly Readonly<InventorySlot>[],
+    additions: readonly Readonly<InventorySlot>[],
+  ): boolean {
+    const draft = this.slots.map((slot) => ({ ...slot }));
+    for (const removal of removals) {
+      let remaining = removal.count;
+      for (const slot of draft) {
+        if (remaining <= 0) break;
+        if (slot.itemId !== removal.itemId) continue;
+        const amount = Math.min(slot.count, remaining);
+        slot.count -= amount;
+        remaining -= amount;
+      }
+      if (remaining > 0) return false;
+    }
+
+    const compact = draft.filter((slot) => slot.count > 0);
+    for (const addition of additions) {
+      const def = itemRegistry.get(addition.itemId);
+      if (!def || addition.count <= 0) return false;
+      let remaining = addition.count;
+      for (const slot of compact) {
+        if (remaining <= 0) break;
+        if (slot.itemId !== addition.itemId || slot.count >= def.maxStack) continue;
+        const amount = Math.min(def.maxStack - slot.count, remaining);
+        slot.count += amount;
+        remaining -= amount;
+      }
+      while (remaining > 0 && compact.length < MAX_SLOTS) {
+        const amount = Math.min(def.maxStack, remaining);
+        compact.push({ itemId: addition.itemId, count: amount });
+        remaining -= amount;
+      }
+      if (remaining > 0) return false;
+    }
+
+    this.slots = compact;
+    gameEvents.emit('inventory.changed', {});
+    return true;
+  }
 
   add(itemId: string, count = 1): number {
     const def = itemRegistry.get(itemId);

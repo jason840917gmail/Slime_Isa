@@ -10,22 +10,61 @@
           "visualId": "stone-node",
           "frame": 1,
           "displayName": "Stone node",
-          "scale": 0.75,
+          "scale": 1,
           "occlusionBounds": {
             "width": 112,
-            "height": 96,
+            "height": 40,
             "offsetX": 8,
             "offsetY": 8
           },
           "collider": {
             "width": 105,
             "height": 48,
-            "offsetX": 17,
-            "offsetY": 68
+            "offsetX": 10,
+            "offsetY": 50
           },
           "visualOffset": {
             "x": 0,
             "y": 0
+          },
+          "depthBounds": {
+            "width": 128,
+            "height": 50,
+            "offsetX": 0,
+            "offsetY": 0
+          }
+        }
+      ]
+    },
+    {
+      "assetId": "sheet.resources.starter-materials.2x1",
+      "frames": [
+        {
+          "visualId": "big.stone.mine",
+          "frame": 1,
+          "displayName": "Big_stone",
+          "scale": 1,
+          "visualOffset": {
+            "x": 0,
+            "y": 0
+          },
+          "collider": {
+            "width": 100,
+            "height": 60,
+            "offsetX": 15,
+            "offsetY": 40
+          },
+          "depthBounds": {
+            "width": 128,
+            "height": 40,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "occlusionBounds": {
+            "width": 128,
+            "height": 128,
+            "offsetX": 0,
+            "offsetY": 0
           }
         }
       ]
@@ -35,15 +74,19 @@
     "body": "static"
   },
   "resourceNode": {
-    "health": 40,
-    "dropItem": "stone",
-    "dropCount": 30,
+    "health": 80,
+    "drop": {
+      "objectId": "collectible.stone-pile",
+      "visualId": "stone-pile",
+      "pieces": 3
+    },
     "hitEffectId": "stone-impact",
     "persistHealth": false,
     "depletionMessage": "Stone broken",
-    "replacement": {
-      "objectId": "resource.stone-pile",
-      "visualId": "stone-pile"
+    "harvestRequirement": {
+      "targetTag": "stone",
+      "minimumTier": 1,
+      "failureMessage": "Requires a Stone Pickaxe"
     }
   },
   "tags": [

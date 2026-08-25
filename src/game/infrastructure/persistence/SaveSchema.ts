@@ -2,38 +2,210 @@ import type { GameStateData } from '../../core/GameState';
 import type { InventorySlot } from '../../core/types';
 import type { QuestState } from '../../quests/Quest';
 import type { AreaId } from '../../world/Area';
+import type { MapId } from '../../content/maps/mapFormat';
 
-export const SAVE_SCHEMA_VERSION = 4;
+export const SAVE_SCHEMA_VERSION = 5;
+export const SAVE_NAME_MAX_LENGTH = 32;
+
+export type FacingDirection = 'up' | 'down' | 'left' | 'right';
+
+export interface GameLocationData {
+  readonly areaId: AreaId;
+  readonly mapId: MapId;
+  readonly x: number;
+  readonly y: number;
+  readonly facing: FacingDirection;
+}
 
 export interface ResourcePileProgressData {
   id: string;
   cellX: number;
   cellY: number;
   amount: number;
+  offsetX?: number;
+  offsetY?: number;
+  objectId?: string;
+  visualId?: string;
 }
 
 export interface ResourceProgressStateData {
-  stage: 'node' | 'pile' | 'destroyed' | 'depleted';
-  value: number;
-  piles?: ResourcePileProgressData[];
+  readonly stage: 'node' | 'pile' | 'destroyed' | 'depleted';
+  readonly value: number;
+  readonly piles?: readonly ResourcePileProgressData[];
+}
+
+export interface CollectibleProgressStateData {
+  readonly remaining: number;
+  readonly sourceResourceInstanceId?: string;
+}
+
+export interface MapRuntimeStateData {
+  readonly resources: Record<string, ResourceProgressStateData>;
+  readonly collectibles?: Record<string, CollectibleProgressStateData>;
+  readonly completedEncounterIds: readonly string[];
+  readonly openedRewardIds: readonly string[];
+  readonly unlockedGateIds: readonly string[];
+  readonly objectStates: Record<string, unknown>;
 }
 
 export interface WorldProgressData {
-  discoveredAreas: AreaId[];
-  defeatedBossIds: string[];
-  completedDungeonIds: string[];
-  resourceStates?: Record<string, ResourceProgressStateData>;
+  readonly discoveredAreas: readonly AreaId[];
+  readonly defeatedBossIds: readonly string[];
+  readonly completedDungeonIds: readonly string[];
+  readonly maps: Record<string, MapRuntimeStateData>;
+  /** Supported only as an input to the v4 → v5 migration. */
+  readonly resourceStates?: Record<string, ResourceProgressStateData>;
 }
 
 export interface GameSaveData {
-  player: GameStateData;
-  inventory: InventorySlot[];
-  quests: QuestState[];
-  world: WorldProgressData;
+  readonly player: GameStateData;
+  readonly inventory: readonly InventorySlot[];
+  readonly quests: readonly QuestState[];
+  readonly location: GameLocationData;
+  readonly world: WorldProgressData;
+  readonly playTimeMs: number;
 }
 
 export interface StoredSave {
-  schemaVersion: number;
-  savedAt: number;
-  data: GameSaveData;
+  readonly schemaVersion: number;
+  readonly savedAt: number;
+  readonly data: GameSaveData;
+}
+
+export interface NamedSaveMetadata {
+  readonly saveId: string;
+  readonly name: string;
+  readonly createdAt: number;
+  readonly updatedAt: number;
+  readonly schemaVersion: number;
+  readonly currentMapId: string;
+  readonly playerLevel: number;
+  readonly playTimeMs: number;
+}
+
+export interface NamedSaveSnapshot extends NamedSaveMetadata {
+  readonly data: GameSaveData;
+}
+
+export interface SaveIndexEntry {
+  readonly saveId: string;
+  readonly name: string;
+  readonly createdAt: number;
+  readonly updatedAt: number;
+  readonly schemaVersion: number;
+  readonly currentMapId: string;
+  readonly playerLevel: number;
+  readonly playTimeMs: number;
+}
+
+export interface SaveValidationIssue {
+  readonly saveId?: string;
+  readonly reason: string;
+}
+
+export function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value);
+}
+
+function isNonNegativeNumber(value: unknown): value is number {
+  return isFiniteNumber(value) && value >= 0;
+}
+
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((entry) => typeof entry === 'string');
+}
+
+function isInventory(value: unknown): value is InventorySlot[] {
+  return Array.isArray(value) && value.every((entry) => {
+    if (!isRecord(entry) || typeof entry.itemId !== 'string') return false;
+    return typeof entry.count === 'number' && Number.isInteger(entry.count) && entry.count > 0;
+  });
+}
+
+function isQuests(value: unknown): value is QuestState[] {
+  return Array.isArray(value) && value.every((entry) => (
+    isRecord(entry)
+    && typeof entry.id === 'string'
+    && (entry.status === 'active' || entry.status === 'completed')
+    && isRecord(entry.progress)
+    && Object.values(entry.progress).every((progress) => Number.isFinite(progress))
+  ));
+}
+
+function isGameState(value: unknown): value is GameStateData {
+  if (!isRecord(value)) return false;
+  const equipment = value.equipment;
+  return Number.isInteger(value.schemaVersion)
+    && isNonNegativeNumber(value.coins)
+    && isFiniteNumber(value.boostBonus)
+    && Number.isInteger(value.totalFriends)
+    && Number.isInteger(value.level)
+    && isNonNegativeNumber(value.xp)
+    && isNonNegativeNumber(value.hp)
+    && isFiniteNumber(value.maxHpBonus)
+    && isNonNegativeNumber(value.energy)
+    && isFiniteNumber(value.maxEnergyBonus)
+    && Number.isInteger(value.skillPoints)
+    && isRecord(value.perks)
+    && Object.values(value.perks).every((rank) => typeof rank === 'number' && Number.isInteger(rank) && rank >= 0)
+    && isRecord(value.attributes)
+    && Object.values(value.attributes).every((attribute) => isFiniteNumber(attribute) && attribute >= 0)
+    && isRecord(equipment)
+    && typeof equipment.weaponId === 'string'
+    && Array.isArray(equipment.weaponSlots)
+    && equipment.weaponSlots.length > 0
+    && equipment.weaponSlots.every((slot) => slot === null || typeof slot === 'string');
+}
+
+function isResourceState(value: unknown): value is ResourceProgressStateData {
+  if (!isRecord(value)) return false;
+  if (!['node', 'pile', 'destroyed', 'depleted'].includes(value.stage as string)) return false;
+  if (!isNonNegativeNumber(value.value)) return false;
+  if (value.piles === undefined) return true;
+  return Array.isArray(value.piles) && value.piles.every((pile) => (
+    isRecord(pile)
+    && typeof pile.id === 'string'
+    && Number.isInteger(pile.cellX)
+    && Number.isInteger(pile.cellY)
+    && isNonNegativeNumber(pile.amount)
+    && (pile.offsetX === undefined || isFiniteNumber(pile.offsetX))
+    && (pile.offsetY === undefined || isFiniteNumber(pile.offsetY))
+    && (pile.objectId === undefined || typeof pile.objectId === 'string')
+    && (pile.visualId === undefined || typeof pile.visualId === 'string')
+  ));
+}
+
+function isMapRuntimeState(value: unknown): value is MapRuntimeStateData {
+  return isRecord(value)
+    && isRecord(value.resources)
+    && Object.values(value.resources).every(isResourceState)
+    && (value.collectibles === undefined || (isRecord(value.collectibles) && Object.values(value.collectibles).every((entry) => (
+      isRecord(entry)
+      && Number.isInteger(entry.remaining)
+      && isNonNegativeNumber(entry.remaining)
+      && (entry.sourceResourceInstanceId === undefined || typeof entry.sourceResourceInstanceId === 'string')
+    ))))
+    && isStringArray(value.completedEncounterIds)
+    && isStringArray(value.openedRewardIds)
+    && isStringArray(value.unlockedGateIds)
+    && isRecord(value.objectStates);
+}
+
+export function isGameSaveData(value: unknown): value is GameSaveData {
+  if (!isRecord(value) || !isGameState(value.player) || !isInventory(value.inventory) || !isQuests(value.quests)) {
+    return false;
+  }
+  const location = value.location;
+  const world = value.world;
+  if (!isRecord(location) || typeof location.areaId !== 'string' || typeof location.mapId !== 'string'
+    || !isFiniteNumber(location.x) || !isFiniteNumber(location.y)
+    || !['up', 'down', 'left', 'right'].includes(location.facing as string)) return false;
+  if (!isRecord(world) || !isStringArray(world.discoveredAreas)
+    || !isStringArray(world.defeatedBossIds) || !isStringArray(world.completedDungeonIds)
+    || !isRecord(world.maps) || !Object.values(world.maps).every(isMapRuntimeState)) return false;
+  return isNonNegativeNumber(value.playTimeMs);
 }

@@ -11,8 +11,8 @@
  *   4. player spawn/entries, exits, legacy spawns, and authored enemy areas
  *      are well-formed.
  *
- * Reference validation (tile/archetype/enemy/area IDs against TS catalogs)
- * intentionally runs at load-time — catalogs stay single-owned in TypeScript.
+ * Object references and archetype-owned gameplay overrides are also checked
+ * against the authored object definitions.
  *
  * Usage: `node scripts/check-maps.mjs [mapsDir]` (mapsDir defaults to
  * src/game/content/maps; overridable for fixture testing).
@@ -24,6 +24,7 @@ import { fileURLToPath } from 'node:url';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 const characterRoot = join(repoRoot, 'src', 'game', 'content', 'characters');
+const objectRoot = join(repoRoot, 'src', 'game', 'content', 'objects');
 const enemyFiles = [];
 function collectEnemyFiles(directory) {
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
@@ -35,6 +36,18 @@ function collectEnemyFiles(directory) {
 }
 collectEnemyFiles(characterRoot);
 const activeEnemyIds = new Set(enemyFiles.map((file) => JSON.parse(readFileSync(file, 'utf8'))).filter((value) => value.kind === 'enemy').map((value) => value.characterId));
+const objectDefinitions = new Map();
+function collectObjectDefinitions(directory) {
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const file = join(directory, entry.name);
+    if (entry.isDirectory()) collectObjectDefinitions(file);
+    else if (entry.isFile() && entry.name.endsWith('.json') && entry.name !== 'objects.schema.json') {
+      const definition = JSON.parse(readFileSync(file, 'utf8'));
+      if (typeof definition.objectId === 'string') objectDefinitions.set(definition.objectId, definition);
+    }
+  }
+}
+collectObjectDefinitions(objectRoot);
 const mapsDir = process.argv[2]
   ? resolve(process.cwd(), process.argv[2])
   : join(repoRoot, 'src', 'game', 'content', 'maps');
@@ -49,6 +62,59 @@ const isRecord = (v) => typeof v === 'object' && v !== null && !Array.isArray(v)
 const isPositiveInt = (v) => Number.isInteger(v) && v > 0;
 const isNumber = (v) => typeof v === 'number' && Number.isFinite(v);
 const isIntegerNumber = (v) => isNumber(v) && Number.isInteger(v);
+
+function validateObjectInitialState(object, definition, path, label) {
+  if (object.initialState === undefined) return;
+  if (!isRecord(object.initialState)) {
+    fail(label, `${path}.initialState`, 'expected an object');
+    return;
+  }
+  const state = object.initialState;
+  const allowed = definition.collectible
+    ? new Set(['quantity', 'remaining'])
+    : definition.resourceNode
+      ? new Set(['health', 'dropObjectId', 'dropVisualId', 'dropPieces'])
+      : definition.destructible
+        ? new Set(['health'])
+      : new Set();
+  for (const key of Object.keys(state)) {
+    if (!allowed.has(key)) fail(label, `${path}.initialState.${key}`, `not supported by '${object.objectId}'`);
+  }
+  if (definition.collectible) {
+    const quantity = state.quantity ?? definition.collectible.quantity;
+    if (!Number.isInteger(quantity) || quantity < 1) fail(label, `${path}.initialState.quantity`, 'expected integer >= 1');
+    if (state.remaining !== undefined && (!Number.isInteger(state.remaining) || state.remaining < 0 || state.remaining > quantity)) {
+      fail(label, `${path}.initialState.remaining`, 'expected integer from 0 through starting quantity');
+    }
+    return;
+  }
+  if (definition.destructible) {
+    if (state.health !== undefined && (!Number.isInteger(state.health) || state.health < 0 || state.health > definition.destructible.health)) {
+      fail(label, `${path}.initialState.health`, `expected integer from 0 through ${definition.destructible.health}`);
+    }
+    return;
+  }
+  if (!definition.resourceNode) {
+    if (Object.keys(state).length > 0) fail(label, `${path}.initialState`, 'object has no supported gameplay overrides');
+    return;
+  }
+  if (state.health !== undefined && (!Number.isInteger(state.health) || state.health < 0 || state.health > definition.resourceNode.health)) {
+    fail(label, `${path}.initialState.health`, `expected integer from 0 through ${definition.resourceNode.health}`);
+  }
+  const dropObjectId = state.dropObjectId ?? definition.resourceNode.drop.objectId;
+  const dropDefinition = objectDefinitions.get(dropObjectId);
+  if (!dropDefinition?.collectible) fail(label, `${path}.initialState.dropObjectId`, 'must reference a collectible object');
+  const dropVisualId = state.dropVisualId
+    ?? (state.dropObjectId !== undefined
+      ? dropDefinition?.variants?.[0]?.frames?.[0]?.visualId
+      : definition.resourceNode.drop.visualId);
+  if (dropDefinition && !dropDefinition.variants?.some((variant) => variant.frames?.some((frame) => frame.visualId === dropVisualId))) {
+    fail(label, `${path}.initialState.dropVisualId`, `unknown visual '${dropVisualId}' for '${dropObjectId}'`);
+  }
+  if (state.dropPieces !== undefined && (!Number.isInteger(state.dropPieces) || state.dropPieces < 1)) {
+    fail(label, `${path}.initialState.dropPieces`, 'expected integer >= 1');
+  }
+}
 
 function checkPoint(value, path, label) {
   if (!isRecord(value) || !isNumber(value.x) || !isNumber(value.y)) {
@@ -234,9 +300,16 @@ function validateMap(data, label) {
 
       if (typeof object.objectId !== 'string' || object.objectId.length === 0) {
         fail(label, `${path}.objectId`, 'required non-empty string (archetype ID)');
+      } else if (!objectDefinitions.has(object.objectId)) {
+        fail(label, `${path}.objectId`, `unknown object '${object.objectId}'`);
       }
       if (typeof object.visualId !== 'string' || object.visualId.length === 0) {
         fail(label, `${path}.visualId`, 'required non-empty string (authored visual ID)');
+      } else {
+        const definition = objectDefinitions.get(object.objectId);
+        if (definition && !definition.variants?.some((variant) => variant.frames?.some((frame) => frame.visualId === object.visualId))) {
+          fail(label, `${path}.visualId`, `unknown visual '${object.visualId}' for '${object.objectId}'`);
+        }
       }
 
       if (!isNumber(object.x) || !isNumber(object.y)) {
@@ -246,9 +319,8 @@ function validateMap(data, label) {
         fail(label, path, `position (${object.x}, ${object.y}) outside map bounds ${pixelWidth}x${pixelHeight}`);
       }
 
-      if (object.initialState !== undefined && !isRecord(object.initialState)) {
-        fail(label, `${path}.initialState`, 'expected an object');
-      }
+      const definition = objectDefinitions.get(object.objectId);
+      if (definition) validateObjectInitialState(object, definition, path, label);
     });
   }
 

@@ -1,0 +1,48 @@
+{
+  "$schema": "../../../animation-package.schema.json",
+  "version": 1,
+  "animationId": "weapon.stone-spear.idle",
+  "displayName": "Stone Spear idle",
+  "description": "Stone Spear idle with authored starter spear artwork.",
+  "animation": {
+    "version": 2,
+    "durationSeconds": 1,
+    "framesPerSecond": 1,
+    "loop": true,
+    "loopMode": "wrap",
+    "layers": [
+      {
+        "layerId": "layer-1",
+        "displayName": "Layer 1",
+        "assetId": "weapon.player.starter-spears-tiles",
+        "depthOffset": 0,
+        "blocks": [
+          {
+            "from": 0,
+            "through": 0,
+            "sourceFrame": 2,
+            "transform": {
+              "offset": [
+                10,
+                0
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 0,
+              "flipX": false,
+              "flipY": false
+            }
+          }
+        ],
+        "transform": {
+          "scale": [
+            0.6,
+            0.6
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "$schema": "../objects.schema.json",
+  "objectId": "collectible.iron-ore-pile",
+  "selection": "authored",
+  "variants": [
+    {
+      "assetId": "sheet.resources.4x2",
+      "frames": [
+        {
+          "visualId": "iron-ore-pile",
+          "frame": 6,
+          "displayName": "Iron ore pile",
+          "scale": 1,
+          "visualOffset": { "x": 0, "y": 0 }
+        }
+      ]
+    }
+  ],
+  "physics": null,
+  "behavior": "collectible.walk-over",
+  "collectible": {
+    "itemId": "iron-ore",
+    "quantity": 5
+  },
+  "tags": ["collectible", "iron", "ore", "material", "small-pile"]
+}

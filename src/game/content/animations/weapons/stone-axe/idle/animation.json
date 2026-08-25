@@ -1,0 +1,59 @@
+{
+  "$schema": "../../../animation-package.schema.json",
+  "version": 1,
+  "animationId": "weapon.stone-axe.idle",
+  "displayName": "Stone Axe idle",
+  "description": "Stone Axe idle with its dedicated chipped-stone head.",
+  "animation": {
+    "version": 2,
+    "durationSeconds": 0.16666666666,
+    "framesPerSecond": 6,
+    "loop": true,
+    "loopMode": "wrap",
+    "layers": [
+      {
+        "layerId": "axe",
+        "displayName": "Stone axe",
+        "assetId": "weapon.player.stone-tools-tiles",
+        "depthOffset": 0,
+        "transform": {
+          "offset": [
+            0,
+            0
+          ],
+          "scale": [
+            0.58,
+            0.58
+          ],
+          "rotationDeg": 0,
+          "flipX": false,
+          "flipY": false,
+          "origin": [
+            0.5,
+            0.5
+          ]
+        },
+        "blocks": [
+          {
+            "from": 0,
+            "through": 0,
+            "sourceFrame": 2,
+            "transform": {
+              "offset": [
+                10,
+                0
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 0,
+              "flipX": false,
+              "flipY": false
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

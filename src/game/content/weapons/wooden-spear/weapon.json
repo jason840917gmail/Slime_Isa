@@ -1,0 +1,85 @@
+{
+  "$schema": "../weapon.schema.json",
+  "version": 2,
+  "weaponId": "wooden-spear",
+  "displayName": "Wooden Spear",
+  "category": "melee",
+  "characterActionId": "attack-1",
+  "animations": {
+    "idleAnimationId": "weapon.wooden-spear.idle"
+  },
+  "directionalAttacks": {
+    "right": {
+      "characterActionId": "attack-1",
+      "hitboxes": {
+        "spear": {
+          "shape": "rectangle",
+          "width": 80,
+          "height": 22,
+          "offsetX": 58,
+          "offsetY": 8,
+          "damageMultiplier": 1,
+          "knockbackMultiplier": 0.6
+        }
+      },
+      "attackTrack": {
+        "hitboxSpans": [
+          {
+            "hitboxId": "spear",
+            "from": 3,
+            "through": 7
+          }
+        ],
+        "events": []
+      },
+      "animationId": "weapon.wooden-spear.attack.right"
+    },
+    "down": {
+      "characterActionId": "attack-1",
+      "hitboxes": {
+        "spear": {
+          "shape": "rectangle",
+          "width": 28,
+          "height": 82,
+          "offsetX": 58,
+          "offsetY": 0,
+          "damageMultiplier": 1,
+          "knockbackMultiplier": 0.6
+        }
+      },
+      "attackTrack": {
+        "hitboxSpans": [
+          {
+            "hitboxId": "spear",
+            "from": 3,
+            "through": 7
+          }
+        ],
+        "events": []
+      },
+      "animationId": "weapon.wooden-spear.attack.down"
+    }
+  },
+  "presentation": {
+    "facingMode": "vector"
+  },
+  "baseDamage": 5,
+  "cooldownMs": 760,
+  "hitboxWidth": 42,
+  "hitboxHeight": 24,
+  "hitboxOffset": 24,
+  "hitboxDurationMs": 120,
+  "knockStrength": 50,
+  "damageModifiers": [
+    {
+      "targetTag": "resource",
+      "modifier": 0
+    }
+  ],
+  "vfxColor": 16760669,
+  "unlockLevel": 1,
+  "iconKey": "weapon-player-starter-spears-tiles",
+  "iconFrame": 0,
+  "description": "A light field-made spear with a focused golden thrust trail.",
+  "onHitEffectId": "basic-spear-impact"
+}

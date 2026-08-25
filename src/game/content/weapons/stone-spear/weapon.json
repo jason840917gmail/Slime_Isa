@@ -1,0 +1,85 @@
+{
+  "$schema": "../weapon.schema.json",
+  "version": 2,
+  "weaponId": "stone-spear",
+  "displayName": "Stone Spear",
+  "category": "melee",
+  "characterActionId": "attack-1",
+  "animations": {
+    "idleAnimationId": "weapon.stone-spear.idle"
+  },
+  "directionalAttacks": {
+    "right": {
+      "characterActionId": "attack-1",
+      "hitboxes": {
+        "spear": {
+          "shape": "rectangle",
+          "width": 80,
+          "height": 24,
+          "offsetX": 62,
+          "offsetY": 8,
+          "damageMultiplier": 1,
+          "knockbackMultiplier": 0.7
+        }
+      },
+      "attackTrack": {
+        "hitboxSpans": [
+          {
+            "hitboxId": "spear",
+            "from": 4,
+            "through": 6
+          }
+        ],
+        "events": []
+      },
+      "animationId": "weapon.stone-spear.attack.right"
+    },
+    "down": {
+      "characterActionId": "attack-1",
+      "hitboxes": {
+        "spear": {
+          "shape": "rectangle",
+          "width": 30,
+          "height": 88,
+          "offsetX": 62,
+          "offsetY": 0,
+          "damageMultiplier": 1,
+          "knockbackMultiplier": 0.7
+        }
+      },
+      "attackTrack": {
+        "hitboxSpans": [
+          {
+            "hitboxId": "spear",
+            "from": 3,
+            "through": 7
+          }
+        ],
+        "events": []
+      },
+      "animationId": "weapon.stone-spear.attack.down"
+    }
+  },
+  "presentation": {
+    "facingMode": "vector"
+  },
+  "baseDamage": 7,
+  "cooldownMs": 820,
+  "hitboxWidth": 46,
+  "hitboxHeight": 26,
+  "hitboxOffset": 28,
+  "hitboxDurationMs": 130,
+  "knockStrength": 100,
+  "damageModifiers": [
+    {
+      "targetTag": "resource",
+      "modifier": 0
+    }
+  ],
+  "vfxColor": 12574719,
+  "unlockLevel": 1,
+  "iconKey": "weapon-player-stone-tools-tiles",
+  "iconFrame": 0,
+  "description": "A reinforced stone-tipped spear with a focused stone-blue thrust trail.",
+  "onHitEffectId": "basic-spear-impact"
+}

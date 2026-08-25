@@ -57,6 +57,8 @@ import { WorldDebugRenderer } from '../dev/WorldDebugRenderer';
 import { RenderingDiagnostics } from '../dev/RenderingDiagnostics';
 import { CombatController } from '../features/combat/CombatController';
 import { ResourceNodeController } from '../features/resources/ResourceNodeController';
+import { worldProgress } from '../features/progression/WorldProgress';
+import { CollectibleController } from '../features/collectibles/CollectibleController';
 import { OcclusionController } from '../features/occlusion/OcclusionController';
 import { DepthDiagnostics } from '../features/occlusion/DepthDiagnostics';
 import { MapBuilder, type BuiltMap } from '../features/world/MapBuilder';
@@ -67,6 +69,7 @@ import { ResponsiveCameraController } from '../presentation/ResponsiveCameraCont
 import type { LoadedMap } from '../infrastructure/maps/MapRepository';
 import type { WorldDimensions } from '../world/WorldDimensions';
 import { updateDevToolsCameraZoom } from '../devTools';
+import type { GameLocationData, FacingDirection } from '../infrastructure/persistence/SaveSchema';
 
 const EDGE_TRANSITION_GRACE_MS = 650;
 
@@ -97,9 +100,10 @@ export class WorldScene extends Phaser.Scene {
   private houseSystem!: HouseSystem;
   private inputBindings?: InputBindings;
   private purpleFoods!: Phaser.Physics.Arcade.StaticGroup;
+  private collectibleTargets!: Phaser.Physics.Arcade.StaticGroup;
   private resourceTargets!: Phaser.GameObjects.Group;
-  private interactionTargets!: Phaser.GameObjects.Group;
   private resourceNodes?: ResourceNodeController;
+  private collectibles?: CollectibleController;
   private grapeChips!: Phaser.Physics.Arcade.StaticGroup;
   private playerController!: PlayerController;
   private healthSystem?: HealthSystem;
@@ -130,6 +134,7 @@ export class WorldScene extends Phaser.Scene {
   private levelUpNoticeHandler?: (payload: { level: number }) => void;
   private questCompleteHandler?: (payload: { questId: string; title: string; rewards: { coins?: number; xp?: number } }) => void;
   private restoredFromAreaTransition = false;
+  private pendingRestoreLocation?: GameLocationData;
   private debugRenderer?: WorldDebugRenderer;
   private occlusionController?: OcclusionController;
   private depthDiagnostics?: DepthDiagnostics;
@@ -159,16 +164,17 @@ export class WorldScene extends Phaser.Scene {
 
   create(): void {
     this.resetSceneStateForAreaLoad();
-    saveSystem.startAutoSave();
+    this.pendingRestoreLocation = undefined;
     this.restoredFromAreaTransition = this.restoreAreaTransitionHandoff();
-
-    // Reset persistent state once per browser session. Area transitions restart
-    // this scene, so they must preserve HP, XP, coins, perks, and inventory.
+    // Install the complete run before authored objects are registered. Resource
+    // nodes consult WorldProgress during registration, so loading afterwards
+    // would build the first scene from stale map state.
     if (!WorldScene.sessionStarted && !this.restoredFromAreaTransition) {
-      gameState.reset();
+      if (!saveSystem.hasInstalledRun()) saveSystem.startNewRun();
       WorldScene.sessionStarted = true;
     }
-    playerWeaponLoadout.initializeStarterLoadout();
+    saveSystem.startAutoSave();
+    playerWeaponLoadout.reconcile();
 
     // Phase 1: World entities (no cross-system side effects)
     this.createCollisionLayer();
@@ -176,6 +182,7 @@ export class WorldScene extends Phaser.Scene {
     this.occlusionController = new OcclusionController(this);
     this.buildWorld();
     this.createPlayer();
+    this.disposables.add(saveSystem.setLocationProvider(() => this.capturePlayerLocation()));
     this.depthDiagnostics = new DepthDiagnostics({
       scene: this,
       getPlayer: () => this.player,
@@ -262,6 +269,8 @@ export class WorldScene extends Phaser.Scene {
       scene: this,
       onPausedChange: (p) => { this.setSimulationPaused('crafting', p); },
       onCrafted: (recipe) => {
+        const craftedWeaponId = itemRegistry.get(recipe.output.itemId)?.equipment?.weaponId;
+        if (craftedWeaponId) playerWeaponLoadout.ensureAssigned(craftedWeaponId);
         floatingText.spawn(this, this.player.x, this.player.y - 44, `Crafted: ${recipe.name}`, 'green', true);
       },
     });
@@ -274,6 +283,12 @@ export class WorldScene extends Phaser.Scene {
 
     this.bindHotkeys();
     this.bindDebugCheats();
+
+    const persistenceModalHandler = (payload: { open: boolean }) => {
+      this.setSimulationPaused('persistence', payload.open);
+    };
+    gameEvents.on('persistence.modal', persistenceModalHandler);
+    this.disposables.add(() => gameEvents.off('persistence.modal', persistenceModalHandler));
 
     // Notify when an ability unlocks via level-up.
     this.levelUpNoticeHandler = (p) => {
@@ -302,12 +317,6 @@ export class WorldScene extends Phaser.Scene {
       if (this.questCompleteHandler) gameEvents.off('quest.completed', this.questCompleteHandler);
     });
 
-    if (!this.restoredFromAreaTransition) {
-      // Seed a couple of starter potions for playtesting once per fresh run.
-      playerInventory.add('hp-potion', 3);
-      playerInventory.add('energy-potion', 2);
-    }
-
     // Record the bed position on sleep for respawn.
     const onHouseSleep = () => {
       this.lastBedPos = new Phaser.Math.Vector2(this.player.x, this.player.y);
@@ -321,6 +330,7 @@ export class WorldScene extends Phaser.Scene {
     this.scale.on('resize', this.handleResize, this);
     this.disposables.add(() => this.scale.off('resize', this.handleResize, this));
     gameEvents.emit('area.enter', { areaId: this.currentArea.id });
+    saveSystem.writeRecovery(this.capturePlayerLocation());
     clearOneShotNavigationParams();
     showAreaTitleCard(this, this.currentArea.name, BIOMES[this.currentArea.biome].titleColor);
     this.syncCameraLayers();
@@ -351,6 +361,8 @@ export class WorldScene extends Phaser.Scene {
     this.combatController?.destroy();
     this.resourceNodes?.destroy();
     this.resourceNodes = undefined;
+    this.collectibles?.destroy();
+    this.collectibles = undefined;
     this.occlusionController?.destroy();
     this.occlusionController = undefined;
     this.depthDiagnostics?.destroy();
@@ -388,7 +400,10 @@ export class WorldScene extends Phaser.Scene {
 
   private restoreAreaTransitionHandoff(): boolean {
     const restored = restoreAreaTransition();
-    if (restored.restored) {
+    if (restored.restored && restored.data) {
+      saveSystem.install(restored.data);
+      if (restored.kind === 'reset') saveSystem.completeResetHandoff();
+      this.pendingRestoreLocation = restored.data.location;
       WorldScene.sessionStarted = true;
     }
     return restored.restored;
@@ -458,7 +473,6 @@ export class WorldScene extends Phaser.Scene {
     this.minimap.update(this.cameras.main, this.player, this.friends, this.houses);
 
     this.houseSystem.update();
-    this.resourceNodes?.update(this.player);
     this.statusEffects?.update(this.time.now, delta);
     this.healthSystem?.update(this.time.now);
     this.healthBar?.update();
@@ -536,6 +550,7 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private friendCountForArea(): number {
+    if (this.currentArea.id === 'level-1') return 0;
     if (this.currentArea.biome === 'meadow') return 84;
     if (this.currentArea.biome === 'gloop-forest') return 16;
     return 6;
@@ -548,7 +563,12 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private navigateToArea(areaId: AreaId, entryEdge?: Direction, respawnHome = false): void {
-    navigateToAreaUrl(areaId, entryEdge, respawnHome);
+    navigateToAreaUrl(
+      areaId,
+      entryEdge,
+      respawnHome,
+      saveSystem.captureCurrentState(this.capturePlayerLocation()),
+    );
   }
 
   private buildWorld(): void {
@@ -560,11 +580,33 @@ export class WorldScene extends Phaser.Scene {
       collisionTiles: this.collisionTiles,
       seed: this.currentArea.seed,
       behaviorGroups: {
-        'collectible.purple-berry': this.purpleFoods,
+        'collectible.walk-over': this.collectibleTargets,
       },
       onTerrainBuilt: (terrainGrid) => { this.terrainGrid = terrainGrid; },
-      onObjectCreated: (registration) => this.resourceNodes?.register(registration),
+      onObjectCreated: (registration) => {
+        this.resourceNodes?.register(registration);
+        this.collectibles?.register(registration);
+      },
       registerOccluder: (registration) => this.occlusionController!.registerOccluder(registration),
+    });
+    this.collectibles = new CollectibleController({
+      scene: this,
+      mapId: this.loadedMap.map.mapId,
+      group: this.collectibleTargets,
+      inventory: playerInventory,
+      progress: worldProgress,
+      showMessage: (x, y, message, color, important) => floatingText.spawn(this, x, y, message, color, important),
+      onCollected: (payload) => {
+        const { objectId, quantity } = payload;
+        gameEvents.emit('collectible.collected', payload);
+        this.playActionAnimation('slime-eat');
+        if (objectId === 'collectible.purple-berry') {
+          gameState.addCoins(5 * quantity);
+          gameEvents.emit('player.collect', { kind: 'berry', value: 5 * quantity });
+          this.hud.flashCoins(this);
+        }
+      },
+      onStateChanged: (change) => this.resourceNodes?.onCollectibleStateChanged(change),
     });
     this.resourceNodes = new ResourceNodeController({
       scene: this,
@@ -572,10 +614,10 @@ export class WorldScene extends Phaser.Scene {
       dimensions: this.worldDimensions,
       collisionGroup: this.collisionTiles,
       targetGroup: this.resourceTargets,
-      interactionGroup: this.interactionTargets,
       createObject: (objectId: ObjectArchetypeId, options: CreateObjectOptions) => (
         mapBuilder.createDynamicObject(objectId, options)
       ),
+      registerCollectible: (registration) => this.collectibles?.register(registration),
       isCellBlocked: (cellX, cellY, sourceInstanceId) => this.isResourceDropCellBlocked(cellX, cellY, sourceInstanceId),
     });
     this.builtMap = mapBuilder.build();
@@ -584,16 +626,23 @@ export class WorldScene extends Phaser.Scene {
 
   private createCollisionLayer(): void {
     this.collisionTiles = this.physics.add.staticGroup();
-    this.purpleFoods = this.physics.add.staticGroup();
+    this.collectibleTargets = this.physics.add.staticGroup();
+    this.purpleFoods = this.collectibleTargets;
     this.resourceTargets = this.add.group();
-    this.interactionTargets = this.add.group();
     this.grapeChips = this.physics.add.staticGroup();
     this.dungeonSwitches = this.physics.add.staticGroup();
     this.dungeonChests = this.physics.add.staticGroup();
   }
 
   private createPlayer(): void {
-    const spawnPoint = this.findSpawnPoint(this.getEntryAnchor());
+    const restoredLocation = this.pendingRestoreLocation?.mapId === this.loadedMap.map.mapId
+      ? this.pendingRestoreLocation
+      : saveSystem.currentLocation().mapId === this.loadedMap.map.mapId
+        ? saveSystem.currentLocation()
+        : undefined;
+    const spawnPoint = restoredLocation && this.isValidSavedPosition(restoredLocation)
+      ? new Phaser.Math.Vector2(restoredLocation.x, restoredLocation.y)
+      : this.findSpawnPoint(this.getEntryAnchor());
     const entity = createPlayerEntity(this, spawnPoint);
     this.player = entity.sprite;
     this.playerVisual = entity.visual;
@@ -604,6 +653,7 @@ export class WorldScene extends Phaser.Scene {
       getStatusEffects: () => this.statusEffects,
       playAnimation: (key) => this.playAnimation(key),
     });
+    if (restoredLocation) this.applyFacing(restoredLocation.facing);
     this.occlusionController?.registerActor({
       id: 'player',
       owner: entity.sprite,
@@ -621,8 +671,10 @@ export class WorldScene extends Phaser.Scene {
       this.physics.add.collider(this.friends, this.collisionTiles);
       this.physics.add.collider(this.friends, this.friends as Phaser.Physics.Arcade.Group);
     }
-    if (this.purpleFoods) {
-      this.physics.add.overlap(this.player, this.purpleFoods, this.collectPurple, undefined, this);
+    if (this.collectibleTargets) {
+      this.physics.add.overlap(this.player, this.collectibleTargets, (_player, collectible) => {
+        this.collectibles?.collect(collectible as Phaser.GameObjects.GameObject);
+      });
     }
     if (this.grapeChips) {
       this.physics.add.overlap(this.player, this.grapeChips, this.collectGrapeChips, undefined, this);
@@ -665,20 +717,6 @@ export class WorldScene extends Phaser.Scene {
         this.transitionTo(exit.to as AreaId, exit.entry as Direction);
       });
     }
-  }
-
-  private collectPurple(_playerObj: any, purpleObj: any): void {
-    const p = purpleObj as Phaser.Physics.Arcade.Image | null;
-    if (!p || !p.active) return;
-
-    this.playActionAnimation('slime-eat');
-
-    p.destroy();
-
-    gameState.addCoins(5);
-    playerInventory.add('purple-berry-mat', 1);
-    gameEvents.emit('player.collect', { kind: 'berry', value: 5 });
-    this.hud.flashCoins(this);
   }
 
   private collectGrapeChips(_playerObj: any, chipObj: any): void {
@@ -762,6 +800,41 @@ export class WorldScene extends Phaser.Scene {
 
     this.input.on('wheel', this.handleCameraWheel, this);
     this.disposables.add(() => this.input.off('wheel', this.handleCameraWheel, this));
+  }
+
+  private capturePlayerLocation(): GameLocationData {
+    return {
+      areaId: this.currentArea.id,
+      mapId: this.loadedMap.map.mapId,
+      x: this.player?.x ?? this.loadedMap.map.player.spawn.x,
+      y: this.player?.y ?? this.loadedMap.map.player.spawn.y,
+      facing: this.facingDirection(),
+    };
+  }
+
+  private facingDirection(): FacingDirection {
+    const facing = this.playerController?.facing;
+    if (!facing) return 'down';
+    if (Math.abs(facing.x) > Math.abs(facing.y)) return facing.x < 0 ? 'left' : 'right';
+    return facing.y < 0 ? 'up' : 'down';
+  }
+
+  private applyFacing(facing: FacingDirection): void {
+    const vector = {
+      up: { x: 0, y: -1 },
+      down: { x: 0, y: 1 },
+      left: { x: -1, y: 0 },
+      right: { x: 1, y: 0 },
+    }[facing];
+    this.playerController.facing.set(vector.x, vector.y);
+  }
+
+  private isValidSavedPosition(location: GameLocationData): boolean {
+    if (!Number.isFinite(location.x) || !Number.isFinite(location.y)) return false;
+    if (location.x < 0 || location.y < 0 || location.x > this.worldDimensions.width || location.y > this.worldDimensions.height) return false;
+    const tileX = Math.floor(location.x / this.worldDimensions.tileSize);
+    const tileY = Math.floor(location.y / this.worldDimensions.tileSize);
+    return this.isWithinWorld(tileX, tileY) && !this.isSolidTile(tileX, tileY);
   }
 
   private syncCameraLayers(): void {
@@ -888,10 +961,6 @@ export class WorldScene extends Phaser.Scene {
   private handleActionInput(direction: Phaser.Math.Vector2): boolean {
     if (Phaser.Input.Keyboard.JustDown(this.controls.interact)) {
       if (this.houseSystem.handleInteract()) {
-        return true;
-      }
-
-      if (this.resourceNodes?.tryInteract(this.player)) {
         return true;
       }
 

@@ -10,6 +10,11 @@ const ZOOM_EPSILON = 0.000_001;
 
 export type CameraRenderingMode = 'gameplay' | 'overview';
 
+export function formatCameraZoom(zoom: number): string {
+  if (!Number.isFinite(zoom) || zoom <= 0) return '—';
+  return `${Number(zoom.toFixed(3))}×`;
+}
+
 export function isIntegerCameraZoom(zoom: number): boolean {
   return Number.isFinite(zoom) && Math.abs(zoom - Math.round(zoom)) < ZOOM_EPSILON;
 }

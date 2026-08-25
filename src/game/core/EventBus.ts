@@ -14,6 +14,7 @@ export type GameEvents = {
   'boost.changed': { boostBonus: number; delta: number };
   'friend.count': { count: number };
   'player.collect': { kind: 'berry' | 'chip'; value: number };
+  'collectible.collected': { mapId: string; instanceId: string; objectId: string; itemId: string; quantity: number };
   'player.action': { anim: string };
   'house.enter': { houseId: number };
   'house.leave': {};
@@ -22,6 +23,7 @@ export type GameEvents = {
   'enemy.died': { enemyId: number; areaId: string; kind: string };
   'save.done': { slot: string };
   'save.loaded': { slot: string };
+  'persistence.modal': { open: boolean };
   'world.progress.changed': {};
 
   // ── Phase 5: quests / journal ──

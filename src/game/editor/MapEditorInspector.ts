@@ -1,16 +1,24 @@
 import {
+  getObjectArchetype,
   getObjectVisualChoices,
+  isObjectArchetypeId,
   type ColliderBounds,
   type DepthBounds,
 } from '../content/objects/ObjectCatalog';
+import { getKnownItemIds } from '../content/items/ItemCatalog';
 import { getAnimationPackages } from '../content/animations/AnimationCatalog';
 import {
   type ObjectTemplateEditorState,
   type ObjectTemplateViewState,
 } from './ObjectTemplateEditorState';
 import { EDITOR_GEOMETRY_STYLES, type EditorGeometryKey } from './EditorGeometryStyles';
-import type { MapEditorState } from './MapEditorState';
+import type { EditableObjectInstance, MapEditorState } from './MapEditorState';
 import type { CollisionShape } from '../shared/collisionShapes';
+import {
+  type GameplayAttributeEditorState,
+  type GameplayAttributeViewState,
+  type ResourceGameplayDraft,
+} from './GameplayAttributeEditorState';
 
 export interface InspectorPreviewUrls {
   readonly objects: Readonly<Record<string, string>>;
@@ -134,11 +142,72 @@ interface InspectorUiState {
   readonly animationPickerField?: AnimationPickerField;
   readonly animationPickerSearch: string;
   readonly animationPickerSelectedId?: string;
+  readonly activeTab: 'visuals' | 'gameplay';
+}
+
+function renderGameplayAttributes(state: GameplayAttributeViewState, instance?: EditableObjectInstance): string {
+  const draft = state.draft;
+  if (!draft) {
+    return '<div class="editor-inspector-empty editor-inspector-empty-compact"><strong>No gameplay attributes</strong><p>Select a resource node or collectible to edit its gameplay data.</p></div>';
+  }
+  const error = (field: string): string => renderError(state.errors[field]);
+  const collectiblePayload = (objectId: string) => isObjectArchetypeId(objectId)
+    ? getObjectArchetype(objectId).collectible
+    : undefined;
+  if (draft.kind === 'collectible') {
+    const overrideQuantity = typeof instance?.initialState?.quantity === 'number' ? instance.initialState.quantity : undefined;
+    return `<form class="editor-gameplay-form" data-gameplay-form>
+      <section class="editor-inspector-section"><div class="editor-inspector-section-title"><span>01</span><h3>Collectible defaults</h3></div>
+        <p class="editor-inspector-help">Walk-over collectibles add this material to the player's inventory. Wood and stone are authored here, not as pickup resources.</p>
+        <label class="editor-inspector-field editor-inspector-field-wide"><span>Material item</span><select data-gameplay-field="itemId">${getKnownItemIds().map((itemId) => `<option value="${escapeHtml(itemId)}" ${itemId === draft.itemId ? 'selected' : ''}>${escapeHtml(titleFromId(itemId))} · ${escapeHtml(itemId)}</option>`).join('')}</select>${error('itemId')}</label>
+        <label class="editor-inspector-field"><span>Material quantity<small>per collectible</small></span><input type="number" min="1" step="1" data-gameplay-field="quantity" value="${draft.quantity}" />${error('quantity')}</label>
+      </section>
+      ${instance ? `<section class="editor-inspector-section"><div class="editor-inspector-section-title"><span>02</span><h3>Map instance override</h3></div><p class="editor-inspector-help">Blank means the shared value is inherited. Material identity stays owned by the shared collectible.</p><div class="editor-instance-override"><label class="editor-inspector-field"><span>Starting quantity<small>default ${draft.quantity}</small></span><input type="number" min="1" step="1" data-instance-field="quantity" value="${overrideQuantity ?? ''}" placeholder="${draft.quantity}" /></label><button type="button" class="editor-inspector-secondary" data-command="reset-instance-field" data-instance-reset-field="quantity" ${overrideQuantity === undefined ? 'disabled' : ''}>Use default</button></div><button type="button" class="editor-inspector-secondary" data-command="reset-instance-overrides">Use all shared defaults</button></section>` : ''}
+      <section class="editor-inspector-section editor-inspector-actions"><div class="editor-inspector-action-row"><button type="button" class="editor-inspector-secondary" data-command="reset-gameplay" ${state.dirty ? '' : 'disabled'}>Reset changes</button><button type="submit" class="editor-inspector-save" ${state.dirty && !state.saving && Object.keys(state.errors).length === 0 ? '' : 'disabled'}>Save attributes</button></div><p class="editor-inspector-status" aria-live="polite">${escapeHtml(state.status)}</p></section>
+    </form>`;
+  }
+  const resource = draft as ResourceGameplayDraft;
+  const collectibleChoices = [...new Set(getObjectVisualChoices().filter((choice) => getObjectArchetype(choice.objectId).collectible).map((choice) => choice.objectId))];
+  const dropVisuals = getObjectVisualChoices().filter((choice) => choice.objectId === resource.dropObjectId);
+  const dropPayload = collectiblePayload(resource.dropObjectId);
+  const sharedYield = resource.dropPieces * (dropPayload?.quantity ?? 0);
+  const overrideHealth = typeof instance?.initialState?.health === 'number' ? instance.initialState.health : undefined;
+  const overrideDropPieces = typeof instance?.initialState?.dropPieces === 'number' ? instance.initialState.dropPieces : undefined;
+  const overrideDropObjectId = typeof instance?.initialState?.dropObjectId === 'string' ? instance.initialState.dropObjectId : undefined;
+  const effectiveDropObjectId = overrideDropObjectId ?? resource.dropObjectId;
+  const overrideDropVisualId = typeof instance?.initialState?.dropVisualId === 'string' ? instance.initialState.dropVisualId : undefined;
+  const instanceDropVisuals = getObjectVisualChoices().filter((choice) => choice.objectId === effectiveDropObjectId);
+  const resolvedDropVisualId = overrideDropVisualId ?? (overrideDropObjectId ? instanceDropVisuals[0]?.visualId : resource.dropVisualId);
+  const effectivePieces = overrideDropPieces ?? resource.dropPieces;
+  const effectivePayload = collectiblePayload(effectiveDropObjectId);
+  const instanceYield = effectivePieces * (effectivePayload?.quantity ?? 0);
+  return `<form class="editor-gameplay-form" data-gameplay-form>
+    <section class="editor-inspector-section"><div class="editor-inspector-section-title"><span>01</span><h3>Resource defaults</h3></div>
+      <p class="editor-inspector-help">Shared template values applied to every instance of this resource. Instance-specific changes belong in the optional section below.</p>
+      <label class="editor-inspector-field"><span>Life points<small>damage to deplete</small></span><input type="number" min="1" step="1" data-gameplay-field="health" value="${resource.health}" />${error('health')}</label>
+      <label class="editor-inspector-check"><input type="checkbox" data-gameplay-field="persistHealth" ${resource.persistHealth ? 'checked' : ''} /><span><strong>Persist damage between visits</strong><small>Save current life points while the node remains alive</small></span></label>
+    </section>
+    <section class="editor-inspector-section"><div class="editor-inspector-section-title"><span>02</span><h3>Death drops</h3></div>
+      <label class="editor-inspector-field editor-inspector-field-wide"><span>Drop collectible<small>all collectible variants</small></span><select data-gameplay-field="dropObjectId">${collectibleChoices.map((objectId) => `<option value="${escapeHtml(objectId)}" ${objectId === resource.dropObjectId ? 'selected' : ''}>${escapeHtml(titleFromId(objectId))} · ${escapeHtml(collectiblePayload(objectId)?.itemId ?? 'unknown')} × ${collectiblePayload(objectId)?.quantity ?? 0}</option>`).join('')}</select>${error('dropObjectId')}</label>
+      <div class="editor-inspector-grid"><label class="editor-inspector-field"><span>Drop visual</span><select data-gameplay-field="dropVisualId">${dropVisuals.map((choice) => `<option value="${escapeHtml(choice.visualId)}" ${choice.visualId === resource.dropVisualId ? 'selected' : ''}>${escapeHtml(choice.displayName)}</option>`).join('')}</select>${error('dropVisualId')}</label><label class="editor-inspector-field"><span>Number of collectibles<small>pieces on death</small></span><input type="number" min="1" step="1" data-gameplay-field="dropPieces" value="${resource.dropPieces}" />${error('dropPieces')}</label></div>
+      <p class="editor-yield-preview"><strong>Total material yield</strong><span>${resource.dropPieces} pieces × ${dropPayload?.quantity ?? 0} ${escapeHtml(dropPayload?.itemId ?? 'items')} = ${sharedYield}</span></p>
+    </section>
+    <section class="editor-inspector-section"><div class="editor-inspector-section-title"><span>03</span><h3>Effects and requirements</h3></div>
+      <label class="editor-inspector-field"><span>Hit effect ID</span><input type="text" data-gameplay-field="hitEffectId" value="${escapeHtml(resource.hitEffectId)}" placeholder="stone-impact" /></label>
+      <label class="editor-inspector-field editor-inspector-field-wide"><span>Depletion message</span><input type="text" data-gameplay-field="depletionMessage" value="${escapeHtml(resource.depletionMessage)}" placeholder="Resource depleted" /></label>
+      <div class="editor-inspector-grid"><label class="editor-inspector-field"><span>Required tool tag</span><input type="text" data-gameplay-field="harvestTargetTag" value="${escapeHtml(resource.harvestTargetTag)}" placeholder="axe" /></label><label class="editor-inspector-field"><span>Minimum tool tier</span><input type="number" min="1" step="1" data-gameplay-field="harvestMinimumTier" value="${resource.harvestMinimumTier}" />${error('harvestMinimumTier')}</label></div>
+      <label class="editor-inspector-field editor-inspector-field-wide"><span>Tool failure message</span><input type="text" data-gameplay-field="harvestFailureMessage" value="${escapeHtml(resource.harvestFailureMessage)}" placeholder="Requires a better tool" />${error('harvestFailureMessage')}</label>
+    </section>
+    ${instance ? `<section class="editor-inspector-section"><div class="editor-inspector-section-title"><span>04</span><h3>Map instance override</h3></div><p class="editor-inspector-help">Blank fields inherit the shared resource. Each default can be restored independently.</p><div class="editor-instance-override"><label class="editor-inspector-field"><span>Starting life<small>default ${resource.health}</small></span><input type="number" min="0" max="${resource.health}" step="1" data-instance-field="health" value="${overrideHealth ?? ''}" placeholder="${resource.health}" /></label><button type="button" class="editor-inspector-secondary" data-command="reset-instance-field" data-instance-reset-field="health" ${overrideHealth === undefined ? 'disabled' : ''}>Use default</button></div><div class="editor-instance-override"><label class="editor-inspector-field editor-inspector-field-wide"><span>Drop collectible<small>default ${escapeHtml(resource.dropObjectId)}</small></span><select data-instance-field="dropObjectId"><option value="" ${overrideDropObjectId === undefined ? 'selected' : ''}>Use shared default</option>${collectibleChoices.map((objectId) => `<option value="${escapeHtml(objectId)}" ${objectId === overrideDropObjectId ? 'selected' : ''}>${escapeHtml(titleFromId(objectId))} · ${escapeHtml(collectiblePayload(objectId)?.itemId ?? 'unknown')} × ${collectiblePayload(objectId)?.quantity ?? 0}</option>`).join('')}</select></label><button type="button" class="editor-inspector-secondary" data-command="reset-instance-field" data-instance-reset-field="dropObjectId" ${overrideDropObjectId === undefined ? 'disabled' : ''}>Use default</button></div><div class="editor-instance-override"><label class="editor-inspector-field"><span>Drop visual<small>resolved ${escapeHtml(resolvedDropVisualId ?? '')}</small></span><select data-instance-field="dropVisualId"><option value="">Use resolved default</option>${instanceDropVisuals.map((choice) => `<option value="${escapeHtml(choice.visualId)}" ${choice.visualId === overrideDropVisualId ? 'selected' : ''}>${escapeHtml(choice.displayName)}</option>`).join('')}</select></label><button type="button" class="editor-inspector-secondary" data-command="reset-instance-field" data-instance-reset-field="dropVisualId" ${overrideDropVisualId === undefined ? 'disabled' : ''}>Use default</button></div><div class="editor-instance-override"><label class="editor-inspector-field"><span>Drop pieces<small>default ${resource.dropPieces}</small></span><input type="number" min="1" step="1" data-instance-field="dropPieces" value="${overrideDropPieces ?? ''}" placeholder="${resource.dropPieces}" /></label><button type="button" class="editor-inspector-secondary" data-command="reset-instance-field" data-instance-reset-field="dropPieces" ${overrideDropPieces === undefined ? 'disabled' : ''}>Use default</button></div><p class="editor-yield-preview"><strong>Resolved instance yield</strong><span>${effectivePieces} pieces × ${effectivePayload?.quantity ?? 0} ${escapeHtml(effectivePayload?.itemId ?? 'items')} = ${instanceYield}</span></p><button type="button" class="editor-inspector-secondary" data-command="reset-instance-overrides">Use all shared defaults</button></section>` : ''}
+    <section class="editor-inspector-section editor-inspector-actions"><div class="editor-inspector-action-row"><button type="button" class="editor-inspector-secondary" data-command="reset-gameplay" ${state.dirty ? '' : 'disabled'}>Reset changes</button><button type="submit" class="editor-inspector-save" ${state.dirty && !state.saving && Object.keys(state.errors).length === 0 ? '' : 'disabled'}>Save attributes</button></div><p class="editor-inspector-status" aria-live="polite">${escapeHtml(state.status)}</p></section>
+  </form>`;
 }
 
 function renderInspector(
   host: HTMLElement,
   state: ObjectTemplateViewState,
+  gameplayState: GameplayAttributeViewState,
+  instance: EditableObjectInstance | undefined,
   previews: InspectorPreviewUrls,
   ui: InspectorUiState,
 ): void {
@@ -173,7 +242,11 @@ function renderInspector(
         <span>Shared template</span>
         <p>Saved changes affect every existing and future map object using this visual.</p>
       </div>
-      <form class="editor-template-form" data-template-form>
+      <div class="editor-inspector-tabs" role="tablist" aria-label="Object attributes">
+        <button id="inspector-visuals-tab" type="button" role="tab" tabindex="${ui.activeTab === 'visuals' ? '0' : '-1'}" aria-selected="${ui.activeTab === 'visuals'}" aria-controls="inspector-visuals-panel" data-inspector-tab="visuals"><span>Visuals &amp; collisions</span>${state.dirty ? '<small>Unsaved</small>' : Object.keys(errors).length > 0 ? '<small>Error</small>' : ''}</button>
+        <button id="inspector-gameplay-tab" type="button" role="tab" tabindex="${ui.activeTab === 'gameplay' ? '0' : '-1'}" aria-selected="${ui.activeTab === 'gameplay'}" aria-controls="inspector-gameplay-panel" data-inspector-tab="gameplay"><span>Gameplay attributes</span>${gameplayState.dirty ? '<small>Unsaved</small>' : Object.keys(gameplayState.errors).length > 0 ? '<small>Error</small>' : ''}</button>
+      </div>
+      <form id="inspector-visuals-panel" role="tabpanel" aria-labelledby="inspector-visuals-tab" class="editor-template-form" data-template-form ${ui.activeTab === 'visuals' ? '' : 'hidden'}>
         <section class="editor-inspector-section">
           <div class="editor-inspector-section-title"><span>01</span><h3>Template label</h3></div>
           <label class="editor-inspector-field editor-inspector-field-wide">
@@ -264,12 +337,13 @@ function renderInspector(
           <div class="editor-inspector-action-row">
             <button type="button" class="editor-inspector-secondary" data-command="reset-template" ${state.dirty ? '' : 'disabled'}>Reset changes</button>
             <button type="submit" class="editor-inspector-save" data-testid="save-template-button" ${state.dirty && !state.saving && Object.keys(errors).length === 0 ? '' : 'disabled'}>Save template</button>
-            <button type="button" class="editor-inspector-secondary editor-inspector-save-as" data-command="save-as-template" ${!state.saving && !ui.mapDirty && Object.keys(errors).length === 0 ? '' : 'disabled'}>Save as new template</button>
+            <button type="button" class="editor-inspector-secondary editor-inspector-save-as" data-command="save-as-template" ${!state.saving && !ui.mapDirty && !gameplayState.hasDirtyDrafts && Object.keys(errors).length === 0 ? '' : 'disabled'}>Save as new template</button>
           </div>
-          ${ui.mapDirty ? '<p class="editor-inspector-help">Save the map before creating a new template.</p>' : ''}
+          ${ui.mapDirty || gameplayState.hasDirtyDrafts ? `<p class="editor-inspector-help">${ui.mapDirty ? 'Save the map' : 'Save or reset gameplay drafts'} before creating a new template.</p>` : ''}
           <p class="editor-inspector-status" aria-live="polite">${escapeHtml(state.status)}</p>
         </section>
       </form>
+      <div id="inspector-gameplay-panel" role="tabpanel" aria-labelledby="inspector-gameplay-tab" ${ui.activeTab === 'gameplay' ? '' : 'hidden'}>${renderGameplayAttributes(gameplayState, instance)}</div>
       ${ui.saveAsOpen ? `
         <dialog class="editor-template-dialog" data-save-as-dialog>
           <form data-save-as-form>
@@ -348,6 +422,7 @@ export function mountMapEditorInspector(
   templateEditor: ObjectTemplateEditorState,
   previews: InspectorPreviewUrls,
   mapEditor: MapEditorState,
+  gameplayEditor: GameplayAttributeEditorState,
 ): () => void {
   let open = true;
   let saveAsOpen = false;
@@ -357,6 +432,7 @@ export function mountMapEditorInspector(
   let animationPickerField: AnimationPickerField | undefined;
   let animationPickerSearch = '';
   let animationPickerSelectedId: string | undefined;
+  let activeTab: 'visuals' | 'gameplay' = 'visuals';
   const render = (): void => {
     const scrollTop = host.querySelector<HTMLElement>('.editor-inspector-scroll')?.scrollTop ?? 0;
     const activeInput = document.activeElement instanceof HTMLInputElement
@@ -367,6 +443,10 @@ export function mountMapEditorInspector(
       ? { kind: 'template' as const, id: activeInput.dataset.templateField }
       : activeInput?.dataset.saveAsField
         ? { kind: 'save-as' as const, id: activeInput.dataset.saveAsField }
+      : activeInput?.dataset.gameplayField
+          ? { kind: 'gameplay' as const, id: activeInput.dataset.gameplayField }
+        : activeInput?.dataset.instanceField
+          ? { kind: 'instance' as const, id: activeInput.dataset.instanceField }
         : undefined;
     let selection: { start: number; end: number } | undefined;
     if (activeInput && activeInput.type !== 'number') {
@@ -383,7 +463,12 @@ export function mountMapEditorInspector(
       host.innerHTML = '<button type="button" class="editor-inspector-reopen" data-inspector-toggle>Inspector <span>→</span></button>';
       return;
     }
-    renderInspector(host, templateEditor.value, previews, {
+    const selectedObjectId = templateEditor.value.selected?.objectId;
+    if (gameplayEditor.value.selectedObjectId !== selectedObjectId) gameplayEditor.select(selectedObjectId);
+    const selectedInstance = mapEditor.value.selectedInstanceId
+      ? mapEditor.value.map.objects.find((object) => object.instanceId === mapEditor.value.selectedInstanceId)
+      : undefined;
+    renderInspector(host, templateEditor.value, gameplayEditor.value, selectedInstance, previews, {
       mapId: mapEditor.value.map.mapId,
       mapDirty: mapEditor.value.dirty,
       saveAsOpen,
@@ -393,6 +478,7 @@ export function mountMapEditorInspector(
       animationPickerField,
       animationPickerSearch,
       animationPickerSelectedId,
+      activeTab,
     });
     const saveAsDialog = host.querySelector<HTMLDialogElement>('[data-save-as-dialog]');
     if (saveAsDialog && !saveAsDialog.open) saveAsDialog.showModal();
@@ -402,12 +488,16 @@ export function mountMapEditorInspector(
     if (scroll) scroll.scrollTop = scrollTop;
     if (activeField) {
       const inputs = host.querySelectorAll<HTMLInputElement>(
-        activeField.kind === 'template' ? '[data-template-field]' : '[data-save-as-field]',
+        activeField.kind === 'template' ? '[data-template-field]' : activeField.kind === 'gameplay' ? '[data-gameplay-field]' : activeField.kind === 'instance' ? '[data-instance-field]' : '[data-save-as-field]',
       );
       const replacement = [...inputs].find((input) => (
         activeField.kind === 'template'
           ? input.dataset.templateField === activeField.id
-          : input.dataset.saveAsField === activeField.id
+          : activeField.kind === 'gameplay'
+            ? input.dataset.gameplayField === activeField.id
+            : activeField.kind === 'instance'
+              ? input.dataset.instanceField === activeField.id
+              : input.dataset.saveAsField === activeField.id
       ));
       replacement?.focus({ preventScroll: true });
       if (replacement && selection && replacement.type !== 'number') {
@@ -421,8 +511,13 @@ export function mountMapEditorInspector(
   };
 
   const clickHandler = (event: MouseEvent): void => {
-    const target = (event.target as HTMLElement).closest<HTMLElement>('[data-inspector-toggle], [data-command], [data-animation-picker-id]');
+    const target = (event.target as HTMLElement).closest<HTMLElement>('[data-inspector-toggle], [data-command], [data-animation-picker-id], [data-inspector-tab]');
     if (!target) return;
+    if (target.dataset.inspectorTab === 'visuals' || target.dataset.inspectorTab === 'gameplay') {
+      activeTab = target.dataset.inspectorTab;
+      render();
+      return;
+    }
     if (target.dataset.inspectorToggle !== undefined || target.hasAttribute('data-inspector-toggle')) {
       open = !open;
       render();
@@ -434,7 +529,17 @@ export function mountMapEditorInspector(
     }
     if (target.dataset.command === 'reset-scale') templateEditor.updateDraft({ scale: 1 });
     if (target.dataset.command === 'reset-template') templateEditor.resetChanges();
-    if (target.dataset.command === 'save-as-template' && !mapEditor.value.dirty) {
+    if (target.dataset.command === 'reset-gameplay') gameplayEditor.resetChanges();
+    if (target.dataset.command === 'reset-instance-field' && mapEditor.value.selectedInstanceId && target.dataset.instanceResetField) {
+      const keys = target.dataset.instanceResetField === 'dropObjectId'
+        ? ['dropObjectId', 'dropVisualId']
+        : [target.dataset.instanceResetField];
+      mapEditor.clearObjectInitialStateKeys(mapEditor.value.selectedInstanceId, keys);
+    }
+    if (target.dataset.command === 'reset-instance-overrides' && mapEditor.value.selectedInstanceId) {
+      mapEditor.clearObjectInitialStateKeys(mapEditor.value.selectedInstanceId);
+    }
+    if (target.dataset.command === 'save-as-template' && !mapEditor.value.dirty && !gameplayEditor.value.hasDirtyDrafts) {
       const state = templateEditor.value;
       if (!state.selected || !state.draft) return;
       saveAsOpen = true;
@@ -484,6 +589,59 @@ export function mountMapEditorInspector(
 
   const changeHandler = (event: Event): void => {
     const target = event.target as HTMLInputElement;
+    const instanceField = target.dataset.instanceField;
+    const instanceId = mapEditor.value.selectedInstanceId;
+    if (instanceField && instanceId) {
+      const selectedObject = mapEditor.value.map.objects.find((object) => object.instanceId === instanceId);
+      const isCollectible = selectedObject ? getObjectArchetype(selectedObject.objectId as Parameters<typeof getObjectArchetype>[0]).collectible !== undefined : false;
+      if (instanceField === 'quantity' && isCollectible) {
+        if (target.value === '') mapEditor.clearObjectInitialStateKeys(instanceId, ['quantity']);
+        else mapEditor.updateObjectInitialState(instanceId, { quantity: Number(target.value) });
+      }
+      if (instanceField === 'health' && !isCollectible) {
+        if (target.value === '') mapEditor.clearObjectInitialStateKeys(instanceId, ['health']);
+        else mapEditor.updateObjectInitialState(instanceId, { health: Number(target.value) });
+      }
+      if (instanceField === 'dropPieces' && !isCollectible) {
+        if (target.value === '') mapEditor.clearObjectInitialStateKeys(instanceId, ['dropPieces']);
+        else mapEditor.updateObjectInitialState(instanceId, { dropPieces: Number(target.value) });
+      }
+      if (instanceField === 'dropObjectId' && !isCollectible) {
+        if (target.value === '') mapEditor.clearObjectInitialStateKeys(instanceId, ['dropObjectId', 'dropVisualId']);
+        else {
+          const firstVisual = getObjectVisualChoices().find((choice) => choice.objectId === target.value)?.visualId;
+          mapEditor.updateObjectInitialState(instanceId, { dropObjectId: target.value, ...(firstVisual ? { dropVisualId: firstVisual } : {}) });
+        }
+      }
+      if (instanceField === 'dropVisualId' && !isCollectible) {
+        if (target.value === '') mapEditor.clearObjectInitialStateKeys(instanceId, ['dropVisualId']);
+        else mapEditor.updateObjectInitialState(instanceId, { dropVisualId: target.value });
+      }
+      return;
+    }
+    const gameplayField = target.dataset.gameplayField;
+    if (gameplayField) {
+      const draft = gameplayEditor.value.draft;
+      if (!draft) return;
+      if (gameplayField === 'persistHealth' && draft.kind === 'resource') gameplayEditor.updateDraft({ persistHealth: target.checked });
+      else if (gameplayField === 'itemId' && draft.kind === 'collectible') gameplayEditor.updateDraft({ itemId: target.value });
+      else if (gameplayField === 'quantity' && draft.kind === 'collectible') gameplayEditor.updateDraft({ quantity: Number(target.value) });
+      else if (draft.kind === 'resource') {
+        if (gameplayField === 'health') gameplayEditor.updateDraft({ health: Number(target.value) });
+        if (gameplayField === 'dropObjectId') {
+          const firstVisual = getObjectVisualChoices().find((choice) => choice.objectId === target.value)?.visualId;
+          gameplayEditor.updateDraft({ dropObjectId: target.value, ...(firstVisual ? { dropVisualId: firstVisual } : {}) });
+        }
+        if (gameplayField === 'dropVisualId') gameplayEditor.updateDraft({ dropVisualId: target.value });
+        if (gameplayField === 'dropPieces') gameplayEditor.updateDraft({ dropPieces: Number(target.value) });
+        if (gameplayField === 'hitEffectId') gameplayEditor.updateDraft({ hitEffectId: target.value });
+        if (gameplayField === 'depletionMessage') gameplayEditor.updateDraft({ depletionMessage: target.value });
+        if (gameplayField === 'harvestTargetTag') gameplayEditor.updateDraft({ harvestTargetTag: target.value });
+        if (gameplayField === 'harvestMinimumTier') gameplayEditor.updateDraft({ harvestMinimumTier: Number(target.value) });
+        if (gameplayField === 'harvestFailureMessage') gameplayEditor.updateDraft({ harvestFailureMessage: target.value });
+      }
+      return;
+    }
     const field = target.dataset.templateField;
     if (!field) {
       if (target.dataset.templateOcclusionToggle !== undefined) {
@@ -621,6 +779,10 @@ export function mountMapEditorInspector(
       render();
       return;
     }
+    if (form.hasAttribute('data-gameplay-form')) {
+      void gameplayEditor.save();
+      return;
+    }
     void templateEditor.save();
   };
 
@@ -635,20 +797,33 @@ export function mountMapEditorInspector(
     }
   };
 
+  const keydownHandler = (event: KeyboardEvent): void => {
+    const tab = (event.target as HTMLElement).closest<HTMLElement>('[data-inspector-tab]');
+    if (!tab || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+    activeTab = event.key === 'ArrowLeft' || event.key === 'Home' ? 'visuals' : 'gameplay';
+    render();
+    host.querySelector<HTMLElement>(`[data-inspector-tab="${activeTab}"]`)?.focus();
+  };
+
   host.addEventListener('click', clickHandler);
   host.addEventListener('change', changeHandler);
   host.addEventListener('input', inputHandler);
   host.addEventListener('submit', submitHandler);
+  host.addEventListener('keydown', keydownHandler);
   const unsubscribe = templateEditor.subscribe(render);
   const unsubscribeMap = mapEditor.subscribe(render);
+  const unsubscribeGameplay = gameplayEditor.subscribe(render);
 
   return () => {
     unsubscribe();
     unsubscribeMap();
+    unsubscribeGameplay();
     host.removeEventListener('click', clickHandler);
     host.removeEventListener('change', changeHandler);
     host.removeEventListener('input', inputHandler);
     host.removeEventListener('submit', submitHandler);
+    host.removeEventListener('keydown', keydownHandler);
     host.innerHTML = '';
   };
 }

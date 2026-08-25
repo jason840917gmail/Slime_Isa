@@ -1,7 +1,21 @@
 import { gameState } from '../../core/GameState';
-import { STORAGE_KEYS } from '../../infrastructure/persistence/storageKeys';
 import { playerInventory } from '../../systems/Inventory';
+import { questTracker } from '../../quests/QuestTracker';
+import { worldProgress } from '../progression/WorldProgress';
 import { getAreaDefinition, type AreaDef, type AreaId, type Direction } from '../../world/Area';
+import type { GameSaveData } from '../../infrastructure/persistence/SaveSchema';
+import { STORAGE_KEYS } from '../../infrastructure/persistence/storageKeys';
+
+export type RunNavigationKind = 'area' | 'load' | 'reset';
+
+export interface RunNavigationHandoff {
+  readonly version: 1;
+  readonly kind: RunNavigationKind;
+  readonly mapId: string;
+  readonly entryEdge?: Direction;
+  readonly respawnHome?: boolean;
+  readonly data: GameSaveData;
+}
 
 export interface AreaNavigationRequest {
   areaId?: AreaId;
@@ -14,57 +28,114 @@ export interface ResolvedAreaRequest {
   respawnHome: boolean;
 }
 
+export function peekRunNavigation(): RunNavigationHandoff | null {
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEYS.areaTransition);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<RunNavigationHandoff>;
+    if (parsed.version !== 1 || !parsed.data || typeof parsed.mapId !== 'string') return null;
+    if (parsed.kind !== 'area' && parsed.kind !== 'load' && parsed.kind !== 'reset') return null;
+    return parsed as RunNavigationHandoff;
+  } catch {
+    return null;
+  }
+}
+
 export function resolveAreaRequest(data: AreaNavigationRequest): ResolvedAreaRequest {
   const params = new URLSearchParams(window.location.search);
+  const pending = peekRunNavigation();
   const queryArea = params.get('area');
   const queryEntry = params.get('entry');
   const areaId = data.areaId
-    ?? (queryArea && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(queryArea) ? queryArea : 'icege');
+    ?? pending?.mapId
+    ?? (queryArea && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(queryArea) ? queryArea : 'level-1');
 
   return {
     area: getAreaDefinition(areaId),
-    entryEdge: data.entryEdge ?? (isDirection(queryEntry) ? queryEntry : undefined),
-    respawnHome: params.get('respawn') === 'home',
+    entryEdge: data.entryEdge ?? pending?.entryEdge ?? (isDirection(queryEntry) ? queryEntry : undefined),
+    respawnHome: pending?.respawnHome === true || params.get('respawn') === 'home',
   };
 }
 
-export function restoreAreaTransition(): { restored: boolean; respawnHome: boolean } {
+export function restoreAreaTransition(): {
+  restored: boolean;
+  respawnHome: boolean;
+  kind?: RunNavigationKind;
+  data?: GameSaveData;
+} {
+  const pending = peekRunNavigation();
+  if (!pending) return { restored: false, respawnHome: false };
   try {
-    const raw = sessionStorage.getItem(STORAGE_KEYS.areaTransition);
-    if (!raw) return { restored: false, respawnHome: false };
     sessionStorage.removeItem(STORAGE_KEYS.areaTransition);
-    const parsed = JSON.parse(raw) as {
-      gameState?: ReturnType<typeof gameState.serialize>;
-      inventory?: ReturnType<typeof playerInventory.serialize>;
-      respawnHome?: boolean;
-    };
-    if (parsed.gameState) gameState.load(parsed.gameState);
-    if (parsed.inventory) playerInventory.load(parsed.inventory);
-    return { restored: true, respawnHome: parsed.respawnHome === true };
   } catch {
-    return { restored: false, respawnHome: false };
+    // The handoff remains in memory for this scene even if cleanup fails.
   }
+  return {
+    restored: true,
+    respawnHome: pending.respawnHome === true,
+    kind: pending.kind,
+    data: pending.data,
+  };
 }
 
-export function navigateToArea(areaId: AreaId, entryEdge?: Direction, respawnHome = false): void {
-  try {
-    sessionStorage.setItem(STORAGE_KEYS.areaTransition, JSON.stringify({
-      gameState: gameState.serialize(),
-      inventory: playerInventory.serialize(),
-      respawnHome,
-    }));
-  } catch {
-    // Navigation still works if session storage is unavailable.
-  }
-
+export function queueRunNavigation(
+  kind: RunNavigationKind,
+  data: GameSaveData,
+  mapId: string,
+  entryEdge?: Direction,
+  respawnHome = false,
+): void {
+  const handoff: RunNavigationHandoff = {
+    version: 1,
+    kind,
+    mapId,
+    ...(entryEdge ? { entryEdge } : {}),
+    ...(respawnHome ? { respawnHome: true } : {}),
+    data,
+  };
+  const previousHandoff = sessionStorage.getItem(STORAGE_KEYS.areaTransition);
+  sessionStorage.setItem(STORAGE_KEYS.areaTransition, JSON.stringify(handoff));
   const nextUrl = new URL(window.location.href);
-  nextUrl.searchParams.set('area', areaId);
+  nextUrl.searchParams.set('area', mapId);
   if (entryEdge) nextUrl.searchParams.set('entry', entryEdge);
   else nextUrl.searchParams.delete('entry');
   if (respawnHome) nextUrl.searchParams.set('respawn', 'home');
   else nextUrl.searchParams.delete('respawn');
   nextUrl.searchParams.set('t', `${Date.now()}`);
-  window.location.assign(nextUrl.toString());
+  try {
+    window.location.assign(nextUrl.toString());
+  } catch (error) {
+    try {
+      if (previousHandoff === null) sessionStorage.removeItem(STORAGE_KEYS.areaTransition);
+      else sessionStorage.setItem(STORAGE_KEYS.areaTransition, previousHandoff);
+    } catch {
+      // Preserve the navigation error; handoff rollback is best effort.
+    }
+    throw error;
+  }
+}
+
+export function navigateToArea(
+  areaId: AreaId,
+  entryEdge?: Direction,
+  respawnHome = false,
+  data?: GameSaveData,
+): void {
+  const handoffData = data ?? {
+    player: gameState.serialize(),
+    inventory: playerInventory.serialize(),
+    quests: questTracker.serialize(),
+    location: {
+      areaId,
+      mapId: areaId,
+      x: 0,
+      y: 0,
+      facing: 'down' as const,
+    },
+    world: worldProgress.serialize(),
+    playTimeMs: 0,
+  };
+  queueRunNavigation('area', handoffData, areaId, entryEdge, respawnHome);
 }
 
 export function clearOneShotNavigationParams(): void {

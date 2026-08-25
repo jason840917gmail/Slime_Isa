@@ -4,6 +4,7 @@ import { BootScene } from './scenes/BootScene';
 import { WorldScene } from './scenes/WorldScene';
 import { MapLoadScene } from './scenes/MapLoadScene';
 import { bindDevToolsPanel, createDevToolsPanel } from './devTools';
+import { prepareRunStartup } from './features/persistence/StartupPersistence';
 
 export async function createGame(container: HTMLDivElement): Promise<Phaser.Game | undefined> {
   const editorMapId = import.meta.env.DEV
@@ -45,6 +46,8 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
     : [];
   const devPanel = import.meta.env.DEV && !isEditor ? createDevToolsPanel() : '';
   if (isEditor) document.title = `Field Cartographer â€” ${editorMapId}`;
+
+  if (!isEditor) await prepareRunStartup(container);
 
   container.innerHTML = `
     <section class="game-shell${import.meta.env.DEV && !isEditor ? ' is-dev-mode' : ''}${isEditor ? ' is-map-editor' : ''}">

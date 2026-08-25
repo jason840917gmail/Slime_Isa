@@ -26,7 +26,8 @@ loop has been verified in a fresh-game playtest.
 | Milestone | Player-visible result | Status |
 |---|---|---|
 | 1. Wood gathering | Chop a visible tree and collect wood | `[x]` |
-| 2. Stone and starter tools | Gather stone and craft/use basic tools | `[ ]` |
+| 2. Stone and starter tools | Walk over loose materials, craft starter gear, clear a camp, and unlock the next area | `[~]` |
+| P. Save, load, and reset foundation | Create or overwrite named saves, load complete runs, or reset to authored defaults | `[~]` |
 | 3. Home exterior | Find and use one authored player home | `[ ]` |
 | 4. Home interior | Enter a real interior, move inside, and return outside | `[ ]` |
 | 5. Workbench | Craft the first improved tool at home | `[ ]` |
@@ -112,28 +113,53 @@ play session, verified in the running game.
 
 ## 2. Stone And Starter Tools
 
-### [ ] 2.1 — Author stone resource nodes
+Implementation order, ownership, save migration, and acceptance checks are
+defined in the
+[Stone and Starter Tools implementation plan](./superpowers/plans/2026-08-23-stone-and-starter-tools-implementation-plan.md).
+
+The resource/collectible taxonomy correction, walk-over pickup behavior, save
+migration, and Map Studio attribute work are defined in the
+[Walk-over Collectibles and Editor Attributes implementation plan](./superpowers/plans/2026-08-24-walk-over-collectibles-and-editor-attributes-implementation-plan.md).
+
+### [~] 2.1 — Author stone resource nodes
 
 - Build: add stone material, visible rock nodes, collision, map placement, deterministic three-pile drops, and reload-safe depletion state.
-- Current: stone nodes use the large stone frame, carry 40 health, break into up to three adjacent small stone piles, and three test nodes are authored in Meadow Crossing. Partial node health resets on reload while broken piles and their remaining amounts persist.
+- Current: the implementation and validators are present: stone nodes use the
+  large stone frame, carry 40 health, break into up to three adjacent small
+  stone piles, and three test nodes are authored in Meadow Crossing. Partial
+  node health resets on reload while broken piles and their remaining amounts
+  persist. Fresh-save collect/reload approval and loose starter stone remain.
 - Player proof: wood and stone are distinct resources with distinct visuals.
 - Done when: both resources can be collected and saved.
 
-### [ ] 2.2 — Add basic tool recipes
+### [~] 2.2 — Add basic tool recipes
 
-- Build: make simple survival recipes for the starter axe, pick, or equivalent harvesting tools; keep these recipes portable where appropriate.
-- Current: the Pickaxe is available in the sixth starter hotbar slot for testing, with directional art and an independent stone-chip impact effect. Crafting the Pickaxe remains a follow-up once the first recipe tier is authored.
-- Player proof: gathered materials turn into a usable tool.
-- Done when: a new save can craft and equip the basic tools without cheats.
+- Build: add portable recipes for Wooden Spear (`20 wood`), Stone Axe
+  (`10 wood + 10 stone`), Stone Pickaxe (`10 wood + 10 stone`), and Stone
+  Spear (`20 wood + 20 stone`). Add enough hand-collectible loose wood and stone
+  to prevent a fresh-save softlock.
+- Current: the four portable recipes, atomic inventory transaction, crafted
+  weapon assignment, dedicated spear swing art, and a hand-collectible starter
+  budget are implemented in the new Level 1 map. The Wooden Axe and Pickaxe are
+  still automatically granted as test items; do not remove those grants until
+  the replacement progression passes a fresh-save playtest. The target flow is specified in
+  [Starter stone-age progression](./task/ideas/open/starter-stone-age-progression.md).
+- Player proof: gathered materials turn into equipped tools and a first crafted weapon.
+- Done when: a new save can craft and assign the starter gear without cheats or
+  automatic production grants.
 
-### [ ] 2.3 — Enforce tool-gated harvesting
+### [~] 2.3 — Enforce tool-gated harvesting
 
 - Build: give resource nodes a required tool tier and show a clear feedback state
   when the tool is insufficient.
+- Current: tree and stone archetypes declare explicit tier-one requirements;
+  combat checks the equipped weapon's harvest capability before damage and
+  displays Stone Axe or Stone Pickaxe guidance when the requirement is unmet.
+  A fresh-save runtime approval pass remains.
 - Player proof: the player understands why a harder node cannot be harvested yet.
 - Done when: the gate works consistently in runtime and authored maps.
 
-### [ ] 2.4 — Build the shared animation library
+### [~] 2.4 — Build the shared animation library
 
 - Build: extract complete layered animation packages, recursive catalog
   discovery, package validation, and stable-ID references. Weapon Studio is the
@@ -142,13 +168,15 @@ play session, verified in the running game.
 - Player proof: weapons preserve their authored visuals after migration, and
   authored object animation can be reused by every instance of one visual
   template without per-instance data.
-- Current: the approved design and existing shared timeline/runtime primitives
-  are present; the previous dedicated object authoring slice has been
-  withdrawn pending package migration.
+- Current: the recursive package catalog, migrated weapon/object references,
+  Animation and Weapon Studio authoring, Map Studio package picker, runtime
+  object adapter, validators, and focused fallback tests are implemented. A
+  final manual studio/runtime acceptance pass remains before this task is
+  marked complete.
 - Done when: the shared catalog, weapon migration, Weapon Studio package editor,
   Map Studio picker, object runtime adapter, and focused fallback tests pass.
 
-### [ ] 2.5 — Add new object authoring to Map Studio
+### [~] 2.5 — Add new object authoring to Map Studio
 
 - Build: add a New Object workflow to Map Studio that selects an existing
   behavior family, chooses or imports a registered spritesheet, selects a source
@@ -160,18 +188,60 @@ play session, verified in the running game.
 - Player proof: a creator can add a new decoration or solid visual, place it on
   an authored map, and see the same collision, depth, and animation after reload
   without hand-editing JSON.
-- Current: Map Studio can place, edit, and duplicate existing templates, but it
-  cannot choose a different source asset/frame or create a new palette entry
-  from a registered or newly imported spritesheet. The implementation is
-  specified in the
+- Current: Map Studio now includes the New object dialog, existing/imported
+  spritesheet selection, source-frame selection, geometry and animation fields,
+  validated template save, catalog refresh, and palette selection. The final
+  floor/solid/import/reload acceptance pass is specified in the
   [Map Studio new-object authoring plan](./superpowers/plans/2026-08-20-map-studio-new-object-authoring-implementation-plan.md).
 - Done when: an existing or imported spritesheet can produce a validated floor
   decoration and solid object from the UI; both appear in Object Content, can be
   placed and saved, survive reload, and pass asset, object, animation, map,
   typecheck, and build verification.
 
+### [x] 2.6 — Move loose materials to walk-over collectibles
+
+- Build: replace resource-pile pickup data with a generic collectible payload;
+  move loose wood and stone into Collectibles; collect all collectibles by
+  player overlap without `F`; preserve partial quantities and existing save
+  progress. Group Map Studio objects by behavior capability and expose editable
+  shared gameplay defaults plus supported per-instance overrides, including
+  collectible material/quantity and resource-node life/drop/tool attributes.
+  Resource nodes choose their death drop from a catalog-backed collectible
+  dropdown and specify how many collectible pieces spawn. Split the right
+  inspector into **Visuals & collisions** and **Gameplay attributes** tabs with
+  independent validation and save state.
+- Player proof: walking over loose wood or stone collects it immediately, while
+  trees and stone nodes remain tool-damaged resource targets.
+- Creator proof: wood, stone, and berries appear under Collectibles; resource
+  nodes appear under Resource Nodes; selecting either shows its resolved
+  gameplay attributes and safe edit scope. A stone node can select the stone
+  collectible and set, for example, 3 or 4 dropped pieces with a visible total
+  material-yield preview, while visual/collision controls remain organized in
+  their own inspector tab.
+- Done when: no collectible uses the `F` pickup route, partial/full inventory
+  behavior and save migration are verified, editor attribute edits survive
+  save/reload, the two inspector tabs cannot overwrite each other's data, and
+  the automated/manual matrix in the linked plan passes.
+- Verification: focused persistence, collectible-runtime, and Map Studio state
+  tests cover migration, partial/exact-once collection, deterministic overflow
+  placement, draft preservation, grouping/search, per-instance validation, and
+  granular override reset. The production build and all content validators pass;
+  the running Map Studio confirms tab navigation, yield preview, dirty-state
+  preservation, and reset behavior.
+
+### [ ] 2.7 — Complete the first guarded-key progression gate
+
+- Build: author a small enemy camp, a reward chest that yields one persistent
+  green key, and a keyed exit to the next authored area. The chest unlocks after
+  the encounter; the gate records permanent unlock state so neither reward can
+  be duplicated.
+- Player proof: collecting and crafting starter gear leads to a clear combat
+  objective and visible access to the next level.
+- Done when: a fresh save completes collect → craft → gather → fight → chest →
+  key → exit, then reloads without duplicating the key or relocking the gate.
+
 **Milestone 2 complete when:** wood and stone form a readable starting economy
-and basic tools open the first small progression gate.
+and crafted starter gear opens the first guarded progression gate.
 
 ## 3. Home Exterior
 
@@ -346,26 +416,44 @@ weapon or metal tool at home.
 
 ## 9. Kitchen — Food, Healing, And Buffs
 
-### [ ] 9.1 — Place the kitchen station
+### [ ] 9.1 — Establish edible forage
+
+- Build: add at least one hand-collectible edible ingredient and distinguish raw
+  food, seeds, and crafting-only materials in inventory and item-use feedback.
+- Player proof: the player can find, collect, save, and consume or reserve food.
+- Done when: edible forage is obtainable through normal exploration and never
+  conflicts with its recipe-material form.
+
+### [ ] 9.2 — Add the first persistent crop loop
+
+- Build: author one plot and seed with planting, growth, harvesting, and
+  reload-safe state. Defer watering, seasons, and large farm management until
+  the first loop is proven.
+- Player proof: planting now produces a later harvest instead of an instant item.
+- Done when: one crop survives area changes and reload, then yields a cookable ingredient.
+
+### [ ] 9.3 — Place the kitchen station
 
 - Build: author the kitchen station and its map-editor/runtime interaction path.
 - Player proof: the kitchen is visually distinct and easy to find inside the home.
 - Done when: its recipe family is separate from workbench and forge recipes.
 
-### [ ] 9.2 — Add food and buff recipes
+### [ ] 9.4 — Add food and buff recipes
 
 - Build: add at least one healing recipe and one temporary buff recipe with readable
-  item descriptions and use feedback.
+  item descriptions and use feedback through the shared station-aware crafting
+  workflow.
 - Player proof: preparation changes how the next exploration trip feels.
 - Done when: crafted food persists and applies its intended effect once.
 
-### [ ] 9.3 — Add one kitchen tier upgrade
+### [ ] 9.5 — Add one kitchen tier upgrade
 
 - Build: add a station upgrade and one stronger recipe tier.
 - Player proof: the kitchen has a reason to be upgraded.
 - Done when: the next tier is locked until the station upgrade is complete.
 
-**Milestone 9 complete when:** the player can prepare for exploration at home.
+**Milestone 9 complete when:** the player can forage or farm an ingredient, cook
+it at home, and use the result to prepare for exploration.
 
 ## 10. Alchemy Table — Potions And Monster Materials
 
@@ -514,8 +602,9 @@ form one understandable progression path.
 
 ### [ ] 14.4 — Harden saves, transitions, and performance
 
-- Build: test reloads, home moves, interior transitions, full inventories, enemy
-  camps, and repeated station use; fix duplication, loss, and softlock cases.
+- Build: extend and harden the Roadmap P save/load foundation under home moves,
+  interior transitions, full inventories, enemy camps, repeated station use,
+  and larger multi-map snapshots; fix duplication, loss, and softlock cases.
 - Player proof: progress feels safe enough to keep playing.
 - Done when: the target beta loop is stable and no known progression blocker remains.
 
@@ -524,17 +613,149 @@ upgrade home → craft → tackle tougher area loop with authored interiors and 
 
 ## Immediate Next Sprint
 
-Start with Milestone 1 only:
+Milestone 1 is complete. Establish the save/load foundation before adding more
+persistent map systems, then continue the smallest playable Milestone 2 slice:
 
-1. Add the wood item.
-2. Create one visible tree object with a collider.
-3. Add the starter gathering tool.
-4. Make the tree drop wood.
-5. Show pickup feedback and inventory count.
-6. Save and reload the result.
+1. Implement Roadmap P.1–P.5 from the named save/load/reset plan.
+2. Implement Roadmap 2.6 so loose materials use the generic walk-over
+   collectible path and Map Studio exposes collectible/resource attributes.
+3. Verify loose wood and stone sources for a fresh save.
+4. Extend the recipe model for the four approved starter recipes.
+5. Craft and assign the Stone Axe, Stone Pickaxe, and first spear through normal UI.
+6. Verify tool-gated trees and stone nodes with clear failure feedback.
+7. Author the guarded chest and persistent green-key exit.
+8. Remove normal automatic starter grants only after the complete replacement
+   loop passes a fresh-save and reload playtest.
 
-When those six tiles are checked, the game already has a new playable loop. Then
-move to stone and the first tool gate instead of expanding every resource at once.
+Keep the debug grant clearly separated from production progression while this
+slice is being built.
+
+## Cross-Cutting Persistence
+
+Implementation order, schema ownership, UI behavior, migration rules, and the
+acceptance matrix are defined in the
+[Named save, load, and reset implementation plan](./superpowers/plans/2026-08-24-named-save-load-reset-implementation-plan.md).
+
+### [~] P.1 — Define immutable initial game state
+
+- Build: declare `level-1.map.json` as the initial authored map and move the
+  initial player stats, equipment, inventory, location, and quest defaults into
+  one content-owned initial-state definition.
+- Player proof: starting or resetting a run always produces the same intentional
+  Level 1 setup without rebuilding inventory ad hoc in `WorldScene`.
+- Current: `src/game/content/initial-state/InitialRun.ts` owns the fresh-run
+  player, starter inventory, quests, Level 1 location, and empty map progress;
+  `GameState` and Reset Run consume fresh clones from that factory.
+- Done when: authored map files and the initial-player definition are the only
+  sources used to create a new run.
+
+### [~] P.2 — Store runtime progress per map
+
+- Build: replace the flat resource-state collection with a map-keyed runtime
+  state model. Each `mapId` owns deltas for its stable object instances,
+  resources, encounters, rewards, gates, and future placed content; authored map
+  JSON remains unchanged and acts only as the baseline.
+- Player proof: leaving Level 1, changing another map, and returning restores the
+  correct state of both maps independently.
+- Current: `WorldProgress` stores map-keyed resource, encounter, reward, gate,
+  and object-state containers, preserves unknown map IDs, and migrates legacy
+  composite resource keys at the progress boundary.
+- Done when: a save can contain state for multiple maps and loading one map never
+  discards state belonging to another.
+
+### [~] P.3 — Add named save records with explicit overwrite
+
+- Build: add a save index and independent named snapshot records. Save first
+  shows existing records, then lets the player explicitly overwrite one selected
+  record or create a new named record with a new stable ID. Overwrite requires
+  confirmation and never changes another record. Keep one separate recovery
+  autosave that never appears as a user-created named save.
+- Player proof: the player can create several named moments and see their name,
+  last-saved time, current map, and player level before deciding whether to
+  overwrite or create new.
+- Current: the repository now owns an indexed, newest-first list, independent
+  snapshot keys, recovery autosave, name validation, explicit conflict errors,
+  rollback-safe create/overwrite/delete, schema guards, and legacy-envelope
+  migration.
+- Done when: new-save and overwrite paths are explicit, canceling an overwrite
+  changes nothing, and older schemas migrate through validators instead of casts.
+
+### [~] P.4 — Add Save, Load, and Reset controls
+
+- Build: replace the ambiguous Restart Map action with three explicit controls:
+  **Save Game**, **Load Game**, and **Reset Run**. Save opens the snapshot browser
+  with **Overwrite** and **Create New Save** actions; Load opens the same records
+  in load mode; Reset confirms, discards only the active runtime state, restores
+  the initial player, and starts from the authored Level 1 map. Named saves
+  remain untouched unless the player explicitly overwrites or deletes one.
+- Player proof: the player can understand whether an action creates a snapshot,
+  loads one, or begins again from defaults before confirming it.
+- Current: Development Tools now exposes Save Game, Load Game, and Reset Run
+  modals with explicit overwrite confirmation, delete confirmation, name
+  validation feedback, operation locking, Escape/backdrop close, focus return,
+  and a persistence pause event. Typed handoffs rebuild the normal map-load path.
+- Done when: the controls pause gameplay safely, report failures, clean up their
+  listeners, and rebuild the world through the normal map-loading path.
+
+### [ ] P.5 — Verify complete multi-map round trips
+
+- Build: add schema/repository tests and a manual two-map playtest covering
+  partial resource damage, depleted objects, inventory, equipment, player
+  position, quests, map transitions, new saves, confirmed/canceled overwrites,
+  reset, and load.
+- Player proof: any named snapshot restores one coherent moment—player and every
+  visited map agree—while Reset Run reliably returns to untouched Level 1.
+- Current: schema tests, authored-content checks, production build, and a local
+  browser pass for named create/conflict/overwrite/load and modal focus are
+  green. The destructive reset click and a manual two-map resource round trip
+  remain before this task can be marked verified.
+- Done when: the persistence acceptance matrix passes, corrupted saves fail
+  visibly without damaging valid snapshots, and `pnpm check` passes.
+
+**Persistence foundation complete when:** authored maps remain immutable
+defaults, named saves are independent snapshots, every visited map keeps its own
+runtime deltas, and Reset Run restores Level 1 plus the initial player without
+deleting saved games.
+
+## Cross-Cutting Player Experience
+
+### [ ] UX.1 — Unify the bottom action dashboard and loadout workflow
+
+- Build: compose the existing six weapon/tool slots and fixed ability slots into
+  one responsive bottom dashboard. Add weapon assignment by drag/drop and an
+  accessible **Equip to slot 1–6** control, both routed through the existing
+  loadout authority. Follow
+  [Player action dashboard and loadout assignment](./task/ideas/open/player-action-dashboard-and-loadout.md).
+- Player proof: weapons, tools, abilities, hotkeys, cooldowns, locks, and the
+  active weapon are readable in one place.
+- Done when: both assignment methods produce identical saved state, swaps never
+  duplicate items, and the dashboard works on narrow through ultrawide layouts.
+
+### [ ] UX.2 — Make crafting station-aware without duplicating the popup
+
+- Build: refactor the existing crafting popup and recipe catalog to filter by
+  unlock, `portable`/Workbench/Forge/Kitchen/Alchemy context, and station tier.
+  Validate the transaction before consuming ingredients. Follow
+  [Station-aware crafting, food, and starter farming](./task/ideas/open/station-aware-crafting-food-and-farming.md).
+- Player proof: opening crafting in the field or at a station presents the right
+  recipes and explains every lock.
+- Done when: all station families use one component and recipe authority, wrong
+  stations cannot craft a recipe, and failed output never consumes materials.
+
+## Cross-Cutting World Authoring
+
+### [ ] E.1 — Build the shared world graph and all-map organizer
+
+- Build: project one validated world graph from authored exits; add draggable
+  map-preview cards and north/east/south/west connectors to Map Studio, then
+  rebuild the player full-map view from the same graph. Preserve dropdown
+  connection editing as the accessible fallback. Follow
+  [Shared world map and Map Studio graph](./task/ideas/open/global-map-and-map-joining.md).
+- Player proof: creators can see and organize every map, while players get a
+  useful discovered-world representation with current location and locked exits.
+- Done when: visual connectors and dropdowns edit the same reciprocal links,
+  graph layout never changes map-local content, and runtime/editor/validator all
+  agree on neighbors.
 
 ## Cross-Cutting Rendering Quality
 

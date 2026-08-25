@@ -2,7 +2,9 @@
 
 ## Status
 
-Proposed. This plan implements roadmap task 2.5 as a Map Studio workflow.
+Implemented; final manual floor/solid/import/reload acceptance remains before
+Roadmap task 2.5 is marked complete. The New object dialog, shared asset import,
+validated create endpoint, palette refresh, and placement workflow are present.
 
 ## Decision
 

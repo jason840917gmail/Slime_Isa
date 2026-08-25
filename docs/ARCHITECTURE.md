@@ -55,9 +55,9 @@ The remaining scene code is the migration boundary for UI composition, friend sp
 
 ## Persistence
 
-Save schema version 3 stores player state, inventory, quests, and world progress in one envelope. Player equipment now includes the active weapon ID and five persistent weapon hotbar slots. The repository reads older envelopes and split keys; missing loadout fields normalize to the starter loadout. Autosave is driven by typed domain events and is debounced.
+Save schema version 3 stores player state, inventory, quests, and world progress in one envelope. Player equipment now includes the active weapon ID and six persistent weapon hotbar slots. The repository reads older envelopes and split keys; missing loadout fields normalize to the starter loadout. Autosave is driven by typed domain events and is debounced.
 
-Weapon ownership is inventory-backed. Weapon definitions are registered as unique equipment items, `WeaponLoadout` validates ownership and slot assignment, and `CombatController` replaces the active weapon gameplay/visual pair only after the loadout authorizes a switch. Plain number keys 1–5 select the five loadout slots; development cheats use Shift+1–Shift+8.
+Weapon ownership is inventory-backed. Weapon definitions are registered as unique equipment items, `WeaponLoadout` validates ownership and slot assignment, and `CombatController` replaces the active weapon gameplay/visual pair only after the loadout authorizes a switch. Plain number keys 1–6 select the six loadout slots; development cheats use Shift+1–Shift+8.
 
 ## World dimensions
 

@@ -9,6 +9,10 @@
     }
   ],
   "physics": null,
-  "behavior": "collectible.purple-berry",
+  "behavior": "collectible.walk-over",
+  "collectible": {
+    "itemId": "purple-berry-mat",
+    "quantity": 1
+  },
   "tags": ["collectible", "food"]
 }

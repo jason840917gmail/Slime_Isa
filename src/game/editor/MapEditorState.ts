@@ -9,7 +9,9 @@ import type {
   MapPoint,
   MapZone,
 } from '../content/maps/mapFormat';
-import type { ObjectArchetypeId } from '../content/objects/ObjectCatalog';
+import { MapValidationError, parseMapFile } from '../content/maps/mapFormat';
+import { isObjectArchetypeId, type ObjectArchetypeId } from '../content/objects/ObjectCatalog';
+import { gameplayInitialStateKeys, validateObjectInitialState } from '../content/objects/ObjectInitialState';
 import type { WorldTileId } from '../content/terrain/TileCatalog';
 import { connectionAt, edgeEntryPoint, edgeExitZone, exitDirection, OPPOSITE_DIRECTION } from './MapConnections';
 
@@ -108,6 +110,47 @@ function normalizeEnemySpawnArea(area: MapEnemySpawnArea): MapEnemySpawnArea {
     })),
     intervalMs: Math.max(1, Math.round(area.intervalMs)),
     maxPopulation: Math.max(1, Math.round(area.maxPopulation)),
+  };
+}
+
+function resizeTerrainRows(rows: readonly string[], columns: number, targetRows: number, fillToken: string): string[] {
+  const fallbackRow = fillToken.repeat(columns);
+  return Array.from({ length: targetRows }, (_, rowIndex) => (
+    (rows[rowIndex] ?? fallbackRow).slice(0, columns).padEnd(columns, fillToken)
+  ));
+}
+
+function scalePoint(point: MapPoint, factor: number): MapPoint {
+  return {
+    x: Math.round(point.x * factor),
+    y: Math.round(point.y * factor),
+  };
+}
+
+function scaleZone(zone: MapZone, factor: number): MapZone {
+  return {
+    x: Math.round(zone.x * factor),
+    y: Math.round(zone.y * factor),
+    w: Math.max(1, Math.round(zone.w * factor)),
+    h: Math.max(1, Math.round(zone.h * factor)),
+  };
+}
+
+function scalePerimeter(perimeter: MapEnemyAreaPerimeter, factor: number): MapEnemyAreaPerimeter {
+  if (perimeter.shape === 'circle') {
+    return {
+      shape: 'circle',
+      x: Math.round(perimeter.x * factor),
+      y: Math.round(perimeter.y * factor),
+      radius: Math.max(1, Math.round(perimeter.radius * factor)),
+    };
+  }
+  return {
+    shape: 'rectangle',
+    x: Math.round(perimeter.x * factor),
+    y: Math.round(perimeter.y * factor),
+    w: Math.max(1, Math.round(perimeter.w * factor)),
+    h: Math.max(1, Math.round(perimeter.h * factor)),
   };
 }
 
@@ -211,6 +254,81 @@ export class MapEditorState {
     this.emit();
   }
 
+  updateMapDimensions(columns: number, rows: number, tileSize: number): boolean {
+    const nextColumns = Math.round(columns);
+    const nextRows = Math.round(rows);
+    const nextTileSize = Math.round(tileSize);
+    if (nextColumns < 1 || nextRows < 1 || nextTileSize < 1) {
+      this.notify('Map columns, rows, and tile size must be positive whole numbers');
+      return false;
+    }
+
+    const current = this.mapValue;
+    const tileScale = nextTileSize / current.tileSize;
+    const candidate = structuredClone(current) as EditableMap;
+    candidate.tileSize = nextTileSize;
+    candidate.size = { columns: nextColumns, rows: nextRows };
+    candidate.layers = candidate.layers.map((layer) => {
+      const fillToken = layer.rows[0]?.[0] ?? Object.keys(layer.legend)[0];
+      if (!fillToken) throw new Error(`Layer '${layer.id}' has no terrain token to use while resizing`);
+      return {
+        ...layer,
+        rows: resizeTerrainRows(layer.rows, nextColumns, nextRows, fillToken),
+      };
+    });
+    candidate.objects = candidate.objects.map((object) => ({
+      ...object,
+      x: Math.round(object.x * tileScale),
+      y: Math.round(object.y * tileScale),
+    }));
+    const nextEntries: Partial<Record<MapDirection, MapPoint>> = {};
+    for (const [direction, point] of Object.entries(candidate.player.entries)) {
+      if (point) nextEntries[direction as MapDirection] = scalePoint(point, tileScale);
+    }
+    candidate.player = {
+      ...candidate.player,
+      spawn: scalePoint(candidate.player.spawn, tileScale),
+      entries: nextEntries,
+    };
+    if (candidate.exits) {
+      candidate.exits = candidate.exits.map((exit) => ({ ...exit, zone: scaleZone(exit.zone, tileScale) }));
+    }
+    if (candidate.enemySafeZones) {
+      candidate.enemySafeZones = candidate.enemySafeZones.map((zone) => scaleZone(zone, tileScale));
+    }
+    if (candidate.enemySpawnAreas) {
+      candidate.enemySpawnAreas = candidate.enemySpawnAreas.map((area) => ({
+        ...area,
+        stayPerimeter: scalePerimeter(area.stayPerimeter, tileScale),
+        pursuePerimeter: scalePerimeter(area.pursuePerimeter, tileScale),
+      }));
+    }
+    if (candidate.spawns) {
+      candidate.spawns = {
+        ...candidate.spawns,
+        radius: {
+          min: Math.max(0, Math.round(candidate.spawns.radius.min * tileScale)),
+          max: Math.max(1, Math.round(candidate.spawns.radius.max * tileScale)),
+        },
+        safeZones: candidate.spawns.safeZones.map((zone) => scaleZone(zone, tileScale)),
+      };
+    }
+
+    try {
+      parseMapFile(candidate, candidate.mapId);
+    } catch (error) {
+      const message = error instanceof MapValidationError
+        ? error.issues[0] ?? error.message
+        : error instanceof Error ? error.message : String(error);
+      this.notify(`Resize rejected: ${message}`);
+      return false;
+    }
+
+    return this.mutate(`Updated map size to ${nextColumns} × ${nextRows} tiles`, (map) => {
+      Object.assign(map, candidate);
+    });
+  }
+
   setEnemyAreaShape(shape: MapEnemyAreaShape): void {
     this.enemyAreaShapeValue = shape;
     if (this.toolValue === 'enemy-area') this.statusValue = `Drag to author a ${shape} enemy area`;
@@ -284,6 +402,34 @@ export class MapEditorState {
       ? `Selected enemy area ${areaId} — drag to move, resize from a corner, edit, or delete`
       : 'Enemy-area selection cleared';
     this.emit();
+  }
+
+  updateObjectInitialState(instanceId: string, patch: Readonly<Record<string, unknown>>): boolean {
+    const object = this.mapValue.objects.find((candidate) => candidate.instanceId === instanceId);
+    if (!object || !isObjectArchetypeId(object.objectId)) return false;
+    const candidate = { ...(object.initialState ?? {}), ...structuredClone(patch) };
+    const issues = validateObjectInitialState(object.objectId, candidate);
+    if (issues.length > 0) {
+      this.notify(issues[0]);
+      return false;
+    }
+    return this.mutate(`Updated ${instanceId} gameplay overrides`, (map) => {
+      const target = map.objects.find((candidate) => candidate.instanceId === instanceId);
+      if (target) target.initialState = candidate;
+    });
+  }
+
+  clearObjectInitialStateKeys(instanceId: string, keys?: readonly string[]): boolean {
+    const selected = this.mapValue.objects.find((candidate) => candidate.instanceId === instanceId);
+    if (!selected || !isObjectArchetypeId(selected.objectId)) return false;
+    const ownedKeys = keys ?? gameplayInitialStateKeys(selected.objectId);
+    return this.mutate(`Cleared ${instanceId} gameplay overrides`, (map) => {
+      const object = map.objects.find((candidate) => candidate.instanceId === instanceId);
+      if (!object?.initialState) return;
+      const next = { ...object.initialState };
+      ownedKeys.forEach((key) => delete next[key]);
+      object.initialState = Object.keys(next).length > 0 ? next : undefined;
+    });
   }
 
   clearSelection(): void {

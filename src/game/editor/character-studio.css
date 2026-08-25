@@ -3145,6 +3145,47 @@
   outline: none;
 }
 
+#app.is-character-studio-host .layered-source-sheet-control {
+  display: grid;
+  gap: 8px;
+  margin: 10px 0 12px;
+  padding: 10px;
+  border: 1px solid rgba(121, 232, 225, 0.14);
+  border-left: 2px solid var(--studio-cyan);
+  border-radius: 4px;
+  background:
+    linear-gradient(135deg, rgba(121, 232, 225, 0.06), transparent 44%),
+    rgba(2, 7, 15, 0.44);
+}
+
+#app.is-character-studio-host .layered-source-sheet-search-box {
+  position: relative;
+  display: block;
+}
+
+#app.is-character-studio-host .layered-source-sheet-search-box > i {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: 9px;
+  color: var(--studio-cyan);
+  font-size: 14px;
+  font-style: normal;
+  line-height: 1;
+  transform: translateY(-52%);
+  pointer-events: none;
+}
+
+#app.is-character-studio-host .layered-source-sheet-search-box > input {
+  padding-left: 29px;
+  border-color: rgba(121, 232, 225, 0.22);
+}
+
+#app.is-character-studio-host .layered-source-sheet-search small {
+  color: var(--studio-cyan);
+  font-variant-numeric: tabular-nums;
+}
+
 #app.is-character-studio-host .layered-workbench-splitter:hover::before,
 #app.is-character-studio-host .layered-workbench-splitter:focus-visible::before,
 #app.is-character-studio-host .layered-weapon-studio.is-splitting .layered-workbench-splitter::before {

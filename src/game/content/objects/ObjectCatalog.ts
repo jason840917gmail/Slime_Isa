@@ -4,13 +4,17 @@ import amberOreMineableJson from './rocks/rock-amber-ore-mineable.json';
 import worldWallDecorativeJson from './rocks/rock-world-wall-decorative.json';
 import worldWallSolidJson from './rocks/rock-world-wall-solid.json';
 import purpleBerryJson from './collectibles/collectible-purple-berry.json';
+import charcoalPileJson from './collectibles/collectible-charcoal-pile.json';
+import ironOrePileJson from './collectibles/collectible-iron-ore-pile.json';
+import smallStonePileJson from './collectibles/collectible-small-stone-pile.json';
+import smallWoodPileJson from './collectibles/collectible-small-wood-pile.json';
 import decorationWorldFloorJson from './decorations/decoration-world-floor.json';
 import decorationWorldSolidJson from './decorations/decoration-world-solid.json';
 import houseWorldSolidJson from './houses/house-world-solid.json';
 import treeWorldSolidJson from './trees/tree-world-solid.json';
-import woodPileJson from './resources/resource-wood-pile.json';
+import woodPileJson from './collectibles/collectible-wood-pile.json';
 import stoneNodeJson from './resources/resource-stone-node.json';
-import stonePileJson from './resources/resource-stone-pile.json';
+import stonePileJson from './collectibles/collectible-stone-pile.json';
 import wallStoneSolidJson from './walls/wall-stone-solid.json';
 
 export interface ColliderBounds {
@@ -69,32 +73,40 @@ export interface ObjectArchetypeDefinition {
   readonly variants: readonly ObjectVariantGroup[];
   readonly physics: null | { readonly body: 'static' };
   readonly behavior?: string;
+  readonly collectible?: {
+    readonly itemId: string;
+    readonly quantity: number;
+  };
   readonly destructible?: {
     readonly health: number;
     readonly drops: readonly string[];
   };
   readonly resourceNode?: {
     readonly health: number;
-    readonly dropItem: string;
-    readonly dropCount: number;
+    readonly drop: {
+      readonly objectId: string;
+      readonly visualId: string;
+      readonly pieces: number;
+    };
     /** Optional material-oriented feedback package played after positive damage. */
     readonly hitEffectId?: string;
     readonly persistHealth?: boolean;
     readonly depletionMessage?: string;
-    readonly replacement?: {
-      readonly objectId: string;
-      readonly visualId: string;
+    readonly harvestRequirement?: {
+      readonly targetTag: string;
+      readonly minimumTier: number;
+      readonly failureMessage: string;
     };
-  };
-  readonly resourcePile?: {
-    readonly itemId: string;
-    readonly amount: number;
   };
   readonly tags: readonly string[];
 }
 
 const OBJECT_FILES = {
+  'collectible.charcoal-pile': charcoalPileJson,
+  'collectible.iron-ore-pile': ironOrePileJson,
   'collectible.purple-berry': purpleBerryJson,
+  'collectible.small-stone-pile': smallStonePileJson,
+  'collectible.small-wood-pile': smallWoodPileJson,
   'decoration.world.floor': decorationWorldFloorJson,
   'decoration.world.solid': decorationWorldSolidJson,
   'house.world.solid': houseWorldSolidJson,
@@ -102,9 +114,9 @@ const OBJECT_FILES = {
   'rock.world-wall.decorative': worldWallDecorativeJson,
   'rock.world-wall.solid': worldWallSolidJson,
   'tree.world.solid': treeWorldSolidJson,
-  'resource.wood-pile': woodPileJson,
+  'collectible.wood-pile': woodPileJson,
   'resource.stone-node': stoneNodeJson,
-  'resource.stone-pile': stonePileJson,
+  'collectible.stone-pile': stonePileJson,
   'wall.stone.solid': wallStoneSolidJson,
 } as const;
 

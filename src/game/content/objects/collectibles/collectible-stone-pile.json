@@ -1,33 +1,27 @@
 {
   "$schema": "../objects.schema.json",
-  "objectId": "resource.stone-pile",
+  "objectId": "collectible.stone-pile",
   "selection": "authored",
   "variants": [
     {
-      "assetId": "sheet.resources.4x2",
+      "assetId": "sheet.resources.starter-materials.2x1",
       "frames": [
         {
           "visualId": "stone-pile",
-          "frame": 5,
+          "frame": 1,
           "displayName": "Stone pile",
           "scale": 0.6,
-          "visualOffset": {
-            "x": 0,
-            "y": 0
-          }
+          "visualOffset": { "x": 0, "y": 0 }
         }
       ]
     }
   ],
   "physics": null,
-  "resourcePile": {
+  "behavior": "collectible.walk-over",
+  "collectible": {
     "itemId": "stone",
-    "amount": 10
+    "quantity": 10
   },
-  "tags": [
-    "stone",
-    "resource",
-    "pile",
-    "collectible"
-  ]
+  "tags": ["collectible", "stone", "material"]
 }
+

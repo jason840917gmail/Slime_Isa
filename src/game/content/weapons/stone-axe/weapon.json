@@ -1,0 +1,99 @@
+{
+  "$schema": "../weapon.schema.json",
+  "version": 2,
+  "weaponId": "stone-axe",
+  "displayName": "Stone Axe",
+  "category": "melee",
+  "characterActionId": "attack-1",
+  "animations": {
+    "idleAnimationId": "weapon.stone-axe.idle"
+  },
+  "directionalAttacks": {
+    "right": {
+      "characterActionId": "attack-1",
+      "hitboxes": {
+        "axe-head": {
+          "shape": "rectangle",
+          "width": 30,
+          "height": 30,
+          "offsetX": 50,
+          "offsetY": 20,
+          "damageMultiplier": 1,
+          "knockbackMultiplier": 0.35
+        }
+      },
+      "attackTrack": {
+        "hitboxSpans": [
+          {
+            "hitboxId": "axe-head",
+            "from": 5,
+            "through": 7
+          }
+        ],
+        "events": []
+      },
+      "animationId": "weapon.stone-axe.attack.right"
+    },
+    "down": {
+      "characterActionId": "attack-1",
+      "hitboxes": {
+        "axe-head": {
+          "shape": "rectangle",
+          "width": 30,
+          "height": 30,
+          "offsetX": 70,
+          "offsetY": 0,
+          "damageMultiplier": 1,
+          "knockbackMultiplier": 0.35
+        }
+      },
+      "attackTrack": {
+        "hitboxSpans": [
+          {
+            "hitboxId": "axe-head",
+            "from": 5,
+            "through": 7
+          }
+        ],
+        "events": []
+      },
+      "animationId": "weapon.stone-axe.attack.down"
+    }
+  },
+  "presentation": {
+    "facingMode": "vector"
+  },
+  "baseDamage": 12,
+  "cooldownMs": 900,
+  "hitboxWidth": 58,
+  "hitboxHeight": 46,
+  "hitboxOffset": 42,
+  "hitboxDurationMs": 160,
+  "knockStrength": 70,
+  "damageModifiers": [
+    {
+      "targetTag": "stone",
+      "modifier": 0
+    },
+    {
+      "targetTag": "wood",
+      "modifier": 1
+    },
+    {
+      "targetTag": "resource",
+      "modifier": 0
+    },
+    {
+      "targetTag": "enemy",
+      "modifier": 0.2
+    }
+  ],
+  "harvestCapabilities": {
+    "wood": 1
+  },
+  "vfxColor": 14311290,
+  "unlockLevel": 1,
+  "iconKey": "weapon-player-stone-tools-tiles",
+  "iconFrame": 2,
+  "description": "A chipped-stone axe made for harvesting trees."
+}

@@ -1,0 +1,80 @@
+{
+  "wood": {
+    "id": "wood",
+    "name": "Wood",
+    "category": "material",
+    "icon": "resources-starter-materials-2x1",
+    "iconFrame": 0,
+    "description": "Freshly gathered timber for tools, weapons, and building.",
+    "maxStack": 99
+  },
+  "stone": {
+    "id": "stone",
+    "name": "Stone",
+    "category": "material",
+    "icon": "resources-starter-materials-2x1",
+    "iconFrame": 1,
+    "description": "Rough stone gathered from broken rock nodes.",
+    "maxStack": 99
+  },
+  "iron-ore": {
+    "id": "iron-ore",
+    "name": "Iron Ore",
+    "category": "material",
+    "icon": "resources-4x2",
+    "iconFrame": 6,
+    "description": "Dense iron-bearing ore ready to be refined into metal.",
+    "maxStack": 99
+  },
+  "charcoal": {
+    "id": "charcoal",
+    "name": "Charcoal",
+    "category": "material",
+    "icon": "resources-4x2",
+    "iconFrame": 7,
+    "description": "A lightweight fuel used for smelting and advanced crafting.",
+    "maxStack": 99
+  },
+  "hp-potion": {
+    "id": "hp-potion",
+    "name": "Slime Tonic",
+    "category": "consumable",
+    "icon": "hp-potion",
+    "description": "Restores 40 HP.",
+    "maxStack": 9,
+    "use": { "healHp": 40 }
+  },
+  "energy-potion": {
+    "id": "energy-potion",
+    "name": "Fizzy Brew",
+    "category": "consumable",
+    "icon": "energy-potion",
+    "description": "Restores 50 energy.",
+    "maxStack": 9,
+    "use": { "healEnergy": 50 }
+  },
+  "purple-berry-mat": {
+    "id": "purple-berry-mat",
+    "name": "Purple Berry",
+    "category": "material",
+    "icon": "purple-berry",
+    "description": "A sweet foraged berry. Used in brewing.",
+    "maxStack": 99
+  },
+  "silk-clump": {
+    "id": "silk-clump",
+    "name": "Sticky Silk",
+    "category": "material",
+    "icon": "silk-clump",
+    "description": "Clumpy silk from a spider-slime.",
+    "maxStack": 99
+  },
+  "shard": {
+    "id": "shard",
+    "name": "Crystal Shard",
+    "category": "collectible",
+    "icon": "shard",
+    "description": "A glittering crystal. Could power something.",
+    "maxStack": 99
+  }
+}

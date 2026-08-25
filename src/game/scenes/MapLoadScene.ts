@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 
-import { resolveAreaRequest } from '../features/world-navigation/AreaNavigation';
+import { peekRunNavigation, resolveAreaRequest } from '../features/world-navigation/AreaNavigation';
 import { mapRepository } from '../infrastructure/maps/MapRepository';
 
 /** Resolves lazy authored content before WorldScene creates physics or entities. */
@@ -11,10 +11,14 @@ export class MapLoadScene extends Phaser.Scene {
 
   create(): void {
     const request = resolveAreaRequest({});
+    const pending = peekRunNavigation();
     const devMapOverride = import.meta.env.DEV
       ? new URLSearchParams(window.location.search).get('map')
       : null;
-    const mapId = devMapOverride ?? request.area.mapId;
+    // Explicit load/reset/area handoffs own precedence over development
+    // query overrides. The query remains useful only when no run request is
+    // waiting to be consumed.
+    const mapId = pending?.mapId ?? devMapOverride ?? request.area.mapId;
     const status = this.add.text(
       this.cameras.main.centerX,
       this.cameras.main.centerY,
@@ -29,8 +33,8 @@ export class MapLoadScene extends Phaser.Scene {
         }
         status.destroy();
         this.scene.start('world', {
-          areaId: request.area.id,
-          entryEdge: request.entryEdge,
+          areaId: pending?.mapId ?? request.area.id,
+          entryEdge: pending?.entryEdge ?? request.entryEdge,
           loadedMap,
         });
       })

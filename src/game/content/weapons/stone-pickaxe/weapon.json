@@ -1,0 +1,28 @@
+{
+  "$schema": "../weapon.schema.json",
+  "version": 2,
+  "weaponId": "stone-pickaxe",
+  "displayName": "Stone Pickaxe",
+  "category": "melee",
+  "characterActionId": "attack-1",
+  "animations": { "idleAnimationId": "weapon.stone-pickaxe.idle" },
+  "directionalAttacks": {
+    "right": { "characterActionId": "attack-1", "hitboxes": { "pickaxe-head": { "shape": "rectangle", "width": 40, "height": 40, "offsetX": 42, "offsetY": 15, "damageMultiplier": 1, "knockbackMultiplier": 0.2 } }, "attackTrack": { "hitboxSpans": [{ "hitboxId": "pickaxe-head", "from": 4, "through": 5 }], "events": [] }, "animationId": "weapon.stone-pickaxe.attack.right" },
+    "down": { "characterActionId": "attack-1", "hitboxes": { "pickaxe-head": { "shape": "rectangle", "width": 40, "height": 40, "offsetX": 42, "offsetY": 0, "damageMultiplier": 1, "knockbackMultiplier": 0.2 } }, "attackTrack": { "hitboxSpans": [{ "hitboxId": "pickaxe-head", "from": 4, "through": 5 }], "events": [] }, "animationId": "weapon.stone-pickaxe.attack.down" }
+  },
+  "presentation": { "facingMode": "vector" },
+  "baseDamage": 12,
+  "cooldownMs": 900,
+  "hitboxWidth": 58,
+  "hitboxHeight": 46,
+  "hitboxOffset": 42,
+  "hitboxDurationMs": 160,
+  "knockStrength": 70,
+  "damageModifiers": [{ "targetTag": "stone", "modifier": 1 }, { "targetTag": "resource", "modifier": 0 }, { "targetTag": "enemy", "modifier": 0.2 }],
+  "harvestCapabilities": { "stone": 1 },
+  "vfxColor": 11259375,
+  "unlockLevel": 1,
+  "iconKey": "weapon-player-stone-tools-tiles",
+  "iconFrame": 3,
+  "description": "A stone-headed pick made for breaking rock nodes."
+}

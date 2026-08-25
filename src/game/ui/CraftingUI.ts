@@ -133,7 +133,7 @@ export class CraftingUI {
     });
 
     if (selected) {
-      container.add(scene.add.text(left - 30, y + 2, 'â–¶', {
+      container.add(scene.add.text(left - 30, y + 2, '▶', {
         fontFamily: FONT,
         fontSize: '18px',
         color: '#ffdf8a',
@@ -144,7 +144,9 @@ export class CraftingUI {
 
     const outputDef = itemRegistry.get(recipe.output.itemId);
     if (outputDef) {
-      container.add(scene.add.image(left + 20, y + 4, outputDef.icon).setDisplaySize(36, 36));
+      const icon = scene.add.image(left + 20, y + 4, outputDef.icon).setDisplaySize(36, 36);
+      if (outputDef.iconFrame !== undefined) icon.setFrame(outputDef.iconFrame);
+      container.add(icon);
     }
 
     container.add(scene.add.text(left + 50, y - 20, recipe.name, {
@@ -162,7 +164,7 @@ export class CraftingUI {
       wordWrap: { width: 315 },
     }).setOrigin(0, 0.5));
 
-    const costs = recipe.ingredients.map((i) => `${itemName(i.itemId)} ${playerInventory.count(i.itemId)}/${i.count}`).join('  Â·  ');
+    const costs = recipe.ingredients.map((i) => `${itemName(i.itemId)} ${playerInventory.count(i.itemId)}/${i.count}`).join('  ·  ');
     container.add(scene.add.text(left + 50, y + 24, costs, {
       fontFamily: FONT,
       fontSize: '11px',

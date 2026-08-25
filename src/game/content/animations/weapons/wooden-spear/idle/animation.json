@@ -1,0 +1,59 @@
+{
+  "$schema": "../../../animation-package.schema.json",
+  "version": 1,
+  "animationId": "weapon.wooden-spear.idle",
+  "displayName": "Wooden Spear idle",
+  "description": "Wooden Spear idle with authored starter spear artwork.",
+  "animation": {
+    "version": 2,
+    "durationSeconds": 1,
+    "framesPerSecond": 8,
+    "loop": true,
+    "loopMode": "wrap",
+    "layers": [
+      {
+        "layerId": "spear",
+        "displayName": "Spear and swing trail",
+        "assetId": "weapon.player.starter-spears-tiles",
+        "depthOffset": 0,
+        "blocks": [
+          {
+            "from": 0,
+            "through": 7,
+            "sourceFrame": 0,
+            "transform": {
+              "offset": [
+                0,
+                0
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 0,
+              "flipX": false,
+              "flipY": false
+            }
+          }
+        ],
+        "transform": {
+          "offset": [
+            0,
+            0
+          ],
+          "scale": [
+            0.6,
+            0.6
+          ],
+          "rotationDeg": 0,
+          "flipX": false,
+          "flipY": false,
+          "origin": [
+            0.5,
+            0.5
+          ]
+        }
+      }
+    ]
+  }
+}
