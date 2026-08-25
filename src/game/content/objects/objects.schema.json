@@ -6,6 +6,22 @@
   "type": "object",
   "required": ["objectId", "selection", "variants", "physics", "tags"],
   "additionalProperties": false,
+  "allOf": [
+    { "not": { "required": ["collectible", "resourceNode"] } },
+    {
+      "if": { "required": ["collectible"] },
+      "then": {
+        "properties": {
+          "physics": { "type": "null" },
+          "tags": { "contains": { "const": "collectible" } }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "tags": { "contains": { "const": "collectible" } } }, "required": ["tags"] },
+      "then": { "required": ["collectible"] }
+    }
+  ],
   "properties": {
     "$schema": { "type": "string" },
     "objectId": {
@@ -28,9 +44,9 @@
       "type": "string",
       "pattern": "^[a-z0-9]+([.-][a-z0-9-]+)+$"
     },
+    "collectible": { "$ref": "#/$defs/collectible" },
     "destructible": { "$ref": "#/$defs/destructible" },
     "resourceNode": { "$ref": "#/$defs/resourceNode" },
-    "resourcePile": { "$ref": "#/$defs/resourcePile" },
     "tags": {
       "type": "array",
       "items": { "type": "string", "pattern": "^[a-z0-9-]+$" },
@@ -140,35 +156,45 @@
         }
       }
     },
+    "collectible": {
+      "type": "object",
+      "required": ["itemId", "quantity"],
+      "additionalProperties": false,
+      "properties": {
+        "itemId": { "type": "string", "minLength": 1 },
+        "quantity": { "type": "integer", "minimum": 1 }
+      }
+    },
     "resourceNode": {
       "type": "object",
-      "required": ["health", "dropItem", "dropCount"],
+      "required": ["health", "drop"],
       "additionalProperties": false,
       "properties": {
         "health": { "type": "integer", "minimum": 1 },
-        "dropItem": { "type": "string", "minLength": 1 },
-        "dropCount": { "type": "integer", "minimum": 1 },
+        "drop": { "$ref": "#/$defs/resourceDrop" },
         "hitEffectId": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
         "persistHealth": { "type": "boolean" },
         "depletionMessage": { "type": "string", "minLength": 1, "maxLength": 80 },
-        "replacement": {
+        "harvestRequirement": {
           "type": "object",
-          "required": ["objectId", "visualId"],
+          "required": ["targetTag", "minimumTier", "failureMessage"],
           "additionalProperties": false,
           "properties": {
-            "objectId": { "type": "string", "minLength": 1 },
-            "visualId": { "type": "string", "minLength": 1 }
+            "targetTag": { "type": "string", "minLength": 1 },
+            "minimumTier": { "type": "integer", "minimum": 1 },
+            "failureMessage": { "type": "string", "minLength": 1, "maxLength": 80 }
           }
         }
       }
     },
-    "resourcePile": {
+    "resourceDrop": {
       "type": "object",
-      "required": ["itemId", "amount"],
+      "required": ["objectId", "visualId", "pieces"],
       "additionalProperties": false,
       "properties": {
-        "itemId": { "type": "string", "minLength": 1 },
-        "amount": { "type": "integer", "minimum": 1 }
+        "objectId": { "type": "string", "pattern": "^[a-z0-9]+([.-][a-z0-9-]+)+$" },
+        "visualId": { "type": "string", "minLength": 1 },
+        "pieces": { "type": "integer", "minimum": 1 }
       }
     }
   }

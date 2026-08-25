@@ -1,0 +1,202 @@
+{
+  "$schema": "./maps.schema.json",
+  "version": 1,
+  "mapId": "level-1",
+  "tileSize": 64,
+  "size": {
+    "columns": 24,
+    "rows": 18
+  },
+  "layers": [
+    {
+      "id": "ground",
+      "encoding": "legend-chars-v1",
+      "legend": {
+        "g": "grass-a"
+      },
+      "rows": [
+        "gggggggggggggggggggggggg",
+        "gggggggggggggggggggggggg",
+        "gggggggggggggggggggggggg",
+        "gggggggggggggggggggggggg",
+        "gggggggggggggggggggggggg",
+        "gggggggggggggggggggggggg",
+        "gggggggggggggggggggggggg",
+        "gggggggggggggggggggggggg",
+        "gggggggggggggggggggggggg",
+        "gggggggggggggggggggggggg",
+        "gggggggggggggggggggggggg",
+        "gggggggggggggggggggggggg",
+        "gggggggggggggggggggggggg",
+        "gggggggggggggggggggggggg",
+        "gggggggggggggggggggggggg",
+        "gggggggggggggggggggggggg",
+        "gggggggggggggggggggggggg",
+        "gggggggggggggggggggggggg"
+      ]
+    }
+  ],
+  "objects": [
+    {
+      "instanceId": "level-1-loose-wood-01",
+      "objectId": "collectible.wood-pile",
+      "visualId": "wood-pile",
+      "x": 512,
+      "y": 512
+    },
+    {
+      "instanceId": "level-1-loose-wood-02",
+      "objectId": "collectible.wood-pile",
+      "visualId": "wood-pile",
+      "x": 608,
+      "y": 448
+    },
+    {
+      "instanceId": "level-1-loose-wood-03",
+      "objectId": "collectible.wood-pile",
+      "visualId": "wood-pile",
+      "x": 704,
+      "y": 512
+    },
+    {
+      "instanceId": "level-1-loose-wood-04",
+      "objectId": "collectible.wood-pile",
+      "visualId": "wood-pile",
+      "x": 608,
+      "y": 576
+    },
+    {
+      "instanceId": "level-1-loose-stone-01",
+      "objectId": "collectible.stone-pile",
+      "visualId": "stone-pile",
+      "x": 800,
+      "y": 448
+    },
+    {
+      "instanceId": "level-1-loose-stone-02",
+      "objectId": "collectible.stone-pile",
+      "visualId": "stone-pile",
+      "x": 832,
+      "y": 544
+    },
+    {
+      "instanceId": "level-1-stone-node-01",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 1056,
+      "y": 352
+    },
+    {
+      "instanceId": "level-1-stone-node-02",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "x": 1184,
+      "y": 448
+    },
+    {
+      "instanceId": "level-1-tree-01",
+      "objectId": "tree.world.solid",
+      "visualId": "tree-autumn-01",
+      "x": 352,
+      "y": 288
+    },
+    {
+      "instanceId": "level-1-tree-02",
+      "objectId": "tree.world.solid",
+      "visualId": "tree-autumn-01",
+      "x": 288,
+      "y": 480
+    },
+    {
+      "instanceId": "level-1-tree-03",
+      "objectId": "tree.world.solid",
+      "visualId": "tree-autumn-01",
+      "x": 352,
+      "y": 704
+    },
+    {
+      "instanceId": "level-1-tree-04",
+      "objectId": "tree.world.solid",
+      "visualId": "tree-autumn-01",
+      "x": 512,
+      "y": 832
+    },
+    {
+      "instanceId": "resource-stone-node-f518b5a3",
+      "objectId": "resource.stone-node",
+      "visualId": "big.stone.mine",
+      "x": 800,
+      "y": 256
+    },
+    {
+      "instanceId": "resource-stone-node-4c37387b",
+      "objectId": "resource.stone-node",
+      "visualId": "big.stone.mine",
+      "x": 864,
+      "y": 256
+    },
+    {
+      "instanceId": "resource-stone-node-221c2835",
+      "objectId": "resource.stone-node",
+      "visualId": "big.stone.mine",
+      "x": 864,
+      "y": 320
+    },
+    {
+      "instanceId": "resource-stone-node-c64bd17b",
+      "objectId": "resource.stone-node",
+      "visualId": "big.stone.mine",
+      "x": 800,
+      "y": 320
+    }
+  ],
+  "player": {
+    "spawn": {
+      "x": 640,
+      "y": 704
+    },
+    "entries": {
+      "east": {
+        "x": 1408,
+        "y": 576
+      }
+    }
+  },
+  "exits": [],
+  "enemySafeZones": [
+    {
+      "x": 416,
+      "y": 384,
+      "w": 448,
+      "h": 448
+    }
+  ],
+  "enemySpawnAreas": [
+    {
+      "id": "level-1-starter-camp",
+      "stayPerimeter": {
+        "shape": "rectangle",
+        "x": 960,
+        "y": 672,
+        "w": 384,
+        "h": 256
+      },
+      "pursuePerimeter": {
+        "shape": "rectangle",
+        "x": 896,
+        "y": 608,
+        "w": 512,
+        "h": 384
+      },
+      "enemies": [
+        {
+          "type": "worm-brawler",
+          "weight": 1,
+          "maxAlive": 3
+        }
+      ],
+      "intervalMs": 2500,
+      "maxPopulation": 3
+    }
+  ]
+}

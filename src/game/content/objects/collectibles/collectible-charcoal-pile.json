@@ -1,0 +1,26 @@
+{
+  "$schema": "../objects.schema.json",
+  "objectId": "collectible.charcoal-pile",
+  "selection": "authored",
+  "variants": [
+    {
+      "assetId": "sheet.resources.4x2",
+      "frames": [
+        {
+          "visualId": "charcoal-pile",
+          "frame": 7,
+          "displayName": "Charcoal pile",
+          "scale": 1,
+          "visualOffset": { "x": 0, "y": 0 }
+        }
+      ]
+    }
+  ],
+  "physics": null,
+  "behavior": "collectible.walk-over",
+  "collectible": {
+    "itemId": "charcoal",
+    "quantity": 5
+  },
+  "tags": ["collectible", "charcoal", "fuel", "material", "small-pile"]
+}

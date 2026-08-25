@@ -6,6 +6,7 @@ import {
   DEFAULT_CAMERA_ZOOM,
   cameraRenderingMode,
   closestCameraZoomIndex,
+  formatCameraZoom,
   isIntegerCameraZoom,
   nextCameraZoom,
 } from '../../../src/game/presentation/CameraZoom.ts';
@@ -16,8 +17,6 @@ import {
   resolveDeadzoneCenter,
   responsiveDeadzoneSize,
 } from '../../../src/game/presentation/CameraMotion.ts';
-import { formatCameraZoom } from '../../../src/game/devTools.ts';
-
 test('development tools format the current zoom as a compact multiplier', () => {
   assert.equal(formatCameraZoom(1), '1×');
   assert.equal(formatCameraZoom(0.75), '0.75×');

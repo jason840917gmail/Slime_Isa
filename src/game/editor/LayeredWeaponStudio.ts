@@ -18,7 +18,7 @@ import type {
   WeaponAttackTrackDocument,
 } from '../content/weapons/types';
 import { validateWeaponDefinition } from '../content/weapons/validation';
-import { resolveAssetUrl } from '../infrastructure/assets/assetUrls';
+import { resolveAssetUrl, tryResolveAssetUrl } from '../infrastructure/assets/assetUrls';
 import {
   DOWN_UP_INHERITANCE,
   layeredAnimationFrameAtStep,
@@ -70,6 +70,7 @@ interface StudioState {
   readonly effects: readonly CatalogEffect[];
   readonly animationPackages: readonly AnimationPackageCatalogEntry[];
   readonly librarySearch: string;
+  readonly sourceSheetSearch: string;
   readonly expandedFolders: ReadonlySet<string>;
   readonly selectedId: string;
   readonly draft?: LayeredWeaponDefinition;
@@ -203,6 +204,9 @@ function escapeHtml(value: unknown): string {
 }
 
 function assetInfo(asset: CharacterStudioAssetEntry | undefined) {
+  if (asset && !tryResolveAssetUrl(asset.sourcePath)) {
+    return { url: resolveAssetUrl(asset.sourcePath), width: 128, height: 128, columns: 1, rows: 1, count: 1 };
+  }
   const frame = asset?.frame;
   return {
     url: asset ? resolveAssetUrl(asset.sourcePath) : '',
@@ -216,6 +220,13 @@ function assetInfo(asset: CharacterStudioAssetEntry | undefined) {
 
 function spritesheetAssets(assets: CharacterStudioAssetCatalog | undefined): readonly CharacterStudioAssetEntry[] {
   return assets?.assets.filter((asset) => asset.kind === 'spritesheet') ?? [];
+}
+
+function sourceSheetMatches(asset: CharacterStudioAssetEntry, query: string): boolean {
+  const normalizedQuery = query.trim().toLocaleLowerCase();
+  if (!normalizedQuery) return true;
+  return [asset.assetId, asset.sourcePath, asset.textureKey, ...asset.tags]
+    .some((value) => value.toLocaleLowerCase().includes(normalizedQuery));
 }
 
 function animationFor(state: StudioState): LayeredAnimationDocument | undefined {
@@ -852,7 +863,17 @@ function renderCombatInspector(state: StudioState): string {
 function renderLayerInspector(state: StudioState, animation: LayeredAnimationDocument): string {
   const layer = selectedLayer(state, animation);
   if (!layer) return `<section class="studio-inspector-section"><p class="studio-empty-note">Add a visual layer to start this animation.</p></section>`;
-  const options = spritesheetAssets(state.assets).map((asset) => `<option value="${escapeHtml(asset.assetId)}" ${asset.assetId === layer.assetId ? 'selected' : ''}>${escapeHtml(asset.assetId)}</option>`).join('');
+  const allSourceSheets = spritesheetAssets(state.assets);
+  const matchingSourceSheets = allSourceSheets.filter((asset) => sourceSheetMatches(asset, state.sourceSheetSearch));
+  const selectedSourceSheet = allSourceSheets.find((asset) => asset.assetId === layer.assetId);
+  const visibleSourceSheets = selectedSourceSheet && !matchingSourceSheets.includes(selectedSourceSheet)
+    ? [selectedSourceSheet, ...matchingSourceSheets]
+    : matchingSourceSheets;
+  const options = visibleSourceSheets.map((asset) => `<option value="${escapeHtml(asset.assetId)}" ${asset.assetId === layer.assetId ? 'selected' : ''} title="${escapeHtml(`${asset.sourcePath} · ${asset.tags.join(' / ')}`)}">${escapeHtml(asset.assetId)}</option>`).join('')
+    || `<option value="${escapeHtml(layer.assetId)}" selected>${escapeHtml(layer.assetId)} (unavailable)</option>`;
+  const matchSummary = state.sourceSheetSearch.trim()
+    ? `${matchingSourceSheets.length} match${matchingSourceSheets.length === 1 ? '' : 'es'}${selectedSourceSheet && !matchingSourceSheets.includes(selectedSourceSheet) ? ' · current retained' : ''}`
+    : `${allSourceSheets.length} sheets`;
   const transform = layer.transform ?? {};
   const block = state.selectedBlockIndex === undefined ? undefined : layer.blocks[state.selectedBlockIndex];
   const blockInspector = block ? renderLayeredAnimationBlockInspector({
@@ -860,7 +881,7 @@ function renderLayerInspector(state: StudioState, animation: LayeredAnimationDoc
     framesPerSecond: animation.framesPerSecond,
     timelineFrames: layeredTimelineFrameCount(animation),
   }) : `<p class="studio-empty-note layered-block-inspector-note">Select a tile to edit its timing and visual transform.</p>`;
-  return `<section class="studio-inspector-section"><div class="studio-section-heading"><span class="studio-kicker">Visual layer</span><strong>${escapeHtml(layer.displayName)}</strong></div>${inputField('Layer name', 'layer:displayName', layer.displayName)}<label class="studio-field studio-field--wide"><span>Source sheet<small>one source per layer</small></span><select data-layer-field="assetId">${options}</select></label><div class="studio-field-grid">${inputField('Depth', 'layer:depthOffset', layer.depthOffset, { type: 'number', step: '0.1' })}${inputField('Layer offset X', 'layer:offsetX', transform.offset?.[0] ?? 0, { type: 'number', step: '0.1' })}${inputField('Layer offset Y', 'layer:offsetY', transform.offset?.[1] ?? 0, { type: 'number', step: '0.1' })}${inputField('Layer scale X', 'layer:scaleX', transform.scale?.[0] ?? 1, { type: 'number', step: '0.01' })}${inputField('Layer scale Y', 'layer:scaleY', transform.scale?.[1] ?? 1, { type: 'number', step: '0.01' })}${inputField('Layer rotation', 'layer:rotationDeg', transform.rotationDeg ?? 0, { type: 'number', step: '1', hint: 'degrees' })}</div>${blockInspector}<div class="layered-layer-actions"><button type="button" class="studio-button studio-button--quiet" data-action="layer-up">↑ FRONT</button><button type="button" class="studio-button studio-button--quiet" data-action="layer-down">↓ BACK</button><button type="button" class="studio-button studio-button--danger" data-action="delete-layer">DELETE LAYER</button></div></section>`;
+  return `<section class="studio-inspector-section"><div class="studio-section-heading"><span class="studio-kicker">Visual layer</span><strong>${escapeHtml(layer.displayName)}</strong></div>${inputField('Layer name', 'layer:displayName', layer.displayName)}<div class="layered-source-sheet-control"><label class="studio-field studio-field--wide layered-source-sheet-search"><span>Find source sheet<small role="status" aria-live="polite">${escapeHtml(matchSummary)}</small></span><span class="layered-source-sheet-search-box"><i aria-hidden="true">⌕</i><input type="search" value="${escapeHtml(state.sourceSheetSearch)}" placeholder="Search ID, path, or tag" autocomplete="off" spellcheck="false" data-source-sheet-search /></span></label><label class="studio-field studio-field--wide"><span>Source sheet<small>one source per layer</small></span><select id="layer-source-sheet-select" data-layer-field="assetId">${options}</select></label></div><div class="studio-field-grid">${inputField('Depth', 'layer:depthOffset', layer.depthOffset, { type: 'number', step: '0.1' })}${inputField('Layer offset X', 'layer:offsetX', transform.offset?.[0] ?? 0, { type: 'number', step: '0.1' })}${inputField('Layer offset Y', 'layer:offsetY', transform.offset?.[1] ?? 0, { type: 'number', step: '0.1' })}${inputField('Layer scale X', 'layer:scaleX', transform.scale?.[0] ?? 1, { type: 'number', step: '0.01' })}${inputField('Layer scale Y', 'layer:scaleY', transform.scale?.[1] ?? 1, { type: 'number', step: '0.01' })}${inputField('Layer rotation', 'layer:rotationDeg', transform.rotationDeg ?? 0, { type: 'number', step: '1', hint: 'degrees' })}</div>${blockInspector}<div class="layered-layer-actions"><button type="button" class="studio-button studio-button--quiet" data-action="layer-up">↑ FRONT</button><button type="button" class="studio-button studio-button--quiet" data-action="layer-down">↓ BACK</button><button type="button" class="studio-button studio-button--danger" data-action="delete-layer">DELETE LAYER</button></div></section>`;
 }
 
 function renderOnHitInspector(state: StudioState): string {
@@ -1104,7 +1125,7 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement, options: Lay
   container.classList.add('is-character-studio-host');
   const returnEditor = new URLSearchParams(window.location.search).get('editor') ?? 'meadow-crossing';
   let state: StudioState = {
-    weapons: [], effects: [], animationPackages: [], librarySearch: '', expandedFolders: new Set(options.expandedFolders ?? ['weapons', 'animations']), selectedId: '', scope: 'attack', direction: 'right', effectDirection: 'right',
+    weapons: [], effects: [], animationPackages: [], librarySearch: '', sourceSheetSearch: '', expandedFolders: new Set(options.expandedFolders ?? ['weapons', 'animations']), selectedId: '', scope: 'attack', direction: 'right', effectDirection: 'right',
     effectIsNew: false, effectDirty: false, playhead: 0, previewZoom: 1, previewSplit: 55, inspectorTab: 'layer', pickerOpen: false,
     pickerFrames: [], dirty: false, saving: false, playing: false,
   };
@@ -1435,6 +1456,15 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement, options: Lay
       state = { ...state, librarySearch: target.value };
       render();
       container.querySelector<HTMLInputElement>('[data-studio-library-search]')?.focus();
+      return;
+    }
+    if (target.dataset.sourceSheetSearch !== undefined) {
+      const selectionStart = target.selectionStart ?? target.value.length;
+      state = { ...state, sourceSheetSearch: target.value };
+      render();
+      const search = container.querySelector<HTMLInputElement>('[data-source-sheet-search]');
+      search?.focus();
+      search?.setSelectionRange(selectionStart, selectionStart);
       return;
     }
     const field = target.dataset.weaponField;

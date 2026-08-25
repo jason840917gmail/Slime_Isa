@@ -30,6 +30,8 @@ export interface WeaponCombatDefinition {
   readonly knockStrength: number;
   /** Optional target-tag modifiers. Missing tags use normal damage (1.0). */
   readonly damageModifiers?: readonly WeaponDamageModifier[];
+  /** Explicit resource-tag tiers. Damage modifiers tune legal hits; these tiers authorize harvesting. */
+  readonly harvestCapabilities?: Readonly<Record<string, number>>;
   readonly scaling?: {
     readonly damage?: AttributeScaling;
     readonly cooldown?: AttributeScaling;
@@ -38,6 +40,7 @@ export interface WeaponCombatDefinition {
   readonly vfxColor: number;
   readonly unlockLevel: number;
   readonly iconKey: string;
+  readonly iconFrame?: number;
   readonly description: string;
 }
 

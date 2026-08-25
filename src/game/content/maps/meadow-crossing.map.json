@@ -2883,7 +2883,7 @@
     },
     {
       "instanceId": "resource-wood-pile-b356418c",
-      "objectId": "resource.wood-pile",
+      "objectId": "collectible.wood-pile",
       "visualId": "wood-pile",
       "x": 1248,
       "y": 2240

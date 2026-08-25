@@ -1,0 +1,26 @@
+{
+  "$schema": "../objects.schema.json",
+  "objectId": "collectible.small-stone-pile",
+  "selection": "authored",
+  "variants": [
+    {
+      "assetId": "sheet.resources.4x2",
+      "frames": [
+        {
+          "visualId": "small-stone-pile",
+          "frame": 5,
+          "displayName": "Small stone pile",
+          "scale": 1,
+          "visualOffset": { "x": 0, "y": 0 }
+        }
+      ]
+    }
+  ],
+  "physics": null,
+  "behavior": "collectible.walk-over",
+  "collectible": {
+    "itemId": "stone",
+    "quantity": 5
+  },
+  "tags": ["collectible", "stone", "material", "small-pile"]
+}

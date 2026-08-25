@@ -1,7 +1,6 @@
 import { gameEvents } from '../core/EventBus';
 import { gameState } from '../core/GameState';
 import { QUEST_DEFS, getQuestDef, type QuestState } from './Quest';
-import { saveRepository } from '../infrastructure/persistence/SaveRepository';
 
 class QuestTrackerImpl {
   private states = new Map<string, QuestState>();
@@ -10,8 +9,6 @@ class QuestTrackerImpl {
   start(): void {
     if (this.started) return;
     this.started = true;
-    const saved = saveRepository.read();
-    this.load(saved?.data.quests ?? saveRepository.readLegacyQuests());
     this.ensureStarterQuests();
 
     gameEvents.on('player.collect', this.onCollect, this);

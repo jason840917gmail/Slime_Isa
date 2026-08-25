@@ -1,4 +1,4 @@
-import { getObjectVisualChoices, type ObjectVisualChoice } from '../content/objects/ObjectCatalog';
+import { getObjectArchetype, getObjectVisualChoices, type ObjectVisualChoice } from '../content/objects/ObjectCatalog';
 import { getTileDefinition, getTileIds } from '../content/terrain/TileCatalog';
 import { getAuthoredMapIds } from '../infrastructure/maps/MapRepository';
 import { ENEMY_CONFIGS } from '../enemies/library/EnemyTypes';
@@ -7,6 +7,7 @@ import { ObjectTemplateEditorState } from './ObjectTemplateEditorState';
 import { mountMapEditorObjectAuthoring } from './MapEditorObjectAuthoring';
 import type { EditorTool, MapEditorState } from './MapEditorState';
 import { connectionAt, MAP_DIRECTIONS } from './MapConnections';
+import type { GameplayAttributeEditorState } from './GameplayAttributeEditorState';
 
 const TOOLS: ReadonlyArray<{ id: EditorTool; label: string }> = [
   { id: 'pan', label: 'Pan' },
@@ -51,9 +52,10 @@ function terrainGroup(tileId: string): string {
   return 'Walls';
 }
 
-function objectGroup(objectId: string): string {
-  if (objectId.startsWith('resource.')) return 'Resource Nodes';
-  if (objectId.startsWith('collectible.')) return 'Collectibles';
+export function objectGroup(objectId: string): string {
+  const definition = getObjectArchetype(objectId as Parameters<typeof getObjectArchetype>[0]);
+  if (definition.collectible) return 'Collectibles';
+  if (definition.resourceNode) return 'Resource Nodes';
   if (objectId === 'decoration.world.floor') return 'Floor Decorations';
   if (objectId === 'decoration.world.solid') return 'Solid Decorations';
   if (objectId.startsWith('tree.')) return 'Solid Trees';
@@ -97,8 +99,21 @@ function renderObjectArtworkGroup(choices: readonly ObjectVisualChoice[], previe
   </div>`;
 }
 
-function objectChoiceMatchesQuery(choice: ObjectVisualChoice, query: string): boolean {
-  return [choice.objectId, choice.visualId, choice.displayName, choice.assetId, ...choice.tags]
+export function objectChoiceMatchesQuery(choice: ObjectVisualChoice, query: string): boolean {
+  const definition = getObjectArchetype(choice.objectId);
+  const gameplayTerms = [
+    definition.collectible ? 'collectible material quantity' : '',
+    definition.collectible?.itemId ?? '',
+    definition.collectible?.quantity?.toString() ?? '',
+    definition.resourceNode ? 'resource life health drops tool requirements effects replacement collectible' : '',
+    definition.resourceNode?.health?.toString() ?? '',
+    definition.resourceNode?.drop.objectId ?? '',
+    definition.resourceNode?.drop.visualId ?? '',
+    definition.resourceNode?.drop.pieces?.toString() ?? '',
+    definition.resourceNode?.hitEffectId ?? '',
+    definition.resourceNode?.harvestRequirement?.targetTag ?? '',
+  ];
+  return [choice.objectId, choice.visualId, choice.displayName, choice.assetId, ...choice.tags, ...gameplayTerms]
     .join(' ')
     .toLowerCase()
     .includes(query);
@@ -129,6 +144,7 @@ export function mountMapEditorPanel(
   editor: MapEditorState,
   previews: ContentPreviewUrls,
   templateEditor: ObjectTemplateEditorState,
+  gameplayEditor: GameplayAttributeEditorState,
 ): () => void {
   const mapIds = getAuthoredMapIds();
   const enemyTypes = Object.keys(ENEMY_CONFIGS);
@@ -144,7 +160,10 @@ export function mountMapEditorPanel(
   }));
   const objectArtworkGroups = new Map<string, ObjectVisualChoice[]>();
   for (const choice of getObjectVisualChoices()) {
-    const key = `${choice.assetId}::${choice.frame}`;
+    // Category is part of the grouping key. A resource and a collectible may
+    // intentionally share the same sprite frame, but they are different
+    // authoring concepts and must remain in separate palette sections.
+    const key = `${objectGroup(choice.objectId)}::${choice.assetId}::${choice.frame}`;
     const group = objectArtworkGroups.get(key) ?? [];
     group.push(choice);
     objectArtworkGroups.set(key, group);
@@ -168,6 +187,12 @@ export function mountMapEditorPanel(
       </select>
       <button class="editor-new-map" type="button" data-command="new-map" data-testid="new-map-button">New map</button>
       <span class="editor-dirty" data-editor-dirty>Saved</span>
+      <div class="editor-map-size-summary" aria-live="polite">
+        <span>Map size</span>
+        <strong data-map-size-readout></strong>
+        <small data-map-pixel-size></small>
+      </div>
+      <button class="editor-map-size-button" type="button" data-command="edit-map-size">Edit size</button>
     </section>
     <section class="editor-actions" aria-label="Document actions">
       <button type="button" data-command="undo" data-testid="undo-button">Undo <kbd>Ctrl Z</kbd></button>
@@ -263,6 +288,22 @@ export function mountMapEditorPanel(
         </footer>
       </form>
     </dialog>
+    <dialog class="editor-new-map-dialog" data-map-size-dialog>
+      <form data-map-size-form>
+        <header><p>Map dimensions</p><h2>Resize authored map</h2></header>
+        <p class="editor-dialog-help">Terrain is padded when the map grows. Shrinking is allowed only when existing objects, zones, and areas still fit inside the new bounds. Changing tile size scales pixel-based markers with the map.</p>
+        <div class="editor-new-map-grid">
+          <label>Columns<input name="columns" type="number" min="1" max="256" required /></label>
+          <label>Rows<input name="rows" type="number" min="1" max="256" required /></label>
+          <label>Tile size<input name="tileSize" type="number" min="1" max="256" step="1" required /></label>
+        </div>
+        <p class="editor-new-map-error" data-map-size-error></p>
+        <footer>
+          <button type="button" data-command="cancel-map-size">Cancel</button>
+          <button class="editor-create-map" type="submit">Apply size</button>
+        </footer>
+      </form>
+    </dialog>
     <dialog class="editor-new-map-dialog editor-monster-dialog editor-enemy-area-dialog" data-enemy-area-dialog>
       <form data-enemy-area-form>
         <header><p>Enemy camp authoring</p><h2>Edit enemy area</h2></header>
@@ -349,6 +390,8 @@ export function mountMapEditorPanel(
   const mapSelect = host.querySelector<HTMLSelectElement>('#editor-map-select');
   const newMapDialog = host.querySelector<HTMLDialogElement>('[data-new-map-dialog]');
   const newMapForm = host.querySelector<HTMLFormElement>('[data-new-map-form]');
+  const mapSizeDialog = host.querySelector<HTMLDialogElement>('[data-map-size-dialog]');
+  const mapSizeForm = host.querySelector<HTMLFormElement>('[data-map-size-form]');
   const enemyAreaDialog = host.querySelector<HTMLDialogElement>('[data-enemy-area-dialog]');
   const enemyAreaForm = host.querySelector<HTMLFormElement>('[data-enemy-area-form]');
   const enemyAreaShape = host.querySelector<HTMLSelectElement>('[data-enemy-area-shape]');
@@ -384,6 +427,11 @@ export function mountMapEditorPanel(
     if (target.dataset.command === 'save') void editor.save();
     if (target.dataset.command === 'new-map') newMapDialog?.showModal();
     if (target.dataset.command === 'cancel-new-map') newMapDialog?.close();
+    if (target.dataset.command === 'edit-map-size') {
+      populateMapSizeForm();
+      mapSizeDialog?.showModal();
+    }
+    if (target.dataset.command === 'cancel-map-size') mapSizeDialog?.close();
     if (target.dataset.command === 'clear-object-search') {
       if (objectSearchInput) {
         objectSearchInput.value = '';
@@ -465,6 +513,35 @@ export function mountMapEditorPanel(
     }
   };
   newMapForm?.addEventListener('submit', createMapHandler);
+
+  const populateMapSizeForm = (): void => {
+    if (!mapSizeForm) return;
+    const map = editor.value.map;
+    const columns = mapSizeForm.elements.namedItem('columns') as HTMLInputElement | null;
+    const rows = mapSizeForm.elements.namedItem('rows') as HTMLInputElement | null;
+    const tileSize = mapSizeForm.elements.namedItem('tileSize') as HTMLInputElement | null;
+    if (columns) columns.value = String(map.size.columns);
+    if (rows) rows.value = String(map.size.rows);
+    if (tileSize) tileSize.value = String(map.tileSize);
+    const error = mapSizeForm.querySelector<HTMLElement>('[data-map-size-error]');
+    if (error) error.textContent = '';
+  };
+
+  const mapSizeSubmitHandler = (event: SubmitEvent): void => {
+    event.preventDefault();
+    if (!mapSizeForm) return;
+    const values = new FormData(mapSizeForm);
+    const columns = Number(values.get('columns'));
+    const rows = Number(values.get('rows'));
+    const tileSize = Number(values.get('tileSize'));
+    if (!editor.updateMapDimensions(columns, rows, tileSize)) {
+      const error = mapSizeForm.querySelector<HTMLElement>('[data-map-size-error]');
+      if (error) error.textContent = editor.value.status;
+      return;
+    }
+    mapSizeDialog?.close();
+  };
+  mapSizeForm?.addEventListener('submit', mapSizeSubmitHandler);
 
   const setInputValue = (name: string, value: number | string): void => {
     const input = enemyAreaForm?.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement | null;
@@ -657,7 +734,7 @@ export function mountMapEditorPanel(
   monsterForm?.addEventListener('submit', monsterSubmitHandler);
 
   const beforeUnloadHandler = (event: BeforeUnloadEvent): void => {
-    if (!editor.value.dirty && !templateEditor.value.dirty) return;
+    if (!editor.value.dirty && !templateEditor.value.dirty && !gameplayEditor.value.hasDirtyDrafts) return;
     event.preventDefault();
   };
   window.addEventListener('beforeunload', beforeUnloadHandler);
@@ -668,6 +745,10 @@ export function mountMapEditorPanel(
     });
     const shapeSelect = host.querySelector<HTMLSelectElement>('[data-enemy-area-shape]');
     if (shapeSelect) shapeSelect.value = state.enemyAreaShape;
+    const mapSizeReadout = host.querySelector<HTMLElement>('[data-map-size-readout]');
+    if (mapSizeReadout) mapSizeReadout.textContent = `${state.map.size.columns} × ${state.map.size.rows} tiles`;
+    const mapPixelSize = host.querySelector<HTMLElement>('[data-map-pixel-size]');
+    if (mapPixelSize) mapPixelSize.textContent = `${state.map.size.columns * state.map.tileSize} × ${state.map.size.rows * state.map.tileSize} px`;
     const areaCount = host.querySelector<HTMLElement>('[data-enemy-area-count]');
     if (areaCount) {
       const count = state.map.enemySpawnAreas.length;
@@ -733,6 +814,7 @@ export function mountMapEditorPanel(
     mapSelect?.removeEventListener('change', changeHandler);
     host.removeEventListener('change', connectionChangeHandler);
     newMapForm?.removeEventListener('submit', createMapHandler);
+    mapSizeForm?.removeEventListener('submit', mapSizeSubmitHandler);
     enemyAreaForm?.removeEventListener('submit', enemyAreaSubmitHandler);
     enemyAreaShapeField?.removeEventListener('change', enemyAreaShapeChangeHandler);
     monsterForm?.removeEventListener('submit', monsterSubmitHandler);

@@ -25,6 +25,8 @@ const OBJECT_ID_PATTERN = /^[a-z0-9]+([.-][a-z0-9-]+)+$/;
 const OBJECT_DEFINITION_ROOT = path.resolve(process.cwd(), 'src/game/content/objects');
 const CHARACTER_DEFINITION_ROOT = path.resolve(process.cwd(), 'src/game/content/characters');
 const ANIMATION_DEFINITION_ROOT = path.resolve(process.cwd(), 'src/game/content/animations');
+const ITEM_DEFINITION_PATH = path.resolve(process.cwd(), 'src/game/content/items/items.json');
+const WEAPON_DEFINITION_ROOT = path.resolve(process.cwd(), 'src/game/content/weapons');
 
 function discoverEnemyIds(directory: string): string[] {
   const ids: string[] = [];
@@ -42,6 +44,18 @@ function discoverEnemyIds(directory: string): string[] {
 }
 
 const ENEMY_IDS = new Set(discoverEnemyIds(CHARACTER_DEFINITION_ROOT));
+const KNOWN_ITEM_IDS = new Set(Object.keys(JSON.parse(readFileSync(ITEM_DEFINITION_PATH, 'utf8')) as Record<string, unknown>));
+function discoverWeaponItemIds(directory: string): void {
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const candidate = path.join(directory, entry.name);
+    if (entry.isDirectory()) discoverWeaponItemIds(candidate);
+    else if (entry.isFile() && entry.name === 'weapon.json') {
+      const definition = JSON.parse(readFileSync(candidate, 'utf8')) as { weaponId?: unknown };
+      if (typeof definition.weaponId === 'string') KNOWN_ITEM_IDS.add(definition.weaponId);
+    }
+  }
+}
+discoverWeaponItemIds(WEAPON_DEFINITION_ROOT);
 
 interface MutableObjectFrame {
   [key: string]: unknown;
@@ -59,6 +73,8 @@ interface MutableObjectDefinition {
   objectId: string;
   variants: MutableObjectVariant[];
   physics: unknown;
+  collectible?: Record<string, unknown>;
+  destructible?: Record<string, unknown>;
   resourceNode?: Record<string, unknown>;
 }
 
@@ -299,6 +315,82 @@ async function validateObjectVisualUpdate(
   return { frame, displayName, scale, visualOffset, collider, depthBounds, occlusionBounds, idleAnimationId, onHitAnimationId };
 }
 
+async function validateObjectGameplayUpdate(
+  payload: Record<string, unknown>,
+  definition: MutableObjectDefinition,
+): Promise<{ readonly collectible?: Record<string, unknown>; readonly resourceNode?: Record<string, unknown> }> {
+  validateRecordKeys(payload, ['objectId', 'collectible', 'resourceNode'], 'payload');
+  const objectId = payload.objectId;
+  if (typeof objectId !== 'string' || !OBJECT_ID_PATTERN.test(objectId) || !isObjectArchetypeId(objectId)) {
+    throw new Error(`Unknown object '${String(objectId)}'`);
+  }
+  if (definition.objectId !== objectId) throw new Error(`Object definition ID mismatch for '${objectId}'`);
+  if (definition.collectible && definition.resourceNode) throw new Error(`Object '${objectId}' cannot be both a collectible and a resource node`);
+
+  if (definition.collectible) {
+    if (!isRecord(payload.collectible)) throw new Error('Collectible attributes are required');
+    validateRecordKeys(payload.collectible, ['itemId', 'quantity'], 'collectible');
+    if (typeof payload.collectible.itemId !== 'string' || payload.collectible.itemId.trim().length === 0) {
+      throw new Error('Collectible item ID is required');
+    }
+    if (!KNOWN_ITEM_IDS.has(payload.collectible.itemId.trim())) throw new Error(`Unknown inventory item '${payload.collectible.itemId}'`);
+    const quantity = requireInteger(payload.collectible.quantity, 1, 'Collectible quantity');
+    return { collectible: { itemId: payload.collectible.itemId.trim(), quantity } };
+  }
+
+  if (!definition.resourceNode) throw new Error(`Object '${objectId}' has no resource or collectible gameplay attributes`);
+  if (!isRecord(payload.resourceNode)) throw new Error('Resource attributes are required');
+  validateRecordKeys(payload.resourceNode, ['health', 'drop', 'hitEffectId', 'persistHealth', 'depletionMessage', 'harvestRequirement'], 'resourceNode');
+  const health = requireInteger(payload.resourceNode.health, 1, 'Resource life points');
+  if (!isRecord(payload.resourceNode.drop)) throw new Error('Resource drop is required');
+  validateRecordKeys(payload.resourceNode.drop, ['objectId', 'visualId', 'pieces'], 'resourceNode.drop');
+  const dropObjectId = payload.resourceNode.drop.objectId;
+  if (typeof dropObjectId !== 'string' || !isObjectArchetypeId(dropObjectId)) throw new Error(`Unknown collectible drop '${String(dropObjectId)}'`);
+  const dropDefinitionPath = await findObjectDefinitionPath(OBJECT_DEFINITION_ROOT, dropObjectId);
+  if (!dropDefinitionPath) throw new Error(`Collectible drop '${dropObjectId}' was not found`);
+  const dropDefinition = JSON.parse(await fs.readFile(dropDefinitionPath, 'utf8')) as MutableObjectDefinition;
+  if (!dropDefinition.collectible) throw new Error(`Drop object '${dropObjectId}' is not a collectible`);
+  const visualId = payload.resourceNode.drop.visualId;
+  if (typeof visualId !== 'string' || !dropDefinition.variants.some((variant) => variant.frames.some((frame) => frame.visualId === visualId))) {
+    throw new Error(`Unknown drop visual '${String(visualId)}' for '${dropObjectId}'`);
+  }
+  const pieces = requireInteger(payload.resourceNode.drop.pieces, 1, 'Resource drop pieces');
+  const optionalString = (value: unknown, label: string): string | undefined => {
+    if (value === undefined) return undefined;
+    if (typeof value !== 'string') throw new Error(`${label} must be a string`);
+    return value.trim() || undefined;
+  };
+  const hitEffectId = optionalString(payload.resourceNode.hitEffectId, 'hitEffectId');
+  const depletionMessage = optionalString(payload.resourceNode.depletionMessage, 'depletionMessage');
+  let harvestRequirement: Record<string, unknown> | undefined;
+  if (payload.resourceNode.harvestRequirement !== undefined) {
+    if (!isRecord(payload.resourceNode.harvestRequirement)) throw new Error('Harvest requirement must be an object');
+    validateRecordKeys(payload.resourceNode.harvestRequirement, ['targetTag', 'minimumTier', 'failureMessage'], 'harvestRequirement');
+    const targetTag = payload.resourceNode.harvestRequirement.targetTag;
+    const failureMessage = payload.resourceNode.harvestRequirement.failureMessage;
+    if (typeof targetTag !== 'string' || targetTag.trim().length === 0) throw new Error('Harvest target tag is required');
+    if (typeof failureMessage !== 'string' || failureMessage.trim().length === 0) throw new Error('Harvest failure message is required');
+    harvestRequirement = {
+      targetTag: targetTag.trim(),
+      minimumTier: requireInteger(payload.resourceNode.harvestRequirement.minimumTier, 1, 'Harvest minimum tier'),
+      failureMessage: failureMessage.trim(),
+    };
+  }
+  if (payload.resourceNode.persistHealth !== undefined && typeof payload.resourceNode.persistHealth !== 'boolean') {
+    throw new Error('persistHealth must be a boolean');
+  }
+  return {
+    resourceNode: {
+      health,
+      drop: { objectId: dropObjectId, visualId, pieces },
+      ...(hitEffectId ? { hitEffectId } : {}),
+      persistHealth: payload.resourceNode.persistHealth !== false,
+      ...(depletionMessage ? { depletionMessage } : {}),
+      ...(harvestRequirement ? { harvestRequirement } : {}),
+    },
+  };
+}
+
 async function validateMapReferences(map: MapFile): Promise<string[]> {
   const issues: string[] = [];
   const objectDefinitions = new Map<string, Promise<MutableObjectDefinition | undefined>>();
@@ -320,12 +412,74 @@ async function validateMapReferences(map: MapFile): Promise<string[]> {
   }
   for (const [objectIndex, object] of map.objects.entries()) {
     const definition = await loadObjectDefinition(object.objectId);
+    const objectPath = `objects[${objectIndex}]`;
     if (!definition) {
-      issues.push(`objects[${objectIndex}].objectId: unknown object '${object.objectId}'`);
+      issues.push(`${objectPath}.objectId: unknown object '${object.objectId}'`);
     } else if (!definition.variants.some((variant) => (
       variant.frames.some((frame) => frame.visualId === object.visualId)
     ))) {
-      issues.push(`objects[${objectIndex}].visualId: unknown visual '${object.visualId}' for '${object.objectId}'`);
+      issues.push(`${objectPath}.visualId: unknown visual '${object.visualId}' for '${object.objectId}'`);
+    }
+    if (!definition || object.initialState === undefined) continue;
+    const state = object.initialState;
+    const allowed = definition.collectible
+      ? new Set(['quantity', 'remaining'])
+      : definition.resourceNode
+        ? new Set(['health', 'dropObjectId', 'dropVisualId', 'dropPieces'])
+        : definition.destructible
+          ? new Set(['health'])
+        : new Set<string>();
+    for (const key of Object.keys(state)) {
+      if (!allowed.has(key)) issues.push(`${objectPath}.initialState.${key}: not supported by '${object.objectId}'`);
+    }
+    if (definition.collectible) {
+      const defaultQuantity = definition.collectible.quantity;
+      const quantity = state.quantity ?? defaultQuantity;
+      if (!Number.isInteger(quantity) || (quantity as number) < 1) {
+        issues.push(`${objectPath}.initialState.quantity: expected integer >= 1`);
+      }
+      if (state.remaining !== undefined && (!Number.isInteger(state.remaining)
+        || (state.remaining as number) < 0
+        || (typeof quantity === 'number' && (state.remaining as number) > quantity))) {
+        issues.push(`${objectPath}.initialState.remaining: expected integer from 0 through starting quantity`);
+      }
+      continue;
+    }
+    if (definition.destructible) {
+      const defaultHealth = definition.destructible.health;
+      if (state.health !== undefined && (!Number.isInteger(state.health)
+        || (state.health as number) < 0
+        || (typeof defaultHealth === 'number' && (state.health as number) > defaultHealth))) {
+        issues.push(`${objectPath}.initialState.health: expected integer from 0 through ${String(defaultHealth)}`);
+      }
+      continue;
+    }
+    if (!definition.resourceNode) {
+      if (Object.keys(state).length > 0) issues.push(`${objectPath}.initialState: object has no gameplay overrides`);
+      continue;
+    }
+    const resource = definition.resourceNode;
+    const defaultHealth = resource.health;
+    if (state.health !== undefined && (!Number.isInteger(state.health)
+      || (state.health as number) < 0
+      || (typeof defaultHealth === 'number' && (state.health as number) > defaultHealth))) {
+      issues.push(`${objectPath}.initialState.health: expected integer from 0 through ${String(defaultHealth)}`);
+    }
+    const defaultDrop = isRecord(resource.drop) ? resource.drop : {};
+    const dropObjectId = typeof state.dropObjectId === 'string' ? state.dropObjectId : defaultDrop.objectId;
+    const dropDefinition = typeof dropObjectId === 'string' ? await loadObjectDefinition(dropObjectId) : undefined;
+    const dropVisualId = typeof state.dropVisualId === 'string'
+      ? state.dropVisualId
+      : state.dropObjectId !== undefined
+        ? dropDefinition?.variants[0]?.frames[0]?.visualId
+        : defaultDrop.visualId;
+    if (!dropDefinition?.collectible) {
+      issues.push(`${objectPath}.initialState.dropObjectId: must reference a collectible object`);
+    } else if (typeof dropVisualId !== 'string' || !dropDefinition.variants.some((variant) => variant.frames.some((frame) => frame.visualId === dropVisualId))) {
+      issues.push(`${objectPath}.initialState.dropVisualId: unknown visual '${String(dropVisualId)}' for '${String(dropObjectId)}'`);
+    }
+    if (state.dropPieces !== undefined && (!Number.isInteger(state.dropPieces) || (state.dropPieces as number) < 1)) {
+      issues.push(`${objectPath}.initialState.dropPieces: expected integer >= 1`);
     }
   }
   for (const [enemyIndex, enemy] of (map.spawns?.enemies ?? []).entries()) {
@@ -496,6 +650,36 @@ function mapEditorSavePlugin(): Plugin {
             idleAnimationId: update.frame.idleAnimationId,
             onHitAnimationId: update.frame.onHitAnimationId,
           }));
+        } catch (error) {
+          if (temporaryPath) await fs.rm(temporaryPath, { force: true });
+          response.statusCode = 400;
+          response.end(JSON.stringify({ ok: false, error: error instanceof Error ? error.message : String(error) }));
+        }
+      });
+
+      server.middlewares.use('/__map-editor/object-gameplay/update', async (request, response) => {
+        response.setHeader('Content-Type', 'application/json; charset=utf-8');
+        if (request.method !== 'POST') {
+          response.statusCode = 405;
+          response.end(JSON.stringify({ ok: false, error: 'POST required' }));
+          return;
+        }
+        let temporaryPath: string | undefined;
+        try {
+          const payload = JSON.parse(await readRequestBody(request)) as Record<string, unknown>;
+          if (typeof payload.objectId !== 'string') throw new Error('Object ID is required');
+          const definitionPath = await findObjectDefinitionPath(OBJECT_DEFINITION_ROOT, payload.objectId);
+          if (!definitionPath) throw new Error(`Object definition '${payload.objectId}' was not found`);
+          const definition = JSON.parse(await fs.readFile(definitionPath, 'utf8')) as MutableObjectDefinition;
+          const update = await validateObjectGameplayUpdate(payload, definition);
+          if (update.collectible) definition.collectible = update.collectible;
+          if (update.resourceNode) definition.resourceNode = update.resourceNode;
+          temporaryPath = `${definitionPath}.${process.pid}.${Date.now()}.tmp`;
+          await fs.writeFile(temporaryPath, `${JSON.stringify(definition, null, 2)}\n`, 'utf8');
+          await fs.rename(temporaryPath, definitionPath);
+          temporaryPath = undefined;
+          response.statusCode = 200;
+          response.end(JSON.stringify({ ok: true, objectId: payload.objectId }));
         } catch (error) {
           if (temporaryPath) await fs.rm(temporaryPath, { force: true });
           response.statusCode = 400;

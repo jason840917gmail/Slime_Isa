@@ -1,0 +1,30 @@
+{
+  "$schema": "../../../animation-package.schema.json",
+  "version": 1,
+  "animationId": "weapon.stone-pickaxe.attack.down",
+  "displayName": "Stone Pickaxe down attack",
+  "description": "Stone Pickaxe down attack with its dedicated chipped-stone head.",
+  "animation": {
+    "version": 2,
+    "durationSeconds": 0.5,
+    "framesPerSecond": 12,
+    "loop": false,
+    "loopMode": "wrap",
+    "layers": [
+      {
+        "layerId": "pickaxe",
+        "displayName": "Stone pickaxe",
+        "assetId": "weapon.player.stone-tools-tiles",
+        "depthOffset": 0,
+        "transform": { "scale": [0.5, 0.5], "offset": [0, 0] },
+        "blocks": [
+          { "from": 0, "through": 0, "sourceFrame": 3, "transform": { "offset": [30, 0], "rotationDeg": 60 } },
+          { "from": 1, "through": 1, "sourceFrame": 3, "transform": { "offset": [30, 20], "rotationDeg": 90 } },
+          { "from": 2, "through": 2, "sourceFrame": 3, "transform": { "offset": [30, 40], "rotationDeg": 120 } },
+          { "from": 3, "through": 3, "sourceFrame": 3, "transform": { "offset": [10, 50], "rotationDeg": 160 } },
+          { "from": 4, "through": 5, "sourceFrame": 3, "transform": { "offset": [0, 55], "rotationDeg": 190 } }
+        ]
+      }
+    ]
+  }
+}

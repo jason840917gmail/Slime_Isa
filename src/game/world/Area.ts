@@ -19,6 +19,18 @@ export interface AreaDef {
 }
 
 export const AREAS: Readonly<Record<string, AreaDef>> = {
+  'level-1': {
+    id: 'level-1',
+    name: 'Level 1',
+    biome: 'meadow',
+    seed: 1,
+    mapX: 0,
+    mapY: 1,
+    mapId: 'level-1',
+    neighbors: {
+      east: 'gloop-forest',
+    },
+  },
   icege: {
     id: 'icege',
     name: 'Icege',

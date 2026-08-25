@@ -1,0 +1,26 @@
+{
+  "$schema": "../../../animation-package.schema.json",
+  "version": 1,
+  "animationId": "weapon.stone-pickaxe.idle",
+  "displayName": "Stone Pickaxe idle",
+  "description": "Stone Pickaxe idle with its dedicated chipped-stone head.",
+  "animation": {
+    "version": 2,
+    "durationSeconds": 0.1666666667,
+    "framesPerSecond": 6,
+    "loop": true,
+    "loopMode": "wrap",
+    "layers": [
+      {
+        "layerId": "pickaxe",
+        "displayName": "Stone pickaxe",
+        "assetId": "weapon.player.stone-tools-tiles",
+        "depthOffset": 0,
+        "transform": { "scale": [0.5, 0.5], "offset": [0, 0] },
+        "blocks": [
+          { "from": 0, "through": 0, "sourceFrame": 3, "transform": { "offset": [-10, 0], "rotationDeg": -30 } }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,149 @@
+{
+  "$schema": "../../../animation-package.schema.json",
+  "version": 1,
+  "animationId": "weapon.stone-axe.attack.right",
+  "displayName": "Stone Axe right attack",
+  "description": "Stone Axe right attack with its dedicated chipped-stone head.",
+  "animation": {
+    "version": 2,
+    "durationSeconds": 0.6666666666,
+    "framesPerSecond": 12,
+    "loop": false,
+    "loopMode": "wrap",
+    "layers": [
+      {
+        "layerId": "axe",
+        "displayName": "Stone axe",
+        "assetId": "weapon.player.stone-tools-tiles",
+        "depthOffset": 0,
+        "transform": {
+          "offset": [
+            0,
+            0
+          ],
+          "scale": [
+            0.62,
+            0.62
+          ],
+          "rotationDeg": 0,
+          "flipX": false,
+          "flipY": false,
+          "origin": [
+            0.5,
+            0.5
+          ]
+        },
+        "blocks": [
+          {
+            "from": 0,
+            "through": 0,
+            "sourceFrame": 2,
+            "transform": {
+              "offset": [
+                0,
+                -10
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": -60,
+              "flipX": true,
+              "flipY": false
+            }
+          },
+          {
+            "from": 1,
+            "through": 1,
+            "sourceFrame": 2,
+            "transform": {
+              "offset": [
+                0,
+                -10
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": -30,
+              "flipX": true,
+              "flipY": false
+            }
+          },
+          {
+            "from": 2,
+            "through": 2,
+            "sourceFrame": 2,
+            "transform": {
+              "offset": [
+                0,
+                -10
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 0,
+              "flipX": true,
+              "flipY": false
+            }
+          },
+          {
+            "from": 3,
+            "through": 3,
+            "sourceFrame": 2,
+            "transform": {
+              "offset": [
+                15,
+                -10
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 40,
+              "flipX": true,
+              "flipY": false
+            }
+          },
+          {
+            "from": 4,
+            "through": 4,
+            "sourceFrame": 2,
+            "transform": {
+              "offset": [
+                30,
+                10
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 80,
+              "flipX": true,
+              "flipY": false
+            }
+          },
+          {
+            "from": 5,
+            "through": 7,
+            "sourceFrame": 2,
+            "transform": {
+              "offset": [
+                35,
+                20
+              ],
+              "scale": [
+                1,
+                1
+              ],
+              "rotationDeg": 100,
+              "flipX": true,
+              "flipY": false
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

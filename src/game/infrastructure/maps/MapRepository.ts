@@ -1,5 +1,6 @@
 import { parseMapFile, type MapFile, type MapId } from '../../content/maps/mapFormat';
 import { hasObjectVisual, isObjectArchetypeId } from '../../content/objects/ObjectCatalog';
+import { validateObjectInitialState } from '../../content/objects/ObjectInitialState';
 import { isWorldTileId } from '../../content/terrain/TileCatalog';
 import { ENEMY_CONFIGS } from '../../enemies/library/EnemyTypes';
 import type { Direction } from '../../world/Area';
@@ -50,6 +51,10 @@ function validateReferences(map: MapFile): void {
       issues.push(`objects[${objectIndex}].objectId: unknown object ID '${object.objectId}'`);
     } else if (!hasObjectVisual(object.objectId, object.visualId)) {
       issues.push(`objects[${objectIndex}].visualId: unknown visual '${object.visualId}' for '${object.objectId}'`);
+    } else {
+      for (const issue of validateObjectInitialState(object.objectId, object.initialState)) {
+        issues.push(`objects[${objectIndex}].${issue}`);
+      }
     }
   });
 

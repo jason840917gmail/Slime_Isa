@@ -50,7 +50,9 @@ import { mountMapEditorInspector } from './MapEditorInspector';
 import { mountMapEditorPanel, type ContentPreviewUrls } from './MapEditorPanel';
 import { MapEditorState, type EditableMap, type EditableObjectInstance, type EditorTool } from './MapEditorState';
 import { ObjectTemplateEditorState } from './ObjectTemplateEditorState';
+import { GameplayAttributeEditorState } from './GameplayAttributeEditorState';
 import { resolveCollisionShapeDimensions } from '../shared/collisionShapes';
+import { dimensionsFromMap } from '../world/WorldDimensions';
 
 interface MapEditorSceneData {
   loadedMap?: LoadedMap;
@@ -161,6 +163,7 @@ export class MapEditorScene extends Phaser.Scene {
   private loadedMap!: LoadedMap;
   private editor!: MapEditorState;
   private templateEditor!: ObjectTemplateEditorState;
+  private gameplayEditor!: GameplayAttributeEditorState;
   private collisionGroup!: Phaser.Physics.Arcade.StaticGroup;
   private renderedObjects: Phaser.GameObjects.GameObject[] = [];
   private overlayObjects: Phaser.GameObjects.GameObject[] = [];
@@ -231,6 +234,8 @@ export class MapEditorScene extends Phaser.Scene {
       initialObject.visualId,
     );
     this.templateEditor = new ObjectTemplateEditorState(initialObject.objectId, initialObject.visualId);
+    this.gameplayEditor = new GameplayAttributeEditorState();
+    this.gameplayEditor.select(initialObject.objectId);
     this.collisionGroup = this.physics.add.staticGroup();
     this.previewTileFactory = new TileFactory({
       scene: this,
@@ -255,12 +260,13 @@ export class MapEditorScene extends Phaser.Scene {
     const inspector = document.querySelector<HTMLElement>('[data-map-editor-inspector]');
     if (!inspector) throw new Error('Missing map editor inspector');
     const previews = this.buildContentPreviews();
-    this.unmountPanel = mountMapEditorPanel(panel, this.editor, previews, this.templateEditor);
+    this.unmountPanel = mountMapEditorPanel(panel, this.editor, previews, this.templateEditor, this.gameplayEditor);
     this.unmountInspector = mountMapEditorInspector(
       inspector,
       this.templateEditor,
       { objects: previews.objects },
       this.editor,
+      this.gameplayEditor,
     );
     this.unsubscribeState = this.editor.subscribe((state) => {
       const toolChanged = state.tool !== this.lastTool;
@@ -438,9 +444,13 @@ export class MapEditorScene extends Phaser.Scene {
     if (objectHit) {
       const objectId = objectHit.object.objectId;
       if (!isObjectArchetypeId(objectId)) return;
+      if (!this.templateEditor.select(objectId, objectHit.object.visualId)) {
+        if (!window.confirm('Discard the unsaved visual template draft and select another object?')) return;
+        this.templateEditor.discardAndSelect(objectId, objectHit.object.visualId);
+      }
       this.editor.setObject(objectId, objectHit.object.visualId);
       this.editor.selectInstance(objectHit.instanceId);
-      this.templateEditor.select(objectId, objectHit.object.visualId);
+      this.gameplayEditor.select(objectId);
       this.editor.notify(`Picked ${objectId} / ${objectHit.object.visualId}`);
       return;
     }
@@ -1467,16 +1477,28 @@ export class MapEditorScene extends Phaser.Scene {
     this.transitionLayer = undefined;
     this.templatePreview?.destroy();
     this.templatePreview = undefined;
+    this.cursorGhost?.destroy();
+    this.cursorGhost = undefined;
+    this.cursorGhostKey = undefined;
     for (const object of this.renderedObjects) object.destroy();
     this.renderedObjects = [];
     this.renderedTerrain.clear();
     this.renderedInstances.clear();
     const state = this.editor.value;
+    const dimensions = dimensionsFromMap(state.map);
     const seed = this.areaSeed();
+    this.cameras.main.setBounds(0, 0, dimensions.width, dimensions.height);
+    this.previewTileFactory = new TileFactory({
+      scene: this,
+      collisionTiles: this.collisionGroup,
+      dimensions,
+      seed,
+      physicsEnabled: false,
+    });
     const tileFactory = new TileFactory({
       scene: this,
       collisionTiles: this.collisionGroup,
-      dimensions: this.loadedMap.dimensions,
+      dimensions,
       seed,
       physicsEnabled: false,
     });
@@ -1504,7 +1526,7 @@ export class MapEditorScene extends Phaser.Scene {
     this.transitionLayer = new TerrainTransitionRenderer({
       scene: this,
       tileFactory,
-      dimensions: this.loadedMap.dimensions,
+      dimensions,
       seed,
     }).render(terrainGrid);
     for (const object of state.map.objects) {

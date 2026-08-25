@@ -9,10 +9,25 @@ const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 const objectRoot = join(repoRoot, 'src', 'game', 'content', 'objects');
 const animationRoot = join(repoRoot, 'src', 'game', 'content', 'animations');
 const effectRoot = join(repoRoot, 'src', 'game', 'content', 'effects');
+const itemRoot = join(repoRoot, 'src', 'game', 'content', 'items');
+const weaponRoot = join(repoRoot, 'src', 'game', 'content', 'weapons');
 const manifest = JSON.parse(readFileSync(join(repoRoot, 'asset', 'assets.json'), 'utf8'));
 const idPattern = /^[a-z0-9]+([.-][a-z0-9-]+)+$/;
 const errors = [];
 const seenIds = new Map();
+
+const knownItemIds = new Set(Object.keys(JSON.parse(readFileSync(join(itemRoot, 'items.json'), 'utf8'))));
+function collectWeaponItemIds(directory) {
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const path = join(directory, entry.name);
+    if (entry.isDirectory()) collectWeaponItemIds(path);
+    else if (entry.isFile() && entry.name === 'weapon.json') {
+      const definition = JSON.parse(readFileSync(path, 'utf8'));
+      if (typeof definition.weaponId === 'string') knownItemIds.add(definition.weaponId);
+    }
+  }
+}
+collectWeaponItemIds(weaponRoot);
 
 function listObjectFiles(directory) {
   const files = [];
@@ -134,6 +149,15 @@ function validateVisualScale(file, objectId, field, scale) {
 }
 
 const objectFiles = listObjectFiles(objectRoot);
+const knownObjectDefinitions = new Map();
+for (const absolutePath of objectFiles) {
+  try {
+    const definition = JSON.parse(readFileSync(absolutePath, 'utf8'));
+    if (typeof definition.objectId === 'string') knownObjectDefinitions.set(definition.objectId, definition);
+  } catch {
+    // The main validation pass reports malformed JSON with the source file.
+  }
+}
 const animations = new Map(
   listAnimationFiles(animationRoot).map((path) => {
     const definition = JSON.parse(readFileSync(path, 'utf8'));
@@ -158,7 +182,7 @@ for (const absolutePath of objectFiles) {
     objectId,
     'object',
     object,
-    new Set(['$schema', 'objectId', 'selection', 'variants', 'physics', 'behavior', 'destructible', 'resourceNode', 'resourcePile', 'tags']),
+    new Set(['$schema', 'objectId', 'selection', 'variants', 'physics', 'behavior', 'collectible', 'destructible', 'resourceNode', 'tags']),
   );
 
   if (typeof object.objectId !== 'string' || !idPattern.test(object.objectId)) {
@@ -328,16 +352,53 @@ for (const absolutePath of objectFiles) {
     }
   }
 
+  if (object.collectible !== undefined) {
+    validateKeys(file, objectId, 'collectible', object.collectible, new Set(['itemId', 'quantity']));
+    if (typeof object.collectible.itemId !== 'string' || object.collectible.itemId.length === 0) {
+      fail(file, objectId, 'collectible.itemId', 'must be a non-empty item ID');
+    } else if (!knownItemIds.has(object.collectible.itemId)) {
+      fail(file, objectId, 'collectible.itemId', `unknown inventory item '${object.collectible.itemId}'`);
+    }
+    if (!Number.isInteger(object.collectible.quantity) || object.collectible.quantity < 1) {
+      fail(file, objectId, 'collectible.quantity', 'must be an integer >= 1');
+    }
+    if (object.physics !== null) fail(file, objectId, 'physics', 'collectibles must not be solid');
+    if (!Array.isArray(object.tags) || !object.tags.includes('collectible')) {
+      fail(file, objectId, 'tags', 'collectible objects must include the collectible tag');
+    }
+  }
+
+  if (object.collectible !== undefined && object.resourceNode !== undefined) {
+    fail(file, objectId, 'object', 'cannot define both collectible and resourceNode capabilities');
+  }
+  if (Array.isArray(object.tags) && object.tags.includes('collectible') && object.collectible === undefined) {
+    fail(file, objectId, 'tags', 'the collectible tag requires a collectible payload');
+  }
+
   if (object.resourceNode !== undefined) {
-    validateKeys(file, objectId, 'resourceNode', object.resourceNode, new Set(['health', 'dropItem', 'dropCount', 'hitEffectId', 'persistHealth', 'depletionMessage', 'replacement']));
+    validateKeys(file, objectId, 'resourceNode', object.resourceNode, new Set(['health', 'drop', 'hitEffectId', 'persistHealth', 'depletionMessage', 'harvestRequirement']));
     if (!Number.isInteger(object.resourceNode.health) || object.resourceNode.health < 1) {
       fail(file, objectId, 'resourceNode.health', 'must be an integer >= 1');
     }
-    if (typeof object.resourceNode.dropItem !== 'string' || object.resourceNode.dropItem.length === 0) {
-      fail(file, objectId, 'resourceNode.dropItem', 'must be a non-empty item ID');
-    }
-    if (!Number.isInteger(object.resourceNode.dropCount) || object.resourceNode.dropCount < 1) {
-      fail(file, objectId, 'resourceNode.dropCount', 'must be an integer >= 1');
+    const drop = object.resourceNode.drop;
+    if (!isRecord(drop)) {
+      fail(file, objectId, 'resourceNode.drop', 'must be an object with objectId, visualId, and pieces');
+    } else {
+      validateKeys(file, objectId, 'resourceNode.drop', drop, new Set(['objectId', 'visualId', 'pieces']));
+      const target = knownObjectDefinitions.get(drop.objectId);
+      if (typeof drop.objectId !== 'string' || !idPattern.test(drop.objectId) || !target) {
+        fail(file, objectId, 'resourceNode.drop.objectId', `unknown collectible object '${String(drop.objectId)}'`);
+      } else if (!target.collectible) {
+        fail(file, objectId, 'resourceNode.drop.objectId', 'must reference an object with collectible data');
+      }
+      if (typeof drop.visualId !== 'string' || drop.visualId.length === 0) {
+        fail(file, objectId, 'resourceNode.drop.visualId', 'must be a non-empty visual ID');
+      } else if (target && !target.variants?.some((variant) => variant.frames?.some((frame) => frame.visualId === drop.visualId))) {
+        fail(file, objectId, 'resourceNode.drop.visualId', `unknown visual '${drop.visualId}' for '${drop.objectId}'`);
+      }
+      if (!Number.isInteger(drop.pieces) || drop.pieces < 1) {
+        fail(file, objectId, 'resourceNode.drop.pieces', 'must be an integer >= 1');
+      }
     }
     if (object.resourceNode.hitEffectId !== undefined) {
       if (typeof object.resourceNode.hitEffectId !== 'string' || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(object.resourceNode.hitEffectId)) {
@@ -355,24 +416,18 @@ for (const absolutePath of objectFiles) {
           || object.resourceNode.depletionMessage.length > 80)) {
       fail(file, objectId, 'resourceNode.depletionMessage', 'must contain 1 to 80 characters');
     }
-    if (object.resourceNode.replacement !== undefined) {
-      validateKeys(file, objectId, 'resourceNode.replacement', object.resourceNode.replacement, new Set(['objectId', 'visualId']));
-      if (typeof object.resourceNode.replacement.objectId !== 'string' || object.resourceNode.replacement.objectId.length === 0) {
-        fail(file, objectId, 'resourceNode.replacement.objectId', 'must be a non-empty object ID');
+    if (object.resourceNode.harvestRequirement !== undefined) {
+      const requirement = object.resourceNode.harvestRequirement;
+      validateKeys(file, objectId, 'resourceNode.harvestRequirement', requirement, new Set(['targetTag', 'minimumTier', 'failureMessage']));
+      if (typeof requirement.targetTag !== 'string' || requirement.targetTag.length === 0) {
+        fail(file, objectId, 'resourceNode.harvestRequirement.targetTag', 'must be a non-empty resource tag');
       }
-      if (typeof object.resourceNode.replacement.visualId !== 'string' || object.resourceNode.replacement.visualId.length === 0) {
-        fail(file, objectId, 'resourceNode.replacement.visualId', 'must be a non-empty visual ID');
+      if (!Number.isInteger(requirement.minimumTier) || requirement.minimumTier < 1) {
+        fail(file, objectId, 'resourceNode.harvestRequirement.minimumTier', 'must be an integer >= 1');
       }
-    }
-  }
-
-  if (object.resourcePile !== undefined) {
-    validateKeys(file, objectId, 'resourcePile', object.resourcePile, new Set(['itemId', 'amount']));
-    if (typeof object.resourcePile.itemId !== 'string' || object.resourcePile.itemId.length === 0) {
-      fail(file, objectId, 'resourcePile.itemId', 'must be a non-empty item ID');
-    }
-    if (!Number.isInteger(object.resourcePile.amount) || object.resourcePile.amount < 1) {
-      fail(file, objectId, 'resourcePile.amount', 'must be an integer >= 1');
+      if (typeof requirement.failureMessage !== 'string' || requirement.failureMessage.trim().length === 0 || requirement.failureMessage.length > 80) {
+        fail(file, objectId, 'resourceNode.harvestRequirement.failureMessage', 'must contain 1 to 80 characters');
+      }
     }
   }
 }

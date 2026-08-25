@@ -113,6 +113,9 @@ for (const weapon of weapons) {
   ids.add(weapon.weaponId);
   if (![1, 2].includes(weapon.version)) errors.push(`[${weapon.weaponId}] version must be 1 or 2`);
   if (!['melee', 'ranged'].includes(weapon.category)) errors.push(`[${weapon.weaponId}] category must be melee or ranged`);
+  for (const [tag, tier] of Object.entries(weapon.harvestCapabilities ?? {})) {
+    if (!tag || !Number.isInteger(tier) || tier < 1) errors.push(`[${weapon.weaponId}] harvest capability '${tag}' must be an integer tier >= 1`);
+  }
   if (!(weapon.characterActionId || weapon.animKey)) errors.push(`[${weapon.weaponId}] character action is required`);
   if (weapon.version === 1) {
     for (const animation of Object.values(weapon.animations ?? {})) if (!animation?.frames?.length) errors.push(`[${weapon.weaponId}] legacy animation needs frames`);

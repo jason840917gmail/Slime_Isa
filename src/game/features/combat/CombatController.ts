@@ -231,6 +231,16 @@ export class CombatController {
           : isResourceTarget
             ? this.ctx.resourceNodes!.tagsFor(target)
             : [];
+        if (isResourceTarget) {
+          const requirement = this.ctx.resourceNodes!.harvestRequirementFor(target);
+          const capabilityTier = requirement
+            ? weapon.def.harvestCapabilities?.[requirement.targetTag] ?? 0
+            : 0;
+          if (requirement && capabilityTier < requirement.minimumTier) {
+            this.ctx.resourceNodes!.showHarvestFailure(target, requirement.failureMessage);
+            return rejectedDamage('invalid');
+          }
+        }
         const damageModifier = resolveDamageModifier(weapon.def.damageModifiers, targetTags);
         if (damageModifier <= 0) return rejectedDamage('invalid');
         const comboDamage = damage * this.combo.registerHit();

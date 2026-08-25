@@ -1,5 +1,6 @@
 import { gameEvents } from './EventBus';
 import { PLAYER_CONFIG } from '../content/player';
+import { createInitialRunState } from '../content/initial-state/InitialRun';
 import { PERK_BALANCE } from '../content/perks';
 import type { CharacterAttributeSet } from '../content/characters/types';
 import { WEAPON_HOTBAR_SLOT_COUNT } from './types';
@@ -59,28 +60,21 @@ export interface GameStateData {
   };
 }
 
-const DEFAULT_DATA: GameStateData = {
-  schemaVersion: SAVE_SCHEMA_VERSION,
-  coins: 50,
-  boostBonus: 0,
-  totalFriends: 0,
-  level: 1,
-  xp: 0,
-  hp: BASE_MAX_HP,
-  maxHpBonus: 0,
-  energy: BASE_MAX_ENERGY,
-  maxEnergyBonus: 0,
-  skillPoints: 0,
-  perks: {},
-  attributes: { ...PLAYER_CONFIG.attributes },
-  equipment: {
-    weaponId: 'goo-gauntlet',
-    weaponSlots: ['goo-gauntlet', 'basic-sword', null, null, null, null],
-  },
-};
+function defaultData(): GameStateData {
+  const initial = createInitialRunState().player;
+  return {
+    ...initial,
+    schemaVersion: SAVE_STATE_SCHEMA_VERSION,
+    perks: {},
+    attributes: { ...initial.attributes },
+    equipment: { ...initial.equipment, weaponSlots: [...initial.equipment.weaponSlots] },
+  };
+}
+
+const SAVE_STATE_SCHEMA_VERSION = SAVE_SCHEMA_VERSION;
 
 function normalizeWeaponSlots(value: unknown): Array<string | null> {
-  const input = Array.isArray(value) ? value : DEFAULT_DATA.equipment.weaponSlots;
+  const input = Array.isArray(value) ? value : defaultData().equipment.weaponSlots;
   return Array.from({ length: WEAPON_HOTBAR_SLOT_COUNT }, (_, index) => {
     const entry = input[index];
     return typeof entry === 'string' && entry.trim().length > 0 ? entry : null;
@@ -88,24 +82,21 @@ function normalizeWeaponSlots(value: unknown): Array<string | null> {
 }
 
 class GameStateImpl {
-  private data: GameStateData = {
-    ...DEFAULT_DATA,
-    attributes: { ...DEFAULT_DATA.attributes },
-    equipment: { ...DEFAULT_DATA.equipment, weaponSlots: [...DEFAULT_DATA.equipment.weaponSlots] },
-  };
+  private data: GameStateData = defaultData();
 
   load(data: Partial<GameStateData>): void {
+    const defaults = defaultData();
     this.data = {
-      ...DEFAULT_DATA,
+      ...defaults,
       ...data,
       perks: { ...(data.perks ?? {}) },
-      attributes: { ...DEFAULT_DATA.attributes, ...(data.attributes ?? {}) },
+      attributes: { ...defaults.attributes, ...(data.attributes ?? {}) },
       equipment: {
-        ...DEFAULT_DATA.equipment,
+        ...defaults.equipment,
         ...(data.equipment ?? {}),
         weaponSlots: normalizeWeaponSlots(data.equipment?.weaponSlots),
       },
-      schemaVersion: SAVE_SCHEMA_VERSION,
+      schemaVersion: SAVE_STATE_SCHEMA_VERSION,
     };
 
     gameEvents.emit('coins.changed', { coins: this.data.coins, delta: 0 });
@@ -119,12 +110,7 @@ class GameStateImpl {
   }
 
   reset(): void {
-    this.data = {
-      ...DEFAULT_DATA,
-      perks: {},
-      attributes: { ...DEFAULT_DATA.attributes },
-      equipment: { ...DEFAULT_DATA.equipment, weaponSlots: [...DEFAULT_DATA.equipment.weaponSlots] },
-    };
+    this.data = defaultData();
     gameEvents.emit('coins.changed', { coins: this.data.coins, delta: 0 });
     gameEvents.emit('boost.changed', { boostBonus: this.data.boostBonus, delta: 0 });
     gameEvents.emit('friend.count', { count: this.data.totalFriends });

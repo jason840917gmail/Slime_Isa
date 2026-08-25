@@ -170,6 +170,212 @@ body {
   box-shadow: inset 0 0 0 1px rgba(117, 255, 157, 0.22);
 }
 
+.dev-runtime-button + .dev-runtime-button {
+  margin-top: 8px;
+}
+
+.dev-runtime-button--secondary {
+  border-color: #f4d878;
+  color: #f4d878;
+  box-shadow: inset 0 0 0 1px rgba(244, 216, 120, 0.22);
+}
+
+.dev-runtime-button--danger,
+.dev-modal-button--danger {
+  border-color: #ff8f8f;
+  color: #ffb1b1;
+  box-shadow: inset 0 0 0 1px rgba(255, 143, 143, 0.22);
+}
+
+.dev-persistence-actions {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.dev-persistence-actions .dev-runtime-button {
+  margin-top: 0;
+}
+
+.dev-modal-backdrop {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(4, 8, 18, 0.78);
+  color: #e7f1ff;
+  font-family: "Trebuchet MS", Aptos, sans-serif;
+  letter-spacing: 0.03em;
+  text-transform: none;
+}
+
+.dev-modal {
+  width: min(520px, 100%);
+  max-height: min(720px, 90vh);
+  overflow: auto;
+  border: 2px solid #6f86ac;
+  padding: 22px;
+  background: linear-gradient(180deg, #182642, #0b1225);
+  box-shadow: 0 24px 90px rgba(0, 0, 0, 0.66);
+}
+
+.dev-modal--wide {
+  width: min(700px, 100%);
+}
+
+.dev-modal header p,
+.dev-modal header h2,
+.dev-modal > p,
+.dev-modal footer {
+  margin: 0;
+}
+
+.dev-modal header p {
+  color: #9d97c8;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.dev-modal header h2 {
+  margin-top: 5px;
+  color: #f2f0ff;
+  font-size: 22px;
+}
+
+.dev-modal > p {
+  margin-top: 16px;
+  color: #c3d1e5;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.dev-save-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.dev-save-record {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border: 1px solid #3c5275;
+  padding: 12px;
+  background: rgba(8, 16, 34, 0.76);
+}
+
+.dev-save-record strong,
+.dev-save-record small {
+  display: block;
+}
+
+.dev-save-record strong {
+  color: #f4d878;
+  font-size: 14px;
+}
+
+.dev-save-record small {
+  margin-top: 5px;
+  color: #91a6c4;
+  font-size: 11px;
+}
+
+.dev-save-record__actions,
+.dev-modal-inline-actions,
+.dev-modal footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.dev-modal footer {
+  margin-top: 22px;
+}
+
+.dev-modal-button {
+  border: 1px solid #75ff9d;
+  padding: 9px 12px;
+  background: #10162a;
+  color: #75ff9d;
+  cursor: pointer;
+  font: 800 11px/1.1 "Trebuchet MS", Aptos, sans-serif;
+  letter-spacing: 0.06em;
+}
+
+.dev-modal-button--quiet {
+  border-color: #5e7295;
+  color: #c1cee1;
+}
+
+.dev-modal-button:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.dev-modal-field {
+  display: grid;
+  gap: 7px;
+  margin-top: 20px;
+  color: #b8c7da;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.dev-modal-field input {
+  border: 1px solid #60799f;
+  padding: 11px;
+  background: #080f20;
+  color: #eef6ff;
+  font: 14px "Trebuchet MS", Aptos, sans-serif;
+}
+
+.dev-modal-status {
+  color: #f4d878 !important;
+  font-size: 13px !important;
+}
+
+.dev-modal-empty {
+  border: 1px dashed #405675;
+  padding: 18px;
+  color: #91a6c4;
+  text-align: center;
+}
+
+.dev-save-warning {
+  display: grid;
+  gap: 5px;
+  margin-top: 18px;
+  border: 1px solid rgba(255, 143, 143, 0.7);
+  padding: 12px;
+  background: rgba(89, 26, 39, 0.38);
+  color: #ffd0d0;
+}
+
+.dev-save-warning strong {
+  font-size: 13px;
+}
+
+.dev-save-warning small {
+  overflow-wrap: anywhere;
+  color: #eeb2ba;
+  font-size: 11px;
+}
+
+.startup-save-modal {
+  border-color: #75ff9d;
+  box-shadow: 0 24px 90px rgba(0, 0, 0, 0.72), 0 0 40px rgba(117, 255, 157, 0.12);
+}
+
+.dev-runtime-button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
 .dev-runtime-button.is-active {
   background: #1db954;
   color: #06160b;
@@ -275,7 +481,7 @@ body {
 /* ── authored map editor / industrial field cartographer ── */
 .game-shell.is-map-editor {
   display: grid;
-  grid-template-columns: 328px minmax(0, 1fr) 180px;
+  grid-template-columns: 328px minmax(0, 1fr) 328px;
   grid-template-areas: "panel canvas inspector";
   gap: 10px;
   padding: 10px;
@@ -457,6 +663,55 @@ body {
   color: #11140e;
 }
 
+.editor-map-size-summary {
+  grid-column: 1;
+  grid-row: 3;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 9px;
+  min-width: 0;
+  margin-top: 2px;
+}
+
+.editor-map-size-summary span {
+  color: #7f8f7d;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.editor-map-size-summary strong {
+  color: #d6b75e;
+  font-size: 11px;
+}
+
+.editor-map-size-summary small {
+  width: 100%;
+  color: #7f8b7a;
+  font-size: 9px;
+}
+
+.editor-map-size-button {
+  grid-column: 2;
+  grid-row: 3;
+  align-self: end;
+  border: 1px solid #5d806b;
+  padding: 7px 10px;
+  background: #18231b;
+  color: #a7dcae;
+  cursor: pointer;
+  font: 800 9px Bahnschrift, "Arial Narrow", sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.editor-map-size-button:hover,
+.editor-map-size-button:focus-visible {
+  border-color: #a7dcae;
+  background: #223a29;
+}
+
 .editor-new-map-dialog {
   width: min(520px, calc(100vw - 32px));
   border: 1px solid #c3a855;
@@ -543,6 +798,13 @@ body {
   margin: 0;
   color: #ff8b75;
   font-size: 11px;
+}
+
+.editor-dialog-help {
+  margin: -3px 0 0;
+  color: #8f9a83;
+  font-size: 11px;
+  line-height: 1.45;
 }
 
 .editor-new-map-dialog footer {
@@ -1602,7 +1864,9 @@ body {
 }
 
 .editor-template-form input,
-.editor-template-form select {
+.editor-template-form select,
+.editor-gameplay-form input,
+.editor-gameplay-form select {
   width: 100%;
   min-width: 0;
   border: 1px solid #536049;
@@ -1614,13 +1878,16 @@ body {
   font: 600 12px Bahnschrift, "Arial Narrow", sans-serif;
 }
 
-.editor-template-form input[type="number"] {
+.editor-template-form input[type="number"],
+.editor-gameplay-form input[type="number"] {
   color: #d9cfac;
   font-family: 'Courier New', monospace;
 }
 
 .editor-template-form input:focus,
-.editor-template-form select:focus {
+.editor-template-form select:focus,
+.editor-gameplay-form input:focus,
+.editor-gameplay-form select:focus {
   border-color: var(--inspector-gold);
   box-shadow: 0 0 0 2px rgba(214, 183, 94, 0.13);
 }
@@ -1839,6 +2106,101 @@ body {
 
 .editor-template-dialog footer .editor-inspector-secondary {
   margin-top: 0;
+}
+
+/* Instance fields are optional overrides, not a second copy of the shared
+   resource definition. Keep them visually distinct from the defaults. */
+.editor-inspector-section:has([data-instance-field]) {
+  border-left: 3px solid var(--inspector-blue);
+  background: linear-gradient(90deg, rgba(117, 217, 255, 0.08), transparent 68%);
+}
+
+.editor-inspector-section:has([data-instance-field]) .editor-inspector-help {
+  color: #a2b7bf;
+}
+
+.editor-inspector-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  margin: 0 14px 0;
+  border: 1px solid var(--inspector-line);
+  background: var(--inspector-line);
+}
+
+.editor-inspector-tabs button {
+  display: grid;
+  gap: 3px;
+  border: 0;
+  padding: 10px 8px;
+  background: #171e17;
+  color: var(--inspector-muted);
+  cursor: pointer;
+  font: 800 9px Bahnschrift, "Arial Narrow", sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.editor-inspector-tabs button small {
+  color: #f0ca6a;
+  font-size: 7px;
+  letter-spacing: 0.04em;
+}
+
+.editor-inspector-tabs button[aria-selected="true"] small {
+  color: #512f12;
+}
+
+.editor-inspector-tabs button[aria-selected="true"] {
+  background: var(--inspector-gold);
+  color: #11140e;
+}
+
+.editor-inspector-tabs button:focus-visible {
+  outline: 2px solid #f0e5bd;
+  outline-offset: -2px;
+}
+
+.editor-inspector-scroll [hidden] {
+  display: none !important;
+}
+
+.editor-gameplay-form {
+  display: block;
+}
+
+.editor-instance-override {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: end;
+  margin-bottom: 10px;
+}
+
+.editor-instance-override .editor-inspector-secondary {
+  min-width: 74px;
+  margin: 0;
+}
+
+.editor-yield-preview {
+  display: grid;
+  gap: 3px;
+  margin: 10px 0 0;
+  padding: 9px;
+  border-left: 3px solid var(--inspector-gold);
+  background: rgba(214, 183, 94, 0.08);
+  color: var(--inspector-muted);
+  font-size: 10px;
+}
+
+.editor-yield-preview strong {
+  color: #f0e5bd;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.editor-inspector-empty-compact {
+  min-height: 180px;
 }
 
 .editor-animation-reference-value {
@@ -2500,7 +2862,7 @@ body {
     right: 10px;
     bottom: 10px;
     z-index: 20;
-    width: min(240px, calc(100vw - 20px));
+    width: min(320px, calc(100vw - 20px));
     box-shadow: 0 18px 60px rgba(0, 0, 0, 0.62);
   }
 
