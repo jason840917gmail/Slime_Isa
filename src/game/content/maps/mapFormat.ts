@@ -265,7 +265,7 @@ export function parseMapFile(data: unknown, mapLabel = 'unknown'): MapFile {
   }
 
   if (typeof data.mapId !== 'string' || !MAP_ID_PATTERN.test(data.mapId)) {
-    issues.push(`mapId: expected kebab-case string (e.g. meadow-crossing)`);
+    issues.push(`mapId: expected kebab-case string (e.g. level-1)`);
   }
 
   if (!isPositiveInt(data.tileSize)) {

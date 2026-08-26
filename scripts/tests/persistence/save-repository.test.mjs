@@ -65,11 +65,15 @@ test('fresh initial runs do not share mutable state and use the authored Level 1
   const second = createInitialRunState();
 
   first.player.equipment.weaponSlots[0] = 'changed-for-test';
-  first.inventory[0].count = 99;
+  first.inventory.push({ itemId: 'changed-for-test', count: 99 });
   first.world.discoveredAreas.push('changed-for-test');
 
   assert.notEqual(second.player.equipment.weaponSlots[0], 'changed-for-test');
-  assert.notEqual(second.inventory[0].count, 99);
+  assert.deepEqual(second.player.equipment, {
+    weaponId: null,
+    weaponSlots: [null, null, null, null, null, null],
+  });
+  assert.deepEqual(second.inventory, []);
   assert.equal(second.world.discoveredAreas.includes('changed-for-test'), false);
   assert.deepEqual(second.location, {
     areaId: level1Map.mapId,

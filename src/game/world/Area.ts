@@ -25,7 +25,7 @@ export const AREAS: Readonly<Record<string, AreaDef>> = {
     biome: 'meadow',
     seed: 1,
     mapX: 0,
-    mapY: 1,
+    mapY: 0,
     mapId: 'level-1',
     neighbors: {
       east: 'gloop-forest',
@@ -39,23 +39,7 @@ export const AREAS: Readonly<Record<string, AreaDef>> = {
     mapX: -1,
     mapY: 0,
     mapId: 'icege',
-    neighbors: {
-      east: 'meadow-crossing',
-    },
-  },
-  'meadow-crossing': {
-    id: 'meadow-crossing',
-    name: 'Sunbell Meadow',
-    biome: 'meadow',
-    seed: 0,
-    mapX: 0,
-    mapY: 0,
-    mapId: 'meadow-crossing',
-    hasPlayerHome: true,
-    neighbors: {
-      west: 'icege',
-      east: 'gloop-forest',
-    },
+    neighbors: {},
   },
   'gloop-forest': {
     id: 'gloop-forest',
@@ -66,7 +50,7 @@ export const AREAS: Readonly<Record<string, AreaDef>> = {
     mapY: 0,
     mapId: 'gloop-forest',
     neighbors: {
-      west: 'meadow-crossing',
+      west: 'level-1',
       east: 'crystal-caverns',
     },
   },

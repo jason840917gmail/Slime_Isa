@@ -45,7 +45,7 @@ export type GameEvents = {
   'status.removed': { kind: StatusKind };
   'inventory.changed': {};
   'weapon.loadout.changed': { slots: readonly (string | null)[] };
-  'weapon.equipped': { weaponId: string };
+  'weapon.equipped': { weaponId: string | null };
   'levelup.modal.open': { choices: PerkChoice[] };
   'levelup.modal.close': { pickedPerkId: string | null };
 };

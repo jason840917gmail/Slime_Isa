@@ -35,7 +35,7 @@ export const QUEST_DEFS: readonly QuestDef[] = [
     id: 'first-steps',
     title: 'First Steps Beyond Home',
     giver: 'Village Elder Plop',
-    area: 'Sunbell Meadow',
+    area: 'Level 1',
     description: 'Prove you are ready to explore: gather supplies, defeat nearby threats, and find the forest path.',
     objectives: [
       { id: 'snacks', kind: 'collect', label: 'Collect meadow snacks', target: 3 },

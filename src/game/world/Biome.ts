@@ -18,7 +18,7 @@ export const BIOMES: Readonly<Record<BiomeId, BiomeDef>> = {
   },
   meadow: {
     id: 'meadow',
-    name: 'Sunbell Meadow',
+    name: 'Meadow',
     titleColor: '#a3f0c0',
     ambientTint: 0xffffff,
     decorationBias: 1,

@@ -16,8 +16,8 @@ basic crafting, then use a guarded green key to unlock the next authored area.
 
 ## Progression contract
 
-1. The player begins with innate slime movement/actions but no equippable
-   crafted weapon or harvesting tool.
+1. The player begins with movement and non-combat interactions, but no attack,
+   equipped weapon, crafted weapon, or harvesting tool.
 2. Loose branches, loose stones, and edible forage can be collected by hand.
    Trees and stone nodes still require the correct crafted tool.
 3. Basic survival recipes are portable and use the shared crafting popup. The

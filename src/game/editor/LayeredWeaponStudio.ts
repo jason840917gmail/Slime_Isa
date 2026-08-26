@@ -1123,7 +1123,7 @@ async function savePackage(state: StudioState): Promise<Partial<StudioState>> {
 
 export function mountLayeredWeaponStudio(container: HTMLDivElement, options: LayeredWeaponStudioOptions = {}): () => void {
   container.classList.add('is-character-studio-host');
-  const returnEditor = new URLSearchParams(window.location.search).get('editor') ?? 'meadow-crossing';
+  const returnEditor = new URLSearchParams(window.location.search).get('editor') ?? 'level-1';
   let state: StudioState = {
     weapons: [], effects: [], animationPackages: [], librarySearch: '', sourceSheetSearch: '', expandedFolders: new Set(options.expandedFolders ?? ['weapons', 'animations']), selectedId: '', scope: 'attack', direction: 'right', effectDirection: 'right',
     effectIsNew: false, effectDirty: false, playhead: 0, previewZoom: 1, previewSplit: 55, inspectorTab: 'layer', pickerOpen: false,

@@ -9,8 +9,8 @@ need verification and close-out rather than replacement.
 
 ## Player outcome
 
-A fresh save starts in Sunbell Meadow with only the innate slime attack. The
-player collects loose wood and stone by hand, crafts starter tools and spears,
+A fresh save starts in Level 1 with no attack or equipped weapon. The player
+collects loose wood and stone by hand, crafts starter tools and spears,
 harvests trees and stone nodes with the correct tool, clears a one-time enemy
 camp, claims one green key, and permanently unlocks the east exit to Gloop
 Forest.
@@ -32,13 +32,12 @@ The complete proof is:
 
 ## Decisions and invariants
 
-- Sunbell Meadow (`meadow-crossing`) is the starter level. Its east exit to
+- Level 1 (`level-1`) is the starter level. Its east exit to
   `gloop-forest` is the first green-key gate.
-- The existing `goo-gauntlet` ID becomes the temporary runtime identity for the
-  innate slime strike. It is always available, is not granted as inventory
-  loot, has no harvesting capability, and is the only attack on a new save.
-  The later action-dashboard task may move it from the weapon row into a fixed
-  ability slot without changing this milestone's progression.
+- A new run has no attack, equipped weapon, weapon inventory, or hotbar
+  assignment. `null` is the intentional persisted equipped state until the
+  player crafts and equips the first spear. Legacy combat items remain readable
+  for old saves and explicit development grants.
 - New production item IDs are `wooden-spear`, `stone-axe`, `stone-pickaxe`, and
   `stone-spear`. Existing `basic-spear`, `wooden-axe`, and `pickaxe` definitions
   remain readable for old saves and debug use during the migration. Do not
@@ -103,7 +102,7 @@ The first definitions are:
 - Stone Axe: `wood: 1`;
 - Stone Pickaxe: `stone: 1`;
 - Wooden Spear and Stone Spear: no harvest capability;
-- innate slime strike and other combat weapons: no harvest capability.
+- other combat weapons: no harvest capability.
 
 Update the weapon schema, normalizer, catalog checks, Weapon Studio form/round
 trip, and focused weapon tests together so editor saves cannot erase the new
@@ -111,13 +110,14 @@ field.
 
 Change loadout initialization into two explicit paths:
 
-- production initialization: reconcile saved inventory/loadout and ensure only
-  the innate slime strike fallback exists on a true new save;
+- production initialization: reconcile saved inventory/loadout while preserving
+  a valid empty equipped state on a true new save;
 - development grant: add the legacy test arsenal only after an explicit
   development-only command or `?starterGear=1` flag.
 
-Existing saves keep owned legacy items. Empty or invalid equipped IDs normalize
-to the innate fallback without deleting inventory or duplicating a weapon.
+Existing saves keep owned legacy items. Empty equipped IDs normalize to `null`.
+Invalid equipped ownership falls back to another valid assigned weapon when one
+exists, otherwise to `null`, without deleting inventory or duplicating a weapon.
 
 ### 2. Build one future-compatible, atomic recipe path
 
@@ -170,7 +170,7 @@ budget cannot be consumed by accidentally crafting a second copy. Do not add a
 hidden material grant or a special respawn rule unless playtesting finds another
 real loss path.
 
-Update `meadow-crossing.map.json` through Map Studio where possible. Validate
+Update `level-1.map.json` through Map Studio where possible. Validate
 that every source is reachable without crossing a collider, entering the
 guarded camp, or owning a tool.
 
@@ -214,7 +214,7 @@ For `clear-once` areas, `EnemySpawner` must:
    enemies;
 5. skip seeding when that encounter ID is already persisted as complete.
 
-Author a small `starter-green-key-camp` in Sunbell Meadow. Keep it outside the
+Author a small `starter-green-key-camp` in Level 1. Keep it outside the
 hand-collection path and tune it for the Wooden Spear, with the Stone Spear as a
 meaningful advantage rather than a hard requirement.
 
@@ -288,7 +288,7 @@ a separate save-usage audit after released saves have migrated.
 | One-time camps | `mapFormat.ts`, `EnemySpawner.ts`, `EventBus.ts`, Map Studio enemy-area controls |
 | Chest/key/gate | object content, progression feature controllers, Map Studio object/connection controls |
 | Persistence | `SaveSchema.ts`, `SaveRepository.ts`, `WorldProgress.ts` |
-| Starter content | `src/game/content/maps/meadow-crossing.map.json` |
+| Starter content | `src/game/content/maps/level-1.map.json` |
 | Automated coverage | focused suites under `scripts/tests/crafting/`, `progression/`, `combat/`, and `map-editor/` |
 
 Keep orchestration in feature controllers. `WorldScene` may construct and wire
@@ -314,7 +314,7 @@ Run the narrow checks after each slice and the full check before handoff:
 
 | Scenario | Required result |
 |---|---|
-| Fresh save | Only innate slime attack is available; no production test arsenal |
+| Fresh save | No attack, equipped weapon, or production test arsenal is available |
 | Hand collection | Enough reachable loose wood/stone exists to avoid a permanent softlock |
 | Failed craft | No ingredient is consumed and the reason is visible |
 | Successful craft | Item appears once and is assigned when a slot is available |

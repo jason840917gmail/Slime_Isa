@@ -18,9 +18,9 @@ function validSave() {
       skillPoints: 0,
       perks: {},
       attributes: { strength: 10, vitality: 10, agility: 10, intellect: 10 },
-      equipment: { weaponId: 'goo-gauntlet', weaponSlots: ['goo-gauntlet', null, null, null, null, null] },
+      equipment: { weaponId: null, weaponSlots: [null, null, null, null, null, null] },
     },
-    inventory: [{ itemId: 'goo-gauntlet', count: 1 }],
+    inventory: [],
     quests: [{ id: 'first-steps', status: 'active', progress: { snacks: 0 } }],
     location: { areaId: 'level-1', mapId: 'level-1', x: 640, y: 704, facing: 'down' },
     world: {
@@ -43,6 +43,17 @@ function validSave() {
 
 test('accepts a complete multi-map save contract', () => {
   assert.equal(isGameSaveData(validSave()), true);
+});
+
+test('accepts both an empty equipped state and legacy equipped weapons', () => {
+  const empty = validSave();
+  assert.equal(isGameSaveData(empty), true);
+
+  const legacy = validSave();
+  legacy.player.equipment.weaponId = 'goo-gauntlet';
+  legacy.player.equipment.weaponSlots[0] = 'goo-gauntlet';
+  legacy.inventory.push({ itemId: 'goo-gauntlet', count: 1 });
+  assert.equal(isGameSaveData(legacy), true);
 });
 
 test('rejects invalid player locations without weakening the rest of the contract', () => {

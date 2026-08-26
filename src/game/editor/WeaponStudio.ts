@@ -902,7 +902,7 @@ async function loadAssets(): Promise<CharacterStudioAssetCatalog> {
 
 export function mountLegacyWeaponStudio(container: HTMLDivElement): () => void {
   container.classList.add('is-character-studio-host');
-  const returnEditor = new URLSearchParams(window.location.search).get('editor') ?? 'meadow-crossing';
+  const returnEditor = new URLSearchParams(window.location.search).get('editor') ?? 'level-1';
   let state: WeaponStudioState = { weapons: [], selectedId: '', selectedAnimation: 'attack', selectedAttackDirection: 'right', selectedHitboxId: 'primary', selectedAnimationPositions: [0], transformTool: 'move', onionSkin: false, selectedInspectorTab: 'visual', selectedPreviewFrame: 0, selectedCharacterId: selectedCharacter()?.characterId ?? '', previewStep: 0, previewPlaying: false, dirty: false, saving: false, assetShelfOpen: false, sourceTilePickerOpen: false, selectedPickerFrames: [], importing: false, importForm: { assetId: 'weapon.player.new', frameWidth: '16', frameHeight: '16', populatedCount: '' } };
   let previewTimer: number | undefined;
   let history: WeaponDefinition[] = [];

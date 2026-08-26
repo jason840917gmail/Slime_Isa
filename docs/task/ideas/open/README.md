@@ -6,6 +6,7 @@ are complete.
 
 ## Gameplay and authoring
 
+- [Level 1 and Milestone 2 verification checklist](./level-1-milestone-2-verification-checklist.md)
 - [Player action dashboard and loadout assignment](./player-action-dashboard-and-loadout.md)
 - [Starter stone-age progression](./starter-stone-age-progression.md)
 - [Station-aware crafting, food, and starter farming](./station-aware-crafting-food-and-farming.md)

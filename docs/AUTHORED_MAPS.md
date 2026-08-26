@@ -50,4 +50,4 @@ An empty `exits` array means the authored map has no exits. `Area.ts` owns the w
 
 Use the dev-only Field Cartographer editor described in `docs/MAP_EDITOR.md`, or edit the JSON directly. In both workflows, keep stable IDs and run the checks; the JSON contract remains the source of truth.
 
-The three initial production maps were created by `pnpm maps:bake`. That command is a deterministic bootstrap tool and overwrites `meadow-crossing`, `gloop-forest`, and `crystal-caverns`; do not run it after hand-editing those files unless the overwrite is intentional.
+The two generated production maps were created by `pnpm maps:bake`. That command is a deterministic bootstrap tool and overwrites `gloop-forest` and `crystal-caverns`; it does not overwrite the hand-authored `level-1` map. Do not run it after hand-editing generated maps unless the overwrite is intentional.
