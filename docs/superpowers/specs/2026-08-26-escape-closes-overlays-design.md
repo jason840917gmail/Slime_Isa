@@ -1,14 +1,14 @@
 # Escape Closes Open Overlays
 
-**Status: approved design; implementation has not started.**
+**Status: approved correction design; persistence lifecycle repair pending.**
 
 ## Goal
 
-Make Escape a consistent, scene-wide close action for every open gameplay
-modal or dashboard. One press closes only the topmost open surface. A second
-press may close the next surface if overlays are nested. The behavior must
-extend to future Phaser or DOM-backed modals without requiring each new surface
-to install its own global Escape listener.
+Make Escape a consistent, game-wide close action for every open gameplay or
+development modal/dashboard. One press closes only the topmost open surface. A
+second press may close the next surface if overlays are nested. The behavior
+must extend to future Phaser or DOM-backed surfaces without requiring each new
+surface to install its own global Escape listener.
 
 ## Current state
 
@@ -17,6 +17,8 @@ The gameplay UI currently has independent Escape handling in
 does not close until a perk is selected. `ChatUI` uses a browser document
 capture listener because its input is a DOM element. `WorldScene` also owns
 the pause-source set that freezes simulation while a gameplay overlay is open.
+The Mini Shop and development persistence dialogs are additional closable
+surfaces with their own local close paths.
 
 The current open-hotkey guards prevent most surfaces from overlapping, but the
 architecture does not provide a reusable ordering rule for nested overlays or
@@ -35,6 +37,7 @@ Each closable surface registers a stable ID and two callbacks:
 ```ts
 interface ModalRegistration {
   isOpen: () => boolean;
+  canClose?: () => boolean;
   close: () => void;
 }
 ```
@@ -44,9 +47,10 @@ interface ModalRegistration {
 is unregistered or after the stack is destroyed; they can never operate on a
 later registration that reuses the same ID.
 
-The gameplay IDs are canonical and unique: `inventory`, `crafting`,
-`world-map`, `quest-journal`, `level-up`, and `chat`. Registration rejects a
-duplicate ID while the original registration is still live. The handle's
+The current IDs are canonical and unique: `inventory`, `crafting`,
+`world-map`, `quest-journal`, `level-up`, `chat`, `shop`, and `persistence`.
+Registration rejects a duplicate ID while the original registration is still
+live. The handle's
 `unregister()` is idempotent and removes only the registration that created it;
 calling an old handle cannot unregister or operate on a newer registration with
 the same ID.
@@ -72,7 +76,8 @@ The service exposes:
 - `hasActiveSurface(): boolean` — prunes stale entries and reports whether at
   least one registered surface is currently open.
 - `closeTopmost(): boolean` — removes stale/closed entries as needed, invokes
-  the latest active surface's `close`, and returns whether a surface closed.
+  the latest active surface's `close` when allowed, and returns whether an
+  active surface owned the close request.
 - `destroy()` — clears registrations and removes the global keyboard listener.
 
 `register` after `destroy` throws because it indicates a scene-lifetime bug.
@@ -81,9 +86,17 @@ Handle methods and repeated `destroy` calls after `destroy` are safe no-ops;
 Unregistering removes every stack occurrence for that registration and is safe
 during teardown.
 
-The stack removes the entry before invoking `close`, so a close callback that
-causes a rerender or nested close cannot leave a duplicate stack entry. Close
-callbacks are synchronous invocations, although they may start an asynchronous
+Before removing an entry, the stack calls its optional `canClose()` guard. A
+missing guard means closable. When the guard returns false, `closeTopmost()`
+returns true without removing the entry or invoking `close`; the Escape event
+is consumed, but otherwise ignored, and the locked surface remains topmost.
+This prevents the request from reaching an underlying dashboard and is the
+required behavior for persistence operations while Save, Load, or Reset is busy.
+
+After the guard accepts, the stack removes the entry before invoking `close`,
+so a close callback that causes a rerender or nested close cannot leave a
+duplicate stack entry. Close callbacks are synchronous invocations, although
+they may start an asynchronous
 visual fade. A surface's `isOpen` callback is authoritative; stale entries are
 skipped rather than invoking a destroyed surface. The re-entrancy guard is
 released in a `finally` path. If a close callback throws, the error propagates
@@ -94,15 +107,17 @@ Any surface opened as a side effect remains below that restored entry.
 
 ### Keyboard routing
 
-`WorldScene` creates one `ModalStack` for its UI lifetime. The stack listens to
-the browser document in capture phase for `event.key === 'Escape'`. When an
-active surface exists it prevents the browser default and stops propagation,
-then closes only the topmost surface. An active surface is the last stack entry
-whose registration still exists and whose `isOpen()` returns true; stale entries
-are pruned before deciding whether to consume the event. If no active surface
-exists, the event is left untouched. This captures Escape consistently when
-focus is in a Phaser canvas or in a DOM input such as chat. Non-Escape keys
-continue to their existing handlers.
+`createGame` creates one `ModalStack` for the game lifetime, puts it in the
+Phaser game registry, and passes the same instance to `WorldScene` and the
+development panel. The stack listens to the browser document in capture phase
+for `event.key === 'Escape'`. When an active surface exists it prevents the
+browser default and stops propagation, then closes only the topmost surface.
+An active surface is the last stack entry whose registration still exists and
+whose `isOpen()` returns true; stale entries are pruned before deciding whether
+to consume the event. If no active surface exists, the event is left untouched.
+This captures Escape consistently when focus is in a Phaser canvas or in a DOM
+input such as chat or a persistence form. Non-Escape keys continue to their
+existing handlers.
 
 The document-like target is injected into the constructor through the minimal
 interface with `addEventListener('keydown', handler, { capture: true })` and
@@ -112,8 +127,10 @@ dispatch a `KeyboardEvent`-shaped object. The handler calls
 `closeTopmost()` once. It calls `preventDefault()` and `stopPropagation()` only
 when that call returns true, and never calls `stopImmediatePropagation()`.
 
-The listener is disposed during scene shutdown through the existing scene
-cleanup path. No UI surface creates its own Escape key or document listener.
+The listener is disposed when the Phaser game is destroyed. Gameplay surfaces
+unregister during scene area reload/teardown, while the shared stack remains
+available to the persistent development panel. No UI surface creates its own
+Escape key or document listener.
 Closing the DOM-backed chat input keeps ChatUI's existing `blur()` behavior; no
 new focus target is forced in this slice, so focus falls back to the browser's
 normal document behavior after the input is hidden.
@@ -129,6 +146,17 @@ register themselves during construction:
 - quest journal
 - level-up
 - chat
+- shop
+
+The development persistence dialog registers itself when opened as
+`persistence`, using the same stack as the game scene. This keeps DOM dialogs
+and Phaser surfaces in one true LIFO order even if they overlap. Each dialog
+opening owns one transient registration. Every successful close path calls
+`unregister()` before removing the DOM node and restoring focus, allowing a
+later Save, Load, or Reset dialog to reuse the canonical ID safely. While an
+operation is busy, its registration's `canClose()` returns false; Escape and
+click/backdrop close requests leave both the DOM dialog and its stack entry
+intact. Once the operation becomes idle, the same entry can close normally.
 
 Each surface stores its `ModalHandle`, calls `handle.open()` after it becomes
 visible, and calls `handle.close()` during every normal close path. Refreshes
@@ -144,13 +172,14 @@ be reopened until its close transition has finished.
 Integration removes the existing individual Escape listeners from
 `InventoryUI`, `CraftingUI`, `WorldMapUI`, and `QuestJournal`, removes the
 per-modal Escape key path from `LevelUpModal`, and removes ChatUI's document
-capture listener. The shared stack is the only Escape listener for the gameplay
-scene.
+capture listener. The development persistence dialog retains its Tab focus
+trap but no longer handles Escape locally. The shared stack is the only Escape
+listener for these surfaces.
 
-The scene shutdown order is: destroy/unregister all surfaces, clear their
-pause-source callbacks through their normal cleanup paths, then call
-`ModalStack.destroy()`. The stack itself does not own or infer simulation pause
-state.
+The scene reload order is: destroy/unregister gameplay surfaces and clear their
+pause-source callbacks through their normal cleanup paths. The game-level stack
+is destroyed only with the Phaser game. The stack itself does not own or infer
+simulation pause state.
 
 The existing `WorldScene` pause-source callbacks remain the authority for
 simulation pause state. Closing one surface clears only that surface's pause
@@ -202,7 +231,11 @@ returns Escape handling to its parent.
   `closeTopmost` call returns false. If the callback opens another surface, that
   new surface remains topmost for the next Escape press; the current press
   never loops to close it.
-- Scene shutdown unregisters all surfaces and removes the document listener.
+- Persistence close unregisters its transient registration exactly once, and
+  repeated Save/Load/Reset open-close cycles may safely reuse `persistence`.
+- A busy surface that refuses closure remains active and topmost.
+- Scene reload unregisters gameplay surfaces; Phaser game destruction removes
+  the document listener.
 - Chat's DOM input remains focusable and keeps its existing Enter, blur, and
   message behavior; only Escape routing moves to the shared stack.
 
@@ -211,16 +244,17 @@ returns Escape handling to its parent.
 Add a cross-cutting player-experience item before UX.1 in
 `docs/GAME_ROADMAP.md`:
 
-### [ ] UX.0 — Make Escape close the topmost UI surface
+### [~] UX.0 — Make Escape close the topmost UI surface
 
 - Build: add a shared modal stack and route Escape through it for inventory,
-  crafting, world map, quest journal, level-up, chat, and future dashboards.
+  crafting, world map, quest journal, level-up, chat, shop, persistence
+  dialogs, and future dashboards.
 - Player proof: pressing Escape closes the currently active surface only;
   nested dialogs close from the top down, and a dismissed level-up choice can
   be reopened without losing the pending perk selection.
-- Done when: no current UI installs an independent Escape listener, all current
-  surfaces clean up their registrations, pause state remains correct, and
-  keyboard/DOM-focused playtests plus project verification pass.
+- Done when: no current surface installs an independent Escape listener, all
+  current surfaces clean up their registrations, pause state remains correct,
+  and keyboard/DOM-focused playtests plus project verification pass.
 
 ## Verification
 
@@ -228,14 +262,26 @@ Add focused tests for the stack service using an injected document-like event
 target, covering registration, LIFO ordering, stale entries, duplicate IDs,
 idempotent unregister/re-registration, post-destroy calls, one-close-per-press,
 re-entrant callbacks, throwing callbacks with unique top-of-stack restoration,
-and Escape default-prevention/propagation behavior. Also cover that `P` does
-nothing while another surface is active and that `reopenPending()` returns
-false when already open or when no pending choices exist.
-Add one integration-level test or harness covering all six registrations,
-legacy-listener removal, scene shutdown cleanup, and level-up `P` reopening.
+Escape default-prevention/propagation behavior, and a `canClose()` refusal that
+consumes Escape while keeping the same entry topmost until it later accepts
+closure.
+
+Add behavioral coverage around the production lifecycle helpers rather than
+relying only on source regex assertions:
+
+- open and close persistence twice with the same canonical ID, proving each
+  successful close unregisters before the next open;
+- press Escape while persistence is busy, proving the dialog remains open and
+  active, then clear busy and prove the next Escape closes it;
+- prove `reopenPending()` eligibility rejects already-open, closing, and
+  no-choice states;
+- prove the `P` action does not call `reopenPending()` while another surface is
+  active and does call it when the stack is empty;
+- retain static checks only for legacy-listener removal and registration wiring.
 Manually verify in the running game:
 
-1. Escape closes inventory, crafting, map, journal, chat, and level-up.
+1. Escape closes inventory, crafting, map, journal, chat, shop, persistence,
+   and level-up.
 2. Opening a nested surface then pressing Escape closes the child first and the
    parent on the next press.
 3. Dismissing level-up leaves the skill point and choices pending; reopening
@@ -245,6 +291,7 @@ Manually verify in the running game:
    active.
 5. Closing chat hides its input and leaves no stale focus-dependent Escape
    handler.
-6. Scene reload/shutdown leaves no active document listener or orphaned UI.
+6. Scene reload/shutdown leaves no active document listener or orphaned UI;
+   Phaser game destruction disposes the game-level stack.
 
 Run `pnpm typecheck`, `pnpm build`, and `pnpm check` before completion.
