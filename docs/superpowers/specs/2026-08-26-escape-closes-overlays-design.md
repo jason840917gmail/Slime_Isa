@@ -1,6 +1,6 @@
 # Escape Closes Open Overlays
 
-**Status: approved correction design; persistence lifecycle repair pending.**
+**Status: correction design revised after user review; re-review pending.**
 
 ## Goal
 
@@ -12,27 +12,36 @@ surface to install its own global Escape listener.
 
 ## Current state
 
-The gameplay UI currently has independent Escape handling in
-`InventoryUI`, `CraftingUI`, `WorldMapUI`, and `QuestJournal`. `LevelUpModal`
-does not close until a perk is selected. `ChatUI` uses a browser document
-capture listener because its input is a DOM element. `WorldScene` also owns
-the pause-source set that freezes simulation while a gameplay overlay is open.
-The Mini Shop and development persistence dialogs are additional closable
-surfaces with their own local close paths.
+The shared, Phaser-free `ModalStack` is already implemented. It owns one
+capture-phase document listener, token-scoped registrations, LIFO ordering,
+stale-entry pruning, re-entrancy protection, and throw-to-top recovery.
+Inventory, crafting, world map, quest journal, level-up, chat, shop, and the
+development persistence dialog already register canonical IDs. Legacy
+per-surface Escape listeners have already been removed, and level-up dismissal
+plus `P` reopening are implemented.
 
-The current open-hotkey guards prevent most surfaces from overlapping, but the
-architecture does not provide a reusable ordering rule for nested overlays or
-future dashboards. Individual listeners also make it possible for two surfaces
-to respond to one Escape press.
+The correction starts from two persistence defects in the current code:
+
+- `bindPersistenceModal` registers `persistence` on every open, but a successful
+  close calls only `handle.close()` and never `unregister()`. A second Save,
+  Load, or Reset opening therefore throws the duplicate-ID error.
+- `ModalStack.closeTopmost()` currently pops before calling `close`. Persistence
+  returns early while `state.busy` is true, so Escape removes the stack entry
+  while leaving the DOM dialog open. A failed asynchronous operation then leaves
+  a visible dialog that Escape can no longer reach.
+
+The current integration test proves most wiring with source regex checks. It
+does not behaviorally cover persistence reopen/busy lifecycles,
+`reopenPending()` eligibility, the `P`-while-blocked rule, or cleanup.
 
 ## Design
 
 ### Modal stack ownership
 
-Add a small UI-only `ModalStack` service under `src/game/ui/`. It has no
-knowledge of a particular modal class or of `WorldScene`.
+Keep the existing UI-only `ModalStack` under `src/game/ui/`. It remains unaware
+of persistence, Phaser modal classes, and `WorldScene`.
 
-Each closable surface registers a stable ID and two callbacks:
+Each closable surface uses this registration contract:
 
 ```ts
 interface ModalRegistration {
@@ -93,6 +102,11 @@ is consumed, but otherwise ignored, and the locked surface remains topmost.
 This prevents the request from reaching an underlying dashboard and is the
 required behavior for persistence operations while Save, Load, or Reset is busy.
 
+The boolean returned by `closeTopmost()` means **consume this Escape request**.
+It does not mean that the surface closed. It returns true for both an accepted
+close and a guarded refusal, and false only when there is no active surface or
+the stack cannot process a re-entrant request.
+
 After the guard accepts, the stack removes the entry before invoking `close`,
 so a close callback that causes a rerender or nested close cannot leave a
 duplicate stack entry. Close callbacks are synchronous invocations, although
@@ -110,8 +124,10 @@ Any surface opened as a side effect remains below that restored entry.
 `createGame` creates one `ModalStack` for the game lifetime, puts it in the
 Phaser game registry, and passes the same instance to `WorldScene` and the
 development panel. The stack listens to the browser document in capture phase
-for `event.key === 'Escape'`. When an active surface exists it prevents the
-browser default and stops propagation, then closes only the topmost surface.
+for `event.key === 'Escape'`. It routes the request only to the topmost active
+surface. If that surface accepts, it closes; if `canClose()` refuses, it remains
+open and topmost. Both outcomes consume the Escape event so nothing underneath
+responds.
 An active surface is the last stack entry whose registration still exists and
 whose `isOpen()` returns true; stale entries are pruned before deciding whether
 to consume the event. If no active surface exists, the event is left untouched.
@@ -151,18 +167,45 @@ register themselves during construction:
 The development persistence dialog registers itself when opened as
 `persistence`, using the same stack as the game scene. This keeps DOM dialogs
 and Phaser surfaces in one true LIFO order even if they overlap. Each dialog
-opening owns one transient registration. Every successful close path calls
-`unregister()` before removing the DOM node and restoring focus, allowing a
-later Save, Load, or Reset dialog to reuse the canonical ID safely. While an
-operation is busy, its registration's `canClose()` returns false; Escape and
-click/backdrop close requests leave both the DOM dialog and its stack entry
-intact. Once the operation becomes idle, the same entry can close normally.
+opening owns one transient registration through a new exported production
+helper in `src/game/ui/TransientModalSession.ts`:
 
-Each surface stores its `ModalHandle`, calls `handle.open()` after it becomes
-visible, and calls `handle.close()` during every normal close path. Refreshes
-that destroy and rebuild the visual container keep the surface open and
-therefore preserve its stack position. Destroy paths call
-`handle.unregister()` and destroy any remaining visuals.
+```ts
+interface TransientModalSession {
+  isOpen(): boolean;
+  requestClose(): boolean;
+}
+
+function createTransientModalSession(options: {
+  modalStack: ModalStack;
+  id: string;
+  canClose: () => boolean;
+  onClosed: () => void;
+}): TransientModalSession;
+```
+
+The helper registers and opens immediately. `requestClose()` evaluates the
+same injected `canClose` function used by the stack registration. A refusal
+returns false without calling `handle.close()`, `unregister()`, or `onClosed`.
+An accepted request marks the session closed, calls `unregister()` exactly once,
+then calls `onClosed()` to emit the pause event, remove the DOM node, and restore
+focus. Repeated accepted close requests are safe no-ops.
+
+`bindPersistenceModal` defines one shared predicate,
+`const canClose = () => !state.busy`, and passes it to the session. Escape,
+Cancel, backdrop, and other close paths all call `session.requestClose()`; none
+duplicates a separate busy check. This single source of truth prevents the DOM
+and stack lifecycles from diverging. Once the operation becomes idle, the same
+entry can close normally. The design does not add replacement or queueing for a
+second persistence open: attempting to open another while one is live continues
+to fail through the existing duplicate-ID invariant.
+
+Each long-lived gameplay surface stores its `ModalHandle`, calls `handle.open()`
+after it becomes visible, and calls `handle.close()` during every normal close
+path. Refreshes that destroy and rebuild the visual container keep the surface
+open and therefore preserve its stack position. Destroy paths call
+`handle.unregister()` and destroy any remaining visuals. Persistence instead
+uses the transient-session lifecycle defined above.
 
 For an animated close, `handle.close()` takes the surface out of the Escape
 stack immediately when the close begins. The surface may remain visually
@@ -200,12 +243,23 @@ clears the pending choices through the existing spend flow. Escape emits
 emit the selected ID.
 
 The public method is `reopenPending(): boolean`: it returns true only when it
-builds the pending-choice surface and false when the surface is already open or
-there are no pending choices. The `P` hotkey calls it only when
+builds the pending-choice surface and false when the surface is already open,
+closing, or has no pending choices. The `P` hotkey calls it only when
 `modalStack.hasActiveSurface()` is false. A `level.up` event with no pending
 choices creates and
 opens a new roll; an event while the surface is open or while a pending choice
 is dismissed is ignored and does not replace the stored choices.
+
+To make these production decisions behaviorally testable, extract two named
+helpers in `src/game/ui/LevelUpReopenPolicy.ts`:
+
+- `canReopenPendingLevelUp({ isOpen, isClosing, choiceCount }): boolean` is used
+  by `LevelUpModal.reopenPending()` and rejects already-open, closing, and
+  no-choice states.
+- `reopenPendingLevelUpWhenIdle(modalStack, levelUpModal): boolean` is used by
+  the `P` hotkey. It returns false without calling `reopenPending()` while
+  `modalStack.hasActiveSurface()` is true; otherwise it returns the modal's
+  `reopenPending()` result.
 
 This slice does not add a second gameplay progression system or persist a
 pending modal choice in save data. The existing in-memory level-up state lasts
@@ -256,6 +310,11 @@ Add a cross-cutting player-experience item before UX.1 in
   current surfaces clean up their registrations, pause state remains correct,
   and keyboard/DOM-focused playtests plus project verification pass.
 
+The implementation must change the existing UX.0 marker in
+`docs/GAME_ROADMAP.md` from `[x]` back to `[~]` before code changes begin. It
+returns to `[x]` only after the corrected lifecycle tests, runtime smoke test,
+and complete project verification pass.
+
 ## Verification
 
 Add focused tests for the stack service using an injected document-like event
@@ -266,7 +325,8 @@ Escape default-prevention/propagation behavior, and a `canClose()` refusal that
 consumes Escape while keeping the same entry topmost until it later accepts
 closure.
 
-Add behavioral coverage around the production lifecycle helpers rather than
+Import and behaviorally test `createTransientModalSession`,
+`canReopenPendingLevelUp`, and `reopenPendingLevelUpWhenIdle` rather than
 relying only on source regex assertions:
 
 - open and close persistence twice with the same canonical ID, proving each
