@@ -1,6 +1,6 @@
 # Escape Closes Open Overlays
 
-**Status: correction design revised after user review; re-review pending.**
+**Status: correction design revised after user and independent review; final re-review pending.**
 
 ## Goal
 
@@ -189,7 +189,14 @@ same injected `canClose` function used by the stack registration. A refusal
 returns false without calling `handle.close()`, `unregister()`, or `onClosed`.
 An accepted request marks the session closed, calls `unregister()` exactly once,
 then calls `onClosed()` to emit the pause event, remove the DOM node, and restore
-focus. Repeated accepted close requests are safe no-ops.
+focus. A request made after the session is closed returns false without invoking
+any callback. If `onClosed()` throws, that cleanup error propagates, but the
+session remains closed and unregistered and cannot close a second time.
+
+The stack registration created by the helper uses
+`close: () => session.requestClose()`. Escape and direct callers therefore enter
+the same lifecycle method; there is no second persistence-specific stack close
+path.
 
 `bindPersistenceModal` defines one shared predicate,
 `const canClose = () => !state.busy`, and passes it to the session. Escape,
@@ -283,8 +290,10 @@ returns Escape handling to its parent.
 - Close callbacks are invoked at most once per Escape press.
 - While `closeTopmost` is invoking a callback, a re-entrant
   `closeTopmost` call returns false. If the callback opens another surface, that
-  new surface remains topmost for the next Escape press; the current press
-  never loops to close it.
+  new surface remains topmost for the next Escape press only when the callback
+  completes successfully; the current press never loops to close it. If the
+  callback throws while the original remains live and open, the throw-recovery
+  rule restores the original above any surface opened as a side effect.
 - Persistence close unregisters its transient registration exactly once, and
   repeated Save/Load/Reset open-close cycles may safely reuse `persistence`.
 - A busy surface that refuses closure remains active and topmost.
@@ -295,7 +304,7 @@ returns Escape handling to its parent.
 
 ## Roadmap change
 
-Add a cross-cutting player-experience item before UX.1 in
+Update the existing cross-cutting player-experience item before UX.1 in
 `docs/GAME_ROADMAP.md`:
 
 ### [~] UX.0 — Make Escape close the topmost UI surface
