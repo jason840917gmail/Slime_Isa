@@ -26,7 +26,6 @@ export interface CollectibleControllerContext {
   readonly inventory: { add(itemId: string, count: number): number };
   readonly progress: {
     collectibleState(mapId: string, instanceId: string): CollectibleProgressState | undefined;
-    migrateLegacyCollectibleState(mapId: string, instanceId: string): CollectibleProgressState | undefined;
     setCollectibleState(mapId: string, instanceId: string, state: CollectibleProgressState): void;
   };
   readonly showMessage: (x: number, y: number, message: string, color: 'white' | 'yellow', important?: boolean) => void;
@@ -48,8 +47,7 @@ export class CollectibleController {
 
     const image = registration.image as Phaser.Physics.Arcade.Image;
     if (!this.ctx.group.getChildren().includes(image)) this.ctx.group.add(image);
-    const savedState = this.ctx.progress.collectibleState(this.ctx.mapId, registration.instanceId)
-      ?? this.ctx.progress.migrateLegacyCollectibleState(this.ctx.mapId, registration.instanceId);
+    const savedState = this.ctx.progress.collectibleState(this.ctx.mapId, registration.instanceId);
     const initialState = registration.initialState ?? {};
     const itemId = definition.collectible.itemId;
     const quantity = this.positiveIntegerState(initialState.quantity, definition.collectible.quantity);

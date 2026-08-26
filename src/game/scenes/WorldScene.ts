@@ -38,6 +38,8 @@ import { WorldMapUI } from '../ui/WorldMapUI';
 import { questTracker } from '../quests/QuestTracker';
 import { QuestJournal } from '../ui/QuestJournal';
 import { CraftingUI } from '../ui/CraftingUI';
+import { reopenPendingLevelUpWhenIdle } from '../ui/LevelUpReopenPolicy';
+import { ModalStack } from '../ui/ModalStack';
 import { PLAYER_CONFIG } from '../content/player';
 import { DisposableBag } from '../shared/lifecycle/Disposable';
 import { createPlayerEntity } from '../features/player/PlayerFactory';
@@ -110,6 +112,7 @@ export class WorldScene extends Phaser.Scene {
   private statusEffects?: StatusEffectManager;
   private healthBar?: HealthBar;
   private levelUpModal?: LevelUpModal;
+  private modalStack?: ModalStack;
   private inventoryUI?: InventoryUI;
   private worldMapUI?: WorldMapUI;
   private questJournal?: QuestJournal;
@@ -210,6 +213,11 @@ export class WorldScene extends Phaser.Scene {
     this.createMinimap();
     this.createHUD();
     this.createControls();
+    const modalStack = this.game.registry.get('modalStack');
+    if (!(modalStack instanceof ModalStack)) {
+      throw new Error('WorldScene requires a shared ModalStack.');
+    }
+    this.modalStack = modalStack;
     this.createShopUI();
     this.createChatUI();
 
@@ -246,10 +254,12 @@ export class WorldScene extends Phaser.Scene {
     });
     this.levelUpModal = new LevelUpModal({
       scene: this,
+      modalStack,
       onPausedChange: (p) => { this.setSimulationPaused('levelup', p); },
     });
     this.inventoryUI = new InventoryUI({
       scene: this,
+      modalStack,
       onPausedChange: (p) => { this.setSimulationPaused('inventory', p); },
       onUseItem: (itemId) => this.useItem(itemId),
       onEquipWeapon: (weaponId) => this.equipWeaponFromInventory(weaponId),
@@ -257,16 +267,19 @@ export class WorldScene extends Phaser.Scene {
     });
     this.worldMapUI = new WorldMapUI({
       scene: this,
+      modalStack,
       getCurrentArea: () => this.currentArea.id,
       onPausedChange: (p) => { this.setSimulationPaused('worldmap', p); },
     });
     this.worldMapUI.discover(this.currentArea.id);
     this.questJournal = new QuestJournal({
       scene: this,
+      modalStack,
       onPausedChange: (p) => { this.setSimulationPaused('journal', p); },
     });
     this.craftingUI = new CraftingUI({
       scene: this,
+      modalStack,
       onPausedChange: (p) => { this.setSimulationPaused('crafting', p); },
       onCrafted: (recipe) => {
         const craftedWeaponId = itemRegistry.get(recipe.output.itemId)?.equipment?.weaponId;
@@ -762,6 +775,7 @@ export class WorldScene extends Phaser.Scene {
   private createChatUI(): void {
     this.chatUI = new ChatUI(
       this,
+      this.modalStack!,
       () => this.friends.getChildren() as Friend[],
       () => PLAYER_CONFIG.name,
       (open) => {
@@ -1092,6 +1106,7 @@ export class WorldScene extends Phaser.Scene {
           // HUD is event-driven via GameState; kept for interface compatibility.
         },
       },
+      this.modalStack!,
     );
   }
 
@@ -1267,6 +1282,13 @@ export class WorldScene extends Phaser.Scene {
       if (this.levelUpModal?.isOpen() || this.inventoryUI?.isOpen() || this.worldMapUI?.isOpen() || this.questJournal?.isOpen()) return;
       this.craftingUI?.toggle();
     });
+
+    const reopenLevelUp = (): void => {
+      if (!this.modalStack || !this.levelUpModal) return;
+      reopenPendingLevelUpWhenIdle(this.modalStack, this.levelUpModal);
+    };
+    kb.on('keydown-P', reopenLevelUp);
+    this.disposables.add(() => kb.off('keydown-P', reopenLevelUp));
 
     // Left-click triggers an attack in the player's current facing direction.
     this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {

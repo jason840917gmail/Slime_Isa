@@ -50,17 +50,17 @@ Evidence/notes:
 
 ## A. Fresh start and authored map
 
-- [ ] **New Run** starts on authored `level-1`.
-- [ ] **Reset Run** starts on the same authored map and spawn.
-- [ ] The player appears at the authored spawn with the expected facing.
-- [ ] The player initially has no attack and no equipped weapon.
-- [ ] No sword, spear, axe, pickaxe, hammer, or production test potion is
+- [x] **New Run** starts on authored `level-1`.
+- [x] **Reset Run** starts on the same authored map and spawn.
+- [x] The player appears at the authored spawn with the expected facing.
+- [x] The player initially has no attack and no equipped weapon.
+- [x] No sword, spear, axe, pickaxe, hammer, or production test potion is
   automatically granted.
-- [ ] The legacy starter arsenal is available only through an explicit,
+- [x] The legacy starter arsenal is available only through an explicit,
   development-only grant.
-- [ ] All loose starter materials are reachable without a tool, combat, or
+- [x] All loose starter materials are reachable without a tool, combat, or
   crossing a blocking collider.
-- [ ] The camp and east progression route do not block the safe collection area.
+- [x] The camp and east progression route do not block the safe collection area.
 
 Evidence/notes:
 
@@ -68,12 +68,12 @@ Evidence/notes:
 
 ## B. Walk-over starter materials
 
-- [ ] Walking over the four loose wood piles grants exactly **40 wood** total.
-- [ ] Walking over the two loose stone piles grants exactly **20 stone** total.
-- [ ] Loose materials require no `F` interaction and show no `F` pickup prompt.
-- [ ] Pressing `F` near loose material does not grant an additional pickup.
-- [ ] Each pile grants its contents exactly once.
-- [ ] Collection feedback and inventory counts agree.
+- [x] Walking over the four loose wood piles grants exactly **40 wood** total.
+- [x] Walking over the two loose stone piles grants exactly **20 stone** total.
+- [x] Loose materials require no `F` interaction and show no `F` pickup prompt.
+- [x] Pressing `F` near loose material does not grant an additional pickup.
+- [x] Each pile grants its contents exactly once.
+- [x] Collection feedback and inventory counts agree.
 - [ ] Quest/event reactions do not double-count collection.
 - [ ] With a full inventory, the untransferred quantity remains in the world.
 - [ ] After freeing inventory capacity, the remaining quantity can be collected.
@@ -85,10 +85,10 @@ Evidence/notes:
 
 ## C. Starter crafting
 
-- [ ] Wooden Spear costs exactly `20 wood`.
-- [ ] Stone Axe costs exactly `10 wood + 10 stone`.
-- [ ] Stone Pickaxe costs exactly `10 wood + 10 stone`.
-- [ ] Stone Spear costs exactly `20 wood + 20 stone`.
+- [x] Wooden Spear costs exactly `20 wood`.
+- [x] Stone Axe costs exactly `10 wood + 10 stone`.
+- [x] Stone Pickaxe costs exactly `10 wood + 10 stone`.
+- [x] Stone Spear costs exactly `20 wood + 20 stone`. Issue (the tile is wrong, how is the tile pick, stope tile is in  2nd position )
 - [ ] The initial 40 wood and 20 stone can fund Wooden Spear, Stone Axe, and
   Stone Pickaxe in any order without a permanent softlock.
 - [ ] A failed craft consumes no ingredients and shows one clear reason.

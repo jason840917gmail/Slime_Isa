@@ -1,6 +1,6 @@
 # Escape Closes Open Overlays
 
-**Status: correction design revised after user and independent review; final re-review pending.**
+**Status: correction implemented and verified; ready for final re-review.**
 
 ## Goal
 

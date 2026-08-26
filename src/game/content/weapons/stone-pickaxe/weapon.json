@@ -5,12 +5,274 @@
   "displayName": "Stone Pickaxe",
   "category": "melee",
   "characterActionId": "attack-1",
-  "animations": { "idleAnimationId": "weapon.stone-pickaxe.idle" },
-  "directionalAttacks": {
-    "right": { "characterActionId": "attack-1", "hitboxes": { "pickaxe-head": { "shape": "rectangle", "width": 40, "height": 40, "offsetX": 42, "offsetY": 15, "damageMultiplier": 1, "knockbackMultiplier": 0.2 } }, "attackTrack": { "hitboxSpans": [{ "hitboxId": "pickaxe-head", "from": 4, "through": 5 }], "events": [] }, "animationId": "weapon.stone-pickaxe.attack.right" },
-    "down": { "characterActionId": "attack-1", "hitboxes": { "pickaxe-head": { "shape": "rectangle", "width": 40, "height": 40, "offsetX": 42, "offsetY": 0, "damageMultiplier": 1, "knockbackMultiplier": 0.2 } }, "attackTrack": { "hitboxSpans": [{ "hitboxId": "pickaxe-head", "from": 4, "through": 5 }], "events": [] }, "animationId": "weapon.stone-pickaxe.attack.down" }
+  "animations": {
+    "idle": {
+      "version": 2,
+      "durationSeconds": 0.1666666667,
+      "framesPerSecond": 6,
+      "loop": true,
+      "loopMode": "wrap",
+      "layers": [
+        {
+          "layerId": "pickaxe",
+          "displayName": "Stone pickaxe",
+          "assetId": "weapon.player.stone-tools-tiles",
+          "depthOffset": 0,
+          "transform": {
+            "scale": [
+              0.5,
+              0.5
+            ],
+            "offset": [
+              0,
+              0
+            ]
+          },
+          "blocks": [
+            {
+              "from": 0,
+              "through": 0,
+              "sourceFrame": 3,
+              "transform": {
+                "offset": [
+                  -10,
+                  0
+                ],
+                "rotationDeg": -30
+              }
+            }
+          ]
+        }
+      ]
+    }
   },
-  "presentation": { "facingMode": "vector" },
+  "directionalAttacks": {
+    "right": {
+      "animation": {
+        "version": 2,
+        "durationSeconds": 0.5,
+        "framesPerSecond": 12,
+        "loop": false,
+        "loopMode": "wrap",
+        "layers": [
+          {
+            "layerId": "pickaxe",
+            "displayName": "Stone pickaxe",
+            "assetId": "weapon.player.stone-tools-tiles",
+            "depthOffset": 0,
+            "transform": {
+              "scale": [
+                0.5,
+                0.5
+              ],
+              "offset": [
+                0,
+                0
+              ]
+            },
+            "blocks": [
+              {
+                "from": 0,
+                "through": 0,
+                "sourceFrame": 3,
+                "transform": {
+                  "offset": [
+                    -20,
+                    -15
+                  ],
+                  "rotationDeg": -30
+                }
+              },
+              {
+                "from": 1,
+                "through": 1,
+                "sourceFrame": 3,
+                "transform": {
+                  "offset": [
+                    0,
+                    -15
+                  ],
+                  "rotationDeg": 0
+                }
+              },
+              {
+                "from": 2,
+                "through": 2,
+                "sourceFrame": 3,
+                "transform": {
+                  "offset": [
+                    20,
+                    -10
+                  ],
+                  "rotationDeg": 30
+                }
+              },
+              {
+                "from": 3,
+                "through": 3,
+                "sourceFrame": 3,
+                "transform": {
+                  "offset": [
+                    30,
+                    0
+                  ],
+                  "rotationDeg": 60
+                }
+              },
+              {
+                "from": 4,
+                "through": 5,
+                "sourceFrame": 3,
+                "transform": {
+                  "offset": [
+                    40,
+                    20
+                  ],
+                  "rotationDeg": 90
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "characterActionId": "attack-1",
+      "hitboxes": {
+        "pickaxe-head": {
+          "shape": "rectangle",
+          "width": 40,
+          "height": 40,
+          "offsetX": 42,
+          "offsetY": 15,
+          "damageMultiplier": 1,
+          "knockbackMultiplier": 0.2
+        }
+      },
+      "attackTrack": {
+        "hitboxSpans": [
+          {
+            "hitboxId": "pickaxe-head",
+            "from": 4,
+            "through": 5
+          }
+        ],
+        "events": []
+      }
+    },
+    "down": {
+      "animation": {
+        "version": 2,
+        "durationSeconds": 0.5,
+        "framesPerSecond": 12,
+        "loop": false,
+        "loopMode": "wrap",
+        "layers": [
+          {
+            "layerId": "pickaxe",
+            "displayName": "Stone pickaxe",
+            "assetId": "weapon.player.stone-tools-tiles",
+            "depthOffset": 0,
+            "transform": {
+              "scale": [
+                0.5,
+                0.5
+              ],
+              "offset": [
+                0,
+                0
+              ]
+            },
+            "blocks": [
+              {
+                "from": 0,
+                "through": 0,
+                "sourceFrame": 3,
+                "transform": {
+                  "offset": [
+                    30,
+                    0
+                  ],
+                  "rotationDeg": 60
+                }
+              },
+              {
+                "from": 1,
+                "through": 1,
+                "sourceFrame": 3,
+                "transform": {
+                  "offset": [
+                    30,
+                    20
+                  ],
+                  "rotationDeg": 90
+                }
+              },
+              {
+                "from": 2,
+                "through": 2,
+                "sourceFrame": 3,
+                "transform": {
+                  "offset": [
+                    30,
+                    40
+                  ],
+                  "rotationDeg": 120
+                }
+              },
+              {
+                "from": 3,
+                "through": 3,
+                "sourceFrame": 3,
+                "transform": {
+                  "offset": [
+                    10,
+                    50
+                  ],
+                  "rotationDeg": 160
+                }
+              },
+              {
+                "from": 4,
+                "through": 5,
+                "sourceFrame": 3,
+                "transform": {
+                  "offset": [
+                    0,
+                    55
+                  ],
+                  "rotationDeg": 190
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "characterActionId": "attack-1",
+      "hitboxes": {
+        "pickaxe-head": {
+          "shape": "rectangle",
+          "width": 40,
+          "height": 40,
+          "offsetX": 42,
+          "offsetY": 0,
+          "damageMultiplier": 1,
+          "knockbackMultiplier": 0.2
+        }
+      },
+      "attackTrack": {
+        "hitboxSpans": [
+          {
+            "hitboxId": "pickaxe-head",
+            "from": 4,
+            "through": 5
+          }
+        ],
+        "events": []
+      }
+    }
+  },
+  "presentation": {
+    "facingMode": "vector"
+  },
   "baseDamage": 12,
   "cooldownMs": 900,
   "hitboxWidth": 58,
@@ -18,8 +280,23 @@
   "hitboxOffset": 42,
   "hitboxDurationMs": 160,
   "knockStrength": 70,
-  "damageModifiers": [{ "targetTag": "stone", "modifier": 1 }, { "targetTag": "resource", "modifier": 0 }, { "targetTag": "enemy", "modifier": 0.2 }],
-  "harvestCapabilities": { "stone": 1 },
+  "damageModifiers": [
+    {
+      "targetTag": "stone",
+      "modifier": 1
+    },
+    {
+      "targetTag": "resource",
+      "modifier": 0
+    },
+    {
+      "targetTag": "enemy",
+      "modifier": 0.2
+    }
+  ],
+  "harvestCapabilities": {
+    "stone": 1
+  },
   "vfxColor": 11259375,
   "unlockLevel": 1,
   "iconKey": "weapon-player-stone-tools-tiles",

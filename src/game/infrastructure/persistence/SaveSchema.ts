@@ -29,7 +29,7 @@ export interface ResourcePileProgressData {
 }
 
 export interface ResourceProgressStateData {
-  readonly stage: 'node' | 'pile' | 'destroyed' | 'depleted';
+  readonly stage: 'node' | 'destroyed' | 'depleted';
   readonly value: number;
   readonly piles?: readonly ResourcePileProgressData[];
 }
@@ -163,7 +163,7 @@ function isGameState(value: unknown): value is GameStateData {
 
 function isResourceState(value: unknown): value is ResourceProgressStateData {
   if (!isRecord(value)) return false;
-  if (!['node', 'pile', 'destroyed', 'depleted'].includes(value.stage as string)) return false;
+  if (!['node', 'destroyed', 'depleted'].includes(value.stage as string)) return false;
   if (!isNonNegativeNumber(value.value)) return false;
   if (value.piles === undefined) return true;
   return Array.isArray(value.piles) && value.piles.every((pile) => (

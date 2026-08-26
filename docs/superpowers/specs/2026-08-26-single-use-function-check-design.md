@@ -13,7 +13,7 @@ Provide a repeatable, advisory report of production functions that have zero or 
 
 ## Output
 
-Add `scripts/check-single-use.mjs` and a `functions:check` package script. The command is report-only and exits successfully after printing candidates grouped by zero or one external reference.
+Add `scripts/check-single-use.mjs` and a `functions:check` package script. The command is report-only and exits successfully after printing candidates grouped by zero or one resolved reference.
 
 Each candidate includes:
 
@@ -26,7 +26,7 @@ If no candidates exist, the command prints a clear success message. The output s
 
 ## Symbol resolution
 
-Use the repository's installed TypeScript compiler API rather than regular expressions. Load `tsconfig.json` with its compiler options, including path aliases and Bundler module resolution, then build a no-emit `Program` from the configured production source files. Use the type checker to canonicalize aliases before comparing declaration and reference symbols. Walk source files once to collect declarations and identifier references, while ignoring declaration identifiers and references resolved to the same declaration file/position.
+Use the repository's installed TypeScript compiler API rather than regular expressions. Load `tsconfig.json` with its compiler options, including path aliases and Bundler module resolution, then build a no-emit `Program` from the configured production source files. Use the type checker to canonicalize declaration symbols, and use the language service's `findReferences()` for each candidate so imports, aliases, class members, and structural method calls are resolved using TypeScript's reference engine. Exclude the declaration itself and references inside the candidate's own declaration body.
 
 The checker should handle imported and re-exported symbols without counting an import alias as a separate declaration. Import and export specifiers count as external dependency references because they represent actual symbol edges; the declaration's own `export` modifier does not. It should tolerate unresolved symbols and skip them rather than producing misleading candidates.
 

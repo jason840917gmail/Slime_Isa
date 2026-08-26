@@ -4,29 +4,39 @@ import { gameState } from '../core/GameState';
 import { rollPerkChoices, getPerkDef } from '../systems/PlayerStats';
 import type { PerkChoice } from '../core/types';
 import { resolveScreenUiDepth } from '../presentation/WorldDepth';
+import { canReopenPendingLevelUp } from './LevelUpReopenPolicy';
+import { ModalStack, type ModalHandle } from './ModalStack';
 
 /**
  * Level-up modal. On the `level.up` event, rolls 3 perks and presents them
  * roguelite-style. While open, sets a "paused" flag on the scene via the
  * callback so the simulation freezes but UI keeps animating.
  *
- * Click a card or press 1/2/3 to pick. The game stays paused until a perk is chosen.
+ * Click a card or press 1/2/3 to pick. Escape dismisses the modal without
+ * spending the pending point; P reopens the same choices later.
  */
 const FONT = 'Trebuchet MS, Segoe UI Variable, sans-serif';
 
 export interface LevelUpModalContext {
   scene: Phaser.Scene;
+  modalStack: ModalStack;
   onPausedChange: (paused: boolean) => void;
 }
 
 export class LevelUpModal {
   private ctx: LevelUpModalContext;
+  private readonly modalHandle: ModalHandle;
   private container?: Phaser.GameObjects.Container;
   private choices: PerkChoice[] = [];
   private cardKeys: Phaser.Input.Keyboard.Key[] = [];
+  private closing = false;
 
   constructor(ctx: LevelUpModalContext) {
     this.ctx = ctx;
+    this.modalHandle = ctx.modalStack.register('level-up', {
+      isOpen: () => this.isOpen(),
+      close: () => this.close(null),
+    });
     gameEvents.on('level.up', this.open, this);
   }
 
@@ -35,13 +45,27 @@ export class LevelUpModal {
   }
 
   private open = (): void => {
-    if (this.container) return;
+    if (this.container || this.choices.length > 0) return;
     this.choices = rollPerkChoices();
-    if (this.choices.length === 0) return;
+    if (this.choices.length === 0) {
+      this.choices = [];
+      return;
+    }
+    this.reopenPending();
+  };
+
+  reopenPending(): boolean {
+    if (!canReopenPendingLevelUp({
+      isOpen: !!this.container,
+      isClosing: this.closing,
+      choiceCount: this.choices.length,
+    })) return false;
 
     gameEvents.emit('levelup.modal.open', { choices: this.choices });
     this.ctx.onPausedChange(true);
     this.build();
+    this.modalHandle.open();
+    return true;
   };
 
   private build(): void {
@@ -151,7 +175,7 @@ export class LevelUpModal {
 
     container.add(
       scene.add
-        .text(0, 150, 'Press 1/2/3 to pick an ability', {
+        .text(0, 150, 'Press 1/2/3 to pick · P to reopen later · Esc to close', {
           fontFamily: FONT,
           fontSize: '12px',
           color: '#88c899',
@@ -185,11 +209,17 @@ export class LevelUpModal {
   private pick(perkId: string): void {
     if (!this.container) return;
     gameState.spendSkillPoint(perkId);
+    this.choices = [];
     this.close(perkId);
   }
 
-  private close(pickedPerkId: string): void {
-    if (!this.container) return;
+  public close(pickedPerkId: string | null): void {
+    if (!this.container || this.closing) {
+      this.modalHandle.close();
+      return;
+    }
+    this.closing = true;
+    this.modalHandle.close();
     this.cardKeys.forEach((k) => k.off('down'));
     this.cardKeys = [];
 
@@ -201,6 +231,7 @@ export class LevelUpModal {
       onComplete: () => {
         this.container?.destroy();
         this.container = undefined;
+        this.closing = false;
         this.ctx.onPausedChange(false);
         gameEvents.emit('levelup.modal.close', { pickedPerkId });
       },
@@ -209,7 +240,13 @@ export class LevelUpModal {
 
   destroy(): void {
     gameEvents.off('level.up', this.open, this);
+    this.modalHandle.unregister();
     this.cardKeys.forEach((k) => k.off('down'));
+    const wasOpen = !!this.container;
+    if (this.container) this.ctx.scene.tweens.killTweensOf(this.container);
     this.container?.destroy();
+    this.container = undefined;
+    this.closing = false;
+    if (wasOpen) this.ctx.onPausedChange(false);
   }
 }

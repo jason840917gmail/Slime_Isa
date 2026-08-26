@@ -114,13 +114,6 @@ export class ResourceNodeController {
       this.restoreDynamicDrops(registration.instanceId, savedState.piles ?? []);
       return;
     }
-    // Older saves used the intermediate `pile` stage for a wood replacement.
-    if (savedState?.stage === 'pile') {
-      this.removeNodeVisual(record);
-      this.records.delete(image);
-      this.restoreLegacySingleDrop(record, savedState.value);
-      return;
-    }
     if (savedState?.stage === 'node' && node.persistHealth !== false) {
       record.health = Math.min(node.health, savedState.value);
       image.setData('resourceHealth', record.health);
@@ -278,31 +271,10 @@ export class ResourceNodeController {
     }));
   }
 
-  private restoreLegacySingleDrop(record: ResourceRecord, amount: number): void {
-    const source = getObjectArchetype(record.objectId).resourceNode;
-    if (!source) return;
-    const cell = this.cellForAnchor(record.anchorX, record.anchorY);
-    const pile: ResourcePileProgress = {
-      id: `${record.instanceId}-drop-1`,
-      cellX: cell.cellX,
-      cellY: cell.cellY,
-      amount,
-      objectId: source.drop.objectId,
-      visualId: source.drop.visualId,
-    };
-    this.createDynamicDrop(record.instanceId, pile);
-    this.saveDestroyedState(record.instanceId, [pile]);
-  }
-
   private createDynamicDrop(sourceInstanceId: string, pile: ResourcePileProgress): void {
     const sourceDrop = this.sourceDropFor(sourceInstanceId);
     const authoredObjectId = pile.objectId;
-    const migratedObjectId = authoredObjectId === 'resource.wood-pile'
-      ? 'collectible.wood-pile'
-      : authoredObjectId === 'resource.stone-pile'
-        ? 'collectible.stone-pile'
-        : authoredObjectId;
-    const objectId = migratedObjectId ?? sourceDrop?.objectId;
+    const objectId = authoredObjectId ?? sourceDrop?.objectId;
     const visualId = pile.visualId ?? sourceDrop?.visualId;
     if (!objectId || !visualId || !isObjectArchetypeId(objectId)) return;
     const x = pile.cellX * this.ctx.dimensions.tileSize + this.ctx.dimensions.tileSize / 2 + (pile.offsetX ?? 0);

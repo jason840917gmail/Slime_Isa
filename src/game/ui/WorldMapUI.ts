@@ -4,29 +4,28 @@ import { BIOMES } from '../world/Biome';
 import { worldProgress } from '../features/progression/WorldProgress';
 import { UI_THEME } from '../presentation/theme';
 import { resolveScreenUiDepth } from '../presentation/WorldDepth';
+import { ModalStack, type ModalHandle } from './ModalStack';
 
 const FONT = UI_THEME.fontFamily;
 
 export interface WorldMapUIContext {
   scene: Phaser.Scene;
+  modalStack: ModalStack;
   getCurrentArea: () => AreaId;
   onPausedChange: (paused: boolean) => void;
 }
 
 export class WorldMapUI {
   private ctx: WorldMapUIContext;
+  private readonly modalHandle: ModalHandle;
   private container?: Phaser.GameObjects.Container;
-  private escKey?: Phaser.Input.Keyboard.Key;
 
   constructor(ctx: WorldMapUIContext) {
     this.ctx = ctx;
-    const kb = ctx.scene.input.keyboard;
-    if (kb) {
-      this.escKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
-      this.escKey.on('down', () => {
-        if (this.container) this.close();
-      });
-    }
+    this.modalHandle = ctx.modalStack.register('world-map', {
+      isOpen: () => this.isOpen(),
+      close: () => this.close(),
+    });
   }
 
   isOpen(): boolean {
@@ -86,6 +85,7 @@ export class WorldMapUI {
     }).setOrigin(0.5));
 
     this.ctx.onPausedChange(true);
+    this.modalHandle.open();
     scene.tweens.add({ targets: container, alpha: { from: 0, to: 1 }, scale: { from: 0.96, to: 1 }, duration: 140 });
   }
 
@@ -145,15 +145,22 @@ export class WorldMapUI {
     return new Phaser.Math.Vector2(-180 + area.mapX * 180, -30 + area.mapY * 120);
   }
 
-  private close(): void {
-    if (!this.container) return;
+  public close(): void {
+    if (!this.container) {
+      this.modalHandle.close();
+      return;
+    }
+    this.modalHandle.close();
     this.container.destroy();
     this.container = undefined;
     this.ctx.onPausedChange(false);
   }
 
   destroy(): void {
-    this.escKey?.off('down');
+    this.modalHandle.unregister();
+    const wasOpen = !!this.container;
     this.container?.destroy();
+    this.container = undefined;
+    if (wasOpen) this.ctx.onPausedChange(false);
   }
 }

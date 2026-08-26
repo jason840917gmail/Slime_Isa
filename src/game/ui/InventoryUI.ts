@@ -4,6 +4,7 @@ import { playerInventory, itemRegistry } from '../systems/Inventory';
 import { playerWeaponLoadout } from '../systems/WeaponLoadout';
 import { resolveScreenUiDepth } from '../presentation/WorldDepth';
 import { createWeaponThumbnail } from './WeaponThumbnail';
+import { ModalStack, type ModalHandle } from './ModalStack';
 
 const FONT = 'Trebuchet MS, Segoe UI Variable, sans-serif';
 const COLS = 6;
@@ -12,6 +13,7 @@ const GAP = 6;
 
 export interface InventoryUIContext {
   scene: Phaser.Scene;
+  modalStack: ModalStack;
   onPausedChange: (paused: boolean) => void;
   onUseItem: (itemId: string) => void;
   onEquipWeapon: (weaponId: string) => void;
@@ -20,24 +22,21 @@ export interface InventoryUIContext {
 
 export class InventoryUI {
   private ctx: InventoryUIContext;
+  private readonly modalHandle: ModalHandle;
   private container?: Phaser.GameObjects.Container;
-  private escKey?: Phaser.Input.Keyboard.Key;
   private selectedItemId?: string;
   private clickRegions: Array<{ x: number; y: number; width: number; height: number; onClick: () => void }> = [];
 
   constructor(ctx: InventoryUIContext) {
     this.ctx = ctx;
+    this.modalHandle = ctx.modalStack.register('inventory', {
+      isOpen: () => this.isOpen(),
+      close: () => this.close(),
+    });
     gameEvents.on('inventory.changed', this.refresh, this);
     gameEvents.on('weapon.loadout.changed', this.refresh, this);
     gameEvents.on('weapon.equipped', this.refresh, this);
 
-    const kb = ctx.scene.input.keyboard;
-    if (kb) {
-      this.escKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
-      this.escKey.on('down', () => {
-        if (this.container) this.close();
-      });
-    }
     ctx.scene.input.on('pointerdown', this.handlePointerDown, this);
   }
 
@@ -54,6 +53,7 @@ export class InventoryUI {
     this.ensureSelectedItem();
     this.build(true);
     this.ctx.onPausedChange(true);
+    this.modalHandle.open();
   }
 
   private refresh = (): void => {
@@ -305,8 +305,12 @@ export class InventoryUI {
     this.selectedItemId = playerInventory.getSlots()[0]?.itemId;
   }
 
-  private close(): void {
-    if (!this.container) return;
+  public close(): void {
+    if (!this.container) {
+      this.modalHandle.close();
+      return;
+    }
+    this.modalHandle.close();
     this.container.destroy();
     this.container = undefined;
     this.ctx.onPausedChange(false);
@@ -316,8 +320,11 @@ export class InventoryUI {
     gameEvents.off('inventory.changed', this.refresh, this);
     gameEvents.off('weapon.loadout.changed', this.refresh, this);
     gameEvents.off('weapon.equipped', this.refresh, this);
-    this.escKey?.off('down');
+    this.modalHandle.unregister();
     this.ctx.scene.input.off('pointerdown', this.handlePointerDown, this);
+    const wasOpen = !!this.container;
     this.container?.destroy();
+    this.container = undefined;
+    if (wasOpen) this.ctx.onPausedChange(false);
   }
 }

@@ -5,6 +5,7 @@ import { WorldScene } from './scenes/WorldScene';
 import { MapLoadScene } from './scenes/MapLoadScene';
 import { bindDevToolsPanel, createDevToolsPanel } from './devTools';
 import { prepareRunStartup } from './features/persistence/StartupPersistence';
+import { ModalStack } from './ui/ModalStack';
 
 export async function createGame(container: HTMLDivElement): Promise<Phaser.Game | undefined> {
   const editorMapId = import.meta.env.DEV
@@ -38,6 +39,7 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
     return undefined;
   }
   const isEditor = editorMapId !== null;
+  const modalStack = isEditor ? undefined : new ModalStack();
   const editorScenes = isEditor
     ? await Promise.all([
         import('./editor/MapEditorLoadScene').then((module) => module.MapEditorLoadScene),
@@ -84,7 +86,7 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
   `;
 
   if (import.meta.env.DEV && !isEditor) {
-    bindDevToolsPanel(container);
+    bindDevToolsPanel(container, modalStack!);
   }
 
   const gameRoot = container.querySelector<HTMLDivElement>('#game-root');
@@ -93,7 +95,7 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
     throw new Error('Missing game mount node.');
   }
 
-  return new Phaser.Game({
+  const game = new Phaser.Game({
     type: Phaser.AUTO,
     parent: gameRoot,
     backgroundColor: '#0b1020',
@@ -116,6 +118,13 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
         fixedStep: true,
       },
     },
+    callbacks: {
+      preBoot: (bootingGame) => {
+        if (modalStack) bootingGame.registry.set('modalStack', modalStack);
+      },
+    },
     scene: [BootScene, MapLoadScene, WorldScene, ...editorScenes],
   });
+  if (modalStack) game.events.once(Phaser.Core.Events.DESTROY, () => modalStack.destroy());
+  return game;
 }

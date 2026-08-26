@@ -2,9 +2,8 @@ import { saveRepository } from '../../infrastructure/persistence/SaveRepository'
 import type { CollectibleProgressStateData, MapRuntimeStateData, ResourceProgressStateData, WorldProgressData } from '../../infrastructure/persistence/SaveSchema';
 import type { AreaId } from '../../world/Area';
 import { gameEvents } from '../../core/EventBus';
-import { migrateLegacyCollectibleMapState } from '../collectibles/CollectibleProgressMigration';
 
-export type ResourceProgressStage = 'node' | 'pile' | 'destroyed' | 'depleted';
+export type ResourceProgressStage = 'node' | 'destroyed' | 'depleted';
 export interface ResourcePileProgress {
   readonly id: string;
   readonly cellX: number;
@@ -94,7 +93,7 @@ export class WorldProgress {
         ? Object.fromEntries(
             Object.entries(candidate.resources).flatMap(([instanceId, resource]) => (
               resource && typeof resource === 'object'
-                && ['node', 'pile', 'destroyed', 'depleted'].includes((resource as ResourceProgressStateData).stage)
+                && ['node', 'destroyed', 'depleted'].includes((resource as ResourceProgressStateData).stage)
                 && typeof (resource as ResourceProgressStateData).value === 'number'
                 && Number.isFinite((resource as ResourceProgressStateData).value)
                 ? [[instanceId, cloneResourceState(resource as ResourceProgressStateData)]]
@@ -136,7 +135,7 @@ export class WorldProgress {
       if (separator <= 0 || separator === key.length - 1) continue;
       const mapId = key.slice(0, separator);
       const instanceId = key.slice(separator + 1);
-      if (!state || !['node', 'pile', 'destroyed', 'depleted'].includes(state.stage)) continue;
+      if (!state || !['node', 'destroyed', 'depleted'].includes(state.stage)) continue;
       const mapState = this.mapStates.get(mapId) ?? emptyMapState();
       mapState.resources[instanceId] = cloneResourceState(state);
       this.mapStates.set(mapId, mapState);
@@ -238,23 +237,6 @@ export class WorldProgress {
     this.ensureLoaded();
     const state = this.mapStates.get(mapId)?.collectibles?.[instanceId];
     return state ? cloneCollectibleState(state) : undefined;
-  }
-
-  /**
-   * Converts the old authored resource-pile state in place when the same map
-   * instance is now backed by a collectible archetype. Generated resource
-   * drops remain owned by their source node and never pass through this path.
-   */
-  migrateLegacyCollectibleState(mapId: string, instanceId: string): CollectibleProgressState | undefined {
-    this.ensureLoaded();
-    const mapState = this.mapStates.get(mapId);
-    if (!mapState) return undefined;
-    const migration = migrateLegacyCollectibleMapState(mapState, instanceId);
-    if (migration.changed) {
-      this.mapStates.set(mapId, migration.mapState);
-      gameEvents.emit('world.progress.changed', {});
-    }
-    return migration.state ? cloneCollectibleState(migration.state) : undefined;
   }
 
   setCollectibleState(mapId: string, instanceId: string, state: CollectibleProgressState): void {

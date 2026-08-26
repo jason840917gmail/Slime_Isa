@@ -1,5 +1,6 @@
 ﻿import Phaser from 'phaser';
 import { resolveScreenUiDepth } from './presentation/WorldDepth';
+import { ModalStack, type ModalHandle } from './ui/ModalStack';
 
 export interface ShopCallbacks {
   onBuyBoost: () => void;
@@ -8,12 +9,17 @@ export interface ShopCallbacks {
 }
 
 export class ShopUI {
-  private container: Phaser.GameObjects.Container;
+  private container?: Phaser.GameObjects.Container;
   private visible = false;
   private callbacks: ShopCallbacks;
+  private readonly modalHandle: ModalHandle;
 
-  constructor(scene: Phaser.Scene, x: number, y: number, callbacks: ShopCallbacks) {
+  constructor(scene: Phaser.Scene, x: number, y: number, callbacks: ShopCallbacks, modalStack: ModalStack) {
     this.callbacks = callbacks;
+    this.modalHandle = modalStack.register('shop', {
+      isOpen: () => this.isOpen(),
+      close: () => this.hide(),
+    });
 
     const bg = scene.add.graphics();
     bg.fillStyle(0x101a31, 0.92);
@@ -75,12 +81,14 @@ export class ShopUI {
   }
 
   show(_coins: number): void {
-    this.container.setVisible(true);
+    this.container?.setVisible(true);
     this.visible = true;
+    this.modalHandle.open();
   }
 
   hide(): void {
-    this.container.setVisible(false);
+    this.modalHandle.close();
+    this.container?.setVisible(false);
     this.visible = false;
   }
 
@@ -89,10 +97,13 @@ export class ShopUI {
   }
 
   setPosition(x: number, y: number): void {
-    this.container.setPosition(x, y);
+    this.container?.setPosition(x, y);
   }
 
   destroy(): void {
-    this.container.destroy();
+    this.modalHandle.unregister();
+    this.container?.destroy();
+    this.container = undefined;
+    this.visible = false;
   }
 }
