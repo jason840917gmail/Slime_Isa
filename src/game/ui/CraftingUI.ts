@@ -3,32 +3,34 @@ import { gameEvents } from '../core/EventBus';
 import { playerInventory, itemRegistry } from '../systems/Inventory';
 import { RECIPES, canCraft, craft, itemName, type RecipeDef } from '../crafting/Crafting';
 import { resolveScreenUiDepth } from '../presentation/WorldDepth';
+import { ModalStack, type ModalHandle } from './ModalStack';
 
 const FONT = 'Trebuchet MS, Segoe UI Variable, sans-serif';
 
 export interface CraftingUIContext {
   scene: Phaser.Scene;
+  modalStack: ModalStack;
   onPausedChange: (paused: boolean) => void;
   onCrafted?: (recipe: RecipeDef) => void;
 }
 
 export class CraftingUI {
   private ctx: CraftingUIContext;
+  private readonly modalHandle: ModalHandle;
   private container?: Phaser.GameObjects.Container;
-  private escKey?: Phaser.Input.Keyboard.Key;
   private selectedIndex = 0;
   private clickRegions: Array<{ x: number; y: number; width: number; height: number; onClick: () => void }> = [];
 
   constructor(ctx: CraftingUIContext) {
     this.ctx = ctx;
+    this.modalHandle = ctx.modalStack.register('crafting', {
+      isOpen: () => this.isOpen(),
+      close: () => this.close(),
+    });
     gameEvents.on('inventory.changed', this.refresh, this);
 
     const kb = ctx.scene.input.keyboard;
     if (kb) {
-      this.escKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
-      this.escKey.on('down', () => {
-        if (this.container) this.close();
-      });
       kb.on('keydown-UP', this.selectPrevious, this);
       kb.on('keydown-W', this.selectPrevious, this);
       kb.on('keydown-DOWN', this.selectNext, this);
@@ -50,6 +52,7 @@ export class CraftingUI {
   private open(): void {
     this.build(true);
     this.ctx.onPausedChange(true);
+    this.modalHandle.open();
   }
 
   private refresh = (): void => {
@@ -233,8 +236,12 @@ export class CraftingUI {
     if (recipe && craft(recipe)) this.ctx.onCrafted?.(recipe);
   };
 
-  private close(): void {
-    if (!this.container) return;
+  public close(): void {
+    if (!this.container) {
+      this.modalHandle.close();
+      return;
+    }
+    this.modalHandle.close();
     this.container.destroy();
     this.container = undefined;
     this.ctx.onPausedChange(false);
@@ -242,7 +249,7 @@ export class CraftingUI {
 
   destroy(): void {
     gameEvents.off('inventory.changed', this.refresh, this);
-    this.escKey?.off('down');
+    this.modalHandle.unregister();
     const kb = this.ctx.scene.input.keyboard;
     kb?.off('keydown-UP', this.selectPrevious, this);
     kb?.off('keydown-W', this.selectPrevious, this);
@@ -250,6 +257,9 @@ export class CraftingUI {
     kb?.off('keydown-S', this.selectNext, this);
     kb?.off('keydown-ENTER', this.craftSelected, this);
     this.ctx.scene.input.off('pointerdown', this.handlePointerDown, this);
+    const wasOpen = !!this.container;
     this.container?.destroy();
+    this.container = undefined;
+    if (wasOpen) this.ctx.onPausedChange(false);
   }
 }

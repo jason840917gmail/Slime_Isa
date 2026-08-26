@@ -77,7 +77,7 @@ function emptyWorld(): WorldProgressData {
 
 function isResourceState(value: unknown): value is ResourceProgressStateData {
   return isRecord(value)
-    && ['node', 'pile', 'destroyed', 'depleted'].includes(value.stage as string)
+    && ['node', 'destroyed', 'depleted'].includes(value.stage as string)
     && typeof value.value === 'number'
     && Number.isFinite(value.value)
     && value.value >= 0;

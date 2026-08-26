@@ -6,16 +6,25 @@
   "category": "melee",
   "characterActionId": "trick",
   "animations": {
-    "idleTimeline": {
+    "idle": {
       "version": 2,
       "durationSeconds": 0.125,
       "framesPerSecond": 8,
       "loop": true,
-      "loopMode": "wrap"
+      "loopMode": "wrap",
+      "layers": []
     }
   },
   "directionalAttacks": {
     "right": {
+      "animation": {
+        "version": 2,
+        "durationSeconds": 0.35714285714285715,
+        "framesPerSecond": 14,
+        "loop": false,
+        "loopMode": "wrap",
+        "layers": []
+      },
       "characterActionId": "trick",
       "hitboxes": {
         "punch": {
@@ -55,16 +64,17 @@
           }
         ],
         "events": []
-      },
-      "animationTimeline": {
-        "version": 2,
-        "durationSeconds": 0.35714285714285715,
-        "framesPerSecond": 14,
-        "loop": false,
-        "loopMode": "wrap"
       }
     },
     "up": {
+      "animation": {
+        "version": 2,
+        "durationSeconds": 0.35714285714285715,
+        "framesPerSecond": 14,
+        "loop": false,
+        "loopMode": "wrap",
+        "layers": []
+      },
       "characterActionId": "trick",
       "hitboxes": {
         "punch": {
@@ -104,16 +114,17 @@
           }
         ],
         "events": []
-      },
-      "animationTimeline": {
-        "version": 2,
-        "durationSeconds": 0.35714285714285715,
-        "framesPerSecond": 14,
-        "loop": false,
-        "loopMode": "wrap"
       }
     },
     "down": {
+      "animation": {
+        "version": 2,
+        "durationSeconds": 0.35714285714285715,
+        "framesPerSecond": 14,
+        "loop": false,
+        "loopMode": "wrap",
+        "layers": []
+      },
       "characterActionId": "trick",
       "hitboxes": {
         "punch": {
@@ -153,13 +164,6 @@
           }
         ],
         "events": []
-      },
-      "animationTimeline": {
-        "version": 2,
-        "durationSeconds": 0.35714285714285715,
-        "framesPerSecond": 14,
-        "loop": false,
-        "loopMode": "wrap"
       }
     }
   },

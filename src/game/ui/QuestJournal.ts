@@ -3,31 +3,29 @@ import { gameEvents } from '../core/EventBus';
 import { getQuestDef, type QuestState } from '../quests/Quest';
 import { questTracker } from '../quests/QuestTracker';
 import { resolveScreenUiDepth } from '../presentation/WorldDepth';
+import { ModalStack, type ModalHandle } from './ModalStack';
 
 const FONT = 'Trebuchet MS, Segoe UI Variable, sans-serif';
 
 export interface QuestJournalContext {
   scene: Phaser.Scene;
+  modalStack: ModalStack;
   onPausedChange: (paused: boolean) => void;
 }
 
 export class QuestJournal {
   private ctx: QuestJournalContext;
+  private readonly modalHandle: ModalHandle;
   private container?: Phaser.GameObjects.Container;
-  private escKey?: Phaser.Input.Keyboard.Key;
 
   constructor(ctx: QuestJournalContext) {
     this.ctx = ctx;
+    this.modalHandle = ctx.modalStack.register('quest-journal', {
+      isOpen: () => this.isOpen(),
+      close: () => this.close(),
+    });
     gameEvents.on('quest.changed', this.refresh, this);
     gameEvents.on('quest.completed', this.refresh, this);
-
-    const kb = ctx.scene.input.keyboard;
-    if (kb) {
-      this.escKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
-      this.escKey.on('down', () => {
-        if (this.container) this.close();
-      });
-    }
   }
 
   isOpen(): boolean {
@@ -42,6 +40,7 @@ export class QuestJournal {
   private open(): void {
     this.build();
     this.ctx.onPausedChange(true);
+    this.modalHandle.open();
   }
 
   private refresh = (): void => {
@@ -178,8 +177,12 @@ export class QuestJournal {
     return y;
   }
 
-  private close(): void {
-    if (!this.container) return;
+  public close(): void {
+    if (!this.container) {
+      this.modalHandle.close();
+      return;
+    }
+    this.modalHandle.close();
     this.container.destroy();
     this.container = undefined;
     this.ctx.onPausedChange(false);
@@ -188,7 +191,10 @@ export class QuestJournal {
   destroy(): void {
     gameEvents.off('quest.changed', this.refresh, this);
     gameEvents.off('quest.completed', this.refresh, this);
-    this.escKey?.off('down');
+    this.modalHandle.unregister();
+    const wasOpen = !!this.container;
     this.container?.destroy();
+    this.container = undefined;
+    if (wasOpen) this.ctx.onPausedChange(false);
   }
 }

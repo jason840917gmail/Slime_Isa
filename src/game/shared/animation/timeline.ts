@@ -16,10 +16,6 @@ export function timelineFrameCount(clip: Pick<AnimationClipDocument, 'durationSe
   return Math.max(1, Math.round(requestedDuration * clip.framesPerSecond));
 }
 
-export function legacyTimelineFrameCount(clip: Pick<AnimationClipDocument, 'frames' | 'framesPerSecond'>): number {
-  return Math.max(1, clip.frames.length);
-}
-
 export function evenKeyframeTimes(timelineFrames: number, keyframeCount: number): number[] {
   if (keyframeCount < 1) throw new AnimationTimelineError('An animation must contain at least one keyframe.');
   if (keyframeCount > timelineFrames) {

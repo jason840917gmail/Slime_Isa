@@ -2,6 +2,8 @@ import { saveSystem } from './core/SaveSystem';
 import { gameEvents } from './core/EventBus';
 import type { NamedSaveMetadata } from './infrastructure/persistence/SaveSchema';
 import { formatCameraZoom } from './presentation/CameraZoom';
+import { ModalStack } from './ui/ModalStack';
+import { createTransientModalSession } from './ui/TransientModalSession';
 
 export interface DevToolsState {
   enabled: boolean;
@@ -144,18 +146,25 @@ function renderPersistenceModal(state: PersistenceModalState): string {
   return `<div class="dev-modal-backdrop" data-persistence-backdrop><section class="dev-modal dev-modal--wide" role="dialog" aria-modal="true" aria-labelledby="dev-modal-title"><header><p>Persistence</p><h2 id="dev-modal-title">${state.mode === 'save' ? 'Save Game' : 'Load Game'}</h2></header>${issueMarkup}<div class="dev-save-list">${records.length > 0 ? records.map((record) => renderSaveRecord(record, recordMode)).join('') : '<p class="dev-modal-empty">No valid named saves yet.</p>'}</div>${state.message ? `<p class="dev-modal-status">${escapeHtml(state.message)}</p>` : ''}<footer>${state.mode === 'save' ? '<button type="button" class="dev-modal-button" data-persistence-action="create-new">Create New Save</button>' : ''}<button type="button" class="dev-modal-button dev-modal-button--quiet" data-persistence-action="close">Cancel</button></footer></section></div>`;
 }
 
-function bindPersistenceModal(root: HTMLElement, mode: PersistenceMode, restoreFocus: HTMLElement | null): void {
+function bindPersistenceModal(root: HTMLElement, mode: PersistenceMode, restoreFocus: HTMLElement | null, modalStack: ModalStack): void {
   const state: PersistenceModalState = { mode, createNew: false, busy: false };
   const modal = document.createElement('div');
   modal.dataset.persistenceModal = 'true';
+  const canClose = (): boolean => !state.busy;
+  const session = createTransientModalSession({
+    modalStack,
+    id: 'persistence',
+    canClose,
+    onClosed: () => {
+      gameEvents.emit('persistence.modal', { open: false });
+      modal.remove();
+      restoreFocus?.focus();
+    },
+  });
+  const close = (): boolean => session.requestClose();
+
   root.appendChild(modal);
   gameEvents.emit('persistence.modal', { open: true });
-
-  const close = (): void => {
-    gameEvents.emit('persistence.modal', { open: false });
-    modal.remove();
-    restoreFocus?.focus();
-  };
 
   const render = (): void => {
     modal.innerHTML = renderPersistenceModal(state);
@@ -164,10 +173,6 @@ function bindPersistenceModal(root: HTMLElement, mode: PersistenceMode, restoreF
   };
 
   const onKeyDown = (event: KeyboardEvent): void => {
-    if (event.key === 'Escape' && !state.busy) {
-      close();
-      return;
-    }
     if (event.key !== 'Tab') return;
     const focusable = [...modal.querySelectorAll<HTMLElement>('button:not(:disabled), input:not(:disabled)')];
     if (focusable.length === 0) return;
@@ -235,7 +240,7 @@ function bindPersistenceModal(root: HTMLElement, mode: PersistenceMode, restoreF
   render();
 }
 
-export function bindDevToolsPanel(root: ParentNode): void {
+export function bindDevToolsPanel(root: ParentNode, modalStack: ModalStack): void {
   const rootElement = root instanceof HTMLElement ? root : document.body;
   const button = root.querySelector<HTMLButtonElement>('[data-dev-enabled]');
   const syncButton = () => {
@@ -262,7 +267,7 @@ export function bindDevToolsPanel(root: ParentNode): void {
     const action = target.dataset.persistenceAction;
     if (action !== 'open-save' && action !== 'open-load' && action !== 'open-reset') return;
     const mode = action === 'open-save' ? 'save' : action === 'open-load' ? 'load' : 'reset';
-    bindPersistenceModal(rootElement, mode, target as HTMLElement);
+    bindPersistenceModal(rootElement, mode, target as HTMLElement, modalStack);
   });
   syncButton();
 }

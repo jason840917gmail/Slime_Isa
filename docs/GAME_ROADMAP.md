@@ -722,6 +722,24 @@ deleting saved games.
 
 ## Cross-Cutting Player Experience
 
+### [x] UX.0 — Make Escape close the topmost UI surface
+
+- Build: add a shared modal stack and route Escape through it for inventory,
+  crafting, world map, quest journal, level-up, chat, shop, persistence
+  dialogs, and future dashboards.
+- Current: the shared `ModalStack` owns LIFO ordering, document-capture Escape
+  routing, token-scoped cleanup, nested-surface handling, and stale-registration
+  protection. Current gameplay and DOM surfaces no longer install independent
+  Escape listeners. Transient persistence dialogs unregister after successful
+  close and remain topmost while busy. Escape dismisses a pending level-up
+  without spending the point; `P` reopens the same choices only when idle.
+- Player proof: pressing Escape closes only the currently active surface, and
+  nested dialogs close from the top down.
+- Done when: runtime keyboard/DOM-focused playtests confirm every current
+  surface closes correctly, pause state remains correct, and complete project
+  verification passes. The implementation design is documented in
+  [Escape closes open overlays](./superpowers/specs/2026-08-26-escape-closes-overlays-design.md).
+
 ### [ ] UX.1 — Unify the bottom action dashboard and loadout workflow
 
 - Build: compose the existing six weapon/tool slots and fixed ability slots into

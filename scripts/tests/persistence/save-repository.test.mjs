@@ -146,7 +146,7 @@ test('legacy flat resource progress migrates into its owning map', () => {
     completedDungeonIds: [],
     resourceStates: {
       'level-1:tree-01': { stage: 'depleted', value: 0 },
-      'forest:stone-02': { stage: 'pile', value: 2 },
+      'forest:stone-02': { stage: 'destroyed', value: 2 },
     },
   };
   storage.setItem(STORAGE_KEYS.legacySave, JSON.stringify({ savedAt: 123, data: legacy }));
@@ -155,5 +155,24 @@ test('legacy flat resource progress migrates into its owning map', () => {
 
   assert.equal(migrated.savedAt, 123);
   assert.deepEqual(migrated.data.world.maps['level-1'].resources['tree-01'], { stage: 'depleted', value: 0 });
-  assert.deepEqual(migrated.data.world.maps.forest.resources['stone-02'], { stage: 'pile', value: 2 });
+  assert.deepEqual(migrated.data.world.maps.forest.resources['stone-02'], { stage: 'destroyed', value: 2 });
+});
+
+test('unsupported legacy pile progress is ignored', () => {
+  const storage = new MemoryStorage();
+  const repository = new SaveRepository(storage);
+  const legacy = createInitialRunState();
+  legacy.world = {
+    discoveredAreas: [],
+    defeatedBossIds: [],
+    completedDungeonIds: [],
+    resourceStates: {
+      'level-1:wood-pile-01': { stage: 'pile', value: 3 },
+    },
+  };
+  storage.setItem(STORAGE_KEYS.legacySave, JSON.stringify({ savedAt: 123, data: legacy }));
+
+  const migrated = repository.readLegacyEnvelope();
+
+  assert.equal(migrated.data.world.maps['level-1'], undefined);
 });

@@ -1,6 +1,7 @@
 ﻿import Phaser from 'phaser';
 import { Friend } from './Friend';
 import { resolveScreenUiDepth } from './presentation/WorldDepth';
+import { ModalStack, type ModalHandle } from './ui/ModalStack';
 
 type ReplyGroup = {
   keywords: string[];
@@ -77,11 +78,12 @@ export class ChatUI {
   private getFriends: () => Friend[];
   private getPlayerName: () => string;
   private scene: Phaser.Scene;
+  private readonly modalHandle: ModalHandle;
   private readonly maxLog = 5;
-  private handleDocKeydown: (e: KeyboardEvent) => void;
 
   constructor(
     scene: Phaser.Scene,
+    modalStack: ModalStack,
     getFriends: () => Friend[],
     getPlayerName: () => string,
     onOpenChange?: (open: boolean) => void,
@@ -90,6 +92,10 @@ export class ChatUI {
     this.getFriends = getFriends;
     this.getPlayerName = getPlayerName;
     this.onOpenChange = onOpenChange;
+    this.modalHandle = modalStack.register('chat', {
+      isOpen: () => this.isChatOpen(),
+      close: () => this.close(),
+    });
 
     const cam = scene.cameras.main;
 
@@ -143,16 +149,6 @@ export class ChatUI {
       if (this.isOpen) this.close();
     });
 
-    this.handleDocKeydown = (e: KeyboardEvent) => {
-      if (!this.isOpen) return;
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        e.stopPropagation();
-        this.close();
-      }
-    };
-    document.addEventListener('keydown', this.handleDocKeydown, true);
-
     const slashKey = scene.input.keyboard?.addKey(191);
     if (slashKey) {
       slashKey.on('down', () => {
@@ -177,11 +173,16 @@ export class ChatUI {
     this.hintText.setVisible(false);
     this.box.setVisible(true);
     this.drawBox();
+    this.modalHandle.open();
     this.onOpenChange?.(true);
   }
 
   close(): void {
-    if (!this.isOpen) return;
+    if (!this.isOpen) {
+      this.modalHandle.close();
+      return;
+    }
+    this.modalHandle.close();
     this.isOpen = false;
     this.inputEl.style.display = 'none';
     this.inputEl.blur();
@@ -280,10 +281,12 @@ export class ChatUI {
   }
 
   destroy(): void {
-    document.removeEventListener('keydown', this.handleDocKeydown, true);
+    this.modalHandle.unregister();
+    const wasOpen = this.isOpen;
     this.inputEl.remove();
     this.box.destroy();
     this.hintText.destroy();
     this.logTexts.forEach((t) => t.destroy());
+    if (wasOpen) this.onOpenChange?.(false);
   }
 }

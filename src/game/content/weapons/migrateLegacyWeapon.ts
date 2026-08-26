@@ -1,10 +1,8 @@
 import {
   normalizeAnimationClip,
-  normalizeLayeredAnimation,
   timelineFrameCount,
   type AnimationVisualBlockDocument,
   type LayeredAnimationDocument,
-  type NormalizedLayeredAnimationDocument,
 } from '../../shared/animation';
 import type {
   LayeredWeaponDefinition,
@@ -187,8 +185,4 @@ export function migrateLegacyWeaponDefinition(
     iconKey: definition.iconKey,
     description: definition.description,
   };
-}
-
-export function normalizedMigratedAnimation(animation: LayeredAnimationDocument): NormalizedLayeredAnimationDocument {
-  return normalizeLayeredAnimation(animation);
 }

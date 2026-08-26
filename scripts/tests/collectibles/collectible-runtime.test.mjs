@@ -22,7 +22,6 @@ const vite = await createServer({
 });
 
 const { CollectibleController } = await vite.ssrLoadModule('/src/game/features/collectibles/CollectibleController.ts');
-const { migrateLegacyCollectibleMapState } = await vite.ssrLoadModule('/src/game/features/collectibles/CollectibleProgressMigration.ts');
 const { completeDropPlacements } = await vite.ssrLoadModule('/src/game/features/resources/ResourceDropPlacement.ts');
 
 test.after(async () => vite.close());
@@ -51,7 +50,6 @@ function harness(capacities, savedState) {
   };
   const progress = {
     collectibleState: () => savedState,
-    migrateLegacyCollectibleState: () => undefined,
     setCollectibleState(_mapId, instanceId, state) { persisted.set(instanceId, state); },
   };
   const controller = new CollectibleController({
@@ -90,17 +88,6 @@ test('walk-over transfer preserves partial and zero-capacity quantities', () => 
   state.controller.collect(state.image);
   assert.equal(state.persisted.get('wood-01').remaining, 0);
   assert.equal(state.image.active, false);
-});
-
-test('legacy authored pile progress migrates without regranting materials', () => {
-  const result = migrateLegacyCollectibleMapState({
-    resources: { 'resource-wood-pile-b356418c': { stage: 'pile', value: 3 } },
-    collectibles: {}, completedEncounterIds: [], openedRewardIds: [], unlockedGateIds: [], objectStates: {},
-  }, 'resource-wood-pile-b356418c');
-  assert.equal(result.changed, true);
-  assert.deepEqual(result.state, { remaining: 3 });
-  assert.equal(result.mapState.resources['resource-wood-pile-b356418c'], undefined);
-  assert.deepEqual(result.mapState.collectibles['resource-wood-pile-b356418c'], { remaining: 3 });
 });
 
 test('fallback resource drops use stable distinct offsets', () => {

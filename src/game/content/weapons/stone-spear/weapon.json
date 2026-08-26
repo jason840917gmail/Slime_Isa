@@ -6,10 +6,192 @@
   "category": "melee",
   "characterActionId": "attack-1",
   "animations": {
-    "idleAnimationId": "weapon.stone-spear.idle"
+    "idle": {
+      "version": 2,
+      "durationSeconds": 1,
+      "framesPerSecond": 1,
+      "loop": true,
+      "loopMode": "wrap",
+      "layers": [
+        {
+          "layerId": "layer-1",
+          "displayName": "Layer 1",
+          "assetId": "weapon.player.starter-spears-tiles",
+          "depthOffset": 0,
+          "blocks": [
+            {
+              "from": 0,
+              "through": 0,
+              "sourceFrame": 2,
+              "transform": {
+                "offset": [
+                  10,
+                  0
+                ],
+                "scale": [
+                  1,
+                  1
+                ],
+                "rotationDeg": 0,
+                "flipX": false,
+                "flipY": false
+              }
+            }
+          ],
+          "transform": {
+            "scale": [
+              0.6,
+              0.6
+            ]
+          }
+        }
+      ]
+    }
   },
   "directionalAttacks": {
     "right": {
+      "animation": {
+        "version": 2,
+        "durationSeconds": 0.4,
+        "framesPerSecond": 20,
+        "loop": false,
+        "loopMode": "wrap",
+        "layers": [
+          {
+            "layerId": "spear",
+            "displayName": "Spear and thrust trail",
+            "assetId": "weapon.player.starter-spears-tiles",
+            "depthOffset": 0,
+            "blocks": [
+              {
+                "from": 0,
+                "through": 0,
+                "sourceFrame": 2,
+                "transform": {
+                  "offset": [
+                    -20,
+                    10
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 48,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 1,
+                "through": 1,
+                "sourceFrame": 2,
+                "transform": {
+                  "offset": [
+                    0,
+                    10
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 48,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 2,
+                "through": 2,
+                "sourceFrame": 2,
+                "transform": {
+                  "offset": [
+                    20,
+                    10
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 48,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 3,
+                "through": 3,
+                "sourceFrame": 2,
+                "transform": {
+                  "offset": [
+                    40,
+                    10
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 48,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 4,
+                "through": 6,
+                "sourceFrame": 3,
+                "transform": {
+                  "offset": [
+                    60,
+                    5
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 44,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 7,
+                "through": 7,
+                "sourceFrame": 2,
+                "transform": {
+                  "offset": [
+                    40,
+                    10
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 48,
+                  "flipX": false,
+                  "flipY": false
+                }
+              }
+            ],
+            "transform": {
+              "offset": [
+                0,
+                0
+              ],
+              "scale": [
+                0.6,
+                0.6
+              ],
+              "rotationDeg": 0,
+              "flipX": false,
+              "flipY": false,
+              "origin": [
+                0.5,
+                0.5
+              ]
+            }
+          }
+        ]
+      },
       "characterActionId": "attack-1",
       "hitboxes": {
         "spear": {
@@ -31,10 +213,151 @@
           }
         ],
         "events": []
-      },
-      "animationId": "weapon.stone-spear.attack.right"
+      }
     },
     "down": {
+      "animation": {
+        "version": 2,
+        "durationSeconds": 0.4,
+        "framesPerSecond": 20,
+        "loop": false,
+        "loopMode": "wrap",
+        "layers": [
+          {
+            "layerId": "spear",
+            "displayName": "Spear and thrust trail",
+            "assetId": "weapon.player.starter-spears-tiles",
+            "depthOffset": 0,
+            "blocks": [
+              {
+                "from": 0,
+                "through": 0,
+                "sourceFrame": 2,
+                "transform": {
+                  "offset": [
+                    -5,
+                    -20
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 140,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 1,
+                "through": 1,
+                "sourceFrame": 2,
+                "transform": {
+                  "offset": [
+                    -5,
+                    0
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 140,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 2,
+                "through": 2,
+                "sourceFrame": 2,
+                "transform": {
+                  "offset": [
+                    -5,
+                    20
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 140,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 3,
+                "through": 3,
+                "sourceFrame": 2,
+                "transform": {
+                  "offset": [
+                    -5,
+                    40
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 140,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 4,
+                "through": 6,
+                "sourceFrame": 3,
+                "transform": {
+                  "offset": [
+                    0,
+                    60
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 136,
+                  "flipX": false,
+                  "flipY": false
+                }
+              },
+              {
+                "from": 7,
+                "through": 7,
+                "sourceFrame": 2,
+                "transform": {
+                  "offset": [
+                    -5,
+                    40
+                  ],
+                  "scale": [
+                    1,
+                    1
+                  ],
+                  "rotationDeg": 140,
+                  "flipX": false,
+                  "flipY": false
+                }
+              }
+            ],
+            "transform": {
+              "offset": [
+                0,
+                0
+              ],
+              "scale": [
+                0.686,
+                0.686
+              ],
+              "rotationDeg": 0,
+              "flipX": false,
+              "flipY": false,
+              "origin": [
+                0.5,
+                0.5
+              ]
+            }
+          }
+        ]
+      },
       "characterActionId": "attack-1",
       "hitboxes": {
         "spear": {
@@ -56,8 +379,7 @@
           }
         ],
         "events": []
-      },
-      "animationId": "weapon.stone-spear.attack.down"
+      }
     }
   },
   "presentation": {
