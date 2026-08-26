@@ -155,7 +155,7 @@ function isGameState(value: unknown): value is GameStateData {
     && isRecord(value.attributes)
     && Object.values(value.attributes).every((attribute) => isFiniteNumber(attribute) && attribute >= 0)
     && isRecord(equipment)
-    && typeof equipment.weaponId === 'string'
+    && (equipment.weaponId === null || typeof equipment.weaponId === 'string')
     && Array.isArray(equipment.weaponSlots)
     && equipment.weaponSlots.length > 0
     && equipment.weaponSlots.every((slot) => slot === null || typeof slot === 'string');

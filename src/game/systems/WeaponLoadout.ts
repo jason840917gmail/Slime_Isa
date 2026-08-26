@@ -3,7 +3,7 @@ import { gameState } from '../core/GameState';
 import { WEAPON_HOTBAR_SLOT_COUNT } from '../core/types';
 import { playerInventory, weaponItemFor } from './Inventory';
 
-export const STARTER_WEAPON_IDS = ['goo-gauntlet', 'basic-sword', 'basic-spear', 'slam-hammer', 'wooden-axe', 'pickaxe'] as const;
+export const DEVELOPMENT_ARSENAL_WEAPON_IDS = ['goo-gauntlet', 'basic-sword', 'basic-spear', 'slam-hammer', 'wooden-axe', 'pickaxe'] as const;
 
 const STARTER_WEAPON_PREFERRED_SLOTS: Readonly<Record<string, number>> = {
   'basic-spear': 3,
@@ -26,7 +26,7 @@ class WeaponLoadout {
     return gameState.weaponSlots;
   }
 
-  equippedWeaponId(): string {
+  equippedWeaponId(): string | null {
     return gameState.equippedWeaponId;
   }
 
@@ -41,8 +41,8 @@ class WeaponLoadout {
     return weaponId && this.ownsWeapon(weaponId) ? weaponId : null;
   }
 
-  initializeStarterLoadout(): void {
-    for (const weaponId of STARTER_WEAPON_IDS) {
+  grantDevelopmentArsenal(): void {
+    for (const weaponId of DEVELOPMENT_ARSENAL_WEAPON_IDS) {
       const item = weaponItemFor(weaponId);
       if (item && playerInventory.count(item.id) <= 0) playerInventory.add(item.id, 1);
     }
@@ -62,7 +62,7 @@ class WeaponLoadout {
       else seen.add(weaponId);
     }
 
-    for (const weaponId of STARTER_WEAPON_IDS) {
+    for (const weaponId of DEVELOPMENT_ARSENAL_WEAPON_IDS) {
       const preferredIndex = STARTER_WEAPON_PREFERRED_SLOTS[weaponId];
       const currentIndex = slots.indexOf(weaponId);
       if (
@@ -75,7 +75,7 @@ class WeaponLoadout {
       slots[preferredIndex] = weaponId;
     }
 
-    for (const weaponId of STARTER_WEAPON_IDS) {
+    for (const weaponId of DEVELOPMENT_ARSENAL_WEAPON_IDS) {
       if (!this.ownsWeapon(weaponId) || seen.has(weaponId)) continue;
       const preferredIndex = STARTER_WEAPON_PREFERRED_SLOTS[weaponId];
       const emptyIndex = preferredIndex !== undefined && slots[preferredIndex] === null
@@ -87,15 +87,15 @@ class WeaponLoadout {
     }
 
     const equipped = gameState.equippedWeaponId;
-    if (this.ownsWeapon(equipped) && !seen.has(equipped)) {
+    if (equipped && this.ownsWeapon(equipped) && !seen.has(equipped)) {
       const emptyIndex = slots.indexOf(null);
       if (emptyIndex >= 0) slots[emptyIndex] = equipped;
     }
     gameState.setWeaponSlots(slots);
 
-    if (!this.ownsWeapon(equipped)) {
+    if (equipped && !this.ownsWeapon(equipped)) {
       const fallback = slots.find((weaponId): weaponId is string => !!weaponId && this.ownsWeapon(weaponId));
-      if (fallback) gameState.equipWeapon(fallback);
+      gameState.equipWeapon(fallback ?? null);
     }
   }
 

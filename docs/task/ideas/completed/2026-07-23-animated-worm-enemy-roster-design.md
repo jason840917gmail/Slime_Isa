@@ -289,7 +289,6 @@ This produces the following production-map tables:
 
 | Map | Spawn table |
 | --- | --- |
-| `meadow-crossing` | brawler 80, swordsman 20 |
 | `gloop-forest` | brawler 65, swordsman 20, archer 15 |
 | `crystal-caverns` | brawler 30, swordsman 40, archer 30 |
 | `icege` | swordsman 10 |

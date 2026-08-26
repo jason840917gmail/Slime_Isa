@@ -199,7 +199,7 @@ function validateMap(data, label) {
 
   let mapId = null;
   if (typeof data.mapId !== 'string' || !MAP_ID_PATTERN.test(data.mapId)) {
-    fail(label, 'mapId', 'expected kebab-case string (e.g. meadow-crossing)');
+    fail(label, 'mapId', 'expected kebab-case string (e.g. level-1)');
   } else {
     mapId = data.mapId;
   }
@@ -526,7 +526,7 @@ for (const fileName of mapFiles) {
   }
 }
 
-const productionMapIds = ['icege', 'meadow-crossing', 'gloop-forest', 'crystal-caverns'];
+const productionMapIds = ['level-1', 'icege', 'gloop-forest', 'crystal-caverns'];
 for (const mapId of productionMapIds) {
   if (!mapsById.has(mapId)) {
     fail('<production>', mapId, `required production map '${mapId}.map.json' is missing`);

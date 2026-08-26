@@ -55,7 +55,7 @@ export interface GameStateData {
   perks: Record<string, number>;
   attributes: CharacterAttributeSet;
   equipment: {
-    weaponId: string;
+    weaponId: string | null;
     weaponSlots: Array<string | null>;
   };
 }
@@ -81,6 +81,12 @@ function normalizeWeaponSlots(value: unknown): Array<string | null> {
   });
 }
 
+function normalizeEquippedWeaponId(value: unknown): string | null {
+  if (typeof value !== 'string') return null;
+  const normalized = value.trim();
+  return normalized.length > 0 ? normalized : null;
+}
+
 class GameStateImpl {
   private data: GameStateData = defaultData();
 
@@ -94,6 +100,7 @@ class GameStateImpl {
       equipment: {
         ...defaults.equipment,
         ...(data.equipment ?? {}),
+        weaponId: normalizeEquippedWeaponId(data.equipment?.weaponId),
         weaponSlots: normalizeWeaponSlots(data.equipment?.weaponSlots),
       },
       schemaVersion: SAVE_STATE_SCHEMA_VERSION,
@@ -229,7 +236,7 @@ class GameStateImpl {
     this.data.attributes[attribute] = Math.max(0, this.data.attributes[attribute] + amount);
   }
 
-  get equippedWeaponId(): string {
+  get equippedWeaponId(): string | null {
     return this.data.equipment.weaponId;
   }
 
@@ -244,9 +251,9 @@ class GameStateImpl {
     gameEvents.emit('weapon.loadout.changed', { slots: [...normalized] });
   }
 
-  equipWeapon(weaponId: string): boolean {
-    const normalized = weaponId.trim();
-    if (!normalized || normalized === this.data.equipment.weaponId) return false;
+  equipWeapon(weaponId: string | null): boolean {
+    const normalized = normalizeEquippedWeaponId(weaponId);
+    if (normalized === this.data.equipment.weaponId) return false;
     this.data.equipment.weaponId = normalized;
     gameEvents.emit('weapon.equipped', { weaponId: normalized });
     return true;

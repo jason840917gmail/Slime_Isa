@@ -129,7 +129,7 @@ small stone piles distributed around its original map cell.
   owned and assigned while all existing starter tools remain available.
 - Add stone to the item registry and inventory icon mapping using the existing
   resource sheet’s matching thumbnail convention.
-- Add three authored stone nodes to Meadow Crossing for testing.
+- Add authored stone-node visual variants to Level 1 for testing.
 
 ## Acceptance checks
 

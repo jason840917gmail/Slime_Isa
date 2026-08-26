@@ -24,21 +24,12 @@ const INITIAL_PLAYER: GameStateData = {
   perks: {},
   attributes: { ...PLAYER_CONFIG.attributes },
   equipment: {
-    weaponId: 'goo-gauntlet',
-    weaponSlots: ['goo-gauntlet', 'basic-sword', null, null, null, null],
+    weaponId: null,
+    weaponSlots: [null, null, null, null, null, null],
   },
 };
 
-const INITIAL_INVENTORY: readonly InventorySlot[] = [
-  { itemId: 'goo-gauntlet', count: 1 },
-  { itemId: 'basic-sword', count: 1 },
-  { itemId: 'basic-spear', count: 1 },
-  { itemId: 'slam-hammer', count: 1 },
-  { itemId: 'wooden-axe', count: 1 },
-  { itemId: 'pickaxe', count: 1 },
-  { itemId: 'hp-potion', count: 3 },
-  { itemId: 'energy-potion', count: 2 },
-];
+const INITIAL_INVENTORY: readonly InventorySlot[] = [];
 
 function initialQuests(): QuestState[] {
   return QUEST_DEFS.map((definition) => ({

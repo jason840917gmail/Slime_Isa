@@ -4,19 +4,10 @@ const ROWS = 54;
 const EDGE_TRANSITION_SIZE = 32;
 
 const AREA_DEFINITIONS = {
-  'meadow-crossing': {
-    biome: 'meadow',
-    seed: 0,
-    neighbors: { east: 'gloop-forest' },
-    enemies: [
-      { type: 'worm-brawler', weight: 80 },
-      { type: 'worm-swordsman', weight: 20 },
-    ],
-  },
   'gloop-forest': {
     biome: 'gloop-forest',
     seed: 37,
-    neighbors: { west: 'meadow-crossing', east: 'crystal-caverns' },
+    neighbors: { west: 'level-1', east: 'crystal-caverns' },
     enemies: [
       { type: 'worm-brawler', weight: 65 },
       { type: 'worm-swordsman', weight: 20 },

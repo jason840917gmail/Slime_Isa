@@ -228,7 +228,7 @@ function newPackageDocument(animationId: string, displayName: string, descriptio
 
 export function mountAnimationStudio(container: HTMLDivElement, options: AnimationStudioOptions = {}): () => void {
   container.classList.add('is-character-studio-host');
-  const returnEditor = new URLSearchParams(window.location.search).get('editor') ?? 'meadow-crossing';
+  const returnEditor = new URLSearchParams(window.location.search).get('editor') ?? 'level-1';
   let state: AnimationStudioState = { weapons: [], search: '', expandedFolders: new Set(options.expandedFolders ?? ['weapons', 'animations']), loading: true, saving: false, pickerOpen: false, pickerFrames: [], playing: false, previewZoom: 1, previewSplit: 55 };
   let resize: ResizeDrag | undefined;
   let move: MoveDrag | undefined;

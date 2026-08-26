@@ -9,7 +9,7 @@ pnpm dev
 Open an existing authored map:
 
 ```text
-http://localhost:3000/?editor=meadow-crossing
+http://localhost:3000/?editor=level-1
 http://localhost:3000/?editor=gloop-forest
 http://localhost:3000/?editor=crystal-caverns
 ```

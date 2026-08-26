@@ -243,7 +243,7 @@ export function mountProjectileStudio(container: HTMLDivElement): () => void {
     assetShelfOpen: false, importing: false,
     importForm: { assetId: 'projectile.enemy.new', frameWidth: '16', frameHeight: '16', populatedCount: '' },
   };
-  const returnEditor = new URLSearchParams(window.location.search).get('editor') ?? 'meadow-crossing';
+  const returnEditor = new URLSearchParams(window.location.search).get('editor') ?? 'level-1';
   const render = (): void => {
     container.innerHTML = renderStudio(state, returnEditor);
     ensureStudioModeTabs(container, returnEditor, 'projectiles');

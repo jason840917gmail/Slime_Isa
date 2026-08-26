@@ -59,8 +59,8 @@ export interface CombatControllerContext {
 
 export class CombatController {
   readonly targets: Phaser.Physics.Arcade.Group;
-  private weapon: Weapon;
-  private weaponVisual: WeaponVisual;
+  private weapon?: Weapon;
+  private weaponVisual?: WeaponVisual;
   private combo: ComboSystem;
   private spawner?: EnemySpawner;
   private comboText: Phaser.GameObjects.Text;
@@ -93,9 +93,12 @@ export class CombatController {
       },
     });
 
-    const initialWeapon = this.createWeaponRuntime(gameState.equippedWeaponId);
-    this.weapon = initialWeapon.weapon;
-    this.weaponVisual = initialWeapon.visual;
+    const equippedWeaponId = gameState.equippedWeaponId;
+    if (equippedWeaponId) {
+      const initialWeapon = this.createWeaponRuntime(equippedWeaponId);
+      this.weapon = initialWeapon.weapon;
+      this.weaponVisual = initialWeapon.visual;
+    }
 
     if (ctx.enemySpawnAreas.length > 0 || spawnConfig) {
       this.spawner = new EnemySpawner({
@@ -160,42 +163,42 @@ export class CombatController {
   update(time: number, delta: number): void {
     this.combo.update();
     this.spawner?.update(time, delta);
-    this.weapon.update(delta);
-    this.weaponVisual.update(delta);
+    this.weapon?.update(delta);
+    this.weaponVisual?.update(delta);
     this.effects.update(delta);
     hitboxPool.update(this.ctx.scene);
     projectilePool.update(this.ctx.scene);
   }
 
   updatePresentation(): void {
-    this.weaponVisual.updatePresentation();
+    this.weaponVisual?.updatePresentation();
     this.effects.updatePresentation();
     projectilePool.updatePresentation(this.ctx.scene);
   }
 
   tryAttack(): boolean {
-    if (this.attacking || !this.ctx.canAttack()) return false;
+    if (!this.weapon || this.attacking || !this.ctx.canAttack()) return false;
     return this.weapon.attack(this.ctx.scene.time.now);
   }
 
   equipWeapon(weaponId: string): boolean {
-    if (this.attacking || weaponId === this.weapon.def.weaponId) return !this.attacking;
+    if (this.attacking || weaponId === this.weapon?.def.weaponId) return !this.attacking;
     let next: { weapon: Weapon; visual: WeaponVisual };
     try {
       next = this.createWeaponRuntime(weaponId);
     } catch {
       return false;
     }
-    this.weapon.destroy();
-    this.weaponVisual.destroy();
+    this.weapon?.destroy();
+    this.weaponVisual?.destroy();
     this.weapon = next.weapon;
     this.weaponVisual = next.visual;
     this.ctx.playCharacterAction('idle');
     return true;
   }
 
-  equippedWeaponId(): string {
-    return this.weapon.def.weaponId;
+  equippedWeaponId(): string | null {
+    return this.weapon?.def.weaponId ?? null;
   }
 
   spawnDummy(x: number, y: number): void {
@@ -204,8 +207,8 @@ export class CombatController {
   }
 
   destroy(): void {
-    this.weapon.destroy();
-    this.weaponVisual.destroy();
+    this.weapon?.destroy();
+    this.weaponVisual?.destroy();
     this.effects.destroy();
     this.ctx.setActionLocked(false);
     this.projectileWorldColliders.forEach((collider) => collider.destroy());

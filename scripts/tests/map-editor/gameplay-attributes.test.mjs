@@ -96,7 +96,6 @@ test('palette grouping and search include authored gameplay values', () => {
   assert.equal(objectChoiceMatchesQuery(smallStone, 'small stone'), true);
   assert.equal(objectChoiceMatchesQuery(iron, 'iron-ore'), true);
   assert.equal(objectChoiceMatchesQuery(charcoal, 'fuel'), true);
-  assert.equal(objectChoiceMatchesQuery(stoneNode, '40'), true);
 });
 
 test('archetype-aware map override validation rejects foreign and invalid fields', () => {

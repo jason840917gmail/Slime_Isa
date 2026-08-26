@@ -28,5 +28,6 @@ Only files required for this fix may be modified. Existing unrelated edits and u
 ## Validation
 
 - Run the project map validation, strict TypeScript checks, and production build through the complete local check command.
-- Smoke-test Meadow Crossing in the browser: it starts successfully, authored houses remain, and no automatic monsters or training dummy appear.
+- Smoke-test the authored starter map in the browser: it starts successfully
+  and no unauthored monsters or training dummy appear.
 - Smoke-test or inspect a map that contains `spawns` to ensure JSON-configured spawning remains enabled.

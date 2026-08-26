@@ -270,7 +270,12 @@ export class WorldScene extends Phaser.Scene {
       onPausedChange: (p) => { this.setSimulationPaused('crafting', p); },
       onCrafted: (recipe) => {
         const craftedWeaponId = itemRegistry.get(recipe.output.itemId)?.equipment?.weaponId;
-        if (craftedWeaponId) playerWeaponLoadout.ensureAssigned(craftedWeaponId);
+        if (craftedWeaponId) {
+          const slotIndex = playerWeaponLoadout.ensureAssigned(craftedWeaponId);
+          if (slotIndex !== null && playerWeaponLoadout.equippedWeaponId() === null) {
+            this.equipWeaponSlot(slotIndex);
+          }
+        }
         floatingText.spawn(this, this.player.x, this.player.y - 44, `Crafted: ${recipe.name}`, 'green', true);
       },
     });
@@ -1138,10 +1143,10 @@ export class WorldScene extends Phaser.Scene {
   private respawnPlayer(): void {
     if (!this.healthSystem) return;
 
-    if (this.currentArea.id !== 'meadow-crossing') {
+    if (this.currentArea.id !== 'level-1') {
       gameState.revive();
       this.statusEffects?.clear();
-      this.navigateToArea('meadow-crossing', undefined, true);
+      this.navigateToArea('level-1', undefined, true);
       return;
     }
 

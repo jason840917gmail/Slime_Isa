@@ -481,7 +481,7 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
   let assetShelf: AssetShelfState = { open: false, loading: false };
   let creationForm: CreationFormState = { kind: 'enemy', template: 'melee-enemy', characterId: '', displayName: '', assetId: '' };
   const query = new URLSearchParams(window.location.search);
-  const returnEditor = query.get('editor') ?? 'meadow-crossing';
+  const returnEditor = query.get('editor') ?? 'level-1';
   let currentId = query.get('character') ?? characterPackages[0]?.characterId ?? '';
   const studioUrl = (characterId: string): string => `?studio=characters&character=${encodeURIComponent(characterId)}&editor=${encodeURIComponent(returnEditor)}`;
   const stopPlayback = (): void => {

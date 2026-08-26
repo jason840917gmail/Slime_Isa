@@ -121,12 +121,15 @@ The resource/collectible taxonomy correction, walk-over pickup behavior, save
 migration, and Map Studio attribute work are defined in the
 [Walk-over Collectibles and Editor Attributes implementation plan](./superpowers/plans/2026-08-24-walk-over-collectibles-and-editor-attributes-implementation-plan.md).
 
+Track manual and automated close-out evidence in the
+[Level 1 and Milestone 2 verification checklist](./task/ideas/open/level-1-milestone-2-verification-checklist.md).
+
 ### [~] 2.1 — Author stone resource nodes
 
 - Build: add stone material, visible rock nodes, collision, map placement, deterministic three-pile drops, and reload-safe depletion state.
 - Current: the implementation and validators are present: stone nodes use the
-  large stone frame, carry 40 health, break into up to three adjacent small
-  stone piles, and three test nodes are authored in Meadow Crossing. Partial
+  intentional Level 1 visual variants, carry 80 health, and break into up to
+  three adjacent small stone piles. Partial
   node health resets on reload while broken piles and their remaining amounts
   persist. Fresh-save collect/reload approval and loose starter stone remain.
 - Player proof: wood and stone are distinct resources with distinct visuals.
