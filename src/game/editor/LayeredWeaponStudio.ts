@@ -62,10 +62,12 @@ import {
   applyWeaponStudioHistory,
   commitWeaponStudioMutation,
   reduceWeaponIconAction,
+  WEAPON_STUDIO_INSPECTOR_TABS,
   type WeaponStudioAnimationScope,
   type WeaponStudioHistory,
   type WeaponStudioInspectorTab,
 } from './LayeredWeaponStudioMutation';
+import { reduceWeaponTargetingAction, renderWeaponTargetingInspector } from './WeaponTargetingEditor';
 
 const DIRECTIONS = ['right', 'left', 'up', 'down'] as const satisfies readonly WeaponAttackDirection[];
 const EFFECT_DIRECTIONS = DIRECTIONS satisfies readonly EffectDirection[];
@@ -839,10 +841,7 @@ function renderOnHitInspector(state: StudioState): string {
 }
 
 function renderInspector(state: StudioState, animation: LayeredAnimationDocument): string {
-  const tabs: readonly [InspectorTab, string, string][] = [
-    ['identity', 'IDENTITY', 'package'], ['combat', 'COMBAT', 'hitboxes'], ['layer', 'LAYER', 'visuals'], ['on-hit', 'ON HIT', 'contact'],
-  ];
-  return `<aside class="studio-inspector layered-weapon-inspector"><div class="studio-inspector-heading"><span class="studio-kicker">Inspector</span><h2>Weapon controls</h2><p>One animation model, specialized weapon tracks.</p></div><nav class="weapon-inspector-tabs layered-inspector-tabs">${tabs.map(([id, label, hint]) => `<button type="button" class="weapon-inspector-tab${state.inspectorTab === id ? ' is-active' : ''}" data-inspector-tab="${id}"><strong>${label}</strong><small>${hint}</small></button>`).join('')}</nav><div class="studio-inspector-scroll">${state.inspectorTab === 'identity' ? renderIdentityInspector(state) : state.inspectorTab === 'combat' ? renderCombatInspector(state) : state.inspectorTab === 'layer' ? renderLayerInspector(state, animation) : renderOnHitInspector(state)}</div></aside>`;
+  return `<aside class="studio-inspector layered-weapon-inspector"><div class="studio-inspector-heading"><span class="studio-kicker">Inspector</span><h2>Weapon controls</h2><p>One animation model, specialized weapon tracks.</p></div><nav class="weapon-inspector-tabs layered-inspector-tabs">${WEAPON_STUDIO_INSPECTOR_TABS.map(({ id, label, hint }) => `<button type="button" class="weapon-inspector-tab${state.inspectorTab === id ? ' is-active' : ''}" data-inspector-tab="${id}"><strong>${label}</strong><small>${hint}</small></button>`).join('')}</nav><div class="studio-inspector-scroll">${state.inspectorTab === 'identity' ? renderIdentityInspector(state) : state.inspectorTab === 'combat' ? renderCombatInspector(state) : state.inspectorTab === 'targeting' ? renderWeaponTargetingInspector(state.draft!) : state.inspectorTab === 'layer' ? renderLayerInspector(state, animation) : renderOnHitInspector(state)}</div></aside>`;
 }
 
 function weaponIconAssets(state: StudioState): readonly CharacterStudioAssetEntry[] {
@@ -1291,6 +1290,18 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement, options: Lay
     if (hitboxCell) { updateAttack((attack) => ({ ...attack, attackTrack: toggleSpan(attack.attackTrack ?? { hitboxSpans: [], events: [] }, hitboxCell.dataset.hitboxId!, Number(hitboxCell.dataset.toggleHitboxFrame)) })); return; }
     const action = target.closest<HTMLElement>('[data-action]')?.dataset.action;
     if (!action) return;
+    if (action === 'add-target-modifier') { mutate(reduceWeaponTargetingAction(state, { type: 'add-modifier' })); return; }
+    if (action === 'remove-target-modifier') {
+      const index = Number(target.closest<HTMLElement>('[data-target-modifier-index]')?.dataset.targetModifierIndex);
+      if (Number.isInteger(index)) mutate(reduceWeaponTargetingAction(state, { type: 'remove-modifier', index }));
+      return;
+    }
+    if (action === 'add-harvest-capability') { mutate(reduceWeaponTargetingAction(state, { type: 'add-capability' })); return; }
+    if (action === 'remove-harvest-capability') {
+      const targetTag = target.closest<HTMLElement>('[data-harvest-capability-tag]')?.dataset.harvestCapabilityTag;
+      if (targetTag) mutate(reduceWeaponTargetingAction(state, { type: 'remove-capability', targetTag }));
+      return;
+    }
     if (action === 'make-custom-direction') {
       const rawDirection = target.closest<HTMLElement>('[data-mirror-direction]')?.dataset.mirrorDirection;
       if (!rawDirection) return;
@@ -1412,6 +1423,22 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement, options: Lay
   const handleChange = (event: Event): void => {
     const target = event.target;
     if (!(target instanceof HTMLInputElement || target instanceof HTMLSelectElement)) return;
+    if (target.dataset.targetModifierTag !== undefined) {
+      mutate(reduceWeaponTargetingAction(state, { type: 'set-modifier-tag', index: Number(target.dataset.targetModifierTag), targetTag: target.value }));
+      return;
+    }
+    if (target.dataset.targetModifierValue !== undefined) {
+      mutate(reduceWeaponTargetingAction(state, { type: 'set-modifier-value', index: Number(target.dataset.targetModifierValue), modifier: target.value }));
+      return;
+    }
+    if (target.dataset.harvestCapabilityTier !== undefined) {
+      mutate(reduceWeaponTargetingAction(state, { type: 'set-capability-tier', targetTag: target.dataset.harvestCapabilityTier, tier: target.value }));
+      return;
+    }
+    if (target.dataset.harvestCapabilityTag !== undefined) {
+      mutate(reduceWeaponTargetingAction(state, { type: 'rename-capability', targetTag: target.dataset.harvestCapabilityTag, nextTargetTag: target.value }));
+      return;
+    }
     const field = target.dataset.weaponField;
     if (field) {
       if (field === 'onHitEffectId') {

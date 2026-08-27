@@ -3952,7 +3952,48 @@
 }
 
 #app.is-character-studio-host .layered-inspector-tabs {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 3px;
+  padding-inline: 8px;
+}
+
+#app.is-character-studio-host .layered-inspector-tabs .weapon-inspector-tab {
+  padding-inline: 2px;
+  text-align: center;
+}
+
+#app.is-character-studio-host .layered-inspector-tabs .weapon-inspector-tab strong {
+  font-size: 8px;
+  letter-spacing: 0;
+}
+
+#app.is-character-studio-host .weapon-targeting-rows {
+  display: grid;
+  gap: 8px;
+}
+
+#app.is-character-studio-host .weapon-targeting-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(70px, 0.55fr) 28px;
+  align-items: end;
+  gap: 6px;
+}
+
+#app.is-character-studio-host .weapon-targeting-row label {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  color: var(--studio-muted);
+  font-size: 10px;
+}
+
+#app.is-character-studio-host .weapon-targeting-row input {
+  min-width: 0;
+}
+
+#app.is-character-studio-host .weapon-targeting-row .studio-icon-button {
+  width: 28px;
+  height: 28px;
 }
 
 #app.is-character-studio-host .layered-weapon-inspector {

@@ -1,0 +1,12 @@
+export function validateHarvestCapabilities(value, label = 'harvestCapabilities') {
+  if (value === undefined) return [];
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) return [`${label} must be an object`];
+
+  const errors = [];
+  for (const [targetTag, tier] of Object.entries(value)) {
+    if (!targetTag.trim()) errors.push(`${label} target tag must be non-empty`);
+    else if (targetTag !== targetTag.trim()) errors.push(`${label} target tag '${targetTag}' must not have surrounding whitespace`);
+    if (!Number.isInteger(tier) || tier < 1) errors.push(`${label} '${targetTag}' must be an integer tier >= 1`);
+  }
+  return errors;
+}

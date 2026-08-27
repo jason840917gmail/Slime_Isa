@@ -219,14 +219,27 @@ function validateCommonWeaponFields(weapon: Partial<AuthoredWeaponDefinition>, i
         }
         if (typeof entry.targetTag !== 'string' || !entry.targetTag.trim()) {
           issues.push(`${path}.targetTag: must be a non-empty string`);
-        } else if (tags.has(entry.targetTag)) {
-          issues.push(`${path}.targetTag: duplicate '${entry.targetTag}'`);
         } else {
-          tags.add(entry.targetTag);
+          const targetTag = entry.targetTag.trim();
+          if (entry.targetTag !== targetTag) issues.push(`${path}.targetTag: must not have surrounding whitespace`);
+          if (tags.has(targetTag)) issues.push(`${path}.targetTag: duplicate '${targetTag}'`);
+          else tags.add(targetTag);
         }
         if (typeof entry.modifier !== 'number' || !Number.isFinite(entry.modifier) || entry.modifier < 0) {
           issues.push(`${path}.modifier: must be a finite number >= 0`);
         }
+      });
+    }
+  }
+  if (weapon.harvestCapabilities !== undefined) {
+    if (!isRecord(weapon.harvestCapabilities)) {
+      issues.push('weapon.harvestCapabilities: must be an object');
+    } else {
+      Object.entries(weapon.harvestCapabilities).forEach(([targetTag, tier]) => {
+        const path = `weapon.harvestCapabilities.${targetTag}`;
+        if (!targetTag.trim()) issues.push(`${path}: target tag must be non-empty`);
+        else if (targetTag !== targetTag.trim()) issues.push(`${path}: target tag must not have surrounding whitespace`);
+        if (!Number.isInteger(tier) || (tier as number) < 1) issues.push(`${path}: tier must be an integer >= 1`);
       });
     }
   }

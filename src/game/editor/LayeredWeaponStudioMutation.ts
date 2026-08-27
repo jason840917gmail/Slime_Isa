@@ -3,7 +3,19 @@ import type { LayeredWeaponDefinition, WeaponAttackDirection } from '../content/
 import type { WeaponIconSelection } from '../content/weapons/WeaponIcon';
 
 export type WeaponStudioAnimationScope = 'idle' | 'attack' | 'effect';
-export type WeaponStudioInspectorTab = 'identity' | 'combat' | 'layer' | 'on-hit';
+export type WeaponStudioInspectorTab = 'identity' | 'combat' | 'targeting' | 'layer' | 'on-hit';
+
+export const WEAPON_STUDIO_INSPECTOR_TABS: readonly Readonly<{
+  id: WeaponStudioInspectorTab;
+  label: string;
+  hint: string;
+}>[] = [
+  { id: 'identity', label: 'IDENTITY', hint: 'package' },
+  { id: 'combat', label: 'COMBAT', hint: 'hitboxes' },
+  { id: 'targeting', label: 'TARGETING', hint: 'targets' },
+  { id: 'layer', label: 'LAYER', hint: 'visuals' },
+  { id: 'on-hit', label: 'ON HIT', hint: 'contact' },
+];
 
 export interface WeaponStudioHistoryState {
   readonly draft?: LayeredWeaponDefinition;

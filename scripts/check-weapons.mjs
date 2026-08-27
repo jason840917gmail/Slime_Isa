@@ -4,6 +4,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
+import { validateHarvestCapabilities } from './lib/weapon-targeting-validation.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const weaponRoot = join(root, 'src', 'game', 'content', 'weapons');
@@ -124,9 +125,7 @@ for (const weapon of weapons) {
   if (![1, 2].includes(weapon.version)) errors.push(`[${weapon.weaponId}] version must be 1 or 2`);
   if (!['melee', 'ranged'].includes(weapon.category)) errors.push(`[${weapon.weaponId}] category must be melee or ranged`);
   for (const issue of validateWeaponIconAgainstCatalog(weapon, iconCatalog)) errors.push(`[${weapon.weaponId}] ${issue}`);
-  for (const [tag, tier] of Object.entries(weapon.harvestCapabilities ?? {})) {
-    if (!tag || !Number.isInteger(tier) || tier < 1) errors.push(`[${weapon.weaponId}] harvest capability '${tag}' must be an integer tier >= 1`);
-  }
+  for (const issue of validateHarvestCapabilities(weapon.harvestCapabilities)) errors.push(`[${weapon.weaponId}] ${issue}`);
   if (!(weapon.characterActionId || weapon.animKey)) errors.push(`[${weapon.weaponId}] character action is required`);
   if (weapon.version === 1) {
     for (const animation of Object.values(weapon.animations ?? {})) if (!animation?.frames?.length) errors.push(`[${weapon.weaponId}] legacy animation needs frames`);
