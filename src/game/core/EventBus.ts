@@ -36,7 +36,7 @@ export type GameEvents = {
   'player.heal': { amount: number };
   'player.death': {};
   'player.respawn': {};
-  'xp.changed': { xp: number; xpIntoLevel: number; xpForNext: number; level: number; delta: number };
+  'xp.changed': { currentXp: number; xpToNextLevel: number | null; level: number; delta: number };
   'level.up': { level: number; skillPoints: number };
   'energy.changed': { energy: number; maxEnergy: number; delta: number };
   'skillpoint.changed': { points: number };

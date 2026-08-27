@@ -65,7 +65,7 @@ test('fresh initial runs do not share mutable state and use the authored Level 1
   const second = createInitialRunState();
 
   first.player.equipment.weaponSlots[0] = 'changed-for-test';
-  first.inventory.push({ itemId: 'changed-for-test', count: 99 });
+  first.inventory.slots.push({ itemId: 'changed-for-test', count: 99 });
   first.world.discoveredAreas.push('changed-for-test');
 
   assert.notEqual(second.player.equipment.weaponSlots[0], 'changed-for-test');
@@ -73,7 +73,7 @@ test('fresh initial runs do not share mutable state and use the authored Level 1
     weaponId: null,
     weaponSlots: [null, null, null, null, null, null],
   });
-  assert.deepEqual(second.inventory, []);
+  assert.deepEqual(second.inventory, { maxSlots: 24, slots: [] });
   assert.equal(second.world.discoveredAreas.includes('changed-for-test'), false);
   assert.deepEqual(second.location, {
     areaId: level1Map.mapId,
@@ -175,4 +175,102 @@ test('unsupported legacy pile progress is ignored', () => {
   const migrated = repository.readLegacyEnvelope();
 
   assert.equal(migrated.data.world.maps['level-1'], undefined);
+});
+
+test('legacy inventory arrays migrate without dropping occupied slots', () => {
+  const storage = new MemoryStorage();
+  const repository = new SaveRepository(storage);
+  const legacy = createInitialRunState();
+  legacy.inventory = Array.from({ length: 26 }, (_, index) => ({ itemId: `legacy-${index}`, count: 1 }));
+  storage.setItem(STORAGE_KEYS.legacySave, JSON.stringify({ schemaVersion: 5, savedAt: 123, data: legacy }));
+
+  const migrated = repository.readLegacyEnvelope();
+
+  assert.equal(migrated.data.inventory.maxSlots, 26);
+  assert.equal(migrated.data.inventory.slots.length, 26);
+});
+
+test('version 5 named and recovery saves migrate inventory capacity', () => {
+  const storage = new MemoryStorage();
+  const repository = new SaveRepository(storage);
+  const legacy = createInitialRunState();
+  legacy.inventory = [{ itemId: 'wood', count: 4 }];
+  legacy.player = {
+    ...legacy.player,
+    schemaVersion: 2,
+    xp: 0,
+    maxHpBonus: 0,
+    maxEnergyBonus: 0,
+  };
+  delete legacy.player.currentXp;
+  const metadata = {
+    saveId: 'legacy-named', name: 'Legacy Named', createdAt: 10, updatedAt: 20,
+    schemaVersion: 5, currentMapId: legacy.location.mapId,
+    playerLevel: legacy.player.level, playTimeMs: legacy.playTimeMs,
+  };
+  storage.setItem(STORAGE_KEYS.saveIndex, JSON.stringify({ version: 1, saves: [metadata] }));
+  storage.setItem(recordKey(metadata.saveId), JSON.stringify({ ...metadata, data: legacy }));
+  storage.setItem(STORAGE_KEYS.recovery, JSON.stringify({ schemaVersion: 5, savedAt: 30, data: legacy }));
+
+  const named = repository.read(metadata.saveId);
+  const recovery = repository.readRecovery();
+
+  assert.deepEqual(named.data.inventory, { maxSlots: 24, slots: [{ itemId: 'wood', count: 4 }] });
+  assert.equal(named.schemaVersion, 7);
+  assert.deepEqual(recovery.inventory, named.data.inventory);
+  assert.deepEqual(repository.list().map((entry) => entry.saveId), [metadata.saveId]);
+});
+
+test('malformed legacy inventory rejects named and recovery saves without changing stored data', () => {
+  const storage = new MemoryStorage();
+  const repository = new SaveRepository(storage);
+  const legacy = createInitialRunState();
+  legacy.inventory = [
+    { itemId: 'wood', count: 4 },
+    { itemId: 'stone', count: 1.5 },
+  ];
+  const metadata = {
+    saveId: 'malformed-inventory', name: 'Repair Me', createdAt: 10, updatedAt: 20,
+    schemaVersion: 5, currentMapId: legacy.location.mapId,
+    playerLevel: legacy.player.level, playTimeMs: legacy.playTimeMs,
+  };
+  const namedRaw = JSON.stringify({ ...metadata, data: legacy });
+  const recoveryRaw = JSON.stringify({ schemaVersion: 5, savedAt: 30, data: legacy });
+  storage.setItem(recordKey(metadata.saveId), namedRaw);
+  storage.setItem(STORAGE_KEYS.recovery, recoveryRaw);
+
+  assert.equal(repository.read(metadata.saveId), null);
+  assert.equal(repository.readRecovery(), null);
+  assert.equal(storage.getItem(recordKey(metadata.saveId)), namedRaw);
+  assert.equal(storage.getItem(STORAGE_KEYS.recovery), recoveryRaw);
+  assert.equal(repository.hasRecovery(), true);
+  assert.deepEqual(repository.validationIssues(), [
+    {
+      saveId: metadata.saveId,
+      reason: 'Inventory slot 2 was rejected: "count" must be a positive whole number. The original save was left unchanged.',
+    },
+    {
+      reason: 'Inventory slot 2 was rejected: "count" must be a positive whole number. The original save was left unchanged.',
+    },
+  ]);
+});
+
+test('legacy cumulative XP preserves saved level and follows exact clamp rules', () => {
+  const migrate = (level, xp) => {
+    const storage = new MemoryStorage();
+    const repository = new SaveRepository(storage);
+    const legacy = createInitialRunState();
+    legacy.player = { ...legacy.player, schemaVersion: 2, level, xp, maxHpBonus: 999, maxEnergyBonus: 999 };
+    delete legacy.player.currentXp;
+    storage.setItem(STORAGE_KEYS.legacySave, JSON.stringify({ schemaVersion: 6, savedAt: 1, data: legacy }));
+    return repository.readLegacyEnvelope()?.data.player;
+  };
+
+  assert.equal(migrate(3, 80 + 226 + 17).currentXp, 17);
+  assert.equal(migrate(3, 1).currentXp, 0);
+  assert.equal(migrate(3, 999_999).currentXp, 415);
+  assert.equal(migrate(10, 999_999).currentXp, 0);
+  assert.equal(migrate(11, 0), undefined);
+  assert.equal('maxHpBonus' in migrate(2, 80), false);
+  assert.equal('maxEnergyBonus' in migrate(2, 80), false);
 });

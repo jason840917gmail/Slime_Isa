@@ -2,8 +2,8 @@
 
 ## Status
 
-Ready for phased implementation. This is one architectural program delivered
-as four independently verifiable changes, not one large merge:
+Implemented and locally verified across all four phases. This architectural
+program was delivered as four independently verifiable changes:
 
 1. configuration foundation and behavior-preserving centralization;
 2. mutable, persisted inventory capacity;
@@ -25,10 +25,10 @@ not combine phases 2-4 merely because they share `game-constants.json`.
   and the stats gained upon reaching it.
 - Saves store `level` and current-level `currentXp`; derived combat stats are
   recalculated from the current table.
-- Character Studio eventually edits the same JSON source without rewriting
+- Character Studio edits the same JSON source without rewriting
   TypeScript or duplicating values in the player character package.
 
-## Current baseline
+## Pre-implementation baseline
 
 | Concern | Current owner/behavior | Target |
 |---|---|---|

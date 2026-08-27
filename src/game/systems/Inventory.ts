@@ -2,6 +2,8 @@ import { gameEvents } from '../core/EventBus';
 import type { InventorySlot, ItemDef } from '../core/types';
 import { getBaseItemDefinitions } from '../content/items/ItemCatalog';
 import { getWeaponDefinitions } from '../content/weapons/WeaponCatalog';
+import { GAME_CONSTANTS } from '../Constant';
+import type { InventorySaveData } from '../infrastructure/persistence/SaveSchema';
 
 /**
  * Slot-based inventory with categories + stacking.
@@ -10,8 +12,6 @@ import { getWeaponDefinitions } from '../content/weapons/WeaponCatalog';
  * the inventory only stores itemId + count. This keeps saves small and
  * content-driven.
  */
-
-const MAX_SLOTS = 24;
 
 class ItemRegistryImpl {
   private defs: Record<string, ItemDef> = { ...getBaseItemDefinitions() };
@@ -39,7 +39,7 @@ for (const weapon of getWeaponDefinitions()) {
     icon: weapon.iconKey,
     ...(weapon.iconFrame !== undefined ? { iconFrame: weapon.iconFrame } : {}),
     description: weapon.description,
-    maxStack: 1,
+    maxStack: GAME_CONSTANTS.inventory.weaponMaxStack,
     equipment: { weaponId: weapon.weaponId },
   });
 }
@@ -50,6 +50,7 @@ export function weaponItemFor(weaponId: string): ItemDef | undefined {
 
 export class Inventory {
   private slots: InventorySlot[] = [];
+  private maxSlotsValue = GAME_CONSTANTS.inventory.initialMaxSlots;
 
   transact(
     removals: readonly Readonly<InventorySlot>[],
@@ -80,7 +81,7 @@ export class Inventory {
         slot.count += amount;
         remaining -= amount;
       }
-      while (remaining > 0 && compact.length < MAX_SLOTS) {
+      while (remaining > 0 && compact.length < this.maxSlotsValue) {
         const amount = Math.min(def.maxStack, remaining);
         compact.push({ itemId: addition.itemId, count: amount });
         remaining -= amount;
@@ -111,7 +112,7 @@ export class Inventory {
     }
 
     // Open new slots.
-    while (remaining > 0 && this.slots.length < MAX_SLOTS) {
+    while (remaining > 0 && this.slots.length < this.maxSlotsValue) {
       const add = Math.min(def.maxStack, remaining);
       this.slots.push({ itemId, count: add });
       remaining -= add;
@@ -146,20 +147,29 @@ export class Inventory {
   }
 
   maxSlots(): number {
-    return MAX_SLOTS;
+    return this.maxSlotsValue;
   }
 
-  serialize(): InventorySlot[] {
-    return this.slots.map((s) => ({ ...s }));
+  increaseMaxSlots(amount: number): boolean {
+    if (!Number.isInteger(amount) || amount <= 0) return false;
+    this.maxSlotsValue += amount;
+    gameEvents.emit('inventory.changed', {});
+    return true;
   }
 
-  load(slots: InventorySlot[]): void {
-    this.slots = slots.map((s) => ({ ...s }));
+  serialize(): InventorySaveData {
+    return { maxSlots: this.maxSlotsValue, slots: this.slots.map((slot) => ({ ...slot })) };
+  }
+
+  load(data: InventorySaveData): void {
+    this.maxSlotsValue = data.maxSlots;
+    this.slots = data.slots.map((slot) => ({ ...slot }));
     gameEvents.emit('inventory.changed', {});
   }
 
   clear(): void {
     this.slots = [];
+    this.maxSlotsValue = GAME_CONSTANTS.inventory.initialMaxSlots;
     gameEvents.emit('inventory.changed', {});
   }
 }

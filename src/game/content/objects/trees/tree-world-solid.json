@@ -799,7 +799,7 @@
     "harvestRequirement": {
       "targetTag": "wood",
       "minimumTier": 1,
-      "failureMessage": "Requires a Stone Axe"
+      "failureMessage": "Requires an Axe"
     }
   },
   "tags": [

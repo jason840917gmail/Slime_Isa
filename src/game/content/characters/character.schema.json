@@ -36,7 +36,7 @@
     "enemy": { "$ref": "#/$defs/enemy" }
   },
   "allOf": [
-    { "if": { "properties": { "kind": { "const": "player" } } }, "then": { "required": ["player"], "not": { "required": ["enemy"] } } },
+    { "if": { "properties": { "kind": { "const": "player" } } }, "then": { "required": ["player"], "not": { "anyOf": [{ "required": ["enemy"] }, { "required": ["attributes"] }] } } },
     { "if": { "properties": { "kind": { "const": "enemy" } } }, "then": { "required": ["enemy"], "not": { "required": ["player", "runtimeRole"] } } }
   ],
   "$defs": {
@@ -95,17 +95,9 @@
       "properties": { "hitboxSpans": { "type": "array", "items": { "$ref": "#/$defs/span" } }, "events": { "type": "array", "items": { "$ref": "#/$defs/event" } } }
     },
     "player": {
-      "type": "object", "additionalProperties": false, "required": ["name", "movement", "progression"],
+      "type": "object", "additionalProperties": false, "required": ["name"],
       "properties": {
-        "name": { "type": "string", "minLength": 1, "maxLength": 80 },
-        "movement": {
-          "type": "object", "additionalProperties": false, "required": ["baseSpeed", "boostSpeed", "dodgeSpeed", "dodgeInvulnerabilityMs"],
-          "properties": { "baseSpeed": { "type": "number", "minimum": 0 }, "boostSpeed": { "type": "number", "minimum": 0 }, "dodgeSpeed": { "type": "number", "minimum": 0 }, "dodgeInvulnerabilityMs": { "type": "integer", "minimum": 0 } }
-        },
-        "progression": {
-          "type": "object", "additionalProperties": false, "required": ["baseMaxHp", "baseMaxEnergy", "hpPerLevel", "attackPerLevel", "defensePerLevel", "energyPerLevel"],
-          "properties": { "baseMaxHp": { "type": "number", "exclusiveMinimum": 0 }, "baseMaxEnergy": { "type": "number", "exclusiveMinimum": 0 }, "hpPerLevel": { "type": "number", "minimum": 0 }, "attackPerLevel": { "type": "number", "minimum": 0 }, "defensePerLevel": { "type": "number", "minimum": 0 }, "energyPerLevel": { "type": "number", "minimum": 0 } }
-        }
+        "name": { "type": "string", "minLength": 1, "maxLength": 80 }
       }
     },
     "enemy": {

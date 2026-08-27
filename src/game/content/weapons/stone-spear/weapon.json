@@ -401,7 +401,7 @@
   "vfxColor": 12574719,
   "unlockLevel": 1,
   "iconKey": "weapon-player-stone-tools-tiles",
-  "iconFrame": 0,
+  "iconFrame": 1,
   "description": "A reinforced stone-tipped spear with a focused stone-blue thrust trail.",
   "onHitEffectId": "basic-spear-impact"
 }

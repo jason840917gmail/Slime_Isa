@@ -1,7 +1,8 @@
 import { gameEvents } from './EventBus';
-import { PLAYER_CONFIG } from '../content/player';
 import { createInitialRunState } from '../content/initial-state/InitialRun';
+import { GAME_CONSTANTS } from '../Constant';
 import { PERK_BALANCE } from '../content/perks';
+import { applyExperience, resolveLevelStats } from '../systems/PlayerProgression';
 import type { CharacterAttributeSet } from '../content/characters/types';
 import { WEAPON_HOTBAR_SLOT_COUNT } from './types';
 
@@ -14,31 +15,8 @@ import { WEAPON_HOTBAR_SLOT_COUNT } from './types';
  * quest flags — all flowing through the same emit-on-change pipeline.
  */
 
-const SAVE_SCHEMA_VERSION = 2;
-
-// ── Level curve ──
-// xpForLevel(n) = total XP required to REACH level n from level 1.
-// XP to go from level n → n+1 = xpForLevel(n+1) - xpForLevel(n).
-export function xpForLevel(level: number): number {
-  if (level <= 1) return 0;
-  let total = 0;
-  for (let n = 2; n <= level; n += 1) {
-    total += Math.round(80 * Math.pow(n - 1, 1.5));
-  }
-  return total;
-}
-
-export function xpForNext(level: number): number {
-  return xpForLevel(level + 1) - xpForLevel(level);
-}
-
-// ── Stat growth per level ──
-const HP_PER_LEVEL = PLAYER_CONFIG.progression.hpPerLevel;
-const ATK_PER_LEVEL = PLAYER_CONFIG.progression.attackPerLevel;
-const DEF_PER_LEVEL = PLAYER_CONFIG.progression.defensePerLevel;
-const ENERGY_PER_LEVEL = PLAYER_CONFIG.progression.energyPerLevel;
-const BASE_MAX_HP = PLAYER_CONFIG.progression.baseMaxHp;
-const BASE_MAX_ENERGY = PLAYER_CONFIG.progression.baseMaxEnergy;
+const SAVE_SCHEMA_VERSION = 3;
+const PROGRESSION = GAME_CONSTANTS.character.player.progression;
 
 export interface GameStateData {
   schemaVersion: number;
@@ -46,11 +24,9 @@ export interface GameStateData {
   boostBonus: number;
   totalFriends: number;
   level: number;
-  xp: number;
+  currentXp: number;
   hp: number;
-  maxHpBonus: number;
   energy: number;
-  maxEnergyBonus: number;
   skillPoints: number;
   perks: Record<string, number>;
   attributes: CharacterAttributeSet;
@@ -105,6 +81,8 @@ class GameStateImpl {
       },
       schemaVersion: SAVE_STATE_SCHEMA_VERSION,
     };
+    this.data.hp = Math.min(this.data.hp, this.maxHp);
+    this.data.energy = Math.min(this.data.energy, this.maxEnergy);
 
     gameEvents.emit('coins.changed', { coins: this.data.coins, delta: 0 });
     gameEvents.emit('boost.changed', { boostBonus: this.data.boostBonus, delta: 0 });
@@ -182,8 +160,12 @@ class GameStateImpl {
     return this.data.level;
   }
 
-  get xp(): number {
-    return this.data.xp;
+  get currentXp(): number {
+    return this.data.currentXp;
+  }
+
+  get xpToNextLevel(): number | null {
+    return PROGRESSION.levels[this.data.level - 1]?.xpToNextLevel ?? null;
   }
 
   get skillPoints(): number {
@@ -192,24 +174,27 @@ class GameStateImpl {
 
   addXp(amount: number): void {
     if (amount <= 0) return;
-    this.data.xp += amount;
-    let leveledUp = false;
-    while (this.data.xp >= xpForLevel(this.data.level + 1)) {
-      this.data.level += 1;
+    const result = applyExperience(PROGRESSION, this.data.level, this.data.currentXp, amount);
+    for (const entry of result.levelsGained) {
+      this.data.level = entry.level;
       this.data.skillPoints += 1;
-      this.data.maxHpBonus += HP_PER_LEVEL;
-      this.data.maxEnergyBonus += ENERGY_PER_LEVEL;
-      this.data.hp = this.maxHp;
-      this.data.energy = this.maxEnergy;
       gameEvents.emit('level.up', {
         level: this.data.level,
         skillPoints: 1,
       });
       gameEvents.emit('skillpoint.changed', { points: this.data.skillPoints });
-      leveledUp = true;
+    }
+    this.data.currentXp = result.currentXp;
+    const leveledUp = result.levelsGained.length > 0;
+    if (leveledUp) {
+      this.data.hp = this.maxHp;
+      this.data.energy = this.maxEnergy;
     }
     this.emitXp(amount);
-    if (leveledUp) this.emitHp(0);
+    if (leveledUp) {
+      this.emitHp(0);
+      this.emitEnergy(0);
+    }
   }
 
   spendSkillPoint(perkId: string): boolean {
@@ -261,8 +246,7 @@ class GameStateImpl {
 
   // ── HP ──
   get maxHp(): number {
-    return BASE_MAX_HP
-      + this.data.maxHpBonus
+    return resolveLevelStats(PROGRESSION, this.data.level).maxHp
       + this.perkRank('tanky-goo') * PERK_BALANCE.maxHpPerTankyGooRank;
   }
 
@@ -314,8 +298,7 @@ class GameStateImpl {
 
   // ── Energy ──
   get maxEnergy(): number {
-    return BASE_MAX_ENERGY
-      + this.data.maxEnergyBonus
+    return resolveLevelStats(PROGRESSION, this.data.level).maxEnergy
       + this.perkRank('deep-well') * PERK_BALANCE.maxEnergyPerDeepWellRank;
   }
 
@@ -340,11 +323,11 @@ class GameStateImpl {
 
   // ── Derived stat helpers (full table lives in PlayerStats) ──
   get attackBase(): number {
-    return 10 + (this.data.level - 1) * ATK_PER_LEVEL;
+    return resolveLevelStats(PROGRESSION, this.data.level).attack;
   }
 
   get defenseBase(): number {
-    return 2 + (this.data.level - 1) * DEF_PER_LEVEL;
+    return resolveLevelStats(PROGRESSION, this.data.level).defense;
   }
 
   private emitHp(delta: number): void {
@@ -357,12 +340,9 @@ class GameStateImpl {
 
   private emitXp(delta: number): void {
     const level = this.data.level;
-    const xpInto = this.data.xp - xpForLevel(level);
-    const need = xpForNext(level);
     gameEvents.emit('xp.changed', {
-      xp: this.data.xp,
-      xpIntoLevel: Math.max(0, xpInto),
-      xpForNext: need,
+      currentXp: this.data.currentXp,
+      xpToNextLevel: this.xpToNextLevel,
       level,
       delta,
     });
@@ -370,4 +350,4 @@ class GameStateImpl {
 }
 
 export const gameState = new GameStateImpl();
-export { SAVE_SCHEMA_VERSION, BASE_MAX_HP, BASE_MAX_ENERGY, HP_PER_LEVEL, ATK_PER_LEVEL, DEF_PER_LEVEL, ENERGY_PER_LEVEL };
+export { SAVE_SCHEMA_VERSION };

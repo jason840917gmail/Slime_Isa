@@ -22,7 +22,7 @@ scenes -> features -> content/shared
 ## Ownership rules
 
 1. A gameplay rule has exactly one source of truth. Shared balancing values live in `content/`, next to the definition they configure.
-2. Do not create a global `constants.ts`. Local drawing and tween values stay local; cross-feature gameplay values receive a named owner.
+2. `content/game-constants.json` owns cross-feature gameplay rules and new-run defaults. Runtime code imports its validated, deeply readonly `GAME_CONSTANTS` value only through `game/Constant.ts`; direct JSON imports and fallback balance literals are forbidden. Local drawing and tween values stay local.
 3. Only `infrastructure/persistence` may access `localStorage` or define storage keys.
 4. Scenes must not contain storage parsing, content registries, or complete feature implementations.
 5. Feature controllers receive dependencies through a context interface. They do not import `WorldScene`.
@@ -31,6 +31,12 @@ scenes -> features -> content/shared
 8. UI may display state and invoke provided actions. It must not reach into unrelated scene internals.
 9. Prefer typed identifiers and readonly definitions for content registries.
 10. `pnpm build` must pass before changes are considered complete.
+
+## Gameplay configuration
+
+The versioned gameplay constants document currently owns inventory capacity and stack rules, initial player attributes, movement speeds and cap, dodge protection, and hit protection. New runs copy initial attributes, while movement and protection remain current global rules. Base item definitions omit stack limits and are normalized against the exact configured item-ID map; weapon items use the configured global weapon stack limit.
+
+The primary character package owns authored identity, body, and visuals. It must not contain primary-player attributes, movement, or progression rules. Gameplay constants own the primary-player progression table; runtime XP uses that table, saves persist level plus current XP, and legacy cumulative XP is migrated without granting synthetic rewards. Enemy packages may continue to own their attributes and per-entity gameplay values.
 
 ## Shared animation ownership
 

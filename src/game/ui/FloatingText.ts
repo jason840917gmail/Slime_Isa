@@ -10,7 +10,7 @@ import { resolveWorldDepth } from '../presentation/WorldDepth';
 const FONT = 'Trebuchet MS, Segoe UI Variable, sans-serif';
 const POOL_SIZE = 24;
 
-type Color = 'white' | 'yellow' | 'orange' | 'green' | 'red' | 'cyan';
+type Color = 'white' | 'yellow' | 'orange' | 'green' | 'red' | 'cyan' | 'blue';
 
 const COLORS: Record<Color, string> = {
   white: '#ffffff',
@@ -19,6 +19,7 @@ const COLORS: Record<Color, string> = {
   green: '#7be08a',
   red: '#ff6f88',
   cyan: '#72d8ff',
+  blue: '#4a90e2',
 };
 
 interface PooledText {

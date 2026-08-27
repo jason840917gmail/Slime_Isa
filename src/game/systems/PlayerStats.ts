@@ -1,6 +1,7 @@
 import { gameState } from '../core/GameState';
 import type { PerkChoice } from '../core/types';
 import { PLAYER_CONFIG } from '../content/player';
+import { GAME_CONSTANTS } from '../Constant';
 import { PERK_BALANCE, PERK_DEFS, PERK_IDS, type PerkId } from '../content/perks';
 import type { CharacterAttributeSet } from '../content/characters/types';
 
@@ -32,7 +33,7 @@ export interface DerivedStats {
   iFrameMs: number;
 }
 
-export const MAX_MOVEMENT_SPEED = 480;
+export const MAX_MOVEMENT_SPEED = GAME_CONSTANTS.character.player.movement.movementSpeedCap;
 
 export function resolveMovementSpeed(baseSpeed: number, flatBonus = 0, multiplier = 1): number {
   if (!Number.isFinite(baseSpeed) || !Number.isFinite(flatBonus) || !Number.isFinite(multiplier)) return 0;
@@ -92,6 +93,6 @@ export function getStats(): DerivedStats {
     energyRegenPerSec: 8 * (1 + recovery * PERK_BALANCE.energyRegenMultiplierPerQuickRecoveryRank),
     lifeStealPct: vampiric * PERK_BALANCE.lifeStealPerVampiricGooRank,
     damageTakenMult: Math.max(0.5, 1 - skin * PERK_BALANCE.damageReductionPerThickSkinRank),
-    iFrameMs: 500,
+    iFrameMs: GAME_CONSTANTS.character.player.hitInvulnerabilityMs,
   };
 }

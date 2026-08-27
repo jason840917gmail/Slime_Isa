@@ -17,6 +17,7 @@
     "enemies:check": "node scripts/check-enemies.mjs",
     "objects:check": "node scripts/check-objects.mjs",
     "maps:check": "node scripts/check-maps.mjs",
+    "constants:check": "node scripts/check-game-constants.mjs",
     "functions:check": "node scripts/check-single-use.mjs",
     "maps:bake": "node scripts/bake-production-maps.mjs",
     "test:characters": "node --test scripts/tests/character-studio/*.test.mjs",
@@ -32,8 +33,10 @@
     "test:ui": "node --test scripts/tests/modal-stack.test.mjs",
     "test:map-editor": "node --test scripts/tests/map-editor/*.test.mjs",
     "test:depth": "node scripts/test-depth.mjs",
+    "test:game-constants": "node --test scripts/tests/game-constants/*.test.mjs",
+    "test:progression": "node --test scripts/tests/progression/*.test.mjs",
     "build": "pnpm typecheck && vite build",
-    "check": "pnpm assets:check && pnpm animations:check && pnpm visuals:check && pnpm characters:check && pnpm projectiles:check && pnpm effects:check && pnpm weapons:check && pnpm enemies:check && pnpm objects:check && pnpm maps:check && pnpm test:animation-packages && pnpm test:animation && pnpm test:weapon-studio && pnpm test:combat && pnpm test:object-animation && pnpm test:rendering && pnpm test:persistence && pnpm test:collectibles && pnpm test:ui && pnpm test:map-editor && pnpm test:depth && pnpm typecheck && pnpm build",
+    "check": "pnpm constants:check && pnpm assets:check && pnpm animations:check && pnpm visuals:check && pnpm characters:check && pnpm projectiles:check && pnpm effects:check && pnpm weapons:check && pnpm enemies:check && pnpm objects:check && pnpm maps:check && pnpm test:game-constants && pnpm test:progression && pnpm test:character-studio && pnpm test:animation-packages && pnpm test:animation && pnpm test:weapon-studio && pnpm test:combat && pnpm test:object-animation && pnpm test:rendering && pnpm test:persistence && pnpm test:collectibles && pnpm test:ui && pnpm test:map-editor && pnpm test:depth && pnpm typecheck && pnpm build",
     "preview": "vite preview --port 3000"
   },
   "dependencies": {

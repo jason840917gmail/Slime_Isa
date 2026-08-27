@@ -97,20 +97,6 @@ export interface AnimationTrackDocument extends SharedAnimationTrackDocument {
 
 export interface PlayerGameplayDocument {
   name: string;
-  movement: {
-    baseSpeed: number;
-    boostSpeed: number;
-    dodgeSpeed: number;
-    dodgeInvulnerabilityMs: number;
-  };
-  progression: {
-    baseMaxHp: number;
-    baseMaxEnergy: number;
-    hpPerLevel: number;
-    attackPerLevel: number;
-    defensePerLevel: number;
-    energyPerLevel: number;
-  };
 }
 
 export interface EnemyDropItemDocument {

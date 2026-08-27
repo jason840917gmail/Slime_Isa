@@ -145,7 +145,7 @@ export class ResourceNodeController {
     const record = this.records.get(target);
     if (!record || this.ctx.scene.time.now < this.harvestHintReadyAt) return;
     this.harvestHintReadyAt = this.ctx.scene.time.now + 900;
-    floatingText.spawn(this.ctx.scene, record.image.x, record.image.y - 58, message, 'white', true);
+    floatingText.spawn(this.ctx.scene, record.image.x, record.image.y - 58, message, 'cyan', true);
   }
 
   applyDamage(target: Phaser.GameObjects.GameObject, amount: number): ResourceDamageApplicationResult {

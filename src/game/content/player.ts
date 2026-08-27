@@ -1,15 +1,8 @@
 import { getPrimaryPlayerPackage } from './characters/CharacterCatalog';
-import type { CharacterAttributeSet } from './characters/types';
+import { GAME_CONSTANTS } from '../Constant';
 
 const primary = getPrimaryPlayerPackage().character;
 if (!primary.player) throw new Error('Primary player package is missing gameplay properties');
-
-const DEFAULT_PLAYER_ATTRIBUTES: CharacterAttributeSet = {
-  strength: 10,
-  vitality: 10,
-  agility: 10,
-  intellect: 10,
-};
 
 /** Physics-friendly movement tuning choices, ordered from deliberate to fast. */
 export const PLAYER_MOVEMENT_SPEED_OPTIONS = [
@@ -21,8 +14,8 @@ export type PlayerMovementSpeedOption = typeof PLAYER_MOVEMENT_SPEED_OPTIONS[num
 /** Focused player runtime configuration adapted from the editable package. */
 export const PLAYER_CONFIG = {
   name: primary.player.name,
-  attributes: primary.attributes ?? DEFAULT_PLAYER_ATTRIBUTES,
+  attributes: GAME_CONSTANTS.character.player.initialAttributes,
   body: primary.body,
-  movement: primary.player.movement,
-  progression: primary.player.progression,
+  movement: GAME_CONSTANTS.character.player.movement,
+  progression: GAME_CONSTANTS.character.player.progression,
 } as const;

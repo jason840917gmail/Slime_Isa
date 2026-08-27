@@ -1109,8 +1109,14 @@ async function savePackage(state: StudioState): Promise<Partial<StudioState>> {
       } : {}),
     }),
   });
-  const payload = await response.json() as { ok?: boolean; data?: { weaponRevision: string; effectRevision?: string }; error?: { message?: string } };
-  if (!response.ok || !payload.ok || !payload.data) throw new Error(payload.error?.message ?? 'Weapon package save failed');
+  const payload = await response.json() as {
+    ok?: boolean;
+    data?: { weaponRevision: string; effectRevision?: string };
+    error?: { message?: string; issues?: readonly { path: string; message: string }[] };
+  };
+  if (!response.ok || !payload.ok || !payload.data) {
+    throw new Error(payload.error?.issues?.[0]?.message ?? payload.error?.message ?? 'Weapon package save failed');
+  }
   return { revision: payload.data.weaponRevision, effectRevision: payload.data.effectRevision ?? state.effectRevision, effectIsNew: false, effectDirty: false, dirty: false, notice: 'Saved. Reload the game to use changed content.' };
 }
 

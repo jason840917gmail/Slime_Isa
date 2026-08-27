@@ -86,7 +86,7 @@
     "harvestRequirement": {
       "targetTag": "stone",
       "minimumTier": 1,
-      "failureMessage": "Requires a Stone Pickaxe"
+      "failureMessage": "Requires a Pickaxe"
     }
   },
   "tags": [

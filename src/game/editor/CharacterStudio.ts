@@ -10,6 +10,8 @@ import { ASSET_MANIFEST, getAsset } from '../infrastructure/assets/manifest';
 import { resolveAssetUrl } from '../infrastructure/assets/assetUrls';
 import type { CharacterStudioAssetCatalog, CharacterStudioAssetEntry } from '../content/characters/characterAssetCatalog';
 import { CharacterDocumentState, type CharacterDocumentSnapshot } from './CharacterDocumentState';
+import { GameConstantsStudioState, type GameConstantsLevelField, type GameConstantsScalarSection, type GameConstantsStudioSnapshot } from './GameConstantsStudioState';
+import type { GameConstants } from '../content/GameConstantsValidation';
 import { animationCycleFrameCount, animationFrameIndexAtStep } from '../shared/animationLoop';
 import { holdLengthAtKeyframe, keyframeIndexAtTimelineFrame, normalizeAnimationClip, timelineFrameCount } from '../shared/animation';
 import { resolveCollisionShapeDimensions, type CollisionShape } from '../shared/collisionShapes';
@@ -18,6 +20,11 @@ import type { CharacterPackage, JsonValue, VisualClipDocument, VisualLoopMode } 
 interface PackageResponse {
   readonly character: CharacterPackage['character'];
   readonly visualSet: CharacterPackage['visualSet'];
+  readonly revision: string;
+}
+
+interface GameConstantsResponse {
+  readonly document: GameConstants;
   readonly revision: string;
 }
 
@@ -240,7 +247,7 @@ function renderInspector(snapshot: CharacterDocumentSnapshot): string {
   const attributes = character.attributes ?? { strength: 10, vitality: 10, agility: 10, intellect: 10 };
   const gameplay = (character.kind === 'player' ? character.player : character.enemy) as unknown as { maxHp: number; ai: { aggroRange: number; attackRange: number; wanderSpeed: number; chaseSpeed: number; attackCooldownMs: number; contactDamage: number; knockbackStrength: number; knockbackResist: number } };
   const gameplayFields = character.kind === 'player' && character.player
-    ? `<div class="studio-field-grid">${numberField('Base speed', 'player.movement.baseSpeed', character.player.movement.baseSpeed, 'world units/s')}${numberField('Boost speed', 'player.movement.boostSpeed', character.player.movement.boostSpeed, 'world units/s')}${numberField('Dodge speed', 'player.movement.dodgeSpeed', character.player.movement.dodgeSpeed, 'world units/s')}${numberField('Dodge i-frames', 'player.movement.dodgeInvulnerabilityMs', character.player.movement.dodgeInvulnerabilityMs, 'milliseconds')}${numberField('Base max HP', 'player.progression.baseMaxHp', character.player.progression.baseMaxHp, 'points')}${numberField('Base max energy', 'player.progression.baseMaxEnergy', character.player.progression.baseMaxEnergy, 'points')}${numberField('HP / level', 'player.progression.hpPerLevel', character.player.progression.hpPerLevel, 'points')}${numberField('Attack / level', 'player.progression.attackPerLevel', character.player.progression.attackPerLevel, 'points')}</div>`
+    ? '<p class="studio-help">Primary-player attributes, movement, protection, and progression are configured in game-constants.json.</p>'
     : character.enemy && `<div class="studio-field-grid">${behaviorField}${numberField('Max HP', 'enemy.maxHp', gameplay.maxHp, 'points')}${numberField('Aggro range', 'enemy.ai.aggroRange', gameplay.ai.aggroRange, 'world units')}${numberField('Attack range', 'enemy.ai.attackRange', gameplay.ai.attackRange, 'world units')}${numberField('Wander speed', 'enemy.ai.wanderSpeed', gameplay.ai.wanderSpeed, 'world units/s')}${numberField('Chase speed', 'enemy.ai.chaseSpeed', gameplay.ai.chaseSpeed, 'world units/s')}${numberField('Cooldown', 'enemy.ai.attackCooldownMs', gameplay.ai.attackCooldownMs, 'milliseconds')}${numberField('Contact damage', 'enemy.ai.contactDamage', gameplay.ai.contactDamage, 'points')}${numberField('Knockback', 'enemy.ai.knockbackStrength', gameplay.ai.knockbackStrength, 'world units/s')}${numberField('Resist', 'enemy.ai.knockbackResist', gameplay.ai.knockbackResist, 'ratio 0–1')}</div>`;
   const capabilityFields = character.kind === 'enemy' && character.enemy
     ? `<div class="studio-capability-stack">${booleanField('Ranged attack', 'enemy.ai.isRanged', character.enemy.ai.isRanged, 'fires the authored projectile capability')}${booleanField('Leap / charge', 'enemy.ai.isLeaper', character.enemy.ai.isLeaper === true, 'enables the supported leap-range branch')}</div>${character.enemy.ai.isRanged ? `<div class="studio-capability-card"><div><span class="studio-kicker">Projectile capability</span><strong>Configured projectile</strong></div><label class="studio-field studio-field--wide"><span>Source asset<small>manifest</small></span><select data-select-path="enemy.projectile.assetId">${projectileAssetOptions(String(character.enemy.projectile?.assetId ?? ''))}</select></label>${numberField('Damage', 'enemy.projectile.damage', character.enemy.projectile?.damage ?? character.enemy.ai.contactDamage, 'points')}</div>` : ''}`
@@ -252,8 +259,8 @@ function renderInspector(snapshot: CharacterDocumentSnapshot): string {
     ${capabilityFields ? `<section class="studio-inspector-section"><div class="studio-section-heading"><span class="studio-kicker">Capabilities</span><strong>Supported runtime modes</strong></div>${capabilityFields}${advancedEnemyFields}</section>` : ''}
     <section class="studio-inspector-section"><div class="studio-section-heading"><span class="studio-kicker">Visual</span><strong>Alignment</strong></div><p class="studio-help">Offsets resolve from default to animation to frame. More specific values override the level before them.</p><div class="studio-field-grid">${numberField('Default offset X', 'visual.defaults.sourceOffset.0', visualSet.defaults.sourceOffset[0], 'source px')}${numberField('Default offset Y', 'visual.defaults.sourceOffset.1', visualSet.defaults.sourceOffset[1], 'source px')}${numberField('Scale X', 'visual.defaults.scale.0', visualSet.defaults.scale[0], 'multiplier')}${numberField('Scale Y', 'visual.defaults.scale.1', visualSet.defaults.scale[1], 'multiplier')}</div><div class="studio-subheading">Animation ${escapeHtml(snapshot.selectedClipId)} offset <button type="button" class="studio-link-button" data-action="reset-animation-visual">reset</button></div><div class="studio-field-grid">${numberField('Offset X', 'visual.animation.sourceOffset.0', animationOffset[0], animation?.sourceOffset ? 'source px override' : 'uses default')}${numberField('Offset Y', 'visual.animation.sourceOffset.1', animationOffset[1], animation?.sourceOffset ? 'source px override' : 'uses default')}</div><div class="studio-subheading">Frame ${frame} override <button type="button" class="studio-link-button" data-action="reset-frame-visual">reset</button></div><div class="studio-field-grid">${numberField('Offset X', 'visual.frame.sourceOffset.0', resolvedTransform.sourceOffset[0], transform.sourceOffset ? 'source px override' : 'uses animation')}${numberField('Offset Y', 'visual.frame.sourceOffset.1', resolvedTransform.sourceOffset[1], transform.sourceOffset ? 'source px override' : 'uses animation')}</div></section>
     <section class="studio-inspector-section"><div class="studio-section-heading"><span class="studio-kicker">Body</span><strong>Stable movement body</strong></div><p class="studio-help">Circles use native Arcade Physics. Ellipses keep their authored geometry for hitbox math and use a conservative rectangle for world/tile movement collision.</p><div class="studio-field-grid">${shapeField('body.shape', bodyShape)}${bodyShape === 'circle' ? numberField('Radius', 'body.radius', body.radius ?? Math.min(body.width, body.height) / 2, 'world units') : bodyShape === 'ellipse' ? `${numberField('Radius X', 'body.radiusX', body.radiusX ?? body.width / 2, 'world units')}${numberField('Radius Y', 'body.radiusY', body.radiusY ?? body.height / 2, 'world units')}` : `${numberField('Width', 'body.width', body.width, 'world units')}${numberField('Height', 'body.height', body.height, 'world units')}`}${numberField('Center X', 'body.centerOffsetX', body.centerOffsetX, 'world units')}${numberField('Center Y', 'body.centerOffsetY', body.centerOffsetY, 'world units')}</div></section>
-    <section class="studio-inspector-section"><div class="studio-section-heading"><span class="studio-kicker">Attributes</span><strong>Base character attributes</strong></div><p class="studio-help">Movement speed is separate and comes from movement, equipment, or temporary effects. These values are the neutral foundation for future weapon and ability scaling.</p><div class="studio-field-grid">${numberField('Strength', 'attributes.strength', attributes.strength, 'base points')}${numberField('Vitality', 'attributes.vitality', attributes.vitality, 'base points')}${numberField('Agility', 'attributes.agility', attributes.agility, 'base points')}${numberField('Intellect', 'attributes.intellect', attributes.intellect, 'base points')}</div></section>
-    <section class="studio-inspector-section"><div class="studio-section-heading"><span class="studio-kicker">Gameplay</span><strong>${character.kind === 'player' ? 'Player progression' : 'Enemy behavior'}</strong></div>${gameplayFields}</section>
+    ${character.kind === 'enemy' ? `<section class="studio-inspector-section"><div class="studio-section-heading"><span class="studio-kicker">Attributes</span><strong>Base character attributes</strong></div><p class="studio-help">Movement speed is separate and comes from movement, equipment, or temporary effects. These values are the neutral foundation for future weapon and ability scaling.</p><div class="studio-field-grid">${numberField('Strength', 'attributes.strength', attributes.strength, 'base points')}${numberField('Vitality', 'attributes.vitality', attributes.vitality, 'base points')}${numberField('Agility', 'attributes.agility', attributes.agility, 'base points')}${numberField('Intellect', 'attributes.intellect', attributes.intellect, 'base points')}</div></section>` : ''}
+    <section class="studio-inspector-section" data-gameplay-inspector><div class="studio-section-heading"><span class="studio-kicker">Gameplay</span><strong>${character.kind === 'player' ? 'Player progression' : 'Enemy behavior'}</strong></div>${gameplayFields}</section>
     <section class="studio-inspector-section studio-collision-shape-section"><div class="studio-section-heading"><span class="studio-kicker">Collision shapes</span><strong>Named geometry</strong></div><p class="studio-help">Use circles for rounded bodies. Ellipses are resolved by the authored hitbox system and previewed precisely in the Studio.</p>${Object.entries(character.hitboxes).map(([hitboxId, hitbox]) => { const shape = hitbox.shape ?? 'rectangle'; return `<div class="studio-collision-shape-row"><strong>${escapeHtml(hitboxId)}</strong>${shapeField(`hitbox.${hitboxId}.shape`, shape)}${shape === 'circle' ? numberField('Radius', `hitbox.${hitboxId}.radius`, hitbox.radius ?? Math.min(hitbox.width, hitbox.height) / 2, 'world') : shape === 'ellipse' ? `${numberField('Radius X', `hitbox.${hitboxId}.radiusX`, hitbox.radiusX ?? hitbox.width / 2, 'world')}${numberField('Radius Y', `hitbox.${hitboxId}.radiusY`, hitbox.radiusY ?? hitbox.height / 2, 'world')}` : ''}</div>`; }).join('') || '<p class="studio-empty-note">Add a named hitbox to author a shape.</p>'}</section>
     <section class="studio-inspector-section"><div class="studio-section-heading"><span class="studio-kicker">Hitboxes</span><strong>Named attack geometry</strong><button type="button" class="studio-icon-button" data-action="add-hitbox">+</button></div>${Object.entries(character.hitboxes).map(([hitboxId, hitbox]) => `<div class="studio-hitbox-row studio-hitbox-row--expanded"><span class="hitbox-chip">${escapeHtml(hitboxId)}</span>${numberField('W', `hitbox.${hitboxId}.width`, hitbox.width, 'world')}${numberField('H', `hitbox.${hitboxId}.height`, hitbox.height, 'world')}${numberField('Offset X', `hitbox.${hitboxId}.offsetX`, hitbox.offsetX, 'world')}${numberField('Offset Y', `hitbox.${hitboxId}.offsetY`, hitbox.offsetY, 'world')}<label class="studio-hitbox-mirror"><input type="checkbox" data-boolean-path="hitbox.${hitboxId}.mirrorX" ${hitbox.mirrorX ? 'checked' : ''} /><span>MIRROR</span></label><button type="button" class="studio-icon-button is-danger" data-remove-hitbox="${escapeHtml(hitboxId)}">×</button></div>`).join('') || '<p class="studio-empty-note">No named hitboxes yet.</p>'}</section>
   `;
@@ -402,6 +409,31 @@ async function loadAssetCatalog(): Promise<CharacterStudioAssetCatalog> {
   return payload.data;
 }
 
+async function loadGameConstants(): Promise<GameConstantsResponse> {
+    const response = await fetch('/__game-constants');
+    const payload = await response.json() as { ok: boolean; data?: GameConstantsResponse; error?: { message?: string } };
+    if (!response.ok || !payload.ok || !payload.data) throw new Error(payload.error?.message ?? 'Gameplay defaults failed to load');
+    return payload.data;
+}
+
+function renderGameConstantsPanel(snapshot: GameConstantsStudioSnapshot): string {
+    const player = snapshot.document.character.player;
+    const progression = player.progression;
+    const scalar = (label: string, section: GameConstantsScalarSection, field: string, value: number, unit: string): string => `<label class="studio-field"><span>${escapeHtml(label)}<small>${escapeHtml(unit)}</small></span><input type="number" step="1" inputmode="numeric" data-constant-section="${section}" data-constant-field="${escapeHtml(field)}" value="${escapeHtml(value)}" /></label>`;
+    const levelInput = (level: number, field: GameConstantsLevelField, value: number | null, readonly: boolean): string => `<input type="number" step="1" inputmode="numeric" aria-label="Level ${level} ${field}" data-constant-level="${level}" data-constant-level-field="${field}" value="${value ?? ''}" ${readonly ? 'readonly' : ''} />`;
+    const rows = progression.levels.map((entry) => `<tr><th scope="row"><span>${entry.level.toString().padStart(2, '0')}</span></th><td>${levelInput(entry.level, 'xpToNextLevel', entry.xpToNextLevel, entry.level === progression.maxLevel)}</td><td>${levelInput(entry.level, 'maxHp', entry.gains.maxHp, entry.level === 1)}</td><td>${levelInput(entry.level, 'maxEnergy', entry.gains.maxEnergy, entry.level === 1)}</td><td>${levelInput(entry.level, 'attack', entry.gains.attack, entry.level === 1)}</td><td>${levelInput(entry.level, 'defense', entry.gains.defense, entry.level === 1)}</td></tr>`).join('');
+    const stateClass = snapshot.saveState === 'conflict' || snapshot.saveState === 'error' || snapshot.errors.length > 0 ? ' is-invalid' : snapshot.dirty ? ' is-dirty' : '';
+    return `<div class="studio-constants${stateClass}">
+      <div class="studio-section-heading studio-constants-heading"><div><span class="studio-kicker">Gameplay defaults</span><strong>Primary player configuration</strong></div><span class="studio-save-state"><i></i>${escapeHtml(snapshot.statusMessage)}</span></div>
+      <div class="studio-constants-actions"><button type="button" class="studio-button studio-button--quiet" data-action="constants-undo" ${snapshot.dirty ? '' : 'disabled'}>↶</button><button type="button" class="studio-button studio-button--quiet" data-action="constants-redo">↷</button><button type="button" class="studio-button studio-button--save" data-action="constants-save" ${snapshot.errors.length > 0 || !snapshot.dirty || snapshot.saveState === 'saving' ? 'disabled' : ''}>SAVE GAMEPLAY DEFAULTS</button></div>
+      <div class="studio-constants-group"><span class="studio-subheading">Initial attributes</span><div class="studio-field-grid">${scalar('Strength', 'initialAttributes', 'strength', player.initialAttributes.strength, 'base points')}${scalar('Vitality', 'initialAttributes', 'vitality', player.initialAttributes.vitality, 'base points')}${scalar('Agility', 'initialAttributes', 'agility', player.initialAttributes.agility, 'base points')}${scalar('Intellect', 'initialAttributes', 'intellect', player.initialAttributes.intellect, 'base points')}</div></div>
+      <div class="studio-constants-group"><span class="studio-subheading">Movement & protection</span><div class="studio-field-grid">${scalar('Base speed', 'movement', 'baseSpeed', player.movement.baseSpeed, 'world units/s')}${scalar('Boost speed', 'movement', 'boostSpeed', player.movement.boostSpeed, 'world units/s')}${scalar('Dodge speed', 'movement', 'dodgeSpeed', player.movement.dodgeSpeed, 'world units/s')}${scalar('Speed cap', 'movement', 'movementSpeedCap', player.movement.movementSpeedCap, 'world units/s')}${scalar('Dodge guard', 'movement', 'dodgeInvulnerabilityMs', player.movement.dodgeInvulnerabilityMs, 'milliseconds')}${scalar('Hit guard', 'player', 'hitInvulnerabilityMs', player.hitInvulnerabilityMs, 'milliseconds')}</div></div>
+      <div class="studio-constants-group"><span class="studio-subheading">Progression foundation</span><div class="studio-field-grid">${scalar('Base HP', 'progression', 'baseMaxHp', progression.baseMaxHp, 'points')}${scalar('Base energy', 'progression', 'baseMaxEnergy', progression.baseMaxEnergy, 'points')}${scalar('Base attack', 'progression', 'baseAttack', progression.baseAttack, 'points')}${scalar('Base defense', 'progression', 'baseDefense', progression.baseDefense, 'points')}${scalar('Max level', 'progression', 'maxLevel', progression.maxLevel, 'ordered rows')}</div></div>
+      <div class="studio-level-ledger"><table><thead><tr><th>LVL</th><th>XP NEXT</th><th>HP +</th><th>ENERGY +</th><th>ATTACK +</th><th>DEFENSE +</th></tr></thead><tbody>${rows}</tbody></table></div>
+      ${snapshot.errors.length > 0 ? `<div class="studio-errors">${snapshot.errors.map((entry) => `<p><b>${escapeHtml(entry.path)}</b> ${escapeHtml(entry.message)}</p>`).join('')}</div>` : ''}
+    </div>`;
+}
+
 const STUDIO_SCROLL_REGION_SELECTORS = [
   '.studio-workbench',
   '.studio-roster',
@@ -473,6 +505,8 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
   container.classList.add('is-character-studio-host');
   let currentState: CharacterDocumentState | undefined;
   let unsubscribe: (() => void) | undefined;
+  let constantsState: GameConstantsStudioState | undefined;
+  let unsubscribeConstants: (() => void) | undefined;
   let disposed = false;
   let playTimer: number | undefined;
   let playbackTick = false;
@@ -538,6 +572,13 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
   });
 
   const renderLoading = (message: string): void => { resizeController.cancel(); container.innerHTML = `<main class="character-studio studio-loading"><div><span class="studio-loading-orb">✦</span><p>${escapeHtml(message)}</p></div></main>`; };
+  const renderStudioShell = (snapshot: CharacterDocumentSnapshot): void => {
+    container.innerHTML = renderStudio(snapshot, assetShelf, creationForm, returnEditor, playTimer !== undefined, activeModal);
+    const gameplayInspector = container.querySelector<HTMLElement>('[data-gameplay-inspector]');
+    if (gameplayInspector && constantsState && snapshot.character.runtimeRole === 'primary-player') {
+      gameplayInspector.innerHTML = renderGameConstantsPanel(constantsState.value);
+    }
+  };
   const renderViewport = (snapshot: CharacterDocumentSnapshot): void => {
     resizeController.cancel();
     const scrollPositions = captureStudioScroll(container);
@@ -549,7 +590,7 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
       updatePlaybackFrameDom(container, snapshot);
       return;
     }
-    container.innerHTML = renderStudio(snapshot, assetShelf, creationForm, returnEditor, playTimer !== undefined, activeModal);
+    renderStudioShell(snapshot);
     container.querySelector('.studio-sheet-panel')?.classList.add('is-source-bank-hidden');
     if (sourceTilePickerOpen) container.insertAdjacentHTML('beforeend', renderCharacterSourceTilePicker(snapshot));
     ensureStudioModeTabs(container, returnEditor, 'characters');
@@ -570,7 +611,7 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
     if (!disposed && currentState) {
       resizeController.cancel();
       const scrollPositions = captureStudioScroll(container);
-      container.innerHTML = renderStudio(currentState.value, assetShelf, creationForm, returnEditor, playTimer !== undefined, activeModal);
+      renderStudioShell(currentState.value);
       container.querySelector('.studio-sheet-panel')?.classList.add('is-source-bank-hidden');
       if (sourceTilePickerOpen) container.insertAdjacentHTML('beforeend', renderCharacterSourceTilePicker(currentState.value));
       ensureStudioModeTabs(container, returnEditor, 'characters');
@@ -606,7 +647,7 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
   const confirmModal = async (request: Omit<StudioModalRequest, 'kind'>): Promise<boolean> => (await showModal({ ...request, kind: 'confirm' })) === true;
   const alertModal = async (title: string, message: string): Promise<void> => { await showModal({ kind: 'alert', title, message, confirmLabel: 'GOT IT' }); };
   const choosePackage = async (characterId: string): Promise<void> => {
-    if (currentState?.value.dirty && !(await confirmModal({ title: 'Discard unsaved changes?', message: 'The current Character Studio package has unsaved changes. Opening another package will discard them.', confirmLabel: 'DISCARD & OPEN', danger: true }))) return;
+    if ((currentState?.value.dirty || constantsState?.value.dirty) && !(await confirmModal({ title: 'Discard unsaved changes?', message: 'The current Character Studio package or gameplay defaults have unsaved changes. Opening another package will discard them.', confirmLabel: 'DISCARD & OPEN', danger: true }))) return;
     stopPlayback();
     renderLoading('Opening package…');
     try {
@@ -614,6 +655,13 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
       currentState = new CharacterDocumentState({ character: loaded.character, visualSet: loaded.visualSet }, loaded.revision);
       unsubscribe?.();
       unsubscribe = currentState.subscribe(rerender);
+      unsubscribeConstants?.();
+      constantsState = undefined;
+      if (loaded.character.runtimeRole === 'primary-player') {
+        const constants = await loadGameConstants();
+        constantsState = new GameConstantsStudioState(constants.document, constants.revision);
+        unsubscribeConstants = constantsState.subscribe(() => { if (currentState) rerender(currentState.value); });
+      }
       currentId = characterId;
       window.history.replaceState({}, '', studioUrl(characterId));
     } catch (error) {
@@ -624,6 +672,20 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
     const values = await promptModal({ title, message, fields: [{ id: 'clipId', label, value: suggestion, placeholder: label === 'Hitbox ID' ? 'sword' : 'attack-side' }], confirmLabel: 'CONTINUE' });
     const value = values?.clipId?.trim().toLowerCase();
     return value || undefined;
+  };
+  const saveGameConstants = async (): Promise<void> => {
+    if (!constantsState || constantsState.value.errors.length > 0 || !constantsState.value.dirty) return;
+    const snapshot = constantsState.value;
+    constantsState.markSaving();
+    try {
+      const response = await fetch('/__game-constants', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ expectedRevision: snapshot.revision, document: snapshot.document }) });
+      const payload = await response.json() as { ok: boolean; data?: GameConstantsResponse; error?: { message?: string } };
+      if (!response.ok || !payload.ok || !payload.data) {
+        constantsState.markSaveFailure(payload.error?.message ?? 'Gameplay defaults save failed', response.status === 409);
+        return;
+      }
+      constantsState.markSaved(payload.data.document, payload.data.revision);
+    } catch (error) { constantsState.markSaveFailure(error instanceof Error ? error.message : String(error)); }
   };
   const save = async (): Promise<void> => {
     if (!currentState || currentState.value.errors.length > 0 || !currentState.value.dirty) return;
@@ -745,6 +807,9 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
     if (action !== 'play') stopPlayback();
     switch (action) {
       case 'save': void save(); break;
+      case 'constants-save': void saveGameConstants(); break;
+      case 'constants-undo': constantsState?.undo(); break;
+      case 'constants-redo': constantsState?.redo(); break;
       case 'undo': currentState.undo(); break;
       case 'redo': currentState.redo(); break;
       case 'duplicate': await duplicate(); break;
@@ -967,6 +1032,22 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
   };
   const onChange = (event: Event): void => {
     const target = event.target as HTMLInputElement;
+    const constantLevel = target.dataset.constantLevel;
+    const constantLevelField = target.dataset.constantLevelField as GameConstantsLevelField | undefined;
+    if (constantLevel && constantLevelField && constantsState) {
+      constantsState.updateLevel(integerValue(constantLevel), constantLevelField, integerValue(target.value));
+      return;
+    }
+    const constantSection = target.dataset.constantSection as GameConstantsScalarSection | undefined;
+    const constantField = target.dataset.constantField;
+    if (constantSection && constantField && constantsState) {
+      const value = integerValue(target.value);
+      if (constantSection === 'progression' && constantField === 'maxLevel' && value < constantsState.value.document.character.player.progression.maxLevel) {
+        void confirmModal({ title: 'Reduce maximum level?', message: `Levels above ${value} and their authored gains will be removed from the gameplay configuration.`, confirmLabel: 'REMOVE LEVELS', danger: true }).then((confirmed) => { if (confirmed) constantsState?.setMaxLevel(value); else if (currentState) rerender(currentState.value); });
+      } else if (constantSection === 'progression' && constantField === 'maxLevel') constantsState.setMaxLevel(value);
+      else constantsState.updateScalar(constantSection, constantField, value);
+      return;
+    }
     if (target.matches('[data-upload-input]')) {
       const file = target.files?.[0];
       target.value = '';
@@ -1067,5 +1148,5 @@ export function mountCharacterStudio(container: HTMLDivElement): () => void {
   container.addEventListener('keydown', onKeydown);
   renderLoading('Loading Character Studio…');
   void choosePackage(currentId);
-  return () => { activeModal?.resolve(undefined); activeModal = undefined; disposed = true; resizeController.dispose(); stopPlayback(); clearTimelineDrag(); unsubscribe?.(); container.removeEventListener('click', onClick); container.removeEventListener('dragstart', onDragStart); container.removeEventListener('dragover', onDragOver); container.removeEventListener('drop', onDrop); container.removeEventListener('dragend', onDragEnd); container.removeEventListener('pointerdown', onPointerDown); container.removeEventListener('pointermove', onPointerMove); container.removeEventListener('pointerup', onPointerUp); container.removeEventListener('pointercancel', onPointerCancel); container.removeEventListener('change', onChange); container.removeEventListener('submit', onSubmit); container.removeEventListener('input', onInput); container.removeEventListener('keydown', onKeydown); container.classList.remove('is-character-studio-host'); };
+  return () => { activeModal?.resolve(undefined); activeModal = undefined; disposed = true; resizeController.dispose(); stopPlayback(); clearTimelineDrag(); unsubscribe?.(); unsubscribeConstants?.(); container.removeEventListener('click', onClick); container.removeEventListener('dragstart', onDragStart); container.removeEventListener('dragover', onDragOver); container.removeEventListener('drop', onDrop); container.removeEventListener('dragend', onDragEnd); container.removeEventListener('pointerdown', onPointerDown); container.removeEventListener('pointermove', onPointerMove); container.removeEventListener('pointerup', onPointerUp); container.removeEventListener('pointercancel', onPointerCancel); container.removeEventListener('change', onChange); container.removeEventListener('submit', onSubmit); container.removeEventListener('input', onInput); container.removeEventListener('keydown', onKeydown); container.classList.remove('is-character-studio-host'); };
 }
