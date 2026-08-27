@@ -606,7 +606,7 @@
   },
   "vfxColor": 14311290,
   "unlockLevel": 1,
-  "iconKey": "weapon-generic",
-  "iconFrame": 0,
+  "iconKey": "weapon-player-wooden-axe-tiles",
+  "iconFrame": 1,
   "description": "A practical starter hatchet. Good against wood, poor against enemies."
 }

@@ -538,7 +538,7 @@
   ],
   "vfxColor": 7989473,
   "unlockLevel": 1,
-  "iconKey": "weapon-generic",
+  "iconKey": "weapon-player-hammer-spear-tiles",
   "iconFrame": 0,
   "description": "A reusable layered weapon definition.",
   "onHitEffectId": "basic-spear-impact"

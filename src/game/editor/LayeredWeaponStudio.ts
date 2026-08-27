@@ -55,7 +55,7 @@ import { ensureStudioModeTabs } from './StudioModeTabs';
 import { renderStudioLibraryTree } from './StudioLibraryTree';
 import { renderWeaponHitboxGuides } from './WeaponHitboxGuides';
 import { resolveDirectionalStudioState } from './DirectionalInheritanceState';
-import { directionalModeDescription, directionalStatusLabel } from './DirectionalInheritanceView';
+import { directionalStatusLabel } from './DirectionalInheritanceView';
 import { adjustPreviewZoom } from './PreviewZoom';
 import { handleStudioHistoryShortcut } from './StudioHistoryShortcut';
 import {
@@ -638,7 +638,7 @@ function selectedAttack(state: StudioState) {
   return resolveWeaponAttack(state.draft, state.direction)?.attack;
 }
 
-function renderDirectionalMode(state: StudioState): string {
+function renderDirectionalCommand(state: StudioState): string {
   if (state.scope === 'idle') return '';
   const direction = state.scope === 'attack' ? state.direction : state.effectDirection;
   const pairs = state.scope === 'attack'
@@ -652,8 +652,6 @@ function renderDirectionalMode(state: StudioState): string {
     : state.scope === 'effect' && state.effectDraft
       ? resolveEffectDocumentVariant(state.effectDraft, direction)
       : undefined;
-  const status = directionalStatusLabel(direction, resolved, pairs);
-  const description = directionalModeDescription(direction, resolved, pairs);
   const pair = pairs.find((candidate) => candidate.child === direction);
   const scopeAttribute = 'data-mirror-direction';
   const action = pair && pair.enabled && resolved && !resolved.authored
@@ -661,7 +659,7 @@ function renderDirectionalMode(state: StudioState): string {
     : pair && pair.enabled && resolved?.authored
       ? `<button type="button" class="studio-button studio-button--quiet" data-action="restore-direction-mirror" ${scopeAttribute}="${direction}">RESTORE ${pair.master.toUpperCase()} MIRROR</button>`
       : '';
-  return `<div class="layered-direction-mode${resolved && !resolved.authored ? ' is-inherited' : ''}"><span class="studio-kicker">${state.scope === 'effect' ? 'EFFECT DIRECTION' : 'ATTACK DIRECTION'}</span><strong>${direction.toUpperCase()} · ${status}</strong><small>${escapeHtml(description)}</small>${action}</div>`;
+  return action ? `<div class="layered-direction-command">${action}</div>` : '';
 }
 
 function makeCustomWeaponDirection(
@@ -885,7 +883,7 @@ function renderScopeControls(state: StudioState, animation: LayeredAnimationDocu
     const status = directionalStatusLabel(direction, resolved, pairs);
     return `<button type="button" class="studio-pill${state.effectDirection === direction ? ' is-active' : ''}" data-effect-direction="${direction}">${direction.toUpperCase()}<small>${status}</small></button>`;
   }).join('');
-  return `<section class="layered-scope-strip">${renderWeaponIconControl(state)}<div class="studio-clip-tabs"><button type="button" class="studio-clip-tab${state.scope === 'idle' ? ' is-active' : ''}" data-scope="idle"><span>IDLE</span><small>${state.draft?.animations.idle.layers.length ?? 0} layers</small></button><button type="button" class="studio-clip-tab${state.scope === 'attack' ? ' is-active' : ''}" data-scope="attack"><span>ATTACK</span><small>directional</small></button><button type="button" class="studio-clip-tab${state.scope === 'effect' ? ' is-active' : ''}" data-scope="effect" ${effectReady ? '' : 'disabled'}><span>ON-HIT EFFECT</span><small>${effectReady ? 'contact' : 'none assigned'}</small></button></div>${state.scope === 'attack' ? `<div class="layered-direction-tabs">${attackTabs}</div>${renderDirectionalCharacterAction(state)}` : state.scope === 'effect' ? `<div class="layered-direction-tabs">${effectTabs}</div>` : ''}${renderDirectionalMode(state)}<div class="layered-clock-controls"><label>FPS <input type="number" min="1" max="240" step="1" value="${animation.framesPerSecond}" data-animation-field="fps" /></label><label>DURATION <input type="number" min="0.01" max="60" step="0.01" value="${animation.durationSeconds}" data-animation-field="duration" /><span>s</span></label></div></section>`;
+  return `<section class="layered-scope-strip">${renderWeaponIconControl(state)}<div class="studio-clip-tabs"><button type="button" class="studio-clip-tab${state.scope === 'idle' ? ' is-active' : ''}" data-scope="idle"><span>IDLE</span><small>${state.draft?.animations.idle.layers.length ?? 0} layers</small></button><button type="button" class="studio-clip-tab${state.scope === 'attack' ? ' is-active' : ''}" data-scope="attack"><span>ATTACK</span><small>directional</small></button><button type="button" class="studio-clip-tab${state.scope === 'effect' ? ' is-active' : ''}" data-scope="effect" ${effectReady ? '' : 'disabled'}><span>ON-HIT EFFECT</span><small>${effectReady ? 'contact' : 'none assigned'}</small></button></div>${state.scope === 'attack' ? `<div class="layered-direction-tabs">${attackTabs}</div>${renderDirectionalCharacterAction(state)}` : state.scope === 'effect' ? `<div class="layered-direction-tabs">${effectTabs}</div>` : ''}${renderDirectionalCommand(state)}<div class="layered-clock-controls"><label>FPS <input type="number" min="1" max="240" step="1" value="${animation.framesPerSecond}" data-animation-field="fps" /></label><label>DURATION <input type="number" min="0.01" max="60" step="0.01" value="${animation.durationSeconds}" data-animation-field="duration" /><span>s</span></label></div></section>`;
 }
 
 function renderPicker(state: StudioState, animation: LayeredAnimationDocument): string {

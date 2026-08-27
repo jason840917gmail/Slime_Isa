@@ -812,8 +812,8 @@
   },
   "vfxColor": 16758868,
   "unlockLevel": 1,
-  "iconKey": "weapon-hammer",
-  "iconFrame": 0,
+  "iconKey": "weapon-player-hammer-spear-tiles",
+  "iconFrame": 2,
   "description": "A slow, heavy tool with a compact arc and crushing knockback.",
   "onHitEffectId": "slam-hammer-impact"
 }

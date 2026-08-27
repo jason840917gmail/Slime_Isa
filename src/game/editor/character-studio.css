@@ -2504,6 +2504,7 @@
 
 #app.is-character-studio-host .layered-direction-action {
   grid-column: 1;
+  grid-row: 4;
   margin: 0 9px 8px;
 }
 
@@ -3353,7 +3354,7 @@
 }
 
 #app.is-character-studio-host .layered-workbench-bottom--with-scope {
-  grid-template-rows: minmax(70px, 0.7fr) minmax(128px, 1.3fr);
+  grid-template-rows: minmax(120px, 1fr) minmax(110px, 1fr);
 }
 
 #app.is-character-studio-host .layered-workbench-bottom--timeline {
@@ -3447,6 +3448,8 @@
 #app.is-character-studio-host .layered-scope-strip {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: repeat(5, max-content);
+  align-content: start;
   align-items: center;
   gap: 8px 14px;
   margin: 10px 0;
@@ -3580,6 +3583,7 @@
 #app.is-character-studio-host .layered-direction-tabs {
   display: flex;
   grid-column: 1;
+  grid-row: 3;
   gap: 5px;
   min-width: 0;
   padding: 0 9px 8px;
@@ -3598,35 +3602,11 @@
   letter-spacing: 0.04em;
 }
 
-#app.is-character-studio-host .layered-direction-mode {
-  display: grid;
+#app.is-character-studio-host .layered-direction-command {
+  display: flex;
   grid-column: 1;
-  gap: 3px;
+  grid-row: 5;
   margin: 0 9px 8px;
-  padding: 8px 10px;
-  border-left: 2px solid var(--studio-border);
-  background: rgba(2, 7, 15, 0.54);
-}
-
-#app.is-character-studio-host .layered-direction-mode.is-inherited {
-  border-left-color: var(--studio-cyan);
-  background: rgba(121, 232, 225, 0.06);
-}
-
-#app.is-character-studio-host .layered-direction-mode strong {
-  color: var(--studio-ink);
-  font-size: 11px;
-  letter-spacing: 0.06em;
-}
-
-#app.is-character-studio-host .layered-direction-mode small {
-  color: var(--studio-muted);
-  font-size: 10px;
-}
-
-#app.is-character-studio-host .layered-direction-mode .studio-button {
-  justify-self: start;
-  margin-top: 4px;
 }
 
 #app.is-character-studio-host .layered-hitbox-lock-note {
@@ -3641,7 +3621,7 @@
 #app.is-character-studio-host .layered-clock-controls {
   display: flex;
   grid-column: 2;
-  grid-row: 1 / span 3;
+  grid-row: 1 / span 5;
   align-items: center;
   gap: 9px;
   padding-right: 10px;
