@@ -179,6 +179,8 @@ export function migrateLegacyWeaponDefinition(
     hitboxOffset: definition.hitboxOffset,
     hitboxDurationMs: definition.hitboxDurationMs,
     knockStrength: definition.knockStrength,
+    ...(definition.damageModifiers ? { damageModifiers: definition.damageModifiers } : {}),
+    ...(definition.harvestCapabilities ? { harvestCapabilities: definition.harvestCapabilities } : {}),
     ...(definition.scaling ? { scaling: definition.scaling } : {}),
     vfxColor: definition.vfxColor,
     unlockLevel: definition.unlockLevel,

@@ -34,7 +34,7 @@ Projectile and Weapon Studio deliberately use the right inspector for authoring.
 
 Gameplay number controls use `step="1"`, integer input formatting, and integer normalization on update. Visual transform controls may use fractional steps where sub-pixel offsets, scale, or rotation are required for animation cleanup. This applies specifically to animation-occurrence transforms and existing scale/coefficient controls; gameplay dimensions and timing remain integer-authored.
 
-The rule is about authored editor values. Boolean fields, IDs, labels, animation names, loop modes, and source paths remain non-numeric values.
+The rule is about authored editor values. Boolean fields, IDs, labels, animation names, loop modes, and source paths remain non-numeric values. Weapon target damage modifiers are coefficients and deliberately allow fractional values; harvest capability tiers remain integers.
 
 ### Preview rule
 
@@ -199,10 +199,19 @@ Weapon source sheets use the shared asset catalog with the `weapon` tag. The sou
 | --- | --- |
 | Identity | Stable weapon ID, display name, melee/ranged category, character action key, description, tagged source asset, Source Library button |
 | Combat profile | Base damage, cooldown, hitbox width/height, hitbox offset, active duration, knockback, unlock level |
+| Targeting | Target-tag damage modifiers and resource-tag harvest capability tiers |
 | Attribute scaling | Damage, cooldown, and knockback coefficients by character attribute |
 | Visual | Global attachment offset X/Y and global weapon scale X/Y in source pixels/multipliers |
 | Animation data | IDLE and IMPACT clips; directional RIGHT/LEFT/UP/DOWN ATTACK packages; ordered occurrences; per-occurrence offset, scale, rotation; FPS, loop, loop mode |
 | Presentation | Character action relationship and separate weapon-layer behavior |
+
+Targeting keeps two independent rule sets together without conflating them. A
+harvest capability authorizes a hit when its tier meets the resource's minimum
+tier. A damage modifier is applied afterward using the target's ordered tags;
+`0` blocks damage and `1` applies normal damage. Both tag sets accept custom
+canonical tags without surrounding whitespace. Weapon Studio suggests
+`enemy`, `resource`, `wood`, and `stone` for modifiers, and `wood` and `stone`
+for harvesting.
 
 ### Weapon visual offset
 

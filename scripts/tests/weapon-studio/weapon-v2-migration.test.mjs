@@ -80,6 +80,34 @@ test('legacy migration preserves an explicit icon frame', () => {
   assert.equal(migrated.iconFrame, 7);
 });
 
+test('legacy migration preserves targeting data', () => {
+  const damageModifiers = [{ targetTag: 'wood', modifier: 0.5 }];
+  const harvestCapabilities = { wood: 1, stone: 2 };
+  const migrated = migration.migrateLegacyWeaponDefinition(weaponFixture({ damageModifiers, harvestCapabilities }));
+  assert.deepEqual(migrated.damageModifiers, damageModifiers);
+  assert.deepEqual(migrated.harvestCapabilities, harvestCapabilities);
+});
+
+test('targeting validation requires canonical tags and integer capability tiers', () => {
+  const valid = migration.migrateLegacyWeaponDefinition(weaponFixture({
+    damageModifiers: [{ targetTag: 'stone', modifier: 0.25 }],
+    harvestCapabilities: { wood: 1, stone: 2 },
+  }));
+  assert.deepEqual(validation.validateWeaponDefinition(valid), []);
+
+  const invalid = {
+    ...valid,
+    damageModifiers: [{ targetTag: 'stone', modifier: 1 }, { targetTag: ' stone ', modifier: 0.5 }],
+    harvestCapabilities: { ' ': 1, ' wood ': 2, stone: 0, metal: 1.5 },
+  };
+  const issues = validation.validateWeaponDefinition(invalid);
+  assert.ok(issues.some((issue) => issue.includes('surrounding whitespace')));
+  assert.ok(issues.some((issue) => issue.includes("duplicate 'stone'")));
+  assert.ok(issues.some((issue) => issue.includes('target tag must be non-empty')));
+  assert.ok(issues.some((issue) => issue.includes('tier must be an integer >= 1')));
+  assert.ok(validation.validateWeaponDefinition({ ...valid, harvestCapabilities: [] }).some((issue) => issue.includes('must be an object')));
+});
+
 test('migration removes legacy Impact events and omits root legacy storage fields', () => {
   const migrated = migration.migrateLegacyWeaponDefinition(weaponFixture(), { onHitEffectId: 'fixture-impact' });
   assert.equal(migrated.version, 2);
