@@ -129,7 +129,8 @@ export class InventoryUI {
       const thumbnail = def.equipment
         ? createWeaponThumbnail(scene, def.equipment.weaponId, { x, y, size: 34 })
         : undefined;
-      this.container.add(thumbnail ?? scene.add.image(x, y, def.icon, def.iconFrame).setDisplaySize(34, 34));
+      if (thumbnail) this.container.add(thumbnail);
+      else if (!def.equipment) this.container.add(scene.add.image(x, y, def.icon, def.iconFrame).setDisplaySize(34, 34));
 
       if (slot.count > 1) {
         this.container.add(scene.add.text(x + CELL / 2 - 4, y + CELL / 2 - 4, `${slot.count}`, {
@@ -175,7 +176,8 @@ export class InventoryUI {
     const thumbnail = def.equipment
       ? createWeaponThumbnail(scene, def.equipment.weaponId, { x: x + 30, y: y + 32, size: 38 })
       : undefined;
-    this.container.add(thumbnail ?? scene.add.image(x + 30, y + 32, def.icon, def.iconFrame).setDisplaySize(38, 38));
+    if (thumbnail) this.container.add(thumbnail);
+    else if (!def.equipment) this.container.add(scene.add.image(x + 30, y + 32, def.icon, def.iconFrame).setDisplaySize(38, 38));
     this.container.add(scene.add.text(x + 58, y + 16, def.name, {
       fontFamily: FONT,
       fontSize: '16px',

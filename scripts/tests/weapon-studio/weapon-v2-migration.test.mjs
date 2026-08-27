@@ -54,6 +54,7 @@ test('legacy migration preserves expanded frames and occurrence transforms witho
   const source = structuredClone(weapon);
   const migrated = migration.migrateLegacyWeaponDefinition(weapon);
   assert.deepEqual(weapon, source);
+  assert.equal(migrated.iconFrame, 0);
 
   const legacyExpanded = animation.expandAnimationClip(animation.normalizeAnimationClip(weapon.animations.attack));
   const layered = animation.normalizeLayeredAnimation(migrated.directionalAttacks.right.animation);
@@ -71,6 +72,12 @@ test('legacy migration preserves expanded frames and occurrence transforms witho
   assert.equal(secondBlock.transform.rotationDeg, 30);
   assert.deepEqual(migrated.directionalAttacks.right.animation.layers[0].transform.offset, [10, 20]);
   assert.deepEqual(migrated.directionalAttacks.right.animation.layers[0].transform.origin, [0.25, 0.75]);
+});
+
+test('legacy migration preserves an explicit icon frame', () => {
+  const migrated = migration.migrateLegacyWeaponDefinition(weaponFixture({ iconFrame: 7 }));
+  assert.equal(migrated.iconKey, 'fixture');
+  assert.equal(migrated.iconFrame, 7);
 });
 
 test('migration removes legacy Impact events and omits root legacy storage fields', () => {

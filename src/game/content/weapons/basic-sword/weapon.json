@@ -592,5 +592,6 @@
   "vfxColor": 8843459,
   "unlockLevel": 1,
   "iconKey": "weapon-generic",
+  "iconFrame": 0,
   "description": "A reusable weapon definition."
 }

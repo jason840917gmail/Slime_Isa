@@ -3,14 +3,24 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { build } from 'esbuild';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const weaponRoot = join(root, 'src', 'game', 'content', 'weapons');
 const animationRoot = join(root, 'src', 'game', 'content', 'animations');
 const effectRoot = join(root, 'src', 'game', 'content', 'effects');
+const assetManifestPath = join(root, 'asset', 'assets.json');
 const errors = [];
 const ids = new Set();
 const effectIds = new Set();
+
+async function loadTypeScriptModule(entryPoint) {
+  const result = await build({ absWorkingDir: root, entryPoints: [entryPoint], bundle: true, format: 'esm', platform: 'node', write: false });
+  return import(`data:text/javascript;base64,${Buffer.from(result.outputFiles[0].text).toString('base64')}`);
+}
+
+const { validateWeaponIconAgainstCatalog, weaponIconCatalogFromManifest } = await loadTypeScriptModule('src/game/content/weapons/WeaponIconCatalog.ts');
+const iconCatalog = weaponIconCatalogFromManifest(JSON.parse(readFileSync(assetManifestPath, 'utf8')));
 
 function files(directory) {
   const output = [];
@@ -113,6 +123,7 @@ for (const weapon of weapons) {
   ids.add(weapon.weaponId);
   if (![1, 2].includes(weapon.version)) errors.push(`[${weapon.weaponId}] version must be 1 or 2`);
   if (!['melee', 'ranged'].includes(weapon.category)) errors.push(`[${weapon.weaponId}] category must be melee or ranged`);
+  for (const issue of validateWeaponIconAgainstCatalog(weapon, iconCatalog)) errors.push(`[${weapon.weaponId}] ${issue}`);
   for (const [tag, tier] of Object.entries(weapon.harvestCapabilities ?? {})) {
     if (!tag || !Number.isInteger(tier) || tier < 1) errors.push(`[${weapon.weaponId}] harvest capability '${tag}' must be an integer tier >= 1`);
   }

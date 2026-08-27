@@ -203,7 +203,8 @@ function validateCommonWeaponFields(weapon: Partial<AuthoredWeaponDefinition>, i
   }
   if (typeof weapon.vfxColor !== 'number' || !Number.isInteger(weapon.vfxColor) || weapon.vfxColor < 0) issues.push('weapon.vfxColor: must be a non-negative integer');
   if (typeof weapon.unlockLevel !== 'number' || !Number.isInteger(weapon.unlockLevel) || weapon.unlockLevel < 1) issues.push('weapon.unlockLevel: must be a positive integer');
-  if (typeof weapon.iconKey !== 'string') issues.push('weapon.iconKey: must be a string');
+  if (typeof weapon.iconKey !== 'string' || weapon.iconKey.trim().length === 0) issues.push('weapon.iconKey: choose a UI icon before saving');
+  if (typeof weapon.iconFrame !== 'number' || !Number.isInteger(weapon.iconFrame) || weapon.iconFrame < 0) issues.push('weapon.iconFrame: must be a non-negative integer');
   if (typeof weapon.description !== 'string') issues.push('weapon.description: must be a string');
   if (weapon.damageModifiers !== undefined) {
     if (!Array.isArray(weapon.damageModifiers)) {

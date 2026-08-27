@@ -81,6 +81,7 @@ export interface LayeredWeaponDirectionalAttackDocument {
 
 export interface LayeredWeaponDefinition extends WeaponCombatDefinition {
   readonly version: 2;
+  readonly iconFrame: number;
   readonly characterActionId: string;
   readonly animations: {
     /** Stable shared-library ID used by migrated definitions. */
@@ -202,6 +203,7 @@ export interface NormalizedWeaponAnimationSet {
 
 export interface NormalizedWeaponDefinition extends WeaponCombatDefinition {
   readonly sourceVersion: 1 | 2;
+  readonly iconFrame: number;
   readonly characterActionId: string;
   readonly animations: {
     readonly idle: NormalizedLayeredAnimationDocument;

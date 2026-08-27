@@ -116,7 +116,7 @@ function normalizeLayeredWeaponDefinition(
     vfxColor: definition.vfxColor,
     unlockLevel: definition.unlockLevel,
     iconKey: definition.iconKey,
-    ...(definition.iconFrame !== undefined ? { iconFrame: definition.iconFrame } : {}),
+    iconFrame: definition.iconFrame,
     description: definition.description,
     legacyImmediateHit: sourceVersion === 1 && resolvedAttackDefinitions.right.attackTrack === undefined,
   };

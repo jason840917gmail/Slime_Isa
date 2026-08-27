@@ -183,6 +183,7 @@ export function migrateLegacyWeaponDefinition(
     vfxColor: definition.vfxColor,
     unlockLevel: definition.unlockLevel,
     iconKey: definition.iconKey,
+    iconFrame: definition.iconFrame ?? 0,
     description: definition.description,
   };
 }

@@ -202,5 +202,6 @@
   "vfxColor": 8849603,
   "unlockLevel": 1,
   "iconKey": "weapon-gauntlet",
+  "iconFrame": 0,
   "description": "A gooey punch. Short range, solid knockback. Your starter weapon."
 }

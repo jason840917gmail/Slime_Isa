@@ -399,5 +399,6 @@
   "vfxColor": 11259375,
   "unlockLevel": 1,
   "iconKey": "weapon-player-pickaxe-tiles",
+  "iconFrame": 0,
   "description": "A sturdy mining tool. Excellent against stone, poor against enemies."
 }

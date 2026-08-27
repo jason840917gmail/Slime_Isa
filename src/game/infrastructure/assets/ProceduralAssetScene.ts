@@ -1,4 +1,5 @@
 ﻿import Phaser from 'phaser';
+import proceduralWeaponIcons from '../../content/weapons/procedural-weapon-icons.json';
 import { assertAssetBundleTextures, loadAssetBundle } from './AssetLoader';
 
 export class ProceduralAssetScene extends Phaser.Scene {
@@ -503,7 +504,7 @@ export class ProceduralAssetScene extends Phaser.Scene {
     graphics.fillRoundedRect(10, 10, 12, 12, 3);
     graphics.fillStyle(0xffffff, 0.4);
     graphics.fillCircle(13, 13, 2);
-    graphics.generateTexture('weapon-gauntlet', 32, 32);
+    graphics.generateTexture(proceduralWeaponIcons.gauntlet, 32, 32);
     graphics.clear();
 
     // Generic sword — used by authored sword weapons without a dedicated UI icon
@@ -515,7 +516,7 @@ export class ProceduralAssetScene extends Phaser.Scene {
     graphics.fillRect(10, 20, 14, 3);
     graphics.fillStyle(0x8b5a3c, 1);
     graphics.fillRect(15, 23, 4, 6);
-    graphics.generateTexture('weapon-generic', 32, 32);
+    graphics.generateTexture(proceduralWeaponIcons.generic, 32, 32);
     graphics.clear();
 
     // Splat Spear â€” brown shaft + tip
@@ -523,7 +524,7 @@ export class ProceduralAssetScene extends Phaser.Scene {
     graphics.fillRect(14, 6, 4, 18);
     graphics.fillStyle(0xc0c0c0, 1);
     graphics.fillTriangle(16, 2, 20, 8, 12, 8);
-    graphics.generateTexture('weapon-spear', 32, 32);
+    graphics.generateTexture(proceduralWeaponIcons.spear, 32, 32);
     graphics.clear();
 
     // Bouncy Bow â€” curved arc
@@ -567,7 +568,7 @@ export class ProceduralAssetScene extends Phaser.Scene {
     graphics.fillRect(10, 8, 12, 6);
     graphics.fillStyle(0x8b5a3c, 1);
     graphics.fillRect(14, 16, 4, 12);
-    graphics.generateTexture('weapon-hammer', 32, 32);
+    graphics.generateTexture(proceduralWeaponIcons.hammer, 32, 32);
     graphics.clear();
 
     // Target dummy texture (for combat practice)

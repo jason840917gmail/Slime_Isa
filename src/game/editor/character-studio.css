@@ -2946,6 +2946,154 @@
   width: min(920px, calc(100vw - 36px));
 }
 
+#app.is-character-studio-host .weapon-icon-picker {
+  width: min(980px, calc(100vw - 36px));
+  max-height: min(760px, calc(100vh - 36px));
+}
+
+#app.is-character-studio-host .weapon-icon-picker-body {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.34fr) minmax(0, 1fr);
+  min-height: 340px;
+  overflow: hidden;
+  border-top: 1px solid var(--studio-border);
+}
+
+#app.is-character-studio-host .weapon-icon-asset-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px;
+  overflow-y: auto;
+  border-right: 1px solid var(--studio-border);
+  background: rgba(2, 7, 15, 0.5);
+}
+
+#app.is-character-studio-host .weapon-icon-asset-tab {
+  display: grid;
+  gap: 2px;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  color: var(--studio-muted);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+#app.is-character-studio-host .weapon-icon-asset-tab strong {
+  overflow: hidden;
+  color: var(--studio-ink);
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#app.is-character-studio-host .weapon-icon-asset-tab small {
+  font-size: 8px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+#app.is-character-studio-host .weapon-icon-asset-tab:hover,
+#app.is-character-studio-host .weapon-icon-asset-tab:focus-visible,
+#app.is-character-studio-host .weapon-icon-asset-tab.is-active {
+  outline: none;
+  border-color: var(--studio-cyan);
+  color: var(--studio-cyan);
+  background: rgba(121, 232, 225, 0.07);
+}
+
+#app.is-character-studio-host .weapon-icon-picker-frames {
+  padding: 12px;
+  overflow-y: auto;
+}
+
+#app.is-character-studio-host .weapon-icon-frame-grid {
+  max-height: 270px;
+  margin-top: 8px;
+  overflow-y: auto;
+}
+
+#app.is-character-studio-host .weapon-icon-procedural-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 16px 0 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--studio-border);
+}
+
+#app.is-character-studio-host .weapon-icon-procedural-heading small {
+  color: var(--studio-muted);
+  font-size: 9px;
+}
+
+#app.is-character-studio-host .weapon-icon-procedural-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 7px;
+}
+
+#app.is-character-studio-host .weapon-icon-procedural-choice {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 1px 8px;
+  align-items: center;
+  padding: 8px;
+  border: 1px solid var(--studio-border);
+  border-radius: 3px;
+  color: var(--studio-muted);
+  background: rgba(8, 15, 28, 0.7);
+  text-align: left;
+  cursor: pointer;
+}
+
+#app.is-character-studio-host .weapon-icon-procedural-choice > span {
+  grid-row: 1 / span 2;
+  color: var(--studio-amber);
+  font-size: 18px;
+  text-align: center;
+}
+
+#app.is-character-studio-host .weapon-icon-procedural-choice strong {
+  color: var(--studio-ink);
+  font-size: 10px;
+  text-transform: capitalize;
+}
+
+#app.is-character-studio-host .weapon-icon-procedural-choice small {
+  overflow: hidden;
+  font-size: 8px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#app.is-character-studio-host .weapon-icon-procedural-choice:hover,
+#app.is-character-studio-host .weapon-icon-procedural-choice:focus-visible,
+#app.is-character-studio-host .weapon-icon-procedural-choice.is-selected {
+  outline: none;
+  border-color: var(--studio-amber);
+  background: rgba(255, 200, 107, 0.08);
+}
+
+@media (max-width: 720px) {
+  #app.is-character-studio-host .weapon-icon-picker-body {
+    grid-template-columns: 1fr;
+  }
+
+  #app.is-character-studio-host .weapon-icon-asset-list {
+    flex-direction: row;
+    border-right: 0;
+    border-bottom: 1px solid var(--studio-border);
+  }
+
+  #app.is-character-studio-host .weapon-icon-asset-tab {
+    min-width: 150px;
+  }
+}
+
 #app.is-character-studio-host .weapon-picker-grid {
   max-height: min(58vh, 520px);
   overflow-y: auto;
@@ -3308,8 +3456,125 @@
 }
 
 #app.is-character-studio-host .layered-scope-strip .studio-clip-tabs {
+  grid-column: 1;
+  grid-row: 2;
   min-width: 0;
   padding: 8px 9px 0;
+}
+
+#app.is-character-studio-host .weapon-icon-cartridge {
+  display: flex;
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+  margin: 8px 9px 0;
+  border: 1px solid var(--studio-border);
+  border-radius: 4px;
+  background: rgba(2, 7, 15, 0.64);
+}
+
+#app.is-character-studio-host .weapon-icon-cartridge.is-empty {
+  border-color: var(--studio-red);
+}
+
+#app.is-character-studio-host .weapon-icon-cartridge-main {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 5px 8px;
+  border: 0;
+  color: var(--studio-ink);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+#app.is-character-studio-host .weapon-icon-cartridge-main:hover,
+#app.is-character-studio-host .weapon-icon-cartridge-main:focus-visible {
+  outline: none;
+  background: rgba(121, 232, 225, 0.07);
+}
+
+#app.is-character-studio-host .weapon-icon-cartridge-preview {
+  display: grid;
+  flex: 0 0 38px;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(121, 232, 225, 0.3);
+  border-radius: 3px;
+  background: rgba(8, 15, 28, 0.94);
+}
+
+#app.is-character-studio-host .weapon-icon-preview-sprite {
+  display: block;
+  width: min(34px, calc(var(--frame-w) * 0.35));
+  height: min(34px, calc(var(--frame-h) * 0.35));
+  background-image: var(--sheet-url);
+  background-repeat: no-repeat;
+  background-size: calc(var(--sheet-w) * 0.35) calc(var(--sheet-h) * 0.35);
+  background-position: calc(var(--frame-x) * -0.35) calc(var(--frame-y) * -0.35);
+  image-rendering: pixelated;
+}
+
+#app.is-character-studio-host .weapon-icon-procedural-mark,
+#app.is-character-studio-host .weapon-icon-empty-mark {
+  color: var(--studio-amber);
+  font-size: 18px;
+}
+
+#app.is-character-studio-host .weapon-icon-empty-mark {
+  color: var(--studio-red);
+}
+
+#app.is-character-studio-host .weapon-icon-cartridge-copy {
+  display: grid;
+  min-width: 0;
+}
+
+#app.is-character-studio-host .weapon-icon-cartridge-copy small {
+  color: var(--studio-cyan);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+#app.is-character-studio-host .weapon-icon-cartridge-copy strong,
+#app.is-character-studio-host .weapon-icon-cartridge-copy em {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#app.is-character-studio-host .weapon-icon-cartridge-copy strong {
+  font-size: 11px;
+  text-transform: capitalize;
+}
+
+#app.is-character-studio-host .weapon-icon-cartridge-copy em {
+  color: var(--studio-muted);
+  font-size: 9px;
+  font-style: normal;
+}
+
+#app.is-character-studio-host .weapon-icon-cartridge-clear {
+  align-self: stretch;
+  width: 30px;
+  border: 0;
+  border-left: 1px solid var(--studio-border);
+  color: var(--studio-muted);
+  background: transparent;
+  cursor: pointer;
+}
+
+#app.is-character-studio-host .weapon-icon-cartridge-clear:hover:not(:disabled),
+#app.is-character-studio-host .weapon-icon-cartridge-clear:focus-visible {
+  outline: none;
+  color: var(--studio-red);
+  background: rgba(255, 102, 133, 0.08);
 }
 
 #app.is-character-studio-host .layered-direction-tabs {
@@ -3376,7 +3641,7 @@
 #app.is-character-studio-host .layered-clock-controls {
   display: flex;
   grid-column: 2;
-  grid-row: 1 / span 2;
+  grid-row: 1 / span 3;
   align-items: center;
   gap: 9px;
   padding-right: 10px;

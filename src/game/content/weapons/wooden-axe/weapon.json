@@ -607,5 +607,6 @@
   "vfxColor": 14311290,
   "unlockLevel": 1,
   "iconKey": "weapon-generic",
+  "iconFrame": 0,
   "description": "A practical starter hatchet. Good against wood, poor against enemies."
 }
