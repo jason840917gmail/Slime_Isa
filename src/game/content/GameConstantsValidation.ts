@@ -35,6 +35,9 @@ export interface PlayerProgressionDefinition {
 export interface GameConstants {
   $schema?: string;
   version: 1;
+  resources: {
+    tags: readonly string[];
+  };
   inventory: {
     initialMaxSlots: number;
     maxStackByItem: Record<string, number>;
@@ -120,6 +123,27 @@ function validateInventory(issues: GameConstantsIssue[], value: unknown): void {
   }
 }
 
+function validateResources(issues: GameConstantsIssue[], value: unknown): void {
+  const resources = record(issues, value, 'resources');
+  if (!resources) return;
+  keys(issues, resources, 'resources', ['tags']);
+  if (!Array.isArray(resources.tags)) {
+    issue(issues, 'resources.tags', 'must be an array');
+    return;
+  }
+  if (resources.tags.length === 0) issue(issues, 'resources.tags', 'must not be empty');
+  const seen = new Set<string>();
+  resources.tags.forEach((tag, index) => {
+    const path = `resources.tags[${index}]`;
+    if (typeof tag !== 'string' || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(tag)) {
+      issue(issues, path, 'must be a lowercase kebab-case tag');
+      return;
+    }
+    if (seen.has(tag)) issue(issues, path, `duplicate tag '${tag}'`);
+    else seen.add(tag);
+  });
+}
+
 function validateMovement(issues: GameConstantsIssue[], value: unknown): void {
   const path = 'character.player.movement';
   const movement = record(issues, value, path);
@@ -187,9 +211,10 @@ export function validateGameConstants(value: unknown): readonly GameConstantsIss
   const issues: GameConstantsIssue[] = [];
   const root = record(issues, value, 'gameConstants');
   if (!root) return issues;
-  keys(issues, root, 'gameConstants', ['$schema', 'version', 'inventory', 'character']);
+  keys(issues, root, 'gameConstants', ['$schema', 'version', 'resources', 'inventory', 'character']);
   if (root.$schema !== undefined && typeof root.$schema !== 'string') issue(issues, 'gameConstants.$schema', 'must be a string');
   if (root.version !== 1) issue(issues, 'gameConstants.version', 'must be 1');
+  validateResources(issues, root.resources);
   validateInventory(issues, root.inventory);
   const character = record(issues, root.character, 'character');
   if (!character) return issues;

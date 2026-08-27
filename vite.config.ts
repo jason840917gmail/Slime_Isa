@@ -7,6 +7,7 @@ import { characterContentModulesPlugin } from './src/game/content/characters/cha
 import { animationContentModulesPlugin } from './src/game/content/animations/animationContentModulesPlugin';
 import { readCatalog as readAnimationCatalog } from './src/game/content/animations/animationContentModulesPlugin';
 import { gameConstantsContentPlugin } from './src/game/content/gameConstantsContentPlugin';
+import { normalizeGameConstants } from './src/game/content/GameConstantsValidation';
 
 import { parseMapFile, type MapFile } from './src/game/content/maps/mapFormat';
 import { isObjectArchetypeId } from './src/game/content/objects/ObjectCatalog';
@@ -28,6 +29,12 @@ const CHARACTER_DEFINITION_ROOT = path.resolve(process.cwd(), 'src/game/content/
 const ANIMATION_DEFINITION_ROOT = path.resolve(process.cwd(), 'src/game/content/animations');
 const ITEM_DEFINITION_PATH = path.resolve(process.cwd(), 'src/game/content/items/items.json');
 const WEAPON_DEFINITION_ROOT = path.resolve(process.cwd(), 'src/game/content/weapons');
+const GAME_CONSTANTS_PATH = path.resolve(process.cwd(), 'src/game/content/game-constants.json');
+
+async function readResourceTags(gameConstantsPath = GAME_CONSTANTS_PATH): Promise<ReadonlySet<string>> {
+  const document = JSON.parse(await fs.readFile(gameConstantsPath, 'utf8')) as unknown;
+  return new Set(normalizeGameConstants(document).resources.tags);
+}
 
 function discoverEnemyIds(directory: string): string[] {
   const ids: string[] = [];
@@ -319,6 +326,8 @@ async function validateObjectVisualUpdate(
 async function validateObjectGameplayUpdate(
   payload: Record<string, unknown>,
   definition: MutableObjectDefinition,
+  resourceTags: ReadonlySet<string>,
+  objectDefinitionRoot = OBJECT_DEFINITION_ROOT,
 ): Promise<{ readonly collectible?: Record<string, unknown>; readonly resourceNode?: Record<string, unknown> }> {
   validateRecordKeys(payload, ['objectId', 'collectible', 'resourceNode'], 'payload');
   const objectId = payload.objectId;
@@ -347,7 +356,7 @@ async function validateObjectGameplayUpdate(
   validateRecordKeys(payload.resourceNode.drop, ['objectId', 'visualId', 'pieces'], 'resourceNode.drop');
   const dropObjectId = payload.resourceNode.drop.objectId;
   if (typeof dropObjectId !== 'string' || !isObjectArchetypeId(dropObjectId)) throw new Error(`Unknown collectible drop '${String(dropObjectId)}'`);
-  const dropDefinitionPath = await findObjectDefinitionPath(OBJECT_DEFINITION_ROOT, dropObjectId);
+  const dropDefinitionPath = await findObjectDefinitionPath(objectDefinitionRoot, dropObjectId);
   if (!dropDefinitionPath) throw new Error(`Collectible drop '${dropObjectId}' was not found`);
   const dropDefinition = JSON.parse(await fs.readFile(dropDefinitionPath, 'utf8')) as MutableObjectDefinition;
   if (!dropDefinition.collectible) throw new Error(`Drop object '${dropObjectId}' is not a collectible`);
@@ -370,6 +379,7 @@ async function validateObjectGameplayUpdate(
     const targetTag = payload.resourceNode.harvestRequirement.targetTag;
     const failureMessage = payload.resourceNode.harvestRequirement.failureMessage;
     if (typeof targetTag !== 'string' || targetTag.trim().length === 0) throw new Error('Harvest target tag is required');
+    if (!resourceTags.has(targetTag.trim())) throw new Error(`Unknown resource tag '${targetTag.trim()}'. Reload Map Studio if the resource catalog changed.`);
     if (typeof failureMessage !== 'string' || failureMessage.trim().length === 0) throw new Error('Harvest failure message is required');
     harvestRequirement = {
       targetTag: targetTag.trim(),
@@ -513,7 +523,9 @@ async function readRequestBody(request: NodeJS.ReadableStream): Promise<string> 
   return Buffer.concat(chunks).toString('utf8');
 }
 
-function mapEditorSavePlugin(): Plugin {
+export function mapEditorSavePlugin(options: { readonly objectDefinitionRoot?: string; readonly gameConstantsPath?: string } = {}): Plugin {
+  const objectDefinitionRoot = path.resolve(options.objectDefinitionRoot ?? OBJECT_DEFINITION_ROOT);
+  const gameConstantsPath = path.resolve(options.gameConstantsPath ?? GAME_CONSTANTS_PATH);
   const suppressMapHotUpdates = new Set<string>();
   return {
     name: 'slime-map-editor-save',
@@ -669,10 +681,10 @@ function mapEditorSavePlugin(): Plugin {
         try {
           const payload = JSON.parse(await readRequestBody(request)) as Record<string, unknown>;
           if (typeof payload.objectId !== 'string') throw new Error('Object ID is required');
-          const definitionPath = await findObjectDefinitionPath(OBJECT_DEFINITION_ROOT, payload.objectId);
+          const definitionPath = await findObjectDefinitionPath(objectDefinitionRoot, payload.objectId);
           if (!definitionPath) throw new Error(`Object definition '${payload.objectId}' was not found`);
           const definition = JSON.parse(await fs.readFile(definitionPath, 'utf8')) as MutableObjectDefinition;
-          const update = await validateObjectGameplayUpdate(payload, definition);
+          const update = await validateObjectGameplayUpdate(payload, definition, await readResourceTags(gameConstantsPath), objectDefinitionRoot);
           if (update.collectible) definition.collectible = update.collectible;
           if (update.resourceNode) definition.resourceNode = update.resourceNode;
           temporaryPath = `${definitionPath}.${process.pid}.${Date.now()}.tmp`;

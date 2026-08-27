@@ -208,10 +208,14 @@ Weapon source sheets use the shared asset catalog with the `weapon` tag. The sou
 Targeting keeps two independent rule sets together without conflating them. A
 harvest capability authorizes a hit when its tier meets the resource's minimum
 tier. A damage modifier is applied afterward using the target's ordered tags;
-`0` blocks damage and `1` applies normal damage. Both tag sets accept custom
-canonical tags without surrounding whitespace. Weapon Studio suggests
-`enemy`, `resource`, `wood`, and `stone` for modifiers, and `wood` and `stone`
-for harvesting.
+`0` blocks damage and `1` applies normal damage. Damage-modifier tags remain an
+open canonical-string domain; Weapon Studio suggests `enemy`, `resource`, and
+every configured resource tag without restricting custom combat tags.
+Harvest-capability tags are a closed catalog owned by
+`game-constants.json#resources.tags`. Weapon Studio offers those stable IDs in
+configured order, keeps legacy unknown values visible as unconfigured, and
+blocks saving until an unknown value is replaced or removed. Changing the
+catalog while Studio is open requires a page reload.
 
 ### Weapon visual offset
 
@@ -243,6 +247,12 @@ and `onHitAnimationId` fields, but it will not contain a second timeline editor.
 Runtime adapters resolve IDs through the shared catalog and provide anchors;
 the shared clock, layered renderer, and transforms remain in
 `src/game/shared/animation`.
+
+Map Studio uses the same `game-constants.json#resources.tags` catalog for
+object-template harvest requirements. `No requirement` omits the authored
+`harvestRequirement`; configured choices persist their stable string ID rather
+than a list index. Existing unknown IDs remain visible as unconfigured and must
+be replaced or removed before saving.
 
 ## 6. Change checklist for future fields
 

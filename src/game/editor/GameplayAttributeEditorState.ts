@@ -5,6 +5,7 @@ import {
   type ObjectArchetypeId,
 } from '../content/objects/ObjectCatalog';
 import { isKnownItemId } from '../content/items/ItemCatalog';
+import { resourceTagIssue } from '../content/ResourceTags';
 
 export interface CollectibleGameplayDraft {
   readonly kind: 'collectible';
@@ -88,8 +89,13 @@ function validateDraft(draft: GameplayAttributeDraft): Readonly<Record<string, s
   const visuals = getObjectVisualChoices().filter((choice) => choice.objectId === draft.dropObjectId);
   if (!visuals.some((choice) => choice.visualId === draft.dropVisualId)) errors.dropVisualId = 'Choose a visual from the selected collectible.';
   if (!Number.isInteger(draft.dropPieces) || draft.dropPieces < 1) errors.dropPieces = 'Pieces must be a whole number of 1 or more.';
-  if (draft.harvestMinimumTier < 1 || !Number.isInteger(draft.harvestMinimumTier)) errors.harvestMinimumTier = 'Tool tier must be 1 or more.';
-  if (draft.harvestTargetTag && !draft.harvestFailureMessage.trim()) errors.harvestFailureMessage = 'Add a message for a required tool.';
+  const harvestTargetTag = draft.harvestTargetTag.trim();
+  if (harvestTargetTag) {
+    const issue = resourceTagIssue(harvestTargetTag);
+    if (issue) errors.harvestTargetTag = issue;
+    if (draft.harvestMinimumTier < 1 || !Number.isInteger(draft.harvestMinimumTier)) errors.harvestMinimumTier = 'Tool tier must be 1 or more.';
+    if (!draft.harvestFailureMessage.trim()) errors.harvestFailureMessage = 'Add a message for a required tool.';
+  }
   return errors;
 }
 

@@ -12,19 +12,31 @@ async function load(entryPoint) {
 
 test('checked-in gameplay configuration is valid and deeply frozen', async () => {
   const { GAME_CONSTANTS } = await load('src/game/Constant.ts');
+  assert.deepEqual(GAME_CONSTANTS.resources.tags, ['wood', 'stone', 'iron', 'charcoal', 'grain']);
   assert.equal(GAME_CONSTANTS.inventory.initialMaxSlots, 24);
   assert.equal(GAME_CONSTANTS.character.player.progression.maxLevel, 10);
   assert.equal(GAME_CONSTANTS.character.player.progression.levels[8].xpToNextLevel, 2160);
   assert.equal(GAME_CONSTANTS.character.player.progression.levels[9].xpToNextLevel, null);
   assert.equal(Object.isFrozen(GAME_CONSTANTS), true);
+  assert.equal(Object.isFrozen(GAME_CONSTANTS.resources.tags), true);
   assert.equal(Object.isFrozen(GAME_CONSTANTS.character.player.progression.levels), true);
   assert.throws(() => { GAME_CONSTANTS.inventory.initialMaxSlots = 1; }, TypeError);
+});
+
+test('resource tags expose constants-owned membership checks', async () => {
+  const { RESOURCE_TAGS, isResourceTag, resourceTagIssue } = await load('src/game/content/ResourceTags.ts');
+  assert.deepEqual(RESOURCE_TAGS, ['wood', 'stone', 'iron', 'charcoal', 'grain']);
+  assert.equal(isResourceTag('iron'), true);
+  assert.equal(isResourceTag('crystal'), false);
+  assert.equal(resourceTagIssue('wood'), undefined);
+  assert.match(resourceTagIssue('crystal'), /Unknown resource tag 'crystal'/);
 });
 
 test('validator reports movement order and level-table violations', async () => {
   const { validateGameConstants } = await load('src/game/content/GameConstantsValidation.ts');
   const invalid = {
     version: 1,
+    resources: { tags: ['wood', 'wood', 'Bad Tag'] },
     inventory: { initialMaxSlots: 24, maxStackByItem: { wood: 99 }, weaponMaxStack: 1 },
     character: { player: {
       initialAttributes: { strength: 10, vitality: 10, agility: 10, intellect: 10 },
@@ -44,4 +56,6 @@ test('validator reports movement order and level-table violations', async () => 
   assert.ok(issues.some((entry) => entry.message.includes('level 1 gain')));
   assert.ok(issues.some((entry) => entry.message.includes('must be 2')));
   assert.ok(issues.some((entry) => entry.message.includes('final level must use null')));
+  assert.ok(issues.some((entry) => entry.message.includes("duplicate tag 'wood'")));
+  assert.ok(issues.some((entry) => entry.message.includes('lowercase kebab-case tag')));
 });

@@ -1,7 +1,8 @@
 import type { LayeredWeaponDefinition } from '../content/weapons/types';
+import { isResourceTag, RESOURCE_TAGS, resourceTagIssue } from '../content/ResourceTags';
 
-export const WEAPON_TARGET_TAG_SUGGESTIONS = ['enemy', 'resource', 'wood', 'stone'] as const;
-export const WEAPON_HARVEST_TAG_SUGGESTIONS = ['wood', 'stone'] as const;
+export const WEAPON_HARVEST_TAGS = RESOURCE_TAGS;
+export const WEAPON_TARGET_TAG_SUGGESTIONS = ['enemy', 'resource', ...WEAPON_HARVEST_TAGS] as const;
 
 export interface WeaponTargetingEditableState {
   readonly draft?: LayeredWeaponDefinition;
@@ -90,7 +91,8 @@ export function reduceWeaponTargetingAction<TState extends WeaponTargetingEditab
     return changed(state, { ...draft, damageModifiers: modifiers });
   }
   if (action.type === 'add-capability') {
-    const targetTag = firstAvailableTag(WEAPON_HARVEST_TAG_SUGGESTIONS, new Set(Object.keys(capabilities)), 'resource');
+    const targetTag = WEAPON_HARVEST_TAGS.find((tag) => !Object.hasOwn(capabilities, tag));
+    if (!targetTag) return rejected(state, 'Every configured resource tag already has a harvest capability.');
     capabilities[targetTag] = 1;
     return changed(state, { ...draft, harvestCapabilities: capabilities });
   }
@@ -103,6 +105,8 @@ export function reduceWeaponTargetingAction<TState extends WeaponTargetingEditab
     if (!Object.hasOwn(capabilities, action.targetTag)) return state;
     const nextTargetTag = action.nextTargetTag.trim();
     if (!nextTargetTag) return rejected(state, 'Resource tag must not be empty.');
+    const issue = resourceTagIssue(nextTargetTag);
+    if (issue) return rejected(state, issue);
     if (nextTargetTag !== action.targetTag && Object.hasOwn(capabilities, nextTargetTag)) {
       return rejected(state, `Resource tag '${nextTargetTag}' is already used.`);
     }
@@ -123,8 +127,13 @@ function tagSuggestions(id: string, tags: readonly string[]): string {
   return `<datalist id="${id}">${tags.map((tag) => `<option value="${tag}"></option>`).join('')}</datalist>`;
 }
 
+function harvestTagOptions(selectedTag: string): string {
+  const configured = isResourceTag(selectedTag);
+  return `${configured ? '' : `<option value="${escapeHtml(selectedTag)}" selected>${escapeHtml(selectedTag)} (unconfigured)</option>`}${WEAPON_HARVEST_TAGS.map((tag) => `<option value="${escapeHtml(tag)}" ${tag === selectedTag ? 'selected' : ''}>${escapeHtml(tag)}</option>`).join('')}`;
+}
+
 export function renderWeaponTargetingInspector(weapon: LayeredWeaponDefinition): string {
   const modifiers = weapon.damageModifiers ?? [];
   const capabilities = Object.entries(weapon.harvestCapabilities ?? {});
-  return `<section class="studio-inspector-section weapon-targeting-section"><div class="studio-section-heading"><span class="studio-kicker">Target rules</span><strong>Damage by target</strong><button type="button" class="studio-icon-button" data-action="add-target-modifier" aria-label="Add damage modifier" title="Add damage modifier">+</button></div><p class="studio-help">Modifiers apply after harvesting permission. 0 blocks damage; 1 applies normal damage.</p><div class="weapon-targeting-rows">${modifiers.map((entry, index) => `<div class="weapon-targeting-row"><label><span>Target tag</span><input type="text" value="${escapeHtml(entry.targetTag)}" list="weapon-target-tags" data-target-modifier-tag="${index}" /></label><label><span>Multiplier</span><input type="number" min="0" step="0.1" value="${escapeHtml(entry.modifier)}" data-target-modifier-value="${index}" /></label><button type="button" class="studio-icon-button" data-action="remove-target-modifier" data-target-modifier-index="${index}" aria-label="Remove damage modifier for ${escapeHtml(entry.targetTag)}" title="Remove damage modifier">×</button></div>`).join('')}</div>${tagSuggestions('weapon-target-tags', WEAPON_TARGET_TAG_SUGGESTIONS)}</section><section class="studio-inspector-section weapon-targeting-section"><div class="studio-section-heading"><span class="studio-kicker">Tool access</span><strong>Harvest capabilities</strong><button type="button" class="studio-icon-button" data-action="add-harvest-capability" aria-label="Add harvest capability" title="Add harvest capability">+</button></div><p class="studio-help">A capability tier must meet the resource's minimum tier before damage is applied.</p><div class="weapon-targeting-rows">${capabilities.map(([targetTag, tier]) => `<div class="weapon-targeting-row"><label><span>Resource tag</span><input type="text" value="${escapeHtml(targetTag)}" list="weapon-harvest-tags" data-harvest-capability-tag="${escapeHtml(targetTag)}" /></label><label><span>Tier</span><input type="number" min="1" step="1" value="${escapeHtml(tier)}" data-harvest-capability-tier="${escapeHtml(targetTag)}" /></label><button type="button" class="studio-icon-button" data-action="remove-harvest-capability" data-harvest-capability-tag="${escapeHtml(targetTag)}" aria-label="Remove harvest capability for ${escapeHtml(targetTag)}" title="Remove harvest capability">×</button></div>`).join('')}</div>${tagSuggestions('weapon-harvest-tags', WEAPON_HARVEST_TAG_SUGGESTIONS)}</section>`;
+  return `<section class="studio-inspector-section weapon-targeting-section"><div class="studio-section-heading"><span class="studio-kicker">Target rules</span><strong>Damage by target</strong><button type="button" class="studio-icon-button" data-action="add-target-modifier" aria-label="Add damage modifier" title="Add damage modifier">+</button></div><p class="studio-help">Modifiers apply after harvesting permission. 0 blocks damage; 1 applies normal damage.</p><div class="weapon-targeting-rows">${modifiers.map((entry, index) => `<div class="weapon-targeting-row"><label><span>Target tag</span><input type="text" value="${escapeHtml(entry.targetTag)}" list="weapon-target-tags" data-target-modifier-tag="${index}" /></label><label><span>Multiplier</span><input type="number" min="0" step="0.1" value="${escapeHtml(entry.modifier)}" data-target-modifier-value="${index}" /></label><button type="button" class="studio-icon-button" data-action="remove-target-modifier" data-target-modifier-index="${index}" aria-label="Remove damage modifier for ${escapeHtml(entry.targetTag)}" title="Remove damage modifier">×</button></div>`).join('')}</div>${tagSuggestions('weapon-target-tags', WEAPON_TARGET_TAG_SUGGESTIONS)}</section><section class="studio-inspector-section weapon-targeting-section"><div class="studio-section-heading"><span class="studio-kicker">Tool access</span><strong>Harvest capabilities</strong><button type="button" class="studio-icon-button" data-action="add-harvest-capability" aria-label="Add harvest capability" title="Add harvest capability">+</button></div><p class="studio-help">A capability tier must meet the resource's minimum tier before damage is applied.</p><div class="weapon-targeting-rows">${capabilities.map(([targetTag, tier]) => `<div class="weapon-targeting-row"><label><span>Resource tag</span><select data-harvest-capability-tag="${escapeHtml(targetTag)}">${harvestTagOptions(targetTag)}</select></label><label><span>Tier</span><input type="number" min="1" step="1" value="${escapeHtml(tier)}" data-harvest-capability-tier="${escapeHtml(targetTag)}" /></label><button type="button" class="studio-icon-button" data-action="remove-harvest-capability" data-harvest-capability-tag="${escapeHtml(targetTag)}" aria-label="Remove harvest capability for ${escapeHtml(targetTag)}" title="Remove harvest capability">×</button></div>`).join('')}</div></section>`;
 }

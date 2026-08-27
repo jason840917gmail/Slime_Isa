@@ -22,6 +22,7 @@ const vite = await createServer({
 });
 
 const { GameplayAttributeEditorState } = await vite.ssrLoadModule('/src/game/editor/GameplayAttributeEditorState.ts');
+const { RESOURCE_TAGS } = await vite.ssrLoadModule('/src/game/content/ResourceTags.ts');
 const { MapEditorState } = await vite.ssrLoadModule('/src/game/editor/MapEditorState.ts');
 const { getObjectVisualChoice } = await vite.ssrLoadModule('/src/game/content/objects/ObjectCatalog.ts');
 const { validateObjectInitialState } = await vite.ssrLoadModule('/src/game/content/objects/ObjectInitialState.ts');
@@ -43,6 +44,21 @@ test('gameplay drafts remain independent and survive object selection', () => {
   state.resetChanges();
   assert.equal(state.value.dirty, false);
   assert.equal(state.value.hasDirtyDrafts, true);
+});
+
+test('resource requirements use configured tags and no requirement ignores stale fields', () => {
+  const state = new GameplayAttributeEditorState();
+  state.select('resource.stone-node');
+  state.updateDraft({ harvestTargetTag: 'crystal', harvestMinimumTier: 0, harvestFailureMessage: '' });
+  assert.match(state.value.errors.harvestTargetTag, /Unknown resource tag/);
+  assert.ok(state.value.errors.harvestMinimumTier);
+  assert.ok(state.value.errors.harvestFailureMessage);
+
+  state.updateDraft({ harvestTargetTag: '' });
+  assert.equal(state.value.errors.harvestTargetTag, undefined);
+  assert.equal(state.value.errors.harvestMinimumTier, undefined);
+  assert.equal(state.value.errors.harvestFailureMessage, undefined);
+  assert.deepEqual(RESOURCE_TAGS, ['wood', 'stone', 'iron', 'charcoal', 'grain']);
 });
 
 test('instance override validation and granular default removal are undoable', () => {

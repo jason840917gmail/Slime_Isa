@@ -47,12 +47,15 @@ test('targeting mutations add, edit, remove, and reject collisions without losin
   next = targeting.reduceWeaponTargetingAction(next, { type: 'add-capability' });
   next = targeting.reduceWeaponTargetingAction(next, { type: 'set-capability-tier', targetTag: 'wood', tier: 2 });
   next = targeting.reduceWeaponTargetingAction(next, { type: 'add-capability' });
-  const renamed = targeting.reduceWeaponTargetingAction(next, { type: 'rename-capability', targetTag: 'wood', nextTargetTag: 'timber' });
-  assert.deepEqual(renamed.draft.harvestCapabilities, { timber: 2, stone: 1 });
-  const capabilityCollision = targeting.reduceWeaponTargetingAction(renamed, { type: 'rename-capability', targetTag: 'timber', nextTargetTag: ' stone ' });
+  const unknown = targeting.reduceWeaponTargetingAction(next, { type: 'rename-capability', targetTag: 'wood', nextTargetTag: 'timber' });
+  assert.deepEqual(unknown.draft.harvestCapabilities, next.draft.harvestCapabilities);
+  assert.match(unknown.notice, /Unknown resource tag/);
+  const renamed = targeting.reduceWeaponTargetingAction(next, { type: 'rename-capability', targetTag: 'wood', nextTargetTag: 'iron' });
+  assert.deepEqual(renamed.draft.harvestCapabilities, { iron: 2, stone: 1 });
+  const capabilityCollision = targeting.reduceWeaponTargetingAction(renamed, { type: 'rename-capability', targetTag: 'iron', nextTargetTag: ' stone ' });
   assert.deepEqual(capabilityCollision.draft.harvestCapabilities, renamed.draft.harvestCapabilities);
   next = targeting.reduceWeaponTargetingAction(renamed, { type: 'remove-capability', targetTag: 'stone' });
-  next = targeting.reduceWeaponTargetingAction(next, { type: 'remove-capability', targetTag: 'timber' });
+  next = targeting.reduceWeaponTargetingAction(next, { type: 'remove-capability', targetTag: 'iron' });
   assert.equal(next.draft.harvestCapabilities, undefined);
   assert.equal(next.dirty, true);
 });
@@ -85,18 +88,17 @@ test('targeting mutations reject blank numeric commits without changing authored
   assert.match(blankTier.notice, /integer/);
 });
 
-test('capability mutations treat prototype names as legal custom tags', () => {
-  const initial = state({ harvestCapabilities: { wood: 1 } });
-  const renamed = targeting.reduceWeaponTargetingAction(initial, {
-    type: 'rename-capability', targetTag: 'wood', nextTargetTag: 'constructor',
-  });
-  assert.deepEqual(renamed.draft.harvestCapabilities, { constructor: 1 });
-  assert.equal(renamed.notice, undefined);
-
-  const updated = targeting.reduceWeaponTargetingAction(renamed, {
+test('capability mutations reject prototype names but can repair existing legacy values', () => {
+  const initial = state({ harvestCapabilities: { constructor: 1 } });
+  const updated = targeting.reduceWeaponTargetingAction(initial, {
     type: 'set-capability-tier', targetTag: 'constructor', tier: '2',
   });
   assert.deepEqual(updated.draft.harvestCapabilities, { constructor: 2 });
+  const rejected = targeting.reduceWeaponTargetingAction(updated, {
+    type: 'rename-capability', targetTag: 'constructor', nextTargetTag: 'prototype',
+  });
+  assert.deepEqual(rejected.draft.harvestCapabilities, updated.draft.harvestCapabilities);
+  assert.match(rejected.notice, /Unknown resource tag/);
   const removed = targeting.reduceWeaponTargetingAction(updated, {
     type: 'remove-capability', targetTag: 'constructor',
   });
@@ -117,7 +119,11 @@ test('targeting renderer exposes existing values, constraints, actions, and acce
   assert.match(html, /aria-label="Remove damage modifier for wood"/);
   assert.match(html, /aria-label="Remove harvest capability for stone"/);
   assert.match(html, /id="weapon-target-tags"/);
-  assert.match(html, /id="weapon-harvest-tags"/);
+  assert.match(html, /<select data-harvest-capability-tag="wood">/);
+  assert.match(html, /<option value="wood" selected>wood<\/option>/);
+  assert.match(html, /<option value="stone" selected>stone<\/option>/);
+  assert.doesNotMatch(html, /id="weapon-harvest-tags"/);
+  assert.deepEqual(targeting.WEAPON_HARVEST_TAGS, ['wood', 'stone', 'iron', 'charcoal', 'grain']);
 });
 
 test('inspector tabs declare TARGETING between COMBAT and LAYER', () => {
@@ -139,7 +145,9 @@ test('mounted Studio routes targeting controls and CSS keeps five tab columns', 
 });
 
 test('repository capability validation rejects malformed containers, tags, and tiers', () => {
-  assert.deepEqual(validateHarvestCapabilities({ wood: 1, stone: 2 }), []);
+  const resourceTags = new Set(['wood', 'stone', 'iron', 'charcoal', 'grain']);
+  assert.deepEqual(validateHarvestCapabilities({ wood: 1, stone: 2 }, 'harvestCapabilities', resourceTags), []);
+  assert.ok(validateHarvestCapabilities({ crystal: 1 }, 'harvestCapabilities', resourceTags).some((issue) => issue.includes('not configured')));
   assert.ok(validateHarvestCapabilities([]).some((issue) => issue.includes('must be an object')));
   assert.ok(validateHarvestCapabilities({ ' ': 1 }).some((issue) => issue.includes('non-empty')));
   assert.ok(validateHarvestCapabilities({ ' wood ': 1 }).some((issue) => issue.includes('surrounding whitespace')));

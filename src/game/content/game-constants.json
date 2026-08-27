@@ -1,6 +1,9 @@
 {
   "$schema": "./game-constants.schema.json",
   "version": 1,
+  "resources": {
+    "tags": ["wood", "stone", "iron", "charcoal", "grain"]
+  },
   "inventory": {
     "initialMaxSlots": 24,
     "maxStackByItem": {
