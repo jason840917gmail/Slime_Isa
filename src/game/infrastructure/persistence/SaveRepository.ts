@@ -19,6 +19,8 @@ import {
   type WorldProgressData,
 } from './SaveSchema';
 import { STORAGE_KEYS } from './storageKeys';
+import { GAME_CONSTANTS } from '../../Constant';
+import { migratePlayerProgression } from './PlayerProgressionMigration';
 
 interface StorageLike {
   getItem(key: string): string | null;
@@ -30,6 +32,13 @@ export class SaveRepositoryError extends Error {
   constructor(message: string, public readonly saveId?: string) {
     super(message);
     this.name = 'SaveRepositoryError';
+  }
+}
+
+class SaveMigrationError extends Error {
+  constructor(message: string) {
+    super(`${message} The original save was left unchanged.`);
+    this.name = 'SaveMigrationError';
   }
 }
 
@@ -140,19 +149,41 @@ function mapWorld(value: unknown, storage: StorageLike | null): WorldProgressDat
   return { discoveredAreas, defeatedBossIds, completedDungeonIds, maps };
 }
 
+function migrateLegacyInventory(value: unknown): Array<{ itemId: string; count: number }> | undefined {
+  if (!Array.isArray(value)) return undefined;
+  return value.map((slot, index) => {
+    const label = `Inventory slot ${index + 1} was rejected`;
+    if (!isRecord(slot)) throw new SaveMigrationError(`${label}: expected an item object.`);
+    if (typeof slot.itemId !== 'string' || slot.itemId.length === 0) {
+      throw new SaveMigrationError(`${label}: "itemId" must be a non-empty string.`);
+    }
+    if (typeof slot.count !== 'number' || !Number.isFinite(slot.count) || !Number.isInteger(slot.count) || slot.count <= 0) {
+      throw new SaveMigrationError(`${label}: "count" must be a positive whole number.`);
+    }
+    return { itemId: slot.itemId, count: slot.count };
+  });
+}
+
 function migrateData(value: unknown, storage: StorageLike | null): GameSaveData | null {
   if (!isRecord(value)) return null;
   const initial = createInitialRunState();
   const player = isRecord(value.player) ? value.player as Partial<GameStateData> : value as Partial<GameStateData>;
   if (!isRecord(player) || typeof player.level !== 'number') return null;
+  let progression: { level: number; currentXp: number };
+  try {
+    progression = 'currentXp' in player
+      ? { level: player.level, currentXp: player.currentXp as number }
+      : migratePlayerProgression(GAME_CONSTANTS.character.player.progression, player.level, (player as Record<string, unknown>).xp);
+  } catch {
+    return null;
+  }
+  const { xp: _xp, maxHpBonus: _maxHpBonus, maxEnergyBonus: _maxEnergyBonus, ...playerWithoutLegacyProgression } = player as Record<string, unknown>;
+  const legacySlots = migrateLegacyInventory(value.inventory);
   const candidate: GameSaveData = {
-    player: clone({ ...initial.player, ...player } as GameStateData),
-    inventory: Array.isArray(value.inventory)
-      ? clone(value.inventory.filter((slot): slot is { itemId: string; count: number } => (
-          isRecord(slot) && typeof slot.itemId === 'string'
-          && typeof slot.count === 'number' && Number.isInteger(slot.count) && slot.count > 0
-        )))
-      : initial.inventory,
+    player: clone({ ...initial.player, ...playerWithoutLegacyProgression, ...progression, schemaVersion: 3 } as unknown as GameStateData),
+    inventory: legacySlots
+      ? { maxSlots: Math.max(initial.inventory.maxSlots, legacySlots.length), slots: clone(legacySlots) }
+      : isRecord(value.inventory) ? clone(value.inventory) as unknown as GameSaveData['inventory'] : initial.inventory,
     quests: Array.isArray(value.quests) ? clone(value.quests.filter(isQuestState)) : initial.quests,
     location: isRecord(value.location)
       && typeof value.location.areaId === 'string'
@@ -192,7 +223,9 @@ function isMetadata(value: unknown): value is NamedSaveMetadata {
     && Number.isFinite(value.createdAt)
     && typeof value.updatedAt === 'number'
     && Number.isFinite(value.updatedAt)
-    && value.schemaVersion === SAVE_SCHEMA_VERSION
+    && Number.isInteger(value.schemaVersion)
+    && (value.schemaVersion as number) > 0
+    && (value.schemaVersion as number) <= SAVE_SCHEMA_VERSION
     && typeof value.currentMapId === 'string'
     && Number.isInteger(value.playerLevel)
     && typeof value.playTimeMs === 'number'
@@ -305,13 +338,33 @@ export class SaveRepository {
     if (!raw) return null;
     try {
       const parsed = JSON.parse(raw) as unknown;
-      if (!isRecord(parsed) || parsed.saveId !== saveId || !isMetadata(parsed) || !isGameSaveData(parsed.data)) {
+      if (!isRecord(parsed) || parsed.saveId !== saveId || !isMetadata(parsed)) {
         this.issues.push({ saveId, reason: 'The snapshot failed schema validation.' });
         return null;
       }
-      return clone(parsed) as unknown as NamedSaveSnapshot;
-    } catch {
-      this.issues.push({ saveId, reason: 'The snapshot contains invalid JSON.' });
+      const data = isGameSaveData(parsed.data) ? clone(parsed.data) : migrateData(parsed.data, this.storage);
+      if (!data) {
+        this.issues.push({ saveId, reason: 'The snapshot failed schema validation.' });
+        return null;
+      }
+      return {
+        saveId,
+        name: parsed.name as string,
+        createdAt: parsed.createdAt as number,
+        updatedAt: parsed.updatedAt as number,
+        schemaVersion: SAVE_SCHEMA_VERSION,
+        currentMapId: data.location.mapId,
+        playerLevel: data.player.level,
+        playTimeMs: data.playTimeMs,
+        data,
+      };
+    } catch (error) {
+      this.issues.push({
+        saveId,
+        reason: error instanceof SaveMigrationError
+          ? error.message
+          : 'The snapshot contains invalid JSON.',
+      });
       return null;
     }
   }
@@ -333,11 +386,23 @@ export class SaveRepository {
   }
 
   readRecovery(): GameSaveData | null {
-    const recovery = this.readStoredEnvelope(STORAGE_KEYS.recovery);
-    if (recovery) return recovery.data;
+    this.issues = this.issues.filter((issue) => issue.saveId !== undefined);
+    if (this.storage?.getItem(STORAGE_KEYS.recovery) !== null) {
+      return this.readStoredEnvelope(STORAGE_KEYS.recovery)?.data ?? null;
+    }
     const migrated = this.readLegacyEnvelope();
     if (!migrated) return null;
     return this.writeRecovery(migrated.data) ? migrated.data : null;
+  }
+
+  hasRecovery(): boolean {
+    try {
+      if (!this.storage) return false;
+      return this.storage.getItem(STORAGE_KEYS.recovery) !== null
+        || this.storage.getItem(STORAGE_KEYS.legacySave) !== null;
+    } catch {
+      return false;
+    }
   }
 
   writeRecovery(data: GameSaveData): boolean {
@@ -380,7 +445,8 @@ export class SaveRepository {
         savedAt: typeof parsed.savedAt === 'number' ? parsed.savedAt : Date.now(),
         data,
       } : null;
-    } catch {
+    } catch (error) {
+      if (error instanceof SaveMigrationError) this.issues.push({ reason: error.message });
       return null;
     }
   }
@@ -425,12 +491,26 @@ export class SaveRepository {
       const raw = this.storage.getItem(key);
       if (!raw) return null;
       const parsed = JSON.parse(raw) as unknown;
-      if (!isRecord(parsed) || !isGameSaveData(parsed.data)) {
+      if (!isRecord(parsed)) {
         this.issues.push({ reason: 'The recovery record failed schema validation.' });
         return null;
       }
-      return { schemaVersion: SAVE_SCHEMA_VERSION, savedAt: Date.now(), data: clone(parsed.data) };
-    } catch {
+      const data = isGameSaveData(parsed.data) ? clone(parsed.data) : migrateData(parsed.data, this.storage);
+      if (!data) {
+        this.issues.push({ reason: 'The recovery record failed schema validation.' });
+        return null;
+      }
+      return {
+        schemaVersion: SAVE_SCHEMA_VERSION,
+        savedAt: typeof parsed.savedAt === 'number' ? parsed.savedAt : Date.now(),
+        data,
+      };
+    } catch (error) {
+      this.issues.push({
+        reason: error instanceof SaveMigrationError
+          ? error.message
+          : 'The recovery record contains invalid JSON.',
+      });
       return null;
     }
   }

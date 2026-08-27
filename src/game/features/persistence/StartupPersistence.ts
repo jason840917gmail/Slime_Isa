@@ -63,7 +63,8 @@ export async function prepareRunStartup(container: HTMLElement): Promise<void> {
       buttons.forEach((candidate) => { candidate.disabled = true; });
       if (button.dataset.startupChoice === 'continue') {
         if (saveSystem.loadRecovery()) finish();
-        else showFailure('Recovery could not be validated. Start a new run or load a named save after the game opens.');
+        else showFailure(saveSystem.recoveryValidationIssue()?.reason
+          ?? 'Recovery could not be validated. Start a new run or load a named save after the game opens.');
         return;
       }
       saveSystem.discardRecoveryAndStartNewRun();

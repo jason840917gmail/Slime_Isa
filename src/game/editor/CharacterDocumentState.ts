@@ -338,6 +338,7 @@ export class CharacterDocumentState {
 
   updateAttributes(attributes: Partial<CharacterAttributeSet>): boolean {
     return this.mutate('Updated character attributes', (draft) => {
+      if (draft.character.kind === 'player') return;
       draft.character.attributes = {
         strength: 10,
         vitality: 10,

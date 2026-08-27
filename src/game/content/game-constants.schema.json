@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "game-constants.schema.json",
+  "title": "Slime Isa gameplay configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "inventory", "character"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "const": 1 },
+    "inventory": { "$ref": "#/$defs/inventory" },
+    "character": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["player"],
+      "properties": { "player": { "$ref": "#/$defs/player" } }
+    }
+  },
+  "$defs": {
+    "nonNegative": { "type": "number", "minimum": 0 },
+    "positiveInteger": { "type": "integer", "minimum": 1 },
+    "attributes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["strength", "vitality", "agility", "intellect"],
+      "properties": {
+        "strength": { "$ref": "#/$defs/nonNegative" },
+        "vitality": { "$ref": "#/$defs/nonNegative" },
+        "agility": { "$ref": "#/$defs/nonNegative" },
+        "intellect": { "$ref": "#/$defs/nonNegative" }
+      }
+    },
+    "inventory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["initialMaxSlots", "maxStackByItem", "weaponMaxStack"],
+      "properties": {
+        "initialMaxSlots": { "$ref": "#/$defs/positiveInteger" },
+        "maxStackByItem": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": { "$ref": "#/$defs/positiveInteger" }
+        },
+        "weaponMaxStack": { "$ref": "#/$defs/positiveInteger" }
+      }
+    },
+    "movement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["baseSpeed", "boostSpeed", "dodgeSpeed", "dodgeInvulnerabilityMs", "movementSpeedCap"],
+      "properties": {
+        "baseSpeed": { "$ref": "#/$defs/nonNegative" },
+        "boostSpeed": { "$ref": "#/$defs/nonNegative" },
+        "dodgeSpeed": { "$ref": "#/$defs/nonNegative" },
+        "dodgeInvulnerabilityMs": { "type": "integer", "minimum": 0 },
+        "movementSpeedCap": { "$ref": "#/$defs/nonNegative" }
+      }
+    },
+    "gains": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["maxHp", "maxEnergy", "attack", "defense"],
+      "properties": {
+        "maxHp": { "$ref": "#/$defs/nonNegative" },
+        "maxEnergy": { "$ref": "#/$defs/nonNegative" },
+        "attack": { "$ref": "#/$defs/nonNegative" },
+        "defense": { "$ref": "#/$defs/nonNegative" }
+      }
+    },
+    "level": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["level", "xpToNextLevel", "gains"],
+      "properties": {
+        "level": { "$ref": "#/$defs/positiveInteger" },
+        "xpToNextLevel": { "type": ["integer", "null"], "minimum": 1 },
+        "gains": { "$ref": "#/$defs/gains" }
+      }
+    },
+    "progression": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["maxLevel", "baseMaxHp", "baseMaxEnergy", "baseAttack", "baseDefense", "levels"],
+      "properties": {
+        "maxLevel": { "$ref": "#/$defs/positiveInteger" },
+        "baseMaxHp": { "type": "number", "exclusiveMinimum": 0 },
+        "baseMaxEnergy": { "type": "number", "exclusiveMinimum": 0 },
+        "baseAttack": { "$ref": "#/$defs/nonNegative" },
+        "baseDefense": { "$ref": "#/$defs/nonNegative" },
+        "levels": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/level" } }
+      }
+    },
+    "player": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["initialAttributes", "movement", "hitInvulnerabilityMs", "progression"],
+      "properties": {
+        "initialAttributes": { "$ref": "#/$defs/attributes" },
+        "movement": { "$ref": "#/$defs/movement" },
+        "hitInvulnerabilityMs": { "type": "integer", "minimum": 0 },
+        "progression": { "$ref": "#/$defs/progression" }
+      }
+    }
+  }
+}

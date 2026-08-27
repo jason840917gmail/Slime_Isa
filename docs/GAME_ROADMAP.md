@@ -720,6 +720,40 @@ defaults, named saves are independent snapshots, every visited map keeps its own
 runtime deltas, and Reset Run restores Level 1 plus the initial player without
 deleting saved games.
 
+## Cross-Cutting Gameplay Configuration
+
+The phased ownership, migration rules, and acceptance gates are defined in the
+[Central gameplay configuration implementation plan](./superpowers/plans/2026-08-26-central-game-constants-implementation-plan.md).
+
+### [x] C.1 — Define central gameplay configuration ownership
+
+- Build: add the validated JSON source, strict schema, pure validator, readonly runtime gateway, and repository checker.
+- Current: invalid configuration fails before game startup, and runtime code imports the frozen gateway instead of the JSON document.
+- Done when: configuration validation, item-ID parity, ownership guards, typecheck, and production build pass.
+
+### [x] C.2 — Centralize inventory tuning
+
+- Build: centralize initial capacity and item/weapon stack limits, then persist mutable per-run capacity with legacy migration.
+- Current: stack rules and initial capacity are centralized; mutable per-run capacity is persisted, and legacy overflow expands capacity without dropping items.
+- Done when: capacity upgrades and legacy overflow survive every save path without item loss.
+
+### [x] C.3 — Centralize player character tuning
+
+- Build: centralize initial attributes, movement, protection, base combat values, level cap, XP requirements, and level gains.
+- Current: player defaults, global rules, level cap, XP requirements, and level gains are centralized. Saves persist level/current XP and legacy cumulative XP migrates through explicit clamp rules.
+- Done when: saved level/current XP drive table-resolved stats and legacy saves migrate without synthetic rewards.
+
+### [x] C.4 — Add Character Studio constants authoring
+
+- Build: add independent validated editing and atomic persistence for gameplay constants.
+- Current: the primary-player inspector provides a separate gameplay-defaults draft, validation/history, conflict-aware atomic save, progression ledger, and max-level controls.
+- Done when: package and gameplay-default edits have separate revisions, dirty states, conflicts, and save actions.
+
+### [ ] C.5 — Migrate remaining shared gameplay defaults by domain
+
+- Build: move additional cross-feature balance values only after classifying each as a default, global rule, or mutable saved value.
+- Done when: each migrated value has one named owner and focused runtime and persistence coverage.
+
 ## Cross-Cutting Player Experience
 
 ### [x] UX.0 — Make Escape close the topmost UI surface

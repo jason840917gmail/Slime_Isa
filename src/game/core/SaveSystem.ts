@@ -87,7 +87,7 @@ class SaveSystem {
 
   install(data: GameSaveData): void {
     gameState.load(data.player);
-    playerInventory.load([...data.inventory]);
+    playerInventory.load(data.inventory);
     questTracker.load([...data.quests]);
     worldProgress.load(data.world);
     this.activeLocation = { ...data.location };
@@ -129,6 +129,10 @@ class SaveSystem {
 
   namedSaveValidationIssues(): readonly SaveValidationIssue[] {
     return saveRepository.validationIssues();
+  }
+
+  recoveryValidationIssue(): SaveValidationIssue | undefined {
+    return saveRepository.validationIssues().find((entry) => entry.saveId === undefined);
   }
 
   namedSave(saveId: string): NamedSaveSnapshot | null {
@@ -194,7 +198,7 @@ class SaveSystem {
   }
 
   hasSave(): boolean {
-    return saveRepository.readRecovery() !== null;
+    return saveRepository.hasRecovery();
   }
 
   deleteSave(saveId: string): void {

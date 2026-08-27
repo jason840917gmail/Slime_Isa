@@ -24,6 +24,7 @@ export class WeaponHotbar {
     gameEvents.on('weapon.loadout.changed', this.refresh, this);
     gameEvents.on('weapon.equipped', this.refresh, this);
     ctx.scene.scale.on('resize', this.refresh, this);
+    ctx.scene.events.once(Phaser.Scenes.Events.CREATE, this.refresh, this);
     this.refresh();
   }
 
@@ -32,6 +33,7 @@ export class WeaponHotbar {
     gameEvents.off('weapon.loadout.changed', this.refresh, this);
     gameEvents.off('weapon.equipped', this.refresh, this);
     this.ctx.scene.scale.off('resize', this.refresh, this);
+    this.ctx.scene.events.off(Phaser.Scenes.Events.CREATE, this.refresh, this);
     this.root?.destroy(true);
     this.root = undefined;
   }

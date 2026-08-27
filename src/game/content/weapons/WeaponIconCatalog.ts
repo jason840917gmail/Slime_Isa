@@ -1,4 +1,5 @@
 import proceduralWeaponIcons from './procedural-weapon-icons.json';
+import { buildCharacterStudioAssetCatalog, type CharacterStudioAssetManifestInput } from '../characters/characterAssetCatalog';
 import { resolveWeaponIcon, type WeaponIconDefinitionLike } from './WeaponIcon';
 
 export type WeaponIconCatalogKind = 'image' | 'spritesheet' | 'procedural';
@@ -36,10 +37,6 @@ function positiveInteger(value: unknown): value is number {
   return typeof value === 'number' && Number.isInteger(value) && value > 0;
 }
 
-function hasWeaponTag(tags: unknown): boolean {
-  return Array.isArray(tags) && tags.includes('weapon');
-}
-
 function withProceduralEntries(entries: Map<string, WeaponIconCatalogEntry>): WeaponIconCatalog {
   for (const textureKey of proceduralKeys) {
     if (!entries.has(textureKey)) entries.set(textureKey, { textureKey, kind: 'procedural', frameCount: 1 });
@@ -59,28 +56,13 @@ export function weaponIconCatalogFromStudio(entries: readonly StudioWeaponIconAs
 }
 
 export function weaponIconCatalogFromManifest(manifest: unknown): WeaponIconCatalog {
-  const catalog = new Map<string, WeaponIconCatalogEntry>();
-  if (!isRecord(manifest) || !isRecord(manifest.assets)) return withProceduralEntries(catalog);
-
-  for (const value of Object.values(manifest.assets)) {
-    if (!isRecord(value) || value.status !== 'ready' || !hasWeaponTag(value.tags) || !isRecord(value.runtime)) continue;
-    if (typeof value.runtime.textureKey !== 'string' || !value.runtime.textureKey.trim() || !isRecord(value.source)) continue;
-    const kind = value.source.kind;
-    if (kind !== 'image' && kind !== 'spritesheet') continue;
-    let frameCount = 1;
-    if (kind === 'spritesheet') {
-      if (!isRecord(value.source.frame)) continue;
-      const explicitCount = value.source.frame.count;
-      const capacity = positiveInteger(value.source.frame.cols) && positiveInteger(value.source.frame.rows)
-        ? value.source.frame.cols * value.source.frame.rows
-        : undefined;
-      frameCount = positiveInteger(explicitCount) ? explicitCount : capacity ?? 0;
-      if (!positiveInteger(frameCount)) continue;
-    }
-    const textureKey = value.runtime.textureKey;
-    catalog.set(textureKey, { textureKey, kind, frameCount });
-  }
-  return withProceduralEntries(catalog);
+  if (!isRecord(manifest) || !isRecord(manifest.assets)) return withProceduralEntries(new Map());
+  const input: CharacterStudioAssetManifestInput = {
+    assets: manifest.assets,
+    bundles: isRecord(manifest.bundles) ? manifest.bundles : {},
+  };
+  const normalized = buildCharacterStudioAssetCatalog(input, [], 'manifest');
+  return weaponIconCatalogFromStudio(normalized.assets);
 }
 
 export function isProceduralWeaponIconKey(textureKey: string): boolean {

@@ -25,8 +25,8 @@ export class HUD {
   private hpLabel: Phaser.GameObjects.Text;
   private xpLabel: Phaser.GameObjects.Text;
   private energyLabel: Phaser.GameObjects.Text;
-  private xpIntoLevel = 0;
-  private xpForNext = 0;
+  private xpIntoLevel = gameState.currentXp;
+  private xpForNext: number | null = gameState.xpToNextLevel;
   private currentLevel = gameState.level;
 
   private barX = 24;
@@ -163,7 +163,7 @@ export class HUD {
     this.hpLabel.setText(`${Math.ceil(hp)} / ${maxHp}`);
   }
 
-  private drawXp(into: number, need: number, level: number): void {
+  private drawXp(into: number, need: number | null, level: number): void {
     this.xpIntoLevel = into;
     this.xpForNext = need;
     const g = this.xpBar;
@@ -175,11 +175,11 @@ export class HUD {
     g.lineStyle(1.5, 0x3b5c78, 0.9);
     g.strokeRoundedRect(barX, y, barW, barH, 4);
 
-    const pct = need > 0 ? Phaser.Math.Clamp(into / need, 0, 1) : 0;
+    const pct = need !== null && need > 0 ? Phaser.Math.Clamp(into / need, 0, 1) : 0;
     g.fillStyle(0x72d8ff, 1);
     g.fillRoundedRect(barX + 1, y + 1, Math.max(0, (barW - 2) * pct), barH - 2, 3);
 
-    this.xpLabel.setText(need > 0 ? `${Math.floor(into)} / ${need}` : `MAX`);
+    this.xpLabel.setText(need !== null ? `${Math.floor(into)} / ${need}` : 'MAX');
     this.updateLevel(level);
   }
 
@@ -217,8 +217,8 @@ export class HUD {
   private onCoinsChanged = (payload: { coins: number }): void => this.updateCoins(payload.coins);
   private onFriendCountChanged = (payload: { count: number }): void => this.updateFriendCount(payload.count);
   private onHpChanged = (payload: { hp: number; maxHp: number }): void => this.drawHp(payload.hp, payload.maxHp);
-  private onXpChanged = (payload: { xpIntoLevel: number; xpForNext: number; level: number }): void => {
-    this.drawXp(payload.xpIntoLevel, payload.xpForNext, payload.level);
+  private onXpChanged = (payload: { currentXp: number; xpToNextLevel: number | null; level: number }): void => {
+    this.drawXp(payload.currentXp, payload.xpToNextLevel, payload.level);
   };
   private onEnergyChanged = (payload: { energy: number; maxEnergy: number }): void => {
     this.drawEnergy(payload.energy, payload.maxEnergy);

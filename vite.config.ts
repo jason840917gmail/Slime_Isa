@@ -6,6 +6,7 @@ import { defineConfig, type Plugin } from 'vite';
 import { characterContentModulesPlugin } from './src/game/content/characters/characterContentModulesPlugin';
 import { animationContentModulesPlugin } from './src/game/content/animations/animationContentModulesPlugin';
 import { readCatalog as readAnimationCatalog } from './src/game/content/animations/animationContentModulesPlugin';
+import { gameConstantsContentPlugin } from './src/game/content/gameConstantsContentPlugin';
 
 import { parseMapFile, type MapFile } from './src/game/content/maps/mapFormat';
 import { isObjectArchetypeId } from './src/game/content/objects/ObjectCatalog';
@@ -989,7 +990,7 @@ function connectionTarget(map: MapFile, direction: Direction): string | undefine
 
 export default defineConfig({
   base: './',
-  plugins: [characterContentModulesPlugin(), animationContentModulesPlugin(), mapEditorSavePlugin()],
+  plugins: [characterContentModulesPlugin(), animationContentModulesPlugin(), gameConstantsContentPlugin(), mapEditorSavePlugin()],
   server: {
     open: false,
   },

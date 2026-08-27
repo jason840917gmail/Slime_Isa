@@ -6,12 +6,6 @@
   "kind": "player",
   "runtimeRole": "primary-player",
   "visualSetId": "character.player.slime",
-  "attributes": {
-    "strength": 10,
-    "vitality": 10,
-    "agility": 10,
-    "intellect": 10
-  },
   "body": {
     "width": 30,
     "height": 26,
@@ -46,20 +40,6 @@
     }
   },
   "player": {
-    "name": "bob",
-    "movement": {
-      "baseSpeed": 240,
-      "boostSpeed": 360,
-      "dodgeSpeed": 420,
-      "dodgeInvulnerabilityMs": 400
-    },
-    "progression": {
-      "baseMaxHp": 100,
-      "baseMaxEnergy": 100,
-      "hpPerLevel": 12,
-      "attackPerLevel": 2,
-      "defensePerLevel": 1,
-      "energyPerLevel": 4
-    }
+    "name": "bob"
   }
 }

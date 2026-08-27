@@ -1,8 +1,8 @@
 import type { GameStateData } from '../../core/GameState';
-import type { InventorySlot } from '../../core/types';
 import { QUEST_DEFS, type QuestState } from '../../quests/Quest';
 import type { GameLocationData, GameSaveData } from '../../infrastructure/persistence/SaveSchema';
 import { PLAYER_CONFIG } from '../player';
+import { GAME_CONSTANTS } from '../../Constant';
 import level1Map from '../maps/level-1.map.json' with { type: 'json' };
 
 const INITIAL_MAP_ID = level1Map.mapId;
@@ -10,16 +10,14 @@ const INITIAL_AREA_ID = INITIAL_MAP_ID;
 const INITIAL_SPAWN = level1Map.player.spawn;
 
 const INITIAL_PLAYER: GameStateData = {
-  schemaVersion: 2,
+  schemaVersion: 3,
   coins: 50,
   boostBonus: 0,
   totalFriends: 0,
   level: 1,
-  xp: 0,
+  currentXp: 0,
   hp: PLAYER_CONFIG.progression.baseMaxHp,
-  maxHpBonus: 0,
   energy: PLAYER_CONFIG.progression.baseMaxEnergy,
-  maxEnergyBonus: 0,
   skillPoints: 0,
   perks: {},
   attributes: { ...PLAYER_CONFIG.attributes },
@@ -28,8 +26,6 @@ const INITIAL_PLAYER: GameStateData = {
     weaponSlots: [null, null, null, null, null, null],
   },
 };
-
-const INITIAL_INVENTORY: readonly InventorySlot[] = [];
 
 function initialQuests(): QuestState[] {
   return QUEST_DEFS.map((definition) => ({
@@ -60,7 +56,10 @@ export function createInitialRunState(): GameSaveData {
         weaponSlots: [...INITIAL_PLAYER.equipment.weaponSlots],
       },
     },
-    inventory: INITIAL_INVENTORY.map((slot) => ({ ...slot })),
+    inventory: {
+      maxSlots: GAME_CONSTANTS.inventory.initialMaxSlots,
+      slots: [],
+    },
     quests: initialQuests().map((quest) => ({ ...quest, progress: { ...quest.progress } })),
     location: initialLocation(),
     world: {

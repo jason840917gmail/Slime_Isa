@@ -45,6 +45,14 @@ const manifest = {
       status: 'ready', tags: ['enemy'], runtime: { textureKey: 'enemy-sheet' },
       source: { kind: 'spritesheet', path: 'enemy.png', frame: { w: 32, h: 32, cols: 2, rows: 2 } },
     },
+    oversized: {
+      status: 'ready', tags: ['weapon'], runtime: { textureKey: 'weapon-oversized' },
+      source: { kind: 'spritesheet', path: 'oversized.png', frame: { w: 32, h: 32, cols: 2, rows: 2, count: 5 } },
+    },
+    missingDimensions: {
+      status: 'ready', tags: ['weapon'], runtime: { textureKey: 'weapon-missing-dimensions' },
+      source: { kind: 'image', path: 'missing-dimensions.png' },
+    },
   },
 };
 
@@ -57,8 +65,11 @@ const studioEntries = [
 test('manifest and Studio adapters produce one equivalent normalized icon catalog', () => {
   const fromManifest = [...catalogModule.weaponIconCatalogFromManifest(manifest).entries()];
   const fromStudio = [...catalogModule.weaponIconCatalogFromStudio(studioEntries).entries()];
-  assert.deepEqual(fromStudio, fromManifest);
+  const sortEntries = (entries) => entries.toSorted(([left], [right]) => left.localeCompare(right));
+  assert.deepEqual(sortEntries(fromStudio), sortEntries(fromManifest));
   assert.equal(new Map(fromManifest).has('enemy-sheet'), false);
+  assert.equal(new Map(fromManifest).has('weapon-oversized'), false);
+  assert.equal(new Map(fromManifest).has('weapon-missing-dimensions'), false);
   assert.equal(new Map(fromManifest).get('weapon-sheet').frameCount, 7);
 });
 

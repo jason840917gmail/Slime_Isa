@@ -3,8 +3,9 @@ import type { InventorySlot } from '../../core/types';
 import type { QuestState } from '../../quests/Quest';
 import type { AreaId } from '../../world/Area';
 import type { MapId } from '../../content/maps/mapFormat';
+import { GAME_CONSTANTS } from '../../Constant';
 
-export const SAVE_SCHEMA_VERSION = 5;
+export const SAVE_SCHEMA_VERSION = 7;
 export const SAVE_NAME_MAX_LENGTH = 32;
 
 export type FacingDirection = 'up' | 'down' | 'left' | 'right';
@@ -57,9 +58,14 @@ export interface WorldProgressData {
   readonly resourceStates?: Record<string, ResourceProgressStateData>;
 }
 
+export interface InventorySaveData {
+  readonly maxSlots: number;
+  readonly slots: readonly InventorySlot[];
+}
+
 export interface GameSaveData {
   readonly player: GameStateData;
-  readonly inventory: readonly InventorySlot[];
+  readonly inventory: InventorySaveData;
   readonly quests: readonly QuestState[];
   readonly location: GameLocationData;
   readonly world: WorldProgressData;
@@ -119,11 +125,19 @@ function isStringArray(value: unknown): value is string[] {
   return Array.isArray(value) && value.every((entry) => typeof entry === 'string');
 }
 
-function isInventory(value: unknown): value is InventorySlot[] {
+function isInventorySlots(value: unknown): value is InventorySlot[] {
   return Array.isArray(value) && value.every((entry) => {
     if (!isRecord(entry) || typeof entry.itemId !== 'string') return false;
     return typeof entry.count === 'number' && Number.isInteger(entry.count) && entry.count > 0;
   });
+}
+
+function isInventory(value: unknown): value is InventorySaveData {
+  return isRecord(value)
+    && Number.isInteger(value.maxSlots)
+    && (value.maxSlots as number) > 0
+    && isInventorySlots(value.slots)
+    && value.slots.length <= (value.maxSlots as number);
 }
 
 function isQuests(value: unknown): value is QuestState[] {
@@ -139,16 +153,19 @@ function isQuests(value: unknown): value is QuestState[] {
 function isGameState(value: unknown): value is GameStateData {
   if (!isRecord(value)) return false;
   const equipment = value.equipment;
-  return Number.isInteger(value.schemaVersion)
+  const level = value.level;
+  const levelEntry = Number.isInteger(level) && (level as number) >= 1 && (level as number) <= GAME_CONSTANTS.character.player.progression.maxLevel
+    ? GAME_CONSTANTS.character.player.progression.levels[(level as number) - 1]
+    : undefined;
+  return value.schemaVersion === 3
     && isNonNegativeNumber(value.coins)
     && isFiniteNumber(value.boostBonus)
     && Number.isInteger(value.totalFriends)
-    && Number.isInteger(value.level)
-    && isNonNegativeNumber(value.xp)
+    && levelEntry !== undefined
+    && isNonNegativeNumber(value.currentXp)
+    && (levelEntry.xpToNextLevel === null ? value.currentXp === 0 : (value.currentXp as number) < levelEntry.xpToNextLevel)
     && isNonNegativeNumber(value.hp)
-    && isFiniteNumber(value.maxHpBonus)
     && isNonNegativeNumber(value.energy)
-    && isFiniteNumber(value.maxEnergyBonus)
     && Number.isInteger(value.skillPoints)
     && isRecord(value.perks)
     && Object.values(value.perks).every((rank) => typeof rank === 'number' && Number.isInteger(rank) && rank >= 0)

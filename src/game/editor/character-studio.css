@@ -3777,6 +3777,115 @@
   margin-bottom: 0;
 }
 
+#app.is-character-studio-host .studio-constants {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+#app.is-character-studio-host .studio-constants-heading {
+  align-items: end;
+}
+
+#app.is-character-studio-host .studio-constants-heading > div {
+  display: grid;
+  gap: 4px;
+}
+
+#app.is-character-studio-host .studio-constants-heading .studio-save-state {
+  max-width: 150px;
+  justify-content: flex-end;
+  text-align: right;
+}
+
+#app.is-character-studio-host .studio-constants-actions {
+  display: grid;
+  grid-template-columns: 34px 34px minmax(0, 1fr);
+  gap: 7px;
+}
+
+#app.is-character-studio-host .studio-constants-group {
+  display: grid;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--studio-border);
+}
+
+#app.is-character-studio-host .studio-constants-group > .studio-subheading {
+  margin: 0;
+}
+
+#app.is-character-studio-host .studio-level-ledger {
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--studio-border);
+  background: rgba(5, 10, 20, 0.42);
+}
+
+#app.is-character-studio-host .studio-level-ledger table {
+  width: 100%;
+  min-width: 520px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+#app.is-character-studio-host .studio-level-ledger th,
+#app.is-character-studio-host .studio-level-ledger td {
+  height: 36px;
+  padding: 4px;
+  border-right: 1px solid var(--studio-border);
+  border-bottom: 1px solid var(--studio-border);
+  text-align: center;
+}
+
+#app.is-character-studio-host .studio-level-ledger thead th {
+  height: 29px;
+  color: var(--studio-muted);
+  background: var(--studio-surface-raised);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+#app.is-character-studio-host .studio-level-ledger th:first-child {
+  width: 42px;
+}
+
+#app.is-character-studio-host .studio-level-ledger tbody th span {
+  color: var(--studio-cyan);
+  font-family: Consolas, monospace;
+  font-size: 11px;
+}
+
+#app.is-character-studio-host .studio-level-ledger input {
+  width: 100%;
+  min-width: 58px;
+  height: 26px;
+  padding: 0 5px;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  color: var(--studio-ink);
+  background: rgba(117, 168, 255, 0.08);
+  font-family: Consolas, monospace;
+  text-align: right;
+}
+
+#app.is-character-studio-host .studio-level-ledger input:hover:not([readonly]),
+#app.is-character-studio-host .studio-level-ledger input:focus {
+  border-color: var(--studio-border-strong);
+  background: var(--studio-surface-hot);
+}
+
+#app.is-character-studio-host .studio-level-ledger input[readonly] {
+  color: var(--studio-dim);
+  background: transparent;
+  cursor: default;
+}
+
+#app.is-character-studio-host .studio-constants > .studio-errors {
+  padding: 10px;
+}
+
 #app.is-character-studio-host .layered-block-transform-heading {
   display: flex;
   align-items: center;

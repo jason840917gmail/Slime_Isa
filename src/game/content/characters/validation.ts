@@ -397,21 +397,11 @@ export function validateCharacterDocument(
   }
   if (value.kind === 'player') {
     if (value.enemy !== undefined) issue(issues, 'character.enemy', 'is forbidden for players');
+    if (value.attributes !== undefined) issue(issues, 'character.attributes', 'primary-player attributes belong in game-constants.json');
     if (!isRecord(value.player)) issue(issues, 'character.player', 'is required for players');
     else {
-      checkKeys(issues, value.player, 'character.player', new Set(['name', 'movement', 'progression']));
+      checkKeys(issues, value.player, 'character.player', new Set(['name']));
       stringValue(issues, value.player.name, 'character.player.name', (entry) => entry.trim().length > 0 && entry.length <= 80, 'must be a non-empty name of at most 80 characters');
-      if (!isRecord(value.player.movement)) issue(issues, 'character.player.movement', 'must be an object');
-      else {
-        for (const field of ['baseSpeed', 'boostSpeed', 'dodgeSpeed'] as const) finite(issues, value.player.movement[field], `character.player.movement.${field}`, (entry) => entry >= 0, 'must be zero or greater');
-        integer(issues, value.player.movement.dodgeInvulnerabilityMs, 'character.player.movement.dodgeInvulnerabilityMs', (entry) => entry >= 0, 'must be a non-negative integer');
-      }
-      if (!isRecord(value.player.progression)) issue(issues, 'character.player.progression', 'must be an object');
-      else {
-        finite(issues, value.player.progression.baseMaxHp, 'character.player.progression.baseMaxHp', (entry) => entry > 0, 'must be greater than zero');
-        finite(issues, value.player.progression.baseMaxEnergy, 'character.player.progression.baseMaxEnergy', (entry) => entry > 0, 'must be greater than zero');
-        for (const field of ['hpPerLevel', 'attackPerLevel', 'defensePerLevel', 'energyPerLevel'] as const) finite(issues, value.player.progression[field], `character.player.progression.${field}`, (entry) => entry >= 0, 'must be zero or greater');
-      }
     }
   } else if (value.kind === 'enemy') {
     if (value.player !== undefined) issue(issues, 'character.player', 'is forbidden for enemies');
