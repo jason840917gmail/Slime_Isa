@@ -813,6 +813,7 @@
   "vfxColor": 16758868,
   "unlockLevel": 1,
   "iconKey": "weapon-hammer",
+  "iconFrame": 0,
   "description": "A slow, heavy tool with a compact arc and crushing knockback.",
   "onHitEffectId": "slam-hammer-impact"
 }

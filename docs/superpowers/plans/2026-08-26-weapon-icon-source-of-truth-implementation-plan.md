@@ -13,8 +13,9 @@ fallback.
 - Crafting cards, inventory slots/details, and hotbar slots show the same
   weapon tile.
 - That tile is exactly `weapon.iconKey` + `weapon.iconFrame`.
-- If either field is missing, or the Phaser texture is not loaded, no image
-  is drawn. There is no silent fallback to an animation frame.
+- If either field is missing, the Phaser texture is not loaded, or the frame
+  does not exist, no image is drawn. There is no silent fallback to an
+  animation frame or to the texture's first frame.
 - Weapon Studio authors the pair on the animation workbench, with a preview.
 - Save refuses a weapon that is missing either field and shows the reason in
   the existing studio notice.
@@ -23,7 +24,7 @@ fallback.
 
 | Surface | Current source | Problem |
 |---|---|---|
-| Crafting | Item `icon` + `iconFrame` copied from the weapon at boot | Already the authored pair; Stone Spear is wrong only because `iconFrame` is `0` on the stone-tools sheet |
+| Crafting | Item `icon` + `iconFrame` copied from the weapon during item-registry initialization | Already the authored pair; Stone Spear currently selects frame `0`, whose visual correctness still needs playtest confirmation |
 | Inventory | `createWeaponThumbnail` first, then item icon/frame | Thumbnail uses the first right-attack animation tile, so it usually wins and ignores the authored icon |
 | Hotbar | Same thumbnail helper; fallback is `item.icon` with **no** frame | Same animation-tile preview; fallback can show the wrong sheet tile |
 | Weapon Studio | No icon UI | `iconKey` / `iconFrame` are hand-edited in `weapon.json`. New weapons get `iconKey: 'weapon-generic'` and no frame |
@@ -41,8 +42,9 @@ layers use asset ids. The icon picker must write `entry.textureKey`.
 - Missing or unloadable icon means **no image**, not a substitute tile.
 - Studio writes `iconKey` as the catalog `textureKey`. It never writes an
   asset id into `iconKey`.
-- Save uses the shared `validateWeaponDefinition`. The first issue becomes
-  the studio notice. Do not add a second notification system.
+- Save uses shared structural validation plus the shared icon-catalog
+  validator. The first issue becomes the studio notice. Do not add a second
+  notification system.
 - New weapons start with `iconKey: ''` and `iconFrame: 0`. The empty key keeps
   the draft type complete while save still forces an explicit pick. Do not
   keep the `weapon-generic` default.
@@ -65,8 +67,10 @@ layers use asset ids. The icon picker must write `entry.textureKey`.
 ### 1. One pure resolver and one Phaser renderer
 
 Add `src/game/content/weapons/procedural-weapon-icons.json` as the single
-catalog for the four procedural texture keys. Import it from
-`ProceduralAssetScene.ts`; `scripts/check-weapons.mjs` reads the same JSON.
+catalog for the four procedural texture keys, using stable named properties
+(`generic`, `gauntlet`, `hammer`, `spear`). Import it from
+`ProceduralAssetScene.ts` and `WeaponIconCatalog.ts`; `weapons:check` receives
+the values through the shared catalog module.
 
 Add a Phaser-free `src/game/content/weapons/WeaponIcon.ts` containing:
 
@@ -74,10 +78,40 @@ Add a Phaser-free `src/game/content/weapons/WeaponIcon.ts` containing:
   for a non-empty key and an integer frame `>= 0`;
 - `weaponIconSelection(entry, frame)`, which returns the catalog
   `entry.textureKey` plus the selected frame. Studio uses this helper so an
-  asset id cannot accidentally be stored in `iconKey`;
-- `isProceduralWeaponIconKey`, backed by the shared JSON catalog.
+  asset id cannot accidentally be stored in `iconKey`.
 
-Keeping this module free of Phaser and `WeaponCatalog` is required. The
+Add a second Phaser-free module,
+`src/game/content/weapons/WeaponIconCatalog.ts`, containing the one shared
+catalog-validation implementation:
+
+```ts
+interface WeaponIconCatalogEntry {
+  readonly textureKey: string;
+  readonly kind: 'image' | 'spritesheet' | 'procedural';
+  readonly frameCount: number;
+}
+```
+
+It owns:
+
+- `weaponIconCatalogFromStudio(entries)`, adapting the normalized
+  `CharacterStudioAssetEntry[]` shape through a structurally typed minimal
+  input, without importing the character feature at runtime;
+- `weaponIconCatalogFromManifest(manifest)`, adapting raw `assets.json`;
+- procedural entries sourced from `procedural-weapon-icons.json`;
+- `validateWeaponIconAgainstCatalog(definition, catalog)` and
+  `isProceduralWeaponIconKey`.
+
+Both adapters produce the same texture-keyed catalog. Studio uses the Studio
+adapter; the save endpoint and `weapons:check` use the raw-manifest adapter.
+They normalize a manifest image to `frameCount: 1`, a spritesheet to its
+authored `frame.count`, and every procedural key to `frameCount: 1` with kind
+`procedural`.
+The checker loads this same pure TypeScript module with the existing
+esbuild-to-memory loader pattern used by the Node test suite. Do not duplicate
+the adapter or validation rules in `check-weapons.mjs`.
+
+Keeping both modules free of Phaser and `WeaponCatalog` is required. The
 existing esbuild-based Node test loader cannot bundle `WeaponThumbnail.ts`
 because importing Phaser reaches the optional `phaser3spectorjs` dependency.
 
@@ -90,12 +124,16 @@ Change `src/game/ui/WeaponThumbnail.ts` so `createWeaponThumbnail`:
 4. obtains the texture and confirms the requested frame exists. Accept either
    `texture.has(iconFrame)` or the procedural/single-image case where
    `iconFrame === 0` and the texture only exposes its `__BASE` frame;
-5. otherwise returns `scene.add.image(x, y, iconKey, iconFrame)` at the
-   requested size, with **no** rotation from animation transforms.
+5. creates spritesheet images with
+   `scene.add.image(x, y, iconKey, iconFrame)`;
+6. creates validated `__BASE`-only images with
+   `scene.add.image(x, y, iconKey)`, deliberately omitting the frame argument;
+7. applies the requested size, with **no** rotation from animation transforms.
 
 The explicit frame check is mandatory. Phaser's `Texture.get` falls back to
 `firstFrame` when a named frame is absent, which would silently display the
-wrong tile.
+wrong tile. Numeric `0` is also treated as “use firstFrame”; therefore passing
+`0` to a `__BASE`-only texture is forbidden even after validation.
 
 Update callers:
 
@@ -118,7 +156,8 @@ Add a compact **UI icon** control to `renderScopeControls`, always visible
 
 Contents:
 
-- a `frameSprite` preview when `iconKey` maps to a catalog spritesheet;
+- a source-image preview when `iconKey` maps to a catalog image, or a
+  `frameSprite` preview when it maps to a catalog spritesheet;
 - a labeled placeholder chip when the key is procedural, and `No icon` when
   unset;
 - sheet label + frame index;
@@ -130,17 +169,23 @@ Contents:
 Give the dedicated popup its own state so it cannot collide with the existing
 animation tile picker: `iconPickerOpen` and `iconPickerAssetId`. Include those
 fields in the appropriate reset/restore paths. Icon selection and clearing
-must go through the existing `mutate` history wrapper so undo/redo and dirty
-tracking remain correct.
+must go through the extracted icon-action reducer and Studio mutation boundary
+described in the test section so undo/redo and dirty tracking remain correct.
 
 Picker (new popup, modeled on `renderPicker` 918–924):
 
-- list weapon-tagged spritesheets from `state.assets`;
+- list every weapon-tagged manifest image and spritesheet from `state.assets`;
+- show a separate **Procedural** group containing the four shared-catalog
+  keys as labeled selectable chips. Procedural icons remain authorable, so an
+  existing procedural choice can be cleared and later reselected;
 - initialize the selected sheet from the current `iconKey` texture-key match,
-  falling back to the first weapon-tagged sheet;
-- show every frame with `frameSprite`;
+  falling back to the first weapon-tagged manifest asset;
+- show every spritesheet frame with `frameSprite`; show a manifest image as
+  its single frame `0`;
 - selecting a frame uses `weaponIconSelection(entry, frame)`, writes both
-  fields through `mutate`, and closes.
+  fields through the extracted icon-action reducer and mutation boundary, and
+  closes. Selecting a procedural chip writes its key with frame `0` through
+  the same path.
 
 `createWeaponDraft` must stop setting `iconKey: 'weapon-generic'`. Leave
 `iconKey` as `''` and set `iconFrame: 0`.
@@ -155,8 +200,8 @@ Tighten `validateCommonWeaponFields` in
 - `iconKey` must be a non-empty string;
 - `iconFrame` must be an integer `>= 0`.
 
-Add a separate pure catalog validator in `WeaponIcon.ts`. Given the Studio
-asset-catalog shape, it must:
+Use the shared `WeaponIconCatalog.ts` validator with the appropriate adapter.
+It must:
 
 - accept a manifest spritesheet only when `iconFrame < frame.count`;
 - accept a manifest single-image only with frame `0`;
@@ -165,8 +210,9 @@ asset-catalog shape, it must:
 
 Run that catalog validation in both the Studio client save path and the Vite
 save endpoint in `characterContentModulesPlugin.ts`. Pass the asset manifest
-path/catalog into the weapon package handler rather than trusting that every
-write came from the current browser UI. Both checks feed the existing error
+path into the weapon package handler and normalize it with
+`weaponIconCatalogFromManifest` rather than trusting that every write came
+from the current browser UI. Both checks feed the existing error
 response/topbar notice; do not create another notification system.
 
 `savePackage` already does:
@@ -202,14 +248,17 @@ to choose the real stone tile.
 
 Extend `scripts/check-weapons.mjs`:
 
-- require non-empty `iconKey` and integer `iconFrame >= 0`;
-- if `iconKey` matches an `assets.json` `runtime.textureKey` whose source is
-  a spritesheet, require `iconFrame < frame.count`;
-- allow only procedural keys read from
-  `src/game/content/weapons/procedural-weapon-icons.json`, and only at frame
-  `0`;
-- reject unknown texture keys instead of treating every non-manifest key as
-  procedural.
+- load the shared `WeaponIconCatalog.ts` module with the test suite's
+  esbuild-to-memory pattern;
+- adapt raw `assets.json` with `weaponIconCatalogFromManifest`;
+- run `validateWeaponIconAgainstCatalog` for every weapon, which requires a
+  non-empty key and integer frame, enforces spritesheet bounds, requires frame
+  `0` for manifest images and procedural textures, and rejects unknown keys;
+- format the shared validator's issues in the checker's existing
+  `[weapon-id] ...` output style.
+
+The checker must not maintain its own spritesheet, single-image, procedural,
+or unknown-key decision tree.
 
 ### 5. Tests
 
@@ -221,9 +270,11 @@ as the other weapon-studio tests):
 - the test imports the Phaser-free `WeaponIcon.ts`, never
   `WeaponThumbnail.ts`;
 - `weaponIconSelection` stores `entry.textureKey`, not `entry.assetId`;
-- catalog validation accepts an in-range sheet frame and procedural frame
-  `0`, and rejects unknown keys, out-of-range frames, and nonzero procedural
-  frames;
+- the Studio-entry and raw-manifest adapters produce equivalent normalized
+  catalog entries for the same asset;
+- catalog validation accepts an in-range sheet frame, manifest-image frame
+  `0`, and procedural frame `0`; it rejects unknown keys, out-of-range sheet
+  frames, nonzero manifest-image frames, and nonzero procedural frames;
 - `validateWeaponDefinition` rejects missing / empty `iconKey` and missing /
   non-integer `iconFrame`;
 - `normalizeWeaponDefinition` and `migrateLegacyWeaponDefinition` keep
@@ -235,11 +286,24 @@ Update the existing `weapon-v2-migration.test.mjs` assertions/fixtures where
 needed so the stronger validation is exercised by the current migration
 suite, not only by the new file.
 
-Add a focused Studio state test for the exported icon selection/clear state
-helpers: selection updates both fields, clear restores `''` + `0`, and both
-paths mark the draft dirty through the same mutation boundary. If keeping
-those helpers inside the DOM-heavy Studio prevents Node loading, extract only
-the state transition into a small Phaser/DOM-free editor module.
+Extract the closure-owned history transition from `LayeredWeaponStudio.ts`
+into a Phaser/DOM-free `LayeredWeaponStudioMutation.ts`. It owns:
+
+- `reduceWeaponIconAction(state, action)`, including both field updates,
+  picker closing, and `dirty: true`;
+- the existing mutation commit rule that captures a history snapshot, caps
+  undo history at 100, and clears redo history when content changes;
+- undo/redo state restoration for the same snapshot representation.
+
+The mounted Studio's `mutate` and `applyHistory` closures delegate to this
+module and remain responsible only for assigning returned state/stacks,
+stopping playback where required, and rendering.
+
+Add a focused test around this extracted boundary. For both select and clear,
+assert the new icon pair, `dirty`, picker closing, undo snapshot creation, and
+redo clearing. Then assert undo restores the previous icon pair and redo
+reapplies it. A helper that only returns `{ iconKey, iconFrame }` is not
+sufficient evidence for history behavior.
 
 No Phaser scene tests. Runtime proof is: craft / inventory / hotbar all show
 the same authored tile after a studio save + game reload.
@@ -255,10 +319,14 @@ the same authored tile after a studio save + game reload.
 4. Create a new weapon. Save is blocked until an icon tile is chosen.
 5. A weapon with no valid icon shows an empty slot in inventory/hotbar and no
    output image in crafting.
-6. Temporarily give a manifest-backed weapon an out-of-range frame. Studio
+6. Select a weapon-tagged manifest image and a procedural icon in turn. Each
+   saves as frame `0`; the procedural icon can be cleared and reselected, and
+   it renders without a missing-frame warning or implicit `__BASE` fallback.
+7. Temporarily give a manifest-backed weapon an out-of-range frame or a
+   manifest image a nonzero frame. Studio
    save and the save endpoint reject it; runtime rendering does not substitute
    frame `0`.
-7. `pnpm test:weapon-studio`, `pnpm weapons:check`, `pnpm typecheck`, and
+8. `pnpm test:weapon-studio`, `pnpm weapons:check`, `pnpm typecheck`, and
    `pnpm build` pass. Run `pnpm check` when the complete local suite is
    available.
 
@@ -266,13 +334,15 @@ the same authored tile after a studio save + game reload.
 
 | File | Change |
 |---|---|
-| `src/game/content/weapons/WeaponIcon.ts` | Phaser-free pair resolver, selection helper, catalog validation |
+| `src/game/content/weapons/WeaponIcon.ts` | Phaser-free pair resolver and selection helper |
+| `src/game/content/weapons/WeaponIconCatalog.ts` | Shared normalized catalog type, Studio/manifest adapters, and validation |
 | `src/game/content/weapons/procedural-weapon-icons.json` | Shared procedural texture-key catalog |
 | `src/game/ui/WeaponThumbnail.ts` | Authored icon only; validate actual Phaser frame availability |
 | `src/game/ui/InventoryUI.ts` | Drop weapon item-icon fallback |
 | `src/game/ui/WeaponHotbar.ts` | Drop frameless `item.icon` fallback |
 | `src/game/ui/CraftingUI.ts` | Weapon outputs use `createWeaponThumbnail` |
 | `src/game/editor/LayeredWeaponStudio.ts` | Dedicated picker state/actions, preview, clear action, empty new-weapon default |
+| `src/game/editor/LayeredWeaponStudioMutation.ts` | Testable icon reducer and undo/redo mutation boundary |
 | `src/game/editor/character-studio.css` | Icon control and dedicated picker styling |
 | `src/game/content/weapons/validation.ts` | Require populated `iconKey` + `iconFrame` |
 | `src/game/content/weapons/types.ts` | Require frame on v2 and normalized weapons while legacy input remains optional |
@@ -282,7 +352,7 @@ the same authored tile after a studio save + game reload.
 | `src/game/content/weapons/*/weapon.json` | Backfill missing `iconFrame: 0` |
 | `src/game/infrastructure/assets/ProceduralAssetScene.ts` | Use shared procedural icon keys |
 | `src/game/content/characters/characterContentModulesPlugin.ts` | Enforce catalog-backed icon validity at the save endpoint |
-| `scripts/check-weapons.mjs` | Catalog-level icon checks |
+| `scripts/check-weapons.mjs` | Load and apply the shared manifest adapter and catalog validator |
 | `scripts/tests/weapon-studio/weapon-icon-source.test.mjs` | New focused tests |
 | `scripts/tests/weapon-studio/weapon-v2-migration.test.mjs` | Existing migration expectations for required/defaulted frame |
 

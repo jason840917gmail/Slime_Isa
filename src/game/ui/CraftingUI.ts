@@ -4,6 +4,7 @@ import { playerInventory, itemRegistry } from '../systems/Inventory';
 import { RECIPES, canCraft, craft, itemName, type RecipeDef } from '../crafting/Crafting';
 import { resolveScreenUiDepth } from '../presentation/WorldDepth';
 import { ModalStack, type ModalHandle } from './ModalStack';
+import { createWeaponThumbnail } from './WeaponThumbnail';
 
 const FONT = 'Trebuchet MS, Segoe UI Variable, sans-serif';
 
@@ -147,9 +148,14 @@ export class CraftingUI {
 
     const outputDef = itemRegistry.get(recipe.output.itemId);
     if (outputDef) {
-      const icon = scene.add.image(left + 20, y + 4, outputDef.icon).setDisplaySize(36, 36);
-      if (outputDef.iconFrame !== undefined) icon.setFrame(outputDef.iconFrame);
-      container.add(icon);
+      if (outputDef.equipment?.weaponId) {
+        const thumbnail = createWeaponThumbnail(scene, outputDef.equipment.weaponId, { x: left + 20, y: y + 4, size: 36 });
+        if (thumbnail) container.add(thumbnail);
+      } else {
+        const icon = scene.add.image(left + 20, y + 4, outputDef.icon).setDisplaySize(36, 36);
+        if (outputDef.iconFrame !== undefined) icon.setFrame(outputDef.iconFrame);
+        container.add(icon);
+      }
     }
 
     container.add(scene.add.text(left + 50, y - 20, recipe.name, {

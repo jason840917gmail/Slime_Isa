@@ -3,7 +3,6 @@ import { gameEvents } from '../core/EventBus';
 import { WEAPON_HOTBAR_SLOT_COUNT } from '../core/types';
 import { resolveScreenUiDepth } from '../presentation/WorldDepth';
 import { playerWeaponLoadout } from '../systems/WeaponLoadout';
-import { weaponItemFor } from '../systems/Inventory';
 import { createWeaponThumbnail } from './WeaponThumbnail';
 
 const FONT = 'Trebuchet MS, Segoe UI Variable, sans-serif';
@@ -52,7 +51,6 @@ export class WeaponHotbar {
       const weaponId = playerWeaponLoadout.slots()[index];
       const owned = !!weaponId && playerWeaponLoadout.ownsWeapon(weaponId);
       const active = owned && weaponId === playerWeaponLoadout.equippedWeaponId();
-      const item = weaponId ? weaponItemFor(weaponId) : undefined;
       const x = startX + index * (CELL + GAP) + CELL / 2;
       const slot = scene.add.container(x, centerY);
       root.add(slot);
@@ -91,8 +89,6 @@ export class WeaponHotbar {
         : undefined;
       if (thumbnail) {
         slot.add(thumbnail);
-      } else if (owned && item && scene.textures.exists(item.icon)) {
-        slot.add(scene.add.image(3, -3, item.icon).setDisplaySize(THUMBNAIL_SIZE, THUMBNAIL_SIZE));
       } else {
         slot.add(scene.add.text(3, -3, weaponId ? '×' : '·', {
           fontFamily: FONT,

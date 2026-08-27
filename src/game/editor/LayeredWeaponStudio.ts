@@ -9,6 +9,13 @@ import { getAnimationPackage } from '../content/animations/AnimationCatalog';
 import type { AnimationPackageCatalog, AnimationPackageCatalogEntry } from '../content/animations/types';
 import { migrateLegacyAnimation, migrateLegacyWeaponDefinition } from '../content/weapons/migrateLegacyWeapon';
 import { resolveWeaponPresentationOffsetY } from '../content/weapons/presentation';
+import { weaponIconSelection } from '../content/weapons/WeaponIcon';
+import {
+  isProceduralWeaponIconKey,
+  proceduralWeaponIconChoices,
+  validateWeaponIconAgainstCatalog,
+  weaponIconCatalogFromStudio,
+} from '../content/weapons/WeaponIconCatalog';
 import type {
   AuthoredWeaponDefinition,
   LayeredWeaponDefinition,
@@ -51,13 +58,21 @@ import { resolveDirectionalStudioState } from './DirectionalInheritanceState';
 import { directionalModeDescription, directionalStatusLabel } from './DirectionalInheritanceView';
 import { adjustPreviewZoom } from './PreviewZoom';
 import { handleStudioHistoryShortcut } from './StudioHistoryShortcut';
+import {
+  applyWeaponStudioHistory,
+  commitWeaponStudioMutation,
+  reduceWeaponIconAction,
+  type WeaponStudioAnimationScope,
+  type WeaponStudioHistory,
+  type WeaponStudioInspectorTab,
+} from './LayeredWeaponStudioMutation';
 
 const DIRECTIONS = ['right', 'left', 'up', 'down'] as const satisfies readonly WeaponAttackDirection[];
 const EFFECT_DIRECTIONS = DIRECTIONS satisfies readonly EffectDirection[];
 const WEAPON_DIRECTIONAL_PAIRS = [RIGHT_LEFT_INHERITANCE, DOWN_UP_INHERITANCE] as const;
 
-type AnimationScope = 'idle' | 'attack' | 'effect';
-type InspectorTab = 'identity' | 'combat' | 'layer' | 'on-hit';
+type AnimationScope = WeaponStudioAnimationScope;
+type InspectorTab = WeaponStudioInspectorTab;
 
 type CatalogWeapon = AuthoredWeaponDefinition & { readonly revision: string };
 type CatalogEffect = EffectDefinition & { readonly revision: string };
@@ -91,27 +106,12 @@ interface StudioState {
   readonly inspectorTab: InspectorTab;
   readonly pickerOpen: boolean;
   readonly pickerFrames: readonly number[];
+  readonly iconPickerOpen: boolean;
+  readonly iconPickerAssetId?: string;
   readonly dirty: boolean;
   readonly saving: boolean;
   readonly playing: boolean;
   readonly notice?: string;
-}
-
-interface WeaponHistorySnapshot {
-  readonly draft?: LayeredWeaponDefinition;
-  readonly effectDraft?: EffectDefinition;
-  readonly effectIsNew: boolean;
-  readonly effectDirty: boolean;
-  readonly dirty: boolean;
-  readonly selectedId: string;
-  readonly scope: AnimationScope;
-  readonly direction: WeaponAttackDirection;
-  readonly effectDirection: EffectDirection;
-  readonly selectedLayerId?: string;
-  readonly selectedBlockIndex?: number;
-  readonly selectedHitboxId?: string;
-  readonly playhead: number;
-  readonly inspectorTab: InspectorTab;
 }
 
 interface ResizeDrag {
@@ -144,58 +144,6 @@ interface WorkbenchSplitDrag {
 }
 
 function clone<T>(value: T): T { return structuredClone(value); }
-
-function captureWeaponHistory(state: StudioState): WeaponHistorySnapshot {
-  return clone({
-    draft: state.draft,
-    effectDraft: state.effectDraft,
-    effectIsNew: state.effectIsNew,
-    effectDirty: state.effectDirty,
-    dirty: state.dirty,
-    selectedId: state.selectedId,
-    scope: state.scope,
-    direction: state.direction,
-    effectDirection: state.effectDirection,
-    selectedLayerId: state.selectedLayerId,
-    selectedBlockIndex: state.selectedBlockIndex,
-    selectedHitboxId: state.selectedHitboxId,
-    playhead: state.playhead,
-    inspectorTab: state.inspectorTab,
-  });
-}
-
-function weaponHistoryContent(snapshot: WeaponHistorySnapshot): unknown {
-  return {
-    draft: snapshot.draft,
-    effectDraft: snapshot.effectDraft,
-    effectIsNew: snapshot.effectIsNew,
-    effectDirty: snapshot.effectDirty,
-    dirty: snapshot.dirty,
-    selectedId: snapshot.selectedId,
-  };
-}
-
-function restoreWeaponHistory(state: StudioState, snapshot: WeaponHistorySnapshot): StudioState {
-  return {
-    ...state,
-    draft: snapshot.draft ? clone(snapshot.draft) : undefined,
-    effectDraft: snapshot.effectDraft ? clone(snapshot.effectDraft) : undefined,
-    effectIsNew: snapshot.effectIsNew,
-    effectDirty: snapshot.effectDirty,
-    dirty: snapshot.dirty,
-    selectedId: snapshot.selectedId,
-    scope: snapshot.scope,
-    direction: snapshot.direction,
-    effectDirection: snapshot.effectDirection,
-    selectedLayerId: snapshot.selectedLayerId,
-    selectedBlockIndex: snapshot.selectedBlockIndex,
-    selectedHitboxId: snapshot.selectedHitboxId,
-    playhead: snapshot.playhead,
-    inspectorTab: snapshot.inspectorTab,
-    notice: undefined,
-    playing: false,
-  };
-}
 
 function escapeHtml(value: unknown): string {
   return String(value ?? '').replace(/[&<>"']/g, (character) => ({
@@ -544,7 +492,8 @@ function createWeaponDraft(assetId: string): LayeredWeaponDefinition {
     knockStrength: 100,
     vfxColor: 0x79e8e1,
     unlockLevel: 1,
-    iconKey: 'weapon-generic',
+    iconKey: '',
+    iconFrame: 0,
     description: 'A reusable layered weapon definition.',
   };
 }
@@ -896,6 +845,31 @@ function renderInspector(state: StudioState, animation: LayeredAnimationDocument
   return `<aside class="studio-inspector layered-weapon-inspector"><div class="studio-inspector-heading"><span class="studio-kicker">Inspector</span><h2>Weapon controls</h2><p>One animation model, specialized weapon tracks.</p></div><nav class="weapon-inspector-tabs layered-inspector-tabs">${tabs.map(([id, label, hint]) => `<button type="button" class="weapon-inspector-tab${state.inspectorTab === id ? ' is-active' : ''}" data-inspector-tab="${id}"><strong>${label}</strong><small>${hint}</small></button>`).join('')}</nav><div class="studio-inspector-scroll">${state.inspectorTab === 'identity' ? renderIdentityInspector(state) : state.inspectorTab === 'combat' ? renderCombatInspector(state) : state.inspectorTab === 'layer' ? renderLayerInspector(state, animation) : renderOnHitInspector(state)}</div></aside>`;
 }
 
+function weaponIconAssets(state: StudioState): readonly CharacterStudioAssetEntry[] {
+  return state.assets?.assets.filter((asset) => asset.status === 'ready' && asset.tags.includes('weapon')) ?? [];
+}
+
+function renderWeaponIconPreview(state: StudioState): string {
+  const iconKey = state.draft?.iconKey ?? '';
+  const iconFrame = state.draft?.iconFrame ?? 0;
+  const asset = weaponIconAssets(state).find((candidate) => candidate.textureKey === iconKey);
+  if (asset) return frameSprite(asset, iconFrame, 'weapon-icon-preview-sprite');
+  if (proceduralWeaponIconChoices.some((choice) => choice.textureKey === iconKey)) {
+    return `<span class="weapon-icon-procedural-mark" aria-hidden="true">✦</span>`;
+  }
+  return `<span class="weapon-icon-empty-mark" aria-hidden="true">＋</span>`;
+}
+
+function renderWeaponIconControl(state: StudioState): string {
+  const iconKey = state.draft?.iconKey ?? '';
+  const iconFrame = state.draft?.iconFrame ?? 0;
+  const asset = weaponIconAssets(state).find((candidate) => candidate.textureKey === iconKey);
+  const procedural = proceduralWeaponIconChoices.find((choice) => choice.textureKey === iconKey);
+  const title = asset?.assetId ?? procedural?.id.replaceAll('-', ' ') ?? 'No icon selected';
+  const detail = iconKey ? `${iconKey} · frame ${iconFrame}` : 'Required before save';
+  return `<div class="weapon-icon-cartridge${iconKey ? '' : ' is-empty'}"><button type="button" class="weapon-icon-cartridge-main" data-action="open-icon-picker" aria-label="Choose weapon icon"><span class="weapon-icon-cartridge-preview">${renderWeaponIconPreview(state)}</span><span class="weapon-icon-cartridge-copy"><small>UI ICON</small><strong>${escapeHtml(title)}</strong><em>${escapeHtml(detail)}</em></span></button><button type="button" class="weapon-icon-cartridge-clear" data-action="clear-icon" aria-label="Clear weapon icon" ${iconKey ? '' : 'disabled'}>×</button></div>`;
+}
+
 function renderScopeControls(state: StudioState, animation: LayeredAnimationDocument): string {
   const effectReady = Boolean(state.effectDraft);
   const attackTabs = DIRECTIONS.map((direction) => {
@@ -912,7 +886,7 @@ function renderScopeControls(state: StudioState, animation: LayeredAnimationDocu
     const status = directionalStatusLabel(direction, resolved, pairs);
     return `<button type="button" class="studio-pill${state.effectDirection === direction ? ' is-active' : ''}" data-effect-direction="${direction}">${direction.toUpperCase()}<small>${status}</small></button>`;
   }).join('');
-  return `<section class="layered-scope-strip"><div class="studio-clip-tabs"><button type="button" class="studio-clip-tab${state.scope === 'idle' ? ' is-active' : ''}" data-scope="idle"><span>IDLE</span><small>${state.draft?.animations.idle.layers.length ?? 0} layers</small></button><button type="button" class="studio-clip-tab${state.scope === 'attack' ? ' is-active' : ''}" data-scope="attack"><span>ATTACK</span><small>directional</small></button><button type="button" class="studio-clip-tab${state.scope === 'effect' ? ' is-active' : ''}" data-scope="effect" ${effectReady ? '' : 'disabled'}><span>ON-HIT EFFECT</span><small>${effectReady ? 'contact' : 'none assigned'}</small></button></div>${state.scope === 'attack' ? `<div class="layered-direction-tabs">${attackTabs}</div>${renderDirectionalCharacterAction(state)}` : state.scope === 'effect' ? `<div class="layered-direction-tabs">${effectTabs}</div>` : ''}${renderDirectionalMode(state)}<div class="layered-clock-controls"><label>FPS <input type="number" min="1" max="240" step="1" value="${animation.framesPerSecond}" data-animation-field="fps" /></label><label>DURATION <input type="number" min="0.01" max="60" step="0.01" value="${animation.durationSeconds}" data-animation-field="duration" /><span>s</span></label></div></section>`;
+  return `<section class="layered-scope-strip">${renderWeaponIconControl(state)}<div class="studio-clip-tabs"><button type="button" class="studio-clip-tab${state.scope === 'idle' ? ' is-active' : ''}" data-scope="idle"><span>IDLE</span><small>${state.draft?.animations.idle.layers.length ?? 0} layers</small></button><button type="button" class="studio-clip-tab${state.scope === 'attack' ? ' is-active' : ''}" data-scope="attack"><span>ATTACK</span><small>directional</small></button><button type="button" class="studio-clip-tab${state.scope === 'effect' ? ' is-active' : ''}" data-scope="effect" ${effectReady ? '' : 'disabled'}><span>ON-HIT EFFECT</span><small>${effectReady ? 'contact' : 'none assigned'}</small></button></div>${state.scope === 'attack' ? `<div class="layered-direction-tabs">${attackTabs}</div>${renderDirectionalCharacterAction(state)}` : state.scope === 'effect' ? `<div class="layered-direction-tabs">${effectTabs}</div>` : ''}${renderDirectionalMode(state)}<div class="layered-clock-controls"><label>FPS <input type="number" min="1" max="240" step="1" value="${animation.framesPerSecond}" data-animation-field="fps" /></label><label>DURATION <input type="number" min="0.01" max="60" step="0.01" value="${animation.durationSeconds}" data-animation-field="duration" /><span>s</span></label></div></section>`;
 }
 
 function renderPicker(state: StudioState, animation: LayeredAnimationDocument): string {
@@ -921,6 +895,23 @@ function renderPicker(state: StudioState, animation: LayeredAnimationDocument): 
   const asset = state.assets?.assets.find((candidate) => candidate.assetId === layer?.assetId);
   const info = assetInfo(asset);
   return `<div class="studio-asset-shelf-backdrop layered-tile-picker-backdrop" data-picker-backdrop><section class="studio-asset-shelf weapon-tile-picker" role="dialog" aria-modal="true" aria-labelledby="layered-tile-picker-title"><header class="studio-asset-shelf-heading"><div><span class="studio-kicker">${escapeHtml(layer?.displayName ?? 'Layer')} source</span><h2 id="layered-tile-picker-title">Add tiles to animation</h2><p>Source tiles stay in this popup. The timeline only shows authored blocks and their hold time.</p></div><button type="button" class="studio-icon-button" data-action="close-picker" aria-label="Close">×</button></header><div class="studio-sheet-grid projectile-frame-grid weapon-picker-grid">${Array.from({ length: info.count }, (_, frame) => `<button type="button" class="projectile-frame-option${state.pickerFrames.includes(frame) ? ' is-selected' : ''}" data-picker-frame="${frame}" aria-pressed="${state.pickerFrames.includes(frame)}">${frameSprite(asset, frame, 'projectile-frame-preview')}<span>${String(frame).padStart(2, '0')}</span></button>`).join('')}</div><footer class="weapon-tile-picker-footer"><span>${state.pickerFrames.length} selected · inserted at playhead ${state.playhead}</span><div><button type="button" class="studio-button studio-button--quiet" data-action="close-picker">CANCEL</button><button type="button" class="studio-button studio-button--accent" data-action="confirm-picker" ${state.pickerFrames.length ? '' : 'disabled'}>ADD TO LAYER</button></div></footer></section></div>`;
+}
+
+function renderIconPicker(state: StudioState): string {
+  if (!state.iconPickerOpen) return '';
+  const assets = weaponIconAssets(state);
+  const selectedAsset = assets.find((asset) => asset.assetId === state.iconPickerAssetId)
+    ?? assets.find((asset) => asset.textureKey === state.draft?.iconKey)
+    ?? assets[0];
+  const info = assetInfo(selectedAsset);
+  const selectedKey = state.draft?.iconKey ?? '';
+  const selectedFrame = state.draft?.iconFrame ?? 0;
+  const assetTabs = assets.map((asset) => `<button type="button" class="weapon-icon-asset-tab${asset.assetId === selectedAsset?.assetId ? ' is-active' : ''}" data-icon-picker-asset="${escapeHtml(asset.assetId)}"><strong>${escapeHtml(asset.assetId)}</strong><small>${asset.kind === 'image' ? 'single image' : `${asset.frame?.count ?? 0} frames`}</small></button>`).join('');
+  const frames = selectedAsset
+    ? Array.from({ length: info.count }, (_, frame) => `<button type="button" class="projectile-frame-option${selectedAsset.textureKey === selectedKey && frame === selectedFrame ? ' is-selected' : ''}" data-icon-picker-frame="${frame}" aria-label="Use ${escapeHtml(selectedAsset.assetId)} frame ${frame}">${frameSprite(selectedAsset, frame, 'projectile-frame-preview')}<span>${String(frame).padStart(2, '0')}</span></button>`).join('')
+    : `<p class="studio-empty-note">No weapon-tagged manifest icons are available.</p>`;
+  const procedural = proceduralWeaponIconChoices.map((choice) => `<button type="button" class="weapon-icon-procedural-choice${choice.textureKey === selectedKey && selectedFrame === 0 ? ' is-selected' : ''}" data-icon-picker-procedural="${escapeHtml(choice.textureKey)}"><span aria-hidden="true">✦</span><strong>${escapeHtml(choice.id.replaceAll('-', ' '))}</strong><small>${escapeHtml(choice.textureKey)}</small></button>`).join('');
+  return `<div class="studio-asset-shelf-backdrop weapon-icon-picker-backdrop" data-icon-picker-backdrop><section class="studio-asset-shelf weapon-icon-picker" role="dialog" aria-modal="true" aria-labelledby="weapon-icon-picker-title"><header class="studio-asset-shelf-heading"><div><span class="studio-kicker">Runtime thumbnail source</span><h2 id="weapon-icon-picker-title">Choose weapon UI icon</h2><p>Every inventory, hotbar, and crafting thumbnail uses this exact texture and frame.</p></div><button type="button" class="studio-icon-button" data-action="close-icon-picker" aria-label="Close">×</button></header><div class="weapon-icon-picker-body"><nav class="weapon-icon-asset-list" aria-label="Weapon icon assets">${assetTabs || '<span class="studio-empty-note">No manifest choices</span>'}</nav><div class="weapon-icon-picker-frames"><span class="studio-kicker">${escapeHtml(selectedAsset?.assetId ?? 'Manifest frames')}</span><div class="studio-sheet-grid projectile-frame-grid weapon-icon-frame-grid">${frames}</div><div class="weapon-icon-procedural-heading"><span class="studio-kicker">Procedural textures</span><small>Generated by BootScene · frame 0</small></div><div class="weapon-icon-procedural-grid">${procedural}</div></div></div><footer class="weapon-tile-picker-footer"><span>${selectedKey ? `${escapeHtml(selectedKey)} · frame ${selectedFrame}` : 'No icon selected'}</span><div><button type="button" class="studio-button studio-button--quiet" data-action="clear-icon" ${selectedKey ? '' : 'disabled'}>CLEAR ICON</button><button type="button" class="studio-button studio-button--accent" data-action="close-icon-picker">DONE</button></div></footer></section></div>`;
 }
 
 function renderWeaponLibrary(state: StudioState, returnEditor: string): string {
@@ -940,7 +931,7 @@ function renderStudio(state: StudioState, returnEditor: string): string {
     return `<main class="character-studio weapon-studio layered-weapon-studio"><header class="studio-topbar"><a class="studio-brand" href="?"><span class="brand-mark">✦</span><span><small>FIELD CARTOGRAPHER</small><strong>WEAPON STUDIO</strong></span></a><div class="studio-topbar-actions"><span class="studio-save-state"><i></i>${escapeHtml(state.notice ?? 'Loading layered weapon library…')}</span></div></header><section class="studio-empty-state"><span class="studio-loading-orb">✦</span><h2>${escapeHtml(state.notice ?? 'Loading weapons')}</h2></section></main>`;
   }
   const isNew = !state.revision;
-  return `<main class="character-studio weapon-studio layered-weapon-studio${state.dirty || state.effectDirty ? ' is-dirty' : ''}"><header class="studio-topbar"><a class="studio-brand" href="?" aria-label="Back to game"><span class="brand-mark">✦</span><span><small>FIELD CARTOGRAPHER</small><strong>WEAPON STUDIO</strong></span></a><div class="studio-topbar-actions"><span class="studio-save-state${state.notice ? ' is-error' : ''}"><i></i>${escapeHtml(state.notice ?? (state.dirty || state.effectDirty ? 'Unsaved layered package' : 'Saved library'))}</span><button type="button" class="studio-button studio-button--save" data-action="save" ${(!state.dirty && !state.effectDirty) || state.saving ? 'disabled' : ''}>${state.saving ? 'SAVING…' : isNew ? 'CREATE WEAPON' : 'SAVE WEAPON'}</button></div></header><div class="studio-layout">${renderWeaponLibrary(state, returnEditor)}<section class="studio-workbench" style="--preview-split:${state.previewSplit}fr;--controls-split:${100 - state.previewSplit}fr"><div class="studio-workbench-heading"><div><span class="studio-kicker">Layered animation package</span><h2>${escapeHtml(state.draft.displayName)} <span>V2</span></h2></div><div class="studio-workbench-meta"><span>WEAPON <b>${escapeHtml(state.draft.weaponId)}</b></span><span>PLAYHEAD <b>${Number(state.playhead / animation.framesPerSecond).toFixed(2)}s</b></span><span>LAYERS <b>${animation.layers.length}</b></span></div></div>${renderPreview(state, animation)}<button type="button" class="layered-workbench-splitter" data-workbench-splitter aria-label="Resize preview and timeline" aria-valuemin="25" aria-valuemax="75" aria-valuenow="${state.previewSplit}" title="Drag to resize preview and timeline"><span></span></button><div class="layered-workbench-bottom layered-workbench-bottom--with-scope">${renderScopeControls(state, animation)}${renderTimeline(state, animation)}</div></section>${renderInspector(state, animation)}</div>${renderPicker(state, animation)}</main>`;
+  return `<main class="character-studio weapon-studio layered-weapon-studio${state.dirty || state.effectDirty ? ' is-dirty' : ''}"><header class="studio-topbar"><a class="studio-brand" href="?" aria-label="Back to game"><span class="brand-mark">✦</span><span><small>FIELD CARTOGRAPHER</small><strong>WEAPON STUDIO</strong></span></a><div class="studio-topbar-actions"><span class="studio-save-state${state.notice ? ' is-error' : ''}"><i></i>${escapeHtml(state.notice ?? (state.dirty || state.effectDirty ? 'Unsaved layered package' : 'Saved library'))}</span><button type="button" class="studio-button studio-button--save" data-action="save" ${(!state.dirty && !state.effectDirty) || state.saving ? 'disabled' : ''}>${state.saving ? 'SAVING…' : isNew ? 'CREATE WEAPON' : 'SAVE WEAPON'}</button></div></header><div class="studio-layout">${renderWeaponLibrary(state, returnEditor)}<section class="studio-workbench" style="--preview-split:${state.previewSplit}fr;--controls-split:${100 - state.previewSplit}fr"><div class="studio-workbench-heading"><div><span class="studio-kicker">Layered animation package</span><h2>${escapeHtml(state.draft.displayName)} <span>V2</span></h2></div><div class="studio-workbench-meta"><span>WEAPON <b>${escapeHtml(state.draft.weaponId)}</b></span><span>PLAYHEAD <b>${Number(state.playhead / animation.framesPerSecond).toFixed(2)}s</b></span><span>LAYERS <b>${animation.layers.length}</b></span></div></div>${renderPreview(state, animation)}<button type="button" class="layered-workbench-splitter" data-workbench-splitter aria-label="Resize preview and timeline" aria-valuemin="25" aria-valuemax="75" aria-valuenow="${state.previewSplit}" title="Drag to resize preview and timeline"><span></span></button><div class="layered-workbench-bottom layered-workbench-bottom--with-scope">${renderScopeControls(state, animation)}${renderTimeline(state, animation)}</div></section>${renderInspector(state, animation)}</div>${renderPicker(state, animation)}${renderIconPicker(state)}</main>`;
 }
 
 async function loadJson<T>(url: string): Promise<T> {
@@ -1089,6 +1080,8 @@ async function savePackage(state: StudioState): Promise<Partial<StudioState>> {
   if (!state.draft) throw new Error('No weapon is open');
   const weaponIssues = validateWeaponDefinition(state.draft);
   if (weaponIssues.length) throw new Error(weaponIssues[0]);
+  const iconIssues = validateWeaponIconAgainstCatalog(state.draft, weaponIconCatalogFromStudio(state.assets?.assets ?? []));
+  if (iconIssues.length) throw new Error(iconIssues[0]);
   const weaponForSave = stripSharedAnimationCopies(state.draft);
   const saveIssues = validateWeaponDefinition(weaponForSave);
   if (saveIssues.length) throw new Error(saveIssues[0]);
@@ -1127,7 +1120,7 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement, options: Lay
   let state: StudioState = {
     weapons: [], effects: [], animationPackages: [], librarySearch: '', sourceSheetSearch: '', expandedFolders: new Set(options.expandedFolders ?? ['weapons', 'animations']), selectedId: '', scope: 'attack', direction: 'right', effectDirection: 'right',
     effectIsNew: false, effectDirty: false, playhead: 0, previewZoom: 1, previewSplit: 55, inspectorTab: 'layer', pickerOpen: false,
-    pickerFrames: [], dirty: false, saving: false, playing: false,
+    pickerFrames: [], iconPickerOpen: false, dirty: false, saving: false, playing: false,
   };
   let resize: ResizeDrag | undefined;
   let move: MoveDrag | undefined;
@@ -1136,8 +1129,7 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement, options: Lay
   let playbackTimer: number | undefined;
   let playbackGeneration = 0;
   let playbackStep = 0;
-  const undoStack: WeaponHistorySnapshot[] = [];
-  const redoStack: WeaponHistorySnapshot[] = [];
+  let history: WeaponStudioHistory = { undo: [], redo: [] };
 
   const stopPlayback = (): void => {
     playbackGeneration += 1;
@@ -1160,36 +1152,29 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement, options: Lay
   };
   const selectCatalogWeapon = (entry: CatalogWeapon): void => {
     stopPlayback();
-    undoStack.length = 0;
-    redoStack.length = 0;
+    history = { undo: [], redo: [] };
     const prepared = prepareWeapon(entry, state.effects);
     const animation = prepared.draft.directionalAttacks.right.animation;
     state = selectionForAnimation({
       ...state, ...prepared, selectedId: entry.weaponId, revision: entry.revision, scope: 'attack', direction: 'right',
       effectDirection: 'right', playhead: 0, previewZoom: 1, dirty: entry.version === 1, inspectorTab: 'layer', pickerOpen: false,
+      iconPickerOpen: false, iconPickerAssetId: undefined,
       notice: entry.version === 1 ? 'Legacy weapon migrated in memory. Save to commit version 2.' : undefined,
     }, animation);
     render();
   };
   const mutate = (next: StudioState): void => {
-    const before = captureWeaponHistory(state);
-    const after = captureWeaponHistory(next);
-    if (JSON.stringify(weaponHistoryContent(before)) !== JSON.stringify(weaponHistoryContent(after))) {
-      undoStack.push(before);
-      if (undoStack.length > 100) undoStack.shift();
-      redoStack.length = 0;
-    }
-    state = next;
+    const result = commitWeaponStudioMutation(state, next, history);
+    state = result.state;
+    history = result.history;
     render();
   };
   const mutateAnimation = (operation: (document: LayeredAnimationDocumentState) => boolean, failureNotice?: string): void => mutate(transformAnimationState(state, operation, failureNotice));
   const applyHistory = (redo: boolean): boolean => {
-    const stack = redo ? redoStack : undoStack;
-    const snapshot = stack.pop();
-    if (!snapshot) return false;
-    const current = captureWeaponHistory(state);
-    (redo ? undoStack : redoStack).push(current);
-    state = restoreWeaponHistory(state, snapshot);
+    const result = applyWeaponStudioHistory(state, history, redo);
+    if (!result) return false;
+    state = result.state;
+    history = result.history;
     stopPlayback();
     render();
     return true;
@@ -1229,6 +1214,7 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement, options: Lay
   const handleClick = (event: MouseEvent): void => {
     const target = event.target instanceof Element ? event.target : undefined;
     if (!target) return;
+    if (target === target.closest('[data-icon-picker-backdrop]')) { mutate({ ...state, iconPickerOpen: false, iconPickerAssetId: undefined }); return; }
     if (target === target.closest('[data-picker-backdrop]')) { mutate({ ...state, pickerOpen: false, pickerFrames: [] }); return; }
     const weaponButton = target.closest<HTMLElement>('[data-weapon-id]');
     if (weaponButton) { const entry = state.weapons.find((weapon) => weapon.weaponId === weaponButton.dataset.weaponId); if (entry) { options.onSelectWeapon?.(entry.weaponId); selectCatalogWeapon(entry); } return; }
@@ -1281,6 +1267,18 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement, options: Lay
     }
     const pickerFrame = target.closest<HTMLElement>('[data-picker-frame]');
     if (pickerFrame) { const frame = Number(pickerFrame.dataset.pickerFrame); mutate({ ...state, pickerFrames: state.pickerFrames.includes(frame) ? state.pickerFrames.filter((value) => value !== frame) : [...state.pickerFrames, frame] }); return; }
+    const iconPickerAsset = target.closest<HTMLElement>('[data-icon-picker-asset]');
+    if (iconPickerAsset?.dataset.iconPickerAsset) { mutate({ ...state, iconPickerAssetId: iconPickerAsset.dataset.iconPickerAsset }); return; }
+    const iconPickerFrame = target.closest<HTMLElement>('[data-icon-picker-frame]');
+    if (iconPickerFrame) {
+      const asset = weaponIconAssets(state).find((candidate) => candidate.assetId === state.iconPickerAssetId)
+        ?? weaponIconAssets(state).find((candidate) => candidate.textureKey === state.draft?.iconKey)
+        ?? weaponIconAssets(state)[0];
+      if (asset) mutate(reduceWeaponIconAction(state, { type: 'select', selection: weaponIconSelection(asset, Number(iconPickerFrame.dataset.iconPickerFrame)) }));
+      return;
+    }
+    const proceduralIcon = target.closest<HTMLElement>('[data-icon-picker-procedural]')?.dataset.iconPickerProcedural;
+    if (proceduralIcon && isProceduralWeaponIconKey(proceduralIcon)) { mutate(reduceWeaponIconAction(state, { type: 'select', selection: weaponIconSelection({ textureKey: proceduralIcon }, 0) })); return; }
     const hitboxSelect = target.closest<HTMLElement>('[data-select-hitbox]');
     if (hitboxSelect) { mutate({ ...state, selectedHitboxId: hitboxSelect.dataset.selectHitbox, inspectorTab: 'combat' }); return; }
     const hitboxCell = target.closest<HTMLElement>('[data-toggle-hitbox-frame]');
@@ -1328,6 +1326,13 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement, options: Lay
     if (action === 'preview-zoom-in') { mutate({ ...state, previewZoom: adjustPreviewZoom(state.previewZoom, -1) }); return; }
     if (action === 'preview-zoom-out') { mutate({ ...state, previewZoom: adjustPreviewZoom(state.previewZoom, 1) }); return; }
     if (action === 'preview-zoom-reset') { mutate({ ...state, previewZoom: 1 }); return; }
+    if (action === 'open-icon-picker') {
+      const assets = weaponIconAssets(state);
+      const current = assets.find((asset) => asset.textureKey === state.draft?.iconKey);
+      mutate({ ...state, iconPickerOpen: true, iconPickerAssetId: current?.assetId ?? assets[0]?.assetId }); return;
+    }
+    if (action === 'close-icon-picker') { mutate({ ...state, iconPickerOpen: false, iconPickerAssetId: undefined }); return; }
+    if (action === 'clear-icon') { mutate(reduceWeaponIconAction(state, { type: 'clear' })); return; }
     if (action === 'add-layer') {
       const animation = animationFor(state); const fallbackAsset = spritesheetAssets(state.assets)[0]?.assetId;
       if (!animation || !fallbackAsset) return;
@@ -1368,7 +1373,7 @@ export function mountLayeredWeaponStudio(container: HTMLDivElement, options: Lay
       const assetId = spritesheetAssets(state.assets).find((asset) => asset.tags.includes('weapon'))?.assetId ?? spritesheetAssets(state.assets)[0]?.assetId ?? '';
       const draft = createWeaponDraft(assetId);
       options.onSelectWeapon?.(draft.weaponId);
-      mutate(selectionForAnimation({ ...state, selectedId: '', draft, revision: undefined, effectDraft: undefined, effectRevision: undefined, effectIsNew: false, effectDirty: false, dirty: true, scope: 'attack', direction: 'right', playhead: 0, notice: undefined }, draft.directionalAttacks.right.animation)); return;
+      mutate(selectionForAnimation({ ...state, selectedId: '', draft, revision: undefined, effectDraft: undefined, effectRevision: undefined, effectIsNew: false, effectDirty: false, dirty: true, scope: 'attack', direction: 'right', playhead: 0, iconPickerOpen: false, iconPickerAssetId: undefined, notice: undefined }, draft.directionalAttacks.right.animation)); return;
     }
     if (action === 'play-preview') {
       if (state.playing) { stopPlayback(); render(); return; }

@@ -9,7 +9,7 @@
   "$defs": {
     "common": {
       "type": "object",
-      "required": ["weaponId", "displayName", "category", "baseDamage", "cooldownMs", "hitboxWidth", "hitboxHeight", "hitboxOffset", "hitboxDurationMs", "knockStrength", "vfxColor", "unlockLevel", "iconKey", "description"],
+      "required": ["weaponId", "displayName", "category", "baseDamage", "cooldownMs", "hitboxWidth", "hitboxHeight", "hitboxOffset", "hitboxDurationMs", "knockStrength", "vfxColor", "unlockLevel", "iconKey", "iconFrame", "description"],
       "properties": {
         "$schema": { "type": "string" }, "weaponId": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
         "displayName": { "type": "string", "minLength": 1, "maxLength": 80 }, "category": { "enum": ["melee", "ranged"] },
@@ -21,7 +21,7 @@
         "damageModifiers": { "type": "array", "items": { "$ref": "#/\u0024defs/damageModifier" } },
         "harvestCapabilities": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 1 } },
         "vfxColor": { "type": "integer", "minimum": 0 },
-        "unlockLevel": { "type": "integer", "minimum": 1 }, "iconKey": { "type": "string" }, "iconFrame": { "type": "integer", "minimum": 0 }, "description": { "type": "string" }
+        "unlockLevel": { "type": "integer", "minimum": 1 }, "iconKey": { "type": "string", "minLength": 1 }, "iconFrame": { "type": "integer", "minimum": 0 }, "description": { "type": "string" }
       }
     },
     "legacyWeapon": {
@@ -38,7 +38,7 @@
         { "$ref": "#/$defs/common" },
         {
           "type": "object", "additionalProperties": false,
-          "required": ["version", "$schema", "weaponId", "displayName", "category", "characterActionId", "animations", "directionalAttacks", "baseDamage", "cooldownMs", "hitboxWidth", "hitboxHeight", "hitboxOffset", "hitboxDurationMs", "knockStrength", "vfxColor", "unlockLevel", "iconKey", "description"],
+          "required": ["version", "$schema", "weaponId", "displayName", "category", "characterActionId", "animations", "directionalAttacks", "baseDamage", "cooldownMs", "hitboxWidth", "hitboxHeight", "hitboxOffset", "hitboxDurationMs", "knockStrength", "vfxColor", "unlockLevel", "iconKey", "iconFrame", "description"],
           "properties": {
             "$schema": { "type": "string" }, "version": { "const": 2 }, "weaponId": { "type": "string" }, "displayName": { "type": "string" }, "category": { "enum": ["melee", "ranged"] },
             "characterActionId": { "type": "string", "minLength": 1 },
@@ -46,7 +46,7 @@
             "directionalAttacks": { "type": "object", "additionalProperties": false, "required": ["right", "down"], "properties": { "right": { "$ref": "#/$defs/layeredAttack" }, "left": { "$ref": "#/$defs/layeredAttack" }, "up": { "$ref": "#/$defs/layeredAttack" }, "down": { "$ref": "#/$defs/layeredAttack" } } },
             "presentation": { "type": "object", "additionalProperties": false, "properties": { "facingMode": { "enum": ["vector", "horizontal-flip"] } } },
             "onHitEffectId": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
-            "baseDamage": { "type": "number" }, "cooldownMs": { "type": "number" }, "hitboxWidth": { "type": "number" }, "hitboxHeight": { "type": "number" }, "hitboxOffset": { "type": "number" }, "hitboxDurationMs": { "type": "number" }, "knockStrength": { "type": "number" }, "scaling": { "type": "object" }, "damageModifiers": { "type": "array", "items": { "$ref": "#/\u0024defs/damageModifier" } }, "harvestCapabilities": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 1 } }, "vfxColor": { "type": "integer" }, "unlockLevel": { "type": "integer" }, "iconKey": { "type": "string" }, "iconFrame": { "type": "integer", "minimum": 0 }, "description": { "type": "string" }
+            "baseDamage": { "type": "number" }, "cooldownMs": { "type": "number" }, "hitboxWidth": { "type": "number" }, "hitboxHeight": { "type": "number" }, "hitboxOffset": { "type": "number" }, "hitboxDurationMs": { "type": "number" }, "knockStrength": { "type": "number" }, "scaling": { "type": "object" }, "damageModifiers": { "type": "array", "items": { "$ref": "#/\u0024defs/damageModifier" } }, "harvestCapabilities": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 1 } }, "vfxColor": { "type": "integer" }, "unlockLevel": { "type": "integer" }, "iconKey": { "type": "string", "minLength": 1 }, "iconFrame": { "type": "integer", "minimum": 0 }, "description": { "type": "string" }
           }
         }
       ]
