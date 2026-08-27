@@ -8,6 +8,9 @@ import type {
   WeaponAttackTrackDocument,
 } from './types';
 import { layeredTimelineFrameCount, timelineFrameCount, validateLayeredAnimationDocument } from '../../shared/animation';
+import { RESOURCE_TAGS } from '../ResourceTags';
+
+const CONFIGURED_RESOURCE_TAGS: ReadonlySet<string> = new Set(RESOURCE_TAGS);
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -185,16 +188,20 @@ function validateAttackTrack(
   }
 }
 
-export function validateWeaponDefinition(value: unknown): string[] {
+export function validateWeaponDefinition(value: unknown, resourceTags?: ReadonlySet<string>): string[] {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) return ['weapon: must be an object'];
   const authored = value as Partial<AuthoredWeaponDefinition>;
   if (authored.version !== 1 && authored.version !== 2) return ['weapon.version: must be 1 or 2'];
   return authored.version === 1
-    ? validateLegacyWeaponDefinition(authored as LegacyWeaponDefinition)
-    : validateLayeredWeaponDefinition(authored as LayeredWeaponDefinition);
+    ? validateLegacyWeaponDefinition(authored as LegacyWeaponDefinition, resourceTags)
+    : validateLayeredWeaponDefinition(authored as LayeredWeaponDefinition, resourceTags);
 }
 
-function validateCommonWeaponFields(weapon: Partial<AuthoredWeaponDefinition>, issues: string[]): void {
+export function validateWeaponDefinitionForStudioSave(value: unknown): string[] {
+  return validateWeaponDefinition(value, CONFIGURED_RESOURCE_TAGS);
+}
+
+function validateCommonWeaponFields(weapon: Partial<AuthoredWeaponDefinition>, issues: string[], resourceTags?: ReadonlySet<string>): void {
   if (typeof weapon.weaponId !== 'string' || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(weapon.weaponId)) issues.push('weapon.weaponId: must be a lowercase kebab-case ID');
   if (typeof weapon.displayName !== 'string' || weapon.displayName.trim().length === 0 || weapon.displayName.length > 80) issues.push('weapon.displayName: must be between 1 and 80 characters');
   if (weapon.category !== 'melee' && weapon.category !== 'ranged') issues.push("weapon.category: must be 'melee' or 'ranged'");
@@ -239,15 +246,16 @@ function validateCommonWeaponFields(weapon: Partial<AuthoredWeaponDefinition>, i
         const path = `weapon.harvestCapabilities.${targetTag}`;
         if (!targetTag.trim()) issues.push(`${path}: target tag must be non-empty`);
         else if (targetTag !== targetTag.trim()) issues.push(`${path}: target tag must not have surrounding whitespace`);
+        else if (resourceTags && !resourceTags.has(targetTag)) issues.push(`${path}: unknown resource tag '${targetTag}'`);
         if (!Number.isInteger(tier) || (tier as number) < 1) issues.push(`${path}: tier must be an integer >= 1`);
       });
     }
   }
 }
 
-function validateLegacyWeaponDefinition(weapon: LegacyWeaponDefinition): string[] {
+function validateLegacyWeaponDefinition(weapon: LegacyWeaponDefinition, resourceTags?: ReadonlySet<string>): string[] {
   const issues: string[] = [];
-  validateCommonWeaponFields(weapon, issues);
+  validateCommonWeaponFields(weapon, issues, resourceTags);
   const hasActionId = typeof weapon.characterActionId === 'string' && weapon.characterActionId.trim().length > 0;
   const hasLegacyAnimation = typeof weapon.animKey === 'string' && weapon.animKey.length > 0;
   if (!hasActionId && !hasLegacyAnimation) issues.push('weapon.characterActionId: must be provided (or legacy weapon.animKey must be non-empty)');
@@ -335,9 +343,9 @@ function validateLayeredTrack(
   }
 }
 
-function validateLayeredWeaponDefinition(weapon: LayeredWeaponDefinition): string[] {
+function validateLayeredWeaponDefinition(weapon: LayeredWeaponDefinition, resourceTags?: ReadonlySet<string>): string[] {
   const issues: string[] = [];
-  validateCommonWeaponFields(weapon, issues);
+  validateCommonWeaponFields(weapon, issues, resourceTags);
   if (typeof weapon.characterActionId !== 'string' || !weapon.characterActionId.trim()) issues.push('weapon.characterActionId: must be non-empty');
   if (weapon.onHitEffectId !== undefined && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(weapon.onHitEffectId)) issues.push('weapon.onHitEffectId: must be a lowercase kebab-case ID');
   const rawWeapon = weapon as unknown as Record<string, unknown>;

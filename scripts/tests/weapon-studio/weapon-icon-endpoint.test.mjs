@@ -54,6 +54,7 @@ test('weapon endpoints expose icon issues and reject before writing files', asyn
   const weaponRoot = path.join(fixtureRoot, 'weapons');
   const effectRoot = path.join(fixtureRoot, 'effects');
   const assetRoot = path.join(fixtureRoot, 'asset');
+  const gameConstantsPath = path.join(fixtureRoot, 'game-constants.json');
   const configPath = path.join(repositoryRoot, `.weapon-icon-${path.basename(fixtureRoot)}.vite.config.ts`);
   const port = await freePort();
   const baseUrl = `http://127.0.0.1:${port}`;
@@ -64,6 +65,7 @@ test('weapon endpoints expose icon issues and reject before writing files', asyn
     await fs.mkdir(effectRoot, { recursive: true });
     await fs.mkdir(assetRoot, { recursive: true });
     await fs.copyFile(path.join(repositoryRoot, 'asset', 'assets.json'), path.join(assetRoot, 'assets.json'));
+    await fs.copyFile(path.join(repositoryRoot, 'src', 'game', 'content', 'game-constants.json'), gameConstantsPath);
 
     const sourceWeaponPath = path.join(repositoryRoot, 'src', 'game', 'content', 'weapons', 'basic-sword');
     const fixtureWeaponPath = path.join(weaponRoot, 'endpoint-fixture');
@@ -86,6 +88,7 @@ export default defineConfig({
     effectRoot: ${JSON.stringify(effectRoot.replaceAll('\\', '/'))},
     assetRoot: ${JSON.stringify(assetRoot.replaceAll('\\', '/'))},
     assetManifestPath: ${JSON.stringify(path.join(assetRoot, 'assets.json').replaceAll('\\', '/'))},
+    gameConstantsPath: ${JSON.stringify(gameConstantsPath.replaceAll('\\', '/'))},
   })],
 });
 `;
@@ -113,6 +116,21 @@ export default defineConfig({
       assert.equal(result.payload.error.issues[0].path, 'weapon.iconKey');
       assert.equal(await fs.readFile(path.join(fixtureWeaponPath, 'weapon.json'), 'utf8'), originalFile);
     }
+
+    const configuredWeapon = { ...validWeapon, weaponId: 'configured-tag-fixture', harvestCapabilities: { iron: 1 } };
+    const configuredResult = await postJson(baseUrl, '/__character-studio/weapon/create', { weapon: configuredWeapon });
+    assert.equal(configuredResult.response.status, 201);
+    const configuredPath = path.join(weaponRoot, 'configured-tag-fixture', 'weapon.json');
+    assert.deepEqual(JSON.parse(await fs.readFile(configuredPath, 'utf8')).harvestCapabilities, { iron: 1 });
+
+    const constants = JSON.parse(await fs.readFile(gameConstantsPath, 'utf8'));
+    constants.resources.tags = constants.resources.tags.filter((tag) => tag !== 'iron');
+    await fs.writeFile(gameConstantsPath, `${JSON.stringify(constants, null, 2)}\n`);
+    const staleWeapon = { ...validWeapon, weaponId: 'stale-tag-fixture', harvestCapabilities: { iron: 1 } };
+    const staleResult = await postJson(baseUrl, '/__character-studio/weapon/create', { weapon: staleWeapon });
+    assert.equal(staleResult.response.status, 400);
+    assert.match(staleResult.payload.error.issues[0].message, /unknown resource tag 'iron'/);
+    await assert.rejects(fs.access(path.join(weaponRoot, 'stale-tag-fixture', 'weapon.json')));
   } finally {
     if (child) child.kill();
     await fs.rm(configPath, { force: true });

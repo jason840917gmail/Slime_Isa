@@ -34,7 +34,7 @@ scenes -> features -> content/shared
 
 ## Gameplay configuration
 
-The versioned gameplay constants document currently owns inventory capacity and stack rules, initial player attributes, movement speeds and cap, dodge protection, and hit protection. New runs copy initial attributes, while movement and protection remain current global rules. Base item definitions omit stack limits and are normalized against the exact configured item-ID map; weapon items use the configured global weapon stack limit.
+The versioned gameplay constants document currently owns inventory capacity and stack rules, initial player attributes, movement speeds and cap, dodge protection, hit protection, and the ordered `resources.tags` harvesting catalog. Harvest capability and requirement fields persist stable string IDs from that closed catalog; editors, save endpoints, and repository checks reject unknown values. Damage-modifier tags remain an independent open domain because they also classify enemies and other combat targets. New runs copy initial attributes, while movement and protection remain current global rules. Base item definitions omit stack limits and are normalized against the exact configured item-ID map; weapon items use the configured global weapon stack limit.
 
 The primary character package owns authored identity, body, and visuals. It must not contain primary-player attributes, movement, or progression rules. Gameplay constants own the primary-player progression table; runtime XP uses that table, saves persist level plus current XP, and legacy cumulative XP is migrated without granting synthetic rewards. Enemy packages may continue to own their attributes and per-entity gameplay values.
 

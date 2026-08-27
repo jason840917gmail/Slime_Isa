@@ -1,16 +1,25 @@
 #!/usr/bin/env node
 /** Validates reusable v1/v2 weapon definitions without importing browser code. */
 import { readFileSync, readdirSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
 import { validateHarvestCapabilities } from './lib/weapon-targeting-validation.mjs';
+import { loadValidatedResourceTags } from './lib/resource-tag-catalog.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
-const weaponRoot = join(root, 'src', 'game', 'content', 'weapons');
+const weaponRoot = resolve(process.env.SLIME_CHECK_WEAPON_ROOT ?? join(root, 'src', 'game', 'content', 'weapons'));
 const animationRoot = join(root, 'src', 'game', 'content', 'animations');
 const effectRoot = join(root, 'src', 'game', 'content', 'effects');
 const assetManifestPath = join(root, 'asset', 'assets.json');
+const gameConstantsPath = resolve(process.env.SLIME_CHECK_GAME_CONSTANTS_PATH ?? join(root, 'src', 'game', 'content', 'game-constants.json'));
+let resourceTags;
+try {
+  resourceTags = await loadValidatedResourceTags(root, gameConstantsPath);
+} catch (error) {
+  console.error(`weapons:check failed: ${error instanceof Error ? error.message : String(error)}`);
+  process.exit(1);
+}
 const errors = [];
 const ids = new Set();
 const effectIds = new Set();
@@ -125,7 +134,7 @@ for (const weapon of weapons) {
   if (![1, 2].includes(weapon.version)) errors.push(`[${weapon.weaponId}] version must be 1 or 2`);
   if (!['melee', 'ranged'].includes(weapon.category)) errors.push(`[${weapon.weaponId}] category must be melee or ranged`);
   for (const issue of validateWeaponIconAgainstCatalog(weapon, iconCatalog)) errors.push(`[${weapon.weaponId}] ${issue}`);
-  for (const issue of validateHarvestCapabilities(weapon.harvestCapabilities)) errors.push(`[${weapon.weaponId}] ${issue}`);
+  for (const issue of validateHarvestCapabilities(weapon.harvestCapabilities, 'harvestCapabilities', resourceTags)) errors.push(`[${weapon.weaponId}] ${issue}`);
   if (!(weapon.characterActionId || weapon.animKey)) errors.push(`[${weapon.weaponId}] character action is required`);
   if (weapon.version === 1) {
     for (const animation of Object.values(weapon.animations ?? {})) if (!animation?.frames?.length) errors.push(`[${weapon.weaponId}] legacy animation needs frames`);

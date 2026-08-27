@@ -106,6 +106,9 @@ test('targeting validation requires canonical tags and integer capability tiers'
   assert.ok(issues.some((issue) => issue.includes('target tag must be non-empty')));
   assert.ok(issues.some((issue) => issue.includes('tier must be an integer >= 1')));
   assert.ok(validation.validateWeaponDefinition({ ...valid, harvestCapabilities: [] }).some((issue) => issue.includes('must be an object')));
+  const unknownResource = { ...valid, harvestCapabilities: { crystal: 1 } };
+  assert.deepEqual(validation.validateWeaponDefinition(unknownResource), []);
+  assert.ok(validation.validateWeaponDefinitionForStudioSave(unknownResource).some((issue) => issue.includes("unknown resource tag 'crystal'")));
 });
 
 test('migration removes legacy Impact events and omits root legacy storage fields', () => {

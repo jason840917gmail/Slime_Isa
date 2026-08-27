@@ -20,6 +20,7 @@ import { validateWeaponDefinition } from '../weapons/validation';
 import { validateWeaponIconAgainstCatalog, weaponIconCatalogFromManifest } from '../weapons/WeaponIconCatalog';
 import type { EffectDefinition } from '../effects/types';
 import { validateEffectDefinition } from '../effects/validation';
+import { normalizeGameConstants } from '../GameConstantsValidation';
 
 const VIRTUAL_ID = 'virtual-character-content';
 const RESOLVED_VIRTUAL_ID = `\0${VIRTUAL_ID}`;
@@ -81,6 +82,12 @@ export interface CharacterContentRootOptions {
   readonly effectRoot?: string;
   readonly assetRoot?: string;
   readonly assetManifestPath?: string;
+  readonly gameConstantsPath?: string;
+}
+
+async function readResourceTags(gameConstantsPath: string): Promise<ReadonlySet<string>> {
+  const document = JSON.parse(await fs.readFile(gameConstantsPath, 'utf8')) as unknown;
+  return new Set(normalizeGameConstants(document).resources.tags);
 }
 
 export interface CharacterContentModule {
@@ -483,6 +490,7 @@ async function weaponEffectPackageHandler(
   weaponRoot: string,
   effectRoot: string,
   assetManifestPath: string,
+  gameConstantsPath: string,
   request: IncomingMessage,
   response: ServerResponse,
   server: ViteDevServer,
@@ -494,8 +502,9 @@ async function weaponEffectPackageHandler(
   const effectOperation = payload.effectOperation === 'create' ? 'create' : 'update';
   if (!weapon) { jsonResponse(response, 400, failure('invalid-request', 'A weapon definition is required')); return; }
   const manifest = JSON.parse(await fs.readFile(assetManifestPath, 'utf8')) as unknown;
+  const resourceTags = await readResourceTags(gameConstantsPath);
   const weaponIssues = [
-    ...validateWeaponDefinition(weapon),
+    ...validateWeaponDefinition(weapon, resourceTags),
     ...validateWeaponIconAgainstCatalog(weapon, weaponIconCatalogFromManifest(manifest)),
   ];
   const effectIssues = effect ? validateEffectDefinition(effect) : [];
@@ -579,6 +588,7 @@ async function weaponCatalogHandler(root: string, response: ServerResponse): Pro
 async function weaponPackageHandler(
   root: string,
   assetManifestPath: string,
+  gameConstantsPath: string,
   request: IncomingMessage,
   response: ServerResponse,
   server: ViteDevServer,
@@ -599,8 +609,9 @@ async function weaponPackageHandler(
   const weapon = payload.weapon as AuthoredWeaponDefinition | undefined;
   if (!weapon) { jsonResponse(response, 400, failure('invalid-request', 'A weapon definition is required')); return; }
   const manifest = JSON.parse(await fs.readFile(assetManifestPath, 'utf8')) as unknown;
+  const resourceTags = await readResourceTags(gameConstantsPath);
   const issues = [
-    ...validateWeaponDefinition(weapon),
+    ...validateWeaponDefinition(weapon, resourceTags),
     ...validateWeaponIconAgainstCatalog(weapon, weaponIconCatalogFromManifest(manifest)),
   ];
   if (issues.length > 0) { jsonResponse(response, 400, failure('validation', 'Weapon definition is invalid', issues.map((message) => ({ path: message.split(':')[0], message })))); return; }
@@ -1383,6 +1394,7 @@ export function characterContentModulesPlugin(options: CharacterContentRootOptio
     effectRoot: path.resolve(options.effectRoot ?? path.join(process.cwd(), 'src/game/content/effects')),
     assetRoot,
     assetManifestPath,
+    gameConstantsPath: path.resolve(options.gameConstantsPath ?? path.join(process.cwd(), 'src/game/content/game-constants.json')),
   };
   const invalidate = (server: ViteDevServer): void => invalidateCatalog(server);
   return {
@@ -1491,21 +1503,21 @@ export function characterContentModulesPlugin(options: CharacterContentRootOptio
       });
       server.middlewares.use('/__character-studio/weapon/create', (request, response, next) => {
         if (request.method !== 'POST') { jsonResponse(response, 405, failure('invalid-request', 'POST required')); return; }
-        void weaponPackageHandler(roots.weaponRoot, roots.assetManifestPath, request, response, server, 'create').catch((error: unknown) => {
+        void weaponPackageHandler(roots.weaponRoot, roots.assetManifestPath, roots.gameConstantsPath, request, response, server, 'create').catch((error: unknown) => {
           jsonResponse(response, 400, failure('weapon-creation', error instanceof Error ? error.message : String(error)));
         });
         void next;
       });
       server.middlewares.use('/__character-studio/weapon/update', (request, response, next) => {
         if (request.method !== 'POST') { jsonResponse(response, 405, failure('invalid-request', 'POST required')); return; }
-        void weaponPackageHandler(roots.weaponRoot, roots.assetManifestPath, request, response, server, 'update').catch((error: unknown) => {
+        void weaponPackageHandler(roots.weaponRoot, roots.assetManifestPath, roots.gameConstantsPath, request, response, server, 'update').catch((error: unknown) => {
           jsonResponse(response, 400, failure('weapon-update', error instanceof Error ? error.message : String(error)));
         });
         void next;
       });
       server.middlewares.use('/__character-studio/weapon/save-package', (request, response, next) => {
         if (request.method !== 'POST') { jsonResponse(response, 405, failure('invalid-request', 'POST required')); return; }
-        void weaponEffectPackageHandler(roots.weaponRoot, roots.effectRoot, roots.assetManifestPath, request, response, server).catch((error: unknown) => {
+        void weaponEffectPackageHandler(roots.weaponRoot, roots.effectRoot, roots.assetManifestPath, roots.gameConstantsPath, request, response, server).catch((error: unknown) => {
           jsonResponse(response, 400, failure('weapon-package-save', error instanceof Error ? error.message : String(error)));
         });
         void next;

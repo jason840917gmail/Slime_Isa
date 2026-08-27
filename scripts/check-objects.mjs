@@ -2,16 +2,25 @@
 /** Validates one-file-per-object archetypes and their asset/frame references. */
 
 import { readFileSync, readdirSync } from 'node:fs';
-import { basename, join, relative } from 'node:path';
+import { basename, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { loadValidatedResourceTags } from './lib/resource-tag-catalog.mjs';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
-const objectRoot = join(repoRoot, 'src', 'game', 'content', 'objects');
+const objectRoot = resolve(process.env.SLIME_CHECK_OBJECT_ROOT ?? join(repoRoot, 'src', 'game', 'content', 'objects'));
 const animationRoot = join(repoRoot, 'src', 'game', 'content', 'animations');
 const effectRoot = join(repoRoot, 'src', 'game', 'content', 'effects');
 const itemRoot = join(repoRoot, 'src', 'game', 'content', 'items');
 const weaponRoot = join(repoRoot, 'src', 'game', 'content', 'weapons');
 const manifest = JSON.parse(readFileSync(join(repoRoot, 'asset', 'assets.json'), 'utf8'));
+const gameConstantsPath = resolve(process.env.SLIME_CHECK_GAME_CONSTANTS_PATH ?? join(repoRoot, 'src', 'game', 'content', 'game-constants.json'));
+let resourceTags;
+try {
+  resourceTags = await loadValidatedResourceTags(repoRoot, gameConstantsPath);
+} catch (error) {
+  console.error(`objects:check failed: ${error instanceof Error ? error.message : String(error)}`);
+  process.exit(1);
+}
 const idPattern = /^[a-z0-9]+([.-][a-z0-9-]+)+$/;
 const errors = [];
 const seenIds = new Map();
@@ -421,6 +430,8 @@ for (const absolutePath of objectFiles) {
       validateKeys(file, objectId, 'resourceNode.harvestRequirement', requirement, new Set(['targetTag', 'minimumTier', 'failureMessage']));
       if (typeof requirement.targetTag !== 'string' || requirement.targetTag.length === 0) {
         fail(file, objectId, 'resourceNode.harvestRequirement.targetTag', 'must be a non-empty resource tag');
+      } else if (!resourceTags.has(requirement.targetTag)) {
+        fail(file, objectId, 'resourceNode.harvestRequirement.targetTag', `unknown resource tag '${requirement.targetTag}'; configured tags: ${[...resourceTags].join(', ')}`);
       }
       if (!Number.isInteger(requirement.minimumTier) || requirement.minimumTier < 1) {
         fail(file, objectId, 'resourceNode.harvestRequirement.minimumTier', 'must be an integer >= 1');

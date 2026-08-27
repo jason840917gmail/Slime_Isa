@@ -24,7 +24,7 @@ import type {
   WeaponAttackDirection,
   WeaponAttackTrackDocument,
 } from '../content/weapons/types';
-import { validateWeaponDefinition } from '../content/weapons/validation';
+import { validateWeaponDefinitionForStudioSave } from '../content/weapons/validation';
 import { resolveAssetUrl, tryResolveAssetUrl } from '../infrastructure/assets/assetUrls';
 import {
   DOWN_UP_INHERITANCE,
@@ -1077,12 +1077,12 @@ async function saveSharedAnimationEdits(weapon: LayeredWeaponDefinition): Promis
 
 async function savePackage(state: StudioState): Promise<Partial<StudioState>> {
   if (!state.draft) throw new Error('No weapon is open');
-  const weaponIssues = validateWeaponDefinition(state.draft);
+  const weaponIssues = validateWeaponDefinitionForStudioSave(state.draft);
   if (weaponIssues.length) throw new Error(weaponIssues[0]);
   const iconIssues = validateWeaponIconAgainstCatalog(state.draft, weaponIconCatalogFromStudio(state.assets?.assets ?? []));
   if (iconIssues.length) throw new Error(iconIssues[0]);
   const weaponForSave = stripSharedAnimationCopies(state.draft);
-  const saveIssues = validateWeaponDefinition(weaponForSave);
+  const saveIssues = validateWeaponDefinitionForStudioSave(weaponForSave);
   if (saveIssues.length) throw new Error(saveIssues[0]);
   if (state.effectDraft) {
     const effectIssues = validateEffectDefinition(state.effectDraft, {
