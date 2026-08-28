@@ -1,4 +1,4 @@
-import type { PlayerProgressionDefinition } from '../../content/GameConstantsValidation';
+import type { PlayerProgressionDefinition } from '../../Constant';
 import { levelEntry } from '../../systems/PlayerProgression';
 
 export interface MigratedPlayerProgression {

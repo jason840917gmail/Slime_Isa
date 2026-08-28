@@ -4,7 +4,8 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import type { Plugin, ViteDevServer } from 'vite';
 
-import { normalizeGameConstants, validateGameConstants, type GameConstants } from './GameConstantsValidation';
+import type { GameConstants } from '../Constant';
+import { normalizeGameConstants, validateGameConstants } from './GameConstantsValidation';
 
 const ENDPOINT = '/__game-constants';
 const MAX_BODY_BYTES = 2 * 1024 * 1024;

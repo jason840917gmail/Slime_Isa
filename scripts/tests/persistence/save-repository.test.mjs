@@ -29,6 +29,7 @@ const { STORAGE_KEYS } = await vite.ssrLoadModule(
 const { createInitialRunState } = await vite.ssrLoadModule(
   '/src/game/content/initial-state/InitialRun.ts',
 );
+const { GAME_CONSTANTS } = await vite.ssrLoadModule('/src/game/Constant.ts');
 const level1Map = (await vite.ssrLoadModule('/src/game/content/maps/level-1.map.json')).default;
 
 test.after(async () => {
@@ -73,7 +74,7 @@ test('fresh initial runs do not share mutable state and use the authored Level 1
     weaponId: null,
     weaponSlots: [null, null, null, null, null, null],
   });
-  assert.deepEqual(second.inventory, { maxSlots: 24, slots: [] });
+  assert.deepEqual(second.inventory, { maxSlots: GAME_CONSTANTS.inventory.initialMaxSlots, slots: [] });
   assert.equal(second.world.discoveredAreas.includes('changed-for-test'), false);
   assert.deepEqual(second.location, {
     areaId: level1Map.mapId,
@@ -215,7 +216,10 @@ test('version 5 named and recovery saves migrate inventory capacity', () => {
   const named = repository.read(metadata.saveId);
   const recovery = repository.readRecovery();
 
-  assert.deepEqual(named.data.inventory, { maxSlots: 24, slots: [{ itemId: 'wood', count: 4 }] });
+  assert.deepEqual(named.data.inventory, {
+    maxSlots: GAME_CONSTANTS.inventory.initialMaxSlots,
+    slots: [{ itemId: 'wood', count: 4 }],
+  });
   assert.equal(named.schemaVersion, 7);
   assert.deepEqual(recovery.inventory, named.data.inventory);
   assert.deepEqual(repository.list().map((entry) => entry.saveId), [metadata.saveId]);
@@ -268,9 +272,12 @@ test('legacy cumulative XP preserves saved level and follows exact clamp rules',
 
   assert.equal(migrate(3, 80 + 226 + 17).currentXp, 17);
   assert.equal(migrate(3, 1).currentXp, 0);
-  assert.equal(migrate(3, 999_999).currentXp, 415);
-  assert.equal(migrate(10, 999_999).currentXp, 0);
-  assert.equal(migrate(11, 0), undefined);
+  assert.equal(
+    migrate(3, 999_999).currentXp,
+    GAME_CONSTANTS.character.player.progression.levels[2].xpToNextLevel - 1,
+  );
+  assert.equal(migrate(GAME_CONSTANTS.character.player.progression.maxLevel, 999_999).currentXp, 0);
+  assert.equal(migrate(GAME_CONSTANTS.character.player.progression.maxLevel + 1, 0), undefined);
   assert.equal('maxHpBonus' in migrate(2, 80), false);
   assert.equal('maxEnergyBonus' in migrate(2, 80), false);
 });

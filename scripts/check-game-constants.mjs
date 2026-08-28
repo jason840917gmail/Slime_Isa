@@ -4,6 +4,11 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
 
+import {
+  GENERATED_GAME_CONSTANTS_CONTRACT_PATHS,
+  generateGameConstantsContractSources,
+} from './lib/game-constants-contract-generator.mjs';
+
 const root = fileURLToPath(new URL('..', import.meta.url));
 
 async function loadTypeScriptModule(entryPoint) {
@@ -16,6 +21,19 @@ const items = JSON.parse(readFileSync(join(root, 'src', 'game', 'content', 'item
 const primaryPlayer = JSON.parse(readFileSync(join(root, 'src', 'game', 'content', 'characters', 'player-slime', 'character.json'), 'utf8'));
 const { validateGameConstants } = await loadTypeScriptModule('src/game/content/GameConstantsValidation.ts');
 const errors = validateGameConstants(constants).map((entry) => `${entry.path}: ${entry.message}`);
+const expectedContractSources = await generateGameConstantsContractSources(root);
+for (const relativePath of Object.values(GENERATED_GAME_CONSTANTS_CONTRACT_PATHS)) {
+  let actual = '';
+  try {
+    actual = readFileSync(join(root, relativePath), 'utf8');
+  } catch {
+    errors.push(`${relativePath}: generated contract file is missing; run pnpm constants:generate`);
+    continue;
+  }
+  if (actual !== expectedContractSources[relativePath]) {
+    errors.push(`${relativePath}: generated contract is stale; run pnpm constants:generate`);
+  }
+}
 const itemIds = Object.keys(items).sort();
 const configuredIds = Object.keys(constants.inventory?.maxStackByItem ?? {}).sort();
 

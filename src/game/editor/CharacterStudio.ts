@@ -11,7 +11,7 @@ import { resolveAssetUrl } from '../infrastructure/assets/assetUrls';
 import type { CharacterStudioAssetCatalog, CharacterStudioAssetEntry } from '../content/characters/characterAssetCatalog';
 import { CharacterDocumentState, type CharacterDocumentSnapshot } from './CharacterDocumentState';
 import { GameConstantsStudioState, type GameConstantsLevelField, type GameConstantsScalarSection, type GameConstantsStudioSnapshot } from './GameConstantsStudioState';
-import type { GameConstants } from '../content/GameConstantsValidation';
+import type { GameConstants } from '../Constant';
 import { animationCycleFrameCount, animationFrameIndexAtStep } from '../shared/animationLoop';
 import { holdLengthAtKeyframe, keyframeIndexAtTimelineFrame, normalizeAnimationClip, timelineFrameCount } from '../shared/animation';
 import { resolveCollisionShapeDimensions, type CollisionShape } from '../shared/collisionShapes';

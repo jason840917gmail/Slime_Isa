@@ -41,6 +41,7 @@ const { getBaseItemDefinitions } = await vite.ssrLoadModule('/src/game/content/i
 const { createInitialRunState } = await vite.ssrLoadModule('/src/game/content/initial-state/InitialRun.ts');
 const { Inventory, itemRegistry } = await vite.ssrLoadModule('/src/game/systems/Inventory.ts');
 const { getStats, resolveMovementSpeed } = await vite.ssrLoadModule('/src/game/systems/PlayerStats.ts');
+const { resolveLevelStats } = await vite.ssrLoadModule('/src/game/systems/PlayerProgression.ts');
 const { gameState } = await vite.ssrLoadModule('/src/game/core/GameState.ts');
 
 test('HUD initializes XP from the installed game state', async () => {
@@ -54,15 +55,16 @@ test.after(async () => vite.close());
 
 test('configured inventory rules preserve current capacity and stack behavior', () => {
   const baseItems = getBaseItemDefinitions();
-  assert.equal(GAME_CONSTANTS.inventory.initialMaxSlots, 24);
-  assert.equal(baseItems.wood.maxStack, 99);
-  assert.equal(baseItems['hp-potion'].maxStack, 9);
+  const initialMaxSlots = GAME_CONSTANTS.inventory.initialMaxSlots;
+  const woodMaxStack = GAME_CONSTANTS.inventory.maxStackByItem.wood;
+  assert.equal(baseItems.wood.maxStack, woodMaxStack);
+  assert.equal(baseItems['hp-potion'].maxStack, GAME_CONSTANTS.inventory.maxStackByItem['hp-potion']);
   assert.ok(itemRegistry.all().some((item) => item.category === 'weapon'));
-  assert.ok(itemRegistry.all().filter((item) => item.category === 'weapon').every((item) => item.maxStack === 1));
+  assert.ok(itemRegistry.all().filter((item) => item.category === 'weapon').every((item) => item.maxStack === GAME_CONSTANTS.inventory.weaponMaxStack));
 
   const inventory = new Inventory();
-  assert.equal(inventory.maxSlots(), 24);
-  assert.equal(inventory.add('wood', 24 * 99), 24 * 99);
+  assert.equal(inventory.maxSlots(), initialMaxSlots);
+  assert.equal(inventory.add('wood', initialMaxSlots * woodMaxStack), initialMaxSlots * woodMaxStack);
   assert.equal(inventory.add('wood', 1), 0);
   assert.equal(inventory.add('unknown-item', 1), 0);
 });
@@ -81,7 +83,7 @@ test('capacity is mutable and over-limit legacy stacks are grandfathered', () =>
   assert.equal(inventory.increaseMaxSlots(0), false);
   assert.equal(inventory.increaseMaxSlots(1.5), false);
   assert.equal(inventory.increaseMaxSlots(3), true);
-  assert.equal(inventory.maxSlots(), 27);
+  assert.equal(inventory.maxSlots(), GAME_CONSTANTS.inventory.initialMaxSlots + 3);
   assert.equal(emittedEvents.length, beforeEvents + 1);
 
   inventory.load({ maxSlots: 2, slots: [{ itemId: 'wood', count: 100 }] });
@@ -90,40 +92,51 @@ test('capacity is mutable and over-limit legacy stacks are grandfathered', () =>
     maxSlots: 2,
     slots: [{ itemId: 'wood', count: 100 }, { itemId: 'wood', count: 1 }],
   });
-  assert.equal(inventory.add('wood', 99), 98);
+  assert.equal(inventory.add('wood', 99), GAME_CONSTANTS.inventory.maxStackByItem.wood - 1);
   assert.equal(inventory.remove('wood', 2), 2);
 });
 
 test('runtime XP grants one reward per crossed level and refills final maxima', () => {
   gameState.load(createInitialRunState().player);
   const eventStart = emittedEvents.length;
-  gameState.addXp(80 + 226 + 30);
+  const progression = GAME_CONSTANTS.character.player.progression;
+  const levelOneXp = progression.levels[0].xpToNextLevel;
+  const levelTwoXp = progression.levels[1].xpToNextLevel;
+  assert.notEqual(levelOneXp, null);
+  assert.notEqual(levelTwoXp, null);
+  gameState.addXp(levelOneXp + levelTwoXp + 30);
 
   assert.equal(gameState.level, 3);
   assert.equal(gameState.currentXp, 30);
-  assert.equal(gameState.xpToNextLevel, 416);
+  assert.equal(gameState.xpToNextLevel, progression.levels[2].xpToNextLevel);
   assert.equal(gameState.skillPoints, 2);
-  assert.equal(gameState.maxHp, 124);
-  assert.equal(gameState.hp, 124);
-  assert.equal(gameState.maxEnergy, 108);
-  assert.equal(gameState.energy, 108);
+  const levelThreeStats = resolveLevelStats(progression, 3);
+  assert.equal(gameState.maxHp, levelThreeStats.maxHp);
+  assert.equal(gameState.hp, levelThreeStats.maxHp);
+  assert.equal(gameState.maxEnergy, levelThreeStats.maxEnergy);
+  assert.equal(gameState.energy, levelThreeStats.maxEnergy);
   assert.deepEqual(emittedEvents.slice(eventStart).filter((entry) => entry.event === 'level.up').map((entry) => entry.payload.level), [2, 3]);
 });
 
 test('load clamps maxima without refill and maximum level cannot reward level 11', () => {
   const initial = createInitialRunState().player;
+  const progression = GAME_CONSTANTS.character.player.progression;
   gameState.load({ ...initial, level: 3, currentXp: 0, hp: 999, energy: 999 });
-  assert.equal(gameState.hp, 124);
-  assert.equal(gameState.energy, 108);
+  const levelThreeStats = resolveLevelStats(progression, 3);
+  assert.equal(gameState.hp, levelThreeStats.maxHp);
+  assert.equal(gameState.energy, levelThreeStats.maxEnergy);
 
-  gameState.load({ ...initial, level: 9, currentXp: 2159, hp: 1, energy: 1 });
+  const finalLevel = progression.maxLevel;
+  const previousLevelXp = progression.levels[finalLevel - 2].xpToNextLevel;
+  assert.notEqual(previousLevelXp, null);
+  gameState.load({ ...initial, level: finalLevel - 1, currentXp: previousLevelXp - 1, hp: 1, energy: 1 });
   gameState.addXp(1);
-  assert.equal(gameState.level, 10);
+  assert.equal(gameState.level, finalLevel);
   assert.equal(gameState.currentXp, 0);
   assert.equal(gameState.xpToNextLevel, null);
   const skillPoints = gameState.skillPoints;
   gameState.addXp(999_999);
-  assert.equal(gameState.level, 10);
+  assert.equal(gameState.level, finalLevel);
   assert.equal(gameState.currentXp, 0);
   assert.equal(gameState.skillPoints, skillPoints);
 });

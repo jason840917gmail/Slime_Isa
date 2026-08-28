@@ -1,4 +1,4 @@
-import type { PlayerLevelDefinition, PlayerProgressionDefinition } from '../content/GameConstantsValidation';
+import type { PlayerLevelDefinition, PlayerProgressionDefinition } from '../Constant';
 
 export interface ResolvedLevelStats {
   readonly maxHp: number;
