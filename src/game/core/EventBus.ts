@@ -13,8 +13,7 @@ export type GameEvents = {
   'coins.changed': { coins: number; delta: number };
   'boost.changed': { boostBonus: number; delta: number };
   'friend.count': { count: number };
-  'player.collect': { kind: 'berry' | 'chip'; value: number };
-  'collectible.collected': { mapId: string; instanceId: string; objectId: string; itemId: string; quantity: number };
+  'collectible.collected': CollectibleCollectedPayload;
   'player.action': { anim: string };
   'house.enter': { houseId: number };
   'house.leave': {};
@@ -49,6 +48,14 @@ export type GameEvents = {
   'levelup.modal.open': { choices: PerkChoice[] };
   'levelup.modal.close': { pickedPerkId: string | null };
 };
+
+export interface CollectibleCollectedPayload {
+  readonly mapId: string;
+  readonly instanceId: string;
+  readonly objectId: string;
+  readonly itemId: string;
+  readonly quantity: number;
+}
 
 type Handler<T extends keyof GameEvents> = (payload: GameEvents[T]) => void;
 

@@ -61,6 +61,8 @@ import { CombatController } from '../features/combat/CombatController';
 import { ResourceNodeController } from '../features/resources/ResourceNodeController';
 import { worldProgress } from '../features/progression/WorldProgress';
 import { CollectibleController } from '../features/collectibles/CollectibleController';
+import { CollectibleEventChannel } from '../features/collectibles/CollectibleEventChannel';
+import { CollectibleReactionController } from '../features/collectibles/CollectibleReactionController';
 import { OcclusionController } from '../features/occlusion/OcclusionController';
 import { DepthDiagnostics } from '../features/occlusion/DepthDiagnostics';
 import { MapBuilder, type BuiltMap } from '../features/world/MapBuilder';
@@ -74,6 +76,7 @@ import { updateDevToolsCameraZoom } from '../devTools';
 import type { GameLocationData, FacingDirection } from '../infrastructure/persistence/SaveSchema';
 
 const EDGE_TRANSITION_GRACE_MS = 650;
+const COLLECTIBLE_EVENTS = new CollectibleEventChannel(gameEvents);
 
 interface WorldSceneData {
   areaId?: AreaId;
@@ -101,12 +104,10 @@ export class WorldScene extends Phaser.Scene {
   private playerHouse?: House;
   private houseSystem!: HouseSystem;
   private inputBindings?: InputBindings;
-  private purpleFoods!: Phaser.Physics.Arcade.StaticGroup;
   private collectibleTargets!: Phaser.Physics.Arcade.StaticGroup;
   private resourceTargets!: Phaser.GameObjects.Group;
   private resourceNodes?: ResourceNodeController;
   private collectibles?: CollectibleController;
-  private grapeChips!: Phaser.Physics.Arcade.StaticGroup;
   private playerController!: PlayerController;
   private healthSystem?: HealthSystem;
   private statusEffects?: StatusEffectManager;
@@ -212,6 +213,7 @@ export class WorldScene extends Phaser.Scene {
     // Phase 2: UI systems
     this.createMinimap();
     this.createHUD();
+    this.createCollectibleReactions();
     this.createControls();
     const modalStack = this.game.registry.get('modalStack');
     if (!(modalStack instanceof ModalStack)) {
@@ -545,8 +547,7 @@ export class WorldScene extends Phaser.Scene {
       getFriends: () => this.friends,
       getCombatTargets: () => this.combatController?.targets ?? null,
       getCollisionTiles: () => this.collisionTiles,
-      getPurpleFoods: () => this.purpleFoods,
-      getGrapeChips: () => this.grapeChips,
+      getCollectibleTargets: () => this.collectibleTargets,
       getDungeonSwitches: () => this.dungeonSwitches,
       getDungeonChests: () => this.dungeonChests,
       getHouses: () => this.houses,
@@ -613,17 +614,8 @@ export class WorldScene extends Phaser.Scene {
       group: this.collectibleTargets,
       inventory: playerInventory,
       progress: worldProgress,
+      publisher: COLLECTIBLE_EVENTS,
       showMessage: (x, y, message, color, important) => floatingText.spawn(this, x, y, message, color, important),
-      onCollected: (payload) => {
-        const { objectId, quantity } = payload;
-        gameEvents.emit('collectible.collected', payload);
-        this.playActionAnimation('slime-eat');
-        if (objectId === 'collectible.purple-berry') {
-          gameState.addCoins(5 * quantity);
-          gameEvents.emit('player.collect', { kind: 'berry', value: 5 * quantity });
-          this.hud.flashCoins(this);
-        }
-      },
       onStateChanged: (change) => this.resourceNodes?.onCollectibleStateChanged(change),
     });
     this.resourceNodes = new ResourceNodeController({
@@ -642,12 +634,19 @@ export class WorldScene extends Phaser.Scene {
     this.terrainGrid = this.builtMap.terrainGrid;
   }
 
+  private createCollectibleReactions(): void {
+    this.disposables.addDisposable(new CollectibleReactionController({
+      events: COLLECTIBLE_EVENTS,
+      awardCoins: (amount) => gameState.addCoins(amount),
+      playEatAnimation: () => this.playActionAnimation('slime-eat'),
+      flashCoins: () => this.hud.flashCoins(this),
+    }));
+  }
+
   private createCollisionLayer(): void {
     this.collisionTiles = this.physics.add.staticGroup();
     this.collectibleTargets = this.physics.add.staticGroup();
-    this.purpleFoods = this.collectibleTargets;
     this.resourceTargets = this.add.group();
-    this.grapeChips = this.physics.add.staticGroup();
     this.dungeonSwitches = this.physics.add.staticGroup();
     this.dungeonChests = this.physics.add.staticGroup();
   }
@@ -694,9 +693,6 @@ export class WorldScene extends Phaser.Scene {
         this.collectibles?.collect(collectible as Phaser.GameObjects.GameObject);
       });
     }
-    if (this.grapeChips) {
-      this.physics.add.overlap(this.player, this.grapeChips, this.collectGrapeChips, undefined, this);
-    }
     if (this.dungeonSwitches) {
       this.physics.add.overlap(this.player, this.dungeonSwitches, (_player, switchObject) => {
         this.dungeonController?.activateSwitch(switchObject as Phaser.GameObjects.GameObject);
@@ -735,19 +731,6 @@ export class WorldScene extends Phaser.Scene {
         this.transitionTo(exit.to as AreaId, exit.entry as Direction);
       });
     }
-  }
-
-  private collectGrapeChips(_playerObj: any, chipObj: any): void {
-    const p = chipObj as Phaser.Physics.Arcade.Image | null;
-    if (!p || !p.active) return;
-
-    this.playActionAnimation('slime-eat');
-
-    p.destroy();
-
-    gameState.addCoins(12);
-    gameEvents.emit('player.collect', { kind: 'chip', value: 12 });
-    this.hud.flashCoins(this);
   }
 
   private createCrystalTrial(): void {

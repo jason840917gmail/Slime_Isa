@@ -1,6 +1,7 @@
 import type Phaser from 'phaser';
 
 import { getObjectArchetype, isObjectArchetypeId } from '../../content/objects/ObjectCatalog';
+import type { CollectibleCollectedPayload } from '../../core/EventBus';
 import type { CollectibleProgressState } from '../progression/WorldProgress';
 import type { BuiltObjectRegistration } from '../world/MapBuilder';
 
@@ -8,6 +9,10 @@ export interface CollectibleStateChange {
   readonly instanceId: string;
   readonly remaining: number;
   readonly sourceResourceInstanceId?: string;
+}
+
+export interface CollectibleEventPublisher {
+  publishCollected(payload: CollectibleCollectedPayload): void;
 }
 
 interface CollectibleRecord {
@@ -28,8 +33,8 @@ export interface CollectibleControllerContext {
     collectibleState(mapId: string, instanceId: string): CollectibleProgressState | undefined;
     setCollectibleState(mapId: string, instanceId: string, state: CollectibleProgressState): void;
   };
+  readonly publisher: CollectibleEventPublisher;
   readonly showMessage: (x: number, y: number, message: string, color: 'white' | 'yellow', important?: boolean) => void;
-  readonly onCollected?: (payload: { mapId: string; instanceId: string; objectId: string; itemId: string; quantity: number }) => void;
   readonly onStateChanged?: (change: CollectibleStateChange) => void;
 }
 
@@ -91,6 +96,8 @@ export class CollectibleController {
       return;
     }
 
+    const messageX = record.image.x;
+    const messageY = record.image.y - 34;
     record.remaining -= added;
     record.image.setData('collectibleQuantity', record.remaining);
     this.ctx.progress.setCollectibleState(this.ctx.mapId, record.instanceId, {
@@ -102,15 +109,16 @@ export class CollectibleController {
       remaining: record.remaining,
       ...(record.sourceResourceInstanceId ? { sourceResourceInstanceId: record.sourceResourceInstanceId } : {}),
     });
-    this.ctx.showMessage(record.image.x, record.image.y - 34, `+${added} ${record.itemId}`, 'yellow');
-    this.ctx.onCollected?.({
+    const payload: CollectibleCollectedPayload = {
       mapId: this.ctx.mapId,
       instanceId: record.instanceId,
       objectId: record.objectId,
       itemId: record.itemId,
       quantity: added,
-    });
+    };
     if (record.remaining <= 0) this.remove(record);
+    this.ctx.showMessage(messageX, messageY, `+${added} ${record.itemId}`, 'yellow');
+    this.ctx.publisher.publishCollected(payload);
   }
 
   destroy(): void {

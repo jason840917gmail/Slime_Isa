@@ -22,6 +22,8 @@ const vite = await createServer({
 });
 
 const { CollectibleController } = await vite.ssrLoadModule('/src/game/features/collectibles/CollectibleController.ts');
+const { CollectibleEventChannel } = await vite.ssrLoadModule('/src/game/features/collectibles/CollectibleEventChannel.ts');
+const { CollectibleReactionController } = await vite.ssrLoadModule('/src/game/features/collectibles/CollectibleReactionController.ts');
 const { completeDropPlacements } = await vite.ssrLoadModule('/src/game/features/resources/ResourceDropPlacement.ts');
 
 test.after(async () => vite.close());
@@ -30,7 +32,8 @@ function harness(capacities, savedState) {
   const children = [];
   const persisted = new Map();
   const messages = [];
-  const collected = [];
+  const published = [];
+  const handlers = new Set();
   const image = {
     active: true,
     x: 120,
@@ -52,17 +55,26 @@ function harness(capacities, savedState) {
     collectibleState: () => savedState,
     setCollectibleState(_mapId, instanceId, state) { persisted.set(instanceId, state); },
   };
+  const eventBus = {
+    emit(event, payload) {
+      published.push({ event, payload, imageActive: image.active });
+      for (const handler of handlers) handler(payload);
+    },
+    on(_event, handler) { handlers.add(handler); },
+    off(_event, handler) { handlers.delete(handler); },
+  };
+  const events = new CollectibleEventChannel(eventBus);
   const controller = new CollectibleController({
     scene: { time: { now: 10_000 } },
     mapId: 'level-1',
     group,
     inventory: { add: (_itemId, requested) => Math.min(requested, capacities.shift() ?? 0) },
     progress,
+    publisher: events,
     showMessage: (...message) => messages.push(message),
-    onCollected: (payload) => collected.push(payload),
   });
   controller.register({ image, objectId: 'collectible.wood-pile', instanceId: 'wood-01' });
-  return { controller, image, persisted, messages, collected };
+  return { controller, image, persisted, messages, published };
 }
 
 test('walk-over transfer handles full pickup and exact-once depletion', () => {
@@ -71,9 +83,13 @@ test('walk-over transfer handles full pickup and exact-once depletion', () => {
   state.controller.collect(state.image);
   assert.equal(state.image.active, false);
   assert.equal(state.persisted.get('wood-01').remaining, 0);
-  assert.equal(state.collected.length, 1);
-  assert.deepEqual(state.collected[0], {
-    mapId: 'level-1', instanceId: 'wood-01', objectId: 'collectible.wood-pile', itemId: 'wood', quantity: 10,
+  assert.equal(state.published.length, 1);
+  assert.deepEqual(state.published[0], {
+    event: 'collectible.collected',
+    imageActive: false,
+    payload: {
+      mapId: 'level-1', instanceId: 'wood-01', objectId: 'collectible.wood-pile', itemId: 'wood', quantity: 10,
+    },
   });
 });
 
@@ -81,13 +97,56 @@ test('walk-over transfer preserves partial and zero-capacity quantities', () => 
   const state = harness([0, 4, 6]);
   state.controller.collect(state.image);
   assert.equal(state.persisted.size, 0);
+  assert.equal(state.published.length, 0);
   assert.equal(state.messages.at(-1)[2], 'Inventory full');
   state.controller.collect(state.image);
   assert.equal(state.persisted.get('wood-01').remaining, 6);
   assert.equal(state.image.active, true);
+  assert.equal(state.published.length, 1);
+  assert.equal(state.published[0].event, 'collectible.collected');
+  assert.equal(state.published[0].payload.quantity, 4);
+  assert.equal(state.published[0].imageActive, true);
   state.controller.collect(state.image);
   assert.equal(state.persisted.get('wood-01').remaining, 0);
   assert.equal(state.image.active, false);
+  assert.equal(state.published.length, 2);
+  assert.equal(state.published[1].event, 'collectible.collected');
+  assert.equal(state.published[1].payload.quantity, 6);
+  assert.equal(state.published[1].imageActive, false);
+});
+
+test('berry reactions consume the event once and unsubscribe on disposal', () => {
+  const handlers = new Set();
+  const eventBus = {
+    emit(_event, payload) { for (const handler of handlers) handler(payload); },
+    on(_event, handler) { handlers.add(handler); },
+    off(_event, handler) { handlers.delete(handler); },
+  };
+  const events = new CollectibleEventChannel(eventBus);
+  const reactions = [];
+  const controller = new CollectibleReactionController({
+    events,
+    awardCoins: (amount) => reactions.push(['coins', amount]),
+    playEatAnimation: () => reactions.push(['animation']),
+    flashCoins: () => reactions.push(['flash']),
+  });
+
+  events.publishCollected({
+    mapId: 'level-1', instanceId: 'berry-01', objectId: 'collectible.purple-berry', itemId: 'purple-berry-mat', quantity: 2,
+  });
+  assert.deepEqual(reactions, [['animation'], ['coins', 10], ['flash']]);
+
+  events.publishCollected({
+    mapId: 'level-1', instanceId: 'wood-01', objectId: 'collectible.wood-pile', itemId: 'wood', quantity: 10,
+  });
+  assert.equal(reactions.length, 3);
+
+  controller.dispose();
+  assert.equal(handlers.size, 0);
+  events.publishCollected({
+    mapId: 'level-1', instanceId: 'berry-02', objectId: 'collectible.purple-berry', itemId: 'purple-berry-mat', quantity: 1,
+  });
+  assert.equal(reactions.length, 3);
 });
 
 test('fallback resource drops use stable distinct offsets', () => {
