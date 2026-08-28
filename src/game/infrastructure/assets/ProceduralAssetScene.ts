@@ -128,35 +128,6 @@ export class ProceduralAssetScene extends Phaser.Scene {
     graphics.generateTexture('purple-berry', 16, 16);
     graphics.clear();
 
-    // Grape chip bag texture â€” small purple snack bag with crinkly top
-    graphics.fillStyle(0x4a1f5e, 1);
-    graphics.fillRoundedRect(2, 3, 12, 11, 1.5);
-    // bag seal
-    graphics.fillStyle(0x2c0e3a, 1);
-    graphics.fillRect(2, 2, 12, 2);
-    // diagonal crinkle marks
-    graphics.lineStyle(1, 0x2c0e3a, 1);
-    graphics.beginPath();
-    graphics.moveTo(4, 3);
-    graphics.lineTo(5, 4);
-    graphics.moveTo(7, 3);
-    graphics.lineTo(8, 4);
-    graphics.moveTo(10, 3);
-    graphics.lineTo(11, 4);
-    graphics.strokePath();
-    // grape graphic on bag
-    graphics.fillStyle(0x8e44ad, 1);
-    graphics.fillCircle(6, 9, 1.2);
-    graphics.fillCircle(7.5, 9.5, 1.2);
-    graphics.fillCircle(9, 9, 1.2);
-    graphics.fillStyle(0x6c3483, 1);
-    graphics.fillCircle(7, 7.5, 1);
-    // highlight
-    graphics.fillStyle(0xffffff, 0.35);
-    graphics.fillRect(3, 5, 1.5, 5);
-    graphics.generateTexture('grape-chip', 16, 16);
-    graphics.clear();
-
     // Big blue house texture (larger decorative house for player)
     graphics.fillStyle(0x2b69d1, 1);
     graphics.fillRoundedRect(0, 28, 128, 80, 10);

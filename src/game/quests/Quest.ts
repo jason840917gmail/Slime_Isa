@@ -1,14 +1,23 @@
 export type QuestStatus = 'active' | 'completed';
-export type QuestObjectiveKind = 'collect' | 'kill' | 'discover-area';
 
-export interface QuestObjectiveDef {
-  id: string;
-  kind: QuestObjectiveKind;
-  label: string;
-  target: number;
-  collectKind?: 'berry' | 'chip';
-  areaId?: string;
+interface QuestObjectiveBase {
+  readonly id: string;
+  readonly label: string;
+  readonly target: number;
 }
+
+export type QuestObjectiveDef =
+  | (QuestObjectiveBase & {
+    readonly kind: 'collect';
+    readonly itemIds: readonly string[];
+  })
+  | (QuestObjectiveBase & {
+    readonly kind: 'kill';
+  })
+  | (QuestObjectiveBase & {
+    readonly kind: 'discover-area';
+    readonly areaId: string;
+  });
 
 export interface QuestDef {
   id: string;
@@ -16,7 +25,7 @@ export interface QuestDef {
   giver: string;
   area: string;
   description: string;
-  objectives: QuestObjectiveDef[];
+  objectives: readonly QuestObjectiveDef[];
   rewards: {
     coins?: number;
     xp?: number;
@@ -38,7 +47,13 @@ export const QUEST_DEFS: readonly QuestDef[] = [
     area: 'Level 1',
     description: 'Prove you are ready to explore: gather supplies, defeat nearby threats, and find the forest path.',
     objectives: [
-      { id: 'snacks', kind: 'collect', label: 'Collect meadow snacks', target: 3 },
+      {
+        id: 'snacks',
+        kind: 'collect',
+        label: 'Collect meadow snacks',
+        target: 3,
+        itemIds: ['purple-berry-mat'],
+      },
       { id: 'enemies', kind: 'kill', label: 'Defeat enemies', target: 3 },
       { id: 'forest', kind: 'discover-area', label: 'Discover Gloop Forest', target: 1, areaId: 'gloop-forest' },
     ],

@@ -1,5 +1,6 @@
-import { gameEvents } from '../core/EventBus';
+import { gameEvents, type GameEvents } from '../core/EventBus';
 import { gameState } from '../core/GameState';
+import { collectibleProgressAmount } from './QuestCollectionProgress';
 import { QUEST_DEFS, getQuestDef, type QuestState } from './Quest';
 
 class QuestTrackerImpl {
@@ -11,7 +12,7 @@ class QuestTrackerImpl {
     this.started = true;
     this.ensureStarterQuests();
 
-    gameEvents.on('player.collect', this.onCollect, this);
+    gameEvents.on('collectible.collected', this.onCollectibleCollected, this);
     gameEvents.on('enemy.died', this.onEnemyDied, this);
     gameEvents.on('area.enter', this.onAreaEnter, this);
   }
@@ -56,14 +57,13 @@ class QuestTrackerImpl {
     }
   }
 
-  private onCollect = (payload: { kind: 'berry' | 'chip'; value: number }): void => {
+  private onCollectibleCollected = (payload: GameEvents['collectible.collected']): void => {
     for (const state of this.active()) {
       const def = getQuestDef(state.id);
       if (!def) continue;
       for (const obj of def.objectives) {
-        if (obj.kind !== 'collect') continue;
-        if (obj.collectKind && obj.collectKind !== payload.kind) continue;
-        this.increment(state, obj.id, 1, obj.target);
+        const amount = collectibleProgressAmount(obj, payload);
+        if (amount > 0) this.increment(state, obj.id, amount, obj.target);
       }
     }
   };

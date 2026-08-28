@@ -23,8 +23,7 @@ export interface WorldDebugContext {
   getFriends: () => Phaser.Physics.Arcade.Group | undefined;
   getCombatTargets: () => Phaser.Physics.Arcade.Group | null;
   getCollisionTiles: () => Phaser.Physics.Arcade.StaticGroup | undefined;
-  getPurpleFoods: () => Phaser.Physics.Arcade.StaticGroup | undefined;
-  getGrapeChips: () => Phaser.Physics.Arcade.StaticGroup | undefined;
+  getCollectibleTargets: () => Phaser.Physics.Arcade.StaticGroup | undefined;
   getDungeonSwitches: () => Phaser.Physics.Arcade.StaticGroup | undefined;
   getDungeonChests: () => Phaser.Physics.Arcade.StaticGroup | undefined;
   getHouses: () => Array<{ house: House }>;
@@ -85,8 +84,7 @@ export class WorldDebugRenderer {
     this.drawObjectBounds(g, this.ctx.getPlayer(), 0x72d8ff, 0.95);
     this.forChildren(this.ctx.getFriends(), (child) => this.drawObjectBounds(g, child, 0x72d8ff, 0.75));
     this.forChildren(this.ctx.getCombatTargets(), (child) => this.drawObjectBounds(g, child, 0x72d8ff, 0.85));
-    this.forChildren(this.ctx.getPurpleFoods(), (child) => this.drawObjectBounds(g, child, 0x72d8ff, 0.55));
-    this.forChildren(this.ctx.getGrapeChips(), (child) => this.drawObjectBounds(g, child, 0x72d8ff, 0.55));
+    this.forChildren(this.ctx.getCollectibleTargets(), (child) => this.drawObjectBounds(g, child, 0x72d8ff, 0.55));
     this.forWorldObjects((object) => this.drawObjectBounds(g, object, 0x72d8ff, 0.75));
     for (const entry of this.ctx.getHouses()) this.drawObjectBounds(g, entry.house.sprite, 0x72d8ff, 0.65);
   }
@@ -166,8 +164,7 @@ export class WorldDebugRenderer {
   private drawInteractionZones(g: Phaser.GameObjects.Graphics): void {
     for (const entry of this.ctx.getHouses()) this.drawBody(g, this.bodyOf(entry.house.doorZone), 0x73e2b1, 0.9);
     for (const zone of this.ctx.getTransitionZones()) this.drawBody(g, this.bodyOf(zone), 0x73e2b1, 0.85);
-    this.forChildren(this.ctx.getPurpleFoods(), (child) => this.drawBody(g, this.bodyOf(child), 0x73e2b1, 0.75));
-    this.forChildren(this.ctx.getGrapeChips(), (child) => this.drawBody(g, this.bodyOf(child), 0x73e2b1, 0.75));
+    this.forChildren(this.ctx.getCollectibleTargets(), (child) => this.drawBody(g, this.bodyOf(child), 0x73e2b1, 0.75));
     this.forChildren(this.ctx.getDungeonSwitches(), (child) => this.drawBody(g, this.bodyOf(child), 0x73e2b1, 0.85));
     this.forChildren(this.ctx.getDungeonChests(), (child) => this.drawBody(g, this.bodyOf(child), 0x73e2b1, 0.85));
   }

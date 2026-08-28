@@ -41,7 +41,7 @@ Left off here:
 | Friends | 84 wandering NPCs, ears/face/color variants, chat | `Friend.ts` |
 | Houses | enter/sleep/coin reward, player + friend homes | `House.ts`, `WorldScene.ts:760` |
 | Shop | buy boost speed / spawn friend | `ShopUI.ts` |
-| Collectibles | purple berry (+5c), grape chip (+12c) | `WorldScene.ts:412` |
+| Collectibles | Authored walk-over berries and material piles with inventory-aware partial collection | `CollectibleController.ts` |
 | Animations | 9 clips from `slime_normalized.png` (8×8 sheet) | `slimeAnimations.ts:28` |
 | UI | HUD (coins/friends), minimap, chat, controls panel | `HUD.ts`, `Minimap.ts`, `ChatUI.ts` |
 | Missing | health, combat, enemies, XP, levels, abilities, weapons, quests, inventory, save, audio, particles, day/night, menu, pause, death, dungeons, bosses, fast-travel | — |

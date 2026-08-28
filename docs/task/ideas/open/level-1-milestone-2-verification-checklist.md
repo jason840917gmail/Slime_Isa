@@ -74,14 +74,18 @@ Evidence/notes:
 - [x] Pressing `F` near loose material does not grant an additional pickup.
 - [x] Each pile grants its contents exactly once.
 - [x] Collection feedback and inventory counts agree.
-- [ ] Quest/event reactions do not double-count collection.
+- [x] Quest/event reactions do not double-count collection.
 - [ ] With a full inventory, the untransferred quantity remains in the world.
 - [ ] After freeing inventory capacity, the remaining quantity can be collected.
 - [ ] Saving after partial collection restores the exact remaining quantities.
 
 Evidence/notes:
 
-> Pending.
+> Automated evidence: `pnpm test:collectibles` verifies authoritative event
+> name, exact-once publication, transferred quantities, depletion before
+> publication, berry reactions, and listener cleanup. `pnpm test:quests`
+> verifies matching-item progress and continuation from stored nonzero progress.
+> The remaining partial-inventory and save/reload rows still require verification.
 
 ## C. Starter crafting
 
