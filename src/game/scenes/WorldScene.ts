@@ -74,8 +74,9 @@ import type { LoadedMap } from '../infrastructure/maps/MapRepository';
 import type { WorldDimensions } from '../world/WorldDimensions';
 import { updateDevToolsCameraZoom } from '../devTools';
 import type { GameLocationData, FacingDirection } from '../infrastructure/persistence/SaveSchema';
+import { GAME_CONSTANTS } from '../Constant';
 
-const EDGE_TRANSITION_GRACE_MS = 650;
+const EDGE_TRANSITION_GRACE_MS = GAME_CONSTANTS.worldNavigation.edgeTransitionGraceMs;
 const COLLECTIBLE_EVENTS = new CollectibleEventChannel(gameEvents);
 
 interface WorldSceneData {

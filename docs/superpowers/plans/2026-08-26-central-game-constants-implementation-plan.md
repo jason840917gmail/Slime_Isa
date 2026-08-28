@@ -48,11 +48,13 @@ working tree. Implementers must preserve those edits, inspect the latest file
 state before each patch, and never replace whole Studio/plugin files from this
 plan's baseline assumptions.
 
-## Normative initial level table
+## Historical implementation baseline
 
-The first checked-in table preserves the current XP formula and uniform stat
-growth through the newly explicit level-10 cap. The `200` and `500` values in
-the design discussion were shape examples, not initial balance values.
+The table below records the balance values used when the central configuration
+was first implemented. It is migration history, not an ongoing source of
+truth. Current XP requirements and gains live only in
+`src/game/content/game-constants.json`; tests resolve expected behavior from
+that document instead of repeating these numbers.
 
 | Current level | XP to next | Max HP gain on reaching level | Energy gain | Attack gain | Defense gain |
 |---:|---:|---:|---:|---:|---:|
@@ -72,20 +74,32 @@ row, so level 1 has zero gains and level 10 still has the final earned gain.
 
 ## Phase 1 - Configuration foundation and behavior parity
 
-### 1. Add the versioned source, schema, and pure validator
+### 1. Add the versioned source, schema-driven validator, and typed gateway
 
 Add:
 
 - `src/game/content/game-constants.json`;
 - `src/game/content/game-constants.schema.json`;
+- `src/game/content/GameConstantsDocument.generated.ts`;
+- `src/game/content/GameConstantsSchemaValidator.generated.js`;
+- `src/game/content/GameConstantsTypes.ts`;
 - `src/game/content/GameConstantsValidation.ts`;
 - `src/game/Constant.ts`;
+- `scripts/generate-game-constants-contract.mjs`;
 - `scripts/check-game-constants.mjs`;
 - `scripts/tests/game-constants/game-constants.test.mjs`.
 
 The JSON contains the complete inventory and player structure from the design,
-including all ten normative level rows above. The schema uses
+including the complete authored level table. It is the only authored source
+of gameplay values. The schema is the structural contract and uses
 `additionalProperties: false` at every object boundary.
+
+The schema generates both `GameConstantsDocument` and a standalone structural
+validator. `GameConstantsTypes.ts` applies deep-readonly semantics and focused
+aliases to that generated contract. Adding a property must not require a
+second hand-written TypeScript interface or ship the Ajv compiler to the
+browser. Runtime consumers continue importing values and re-exported types
+through `Constant.ts`.
 
 `GameConstantsValidation.ts` is Phaser-free and exports:
 
@@ -99,11 +113,15 @@ function validateGameConstants(value: unknown): readonly GameConstantsIssue[];
 function normalizeGameConstants(value: unknown): GameConstants;
 ```
 
-Validation must cover structural types, finite/nonnegative values, integer
-millisecond and stack values, movement ordering, contiguous ordered level rows,
-level-1 zero gains, final `xpToNextLevel: null`, and every other invariant in
-the design. `normalizeGameConstants` throws one `GameConstantsValidationError`
-containing all issues; it never inserts fallback balance values.
+JSON Schema validation owns required and unknown properties, structural types,
+finite/nonnegative values, integer millisecond and stack values, patterns, and
+collection constraints. `GameConstantsValidation.ts` must not repeat property
+whitelists or structural field declarations. Its TypeScript logic owns only
+cross-field invariants that JSON Schema cannot express clearly: movement
+ordering, contiguous ordered level rows, level-table length, level-1 zero
+gains, and final `xpToNextLevel: null`. `normalizeGameConstants` throws one
+`GameConstantsValidationError` containing field-addressable issues from both
+layers; it never inserts fallback balance values.
 
 `Constant.ts` imports the JSON, validates it immediately, recursively freezes
 the normalized object with `Object.freeze`, and exports it as a compile-time
@@ -114,11 +132,18 @@ The game must fail before `BootScene` when validation fails. The thrown error
 includes the JSON path and every issue, so a production build never starts with
 a partially accepted configuration.
 
-`check-game-constants.mjs` loads the same pure TypeScript validator with the
+`check-game-constants.mjs` loads the same schema-driven validator with the
 existing esbuild-to-memory pattern. It additionally reads `items.json` and
 requires exact bidirectional parity between base item keys and
 `inventory.maxStackByItem` keys. Do not duplicate the structural validator in
-the script.
+the script. It also regenerates the contract in memory and rejects stale or
+missing generated files. `pnpm constants:generate` refreshes those files after
+an intentional schema change.
+
+In development, Vite remains available when authored constants are invalid so
+Character Studio can display and repair the document. The gameplay gateway
+still fails before `BootScene`. Production builds validate the imported
+document and fail instead of emitting a game with invalid constants.
 
 Add `constants:check` to `package.json` and place it before content/runtime
 tests in `pnpm check`.
@@ -142,9 +167,9 @@ Replace the local `MAX_SLOTS` literal with
 phase. Do not change `GameSaveData.inventory` yet. This isolates centralization
 from persistence migration.
 
-Tests prove the configured initial capacity is 24, base item stacks remain
-exactly 99/9 as today, weapon stacks remain 1, unknown items still fail, and
-collectible partial-transfer behavior is unchanged.
+Tests prove inventory capacity and stack behavior match the currently authored
+JSON values, unknown items still fail, and collectible partial-transfer
+behavior is unchanged. Tests must not repeat mutable balance numbers.
 
 ### 3. Migrate non-progression player values without touching progression
 
@@ -267,10 +292,10 @@ captures and installs the inventory-owned structure transactionally.
 
 ### Phase 2 acceptance gate
 
-- new run begins with 24 slots;
+- a new run begins with the currently configured slot capacity;
 - an increased capacity survives recovery and named-save round trips;
-- a legacy save with more than 24 occupied slots migrates with capacity equal
-  to its occupied count and loses no items;
+- a legacy save with more occupied slots than the configured default migrates
+  with capacity equal to its occupied count and loses no items;
 - over-limit legacy stacks remain removable and accept no additional items;
 - an invalid capacity rejects the snapshot without changing the active run;
 - `pnpm test:persistence`, `pnpm test:collectibles`, `pnpm typecheck`,
@@ -373,7 +398,7 @@ Add `scripts/tests/progression/player-progression.test.mjs`, a
 
 ### Phase 3 acceptance gate
 
-- every normative XP row and gain resolves exactly;
+- every authored XP row and gain resolves exactly;
 - one XP grant can cross multiple levels with the correct remainder and one
   reward per level;
 - level 10 stores zero current XP and cannot reward level 11;
@@ -463,7 +488,10 @@ Add `scripts/tests/character-studio/game-constants-authoring.test.mjs` covering:
 
 | Concern | Primary files |
 |---|---|
-| Authored gameplay values | `src/game/content/game-constants.json` and schema |
+| Authored gameplay values | `src/game/content/game-constants.json` |
+| Structural contract | `game-constants.schema.json` |
+| Generated structural contract | `GameConstantsDocument.generated.ts`, `GameConstantsSchemaValidator.generated.js` |
+| Derived readonly types | `GameConstantsTypes.ts`, re-exported by `src/game/Constant.ts` |
 | Runtime validation/gateway | `GameConstantsValidation.ts`, `src/game/Constant.ts` |
 | Repository validation | `scripts/check-game-constants.mjs` |
 | Item normalization | `content/items/ItemCatalog.ts`, `systems/Inventory.ts` |
@@ -481,12 +509,12 @@ Add `scripts/tests/character-studio/game-constants-authoring.test.mjs` covering:
 |---|---|
 | Invalid constants in development | Checker and runtime gateway list exact paths and fail |
 | Invalid constants in production | Application fails before Boot; no fallback values run |
-| New run | Capacity 24, configured initial attributes, level 1/current XP 0 |
+| New run | Configured capacity and initial attributes, level 1/current XP 0 |
 | Existing attributes | Saved values override changed initial defaults |
 | Existing capacity | Saved value overrides changed initial capacity |
 | Legacy inventory overflow | Capacity expands to occupied count; no item loss |
 | Changed stack limit | Existing over-limit stack survives but cannot grow |
-| Levels 1-9 | Exact normative XP and gain rows apply |
+| Levels below the cap | Exact currently authored XP and gain rows apply |
 | Level 10 | Final gain applies, XP becomes 0, HUD shows MAX, no further reward |
 | Changed gain table | Existing saved level resolves new derived stats |
 | Legacy inconsistent XP | Saved level preserved; current XP follows clamp rules |

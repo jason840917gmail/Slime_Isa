@@ -1,8 +1,8 @@
 import {
   validateGameConstants,
-  type GameConstants,
   type GameConstantsIssue,
 } from '../content/GameConstantsValidation';
+import type { GameConstants } from '../Constant';
 
 export type GameConstantsSaveState = 'clean' | 'dirty' | 'saving' | 'saved' | 'error' | 'conflict';
 export type GameConstantsScalarSection = 'initialAttributes' | 'movement' | 'player' | 'progression';
