@@ -26,6 +26,7 @@ const errors = [];
 const seenIds = new Map();
 
 const knownItemIds = new Set(Object.keys(JSON.parse(readFileSync(join(itemRoot, 'items.json'), 'utf8'))));
+const knownNpcIds = new Set(['village-elder-plop', 'level-1-spider-giver']);
 function collectWeaponItemIds(directory) {
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
     const path = join(directory, entry.name);
@@ -191,7 +192,7 @@ for (const absolutePath of objectFiles) {
     objectId,
     'object',
     object,
-    new Set(['$schema', 'objectId', 'selection', 'variants', 'physics', 'behavior', 'collectible', 'destructible', 'resourceNode', 'tags']),
+    new Set(['$schema', 'objectId', 'selection', 'variants', 'physics', 'behavior', 'collectible', 'destructible', 'resourceNode', 'npc', 'tags']),
   );
 
   if (typeof object.objectId !== 'string' || !idPattern.test(object.objectId)) {
@@ -379,6 +380,16 @@ for (const absolutePath of objectFiles) {
 
   if (object.collectible !== undefined && object.resourceNode !== undefined) {
     fail(file, objectId, 'object', 'cannot define both collectible and resourceNode capabilities');
+  }
+  if (object.npc !== undefined) {
+    validateKeys(file, objectId, 'npc', object.npc, new Set(['definitionId']));
+    if (typeof object.npc.definitionId !== 'string' || object.npc.definitionId.length === 0) {
+      fail(file, objectId, 'npc.definitionId', 'must be a non-empty NPC definition ID');
+    } else if (!knownNpcIds.has(object.npc.definitionId)) {
+      fail(file, objectId, 'npc.definitionId', `unknown NPC '${object.npc.definitionId}'`);
+    }
+    if (object.physics !== null) fail(file, objectId, 'physics', 'NPC objects must not be solid');
+    if (Array.isArray(object.tags) && !object.tags.includes('npc')) fail(file, objectId, 'tags', 'NPC objects must include the npc tag');
   }
   if (Array.isArray(object.tags) && object.tags.includes('collectible') && object.collectible === undefined) {
     fail(file, objectId, 'tags', 'the collectible tag requires a collectible payload');

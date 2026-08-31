@@ -9,6 +9,7 @@ import type {
   MapSpawns,
 } from '../../content/maps/mapFormat';
 import {
+  getObjectArchetype,
   isObjectArchetypeId,
   type ObjectArchetypeId,
 } from '../../content/objects/ObjectCatalog';
@@ -36,6 +37,7 @@ export interface BuiltObjectRegistration {
   readonly objectId: string;
   readonly instanceId: string;
   readonly initialState?: Readonly<Record<string, unknown>>;
+  readonly npcDefinitionId?: string;
 }
 
 interface MapBuilderContext {
@@ -115,6 +117,7 @@ export class MapBuilder {
         objectId: object.objectId,
         instanceId: object.instanceId,
         initialState: object.initialState,
+        npcDefinitionId: getObjectArchetype(object.objectId).npc?.definitionId,
       });
     }
 

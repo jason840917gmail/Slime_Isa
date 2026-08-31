@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import type { PerkChoice, StatusKind } from './types';
+import type { QuestDomainEvents, QuestInputEvents } from '../content/quests/types';
 
 /**
  * Central typed event bus. Singleton so any system can emit/subscribe without
@@ -25,10 +26,6 @@ export type GameEvents = {
   'persistence.modal': { open: boolean };
   'world.progress.changed': {};
 
-  // ── Phase 5: quests / journal ──
-  'quest.changed': { questId: string };
-  'quest.completed': { questId: string; title: string; rewards: { coins?: number; xp?: number } };
-
   // ── Phase 1: health / leveling / inventory ──
   'hp.changed': { hp: number; maxHp: number; delta: number };
   'player.damage': { amount: number; source?: string; crit: boolean };
@@ -47,7 +44,7 @@ export type GameEvents = {
   'weapon.equipped': { weaponId: string | null };
   'levelup.modal.open': { choices: PerkChoice[] };
   'levelup.modal.close': { pickedPerkId: string | null };
-};
+} & QuestDomainEvents & QuestInputEvents;
 
 export interface CollectibleCollectedPayload {
   readonly mapId: string;

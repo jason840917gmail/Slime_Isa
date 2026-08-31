@@ -53,10 +53,7 @@ const vite = await createServer({
   server: { middlewareMode: true, hmr: false },
 });
 
-const { gameEvents } = await vite.ssrLoadModule(eventBusStubId);
-const { QUEST_DEFS } = await vite.ssrLoadModule('/src/game/quests/Quest.ts');
 const { collectibleProgressAmount } = await vite.ssrLoadModule('/src/game/quests/QuestCollectionProgress.ts');
-const { questTracker } = await vite.ssrLoadModule('/src/game/quests/QuestTracker.ts');
 
 test.after(async () => vite.close());
 
@@ -69,27 +66,14 @@ const berryEvent = (quantity) => ({
 });
 
 test('collection objectives match item IDs and exact transferred quantities', () => {
-  const snacks = QUEST_DEFS[0].objectives.find((objective) => objective.id === 'snacks');
-  assert.ok(snacks);
+  const snacks = {
+    id: 'collect-test-berries',
+    kind: 'collect',
+    label: 'Collect test berries',
+    target: 3,
+    itemIds: ['purple-berry-mat'],
+  };
   assert.equal(collectibleProgressAmount(snacks, berryEvent(2)), 2);
   assert.equal(collectibleProgressAmount(snacks, { ...berryEvent(10), itemId: 'wood' }), 0);
   assert.equal(collectibleProgressAmount(snacks, berryEvent(0)), 0);
-});
-
-test('quest tracker reacts once to the authoritative collectible event', () => {
-  questTracker.start();
-  questTracker.load([{
-    id: 'first-steps',
-    status: 'active',
-    progress: { snacks: 1, enemies: 0, forest: 0 },
-  }]);
-
-  gameEvents.emit('collectible.collected', berryEvent(1));
-  assert.equal(questTracker.progress('first-steps', 'snacks'), 2);
-
-  gameEvents.emit('collectible.collected', { ...berryEvent(10), itemId: 'wood' });
-  assert.equal(questTracker.progress('first-steps', 'snacks'), 2);
-
-  gameEvents.emit('collectible.collected', berryEvent(1));
-  assert.equal(questTracker.progress('first-steps', 'snacks'), 3);
 });

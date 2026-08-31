@@ -148,6 +148,41 @@
       "visualId": "big.stone.mine",
       "x": 800,
       "y": 320
+    },
+    {
+      "instanceId": "level-1-purple-berry-01",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 384,
+      "y": 640
+    },
+    {
+      "instanceId": "level-1-purple-berry-02",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 448,
+      "y": 640
+    },
+    {
+      "instanceId": "level-1-purple-berry-03",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "x": 576,
+      "y": 640
+    },
+    {
+      "instanceId": "level-1-npc-village-elder-plop",
+      "objectId": "npc.world",
+      "visualId": "slime-npc",
+      "x": 512,
+      "y": 704
+    },
+    {
+      "instanceId": "level-1-npc-mossy-scout",
+      "objectId": "npc.world-scout",
+      "visualId": "slime-scout",
+      "x": 768,
+      "y": 704
     }
   ],
   "player": {
@@ -162,7 +197,13 @@
       }
     }
   },
-  "exits": [],
+  "exits": [
+    {
+      "zone": { "x": 1472, "y": 512, "w": 64, "h": 128 },
+      "to": "gloop-forest",
+      "entry": "west"
+    }
+  ],
   "enemySafeZones": [
     {
       "x": 416,

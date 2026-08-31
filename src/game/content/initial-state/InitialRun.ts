@@ -1,5 +1,5 @@
 import type { GameStateData } from '../../core/GameState';
-import { QUEST_DEFS, type QuestState } from '../../quests/Quest';
+import { createInitialQuestStates } from '../quests/QuestCatalog';
 import type { GameLocationData, GameSaveData } from '../../infrastructure/persistence/SaveSchema';
 import { PLAYER_CONFIG } from '../player';
 import { GAME_CONSTANTS } from '../../Constant';
@@ -27,14 +27,6 @@ const INITIAL_PLAYER: GameStateData = {
   },
 };
 
-function initialQuests(): QuestState[] {
-  return QUEST_DEFS.map((definition) => ({
-    id: definition.id,
-    status: 'active',
-    progress: Object.fromEntries(definition.objectives.map((objective) => [objective.id, 0])),
-  }));
-}
-
 export function initialLocation(): GameLocationData {
   return {
     areaId: INITIAL_AREA_ID,
@@ -60,7 +52,11 @@ export function createInitialRunState(): GameSaveData {
       maxSlots: GAME_CONSTANTS.inventory.initialMaxSlots,
       slots: [],
     },
-    quests: initialQuests().map((quest) => ({ ...quest, progress: { ...quest.progress } })),
+    quests: createInitialQuestStates().map((quest) => ({
+      ...quest,
+      progress: { ...quest.progress },
+      consumedFactIds: Object.fromEntries(Object.entries(quest.consumedFactIds ?? {}).map(([id, facts]) => [id, [...facts]])),
+    })),
     location: initialLocation(),
     world: {
       discoveredAreas: [INITIAL_AREA_ID],

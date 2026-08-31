@@ -1,5 +1,7 @@
 import type { GameStateData } from '../../core/GameState';
-import type { QuestState } from '../../quests/Quest';
+import type { QuestState } from '../../content/quests/types';
+import type { QuestState as LegacyQuestState } from '../../quests/Quest';
+import { getQuestDefinition } from '../../content/quests/QuestCatalog';
 import type { AreaId } from '../../world/Area';
 import { createInitialRunState, initialLocation } from '../../content/initial-state/InitialRun';
 import {
@@ -62,7 +64,7 @@ function isString(value: unknown): value is string {
   return typeof value === 'string';
 }
 
-function isQuestState(value: unknown): value is QuestState {
+function isLegacyQuestState(value: unknown): value is LegacyQuestState {
   return isRecord(value)
     && typeof value.id === 'string'
     && (value.status === 'active' || value.status === 'completed')
@@ -149,6 +151,45 @@ function mapWorld(value: unknown, storage: StorageLike | null): WorldProgressDat
   return { discoveredAreas, defeatedBossIds, completedDungeonIds, maps };
 }
 
+function isRuntimeQuestState(value: unknown): value is QuestState {
+  return isRecord(value)
+    && typeof value.questId === 'string'
+    && Number.isInteger(value.definitionVersion)
+    && (value.definitionVersion as number) > 0
+    && ['locked', 'available', 'active', 'completed', 'failed', 'abandoned'].includes(value.status as string)
+    && (value.activeStageId === null || typeof value.activeStageId === 'string')
+    && isRecord(value.progress)
+    && Object.values(value.progress).every((progress) => typeof progress === 'number' && Number.isInteger(progress) && progress >= 0)
+    && typeof value.rewardsGranted === 'boolean';
+}
+
+function migrateLegacyQuestState(state: LegacyQuestState): QuestState | undefined {
+  const definition = getQuestDefinition(state.id);
+  if (!definition) return undefined;
+  const objectives = definition.stages.flatMap((stage) => stage.objectives);
+  const knownObjectiveIds = new Set(objectives.map((objective) => objective.id));
+  const progress = Object.fromEntries(Object.entries(state.progress)
+    .filter(([objectiveId]) => knownObjectiveIds.has(objectiveId))
+    .map(([objectiveId, value]) => [
+      objectiveId,
+      Math.min(objectives.find((objective) => objective.id === objectiveId)!.target, Math.max(0, Math.floor(value))),
+    ]));
+  const activeStageId = state.status === 'completed'
+    ? null
+    : definition.stages.find((stage) => stage.objectives.some((objective) => (progress[objective.id] ?? 0) < objective.target))?.id
+      ?? definition.stages.at(-1)!.id;
+  return {
+    questId: state.id,
+    definitionVersion: definition.definitionVersion,
+    status: state.status,
+    activeStageId,
+    progress,
+    consumedFactIds: {},
+    ...(state.completedAt === undefined ? {} : { completedAt: state.completedAt }),
+    rewardsGranted: state.status === 'completed',
+  };
+}
+
 function migrateLegacyInventory(value: unknown): Array<{ itemId: string; count: number }> | undefined {
   if (!Array.isArray(value)) return undefined;
   return value.map((slot, index) => {
@@ -184,7 +225,17 @@ function migrateData(value: unknown, storage: StorageLike | null): GameSaveData 
     inventory: legacySlots
       ? { maxSlots: Math.max(initial.inventory.maxSlots, legacySlots.length), slots: clone(legacySlots) }
       : isRecord(value.inventory) ? clone(value.inventory) as unknown as GameSaveData['inventory'] : initial.inventory,
-    quests: Array.isArray(value.quests) ? clone(value.quests.filter(isQuestState)) : initial.quests,
+    quests: Array.isArray(value.quests)
+      ? value.quests.flatMap((quest) => {
+          if (isRuntimeQuestState(quest)) return [clone(quest)];
+          if (isLegacyQuestState(quest)) {
+            const migrated = migrateLegacyQuestState(quest);
+            if (!migrated) throw new SaveMigrationError(`Quest '${quest.id}' is no longer present in the authored catalog.`);
+            return [migrated];
+          }
+          throw new SaveMigrationError('A saved quest entry has an unsupported shape.');
+        })
+      : initial.quests,
     location: isRecord(value.location)
       && typeof value.location.areaId === 'string'
       && typeof value.location.mapId === 'string'
@@ -451,8 +502,8 @@ export class SaveRepository {
     }
   }
 
-  readLegacyQuests(): QuestState[] {
-    return parseArray(this.storage, STORAGE_KEYS.legacyQuests, isQuestState);
+  readLegacyQuests(): LegacyQuestState[] {
+    return parseArray(this.storage, STORAGE_KEYS.legacyQuests, isLegacyQuestState);
   }
 
   readLegacyWorld(): WorldProgressData {

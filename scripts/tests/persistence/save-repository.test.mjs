@@ -220,7 +220,7 @@ test('version 5 named and recovery saves migrate inventory capacity', () => {
     maxSlots: GAME_CONSTANTS.inventory.initialMaxSlots,
     slots: [{ itemId: 'wood', count: 4 }],
   });
-  assert.equal(named.schemaVersion, 7);
+  assert.equal(named.schemaVersion, 8);
   assert.deepEqual(recovery.inventory, named.data.inventory);
   assert.deepEqual(repository.list().map((entry) => entry.saveId), [metadata.saveId]);
 });
@@ -280,4 +280,26 @@ test('legacy cumulative XP preserves saved level and follows exact clamp rules',
   assert.equal(migrate(GAME_CONSTANTS.character.player.progression.maxLevel + 1, 0), undefined);
   assert.equal('maxHpBonus' in migrate(2, 80), false);
   assert.equal('maxEnergyBonus' in migrate(2, 80), false);
+});
+
+test('version 7 saves with removed quest definitions fail clearly without overwriting data', () => {
+  const storage = new MemoryStorage();
+  const repository = new SaveRepository(storage);
+  const legacy = createInitialRunState();
+  legacy.quests = [{ id: 'removed-starter-quest', status: 'active', progress: { old: 1 } }];
+  const metadata = {
+    saveId: 'removed-quest-save', name: 'Removed Quest', createdAt: 10, updatedAt: 20,
+    schemaVersion: 7, currentMapId: legacy.location.mapId,
+    playerLevel: legacy.player.level, playTimeMs: legacy.playTimeMs,
+  };
+  const raw = JSON.stringify({ ...metadata, data: legacy });
+  storage.setItem(STORAGE_KEYS.saveIndex, JSON.stringify({ version: 1, saves: [metadata] }));
+  storage.setItem(recordKey(metadata.saveId), raw);
+
+  assert.equal(repository.read(metadata.saveId), null);
+  assert.equal(storage.getItem(recordKey(metadata.saveId)), raw);
+  assert.deepEqual(repository.validationIssues(), [{
+    saveId: metadata.saveId,
+    reason: "Quest 'removed-starter-quest' is no longer present in the authored catalog. The original save was left unchanged.",
+  }]);
 });

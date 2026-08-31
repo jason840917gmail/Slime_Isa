@@ -75,6 +75,9 @@ import type { WorldDimensions } from '../world/WorldDimensions';
 import { updateDevToolsCameraZoom } from '../devTools';
 import type { GameLocationData, FacingDirection } from '../infrastructure/persistence/SaveSchema';
 import { GAME_CONSTANTS } from '../Constant';
+import { InteractionRouter } from '../features/interaction/InteractionRouter';
+import { QuestNpcController } from '../features/interaction/QuestNpcController';
+import { QuestNotificationPresenter } from '../features/quests/QuestNotificationPresenter';
 
 const EDGE_TRANSITION_GRACE_MS = GAME_CONSTANTS.worldNavigation.edgeTransitionGraceMs;
 const COLLECTIBLE_EVENTS = new CollectibleEventChannel(gameEvents);
@@ -119,6 +122,9 @@ export class WorldScene extends Phaser.Scene {
   private worldMapUI?: WorldMapUI;
   private questJournal?: QuestJournal;
   private craftingUI?: CraftingUI;
+  private interactionRouter?: InteractionRouter;
+  private questNpcController?: QuestNpcController;
+  private questNotifications?: QuestNotificationPresenter;
   private abilitySystem?: AbilitySystem;
   private weaponHotbar?: WeaponHotbar;
   private lastBedPos: Phaser.Math.Vector2 | null = null;
@@ -185,7 +191,22 @@ export class WorldScene extends Phaser.Scene {
     this.createCollisionLayer();
     registerAllVisualSetAnimations(this);
     this.occlusionController = new OcclusionController(this);
+    const modalStack = this.game.registry.get('modalStack');
+    if (!(modalStack instanceof ModalStack)) {
+      throw new Error('WorldScene requires a shared ModalStack.');
+    }
+    this.modalStack = modalStack;
+    this.interactionRouter = new InteractionRouter(this);
+    this.questNpcController = new QuestNpcController({
+      scene: this,
+      getPlayer: () => this.player,
+      router: this.interactionRouter,
+      modalStack,
+      onPausedChange: (paused) => { this.setSimulationPaused('quest-npc', paused); },
+      showMessage: (x, y, message, color = 'white', important = false) => floatingText.spawn(this, x, y, message, color, important),
+    });
     this.buildWorld();
+    this.questNpcController.finalize();
     this.createPlayer();
     this.disposables.add(saveSystem.setLocationProvider(() => this.capturePlayerLocation()));
     this.depthDiagnostics = new DepthDiagnostics({
@@ -216,17 +237,11 @@ export class WorldScene extends Phaser.Scene {
     this.createHUD();
     this.createCollectibleReactions();
     this.createControls();
-    const modalStack = this.game.registry.get('modalStack');
-    if (!(modalStack instanceof ModalStack)) {
-      throw new Error('WorldScene requires a shared ModalStack.');
-    }
-    this.modalStack = modalStack;
     this.createShopUI();
     this.createChatUI();
 
     // Phase 1 systems: health, status, level-up modal, inventory UI
     this.statusEffects = new StatusEffectManager();
-    questTracker.start();
     this.healthSystem = new HealthSystem({
       scene: this,
       getPlayer: () => this.player,
@@ -280,6 +295,11 @@ export class WorldScene extends Phaser.Scene {
       modalStack,
       onPausedChange: (p) => { this.setSimulationPaused('journal', p); },
     });
+    this.questNotifications = new QuestNotificationPresenter({
+      getPosition: () => ({ x: this.player.x, y: this.player.y }),
+      show: (x, y, message, color, important) => floatingText.spawn(this, x, y, message, color, important),
+    });
+    questTracker.start();
     this.craftingUI = new CraftingUI({
       scene: this,
       modalStack,
@@ -378,7 +398,13 @@ export class WorldScene extends Phaser.Scene {
     this.inventoryUI?.destroy();
     this.worldMapUI?.destroy();
     this.questJournal?.destroy();
+    this.questNotifications?.destroy();
+    this.questNotifications = undefined;
     this.craftingUI?.destroy();
+    this.questNpcController?.destroy();
+    this.questNpcController = undefined;
+    this.interactionRouter?.destroy();
+    this.interactionRouter = undefined;
     this.combatController?.destroy();
     this.resourceNodes?.destroy();
     this.resourceNodes = undefined;
@@ -493,6 +519,8 @@ export class WorldScene extends Phaser.Scene {
 
     this.minimap.update(this.cameras.main, this.player, this.friends, this.houses);
 
+    this.interactionRouter?.update();
+    this.houseSystem.setPromptSuppressed(this.interactionRouter?.hasCandidate() ?? false);
     this.houseSystem.update();
     this.statusEffects?.update(this.time.now, delta);
     this.healthSystem?.update(this.time.now);
@@ -606,6 +634,7 @@ export class WorldScene extends Phaser.Scene {
       onObjectCreated: (registration) => {
         this.resourceNodes?.register(registration);
         this.collectibles?.register(registration);
+        this.questNpcController?.register(registration);
       },
       registerOccluder: (registration) => this.occlusionController!.registerOccluder(registration),
     });
@@ -963,6 +992,13 @@ export class WorldScene extends Phaser.Scene {
 
   private handleActionInput(direction: Phaser.Math.Vector2): boolean {
     if (Phaser.Input.Keyboard.JustDown(this.controls.interact)) {
+      // The router owns the visible shared prompt, so its candidate must own
+      // the key press whenever one is displayed.
+      if (this.interactionRouter?.hasCandidate()) {
+        this.interactionRouter.handleInteract();
+        return true;
+      }
+
       if (this.houseSystem.handleInteract()) {
         return true;
       }
