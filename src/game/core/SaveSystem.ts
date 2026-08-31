@@ -86,10 +86,19 @@ class SaveSystem {
   }
 
   install(data: GameSaveData): void {
+    // Validate and install the quest snapshot before mutating the other run
+    // stores. QuestService.load is atomic, so malformed quest data is rejected
+    // before player, inventory, or world state is touched.
+    questTracker.load([...data.quests]);
     gameState.load(data.player);
     playerInventory.load(data.inventory);
-    questTracker.load([...data.quests]);
     worldProgress.load(data.world);
+    questTracker.restoreKnownFacts({
+      discoveredAreas: data.world.discoveredAreas,
+      defeatedBossIds: data.world.defeatedBossIds,
+    });
+    // WorldScene calls questTracker.start() after quest notification listeners
+    // exist. That boundary evaluates prerequisites, preserving startup events.
     this.activeLocation = { ...data.location };
     this.playTimeBaseMs = data.playTimeMs;
     this.playTimeStartedAt = Date.now();

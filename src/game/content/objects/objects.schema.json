@@ -7,7 +7,11 @@
   "required": ["objectId", "selection", "variants", "physics", "tags"],
   "additionalProperties": false,
   "allOf": [
-    { "not": { "required": ["collectible", "resourceNode"] } },
+    { "not": { "anyOf": [
+      { "required": ["collectible", "resourceNode"] },
+      { "required": ["collectible", "npc"] },
+      { "required": ["resourceNode", "npc"] }
+    ] } },
     {
       "if": { "required": ["collectible"] },
       "then": {
@@ -20,6 +24,10 @@
     {
       "if": { "properties": { "tags": { "contains": { "const": "collectible" } } }, "required": ["tags"] },
       "then": { "required": ["collectible"] }
+    },
+    {
+      "if": { "required": ["npc"] },
+      "then": { "properties": { "tags": { "contains": { "const": "npc" } } } }
     }
   ],
   "properties": {
@@ -47,6 +55,7 @@
     "collectible": { "$ref": "#/$defs/collectible" },
     "destructible": { "$ref": "#/$defs/destructible" },
     "resourceNode": { "$ref": "#/$defs/resourceNode" },
+    "npc": { "$ref": "#/$defs/npc" },
     "tags": {
       "type": "array",
       "items": { "type": "string", "pattern": "^[a-z0-9-]+$" },
@@ -185,6 +194,14 @@
             "failureMessage": { "type": "string", "minLength": 1, "maxLength": 80 }
           }
         }
+      }
+    },
+    "npc": {
+      "type": "object",
+      "required": ["definitionId"],
+      "additionalProperties": false,
+      "properties": {
+        "definitionId": { "type": "string", "minLength": 1 }
       }
     },
     "resourceDrop": {

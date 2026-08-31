@@ -1,11 +1,11 @@
 import type { GameStateData } from '../../core/GameState';
 import type { InventorySlot } from '../../core/types';
-import type { QuestState } from '../../quests/Quest';
+import type { QuestState } from '../../content/quests/types';
 import type { AreaId } from '../../world/Area';
 import type { MapId } from '../../content/maps/mapFormat';
 import { GAME_CONSTANTS } from '../../Constant';
 
-export const SAVE_SCHEMA_VERSION = 7;
+export const SAVE_SCHEMA_VERSION = 8;
 export const SAVE_NAME_MAX_LENGTH = 32;
 
 export type FacingDirection = 'up' | 'down' | 'left' | 'right';
@@ -141,13 +141,22 @@ function isInventory(value: unknown): value is InventorySaveData {
 }
 
 function isQuests(value: unknown): value is QuestState[] {
-  return Array.isArray(value) && value.every((entry) => (
-    isRecord(entry)
-    && typeof entry.id === 'string'
-    && (entry.status === 'active' || entry.status === 'completed')
-    && isRecord(entry.progress)
-    && Object.values(entry.progress).every((progress) => Number.isFinite(progress))
-  ));
+  return Array.isArray(value) && value.every((entry) => {
+    if (!isRecord(entry)
+      || typeof entry.questId !== 'string'
+      || !Number.isInteger(entry.definitionVersion)
+      || (entry.definitionVersion as number) <= 0
+      || !['locked', 'available', 'active', 'completed', 'failed', 'abandoned'].includes(entry.status as string)
+      || !(entry.activeStageId === null || typeof entry.activeStageId === 'string')
+      || !isRecord(entry.progress)
+      || !Object.values(entry.progress).every((progress) => typeof progress === 'number' && Number.isInteger(progress) && progress >= 0)
+      || typeof entry.rewardsGranted !== 'boolean'
+      || entry.rewardsGranted !== (entry.status === 'completed')) return false;
+    if (entry.consumedFactIds !== undefined && (!isRecord(entry.consumedFactIds)
+      || !Object.values(entry.consumedFactIds).every((facts) => Array.isArray(facts) && facts.every((fact) => typeof fact === 'string')))) return false;
+    return ['acceptedAt', 'completedAt', 'failedAt', 'abandonedAt'].every((field) => entry[field] === undefined || isFiniteNumber(entry[field]))
+      && (entry.resumeStageId === undefined || typeof entry.resumeStageId === 'string');
+  });
 }
 
 function isGameState(value: unknown): value is GameStateData {

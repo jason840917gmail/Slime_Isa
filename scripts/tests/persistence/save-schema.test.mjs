@@ -29,7 +29,15 @@ function validSave() {
       equipment: { weaponId: null, weaponSlots: [null, null, null, null, null, null] },
     },
     inventory: { maxSlots: 24, slots: [] },
-    quests: [{ id: 'first-steps', status: 'active', progress: { snacks: 0 } }],
+    quests: [{
+      questId: 'schema-test-quest',
+      definitionVersion: 1,
+      status: 'active',
+      activeStageId: 'schema-test-stage',
+      progress: { 'schema-test-objective': 0 },
+      consumedFactIds: {},
+      rewardsGranted: false,
+    }],
     location: { areaId: 'level-1', mapId: 'level-1', x: 640, y: 704, facing: 'down' },
     world: {
       discoveredAreas: ['level-1'],
@@ -80,4 +88,19 @@ test('rejects flat or missing map runtime containers', () => {
   const invalid = validSave();
   delete invalid.world.maps['level-1'].resources;
   assert.equal(isGameSaveData(invalid), false);
+});
+
+test('rejects quest reward flags that contradict lifecycle status', () => {
+  const activeWithGrantedRewards = validSave();
+  activeWithGrantedRewards.quests[0].rewardsGranted = true;
+  assert.equal(isGameSaveData(activeWithGrantedRewards), false);
+
+  const completedWithoutGrantedRewards = validSave();
+  completedWithoutGrantedRewards.quests[0] = {
+    ...completedWithoutGrantedRewards.quests[0],
+    status: 'completed',
+    activeStageId: null,
+    rewardsGranted: false,
+  };
+  assert.equal(isGameSaveData(completedWithoutGrantedRewards), false);
 });

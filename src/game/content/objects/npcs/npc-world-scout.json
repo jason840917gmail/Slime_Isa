@@ -1,0 +1,16 @@
+{
+  "$schema": "../objects.schema.json",
+  "objectId": "npc.world-scout",
+  "selection": "authored",
+  "variants": [
+    {
+      "assetId": "character.player.slime",
+      "frames": [
+        { "visualId": "slime-scout", "frame": 9, "scale": 0.28125, "displayName": "Quest Scout" }
+      ]
+    }
+  ],
+  "physics": null,
+  "npc": { "definitionId": "level-1-spider-giver" },
+  "tags": ["npc", "interactable"]
+}

@@ -35,6 +35,7 @@ export class HouseSystem {
   private houseUI?: Phaser.GameObjects.Container;
   private nearHouse: House | null = null;
   private enterPrompt?: Phaser.GameObjects.Text | null;
+  private promptSuppressed = false;
 
   constructor(ctx: HouseSystemContext) {
     this.ctx = ctx;
@@ -47,6 +48,12 @@ export class HouseSystem {
       const player = this.ctx.getPlayer();
       this.enterPrompt.setPosition(player.x, player.y - 40);
     }
+  }
+
+  setPromptSuppressed(suppressed: boolean): void {
+    this.promptSuppressed = suppressed;
+    if (suppressed) this.hideEnterPrompt();
+    else if (this.nearHouse) this.showEnterPrompt();
   }
 
   getNearHouse(): House | null {
@@ -88,6 +95,7 @@ export class HouseSystem {
   }
 
   private updateHousePrompt(): void {
+    if (this.promptSuppressed) return;
     const player = this.ctx.getPlayer();
     const houses = this.ctx.getHouses();
     if (!player || houses.length === 0) return;

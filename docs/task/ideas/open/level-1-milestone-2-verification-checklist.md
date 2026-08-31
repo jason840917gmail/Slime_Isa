@@ -84,7 +84,8 @@ Evidence/notes:
 > Automated evidence: `pnpm test:collectibles` verifies authoritative event
 > name, exact-once publication, transferred quantities, depletion before
 > publication, berry reactions, and listener cleanup. `pnpm test:quests`
-> verifies matching-item progress and continuation from stored nonzero progress.
+> verifies collection matching and staged quest progress with synthetic quest
+> definitions; the production quest catalog intentionally starts empty.
 > The remaining partial-inventory and save/reload rows still require verification.
 
 ## C. Starter crafting

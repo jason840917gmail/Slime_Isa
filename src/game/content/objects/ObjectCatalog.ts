@@ -16,6 +16,8 @@ import woodPileJson from './collectibles/collectible-wood-pile.json';
 import stoneNodeJson from './resources/resource-stone-node.json';
 import stonePileJson from './collectibles/collectible-stone-pile.json';
 import wallStoneSolidJson from './walls/wall-stone-solid.json';
+import npcWorldJson from './npcs/npc-world.json';
+import npcWorldScoutJson from './npcs/npc-world-scout.json';
 
 export interface ColliderBounds {
   readonly shape?: CollisionShape;
@@ -98,6 +100,10 @@ export interface ObjectArchetypeDefinition {
       readonly failureMessage: string;
     };
   };
+  /** Optional authored quest/dialogue identity for interactable NPC objects. */
+  readonly npc?: {
+    readonly definitionId: string;
+  };
   readonly tags: readonly string[];
 }
 
@@ -118,6 +124,8 @@ const OBJECT_FILES = {
   'resource.stone-node': stoneNodeJson,
   'collectible.stone-pile': stonePileJson,
   'wall.stone.solid': wallStoneSolidJson,
+  'npc.world': npcWorldJson,
+  'npc.world-scout': npcWorldScoutJson,
 } as const;
 
 export type ObjectArchetypeId = keyof typeof OBJECT_FILES;

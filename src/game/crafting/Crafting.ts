@@ -1,6 +1,7 @@
 import { recipesFor } from '../content/recipes/RecipeCatalog';
 import type { RecipeDef } from '../content/recipes/types';
 import { playerInventory, itemRegistry } from '../systems/Inventory';
+import { gameEvents } from '../core/EventBus';
 
 export type { RecipeDef, RecipeIngredient } from '../content/recipes/types';
 
@@ -13,7 +14,15 @@ export function canCraft(recipe: RecipeDef): boolean {
 
 export function craft(recipe: RecipeDef): boolean {
   if (!canCraft(recipe)) return false;
-  return playerInventory.transact(recipe.ingredients, [recipe.output]);
+  const crafted = playerInventory.transact(recipe.ingredients, [recipe.output]);
+  if (crafted) {
+    gameEvents.emit('craft.completed', {
+      recipeId: recipe.id,
+      itemId: recipe.output.itemId,
+      quantity: recipe.output.count,
+    });
+  }
+  return crafted;
 }
 
 export function itemName(itemId: string): string {

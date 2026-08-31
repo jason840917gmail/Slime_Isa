@@ -1,117 +1,97 @@
-import { gameEvents, type GameEvents } from '../core/EventBus';
-import { gameState } from '../core/GameState';
-import { collectibleProgressAmount } from './QuestCollectionProgress';
-import { QUEST_DEFS, getQuestDef, type QuestState } from './Quest';
+import { getQuestDefinition } from '../content/quests/QuestCatalog';
+import type { QuestState as RuntimeQuestState } from '../content/quests/types';
+import { QuestEventBridge } from './QuestEventBridge';
+import { questService } from './QuestService';
+import type { QuestState as LegacyQuestState } from './Quest';
+
+function isRuntimeState(state: RuntimeQuestState | LegacyQuestState): state is RuntimeQuestState {
+  return 'questId' in state;
+}
+
+function migrateLegacyState(state: LegacyQuestState): RuntimeQuestState {
+  const definition = getQuestDefinition(state.id);
+  if (!definition) throw new Error(`Unknown legacy quest '${state.id}'.`);
+  const objectives = definition.stages.flatMap((stage) => stage.objectives);
+  const progress = Object.fromEntries(Object.entries(state.progress)
+    .filter(([objectiveId]) => objectives.some((objective) => objective.id === objectiveId))
+    .map(([objectiveId, value]) => [objectiveId, Math.min(
+      objectives.find((objective) => objective.id === objectiveId)!.target,
+      Math.max(0, Math.floor(value)),
+    )]));
+  const activeStageId = state.status === 'completed'
+    ? null
+    : definition.stages.find((stage) => stage.objectives.some((objective) => (progress[objective.id] ?? 0) < objective.target))?.id
+      ?? definition.stages.at(-1)!.id;
+  return {
+    questId: state.id,
+    definitionVersion: definition.definitionVersion,
+    status: state.status,
+    activeStageId,
+    progress,
+    consumedFactIds: {},
+    ...(state.completedAt === undefined ? {} : { completedAt: state.completedAt }),
+    rewardsGranted: state.status === 'completed',
+  };
+}
 
 class QuestTrackerImpl {
-  private states = new Map<string, QuestState>();
-  private started = false;
+  private readonly bridge = new QuestEventBridge(questService);
 
   start(): void {
-    if (this.started) return;
-    this.started = true;
-    this.ensureStarterQuests();
-
-    gameEvents.on('collectible.collected', this.onCollectibleCollected, this);
-    gameEvents.on('enemy.died', this.onEnemyDied, this);
-    gameEvents.on('area.enter', this.onAreaEnter, this);
+    questService.start();
+    this.bridge.start();
   }
 
-  active(): QuestState[] {
-    return [...this.states.values()].filter((q) => q.status === 'active');
+  dispose(): void {
+    this.bridge.dispose();
   }
 
-  completed(): QuestState[] {
-    return [...this.states.values()].filter((q) => q.status === 'completed');
+  active(): readonly RuntimeQuestState[] {
+    return questService.list('active').map((quest) => this.snapshot(quest));
   }
 
-  all(): QuestState[] {
-    return [...this.active(), ...this.completed()];
+  completed(): readonly RuntimeQuestState[] {
+    return questService.list('completed').map((quest) => this.snapshot(quest));
+  }
+
+  byStatus(status: RuntimeQuestState['status']): readonly RuntimeQuestState[] {
+    return questService.list(status).map((quest) => this.snapshot(quest));
+  }
+
+  all(): readonly RuntimeQuestState[] {
+    return questService.serialize();
   }
 
   progress(questId: string, objectiveId: string): number {
-    return this.states.get(questId)?.progress[objectiveId] ?? 0;
+    return questService.get(questId)?.progress[objectiveId] ?? 0;
   }
 
-  serialize(): QuestState[] {
-    return [...this.states.values()].map((state) => ({
-      ...state,
-      progress: { ...state.progress },
-    }));
+  serialize(): readonly RuntimeQuestState[] {
+    return questService.serialize();
   }
 
-  load(states: QuestState[]): void {
-    this.states = new Map(states.map((state) => [state.id, {
-      ...state,
-      progress: { ...state.progress },
-    }]));
+  evaluatePrerequisites(): void {
+    questService.evaluatePrerequisites();
   }
 
-  private ensureStarterQuests(): void {
-    for (const def of QUEST_DEFS) {
-      if (!this.states.has(def.id)) {
-        const progress = Object.fromEntries(def.objectives.map((o) => [o.id, 0]));
-        this.states.set(def.id, { id: def.id, status: 'active', progress });
-        gameEvents.emit('quest.changed', { questId: def.id });
-      }
-    }
+  restoreKnownFacts(facts: Parameters<typeof questService.restoreKnownFacts>[0]): void {
+    questService.restoreKnownFacts(facts);
   }
 
-  private onCollectibleCollected = (payload: GameEvents['collectible.collected']): void => {
-    for (const state of this.active()) {
-      const def = getQuestDef(state.id);
-      if (!def) continue;
-      for (const obj of def.objectives) {
-        const amount = collectibleProgressAmount(obj, payload);
-        if (amount > 0) this.increment(state, obj.id, amount, obj.target);
-      }
-    }
-  };
-
-  private onEnemyDied = (_payload: { enemyId: number; areaId: string; kind: string }): void => {
-    for (const state of this.active()) {
-      const def = getQuestDef(state.id);
-      if (!def) continue;
-      for (const obj of def.objectives) {
-        if (obj.kind === 'kill') this.increment(state, obj.id, 1, obj.target);
-      }
-    }
-  };
-
-  private onAreaEnter = (payload: { areaId: string }): void => {
-    for (const state of this.active()) {
-      const def = getQuestDef(state.id);
-      if (!def) continue;
-      for (const obj of def.objectives) {
-        if (obj.kind === 'discover-area' && obj.areaId === payload.areaId) {
-          this.increment(state, obj.id, 1, obj.target);
-        }
-      }
-    }
-  };
-
-  private increment(state: QuestState, objectiveId: string, amount: number, target: number): void {
-    const before = state.progress[objectiveId] ?? 0;
-    const after = Math.min(target, before + amount);
-    if (after === before) return;
-    state.progress[objectiveId] = after;
-    this.tryComplete(state);
-    gameEvents.emit('quest.changed', { questId: state.id });
+  load(states: readonly (RuntimeQuestState | LegacyQuestState)[]): void {
+    questService.load(states.map((state) => isRuntimeState(state) ? state : migrateLegacyState(state)));
   }
 
-  private tryComplete(state: QuestState): void {
-    const def = getQuestDef(state.id);
-    if (!def || state.status === 'completed') return;
-    const complete = def.objectives.every((obj) => (state.progress[obj.id] ?? 0) >= obj.target);
-    if (!complete) return;
-
-    state.status = 'completed';
-    state.completedAt = Date.now();
-    if (def.rewards.coins) gameState.addCoins(def.rewards.coins);
-    if (def.rewards.xp) gameState.addXp(def.rewards.xp);
-    gameEvents.emit('quest.completed', { questId: def.id, title: def.title, rewards: def.rewards });
+  private snapshot(quest: ReturnType<typeof questService.get>): RuntimeQuestState {
+    if (!quest) throw new Error('Quest snapshot was unexpectedly unavailable.');
+    const {
+      definition: _definition,
+      visibleStages: _visibleStages,
+      readyToTurnIn: _readyToTurnIn,
+      ...state
+    } = quest;
+    return state;
   }
-
 }
 
 export const questTracker = new QuestTrackerImpl();
