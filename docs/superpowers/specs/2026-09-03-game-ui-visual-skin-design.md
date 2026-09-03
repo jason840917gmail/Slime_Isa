@@ -84,8 +84,9 @@ Create these source images first:
 2. `ui-organic-compact-frame.png` — reusable compact HUD frame, no text
 3. `ui-inventory-backplate.png` — inventory-specific surface with subtle slot-zone guidance but no item art or labels
 4. `ui-map-journal-paper.png` — warm map/journal material with empty center space, no text or map symbols
+5. `ui-organic-minimap-frame.png` — square minimap frame with quiet map-safe interior, no compass, markers, or labels
 
-The first batch validates palette, texture density, edge readability, and the non-pixel-art treatment before special-case assets are produced. If a generated source is missing, malformed, or fails manifest validation, the UI falls back to the existing code-drawn surface and reports a development warning; production must not crash because a skin is unavailable.
+The first batch validates palette, texture density, edge readability, and the non-pixel-art treatment before special-case assets are produced. If a generated source is missing or malformed at runtime, the UI falls back to the existing code-drawn surface and reports a development warning; production must not crash because a skin is unavailable. Repository validation remains strict: `assets:check` must reject missing or malformed manifest entries before release.
 
 ### Loading contract
 
@@ -94,7 +95,9 @@ UI art joins the existing `boot` bundle. The runtime path is:
 1. Add the final runtime copy under `asset/UI/` and add its stable asset ID to `asset/assets.json` under `bundles.boot`.
 2. `ProceduralAssetScene.preload()` calls `loadAssetBundle(this, 'boot')`, which queues the image files.
 3. `ProceduralAssetScene.create()` calls `assertAssetBundleTextures(this, 'boot')` after procedural textures are created.
-4. UI constructors resolve the stable asset ID to its runtime texture key. If a UI skin texture is unavailable at runtime, the owning surface uses its existing code-drawn fallback and emits a development warning; a malformed or missing manifest entry still fails `assets:check` and the boot assertion so content errors cannot ship silently.
+4. UI constructors resolve the stable asset ID to its runtime texture key. If a UI skin texture is unavailable at runtime, the owning surface uses its existing code-drawn fallback and emits a development warning.
+
+`assetUrls.ts` currently supplies a self-contained placeholder URL when a manifest path has no bundled Vite URL. Therefore the boot assertion verifies that queued bundle textures exist, but cannot by itself prove that the source file was present when the placeholder was used. `assets:check` is the required source-of-truth gate for missing or malformed manifest paths; do not describe the boot assertion as detecting those stale source files. A future strict-loading mode may turn this into a boot failure, but that is outside this visual pass.
 
 ## Surface-to-asset mapping
 
@@ -110,18 +113,20 @@ Each panel uses one explicit composition. The asset is a visual layer only; dyna
 | Quest offer/turn-in | `ui-quest-offer-scroll-frame` | NPC/quest emblem | title, description, objectives, rewards, errors, buttons |
 | Shop | `ui-shop-stall-frame` | merchant badge | offers, prices, purchase result, close action |
 | HUD | `ui-organic-compact-frame` | resource icons | level, coins, friends, HP/XP/energy values and fills |
-| Minimap | `ui-organic-compact-frame` | code-drawn compass marker | terrain/map data, player/friend/house markers, camera rectangle |
-| Weapon hotbar | compact frame plus slot treatment | active-slot seam | weapon thumbnails, ownership, equipped state, key labels |
-| Ability bar | compact frame plus ability slot treatment | cooldown overlay | ability icons, unlock levels, cooldown state, hotkeys |
+| Minimap | `ui-organic-minimap-frame` | code-drawn compass marker | terrain/map data, player/friend/house markers, camera rectangle |
+| Weapon hotbar | `ui-organic-compact-frame` plus code-native slot treatment | active-slot seam | weapon thumbnails, ownership, equipped state, key labels |
+| Ability bar | `ui-organic-compact-frame` plus code-native ability slot treatment | cooldown overlay | ability icons, unlock levels, cooldown state, hotkeys |
 | Boss bar | `ui-boss-health-frame` | boss portrait/phase accent | boss name, HP fill, HP text, defeat animation |
-| Chat | compact frame for Phaser log | CSS-matched DOM input treatment | chat messages, focus, text entry, resize behavior |
+| Chat | `ui-organic-compact-frame` for the Phaser log | CSS-matched DOM input treatment | chat messages, focus, text entry, resize behavior |
 | Interaction prompt | code-drawn compact prompt badge | interaction icon | candidate prompt text, visibility, keyboard action |
-| Area title card | code-drawn compact banner | biome emblem | area title, biome color, transition timing |
+| Area title card | `ui-area-title-banner` | biome emblem | area title, biome color, transition timing |
 | Combo indicator | code-drawn combat badge | combo/finisher accent | count, multiplier, animation, reset timing |
 | Player/world health bars | code-drawn compact bar | optional stable health icon | moving position, HP fill, auto-hide timing |
 | Floating combat text | code-rendered text treatment | optional impact emblem | damage/reward text, color, position, lifetime |
 
-The minimap uses `ui-organic-compact-frame` as its fixed frame treatment; its terrain, markers, and camera rectangle remain code-rendered. The interaction prompt, area title, combo indicator, health bars, and floating text do not require raster backgrounds unless a later test shows the code treatment cannot achieve the desired identity.
+The minimap uses the square `ui-organic-minimap-frame` as its fixed frame treatment; its terrain, markers, and camera rectangle remain code-rendered. Chat uses the wide `ui-organic-compact-frame`: preserve the end caps and extend the quiet center to the log width, with the DOM input aligned below it. The interaction prompt, combo indicator, health bars, and floating text do not require raster backgrounds unless a later test shows the code treatment cannot achieve the desired identity. The area title uses `ui-area-title-banner` with a code-drawn banner fallback.
+
+The weapon hotbar, AbilityBar, and chat log each use `ui-organic-compact-frame` when available and retain their existing code-drawn frame geometry as the explicit fallback. The minimap similarly falls back to its existing code-drawn circular/rectangular frame if `ui-organic-minimap-frame` is unavailable.
 
 The map/journal material is the interior surface for those two panels; it does not replace the shared modal frame where a framed outer silhouette is needed. The inventory and crafting backplates are panel-specific because their safe areas and visual affordances differ.
 
@@ -143,6 +148,16 @@ The map/journal material is the interior surface for those two panels; it does n
 | Organic compact frame | 2048×512 | 280–520×56–84 | 72 px horizontal, 64 px vertical | preserve end caps; extend the center |
 | Inventory backplate | 2048×1152 | 700×360 | 160 px horizontal, 120 px vertical | preserve outer frame; keep slot/detail regions quiet |
 | Map/journal paper | 2048×1536 | 560×330 or 620×520 | 144 px horizontal, 120 px vertical | scale-to-fit paper texture; runtime content controls contrast |
+| Organic minimap frame | 1024×1024 | 168–192 px square | 72 px on all sides | preserve all four corners; no horizontal stretch |
+| Crafting workbench backplate | 2048×1152 | 700×420 | 160 px horizontal, 120 px vertical | preserve workbench edges; extend the quiet recipe center |
+| Quest journal backplate | 2048×1536 | 620×520 | 144 px horizontal, 120 px vertical | preserve corners; keep the scroll region low-detail |
+| Quest offer scroll frame | 2048×1152 | 660×420 | 144 px horizontal, 112 px vertical | preserve curled ends; extend the quiet center |
+| Shop stall frame | 2048×1152 | 660×420 | 144 px horizontal, 112 px vertical | preserve stall silhouette; extend the quiet center |
+| Level-up crest frame | 2048×1536 | 680×500 | 160 px horizontal, 144 px vertical | preserve crest corners; keep perk-card area calm |
+| Boss health frame | 2048×512 | 640×96 | 72 px horizontal, 64 px vertical | preserve end caps; extend the center bar |
+| Area title banner | 2048×512 | 560×84 | 72 px horizontal, 64 px vertical | preserve end caps; extend the quiet title center |
+
+Batch 4 remains code-native by default and has no required raster contract. If a slot, button, tab, compass, chat, or prompt accent is later promoted to raster art, it must receive an explicit source target, logical display bound, safe inset, and center/tiling strategy before generation.
 
 Per-surface layout rules are explicit:
 
@@ -153,6 +168,7 @@ Per-surface layout rules are explicit:
 - Level-up cards stay side-by-side at 900 px and above. Below 900 px they become a single-column selectable list with the same card art and a scrollable modal body.
 - Quest offer and shop preserve their frame but reflow objective/reward rows and stack action buttons below 600 px.
 - HUD, minimap, hotbar, chat, and interaction prompts use viewport-safe margins. The chat DOM input width is `min(480px, viewport width - 24px)` and remains above the canvas with its own focus ring.
+- The minimap keeps a square logical box (168–192 px on wide layouts, reduced only as needed on narrow layouts); it never consumes the compact frame’s horizontal extension rule. Chat keeps a wide log frame with preserved end caps, a center extension, and a DOM input below it at `min(480px, viewport width - 24px)`.
 
 ## Follow-up asset batches
 
@@ -186,7 +202,7 @@ These compact pieces may be better implemented as code-native shapes if raster a
 4. Introduce a small UI asset resolver/skin definition owned by presentation/UI code. Do not move gameplay balancing, inventory rules, or modal behavior into the asset manifest.
 5. Replace the large procedural panel backgrounds in `InventoryUI`, `CraftingUI`, `QuestJournal`, `WorldMapUI`, `LevelUpModal`, `QuestOfferModal`, and `ShopUI` with the mapped skins.
 6. Preserve dynamic children and interaction regions. Background artwork must never contain clickable behavior or runtime data.
-7. Apply the compact frame to HUD, minimap, hotbar, chat, interaction, and title surfaces as appropriate. Keep `AbilityBar` and `BossHealthBar` in the visual scope, but add a separate mounting task before their acceptance screenshots: instantiate them from `WorldScene`, own their resize/update/cleanup lifecycle, and then apply their skins. Do not silently assume an unwired module is visible.
+7. Apply the compact frame to HUD, hotbar, chat, and interaction surfaces as appropriate; apply the square minimap frame to the minimap and the title banner to area titles. Keep `AbilityBar` and `BossHealthBar` in the visual scope, but add a separate mounting task before their acceptance screenshots: instantiate them from `WorldScene`, own their resize/update/cleanup lifecycle, and then apply their skins. Do not silently assume an unwired module is visible.
 8. Keep combo presentation owned by `CombatController`. Keep moving health bars and floating text code-rendered, with any frame/icon improvements implemented by their owning modules.
 9. Keep the chat input as a DOM control for focus and keyboard reliability. Move its inline styling into a CSS class that matches the compact Phaser frame; do not place a Phaser interaction layer over the DOM input. The CSS contract includes focus ring, z-index above the canvas, viewport-safe width, and resize repositioning.
 10. Verify at the normal 1280×720 layout and narrow responsive sizes. Confirm that no text overlaps decorative art, no panel clips dynamic content, and no bitmap is visibly pixelated.
@@ -233,7 +249,9 @@ The manual screenshot/scenario matrix is:
 | Map | 1280×720, 800×600, 390×720 | unknown, discovered, current area, long area name, route visibility |
 | Level-up/quest/shop | 1280×720, 800×600, 390×720 | default, hover/focus, error, long labels, dimmed world |
 | HUD/minimap/hotbar/chat | 1280×720, 800×600, 390×720 | full/low HP, max XP, active slot, empty slot, chat focus, interaction prompt |
-| Special events | supported viewport sizes | active-pass: area title and combo streak; deferred-pass: boss active/low HP/defeat after `BossHealthBar` is mounted |
+| Ability bar | 1280×720, 800×600, 390×720 | deferred-pass after `AbilityBar` is mounted: unlocked, locked, active, cooldown, empty slot, resize/cleanup |
+| World-space feedback | 1280×720, 800×600, 390×720 | player/world health bar full/low/hidden states; floating damage/reward text for overlap, contrast, lifetime, and position tracking |
+| Special events | supported viewport sizes | active-pass: area title and combo streak; deferred-pass after `BossHealthBar` is mounted: boss active/low HP/defeat |
 
 Pass criteria include readable dynamic text, visible non-color state cues, preserved frame corners, no overlap or clipping, no visible pixelation, aligned DOM chat input, and no stale pointer/keyboard behavior after resize or rebuild.
 
