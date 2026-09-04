@@ -90,6 +90,9 @@ dashboard floating in front of it.
 - Reduce fallback glyph size so an empty or unavailable slot never dominates
   the weapon art. Existing thumbnail ownership and equip behavior remain the
   authority.
+- If the optional compact frame is unavailable, do not create a replacement
+  dark backplate; the hotbar remains transparent and outlined using its
+  code-native slot treatment.
 - Preserve hover scale and click hit areas. The hit area may remain larger than
   the visible outline to keep input forgiving.
 
@@ -107,7 +110,9 @@ dashboard floating in front of it.
 - Existing `scale.resize` listeners remain responsible for rebuilding or
   repositioning the complete visible composition. Every new listener must be
   removed during `destroy`, and every owned decorative frame image must also be
-  destroyed with its owning widget.
+  destroyed with its owning widget (`HUD.destroy()` and `Minimap.destroy()` must
+  call `frame?.destroy()`; the hotbar root already owns its child artwork and
+  must continue destroying the root).
 
 ## State and behavior
 
@@ -133,9 +138,11 @@ Manual review is required at 1280×720, 800×600, and 390×720. Inspect:
 - active, owned, empty, and unavailable weapon slots;
 - hover and click behavior after a resize;
 - no opaque dark rectangular surface remains in the three scoped widgets;
-- the loaded-frame and missing-frame fallback paths both preserve the
-  artwork-first treatment, including a transparent/low-opacity minimap
-  interior rather than the old near-opaque fallback block;
+- with the optional frame loaded, the HUD and hotbar still suppress its opaque
+  center while the minimap uses only its illustrated outer frame;
+- with the optional frame missing, HUD and hotbar remain transparent with
+  code-drawn outlines, and the minimap uses a transparent/low-opacity fallback
+  interior rather than the old near-opaque block;
 - decorative frame images are destroyed with `HUD` and `Minimap` and do not
   survive scene teardown;
 - inventory and crafting are unchanged.
