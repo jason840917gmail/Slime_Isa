@@ -21,6 +21,8 @@ Use the approved **Option C** treatment, also called **artwork-only** or
 **artwork-first**:
 
 - no opaque compact-frame center behind the HUD or weapon hotbar;
+- omit `ui-organic-compact-frame` entirely from the HUD and weapon hotbar in
+  this task; do not add a transparent-center asset or a new helper;
 - no dark per-slot fills, drop-shadow slabs, or filled number plates;
 - thin organic outlines and small text shadows provide separation from the
   world;
@@ -61,6 +63,12 @@ dashboard floating in front of it.
   `Coins n` laid out with spacing rather than a separator glyph; line two
   contains `Friends n`. None of the three values is treated as a large
   standalone headline.
+- Align `Level n` to the left edge of the HUD content region and `Coins n` to
+  its right edge. Render coin counts literally from `0` through `9,999`, use
+  one-decimal `k` notation from `10k` through `999.9k`, one-decimal `m`
+  notation from `1m` through `999.9m`, and `999m+` above that. The layout must
+  support a level label up to `Level 99` and the resulting compact coin label
+  without overlap; there is no unbounded raw-digit label in this HUD.
 - Use a readable primary size for the level line, a smaller secondary size for
   coins/friends, and a compact value label for each meter.
 - Keep meter tracks short enough that the right-hand values never leave the
@@ -76,10 +84,14 @@ dashboard floating in front of it.
   placement.
 - Keep the illustrated `ui-organic-minimap-frame` as the visible organic
   border.
-- Replace the near-opaque code-drawn map block with a low-opacity interior
-  tint. Terrain remains visible through it.
+- Replace the near-opaque code-drawn map block with a `0.12–0.20` alpha
+  interior tint; target `0.16` in the normal layout. Terrain remains visible
+  through it.
 - Keep player, friend, house, and camera markers unchanged in meaning and
-  color; strengthen only their outlines/size if needed for contrast.
+  color. Give each marker a 1px dark outline (or equivalent contrasting ring)
+  so bright and dark terrain do not erase its identity.
+- If the optional minimap frame is missing, use the same `0.12–0.20` tint and
+  a restrained code-drawn outline; never restore the old near-opaque square.
 
 ### Weapon hotbar
 
@@ -93,7 +105,8 @@ dashboard floating in front of it.
   authority.
 - If the optional compact frame is unavailable, do not create a replacement
   dark backplate; the hotbar remains transparent and outlined using its
-  code-native slot treatment.
+  code-native slot treatment. Because the compact frame is omitted entirely
+  from this widget, this is the only hotbar frame path in the task.
 - Preserve hover scale and click hit areas. The hit area may remain larger than
   the visible outline to keep input forgiving.
 
@@ -102,12 +115,17 @@ dashboard floating in front of it.
 - Wide viewports use the authored positions with viewport-safe margins.
 - Medium viewports reduce the HUD meter width and hotbar cell/gap sizes before
   reducing text below its readable minimum.
-- Narrow viewports keep all six hotbar slots inside `viewport width - 24px` and
-  keep the minimap square; no element may clip the screen edge. At 390×720 the
-  hotbar's visible width must be at most 366px. If a narrower viewport is
-  supported, cells may reduce to 40px and gaps to 4px but must not go below
-  those values; thumbnail art remains at least 22px and key labels at least
-  8px.
+- The minimum supported logical viewport width for this pass is 284px. Define
+  `safeWidth = viewportWidth - 24px`; for the six-slot hotbar, use
+  `cell = clamp(floor((safeWidth - 5 * gap) / 6), 40px, 56px)` and
+  `gap = clamp(floor((safeWidth - 6 * 40px) / 5), 4px, 8px)`. At 284px this
+  resolves to six 40px cells with five 4px gaps, exactly 260px wide. At
+  390×720 the visible hotbar width must be at most 366px. Do not claim full
+  six-slot containment below 284px until the later action-dashboard/mobile
+  workflow task defines a reflow.
+- Keep the minimap square and keep the HUD value-label slot inside the same
+  viewport-safe width; no element may clip the screen edge. Thumbnail art
+  remains at least 22px and key labels at least 8px.
 - Existing `scale.resize` listeners remain responsible for rebuilding or
   repositioning the complete visible composition. Every new listener must be
   removed during `destroy`, and every owned decorative frame image must also be
@@ -140,10 +158,15 @@ Manual review is required at 1280×720, 800×600, and 390×720. Inspect:
 - hover and click behavior after a resize;
 - no opaque dark rectangular surface remains in the three scoped widgets;
 - with the optional frame loaded, the HUD and hotbar still suppress its opaque
-  center while the minimap uses only its illustrated outer frame;
+  center by omitting the compact asset entirely, while the minimap uses only
+  its illustrated outer frame;
 - with the optional frame missing, HUD and hotbar remain transparent with
   code-drawn outlines, and the minimap uses a transparent/low-opacity fallback
   interior rather than the old near-opaque block;
+- exercise the missing minimap-frame path in a dev-only harness by removing
+  the `ui-organic-minimap-frame` texture from the Phaser texture manager before
+  constructing `Minimap` (or by blocking that one local asset request), then
+  repeat the screenshot checks with the texture restored;
 - decorative frame images are destroyed with `HUD` and `Minimap` and do not
   survive scene teardown;
 - inventory and crafting are unchanged.
