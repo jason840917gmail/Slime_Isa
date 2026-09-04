@@ -57,7 +57,7 @@ interface NpcGameplayDocument {
 - description and ordinary talk text; and
 - relationships referenced by quest definitions.
 
-Each `NpcDefinition` gains a required `characterId`. The catalog link is the only runtime route from quest identity to an NPC character package. Catalog validation must reject a missing character, a non-NPC character, or two catalog definitions that accidentally claim the same character package unless a future design explicitly permits shared presentation.
+Each `NpcDefinition` gains a required `characterId`. The catalog link is the only runtime route from quest identity to an NPC character package. The obsolete optional `visualId` field is removed rather than retained as a second presentation route. Catalog validation must reject a missing character, a non-NPC character, or two catalog definitions that accidentally claim the same character package unless a future design explicitly permits shared presentation.
 
 The initial links are:
 
@@ -70,7 +70,9 @@ The placed map object remains the source of the NPC's stable `instanceId`, quest
 
 NPC object archetypes become placement definitions rather than presentation definitions. Their `npc` payload contains `definitionId` and one stable `placementVisualId`; NPC archetypes omit ordinary object `variants` and keep `physics: null`. The object schema requires `variants` for non-NPC archetypes and forbids it for NPC archetypes. Existing map instances retain their current `visualId`, which must equal the archetype's `placementVisualId`, so stable authored map references do not change.
 
-`ObjectCatalog` synthesizes an editor placement choice for each NPC by resolving `definitionId -> NpcDefinition.characterId -> CharacterPackage`. The choice uses the visual set's asset, first `idle` frame, default origin/scale/source offset, and package display label. A small Map Editor NPC preview adapter renders that resolved frame; it is not a second studio and owns no editable presentation data.
+`ObjectCatalog` exposes a discriminated Map Editor placement-choice union. Ordinary entries carry `kind: "object-visual"` and the existing `ObjectVisualChoice`; NPC entries carry `kind: "npc-character"`, stable object/placement IDs, `npcDefinitionId`, `characterId`, `visualSetId`, display label, and tags. NPC choices do not imitate the ordinary choice's uniform scale, visual offset, collider, or object-animation fields.
+
+A small `NpcPlacementPreview` adapter always resolves and renders `npc-character` choices from the character package. It applies the visual set's first `idle` frame, origin, non-uniform scale, and source offset; owns explicit destroy cleanup; and contains no editable presentation values. `ObjectFactory` and the object-template editor accept only `object-visual` choices. Selecting an NPC in object-template tooling directs the author to Character Studio instead of creating presentation overrides.
 
 Add an optional map-level collection:
 
@@ -86,6 +88,8 @@ interface MapFile {
   readonly npcWanderAreas?: readonly MapNpcWanderArea[];
 }
 ```
+
+Extracting the generic geometry names preserves both `MapEnemyAreaShape` and `MapEnemyAreaPerimeter` as compatibility aliases, so existing enemy-area imports remain source-compatible.
 
 Rename or generalize the existing circle/rectangle perimeter type and pure geometry helpers so both enemy camps and NPC areas reuse one implementation. Enemy-only concepts such as stay/pursue perimeters, roster weights, respawn interval, and population cap remain exclusive to `MapEnemySpawnArea`.
 
@@ -108,7 +112,7 @@ The creation endpoint and request parser accept `kind: "npc"` and an NPC templat
 
 Selecting an NPC preserves the existing source-asset shelf, sprite-sheet frame canvas, clip list, timeline, animation preview, visual defaults, frame transforms, animation-event controls, and body editor. Timeline frame selection, ordering, holds, clip timing, and `npc.*` events remain editable. Hitbox and span controls are absent for the NPC role because NPC v1 requires an empty hitbox definition and empty span collections.
 
-The role-specific gameplay section contains only wander speed and pause range. Player identity controls and enemy health, AI, projectile, combat, and drop controls do not render for NPCs. Unsupported combat authoring is both unavailable in the UI and rejected by validation.
+The role-specific gameplay section contains only wander speed and pause range. Player identity controls and enemy health, AI, projectile, combat, and drop controls do not render for NPCs. Unsupported combat authoring is both unavailable in the UI and rejected by validation. `CharacterDocumentState` enforces the same restrictions at every mutation boundary: NPCs cannot add or update attributes, hitboxes, hitbox spans, combat/runtime-role data, or non-`npc.*` events even if a caller bypasses the controls.
 
 The asset shelf continues to display ready sprite sheets, including unused sources. Once Village Elder Plop and Mossy Scout reference their authored sheets from visual sets, those sheets no longer appear as unused sources.
 
@@ -159,7 +163,7 @@ It does not open the enemy-camp dialog and does not duplicate movement-speed con
 
 An NPC placement and its area are separate authored coordinates. Moving an NPC does not silently translate its area. If the new position falls outside the assigned perimeter, the editor reports the invalid relationship immediately and saving remains disabled/rejected until the NPC or area is corrected.
 
-Deleting an NPC deletes its referenced wander area in the same `MapEditorState` mutation, so a single undo restores both. Deleting only the area leaves the NPC in place and makes it stationary. Resizing the map scales NPC object positions and NPC perimeters by the same tile-size factor before applying map-bound validation.
+`MapEditorState.deleteObjectInstances(instanceIds)` is the only object-deletion mutation. Single erase and box erase call it; any selected-object keyboard deletion added in this work must call it too. It removes each object and its referenced wander area in one mutation, so a single undo restores both. There is no separate object-replacement contract in this design. If replacement is introduced later, it must use the same ownership operation. Deleting only the area leaves the NPC in place and makes it stationary. Resizing the map scales NPC object positions and NPC perimeters by the same tile-size factor before applying map-bound validation.
 
 Area selection is mutually exclusive with object, safe-zone, and enemy-area selection. Switching away from the NPC Area tool clears stale area selection and drag state. All pointer handlers, overlays, and DOM listeners follow the editor's existing cleanup lifecycle.
 
@@ -184,6 +188,8 @@ A scene-owned NPC runtime controller receives the placement registration, resolv
 
 Whenever the actor changes its active visual clip, it starts the same clip on `CharacterAnimationTrackRunner`; its update loop advances the runner with scene delta time. The runner has no hitbox callbacks for NPCs. It forwards namespaced track events through an optional `NpcControllerContext.onPresentationEvent` callback containing NPC instance ID plus the existing character track event. This is the complete NPC v1 track interface: consumers may attach sound or cosmetic reactions, but combat systems are never recipients and an absent callback is a valid no-op. The actor destroys the runner with its visual and anchor.
 
+`WorldScene` forwards the effective simulation-paused state to the NPC runtime controller. Pausing clears every NPC velocity and freezes policy/track advancement. Resuming discards stale targets and begins a fresh pause/target cycle rather than continuing pre-modal movement. Scene teardown destroys quest interaction timers and handles first, then the NPC collider, then NPC actors and their physics group, and finally the remaining collision/world resources.
+
 `QuestNpcController` continues to own quest candidate priority, prompt text, offer/turn-in modals, talk events, and catalog text. Movement and animation remain outside it. The two controllers communicate through a narrow actor handle that exposes position plus an interaction lock; neither controller imports `WorldScene`.
 
 ### Wander policy
@@ -197,7 +203,7 @@ const NPC_STUCK_PROGRESS_DISTANCE = 2; // minimum progress per sample
 const NPC_STUCK_SAMPLE_MS = 750;
 ```
 
-Containment is based on the full anchor-relative Arcade body bounds, not only width/height. Resolve the body's effective width and height through the existing collision-shape utility. Its anchor-relative extents are `centerOffsetX +/- width / 2` and `centerOffsetY +/- height / 2`. For a rectangle perimeter, derive the valid anchor rectangle by subtracting those asymmetric extents plus `NPC_AREA_MARGIN` from each edge. For a circle perimeter, conservatively subtract the maximum distance from the anchor to any resolved body-bounds corner plus the margin from the circle radius. The resulting valid anchor domain must have positive dimensions/radius and must contain the authored starting anchor; otherwise map reference validation rejects the area. A valid assigned area never silently falls back to stationary behavior because its body cannot fit.
+Containment is based on the full anchor-relative Arcade body bounds, not only width/height. One shared `resolveEffectiveArcadeBodyBoundsRelativeToAnchor()` helper owns this calculation and is used by Arcade body setup, map reference validation, and runtime target clamping. It includes asymmetric center offsets and represents ellipses with the same conservative rectangle used by Arcade collision. Its extents are `centerOffsetX +/- width / 2` and `centerOffsetY +/- height / 2`. For a rectangle perimeter, derive the valid anchor rectangle by subtracting those asymmetric extents plus `NPC_AREA_MARGIN` from each edge. For a circle perimeter, conservatively subtract the maximum distance from the anchor to any resolved body-bounds corner plus the margin from the circle radius. The resulting valid anchor domain must have positive dimensions/radius and must contain the authored starting anchor; otherwise map reference validation rejects the area. A valid assigned area never silently falls back to stationary behavior because its body cannot fit.
 
 For an NPC with an assigned area and positive wander speed:
 
@@ -220,7 +226,7 @@ Plain talk uses no modal and the current floating-message API exposes no complet
 
 Every branch that acquires a lock must transfer it to one of those two explicit owners before returning: an opened modal's `onClosed`, or a 700 ms floating-message timer. In particular, reoffer failure and missing-refreshed-quest branches show their existing floating error, transfer the token to the timed-release helper, and return. A thrown error before any feedback or modal is created releases the token immediately in `finally`. Tests assert that no failed interaction path leaves a permanent lock.
 
-Locks are reference-counted or token-based so a duplicate close callback cannot resume movement early. Destroying the actor, controller, or scene cancels timers and locks idempotently. After the final lock releases, the NPC discards any stale target and starts with a fresh pause/target cycle.
+Locks are reference-counted or token-based so a duplicate close callback cannot resume movement early. `QuestOfferModal` owns the current session callback and releases it from `destroy()` before unregistering its modal handle; this does not change `ModalStack.destroy()` into a global callback dispatcher. Destroying the actor, controller, or scene cancels timers and locks idempotently. After the final lock releases, the NPC discards any stale target and starts with a fresh pause/target cycle.
 
 ## Migration of the two authored NPCs
 
@@ -283,7 +289,7 @@ Catalog/reference validation rejects:
 
 `parseMapFile` remains a dependency-free structural validator. It checks the `npcWanderAreas` container and field shapes, stable ID syntax, finite geometry, positive dimensions, map bounds, duplicate area IDs, and duplicate `npcInstanceId` assignments. It does not import Object, NPC, or Character catalogs and does not attempt body-aware validation.
 
-`MapRepository` reference validation, the development save endpoint, and `maps:check` own cross-catalog checks. With ObjectCatalog, NpcCatalog, and CharacterCatalog available, they reject:
+Cross-catalog validation is a pure, dependency-injected function. It accepts a narrow resolver port for object placements, NPC definitions, character packages, and effective body bounds; it never imports `CharacterCatalog` or the `virtual-character-content` module. Immutable NPC definition data lives in a catalog-neutral TypeScript module that imports no character catalog; `NpcCatalog` consumes and exposes it. `MapRepository` supplies a browser adapter backed by Object/NPC/Character catalogs. The development save endpoint and `maps:check` supply Node adapters backed by that pure NPC definition snapshot plus authored object, character, and visual-set JSON. All three call the same validator and reject:
 
 - references to missing or non-NPC object instances;
 - a body-aware valid anchor domain with non-positive dimensions/radius; or
@@ -291,7 +297,7 @@ Catalog/reference validation rejects:
 
 Map Editor state applies the dependency-free structural checks before accepting local mutations. Save remains the authoritative cross-catalog gate and returns the first precise reference issue to the editor without writing the map.
 
-An absent `npcWanderAreas` array normalizes to an empty collection in Map Editor state and to an empty readonly collection at runtime. Invalid authored content fails loudly at load/save/check time; runtime does not silently detach a malformed area. If a valid NPC catalog/package link cannot be resolved because of a development-time hot-reload race, the scene reports the content error and leaves the placement inactive rather than treating it as an enemy or crashing the interaction router.
+An absent `npcWanderAreas` array is read as an empty collection without materializing the field in the editable document; merely opening, editing unrelated content, or saving a legacy map preserves omission. The first NPC-area authoring mutation creates the field, and undo/redo preserves whether it was absent or present. Runtime exposes an empty readonly collection either way. Invalid authored content fails loudly at load/save/check time; runtime does not silently detach a malformed area. If a valid NPC catalog/package link cannot be resolved because of a development-time hot-reload race, the scene reports the content error and leaves the placement inactive rather than treating it as an enemy or crashing the interaction router.
 
 ## Verification strategy
 

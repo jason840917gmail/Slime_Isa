@@ -65,7 +65,10 @@ No commit is expected for this phase.
 
 1. Add failing validator tests for one valid NPC package and for these invalid cases:
    - missing `npc` gameplay document;
-   - `player`, `enemy`, `runtimeRole`, or `attributes` present;
+   - `player` present by itself;
+   - `enemy` present by itself;
+   - `runtimeRole` present by itself;
+   - `attributes` present by itself;
    - non-empty `hitboxes` or `hitboxSpans`;
    - negative/non-finite speed or pause values;
    - `pauseMaxMs < pauseMinMs`;
@@ -73,7 +76,7 @@ No commit is expected for this phase.
    - missing/empty `idle` or directional walking clips.
 2. Extend `CharacterKind` to `player | enemy | npc` and add `NpcGameplayDocument` with `wanderSpeed`, `pauseMinMs`, and `pauseMaxMs`.
 3. Add `npc?: NpcGameplayDocument` to `CharacterDocument` and the matching virtual-module declaration in `src/vite-env.d.ts`.
-4. Add an explicit NPC branch to the JSON schema and TypeScript validator. Keep player and enemy validation unchanged; do not convert existing binary logic into a permissive fallback branch.
+4. Add an explicit NPC branch to the JSON schema and TypeScript validator. Independently forbid `player`, `enemy`, `runtimeRole`, and `attributes` in that branch; do not use one `not` clause that rejects only a combination. Keep player and enemy validation unchanged and do not convert existing binary logic into a permissive fallback branch.
 5. Require NPC clips `idle`, `walk-down`, `walk-up`, `walk-left`, and `walk-right`, each with at least one in-range frame.
 6. Add `getNpcPackages()` and `getNpcGameplay()` to `CharacterCatalog`. Retain existing `getPrimaryPlayerPackage()` and `getEnemyPackages()` behavior exactly.
 7. Extend the optional kind discriminator in `CharacterClipUsageRegistry` to include `npc`; do not change existing registrations or consumers.
@@ -106,7 +109,7 @@ pnpm typecheck
 1. Extend the test fixture endpoint to create an NPC package from a spritesheet. Assert the created files use `kind: "npc"`, the required five clips, empty hitboxes/spans, and the three gameplay defaults.
 2. Expand `PackageCreationRequest.kind` and its template union with `npc`. Add `NPC_STARTER_CLIP_IDS`; do not reuse the enemy starter list.
 3. Update `starterPackage`, request parsing, imported-PNG metadata, duplication, and generated `visualSetId` logic so an NPC request produces a normal character package rather than an enemy package with modified values.
-4. Audit every player-versus-enemy branch in `CharacterDocumentState` and `CharacterStudio`. Replace implicit `else enemy` logic with explicit three-way role handling.
+4. Audit every player-versus-enemy branch in `CharacterDocumentState` and `CharacterStudio`. Replace implicit `else enemy` logic with explicit three-way role handling. Inventory every public mutation method before changing UI controls.
 5. Update the one existing roster and workbench:
    - add an `NPC` creation option and NPC starter option;
    - show a dedicated NPC glyph/label/accent in the shared roster;
@@ -116,8 +119,8 @@ pnpm typecheck
    - keep Add Event with an `npc.footstep` default;
    - hide Add Hitbox and Add Span for NPCs;
    - do not add a tab, route, page, or new Studio mount.
-6. Ensure state mutations can edit `npc.wanderSpeed`, `npc.pauseMinMs`, and `npc.pauseMaxMs`, and can save `npc.*` events while rejecting invalid namespace input before submission.
-7. Add source-structure and state tests proving the UI has an explicit NPC branch and no binary fallback that renders NPCs as enemies.
+6. Enforce role restrictions inside `CharacterDocumentState`, not only in rendered controls. NPC state may edit body/visual/clip/timeline data, `npc.wanderSpeed`, `npc.pauseMinMs`, `npc.pauseMaxMs`, and `npc.*` events. Mutation methods must reject NPC attributes, hitboxes, hitbox spans, player/enemy/runtime-role data, and events outside `npc.*`, even when called directly.
+7. Add source-structure and direct state-mutation tests proving the UI has an explicit NPC branch, no binary fallback renders NPCs as enemies, and bypassing hidden controls cannot create forbidden NPC fields.
 8. Keep the existing dark Studio shell. Add only the lavender/moss NPC role tokens and states needed for roster, selection, hover, focus, and validation.
 
 **Focused verification**
@@ -140,6 +143,7 @@ pnpm typecheck
 - `src/game/content/characters/village-elder-plop/visual-set.json`
 - `src/game/content/characters/mossy-scout/character.json`
 - `src/game/content/characters/mossy-scout/visual-set.json`
+- `src/game/content/npcs/NpcDefinitions.ts`
 
 **Modify**
 
@@ -164,11 +168,12 @@ pnpm typecheck
    - `walk-right`: 24–29.
 4. Preview those rates in Character Studio to verify the intended deliberate/playful contrast. Do not alter source PNGs during this task.
 5. Update the static virtual package fallback so direct Vite SSR tests see both packages. Confirm the development plugin discovers the same entries dynamically.
-6. Add required `characterId` links to `NpcDefinition`:
+6. Extract the immutable NPC definition records into `NpcDefinitions.ts`. This module imports no `CharacterCatalog`, virtual content module, Vite API, filesystem API, or Phaser type; `NpcCatalog` consumes/re-exports the snapshot so its existing public lookup API remains stable.
+7. Add required `characterId` links to `NpcDefinition` and remove the unused optional `NpcDefinition.visualId` field so `characterId` is the only presentation link:
    - `village-elder-plop -> village-elder-plop`;
    - `level-1-spider-giver -> mossy-scout`.
-7. Export `validateNpcCatalogReferences()` from `NpcCatalog`. It rejects missing/non-NPC package links and accidental duplicate package ownership. Load and invoke it explicitly from `scripts/check-quests.mjs` after Vite resolves the virtual character catalog.
-8. Preserve the existing quest-facing `level-1-spider-giver` ID; do not rename quests or save references.
+8. Export `validateNpcCatalogReferences()` from `NpcCatalog`. It rejects missing/non-NPC package links and accidental duplicate package ownership. Load and invoke it explicitly from `scripts/check-quests.mjs` after Vite resolves the virtual character catalog.
+9. Preserve the existing quest-facing `level-1-spider-giver` ID; do not rename quests or save references.
 
 **Focused verification**
 
@@ -184,17 +189,30 @@ pnpm test:quests
 
 **Commit checkpoint:** `content: add Elder and Mossy NPC packages`
 
-## Phase 4 — Make NPC object archetypes placement-only
+## Phase 4 — Add discriminated NPC placement choices and Map Editor previews
 
 **Modify**
 
-- `src/game/content/objects/objects.schema.json`
 - `src/game/content/objects/ObjectCatalog.ts`
+- `src/game/content/objects/ObjectInitialState.ts`
+- `src/game/editor/MapEditorScene.ts`
+- `src/game/editor/MapEditorPanel.ts`
+- `src/game/editor/MapEditorInspector.ts`
+- `src/game/editor/MapEditorObjectAuthoring.ts`
+- `src/game/editor/ObjectTemplateEditorState.ts`
+- `src/game/editor/GameplayAttributeEditorState.ts`
+- `src/game/features/objects/ObjectFactory.ts`
+- `src/game/features/resources/ResourceNodeController.ts`
+- `scripts/tests/map-editor/gameplay-attributes.test.mjs`
+
+**Read/audit for the Phase 8 cutover**
+
+- `src/game/content/objects/objects.schema.json`
 - `src/game/content/objects/npcs/npc-world.json`
 - `src/game/content/objects/npcs/npc-world-scout.json`
-- `src/game/editor/MapEditorScene.ts`
+- `vite.config.ts`
 - `scripts/check-objects.mjs`
-- `scripts/tests/map-editor/gameplay-attributes.test.mjs`
+- `scripts/check-maps.mjs`
 
 **Create**
 
@@ -202,14 +220,16 @@ pnpm test:quests
 
 **Steps**
 
-1. Add failing object/catalog tests proving NPC archetypes may omit `variants`, must keep `physics: null`, require `npc.definitionId` plus `npc.placementVisualId`, and synthesize a valid palette choice from the linked NPC character package.
-2. Make ordinary object archetypes continue requiring non-empty `variants`; do not relax the schema globally.
-3. Update the TypeScript object definition union so the NPC branch is explicit and narrowed. Keep the existing `ObjectVisualChoice` API for palette/search consumers, but synthesize NPC choices from `NpcCatalog` plus `CharacterCatalog` using the first `idle` frame and visual defaults.
-4. Convert `npc.world` and `npc.world-scout` to placement-only definitions. Preserve their object IDs, definition IDs, tags, `physics: null`, and current map-facing visual IDs `slime-npc` and `slime-scout`.
-5. Remove presentation fields from those two object JSON files: asset ID, frame, scale, offsets, and object idle-animation IDs.
-6. Add a render-only `NpcPlacementPreview` adapter for Map Editor canvas instances/cursor previews. It resolves the character visual set, applies origin/scale/source offset, renders the first idle frame, and owns explicit destroy cleanup. It is not an editor or source of authored values.
-7. Branch Map Editor rendering for NPC choices through that adapter while keeping non-NPC objects on `ObjectFactory`. Adjust rendered-instance types only as far as needed for `Sprite`/`Image` compatibility.
-8. Verify palette grouping/search and right-click picking still return the stable placement visual IDs stored in maps.
+1. Add failing catalog/editor tests proving an archetype with NPC metadata produces a valid `npc-character` placement choice linked to its character package, while ordinary archetypes produce `object-visual` choices.
+2. Add `ObjectPlacementChoice = (ObjectVisualChoice & { readonly kind: "object-visual" }) | NpcCharacterPlacementChoice`, where the NPC branch requires `kind: "npc-character"`. Keep `ObjectVisualChoice` ordinary-object-only. The NPC choice carries stable object/placement IDs, `npcDefinitionId`, `characterId`, `visualSetId`, display name, and tags; it deliberately does not expose ordinary object asset/frame, uniform scale, visual-offset, collider, or animation-override fields.
+3. Add new editor-facing placement-choice lookup APIs that synthesize NPC choices from `NpcCatalog` plus `CharacterCatalog`. Keep the existing runtime object-visual resolver temporarily intact so `MapBuilder -> ObjectFactory` remains functional until the Phase 8 actor cutover. Mark that compatibility path for removal in the audit checklist.
+4. Add a render-only `NpcPlacementPreview` adapter for Map Editor canvas instances/cursor previews. It accepts only `NpcCharacterPlacementChoice`, resolves the package, applies origin, non-uniform scale, source offset, and the first `idle` frame, and owns explicit destroy cleanup. It is not an editor or source of authored values.
+5. Migrate palette, search, selection, placement, and right-click picking consumers to narrow on the discriminator. Route only `object-visual` editor choices through `ObjectFactory`; route only `npc-character` editor choices through `NpcPlacementPreview`. Use a common rendered-instance interface for bounds/position/depth/destroy without widening either source type.
+6. Prevent object-template and gameplay-attribute editors from treating NPC choices as editable object visuals. Show a concise “Edit in Character Studio” route/status for NPC presentation. Keep the legacy NPC object variants read-only during the transition.
+7. Narrow collectible/drop logic in `ObjectInitialState`, `GameplayAttributeEditorState`, `MapEditorInspector`, and `ResourceNodeController` to ordinary collectible choices. An NPC placement can never become a resource drop merely because it has a palette entry.
+8. Complete and record a repository scan for `.variants`, `ObjectVisualChoice`, `getObjectVisualChoice`, and `getObjectVisualChoices`. Classify every result and produce the exact Phase 8 deletion/cutover checklist; document why unrelated effect/legacy-migration variant code is unchanged.
+9. Do not yet remove NPC JSON variants, change the schema to forbid them, or delete the legacy runtime resolver. Add a regression assertion that Level 1 still builds through its existing runtime path after this phase.
+10. Verify palette grouping/search and right-click picking return the stable placement visual IDs stored in maps while using Character Studio presentation in the editor.
 
 **Focused verification**
 
@@ -229,6 +249,7 @@ pnpm typecheck
 
 - `src/game/content/maps/agentAreaGeometry.ts`
 - `src/game/content/maps/validateMapReferences.ts`
+- `src/game/infrastructure/maps/BrowserMapReferenceResolver.ts`
 - `src/game/content/npcs/npcWanderGeometry.ts`
 - `scripts/tests/map-editor/npc-wander-area.test.mjs`
 
@@ -237,6 +258,7 @@ pnpm typecheck
 - `src/game/content/maps/mapFormat.ts`
 - `src/game/content/maps/maps.schema.json`
 - `src/game/content/maps/enemySpawnAreaGeometry.ts`
+- `src/game/shared/collisionShapes.ts`
 - `src/game/infrastructure/maps/MapRepository.ts`
 - `vite.config.ts`
 - `scripts/check-maps.mjs`
@@ -246,14 +268,17 @@ pnpm typecheck
 **Steps**
 
 1. Add table-driven failing tests for circle/rectangle structural parsing, absent legacy field, inclusive containment, duplicate area IDs, duplicate NPC assignments, bounds checks, and round-trip serialization.
-2. Introduce `MapAgentAreaPerimeter` and `MapNpcWanderArea`; add optional `npcWanderAreas` to `MapFile` and `BuiltMap`. Preserve `MapEnemyAreaPerimeter` as an alias/re-export during the migration so existing enemy code remains source-compatible.
+2. Introduce `MapAgentAreaShape`, `MapAgentAreaPerimeter`, and `MapNpcWanderArea`; add optional `npcWanderAreas` to `MapFile` and `BuiltMap`. Preserve both `MapEnemyAreaShape` and `MapEnemyAreaPerimeter` as aliases/re-exports during the migration so existing enemy code remains source-compatible.
 3. Move generic perimeter bounds, containment, translation, resizing support, inset, and random-point helpers into `agentAreaGeometry.ts`; keep enemy-specific player/pursuit behavior in `enemySpawnAreaGeometry.ts`.
-4. Implement body-aware valid-anchor-domain calculation in `npcWanderGeometry.ts` using resolved collision dimensions, asymmetric center offsets, and the fixed eight-pixel margin. Reject zero/negative valid domains and starting anchors outside the valid domain.
-5. Keep `parseMapFile` structural and dependency-free. It validates collection/field shapes, finite positive geometry, map bounds, stable IDs, and duplicate assignments.
-6. Put the focused cross-reference validator in `validateMapReferences.ts` and use it from `MapRepository` and the Map Editor save endpoint. It resolves each assigned object through Object/NPC/Character catalogs and performs the body-aware check.
-7. Add parity logic to `scripts/check-maps.mjs` so the standalone checker performs the same reference checks. Add fixtures for missing instance, non-NPC instance, too-small area, and offset body outside the area.
-8. Normalize absent `npcWanderAreas` to `[]` in `MapEditorState`, include areas in map-resize scaling, and preserve maps that omit the field when round-tripped unless the editor adds an area.
-9. Add regression coverage for existing enemy-area geometry and for player/enemy packages/maps remaining unchanged.
+4. Add `resolveEffectiveArcadeBodyBoundsRelativeToAnchor()` to `collisionShapes.ts`. It is the single authority for resolved dimensions, asymmetric center offsets, and Arcade's conservative rectangular ellipse representation. Refactor `applyArcadeBodyGeometry()` to consume it, then use the same result in NPC map validation and runtime target clamping.
+5. Implement body-aware valid-anchor-domain calculation in `npcWanderGeometry.ts` using those shared bounds and the fixed eight-pixel margin. Reject zero/negative valid domains and starting anchors outside the valid domain.
+6. Keep `parseMapFile` structural and dependency-free. It validates collection/field shapes, finite positive geometry, map bounds, stable IDs, and duplicate assignments.
+7. Define a narrow `MapReferenceResolver` port in `validateMapReferences.ts` for resolving object placement metadata, NPC definitions, NPC character packages, and effective bodies. The validator imports no runtime catalog, virtual module, filesystem API, Vite API, or Phaser type.
+8. Add a browser adapter in `BrowserMapReferenceResolver.ts` backed by Object/NPC/Character catalogs and inject it from `MapRepository`. In `vite.config.ts`, build a Node adapter from the pure `NpcDefinitions.ts` snapshot plus authored object, character, and visual-set JSON. Do not import `NpcCatalog`, runtime `CharacterCatalog`, or `virtual-character-content` from the config.
+9. Make the Map Editor save/create endpoints and `scripts/check-maps.mjs` call the same pure validator with the filesystem resolver. The standalone checker may load the pure TypeScript module through Vite SSR, but it must not duplicate body-domain policy or resolve `virtual-character-content` from the config process.
+10. Add fixtures for missing instance, non-NPC instance, bad placement visual ID, missing NPC definition/package, too-small area, asymmetric offset body outside the area, ellipse bounds, and exact-boundary inclusion.
+11. Treat absent `npcWanderAreas` as an empty editor view without assigning `[]` into the document. Scale the collection only when present; create it on the first NPC-area mutation. Preserve absent-versus-present state in undo/redo snapshots so merely opening, editing unrelated content, resizing, or saving a legacy map does not serialize `npcWanderAreas: []`.
+12. Add regression coverage for existing enemy-area geometry, both compatibility aliases, large frame deltas, and player/enemy packages/maps remaining unchanged.
 
 **Focused verification**
 
@@ -290,12 +315,12 @@ pnpm typecheck
    - clicking NPC Area captures that stable instance as the owner;
    - non-NPC selection leaves the previous tool active and reports why;
    - an existing personal area is selected instead of creating a duplicate.
-4. Add state mutations for create/update/delete area. Generate the lowest unused `npc-area-NN` ID. Deleting an NPC cascades its area within the same undo snapshot; deleting only the area leaves the NPC stationary.
+4. Add state mutations for create/update/delete area. Generate the lowest unused `npc-area-NN` ID. Add one `MapEditorState.deleteObjectInstances(instanceIds)` mutation that removes all targeted objects plus their personal NPC areas atomically. Route single erase and box erase through it; route any selected-object Delete/Backspace action added in this phase through it as well. Do not invent an object-replacement workflow, but any existing replacement discovered during the consumer audit must use the same ownership mutation. Deleting only the area leaves the NPC stationary.
 5. Add canvas pointer handling for create, select, move, and corner-resize. Area/object/safe-zone/enemy-area selections remain mutually exclusive and drag state clears on tool changes or scene shutdown.
 6. Render NPC areas only while the tool is active using a lavender outline, quiet fill, resize handles, and a tether from area center/nearest point to its owner NPC. Reuse existing depth/selection conventions.
 7. Add a compact panel section with selected NPC identity, shape choice, create/edit state, and delete action. Do not reuse or display the enemy roster/cooldown dialog and do not duplicate Character Studio movement values.
 8. When an NPC is moved outside its raw perimeter, report the invalid relation immediately. Let the shared save validator remain authoritative for body-aware rejection and surface its precise response without writing.
-9. Test activation, one-area ownership, ID allocation, circle/rectangle editing, cascade delete/undo, area-only delete, map scaling, invalid selection, selection cleanup, and legacy maps.
+9. Test activation, one-area ownership, ID allocation, circle/rectangle editing, single-erase cascade, box-delete cascade for mixed NPC/non-NPC selections, undo/redo of the atomic mutation, area-only delete, map scaling, invalid selection, selection cleanup, and absent-field legacy round trips.
 
 **Focused verification**
 
@@ -322,12 +347,13 @@ pnpm typecheck
 
 **Steps**
 
-1. Define the four content-independent constants from the spec: margin 8 px, arrival distance 6 px, progress threshold 2 px, and stuck sample interval 750 ms.
-2. Implement pure state transitions for idle/pause, target acquisition, moving, arrival, interaction lock, unlock, and stuck recovery. Accept clock/random inputs instead of reading Phaser globals.
-3. Sample rectangle targets with independent linear X/Y interpolation and circle targets using angle plus `sqrt(random)` radial distance for uniform area distribution.
-4. Map velocity to `walk-down`, `walk-up`, `walk-left`, or `walk-right` by dominant axis. Preserve the last facing while idle, but play the shared `idle` clip.
-5. Explicitly handle zero speed, zero-duration pauses, already-arrived targets, very small positive valid domains, non-positive delta, and repeated lock/unlock calls without loops or unbounded retargeting.
-6. Add deterministic tests for every transition, containment, distribution formula inputs, exact boundary inclusion, stuck recovery, and destruction/no-op behavior.
+1. Create `test:npcs` in `package.json` as soon as the first NPC test file exists, and add it to `pnpm check` before running this phase's focused verification. No pre-existing NPC test directory or script is assumed.
+2. Define the four content-independent constants from the spec: margin 8 px, arrival distance 6 px, progress threshold 2 px, and stuck sample interval 750 ms.
+3. Implement pure state transitions for idle/pause, target acquisition, moving, arrival, interaction lock, unlock, and stuck recovery. Accept clock/random inputs instead of reading Phaser globals.
+4. Sample rectangle targets with independent linear X/Y interpolation and circle targets using angle plus `sqrt(random)` radial distance for uniform area distribution.
+5. Map velocity to `walk-down`, `walk-up`, `walk-left`, or `walk-right` by dominant axis. Preserve the last facing while idle, but play the shared `idle` clip.
+6. Explicitly handle zero speed, zero-duration pauses, already-arrived targets, very small positive valid domains, non-positive and unusually large delta, and repeated lock/unlock calls without loops or unbounded retargeting.
+7. Add deterministic tests for every transition, containment, distribution formula inputs, exact boundary inclusion, large frame deltas, stuck recovery, and destruction/no-op behavior.
 
 **Focused verification**
 
@@ -351,6 +377,13 @@ pnpm typecheck
 - `src/game/features/world/MapBuilder.ts`
 - `src/game/features/interaction/QuestNpcController.ts`
 - `src/game/scenes/WorldScene.ts`
+- `src/game/content/objects/objects.schema.json`
+- `src/game/content/objects/ObjectCatalog.ts`
+- `src/game/content/objects/npcs/npc-world.json`
+- `src/game/content/objects/npcs/npc-world-scout.json`
+- `vite.config.ts`
+- `scripts/check-objects.mjs`
+- `scripts/check-maps.mjs`
 
 **Steps**
 
@@ -358,11 +391,15 @@ pnpm typecheck
 2. Return `npcWanderAreas` in `BuiltMap` and prove maps with none return an empty readonly collection.
 3. Implement `NpcActor` with an invisible Arcade anchor, body geometry from its package, `AnimatedVisual`, `CharacterAnimationTrackRunner`, policy state, world-depth synchronization, interaction-lock tokens, and idempotent destroy.
 4. Synchronize every visual clip change to the track runner. Forward valid `npc.*` events through an optional presentation callback carrying the stable NPC instance ID; do not provide hitbox callbacks or emit to combat.
-5. Implement `NpcRuntimeController` to resolve catalog/package links, match placements to personal areas, create actors, expose an NPC physics group/readonly handles, update actors, and destroy all resources.
+5. Implement `NpcRuntimeController` to resolve catalog/package links, match placements to personal areas, create actors, expose an NPC physics group/readonly handles, update actors, apply `setSimulationPaused(paused)`, and destroy all resources. Pausing clears velocity and freezes policy/track advancement; resuming discards stale targets and begins a fresh pause/target cycle.
 6. Change `QuestNpcController.register` to accept a narrow actor handle containing stable IDs, current position, and `acquireInteractionLock()`. Keep all quest lookup, prompt priority, and text in that controller.
-7. Compose both controllers in `WorldScene`: create them before map build, route `onNpcCreated`, finalize interaction registration after build, collide the NPC group with static world collision, call update from the normal scene update, and destroy before collision/world teardown.
-8. Do not add NPCs to enemies, combat targets, damage receivers, safe-zone steering, enemy spawn counts, drops, or save-game entity state.
-9. Add tests/source assertions for no ObjectFactory image, one actor per placement, correct body/clip selection, track-event forwarding with instance ID, absent callback no-op, static NPC without area, collision-group exposure, and idempotent disposal.
+7. Compose both controllers in `WorldScene` in this order: create NPC and quest controllers before map build; route each `onNpcCreated` registration into the NPC controller; after build, attach personal areas and register actor handles with quest interaction; then create the NPC-group/static-world collider. Call NPC update only from the normal unpaused scene update.
+8. Integrate the controller with `WorldScene.setSimulationPaused()`. Forward only effective paused-state transitions, include the NPC group in defensive `stopMovingBodies()` handling, and prove nested pause sources cannot resume NPCs early.
+9. Use the shutdown order: destroy `QuestNpcController` and its pending timers/session handles; destroy the NPC collider; destroy `NpcRuntimeController`, actors, track runners, visuals, and NPC group; then continue collision/map/world teardown. Every stage is idempotent.
+10. Once the actor path, Map Editor preview, collision, interaction registration, pause, and teardown tests are green, perform the placement-only cutover from the Phase 4 audit checklist. Make NPC archetypes omit and forbid `variants`, preserve `physics: null`, `definitionId`, stable `placementVisualId`, object IDs, and map-facing visual IDs, and remove asset/frame/scale/offset/object-animation fields. Remove the temporary legacy NPC runtime visual resolver only after `MapBuilder` can no longer call it for NPC metadata.
+11. Update Vite object-authoring endpoints, `scripts/check-objects.mjs`, and `scripts/check-maps.mjs` to branch on the discriminated definition. They reject attempts to add ordinary variants or gameplay attributes to NPC placements while ordinary objects still require non-empty variants.
+12. Do not add NPCs to enemies, combat targets, damage receivers, safe-zone steering, enemy spawn counts, drops, or save-game entity state.
+13. Add tests/source assertions for no ObjectFactory image, NPC definitions valid without variants, ordinary definitions still requiring variants, one actor per placement, correct body/clip selection, track-event forwarding with instance ID, absent callback no-op, static NPC without area, collision-group exposure, pause/resume with nested sources, zero velocity while paused, fresh policy state after resume, ordered teardown, and idempotent disposal.
 
 **Focused verification**
 
@@ -387,7 +424,7 @@ pnpm typecheck
 
 **Steps**
 
-1. Add one `onClosed` callback to the current modal session. Invoke it exactly once after cleanup for accept, decline, Escape, replacement, explicit close, and destroy. Keep `onFinished` limited to successful quest bookkeeping.
+1. Add one `onClosed` callback to the current `QuestOfferModal` session and guard it with an idempotent session token. Invoke it exactly once after session cleanup for accept, decline, Escape, replacement, explicit close, and destroy. `QuestOfferModal.destroy()` must release the current session before `handle.unregister()`. Keep `onFinished` limited to successful quest bookkeeping; do not change `ModalStack.destroy()` into a global callback dispatcher.
 2. In `QuestNpcController`, acquire a lock only for the NPC whose candidate executes. Transfer every acquired token to exactly one release owner:
    - modal `onClosed`; or
    - a scene timer lasting 700 ms for plain talk or pre-modal floating errors.
