@@ -18,7 +18,8 @@ On 2026-09-04 the in-world gameplay HUD direction was approved as
 **artwork-first**: the world background remains visible, and the HUD,
 minimap, and weapon hotbar use transparent interiors with restrained outlines,
 text shadows, and state accents instead of opaque dark boxes. Inventory and
-crafting are explicitly excluded because they are being redesigned separately.
+crafting are explicitly excluded because they are being redesigned separately;
+`AbilityBar` is currently unmounted in `WorldScene` and remains deferred.
 The detailed implementation contract is in
 [World HUD Artwork-First Presentation](./superpowers/specs/2026-09-04-world-hud-artwork-first-design.md),
 which refines the broader
