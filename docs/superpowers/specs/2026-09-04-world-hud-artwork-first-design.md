@@ -56,8 +56,10 @@ dashboard floating in front of it.
 ### HUD
 
 - Keep the status block in the upper-left safe area.
-- Put level, coins, and friends into a compact two-line hierarchy instead of
-  treating each value as a large headline.
+- Use an explicit two-line hierarchy: line one contains `Level n` and
+  `Coins n` laid out with spacing rather than a separator glyph; line two
+  contains `Friends n`. None of the three values is treated as a large
+  standalone headline.
 - Use a readable primary size for the level line, a smaller secondary size for
   coins/friends, and a compact value label for each meter.
 - Keep meter tracks short enough that the right-hand values never leave the
@@ -96,11 +98,16 @@ dashboard floating in front of it.
 - Wide viewports use the authored positions with viewport-safe margins.
 - Medium viewports reduce the HUD meter width and hotbar cell/gap sizes before
   reducing text below its readable minimum.
-- Narrow viewports keep all six hotbar slots inside the safe width and keep the
-  minimap square; no element may clip the screen edge.
+- Narrow viewports keep all six hotbar slots inside `viewport width - 24px` and
+  keep the minimap square; no element may clip the screen edge. At 390×720 the
+  hotbar's visible width must be at most 366px. If a narrower viewport is
+  supported, cells may reduce to 40px and gaps to 4px but must not go below
+  those values; thumbnail art remains at least 22px and key labels at least
+  8px.
 - Existing `scale.resize` listeners remain responsible for rebuilding or
   repositioning the complete visible composition. Every new listener must be
-  removed during `destroy`.
+  removed during `destroy`, and every owned decorative frame image must also be
+  destroyed with its owning widget.
 
 ## State and behavior
 
@@ -126,6 +133,11 @@ Manual review is required at 1280×720, 800×600, and 390×720. Inspect:
 - active, owned, empty, and unavailable weapon slots;
 - hover and click behavior after a resize;
 - no opaque dark rectangular surface remains in the three scoped widgets;
+- the loaded-frame and missing-frame fallback paths both preserve the
+  artwork-first treatment, including a transparent/low-opacity minimap
+  interior rather than the old near-opaque fallback block;
+- decorative frame images are destroyed with `HUD` and `Minimap` and do not
+  survive scene teardown;
 - inventory and crafting are unchanged.
 
 Run `pnpm typecheck` and `pnpm build` after implementation. Run the complete
