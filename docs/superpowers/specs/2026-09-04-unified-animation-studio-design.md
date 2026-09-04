@@ -2,7 +2,7 @@
 
 ## Status
 
-Direction approved in conversation on 2026-09-04. Written specification approved by spec review; awaiting final user approval.
+Approved by spec review and by the user on 2026-09-04.
 
 ## Objective
 
