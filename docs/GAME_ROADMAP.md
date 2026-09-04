@@ -789,10 +789,11 @@ The phased ownership, migration rules, and acceptance gates are defined in the
 
 ### [ ] UX.0.1 — Apply artwork-first in-world HUD surfaces
 
-- Build: remove opaque compact-frame centers, dark slot fills, filled key
-  plates, and heavy shadows from the visible HUD, minimap, and six-slot weapon
-  hotbar. Keep the organic minimap border, transparent meter tracks, compact
-  labels, and clear active-slot treatment.
+- Build: omit the compact-frame asset from the visible HUD and six-slot weapon
+  hotbar, then remove dark slot fills, filled key plates, and heavy shadows.
+  Keep the organic minimap border, transparent meter tracks, compact labels,
+  and clear active-slot treatment; use a low-opacity minimap tint only for
+  marker readability.
 - Scope: `HUD.ts`, `Minimap.ts`, and `WeaponHotbar.ts`. Inventory and crafting
   remain separate work; `AbilityBar.ts` remains deferred until it is mounted in
   `WorldScene`.
