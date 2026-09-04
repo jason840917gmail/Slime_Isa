@@ -32,7 +32,7 @@ Character content owns how an NPC looks and moves:
 - physics-body geometry; and
 - basic wandering cadence.
 
-Extend `CharacterKind` from `player | enemy` to `player | enemy | npc`. Add an optional `npc` gameplay document and require it when `kind` is `npc`. The NPC schema contract is exact: `player`, `enemy`, `runtimeRole`, and `attributes` must be absent; `hitboxes` must be an empty object; and every `animationTracks` entry must have absent or empty `hitboxSpans` and `events` arrays. Track keys may reference visual clips, but NPC v1 does not author runtime markers or combat spans. Character Studio hides/disables Add Hitbox, Add Span, and Add Event actions for NPC packages while retaining timeline frame, hold, and clip-timing editing through the visual set.
+Extend `CharacterKind` from `player | enemy` to `player | enemy | npc`. Add an optional `npc` gameplay document and require it when `kind` is `npc`. The NPC schema contract is exact: `player`, `enemy`, `runtimeRole`, and `attributes` must be absent; `hitboxes` must be an empty object; and every `animationTracks.hitboxSpans` collection must be absent or empty. NPC animation tracks may contain non-combat events whose stable IDs begin with `npc.` and whose optional payload is JSON data; other event namespaces are rejected for NPC packages. Character Studio hides/disables Add Hitbox and Add Span actions for NPC packages, retains Add Event with `npc.footstep` as its role-specific default, and keeps timeline frame, hold, and clip-timing editing through the visual set.
 
 The first version of the NPC gameplay document is deliberately small:
 
@@ -100,13 +100,13 @@ The package roster maps all three character kinds explicitly. NPC entries receiv
 The existing package-creation form gains:
 
 - `NPC` in the kind selector; and
-- an NPC starter template containing the required NPC gameplay fields, an empty `hitboxes` object, empty event/span arrays in any starter tracks, a valid body, and starter `idle`, `walk-down`, `walk-up`, `walk-left`, and `walk-right` clips.
+- an NPC starter template containing the required NPC gameplay fields, an empty `hitboxes` object, empty span arrays and optional `npc.*` events in starter tracks, a valid body, and starter `idle`, `walk-down`, `walk-up`, `walk-left`, and `walk-right` clips.
 
 The creation endpoint and request parser accept `kind: "npc"` and an NPC template while retaining the existing path/ID safety rules. Creating an NPC produces the same `character.json` plus `visual-set.json` package shape used by the other roles.
 
 ### NPC inspector
 
-Selecting an NPC preserves the existing source-asset shelf, sprite-sheet frame canvas, clip list, timeline, animation preview, visual defaults, frame transforms, and body editor. Timeline frame selection, ordering, holds, and clip timing remain editable; hitbox, span, and event controls are absent for the NPC role because the NPC v1 schema requires those collections to stay empty.
+Selecting an NPC preserves the existing source-asset shelf, sprite-sheet frame canvas, clip list, timeline, animation preview, visual defaults, frame transforms, animation-event controls, and body editor. Timeline frame selection, ordering, holds, clip timing, and `npc.*` events remain editable. Hitbox and span controls are absent for the NPC role because NPC v1 requires an empty hitbox definition and empty span collections.
 
 The role-specific gameplay section contains only wander speed and pause range. Player identity controls and enemy health, AI, projectile, combat, and drop controls do not render for NPCs. Unsupported combat authoring is both unavailable in the UI and rejected by validation.
 
@@ -172,6 +172,7 @@ Introduce a focused runtime NPC actor/presentation unit rather than extending en
 - an invisible Arcade physics anchor at the authored object position;
 - body geometry from the NPC character package;
 - an `AnimatedVisual` using the package's visual set;
+- a `CharacterAnimationTrackRunner` synchronized to the active visual clip;
 - current facing, wander target, pause deadline, and stuck-detection state; and
 - start/stop/update/destroy lifecycle methods.
 
@@ -180,6 +181,8 @@ The actor is non-hostile: it is not registered with enemy groups, combat targets
 Map construction branches before `ObjectFactory.create`: an archetype with NPC metadata is never created as an ordinary object image. `MapBuilder` emits a dedicated `BuiltNpcRegistration` containing `objectId`, `instanceId`, `npcDefinitionId`, authored position, and initial state through an `onNpcCreated` callback, then continues to the next map object. Non-NPC objects retain the existing `ObjectFactory` path unchanged. Because the legacy NPC image is never created, there is no duplicate image to hide or destroy and no object-level idle animation lifecycle to leak.
 
 A scene-owned NPC runtime controller receives the placement registration, resolves `NpcDefinition -> characterId -> CharacterPackage`, and creates exactly one NPC actor. The controller exposes the actor anchor to `QuestNpcController`. This replaces the current assumption that quest interactions must track a static `Phaser.GameObjects.Image`. Map Editor rendering follows the separate catalog-backed preview adapter described above; it never invokes the runtime NPC controller.
+
+Whenever the actor changes its active visual clip, it starts the same clip on `CharacterAnimationTrackRunner`; its update loop advances the runner with scene delta time. The runner has no hitbox callbacks for NPCs. It forwards namespaced track events through an optional `NpcControllerContext.onPresentationEvent` callback containing NPC instance ID plus the existing character track event. This is the complete NPC v1 track interface: consumers may attach sound or cosmetic reactions, but combat systems are never recipients and an absent callback is a valid no-op. The actor destroys the runner with its visual and anchor.
 
 `QuestNpcController` continues to own quest candidate priority, prompt text, offer/turn-in modals, talk events, and catalog text. Movement and animation remain outside it. The two controllers communicate through a narrow actor handle that exposes position plus an interaction lock; neither controller imports `WorldScene`.
 
@@ -205,7 +208,7 @@ For an NPC with an assigned area and positive wander speed:
 5. When distance to the target is at most `NPC_TARGET_ARRIVAL_DISTANCE`, stop, play `idle`, and wait for a random duration in the inclusive configured pause range.
 6. Choose another target and repeat.
 
-The policy uses injectable randomness and a small pure state-transition helper so target selection and timing are deterministic in tests. Full navigation/pathfinding is out of scope. Arcade collision prevents entering obstacles. Every `NPC_STUCK_SAMPLE_MS`, compare the remaining target distance with the previous sample. If it improved by less than `NPC_STUCK_PROGRESS_DISTANCE`, the actor abandons the target, stops, performs one configured random pause, and then selects another point. A successful sample resets the comparison baseline. Repeated stuck recovery never allows the actor to leave its valid anchor domain.
+The policy uses injectable randomness and a small pure state-transition helper so target selection and timing are deterministic in tests. Rectangle targets use independent linear interpolation on X and Y. Circle targets use a uniformly distributed angle and `sqrt(random)` radial distance so points are uniform by area. Full navigation/pathfinding is out of scope. Arcade collision prevents entering obstacles. Every `NPC_STUCK_SAMPLE_MS`, compare the remaining target distance with the previous sample. If it improved by less than `NPC_STUCK_PROGRESS_DISTANCE`, the actor abandons the target, stops, performs one configured random pause, and then selects another point. A successful sample resets the comparison baseline. Repeated stuck recovery never allows the actor to leave its valid anchor domain.
 
 The actor's depth is derived from the bottom of its physics body using the existing world-depth utilities. `AnimatedVisual` remains render-only and cannot resize or relocate the physics anchor.
 
@@ -214,6 +217,8 @@ The actor's depth is derived from the bottom of its physics body using the exist
 When an NPC interaction executes, the interaction controller acquires a movement lock before opening or showing content. The actor clears velocity and plays `idle`. The lock remains active for the lifetime of a quest modal. Extend `QuestOfferModal.openOffer` and `openTurnIn` with one `onClosed` callback stored for the current open session. `close()` invokes it exactly once after cleanup for accept, decline, Escape, replacement by another open, explicit close, and destroy. The existing `onFinished` callback remains responsible only for successful quest/talk bookkeeping and must not release movement.
 
 Plain talk uses no modal and the current floating-message API exposes no completion handle. Define `NPC_PLAIN_TALK_LOCK_MS = 700` in `QuestNpcController`, matching the normal floating-text tween duration. Plain talk acquires a lock, spawns the message, and schedules release after exactly 700 ms with a scene timer. Destroying the controller or scene removes pending talk timers and releases/destroys their lock tokens idempotently; no `FloatingText` API change is required.
+
+Every branch that acquires a lock must transfer it to one of those two explicit owners before returning: an opened modal's `onClosed`, or a 700 ms floating-message timer. In particular, reoffer failure and missing-refreshed-quest branches show their existing floating error, transfer the token to the timed-release helper, and return. A thrown error before any feedback or modal is created releases the token immediately in `finally`. Tests assert that no failed interaction path leaves a permanent lock.
 
 Locks are reference-counted or token-based so a duplicate close callback cannot resume movement early. Destroying the actor, controller, or scene cancels timers and locks idempotently. After the final lock releases, the NPC discards any stale target and starts with a fresh pause/target cycle.
 
@@ -276,15 +281,15 @@ Catalog/reference validation rejects:
 - a link to a player or enemy package; and
 - unintended duplicate character-package ownership.
 
-Map parsing, `maps:check`, and save-time validation reject:
+`parseMapFile` remains a dependency-free structural validator. It checks the `npcWanderAreas` container and field shapes, stable ID syntax, finite geometry, positive dimensions, map bounds, duplicate area IDs, and duplicate `npcInstanceId` assignments. It does not import Object, NPC, or Character catalogs and does not attempt body-aware validation.
 
-- duplicate NPC-area IDs;
-- two areas referencing the same NPC instance;
+`MapRepository` reference validation, the development save endpoint, and `maps:check` own cross-catalog checks. With ObjectCatalog, NpcCatalog, and CharacterCatalog available, they reject:
+
 - references to missing or non-NPC object instances;
-- non-finite geometry or non-positive radius/width/height;
-- a perimeter outside map bounds; and
 - a body-aware valid anchor domain with non-positive dimensions/radius; or
 - an assigned NPC anchor outside that valid anchor domain.
+
+Map Editor state applies the dependency-free structural checks before accepting local mutations. Save remains the authoritative cross-catalog gate and returns the first precise reference issue to the editor without writing the map.
 
 An absent `npcWanderAreas` array normalizes to an empty collection in Map Editor state and to an empty readonly collection at runtime. Invalid authored content fails loudly at load/save/check time; runtime does not silently detach a malformed area. If a valid NPC catalog/package link cannot be resolved because of a development-time hot-reload race, the scene reports the content error and leaves the placement inactive rather than treating it as an enemy or crashing the interaction router.
 
@@ -320,7 +325,7 @@ Extract the wander transition/target policy from Phaser-specific presentation an
 - pause-range boundaries;
 - dominant-axis clip selection;
 - target arrival and stuck recovery; and
-- interaction lock/resume transitions.
+- interaction lock/resume transitions, including reoffer failure before a modal opens.
 
 ### Manual acceptance checks
 
