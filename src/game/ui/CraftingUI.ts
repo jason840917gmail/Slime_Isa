@@ -21,6 +21,8 @@ const COST_AREA_MIN_WIDTH = 84;
 const COST_AREA_MAX_WIDTH = 112;
 const COST_CHIP_HEIGHT = 24;
 const COST_CHIP_GAP = 4;
+const ROW_CORNER_RADIUS = 10;
+const RESOURCE_ICON_SIZE = 22;
 const FAILURE_FEEDBACK_DURATION = 180;
 
 export interface CraftingUIContext {
@@ -34,8 +36,7 @@ export interface CraftingUIContext {
 
 interface RecipeVisual {
   readonly row: Phaser.GameObjects.Container;
-  readonly card: Phaser.GameObjects.Rectangle;
-  readonly missingCosts: Phaser.GameObjects.Rectangle[];
+  readonly missingCosts: Phaser.GameObjects.GameObject[];
 }
 
 export class CraftingUI {
@@ -177,17 +178,29 @@ export class CraftingUI {
     const available = canCraft(recipe);
     const selected = index === this.selectedIndex;
     const row = scene.add.container(0, y);
-    const card = scene.add.rectangle(
-      0,
-      0,
-      rowWidth,
-      rowHeight,
+    const card = scene.add.graphics();
+    card.fillStyle(
       available ? 0x102a1f : 0x121a16,
       available ? 0.78 : 0.68,
-    ).setStrokeStyle(
+    );
+    card.fillRoundedRect(
+      -rowWidth / 2,
+      -rowHeight / 2,
+      rowWidth,
+      rowHeight,
+      ROW_CORNER_RADIUS,
+    );
+    card.lineStyle(
       selected ? 3 : 1.5,
       selected ? 0xffdf8a : available ? 0x73e2b1 : 0x3b5c78,
       selected ? 1 : available ? 0.9 : 0.5,
+    );
+    card.strokeRoundedRect(
+      -rowWidth / 2,
+      -rowHeight / 2,
+      rowWidth,
+      rowHeight,
+      ROW_CORNER_RADIUS,
     );
     row.add(card);
 
@@ -256,7 +269,7 @@ export class CraftingUI {
       maxLines: 1,
     }).setOrigin(0, 0.5));
 
-    const missingCosts: Phaser.GameObjects.Rectangle[] = [];
+    const missingCosts: Phaser.GameObjects.GameObject[] = [];
     const costs = scene.add.container(costCenterX, 0);
     const stackCosts = rowWidth < 430 && recipe.ingredients.length > 1;
     const chipWidth = stackCosts
@@ -275,35 +288,27 @@ export class CraftingUI {
       const chipY = stackCosts
         ? (ingredientIndex - (recipe.ingredients.length - 1) / 2) * chipStep
         : 0;
-      const chip = scene.add.rectangle(
-        chipX,
-        chipY,
-        chipWidth,
-        COST_CHIP_HEIGHT,
-        missing ? 0x501111 : 0x050a12,
-        missing ? 0.68 : 0.46,
-      ).setStrokeStyle(1, missing ? 0xff8f7a : 0x567c68, missing ? 0.8 : 0.6);
-      costs.add(chip);
-      if (missing) missingCosts.push(chip);
-
       const def = itemRegistry.get(ingredient.itemId);
       if (def) {
         const icon = def.iconFrame === undefined
-          ? scene.add.image(chipX - chipWidth / 2 + 12, chipY, def.icon)
-          : scene.add.image(chipX - chipWidth / 2 + 12, chipY, def.icon, def.iconFrame);
-        costs.add(icon.setDisplaySize(18, 18));
+          ? scene.add.image(chipX - chipWidth / 2 + 13, chipY, def.icon)
+          : scene.add.image(chipX - chipWidth / 2 + 13, chipY, def.icon, def.iconFrame);
+        costs.add(icon.setDisplaySize(RESOURCE_ICON_SIZE, RESOURCE_ICON_SIZE));
+        if (missing) missingCosts.push(icon);
       }
-      costs.add(scene.add.text(chipX - chipWidth / 2 + 25, chipY, missing ? `${current}/${ingredient.count}` : `${ingredient.count}`, {
+      const quantity = scene.add.text(chipX - chipWidth / 2 + 29, chipY, missing ? `${current}/${ingredient.count}` : `${ingredient.count}`, {
         fontFamily: FONT,
         fontSize: '11px',
         fontStyle: 'bold',
         color: missing ? '#ffaaa4' : '#ffd277',
-      }).setOrigin(0, 0.5));
+      }).setOrigin(0, 0.5);
+      costs.add(quantity);
+      if (missing) missingCosts.push(quantity);
     });
     row.add(costs);
 
     container.add(row);
-    this.rowVisuals.set(index, { row, card, missingCosts });
+    this.rowVisuals.set(index, { row, missingCosts });
   }
 
   private handleRecipeClick(index: number): void {
@@ -341,17 +346,12 @@ export class CraftingUI {
   private flashTransactionFailure(index: number): void {
     const visual = this.rowVisuals.get(index);
     if (!visual) return;
-    visual.card.setStrokeStyle(3, 0xffa36b, 1);
     this.ctx.scene.tweens.add({
       targets: visual.row,
       scaleX: { from: 1, to: 1.02 },
       scaleY: { from: 1, to: 1.02 },
       yoyo: true,
       duration: FAILURE_FEEDBACK_DURATION,
-      onComplete: () => {
-        if (!visual.row.active) return;
-        visual.card.setStrokeStyle(3, 0xffa36b, 0.35);
-      },
     });
   }
 
