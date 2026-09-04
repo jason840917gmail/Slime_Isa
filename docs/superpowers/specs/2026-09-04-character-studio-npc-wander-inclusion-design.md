@@ -2,7 +2,7 @@
 
 ## Goal
 
-Make authored quest NPCs first-class character packages so their sprite sheets, animation clips, visual transforms, animation tracks, and physics bodies are editable in the existing Character Studio alongside players and enemies. Each placed NPC may also receive one optional circle or rectangle wander area authored in the Map Editor. NPCs with an area wander inside it; NPCs without one remain stationary.
+Make authored quest NPCs first-class character packages so their sprite sheets, animation clips, timing, visual transforms, and physics bodies are editable in the existing Character Studio alongside players and enemies. Each placed NPC may also receive one optional circle or rectangle wander area authored in the Map Editor. NPCs with an area wander inside it; NPCs without one remain stationary.
 
 The two initial migrations are Village Elder Plop and Mossy Scout. Their player-facing names, descriptions, dialogue, and quest relationships remain owned by `NpcCatalog`; Character Studio does not become a dialogue or quest editor.
 
@@ -29,11 +29,10 @@ Character content owns how an NPC looks and moves:
 - sprite-sheet asset and visual-set identity;
 - visual defaults and per-frame transforms;
 - animation clips and timing;
-- animation tracks;
 - physics-body geometry; and
 - basic wandering cadence.
 
-Extend `CharacterKind` from `player | enemy` to `player | enemy | npc`. Add an optional `npc` gameplay document and require it when `kind` is `npc`. NPC documents must not contain `player`,` or `enemy` gameplay documents, `runtimeRole`, combat hitboxes, damage events, drops, or combat attributes.
+Extend `CharacterKind` from `player | enemy` to `player | enemy | npc`. Add an optional `npc` gameplay document and require it when `kind` is `npc`. The NPC schema contract is exact: `player`, `enemy`, `runtimeRole`, and `attributes` must be absent; `hitboxes` must be an empty object; and every `animationTracks` entry must have absent or empty `hitboxSpans` and `events` arrays. Track keys may reference visual clips, but NPC v1 does not author runtime markers or combat spans. Character Studio hides/disables Add Hitbox, Add Span, and Add Event actions for NPC packages while retaining timeline frame, hold, and clip-timing editing through the visual set.
 
 The first version of the NPC gameplay document is deliberately small:
 
@@ -69,6 +68,10 @@ The initial links are:
 
 The placed map object remains the source of the NPC's stable `instanceId`, quest definition ID, initial position, and map membership. Wander geometry is map content rather than character content because it is specific to one placement.
 
+NPC object archetypes become placement definitions rather than presentation definitions. Their `npc` payload contains `definitionId` and one stable `placementVisualId`; NPC archetypes omit ordinary object `variants` and keep `physics: null`. The object schema requires `variants` for non-NPC archetypes and forbids it for NPC archetypes. Existing map instances retain their current `visualId`, which must equal the archetype's `placementVisualId`, so stable authored map references do not change.
+
+`ObjectCatalog` synthesizes an editor placement choice for each NPC by resolving `definitionId -> NpcDefinition.characterId -> CharacterPackage`. The choice uses the visual set's asset, first `idle` frame, default origin/scale/source offset, and package display label. A small Map Editor NPC preview adapter renders that resolved frame; it is not a second studio and owns no editable presentation data.
+
 Add an optional map-level collection:
 
 ```ts
@@ -86,7 +89,7 @@ interface MapFile {
 
 Rename or generalize the existing circle/rectangle perimeter type and pure geometry helpers so both enemy camps and NPC areas reuse one implementation. Enemy-only concepts such as stay/pursue perimeters, roster weights, respawn interval, and population cap remain exclusive to `MapEnemySpawnArea`.
 
-Each NPC instance may own at most one wander area. Multiple NPCs cannot share an area in this version. Omitting the collection or omitting an entry for a placed NPC is valid and means that NPC remains stationary.
+Each NPC instance may own at most one wander area. Multiple NPCs cannot share an area in this version. Omitting the collection or omitting an entry for a placed NPC is valid and means that NPC remains stationary. Perimeter containment is inclusive. New area IDs use the lowest unused `npc-area-NN` value; IDs remain stable when an area moves or resizes.
 
 ## Character Studio behavior
 
@@ -97,15 +100,15 @@ The package roster maps all three character kinds explicitly. NPC entries receiv
 The existing package-creation form gains:
 
 - `NPC` in the kind selector; and
-- an NPC starter template containing the required NPC gameplay fields, empty combat hitboxes/tracks, a valid body, and starter `idle`, `walk-down`, `walk-up`, `walk-left`, and `walk-right` clips.
+- an NPC starter template containing the required NPC gameplay fields, an empty `hitboxes` object, empty event/span arrays in any starter tracks, a valid body, and starter `idle`, `walk-down`, `walk-up`, `walk-left`, and `walk-right` clips.
 
 The creation endpoint and request parser accept `kind: "npc"` and an NPC template while retaining the existing path/ID safety rules. Creating an NPC produces the same `character.json` plus `visual-set.json` package shape used by the other roles.
 
 ### NPC inspector
 
-Selecting an NPC preserves the existing source-asset shelf, sprite-sheet frame canvas, clip list, timeline, animation preview, visual defaults, frame transforms, animation-track controls, and body editor.
+Selecting an NPC preserves the existing source-asset shelf, sprite-sheet frame canvas, clip list, timeline, animation preview, visual defaults, frame transforms, and body editor. Timeline frame selection, ordering, holds, and clip timing remain editable; hitbox, span, and event controls are absent for the NPC role because the NPC v1 schema requires those collections to stay empty.
 
-The role-specific gameplay section contains only wander speed and pause range. Player identity controls and enemy health, AI, projectile, combat, and drop controls do not render for NPCs. Unsupported combat authoring is rejected by validation rather than merely hidden.
+The role-specific gameplay section contains only wander speed and pause range. Player identity controls and enemy health, AI, projectile, combat, and drop controls do not render for NPCs. Unsupported combat authoring is both unavailable in the UI and rejected by validation.
 
 The asset shelf continues to display ready sprite sheets, including unused sources. Once Village Elder Plop and Mossy Scout reference their authored sheets from visual sets, those sheets no longer appear as unused sources.
 
@@ -174,40 +177,86 @@ Introduce a focused runtime NPC actor/presentation unit rather than extending en
 
 The actor is non-hostile: it is not registered with enemy groups, combat targets, damage receivers, enemy population counts, safe-zone avoidance, drops, or death events. It collides with world bounds and the same authored static collision geometry used by other moving actors.
 
-Map construction registers NPC placement information with a scene-owned NPC controller. The controller resolves `object -> NpcDefinition -> characterId -> CharacterPackage`, creates the actor, and exposes its anchor to `QuestNpcController`. This removes the current assumption that quest interactions must track a static `Phaser.GameObjects.Image`.
+Map construction branches before `ObjectFactory.create`: an archetype with NPC metadata is never created as an ordinary object image. `MapBuilder` emits a dedicated `BuiltNpcRegistration` containing `objectId`, `instanceId`, `npcDefinitionId`, authored position, and initial state through an `onNpcCreated` callback, then continues to the next map object. Non-NPC objects retain the existing `ObjectFactory` path unchanged. Because the legacy NPC image is never created, there is no duplicate image to hide or destroy and no object-level idle animation lifecycle to leak.
+
+A scene-owned NPC runtime controller receives the placement registration, resolves `NpcDefinition -> characterId -> CharacterPackage`, and creates exactly one NPC actor. The controller exposes the actor anchor to `QuestNpcController`. This replaces the current assumption that quest interactions must track a static `Phaser.GameObjects.Image`. Map Editor rendering follows the separate catalog-backed preview adapter described above; it never invokes the runtime NPC controller.
 
 `QuestNpcController` continues to own quest candidate priority, prompt text, offer/turn-in modals, talk events, and catalog text. Movement and animation remain outside it. The two controllers communicate through a narrow actor handle that exposes position plus an interaction lock; neither controller imports `WorldScene`.
 
 ### Wander policy
 
+Define the policy constants in the focused `NpcWanderPolicy` module rather than in Character Studio data:
+
+```ts
+const NPC_AREA_MARGIN = 8; // world pixels
+const NPC_TARGET_ARRIVAL_DISTANCE = 6; // world pixels
+const NPC_STUCK_PROGRESS_DISTANCE = 2; // minimum progress per sample
+const NPC_STUCK_SAMPLE_MS = 750;
+```
+
+Containment is based on the full anchor-relative Arcade body bounds, not only width/height. Resolve the body's effective width and height through the existing collision-shape utility. Its anchor-relative extents are `centerOffsetX +/- width / 2` and `centerOffsetY +/- height / 2`. For a rectangle perimeter, derive the valid anchor rectangle by subtracting those asymmetric extents plus `NPC_AREA_MARGIN` from each edge. For a circle perimeter, conservatively subtract the maximum distance from the anchor to any resolved body-bounds corner plus the margin from the circle radius. The resulting valid anchor domain must have positive dimensions/radius and must contain the authored starting anchor; otherwise map reference validation rejects the area. A valid assigned area never silently falls back to stationary behavior because its body cannot fit.
+
 For an NPC with an assigned area and positive wander speed:
 
-1. Inset the perimeter by half the larger body dimension plus a small safety margin.
+1. Resolve the body-aware valid anchor domain described above.
 2. Choose a random target inside the inset perimeter.
 3. Move directly toward it at the package's `wanderSpeed`.
 4. Select a directional walk clip from the dominant velocity axis.
-5. On arrival, stop, play `idle`, and wait for a random duration in the inclusive configured pause range.
+5. When distance to the target is at most `NPC_TARGET_ARRIVAL_DISTANCE`, stop, play `idle`, and wait for a random duration in the inclusive configured pause range.
 6. Choose another target and repeat.
 
-The policy uses injectable randomness and a small pure state-transition helper so target selection and timing are deterministic in tests. Full navigation/pathfinding is out of scope. Arcade collision prevents entering obstacles; if progress toward the target stays below a small threshold for a bounded interval, the actor abandons the target, enters a pause, and later selects another point. Repeated stuck recovery never allows the actor to leave its perimeter.
+The policy uses injectable randomness and a small pure state-transition helper so target selection and timing are deterministic in tests. Full navigation/pathfinding is out of scope. Arcade collision prevents entering obstacles. Every `NPC_STUCK_SAMPLE_MS`, compare the remaining target distance with the previous sample. If it improved by less than `NPC_STUCK_PROGRESS_DISTANCE`, the actor abandons the target, stops, performs one configured random pause, and then selects another point. A successful sample resets the comparison baseline. Repeated stuck recovery never allows the actor to leave its valid anchor domain.
 
 The actor's depth is derived from the bottom of its physics body using the existing world-depth utilities. `AnimatedVisual` remains render-only and cannot resize or relocate the physics anchor.
 
 ### Interaction locking
 
-When an NPC interaction executes, the interaction controller acquires a movement lock before opening or showing content. The actor clears velocity and plays `idle`. The lock remains active for the lifetime of the quest/talk modal and is released by the modal's close path. Plain floating-message talk interactions release after the message action completes rather than waiting indefinitely.
+When an NPC interaction executes, the interaction controller acquires a movement lock before opening or showing content. The actor clears velocity and plays `idle`. The lock remains active for the lifetime of a quest modal. Extend `QuestOfferModal.openOffer` and `openTurnIn` with one `onClosed` callback stored for the current open session. `close()` invokes it exactly once after cleanup for accept, decline, Escape, replacement by another open, explicit close, and destroy. The existing `onFinished` callback remains responsible only for successful quest/talk bookkeeping and must not release movement.
+
+Plain talk uses no modal and the current floating-message API exposes no completion handle. Define `NPC_PLAIN_TALK_LOCK_MS = 700` in `QuestNpcController`, matching the normal floating-text tween duration. Plain talk acquires a lock, spawns the message, and schedules release after exactly 700 ms with a scene timer. Destroying the controller or scene removes pending talk timers and releases/destroys their lock tokens idempotently; no `FloatingText` API change is required.
 
 Locks are reference-counted or token-based so a duplicate close callback cannot resume movement early. Destroying the actor, controller, or scene cancels timers and locks idempotently. After the final lock releases, the NPC discards any stale target and starts with a fresh pause/target cycle.
 
 ## Migration of the two authored NPCs
 
-Create normal character packages beneath `src/game/content/characters/` for Village Elder Plop and Mossy Scout. Their visual sets reference the existing authored NPC sprite-sheet assets and receive the five canonical clips. The Elder receives a slower speed and longer pauses; Mossy receives a faster speed and shorter pauses so her authored animation reads as playful without adding a one-off movement engine.
+Create normal character packages beneath `src/game/content/characters/` for Village Elder Plop and Mossy Scout. Their visual sets reference the existing authored NPC sprite-sheet assets and receive the five canonical clips. Use these initial gameplay values:
+
+| Character package | `wanderSpeed` | `pauseMinMs` | `pauseMaxMs` |
+|---|---:|---:|---:|
+| `village-elder-plop` | 18 | 1800 | 3200 |
+| `mossy-scout` | 42 | 250 | 900 |
+
+The Elder therefore reads as slow and deliberate, while Mossy reads as faster and playful without requiring a one-off movement engine. These values remain editable in Character Studio after migration.
+
+Use these initial presentation/body defaults, preserving the scale of the current map-object art:
+
+| Package | Origin | Scale | Body |
+|---|---|---|---|
+| `village-elder-plop` | `[0.5, 1]` | `[0.2, 0.2]` | ellipse, 34 x 24, radii 17 x 12, center offset `(0, 10)` |
+| `mossy-scout` | `[0.5, 1]` | `[0.32, 0.32]` | ellipse, 36 x 24, radii 18 x 12, center offset `(0, 10)` |
 
 Update `NpcCatalog` with the two `characterId` links. Keep the existing quest-facing ID `level-1-spider-giver` unchanged so quests and save data do not break.
 
-Migrate runtime presentation away from the two object-level idle animation packages. Remove those packages and their references only after the character-package runtime path is active and repository reference checks confirm nothing else consumes them. NPC object archetypes remain responsible for map placement and catalog identity; runtime scale, frame sequences, offsets, and body geometry come from Character Studio packages.
+Migrate runtime presentation away from the two object-level idle animation packages. Convert `npc.world` and `npc.world-scout` to placement-only NPC archetypes with their existing definition IDs and existing map-facing visual IDs (`slime-npc` and `slime-scout`). Remove their `assetId`, frame, scale, visual offset, and `idleAnimationId` presentation fields. Remove the two object-level animation packages and their references only after the character-package runtime and Map Editor preview paths are active and repository reference checks confirm nothing else consumes them. Runtime and editor preview scale, frame sequences, offsets, and body geometry then come exclusively from Character Studio packages.
 
-Add one authored wander area for each existing Level 1 NPC placement. Both starting positions must be inside their areas and the areas must remain inside map bounds. Their sizes and exact positions are authored in the Map Editor rather than hard-coded in NPC gameplay data.
+Add these initial areas to `level-1.map.json`:
+
+```json
+[
+  {
+    "id": "npc-area-01",
+    "npcInstanceId": "level-1-npc-village-elder-plop",
+    "perimeter": { "shape": "circle", "x": 512, "y": 704, "radius": 96 }
+  },
+  {
+    "id": "npc-area-02",
+    "npcInstanceId": "level-1-npc-mossy-scout",
+    "perimeter": { "shape": "rectangle", "x": 672, "y": 640, "w": 192, "h": 128 }
+  }
+]
+```
+
+Both starting anchors are inside their areas, the areas remain inside map bounds, and the exact initial bodies above fit their body-aware valid anchor domains. Future size and position changes are authored through Character Studio and the Map Editor rather than hard-coded in NPC gameplay data; repository checks catch a later body edit that makes an assigned area unusable.
 
 ## Validation and error handling
 
@@ -234,7 +283,8 @@ Map parsing, `maps:check`, and save-time validation reject:
 - references to missing or non-NPC object instances;
 - non-finite geometry or non-positive radius/width/height;
 - a perimeter outside map bounds; and
-- an assigned NPC position outside its perimeter.
+- a body-aware valid anchor domain with non-positive dimensions/radius; or
+- an assigned NPC anchor outside that valid anchor domain.
 
 An absent `npcWanderAreas` array normalizes to an empty collection in Map Editor state and to an empty readonly collection at runtime. Invalid authored content fails loudly at load/save/check time; runtime does not silently detach a malformed area. If a valid NPC catalog/package link cannot be resolved because of a development-time hot-reload race, the scene reports the content error and leaves the placement inactive rather than treating it as an enemy or crashing the interaction router.
 
@@ -259,7 +309,8 @@ Add map/editor tests for:
 - cascading area deletion when its NPC is deleted;
 - map resize scaling;
 - rejected non-NPC selections and out-of-area placements; and
-- legacy maps with no NPC-area field.
+- legacy maps with no NPC-area field; and
+- unchanged parsing/serialization of existing player/enemy packages and maps without NPC areas.
 
 Extract the wander transition/target policy from Phaser-specific presentation and test:
 
