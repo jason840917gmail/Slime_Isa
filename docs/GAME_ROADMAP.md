@@ -12,6 +12,18 @@ workflow supports the content it introduces.
 The Wood Gathering tiles are implemented in code and content. The complete
 loop has been verified in a fresh-game playtest.
 
+## Locked UI Style Decisions
+
+On 2026-09-04 the in-world gameplay HUD direction was approved as
+**artwork-first**: the world background remains visible, and the HUD,
+minimap, and weapon hotbar use transparent interiors with restrained outlines,
+text shadows, and state accents instead of opaque dark boxes. Inventory and
+crafting are explicitly excluded because they are being redesigned separately.
+The detailed implementation contract is in
+[World HUD Artwork-First Presentation](./superpowers/specs/2026-09-04-world-hud-artwork-first-design.md),
+which refines the broader
+[Game UI Visual Skin System](./superpowers/specs/2026-09-03-game-ui-visual-skin-design.md).
+
 ## How To Use The Checklist
 
 - `[ ]` not started, `[~]` in progress, `[x]` verified in the running game.
@@ -773,6 +785,23 @@ The phased ownership, migration rules, and acceptance gates are defined in the
   surface closes correctly, pause state remains correct, and complete project
   verification passes. The implementation design is documented in
   [Escape closes open overlays](./superpowers/specs/2026-08-26-escape-closes-overlays-design.md).
+
+### [ ] UX.0.1 — Apply artwork-first in-world HUD surfaces
+
+- Build: remove opaque compact-frame centers, dark slot fills, filled key
+  plates, and heavy shadows from the visible HUD, minimap, and six-slot weapon
+  hotbar. Keep the organic minimap border, transparent meter tracks, compact
+  labels, and clear active-slot treatment.
+- Scope: `HUD.ts`, `Minimap.ts`, and `WeaponHotbar.ts`. Inventory and crafting
+  remain separate work; `AbilityBar.ts` remains deferred until it is mounted in
+  `WorldScene`.
+- Player proof: the grass/world art remains visible through the three widgets,
+  all values fit at wide, medium, and narrow viewports, and active/owned/
+  unavailable states remain understandable.
+- Done when: the approved visual treatment passes the manual viewport matrix,
+  resize and pointer behavior remain correct, inventory/crafting are untouched,
+  and the scoped typecheck/build checks pass. See
+  [World HUD Artwork-First Presentation](./superpowers/specs/2026-09-04-world-hud-artwork-first-design.md).
 
 ### [ ] UX.1 — Unify the bottom action dashboard and loadout workflow
 
