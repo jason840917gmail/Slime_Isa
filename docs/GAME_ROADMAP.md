@@ -14,8 +14,8 @@ loop has been verified in a fresh-game playtest.
 
 ## Locked UI Style Decisions
 
-On 2026-09-04 the in-world gameplay HUD direction was approved as
-**artwork-first**: the world background remains visible, and the HUD,
+On 2026-09-04 the in-world gameplay HUD direction was approved as **Option C —
+artwork-first**: the world background remains visible, and the HUD,
 minimap, and weapon hotbar use transparent interiors with restrained outlines,
 text shadows, and state accents instead of opaque dark boxes. Inventory and
 crafting are explicitly excluded because they are being redesigned separately;

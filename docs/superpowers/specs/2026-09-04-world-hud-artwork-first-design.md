@@ -15,9 +15,10 @@ The world remains the dominant visual surface. UI chrome should communicate
 hierarchy, interaction, and state with restrained lines, shadows, and color
 accents rather than filled boxes.
 
-## Locked visual decision
+## Locked visual decision — Option C: Artwork-only / artwork-first
 
-Use the approved **artwork-only** treatment:
+Use the approved **Option C** treatment, also called **artwork-only** or
+**artwork-first**:
 
 - no opaque compact-frame center behind the HUD or weapon hotbar;
 - no dark per-slot fills, drop-shadow slabs, or filled number plates;
