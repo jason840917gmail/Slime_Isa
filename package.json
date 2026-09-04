@@ -33,7 +33,7 @@
     "test:persistence": "node --test --experimental-strip-types scripts/tests/persistence/*.test.mjs",
     "test:collectibles": "node --test scripts/tests/collectibles/*.test.mjs",
     "test:quests": "node --test scripts/tests/quests/*.test.mjs",
-    "test:ui": "node --test scripts/tests/modal-stack.test.mjs",
+    "test:ui": "node --test scripts/tests/modal-stack.test.mjs scripts/tests/crafting/*.test.mjs",
     "test:map-editor": "node --test scripts/tests/map-editor/*.test.mjs",
     "test:depth": "node scripts/test-depth.mjs",
     "test:game-constants": "node --test scripts/tests/game-constants/*.test.mjs",

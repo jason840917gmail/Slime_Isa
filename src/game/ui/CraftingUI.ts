@@ -1,26 +1,52 @@
-﻿import Phaser from 'phaser';
+import Phaser from 'phaser';
 import { gameEvents } from '../core/EventBus';
 import { playerInventory, itemRegistry } from '../systems/Inventory';
-import { RECIPES, canCraft, craft, itemName, type RecipeDef } from '../crafting/Crafting';
+import { RECIPES, canCraft, craft, type RecipeDef } from '../crafting/Crafting';
 import { resolveScreenUiDepth } from '../presentation/WorldDepth';
 import { ModalStack, type ModalHandle } from './ModalStack';
 import { createWeaponThumbnail } from './WeaponThumbnail';
+import {
+  clampOffset,
+  ensureVisible,
+  getCraftingLayout,
+  moveSelection,
+  ROW_GAP,
+  visibleRange,
+} from './CraftingLayout';
 
 const FONT = 'Trebuchet MS, Segoe UI Variable, sans-serif';
+const LIST_WIDTH = 620;
+const LIST_HORIZONTAL_INSET = 16;
+const COST_AREA_MIN_WIDTH = 84;
+const COST_AREA_MAX_WIDTH = 112;
+const COST_CHIP_HEIGHT = 24;
+const COST_CHIP_GAP = 4;
+const FAILURE_FEEDBACK_DURATION = 180;
 
 export interface CraftingUIContext {
   scene: Phaser.Scene;
   modalStack: ModalStack;
   onPausedChange: (paused: boolean) => void;
   onCrafted?: (recipe: RecipeDef) => void;
+  /** Optional fixture for UI verification; production uses RECIPES. */
+  recipes?: readonly RecipeDef[];
+}
+
+interface RecipeVisual {
+  readonly row: Phaser.GameObjects.Container;
+  readonly card: Phaser.GameObjects.Rectangle;
+  readonly missingCosts: Phaser.GameObjects.Rectangle[];
 }
 
 export class CraftingUI {
-  private ctx: CraftingUIContext;
+  private readonly ctx: CraftingUIContext;
   private readonly modalHandle: ModalHandle;
   private container?: Phaser.GameObjects.Container;
   private selectedIndex = 0;
-  private clickRegions: Array<{ x: number; y: number; width: number; height: number; onClick: () => void }> = [];
+  private scrollOffset = 0;
+  private listBounds?: Phaser.Geom.Rectangle;
+  private rowVisuals = new Map<number, RecipeVisual>();
+  private openListenersAttached = false;
 
   constructor(ctx: CraftingUIContext) {
     this.ctx = ctx;
@@ -38,7 +64,6 @@ export class CraftingUI {
       kb.on('keydown-S', this.selectNext, this);
       kb.on('keydown-ENTER', this.craftSelected, this);
     }
-    ctx.scene.input.on('pointerdown', this.handlePointerDown, this);
   }
 
   isOpen(): boolean {
@@ -50,210 +75,376 @@ export class CraftingUI {
     else this.open();
   }
 
+  private getRecipes(): readonly RecipeDef[] {
+    return this.ctx.recipes ?? RECIPES;
+  }
+
   private open(): void {
     this.build(true);
+    this.attachOpenListeners();
     this.ctx.onPausedChange(true);
     this.modalHandle.open();
   }
 
   private refresh = (): void => {
     if (!this.container) return;
-    this.container.destroy();
-    this.container = undefined;
-    this.build(false);
+    this.rebuild(false);
   };
+
+  private rebuild(animate: boolean): void {
+    this.container?.destroy(true);
+    this.container = undefined;
+    this.listBounds = undefined;
+    this.rowVisuals.clear();
+    this.build(animate);
+  }
 
   private build(animate: boolean): void {
     const scene = this.ctx.scene;
     const cam = scene.cameras.main;
-    const panelW = 610;
-    const panelH = 430;
-    const container = scene.add.container(cam.width / 2, cam.height / 2).setScrollFactor(0).setDepth(resolveScreenUiDepth(118));
+    const recipes = this.getRecipes();
+    const layout = getCraftingLayout(recipes.length, cam.height);
+    const listWidth = Math.max(240, Math.min(LIST_WIDTH, cam.width - 2 * LIST_HORIZONTAL_INSET));
+
+    this.selectedIndex = recipes.length > 0
+      ? Phaser.Math.Clamp(this.selectedIndex, 0, recipes.length - 1)
+      : 0;
+    this.scrollOffset = clampOffset(this.scrollOffset, recipes.length, layout.capacityCount);
+
+    const container = scene.add
+      .container(cam.width / 2, cam.height / 2)
+      .setScrollFactor(0)
+      .setDepth(resolveScreenUiDepth(118));
     this.container = container;
-    this.clickRegions = [];
+    this.rowVisuals.clear();
 
-    container.add(scene.add.rectangle(0, 0, cam.width, cam.height, 0x080f20, 0.7).setOrigin(0.5));
-    const bg = scene.add.graphics();
-    bg.fillStyle(0x101a31, 0.98);
-    bg.fillRoundedRect(-panelW / 2, -panelH / 2, panelW, panelH, 16);
-    bg.lineStyle(2, 0x73e2b1, 0.85);
-    bg.strokeRoundedRect(-panelW / 2, -panelH / 2, panelW, panelH, 16);
-    container.add(bg);
+    const modalShield = scene.add.zone(0, 0, cam.width, cam.height)
+      .setOrigin(0.5)
+      .setInteractive({ useHandCursor: false });
+    modalShield.on('pointerdown', (
+      _pointer: Phaser.Input.Pointer,
+      _localX: number,
+      _localY: number,
+      event: Phaser.Types.Input.EventData,
+    ) => event.stopPropagation());
+    container.add(modalShield);
 
-    container.add(scene.add.text(-panelW / 2 + 24, -panelH / 2 + 28, 'Crafting', {
-      fontFamily: FONT,
-      fontSize: '22px',
-      color: '#e7fff5',
-      stroke: '#0b1020',
-      strokeThickness: 5,
-    }).setOrigin(0, 0.5));
+    this.listBounds = new Phaser.Geom.Rectangle(
+      cam.width / 2 - listWidth / 2,
+      cam.height / 2 - layout.listHeight / 2,
+      listWidth,
+      layout.listHeight,
+    );
 
-    container.add(scene.add.text(panelW / 2 - 18, -panelH / 2 + 20, 'C / Esc to close', {
-      fontFamily: FONT,
-      fontSize: '12px',
-      color: '#88c899',
-    }).setOrigin(1, 0));
-
-    container.add(scene.add.text(-panelW / 2 + 24, -panelH / 2 + 56, 'Up/Down or W/S selects a recipe. Enter crafts it. You can also click Craft.', {
-      fontFamily: FONT,
-      fontSize: '12px',
-      color: '#88c899',
-    }).setOrigin(0, 0.5));
-
-    this.selectedIndex = Phaser.Math.Clamp(this.selectedIndex, 0, RECIPES.length - 1);
-    let y = -118;
-    for (let i = 0; i < RECIPES.length; i += 1) {
-      this.drawRecipe(container, RECIPES[i], y, i);
-      y += 96;
+    const range = visibleRange(recipes.length, this.scrollOffset, layout.capacityCount);
+    const firstRowY = layout.windowCount > 0
+      ? -layout.listHeight / 2 + layout.rowHeight / 2
+      : 0;
+    for (let index = range.start; index < range.end; index += 1) {
+      const rowIndex = index - range.start;
+      this.drawRecipe(
+        container,
+        recipes[index],
+        firstRowY + rowIndex * (layout.rowHeight + ROW_GAP),
+        index,
+        listWidth,
+        layout.rowHeight,
+      );
     }
 
-    container.add(scene.add.text(-panelW / 2 + 24, panelH / 2 - 26, 'Tip: berries now become materials. Enemy drops unlock stronger recipes.', {
-      fontFamily: FONT,
-      fontSize: '12px',
-      color: '#88c899',
-    }).setOrigin(0, 0.5));
+    if (layout.maxOffset > 0) {
+      container.add(scene.add.text(listWidth / 2 - 4, layout.listHeight / 2 + 12, 'scroll', {
+        fontFamily: FONT,
+        fontSize: '10px',
+        color: '#9dc9b1',
+      }).setOrigin(1, 0.5));
+    }
 
     if (animate) {
-      scene.tweens.add({ targets: container, alpha: { from: 0, to: 1 }, scale: { from: 0.97, to: 1 }, duration: 140 });
+      scene.tweens.add({ targets: container, alpha: { from: 0, to: 1 }, duration: 140 });
     }
   }
 
-  private drawRecipe(container: Phaser.GameObjects.Container, recipe: RecipeDef, y: number, index: number): void {
+  private drawRecipe(
+    container: Phaser.GameObjects.Container,
+    recipe: RecipeDef,
+    y: number,
+    index: number,
+    rowWidth: number,
+    rowHeight: number,
+  ): void {
     const scene = this.ctx.scene;
     const available = canCraft(recipe);
     const selected = index === this.selectedIndex;
-    const left = -270;
+    const row = scene.add.container(0, y);
+    const card = scene.add.rectangle(
+      0,
+      0,
+      rowWidth,
+      rowHeight,
+      available ? 0x102a1f : 0x121a16,
+      available ? 0.78 : 0.68,
+    ).setStrokeStyle(
+      selected ? 3 : 1.5,
+      selected ? 0xffdf8a : available ? 0x73e2b1 : 0x3b5c78,
+      selected ? 1 : available ? 0.9 : 0.5,
+    );
+    row.add(card);
 
-    const card = scene.add.graphics();
-    card.fillStyle(available ? 0x102a1f : 0x121a16, 0.96);
-    card.fillRoundedRect(left - 12, y - 34, 540, 78, 10);
-    card.lineStyle(selected ? 3 : 1.5, selected ? 0xffdf8a : available ? 0x73e2b1 : 0x3b5c78, selected ? 1 : available ? 0.9 : 0.5);
-    card.strokeRoundedRect(left - 12, y - 34, 540, 78, 10);
-    container.add(card);
-
-    this.addClickRegion(left - 20, y - 35, 540, 78, () => {
-      this.selectedIndex = index;
-      this.refresh();
+    const hitArea = scene.add.zone(0, 0, rowWidth, rowHeight)
+      .setOrigin(0.5)
+      .setInteractive({ useHandCursor: true });
+    hitArea.on('pointerdown', (
+      pointer: Phaser.Input.Pointer,
+      _localX: number,
+      _localY: number,
+      event: Phaser.Types.Input.EventData,
+    ) => {
+      event.stopPropagation();
+      if (pointer.button !== 0) return;
+      this.handleRecipeClick(index);
     });
+    hitArea.on('pointerover', () => row.setScale(1.01));
+    hitArea.on('pointerout', () => row.setScale(1));
+    row.add(hitArea);
+
+    const left = -rowWidth / 2;
+    const outputX = left + 31;
+    const textX = left + 58;
+    const costAreaWidth = Math.min(COST_AREA_MAX_WIDTH, Math.max(COST_AREA_MIN_WIDTH, rowWidth * 0.22));
+    const costCenterX = rowWidth / 2 - costAreaWidth / 2 - 8;
+    const textRight = costCenterX - costAreaWidth / 2 - 10;
+    const textWidth = Math.max(92, textRight - textX);
 
     if (selected) {
-      container.add(scene.add.text(left - 30, y + 2, '▶', {
+      row.add(scene.add.text(left + 10, 0, '▶', {
         fontFamily: FONT,
-        fontSize: '18px',
+        fontSize: '13px',
         color: '#ffdf8a',
         stroke: '#0b1020',
-        strokeThickness: 4,
+        strokeThickness: 3,
       }).setOrigin(0.5));
     }
 
     const outputDef = itemRegistry.get(recipe.output.itemId);
     if (outputDef) {
       if (outputDef.equipment?.weaponId) {
-        const thumbnail = createWeaponThumbnail(scene, outputDef.equipment.weaponId, { x: left + 20, y: y + 4, size: 36 });
-        if (thumbnail) container.add(thumbnail);
+        const thumbnail = createWeaponThumbnail(scene, outputDef.equipment.weaponId, { x: outputX, y: 0, size: 38 });
+        if (thumbnail) row.add(thumbnail);
       } else {
-        const icon = scene.add.image(left + 20, y + 4, outputDef.icon).setDisplaySize(36, 36);
-        if (outputDef.iconFrame !== undefined) icon.setFrame(outputDef.iconFrame);
-        container.add(icon);
+        const icon = outputDef.iconFrame === undefined
+          ? scene.add.image(outputX, 0, outputDef.icon)
+          : scene.add.image(outputX, 0, outputDef.icon, outputDef.iconFrame);
+        row.add(icon.setDisplaySize(38, 38));
       }
     }
 
-    container.add(scene.add.text(left + 50, y - 20, recipe.name, {
+    row.add(scene.add.text(textX, -16, recipe.name, {
       fontFamily: FONT,
       fontSize: '15px',
       color: available ? '#f5f7ff' : '#8aa090',
       stroke: '#0b1020',
       strokeThickness: 3,
+      wordWrap: { width: textWidth },
     }).setOrigin(0, 0.5));
 
-    container.add(scene.add.text(left + 50, y + 2, recipe.description, {
+    row.add(scene.add.text(textX, 10, recipe.description, {
       fontFamily: FONT,
       fontSize: '11px',
-      color: '#d7f6e9',
-      wordWrap: { width: 315 },
+      color: available ? '#d7f6e9' : '#9db6a7',
+      wordWrap: { width: textWidth },
+      maxLines: 1,
     }).setOrigin(0, 0.5));
 
-    const costs = recipe.ingredients.map((i) => `${itemName(i.itemId)} ${playerInventory.count(i.itemId)}/${i.count}`).join('  ·  ');
-    container.add(scene.add.text(left + 50, y + 24, costs, {
-      fontFamily: FONT,
-      fontSize: '11px',
-      color: available ? '#ffd277' : '#b08080',
-    }).setOrigin(0, 0.5));
+    const missingCosts: Phaser.GameObjects.Rectangle[] = [];
+    const costs = scene.add.container(costCenterX, 0);
+    const stackCosts = rowWidth < 430 && recipe.ingredients.length > 1;
+    const chipWidth = stackCosts
+      ? costAreaWidth
+      : recipe.ingredients.length > 1
+        ? (costAreaWidth - COST_CHIP_GAP) / 2
+        : Math.min(70, costAreaWidth);
+    const chipStep = COST_CHIP_HEIGHT + COST_CHIP_GAP;
 
-    const buttonX = left + 440;
-    const buttonY = y + 4;
-    const buttonW = 96;
-    const buttonH = 38;
-    const buttonBg = scene.add.graphics();
-    buttonBg.fillStyle(available ? 0x86f0c3 : 0x253552, available ? 1 : 0.65);
-    buttonBg.fillRoundedRect(buttonX - buttonW / 2, buttonY - buttonH / 2, buttonW, buttonH, 8);
-    buttonBg.lineStyle(1.5, available ? 0xe7fff5 : 0x4a6075, available ? 0.85 : 0.45);
-    buttonBg.strokeRoundedRect(buttonX - buttonW / 2, buttonY - buttonH / 2, buttonW, buttonH, 8);
-    container.add(buttonBg);
+    recipe.ingredients.forEach((ingredient, ingredientIndex) => {
+      const current = playerInventory.count(ingredient.itemId);
+      const missing = current < ingredient.count;
+      const chipX = stackCosts
+        ? 0
+        : (ingredientIndex - (recipe.ingredients.length - 1) / 2) * (chipWidth + COST_CHIP_GAP);
+      const chipY = stackCosts
+        ? (ingredientIndex - (recipe.ingredients.length - 1) / 2) * chipStep
+        : 0;
+      const chip = scene.add.rectangle(
+        chipX,
+        chipY,
+        chipWidth,
+        COST_CHIP_HEIGHT,
+        missing ? 0x501111 : 0x050a12,
+        missing ? 0.68 : 0.46,
+      ).setStrokeStyle(1, missing ? 0xff8f7a : 0x567c68, missing ? 0.8 : 0.6);
+      costs.add(chip);
+      if (missing) missingCosts.push(chip);
 
-    const btn = scene.add.text(buttonX, buttonY, `Craft x${recipe.output.count}`, {
-      fontFamily: FONT,
-      fontSize: '13px',
-      color: available ? '#101a31' : '#4a6075',
-    }).setOrigin(0.5).setAlpha(available ? 1 : 0.75);
-    container.add(btn);
-
-    if (available) {
-      this.addClickRegion(buttonX - buttonW / 2, buttonY - buttonH / 2, buttonW, buttonH, () => {
-        this.selectedIndex = index;
-        if (craft(recipe)) this.ctx.onCrafted?.(recipe);
-      });
-    }
-  }
-
-  private addClickRegion(x: number, y: number, width: number, height: number, onClick: () => void): void {
-    this.clickRegions.push({ x, y, width, height, onClick });
-  }
-
-  private handlePointerDown = (pointer: Phaser.Input.Pointer): void => {
-    if (!this.container) return;
-    const localX = pointer.x - this.container.x;
-    const localY = pointer.y - this.container.y;
-
-    for (let i = this.clickRegions.length - 1; i >= 0; i -= 1) {
-      const r = this.clickRegions[i];
-      if (localX >= r.x && localX <= r.x + r.width && localY >= r.y && localY <= r.y + r.height) {
-        r.onClick();
-        return;
+      const def = itemRegistry.get(ingredient.itemId);
+      if (def) {
+        const icon = def.iconFrame === undefined
+          ? scene.add.image(chipX - chipWidth / 2 + 12, chipY, def.icon)
+          : scene.add.image(chipX - chipWidth / 2 + 12, chipY, def.icon, def.iconFrame);
+        costs.add(icon.setDisplaySize(18, 18));
       }
+      costs.add(scene.add.text(chipX - chipWidth / 2 + 25, chipY, missing ? `${current}/${ingredient.count}` : `${ingredient.count}`, {
+        fontFamily: FONT,
+        fontSize: '11px',
+        fontStyle: 'bold',
+        color: missing ? '#ffaaa4' : '#ffd277',
+      }).setOrigin(0, 0.5));
+    });
+    row.add(costs);
+
+    container.add(row);
+    this.rowVisuals.set(index, { row, card, missingCosts });
+  }
+
+  private handleRecipeClick(index: number): void {
+    if (!this.container) return;
+    const recipes = this.getRecipes();
+    const recipe = recipes[index];
+    if (!recipe) return;
+
+    this.selectedIndex = index;
+    const layout = getCraftingLayout(recipes.length, this.ctx.scene.cameras.main.height);
+    this.scrollOffset = ensureVisible(index, this.scrollOffset, layout.capacityCount, recipes.length);
+    this.rebuild(false);
+
+    if (!canCraft(recipe)) {
+      this.flashMissing(index);
+      return;
     }
-  };
+
+    if (craft(recipe)) this.ctx.onCrafted?.(recipe);
+    else this.flashTransactionFailure(index);
+  }
+
+  private flashMissing(index: number): void {
+    const visual = this.rowVisuals.get(index);
+    if (!visual) return;
+    const targets = visual.missingCosts.length > 0 ? visual.missingCosts : [visual.row];
+    this.ctx.scene.tweens.add({
+      targets,
+      alpha: { from: 1, to: 0.25 },
+      yoyo: true,
+      duration: FAILURE_FEEDBACK_DURATION,
+    });
+  }
+
+  private flashTransactionFailure(index: number): void {
+    const visual = this.rowVisuals.get(index);
+    if (!visual) return;
+    visual.card.setStrokeStyle(3, 0xffa36b, 1);
+    this.ctx.scene.tweens.add({
+      targets: visual.row,
+      scaleX: { from: 1, to: 1.02 },
+      scaleY: { from: 1, to: 1.02 },
+      yoyo: true,
+      duration: FAILURE_FEEDBACK_DURATION,
+      onComplete: () => {
+        if (!visual.row.active) return;
+        visual.card.setStrokeStyle(3, 0xffa36b, 0.35);
+      },
+    });
+  }
 
   private selectPrevious = (): void => {
     if (!this.container) return;
-    this.selectedIndex = (this.selectedIndex + RECIPES.length - 1) % RECIPES.length;
-    this.refresh();
+    const recipes = this.getRecipes();
+    if (recipes.length === 0) return;
+    this.selectedIndex = moveSelection(this.selectedIndex, -1, recipes.length);
+    const layout = getCraftingLayout(recipes.length, this.ctx.scene.cameras.main.height);
+    this.scrollOffset = ensureVisible(this.selectedIndex, this.scrollOffset, layout.capacityCount, recipes.length);
+    this.rebuild(false);
   };
 
   private selectNext = (): void => {
     if (!this.container) return;
-    this.selectedIndex = (this.selectedIndex + 1) % RECIPES.length;
-    this.refresh();
+    const recipes = this.getRecipes();
+    if (recipes.length === 0) return;
+    this.selectedIndex = moveSelection(this.selectedIndex, 1, recipes.length);
+    const layout = getCraftingLayout(recipes.length, this.ctx.scene.cameras.main.height);
+    this.scrollOffset = ensureVisible(this.selectedIndex, this.scrollOffset, layout.capacityCount, recipes.length);
+    this.rebuild(false);
   };
 
   private craftSelected = (): void => {
     if (!this.container) return;
-    const recipe = RECIPES[this.selectedIndex];
-    if (recipe && craft(recipe)) this.ctx.onCrafted?.(recipe);
-  };
+    const recipes = this.getRecipes();
+    const recipe = recipes[this.selectedIndex];
+    if (!recipe) return;
 
-  public close(): void {
-    if (!this.container) {
-      this.modalHandle.close();
+    const layout = getCraftingLayout(recipes.length, this.ctx.scene.cameras.main.height);
+    const nextOffset = ensureVisible(this.selectedIndex, this.scrollOffset, layout.capacityCount, recipes.length);
+    if (nextOffset !== this.scrollOffset) {
+      this.scrollOffset = nextOffset;
+      this.rebuild(false);
+    }
+
+    if (!canCraft(recipe)) {
+      this.flashMissing(this.selectedIndex);
       return;
     }
+    if (craft(recipe)) this.ctx.onCrafted?.(recipe);
+    else this.flashTransactionFailure(this.selectedIndex);
+  };
+
+  private handleCraftingWheel = (
+    pointer: Phaser.Input.Pointer,
+    _objects: unknown[],
+    _deltaX: number,
+    deltaY: number,
+  ): void => {
+    if (!this.container || !this.listBounds || deltaY === 0) return;
+    if (!Phaser.Geom.Rectangle.Contains(this.listBounds, pointer.x, pointer.y)) return;
+
+    const recipes = this.getRecipes();
+    const layout = getCraftingLayout(recipes.length, this.ctx.scene.cameras.main.height);
+    const nextOffset = clampOffset(this.scrollOffset + Math.sign(deltaY), recipes.length, layout.capacityCount);
+    if (nextOffset === this.scrollOffset) return;
+    this.scrollOffset = nextOffset;
+    this.rebuild(false);
+  };
+
+  private handleResize = (): void => {
+    if (this.container) this.rebuild(false);
+  };
+
+  private attachOpenListeners(): void {
+    if (this.openListenersAttached) return;
+    this.openListenersAttached = true;
+    this.ctx.scene.input.on('wheel', this.handleCraftingWheel, this);
+    this.ctx.scene.scale.on('resize', this.handleResize, this);
+  }
+
+  private detachOpenListeners(): void {
+    if (!this.openListenersAttached) return;
+    this.openListenersAttached = false;
+    this.ctx.scene.input.off('wheel', this.handleCraftingWheel, this);
+    this.ctx.scene.scale.off('resize', this.handleResize, this);
+  }
+
+  public close(): void {
+    this.detachOpenListeners();
+    const wasOpen = !!this.container;
     this.modalHandle.close();
-    this.container.destroy();
+    this.container?.destroy(true);
     this.container = undefined;
-    this.ctx.onPausedChange(false);
+    this.listBounds = undefined;
+    this.rowVisuals.clear();
+    if (wasOpen) this.ctx.onPausedChange(false);
   }
 
   destroy(): void {
+    const wasOpen = !!this.container;
+    this.detachOpenListeners();
     gameEvents.off('inventory.changed', this.refresh, this);
     this.modalHandle.unregister();
     const kb = this.ctx.scene.input.keyboard;
@@ -262,10 +453,10 @@ export class CraftingUI {
     kb?.off('keydown-DOWN', this.selectNext, this);
     kb?.off('keydown-S', this.selectNext, this);
     kb?.off('keydown-ENTER', this.craftSelected, this);
-    this.ctx.scene.input.off('pointerdown', this.handlePointerDown, this);
-    const wasOpen = !!this.container;
-    this.container?.destroy();
+    this.container?.destroy(true);
     this.container = undefined;
+    this.listBounds = undefined;
+    this.rowVisuals.clear();
     if (wasOpen) this.ctx.onPausedChange(false);
   }
 }

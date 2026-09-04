@@ -899,6 +899,7 @@ export class WorldScene extends Phaser.Scene {
     _deltaX: number,
     deltaY: number,
   ): void {
+    if (this.craftingUI?.isOpen()) return;
     this.cameraController?.stepZoom(deltaY);
   }
 
