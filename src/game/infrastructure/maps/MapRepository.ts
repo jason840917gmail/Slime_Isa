@@ -1,5 +1,9 @@
 import { parseMapFile, type MapFile, type MapId } from '../../content/maps/mapFormat';
-import { hasObjectVisual, isObjectArchetypeId } from '../../content/objects/ObjectCatalog';
+import { getObjectArchetype, hasObjectVisual, isObjectArchetypeId } from '../../content/objects/ObjectCatalog';
+import { getCharacterPackage } from '../../content/characters/CharacterCatalog';
+import { getNpcDefinition } from '../../content/npcs/NpcCatalog';
+import { validateMapReferences as validatePureMapReferences } from '../../content/maps/validateMapReferences';
+import { browserMapReferenceResolver } from './BrowserMapReferenceResolver';
 import { validateObjectInitialState } from '../../content/objects/ObjectInitialState';
 import { isWorldTileId } from '../../content/terrain/TileCatalog';
 import { ENEMY_CONFIGS } from '../../enemies/library/EnemyTypes';
@@ -38,6 +42,8 @@ export class MapReferenceError extends Error {
 function validateReferences(map: MapFile): void {
   const issues: string[] = [];
 
+  issues.push(...validatePureMapReferences(map, browserMapReferenceResolver));
+
   map.layers.forEach((layer, layerIndex) => {
     for (const [token, tileId] of Object.entries(layer.legend)) {
       if (!isWorldTileId(tileId)) {
@@ -49,11 +55,22 @@ function validateReferences(map: MapFile): void {
   map.objects.forEach((object, objectIndex) => {
     if (!isObjectArchetypeId(object.objectId)) {
       issues.push(`objects[${objectIndex}].objectId: unknown object ID '${object.objectId}'`);
-    } else if (!hasObjectVisual(object.objectId, object.visualId)) {
-      issues.push(`objects[${objectIndex}].visualId: unknown visual '${object.visualId}' for '${object.objectId}'`);
     } else {
-      for (const issue of validateObjectInitialState(object.objectId, object.initialState)) {
-        issues.push(`objects[${objectIndex}].${issue}`);
+      const definition = getObjectArchetype(object.objectId);
+      const npc = definition.npc;
+      const validVisual = npc
+        ? (() => {
+          const npcDefinition = getNpcDefinition(npc.definitionId);
+          if (!npcDefinition || object.visualId !== npc.placementVisualId) return false;
+          try { getCharacterPackage(npcDefinition.characterId); return true; } catch { return false; }
+        })()
+        : hasObjectVisual(object.objectId, object.visualId);
+      if (!validVisual) {
+        issues.push(`objects[${objectIndex}].visualId: unknown visual '${object.visualId}' for '${object.objectId}'`);
+      } else {
+        for (const issue of validateObjectInitialState(object.objectId, object.initialState)) {
+          issues.push(`objects[${objectIndex}].${issue}`);
+        }
       }
     }
   });

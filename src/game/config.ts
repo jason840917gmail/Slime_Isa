@@ -8,17 +8,22 @@ import { prepareRunStartup } from './features/persistence/StartupPersistence';
 import { ModalStack } from './ui/ModalStack';
 
 export async function createGame(container: HTMLDivElement): Promise<Phaser.Game | undefined> {
+  const studioQuery = import.meta.env.DEV ? new URLSearchParams(window.location.search) : undefined;
+  const studioMode = studioQuery?.get('studio');
   const editorMapId = import.meta.env.DEV
-    ? new URLSearchParams(window.location.search).get('editor')
+    ? studioQuery?.get('editor') ?? null
     : null;
   const characterStudio = import.meta.env.DEV
-    ? new URLSearchParams(window.location.search).get('studio') === 'characters'
+    ? studioMode === 'characters'
     : false;
   const projectileStudio = import.meta.env.DEV
-    ? new URLSearchParams(window.location.search).get('studio') === 'projectiles'
+    ? studioMode === 'projectiles'
+    : false;
+  const animationStudio = import.meta.env.DEV
+    ? studioMode === 'animations' || (studioMode === 'weapons' && studioQuery?.has('animation') === true)
     : false;
   const weaponStudio = import.meta.env.DEV
-    ? ['weapons', 'animations'].includes(new URLSearchParams(window.location.search).get('studio') ?? '')
+    ? studioMode === 'weapons' && !animationStudio
     : false;
   if (characterStudio) {
     document.title = 'Character Studio — Field Cartographer';
@@ -30,6 +35,16 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
     document.title = 'Projectile Studio — Field Cartographer';
     const { mountProjectileStudio } = await import('./editor/ProjectileStudio');
     mountProjectileStudio(container);
+    return undefined;
+  }
+  if (animationStudio) {
+    if (studioMode === 'weapons' && studioQuery) {
+      studioQuery.set('studio', 'animations');
+      window.history.replaceState(null, '', `?${studioQuery.toString()}`);
+    }
+    document.title = 'Animation Studio — Field Cartographer';
+    const { mountAnimationStudio } = await import('./editor/AnimationStudio');
+    mountAnimationStudio(container);
     return undefined;
   }
   if (weaponStudio) {
@@ -47,7 +62,7 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
       ])
     : [];
   const devPanel = import.meta.env.DEV && !isEditor ? createDevToolsPanel() : '';
-  if (isEditor) document.title = `Field Cartographer â€” ${editorMapId}`;
+  if (isEditor) document.title = `Field Cartographer - ${editorMapId}`;
 
   if (!isEditor) await prepareRunStartup(container);
 
@@ -56,7 +71,7 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
       <div class="canvas-frame">
         <div id="game-root"></div>
         ${isEditor ? '' : `<details class="keymap-panel" open>
-          <summary>âŒ¨ Controls</summary>
+          <summary>Controls</summary>
           <table>
             <tr><td class="k">Arrows / IJKL</td><td>Move</td></tr>
             <tr><td class="k">Mouse Wheel</td><td>Zoom camera</td></tr>

@@ -596,6 +596,44 @@
   transform: rotate(-45deg);
 }
 
+#app.is-character-studio-host .studio-tree-subitem {
+  min-height: 30px;
+  padding-left: 34px;
+  color: #8ea2b3;
+  background: rgba(4, 11, 20, 0.22);
+}
+
+#app.is-character-studio-host .studio-tree-subitem:hover,
+#app.is-character-studio-host .studio-tree-subitem.is-active {
+  color: #eef6fa;
+  background: rgba(141, 211, 218, 0.09);
+}
+
+#app.is-character-studio-host .studio-tree-file--alias em {
+  color: #b69be0;
+}
+
+#app.is-character-studio-host .studio-tree-alias-glyph {
+  color: #b69be0;
+  font-family: var(--studio-mono);
+  font-size: 12px;
+}
+
+#app.is-character-studio-host .studio-field.is-disabled {
+  opacity: 0.58;
+}
+
+#app.is-character-studio-host .studio-help--warning {
+  color: var(--studio-amber);
+}
+
+#app.is-character-studio-host .roster-glyph.npc {
+  border-radius: 7px 12px 9px 12px;
+  color: var(--studio-purple);
+  background: rgba(189, 155, 255, 0.08);
+  transform: rotate(-8deg);
+}
+
 #app.is-character-studio-host .studio-roster-item span:nth-child(2) {
   display: grid;
   min-width: 0;
@@ -1268,6 +1306,11 @@
   width: var(--thumb-w, 52px);
   height: var(--thumb-h, 36px);
   overflow: hidden;
+  background-image: var(--sheet-url);
+  background-repeat: no-repeat;
+  background-size: calc(var(--sheet-w) * var(--frame-scale, 1)) calc(var(--sheet-h) * var(--frame-scale, 1));
+  background-position: calc(var(--frame-x) * -1 * var(--frame-scale, 1)) calc(var(--frame-y) * -1 * var(--frame-scale, 1));
+  image-rendering: auto;
 }
 
 #app.is-character-studio-host .studio-frame-image img {
@@ -1284,6 +1327,17 @@
 #app.is-character-studio-host .studio-frame-image-fallback {
   color: var(--studio-dim);
   font-size: 20px;
+}
+
+#app.is-character-studio-host .timeline-tile-preview {
+  display: block;
+  width: min(54px, calc(var(--frame-w) * 0.45));
+  height: min(54px, calc(var(--frame-h) * 0.45));
+  background-image: var(--sheet-url);
+  background-repeat: no-repeat;
+  background-size: calc(var(--sheet-w) * 0.45) calc(var(--sheet-h) * 0.45);
+  background-position: calc(var(--frame-x) * -0.45) calc(var(--frame-y) * -0.45);
+  image-rendering: auto;
 }
 
 #app.is-character-studio-host .studio-frame-tile > small {

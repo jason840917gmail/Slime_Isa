@@ -2,15 +2,13 @@
   "$schema": "../objects.schema.json",
   "objectId": "npc.world",
   "selection": "authored",
-  "variants": [
-    {
-      "assetId": "character.player.slime",
-      "frames": [
-        { "visualId": "slime-npc", "frame": 0, "scale": 0.28125, "displayName": "Quest NPC" }
-      ]
-    }
-  ],
   "physics": null,
-  "npc": { "definitionId": "village-elder-plop" },
-  "tags": ["npc", "interactable"]
+  "npc": {
+    "definitionId": "village-elder-plop",
+    "placementVisualId": "village-elder-plop"
+  },
+  "tags": [
+    "npc",
+    "interactable"
+  ]
 }

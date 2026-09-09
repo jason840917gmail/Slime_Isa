@@ -38,6 +38,7 @@ import { WorldMapUI } from '../ui/WorldMapUI';
 import { questTracker } from '../quests/QuestTracker';
 import { QuestJournal } from '../ui/QuestJournal';
 import { CraftingUI } from '../ui/CraftingUI';
+import { craftingService } from '../crafting/Crafting';
 import { reopenPendingLevelUpWhenIdle } from '../ui/LevelUpReopenPolicy';
 import { ModalStack } from '../ui/ModalStack';
 import { PLAYER_CONFIG } from '../content/player';
@@ -78,6 +79,7 @@ import { GAME_CONSTANTS } from '../Constant';
 import { InteractionRouter } from '../features/interaction/InteractionRouter';
 import { QuestNpcController } from '../features/interaction/QuestNpcController';
 import { QuestNotificationPresenter } from '../features/quests/QuestNotificationPresenter';
+import { NpcRuntimeController } from '../features/npcs/NpcRuntimeController';
 
 const EDGE_TRANSITION_GRACE_MS = GAME_CONSTANTS.worldNavigation.edgeTransitionGraceMs;
 const COLLECTIBLE_EVENTS = new CollectibleEventChannel(gameEvents);
@@ -124,6 +126,7 @@ export class WorldScene extends Phaser.Scene {
   private craftingUI?: CraftingUI;
   private interactionRouter?: InteractionRouter;
   private questNpcController?: QuestNpcController;
+  private npcRuntimeController?: NpcRuntimeController;
   private questNotifications?: QuestNotificationPresenter;
   private abilitySystem?: AbilitySystem;
   private weaponHotbar?: WeaponHotbar;
@@ -205,6 +208,7 @@ export class WorldScene extends Phaser.Scene {
       onPausedChange: (paused) => { this.setSimulationPaused('quest-npc', paused); },
       showMessage: (x, y, message, color = 'white', important = false) => floatingText.spawn(this, x, y, message, color, important),
     });
+    this.npcRuntimeController = new NpcRuntimeController();
     this.buildWorld();
     this.questNpcController.finalize();
     this.createPlayer();
@@ -303,8 +307,9 @@ export class WorldScene extends Phaser.Scene {
     this.craftingUI = new CraftingUI({
       scene: this,
       modalStack,
+      craftingService,
       onPausedChange: (p) => { this.setSimulationPaused('crafting', p); },
-      onCrafted: (recipe) => {
+      onCrafted: ({ recipe }) => {
         const craftedWeaponId = itemRegistry.get(recipe.output.itemId)?.equipment?.weaponId;
         if (craftedWeaponId) {
           const slotIndex = playerWeaponLoadout.ensureAssigned(craftedWeaponId);
@@ -378,6 +383,14 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private resetSceneStateForAreaLoad(): void {
+    // Release NPC interaction sessions before destroying their actors. Modal
+    // close callbacks can then return every movement lock while the actor
+    // lifecycle is still alive; actor teardown follows as the final NPC step.
+    this.questNpcController?.destroy();
+    this.questNpcController = undefined;
+    this.npcRuntimeController?.destroy();
+    this.npcRuntimeController = undefined;
+    this.builtMap = undefined;
     this.disposables.dispose();
     this.disposables = new DisposableBag();
     this.inputBindings?.dispose();
@@ -401,8 +414,6 @@ export class WorldScene extends Phaser.Scene {
     this.questNotifications?.destroy();
     this.questNotifications = undefined;
     this.craftingUI?.destroy();
-    this.questNpcController?.destroy();
-    this.questNpcController = undefined;
     this.interactionRouter?.destroy();
     this.interactionRouter = undefined;
     this.combatController?.destroy();
@@ -476,6 +487,7 @@ export class WorldScene extends Phaser.Scene {
     } else {
       this.physics.world.resume();
     }
+    this.npcRuntimeController?.setSimulationPaused(shouldPause);
   }
 
   private stopMovingBodies(): void {
@@ -506,6 +518,7 @@ export class WorldScene extends Phaser.Scene {
       stop(child);
       return true;
     });
+    this.npcRuntimeController?.stopMoving();
   }
 
   update(_time: number, delta: number): void {
@@ -516,6 +529,8 @@ export class WorldScene extends Phaser.Scene {
       this.debugRenderer?.update();
       return;
     }
+
+    this.npcRuntimeController?.update(delta);
 
     this.minimap.update(this.cameras.main, this.player, this.friends, this.houses);
 
@@ -634,6 +649,9 @@ export class WorldScene extends Phaser.Scene {
       onObjectCreated: (registration) => {
         this.resourceNodes?.register(registration);
         this.collectibles?.register(registration);
+      },
+      onNpcCreated: (registration) => {
+        this.npcRuntimeController?.register(registration);
         this.questNpcController?.register(registration);
       },
       registerOccluder: (registration) => this.occlusionController!.registerOccluder(registration),

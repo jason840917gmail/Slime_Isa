@@ -1,0 +1,45 @@
+{
+  "$schema": "../character.schema.json",
+  "version": 1,
+  "characterId": "red-slime-boy",
+  "displayName": "Red Slime Boy",
+  "kind": "npc",
+  "visualSetId": "character.npc.red-slime-boy",
+  "body": {
+    "shape": "ellipse",
+    "width": 36,
+    "height": 24,
+    "radiusX": 18,
+    "radiusY": 12,
+    "centerOffsetX": 0,
+    "centerOffsetY": 10
+  },
+  "hitboxes": {},
+  "animationTracks": {
+    "idle": {
+      "hitboxSpans": [],
+      "events": []
+    },
+    "walk-down": {
+      "hitboxSpans": [],
+      "events": []
+    },
+    "walk-up": {
+      "hitboxSpans": [],
+      "events": []
+    },
+    "walk-left": {
+      "hitboxSpans": [],
+      "events": []
+    },
+    "walk-right": {
+      "hitboxSpans": [],
+      "events": []
+    }
+  },
+  "npc": {
+    "wanderSpeed": 38,
+    "pauseMinMs": 800,
+    "pauseMaxMs": 1800
+  }
+}

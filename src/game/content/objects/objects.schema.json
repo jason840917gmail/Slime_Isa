@@ -4,7 +4,7 @@
   "title": "Slime Isa object archetype",
   "description": "One reusable game object per file. The object owns behavior and frame-specific collider, depth, and occlusion geometry.",
   "type": "object",
-  "required": ["objectId", "selection", "variants", "physics", "tags"],
+  "required": ["objectId", "selection", "physics", "tags"],
   "additionalProperties": false,
   "allOf": [
     { "not": { "anyOf": [
@@ -27,7 +27,11 @@
     },
     {
       "if": { "required": ["npc"] },
-      "then": { "properties": { "tags": { "contains": { "const": "npc" } } } }
+      "then": { "required": ["npc"], "properties": { "tags": { "contains": { "const": "npc" } } }, "not": { "required": ["variants"] } }
+    },
+    {
+      "if": { "not": { "required": ["npc"] } },
+      "then": { "required": ["variants"] }
     }
   ],
   "properties": {
@@ -198,10 +202,11 @@
     },
     "npc": {
       "type": "object",
-      "required": ["definitionId"],
+      "required": ["definitionId", "placementVisualId"],
       "additionalProperties": false,
       "properties": {
-        "definitionId": { "type": "string", "minLength": 1 }
+        "definitionId": { "type": "string", "minLength": 1 },
+        "placementVisualId": { "type": "string", "minLength": 1 }
       }
     },
     "resourceDrop": {

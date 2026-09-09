@@ -1,4 +1,6 @@
 import type { AnimationPackageCatalogEntry } from '../content/animations/types';
+import type { CharacterPackage } from '../content/characters/types';
+import type { AnimationStudioCatalog, AnimationStudioEntry, AnimationStudioAlias } from './AnimationStudioCatalog';
 
 export interface StudioWeaponLibraryEntry {
   readonly weaponId: string;
@@ -11,10 +13,14 @@ export interface StudioWeaponLibraryEntry {
 export interface StudioLibraryTreeOptions {
   readonly weapons: readonly StudioWeaponLibraryEntry[];
   readonly animations: readonly AnimationPackageCatalogEntry[];
+  readonly characters?: readonly CharacterPackage[];
   readonly search: string;
   readonly expandedFolders: ReadonlySet<string>;
   readonly selectedWeaponId?: string;
+  readonly selectedWeaponOwnedKey?: string;
   readonly selectedAnimationId?: string;
+  readonly selectedCharacterId?: string;
+  readonly animationCatalog?: AnimationStudioCatalog;
   readonly footerHtml: string;
 }
 
@@ -95,19 +101,47 @@ function renderAnimationFolder(
 
 function renderWeapons(options: StudioLibraryTreeOptions): string {
   const open = Boolean(options.search.trim()) || options.expandedFolders.has('weapons') || Boolean(options.selectedWeaponId);
+  const renderSlotRows = (weaponId: string): string => {
+    const owned = (options.animationCatalog?.entries ?? []).filter((entry): entry is Extract<AnimationStudioEntry, { readonly kind: 'weapon-owned' }> => entry.kind === 'weapon-owned' && entry.weaponId === weaponId);
+    const aliases = (options.animationCatalog?.aliases ?? []).filter((alias: AnimationStudioAlias) => alias.weaponId === weaponId);
+    return [...owned.map((entry) => {
+      const label = entry.slot === 'idle' ? 'IDLE' : `ATTACK · ${entry.direction.toUpperCase()}`;
+      const entryKey = entry.slot === 'idle' ? `weapon:${entry.weaponId}:idle` : `weapon:${entry.weaponId}:attack:${entry.direction}`;
+      return `<button type="button" class="studio-tree-subitem studio-tree-file${entryKey === options.selectedWeaponOwnedKey ? ' is-active' : ''}" style="--tree-depth:2" data-animation-entry-key="${escapeHtml(entryKey)}" data-weapon-id="${escapeHtml(entry.weaponId)}" data-weapon-slot="${entry.slot}" ${entry.slot === 'attack' ? `data-weapon-direction="${entry.direction}"` : ''}>${animationIcon()}<span class="studio-tree-file-copy"><strong>${escapeHtml(label)}</strong><small>Owned layered animation</small></span><em>EDIT</em></button>`;
+    }), ...aliases.map((alias) => {
+      const selected = alias.key === options.selectedWeaponOwnedKey || Boolean(alias.targetAnimationId && alias.targetAnimationId === options.selectedAnimationId);
+      return `<button type="button" class="studio-tree-subitem studio-tree-file studio-tree-file--alias${selected ? ' is-active' : ''}" style="--tree-depth:2" data-animation-alias-key="${escapeHtml(alias.key)}" data-animation-target-key="${escapeHtml(alias.targetKey ?? '')}" data-animation-id="${alias.targetAnimationId ? escapeHtml(alias.targetAnimationId) : ''}" data-weapon-id="${escapeHtml(alias.weaponId)}" data-weapon-slot="${alias.slot}" ${alias.direction ? `data-weapon-direction="${alias.direction}"` : ''}><span class="studio-tree-alias-glyph">↳</span><span class="studio-tree-file-copy"><strong>${escapeHtml(alias.slot === 'idle' ? 'IDLE' : `ATTACK · ${(alias.direction ?? '').toUpperCase()}`)}</strong><small>${escapeHtml(alias.reason === 'inherited' ? 'Inherited direction' : alias.reason === 'shared-reference' ? 'Shared animation reference' : 'Missing shared reference')}</small></span><em>${alias.reason === 'missing-shared-reference' ? 'MISSING' : 'ALIAS'}</em></button>`;
+    })].join('');
+  };
   const entries = [...options.weapons]
     .sort((left, right) => left.displayName.localeCompare(right.displayName))
-    .map((weapon) => `<button type="button" class="studio-tree-item studio-tree-file${weapon.weaponId === options.selectedWeaponId ? ' is-active' : ''}" style="--tree-depth:1" data-weapon-id="${escapeHtml(weapon.weaponId)}" title="${escapeHtml(weapon.description)}">${weaponIcon()}<span class="studio-tree-file-copy"><strong>${escapeHtml(weapon.displayName)}</strong><small>${escapeHtml(weapon.weaponId)}</small></span><em>V${weapon.version}</em></button>`)
+    .map((weapon) => `<button type="button" class="studio-tree-item studio-tree-file${weapon.weaponId === options.selectedWeaponId ? ' is-active' : ''}" style="--tree-depth:1" data-weapon-id="${escapeHtml(weapon.weaponId)}" title="${escapeHtml(weapon.description)}">${weaponIcon()}<span class="studio-tree-file-copy"><strong>${escapeHtml(weapon.displayName)}</strong><small>${escapeHtml(weapon.weaponId)}</small></span><em>V${weapon.version}</em></button>${renderSlotRows(weapon.weaponId)}`)
     .join('');
   return `<details class="studio-tree-folder studio-tree-root" data-library-folder="weapons" ${open ? 'open' : ''}><summary class="studio-tree-folder-row studio-library-root-label" style="--tree-depth:0">${chevronIcon()}${folderIcon()}<span>WEAPONS</span></summary>${entries}</details>`;
+}
+
+function renderCharacters(options: StudioLibraryTreeOptions): string {
+  const characters = options.characters ?? [];
+  if (characters.length === 0) return '';
+  const open = Boolean(options.search.trim()) || options.expandedFolders.has('characters') || Boolean(options.selectedCharacterId);
+  const entries = [...characters]
+    .sort((left, right) => left.character.displayName.localeCompare(right.character.displayName))
+    .map((entry) => {
+      const kind = entry.character.kind.toUpperCase();
+      const glyph = entry.character.kind === 'player' ? '●' : entry.character.kind === 'npc' ? '✦' : '◆';
+      const selected = entry.character.characterId === options.selectedCharacterId;
+      return `<button type="button" class="studio-tree-item studio-tree-file studio-tree-character${selected ? ' is-active' : ''}" style="--tree-depth:1" data-character-id="${escapeHtml(entry.character.characterId)}" title="${escapeHtml(entry.character.displayName)} · ${escapeHtml(entry.character.characterId)}"><span class="roster-glyph ${entry.character.kind}">${glyph}</span><span class="studio-tree-file-copy"><strong>${escapeHtml(entry.character.displayName)}</strong><small>${kind} · ${entry.visualSet.clips ? `${Object.keys(entry.visualSet.clips).length} CLIPS` : 'ANIMATION'}</small></span><em>${selected ? 'OPEN' : ''}</em></button>`;
+    }).join('');
+  return `<details class="studio-tree-folder studio-tree-root" data-library-folder="characters" ${open ? 'open' : ''}><summary class="studio-tree-folder-row studio-library-root-label" style="--tree-depth:0">${chevronIcon()}${folderIcon()}<span>CHARACTERS</span></summary>${entries}</details>`;
 }
 
 export function renderStudioLibraryTree(options: StudioLibraryTreeOptions): string {
   const search = options.search.trim().toLowerCase();
   const weapons = options.weapons.filter((weapon) => !search || [weapon.weaponId, weapon.displayName, weapon.description]
-    .some((value) => value.toLowerCase().includes(search)));
+    .some((value) => value.toLowerCase().includes(search)) || (options.animationCatalog?.entries ?? []).some((entry) => entry.kind === 'weapon-owned' && entry.weaponId === weapon.weaponId && `${entry.slot} ${entry.slot === 'attack' ? entry.direction : ''} ${entry.displayName}`.toLowerCase().includes(search)) || (options.animationCatalog?.aliases ?? []).some((alias) => alias.weaponId === weapon.weaponId && `${alias.slot} ${alias.direction ?? ''} ${alias.displayName} ${alias.reason}`.toLowerCase().includes(search)));
   const animations = options.animations.filter((entry) => !search || [entry.animationId, entry.displayName, entry.description, entry.packagePath]
     .some((value) => value.toLowerCase().includes(search)));
-  const filteredOptions = { ...options, weapons, animations };
-  return `<aside class="studio-library studio-library--tree"><div class="studio-panel-title"><div><span class="studio-kicker">Shared content</span><h1>Explorer</h1></div><span class="studio-count">${String(weapons.length + animations.length).padStart(2, '0')}</span></div><label class="studio-library-search"><span class="sr-only">Search weapons and animations</span><input type="search" placeholder="Search files…" value="${escapeHtml(options.search)}" data-studio-library-search /></label><div class="studio-roster studio-tree" role="tree">${renderWeapons(filteredOptions)}${renderAnimationFolder(createAnimationTree(animations), filteredOptions, 0)}</div><div class="studio-library-footer">${options.footerHtml}</div></aside>`;
+  const characters = (options.characters ?? []).filter((entry) => !search || [entry.character.characterId, entry.character.displayName, entry.character.kind, entry.visualSet.visualSetId].some((value) => value.toLowerCase().includes(search)));
+  const filteredOptions = { ...options, weapons, animations, characters };
+  return `<aside class="studio-library studio-library--tree"><div class="studio-panel-title"><div><span class="studio-kicker">Animation content</span><h1>Explorer</h1></div><span class="studio-count">${String(weapons.length + animations.length + characters.length).padStart(2, '0')}</span></div><label class="studio-library-search"><span class="sr-only">Search animation content</span><input type="search" placeholder="Search files…" value="${escapeHtml(options.search)}" data-studio-library-search /></label><div class="studio-roster studio-tree" role="tree">${renderCharacters(filteredOptions)}${renderWeapons(filteredOptions)}${renderAnimationFolder(createAnimationTree(animations), filteredOptions, 0)}</div><div class="studio-library-footer">${options.footerHtml}</div></aside>`;
 }

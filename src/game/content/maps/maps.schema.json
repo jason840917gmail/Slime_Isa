@@ -70,6 +70,7 @@
       "description": "Authored enemy camps. When present, runtime uses these areas instead of legacy random spawning.",
       "items": { "$ref": "#/$defs/enemySpawnArea" }
     },
+    "npcWanderAreas": { "$ref": "#/$defs/npcWanderAreas" },
     "spawns": { "$ref": "#/$defs/spawns" }
   },
   "$defs": {
@@ -80,6 +81,20 @@
       "properties": {
         "x": { "type": "number" },
         "y": { "type": "number" }
+      }
+    },
+    "npcWanderAreas": {
+      "type": "array",
+      "description": "Optional personal wander perimeter for each placed NPC.",
+      "items": {
+        "type": "object",
+        "required": ["id", "npcInstanceId", "perimeter"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^npc-area-[0-9]+$" },
+          "npcInstanceId": { "type": "string", "minLength": 1 },
+          "perimeter": { "$ref": "#/$defs/enemyPerimeter" }
+        }
       }
     },
     "layer": {

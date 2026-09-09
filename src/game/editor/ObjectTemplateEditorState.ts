@@ -260,6 +260,18 @@ export class ObjectTemplateEditorState {
     return this.select(objectId, visualId, true);
   }
 
+  clearSelection(): void {
+    if (!this.selectedValue && !this.draftValue) return;
+    this.selectedValue = undefined;
+    this.savedDraft = undefined;
+    this.draftValue = undefined;
+    this.errorsValue = {};
+    this.dirtyValue = false;
+    this.statusValue = 'NPC presentation is edited in Character Studio';
+    this.revisionValue += 1;
+    this.emit();
+  }
+
   setShowAllMatchingOverlays(showAll: boolean): void {
     if (this.showAllMatchingOverlaysValue === showAll) return;
     this.showAllMatchingOverlaysValue = showAll;

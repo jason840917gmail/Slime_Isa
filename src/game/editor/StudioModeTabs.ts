@@ -1,10 +1,11 @@
-type StudioMode = 'characters' | 'projectiles' | 'weapons';
+type StudioMode = 'characters' | 'projectiles' | 'weapons' | 'animations';
 type StudioNavigationMode = StudioMode | 'map';
 
 const MODES: readonly { id: StudioNavigationMode; label: string }[] = [
   { id: 'characters', label: 'CHARACTERS' },
   { id: 'projectiles', label: 'PROJECTILES' },
   { id: 'weapons', label: 'WEAPONS' },
+  { id: 'animations', label: 'ANIMATIONS' },
   { id: 'map', label: 'MAP STUDIO' },
 ];
 

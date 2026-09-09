@@ -78,7 +78,7 @@ export class ResourceNodeController {
       ? initialState.dropObjectId
       : undefined;
     const inferredDropVisualId = customDropObjectId
-      ? getObjectArchetype(customDropObjectId).variants[0]?.frames[0]?.visualId
+      ? getObjectArchetype(customDropObjectId).variants?.[0]?.frames[0]?.visualId
       : undefined;
     const image = registration.image;
     const savedState = worldProgress.resourceState(this.ctx.mapId, registration.instanceId);

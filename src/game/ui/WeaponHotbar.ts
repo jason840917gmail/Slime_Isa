@@ -6,9 +6,18 @@ import { playerWeaponLoadout } from '../systems/WeaponLoadout';
 import { createWeaponThumbnail } from './WeaponThumbnail';
 
 const FONT = 'Trebuchet MS, Segoe UI Variable, sans-serif';
-const CELL = 56;
-const GAP = 8;
+const HOTBAR_MARGIN = 12;
+const MIN_CELL = 40;
+const MAX_CELL = 56;
+const MIN_GAP = 4;
+const MAX_GAP = 8;
 const THUMBNAIL_SIZE = 30;
+
+interface HotbarMetrics {
+  readonly cell: number;
+  readonly gap: number;
+  readonly totalWidth: number;
+}
 
 export interface WeaponHotbarContext {
   readonly scene: Phaser.Scene;
@@ -43,7 +52,7 @@ export class WeaponHotbar {
     this.root?.destroy(true);
     const scene = this.ctx.scene;
     const cam = scene.cameras.main;
-    const totalWidth = WEAPON_HOTBAR_SLOT_COUNT * CELL + (WEAPON_HOTBAR_SLOT_COUNT - 1) * GAP;
+    const { cell, gap, totalWidth } = getHotbarMetrics(cam.width);
     const startX = cam.width / 2 - totalWidth / 2;
     const centerY = cam.height - 144;
     const root = scene.add.container(0, 0).setScrollFactor(0).setDepth(resolveScreenUiDepth(54));
@@ -53,53 +62,47 @@ export class WeaponHotbar {
       const weaponId = playerWeaponLoadout.slots()[index];
       const owned = !!weaponId && playerWeaponLoadout.ownsWeapon(weaponId);
       const active = owned && weaponId === playerWeaponLoadout.equippedWeaponId();
-      const x = startX + index * (CELL + GAP) + CELL / 2;
+      const x = startX + index * (cell + gap) + cell / 2;
       const slot = scene.add.container(x, centerY);
       root.add(slot);
 
-      const shadow = scene.add.graphics();
-      shadow.fillStyle(0x050a12, 0.72);
-      shadow.fillRoundedRect(-CELL / 2 + 2, -CELL / 2 + 4, CELL, CELL, 9);
-      slot.add(shadow);
-
       const frame = scene.add.graphics();
-      frame.fillStyle(active ? 0x253e3d : 0x101a2b, active ? 0.98 : 0.94);
-      frame.fillRoundedRect(-CELL / 2, -CELL / 2, CELL, CELL, 8);
-      frame.lineStyle(active ? 3 : 1.5, active ? 0xffd277 : owned ? 0x67d8c6 : 0x35465d, active ? 1 : 0.82);
-      frame.strokeRoundedRect(-CELL / 2, -CELL / 2, CELL, CELL, 8);
+      frame.lineStyle(active ? 2.5 : 1, active ? 0xffd277 : owned ? 0x9be8b8 : 0xe2e9d7, active ? 1 : 0.7);
+      frame.strokeRoundedRect(-cell / 2 + 0.75, -cell / 2 + 0.75, cell - 1.5, cell - 1.5, 8);
       if (active) {
-        frame.lineStyle(1, 0xf5fff9, 0.7);
-        frame.strokeRoundedRect(-CELL / 2 + 4, -CELL / 2 + 4, CELL - 8, CELL - 8, 5);
+        frame.lineStyle(1, 0xf5fff9, 0.72);
+        frame.strokeRoundedRect(-cell / 2 + 4, -cell / 2 + 4, cell - 8, cell - 8, 5);
         frame.fillStyle(0xffd277, 1);
-        frame.fillTriangle(-6, CELL / 2 + 2, 6, CELL / 2 + 2, 0, CELL / 2 + 9);
+        frame.fillTriangle(-5, cell / 2 + 1, 5, cell / 2 + 1, 0, cell / 2 + 7);
       }
       slot.add(frame);
 
-      const keyPlate = scene.add.graphics();
-      keyPlate.fillStyle(active ? 0xffd277 : 0x22324a, 1);
-      keyPlate.fillRoundedRect(-CELL / 2 + 4, -CELL / 2 + 4, 16, 15, 4);
-      slot.add(keyPlate);
-      slot.add(scene.add.text(-CELL / 2 + 12, -CELL / 2 + 11, `${index + 1}`, {
+      slot.add(scene.add.text(-cell / 2 + 8, -cell / 2 + 8, `${index + 1}`, {
         fontFamily: FONT,
-        fontSize: '10px',
+        fontSize: '9px',
         fontStyle: 'bold',
-        color: active ? '#17202a' : '#d9eef0',
-      }).setOrigin(0.5));
+        color: active ? '#ffe8ae' : '#e7f2d7',
+      }).setOrigin(0.5).setShadow(0, 1, '#081022', 2, true, true));
 
       const thumbnail = owned && weaponId
-        ? createWeaponThumbnail(scene, weaponId, { x: 3, y: -3, size: THUMBNAIL_SIZE })
+        ? createWeaponThumbnail(scene, weaponId, { x: 0, y: 2, size: Math.min(THUMBNAIL_SIZE, cell - 14) })
         : undefined;
       if (thumbnail) {
         slot.add(thumbnail);
       } else {
-        slot.add(scene.add.text(3, -3, weaponId ? '×' : '·', {
-          fontFamily: FONT,
-          fontSize: weaponId ? '22px' : '28px',
-          color: weaponId ? '#ff8f7a' : '#52657a',
-        }).setOrigin(0.5));
+        const placeholder = scene.add.graphics();
+        if (weaponId) {
+          placeholder.lineStyle(1.5, 0xff8f7a, 0.9);
+          placeholder.lineBetween(-5, -5, 5, 5);
+          placeholder.lineBetween(5, -5, -5, 5);
+        } else {
+          placeholder.fillStyle(0xc1d4c0, 0.75);
+          placeholder.fillCircle(0, 2, 2);
+        }
+        slot.add(placeholder);
       }
 
-      const hitArea = scene.add.rectangle(0, 0, CELL, CELL, 0xffffff, 0.001).setInteractive({ useHandCursor: owned });
+      const hitArea = scene.add.rectangle(0, 0, cell, cell, 0xffffff, 0.001).setInteractive({ useHandCursor: owned });
       hitArea.on('pointerdown', (
         _pointer: Phaser.Input.Pointer,
         _localX: number,
@@ -113,5 +116,24 @@ export class WeaponHotbar {
       hitArea.on('pointerout', () => slot.setScale(1));
       slot.add(hitArea);
     }
+  };
+}
+
+function getHotbarMetrics(viewWidth: number): HotbarMetrics {
+  const safeWidth = Math.max(0, viewWidth - HOTBAR_MARGIN * 2);
+  const gap = Phaser.Math.Clamp(
+    Math.floor((safeWidth - WEAPON_HOTBAR_SLOT_COUNT * MIN_CELL) / (WEAPON_HOTBAR_SLOT_COUNT - 1)),
+    MIN_GAP,
+    MAX_GAP,
+  );
+  const cell = Phaser.Math.Clamp(
+    Math.floor((safeWidth - (WEAPON_HOTBAR_SLOT_COUNT - 1) * gap) / WEAPON_HOTBAR_SLOT_COUNT),
+    MIN_CELL,
+    MAX_CELL,
+  );
+  return {
+    cell,
+    gap,
+    totalWidth: WEAPON_HOTBAR_SLOT_COUNT * cell + (WEAPON_HOTBAR_SLOT_COUNT - 1) * gap,
   };
 }

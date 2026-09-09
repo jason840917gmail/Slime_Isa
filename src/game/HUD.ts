@@ -9,8 +9,9 @@ import { resolveScreenUiDepth } from './presentation/WorldDepth';
  * EventBus. Now includes HP bar, XP bar, level, and energy readouts.
  *
  * Layout (screen-space, top-left):
- *   Level + coins + friends (text)
- *   HP bar (redâ†’green) under the text
+ *   Level + coins (text)
+ *   Friends (text)
+ *   HP bar (red-to-green) under the text
  *   XP bar (cyan) under HP
  *   Energy bar (yellow) under XP
  */
@@ -31,72 +32,82 @@ export class HUD {
 
   private barX = 24;
   private barW = 220;
-  private readonly barH = 12;
-  private readonly barGap = 18;
+  private statsW = 220;
+  private readonly barH = 8;
+  private readonly barGap = 11;
+
+  private static readonly HUD_MARGIN = 16;
+  private static readonly STATS_MIN_WIDTH = 180;
+  private static readonly STATS_MAX_WIDTH = 260;
+  private static readonly METER_LABEL_GAP = 8;
+  private static readonly METER_LABEL_WIDTH = 62;
+  private static readonly LEVEL_Y = 18;
+  private static readonly FRIENDS_Y = 38;
+  private static readonly METER_TOP_Y = 60;
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
     const font = UI_THEME.fontFamily;
 
-    let y = 24;
     this.levelText = scene.add
-      .text(this.barX, y, `Level ${gameState.level}`, {
+      .text(this.barX, HUD.LEVEL_Y, `Level ${gameState.level}`, {
         fontFamily: font,
-        fontSize: '16px',
+        fontSize: '14px',
+        fontStyle: 'bold',
         color: '#a3f0c0',
-        stroke: '#081022',
-        strokeThickness: 4,
       })
+      .setOrigin(0, 0)
       .setScrollFactor(0)
-      .setDepth(resolveScreenUiDepth(0)) as Phaser.GameObjects.Text;
+      .setDepth(resolveScreenUiDepth(0))
+      .setShadow(0, 2, UI_THEME.colors.shadow, 2, true, true) as Phaser.GameObjects.Text;
 
-    y += 22;
     this.coinsText = scene.add
-      .text(this.barX, y, `Coins: ${gameState.coins}`, {
+      .text(0, HUD.LEVEL_Y, `Coins ${formatHudCount(gameState.coins)}`, {
         fontFamily: font,
-        fontSize: '16px',
+        fontSize: '12px',
+        fontStyle: 'bold',
         color: '#ffd277',
-        stroke: '#081022',
-        strokeThickness: 4,
       })
+      .setOrigin(1, 0)
       .setScrollFactor(0)
-      .setDepth(resolveScreenUiDepth(0)) as Phaser.GameObjects.Text;
+      .setDepth(resolveScreenUiDepth(0))
+      .setShadow(0, 2, UI_THEME.colors.shadow, 2, true, true) as Phaser.GameObjects.Text;
 
-    y += 22;
     this.friendCountText = scene.add
-      .text(this.barX, y, `Friends: ${gameState.totalFriends}`, {
+      .text(this.barX, HUD.FRIENDS_Y, `Friends ${formatHudCount(gameState.totalFriends)}`, {
         fontFamily: font,
-        fontSize: '16px',
+        fontSize: '12px',
+        fontStyle: 'bold',
         color: '#ffd277',
-        stroke: '#081022',
-        strokeThickness: 4,
       })
+      .setOrigin(0, 0)
       .setScrollFactor(0)
-      .setDepth(resolveScreenUiDepth(0)) as Phaser.GameObjects.Text;
+      .setDepth(resolveScreenUiDepth(0))
+      .setShadow(0, 2, UI_THEME.colors.shadow, 2, true, true) as Phaser.GameObjects.Text;
 
-    y += 26;
     this.hpBar = scene.add.graphics().setScrollFactor(0).setDepth(resolveScreenUiDepth(1));
     this.hpLabel = scene.add
-      .text(this.barX, y, '', { fontFamily: font, fontSize: '11px', color: '#f5f7ff', stroke: '#0b1020', strokeThickness: 3 })
+      .text(0, 0, '', { fontFamily: font, fontSize: '10px', color: '#f5f7ff' })
+      .setOrigin(0, 0.5)
       .setScrollFactor(0)
-      .setDepth(resolveScreenUiDepth(2)) as Phaser.GameObjects.Text;
-    this.hpLabel.setPosition(this.barX + this.barW + 8, y);
-    y += this.barH + this.barGap;
+      .setDepth(resolveScreenUiDepth(2))
+      .setShadow(0, 1, UI_THEME.colors.shadow, 2, true, true) as Phaser.GameObjects.Text;
 
     this.xpBar = scene.add.graphics().setScrollFactor(0).setDepth(resolveScreenUiDepth(3));
     this.xpLabel = scene.add
-      .text(this.barX, y, '', { fontFamily: font, fontSize: '11px', color: '#cfe6ff', stroke: '#0b1020', strokeThickness: 3 })
+      .text(0, 0, '', { fontFamily: font, fontSize: '10px', color: '#cfe6ff' })
+      .setOrigin(0, 0.5)
       .setScrollFactor(0)
-      .setDepth(resolveScreenUiDepth(4)) as Phaser.GameObjects.Text;
-    this.xpLabel.setPosition(this.barX + this.barW + 8, y);
-    y += this.barH + this.barGap;
+      .setDepth(resolveScreenUiDepth(4))
+      .setShadow(0, 1, UI_THEME.colors.shadow, 2, true, true) as Phaser.GameObjects.Text;
 
     this.energyBar = scene.add.graphics().setScrollFactor(0).setDepth(resolveScreenUiDepth(5));
     this.energyLabel = scene.add
-      .text(this.barX, y, '', { fontFamily: font, fontSize: '11px', color: '#ffdf8a', stroke: '#0b1020', strokeThickness: 3 })
+      .text(0, 0, '', { fontFamily: font, fontSize: '10px', color: '#ffdf8a' })
+      .setOrigin(0, 0.5)
       .setScrollFactor(0)
-      .setDepth(resolveScreenUiDepth(6)) as Phaser.GameObjects.Text;
-    this.energyLabel.setPosition(this.barX + this.barW + 8, y);
+      .setDepth(resolveScreenUiDepth(6))
+      .setShadow(0, 1, UI_THEME.colors.shadow, 2, true, true) as Phaser.GameObjects.Text;
 
     gameEvents.on('coins.changed', this.onCoinsChanged, this);
     gameEvents.on('friend.count', this.onFriendCountChanged, this);
@@ -113,15 +124,22 @@ export class HUD {
   }
 
   resize(viewWidth: number): void {
-    this.barX = Phaser.Math.Clamp(viewWidth * 0.03, 16, 24);
-    this.barW = Phaser.Math.Clamp(viewWidth * 0.22, 150, 220);
+    this.barX = Phaser.Math.Clamp(viewWidth * 0.03, HUD.HUD_MARGIN, 24);
+    this.statsW = Phaser.Math.Clamp(viewWidth * 0.28, HUD.STATS_MIN_WIDTH, HUD.STATS_MAX_WIDTH);
+    const maxBarWidth = viewWidth - this.barX - HUD.HUD_MARGIN
+      - HUD.METER_LABEL_GAP - HUD.METER_LABEL_WIDTH;
+    this.barW = Phaser.Math.Clamp(
+      Math.min(viewWidth * 0.22, Math.max(132, maxBarWidth)),
+      132,
+      220,
+    );
 
-    this.levelText.setX(this.barX);
-    this.coinsText.setX(this.barX);
-    this.friendCountText.setX(this.barX);
-    this.hpLabel.setPosition(this.barX + this.barW + 8, this.hpBarY());
-    this.xpLabel.setPosition(this.barX + this.barW + 8, this.xpBarY());
-    this.energyLabel.setPosition(this.barX + this.barW + 8, this.energyBarY());
+    this.levelText.setPosition(this.barX, HUD.LEVEL_Y);
+    this.coinsText.setPosition(this.barX + this.statsW, HUD.LEVEL_Y);
+    this.friendCountText.setPosition(this.barX, HUD.FRIENDS_Y);
+    this.hpLabel.setPosition(this.barX + this.barW + HUD.METER_LABEL_GAP, this.hpBarY());
+    this.xpLabel.setPosition(this.barX + this.barW + HUD.METER_LABEL_GAP, this.xpBarY());
+    this.energyLabel.setPosition(this.barX + this.barW + HUD.METER_LABEL_GAP, this.energyBarY());
 
     this.drawHp(gameState.hp, gameState.maxHp);
     this.drawXp(this.xpIntoLevel, this.xpForNext, this.currentLevel);
@@ -129,11 +147,11 @@ export class HUD {
   }
 
   updateCoins(coins: number): void {
-    this.coinsText.setText(`Coins: ${coins}`);
+    this.coinsText.setText(`Coins ${formatHudCount(coins)}`);
   }
 
   updateFriendCount(count: number): void {
-    this.friendCountText.setText(`Friends: ${count}`);
+    this.friendCountText.setText(`Friends ${formatHudCount(count)}`);
   }
 
   updateLevel(level: number): void {
@@ -150,10 +168,7 @@ export class HUD {
     const { barX, barW, barH } = this;
     const y = this.hpBarY();
     g.clear();
-    g.fillStyle(0x0b1020, 0.9);
-    g.fillRoundedRect(barX, y, barW, barH, 4);
-    g.lineStyle(1.5, 0x3b5c78, 0.9);
-    g.strokeRoundedRect(barX, y, barW, barH, 4);
+    this.drawTrack(g, y);
 
     const pct = maxHp > 0 ? Phaser.Math.Clamp(hp / maxHp, 0, 1) : 0;
     const fill = pct <= 0.25 ? 0xff6f88 : pct <= 0.5 ? 0xffad66 : 0x7be08a;
@@ -170,10 +185,7 @@ export class HUD {
     const { barX, barW, barH } = this;
     const y = this.xpBarY();
     g.clear();
-    g.fillStyle(0x0b1020, 0.9);
-    g.fillRoundedRect(barX, y, barW, barH, 4);
-    g.lineStyle(1.5, 0x3b5c78, 0.9);
-    g.strokeRoundedRect(barX, y, barW, barH, 4);
+    this.drawTrack(g, y);
 
     const pct = need !== null && need > 0 ? Phaser.Math.Clamp(into / need, 0, 1) : 0;
     g.fillStyle(0x72d8ff, 1);
@@ -188,10 +200,7 @@ export class HUD {
     const { barX, barW, barH } = this;
     const y = this.energyBarY();
     g.clear();
-    g.fillStyle(0x0b1020, 0.9);
-    g.fillRoundedRect(barX, y, barW, barH, 4);
-    g.lineStyle(1.5, 0x3b5c78, 0.9);
-    g.strokeRoundedRect(barX, y, barW, barH, 4);
+    this.drawTrack(g, y);
 
     const pct = maxEnergy > 0 ? Phaser.Math.Clamp(energy / maxEnergy, 0, 1) : 0;
     g.fillStyle(0xffdf8a, 1);
@@ -201,13 +210,18 @@ export class HUD {
   }
 
   private hpBarY(): number {
-    return 24 + 22 + 22 + 26;
+    return HUD.METER_TOP_Y;
   }
   private xpBarY(): number {
     return this.hpBarY() + this.barH + this.barGap;
   }
   private energyBarY(): number {
     return this.xpBarY() + this.barH + this.barGap;
+  }
+
+  private drawTrack(g: Phaser.GameObjects.Graphics, y: number): void {
+    g.lineStyle(1, 0xe4f1d8, 0.72);
+    g.strokeRoundedRect(this.barX + 0.5, y + 0.5, this.barW - 1, this.barH - 1, 4);
   }
 
   private handleResize = (size: Phaser.Structs.Size): void => {
@@ -243,4 +257,12 @@ export class HUD {
     this.xpLabel.destroy();
     this.energyLabel.destroy();
   }
+}
+
+function formatHudCount(value: number): string {
+  const count = Math.max(0, Math.floor(value));
+  if (count < 10_000) return count.toLocaleString('en-US');
+  if (count < 1_000_000) return `${Math.min(999.9, count / 1_000).toFixed(1)}k`;
+  if (count < 1_000_000_000) return `${Math.min(999.9, count / 1_000_000).toFixed(1)}m`;
+  return '999m+';
 }

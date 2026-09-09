@@ -4,6 +4,7 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { basename, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { build } from 'esbuild';
 import { loadValidatedResourceTags } from './lib/resource-tag-catalog.mjs';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
@@ -26,7 +27,16 @@ const errors = [];
 const seenIds = new Map();
 
 const knownItemIds = new Set(Object.keys(JSON.parse(readFileSync(join(itemRoot, 'items.json'), 'utf8'))));
-const knownNpcIds = new Set(['village-elder-plop', 'level-1-spider-giver']);
+const npcModule = await build({
+  absWorkingDir: repoRoot,
+  entryPoints: ['src/game/content/npcs/NpcDefinitions.ts'],
+  bundle: true,
+  format: 'esm',
+  platform: 'node',
+  write: false,
+});
+const { NPC_DEFINITIONS } = await import(`data:text/javascript;base64,${Buffer.from(npcModule.outputFiles[0].text).toString('base64')}`);
+const knownNpcIds = new Set(NPC_DEFINITIONS.map((npc) => npc.id));
 function collectWeaponItemIds(directory) {
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
     const path = join(directory, entry.name);
@@ -225,7 +235,22 @@ for (const absolutePath of objectFiles) {
     }
   }
 
-  if (!Array.isArray(object.variants) || object.variants.length === 0) {
+  if (object.npc !== undefined) {
+    if (object.variants !== undefined) fail(file, objectId, 'variants', 'NPC objects must not define variants');
+    if (!isRecord(object.npc)) {
+      fail(file, objectId, 'npc', 'must be an object');
+    } else {
+      validateKeys(file, objectId, 'npc', object.npc, new Set(['definitionId', 'placementVisualId']));
+      if (typeof object.npc.definitionId !== 'string' || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(object.npc.definitionId)) {
+        fail(file, objectId, 'npc.definitionId', 'must be a lowercase kebab-case NPC definition ID');
+      }
+      if (typeof object.npc.placementVisualId !== 'string' || !/^[a-z0-9]+(?:[.-][a-z0-9-]+)*$/.test(object.npc.placementVisualId)) {
+        fail(file, objectId, 'npc.placementVisualId', 'must be a lowercase stable placement visual ID');
+      }
+      if (object.physics !== null) fail(file, objectId, 'physics', 'NPC objects must use physics: null');
+      if (!Array.isArray(object.tags) || !object.tags.includes('npc')) fail(file, objectId, 'tags', 'NPC objects must include the npc tag');
+    }
+  } else if (!Array.isArray(object.variants) || object.variants.length === 0) {
     fail(file, objectId, 'variants', 'must be a non-empty array');
   } else {
     const seenVisualIds = new Set();
@@ -382,11 +407,14 @@ for (const absolutePath of objectFiles) {
     fail(file, objectId, 'object', 'cannot define both collectible and resourceNode capabilities');
   }
   if (object.npc !== undefined) {
-    validateKeys(file, objectId, 'npc', object.npc, new Set(['definitionId']));
+    validateKeys(file, objectId, 'npc', object.npc, new Set(['definitionId', 'placementVisualId']));
     if (typeof object.npc.definitionId !== 'string' || object.npc.definitionId.length === 0) {
       fail(file, objectId, 'npc.definitionId', 'must be a non-empty NPC definition ID');
     } else if (!knownNpcIds.has(object.npc.definitionId)) {
       fail(file, objectId, 'npc.definitionId', `unknown NPC '${object.npc.definitionId}'`);
+    }
+    if (typeof object.npc.placementVisualId !== 'string' || object.npc.placementVisualId.length === 0) {
+      fail(file, objectId, 'npc.placementVisualId', 'must be a non-empty placement visual ID');
     }
     if (object.physics !== null) fail(file, objectId, 'physics', 'NPC objects must not be solid');
     if (Array.isArray(object.tags) && !object.tags.includes('npc')) fail(file, objectId, 'tags', 'NPC objects must include the npc tag');

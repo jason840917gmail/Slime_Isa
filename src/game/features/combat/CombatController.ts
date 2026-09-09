@@ -83,7 +83,7 @@ export class CombatController {
 
     this.combo = new ComboSystem(scene, {
       onComboHit: (count, multiplier) => {
-        this.comboText.setText(`${count}x COMBO  Ã—${multiplier.toFixed(2)}`).setAlpha(1);
+        this.comboText.setText(`${count}x COMBO  x${multiplier.toFixed(2)}`).setAlpha(1);
         scene.tweens.add({ targets: this.comboText, scale: { from: 1.2, to: 1 }, duration: 150, ease: 'Back.Out' });
       },
       onComboReset: () => this.comboText.setAlpha(0),

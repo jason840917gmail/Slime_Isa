@@ -24,6 +24,7 @@
     "maps:bake": "node scripts/bake-production-maps.mjs",
     "test:characters": "node --test scripts/tests/character-studio/*.test.mjs",
     "test:character-studio": "node --test scripts/tests/character-studio/*.test.mjs",
+    "test:animation-studio": "node --test scripts/tests/animation-studio/*.test.mjs",
     "test:weapon-studio": "node --test scripts/tests/weapon-studio/*.test.mjs",
     "test:animation": "node --test scripts/tests/shared-animation/*.test.mjs",
     "test:animation-packages": "node --test scripts/tests/animation-packages/*.test.mjs",
@@ -33,13 +34,14 @@
     "test:persistence": "node --test --experimental-strip-types scripts/tests/persistence/*.test.mjs",
     "test:collectibles": "node --test scripts/tests/collectibles/*.test.mjs",
     "test:quests": "node --test scripts/tests/quests/*.test.mjs",
+    "test:npcs": "node --test scripts/tests/npcs/*.test.mjs",
     "test:ui": "node --test scripts/tests/modal-stack.test.mjs scripts/tests/crafting/*.test.mjs",
     "test:map-editor": "node --test scripts/tests/map-editor/*.test.mjs",
     "test:depth": "node scripts/test-depth.mjs",
     "test:game-constants": "node --test scripts/tests/game-constants/*.test.mjs",
     "test:progression": "node --test scripts/tests/progression/*.test.mjs",
     "build": "pnpm typecheck && vite build",
-    "check": "pnpm constants:check && pnpm assets:check && pnpm animations:check && pnpm visuals:check && pnpm characters:check && pnpm projectiles:check && pnpm effects:check && pnpm weapons:check && pnpm enemies:check && pnpm objects:check && pnpm maps:check && pnpm quests:check && pnpm test:game-constants && pnpm test:progression && pnpm test:character-studio && pnpm test:animation-packages && pnpm test:animation && pnpm test:weapon-studio && pnpm test:combat && pnpm test:object-animation && pnpm test:rendering && pnpm test:persistence && pnpm test:collectibles && pnpm test:quests && pnpm test:ui && pnpm test:map-editor && pnpm test:depth && pnpm typecheck && pnpm build",
+    "check": "pnpm constants:check && pnpm assets:check && pnpm animations:check && pnpm visuals:check && pnpm characters:check && pnpm projectiles:check && pnpm effects:check && pnpm weapons:check && pnpm enemies:check && pnpm objects:check && pnpm maps:check && pnpm quests:check && pnpm test:game-constants && pnpm test:progression && pnpm test:character-studio && pnpm test:animation-studio && pnpm test:animation-packages && pnpm test:animation && pnpm test:weapon-studio && pnpm test:combat && pnpm test:object-animation && pnpm test:rendering && pnpm test:persistence && pnpm test:collectibles && pnpm test:quests && pnpm test:npcs && pnpm test:ui && pnpm test:map-editor && pnpm test:depth && pnpm typecheck && pnpm build",
     "preview": "vite preview --port 3000"
   },
   "dependencies": {

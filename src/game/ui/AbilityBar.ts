@@ -1,6 +1,7 @@
 ﻿import Phaser from 'phaser';
 import type { AbilitySystem, AbilityId } from '../systems/AbilitySystem';
 import { resolveScreenUiDepth } from '../presentation/WorldDepth';
+import { createUiSkinImage } from '../presentation/UiSkin';
 
 /**
  * Bottom-center ability bar. Shows the two level-gated abilities (jump,
@@ -26,15 +27,16 @@ interface Slot {
 }
 
 const DEFS: { id: AbilityId; key: string; glyph: string; hotkey: string }[] = [
-  { id: 'jump', key: 'Space', glyph: 'â¤´', hotkey: 'Space' },
-  { id: 'squash-slam', key: 'T', glyph: 'â—‰', hotkey: 'T' },
-  { id: 'stretch-lash', key: 'R', glyph: 'âŸ¶', hotkey: 'R' },
-  { id: 'teleport', key: 'Y', glyph: 'âœ¦', hotkey: 'Y' },
+  { id: 'jump', key: 'Space', glyph: 'J', hotkey: 'Space' },
+  { id: 'squash-slam', key: 'T', glyph: 'S', hotkey: 'T' },
+  { id: 'stretch-lash', key: 'R', glyph: 'L', hotkey: 'R' },
+  { id: 'teleport', key: 'Y', glyph: 'T', hotkey: 'Y' },
 ];
 
 export class AbilityBar {
   private ctx: AbilityBarContext;
   private slots: Slot[] = [];
+  private readonly frame?: Phaser.GameObjects.Image;
 
   constructor(ctx: AbilityBarContext) {
     this.ctx = ctx;
@@ -45,6 +47,13 @@ export class AbilityBar {
     const totalW = DEFS.length * cell + (DEFS.length - 1) * gap;
     const startX = scene.cameras.main.width / 2 - totalW / 2;
     const y = scene.cameras.main.height - 70;
+    this.frame = createUiSkinImage(scene, 'ui.frame.organic-compact', {
+      x: scene.cameras.main.width / 2,
+      y: y + cell / 2,
+      width: totalW + 48,
+      height: 84,
+    }, 0.92);
+    this.frame?.setScrollFactor(0).setDepth(resolveScreenUiDepth(49));
 
     DEFS.forEach((def, i) => {
       const x = startX + i * (cell + gap);
@@ -98,7 +107,7 @@ export class AbilityBar {
       slot.locked.setVisible(false);
       slot.icon.setAlpha(1);
 
-      // Cooldown sweep â€” we don't expose remaining ms directly; approximate
+      // Cooldown sweep - we don't expose remaining ms directly; approximate
       // by re-drawing each frame. Read via a small reflection: the system
       // exposes isBusy + we can ask via a method. For now, no overlay when
       // not busy (ready). A fuller cooldown ring is added in Phase 2.
@@ -127,6 +136,9 @@ export class AbilityBar {
     const totalW = DEFS.length * cell + (DEFS.length - 1) * gap;
     const startX = w / 2 - totalW / 2;
     const y = h - 70;
+    this.frame
+      ?.setPosition(w / 2, y + cell / 2)
+      .setDisplaySize(totalW + 48, 84);
     this.slots.forEach((slot, i) => {
       const x = startX + i * (cell + gap);
       const cx = x + cell / 2;
@@ -142,6 +154,7 @@ export class AbilityBar {
 
   destroy(): void {
     this.ctx.scene.scale.off('resize', this.handleResize, this);
+    this.frame?.destroy();
     for (const s of this.slots) {
       s.bg.destroy();
       s.icon.destroy();

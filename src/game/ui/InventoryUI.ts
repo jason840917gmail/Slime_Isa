@@ -3,6 +3,7 @@ import { gameEvents } from '../core/EventBus';
 import { playerInventory, itemRegistry } from '../systems/Inventory';
 import { playerWeaponLoadout } from '../systems/WeaponLoadout';
 import { resolveScreenUiDepth } from '../presentation/WorldDepth';
+import { addUiSkin } from '../presentation/UiSkin';
 import { createWeaponThumbnail } from './WeaponThumbnail';
 import { ModalStack, type ModalHandle } from './ModalStack';
 
@@ -10,6 +11,15 @@ const FONT = 'Trebuchet MS, Segoe UI Variable, sans-serif';
 const COLS = 6;
 const CELL = 52;
 const GAP = 6;
+const PANEL_INSET = 16;
+const MIN_CELL = 36;
+const PANEL_BORDER_PADDING = {
+  top: 150,
+  right:140,
+  bottom: 150,
+  left: 170,
+} as const;
+const DETAIL_REGION_WIDTH_RATIO = 0.25;
 
 export interface InventoryUIContext {
   scene: Phaser.Scene;
@@ -25,6 +35,8 @@ export class InventoryUI {
   private readonly modalHandle: ModalHandle;
   private container?: Phaser.GameObjects.Container;
   private selectedItemId?: string;
+  private selectedSlotIndex?: number;
+  private removeQuantity = 1;
   private clickRegions: Array<{ x: number; y: number; width: number; height: number; onClick: () => void }> = [];
 
   constructor(ctx: InventoryUIContext) {
@@ -67,57 +79,80 @@ export class InventoryUI {
   private build(animate: boolean): void {
     const scene = this.ctx.scene;
     const cam = scene.cameras.main;
-    const panelW = 700;
-    const panelH = 360;
+    const slotCount = playerInventory.maxSlots();
+    const rowCount = Math.max(1, Math.ceil(slotCount / COLS));
+    const panelW = Math.max(320, cam.width - PANEL_INSET * 2);
+    const panelH = Math.max(360, cam.height - PANEL_INSET * 2);
+    const contentTop = -panelH / 2 + PANEL_BORDER_PADDING.top;
+    const contentHeight = Math.max(1, panelH - PANEL_BORDER_PADDING.top - PANEL_BORDER_PADDING.bottom);
+    const contentRight = panelW / 2 - PANEL_BORDER_PADDING.right;
+    const availableGridHeight = contentHeight;
+    const cell = Math.min(
+      CELL,
+      Math.max(MIN_CELL, Math.floor((availableGridHeight - (rowCount - 1) * GAP) / rowCount)),
+    );
+    const slotsX = -panelW / 2 + PANEL_BORDER_PADDING.left;
+    const detailWidth = Math.max(235, panelW * DETAIL_REGION_WIDTH_RATIO);
+    const detailX = contentRight - detailWidth;
+    const detailHeight = contentHeight;
     const container = scene.add.container(cam.width / 2, cam.height / 2).setScrollFactor(0).setDepth(resolveScreenUiDepth(90));
     this.container = container;
     this.clickRegions = [];
 
-    container.add(scene.add.rectangle(0, 0, cam.width, cam.height, 0x000000, 0.5).setOrigin(0.5));
+    //container.add(scene.add.rectangle(0, 0, cam.width, cam.height, 0x000000, 0.5).setOrigin(0.5));
 
-    const bg = scene.add.graphics();
-    bg.fillStyle(0x101a31, 0.97);
-    bg.fillRoundedRect(-panelW / 2, -panelH / 2, panelW, panelH, 12);
-    bg.lineStyle(2, 0x3b5c78, 0.8);
-    bg.strokeRoundedRect(-panelW / 2, -panelH / 2, panelW, panelH, 12);
-    container.add(bg);
+    const skin = addUiSkin(scene, container, 'ui.backplate.inventory', {
+      x: 0,
+      y: 0,
+      width: panelW,
+      height: panelH,
+    });
+    if (!skin) {
+      const bg = scene.add.graphics();
+      bg.fillStyle(0x101a31, 0.97);
+      bg.fillRoundedRect(-panelW / 2, -panelH / 2, panelW, panelH, 12);
+      bg.lineStyle(2, 0x3b5c78, 0.8);
+      bg.strokeRoundedRect(-panelW / 2, -panelH / 2, panelW, panelH, 12);
+      container.add(bg);
+    }
 
-    container.add(scene.add.text(-panelW / 2 + 18, -panelH / 2 + 18, 'Inventory', {
+    container.add(scene.add.text(slotsX, -panelH / 2 + 18, 'Inventory', {
       fontFamily: FONT,
       fontSize: '18px',
       color: '#d7f6e9',
     }).setOrigin(0, 0));
 
-    container.add(scene.add.text(panelW / 2 - 18, -panelH / 2 + 20, 'Tab / Esc to close', {
+    container.add(scene.add.text(contentRight, -panelH / 2 + 20, 'Tab / Esc to close', {
       fontFamily: FONT,
       fontSize: '11px',
       color: '#88c899',
     }).setOrigin(1, 0));
 
-    this.renderSlots(-panelW / 2 + 24, -panelH / 2 + 58);
-    this.renderDetails(95, -panelH / 2 + 58, 235, panelH - 86);
+    this.renderSlots(slotsX, contentTop, cell);
+    this.renderDetails(detailX, contentTop, detailWidth, detailHeight);
 
     if (animate) {
       scene.tweens.add({ targets: container, alpha: { from: 0, to: 1 }, duration: 140 });
     }
   }
 
-  private renderSlots(startX: number, startY: number): void {
+  private renderSlots(startX: number, startY: number, cell: number): void {
     const scene = this.ctx.scene;
     if (!this.container) return;
 
     const slots = playerInventory.getSlots();
+    const iconSize = Math.min(34, cell - 12);
 
     for (let i = 0; i < playerInventory.maxSlots(); i += 1) {
       const col = i % COLS;
       const row = Math.floor(i / COLS);
-      const x = startX + col * (CELL + GAP) + CELL / 2;
-      const y = startY + row * (CELL + GAP) + CELL / 2;
+      const x = startX + col * (cell + GAP) + cell / 2;
+      const y = startY + row * (cell + GAP) + cell / 2;
       const slot = slots[i];
-      const selected = !!slot && slot.itemId === this.selectedItemId;
+      const selected = !!slot && i === this.selectedSlotIndex;
 
       const slotBg = scene.add
-        .rectangle(x, y, CELL, CELL, selected ? 0x244e56 : 0x182b46, 0.95)
+        .rectangle(x, y, cell, cell, selected ? 0x244e56 : 0x182b46, 0.95)
         .setStrokeStyle(selected ? 3 : 1, selected ? 0xffdf8a : 0x3b5c78, selected ? 1 : 0.7);
       this.container.add(slotBg);
 
@@ -127,13 +162,13 @@ export class InventoryUI {
       if (!def) continue;
 
       const thumbnail = def.equipment
-        ? createWeaponThumbnail(scene, def.equipment.weaponId, { x, y, size: 34 })
+        ? createWeaponThumbnail(scene, def.equipment.weaponId, { x, y, size: iconSize })
         : undefined;
       if (thumbnail) this.container.add(thumbnail);
-      else if (!def.equipment) this.container.add(scene.add.image(x, y, def.icon, def.iconFrame).setDisplaySize(34, 34));
+      else if (!def.equipment) this.container.add(scene.add.image(x, y, def.icon, def.iconFrame).setDisplaySize(iconSize, iconSize));
 
       if (slot.count > 1) {
-        this.container.add(scene.add.text(x + CELL / 2 - 4, y + CELL / 2 - 4, `${slot.count}`, {
+        this.container.add(scene.add.text(x + cell / 2 - 4, y + cell / 2 - 4, `${slot.count}`, {
           fontFamily: FONT,
           fontSize: '11px',
           color: '#ffd277',
@@ -142,8 +177,10 @@ export class InventoryUI {
         }).setOrigin(1, 1));
       }
 
-      this.addClickRegion(x - CELL / 2, y - CELL / 2, CELL, CELL, () => {
+      this.addClickRegion(x - cell / 2, y - cell / 2, cell, cell, () => {
         this.selectedItemId = slot.itemId;
+        this.selectedSlotIndex = i;
+        this.removeQuantity = 1;
         this.refresh();
       });
     }
@@ -153,12 +190,6 @@ export class InventoryUI {
     const scene = this.ctx.scene;
     if (!this.container) return;
 
-    const detailBg = scene.add.graphics();
-    detailBg.fillStyle(0x172543, 0.96);
-    detailBg.fillRoundedRect(x, y, width, height, 10);
-    detailBg.lineStyle(1.5, 0x3b5c78, 0.8);
-    detailBg.strokeRoundedRect(x, y, width, height, 10);
-    this.container.add(detailBg);
 
     if (!this.selectedItemId) {
       this.container.add(scene.add.text(x + width / 2, y + height / 2, 'Select an item', {
@@ -169,9 +200,13 @@ export class InventoryUI {
       return;
     }
 
+    const selectedSlot = this.selectedSlotIndex === undefined
+      ? undefined
+      : playerInventory.getSlots()[this.selectedSlotIndex];
     const def = itemRegistry.get(this.selectedItemId);
-    const count = playerInventory.count(this.selectedItemId);
+    const count = selectedSlot?.itemId === this.selectedItemId ? selectedSlot.count : 0;
     if (!def || count <= 0) return;
+    this.removeQuantity = Phaser.Math.Clamp(this.removeQuantity, 1, count);
 
     const thumbnail = def.equipment
       ? createWeaponThumbnail(scene, def.equipment.weaponId, { x: x + 30, y: y + 32, size: 38 })
@@ -185,7 +220,7 @@ export class InventoryUI {
       stroke: '#0b1020',
       strokeThickness: 3,
     }).setOrigin(0, 0));
-    this.container.add(scene.add.text(x + 58, y + 42, `${def.category}  Â·  x${count}`, {
+    this.container.add(scene.add.text(x + 58, y + 42, `${def.category}  ·  x${count}`, {
       fontFamily: FONT,
       fontSize: '11px',
       color: '#ffd277',
@@ -228,7 +263,7 @@ export class InventoryUI {
         def.use.healHp ? `Heal HP +${def.use.healHp}` : '',
         def.use.healEnergy ? `Energy +${def.use.healEnergy}` : '',
         def.use.cureStatus?.length ? `Cures ${def.use.cureStatus.join(', ')}` : '',
-      ].filter(Boolean).join('  Â·  ');
+      ].filter(Boolean).join('  ·  ');
       this.container.add(scene.add.text(x + 16, y + 148, effects, {
         fontFamily: FONT,
         fontSize: '11px',
@@ -246,22 +281,52 @@ export class InventoryUI {
         fontSize: '9px',
         color: '#6f8794',
       }).setOrigin(0, 0.5));
-    } else if (def.use) {
-      this.addButton(x + 16, y + height - 52, 92, 34, 'Use', 0x86f0c3, () => {
-        if (!this.selectedItemId) return;
-        this.ctx.onUseItem(this.selectedItemId);
-      });
     } else {
-      this.addButton(x + 16, y + height - 52, 92, 34, 'No Use', 0x253552, undefined);
-    }
+      const quantityY = y + height - 94;
+      this.addButton(x + 16, quantityY, 36, 30, '-10', 0x2b6070, () => this.adjustRemoveQuantity(-10, count));
+      this.addButton(x + 56, quantityY, 30, 30, '-1', 0x2b6070, () => this.adjustRemoveQuantity(-1, count));
+      this.container.add(scene.add.text(x + 112, quantityY + 15, `${this.removeQuantity}`, {
+        fontFamily: FONT,
+        fontSize: '13px',
+        color: '#ffd277',
+      }).setOrigin(0.5));
+      this.addButton(x + 138, quantityY, 30, 30, '+1', 0x2b6070, () => this.adjustRemoveQuantity(1, count));
+      this.addButton(x + 172, quantityY, 46, 30, '+10', 0x2b6070, () => this.adjustRemoveQuantity(10, count));
 
-    if (!def.equipment) {
-      this.addButton(x + 124, y + height - 52, 92, 34, 'Delete 1', 0xff8f7a, () => {
-        if (!this.selectedItemId) return;
-        playerInventory.remove(this.selectedItemId, 1);
-        if (playerInventory.count(this.selectedItemId) <= 0) this.selectedItemId = undefined;
-      });
+      const actionY = y + height - 52;
+      if (def.use) {
+        this.addButton(x + 16, actionY, 58, 34, 'Use', 0x86f0c3, () => {
+          if (this.selectedItemId) this.ctx.onUseItem(this.selectedItemId);
+        });
+        this.addButton(x + 78, actionY, 88, 34, `Remove ${this.removeQuantity}`, 0xff8f7a, () => this.removeSelected(false));
+        this.addButton(x + 170, actionY, 48, 34, 'All', 0xff6f88, () => this.removeSelected(true));
+      } else {
+        this.addButton(x + 16, actionY, 120, 34, `Remove ${this.removeQuantity}`, 0xff8f7a, () => this.removeSelected(false));
+        this.addButton(x + 140, actionY, 78, 34, 'Remove All', 0xff6f88, () => this.removeSelected(true));
+      }
     }
+  }
+
+  private adjustRemoveQuantity(delta: number, available: number): void {
+    this.removeQuantity = Phaser.Math.Clamp(this.removeQuantity + delta, 1, available);
+    this.refresh();
+  }
+
+  private removeSelected(removeAll: boolean): void {
+    if (this.selectedItemId === undefined || this.selectedSlotIndex === undefined) return;
+    const slotIndex = this.selectedSlotIndex;
+    const selectedSlot = playerInventory.getSlots()[slotIndex];
+    if (!selectedSlot || selectedSlot.itemId !== this.selectedItemId) return;
+    const available = selectedSlot.count;
+    const quantity = removeAll ? available : Phaser.Math.Clamp(this.removeQuantity, 1, available);
+    if (quantity >= available) {
+      this.selectedItemId = undefined;
+      this.selectedSlotIndex = undefined;
+      this.removeQuantity = 1;
+    } else {
+      this.removeQuantity = Math.min(this.removeQuantity, available - quantity);
+    }
+    playerInventory.removeFromSlot(slotIndex, quantity);
   }
 
   private addButton(x: number, y: number, width: number, height: number, label: string, color: number, onClick?: () => void): void {
@@ -303,8 +368,12 @@ export class InventoryUI {
   };
 
   private ensureSelectedItem(): void {
-    if (this.selectedItemId && playerInventory.count(this.selectedItemId) > 0) return;
-    this.selectedItemId = playerInventory.getSlots()[0]?.itemId;
+    const slots = playerInventory.getSlots();
+    const selectedSlot = this.selectedSlotIndex === undefined ? undefined : slots[this.selectedSlotIndex];
+    if (selectedSlot && selectedSlot.itemId === this.selectedItemId) return;
+    this.selectedSlotIndex = slots.length > 0 ? 0 : undefined;
+    this.selectedItemId = slots[0]?.itemId;
+    this.removeQuantity = 1;
   }
 
   public close(): void {

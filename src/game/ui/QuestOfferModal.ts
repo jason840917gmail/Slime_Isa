@@ -3,6 +3,7 @@ import type { QuestOfferView, QuestView } from '../content/quests/types';
 import { questService, type QuestCommandResult } from '../quests/QuestService';
 import { ModalStack, type ModalHandle } from './ModalStack';
 import { resolveScreenUiDepth } from '../presentation/WorldDepth';
+import { addUiSkin } from '../presentation/UiSkin';
 
 const FONT = 'Trebuchet MS, Segoe UI Variable, sans-serif';
 
@@ -10,6 +11,7 @@ export class QuestOfferModal {
   private readonly handle: ModalHandle;
   private container?: Phaser.GameObjects.Container;
   private errorText?: Phaser.GameObjects.Text;
+  private session?: { readonly token: symbol; readonly onClosed?: () => void };
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -22,45 +24,46 @@ export class QuestOfferModal {
     });
   }
 
-  openOffer(offer: QuestOfferView, onFinished?: () => void): void {
+  openOffer(offer: QuestOfferView, onFinished?: () => void, onClosed?: () => void): void {
     this.close();
     const def = offer.quest.definition;
     this.build(def.title, offer.quest, offer.npcId, 'Accept quest', () => {
       this.runCommand(() => questService.accept(def.id, offer.npcId), onFinished);
     }, () => {
       this.runCommand(() => questService.decline(def.id, offer.npcId), onFinished);
-    });
+    }, onClosed);
   }
 
-  openTurnIn(quest: QuestView, npcId: string, onFinished?: () => void): void {
+  openTurnIn(quest: QuestView, npcId: string, onFinished?: () => void, onClosed?: () => void): void {
     this.close();
     this.build(`Complete: ${quest.definition.title}`, quest, npcId, 'Turn in and claim reward', () => {
       this.runCommand(() => questService.turnIn(quest.questId, npcId), onFinished);
     }, () => {
-      onFinished?.();
-      this.close();
-    });
+      try {
+        onFinished?.();
+      } finally {
+        this.close();
+      }
+    }, onClosed);
   }
 
   close(): void {
-    if (!this.container) {
-      this.handle.close();
-      return;
-    }
     this.handle.close();
-    this.container.destroy();
-    this.container = undefined;
-    this.errorText = undefined;
-    this.onPausedChange(false);
-  }
-
-  destroy(): void {
-    const wasOpen = !!this.container;
     this.container?.destroy();
     this.container = undefined;
     this.errorText = undefined;
+    const session = this.session;
+    this.session = undefined;
+    try {
+      this.onPausedChange(false);
+    } finally {
+      session?.onClosed?.();
+    }
+  }
+
+  destroy(): void {
+    this.close();
     this.handle.unregister();
-    if (wasOpen) this.onPausedChange(false);
   }
 
   private build(
@@ -70,19 +73,29 @@ export class QuestOfferModal {
     confirmLabel: string,
     confirm: () => void,
     decline: () => void,
+    onClosed?: () => void,
   ): void {
     const cam = this.scene.cameras.main;
     const container = this.scene.add.container(cam.width / 2, cam.height / 2)
       .setScrollFactor(0).setDepth(resolveScreenUiDepth(130));
     this.container = container;
+    this.session = { token: Symbol('quest-offer'), onClosed };
     const w = 560;
     const h = 360;
-    const bg = this.scene.add.graphics();
-    bg.fillStyle(0x101a31, 0.98);
-    bg.fillRoundedRect(-w / 2, -h / 2, w, h, 16);
-    bg.lineStyle(2, 0x73e2b1, 0.9);
-    bg.strokeRoundedRect(-w / 2, -h / 2, w, h, 16);
-    container.add(bg);
+    const skin = addUiSkin(this.scene, container, 'ui.frame.quest-offer-scroll', {
+      x: 0,
+      y: 0,
+      width: w,
+      height: h,
+    });
+    if (!skin) {
+      const bg = this.scene.add.graphics();
+      bg.fillStyle(0x101a31, 0.98);
+      bg.fillRoundedRect(-w / 2, -h / 2, w, h, 16);
+      bg.lineStyle(2, 0x73e2b1, 0.9);
+      bg.strokeRoundedRect(-w / 2, -h / 2, w, h, 16);
+      container.add(bg);
+    }
     container.add(this.scene.add.text(0, -h / 2 + 28, title, {
       fontFamily: FONT, fontSize: '22px', color: '#e7fff5', stroke: '#0b1020', strokeThickness: 4,
     }).setOrigin(0.5));
@@ -126,8 +139,11 @@ export class QuestOfferModal {
         this.showError(result.reason);
         return;
       }
-      onFinished?.();
-      this.close();
+      try {
+        onFinished?.();
+      } finally {
+        this.close();
+      }
     } catch (error) {
       this.showError(error instanceof Error ? error.message : 'The quest action failed.');
     }

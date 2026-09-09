@@ -32,7 +32,6 @@ import { ensureStudioModeTabs } from './StudioModeTabs';
 import { createAnimationTimelineView, formatAnimationTimelineSeconds, previewTargetAtKeyframe, renderTimelineHoldControls, renderTimelineKeyframeTimingLabels, renderTimelineResizeHandle, toggleTimelineSelection, type AnimationTimelineKeyframeView } from './AnimationTimelineView';
 import { renderAnimationTimelinePanel, renderAnimationTimelineRuler } from './AnimationTimelinePanel';
 import { TimelineHoldResizeController } from './AnimationTimelineResize';
-import { mountAnimationStudio } from './AnimationStudio';
 import { mountLayeredWeaponStudio } from './LayeredWeaponStudio';
 import { renderWeaponHitboxGuides as renderSharedWeaponHitboxGuides } from './WeaponHitboxGuides';
 import {
@@ -1833,14 +1832,11 @@ export function mountWeaponStudio(container: HTMLDivElement): () => void {
   };
   const showAnimation = (animationId: string): void => {
     if (disposed) return;
-    activeCleanup?.();
-    updateUrl({ animationId });
-    activeCleanup = mountAnimationStudio(container, {
-      initialAnimationId: animationId,
-      expandedFolders,
-      onExpandedFoldersChange: rememberFolders,
-      onSelectWeapon: showWeapon,
-    });
+    const query = new URLSearchParams(window.location.search);
+    query.set('studio', 'animations');
+    query.set('animation', animationId);
+    query.delete('weapon');
+    window.location.assign(`?${query.toString()}`);
   };
 
   const query = new URLSearchParams(window.location.search);

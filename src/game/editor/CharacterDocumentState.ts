@@ -41,6 +41,21 @@ export interface CharacterDocumentSnapshot extends CharacterPackage {
 type Listener = (snapshot: CharacterDocumentSnapshot) => void;
 type Mutation = (draft: CharacterPackage) => void;
 
+interface SelectionState {
+  readonly clipId: string;
+  readonly timelineIndex: number;
+  readonly sourceFrame: number;
+  readonly sourceFrames: readonly number[];
+}
+
+interface HistoryEntry {
+  readonly label: string;
+  readonly before: CharacterPackage;
+  readonly after: CharacterPackage;
+  readonly beforeSelection: SelectionState;
+  readonly afterSelection: SelectionState;
+}
+
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
 }
@@ -57,8 +72,8 @@ export class CharacterDocumentState {
   private saveState: CharacterSaveState = 'clean';
   private statusMessage = 'Saved package';
   private previewRevision = 0;
-  private readonly undoStack: Array<{ label: string; before: CharacterPackage; after: CharacterPackage }> = [];
-  private readonly redoStack: Array<{ label: string; before: CharacterPackage; after: CharacterPackage }> = [];
+  private readonly undoStack: HistoryEntry[] = [];
+  private readonly redoStack: HistoryEntry[] = [];
   private readonly listeners = new Set<Listener>();
 
   constructor(packageValue: CharacterPackage, revision: string) {
@@ -118,9 +133,10 @@ export class CharacterDocumentState {
 
   mutate(label: string, mutation: Mutation): boolean {
     const before = cloneCharacterPackage(this.draft);
+    const beforeSelection = this.captureSelection();
     mutation(this.draft);
     if (JSON.stringify(before) === JSON.stringify(this.draft)) return false;
-    this.undoStack.push({ label, before, after: cloneCharacterPackage(this.draft) });
+    this.undoStack.push({ label, before, after: cloneCharacterPackage(this.draft), beforeSelection, afterSelection: this.captureSelection() });
     this.redoStack.length = 0;
     this.previewRevision += 1;
     this.saveState = 'dirty';
@@ -129,26 +145,30 @@ export class CharacterDocumentState {
     return true;
   }
 
-  undo(): void {
+  undo(): boolean {
     const command = this.undoStack.pop();
-    if (!command) return;
+    if (!command) return false;
     this.redoStack.push({ ...command });
     this.draft = cloneCharacterPackage(command.before);
+    this.restoreSelection(command.beforeSelection);
     this.previewRevision += 1;
     this.saveState = 'dirty';
     this.statusMessage = `Undid ${command.label}`;
     this.revalidate();
+    return true;
   }
 
-  redo(): void {
+  redo(): boolean {
     const command = this.redoStack.pop();
-    if (!command) return;
+    if (!command) return false;
     this.undoStack.push({ ...command });
     this.draft = cloneCharacterPackage(command.after);
+    this.restoreSelection(command.afterSelection);
     this.previewRevision += 1;
     this.saveState = 'dirty';
     this.statusMessage = `Redid ${command.label}`;
     this.revalidate();
+    return true;
   }
 
   addClip(clipId: string): boolean {
@@ -205,7 +225,11 @@ export class CharacterDocumentState {
 
   insertSelectedFrames(frames: readonly number[]): boolean {
     return this.mutate(`Inserted ${frames.length} timeline frame${frames.length === 1 ? '' : 's'}`, (draft) => {
-      insertTimelineFrames(draft.character, draft.visualSet, this.selectedClipId, this.selectedTimelineIndex, frames);
+      const result = insertTimelineFrames(draft.character, draft.visualSet, this.selectedClipId, this.selectedTimelineIndex, frames);
+      if (!result) return;
+      this.selectedTimelineIndex = result.insertedIndex;
+      this.selectedSourceFrame = draft.visualSet.clips[this.selectedClipId]?.frames[result.insertedIndex] ?? this.selectedSourceFrame;
+      this.selectedSourceFrames.clear();
     });
   }
 
@@ -214,7 +238,13 @@ export class CharacterDocumentState {
   }
 
   duplicateSelectedFrame(): boolean {
-    return this.mutate('Duplicated timeline frame', (draft) => duplicateTimelineFrame(draft.character, draft.visualSet, this.selectedClipId, this.selectedTimelineIndex));
+    return this.mutate('Duplicated timeline frame', (draft) => {
+      const result = duplicateTimelineFrame(draft.character, draft.visualSet, this.selectedClipId, this.selectedTimelineIndex);
+      if (!result) return;
+      this.selectedTimelineIndex = result.insertedIndex;
+      this.selectedSourceFrame = draft.visualSet.clips[this.selectedClipId]?.frames[result.insertedIndex] ?? this.selectedSourceFrame;
+      this.selectedSourceFrames.clear();
+    });
   }
 
   reorderFrame(to: number): boolean {
@@ -316,6 +346,15 @@ export class CharacterDocumentState {
     return this.mutate(`Reset frame ${frame} alignment`, (draft) => { delete draft.visualSet.frameVisuals?.[String(frame)]; });
   }
 
+  changeSourceSheet(assetId: string): boolean {
+    const nextAssetId = assetId.trim();
+    if (!nextAssetId) return false;
+    return this.mutate('Changed source sheet', (draft) => {
+      if (draft.visualSet.assetId === nextAssetId) return;
+      draft.visualSet.assetId = nextAssetId;
+    });
+  }
+
   updateBody(body: Partial<CharacterBodyDocument>): boolean {
     return this.mutate('Updated stable body', (draft) => {
       draft.character.body = { ...draft.character.body, ...clone(body) };
@@ -337,6 +376,7 @@ export class CharacterDocumentState {
   }
 
   updateAttributes(attributes: Partial<CharacterAttributeSet>): boolean {
+    if (this.draft.character.kind === 'npc') return false;
     return this.mutate('Updated character attributes', (draft) => {
       if (draft.character.kind === 'player') return;
       draft.character.attributes = {
@@ -351,6 +391,7 @@ export class CharacterDocumentState {
   }
 
   updateHitbox(hitboxId: string, hitbox: Partial<CharacterHitboxDocument>): boolean {
+    if (this.draft.character.kind === 'npc') return false;
     return this.mutate(`Updated ${hitboxId} hitbox`, (draft) => {
       const current = draft.character.hitboxes[hitboxId] ?? { shape: 'rectangle' as const, width: 1, height: 1, offsetX: 0, offsetY: 0, mirrorX: false };
       draft.character.hitboxes[hitboxId] = { ...current, ...clone(hitbox) };
@@ -407,6 +448,7 @@ export class CharacterDocumentState {
   }
 
   addHitbox(hitboxId: string): boolean {
+    if (this.draft.character.kind === 'npc') return false;
     return this.mutate(`Added ${hitboxId} hitbox`, (draft) => {
       if (!/^[a-z0-9]+(?:[.-][a-z0-9-]+)*$/.test(hitboxId) || draft.character.hitboxes[hitboxId]) return;
       draft.character.hitboxes[hitboxId] = { shape: 'rectangle', width: 24, height: 16, offsetX: 18, offsetY: 0, mirrorX: true };
@@ -414,18 +456,20 @@ export class CharacterDocumentState {
   }
 
   removeHitbox(hitboxId: string): boolean {
+    if (this.draft.character.kind === 'npc') return false;
     return this.mutate(`Removed ${hitboxId} hitbox`, (draft) => {
       delete draft.character.hitboxes[hitboxId];
       for (const track of Object.values(draft.character.animationTracks)) track.hitboxSpans = track.hitboxSpans?.filter((span) => span.hitboxId !== hitboxId);
     });
   }
 
-  addSpan(span: HitboxSpanDocument): boolean { return this.mutate('Added hitbox span', (draft) => addTrackSpan(draft.character, this.selectedClipId, span)); }
-  removeSpan(index: number): boolean { return this.mutate('Removed hitbox span', (draft) => removeTrackSpan(draft.character, this.selectedClipId, index)); }
-  addEvent(event: CharacterEventDocument): boolean { return this.mutate('Added event marker', (draft) => addTrackEvent(draft.character, this.selectedClipId, event)); }
+  addSpan(span: HitboxSpanDocument): boolean { return this.draft.character.kind === 'npc' ? false : this.mutate('Added hitbox span', (draft) => addTrackSpan(draft.character, this.selectedClipId, span)); }
+  removeSpan(index: number): boolean { return this.draft.character.kind === 'npc' ? false : this.mutate('Removed hitbox span', (draft) => removeTrackSpan(draft.character, this.selectedClipId, index)); }
+  addEvent(event: CharacterEventDocument): boolean { return this.draft.character.kind === 'npc' && !event.eventId.startsWith('npc.') ? false : this.mutate('Added event marker', (draft) => addTrackEvent(draft.character, this.selectedClipId, event)); }
   removeEvent(index: number): boolean { return this.mutate('Removed event marker', (draft) => removeTrackEvent(draft.character, this.selectedClipId, index)); }
 
   updateGameplay(path: string[], value: JsonValue): boolean {
+    if (path.length === 0 || (this.draft.character.kind === 'npc' ? path[0] !== 'npc' : path[0] === 'npc')) return false;
     return this.mutate(`Updated ${path.join('.')}`, (draft) => {
       let cursor: Record<string, unknown> = draft.character as unknown as Record<string, unknown>;
       for (const segment of path.slice(0, -1)) {
@@ -458,6 +502,22 @@ export class CharacterDocumentState {
   }
 
   private emit(): void { for (const listener of this.listeners) listener(this.value); }
+
+  private captureSelection(): SelectionState {
+    return { clipId: this.selectedClipId, timelineIndex: this.selectedTimelineIndex, sourceFrame: this.selectedSourceFrame, sourceFrames: [...this.selectedSourceFrames] };
+  }
+
+  private restoreSelection(selection: SelectionState): void {
+    const clip = this.draft.visualSet.clips[selection.clipId];
+    this.selectedClipId = clip ? selection.clipId : Object.keys(this.draft.visualSet.clips)[0] ?? '';
+    const activeClip = this.draft.visualSet.clips[this.selectedClipId];
+    this.selectedTimelineIndex = activeClip && activeClip.frames.length > 0
+      ? Math.max(0, Math.min(selection.timelineIndex, activeClip.frames.length - 1))
+      : 0;
+    this.selectedSourceFrame = activeClip?.frames[this.selectedTimelineIndex] ?? selection.sourceFrame;
+    this.selectedSourceFrames.clear();
+    for (const frame of selection.sourceFrames) this.selectedSourceFrames.add(frame);
+  }
 }
 
 export { canonicalizeSpans };

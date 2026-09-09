@@ -10,7 +10,7 @@
     "version": { "const": 1 },
     "characterId": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$", "minLength": 1, "maxLength": 80 },
     "displayName": { "type": "string", "minLength": 1, "maxLength": 80 },
-    "kind": { "enum": ["player", "enemy"] },
+    "kind": { "enum": ["player", "enemy", "npc"] },
     "runtimeRole": { "const": "primary-player" },
     "visualSetId": { "type": "string", "pattern": "^[a-z0-9]+(?:[.-][a-z0-9-]+)+$", "minLength": 3, "maxLength": 120 },
     "attributes": {
@@ -33,11 +33,21 @@
       "propertyNames": { "$ref": "#/$defs/stableId" }
     },
     "player": { "$ref": "#/$defs/player" },
-    "enemy": { "$ref": "#/$defs/enemy" }
+    "enemy": { "$ref": "#/$defs/enemy" },
+    "npc": { "$ref": "#/$defs/npc" }
   },
   "allOf": [
     { "if": { "properties": { "kind": { "const": "player" } } }, "then": { "required": ["player"], "not": { "anyOf": [{ "required": ["enemy"] }, { "required": ["attributes"] }] } } },
     { "if": { "properties": { "kind": { "const": "enemy" } } }, "then": { "required": ["enemy"], "not": { "required": ["player", "runtimeRole"] } } }
+    ,{ "if": { "properties": { "kind": { "const": "npc" } } }, "then": {
+      "required": ["npc"],
+      "not": { "anyOf": [
+        { "required": ["player"] },
+        { "required": ["enemy"] },
+        { "required": ["runtimeRole"] },
+        { "required": ["attributes"] }
+      ] }
+    } }
   ],
   "$defs": {
     "stableId": { "type": "string", "pattern": "^[a-z0-9]+(?:[.-][a-z0-9-]+)*$", "minLength": 1, "maxLength": 80 },
@@ -98,6 +108,15 @@
       "type": "object", "additionalProperties": false, "required": ["name"],
       "properties": {
         "name": { "type": "string", "minLength": 1, "maxLength": 80 }
+      }
+    },
+    "npc": {
+      "type": "object", "additionalProperties": false,
+      "required": ["wanderSpeed", "pauseMinMs", "pauseMaxMs"],
+      "properties": {
+        "wanderSpeed": { "type": "number", "exclusiveMinimum": 0 },
+        "pauseMinMs": { "type": "integer", "minimum": 0 },
+        "pauseMaxMs": { "type": "integer", "minimum": 0 }
       }
     },
     "enemy": {
