@@ -1,8 +1,7 @@
 import Phaser from 'phaser';
 import { gameEvents } from '../../core/EventBus';
 import { getNpcDefinition } from '../../content/npcs/NpcCatalog';
-import { getObjectArchetype, isObjectArchetypeId } from '../../content/objects/ObjectCatalog';
-import type { BuiltObjectRegistration } from '../world/MapBuilder';
+import type { BuiltNpcRegistration } from '../world/MapBuilder';
 import { questService } from '../../quests/QuestService';
 import { QuestOfferModal } from '../../ui/QuestOfferModal';
 import type { InteractionCandidate, InteractionRouter, InteractionProvider } from './InteractionRouter';
@@ -10,9 +9,17 @@ import type { InteractionCandidate, InteractionRouter, InteractionProvider } fro
 const NPC_INTERACT_DISTANCE = 96;
 
 interface QuestNpcRecord {
-  readonly image: Phaser.GameObjects.Image;
+  readonly actor: NpcActorHandle;
   readonly instanceId: string;
   readonly npcId: string;
+}
+
+export interface NpcActorHandle {
+  readonly instanceId: string;
+  readonly npcId: string;
+  isActive(): boolean;
+  getPosition(): { readonly x: number; readonly y: number };
+  acquireInteractionLock(): () => void;
 }
 
 export interface QuestNpcControllerContext {
@@ -28,6 +35,7 @@ export interface QuestNpcControllerContext {
 export class QuestNpcController implements InteractionProvider {
   private readonly records: QuestNpcRecord[] = [];
   private readonly modal: QuestOfferModal;
+  private readonly pendingReleases = new Set<() => void>();
   private unregisterRouter?: () => void;
   private disposed = false;
 
@@ -35,13 +43,9 @@ export class QuestNpcController implements InteractionProvider {
     this.modal = new QuestOfferModal(ctx.scene, ctx.modalStack, ctx.onPausedChange);
   }
 
-  register(registration: BuiltObjectRegistration): void {
-    if (!isObjectArchetypeId(registration.objectId)) return;
-    const definition = getObjectArchetype(registration.objectId);
-    const npcId = registration.npcDefinitionId ?? definition.npc?.definitionId;
-    if (!npcId || !getNpcDefinition(npcId)) return;
-    this.records.push({ image: registration.image, instanceId: registration.instanceId, npcId });
-    registration.image.setData('npcId', npcId);
+  register(registration: BuiltNpcRegistration): void {
+    if (!getNpcDefinition(registration.npcDefinitionId)) return;
+    this.records.push({ actor: registration.actor, instanceId: registration.instanceId, npcId: registration.npcDefinitionId });
   }
 
   finalize(): void {
@@ -54,8 +58,9 @@ export class QuestNpcController implements InteractionProvider {
     const player = this.ctx.getPlayer();
     let best: { record: QuestNpcRecord; distance: number; candidate: InteractionCandidate } | undefined;
     for (const record of this.records) {
-      if (!record.image.active || !record.image.visible) continue;
-      const distance = Phaser.Math.Distance.Between(player.x, player.y, record.image.x, record.image.y);
+      if (!record.actor.isActive()) continue;
+      const position = record.actor.getPosition();
+      const distance = Phaser.Math.Distance.Between(player.x, player.y, position.x, position.y);
       if (distance > NPC_INTERACT_DISTANCE) continue;
       const candidate = this.candidateFor(record);
       if (!best || candidate.priority > best.candidate.priority
@@ -74,7 +79,13 @@ export class QuestNpcController implements InteractionProvider {
         prompt: `F  Return to ${getNpcDefinition(record.npcId)?.displayName ?? record.npcId}`,
         priority: 100,
         execute: () => {
-          this.modal.openTurnIn(turnIn, record.npcId, () => this.talked(record.npcId));
+          const release = record.actor.acquireInteractionLock();
+          try {
+            this.modal.openTurnIn(turnIn, record.npcId, () => this.talked(record.npcId), release);
+          } catch (error) {
+            release();
+            throw error;
+          }
           return true;
         },
       };
@@ -86,7 +97,13 @@ export class QuestNpcController implements InteractionProvider {
         prompt: `F  Talk to ${getNpcDefinition(record.npcId)?.displayName ?? record.npcId}`,
         priority: 90,
         execute: () => {
-          this.modal.openOffer(offer, () => this.talked(record.npcId));
+          const release = record.actor.acquireInteractionLock();
+          try {
+            this.modal.openOffer(offer, () => this.talked(record.npcId), release);
+          } catch (error) {
+            release();
+            throw error;
+          }
           return true;
         },
       };
@@ -98,17 +115,32 @@ export class QuestNpcController implements InteractionProvider {
         prompt: `F  Resume quest with ${getNpcDefinition(record.npcId)?.displayName ?? record.npcId}`,
         priority: 85,
         execute: () => {
-          const result = questService.reoffer(reoffer.quest.questId, record.npcId);
+          const release = record.actor.acquireInteractionLock();
+          let result: ReturnType<typeof questService.reoffer>;
+          try {
+            result = questService.reoffer(reoffer.quest.questId, record.npcId);
+          } catch (error) {
+            const position = record.actor.getPosition();
+            this.showTemporaryMessage(release, position.x, position.y - 52, error instanceof Error ? error.message : 'The quest could not be reopened.', 'red', true);
+            return true;
+          }
           if (!result.ok) {
-            this.ctx.showMessage(record.image.x, record.image.y - 52, result.reason, 'red', true);
+            const position = record.actor.getPosition();
+            this.showTemporaryMessage(release, position.x, position.y - 52, result.reason, 'red', true);
             return true;
           }
           const refreshed = questService.get(reoffer.quest.questId);
           if (!refreshed) {
-            this.ctx.showMessage(record.image.x, record.image.y - 52, 'The quest could not be reopened.', 'red', true);
+            const position = record.actor.getPosition();
+            this.showTemporaryMessage(release, position.x, position.y - 52, 'The quest could not be reopened.', 'red', true);
             return true;
           }
-          this.modal.openOffer({ quest: refreshed, npcId: record.npcId }, () => this.talked(record.npcId));
+          try {
+            this.modal.openOffer({ quest: refreshed, npcId: record.npcId }, () => this.talked(record.npcId), release);
+          } catch (error) {
+            release();
+            throw error;
+          }
           return true;
         },
       };
@@ -118,8 +150,11 @@ export class QuestNpcController implements InteractionProvider {
       prompt: `F  Talk to ${getNpcDefinition(record.npcId)?.displayName ?? record.npcId}`,
       priority: 50,
       execute: () => {
+        const release = record.actor.acquireInteractionLock();
+        const position = record.actor.getPosition();
         this.talked(record.npcId);
-        this.ctx.showMessage(record.image.x, record.image.y - 52, getNpcDefinition(record.npcId)?.description ?? 'Hello!', 'white');
+        this.ctx.showMessage(position.x, position.y - 52, getNpcDefinition(record.npcId)?.description ?? 'Hello!', 'white');
+        this.scheduleRelease(release);
         return true;
       },
     };
@@ -131,10 +166,35 @@ export class QuestNpcController implements InteractionProvider {
     this.unregisterRouter?.();
     this.unregisterRouter = undefined;
     this.modal.destroy();
+    for (const release of [...this.pendingReleases]) release();
     this.records.length = 0;
   }
 
   private talked(npcId: string): void {
     gameEvents.emit('npc.talked', { npcId });
+  }
+
+  private scheduleRelease(release: () => void): void {
+    let timer: Phaser.Time.TimerEvent | undefined;
+    let finished = false;
+    const finish = (): void => {
+      if (finished) return;
+      finished = true;
+      timer?.remove(false);
+      this.ctx.scene.events.off(Phaser.Scenes.Events.SHUTDOWN, finish);
+      this.pendingReleases.delete(finish);
+      release();
+    };
+    this.pendingReleases.add(finish);
+    timer = this.ctx.scene.time.delayedCall(700, finish);
+    this.ctx.scene.events.once(Phaser.Scenes.Events.SHUTDOWN, finish);
+  }
+
+  private showTemporaryMessage(release: () => void, x: number, y: number, message: string, color: 'white' | 'yellow' | 'green' | 'red', important: boolean): void {
+    try {
+      this.ctx.showMessage(x, y, message, color, important);
+    } finally {
+      this.scheduleRelease(release);
+    }
   }
 }

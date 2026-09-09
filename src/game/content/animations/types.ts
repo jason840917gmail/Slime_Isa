@@ -29,7 +29,8 @@ export type AnimationPackageDiagnosticCode =
   | 'animation-asset-invalid'
   | 'animation-reference-missing'
   | 'animation-slot-loop-mismatch'
-  | 'animation-reference-in-use';
+  | 'animation-reference-in-use'
+  | 'animation-timing-consumer-conflict';
 
 export interface AnimationPackageDiagnostic {
   readonly code: AnimationPackageDiagnosticCode;
@@ -59,4 +60,6 @@ export interface AnimationPackageReference {
   readonly ownerId: string;
   readonly ownerKind: 'weapon' | 'object';
   readonly expectedLoop: boolean;
+  /** True when a weapon attack track contains markers/spans tied to the shared clock. */
+  readonly timingDependent?: boolean;
 }

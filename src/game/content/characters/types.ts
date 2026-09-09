@@ -8,7 +8,7 @@ import type {
   AnimationTrackDocument as SharedAnimationTrackDocument,
 } from '../../shared/animation';
 
-export type CharacterKind = 'player' | 'enemy';
+export type CharacterKind = 'player' | 'enemy' | 'npc';
 export type Pair = [number, number];
 export type VisualLoopMode = AnimationLoopMode;
 
@@ -142,6 +142,15 @@ export interface EnemyGameplayDocument {
   };
 }
 
+export interface NpcGameplayDocument {
+  /** Maximum movement speed while wandering, in world units per second. */
+  wanderSpeed: number;
+  /** Inclusive lower bound for an idle pause after reaching a target. */
+  pauseMinMs: number;
+  /** Inclusive upper bound for an idle pause after reaching a target. */
+  pauseMaxMs: number;
+}
+
 export interface CharacterDocument {
   $schema?: string;
   version: 1;
@@ -156,6 +165,7 @@ export interface CharacterDocument {
   animationTracks: Record<string, AnimationTrackDocument>;
   player?: PlayerGameplayDocument;
   enemy?: EnemyGameplayDocument;
+  npc?: NpcGameplayDocument;
 }
 
 export interface CharacterPackage {

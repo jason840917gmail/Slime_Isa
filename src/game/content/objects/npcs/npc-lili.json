@@ -1,0 +1,14 @@
+{
+  "$schema": "../objects.schema.json",
+  "objectId": "npc.lili",
+  "selection": "authored",
+  "physics": null,
+  "npc": {
+    "definitionId": "lili",
+    "placementVisualId": "lili"
+  },
+  "tags": [
+    "npc",
+    "interactable"
+  ]
+}

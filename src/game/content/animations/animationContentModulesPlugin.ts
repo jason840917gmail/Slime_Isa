@@ -11,6 +11,7 @@ import type {
   AnimationPackageDocument,
   AnimationPackageReference,
 } from './types';
+import { layeredTimelineFrameCount } from '../../shared/animation';
 
 const VIRTUAL_ID = 'virtual-animation-content';
 const RESOLVED_VIRTUAL_ID = `\0${VIRTUAL_ID}`;
@@ -252,6 +253,7 @@ async function readAnimationReferences(root: string): Promise<readonly Animation
         ownerId,
         ownerKind: 'weapon',
         expectedLoop: false,
+        ...(attack && typeof attack.attackTrack === 'object' && attack.attackTrack !== null && !Array.isArray(attack.attackTrack) && ((Array.isArray((attack.attackTrack as Record<string, unknown>).events) && ((attack.attackTrack as Record<string, unknown>).events as unknown[]).length > 0) || (Array.isArray((attack.attackTrack as Record<string, unknown>).hitboxSpans) && ((attack.attackTrack as Record<string, unknown>).hitboxSpans as unknown[]).length > 0)) ? { timingDependent: true } : {}),
       });
     }
   }
@@ -378,6 +380,25 @@ export async function applyAnimationLibraryTransaction(
       field: loopMismatch.field,
       message: `${loopMismatch.field} requires a ${loopMismatch.expectedLoop ? 'looping' : 'one-shot'} package`,
     }]);
+  }
+  for (const reference of references.filter((candidate) => candidate.timingDependent)) {
+    const targetPath = byId.get(reference.animationId);
+    const previousPackage = targetPath ? currentByPath.get(targetPath) : undefined;
+    const nextPackage = targetPath ? nextByPath.get(targetPath) : undefined;
+    if (!targetPath || !previousPackage || !nextPackage) continue;
+    const previousAnimation = previousPackage.animation;
+    const nextAnimation = nextPackage.animation;
+    const timingChanged = previousAnimation.framesPerSecond !== nextAnimation.framesPerSecond
+      || layeredTimelineFrameCount(previousAnimation) !== layeredTimelineFrameCount(nextAnimation);
+    if (timingChanged) {
+      throw packageError(targetPath, [{
+        code: 'animation-timing-consumer-conflict',
+        packagePath: targetPath,
+        animationId: reference.animationId,
+        field: reference.field,
+        message: `Cannot change FPS or duration while weapon '${reference.ownerId}' uses ${reference.field} timing markers.`,
+      }]);
+    }
   }
 
   const createFolders = [...new Set(transaction.createFolders ?? [])].map((folder) => safeFolderPath(root, folder));

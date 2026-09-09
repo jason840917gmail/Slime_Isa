@@ -1,6 +1,7 @@
 ﻿import Phaser from 'phaser';
 import { resolveScreenUiDepth } from './presentation/WorldDepth';
 import { ModalStack, type ModalHandle } from './ui/ModalStack';
+import { addUiSkin } from './presentation/UiSkin';
 
 export interface ShopCallbacks {
   onBuyBoost: () => void;
@@ -21,14 +22,21 @@ export class ShopUI {
       close: () => this.hide(),
     });
 
-    const bg = scene.add.graphics();
-    bg.fillStyle(0x101a31, 0.92);
-    bg.fillRoundedRect(-140, -90, 280, 180, 10);
-    bg.lineStyle(2, 0x3b5c78, 0.6);
-    bg.strokeRoundedRect(-140, -90, 280, 180, 10);
-
     this.container = scene.add.container(x, y);
-    this.container.add(bg);
+    const skin = addUiSkin(scene, this.container, 'ui.frame.shop-stall', {
+      x: 0,
+      y: 0,
+      width: 280,
+      height: 180,
+    });
+    if (!skin) {
+      const bg = scene.add.graphics();
+      bg.fillStyle(0x101a31, 0.92);
+      bg.fillRoundedRect(-140, -90, 280, 180, 10);
+      bg.lineStyle(2, 0x3b5c78, 0.6);
+      bg.strokeRoundedRect(-140, -90, 280, 180, 10);
+      this.container.add(bg);
+    }
 
     const font = 'Trebuchet MS, Segoe UI Variable, sans-serif';
 
@@ -43,7 +51,7 @@ export class ShopUI {
     );
 
     const boostBtn = scene.add
-      .text(-120, 20, 'Boost +50 speed â€” 25c', {
+      .text(-120, 20, 'Boost +50 speed - 25c', {
         fontFamily: font,
         fontSize: '14px',
         color: '#e6f5df',
@@ -54,7 +62,7 @@ export class ShopUI {
     this.container.add(boostBtn);
 
     const friendBtn = scene.add
-      .text(-120, -10, 'Spawn Friend â€” 15c', {
+      .text(-120, -10, 'Spawn Friend - 15c', {
         fontFamily: font,
         fontSize: '14px',
         color: '#e6f5df',

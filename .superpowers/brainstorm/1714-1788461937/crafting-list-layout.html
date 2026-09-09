@@ -1,0 +1,52 @@
+<h2>Crafting panel — proposed interaction</h2>
+<p class="subtitle">The world remains visible. The outer window and individual Craft buttons are gone; each recipe row is the action.</p>
+
+<div class="card" data-choice="approve-floating-list" onclick="toggleSelect(this)" style="max-width:760px;margin:0 auto;background:linear-gradient(180deg,#182943 0%,#0b1427 100%);border-color:#4d6c82;">
+  <div class="card-image" style="padding:18px;background:radial-gradient(circle at 25% 10%,#5f8338 0,#263f28 48%,#162617 100%);">
+    <div style="display:flex;justify-content:space-between;align-items:end;margin:0 4px 12px;color:#effff7;text-shadow:0 2px 4px #07110b;">
+      <div>
+        <div style="font-size:22px;font-weight:800;">Crafting</div>
+        <div style="font-size:11px;color:#b7d9c8;">Click a recipe to craft · W/S selects · Enter crafts</div>
+      </div>
+      <div style="font-size:11px;color:#b7d9c8;">C / Esc</div>
+    </div>
+
+    <div style="height:496px;overflow-y:auto;padding:2px 10px 2px 2px;scrollbar-color:#72d8ff #101a31;">
+      <div style="display:grid;gap:7px;">
+        <div style="display:grid;grid-template-columns:48px 1fr auto;align-items:center;gap:12px;min-height:54px;padding:8px 13px;border:2px solid #ffdf8a;border-radius:12px;background:rgba(8,35,29,.93);box-shadow:0 0 0 1px rgba(255,223,138,.15);">
+          <div style="font-size:27px;text-align:center;">🗡️</div><div><strong>Wooden Spear</strong><div style="font-size:11px;color:#bddad0;">A light starter weapon.</div></div><div style="display:flex;gap:12px;color:#ffd277;font-weight:800;"><span>🪵 20</span></div>
+        </div>
+        <div style="display:grid;grid-template-columns:48px 1fr auto;align-items:center;gap:12px;min-height:54px;padding:8px 13px;border:1px solid #73e2b1;border-radius:12px;background:rgba(8,35,29,.9);">
+          <div style="font-size:27px;text-align:center;">🪓</div><div><strong>Stone Axe</strong><div style="font-size:11px;color:#bddad0;">Harvest trees efficiently.</div></div><div style="display:flex;gap:12px;color:#ffd277;font-weight:800;"><span>🪵 10</span><span>🪨 10</span></div>
+        </div>
+        <div style="display:grid;grid-template-columns:48px 1fr auto;align-items:center;gap:12px;min-height:54px;padding:8px 13px;border:1px solid #73e2b1;border-radius:12px;background:rgba(8,35,29,.9);">
+          <div style="font-size:27px;text-align:center;">⛏️</div><div><strong>Stone Pickaxe</strong><div style="font-size:11px;color:#bddad0;">Break stone resource nodes.</div></div><div style="display:flex;gap:12px;color:#ffd277;font-weight:800;"><span>🪵 10</span><span>🪨 10</span></div>
+        </div>
+        <div style="display:grid;grid-template-columns:48px 1fr auto;align-items:center;gap:12px;min-height:54px;padding:8px 13px;border:1px solid #3d625b;border-radius:12px;background:rgba(11,29,27,.88);opacity:.68;">
+          <div style="font-size:27px;text-align:center;">🔱</div><div><strong>Stone Spear</strong><div style="font-size:11px;color:#9bb8ae;">A stronger stone-tipped spear.</div></div><div style="display:flex;gap:12px;color:#cc8e88;font-weight:800;"><span>🪵 20</span><span>🪨 20</span></div>
+        </div>
+        <div style="display:grid;grid-template-columns:48px 1fr auto;align-items:center;gap:12px;min-height:54px;padding:8px 13px;border:1px solid #73e2b1;border-radius:12px;background:rgba(8,35,29,.9);">
+          <div style="font-size:27px;text-align:center;">🧪</div><div><strong>Slime Tonic</strong><div style="font-size:11px;color:#bddad0;">Restore health.</div></div><div style="color:#ffd277;font-weight:800;">🫐 3</div>
+        </div>
+        <div style="display:grid;grid-template-columns:48px 1fr auto;align-items:center;gap:12px;min-height:54px;padding:8px 13px;border:1px solid #73e2b1;border-radius:12px;background:rgba(8,35,29,.9);">
+          <div style="font-size:27px;text-align:center;">⚡</div><div><strong>Fizzy Brew</strong><div style="font-size:11px;color:#bddad0;">Restore energy.</div></div><div style="display:flex;gap:12px;color:#ffd277;font-weight:800;"><span>🫐 2</span><span>💎 1</span></div>
+        </div>
+        <div style="display:grid;grid-template-columns:48px 1fr auto;align-items:center;gap:12px;min-height:54px;padding:8px 13px;border:1px solid #73e2b1;border-radius:12px;background:rgba(8,35,29,.9);">
+          <div style="font-size:27px;text-align:center;">🎒</div><div><strong>Sticky Field Kit</strong><div style="font-size:11px;color:#bddad0;">Pack two tonics.</div></div><div style="display:flex;gap:12px;color:#ffd277;font-weight:800;"><span>🫐 2</span><span>👸 2</span></div>
+        </div>
+        <div style="display:grid;grid-template-columns:48px 1fr auto;align-items:center;gap:12px;min-height:54px;padding:8px 13px;border:1px solid #73e2b1;border-radius:12px;background:rgba(8,35,29,.9);">
+          <div style="font-size:27px;text-align:center;">💣</div><div><strong>Goo Charge</strong><div style="font-size:11px;color:#bddad0;">A compact throwable charge.</div></div><div style="display:flex;gap:12px;color:#ffd277;font-weight:800;"><span>💎 2</span><span>💧 4</span></div>
+        </div>
+        <div style="display:grid;grid-template-columns:48px 1fr auto;align-items:center;gap:12px;min-height:54px;padding:8px 13px;border:1px solid #3d625b;border-radius:12px;background:rgba(11,29,27,.88);opacity:.68;">
+          <div style="font-size:27px;text-align:center;">🛡️</div><div><strong>Moss Guard</strong><div style="font-size:11px;color:#9bb8ae;">Below the initial eight-row viewport.</div></div><div style="color:#cc8e88;font-weight:800;">🌿 12</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    <h3>Floating recipe list</h3>
+    <p>Eight rows fit before scrolling. Mint rows are craftable; muted rows lack materials. Clicking a craftable row crafts immediately.</p>
+  </div>
+</div>
+
+<p class="subtitle" style="text-align:center;margin-top:18px;">Click the mockup to mark it approved, then tell me any changes in the terminal.</p>

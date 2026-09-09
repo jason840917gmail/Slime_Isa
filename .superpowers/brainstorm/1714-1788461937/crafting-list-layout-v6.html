@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Crafting overlay — transparent list</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      background: #101915;
+      color: #eef9ef;
+    }
+
+    .companion-note {
+      padding: 12px 14px 10px;
+      color: #d9e7de;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .companion-note strong {
+      color: #ffffff;
+      display: block;
+      font-size: 15px;
+      margin-bottom: 2px;
+    }
+
+    .game-preview {
+      position: relative;
+      min-height: 590px;
+      overflow: hidden;
+      border-block: 1px solid rgba(185, 241, 190, 0.25);
+      background:
+        radial-gradient(circle at 15% 12%, rgba(215, 241, 112, 0.32) 0 3px, transparent 4px),
+        radial-gradient(circle at 78% 18%, rgba(255, 220, 111, 0.26) 0 4px, transparent 5px),
+        radial-gradient(circle at 58% 78%, rgba(196, 236, 98, 0.28) 0 3px, transparent 4px),
+        linear-gradient(135deg, rgba(32, 71, 43, 0.82), rgba(23, 51, 34, 0.82)),
+        repeating-linear-gradient(115deg, #244c30 0 12px, #2c5b36 12px 24px);
+    }
+
+    .world-object {
+      position: absolute;
+      filter: drop-shadow(0 5px 5px rgba(0,0,0,.45));
+      opacity: .82;
+      user-select: none;
+    }
+
+    .tree-a { left: 3%; top: 9%; font-size: 54px; }
+    .tree-b { right: 2%; top: 37%; font-size: 66px; }
+    .rock { left: 15%; bottom: 5%; font-size: 44px; }
+    .slime { right: 18%; bottom: 4%; font-size: 48px; }
+
+    /* This is intentionally only a layout rail. It has no fill, border, or shadow. */
+    .craft-list {
+      position: absolute;
+      inset: 14px 12px auto;
+      height: 526px;
+      display: grid;
+      grid-auto-rows: 61px;
+      gap: 5px;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(135, 235, 187, .72) rgba(5, 20, 14, .28);
+      background: transparent;
+    }
+
+    .recipe {
+      display: grid;
+      grid-template-columns: 38px minmax(0, 1fr) 92px;
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
+      padding: 6px 10px;
+      border: 1px solid rgba(115, 231, 176, .72);
+      border-radius: 10px;
+      background: rgba(8, 39, 28, .79);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, .28);
+      cursor: pointer;
+    }
+
+    .recipe:hover,
+    .recipe:focus-visible {
+      outline: none;
+      border-color: #ffe58f;
+      background: rgba(16, 58, 40, .9);
+    }
+
+    .recipe.unavailable {
+      border-color: rgba(133, 166, 148, .55);
+      background: rgba(15, 34, 27, .72);
+    }
+
+    .item-icon {
+      display: grid;
+      place-items: center;
+      font-size: 27px;
+      line-height: 1;
+    }
+
+    .copy { min-width: 0; }
+
+    .item-name {
+      overflow: hidden;
+      color: #f4fbf5;
+      font-family: Georgia, serif;
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.15;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .item-description {
+      overflow: hidden;
+      margin-top: 3px;
+      color: #c8d8cd;
+      font-size: 10px;
+      line-height: 1.2;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .costs {
+      justify-self: end;
+      width: 92px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 4px;
+    }
+
+    .cost {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      min-width: 42px;
+      height: 25px;
+      padding: 0 5px;
+      border-radius: 7px;
+      background: rgba(0, 0, 0, .28);
+      color: #ffe39a;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .unavailable .cost.missing {
+      color: #ffaaa4;
+      background: rgba(80, 17, 17, .44);
+    }
+
+    .resource-icon { font-size: 16px; }
+
+    .scroll-cue {
+      position: absolute;
+      right: 20px;
+      bottom: 13px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(5, 22, 15, .72);
+      color: #b9dbc6;
+      font-size: 10px;
+      pointer-events: none;
+    }
+
+    @media (max-width: 410px) {
+      .recipe { grid-template-columns: 34px minmax(0, 1fr) 82px; gap: 6px; padding-inline: 7px; }
+      .costs { width: 82px; }
+      .cost { min-width: 38px; padding-inline: 3px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="companion-note">
+    <strong>Transparent crafting list</strong>
+    No panel title, instructions, footer, or parent background. Click a row to craft; eight rows are visible before scrolling.
+  </div>
+
+  <main class="game-preview" aria-label="Crafting overlay mockup">
+    <span class="world-object tree-a" aria-hidden="true">🌳</span>
+    <span class="world-object tree-b" aria-hidden="true">🌲</span>
+    <span class="world-object rock" aria-hidden="true">🪨</span>
+    <span class="world-object slime" aria-hidden="true">🟢</span>
+
+    <section class="craft-list" aria-label="Crafting recipes">
+      <button class="recipe" type="button">
+        <span class="item-icon">🗡️</span>
+        <span class="copy"><span class="item-name">Wooden Spear</span><span class="item-description">A light starter weapon with a visible golden thrust.</span></span>
+        <span class="costs"><span class="cost"><span class="resource-icon">🪵</span>20</span></span>
+      </button>
+      <button class="recipe" type="button">
+        <span class="item-icon">🪓</span>
+        <span class="copy"><span class="item-name">Stone Axe</span><span class="item-description">Required to harvest trees efficiently.</span></span>
+        <span class="costs"><span class="cost"><span class="resource-icon">🪵</span>10</span><span class="cost"><span class="resource-icon">🪨</span>10</span></span>
+      </button>
+      <button class="recipe unavailable" type="button">
+        <span class="item-icon">⛏️</span>
+        <span class="copy"><span class="item-name">Stone Pickaxe</span><span class="item-description">Required to break stone resource nodes.</span></span>
+        <span class="costs"><span class="cost"><span class="resource-icon">🪵</span>10</span><span class="cost missing"><span class="resource-icon">🪨</span>20</span></span>
+      </button>
+      <button class="recipe" type="button">
+        <span class="item-icon">🔱</span>
+        <span class="copy"><span class="item-name">Stone Spear</span><span class="item-description">A stronger spear with a cool stone-blue thrust.</span></span>
+        <span class="costs"><span class="cost"><span class="resource-icon">🪵</span>20</span><span class="cost"><span class="resource-icon">🪨</span>20</span></span>
+      </button>
+      <button class="recipe unavailable" type="button">
+        <span class="item-icon">🏹</span>
+        <span class="copy"><span class="item-name">Hunter Bow</span><span class="item-description">A quiet ranged weapon for careful hunters.</span></span>
+        <span class="costs"><span class="cost missing"><span class="resource-icon">🪵</span>30</span></span>
+      </button>
+      <button class="recipe" type="button">
+        <span class="item-icon">🛡️</span>
+        <span class="copy"><span class="item-name">Bark Shield</span><span class="item-description">Simple protection bound from sturdy wood.</span></span>
+        <span class="costs"><span class="cost"><span class="resource-icon">🪵</span>25</span></span>
+      </button>
+      <button class="recipe unavailable" type="button">
+        <span class="item-icon">🔨</span>
+        <span class="copy"><span class="item-name">Stone Hammer</span><span class="item-description">Heavy tool for building and breaking.</span></span>
+        <span class="costs"><span class="cost"><span class="resource-icon">🪵</span>15</span><span class="cost missing"><span class="resource-icon">🪨</span>25</span></span>
+      </button>
+      <button class="recipe" type="button">
+        <span class="item-icon">🔥</span>
+        <span class="copy"><span class="item-name">Campfire Kit</span><span class="item-description">A portable bundle for making camp.</span></span>
+        <span class="costs"><span class="cost"><span class="resource-icon">🪵</span>12</span><span class="cost"><span class="resource-icon">🪨</span>6</span></span>
+      </button>
+      <button class="recipe unavailable" type="button">
+        <span class="item-icon">🏮</span>
+        <span class="copy"><span class="item-name">Forest Lantern</span><span class="item-description">A ninth recipe appears after scrolling.</span></span>
+        <span class="costs"><span class="cost missing"><span class="resource-icon">🪵</span>18</span></span>
+      </button>
+    </section>
+    <div class="scroll-cue">scroll for more ↓</div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,45 @@
+{
+  "$schema": "../character.schema.json",
+  "version": 1,
+  "characterId": "lili",
+  "displayName": "Lili",
+  "kind": "npc",
+  "visualSetId": "character.npc.lili",
+  "body": {
+    "shape": "ellipse",
+    "width": 36,
+    "height": 24,
+    "radiusX": 18,
+    "radiusY": 12,
+    "centerOffsetX": 0,
+    "centerOffsetY": 10
+  },
+  "hitboxes": {},
+  "animationTracks": {
+    "idle": {
+      "hitboxSpans": [],
+      "events": []
+    },
+    "walk-down": {
+      "hitboxSpans": [],
+      "events": []
+    },
+    "walk-up": {
+      "hitboxSpans": [],
+      "events": []
+    },
+    "walk-left": {
+      "hitboxSpans": [],
+      "events": []
+    },
+    "walk-right": {
+      "hitboxSpans": [],
+      "events": []
+    }
+  },
+  "npc": {
+    "wanderSpeed": 28,
+    "pauseMinMs": 1200,
+    "pauseMaxMs": 2400
+  }
+}

@@ -1,6 +1,7 @@
 ﻿import Phaser from 'phaser';
 import { Friend } from './Friend';
 import { resolveScreenUiDepth } from './presentation/WorldDepth';
+import { createUiSkinImage } from './presentation/UiSkin';
 import { ModalStack, type ModalHandle } from './ui/ModalStack';
 
 type ReplyGroup = {
@@ -72,6 +73,7 @@ export class ChatUI {
   private inputEl: HTMLInputElement;
   private logTexts: Phaser.GameObjects.Text[] = [];
   private box: Phaser.GameObjects.Graphics;
+  private readonly boxSkin?: Phaser.GameObjects.Image;
   private hintText: Phaser.GameObjects.Text;
   private isOpen = false;
   private onOpenChange?: (open: boolean) => void;
@@ -80,6 +82,28 @@ export class ChatUI {
   private scene: Phaser.Scene;
   private readonly modalHandle: ModalHandle;
   private readonly maxLog = 5;
+  private slashKey?: Phaser.Input.Keyboard.Key;
+  private keyboardWasEnabled?: boolean;
+
+  private readonly handleInputKeyDown = (event: KeyboardEvent): void => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      this.sendMessage();
+    }
+    event.stopPropagation();
+  };
+
+  private readonly handleInputBlur = (): void => {
+    if (this.isOpen) this.close();
+  };
+
+  private readonly handleSlashDown = (): void => {
+    if (!this.isOpen) this.open();
+  };
+
+  private readonly handleScaleResize = (size: Phaser.Structs.Size): void => {
+    this.handleResize(size.width, size.height);
+  };
 
   constructor(
     scene: Phaser.Scene,
@@ -100,6 +124,13 @@ export class ChatUI {
     const cam = scene.cameras.main;
 
     this.box = scene.add.graphics().setScrollFactor(0).setDepth(resolveScreenUiDepth(20)).setVisible(false);
+    this.boxSkin = createUiSkinImage(scene, 'ui.frame.organic-compact', {
+      x: cam.width / 2,
+      y: cam.height - 54,
+      width: cam.width - 24,
+      height: 72,
+    }, 0.9);
+    this.boxSkin?.setScrollFactor(0).setDepth(resolveScreenUiDepth(19)).setVisible(false);
 
     this.hintText = scene.add
       .text(16, cam.height - 30, 'Press  /  to chat', {
@@ -137,27 +168,14 @@ export class ChatUI {
     ].join(';');
     document.body.appendChild(this.inputEl);
 
-    this.inputEl.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        this.sendMessage();
-      }
-      e.stopPropagation();
-    });
+    this.inputEl.addEventListener('keydown', this.handleInputKeyDown);
+    this.inputEl.addEventListener('blur', this.handleInputBlur);
 
-    this.inputEl.addEventListener('blur', () => {
-      if (this.isOpen) this.close();
-    });
-
-    const slashKey = scene.input.keyboard?.addKey(191);
-    if (slashKey) {
-      slashKey.on('down', () => {
-        if (!this.isOpen) this.open();
-      });
-    }
+    this.slashKey = scene.input.keyboard?.addKey(191);
+    this.slashKey?.on('down', this.handleSlashDown);
 
     this.handleResize(cam.width, cam.height);
-    scene.scale.on('resize', (size: Phaser.Structs.Size) => this.handleResize(size.width, size.height));
+    scene.scale.on('resize', this.handleScaleResize);
   }
 
   isChatOpen(): boolean {
@@ -167,6 +185,7 @@ export class ChatUI {
   open(): void {
     if (this.isOpen) return;
     this.isOpen = true;
+    this.suspendGameKeyboard();
     this.inputEl.style.display = 'block';
     this.inputEl.value = '';
     this.inputEl.focus();
@@ -186,6 +205,7 @@ export class ChatUI {
     this.isOpen = false;
     this.inputEl.style.display = 'none';
     this.inputEl.blur();
+    this.restoreGameKeyboard();
     this.hintText.setVisible(true);
     this.box.setVisible(true);
     this.drawBox();
@@ -258,7 +278,11 @@ export class ChatUI {
   private drawBox(): void {
     const cam = this.scene.cameras.main;
     this.box.clear();
-    if (!this.isOpen && this.logTexts.length === 0) return;
+    if (!this.isOpen && this.logTexts.length === 0) {
+      this.box.setVisible(false);
+      this.boxSkin?.setVisible(false);
+      return;
+    }
 
     let topY = cam.height - 30;
     if (this.logTexts.length > 0) {
@@ -266,8 +290,22 @@ export class ChatUI {
       topY = first.y - 6;
     }
     const boxH = cam.height - 24 - topY;
-    if (boxH <= 0) return;
+    if (boxH <= 0) {
+      this.box.setVisible(false);
+      this.boxSkin?.setVisible(false);
+      return;
+    }
 
+    if (this.boxSkin) {
+      this.box.setVisible(false);
+      this.boxSkin
+        .setVisible(true)
+        .setPosition(cam.width / 2, topY + boxH / 2)
+        .setDisplaySize(cam.width - 24, Math.max(72, boxH + 12));
+      return;
+    }
+
+    this.box.setVisible(true);
     this.box.fillStyle(0x0b1020, 0.78);
     this.box.fillRoundedRect(12, topY, cam.width - 24, boxH, 10);
     this.box.lineStyle(2, 0x73e2b1, 0.9);
@@ -280,11 +318,36 @@ export class ChatUI {
     this.drawBox();
   }
 
+  private suspendGameKeyboard(): void {
+    const keyboard = this.scene.input.keyboard;
+    if (!keyboard || this.keyboardWasEnabled !== undefined) return;
+    keyboard.resetKeys();
+    this.keyboardWasEnabled = keyboard.enabled;
+    keyboard.enabled = false;
+    keyboard.disableGlobalCapture();
+  }
+
+  private restoreGameKeyboard(): void {
+    const keyboard = this.scene.input.keyboard;
+    if (!keyboard || this.keyboardWasEnabled === undefined) return;
+    keyboard.resetKeys();
+    keyboard.enabled = this.keyboardWasEnabled;
+    keyboard.enableGlobalCapture();
+    this.keyboardWasEnabled = undefined;
+  }
+
   destroy(): void {
     this.modalHandle.unregister();
     const wasOpen = this.isOpen;
+    this.isOpen = false;
+    this.restoreGameKeyboard();
+    this.inputEl.removeEventListener('keydown', this.handleInputKeyDown);
+    this.inputEl.removeEventListener('blur', this.handleInputBlur);
+    this.slashKey?.off('down', this.handleSlashDown);
+    this.scene.scale.off('resize', this.handleScaleResize);
     this.inputEl.remove();
     this.box.destroy();
+    this.boxSkin?.destroy();
     this.hintText.destroy();
     this.logTexts.forEach((t) => t.destroy());
     if (wasOpen) this.onOpenChange?.(false);

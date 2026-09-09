@@ -1,0 +1,82 @@
+{
+  "$schema": "../../visuals/visual-set.schema.json",
+  "version": 1,
+  "visualSetId": "character.npc.yellow-blond-slime-girl",
+  "assetId": "character.npc.yellow-blond-slime-girl",
+  "defaults": {
+    "origin": [
+      0.5,
+      1
+    ],
+    "scale": [
+      0.32,
+      0.32
+    ],
+    "sourceOffset": [
+      0,
+      0
+    ]
+  },
+  "clips": {
+    "idle": {
+      "frames": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "framesPerSecond": 6,
+      "loop": true
+    },
+    "walk-down": {
+      "frames": [
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "framesPerSecond": 10,
+      "loop": true
+    },
+    "walk-up": {
+      "frames": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ],
+      "framesPerSecond": 10,
+      "loop": true
+    },
+    "walk-left": {
+      "frames": [
+        18,
+        19,
+        20,
+        21,
+        22,
+        23
+      ],
+      "framesPerSecond": 10,
+      "loop": true
+    },
+    "walk-right": {
+      "frames": [
+        24,
+        25,
+        26,
+        27,
+        28,
+        29
+      ],
+      "framesPerSecond": 10,
+      "loop": true
+    }
+  }
+}

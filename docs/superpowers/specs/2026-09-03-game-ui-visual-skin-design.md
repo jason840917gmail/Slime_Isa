@@ -11,6 +11,29 @@ The approved direction is a cozy organic base with biome-specific accents:
 - soft hand-painted 2D illustration, clean readable interiors, subtle material texture, and no pixel art;
 - translucent slime seams and small gel droplets as the signature motif for frames, dividers, and selection states.
 
+This direction extends, rather than replaces, the canonical night-field palette in
+`docs/assets/visual-style-guide.md`. Permanent HUD surfaces and modal outer shells
+retain the deep blue-green base, cool line hierarchy, and luminous interaction
+accents. Parchment, moss, wood, and soil appear as restrained interior materials or
+context accents, not as a new light-theme foundation. This document is authoritative
+for player-facing game UI skins; the existing visual guide remains authoritative for
+the world and developer tools.
+
+## Approved gameplay HUD refinement — 2026-09-04
+
+The visible in-world HUD pass selected the **artwork-first** treatment. The
+world background is the primary surface, so the HUD and weapon hotbar omit
+`ui-organic-compact-frame` entirely for this pass; no transparent-center asset
+or helper is added. Their code-drawn dark slot surfaces must be removed. They use transparent interiors,
+restrained outlines, compact typography, and explicit active-state accents.
+The minimap keeps its illustrated square outer frame but uses only a very
+low-opacity interior tint. This refinement applies only to the visible HUD,
+minimap, and weapon hotbar; inventory and crafting are excluded from the pass,
+and `AbilityBar` remains deferred until it is mounted in `WorldScene`.
+
+The narrower implementation contract lives in
+[World HUD Artwork-First Presentation](./2026-09-04-world-hud-artwork-first-design.md).
+
 ## Scope
 
 ### Player-facing runtime surfaces
@@ -86,16 +109,29 @@ Create these source images first:
 4. `ui-map-journal-paper.png` — warm map/journal material with empty center space, no text or map symbols
 5. `ui-organic-minimap-frame.png` — square minimap frame with quiet map-safe interior, no compass, markers, or labels
 
-The first batch validates palette, texture density, edge readability, and the non-pixel-art treatment before special-case assets are produced. If a generated source is missing or malformed at runtime, the UI falls back to the existing code-drawn surface and reports a development warning; production must not crash because a skin is unavailable. Repository validation remains strict: `assets:check` must reject missing or malformed manifest entries before release.
+The first batch validates palette, texture density, edge readability, and the non-pixel-art treatment before special-case assets are produced. If a generated source is missing or malformed at runtime, the UI falls back to the existing code-drawn surface and reports a development warning; production must not crash because a decorative skin is unavailable. Repository validation remains strict: `assets:check` must reject missing or malformed manifest entries before release.
 
 ### Loading contract
 
-UI art joins the existing `boot` bundle. The runtime path is:
+Decorative UI art is optional presentation data and does not join the required
+`boot` bundle. It uses dedicated `ui.core`, `ui.panels`, and `ui.events` bundles so
+the required boot assertion retains its current fail-fast semantics while UI skins
+can degrade safely. The runtime path is:
 
-1. Add the final runtime copy under `asset/UI/` and add its stable asset ID to `asset/assets.json` under `bundles.boot`.
-2. `ProceduralAssetScene.preload()` calls `loadAssetBundle(this, 'boot')`, which queues the image files.
-3. `ProceduralAssetScene.create()` calls `assertAssetBundleTextures(this, 'boot')` after procedural textures are created.
-4. UI constructors resolve the stable asset ID to its runtime texture key. If a UI skin texture is unavailable at runtime, the owning surface uses its existing code-drawn fallback and emits a development warning.
+1. Add the final runtime copy under `asset/UI/`, record exact dimensions in `source.expect`, and add its stable asset ID to the appropriate UI bundle in `asset/assets.json`.
+2. Add an optional-bundle loader that records load failures without passing UI bundles to `assertAssetBundleTextures`. The existing required `boot` bundle and its assertion remain unchanged.
+3. Load `ui.core` before the first playable scene. Load `ui.panels` and `ui.events` before their first owning surfaces can open; repeated requests must share one loading promise/state.
+4. A presentation-owned resolver returns a texture key only when the loaded texture exists and matches the expected runtime dimensions. Otherwise it returns no skin, emits one development warning per asset ID, and lets the owning surface use its existing code-drawn fallback.
+
+Bundle membership is fixed for this pass:
+
+- `ui.core`: organic modal frame, organic compact frame, and minimap frame;
+- `ui.panels`: inventory, map/journal paper, crafting, quest journal, quest offer, and shop assets;
+- `ui.events`: level-up, boss health, and area title assets.
+
+Opening a surface whose optional bundle is still loading keeps the code-drawn
+fallback for that opening. The loaded skin is used the next time the surface is
+built; loading must never delay input handling or leave a half-skinned modal.
 
 `assetUrls.ts` currently supplies a self-contained placeholder URL when a manifest path has no bundled Vite URL. Therefore the boot assertion verifies that queued bundle textures exist, but cannot by itself prove that the source file was present when the placeholder was used. `assets:check` is the required source-of-truth gate for missing or malformed manifest paths; do not describe the boot assertion as detecting those stale source files. A future strict-loading mode may turn this into a boot failure, but that is outside this visual pass.
 
@@ -112,10 +148,10 @@ Each panel uses one explicit composition. The asset is a visual layer only; dyna
 | Level up | `ui-levelup-crest-frame` over shared modal frame | glow and perk-card accent | perk choices, ranks, descriptions, key prompts |
 | Quest offer/turn-in | `ui-quest-offer-scroll-frame` | NPC/quest emblem | title, description, objectives, rewards, errors, buttons |
 | Shop | `ui-shop-stall-frame` | merchant badge | offers, prices, purchase result, close action |
-| HUD | `ui-organic-compact-frame` | resource icons | level, coins, friends, HP/XP/energy values and fills |
+| HUD | artwork-first transparent treatment; no full-surface backplate | resource icons | level, coins, friends, HP/XP/energy values and fills |
 | Minimap | `ui-organic-minimap-frame` | code-drawn compass marker | terrain/map data, player/friend/house markers, camera rectangle |
-| Weapon hotbar | `ui-organic-compact-frame` plus code-native slot treatment | active-slot seam | weapon thumbnails, ownership, equipped state, key labels |
-| Ability bar | `ui-organic-compact-frame` plus code-native ability slot treatment | cooldown overlay | ability icons, unlock levels, cooldown state, hotkeys |
+| Weapon hotbar | transparent code-native slot treatment; no full-surface backplate | active-slot seam | weapon thumbnails, ownership, equipped state, key labels |
+| Ability bar | deferred; use the artwork-first treatment when mounted | cooldown overlay | ability icons, unlock levels, cooldown state, hotkeys |
 | Boss bar | `ui-boss-health-frame` | boss portrait/phase accent | boss name, HP fill, HP text, defeat animation |
 | Chat | `ui-organic-compact-frame` for the Phaser log | CSS-matched DOM input treatment | chat messages, focus, text entry, resize behavior |
 | Interaction prompt | code-drawn compact prompt badge | interaction icon | candidate prompt text, visibility, keyboard action |
@@ -132,14 +168,15 @@ The map/journal material is the interior surface for those two panels; it does n
 
 ## Raster and responsive contract
 
-- Master large-panel sources target a 4:3 canvas at approximately 2048×1536; compact sources target a wide canvas at approximately 2048×512. The final files may be downscaled only after visual inspection, and must remain sharp at the largest supported display size.
+- Master large-panel sources target a 4:3 canvas at approximately 2048×1536; compact master sources target a wide canvas at approximately 2048×512. Masters remain under `asset/Originals/ui/`. Runtime exports are separate, bounded files: large 4:3 panels use at most 1024×768, wide panel backplates at most 1024×576, compact frames at most 1024×256, and the minimap frame at most 512×512. Lower dimensions are preferred when nine-slice inspection shows no visible loss.
+- The complete skin set has a maximum decoded RGBA texture budget of 28 MiB and a maximum transferred-file budget of 8 MiB. `ui.core` must remain at or below 8 MiB decoded. Record both totals during each batch review; PNG file size alone is not a memory measurement.
 - Author a generous quiet content-safe area. Decorative corners and seams stay within the outer 12% of each edge; no important detail is placed in the stretch zone.
 - Use RGBA PNG when the silhouette needs transparent outside corners. Opaque rectangular backplates are acceptable when the artwork is intentionally edge-to-edge. Generated images must contain no text, item art, or baked controls.
-- Display artwork with preserved aspect ratio and calculated safe insets. Do not stretch a corner ornament independently. If a panel needs dimensions outside the source ratio, preserve the corners and extend the quiet center through a tiled or carefully cropped surface strategy.
+- Render stretchable frames with Phaser `NineSlice`. Each entry in the presentation-owned `UiSkinDefinition` specifies asset ID, left/right/top/bottom slice sizes in runtime-source pixels, minimum rendered width and height, and whether the center stretches or tiles. These values do not belong in the media manifest. Reject dimensions below the declared minimum and use the code-drawn fallback. Do not use unconstrained `setDisplaySize` for framed artwork.
 - Wide layout: at least 900 px viewport width uses the authored panel proportions with 24–32 px screen margins.
 - Medium layout: 600–899 px uses the same skin scaled down with reduced insets; text and dynamic rows may reflow.
 - Narrow layout: below 600 px uses viewport width minus 24 px, viewport height minus 24 px, and scrollable content for journal, crafting, and inventory details. The skin must not reduce readable body text below its existing minimum.
-- Rebuild or reposition open overlays on `scale.resize`; never leave a background at the old dimensions while dynamic children move.
+- Before applying skins, give every scoped overlay a resize lifecycle that rebuilds or repositions the complete surface on `scale.resize`, including its dimmer, dynamic children, scroll viewport, and click regions. Remove the listener during `destroy`; never leave a background at the old dimensions while dynamic children move.
 - Treat 1× logical display size as the normal target. Do not enlarge a source beyond 1.5× without a larger source or a visibly clean center-extension strategy. Inspect on both standard and high-DPI displays.
 
 | Asset | Source target | Normal logical display | Safe inset | Center strategy |
@@ -198,14 +235,15 @@ These compact pieces may be better implemented as code-native shapes if raster a
 
 1. Fix or remove corrupted characters in player-facing strings, including `Â·`, `â€”`, `â—`, `Ã—`, and malformed ability glyphs. Prefer asset-backed icons or simple code shapes over decorative Unicode.
 2. Inventory all remaining visible glyphs (`▶`, `✓`, `•`, `×`, `·`, and malformed ability/map/combo symbols). Replace decorative glyphs with code-drawn shapes or explicit asset IDs; keep only characters that are intentionally encoded and tested.
-3. Add final runtime copies under `asset/UI/` to the media manifest with stable IDs and explicit dimensions. Keep generated sources under `asset/Originals/ui/` only.
-4. Introduce a small UI asset resolver/skin definition owned by presentation/UI code. Do not move gameplay balancing, inventory rules, or modal behavior into the asset manifest.
-5. Replace the large procedural panel backgrounds in `InventoryUI`, `CraftingUI`, `QuestJournal`, `WorldMapUI`, `LevelUpModal`, `QuestOfferModal`, and `ShopUI` with the mapped skins.
-6. Preserve dynamic children and interaction regions. Background artwork must never contain clickable behavior or runtime data.
-7. Apply the compact frame to HUD, hotbar, chat, and interaction surfaces as appropriate; apply the square minimap frame to the minimap and the title banner to area titles. Keep `AbilityBar` and `BossHealthBar` in the visual scope, but add a separate mounting task before their acceptance screenshots: instantiate them from `WorldScene`, own their resize/update/cleanup lifecycle, and then apply their skins. Do not silently assume an unwired module is visible.
-8. Keep combo presentation owned by `CombatController`. Keep moving health bars and floating text code-rendered, with any frame/icon improvements implemented by their owning modules.
-9. Keep the chat input as a DOM control for focus and keyboard reliability. Move its inline styling into a CSS class that matches the compact Phaser frame; do not place a Phaser interaction layer over the DOM input. The CSS contract includes focus ring, z-index above the canvas, viewport-safe width, and resize repositioning.
-10. Verify at the normal 1280×720 layout and narrow responsive sizes. Confirm that no text overlaps decorative art, no panel clips dynamic content, and no bitmap is visibly pixelated.
+3. Introduce pure layout functions for modal bounds, column count, content regions, and scroll viewports. Refactor inventory as the responsive reference surface, including rebuilt click regions and resize cleanup, and pass its three target viewports before adding raster art.
+4. Introduce the optional UI bundle loader and a small `UiSkinDefinition` resolver owned by presentation/UI code. Define nine-slice metadata, expected runtime dimensions, loading state, warning deduplication, and fallback behavior there. Do not move gameplay balancing, inventory rules, or modal behavior into the asset manifest.
+5. Add optimized runtime copies under `asset/UI/` to the media manifest with stable IDs and exact `source.expect` dimensions. Keep generated masters under `asset/Originals/ui/` only. Record transfer and decoded-memory totals against the budget.
+6. Apply the first-batch assets to inventory and the shared frame primitives. Preserve dynamic children and interaction regions; background artwork must never contain clickable behavior or runtime data. This milestone must pass wide, medium, and narrow inventory acceptance before continuing.
+7. Refactor and skin crafting, journal, map, quest offer, level-up, and shop one batch at a time. A surface must have responsive layout, bounded scrolling, resize cleanup, keyboard/pointer regression checks, and code-drawn fallback acceptance before it is complete.
+8. Apply the artwork-first treatment to the visible HUD and weapon hotbar, and the square minimap frame with a transparent interior treatment to the minimap. Reserve the compact frame for surfaces where its center is intentionally used, such as chat; apply the title banner to area titles. Keep `AbilityBar` and `BossHealthBar` in the visual scope, but mount each in a separate task before its skin task: instantiate it from `WorldScene`, own its resize/update/cleanup lifecycle, and verify its unskinned fallback first. Do not silently assume an unwired module is visible.
+9. Keep combo presentation owned by `CombatController`. Keep moving health bars and floating text code-rendered, with any frame/icon improvements implemented by their owning modules.
+10. Keep the chat input as a DOM control for focus and keyboard reliability. Move its inline styling into a CSS class that matches the compact Phaser frame; do not place a Phaser interaction layer over the DOM input. The CSS contract includes focus ring, z-index above the canvas, viewport-safe width, and resize repositioning.
+11. Finish each batch with its scenario screenshots and focused checks. Run the complete repository check only after all accepted batches are integrated.
 
 ## Cross-cutting quality rules
 
@@ -238,6 +276,9 @@ Visual verification must cover:
 - consistent visual language across all player-facing surfaces;
 - clean rendering of all repaired strings and replacement icons;
 - no interaction regression when panel children are rebuilt or resized.
+- no material regression from the canonical night-field contrast hierarchy;
+- runtime texture dimensions and decoded-memory totals within the declared budgets;
+- no meaningful regression in playable-scene startup time, steady-state frame rate, or draw calls compared with an unskinned baseline.
 
 The manual screenshot/scenario matrix is:
 
@@ -253,6 +294,12 @@ The manual screenshot/scenario matrix is:
 | World-space feedback | 1280×720, 800×600, 390×720 | player/world health bar full/low/hidden states; floating damage/reward text for overlap, contrast, lifetime, and position tracking |
 | Special events | supported viewport sizes | active-pass: area title and combo streak; deferred-pass after `BossHealthBar` is mounted: boss active/low HP/defeat |
 
-Pass criteria include readable dynamic text, visible non-color state cues, preserved frame corners, no overlap or clipping, no visible pixelation, aligned DOM chat input, and no stale pointer/keyboard behavior after resize or rebuild.
+Pass criteria include readable dynamic text, visible non-color state cues, preserved frame corners, no overlap or clipping, no visible pixelation, aligned DOM chat input, and no stale pointer/keyboard behavior after resize or rebuild. Capture the same scenarios at device pixel ratios 1 and 2. For each asset batch, record transferred bytes, decoded RGBA bytes (`width × height × 4`), playable-scene startup time, representative steady-state frame rate, and draw calls; compare them with the pre-skin baseline and investigate any startup increase over 10% or sustained frame-rate decrease over 5%.
+
+Pure responsive layout functions receive focused tests for the 1280×720, 800×600,
+and 390×720 viewports. Tests assert panel containment, positive content regions,
+expected column transitions, and pointer-region alignment. Manual screenshots remain
+required because geometry tests cannot establish texture quality, contrast, or visual
+hierarchy.
 
 The existing `pnpm check` command remains the final repository verification after runtime integration.

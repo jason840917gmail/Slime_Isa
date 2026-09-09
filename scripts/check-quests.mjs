@@ -24,6 +24,16 @@ const vite = await createServer({
 
 try {
   const { getQuestDefinitions } = await vite.ssrLoadModule('/src/game/content/quests/QuestCatalog.ts');
+  const { getCharacterPackage } = await vite.ssrLoadModule('/src/game/content/characters/CharacterCatalog.ts');
+  const { validateNpcCatalogReferences } = await vite.ssrLoadModule('/src/game/content/npcs/NpcCatalog.ts');
+  validateNpcCatalogReferences((characterId) => {
+    try {
+      const packageValue = getCharacterPackage(characterId);
+      return { characterId, kind: packageValue.character.kind };
+    } catch {
+      return undefined;
+    }
+  });
   const quests = getQuestDefinitions();
   console.log(`quests:check passed (${quests.length} quest definitions validated)`);
 } catch (error) {

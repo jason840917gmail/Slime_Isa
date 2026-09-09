@@ -63,7 +63,7 @@ export function validateObjectInitialState(objectId: string, value: unknown): re
     const dropVisualId = typeof value.dropVisualId === 'string'
       ? value.dropVisualId
       : typeof value.dropObjectId === 'string' && isObjectArchetypeId(dropObjectId)
-        ? getObjectArchetype(dropObjectId).variants[0]?.frames[0]?.visualId ?? ''
+        ? getObjectArchetype(dropObjectId).variants?.[0]?.frames[0]?.visualId ?? ''
         : definition.resourceNode.drop.visualId;
     if (isObjectArchetypeId(dropObjectId) && !hasObjectVisual(dropObjectId, dropVisualId)) {
       issues.push(`initialState.dropVisualId '${dropVisualId}' does not belong to '${dropObjectId}'`);

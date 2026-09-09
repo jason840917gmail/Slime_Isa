@@ -5,7 +5,7 @@
     "tags": ["wood", "stone", "iron", "charcoal", "grain"]
   },
   "inventory": {
-    "initialMaxSlots": 3,
+    "initialMaxSlots": 10,
     "maxStackByItem": {
       "wood": 25,
       "stone": 25,

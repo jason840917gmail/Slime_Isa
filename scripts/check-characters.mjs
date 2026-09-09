@@ -90,7 +90,7 @@ for (const file of listFiles(characterRoot, 'visual-set.json')) {
 for (const file of listFiles(characterRoot, 'character.json')) {
   let value;
   try { value = JSON.parse(readFileSync(file, 'utf8')); } catch (error) { fail(file, 'json', error.message); continue; }
-  keys(file, 'character', value, new Set(['$schema', 'version', 'characterId', 'displayName', 'kind', 'runtimeRole', 'visualSetId', 'attributes', 'body', 'hitboxes', 'animationTracks', 'player', 'enemy']));
+  keys(file, 'character', value, new Set(['$schema', 'version', 'characterId', 'displayName', 'kind', 'runtimeRole', 'visualSetId', 'attributes', 'body', 'hitboxes', 'animationTracks', 'player', 'enemy', 'npc']));
   if (value.version !== 1) fail(file, 'version', 'must be 1');
   if (!characterIdPattern.test(value.characterId ?? '')) fail(file, 'characterId', 'must be lowercase kebab-case');
   if (characterIds.has(value.characterId)) fail(file, 'characterId', `duplicates ${characterIds.get(value.characterId)}`); else characterIds.set(value.characterId, relative(root, file));
@@ -111,6 +111,22 @@ for (const file of listFiles(characterRoot, 'character.json')) {
   }
   if (value.kind === 'player' && !isRecord(value.player)) fail(file, 'player', 'required for players');
   if (value.kind === 'enemy' && !isRecord(value.enemy)) fail(file, 'enemy', 'required for enemies');
+  if (value.kind === 'npc') {
+    for (const forbidden of ['player', 'enemy', 'runtimeRole', 'attributes']) if (value[forbidden] !== undefined) fail(file, forbidden, 'forbidden for NPCs');
+    if (!isRecord(value.npc)) fail(file, 'npc', 'required for NPCs');
+    else {
+      keys(file, 'npc', value.npc, new Set(['wanderSpeed', 'pauseMinMs', 'pauseMaxMs']));
+      finite(file, 'npc.wanderSpeed', value.npc.wanderSpeed, (entry) => entry > 0, 'must be greater than zero');
+      integer(file, 'npc.pauseMinMs', value.npc.pauseMinMs, (entry) => entry >= 0, 'must be non-negative');
+      integer(file, 'npc.pauseMaxMs', value.npc.pauseMaxMs, (entry) => entry >= value.npc.pauseMinMs, 'must be >= pauseMinMs');
+    }
+    if (!isRecord(value.hitboxes) || Object.keys(value.hitboxes).length > 0) fail(file, 'hitboxes', 'must be empty for NPCs');
+    for (const [clipId, track] of Object.entries(value.animationTracks ?? {})) {
+      if (track.hitboxSpans?.length) fail(file, `animationTracks.${clipId}.hitboxSpans`, 'must be empty for NPCs');
+      for (const [eventIndex, event] of (track.events ?? []).entries()) if (!event?.eventId?.startsWith('npc.')) fail(file, `animationTracks.${clipId}.events.${eventIndex}.eventId`, "NPC events must use the 'npc.' namespace");
+    }
+    for (const clipId of ['idle', 'walk-down', 'walk-up', 'walk-left', 'walk-right']) if (!value.animationTracks?.[clipId]) fail(file, `animationTracks.${clipId}`, 'required for NPCs');
+  }
 }
 
 if (primaryPlayers.length !== 1) errors.push(`[catalog] primary player: expected exactly one, found ${primaryPlayers.length}`);

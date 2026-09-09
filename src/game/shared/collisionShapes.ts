@@ -29,6 +29,23 @@ export interface ResolvedCollisionShape {
   readonly radiusY?: number;
 }
 
+export interface EffectiveArcadeBodyBounds {
+  readonly minX: number;
+  readonly minY: number;
+  readonly maxX: number;
+  readonly maxY: number;
+  readonly width: number;
+  readonly height: number;
+}
+
+/** Conservative Arcade body bounds relative to the entity anchor. */
+export function resolveEffectiveArcadeBodyBoundsRelativeToAnchor(document: CollisionShapeDocument): EffectiveArcadeBodyBounds {
+  const resolved = resolveCollisionShapeDimensions(document);
+  const centerOffsetX = document.centerOffsetX ?? 0;
+  const centerOffsetY = document.centerOffsetY ?? 0;
+  return { minX: centerOffsetX - resolved.width / 2, minY: centerOffsetY - resolved.height / 2, maxX: centerOffsetX + resolved.width / 2, maxY: centerOffsetY + resolved.height / 2, width: resolved.width, height: resolved.height };
+}
+
 export function normalizeCollisionShape(shape: CollisionShape | undefined): CollisionShape {
   return shape === 'circle' || shape === 'ellipse' ? shape : 'rectangle';
 }
@@ -59,20 +76,18 @@ export function applyArcadeBodyGeometry(
   document: CollisionShapeDocument,
 ): CollisionShape {
   const resolved = resolveCollisionShapeDimensions(document);
+  const bounds = resolveEffectiveArcadeBodyBoundsRelativeToAnchor(document);
   if (resolved.shape === 'circle') {
     const radius = resolved.radius ?? Math.min(document.width, document.height) / 2;
     body.setCircle(
       radius,
-      displayOriginX - radius + (document.centerOffsetX ?? 0),
-      displayOriginY - radius + (document.centerOffsetY ?? 0),
+      displayOriginX + bounds.minX,
+      displayOriginY + bounds.minY,
     );
     return resolved.shape;
   }
 
-  body.setSize(resolved.width, resolved.height, false);
-  body.setOffset(
-    displayOriginX - resolved.width / 2 + (document.centerOffsetX ?? 0),
-    displayOriginY - resolved.height / 2 + (document.centerOffsetY ?? 0),
-  );
+  body.setSize(bounds.width, bounds.height, false);
+  body.setOffset(displayOriginX + bounds.minX, displayOriginY + bounds.minY);
   return resolved.shape;
 }

@@ -67,9 +67,9 @@ export interface MapEnemySafeZone {
   readonly h: number;
 }
 
-export type MapEnemyAreaShape = 'circle' | 'rectangle';
+export type MapAgentAreaShape = 'circle' | 'rectangle';
 
-export type MapEnemyAreaPerimeter =
+export type MapAgentAreaPerimeter =
   | {
     readonly shape: 'circle';
     /** Circle center in world pixels. */
@@ -85,6 +85,18 @@ export type MapEnemyAreaPerimeter =
     readonly w: number;
     readonly h: number;
   };
+
+/** Compatibility aliases retained for enemy-area consumers. */
+export type MapEnemyAreaShape = MapAgentAreaShape;
+export type MapEnemyAreaPerimeter = MapAgentAreaPerimeter;
+
+export interface MapNpcWanderArea {
+  /** Stable editor-generated identity, normally npc-area-NN. */
+  readonly id: string;
+  /** The single placed NPC instance that owns this perimeter. */
+  readonly npcInstanceId: string;
+  readonly perimeter: MapAgentAreaPerimeter;
+}
 
 export interface MapEnemySpawnArea {
   /** Stable editor-generated identity, unique within the map. */
@@ -131,6 +143,8 @@ export interface MapFile {
   readonly enemySafeZones?: readonly MapEnemySafeZone[];
   /** Authored enemy camps. When non-empty, runtime spawning uses these areas instead of legacy spawns. */
   readonly enemySpawnAreas?: readonly MapEnemySpawnArea[];
+  /** Optional personal wander perimeter for each placed NPC. */
+  readonly npcWanderAreas?: readonly MapNpcWanderArea[];
   readonly spawns?: MapSpawns;
 }
 
@@ -553,6 +567,33 @@ export function parseMapFile(data: unknown, mapLabel = 'unknown'): MapFile {
         if (!isPositiveInt(area.maxPopulation)) {
           issues.push(`${path}.maxPopulation: expected positive integer`);
         }
+      });
+    }
+  }
+
+  if (data.npcWanderAreas !== undefined) {
+    if (!Array.isArray(data.npcWanderAreas)) {
+      issues.push('npcWanderAreas: expected an array (may be empty)');
+    } else {
+      const areaIds = new Set<string>();
+      const npcInstanceIds = new Set<string>();
+      data.npcWanderAreas.forEach((area, index) => {
+        const path = `npcWanderAreas[${index}]`;
+        if (!isRecord(area)) {
+          issues.push(`${path}: expected an object`);
+          return;
+        }
+        if (typeof area.id !== 'string' || !/^npc-area-[0-9]+$/.test(area.id)) {
+          issues.push(`${path}.id: expected stable npc-area-NN ID`);
+        } else if (areaIds.has(area.id)) {
+          issues.push(`${path}.id: duplicate '${area.id}'`);
+        } else areaIds.add(area.id);
+        if (typeof area.npcInstanceId !== 'string' || area.npcInstanceId.length === 0) {
+          issues.push(`${path}.npcInstanceId: required non-empty instance ID`);
+        } else if (npcInstanceIds.has(area.npcInstanceId)) {
+          issues.push(`${path}.npcInstanceId: duplicate assignment '${area.npcInstanceId}'`);
+        } else npcInstanceIds.add(area.npcInstanceId);
+        validateEnemyPerimeter(area.perimeter, `${path}.perimeter`, issues, pixelWidth, pixelHeight);
       });
     }
   }

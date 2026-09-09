@@ -11,7 +11,7 @@ interface CharacterStudioCharacter {
   version: 1;
   characterId: string;
   displayName: string;
-  kind: 'player' | 'enemy';
+  kind: 'player' | 'enemy' | 'npc';
   runtimeRole?: 'primary-player';
   visualSetId: string;
   body: { shape?: 'rectangle' | 'circle' | 'ellipse'; width: number; height: number; radius?: number; radiusX?: number; radiusY?: number; centerOffsetX: number; centerOffsetY: number };
@@ -19,6 +19,7 @@ interface CharacterStudioCharacter {
   animationTracks: Record<string, { hitboxSpans?: Array<{ hitboxId: string; from: number; through: number }>; events?: Array<{ at: number; eventId: string; payload?: unknown }> }>;
   player?: { name: string };
   enemy?: { maxHp: number; ai: { behavior?: 'standard' | 'slime-spider'; aggroRange: number; attackRange: number; wanderSpeed: number; chaseSpeed: number; attackCooldownMs: number; attackWindupMs: number; attackRecoveryMs: number; contactDamage: number; knockbackStrength: number; isRanged: boolean; knockbackResist: number; leapRange?: number; fleeRange?: number; isLeaper?: boolean; projectileSpeed?: number }; drop: { xp: number; coins: number; items?: Array<{ itemId: string; chance: number; count?: number }> }; projectile?: { assetId: string; damage: number }; impactEffect?: { visualSetId: string; clipId: string; distance: number } };
+  npc?: { wanderSpeed: number; pauseMinMs: number; pauseMaxMs: number };
 }
 
 declare module 'virtual-character-content' {

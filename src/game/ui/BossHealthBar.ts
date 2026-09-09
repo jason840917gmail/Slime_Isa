@@ -1,6 +1,7 @@
 ﻿import Phaser from 'phaser';
 import type { Enemy } from '../enemies/Enemy';
 import { resolveScreenUiDepth } from '../presentation/WorldDepth';
+import { addUiSkin } from '../presentation/UiSkin';
 
 const FONT = 'Trebuchet MS, Segoe UI Variable, sans-serif';
 
@@ -19,12 +20,20 @@ export class BossHealthBar {
     this.container = scene.add.container(cam.width / 2, cam.height - 74).setScrollFactor(0).setDepth(resolveScreenUiDepth(70));
 
     const width = 520;
-    const bg = scene.add.graphics();
-    bg.fillStyle(0x101a31, 0.94);
-    bg.fillRoundedRect(-width / 2 - 14, -28, width + 28, 56, 12);
-    bg.lineStyle(2, 0x8b2f2f, 0.9);
-    bg.strokeRoundedRect(-width / 2 - 14, -28, width + 28, 56, 12);
-    this.container.add(bg);
+    const skin = addUiSkin(scene, this.container, 'ui.frame.boss-health', {
+      x: 0,
+      y: 0,
+      width: width + 28,
+      height: 72,
+    });
+    if (!skin) {
+      const bg = scene.add.graphics();
+      bg.fillStyle(0x101a31, 0.94);
+      bg.fillRoundedRect(-width / 2 - 14, -28, width + 28, 56, 12);
+      bg.lineStyle(2, 0x8b2f2f, 0.9);
+      bg.strokeRoundedRect(-width / 2 - 14, -28, width + 28, 56, 12);
+      this.container.add(bg);
+    }
 
     this.container.add(scene.add.text(-width / 2, -17, name, {
       fontFamily: FONT,

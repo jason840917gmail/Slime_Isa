@@ -3,6 +3,7 @@
   "version": 1,
   "ignore": [
     "Originals/**",
+    "characters/authored/npcs/128X128_6X5_village-elder-plop.png",
     "MAPS/enemies/64x64-8x10-spider_slime.png",
     "MAPS/FOREST/ChatGPT*.png",
     "MAPS/walls/stone-wall-networks-source.png"
@@ -10,6 +11,11 @@
   "bundles": {
     "boot": [
       "character.player.slime",
+      "character.npc.village-elder-plop",
+      "character.npc.mossy-scout",
+      "character.npc.lili",
+      "character.npc.red-slime-boy",
+      "character.npc.yellow-blond-slime-girl",
       "sheet.grounds.19x19.highland-green",
       "sheet.grounds.19x19.amberleaf",
       "sheet.grounds.19x19.frozen",
@@ -52,7 +58,20 @@
       "weapon.player.starter-spears-tiles",
       "weapon.player.hammer-spear-tiles",
       "weapon.player.pickaxe-tiles",
-      "effect.resource.stone-impact-tiles"
+      "effect.resource.stone-impact-tiles",
+      "ui.frame.organic-modal",
+      "ui.frame.organic-compact",
+      "ui.backplate.inventory",
+      "ui.surface.map-journal-paper",
+      "ui.frame.organic-minimap",
+      "ui.backplate.crafting-workbench",
+      "ui.backplate.crafting-detail-workbench",
+      "ui.backplate.quest-journal",
+      "ui.frame.quest-offer-scroll",
+      "ui.frame.shop-stall",
+      "ui.frame.levelup-crest",
+      "ui.frame.boss-health",
+      "ui.banner.area-title"
     ]
   },
   "assets": {
@@ -87,6 +106,176 @@
       ],
       "status": "ready",
       "notes": "Visual transforms and named clips live in src/game/content/visuals/player-slime/visual-set.json."
+    },
+    "character.npc.village-elder-plop": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "characters/authored/npcs/village-elder-plop.png",
+        "frame": {
+          "w": 229,
+          "h": 229,
+          "cols": 6,
+          "rows": 5,
+          "count": 30
+        },
+        "expect": {
+          "w": 1374,
+          "h": 1145
+        }
+      },
+      "runtime": {
+        "textureKey": "character-npc-village-elder-plop"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": false
+      },
+      "tags": [
+        "character",
+        "npc",
+        "animated"
+      ],
+      "status": "ready",
+      "notes": "Rows: idle, walk-down, walk-up, walk-left, walk-right; six frames per row."
+    },
+    "character.npc.mossy-scout": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "characters/authored/npcs/mossy-scout.png",
+        "frame": {
+          "w": 229,
+          "h": 229,
+          "cols": 6,
+          "rows": 5,
+          "count": 30
+        },
+        "expect": {
+          "w": 1374,
+          "h": 1145
+        }
+      },
+      "runtime": {
+        "textureKey": "character-npc-mossy-scout"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": false
+      },
+      "tags": [
+        "character",
+        "npc",
+        "animated"
+      ],
+      "status": "ready",
+      "notes": "Rows: idle, walk-down, walk-up, walk-left, walk-right; six frames per row."
+    },
+    "character.npc.lili": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "characters/authored/npcs/lili.png",
+        "frame": {
+          "w": 229,
+          "h": 229,
+          "cols": 6,
+          "rows": 5,
+          "count": 30
+        },
+        "expect": {
+          "w": 1374,
+          "h": 1145
+        }
+      },
+      "runtime": {
+        "textureKey": "character-npc-lili"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": false
+      },
+      "tags": [
+        "character",
+        "npc",
+        "animated"
+      ],
+      "status": "ready",
+      "notes": "Rows: idle, walk-down, walk-up, walk-left, walk-right; six frames per row."
+    },
+    "character.npc.red-slime-boy": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "characters/authored/npcs/red-slime-boy.png",
+        "frame": {
+          "w": 229,
+          "h": 229,
+          "cols": 6,
+          "rows": 5,
+          "count": 30
+        },
+        "expect": {
+          "w": 1374,
+          "h": 1145
+        }
+      },
+      "runtime": {
+        "textureKey": "character-npc-red-slime-boy"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": false
+      },
+      "tags": [
+        "character",
+        "npc",
+        "animated"
+      ],
+      "status": "ready",
+      "notes": "Rows: idle, walk-down, walk-up, walk-left, walk-right; six frames per row."
+    },
+    "character.npc.yellow-blond-slime-girl": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "characters/authored/npcs/yellow-blond-slime-girl.png",
+        "frame": {
+          "w": 229,
+          "h": 229,
+          "cols": 6,
+          "rows": 5,
+          "count": 30
+        },
+        "expect": {
+          "w": 1374,
+          "h": 1145
+        }
+      },
+      "runtime": {
+        "textureKey": "character-npc-yellow-blond-slime-girl"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": false
+      },
+      "tags": [
+        "character",
+        "npc",
+        "animated"
+      ],
+      "status": "ready",
+      "notes": "Rows: idle, walk-down, walk-up, walk-left, walk-right; six frames per row."
     },
     "sheet.grounds.19x19.highland-green": {
       "source": {
@@ -1367,6 +1556,162 @@
         "animated"
       ],
       "status": "ready"
+    },
+    "ui.frame.organic-modal": {
+      "source": {
+        "kind": "image",
+        "path": "UI/ui-organic-modal-frame.png",
+        "expect": { "w": 1448, "h": 1086 }
+      },
+      "runtime": { "textureKey": "ui-organic-modal-frame" },
+      "render": { "origin": [0.5, 0.5], "pixelArt": false },
+      "tags": ["ui", "frame", "modal"],
+      "status": "ready",
+      "notes": "Shared large organic modal frame; dynamic content stays in UI code."
+    },
+    "ui.frame.organic-compact": {
+      "source": {
+        "kind": "image",
+        "path": "UI/ui-organic-compact-frame.png",
+        "expect": { "w": 2172, "h": 724 }
+      },
+      "runtime": { "textureKey": "ui-organic-compact-frame" },
+      "render": { "origin": [0.5, 0.5], "pixelArt": false },
+      "tags": ["ui", "frame", "compact"],
+      "status": "ready",
+      "notes": "Wide compact frame for HUD, hotbar, ability bar, chat, and prompts."
+    },
+    "ui.backplate.inventory": {
+      "source": {
+        "kind": "image",
+        "path": "UI/ui-inventory-backplate.png",
+        "expect": { "w": 1672, "h": 941 }
+      },
+      "runtime": { "textureKey": "ui-inventory-backplate" },
+      "render": { "origin": [0.5, 0.5], "pixelArt": false },
+      "tags": ["ui", "backplate", "inventory"],
+      "status": "ready",
+      "notes": "Inventory-specific backplate with quiet grid and detail regions."
+    },
+    "ui.surface.map-journal-paper": {
+      "source": {
+        "kind": "image",
+        "path": "UI/ui-map-journal-paper.png",
+        "expect": { "w": 1448, "h": 1086 }
+      },
+      "runtime": { "textureKey": "ui-map-journal-paper" },
+      "render": { "origin": [0.5, 0.5], "pixelArt": false },
+      "tags": ["ui", "surface", "paper", "map", "journal"],
+      "status": "ready",
+      "notes": "Warm map and quest-journal paper surface; routes and text stay dynamic."
+    },
+    "ui.frame.organic-minimap": {
+      "source": {
+        "kind": "image",
+        "path": "UI/ui-organic-minimap-frame.png",
+        "expect": { "w": 1254, "h": 1254 }
+      },
+      "runtime": { "textureKey": "ui-organic-minimap-frame" },
+      "render": { "origin": [0.5, 0.5], "pixelArt": false },
+      "tags": ["ui", "frame", "minimap"],
+      "status": "ready",
+      "notes": "Square minimap frame; terrain, camera rectangle, and markers stay dynamic."
+    },
+    "ui.backplate.crafting-workbench": {
+      "source": {
+        "kind": "image",
+        "path": "UI/ui-crafting-workbench-backplate.png",
+        "expect": { "w": 1672, "h": 941 }
+      },
+      "runtime": { "textureKey": "ui-crafting-workbench-backplate" },
+      "render": { "origin": [0.5, 0.5], "pixelArt": false },
+      "tags": ["ui", "backplate", "crafting"],
+      "status": "ready",
+      "notes": "Crafting workbench backplate with quiet recipe and output regions."
+    },
+    "ui.backplate.crafting-detail-workbench": {
+      "source": {
+        "kind": "image",
+        "path": "UI/ui-crafting-detail-workbench-backplate.png",
+        "expect": { "w": 2048, "h": 1152 }
+      },
+      "runtime": { "textureKey": "ui-crafting-detail-workbench-backplate" },
+      "render": { "origin": [0.5, 0.5], "pixelArt": false },
+      "tags": ["ui", "backplate", "crafting", "detail"],
+      "status": "ready",
+      "notes": "Wide two-column crafting workbench with a carved detail divider and recessed action area."
+    },
+    "ui.backplate.quest-journal": {
+      "source": {
+        "kind": "image",
+        "path": "UI/ui-quest-journal-backplate.png",
+        "expect": { "w": 1448, "h": 1086 }
+      },
+      "runtime": { "textureKey": "ui-quest-journal-backplate" },
+      "render": { "origin": [0.5, 0.5], "pixelArt": false },
+      "tags": ["ui", "backplate", "journal"],
+      "status": "ready",
+      "notes": "Quest journal binding frame layered over the paper surface."
+    },
+    "ui.frame.quest-offer-scroll": {
+      "source": {
+        "kind": "image",
+        "path": "UI/ui-quest-offer-scroll-frame.png",
+        "expect": { "w": 1672, "h": 941 }
+      },
+      "runtime": { "textureKey": "ui-quest-offer-scroll-frame" },
+      "render": { "origin": [0.5, 0.5], "pixelArt": false },
+      "tags": ["ui", "frame", "quest"],
+      "status": "ready",
+      "notes": "Quest offer and turn-in scroll frame; objectives and rewards stay dynamic."
+    },
+    "ui.frame.shop-stall": {
+      "source": {
+        "kind": "image",
+        "path": "UI/ui-shop-stall-frame.png",
+        "expect": { "w": 1672, "h": 941 }
+      },
+      "runtime": { "textureKey": "ui-shop-stall-frame" },
+      "render": { "origin": [0.5, 0.5], "pixelArt": false },
+      "tags": ["ui", "frame", "shop"],
+      "status": "ready",
+      "notes": "Shop stall frame; offers, prices, and results stay dynamic."
+    },
+    "ui.frame.levelup-crest": {
+      "source": {
+        "kind": "image",
+        "path": "UI/ui-levelup-crest-frame.png",
+        "expect": { "w": 1448, "h": 1086 }
+      },
+      "runtime": { "textureKey": "ui-levelup-crest-frame" },
+      "render": { "origin": [0.5, 0.5], "pixelArt": false },
+      "tags": ["ui", "frame", "levelup"],
+      "status": "ready",
+      "notes": "Special-event level-up frame with a central slime and crystal crest."
+    },
+    "ui.frame.boss-health": {
+      "source": {
+        "kind": "image",
+        "path": "UI/ui-boss-health-frame.png",
+        "expect": { "w": 2172, "h": 724 }
+      },
+      "runtime": { "textureKey": "ui-boss-health-frame" },
+      "render": { "origin": [0.5, 0.5], "pixelArt": false },
+      "tags": ["ui", "frame", "boss"],
+      "status": "ready",
+      "notes": "Boss health frame with stretchable center channel and strong end caps."
+    },
+    "ui.banner.area-title": {
+      "source": {
+        "kind": "image",
+        "path": "UI/ui-area-title-banner.png",
+        "expect": { "w": 2172, "h": 724 }
+      },
+      "runtime": { "textureKey": "ui-area-title-banner" },
+      "render": { "origin": [0.5, 0.5], "pixelArt": false },
+      "tags": ["ui", "banner", "area"],
+      "status": "ready",
+      "notes": "Area title banner; title and biome subtitle stay dynamic."
     }
   }
 }

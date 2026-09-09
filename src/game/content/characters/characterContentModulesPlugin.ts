@@ -74,6 +74,8 @@ const ENEMY_STARTER_CLIP_IDS = [
   'die-down',
 ] as const;
 
+const NPC_STARTER_CLIP_IDS = ['idle', 'walk-down', 'walk-up', 'walk-left', 'walk-right'] as const;
+
 export interface CharacterContentRootOptions {
   readonly characterRoot?: string;
   readonly visualRoot?: string;
@@ -147,8 +149,8 @@ interface AssetRegistrationResponse {
 interface PackageCreationRequest {
   readonly characterId: string;
   readonly displayName: string;
-  readonly kind: 'player' | 'enemy';
-  readonly template: 'player' | 'melee-enemy' | 'ranged-enemy';
+  readonly kind: 'player' | 'enemy' | 'npc';
+  readonly template: 'player' | 'melee-enemy' | 'ranged-enemy' | 'npc';
   readonly assetId: string;
 }
 
@@ -989,8 +991,13 @@ function cloneValue<T>(value: T): T {
 }
 
 function starterClips(template: VisualSetDocument, kind: PackageCreationRequest['kind']): VisualSetDocument['clips'] {
-  const requiredIds = kind === 'player' ? PLAYER_STARTER_CLIP_IDS : ENEMY_STARTER_CLIP_IDS;
-  const clipIds = new Set<string>([...requiredIds, ...Object.keys(template.clips)]);
+  const requiredIds = kind === 'player' ? PLAYER_STARTER_CLIP_IDS : kind === 'npc' ? NPC_STARTER_CLIP_IDS : ENEMY_STARTER_CLIP_IDS;
+  // NPCs have a deliberately small, direction-focused presentation contract.
+  // Do not carry combat/emote clips across when an isolated fixture uses a
+  // player or enemy package as the visual scaffold.
+  const clipIds = kind === 'npc'
+    ? new Set<string>(requiredIds)
+    : new Set<string>([...requiredIds, ...Object.keys(template.clips)]);
   const fallback = template.clips.idle ?? Object.values(template.clips)[0];
   if (!fallback) throw new Error('Starter package has no animation clip to use as a default');
 
@@ -1020,13 +1027,22 @@ async function starterPackage(root: string, request: PackageCreationRequest): Pr
     if (!file.characterPath || !file.visualPath) continue;
     try {
       const candidate = await loadPackage(root, file.id);
-      if (candidate.character.kind === request.kind) candidates.push(candidate);
+      // NPC authoring can start from an existing NPC package when one is
+      // available, but isolated fixture catalogs often contain only the
+      // player/enemy starters. Those visual packages are still valid sources
+      // for the shared sheet/clip scaffold; role-specific fields are removed
+      // below before the new NPC package is written.
+      if (candidate.character.kind === request.kind || request.kind === 'npc') candidates.push(candidate);
     } catch {
       // The package validator reports malformed source packages separately.
     }
   }
   const template = request.kind === 'player'
     ? candidates.find((entry) => entry.character.runtimeRole === 'primary-player')
+    : request.kind === 'npc'
+      ? candidates.find((entry) => entry.character.kind === 'npc')
+        ?? candidates.find((entry) => entry.character.kind === 'player')
+        ?? candidates.find((entry) => entry.character.kind === 'enemy')
     : request.template === 'ranged-enemy'
       ? candidates.find((entry) => entry.character.enemy?.ai.isRanged)
       : candidates.find((entry) => !entry.character.enemy?.ai.isRanged);
@@ -1034,7 +1050,7 @@ async function starterPackage(root: string, request: PackageCreationRequest): Pr
 
   const character = cloneValue(template.character);
   const visualSet = cloneValue(template.visualSet);
-  const visualSetId = request.kind === 'enemy' ? `enemy.${request.characterId.replaceAll('-', '.')}` : `character.${request.characterId.replaceAll('-', '.')}`;
+  const visualSetId = request.kind === 'enemy' ? `enemy.${request.characterId.replaceAll('-', '.')}` : request.kind === 'npc' ? `character.npc.${request.characterId}` : `character.${request.characterId.replaceAll('-', '.')}`;
   character.characterId = request.characterId;
   character.displayName = request.displayName;
   character.visualSetId = visualSetId;
@@ -1044,11 +1060,18 @@ async function starterPackage(root: string, request: PackageCreationRequest): Pr
     character.kind = 'player';
     character.player = cloneValue(template.character.player!);
     delete character.enemy;
-  } else {
+  } else if (request.kind === 'enemy') {
     character.kind = 'enemy';
     character.enemy = cloneValue(template.character.enemy!);
     delete character.player;
     delete character.runtimeRole;
+  } else {
+    character.kind = 'npc';
+    character.npc = cloneValue(template.character.npc ?? { wanderSpeed: 24, pauseMinMs: 1000, pauseMaxMs: 2200 });
+    delete character.player;
+    delete character.enemy;
+    delete character.runtimeRole;
+    delete character.attributes;
   }
   visualSet.visualSetId = visualSetId;
   visualSet.assetId = request.assetId;
@@ -1066,10 +1089,11 @@ function parsePackageCreationRequest(payload: Readonly<Record<string, unknown>>)
   const assetId = payload.assetId;
   if (typeof characterId !== 'string' || !ID_PATTERN.test(characterId)) throw new Error('characterId must be a lowercase kebab-case ID');
   if (typeof displayName !== 'string' || displayName.trim().length === 0 || displayName.length > 80) throw new Error('displayName must be between 1 and 80 characters');
-  if (kind !== 'player' && kind !== 'enemy') throw new Error("kind must be 'player' or 'enemy'");
-  if (template !== 'player' && template !== 'melee-enemy' && template !== 'ranged-enemy') throw new Error('template is invalid');
+  if (kind !== 'player' && kind !== 'enemy' && kind !== 'npc') throw new Error("kind must be 'player', 'enemy', or 'npc'");
+  if (template !== 'player' && template !== 'melee-enemy' && template !== 'ranged-enemy' && template !== 'npc') throw new Error('template is invalid');
   if (kind === 'player' && template !== 'player') throw new Error('player packages require the player starter');
   if (kind === 'enemy' && template === 'player') throw new Error('enemy packages require an enemy starter');
+  if (kind === 'npc' && template !== 'npc') throw new Error('NPC packages require the NPC starter');
   if (typeof assetId !== 'string' || !ASSET_ID_PATTERN.test(assetId)) throw new Error('assetId must be a lowercase dotted stable ID');
   return { characterId, displayName: displayName.trim(), kind, template, assetId };
 }
@@ -1095,7 +1119,7 @@ async function prepareAssetRegistration(assetRoot: string, manifestPath: string,
   if (await fileExists(target)) throw new Error(`Asset source '${sourcePath}' already exists`);
   const textureKey = `character-${assetId.replaceAll('.', '-')}`;
   if (textureKeyExists(manifest, textureKey)) throw new Error(`Texture key '${textureKey}' already exists`);
-  const kind = metadataValue.kind === 'enemy' ? 'enemy' : metadataValue.kind === 'object' ? 'object' : 'player';
+  const kind = metadataValue.kind === 'enemy' ? 'enemy' : metadataValue.kind === 'npc' ? 'npc' : metadataValue.kind === 'object' ? 'object' : 'player';
   const extraTags = Array.isArray(metadataValue.tags)
     ? metadataValue.tags.filter((tag): tag is string => typeof tag === 'string' && /^[a-z0-9-]+$/.test(tag))
     : [];
@@ -1339,7 +1363,7 @@ async function packageHandler(
       jsonResponse(response, 409, failure('conflict', 'The package changed on disk.', undefined, actualRevision));
       return;
     }
-    if (packageValue.character.characterId !== saved.character.characterId || packageValue.character.kind !== saved.character.kind || packageValue.character.runtimeRole !== saved.character.runtimeRole || packageValue.character.visualSetId !== saved.character.visualSetId || packageValue.visualSet.visualSetId !== saved.visualSet.visualSetId || packageValue.visualSet.assetId !== saved.visualSet.assetId) {
+    if (packageValue.character.characterId !== saved.character.characterId || packageValue.character.kind !== saved.character.kind || packageValue.character.runtimeRole !== saved.character.runtimeRole || packageValue.character.visualSetId !== saved.character.visualSetId || packageValue.visualSet.visualSetId !== saved.visualSet.visualSetId) {
       jsonResponse(response, 400, failure('validation', 'Package identity fields cannot be changed.'));
       return;
     }
@@ -1364,7 +1388,11 @@ async function packageHandler(
   if (packageValue.character.characterId !== savedSource.character.characterId || packageValue.character.kind !== savedSource.character.kind || packageValue.character.visualSetId !== savedSource.character.visualSetId || packageValue.visualSet.assetId !== savedSource.visualSet.assetId) {
     jsonResponse(response, 409, failure('conflict', 'The duplicate draft no longer matches the source identity.')); return;
   }
-  const visualSetId = packageValue.character.kind === 'enemy' ? `enemy.${characterId.replaceAll('-', '.')}` : `character.${characterId.replaceAll('-', '.')}`;
+  const visualSetId = packageValue.character.kind === 'enemy'
+    ? `enemy.${characterId.replaceAll('-', '.')}`
+    : packageValue.character.kind === 'npc'
+      ? `character.npc.${characterId}`
+      : `character.${characterId.replaceAll('-', '.')}`;
   const duplicate: CharacterPackage = {
     character: { ...packageValue.character, characterId, displayName: newDisplayName.trim(), visualSetId, runtimeRole: undefined },
     visualSet: { ...packageValue.visualSet, visualSetId },
@@ -1552,6 +1580,14 @@ export function characterContentModulesPlugin(options: CharacterContentRootOptio
           if (request.method !== 'GET') { jsonResponse(response, 405, failure('invalid-request', 'GET required')); return; }
           void weaponCatalogHandler(roots.weaponRoot, response).catch((error: unknown) => {
             jsonResponse(response, 500, failure('weapon-catalog', error instanceof Error ? error.message : String(error)));
+          });
+          return;
+        }
+        const weaponMatch = requestPath?.match(/^\/__character-studio\/weapon\/([^/]+)$/);
+        if (weaponMatch) {
+          if (request.method !== 'GET') { jsonResponse(response, 405, failure('invalid-request', 'GET required')); return; }
+          void weaponPackageHandler(roots.weaponRoot, roots.assetManifestPath, roots.gameConstantsPath, request, response, server, 'get', decodeURIComponent(weaponMatch[1]!)).catch((error: unknown) => {
+            jsonResponse(response, 400, failure('weapon-catalog', error instanceof Error ? error.message : String(error)));
           });
           return;
         }

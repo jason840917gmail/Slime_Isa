@@ -56,42 +56,69 @@ export class Inventory {
     removals: readonly Readonly<InventorySlot>[],
     additions: readonly Readonly<InventorySlot>[],
   ): boolean {
+    const draft = this.createTransactionDraft(removals, additions);
+    if (!draft) return false;
+    this.slots = draft;
+    gameEvents.emit('inventory.changed', {});
+    return true;
+  }
+
+  previewTransact(
+    removals: readonly Readonly<InventorySlot>[],
+    additions: readonly Readonly<InventorySlot>[],
+  ): boolean {
+    return this.createTransactionDraft(removals, additions) !== null;
+  }
+
+  private createTransactionDraft(
+    removals: readonly Readonly<InventorySlot>[],
+    additions: readonly Readonly<InventorySlot>[],
+  ): InventorySlot[] | null {
     const draft = this.slots.map((slot) => ({ ...slot }));
+    const removalTotals = new Map<string, number>();
     for (const removal of removals) {
-      let remaining = removal.count;
+      if (!Number.isSafeInteger(removal.count) || removal.count <= 0) return null;
+      removalTotals.set(removal.itemId, (removalTotals.get(removal.itemId) ?? 0) + removal.count);
+    }
+
+    for (const [itemId, count] of removalTotals) {
+      let remaining = count;
       for (const slot of draft) {
         if (remaining <= 0) break;
-        if (slot.itemId !== removal.itemId) continue;
+        if (slot.itemId !== itemId) continue;
         const amount = Math.min(slot.count, remaining);
         slot.count -= amount;
         remaining -= amount;
       }
-      if (remaining > 0) return false;
+      if (remaining > 0) return null;
     }
 
     const compact = draft.filter((slot) => slot.count > 0);
+    const additionTotals = new Map<string, number>();
     for (const addition of additions) {
-      const def = itemRegistry.get(addition.itemId);
-      if (!def || addition.count <= 0) return false;
-      let remaining = addition.count;
+      if (!Number.isSafeInteger(addition.count) || addition.count <= 0) return null;
+      additionTotals.set(addition.itemId, (additionTotals.get(addition.itemId) ?? 0) + addition.count);
+    }
+
+    for (const [itemId, count] of additionTotals) {
+      const def = itemRegistry.get(itemId);
+      if (!def || !Number.isSafeInteger(def.maxStack) || def.maxStack <= 0) return null;
+      let remaining = count;
       for (const slot of compact) {
         if (remaining <= 0) break;
-        if (slot.itemId !== addition.itemId || slot.count >= def.maxStack) continue;
+        if (slot.itemId !== itemId || slot.count >= def.maxStack) continue;
         const amount = Math.min(def.maxStack - slot.count, remaining);
         slot.count += amount;
         remaining -= amount;
       }
       while (remaining > 0 && compact.length < this.maxSlotsValue) {
         const amount = Math.min(def.maxStack, remaining);
-        compact.push({ itemId: addition.itemId, count: amount });
+        compact.push({ itemId, count: amount });
         remaining -= amount;
       }
-      if (remaining > 0) return false;
+      if (remaining > 0) return null;
     }
-
-    this.slots = compact;
-    gameEvents.emit('inventory.changed', {});
-    return true;
+    return compact;
   }
 
   add(itemId: string, count = 1): number {
@@ -134,6 +161,18 @@ export class Inventory {
     this.slots = this.slots.filter((s) => s.count > 0);
     gameEvents.emit('inventory.changed', {});
     return count - remaining;
+  }
+
+  removeFromSlot(slotIndex: number, count = 1): number {
+    if (!Number.isInteger(slotIndex) || !Number.isInteger(count) || count <= 0) return 0;
+    const slot = this.slots[slotIndex];
+    if (!slot) return 0;
+
+    const removed = Math.min(slot.count, count);
+    slot.count -= removed;
+    if (slot.count === 0) this.slots.splice(slotIndex, 1);
+    gameEvents.emit('inventory.changed', {});
+    return removed;
   }
 
   count(itemId: string): number {

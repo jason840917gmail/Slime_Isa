@@ -1,0 +1,14 @@
+{
+  "$schema": "../objects.schema.json",
+  "objectId": "npc.yellow-blond-slime-girl",
+  "selection": "authored",
+  "physics": null,
+  "npc": {
+    "definitionId": "yellow-blond-slime-girl",
+    "placementVisualId": "yellow-blond-slime-girl"
+  },
+  "tags": [
+    "npc",
+    "interactable"
+  ]
+}

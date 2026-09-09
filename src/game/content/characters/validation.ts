@@ -335,6 +335,20 @@ function validateEnemy(issues: CharacterValidationIssue[], enemy: unknown, optio
   }
 }
 
+function validateNpc(issues: CharacterValidationIssue[], npc: unknown): void {
+  if (!isRecord(npc)) {
+    issue(issues, 'character.npc', 'must be an object');
+    return;
+  }
+  checkKeys(issues, npc, 'character.npc', new Set(['wanderSpeed', 'pauseMinMs', 'pauseMaxMs']));
+  finite(issues, npc.wanderSpeed, 'character.npc.wanderSpeed', (entry) => entry > 0, 'must be greater than zero');
+  integer(issues, npc.pauseMinMs, 'character.npc.pauseMinMs', (entry) => entry >= 0, 'must be a non-negative integer');
+  integer(issues, npc.pauseMaxMs, 'character.npc.pauseMaxMs', (entry) => entry >= 0, 'must be a non-negative integer');
+  if (typeof npc.pauseMinMs === 'number' && typeof npc.pauseMaxMs === 'number' && npc.pauseMaxMs < npc.pauseMinMs) {
+    issue(issues, 'character.npc.pauseMaxMs', 'must be greater than or equal to pauseMinMs');
+  }
+}
+
 export function validateCharacterDocument(
   value: unknown,
   visualSet: VisualSetDocument | undefined,
@@ -345,13 +359,13 @@ export function validateCharacterDocument(
     issue(issues, 'character', 'must be an object');
     return issues;
   }
-  checkKeys(issues, value, 'character', new Set(['$schema', 'version', 'characterId', 'displayName', 'kind', 'runtimeRole', 'visualSetId', 'attributes', 'body', 'hitboxes', 'animationTracks', 'player', 'enemy']));
+  checkKeys(issues, value, 'character', new Set(['$schema', 'version', 'characterId', 'displayName', 'kind', 'runtimeRole', 'visualSetId', 'attributes', 'body', 'hitboxes', 'animationTracks', 'player', 'enemy', 'npc']));
   if (value.version !== 1) issue(issues, 'character.version', 'must be version 1');
   const hasCharacterId = stringValue(issues, value.characterId, 'character.characterId', (entry) => CHARACTER_ID_PATTERN.test(entry) && entry.length <= 80, 'must be a lowercase kebab-case ID');
   const characterId = hasCharacterId && typeof value.characterId === 'string' ? value.characterId : undefined;
   if (characterId && !options.allowDuplicateIdentity && options.characterIds?.has(characterId)) issue(issues, 'character.characterId', `duplicate character ID '${characterId}'`);
   stringValue(issues, value.displayName, 'character.displayName', (entry) => entry.trim().length > 0 && entry.length <= 80, 'must be a non-empty display name of at most 80 characters');
-  if (value.kind !== 'player' && value.kind !== 'enemy') issue(issues, 'character.kind', "must be 'player' or 'enemy'");
+  if (value.kind !== 'player' && value.kind !== 'enemy' && value.kind !== 'npc') issue(issues, 'character.kind', "must be 'player', 'enemy', or 'npc'");
   if (value.runtimeRole !== undefined && value.runtimeRole !== 'primary-player') issue(issues, 'character.runtimeRole', "must be 'primary-player'");
   if (value.runtimeRole === 'primary-player' && value.kind !== 'player') issue(issues, 'character.runtimeRole', 'is only allowed on a player');
   const hasVisualSetId = stringValue(issues, value.visualSetId, 'character.visualSetId', (entry) => ID_PATTERN.test(entry), 'must be a lowercase dotted stable ID');
@@ -406,6 +420,21 @@ export function validateCharacterDocument(
   } else if (value.kind === 'enemy') {
     if (value.player !== undefined) issue(issues, 'character.player', 'is forbidden for enemies');
     validateEnemy(issues, value.enemy, options);
+  } else if (value.kind === 'npc') {
+    for (const forbidden of ['player', 'enemy', 'runtimeRole', 'attributes'] as const) {
+      if (value[forbidden] !== undefined) issue(issues, `character.${forbidden}`, 'is forbidden for NPCs');
+    }
+    validateNpc(issues, value.npc);
+    if (isRecord(value.hitboxes) && Object.keys(value.hitboxes).length > 0) issue(issues, 'character.hitboxes', 'must be empty for NPCs');
+    for (const [trackId, track] of Object.entries(isRecord(value.animationTracks) ? value.animationTracks : {})) {
+      if (!isRecord(track)) continue;
+      if (Array.isArray(track.hitboxSpans) && track.hitboxSpans.length > 0) issue(issues, `character.animationTracks.${trackId}.hitboxSpans`, 'must be empty for NPCs');
+      for (const [eventIndex, event] of (Array.isArray(track.events) ? track.events : []).entries()) {
+        if (!isRecord(event) || typeof event.eventId !== 'string' || !event.eventId.startsWith('npc.')) issue(issues, `character.animationTracks.${trackId}.events[${eventIndex}].eventId`, "NPC events must use the 'npc.' namespace");
+      }
+    }
+    const requiredClips = ['idle', 'walk-down', 'walk-up', 'walk-left', 'walk-right'];
+    for (const clipId of requiredClips) if (!clips[clipId]) issue(issues, `character.animationTracks.${clipId}`, 'is required for NPCs');
   }
   return issues;
 }

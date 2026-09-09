@@ -1,4 +1,6 @@
-import { getObjectArchetype, getObjectVisualChoices, type ObjectVisualChoice } from '../content/objects/ObjectCatalog';
+import { getObjectArchetype, getObjectPlacementChoices, getObjectVisualChoices, type NpcCharacterPlacementChoice, type ObjectVisualChoice } from '../content/objects/ObjectCatalog';
+import { getAsset } from '../infrastructure/assets/manifest';
+import { resolveAssetUrl } from '../infrastructure/assets/assetUrls';
 import { getTileDefinition, getTileIds } from '../content/terrain/TileCatalog';
 import { getAuthoredMapIds } from '../infrastructure/maps/MapRepository';
 import { ENEMY_CONFIGS } from '../enemies/library/EnemyTypes';
@@ -17,6 +19,7 @@ const TOOLS: ReadonlyArray<{ id: EditorTool; label: string }> = [
   { id: 'erase', label: 'Erase / Box Delete' },
   { id: 'safe-zone', label: 'Monster Safe Zone' },
   { id: 'enemy-area', label: 'Enemy Area' },
+  { id: 'npc-area', label: 'NPC Wander Area' },
   { id: 'spawn', label: 'Player Spawn' },
   { id: 'entry', label: 'Entry Point' },
   { id: 'exit', label: 'Exit Zone' },
@@ -139,6 +142,17 @@ function renderObjectPalette(
   })));
 }
 
+function renderNpcPalette(choices: readonly NpcCharacterPlacementChoice[], query = ''): string {
+  const normalizedQuery = query.trim().toLowerCase();
+  return choices.filter((choice) => !normalizedQuery || [choice.displayName, choice.characterId, choice.npcDefinitionId, ...choice.tags]
+    .join(' ').toLowerCase().includes(normalizedQuery)).map((choice) => {
+    const assetId = `character.npc.${choice.characterId}`;
+    let url = '';
+    try { const asset = getAsset(assetId as Parameters<typeof getAsset>[0]); if ('path' in asset.source) url = resolveAssetUrl(asset.source.path); } catch { /* package validation reports missing assets */ }
+    return `<button class="editor-palette-item editor-palette-item--npc" type="button" data-npc-character="${escapeHtml(choice.characterId)}" data-object="${escapeHtml(choice.objectId)}" data-visual="${escapeHtml(choice.visualId)}" title="Select ${escapeHtml(choice.displayName)} for map placement"><span class="editor-palette-preview"><img src="${escapeHtml(url)}" alt="" /></span><span class="editor-palette-copy"><strong>${escapeHtml(choice.displayName)}</strong><small>NPC · ${escapeHtml(choice.characterId)} · place, then edit in Character Studio</small></span></button>`;
+  }).join('');
+}
+
 export function mountMapEditorPanel(
   host: HTMLElement,
   editor: MapEditorState,
@@ -170,6 +184,8 @@ export function mountMapEditorPanel(
   }
   const objectChoiceGroups = [...objectArtworkGroups.values()];
   const objectButtons = renderObjectPalette(objectChoiceGroups, previews, '');
+  const npcPlacementChoices = getObjectPlacementChoices().filter((choice): choice is NpcCharacterPlacementChoice => choice.kind === 'npc-character');
+  const npcButtons = renderNpcPalette(npcPlacementChoices);
 
   host.innerHTML = `
     <header class="map-editor-header">
@@ -224,8 +240,14 @@ export function mountMapEditorPanel(
       </div>
       <p class="editor-help">Each camp gets its own monster roster, respawn cooldown, and population cap. Select a camp to use its four corner resize handles or delete it. Enemies return to amber when the player leaves cyan.</p>
     </section>
+    <section class="editor-section editor-npc-area-section">
+      <div class="editor-section-title"><span>03</span><h2>NPC Wander Areas</h2></div>
+      <label class="editor-area-shape-field">Area shape<select data-npc-area-shape><option value="rectangle">Rectangle</option><option value="circle">Circle</option></select></label>
+      <div class="editor-area-actions"><strong data-npc-area-count>0 personal areas</strong><div class="editor-area-action-buttons"><button type="button" data-command="delete-npc-area" class="editor-area-delete" disabled>Delete selected</button></div></div>
+      <p class="editor-help">Select an NPC to see its wander area. Activate NPC Wander Area to draw, move, resize, or delete it. Erase removes the NPC and its area together. NPCs without an area remain stationary.</p>
+    </section>
     <section class="editor-section">
-      <div class="editor-section-title"><span>03</span><h2>Direction</h2></div>
+      <div class="editor-section-title"><span>04</span><h2>Direction</h2></div>
       <div class="editor-direction-grid">
         ${['north', 'east', 'south', 'west'].map((direction) => (
           `<button type="button" data-direction="${direction}">${direction}</button>`
@@ -234,7 +256,7 @@ export function mountMapEditorPanel(
       <p class="editor-help">Used by entry and exit tools.</p>
     </section>
     <section class="editor-section editor-connections-section">
-      <div class="editor-section-title"><span>04</span><h2>Map Connections</h2></div>
+      <div class="editor-section-title"><span>05</span><h2>Map Connections</h2></div>
       <div class="editor-connections-grid">
         ${MAP_DIRECTIONS.map((direction) => `<label data-connection-label="${direction}">
           <span>${direction}</span>
@@ -250,11 +272,11 @@ export function mountMapEditorPanel(
       <p class="editor-help">Connections are two-way. Saving also creates the matching entry and return exit in the linked map.</p>
     </section>
     <section class="editor-section editor-palette-section">
-      <div class="editor-section-title"><span>05</span><h2>Terrain Content</h2></div>
+      <div class="editor-section-title"><span>06</span><h2>Terrain Content</h2></div>
       <div class="editor-palette" data-editor-terrain>${tileButtons}</div>
     </section>
     <section class="editor-section editor-palette-section">
-      <div class="editor-section-title"><span>06</span><h2>Object Content</h2><button type="button" class="editor-section-action" data-object-authoring-command="open">New object</button></div>
+      <div class="editor-section-title"><span>07</span><h2>Object Content</h2><button type="button" class="editor-section-action" data-object-authoring-command="open">New object</button></div>
       <div class="editor-palette-search">
         <label for="editor-object-search">Search object visuals</label>
         <div class="editor-palette-search-controls">
@@ -263,6 +285,7 @@ export function mountMapEditorPanel(
         </div>
         <p>Search by visual ID, name, asset, or tag.</p>
       </div>
+      ${npcButtons ? `<div class="editor-palette-subheading">NPC Characters</div><div class="editor-palette editor-palette--npcs" data-editor-npcs>${npcButtons}</div>` : ''}
       <div class="editor-palette" data-editor-objects>${objectButtons}</div>
     </section>
     <footer class="editor-status" aria-live="polite">
@@ -395,12 +418,16 @@ export function mountMapEditorPanel(
   const enemyAreaDialog = host.querySelector<HTMLDialogElement>('[data-enemy-area-dialog]');
   const enemyAreaForm = host.querySelector<HTMLFormElement>('[data-enemy-area-form]');
   const enemyAreaShape = host.querySelector<HTMLSelectElement>('[data-enemy-area-shape]');
+  const npcAreaShape = host.querySelector<HTMLSelectElement>('[data-npc-area-shape]');
   const monsterDialog = host.querySelector<HTMLDialogElement>('[data-monster-dialog]');
   const monsterForm = host.querySelector<HTMLFormElement>('[data-monster-form]');
   const objectSearchInput = host.querySelector<HTMLInputElement>('[data-editor-object-search]');
   const objectPalette = host.querySelector<HTMLElement>('[data-editor-objects]');
+  const npcPalette = host.querySelector<HTMLElement>('[data-editor-npcs]');
   const rerenderObjectPalette = (): void => {
-    if (objectPalette) objectPalette.innerHTML = renderObjectPalette(objectChoiceGroups, previews, objectSearchInput?.value ?? '');
+    const query = objectSearchInput?.value ?? '';
+    if (objectPalette) objectPalette.innerHTML = renderObjectPalette(objectChoiceGroups, previews, query);
+    if (npcPalette) npcPalette.innerHTML = renderNpcPalette(npcPlacementChoices, query);
   };
   const objectSearchInputHandler = (): void => rerenderObjectPalette();
   objectSearchInput?.addEventListener('input', objectSearchInputHandler);
@@ -411,6 +438,14 @@ export function mountMapEditorPanel(
     if (!target) return;
     const tool = target.dataset.tool as EditorTool | undefined;
     if (tool) editor.setTool(tool);
+    if (target.dataset.npcCharacter) {
+      if (target.dataset.object && target.dataset.visual) {
+        templateEditor.clearSelection();
+        editor.setObject(target.dataset.object as Parameters<typeof editor.setObject>[0], target.dataset.visual);
+        editor.notify(`${target.dataset.npcCharacter} selected — use Character Studio to edit its package`);
+      }
+      return;
+    }
     if (target.dataset.tile) editor.setTile(target.dataset.tile as Parameters<typeof editor.setTile>[0]);
     if (target.dataset.object && target.dataset.visual) {
       const objectId = target.dataset.object as Parameters<typeof editor.setObject>[0];
@@ -455,6 +490,13 @@ export function mountMapEditorPanel(
         editor.deleteEnemySpawnArea(areaId);
       }
     }
+    if (target.dataset.command === 'delete-npc-area') {
+      const areaId = editor.value.selectedNpcWanderAreaId;
+      const area = editor.value.map.npcWanderAreas?.find((candidate) => candidate.id === areaId);
+      if (editor.value.tool !== 'npc-area' || !area || area.npcInstanceId !== editor.value.selectedInstanceId) return;
+      if (areaId && window.confirm(`Delete NPC wander area ${areaId}?`)) editor.deleteNpcWanderArea(areaId);
+      else if (!areaId) editor.notify('Select an NPC wander area first');
+    }
     if (target.dataset.command === 'cancel-enemy-area') enemyAreaDialog?.close();
     if (target.dataset.command === 'monster-settings') {
       populateMonsterForm();
@@ -473,6 +515,7 @@ export function mountMapEditorPanel(
   enemyAreaShape?.addEventListener('change', () => {
     editor.setEnemyAreaShape(enemyAreaShape.value as MapEnemyAreaShape);
   });
+  npcAreaShape?.addEventListener('change', () => editor.setNpcWanderAreaShape(npcAreaShape.value as MapEnemyAreaShape));
 
   const connectionChangeHandler = (event: Event): void => {
     const select = (event.target as HTMLElement).closest<HTMLSelectElement>('[data-connection-direction]');
@@ -745,6 +788,8 @@ export function mountMapEditorPanel(
     });
     const shapeSelect = host.querySelector<HTMLSelectElement>('[data-enemy-area-shape]');
     if (shapeSelect) shapeSelect.value = state.enemyAreaShape;
+    const npcShapeSelect = host.querySelector<HTMLSelectElement>('[data-npc-area-shape]');
+    if (npcShapeSelect) npcShapeSelect.value = state.npcWanderAreaShape;
     const mapSizeReadout = host.querySelector<HTMLElement>('[data-map-size-readout]');
     if (mapSizeReadout) mapSizeReadout.textContent = `${state.map.size.columns} × ${state.map.size.rows} tiles`;
     const mapPixelSize = host.querySelector<HTMLElement>('[data-map-pixel-size]');
@@ -758,6 +803,14 @@ export function mountMapEditorPanel(
     if (editArea) editArea.disabled = !state.selectedEnemyAreaId;
     const deleteArea = host.querySelector<HTMLButtonElement>('[data-command="delete-enemy-area"]');
     if (deleteArea) deleteArea.disabled = !state.selectedEnemyAreaId;
+    const npcAreaCount = host.querySelector<HTMLElement>('[data-npc-area-count]');
+    if (npcAreaCount) {
+      const count = state.map.npcWanderAreas?.length ?? 0;
+      npcAreaCount.textContent = `${count} personal area${count === 1 ? '' : 's'}`;
+    }
+    const deleteNpcArea = host.querySelector<HTMLButtonElement>('[data-command="delete-npc-area"]');
+    if (deleteNpcArea) deleteNpcArea.disabled = state.tool !== 'npc-area'
+      || !state.map.npcWanderAreas?.some((area) => area.id === state.selectedNpcWanderAreaId && area.npcInstanceId === state.selectedInstanceId);
     host.querySelectorAll<HTMLElement>('[data-tile]').forEach((button) => {
       button.classList.toggle('is-active', button.dataset.tile === state.tileId);
     });

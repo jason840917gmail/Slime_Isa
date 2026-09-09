@@ -12,7 +12,7 @@ Make the crafting overlay feel like a lightweight in-world list and remove the u
 - Keep the world visible behind the overlay.
 - Render only recipe rows as the visible UI surfaces. Each row must retain its own subtle fill, border, icon, name, and recipe description so it remains readable over the world.
 - Show eight rows at once in the normal layout. Additional recipes are reached by scrolling.
-- Replace text such as `Wood 40/20` with the material icon and required quantity, using the registered item icon/frame for each ingredient. A craftable cost chip shows only the required quantity; an insufficient cost chip shows `current/required` beside the icon so the player can tell how close they are without returning to the old text-only format.
+- Replace text such as `Wood 40/20` with the material icon and required quantity, using the registered item icon/frame for each ingredient. Every recipe-row cost chip shows only the required quantity. An insufficient cost chip uses its missing-state color and feedback to communicate availability; it must never show the player's in-hand quantity or an `available/required` fraction.
 - Keep the selected-row treatment (accent border/indicator) so keyboard navigation remains legible without a panel frame.
 
 The companion mockup at `http://localhost:64238/` demonstrates this visual structure at a narrow viewport as well as the ninth-row scroll case.

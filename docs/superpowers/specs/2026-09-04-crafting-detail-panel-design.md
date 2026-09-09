@@ -11,6 +11,7 @@ The existing non-pixel-art, hand-painted organic UI direction remains the visual
 - The left column keeps the existing scrollable recipe list and supports eight readable rows on normal-height screens.
 - Clicking a recipe selects it only; it no longer crafts immediately.
 - Keyboard selection (Up/Down and W/S) updates the same selected recipe and right-side details.
+- Recipe-row cost chips show only the required quantity. They must never show the player's in-hand quantity or an `available/required` fraction; missing-state styling communicates availability instead.
 - The right column shows:
   - output item preview and recipe name;
   - recipe description;

@@ -4,6 +4,7 @@ import type {
   MapDirection,
   MapEnemyAreaPerimeter,
   MapEnemySpawnArea,
+  MapNpcWanderArea,
 } from '../content/maps/mapFormat';
 import {
   perimeterBounds,
@@ -14,7 +15,10 @@ import {
   getObjectArchetypeIds,
   getObjectVisualChoice,
   getObjectVisualChoices,
+  getObjectPlacementChoices,
+  getObjectArchetype,
   isObjectArchetypeId,
+  type NpcCharacterPlacementChoice,
   type ObjectArchetypeId,
 } from '../content/objects/ObjectCatalog';
 import {
@@ -51,6 +55,7 @@ import { mountMapEditorPanel, type ContentPreviewUrls } from './MapEditorPanel';
 import { MapEditorState, type EditableMap, type EditableObjectInstance, type EditorTool } from './MapEditorState';
 import { ObjectTemplateEditorState } from './ObjectTemplateEditorState';
 import { GameplayAttributeEditorState } from './GameplayAttributeEditorState';
+import { NpcPlacementPreview } from './NpcPlacementPreview';
 import { resolveCollisionShapeDimensions } from '../shared/collisionShapes';
 import { dimensionsFromMap } from '../world/WorldDimensions';
 
@@ -133,6 +138,24 @@ interface EnemyAreaResize {
   moved: boolean;
 }
 
+interface NpcAreaMove {
+  readonly id: string;
+  readonly perimeter: MapEnemyAreaPerimeter;
+  readonly startPointerX: number;
+  readonly startPointerY: number;
+  dx: number;
+  dy: number;
+  moved: boolean;
+}
+
+interface NpcAreaResize {
+  readonly id: string;
+  readonly corner: EnemyAreaResizeCorner;
+  readonly perimeter: MapEnemyAreaPerimeter;
+  resizedPerimeter?: MapEnemyAreaPerimeter;
+  moved: boolean;
+}
+
 /**
  * True while the user is editing DOM UI (dialog fields, selects, content
  * editable) — editor hotkeys and camera keys must not fire then, otherwise
@@ -185,6 +208,7 @@ export class MapEditorScene extends Phaser.Scene {
   };
   private lastSelectedInstanceId?: string;
   private lastSelectedEnemyAreaId?: string;
+  private lastSelectedNpcWanderAreaId?: string;
   private lastTool: EditorTool = 'pan';
   private panPointer?: { x: number; y: number };
   private paintDrag?: PaintDrag;
@@ -193,6 +217,7 @@ export class MapEditorScene extends Phaser.Scene {
   private moveHandles?: Phaser.GameObjects.Graphics;
   private previewTileFactory!: TileFactory;
   private previewObjectFactory!: ObjectFactory;
+  private npcPlacementPreview!: NpcPlacementPreview;
   private cursorGhost?: Phaser.GameObjects.Image;
   private templatePreview?: Phaser.GameObjects.Image;
   private cursorGhostKey?: string;
@@ -207,6 +232,11 @@ export class MapEditorScene extends Phaser.Scene {
   private enemyAreaDragMarker?: Phaser.GameObjects.Graphics;
   private enemyAreaMove?: EnemyAreaMove;
   private enemyAreaResize?: EnemyAreaResize;
+  private npcAreaDragStart?: { x: number; y: number };
+  private npcAreaDrag?: MapNpcWanderArea;
+  private npcAreaDragMarker?: Phaser.GameObjects.Graphics;
+  private npcAreaMove?: NpcAreaMove;
+  private npcAreaResize?: NpcAreaResize;
   private cursors?: Phaser.Types.Input.Keyboard.CursorKeys;
 
   constructor() {
@@ -249,6 +279,7 @@ export class MapEditorScene extends Phaser.Scene {
       staticGroup: this.collisionGroup,
       physicsEnabled: false,
     });
+    this.npcPlacementPreview = new NpcPlacementPreview(this);
 
     this.cameras.main.setBounds(0, 0, this.loadedMap.dimensions.width, this.loadedMap.dimensions.height);
     this.cameras.main.setZoom(0.8);
@@ -271,10 +302,12 @@ export class MapEditorScene extends Phaser.Scene {
     this.unsubscribeState = this.editor.subscribe((state) => {
       const toolChanged = state.tool !== this.lastTool;
       const selectionChanged = state.selectedInstanceId !== this.lastSelectedInstanceId
-        || state.selectedEnemyAreaId !== this.lastSelectedEnemyAreaId;
+        || state.selectedEnemyAreaId !== this.lastSelectedEnemyAreaId
+        || state.selectedNpcWanderAreaId !== this.lastSelectedNpcWanderAreaId;
       this.lastTool = state.tool;
       this.lastSelectedInstanceId = state.selectedInstanceId;
       this.lastSelectedEnemyAreaId = state.selectedEnemyAreaId;
+      this.lastSelectedNpcWanderAreaId = state.selectedNpcWanderAreaId;
       if (state.revision !== this.lastRevision) {
         this.lastRevision = state.revision;
         this.renderDocument();
@@ -365,6 +398,15 @@ export class MapEditorScene extends Phaser.Scene {
         else this.beginEnemyAreaDrag(world.x, world.y);
         return;
       }
+      if (this.editor.value.tool === 'npc-area') {
+        const area = this.npcAreaAt(world.x, world.y);
+        const selectedArea = this.selectedNpcArea();
+        const resizeHandle = selectedArea ? this.npcAreaResizeHandleAt(selectedArea, world.x, world.y) : undefined;
+        if (selectedArea && resizeHandle) this.beginNpcAreaResize(selectedArea, resizeHandle);
+        else if (area) this.beginNpcAreaMove(area, world.x, world.y);
+        else this.beginNpcAreaDrag(world.x, world.y);
+        return;
+      }
       this.applyTool(world.x, world.y);
     });
     this.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
@@ -404,6 +446,18 @@ export class MapEditorScene extends Phaser.Scene {
         this.updateEnemyAreaResize(world.x, world.y);
         return;
       }
+      if (this.npcAreaMove) {
+        this.updateNpcAreaMove(world.x, world.y);
+        return;
+      }
+      if (this.npcAreaResize) {
+        this.updateNpcAreaResize(world.x, world.y);
+        return;
+      }
+      if (this.npcAreaDragStart) {
+        this.updateNpcAreaDrag(world.x, world.y);
+        return;
+      }
       if (this.editor.value.tool === 'erase' && this.eraseDragStart) {
         this.renderEraseDrag(world.x, world.y);
         return;
@@ -424,6 +478,9 @@ export class MapEditorScene extends Phaser.Scene {
       if (this.enemyAreaDragStart) this.finishEnemyAreaDrag(world.x, world.y);
       if (this.enemyAreaMove) this.finishEnemyAreaMove();
       if (this.enemyAreaResize) this.finishEnemyAreaResize(world.x, world.y);
+      if (this.npcAreaMove) this.finishNpcAreaMove();
+      if (this.npcAreaResize) this.finishNpcAreaResize(world.x, world.y);
+      if (this.npcAreaDragStart) this.finishNpcAreaDrag(world.x, world.y);
       this.panPointer = undefined;
     });
     this.input.on('wheel', (_pointer: Phaser.Input.Pointer, _objects: unknown[], _dx: number, dy: number) => {
@@ -444,6 +501,17 @@ export class MapEditorScene extends Phaser.Scene {
     if (objectHit) {
       const objectId = objectHit.object.objectId;
       if (!isObjectArchetypeId(objectId)) return;
+      const archetype = getObjectArchetype(objectId);
+      if (archetype.npc) {
+        this.templateEditor.clearSelection();
+        this.editor.setObject(objectId, objectHit.object.visualId);
+        this.editor.selectInstance(objectHit.instanceId);
+        const area = this.editor.getNpcWanderArea(objectHit.instanceId);
+        this.editor.selectNpcWanderArea(area?.id);
+        this.gameplayEditor.select(undefined);
+        this.editor.notify(`Picked NPC ${archetype.npc.definitionId}${area ? ` / ${area.id}` : ''}`);
+        return;
+      }
       if (!this.templateEditor.select(objectId, objectHit.object.visualId)) {
         if (!window.confirm('Discard the unsaved visual template draft and select another object?')) return;
         this.templateEditor.discardAndSelect(objectId, objectHit.object.visualId);
@@ -481,6 +549,19 @@ export class MapEditorScene extends Phaser.Scene {
         return;
       }
       if (isUiEditingActive(event.target)) return;
+      if (event.key === 'Delete' || event.key === 'Backspace') {
+        event.preventDefault();
+        const state = this.editor.value;
+        const npcArea = this.selectedNpcArea();
+        if (state.tool === 'npc-area' && npcArea) {
+          this.editor.deleteNpcWanderArea(npcArea.id);
+        } else if (state.tool === 'enemy-area' && state.selectedEnemyAreaId) {
+          this.editor.deleteEnemySpawnArea(state.selectedEnemyAreaId);
+        } else if (state.selectedInstanceId) {
+          this.editor.deleteObjectInstances([state.selectedInstanceId]);
+        }
+        return;
+      }
       if (event.ctrlKey && event.key.toLowerCase() === 's') {
         event.preventDefault();
         void this.editor.save();
@@ -541,6 +622,13 @@ export class MapEditorScene extends Phaser.Scene {
     this.enemyAreaDragMarker?.destroy();
     this.enemyAreaDragMarker = undefined;
 
+    this.npcAreaDragStart = undefined;
+    this.npcAreaDrag = undefined;
+    this.npcAreaMove = undefined;
+    this.npcAreaResize = undefined;
+    this.npcAreaDragMarker?.destroy();
+    this.npcAreaDragMarker = undefined;
+
     this.cursorGhost?.setVisible(false);
     if (objectPlacementActive) {
       this.editor.setTool('pan');
@@ -563,11 +651,10 @@ export class MapEditorScene extends Phaser.Scene {
         });
         break;
       case 'erase': {
-        const object = this.nearestObject(worldX, worldY, map.tileSize * 0.7);
+        const object = this.movableObjectAt(worldX, worldY)?.object
+          ?? this.nearestObject(worldX, worldY, map.tileSize * 0.7);
         if (object) {
-          this.editor.mutate(`Removed ${object.instanceId}`, (draft) => {
-            draft.objects = draft.objects.filter((candidate) => candidate.instanceId !== object.instanceId);
-          });
+          this.editor.deleteObjectInstances([object.instanceId]);
         } else {
           this.editor.mutate(`Cleared terrain at ${tileX}, ${tileY}`, (draft) => {
             this.setTerrain(draft, tileX, tileY, this.firstLegendTile(draft));
@@ -701,13 +788,21 @@ export class MapEditorScene extends Phaser.Scene {
     if (drag.cells.has(key)) return;
     drag.cells.set(key, { x: tileX, y: tileY });
     const map = this.editor.value.map;
-    const preview = this.previewObjectFactory.create(drag.objectId, {
-      x: tileX * map.tileSize + map.tileSize / 2,
-      y: (tileY + 1) * map.tileSize,
-      visualId: drag.visualId,
-      depthMode: 'explicit',
-      depth: resolveExplicitDepth('editor-cursor'),
-    });
+    const archetype = getObjectArchetype(drag.objectId);
+    const preview = archetype.npc
+      ? this.npcPlacementPreview.create(this.npcPlacementChoice(drag.objectId, drag.visualId), {
+        x: tileX * map.tileSize + map.tileSize / 2,
+        y: (tileY + 1) * map.tileSize,
+        sortId: `preview:${drag.objectId}:${tileX}:${tileY}`,
+        depth: resolveExplicitDepth('editor-cursor'),
+      })
+      : this.previewObjectFactory.create(drag.objectId, {
+        x: tileX * map.tileSize + map.tileSize / 2,
+        y: (tileY + 1) * map.tileSize,
+        visualId: drag.visualId,
+        depthMode: 'explicit',
+        depth: resolveExplicitDepth('editor-cursor'),
+      });
     preview.setAlpha(0.65);
     drag.previews.push(preview);
     this.editor.notify(`Stamping ${drag.objectId} / ${drag.visualId} — ${drag.cells.size} positions`);
@@ -797,6 +892,13 @@ export class MapEditorScene extends Phaser.Scene {
       drag.image.setAlpha(1);
       this.drawMoveHandles();
     }
+    const movedObject = this.editor.value.map.objects.find((candidate) => candidate.instanceId === drag.instanceId);
+    if (movedObject && isObjectArchetypeId(movedObject.objectId) && getObjectArchetype(movedObject.objectId).npc) {
+      const area = this.editor.getNpcWanderArea(movedObject.instanceId);
+      if (area && !perimeterContains(area.perimeter, movedObject.x, movedObject.y)) {
+        this.editor.notify(`${movedObject.instanceId} is outside ${area.id}; move it back or resize the wander area before saving`);
+      }
+    }
     this.editor.selectInstance(drag.instanceId);
   }
 
@@ -868,13 +970,34 @@ export class MapEditorScene extends Phaser.Scene {
         .setDepth(resolveExplicitDepth('editor-cursor'))
         .setAlpha(0.55);
     }
-    return this.previewObjectFactory.create(this.editor.value.objectId, {
+    const objectId = this.editor.value.objectId;
+    const visualId = this.editor.value.objectVisualId;
+    const archetype = getObjectArchetype(objectId);
+    if (archetype.npc) {
+      return this.npcPlacementPreview.create(this.npcPlacementChoice(objectId, visualId), {
+        x: 0,
+        y: 0,
+        sortId: 'preview:cursor',
+        depth: resolveExplicitDepth('editor-cursor'),
+      }).setAlpha(0.65);
+    }
+    return this.previewObjectFactory.create(objectId, {
       x: 0,
       y: 0,
-      visualId: this.editor.value.objectVisualId,
+      visualId,
       depthMode: 'explicit',
       depth: resolveExplicitDepth('editor-cursor'),
     }).setAlpha(0.65);
+  }
+
+  private npcPlacementChoice(objectId: ObjectArchetypeId, visualId: string): NpcCharacterPlacementChoice {
+    const choice = getObjectPlacementChoices().find((candidate): candidate is NpcCharacterPlacementChoice => (
+      candidate.kind === 'npc-character'
+      && candidate.objectId === objectId
+      && candidate.visualId === visualId
+    ));
+    if (!choice) throw new Error(`NPC object '${objectId}' has no placement choice for '${visualId}'`);
+    return choice;
   }
 
   private tileAt(worldX: number, worldY: number): TilePoint | undefined {
@@ -1016,6 +1139,168 @@ export class MapEditorScene extends Phaser.Scene {
       ? { x: tile.x * map.tileSize + map.tileSize / 2, y: tile.y * map.tileSize + map.tileSize / 2 }
       : { x: tile.x * map.tileSize, y: tile.y * map.tileSize };
     this.updateEnemyAreaDrag(worldX, worldY);
+  }
+
+  private selectedNpcObject(): EditableObjectInstance | undefined {
+    const selectedId = this.editor.value.selectedInstanceId;
+    const object = selectedId ? this.editor.value.map.objects.find((candidate) => candidate.instanceId === selectedId) : undefined;
+    if (!object) return undefined;
+    return isObjectArchetypeId(object.objectId) && getObjectArchetype(object.objectId).npc ? object : undefined;
+  }
+
+  private npcAreaAt(x: number, y: number): MapNpcWanderArea | undefined {
+    const area = this.selectedNpcArea();
+    return area && perimeterContains(area.perimeter, x, y) ? area : undefined;
+  }
+
+  private selectedNpcArea(): MapNpcWanderArea | undefined {
+    const owner = this.selectedNpcObject();
+    if (!owner) return undefined;
+    const { map, selectedNpcWanderAreaId } = this.editor.value;
+    const explicit = map.npcWanderAreas?.find((area) => area.id === selectedNpcWanderAreaId);
+    return explicit?.npcInstanceId === owner.instanceId
+      ? explicit
+      : this.editor.getNpcWanderArea(owner.instanceId);
+  }
+
+  private npcAreaResizeHandleAt(area: MapNpcWanderArea, worldX: number, worldY: number): EnemyAreaResizeCorner | undefined {
+    const hitRadius = Math.max(20 / this.cameras.main.zoom, this.editor.value.map.tileSize * 0.3);
+    const candidates = (['nw', 'ne', 'sw', 'se'] as const).map((corner) => {
+      const handle = this.enemyAreaResizeHandlePosition(area.perimeter, corner);
+      return { corner, distance: Math.hypot(worldX - handle.x, worldY - handle.y) };
+    }).sort((left, right) => left.distance - right.distance);
+    const hit = candidates[0];
+    return hit && hit.distance <= hitRadius ? hit.corner : undefined;
+  }
+
+  private beginNpcAreaMove(area: MapNpcWanderArea, worldX: number, worldY: number): void {
+    this.editor.selectNpcWanderArea(area.id);
+    this.npcAreaMove = { id: area.id, perimeter: structuredClone(area.perimeter), startPointerX: worldX, startPointerY: worldY, dx: 0, dy: 0, moved: false };
+    this.editor.notify(`Dragging ${area.id} — release to move the NPC area`);
+  }
+
+  private beginNpcAreaResize(area: MapNpcWanderArea, corner: EnemyAreaResizeCorner): void {
+    this.editor.selectNpcWanderArea(area.id);
+    this.npcAreaResize = { id: area.id, corner, perimeter: structuredClone(area.perimeter), moved: false };
+    this.editor.notify(`Resize ${area.id} from the ${corner.toUpperCase()} corner`);
+  }
+
+  private updateNpcAreaMove(worldX: number, worldY: number): void {
+    const move = this.npcAreaMove;
+    if (!move) return;
+    const map = this.editor.value.map;
+    const width = map.size.columns * map.tileSize;
+    const height = map.size.rows * map.tileSize;
+    const bounds = perimeterBounds(move.perimeter);
+    move.dx = Math.round(Phaser.Math.Clamp(worldX - move.startPointerX, -bounds.minX, width - bounds.maxX));
+    move.dy = Math.round(Phaser.Math.Clamp(worldY - move.startPointerY, -bounds.minY, height - bounds.maxY));
+    move.moved ||= Math.hypot(move.dx, move.dy) >= 2;
+    const current = this.editor.value.map.npcWanderAreas?.find((area) => area.id === move.id);
+    if (current) this.renderNpcAreaDraft({ ...current, perimeter: translatePerimeter(move.perimeter, move.dx, move.dy) }, 'editor-npc-area-move');
+  }
+
+  private finishNpcAreaMove(): void {
+    const move = this.npcAreaMove;
+    this.npcAreaMove = undefined;
+    this.npcAreaDragMarker?.destroy();
+    this.npcAreaDragMarker = undefined;
+    if (!move) return;
+    if (!move.moved) { this.editor.selectNpcWanderArea(move.id); return; }
+    const current = this.editor.value.map.npcWanderAreas?.find((area) => area.id === move.id);
+    if (current) this.editor.updateNpcWanderArea(move.id, { ...current, perimeter: translatePerimeter(move.perimeter, move.dx, move.dy) });
+    this.editor.selectNpcWanderArea(move.id);
+  }
+
+  private updateNpcAreaResize(worldX: number, worldY: number): void {
+    const resize = this.npcAreaResize;
+    if (!resize) return;
+    const map = this.editor.value.map;
+    const width = map.size.columns * map.tileSize;
+    const height = map.size.rows * map.tileSize;
+    const perimeter = this.resizeNpcAreaPerimeter(resize.perimeter, resize.corner, worldX, worldY, map.tileSize, width, height);
+    resize.resizedPerimeter = perimeter;
+    resize.moved ||= !sameEnemyAreaPerimeter(perimeter, resize.perimeter);
+    const current = this.editor.value.map.npcWanderAreas?.find((area) => area.id === resize.id);
+    if (current) this.renderNpcAreaDraft({ ...current, perimeter }, 'editor-npc-area-resize');
+  }
+
+  private finishNpcAreaResize(worldX: number, worldY: number): void {
+    const resize = this.npcAreaResize;
+    if (!resize) return;
+    this.updateNpcAreaResize(worldX, worldY);
+    this.npcAreaResize = undefined;
+    this.npcAreaDragMarker?.destroy();
+    this.npcAreaDragMarker = undefined;
+    if (!resize.moved || !resize.resizedPerimeter) { this.editor.selectNpcWanderArea(resize.id); return; }
+    const current = this.editor.value.map.npcWanderAreas?.find((area) => area.id === resize.id);
+    if (current) this.editor.updateNpcWanderArea(resize.id, { ...current, perimeter: resize.resizedPerimeter });
+    this.editor.selectNpcWanderArea(resize.id);
+  }
+
+  private resizeNpcAreaPerimeter(perimeter: MapEnemyAreaPerimeter, corner: EnemyAreaResizeCorner, worldX: number, worldY: number, tileSize: number, width: number, height: number): MapEnemyAreaPerimeter {
+    if (perimeter.shape === 'circle') {
+      const maxRadius = Math.floor(Math.min(perimeter.x, width - perimeter.x, perimeter.y, height - perimeter.y) / tileSize) * tileSize;
+      const radius = Phaser.Math.Clamp(Math.round(Math.hypot(worldX - perimeter.x, worldY - perimeter.y) / tileSize) * tileSize, tileSize, maxRadius);
+      return { ...perimeter, radius };
+    }
+    const snappedX = Phaser.Math.Clamp(Math.round(worldX / tileSize) * tileSize, 0, width);
+    const snappedY = Phaser.Math.Clamp(Math.round(worldY / tileSize) * tileSize, 0, height);
+    let left = perimeter.x;
+    let top = perimeter.y;
+    let right = perimeter.x + perimeter.w;
+    let bottom = perimeter.y + perimeter.h;
+    if (corner.includes('w')) left = Phaser.Math.Clamp(snappedX, 0, right - tileSize);
+    else right = Phaser.Math.Clamp(snappedX, left + tileSize, width);
+    if (corner.includes('n')) top = Phaser.Math.Clamp(snappedY, 0, bottom - tileSize);
+    else bottom = Phaser.Math.Clamp(snappedY, top + tileSize, height);
+    return { shape: 'rectangle', x: left, y: top, w: right - left, h: bottom - top };
+  }
+
+  private renderNpcAreaDraft(area: MapNpcWanderArea, name: string): void {
+    this.npcAreaDragMarker?.destroy();
+    this.npcAreaDragMarker = this.add.graphics().setDepth(resolveExplicitDepth('editor-selection-marker', 3)).setName(name);
+    this.drawEnemyAreaPerimeter(this.npcAreaDragMarker, area.perimeter, 0xc9a7ff, 0.1, 4);
+  }
+
+  private beginNpcAreaDrag(worldX: number, worldY: number): void {
+    if (!this.selectedNpcObject()) { this.editor.notify('Select an NPC object before authoring its wander area'); return; }
+    const tile = this.tileAt(worldX, worldY);
+    if (!tile) return;
+    const map = this.editor.value.map;
+    this.npcAreaDragStart = this.editor.value.npcWanderAreaShape === 'circle'
+      ? { x: tile.x * map.tileSize + map.tileSize / 2, y: tile.y * map.tileSize + map.tileSize / 2 }
+      : { x: tile.x * map.tileSize, y: tile.y * map.tileSize };
+    this.updateNpcAreaDrag(worldX, worldY);
+  }
+
+  private updateNpcAreaDrag(worldX: number, worldY: number): void {
+    const start = this.npcAreaDragStart;
+    const npc = this.selectedNpcObject();
+    if (!start || !npc) return;
+    const map = this.editor.value.map;
+    const width = map.size.columns * map.tileSize;
+    const height = map.size.rows * map.tileSize;
+    const perimeter = this.editor.value.npcWanderAreaShape === 'circle'
+      ? this.circleFromDrag(start.x, start.y, worldX, worldY, map.tileSize, width, height)
+      : this.rectangleFromDrag(start.x, start.y, worldX, worldY, map.tileSize, width, height);
+    this.npcAreaDrag = { id: 'draft', npcInstanceId: npc.instanceId, perimeter };
+    this.npcAreaDragMarker?.destroy();
+    const marker = this.add.graphics().setDepth(resolveExplicitDepth('editor-selection-marker', 3)).setName('editor-npc-area-draft');
+    this.drawEnemyAreaPerimeter(marker, perimeter, 0xc9a7ff, 0.1, 4);
+    this.npcAreaDragMarker = marker;
+    this.editor.notify(`NPC wander area — ${perimeter.shape}`);
+  }
+
+  private finishNpcAreaDrag(worldX: number, worldY: number): void {
+    this.updateNpcAreaDrag(worldX, worldY);
+    const draft = this.npcAreaDrag;
+    this.npcAreaDragStart = undefined;
+    this.npcAreaDrag = undefined;
+    this.npcAreaDragMarker?.destroy();
+    this.npcAreaDragMarker = undefined;
+    if (!draft) return;
+    if (this.editor.getNpcWanderArea(draft.npcInstanceId)) { this.editor.notify('This NPC already has a wander area'); return; }
+    this.editor.createNpcWanderArea(draft.npcInstanceId, draft.perimeter);
   }
 
   private updateEnemyAreaDrag(worldX: number, worldY: number): void {
@@ -1467,9 +1752,7 @@ export class MapEditorScene extends Phaser.Scene {
       this.editor.notify('No objects inside erase selection');
       return;
     }
-    this.editor.mutate(`Deleted ${instanceIds.size} objects`, (draft) => {
-      draft.objects = draft.objects.filter((object) => !instanceIds.has(object.instanceId));
-    });
+    this.editor.deleteObjectInstances([...instanceIds]);
   }
 
   private renderDocument(): void {
@@ -1531,13 +1814,22 @@ export class MapEditorScene extends Phaser.Scene {
     }).render(terrainGrid);
     for (const object of state.map.objects) {
       if (!getObjectArchetypeIds().includes(object.objectId as ObjectArchetypeId)) continue;
-      const image = objectFactory.create(object.objectId as ObjectArchetypeId, {
-        x: object.x,
-        y: object.y,
-        visualId: object.visualId,
-        sortId: object.instanceId,
-        initialState: object.initialState,
-      });
+      const objectId = object.objectId as ObjectArchetypeId;
+      const archetype = getObjectArchetype(objectId);
+      const image = archetype.npc
+        ? this.npcPlacementPreview.create(this.npcPlacementChoice(objectId, object.visualId), {
+          x: object.x,
+          y: object.y,
+          sortId: object.instanceId,
+        })
+        : objectFactory.create(objectId, {
+          x: object.x,
+          y: object.y,
+          visualId: object.visualId,
+          sortId: object.instanceId,
+          initialState: object.initialState,
+        });
+      if (!image) continue;
       image.setData('instanceId', object.instanceId);
       this.renderedInstances.set(object.instanceId, image);
       this.renderedObjects.push(image);
@@ -1842,6 +2134,23 @@ export class MapEditorScene extends Phaser.Scene {
         this.overlayObjects.push(label);
       }
     }
+    const area = this.selectedNpcArea();
+    if (area) {
+      this.drawEnemyAreaPerimeter(graphics, area.perimeter, 0xc9a7ff, 0.1, 4);
+      const owner = map.objects.find((object) => object.instanceId === area.npcInstanceId);
+      if (owner) {
+        const center = area.perimeter.shape === 'circle'
+          ? { x: area.perimeter.x, y: area.perimeter.y }
+          : { x: area.perimeter.x + area.perimeter.w / 2, y: area.perimeter.y + area.perimeter.h / 2 };
+        graphics.lineStyle(2, 0xc9a7ff, 0.62).lineBetween(center.x, center.y, owner.x, owner.y);
+      }
+      const bounds = perimeterBounds(area.perimeter);
+      const selected = area.id === this.editor.value.selectedNpcWanderAreaId;
+      const label = this.add.text(bounds.minX + 10, bounds.minY + 10, `${area.id}\n${area.npcInstanceId}`, {
+        fontFamily: 'Trebuchet MS', fontSize: selected ? '14px' : '12px', color: selected ? '#fff0ff' : '#eadfff', backgroundColor: selected ? '#543d68' : '#30263f', padding: { x: 6, y: 4 },
+      }).setDepth(resolveExplicitDepth('editor-template-overlay', 2));
+      this.overlayObjects.push(label);
+    }
     this.overlayObjects.push(graphics);
   }
 
@@ -1880,6 +2189,23 @@ export class MapEditorScene extends Phaser.Scene {
       else marker.strokeRect(stay.minX - 8, stay.minY - 8, stay.maxX - stay.minX + 16, stay.maxY - stay.minY + 16);
       this.drawEnemyAreaResizeHandle(marker, area.pursuePerimeter, 0x5ee7ff);
       this.drawEnemyAreaResizeHandle(marker, area.stayPerimeter, 0xffc65c);
+      return;
+    }
+    const area = this.selectedNpcArea();
+    if (area && this.editor.value.tool === 'npc-area') {
+      const marker = this.add.graphics().setName('editor-selection-marker').setDepth(resolveExplicitDepth('editor-selection-marker'));
+      const bounds = perimeterBounds(area.perimeter);
+      marker.lineStyle(8, 0x342441, 0.95);
+      if (area.perimeter.shape === 'circle') marker.strokeCircle(area.perimeter.x, area.perimeter.y, area.perimeter.radius);
+      else marker.strokeRect(bounds.minX - 8, bounds.minY - 8, bounds.maxX - bounds.minX + 16, bounds.maxY - bounds.minY + 16);
+      marker.lineStyle(4, 0xc9a7ff, 1);
+      if (area.perimeter.shape === 'circle') marker.strokeCircle(area.perimeter.x, area.perimeter.y, area.perimeter.radius);
+      else marker.strokeRect(bounds.minX - 8, bounds.minY - 8, bounds.maxX - bounds.minX + 16, bounds.maxY - bounds.minY + 16);
+      for (const corner of ['nw', 'ne', 'sw', 'se'] as const) {
+        const handle = this.enemyAreaResizeHandlePosition(area.perimeter, corner);
+        marker.fillStyle(0xc9a7ff, 1).fillCircle(handle.x, handle.y, 6);
+        marker.lineStyle(2, 0x342441, 1).strokeCircle(handle.x, handle.y, 6);
+      }
       return;
     }
     const selectedId = this.editor.value.selectedInstanceId;
@@ -2002,9 +2328,11 @@ export class MapEditorScene extends Phaser.Scene {
     this.eraseDragMarker?.destroy();
     this.safeZoneDragMarker?.destroy();
     this.enemyAreaDragMarker?.destroy();
+    this.npcAreaDragMarker?.destroy();
     for (const preview of this.paintDrag?.previews ?? []) preview.destroy();
     for (const preview of this.objectStampDrag?.previews ?? []) preview.destroy();
     this.cursorGhost?.destroy();
+    this.npcPlacementPreview?.destroy();
     this.templatePreview?.destroy();
     this.unsubscribeState?.();
     this.unsubscribeTemplate?.();

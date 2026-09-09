@@ -139,8 +139,15 @@ export class ModalStack {
     if (this.destroyed) return;
     this.destroyed = true;
     this.eventTarget.removeEventListener('keydown', this.handleKeyDown, CAPTURE_OPTIONS);
+    const activeEntries = [...this.stack];
     this.stack.length = 0;
     this.registrations.clear();
+    // Destruction is also a close path. Modal owners use their close callback
+    // to release simulation/input locks, so never strand an active overlay
+    // merely because the stack itself is being torn down.
+    for (const entry of activeEntries) {
+      if (entry.registration.isOpen()) entry.registration.close();
+    }
   }
 
   private isCurrentEntry(entry: RegisteredModal): boolean {

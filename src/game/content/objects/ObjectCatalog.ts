@@ -18,6 +18,10 @@ import stonePileJson from './collectibles/collectible-stone-pile.json';
 import wallStoneSolidJson from './walls/wall-stone-solid.json';
 import npcWorldJson from './npcs/npc-world.json';
 import npcWorldScoutJson from './npcs/npc-world-scout.json';
+import npcLiliJson from './npcs/npc-lili.json';
+import npcRedSlimeBoyJson from './npcs/npc-red-slime-boy.json';
+import npcYellowBlondSlimeGirlJson from './npcs/npc-yellow-blond-slime-girl.json';
+import { getNpcDefinition } from '../npcs/NpcCatalog';
 
 export interface ColliderBounds {
   readonly shape?: CollisionShape;
@@ -72,7 +76,7 @@ export interface ObjectVariantGroup {
 export interface ObjectArchetypeDefinition {
   readonly objectId: ObjectArchetypeId;
   readonly selection: 'authored';
-  readonly variants: readonly ObjectVariantGroup[];
+  readonly variants?: readonly ObjectVariantGroup[];
   readonly physics: null | { readonly body: 'static' };
   readonly behavior?: string;
   readonly collectible?: {
@@ -103,6 +107,7 @@ export interface ObjectArchetypeDefinition {
   /** Optional authored quest/dialogue identity for interactable NPC objects. */
   readonly npc?: {
     readonly definitionId: string;
+    readonly placementVisualId: string;
   };
   readonly tags: readonly string[];
 }
@@ -126,6 +131,9 @@ const OBJECT_FILES = {
   'wall.stone.solid': wallStoneSolidJson,
   'npc.world': npcWorldJson,
   'npc.world-scout': npcWorldScoutJson,
+  'npc.lili': npcLiliJson,
+  'npc.red-slime-boy': npcRedSlimeBoyJson,
+  'npc.yellow-blond-slime-girl': npcYellowBlondSlimeGirlJson,
 } as const;
 
 export type ObjectArchetypeId = keyof typeof OBJECT_FILES;
@@ -173,6 +181,20 @@ export interface ObjectVisualChoice {
   readonly tags: readonly string[];
 }
 
+export interface NpcCharacterPlacementChoice {
+  readonly kind: 'npc-character';
+  readonly key: string;
+  readonly objectId: ObjectArchetypeId;
+  readonly visualId: string;
+  readonly displayName: string;
+  readonly npcDefinitionId: string;
+  readonly characterId: string;
+  readonly visualSetId: string;
+  readonly tags: readonly string[];
+}
+
+export type ObjectPlacementChoice = (ObjectVisualChoice & { readonly kind: 'object-visual' }) | NpcCharacterPlacementChoice;
+
 export type EditableObjectVisual = Pick<
   ObjectVisualChoice,
   'displayName' | 'scale' | 'visualOffset' | 'collider' | 'occlusionBounds' | 'depthBounds' | 'idleAnimationId' | 'onHitAnimationId'
@@ -213,7 +235,7 @@ function createObjectVisualChoice(
 export function getObjectVisualChoices(): readonly ObjectVisualChoice[] {
   return getObjectArchetypeIds().flatMap((objectId) => {
     const object = getObjectArchetype(objectId);
-    return object.variants.flatMap((variant) => variant.frames.map((frame) => (
+    return (object.variants ?? []).flatMap((variant) => variant.frames.map((frame) => (
       createObjectVisualChoice(objectId, variant.assetId, frame)
     )));
   });
@@ -224,7 +246,7 @@ export function getObjectVisualChoice(
   visualId: string,
 ): ObjectVisualChoice | undefined {
   const object = getObjectArchetype(objectId);
-  for (const variant of object.variants) {
+  for (const variant of object.variants ?? []) {
     const frame = variant.frames.find((candidate) => candidate.visualId === visualId);
     if (frame) return createObjectVisualChoice(objectId, variant.assetId, frame);
   }
@@ -253,7 +275,29 @@ export function clearObjectVisualOverride(objectId: ObjectArchetypeId, visualId:
 }
 
 export function hasObjectVisual(objectId: ObjectArchetypeId, visualId: string): boolean {
-  return getObjectArchetype(objectId).variants.some(
+  return (getObjectArchetype(objectId).variants ?? []).some(
     (variant) => variant.frames.some((frame) => frame.visualId === visualId),
   );
+}
+
+export function getObjectPlacementChoices(): readonly ObjectPlacementChoice[] {
+  const ordinary = getObjectVisualChoices().map((choice) => ({ ...choice, kind: 'object-visual' as const }));
+  const npcChoices = getObjectArchetypeIds().flatMap((objectId) => {
+    const definition = getObjectArchetype(objectId);
+    if (!definition.npc) return [];
+    const npc = getNpcDefinition(definition.npc.definitionId);
+    if (!npc) return [];
+    return [{
+      kind: 'npc-character' as const,
+      key: visualKey(objectId, definition.npc.placementVisualId),
+      objectId,
+      visualId: definition.npc.placementVisualId,
+      displayName: npc.displayName,
+      npcDefinitionId: definition.npc.definitionId,
+      characterId: npc.characterId,
+      visualSetId: `character.npc.${npc.characterId}`,
+      tags: definition.tags,
+    } satisfies NpcCharacterPlacementChoice];
+  });
+  return [...ordinary, ...npcChoices];
 }

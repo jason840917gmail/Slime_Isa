@@ -128,10 +128,10 @@ dashboard floating in front of it.
   remains at least 22px and key labels at least 8px.
 - Existing `scale.resize` listeners remain responsible for rebuilding or
   repositioning the complete visible composition. Every new listener must be
-  removed during `destroy`, and every owned decorative frame image must also be
-  destroyed with its owning widget (`HUD.destroy()` and `Minimap.destroy()` must
-  call `frame?.destroy()`; the hotbar root already owns its child artwork and
-  must continue destroying the root).
+  removed during `destroy`. The minimap's owned decorative frame must be
+  destroyed by `Minimap.destroy()`; the HUD owns no decorative frame under
+  Option C, and the hotbar root already owns its child artwork and must
+  continue destroying the root.
 
 ## State and behavior
 
@@ -167,8 +167,8 @@ Manual review is required at 1280×720, 800×600, and 390×720. Inspect:
   the `ui-organic-minimap-frame` texture from the Phaser texture manager before
   constructing `Minimap` (or by blocking that one local asset request), then
   repeat the screenshot checks with the texture restored;
-- decorative frame images are destroyed with `HUD` and `Minimap` and do not
-  survive scene teardown;
+- the minimap decorative frame is destroyed with `Minimap` and does not survive
+  scene teardown;
 - inventory and crafting are unchanged.
 
 Run `pnpm typecheck` and `pnpm build` after implementation. Run the complete

@@ -4,6 +4,7 @@ import { getQuestDefinition } from '../content/quests/QuestCatalog';
 import type { QuestState } from '../content/quests/types';
 import { questService, type QuestCommandResult } from '../quests/QuestService';
 import { resolveScreenUiDepth } from '../presentation/WorldDepth';
+import { addUiSkin } from '../presentation/UiSkin';
 import { ModalStack, type ModalHandle } from './ModalStack';
 
 const FONT = 'Trebuchet MS, Segoe UI Variable, sans-serif';
@@ -67,6 +68,12 @@ export class QuestJournal {
     bg.lineStyle(2, 0x73e2b1, 0.85);
     bg.strokeRoundedRect(-panelW / 2, -panelH / 2, panelW, panelH, 16);
     container.add(bg);
+    addUiSkin(scene, container, 'ui.backplate.quest-journal', {
+      x: 0,
+      y: 0,
+      width: panelW,
+      height: panelH,
+    }, 0.62);
 
     container.add(scene.add.text(0, -panelH / 2 + 28, 'Quest Journal', {
       fontFamily: FONT,

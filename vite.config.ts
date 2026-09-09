@@ -10,8 +10,11 @@ import { gameConstantsContentPlugin } from './src/game/content/gameConstantsCont
 import { normalizeGameConstants } from './src/game/content/GameConstantsValidation';
 
 import { parseMapFile, type MapFile } from './src/game/content/maps/mapFormat';
+import { validateMapReferences as validatePureMapReferences, type MapReferenceResolver } from './src/game/content/maps/validateMapReferences';
+import { getNpcDefinition } from './src/game/content/npcs/NpcCatalog';
 import { isObjectArchetypeId } from './src/game/content/objects/ObjectCatalog';
 import { isWorldTileId } from './src/game/content/terrain/TileCatalog';
+import type { CollisionShapeDocument } from './src/game/shared/collisionShapes';
 import { ASSET_MANIFEST, type AssetId } from './src/game/infrastructure/assets/manifest';
 import {
   edgeEntryPoint,
@@ -79,12 +82,71 @@ interface MutableObjectVariant {
 interface MutableObjectDefinition {
   [key: string]: unknown;
   objectId: string;
-  variants: MutableObjectVariant[];
+  variants?: MutableObjectVariant[];
   physics: unknown;
   collectible?: Record<string, unknown>;
   destructible?: Record<string, unknown>;
   resourceNode?: Record<string, unknown>;
+  npc?: { definitionId: string; placementVisualId: string };
 }
+
+function discoverNpcBodies(directory: string): Map<string, CollisionShapeDocument> {
+  const bodies = new Map<string, CollisionShapeDocument>();
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const candidate = path.join(directory, entry.name);
+    if (entry.isDirectory()) {
+      for (const [characterId, body] of discoverNpcBodies(candidate)) bodies.set(characterId, body);
+      continue;
+    }
+    if (!entry.isFile() || entry.name !== 'character.json') continue;
+    const character = JSON.parse(readFileSync(candidate, 'utf8')) as { characterId?: unknown; kind?: unknown; body?: unknown };
+    if (character.kind === 'npc' && typeof character.characterId === 'string' && isRecord(character.body)) {
+      bodies.set(character.characterId, character.body as unknown as CollisionShapeDocument);
+    }
+  }
+  return bodies;
+}
+
+function discoverObjectReferences(directory: string): Map<string, MutableObjectDefinition> {
+  const definitions = new Map<string, MutableObjectDefinition>();
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const candidate = path.join(directory, entry.name);
+    if (entry.isDirectory()) {
+      for (const [objectId, definition] of discoverObjectReferences(candidate)) definitions.set(objectId, definition);
+      continue;
+    }
+    if (!entry.isFile() || !entry.name.endsWith('.json') || entry.name === 'objects.schema.json') continue;
+    const definition = JSON.parse(readFileSync(candidate, 'utf8')) as MutableObjectDefinition;
+    if (typeof definition.objectId === 'string') definitions.set(definition.objectId, definition);
+  }
+  return definitions;
+}
+
+const NODE_NPC_BODIES = discoverNpcBodies(CHARACTER_DEFINITION_ROOT);
+const NODE_OBJECT_DEFINITIONS = discoverObjectReferences(OBJECT_DEFINITION_ROOT);
+const NODE_MAP_IDS = new Set(
+  readdirSync(path.resolve(process.cwd(), 'src/game/content/maps'))
+    .filter((filename) => filename.endsWith('.map.json'))
+    .map((filename) => filename.replace(/\.map\.json$/, '')),
+);
+
+const NODE_MAP_REFERENCE_RESOLVER: MapReferenceResolver = {
+  isWorldTileId,
+  getObjectReference(objectId) {
+    const definition = NODE_OBJECT_DEFINITIONS.get(objectId);
+    if (!definition) return undefined;
+    return definition.npc
+      ? { kind: 'npc', placementVisualId: definition.npc.placementVisualId, npcDefinitionId: definition.npc.definitionId }
+      : { kind: 'object' };
+  },
+  getNpcReference(definitionId) {
+    const definition = getNpcDefinition(definitionId);
+    return definition ? { characterId: definition.characterId } : undefined;
+  },
+  getNpcBody(characterId) { return NODE_NPC_BODIES.get(characterId); },
+  isEnemyId(enemyId) { return ENEMY_IDS.has(enemyId); },
+  hasMap(mapId) { return NODE_MAP_IDS.has(mapId); },
+};
 
 interface ObjectVisualOffsetPayload {
   readonly x: number;
@@ -226,7 +288,8 @@ async function validateObjectVisualUpdate(
   if (typeof visualId !== 'string' || !/^[a-z0-9]+([.-][a-z0-9-]+)*$/.test(visualId)) {
     throw new Error('Visual ID must be a lowercase stable ID');
   }
-  const variant = definition.variants.find((candidate) => candidate.frames.some((frame) => frame.visualId === visualId));
+  if (definition.npc) throw new Error(`NPC object '${objectId}' is edited in Character Studio, not Object Template Studio`);
+  const variant = definition.variants?.find((candidate) => candidate.frames.some((frame) => frame.visualId === visualId));
   const frame = variant?.frames.find((candidate) => candidate.visualId === visualId);
   if (!variant || !frame) throw new Error(`Unknown visual '${visualId}' for '${objectId}'`);
 
@@ -361,7 +424,7 @@ async function validateObjectGameplayUpdate(
   const dropDefinition = JSON.parse(await fs.readFile(dropDefinitionPath, 'utf8')) as MutableObjectDefinition;
   if (!dropDefinition.collectible) throw new Error(`Drop object '${dropObjectId}' is not a collectible`);
   const visualId = payload.resourceNode.drop.visualId;
-  if (typeof visualId !== 'string' || !dropDefinition.variants.some((variant) => variant.frames.some((frame) => frame.visualId === visualId))) {
+  if (typeof visualId !== 'string' || !dropDefinition.variants?.some((variant) => variant.frames.some((frame) => frame.visualId === visualId))) {
     throw new Error(`Unknown drop visual '${String(visualId)}' for '${dropObjectId}'`);
   }
   const pieces = requireInteger(payload.resourceNode.drop.pieces, 1, 'Resource drop pieces');
@@ -403,7 +466,7 @@ async function validateObjectGameplayUpdate(
 }
 
 async function validateMapReferences(map: MapFile): Promise<string[]> {
-  const issues: string[] = [];
+  const issues: string[] = [...validatePureMapReferences(map, NODE_MAP_REFERENCE_RESOLVER)];
   const objectDefinitions = new Map<string, Promise<MutableObjectDefinition | undefined>>();
   const loadObjectDefinition = (objectId: string): Promise<MutableObjectDefinition | undefined> => {
     const cached = objectDefinitions.get(objectId);
@@ -416,17 +479,10 @@ async function validateMapReferences(map: MapFile): Promise<string[]> {
     objectDefinitions.set(objectId, pending);
     return pending;
   };
-  for (const [layerIndex, layer] of map.layers.entries()) {
-    for (const [token, tileId] of Object.entries(layer.legend)) {
-      if (!isWorldTileId(tileId)) issues.push(`layers[${layerIndex}].legend['${token}']: unknown tile '${tileId}'`);
-    }
-  }
   for (const [objectIndex, object] of map.objects.entries()) {
     const definition = await loadObjectDefinition(object.objectId);
     const objectPath = `objects[${objectIndex}]`;
-    if (!definition) {
-      issues.push(`${objectPath}.objectId: unknown object '${object.objectId}'`);
-    } else if (!definition.variants.some((variant) => (
+    if (definition && !definition.npc && !definition.variants?.some((variant) => (
       variant.frames.some((frame) => frame.visualId === object.visualId)
     ))) {
       issues.push(`${objectPath}.visualId: unknown visual '${object.visualId}' for '${object.objectId}'`);
@@ -482,25 +538,15 @@ async function validateMapReferences(map: MapFile): Promise<string[]> {
     const dropVisualId = typeof state.dropVisualId === 'string'
       ? state.dropVisualId
       : state.dropObjectId !== undefined
-        ? dropDefinition?.variants[0]?.frames[0]?.visualId
+        ? dropDefinition?.variants?.[0]?.frames[0]?.visualId
         : defaultDrop.visualId;
     if (!dropDefinition?.collectible) {
       issues.push(`${objectPath}.initialState.dropObjectId: must reference a collectible object`);
-    } else if (typeof dropVisualId !== 'string' || !dropDefinition.variants.some((variant) => variant.frames.some((frame) => frame.visualId === dropVisualId))) {
+    } else if (typeof dropVisualId !== 'string' || !dropDefinition.variants?.some((variant) => variant.frames.some((frame) => frame.visualId === dropVisualId))) {
       issues.push(`${objectPath}.initialState.dropVisualId: unknown visual '${String(dropVisualId)}' for '${String(dropObjectId)}'`);
     }
     if (state.dropPieces !== undefined && (!Number.isInteger(state.dropPieces) || (state.dropPieces as number) < 1)) {
       issues.push(`${objectPath}.initialState.dropPieces: expected integer >= 1`);
-    }
-  }
-  for (const [enemyIndex, enemy] of (map.spawns?.enemies ?? []).entries()) {
-    if (!ENEMY_IDS.has(enemy.type)) issues.push(`spawns.enemies[${enemyIndex}].type: unknown enemy '${enemy.type}'`);
-  }
-  for (const [areaIndex, area] of (map.enemySpawnAreas ?? []).entries()) {
-    for (const [enemyIndex, enemy] of area.enemies.entries()) {
-      if (!ENEMY_IDS.has(enemy.type)) {
-        issues.push(`enemySpawnAreas[${areaIndex}].enemies[${enemyIndex}].type: unknown enemy '${enemy.type}'`);
-      }
     }
   }
   for (const [exitIndex, exit] of (map.exits ?? []).entries()) {
@@ -733,7 +779,9 @@ export function mapEditorSavePlugin(options: { readonly objectDefinitionRoot?: s
           const definitionPath = await findObjectDefinitionPath(OBJECT_DEFINITION_ROOT, objectId);
           if (!definitionPath) throw new Error(`Object definition '${objectId}' was not found`);
           const definition = JSON.parse(await fs.readFile(definitionPath, 'utf8')) as MutableObjectDefinition;
-          if (definition.variants.some((variant) => variant.frames.some((candidate) => candidate.visualId === visualId))) {
+          if (definition.npc) throw new Error(`NPC object '${objectId}' is edited in Character Studio, not Object Template Studio`);
+          const variants = definition.variants ?? [];
+          if (variants.some((variant) => variant.frames.some((candidate) => candidate.visualId === visualId))) {
             throw new Error(`Visual '${String(visualId)}' already exists for '${objectId}'`);
           }
 
@@ -766,6 +814,7 @@ export function mapEditorSavePlugin(options: { readonly objectDefinitionRoot?: s
             else delete createdFrame.onHitAnimationId;
           }
 
+          definition.variants ??= [];
           const variant = definition.variants.find((candidate) => candidate.assetId === assetId);
           if (variant) variant.frames.push(createdFrame);
           else definition.variants.push({ assetId, frames: [createdFrame] });
@@ -821,12 +870,14 @@ export function mapEditorSavePlugin(options: { readonly objectDefinitionRoot?: s
           const definitionPath = await findObjectDefinitionPath(OBJECT_DEFINITION_ROOT, objectId);
           if (!definitionPath) throw new Error(`Object definition '${objectId}' was not found`);
           const definition = JSON.parse(await fs.readFile(definitionPath, 'utf8')) as MutableObjectDefinition;
-          if (definition.variants.some((variant) => (
+          if (definition.npc) throw new Error(`NPC object '${objectId}' is edited in Character Studio, not Object Template Studio`);
+          const variants = definition.variants ?? [];
+          if (variants.some((variant) => (
             variant.frames.some((frame) => frame.visualId === visualId)
           ))) {
             throw new Error(`Visual '${visualId}' already exists for '${objectId}'`);
           }
-          const sourceVariant = definition.variants.find((variant) => (
+          const sourceVariant = variants.find((variant) => (
             variant.frames.some((frame) => frame.visualId === sourceVisualId)
           ));
           if (!sourceVariant) throw new Error(`Unknown visual '${sourceVisualId}' for '${objectId}'`);

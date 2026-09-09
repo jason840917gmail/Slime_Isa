@@ -4,6 +4,7 @@ import { gameState } from '../core/GameState';
 import { rollPerkChoices, getPerkDef } from '../systems/PlayerStats';
 import type { PerkChoice } from '../core/types';
 import { resolveScreenUiDepth } from '../presentation/WorldDepth';
+import { addUiSkin } from '../presentation/UiSkin';
 import { canReopenPendingLevelUp } from './LevelUpReopenPolicy';
 import { ModalStack, type ModalHandle } from './ModalStack';
 
@@ -79,6 +80,23 @@ export class LevelUpModal {
 
     const dim = scene.add.rectangle(0, 0, cam.width, cam.height, 0x000000, 0.55).setOrigin(0.5);
     container.add(dim);
+
+    const frameW = Math.min(720, cam.width - 32);
+    const frameH = Math.min(520, cam.height - 32);
+    const skin = addUiSkin(scene, container, 'ui.frame.levelup-crest', {
+      x: 0,
+      y: 0,
+      width: frameW,
+      height: frameH,
+    });
+    if (!skin) {
+      const fallback = scene.add.graphics();
+      fallback.fillStyle(0x101a31, 0.9);
+      fallback.fillRoundedRect(-frameW / 2, -frameH / 2, frameW, frameH, 18);
+      fallback.lineStyle(2, 0x73e2b1, 0.9);
+      fallback.strokeRoundedRect(-frameW / 2, -frameH / 2, frameW, frameH, 18);
+      container.add(fallback);
+    }
 
     container.add(
       scene.add

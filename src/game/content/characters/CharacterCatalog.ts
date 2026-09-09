@@ -1,7 +1,7 @@
 import { characterPackages } from 'virtual-character-content';
 
 import { validateCharacterPackage } from './validation';
-import type { CharacterDocument, CharacterPackage, EnemyGameplayDocument, PlayerGameplayDocument } from './types';
+import type { CharacterDocument, CharacterPackage, EnemyGameplayDocument, NpcGameplayDocument, PlayerGameplayDocument } from './types';
 
 const packages = characterPackages as unknown as readonly CharacterPackage[];
 const byId = new Map(packages.map((entry) => [entry.character.characterId, entry]));
@@ -32,6 +32,10 @@ export function getEnemyPackages(): readonly CharacterPackage[] {
   return packages.filter((entry) => entry.character.kind === 'enemy');
 }
 
+export function getNpcPackages(): readonly CharacterPackage[] {
+  return packages.filter((entry) => entry.character.kind === 'npc');
+}
+
 export function getPlayerGameplay(character: CharacterDocument): PlayerGameplayDocument {
   if (character.kind !== 'player' || !character.player) throw new Error(`Character '${character.characterId}' is not a player`);
   return character.player;
@@ -40,4 +44,9 @@ export function getPlayerGameplay(character: CharacterDocument): PlayerGameplayD
 export function getEnemyGameplay(character: CharacterDocument): EnemyGameplayDocument {
   if (character.kind !== 'enemy' || !character.enemy) throw new Error(`Character '${character.characterId}' is not an enemy`);
   return character.enemy;
+}
+
+export function getNpcGameplay(character: CharacterDocument): NpcGameplayDocument {
+  if (character.kind !== 'npc' || !character.npc) throw new Error(`Character '${character.characterId}' is not an NPC`);
+  return character.npc;
 }

@@ -1,8 +1,8 @@
-export const MAX_VISIBLE_COUNT = 8;
+export const MAX_VISIBLE_COUNT = 6;
 export const ROW_GAP = 6;
 export const LIST_INSET = 16;
-export const MIN_ROW_HEIGHT = 68;
-export const MAX_ROW_HEIGHT = 76;
+export const MIN_ROW_HEIGHT = 40;
+export const MAX_ROW_HEIGHT = 46;
 
 export interface CraftingLayoutMetrics {
   readonly capacityCount: number;

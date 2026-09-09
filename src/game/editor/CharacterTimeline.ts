@@ -6,8 +6,6 @@ import type {
   VisualSetDocument,
 } from '../content/characters/types';
 import {
-  AnimationTimelineError,
-  duplicateKeyframe,
   normalizeAnimationClip,
   timelineFrameCount,
 } from '../shared/animation';
@@ -34,6 +32,13 @@ function trackFor(character: CharacterDocument, clipId: string): AnimationTrackD
   return current;
 }
 
+export interface TimelineInsertionResult {
+  readonly insertedIndex: number;
+  readonly insertionTime: number;
+  readonly duration: number;
+  readonly nextTimelineFrameCount: number;
+}
+
 function materializeClip(clip: VisualSetDocument['clips'][string]): void {
   if (clip.frames.length === 0) return;
   const normalized = normalizeAnimationClip(clip);
@@ -47,22 +52,24 @@ export function insertTimelineFrames(
   clipId: string,
   index: number,
   frames: readonly number[],
-): void {
+): TimelineInsertionResult | undefined {
   const clip = visualSet.clips[clipId];
-  if (!clip || frames.length === 0) return;
+  if (!clip || frames.length === 0) return undefined;
   const position = Math.max(0, Math.min(index, clip.frames.length));
   materializeClip(clip);
   const previousTimelineFrames = timelineFrameCount(clip);
   const insertionTime = position < clip.keyframeTimes!.length ? clip.keyframeTimes![position] : previousTimelineFrames;
   const previousKeyframeTimes = [...(clip.keyframeTimes ?? [])];
+  const duration = frames.length;
   clip.frames.splice(position, 0, ...frames);
   clip.keyframeTimes = [
     ...previousKeyframeTimes.slice(0, position),
     ...frames.map((_, offset) => insertionTime + offset),
-    ...previousKeyframeTimes.slice(position).map((time) => time + frames.length),
+    ...previousKeyframeTimes.slice(position).map((time) => time + duration),
   ];
-  clip.durationSeconds = (previousTimelineFrames + frames.length) / clip.framesPerSecond;
-  trackFor(character, clipId);
+  clip.durationSeconds = (previousTimelineFrames + duration) / clip.framesPerSecond;
+  remapTrackForInsertion(trackFor(character, clipId), insertionTime, duration);
+  return { insertedIndex: position, insertionTime, duration, nextTimelineFrameCount: previousTimelineFrames + duration };
 }
 
 export function removeTimelineFrame(character: CharacterDocument, visualSet: VisualSetDocument, clipId: string, index: number): void {
@@ -85,18 +92,49 @@ export function reorderTimelineFrame(visualSet: VisualSetDocument, clipId: strin
   clip.frames.splice(to, 0, frame);
 }
 
-export function duplicateTimelineFrame(character: CharacterDocument, visualSet: VisualSetDocument, clipId: string, index: number): void {
+export function duplicateTimelineFrame(character: CharacterDocument, visualSet: VisualSetDocument, clipId: string, index: number): TimelineInsertionResult | undefined {
   const clip = visualSet.clips[clipId];
-  if (!clip || index < 0 || index >= clip.frames.length) return;
+  if (!clip || index < 0 || index >= clip.frames.length) return undefined;
   materializeClip(clip);
-  try {
-    const duplicated = duplicateKeyframe(normalizeAnimationClip(clip), index);
-    clip.frames = duplicated.frames;
-    clip.keyframeTimes = duplicated.keyframeTimes;
-  } catch (error) {
-    if (!(error instanceof AnimationTimelineError)) throw error;
+  const normalized = normalizeAnimationClip(clip);
+  const start = normalized.keyframeTimes[index] ?? index;
+  const nextStart = normalized.keyframeTimes[index + 1] ?? timelineFrameCount(normalized);
+  const hold = Math.max(1, nextStart - start);
+  const sourceFrame = normalized.frames[index];
+  const previousTimelineFrames = timelineFrameCount(normalized);
+  const insertionIndex = index + 1;
+  const previousKeyframeTimes = [...normalized.keyframeTimes];
+  const insertionTime = start + hold;
+  clip.frames.splice(insertionIndex, 0, sourceFrame);
+  clip.keyframeTimes = [
+    ...previousKeyframeTimes.slice(0, insertionIndex),
+    insertionTime,
+    ...previousKeyframeTimes.slice(insertionIndex).map((time) => time + hold),
+  ];
+  clip.durationSeconds = (previousTimelineFrames + hold) / clip.framesPerSecond;
+  remapTrackForInsertion(trackFor(character, clipId), insertionTime, hold);
+  return { insertedIndex: insertionIndex, insertionTime, duration: hold, nextTimelineFrameCount: previousTimelineFrames + hold };
+}
+
+function remapTrackForInsertion(track: AnimationTrackDocument, boundary: number, duration: number): void {
+  if (duration <= 0) return;
+  if (track.events) {
+    track.events = track.events.map((event) => event.at >= boundary ? { ...event, at: event.at + duration } : event);
   }
-  trackFor(character, clipId);
+  if (track.hitboxSpans) {
+    const remapped: HitboxSpanDocument[] = [];
+    for (const span of track.hitboxSpans) {
+      if (span.through < boundary) {
+        remapped.push(span);
+      } else if (span.from >= boundary) {
+        remapped.push({ ...span, from: span.from + duration, through: span.through + duration });
+      } else {
+        if (span.from < boundary) remapped.push({ ...span, through: boundary - 1 });
+        if (span.through >= boundary) remapped.push({ ...span, from: boundary + duration, through: span.through + duration });
+      }
+    }
+    track.hitboxSpans = remapped;
+  }
 }
 
 export function addTrackSpan(character: CharacterDocument, clipId: string, span: HitboxSpanDocument): void {

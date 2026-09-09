@@ -308,6 +308,13 @@ export default defineConfig({
     });
     assert.equal(enemyResponse.data.characterId, 'fixture-raider');
 
+    const npcResponse = await requestJson(baseUrl, '/__character-studio/package/create', {
+      method: 'POST',
+      headers: createHeaders,
+      body: JSON.stringify({ characterId: 'fixture-npc', displayName: 'Fixture NPC', kind: 'npc', template: 'npc', assetId: 'character.player.slime' }),
+    });
+    assert.equal(npcResponse.data.characterId, 'fixture-npc');
+
     const reloaded = await requestJson(baseUrl, '/__fixture/roster');
     assert.equal(reloaded.characterIds.includes('fixture-player'), true);
     assert.equal(reloaded.enemyIds.includes('fixture-raider'), true);
@@ -322,11 +329,21 @@ export default defineConfig({
     const createdPlayerVisual = JSON.parse(await fs.readFile(path.join(characterRoot, 'fixture-player', 'visual-set.json'), 'utf8'));
     const createdEnemy = JSON.parse(await fs.readFile(path.join(characterRoot, 'fixture-raider', 'character.json'), 'utf8'));
     const createdEnemyVisual = JSON.parse(await fs.readFile(path.join(characterRoot, 'fixture-raider', 'visual-set.json'), 'utf8'));
+    const createdNpc = JSON.parse(await fs.readFile(path.join(characterRoot, 'fixture-npc', 'character.json'), 'utf8'));
+    const createdNpcVisual = JSON.parse(await fs.readFile(path.join(characterRoot, 'fixture-npc', 'visual-set.json'), 'utf8'));
     for (const visualSet of [createdPlayerVisual, createdEnemyVisual]) {
       for (const clip of Object.values(visualSet.clips)) assert.deepEqual(clip.frames, [0]);
     }
     assert.deepEqual(Object.keys(createdPlayer.animationTracks).sort(), Object.keys(createdPlayerVisual.clips).sort());
     assert.deepEqual(Object.keys(createdEnemy.animationTracks).sort(), Object.keys(createdEnemyVisual.clips).sort());
+    assert.equal(createdNpc.kind, 'npc');
+    assert.equal(createdNpc.player, undefined);
+    assert.equal(createdNpc.enemy, undefined);
+    assert.equal(createdNpc.runtimeRole, undefined);
+    assert.equal(createdNpc.attributes, undefined);
+    assert.equal(createdNpc.npc.wanderSpeed > 0, true);
+    assert.deepEqual(Object.keys(createdNpcVisual.clips), ['idle', 'walk-down', 'walk-up', 'walk-left', 'walk-right']);
+    assert.deepEqual(Object.keys(createdNpc.animationTracks).sort(), Object.keys(createdNpcVisual.clips).sort());
     for (const clipId of ['idle-side', 'walk-side', 'attack-side', 'knockback-side', 'die-side', 'idle-up', 'walk-up', 'attack-up', 'knockback-up', 'die-up', 'idle-down', 'walk-down', 'attack-down', 'knockback-down', 'die-down']) {
       assert.deepEqual(createdEnemyVisual.clips[clipId].frames, [0]);
     }

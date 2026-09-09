@@ -1,21 +1,23 @@
 import type {
   MapEnemyAreaPerimeter,
   MapEnemyAreaShape,
+  MapAgentAreaPerimeter,
   MapDirection,
   MapEnemySpawnArea,
   MapEnemySpawn,
   MapEnemySafeZone,
   MapFile,
+  MapNpcWanderArea,
   MapPoint,
   MapZone,
 } from '../content/maps/mapFormat';
 import { MapValidationError, parseMapFile } from '../content/maps/mapFormat';
-import { isObjectArchetypeId, type ObjectArchetypeId } from '../content/objects/ObjectCatalog';
+import { getObjectArchetype, isObjectArchetypeId, type ObjectArchetypeId } from '../content/objects/ObjectCatalog';
 import { gameplayInitialStateKeys, validateObjectInitialState } from '../content/objects/ObjectInitialState';
 import type { WorldTileId } from '../content/terrain/TileCatalog';
 import { connectionAt, edgeEntryPoint, edgeExitZone, exitDirection, OPPOSITE_DIRECTION } from './MapConnections';
 
-export type EditorTool = 'pan' | 'terrain' | 'object' | 'select' | 'erase' | 'safe-zone' | 'enemy-area' | 'spawn' | 'entry' | 'exit';
+export type EditorTool = 'pan' | 'terrain' | 'object' | 'select' | 'erase' | 'safe-zone' | 'enemy-area' | 'npc-area' | 'spawn' | 'entry' | 'exit';
 
 export interface EditableObjectInstance {
   instanceId: string;
@@ -46,6 +48,7 @@ export interface EditableMap {
   exits: Array<{ zone: MapZone; to: string; entry: string }>;
   enemySafeZones: MapEnemySafeZone[];
   enemySpawnAreas: MapEnemySpawnArea[];
+  npcWanderAreas?: MapNpcWanderArea[];
   spawns?: {
     enemies: MapEnemySpawn[];
     radius: { min: number; max: number };
@@ -65,7 +68,9 @@ export interface EditorViewState {
   readonly selectedInstanceId?: string;
   readonly selectedSafeZoneIndex?: number;
   readonly selectedEnemyAreaId?: string;
+  readonly selectedNpcWanderAreaId?: string;
   readonly enemyAreaShape: MapEnemyAreaShape;
+  readonly npcWanderAreaShape: MapEnemyAreaShape;
   readonly dirty: boolean;
   readonly canUndo: boolean;
   readonly canRedo: boolean;
@@ -168,7 +173,9 @@ export class MapEditorState {
   private selectedInstanceIdValue?: string;
   private selectedSafeZoneIndexValue?: number;
   private selectedEnemyAreaIdValue?: string;
+  private selectedNpcWanderAreaIdValue?: string;
   private enemyAreaShapeValue: MapEnemyAreaShape = 'rectangle';
+  private npcWanderAreaShapeValue: MapEnemyAreaShape = 'rectangle';
   private savingValue = false;
   private statusValue = 'Ready';
   private revisionValue = 0;
@@ -203,7 +210,9 @@ export class MapEditorState {
       selectedInstanceId: this.selectedInstanceIdValue,
       selectedSafeZoneIndex: this.selectedSafeZoneIndexValue,
       selectedEnemyAreaId: this.selectedEnemyAreaIdValue,
+      selectedNpcWanderAreaId: this.selectedNpcWanderAreaIdValue,
       enemyAreaShape: this.enemyAreaShapeValue,
+      npcWanderAreaShape: this.npcWanderAreaShapeValue,
       dirty: this.dirtyValue,
       canUndo: this.undoStack.length > 0,
       canRedo: this.redoStack.length > 0,
@@ -220,14 +229,25 @@ export class MapEditorState {
   }
 
   setTool(tool: EditorTool): void {
+    if (tool === 'npc-area') {
+      const selected = this.selectedInstanceIdValue && this.mapValue.objects.find((object) => object.instanceId === this.selectedInstanceIdValue);
+      if (!selected || !isObjectArchetypeId(selected.objectId) || !getObjectArchetype(selected.objectId).npc) {
+        this.statusValue = 'Select an NPC object before activating NPC Wander Area';
+        this.emit();
+        return;
+      }
+      this.selectedNpcWanderAreaIdValue = this.getNpcWanderArea(selected.instanceId)?.id;
+    }
     this.toolValue = tool;
     // Zones are only visible (and selectable) in the safe-zone tool, so a
     // stale zone selection must not survive switching to another tool.
     if (tool !== 'safe-zone') this.selectedSafeZoneIndexValue = undefined;
     if (tool !== 'enemy-area') this.selectedEnemyAreaIdValue = undefined;
+    if (tool !== 'npc-area') this.selectedNpcWanderAreaIdValue = undefined;
     if (tool === 'select') this.statusValue = 'Drag any highlighted object to move it';
     else if (tool === 'safe-zone') this.statusValue = 'Drag across tiles to draw a rectangular safe zone';
     else if (tool === 'enemy-area') this.statusValue = `Drag to author a ${this.enemyAreaShapeValue} enemy area`;
+    else if (tool === 'npc-area') this.statusValue = `Drag to author a ${this.npcWanderAreaShapeValue} NPC wander area`;
     else if (tool === 'terrain') this.statusValue = `Drag to paint ${this.tileIdValue}`;
     else if (tool === 'object') this.statusValue = `Drag to stamp ${this.objectIdValue} / ${this.objectVisualIdValue}`;
     else this.statusValue = `${tool} tool active`;
@@ -303,6 +323,9 @@ export class MapEditorState {
         pursuePerimeter: scalePerimeter(area.pursuePerimeter, tileScale),
       }));
     }
+    if (candidate.npcWanderAreas) {
+      candidate.npcWanderAreas = candidate.npcWanderAreas.map((area) => ({ ...area, perimeter: scalePerimeter(area.perimeter, tileScale) }));
+    }
     if (candidate.spawns) {
       candidate.spawns = {
         ...candidate.spawns,
@@ -332,6 +355,12 @@ export class MapEditorState {
   setEnemyAreaShape(shape: MapEnemyAreaShape): void {
     this.enemyAreaShapeValue = shape;
     if (this.toolValue === 'enemy-area') this.statusValue = `Drag to author a ${shape} enemy area`;
+    this.emit();
+  }
+
+  setNpcWanderAreaShape(shape: MapEnemyAreaShape): void {
+    this.npcWanderAreaShapeValue = shape;
+    if (this.toolValue === 'npc-area') this.statusValue = `Drag to author a ${shape} NPC wander area`;
     this.emit();
   }
 
@@ -376,6 +405,32 @@ export class MapEditorState {
     return deleted;
   }
 
+  getNpcWanderArea(npcInstanceId: string): MapNpcWanderArea | undefined {
+    return this.mapValue.npcWanderAreas?.find((area) => area.npcInstanceId === npcInstanceId);
+  }
+
+  createNpcWanderArea(npcInstanceId: string, perimeter: MapAgentAreaPerimeter): boolean {
+    if (this.getNpcWanderArea(npcInstanceId)) return false;
+    const ids = new Set((this.mapValue.npcWanderAreas ?? []).map((area) => area.id));
+    let index = 1;
+    while (ids.has(`npc-area-${String(index).padStart(2, '0')}`)) index += 1;
+    const area: MapNpcWanderArea = { id: `npc-area-${String(index).padStart(2, '0')}`, npcInstanceId, perimeter: normalizeEnemyPerimeter(perimeter) };
+    return this.mutate(`Created NPC wander area ${area.id}`, (map) => { map.npcWanderAreas ??= []; map.npcWanderAreas.push(area); this.selectedNpcWanderAreaIdValue = area.id; });
+  }
+
+  updateNpcWanderArea(areaId: string, area: MapNpcWanderArea): boolean {
+    return this.mutate(`Updated NPC wander area ${areaId}`, (map) => {
+      const index = map.npcWanderAreas?.findIndex((candidate) => candidate.id === areaId) ?? -1;
+      if (index >= 0 && map.npcWanderAreas) map.npcWanderAreas[index] = { ...area, id: areaId, perimeter: normalizeEnemyPerimeter(area.perimeter) };
+    });
+  }
+
+  deleteNpcWanderArea(areaId: string): boolean {
+    const deleted = this.mutate(`Deleted NPC wander area ${areaId}`, (map) => { if (map.npcWanderAreas) map.npcWanderAreas = map.npcWanderAreas.filter((area) => area.id !== areaId); });
+    if (deleted && this.selectedNpcWanderAreaIdValue === areaId) { this.selectedNpcWanderAreaIdValue = undefined; this.emit(); }
+    return deleted;
+  }
+
   selectInstance(instanceId?: string): void {
     this.selectedInstanceIdValue = instanceId;
     if (instanceId) this.selectedSafeZoneIndexValue = undefined;
@@ -402,6 +457,33 @@ export class MapEditorState {
       ? `Selected enemy area ${areaId} — drag to move, resize from a corner, edit, or delete`
       : 'Enemy-area selection cleared';
     this.emit();
+  }
+
+  selectNpcWanderArea(areaId?: string): void {
+    this.selectedNpcWanderAreaIdValue = areaId;
+    if (areaId) {
+      const area = this.mapValue.npcWanderAreas?.find((candidate) => candidate.id === areaId);
+      this.selectedInstanceIdValue = area?.npcInstanceId ?? this.selectedInstanceIdValue;
+      this.selectedSafeZoneIndexValue = undefined;
+      this.selectedEnemyAreaIdValue = undefined;
+    }
+    this.statusValue = areaId ? `Selected NPC wander area ${areaId}` : 'NPC wander-area selection cleared';
+    this.emit();
+  }
+
+  deleteObjectInstances(instanceIds: readonly string[]): boolean {
+    const ids = new Set(instanceIds.filter((id) => id.length > 0));
+    if (ids.size === 0) return false;
+    const removedAreaIds = new Set((this.mapValue.npcWanderAreas ?? [])
+      .filter((area) => ids.has(area.npcInstanceId))
+      .map((area) => area.id));
+    const deleted = this.mutate(`Deleted ${ids.size} object${ids.size === 1 ? '' : 's'}`, (map) => {
+      map.objects = map.objects.filter((object) => !ids.has(object.instanceId));
+      if (map.npcWanderAreas) map.npcWanderAreas = map.npcWanderAreas.filter((area) => !ids.has(area.npcInstanceId));
+      if (this.selectedInstanceIdValue && ids.has(this.selectedInstanceIdValue)) this.selectedInstanceIdValue = undefined;
+      if (this.selectedNpcWanderAreaIdValue && removedAreaIds.has(this.selectedNpcWanderAreaIdValue)) this.selectedNpcWanderAreaIdValue = undefined;
+    });
+    return deleted;
   }
 
   updateObjectInitialState(instanceId: string, patch: Readonly<Record<string, unknown>>): boolean {
@@ -436,6 +518,7 @@ export class MapEditorState {
     this.selectedInstanceIdValue = undefined;
     this.selectedSafeZoneIndexValue = undefined;
     this.selectedEnemyAreaIdValue = undefined;
+    this.selectedNpcWanderAreaIdValue = undefined;
     this.statusValue = 'Selection cleared';
     this.emit();
   }
@@ -468,6 +551,7 @@ export class MapEditorState {
     this.selectedInstanceIdValue = undefined;
     this.selectedSafeZoneIndexValue = undefined;
     this.selectedEnemyAreaIdValue = undefined;
+    this.selectedNpcWanderAreaIdValue = undefined;
     this.revisionValue += 1;
     this.dirtyValue = serialize(this.mapValue) !== this.savedSnapshot;
     this.statusValue = 'Undid last change';
@@ -482,6 +566,7 @@ export class MapEditorState {
     this.selectedInstanceIdValue = undefined;
     this.selectedSafeZoneIndexValue = undefined;
     this.selectedEnemyAreaIdValue = undefined;
+    this.selectedNpcWanderAreaIdValue = undefined;
     this.revisionValue += 1;
     this.dirtyValue = serialize(this.mapValue) !== this.savedSnapshot;
     this.statusValue = 'Redid change';

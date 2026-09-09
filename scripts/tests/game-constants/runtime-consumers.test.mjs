@@ -96,6 +96,30 @@ test('capacity is mutable and over-limit legacy stacks are grandfathered', () =>
   assert.equal(inventory.remove('wood', 2), 2);
 });
 
+test('slot removal cannot consume another stack of the same item', () => {
+  const inventory = new Inventory();
+  inventory.load({
+    maxSlots: 3,
+    slots: [
+      { itemId: 'wood', count: 10 },
+      { itemId: 'wood', count: 4 },
+      { itemId: 'stone', count: 2 },
+    ],
+  });
+
+  assert.equal(inventory.removeFromSlot(1, 3), 3);
+  assert.deepEqual(inventory.getSlots(), [
+    { itemId: 'wood', count: 10 },
+    { itemId: 'wood', count: 1 },
+    { itemId: 'stone', count: 2 },
+  ]);
+  assert.equal(inventory.removeFromSlot(1, 99), 1);
+  assert.deepEqual(inventory.getSlots(), [
+    { itemId: 'wood', count: 10 },
+    { itemId: 'stone', count: 2 },
+  ]);
+});
+
 test('runtime XP grants one reward per crossed level and refills final maxima', () => {
   gameState.load(createInitialRunState().player);
   const eventStart = emittedEvents.length;

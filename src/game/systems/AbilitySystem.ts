@@ -511,7 +511,7 @@ export class AbilitySystem {
     const scene = this.ctx.scene;
     const need = UNLOCK_LEVEL[ability];
     const player = this.ctx.getPlayer();
-    floatingText.spawn(scene, player.x, player.y - 30, `Locked â€” Lv ${need}`, 'red');
+    floatingText.spawn(scene, player.x, player.y - 30, `Locked - Lv ${need}`, 'red');
   }
 
   /** March from `start` in `dir` up to `maxDist`; stop just before a solid tile. */

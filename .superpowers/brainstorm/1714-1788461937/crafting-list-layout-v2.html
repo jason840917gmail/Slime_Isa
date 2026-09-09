@@ -1,0 +1,50 @@
+<h2>Revised crafting overlay</h2>
+<p class="subtitle">Only recipe items are drawn. There is no panel background, border, title, instruction text, or footer.</p>
+
+<div class="card" data-choice="approve-transparent-list" onclick="toggleSelect(this)" style="max-width:760px;margin:0 auto;background:#111b32;border-color:#4d6c82;">
+  <div class="card-image" style="padding:18px;background:radial-gradient(circle at 20% 8%,#769e45 0,#355631 35%,#1d351f 72%,#142817 100%);min-height:580px;position:relative;overflow:hidden;">
+    <div style="position:absolute;left:20px;top:18px;color:#f3fff6;text-shadow:0 2px 4px #07110b;font-weight:800;line-height:1.55;">
+      <div>Level 1</div><div>Coins: 50</div><div>Friends: 0</div>
+    </div>
+    <div style="position:absolute;right:35px;top:55px;width:92px;height:92px;border-radius:50%;background:rgba(120,190,90,.28);box-shadow:0 0 60px rgba(168,222,95,.35);"></div>
+    <div style="position:absolute;left:65px;bottom:35px;width:100px;height:75px;border-radius:50% 50% 42% 42%;background:#7ccd65;box-shadow:inset 0 -15px 0 rgba(31,92,48,.3),0 12px 18px rgba(0,0,0,.25);"></div>
+
+    <div style="position:relative;width:min(620px,calc(100% - 30px));height:520px;margin:12px auto 0;overflow-y:auto;padding:2px 10px 2px 2px;scrollbar-color:#72d8ff rgba(16,26,49,.55);">
+      <div style="display:grid;gap:8px;">
+        <div style="display:grid;grid-template-columns:48px 1fr auto;align-items:center;gap:12px;min-height:55px;padding:8px 13px;border:2px solid #ffdf8a;border-radius:12px;background:rgba(8,35,29,.93);box-shadow:0 4px 14px rgba(0,0,0,.28);">
+          <div style="font-size:27px;text-align:center;">🗡️</div><div><strong>Wooden Spear</strong><div style="font-size:11px;color:#bddad0;">A light starter weapon.</div></div><div style="color:#ffd277;font-weight:800;">🪵 20</div>
+        </div>
+        <div style="display:grid;grid-template-columns:48px 1fr auto;align-items:center;gap:12px;min-height:55px;padding:8px 13px;border:1px solid #73e2b1;border-radius:12px;background:rgba(8,35,29,.9);box-shadow:0 4px 14px rgba(0,0,0,.24);">
+          <div style="font-size:27px;text-align:center;">🪓</div><div><strong>Stone Axe</strong><div style="font-size:11px;color:#bddad0;">Harvest trees efficiently.</div></div><div style="display:flex;gap:12px;color:#ffd277;font-weight:800;"><span>🪵 10</span><span>🪨 10</span></div>
+        </div>
+        <div style="display:grid;grid-template-columns:48px 1fr auto;align-items:center;gap:12px;min-height:55px;padding:8px 13px;border:1px solid #73e2b1;border-radius:12px;background:rgba(8,35,29,.9);box-shadow:0 4px 14px rgba(0,0,0,.24);">
+          <div style="font-size:27px;text-align:center;">⛏️</div><div><strong>Stone Pickaxe</strong><div style="font-size:11px;color:#bddad0;">Break stone resource nodes.</div></div><div style="display:flex;gap:12px;color:#ffd277;font-weight:800;"><span>🪵 10</span><span>🪨 10</span></div>
+        </div>
+        <div style="display:grid;grid-template-columns:48px 1fr auto;align-items:center;gap:12px;min-height:55px;padding:8px 13px;border:1px solid #3d625b;border-radius:12px;background:rgba(11,29,27,.88);opacity:.66;box-shadow:0 4px 14px rgba(0,0,0,.24);">
+          <div style="font-size:27px;text-align:center;">🔱</div><div><strong>Stone Spear</strong><div style="font-size:11px;color:#9bb8ae;">A stronger stone-tipped spear.</div></div><div style="display:flex;gap:12px;color:#cc8e88;font-weight:800;"><span>🪵 20</span><span>🪨 20</span></div>
+        </div>
+        <div style="display:grid;grid-template-columns:48px 1fr auto;align-items:center;gap:12px;min-height:55px;padding:8px 13px;border:1px solid #73e2b1;border-radius:12px;background:rgba(8,35,29,.9);box-shadow:0 4px 14px rgba(0,0,0,.24);">
+          <div style="font-size:27px;text-align:center;">🧪</div><div><strong>Slime Tonic</strong><div style="font-size:11px;color:#bddad0;">Restore health.</div></div><div style="color:#ffd277;font-weight:800;">🫐 3</div>
+        </div>
+        <div style="display:grid;grid-template-columns:48px 1fr auto;align-items:center;gap:12px;min-height:55px;padding:8px 13px;border:1px solid #73e2b1;border-radius:12px;background:rgba(8,35,29,.9);box-shadow:0 4px 14px rgba(0,0,0,.24);">
+          <div style="font-size:27px;text-align:center;">⚡</div><div><strong>Fizzy Brew</strong><div style="font-size:11px;color:#bddad0;">Restore energy.</div></div><div style="display:flex;gap:12px;color:#ffd277;font-weight:800;"><span>🫐 2</span><span>💎 1</span></div>
+        </div>
+        <div style="display:grid;grid-template-columns:48px 1fr auto;align-items:center;gap:12px;min-height:55px;padding:8px 13px;border:1px solid #73e2b1;border-radius:12px;background:rgba(8,35,29,.9);box-shadow:0 4px 14px rgba(0,0,0,.24);">
+          <div style="font-size:27px;text-align:center;">🎒</div><div><strong>Sticky Field Kit</strong><div style="font-size:11px;color:#bddad0;">Pack two tonics.</div></div><div style="display:flex;gap:12px;color:#ffd277;font-weight:800;"><span>🫐 2</span><span>👸 2</span></div>
+        </div>
+        <div style="display:grid;grid-template-columns:48px 1fr auto;align-items:center;gap:12px;min-height:55px;padding:8px 13px;border:1px solid #73e2b1;border-radius:12px;background:rgba(8,35,29,.9);box-shadow:0 4px 14px rgba(0,0,0,.24);">
+          <div style="font-size:27px;text-align:center;">💣</div><div><strong>Goo Charge</strong><div style="font-size:11px;color:#bddad0;">A compact throwable charge.</div></div><div style="display:flex;gap:12px;color:#ffd277;font-weight:800;"><span>💎 2</span><span>💧 4</span></div>
+        </div>
+        <div style="display:grid;grid-template-columns:48px 1fr auto;align-items:center;gap:12px;min-height:55px;padding:8px 13px;border:1px solid #3d625b;border-radius:12px;background:rgba(11,29,27,.88);opacity:.66;box-shadow:0 4px 14px rgba(0,0,0,.24);">
+          <div style="font-size:27px;text-align:center;">🛡️</div><div><strong>Moss Guard</strong><div style="font-size:11px;color:#9bb8ae;">Reached by scrolling.</div></div><div style="color:#cc8e88;font-weight:800;">🌿 12</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    <h3>Transparent parent container</h3>
+    <p>The game stays visible between and around rows. Eight recipes fit before the ninth requires scrolling.</p>
+  </div>
+</div>
+
+<p class="subtitle" style="text-align:center;margin-top:18px;">Click the mockup to approve this revision, then reply in the terminal.</p>

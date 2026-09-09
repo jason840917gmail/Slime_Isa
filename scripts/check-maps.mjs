@@ -307,7 +307,10 @@ function validateMap(data, label) {
         fail(label, `${path}.visualId`, 'required non-empty string (authored visual ID)');
       } else {
         const definition = objectDefinitions.get(object.objectId);
-        if (definition && !definition.variants?.some((variant) => variant.frames?.some((frame) => frame.visualId === object.visualId))) {
+        const expectedVisual = definition?.npc?.placementVisualId;
+        if (definition?.npc && object.visualId !== expectedVisual) {
+          fail(label, `${path}.visualId`, `must match NPC placement visual '${expectedVisual}'`);
+        } else if (definition && !definition.npc && !definition.variants?.some((variant) => variant.frames?.some((frame) => frame.visualId === object.visualId))) {
           fail(label, `${path}.visualId`, `unknown visual '${object.visualId}' for '${object.objectId}'`);
         }
       }
@@ -483,6 +486,27 @@ function validateMap(data, label) {
         if (!isPositiveInt(area.intervalMs)) fail(label, `${path}.intervalMs`, 'expected positive integer');
         if (!isPositiveInt(area.maxPopulation)) fail(label, `${path}.maxPopulation`, 'expected positive integer');
       });
+    }
+  }
+
+  if (data.npcWanderAreas !== undefined) {
+    if (!Array.isArray(data.npcWanderAreas)) fail(label, 'npcWanderAreas', 'expected an array (may be empty)');
+    else {
+      const areaIds = new Set();
+      const owners = new Set();
+      for (const [index, area] of data.npcWanderAreas.entries()) {
+        const path = `npcWanderAreas[${index}]`;
+        if (!isRecord(area)) { fail(label, path, 'expected an object'); continue; }
+        if (typeof area.id !== 'string' || !/^npc-area-[0-9]+$/.test(area.id)) fail(label, `${path}.id`, 'expected stable npc-area-NN ID');
+        else if (areaIds.has(area.id)) fail(label, `${path}.id`, `duplicate '${area.id}'`); else areaIds.add(area.id);
+        if (typeof area.npcInstanceId !== 'string' || area.npcInstanceId.length === 0) fail(label, `${path}.npcInstanceId`, 'required non-empty instance ID');
+        else if (owners.has(area.npcInstanceId)) fail(label, `${path}.npcInstanceId`, `duplicate assignment '${area.npcInstanceId}'`); else owners.add(area.npcInstanceId);
+        const owner = data.objects?.find((object) => object?.instanceId === area.npcInstanceId);
+        const ownerDefinition = owner ? objectDefinitions.get(owner.objectId) : undefined;
+        if (!owner) fail(label, `${path}.npcInstanceId`, `unknown object instance '${area.npcInstanceId}'`);
+        else if (!ownerDefinition?.npc) fail(label, `${path}.npcInstanceId`, 'must reference an NPC object instance');
+        validateEnemyPerimeter(area.perimeter, `${path}.perimeter`, label, pixelWidth, pixelHeight);
+      }
     }
   }
 

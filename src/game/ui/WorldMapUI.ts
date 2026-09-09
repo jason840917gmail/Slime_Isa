@@ -4,6 +4,7 @@ import { BIOMES } from '../world/Biome';
 import { worldProgress } from '../features/progression/WorldProgress';
 import { UI_THEME } from '../presentation/theme';
 import { resolveScreenUiDepth } from '../presentation/WorldDepth';
+import { addUiSkin } from '../presentation/UiSkin';
 import { ModalStack, type ModalHandle } from './ModalStack';
 
 const FONT = UI_THEME.fontFamily;
@@ -54,12 +55,20 @@ export class WorldMapUI {
 
     const panelW = 560;
     const panelH = 330;
-    const bg = scene.add.graphics();
-    bg.fillStyle(0x101a31, 0.98);
-    bg.fillRoundedRect(-panelW / 2, -panelH / 2, panelW, panelH, 16);
-    bg.lineStyle(2, 0x73e2b1, 0.85);
-    bg.strokeRoundedRect(-panelW / 2, -panelH / 2, panelW, panelH, 16);
-    container.add(bg);
+    const skin = addUiSkin(scene, container, 'ui.surface.map-journal-paper', {
+      x: 0,
+      y: 0,
+      width: panelW,
+      height: panelH,
+    });
+    if (!skin) {
+      const bg = scene.add.graphics();
+      bg.fillStyle(0x101a31, 0.98);
+      bg.fillRoundedRect(-panelW / 2, -panelH / 2, panelW, panelH, 16);
+      bg.lineStyle(2, 0x73e2b1, 0.85);
+      bg.strokeRoundedRect(-panelW / 2, -panelH / 2, panelW, panelH, 16);
+      container.add(bg);
+    }
 
     container.add(scene.add.text(0, -panelH / 2 + 28, 'World Map', {
       fontFamily: FONT,
@@ -124,7 +133,7 @@ export class WorldMapUI {
       node.strokeCircle(p.x, p.y, isCurrent ? 26 : 22);
       container.add(node);
 
-      container.add(scene.add.text(p.x, p.y - 4, isDiscovered ? 'â—' : '?', {
+      container.add(scene.add.text(p.x, p.y - 4, isDiscovered ? '•' : '?', {
         fontFamily: FONT,
         fontSize: isCurrent ? '18px' : '16px',
         color: isCurrent ? '#ffdf8a' : '#e7fff5',
