@@ -2,6 +2,11 @@
 
 **Design:** `docs/superpowers/specs/2026-09-10-shared-world-drop-spawner-design.md`
 
+**Status:** Implemented on 2026-09-10. Focused collectible tests,
+TypeScript validation, and the production build pass. The complete project
+check reaches an unrelated pre-existing NPC area assertion failure in
+`scripts/tests/npcs/npc-inclusion.test.mjs`.
+
 ## Objective
 
 Introduce one reusable physical-drop lifecycle for current resource piles and
@@ -100,4 +105,3 @@ tree and stone drops in the running game if browser startup is available.
 - Persistence remains authoritative before presentation begins.
 - Focused and full project verification pass without changing unrelated user
   edits.
-
