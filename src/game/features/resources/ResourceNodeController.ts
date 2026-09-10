@@ -7,10 +7,10 @@ import {
 } from '../../content/objects/ObjectCatalog';
 import { acceptedDamage, rejectedDamage, type DamageApplicationResult } from '../../combat/DamageableTarget';
 import { floatingText } from '../../ui/FloatingText';
-import type { CreateObjectOptions } from '../objects/ObjectFactory';
 import type { BuiltObjectRegistration } from '../world/MapBuilder';
 import { worldProgress, type ResourcePileProgress, type ResourceProgressState } from '../progression/WorldProgress';
 import type { CollectibleStateChange } from '../collectibles/CollectibleController';
+import type { WorldDropRequest } from '../collectibles/WorldDropSpawner';
 import type { WorldDimensions } from '../../world/WorldDimensions';
 import { completeDropPlacements } from './ResourceDropPlacement';
 
@@ -52,8 +52,7 @@ interface ResourceNodeControllerContext {
   readonly dimensions: WorldDimensions;
   readonly collisionGroup: Phaser.Physics.Arcade.StaticGroup;
   readonly targetGroup: Phaser.GameObjects.Group;
-  readonly createObject: (objectId: ObjectArchetypeId, options: CreateObjectOptions) => Phaser.GameObjects.Image;
-  readonly registerCollectible: (registration: BuiltObjectRegistration) => void;
+  readonly spawnWorldDrop: (request: WorldDropRequest) => Phaser.GameObjects.Image;
   readonly isCellBlocked: (cellX: number, cellY: number, sourceInstanceId: string) => boolean;
 }
 
@@ -252,8 +251,12 @@ export class ResourceNodeController {
       objectId: drop.objectId,
       visualId: drop.visualId,
     }));
-    piles.forEach((pile) => this.createDynamicDrop(record.instanceId, pile));
     this.saveDestroyedState(record.instanceId, piles);
+    piles.forEach((pile, index) => this.createDynamicDrop(record.instanceId, pile, {
+      mode: 'launch',
+      source: { x: record.anchorX, y: record.anchorY },
+      launchIndex: index,
+    }));
     floatingText.spawn(this.ctx.scene, record.anchorX, record.anchorY - 46, source.depletionMessage ?? 'Resource depleted', 'yellow', true);
   }
 
@@ -268,10 +271,18 @@ export class ResourceNodeController {
       ...pile,
       objectId: pile.objectId ?? sourceDrop?.objectId,
       visualId: pile.visualId ?? sourceDrop?.visualId,
-    }));
+    }, { mode: 'settled' }));
   }
 
-  private createDynamicDrop(sourceInstanceId: string, pile: ResourcePileProgress): void {
+  private createDynamicDrop(
+    sourceInstanceId: string,
+    pile: ResourcePileProgress,
+    presentation: { readonly mode: 'settled' } | {
+      readonly mode: 'launch';
+      readonly source: { readonly x: number; readonly y: number };
+      readonly launchIndex: number;
+    },
+  ): void {
     const sourceDrop = this.sourceDropFor(sourceInstanceId);
     const authoredObjectId = pile.objectId;
     const objectId = authoredObjectId ?? sourceDrop?.objectId;
@@ -279,14 +290,28 @@ export class ResourceNodeController {
     if (!objectId || !visualId || !isObjectArchetypeId(objectId)) return;
     const x = pile.cellX * this.ctx.dimensions.tileSize + this.ctx.dimensions.tileSize / 2 + (pile.offsetX ?? 0);
     const y = (pile.cellY + 1) * this.ctx.dimensions.tileSize + (pile.offsetY ?? 0);
-    const image = this.ctx.createObject(objectId, { x, y, visualId, sortId: pile.id });
-    this.reservedCells.add(this.cellKey(pile.cellX, pile.cellY));
-    this.ctx.registerCollectible({
-      image,
-      objectId,
-      instanceId: pile.id,
-      initialState: { remaining: pile.amount, sourceResourceInstanceId: sourceInstanceId },
+    this.ctx.spawnWorldDrop(presentation.mode === 'launch' ? {
+      mode: 'launch',
+      source: presentation.source,
+      destination: { x, y },
+      launchIndex: presentation.launchIndex,
+      drop: {
+        objectId,
+        visualId,
+        instanceId: pile.id,
+        initialState: { remaining: pile.amount, sourceResourceInstanceId: sourceInstanceId },
+      },
+    } : {
+      mode: 'settled',
+      destination: { x, y },
+      drop: {
+        objectId,
+        visualId,
+        instanceId: pile.id,
+        initialState: { remaining: pile.amount, sourceResourceInstanceId: sourceInstanceId },
+      },
     });
+    this.reservedCells.add(this.cellKey(pile.cellX, pile.cellY));
   }
 
   private sourceDropFor(instanceId: string): { objectId: string; visualId: string } | undefined {

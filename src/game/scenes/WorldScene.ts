@@ -57,11 +57,14 @@ import { worldProgress } from '../features/progression/WorldProgress';
 import { CollectibleController } from '../features/collectibles/CollectibleController';
 import { CollectibleEventChannel } from '../features/collectibles/CollectibleEventChannel';
 import { CollectibleReactionController } from '../features/collectibles/CollectibleReactionController';
+import { WorldDropSpawner } from '../features/collectibles/WorldDropSpawner';
 import { OcclusionController } from '../features/occlusion/OcclusionController';
 import { DepthDiagnostics } from '../features/occlusion/DepthDiagnostics';
 import { MapBuilder, type BuiltMap } from '../features/world/MapBuilder';
-import type { CreateObjectOptions } from '../features/objects/ObjectFactory';
-import type { ObjectArchetypeId } from '../content/objects/ObjectCatalog';
+import {
+  setObjectAnchor,
+  setObjectDepthMode,
+} from '../features/objects/ObjectFactory';
 import { resolveBodyBottom, resolveWorldDepth } from '../presentation/WorldDepth';
 import { ResponsiveCameraController } from '../presentation/ResponsiveCameraController';
 import type { LoadedMap } from '../infrastructure/maps/MapRepository';
@@ -101,6 +104,7 @@ export class WorldScene extends Phaser.Scene {
   private resourceTargets!: Phaser.GameObjects.Group;
   private resourceNodes?: ResourceNodeController;
   private collectibles?: CollectibleController;
+  private worldDrops?: WorldDropSpawner;
   private playerController!: PlayerController;
   private healthSystem?: HealthSystem;
   private statusEffects?: StatusEffectManager;
@@ -375,6 +379,8 @@ export class WorldScene extends Phaser.Scene {
     this.combatController?.destroy();
     this.resourceNodes?.destroy();
     this.resourceNodes = undefined;
+    this.worldDrops?.destroy();
+    this.worldDrops = undefined;
     this.collectibles?.destroy();
     this.collectibles = undefined;
     this.occlusionController?.destroy();
@@ -600,16 +606,20 @@ export class WorldScene extends Phaser.Scene {
       showMessage: (x, y, message, color, important) => floatingText.spawn(this, x, y, message, color, important),
       onStateChanged: (change) => this.resourceNodes?.onCollectibleStateChanged(change),
     });
+    this.worldDrops = new WorldDropSpawner({
+      scene: this,
+      createObject: (objectId, options) => mapBuilder.createDynamicObject(objectId, options),
+      setObjectAnchor,
+      setObjectDepthMode,
+      registerCollectible: (registration) => this.collectibles?.register(registration),
+    });
     this.resourceNodes = new ResourceNodeController({
       scene: this,
       mapId: this.loadedMap.map.mapId,
       dimensions: this.worldDimensions,
       collisionGroup: this.collisionTiles,
       targetGroup: this.resourceTargets,
-      createObject: (objectId: ObjectArchetypeId, options: CreateObjectOptions) => (
-        mapBuilder.createDynamicObject(objectId, options)
-      ),
-      registerCollectible: (registration) => this.collectibles?.register(registration),
+      spawnWorldDrop: (request) => this.worldDrops!.spawn(request),
       isCellBlocked: (cellX, cellY, sourceInstanceId) => this.isResourceDropCellBlocked(cellX, cellY, sourceInstanceId),
     });
     this.builtMap = mapBuilder.build();

@@ -1,6 +1,6 @@
 # Shared World Drop Spawner Design
 
-**Status: approved design; implementation pending.**
+**Status: implemented on 2026-09-10.**
 
 ## Goal
 
