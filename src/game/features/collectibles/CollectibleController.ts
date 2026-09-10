@@ -2,6 +2,8 @@ import type Phaser from 'phaser';
 
 import { getObjectArchetype, isObjectArchetypeId } from '../../content/objects/ObjectCatalog';
 import type { CollectibleCollectedPayload } from '../../core/EventBus';
+import { UI_THEME } from '../../presentation/theme';
+import { resolveWorldDepth } from '../../presentation/WorldDepth';
 import type { CollectibleProgressState } from '../progression/WorldProgress';
 import type { BuiltObjectRegistration } from '../world/MapBuilder';
 import type { InventoryDropCellInspection } from './InventoryDropPlacement';
@@ -25,6 +27,7 @@ interface CollectibleRecord {
   remaining: number;
   readonly sourceResourceInstanceId?: string;
   readonly sourceInventoryDropId?: string;
+  quantityLabel?: Phaser.GameObjects.Text;
 }
 
 export interface CollectibleControllerContext {
@@ -83,11 +86,11 @@ export class CollectibleController {
     };
     if (record.remaining > 0 && this.mergeIntoExisting(record)) return;
     this.records.set(image, record);
-    this.syncImageData(record);
-
     if (record.remaining <= 0) {
       this.remove(record);
+      return;
     }
+    this.syncImageData(record);
   }
 
   collect(target: Phaser.GameObjects.GameObject): void {
@@ -121,6 +124,7 @@ export class CollectibleController {
   }
 
   destroy(): void {
+    for (const record of this.records.values()) record.quantityLabel?.destroy();
     this.records.clear();
   }
 
@@ -138,6 +142,7 @@ export class CollectibleController {
 
   private remove(record: CollectibleRecord): void {
     this.records.delete(record.image);
+    record.quantityLabel?.destroy();
     this.ctx.group.remove(record.image, true, true);
   }
 
@@ -169,6 +174,28 @@ export class CollectibleController {
     record.image.setData('collectibleQuantity', record.remaining);
     record.image.setData('collectibleSourceResourceInstanceId', record.sourceResourceInstanceId);
     record.image.setData('collectibleSourceInventoryDropId', record.sourceInventoryDropId);
+    this.syncQuantityLabel(record);
+  }
+
+  private syncQuantityLabel(record: CollectibleRecord): void {
+    const y = record.image.y - Math.max(22, Math.min(44, record.image.displayHeight * 0.55));
+    record.quantityLabel ??= this.ctx.scene.add.text(record.image.x, y, '', {
+      fontFamily: UI_THEME.fontFamily,
+      fontSize: '16px',
+      fontStyle: 'bold',
+      color: '#fff4b8',
+      stroke: '#101a18',
+      strokeThickness: 4,
+      backgroundColor: '#101a18cc',
+      padding: { x: 4, y: 2 },
+    }).setOrigin(0.5, 1);
+    record.quantityLabel
+      .setText(`×${record.remaining}`)
+      .setPosition(record.image.x, y)
+      .setDepth(resolveWorldDepth(record.image.y, {
+        band: 'reveal-effects',
+        stableId: `collectible-quantity:${record.instanceId}`,
+      }).depth);
   }
 
   private persistAndNotify(record: CollectibleRecord): void {
