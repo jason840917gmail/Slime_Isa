@@ -1,0 +1,13 @@
+{
+  "$schema": "../objects.schema.json",
+  "objectId": "collectible.crystal-shard",
+  "selection": "authored",
+  "variants": [{
+    "assetId": "collectible.crystal-shard",
+    "frames": [{ "visualId": "crystal-shard", "frame": 0, "displayName": "Crystal Shard", "scale": 2 }]
+  }],
+  "physics": null,
+  "behavior": "collectible.walk-over",
+  "collectible": { "itemId": "shard", "quantity": 1 },
+  "tags": ["collectible", "crystal", "material"]
+}

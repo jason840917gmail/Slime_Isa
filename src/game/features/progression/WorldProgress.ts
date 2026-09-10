@@ -1,5 +1,5 @@
 import { saveRepository } from '../../infrastructure/persistence/SaveRepository';
-import type { CollectibleProgressStateData, MapRuntimeStateData, ResourceProgressStateData, WorldProgressData } from '../../infrastructure/persistence/SaveSchema';
+import type { CollectibleProgressStateData, InventoryWorldDropProgressData, MapRuntimeStateData, ResourceProgressStateData, WorldProgressData } from '../../infrastructure/persistence/SaveSchema';
 import type { AreaId } from '../../world/Area';
 import { gameEvents } from '../../core/EventBus';
 
@@ -23,12 +23,17 @@ export interface ResourceProgressState {
 export interface CollectibleProgressState {
   readonly remaining: number;
   readonly sourceResourceInstanceId?: string;
+  readonly sourceInventoryDropId?: string;
 }
+
+export type InventoryWorldDropProgress = InventoryWorldDropProgressData;
 
 function emptyMapState(): MapRuntimeStateData {
   return {
     resources: {},
     collectibles: {},
+    inventoryDrops: {},
+    nextInventoryDropSequence: 1,
     completedEncounterIds: [],
     openedRewardIds: [],
     unlockedGateIds: [],
@@ -50,6 +55,7 @@ function cloneCollectibleState(state: CollectibleProgressStateData): Collectible
   return {
     remaining: Math.max(0, Math.floor(state.remaining)),
     ...(state.sourceResourceInstanceId ? { sourceResourceInstanceId: state.sourceResourceInstanceId } : {}),
+    ...(state.sourceInventoryDropId ? { sourceInventoryDropId: state.sourceInventoryDropId } : {}),
   };
 }
 
@@ -65,6 +71,10 @@ function cloneMapState(state: MapRuntimeStateData): MapRuntimeStateData {
         collectible && typeof collectible === 'object' ? [[instanceId, cloneCollectibleState(collectible)]] : []
       )),
     ),
+    inventoryDrops: Object.fromEntries(
+      Object.entries(state.inventoryDrops ?? {}).map(([id, drop]) => [id, { ...drop }]),
+    ),
+    nextInventoryDropSequence: state.nextInventoryDropSequence ?? 1,
     completedEncounterIds: [...state.completedEncounterIds],
     openedRewardIds: [...state.openedRewardIds],
     unlockedGateIds: [...state.unlockedGateIds],
@@ -113,9 +123,33 @@ export class WorldProgress {
             )),
           )
         : {};
+      const inventoryDrops = candidate.inventoryDrops && typeof candidate.inventoryDrops === 'object'
+        ? Object.fromEntries(Object.entries(candidate.inventoryDrops).flatMap(([id, drop]) => (
+            drop && typeof drop === 'object'
+              && typeof (drop as InventoryWorldDropProgressData).itemId === 'string'
+              && Number.isInteger((drop as InventoryWorldDropProgressData).amount)
+              && (drop as InventoryWorldDropProgressData).amount > 0
+              && Number.isFinite((drop as InventoryWorldDropProgressData).x)
+              && Number.isFinite((drop as InventoryWorldDropProgressData).y)
+              ? [[id, { ...(drop as InventoryWorldDropProgressData), id }]]
+              : []
+          )))
+        : {};
+      const inferredInventoryDropSequence = Math.max(1, ...Object.keys(inventoryDrops).map((id) => {
+        const match = /^inventory-drop-(\d+)$/.exec(id);
+        return match ? Number(match[1]) + 1 : 1;
+      }));
       this.mapStates.set(mapId, {
         resources,
         collectibles,
+        inventoryDrops,
+        nextInventoryDropSequence: Math.max(
+          inferredInventoryDropSequence,
+          Number.isInteger(candidate.nextInventoryDropSequence)
+            && (candidate.nextInventoryDropSequence ?? 0) >= 1
+            ? candidate.nextInventoryDropSequence ?? 1
+            : 1,
+        ),
         completedEncounterIds: Array.isArray(candidate.completedEncounterIds)
           ? candidate.completedEncounterIds.filter((id): id is string => typeof id === 'string') : [],
         openedRewardIds: Array.isArray(candidate.openedRewardIds)
@@ -247,6 +281,43 @@ export class WorldProgress {
     if (JSON.stringify(collectibles[instanceId]) === JSON.stringify(normalized)) return;
     collectibles[instanceId] = normalized;
     this.mapStates.set(mapId, { ...mapState, collectibles });
+    gameEvents.emit('world.progress.changed', {});
+  }
+
+  inventoryDrops(mapId: string): readonly InventoryWorldDropProgress[] {
+    this.ensureLoaded();
+    return Object.values(this.mapStates.get(mapId)?.inventoryDrops ?? {}).map((drop) => ({ ...drop }));
+  }
+
+  createInventoryDrop(
+    mapId: string,
+    drop: Omit<InventoryWorldDropProgress, 'id'>,
+  ): InventoryWorldDropProgress {
+    this.ensureLoaded();
+    const mapState = this.mapStates.get(mapId) ?? emptyMapState();
+    const sequence = mapState.nextInventoryDropSequence ?? 1;
+    const id = `inventory-drop-${sequence}`;
+    const record = { ...drop, id };
+    this.mapStates.set(mapId, {
+      ...mapState,
+      inventoryDrops: { ...(mapState.inventoryDrops ?? {}), [id]: record },
+      nextInventoryDropSequence: sequence + 1,
+    });
+    gameEvents.emit('world.progress.changed', {});
+    return { ...record };
+  }
+
+  setInventoryDropAmount(mapId: string, instanceId: string, amount: number): void {
+    this.ensureLoaded();
+    if (!Number.isFinite(amount)) return;
+    const normalizedAmount = Math.max(0, Math.floor(amount));
+    const mapState = this.mapStates.get(mapId);
+    const current = mapState?.inventoryDrops?.[instanceId];
+    if (!mapState || !current) return;
+    const inventoryDrops = { ...(mapState.inventoryDrops ?? {}) };
+    if (normalizedAmount > 0) inventoryDrops[instanceId] = { ...current, amount: normalizedAmount };
+    else delete inventoryDrops[instanceId];
+    this.mapStates.set(mapId, { ...mapState, inventoryDrops });
     gameEvents.emit('world.progress.changed', {});
   }
 

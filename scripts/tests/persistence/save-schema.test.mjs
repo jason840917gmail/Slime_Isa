@@ -60,6 +60,25 @@ test('accepts a complete multi-map save contract', () => {
   assert.equal(isGameSaveData(validSave()), true);
 });
 
+test('accepts valid persistent inventory drops and rejects malformed records', () => {
+  const valid = validSave();
+  valid.world.maps['level-1'].inventoryDrops = {
+    'inventory-drop-1': {
+      id: 'inventory-drop-1', itemId: 'wood', amount: 7,
+      objectId: 'collectible.wood-pile', visualId: 'wood-pile', x: 320, y: 448,
+    },
+  };
+  valid.world.maps['level-1'].nextInventoryDropSequence = 2;
+  valid.world.maps['level-1'].collectibles = {
+    'inventory-drop-1': { remaining: 7, sourceInventoryDropId: 'inventory-drop-1' },
+  };
+  assert.equal(isGameSaveData(valid), true);
+
+  const invalid = structuredClone(valid);
+  invalid.world.maps['level-1'].inventoryDrops['inventory-drop-1'].amount = -1;
+  assert.equal(isGameSaveData(invalid), false);
+});
+
 test('accepts both an empty equipped state and legacy equipped weapons', () => {
   const empty = validSave();
   assert.equal(isGameSaveData(empty), true);

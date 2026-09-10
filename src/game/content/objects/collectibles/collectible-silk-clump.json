@@ -1,0 +1,13 @@
+{
+  "$schema": "../objects.schema.json",
+  "objectId": "collectible.silk-clump",
+  "selection": "authored",
+  "variants": [{
+    "assetId": "collectible.silk-clump",
+    "frames": [{ "visualId": "silk-clump", "frame": 0, "displayName": "Sticky Silk", "scale": 2 }]
+  }],
+  "physics": null,
+  "behavior": "collectible.walk-over",
+  "collectible": { "itemId": "silk-clump", "quantity": 1 },
+  "tags": ["collectible", "material", "silk"]
+}

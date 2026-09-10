@@ -58,6 +58,7 @@ import { CollectibleController } from '../features/collectibles/CollectibleContr
 import { CollectibleEventChannel } from '../features/collectibles/CollectibleEventChannel';
 import { CollectibleReactionController } from '../features/collectibles/CollectibleReactionController';
 import { WorldDropSpawner } from '../features/collectibles/WorldDropSpawner';
+import { InventoryDropController } from '../features/collectibles/InventoryDropController';
 import { OcclusionController } from '../features/occlusion/OcclusionController';
 import { DepthDiagnostics } from '../features/occlusion/DepthDiagnostics';
 import { MapBuilder, type BuiltMap } from '../features/world/MapBuilder';
@@ -105,6 +106,7 @@ export class WorldScene extends Phaser.Scene {
   private resourceNodes?: ResourceNodeController;
   private collectibles?: CollectibleController;
   private worldDrops?: WorldDropSpawner;
+  private inventoryDrops?: InventoryDropController;
   private playerController!: PlayerController;
   private healthSystem?: HealthSystem;
   private statusEffects?: StatusEffectManager;
@@ -258,6 +260,8 @@ export class WorldScene extends Phaser.Scene {
       onUseItem: (itemId) => this.useItem(itemId),
       onEquipWeapon: (weaponId) => this.equipWeaponFromInventory(weaponId),
       onAssignWeapon: (weaponId, slotIndex) => this.assignWeaponSlot(weaponId, slotIndex),
+      canDropItem: (itemId) => this.inventoryDrops?.canDrop(itemId) ?? false,
+      onDropItem: (slotIndex, quantity) => this.inventoryDrops?.dropFromSlot(slotIndex, quantity) ?? false,
     });
     this.worldMapUI = new WorldMapUI({
       scene: this,
@@ -379,6 +383,7 @@ export class WorldScene extends Phaser.Scene {
     this.combatController?.destroy();
     this.resourceNodes?.destroy();
     this.resourceNodes = undefined;
+    this.inventoryDrops = undefined;
     this.worldDrops?.destroy();
     this.worldDrops = undefined;
     this.collectibles?.destroy();
@@ -604,7 +609,10 @@ export class WorldScene extends Phaser.Scene {
       progress: worldProgress,
       publisher: COLLECTIBLE_EVENTS,
       showMessage: (x, y, message, color, important) => floatingText.spawn(this, x, y, message, color, important),
-      onStateChanged: (change) => this.resourceNodes?.onCollectibleStateChanged(change),
+      onStateChanged: (change) => {
+        this.resourceNodes?.onCollectibleStateChanged(change);
+        this.inventoryDrops?.onCollectibleStateChanged(change);
+      },
     });
     this.worldDrops = new WorldDropSpawner({
       scene: this,
@@ -622,8 +630,20 @@ export class WorldScene extends Phaser.Scene {
       spawnWorldDrop: (request) => this.worldDrops!.spawn(request),
       isCellBlocked: (cellX, cellY, sourceInstanceId) => this.isResourceDropCellBlocked(cellX, cellY, sourceInstanceId),
     });
+    this.inventoryDrops = new InventoryDropController({
+      mapId: this.loadedMap.map.mapId,
+      dimensions: this.worldDimensions,
+      inventory: playerInventory,
+      getPlayerAnchor: () => ({ x: this.player.x, y: this.player.y }),
+      getFacing: () => this.facingDirection(),
+      isCellBlocked: (cellX, cellY) => this.isInventoryDropCellBlocked(cellX, cellY),
+      spawnWorldDrop: (request) => this.worldDrops!.spawn(request),
+      showMessage: (message) => floatingText.spawn(this, this.player.x, this.player.y - 42, message, 'white', true),
+      progress: worldProgress,
+    });
     this.builtMap = mapBuilder.build();
     this.terrainGrid = this.builtMap.terrainGrid;
+    this.inventoryDrops.restore();
   }
 
   private createCollectibleReactions(): void {
@@ -877,6 +897,19 @@ export class WorldScene extends Phaser.Scene {
       const objectCellX = Math.floor(object.x / this.worldDimensions.tileSize);
       const objectCellY = Math.floor((object.y - 1) / this.worldDimensions.tileSize);
       return objectCellX === cellX && objectCellY === cellY;
+    });
+  }
+
+  private isInventoryDropCellBlocked(cellX: number, cellY: number): boolean {
+    if (this.isResourceDropCellBlocked(cellX, cellY, '__inventory-drop__')) return true;
+    return this.collectibleTargets.getChildren().some((child) => {
+      const image = child as Phaser.GameObjects.Image;
+      if (!image.active) return false;
+      const anchorX = image.getData('objectAnchorX');
+      const anchorY = image.getData('objectAnchorY');
+      if (!Number.isFinite(anchorX) || !Number.isFinite(anchorY)) return false;
+      return Math.floor(anchorX / this.worldDimensions.tileSize) === cellX
+        && Math.floor(anchorY / this.worldDimensions.tileSize) - 1 === cellY;
     });
   }
 

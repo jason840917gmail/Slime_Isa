@@ -5,7 +5,8 @@
     "category": "material",
     "icon": "resources-starter-materials-2x1",
     "iconFrame": 0,
-    "description": "Freshly gathered timber for tools, weapons, and building."
+    "description": "Freshly gathered timber for tools, weapons, and building.",
+    "worldDrop": { "objectId": "collectible.wood-pile", "visualId": "wood-pile" }
   },
   "stone": {
     "id": "stone",
@@ -13,7 +14,8 @@
     "category": "material",
     "icon": "resources-starter-materials-2x1",
     "iconFrame": 1,
-    "description": "Rough stone gathered from broken rock nodes."
+    "description": "Rough stone gathered from broken rock nodes.",
+    "worldDrop": { "objectId": "collectible.stone-pile", "visualId": "stone-pile" }
   },
   "iron-ore": {
     "id": "iron-ore",
@@ -21,7 +23,8 @@
     "category": "material",
     "icon": "resources-4x2",
     "iconFrame": 6,
-    "description": "Dense iron-bearing ore ready to be refined into metal."
+    "description": "Dense iron-bearing ore ready to be refined into metal.",
+    "worldDrop": { "objectId": "collectible.iron-ore-pile", "visualId": "iron-ore-pile" }
   },
   "charcoal": {
     "id": "charcoal",
@@ -29,7 +32,8 @@
     "category": "material",
     "icon": "resources-4x2",
     "iconFrame": 7,
-    "description": "A lightweight fuel used for smelting and advanced crafting."
+    "description": "A lightweight fuel used for smelting and advanced crafting.",
+    "worldDrop": { "objectId": "collectible.charcoal-pile", "visualId": "charcoal-pile" }
   },
   "hp-potion": {
     "id": "hp-potion",
@@ -37,6 +41,7 @@
     "category": "consumable",
     "icon": "hp-potion",
     "description": "Restores 40 HP.",
+    "worldDrop": { "objectId": "collectible.hp-potion", "visualId": "hp-potion" },
     "use": { "healHp": 40 }
   },
   "energy-potion": {
@@ -45,6 +50,7 @@
     "category": "consumable",
     "icon": "energy-potion",
     "description": "Restores 50 energy.",
+    "worldDrop": { "objectId": "collectible.energy-potion", "visualId": "energy-potion" },
     "use": { "healEnergy": 50 }
   },
   "purple-berry-mat": {
@@ -52,20 +58,23 @@
     "name": "Purple Berry",
     "category": "material",
     "icon": "purple-berry",
-    "description": "A sweet foraged berry. Used in brewing."
+    "description": "A sweet foraged berry. Used in brewing.",
+    "worldDrop": { "objectId": "collectible.purple-berry", "visualId": "purple-berry" }
   },
   "silk-clump": {
     "id": "silk-clump",
     "name": "Sticky Silk",
     "category": "material",
     "icon": "silk-clump",
-    "description": "Clumpy silk from a spider-slime."
+    "description": "Clumpy silk from a spider-slime.",
+    "worldDrop": { "objectId": "collectible.silk-clump", "visualId": "silk-clump" }
   },
   "shard": {
     "id": "shard",
     "name": "Crystal Shard",
     "category": "collectible",
     "icon": "shard",
-    "description": "A glittering crystal. Could power something."
+    "description": "A glittering crystal. Could power something.",
+    "worldDrop": { "objectId": "collectible.crystal-shard", "visualId": "crystal-shard" }
   }
 }

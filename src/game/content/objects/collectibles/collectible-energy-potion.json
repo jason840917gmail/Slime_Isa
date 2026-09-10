@@ -1,0 +1,13 @@
+{
+  "$schema": "../objects.schema.json",
+  "objectId": "collectible.energy-potion",
+  "selection": "authored",
+  "variants": [{
+    "assetId": "collectible.energy-potion",
+    "frames": [{ "visualId": "energy-potion", "frame": 0, "displayName": "Fizzy Brew", "scale": 2 }]
+  }],
+  "physics": null,
+  "behavior": "collectible.walk-over",
+  "collectible": { "itemId": "energy-potion", "quantity": 1 },
+  "tags": ["collectible", "consumable", "potion"]
+}

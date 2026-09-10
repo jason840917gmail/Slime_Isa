@@ -1,6 +1,6 @@
 # Inventory World Drops Design
 
-**Status:** Approved for implementation on 2026-09-10.
+**Status:** Implemented and verified on 2026-09-10.
 
 ## Goal
 
@@ -46,8 +46,10 @@ narrow dependencies for player position/facing, blocked-cell checks, inventory
 removal/restoration, and `WorldDropSpawner.spawn()`.
 
 The controller chooses the first valid nearby tile in deterministic facing-
-first order. It stores the final anchor and presentation in map-scoped world
-progress before submitting a launch request. Restored records use settled mode.
+first order, preferring a two-tile radius so the player does not immediately
+recollect the item after it lands. It stores the final anchor and presentation
+in map-scoped world progress before submitting a launch request. Restored
+records use settled mode.
 
 `InventoryUI` remains presentation-only. It calculates the selected amount and
 calls an injected drop callback. A successful request updates selection and

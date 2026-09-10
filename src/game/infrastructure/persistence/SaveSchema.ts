@@ -38,11 +38,24 @@ export interface ResourceProgressStateData {
 export interface CollectibleProgressStateData {
   readonly remaining: number;
   readonly sourceResourceInstanceId?: string;
+  readonly sourceInventoryDropId?: string;
+}
+
+export interface InventoryWorldDropProgressData {
+  readonly id: string;
+  readonly itemId: string;
+  readonly amount: number;
+  readonly objectId: string;
+  readonly visualId: string;
+  readonly x: number;
+  readonly y: number;
 }
 
 export interface MapRuntimeStateData {
   readonly resources: Record<string, ResourceProgressStateData>;
   readonly collectibles?: Record<string, CollectibleProgressStateData>;
+  readonly inventoryDrops?: Record<string, InventoryWorldDropProgressData>;
+  readonly nextInventoryDropSequence?: number;
   readonly completedEncounterIds: readonly string[];
   readonly openedRewardIds: readonly string[];
   readonly unlockedGateIds: readonly string[];
@@ -204,6 +217,18 @@ function isResourceState(value: unknown): value is ResourceProgressStateData {
   ));
 }
 
+function isInventoryWorldDrop(value: unknown): value is InventoryWorldDropProgressData {
+  return isRecord(value)
+    && typeof value.id === 'string'
+    && typeof value.itemId === 'string'
+    && Number.isInteger(value.amount)
+    && isNonNegativeNumber(value.amount)
+    && typeof value.objectId === 'string'
+    && typeof value.visualId === 'string'
+    && isFiniteNumber(value.x)
+    && isFiniteNumber(value.y);
+}
+
 function isMapRuntimeState(value: unknown): value is MapRuntimeStateData {
   return isRecord(value)
     && isRecord(value.resources)
@@ -213,7 +238,12 @@ function isMapRuntimeState(value: unknown): value is MapRuntimeStateData {
       && Number.isInteger(entry.remaining)
       && isNonNegativeNumber(entry.remaining)
       && (entry.sourceResourceInstanceId === undefined || typeof entry.sourceResourceInstanceId === 'string')
+      && (entry.sourceInventoryDropId === undefined || typeof entry.sourceInventoryDropId === 'string')
     ))))
+    && (value.inventoryDrops === undefined || (isRecord(value.inventoryDrops)
+      && Object.values(value.inventoryDrops).every(isInventoryWorldDrop)))
+    && (value.nextInventoryDropSequence === undefined
+      || (Number.isInteger(value.nextInventoryDropSequence) && (value.nextInventoryDropSequence as number) >= 1))
     && isStringArray(value.completedEncounterIds)
     && isStringArray(value.openedRewardIds)
     && isStringArray(value.unlockedGateIds)
