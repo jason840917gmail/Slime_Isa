@@ -100,6 +100,13 @@ pipeline.
 
 ## Drop lifecycle
 
+Resource hit presentation is decided before this lifecycle begins. A
+non-lethal accepted hit may play the object's authored on-hit animation. A
+lethal accepted hit must skip that animation, complete depletion immediately,
+remove the source object, and start the drop lifecycle in the same combat
+resolution. The ordinary impact effect may still spawn at the source's
+captured impact anchor after removal.
+
 For a newly produced drop:
 
 1. The owning feature determines the item, quantity, stable ID, and final
@@ -234,6 +241,7 @@ After the spawner is disposed, no controller may submit another request.
 
 1. Destroying a tree launches its wood pile from the tree anchor to the
    existing selected landing anchor, then enables collection after settling.
+   The lethal strike does not play or wait for the tree's on-hit animation.
 2. Destroying a stone node launches three piles with `60` ms staggered starts;
    every pile lands at its precomputed deterministic cell.
 3. Walking through an airborne or bouncing pile does not collect it. Walking
@@ -260,3 +268,6 @@ After the spawner is disposed, no controller may submit another request.
     `pnpm test:collectibles`. Manual browser verification covers the visual arc,
     stagger, landing settle, depth, and pickup timing for wood and stone.
 14. `pnpm typecheck`, `pnpm test:collectibles`, and `pnpm check` pass.
+15. Combat sequencing tests prove that a non-lethal resource hit invokes the
+    on-hit animation while a lethal resource hit completes depletion directly
+    without invoking the animation adapter.
