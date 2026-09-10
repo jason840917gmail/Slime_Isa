@@ -68,7 +68,6 @@
       "ui.backplate.crafting-detail-workbench",
       "ui.backplate.quest-journal",
       "ui.frame.quest-offer-scroll",
-      "ui.frame.shop-stall",
       "ui.frame.levelup-crest",
       "ui.frame.boss-health",
       "ui.banner.area-title"
@@ -1579,7 +1578,7 @@
       "render": { "origin": [0.5, 0.5], "pixelArt": false },
       "tags": ["ui", "frame", "compact"],
       "status": "ready",
-      "notes": "Wide compact frame for HUD, hotbar, ability bar, chat, and prompts."
+      "notes": "Wide compact frame for HUD, hotbar, ability bar, and prompts."
     },
     "ui.backplate.inventory": {
       "source": {
@@ -1664,18 +1663,6 @@
       "tags": ["ui", "frame", "quest"],
       "status": "ready",
       "notes": "Quest offer and turn-in scroll frame; objectives and rewards stay dynamic."
-    },
-    "ui.frame.shop-stall": {
-      "source": {
-        "kind": "image",
-        "path": "UI/ui-shop-stall-frame.png",
-        "expect": { "w": 1672, "h": 941 }
-      },
-      "runtime": { "textureKey": "ui-shop-stall-frame" },
-      "render": { "origin": [0.5, 0.5], "pixelArt": false },
-      "tags": ["ui", "frame", "shop"],
-      "status": "ready",
-      "notes": "Shop stall frame; offers, prices, and results stay dynamic."
     },
     "ui.frame.levelup-crest": {
       "source": {

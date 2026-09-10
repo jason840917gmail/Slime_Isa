@@ -191,6 +191,19 @@ test('legacy inventory arrays migrate without dropping occupied slots', () => {
   assert.equal(migrated.data.inventory.slots.length, 26);
 });
 
+test('version 3 player saves discard retired population fields', () => {
+  const storage = new MemoryStorage();
+  const repository = new SaveRepository(storage);
+  const legacy = createInitialRunState();
+  legacy.player = { ...legacy.player, schemaVersion: 3, totalFriends: 84 };
+  storage.setItem(STORAGE_KEYS.recovery, JSON.stringify({ schemaVersion: 8, savedAt: 30, data: legacy }));
+
+  const recovery = repository.readRecovery();
+
+  assert.equal(recovery.player.schemaVersion, 4);
+  assert.equal('totalFriends' in recovery.player, false);
+});
+
 test('version 5 named and recovery saves migrate inventory capacity', () => {
   const storage = new MemoryStorage();
   const repository = new SaveRepository(storage);

@@ -10,10 +10,9 @@ const INITIAL_AREA_ID = INITIAL_MAP_ID;
 const INITIAL_SPAWN = level1Map.player.spawn;
 
 const INITIAL_PLAYER: GameStateData = {
-  schemaVersion: 3,
+  schemaVersion: 4,
   coins: 50,
   boostBonus: 0,
-  totalFriends: 0,
   level: 1,
   currentXp: 0,
   hp: PLAYER_CONFIG.progression.baseMaxHp,

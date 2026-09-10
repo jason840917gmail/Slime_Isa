@@ -1,19 +1,14 @@
 import Phaser from 'phaser';
-import { Friend } from '../Friend';
-import { House } from '../House';
 import {
   isTileCollidable,
   type WorldTileId,
 } from '../content/terrain/TileCatalog';
 import { Minimap } from '../Minimap';
 import { HUD } from '../HUD';
-import { ShopUI } from '../ShopUI';
-import { ChatUI } from '../ChatUI';
 import { gameState } from '../core/GameState';
 import { gameEvents } from '../core/EventBus';
 import { saveSystem } from '../core/SaveSystem';
 import { createControls, createFakeControls, type Controls, type InputBindings } from '../core/Input';
-import { HouseSystem } from '../systems/HouseSystem';
 import {
   HealthSystem,
   type AcceptedDamageResult,
@@ -41,7 +36,6 @@ import { CraftingUI } from '../ui/CraftingUI';
 import { craftingService } from '../crafting/Crafting';
 import { reopenPendingLevelUpWhenIdle } from '../ui/LevelUpReopenPolicy';
 import { ModalStack } from '../ui/ModalStack';
-import { PLAYER_CONFIG } from '../content/player';
 import { DisposableBag } from '../shared/lifecycle/Disposable';
 import { createPlayerEntity } from '../features/player/PlayerFactory';
 import { PlayerController } from '../features/player/PlayerController';
@@ -49,7 +43,6 @@ import { findVisualClipByRuntimeKey, getVisualClip } from '../content/visuals/Vi
 import { animationCycleDurationMs } from '../shared/animationLoop';
 import { AnimatedVisual } from '../features/visuals/AnimatedVisual';
 import { registerAllVisualSetAnimations } from '../features/visuals/AnimationRegistrar';
-import { CrystalTrialController } from '../features/dungeon/CrystalTrialController';
 import {
   clearOneShotNavigationParams,
   navigateToArea as navigateToAreaUrl,
@@ -95,7 +88,6 @@ export class WorldScene extends Phaser.Scene {
   private player!: Phaser.Physics.Arcade.Sprite;
   private playerVisual?: AnimatedVisual;
   private collisionTiles!: Phaser.Physics.Arcade.StaticGroup;
-  private friends!: Phaser.Physics.Arcade.Group;
   private controls: Controls = createFakeControls();
   private currentAnimation = 'slime-idle';
   private actionLocked = false;
@@ -104,11 +96,6 @@ export class WorldScene extends Phaser.Scene {
   private terrainGrid: WorldTileId[][] = [];
   private minimap!: Minimap;
   private hud!: HUD;
-  private shopUI!: ShopUI;
-  private chatUI!: ChatUI;
-  private houses: Array<{ owner: 'player' | 'friend'; house: House }> = [];
-  private playerHouse?: House;
-  private houseSystem!: HouseSystem;
   private inputBindings?: InputBindings;
   private collectibleTargets!: Phaser.Physics.Arcade.StaticGroup;
   private resourceTargets!: Phaser.GameObjects.Group;
@@ -130,13 +117,9 @@ export class WorldScene extends Phaser.Scene {
   private questNotifications?: QuestNotificationPresenter;
   private abilitySystem?: AbilitySystem;
   private weaponHotbar?: WeaponHotbar;
-  private lastBedPos: Phaser.Math.Vector2 | null = null;
   private iFrameFlashActive = false;
   private playerKnockbackUntil = 0;
   private combatController?: CombatController;
-  private dungeonSwitches?: Phaser.Physics.Arcade.StaticGroup;
-  private dungeonChests?: Phaser.Physics.Arcade.StaticGroup;
-  private dungeonController?: CrystalTrialController;
   private currentArea: AreaDef = AREAS.icege;
   private worldDimensions!: WorldDimensions;
   private loadedMap!: LoadedMap;
@@ -218,19 +201,6 @@ export class WorldScene extends Phaser.Scene {
       getPlayer: () => this.player,
       getOcclusionController: () => this.occlusionController,
     });
-    this.createFriends(this.friendCountForArea());
-    this.createCrystalTrial();
-    this.houseSystem = new HouseSystem({
-      scene: this,
-      getPlayer: () => this.player,
-      getHouses: () => this.houses,
-      isActionLocked: () => this.actionLocked,
-      setActionLocked: (locked) => { this.actionLocked = locked; },
-      playIdle: () => this.playAnimation('slime-idle'),
-      resetCameraZoom: () => this.cameraController?.resetZoom(),
-      stopCameraFollow: () => this.cameraController?.stopFollow(),
-      startCameraFollow: () => this.cameraController?.startFollow(this.player),
-    });
     this.createPhysics();
     this.createCamera();
     this.createRenderingDiagnostics();
@@ -241,8 +211,6 @@ export class WorldScene extends Phaser.Scene {
     this.createHUD();
     this.createCollectibleReactions();
     this.createControls();
-    this.createShopUI();
-    this.createChatUI();
 
     // Phase 1 systems: health, status, level-up modal, inventory UI
     this.statusEffects = new StatusEffectManager();
@@ -363,16 +331,7 @@ export class WorldScene extends Phaser.Scene {
       if (this.questCompleteHandler) gameEvents.off('quest.completed', this.questCompleteHandler);
     });
 
-    // Record the bed position on sleep for respawn.
-    const onHouseSleep = () => {
-      this.lastBedPos = new Phaser.Math.Vector2(this.player.x, this.player.y);
-    };
-    gameEvents.on('house.sleep', onHouseSleep);
-    this.disposables.add(() => gameEvents.off('house.sleep', onHouseSleep));
-
     // Phase 3: One-time cross-system sync
-    gameState.setTotalFriends(this.friends.getLength());
-
     this.scale.on('resize', this.handleResize, this);
     this.disposables.add(() => this.scale.off('resize', this.handleResize, this));
     gameEvents.emit('area.enter', { areaId: this.currentArea.id });
@@ -397,9 +356,6 @@ export class WorldScene extends Phaser.Scene {
     this.inputBindings = undefined;
     this.hud?.destroy();
     this.minimap?.destroy();
-    this.shopUI?.destroy();
-    this.chatUI?.destroy();
-    this.houseSystem?.destroy();
     this.abilitySystem?.destroy();
     this.weaponHotbar?.destroy();
     this.statusEffects?.destroy();
@@ -439,15 +395,10 @@ export class WorldScene extends Phaser.Scene {
     hitboxPool.clearScene(this);
     projectilePool.clearScene(this);
 
-    this.houses = [];
-    this.playerHouse = undefined;
     this.transitionZones.forEach((zone) => zone.destroy());
     this.transitionZones = [];
     this.combatController = undefined;
     this.weaponHotbar = undefined;
-    this.dungeonSwitches = undefined;
-    this.dungeonChests = undefined;
-    this.dungeonController = undefined;
     this.worldMapUI = undefined;
     this.questJournal = undefined;
     this.craftingUI = undefined;
@@ -502,10 +453,6 @@ export class WorldScene extends Phaser.Scene {
     };
 
     if (this.player?.body) this.player.setVelocity(0, 0);
-    this.friends?.children.each((child) => {
-      stop(child);
-      return true;
-    });
     this.combatController?.targets.children.each((child) => {
       stop(child);
       return true;
@@ -532,11 +479,9 @@ export class WorldScene extends Phaser.Scene {
 
     this.npcRuntimeController?.update(delta);
 
-    this.minimap.update(this.cameras.main, this.player, this.friends, this.houses);
+    this.minimap.update(this.cameras.main, this.player);
 
     this.interactionRouter?.update();
-    this.houseSystem.setPromptSuppressed(this.interactionRouter?.hasCandidate() ?? false);
-    this.houseSystem.update();
     this.statusEffects?.update(this.time.now, delta);
     this.healthSystem?.update(this.time.now);
     this.healthBar?.update();
@@ -588,13 +533,9 @@ export class WorldScene extends Phaser.Scene {
       scene: this,
       dimensions: this.worldDimensions,
       getPlayer: () => this.player,
-      getFriends: () => this.friends,
       getCombatTargets: () => this.combatController?.targets ?? null,
       getCollisionTiles: () => this.collisionTiles,
       getCollectibleTargets: () => this.collectibleTargets,
-      getDungeonSwitches: () => this.dungeonSwitches,
-      getDungeonChests: () => this.dungeonChests,
-      getHouses: () => this.houses,
       getTransitionZones: () => this.transitionZones,
       getEnemySpawnAreas: () => this.builtMap?.enemySpawnAreas ?? [],
     });
@@ -610,13 +551,6 @@ export class WorldScene extends Phaser.Scene {
       },
       () => this.cameraController?.presentationState,
     );
-  }
-
-  private friendCountForArea(): number {
-    if (this.currentArea.id === 'level-1') return 0;
-    if (this.currentArea.biome === 'meadow') return 84;
-    if (this.currentArea.biome === 'gloop-forest') return 16;
-    return 6;
   }
 
   private transitionTo(areaId: AreaId, entryEdge: Direction): void {
@@ -695,8 +629,6 @@ export class WorldScene extends Phaser.Scene {
     this.collisionTiles = this.physics.add.staticGroup();
     this.collectibleTargets = this.physics.add.staticGroup();
     this.resourceTargets = this.add.group();
-    this.dungeonSwitches = this.physics.add.staticGroup();
-    this.dungeonChests = this.physics.add.staticGroup();
   }
 
   private createPlayer(): void {
@@ -732,35 +664,11 @@ export class WorldScene extends Phaser.Scene {
 
   private createPhysics(): void {
     this.physics.add.collider(this.player, this.collisionTiles);
-    if (this.friends) {
-      this.physics.add.collider(this.friends, this.collisionTiles);
-      this.physics.add.collider(this.friends, this.friends as Phaser.Physics.Arcade.Group);
-    }
     if (this.collectibleTargets) {
       this.physics.add.overlap(this.player, this.collectibleTargets, (_player, collectible) => {
         this.collectibles?.collect(collectible as Phaser.GameObjects.GameObject);
       });
     }
-    if (this.dungeonSwitches) {
-      this.physics.add.overlap(this.player, this.dungeonSwitches, (_player, switchObject) => {
-        this.dungeonController?.activateSwitch(switchObject as Phaser.GameObjects.GameObject);
-      });
-    }
-    if (this.dungeonChests) {
-      this.physics.add.overlap(this.player, this.dungeonChests, (_player, chestObject) => {
-        this.dungeonController?.tryOpenChest(chestObject as Phaser.GameObjects.GameObject);
-      });
-    }
-
-    for (const entry of this.houses) {
-      const zone = entry.house.doorZone;
-      if (zone) {
-        this.physics.add.overlap(this.player, zone, () => {
-          this.houseSystem.notifyNear(entry.house);
-        }, undefined, this);
-      }
-    }
-
     this.createAreaTransitionZones();
   }
 
@@ -781,41 +689,12 @@ export class WorldScene extends Phaser.Scene {
     }
   }
 
-  private createCrystalTrial(): void {
-    if (this.currentArea.id !== 'crystal-caverns' || !this.dungeonSwitches || !this.dungeonChests) return;
-    this.dungeonController = new CrystalTrialController({
-      scene: this,
-      areaId: this.currentArea.id,
-      dimensions: this.worldDimensions,
-      switches: this.dungeonSwitches,
-      chests: this.dungeonChests,
-      findSpawnPoint: (anchor) => this.findSpawnPoint(anchor),
-      onReward: () => this.hud.flashCoins(this),
-    });
-    this.dungeonController.create();
-  }
-
   private createMinimap(): void {
     this.minimap = new Minimap(this, this.worldDimensions);
   }
 
   private createHUD(): void {
     this.hud = new HUD(this);
-  }
-
-  private createChatUI(): void {
-    this.chatUI = new ChatUI(
-      this,
-      this.modalStack!,
-      () => this.friends.getChildren() as Friend[],
-      () => PLAYER_CONFIG.name,
-      (open) => {
-        this.actionLocked = open;
-        if (open) {
-          (this.player?.body as Phaser.Physics.Arcade.Body | undefined)?.setVelocity(0, 0);
-        }
-      },
-    );
   }
 
   private createCamera(): void {
@@ -923,10 +802,6 @@ export class WorldScene extends Phaser.Scene {
 
   private handlePresentationPostUpdate(_time: number, delta: number): void {
     this.playerController?.updateVisuals();
-    this.friends?.children.each((child) => {
-      if (child instanceof Friend) child.updatePresentation();
-      return true;
-    });
     this.combatController?.updatePresentation();
     this.cameraController?.update(delta);
     updateDevToolsCameraZoom(this.cameraController?.zoom ?? this.cameras.main.zoom);
@@ -1015,14 +890,7 @@ export class WorldScene extends Phaser.Scene {
       // the key press whenever one is displayed.
       if (this.interactionRouter?.hasCandidate()) {
         this.interactionRouter.handleInteract();
-        return true;
       }
-
-      if (this.houseSystem.handleInteract()) {
-        return true;
-      }
-
-      this.tryOpenShopNearby();
       return true;
     }
 
@@ -1086,77 +954,11 @@ export class WorldScene extends Phaser.Scene {
     this.time.delayedCall(durationMs, unlock);
   }
 
-  private createFriends(count = 3): void {
-    this.friends = this.physics.add.group();
-
-    for (let i = 0; i < count; i += 1) {
-      this.spawnFriend();
-    }
-  }
-
-  private spawnFriend(): Friend {
-    const pos = this.findSpawnPoint();
-    const friend = new Friend(this, pos.x, pos.y);
-    this.friends.add(friend);
-    return friend;
-  }
-
-  private tryOpenShopNearby(): void {
-    if (!this.friends) return;
-
-    const children = this.friends.getChildren() as Friend[];
-    const near = children.find((f) => Phaser.Math.Distance.Between(this.player.x, this.player.y, f.x, f.y) < 80);
-
-    if (near) {
-      this.openShopForFriend(near);
-      return;
-    }
-
-    this.hud.flashCoins(this);
-  }
-
-  private openShopForFriend(_friend: Friend): void {
-    this.shopUI.show(gameState.coins);
-  }
-
-  private createShopUI(): void {
-    // Bottom-left, away from the top-right controls panel and bottom-center
-    // ability bar. The shop container is centered at (x,y) with width 280.
-    const x = 160;
-    const y = this.cameras.main.height - 210;
-
-    this.shopUI = new ShopUI(
-      this,
-      x,
-      y,
-      {
-        onBuyBoost: () => {
-          if (gameState.spendCoins(25)) {
-            gameState.addBoost(50);
-          }
-        },
-        onBuyFriend: () => {
-          if (gameState.spendCoins(15)) {
-            this.spawnFriend();
-            gameState.setTotalFriends(this.friends.getLength());
-          }
-        },
-        onCoinsChanged: () => {
-          // HUD is event-driven via GameState; kept for interface compatibility.
-        },
-      },
-      this.modalStack!,
-    );
-  }
-
   private handleResize(gameSize: Phaser.Structs.Size): void {
     this.cameras.main.setViewport(0, 0, gameSize.width, gameSize.height);
     this.uiCamera?.setViewport(0, 0, gameSize.width, gameSize.height);
     this.hud?.resize(gameSize.width);
 
-    if (this.shopUI) {
-      this.shopUI.setPosition(160, gameSize.height - 210);
-    }
   }
 
   // â”€â”€ Phase 1: health / damage / death / XP / items â”€â”€
@@ -1204,7 +1006,7 @@ export class WorldScene extends Phaser.Scene {
       return;
     }
 
-    const pos = this.lastBedPos ?? this.getPlayerHouseRespawnPoint() ?? this.findSpawnPoint();
+    const pos = this.findSpawnPoint(this.getEntryAnchor());
 
     this.healthSystem.respawn();
     this.statusEffects?.clear();
@@ -1219,14 +1021,6 @@ export class WorldScene extends Phaser.Scene {
     this.cameraController?.startFollow(this.player);
 
     floatingText.spawn(this, pos.x, pos.y - 40, 'Respawned', 'green', true);
-  }
-
-  private getPlayerHouseRespawnPoint(): Phaser.Math.Vector2 | null {
-    if (!this.playerHouse) return null;
-    const bed = this.playerHouse.getBedPosition();
-    if (bed) return new Phaser.Math.Vector2(bed.x, bed.y - 8);
-    const door = this.playerHouse.getDoorPosition();
-    return new Phaser.Math.Vector2(door.x, door.y + 18);
   }
 
   private useItem(itemId: string): void {

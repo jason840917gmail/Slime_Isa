@@ -10,7 +10,6 @@ import { resolveScreenUiDepth } from './presentation/WorldDepth';
  *
  * Layout (screen-space, top-left):
  *   Level + coins (text)
- *   Friends (text)
  *   HP bar (red-to-green) under the text
  *   XP bar (cyan) under HP
  *   Energy bar (yellow) under XP
@@ -18,7 +17,6 @@ import { resolveScreenUiDepth } from './presentation/WorldDepth';
 export class HUD {
   private readonly scene: Phaser.Scene;
   private coinsText: Phaser.GameObjects.Text;
-  private friendCountText: Phaser.GameObjects.Text;
   private levelText: Phaser.GameObjects.Text;
   private hpBar: Phaser.GameObjects.Graphics;
   private xpBar: Phaser.GameObjects.Graphics;
@@ -42,8 +40,7 @@ export class HUD {
   private static readonly METER_LABEL_GAP = 8;
   private static readonly METER_LABEL_WIDTH = 62;
   private static readonly LEVEL_Y = 18;
-  private static readonly FRIENDS_Y = 38;
-  private static readonly METER_TOP_Y = 60;
+  private static readonly METER_TOP_Y = 42;
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
@@ -73,18 +70,6 @@ export class HUD {
       .setDepth(resolveScreenUiDepth(0))
       .setShadow(0, 2, UI_THEME.colors.shadow, 2, true, true) as Phaser.GameObjects.Text;
 
-    this.friendCountText = scene.add
-      .text(this.barX, HUD.FRIENDS_Y, `Friends ${formatHudCount(gameState.totalFriends)}`, {
-        fontFamily: font,
-        fontSize: '12px',
-        fontStyle: 'bold',
-        color: '#ffd277',
-      })
-      .setOrigin(0, 0)
-      .setScrollFactor(0)
-      .setDepth(resolveScreenUiDepth(0))
-      .setShadow(0, 2, UI_THEME.colors.shadow, 2, true, true) as Phaser.GameObjects.Text;
-
     this.hpBar = scene.add.graphics().setScrollFactor(0).setDepth(resolveScreenUiDepth(1));
     this.hpLabel = scene.add
       .text(0, 0, '', { fontFamily: font, fontSize: '10px', color: '#f5f7ff' })
@@ -110,7 +95,6 @@ export class HUD {
       .setShadow(0, 1, UI_THEME.colors.shadow, 2, true, true) as Phaser.GameObjects.Text;
 
     gameEvents.on('coins.changed', this.onCoinsChanged, this);
-    gameEvents.on('friend.count', this.onFriendCountChanged, this);
     gameEvents.on('hp.changed', this.onHpChanged, this);
     gameEvents.on('xp.changed', this.onXpChanged, this);
     gameEvents.on('energy.changed', this.onEnergyChanged, this);
@@ -136,7 +120,6 @@ export class HUD {
 
     this.levelText.setPosition(this.barX, HUD.LEVEL_Y);
     this.coinsText.setPosition(this.barX + this.statsW, HUD.LEVEL_Y);
-    this.friendCountText.setPosition(this.barX, HUD.FRIENDS_Y);
     this.hpLabel.setPosition(this.barX + this.barW + HUD.METER_LABEL_GAP, this.hpBarY());
     this.xpLabel.setPosition(this.barX + this.barW + HUD.METER_LABEL_GAP, this.xpBarY());
     this.energyLabel.setPosition(this.barX + this.barW + HUD.METER_LABEL_GAP, this.energyBarY());
@@ -148,10 +131,6 @@ export class HUD {
 
   updateCoins(coins: number): void {
     this.coinsText.setText(`Coins ${formatHudCount(coins)}`);
-  }
-
-  updateFriendCount(count: number): void {
-    this.friendCountText.setText(`Friends ${formatHudCount(count)}`);
   }
 
   updateLevel(level: number): void {
@@ -229,7 +208,6 @@ export class HUD {
   };
 
   private onCoinsChanged = (payload: { coins: number }): void => this.updateCoins(payload.coins);
-  private onFriendCountChanged = (payload: { count: number }): void => this.updateFriendCount(payload.count);
   private onHpChanged = (payload: { hp: number; maxHp: number }): void => this.drawHp(payload.hp, payload.maxHp);
   private onXpChanged = (payload: { currentXp: number; xpToNextLevel: number | null; level: number }): void => {
     this.drawXp(payload.currentXp, payload.xpToNextLevel, payload.level);
@@ -242,13 +220,11 @@ export class HUD {
   destroy(): void {
     this.scene.scale.off('resize', this.handleResize, this);
     gameEvents.off('coins.changed', this.onCoinsChanged, this);
-    gameEvents.off('friend.count', this.onFriendCountChanged, this);
     gameEvents.off('hp.changed', this.onHpChanged, this);
     gameEvents.off('xp.changed', this.onXpChanged, this);
     gameEvents.off('energy.changed', this.onEnergyChanged, this);
     gameEvents.off('level.up', this.onLevelUp, this);
     this.coinsText.destroy();
-    this.friendCountText.destroy();
     this.levelText.destroy();
     this.hpBar.destroy();
     this.xpBar.destroy();

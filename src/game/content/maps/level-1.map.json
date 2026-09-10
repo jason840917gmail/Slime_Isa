@@ -228,6 +228,16 @@
       },
       "to": "gloop-forest",
       "entry": "west"
+    },
+    {
+      "zone": {
+        "x": 1504,
+        "y": 0,
+        "w": 32,
+        "h": 1152
+      },
+      "to": "gloop-forest",
+      "entry": "west"
     }
   ],
   "enemySafeZones": [

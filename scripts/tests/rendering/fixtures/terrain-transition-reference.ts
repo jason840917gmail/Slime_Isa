@@ -1,22 +1,21 @@
+// Frozen pre-cache renderer from 5c0f7c6 for browser pixel comparisons only.
 import Phaser from 'phaser';
 
 import {
   getTileDefinition,
   type TileDefinition,
   type WorldTileId,
-} from '../../content/terrain/TileCatalog';
-import type { WorldDimensions } from '../../world/WorldDimensions';
-import type { TileFactory } from './TileFactory';
-import { TerrainTransitionLayer } from './TerrainTransitionLayer';
-import { planTerrainTransitionChunks } from './TerrainTransitionChunks';
-
-export { TerrainTransitionLayer } from './TerrainTransitionLayer';
+} from '../../../../src/game/content/terrain/TileCatalog';
+import type { WorldDimensions } from '../../../../src/game/world/WorldDimensions';
+interface ReferenceTileFactory {
+  createOverlay(tileId: WorldTileId, tileX: number, tileY: number, depth: number): Phaser.GameObjects.Image;
+}
 
 type Edge = 'north' | 'east' | 'south' | 'west';
 
 interface TerrainTransitionRendererContext {
   readonly scene: Phaser.Scene;
-  readonly tileFactory: TileFactory;
+  readonly tileFactory: ReferenceTileFactory;
   readonly dimensions: WorldDimensions;
   readonly seed: number;
 }
@@ -42,16 +41,39 @@ const FEATHER_BANDS = [
   { width: 0.45, alpha: 0.72, jitter: 1.5 },
 ] as const;
 
+/** Owns generated overlays and their geometry masks. */
+export class TerrainTransitionLayer {
+  constructor(
+    private readonly images: Phaser.GameObjects.Image[],
+    private readonly masks: Phaser.Display.Masks.GeometryMask[],
+    private readonly maskGraphics: Phaser.GameObjects.Graphics[],
+  ) {}
+
+  destroy(): void {
+    for (const image of this.images) {
+      image.clearMask(false);
+      image.destroy();
+    }
+    for (const mask of this.masks) mask.destroy();
+    for (const graphics of this.maskGraphics) graphics.destroy();
+    this.images.length = 0;
+    this.masks.length = 0;
+    this.maskGraphics.length = 0;
+  }
+}
+
 /**
  * Visual-only second pass for authored terrain. Each differing cardinal
  * boundary is rendered once: the higher-priority material feathers into the
  * lower-priority cell using three deterministic jagged alpha bands.
  */
-export class TerrainTransitionRenderer {
+export class ReferenceTerrainTransitionRenderer {
   constructor(private readonly ctx: TerrainTransitionRendererContext) {}
 
   render(terrainGrid: readonly (readonly WorldTileId[])[]): TerrainTransitionLayer {
-    const boundaries: BoundaryChoice[] = [];
+    const images: Phaser.GameObjects.Image[] = [];
+    const masks: Phaser.Display.Masks.GeometryMask[] = [];
+    const maskGraphics: Phaser.GameObjects.Graphics[] = [];
 
     for (let tileY = 0; tileY < terrainGrid.length; tileY += 1) {
       const row = terrainGrid[tileY];
@@ -60,33 +82,18 @@ export class TerrainTransitionRenderer {
         const eastId = row[tileX + 1];
         if (eastId) {
           const choice = this.chooseBoundary(tileId, eastId, tileX, tileY, 'east');
-          if (choice) boundaries.push(choice);
+          if (choice) this.renderBoundary(choice, images, masks, maskGraphics);
         }
 
         const southId = terrainGrid[tileY + 1]?.[tileX];
         if (southId) {
           const choice = this.chooseBoundary(tileId, southId, tileX, tileY, 'south');
-          if (choice) boundaries.push(choice);
+          if (choice) this.renderBoundary(choice, images, masks, maskGraphics);
         }
       }
     }
 
-    // Phaser previously sorted the complete display list by band depth.
-    // Flatten in that same order before partitioning into cached textures.
-    const commands = FEATHER_BANDS.flatMap((band, bandIndex) => boundaries.map((choice) => ({
-      tileId: choice.winnerId,
-      tileX: choice.targetX,
-      tileY: choice.targetY,
-      alpha: band.alpha,
-      polygon: this.edgePolygon(
-        choice.targetX, choice.targetY, choice.targetEdge,
-        choice.edgeWidth * band.width, band.jitter, bandIndex,
-      ),
-    })));
-    return new TerrainTransitionLayer(
-      this.ctx.scene, this.ctx.tileFactory, this.ctx.dimensions.tileSize,
-      planTerrainTransitionChunks(commands, this.ctx.dimensions),
-    );
+    return new TerrainTransitionLayer(images, masks, maskGraphics);
   }
 
   private chooseBoundary(
@@ -125,6 +132,38 @@ export class TerrainTransitionRenderer {
   ): number {
     if (left.priority !== right.priority) return left.priority - right.priority;
     return leftId.localeCompare(rightId);
+  }
+
+  private renderBoundary(
+    choice: BoundaryChoice,
+    images: Phaser.GameObjects.Image[],
+    masks: Phaser.Display.Masks.GeometryMask[],
+    maskGraphics: Phaser.GameObjects.Graphics[],
+  ): void {
+    FEATHER_BANDS.forEach((band, bandIndex) => {
+      const image = this.ctx.tileFactory.createOverlay(
+        choice.winnerId,
+        choice.targetX,
+        choice.targetY,
+        0.2 + bandIndex * 0.01,
+      ).setAlpha(band.alpha);
+      const graphics = this.ctx.scene.make.graphics({}, false);
+      graphics.fillStyle(0xffffff, 1);
+      graphics.fillPoints(this.edgePolygon(
+        choice.targetX,
+        choice.targetY,
+        choice.targetEdge,
+        choice.edgeWidth * band.width,
+        band.jitter,
+        bandIndex,
+      ), true);
+      const mask = graphics.createGeometryMask();
+      image.setMask(mask);
+
+      images.push(image);
+      masks.push(mask);
+      maskGraphics.push(graphics);
+    });
   }
 
   private edgePolygon(

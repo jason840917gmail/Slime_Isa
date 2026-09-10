@@ -40,7 +40,7 @@
 - Feature controllers receive dependencies through context interfaces and must never import `WorldScene`.
 - Global events, input bindings, DOM listeners, and controllers require explicit cleanup. Use `DisposableBag` for scene-owned callbacks.
 - Production gameplay requires authored maps and must not invoke procedural world generation. The deterministic bake source lives in `scripts/lib/procedural-map-generator.mjs` for editor/tooling use only.
-- `Friend` and `House` own their sprites and physics bodies and expose entity APIs.
+- Persistent NPCs, houses, props, and interaction objects must be authored in map JSON and created through `MapBuilder`/`ObjectFactory`; scenes must not inject map populations.
 - Procedural textures are generated in `infrastructure/assets/ProceduralAssetScene.ts`; `scenes/BootScene.ts` is a stable scene facade.
 
 ## Build Behavior

@@ -256,8 +256,8 @@
       "instanceId": "decoration-world-solid-12a98d3a",
       "objectId": "decoration.world.solid",
       "visualId": "flower-planter",
-      "x": 2016,
-      "y": 1920
+      "x": 1888,
+      "y": 1792
     },
     {
       "instanceId": "decoration-world-solid-42d6f971",
@@ -607,5 +607,6 @@
       "w": 1152,
       "h": 128
     }
-  ]
+  ],
+  "enemySpawnAreas": []
 }

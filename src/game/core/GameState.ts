@@ -15,14 +15,13 @@ import { WEAPON_HOTBAR_SLOT_COUNT } from './types';
  * quest flags — all flowing through the same emit-on-change pipeline.
  */
 
-const SAVE_SCHEMA_VERSION = 3;
+const SAVE_SCHEMA_VERSION = 4;
 const PROGRESSION = GAME_CONSTANTS.character.player.progression;
 
 export interface GameStateData {
   schemaVersion: number;
   coins: number;
   boostBonus: number;
-  totalFriends: number;
   level: number;
   currentXp: number;
   hp: number;
@@ -69,8 +68,14 @@ class GameStateImpl {
   load(data: Partial<GameStateData>): void {
     const defaults = defaultData();
     this.data = {
-      ...defaults,
-      ...data,
+      schemaVersion: SAVE_STATE_SCHEMA_VERSION,
+      coins: data.coins ?? defaults.coins,
+      boostBonus: data.boostBonus ?? defaults.boostBonus,
+      level: data.level ?? defaults.level,
+      currentXp: data.currentXp ?? defaults.currentXp,
+      hp: data.hp ?? defaults.hp,
+      energy: data.energy ?? defaults.energy,
+      skillPoints: data.skillPoints ?? defaults.skillPoints,
       perks: { ...(data.perks ?? {}) },
       attributes: { ...defaults.attributes, ...(data.attributes ?? {}) },
       equipment: {
@@ -79,14 +84,12 @@ class GameStateImpl {
         weaponId: normalizeEquippedWeaponId(data.equipment?.weaponId),
         weaponSlots: normalizeWeaponSlots(data.equipment?.weaponSlots),
       },
-      schemaVersion: SAVE_STATE_SCHEMA_VERSION,
     };
     this.data.hp = Math.min(this.data.hp, this.maxHp);
     this.data.energy = Math.min(this.data.energy, this.maxEnergy);
 
     gameEvents.emit('coins.changed', { coins: this.data.coins, delta: 0 });
     gameEvents.emit('boost.changed', { boostBonus: this.data.boostBonus, delta: 0 });
-    gameEvents.emit('friend.count', { count: this.data.totalFriends });
     this.emitHp(0);
     this.emitEnergy(0);
     this.emitXp(0);
@@ -98,7 +101,6 @@ class GameStateImpl {
     this.data = defaultData();
     gameEvents.emit('coins.changed', { coins: this.data.coins, delta: 0 });
     gameEvents.emit('boost.changed', { boostBonus: this.data.boostBonus, delta: 0 });
-    gameEvents.emit('friend.count', { count: this.data.totalFriends });
     this.emitHp(0);
     this.emitEnergy(0);
     this.emitXp(0);
@@ -142,17 +144,6 @@ class GameStateImpl {
     if (amount === 0) return;
     this.data.boostBonus += amount;
     gameEvents.emit('boost.changed', { boostBonus: this.data.boostBonus, delta: amount });
-  }
-
-  // ── Friends ──
-  get totalFriends(): number {
-    return this.data.totalFriends;
-  }
-
-  setTotalFriends(count: number): void {
-    if (this.data.totalFriends === count) return;
-    this.data.totalFriends = count;
-    gameEvents.emit('friend.count', { count });
   }
 
   // ── Level / XP ──
