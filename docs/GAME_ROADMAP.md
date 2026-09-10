@@ -828,6 +828,18 @@ The phased ownership, migration rules, and acceptance gates are defined in the
 - Done when: all station families use one component and recipe authority, wrong
   stations cannot craft a recipe, and failed output never consumes materials.
 
+### [ ] UX.3 — Add authored weapon dropping and pickup
+
+- Build: give every droppable weapon an explicit ground visual and physical
+  pickup definition, then route inventory removal, equipped/hotbar cleanup,
+  map-scoped persistence, and recollection through the shared world-drop
+  lifecycle. Define unique-weapon and full-inventory behavior before enabling
+  the action.
+- Player proof: the player can discard excess weapons into the world, recognize
+  each weapon on the ground, leave or reload, and pick it up again later.
+- Done when: no weapon can be duplicated or lost across drop, pickup, map
+  transition, save/load, equipped state, or a full inventory.
+
 ## Cross-Cutting World Authoring
 
 ### [ ] E.1 — Build the shared world graph and all-map organizer
