@@ -2,7 +2,6 @@
 import { hitboxPool, type HitboxConfig } from '../combat/Hitbox';
 import { devToolsState } from '../devTools';
 import type { MapEnemyAreaPerimeter, MapEnemySpawnArea } from '../content/maps/mapFormat';
-import type { House } from '../House';
 import type { WorldDimensions } from '../world/WorldDimensions';
 import {
   resolveBodyBottom,
@@ -20,13 +19,9 @@ export interface WorldDebugContext {
   scene: Phaser.Scene;
   dimensions: WorldDimensions;
   getPlayer: () => Phaser.Physics.Arcade.Sprite;
-  getFriends: () => Phaser.Physics.Arcade.Group | undefined;
   getCombatTargets: () => Phaser.Physics.Arcade.Group | null;
   getCollisionTiles: () => Phaser.Physics.Arcade.StaticGroup | undefined;
   getCollectibleTargets: () => Phaser.Physics.Arcade.StaticGroup | undefined;
-  getDungeonSwitches: () => Phaser.Physics.Arcade.StaticGroup | undefined;
-  getDungeonChests: () => Phaser.Physics.Arcade.StaticGroup | undefined;
-  getHouses: () => Array<{ house: House }>;
   getTransitionZones: () => Phaser.GameObjects.Zone[];
   getEnemySpawnAreas: () => readonly MapEnemySpawnArea[];
 }
@@ -82,16 +77,13 @@ export class WorldDebugRenderer {
 
   private drawVisualBounds(g: Phaser.GameObjects.Graphics): void {
     this.drawObjectBounds(g, this.ctx.getPlayer(), 0x72d8ff, 0.95);
-    this.forChildren(this.ctx.getFriends(), (child) => this.drawObjectBounds(g, child, 0x72d8ff, 0.75));
     this.forChildren(this.ctx.getCombatTargets(), (child) => this.drawObjectBounds(g, child, 0x72d8ff, 0.85));
     this.forChildren(this.ctx.getCollectibleTargets(), (child) => this.drawObjectBounds(g, child, 0x72d8ff, 0.55));
     this.forWorldObjects((object) => this.drawObjectBounds(g, object, 0x72d8ff, 0.75));
-    for (const entry of this.ctx.getHouses()) this.drawObjectBounds(g, entry.house.sprite, 0x72d8ff, 0.65);
   }
 
   private drawHitBoxes(g: Phaser.GameObjects.Graphics): void {
     this.drawBody(g, this.ctx.getPlayer().body, 0xff4d6d, 0.95);
-    this.forChildren(this.ctx.getFriends(), (child) => this.drawBody(g, this.bodyOf(child), 0xff4d6d, 0.7));
     this.forChildren(this.ctx.getCombatTargets(), (child) => {
       if (!child.active) return;
       this.drawBody(g, this.bodyOf(child), 0xff4d6d, 0.9);
@@ -148,7 +140,6 @@ export class WorldDebugRenderer {
 
   private drawDepthAnchors(g: Phaser.GameObjects.Graphics): void {
     this.drawActorDepthAnchor(g, this.ctx.getPlayer(), 0x73d7ff, 0.95);
-    this.forChildren(this.ctx.getFriends(), (child) => this.drawActorDepthAnchor(g, child, 0x73d7ff, 0.7));
     this.forChildren(this.ctx.getCombatTargets(), (child) => this.drawActorDepthAnchor(g, child, 0xa78bfa, 0.85));
     this.forWorldObjects((object) => {
       const x = object.getData('objectAnchorX') as number | undefined;
@@ -156,17 +147,11 @@ export class WorldDebugRenderer {
       if (typeof x !== 'number' || typeof y !== 'number') return;
       this.drawDepthAnchor(g, x, y, 0xffd166, 0.95);
     });
-    for (const entry of this.ctx.getHouses()) {
-      this.drawDepthAnchor(g, entry.house.sprite.x, entry.house.getGroundAnchorY(), 0xffd166, 0.75);
-    }
   }
 
   private drawInteractionZones(g: Phaser.GameObjects.Graphics): void {
-    for (const entry of this.ctx.getHouses()) this.drawBody(g, this.bodyOf(entry.house.doorZone), 0x73e2b1, 0.9);
     for (const zone of this.ctx.getTransitionZones()) this.drawBody(g, this.bodyOf(zone), 0x73e2b1, 0.85);
     this.forChildren(this.ctx.getCollectibleTargets(), (child) => this.drawBody(g, this.bodyOf(child), 0x73e2b1, 0.75));
-    this.forChildren(this.ctx.getDungeonSwitches(), (child) => this.drawBody(g, this.bodyOf(child), 0x73e2b1, 0.85));
-    this.forChildren(this.ctx.getDungeonChests(), (child) => this.drawBody(g, this.bodyOf(child), 0x73e2b1, 0.85));
   }
 
   private drawActiveAttackHitboxes(g: Phaser.GameObjects.Graphics): void {

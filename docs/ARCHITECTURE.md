@@ -52,24 +52,22 @@ Weapon definitions version 2 store Idle and directional Attack animations as lay
 
 - `PlayerController` and `PlayerFactory`
 - `CombatController`
-- `CrystalTrialController`
 - `MapBuilder` and `MapRepository`
-- `HousePlacement`
 - `AreaNavigation`
 - `WorldDebugRenderer`
 - `SaveSystem`, `SaveRepository`, and `WorldProgress`
 
-The remaining scene code is the migration boundary for UI composition, friend spawning, collectibles, and Phaser collision wiring. When one of those areas grows, extract its orchestration into the matching feature folder rather than adding another subsystem directly to the scene.
+The remaining scene code is the migration boundary for UI composition, collectibles, and Phaser collision wiring. Persistent world populations come only from authored map JSON through `MapBuilder`; scenes must not add hidden NPCs, houses, puzzles, or props. When one of those areas grows, extract its orchestration into the matching feature folder rather than adding another subsystem directly to the scene.
 
 ## Persistence
 
-Save schema version 3 stores player state, inventory, quests, and world progress in one envelope. Player equipment now includes the active weapon ID and six persistent weapon hotbar slots. The repository reads older envelopes and split keys; missing loadout fields normalize to the starter loadout. Autosave is driven by typed domain events and is debounced.
+Save schema version 4 stores player state, inventory, quests, and world progress in one envelope. Player equipment includes the active weapon ID and six persistent weapon hotbar slots. The repository reads older envelopes and split keys, drops retired population fields, and normalizes missing loadout fields to the starter loadout. Autosave is driven by typed domain events and is debounced.
 
 Weapon ownership is inventory-backed. Weapon definitions are registered as unique equipment items, `WeaponLoadout` validates ownership and slot assignment, and `CombatController` replaces the active weapon gameplay/visual pair only after the loadout authorizes a switch. Plain number keys 1–6 select the six loadout slots; development cheats use Shift+1–Shift+8.
 
 ## World dimensions
 
-`WorldDimensions` is the single geometry value for a loaded map: tile size, columns, rows, pixel width, and pixel height. `WorldScene` passes it through feature contexts to world building, physics, navigation, spawning, houses, abilities, camera, minimap, and debug rendering. Do not introduce global world-width or tile-count constants. Production dimensions always come from `dimensionsFromMap(map)`.
+`WorldDimensions` is the single geometry value for a loaded map: tile size, columns, rows, pixel width, and pixel height. `WorldScene` passes it through feature contexts to world building, physics, navigation, spawning, abilities, camera, minimap, and debug rendering. Do not introduce global world-width or tile-count constants. Production dimensions always come from `dimensionsFromMap(map)`.
 
 ## Authored production maps
 

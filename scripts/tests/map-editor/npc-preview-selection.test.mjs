@@ -22,7 +22,7 @@ const vite = await createServer({
       if (id === '\0phaser-drawing-fixture') return `export default {
         Scene: class {},
         Scenes: { Events: { UPDATE: 'update', SHUTDOWN: 'shutdown' } },
-        GameObjects: { Events: { DESTROY: 'destroy' } },
+        GameObjects: { Image: class {}, Events: { DESTROY: 'destroy' } },
         Math: { Clamp: (n, min, max) => Math.min(max, Math.max(min, n)),
           Distance: { Between: (x, y, a, b) => Math.hypot(x - a, y - b) } }
       };`;

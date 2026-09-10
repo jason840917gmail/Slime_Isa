@@ -8,7 +8,7 @@ import { attackIntersectsCombatBody, resolveCombatBodyGeometry } from './CombatB
  * combat doesn't create/destroy objects each swing.
  *
  * Damage application is delegated to a callback so the caller decides how to
- * process the hit (enemy vs friend vs boss).
+ * process the hit (enemy vs player vs boss).
  */
 
 export interface HitboxConfig {

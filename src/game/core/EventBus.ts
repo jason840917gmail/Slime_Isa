@@ -13,12 +13,8 @@ import type { QuestDomainEvents, QuestInputEvents } from '../content/quests/type
 export type GameEvents = {
   'coins.changed': { coins: number; delta: number };
   'boost.changed': { boostBonus: number; delta: number };
-  'friend.count': { count: number };
   'collectible.collected': CollectibleCollectedPayload;
   'player.action': { anim: string };
-  'house.enter': { houseId: number };
-  'house.leave': {};
-  'house.sleep': { coinsGained: number };
   'area.enter': { areaId: string };
   'enemy.died': { enemyId: number; areaId: string; kind: string };
   'save.done': { slot: string };

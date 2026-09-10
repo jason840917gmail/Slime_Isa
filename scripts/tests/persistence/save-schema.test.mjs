@@ -15,10 +15,9 @@ test.after(async () => vite.close());
 function validSave() {
   return {
     player: {
-      schemaVersion: 3,
+      schemaVersion: 4,
       coins: 50,
       boostBonus: 0,
-      totalFriends: 0,
       level: 1,
       currentXp: 0,
       hp: 100,

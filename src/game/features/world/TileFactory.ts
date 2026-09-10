@@ -69,18 +69,8 @@ export class TileFactory {
     return image;
   }
 
-  /** Creates a visual-only copy aligned to this world cell (used by edge transitions). */
-  createOverlay(tileId: WorldTileId, tileX: number, tileY: number, depth: number): Phaser.GameObjects.Image {
-    const visual = this.resolveVisual(tileId, tileX, tileY);
-    return this.ctx.scene.add.image(
-      tileX * this.ctx.dimensions.tileSize,
-      tileY * this.ctx.dimensions.tileSize,
-      visual.textureKey,
-      visual.frame,
-    ).setOrigin(0).setFlip(visual.flipX, visual.flipY).setDepth(depth + DEPTH_BANDS['ground-decals']);
-  }
-
-  private resolveVisual(tileId: WorldTileId, tileX: number, tileY: number): ResolvedTileVisual {
+  /** Shared source selection for live tiles and detached terrain baking. */
+  resolveVisual(tileId: WorldTileId, tileX: number, tileY: number): ResolvedTileVisual {
     const definition = getTileDefinition(tileId);
     const assetIndex = tileHash(tileX, tileY, this.ctx.seed) % definition.visual.assetIds.length;
     const assetId = definition.visual.assetIds[assetIndex];

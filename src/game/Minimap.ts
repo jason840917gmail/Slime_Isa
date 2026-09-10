@@ -31,8 +31,6 @@ export class Minimap {
   update(
     camera: Phaser.Cameras.Scene2D.Camera,
     player: Phaser.Physics.Arcade.Sprite | undefined,
-    friends: Phaser.Physics.Arcade.Group | undefined,
-    houses: ReadonlyArray<{ owner: 'player' | 'friend'; house: { sprite: { x: number; y: number } } }> | undefined,
   ): void {
     const g = this.graphics;
     g.clear();
@@ -73,33 +71,10 @@ export class Minimap {
       my: baseY + (wy / this.dimensions.height) * this.size,
     });
 
-    // Friend dots
-    if (friends) {
-      const children = friends.getChildren() as Phaser.GameObjects.GameObject[];
-      for (const c of children) {
-        const fx = (c as any).x as number;
-        const fy = (c as any).y as number;
-        const p = toMinimap(fx, fy);
-        this.drawMarker(g, p.mx, p.my, 3, 0xffb347);
-      }
-    }
-
     // Player dot
     if (player) {
       const p = toMinimap(player.x, player.y);
       this.drawMarker(g, p.mx, p.my, 4, 0x72d8ff);
-    }
-
-    // House dots (colored to match the house textures)
-    if (houses) {
-      for (const entry of houses) {
-        const p = toMinimap(entry.house.sprite.x, entry.house.sprite.y);
-        if (entry.owner === 'player') {
-          this.drawMarker(g, p.mx, p.my, 4, 0x2b69d1);
-        } else {
-          this.drawMarker(g, p.mx, p.my, 3, 0x9a6a3a);
-        }
-      }
     }
 
     // Camera view rectangle

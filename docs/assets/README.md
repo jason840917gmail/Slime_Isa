@@ -10,7 +10,7 @@ visual definitions, character/object content, and validation in this workflow.
 2. Choose the right art type guide:
    - [Animated character sheets](./slime-sheet-guide.md)
    - [Terrain, wall, and tile art](./terrain-tile-guide.md)
-   - [Friends, houses, and building props](./friends-and-houses-guide.md)
+   - [Houses and world props](./houses-and-world-props-guide.md)
 3. Generate or commission the art using the [visual style guide](./visual-style-guide.md), the [Magnific MCP guide](./magnific-mcp-guide.md), or the [character animation video prompt](./character-animation-video-prompt.md).
 4. Keep original or experimental output under `asset/Originals/` until it is ready. For generated video, extract a clean PNG sheet using the fixed camera, background, frame rate, and grid described by the prompt and art guide.
 5. Register ready media and integrate it through [Adding Game Assets](./adding-assets.md).
@@ -57,7 +57,7 @@ verified together.
 - [Character Sprites And Animated Visuals](./character-sprites-guide.md) — manifest-to-runtime visual integration.
 - [Slime Sheet Guide](./slime-sheet-guide.md) — animated character sheet format and frame layout.
 - [Terrain And Tile Guide](./terrain-tile-guide.md) — terrain, obstacles, and small props.
-- [Friends And Houses Guide](./friends-and-houses-guide.md) — NPC parts, buildings, and interaction props.
+- [Houses And World Props Guide](./houses-and-world-props-guide.md) — authored buildings, props, and interaction placement.
 - [Visual Style Guide](./visual-style-guide.md) — project art direction and generation constraints.
 - [Character Animation Video Prompt](./character-animation-video-prompt.md) — reusable prompt for extracting animation frames.
 - [Character Animation Video Prompt Template](./character-animation-video-prompt-template.md) — fill-in template with idle, walk, attack, die, knockback, and direction presets.

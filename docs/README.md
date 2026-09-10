@@ -26,7 +26,6 @@ The character-sprite integration guide is now maintained in the asset folder:
 
 - Slime-style animated sheet: `8 x 8` grid, `256 x 256 px` per frame
 - Terrain tile: `64 x 64 px`
-- Friend face or accessory part: `24 x 24 px`
 - House texture: `128 x 128 px`
 - Small world prop: around `16 x 16 px` to `48 x 20 px`
 

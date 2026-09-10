@@ -1,7 +1,7 @@
 # Slime Isa — Roadmap to Beta
 
-A drastic, end-to-end upgrade plan that takes the current tech-demo (a single
-54×54 meadow with wandering friends, a shop, and collectibles) to a **beta-state
+A drastic, end-to-end upgrade plan that takes the original tech demo (a single
+54×54 meadow with collectibles) to a **beta-state
 action-adventure** with a large multi-biome world, Zelda-style area transitions,
 combat, enemies, bosses, missions, leveling, unlockable abilities & weapons, and
 full game feel.
@@ -15,7 +15,7 @@ phase lists **new files**, **changed files**, **concrete tasks**, and a
 Last updated: 2026-06-23
 
 Completed so far:
-- Phase 0 foundation is functionally in place: `EventBus`, `GameState`, centralized input, save handoff, and extracted house/HUD-style systems exist, though `WorldScene` still needs later cleanup.
+- Phase 0 foundation is functionally in place: `EventBus`, `GameState`, centralized input, save handoff, and extracted HUD systems exist, though `WorldScene` still needs later cleanup.
 - Phase 1 player core is in place: HP, XP, levels, energy, perks, inventory, status effects, respawn, level-up modal, health bar, ability bar, and inventory actions.
 - Phase 2 combat is in place: inventory-owned weapons, a persistent six-slot 1–6 equipment hotbar, live weapon replacement, combo/hitbox system, target dummy, attack/dodge, gated abilities, reach/arc perks, and life-steal perk.
 - Phase 3 enemies are in place: enemy AI, spawner, projectiles, drops, contact damage, knockback/stun, safe home zone, and biome spawn tables.
@@ -25,9 +25,8 @@ Completed so far:
 - Phase 7 crafting first slice is in place: recipe system, crafting UI, consumable brewing, keyboard/mouse controls, and inventory material use/delete flow.
 
 Left off here:
-- Phase 7 first slice is complete; no Crystal Caverns expansion is currently planned.
-- Latest completed slice: Crystal Caverns switch trial. Two pressure switches unlock a persistent crystal chest that rewards coins, XP, Crystal Shards, and a Slime Tonic.
-- Verified: `pnpm build` passes and the dev server serves the new Crystal Trial source.
+- Phase 7 crafting slice is complete; no Crystal Caverns expansion is currently planned.
+- The legacy runtime-created Crystal Caverns switch trial was removed. Future puzzles must be represented by authored map content.
 
 ---
 
@@ -38,12 +37,11 @@ Left off here:
 | World | 54×54 tiles @ 64px = 3456×3456px, one biome | `terrainNoise.ts:2`, `worldTiles.ts:30` |
 | Tiles | grass-a / grass-b / water / rock-wall | `worldTiles.ts:30` |
 | Player | walk/boost/jump/4 emote anims, no health, no combat | `WorldScene.ts:160` |
-| Friends | 84 wandering NPCs, ears/face/color variants, chat | `Friend.ts` |
-| Houses | enter/sleep/coin reward, player + friend homes | `House.ts`, `WorldScene.ts:760` |
-| Shop | buy boost speed / spawn friend | `ShopUI.ts` |
+| NPCs | Authored character packages placed explicitly in map JSON | `features/npcs/`, `content/maps/` |
+| Houses | Solid authored objects placed explicitly in map JSON | `content/objects/houses/`, `content/maps/` |
 | Collectibles | Authored walk-over berries and material piles with inventory-aware partial collection | `CollectibleController.ts` |
 | Animations | 9 clips from `slime_normalized.png` (8×8 sheet) | `slimeAnimations.ts:28` |
-| UI | HUD (coins/friends), minimap, chat, controls panel | `HUD.ts`, `Minimap.ts`, `ChatUI.ts` |
+| UI | HUD, minimap, authored NPC dialogue, controls panel | `HUD.ts`, `Minimap.ts`, `features/interaction/` |
 | Missing | health, combat, enemies, XP, levels, abilities, weapons, quests, inventory, save, audio, particles, day/night, menu, pause, death, dungeons, bosses, fast-travel | — |
 | Tech debt | `WorldScene.ts` is 979 lines (monolith) | flagged in `AGENTS.md:20` |
 
@@ -83,8 +81,8 @@ the plan can be built without constantly editing a 1000-line file.
 1. Create `EventBus` as a singleton `Phaser.Events.EventEmitter` with a typed event map.
 2. Extract `GameState` as a plain serializable object + a `PlayerState` view used in-scene.
 3. Replace direct `this.coins`/`this.boostBonus` reads in `WorldScene` with `GameState` access; keep HUD/subsystems subscribed via `EventBus`.
-4. Extract from `WorldScene`: `HouseUI` (`WorldScene.ts:777`), `EnterPrompt` (`WorldScene.ts:851`), `SleepController` (`WorldScene.ts:889`) into `src/game/systems/HouseSystem.ts` (AGENTS.md:20 already flags this).
-5. Move world building (`buildWorld`, `createWorldTile`, `placeHouses`, `findSpawnPoint`) into `src/game/systems/WorldBuilder.ts`.
+4. Keep persistent NPCs, houses, props, and interactions authored in map JSON and instantiated by `MapBuilder`.
+5. Keep world building and spawn resolution in the world feature layer.
 6. Move player + controls into `src/game/systems/PlayerController.ts`.
 7. Add a `src/game/data` loader in `BootScene` that validates JSON against TS interfaces.
 
@@ -109,9 +107,8 @@ Goal: turn the slime into a real RPG character.
 - `src/game/ui/LevelUpModal.ts` — picks 1 of 3 perks on level up (roguelike-style).
 
 ### Changed files
-- `src/game/HUD.ts` — add HP bar, XP bar, level, energy, minimap-adjacent buff icons. Current `HUD.ts:7` only shows coins/friends.
+- `src/game/HUD.ts` — add HP bar, XP bar, level, energy, minimap-adjacent buff icons.
 - `src/game/scenes/WorldScene.ts` — wire `HealthSystem` into update, handle death → `GameOverScene`.
-- `src/game/Friend.ts` — give friends HP too (so they can be allies in Phase 6).
 - `src/game/scenes/BootScene.ts` — generate HP-potion, energy-potion, material textures.
 
 ### Concrete tasks
@@ -246,7 +243,7 @@ matching edge spawn**.
 - `src/game/ui/AreaTitleCard.ts` — “Forest of Goo” banner on entry (tween in/out).
 
 ### Biomes (6 minimum)
-1. **Meadow** (starter, current art) — peaceful, slimes, friends, tutorial.
+1. **Meadow** (starter, current art) — peaceful, authored NPCs, tutorial.
 2. **Gloop Forest** — dense trees, spike slimes, casters; first combat area.
 3. **Crystal Caverns** — underground, armored + swarmers; torch-light radius.
 4. **Sticky Swamp** — slow movement, poison, spider-slime, weather: rain.
@@ -264,7 +261,7 @@ matching edge spawn**.
 2. Each area 48×48 to 64×64 tiles. Edge transition zones at N/E/S/W borders.
 3. Transition VFX: wipe + 350ms fade (match `WorldScene.ts:768` pan timing style).
 4. Camera per-area bounds; `cameras.main.setBounds` driven by area size.
-5. Streamline spawn rules per biome (enemy density, friend density, decorations).
+5. Streamline spawn rules per biome (enemy density and authored decorations).
 6. Add **fast-travel shrines** unlocked by discovery (Zelda towers/bonfires).
 7. Day/night affects enemy density & aggression per area (Phase 8).
 
@@ -284,14 +281,14 @@ Goal: give the player reasons to go everywhere and fight everything.
 - `src/game/quests/QuestTracker.ts` — tracks active/complete/failed, listens to `EventBus` (`enemy.died`, `item.collected`, `area.enter`, `npc.talked`).
 - `src/game/quests/QuestGiver.ts` — NPC with a quest-offer dialogue + accept/decline.
 - `src/game/ui/QuestJournal.ts` — Tab overlay: active, completed, available hints.
-- `src/game/ui/DialogueBox.ts` — replaces the free-text `ChatUI` for scripted NPC dialogue (portrait, typewriter, choices). Keep `ChatUI` for casual friend chatter.
+- `src/game/ui/DialogueBox.ts` — scripted authored NPC dialogue with portrait, typewriter, and choices.
 - `src/game/data/quests.json`.
 
 ### Quest types (≥ 12 total)
-- **Tutorial:** “Talk to 3 friends”, “Buy a boost”, “Sleep at home”.
+- **Tutorial:** introduce authored NPC interaction, gathering, crafting, and combat.
 - **Hunt:** “Defeat 10 blobs in Gloop Forest”.
 - **Fetch:** “Bring 5 sticky silk to the swamp hermit”.
-- **Escort:** “Walk a friend safely across the caverns”.
+- **Escort:** “Walk an authored NPC safely across the caverns”.
 - **Boss-gate:** “Clear the Volcano Ridge camp” → unlocks boss arena.
 - **Mystery:** “Find the mimic in the caverns” (joke + scare).
 - **Collection:** “Discover all 6 shrines”.
@@ -347,9 +344,9 @@ entrance).
 
 Goal: Zelda-style substance between combat encounters.
 
-Status: **current slice complete**. Crafting and the first Crystal Caverns trial
-are implemented. Further Crystal Caverns dungeon expansion is removed from the
-active roadmap.
+Status: **crafting slice complete**. Further Crystal Caverns dungeon expansion
+is removed from the active roadmap. Any future dungeon puzzle must be authored
+as map content instead of being injected by `WorldScene`.
 
 ### New files
 - `src/game/dungeon/Dungeon.ts` — multi-room area with locked doors, keys, switches, a mini-boss, a treasure.
@@ -360,18 +357,13 @@ active roadmap.
 - `src/game/ui/CraftingUI.ts`.
 
 ### Concrete tasks
-1. Completed first puzzle slice: Crystal Caverns uses two step-on switches and a persistent reward chest.
-2. Completed first crafting slice: cauldron-style recipe crafting brews potions from foraged materials.
-3. Weapon-tier upgrades remain a separate future decision and are not part of the Crystal Caverns expansion plan.
+1. Completed first crafting slice: cauldron-style recipe crafting brews potions from foraged materials.
+2. Weapon-tier upgrades remain a separate future decision and are not part of the Crystal Caverns expansion plan.
 
 ### Implemented Phase 7 slices
 - `src/game/crafting/Crafting.ts` and `src/game/ui/CraftingUI.ts`: recipe crafting UI, keyboard navigation, mouse click regions, and crafted-item feedback.
 - Inventory flow supports item details, consumable use, and deleting one item at a time.
 - Purple berries now enter inventory as crafting material.
-- Crystal Caverns switch trial in `WorldScene`: two switches unlock a chest.
-- Crystal trial reward: `+90 coins`, `+120 XP`, `+4 Crystal Shards`, `+1 Slime Tonic`.
-- Crystal trial persistence key: `slime-isa:dungeon-completed`.
-- New generated textures in `BootScene`: crystal switches and crystal chest open/closed states.
 
 ---
 
@@ -383,7 +375,7 @@ Goal: the connective tissue that makes it feel like a real game.
 - `src/game/core/SaveSystem.ts` (from Phase 0) — finalize: autosave on area transition + every 60s + on sleep + on quit (`visibilitychange`).
 - `src/game/audio/AudioManager.ts` — wraps Phaser sound; SFX bus + music bus; crossfade music per area; duck music on low HP.
 - `src/game/audio/Sfx.ts` — named one-shots: hit, crit, coin, levelup, ability, bossroar, ui.
-- `src/game/systems/DayNight.ts` — 8-min day; tint overlay + ambient light; enemies stronger at night; friends go home.
+- `src/game/systems/DayNight.ts` — 8-min day; tint overlay + ambient light; enemies stronger at night; authored NPC schedules may react to time.
 - `src/game/systems/Weather.ts` — per-biome: rain (swamp), snow (frost), ash (volcano); particles + gameplay (rain extinguishes burn, snow slows).
 - `src/game/vfx/Particles.ts` — pooled emitters: hit spark, slime splash, dust on roll, coin sparkle, level-up burst.
 - `src/game/vfx/ScreenShake.ts` — small/medium/large presets tied to events.
@@ -449,13 +441,12 @@ This is the layer that makes it *feel* good rather than just *work*.
 - **Floating text** for damage (color by type: physical white, crit yellow, burn orange, poison green, heal green).
 - **Camera feedback**: slight zoom-out on boss enter, zoom-in on level up, dolly on dialogue.
 - **Slime-form transformations** (signature mechanic): the slime can take a *form* tied to biome — **Ice Form** (frostpeak, slide), **Lava Form** (volcano, burn aura), **Sticky Form** (swamp, wall cling), **Bubble Form** (water, float). Each gated by a quest and opening new traversal puzzles. This is the “thing you might miss” that ties exploration + abilities + puzzles together.
-- **Companions**: recruit friends (existing `Friend.ts`) to follow and fight. Cap 2–3; they level with you. Reuses friend art/anim — high value, low cost.
 - **Mounts**: a tameable Bouncer you can ride (faster travel + stomp attack). Fun + uses existing enemy art.
 - **Combo meter** that builds style → small coin/xp multipliers; rewards aggressive play.
 - **Boss intro / victory name cards** (Zelda memory).
 - **Hidden secrets**: hidden caves behind breakable rock (hammer), heart-container upgrades (max HP up), stamina-fruits (max energy up) — classic Zelda collectibles that reward exploration.
 - **Photo mode / idle camera** (small, cheap, delightful).
-- **Joke writing**: mimic scare, friend dialogue, NPC puns. The chat system (`ChatUI.ts`) already has a voice — lean into it.
+- **Joke writing**: mimic scares and authored NPC dialogue.
 
 ### Milestone 10
 A 5-minute combat encounter feels like a finished game: hits have weight, the
@@ -531,8 +522,8 @@ softlocks. Ship a tagged `v0.9.0-beta` build.
 - **Audio shapes perception of quality** more than any single visual. Budget for a small CC0 pack.
 - **Hit-stop + screen shake + squash/stretch** are 80% of “game feel” for a slime.
 - **Slime-form transformations** tie exploration, abilities, and puzzles into one signature mechanic — the differentiator vs. generic top-down adventures.
-- **Companions** reuse your existing `Friend` art/anim — huge fun-per-effort.
-- **Mimic treasure** as both a joke and an enemy — the chat system already has personality; keep that voice.
+- **Companions** must use authored NPC definitions and explicit map placement.
+- **Mimic treasure** can be both a joke and an enemy; deliver its personality through authored dialogue.
 - **Telegraphed boss attacks** so the existing dodge-roll (`WorldScene.ts:650`) becomes a skill, not a stat.
 - **Reduce-motion / accessibility** from day one — cheap now, expensive later.
 - **Data-driven content (JSON)** so Phase 11 is authoring, not coding — you’ll iterate balance 100× more than systems.

@@ -218,10 +218,14 @@ function migrateData(value: unknown, storage: StorageLike | null): GameSaveData 
   } catch {
     return null;
   }
-  const { xp: _xp, maxHpBonus: _maxHpBonus, maxEnergyBonus: _maxEnergyBonus, ...playerWithoutLegacyProgression } = player as Record<string, unknown>;
+  const currentPlayerFields = Object.fromEntries(
+    Object.keys(initial.player).flatMap((key) => (
+      key in player ? [[key, (player as Record<string, unknown>)[key]]] : []
+    )),
+  );
   const legacySlots = migrateLegacyInventory(value.inventory);
   const candidate: GameSaveData = {
-    player: clone({ ...initial.player, ...playerWithoutLegacyProgression, ...progression, schemaVersion: 3 } as unknown as GameStateData),
+    player: clone({ ...initial.player, ...currentPlayerFields, ...progression, schemaVersion: 4 } as unknown as GameStateData),
     inventory: legacySlots
       ? { maxSlots: Math.max(initial.inventory.maxSlots, legacySlots.length), slots: clone(legacySlots) }
       : isRecord(value.inventory) ? clone(value.inventory) as unknown as GameSaveData['inventory'] : initial.inventory,

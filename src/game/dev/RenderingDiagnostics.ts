@@ -51,6 +51,8 @@ export class RenderingDiagnostics {
     }).renderRoundPixels;
     const cssScaleX = bounds.width > 0 ? bounds.width / canvas.width : 0;
     const cssScaleY = bounds.height > 0 ? bounds.height / canvas.height : 0;
+    const terrainChunks = this.scene.children.list.filter((child) => child.name === 'terrain-transition-chunk');
+    const terrainBytes = terrainChunks.reduce((sum, child) => sum + Number(child.getData('textureBytes')), 0);
 
     this.element.textContent = [
       'RENDER GRID',
@@ -60,6 +62,7 @@ export class RenderingDiagnostics {
       `camera scroll   ${camera.scrollX.toFixed(3)}, ${camera.scrollY.toFixed(3)}`,
       `physics alpha   ${physicsPresentationAlpha(this.scene).toFixed(3)}`,
       `actual fps      ${this.scene.game.loop.actualFps.toFixed(1)}`,
+      `terrain chunks  ${terrainChunks.length} / ${(terrainBytes / 1048576).toFixed(1)} MiB RGBA`,
       `round pixels    ${camera.roundPixels} / render ${String(renderRoundPixels)}`,
       `canvas backing  ${canvas.width} x ${canvas.height}`,
       `canvas css      ${bounds.width.toFixed(0)} x ${bounds.height.toFixed(0)}`,

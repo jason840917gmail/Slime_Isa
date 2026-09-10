@@ -63,15 +63,15 @@ test('the router displays and executes only the highest-priority candidate', () 
   router.destroy();
 });
 
-test('WorldScene executes the owner of the shared prompt before house fallback', () => {
+test('WorldScene delegates authored interactions only through the shared router', () => {
   const source = fs.readFileSync(path.join(process.cwd(), 'src/game/scenes/WorldScene.ts'), 'utf8');
   const methodStart = source.indexOf('private handleActionInput');
   const methodEnd = source.indexOf('private updateMovement', methodStart);
   const method = source.slice(methodStart, methodEnd);
   const candidateCheck = method.indexOf('this.interactionRouter?.hasCandidate()');
   const routerCall = method.indexOf('this.interactionRouter.handleInteract()');
-  const houseCall = method.indexOf('this.houseSystem.handleInteract()');
-  assert.ok(candidateCheck >= 0 && routerCall > candidateCheck && houseCall > routerCall);
+  assert.ok(candidateCheck >= 0 && routerCall > candidateCheck);
+  assert.doesNotMatch(method, /houseSystem|tryOpenShopNearby|spawnFriend/);
 });
 
 test('quest UI keeps failed commands visible and exposes every retry route', () => {

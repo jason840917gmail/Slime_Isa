@@ -285,15 +285,12 @@ test('WorldScene integration keeps one shared Escape contract', () => {
     'src/game/ui/WorldMapUI.ts',
     'src/game/ui/QuestJournal.ts',
     'src/game/ui/LevelUpModal.ts',
-    'src/game/ChatUI.ts',
-    'src/game/ShopUI.ts',
   ];
 
   for (const file of surfaceFiles) {
     const source = read(file);
     assert.doesNotMatch(source, /KeyCodes\.ESC/);
   }
-  assert.doesNotMatch(read('src/game/ChatUI.ts'), /document\.addEventListener\(['"]keydown/);
   assert.doesNotMatch(read('src/game/devTools.ts'), /event\.key === 'Escape'/);
   assert.match(config, /new ModalStack\(\)/);
   assert.match(config, /registry\.set\('modalStack'/);
@@ -305,8 +302,6 @@ test('WorldScene integration keeps one shared Escape contract', () => {
     'world-map': 'src/game/ui/WorldMapUI.ts',
     'quest-journal': 'src/game/ui/QuestJournal.ts',
     'level-up': 'src/game/ui/LevelUpModal.ts',
-    chat: 'src/game/ChatUI.ts',
-    shop: 'src/game/ShopUI.ts',
   };
   for (const [id, file] of Object.entries(registrations)) {
     assert.match(read(file), new RegExp(`register\\('${id}'`));

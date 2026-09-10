@@ -166,10 +166,9 @@ function isGameState(value: unknown): value is GameStateData {
   const levelEntry = Number.isInteger(level) && (level as number) >= 1 && (level as number) <= GAME_CONSTANTS.character.player.progression.maxLevel
     ? GAME_CONSTANTS.character.player.progression.levels[(level as number) - 1]
     : undefined;
-  return value.schemaVersion === 3
+  return value.schemaVersion === 4
     && isNonNegativeNumber(value.coins)
     && isFiniteNumber(value.boostBonus)
-    && Number.isInteger(value.totalFriends)
     && levelEntry !== undefined
     && isNonNegativeNumber(value.currentXp)
     && (levelEntry.xpToNextLevel === null ? value.currentXp === 0 : (value.currentXp as number) < levelEntry.xpToNextLevel)
