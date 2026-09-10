@@ -41,16 +41,38 @@ const { completeDropPlacements } = await vite.ssrLoadModule('/src/game/features/
 
 test.after(async () => vite.close());
 
+function fakeTextFactory(labels) {
+  return (x, y, content, style) => {
+    const label = {
+      active: true,
+      x,
+      y,
+      text: content,
+      style,
+      depth: 0,
+      setOrigin() { return this; },
+      setText(value) { this.text = value; return this; },
+      setPosition(nextX, nextY) { this.x = nextX; this.y = nextY; return this; },
+      setDepth(value) { this.depth = value; return this; },
+      destroy() { this.active = false; },
+    };
+    labels.push(label);
+    return label;
+  };
+}
+
 function harness(capacities, savedState) {
   const children = [];
   const persisted = new Map();
   const messages = [];
   const published = [];
   const handlers = new Set();
+  const labels = [];
   const image = {
     active: true,
     x: 120,
     y: 160,
+    displayHeight: 40,
     data: new Map(),
     setData(key, value) { this.data.set(key, value); return this; },
     destroy() { this.active = false; },
@@ -78,7 +100,7 @@ function harness(capacities, savedState) {
   };
   const events = new CollectibleEventChannel(eventBus);
   const controller = new CollectibleController({
-    scene: { time: { now: 10_000 } },
+    scene: { time: { now: 10_000 }, add: { text: fakeTextFactory(labels) } },
     mapId: 'level-1',
     group,
     inventory: { add: (_itemId, requested) => Math.min(requested, capacities.shift() ?? 0) },
@@ -87,14 +109,20 @@ function harness(capacities, savedState) {
     showMessage: (...message) => messages.push(message),
   });
   controller.register({ image, objectId: 'collectible.wood-pile', instanceId: 'wood-01' });
-  return { controller, image, persisted, messages, published };
+  return { controller, image, labels, persisted, messages, published };
 }
 
 test('walk-over transfer handles full pickup and exact-once depletion', () => {
   const state = harness([10, 10]);
+  assert.equal(state.labels[0].text, '×10');
+  assert.equal(state.labels[0].style.fontStyle, 'bold');
+  assert.equal(state.labels[0].style.color, '#fff4b8');
+  assert.equal(state.labels[0].style.strokeThickness, 4);
+  assert.equal(state.labels[0].style.backgroundColor, '#101a18cc');
   state.controller.collect(state.image);
   state.controller.collect(state.image);
   assert.equal(state.image.active, false);
+  assert.equal(state.labels[0].active, false);
   assert.equal(state.persisted.get('wood-01').remaining, 0);
   assert.equal(state.published.length, 1);
   assert.deepEqual(state.published[0], {
@@ -114,6 +142,7 @@ test('walk-over transfer preserves partial and zero-capacity quantities', () => 
   assert.equal(state.messages.at(-1)[2], 'Inventory full');
   state.controller.collect(state.image);
   assert.equal(state.persisted.get('wood-01').remaining, 6);
+  assert.equal(state.labels[0].text, '×6');
   assert.equal(state.image.active, true);
   assert.equal(state.published.length, 1);
   assert.equal(state.published[0].event, 'collectible.collected');
@@ -126,6 +155,12 @@ test('walk-over transfer preserves partial and zero-capacity quantities', () => 
   assert.equal(state.published[1].event, 'collectible.collected');
   assert.equal(state.published[1].payload.quantity, 6);
   assert.equal(state.published[1].imageActive, false);
+});
+
+test('collectible teardown destroys quantity badges', () => {
+  const state = harness([]);
+  state.controller.destroy();
+  assert.equal(state.labels[0].active, false);
 });
 
 test('berry reactions consume the event once and unsubscribe on disposal', () => {
@@ -533,10 +568,12 @@ test('same-item dynamic collectibles merge quantities when the incoming drop lan
     active: true,
     x: 288,
     y: 192,
+    displayHeight: 40,
     data: new Map(),
     setData(key, value) { this.data.set(key, value); return this; },
     destroy() { this.active = false; },
   });
+  const labels = [];
   const group = {
     getChildren: () => children,
     add(image) { children.push(image); },
@@ -547,7 +584,7 @@ test('same-item dynamic collectibles merge quantities when the incoming drop lan
     },
   };
   const controller = new CollectibleController({
-    scene: { time: { now: 0 } },
+    scene: { time: { now: 0 }, add: { text: fakeTextFactory(labels) } },
     mapId: 'level-1',
     group,
     inventory: { add: () => 0 },
@@ -580,6 +617,8 @@ test('same-item dynamic collectibles merge quantities when the incoming drop lan
   });
 
   assert.equal(resourceImage.data.get('collectibleQuantity'), 8);
+  assert.equal(labels.length, 1);
+  assert.equal(labels[0].text, '×8');
   assert.equal(inventoryImage.active, false);
   assert.deepEqual(children, [resourceImage]);
   assert.equal(persisted.get('tree-1-drop-1').remaining, 8);
