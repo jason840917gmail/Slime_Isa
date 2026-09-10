@@ -22,6 +22,7 @@ import { hitboxPool } from '../../combat/Hitbox';
 import { WeaponVisual } from './WeaponVisual';
 import { ObjectAnimationAdapter } from '../objects/ObjectAnimationAdapter';
 import { shouldSpawnConfirmedHitEffect } from '../../combat/ConfirmedHitEffect';
+import { resolveResourceHitPresentation } from '../../combat/ResourceHitPresentation';
 import { WorldEffectPool } from '../effects/WorldEffectPool';
 import { resolveDamageModifier } from '../../combat/DamageModifiers';
 import type { ResourceNodeController } from '../resources/ResourceNodeController';
@@ -278,13 +279,12 @@ export class CombatController {
           && 'acceptedDamage' in result
           ? result
           : undefined;
-        if (acceptedObjectEvent?.depleted) {
-          const adapter = acceptedObjectEvent.target.getData('objectAnimationAdapter') as ObjectAnimationAdapter | undefined;
-          const playbackStarted = acceptedObjectEvent.acceptedDamage > 0 && acceptedObjectEvent.onHitAnimationId
-            ? adapter?.animateOnHit(acceptedObjectEvent.onHitAnimationId, () => this.ctx.resourceNodes?.completeDepletion(acceptedObjectEvent.target)) ?? false
-            : false;
-          if (!playbackStarted) this.ctx.resourceNodes?.completeDepletion(acceptedObjectEvent.target);
-        } else if (acceptedObjectEvent && acceptedObjectEvent.acceptedDamage > 0 && acceptedObjectEvent.onHitAnimationId) {
+        const resourceHitPresentation = acceptedObjectEvent
+          ? resolveResourceHitPresentation(acceptedObjectEvent)
+          : 'none';
+        if (acceptedObjectEvent && resourceHitPresentation === 'deplete') {
+          this.ctx.resourceNodes?.completeDepletion(acceptedObjectEvent.target);
+        } else if (acceptedObjectEvent && resourceHitPresentation === 'animate-hit') {
           (acceptedObjectEvent.target.getData('objectAnimationAdapter') as ObjectAnimationAdapter | undefined)
             ?.animateOnHit(acceptedObjectEvent.onHitAnimationId);
         }
