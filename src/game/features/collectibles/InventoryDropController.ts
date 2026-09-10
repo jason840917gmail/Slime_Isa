@@ -7,7 +7,7 @@ import type { FacingDirection } from '../../infrastructure/persistence/SaveSchem
 import type { WorldDimensions } from '../../world/WorldDimensions';
 import type { InventoryWorldDropProgress } from '../progression/WorldProgress';
 import type { CollectibleStateChange } from './CollectibleController';
-import { findInventoryDropDestination } from './InventoryDropPlacement';
+import { findInventoryDropDestination, type InventoryDropCellInspection } from './InventoryDropPlacement';
 import type { WorldDropRequest } from './WorldDropSpawner';
 
 export interface InventoryDropControllerContext {
@@ -20,7 +20,7 @@ export interface InventoryDropControllerContext {
   };
   readonly getPlayerAnchor: () => { readonly x: number; readonly y: number };
   readonly getFacing: () => FacingDirection;
-  readonly isCellBlocked: (cellX: number, cellY: number) => boolean;
+  readonly inspectCell: (itemId: string, cellX: number, cellY: number) => InventoryDropCellInspection;
   readonly spawnWorldDrop: (request: WorldDropRequest) => Phaser.GameObjects.Image;
   readonly showMessage: (message: string) => void;
   readonly progress: {
@@ -53,11 +53,18 @@ export class InventoryDropController {
       source,
       this.ctx.getFacing(),
       this.ctx.dimensions,
-      (cellX, cellY) => this.ctx.isCellBlocked(cellX, cellY)
-        || existingDrops.some((drop) => this.dropOccupiesCell(drop, cellX, cellY)),
+      (cellX, cellY) => {
+        const existing = existingDrops.find((drop) => this.dropOccupiesCell(drop, cellX, cellY));
+        if (existing) {
+          return existing.itemId === slot.itemId
+            ? { kind: 'compatible-stack', destination: { x: existing.x, y: existing.y } }
+            : { kind: 'blocked' };
+        }
+        return this.ctx.inspectCell(slot.itemId, cellX, cellY);
+      },
     );
     if (!destination) {
-      this.ctx.showMessage('No clear ground nearby');
+      this.ctx.showMessage('No ground space available');
       return false;
     }
 

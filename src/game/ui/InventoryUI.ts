@@ -346,7 +346,8 @@ export class InventoryUI {
     const quantity = dropAll
       ? selectedSlot.count
       : Phaser.Math.Clamp(this.removeQuantity, 1, selectedSlot.count);
-    if (this.ctx.onDropItem(this.selectedSlotIndex, quantity)) this.close();
+    this.ctx.onDropItem(this.selectedSlotIndex, quantity);
+    this.close();
   }
 
   private addButton(x: number, y: number, width: number, height: number, label: string, color: number, onClick?: () => void): void {

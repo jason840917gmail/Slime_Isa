@@ -31,12 +31,20 @@ interface PooledText {
 class FloatingTextPool {
   private pools = new Map<Phaser.Scene, PooledText[]>();
 
-  spawn(scene: Phaser.Scene, x: number, y: number, content: string, color: Color = 'white', big = false): void {
+  spawn(
+    scene: Phaser.Scene,
+    x: number,
+    y: number,
+    content: string,
+    color: Color = 'white',
+    big = false,
+    durationMs?: number,
+  ): void {
     const pool = this.getPool(scene);
     const slot = pool.find((p) => !p.busy);
 
     if (slot) {
-      this.activate(slot, x, y, content, color, big);
+      this.activate(slot, x, y, content, color, big, durationMs);
       return;
     }
 
@@ -63,7 +71,7 @@ class FloatingTextPool {
         sortId: `floating:${pool.length}`,
       };
       pool.push(entry);
-      this.activate(entry, x, y, content, color, big);
+      this.activate(entry, x, y, content, color, big, durationMs);
     }
   }
 
@@ -76,7 +84,15 @@ class FloatingTextPool {
     return pool;
   }
 
-  private activate(slot: PooledText, x: number, y: number, content: string, color: Color, big: boolean): void {
+  private activate(
+    slot: PooledText,
+    x: number,
+    y: number,
+    content: string,
+    color: Color,
+    big: boolean,
+    durationMs?: number,
+  ): void {
     slot.busy = true;
     const t = slot.text;
     t.setText(content)
@@ -97,7 +113,7 @@ class FloatingTextPool {
       y: y - (big ? 48 : 34),
       alpha: 0,
       scale: big ? 1.3 : 1,
-      duration: big ? 900 : 700,
+      duration: durationMs ?? (big ? 900 : 700),
       ease: 'Quad.Out',
       onComplete: () => {
         slot.busy = false;
