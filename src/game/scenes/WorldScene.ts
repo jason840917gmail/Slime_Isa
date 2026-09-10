@@ -59,6 +59,7 @@ import { CollectibleEventChannel } from '../features/collectibles/CollectibleEve
 import { CollectibleReactionController } from '../features/collectibles/CollectibleReactionController';
 import { WorldDropSpawner } from '../features/collectibles/WorldDropSpawner';
 import { InventoryDropController } from '../features/collectibles/InventoryDropController';
+import type { InventoryDropCellInspection } from '../features/collectibles/InventoryDropPlacement';
 import { OcclusionController } from '../features/occlusion/OcclusionController';
 import { DepthDiagnostics } from '../features/occlusion/DepthDiagnostics';
 import { MapBuilder, type BuiltMap } from '../features/world/MapBuilder';
@@ -636,9 +637,9 @@ export class WorldScene extends Phaser.Scene {
       inventory: playerInventory,
       getPlayerAnchor: () => ({ x: this.player.x, y: this.player.y }),
       getFacing: () => this.facingDirection(),
-      isCellBlocked: (cellX, cellY) => this.isInventoryDropCellBlocked(cellX, cellY),
+      inspectCell: (itemId, cellX, cellY) => this.inspectInventoryDropCell(itemId, cellX, cellY),
       spawnWorldDrop: (request) => this.worldDrops!.spawn(request),
-      showMessage: (message) => floatingText.spawn(this, this.player.x, this.player.y - 42, message, 'white', true),
+      showMessage: (message) => floatingText.spawn(this, this.player.x, this.player.y - 42, message, 'white', true, 1800),
       progress: worldProgress,
     });
     this.builtMap = mapBuilder.build();
@@ -900,17 +901,20 @@ export class WorldScene extends Phaser.Scene {
     });
   }
 
-  private isInventoryDropCellBlocked(cellX: number, cellY: number): boolean {
-    if (this.isResourceDropCellBlocked(cellX, cellY, '__inventory-drop__')) return true;
-    return this.collectibleTargets.getChildren().some((child) => {
+  private inspectInventoryDropCell(itemId: string, cellX: number, cellY: number): InventoryDropCellInspection {
+    if (this.isResourceDropCellBlocked(cellX, cellY, '__inventory-drop__')) return { kind: 'blocked' };
+    const settled = this.collectibles?.inspectCell(itemId, cellX, cellY, this.worldDimensions.tileSize);
+    if (settled && settled.kind !== 'open') return settled;
+    const hasUnregisteredDrop = this.collectibleTargets.getChildren().some((child) => {
       const image = child as Phaser.GameObjects.Image;
-      if (!image.active) return false;
+      if (!image.active || image.getData('collectibleInstanceId')) return false;
       const anchorX = image.getData('objectAnchorX');
       const anchorY = image.getData('objectAnchorY');
       if (!Number.isFinite(anchorX) || !Number.isFinite(anchorY)) return false;
       return Math.floor(anchorX / this.worldDimensions.tileSize) === cellX
         && Math.floor(anchorY / this.worldDimensions.tileSize) - 1 === cellY;
     });
+    return hasUnregisteredDrop ? { kind: 'blocked' } : { kind: 'open' };
   }
 
   private playAnimation(key: string, forceRestart = false): void {

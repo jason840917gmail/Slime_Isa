@@ -4,6 +4,7 @@ import { getObjectArchetype, isObjectArchetypeId } from '../../content/objects/O
 import type { CollectibleCollectedPayload } from '../../core/EventBus';
 import type { CollectibleProgressState } from '../progression/WorldProgress';
 import type { BuiltObjectRegistration } from '../world/MapBuilder';
+import type { InventoryDropCellInspection } from './InventoryDropPlacement';
 
 export interface CollectibleStateChange {
   readonly instanceId: string;
@@ -80,12 +81,9 @@ export class CollectibleController {
       ...(sourceResourceInstanceId ? { sourceResourceInstanceId } : {}),
       ...(sourceInventoryDropId ? { sourceInventoryDropId } : {}),
     };
+    if (record.remaining > 0 && this.mergeIntoExisting(record)) return;
     this.records.set(image, record);
-    image.setData('collectibleInstanceId', registration.instanceId);
-    image.setData('collectibleItemId', record.itemId);
-    image.setData('collectibleQuantity', record.remaining);
-    image.setData('collectibleSourceResourceInstanceId', sourceResourceInstanceId);
-    image.setData('collectibleSourceInventoryDropId', sourceInventoryDropId);
+    this.syncImageData(record);
 
     if (record.remaining <= 0) {
       this.remove(record);
@@ -108,18 +106,8 @@ export class CollectibleController {
     const messageX = record.image.x;
     const messageY = record.image.y - 34;
     record.remaining -= added;
-    record.image.setData('collectibleQuantity', record.remaining);
-    this.ctx.progress.setCollectibleState(this.ctx.mapId, record.instanceId, {
-      remaining: record.remaining,
-      ...(record.sourceResourceInstanceId ? { sourceResourceInstanceId: record.sourceResourceInstanceId } : {}),
-      ...(record.sourceInventoryDropId ? { sourceInventoryDropId: record.sourceInventoryDropId } : {}),
-    });
-    this.ctx.onStateChanged?.({
-      instanceId: record.instanceId,
-      remaining: record.remaining,
-      ...(record.sourceResourceInstanceId ? { sourceResourceInstanceId: record.sourceResourceInstanceId } : {}),
-      ...(record.sourceInventoryDropId ? { sourceInventoryDropId: record.sourceInventoryDropId } : {}),
-    });
+    this.syncImageData(record);
+    this.persistAndNotify(record);
     const payload: CollectibleCollectedPayload = {
       mapId: this.ctx.mapId,
       instanceId: record.instanceId,
@@ -136,9 +124,61 @@ export class CollectibleController {
     this.records.clear();
   }
 
+  inspectCell(itemId: string, cellX: number, cellY: number, tileSize: number): InventoryDropCellInspection {
+    const occupants = [...this.records.values()].filter((record) => record.image.active
+      && Math.floor(record.image.x / tileSize) === cellX
+      && Math.floor(record.image.y / tileSize) - 1 === cellY);
+    if (occupants.length === 0) return { kind: 'open' };
+    const stack = occupants.find((record) => record.itemId === itemId && this.isDynamic(record));
+    if (!stack || occupants.some((record) => record.itemId !== itemId || !this.isDynamic(record))) {
+      return { kind: 'blocked' };
+    }
+    return { kind: 'compatible-stack', destination: { x: stack.image.x, y: stack.image.y } };
+  }
+
   private remove(record: CollectibleRecord): void {
     this.records.delete(record.image);
     this.ctx.group.remove(record.image, true, true);
+  }
+
+  private mergeIntoExisting(incoming: CollectibleRecord): boolean {
+    if (!this.isDynamic(incoming)) return false;
+    const target = [...this.records.values()].find((record) => record.image.active
+      && record.itemId === incoming.itemId
+      && this.isDynamic(record)
+      && Math.floor(record.image.x) === Math.floor(incoming.image.x)
+      && Math.floor(record.image.y) === Math.floor(incoming.image.y));
+    if (!target) return false;
+
+    target.remaining += incoming.remaining;
+    this.syncImageData(target);
+    this.persistAndNotify(target);
+    incoming.remaining = 0;
+    this.persistAndNotify(incoming);
+    this.ctx.group.remove(incoming.image, true, true);
+    return true;
+  }
+
+  private isDynamic(record: CollectibleRecord): boolean {
+    return Boolean(record.sourceResourceInstanceId || record.sourceInventoryDropId);
+  }
+
+  private syncImageData(record: CollectibleRecord): void {
+    record.image.setData('collectibleInstanceId', record.instanceId);
+    record.image.setData('collectibleItemId', record.itemId);
+    record.image.setData('collectibleQuantity', record.remaining);
+    record.image.setData('collectibleSourceResourceInstanceId', record.sourceResourceInstanceId);
+    record.image.setData('collectibleSourceInventoryDropId', record.sourceInventoryDropId);
+  }
+
+  private persistAndNotify(record: CollectibleRecord): void {
+    const state = {
+      remaining: record.remaining,
+      ...(record.sourceResourceInstanceId ? { sourceResourceInstanceId: record.sourceResourceInstanceId } : {}),
+      ...(record.sourceInventoryDropId ? { sourceInventoryDropId: record.sourceInventoryDropId } : {}),
+    };
+    this.ctx.progress.setCollectibleState(this.ctx.mapId, record.instanceId, state);
+    this.ctx.onStateChanged?.({ instanceId: record.instanceId, ...state });
   }
 
   private positiveIntegerState(value: unknown, fallback: number): number {

@@ -395,7 +395,7 @@ function inventoryDropHarness({ blocked = false, throwOnSpawn = false, throwOnPe
     inventory,
     getPlayerAnchor: () => ({ x: 160, y: 192 }),
     getFacing: () => 'right',
-    isCellBlocked: () => blocked,
+    inspectCell: () => ({ kind: blocked ? 'blocked' : 'open' }),
     spawnWorldDrop(request) {
       if (throwOnSpawn) throw new Error('spawn failed');
       requests.push(request);
@@ -416,17 +416,36 @@ test('every current non-equipment item has an explicit valid world-drop presenta
   assert.equal(resolveInventoryDropDefinition('wooden-axe'), undefined);
 });
 
-test('inventory drop placement checks the facing tile first and falls back deterministically', () => {
+test('inventory drop placement searches outward, favors facing, and accepts compatible stacks', () => {
   const dimensions = { tileSize: 64, columns: 20, rows: 20, width: 1280, height: 1280 };
   assert.deepEqual(
-    findInventoryDropDestination({ x: 160, y: 192 }, 'right', dimensions, () => false),
+    findInventoryDropDestination({ x: 160, y: 192 }, 'right', dimensions, () => ({ kind: 'open' })),
     { x: 288, y: 192 },
   );
   assert.deepEqual(
-    findInventoryDropDestination({ x: 160, y: 192 }, 'right', dimensions, (x, y) => x === 4 && y === 2),
-    { x: 160, y: 64 },
+    findInventoryDropDestination(
+      { x: 160, y: 192 },
+      'right',
+      dimensions,
+      (x, y) => ({ kind: x === 5 && y === 2 ? 'open' : 'blocked' }),
+    ),
+    { x: 352, y: 192 },
   );
-  assert.equal(findInventoryDropDestination({ x: 160, y: 192 }, 'right', dimensions, () => true), undefined);
+  assert.deepEqual(
+    findInventoryDropDestination(
+      { x: 160, y: 192 },
+      'right',
+      dimensions,
+      (x, y) => x === 4 && y === 1
+        ? { kind: 'compatible-stack', destination: { x: 301, y: 190 } }
+        : { kind: 'open' },
+    ),
+    { x: 301, y: 190 },
+  );
+  assert.equal(
+    findInventoryDropDestination({ x: 160, y: 192 }, 'right', dimensions, () => ({ kind: 'blocked' })),
+    undefined,
+  );
 });
 
 test('inventory drops remove, persist, launch, update after collection, and keep IDs monotonic', () => {
@@ -456,13 +475,13 @@ test('inventory drops remove, persist, launch, update after collection, and keep
   assert.equal(state.requests[1].drop.instanceId, 'inventory-drop-2');
 });
 
-test('inventory drops reserve their landing cells while earlier drops are still launching', () => {
+test('rapid same-item inventory drops converge on the earlier landing cell', () => {
   const state = inventoryDropHarness();
   assert.equal(state.controller.dropFromSlot(0, 1), true);
   assert.equal(state.controller.dropFromSlot(0, 1), true);
   assert.deepEqual(state.requests.map((request) => request.destination), [
     { x: 288, y: 192 },
-    { x: 160, y: 64 },
+    { x: 288, y: 192 },
   ]);
 });
 
@@ -470,7 +489,7 @@ test('inventory drop failure and blocked placement preserve inventory', () => {
   const blocked = inventoryDropHarness({ blocked: true });
   assert.equal(blocked.controller.dropFromSlot(0, 5), false);
   assert.deepEqual(blocked.slots, [{ itemId: 'wood', count: 12 }]);
-  assert.equal(blocked.messages.at(-1), 'No clear ground nearby');
+  assert.equal(blocked.messages.at(-1), 'No ground space available');
 
   const failed = inventoryDropHarness({ throwOnSpawn: true });
   assert.equal(failed.controller.dropFromSlot(0, 5), false);
@@ -495,7 +514,7 @@ test('inventory drop restoration uses settled mode and persisted quantities', ()
     dimensions: { tileSize: 64, columns: 20, rows: 20, width: 1280, height: 1280 },
     inventory: { getSlots: () => [], removeFromSlot: () => 0, add: () => 0 },
     getPlayerAnchor: () => ({ x: 0, y: 0 }), getFacing: () => 'down',
-    isCellBlocked: () => false,
+    inspectCell: () => ({ kind: 'open' }),
     spawnWorldDrop: (request) => { requests.push(request); return { active: true }; },
     showMessage: () => {},
     progress,
@@ -504,4 +523,69 @@ test('inventory drop restoration uses settled mode and persisted quantities', ()
   assert.equal(requests.length, 1);
   assert.equal(requests[0].mode, 'settled');
   assert.equal(requests[0].drop.initialState.remaining, 9);
+});
+
+test('same-item dynamic collectibles merge quantities when the incoming drop lands', () => {
+  const children = [];
+  const persisted = new Map();
+  const changes = [];
+  const makeImage = () => ({
+    active: true,
+    x: 288,
+    y: 192,
+    data: new Map(),
+    setData(key, value) { this.data.set(key, value); return this; },
+    destroy() { this.active = false; },
+  });
+  const group = {
+    getChildren: () => children,
+    add(image) { children.push(image); },
+    remove(image, _remove, destroy) {
+      const index = children.indexOf(image);
+      if (index >= 0) children.splice(index, 1);
+      if (destroy) image.destroy();
+    },
+  };
+  const controller = new CollectibleController({
+    scene: { time: { now: 0 } },
+    mapId: 'level-1',
+    group,
+    inventory: { add: () => 0 },
+    progress: {
+      collectibleState: () => undefined,
+      setCollectibleState(_mapId, id, state) { persisted.set(id, state); },
+    },
+    publisher: { publishCollected: () => {} },
+    showMessage: () => {},
+    onStateChanged: (change) => changes.push(change),
+  });
+  const resourceImage = makeImage();
+  const inventoryImage = makeImage();
+  controller.register({
+    image: resourceImage,
+    objectId: 'collectible.wood-pile',
+    instanceId: 'tree-1-drop-1',
+    initialState: { remaining: 3, sourceResourceInstanceId: 'tree-1' },
+  });
+  assert.deepEqual(controller.inspectCell('wood', 4, 2, 64), {
+    kind: 'compatible-stack', destination: { x: 288, y: 192 },
+  });
+  assert.deepEqual(controller.inspectCell('stone', 4, 2, 64), { kind: 'blocked' });
+
+  controller.register({
+    image: inventoryImage,
+    objectId: 'collectible.wood-pile',
+    instanceId: 'inventory-drop-1',
+    initialState: { remaining: 5, sourceInventoryDropId: 'inventory-drop-1' },
+  });
+
+  assert.equal(resourceImage.data.get('collectibleQuantity'), 8);
+  assert.equal(inventoryImage.active, false);
+  assert.deepEqual(children, [resourceImage]);
+  assert.equal(persisted.get('tree-1-drop-1').remaining, 8);
+  assert.equal(persisted.get('inventory-drop-1').remaining, 0);
+  assert.deepEqual(changes.map((change) => [change.instanceId, change.remaining]), [
+    ['tree-1-drop-1', 8],
+    ['inventory-drop-1', 0],
+  ]);
 });
