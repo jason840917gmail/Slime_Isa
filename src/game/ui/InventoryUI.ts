@@ -28,6 +28,8 @@ export interface InventoryUIContext {
   onUseItem: (itemId: string) => void;
   onEquipWeapon: (weaponId: string) => void;
   onAssignWeapon: (weaponId: string, slotIndex: number) => void;
+  canDropItem: (itemId: string) => boolean;
+  onDropItem: (slotIndex: number, quantity: number) => boolean;
 }
 
 export class InventoryUI {
@@ -282,7 +284,7 @@ export class InventoryUI {
         color: '#6f8794',
       }).setOrigin(0, 0.5));
     } else {
-      const quantityY = y + height - 94;
+      const quantityY = y + height - 132;
       this.addButton(x + 16, quantityY, 36, 30, '-10', 0x2b6070, () => this.adjustRemoveQuantity(-10, count));
       this.addButton(x + 56, quantityY, 30, 30, '-1', 0x2b6070, () => this.adjustRemoveQuantity(-1, count));
       this.container.add(scene.add.text(x + 112, quantityY + 15, `${this.removeQuantity}`, {
@@ -293,7 +295,15 @@ export class InventoryUI {
       this.addButton(x + 138, quantityY, 30, 30, '+1', 0x2b6070, () => this.adjustRemoveQuantity(1, count));
       this.addButton(x + 172, quantityY, 46, 30, '+10', 0x2b6070, () => this.adjustRemoveQuantity(10, count));
 
+      const dropY = y + height - 94;
       const actionY = y + height - 52;
+      const canDrop = this.ctx.canDropItem(def.id);
+      this.addButton(x + 16, dropY, 120, 34, `Drop ${this.removeQuantity}`, 0x86f0c3, canDrop
+        ? () => this.dropSelected(false)
+        : undefined);
+      this.addButton(x + 140, dropY, 78, 34, 'Drop All', 0x63d8aa, canDrop
+        ? () => this.dropSelected(true)
+        : undefined);
       if (def.use) {
         this.addButton(x + 16, actionY, 58, 34, 'Use', 0x86f0c3, () => {
           if (this.selectedItemId) this.ctx.onUseItem(this.selectedItemId);
@@ -327,6 +337,16 @@ export class InventoryUI {
       this.removeQuantity = Math.min(this.removeQuantity, available - quantity);
     }
     playerInventory.removeFromSlot(slotIndex, quantity);
+  }
+
+  private dropSelected(dropAll: boolean): void {
+    if (this.selectedItemId === undefined || this.selectedSlotIndex === undefined) return;
+    const selectedSlot = playerInventory.getSlots()[this.selectedSlotIndex];
+    if (!selectedSlot || selectedSlot.itemId !== this.selectedItemId) return;
+    const quantity = dropAll
+      ? selectedSlot.count
+      : Phaser.Math.Clamp(this.removeQuantity, 1, selectedSlot.count);
+    if (this.ctx.onDropItem(this.selectedSlotIndex, quantity)) this.close();
   }
 
   private addButton(x: number, y: number, width: number, height: number, label: string, color: number, onClick?: () => void): void {

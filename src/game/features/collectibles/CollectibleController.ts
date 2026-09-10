@@ -9,6 +9,7 @@ export interface CollectibleStateChange {
   readonly instanceId: string;
   readonly remaining: number;
   readonly sourceResourceInstanceId?: string;
+  readonly sourceInventoryDropId?: string;
 }
 
 export interface CollectibleEventPublisher {
@@ -22,6 +23,7 @@ interface CollectibleRecord {
   readonly itemId: string;
   remaining: number;
   readonly sourceResourceInstanceId?: string;
+  readonly sourceInventoryDropId?: string;
 }
 
 export interface CollectibleControllerContext {
@@ -59,11 +61,16 @@ export class CollectibleController {
     const sourceResourceInstanceId = typeof initialState.sourceResourceInstanceId === 'string'
       ? initialState.sourceResourceInstanceId
       : savedState?.sourceResourceInstanceId;
+    const sourceInventoryDropId = typeof initialState.sourceInventoryDropId === 'string'
+      ? initialState.sourceInventoryDropId
+      : savedState?.sourceInventoryDropId;
     const rawRemaining = this.nonNegativeIntegerState(
       savedState?.remaining ?? initialState.remaining,
       quantity,
     );
-    const remaining = sourceResourceInstanceId ? rawRemaining : Math.min(quantity, rawRemaining);
+    const remaining = sourceResourceInstanceId || sourceInventoryDropId
+      ? rawRemaining
+      : Math.min(quantity, rawRemaining);
     const record: CollectibleRecord = {
       image,
       objectId: registration.objectId,
@@ -71,12 +78,14 @@ export class CollectibleController {
       itemId,
       remaining,
       ...(sourceResourceInstanceId ? { sourceResourceInstanceId } : {}),
+      ...(sourceInventoryDropId ? { sourceInventoryDropId } : {}),
     };
     this.records.set(image, record);
     image.setData('collectibleInstanceId', registration.instanceId);
     image.setData('collectibleItemId', record.itemId);
     image.setData('collectibleQuantity', record.remaining);
     image.setData('collectibleSourceResourceInstanceId', sourceResourceInstanceId);
+    image.setData('collectibleSourceInventoryDropId', sourceInventoryDropId);
 
     if (record.remaining <= 0) {
       this.remove(record);
@@ -103,11 +112,13 @@ export class CollectibleController {
     this.ctx.progress.setCollectibleState(this.ctx.mapId, record.instanceId, {
       remaining: record.remaining,
       ...(record.sourceResourceInstanceId ? { sourceResourceInstanceId: record.sourceResourceInstanceId } : {}),
+      ...(record.sourceInventoryDropId ? { sourceInventoryDropId: record.sourceInventoryDropId } : {}),
     });
     this.ctx.onStateChanged?.({
       instanceId: record.instanceId,
       remaining: record.remaining,
       ...(record.sourceResourceInstanceId ? { sourceResourceInstanceId: record.sourceResourceInstanceId } : {}),
+      ...(record.sourceInventoryDropId ? { sourceInventoryDropId: record.sourceInventoryDropId } : {}),
     });
     const payload: CollectibleCollectedPayload = {
       mapId: this.ctx.mapId,

@@ -1,6 +1,7 @@
 # Inventory World Drops Implementation Plan
 
 **Design:** `docs/superpowers/specs/2026-09-10-inventory-world-drops-design.md`
+**Status:** Complete on 2026-09-10.
 
 ## Sequence
 

@@ -42,6 +42,11 @@ export interface ItemDef {
   equipment?: {
     weaponId: string;
   };
+  /** Explicit catalog presentation used when this item is dropped into the world. */
+  worldDrop?: {
+    objectId: string;
+    visualId: string;
+  };
 }
 
 export interface ItemUse {

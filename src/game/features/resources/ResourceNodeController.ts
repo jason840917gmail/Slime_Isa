@@ -170,9 +170,8 @@ export class ResourceNodeController {
       this.ctx.targetGroup.remove(record.image, false, false);
       const body = record.image.body as Phaser.Physics.Arcade.StaticBody | Phaser.Physics.Arcade.Body | null;
       if (body) body.enable = false;
-      // Keep the zero-health node recoverable until the drop list is authored
-      // and persisted by completeDepletion(). A quit during the hit animation
-      // will rebuild the drops instead of silently consuming them.
+      // Keep the zero-health node recoverable until completeDepletion() authors
+      // and persists the drop list in the same combat resolution.
       this.saveState(record, 'node', 0);
     }
     const result = acceptedDamage(before, record.health);

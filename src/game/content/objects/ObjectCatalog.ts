@@ -6,6 +6,10 @@ import worldWallSolidJson from './rocks/rock-world-wall-solid.json';
 import purpleBerryJson from './collectibles/collectible-purple-berry.json';
 import charcoalPileJson from './collectibles/collectible-charcoal-pile.json';
 import ironOrePileJson from './collectibles/collectible-iron-ore-pile.json';
+import hpPotionJson from './collectibles/collectible-hp-potion.json';
+import energyPotionJson from './collectibles/collectible-energy-potion.json';
+import silkClumpJson from './collectibles/collectible-silk-clump.json';
+import crystalShardJson from './collectibles/collectible-crystal-shard.json';
 import smallStonePileJson from './collectibles/collectible-small-stone-pile.json';
 import smallWoodPileJson from './collectibles/collectible-small-wood-pile.json';
 import decorationWorldFloorJson from './decorations/decoration-world-floor.json';
@@ -115,6 +119,10 @@ export interface ObjectArchetypeDefinition {
 const OBJECT_FILES = {
   'collectible.charcoal-pile': charcoalPileJson,
   'collectible.iron-ore-pile': ironOrePileJson,
+  'collectible.hp-potion': hpPotionJson,
+  'collectible.energy-potion': energyPotionJson,
+  'collectible.silk-clump': silkClumpJson,
+  'collectible.crystal-shard': crystalShardJson,
   'collectible.purple-berry': purpleBerryJson,
   'collectible.small-stone-pile': smallStonePileJson,
   'collectible.small-wood-pile': smallWoodPileJson,

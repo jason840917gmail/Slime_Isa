@@ -905,6 +905,34 @@
       ],
       "status": "ready"
     },
+    "collectible.hp-potion": {
+      "source": { "kind": "procedural", "generator": "hp-potion" },
+      "runtime": { "textureKey": "hp-potion" },
+      "render": { "origin": [0.5, 1] },
+      "tags": ["object", "collectible", "consumable"],
+      "status": "ready"
+    },
+    "collectible.energy-potion": {
+      "source": { "kind": "procedural", "generator": "energy-potion" },
+      "runtime": { "textureKey": "energy-potion" },
+      "render": { "origin": [0.5, 1] },
+      "tags": ["object", "collectible", "consumable"],
+      "status": "ready"
+    },
+    "collectible.silk-clump": {
+      "source": { "kind": "procedural", "generator": "silk-clump" },
+      "runtime": { "textureKey": "silk-clump" },
+      "render": { "origin": [0.5, 1] },
+      "tags": ["object", "collectible", "material"],
+      "status": "ready"
+    },
+    "collectible.crystal-shard": {
+      "source": { "kind": "procedural", "generator": "shard" },
+      "runtime": { "textureKey": "shard" },
+      "render": { "origin": [0.5, 1] },
+      "tags": ["object", "collectible", "material"],
+      "status": "ready"
+    },
     "collectible.purple-berry": {
       "source": {
         "kind": "procedural",

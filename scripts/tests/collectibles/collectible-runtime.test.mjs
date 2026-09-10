@@ -25,6 +25,10 @@ const { CollectibleController } = await vite.ssrLoadModule('/src/game/features/c
 const { CollectibleEventChannel } = await vite.ssrLoadModule('/src/game/features/collectibles/CollectibleEventChannel.ts');
 const { CollectibleReactionController } = await vite.ssrLoadModule('/src/game/features/collectibles/CollectibleReactionController.ts');
 const { WorldDropSpawner } = await vite.ssrLoadModule('/src/game/features/collectibles/WorldDropSpawner.ts');
+const { InventoryDropController } = await vite.ssrLoadModule('/src/game/features/collectibles/InventoryDropController.ts');
+const { findInventoryDropDestination } = await vite.ssrLoadModule('/src/game/features/collectibles/InventoryDropPlacement.ts');
+const { resolveInventoryDropDefinition } = await vite.ssrLoadModule('/src/game/content/items/InventoryDropCatalog.ts');
+const { getBaseItemDefinitions } = await vite.ssrLoadModule('/src/game/content/items/ItemCatalog.ts');
 const {
   resolveWorldDropArcHeight,
   resolveWorldDropTrajectory,
@@ -340,4 +344,164 @@ test('world drop motion failure settles safely and teardown cancels delayed laun
   assert.equal(delayed.image.active, false);
   assert.equal(delayed.registered.length, 0);
   assert.throws(() => delayed.spawner.spawn(worldDropRequest()), /after destroy/);
+});
+
+function inventoryDropProgress(initial = [], nextSequence = 1) {
+  const records = new Map(initial.map((record) => [record.id, { ...record }]));
+  let sequence = nextSequence;
+  return {
+    inventoryDrops: () => [...records.values()].map((record) => ({ ...record })),
+    createInventoryDrop(_mapId, drop) {
+      const record = { ...drop, id: `inventory-drop-${sequence}` };
+      sequence += 1;
+      records.set(record.id, record);
+      return { ...record };
+    },
+    setInventoryDropAmount(_mapId, instanceId, amount) {
+      const record = records.get(instanceId);
+      if (!record) return;
+      if (amount > 0) records.set(instanceId, { ...record, amount });
+      else records.delete(instanceId);
+    },
+  };
+}
+
+function inventoryDropHarness({ blocked = false, throwOnSpawn = false, throwOnPersist = false } = {}) {
+  const progress = inventoryDropProgress();
+  if (throwOnPersist) progress.createInventoryDrop = () => { throw new Error('persist failed'); };
+  const slots = [{ itemId: 'wood', count: 12 }];
+  const requests = [];
+  const messages = [];
+  const inventory = {
+    getSlots: () => slots,
+    removeFromSlot(index, count) {
+      const slot = slots[index];
+      if (!slot) return 0;
+      const removed = Math.min(slot.count, count);
+      slot.count -= removed;
+      if (slot.count === 0) slots.splice(index, 1);
+      return removed;
+    },
+    add(itemId, count) {
+      const slot = slots.find((entry) => entry.itemId === itemId);
+      if (slot) slot.count += count;
+      else slots.push({ itemId, count });
+      return count;
+    },
+  };
+  const controller = new InventoryDropController({
+    mapId: 'level-1',
+    dimensions: { tileSize: 64, columns: 20, rows: 20, width: 1280, height: 1280 },
+    inventory,
+    getPlayerAnchor: () => ({ x: 160, y: 192 }),
+    getFacing: () => 'right',
+    isCellBlocked: () => blocked,
+    spawnWorldDrop(request) {
+      if (throwOnSpawn) throw new Error('spawn failed');
+      requests.push(request);
+      return { active: true };
+    },
+    showMessage: (message) => messages.push(message),
+    progress,
+  });
+  return { controller, slots, requests, messages, progress };
+}
+
+test('every current non-equipment item has an explicit valid world-drop presentation', () => {
+  const stackableItems = Object.values(getBaseItemDefinitions()).filter((item) => !item.equipment);
+  assert.ok(stackableItems.length > 0);
+  for (const item of stackableItems) {
+    assert.ok(resolveInventoryDropDefinition(item.id), `missing world drop for ${item.id}`);
+  }
+  assert.equal(resolveInventoryDropDefinition('wooden-axe'), undefined);
+});
+
+test('inventory drop placement checks the facing tile first and falls back deterministically', () => {
+  const dimensions = { tileSize: 64, columns: 20, rows: 20, width: 1280, height: 1280 };
+  assert.deepEqual(
+    findInventoryDropDestination({ x: 160, y: 192 }, 'right', dimensions, () => false),
+    { x: 288, y: 192 },
+  );
+  assert.deepEqual(
+    findInventoryDropDestination({ x: 160, y: 192 }, 'right', dimensions, (x, y) => x === 4 && y === 2),
+    { x: 160, y: 64 },
+  );
+  assert.equal(findInventoryDropDestination({ x: 160, y: 192 }, 'right', dimensions, () => true), undefined);
+});
+
+test('inventory drops remove, persist, launch, update after collection, and keep IDs monotonic', () => {
+  const state = inventoryDropHarness();
+  assert.equal(state.controller.dropFromSlot(0, 5), true);
+  assert.deepEqual(state.slots, [{ itemId: 'wood', count: 7 }]);
+  assert.equal(state.requests.length, 1);
+  assert.equal(state.requests[0].mode, 'launch');
+  assert.equal(state.requests[0].drop.initialState.remaining, 5);
+  assert.equal(state.requests[0].drop.instanceId, 'inventory-drop-1');
+  assert.equal(state.progress.inventoryDrops('level-1')[0].amount, 5);
+
+  state.controller.onCollectibleStateChanged({
+    instanceId: 'inventory-drop-1',
+    sourceInventoryDropId: 'inventory-drop-1',
+    remaining: 2,
+  });
+  assert.equal(state.progress.inventoryDrops('level-1')[0].amount, 2);
+  state.controller.onCollectibleStateChanged({
+    instanceId: 'inventory-drop-1',
+    sourceInventoryDropId: 'inventory-drop-1',
+    remaining: 0,
+  });
+  assert.equal(state.progress.inventoryDrops('level-1').length, 0);
+
+  assert.equal(state.controller.dropFromSlot(0, 1), true);
+  assert.equal(state.requests[1].drop.instanceId, 'inventory-drop-2');
+});
+
+test('inventory drops reserve their landing cells while earlier drops are still launching', () => {
+  const state = inventoryDropHarness();
+  assert.equal(state.controller.dropFromSlot(0, 1), true);
+  assert.equal(state.controller.dropFromSlot(0, 1), true);
+  assert.deepEqual(state.requests.map((request) => request.destination), [
+    { x: 288, y: 192 },
+    { x: 160, y: 64 },
+  ]);
+});
+
+test('inventory drop failure and blocked placement preserve inventory', () => {
+  const blocked = inventoryDropHarness({ blocked: true });
+  assert.equal(blocked.controller.dropFromSlot(0, 5), false);
+  assert.deepEqual(blocked.slots, [{ itemId: 'wood', count: 12 }]);
+  assert.equal(blocked.messages.at(-1), 'No clear ground nearby');
+
+  const failed = inventoryDropHarness({ throwOnSpawn: true });
+  assert.equal(failed.controller.dropFromSlot(0, 5), false);
+  assert.deepEqual(failed.slots, [{ itemId: 'wood', count: 12 }]);
+  assert.equal(failed.progress.inventoryDrops('level-1').length, 0);
+  assert.equal(failed.messages.at(-1), 'Could not drop item');
+
+  const persistFailed = inventoryDropHarness({ throwOnPersist: true });
+  assert.equal(persistFailed.controller.dropFromSlot(0, 5), false);
+  assert.deepEqual(persistFailed.slots, [{ itemId: 'wood', count: 12 }]);
+  assert.equal(persistFailed.messages.at(-1), 'Could not drop item');
+});
+
+test('inventory drop restoration uses settled mode and persisted quantities', () => {
+  const progress = inventoryDropProgress([{
+    id: 'inventory-drop-4', itemId: 'stone', amount: 9,
+    objectId: 'collectible.stone-pile', visualId: 'stone-pile', x: 320, y: 448,
+  }], 5);
+  const requests = [];
+  const controller = new InventoryDropController({
+    mapId: 'level-1',
+    dimensions: { tileSize: 64, columns: 20, rows: 20, width: 1280, height: 1280 },
+    inventory: { getSlots: () => [], removeFromSlot: () => 0, add: () => 0 },
+    getPlayerAnchor: () => ({ x: 0, y: 0 }), getFacing: () => 'down',
+    isCellBlocked: () => false,
+    spawnWorldDrop: (request) => { requests.push(request); return { active: true }; },
+    showMessage: () => {},
+    progress,
+  });
+  controller.restore();
+  assert.equal(requests.length, 1);
+  assert.equal(requests[0].mode, 'settled');
+  assert.equal(requests[0].drop.initialState.remaining, 9);
 });

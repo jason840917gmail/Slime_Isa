@@ -11,6 +11,7 @@ import {
   isRecord,
   type GameSaveData,
   type CollectibleProgressStateData,
+  type InventoryWorldDropProgressData,
   type MapRuntimeStateData,
   type NamedSaveMetadata,
   type NamedSaveSnapshot,
@@ -121,13 +122,32 @@ function mapWorld(value: unknown, storage: StorageLike | null): WorldProgressDat
               remaining: collectible.remaining,
               ...(typeof collectible.sourceResourceInstanceId === 'string'
                 ? { sourceResourceInstanceId: collectible.sourceResourceInstanceId } : {}),
+              ...(typeof collectible.sourceInventoryDropId === 'string'
+                ? { sourceInventoryDropId: collectible.sourceInventoryDropId } : {}),
             };
           }
         }
       }
+      const inventoryDrops = isRecord(candidate.inventoryDrops)
+        ? Object.fromEntries(Object.entries(candidate.inventoryDrops)
+          .filter((entry): entry is [string, InventoryWorldDropProgressData] => isInventoryWorldDrop(entry[1]))
+          .map(([id, drop]) => [id, clone(drop)]))
+        : {};
+      const inferredInventoryDropSequence = Math.max(1, ...Object.keys(inventoryDrops).map((id) => {
+        const match = /^inventory-drop-(\d+)$/.exec(id);
+        return match ? Number(match[1]) + 1 : 1;
+      }));
       maps[mapId] = {
         resources,
         collectibles,
+        inventoryDrops,
+        nextInventoryDropSequence: Math.max(
+          inferredInventoryDropSequence,
+          Number.isInteger(candidate.nextInventoryDropSequence)
+            && (candidate.nextInventoryDropSequence as number) >= 1
+            ? candidate.nextInventoryDropSequence as number
+            : 1,
+        ),
         completedEncounterIds: Array.isArray(candidate.completedEncounterIds) ? candidate.completedEncounterIds.filter(isString) : [],
         openedRewardIds: Array.isArray(candidate.openedRewardIds) ? candidate.openedRewardIds.filter(isString) : [],
         unlockedGateIds: Array.isArray(candidate.unlockedGateIds) ? candidate.unlockedGateIds.filter(isString) : [],
@@ -149,6 +169,18 @@ function mapWorld(value: unknown, storage: StorageLike | null): WorldProgressDat
     }
   }
   return { discoveredAreas, defeatedBossIds, completedDungeonIds, maps };
+}
+
+function isInventoryWorldDrop(value: unknown): value is InventoryWorldDropProgressData {
+  return isRecord(value)
+    && typeof value.id === 'string'
+    && typeof value.itemId === 'string'
+    && Number.isInteger(value.amount)
+    && (value.amount as number) >= 0
+    && typeof value.objectId === 'string'
+    && typeof value.visualId === 'string'
+    && typeof value.x === 'number' && Number.isFinite(value.x)
+    && typeof value.y === 'number' && Number.isFinite(value.y);
 }
 
 function isRuntimeQuestState(value: unknown): value is QuestState {

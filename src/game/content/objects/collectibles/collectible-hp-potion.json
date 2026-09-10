@@ -1,0 +1,13 @@
+{
+  "$schema": "../objects.schema.json",
+  "objectId": "collectible.hp-potion",
+  "selection": "authored",
+  "variants": [{
+    "assetId": "collectible.hp-potion",
+    "frames": [{ "visualId": "hp-potion", "frame": 0, "displayName": "Slime Tonic", "scale": 2 }]
+  }],
+  "physics": null,
+  "behavior": "collectible.walk-over",
+  "collectible": { "itemId": "hp-potion", "quantity": 1 },
+  "tags": ["collectible", "consumable", "potion"]
+}
