@@ -84,6 +84,15 @@ Extend `scripts/tests/collectibles/` to cover:
 Run `pnpm test:collectibles`, `pnpm typecheck`, and `pnpm check`. Manually verify
 tree and stone drops in the running game if browser startup is available.
 
+### 6. Correct lethal resource-hit sequencing
+
+At the combat decision point, keep authored on-hit animation playback only for
+accepted non-lethal resource hits. For an accepted lethal hit, complete
+depletion immediately so the source is removed and its persisted drops begin
+launching without waiting for the on-hit timeline. Preserve the captured
+resource impact anchor so the ordinary confirmed-hit effect can still render
+after source removal. Add focused combat coverage for both branches.
+
 ## Expected file ownership
 
 | Concern | Files |
