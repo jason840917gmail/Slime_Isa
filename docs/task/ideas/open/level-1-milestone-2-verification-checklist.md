@@ -75,9 +75,9 @@ Evidence/notes:
 - [x] Each pile grants its contents exactly once.
 - [x] Collection feedback and inventory counts agree.
 - [x] Quest/event reactions do not double-count collection.
-- [ ] With a full inventory, the untransferred quantity remains in the world.
-- [ ] After freeing inventory capacity, the remaining quantity can be collected.
-- [ ] Saving after partial collection restores the exact remaining quantities.
+- [x] With a full inventory, the untransferred quantity remains in the world.
+- [x] After freeing inventory capacity, the remaining quantity can be collected.
+- [x] Saving after partial collection restores the exact remaining quantities.
 
 Evidence/notes:
 
@@ -94,17 +94,17 @@ Evidence/notes:
 - [x] Stone Axe costs exactly `10 wood + 10 stone`.
 - [x] Stone Pickaxe costs exactly `10 wood + 10 stone`.
 - [x] Stone Spear costs exactly `20 wood + 20 stone`. Issue (the tile is wrong, how is the tile pick, stope tile is in  2nd position )
-- [ ] The initial 40 wood and 20 stone can fund Wooden Spear, Stone Axe, and
+- [x] The initial 40 wood and 20 stone can fund Wooden Spear, Stone Axe, and
   Stone Pickaxe in any order without a permanent softlock.
-- [ ] A failed craft consumes no ingredients and shows one clear reason.
-- [ ] A full-inventory craft consumes no ingredients.
-- [ ] Consumed ingredients may safely free a slot for the crafted output.
-- [ ] Each unique weapon/tool can be crafted only once.
-- [ ] A successful craft emits one inventory change and grants one output.
-- [ ] A crafted weapon/tool is assigned when a loadout slot is available.
-- [ ] When all loadout slots are occupied, the item remains safely owned and the
+- [x] A failed craft consumes no ingredients and shows one clear reason.
+- [x] A full-inventory craft consumes no ingredients.
+- [x] Consumed ingredients may safely free a slot for the crafted output.
+- [x] Each unique weapon/tool can be crafted only once.
+- [x] A successful craft emits one inventory change and grants one output.
+- [x] A crafted weapon/tool is assigned when a loadout slot is available.
+- [x] When all loadout slots are occupied, the item remains safely owned and the
   UI explains that manual assignment is required.
-- [ ] Wrong-context and locked recipes cannot be crafted.
+- [x] Wrong-context and locked recipes cannot be crafted.
 
 Evidence/notes:
 
@@ -112,21 +112,21 @@ Evidence/notes:
 
 ## D. Harvesting gates and resource persistence
 
-- [ ] Innate attacks and spears cannot damage trees.
-- [ ] Innate attacks and spears cannot damage stone nodes.
-- [ ] Stone Pickaxe cannot harvest trees.
-- [ ] Stone Axe cannot harvest stone nodes.
-- [ ] Every wrong-tool attempt shows the authored requirement message.
-- [ ] A rejected hit does not change node life, play a successful-hit effect,
+- [x] Innate attacks and spears cannot damage trees.
+- [x] Innate attacks and spears cannot damage stone nodes.
+- [x] Stone Pickaxe cannot harvest trees.
+- [x] Stone Axe cannot harvest stone nodes.
+- [x] Every wrong-tool attempt shows the authored requirement message.
+- [x] A rejected hit does not change node life, play a successful-hit effect,
   persist damage, or spawn a drop.
-- [ ] Stone Axe damages and depletes trees normally.
-- [ ] Stone Pickaxe damages and depletes stone nodes normally.
-- [ ] Depletion spawns exactly the authored number of collectible pieces.
-- [ ] Drop placement remains deterministic when nearby cells are occupied.
-- [ ] Partially collected generated drops survive save/load with the same
+- [x] Stone Axe damages and depletes trees normally.
+- [x] Stone Pickaxe damages and depletes stone nodes normally.
+- [x] Depletion spawns exactly the authored number of collectible pieces.
+- [x] Drop placement remains deterministic when nearby cells are occupied.
+- [x] Partially collected generated drops survive save/load with the same
   positions and remaining quantities.
-- [ ] Fully depleted sources remain depleted after reload.
-- [ ] Additional harvested materials are sufficient to craft the Stone Spear.
+- [x] Fully depleted sources remain depleted after reload.
+- [x] Additional harvested materials are sufficient to craft the Stone Spear.
 
 Evidence/notes:
 
@@ -134,9 +134,9 @@ Evidence/notes:
 
 ## E. Guarded camp, chest, key, and exit
 
-- [ ] The Level 1 camp uses a persistent `clear-once` encounter mode.
-- [ ] It seeds its authored enemies once when activated.
-- [ ] Defeated camp enemies do not refill.
+- [x] The Level 1 camp uses a persistent `clear-once` encounter mode.
+- [x] It seeds its authored enemies once when activated.
+- [x] Defeated camp enemies do not refill.
 - [ ] Camp completion is emitted exactly once and survives reload.
 - [ ] Loading a completed encounter does not respawn the camp.
 - [ ] The reward chest is locked before camp completion.

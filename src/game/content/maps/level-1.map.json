@@ -4,8 +4,8 @@
   "mapId": "level-1",
   "tileSize": 64,
   "size": {
-    "columns": 24,
-    "rows": 18
+    "columns": 56,
+    "rows": 56
   },
   "layers": [
     {
@@ -15,24 +15,62 @@
         "g": "grass-a"
       },
       "rows": [
-        "gggggggggggggggggggggggg",
-        "gggggggggggggggggggggggg",
-        "gggggggggggggggggggggggg",
-        "gggggggggggggggggggggggg",
-        "gggggggggggggggggggggggg",
-        "gggggggggggggggggggggggg",
-        "gggggggggggggggggggggggg",
-        "gggggggggggggggggggggggg",
-        "gggggggggggggggggggggggg",
-        "gggggggggggggggggggggggg",
-        "gggggggggggggggggggggggg",
-        "gggggggggggggggggggggggg",
-        "gggggggggggggggggggggggg",
-        "gggggggggggggggggggggggg",
-        "gggggggggggggggggggggggg",
-        "gggggggggggggggggggggggg",
-        "gggggggggggggggggggggggg",
-        "gggggggggggggggggggggggg"
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+        "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg"
       ]
     }
   ],
@@ -221,20 +259,10 @@
   "exits": [
     {
       "zone": {
-        "x": 1472,
+        "x": 3520,
         "y": 512,
         "w": 64,
         "h": 128
-      },
-      "to": "gloop-forest",
-      "entry": "west"
-    },
-    {
-      "zone": {
-        "x": 1504,
-        "y": 0,
-        "w": 32,
-        "h": 1152
       },
       "to": "gloop-forest",
       "entry": "west"
@@ -253,17 +281,17 @@
       "id": "level-1-starter-camp",
       "stayPerimeter": {
         "shape": "rectangle",
-        "x": 960,
-        "y": 672,
-        "w": 384,
-        "h": 256
+        "x": 1088,
+        "y": 1483,
+        "w": 280,
+        "h": 181
       },
       "pursuePerimeter": {
         "shape": "rectangle",
-        "x": 896,
-        "y": 608,
-        "w": 512,
-        "h": 384
+        "x": 832,
+        "y": 1291,
+        "w": 600,
+        "h": 437
       },
       "enemies": [
         {

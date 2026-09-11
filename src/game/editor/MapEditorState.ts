@@ -66,6 +66,7 @@ export interface EditorViewState {
   readonly objectVisualId: string;
   readonly direction: MapDirection;
   readonly selectedInstanceId?: string;
+  readonly selectedExitIndex?: number;
   readonly selectedSafeZoneIndex?: number;
   readonly selectedEnemyAreaId?: string;
   readonly selectedNpcWanderAreaId?: string;
@@ -141,6 +142,68 @@ function scaleZone(zone: MapZone, factor: number): MapZone {
   };
 }
 
+const EXIT_EDGE_EPSILON = 1;
+
+function repairExitZone(
+  zone: MapZone,
+  direction: MapDirection,
+  currentMap: Pick<EditableMap, 'size' | 'tileSize'>,
+  nextMap: Pick<EditableMap, 'size' | 'tileSize'>,
+  factor: number,
+): MapZone {
+  const currentWidth = currentMap.size.columns * currentMap.tileSize;
+  const currentHeight = currentMap.size.rows * currentMap.tileSize;
+  const nextWidth = nextMap.size.columns * nextMap.tileSize;
+  const nextHeight = nextMap.size.rows * nextMap.tileSize;
+  const scaledWidth = Math.min(nextWidth, Math.max(1, Math.round(zone.w * factor)));
+  const scaledHeight = Math.min(nextHeight, Math.max(1, Math.round(zone.h * factor)));
+  const scaledX = Math.round(zone.x * factor);
+  const scaledY = Math.round(zone.y * factor);
+
+  if ((direction === 'west' || direction === 'east') && zone.h >= currentHeight - EXIT_EDGE_EPSILON) {
+    return edgeExitZone(direction, nextMap);
+  }
+  if ((direction === 'north' || direction === 'south') && zone.w >= currentWidth - EXIT_EDGE_EPSILON) {
+    return edgeExitZone(direction, nextMap);
+  }
+
+  if (direction === 'west' || direction === 'east') {
+    return {
+      x: direction === 'west' ? 0 : nextWidth - scaledWidth,
+      y: Math.max(0, Math.min(nextHeight - scaledHeight, scaledY)),
+      w: scaledWidth,
+      h: scaledHeight,
+    };
+  }
+  return {
+    x: Math.max(0, Math.min(nextWidth - scaledWidth, scaledX)),
+    y: direction === 'north' ? 0 : nextHeight - scaledHeight,
+    w: scaledWidth,
+    h: scaledHeight,
+  };
+}
+
+function repairExitZones(
+  exits: EditableMap['exits'],
+  currentMap: Pick<EditableMap, 'size' | 'tileSize'>,
+  nextMap: Pick<EditableMap, 'size' | 'tileSize'>,
+  factor: number,
+): EditableMap['exits'] {
+  return exits.map((exit) => {
+    const direction = exitDirection(exit, currentMap);
+    return {
+      ...exit,
+      zone: direction
+        ? repairExitZone(exit.zone, direction, currentMap, nextMap, factor)
+        : scaleZone(exit.zone, factor),
+    };
+  });
+}
+
+function sameMapZone(left: MapZone, right: MapZone): boolean {
+  return left.x === right.x && left.y === right.y && left.w === right.w && left.h === right.h;
+}
+
 function scalePerimeter(perimeter: MapEnemyAreaPerimeter, factor: number): MapEnemyAreaPerimeter {
   if (perimeter.shape === 'circle') {
     return {
@@ -171,6 +234,7 @@ export class MapEditorState {
   private objectVisualIdValue: string;
   private directionValue: MapDirection = 'east';
   private selectedInstanceIdValue?: string;
+  private selectedExitIndexValue?: number;
   private selectedSafeZoneIndexValue?: number;
   private selectedEnemyAreaIdValue?: string;
   private selectedNpcWanderAreaIdValue?: string;
@@ -193,7 +257,14 @@ export class MapEditorState {
     this.mapValue.exits ??= [];
     this.mapValue.enemySafeZones ??= [...structuredClone(map.spawns?.safeZones ?? [])];
     this.mapValue.enemySpawnAreas = (this.mapValue.enemySpawnAreas ?? []).map(normalizeEnemySpawnArea);
-    this.savedSnapshot = serialize(this.mapValue);
+    const authoredSnapshot = serialize(this.mapValue);
+    this.savedSnapshot = authoredSnapshot;
+    const repairedExits = repairExitZones(this.mapValue.exits, this.mapValue, this.mapValue, 1);
+    if (JSON.stringify(repairedExits) !== JSON.stringify(this.mapValue.exits)) {
+      this.mapValue.exits = repairedExits;
+      this.dirtyValue = true;
+      this.statusValue = 'Repaired exit zones; save the map to keep the fix';
+    }
     this.tileIdValue = initialTileId;
     this.objectIdValue = initialObjectId;
     this.objectVisualIdValue = initialObjectVisualId;
@@ -208,6 +279,7 @@ export class MapEditorState {
       objectVisualId: this.objectVisualIdValue,
       direction: this.directionValue,
       selectedInstanceId: this.selectedInstanceIdValue,
+      selectedExitIndex: this.selectedExitIndexValue,
       selectedSafeZoneIndex: this.selectedSafeZoneIndexValue,
       selectedEnemyAreaId: this.selectedEnemyAreaIdValue,
       selectedNpcWanderAreaId: this.selectedNpcWanderAreaIdValue,
@@ -244,10 +316,12 @@ export class MapEditorState {
     if (tool !== 'safe-zone') this.selectedSafeZoneIndexValue = undefined;
     if (tool !== 'enemy-area') this.selectedEnemyAreaIdValue = undefined;
     if (tool !== 'npc-area') this.selectedNpcWanderAreaIdValue = undefined;
-    if (tool === 'select') this.statusValue = 'Drag any highlighted object to move it';
+    if (tool !== 'select' && tool !== 'exit') this.selectedExitIndexValue = undefined;
+    if (tool === 'select') this.statusValue = 'Drag any highlighted object or exit zone to move it';
     else if (tool === 'safe-zone') this.statusValue = 'Drag across tiles to draw a rectangular safe zone';
     else if (tool === 'enemy-area') this.statusValue = `Drag to author a ${this.enemyAreaShapeValue} enemy area`;
     else if (tool === 'npc-area') this.statusValue = `Drag to author a ${this.npcWanderAreaShapeValue} NPC wander area`;
+    else if (tool === 'exit') this.statusValue = 'Select an exit zone and drag it along its map edge';
     else if (tool === 'terrain') this.statusValue = `Drag to paint ${this.tileIdValue}`;
     else if (tool === 'object') this.statusValue = `Drag to stamp ${this.objectIdValue} / ${this.objectVisualIdValue}`;
     else this.statusValue = `${tool} tool active`;
@@ -310,9 +384,7 @@ export class MapEditorState {
       spawn: scalePoint(candidate.player.spawn, tileScale),
       entries: nextEntries,
     };
-    if (candidate.exits) {
-      candidate.exits = candidate.exits.map((exit) => ({ ...exit, zone: scaleZone(exit.zone, tileScale) }));
-    }
+    if (candidate.exits) candidate.exits = repairExitZones(candidate.exits, current, candidate, tileScale);
     if (candidate.enemySafeZones) {
       candidate.enemySafeZones = candidate.enemySafeZones.map((zone) => scaleZone(zone, tileScale));
     }
@@ -369,7 +441,9 @@ export class MapEditorState {
     const label = targetMapId
       ? `Connected ${direction} to ${targetMapId}`
       : `Disconnected ${direction}${previousTarget ? ` from ${previousTarget}` : ''}`;
-    this.mutate(label, (map) => {
+    const hadExitSelection = this.selectedExitIndexValue !== undefined;
+    this.selectedExitIndexValue = undefined;
+    const changed = this.mutate(label, (map) => {
       map.exits = map.exits.filter((exit) => exitDirection(exit, map) !== direction);
       if (!targetMapId) return;
       map.player.entries[direction] ??= edgeEntryPoint(direction, map);
@@ -379,6 +453,7 @@ export class MapEditorState {
         entry: OPPOSITE_DIRECTION[direction],
       });
     });
+    if (!changed && hadExitSelection) this.emit();
   }
 
   setSpawns(spawns?: EditableMap['spawns']): void {
@@ -433,14 +508,67 @@ export class MapEditorState {
 
   selectInstance(instanceId?: string): void {
     this.selectedInstanceIdValue = instanceId;
-    if (instanceId) this.selectedSafeZoneIndexValue = undefined;
+    if (instanceId) {
+      this.selectedExitIndexValue = undefined;
+      this.selectedSafeZoneIndexValue = undefined;
+      this.selectedEnemyAreaIdValue = undefined;
+      this.selectedNpcWanderAreaIdValue = undefined;
+    } else this.selectedExitIndexValue = undefined;
     this.statusValue = instanceId ? `Selected ${instanceId} — drag to move or Delete to remove` : 'Selection cleared';
     this.emit();
   }
 
+  selectExit(index?: number): void {
+    const validIndex = index !== undefined && index >= 0 && index < this.mapValue.exits.length ? index : undefined;
+    this.selectedExitIndexValue = validIndex;
+    if (validIndex !== undefined) {
+      this.selectedInstanceIdValue = undefined;
+      this.selectedSafeZoneIndexValue = undefined;
+      this.selectedEnemyAreaIdValue = undefined;
+      this.selectedNpcWanderAreaIdValue = undefined;
+    }
+    const exit = validIndex === undefined ? undefined : this.mapValue.exits[validIndex];
+    const direction = exit ? exitDirection(exit, this.mapValue) : undefined;
+    this.statusValue = exit
+      ? direction ? `Selected ${direction} exit → ${exit.to} — drag along edge` : `Selected unresolved exit → ${exit.to} — fix its connection first`
+      : 'Exit selection cleared';
+    this.emit();
+  }
+
+  updateExitZone(
+    index: number,
+    expectedRevision: number,
+    expectedExit: EditableMap['exits'][number],
+    zone: MapZone,
+  ): boolean {
+    const current = this.mapValue.exits[index];
+    if (
+      this.revisionValue !== expectedRevision
+      || !current
+      || current.to !== expectedExit.to
+      || current.entry !== expectedExit.entry
+      || !sameMapZone(current.zone, expectedExit.zone)
+    ) {
+      this.selectedExitIndexValue = undefined;
+      this.notify('Exit changed while it was being dragged; select it again');
+      return false;
+    }
+    const changed = this.mutate(`Moved ${exitDirection(current, this.mapValue) ?? 'unresolved'} exit`, (map) => {
+      const exit = map.exits[index];
+      if (exit) exit.zone = { ...zone };
+    });
+    if (changed) this.selectedExitIndexValue = index;
+    return changed;
+  }
+
   selectSafeZone(index?: number): void {
     this.selectedSafeZoneIndexValue = index;
-    if (index !== undefined) this.selectedInstanceIdValue = undefined;
+    if (index !== undefined) {
+      this.selectedInstanceIdValue = undefined;
+      this.selectedExitIndexValue = undefined;
+      this.selectedEnemyAreaIdValue = undefined;
+      this.selectedNpcWanderAreaIdValue = undefined;
+    }
     this.statusValue = index === undefined
       ? 'Safe-zone selection cleared'
       : `Selected safe zone ${index + 1} — drag to move or press Delete to remove`;
@@ -452,6 +580,8 @@ export class MapEditorState {
     if (areaId) {
       this.selectedInstanceIdValue = undefined;
       this.selectedSafeZoneIndexValue = undefined;
+      this.selectedExitIndexValue = undefined;
+      this.selectedNpcWanderAreaIdValue = undefined;
     }
     this.statusValue = areaId
       ? `Selected enemy area ${areaId} — drag to move, resize from a corner, edit, or delete`
@@ -466,6 +596,7 @@ export class MapEditorState {
       this.selectedInstanceIdValue = area?.npcInstanceId ?? this.selectedInstanceIdValue;
       this.selectedSafeZoneIndexValue = undefined;
       this.selectedEnemyAreaIdValue = undefined;
+      this.selectedExitIndexValue = undefined;
     }
     this.statusValue = areaId ? `Selected NPC wander area ${areaId}` : 'NPC wander-area selection cleared';
     this.emit();
@@ -516,6 +647,7 @@ export class MapEditorState {
 
   clearSelection(): void {
     this.selectedInstanceIdValue = undefined;
+    this.selectedExitIndexValue = undefined;
     this.selectedSafeZoneIndexValue = undefined;
     this.selectedEnemyAreaIdValue = undefined;
     this.selectedNpcWanderAreaIdValue = undefined;
@@ -549,6 +681,7 @@ export class MapEditorState {
     this.redoStack.push(serialize(this.mapValue));
     this.mapValue = JSON.parse(previous) as EditableMap;
     this.selectedInstanceIdValue = undefined;
+    this.selectedExitIndexValue = undefined;
     this.selectedSafeZoneIndexValue = undefined;
     this.selectedEnemyAreaIdValue = undefined;
     this.selectedNpcWanderAreaIdValue = undefined;
@@ -564,6 +697,7 @@ export class MapEditorState {
     this.undoStack.push(serialize(this.mapValue));
     this.mapValue = JSON.parse(next) as EditableMap;
     this.selectedInstanceIdValue = undefined;
+    this.selectedExitIndexValue = undefined;
     this.selectedSafeZoneIndexValue = undefined;
     this.selectedEnemyAreaIdValue = undefined;
     this.selectedNpcWanderAreaIdValue = undefined;
@@ -591,7 +725,9 @@ export class MapEditorState {
       this.dirtyValue = false;
       this.statusValue = `Saved ${this.mapValue.mapId}.map.json`;
     } catch (error) {
-      this.statusValue = error instanceof Error ? error.message : String(error);
+      this.statusValue = error instanceof TypeError
+        ? 'Save outcome unknown — reload before retry'
+        : error instanceof Error ? error.message : String(error);
     } finally {
       this.savingValue = false;
       this.emit();
