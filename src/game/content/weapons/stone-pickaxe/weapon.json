@@ -291,7 +291,7 @@
     },
     {
       "targetTag": "enemy",
-      "modifier": 0.2
+      "modifier": 0
     }
   ],
   "harvestCapabilities": {

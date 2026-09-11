@@ -5,6 +5,7 @@ import type {
   MapEnemyAreaPerimeter,
   MapEnemySpawnArea,
   MapNpcWanderArea,
+  MapZone,
 } from '../content/maps/mapFormat';
 import {
   perimeterBounds,
@@ -48,7 +49,7 @@ import type { LoadedMap } from '../infrastructure/maps/MapRepository';
 import { getAsset } from '../infrastructure/assets/manifest';
 import { ENEMY_CONFIGS } from '../enemies/library/EnemyTypes';
 import { AREAS } from '../world/Area';
-import { connectionAt } from './MapConnections';
+import { connectionAt, exitDirection } from './MapConnections';
 import { EDITOR_GEOMETRY_STYLES, EDITOR_SELECTION_STYLE } from './EditorGeometryStyles';
 import { mountMapEditorInspector } from './MapEditorInspector';
 import { mountMapEditorPanel, type ContentPreviewUrls } from './MapEditorPanel';
@@ -138,6 +139,18 @@ interface EnemyAreaResize {
   moved: boolean;
 }
 
+interface ExitMoveDrag {
+  readonly index: number;
+  readonly direction: MapDirection;
+  readonly originalExit: EditableMap['exits'][number];
+  readonly startScreenX: number;
+  readonly startScreenY: number;
+  readonly pointerOffset: number;
+  readonly mapRevision: number;
+  moved: boolean;
+  previewZone?: MapZone;
+}
+
 interface NpcAreaMove {
   readonly id: string;
   readonly perimeter: MapEnemyAreaPerimeter;
@@ -207,6 +220,7 @@ export class MapEditorScene extends Phaser.Scene {
     showOcclusionOverlay: true,
   };
   private lastSelectedInstanceId?: string;
+  private lastSelectedExitIndex?: number;
   private lastSelectedEnemyAreaId?: string;
   private lastSelectedNpcWanderAreaId?: string;
   private lastTool: EditorTool = 'pan';
@@ -214,6 +228,8 @@ export class MapEditorScene extends Phaser.Scene {
   private paintDrag?: PaintDrag;
   private objectStampDrag?: ObjectStampDrag;
   private objectMoveDrag?: ObjectMoveDrag;
+  private exitMoveDrag?: ExitMoveDrag;
+  private exitMoveMarker?: Phaser.GameObjects.Graphics;
   private moveHandles?: Phaser.GameObjects.Graphics;
   private previewTileFactory!: TileFactory;
   private previewObjectFactory!: ObjectFactory;
@@ -302,10 +318,12 @@ export class MapEditorScene extends Phaser.Scene {
     this.unsubscribeState = this.editor.subscribe((state) => {
       const toolChanged = state.tool !== this.lastTool;
       const selectionChanged = state.selectedInstanceId !== this.lastSelectedInstanceId
+        || state.selectedExitIndex !== this.lastSelectedExitIndex
         || state.selectedEnemyAreaId !== this.lastSelectedEnemyAreaId
         || state.selectedNpcWanderAreaId !== this.lastSelectedNpcWanderAreaId;
       this.lastTool = state.tool;
       this.lastSelectedInstanceId = state.selectedInstanceId;
+      this.lastSelectedExitIndex = state.selectedExitIndex;
       this.lastSelectedEnemyAreaId = state.selectedEnemyAreaId;
       this.lastSelectedNpcWanderAreaId = state.selectedNpcWanderAreaId;
       if (state.revision !== this.lastRevision) {
@@ -371,8 +389,14 @@ export class MapEditorScene extends Phaser.Scene {
         this.beginObjectStampDrag(world.x, world.y);
         return;
       }
-      if (this.editor.value.tool === 'select') {
-        this.beginObjectMoveDrag(world.x, world.y);
+      if (this.editor.value.tool === 'select' || this.editor.value.tool === 'exit') {
+        const exitHit = this.exitAt(world.x, world.y);
+        if (exitHit) {
+          this.beginExitMoveDrag(exitHit.index, world.x, world.y, pointer.x, pointer.y);
+          return;
+        }
+        if (this.editor.value.tool === 'select') this.beginObjectMoveDrag(world.x, world.y);
+        else this.applyTool(world.x, world.y);
         return;
       }
       if (this.editor.value.tool === 'erase') {
@@ -434,6 +458,10 @@ export class MapEditorScene extends Phaser.Scene {
         this.updateObjectMoveDrag(world.x, world.y);
         return;
       }
+      if (this.exitMoveDrag) {
+        this.updateExitMoveDrag(world.x, world.y, pointer.x, pointer.y);
+        return;
+      }
       if (this.safeZoneMove) {
         this.updateSafeZoneMove(world.x, world.y);
         return;
@@ -470,6 +498,7 @@ export class MapEditorScene extends Phaser.Scene {
       if (this.paintDrag) this.finishPaintDrag();
       if (this.objectStampDrag) this.finishObjectStampDrag();
       if (this.objectMoveDrag) this.finishObjectMoveDrag();
+      if (this.exitMoveDrag) this.finishExitMoveDrag(world.x, world.y, pointer.x, pointer.y);
       if (this.eraseDragStart) {
         this.finishEraseDrag(world.x, world.y);
       }
@@ -604,6 +633,10 @@ export class MapEditorScene extends Phaser.Scene {
       setObjectDepthMode(objectMoveDrag.image, 'world-sorted');
       objectMoveDrag.image.setAlpha(1);
     }
+
+    this.exitMoveDrag = undefined;
+    this.exitMoveMarker?.destroy();
+    this.exitMoveMarker = undefined;
 
     this.eraseDragStart = undefined;
     this.eraseDragMarker?.destroy();
@@ -825,6 +858,105 @@ export class MapEditorScene extends Phaser.Scene {
       }
     });
     for (const preview of drag.previews) preview.destroy();
+  }
+
+  private exitAt(worldX: number, worldY: number): { index: number; exit: EditableMap['exits'][number] } | undefined {
+    const exits = this.editor.value.map.exits;
+    for (let index = exits.length - 1; index >= 0; index -= 1) {
+      const exit = exits[index];
+      if (!exit) continue;
+      if (worldX >= exit.zone.x && worldX <= exit.zone.x + exit.zone.w
+        && worldY >= exit.zone.y && worldY <= exit.zone.y + exit.zone.h) {
+        return { index, exit };
+      }
+    }
+    return undefined;
+  }
+
+  private beginExitMoveDrag(index: number, worldX: number, worldY: number, screenX: number, screenY: number): void {
+    const exit = this.editor.value.map.exits[index];
+    if (!exit) return;
+    this.editor.selectExit(index);
+    const direction = exitDirection(exit, this.editor.value.map);
+    if (!direction) {
+      this.editor.notify(`Exit ${index + 1} has no valid connection direction; choose a map connection first`);
+      return;
+    }
+    this.exitMoveDrag = {
+      index,
+      direction,
+      originalExit: structuredClone(exit),
+      startScreenX: screenX,
+      startScreenY: screenY,
+      pointerOffset: direction === 'west' || direction === 'east'
+        ? worldY - exit.zone.y
+        : worldX - exit.zone.x,
+      mapRevision: this.editor.value.revision,
+      moved: false,
+    };
+    this.editor.notify(`Dragging ${direction} exit — release to place or press Escape to cancel`);
+  }
+
+  private updateExitMoveDrag(worldX: number, worldY: number, screenX: number, screenY: number): void {
+    const drag = this.exitMoveDrag;
+    if (!drag) return;
+    if (!drag.moved && Math.hypot(screenX - drag.startScreenX, screenY - drag.startScreenY) < 2) return;
+    drag.moved = true;
+    const map = this.editor.value.map;
+    const original = drag.originalExit.zone;
+    const width = map.size.columns * map.tileSize;
+    const height = map.size.rows * map.tileSize;
+    if (drag.direction === 'west' || drag.direction === 'east') {
+      const y = Phaser.Math.Clamp(
+        Math.round((worldY - drag.pointerOffset) / map.tileSize) * map.tileSize,
+        0,
+        Math.max(0, height - original.h),
+      );
+      drag.previewZone = {
+        x: drag.direction === 'west' ? 0 : width - original.w,
+        y,
+        w: original.w,
+        h: original.h,
+      };
+    } else {
+      const x = Phaser.Math.Clamp(
+        Math.round((worldX - drag.pointerOffset) / map.tileSize) * map.tileSize,
+        0,
+        Math.max(0, width - original.w),
+      );
+      drag.previewZone = {
+        x,
+        y: drag.direction === 'north' ? 0 : height - original.h,
+        w: original.w,
+        h: original.h,
+      };
+    }
+    this.renderExitMoveDraft(drag.previewZone);
+    this.editor.notify(`Moving ${drag.direction} exit — release to save its new lane`);
+  }
+
+  private finishExitMoveDrag(worldX: number, worldY: number, screenX: number, screenY: number): void {
+    if (this.exitMoveDrag) this.updateExitMoveDrag(worldX, worldY, screenX, screenY);
+    const drag = this.exitMoveDrag;
+    this.exitMoveDrag = undefined;
+    this.exitMoveMarker?.destroy();
+    this.exitMoveMarker = undefined;
+    if (!drag) return;
+    if (!drag.moved || !drag.previewZone) {
+      this.editor.selectExit(drag.index);
+      return;
+    }
+    this.editor.updateExitZone(drag.index, drag.mapRevision, drag.originalExit, drag.previewZone);
+  }
+
+  private renderExitMoveDraft(zone: MapZone): void {
+    this.exitMoveMarker?.destroy();
+    this.exitMoveMarker = this.add.graphics()
+      .setDepth(resolveExplicitDepth('editor-selection-marker', 3))
+      .setName('editor-exit-move-draft');
+    this.exitMoveMarker.fillStyle(0xffe078, 0.26).fillRect(zone.x, zone.y, zone.w, zone.h);
+    this.exitMoveMarker.lineStyle(5, 0x20170a, 0.95).strokeRect(zone.x, zone.y, zone.w, zone.h);
+    this.exitMoveMarker.lineStyle(3, 0xffe078, 1).strokeRect(zone.x, zone.y, zone.w, zone.h);
   }
 
   private beginObjectMoveDrag(worldX: number, worldY: number): void {
@@ -2157,6 +2289,20 @@ export class MapEditorScene extends Phaser.Scene {
   private renderSelectionMarker(): void {
     const existing = this.children.getByName('editor-selection-marker');
     existing?.destroy();
+    const selectedExitIndex = this.editor.value.selectedExitIndex;
+    if (selectedExitIndex !== undefined && (this.editor.value.tool === 'select' || this.editor.value.tool === 'exit')) {
+      const exit = this.editor.value.map.exits[selectedExitIndex];
+      if (!exit) return;
+      const marker = this.add.graphics().setName('editor-selection-marker').setDepth(resolveExplicitDepth('editor-selection-marker'));
+      marker.lineStyle(8, 0x20170a, 0.95).strokeRect(exit.zone.x - 8, exit.zone.y - 8, exit.zone.w + 16, exit.zone.h + 16);
+      marker.lineStyle(4, EDITOR_SELECTION_STYLE.phaser, 1).strokeRect(exit.zone.x - 8, exit.zone.y - 8, exit.zone.w + 16, exit.zone.h + 16);
+      marker.fillStyle(EDITOR_SELECTION_STYLE.phaser, 1).fillCircle(
+        exit.zone.x + exit.zone.w / 2,
+        exit.zone.y + exit.zone.h / 2,
+        6,
+      );
+      return;
+    }
     const selectedZoneIndex = this.editor.value.selectedSafeZoneIndex;
     if (selectedZoneIndex !== undefined && this.editor.value.tool === 'safe-zone') {
       const zone = this.editor.value.map.enemySafeZones[selectedZoneIndex];
@@ -2325,6 +2471,7 @@ export class MapEditorScene extends Phaser.Scene {
 
   private destroyEditor(): void {
     this.transitionLayer?.destroy();
+    this.exitMoveMarker?.destroy();
     this.eraseDragMarker?.destroy();
     this.safeZoneDragMarker?.destroy();
     this.enemyAreaDragMarker?.destroy();

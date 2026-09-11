@@ -8,7 +8,7 @@ import type { MapEnemyAreaPerimeter, MapEnemyAreaShape } from '../content/maps/m
 import { ObjectTemplateEditorState } from './ObjectTemplateEditorState';
 import { mountMapEditorObjectAuthoring } from './MapEditorObjectAuthoring';
 import type { EditorTool, MapEditorState } from './MapEditorState';
-import { connectionAt, MAP_DIRECTIONS } from './MapConnections';
+import { connectionAt, exitDirection, MAP_DIRECTIONS } from './MapConnections';
 import type { GameplayAttributeEditorState } from './GameplayAttributeEditorState';
 
 const TOOLS: ReadonlyArray<{ id: EditorTool; label: string }> = [
@@ -253,7 +253,7 @@ export function mountMapEditorPanel(
           `<button type="button" data-direction="${direction}">${direction}</button>`
         )).join('')}
       </div>
-      <p class="editor-help">Used by entry and exit tools.</p>
+      <p class="editor-help">Used by entry and exit tools. Select / Move or Exit Zone can select an existing exit; drag it along its resolved edge.</p>
     </section>
     <section class="editor-section editor-connections-section">
       <div class="editor-section-title"><span>05</span><h2>Map Connections</h2></div>
@@ -844,9 +844,11 @@ export function mountMapEditorPanel(
     const selection = host.querySelector<HTMLElement>('[data-editor-selection]');
     if (selection) {
       const safeZoneCount = state.map.enemySafeZones.length;
+      const selectedExit = state.selectedExitIndex === undefined ? undefined : state.map.exits[state.selectedExitIndex];
       selection.textContent = state.selectedInstanceId
         ?? (state.selectedSafeZoneIndex !== undefined ? `Safe zone ${state.selectedSafeZoneIndex + 1} selected` : undefined)
         ?? (state.selectedEnemyAreaId ? `Enemy area ${state.selectedEnemyAreaId} selected` : undefined)
+        ?? (selectedExit ? `${exitDirection(selectedExit, state.map) ?? 'Unresolved'} exit selected` : undefined)
         ?? `${state.map.objects.length} objects / ${safeZoneCount} safe zones / ${state.map.enemySpawnAreas.length} enemy areas / ${state.map.size.columns}x${state.map.size.rows}`;
     }
   });

@@ -559,16 +559,6 @@
       },
       "to": "crystal-caverns",
       "entry": "west"
-    },
-    {
-      "zone": {
-        "x": 0,
-        "y": 0,
-        "w": 32,
-        "h": 3456
-      },
-      "to": "level-1",
-      "entry": "east"
     }
   ],
   "spawns": {
