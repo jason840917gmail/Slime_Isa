@@ -13,9 +13,9 @@ gameplay. Ordinary camps, including the existing Level 1 worm camp, may refill
 and must remain unchanged.
 
 Level 1 instead needs a separate boss camp containing **Fatty One Eye**, a
-large contact-damage slime that guards a reusable authored chest. The boss may
+large collision-triggered contact-hop slime that guards a reusable authored chest. The boss may
 respawn, but the chest contents must never refill. The player defeats the boss
-by standing beyond its contact reach and piercing its central eye with either
+by standing beyond its landing reach and piercing its central eye with either
 starter spear. The chest then provides the single green key required by the
 east exit to Gloop Forest.
 
@@ -30,8 +30,9 @@ potions use procedural textures rather than an authored potion sheet.
 
 1. Add reusable authored boss camps without changing ordinary enemy-camp
    respawn behavior.
-2. Implement Fatty One Eye with contact damage, spear-only eye vulnerability,
-   a three-hop leap telegraph, airborne safety, and landing area damage.
+2. Implement Fatty One Eye with a collision-triggered contact hop, spear-only
+   eye vulnerability, a three-hop leap telegraph, airborne safety, and landing
+   area damage.
 3. Give enemies and bosses a shared, data-authored effect-immunity list.
 4. Add reusable map-visible chests whose contents are editable in Map Studio
    and persist independently from boss respawns.
@@ -119,8 +120,8 @@ Add a validated boss catalog whose definitions own presentation and balancing:
 - stable ID and display name;
 - visual-set ID and authored display scale;
 - max HP and physical body geometry;
-- central eye vulnerability geometry;
-- grounded movement and contact-damage settings;
+- a mouthless round body and vulnerability geometry for one eye embedded at the exact body center, surrounded by thick jelly on every side;
+- grounded movement and collision-triggered contact-hop settings;
 - three-hop, leap, landing, and recovery timings;
 - landing radius, damage, and knockback;
 - allowed eye-damaging weapon categories or IDs;
@@ -149,9 +150,11 @@ separate contract so it cannot be confused with control-effect immunity.
 `FattyOneEyeController` owns a non-directional state machine:
 
 ```text
-dormant -> active/chasing -> hop 1 -> hop 2 -> hop 3
-        -> airborne -> landing impact -> recovery -> active/chasing
-        -> defeated
+dormant -> active/chasing
+           |-> contact hop -> contact impact -> active/chasing
+           |-> hop 1 -> hop 2 -> hop 3 -> airborne
+                       -> landing impact -> recovery -> active/chasing
+         -> defeated
 ```
 
 The boss always faces the camera so the vulnerable eye stays visible. Initial
@@ -161,11 +164,12 @@ authored tuning is:
 | --- | ---: |
 | Max HP | 140 |
 | Visual scale | 1.5 |
-| Physical body | 88x58 ellipse |
-| Eye vulnerability | 30x30 centered rectangle, 8 pixels above body center |
+| Physical body | 88x84 ellipse |
+| Eye vulnerability | 28x28 rectangle at the exact body center |
 | Ground chase speed | 42 pixels/second |
-| Contact damage / cooldown | 18 / 1000 ms |
-| Contact knockback | 180 |
+| Contact-hop duration / cooldown | 300 / 1000 ms |
+| Contact-hop radius | 64 pixels |
+| Contact-hop damage / knockback | 18 / 180 |
 | Leap cadence | 5000 ms after recovery ends |
 | Small hops | 3 x 260 ms, with 100 ms between hops |
 | Air time | 1000 ms |
@@ -177,13 +181,34 @@ authored tuning is:
 | Camera shake | 100 ms at intensity 0.003 |
 
 All values remain definition-owned and may be tuned after playtesting without
-changing controller code. The 88x58 body/contact footprint is shorter than the
-80-88 pixel starter spear thrust once the player's own body radius is included,
-so careful maximum-range attacks can reach the eye without touching the boss.
+changing controller code. The 88x84 body/contact footprint matches the boss's
+round silhouette and the eye is set deep at its geometric center within the
+visible gelatinous body shell. Careful maximum-range spear attacks can reach
+the eye without touching the boss while short weapons cannot plausibly do so.
 
-Grounded body contact damages and knocks the player back, subject to a contact
-cooldown so overlapping physics callbacks cannot apply damage every frame.
-Existing player dodge invulnerability remains authoritative.
+Grounded body collision during `active/chasing` requests a dedicated contact
+hop through the blocking player/boss collider callback. Collision itself deals
+no damage. The request succeeds only while the boss is alive, in
+`active/chasing`, and off its one-second contact-hop cooldown; repeated collider
+callbacks during any other phase are ignored. The cooldown starts when the hop
+begins.
+
+The accepted request captures the boss's current position as a stationary
+anchor, stops chase velocity, immediately draws a 64-pixel circular landing
+marker, and disables the boss's combat body. Its visible sprite performs a fast
+300 ms rise-and-fall animation while remaining centered on the anchor. While it
+is airborne, it cannot damage, collide with, trap, or be damaged by the player.
+On landing, the controller checks the player's current position once. A player
+within 64 pixels receives 18 damage and 180 knockback exactly once unless the
+existing dodge/invulnerability path rejects the hit. A player who has moved
+outside the radius takes no damage. The landing plays the existing ground-crack
+effect, removes the marker, re-enables the body, and returns directly to
+`active/chasing`.
+
+The contact hop never interrupts the three-hop special, its big leap, landing,
+recovery, or death. Completing a contact hop does not reset or otherwise change
+the main leap's next-eligible timestamp. If that timestamp elapsed during the
+contact hop, the special may start on the next chase update.
 
 The special attack becomes eligible while the boss is in `active/chasing`, the
 player is inside the arena, and 5000 ms have elapsed since the previous landing
@@ -193,10 +218,11 @@ three small stationary hops. After the third hop, the boss captures the
 player's current world position once and uses it as the landing destination.
 It does not home toward later movement. Air time is 1000 ms.
 
-Small hops are visual grounded telegraphs, not the `airborne` combat state.
-Ground contact damage remains active during `active/chasing`, all three small
-hops, and recovery. The instantaneous landing-impact state applies only its one
-area hit so it cannot double-hit through body contact on the same frame.
+The special attack's three small hops are visual grounded telegraphs, not the
+`airborne` combat state or the collision-triggered contact hop. Player collision
+during these hops or recovery deals no direct damage and cannot start a contact
+hop. Each landing-impact state applies only its one configured area hit, so no
+attack can double-hit through body contact on the same frame.
 
 Accepted spear hits never cancel, restart, or skip a hop/leap sequence. Hit-stun
 stops chase velocity in `active/chasing`; during stationary hops and recovery,
@@ -205,7 +231,7 @@ authoritative. Flash, damage numbers, and impact effects still play. This lets
 Fatty One Eye suffer hit-stun without allowing repeated spear hits to suppress
 the special attack indefinitely.
 
-While airborne:
+While airborne in either the contact hop or the large leap:
 
 - the boss cannot take player damage;
 - its overlap and collision cannot damage or trap the player;
@@ -214,10 +240,12 @@ While airborne:
   and opacity with height;
 - a clear ground marker shows the locked landing center and damage radius.
 
-Landing applies one circular area hit, with configured damage and knockback,
-then enters a short punishable recovery. It also plays a temporary radial
-cracked-ground and slime-splash effect plus restrained camera shake. The cracks
-fade and never change terrain data or collision.
+The large-leap landing applies one circular area hit, with configured damage
+and knockback, then enters a short punishable recovery. The contact-hop landing
+instead applies its smaller configured area hit and returns directly to
+`active/chasing`. Both landings play a temporary radial cracked-ground and
+slime-splash effect; only the large landing adds restrained camera shake. The
+cracks fade and never change terrain data or collision.
 
 ### 4. Eye-only damage
 
@@ -466,10 +494,9 @@ glossy, outlined, kid-friendly storybook presentation.
 ### Fatty One Eye
 
 - Source frames are 96x96 and may render larger through authored scale.
-- The boss is front-facing and non-directional with one oversized, high-contrast
-  central eye.
-- Its body is dirty translucent green with bubbles, warts, drool, grime, and
-  uneven cartoon teeth.
+- The boss is front-facing and non-directional with a round, mouthless body and one oversized, high-contrast eye embedded at its exact geometric center.
+- A thick ring of jelly surrounds the eye on every side so the weak point reads as reachable only by a spear piercing deep into the body, never as an exposed top-edge target.
+- Its body is dirty translucent green with bubbles, warts, and grime.
 - Colorful jelly chunks, small leaves/sprouts, and playful cartoon eyes or faces
   from swallowed slimes are visibly suspended inside it, without blood, gore,
   or realistic remains.
@@ -539,8 +566,9 @@ production art.
 - Invalid immunity values fail the enemy/boss content checker.
 - Body hits, wrong-weapon eye hits, and airborne hits cause no HP, hit-stun,
   state, or successful-effect changes.
-- Contact and landing damage are each protected against repeated physics
-  callbacks within one attack/cooldown.
+- Contact collision never deals damage directly. A successful request starts at
+  most one contact hop per cooldown, and each contact-hop or large-leap landing
+  applies at most one area hit.
 - A zero-capacity chest transfer changes neither inventory nor chest state.
 - Partial transfers decrement only the accepted amount and never mark the chest
   empty early.
@@ -555,8 +583,10 @@ production art.
   creates duplicate bosses or loot.
 - Only one live boss instance may belong to a boss camp. Scene shutdown removes
   its timers, physics callbacks, UI, effects, and global listeners.
-- Player death or scene exit during a leap removes the shadow, marker, crack
-  effect, and pending damage callback.
+- Player death, arena-exit fight reset, scene exit, boss destruction, or any
+  other interruption during a contact hop or large leap cancels every pending
+  landing timer/damage callback and removes its marker, shadow, and transient
+  effects. Cleanup never applies a delayed hit.
 - A consuming gate is persisted in the same aggregate commit as item removal.
   A non-consuming gate requires the item but persists without removing it. Any
   rejected aggregate commit prevents both unlock and transition.
@@ -603,8 +633,14 @@ Add focused automated coverage for:
 3. Wooden and Stone Spear intersection with the eye.
 4. Body, non-spear, airborne, dead, and invalid-damage rejection paths.
 5. Three stationary hops, one-time target capture, one-second airborne timing,
-   landing-radius damage, shadow/marker cleanup, and recovery.
-6. Contact-damage cooldown and existing dodge invulnerability.
+   large-leap landing-radius damage, shadow/marker cleanup, and recovery.
+6. A single chase collision synchronously drawing the marker and starting one
+   300 ms stationary contact hop with no immediate damage; one 64-pixel landing
+   hit; explicit dodge/i-frame and out-of-radius safety; a 1000 ms cooldown that
+   begins at hop start; airborne collision safety; refusal to interrupt the
+   special, landing, recovery, or death phases; preservation of the main
+   special's next-eligible timestamp; and immediate next-update eligibility
+   when that timestamp elapsed during the contact hop.
 7. Boss death timestamp, three-minute real-time cooldown, no spawn while the
    player remains inside, and spawn after exit/re-entry.
 8. Full-health restart after save/load, arena exit, and player death without a
@@ -633,16 +669,19 @@ Manual Level 1 acceptance must verify:
 1. The current worm camp still refills normally.
 2. Fatty One Eye spawns only in its separate authored camp.
 3. Only a Wooden or Stone Spear piercing the eye causes damage.
-4. The three hops, shadow, marker, one-second flight, landing crack, landing
-   area, and recovery are readable at default and overview zoom.
-5. Saving/loading or dying mid-fight restarts a full-health fight.
-6. Defeat unlocks the chest and starts the three-minute real-world timer.
-7. Partial chest looting persists; a later boss spawn relocks the non-empty
+4. A chase collision starts the fast contact hop without immediate damage; its
+   marker, airborne safety, 64-pixel landing area, dodge window, and landing
+   crack are readable at default zoom.
+5. The three-hop telegraph, shadow, marker, one-second flight, landing crack,
+   landing area, and recovery are readable at default and overview zoom.
+6. Saving/loading or dying mid-fight restarts a full-health fight.
+7. Defeat unlocks the chest and starts the three-minute real-world timer.
+8. Partial chest looting persists; a later boss spawn relocks the non-empty
    chest; another defeat exposes the exact remainder.
-8. The final green-key transfer leaves the chest permanently open and empty.
-9. The east exit consumes the key once, transitions to Gloop Forest, and stays
+9. The final green-key transfer leaves the chest permanently open and empty.
+10. The east exit consumes the key once, transitions to Gloop Forest, and stays
    unlocked after reload and the return trip.
-10. No debug grant or automatic production gear is required.
+11. No debug grant or automatic production gear is required.
 
 ## Checklist reconciliation
 
