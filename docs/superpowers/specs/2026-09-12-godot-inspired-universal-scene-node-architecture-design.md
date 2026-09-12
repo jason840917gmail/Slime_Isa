@@ -2,14 +2,16 @@
 
 ## Status
 
-Approved design for replacing Slime Isa's separate map, character, animation,
+Revised design for replacing Slime Isa's separate map, character, animation,
 weapon, projectile, and effect authoring models with one Godot-inspired scene
 tree, one runtime node model, and one Scene Studio.
 
-This document defines the destination architecture and the staged migration
-boundary. It does not authorize a flag-day rewrite or removal of an existing
-runtime path before its replacement has passed automated checks and user-run
-gameplay acceptance.
+The user has approved the universal architecture and a coordinated full
+refactor, including temporary breakage during development. This revision
+strengthens the implementation contracts and product acceptance criteria. It
+defines one integration target with internal milestones, not a requirement for
+independently shipped migrations or approval of every technical step. Final
+gameplay acceptance belongs exclusively to the user.
 
 ## Problem
 
@@ -53,8 +55,8 @@ expensive to extend.
 7. Generalize damage areas, weapon vulnerabilities, immunities, and modifiers
    so ordinary enemies may use the same capabilities as bosses.
 8. Support reusable scene instances and per-instance property overrides.
-9. Migrate incrementally through compatibility adapters so the game remains
-   buildable and playable throughout the program.
+9. Complete one coordinated migration with bounded commits, focused checks,
+   and a complete content conversion; temporary development breakage is allowed.
 10. Reserve gameplay acceptance for the user. Automated checks may verify
     deterministic contracts and simulations but must never claim that gameplay
     was tested or approved.
@@ -72,17 +74,41 @@ expensive to extend.
   their merge semantics.
 - Do not force static definitions such as recipes, quests, and item catalogs
   into live nodes when a resource or project-data record is the correct model.
-- Do not remove an existing authoring or runtime path until its replacement is
-  proven and the user approves the corresponding manual gameplay checklist.
+- Do not release the replacement as gameplay-accepted before the user verifies
+  it. Legacy source may be removed during the refactor when its replacement is
+  covered and recoverable through version control.
 - Do not use the migration as permission for unrelated gameplay redesigns.
 
 ## Core Concepts
+
+### Product principles and Godot boundary
+
+The author learns one operation once: selecting a visual, shape, animation,
+audio, or script node always exposes the same controls, regardless of its
+entity's category. Different exported script properties are expected; different
+editor shells, duplicate save locations, and category-specific implementations
+of the same property editor are not.
+
+Godot is the reference for scene composition and editor vocabulary, not a claim
+of API compatibility. Godot attaches a script to a node and treats `PackedScene`
+as a resource. This project deliberately presents behavior as a dedicated
+`ScriptNode` child backed by TypeScript, and uses a typed scene-reference field
+distinct from media-resource fields. Stable serialized IDs, detached backend
+cleanup, and queued mutation boundaries are also project contracts. Godot
+examples must be translated to these contracts rather than copied literally.
+
+Reference: [Godot nodes and scene instances](https://docs.godotengine.org/en/stable/tutorials/scripting/nodes_and_scene_instances.html).
+
+Physics configuration chooses blocking versus overlap detection before a
+physics step. Scripts may configure that participation and interpret contacts;
+they cannot retroactively undo physical separation by calling a contact
+"non-solid" after the step. Visuals and collision geometry remain independent.
 
 ### Node
 
 `Node` is the base runtime unit. Every node has:
 
-- a serialization-stable ID used by references and property overrides;
+- an authored identity for references/overrides and a separate runtime identity;
 - a human-readable name used in the Scene Studio tree and node paths;
 - one optional parent and an ordered collection of children;
 - a reference to its owning `SceneTree` while it is inside the tree;
@@ -133,10 +159,27 @@ detached -> entering -> inside/not-ready -> ready -> exiting -> detached
 ```
 
 `freed` is terminal. `remove_child()` detaches a subtree without destroying it;
-detached nodes retain their serializable state and may be added again. Runtime
-backend objects and tree-owned connections are released on exit and recreated
-on a later entry. `queue_free()` schedules terminal destruction of the complete
+detached nodes retain their configuration and script state and may be added
+again. Runtime backend objects and external subscriptions are released on exit
+and recreated on a later entry. `queue_free()` schedules terminal destruction of the complete
 subtree. A freed node may never be re-added.
+
+There are two explicit lifetime scopes:
+
+- Node lifetime: authored references and node-to-node signal connections survive
+  detach/re-entry. They deliver only while both endpoints are active in the same
+  tree, and disconnect permanently when either endpoint is freed. Connection
+  handles are idempotent; re-entry cannot multiply a connection made in `_ready()`.
+- Tree-entry lifetime: Phaser objects, DOM/input subscriptions, and backend
+  timers belong to an entry disposable bag. `_enter_tree()` recreates these
+  leases and `_exit_tree()` releases them. `_ready()` must not own a lease that
+  must be reacquired after detachment. Stable node wrappers never expose cached
+  backend objects to scripts.
+
+Logical animation position, velocities, and script timers survive detachment
+but do not advance while detached. Re-entry reconstructs backend state from
+those logical values. One-shot audio is stopped, not replayed by re-entry;
+explicitly playing loops resume from their logical state where supported.
 
 Tree mutations requested during lifecycle callbacks, processing, input, physics,
 or signal delivery are queued. The tree flushes mutations after each input
@@ -155,6 +198,13 @@ immediately, without entry/exit callbacks; descendants and detached-owned
 disposables are still exhausted. Adding, removing, or reparenting a node already
 queued for free is rejected with a development diagnostic.
 
+Parent targets are revalidated at flush: absent/freed parents, ancestry cycles,
+duplicate names, and invalid physics transforms reject the operation without
+partially moving a subtree. Freeing an ancestor suppresses pending work in that
+subtree. Use `reparent()` for an atomic move; a same-flush remove-then-add of an
+attached node is rejected as ambiguous rather than silently losing the add.
+Unattached document construction uses immediate child operations before entry.
+
 Insertion into an active tree calls `_enter_tree()` parent-first and then calls
 `_ready()` child-first after the full inserted subtree is indexed. `_ready()`
 runs once per node lifetime; detaching and re-adding the same node does not run
@@ -163,11 +213,15 @@ is atomic, emits no exit or entry lifecycle callbacks, and preserves the global
 transform of `Node2D` nodes. Reparenting across trees is rejected; callers must
 detach and then add the subtree explicitly.
 
-`duplicate()` returns a detached deep copy of the complete subtree. It assigns
-new stable node IDs, resets runtime and lifecycle state, copies exported
-properties, shares immutable external resources, deep-copies inline
-subresources, remaps signal connections whose endpoints are both inside the
-copied subtree, and omits connections to outside nodes. Duplicating a resolved
+`duplicate()` creates a detached copy of authored configuration, never a snapshot
+of health, AI state, active attacks, callbacks, or backend objects. It assigns
+new stable node IDs, resets runtime and lifecycle state, copies configured
+exported properties, shares immutable external resources, and deep-copies inline
+subresources. It remaps every internal node reference, animation target, override,
+and authored signal endpoint. External node references become unresolved and
+external signal connections are omitted; required unresolved references prevent
+insertion until the caller supplies them. Runtime subscriptions are not copied.
+Duplicating a resolved
 scene-instance root produces another instance of the same source scene with the
 same overrides and a new instance ID. Scene Studio uses the same rules for its
 document-level duplicate operation.
@@ -189,7 +243,7 @@ A Phaser scene hosts a `SceneTree` and forwards update, physics, input, and
 shutdown boundaries. Phaser remains an implementation dependency of
 specialized runtime nodes, not a dependency of gameplay scripts.
 
-Node names must be non-empty, may not contain `/`, and must be unique among
+Node names must be non-empty, may not equal `.` or `..`, may not contain `/`, and must be unique among
 siblings. Human-readable runtime paths use `/Root/Child`, `Child/Grandchild`,
 `.` and `..`. Renaming changes the human path but never changes the stable node
 ID.
@@ -198,8 +252,8 @@ Serialized node references do not store fragile name paths. They use:
 
 ```ts
 interface NodeReferenceDocument {
-  readonly instancePath?: readonly string[];
-  readonly nodeId: string;
+  readonly instancePath?: readonly InstanceId[];
+  readonly nodeId: AuthoredNodeId;
 }
 ```
 
@@ -224,10 +278,22 @@ interface SceneReferenceDocument {
 }
 ```
 
-Validation resolves it through the scene catalog, checks load permissions and
-instance-cycle constraints in the owning document, and provides a packed scene
+Validation resolves it through the scene catalog and checks authored instance
+cycles. A dynamic scene reference is not an eagerly expanded instance edge;
+otherwise projectile or spawn references could falsely form construction cycles.
+Resource loading may deduplicate cyclic dependency requests, but only the
+authored `instances` graph must be acyclic. Loading provides a packed scene
 blueprint to `SceneTree.instantiate_scene()`. It never passes through the media
 resource registry.
+
+Loading is explicitly separate from instantiation: `prepare_scene(sceneId,
+abortSignal)` asynchronously resolves documents and required assets into a
+validated immutable packed scene; `instantiate_scene(packedScene)` synchronously
+constructs a detached tree. Lifecycle callbacks never await I/O. A spawn/load
+request belongs to its initiating node or host: exit/cancellation invalidates
+late completion so it cannot insert into a departed map. Failed preparation
+leaves the active scene intact. Cached documents/assets have reference-counted
+leases; failed construction and cancellation release only their own leases.
 
 ### Resource
 
@@ -263,6 +329,15 @@ interchangeably:
 Display names and human-readable node paths are not identifiers and never own
 persistence or serialized cross-node references.
 
+IDs use a validated delimiter-safe alphabet; canonical runtime IDs encode each
+segment, not unchecked string concatenation. A runtime ID stays constant for a
+node's lifetime even after rename/reparent; its instance path is its construction
+namespace, not its current human path. Reparenting must not alter save identity.
+Runtime-created roots receive runtime provenance without inventing authored
+placement IDs. Persisted placement keys are explicit and unique within a map;
+nested reused scenes derive keys from the full authored placement path unless
+conversion supplies an existing legacy key.
+
 ## Node Type Model
 
 The first implementation supports the node families required by the current
@@ -281,6 +356,7 @@ Node
 |  |- AudioStreamPlayer2D
 |  `- Camera2D
 |- AnimationPlayer
+|- AudioStreamPlayer
 |- ScriptNode
 `- Control
    `- project-specific reusable UI control nodes
@@ -320,6 +396,14 @@ Phaser Arcade dynamic body. It provides focused movement and collision methods
 that fit the existing top-down game instead of pretending Arcade Physics
 supports every Godot `CharacterBody2D` feature.
 
+Scripts set velocity (world units/second) during `_physics_process()` and the
+host advances motion once. They read the previous completed step's blocking
+contact records, or consume this step's post-physics contact signal. Records
+contain collider runtime ID, optional live node, normal, and contact position
+where the backend can provide it. A teleport queues a position change for the
+pre-step sync. There is no synchronous `move_and_slide()`/`move_and_collide()`
+promise on top of a backend that is stepped later by the host.
+
 `StaticBody2D` owns immovable world collision for terrain, walls, buildings,
 and solid props.
 
@@ -337,8 +421,59 @@ layers, collision masks, monitoring enablement, and signals equivalent to:
 - `area_exited`.
 
 `CollisionShape2D` only describes geometry and enablement. Initial supported
-shapes are rectangle, circle, and ellipse. It must be a child of a compatible
+shapes are rectangle, circle, ellipse, and directional sector. It must be a child of a compatible
 physics body or area.
+
+The backend capability contract is explicit:
+
+| Owner | Supported geometry | Shape count | Transform limits |
+| --- | --- | --- | --- |
+| CharacterBody2D / StaticBody2D | Axis-aligned rectangle or circle | Exactly one enabled shape when collision is enabled; disabled alternate shapes allowed | Translation and positive scale; circles require uniform world scale; no world rotation or shear |
+| Area2D | Axis-aligned rectangle, circle, ellipse, directional sector | One or more enabled shapes, combined as a union | Translation and positive scale; circles/sectors require uniform scale; ellipses may scale independently on each axis; sector direction is an explicit geometry angle; no node world rotation or shear |
+| Visual nodes | Backend-supported visual transforms | Independent of physics | Rotation, flipping, and scale do not implicitly alter sibling physics geometry |
+
+The inspector, animation validator, and runtime enforce these constraints,
+including ancestor transforms. Unsupported combinations produce an actionable
+error; the engine never silently substitutes a bounding rectangle. A body may
+temporarily disable collision explicitly without removing its shape nodes.
+Changing among disabled alternatives is applied atomically before the step.
+Complex static outlines use multiple static body children under a neutral
+Node2D. Compound moving-body collision and arbitrary rotated rectangle/ellipse
+shapes are out of scope. A sector stores finite `angleRad`, `arcWidthRad`,
+`innerRadius`, and `outerRadius`, with 0 < arcWidthRad <= 2*pi and
+0 <= innerRadius < outerRadius. It is sensor-only and preserves the directional
+sword/gauntlet geometry already used by production weapons. Facing updates its
+geometry angle/offset through script or animation; it does not rotate an Arcade
+body. Conversion tests cover front/back, inner/outer radius, and arc boundaries.
+
+Arcade supplies blocking-body resolution. Area sensors use spatially filtered
+candidate pairs and shared geometry routines, including the project's current
+ellipse approximations and directional-sector calculations, rather than claiming
+Arcade supports those bodies. Preserve those algorithms and characterize their boundary behavior with
+fixtures during migration; changing their accuracy is a separate gameplay
+change. Editor diagnostics can show both the authored outline and effective
+contact region. Reference: [Phaser 3.90 Body geometry](https://docs.phaser.io/api-documentation/3.90.0/class/physics-arcade-body).
+
+Legacy authored ellipse bodies currently use conservative rectangular movement
+bounds in `shared/collisionShapes.ts`. Conversion creates an explicitly authored
+rectangle BodyShape with those exact bounds/offsets, and retains an ellipse
+Area2D shape only where the old runtime used ellipse sensing. The report records
+this deliberate split; it is not a new runtime fallback or a change in coverage.
+Do not infer an extra damage sensor merely because the old document said ellipse.
+
+Layers identify membership; masks identify what an observer queries. Area
+monitoring is directional: A receives a contact when its mask intersects B's
+layer and B is monitorable, independently of B monitoring A. Blocking requires
+both bodies' masks to accept the other's layer. Multiple shape contacts produce
+one enter/exit pair per owner pair, plus shape IDs in detailed contact data.
+The sensor service retains current overlaps for attacks that stay in contact;
+combat does not rely only on an initial `area_entered` signal.
+
+Disable, detach, or free invalidates contacts immediately for damage routing.
+At the next contact reconciliation, each still-active observer receives one
+exit for a removed pair, with stable IDs and an optional live-node reference.
+Dead endpoints never receive callbacks. Enabling an already-overlapping sensor
+produces an enter on the next physics step.
 
 Geometry reports where contact happened. Script code decides what the contact
 means. The collision system does not encode concepts such as damage, weakness,
@@ -375,11 +510,37 @@ This replaces separate character, weapon, projectile, and effect timeline
 implementations. Existing animation resources are migrated without discarding
 their authored timing.
 
-### AudioStreamPlayer2D
+Each player has one master clock and an explicit physics or render domain.
+Tracks that affect collisions, attack activation, or gameplay events require
+physics mode. A character's associated visual tracks use that same clock so the
+visible contact frame and active shape cannot drift. Render interpolation may
+smooth presentation but cannot advance gameplay state.
 
-`AudioStreamPlayer2D` owns an audio resource, volume, pitch, looping, positional
-settings supported by the game, playback state, and cleanup. It does not decide
+Property descriptors declare value type, interpolation (step or numeric),
+animatability, override eligibility, and clock restrictions. Boolean, enum,
+resource, and frame changes are stepped. Events crossed by a normal advance
+fire once in timestamp then authored-track order, including loop boundaries.
+Seeking for preview applies properties without firing gameplay events. Stop,
+replacement, or cancellation restores transient attack/shape overrides to their
+pre-play baseline and ends the attack activation. Two active animation players
+may not write the same property; validation rejects the conflict.
+
+Shared animation resources address named typed bindings, such as `visual` or
+`attackArea`; each AnimationPlayer maps these to stable node references in its
+own scene. An inline animation may use local references directly. This lets one
+animation library work across scenes with different authored node IDs.
+
+### AudioStreamPlayer and AudioStreamPlayer2D
+
+`AudioStreamPlayer` handles non-positional music and UI audio.
+`AudioStreamPlayer2D` handles world-positioned audio. Both use the same inspector
+for resource, volume, pitch, looping, playback state, and cleanup; the 2D node
+adds positional settings supported by the backend. Neither decides
 when a sound represents an attack, death, interaction, or UI response.
+
+Both honor existing music/effects volume and mute preferences. Browser audio
+unlock occurs only through the existing user-gesture service. Preview playback
+requires an explicit action and stops when its preview context closes.
 
 ### Control
 
@@ -405,6 +566,7 @@ Every serialized script node uses `type: "ScriptNode"` and a required top-level
   "type": "ScriptNode",
   "scriptId": "enemy.fatty-one-eye",
   "parentId": "fatty",
+  "order": 5,
   "properties": {
     "rank": "boss",
     "maxHp": 140
@@ -445,6 +607,21 @@ replaced.
 Generic node implementations contain reusable engine mechanics. Gameplay
 meaning belongs in ScriptNode implementations.
 
+Creating a ScriptNode selects an existing registered implementation. Adding new
+behavior source is normal external TypeScript development; Scene Studio shows
+the source path and can open it externally, but cannot edit or execute source
+text. Multiple ScriptNodes may coexist when they own distinct responsibilities.
+Required capabilities declare exclusive ownership, so two scripts cannot both
+drive the same body's movement or register the same area as their damage target.
+Adding or replacing a script reports conflicts before saving.
+
+Script constructors receive a typed context of runtime-node access and required
+services. Shared calculations and domain services remain reusable modules;
+"all code in the ScriptNode" means entity orchestration lives there, not that
+inventory, persistence, animation engines, or damage math must be copied into
+each script. Scripts may request domain operations, but only the persistence
+infrastructure accesses browser storage.
+
 ## Script Inheritance and Character Roles
 
 Shared behavior uses TypeScript inheritance where it produces a clear contract:
@@ -480,10 +657,28 @@ Other ordinary or elite enemies may use any shared enemy capability. A weak
 point, weapon restriction, resistance, or immunity is not intrinsically a boss
 feature.
 
+Rank is classification metadata, not an automatic behavior switch. Faction
+owns hostility policy; rank may be observed by UI or encounter scripts. A boss
+may use shared EnemyScript without custom logic, and an ordinary enemy may use
+a specialized script. Common health/damage helpers do not require inheriting
+CharacterScript when the receiver is a destructible object.
+
 ## General Damage and Vulnerability Model
 
-Damage reception is driven by ordinary `Area2D` nodes referenced by
-`EnemyScript` exports. A damage-area rule identifies a stable node reference and describes
+Damage reception is a shared capability implemented by any relevant ScriptNode:
+player, enemy, destructible prop, or another damageable entity. Ordinary `Area2D`
+nodes supply contacts. A typed `DamageReceiver` interface and pure resolver own
+the common request/result contract; `EnemyScript` is one consumer. This is not a
+new engine node type or a requirement to inherit enemy behavior.
+
+The receiver registers its area references with a tree-scoped routing service
+on entry and unregisters on exit. One area belongs to at most one receiver.
+The attacking script submits contact candidates through that service without
+searching entity classes. The receiver owns health, effect application, and
+state-dependent acceptance. Accepted damage/effects and defeat state commit
+together before publishing feedback; a defeated receiver cannot award twice.
+
+A damage-area rule identifies a stable node reference and describes
 the accepted attack characteristics and response:
 
 ```ts
@@ -527,9 +722,9 @@ Damage routing uses one normalized immutable request and response contract:
 ```ts
 interface DamageRequest {
   readonly activationId: string;
-  readonly sourceNodeId: string;
-  readonly attackAreaNodeId: string;
-  readonly targetAreaNodeId: string;
+  readonly sourceNodeId: RuntimeNodeId;
+  readonly attackAreaNodeId: RuntimeNodeId;
+  readonly targetAreaNodeId: RuntimeNodeId;
   readonly weaponId?: string;
   readonly weaponTags: readonly string[];
   readonly damageTypes: readonly string[];
@@ -554,9 +749,11 @@ type DamageResult =
     };
 ```
 
-Requests with non-finite or negative damage or potency, duplicate tags/types/
-effects, unknown runtime nodes, inactive attack areas, or a mismatched
-activation ID are rejected as invalid. For an accepted source, final damage is
+Requests with non-finite or negative damage or potency, non-finite impact data,
+duplicate tags/types/effects, or unknown runtime nodes are rejected as `invalid`.
+An inactive attack area or mismatched activation ID yields `inactive-attack`.
+An absent effect response means multiplier `1`; invalid final numeric results
+are rejected before any mutation. For an accepted source, final damage is
 `Math.round(baseDamage * damageMultiplier * matchingTypeMultipliers)`, clamped
 to zero and the target's remaining health. Each unique requested damage type
 contributes its configured multiplier, or `1` when absent; identifiers are
@@ -604,18 +801,34 @@ perform pure calculations, but routing does not depend on `instanceof Enemy`
 or a hard-coded boss branch.
 
 The attacking script owns attack lifetime. Starting an attack creates an
-activation ID unique within the attacking scene instance; ending or cancelling
+activation ID containing its source runtime ID and a monotonically increasing
+sequence; ending or cancelling
 the attack invalidates it. Contacts gathered during one physics step are grouped
-by target damage-receiver ScriptNode. The receiver chooses exactly one matching
-damage-area rule: highest `priority`, then lowest stable node ID as a tie-break.
-The attacking script records one accepted or non-retryable rejected attempt per
+by target damage-receiver ScriptNode. Candidate area rules first filter by
+current overlap and accepted source, then sort by highest `priority` and lowest
+runtime area ID as a tie-break. Only the highest candidate is evaluated; immunity
+or script state on that candidate does not fall through to a less-preferred
+area. No accepted-source candidate yields `source-blocked`.
+The attacking script records one accepted attempt per
 `(activationId, targetReceiverRuntimeId)`, so persistent overlap callbacks
 cannot apply repeated frame damage or double-hit through overlapping body and
-weak-point areas. A retryable `state-blocked` result may be evaluated again on a
+weak-point areas. Non-retryable rejections are cached only for the selected
+area (or rejected area set when no source matches), not the whole receiver:
+touching armor must not prevent a later eye hit in the same swing. A changed
+candidate area set is evaluated again unless an accepted hit already consumed
+that receiver. A retryable `state-blocked` result may be evaluated again on a
 later fixed step while the same active area still overlaps. A deliberately
 multi-hit attack starts a new activation for
 each authored pulse. Attack cancellation, scene removal, and node disablement
 clear pending contacts before they can resolve.
+
+Existing attack damage, knockback, effect timing, vulnerability, reward, and
+invulnerability behavior must be captured in conversion fixtures. The formulas
+above define the shared route; they do not authorize balance changes. Compound
+damage types here are multiplicative classifications, not independently weighted
+damage components. Multi-component damage and new stacking policies are out of
+scope. Combat feedback is emitted after confirmed results, preserving the current
+rule that animation events cannot independently synthesize a successful impact.
 
 ## Encounter Composition
 
@@ -757,6 +970,21 @@ interface SceneOverrideDocument {
 }
 ```
 
+`property` names one registered top-level exported property; structured values
+replace that property atomically. The inspector may edit nested fields through
+the same descriptor, then write the complete property value. Arbitrary dotted
+paths, executable setters, and patch expressions are not supported.
+
+Override precedence is source defaults, source-scene values, inner instance
+overrides, then outer containing-scene overrides. Duplicate entries for the same
+target/property in one override list are invalid. Each value retains its authoring
+scope: a node-reference value supplied by an override resolves relative to the
+scene document containing that instance record, while an inherited source value
+resolves relative to its source scene. The resolver validates and translates
+references using that scope before constructing nodes; flattening may not discard
+it. Thus a parent can inject a sibling node reference into an instance's exported
+dependency without changing the reusable source or adding upward references there.
+
 Stable node IDs are unique within their source scene, not globally. Each runtime
 scene instantiation receives a unique runtime namespace. Canonical runtime IDs
 are formed from the containing runtime namespace, the complete authored
@@ -785,7 +1013,7 @@ top-level runtime namespace and transient dynamic spawn IDs are never written to
 saves. A dynamically created scene must receive an explicit stable persistence
 key from its owning script if its state is intended to survive reload.
 
-Every resolved instance root retains immutable runtime provenance:
+Every authored resolved instance root retains immutable runtime provenance:
 
 ```ts
 interface SceneInstanceProvenance {
@@ -795,6 +1023,11 @@ interface SceneInstanceProvenance {
   readonly overrides: readonly SceneOverrideDocument[];
 }
 ```
+
+Dynamic roots instead retain their source scene and configured overrides with
+an absent authored placement identity; their runtime namespace is allocated by
+the tree. Duplicating them creates another transient instance and never copies
+an explicit persistence key. A caller must assign a new key before persisting it.
 
 Only the resolved root carries this marker. Calling `duplicate()` on that exact
 root duplicates the source instance record and its overrides with a new
@@ -919,6 +1152,69 @@ not separate applications with separate catalogs or save semantics.
 Scene Studio supports undo/redo, dirty state, validation, save conflicts,
 source-scene navigation, and repair of invalid development content.
 
+### Authoring quality and safe preview
+
+One shell does not mean a wall of generic fields. Property descriptors group
+related fields, carry units and help, expose defaults and reset actions, and
+provide reusable controls for shapes, assets, references, and vulnerability
+rules. A field shows whether its value comes from a default, its source scene,
+or a local override. Validation links directly to the affected node and field.
+Searchable scene templates assemble ordinary nodes for an enemy, prop, or UI
+panel; they are starting documents, never special editor modes or runtime types.
+
+Node creation and structural edits are document transactions with undo/redo.
+Deleting a referenced node lists affected references and requires an explicit
+repair or removal choice within that command; the editor never silently clears
+unrelated data. Invalid development documents may be saved as drafts but cannot
+be used by production gameplay. Unknown fields/nodes survive a repair round trip
+as opaque data until explicitly removed or migrated.
+
+External resources are shared and immutable at runtime. Editing one shows its
+consumers and offers edit-shared or make-unique through the same resource editor.
+An instance property override cannot silently mutate a resource used elsewhere.
+Save operations compare the version/hash read from disk; a stale editor cannot
+overwrite newer content. Changes spanning scene and resource files use a
+validated write set with recoverable originals. Failed writes restore the set
+and keep edits dirty. The editor's persistence adapter stays in infrastructure.
+
+Preview uses a disposable presentation tree with gameplay ScriptNodes disabled.
+It may display visuals, play/seek timelines, inspect shapes, and explicitly play
+audio. It cannot award items, spawn gameplay populations, invoke domain services,
+or write player saves. Gameplay event tracks are shown as markers, not executed.
+Closing/reloading a preview releases its resources and restores edited property
+baselines. Runtime debugging is a separate read-only view; observations never
+write back to authored documents. No hot replacement of live scripts is required.
+
+### Required authoring walkthroughs
+
+These are acceptance scenarios for the product, not optional demonstrations:
+
+1. Create an enemy scene from an ordinary-node template. Add/select its sprite,
+   body shape, animation player, audio, and an existing ScriptNode implementation.
+   Configure health and weapon vulnerability through exported properties. Save,
+   close, and reopen; values, references, shape placement, and timeline timing
+   are preserved without editing JSON.
+2. Open Fatty and the ordinary enemy consecutively. Edit their visuals,
+   animation, audio, and colliders using the same controls. Fatty exposes boss
+   rank and specialized script fields; the shell and common inspectors do not
+   change. Add a second damage area to the ordinary enemy and assign its response
+   without adding an engine node type or editor branch.
+3. Place two instances in an authored world scene. Override one instance's
+   health or visual resource. Edit the source and confirm non-overridden values
+   update both, the override survives, and revert restores the source value.
+   Rename and reorder instances without breaking signals or saved identities.
+4. Repeat common visual, shape, animation, and audio edits on a projectile,
+   prop, and UI composition where applicable. Shared resources are discoverable
+   in the same browser, and make-unique isolates a change intentionally.
+5. Undo a deletion, repair a missing reference, resolve a disk save conflict,
+   and close/reopen preview. No unrelated fields, runtime state, or saved progress
+   change; diagnostics describe the failed operation in plain language.
+
+Keyboard navigation, visible focus, searchable node creation, unit labels, and
+readable errors are required for the editor. Selection and viewport context stay
+stable across save and validation. These workflows supplement technical tests;
+interactive gameplay remains reserved for the user.
+
 ## Runtime Loading and Lifecycle
 
 Runtime creation follows one deterministic pipeline:
@@ -962,8 +1258,9 @@ For every rendered frame the host performs this normative order:
 1. Flush structural mutations left from the previous frame.
 2. Drain queued input in timestamp order.
    a. Invoke enabled _input handlers in input-priority then stable tree order.
-   b. If still unhandled, invoke _unhandled_input in the same order.
-   c. Flush mutations after each input event.
+   b. Route to focused/modal Control handlers and bridge DOM consumption.
+   c. If still unhandled, invoke _unhandled_input in the same order.
+   d. Flush mutations after each input event.
 3. Run each accumulated fixed physics step:
    a. Invoke the legacy adapter's pre-physics hook while legacy code remains.
    b. Advance physics-mode AnimationPlayer nodes.
@@ -971,7 +1268,9 @@ For every rendered frame the host performs this normative order:
    d. Synchronize managed body/area transforms and enabled shapes to Phaser.
    e. Advance Arcade Physics exactly once. Existing legacy collider callbacks
       run synchronously inside this backend step and may enqueue legacy work.
-   f. Collect managed body/area contacts, canonicalize their order, and emit
+   f. Copy authoritative post-step body positions/velocities into Node2D state,
+      recompute descendant area transforms, then collect sensor/body contacts.
+      Canonicalize their order and emit
       managed signals.
    g. Resolve managed attack contacts and other post-contact transactions.
    h. Invoke the legacy adapter's post-physics hook.
@@ -990,16 +1289,26 @@ cannot change gameplay results.
 
 The Phaser host adapter must either use verified Phaser lifecycle hooks or own
 manual Arcade stepping, but it must satisfy this order in integration tests.
-During hybrid migration, legacy systems and managed nodes share exactly one Arcade
+While temporary adapters remain, legacy systems and managed nodes share exactly one Arcade
 step and the legacy hooks occupy exactly the positions above. Legacy input and
 render updates run after managed input dispatch and before step 4's render-mode
-animations, respectively. No phase may leave Phaser automatic stepping enabled
+animations, respectively. No integration may leave Phaser automatic stepping enabled
 while also manually stepping the managed tree.
 
-Signals are synchronous within a processing step. Connections are owned by the
-tree and automatically removed when either participating node exits. Nodes
-must register timers, Phaser callbacks, DOM listeners, and other cleanup work
-through node-owned disposable facilities.
+Signals are synchronous within an active processing step. Connection records
+follow the node-lifetime rules above; tree delivery indexes contain active
+endpoints only. Node-to-node connections use a typed signal ID, source reference,
+target ScriptNode reference, and registered handler ID with compatible payload
+metadata. JSON contains no handler source. Delivery uses connection creation
+order and a snapshot; disconnected/freed endpoints are skipped before invocation.
+Structural edits requested by a handler defer to the normal mutation boundary.
+
+Gameplay action handlers belong in `_unhandled_input()` so text fields, menus,
+and modals can consume events first; `_input()` is for deliberately global input.
+One event carries a handled flag across DOM, Control, and script routing. While
+paused, gameplay physics/timers/process lists stop; controls explicitly marked
+`processWhenPaused` continue to receive UI input and render updates. Resume
+clears accumulated physics time and stale held-action transitions.
 
 Specialized nodes wrap Phaser objects instead of extending them. ScriptNode
 implementations communicate through runtime nodes, stable authored references,
@@ -1016,6 +1325,14 @@ Every node registration supplies:
 - runtime construction;
 - configuration-warning logic; and
 - serialization and migration rules.
+
+One declarative property descriptor owns serialized type, default, validation,
+inspector metadata, and animatable/overridable flags. Runtime TypeScript types and
+document validators must derive from that contract or have automated equivalence
+checks; do not hand-maintain three disagreeing schemas. Runtime-only state is
+marked non-serialized and never appears as authored configuration. Required
+references declare the expected node type/capability and multiplicity. Registries
+validate inheritance and type compatibility before opening a scene.
 
 Scene validation checks:
 
@@ -1061,6 +1378,15 @@ staged subtree is removed from indexes, every successfully entered node receives
 best-effort child-first exit, and every acquired disposable is released in
 reverse order. The subtree is never exposed as partially ready.
 
+Insertion has a private lookup scope for the complete staged subtree. Exported
+references resolve before callbacks; `_enter_tree()` must not assume a child's
+backend is already created. Public lookup, gameplay queries, and signal delivery
+include the subtree only after readiness succeeds. Lifecycle callbacks configure
+local state and leases only: they cannot grant rewards, change persistent domain
+state, or emit externally delivered gameplay signals. Requested post-insertion
+commands queue until commit and are discarded on failure. This boundary prevents
+rollback from leaving external effects that disposing nodes cannot reverse.
+
 Errors from `_process()`, `_physics_process()`, input, animation callbacks, or
 signal handlers capture the scene ID, node path, active lifecycle phase, signal
 name when applicable, and original error. Development disables the failing
@@ -1084,7 +1410,8 @@ root replacement uses a single-root swap transaction:
 2. Pause host input, physics, processing, and presentation synchronization.
 3. Detach but do not free the old root, releasing its backend resources and
    indexes.
-4. Insert and ready the replacement as the tree's sole root.
+4. Insert and ready the replacement as the tree's sole root, keeping domain
+   commands and public signal delivery suspended until commit.
 5. On success, free the detached old root and resume the host.
 6. On insertion or readiness failure, exhaustively clean the replacement,
    reinsert the old root without rerunning its ready-once callbacks, recreate
@@ -1094,6 +1421,12 @@ No staging tree acquires visible Phaser resources, and two roots are never
 active simultaneously. If restoration of the old root also fails, the host
 remains paused and shows the fatal-error presentation rather than exposing a
 partial tree.
+
+On a handled replacement failure, the old logical state and node-lifetime
+connections remain intact; entry leases are reacquired exactly once. Restore
+animation positions, logical timers, and body state before resuming. This is a
+recoverable load failure shown to the user, not silent success. Any failure
+outside this explicit recovery path follows the production fatal-error rule.
 
 ## Performance Requirements
 
@@ -1113,257 +1446,152 @@ partial tree.
 - Destroyed scenes leave no Phaser objects, timers, listeners, signal
   connections, or indexed node references.
 
-## Migration Strategy
+## Implementation and Integration Strategy
 
-The migration is a program of bounded phases. Each phase keeps current behavior
-available through adapters until the new owner is proven. Every subphase gets a
-separate implementation plan, focused automated checks, and a rollback point.
-No plan may implement an entire numbered phase as one undifferentiated change.
+This is one coordinated full refactor with one implementation plan. The user
+accepts temporary breakage on the development branch. The milestones below are
+dependency boundaries and reviewable commits, not separate approval workflows.
+Implementation continues through them without asking the user to approve
+routine technical steps. Do not spend the project maintaining two complete
+engines or editors in production.
 
-### Phase 1: Scene foundation
+### Milestones and dependency order
 
-1. **1A - Document and registry contracts:** scene/node/resource identifiers,
-   node and script registries, property descriptors, and pure validators.
-2. **1B - Node lifecycle:** `Node`, `Node2D`, tree mutation queue, indexed IDs,
-   paths, lifecycle state machine, duplication, and exhaustive cleanup.
-3. **1C - Signals and SceneTree:** typed signals, groups, process lists, input
-   ordering, error boundaries, and root replacement.
-4. **1D - Instance resolution:** nested scene resolution, namespaces,
-   overrides, cycle detection, and scene-version migration fixtures.
+| Milestone | Concrete deliverable | Evidence before moving dependent work forward |
+| --- | --- | --- |
+| M1: Contracts and thin runtime | Registry/schema, stable IDs, node lifetimes, references, signals, instance resolution, and minimal Phaser host | Pure contracts, lifecycle/rollback fixtures, and a sprite/body/area/script fixture prove the highest-risk boundaries |
+| M2: First complete authoring slice | Minimum Scene Studio tree, inspector, shapes, animation, audio, save/reload, overrides, and preview for ordinary enemy + Fatty | Both use identical common controls; existing combat adapters exercise damage and animation parity; technical checks pass |
+| M3: All entity families | Player, remaining enemies, NPCs, weapons, projectiles, effects, props, collectibles, chests, and encounters use nodes | Conversion inventory is complete for these families; domain contracts and cleanup checks pass |
+| M4: World and UI integration | Tile resources, authored placements, navigation, UI controls/panels, global audio, and complete Scene Studio contexts | Production maps load with preserved identities; all authoring walkthroughs can be performed; old/new save fixtures agree |
+| M5: Consolidation and handoff | Remove obsolete writers, editors, factories, and temporary adapters; update architecture and contributor docs | Full technical checks, conversion report, performance report, and one grouped user gameplay checklist |
 
-No production entity changes ownership in Phase 1.
+M2 deliberately precedes a complete tile or UI editor: prove the user-facing
+reason for the refactor early. M1 physics feasibility must be settled before
+mass conversion. Work within a milestone is split into bounded commits, but
+there is no requirement for a separate plan per node type. Dependent work cannot
+claim a contract verified while its required fixture still fails.
 
-### Phase 2: Core runtime nodes
+Compatibility adapters are temporary bridges needed to run mixed fixtures or
+integrate families during development. Each has a named owner and deletion
+milestone, reads one authoritative content format, and cannot introduce a
+second writer. Keep an adapter only while a specific dependency requires it.
+Do not add independent per-family production feature flags by default.
 
-1. **2A - Presentation nodes:** `Sprite2D`, transforms, resource adapters,
-   depth, cameras, and Phaser presentation cleanup.
-2. **2B - Physics nodes and host:** `PhysicsBody2D`, `CharacterBody2D`,
-   `StaticBody2D`, `Area2D`, `CollisionShape2D`, fixed-step host ordering,
-   contacts, layers, and masks.
-3. **2C - Timed presentation:** `AnimationPlayer`, animation-resource adapter,
-   `AudioStreamPlayer2D`, timers, and event/signal tracks.
-4. **2D - Scripts and input:** `ScriptNode`, export metadata inheritance,
-   script lifecycle/error behavior, input routing, and the minimal `Control`
-   support required by fixtures.
-5. **2E - Tile layer runtime:** `TileMapLayer2D`, tile-set/data resources,
-   authored collision generation, and production-map load measurement.
+### Baseline and conversion inventory
 
-All Phase 2 nodes run only in fixtures until their owning feature subphase
-explicitly cuts over.
+Before conversion, record the current worktree's behavior-bearing content,
+including user changes that are not yet committed. Unrelated edits are preserved.
+The implementation plan inventories every production scene/map, character,
+weapon, projectile, effect, object family, UI entry point, editor save endpoint,
+shared animation path, and persistence dependency.
 
-### Phase 3: Scene Studio foundation
+Each inventory row identifies its old owner, destination owner, conversion
+method, preserved IDs, focused checks, and legacy files to remove. Migrators are
+repeatable, reject lossy or unresolved fields, and produce a report. Unknown
+gameplay values may not be discarded to make validation pass. Examples are
+insufficient: conversion must cover all authored production content.
 
-1. **3A - Document shell:** project/scene browser, open scene tabs, scene tree,
-   node creation/removal/rename/reorder/reparent, and dirty state.
-2. **3B - Generic inspector:** registry-driven fields, resource and stable-node
-   references, validation warnings, save conflicts, and invalid-scene repair.
-3. **3C - 2D viewport:** selection, transforms, anchors, sprite preview, shape
-   handles, map navigation, zoom, and snapping.
-4. **3D - Animation context:** common timeline, arbitrary property tracks,
-   animation events, and playback preview.
-5. **3E - Tile context:** tile-set selection, tile painting, layers, collision
-   preview, and authored-map validation.
-6. **3F - Audio, signals, and scripts:** audio preview, signal wiring,
-   ScriptNode exports, required references, and configuration warnings.
-7. **3G - Diagnostics:** runtime inspection, lifecycle errors, and tree/resource
-   leak diagnostics.
-8. **3H - Instances and history:** scene-instance browsing, override/revert,
-   duplication semantics, undo/redo, and save/reload round trips.
+During conversion, generated scene output is read-only until the owning content
+family changes writer. The old writer then becomes unavailable or redirects to
+Scene Studio immediately; legacy reader adapters may remain temporarily.
+At completion there is one writable source for each value and one save workflow.
+Source snapshots and version control provide recovery, so obsolete editors do
+not need to remain accessible to authors.
 
-Existing editors remain writable until the content family they own cuts over.
+A family may have its legacy source removed once conversion and technical parity
+checks pass and the implementation remains recoverable. Final integration is
+not labeled gameplay-approved until the user completes the checklist. If a
+milestone is temporarily unbuildable, record the failing boundary and fix it
+before treating the dependent milestone as verified.
 
-### Phase 4: Character vertical slice
+### Existing architecture and single ownership
 
-1. **4A - Shared character/enemy scripts:** normalized character signals,
-   health, damage rules, effect responses, targeting, rewards, and compatibility
-   adapters to current combat consumers.
-2. **4B - Ordinary enemy fixture:** convert Worm Brawler and prove generic
-   movement, attacks, damage, death, visuals, and animation.
-3. **4C - Fatty entity:** convert Fatty to `FattyScript extends EnemyScript`
-   with `rank: "boss"`, generalized eye damage area, authored animation areas,
-   and no separate boss character kind.
-4. **4D - Boss camp assembly:** convert camp activation, dynamic Fatty
-   instantiation, respawn, boss UI, and guarded-chest signals.
-5. **4E - Vertical-slice cutover:** make the two characters and Fatty camp
-   scene-authored, deliver their manual checklist, obtain user approval, and
-   retain an immediate feature-flag rollback to their legacy runtime.
+The node model changes runtime composition, not the ownership of every game rule.
+Retain the existing dependency direction:
 
-### Phase 5: Remaining characters
+- Scene documents and immutable resource definitions belong in content.
+- Engine-independent tree/registry contracts belong in a focused runtime module.
+- Phaser node implementations and SceneTreeHost form the backend adapter.
+- Feature ScriptNodes orchestrate behavior through typed runtime and service
+  interfaces; they cannot import WorldScene or Phaser.
+- Domain services continue to own inventory, quests, progression, transactions,
+  and shared combat calculations.
+- Infrastructure exclusively owns browser persistence, content-file writes,
+  resource loading, and platform integrations.
+- Scene Studio consumes document/registry contracts without importing gameplay
+  factories. Its preview capability set excludes gameplay services.
 
-1. **5A - Remaining ordinary enemies:** convert one package at a time, then
-   retire the generic Enemy factory after family-level user approval.
-2. **5B - NPCs:** create shared NPC scripts, convert authored NPC scenes and
-   wander/interaction signals, then retire `NpcActor` after approval.
-3. **5C - Player:** convert player visuals, body, input, stats, health,
-   equipment connections, and persistence last; retain the legacy player
-   factory until explicit user approval.
+Global defaults and balance already owned by game-constants remain there,
+including primary-player attributes, movement, and progression. Scene exports
+must not create a second editable copy. The inspector may expose a resource
+reference or navigate to the owning project-data editor inside the same shell.
+Enemy-specific values belong to that enemy's script configuration. Raw-media
+metadata stays in the asset manifest; node behavior and collision stay outside
+it. Existing shared animation infrastructure is reused or evolved, not copied
+into each node implementation.
 
-### Phase 6: Combat and interactive entities
+Update docs/ARCHITECTURE.md and repository validators during M5 so contributors
+have one current ownership contract. MobileVersion remains an independent Godot
+application; this migration targets the Phaser application only.
 
-1. **6A - Weapons:** scene-authored weapon visuals, animation, attack areas,
-   activation deduplication, and damage requests.
-2. **6B - Projectiles:** pooled scene instances, movement, collision, impact,
-   ownership, and cleanup.
-3. **6C - Effects:** visual/audio scene instances and deterministic completion
-   cleanup.
-4. **6D - Collectibles and gatherable resources:** drops, pickups, stone/tree
-   interactions, rewards, and persistence IDs.
-5. **6E - Houses and props:** static presentation, solid bodies, occlusion, and
-   map-placement identity.
-6. **6F - Chests:** contents, guarded state signals, inventory transaction, UI
-   opening, and persistence.
-7. **6G - Interaction and gates:** interaction areas, prompts, gated exits,
-   aggregate transactions, and navigation handoff.
+### Persistence and recovery
 
-Each family changes writable ownership and runtime routing independently.
+Preserve the current versioned GameSaveData contract and SaveSystem/
+SaveRepository path. Node runtime changes alone do not justify a new save schema.
+Scripts use typed domain adapters to read and modify existing persisted state.
+Player state, inventory, quests, location, world progress, and play time remain
+one coherent snapshot. Runtime node IDs, backend objects, script source, and
+live node trees never enter that snapshot.
 
-### Phase 7: World scenes
+MapId plus the existing authored object/encounter key remains the persisted
+identity. Scene composition must not change those keys on rename, reparent, or
+conversion. A map instantiation builds a unique key index and rejects duplicate
+keys; dynamic transient nodes remain unsaved unless their owning domain service
+assigns a stable key. New reusable placements derive unique keys as described
+in the identifier contract.
 
-1. **7A - Tile resources:** convert terrain legends and tile grids to tile-set
-   and tile-data resources with visual and collision parity.
-2. **7B - Placements:** convert authored objects, NPCs, and other stable map
-   instances while preserving every persistence key.
-3. **7C - Areas and navigation:** convert safe zones, wander/spawn areas,
-   encounters, exits, gates, and navigation signals.
-4. **7D - World cutover:** make world scenes authoritative only after map
-   round trips, save migration, user gameplay approval, and rollback rehearsal.
+Use a schema migration only when an identified existing field cannot represent
+the preserved domain state. Such a migration belongs to the persistence layer,
+must cover every supported input version, and must preserve the complete save.
+No hybrid envelope, runtime-owner tag, or fixed future schema version is
+required by this design.
 
-### Phase 8: UI scenes
+Cross-domain actions such as chest transfer, consumed-key gate unlock, and
+quest rewards continue to use a transaction coordinator. Prepare and validate
+all participating changes, install them together, and emit notifications only
+after commit. Autosave runs from a coherent committed snapshot. Injected failures
+must preserve item totals and gate/chest/reward consistency.
 
-1. **8A - Control foundation:** layout, themes, focus, input consumption,
-   accessibility metadata, and modal stacking.
-2. **8B - HUD:** status, boss health, floating feedback, and responsive layout.
-3. **8C - Gameplay panels:** inventory, chest, crafting, dialogue, and other
-   modal workflows one panel family at a time.
-4. **8D - Menus and cutover:** remaining menus, UI-scene ownership, manual
-   workflow approval, and retirement of replaced presentation factories.
+If a format conversion is necessary:
 
-### Phase 9: Retirement
+1. Retain the untouched source save and its metadata.
+2. Convert and validate the whole snapshot in memory.
+3. Install through the repository's recoverable save operation, keeping the
+   previous complete snapshot if validation or writing fails.
+4. Verify load/save equivalence, including inventory/world relationships.
 
-1. **9A - Authoring lock:** make retired editors read-only redirects into Scene
-   Studio and audit that every content family has one writable owner.
-2. **9B - Runtime removal:** remove obsolete factories, catalogs, schemas, and
-   adapters only when no active feature flag or save reader depends on them.
-3. **9C - Final compatibility release:** retain the old-save reader for at
-   least one tagged production version after final cutover, then remove it only
-   through a separately approved migration decision.
+Rollback never mixes independently dated save sections. First attempt recovery
+using compatible code that can read the current complete snapshot. If restoring
+a backup would lose progress, retain the current save and require an explicit
+user choice of whole snapshot; technical failure does not authorize replacing
+newer progress. Migration fixtures use isolated copies and never alter the
+user's live saves. An old-save reader may remain when required by supported
+saves; old editor/runtime code need not remain merely to support that reader.
 
-### Phase gate and rollback contract
+### Normative conformance map
 
-Every subphase records these fields in its implementation plan and completion
-handoff:
-
-| Gate | Required evidence |
+| Contract | Milestone and required verification |
 | --- | --- |
-| Deliverable | One bounded node, editor capability, or content family |
-| Active adapter | Exact old/new bridge and which side invokes it |
-| Writable owner before | The only files or editor allowed to save the feature before cutover |
-| Writable owner after | The only files or editor allowed to save it after cutover |
-| Automated gate | Focused contracts, content validation, typecheck, and build |
-| Manual gate | User-only checklist for gameplay-affecting work, or `not applicable` with reason |
-| Approval | Explicit user acceptance before legacy retirement |
-| Rollback | Feature flag or owner switch plus preserved pre-cutover content/save snapshot |
-| Removal | Exact legacy files deferred until all dependents have moved |
-
-Adapters may read from the active owner and present normalized runtime data, but
-they may not make both formats writable. Cutover is an atomic owner switch. If
-the switch fails validation or user acceptance, the feature flag returns to the
-old owner and the generated new content remains diagnostic output rather than
-authoritative data.
-
-### Normative ownership and conformance map
-
-This table is the minimum traceability checklist for implementation plans. A
-subphase is incomplete until its listed contracts have focused automated
-coverage and the phase-gate evidence above.
-
-| Contract area | Owning subphase |
-| --- | --- |
-| Scene, resource, node, instance, runtime, and persistence identifiers; registries; validation | 1A |
-| Lifecycle states, mutation queue, paths, reparenting, duplication, cleanup | 1B |
-| Signals, groups, process/input order, error containment, root swap | 1C |
-| Nested instances, namespaces, provenance, overrides, recursive-cycle rejection | 1D |
-| Visual nodes and Phaser presentation ownership | 2A |
-| Physics nodes, collision semantics, contacts, and exact host-step order | 2B |
-| Animation, audio, timers, and timed signals | 2C |
-| ScriptNode contracts, exports, inheritance, and input routing | 2D |
-| Tile resources, tile nodes, and authored collision generation | 2E |
-| Scene Studio document/tree/inspector/viewport contexts | 3A-3H, each capability in its named subphase |
-| Shared damage, vulnerability, effects, character signals, and enemy rank | 4A |
-| Damage emission and activation deduplication for weapons | 6A |
-| Hybrid save envelope and legacy normalization | 1A |
-| Per-section save ownership changes | The content-family subphase changing that section; world-wide reconciliation in 7D |
-| Removal of legacy writers/readers and final compatibility window | 9B-9C |
-
-### Content and save migration
-
-Deterministic conversion scripts migrate existing content. They are repeatable,
-preserve stable IDs, reject lossy conversion, and report every unresolved
-field. Original files remain authoritative until the relevant cutover; after a
-successful cutover they become read-only migration fixtures until Phase 9.
-
-After the first persisted subsystem cuts over, saves use one versioned hybrid
-envelope. Its sections match the current persistence aggregates and each
-section records its own schema and sole writer:
-
-```ts
-interface HybridSaveEnvelope {
-  readonly schemaVersion: 10;
-  readonly savedAt: number;
-  readonly sections: {
-    readonly player: SaveSection<'legacy' | 'scene'>;
-    readonly inventory: SaveSection<'legacy' | 'scene'>;
-    readonly quests: SaveSection<'legacy' | 'scene'>;
-    readonly location: SaveSection<'legacy' | 'scene'>;
-    readonly world: SaveSection<'legacy' | 'scene'>;
-    readonly session: SaveSection<'legacy' | 'scene'>; // play time and session metadata
-  };
-}
-
-interface SaveSection<Owner extends 'legacy' | 'scene'> {
-  readonly owner: Owner;
-  readonly schemaVersion: number;
-  readonly data: unknown;
-}
-```
-
-The envelope is always validated and written atomically as a whole. Each
-section has exactly one writer selected by that subsystem's feature flag; dual
-writes are forbidden. A section that has not cut over is still serialized by
-its legacy adapter inside the hybrid envelope. A subphase that cuts over a
-persisted subsystem migrates and switches only its owned section or sections,
-then validates the complete envelope. No global runtime flag may implicitly
-choose the owner for unrelated sections.
-
-Legacy whole-save versions remain readable. The compatibility repository
-normalizes them into the hybrid shape in memory. The first successful
-new-format save includes every section, including legacy-owned sections, so a
-partially migrated build never creates a partial save.
-
-Creating or changing the envelope uses this versioned transaction:
-
-1. Read and retain the untouched source save bytes, whether whole-save legacy
-   or an earlier hybrid envelope.
-2. Convert into a new in-memory save using an explicit old-to-new persistence
-   key table produced by content conversion.
-3. Validate the complete converted save and every referenced scene instance.
-4. Write a recoverable backup and then atomically install the new save.
-5. If conversion, validation, or installation fails, retain every prior section
-   owner and keep the original save active; never partially install the new
-   representation.
-
-Authored map object, NPC, chest, gate, encounter, and area IDs map directly to
-authored scene-instance IDs. Dynamic transient nodes do not enter saves unless
-their owning script supplies an explicit stable persistence key.
-
-Rollback while a section's legacy writer remains available restores that
-section from the pre-cutover backup, selects its legacy owner, validates the
-whole envelope, and atomically writes it before loading gameplay. Other section
-owners do not change. Once a section's legacy writer is removed, rollback may
-use its compatibility reader but may not downgrade and overwrite newer data.
-Failed-cutover backups are retained until the corresponding user gameplay
-approval and one subsequent successful save/load checkpoint. The legacy
-whole-save reader remains for the Phase 9C compatibility window.
+| IDs, document schema, registry descriptors, nested references and overrides | M1: invalid/valid fixtures, round trips, duplicate/remap tests |
+| Node and entry lifetimes, signals, detach/re-entry, mutation ordering | M1: lifecycle traces and no duplicate leases/connections |
+| Physics capabilities and host ordering | M1: supported/unsupported geometry, authoritative post-step sync, one backend step |
+| Transactional insertion/root recovery | M1: constructor/entry/ready failure injection and restored logical state |
+| Shared combat and weak-point behavior | M2-M3: common receiver contract, candidate changes, deduplication, confirmed feedback |
+| Editor common controls, resources, preview and undo | M2-M4: required authoring walkthroughs plus document/preview tests |
+| Animation clock and bindings, audio lifetime | M2-M3: event boundaries, cancellation, resource reuse, no preview domain effects |
+| Content completeness and persistent identities | M3-M4: complete conversion inventory, map/key validation |
+| Saves and cross-domain transactions | M3-M4: complete-snapshot equivalence and fault injection |
+| Retirement, documentation and final product acceptance | M5: single-writer audit, full checks, performance evidence, user checklist |
 
 ## Automated Verification
 
@@ -1378,10 +1606,10 @@ not be called gameplay testing.
 - lifecycle callback ordering, callback-time mutation deferral, flush
   boundaries, ready-once behavior, detach/re-entry, and terminal free behavior;
 - process enablement;
-- signal delivery and automatic disconnection;
+- signal suspension on detach, restoration on re-entry, and disconnection on free;
 - queued deletion, same-tree reparenting, and exhaustive cleanup after errors;
-- duplication ID regeneration, internal signal remapping, resource sharing, and
-  external-connection omission;
+- duplication ID regeneration, remapping of all internal references and authored
+  signals, resource sharing, runtime-state reset, and unresolved external references;
 - scene instance namespace generation, internal/cross-instance reference
   remapping, property overrides, and recursive-cycle rejection;
 - serialization round trips and version migrations; and
@@ -1389,16 +1617,19 @@ not be called gameplay testing.
 
 ### Runtime integration
 
-- Phaser resources are created and destroyed with their nodes;
+- Phaser resources follow entry leases while logical state survives detachment;
 - host integration proves the required input, fixed-physics, contact, attack,
   render-process, presentation-sync, and mutation-flush order with exactly one
   Arcade Physics step per fixed tick;
-- bodies and areas respect layers and masks;
+- bodies and areas respect layers/masks, supported transform restrictions,
+  multi-shape union semantics, directional sector boundaries, legacy effective
+  body conversion, and contact invalidation;
 - animation tracks change properties and area enablement at exact positions;
-- attack activations deduplicate persistent and overlapping area contacts and
-  use deterministic damage-area priority;
+- attack activations deduplicate persistent and overlapping area contacts, use
+  deterministic damage-area priority, and permit a later weak-point candidate
+  after a rejected armor contact;
 - timers, audio, collisions, and listeners stop after scene removal;
-- input routing honors handled and unhandled phases;
+- input routing honors Control/DOM consumption, handled/unhandled phases, and pause;
 - nested scene instances resolve deterministically;
 - constructor, enter, ready, signal, processing, exit, and disposer failures
   exercise transactional rollback or exhaustive cleanup as specified;
@@ -1417,9 +1648,8 @@ interactive gameplay:
 - player movement and combat state transitions;
 - NPC wander policy and interaction locking;
 - weapon, projectile, chest, gate, and persistence transactions; and
-- old/new serialization migration equivalence, failed conversion rollback,
-  compatibility reads, one writer per section, atomic envelope writes, and
-  persistence-key preservation.
+- save adapter equivalence, complete-snapshot recovery, compatibility reads,
+  coherent transaction/autosave boundaries, and persistence-key preservation.
 
 ### Scene Studio contracts
 
@@ -1429,11 +1659,15 @@ interactive gameplay:
 - add and revert instance overrides;
 - animate arbitrary exposed properties;
 - inspect ScriptNode exports and warnings;
-- undo/redo and save/reload; and
+- undo/redo, save conflicts, recoverable multi-file writes, and save/reload;
+- preview isolation from scripts, gameplay events, and live saves;
+- shared resource editing, make-unique, and instance override origin; and
 - open and repair invalid development scenes without losing unrelated data.
 
-Every phase runs its focused checks plus relevant content validators,
-TypeScript checking, and production build verification.
+Every completed milestone runs its focused checks plus relevant content
+validators, TypeScript checking, and production build verification. M5 runs the
+complete repository verification sequence. This documentation revision itself
+requires document consistency review, not a claim that runtime tests were run.
 
 ## User-Only Gameplay Acceptance
 
@@ -1444,8 +1678,10 @@ may prepare a checklist and support diagnosis, but it must report:
 Gameplay testing: Not performed - reserved for user verification.
 ```
 
-For every migration checkpoint, the implementation handoff provides a manual
-checklist with:
+The final implementation handoff provides one checklist grouped by authoring,
+combat, world/progression, UI/audio, and save/load. Earlier playable milestones
+may supply optional subsets without making user availability a blocker for
+independent implementation. Each scenario contains:
 
 - exact setup and required save state;
 - actions to perform;
@@ -1455,12 +1691,16 @@ checklist with:
 - relevant Scene Studio workflow; and
 - default plus edge-case scenarios.
 
-The replaced runtime path remains available until:
+Final gameplay acceptance requires:
 
 1. automated technical checks pass;
 2. the manual gameplay checklist is delivered;
 3. the user performs the checklist; and
 4. the user explicitly approves gameplay behavior.
+
+Legacy paths need not remain accessible during this process; version control,
+preserved content snapshots, and complete save backups provide recovery. Report
+technical implementation completion and pending user acceptance separately.
 
 Automated state-machine or collision tests must never be presented as evidence
 that gameplay feels correct or that manual acceptance passed.
@@ -1485,5 +1725,6 @@ The architecture program is complete when:
 8. authored content has one writable source of truth after migration;
 9. scene and node lifecycles leave no listeners, timers, signals, or Phaser
    objects after cleanup;
-10. all automated technical gates pass; and
-11. every retired gameplay path has explicit user gameplay acceptance.
+10. all automated technical gates and required authoring walkthrough contracts
+    pass, with any user-run checks identified honestly; and
+11. final gameplay acceptance is explicitly confirmed by the user.
