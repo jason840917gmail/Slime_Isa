@@ -20,6 +20,17 @@ interface ResolvedNode {
   readonly node: SceneNodeDocument;
 }
 
+function immutableScene(document: SceneDocument): SceneDocument {
+  const copy = structuredClone(document);
+  const freeze = (value: unknown): void => {
+    if (!value || typeof value !== 'object' || Object.isFrozen(value)) return;
+    Object.freeze(value);
+    for (const nested of Object.values(value)) freeze(nested);
+  };
+  freeze(copy);
+  return copy;
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
@@ -31,13 +42,14 @@ export class SceneCatalog {
     for (const document of documents) {
       if (this.byId.has(document.sceneId)) throw new Error(`Duplicate scene ID '${document.sceneId}'`);
       assertValidSceneDocument(document, validation);
-      this.byId.set(document.sceneId, document);
+      this.byId.set(document.sceneId, immutableScene(document));
     }
     const issues = [...this.instanceCycleIssues(), ...this.relationshipIssues()];
     if (issues.length > 0) throw new Error(issues.map((issue) => `${issue.path}: ${issue.message}`).join('\n'));
   }
 
   get(sceneId: SceneId): SceneDocument | undefined { return this.byId.get(sceneId); }
+  has(sceneId: SceneId): boolean { return this.byId.has(sceneId); }
   all(): readonly SceneDocument[] { return [...this.byId.values()]; }
 
   private contextFor(scene: SceneDocument): SceneValidationContext {

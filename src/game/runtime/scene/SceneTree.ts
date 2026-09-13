@@ -1,4 +1,4 @@
-import type { RuntimeNodeId, SceneId } from '../../content/scenes/identifiers';
+import type { PersistenceKey, RuntimeNodeId, SceneId } from '../../content/scenes/identifiers';
 import { Node } from './Node';
 import { Node2D, type Transform2D } from './Node2D';
 import { SceneMutationQueue, type PendingSceneMutation, type SceneMutation } from './SceneMutationQueue';
@@ -22,29 +22,108 @@ export class SceneTree {
   paused = false;
   readonly diagnostics: SceneDiagnostic[] = [];
   private readonly runtimeIndex = new Map<RuntimeNodeId, Node>();
+  private readonly persistenceIndex = new Map<PersistenceKey, Node>();
   private readonly groupIndex = new Map<string, Set<Node>>();
   private readonly mutations = new SceneMutationQueue();
   private boundaryDepth = 0;
   private flushing = false;
+  private currentExternalCommands?: Array<{ readonly node: Node; readonly action: () => void }>;
+  private stagedNodes?: ReadonlySet<Node>;
+  private stagedRoot?: Node;
+  private fatalState = false;
 
   constructor(private readonly options: SceneTreeOptions = {}) {}
 
   setRoot(root: Node): void {
     if (this.root) throw new Error('SceneTree already has a root');
     if (root.get_parent() || root.get_tree() || root.is_freed()) throw new Error('SceneTree root must be a live detached root node');
-    this.root = root;
-    this._runBoundary('mutation', root, () => this.enterSubtree(root));
-    if (root.get_tree() !== this && this.root === root) this.root = undefined;
+    this.boundaryDepth += 1;
+    this.currentExternalCommands = [];
+    this.stagedRoot = root;
+    try {
+      this.enterSubtree(root);
+      this.root = root;
+      const commands = this.currentExternalCommands;
+      this.currentExternalCommands = undefined;
+      this.stagedRoot = undefined;
+      this.runExternalCommands(commands);
+    } catch (error) {
+      this.report(root, 'mutation', error);
+      this.currentExternalCommands = undefined;
+      this.stagedRoot = undefined;
+      this.discardQueuedMutations();
+    } finally {
+      this.boundaryDepth -= 1;
+      if (this.boundaryDepth === 0 && !this.flushing) this.flushMutations();
+    }
   }
 
   getNodeById(runtimeId: RuntimeNodeId): Node | undefined { return this.runtimeIndex.get(runtimeId); }
+  getNodeByPersistenceKey(key: PersistenceKey): Node | undefined { return this.persistenceIndex.get(key); }
   getNodesInGroup(group: string): readonly Node[] {
     const members = this.groupIndex.get(group);
     return members ? this.treeOrder().filter((node) => members.has(node)) : [];
   }
   get indexedNodeCount(): number { return this.runtimeIndex.size; }
+  get indexedPersistenceKeyCount(): number { return this.persistenceIndex.size; }
   get indexedGroupCount(): number { return this.groupIndex.size; }
   get queuedMutationCount(): number { return this.mutations.size; }
+  get isFatal(): boolean { return this.fatalState; }
+
+  replaceRoot(replacement: Node): boolean {
+    if (this.fatalState) throw new Error('Cannot replace the root of a fatal SceneTree');
+    if (this.boundaryDepth > 0 || this.flushing || this.mutations.size > 0) throw new Error('Root replacement requires a stable scene boundary');
+    if (replacement.get_parent() || replacement.get_tree() || replacement.is_freed()) throw new Error('Replacement root must be a live detached root node');
+    const previous = this.root;
+    if (!previous) { this.setRoot(replacement); return replacement.get_tree() === this; }
+
+    const wasPaused = this.paused;
+    this.paused = true;
+    this.boundaryDepth += 1;
+    this.currentExternalCommands = [];
+    try {
+      this.exitSubtree(previous);
+      this.root = undefined;
+      this.stagedRoot = replacement;
+      this.enterSubtree(replacement);
+      this.root = replacement;
+      this.stagedRoot = undefined;
+      const commands = this.currentExternalCommands;
+      this.currentExternalCommands = undefined;
+      previous._freeDetachedSubtree((error) => this.report(previous, 'dispose', error));
+      this.runExternalCommands(commands);
+      return true;
+    } catch (error) {
+      this.report(replacement, 'mutation', error);
+      this.currentExternalCommands = undefined;
+      this.stagedRoot = undefined;
+      this.discardQueuedMutations();
+      if (replacement.get_tree() === this) this.exitSubtree(replacement);
+      this.stagedRoot = previous;
+      this.currentExternalCommands = [];
+      try {
+        this.enterSubtree(previous);
+        this.root = previous;
+        this.stagedRoot = undefined;
+        const restoreCommands = this.currentExternalCommands;
+        this.currentExternalCommands = undefined;
+        this.runExternalCommands(restoreCommands);
+      } catch (restoreError) {
+        this.currentExternalCommands = undefined;
+        this.stagedRoot = undefined;
+        this.root = undefined;
+        this.fatalState = true;
+        this.paused = true;
+        this.report(previous, 'mutation', new AggregateError([error, restoreError], 'Replacement failed and the previous root could not be restored'));
+        return false;
+      }
+      return false;
+    } finally {
+      this.boundaryDepth -= 1;
+      if (!this.fatalState) this.paused = wasPaused;
+      if (this.boundaryDepth === 0 && !this.flushing) this.flushMutations();
+    }
+  }
 
   queueAdd(parent: Node, node: Node): void {
     this.accepts(parent);
@@ -149,12 +228,26 @@ export class SceneTree {
   /** @internal */
   _refreshGroups(node: Node): void {
     for (const [group, members] of this.groupIndex) { members.delete(node); if (members.size === 0) this.groupIndex.delete(group); }
+    if (this.stagedNodes?.has(node)) return;
     if (!node.is_inside_tree()) return;
     for (const group of node.get_groups()) {
       const members = this.groupIndex.get(group) ?? new Set<Node>();
       members.add(node);
       this.groupIndex.set(group, members);
     }
+  }
+
+  /** @internal */
+  _queueExternalCommand(node: Node, action: () => void): void {
+    if (node.get_tree() !== this) throw new Error(`Node '${node.name}' is not in this tree`);
+    if (this.currentExternalCommands) this.currentExternalCommands.push({ node, action });
+    else this.invoke(node, 'mutation', action);
+  }
+
+  /** @internal */
+  _rootForLookup(node: Node): Node | undefined {
+    if (this.stagedNodes?.has(node)) return this.root ?? this.stagedRoot;
+    return this.root;
   }
 
   private accepts(node: Node): void {
@@ -258,10 +351,14 @@ export class SceneTree {
   private enterSubtree(root: Node): void {
     const nodes = this.subtreePreorder(root);
     const localIds = new Set<RuntimeNodeId>();
+    const localPersistenceKeys = new Set<PersistenceKey>();
     for (const node of nodes) {
       if (node.is_freed()) throw new Error(`Cannot enter freed node '${node.name}'`);
       if (localIds.has(node.runtimeId) || this.runtimeIndex.has(node.runtimeId)) throw new Error(`Duplicate runtime node ID '${node.runtimeId}'`);
       localIds.add(node.runtimeId);
+      const key = node.explicitPersistenceKey;
+      if (key && (localPersistenceKeys.has(key) || this.persistenceIndex.has(key))) throw new Error(`Duplicate persistence key '${key}'`);
+      if (key) localPersistenceKeys.add(key);
     }
     const available = new Set(nodes);
     for (const node of nodes) {
@@ -272,11 +369,11 @@ export class SceneTree {
         }
       }
     }
-    for (const node of nodes) {
-      node._setTreeInternal(this);
-      this.runtimeIndex.set(node.runtimeId, node);
-      this._refreshGroups(node);
-    }
+    const ownsCommands = this.currentExternalCommands === undefined;
+    if (ownsCommands) this.currentExternalCommands = [];
+    const previousStagedNodes = this.stagedNodes;
+    this.stagedNodes = new Set(nodes);
+    for (const node of nodes) node._setTreeInternal(this);
     const entered: Node[] = [];
     let activeNode = root;
     let activePhase: 'enter' | 'ready' = 'enter';
@@ -296,9 +393,21 @@ export class SceneTree {
         if (!node.was_ready()) {
           if (node.lifecycleState !== 'queued-for-free') { node._ready(); node._markReadyInternal(); }
         } else node._setLifecycleInternal('ready');
+      }
+      this.stagedNodes = previousStagedNodes;
+      for (const node of nodes) {
+        this.runtimeIndex.set(node.runtimeId, node);
+        const key = node.explicitPersistenceKey;
+        if (key) this.persistenceIndex.set(key, node);
         this._refreshGroups(node);
       }
+      if (ownsCommands) {
+        const commands = this.currentExternalCommands;
+        this.currentExternalCommands = undefined;
+        this.runExternalCommands(commands);
+      }
     } catch (error) {
+      this.stagedNodes = previousStagedNodes;
       this.report(activeNode, activePhase, error);
       for (const node of [...entered].reverse()) this.exitOne(node);
       for (const node of nodes) {
@@ -306,6 +415,10 @@ export class SceneTree {
         this.removeFromIndexes(node);
         node._setTreeInternal(undefined);
         node._setLifecycleInternal('detached');
+      }
+      if (ownsCommands) {
+        this.currentExternalCommands = undefined;
+        this.discardQueuedMutations();
       }
       throw error;
     }
@@ -327,6 +440,8 @@ export class SceneTree {
 
   private removeFromIndexes(node: Node): void {
     this.runtimeIndex.delete(node.runtimeId);
+    const key = node.explicitPersistenceKey;
+    if (key && this.persistenceIndex.get(key) === node) this.persistenceIndex.delete(key);
     for (const [group, members] of this.groupIndex) { members.delete(node); if (members.size === 0) this.groupIndex.delete(group); }
   }
 
@@ -344,5 +459,16 @@ export class SceneTree {
     const visit = (node: Node): void => { for (const child of node._getChildrenInternal()) visit(child); output.push(node); };
     visit(root);
     return output;
+  }
+
+  private runExternalCommands(commands: readonly { readonly node: Node; readonly action: () => void }[] | undefined): void {
+    for (const command of commands ?? []) this.invoke(command.node, 'mutation', command.action);
+  }
+
+  private discardQueuedMutations(): void {
+    for (const mutation of this.mutations.clear()) {
+      if (mutation.kind === 'free') mutation.node._clearQueuedForFreeInternal();
+      if (mutation.kind === 'add') mutation.node._setMutationOwnerInternal(undefined);
+    }
   }
 }
