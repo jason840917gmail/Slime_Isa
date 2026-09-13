@@ -230,18 +230,37 @@ const resource = (key: string, label: string, kinds: readonly string[]): Propert
   key, label, value: { kind: 'resource-reference', resourceKinds: kinds }, serialized: true, inspector: 'resource', overridable: true,
 });
 
+const boolean = (key: string, label: string, defaultValue: boolean): PropertyDescriptor => ({
+  key, label, value: { kind: 'boolean' }, defaultValue, serialized: true, inspector: 'checkbox', overridable: true,
+});
+
+const number = (key: string, label: string, defaultValue: number, min?: number, max?: number): PropertyDescriptor => ({
+  key, label, value: { kind: 'number', ...(min === undefined ? {} : { min }), ...(max === undefined ? {} : { max }) },
+  defaultValue, serialized: true, inspector: 'number', animation: { interpolation: 'numeric', domains: ['physics', 'render'] }, overridable: true,
+});
+
 export function createCoreDescriptorRegistry(scripts: readonly ScriptDescriptor[] = []): DescriptorRegistry {
   const nodeTypes: NodeTypeDescriptor[] = [
     { type: 'Node', properties: [] },
-    { type: 'Node2D', extends: 'Node', properties: [vector('position', 'Position', [0, 0]), vector('scale', 'Scale', [1, 1]), { key: 'rotation', label: 'Rotation', units: 'degrees', value: { kind: 'number' }, defaultValue: 0, serialized: true, inspector: 'number', animation: { interpolation: 'numeric', domains: ['physics', 'render'] }, overridable: true }] },
-    { type: 'Sprite2D', extends: 'Node2D', properties: [resource('texture', 'Texture', ['texture', 'sprite-sheet']), { key: 'frame', label: 'Frame', value: { kind: 'number', integer: true, min: 0 }, defaultValue: 0, serialized: true, inspector: 'number', animation: { interpolation: 'step', domains: ['physics', 'render'] }, overridable: true }] },
+    { type: 'Node2D', extends: 'Node', properties: [vector('position', 'Position', [0, 0]), vector('scale', 'Scale', [1, 1]), { key: 'rotation', label: 'Rotation', units: 'degrees', value: { kind: 'number' }, defaultValue: 0, serialized: true, inspector: 'number', animation: { interpolation: 'numeric', domains: ['physics', 'render'] }, overridable: true }, boolean('visible', 'Visible', true)] },
+    { type: 'Sprite2D', extends: 'Node2D', properties: [
+      { ...resource('texture', 'Texture', ['texture', 'sprite-sheet']), required: true },
+      { key: 'frame', label: 'Frame', value: { kind: 'number', integer: true, min: 0 }, defaultValue: 0, serialized: true, inspector: 'number', animation: { interpolation: 'step', domains: ['physics', 'render'] }, overridable: true },
+      vector('origin', 'Origin', [0.5, 0.5]), vector('visualOffset', 'Visual Offset', [0, 0]),
+      number('alpha', 'Alpha', 1, 0, 1),
+      { key: 'tint', label: 'Tint', value: { kind: 'string', pattern: /^#[0-9a-f]{6}$/i }, defaultValue: '#ffffff', serialized: true, inspector: 'color', overridable: true },
+      boolean('flipX', 'Flip X', false), boolean('flipY', 'Flip Y', false),
+      { key: 'depthMode', label: 'Depth Mode', value: { kind: 'enum', values: ['world-sorted', 'explicit'] }, defaultValue: 'world-sorted', serialized: true, inspector: 'select', overridable: true },
+      { key: 'depthBand', label: 'Depth Band', value: { kind: 'enum', values: ['ground-terrain', 'ground-decals', 'world-entities', 'overhead-artwork', 'reveal-effects', 'screen-ui', 'editor-cursor', 'editor-drag-lift', 'editor-selection-marker', 'editor-template-overlay'] }, defaultValue: 'world-entities', serialized: true, inspector: 'select', overridable: true },
+      number('depth', 'Explicit Depth', 0),
+    ] },
     { type: 'PhysicsBody2D', extends: 'Node2D', properties: [] },
     { type: 'CharacterBody2D', extends: 'PhysicsBody2D', properties: [] },
     { type: 'StaticBody2D', extends: 'PhysicsBody2D', properties: [] },
     { type: 'Area2D', extends: 'Node2D', properties: [] },
     { type: 'CollisionShape2D', extends: 'Node2D', allowedParentTypes: ['CharacterBody2D', 'StaticBody2D', 'Area2D'], properties: [resource('shape', 'Shape', ['collision-shape'])] },
     { type: 'TileMapLayer2D', extends: 'Node2D', properties: [resource('tileData', 'Tile Data', ['tile-data'])] },
-    { type: 'Camera2D', extends: 'Node2D', properties: [] },
+    { type: 'Camera2D', extends: 'Node2D', properties: [number('zoom', 'Zoom', 1, 0.01), boolean('roundPixels', 'Round Pixels', true)] },
     { type: 'AnimationPlayer', extends: 'Node', properties: [resource('library', 'Animation Library', ['animation-library'])] },
     { type: 'AudioStreamPlayer', extends: 'Node', properties: [resource('stream', 'Audio Stream', ['audio'])] },
     { type: 'AudioStreamPlayer2D', extends: 'Node2D', properties: [resource('stream', 'Audio Stream', ['audio'])] },

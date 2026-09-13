@@ -39,6 +39,7 @@ export class Node {
   private physicsProcessEnabled = false;
   private inputEnabled = false;
   private unhandledInputEnabled = false;
+  private inputPriority = 0;
   private processWhenPaused = false;
   private readonly groups = new Set<string>();
   private entryScope = new DisposableScope();
@@ -118,6 +119,7 @@ export class Node {
       copy.physicsProcessEnabled = source.physicsProcessEnabled;
       copy.inputEnabled = source.inputEnabled;
       copy.unhandledInputEnabled = source.unhandledInputEnabled;
+      copy.inputPriority = source.inputPriority;
       copy.processWhenPaused = source.processWhenPaused;
       for (const group of source.groups) copy.groups.add(group);
       for (const signalId of source.signals.keys()) if (!copy.signals.has(signalId)) copy.createSignal(signalId);
@@ -185,11 +187,16 @@ export class Node {
   set_physics_process(enabled: boolean): void { this.physicsProcessEnabled = enabled; }
   set_process_input(enabled: boolean): void { this.inputEnabled = enabled; }
   set_process_unhandled_input(enabled: boolean): void { this.unhandledInputEnabled = enabled; }
+  set_input_priority(priority: number): void {
+    if (!Number.isInteger(priority)) throw new Error('Input priority must be an integer');
+    this.inputPriority = priority;
+  }
   set_process_when_paused(enabled: boolean): void { this.processWhenPaused = enabled; }
   is_processing(): boolean { return this.processEnabled; }
   is_physics_processing(): boolean { return this.physicsProcessEnabled; }
   is_processing_input(): boolean { return this.inputEnabled; }
   is_processing_unhandled_input(): boolean { return this.unhandledInputEnabled; }
+  get_input_priority(): number { return this.inputPriority; }
   can_process_while_paused(): boolean { return this.processWhenPaused; }
 
   add_to_group(group: string): void { if (group.length === 0) throw new Error('Group cannot be empty'); this.groups.add(group); this.tree?._refreshGroups(this); }

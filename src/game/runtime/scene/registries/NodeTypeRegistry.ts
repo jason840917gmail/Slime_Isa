@@ -23,6 +23,12 @@ export class NodeTypeRegistry {
     return this;
   }
 
+  replace(type: string, factory: NodeFactory): this {
+    if (!this.factories.has(type)) throw new Error(`Node type '${type}' is not registered`);
+    this.factories.set(type, factory);
+    return this;
+  }
+
   has(type: string): boolean { return this.factories.has(type); }
 
   construct(context: NodeConstructionContext): Node {
@@ -45,6 +51,7 @@ export function createCoreNodeTypeRegistry(): NodeTypeRegistry {
     position: Array.isArray(properties.position) ? { x: Number(properties.position[0]), y: Number(properties.position[1]) } : undefined,
     rotation: typeof properties.rotation === 'number' ? properties.rotation : undefined,
     scale: Array.isArray(properties.scale) ? { x: Number(properties.scale[0]), y: Number(properties.scale[1]) } : undefined,
+    visible: typeof properties.visible === 'boolean' ? properties.visible : undefined,
   }));
   for (const type of ['AnimationPlayer', 'AudioStreamPlayer']) registry.register(type, ({ runtimeId, name }) => new Node({ runtimeId, name }));
   return registry;

@@ -129,6 +129,9 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
         gravity: { y: 0, x: 0 },
         debug: false,
         fps: 60,
+        // WorldScene remains on Phaser's legacy automatic fixed step until its
+        // authored-scene cutover. Managed SceneTree hosts disable that scene's
+        // automatic update and become its single manual Arcade step owner.
         fixedStep: true,
       },
     },
