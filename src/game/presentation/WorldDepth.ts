@@ -57,6 +57,10 @@ export interface ResolvedWorldDepth {
   readonly depth: number;
 }
 
+export interface WorldDepthResolver {
+  resolve(groundAnchorY: number, options?: WorldDepthOptions): ResolvedWorldDepth;
+}
+
 export function clampSortAnchorY(anchorY: number): number {
   return Math.max(0, Math.min(MAX_SORT_ANCHOR_Y, Number.isFinite(anchorY) ? anchorY : 0));
 }
@@ -98,6 +102,8 @@ export function resolveWorldDepth(
     depth: DEPTH_BANDS[band] + yQuantum * SORT_QUANTUM_SIZE + tie * 16 + attachment,
   };
 }
+
+export const defaultWorldDepthResolver: WorldDepthResolver = Object.freeze({ resolve: resolveWorldDepth });
 
 export function resolveExplicitDepth(
   band: Exclude<WorldDepthBand, 'world-entities' | 'ground-terrain' | 'ground-decals'>,

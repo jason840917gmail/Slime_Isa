@@ -13,13 +13,18 @@ export type PhysicsPresentationTarget = Phaser.GameObjects.GameObject & {
   readonly body?: unknown;
 };
 
+export function fixedStepPresentationAlpha(accumulatedSeconds: number, fixedDeltaSeconds: number): number {
+  if (!Number.isFinite(accumulatedSeconds) || !Number.isFinite(fixedDeltaSeconds) || fixedDeltaSeconds <= 0) return 1;
+  return Phaser.Math.Clamp(accumulatedSeconds / fixedDeltaSeconds, 0, 1);
+}
+
 export function physicsPresentationAlpha(scene: Phaser.Scene): number {
   const world = scene.physics?.world as PhysicsWorldTiming | undefined;
   if (!world || !world.fixedStep || world.isPaused) return 1;
   const frameTimeMs = world._frameTimeMS;
   const elapsed = world._elapsed;
   if (!Number.isFinite(frameTimeMs) || !frameTimeMs || !Number.isFinite(elapsed)) return 1;
-  return Phaser.Math.Clamp((elapsed ?? 0) / frameTimeMs, 0, 1);
+  return fixedStepPresentationAlpha((elapsed ?? 0) / 1000, frameTimeMs / 1000);
 }
 
 export function resolvePhysicsPresentationPosition(

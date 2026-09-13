@@ -194,12 +194,12 @@ export class SceneTree {
 
   dispatchInput(event: SceneTreeInputEvent): void {
     this.dispatch(() => {
-      for (const node of this.treeOrder()) {
+      for (const node of this.inputOrder()) {
         if (!node.is_processing_input() || (this.paused && !node.can_process_while_paused())) continue;
         this.invoke(node, 'input', () => node._input(event));
       }
       if (!event.handled) {
-        for (const node of this.treeOrder()) {
+        for (const node of this.inputOrder()) {
           if (event.handled) break;
           if (!node.is_processing_unhandled_input() || (this.paused && !node.can_process_while_paused())) continue;
           this.invoke(node, 'unhandled-input', () => node._unhandled_input(event));
@@ -248,6 +248,16 @@ export class SceneTree {
   _rootForLookup(node: Node): Node | undefined {
     if (this.stagedNodes?.has(node)) return this.root ?? this.stagedRoot;
     return this.root;
+  }
+
+  /** @internal Host boundary that defers structural mutation flushes until callback completion. */
+  _deferMutations(callback: () => void): void {
+    this.boundaryDepth += 1;
+    try { callback(); }
+    finally {
+      this.boundaryDepth -= 1;
+      if (this.boundaryDepth === 0 && !this.flushing) this.flushMutations();
+    }
   }
 
   private accepts(node: Node): void {
@@ -446,6 +456,13 @@ export class SceneTree {
   }
 
   private treeOrder(): Node[] { return this.root ? this.subtreePreorder(this.root).filter((node) => node.lifecycleState === 'ready') : []; }
+
+  private inputOrder(): Node[] {
+    return this.treeOrder()
+      .map((node, order) => ({ node, order }))
+      .sort((left, right) => right.node.get_input_priority() - left.node.get_input_priority() || left.order - right.order)
+      .map(({ node }) => node);
+  }
 
   private subtreePreorder(root: Node): Node[] {
     const output: Node[] = [];

@@ -90,6 +90,13 @@ export class ResponsiveCameraController {
 
   stopFollow(): void {
     this.following = false;
+    this.followTarget = undefined;
+  }
+
+  destroy(): void {
+    this.stopFollow();
+    this.camera.panEffect.reset();
+    this.camera.zoomEffect.reset();
   }
 
   update(deltaMs: number): void {
