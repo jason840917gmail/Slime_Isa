@@ -37,4 +37,10 @@ export class SceneMutationQueue {
       return phase(left) - phase(right) || left.order - right.order;
     });
   }
+
+  clear(): readonly SceneMutation[] {
+    const discarded = [...this.pending.values()];
+    this.pending = new Map();
+    return discarded;
+  }
 }

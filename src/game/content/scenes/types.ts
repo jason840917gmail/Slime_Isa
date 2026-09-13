@@ -36,6 +36,13 @@ export interface SceneInstanceDocument {
   readonly overrides: readonly SceneOverrideDocument[];
 }
 
+export interface SceneInstanceProvenance {
+  readonly sourceSceneId: SceneId;
+  readonly authoredInstanceId: InstanceId;
+  readonly containingInstancePath: readonly InstanceId[];
+  readonly overrides: readonly SceneOverrideDocument[];
+}
+
 export interface SignalConnectionDocument {
   readonly source: NodeReferenceDocument;
   readonly signal: string;

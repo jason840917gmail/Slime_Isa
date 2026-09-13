@@ -1,4 +1,5 @@
-import type { RuntimeNodeId } from '../../content/scenes/identifiers';
+import { instanceId, type PersistenceKey, type RuntimeNodeId } from '../../content/scenes/identifiers';
+import type { SceneInstanceProvenance } from '../../content/scenes/types';
 import { DisposableScope } from './DisposableScope';
 import { NodePath, nodePath } from './NodePath';
 import { NodeReference } from './NodeReference';
@@ -13,6 +14,7 @@ export interface NodeOptions {
 }
 
 let nextDuplicateNamespace = 1;
+let nextDuplicateInstance = 1;
 
 export function validateNodeName(name: string): void {
   if (name.length === 0 || name === '.' || name === '..' || name.includes('/')) throw new Error(`Invalid node name '${name}'`);
@@ -45,6 +47,8 @@ export class Node {
   private readonly signalHandlers = new Map<string, (payload: unknown) => void>();
   private readonly signalDisconnects = new Set<() => void>();
   private readonly references = new Map<string, NodeReference>();
+  private instanceProvenance?: SceneInstanceProvenance;
+  private persistenceKey?: PersistenceKey;
 
   constructor(options: NodeOptions) {
     validateNodeName(options.name);
@@ -62,6 +66,8 @@ export class Node {
   get lifecycleState(): NodeLifecycleState { return this.queuedForFree ? 'queued-for-free' : this.lifecycle; }
   get entryDisposables(): DisposableScope { return this.entryScope; }
   get lifetimeDisposables(): DisposableScope { return this.lifetimeScope; }
+  get authoredInstanceProvenance(): SceneInstanceProvenance | undefined { return this.instanceProvenance; }
+  get explicitPersistenceKey(): PersistenceKey | undefined { return this.persistenceKey; }
 
   add_child(node: Node): void {
     this.assertMutable();
@@ -116,6 +122,12 @@ export class Node {
       for (const group of source.groups) copy.groups.add(group);
       for (const signalId of source.signals.keys()) if (!copy.signals.has(signalId)) copy.createSignal(signalId);
       source._copyConfigurationTo(copy);
+      if (source.instanceProvenance) {
+        copy.instanceProvenance = {
+          ...structuredClone(source.instanceProvenance),
+          authoredInstanceId: instanceId(`duplicate-${nextDuplicateInstance++}`),
+        };
+      }
       remap.set(source, copy);
       for (const child of source.children) copy._attachDetachedChild(cloneTree(child));
       return copy;
@@ -152,7 +164,7 @@ export class Node {
 
   get_node(path: string | NodePath): Node {
     const parsed = nodePath(path);
-    let current: Node | undefined = parsed.absolute ? this.tree?.root : this;
+    let current: Node | undefined = parsed.absolute ? this.tree?._rootForLookup(this) : this;
     if (!current) throw new Error(`Cannot resolve absolute path '${parsed}' outside a tree`);
     const segments = [...parsed.segments];
     if (parsed.absolute && segments[0] === current.name) segments.shift();
@@ -207,6 +219,18 @@ export class Node {
 
   getReference<T extends Node>(key: string): NodeReference<T> | undefined { return this.references.get(key) as NodeReference<T> | undefined; }
 
+  queue_external_command(action: () => void): void {
+    if (!this.tree) throw new Error(`Node '${this.name}' cannot queue an external command while detached`);
+    this.tree._queueExternalCommand(this, action);
+  }
+
+  create_entry_abort_controller(): AbortController {
+    if (!this.tree) throw new Error(`Node '${this.name}' cannot create an entry abort controller while detached`);
+    const controller = new AbortController();
+    this.entryScope.add(() => controller.abort());
+    return controller;
+  }
+
   _enter_tree(): void {}
   _ready(): void {}
   _process(_deltaSeconds: number): void {}
@@ -226,6 +250,10 @@ export class Node {
   _setTreeInternal(tree: SceneTree | undefined): void { this.tree = tree; }
   /** @internal */
   _setMutationOwnerInternal(tree: SceneTree | undefined): void { this.mutationOwner = tree; }
+  /** @internal */
+  _setInstanceProvenanceInternal(provenance: SceneInstanceProvenance | undefined): void { this.instanceProvenance = provenance; }
+  /** @internal */
+  _setPersistenceKeyInternal(key: PersistenceKey | undefined): void { this.persistenceKey = key; }
   /** @internal */
   _setLifecycleInternal(state: Exclude<NodeLifecycleState, 'queued-for-free'>): void { this.lifecycle = state; }
   /** @internal */
