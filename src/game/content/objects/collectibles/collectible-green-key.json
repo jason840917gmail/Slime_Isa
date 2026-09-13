@@ -1,0 +1,13 @@
+{
+  "$schema": "../objects.schema.json",
+  "objectId": "collectible.green-key",
+  "selection": "authored",
+  "variants": [{
+    "assetId": "sheet.items.keys.5x4",
+    "frames": [{ "visualId": "green-key", "frame": 0, "displayName": "Verdant Key", "scale": 1 }]
+  }],
+  "physics": null,
+  "behavior": "collectible.walk-over",
+  "collectible": { "itemId": "green-key", "quantity": 1 },
+  "tags": ["collectible", "key"]
+}

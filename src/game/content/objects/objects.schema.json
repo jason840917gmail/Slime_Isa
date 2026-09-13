@@ -59,6 +59,7 @@
     "collectible": { "$ref": "#/$defs/collectible" },
     "destructible": { "$ref": "#/$defs/destructible" },
     "resourceNode": { "$ref": "#/$defs/resourceNode" },
+    "chest": { "const": true },
     "npc": { "$ref": "#/$defs/npc" },
     "tags": {
       "type": "array",

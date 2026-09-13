@@ -16,6 +16,7 @@ export interface DevToolsState {
   interactionZones: boolean;
   attackBoxes: boolean;
   enemyBoundaries: boolean;
+  bossBattleAreas: boolean;
 }
 
 type DevToolKey = keyof Omit<DevToolsState, 'enabled'>;
@@ -30,6 +31,7 @@ const TOGGLES: Array<{ key: DevToolKey; label: string; description: string }> = 
   { key: 'interactionZones', label: 'Interaction zones', description: 'Doors, pickups, transitions' },
   { key: 'attackBoxes', label: 'Active attack hitboxes', description: 'Live authored collision shapes and timing' },
   { key: 'enemyBoundaries', label: 'Enemy boundaries', description: 'Stay and pursue perimeters' },
+  { key: 'bossBattleAreas', label: 'Boss battle areas', description: 'Activation and combat arena perimeters' },
 ];
 
 export const devToolsState: DevToolsState = {
@@ -43,6 +45,7 @@ export const devToolsState: DevToolsState = {
   interactionZones: true,
   attackBoxes: true,
   enemyBoundaries: false,
+  bossBattleAreas: false,
 };
 
 let displayedCameraZoom = 1;
@@ -95,6 +98,8 @@ export function createDevToolsPanel(): string {
         <p><span class="swatch swatch-attack"></span> Active attack hitboxes</p>
         <p><span class="swatch swatch-enemy-stay"></span> Enemy stay</p>
         <p><span class="swatch swatch-enemy-pursue"></span> Enemy pursue</p>
+        <p><span class="swatch swatch-boss-activation"></span> Boss activation</p>
+        <p><span class="swatch swatch-boss-arena"></span> Boss combat arena</p>
       </section>
     </aside>
   `;

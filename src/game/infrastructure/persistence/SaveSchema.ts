@@ -5,7 +5,7 @@ import type { AreaId } from '../../world/Area';
 import type { MapId } from '../../content/maps/mapFormat';
 import { GAME_CONSTANTS } from '../../Constant';
 
-export const SAVE_SCHEMA_VERSION = 8;
+export const SAVE_SCHEMA_VERSION = 9;
 export const SAVE_NAME_MAX_LENGTH = 32;
 
 export type FacingDirection = 'up' | 'down' | 'left' | 'right';
@@ -51,11 +51,21 @@ export interface InventoryWorldDropProgressData {
   readonly y: number;
 }
 
+export interface BossCampProgressData {
+  readonly respawnReadyAtEpochMs: number;
+}
+
+export interface ChestProgressData {
+  readonly remaining: Readonly<Record<string, number>>;
+}
+
 export interface MapRuntimeStateData {
   readonly resources: Record<string, ResourceProgressStateData>;
   readonly collectibles?: Record<string, CollectibleProgressStateData>;
   readonly inventoryDrops?: Record<string, InventoryWorldDropProgressData>;
   readonly nextInventoryDropSequence?: number;
+  readonly bossCamps?: Record<string, BossCampProgressData>;
+  readonly chests?: Record<string, ChestProgressData>;
   readonly completedEncounterIds: readonly string[];
   readonly openedRewardIds: readonly string[];
   readonly unlockedGateIds: readonly string[];
@@ -229,6 +239,16 @@ function isInventoryWorldDrop(value: unknown): value is InventoryWorldDropProgre
     && isFiniteNumber(value.y);
 }
 
+function isBossCampState(value: unknown): value is BossCampProgressData {
+  return isRecord(value) && isNonNegativeNumber(value.respawnReadyAtEpochMs);
+}
+
+function isChestState(value: unknown): value is ChestProgressData {
+  return isRecord(value)
+    && isRecord(value.remaining)
+    && Object.values(value.remaining).every((amount) => Number.isInteger(amount) && (amount as number) > 0);
+}
+
 function isMapRuntimeState(value: unknown): value is MapRuntimeStateData {
   return isRecord(value)
     && isRecord(value.resources)
@@ -244,6 +264,10 @@ function isMapRuntimeState(value: unknown): value is MapRuntimeStateData {
       && Object.values(value.inventoryDrops).every(isInventoryWorldDrop)))
     && (value.nextInventoryDropSequence === undefined
       || (Number.isInteger(value.nextInventoryDropSequence) && (value.nextInventoryDropSequence as number) >= 1))
+    && (value.bossCamps === undefined || (isRecord(value.bossCamps)
+      && Object.values(value.bossCamps).every(isBossCampState)))
+    && (value.chests === undefined || (isRecord(value.chests)
+      && Object.values(value.chests).every(isChestState)))
     && isStringArray(value.completedEncounterIds)
     && isStringArray(value.openedRewardIds)
     && isStringArray(value.unlockedGateIds)

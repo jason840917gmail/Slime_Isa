@@ -32,6 +32,7 @@ const CHARACTER_DEFINITION_ROOT = path.resolve(process.cwd(), 'src/game/content/
 const ANIMATION_DEFINITION_ROOT = path.resolve(process.cwd(), 'src/game/content/animations');
 const ITEM_DEFINITION_PATH = path.resolve(process.cwd(), 'src/game/content/items/items.json');
 const WEAPON_DEFINITION_ROOT = path.resolve(process.cwd(), 'src/game/content/weapons');
+const BOSS_DEFINITION_ROOT = path.resolve(process.cwd(), 'src/game/content/bosses');
 const GAME_CONSTANTS_PATH = path.resolve(process.cwd(), 'src/game/content/game-constants.json');
 
 async function readResourceTags(gameConstantsPath = GAME_CONSTANTS_PATH): Promise<ReadonlySet<string>> {
@@ -55,6 +56,14 @@ function discoverEnemyIds(directory: string): string[] {
 }
 
 const ENEMY_IDS = new Set(discoverEnemyIds(CHARACTER_DEFINITION_ROOT));
+const BOSS_IDS = new Set(
+  readdirSync(BOSS_DEFINITION_ROOT)
+    .filter((filename) => filename.endsWith('.json') && filename !== 'boss.schema.json')
+    .flatMap((filename) => {
+      const definition = JSON.parse(readFileSync(path.join(BOSS_DEFINITION_ROOT, filename), 'utf8')) as { id?: unknown };
+      return typeof definition.id === 'string' ? [definition.id] : [];
+    }),
+);
 const KNOWN_ITEM_IDS = new Set(Object.keys(JSON.parse(readFileSync(ITEM_DEFINITION_PATH, 'utf8')) as Record<string, unknown>));
 function discoverWeaponItemIds(directory: string): void {
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
@@ -87,6 +96,7 @@ interface MutableObjectDefinition {
   collectible?: Record<string, unknown>;
   destructible?: Record<string, unknown>;
   resourceNode?: Record<string, unknown>;
+  chest?: true;
   npc?: { definitionId: string; placementVisualId: string };
 }
 
@@ -137,7 +147,7 @@ const NODE_MAP_REFERENCE_RESOLVER: MapReferenceResolver = {
     if (!definition) return undefined;
     return definition.npc
       ? { kind: 'npc', placementVisualId: definition.npc.placementVisualId, npcDefinitionId: definition.npc.definitionId }
-      : { kind: 'object' };
+      : { kind: 'object', chest: definition.chest === true };
   },
   getNpcReference(definitionId) {
     const definition = getNpcDefinition(definitionId);
@@ -145,6 +155,8 @@ const NODE_MAP_REFERENCE_RESOLVER: MapReferenceResolver = {
   },
   getNpcBody(characterId) { return NODE_NPC_BODIES.get(characterId); },
   isEnemyId(enemyId) { return ENEMY_IDS.has(enemyId); },
+  isBossId(bossId) { return BOSS_IDS.has(bossId); },
+  isItemId(itemId) { return KNOWN_ITEM_IDS.has(itemId); },
   hasMap(mapId) { return NODE_MAP_IDS.has(mapId); },
 };
 
@@ -465,7 +477,7 @@ async function validateObjectGameplayUpdate(
   };
 }
 
-async function validateMapReferences(map: MapFile): Promise<string[]> {
+export async function validateMapReferencesForEditor(map: MapFile): Promise<string[]> {
   const issues: string[] = [...validatePureMapReferences(map, NODE_MAP_REFERENCE_RESOLVER)];
   const objectDefinitions = new Map<string, Promise<MutableObjectDefinition | undefined>>();
   const loadObjectDefinition = (objectId: string): Promise<MutableObjectDefinition | undefined> => {
@@ -495,9 +507,36 @@ async function validateMapReferences(map: MapFile): Promise<string[]> {
         ? new Set(['health', 'dropObjectId', 'dropVisualId', 'dropPieces'])
         : definition.destructible
           ? new Set(['health'])
-        : new Set<string>();
+          : definition.chest
+            ? new Set(['contents'])
+            : new Set<string>();
     for (const key of Object.keys(state)) {
       if (!allowed.has(key)) issues.push(`${objectPath}.initialState.${key}: not supported by '${object.objectId}'`);
+    }
+    if (definition.chest) {
+      if (!Array.isArray(state.contents)) {
+        issues.push(`${objectPath}.initialState.contents: expected an array`);
+        continue;
+      }
+      const seen = new Set<string>();
+      for (const [contentIndex, entry] of state.contents.entries()) {
+        const contentPath = `${objectPath}.initialState.contents[${contentIndex}]`;
+        if (!isRecord(entry)) {
+          issues.push(`${contentPath}: expected an object`);
+          continue;
+        }
+        if (typeof entry.itemId !== 'string' || !KNOWN_ITEM_IDS.has(entry.itemId)) {
+          issues.push(`${contentPath}.itemId: must reference a known item`);
+        } else if (seen.has(entry.itemId)) {
+          issues.push(`${contentPath}.itemId: duplicates '${entry.itemId}'`);
+        } else {
+          seen.add(entry.itemId);
+        }
+        if (!Number.isInteger(entry.quantity) || (entry.quantity as number) < 1) {
+          issues.push(`${contentPath}.quantity: expected integer >= 1`);
+        }
+      }
+      continue;
     }
     if (definition.collectible) {
       const defaultQuantity = definition.collectible.quantity;
@@ -635,7 +674,7 @@ export function mapEditorSavePlugin(options: { readonly objectDefinitionRoot?: s
             exits: [],
             enemySafeZones: [],
           }, 'new-map');
-          const referenceIssues = await validateMapReferences(map);
+          const referenceIssues = await validateMapReferencesForEditor(map);
           if (referenceIssues.length > 0) throw new Error(referenceIssues.join('\n'));
 
           const mapsDirectory = path.resolve(process.cwd(), 'src/game/content/maps');
@@ -951,7 +990,7 @@ export function mapEditorSavePlugin(options: { readonly objectDefinitionRoot?: s
         try {
           const raw = await readRequestBody(request);
           const map = parseMapFile(JSON.parse(raw), 'editor-save');
-          const referenceIssues = await validateMapReferences(map);
+          const referenceIssues = await validateMapReferencesForEditor(map);
           if (referenceIssues.length > 0) throw new Error(referenceIssues.join('\n'));
 
           const mapsDirectory = path.resolve(process.cwd(), 'src/game/content/maps');
@@ -1006,7 +1045,7 @@ export function mapEditorSavePlugin(options: { readonly objectDefinitionRoot?: s
           const filesToWrite: Array<{ target: string; value: unknown }> = [{ target: targetPath, value: map }];
           for (const [targetMapId, targetData] of updatedTargets) {
             const validatedTarget = parseMapFile(targetData, targetMapId);
-            const targetIssues = await validateMapReferences(validatedTarget);
+            const targetIssues = await validateMapReferencesForEditor(validatedTarget);
             if (targetIssues.length > 0) throw new Error(targetIssues.join('\n'));
             filesToWrite.push({
               target: path.join(mapsDirectory, `${targetMapId}.map.json`),

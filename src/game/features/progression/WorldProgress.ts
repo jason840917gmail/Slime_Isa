@@ -1,5 +1,5 @@
 import { saveRepository } from '../../infrastructure/persistence/SaveRepository';
-import type { CollectibleProgressStateData, InventoryWorldDropProgressData, MapRuntimeStateData, ResourceProgressStateData, WorldProgressData } from '../../infrastructure/persistence/SaveSchema';
+import type { BossCampProgressData, ChestProgressData, CollectibleProgressStateData, InventoryWorldDropProgressData, MapRuntimeStateData, ResourceProgressStateData, WorldProgressData } from '../../infrastructure/persistence/SaveSchema';
 import type { AreaId } from '../../world/Area';
 import { gameEvents } from '../../core/EventBus';
 
@@ -34,6 +34,8 @@ function emptyMapState(): MapRuntimeStateData {
     collectibles: {},
     inventoryDrops: {},
     nextInventoryDropSequence: 1,
+    bossCamps: {},
+    chests: {},
     completedEncounterIds: [],
     openedRewardIds: [],
     unlockedGateIds: [],
@@ -75,6 +77,12 @@ function cloneMapState(state: MapRuntimeStateData): MapRuntimeStateData {
       Object.entries(state.inventoryDrops ?? {}).map(([id, drop]) => [id, { ...drop }]),
     ),
     nextInventoryDropSequence: state.nextInventoryDropSequence ?? 1,
+    bossCamps: Object.fromEntries(
+      Object.entries(state.bossCamps ?? {}).map(([id, bossCamp]) => [id, { ...bossCamp }]),
+    ),
+    chests: Object.fromEntries(
+      Object.entries(state.chests ?? {}).map(([id, chest]) => [id, { remaining: { ...chest.remaining } }]),
+    ),
     completedEncounterIds: [...state.completedEncounterIds],
     openedRewardIds: [...state.openedRewardIds],
     unlockedGateIds: [...state.unlockedGateIds],
@@ -139,6 +147,25 @@ export class WorldProgress {
         const match = /^inventory-drop-(\d+)$/.exec(id);
         return match ? Number(match[1]) + 1 : 1;
       }));
+      const bossCamps = candidate.bossCamps && typeof candidate.bossCamps === 'object'
+        ? Object.fromEntries(Object.entries(candidate.bossCamps).flatMap(([id, bossCamp]) => (
+            bossCamp && typeof bossCamp === 'object'
+              && Number.isFinite((bossCamp as BossCampProgressData).respawnReadyAtEpochMs)
+              && (bossCamp as BossCampProgressData).respawnReadyAtEpochMs >= 0
+              ? [[id, { respawnReadyAtEpochMs: (bossCamp as BossCampProgressData).respawnReadyAtEpochMs }]]
+              : []
+          )))
+        : {};
+      const chests = candidate.chests && typeof candidate.chests === 'object'
+        ? Object.fromEntries(Object.entries(candidate.chests).flatMap(([id, chest]) => {
+            if (!chest || typeof chest !== 'object' || !('remaining' in chest)
+              || !(chest as ChestProgressData).remaining || typeof (chest as ChestProgressData).remaining !== 'object') return [];
+            const remaining = Object.fromEntries(Object.entries((chest as ChestProgressData).remaining).filter((entry): entry is [string, number] => (
+              Number.isInteger(entry[1]) && (entry[1] as number) > 0
+            )));
+            return [[id, { remaining }]];
+          }))
+        : {};
       this.mapStates.set(mapId, {
         resources,
         collectibles,
@@ -150,6 +177,8 @@ export class WorldProgress {
             ? candidate.nextInventoryDropSequence ?? 1
             : 1,
         ),
+        bossCamps,
+        chests,
         completedEncounterIds: Array.isArray(candidate.completedEncounterIds)
           ? candidate.completedEncounterIds.filter((id): id is string => typeof id === 'string') : [],
         openedRewardIds: Array.isArray(candidate.openedRewardIds)
@@ -187,6 +216,48 @@ export class WorldProgress {
         [...this.mapStates.entries()].map(([mapId, state]) => [mapId, cloneMapState(state)]),
       ),
     };
+  }
+
+  captureTransactionSnapshot(): WorldProgressData {
+    return this.serialize();
+  }
+
+  prepareChestRemainingSnapshot(
+    mapId: string,
+    instanceId: string,
+    remaining: Readonly<Record<string, number>>,
+  ): WorldProgressData {
+    const snapshot = this.serialize();
+    const mapState = cloneMapState(snapshot.maps?.[mapId] ?? emptyMapState());
+    const nextMapState: MapRuntimeStateData = {
+      ...mapState,
+      chests: {
+        ...(mapState.chests ?? {}),
+        [instanceId]: {
+          remaining: Object.fromEntries(Object.entries(remaining).filter((entry): entry is [string, number] => (
+            Number.isSafeInteger(entry[1]) && entry[1] > 0
+          ))),
+        },
+      },
+    };
+    return { ...snapshot, maps: { ...(snapshot.maps ?? {}), [mapId]: nextMapState } };
+  }
+
+  prepareGateUnlockSnapshot(mapId: string, gateId: string): WorldProgressData {
+    const snapshot = this.serialize();
+    const mapState = cloneMapState(snapshot.maps?.[mapId] ?? emptyMapState());
+    const nextMapState = mapState.unlockedGateIds.includes(gateId)
+      ? mapState
+      : { ...mapState, unlockedGateIds: [...mapState.unlockedGateIds, gateId] };
+    return { ...snapshot, maps: { ...(snapshot.maps ?? {}), [mapId]: nextMapState } };
+  }
+
+  installTransactionSnapshot(snapshot: WorldProgressData): void {
+    this.load(snapshot);
+  }
+
+  emitTransactionChanged(): void {
+    gameEvents.emit('world.progress.changed', {});
   }
 
   stateForMap(mapId: string): Readonly<MapRuntimeStateData> {
@@ -318,6 +389,65 @@ export class WorldProgress {
     if (normalizedAmount > 0) inventoryDrops[instanceId] = { ...current, amount: normalizedAmount };
     else delete inventoryDrops[instanceId];
     this.mapStates.set(mapId, { ...mapState, inventoryDrops });
+    gameEvents.emit('world.progress.changed', {});
+  }
+
+  bossCampRespawnReadyAt(mapId: string, campId: string): number | undefined {
+    this.ensureLoaded();
+    return this.mapStates.get(mapId)?.bossCamps?.[campId]?.respawnReadyAtEpochMs;
+  }
+
+  setBossCampRespawnReadyAt(mapId: string, campId: string, epochMs: number | undefined): void {
+    this.ensureLoaded();
+    const mapState = this.mapStates.get(mapId) ?? emptyMapState();
+    const bossCamps = { ...(mapState.bossCamps ?? {}) };
+    if (epochMs === undefined) delete bossCamps[campId];
+    else if (Number.isFinite(epochMs) && epochMs >= 0) bossCamps[campId] = { respawnReadyAtEpochMs: epochMs };
+    else return;
+    this.mapStates.set(mapId, { ...mapState, bossCamps });
+    gameEvents.emit('world.progress.changed', {});
+  }
+
+  chestState(mapId: string, instanceId: string): ChestProgressData | undefined {
+    this.ensureLoaded();
+    const state = this.mapStates.get(mapId)?.chests?.[instanceId];
+    return state ? { remaining: { ...state.remaining } } : undefined;
+  }
+
+  ensureChestInitialized(mapId: string, instanceId: string, contents: Readonly<Record<string, number>>): ChestProgressData {
+    this.ensureLoaded();
+    const current = this.chestState(mapId, instanceId);
+    if (current) return current;
+    const remaining = Object.fromEntries(Object.entries(contents).filter((entry): entry is [string, number] => (
+      Number.isInteger(entry[1]) && entry[1] > 0
+    )));
+    this.setChestRemaining(mapId, instanceId, remaining);
+    return { remaining };
+  }
+
+  setChestRemaining(mapId: string, instanceId: string, remaining: Readonly<Record<string, number>>): void {
+    this.ensureLoaded();
+    const mapState = this.mapStates.get(mapId) ?? emptyMapState();
+    const chests = { ...(mapState.chests ?? {}) };
+    chests[instanceId] = {
+      remaining: Object.fromEntries(Object.entries(remaining).filter((entry): entry is [string, number] => (
+        Number.isInteger(entry[1]) && entry[1] > 0
+      ))),
+    };
+    this.mapStates.set(mapId, { ...mapState, chests });
+    gameEvents.emit('world.progress.changed', {});
+  }
+
+  isGateUnlocked(mapId: string, gateId: string): boolean {
+    this.ensureLoaded();
+    return this.mapStates.get(mapId)?.unlockedGateIds.includes(gateId) ?? false;
+  }
+
+  unlockGate(mapId: string, gateId: string): void {
+    this.ensureLoaded();
+    const mapState = this.mapStates.get(mapId) ?? emptyMapState();
+    if (mapState.unlockedGateIds.includes(gateId)) return;
+    this.mapStates.set(mapId, { ...mapState, unlockedGateIds: [...mapState.unlockedGateIds, gateId] });
     gameEvents.emit('world.progress.changed', {});
   }
 

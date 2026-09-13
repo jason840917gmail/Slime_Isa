@@ -282,8 +282,19 @@ function validateEnemy(issues: CharacterValidationIssue[], enemy: unknown, optio
   }
   const ai = enemy.ai;
   const drop = enemy.drop;
-  checkKeys(issues, enemy, 'character.enemy', new Set(['maxHp', 'ai', 'drop', 'projectile', 'impactEffect']));
+  checkKeys(issues, enemy, 'character.enemy', new Set(['maxHp', 'effectImmunities', 'ai', 'drop', 'projectile', 'impactEffect']));
   finite(issues, enemy.maxHp, 'character.enemy.maxHp', (entry) => entry > 0, 'must be greater than zero');
+  if (enemy.effectImmunities !== undefined) {
+    if (!Array.isArray(enemy.effectImmunities)) issue(issues, 'character.enemy.effectImmunities', 'must be an array');
+    else {
+      const seen = new Set<string>();
+      enemy.effectImmunities.forEach((entry, index) => {
+        if (entry !== 'knockback') issue(issues, `character.enemy.effectImmunities[${index}]`, "must be 'knockback'");
+        else if (seen.has(entry)) issue(issues, `character.enemy.effectImmunities[${index}]`, `duplicates '${entry}'`);
+        else seen.add(entry);
+      });
+    }
+  }
   if (!isRecord(ai)) issue(issues, 'character.enemy.ai', 'must be an object');
   else {
     checkKeys(issues, ai, 'character.enemy.ai', new Set(['behavior', 'aggroRange', 'attackRange', 'leapRange', 'fleeRange', 'wanderSpeed', 'chaseSpeed', 'attackCooldownMs', 'attackWindupMs', 'attackRecoveryMs', 'contactDamage', 'knockbackStrength', 'isRanged', 'isLeaper', 'projectileSpeed', 'knockbackResist']));
@@ -365,7 +376,7 @@ export function validateCharacterDocument(
   const characterId = hasCharacterId && typeof value.characterId === 'string' ? value.characterId : undefined;
   if (characterId && !options.allowDuplicateIdentity && options.characterIds?.has(characterId)) issue(issues, 'character.characterId', `duplicate character ID '${characterId}'`);
   stringValue(issues, value.displayName, 'character.displayName', (entry) => entry.trim().length > 0 && entry.length <= 80, 'must be a non-empty display name of at most 80 characters');
-  if (value.kind !== 'player' && value.kind !== 'enemy' && value.kind !== 'npc') issue(issues, 'character.kind', "must be 'player', 'enemy', or 'npc'");
+  if (value.kind !== 'player' && value.kind !== 'enemy' && value.kind !== 'boss' && value.kind !== 'npc') issue(issues, 'character.kind', "must be 'player', 'enemy', 'boss', or 'npc'");
   if (value.runtimeRole !== undefined && value.runtimeRole !== 'primary-player') issue(issues, 'character.runtimeRole', "must be 'primary-player'");
   if (value.runtimeRole === 'primary-player' && value.kind !== 'player') issue(issues, 'character.runtimeRole', 'is only allowed on a player');
   const hasVisualSetId = stringValue(issues, value.visualSetId, 'character.visualSetId', (entry) => ID_PATTERN.test(entry), 'must be a lowercase dotted stable ID');
@@ -420,6 +431,10 @@ export function validateCharacterDocument(
   } else if (value.kind === 'enemy') {
     if (value.player !== undefined) issue(issues, 'character.player', 'is forbidden for enemies');
     validateEnemy(issues, value.enemy, options);
+  } else if (value.kind === 'boss') {
+    for (const forbidden of ['player', 'enemy', 'npc', 'runtimeRole', 'attributes'] as const) {
+      if (value[forbidden] !== undefined) issue(issues, `character.${forbidden}`, 'is forbidden for bosses; boss gameplay belongs in the boss definition');
+    }
   } else if (value.kind === 'npc') {
     for (const forbidden of ['player', 'enemy', 'runtimeRole', 'attributes'] as const) {
       if (value[forbidden] !== undefined) issue(issues, `character.${forbidden}`, 'is forbidden for NPCs');

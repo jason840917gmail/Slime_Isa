@@ -78,6 +78,9 @@ import { InteractionRouter } from '../features/interaction/InteractionRouter';
 import { QuestNpcController } from '../features/interaction/QuestNpcController';
 import { QuestNotificationPresenter } from '../features/quests/QuestNotificationPresenter';
 import { NpcRuntimeController } from '../features/npcs/NpcRuntimeController';
+import { ChestController } from '../features/chests/ChestController';
+import { BossCampController } from '../features/bosses/BossCampController';
+import { playerInventoryWorldTransaction } from '../features/progression/InventoryWorldTransaction';
 
 const EDGE_TRANSITION_GRACE_MS = GAME_CONSTANTS.worldNavigation.edgeTransitionGraceMs;
 const COLLECTIBLE_EVENTS = new CollectibleEventChannel(gameEvents);
@@ -121,6 +124,8 @@ export class WorldScene extends Phaser.Scene {
   private interactionRouter?: InteractionRouter;
   private questNpcController?: QuestNpcController;
   private npcRuntimeController?: NpcRuntimeController;
+  private chestController?: ChestController;
+  private bossCampController?: BossCampController;
   private questNotifications?: QuestNotificationPresenter;
   private abilitySystem?: AbilitySystem;
   private weaponHotbar?: WeaponHotbar;
@@ -134,6 +139,7 @@ export class WorldScene extends Phaser.Scene {
   private entryEdge?: Direction;
   private transitioning = false;
   private transitionReadyAt = 0;
+  private nextGateMessageAt = 0;
   private transitionZones: Phaser.GameObjects.Zone[] = [];
   private levelUpNoticeHandler?: (payload: { level: number }) => void;
   private questCompleteHandler?: (payload: { questId: string; title: string; rewards: { coins?: number; xp?: number } }) => void;
@@ -164,6 +170,7 @@ export class WorldScene extends Phaser.Scene {
     this.entryEdge = request.entryEdge;
     this.transitioning = false;
     this.transitionReadyAt = this.time.now + EDGE_TRANSITION_GRACE_MS;
+    this.nextGateMessageAt = 0;
   }
 
   create(): void {
@@ -358,6 +365,8 @@ export class WorldScene extends Phaser.Scene {
     this.questNpcController = undefined;
     this.npcRuntimeController?.destroy();
     this.npcRuntimeController = undefined;
+    this.chestController?.destroy();
+    this.chestController = undefined;
     this.builtMap = undefined;
     this.disposables.dispose();
     this.disposables = new DisposableBag();
@@ -382,6 +391,8 @@ export class WorldScene extends Phaser.Scene {
     this.interactionRouter?.destroy();
     this.interactionRouter = undefined;
     this.combatController?.destroy();
+    this.bossCampController?.destroy();
+    this.bossCampController = undefined;
     this.resourceNodes?.destroy();
     this.resourceNodes = undefined;
     this.inventoryDrops = undefined;
@@ -469,6 +480,10 @@ export class WorldScene extends Phaser.Scene {
       stop(child);
       return true;
     });
+    this.bossCampController?.targets.children.each((child) => {
+      stop(child);
+      return true;
+    });
     projectilePool.enemyGroup(this).children.each((child) => {
       stop(child);
       return true;
@@ -499,6 +514,7 @@ export class WorldScene extends Phaser.Scene {
     this.healthBar?.update();
     this.abilitySystem?.update();
     this.combatController?.update(this.time.now, delta);
+    this.bossCampController?.update(this.time.now, delta);
     this.occlusionController?.update();
     this.depthDiagnostics?.update();
     // Passive energy regen (scaled by Quick Recovery perk).
@@ -550,6 +566,7 @@ export class WorldScene extends Phaser.Scene {
       getCollectibleTargets: () => this.collectibleTargets,
       getTransitionZones: () => this.transitionZones,
       getEnemySpawnAreas: () => this.builtMap?.enemySpawnAreas ?? [],
+      getBossCamps: () => this.builtMap?.bossCamps ?? [],
     });
   }
 
@@ -595,6 +612,7 @@ export class WorldScene extends Phaser.Scene {
       onObjectCreated: (registration) => {
         this.resourceNodes?.register(registration);
         this.collectibles?.register(registration);
+        this.chestController?.register(registration);
       },
       onNpcCreated: (registration) => {
         this.npcRuntimeController?.register(registration);
@@ -641,6 +659,19 @@ export class WorldScene extends Phaser.Scene {
       spawnWorldDrop: (request) => this.worldDrops!.spawn(request),
       showMessage: (message) => floatingText.spawn(this, this.player.x, this.player.y - 42, message, 'white', true, 1800),
       progress: worldProgress,
+    });
+    this.chestController = new ChestController({
+      scene: this,
+      mapId: this.loadedMap.map.mapId,
+      inventory: playerInventory,
+      progress: worldProgress,
+      transaction: playerInventoryWorldTransaction,
+      router: this.interactionRouter!,
+      modalStack: this.modalStack!,
+      getPlayer: () => this.player,
+      isLocked: (instanceId) => this.bossCampController?.isChestLocked(instanceId) ?? false,
+      onPausedChange: (paused) => this.setSimulationPaused('chest', paused),
+      showMessage: (x, y, message, color = 'white', important = false) => floatingText.spawn(this, x, y, message, color, important),
     });
     this.builtMap = mapBuilder.build();
     this.terrainGrid = this.builtMap.terrainGrid;
@@ -715,6 +746,23 @@ export class WorldScene extends Phaser.Scene {
       this.transitionZones.push(zone);
       this.physics.add.overlap(this.player, zone, () => {
         if (this.transitioning || this.time.now < this.transitionReadyAt) return;
+        if (exit.gate && !worldProgress.isGateUnlocked(this.loadedMap.map.mapId, exit.gate.id)) {
+          if (playerInventory.count(exit.gate.requiredItemId) < 1) {
+            if (this.time.now >= this.nextGateMessageAt) {
+              this.nextGateMessageAt = this.time.now + 900;
+              floatingText.spawn(this, this.player.x, this.player.y - 42, exit.gate.lockedMessage, 'white', true);
+            }
+            return;
+          }
+          const unlock = playerInventoryWorldTransaction.unlockGate({
+            mapId: this.loadedMap.map.mapId,
+            gateId: exit.gate.id,
+            requiredItemId: exit.gate.requiredItemId,
+            consumeOnUnlock: exit.gate.consumeOnUnlock,
+          });
+          if (unlock !== 'unlocked' && unlock !== 'already-unlocked') return;
+          floatingText.spawn(this, this.player.x, this.player.y - 42, 'The Verdant Gate unlocks!', 'green', true);
+        }
         this.transitionTo(exit.to as AreaId, exit.entry as Direction);
       });
     }
@@ -1033,6 +1081,7 @@ export class WorldScene extends Phaser.Scene {
 
   private onPlayerDeath(): void {
     this.playerKnockbackUntil = 0;
+    this.bossCampController?.resetActiveFights();
     this.playAnimation('slime-die', true);
     this.player.setVelocity(0, 0);
     this.player.rotation = 0;
@@ -1218,6 +1267,19 @@ export class WorldScene extends Phaser.Scene {
   // â”€â”€ Phase 2: combat â”€â”€
 
   private createCombatSystem(): void {
+    this.bossCampController = new BossCampController({
+      scene: this,
+      mapId: this.loadedMap.map.mapId,
+      camps: this.builtMap?.bossCamps ?? [],
+      player: this.player,
+      collisionTiles: this.collisionTiles,
+      progress: worldProgress,
+      isPlayerDodging: () => this.playerController.isDodging(),
+      applyPlayerDamage: (amount, source, impactX, impactY, knockbackStrength) => {
+        this.healthSystem?.applyDamage({ amount, source, knockX: impactX, knockY: impactY, knockStrength: knockbackStrength }, this.time.now);
+      },
+      showMessage: (x, y, message, color = 'white', important = false) => floatingText.spawn(this, x, y, message, color, important),
+    });
     this.combatController = new CombatController({
       scene: this,
       player: this.player,
@@ -1257,6 +1319,11 @@ export class WorldScene extends Phaser.Scene {
       }),
       getResourceTargets: () => this.resourceTargets,
       resourceNodes: this.resourceNodes,
+      getBossTargets: () => this.bossCampController?.targets ?? null,
+      isBossTarget: (target) => this.bossCampController?.isBossTarget(target) ?? false,
+      applyBossHit: (request) => this.bossCampController?.applyWeaponHit(request) ?? {
+        status: 'rejected', actualDamage: 0, defeated: false, reason: 'invalid',
+      },
     });
   }
 

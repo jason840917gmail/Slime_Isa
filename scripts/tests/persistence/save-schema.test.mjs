@@ -79,6 +79,25 @@ test('accepts valid persistent inventory drops and rejects malformed records', (
   assert.equal(isGameSaveData(invalid), false);
 });
 
+test('accepts boss respawn timestamps and persistent partial chest contents', () => {
+  const valid = validSave();
+  valid.world.maps['level-1'].bossCamps = {
+    'level-1-fatty-one-eye-camp': { respawnReadyAtEpochMs: 1_800_000 },
+  };
+  valid.world.maps['level-1'].chests = {
+    'level-1-fatty-guarded-chest': { remaining: { 'green-key': 1, wood: 7 } },
+  };
+  assert.equal(isGameSaveData(valid), true);
+
+  const invalidTimer = structuredClone(valid);
+  invalidTimer.world.maps['level-1'].bossCamps['level-1-fatty-one-eye-camp'].respawnReadyAtEpochMs = -1;
+  assert.equal(isGameSaveData(invalidTimer), false);
+
+  const invalidChest = structuredClone(valid);
+  invalidChest.world.maps['level-1'].chests['level-1-fatty-guarded-chest'].remaining.wood = 0;
+  assert.equal(isGameSaveData(invalidChest), false);
+});
+
 test('accepts both an empty equipped state and legacy equipped weapons', () => {
   const empty = validSave();
   assert.equal(isGameSaveData(empty), true);

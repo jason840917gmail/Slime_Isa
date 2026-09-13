@@ -4,7 +4,8 @@
 
 - `docs/superpowers/specs/2026-09-12-godot-inspired-universal-scene-node-architecture-design.md`
 
-**Status:** Ready for implementation after user review.
+**Status:** Revised after execution-readiness review; incorporates the five
+review corrections. Implementation has not started.
 
 ## Objective
 
@@ -67,18 +68,20 @@ single class or contract can be understood without opening the whole engine.
 ```text
 src/game/
 |- content/scenes/
-|  |- scene.schema.json, types.ts, validation.ts
-|  |- SceneCatalog.ts, SceneResources.ts
+|  |- scene.schema.json, types.ts, identifiers.ts, propertyDescriptors.ts
+|  |- validation.ts, SceneCatalog.ts, resources/types.ts
 |  `- authored scene/resource packages
 |- runtime/scene/
-|  |- identifiers.ts, NodePath.ts, NodeReference.ts
+|  |- NodePath.ts, NodeReference.ts
 |  |- Node.ts, Node2D.ts, SceneTree.ts, SceneMutationQueue.ts
 |  |- Signal.ts, DisposableScope.ts, PackedScene.ts
 |  |- registries/NodeTypeRegistry.ts, ScriptRegistry.ts
 |  `- resolution/SceneResolver.ts, SceneInstantiator.ts
 |- infrastructure/scenes/
 |  |- SceneDocumentLoader.ts, SceneResourceLoader.ts
-|  `- PhaserSceneTreeHost.ts
+|  |- PhaserSceneTreeHost.ts
+|  |- editor/SceneStudioRepository.ts, SceneStudioContentPlugin.ts
+|  `- compatibility/ temporary legacy bridges
 |- infrastructure/phaser-nodes/
 |  |- Sprite2DNode.ts, CharacterBody2DNode.ts, StaticBody2DNode.ts
 |  |- Area2DNode.ts, CollisionShape2DNode.ts, Camera2DNode.ts
@@ -93,13 +96,23 @@ src/game/
    |- SceneTreePanel.ts, SceneInspector.ts, SceneViewport.ts
    |- contexts/animation, tile, audio, signals, debug
    |- history, validation, preview, resources
-   `- infrastructure/SceneStudioRepository.ts
+   `- scene-studio.css
 ```
 
 The exact split may be refined while implementing, but do not collapse the tree,
 Phaser backend, content documents, editor state, and gameplay scripts into one
 module. Public barrel files may re-export stable APIs after their individual
 modules are proven.
+
+Canonical ownership is fixed for planning: identifier brands live only in
+`content/scenes/identifiers.ts`; runtime code imports those types. JSON resource
+types live in `content/scenes/resources/types.ts`; resource loaders and lease
+management live in `infrastructure/scenes/`. The browser HTTP repository lives
+in `infrastructure/scenes/editor/SceneStudioRepository.ts`, and the Node-side
+Vite writer lives beside it in `SceneStudioContentPlugin.ts`. Never import that
+Node-only writer from runtime or editor browser code. The editor consumes its
+repository through an interface. There is no second runtime identifier module
+or editor-owned file writer.
 
 ## Required verification commands
 
@@ -111,19 +124,23 @@ pnpm test:scene-runtime
 pnpm test:scene-content
 pnpm test:scene-studio
 pnpm test:scene-integration
+pnpm test:scene-browser
 pnpm test:scene-conversion
 ```
 
-Use these package commands so TypeScript fixtures can be imported consistently:
+Use these package commands. Node suites load TypeScript through the shared
+esbuild helper described below; browser fixtures load through Vite:
 
 ```json
 {
   "scenes:check": "node scripts/check-scenes.mjs",
-  "test:scene-runtime": "node --test --experimental-strip-types scripts/tests/scene-runtime/*.test.mjs",
-  "test:scene-content": "node --test --experimental-strip-types scripts/tests/scene-content/*.test.mjs",
-  "test:scene-studio": "node --test --experimental-strip-types scripts/tests/scene-studio/*.test.mjs",
-  "test:scene-integration": "node --test --experimental-strip-types scripts/tests/scene-integration/*.test.mjs",
-  "test:scene-conversion": "node --test --experimental-strip-types scripts/tests/scene-conversion/*.test.mjs"
+  "test:scene-runtime": "node --test scripts/tests/scene-runtime/*.test.mjs",
+  "test:scene-content": "node --test scripts/tests/scene-content/*.test.mjs",
+  "test:scene-studio": "node --test scripts/tests/scene-studio/*.test.mjs",
+  "test:scene-integration": "node --test scripts/tests/scene-integration/*.test.mjs",
+  "test:scene-browser": "playwright test --config scripts/tests/scene-browser/playwright.config.ts",
+  "test:scene-conversion": "node --test scripts/tests/scene-conversion/*.test.mjs",
+  "scenes:convert": "node scripts/convert-scenes.mjs"
 }
 ```
 
@@ -132,6 +149,61 @@ change Vite/editor integration or runtime construction also run `pnpm build`.
 The final package runs `pnpm check`. Existing suites stay active until their
 owned legacy path is deliberately removed; their preserved behavior must move
 into replacement suites before deleting them.
+
+### Shared test harness and real-engine evidence
+
+Package 0 establishes the harness; later packages add assertions when their
+implementations exist. Empty or skipped future suites are not evidence.
+
+- `scripts/tests/helpers/load-typescript.mjs` exposes a shared esbuild loader,
+  following existing combat/boss tests: bundle to ESM for Node with `write:false`,
+  then import the in-memory output. A suite bundles one entry exporting its
+  collaborating modules to avoid duplicate singleton/class copies across builds.
+  Inject virtual content through explicit fixtures; reject unexpected Phaser,
+  browser-only, or production virtual-module dependencies in pure tests.
+- Node suites exercise contracts, pure calculations, filesystem journals in
+  temporary directories, and fake-backend fault injection. They do not pretend
+  to supply a DOM or actual Phaser world.
+- Add `@playwright/test` as a pinned development dependency through pnpm and
+  install its matching Chromium during implementation. Use real Chromium DOM,
+  canvas, and the project's real Phaser package for engine/editor integration.
+  No additional DOM emulator is needed. Browser installation/setup failures are
+  reported as blocked technical verification, never replaced by a passing mock.
+- `scripts/tests/scene-browser/playwright.config.ts` owns one test worker, zero
+  retries for deterministic acceptance, fresh contexts per test, failure traces,
+  and a managed Vite server on `127.0.0.1:3101` with `--strictPort` and
+  `reuseExistingServer:false`. Use a separate fixture Vite config that never
+  registers production content-write endpoints. Editor write tests inject a
+  temporary content root and the real repository/plugin under test.
+- `scripts/tests/scene-browser/fixtures/index.html` and `main.ts` load synthetic
+  node scenes, the real host/backend adapters, and real editor controls. They
+  never boot WorldScene or read the user's saves. Expose a narrow fixture API to
+  enqueue inputs, advance fixed ticks, inspect state/counters, and destroy.
+  Stop automatic frame advancement in deterministic fixtures, feed explicit
+  deltas through the actual host, and spy on actual Arcade steps/readback.
+- The browser suite verifies one real backend step, collision/body sync, sensor
+  reconciliation, root replacement, DOM/Control event consumption, rendering
+  object lifetime, and teardown. It also mounts the real Scene Studio controls
+  to verify focus, preview isolation, and save-conflict UI. Assert no unexpected
+  console/page errors and no surviving test-owned objects, leases, or listeners.
+  Diagnostic wrappers must count actual registered resources, not mirror what
+  the implementation intends to register.
+
+Add `scripts/tests/scene-browser/tsconfig.json` covering browser fixtures and
+Playwright configuration; extend `typecheck` to check it explicitly because the
+root tsconfig currently includes only `src/`. Add the `virtual-scene-content`
+path alias to the root tsconfig and its declaration to `src/vite-env.d.ts` in
+package 1. Keep browser fixtures and Node-only configs outside production bundles.
+
+The browser tests are deterministic technical integration checks, not AI-driven
+gameplay sessions. They do not judge combat feel or complete the user's gameplay
+checklist. Performance uses a separate baseline/final workload with normal
+rendering, fixed setup/warm-up/sample lengths, recorded browser/hardware, and
+separate measured runs; controlled-step fixture timings are not frame-rate data.
+
+Implementation references: [esbuild build API](https://esbuild.github.io/api/#build),
+[Playwright web-server management](https://playwright.dev/docs/test-webserver),
+and [Playwright configuration](https://playwright.dev/docs/test-configuration).
 
 ## Work package 0 — Freeze the real baseline and create the conversion ledger
 
@@ -144,10 +216,20 @@ Create:
 - `scripts/migrations/universal-scene-conversion-ledger.json`
 - `scripts/inventory-scene-conversion.mjs`
 - `scripts/tests/scene-conversion/conversion-inventory.test.mjs`
+- `scripts/tests/helpers/load-typescript.mjs`
+- `scripts/tests/scene-browser/playwright.config.ts`
+- `scripts/tests/scene-browser/vite.config.ts`
+- `scripts/tests/scene-browser/tsconfig.json`
+- `scripts/tests/scene-browser/fixtures/index.html`
+- `scripts/tests/scene-browser/fixtures/main.ts`
+- `scripts/tests/scene-browser/harness.spec.ts`
+- `scripts/tests/scene-browser/baseline-performance.spec.ts`
 
 Update:
 
 - `package.json`
+- `pnpm-lock.yaml`
+- `.gitignore` (test reports, traces, and temporary conversion/journal outputs)
 
 ### Steps
 
@@ -173,12 +255,21 @@ Update:
    and cleanup count. Use a deterministic workload and document the procedure.
 7. Add `test:scene-conversion` to `package.json`. The first test validates that
    every discovered old content ID appears exactly once in the ledger.
+8. Establish the shared esbuild and Playwright harness from the verification
+   section, pin dependencies, and add fixture typechecking. The initial browser
+   test proves real Phaser can initialize/step/destroy and a DOM control can
+   consume an event; it does not claim the unimplemented host is verified.
+9. Record clocks/randomness, baseline assets/map hashes, viewport, renderer,
+   warm-up/sample counts, and browser/hardware in the evidence file. Retain a
+   baseline measurement entry until the final comparison is complete.
 
 ### Gate
 
 - The ledger is machine-checkable and contains no unclassified production ID.
 - Baseline failures and dirty files are documented.
 - No runtime or content owner changes in this package.
+- The Node loader and real Chromium/Phaser harness execute; new host behavior is
+  tested later in the package that implements it.
 
 ### Suggested commit
 
@@ -196,6 +287,7 @@ Create:
 - `src/game/content/scenes/types.ts`
 - `src/game/content/scenes/identifiers.ts`
 - `src/game/content/scenes/propertyDescriptors.ts`
+- `src/game/content/scenes/resources/types.ts`
 - `src/game/content/scenes/validation.ts`
 - `src/game/content/scenes/SceneCatalog.ts`
 - `src/game/content/scenes/virtual-scene-content.ts`
@@ -205,11 +297,17 @@ Create:
 - `scripts/tests/scene-content/property-descriptors.test.mjs`
 - `scripts/tests/scene-content/catalog-validation.test.mjs`
 - `scripts/tests/scene-content/fixtures/`
+- `scripts/convert-scenes.mjs`
+- `scripts/lib/scene-conversion/ConversionRunner.mjs`
+- `scripts/lib/scene-conversion/StableIdMap.mjs`
+- `scripts/lib/scene-conversion/ConversionReport.mjs`
+- `scripts/tests/scene-conversion/runner.test.mjs`
 
 Update:
 
 - `vite.config.ts`
 - `src/vite-env.d.ts`
+- `tsconfig.json` (virtual scene alias)
 - `package.json`
 
 ### Steps
@@ -241,6 +339,56 @@ Update:
    File writes arrive later through the dedicated Scene Studio repository.
 8. Add `scenes:check` and `test:scene-content` package scripts and include them in
    `pnpm check` after the initial fixtures pass.
+9. Implement the common conversion runner using the contract below. Start with
+   synthetic source fixtures; family adapters arrive with their conversion
+   packages. Production output cannot be generated by hand instead of exercising
+   those adapters.
+
+### Repeatable conversion contract
+
+`pnpm scenes:convert -- --family <family> --dry-run` is the default planning
+operation. It loads the ledger and canonical source inputs, computes a complete
+write set in memory, validates it, and emits a report without changing content.
+`--apply` installs that exact write set only when source/target hashes still
+match; use the journaled writer from package 7. Before package 7, conversions may
+write only to test-owned temporary output roots. `--check` recomputes expected
+generated output and fails on unexplained differences. `--family all` runs in
+resource-dependency order and rejects missing adapters.
+
+| Adapter path under `scripts/lib/scene-conversion/` | Inputs | First required package |
+| --- | --- | --- |
+| `animations.mjs` | Visual sets, character clips, shared layered animations and directional bindings | 9 |
+| `characters.mjs` | Character/NPC definitions, enemy balance and AI configuration | 9, completed in 10 |
+| `boss-camps.mjs` | Fatty boss definition and authored camp records | 9 |
+| `weapons.mjs` | Weapon definitions, attack tracks, targeting, animation references | 11 |
+| `projectiles.mjs` | Projectile definitions and visual/animation references | 11 |
+| `effects.mjs` | Effect definitions and shared visual/animation references | 11 |
+| `objects.mjs` | Object archetypes/variants, resource/drop/chest/interaction definitions | 9 for chest fixture, completed in 12 |
+| `maps.mjs` | Every map, tile legend/grid, placement, area and connection | 13 |
+| `ui.mjs` | Explicit extraction descriptors from current UI code, themes and layout | 14 |
+
+Each adapter is a pure input-to-document transformation using shared validators
+and a persisted stable ID map. It cannot write files, read saves, or allocate
+random IDs. The runner owns I/O. Shared animation resources are deduplicated by
+stable source identity; family adapters emit bindings/references rather than
+copies. UI extraction descriptors are authored explicitly and audited against
+the existing modules; the plan does not assume automatic conversion of arbitrary
+TypeScript UI code.
+
+The JSON ledger records source path/hash, converter version, old-to-new ID map,
+persistence keys, outputs/hashes, consumed field paths, intentionally retained
+fields with owning paths, and writer state (`legacy` or `scene`). Unknown or
+unaccounted gameplay fields fail conversion. Tests compare preserved values and
+behavioral boundary fixtures, not only document counts. Run each adapter twice
+and compare canonical output bytes/IDs; run all-family conversion in different
+discovery orders and require the same output. Changing one source must update
+only its expected outputs/dependents.
+
+Once a family switches writer to scenes, conversion refuses to overwrite its
+edited scene output. Verify that family against frozen source fixtures and its
+cutover output hashes; current scene edits are validated as authored data.
+Retain minimal migration fixtures and mapping reports after legacy removal so
+repeatability and ID-preservation tests do not depend on deleted source files.
 
 ### Focused checks
 
@@ -418,6 +566,7 @@ Create:
 
 - `src/game/infrastructure/scenes/PhaserSceneTreeHost.ts`
 - `src/game/infrastructure/scenes/PhaserNodeContext.ts`
+- `src/game/infrastructure/scenes/compatibility/LegacyWorldAdapter.ts`
 - `src/game/infrastructure/phaser-nodes/PhaserNodeRegistry.ts`
 - `src/game/infrastructure/phaser-nodes/Sprite2DNode.ts`
 - `src/game/infrastructure/phaser-nodes/Camera2DNode.ts`
@@ -425,6 +574,8 @@ Create:
 - `scripts/tests/scene-integration/host-order.test.mjs`
 - `scripts/tests/scene-integration/presentation-lifecycle.test.mjs`
 - `scripts/tests/scene-integration/root-swap.test.mjs`
+- `scripts/tests/scene-browser/host-step.spec.ts`
+- `scripts/tests/scene-browser/presentation-lifecycle.spec.ts`
 
 Update:
 
@@ -456,20 +607,25 @@ Update:
 6. Add a temporary `LegacyWorldAdapter` with explicit pre-physics, post-physics,
    input, and render hooks. It exists only through work package 15 and never owns
    new scene content.
-7. Add `test:scene-integration` to `package.json`.
+7. Add `test:scene-integration` to `package.json` and add actual host/backend
+   tests to the browser suite created in package 0.
 
 ### Focused checks
 
-Use a deterministic fake Phaser boundary where possible. Assert ordering, one
-physics step, stable process order, transform propagation, entry/re-entry cleanup,
-camera teardown, five-step cap, pause/resume, mutation flush boundaries, and no
-residual Phaser objects after root removal.
+Use the fake Phaser boundary for exhaustive order/failure cases and the real
+browser fixture for backend compatibility. Advance the real host by known
+deltas, count actual Arcade world steps, and assert body/sprite state before
+and after synchronization. Exercise entry/re-entry, camera teardown, five-step
+cap, pause/resume, mutation flushes, and complete destruction in both applicable
+suites. A fake-only pass cannot satisfy this package's gate.
 
 ### Gate
 
 - A fixture scene displays and removes sprites exclusively through the host.
 - Legacy and managed paths cannot both advance Arcade Physics.
 - Presentation nodes can detach/re-enter without replaying `_ready()`.
+- `pnpm test:scene-browser` passes the real host/presentation fixtures; evidence
+  records actual engine steps and resource counters.
 
 ### Suggested commit
 
@@ -495,6 +651,7 @@ Create:
 - `scripts/tests/scene-integration/physics-nodes.test.mjs`
 - `scripts/tests/scene-integration/contact-routing.test.mjs`
 - `scripts/tests/scene-conversion/legacy-collision-parity.test.mjs`
+- `scripts/tests/scene-browser/physics-contacts.spec.ts`
 
 Reuse/update:
 
@@ -538,6 +695,10 @@ Cover all shape-pair combinations, exact boundaries, sector facing and inner
 radius, compound sensor union, duplicate pair suppression, masks/layers, enable/
 disable, detach/free exits, rectangle/circle blocking, ellipse legacy bounds,
 post-step readback, teleport, and rejection of rotated/scaled invalid bodies.
+The browser fixture must reproduce one real blocking collision, a sensor pair
+following post-step body motion, disable/free exit reconciliation, and zero
+remaining bodies/colliders after teardown. Pure geometry tests alone do not
+establish synchronization with Arcade.
 
 ### Gate
 
@@ -573,6 +734,7 @@ Create:
 - `scripts/tests/scene-runtime/input-routing.test.mjs`
 - `scripts/tests/scene-integration/audio-lifecycle.test.mjs`
 - `scripts/tests/scene-integration/control-input.test.mjs`
+- `scripts/tests/scene-browser/control-audio-lifecycle.spec.ts`
 
 Reuse/update:
 
@@ -616,6 +778,9 @@ Cover master-clock parity, exact event positions, loop boundaries, seek/preview,
 cancel/replace cleanup, binding validation, script inheritance conflicts, multiple
 ScriptNodes with distinct capabilities, exclusive conflicts, input consumption,
 pause, audio unlock, audio preview cleanup, and detach/re-entry.
+Real-browser assertions verify DOM event consumption reaches the shared handled
+flag and prevents the synthetic gameplay-action callback, plus actual audio
+object/unlock/cleanup lifecycle. Audible quality remains a user check.
 
 ### Gate
 
@@ -643,8 +808,9 @@ Create:
 - `src/game/editor/scene-studio/SceneHistory.ts`
 - `src/game/editor/scene-studio/SceneClipboard.ts`
 - `src/game/editor/scene-studio/SceneValidationState.ts`
-- `src/game/editor/scene-studio/infrastructure/SceneStudioRepository.ts`
-- `src/game/content/scenes/sceneStudioContentPlugin.ts`
+- `src/game/infrastructure/scenes/editor/SceneStudioRepository.ts`
+- `src/game/infrastructure/scenes/editor/SceneStudioContentPlugin.ts`
+- `src/game/infrastructure/scenes/editor/ContentWriteJournal.ts`
 - `src/game/editor/scene-studio/scene-studio.css`
 - `scripts/tests/scene-studio/document-state.test.mjs`
 - `scripts/tests/scene-studio/history.test.mjs`
@@ -684,6 +850,8 @@ Update:
    On failure restore every original; on server startup recover any uncommitted
    journal before accepting writes. The browser repository sends the complete
    write set and keeps editor state dirty until the committed response.
+   Export the Node-only journal module for the conversion runner as well; both
+   writers use the same validation, hash-precondition, and recovery contract.
 8. Load invalid development documents in repair mode and preserve unknown fields
    as opaque data. Production validators and gameplay still reject invalid data.
 9. Add `test:scene-studio` and include its non-Phaser state/repository tests in
@@ -734,6 +902,8 @@ Create:
 - `scripts/tests/scene-studio/resource-editing.test.mjs`
 - `scripts/tests/scene-studio/preview-isolation.test.mjs`
 - `scripts/tests/scene-studio/authoring-walkthrough.test.mjs`
+- `scripts/tests/scene-browser/studio-controls.spec.ts`
+- `scripts/tests/scene-browser/preview-isolation.spec.ts`
 
 Reuse/update:
 
@@ -781,11 +951,12 @@ Reuse/update:
 
 ### Focused checks
 
-Automate document/model interactions rather than pixel screenshots where possible.
-Cover common inspector reuse across entity templates, local/instance editing,
-make-unique, viewport constraints, timeline domain, preview isolation, focus,
-undo/redo, save conflict, and source navigation. Add DOM tests for accessible
-labels/keyboard operations available in the current test environment.
+Use Node suites for document/model interactions and the real-browser suite for
+mounted controls. Cover common inspector reuse across entity templates,
+local/instance editing, make-unique, viewport constraints, timeline domain,
+preview isolation, focus, undo/redo, save conflict, and source navigation.
+Playwright exercises accessible labels/keyboard operations in actual Chromium;
+repository tests use temporary content roots, never authored production files.
 
 ### Gate
 

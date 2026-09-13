@@ -237,11 +237,26 @@
       "y": 832
     },
     {
-      "instanceId": "npc-world-scout-b2face2c",
+      "instanceId": "level-1-npc-mossy-scout",
       "objectId": "npc.world-scout",
       "visualId": "mossy-scout",
-      "x": 928,
-      "y": 768
+      "x": 768,
+      "y": 704
+    },
+    {
+      "instanceId": "level-1-fatty-guarded-chest",
+      "objectId": "chest.wooden",
+      "visualId": "wooden-closed",
+      "x": 2848,
+      "y": 1472,
+      "initialState": {
+        "contents": [
+          {
+            "itemId": "green-key",
+            "quantity": 1
+          }
+        ]
+      }
     }
   ],
   "player": {
@@ -265,7 +280,13 @@
         "h": 128
       },
       "to": "gloop-forest",
-      "entry": "west"
+      "entry": "west",
+      "gate": {
+        "id": "level-1-east-verdant-gate",
+        "requiredItemId": "green-key",
+        "consumeOnUnlock": true,
+        "lockedMessage": "The eastern gate needs a green key."
+      }
     }
   ],
   "enemySafeZones": [
@@ -302,6 +323,30 @@
       ],
       "intervalMs": 2500,
       "maxPopulation": 3
+    }
+  ],
+  "bossCamps": [
+    {
+      "id": "level-1-fatty-one-eye-camp",
+      "bossId": "fatty-one-eye",
+      "activationPerimeter": {
+        "shape": "circle",
+        "x": 2528,
+        "y": 1472,
+        "radius": 954
+      },
+      "arenaPerimeter": {
+        "shape": "circle",
+        "x": 2528,
+        "y": 1472,
+        "radius": 933
+      },
+      "spawn": {
+        "x": 2528,
+        "y": 1472
+      },
+      "respawnMs": 180000,
+      "guardedChestInstanceId": "level-1-fatty-guarded-chest"
     }
   ],
   "npcWanderAreas": [
@@ -348,13 +393,13 @@
     },
     {
       "id": "npc-area-02",
-      "npcInstanceId": "npc-world-scout-b2face2c",
+      "npcInstanceId": "level-1-npc-mossy-scout",
       "perimeter": {
         "shape": "rectangle",
-        "x": 576,
-        "y": 512,
-        "w": 448,
-        "h": 320
+        "x": 672,
+        "y": 640,
+        "w": 192,
+        "h": 128
       }
     }
   ]

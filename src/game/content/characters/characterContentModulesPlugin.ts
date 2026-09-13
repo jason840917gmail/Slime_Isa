@@ -1390,6 +1390,8 @@ async function packageHandler(
   }
   const visualSetId = packageValue.character.kind === 'enemy'
     ? `enemy.${characterId.replaceAll('-', '.')}`
+    : packageValue.character.kind === 'boss'
+      ? `boss.${characterId.replaceAll('-', '.')}`
     : packageValue.character.kind === 'npc'
       ? `character.npc.${characterId}`
       : `character.${characterId.replaceAll('-', '.')}`;

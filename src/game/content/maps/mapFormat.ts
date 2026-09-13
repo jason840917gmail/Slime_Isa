@@ -69,22 +69,24 @@ export interface MapEnemySafeZone {
 
 export type MapAgentAreaShape = 'circle' | 'rectangle';
 
-export type MapAgentAreaPerimeter =
-  | {
+export interface MapCirclePerimeter {
     readonly shape: 'circle';
     /** Circle center in world pixels. */
     readonly x: number;
     readonly y: number;
     readonly radius: number;
-  }
-  | {
+}
+
+export interface MapRectanglePerimeter {
     readonly shape: 'rectangle';
     /** Rectangle top-left in world pixels. */
     readonly x: number;
     readonly y: number;
     readonly w: number;
     readonly h: number;
-  };
+}
+
+export type MapAgentAreaPerimeter = MapCirclePerimeter | MapRectanglePerimeter;
 
 /** Compatibility aliases retained for enemy-area consumers. */
 export type MapEnemyAreaShape = MapAgentAreaShape;
@@ -110,6 +112,16 @@ export interface MapEnemySpawnArea {
   readonly maxPopulation: number;
 }
 
+export interface MapBossCamp {
+  readonly id: string;
+  readonly bossId: string;
+  readonly activationPerimeter: MapCirclePerimeter;
+  readonly arenaPerimeter: MapCirclePerimeter;
+  readonly spawn: MapPoint;
+  readonly respawnMs: number;
+  readonly guardedChestInstanceId?: string;
+}
+
 export interface MapSpawns {
   readonly enemies: readonly MapEnemySpawn[];
   readonly radius: { readonly min: number; readonly max: number };
@@ -125,6 +137,12 @@ export interface MapExit {
   readonly to: string;
   /** Entry point name in the target map's player.entries. */
   readonly entry: string;
+  readonly gate?: {
+    readonly id: string;
+    readonly requiredItemId: string;
+    readonly consumeOnUnlock: boolean;
+    readonly lockedMessage: string;
+  };
 }
 
 export interface MapFile {
@@ -143,6 +161,8 @@ export interface MapFile {
   readonly enemySafeZones?: readonly MapEnemySafeZone[];
   /** Authored enemy camps. When non-empty, runtime spawning uses these areas instead of legacy spawns. */
   readonly enemySpawnAreas?: readonly MapEnemySpawnArea[];
+  /** Authored boss encounters; independent from ambient enemy camps. */
+  readonly bossCamps?: readonly MapBossCamp[];
   /** Optional personal wander perimeter for each placed NPC. */
   readonly npcWanderAreas?: readonly MapNpcWanderArea[];
   readonly spawns?: MapSpawns;
@@ -447,6 +467,15 @@ export function parseMapFile(data: unknown, mapLabel = 'unknown'): MapFile {
         if (typeof exit.entry !== 'string' || exit.entry.length === 0) {
           issues.push(`${path}.entry: required non-empty string (target entry point name)`);
         }
+        if (exit.gate !== undefined) {
+          if (!isRecord(exit.gate)) issues.push(`${path}.gate: expected an object`);
+          else {
+            if (typeof exit.gate.id !== 'string' || exit.gate.id.length === 0) issues.push(`${path}.gate.id: required non-empty stable ID`);
+            if (typeof exit.gate.requiredItemId !== 'string' || exit.gate.requiredItemId.length === 0) issues.push(`${path}.gate.requiredItemId: required non-empty item ID`);
+            if (typeof exit.gate.consumeOnUnlock !== 'boolean') issues.push(`${path}.gate.consumeOnUnlock: expected boolean`);
+            if (typeof exit.gate.lockedMessage !== 'string' || exit.gate.lockedMessage.trim().length === 0) issues.push(`${path}.gate.lockedMessage: required non-empty message`);
+          }
+        }
       });
     }
   }
@@ -567,6 +596,43 @@ export function parseMapFile(data: unknown, mapLabel = 'unknown'): MapFile {
         if (!isPositiveInt(area.maxPopulation)) {
           issues.push(`${path}.maxPopulation: expected positive integer`);
         }
+      });
+    }
+  }
+
+  if (data.bossCamps !== undefined) {
+    if (!Array.isArray(data.bossCamps)) {
+      issues.push('bossCamps: expected an array (may be empty)');
+    } else {
+      const campIds = new Set<string>();
+      const chestIds = new Set<string>();
+      data.bossCamps.forEach((camp, index) => {
+        const path = `bossCamps[${index}]`;
+        if (!isRecord(camp)) {
+          issues.push(`${path}: expected an object`);
+          return;
+        }
+        if (typeof camp.id !== 'string' || camp.id.length === 0) issues.push(`${path}.id: required non-empty stable ID`);
+        else if (campIds.has(camp.id)) issues.push(`${path}.id: duplicate '${camp.id}'`);
+        else campIds.add(camp.id);
+        if (typeof camp.bossId !== 'string' || camp.bossId.length === 0) issues.push(`${path}.bossId: required non-empty boss ID`);
+        if (camp.guardedChestInstanceId !== undefined) {
+          if (typeof camp.guardedChestInstanceId !== 'string' || camp.guardedChestInstanceId.length === 0) issues.push(`${path}.guardedChestInstanceId: expected a non-empty chest instance ID when present`);
+          else if (chestIds.has(camp.guardedChestInstanceId)) issues.push(`${path}.guardedChestInstanceId: chest is already guarded by another boss camp`);
+          else chestIds.add(camp.guardedChestInstanceId);
+        }
+        const activation = validateEnemyPerimeter(camp.activationPerimeter, `${path}.activationPerimeter`, issues, pixelWidth, pixelHeight);
+        const arena = validateEnemyPerimeter(camp.arenaPerimeter, `${path}.arenaPerimeter`, issues, pixelWidth, pixelHeight);
+        if (activation && activation.shape !== 'circle') issues.push(`${path}.activationPerimeter: boss activation perimeter must be a circle`);
+        if (arena && arena.shape !== 'circle') issues.push(`${path}.arenaPerimeter: boss arena perimeter must be a circle`);
+        validatePoint(camp.spawn, `${path}.spawn`, issues);
+        if (activation?.shape === 'circle' && arena?.shape === 'circle'
+          && isRecord(camp.spawn) && typeof camp.spawn.x === 'number' && typeof camp.spawn.y === 'number') {
+          if (activation.x !== camp.spawn.x || activation.y !== camp.spawn.y) issues.push(`${path}.activationPerimeter: center must exactly equal spawn`);
+          if (arena.x !== camp.spawn.x || arena.y !== camp.spawn.y) issues.push(`${path}.arenaPerimeter: center must exactly equal spawn`);
+          if (arena.radius > activation.radius) issues.push(`${path}.arenaPerimeter.radius: must not exceed activationPerimeter.radius`);
+        }
+        if (!isPositiveInt(camp.respawnMs)) issues.push(`${path}.respawnMs: expected positive integer`);
       });
     }
   }

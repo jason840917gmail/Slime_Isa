@@ -18,6 +18,7 @@ import {
 import { resolveBodyBottom, resolveWorldDepth } from '../presentation/WorldDepth';
 import { applyArcadeBodyGeometry } from '../shared/collisionShapes';
 import type { MapEnemySpawnArea } from '../content/maps/mapFormat';
+import { isEnemyEffectImmune, type EnemyEffectImmunity } from '../content/enemies/EnemyEffects';
 
 export interface EnemyItemDrop {
   itemId: string;
@@ -40,6 +41,7 @@ export interface EnemyConfig {
   id: string;
   visualSetId: VisualSetId;
   maxHp: number;
+  effectImmunities?: readonly EnemyEffectImmunity[];
   body: {
     shape?: 'rectangle' | 'circle' | 'ellipse';
     width: number;
@@ -166,7 +168,9 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       return acceptedDamage(hpBefore, this.hp);
     }
 
-    const finalStrength = (knockStrength + 120) * (1 - this.config.ai.knockbackResist);
+    const finalStrength = isEnemyEffectImmune(this.config.effectImmunities, 'knockback')
+      ? 0
+      : (knockStrength + 120) * (1 - this.config.ai.knockbackResist);
     if (finalStrength > 0) this.setVelocity(knockX * finalStrength, knockY * finalStrength);
     const hitStunDuration = 320 + Math.min(280, finalStrength * 0.35);
     this.hitStunUntil = Math.max(

@@ -1,4 +1,5 @@
 import type { CharacterHitboxDocument } from '../../content/characters/types';
+import { attackIntersectsCombatBody, resolveCombatBodyGeometry, type CombatAttackGeometrySource, type CombatBodyTargetSource } from '../../combat/CombatBodyGeometry';
 import { normalizeCollisionShape, resolveCollisionShapeDimensions, type CollisionShape } from '../../shared/collisionShapes';
 
 export interface CharacterHitboxRectangle {
@@ -81,6 +82,26 @@ export function resolveCharacterHitboxRectangle(
 ): CharacterHitboxRectangle {
   const geometry = resolveCharacterHitboxGeometry(hitbox, anchor, facingX);
   return geometryToRectangle(geometry);
+}
+
+export function characterHitboxIntersectsCombatBody(
+  hitbox: CharacterHitboxDocument,
+  anchor: CharacterHitboxAnchor,
+  facingX: 1 | -1,
+  target: CombatBodyTargetSource | null | undefined,
+): boolean {
+  const targetGeometry = resolveCombatBodyGeometry(target);
+  if (!targetGeometry) return false;
+  const geometry = resolveCharacterHitboxGeometry(hitbox, anchor, facingX);
+  let attack: CombatAttackGeometrySource;
+  if (geometry.shape === 'circle') {
+    attack = { shape: 'circle', x: geometry.centerX, y: geometry.centerY, width: geometry.width, height: geometry.height, radiusX: geometry.radius, radiusY: geometry.radius };
+  } else if (geometry.shape === 'ellipse') {
+    attack = { shape: 'ellipse', x: geometry.centerX, y: geometry.centerY, width: geometry.width, height: geometry.height, radiusX: geometry.radiusX, radiusY: geometry.radiusY };
+  } else {
+    attack = { shape: 'rect', x: geometry.x + geometry.width / 2, y: geometry.y + geometry.height / 2, width: geometry.width, height: geometry.height };
+  }
+  return attackIntersectsCombatBody(attack, targetGeometry);
 }
 
 export function geometryToRectangle(geometry: CharacterHitboxGeometry): CharacterHitboxRectangle {

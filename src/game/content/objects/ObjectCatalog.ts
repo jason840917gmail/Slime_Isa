@@ -10,6 +10,7 @@ import hpPotionJson from './collectibles/collectible-hp-potion.json';
 import energyPotionJson from './collectibles/collectible-energy-potion.json';
 import silkClumpJson from './collectibles/collectible-silk-clump.json';
 import crystalShardJson from './collectibles/collectible-crystal-shard.json';
+import greenKeyJson from './collectibles/collectible-green-key.json';
 import smallStonePileJson from './collectibles/collectible-small-stone-pile.json';
 import smallWoodPileJson from './collectibles/collectible-small-wood-pile.json';
 import decorationWorldFloorJson from './decorations/decoration-world-floor.json';
@@ -25,6 +26,7 @@ import npcWorldScoutJson from './npcs/npc-world-scout.json';
 import npcLiliJson from './npcs/npc-lili.json';
 import npcRedSlimeBoyJson from './npcs/npc-red-slime-boy.json';
 import npcYellowBlondSlimeGirlJson from './npcs/npc-yellow-blond-slime-girl.json';
+import chestWoodenJson from './chests/chest-wooden.json';
 import { getNpcDefinition } from '../npcs/NpcCatalog';
 
 export interface ColliderBounds {
@@ -108,6 +110,8 @@ export interface ObjectArchetypeDefinition {
       readonly failureMessage: string;
     };
   };
+  /** Reusable authored container. Instance contents live in map initialState. */
+  readonly chest?: true;
   /** Optional authored quest/dialogue identity for interactable NPC objects. */
   readonly npc?: {
     readonly definitionId: string;
@@ -117,12 +121,14 @@ export interface ObjectArchetypeDefinition {
 }
 
 const OBJECT_FILES = {
+  'chest.wooden': chestWoodenJson,
   'collectible.charcoal-pile': charcoalPileJson,
   'collectible.iron-ore-pile': ironOrePileJson,
   'collectible.hp-potion': hpPotionJson,
   'collectible.energy-potion': energyPotionJson,
   'collectible.silk-clump': silkClumpJson,
   'collectible.crystal-shard': crystalShardJson,
+  'collectible.green-key': greenKeyJson,
   'collectible.purple-berry': purpleBerryJson,
   'collectible.small-stone-pile': smallStonePileJson,
   'collectible.small-wood-pile': smallWoodPileJson,

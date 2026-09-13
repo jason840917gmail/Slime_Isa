@@ -39,7 +39,7 @@ const { NpcPlacementPreview } = await vite.ssrLoadModule('/src/game/editor/NpcPl
 const { getAsset } = await vite.ssrLoadModule('/src/game/infrastructure/assets/manifest.ts');
 const level = (await vite.ssrLoadModule('/src/game/content/maps/level-1.map.json')).default;
 const elder = 'level-1-npc-village-elder-plop';
-const mossy = 'level-1-npc-mossy-scout';
+const mossy = level.objects.find((object) => object.objectId === 'npc.world-scout').instanceId;
 
 function drawingObject() {
   const object = new EventEmitter();
@@ -197,7 +197,13 @@ test('the selected NPC area can still move and resize using its area ID', (t) =>
   editor.setTool('npc-area');
   scene.beginNpcAreaResize(editor.getNpcWanderArea(mossy), 'se');
   scene.finishNpcAreaResize(960, 768);
-  assert.deepEqual(editor.getNpcWanderArea(mossy).perimeter, { shape: 'rectangle', x: 672, y: 640, w: 288, h: 128 });
+  assert.deepEqual(editor.getNpcWanderArea(mossy).perimeter, {
+    shape: 'rectangle',
+    x: original.perimeter.x,
+    y: original.perimeter.y,
+    w: 960 - original.perimeter.x,
+    h: 768 - original.perimeter.y,
+  });
   assert.deepEqual(visibleAreaLabels(scene), [mossy]);
   editor.undo();
   assert.deepEqual(editor.getNpcWanderArea(mossy), original);

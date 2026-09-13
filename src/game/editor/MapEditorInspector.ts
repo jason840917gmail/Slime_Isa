@@ -20,6 +20,9 @@ import {
   type ResourceGameplayDraft,
 } from './GameplayAttributeEditorState';
 import { isResourceTag, RESOURCE_TAGS } from '../content/ResourceTags';
+import { getBossDefinition, getBossIds } from '../content/bosses/BossCatalog';
+import type { MapBossCamp } from '../content/maps/mapFormat';
+import type { EditableMap } from './MapEditorState';
 
 export interface InspectorPreviewUrls {
   readonly objects: Readonly<Record<string, string>>;
@@ -44,6 +47,49 @@ function resourceTagOptions(selectedTag: string): string {
 
 function titleFromId(id: string): string {
   return id.split(/[.-]/).map((part) => `${part[0]?.toUpperCase() ?? ''}${part.slice(1)}`).join(' ');
+}
+
+function renderBossCampInspector(host: HTMLElement, map: EditableMap, camp: MapBossCamp, status: string): void {
+  const definition = getBossDefinition(camp.bossId);
+  const claimedByOther = new Set(map.bossCamps
+    .filter((candidate) => candidate.id !== camp.id && candidate.guardedChestInstanceId)
+    .map((candidate) => candidate.guardedChestInstanceId));
+  const chests = map.objects.filter((object) => isObjectArchetypeId(object.objectId)
+    && getObjectArchetype(object.objectId).chest === true);
+  host.innerHTML = `
+    <header class="map-editor-inspector-header">
+      <div><span class="editor-inspector-kicker">Circular encounter</span><h2>Boss Camp</h2></div>
+      <button type="button" class="editor-inspector-toggle" data-inspector-toggle aria-label="Close inspector">×</button>
+    </header>
+    <div class="editor-inspector-scroll editor-boss-camp-inspector">
+      <section class="editor-inspector-section">
+        <div class="editor-inspector-section-title"><span>01</span><h3>Identity</h3></div>
+        <label class="editor-inspector-field editor-inspector-field-wide"><span>Stable camp ID<small>read only</small></span><input value="${escapeHtml(camp.id)}" readonly data-testid="boss-camp-id" /></label>
+        <label class="editor-inspector-field editor-inspector-field-wide"><span>Boss type<small>catalog definition</small></span><select data-boss-camp-field="bossId" data-testid="boss-camp-boss">${getBossIds().map((bossId) => `<option value="${escapeHtml(bossId)}" ${bossId === camp.bossId ? 'selected' : ''}>${escapeHtml(getBossDefinition(bossId).displayName)}</option>`).join('')}</select></label>
+        <p class="editor-boss-summary">${definition.maxHp} HP · ${definition.chaseSpeed}px/s · ${escapeHtml(definition.contactHop.clipId)} contact hop · ${definition.leap.landingDamage} leap damage</p>
+      </section>
+      <section class="editor-inspector-section">
+        <div class="editor-inspector-section-title"><span>02</span><h3>Spawn and circles</h3></div>
+        <div class="editor-inspector-grid">
+          <label class="editor-inspector-field"><span>Spawn X<small>px</small></span><input type="number" step="1" value="${camp.spawn.x}" data-boss-camp-field="spawnX" /></label>
+          <label class="editor-inspector-field"><span>Spawn Y<small>px</small></span><input type="number" step="1" value="${camp.spawn.y}" data-boss-camp-field="spawnY" /></label>
+          <label class="editor-inspector-field"><span>Activation radius<small>cyan · px</small></span><input type="number" min="1" step="1" value="${camp.activationPerimeter.radius}" data-boss-camp-field="activationRadius" /></label>
+          <label class="editor-inspector-field"><span>Arena radius<small>amber · px</small></span><input type="number" min="1" step="1" value="${camp.arenaPerimeter.radius}" data-boss-camp-field="arenaRadius" /></label>
+        </div>
+      </section>
+      <section class="editor-inspector-section">
+        <div class="editor-inspector-section-title"><span>03</span><h3>Encounter rules</h3></div>
+        <label class="editor-inspector-field"><span>Respawn<small>whole seconds</small></span><input type="number" min="1" step="1" value="${camp.respawnMs / 1000}" data-boss-camp-field="respawnSeconds" /></label>
+        <label class="editor-inspector-field editor-inspector-field-wide"><span>Guarded chest<small>optional map object</small></span><select data-boss-camp-field="guardedChestInstanceId" data-testid="boss-camp-chest"><option value="" ${camp.guardedChestInstanceId ? '' : 'selected'}>None</option>${chests.map((chest) => {
+          const claimed = claimedByOther.has(chest.instanceId);
+          return `<option value="${escapeHtml(chest.instanceId)}" ${chest.instanceId === camp.guardedChestInstanceId ? 'selected' : ''} ${claimed ? 'disabled' : ''}>${escapeHtml(chest.instanceId)}${claimed ? ' · assigned' : ''}</option>`;
+        }).join('')}</select></label>
+      </section>
+      <section class="editor-inspector-section editor-inspector-actions">
+        <button type="button" class="editor-area-delete" data-command="delete-boss-camp" data-testid="delete-boss-camp">Delete camp</button>
+        <p class="editor-inspector-status" aria-live="polite">${escapeHtml(status)}</p>
+      </section>
+    </div>`;
 }
 
 function renderError(error: string | undefined): string {
@@ -154,6 +200,30 @@ interface InspectorUiState {
 }
 
 function renderGameplayAttributes(state: GameplayAttributeViewState, instance?: EditableObjectInstance): string {
+  const instanceDefinition = instance && isObjectArchetypeId(instance.objectId)
+    ? getObjectArchetype(instance.objectId)
+    : undefined;
+  if (instance && instanceDefinition?.chest) {
+    const rawContents = Array.isArray(instance.initialState?.contents) ? instance.initialState.contents : [];
+    const contents = rawContents.filter((entry): entry is { itemId: string; quantity: number } => (
+      typeof entry === 'object' && entry !== null && typeof (entry as { itemId?: unknown }).itemId === 'string'
+        && typeof (entry as { quantity?: unknown }).quantity === 'number'
+    ));
+    const itemIds = getKnownItemIds();
+    return `<section class="editor-inspector-section editor-gameplay-form editor-chest-contents">
+      <div class="editor-inspector-section-title"><span>01</span><h3>Chest contents</h3></div>
+      <p class="editor-inspector-help">These stacks initialize this specific chest once. Runtime looting is saved separately and never refills an emptied chest.</p>
+      <div class="editor-chest-content-list">
+        ${contents.map((entry, index) => `<div class="editor-chest-content-row">
+          <label class="editor-inspector-field editor-inspector-field-wide"><span>Item ${index + 1}</span><select data-chest-field="itemId" data-chest-index="${index}">${itemIds.map((itemId) => `<option value="${escapeHtml(itemId)}" ${itemId === entry.itemId ? 'selected' : ''}>${escapeHtml(titleFromId(itemId))} · ${escapeHtml(itemId)}</option>`).join('')}</select></label>
+          <label class="editor-inspector-field"><span>Quantity</span><input type="number" min="1" step="1" value="${entry.quantity}" data-chest-field="quantity" data-chest-index="${index}" /></label>
+          <button type="button" class="editor-inspector-secondary" data-command="remove-chest-content" data-chest-index="${index}">Remove</button>
+        </div>`).join('')}
+        ${contents.length === 0 ? '<p class="editor-inspector-help">This chest starts empty.</p>' : ''}
+      </div>
+      <button type="button" class="editor-inspector-secondary" data-command="add-chest-content" ${itemIds.length === 0 ? 'disabled' : ''}>Add item stack</button>
+    </section>`;
+  }
   const draft = state.draft;
   if (!draft) {
     return '<div class="editor-inspector-empty editor-inspector-empty-compact"><strong>No gameplay attributes</strong><p>Select a resource node or collectible to edit its gameplay data.</p></div>';
@@ -443,12 +513,14 @@ export function mountMapEditorInspector(
   let activeTab: 'visuals' | 'gameplay' = 'visuals';
   const render = (): void => {
     const scrollTop = host.querySelector<HTMLElement>('.editor-inspector-scroll')?.scrollTop ?? 0;
-    const activeInput = document.activeElement instanceof HTMLInputElement
+    const activeInput = (document.activeElement instanceof HTMLInputElement || document.activeElement instanceof HTMLSelectElement)
       && host.contains(document.activeElement)
       ? document.activeElement
       : undefined;
-    const activeField = activeInput?.dataset.templateField
-      ? { kind: 'template' as const, id: activeInput.dataset.templateField }
+    const activeField = activeInput?.dataset.bossCampField
+      ? { kind: 'boss-camp' as const, id: activeInput.dataset.bossCampField }
+      : activeInput?.dataset.templateField
+        ? { kind: 'template' as const, id: activeInput.dataset.templateField }
       : activeInput?.dataset.saveAsField
         ? { kind: 'save-as' as const, id: activeInput.dataset.saveAsField }
       : activeInput?.dataset.gameplayField
@@ -457,7 +529,7 @@ export function mountMapEditorInspector(
           ? { kind: 'instance' as const, id: activeInput.dataset.instanceField }
         : undefined;
     let selection: { start: number; end: number } | undefined;
-    if (activeInput && activeInput.type !== 'number') {
+    if (activeInput instanceof HTMLInputElement && activeInput.type !== 'number') {
       try {
         if (activeInput.selectionStart !== null && activeInput.selectionEnd !== null) {
           selection = { start: activeInput.selectionStart, end: activeInput.selectionEnd };
@@ -469,6 +541,18 @@ export function mountMapEditorInspector(
     host.classList.toggle('is-closed', !open);
     if (!open) {
       host.innerHTML = '<button type="button" class="editor-inspector-reopen" data-inspector-toggle>Inspector <span>→</span></button>';
+      return;
+    }
+    const selectedBossCamp = mapEditor.value.selectedBossCampId
+      ? mapEditor.value.map.bossCamps.find((camp) => camp.id === mapEditor.value.selectedBossCampId)
+      : undefined;
+    if (selectedBossCamp) {
+      renderBossCampInspector(host, mapEditor.value.map, selectedBossCamp, mapEditor.value.status);
+      const bossScroll = host.querySelector<HTMLElement>('.editor-inspector-scroll');
+      if (bossScroll) bossScroll.scrollTop = scrollTop;
+      if (activeField?.kind === 'boss-camp') {
+        host.querySelector<HTMLElement>(`[data-boss-camp-field="${activeField.id}"]`)?.focus({ preventScroll: true });
+      }
       return;
     }
     const selectedObjectId = templateEditor.value.selected?.objectId;
@@ -494,7 +578,7 @@ export function mountMapEditorInspector(
     if (animationPickerDialog && !animationPickerDialog.open) animationPickerDialog.showModal();
     const scroll = host.querySelector<HTMLElement>('.editor-inspector-scroll');
     if (scroll) scroll.scrollTop = scrollTop;
-    if (activeField) {
+    if (activeField && activeField.kind !== 'boss-camp') {
       const inputs = host.querySelectorAll<HTMLInputElement>(
         activeField.kind === 'template' ? '[data-template-field]' : activeField.kind === 'gameplay' ? '[data-gameplay-field]' : activeField.kind === 'instance' ? '[data-instance-field]' : '[data-save-as-field]',
       );
@@ -538,6 +622,29 @@ export function mountMapEditorInspector(
     if (target.dataset.command === 'reset-scale') templateEditor.updateDraft({ scale: 1 });
     if (target.dataset.command === 'reset-template') templateEditor.resetChanges();
     if (target.dataset.command === 'reset-gameplay') gameplayEditor.resetChanges();
+    if (target.dataset.command === 'delete-boss-camp' && mapEditor.value.selectedBossCampId) {
+      mapEditor.deleteBossCamp(mapEditor.value.selectedBossCampId);
+      return;
+    }
+    if ((target.dataset.command === 'add-chest-content' || target.dataset.command === 'remove-chest-content')
+      && mapEditor.value.selectedInstanceId) {
+      const instanceId = mapEditor.value.selectedInstanceId;
+      const object = mapEditor.value.map.objects.find((candidate) => candidate.instanceId === instanceId);
+      const contents = Array.isArray(object?.initialState?.contents)
+        ? object.initialState.contents.map((entry) => ({ ...(entry as { itemId: string; quantity: number }) }))
+        : [];
+      if (target.dataset.command === 'add-chest-content') {
+        const used = new Set(contents.map((entry) => entry.itemId));
+        const itemId = getKnownItemIds().find((candidate) => !used.has(candidate));
+        if (itemId) contents.push({ itemId, quantity: 1 });
+        else mapEditor.notify('Every known item is already present in this chest');
+      } else {
+        const index = Number(target.dataset.chestIndex);
+        if (Number.isInteger(index) && index >= 0) contents.splice(index, 1);
+      }
+      mapEditor.updateObjectInitialState(instanceId, { contents });
+      return;
+    }
     if (target.dataset.command === 'reset-instance-field' && mapEditor.value.selectedInstanceId && target.dataset.instanceResetField) {
       const keys = target.dataset.instanceResetField === 'dropObjectId'
         ? ['dropObjectId', 'dropVisualId']
@@ -597,6 +704,35 @@ export function mountMapEditorInspector(
 
   const changeHandler = (event: Event): void => {
     const target = event.target as HTMLInputElement;
+    const bossCampField = target.dataset.bossCampField;
+    const selectedBossCampId = mapEditor.value.selectedBossCampId;
+    const selectedBossCamp = selectedBossCampId ? mapEditor.getBossCamp(selectedBossCampId) : undefined;
+    if (bossCampField && selectedBossCampId && selectedBossCamp) {
+      if (bossCampField === 'bossId') mapEditor.updateBossCamp(selectedBossCampId, { bossId: target.value });
+      else if (bossCampField === 'spawnX') mapEditor.updateBossCamp(selectedBossCampId, { spawn: { x: Number(target.value), y: selectedBossCamp.spawn.y } });
+      else if (bossCampField === 'spawnY') mapEditor.updateBossCamp(selectedBossCampId, { spawn: { x: selectedBossCamp.spawn.x, y: Number(target.value) } });
+      else if (bossCampField === 'activationRadius') mapEditor.updateBossCamp(selectedBossCampId, { activationRadius: Number(target.value) });
+      else if (bossCampField === 'arenaRadius') mapEditor.updateBossCamp(selectedBossCampId, { arenaRadius: Number(target.value) });
+      else if (bossCampField === 'respawnSeconds') mapEditor.updateBossCamp(selectedBossCampId, { respawnMs: Number(target.value) * 1000 });
+      else if (bossCampField === 'guardedChestInstanceId') mapEditor.updateBossCamp(selectedBossCampId, { guardedChestInstanceId: target.value || null });
+      return;
+    }
+    const chestField = target.dataset.chestField;
+    const chestIndex = Number(target.dataset.chestIndex);
+    const selectedChestId = mapEditor.value.selectedInstanceId;
+    if ((chestField === 'itemId' || chestField === 'quantity') && Number.isInteger(chestIndex) && selectedChestId) {
+      const object = mapEditor.value.map.objects.find((candidate) => candidate.instanceId === selectedChestId);
+      const contents = Array.isArray(object?.initialState?.contents)
+        ? object.initialState.contents.map((entry) => ({ ...(entry as { itemId: string; quantity: number }) }))
+        : [];
+      const entry = contents[chestIndex];
+      if (!entry) return;
+      contents[chestIndex] = chestField === 'itemId'
+        ? { ...entry, itemId: target.value }
+        : { ...entry, quantity: Number(target.value) };
+      mapEditor.updateObjectInitialState(selectedChestId, { contents });
+      return;
+    }
     const instanceField = target.dataset.instanceField;
     const instanceId = mapEditor.value.selectedInstanceId;
     if (instanceField && instanceId) {

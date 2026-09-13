@@ -20,6 +20,7 @@ const TOOLS: ReadonlyArray<{ id: EditorTool; label: string }> = [
   { id: 'safe-zone', label: 'Monster Safe Zone' },
   { id: 'enemy-area', label: 'Enemy Area' },
   { id: 'npc-area', label: 'NPC Wander Area' },
+  { id: 'boss-camp', label: 'Boss Camp' },
   { id: 'spawn', label: 'Player Spawn' },
   { id: 'entry', label: 'Entry Point' },
   { id: 'exit', label: 'Exit Zone' },
@@ -223,6 +224,7 @@ export function mountMapEditorPanel(
         </button>`).join('')}
       </div>
       <p class="editor-help">Enemy Area draws a camp on the map. Amber is the stay perimeter; cyan is the pursue perimeter. Click an existing camp to move it, or edit its rules below.</p>
+      <div class="editor-boss-camp-summary"><strong data-boss-camp-count>0 boss camps</strong><span>Boss Camp places and edits circular encounters. Exact settings live in the inspector.</span></div>
     </section>
     <section class="editor-section editor-enemy-area-section">
       <div class="editor-section-title"><span>02</span><h2>Enemy Areas</h2></div>
@@ -807,6 +809,11 @@ export function mountMapEditorPanel(
     if (npcAreaCount) {
       const count = state.map.npcWanderAreas?.length ?? 0;
       npcAreaCount.textContent = `${count} personal area${count === 1 ? '' : 's'}`;
+    }
+    const bossCampCount = host.querySelector<HTMLElement>('[data-boss-camp-count]');
+    if (bossCampCount) {
+      const count = state.map.bossCamps.length;
+      bossCampCount.textContent = `${count} boss camp${count === 1 ? '' : 's'}`;
     }
     const deleteNpcArea = host.querySelector<HTMLButtonElement>('[data-command="delete-npc-area"]');
     if (deleteNpcArea) deleteNpcArea.disabled = state.tool !== 'npc-area'

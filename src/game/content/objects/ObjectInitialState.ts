@@ -8,6 +8,12 @@ import {
 
 export const COLLECTIBLE_INITIAL_STATE_KEYS = ['quantity', 'remaining'] as const;
 export const RESOURCE_INITIAL_STATE_KEYS = ['health', 'dropObjectId', 'dropVisualId', 'dropPieces'] as const;
+export const CHEST_INITIAL_STATE_KEYS = ['contents'] as const;
+
+export interface ChestInitialContent {
+  readonly itemId: string;
+  readonly quantity: number;
+}
 
 function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -18,6 +24,7 @@ export function gameplayInitialStateKeys(objectId: ObjectArchetypeId): readonly 
   if (definition.collectible) return COLLECTIBLE_INITIAL_STATE_KEYS;
   if (definition.resourceNode) return RESOURCE_INITIAL_STATE_KEYS;
   if (definition.destructible) return ['health'];
+  if (definition.chest) return CHEST_INITIAL_STATE_KEYS;
   return [];
 }
 
@@ -31,6 +38,29 @@ export function validateObjectInitialState(objectId: string, value: unknown): re
   const issues = Object.keys(value)
     .filter((key) => !allowed.has(key))
     .map((key) => `initialState.${key} is not supported by '${objectId}'`);
+
+  if (definition.chest) {
+    if (!Array.isArray(value.contents)) {
+      issues.push('initialState.contents must be an array');
+      return issues;
+    }
+    const seen = new Set<string>();
+    value.contents.forEach((entry, index) => {
+      if (!isRecord(entry)) {
+        issues.push(`initialState.contents[${index}] must be an object`);
+        return;
+      }
+      if (typeof entry.itemId !== 'string' || !isKnownItemId(entry.itemId)) {
+        issues.push(`initialState.contents[${index}].itemId must reference a known item`);
+      } else if (seen.has(entry.itemId)) {
+        issues.push(`initialState.contents[${index}].itemId duplicates '${entry.itemId}'`);
+      } else seen.add(entry.itemId);
+      if (!Number.isInteger(entry.quantity) || (entry.quantity as number) < 1) {
+        issues.push(`initialState.contents[${index}].quantity must be an integer of at least 1`);
+      }
+    });
+    return issues;
+  }
 
   if (definition.collectible) {
     if (!isKnownItemId(definition.collectible.itemId)) {

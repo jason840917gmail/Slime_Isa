@@ -202,7 +202,7 @@ for (const absolutePath of objectFiles) {
     objectId,
     'object',
     object,
-    new Set(['$schema', 'objectId', 'selection', 'variants', 'physics', 'behavior', 'collectible', 'destructible', 'resourceNode', 'npc', 'tags']),
+    new Set(['$schema', 'objectId', 'selection', 'variants', 'physics', 'behavior', 'collectible', 'destructible', 'resourceNode', 'chest', 'npc', 'tags']),
   );
 
   if (typeof object.objectId !== 'string' || !idPattern.test(object.objectId)) {
@@ -405,6 +405,10 @@ for (const absolutePath of objectFiles) {
 
   if (object.collectible !== undefined && object.resourceNode !== undefined) {
     fail(file, objectId, 'object', 'cannot define both collectible and resourceNode capabilities');
+  }
+  if (object.chest !== undefined) {
+    if (object.chest !== true) fail(file, objectId, 'chest', 'must be true when present');
+    if (!Array.isArray(object.tags) || !object.tags.includes('chest')) fail(file, objectId, 'tags', 'chest objects must include the chest tag');
   }
   if (object.npc !== undefined) {
     validateKeys(file, objectId, 'npc', object.npc, new Set(['definitionId', 'placementVisualId']));

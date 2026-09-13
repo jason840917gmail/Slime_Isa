@@ -1,4 +1,5 @@
 import type { AssetId } from '../../infrastructure/assets/manifest';
+import type { EnemyEffectImmunity } from '../enemies/EnemyEffects';
 import type { CollisionShape } from '../../shared/collisionShapes';
 import type {
   AnimationClipDocument,
@@ -8,7 +9,7 @@ import type {
   AnimationTrackDocument as SharedAnimationTrackDocument,
 } from '../../shared/animation';
 
-export type CharacterKind = 'player' | 'enemy' | 'npc';
+export type CharacterKind = 'player' | 'enemy' | 'boss' | 'npc';
 export type Pair = [number, number];
 export type VisualLoopMode = AnimationLoopMode;
 
@@ -107,6 +108,7 @@ export interface EnemyDropItemDocument {
 
 export interface EnemyGameplayDocument {
   maxHp: number;
+  effectImmunities?: EnemyEffectImmunity[];
   ai: {
     behavior?: 'standard' | 'slime-spider';
     aggroRange: number;

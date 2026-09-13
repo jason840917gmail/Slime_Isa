@@ -8,6 +8,7 @@ const enemyEntries = getEnemyPackages().map((entry) => {
     id: entry.character.characterId,
     visualSetId: entry.character.visualSetId,
     maxHp: gameplay.maxHp,
+    effectImmunities: gameplay.effectImmunities,
     body: entry.character.body,
     ai: gameplay.ai,
     drop: gameplay.drop,

@@ -39,7 +39,7 @@ which refines the broader
 | Milestone | Player-visible result | Status |
 |---|---|---|
 | 1. Wood gathering | Chop a visible tree and collect wood | `[x]` |
-| 2. Stone and starter tools | Walk over loose materials, craft starter gear, clear a camp, and unlock the next area | `[~]` |
+| 2. Stone and starter tools | Walk over loose materials, craft starter gear, defeat Fatty One Eye, loot the guarded chest, and unlock the next area | `[~]` |
 | P. Save, load, and reset foundation | Create or overwrite named saves, load complete runs, or reset to authored defaults | `[~]` |
 | 3. Home exterior | Find and use one authored player home | `[ ]` |
 | 4. Home interior | Enter a real interior, move inside, and return outside | `[ ]` |
@@ -142,9 +142,9 @@ Track manual and automated close-out evidence in the
 - Build: add stone material, visible rock nodes, collision, map placement, deterministic three-pile drops, and reload-safe depletion state.
 - Current: the implementation and validators are present: stone nodes use the
   intentional Level 1 visual variants, carry 80 health, and break into up to
-  three adjacent small stone piles. Partial
-  node health resets on reload while broken piles and their remaining amounts
-  persist. Fresh-save collect/reload approval and loose starter stone remain.
+  three adjacent small stone piles. Partial node health resets on reload while
+  broken piles and their remaining amounts persist. Loose starter stone and its
+  persistence path are implemented; a hands-on fresh-save/reload pass remains.
 - Player proof: wood and stone are distinct resources with distinct visuals.
 - Done when: both resources can be collected and saved.
 
@@ -156,9 +156,10 @@ Track manual and automated close-out evidence in the
   to prevent a fresh-save softlock.
 - Current: the four portable recipes, atomic inventory transaction, crafted
   weapon assignment, dedicated spear swing art, and a hand-collectible starter
-  budget are implemented in the new Level 1 map. The Wooden Axe and Pickaxe are
-  still automatically granted as test items; do not remove those grants until
-  the replacement progression passes a fresh-save playtest. The target flow is specified in
+  budget are implemented in the Level 1 map. Normal fresh runs now begin with
+  no weapon, tool, attack, or production test potion; the legacy starter arsenal
+  is available only through the explicit development grant. The complete flow
+  still needs its fresh-save playtest. The target flow is specified in
   [Starter stone-age progression](./task/ideas/open/starter-stone-age-progression.md).
 - Player proof: gathered materials turn into equipped tools and a first crafted weapon.
 - Done when: a new save can craft and assign the starter gear without cheats or
@@ -245,16 +246,41 @@ Track manual and automated close-out evidence in the
   the running Map Studio confirms tab navigation, yield preview, dirty-state
   preservation, and reset behavior.
 
-### [ ] 2.7 — Complete the first guarded-key progression gate
+### [~] 2.7 — Complete the first guarded-key progression gate
 
-- Build: author a small enemy camp, a reward chest that yields one persistent
-  green key, and a keyed exit to the next authored area. The chest unlocks after
-  the encounter; the gate records permanent unlock state so neither reward can
-  be duplicated.
-- Player proof: collecting and crafting starter gear leads to a clear combat
-  objective and visible access to the next level.
-- Done when: a fresh save completes collect → craft → gather → fight → chest →
-  key → exit, then reloads without duplicating the key or relocking the gate.
+- Build: keep the ordinary worm camp unchanged and add a separate authored boss
+  camp for Fatty One Eye. Fatty is a round, mouthless, translucent slime whose
+  exact-center eye can be damaged only by the Wooden or Stone Spear. He deals
+  a collision-triggered 300 ms stationary contact hop with one 64 px landing
+  hit, ignores knockback through the shared enemy-effect immunity field, and
+  telegraphs a targeted one-second leap with three small
+  hops, a shadow, landing marker, landing-area damage, and ground cracks. A true
+  defeat starts the camp-authored three-minute wall-clock respawn timer; an
+  eligible respawn waits for exit and re-entry.
+- Build: add a reusable authored chest with closed/open sprites, Map Studio
+  placement and editable item stacks, and an inventory-skinned loot panel.
+  Left-click inspects an item; right-click transfers the maximum amount of its
+  stack that fits and leaves any remainder. Fatty locks the chest while alive;
+  partial contents persist and relock on respawn, while an emptied chest stays
+  visibly open forever.
+- Build: put exactly one persistent green key in the Level 1 chest and require
+  it at the east exit. The key is consumed only on the first unlock and the
+  permanent gate state survives reload. Save/load or player death during the
+  fight resets Fatty to full health without starting the defeat timer.
+- Current: the boss definition/controller, shared enemy immunity model, chest
+  object/controller/UI, save-schema version 9 state, Map Studio fields, twenty
+  key sprites, ten potion sprites, Fatty animation sheet, landing cracks,
+  authored Level 1 camp/chest, and keyed Gloop Forest exit are implemented.
+  Relevant asset/object/map checks, combat tests, persistence tests, Map Studio
+  tests, strict typecheck, and production build pass. Hands-on encounter and
+  three-minute respawn verification remain. See
+  [Fatty One Eye guarded chest design](./superpowers/specs/2026-09-11-fatty-one-eye-guarded-chest-design.md).
+- Player proof: collecting and crafting starter gear leads to a readable boss
+  fight, deliberate spear-range eye strikes, selectable chest loot, and visible
+  access to Gloop Forest.
+- Done when: the Section E matrix passes in a fresh run, including partial
+  inventory transfer, save/reload, boss respawn/relocking, exact-once key use,
+  and the complete collect → craft → gather → fight → chest → key → exit loop.
 
 **Milestone 2 complete when:** wood and stone form a readable starting economy
 and crafted starter gear opens the first guarded progression gate.
@@ -629,22 +655,26 @@ upgrade home → craft → tackle tougher area loop with authored interiors and 
 
 ## Immediate Next Sprint
 
-Milestone 1 is complete. Establish the save/load foundation before adding more
-persistent map systems, then continue the smallest playable Milestone 2 slice:
+Milestone 1 is complete. Milestone 2 and the save/load foundation are
+implemented but remain in progress until their manual acceptance matrices close:
 
-1. Implement Roadmap P.1–P.5 from the named save/load/reset plan.
-2. Implement Roadmap 2.6 so loose materials use the generic walk-over
-   collectible path and Map Studio exposes collectible/resource attributes.
-3. Verify loose wood and stone sources for a fresh save.
-4. Extend the recipe model for the four approved starter recipes.
-5. Craft and assign the Stone Axe, Stone Pickaxe, and first spear through normal UI.
-6. Verify tool-gated trees and stone nodes with clear failure feedback.
-7. Author the guarded chest and persistent green-key exit.
-8. Remove normal automatic starter grants only after the complete replacement
-   loop passes a fresh-save and reload playtest.
+1. Run the remaining fresh-save checks for loose materials, all four starter
+   recipes, tool-gated harvesting, and weapon assignment with no automatic gear.
+2. Play the complete Fatty One Eye encounter: centered-eye spear damage,
+   collision-triggered contact hop, its single 64 px landing hit, three-hop
+   leap telegraph, airborne safety, landing AOE,
+   boss knockback immunity, chest locking, and selectable loot.
+3. Verify the authored three-minute wall-clock respawn across leaving/re-entering
+   the arena, closing the game, partial chest looting, and player death.
+4. Verify the exact-once green-key unlock and the Level 1 → Gloop Forest →
+   Level 1 round trip through recovery and two independent named saves.
+5. Complete the Map Studio runtime acceptance pass for object authoring,
+   visible boss selection, independent activation/arena circles, optional
+   guarded-chest assignment, editable chest contents, and save/reload.
+6. Resolve the Windows Character Studio fixture `EPERM` temporary-manifest
+   rename so the complete `pnpm check` wrapper can finish cleanly.
 
-Keep the debug grant clearly separated from production progression while this
-slice is being built.
+Keep the legacy debug grant clearly separated from production progression.
 
 ## Cross-Cutting Persistence
 
@@ -669,13 +699,15 @@ acceptance matrix are defined in the
 
 - Build: replace the flat resource-state collection with a map-keyed runtime
   state model. Each `mapId` owns deltas for its stable object instances,
-  resources, encounters, rewards, gates, and future placed content; authored map
-  JSON remains unchanged and acts only as the baseline.
+  resources, encounters, boss respawn timers, chest contents, rewards, gates,
+  and future placed content; authored map JSON remains unchanged and acts only
+  as the baseline.
 - Player proof: leaving Level 1, changing another map, and returning restores the
   correct state of both maps independently.
-- Current: `WorldProgress` stores map-keyed resource, encounter, reward, gate,
-  and object-state containers, preserves unknown map IDs, and migrates legacy
-  composite resource keys at the progress boundary.
+- Current: `WorldProgress` stores map-keyed resource, collectible, inventory-drop,
+  encounter, boss-camp timer, partial chest-content, reward, gate, and object-state
+  containers. Save schema version 9 preserves that state, retains unknown map
+  IDs, and migrates legacy composite resource keys at the progress boundary.
 - Done when: a save can contain state for multiple maps and loading one map never
   discards state belonging to another.
 
@@ -713,18 +745,21 @@ acceptance matrix are defined in the
 - Done when: the controls pause gameplay safely, report failures, clean up their
   listeners, and rebuild the world through the normal map-loading path.
 
-### [ ] P.5 — Verify complete multi-map round trips
+### [~] P.5 — Verify complete multi-map round trips
 
 - Build: add schema/repository tests and a manual two-map playtest covering
   partial resource damage, depleted objects, inventory, equipment, player
-  position, quests, map transitions, new saves, confirmed/canceled overwrites,
-  reset, and load.
+  position, quests, boss respawn timing, partial and empty chests, keyed gates,
+  map transitions, new saves, confirmed/canceled overwrites, reset, and load.
 - Player proof: any named snapshot restores one coherent moment—player and every
   visited map agree—while Reset Run reliably returns to untouched Level 1.
-- Current: schema tests, authored-content checks, production build, and a local
-  browser pass for named create/conflict/overwrite/load and modal focus are
-  green. The destructive reset click and a manual two-map resource round trip
-  remain before this task can be marked verified.
+- Current: schema tests, including boss timers and partial chest contents,
+  persistence tests (20/20), authored-content checks, and the production build
+  are green. A local browser pass already covers named create/conflict/overwrite/
+  load and modal focus. The destructive reset click, the new boss/chest/gate
+  state matrix, and a manual two-map round trip remain before this task can be
+  marked verified. The complete wrapper is also currently blocked by a Windows
+  Character Studio fixture `EPERM` during a temporary manifest rename.
 - Done when: the persistence acceptance matrix passes, corrupted saves fail
   visibly without damaging valid snapshots, and `pnpm check` passes.
 

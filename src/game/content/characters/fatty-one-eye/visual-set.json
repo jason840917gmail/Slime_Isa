@@ -1,0 +1,21 @@
+{
+  "$schema": "../../visuals/visual-set.schema.json",
+  "version": 1,
+  "visualSetId": "boss.fatty-one-eye",
+  "assetId": "character.boss.fatty-one-eye",
+  "defaults": {
+    "origin": [0.5, 0.72],
+    "scale": [1.5, 1.5],
+    "sourceOffset": [0, 0]
+  },
+  "clips": {
+    "contact-hop": {
+      "frames": [12, 13, 14, 15],
+      "keyframeTimes": [0, 1, 3, 5],
+      "durationSeconds": 0.3,
+      "framesPerSecond": 20,
+      "loop": false,
+      "loopMode": "wrap"
+    }
+  }
+}

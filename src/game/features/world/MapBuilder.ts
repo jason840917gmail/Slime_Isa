@@ -4,6 +4,7 @@ import type {
   MapExit,
   MapEnemySpawnArea,
   MapEnemySafeZone,
+  MapBossCamp,
   MapFile,
   MapPoint,
   MapSpawns,
@@ -35,6 +36,7 @@ export interface BuiltMap {
   readonly enemySafeZones: readonly MapEnemySafeZone[];
   readonly enemySpawnAreas: readonly MapEnemySpawnArea[];
   readonly npcWanderAreas: readonly MapNpcWanderArea[];
+  readonly bossCamps: readonly MapBossCamp[];
   readonly npcActors: readonly NpcActor[];
   readonly spawns?: MapSpawns;
 }
@@ -171,6 +173,7 @@ export class MapBuilder {
       enemySafeZones: this.ctx.map.enemySafeZones ?? this.ctx.map.spawns?.safeZones ?? [],
       enemySpawnAreas: this.ctx.map.enemySpawnAreas ?? [],
       npcWanderAreas: this.ctx.map.npcWanderAreas ?? [],
+      bossCamps: this.ctx.map.bossCamps ?? [],
       npcActors,
       spawns: this.ctx.map.spawns,
     };

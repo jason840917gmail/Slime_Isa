@@ -56,10 +56,10 @@ export class Inventory {
     removals: readonly Readonly<InventorySlot>[],
     additions: readonly Readonly<InventorySlot>[],
   ): boolean {
-    const draft = this.createTransactionDraft(removals, additions);
+    const draft = this.prepareTransaction(removals, additions);
     if (!draft) return false;
-    this.slots = draft;
-    gameEvents.emit('inventory.changed', {});
+    this.installTransactionSnapshot(draft);
+    this.emitTransactionChanged();
     return true;
   }
 
@@ -67,7 +67,29 @@ export class Inventory {
     removals: readonly Readonly<InventorySlot>[],
     additions: readonly Readonly<InventorySlot>[],
   ): boolean {
-    return this.createTransactionDraft(removals, additions) !== null;
+    return this.prepareTransaction(removals, additions) !== null;
+  }
+
+  captureTransactionSnapshot(): InventorySaveData {
+    return this.serialize();
+  }
+
+  prepareTransaction(
+    removals: readonly Readonly<InventorySlot>[],
+    additions: readonly Readonly<InventorySlot>[],
+  ): InventorySaveData | null {
+    const slots = this.createTransactionDraft(removals, additions);
+    return slots ? { maxSlots: this.maxSlotsValue, slots } : null;
+  }
+
+  installTransactionSnapshot(snapshot: InventorySaveData): void {
+    if (!Number.isSafeInteger(snapshot.maxSlots) || snapshot.maxSlots <= 0) throw new Error('Invalid inventory transaction snapshot');
+    this.maxSlotsValue = snapshot.maxSlots;
+    this.slots = snapshot.slots.map((slot) => ({ ...slot }));
+  }
+
+  emitTransactionChanged(): void {
+    gameEvents.emit('inventory.changed', {});
   }
 
   private createTransactionDraft(
@@ -201,9 +223,8 @@ export class Inventory {
   }
 
   load(data: InventorySaveData): void {
-    this.maxSlotsValue = data.maxSlots;
-    this.slots = data.slots.map((slot) => ({ ...slot }));
-    gameEvents.emit('inventory.changed', {});
+    this.installTransactionSnapshot(data);
+    this.emitTransactionChanged();
   }
 
   clear(): void {

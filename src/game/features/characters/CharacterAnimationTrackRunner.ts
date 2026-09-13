@@ -33,6 +33,8 @@ export interface CharacterTrackRunnerState {
   readonly playbackId: number;
   readonly loopIteration: number;
   readonly position: number;
+  readonly sourceFrame: number;
+  readonly elapsedMs: number;
   readonly paused: boolean;
   readonly activeHitboxes: ReadonlySet<string>;
 }
@@ -76,6 +78,8 @@ export class CharacterAnimationTrackRunner {
       playbackId: state.playbackId,
       loopIteration: state.loopIteration,
       position: state.timelineFrame,
+      sourceFrame: state.sourceFrame,
+      elapsedMs: state.elapsedMs,
       paused: state.paused,
       activeHitboxes: new Set(this.active.keys()),
     };

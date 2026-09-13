@@ -76,5 +76,14 @@
     "icon": "shard",
     "description": "A glittering crystal. Could power something.",
     "worldDrop": { "objectId": "collectible.crystal-shard", "visualId": "crystal-shard" }
+  },
+  "green-key": {
+    "id": "green-key",
+    "name": "Verdant Key",
+    "category": "key",
+    "icon": "items-keys-5x4",
+    "iconFrame": 0,
+    "description": "A leaf-shaped green key carried by Fatty One Eye's guarded chest.",
+    "worldDrop": { "objectId": "collectible.green-key", "visualId": "green-key" }
   }
 }

@@ -8,6 +8,7 @@ import type {
   MapEnemySafeZone,
   MapFile,
   MapNpcWanderArea,
+  MapBossCamp,
   MapPoint,
   MapZone,
 } from '../content/maps/mapFormat';
@@ -16,8 +17,9 @@ import { getObjectArchetype, isObjectArchetypeId, type ObjectArchetypeId } from 
 import { gameplayInitialStateKeys, validateObjectInitialState } from '../content/objects/ObjectInitialState';
 import type { WorldTileId } from '../content/terrain/TileCatalog';
 import { connectionAt, edgeEntryPoint, edgeExitZone, exitDirection, OPPOSITE_DIRECTION } from './MapConnections';
+import { getBossIds, isBossId } from '../content/bosses/BossCatalog';
 
-export type EditorTool = 'pan' | 'terrain' | 'object' | 'select' | 'erase' | 'safe-zone' | 'enemy-area' | 'npc-area' | 'spawn' | 'entry' | 'exit';
+export type EditorTool = 'pan' | 'terrain' | 'object' | 'select' | 'erase' | 'safe-zone' | 'enemy-area' | 'npc-area' | 'boss-camp' | 'spawn' | 'entry' | 'exit';
 
 export interface EditableObjectInstance {
   instanceId: string;
@@ -45,9 +47,20 @@ export interface EditableMap {
     spawn: MapPoint;
     entries: Partial<Record<MapDirection, MapPoint>>;
   };
-  exits: Array<{ zone: MapZone; to: string; entry: string }>;
+  exits: Array<{
+    zone: MapZone;
+    to: string;
+    entry: string;
+    gate?: {
+      readonly id: string;
+      readonly requiredItemId: string;
+      readonly consumeOnUnlock: boolean;
+      readonly lockedMessage: string;
+    };
+  }>;
   enemySafeZones: MapEnemySafeZone[];
   enemySpawnAreas: MapEnemySpawnArea[];
+  bossCamps: MapBossCamp[];
   npcWanderAreas?: MapNpcWanderArea[];
   spawns?: {
     enemies: MapEnemySpawn[];
@@ -70,6 +83,7 @@ export interface EditorViewState {
   readonly selectedSafeZoneIndex?: number;
   readonly selectedEnemyAreaId?: string;
   readonly selectedNpcWanderAreaId?: string;
+  readonly selectedBossCampId?: string;
   readonly enemyAreaShape: MapEnemyAreaShape;
   readonly npcWanderAreaShape: MapEnemyAreaShape;
   readonly dirty: boolean;
@@ -222,6 +236,17 @@ function scalePerimeter(perimeter: MapEnemyAreaPerimeter, factor: number): MapEn
   };
 }
 
+export type BossCampRadiusKind = 'activation' | 'arena';
+
+export interface BossCampUpdate {
+  readonly bossId?: string;
+  readonly spawn?: MapPoint;
+  readonly activationRadius?: number;
+  readonly arenaRadius?: number;
+  readonly respawnMs?: number;
+  readonly guardedChestInstanceId?: string | null;
+}
+
 export class MapEditorState {
   private mapValue: EditableMap;
   private savedSnapshot: string;
@@ -238,6 +263,7 @@ export class MapEditorState {
   private selectedSafeZoneIndexValue?: number;
   private selectedEnemyAreaIdValue?: string;
   private selectedNpcWanderAreaIdValue?: string;
+  private selectedBossCampIdValue?: string;
   private enemyAreaShapeValue: MapEnemyAreaShape = 'rectangle';
   private npcWanderAreaShapeValue: MapEnemyAreaShape = 'rectangle';
   private savingValue = false;
@@ -257,6 +283,8 @@ export class MapEditorState {
     this.mapValue.exits ??= [];
     this.mapValue.enemySafeZones ??= [...structuredClone(map.spawns?.safeZones ?? [])];
     this.mapValue.enemySpawnAreas = (this.mapValue.enemySpawnAreas ?? []).map(normalizeEnemySpawnArea);
+    this.mapValue.bossCamps = [...(this.mapValue.bossCamps ?? [])];
+    this.mapValue.npcWanderAreas ??= [];
     const authoredSnapshot = serialize(this.mapValue);
     this.savedSnapshot = authoredSnapshot;
     const repairedExits = repairExitZones(this.mapValue.exits, this.mapValue, this.mapValue, 1);
@@ -283,6 +311,7 @@ export class MapEditorState {
       selectedSafeZoneIndex: this.selectedSafeZoneIndexValue,
       selectedEnemyAreaId: this.selectedEnemyAreaIdValue,
       selectedNpcWanderAreaId: this.selectedNpcWanderAreaIdValue,
+      selectedBossCampId: this.selectedBossCampIdValue,
       enemyAreaShape: this.enemyAreaShapeValue,
       npcWanderAreaShape: this.npcWanderAreaShapeValue,
       dirty: this.dirtyValue,
@@ -316,11 +345,13 @@ export class MapEditorState {
     if (tool !== 'safe-zone') this.selectedSafeZoneIndexValue = undefined;
     if (tool !== 'enemy-area') this.selectedEnemyAreaIdValue = undefined;
     if (tool !== 'npc-area') this.selectedNpcWanderAreaIdValue = undefined;
+    if (tool !== 'boss-camp') this.selectedBossCampIdValue = undefined;
     if (tool !== 'select' && tool !== 'exit') this.selectedExitIndexValue = undefined;
     if (tool === 'select') this.statusValue = 'Drag any highlighted object or exit zone to move it';
     else if (tool === 'safe-zone') this.statusValue = 'Drag across tiles to draw a rectangular safe zone';
     else if (tool === 'enemy-area') this.statusValue = `Drag to author a ${this.enemyAreaShapeValue} enemy area`;
     else if (tool === 'npc-area') this.statusValue = `Drag to author a ${this.npcWanderAreaShapeValue} NPC wander area`;
+    else if (tool === 'boss-camp') this.statusValue = 'Click a valid map position to place a boss camp, or drag an existing boss';
     else if (tool === 'exit') this.statusValue = 'Select an exit zone and drag it along its map edge';
     else if (tool === 'terrain') this.statusValue = `Drag to paint ${this.tileIdValue}`;
     else if (tool === 'object') this.statusValue = `Drag to stamp ${this.objectIdValue} / ${this.objectVisualIdValue}`;
@@ -395,6 +426,22 @@ export class MapEditorState {
         pursuePerimeter: scalePerimeter(area.pursuePerimeter, tileScale),
       }));
     }
+    candidate.bossCamps = candidate.bossCamps.map((camp) => ({
+        ...camp,
+        activationPerimeter: {
+          shape: 'circle',
+          x: Math.round(camp.activationPerimeter.x * tileScale),
+          y: Math.round(camp.activationPerimeter.y * tileScale),
+          radius: Math.max(1, Math.round(camp.activationPerimeter.radius * tileScale)),
+        },
+        arenaPerimeter: {
+          shape: 'circle',
+          x: Math.round(camp.arenaPerimeter.x * tileScale),
+          y: Math.round(camp.arenaPerimeter.y * tileScale),
+          radius: Math.max(1, Math.round(camp.arenaPerimeter.radius * tileScale)),
+        },
+        spawn: scalePoint(camp.spawn, tileScale),
+      }));
     if (candidate.npcWanderAreas) {
       candidate.npcWanderAreas = candidate.npcWanderAreas.map((area) => ({ ...area, perimeter: scalePerimeter(area.perimeter, tileScale) }));
     }
@@ -506,6 +553,107 @@ export class MapEditorState {
     return deleted;
   }
 
+  getBossCamp(campId: string): MapBossCamp | undefined {
+    return this.mapValue.bossCamps.find((camp) => camp.id === campId);
+  }
+
+  createBossCamp(spawn: MapPoint): boolean {
+    const bossId = getBossIds()[0];
+    if (!bossId) {
+      this.notify('No boss definitions are available');
+      return false;
+    }
+    const ids = new Set(this.mapValue.bossCamps.map((camp) => camp.id));
+    let index = 1;
+    while (ids.has(`boss-camp-${String(index).padStart(2, '0')}`)) index += 1;
+    const camp: MapBossCamp = {
+      id: `boss-camp-${String(index).padStart(2, '0')}`,
+      bossId,
+      spawn: { x: Math.round(spawn.x), y: Math.round(spawn.y) },
+      activationPerimeter: { shape: 'circle', x: Math.round(spawn.x), y: Math.round(spawn.y), radius: 416 },
+      arenaPerimeter: { shape: 'circle', x: Math.round(spawn.x), y: Math.round(spawn.y), radius: 320 },
+      respawnMs: 180_000,
+    };
+    const issue = this.validateBossCampCandidate(camp);
+    if (issue) {
+      this.notify(`Boss camp creation rejected: ${issue}`);
+      return false;
+    }
+    return this.mutate(`Created boss camp ${camp.id}`, (map) => {
+      map.bossCamps.push(camp);
+      this.selectedBossCampIdValue = camp.id;
+      this.clearOtherSelections('boss-camp');
+    });
+  }
+
+  updateBossCamp(campId: string, update: BossCampUpdate): boolean {
+    const current = this.getBossCamp(campId);
+    if (!current) return false;
+    const spawn = update.spawn
+      ? { x: Math.round(update.spawn.x), y: Math.round(update.spawn.y) }
+      : current.spawn;
+    const guardedChestInstanceId = update.guardedChestInstanceId === null
+      ? undefined
+      : update.guardedChestInstanceId ?? current.guardedChestInstanceId;
+    const candidate: MapBossCamp = {
+      ...current,
+      bossId: update.bossId ?? current.bossId,
+      spawn,
+      activationPerimeter: {
+        shape: 'circle',
+        x: spawn.x,
+        y: spawn.y,
+        radius: update.activationRadius === undefined ? current.activationPerimeter.radius : Math.round(update.activationRadius),
+      },
+      arenaPerimeter: {
+        shape: 'circle',
+        x: spawn.x,
+        y: spawn.y,
+        radius: update.arenaRadius === undefined ? current.arenaPerimeter.radius : Math.round(update.arenaRadius),
+      },
+      respawnMs: update.respawnMs === undefined ? current.respawnMs : Math.round(update.respawnMs),
+      ...(guardedChestInstanceId ? { guardedChestInstanceId } : { guardedChestInstanceId: undefined }),
+    };
+    const issue = this.validateBossCampCandidate(candidate, campId);
+    if (issue) {
+      this.notify(`Boss camp update rejected: ${issue}`);
+      return false;
+    }
+    return this.mutate(`Updated boss camp ${campId}`, (map) => {
+      const target = map.bossCamps.findIndex((camp) => camp.id === campId);
+      if (target >= 0) map.bossCamps[target] = candidate;
+    });
+  }
+
+  moveBossCamp(campId: string, spawn: MapPoint): boolean {
+    return this.updateBossCamp(campId, { spawn });
+  }
+
+  updateBossCampRadius(campId: string, kind: BossCampRadiusKind, radius: number): boolean {
+    return this.updateBossCamp(campId, kind === 'activation' ? { activationRadius: radius } : { arenaRadius: radius });
+  }
+
+  deleteBossCamp(campId: string): boolean {
+    const deleted = this.mutate(`Deleted boss camp ${campId}`, (map) => {
+      map.bossCamps = map.bossCamps.filter((camp) => camp.id !== campId);
+    });
+    if (deleted && this.selectedBossCampIdValue === campId) {
+      this.selectedBossCampIdValue = undefined;
+      this.emit();
+    }
+    return deleted;
+  }
+
+  selectBossCamp(campId?: string): void {
+    const selected = campId && this.getBossCamp(campId) ? campId : undefined;
+    this.selectedBossCampIdValue = selected;
+    if (selected) this.clearOtherSelections('boss-camp');
+    this.statusValue = selected
+      ? `Selected boss camp ${selected} — drag the boss or edit encounter properties`
+      : 'Boss-camp selection cleared';
+    this.emit();
+  }
+
   selectInstance(instanceId?: string): void {
     this.selectedInstanceIdValue = instanceId;
     if (instanceId) {
@@ -513,6 +661,7 @@ export class MapEditorState {
       this.selectedSafeZoneIndexValue = undefined;
       this.selectedEnemyAreaIdValue = undefined;
       this.selectedNpcWanderAreaIdValue = undefined;
+      this.selectedBossCampIdValue = undefined;
     } else this.selectedExitIndexValue = undefined;
     this.statusValue = instanceId ? `Selected ${instanceId} — drag to move or Delete to remove` : 'Selection cleared';
     this.emit();
@@ -526,6 +675,7 @@ export class MapEditorState {
       this.selectedSafeZoneIndexValue = undefined;
       this.selectedEnemyAreaIdValue = undefined;
       this.selectedNpcWanderAreaIdValue = undefined;
+      this.selectedBossCampIdValue = undefined;
     }
     const exit = validIndex === undefined ? undefined : this.mapValue.exits[validIndex];
     const direction = exit ? exitDirection(exit, this.mapValue) : undefined;
@@ -568,6 +718,7 @@ export class MapEditorState {
       this.selectedExitIndexValue = undefined;
       this.selectedEnemyAreaIdValue = undefined;
       this.selectedNpcWanderAreaIdValue = undefined;
+      this.selectedBossCampIdValue = undefined;
     }
     this.statusValue = index === undefined
       ? 'Safe-zone selection cleared'
@@ -582,6 +733,7 @@ export class MapEditorState {
       this.selectedSafeZoneIndexValue = undefined;
       this.selectedExitIndexValue = undefined;
       this.selectedNpcWanderAreaIdValue = undefined;
+      this.selectedBossCampIdValue = undefined;
     }
     this.statusValue = areaId
       ? `Selected enemy area ${areaId} — drag to move, resize from a corner, edit, or delete`
@@ -597,6 +749,7 @@ export class MapEditorState {
       this.selectedSafeZoneIndexValue = undefined;
       this.selectedEnemyAreaIdValue = undefined;
       this.selectedExitIndexValue = undefined;
+      this.selectedBossCampIdValue = undefined;
     }
     this.statusValue = areaId ? `Selected NPC wander area ${areaId}` : 'NPC wander-area selection cleared';
     this.emit();
@@ -651,6 +804,7 @@ export class MapEditorState {
     this.selectedSafeZoneIndexValue = undefined;
     this.selectedEnemyAreaIdValue = undefined;
     this.selectedNpcWanderAreaIdValue = undefined;
+    this.selectedBossCampIdValue = undefined;
     this.statusValue = 'Selection cleared';
     this.emit();
   }
@@ -685,6 +839,7 @@ export class MapEditorState {
     this.selectedSafeZoneIndexValue = undefined;
     this.selectedEnemyAreaIdValue = undefined;
     this.selectedNpcWanderAreaIdValue = undefined;
+    this.selectedBossCampIdValue = undefined;
     this.revisionValue += 1;
     this.dirtyValue = serialize(this.mapValue) !== this.savedSnapshot;
     this.statusValue = 'Undid last change';
@@ -701,6 +856,7 @@ export class MapEditorState {
     this.selectedSafeZoneIndexValue = undefined;
     this.selectedEnemyAreaIdValue = undefined;
     this.selectedNpcWanderAreaIdValue = undefined;
+    this.selectedBossCampIdValue = undefined;
     this.revisionValue += 1;
     this.dirtyValue = serialize(this.mapValue) !== this.savedSnapshot;
     this.statusValue = 'Redid change';
@@ -737,5 +893,42 @@ export class MapEditorState {
   private emit(): void {
     const state = this.value;
     for (const listener of this.listeners) listener(state);
+  }
+
+  private clearOtherSelections(except: 'boss-camp'): void {
+    if (except === 'boss-camp') {
+      this.selectedInstanceIdValue = undefined;
+      this.selectedExitIndexValue = undefined;
+      this.selectedSafeZoneIndexValue = undefined;
+      this.selectedEnemyAreaIdValue = undefined;
+      this.selectedNpcWanderAreaIdValue = undefined;
+    }
+  }
+
+  private validateBossCampCandidate(candidate: MapBossCamp, currentCampId?: string): string | undefined {
+    if (!isBossId(candidate.bossId)) return `unknown boss '${candidate.bossId}'`;
+    const values = [candidate.spawn.x, candidate.spawn.y, candidate.activationPerimeter.radius, candidate.arenaPerimeter.radius];
+    if (!values.every(Number.isFinite)) return 'spawn and radii must be finite numbers';
+    if (candidate.activationPerimeter.radius <= 0 || candidate.arenaPerimeter.radius <= 0) return 'both radii must be positive';
+    if (candidate.arenaPerimeter.radius > candidate.activationPerimeter.radius) return 'arena radius cannot exceed activation radius';
+    if (!Number.isSafeInteger(candidate.respawnMs) || candidate.respawnMs <= 0) return 'respawn must be positive whole milliseconds';
+    const width = this.mapValue.size.columns * this.mapValue.tileSize;
+    const height = this.mapValue.size.rows * this.mapValue.tileSize;
+    for (const [label, radius] of [['activation', candidate.activationPerimeter.radius], ['arena', candidate.arenaPerimeter.radius]] as const) {
+      if (candidate.spawn.x - radius < 0 || candidate.spawn.y - radius < 0
+        || candidate.spawn.x + radius > width || candidate.spawn.y + radius > height) {
+        return `${label} circle must fit inside the ${width}x${height} map`;
+      }
+    }
+    if (candidate.guardedChestInstanceId) {
+      const chest = this.mapValue.objects.find((object) => object.instanceId === candidate.guardedChestInstanceId);
+      if (!chest || !isObjectArchetypeId(chest.objectId) || getObjectArchetype(chest.objectId).chest !== true) {
+        return `guarded chest '${candidate.guardedChestInstanceId}' is not a chest on this map`;
+      }
+      const owner = this.mapValue.bossCamps.find((camp) => camp.id !== currentCampId
+        && camp.guardedChestInstanceId === candidate.guardedChestInstanceId);
+      if (owner) return `guarded chest '${candidate.guardedChestInstanceId}' is already assigned to ${owner.id}`;
+    }
+    return undefined;
   }
 }

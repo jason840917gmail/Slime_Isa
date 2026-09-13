@@ -596,6 +596,13 @@
   transform: rotate(-45deg);
 }
 
+#app.is-character-studio-host .roster-glyph.boss {
+  border-radius: 4px 10px 4px 10px;
+  color: var(--studio-amber);
+  background: rgba(240, 185, 86, 0.12);
+  transform: rotate(45deg);
+}
+
 #app.is-character-studio-host .studio-tree-subitem {
   min-height: 30px;
   padding-left: 34px;

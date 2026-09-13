@@ -11,6 +11,8 @@ import {
   isRecord,
   type GameSaveData,
   type CollectibleProgressStateData,
+  type BossCampProgressData,
+  type ChestProgressData,
   type InventoryWorldDropProgressData,
   type MapRuntimeStateData,
   type NamedSaveMetadata,
@@ -137,6 +139,23 @@ function mapWorld(value: unknown, storage: StorageLike | null): WorldProgressDat
         const match = /^inventory-drop-(\d+)$/.exec(id);
         return match ? Number(match[1]) + 1 : 1;
       }));
+      const bossCamps = isRecord(candidate.bossCamps)
+        ? Object.fromEntries(Object.entries(candidate.bossCamps).flatMap(([id, state]) => (
+            isRecord(state) && typeof state.respawnReadyAtEpochMs === 'number'
+              && Number.isFinite(state.respawnReadyAtEpochMs) && state.respawnReadyAtEpochMs >= 0
+              ? [[id, { respawnReadyAtEpochMs: state.respawnReadyAtEpochMs } satisfies BossCampProgressData]]
+              : []
+          )))
+        : {};
+      const chests = isRecord(candidate.chests)
+        ? Object.fromEntries(Object.entries(candidate.chests).flatMap(([id, state]) => {
+            if (!isRecord(state) || !isRecord(state.remaining)) return [];
+            const remaining = Object.fromEntries(Object.entries(state.remaining).filter((entry): entry is [string, number] => (
+              Number.isInteger(entry[1]) && (entry[1] as number) > 0
+            )));
+            return [[id, { remaining } satisfies ChestProgressData]];
+          }))
+        : {};
       maps[mapId] = {
         resources,
         collectibles,
@@ -148,6 +167,8 @@ function mapWorld(value: unknown, storage: StorageLike | null): WorldProgressDat
             ? candidate.nextInventoryDropSequence as number
             : 1,
         ),
+        bossCamps,
+        chests,
         completedEncounterIds: Array.isArray(candidate.completedEncounterIds) ? candidate.completedEncounterIds.filter(isString) : [],
         openedRewardIds: Array.isArray(candidate.openedRewardIds) ? candidate.openedRewardIds.filter(isString) : [],
         unlockedGateIds: Array.isArray(candidate.unlockedGateIds) ? candidate.unlockedGateIds.filter(isString) : [],
@@ -162,7 +183,7 @@ function mapWorld(value: unknown, storage: StorageLike | null): WorldProgressDat
       const mapId = key.slice(0, divider);
       const instanceId = key.slice(divider + 1);
       const map = maps[mapId] ?? {
-        resources: {}, collectibles: {}, completedEncounterIds: [], openedRewardIds: [], unlockedGateIds: [], objectStates: {},
+        resources: {}, collectibles: {}, bossCamps: {}, chests: {}, completedEncounterIds: [], openedRewardIds: [], unlockedGateIds: [], objectStates: {},
       };
       map.resources[instanceId] = clone(resource);
       maps[mapId] = map;

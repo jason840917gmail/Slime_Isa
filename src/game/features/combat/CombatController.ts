@@ -1,7 +1,8 @@
 ﻿import Phaser from 'phaser';
 import { ComboSystem } from '../../combat/ComboSystem';
 import { TargetDummy } from '../../combat/TargetDummy';
-import { Weapon } from '../../combat/Weapon';
+import { Weapon, type WeaponHitRequest } from '../../combat/Weapon';
+import type { DamageApplicationResult } from '../../combat/DamageableTarget';
 import { gameEvents } from '../../core/EventBus';
 import { gameState } from '../../core/GameState';
 import { Enemy, type ProjectileReference } from '../../enemies/Enemy';
@@ -56,6 +57,9 @@ export interface CombatControllerContext {
   registerRevealActor?: (enemy: Enemy, visual: AnimatedVisual) => void;
   getResourceTargets?: () => Phaser.GameObjects.Group | null;
   resourceNodes?: ResourceNodeController;
+  getBossTargets?: () => Phaser.Physics.Arcade.Group | null;
+  isBossTarget?: (target: Phaser.GameObjects.GameObject) => boolean;
+  applyBossHit?: (request: WeaponHitRequest) => DamageApplicationResult;
 }
 
 export class CombatController {
@@ -226,12 +230,17 @@ export class CombatController {
       getFacing: this.ctx.getFacing,
       getTargets: (): HitboxTargets => {
         const resourceTargets = this.ctx.getResourceTargets?.();
-        return resourceTargets ? [this.targets, resourceTargets] : this.targets;
+        const bossTargets = this.ctx.getBossTargets?.();
+        return [this.targets, ...(resourceTargets ? [resourceTargets] : []), ...(bossTargets ? [bossTargets] : [])];
       },
-      applyHit: ({ target, damage, knockX, knockY, knockStrength, attackDirection }) => {
+      applyHit: (hitRequest) => {
+        const { target, damage, knockX, knockY, knockStrength, attackDirection } = hitRequest;
         const isResourceTarget = this.ctx.resourceNodes?.isResourceTarget(target) === true;
+        const isBossTarget = this.ctx.isBossTarget?.(target) === true;
         const targetTags = target instanceof Enemy
           ? ['enemy']
+          : isBossTarget
+            ? ['enemy', 'boss']
           : isResourceTarget
             ? this.ctx.resourceNodes!.tagsFor(target)
             : [];
@@ -257,7 +266,7 @@ export class CombatController {
             })()
           : undefined;
         let result;
-        let hitTarget: Enemy | TargetDummy | undefined;
+        let hitTarget: Enemy | TargetDummy | (Phaser.GameObjects.GameObject & { readonly x: number; readonly y: number; readonly depth: number }) | undefined;
         if (target instanceof Enemy) {
           hitTarget = target;
           result = target.applyDamage({ amount: finalDamage, knockX, knockY, knockStrength });
@@ -265,6 +274,10 @@ export class CombatController {
         } else if (target instanceof TargetDummy) {
           hitTarget = target;
           result = target.applyDamage({ amount: finalDamage, knockX, knockY, knockStrength });
+        } else if (isBossTarget && this.ctx.applyBossHit) {
+          hitTarget = target as Phaser.GameObjects.GameObject & { readonly x: number; readonly y: number; readonly depth: number };
+          result = this.ctx.applyBossHit({ ...hitRequest, damage: finalDamage });
+          this.applyLifeSteal(result.actualDamage);
         } else if (isResourceTarget) {
           result = this.ctx.resourceNodes!.applyDamage(target, finalDamage);
         } else {

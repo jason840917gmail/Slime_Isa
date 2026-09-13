@@ -1,7 +1,7 @@
 ﻿import Phaser from 'phaser';
 import { hitboxPool, type HitboxConfig } from '../combat/Hitbox';
 import { devToolsState } from '../devTools';
-import type { MapEnemyAreaPerimeter, MapEnemySpawnArea } from '../content/maps/mapFormat';
+import type { MapBossCamp, MapEnemyAreaPerimeter, MapEnemySpawnArea } from '../content/maps/mapFormat';
 import type { WorldDimensions } from '../world/WorldDimensions';
 import {
   resolveBodyBottom,
@@ -24,6 +24,7 @@ export interface WorldDebugContext {
   getCollectibleTargets: () => Phaser.Physics.Arcade.StaticGroup | undefined;
   getTransitionZones: () => Phaser.GameObjects.Zone[];
   getEnemySpawnAreas: () => readonly MapEnemySpawnArea[];
+  getBossCamps: () => readonly MapBossCamp[];
 }
 
 export class WorldDebugRenderer {
@@ -53,6 +54,7 @@ export class WorldDebugRenderer {
     if (devToolsState.interactionZones) this.drawInteractionZones(g);
     if (devToolsState.attackBoxes) this.drawActiveAttackHitboxes(g);
     if (devToolsState.enemyBoundaries) this.drawEnemyBoundaries(g);
+    if (devToolsState.bossBattleAreas) this.drawBossBattleAreas(g);
   }
 
   destroy(): void {
@@ -162,6 +164,13 @@ export class WorldDebugRenderer {
     for (const area of this.ctx.getEnemySpawnAreas()) {
       this.drawEnemyPerimeter(g, area.pursuePerimeter, 0x5ee7ff, 0.06, 3);
       this.drawEnemyPerimeter(g, area.stayPerimeter, 0xffc65c, 0.08, 3);
+    }
+  }
+
+  private drawBossBattleAreas(g: Phaser.GameObjects.Graphics): void {
+    for (const camp of this.ctx.getBossCamps()) {
+      this.drawEnemyPerimeter(g, camp.activationPerimeter, 0x40e0d0, 0.045, 3);
+      this.drawEnemyPerimeter(g, camp.arenaPerimeter, 0xffb84d, 0.07, 3);
     }
   }
 

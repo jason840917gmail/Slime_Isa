@@ -1,0 +1,30 @@
+{
+  "$schema": "../objects.schema.json",
+  "objectId": "chest.wooden",
+  "selection": "authored",
+  "variants": [{
+    "assetId": "sheet.objects.chest-wooden.2x1",
+    "frames": [
+      {
+        "visualId": "wooden-closed",
+        "displayName": "Wooden chest (closed)",
+        "frame": 0,
+        "scale": 1.5,
+        "collider": { "width": 56, "height": 26, "offsetX": 4, "offsetY": 34 },
+        "depthBounds": { "width": 64, "height": 22, "offsetX": 0, "offsetY": 38 }
+      },
+      {
+        "visualId": "wooden-open",
+        "displayName": "Wooden chest (open)",
+        "frame": 1,
+        "scale": 1.5,
+        "collider": { "width": 58, "height": 26, "offsetX": 3, "offsetY": 34 },
+        "depthBounds": { "width": 64, "height": 22, "offsetX": 0, "offsetY": 38 }
+      }
+    ]
+  }],
+  "physics": { "body": "static" },
+  "behavior": "chest.inventory",
+  "chest": true,
+  "tags": ["chest", "container", "solid", "interactable"]
+}

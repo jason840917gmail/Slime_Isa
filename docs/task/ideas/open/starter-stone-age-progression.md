@@ -24,10 +24,17 @@ basic crafting, then use a guarded green key to unlock the next authored area.
    home Workbench remains the later station for improved tools, repairs,
    storage, and building pieces.
 4. The player crafts tools, gathers efficiently, then crafts a spear.
-5. A small authored enemy camp guards a reward chest. The chest opens after the
-   encounter and awards one persistent green key.
-6. The green key unlocks the exit to the next authored region. The save records
-   the unlocked gate so the key and chest cannot be duplicated after reload.
+5. The ordinary worm camp keeps its refill behavior. A separate authored boss
+   camp contains Fatty One Eye and a guarded chest. Only Wooden or Stone Spear
+   strikes that reach Fatty's exact-center eye deal damage. Body collision
+   triggers a stationary 300 ms contact hop whose single 64 px landing hit can
+   be dodged or escaped; collision itself deals no damage. The chest unlocks on
+   defeat and opens an inventory-style panel containing one green key; partial
+   loot remains in the chest.
+6. Fatty's camp uses an authored three-minute wall-clock respawn. If the chest
+   is not empty when Fatty respawns, it relocks; once emptied, it remains visibly
+   open. The green key unlocks the exit to the next authored region, is consumed
+   only once, and the permanent gate state survives reload.
 
 ## First recipe set
 
@@ -53,7 +60,10 @@ normal new-save progression.
 - A fresh save cannot softlock before crafting its first tool.
 - Starter tools and weapons come from recipes, not normal automatic grants.
 - Tree and stone gates provide clear insufficient-tool feedback.
-- The guarded chest rewards the green key exactly once.
+- The guarded chest exposes the green key exactly once without duplicating
+  partial transfers or reloads.
+- Map Studio keeps Fatty visible and can independently edit both circular camp
+  radii, optional chest ownership, and the complete camp save/reload record.
 - The next-area gate remains unlocked after reload and area transitions.
-- The complete collect → craft → gather → fight → key → exit loop works without
-  debug commands.
+- The complete collect → craft → gather → fight → chest → key → exit loop works
+  without debug commands.

@@ -50,6 +50,11 @@
       "enemy.projectile.worm-arrow",
       "effect.enemy.worm-brawler-hit",
       "character.enemy.slime-spider",
+      "character.boss.fatty-one-eye",
+      "sheet.objects.chest-wooden.2x1",
+      "sheet.items.keys.5x4",
+      "sheet.items.potions.5x2",
+      "effect.boss.ground-crack",
       "weapon.player.sword-tiles",
       "effect.weapon.hit-tiles",
       "weapon.player.wooden-axe-tiles",
@@ -1258,6 +1263,70 @@
         "character",
         "enemy"
       ],
+      "status": "ready"
+    },
+    "character.boss.fatty-one-eye": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "characters/authored/bosses/fatty-one-eye-6x6.png",
+        "frame": { "w": 96, "h": 96, "cols": 6, "rows": 6, "count": 36 },
+        "expect": { "w": 576, "h": 576 }
+      },
+      "runtime": { "textureKey": "boss-fatty-one-eye" },
+      "render": { "origin": [0.5, 0.72], "pixelArt": true },
+      "tags": ["character", "enemy", "boss", "animated"],
+      "status": "ready"
+    },
+    "sheet.objects.chest-wooden.2x1": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/objects/chest-wooden-2x1.png",
+        "frame": { "w": 64, "h": 64, "cols": 2, "rows": 1, "count": 2 },
+        "expect": { "w": 128, "h": 64 }
+      },
+      "runtime": { "textureKey": "objects-chest-wooden-2x1" },
+      "render": { "origin": [0.5, 0.75], "pixelArt": true },
+      "frames": {
+        "0": { "name": "closed" },
+        "1": { "name": "open" }
+      },
+      "tags": ["object", "chest", "container"],
+      "status": "ready"
+    },
+    "sheet.items.keys.5x4": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/items/keys-5x4.png",
+        "frame": { "w": 64, "h": 64, "cols": 5, "rows": 4, "count": 20 },
+        "expect": { "w": 320, "h": 256 }
+      },
+      "runtime": { "textureKey": "items-keys-5x4" },
+      "render": { "origin": [0.5, 0.5], "pixelArt": true },
+      "tags": ["item", "key", "inventory"],
+      "status": "ready"
+    },
+    "sheet.items.potions.5x2": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/items/potions-5x2.png",
+        "frame": { "w": 64, "h": 64, "cols": 5, "rows": 2, "count": 10 },
+        "expect": { "w": 320, "h": 128 }
+      },
+      "runtime": { "textureKey": "items-potions-5x2" },
+      "render": { "origin": [0.5, 0.5], "pixelArt": true },
+      "tags": ["item", "potion", "inventory"],
+      "status": "ready"
+    },
+    "effect.boss.ground-crack": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/effects/boss-ground-crack-4x1.png",
+        "frame": { "w": 96, "h": 96, "cols": 4, "rows": 1, "count": 4 },
+        "expect": { "w": 384, "h": 96 }
+      },
+      "runtime": { "textureKey": "effect-boss-ground-crack" },
+      "render": { "origin": [0.5, 0.5], "pixelArt": true },
+      "tags": ["effect", "boss", "animated"],
       "status": "ready"
     },
     "weapon.player.sword-tiles": {
