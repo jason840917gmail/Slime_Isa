@@ -2,3 +2,9 @@
 .pnpm-store/
 dist/
 .vite/
+playwright-report/
+test-results/
+scripts/tests/scene-browser/playwright-report/
+scripts/tests/scene-browser/test-results/
+.scene-conversion-*/
+.scene-journal-*/
