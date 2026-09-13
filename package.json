@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port 3000",
-    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.node.json",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p scripts/tests/scene-browser/tsconfig.json",
     "assets:check": "node scripts/check-assets.mjs",
     "animations:check": "node scripts/check-animations.mjs",
     "visuals:check": "node scripts/check-visuals.mjs",
@@ -42,6 +42,8 @@
     "test:depth": "node scripts/test-depth.mjs",
     "test:game-constants": "node --test scripts/tests/game-constants/*.test.mjs",
     "test:progression": "node --test scripts/tests/progression/*.test.mjs",
+    "test:scene-browser": "playwright test --config scripts/tests/scene-browser/playwright.config.ts",
+    "test:scene-conversion": "node --test scripts/tests/scene-conversion/*.test.mjs",
     "build": "pnpm typecheck && vite build",
     "check": "pnpm constants:check && pnpm assets:check && pnpm animations:check && pnpm visuals:check && pnpm characters:check && pnpm projectiles:check && pnpm effects:check && pnpm weapons:check && pnpm enemies:check && pnpm objects:check && pnpm maps:check && pnpm quests:check && pnpm test:game-constants && pnpm test:progression && pnpm test:character-studio && pnpm test:animation-studio && pnpm test:animation-packages && pnpm test:animation && pnpm test:weapon-studio && pnpm test:combat && pnpm test:bosses && pnpm test:object-animation && pnpm test:rendering && pnpm test:world-content && pnpm test:persistence && pnpm test:collectibles && pnpm test:quests && pnpm test:npcs && pnpm test:ui && pnpm test:map-editor && pnpm test:depth && pnpm typecheck && pnpm build",
     "preview": "vite preview --port 3000"
@@ -51,6 +53,7 @@
     "phaser": "^3.90.0"
   },
   "devDependencies": {
+    "@playwright/test": "1.63.0",
     "@types/node": "^26.1.1",
     "esbuild": "^0.25.12",
     "json-schema-to-typescript": "^15.0.4",
