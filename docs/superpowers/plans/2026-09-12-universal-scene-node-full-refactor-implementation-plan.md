@@ -4,8 +4,9 @@
 
 - `docs/superpowers/specs/2026-09-12-godot-inspired-universal-scene-node-architecture-design.md`
 
-**Status:** Revised after execution-readiness review; incorporates the five
-review corrections. Implementation has not started.
+**Status:** Revised after execution-readiness and final consistency reviews;
+includes the damage-pipeline and per-unit migration-ownership corrections.
+Implementation has not started.
 
 ## Objective
 
@@ -55,8 +56,9 @@ user.
 8. Do not add a code editor. Scene Studio creates/selects registered ScriptNodes,
    displays exports and source paths, and may open source externally.
 9. Avoid compatibility layers with two writers. A temporary adapter reads the
-   current owner and has a named removal package. Once a family switches, its
-   legacy authoring route becomes unavailable or redirects to Scene Studio.
+   current owner and has a named removal package. Once a scene/resource migration
+   unit switches, legacy editing for its IDs/owned fields becomes unavailable or
+   redirects to Scene Studio; unconverted units retain their existing owner.
 10. Automated tests may verify deterministic calculations, lifecycle, routing,
     and simulations. They are never reported as gameplay testing.
 
@@ -384,16 +386,32 @@ JavaScript to make the converter executable.
 
 The JSON ledger records source path/hash, converter version, old-to-new ID map,
 persistence keys, outputs/hashes, consumed field paths, intentionally retained
-fields with owning paths, and writer state (`legacy` or `scene`). Unknown or
+fields with owning paths, and writer state (`legacy` or `scene`) per migration
+unit. A unit identifies one scene/resource and the source fields it owns; family
+labels group units but do not determine authority. Unknown or
 unaccounted gameplay fields fail conversion. Tests compare preserved values and
 behavioral boundary fixtures, not only document counts. Run each adapter twice
 and compare canonical output bytes/IDs; run all-family conversion in different
 discovery orders and require the same output. Changing one source must update
 only its expected outputs/dependents.
 
-Once a family switches writer to scenes, conversion refuses to overwrite its
-edited scene output. Verify that family against frozen source fixtures and its
-cutover output hashes; current scene edits are validated as authored data.
+Cutover validates a unit and its dependencies, freezes source fixtures/output
+hashes, and switches authority together. Reject legacy edits to that unit's
+IDs/owned fields, including bulk writes to mixed migrated/unconverted files;
+redirect its authoring entry to Scene Studio. Leave unconverted units editable
+through their existing owner. A shared resource has one ledger entry and owner:
+unconverted consumers use a read-only adapter to the new owner, or the resource
+cutover waits/switches with its dependent units as one validated group.
+
+Once a unit switches writer to scenes, conversion refuses to overwrite its
+edited scene/resource output. Verify that unit against frozen source fixtures
+and cutover output hashes; current scene edits are validated as authored data.
+Family-wide conversion/check commands partition by unit authority: convert the
+legacy-owned subset and verify the scene-owned subset without overwriting it.
+A family is complete only when every inventory unit has switched.
+Test mixed-family cutover, edits to unconverted units, rejection of legacy bulk
+changes to migrated fields, shared-resource ownership, and reruns after Studio
+edits. These checks must prove one writer per value throughout the early slice.
 Retain minimal migration fixtures and mapping reports after legacy removal so
 repeatability and ID-preservation tests do not depend on deleted source files.
 
@@ -1047,6 +1065,11 @@ adapters with contract tests, not future package assumptions.
    priorities, and state-dependent script rejection. Preserve existing balance
    values; the refactor does not rebalance damage, knockback, effects, rewards,
    cooldowns, or invulnerability.
+   Follow the spec's ordered pipeline: eligibility/state checks, unrounded
+   area/type scaling, one pure receiver mitigation policy, one final rounding/HP
+   clamp, independent effects, then atomic commit and feedback. Normalize optional
+   `trueDamage` to false; true bypasses defense only. Default mitigation is
+   identity; the shared route must not add player defense rules to other receivers.
 3. Implement attack activation IDs, per-step contact grouping, selected-area
    priority, accepted-hit deduplication, retryable state blocking, and area-set
    sensitive rejected-hit caching. Confirm that armor contact does not suppress a
@@ -1079,6 +1102,11 @@ adapters with contract tests, not future package assumptions.
    production world composition may not inject an extra camp or chest.
 10. Exercise the same Scene Studio controls for Worm and Fatty. The only differing
     inspector content must come from their ScriptNode exports/resources.
+11. Cut over only the Worm, Fatty, camp, chest, and required resource ledger units.
+    Disable legacy writes to those IDs/owned fields and enable their Scene Studio
+    edits. Remaining characters/objects keep their legacy owner until packages
+    10/12. Resolve shared-resource consumers through the common cutover contract;
+    do not switch an entire family merely to make the slice editable.
 
 ### Required bridges and service foundation
 
@@ -1107,11 +1135,17 @@ Extract PlayerHealthService from HealthSystem here because the slice can damage
 the legacy player. Preserve defense, true-damage semantics, status modifiers,
 rounding, i-frames, actual HP loss, death-once, and existing domain events.
 The service accepts plain damage data plus simulation time and state/stats ports;
-it returns outcomes/intents. The legacy wrapper applies knockback/flash to Phaser
-through ports until PlayerScript replaces it. The shared damage route must call
-health mitigation exactly once: area/source eligibility is resolved first, then
-the player service owns its existing mitigation pipeline. Add equivalence tests
-against captured HealthSystem cases before redirecting callers.
+it returns outcomes/intents. Its pure mitigation policy receives unrounded
+area/type-scaled damage: positive values use `trueDamage ? scaledDamage :
+Math.max(1, scaledDamage - defense)`, followed by `damageTakenMult`; zero stays
+zero. The shared resolver invokes this policy once, rounds once afterward, and
+clamps to remaining HP. The health commit applies the resolved HP loss without
+running mitigation again. The legacy wrapper delegates to this same calculation
+and applies knockback/flash through ports until PlayerScript replaces it.
+Add equivalence tests against captured HealthSystem cases before redirecting
+callers. Include fractional scaling/rounding boundaries, overkill (no pre-clamp),
+true damage still respecting i-frames/status multipliers, zero-damage effects,
+and proof of one mitigation invocation and one health commit.
 
 Build the four initial converters through the common runner and generate Worm,
 Fatty, their animations, the camp, and minimum chest from current content. Test

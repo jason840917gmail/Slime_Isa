@@ -729,6 +729,8 @@ interface DamageRequest {
   readonly weaponTags: readonly string[];
   readonly damageTypes: readonly string[];
   readonly baseDamage: number;
+  /** Bypasses receiver defense only; normalized to false when omitted. */
+  readonly trueDamage?: boolean;
   readonly effects: readonly { readonly effectId: string; readonly potency: number }[];
   readonly impact: Readonly<{ x: number; y: number; knockX: number; knockY: number }>;
 }
@@ -753,14 +755,39 @@ Requests with non-finite or negative damage or potency, non-finite impact data,
 duplicate tags/types/effects, or unknown runtime nodes are rejected as `invalid`.
 An inactive attack area or mismatched activation ID yields `inactive-attack`.
 An absent effect response means multiplier `1`; invalid final numeric results
-are rejected before any mutation. For an accepted source, final damage is
-`Math.round(baseDamage * damageMultiplier * matchingTypeMultipliers)`, clamped
-to zero and the target's remaining health. Each unique requested damage type
-contributes its configured multiplier, or `1` when absent; identifiers are
-canonicalized into stable sorted order before calculation. Effect responses
-independently accept, reject, or scale each requested effect, and the result
-reports final scaled potency. Zero computed damage does not reject effects. If
-at least one effect remains applicable, the request is accepted with
+are rejected before any mutation. `trueDamage`, when supplied, must be boolean;
+normalization supplies `false` when absent. It bypasses receiver defense only,
+not source/area filtering, area/type multipliers, state immunity, i-frames, or
+status damage-taken modifiers. It is not inferred from a weapon tag or damage type.
+
+The shared resolver applies this ordered pipeline:
+
+1. Validate the request, select the eligible area, and check receiver state.
+2. Compute unrounded `scaledDamage = baseDamage * damageMultiplier *
+   matchingTypeMultipliers`. Each unique requested damage type contributes its
+   configured multiplier, or `1` when absent; identifiers are canonicalized into
+   stable sorted order before calculation.
+3. Apply the receiver's pure mitigation policy exactly once. The default policy
+   is identity. PlayerHealthService owns the player's existing policy: for
+   positive scaled damage, compute `trueDamage ? scaledDamage :
+   Math.max(1, scaledDamage - defense)`, then multiply by `damageTakenMult`.
+   Zero scaled damage stays zero and must not be raised by the minimum-one rule.
+   Policies consume plain state/stats and return an unrounded amount; they do
+   not mutate health, emit events, or pre-round/pre-clamp to remaining health.
+4. Reject invalid numeric results, then apply `Math.round` once and clamp to zero
+   and remaining health. The accepted result's `actualDamage` is actual HP loss,
+   not the incoming or pre-mitigation amount.
+5. Resolve effects independently and commit accepted health/effect/defeat changes
+   together, then publish feedback. The health commit must not mitigate again.
+
+With the default policy this retains the original shared formula. With player
+area/type multipliers of `1`, positive-damage fixtures must reproduce the current
+HealthSystem defense, true-damage, status-modifier, rounding, i-frame, and death
+behavior. Do not introduce defense for other receivers unless their existing
+policy requires it. Effect responses independently accept, reject, or scale each
+requested effect, and the result reports final scaled potency. Zero computed
+damage does not reject effects. If at least one effect remains applicable, the
+request is accepted with
 `actualDamage: 0`; when neither damage nor any effect can apply, it is rejected
 as `immune`.
 
@@ -1491,9 +1518,26 @@ repeatable, reject lossy or unresolved fields, and produce a report. Unknown
 gameplay values may not be discarded to make validation pass. Examples are
 insufficient: conversion must cover all authored production content.
 
-During conversion, generated scene output is read-only until the owning content
-family changes writer. The old writer then becomes unavailable or redirects to
-Scene Studio immediately; legacy reader adapters may remain temporarily.
+During conversion, generated scene output is read-only until its migration unit
+changes writer. A unit is an explicitly listed scene/resource and its owned
+source fields, not an entire content family. The conversion ledger records
+authority per unit (`legacy` or `scene`), allowing Worm, Fatty, and the camp chest
+to switch before the remaining characters and objects.
+
+Cutover validates the unit and its dependencies, freezes its source fixture and
+output hashes, and switches authoring authority together. Legacy edits affecting
+that unit's IDs/owned fields then become unavailable or redirect to Scene Studio;
+unconverted units remain editable through their existing owner. Bulk legacy
+writes must reject changes to migrated fields even when a file also contains
+unconverted content. Legacy reader adapters may remain temporarily.
+
+A shared resource has one ledger entry and one owner across all consumers. An
+unconverted consumer must read a migrated resource through a read-only adapter;
+if it cannot, defer that resource's cutover or switch the dependent units as one
+validated group. Never maintain a second writable copy. A family is complete
+only when every unit in its inventory has switched. Converters cannot overwrite
+scene-owned units; repeatability checks use their frozen cutover fixtures, while
+current Scene Studio edits are validated as authored data.
 At completion there is one writable source for each value and one save workflow.
 Source snapshots and version control provide recovery, so obsolete editors do
 not need to remain accessible to authors.
@@ -1645,7 +1689,9 @@ interactive gameplay:
   reward contracts;
 - Fatty weak-area filtering, weapon filtering, leap state transitions,
   immunity, defeat, and respawn calculations;
-- player movement and combat state transitions;
+- player movement and combat state transitions, single-pass mitigation/commit,
+  true-damage defense bypass, status modifiers, fractional rounding, overkill,
+  i-frames, and zero-damage effect handling;
 - NPC wander policy and interaction locking;
 - weapon, projectile, chest, gate, and persistence transactions; and
 - save adapter equivalence, complete-snapshot recovery, compatibility reads,
@@ -1663,6 +1709,10 @@ interactive gameplay:
 - preview isolation from scripts, gameplay events, and live saves;
 - shared resource editing, make-unique, and instance override origin; and
 - open and repair invalid development scenes without losing unrelated data.
+
+Conversion checks also cover partial-family ownership, legacy bulk-write
+rejection for migrated fields, shared-resource consumers, and converter reruns
+after Scene Studio edits without overwriting scene-owned units.
 
 Every completed milestone runs its focused checks plus relevant content
 validators, TypeScript checking, and production build verification. M5 runs the
