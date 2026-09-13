@@ -1,0 +1,255 @@
+import type { JsonValue } from './resources/types';
+
+export type PropertyValueDescriptor =
+  | { readonly kind: 'boolean' }
+  | { readonly kind: 'string'; readonly pattern?: RegExp; readonly minLength?: number; readonly maxLength?: number }
+  | { readonly kind: 'number'; readonly integer?: boolean; readonly min?: number; readonly max?: number }
+  | { readonly kind: 'enum'; readonly values: readonly string[] }
+  | { readonly kind: 'vector2' }
+  | { readonly kind: 'color' }
+  | { readonly kind: 'json' }
+  | { readonly kind: 'node-reference'; readonly capability?: string }
+  | { readonly kind: 'resource-reference'; readonly resourceKinds?: readonly string[] }
+  | { readonly kind: 'scene-reference'; readonly dynamic?: boolean };
+
+export interface PropertyDescriptor {
+  readonly key: string;
+  readonly label: string;
+  readonly help?: string;
+  readonly group?: string;
+  readonly units?: string;
+  readonly value: PropertyValueDescriptor;
+  readonly defaultValue?: JsonValue;
+  readonly required?: boolean;
+  readonly serialized: boolean;
+  readonly inspector: 'checkbox' | 'text' | 'number' | 'select' | 'vector2' | 'color' | 'node' | 'resource' | 'scene' | 'json';
+  readonly animation?: {
+    readonly interpolation: 'step' | 'numeric';
+    readonly domains: readonly ('physics' | 'render')[];
+  };
+  readonly overridable: boolean;
+}
+
+export interface SignalDescriptor {
+  readonly id: string;
+  readonly payload?: string;
+}
+
+export interface HandlerDescriptor {
+  readonly id: string;
+  readonly payload?: string;
+}
+
+export interface NodeTypeDescriptor {
+  readonly type: string;
+  readonly extends?: string;
+  readonly capabilities?: readonly string[];
+  readonly allowedParentTypes?: readonly string[];
+  readonly allowedChildTypes?: readonly string[];
+  readonly properties: readonly PropertyDescriptor[];
+  readonly signals?: readonly SignalDescriptor[];
+}
+
+export interface ScriptDescriptor {
+  readonly scriptId: string;
+  readonly displayName: string;
+  readonly description?: string;
+  readonly sourcePath: string;
+  readonly extends?: string;
+  readonly capabilities?: readonly string[];
+  readonly properties: readonly PropertyDescriptor[];
+  readonly signals?: readonly SignalDescriptor[];
+  readonly handlers?: readonly HandlerDescriptor[];
+}
+
+export interface DescriptorRegistry {
+  readonly nodeTypes: ReadonlyMap<string, NodeTypeDescriptor>;
+  readonly scripts: ReadonlyMap<string, ScriptDescriptor>;
+}
+
+export interface DescriptorIssue {
+  readonly path: string;
+  readonly message: string;
+}
+
+function nodeTypeChain(type: string, registry: DescriptorRegistry): readonly NodeTypeDescriptor[] {
+  const chain: NodeTypeDescriptor[] = [];
+  const visited = new Set<string>();
+  let current = registry.nodeTypes.get(type);
+  while (current && !visited.has(current.type)) {
+    visited.add(current.type);
+    chain.unshift(current);
+    current = current.extends ? registry.nodeTypes.get(current.extends) : undefined;
+  }
+  return chain;
+}
+
+function scriptChain(scriptId: string, registry: DescriptorRegistry): readonly ScriptDescriptor[] {
+  const chain: ScriptDescriptor[] = [];
+  const visited = new Set<string>();
+  let current = registry.scripts.get(scriptId);
+  while (current && !visited.has(current.scriptId)) {
+    visited.add(current.scriptId);
+    chain.unshift(current);
+    current = current.extends ? registry.scripts.get(current.extends) : undefined;
+  }
+  return chain;
+}
+
+export function nodeTypeIs(type: string, expectedType: string, registry: DescriptorRegistry): boolean {
+  return nodeTypeChain(type, registry).some((descriptor) => descriptor.type === expectedType);
+}
+
+export function propertiesForNode(type: string, scriptId: string | undefined, registry: DescriptorRegistry): readonly PropertyDescriptor[] | undefined {
+  const nodeChain = nodeTypeChain(type, registry);
+  if (nodeChain.length === 0) return undefined;
+  const merged = new Map<string, PropertyDescriptor>();
+  for (const descriptor of nodeChain) for (const property of descriptor.properties) merged.set(property.key, property);
+  if (scriptId) {
+    for (const descriptor of scriptChain(scriptId, registry)) {
+      for (const property of descriptor.properties) merged.set(property.key, property);
+    }
+  }
+  return [...merged.values()];
+}
+
+export function signalsForNode(type: string, scriptId: string | undefined, registry: DescriptorRegistry): ReadonlyMap<string, SignalDescriptor> {
+  const merged = new Map<string, SignalDescriptor>();
+  for (const descriptor of nodeTypeChain(type, registry)) {
+    for (const signal of descriptor.signals ?? []) merged.set(signal.id, signal);
+  }
+  if (scriptId) {
+    for (const descriptor of scriptChain(scriptId, registry)) {
+      for (const signal of descriptor.signals ?? []) merged.set(signal.id, signal);
+    }
+  }
+  return merged;
+}
+
+export function handlersForScript(scriptId: string | undefined, registry: DescriptorRegistry): ReadonlyMap<string, HandlerDescriptor> {
+  const merged = new Map<string, HandlerDescriptor>();
+  if (!scriptId) return merged;
+  for (const descriptor of scriptChain(scriptId, registry)) {
+    for (const handler of descriptor.handlers ?? []) merged.set(handler.id, handler);
+  }
+  return merged;
+}
+
+export function capabilitiesForNode(type: string, scriptId: string | undefined, registry: DescriptorRegistry): ReadonlySet<string> {
+  const capabilities = new Set<string>();
+  for (const descriptor of nodeTypeChain(type, registry)) {
+    for (const capability of descriptor.capabilities ?? []) capabilities.add(capability);
+  }
+  if (scriptId) {
+    for (const descriptor of scriptChain(scriptId, registry)) {
+      for (const capability of descriptor.capabilities ?? []) capabilities.add(capability);
+    }
+  }
+  return capabilities;
+}
+
+function duplicateIds(values: readonly string[]): string[] {
+  const seen = new Set<string>();
+  return values.filter((value) => seen.has(value) || !seen.add(value));
+}
+
+export function validateDescriptorRegistry(registry: DescriptorRegistry): readonly DescriptorIssue[] {
+  const issues: DescriptorIssue[] = [];
+  const validateProperties = (owner: string, properties: readonly PropertyDescriptor[]): void => {
+    for (const duplicate of duplicateIds(properties.map((property) => property.key))) {
+      issues.push({ path: owner, message: `duplicate property '${duplicate}'` });
+    }
+    for (const property of properties) {
+      if (!property.serialized && property.defaultValue !== undefined) {
+        issues.push({ path: `${owner}.${property.key}`, message: 'runtime-only property cannot declare a serialized default' });
+      }
+      if (property.animation?.interpolation === 'numeric' && !['number', 'vector2', 'color'].includes(property.value.kind)) {
+        issues.push({ path: `${owner}.${property.key}`, message: `numeric interpolation is incompatible with ${property.value.kind}` });
+      }
+    }
+  };
+  for (const descriptor of registry.nodeTypes.values()) {
+    validateProperties(`node:${descriptor.type}`, descriptor.properties);
+    for (const duplicate of duplicateIds((descriptor.signals ?? []).map((signal) => signal.id))) {
+      issues.push({ path: `node:${descriptor.type}`, message: `duplicate signal '${duplicate}'` });
+    }
+    if (descriptor.extends && !registry.nodeTypes.has(descriptor.extends)) {
+      issues.push({ path: `node:${descriptor.type}`, message: `unknown base node type '${descriptor.extends}'` });
+    }
+    const visited = new Set<string>([descriptor.type]);
+    let baseId = descriptor.extends;
+    while (baseId) {
+      if (visited.has(baseId)) { issues.push({ path: `node:${descriptor.type}`, message: 'node inheritance cycle' }); break; }
+      visited.add(baseId);
+      baseId = registry.nodeTypes.get(baseId)?.extends;
+    }
+  }
+  for (const descriptor of registry.scripts.values()) {
+    validateProperties(`script:${descriptor.scriptId}`, descriptor.properties);
+    for (const duplicate of duplicateIds((descriptor.signals ?? []).map((signal) => signal.id))) {
+      issues.push({ path: `script:${descriptor.scriptId}`, message: `duplicate signal '${duplicate}'` });
+    }
+    const base = descriptor.extends ? registry.scripts.get(descriptor.extends) : undefined;
+    if (descriptor.extends && !base) {
+      issues.push({ path: `script:${descriptor.scriptId}`, message: `unknown base script '${descriptor.extends}'` });
+    }
+    const visited = new Set<string>([descriptor.scriptId]);
+    let baseId = descriptor.extends;
+    while (baseId) {
+      if (visited.has(baseId)) { issues.push({ path: `script:${descriptor.scriptId}`, message: 'script inheritance cycle' }); break; }
+      visited.add(baseId);
+      baseId = registry.scripts.get(baseId)?.extends;
+    }
+    if (base) {
+      const inherited = new Map(scriptChain(base.scriptId, registry).flatMap((entry) => entry.properties).map((property) => [property.key, property]));
+      for (const property of descriptor.properties) {
+        const parent = inherited.get(property.key);
+        if (parent && parent.value.kind !== property.value.kind) {
+          issues.push({ path: `script:${descriptor.scriptId}.${property.key}`, message: `cannot change inherited type '${parent.value.kind}' to '${property.value.kind}'` });
+        }
+      }
+      const inheritedSignals = new Set(scriptChain(base.scriptId, registry).flatMap((entry) => entry.signals ?? []).map((signal) => signal.id));
+      for (const signal of descriptor.signals ?? []) {
+        if (inheritedSignals.has(signal.id)) issues.push({ path: `script:${descriptor.scriptId}`, message: `duplicate inherited signal '${signal.id}'` });
+      }
+    }
+  }
+  return issues;
+}
+
+export function descriptorMap(properties: readonly PropertyDescriptor[]): ReadonlyMap<string, PropertyDescriptor> {
+  return new Map(properties.map((property) => [property.key, property]));
+}
+
+const vector = (key: string, label: string, defaultValue: readonly [number, number]): PropertyDescriptor => ({
+  key, label, value: { kind: 'vector2' }, defaultValue, serialized: true, inspector: 'vector2',
+  animation: { interpolation: 'numeric', domains: ['physics', 'render'] }, overridable: true,
+});
+
+const resource = (key: string, label: string, kinds: readonly string[]): PropertyDescriptor => ({
+  key, label, value: { kind: 'resource-reference', resourceKinds: kinds }, serialized: true, inspector: 'resource', overridable: true,
+});
+
+export function createCoreDescriptorRegistry(scripts: readonly ScriptDescriptor[] = []): DescriptorRegistry {
+  const nodeTypes: NodeTypeDescriptor[] = [
+    { type: 'Node', properties: [] },
+    { type: 'Node2D', extends: 'Node', properties: [vector('position', 'Position', [0, 0]), vector('scale', 'Scale', [1, 1]), { key: 'rotation', label: 'Rotation', units: 'degrees', value: { kind: 'number' }, defaultValue: 0, serialized: true, inspector: 'number', animation: { interpolation: 'numeric', domains: ['physics', 'render'] }, overridable: true }] },
+    { type: 'Sprite2D', extends: 'Node2D', properties: [resource('texture', 'Texture', ['texture', 'sprite-sheet']), { key: 'frame', label: 'Frame', value: { kind: 'number', integer: true, min: 0 }, defaultValue: 0, serialized: true, inspector: 'number', animation: { interpolation: 'step', domains: ['physics', 'render'] }, overridable: true }] },
+    { type: 'PhysicsBody2D', extends: 'Node2D', properties: [] },
+    { type: 'CharacterBody2D', extends: 'PhysicsBody2D', properties: [] },
+    { type: 'StaticBody2D', extends: 'PhysicsBody2D', properties: [] },
+    { type: 'Area2D', extends: 'Node2D', properties: [] },
+    { type: 'CollisionShape2D', extends: 'Node2D', allowedParentTypes: ['CharacterBody2D', 'StaticBody2D', 'Area2D'], properties: [resource('shape', 'Shape', ['collision-shape'])] },
+    { type: 'TileMapLayer2D', extends: 'Node2D', properties: [resource('tileData', 'Tile Data', ['tile-data'])] },
+    { type: 'Camera2D', extends: 'Node2D', properties: [] },
+    { type: 'AnimationPlayer', extends: 'Node', properties: [resource('library', 'Animation Library', ['animation-library'])] },
+    { type: 'AudioStreamPlayer', extends: 'Node', properties: [resource('stream', 'Audio Stream', ['audio'])] },
+    { type: 'AudioStreamPlayer2D', extends: 'Node2D', properties: [resource('stream', 'Audio Stream', ['audio'])] },
+    { type: 'ScriptNode', extends: 'Node', properties: [] },
+    { type: 'Control', extends: 'Node', properties: [vector('anchors', 'Anchors', [0, 0]), vector('offsets', 'Offsets', [0, 0])] },
+  ];
+  return {
+    nodeTypes: new Map(nodeTypes.map((descriptor) => [descriptor.type, descriptor])),
+    scripts: new Map(scripts.map((descriptor) => [descriptor.scriptId, descriptor])),
+  };
+}

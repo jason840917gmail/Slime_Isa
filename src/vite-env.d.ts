@@ -30,3 +30,11 @@ declare module 'virtual-character-content' {
 declare module 'virtual-effect-content' {
   export const effectDefinitions: readonly unknown[];
 }
+
+declare module 'virtual-scene-content' {
+  import type { SceneResourceDocument } from './game/content/scenes/resources/types';
+  import type { SceneDocument } from './game/content/scenes/types';
+
+  export const sceneDocuments: readonly SceneDocument[];
+  export const sceneResourceDocuments: readonly SceneResourceDocument[];
+}

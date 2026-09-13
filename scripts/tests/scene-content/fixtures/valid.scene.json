@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "sceneId": "fixture.actor",
+  "rootNodeId": "root",
+  "nodes": [
+    {
+      "id": "root",
+      "name": "Actor",
+      "type": "Node2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "position": [0, 0]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "root",
+      "order": 0,
+      "properties": {
+        "texture": {
+          "resourceId": "texture.hero"
+        },
+        "frame": 0
+      }
+    },
+    {
+      "id": "script",
+      "name": "Script",
+      "type": "ScriptNode",
+      "scriptId": "test.actor",
+      "parentId": "root",
+      "order": 1,
+      "properties": {
+        "health": 5
+      }
+    }
+  ],
+  "instances": []
+}

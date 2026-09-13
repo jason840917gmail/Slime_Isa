@@ -30,7 +30,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "eda8750eee69c21e15421663d29c0ea961e139a290dc04d845c2af1e1b7769ef",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "object.tree.autumn.idle",
+        "targetId": "resource://animations/object.tree.autumn.idle"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "animation:object.tree.autumn.leaf-fall",
@@ -61,7 +71,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "e609606de7fc77a6abc73a75db8a7b82ac2b0780db2de6938b27577e5e6d70f9",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "object.tree.autumn.leaf-fall",
+        "targetId": "resource://animations/object.tree.autumn.leaf-fall"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "animation:object.tree.idle",
@@ -92,7 +112,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "11f768871e5374e8d048413162b4bca7a6433b37aac6e1fe7eee2d887c9e8e2a",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "object.tree.idle",
+        "targetId": "resource://animations/object.tree.idle"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "animation:weapon.basic-spear.attack.down",
@@ -123,7 +153,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "0860acebd7f673dae7800648c71ca8c12f24f7be78ca0870019bba03e9cb66bc",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "weapon.basic-spear.attack.down",
+        "targetId": "resource://animations/weapon.basic-spear.attack.down"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "animation:weapon.basic-spear.attack.right",
@@ -154,7 +194,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "e85ca7d06a49473fd005c2b882ba65ee9fde68d2258c18c90830d4f3607f6886",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "weapon.basic-spear.attack.right",
+        "targetId": "resource://animations/weapon.basic-spear.attack.right"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "animation:weapon.basic-spear.attack.up",
@@ -185,7 +235,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "2a8f6c59ade31ca63c7e72d1f279bcf45b4c0670ffa58d98696f0eb3cf683971",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "weapon.basic-spear.attack.up",
+        "targetId": "resource://animations/weapon.basic-spear.attack.up"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "animation:weapon.basic-spear.idle",
@@ -216,7 +276,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "fa3c10e54dd05a0675f9151d26b2800c6d55dfb0e73f71d5cef57d0606959fae",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "weapon.basic-spear.idle",
+        "targetId": "resource://animations/weapon.basic-spear.idle"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "animation:weapon.basic-sword.attack.down",
@@ -247,7 +317,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "041253c63b9696bb4095fc3bbb2c77dc0da4b8a17781ec5e3b3f5332b3539b22",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "weapon.basic-sword.attack.down",
+        "targetId": "resource://animations/weapon.basic-sword.attack.down"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "animation:weapon.basic-sword.attack.right",
@@ -278,7 +358,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "7d9a24d4623d950d0b4fa3b11bab00a30ac5bda3a145e69b46e64fe8356ed78b",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "weapon.basic-sword.attack.right",
+        "targetId": "resource://animations/weapon.basic-sword.attack.right"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "animation:weapon.basic-sword.attack.up",
@@ -309,7 +399,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "98c054282874ae2b3003083290eace2f1a2a168012a149f551d0469e6a3969f2",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "weapon.basic-sword.attack.up",
+        "targetId": "resource://animations/weapon.basic-sword.attack.up"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "animation:weapon.basic-sword.idle",
@@ -340,7 +440,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "ae2d9ced40cfcdfd92feb3fe0d8e31413cf3bf864a2de5af773cabde81e21ad2",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "weapon.basic-sword.idle",
+        "targetId": "resource://animations/weapon.basic-sword.idle"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "animation:weapon.pickaxe.attack.down",
@@ -371,7 +481,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "206848bbffe9f94ed70f46973f66c4c6e8ea828b51977f8d77a3bc421ed964a8",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "weapon.pickaxe.attack.down",
+        "targetId": "resource://animations/weapon.pickaxe.attack.down"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "animation:weapon.pickaxe.attack.right",
@@ -402,7 +522,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "df8cdcffa370f10e817907e3cc13b1803977cdbd88a97308a10dea794bf7294c",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "weapon.pickaxe.attack.right",
+        "targetId": "resource://animations/weapon.pickaxe.attack.right"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "animation:weapon.pickaxe.attack.up",
@@ -433,7 +563,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "a1e715c06d9634d2df55c801c7b8f7d3ed94f5baf9e68d251e154a12762f2589",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "weapon.pickaxe.attack.up",
+        "targetId": "resource://animations/weapon.pickaxe.attack.up"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "animation:weapon.pickaxe.idle",
@@ -464,7 +604,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "641e5cdf3447320d4e30a54bdf0380d9d63d21cbad10fde8fb7d06e405cdaae6",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "weapon.pickaxe.idle",
+        "targetId": "resource://animations/weapon.pickaxe.idle"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "animation:weapon.slam-hammer.attack.down",
@@ -495,7 +645,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "7601ea2e590f57f5b7dac438fd82d58e74f1278972ca528636f6c17ca7c5453e",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "weapon.slam-hammer.attack.down",
+        "targetId": "resource://animations/weapon.slam-hammer.attack.down"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "animation:weapon.slam-hammer.attack.right",
@@ -526,7 +686,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "811c3ca26cf44c5b8098473f4f4747b6eb32a5f87e44f03c2f6c8fa04ec7fcaf",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "weapon.slam-hammer.attack.right",
+        "targetId": "resource://animations/weapon.slam-hammer.attack.right"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "animation:weapon.slam-hammer.attack.up",
@@ -557,7 +727,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "b37959a646d07f3beeb9dda2ae90fdb67f7a7fb36d968b1942ff81334fa44874",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "weapon.slam-hammer.attack.up",
+        "targetId": "resource://animations/weapon.slam-hammer.attack.up"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "animation:weapon.stone-axe.attack.down",
@@ -588,7 +768,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "b36e7b46a65e897271f87b9165fd9374c12f90f02ee2b78702578b7a75a4cb4a",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "weapon.stone-axe.attack.down",
+        "targetId": "resource://animations/weapon.stone-axe.attack.down"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "animation:weapon.stone-axe.attack.right",
@@ -619,7 +809,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "3bd62ecf71b11f96d8145cf8c7087bddfba1db9fe40ada0aba949eeb2525e906",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "weapon.stone-axe.attack.right",
+        "targetId": "resource://animations/weapon.stone-axe.attack.right"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "animation:weapon.stone-axe.idle",
@@ -650,7 +850,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "5521c4cb24c89e5bc37e8bbe13161fa281a711f15106c41283a5703c9727a9b3",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "weapon.stone-axe.idle",
+        "targetId": "resource://animations/weapon.stone-axe.idle"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "animation:weapon.stone-pickaxe.attack.down",
@@ -681,7 +891,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "afd091213f58011e15161252b59e10ebd2204e404200d9a6271f12513639af58",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "weapon.stone-pickaxe.attack.down",
+        "targetId": "resource://animations/weapon.stone-pickaxe.attack.down"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "animation:weapon.stone-pickaxe.attack.right",
@@ -712,7 +932,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "c5d4c5af325abd1d34f7e9a3d2baa89d95a387743ce7c8e4d0176ef6994565ea",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "weapon.stone-pickaxe.attack.right",
+        "targetId": "resource://animations/weapon.stone-pickaxe.attack.right"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "animation:weapon.stone-pickaxe.idle",
@@ -743,7 +973,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "35c8cc0a60699c0ff073b3e4ad45a6e4bc46b78c09ad980a58eab5f8fb576f1b",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "weapon.stone-pickaxe.idle",
+        "targetId": "resource://animations/weapon.stone-pickaxe.idle"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "animation:weapon.stone-spear.attack.down",
@@ -774,7 +1014,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "e4bdf14933d9b3450ae0ccff7b512a961341b0afdff421372fe782033e4ddea8",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "weapon.stone-spear.attack.down",
+        "targetId": "resource://animations/weapon.stone-spear.attack.down"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "animation:weapon.stone-spear.attack.right",
@@ -805,7 +1055,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "0579dc11aebe7c70d366f8d16ca02069cc8f764a9685eef6ccfb0555c08f148b",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "weapon.stone-spear.attack.right",
+        "targetId": "resource://animations/weapon.stone-spear.attack.right"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "animation:weapon.stone-spear.idle",
@@ -836,7 +1096,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "d8a9e1e3bb541dbace13cb1122f5ccd02bf9b15c73d0726a919294e02b9b5ebb",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "weapon.stone-spear.idle",
+        "targetId": "resource://animations/weapon.stone-spear.idle"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "animation:weapon.wooden-axe.attack.down",
@@ -867,7 +1137,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "4810a185754757957ad97f32ef398f5b1299dda188f0e10773dc3a254d0759e5",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "weapon.wooden-axe.attack.down",
+        "targetId": "resource://animations/weapon.wooden-axe.attack.down"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "animation:weapon.wooden-axe.attack.right",
@@ -898,7 +1178,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "4e33eba31a0b2ea52545a4263c18af6421b7c1ef1d9ca24e06d7eca44e8fd73a",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "weapon.wooden-axe.attack.right",
+        "targetId": "resource://animations/weapon.wooden-axe.attack.right"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "animation:weapon.wooden-axe.attack.up",
@@ -929,7 +1219,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "1a638de616ddb8f8e920a8bf4d0b191f7fd31d4b55a240573080a785190f82b9",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "weapon.wooden-axe.attack.up",
+        "targetId": "resource://animations/weapon.wooden-axe.attack.up"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "animation:weapon.wooden-axe.idle",
@@ -960,7 +1260,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "1524a49fb07410642f2e1a847f145d8d097786b392bf0d974c14a52f4931cc69",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "weapon.wooden-axe.idle",
+        "targetId": "resource://animations/weapon.wooden-axe.idle"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "animation:weapon.wooden-spear.attack.down",
@@ -991,7 +1301,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "60020e224560e98e1ad315c6be695c62c4a1a838cc6f26de94ca792b08b91460",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "weapon.wooden-spear.attack.down",
+        "targetId": "resource://animations/weapon.wooden-spear.attack.down"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "animation:weapon.wooden-spear.attack.right",
@@ -1022,7 +1342,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "2046161a108b848a44225e53af31b79ad8e2c4e9822b6856a596c0d6208e94b9",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "weapon.wooden-spear.attack.right",
+        "targetId": "resource://animations/weapon.wooden-spear.attack.right"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "animation:weapon.wooden-spear.idle",
@@ -1053,7 +1383,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "182c18726ec60202cead375271c65c4155bd93eb676c9d64ba61d8fb385a0295",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "weapon.wooden-spear.idle",
+        "targetId": "resource://animations/weapon.wooden-spear.idle"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "area:crystal-caverns",
@@ -1076,7 +1416,22 @@
         "maps:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "77b5f6c52d00b1b0d5aa333c2c041ea0f10d4b56ae70179f8b562aad1301df04",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "crystal-caverns",
+        "targetId": "project-data://areas/crystal-caverns"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "project-data://areas/crystal-caverns"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "area:gloop-forest",
@@ -1099,7 +1454,22 @@
         "maps:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "77b5f6c52d00b1b0d5aa333c2c041ea0f10d4b56ae70179f8b562aad1301df04",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "gloop-forest",
+        "targetId": "project-data://areas/gloop-forest"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "project-data://areas/gloop-forest"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "area:icege",
@@ -1122,7 +1492,22 @@
         "maps:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "77b5f6c52d00b1b0d5aa333c2c041ea0f10d4b56ae70179f8b562aad1301df04",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "icege",
+        "targetId": "project-data://areas/icege"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "project-data://areas/icege"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "area:level-1",
@@ -1145,7 +1530,22 @@
         "maps:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "77b5f6c52d00b1b0d5aa333c2c041ea0f10d4b56ae70179f8b562aad1301df04",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "level-1",
+        "targetId": "project-data://areas/level-1"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "project-data://areas/level-1"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:character.boss.fatty-one-eye",
@@ -1172,7 +1572,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "character.boss.fatty-one-eye",
+        "targetId": "asset://character.boss.fatty-one-eye"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://character.boss.fatty-one-eye"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:character.enemy.slime-spider",
@@ -1199,7 +1614,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "character.enemy.slime-spider",
+        "targetId": "asset://character.enemy.slime-spider"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://character.enemy.slime-spider"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:character.npc.lili",
@@ -1226,7 +1656,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "character.npc.lili",
+        "targetId": "asset://character.npc.lili"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://character.npc.lili"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:character.npc.mossy-scout",
@@ -1253,7 +1698,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "character.npc.mossy-scout",
+        "targetId": "asset://character.npc.mossy-scout"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://character.npc.mossy-scout"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:character.npc.red-slime-boy",
@@ -1280,7 +1740,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "character.npc.red-slime-boy",
+        "targetId": "asset://character.npc.red-slime-boy"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://character.npc.red-slime-boy"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:character.npc.village-elder-plop",
@@ -1307,7 +1782,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "character.npc.village-elder-plop",
+        "targetId": "asset://character.npc.village-elder-plop"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://character.npc.village-elder-plop"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:character.npc.yellow-blond-slime-girl",
@@ -1334,7 +1824,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "character.npc.yellow-blond-slime-girl",
+        "targetId": "asset://character.npc.yellow-blond-slime-girl"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://character.npc.yellow-blond-slime-girl"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:character.player.slime",
@@ -1361,7 +1866,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "character.player.slime",
+        "targetId": "asset://character.player.slime"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://character.player.slime"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:collectible.crystal-shard",
@@ -1388,7 +1908,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "collectible.crystal-shard",
+        "targetId": "asset://collectible.crystal-shard"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://collectible.crystal-shard"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:collectible.energy-potion",
@@ -1415,7 +1950,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "collectible.energy-potion",
+        "targetId": "asset://collectible.energy-potion"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://collectible.energy-potion"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:collectible.hp-potion",
@@ -1442,7 +1992,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "collectible.hp-potion",
+        "targetId": "asset://collectible.hp-potion"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://collectible.hp-potion"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:collectible.purple-berry",
@@ -1469,7 +2034,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "collectible.purple-berry",
+        "targetId": "asset://collectible.purple-berry"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://collectible.purple-berry"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:collectible.silk-clump",
@@ -1496,7 +2076,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "collectible.silk-clump",
+        "targetId": "asset://collectible.silk-clump"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://collectible.silk-clump"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:effect.boss.ground-crack",
@@ -1523,7 +2118,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "effect.boss.ground-crack",
+        "targetId": "asset://effect.boss.ground-crack"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://effect.boss.ground-crack"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:effect.enemy.worm-brawler-hit",
@@ -1550,7 +2160,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "effect.enemy.worm-brawler-hit",
+        "targetId": "asset://effect.enemy.worm-brawler-hit"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://effect.enemy.worm-brawler-hit"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:effect.resource.impact-tiles",
@@ -1577,7 +2202,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "effect.resource.impact-tiles",
+        "targetId": "asset://effect.resource.impact-tiles"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://effect.resource.impact-tiles"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:effect.resource.stone-impact-tiles",
@@ -1604,7 +2244,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "effect.resource.stone-impact-tiles",
+        "targetId": "asset://effect.resource.stone-impact-tiles"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://effect.resource.stone-impact-tiles"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:effect.weapon.hit-tiles",
@@ -1631,7 +2286,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "effect.weapon.hit-tiles",
+        "targetId": "asset://effect.weapon.hit-tiles"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://effect.weapon.hit-tiles"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:enemy.projectile.worm-arrow",
@@ -1658,7 +2328,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "enemy.projectile.worm-arrow",
+        "targetId": "asset://enemy.projectile.worm-arrow"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://enemy.projectile.worm-arrow"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:enemy.worm.archer",
@@ -1685,7 +2370,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "enemy.worm.archer",
+        "targetId": "asset://enemy.worm.archer"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://enemy.worm.archer"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:enemy.worm.brawler",
@@ -1712,7 +2412,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "enemy.worm.brawler",
+        "targetId": "asset://enemy.worm.brawler"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://enemy.worm.brawler"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:enemy.worm.swordsman",
@@ -1739,7 +2454,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "enemy.worm.swordsman",
+        "targetId": "asset://enemy.worm.swordsman"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://enemy.worm.swordsman"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:sheet.decorations.8x3",
@@ -1766,7 +2496,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.decorations.8x3",
+        "targetId": "asset://sheet.decorations.8x3"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.decorations.8x3"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:sheet.grounds.19x19.amberleaf",
@@ -1793,7 +2538,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.grounds.19x19.amberleaf",
+        "targetId": "asset://sheet.grounds.19x19.amberleaf"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.grounds.19x19.amberleaf"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:sheet.grounds.19x19.frozen",
@@ -1820,7 +2580,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.grounds.19x19.frozen",
+        "targetId": "asset://sheet.grounds.19x19.frozen"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.grounds.19x19.frozen"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:sheet.grounds.19x19.highland-green",
@@ -1847,7 +2622,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.grounds.19x19.highland-green",
+        "targetId": "asset://sheet.grounds.19x19.highland-green"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.grounds.19x19.highland-green"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:sheet.grounds.19x19.sanddessert",
@@ -1874,7 +2664,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.grounds.19x19.sanddessert",
+        "targetId": "asset://sheet.grounds.19x19.sanddessert"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.grounds.19x19.sanddessert"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:sheet.houses.3x1",
@@ -1901,7 +2706,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.houses.3x1",
+        "targetId": "asset://sheet.houses.3x1"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.houses.3x1"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:sheet.items.keys.5x4",
@@ -1928,7 +2748,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.items.keys.5x4",
+        "targetId": "asset://sheet.items.keys.5x4"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.items.keys.5x4"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:sheet.items.potions.5x2",
@@ -1955,7 +2790,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.items.potions.5x2",
+        "targetId": "asset://sheet.items.potions.5x2"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.items.potions.5x2"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:sheet.objects.chest-wooden.2x1",
@@ -1982,7 +2832,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.objects.chest-wooden.2x1",
+        "targetId": "asset://sheet.objects.chest-wooden.2x1"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.objects.chest-wooden.2x1"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:sheet.resources.4x2",
@@ -2009,7 +2874,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.resources.4x2",
+        "targetId": "asset://sheet.resources.4x2"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.resources.4x2"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:sheet.resources.starter-materials.2x1",
@@ -2036,7 +2916,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.resources.starter-materials.2x1",
+        "targetId": "asset://sheet.resources.starter-materials.2x1"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.resources.starter-materials.2x1"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:sheet.rocks.3x1",
@@ -2063,7 +2958,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.rocks.3x1",
+        "targetId": "asset://sheet.rocks.3x1"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.rocks.3x1"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:sheet.rocks.8x3",
@@ -2090,7 +3000,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.rocks.8x3",
+        "targetId": "asset://sheet.rocks.8x3"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.rocks.8x3"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:sheet.trees.3x1",
@@ -2117,7 +3042,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.trees.3x1",
+        "targetId": "asset://sheet.trees.3x1"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.trees.3x1"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:sheet.trees.8x6",
@@ -2144,7 +3084,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.trees.8x6",
+        "targetId": "asset://sheet.trees.8x6"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.trees.8x6"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:sheet.trees.autumn.6x2",
@@ -2171,7 +3126,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.trees.autumn.6x2",
+        "targetId": "asset://sheet.trees.autumn.6x2"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.trees.autumn.6x2"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:sheet.walls.corners.4x2",
@@ -2198,7 +3168,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.walls.corners.4x2",
+        "targetId": "asset://sheet.walls.corners.4x2"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.walls.corners.4x2"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:sheet.walls.horizontal.8x1",
@@ -2225,7 +3210,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.walls.horizontal.8x1",
+        "targetId": "asset://sheet.walls.horizontal.8x1"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.walls.horizontal.8x1"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:sheet.walls.t-junctions.7x1",
@@ -2252,7 +3252,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.walls.t-junctions.7x1",
+        "targetId": "asset://sheet.walls.t-junctions.7x1"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.walls.t-junctions.7x1"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:sheet.walls.vertical.1x8",
@@ -2279,7 +3294,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.walls.vertical.1x8",
+        "targetId": "asset://sheet.walls.vertical.1x8"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.walls.vertical.1x8"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:terrain.cavern.crystal-floor",
@@ -2306,7 +3336,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "terrain.cavern.crystal-floor",
+        "targetId": "asset://terrain.cavern.crystal-floor"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://terrain.cavern.crystal-floor"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:terrain.cavern.crystal-wall",
@@ -2333,7 +3378,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "terrain.cavern.crystal-wall",
+        "targetId": "asset://terrain.cavern.crystal-wall"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://terrain.cavern.crystal-wall"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:terrain.cavern.floor",
@@ -2360,7 +3420,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "terrain.cavern.floor",
+        "targetId": "asset://terrain.cavern.floor"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://terrain.cavern.floor"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:terrain.deep-water",
@@ -2387,7 +3462,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "terrain.deep-water",
+        "targetId": "asset://terrain.deep-water"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://terrain.deep-water"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:terrain.forest.floor",
@@ -2414,7 +3504,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "terrain.forest.floor",
+        "targetId": "asset://terrain.forest.floor"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://terrain.forest.floor"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:terrain.forest.moss",
@@ -2441,7 +3546,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "terrain.forest.moss",
+        "targetId": "asset://terrain.forest.moss"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://terrain.forest.moss"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:terrain.forest.tree-wall",
@@ -2468,7 +3588,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "terrain.forest.tree-wall",
+        "targetId": "asset://terrain.forest.tree-wall"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://terrain.forest.tree-wall"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:terrain.water.0",
@@ -2495,7 +3630,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "terrain.water.0",
+        "targetId": "asset://terrain.water.0"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://terrain.water.0"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:terrain.water.1",
@@ -2522,7 +3672,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "terrain.water.1",
+        "targetId": "asset://terrain.water.1"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://terrain.water.1"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:terrain.water.2",
@@ -2549,7 +3714,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "terrain.water.2",
+        "targetId": "asset://terrain.water.2"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://terrain.water.2"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:ui.backplate.crafting-detail-workbench",
@@ -2576,7 +3756,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "ui.backplate.crafting-detail-workbench",
+        "targetId": "asset://ui.backplate.crafting-detail-workbench"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://ui.backplate.crafting-detail-workbench"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:ui.backplate.crafting-workbench",
@@ -2603,7 +3798,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "ui.backplate.crafting-workbench",
+        "targetId": "asset://ui.backplate.crafting-workbench"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://ui.backplate.crafting-workbench"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:ui.backplate.inventory",
@@ -2630,7 +3840,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "ui.backplate.inventory",
+        "targetId": "asset://ui.backplate.inventory"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://ui.backplate.inventory"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:ui.backplate.quest-journal",
@@ -2657,7 +3882,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "ui.backplate.quest-journal",
+        "targetId": "asset://ui.backplate.quest-journal"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://ui.backplate.quest-journal"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:ui.banner.area-title",
@@ -2684,7 +3924,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "ui.banner.area-title",
+        "targetId": "asset://ui.banner.area-title"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://ui.banner.area-title"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:ui.frame.boss-health",
@@ -2711,7 +3966,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "ui.frame.boss-health",
+        "targetId": "asset://ui.frame.boss-health"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://ui.frame.boss-health"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:ui.frame.levelup-crest",
@@ -2738,7 +4008,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "ui.frame.levelup-crest",
+        "targetId": "asset://ui.frame.levelup-crest"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://ui.frame.levelup-crest"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:ui.frame.organic-compact",
@@ -2765,7 +4050,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "ui.frame.organic-compact",
+        "targetId": "asset://ui.frame.organic-compact"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://ui.frame.organic-compact"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:ui.frame.organic-minimap",
@@ -2792,7 +4092,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "ui.frame.organic-minimap",
+        "targetId": "asset://ui.frame.organic-minimap"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://ui.frame.organic-minimap"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:ui.frame.organic-modal",
@@ -2819,7 +4134,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "ui.frame.organic-modal",
+        "targetId": "asset://ui.frame.organic-modal"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://ui.frame.organic-modal"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:ui.frame.quest-offer-scroll",
@@ -2846,7 +4176,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "ui.frame.quest-offer-scroll",
+        "targetId": "asset://ui.frame.quest-offer-scroll"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://ui.frame.quest-offer-scroll"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:ui.surface.map-journal-paper",
@@ -2873,7 +4218,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "ui.surface.map-journal-paper",
+        "targetId": "asset://ui.surface.map-journal-paper"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://ui.surface.map-journal-paper"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:weapon.player.hammer-spear-tiles",
@@ -2900,7 +4260,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "weapon.player.hammer-spear-tiles",
+        "targetId": "asset://weapon.player.hammer-spear-tiles"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://weapon.player.hammer-spear-tiles"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:weapon.player.pickaxe-tiles",
@@ -2927,7 +4302,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "weapon.player.pickaxe-tiles",
+        "targetId": "asset://weapon.player.pickaxe-tiles"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://weapon.player.pickaxe-tiles"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:weapon.player.starter-spears-tiles",
@@ -2954,7 +4344,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "weapon.player.starter-spears-tiles",
+        "targetId": "asset://weapon.player.starter-spears-tiles"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://weapon.player.starter-spears-tiles"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:weapon.player.stone-tools-tiles",
@@ -2981,7 +4386,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "weapon.player.stone-tools-tiles",
+        "targetId": "asset://weapon.player.stone-tools-tiles"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://weapon.player.stone-tools-tiles"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:weapon.player.sword-tiles",
@@ -3008,7 +4428,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "weapon.player.sword-tiles",
+        "targetId": "asset://weapon.player.sword-tiles"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://weapon.player.sword-tiles"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "asset:weapon.player.wooden-axe-tiles",
@@ -3035,7 +4470,22 @@
         "assets:check",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c00387078084bc3dda311a18f6563c81fcc1b0e4a303a78f175882d644601257",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "weapon.player.wooden-axe-tiles",
+        "targetId": "asset://weapon.player.wooden-axe-tiles"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://weapon.player.wooden-axe-tiles"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "boss:fatty-one-eye",
@@ -3062,7 +4512,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "7fb7b3cebe90ea690dd2270859f3aa73f33859f08fdc2d9debff407eec9aa975",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "fatty-one-eye",
+        "targetId": "scene://characters/fatty-one-eye"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "character:fatty-one-eye",
@@ -3094,7 +4554,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "be3acd5bfe665484602532aad735ff018f6f64e01151dc7b6132c5c4f75e0090",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "fatty-one-eye",
+        "targetId": "scene://characters/fatty-one-eye"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "character:lili",
@@ -3126,7 +4596,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "4ddae0cb107891d70f20383ecf283f4c8be79b2e137b11a2187516a2fe468c3c",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "lili",
+        "targetId": "scene://characters/lili"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "character:mossy-scout",
@@ -3158,7 +4638,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "a85754846becdcd062b8b9c80ebd6541d6b7d1220f3a255c9e7d368ab44e0e01",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "mossy-scout",
+        "targetId": "scene://characters/mossy-scout"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "character:player-slime",
@@ -3190,7 +4680,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "1c185f4d8116fe2f23d241383bb58875ba36aa1738e785d35dbcdee42a4470d4",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "player-slime",
+        "targetId": "scene://characters/player-slime"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "character:red-slime-boy",
@@ -3222,7 +4722,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "84c3dcebf2bbc1d99feb7aad16655a23e5f1b13c00471e3c03070104acc9ed8a",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "red-slime-boy",
+        "targetId": "scene://characters/red-slime-boy"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "character:slime-spider",
@@ -3254,7 +4764,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "ab9fd74bdee28ce73c5b417ea6162ffb411453e35db99585953f70472b9ffd35",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "slime-spider",
+        "targetId": "scene://characters/slime-spider"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "character:village-elder-plop",
@@ -3286,7 +4806,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "0e4d5fb55eb69a2908a63179e223502c774cfcccd487a7dc21fdc0282a79451f",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "village-elder-plop",
+        "targetId": "scene://characters/village-elder-plop"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "character:worm-archer",
@@ -3318,7 +4848,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "fb3cc16a44e7e8d1742d11faf9e2753446db0ace15866bb33eac27909355a6b7",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "worm-archer",
+        "targetId": "scene://characters/worm-archer"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "character:worm-brawler",
@@ -3350,7 +4890,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "c85c2c371e3866c427d852b55a21bcd470ae1ed3dd1083909f4c80ecf7aaad9f",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "worm-brawler",
+        "targetId": "scene://characters/worm-brawler"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "character:worm-swordsman",
@@ -3382,7 +4932,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "20022221c9eab2da124383396446be31dd2adb87269e90874601d17469474586",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "worm-swordsman",
+        "targetId": "scene://characters/worm-swordsman"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "character:yellow-blond-slime-girl",
@@ -3414,7 +4974,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "673311e0dbddbb66b7669cb48ce9642927fbc3be5e30707187dfb53f9f59a99a",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "yellow-blond-slime-girl",
+        "targetId": "scene://characters/yellow-blond-slime-girl"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "effect:basic-spear-impact",
@@ -3443,7 +5013,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "7bf20479b9e3a3a85dab937405190a18a1b62834672c1d3c93b360f01561b15e",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "basic-spear-impact",
+        "targetId": "scene://effects/basic-spear-impact"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "effect:basic-sword-impact",
@@ -3472,7 +5052,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "22311acbc43c55b5fd35cce911e2c9eeac424a74828fc9ca15a4614d369100f0",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "basic-sword-impact",
+        "targetId": "scene://effects/basic-sword-impact"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "effect:slam-hammer-impact",
@@ -3501,7 +5091,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "8b34de3e61a52d0679eaae6368a2c926914f2c6efb3eb58a06cbf4f56f38b667",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "slam-hammer-impact",
+        "targetId": "scene://effects/slam-hammer-impact"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "effect:stone-impact",
@@ -3530,7 +5130,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "75de24eb95fcf0a4416e04adfa7930f247adaaaefc46d5826acdfe64d2ac3170",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "stone-impact",
+        "targetId": "scene://effects/stone-impact"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "effect:wood-impact",
@@ -3559,7 +5169,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "d0585addffe87cdbda34215a211a7951f42400ae7dd47be2a82e611a7961997b",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "wood-impact",
+        "targetId": "scene://effects/wood-impact"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "enemy:worm-archer",
@@ -3586,7 +5206,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "0c6d3131ff1abd4221be17446c4307624f7e68232a9b25e85338231001e15fe0",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "worm-archer",
+        "targetId": "scene://characters/worm-archer"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "enemy:worm-brawler",
@@ -3613,7 +5243,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "0c6d3131ff1abd4221be17446c4307624f7e68232a9b25e85338231001e15fe0",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "worm-brawler",
+        "targetId": "scene://characters/worm-brawler"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "enemy:worm-swordsman",
@@ -3640,7 +5280,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "0c6d3131ff1abd4221be17446c4307624f7e68232a9b25e85338231001e15fe0",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "worm-swordsman",
+        "targetId": "scene://characters/worm-swordsman"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "game-constants:global",
@@ -3667,7 +5317,22 @@
         "constants:check",
         "test:game-constants"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "40336f5102f88a79dcef9ccbc3efef81601a3ebd38e7ee8b142593616d328872",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "global",
+        "targetId": "project-data://game-constants/global"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "project-data://game-constants/global"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "item:charcoal",
@@ -3691,7 +5356,22 @@
         "assets:check",
         "test:progression"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "7acff34eaf143704dc8131fa1e837a7e36920416c6921e7f70ef436f39f70400",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "charcoal",
+        "targetId": "project-data://items/charcoal"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "project-data://items/charcoal"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "item:energy-potion",
@@ -3715,7 +5395,22 @@
         "assets:check",
         "test:progression"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "7acff34eaf143704dc8131fa1e837a7e36920416c6921e7f70ef436f39f70400",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "energy-potion",
+        "targetId": "project-data://items/energy-potion"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "project-data://items/energy-potion"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "item:green-key",
@@ -3739,7 +5434,22 @@
         "assets:check",
         "test:progression"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "7acff34eaf143704dc8131fa1e837a7e36920416c6921e7f70ef436f39f70400",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "green-key",
+        "targetId": "project-data://items/green-key"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "project-data://items/green-key"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "item:hp-potion",
@@ -3763,7 +5473,22 @@
         "assets:check",
         "test:progression"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "7acff34eaf143704dc8131fa1e837a7e36920416c6921e7f70ef436f39f70400",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "hp-potion",
+        "targetId": "project-data://items/hp-potion"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "project-data://items/hp-potion"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "item:iron-ore",
@@ -3787,7 +5512,22 @@
         "assets:check",
         "test:progression"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "7acff34eaf143704dc8131fa1e837a7e36920416c6921e7f70ef436f39f70400",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "iron-ore",
+        "targetId": "project-data://items/iron-ore"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "project-data://items/iron-ore"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "item:purple-berry-mat",
@@ -3811,7 +5551,22 @@
         "assets:check",
         "test:progression"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "7acff34eaf143704dc8131fa1e837a7e36920416c6921e7f70ef436f39f70400",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "purple-berry-mat",
+        "targetId": "project-data://items/purple-berry-mat"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "project-data://items/purple-berry-mat"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "item:shard",
@@ -3835,7 +5590,22 @@
         "assets:check",
         "test:progression"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "7acff34eaf143704dc8131fa1e837a7e36920416c6921e7f70ef436f39f70400",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "shard",
+        "targetId": "project-data://items/shard"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "project-data://items/shard"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "item:silk-clump",
@@ -3859,7 +5629,22 @@
         "assets:check",
         "test:progression"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "7acff34eaf143704dc8131fa1e837a7e36920416c6921e7f70ef436f39f70400",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "silk-clump",
+        "targetId": "project-data://items/silk-clump"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "project-data://items/silk-clump"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "item:stone",
@@ -3883,7 +5668,22 @@
         "assets:check",
         "test:progression"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "7acff34eaf143704dc8131fa1e837a7e36920416c6921e7f70ef436f39f70400",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "stone",
+        "targetId": "project-data://items/stone"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "project-data://items/stone"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "item:wood",
@@ -3907,7 +5707,22 @@
         "assets:check",
         "test:progression"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "7acff34eaf143704dc8131fa1e837a7e36920416c6921e7f70ef436f39f70400",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "wood",
+        "targetId": "project-data://items/wood"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "project-data://items/wood"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "map:174",
@@ -4324,7 +6139,17 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "embeddedEncounterIds": []
+      "embeddedEncounterIds": [],
+      "sourceHash": "58dc34b6b8c6f5587877c969e0db1a9eb5c2ed7aa76f501fd5fe54767dd15956",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "174",
+        "targetId": "scene://worlds/174"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "map:236",
@@ -5206,7 +7031,17 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "embeddedEncounterIds": []
+      "embeddedEncounterIds": [],
+      "sourceHash": "348342e61177101372c00cd1e94c6bcca0e6413fec84d85136e4cf3be5281204",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "236",
+        "targetId": "scene://worlds/236"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "map:cole",
@@ -6022,7 +7857,17 @@
         "enemy-area-01",
         "enemy-area-02",
         "enemy-area-03"
-      ]
+      ],
+      "sourceHash": "5fe7975fcf757007a7f16a01c8176ec7f92b4310266e2a25a5a506ae4bc21f3a",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "cole",
+        "targetId": "scene://worlds/cole"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "map:crystal-caverns",
@@ -6053,7 +7898,17 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "embeddedEncounterIds": []
+      "embeddedEncounterIds": [],
+      "sourceHash": "644d80315d4c797ea163f404f105079026deea25a25dc4896539ca1209b6d2e1",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "crystal-caverns",
+        "targetId": "scene://worlds/crystal-caverns"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "map:depth-occlusion-test",
@@ -6090,7 +7945,17 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "embeddedEncounterIds": []
+      "embeddedEncounterIds": [],
+      "sourceHash": "cbfffa9b13d232ed0820b9294cf0130a3c0f3f6c45b4d2ffcf77d10e01e6dbe7",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "depth-occlusion-test",
+        "targetId": "scene://worlds/depth-occlusion-test"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "map:emberleef",
@@ -6768,7 +8633,17 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "embeddedEncounterIds": []
+      "embeddedEncounterIds": [],
+      "sourceHash": "4eaadfd296cb0e3e2e36c2685613e15528ce04ef2593c16b27f42e39aabb72da",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "emberleef",
+        "targetId": "scene://worlds/emberleef"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "map:girls",
@@ -7053,7 +8928,17 @@
         "enemy-area-01",
         "enemy-area-02",
         "enemy-area-03"
-      ]
+      ],
+      "sourceHash": "2e4f05a21cfaac342260423fc54ee04221bf4939eb2bb92659f342e06379b47a",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "girls",
+        "targetId": "scene://worlds/girls"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "map:gloop-forest",
@@ -7150,7 +9035,17 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "embeddedEncounterIds": []
+      "embeddedEncounterIds": [],
+      "sourceHash": "ffabefb94e4f687f41c39804e44d4aa37d4301798cc8a054d3c0477d09952f11",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "gloop-forest",
+        "targetId": "scene://worlds/gloop-forest"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "map:hot",
@@ -7285,7 +9180,17 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "embeddedEncounterIds": []
+      "embeddedEncounterIds": [],
+      "sourceHash": "f7725467df862174d2ab96166510eb47f59da62235cf8c3d000e612128855d47",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "hot",
+        "targetId": "scene://worlds/hot"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "map:icege",
@@ -7672,7 +9577,17 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "embeddedEncounterIds": []
+      "embeddedEncounterIds": [],
+      "sourceHash": "19176ee36d467c12c812a676251d339fdcfdc7a33aadb33a78f987fbebd76908",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "icege",
+        "targetId": "scene://worlds/icege"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "map:jk",
@@ -7880,7 +9795,17 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "embeddedEncounterIds": []
+      "embeddedEncounterIds": [],
+      "sourceHash": "893be3224514da1cbc457a6afb3371cfc8f8ffba76e3504874ecf21e200b9e63",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "jk",
+        "targetId": "scene://worlds/jk"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "map:level-1",
@@ -7945,7 +9870,17 @@
         "npc-area-03",
         "npc-area-04",
         "npc-area-05"
-      ]
+      ],
+      "sourceHash": "12fb29a9fd813961c1168626d0d48742cbbb602abbbe21af773115d9e8859f61",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "level-1",
+        "targetId": "scene://worlds/level-1"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "map:meadow-crossing",
@@ -8396,7 +10331,17 @@
         "enemy-area-02",
         "enemy-area-03",
         "enemy-area-04"
-      ]
+      ],
+      "sourceHash": "6087a78804ca97bc7d63e6bb494b4de93ae8283810e2243d6d22d0b1c4392730",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "meadow-crossing",
+        "targetId": "scene://worlds/meadow-crossing"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "map:test-rectangle",
@@ -8429,7 +10374,17 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "embeddedEncounterIds": []
+      "embeddedEncounterIds": [],
+      "sourceHash": "86ce85bbb2d1a8411330e74cdc075a4d952483f150fe52362df6509933ff8ff5",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "test-rectangle",
+        "targetId": "scene://worlds/test-rectangle"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "map:tiktok",
@@ -9723,7 +11678,17 @@
       "legacyRemovalWorkPackage": 15,
       "embeddedEncounterIds": [
         "enemy-area-01"
-      ]
+      ],
+      "sourceHash": "a894efa825b8cc5b91810d1da40763cb81d4df51c790d85f7e72c035467960c0",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "tiktok",
+        "targetId": "scene://worlds/tiktok"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "npc:level-1-spider-giver",
@@ -9751,7 +11716,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "eade7d777201d3b98b1c6317fd22282a326a01a941bbf88d916191f8770d668e",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "level-1-spider-giver",
+        "targetId": "scene://characters/level-1-spider-giver"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "npc:lili",
@@ -9779,7 +11754,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "eade7d777201d3b98b1c6317fd22282a326a01a941bbf88d916191f8770d668e",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "lili",
+        "targetId": "scene://characters/lili"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "npc:red-slime-boy",
@@ -9807,7 +11792,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "eade7d777201d3b98b1c6317fd22282a326a01a941bbf88d916191f8770d668e",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "red-slime-boy",
+        "targetId": "scene://characters/red-slime-boy"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "npc:village-elder-plop",
@@ -9835,7 +11830,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "eade7d777201d3b98b1c6317fd22282a326a01a941bbf88d916191f8770d668e",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "village-elder-plop",
+        "targetId": "scene://characters/village-elder-plop"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "npc:yellow-blond-slime-girl",
@@ -9863,7 +11868,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "eade7d777201d3b98b1c6317fd22282a326a01a941bbf88d916191f8770d668e",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "yellow-blond-slime-girl",
+        "targetId": "scene://characters/yellow-blond-slime-girl"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "object:chest.wooden",
@@ -9893,7 +11908,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "08f4dd96bb20be7bb2ccc73d6c61fc2af0c4bb31bd77d357716404fb79b19a4b",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "chest.wooden",
+        "targetId": "scene://objects/chest.wooden"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "object:collectible.charcoal-pile",
@@ -9923,7 +11948,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "3b1859984302876dcd0e9e89063331a7d145785de5960ac93fa1ec92e6db6af3",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "collectible.charcoal-pile",
+        "targetId": "scene://objects/collectible.charcoal-pile"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "object:collectible.crystal-shard",
@@ -9953,7 +11988,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "500768adadcb6252f96591a18c1292ec8f2a5f7810bba1b4e4bb2e7d4ae23b32",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "collectible.crystal-shard",
+        "targetId": "scene://objects/collectible.crystal-shard"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "object:collectible.energy-potion",
@@ -9983,7 +12028,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "88db6902f61d539433511ae02d7f7a45da7a4c3323985b94dae33374ee5f6097",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "collectible.energy-potion",
+        "targetId": "scene://objects/collectible.energy-potion"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "object:collectible.green-key",
@@ -10013,7 +12068,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "3b514ea2f4128fb53dd7240ac340bdbb25f37c73a55aa28c2c21b2f5fb04dacb",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "collectible.green-key",
+        "targetId": "scene://objects/collectible.green-key"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "object:collectible.hp-potion",
@@ -10043,7 +12108,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "4696ab1499635f2fb15654485931cdb74a57ad40041292105917ae428294ae4f",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "collectible.hp-potion",
+        "targetId": "scene://objects/collectible.hp-potion"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "object:collectible.iron-ore-pile",
@@ -10073,7 +12148,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "23fd344ed0465d111d09f736c7340157a417f0923be78de05947732454d3dd04",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "collectible.iron-ore-pile",
+        "targetId": "scene://objects/collectible.iron-ore-pile"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "object:collectible.purple-berry",
@@ -10103,7 +12188,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "5f9180e17124f816bff1c91d280d93d549c93d87e794c970e802fab99be9a982",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "collectible.purple-berry",
+        "targetId": "scene://objects/collectible.purple-berry"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "object:collectible.silk-clump",
@@ -10133,7 +12228,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "da30734bf56a02504b8879f24b9637883783e229bdce7097a2a37af90805fab9",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "collectible.silk-clump",
+        "targetId": "scene://objects/collectible.silk-clump"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "object:collectible.small-stone-pile",
@@ -10163,7 +12268,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "45a0706b7a39edbf9ba93b85b541e3e356593720f7e37ce91679bc0959222c39",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "collectible.small-stone-pile",
+        "targetId": "scene://objects/collectible.small-stone-pile"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "object:collectible.small-wood-pile",
@@ -10193,7 +12308,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "0a95ac778bc2431b1afa208f16d068d39ce4c4356f85cf17d9b5c41515373034",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "collectible.small-wood-pile",
+        "targetId": "scene://objects/collectible.small-wood-pile"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "object:collectible.stone-pile",
@@ -10223,7 +12348,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "11991126b148e2b45ca9a80a1d390a800dc34bd0cbc46c8ed236dcc3f28a4d81",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "collectible.stone-pile",
+        "targetId": "scene://objects/collectible.stone-pile"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "object:collectible.wood-pile",
@@ -10253,7 +12388,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "54a4c30ee16ad605869f1c004f3bf187fc99634fb67481faf7a97960dad1b2ff",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "collectible.wood-pile",
+        "targetId": "scene://objects/collectible.wood-pile"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "object:decoration.world.floor",
@@ -10283,7 +12428,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "0e599671266d6e06ca283d3860e690d2bd27cfe1e7afc37499e6d366312407d3",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "decoration.world.floor",
+        "targetId": "scene://objects/decoration.world.floor"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "object:decoration.world.solid",
@@ -10313,7 +12468,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "a0820431f0d6a1bb768c9d5cf255a048539f316abe6458f85ec5d6cafe9a390f",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "decoration.world.solid",
+        "targetId": "scene://objects/decoration.world.solid"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "object:house.world.solid",
@@ -10343,7 +12508,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "8cbc5f5544a85380b96330bba3f7c29dabd2603512129ecd24c652091d97c10a",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "house.world.solid",
+        "targetId": "scene://objects/house.world.solid"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "object:npc.lili",
@@ -10373,7 +12548,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "17d7a8b15b3744a76f380ab95c04c4e74c50dafbe2ccb0df37265249bcf702b0",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "npc.lili",
+        "targetId": "scene://objects/npc.lili"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "object:npc.red-slime-boy",
@@ -10403,7 +12588,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "e8e39a77d43bf56b4a24d084d0121a2af57af7d399f17566bfdb2eb3d2e59514",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "npc.red-slime-boy",
+        "targetId": "scene://objects/npc.red-slime-boy"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "object:npc.world",
@@ -10433,7 +12628,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "1c35b88f3198a54cf92423442c8e10ac1d3428f6d9b63a3039b4b693080f21c4",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "npc.world",
+        "targetId": "scene://objects/npc.world"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "object:npc.world-scout",
@@ -10463,7 +12668,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "7b477248290daa0b65b4946c0e146ee1f174642ba63326bb003c393ddb390794",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "npc.world-scout",
+        "targetId": "scene://objects/npc.world-scout"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "object:npc.yellow-blond-slime-girl",
@@ -10493,7 +12708,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "c84febc83c0b4390c392f128888124aae59c0f820705c0245406d651f6170e30",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "npc.yellow-blond-slime-girl",
+        "targetId": "scene://objects/npc.yellow-blond-slime-girl"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "object:resource.stone-node",
@@ -10523,7 +12748,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "6dec74a258547dafd6d8f3e9b3cbec6f4baf2637c43b520714a4d05e11e2fbb7",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "resource.stone-node",
+        "targetId": "scene://objects/resource.stone-node"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "object:rock.amber-ore.mineable",
@@ -10553,7 +12788,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "7dcd50092788c15dcd9ef4e5912b46b9fdd3bc36b83323a2fa9a9f0044843f59",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "rock.amber-ore.mineable",
+        "targetId": "scene://objects/rock.amber-ore.mineable"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "object:rock.world-wall.decorative",
@@ -10583,7 +12828,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "67bbd4632d1ecb345808f8fd3061cbb732114e76ca6505b05dda20140273267f",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "rock.world-wall.decorative",
+        "targetId": "scene://objects/rock.world-wall.decorative"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "object:rock.world-wall.solid",
@@ -10613,7 +12868,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "4f1f83b1fa029cf00cb894ef6bbf8d8bf370c9174166389a304399a44ec0e243",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "rock.world-wall.solid",
+        "targetId": "scene://objects/rock.world-wall.solid"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "object:tree.world.solid",
@@ -10643,7 +12908,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "87530250d79a0cbf0ea4525097936954f32494d0b973fc3aab511e96a706eafb",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "tree.world.solid",
+        "targetId": "scene://objects/tree.world.solid"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "object:wall.stone.solid",
@@ -10673,7 +12948,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "803f1120a94513fe6ae553618079e25b6a51a9aea420cb87939a59b2e9ddb14b",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "wall.stone.solid",
+        "targetId": "scene://objects/wall.stone.solid"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "projectile:worm-arrow",
@@ -10702,7 +12987,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "feacfd1dff609a9f37ee9dda59bc10297c15e8b2c75d144e4ef05a84b72f093e",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "worm-arrow",
+        "targetId": "scene://projectiles/worm-arrow"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "quest:gather-building-materials",
@@ -10727,7 +13022,22 @@
         "quests:check",
         "test:quests"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "c331c9c9492b6033ce6e821f93b6b6af6bb09423ee5c9039e214c737377fd8a2",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "gather-building-materials",
+        "targetId": "project-data://quests/gather-building-materials"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "project-data://quests/gather-building-materials"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "recipe:brew-fizzy",
@@ -10749,7 +13059,22 @@
       "focusedVerification": [
         "test:ui"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "b83b09854b19a9e9c77a491d523790b419511db642e61c8910c2e58b4f18d0ee",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "brew-fizzy",
+        "targetId": "project-data://recipes/brew-fizzy"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "project-data://recipes/brew-fizzy"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "recipe:brew-tonic",
@@ -10771,7 +13096,22 @@
       "focusedVerification": [
         "test:ui"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "b83b09854b19a9e9c77a491d523790b419511db642e61c8910c2e58b4f18d0ee",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "brew-tonic",
+        "targetId": "project-data://recipes/brew-tonic"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "project-data://recipes/brew-tonic"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "recipe:craft-stone-axe",
@@ -10793,7 +13133,22 @@
       "focusedVerification": [
         "test:ui"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "b83b09854b19a9e9c77a491d523790b419511db642e61c8910c2e58b4f18d0ee",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "craft-stone-axe",
+        "targetId": "project-data://recipes/craft-stone-axe"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "project-data://recipes/craft-stone-axe"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "recipe:craft-stone-axe-test",
@@ -10815,7 +13170,22 @@
       "focusedVerification": [
         "test:ui"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "b83b09854b19a9e9c77a491d523790b419511db642e61c8910c2e58b4f18d0ee",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "craft-stone-axe-test",
+        "targetId": "project-data://recipes/craft-stone-axe-test"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "project-data://recipes/craft-stone-axe-test"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "recipe:craft-stone-pickaxe",
@@ -10837,7 +13207,22 @@
       "focusedVerification": [
         "test:ui"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "b83b09854b19a9e9c77a491d523790b419511db642e61c8910c2e58b4f18d0ee",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "craft-stone-pickaxe",
+        "targetId": "project-data://recipes/craft-stone-pickaxe"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "project-data://recipes/craft-stone-pickaxe"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "recipe:craft-stone-pickaxe-test",
@@ -10859,7 +13244,22 @@
       "focusedVerification": [
         "test:ui"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "b83b09854b19a9e9c77a491d523790b419511db642e61c8910c2e58b4f18d0ee",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "craft-stone-pickaxe-test",
+        "targetId": "project-data://recipes/craft-stone-pickaxe-test"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "project-data://recipes/craft-stone-pickaxe-test"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "recipe:craft-stone-spear",
@@ -10881,7 +13281,22 @@
       "focusedVerification": [
         "test:ui"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "b83b09854b19a9e9c77a491d523790b419511db642e61c8910c2e58b4f18d0ee",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "craft-stone-spear",
+        "targetId": "project-data://recipes/craft-stone-spear"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "project-data://recipes/craft-stone-spear"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "recipe:craft-stone-spear-test",
@@ -10903,7 +13318,22 @@
       "focusedVerification": [
         "test:ui"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "b83b09854b19a9e9c77a491d523790b419511db642e61c8910c2e58b4f18d0ee",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "craft-stone-spear-test",
+        "targetId": "project-data://recipes/craft-stone-spear-test"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "project-data://recipes/craft-stone-spear-test"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "recipe:craft-wooden-spear",
@@ -10925,7 +13355,22 @@
       "focusedVerification": [
         "test:ui"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "b83b09854b19a9e9c77a491d523790b419511db642e61c8910c2e58b4f18d0ee",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "craft-wooden-spear",
+        "targetId": "project-data://recipes/craft-wooden-spear"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "project-data://recipes/craft-wooden-spear"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "recipe:craft-wooden-spear-test",
@@ -10947,7 +13392,22 @@
       "focusedVerification": [
         "test:ui"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "b83b09854b19a9e9c77a491d523790b419511db642e61c8910c2e58b4f18d0ee",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "craft-wooden-spear-test",
+        "targetId": "project-data://recipes/craft-wooden-spear-test"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "project-data://recipes/craft-wooden-spear-test"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "recipe:weave-tonics",
@@ -10969,7 +13429,22 @@
       "focusedVerification": [
         "test:ui"
       ],
-      "legacyRemovalWorkPackage": null
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "b83b09854b19a9e9c77a491d523790b419511db642e61c8910c2e58b4f18d0ee",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "weave-tonics",
+        "targetId": "project-data://recipes/weave-tonics"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "project-data://recipes/weave-tonics"
+        }
+      ],
+      "writerState": "legacy"
     },
     {
       "key": "terrain:amberleaf-ground",
@@ -10995,7 +13470,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "34710ff18564c7f1932bd8f92597347ce4865b4b6ab66879ce153403198866d0",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "amberleaf-ground",
+        "targetId": "resource://terrain/amberleaf-ground"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "terrain:cavern-floor",
@@ -11021,7 +13506,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "34710ff18564c7f1932bd8f92597347ce4865b4b6ab66879ce153403198866d0",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "cavern-floor",
+        "targetId": "resource://terrain/cavern-floor"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "terrain:crystal-floor",
@@ -11047,7 +13542,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "34710ff18564c7f1932bd8f92597347ce4865b4b6ab66879ce153403198866d0",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "crystal-floor",
+        "targetId": "resource://terrain/crystal-floor"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "terrain:crystal-wall",
@@ -11073,7 +13578,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "34710ff18564c7f1932bd8f92597347ce4865b4b6ab66879ce153403198866d0",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "crystal-wall",
+        "targetId": "resource://terrain/crystal-wall"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "terrain:deep-water",
@@ -11099,7 +13614,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "34710ff18564c7f1932bd8f92597347ce4865b4b6ab66879ce153403198866d0",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "deep-water",
+        "targetId": "resource://terrain/deep-water"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "terrain:forest-floor",
@@ -11125,7 +13650,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "34710ff18564c7f1932bd8f92597347ce4865b4b6ab66879ce153403198866d0",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "forest-floor",
+        "targetId": "resource://terrain/forest-floor"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "terrain:forest-moss",
@@ -11151,7 +13686,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "34710ff18564c7f1932bd8f92597347ce4865b4b6ab66879ce153403198866d0",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "forest-moss",
+        "targetId": "resource://terrain/forest-moss"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "terrain:frozen-ground",
@@ -11177,7 +13722,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "34710ff18564c7f1932bd8f92597347ce4865b4b6ab66879ce153403198866d0",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "frozen-ground",
+        "targetId": "resource://terrain/frozen-ground"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "terrain:grass-a",
@@ -11203,7 +13758,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "34710ff18564c7f1932bd8f92597347ce4865b4b6ab66879ce153403198866d0",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "grass-a",
+        "targetId": "resource://terrain/grass-a"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "terrain:grass-b",
@@ -11229,7 +13794,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "34710ff18564c7f1932bd8f92597347ce4865b4b6ab66879ce153403198866d0",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "grass-b",
+        "targetId": "resource://terrain/grass-b"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "terrain:rock-wall",
@@ -11255,7 +13830,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "34710ff18564c7f1932bd8f92597347ce4865b4b6ab66879ce153403198866d0",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "rock-wall",
+        "targetId": "resource://terrain/rock-wall"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "terrain:sanddessert-ground",
@@ -11281,7 +13866,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "34710ff18564c7f1932bd8f92597347ce4865b4b6ab66879ce153403198866d0",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sanddessert-ground",
+        "targetId": "resource://terrain/sanddessert-ground"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "terrain:tree-wall",
@@ -11307,7 +13902,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "34710ff18564c7f1932bd8f92597347ce4865b4b6ab66879ce153403198866d0",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "tree-wall",
+        "targetId": "resource://terrain/tree-wall"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "terrain:water",
@@ -11333,7 +13938,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "34710ff18564c7f1932bd8f92597347ce4865b4b6ab66879ce153403198866d0",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "water",
+        "targetId": "resource://terrain/water"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "ui:ability-bar",
@@ -11358,7 +13973,17 @@
         "test:scene-browser",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "3e09b275f09efb52f585f782068d9ae081fc4d151df063529502a6f67a352b1c",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "ability-bar",
+        "targetId": "scene://ui/ability-bar"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "ui:area-title-card",
@@ -11383,7 +14008,17 @@
         "test:scene-browser",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "7023a7a9539adec17cd67c2250f66ee0b31475e4f2c6fddfbcabdd3ebceb6902",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "area-title-card",
+        "targetId": "scene://ui/area-title-card"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "ui:boss-health-bar",
@@ -11408,7 +14043,17 @@
         "test:scene-browser",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "5c618188edb6eb96068013444ea8586b707b24b2a21d2f46776e13bf1ea03f84",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "boss-health-bar",
+        "targetId": "scene://ui/boss-health-bar"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "ui:chest-inventory-panel",
@@ -11433,7 +14078,17 @@
         "test:scene-browser",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "a58a345bada4929af55019d6ae6a4a86c0a7861fd177db3eebfc716ad5a80f45",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "chest-inventory-panel",
+        "targetId": "scene://ui/chest-inventory-panel"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "ui:crafting-ui",
@@ -11458,7 +14113,17 @@
         "test:scene-browser",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "7bb75c35d7ab686ce167c52d82f5601e1ab6bcc3d61bb70b6aeacc1b2b754ff4",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "crafting-ui",
+        "targetId": "scene://ui/crafting-ui"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "ui:floating-text",
@@ -11483,7 +14148,17 @@
         "test:scene-browser",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "11e789c2ffe3e8c1d7bfc6fa9c50b06880fe9eaa4c2dbab65dc93377085e432a",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "floating-text",
+        "targetId": "scene://ui/floating-text"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "ui:health-bar",
@@ -11508,7 +14183,17 @@
         "test:scene-browser",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "d44f1f3c1ae6d73d74f77b5926267bf82bb6b4cc5e21f75706d98a5ff10cb7ea",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "health-bar",
+        "targetId": "scene://ui/health-bar"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "ui:hud",
@@ -11533,7 +14218,17 @@
         "test:scene-browser",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "574f628135de5020aa69da86267088ed67c4d984c41bc837180e0d63aaccc013",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "hud",
+        "targetId": "scene://ui/hud"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "ui:inventory-ui",
@@ -11558,7 +14253,17 @@
         "test:scene-browser",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "a3ef73f330b419d64d9b11c97de239d90d826fb3bf17ed65e4eded40df3525f1",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "inventory-ui",
+        "targetId": "scene://ui/inventory-ui"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "ui:level-up-modal",
@@ -11583,7 +14288,17 @@
         "test:scene-browser",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "0c6279cdf0df32305c9382cf920818ac9b682e6503b03083581f172c880acc06",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "level-up-modal",
+        "targetId": "scene://ui/level-up-modal"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "ui:minimap",
@@ -11608,7 +14323,17 @@
         "test:scene-browser",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "947ecc970df4f671fd31388201a181564eeea6a9cd00d30540f6bffc7a7abc1c",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "minimap",
+        "targetId": "scene://ui/minimap"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "ui:quest-journal",
@@ -11633,7 +14358,17 @@
         "test:scene-browser",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "750d5f89f913e225ebbd06e00920c22ffbd59dff04d240ade5e13b20cc4fe47f",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "quest-journal",
+        "targetId": "scene://ui/quest-journal"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "ui:quest-offer-modal",
@@ -11658,7 +14393,17 @@
         "test:scene-browser",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "3c757aa35b6f564cda920f13e3418aaecfe0b5998ef05f3bba0e1ceacc5ae034",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "quest-offer-modal",
+        "targetId": "scene://ui/quest-offer-modal"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "ui:weapon-hotbar",
@@ -11683,7 +14428,17 @@
         "test:scene-browser",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "ee06ac48697c25732d6fbf3fca24984a0e4dfa97c945e050c9c49c17a1371937",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "weapon-hotbar",
+        "targetId": "scene://ui/weapon-hotbar"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "ui:world-map-ui",
@@ -11708,7 +14463,17 @@
         "test:scene-browser",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "adfd0b36dbac23733e63b98a96911309372bd8379e9fcc65da59285ea856fd14",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "world-map-ui",
+        "targetId": "scene://ui/world-map-ui"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "visual:boss.fatty-one-eye",
@@ -11737,7 +14502,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "9347cca40fb44f8fefdd853c7ab1dece456fb2ec4dde9d4cbd8a3e55344f5d05",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "boss.fatty-one-eye",
+        "targetId": "resource://visuals/boss.fatty-one-eye"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "visual:character.npc.lili",
@@ -11766,7 +14541,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "0187b737fccaf12e6d24c3aa5056349e42528286b1db667444e9e140aa5c11df",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "character.npc.lili",
+        "targetId": "resource://visuals/character.npc.lili"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "visual:character.npc.mossy-scout",
@@ -11795,7 +14580,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "5fc4ac0934cbc9bb122c3aa1979670969ba51f987cdb56d6819e44771d726ed9",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "character.npc.mossy-scout",
+        "targetId": "resource://visuals/character.npc.mossy-scout"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "visual:character.npc.red-slime-boy",
@@ -11824,7 +14619,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "dd39e1ba919c7564931c156003bdb89326296c2d13a52466206441d3f22a1695",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "character.npc.red-slime-boy",
+        "targetId": "resource://visuals/character.npc.red-slime-boy"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "visual:character.npc.village-elder-plop",
@@ -11853,7 +14658,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "35125309cbbdd8e62b6676ef3e2ce0b4210cb0b5884e0d906a117346e137ae4b",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "character.npc.village-elder-plop",
+        "targetId": "resource://visuals/character.npc.village-elder-plop"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "visual:character.npc.yellow-blond-slime-girl",
@@ -11882,7 +14697,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "62853cfff41d1e5904bb9087714a27b2ffa04c57f9c91f00906e11d0b1cadd61",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "character.npc.yellow-blond-slime-girl",
+        "targetId": "resource://visuals/character.npc.yellow-blond-slime-girl"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "visual:character.player.slime",
@@ -11911,7 +14736,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "3d815ba60127d349b1d87b7515e9955dbf15e8e892c38be2ad9398f63a94b57e",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "character.player.slime",
+        "targetId": "resource://visuals/character.player.slime"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "visual:effect.enemy.worm-brawler-hit",
@@ -11940,7 +14775,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "dc57c2f9866ff6d3ce17a6bae1d835c4cd5b694e19e3a84dfffb6d527c987aad",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "effect.enemy.worm-brawler-hit",
+        "targetId": "resource://visuals/effect.enemy.worm-brawler-hit"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "visual:enemy.slime.spider",
@@ -11969,7 +14814,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "ddbffdf2b93a6a3748e8b14f25805f796c8b47f93abef276229aa6e655c08d01",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "enemy.slime.spider",
+        "targetId": "resource://visuals/enemy.slime.spider"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "visual:enemy.worm.archer",
@@ -11998,7 +14853,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "b684302d8486d9d02662067a75bd767a3ef75f7e1b6967f995c305599c616266",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "enemy.worm.archer",
+        "targetId": "resource://visuals/enemy.worm.archer"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "visual:enemy.worm.brawler",
@@ -12027,7 +14892,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "4b4acae4c42250d3b669df2e646209be2da1d8eaa6459cd629b462c8ea36148f",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "enemy.worm.brawler",
+        "targetId": "resource://visuals/enemy.worm.brawler"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "visual:enemy.worm.swordsman",
@@ -12056,7 +14931,17 @@
         "test:scene-runtime",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "8f719fe9fb81e6d646d7f36570b9a83bf428bd42b007bc25fae804e67e36ecd8",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "enemy.worm.swordsman",
+        "targetId": "resource://visuals/enemy.worm.swordsman"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "weapon:basic-spear",
@@ -12087,7 +14972,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "17da791ace8f1fa7cb02ff1ec5e1ada2936710ba2d907ef3ee80aa947b08efb6",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "basic-spear",
+        "targetId": "scene://weapons/basic-spear"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "weapon:basic-sword",
@@ -12118,7 +15013,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "77164ae8bd2c1371492b048c7ec99c66d63c7066eb5ef35a4d356a082e925f9d",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "basic-sword",
+        "targetId": "scene://weapons/basic-sword"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "weapon:goo-gauntlet",
@@ -12149,7 +15054,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "550d0d60ac67d94cccb051c49f34830a92edd55ce084747cf6b4bc94e321e539",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "goo-gauntlet",
+        "targetId": "scene://weapons/goo-gauntlet"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "weapon:pickaxe",
@@ -12180,7 +15095,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "7bbb3affe40f6d06a0b7740e8df9c9789d21cd4f3ec7c127a90e2815389d900d",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "pickaxe",
+        "targetId": "scene://weapons/pickaxe"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "weapon:slam-hammer",
@@ -12211,7 +15136,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "8fa67aea4c3aaab151cb37c7336aac3a0d7fe1a465089539dce7290b248f5c02",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "slam-hammer",
+        "targetId": "scene://weapons/slam-hammer"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "weapon:stone-axe",
@@ -12242,7 +15177,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "c82c1f45c2ffdd3c2d700be64ba2f5c1099285009dfaa2cfbe8c8fd11574e7ce",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "stone-axe",
+        "targetId": "scene://weapons/stone-axe"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "weapon:stone-pickaxe",
@@ -12273,7 +15218,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "0447c830ebdbb8020bb7263cde16ec2b204c8ecb8cd74e2e2e8897717cee84bb",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "stone-pickaxe",
+        "targetId": "scene://weapons/stone-pickaxe"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "weapon:stone-spear",
@@ -12304,7 +15259,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "ea610e015215491f75b82e141ab06d55b5523759708ad7e345dc7e8a151c1a58",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "stone-spear",
+        "targetId": "scene://weapons/stone-spear"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "weapon:wooden-axe",
@@ -12335,7 +15300,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "2290517fc8725a93ab032d33709ab1cb2ec17af338ce150f511bfd202c231668",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "wooden-axe",
+        "targetId": "scene://weapons/wooden-axe"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     },
     {
       "key": "weapon:wooden-spear",
@@ -12366,7 +15341,17 @@
         "test:scene-integration",
         "test:scene-conversion"
       ],
-      "legacyRemovalWorkPackage": 15
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "8e85959cbe724ca7b99437adc4f941237abeaa2045135128fdf9276050e9d811",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "wooden-spear",
+        "targetId": "scene://weapons/wooden-spear"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [],
+      "writerState": "legacy"
     }
   ],
   "writerEndpoints": [
