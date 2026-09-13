@@ -9,7 +9,8 @@
       "virtual-projectile-content": ["./src/game/content/projectiles/virtual-projectile-content.ts"],
       "virtual-weapon-content": ["./src/game/content/weapons/virtual-weapon-content.ts"],
       "virtual-effect-content": ["./src/game/content/effects/virtual-effect-content.ts"],
-      "virtual-animation-content": ["./src/game/content/animations/virtual-animation-content.ts"]
+      "virtual-animation-content": ["./src/game/content/animations/virtual-animation-content.ts"],
+      "virtual-scene-content": ["./src/game/content/scenes/virtual-scene-content.ts"]
     },
     "resolveJsonModule": true,
     "strict": true,

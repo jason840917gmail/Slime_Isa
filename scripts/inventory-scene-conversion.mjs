@@ -392,6 +392,15 @@ export function discoverInventory(repositoryRoot = REPOSITORY_ROOT) {
   for (const entry of rows) {
     if (keyOwners.has(entry.key)) throw new Error(`Duplicate inventory key '${entry.key}' in '${keyOwners.get(entry.key)}' and '${entry.oldSourcePath}'`);
     keyOwners.set(entry.key, entry.oldSourcePath);
+    entry.sourceHash = sha256File(repositoryRoot, entry.oldSourcePath);
+    entry.converterVersion = 1;
+    entry.oldToNewIdMap = { sourceId: entry.stableId, targetId: entry.destinationId };
+    entry.outputs = [];
+    entry.consumedFieldPaths = [];
+    entry.intentionallyRetainedFields = entry.classification === 'retain'
+      ? [{ path: '$', owner: entry.destinationId }]
+      : [];
+    entry.writerState = 'legacy';
   }
 
   return {
