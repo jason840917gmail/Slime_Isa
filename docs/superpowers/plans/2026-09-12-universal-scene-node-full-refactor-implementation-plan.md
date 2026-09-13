@@ -301,6 +301,7 @@ Create:
 - `scripts/lib/scene-conversion/ConversionRunner.mjs`
 - `scripts/lib/scene-conversion/StableIdMap.mjs`
 - `scripts/lib/scene-conversion/ConversionReport.mjs`
+- `scripts/lib/scene-conversion/load-scene-tooling.mjs`
 - `scripts/tests/scene-conversion/runner.test.mjs`
 
 Update:
@@ -374,6 +375,12 @@ stable source identity; family adapters emit bindings/references rather than
 copies. UI extraction descriptors are authored explicitly and audited against
 the existing modules; the plan does not assume automatic conversion of arbitrary
 TypeScript UI code.
+
+The Node CLI's `load-scene-tooling.mjs` bundles a single tooling entry with esbuild
+for the canonical TypeScript validators and (after package 7) write journal.
+It must not import a browser catalog or require Vite's virtual modules to run.
+Use the same validation implementation as Scene Studio; do not duplicate it in
+JavaScript to make the converter executable.
 
 The JSON ledger records source path/hash, converter version, old-to-new ID map,
 persistence keys, outputs/hashes, consumed field paths, intentionally retained
@@ -981,11 +988,20 @@ Create:
 - `src/game/features/scripts/EnemyScript.ts`
 - `src/game/features/scripts/FattyScript.ts`
 - `src/game/features/scripts/BossCampScript.ts`
+- `src/game/features/scripts/ChestScript.ts` (guard/contents/transfer foundation;
+  completed for all chest content in package 12)
 - `src/game/features/scripts/registrations.ts`
 - `src/game/features/combat/DamageReceiver.ts`
 - `src/game/features/combat/DamageResolver.ts`
 - `src/game/features/combat/DamageRouter.ts`
 - `src/game/features/combat/AttackActivation.ts`
+- `src/game/features/player/PlayerHealthService.ts`
+- `src/game/features/player/PlayerServicePorts.ts`
+- `src/game/infrastructure/scenes/compatibility/LegacyPlayerBridge.ts`
+- `src/game/infrastructure/scenes/compatibility/LegacyCombatBridge.ts`
+- `src/game/infrastructure/scenes/compatibility/LegacyChestUiBridge.ts`
+- `src/game/infrastructure/scenes/compatibility/LegacyBossUiBridge.ts`
+- `src/game/infrastructure/scenes/compatibility/LegacyMapPlacementBridge.ts`
 - `src/game/content/scenes/characters/worm-brawler.scene.json`
 - `src/game/content/scenes/characters/fatty-one-eye.scene.json`
 - `src/game/content/scenes/encounters/level-1-fatty-camp.scene.json`
@@ -995,6 +1011,12 @@ Create:
 - `scripts/tests/scene-integration/fatty-scene.test.mjs`
 - `scripts/tests/scene-integration/boss-camp-scene.test.mjs`
 - `scripts/tests/scene-studio/enemy-fatty-parity.test.mjs`
+- `scripts/tests/scene-integration/legacy-scene-bridges.test.mjs`
+- `scripts/tests/progression/player-health-service.test.mjs`
+- `scripts/lib/scene-conversion/animations.mjs`
+- `scripts/lib/scene-conversion/characters.mjs`
+- `scripts/lib/scene-conversion/boss-camps.mjs`
+- `scripts/lib/scene-conversion/objects.mjs` (chest fixture first)
 
 Update/adapt:
 
@@ -1013,6 +1035,10 @@ Update/adapt:
 - `src/game/content/maps/level-1.map.json`
 
 ### Steps
+
+Before wiring the slice, implement the service and compatibility boundaries
+listed below. Its legacy player, weapon, and UI dependencies are deliberate
+adapters with contract tests, not future package assumptions.
 
 1. Implement a shared `DamageReceiver` capability and pure normalized request/
    result resolver usable by player, enemy, and destructible scripts. Register
@@ -1040,13 +1066,56 @@ Update/adapt:
    boss spawn, active-boss container, eager chest instance, dynamic Fatty scene
    reference, respawn, boss UI signal, and guarded-chest state. Preserve existing
    persistence keys and map placement ID.
+   Implement ChestScript's guard input, existing contents/remaining-state access,
+   open/transfer intents, and InventoryWorldTransaction calls here. Use
+   LegacyChestUiBridge to present the existing panel; package 12 generalizes
+   object conversion, and package 14 replaces the panel adapter.
 8. Route combat feedback only from confirmed results. Animation markers cannot
    independently synthesize an accepted hit or reward.
-9. Add a temporary integration entry that instantiates these scenes through the
-   new tree inside the current world while other families remain legacy. It may
-   be hard-wired in development only and is removed after general map conversion.
+9. Use LegacyMapPlacementBridge to resolve the existing authored Level 1 camp
+   and its chest into scene placements inside the current world. Suppress the
+   corresponding legacy constructors/spawns so each authored ID has one live
+   owner. Synthetic standalone fixtures are allowed in the test harness, but
+   production world composition may not inject an extra camp or chest.
 10. Exercise the same Scene Studio controls for Worm and Fatty. The only differing
     inspector content must come from their ScriptNode exports/resources.
+
+### Required bridges and service foundation
+
+| Boundary | Contract and call direction | Retire/replace |
+| --- | --- | --- |
+| LegacyPlayerBridge | Implements typed player position/body/dodge/health/knockback ports using the existing sprite; exposes a synthetic receiver registration to managed damage routing and forwards accepted health changes through PlayerHealthService | Package 10 installs PlayerScript and node-backed ports |
+| LegacyCombatBridge | Converts active legacy weapon contacts into normalized attack requests for managed receivers; supplies legacy weapon input/facing/player handles until weapon conversion; maps source runtime ID + monotonic activation sequence and suppresses the original damage path for bridged pairs | Package 11 switches the final legacy weapon/projectile path to ScriptNodes |
+| LegacyChestUiBridge | ChestScript passes a typed view model and transfer/close actions to the existing ChestInventoryPanel; the panel cannot mutate world state directly | Package 14 UI scenes |
+| LegacyBossUiBridge | Consumes camp/enemy health/defeat signals to update the existing BossHealthBar | Package 14 UI scenes |
+| LegacyMapPlacementBridge | Reads authored map records, preserves IDs/keys and translates scene-enabled placements; ensures old factories skip those same placements | Package 13 world scene cutover |
+
+All bridges are entry-owned infrastructure objects. Script contexts accept their
+typed ports, never Phaser types or an import of a legacy controller. During
+coexistence, LegacyCombatBridge delegates managed requests to the same
+AttackActivation/DamageRouter, and backend callbacks only collect candidates;
+only one designated route commits a given source/receiver pair. Managed Fatty
+attacks reach the registered legacy player receiver through LegacyPlayerBridge.
+Explicitly test both directions, repeated callbacks, source cancellation, and
+bridge disposal. At package 10 the player bridge disappears while the combat
+bridge uses the new player's ports until package 11; ownership never overlaps.
+LegacyPlayerBridge's sensor proxy follows post-step legacy body geometry; it
+does not create a second blocking body. Existing body callbacks and sensor
+candidates share the same source/receiver identity so they cannot double-hit.
+
+Extract PlayerHealthService from HealthSystem here because the slice can damage
+the legacy player. Preserve defense, true-damage semantics, status modifiers,
+rounding, i-frames, actual HP loss, death-once, and existing domain events.
+The service accepts plain damage data plus simulation time and state/stats ports;
+it returns outcomes/intents. The legacy wrapper applies knockback/flash to Phaser
+through ports until PlayerScript replaces it. The shared damage route must call
+health mitigation exactly once: area/source eligibility is resolved first, then
+the player service owns its existing mitigation pipeline. Add equivalence tests
+against captured HealthSystem cases before redirecting callers.
+
+Build the four initial converters through the common runner and generate Worm,
+Fatty, their animations, the camp, and minimum chest from current content. Test
+two dry runs and replay in isolated output directories before writer cutover.
 
 ### Focused checks
 
@@ -1055,6 +1124,10 @@ their owners. Cover Worm movement/attacks/death/rewards; Fatty eye filtering,
 ground/air state, contact hop, leap, return, defeat/respawn; area priority; zero
 damage plus effect; immune/dead/invalid results; no duplicate rewards; camp/chest
 signals; cleanup; editor parity; and save-key preservation.
+The slice gate additionally requires managed-to-legacy and legacy-to-managed
+damage, one player health commit, one authored chest/camp instance, adapter lease
+cleanup, and existing panel behavior through the typed ports. No dependency on
+packages 11, 12, or 14 may remain unexplained at this gate.
 
 ### Gate
 
@@ -1077,6 +1150,12 @@ Create:
 
 - `src/game/features/scripts/PlayerScript.ts`
 - `src/game/features/scripts/NpcScript.ts`
+- `src/game/features/player/PlayerAbilityService.ts`
+- `src/game/features/player/PlayerNodePorts.ts`
+- `src/game/features/player/PlayerAbilityPresentation.ts`
+- `scripts/tests/progression/player-ability-service.test.mjs`
+- `scripts/tests/scene-integration/player-service-ports.test.mjs`
+- `scripts/tests/scene-integration/player-ability-nodes.test.mjs`
 - `src/game/features/scripts/SlimeSpiderScript.ts` only if its AI cannot be a
   policy/resource consumed by `EnemyScript`
 - one scene document per remaining character under
@@ -1091,6 +1170,14 @@ Update/adapt:
 
 - `src/game/features/player/PlayerController.ts`
 - `src/game/features/player/PlayerFactory.ts`
+- `src/game/systems/AbilitySystem.ts`
+- `src/game/systems/HealthSystem.ts`
+- `src/game/systems/StatusEffects.ts`
+- `src/game/features/player/PlayerHealthService.ts`
+- `src/game/features/player/PlayerServicePorts.ts`
+- `src/game/infrastructure/scenes/compatibility/LegacyCombatBridge.ts`
+- `scripts/lib/scene-conversion/characters.mjs`
+- `scripts/lib/scene-conversion/animations.mjs`
 - `src/game/enemies/EnemySpawner.ts`
 - `src/game/enemies/ai/SlimeSpiderAI.ts`
 - `src/game/features/npcs/NpcActor.ts`
@@ -1112,8 +1199,11 @@ Update/adapt:
 2. Keep player balance/progression values in `game-constants.json`; `PlayerScript`
    references those domain settings and must not copy them into scene exports.
 3. Convert player visual/body/input/health/energy/equipment/dodge/ability signals
-   to nodes and `PlayerScript`, while existing progression, ability, health,
-   inventory, and loadout systems remain authoritative services.
+   to nodes and PlayerScript. Retain progression, inventory, and loadout domain
+   ownership. Extract the engine-dependent AbilitySystem operations into the
+   service/port boundary below and finish replacing the legacy HealthSystem
+   wrapper; retaining domain ownership does not mean retaining Phaser-dependent
+   interfaces or direct presentation construction.
 4. Route input through the SceneTree handled/unhandled contract. Preserve keyboard,
    mouse, controller, debug-cheat separation, modal locking, and current action
    timings.
@@ -1131,6 +1221,43 @@ Update/adapt:
    NPC, and interaction membership instead of using `instanceof` entity classes.
 9. Mark old character/NPC catalogs read-only adapters once all references resolve
    to scenes. Redirect Character Studio to the equivalent Scene Studio scene.
+
+### Player service extraction and node ports
+
+1. PlayerAbilityService owns unlock/cooldown/energy/busy-state decisions for jump,
+   teleport, squash-slam, and stretch-lash. Preserve current numerical values,
+   targets, collision stopping, cancellation, and domain events. Store them with
+   their existing balancing owner or a named owning-feature definition, without
+   a second editable copy. Inject plain vectors, terrain-query and state ports,
+   and a simulation clock; no Phaser, sprite, group, tween, or scene timer enters
+   its public interface.
+2. PlayerNodePorts applies movement/teleport through CharacterBody2D, damage and
+   targeting through DamageRouter/registered capabilities, and animation/audio
+   through node references. PlayerAbilityPresentation orchestrates existing
+   visual intents using scene nodes and their entry leases. Move shadow, ring,
+   afterimage, particle, and feedback creation out of AbilitySystem; the actor
+   script owns the intents and backend adapters own rendering. Preserve existing
+   procedural assets, but never create live Phaser objects inside a domain service.
+3. Bring minimum ability-owned Area2D/AnimationPlayer/effect-node assemblies into
+   this package so ability damage does not wait for weapon/effect conversion.
+   Shared reusable effect resources may be promoted by package 11; no second
+   attack or animation engine is introduced here.
+4. Bind PlayerHealthService's outcomes to player-node knockback/flash/death
+   handling. Adapt StatusEffects to injected simulation time and existing domain
+   state/events, retaining its calculation rules. Convert simulation seconds to
+   existing millisecond policy inputs in one clock adapter. Epoch time remains
+   exclusive to persisted real-time deadlines such as camp respawn.
+5. Remove LegacyPlayerBridge and the old health/ability wrappers once equivalence
+   tests pass. Update LegacyCombatBridge to use the new player ports until
+   package 11. Add an import-boundary test rejecting Phaser, Hitbox/TargetDummy,
+   scene timers, and direct sprite/tween construction in player domain services
+   and ScriptNodes.
+
+Service tests cover exact cooldown/energy/mitigation boundaries, true damage,
+i-frames, status ticks, death-once, cancel/death/exit, and paused simulation time.
+Node integration tests cover jump/teleport stopping, both ability attacks routed
+once, knockback versus movement ownership, and cleanup of every ability visual.
+These deterministic cases do not replace the user's gameplay checklist.
 
 ### Focused checks
 
@@ -1170,6 +1297,9 @@ Create:
 - `scripts/tests/scene-integration/weapon-scenes.test.mjs`
 - `scripts/tests/scene-integration/projectile-scenes.test.mjs`
 - `scripts/tests/scene-integration/effect-scenes.test.mjs`
+- `scripts/lib/scene-conversion/weapons.mjs`
+- `scripts/lib/scene-conversion/projectiles.mjs`
+- `scripts/lib/scene-conversion/effects.mjs`
 
 Update/adapt:
 
@@ -1187,6 +1317,8 @@ Update/adapt:
 - `src/game/content/effects/`
 - `src/game/content/animations/weapons/`
 - `src/game/systems/WeaponLoadout.ts`
+- `scripts/lib/scene-conversion/animations.mjs`
+- `src/game/infrastructure/scenes/compatibility/LegacyCombatBridge.ts`
 
 ### Steps
 
@@ -1211,6 +1343,11 @@ Update/adapt:
    and old hitbox-specific damage application after parity checks pass.
 7. Redirect Weapon, Projectile, Effect, and Animation Studio deep links to the
    corresponding scene/AnimationPlayer/resource context.
+8. Run the common runner's weapons/projectiles/effects adapters, with animation
+   dependencies resolved through animations.mjs. Require dry-run/apply/check,
+   idempotency, and source-hash conflict tests for each family. Remove
+   LegacyCombatBridge after both directions use only node-based combat, and
+   assert old callbacks cannot still apply damage.
 
 ### Focused checks
 
@@ -1240,7 +1377,6 @@ Create:
 - `src/game/features/scripts/DestructibleScript.ts`
 - `src/game/features/scripts/ResourceNodeScript.ts`
 - `src/game/features/scripts/CollectibleScript.ts`
-- `src/game/features/scripts/ChestScript.ts`
 - `src/game/features/scripts/InteractionScript.ts`
 - scene documents under `src/game/content/scenes/objects/`
 - shared object visual/animation resources
@@ -1252,6 +1388,8 @@ Create:
 Update/adapt:
 
 - `src/game/features/objects/ObjectFactory.ts`
+- `src/game/features/scripts/ChestScript.ts` (extend the package 9 foundation;
+  preserve its registry ID)
 - `src/game/features/objects/ObjectAnimationAdapter.ts`
 - `src/game/features/resources/ResourceNodeController.ts`
 - `src/game/features/resources/ResourceDropPlacement.ts`
@@ -1265,6 +1403,8 @@ Update/adapt:
 - `src/game/content/visuals/`
 - `src/game/features/progression/InventoryWorldTransaction.ts`
 - `src/game/features/progression/WorldProgress.ts`
+- `scripts/lib/scene-conversion/objects.mjs`
+- `src/game/infrastructure/scenes/compatibility/LegacyChestUiBridge.ts`
 
 ### Steps
 
@@ -1292,6 +1432,11 @@ Update/adapt:
 8. Replace ObjectFactory creation with scene instantiation and reduce existing
    controllers to temporary adapters. Redirect object-template authoring to Scene
    Studio and make old endpoints read-only before removal.
+9. Complete objects.mjs for every archetype/variant and run the common conversion
+   contract. The already converted camp chest is verified from its frozen
+   cutover fixture rather than overwritten; extend its scene through normal
+   authored edits. Keep the same ChestScript registry ID and UI port until
+   package 14 removes LegacyChestUiBridge.
 
 ### Focused checks
 
@@ -1325,7 +1470,7 @@ Create:
 - tile-set/data resources under `src/game/content/scenes/resources/tiles/`
 - `src/game/editor/scene-studio/contexts/TileMapContext.ts`
 - `src/game/editor/scene-studio/TilePaintCommand.ts`
-- `scripts/migrate-maps-to-scenes.mjs`
+- `scripts/lib/scene-conversion/maps.mjs`
 - `scripts/tests/scene-conversion/map-conversion.test.mjs`
 - `scripts/tests/scene-content/tile-resources.test.mjs`
 - `scripts/tests/scene-studio/tile-context.test.mjs`
@@ -1347,6 +1492,7 @@ Update/adapt:
 - `src/game/scenes/WorldScene.ts`
 - `src/game/world/WorldDimensions.ts`
 - current map JSON files and `scripts/check-maps.mjs`
+- `src/game/infrastructure/scenes/compatibility/LegacyMapPlacementBridge.ts`
 
 ### Steps
 
@@ -1376,8 +1522,13 @@ Update/adapt:
    data so large maps do not become giant node property arrays.
 8. Redirect the existing `?editor=<map>` route into `?studio=scenes&scene=<world
    scene id>` preserving deep-link usefulness. Stop old Map Studio writes.
-9. Remove the temporary hard-wired vertical-slice insertion. World scenes now own
+9. Remove the temporary authored-placement translation. World scenes now own
    all authored populations and encounter placements.
+   Concretely, delete LegacyMapPlacementBridge after maps.mjs has converted each
+   authored placement and root loading no longer needs legacy map records.
+   Invoke `pnpm scenes:convert -- --family maps --dry-run`, then validate the
+   report and apply through the common journal. There is no separate map-only
+   CLI or second conversion implementation.
 
 ### Focused checks
 
@@ -1413,6 +1564,9 @@ Create:
 - `scripts/tests/scene-integration/ui-scenes.test.mjs`
 - `scripts/tests/scene-integration/ui-input-pause.test.mjs`
 - `scripts/tests/scene-studio/ui-authoring.test.mjs`
+- `scripts/lib/scene-conversion/ui.mjs`
+- `scripts/migrations/ui-extraction-descriptors.json`
+- `scripts/tests/scene-browser/ui-scenes.spec.ts`
 
 Update/adapt:
 
@@ -1425,6 +1579,8 @@ Update/adapt:
 - `src/game/presentation/UiSkin.ts`
 - `src/game/config.ts`
 - `src/styles.css`
+- `src/game/infrastructure/scenes/compatibility/LegacyChestUiBridge.ts`
+- `src/game/infrastructure/scenes/compatibility/LegacyBossUiBridge.ts`
 
 ### Steps
 
@@ -1448,6 +1604,12 @@ Update/adapt:
    never as a separate studio.
 7. Keep any necessary DOM implementation behind Control adapters. Ensure DOM and
    Phaser input share handled state and destroyed scenes leave no nodes/listeners.
+8. Audit each UI module into ui-extraction-descriptors.json with source hashes,
+   layout/theme values, typed binding/action mappings, and destination scene IDs.
+   Generate those scenes through ui.mjs, then verify descriptor/source coverage
+   and converter repeatability. Delete LegacyChestUiBridge and LegacyBossUiBridge
+   when their consumers are real Control scenes, and run real-browser focus,
+   event-consumption, panel teardown, and preview-isolation cases.
 
 ### Focused checks
 
@@ -1483,7 +1645,8 @@ Remove after references reach zero:
   and `LegacyWorldAdapter`
 - old family schemas/catalogs/documents only after all consumers use the new
   scenes/resources and the ledger maps every stable ID
-- temporary migrations/adapters after their output and removal are verified
+- temporary runtime adapters after their consumers switch; retain conversion
+  tooling and frozen fixtures needed for repeatability/identity evidence
 
 Retain when still the correct owner:
 
@@ -1493,6 +1656,8 @@ Retain when still the correct owner:
   combat calculations, and saves
 - compatibility save readers required by existing saves
 - reusable editor controls now consumed by Scene Studio
+- common conversion runner, family adapters, frozen inputs and ID maps used by
+  retained conversion tests
 
 Create/update:
 
@@ -1530,6 +1695,9 @@ Create/update:
 7. Run the required authoring walkthrough contracts for document behavior. The
    AI may exercise deterministic editor operations but must leave subjective and
    interactive gameplay checks to the user.
+   Include the actual Chromium/Phaser and mounted-control suites; a missing
+   browser executable or failed fixture cannot be marked passed by substituting
+   fake-backend evidence.
 8. Re-run the deterministic performance workload. Record median/p95 frame and
    load time plus Phaser object/body and cleanup counts. A regression over 10%
    requires optimization or a recorded user-approved exception.
@@ -1540,6 +1708,8 @@ Create/update:
   construction path.
 - Every success criterion in the design maps to concrete evidence.
 - `pnpm check` and production build pass.
+- Real browser engine/editor fixtures pass and all temporary bridge imports
+  have reached zero at their assigned removal package.
 - The final manual checklist is delivered with gameplay acceptance pending.
 
 ### Suggested commit
@@ -1579,6 +1749,13 @@ against the pure schema after package 1, but their output cannot become
 authoritative before the relevant runtime and editor package pass. World
 conversion waits for all placed entity families, and final removal waits for
 the complete conversion ledger.
+
+The early slice explicitly includes minimum ChestScript and PlayerHealthService
+plus its five compatibility bridges; later family packages extend or remove
+these named dependencies rather than creating substitutes. The shared test
+harness starts in package 0, converters start in package 1, and real-engine
+verification starts in package 4. These are prerequisites, not final cleanup
+tasks. The sixteen work packages remain within the five approved milestones.
 
 ## Cross-cutting implementation decisions
 
@@ -1647,6 +1824,7 @@ pnpm test:scene-content
 pnpm test:scene-runtime
 pnpm test:scene-studio
 pnpm test:scene-integration
+pnpm test:scene-browser
 pnpm test:scene-conversion
 pnpm check
 ```
@@ -1668,6 +1846,9 @@ Automated evidence must include:
 - animation clocks/events/cancellation/bindings and audio/input/pause behavior;
 - generic damage routing, candidate priority, rejection retry, and hit dedup;
 - player/enemy/NPC/weapon/projectile/effect/object/world/UI integration;
+- player health/ability service equivalence with no legacy Phaser dependencies;
+- real Phaser host/body/contact/cleanup and real DOM/Control input evidence;
+- early-slice bridge routing in both directions and removal checks;
 - complete save snapshot and inventory/world transaction consistency;
 - editor history, invalid repair, conflict recovery, preview isolation, resource
   uniqueness, and required authoring walkthrough models; and
@@ -1792,5 +1973,7 @@ The refactor is technically complete only when all of the following are true:
    timers, signals, DOM elements, Phaser objects, or physics bodies.
 10. `pnpm check`, the new scene suites, ownership check, conversion check, build,
     diff check, and performance/leak gates pass, with evidence recorded.
+    `pnpm check` includes `test:scene-browser`; conversion checks use frozen
+    fixtures for migrated families and never rewrite authored scene edits.
 11. The final user-only gameplay checklist is delivered. Gameplay acceptance is
     complete only after the user runs it and explicitly approves the result.
