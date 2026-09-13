@@ -134,16 +134,26 @@ Evidence/notes:
 
 ## E. Guarded camp, chest, key, and exit
 
-- [x] The Level 1 camp uses a persistent `clear-once` encounter mode.
-- [x] It seeds its authored enemies once when activated.
-- [x] Defeated camp enemies do not refill.
-- [ ] Camp completion is emitted exactly once and survives reload.
-- [ ] Loading a completed encounter does not respawn the camp.
-- [ ] The reward chest is locked before camp completion.
-- [ ] After completion, the chest grants exactly one `green-key`.
-- [ ] With a full inventory, the chest remains closed and claimable.
-- [ ] The chest is marked opened only after the key grant succeeds.
-- [ ] Repeated interaction and reload cannot duplicate the key.
+- [ ] The existing worm camp keeps its ordinary refill behavior unchanged.
+- [ ] Fatty One Eye spawns only through the separate authored boss camp.
+- [ ] Fatty has a round, mouthless body and one eye embedded at its exact center.
+- [ ] Only Wooden Spear and Stone Spear hits that intersect the central eye deal damage.
+- [ ] Fatty ignores knockback through the shared enemy effect-immunity field.
+- [ ] Body collision requests one stationary 300 ms contact hop and deals no immediate damage.
+- [ ] The contact hop shows its marker/shadow, is harmless while airborne, and applies at most one 64 px landing hit.
+- [ ] Dodging or leaving the contact-hop circle before landing avoids the hit; repeated collision callbacks respect the one-second cooldown.
+- [ ] A contact hop never cancels or postpones the three-hop special.
+- [ ] Three small stationary hops telegraph a one-second leap to the player's locked position.
+- [ ] The leap shows a moving shadow and landing marker, then deals landing-area damage and plays temporary ground cracks.
+- [ ] Saving/loading, leaving, or dying mid-fight resets Fatty to full life without starting the defeat timer.
+- [ ] A true defeat starts the authored three-minute wall-clock respawn timer.
+- [ ] An eligible respawn waits for the player to exit and re-enter the activation perimeter.
+- [ ] The reward chest is locked while Fatty is alive.
+- [ ] Left-clicking a chest item shows its properties; right-click transfers the maximum stack amount that fits.
+- [ ] With limited inventory space, the transferred amount is removed and the remainder stays in the chest.
+- [ ] Partially looted contents survive save/load and the chest relocks if Fatty respawns.
+- [ ] The Level 1 chest contains exactly one `green-key`; repeated interaction and reload cannot duplicate it.
+- [ ] Once emptied, the chest remains visibly open and never relocks.
 - [ ] The east exit refuses transition without the key and shows clear feedback.
 - [ ] One green key unlocks the east exit and is consumed exactly once.
 - [ ] The unlocked gate remains open after reload without another key.
@@ -152,7 +162,14 @@ Evidence/notes:
 
 Evidence/notes:
 
-> Pending.
+> 2026-09-11 implementation evidence: `pnpm assets:check`, `pnpm objects:check`,
+> and `pnpm maps:check` validate the new sprite sheets, reusable chest object,
+> authored Fatty One Eye camp, chest contents, and keyed exit. The combat suite
+> passes 21/21, persistence passes 20/20 (including boss timers and partial
+> chest contents), Map Studio passes 20/20 (including chest contents), and the
+> strict production build succeeds. The rows above remain unchecked until the
+> complete encounter, three-minute respawn, partial-loot, and reload flow is
+> verified hands-on.
 
 ## F. Named save, load, recovery, and reset
 
@@ -204,8 +221,10 @@ Evidence/notes:
   total-yield preview and exact runtime spawn count.
 - [ ] **Use default** removes only the selected instance override and participates
   in undo/redo.
-- [ ] Camp mode, chest reward, and gated connection survive Map Studio save,
-  reload, and validation.
+- [ ] Fatty remains visible in every Map Studio tool and selecting the preview opens the Boss Camp inspector.
+- [ ] Activation and arena circles are independently editable, remain co-centered, and round-trip through undo/redo and save/reload.
+- [ ] Guarded chest assignment supports **None**, prevents duplicate ownership, and preserves the chest when its camp is deleted.
+- [ ] Camp mode, chest reward, and gated connection survive Map Studio save, reload, and validation.
 
 Evidence/notes:
 
@@ -229,11 +248,12 @@ Evidence/notes:
 
 Evidence/notes:
 
-> 2026-08-24: the complete command sequence underlying `pnpm check` passed when
-> run directly against the existing dependency installation: all content
-> validators, 124 focused tests, depth checks, both TypeScript projects, and the
-> production Vite build. The literal `pnpm check` wrapper remains unchecked
-> because the local package runner requested a dependency-folder rebuild.
+> 2026-09-11: all content validators pass; combat passes 21/21, persistence
+> passes 20/20, Map Studio passes 20/20, strict typecheck passes, and the
+> production build succeeds. The literal `pnpm check` remains unchecked because
+> it currently stops in an existing Character Studio fixture when Windows denies
+> a temporary `assets.json` rename with `EPERM`. Resolve that fixture and add the
+> focused encounter/chest/gate coverage before closing this section.
 
 ## I. Final fresh-run acceptance
 

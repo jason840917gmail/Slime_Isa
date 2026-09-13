@@ -53,6 +53,7 @@ export interface WeaponHitRequest {
   readonly attackDirection: WeaponAttackDirection;
   readonly attackVector: readonly [number, number];
   readonly playbackId: number;
+  readonly hitbox: Readonly<HitboxConfig>;
 }
 
 interface ActiveHitbox {
@@ -224,12 +225,13 @@ export class Weapon {
     const targets = this.ctx.getTargets();
     if (!snapshot || !hitbox || !targets) return;
 
+    const hitboxConfig = this.toHitboxConfig(hitbox, snapshot);
     const handle = hitboxPool.spawn(
       this.ctx.scene,
       targets,
-      this.toHitboxConfig(hitbox, snapshot),
+      hitboxConfig,
       (target, damage, knockX, knockY, knockStrength) => {
-        this.ctx.applyHit({ target, damage, knockX, knockY, knockStrength, weaponId: this.def.weaponId, hitboxId, attackDirection: snapshot.attackDirection, attackVector: [snapshot.direction.x, snapshot.direction.y], playbackId: this.clock.state.playbackId });
+        this.ctx.applyHit({ target, damage, knockX, knockY, knockStrength, weaponId: this.def.weaponId, hitboxId, attackDirection: snapshot.attackDirection, attackVector: [snapshot.direction.x, snapshot.direction.y], playbackId: this.clock.state.playbackId, hitbox: hitboxConfig });
       },
     );
     this.activeHitboxes.set(hitboxId, { activationId, handle });

@@ -7,6 +7,7 @@ export interface MapObjectReference {
   readonly placementVisualId?: string;
   readonly npcDefinitionId?: string;
   readonly body?: CollisionShapeDocument;
+  readonly chest?: boolean;
 }
 
 export interface MapNpcReference {
@@ -19,6 +20,8 @@ export interface MapReferenceResolver {
   getNpcReference(definitionId: string): MapNpcReference | undefined;
   getNpcBody(characterId: string): CollisionShapeDocument | undefined;
   isEnemyId(enemyId: string): boolean;
+  isBossId(bossId: string): boolean;
+  isItemId(itemId: string): boolean;
   hasMap(mapId: string): boolean;
 }
 
@@ -42,6 +45,21 @@ export function validateMapReferences(map: MapFile, resolver: MapReferenceResolv
   for (const [index, enemy] of (map.spawns?.enemies ?? []).entries()) if (!resolver.isEnemyId(enemy.type)) issues.push(`spawns.enemies[${index}].type: unknown enemy '${enemy.type}'`);
   for (const [areaIndex, area] of (map.enemySpawnAreas ?? []).entries()) for (const [enemyIndex, enemy] of area.enemies.entries()) if (!resolver.isEnemyId(enemy.type)) issues.push(`enemySpawnAreas[${areaIndex}].enemies[${enemyIndex}].type: unknown enemy '${enemy.type}'`);
   for (const [index, exit] of (map.exits ?? []).entries()) if (!resolver.hasMap(exit.to)) issues.push(`exits[${index}].to: unknown authored map '${exit.to}'`);
+  const gateIds = new Set<string>();
+  for (const [index, exit] of (map.exits ?? []).entries()) {
+    if (!exit.gate) continue;
+    if (gateIds.has(exit.gate.id)) issues.push(`exits[${index}].gate.id: duplicate '${exit.gate.id}'`);
+    else gateIds.add(exit.gate.id);
+    if (!resolver.isItemId(exit.gate.requiredItemId)) issues.push(`exits[${index}].gate.requiredItemId: unknown item '${exit.gate.requiredItemId}'`);
+  }
+  for (const [index, camp] of (map.bossCamps ?? []).entries()) {
+    if (!resolver.isBossId(camp.bossId)) issues.push(`bossCamps[${index}].bossId: unknown boss '${camp.bossId}'`);
+    if (camp.guardedChestInstanceId === undefined) continue;
+    const chest = objects.get(camp.guardedChestInstanceId);
+    const reference = chest ? resolver.getObjectReference(chest.objectId) : undefined;
+    if (!chest) issues.push(`bossCamps[${index}].guardedChestInstanceId: unknown object instance '${camp.guardedChestInstanceId}'`);
+    else if (!reference?.chest) issues.push(`bossCamps[${index}].guardedChestInstanceId: must reference a chest object`);
+  }
   for (const [index, area] of (map.npcWanderAreas ?? []).entries()) {
     const owner = objects.get(area.npcInstanceId);
     const reference = owner ? resolver.getObjectReference(owner.objectId) : undefined;

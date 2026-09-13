@@ -1,6 +1,6 @@
 export interface CharacterClipUsage {
   readonly characterId?: string;
-  readonly kind?: 'player' | 'enemy' | 'npc';
+  readonly kind?: 'player' | 'enemy' | 'boss' | 'npc';
   readonly visualSetId?: string;
   readonly clipId: string;
   readonly owner: string;

@@ -1,5 +1,4 @@
 ﻿import Phaser from 'phaser';
-import type { Enemy } from '../enemies/Enemy';
 import { resolveScreenUiDepth } from '../presentation/WorldDepth';
 import { addUiSkin } from '../presentation/UiSkin';
 
@@ -7,12 +6,12 @@ const FONT = 'Trebuchet MS, Segoe UI Variable, sans-serif';
 
 export class BossHealthBar {
   private scene: Phaser.Scene;
-  private boss: Enemy;
+  private boss: { readonly active: boolean; readonly dead: boolean; readonly hp: number; readonly maxHp: number };
   private container: Phaser.GameObjects.Container;
   private fill: Phaser.GameObjects.Rectangle;
   private hpText: Phaser.GameObjects.Text;
 
-  constructor(scene: Phaser.Scene, boss: Enemy, name: string) {
+  constructor(scene: Phaser.Scene, boss: { readonly active: boolean; readonly dead: boolean; readonly hp: number; readonly maxHp: number }, name: string) {
     this.scene = scene;
     this.boss = boss;
 

@@ -32,6 +32,10 @@ export function getEnemyPackages(): readonly CharacterPackage[] {
   return packages.filter((entry) => entry.character.kind === 'enemy');
 }
 
+export function getBossPackages(): readonly CharacterPackage[] {
+  return packages.filter((entry) => entry.character.kind === 'boss');
+}
+
 export function getNpcPackages(): readonly CharacterPackage[] {
   return packages.filter((entry) => entry.character.kind === 'npc');
 }

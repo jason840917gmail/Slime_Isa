@@ -25,6 +25,27 @@ import { fileURLToPath } from 'node:url';
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 const characterRoot = join(repoRoot, 'src', 'game', 'content', 'characters');
 const objectRoot = join(repoRoot, 'src', 'game', 'content', 'objects');
+const itemRoot = join(repoRoot, 'src', 'game', 'content', 'items');
+const weaponRoot = join(repoRoot, 'src', 'game', 'content', 'weapons');
+const bossRoot = join(repoRoot, 'src', 'game', 'content', 'bosses');
+const knownItemIds = new Set(Object.keys(JSON.parse(readFileSync(join(itemRoot, 'items.json'), 'utf8'))));
+function collectWeaponIds(directory) {
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const file = join(directory, entry.name);
+    if (entry.isDirectory()) collectWeaponIds(file);
+    else if (entry.isFile() && entry.name === 'weapon.json') {
+      const definition = JSON.parse(readFileSync(file, 'utf8'));
+      if (typeof definition.weaponId === 'string') knownItemIds.add(definition.weaponId);
+    }
+  }
+}
+collectWeaponIds(weaponRoot);
+const bossIds = new Set(readdirSync(bossRoot)
+  .filter((name) => name.endsWith('.json') && name !== 'boss.schema.json')
+  .flatMap((name) => {
+    const definition = JSON.parse(readFileSync(join(bossRoot, name), 'utf8'));
+    return typeof definition.id === 'string' ? [definition.id] : [];
+  }));
 const enemyFiles = [];
 function collectEnemyFiles(directory) {
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
@@ -76,6 +97,8 @@ function validateObjectInitialState(object, definition, path, label) {
       ? new Set(['health', 'dropObjectId', 'dropVisualId', 'dropPieces'])
       : definition.destructible
         ? new Set(['health'])
+        : definition.chest
+          ? new Set(['contents'])
       : new Set();
   for (const key of Object.keys(state)) {
     if (!allowed.has(key)) fail(label, `${path}.initialState.${key}`, `not supported by '${object.objectId}'`);
@@ -85,6 +108,21 @@ function validateObjectInitialState(object, definition, path, label) {
     if (!Number.isInteger(quantity) || quantity < 1) fail(label, `${path}.initialState.quantity`, 'expected integer >= 1');
     if (state.remaining !== undefined && (!Number.isInteger(state.remaining) || state.remaining < 0 || state.remaining > quantity)) {
       fail(label, `${path}.initialState.remaining`, 'expected integer from 0 through starting quantity');
+    }
+    return;
+  }
+  if (definition.chest) {
+    if (!Array.isArray(state.contents)) {
+      fail(label, `${path}.initialState.contents`, 'expected an array');
+      return;
+    }
+    const seen = new Set();
+    for (const [index, entry] of state.contents.entries()) {
+      if (!isRecord(entry)) { fail(label, `${path}.initialState.contents[${index}]`, 'expected an object'); continue; }
+      if (typeof entry.itemId !== 'string' || !knownItemIds.has(entry.itemId)) fail(label, `${path}.initialState.contents[${index}].itemId`, 'must reference a known item');
+      else if (seen.has(entry.itemId)) fail(label, `${path}.initialState.contents[${index}].itemId`, `duplicate '${entry.itemId}'`);
+      else seen.add(entry.itemId);
+      if (!Number.isInteger(entry.quantity) || entry.quantity < 1) fail(label, `${path}.initialState.contents[${index}].quantity`, 'expected integer >= 1');
     }
     return;
   }
@@ -351,6 +389,7 @@ function validateMap(data, label) {
     if (!Array.isArray(data.exits)) {
       fail(label, 'exits', 'expected an array');
     } else {
+      const gateIds = new Set();
       data.exits.forEach((exit, index) => {
         const path = `exits[${index}]`;
         if (!isRecord(exit)) {
@@ -368,6 +407,16 @@ function validateMap(data, label) {
         }
         if (typeof exit.entry !== 'string' || exit.entry.length === 0) {
           fail(label, `${path}.entry`, 'required non-empty string (target entry point name)');
+        }
+        if (exit.gate !== undefined) {
+          if (!isRecord(exit.gate)) fail(label, `${path}.gate`, 'expected an object');
+          else {
+            if (typeof exit.gate.id !== 'string' || exit.gate.id.length === 0) fail(label, `${path}.gate.id`, 'required non-empty stable ID');
+            else if (gateIds.has(exit.gate.id)) fail(label, `${path}.gate.id`, `duplicate '${exit.gate.id}'`); else gateIds.add(exit.gate.id);
+            if (typeof exit.gate.requiredItemId !== 'string' || !knownItemIds.has(exit.gate.requiredItemId)) fail(label, `${path}.gate.requiredItemId`, 'must reference a known item');
+            if (typeof exit.gate.consumeOnUnlock !== 'boolean') fail(label, `${path}.gate.consumeOnUnlock`, 'expected boolean');
+            if (typeof exit.gate.lockedMessage !== 'string' || exit.gate.lockedMessage.trim().length === 0) fail(label, `${path}.gate.lockedMessage`, 'required non-empty message');
+          }
         }
       });
     }
@@ -486,6 +535,41 @@ function validateMap(data, label) {
         if (!isPositiveInt(area.intervalMs)) fail(label, `${path}.intervalMs`, 'expected positive integer');
         if (!isPositiveInt(area.maxPopulation)) fail(label, `${path}.maxPopulation`, 'expected positive integer');
       });
+    }
+  }
+
+  if (data.bossCamps !== undefined) {
+    if (!Array.isArray(data.bossCamps)) fail(label, 'bossCamps', 'expected an array (may be empty)');
+    else {
+      const ids = new Set();
+      const guardedChests = new Set();
+      for (const [index, camp] of data.bossCamps.entries()) {
+        const path = `bossCamps[${index}]`;
+        if (!isRecord(camp)) { fail(label, path, 'expected an object'); continue; }
+        if (typeof camp.id !== 'string' || camp.id.length === 0) fail(label, `${path}.id`, 'required non-empty stable ID');
+        else if (ids.has(camp.id)) fail(label, `${path}.id`, `duplicate '${camp.id}'`); else ids.add(camp.id);
+        if (typeof camp.bossId !== 'string' || !bossIds.has(camp.bossId)) fail(label, `${path}.bossId`, 'must reference a known boss');
+        const activation = validateEnemyPerimeter(camp.activationPerimeter, `${path}.activationPerimeter`, label, pixelWidth, pixelHeight);
+        const arena = validateEnemyPerimeter(camp.arenaPerimeter, `${path}.arenaPerimeter`, label, pixelWidth, pixelHeight);
+        checkPoint(camp.spawn, `${path}.spawn`, label);
+        if (activation && activation.shape !== 'circle') fail(label, `${path}.activationPerimeter`, 'boss activation perimeter must be a circle');
+        if (arena && arena.shape !== 'circle') fail(label, `${path}.arenaPerimeter`, 'boss arena perimeter must be a circle');
+        if (activation?.shape === 'circle' && arena?.shape === 'circle'
+          && isRecord(camp.spawn) && isNumber(camp.spawn.x) && isNumber(camp.spawn.y)) {
+          if (activation.x !== camp.spawn.x || activation.y !== camp.spawn.y) fail(label, `${path}.activationPerimeter`, 'center must exactly equal spawn');
+          if (arena.x !== camp.spawn.x || arena.y !== camp.spawn.y) fail(label, `${path}.arenaPerimeter`, 'center must exactly equal spawn');
+          if (arena.radius > activation.radius) fail(label, `${path}.arenaPerimeter.radius`, 'must not exceed activationPerimeter.radius');
+        }
+        if (!isPositiveInt(camp.respawnMs)) fail(label, `${path}.respawnMs`, 'expected positive integer');
+        if (camp.guardedChestInstanceId !== undefined && (typeof camp.guardedChestInstanceId !== 'string' || camp.guardedChestInstanceId.length === 0)) fail(label, `${path}.guardedChestInstanceId`, 'expected a non-empty chest instance ID when present');
+        else if (camp.guardedChestInstanceId !== undefined && guardedChests.has(camp.guardedChestInstanceId)) fail(label, `${path}.guardedChestInstanceId`, 'chest is already guarded');
+        else if (camp.guardedChestInstanceId !== undefined) {
+          guardedChests.add(camp.guardedChestInstanceId);
+          const chest = data.objects?.find((object) => object?.instanceId === camp.guardedChestInstanceId);
+          if (!chest) fail(label, `${path}.guardedChestInstanceId`, 'unknown object instance');
+          else if (!objectDefinitions.get(chest.objectId)?.chest) fail(label, `${path}.guardedChestInstanceId`, 'must reference a chest object');
+        }
+      }
     }
   }
 

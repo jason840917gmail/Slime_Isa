@@ -11,7 +11,7 @@ interface CharacterStudioCharacter {
   version: 1;
   characterId: string;
   displayName: string;
-  kind: 'player' | 'enemy' | 'npc';
+  kind: 'player' | 'enemy' | 'boss' | 'npc';
   runtimeRole?: 'primary-player';
   visualSetId: string;
   body: { shape?: 'rectangle' | 'circle' | 'ellipse'; width: number; height: number; radius?: number; radiusX?: number; radiusY?: number; centerOffsetX: number; centerOffsetY: number };

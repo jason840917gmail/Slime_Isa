@@ -121,4 +121,10 @@ test('archetype-aware map override validation rejects foreign and invalid fields
   assert.match(validateObjectInitialState('resource.stone-node', {
     dropObjectId: 'collectible.wood-pile', dropVisualId: 'stone-pile', dropPieces: 2,
   })[0], /does not belong/);
+  assert.deepEqual(validateObjectInitialState('chest.wooden', {
+    contents: [{ itemId: 'green-key', quantity: 1 }, { itemId: 'hp-potion', quantity: 3 }],
+  }), []);
+  assert.match(validateObjectInitialState('chest.wooden', {
+    contents: [{ itemId: 'green-key', quantity: 1 }, { itemId: 'green-key', quantity: 2 }],
+  })[0], /duplicates/);
 });

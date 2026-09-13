@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 
 import type {
   MapDirection,
+  MapBossCamp,
   MapEnemyAreaPerimeter,
   MapEnemySpawnArea,
   MapNpcWanderArea,
@@ -34,7 +35,7 @@ import {
   setObjectAnchor,
   setObjectDepthMode,
 } from '../features/objects/ObjectFactory';
-import { resolveExplicitDepth } from '../presentation/WorldDepth';
+import { resolveExplicitDepth, resolveWorldDepth } from '../presentation/WorldDepth';
 import {
   buildSourceAlphaMask,
   resolveWorldOcclusionRectangle,
@@ -59,6 +60,8 @@ import { GameplayAttributeEditorState } from './GameplayAttributeEditorState';
 import { NpcPlacementPreview } from './NpcPlacementPreview';
 import { resolveCollisionShapeDimensions } from '../shared/collisionShapes';
 import { dimensionsFromMap } from '../world/WorldDimensions';
+import { getBossEditorPreview } from '../content/bosses/BossCatalog';
+import type { BossCampRadiusKind } from './MapEditorState';
 
 interface MapEditorSceneData {
   loadedMap?: LoadedMap;
@@ -169,6 +172,22 @@ interface NpcAreaResize {
   moved: boolean;
 }
 
+interface BossCampMoveDrag {
+  readonly id: string;
+  readonly image: Phaser.GameObjects.Sprite;
+  readonly startX: number;
+  readonly startY: number;
+  readonly pointerOffsetX: number;
+  readonly pointerOffsetY: number;
+  moved: boolean;
+}
+
+interface BossCampRadiusDrag {
+  readonly id: string;
+  readonly kind: BossCampRadiusKind;
+  radius: number;
+}
+
 /**
  * True while the user is editing DOM UI (dialog fields, selects, content
  * editable) — editor hotkeys and camera keys must not fire then, otherwise
@@ -205,6 +224,7 @@ export class MapEditorScene extends Phaser.Scene {
   private overlayObjects: Phaser.GameObjects.GameObject[] = [];
   private renderedTerrain = new Map<string, Phaser.GameObjects.Image>();
   private renderedInstances = new Map<string, Phaser.GameObjects.Image>();
+  private renderedBosses = new Map<string, Phaser.GameObjects.Sprite>();
   private transitionLayer?: TerrainTransitionLayer;
   private unsubscribeState?: () => void;
   private unsubscribeTemplate?: () => void;
@@ -223,6 +243,7 @@ export class MapEditorScene extends Phaser.Scene {
   private lastSelectedExitIndex?: number;
   private lastSelectedEnemyAreaId?: string;
   private lastSelectedNpcWanderAreaId?: string;
+  private lastSelectedBossCampId?: string;
   private lastTool: EditorTool = 'pan';
   private panPointer?: { x: number; y: number };
   private paintDrag?: PaintDrag;
@@ -253,6 +274,9 @@ export class MapEditorScene extends Phaser.Scene {
   private npcAreaDragMarker?: Phaser.GameObjects.Graphics;
   private npcAreaMove?: NpcAreaMove;
   private npcAreaResize?: NpcAreaResize;
+  private bossCampMoveDrag?: BossCampMoveDrag;
+  private bossCampRadiusDrag?: BossCampRadiusDrag;
+  private bossCampDragMarker?: Phaser.GameObjects.Graphics;
   private cursors?: Phaser.Types.Input.Keyboard.CursorKeys;
 
   constructor() {
@@ -320,12 +344,14 @@ export class MapEditorScene extends Phaser.Scene {
       const selectionChanged = state.selectedInstanceId !== this.lastSelectedInstanceId
         || state.selectedExitIndex !== this.lastSelectedExitIndex
         || state.selectedEnemyAreaId !== this.lastSelectedEnemyAreaId
-        || state.selectedNpcWanderAreaId !== this.lastSelectedNpcWanderAreaId;
+        || state.selectedNpcWanderAreaId !== this.lastSelectedNpcWanderAreaId
+        || state.selectedBossCampId !== this.lastSelectedBossCampId;
       this.lastTool = state.tool;
       this.lastSelectedInstanceId = state.selectedInstanceId;
       this.lastSelectedExitIndex = state.selectedExitIndex;
       this.lastSelectedEnemyAreaId = state.selectedEnemyAreaId;
       this.lastSelectedNpcWanderAreaId = state.selectedNpcWanderAreaId;
+      this.lastSelectedBossCampId = state.selectedBossCampId;
       if (state.revision !== this.lastRevision) {
         this.lastRevision = state.revision;
         this.renderDocument();
@@ -377,7 +403,16 @@ export class MapEditorScene extends Phaser.Scene {
         this.pickContentAt(world.x, world.y);
         return;
       }
-      if (this.editor.value.tool === 'pan' || pointer.middleButtonDown()) {
+      if (pointer.middleButtonDown()) {
+        this.panPointer = { x: pointer.x, y: pointer.y };
+        return;
+      }
+      const bossHit = this.bossCampAt(world.x, world.y);
+      if (bossHit) {
+        if (this.selectBossCampForEditing(bossHit.id)) this.beginBossCampMove(bossHit, world.x, world.y);
+        return;
+      }
+      if (this.editor.value.tool === 'pan') {
         this.panPointer = { x: pointer.x, y: pointer.y };
         return;
       }
@@ -431,6 +466,13 @@ export class MapEditorScene extends Phaser.Scene {
         else this.beginNpcAreaDrag(world.x, world.y);
         return;
       }
+      if (this.editor.value.tool === 'boss-camp') {
+        const selected = this.selectedBossCamp();
+        const radiusKind = selected ? this.bossCampRadiusHandleAt(selected, world.x, world.y) : undefined;
+        if (selected && radiusKind) this.beginBossCampRadiusDrag(selected, radiusKind);
+        else this.applyTool(world.x, world.y);
+        return;
+      }
       this.applyTool(world.x, world.y);
     });
     this.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
@@ -482,6 +524,14 @@ export class MapEditorScene extends Phaser.Scene {
         this.updateNpcAreaResize(world.x, world.y);
         return;
       }
+      if (this.bossCampMoveDrag) {
+        this.updateBossCampMove(world.x, world.y);
+        return;
+      }
+      if (this.bossCampRadiusDrag) {
+        this.updateBossCampRadiusDrag(world.x, world.y);
+        return;
+      }
       if (this.npcAreaDragStart) {
         this.updateNpcAreaDrag(world.x, world.y);
         return;
@@ -510,6 +560,8 @@ export class MapEditorScene extends Phaser.Scene {
       if (this.npcAreaMove) this.finishNpcAreaMove();
       if (this.npcAreaResize) this.finishNpcAreaResize(world.x, world.y);
       if (this.npcAreaDragStart) this.finishNpcAreaDrag(world.x, world.y);
+      if (this.bossCampMoveDrag) this.finishBossCampMove();
+      if (this.bossCampRadiusDrag) this.finishBossCampRadiusDrag();
       this.panPointer = undefined;
     });
     this.input.on('wheel', (_pointer: Phaser.Input.Pointer, _objects: unknown[], _dx: number, dy: number) => {
@@ -520,6 +572,11 @@ export class MapEditorScene extends Phaser.Scene {
   }
 
   private pickContentAt(worldX: number, worldY: number): void {
+    const boss = this.bossCampAt(worldX, worldY);
+    if (boss) {
+      this.selectBossCampForEditing(boss.id);
+      return;
+    }
     if (this.editor.value.tool === 'enemy-area') {
       const area = this.enemyAreaAt(worldX, worldY);
       this.editor.selectEnemyArea(area?.id);
@@ -586,6 +643,8 @@ export class MapEditorScene extends Phaser.Scene {
           this.editor.deleteNpcWanderArea(npcArea.id);
         } else if (state.tool === 'enemy-area' && state.selectedEnemyAreaId) {
           this.editor.deleteEnemySpawnArea(state.selectedEnemyAreaId);
+        } else if (state.tool === 'boss-camp' && state.selectedBossCampId) {
+          this.editor.deleteBossCamp(state.selectedBossCampId);
         } else if (state.selectedInstanceId) {
           this.editor.deleteObjectInstances([state.selectedInstanceId]);
         }
@@ -662,6 +721,13 @@ export class MapEditorScene extends Phaser.Scene {
     this.npcAreaDragMarker?.destroy();
     this.npcAreaDragMarker = undefined;
 
+    const bossMove = this.bossCampMoveDrag;
+    this.bossCampMoveDrag = undefined;
+    if (bossMove) bossMove.image.setPosition(bossMove.startX, bossMove.startY).setAlpha(1);
+    this.bossCampRadiusDrag = undefined;
+    this.bossCampDragMarker?.destroy();
+    this.bossCampDragMarker = undefined;
+
     this.cursorGhost?.setVisible(false);
     if (objectPlacementActive) {
       this.editor.setTool('pan');
@@ -710,7 +776,12 @@ export class MapEditorScene extends Phaser.Scene {
       case 'exit':
         this.placeExit(this.editor.value.direction);
         break;
+      case 'boss-camp':
+        this.editor.createBossCamp({ x: centerX, y: centerY });
+        break;
       case 'safe-zone':
+      case 'enemy-area':
+      case 'npc-area':
       case 'pan':
         break;
     }
@@ -1032,6 +1103,130 @@ export class MapEditorScene extends Phaser.Scene {
       }
     }
     this.editor.selectInstance(drag.instanceId);
+  }
+
+  private selectBossCampForEditing(campId: string): boolean {
+    if (this.templateEditor.value.dirty
+      && !window.confirm('Discard the unsaved visual template draft and select this boss camp?')) return false;
+    this.templateEditor.clearSelection();
+    this.editor.setTool('boss-camp');
+    this.editor.selectBossCamp(campId);
+    return true;
+  }
+
+  private selectedBossCamp(): MapBossCamp | undefined {
+    const id = this.editor.value.selectedBossCampId;
+    return id ? this.editor.value.map.bossCamps.find((camp) => camp.id === id) : undefined;
+  }
+
+  private bossCampAt(worldX: number, worldY: number): { id: string; image: Phaser.GameObjects.Sprite } | undefined {
+    let hit: { id: string; image: Phaser.GameObjects.Sprite } | undefined;
+    for (const [id, image] of this.renderedBosses) {
+      if (!image.active || !image.getBounds().contains(worldX, worldY)) continue;
+      if (!hit || image.depth > hit.image.depth) hit = { id, image };
+    }
+    return hit;
+  }
+
+  private beginBossCampMove(hit: { id: string; image: Phaser.GameObjects.Sprite }, worldX: number, worldY: number): void {
+    const camp = this.editor.value.map.bossCamps.find((candidate) => candidate.id === hit.id);
+    if (!camp) return;
+    this.bossCampMoveDrag = {
+      id: camp.id,
+      image: hit.image,
+      startX: camp.spawn.x,
+      startY: camp.spawn.y,
+      pointerOffsetX: camp.spawn.x - worldX,
+      pointerOffsetY: camp.spawn.y - worldY,
+      moved: false,
+    };
+    hit.image.setAlpha(0.82).setDepth(resolveExplicitDepth('editor-drag-lift'));
+  }
+
+  private updateBossCampMove(worldX: number, worldY: number): void {
+    const drag = this.bossCampMoveDrag;
+    if (!drag) return;
+    const x = Math.round(worldX + drag.pointerOffsetX);
+    const y = Math.round(worldY + drag.pointerOffsetY);
+    drag.image.setPosition(x, y);
+    drag.moved ||= Phaser.Math.Distance.Between(drag.startX, drag.startY, x, y) >= 2;
+    this.renderBossCampDragDraft(drag.id, { x, y });
+    this.editor.notify(`Moving ${drag.id} — release to validate both encounter circles`);
+  }
+
+  private finishBossCampMove(): void {
+    const drag = this.bossCampMoveDrag;
+    this.bossCampMoveDrag = undefined;
+    this.bossCampDragMarker?.destroy();
+    this.bossCampDragMarker = undefined;
+    if (!drag) return;
+    if (!drag.moved) {
+      drag.image.setPosition(drag.startX, drag.startY).setAlpha(1);
+      this.renderDocument();
+      return;
+    }
+    const changed = this.editor.moveBossCamp(drag.id, { x: Math.round(drag.image.x), y: Math.round(drag.image.y) });
+    if (!changed) drag.image.setPosition(drag.startX, drag.startY).setAlpha(1);
+  }
+
+  private bossCampRadiusHandleAt(camp: MapBossCamp, worldX: number, worldY: number): BossCampRadiusKind | undefined {
+    const threshold = Math.max(18 / this.cameras.main.zoom, 10);
+    const activationDistance = Phaser.Math.Distance.Between(
+      worldX,
+      worldY,
+      camp.spawn.x + camp.activationPerimeter.radius,
+      camp.spawn.y,
+    );
+    const arenaDistance = Phaser.Math.Distance.Between(
+      worldX,
+      worldY,
+      camp.spawn.x,
+      camp.spawn.y - camp.arenaPerimeter.radius,
+    );
+    if (activationDistance <= threshold && activationDistance <= arenaDistance) return 'activation';
+    return arenaDistance <= threshold ? 'arena' : undefined;
+  }
+
+  private beginBossCampRadiusDrag(camp: MapBossCamp, kind: BossCampRadiusKind): void {
+    this.bossCampRadiusDrag = {
+      id: camp.id,
+      kind,
+      radius: kind === 'activation' ? camp.activationPerimeter.radius : camp.arenaPerimeter.radius,
+    };
+  }
+
+  private updateBossCampRadiusDrag(worldX: number, worldY: number): void {
+    const drag = this.bossCampRadiusDrag;
+    const camp = drag ? this.editor.getBossCamp(drag.id) : undefined;
+    if (!drag || !camp) return;
+    drag.radius = Math.max(1, Math.round(Phaser.Math.Distance.Between(camp.spawn.x, camp.spawn.y, worldX, worldY)));
+    this.renderBossCampDragDraft(drag.id, camp.spawn, drag);
+    this.editor.notify(`Editing ${drag.kind} radius: ${drag.radius}px`);
+  }
+
+  private finishBossCampRadiusDrag(): void {
+    const drag = this.bossCampRadiusDrag;
+    this.bossCampRadiusDrag = undefined;
+    this.bossCampDragMarker?.destroy();
+    this.bossCampDragMarker = undefined;
+    if (drag) this.editor.updateBossCampRadius(drag.id, drag.kind, drag.radius);
+  }
+
+  private renderBossCampDragDraft(
+    campId: string,
+    spawn: Readonly<{ x: number; y: number }>,
+    radiusDrag?: BossCampRadiusDrag,
+  ): void {
+    const camp = this.editor.getBossCamp(campId);
+    if (!camp) return;
+    const activation = radiusDrag?.kind === 'activation' ? radiusDrag.radius : camp.activationPerimeter.radius;
+    const arena = radiusDrag?.kind === 'arena' ? radiusDrag.radius : camp.arenaPerimeter.radius;
+    this.bossCampDragMarker?.destroy();
+    this.bossCampDragMarker = this.add.graphics().setDepth(resolveExplicitDepth('editor-selection-marker', 4));
+    this.bossCampDragMarker.fillStyle(0x5ee7ff, 0.06).fillCircle(spawn.x, spawn.y, activation);
+    this.bossCampDragMarker.lineStyle(3, 0x5ee7ff, 0.95).strokeCircle(spawn.x, spawn.y, activation);
+    this.bossCampDragMarker.fillStyle(0xffc65c, 0.1).fillCircle(spawn.x, spawn.y, arena);
+    this.bossCampDragMarker.lineStyle(3, 0xffc65c, 0.95).strokeCircle(spawn.x, spawn.y, arena);
   }
 
   private movableObjectAt(worldX: number, worldY: number): { instanceId: string; image: Phaser.GameObjects.Image; object: EditableObjectInstance } | undefined {
@@ -1899,6 +2094,7 @@ export class MapEditorScene extends Phaser.Scene {
     this.renderedObjects = [];
     this.renderedTerrain.clear();
     this.renderedInstances.clear();
+    this.renderedBosses.clear();
     const state = this.editor.value;
     const dimensions = dimensionsFromMap(state.map);
     const seed = this.areaSeed();
@@ -1965,6 +2161,20 @@ export class MapEditorScene extends Phaser.Scene {
       image.setData('instanceId', object.instanceId);
       this.renderedInstances.set(object.instanceId, image);
       this.renderedObjects.push(image);
+    }
+    for (const camp of state.map.bossCamps) {
+      try {
+        const preview = getBossEditorPreview(camp.bossId);
+        const image = this.add.sprite(camp.spawn.x, camp.spawn.y, preview.textureKey, preview.frame)
+          .setOrigin(preview.origin[0], preview.origin[1])
+          .setScale(preview.scale)
+          .setDepth(resolveWorldDepth(camp.spawn.y, { stableId: `editor-boss:${camp.id}` }).depth)
+          .setName(`editor-boss-preview:${camp.id}`);
+        this.renderedBosses.set(camp.id, image);
+        this.renderedObjects.push(image);
+      } catch {
+        this.editor.notify(`Boss preview unavailable for ${camp.bossId}`);
+      }
     }
     this.renderOverlays();
     this.renderSelectionMarker();
@@ -2283,13 +2493,54 @@ export class MapEditorScene extends Phaser.Scene {
       }).setDepth(resolveExplicitDepth('editor-template-overlay', 2));
       this.overlayObjects.push(label);
     }
+    this.renderBossCampOverlays(graphics, map);
     this.overlayObjects.push(graphics);
+  }
+
+  private renderBossCampOverlays(graphics: Phaser.GameObjects.Graphics, map: EditableMap): void {
+    if (this.editor.value.tool !== 'boss-camp') return;
+    for (const camp of map.bossCamps) {
+      const selected = camp.id === this.editor.value.selectedBossCampId;
+      graphics.fillStyle(0x5ee7ff, selected ? 0.08 : 0.045).fillCircle(camp.spawn.x, camp.spawn.y, camp.activationPerimeter.radius);
+      graphics.lineStyle(selected ? 4 : 2, 0x5ee7ff, selected ? 0.95 : 0.58).strokeCircle(camp.spawn.x, camp.spawn.y, camp.activationPerimeter.radius);
+      graphics.fillStyle(0xffc65c, selected ? 0.13 : 0.07).fillCircle(camp.spawn.x, camp.spawn.y, camp.arenaPerimeter.radius);
+      graphics.lineStyle(selected ? 4 : 2, 0xffc65c, selected ? 1 : 0.65).strokeCircle(camp.spawn.x, camp.spawn.y, camp.arenaPerimeter.radius);
+      const activationLabel = this.add.text(camp.spawn.x + camp.activationPerimeter.radius, camp.spawn.y + 12, `Activation · ${camp.activationPerimeter.radius}px`, {
+        fontFamily: 'Trebuchet MS', fontSize: '12px', color: '#dffbff', backgroundColor: '#12323b', padding: { x: 6, y: 4 },
+      }).setOrigin(1, 0).setDepth(resolveExplicitDepth('editor-template-overlay', 2));
+      const arenaLabel = this.add.text(camp.spawn.x, camp.spawn.y - camp.arenaPerimeter.radius + 12, `Arena · ${camp.arenaPerimeter.radius}px`, {
+        fontFamily: 'Trebuchet MS', fontSize: '12px', color: '#fff3d8', backgroundColor: '#5d4215', padding: { x: 6, y: 4 },
+      }).setOrigin(0, 0).setDepth(resolveExplicitDepth('editor-template-overlay', 2));
+      this.overlayObjects.push(activationLabel, arenaLabel);
+      if (camp.guardedChestInstanceId) {
+        const chest = map.objects.find((object) => object.instanceId === camp.guardedChestInstanceId);
+        if (chest) graphics.lineStyle(3, 0xf4c95d, 0.82).lineBetween(camp.spawn.x, camp.spawn.y, chest.x, chest.y);
+      }
+      if (selected) {
+        graphics.fillStyle(0x5ee7ff, 1).fillCircle(camp.spawn.x + camp.activationPerimeter.radius, camp.spawn.y, 9);
+        graphics.lineStyle(3, 0x062d3a, 1).strokeCircle(camp.spawn.x + camp.activationPerimeter.radius, camp.spawn.y, 9);
+        graphics.fillStyle(0xffc65c, 1).fillCircle(camp.spawn.x, camp.spawn.y - camp.arenaPerimeter.radius, 9);
+        graphics.lineStyle(3, 0x4a2b09, 1).strokeCircle(camp.spawn.x, camp.spawn.y - camp.arenaPerimeter.radius, 9);
+      }
+    }
   }
 
   private renderSelectionMarker(): void {
     const existing = this.children.getByName('editor-selection-marker');
     existing?.destroy();
     const selectedExitIndex = this.editor.value.selectedExitIndex;
+    const selectedBossCamp = this.selectedBossCamp();
+    if (selectedBossCamp && this.editor.value.tool === 'boss-camp') {
+      const image = this.renderedBosses.get(selectedBossCamp.id);
+      if (!image) return;
+      const bounds = image.getBounds();
+      const marker = this.add.graphics().setName('editor-selection-marker').setDepth(resolveExplicitDepth('editor-selection-marker'));
+      marker.fillStyle(0xffd86b, 0.16).fillCircle(selectedBossCamp.spawn.x, selectedBossCamp.spawn.y, Math.max(bounds.width, bounds.height) * 0.58);
+      marker.lineStyle(6, 0x39270a, 0.95).strokeCircle(selectedBossCamp.spawn.x, selectedBossCamp.spawn.y, Math.max(bounds.width, bounds.height) * 0.58);
+      marker.lineStyle(3, 0xffd86b, 1).strokeCircle(selectedBossCamp.spawn.x, selectedBossCamp.spawn.y, Math.max(bounds.width, bounds.height) * 0.58);
+      marker.fillStyle(0xffd86b, 1).fillCircle(selectedBossCamp.spawn.x, selectedBossCamp.spawn.y, 6);
+      return;
+    }
     if (selectedExitIndex !== undefined && (this.editor.value.tool === 'select' || this.editor.value.tool === 'exit')) {
       const exit = this.editor.value.map.exits[selectedExitIndex];
       if (!exit) return;
@@ -2476,11 +2727,14 @@ export class MapEditorScene extends Phaser.Scene {
     this.safeZoneDragMarker?.destroy();
     this.enemyAreaDragMarker?.destroy();
     this.npcAreaDragMarker?.destroy();
+    this.bossCampDragMarker?.destroy();
     for (const preview of this.paintDrag?.previews ?? []) preview.destroy();
     for (const preview of this.objectStampDrag?.previews ?? []) preview.destroy();
     this.cursorGhost?.destroy();
     this.npcPlacementPreview?.destroy();
     this.templatePreview?.destroy();
+    for (const object of this.overlayObjects) object.destroy();
+    for (const object of this.renderedObjects) object.destroy();
     this.unsubscribeState?.();
     this.unsubscribeTemplate?.();
     this.unmountPanel?.();
@@ -2489,5 +2743,6 @@ export class MapEditorScene extends Phaser.Scene {
     this.overlayObjects = [];
     this.renderedTerrain.clear();
     this.renderedInstances.clear();
+    this.renderedBosses.clear();
   }
 }

@@ -70,6 +70,11 @@
       "description": "Authored enemy camps. When present, runtime uses these areas instead of legacy random spawning.",
       "items": { "$ref": "#/$defs/enemySpawnArea" }
     },
+    "bossCamps": {
+      "type": "array",
+      "description": "Authored respawning boss encounters, independent from ordinary enemy camps.",
+      "items": { "$ref": "#/$defs/bossCamp" }
+    },
     "npcWanderAreas": { "$ref": "#/$defs/npcWanderAreas" },
     "spawns": { "$ref": "#/$defs/spawns" }
   },
@@ -162,7 +167,33 @@
           }
         },
         "to": { "type": "string", "minLength": 1, "description": "Target AreaId." },
-        "entry": { "type": "string", "minLength": 1, "description": "Entry point name in the target map's player.entries." }
+        "entry": { "type": "string", "minLength": 1, "description": "Entry point name in the target map's player.entries." },
+        "gate": { "$ref": "#/$defs/gate" }
+      }
+    },
+    "gate": {
+      "type": "object",
+      "required": ["id", "requiredItemId", "consumeOnUnlock", "lockedMessage"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "requiredItemId": { "type": "string", "minLength": 1 },
+        "consumeOnUnlock": { "type": "boolean" },
+        "lockedMessage": { "type": "string", "minLength": 1 }
+      }
+    },
+    "bossCamp": {
+      "type": "object",
+      "required": ["id", "bossId", "activationPerimeter", "arenaPerimeter", "spawn", "respawnMs"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "bossId": { "type": "string", "minLength": 1 },
+        "activationPerimeter": { "$ref": "#/$defs/circlePerimeter" },
+        "arenaPerimeter": { "$ref": "#/$defs/circlePerimeter" },
+        "spawn": { "$ref": "#/$defs/point" },
+        "respawnMs": { "type": "integer", "minimum": 1 },
+        "guardedChestInstanceId": { "type": "string", "minLength": 1 }
       }
     },
     "spawns": {
@@ -236,6 +267,17 @@
         "type": { "type": "string", "minLength": 1 },
         "weight": { "type": "integer", "minimum": 1 },
         "maxAlive": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "circlePerimeter": {
+      "type": "object",
+      "required": ["shape", "x", "y", "radius"],
+      "additionalProperties": false,
+      "properties": {
+        "shape": { "const": "circle" },
+        "x": { "type": "integer" },
+        "y": { "type": "integer" },
+        "radius": { "type": "integer", "minimum": 1 }
       }
     },
     "enemyPerimeter": {

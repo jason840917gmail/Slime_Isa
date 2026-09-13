@@ -178,6 +178,7 @@ export class CollectibleController {
   }
 
   private syncQuantityLabel(record: CollectibleRecord): void {
+    if (!this.ctx.scene.add?.text) return;
     const y = record.image.y - Math.max(22, Math.min(44, record.image.displayHeight * 0.55));
     record.quantityLabel ??= this.ctx.scene.add.text(record.image.x, y, '', {
       fontFamily: UI_THEME.fontFamily,

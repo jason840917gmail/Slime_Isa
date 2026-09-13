@@ -5,7 +5,24 @@
 - `docs/superpowers/specs/2026-09-11-fatty-one-eye-guarded-chest-design.md`
 - `docs/superpowers/specs/2026-09-11-map-studio-boss-camp-authoring-design.md`
 
-**Status:** Ready for implementation.
+**Status:** Implemented, including the 2026-09-12 runtime/editor corrections below.
+
+## 2026-09-12 implementation corrections
+
+- Player movement across the arena edge no longer destroys or respawns a live
+  boss. Fatty may finish an active cast or leap outside the combat circle and
+  then enters a grounded return phase that walks to the authored arena center.
+- The mini contact hop is a Character Studio boss animation. Its duration,
+  source frames, active hit-layer window, shape, offsets, and size live in the
+  `fatty-one-eye` character package; damage, cooldown, and knockback remain in
+  the boss definition.
+- Contact-hop collision uses the player's complete combat body rather than its
+  center point, and the authored hit layer initially uses an 80 px circle.
+- Development Tools has an independent Boss battle areas checkbox for the cyan
+  activation and amber combat circles.
+- The development map-save validator accepts and validates
+  `chest.wooden.initialState.contents`, including known items, unique stacks,
+  and positive quantities.
 
 ## Objective
 
@@ -29,7 +46,8 @@ The remaining work is incremental:
 - direct contact damage still uses a per-frame overlap poll;
 - the player/boss collider has no contact-hop callback;
 - Fatty has no 300 ms contact-hop phase;
-- live fights do not yet reset when the player leaves the arena;
+- live fights do not yet preserve the boss and return it to center when the
+  player draws it outside the arena;
 - chest transfers and gate unlocks are sequential mutations rather than one
   rollback-safe aggregate transaction;
 - boss camps are preserved by Map Studio but have no first-class selection,
@@ -85,10 +103,11 @@ Update the boss definition contract in:
 - `src/game/content/bosses/fatty-one-eye.json`
 - `src/game/content/bosses/BossCatalog.ts`
 
-Rename the old `contact` block to `contactHop` and make it own
-`durationMs: 300`, `cooldownMs: 1000`, `radius: 64`, `damage: 18`, and
-`knockbackStrength: 180`. Extend catalog validation so every value is finite
-and positive. Add a catalog-driven `BossEditorPreview` descriptor containing
+Rename the old `contact` block to `contactHop`. It owns `cooldownMs: 1000`,
+`damage: 18`, `knockbackStrength: 180`, plus references to the Character Studio
+clip and hitbox. The character package owns the 300 ms duration and 80 px
+initial hit circle. Extend catalog validation so every value is finite and
+positive. Add a catalog-driven `BossEditorPreview` descriptor containing
 the manifest asset ID, texture key, idle frame, origin, and definition-owned
 scale. Both runtime and Map Studio must resolve Fatty's presentation through
 this descriptor instead of hard-coding its asset ID.
@@ -130,14 +149,14 @@ Update `src/game/features/bosses/FattyOneEyeBoss.ts`:
 2. Expose `requestContactHop(time): boolean`. Accept only an alive,
    non-destroyed boss in `chase` at or after `nextContactHopAt`.
 3. On acceptance, set the cooldown deadline immediately, store the current
-   boss position as the stationary anchor, stop velocity, show the 64 px marker
+   boss position as the stationary anchor, stop velocity, show the authored marker
    and shadow synchronously, and disable the Arcade body.
-4. Advance the visual through a 300 ms rise/fall using the existing small-hop
-   frames while leaving the combat anchor fixed.
-5. At completion, reset the body at the saved anchor, hide the marker/shadow,
-   play the existing 64 px crack effect, and evaluate the player's current
-   position exactly once. Apply 18 damage and 180 knockback only when the player
-   is active, within the inclusive radius, and not currently dodging; the
+4. Advance the visual and active hit layer from the Character Studio
+   `contact-hop` clip while leaving the combat anchor fixed.
+5. At the authored hit-layer activation, play the crack effect and evaluate the
+   player's complete combat body exactly once. Apply 18 damage and 180 knockback
+   only when the player is active, intersects the authored shape, and is not
+   currently dodging; the
    health system remains authoritative for any other active i-frame.
 6. Return directly to `chase` without calling the large-leap recovery helper or
    changing `nextLeapAt`. An overdue large special becomes eligible on the next
@@ -173,12 +192,12 @@ pnpm typecheck
 
 ### 4. Complete boss-camp lifecycle and optional guard behavior
 
-Update `BossCampController` to distinguish a live fight, a transient fight
-reset, and a recorded defeat:
+Update `BossCampController` and Fatty's state machine to distinguish a live
+fight, a player-death reset, and a recorded defeat:
 
-- when a live boss leaves its authored arena, destroy that instance, health
-  bar, marker, shadow, and attack state without writing a defeat timestamp;
-- recreate a full-health boss according to the existing activation rules;
+- player exit/re-entry never destroys or restores a live boss;
+- after Fatty finishes an uninterruptible action outside the arena, walk the
+  existing instance back to the authored center without restoring health;
 - on player death or scene reload, perform the same transient reset without
   starting the three-minute timer;
 - only `onDefeated` writes `Date.now() + respawnMs`;
@@ -410,14 +429,15 @@ Manual runtime acceptance must start from a fresh run and verify:
    refills normally.
 2. Body collision starts the fast stationary hop, deals no immediate damage,
    shows the marker/shadow, and cannot trap or hurt the player while airborne.
-3. Remaining inside 64 px at landing causes one hit; dodging or leaving the
-   circle avoids it; repeated collider callbacks respect the one-second
+3. Intersecting the authored landing hit layer causes one hit; dodging or
+   leaving the shape avoids it; repeated collider callbacks respect the one-second
    cooldown.
 4. The contact hop never cancels or postpones an eligible three-hop special.
 5. Only Wooden and Stone Spear intersections with the exact central eye damage
    Fatty; knockback immunity suppresses displacement but not other feedback.
-6. Leaving, dying, saving/loading, or destroying the scene mid-fight removes
-   attack effects and restores a full-health fight without a defeat timer.
+6. Leaving/re-entering the arena preserves the live boss and its health/action;
+   player death, saving/loading, or destroying the scene restores a full-health
+   fight without a defeat timer.
 7. A true defeat unlocks the optional guarded chest and starts the three-minute
    wall-clock timer; exit/re-entry is required for the next spawn.
 8. Chest selection and partial right-click transfer work, remaining contents
@@ -449,8 +469,9 @@ Manual runtime acceptance must start from a fresh run and verify:
 - Both approved specs are represented by runtime/editor behavior and automated
   contracts.
 - Fatty has no direct-contact damage path or per-frame overlap polling.
-- Every contact hop is collision-triggered, stationary, 300 ms long, harmless
-  in the air, and capable of exactly one 64 px landing hit.
+- Every contact hop is collision-triggered, stationary, Character Studio
+  authored, harmless before its hit-layer window, and capable of exactly one
+  body-aware landing hit.
 - Boss camps are circular, independently editable, visible in Map Studio, and
   valid without a chest.
 - Chest loot and key-gate state cannot partially commit.

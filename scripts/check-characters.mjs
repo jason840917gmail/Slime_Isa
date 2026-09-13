@@ -92,6 +92,7 @@ for (const file of listFiles(characterRoot, 'character.json')) {
   try { value = JSON.parse(readFileSync(file, 'utf8')); } catch (error) { fail(file, 'json', error.message); continue; }
   keys(file, 'character', value, new Set(['$schema', 'version', 'characterId', 'displayName', 'kind', 'runtimeRole', 'visualSetId', 'attributes', 'body', 'hitboxes', 'animationTracks', 'player', 'enemy', 'npc']));
   if (value.version !== 1) fail(file, 'version', 'must be 1');
+  if (!['player', 'enemy', 'boss', 'npc'].includes(value.kind)) fail(file, 'kind', 'must be player, enemy, boss, or npc');
   if (!characterIdPattern.test(value.characterId ?? '')) fail(file, 'characterId', 'must be lowercase kebab-case');
   if (characterIds.has(value.characterId)) fail(file, 'characterId', `duplicates ${characterIds.get(value.characterId)}`); else characterIds.set(value.characterId, relative(root, file));
   if (value.kind === 'player' && value.runtimeRole === 'primary-player') primaryPlayers.push(value.characterId);
@@ -111,6 +112,9 @@ for (const file of listFiles(characterRoot, 'character.json')) {
   }
   if (value.kind === 'player' && !isRecord(value.player)) fail(file, 'player', 'required for players');
   if (value.kind === 'enemy' && !isRecord(value.enemy)) fail(file, 'enemy', 'required for enemies');
+  if (value.kind === 'boss') {
+    for (const forbidden of ['player', 'enemy', 'npc', 'runtimeRole', 'attributes']) if (value[forbidden] !== undefined) fail(file, forbidden, 'boss gameplay belongs in the boss definition');
+  }
   if (value.kind === 'npc') {
     for (const forbidden of ['player', 'enemy', 'runtimeRole', 'attributes']) if (value[forbidden] !== undefined) fail(file, forbidden, 'forbidden for NPCs');
     if (!isRecord(value.npc)) fail(file, 'npc', 'required for NPCs');

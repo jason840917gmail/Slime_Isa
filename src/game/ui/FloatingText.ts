@@ -10,9 +10,9 @@ import { resolveWorldDepth } from '../presentation/WorldDepth';
 const FONT = 'Trebuchet MS, Segoe UI Variable, sans-serif';
 const POOL_SIZE = 24;
 
-type Color = 'white' | 'yellow' | 'orange' | 'green' | 'red' | 'cyan' | 'blue';
+export type FloatingTextColor = 'white' | 'yellow' | 'orange' | 'green' | 'red' | 'cyan' | 'blue';
 
-const COLORS: Record<Color, string> = {
+const COLORS: Record<FloatingTextColor, string> = {
   white: '#ffffff',
   yellow: '#ffdf8a',
   orange: '#ffad66',
@@ -36,7 +36,7 @@ class FloatingTextPool {
     x: number,
     y: number,
     content: string,
-    color: Color = 'white',
+    color: FloatingTextColor = 'white',
     big = false,
     durationMs?: number,
   ): void {
@@ -89,7 +89,7 @@ class FloatingTextPool {
     x: number,
     y: number,
     content: string,
-    color: Color,
+    color: FloatingTextColor,
     big: boolean,
     durationMs?: number,
   ): void {

@@ -17,6 +17,8 @@ import redSlimeBoyCharacter from './red-slime-boy/character.json';
 import redSlimeBoyVisual from './red-slime-boy/visual-set.json';
 import yellowBlondSlimeGirlCharacter from './yellow-blond-slime-girl/character.json';
 import yellowBlondSlimeGirlVisual from './yellow-blond-slime-girl/visual-set.json';
+import fattyOneEyeCharacter from './fatty-one-eye/character.json';
+import fattyOneEyeVisual from './fatty-one-eye/visual-set.json';
 
 export const characterPackages = [
   { characterId: 'player-slime', character: playerCharacter, visualSet: playerVisual },
@@ -28,6 +30,7 @@ export const characterPackages = [
   { characterId: 'lili', character: liliCharacter, visualSet: liliVisual },
   { characterId: 'red-slime-boy', character: redSlimeBoyCharacter, visualSet: redSlimeBoyVisual },
   { characterId: 'yellow-blond-slime-girl', character: yellowBlondSlimeGirlCharacter, visualSet: yellowBlondSlimeGirlVisual },
+  { characterId: 'fatty-one-eye', character: fattyOneEyeCharacter, visualSet: fattyOneEyeVisual },
 ];
 
 export const visualSets = [...characterPackages.map((entry) => entry.visualSet), brawlerHitVisual];

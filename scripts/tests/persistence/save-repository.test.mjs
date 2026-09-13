@@ -30,6 +30,7 @@ const { createInitialRunState } = await vite.ssrLoadModule(
   '/src/game/content/initial-state/InitialRun.ts',
 );
 const { GAME_CONSTANTS } = await vite.ssrLoadModule('/src/game/Constant.ts');
+const { SAVE_SCHEMA_VERSION } = await vite.ssrLoadModule('/src/game/infrastructure/persistence/SaveSchema.ts');
 const level1Map = (await vite.ssrLoadModule('/src/game/content/maps/level-1.map.json')).default;
 
 test.after(async () => {
@@ -233,7 +234,7 @@ test('version 5 named and recovery saves migrate inventory capacity', () => {
     maxSlots: GAME_CONSTANTS.inventory.initialMaxSlots,
     slots: [{ itemId: 'wood', count: 4 }],
   });
-  assert.equal(named.schemaVersion, 8);
+  assert.equal(named.schemaVersion, SAVE_SCHEMA_VERSION);
   assert.deepEqual(recovery.inventory, named.data.inventory);
   assert.deepEqual(repository.list().map((entry) => entry.saveId), [metadata.saveId]);
 });

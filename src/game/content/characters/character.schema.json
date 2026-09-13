@@ -10,7 +10,7 @@
     "version": { "const": 1 },
     "characterId": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$", "minLength": 1, "maxLength": 80 },
     "displayName": { "type": "string", "minLength": 1, "maxLength": 80 },
-    "kind": { "enum": ["player", "enemy", "npc"] },
+    "kind": { "enum": ["player", "enemy", "boss", "npc"] },
     "runtimeRole": { "const": "primary-player" },
     "visualSetId": { "type": "string", "pattern": "^[a-z0-9]+(?:[.-][a-z0-9-]+)+$", "minLength": 3, "maxLength": 120 },
     "attributes": {
@@ -38,7 +38,8 @@
   },
   "allOf": [
     { "if": { "properties": { "kind": { "const": "player" } } }, "then": { "required": ["player"], "not": { "anyOf": [{ "required": ["enemy"] }, { "required": ["attributes"] }] } } },
-    { "if": { "properties": { "kind": { "const": "enemy" } } }, "then": { "required": ["enemy"], "not": { "required": ["player", "runtimeRole"] } } }
+    { "if": { "properties": { "kind": { "const": "enemy" } } }, "then": { "required": ["enemy"], "not": { "required": ["player", "runtimeRole"] } } },
+    { "if": { "properties": { "kind": { "const": "boss" } } }, "then": { "not": { "anyOf": [{ "required": ["player"] }, { "required": ["enemy"] }, { "required": ["npc"] }, { "required": ["runtimeRole"] }, { "required": ["attributes"] }] } } }
     ,{ "if": { "properties": { "kind": { "const": "npc" } } }, "then": {
       "required": ["npc"],
       "not": { "anyOf": [
@@ -123,6 +124,7 @@
       "type": "object", "additionalProperties": false, "required": ["maxHp", "ai", "drop"],
       "properties": {
         "maxHp": { "type": "number", "exclusiveMinimum": 0 },
+        "effectImmunities": { "type": "array", "items": { "enum": ["knockback"] }, "uniqueItems": true },
         "ai": {
           "type": "object", "additionalProperties": false,
           "required": ["aggroRange", "attackRange", "wanderSpeed", "chaseSpeed", "attackCooldownMs", "attackWindupMs", "attackRecoveryMs", "contactDamage", "knockbackStrength", "isRanged", "knockbackResist"],

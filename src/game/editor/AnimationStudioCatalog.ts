@@ -2,12 +2,12 @@ import type { AnimationPackageCatalog, AnimationPackageCatalogEntry } from '../c
 import type { CharacterPackage } from '../content/characters/types';
 import type { AuthoredWeaponDefinition, LayeredWeaponDefinition, WeaponAttackDirection } from '../content/weapons/types';
 
-export type AnimationStudioRole = 'player' | 'enemy' | 'npc' | 'shared' | 'weapon';
+export type AnimationStudioRole = 'player' | 'enemy' | 'boss' | 'npc' | 'shared' | 'weapon';
 
 export type AnimationStudioEntry =
   | {
       readonly kind: 'single-sheet';
-      readonly role: 'player' | 'enemy' | 'npc';
+      readonly role: 'player' | 'enemy' | 'boss' | 'npc';
       readonly characterId: string;
       readonly displayName: string;
       readonly visualSetId: string;
