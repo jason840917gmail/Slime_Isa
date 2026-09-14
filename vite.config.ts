@@ -9,6 +9,7 @@ import { readCatalog as readAnimationCatalog } from './src/game/content/animatio
 import { gameConstantsContentPlugin } from './src/game/content/gameConstantsContentPlugin';
 import { normalizeGameConstants } from './src/game/content/GameConstantsValidation';
 import { sceneContentModulesPlugin } from './src/game/content/scenes/sceneContentModulesPlugin';
+import { changedSceneOwnedMapRecords } from './src/game/content/scenes/legacyAuthoringAuthority';
 import { sceneStudioContentPlugin } from './src/game/infrastructure/scenes/editor/SceneStudioContentPlugin';
 
 import { parseMapFile, type MapFile } from './src/game/content/maps/mapFormat';
@@ -36,6 +37,23 @@ const ITEM_DEFINITION_PATH = path.resolve(process.cwd(), 'src/game/content/items
 const WEAPON_DEFINITION_ROOT = path.resolve(process.cwd(), 'src/game/content/weapons');
 const BOSS_DEFINITION_ROOT = path.resolve(process.cwd(), 'src/game/content/bosses');
 const GAME_CONSTANTS_PATH = path.resolve(process.cwd(), 'src/game/content/game-constants.json');
+const SCENE_CONVERSION_LEDGER = JSON.parse(readFileSync(path.resolve(process.cwd(), 'scripts/migrations/universal-scene-conversion-ledger.json'), 'utf8')) as {
+  readonly rows: readonly {
+    readonly family: string;
+    readonly stableId: string;
+    readonly writerState: 'legacy' | 'scene';
+    readonly ownedMapRecordIds?: readonly string[];
+  }[];
+};
+const SCENE_OWNED_CHARACTER_IDS = new Set(SCENE_CONVERSION_LEDGER.rows
+  .filter((row) => row.family === 'character' && row.writerState === 'scene')
+  .map((row) => row.stableId));
+const SCENE_OWNED_OBJECT_IDS = new Set(SCENE_CONVERSION_LEDGER.rows
+  .filter((row) => row.family === 'object' && row.writerState === 'scene')
+  .map((row) => row.stableId));
+const SCENE_OWNED_MAP_RECORD_IDS = new Set(SCENE_CONVERSION_LEDGER.rows
+  .filter((row) => row.writerState === 'scene')
+  .flatMap((row) => row.ownedMapRecordIds ?? []));
 
 async function readResourceTags(gameConstantsPath = GAME_CONSTANTS_PATH): Promise<ReadonlySet<string>> {
   const document = JSON.parse(await fs.readFile(gameConstantsPath, 'utf8')) as unknown;
@@ -610,7 +628,14 @@ async function readRequestBody(request: NodeJS.ReadableStream): Promise<string> 
   return Buffer.concat(chunks).toString('utf8');
 }
 
-export function mapEditorSavePlugin(options: { readonly objectDefinitionRoot?: string; readonly gameConstantsPath?: string } = {}): Plugin {
+export interface MapEditorSavePluginOptions {
+  readonly objectDefinitionRoot?: string;
+  readonly gameConstantsPath?: string;
+  readonly sceneOwnedObjectIds?: ReadonlySet<string>;
+  readonly sceneOwnedMapRecordIds?: ReadonlySet<string>;
+}
+
+export function mapEditorSavePlugin(options: MapEditorSavePluginOptions = {}): Plugin {
   const objectDefinitionRoot = path.resolve(options.objectDefinitionRoot ?? OBJECT_DEFINITION_ROOT);
   const gameConstantsPath = path.resolve(options.gameConstantsPath ?? GAME_CONSTANTS_PATH);
   const suppressMapHotUpdates = new Set<string>();
@@ -709,6 +734,7 @@ export function mapEditorSavePlugin(options: { readonly objectDefinitionRoot?: s
           const payload = JSON.parse(await readRequestBody(request)) as Record<string, unknown>;
           const objectId = payload.objectId;
           if (typeof objectId !== 'string') throw new Error('Object ID is required');
+          if (options.sceneOwnedObjectIds?.has(objectId)) throw new Error(`Object '${objectId}' is owned by Scene Studio`);
           const definitionPath = await findObjectDefinitionPath(OBJECT_DEFINITION_ROOT, objectId);
           if (!definitionPath) throw new Error(`Object definition '${objectId}' was not found`);
           const definition = JSON.parse(await fs.readFile(definitionPath, 'utf8')) as MutableObjectDefinition;
@@ -768,6 +794,7 @@ export function mapEditorSavePlugin(options: { readonly objectDefinitionRoot?: s
         try {
           const payload = JSON.parse(await readRequestBody(request)) as Record<string, unknown>;
           if (typeof payload.objectId !== 'string') throw new Error('Object ID is required');
+          if (options.sceneOwnedObjectIds?.has(payload.objectId)) throw new Error(`Object '${payload.objectId}' is owned by Scene Studio`);
           const definitionPath = await findObjectDefinitionPath(objectDefinitionRoot, payload.objectId);
           if (!definitionPath) throw new Error(`Object definition '${payload.objectId}' was not found`);
           const definition = JSON.parse(await fs.readFile(definitionPath, 'utf8')) as MutableObjectDefinition;
@@ -810,6 +837,7 @@ export function mapEditorSavePlugin(options: { readonly objectDefinitionRoot?: s
           if (typeof objectId !== 'string' || !isObjectArchetypeId(objectId)) {
             throw new Error(`Unknown object '${String(objectId)}'`);
           }
+          if (options.sceneOwnedObjectIds?.has(objectId)) throw new Error(`Object '${objectId}' is owned by Scene Studio`);
           if (typeof assetId !== 'string' || !(assetId in ASSET_MANIFEST.assets)) {
             throw new Error(`Unknown asset '${String(assetId)}'`);
           }
@@ -903,6 +931,7 @@ export function mapEditorSavePlugin(options: { readonly objectDefinitionRoot?: s
           if (typeof objectId !== 'string' || !isObjectArchetypeId(objectId)) {
             throw new Error(`Unknown object '${String(objectId)}'`);
           }
+          if (options.sceneOwnedObjectIds?.has(objectId)) throw new Error(`Object '${objectId}' is owned by Scene Studio`);
           if (typeof sourceVisualId !== 'string') throw new Error('Source visual ID is required');
           if (typeof visualId !== 'string' || !/^[a-z0-9]+([.-][a-z0-9-]+)*$/.test(visualId)) {
             throw new Error('Visual ID must be a lowercase stable ID');
@@ -1001,6 +1030,8 @@ export function mapEditorSavePlugin(options: { readonly objectDefinitionRoot?: s
           await fs.access(targetPath);
 
           const persistedMap = parseMapFile(JSON.parse(await fs.readFile(targetPath, 'utf8')), map.mapId);
+          const changedOwnedRecords = changedSceneOwnedMapRecords(persistedMap, map, options.sceneOwnedMapRecordIds ?? new Set());
+          if (changedOwnedRecords.length > 0) throw new Error(`Map records owned by Scene Studio changed: ${changedOwnedRecords.join(', ')}`);
           const updatedTargets = new Map<string, MutableMapData>();
           const loadTarget = async (mapId: string): Promise<MutableMapData> => {
             const cached = updatedTargets.get(mapId);
@@ -1094,7 +1125,14 @@ function connectionTarget(map: MapFile, direction: Direction): string | undefine
 
 export default defineConfig({
   base: './',
-  plugins: [characterContentModulesPlugin(), animationContentModulesPlugin(), sceneContentModulesPlugin(), sceneStudioContentPlugin(), gameConstantsContentPlugin(), mapEditorSavePlugin()],
+  plugins: [
+    characterContentModulesPlugin({ sceneOwnedCharacterIds: SCENE_OWNED_CHARACTER_IDS }),
+    animationContentModulesPlugin(),
+    sceneContentModulesPlugin(),
+    sceneStudioContentPlugin(),
+    gameConstantsContentPlugin(),
+    mapEditorSavePlugin({ sceneOwnedObjectIds: SCENE_OWNED_OBJECT_IDS, sceneOwnedMapRecordIds: SCENE_OWNED_MAP_RECORD_IDS }),
+  ],
   server: {
     open: false,
   },

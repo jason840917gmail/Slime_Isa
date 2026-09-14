@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "resourceId": "fatty-one-eye.eye-shape",
+  "kind": "collision-shape",
+  "value": {
+    "shape": "circle",
+    "radius": 14
+  }
+}

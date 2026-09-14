@@ -250,6 +250,7 @@ export default defineConfig({
     visualRoot: ${JSON.stringify(characterRoot.replaceAll('\\', '/'))},
     assetRoot: ${JSON.stringify(assetRoot.replaceAll('\\', '/'))},
     assetManifestPath: ${JSON.stringify(path.join(assetRoot, 'assets.json').replaceAll('\\', '/'))},
+    sceneOwnedCharacterIds: new Set(['worm-swordsman']),
   }), rosterPlugin],
 });
 `;
@@ -265,6 +266,19 @@ export default defineConfig({
     const initial = await requestJson(baseUrl, '/__fixture/roster');
     assert.deepEqual(initial.primaryIds, ['player-slime']);
     assert.deepEqual(initial.enemyIds.sort(), ['recovered-raider', 'worm-archer', 'worm-swordsman']);
+    const sceneOwnedPackage = await requestJson(baseUrl, '/__character-studio/package/worm-swordsman');
+    const rejectedOwnedUpdate = await fetch(`${baseUrl}/__character-studio/package/update`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        characterId: 'worm-swordsman',
+        character: sceneOwnedPackage.data.character,
+        visualSet: sceneOwnedPackage.data.visualSet,
+        expectedRevision: sceneOwnedPackage.data.revision,
+      }),
+    });
+    assert.equal(rejectedOwnedUpdate.status, 409);
+    assert.equal((await rejectedOwnedUpdate.json()).error.code, 'scene-owned');
     const recoveredPackage = await requestJson(baseUrl, `/__character-studio/package/${recoveryCharacterId}`);
     assert.equal(recoveredPackage.data.character.characterId, recoveryCharacterId);
     assert.equal(recoveredPackage.data.visualSet.assetId, recoveryAssetId);

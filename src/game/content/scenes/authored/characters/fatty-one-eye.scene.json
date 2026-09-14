@@ -3,38 +3,188 @@
   "sceneId": "character.fatty-one-eye",
   "rootNodeId": "body",
   "nodes": [
-    { "id": "body", "name": "FattyOneEye", "type": "CharacterBody2D", "parentId": null, "order": 0, "properties": { "collisionLayer": 2, "collisionMask": 5, "position": [0, 0], "velocity": [0, 0] } },
-    { "id": "body-shape", "name": "BodyShape", "type": "CollisionShape2D", "parentId": "body", "order": 0, "properties": { "shape": { "resourceId": "fatty.body-shape" } } },
-    { "id": "visual", "name": "Visual", "type": "Sprite2D", "parentId": "body", "order": 1, "properties": { "texture": { "resourceId": "fatty.sprite" }, "frame": 0, "origin": [0.5, 0.72], "scale": [1.5, 1.5] } },
-    { "id": "eye", "name": "Eye", "type": "Area2D", "parentId": "body", "order": 2, "properties": { "collisionLayer": 8, "collisionMask": 16, "monitoring": true, "monitorable": true } },
-    { "id": "eye-shape", "name": "EyeShape", "type": "CollisionShape2D", "parentId": "eye", "order": 0, "properties": { "shape": { "resourceId": "fatty.eye-shape" } } },
-    { "id": "contact-attack", "name": "ContactAttack", "type": "Area2D", "parentId": "body", "order": 3, "properties": { "collisionLayer": 16, "collisionMask": 8, "monitoring": false, "monitorable": false } },
-    { "id": "contact-shape", "name": "ContactShape", "type": "CollisionShape2D", "parentId": "contact-attack", "order": 0, "properties": { "shape": { "resourceId": "fatty.contact-shape" }, "disabled": true } },
-    { "id": "animation", "name": "Animation", "type": "AnimationPlayer", "parentId": "body", "order": 4, "properties": { "library": { "resourceId": "fatty.animations" }, "domain": "physics", "autoplay": "chase" } },
     {
-      "id": "script", "name": "FattyScript", "type": "ScriptNode", "scriptId": "game.fatty", "parentId": "body", "order": 5,
+      "id": "body",
+      "name": "FattyOneEye",
+      "type": "CharacterBody2D",
+      "parentId": null,
+      "order": 0,
       "properties": {
-        "body": { "nodeId": "body" }, "visual": { "nodeId": "visual" }, "animation": { "nodeId": "animation" }, "damageArea": { "nodeId": "eye" }, "contactAttack": { "nodeId": "contact-attack" },
-        "faction": "hostile", "rank": "boss", "maxHealth": 140, "targetingRadius": 933, "attackRange": 64, "movementSpeed": 42, "attackCooldownMs": 1000,
-        "attributes": { "effectImmunities": ["knockback"], "allowedWeaponIds": ["wooden-spear", "stone-spear"] },
-        "damageRule": { "priority": 100, "damageMultiplier": 1, "acceptedSources": [{ "weaponIds": ["wooden-spear", "stone-spear"] }], "effectResponses": { "knockback": { "mode": "immune" } } },
-        "rewards": {}, "contactHopCooldownMs": 1000, "leapCadenceMs": 5000, "airTimeMs": 1000, "recoveryMs": 700, "landingDamage": 32, "landingRadius": 64
+        "collisionLayer": 2,
+        "collisionMask": 5,
+        "position": [
+          0,
+          0
+        ],
+        "velocity": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "body-shape",
+      "name": "BodyShape",
+      "type": "CollisionShape2D",
+      "parentId": "body",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "fatty-one-eye.body-shape"
+        }
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "body",
+      "order": 1,
+      "properties": {
+        "texture": {
+          "resourceId": "boss.fatty-one-eye.sprite"
+        },
+        "frame": 0,
+        "origin": [
+          0.5,
+          0.72
+        ],
+        "scale": [
+          1.5,
+          1.5
+        ]
+      }
+    },
+    {
+      "id": "eye",
+      "name": "Eye",
+      "type": "Area2D",
+      "parentId": "body",
+      "order": 2,
+      "properties": {
+        "collisionLayer": 8,
+        "collisionMask": 16,
+        "monitoring": true,
+        "monitorable": true
+      }
+    },
+    {
+      "id": "eye-shape",
+      "name": "EyeShape",
+      "type": "CollisionShape2D",
+      "parentId": "eye",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "fatty-one-eye.eye-shape"
+        }
+      }
+    },
+    {
+      "id": "contact-attack",
+      "name": "ContactAttack",
+      "type": "Area2D",
+      "parentId": "body",
+      "order": 3,
+      "properties": {
+        "collisionLayer": 16,
+        "collisionMask": 8,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "contact-shape",
+      "name": "ContactShape",
+      "type": "CollisionShape2D",
+      "parentId": "contact-attack",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "fatty-one-eye.contact-shape"
+        },
+        "disabled": true
+      }
+    },
+    {
+      "id": "animation",
+      "name": "Animation",
+      "type": "AnimationPlayer",
+      "parentId": "body",
+      "order": 4,
+      "properties": {
+        "library": {
+          "resourceId": "boss.fatty-one-eye.animations"
+        },
+        "domain": "physics",
+        "autoplay": "chase"
+      }
+    },
+    {
+      "id": "script",
+      "name": "FattyScript",
+      "type": "ScriptNode",
+      "scriptId": "game.fatty",
+      "parentId": "body",
+      "order": 5,
+      "properties": {
+        "body": {
+          "nodeId": "body"
+        },
+        "visual": {
+          "nodeId": "visual"
+        },
+        "animation": {
+          "nodeId": "animation"
+        },
+        "damageArea": {
+          "nodeId": "eye"
+        },
+        "contactAttack": {
+          "nodeId": "contact-attack"
+        },
+        "faction": "hostile",
+        "rank": "boss",
+        "maxHealth": 140,
+        "targetingRadius": 933,
+        "attackRange": 64,
+        "movementSpeed": 42,
+        "attackCooldownMs": 1000,
+        "attributes": {
+          "effectImmunities": [
+            "knockback"
+          ],
+          "allowedWeaponIds": [
+            "wooden-spear",
+            "stone-spear"
+          ]
+        },
+        "damageRule": {
+          "priority": 100,
+          "damageMultiplier": 1,
+          "acceptedSources": [
+            {
+              "weaponIds": [
+                "wooden-spear",
+                "stone-spear"
+              ]
+            }
+          ],
+          "effectResponses": {
+            "knockback": {
+              "mode": "immune"
+            }
+          }
+        },
+        "rewards": {},
+        "contactHopCooldownMs": 1000,
+        "leapCadenceMs": 5000,
+        "airTimeMs": 1000,
+        "recoveryMs": 700,
+        "landingDamage": 32,
+        "landingRadius": 64
       }
     }
   ],
-  "instances": [],
-  "subresources": [
-    { "version": 1, "resourceId": "fatty.sprite", "kind": "sprite-sheet", "assetId": "character.boss.fatty-one-eye", "frameWidth": 96, "frameHeight": 96, "frameCount": 36 },
-    { "version": 1, "resourceId": "fatty.body-shape", "kind": "collision-shape", "value": { "shape": "ellipse", "radiusX": 44, "radiusY": 42 } },
-    { "version": 1, "resourceId": "fatty.eye-shape", "kind": "collision-shape", "value": { "shape": "circle", "radius": 14 } },
-    { "version": 1, "resourceId": "fatty.contact-shape", "kind": "collision-shape", "value": { "shape": "circle", "radius": 80 } },
-    {
-      "version": 1, "resourceId": "fatty.animations", "kind": "animation-library",
-      "animations": {
-        "chase": { "durationSeconds": 0.78, "framesPerSecond": 7.6923076923, "loop": true, "tracks": [{ "binding": "../Visual", "property": "frame", "keys": [{ "at": 0, "value": 6 }, { "at": 1, "value": 7 }, { "at": 2, "value": 8 }, { "at": 3, "value": 9 }, { "at": 4, "value": 10 }, { "at": 5, "value": 11 }] }] },
-        "contact-hop": { "durationSeconds": 0.3, "framesPerSecond": 20, "loop": false, "tracks": [{ "binding": "../Visual", "property": "frame", "keys": [{ "at": 0, "value": 12 }, { "at": 1, "value": 13 }, { "at": 3, "value": 14 }, { "at": 5, "value": 15 }] }], "events": [{ "at": 5, "id": "contact-hop-impact", "gameplay": true }] },
-        "death": { "durationSeconds": 0.78, "framesPerSecond": 7.6923076923, "loop": false, "tracks": [{ "binding": "../Visual", "property": "frame", "keys": [{ "at": 0, "value": 30 }, { "at": 1, "value": 31 }, { "at": 2, "value": 32 }, { "at": 3, "value": 33 }, { "at": 4, "value": 34 }, { "at": 5, "value": 35 }] }] }
-      }
-    }
-  ]
+  "instances": []
 }

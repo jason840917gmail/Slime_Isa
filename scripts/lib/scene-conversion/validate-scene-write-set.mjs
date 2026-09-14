@@ -2,7 +2,7 @@ import { loadSceneTooling } from './load-scene-tooling.mjs';
 
 export async function validateSceneWriteSet(outputs, { hasAsset } = {}) {
   const tooling = await loadSceneTooling();
-  const registry = tooling.createCoreDescriptorRegistry();
+  const registry = tooling.createGameDescriptorRegistry?.() ?? tooling.createCoreDescriptorRegistry();
   const scenes = [];
   const resources = [];
   for (const output of outputs) {

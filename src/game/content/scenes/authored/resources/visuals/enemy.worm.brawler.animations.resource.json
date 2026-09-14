@@ -1,0 +1,393 @@
+{
+  "version": 1,
+  "resourceId": "enemy.worm.brawler.animations",
+  "kind": "animation-library",
+  "animations": {
+    "idle-side": {
+      "durationSeconds": 0.6666666666666666,
+      "framesPerSecond": 6,
+      "loop": true,
+      "tracks": [
+        {
+          "binding": "../Visual",
+          "property": "frame",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0
+            },
+            {
+              "at": 1,
+              "value": 1
+            },
+            {
+              "at": 2,
+              "value": 2
+            },
+            {
+              "at": 3,
+              "value": 3
+            }
+          ]
+        }
+      ]
+    },
+    "walk-side": {
+      "durationSeconds": 0.4,
+      "framesPerSecond": 10,
+      "loop": true,
+      "tracks": [
+        {
+          "binding": "../Visual",
+          "property": "frame",
+          "keys": [
+            {
+              "at": 0,
+              "value": 4
+            },
+            {
+              "at": 1,
+              "value": 5
+            },
+            {
+              "at": 2,
+              "value": 6
+            },
+            {
+              "at": 3,
+              "value": 7
+            }
+          ]
+        }
+      ]
+    },
+    "attack-side": {
+      "durationSeconds": 0.2727272727272727,
+      "framesPerSecond": 11,
+      "loop": false,
+      "tracks": [
+        {
+          "binding": "../Visual",
+          "property": "frame",
+          "keys": [
+            {
+              "at": 0,
+              "value": 8
+            },
+            {
+              "at": 1,
+              "value": 9
+            },
+            {
+              "at": 2,
+              "value": 10
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "at": 1,
+          "id": "attack-active",
+          "gameplay": true
+        }
+      ]
+    },
+    "knockback-side": {
+      "durationSeconds": 0.125,
+      "framesPerSecond": 8,
+      "loop": false,
+      "tracks": [
+        {
+          "binding": "../Visual",
+          "property": "frame",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0
+            }
+          ]
+        }
+      ]
+    },
+    "die-side": {
+      "durationSeconds": 0.42857142857142855,
+      "framesPerSecond": 7,
+      "loop": false,
+      "tracks": [
+        {
+          "binding": "../Visual",
+          "property": "frame",
+          "keys": [
+            {
+              "at": 0,
+              "value": 11
+            },
+            {
+              "at": 1,
+              "value": 12
+            },
+            {
+              "at": 2,
+              "value": 13
+            }
+          ]
+        }
+      ]
+    },
+    "idle-up": {
+      "durationSeconds": 0.6666666666666666,
+      "framesPerSecond": 6,
+      "loop": true,
+      "tracks": [
+        {
+          "binding": "../Visual",
+          "property": "frame",
+          "keys": [
+            {
+              "at": 0,
+              "value": 14
+            },
+            {
+              "at": 1,
+              "value": 15
+            },
+            {
+              "at": 2,
+              "value": 16
+            },
+            {
+              "at": 3,
+              "value": 17
+            }
+          ]
+        }
+      ]
+    },
+    "walk-up": {
+      "durationSeconds": 0.4,
+      "framesPerSecond": 10,
+      "loop": true,
+      "tracks": [
+        {
+          "binding": "../Visual",
+          "property": "frame",
+          "keys": [
+            {
+              "at": 0,
+              "value": 18
+            },
+            {
+              "at": 1,
+              "value": 19
+            },
+            {
+              "at": 2,
+              "value": 20
+            },
+            {
+              "at": 3,
+              "value": 21
+            }
+          ]
+        }
+      ]
+    },
+    "attack-up": {
+      "durationSeconds": 0.2727272727272727,
+      "framesPerSecond": 11,
+      "loop": false,
+      "tracks": [
+        {
+          "binding": "../Visual",
+          "property": "frame",
+          "keys": [
+            {
+              "at": 0,
+              "value": 22
+            },
+            {
+              "at": 1,
+              "value": 23
+            },
+            {
+              "at": 2,
+              "value": 24
+            }
+          ]
+        }
+      ]
+    },
+    "knockback-up": {
+      "durationSeconds": 0.125,
+      "framesPerSecond": 8,
+      "loop": false,
+      "tracks": [
+        {
+          "binding": "../Visual",
+          "property": "frame",
+          "keys": [
+            {
+              "at": 0,
+              "value": 14
+            }
+          ]
+        }
+      ]
+    },
+    "die-up": {
+      "durationSeconds": 0.42857142857142855,
+      "framesPerSecond": 7,
+      "loop": false,
+      "tracks": [
+        {
+          "binding": "../Visual",
+          "property": "frame",
+          "keys": [
+            {
+              "at": 0,
+              "value": 25
+            },
+            {
+              "at": 1,
+              "value": 26
+            },
+            {
+              "at": 2,
+              "value": 27
+            }
+          ]
+        }
+      ]
+    },
+    "idle-down": {
+      "durationSeconds": 0.6666666666666666,
+      "framesPerSecond": 6,
+      "loop": true,
+      "tracks": [
+        {
+          "binding": "../Visual",
+          "property": "frame",
+          "keys": [
+            {
+              "at": 0,
+              "value": 28
+            },
+            {
+              "at": 1,
+              "value": 29
+            },
+            {
+              "at": 2,
+              "value": 30
+            },
+            {
+              "at": 3,
+              "value": 31
+            }
+          ]
+        }
+      ]
+    },
+    "walk-down": {
+      "durationSeconds": 0.3,
+      "framesPerSecond": 10,
+      "loop": true,
+      "tracks": [
+        {
+          "binding": "../Visual",
+          "property": "frame",
+          "keys": [
+            {
+              "at": 0,
+              "value": 32
+            },
+            {
+              "at": 1,
+              "value": 33
+            },
+            {
+              "at": 2,
+              "value": 34
+            }
+          ]
+        }
+      ]
+    },
+    "attack-down": {
+      "durationSeconds": 0.36363636363636365,
+      "framesPerSecond": 11,
+      "loop": false,
+      "tracks": [
+        {
+          "binding": "../Visual",
+          "property": "frame",
+          "keys": [
+            {
+              "at": 0,
+              "value": 35
+            },
+            {
+              "at": 1,
+              "value": 36
+            },
+            {
+              "at": 2,
+              "value": 37
+            },
+            {
+              "at": 3,
+              "value": 38
+            }
+          ]
+        }
+      ]
+    },
+    "knockback-down": {
+      "durationSeconds": 0.125,
+      "framesPerSecond": 8,
+      "loop": false,
+      "tracks": [
+        {
+          "binding": "../Visual",
+          "property": "frame",
+          "keys": [
+            {
+              "at": 0,
+              "value": 28
+            }
+          ]
+        }
+      ]
+    },
+    "die-down": {
+      "durationSeconds": 0.5714285714285714,
+      "framesPerSecond": 7,
+      "loop": false,
+      "tracks": [
+        {
+          "binding": "../Visual",
+          "property": "frame",
+          "keys": [
+            {
+              "at": 0,
+              "value": 39
+            },
+            {
+              "at": 1,
+              "value": 40
+            },
+            {
+              "at": 2,
+              "value": 41
+            },
+            {
+              "at": 3,
+              "value": 42
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
