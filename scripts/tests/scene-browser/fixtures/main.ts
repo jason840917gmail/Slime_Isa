@@ -6,10 +6,16 @@ import { CharacterBody2DNode } from '../../../../src/game/infrastructure/phaser-
 import { CollisionShape2DNode } from '../../../../src/game/infrastructure/phaser-nodes/CollisionShape2DNode';
 import { Sprite2DNode } from '../../../../src/game/infrastructure/phaser-nodes/Sprite2DNode';
 import { StaticBody2DNode } from '../../../../src/game/infrastructure/phaser-nodes/StaticBody2DNode';
+import { AudioStreamPlayerNode, type AudioUnlockService } from '../../../../src/game/infrastructure/phaser-nodes/AudioStreamPlayerNode';
 import { PhaserNodeContext } from '../../../../src/game/infrastructure/scenes/PhaserNodeContext';
 import { PhaserSceneTreeHost } from '../../../../src/game/infrastructure/scenes/PhaserSceneTreeHost';
 import { authoredNodeId, resourceId, runtimeNodeId } from '../../../../src/game/content/scenes/identifiers';
 import { Node } from '../../../../src/game/runtime/scene/Node';
+import { ControlNode } from '../../../../src/game/runtime/scene/ui/ControlNode';
+import { InputRouter } from '../../../../src/game/runtime/scene/input/InputRouter';
+import { AnimationBinding } from '../../../../src/game/runtime/scene/animation/AnimationBinding';
+import { AnimationPlayerNode } from '../../../../src/game/runtime/scene/animation/AnimationPlayerNode';
+import { ScriptNode } from '../../../../src/game/runtime/scene/scripts/ScriptNode';
 import type { PhysicsContact } from '../../../../src/game/runtime/scene/physics/PhysicsContact';
 import { SceneTree } from '../../../../src/game/runtime/scene/SceneTree';
 
@@ -33,6 +39,10 @@ type FixtureSnapshot = {
   readonly sensorContactCount?: number;
   readonly sensorEnterCount?: number;
   readonly sensorExitCount?: number;
+  readonly gameplayInputCount?: number;
+  readonly audioUnlocked?: boolean;
+  readonly audioObjectCount?: number;
+  readonly audioIsPlaying?: boolean;
   readonly destroyed: boolean;
   readonly loadedAtMs?: number;
   readonly initializationError?: string;
@@ -46,6 +56,7 @@ type FixtureApi = {
   attachSprite(): void;
   setWallEnabled(enabled: boolean): void;
   freeWall(): void;
+  detachAudio(): void;
   snapshot(): FixtureSnapshot;
   destroy(): void;
 };
@@ -63,6 +74,7 @@ const app = document.querySelector<HTMLDivElement>('#app');
 if (!control || !app) throw new Error('Scene browser fixture mount is incomplete');
 
 let controlCount = 0;
+let gameplayInputCount = 0;
 let stepCount = 0;
 let destroyed = false;
 let loadedAtMs: number | undefined;
@@ -73,7 +85,7 @@ const consumeControl = (event: MouseEvent): void => {
   event.stopPropagation();
   controlCount += 1;
 };
-control.addEventListener('click', consumeControl);
+if (mode === 'baseline') control.addEventListener('click', consumeControl);
 
 function countBodies(game: Phaser.Game | undefined): number {
   if (!game) return 0;
@@ -96,9 +108,26 @@ let detachHarnessSprite: (() => void) | undefined;
 let attachHarnessSprite: (() => void) | undefined;
 let setHarnessWallEnabled: ((enabled: boolean) => void) | undefined;
 let freeHarnessWall: (() => void) | undefined;
+let detachHarnessAudio: (() => void) | undefined;
 let harnessSnapshot: (() => Partial<FixtureSnapshot>) | undefined;
 
 if (mode === 'harness') {
+  class PointerAudioUnlock implements AudioUnlockService {
+    private unlocked = false;
+    private readonly callbacks = new Set<() => void>();
+    private readonly handlePointer = (): void => {
+      if (this.unlocked) return;
+      this.unlocked = true;
+      for (const callback of [...this.callbacks]) callback();
+      this.callbacks.clear();
+    };
+
+    constructor() { document.addEventListener('pointerdown', this.handlePointer, { capture: true }); }
+    isUnlocked(): boolean { return this.unlocked; }
+    onUnlocked(callback: () => void): () => void { this.callbacks.add(callback); return () => this.callbacks.delete(callback); }
+    destroy(): void { document.removeEventListener('pointerdown', this.handlePointer, { capture: true }); this.callbacks.clear(); }
+  }
+
   class TrackingAreaNode extends Area2DNode {
     enteredCount = 0;
     exitedCount = 0;
@@ -117,6 +146,9 @@ if (mode === 'harness') {
     private character?: CharacterBody2DNode;
     private wall?: StaticBody2DNode;
     private sensor?: TrackingAreaNode;
+    private audio?: AudioStreamPlayerNode;
+    private audioUnlock?: PointerAudioUnlock;
+    private inputRouter?: InputRouter;
 
     constructor() {
       super('browser-harness');
@@ -136,13 +168,37 @@ if (mode === 'harness') {
         [bodyShapeId, { version: 1, resourceId: bodyShapeId, kind: 'collision-shape', value: { shape: 'rectangle', width: 12, height: 12 } }],
         [sensorShapeId, { version: 1, resourceId: sensorShapeId, kind: 'collision-shape', value: { shape: 'circle', radius: 10 } }],
       ]));
+      const audioContext = (this.sound as unknown as { readonly context?: AudioContext }).context;
+      if (audioContext) this.cache.audio.add('browser-silent-loop', audioContext.createBuffer(1, audioContext.sampleRate, audioContext.sampleRate));
+      this.tree = new SceneTree();
+      this.host = new PhaserSceneTreeHost({ tree: this.tree, backend: this.context });
+      this.inputRouter = new InputRouter({ sink: this.host, isPaused: () => this.tree?.paused ?? false });
+      this.audioUnlock = new PointerAudioUnlock();
       this.root = new Node({ runtimeId: runtimeNodeId('browser', [], authoredNodeId('root')), name: 'Root' });
+      this.root.add_child(new ControlNode({
+        runtimeId: runtimeNodeId('browser', [], authoredNodeId('control')), name: 'FixtureControl', inputRouter: this.inputRouter, focused: true,
+        onInput: (event) => { if (event.type !== 'pointer-down') return false; controlCount += 1; return true; },
+      }));
+      class GameplayInputNode extends Node {
+        constructor() { super({ runtimeId: runtimeNodeId('browser', [], authoredNodeId('gameplay-input')), name: 'GameplayInput' }); this.set_process_unhandled_input(true); }
+        override _unhandled_input(event: { readonly type?: string }): void { if (event.type === 'pointer-down') gameplayInputCount += 1; }
+      }
+      this.root.add_child(new GameplayInputNode());
       this.spriteNode = new Sprite2DNode({
         runtimeId: runtimeNodeId('browser', [], authoredNodeId('sprite')), name: 'ManagedSprite', context: this.context, texture: textureId,
         position: { x: 40, y: 30 }, depthMode: 'explicit', depth: 10,
       });
       const camera = new Camera2DNode({ runtimeId: runtimeNodeId('browser', [], authoredNodeId('camera')), name: 'ManagedCamera', context: this.context, position: { x: 80, y: 60 } });
       this.root.add_child(this.spriteNode);
+      this.root.add_child(new AnimationPlayerNode({
+        runtimeId: runtimeNodeId('browser', [], authoredNodeId('animation')), name: 'ManagedAnimation', domain: 'render', advanceSource: this.context, autoplay: 'drift',
+        animations: { drift: { durationSeconds: 2, framesPerSecond: 1, loop: true, tracks: [{ binding: 'visual', property: 'position', keys: [{ at: 0, value: [40, 30] }, { at: 1, value: [41, 30] }] }] } },
+        resolveBinding: (_player, binding, property) => {
+          if (binding !== 'visual' || property !== 'position' || !this.spriteNode) throw new Error(`Unknown browser animation binding '${binding}.${property}'`);
+          return new AnimationBinding(this.spriteNode, property, { key: 'position', label: 'Position', value: { kind: 'vector2' }, serialized: true, inspector: 'vector2', animation: { interpolation: 'numeric', domains: ['render'] }, overridable: true });
+        },
+      }));
+      this.root.add_child(new ScriptNode({ runtimeId: runtimeNodeId('browser', [], authoredNodeId('script')), name: 'ManagedScript', scriptId: 'fixture.browser' }));
       this.root.add_child(camera);
       this.character = new CharacterBody2DNode({
         runtimeId: runtimeNodeId('browser', [], authoredNodeId('character')), name: 'ManagedCharacter', context: this.context,
@@ -168,11 +224,17 @@ if (mode === 'harness') {
       }));
       this.root.add_child(this.character);
       this.root.add_child(this.wall);
-      this.tree = new SceneTree();
+      if (audioContext) {
+        this.audio = new AudioStreamPlayerNode({
+          runtimeId: runtimeNodeId('browser', [], authoredNodeId('audio')), name: 'ManagedAudio', scene: this,
+          assetId: 'browser-silent-loop', loop: true, autoplay: true, unlock: this.audioUnlock,
+        });
+        this.root.add_child(this.audio);
+      }
       this.tree.setRoot(this.root);
-      this.host = new PhaserSceneTreeHost({ tree: this.tree, backend: this.context });
-      this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.host?.shutdown());
-      this.events.once(Phaser.Scenes.Events.DESTROY, () => this.host?.shutdown());
+      const cleanup = (): void => { this.host?.shutdown(); this.inputRouter?.destroy(); this.audioUnlock?.destroy(); };
+      this.events.once(Phaser.Scenes.Events.SHUTDOWN, cleanup);
+      this.events.once(Phaser.Scenes.Events.DESTROY, cleanup);
       this.game.loop.sleep();
     }
 
@@ -186,6 +248,7 @@ if (mode === 'harness') {
     attachSprite(): void { if (this.root && this.spriteNode && !this.spriteNode.get_parent()) { this.root.add_child(this.spriteNode); this.tree?.flushMutations(); } }
     setWallEnabled(enabled: boolean): void { if (this.wall) this.wall.collisionEnabled = enabled; }
     freeWall(): void { this.wall?.queue_free(); this.tree?.flushMutations(); }
+    detachAudio(): void { if (this.root && this.audio?.get_parent() === this.root) { this.root.remove_child(this.audio); this.tree?.flushMutations(); } }
     managedSnapshot(): Partial<FixtureSnapshot> {
       const display = this.children.list.find((entry) => entry instanceof Phaser.GameObjects.Sprite) as Phaser.GameObjects.Sprite | undefined;
       return {
@@ -202,6 +265,10 @@ if (mode === 'harness') {
         sensorContactCount: this.sensor?.currentContacts.length ?? 0,
         sensorEnterCount: this.sensor?.enteredCount ?? 0,
         sensorExitCount: this.sensor?.exitedCount ?? 0,
+        gameplayInputCount,
+        audioUnlocked: this.audioUnlock?.isUnlocked() ?? false,
+        audioObjectCount: (this.sound as unknown as { readonly sounds?: readonly unknown[] }).sounds?.length ?? 0,
+        audioIsPlaying: Boolean((this.sound as unknown as { readonly sounds?: readonly { readonly isPlaying?: boolean }[] }).sounds?.some((sound) => sound.isPlaying)),
       };
     }
   }
@@ -212,7 +279,7 @@ if (mode === 'harness') {
     width: 160,
     height: 120,
     banner: false,
-    audio: { noAudio: true },
+    audio: { noAudio: false },
     physics: {
       default: 'arcade',
       arcade: { gravity: { x: 0, y: 0 }, fixedStep: false },
@@ -229,6 +296,7 @@ if (mode === 'harness') {
   attachHarnessSprite = () => (game?.scene.getScene('browser-harness') as BrowserHarnessScene).attachSprite();
   setHarnessWallEnabled = (enabled) => (game?.scene.getScene('browser-harness') as BrowserHarnessScene).setWallEnabled(enabled);
   freeHarnessWall = () => (game?.scene.getScene('browser-harness') as BrowserHarnessScene).freeWall();
+  detachHarnessAudio = () => (game?.scene.getScene('browser-harness') as BrowserHarnessScene).detachAudio();
   harnessSnapshot = () => (game?.scene.getScene('browser-harness') as BrowserHarnessScene).managedSnapshot();
 } else {
   try {
@@ -274,6 +342,10 @@ const api: FixtureApi = {
   freeWall() {
     if (!freeHarnessWall) throw new Error('Managed wall is only available in harness mode');
     freeHarnessWall();
+  },
+  detachAudio() {
+    if (!detachHarnessAudio) throw new Error('Managed audio is only available in harness mode');
+    detachHarnessAudio();
   },
   snapshot() {
     return {

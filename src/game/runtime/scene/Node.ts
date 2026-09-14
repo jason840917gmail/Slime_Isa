@@ -50,6 +50,8 @@ export class Node {
   private readonly references = new Map<string, NodeReference>();
   private instanceProvenance?: SceneInstanceProvenance;
   private persistenceKey?: PersistenceKey;
+  private registeredType = 'Node';
+  private readonly registeredCapabilities = new Set<string>();
 
   constructor(options: NodeOptions) {
     validateNodeName(options.name);
@@ -69,6 +71,8 @@ export class Node {
   get lifetimeDisposables(): DisposableScope { return this.lifetimeScope; }
   get authoredInstanceProvenance(): SceneInstanceProvenance | undefined { return this.instanceProvenance; }
   get explicitPersistenceKey(): PersistenceKey | undefined { return this.persistenceKey; }
+  get runtimeType(): string { return this.registeredType; }
+  has_runtime_capability(capability: string): boolean { return this.registeredCapabilities.has(capability); }
 
   add_child(node: Node): void {
     this.assertMutable();
@@ -121,6 +125,8 @@ export class Node {
       copy.unhandledInputEnabled = source.unhandledInputEnabled;
       copy.inputPriority = source.inputPriority;
       copy.processWhenPaused = source.processWhenPaused;
+      copy.registeredType = source.registeredType;
+      for (const capability of source.registeredCapabilities) copy.registeredCapabilities.add(capability);
       for (const group of source.groups) copy.groups.add(group);
       for (const signalId of source.signals.keys()) if (!copy.signals.has(signalId)) copy.createSignal(signalId);
       source._copyConfigurationTo(copy);
@@ -261,6 +267,12 @@ export class Node {
   _setInstanceProvenanceInternal(provenance: SceneInstanceProvenance | undefined): void { this.instanceProvenance = provenance; }
   /** @internal */
   _setPersistenceKeyInternal(key: PersistenceKey | undefined): void { this.persistenceKey = key; }
+  /** @internal */
+  _setRuntimeDescriptorInternal(type: string, capabilities: Iterable<string> = []): void {
+    this.registeredType = type;
+    this.registeredCapabilities.clear();
+    for (const capability of capabilities) this.registeredCapabilities.add(capability);
+  }
   /** @internal */
   _setLifecycleInternal(state: Exclude<NodeLifecycleState, 'queued-for-free'>): void { this.lifecycle = state; }
   /** @internal */
