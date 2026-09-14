@@ -74,9 +74,9 @@ function themeValues(construction: NodeConstructionContext): Readonly<Record<str
   return resource.values;
 }
 
-function audioOptions(construction: NodeConstructionContext, services: PhaserNodeRegistryServices) {
+function audioOptions(construction: NodeConstructionContext, services: PhaserNodeRegistryServices, context: PhaserNodeContext) {
   return {
-    assetId: audioResource(construction).assetId,
+    assetId: context.assetKey(audioResource(construction).assetId),
     bus: construction.properties.bus === 'music' ? 'music' as const : 'effects' as const,
     volume: typeof construction.properties.volume === 'number' ? construction.properties.volume : undefined,
     pitch: typeof construction.properties.pitch === 'number' ? construction.properties.pitch : undefined,
@@ -172,12 +172,12 @@ export function createPhaserNodeRegistry(context: PhaserNodeContext, services: P
       runtimeId: construction.runtimeId,
       name: construction.name,
       scene: context.scene,
-      ...audioOptions(construction, services),
+      ...audioOptions(construction, services, context),
     }))
     .replace('AudioStreamPlayer2D', (construction) => new AudioStreamPlayer2DNode({
       ...base(construction),
       scene: context.scene,
-      ...audioOptions(construction, services),
+      ...audioOptions(construction, services, context),
       maxDistance: typeof construction.properties.maxDistance === 'number' ? construction.properties.maxDistance : undefined,
       panDistance: typeof construction.properties.panDistance === 'number' ? construction.properties.panDistance : undefined,
     }));

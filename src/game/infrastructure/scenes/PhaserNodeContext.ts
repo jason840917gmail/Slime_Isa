@@ -51,8 +51,15 @@ export class PhaserNodeContext implements SceneHostBackend {
   constructor(
     readonly scene: Phaser.Scene,
     private readonly resources: ReadonlyMap<ResourceId, SceneResourceDocument> = new Map(),
+    private readonly resolveAssetKey: (assetId: string) => string = (assetId) => assetId,
   ) {
     this.contactRouter = new ContactRouter((observer, bounds) => this.contactCandidates(observer, bounds));
+  }
+
+  assetKey(assetId: string): string {
+    const key = this.resolveAssetKey(assetId);
+    if (!key) throw new Error(`Scene asset '${assetId}' resolved to an empty Phaser key`);
+    return key;
   }
 
   get managedPresentationCount(): number { return this.presentation.size; }
