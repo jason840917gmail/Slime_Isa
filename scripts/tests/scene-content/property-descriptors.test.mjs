@@ -28,3 +28,13 @@ test('non-numeric properties cannot request numeric animation interpolation', ()
   const registry = tooling.createCoreDescriptorRegistry([{ scriptId: 'bad', displayName: 'Bad', sourcePath: 'Bad.ts', properties: [{ key: 'state', label: 'State', value: { kind: 'enum', values: ['idle'] }, serialized: true, inspector: 'select', animation: { interpolation: 'numeric', domains: ['render'] }, overridable: true }] }]);
   assert.match(tooling.validateDescriptorRegistry(registry)[0].message, /numeric interpolation is incompatible/);
 });
+
+test('universal physics descriptors expose only reusable body, area, and shape capabilities', () => {
+  const registry = tooling.createCoreDescriptorRegistry();
+  assert.deepEqual(registry.nodeTypes.get('Area2D').signals.map((signal) => signal.id), ['body_entered', 'body_exited', 'area_entered', 'area_exited']);
+  assert.equal(registry.nodeTypes.get('CharacterBody2D').capabilities.includes('character-body'), true);
+  assert.equal(registry.nodeTypes.get('CollisionShape2D').allowedParentTypes.includes('Area2D'), true);
+  const physicsTypes = [...registry.nodeTypes.values()].filter((descriptor) => descriptor.capabilities?.some((capability) => ['physics-body', 'character-body', 'area', 'collision-shape'].includes(capability))).map((descriptor) => descriptor.type);
+  assert.deepEqual(physicsTypes, ['PhysicsBody2D', 'CharacterBody2D', 'Area2D', 'CollisionShape2D']);
+  assert.equal(physicsTypes.some((type) => /enemy|damage|weapon/i.test(type)), false);
+});

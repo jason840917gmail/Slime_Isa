@@ -219,7 +219,17 @@ export function validateSceneResourceDocument(value: unknown, context: Pick<Scen
     if (shape === 'rectangle' && (!positive(geometry.width) || !positive(geometry.height))) issues.push({ path: '/value', message: 'rectangle requires positive width and height' });
     else if (shape === 'circle' && !positive(geometry.radius)) issues.push({ path: '/value', message: 'circle requires positive radius' });
     else if (shape === 'ellipse' && (!positive(geometry.radiusX) || !positive(geometry.radiusY))) issues.push({ path: '/value', message: 'ellipse requires positive radii' });
-    else if (shape === 'sector' && (!positive(geometry.radius) || !positive(geometry.angleDegrees) || (geometry.innerRadius !== undefined && !positive(geometry.innerRadius)))) issues.push({ path: '/value', message: 'sector requires positive radius, optional innerRadius, and angleDegrees' });
+    else if (shape === 'sector') {
+      const finite = (entry: unknown): entry is number => typeof entry === 'number' && Number.isFinite(entry);
+      const angleRad = geometry.angleRad;
+      const arcWidthRad = geometry.arcWidthRad;
+      const innerRadius = geometry.innerRadius;
+      const outerRadius = geometry.outerRadius;
+      if (!finite(angleRad) || !finite(arcWidthRad) || arcWidthRad <= 0 || arcWidthRad > Math.PI * 2
+        || !finite(innerRadius) || innerRadius < 0 || !positive(outerRadius) || innerRadius >= Number(outerRadius)) {
+        issues.push({ path: '/value', message: 'sector requires finite angleRad, 0 < arcWidthRad <= 2π, and 0 <= innerRadius < outerRadius' });
+      }
+    }
     else if (!['rectangle', 'circle', 'ellipse', 'sector'].includes(String(shape))) issues.push({ path: '/value', message: 'collision shape resource requires known shape geometry' });
   }
   if (value.kind === 'animation-library' && !isRecord(value.animations)) issues.push({ path: '/animations', message: 'animation library requires animations' });

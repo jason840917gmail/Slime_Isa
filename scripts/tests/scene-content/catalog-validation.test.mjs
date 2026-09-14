@@ -20,6 +20,8 @@ test('resource validation keeps raw media in the asset manifest and validates re
   assert.deepEqual(tooling.validateSceneResourceDocument({ version: 1, resourceId: 'texture.hero', kind: 'texture', assetId: 'hero' }, { hasAsset: (id) => id === 'hero' }), []);
   assert.match(tooling.validateSceneResourceDocument({ version: 1, resourceId: 'texture.missing', kind: 'texture', assetId: 'missing' }, { hasAsset: () => false })[0].message, /unknown raw-media asset/);
   assert.match(tooling.validateSceneResourceDocument({ version: 1, resourceId: 'theme.main', kind: 'theme', values: {}, surprise: true })[0].message, /field is not valid/);
+  assert.deepEqual(tooling.validateSceneResourceDocument({ version: 1, resourceId: 'shape.swing', kind: 'collision-shape', value: { shape: 'sector', angleRad: 0, arcWidthRad: Math.PI / 2, innerRadius: 0, outerRadius: 40 } }), []);
+  assert.match(tooling.validateSceneResourceDocument({ version: 1, resourceId: 'shape.bad-swing', kind: 'collision-shape', value: { shape: 'sector', angleRad: 0, arcWidthRad: 0, innerRadius: 10, outerRadius: 10 } })[0].message, /0 < arcWidthRad/);
 });
 
 test('nested override references resolve in the containing scene scope', () => {
