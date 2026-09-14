@@ -3,6 +3,8 @@ import { gameState } from '../core/GameState';
 import { gameEvents } from '../core/EventBus';
 import { getStats } from './PlayerStats';
 import type { StatusEffectManager } from './StatusEffects';
+import { PlayerHealthService } from '../features/player/PlayerHealthService';
+import type { DamageAreaRule } from '../features/combat/DamageReceiver';
 
 /**
  * HealthSystem handles the damage pipeline for the player:
@@ -55,52 +57,92 @@ export interface RejectedDamageResult {
 export type DamageResult = AcceptedDamageResult | RejectedDamageResult;
 
 export class HealthSystem {
-  private ctx: HealthSystemContext;
-  private iFrameUntil = 0;
-  private dead = false;
+  private readonly playerHealth: PlayerHealthService;
+  private legacyActivationSequence = 0;
 
-  constructor(ctx: HealthSystemContext) {
-    this.ctx = ctx;
+  constructor(private readonly ctx: HealthSystemContext) {
+    this.playerHealth = new PlayerHealthService('legacy:player', {
+      state: {
+        getHp: () => gameState.hp,
+        getMaxHp: () => gameState.maxHp,
+        commitResolvedDamage: (amount, source) => gameState.damage(amount, source),
+        heal: (amount) => gameState.heal(amount),
+        revive: () => gameState.revive(),
+      },
+      stats: {
+        getHealthStats: () => {
+          const stats = getStats();
+          return {
+            defense: stats.defense,
+            damageTakenMult: stats.damageTakenMult,
+            iFrameMs: stats.iFrameMs,
+          };
+        },
+      },
+      feedback: { onDeath: () => this.ctx.onDeath?.() },
+    });
 
     gameEvents.on('player.death', this.handleDeath, this);
   }
 
   isInvulnerable(time: number): boolean {
-    return time < this.iFrameUntil;
+    return this.playerHealth.isInvulnerable(time);
   }
 
   isDead(): boolean {
-    return this.dead;
+    return this.playerHealth.isDead();
+  }
+
+  get managedReceiver(): PlayerHealthService {
+    return this.playerHealth;
   }
 
   applyDamage(req: DamageRequest, time: number): DamageResult {
-    if (this.dead) return this.rejected(req.amount, 'dead');
-    if (this.isInvulnerable(time)) return this.rejected(req.amount, 'invulnerable');
     if (!Number.isFinite(req.amount) || req.amount <= 0) return this.rejected(req.amount, 'invalid');
+    this.legacyActivationSequence += 1;
+    const sourceNodeId = req.source?.trim() || 'legacy:unknown';
+    const area: DamageAreaRule = {
+      areaNodeId: 'legacy:player:body',
+      priority: 0,
+      damageMultiplier: 1,
+    };
+    const outcome = this.playerHealth.applyDamage({
+      activationId: `${sourceNodeId}:${this.legacyActivationSequence}`,
+      sourceNodeId,
+      attackAreaNodeId: `${sourceNodeId}:attack`,
+      targetAreaNodeId: area.areaNodeId,
+      weaponTags: [],
+      damageTypes: [],
+      baseDamage: req.amount,
+      trueDamage: req.trueDamage,
+      effects: [],
+      impact: {
+        x: this.ctx.getPlayer().x,
+        y: this.ctx.getPlayer().y,
+        knockX: req.knockX ?? 0,
+        knockY: req.knockY ?? 0,
+      },
+    }, area, time);
+    if (outcome.result.status === 'rejected') {
+      const reason = outcome.result.reason === 'state-blocked' ? 'invulnerable'
+        : outcome.result.reason === 'dead' ? 'dead'
+          : 'invalid';
+      return this.rejected(req.amount, reason);
+    }
 
-    const stats = getStats();
-    const mitigated = req.trueDamage ? req.amount : Math.max(1, req.amount - stats.defense);
-    const final = Math.round(mitigated * stats.damageTakenMult);
-    const actualHpLost = gameState.damage(final, req.source);
-    if (actualHpLost <= 0) return this.rejected(req.amount, 'dead');
-
-    if (!gameState.isDead()) {
-      this.iFrameUntil = time + stats.iFrameMs;
-
-      if (req.knockX !== undefined || req.knockY !== undefined) {
-        const strength = req.knockStrength ?? 220;
-        const direction = new Phaser.Math.Vector2(req.knockX ?? 0, req.knockY ?? 0);
-        if (direction.lengthSq() > 0) {
-          this.ctx.applyKnockback?.(direction.normalize(), strength, 160);
-        }
+    if (!outcome.result.defeated && (req.knockX !== undefined || req.knockY !== undefined)) {
+      const strength = req.knockStrength ?? 220;
+      const direction = new Phaser.Math.Vector2(req.knockX ?? 0, req.knockY ?? 0);
+      if (direction.lengthSq() > 0) {
+        this.ctx.applyKnockback?.(direction.normalize(), strength, 160);
       }
     }
 
     const result: AcceptedDamageResult = {
       status: 'accepted',
       requestedDamage: req.amount,
-      mitigatedDamage: final,
-      actualHpLost,
+      mitigatedDamage: outcome.roundedDamage,
+      actualHpLost: outcome.result.actualDamage,
     };
     this.ctx.onHit?.(result);
 
@@ -108,26 +150,20 @@ export class HealthSystem {
   }
 
   heal(amount: number): number {
-    if (this.dead) return 0;
-    return gameState.heal(amount);
+    return this.playerHealth.heal(amount);
   }
 
   respawn(): void {
-    this.dead = false;
-    this.iFrameUntil = 0;
-    gameState.revive();
+    this.playerHealth.respawn();
   }
 
   update(time: number): void {
-    if (this.dead) return;
     // Invulnerability flash handled by onHit; nothing to do per-frame here.
     void time;
   }
 
   private handleDeath = (): void => {
-    if (this.dead) return;
-    this.dead = true;
-    this.ctx.onDeath?.();
+    this.playerHealth.markDead();
   };
 
   destroy(): void {
