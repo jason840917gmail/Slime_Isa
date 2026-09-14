@@ -57,9 +57,20 @@ export interface ScriptDescriptor {
   readonly sourcePath: string;
   readonly extends?: string;
   readonly capabilities?: readonly string[];
+  readonly exclusiveCapabilities?: readonly string[];
+  readonly references?: readonly ScriptReferenceDescriptor[];
   readonly properties: readonly PropertyDescriptor[];
   readonly signals?: readonly SignalDescriptor[];
   readonly handlers?: readonly HandlerDescriptor[];
+}
+
+export interface ScriptReferenceDescriptor {
+  readonly key: string;
+  readonly label: string;
+  readonly required?: boolean;
+  readonly expectedNodeType?: string;
+  readonly expectedCapability?: string;
+  readonly multiple?: boolean;
 }
 
 export interface DescriptorRegistry {
@@ -275,11 +286,31 @@ export function createCoreDescriptorRegistry(scripts: readonly ScriptDescriptor[
     ] },
     { type: 'TileMapLayer2D', extends: 'Node2D', properties: [resource('tileData', 'Tile Data', ['tile-data'])] },
     { type: 'Camera2D', extends: 'Node2D', properties: [number('zoom', 'Zoom', 1, 0.01), boolean('roundPixels', 'Round Pixels', true)] },
-    { type: 'AnimationPlayer', extends: 'Node', properties: [resource('library', 'Animation Library', ['animation-library'])] },
-    { type: 'AudioStreamPlayer', extends: 'Node', properties: [resource('stream', 'Audio Stream', ['audio'])] },
-    { type: 'AudioStreamPlayer2D', extends: 'Node2D', properties: [resource('stream', 'Audio Stream', ['audio'])] },
+    { type: 'AnimationPlayer', extends: 'Node', properties: [
+      { ...resource('library', 'Animation Library', ['animation-library']), required: true },
+      { key: 'domain', label: 'Clock Domain', value: { kind: 'enum', values: ['physics', 'render'] }, defaultValue: 'render', serialized: true, inspector: 'select', overridable: true },
+      { key: 'autoplay', label: 'Autoplay', value: { kind: 'string' }, serialized: true, inspector: 'text', overridable: true },
+    ], signals: [{ id: 'animation_event', payload: 'AnimationEventEmission' }, { id: 'animation_finished', payload: 'string' }] },
+    { type: 'AudioStreamPlayer', extends: 'Node', properties: [
+      { ...resource('stream', 'Audio Stream', ['audio']), required: true },
+      { key: 'bus', label: 'Audio Bus', value: { kind: 'enum', values: ['effects', 'music'] }, defaultValue: 'effects', serialized: true, inspector: 'select', overridable: true },
+      number('volume', 'Volume', 1, 0), number('pitch', 'Pitch', 1, 0.01), boolean('loop', 'Loop', false), boolean('autoplay', 'Autoplay', false),
+    ], signals: [{ id: 'playback_finished' }] },
+    { type: 'AudioStreamPlayer2D', extends: 'Node2D', properties: [
+      { ...resource('stream', 'Audio Stream', ['audio']), required: true },
+      { key: 'bus', label: 'Audio Bus', value: { kind: 'enum', values: ['effects', 'music'] }, defaultValue: 'effects', serialized: true, inspector: 'select', overridable: true },
+      number('volume', 'Volume', 1, 0), number('pitch', 'Pitch', 1, 0.01), boolean('loop', 'Loop', false), boolean('autoplay', 'Autoplay', false),
+      number('maxDistance', 'Maximum Distance', 800, 0.01), number('panDistance', 'Pan Distance', 400, 0.01),
+    ], signals: [{ id: 'playback_finished' }] },
     { type: 'ScriptNode', extends: 'Node', properties: [] },
-    { type: 'Control', extends: 'Node', properties: [vector('anchors', 'Anchors', [0, 0]), vector('offsets', 'Offsets', [0, 0])] },
+    { type: 'Control', extends: 'Node', capabilities: ['control'], properties: [
+      vector('anchorMin', 'Minimum Anchor', [0, 0]), vector('anchorMax', 'Maximum Anchor', [0, 0]),
+      vector('offsetMin', 'Minimum Offset', [0, 0]), vector('offsetMax', 'Maximum Offset', [0, 0]),
+      boolean('visible', 'Visible', true), boolean('focused', 'Focused', false), boolean('modal', 'Modal', false),
+      boolean('consumeInput', 'Consume Input', false), boolean('processWhenPaused', 'Process When Paused', true),
+      { key: 'inputPriority', label: 'Input Priority', value: { kind: 'number', integer: true }, defaultValue: 1000, serialized: true, inspector: 'number', overridable: true },
+      resource('theme', 'Theme', ['theme']),
+    ] },
   ];
   return {
     nodeTypes: new Map(nodeTypes.map((descriptor) => [descriptor.type, descriptor])),

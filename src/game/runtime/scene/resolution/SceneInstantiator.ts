@@ -1,5 +1,5 @@
 import { persistenceKey, runtimeNodeId, type PersistenceKey, type ResourceId } from '../../../content/scenes/identifiers';
-import { descriptorMap, propertiesForNode, signalsForNode, type DescriptorRegistry } from '../../../content/scenes/propertyDescriptors';
+import { capabilitiesForNode, descriptorMap, propertiesForNode, signalsForNode, type DescriptorRegistry } from '../../../content/scenes/propertyDescriptors';
 import type { JsonValue, NodeReferenceDocument, SceneResourceDocument } from '../../../content/scenes/types';
 import { Node } from '../Node';
 import { NodeReference } from '../NodeReference';
@@ -55,6 +55,7 @@ export class SceneInstantiator {
         const node = source.scriptId
           ? this.options.scripts?.construct(context) ?? (() => { throw new Error(`No script registry is configured for '${source.scriptId}'`); })()
           : this.options.nodeTypes.construct(context);
+        node._setRuntimeDescriptorInternal(source.type, capabilitiesForNode(source.type, source.scriptId, this.options.descriptors));
         node._setInstanceProvenanceInternal(source.provenance ? structuredClone(source.provenance) : undefined);
         nodes.set(source.key, node);
       }
