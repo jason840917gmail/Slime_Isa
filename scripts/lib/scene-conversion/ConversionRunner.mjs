@@ -1,8 +1,8 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import os from 'node:os';
+import { mkdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import { conversionReport, sha256 } from './ConversionReport.mjs';
+import { loadContentWriteJournal } from './load-content-write-journal.mjs';
 import { StableIdMap } from './StableIdMap.mjs';
 
 function inside(parent, candidate) {
@@ -23,13 +23,14 @@ function orderedFamilies(rows) {
 }
 
 export class ConversionRunner {
-  constructor({ repositoryRoot, ledger, adapters, outputRoot, stableIds = new StableIdMap(), validateWriteSet }) {
+  constructor({ repositoryRoot, ledger, adapters, outputRoot, stableIds = new StableIdMap(), validateWriteSet, journalFactory }) {
     this.repositoryRoot = repositoryRoot;
     this.ledger = ledger;
     this.adapters = adapters;
     this.outputRoot = outputRoot;
     this.stableIds = stableIds;
     this.validateWriteSet = validateWriteSet;
+    this.journalFactory = journalFactory;
   }
 
   async run({ family = 'all', mode = 'dry-run' } = {}) {
@@ -72,11 +73,26 @@ export class ConversionRunner {
     if (!this.validateWriteSet) throw new Error('Scene conversion requires the canonical write-set validator');
     await this.validateWriteSet(outputs);
     if (mode === 'apply') {
-      if (!inside(os.tmpdir(), this.outputRoot)) throw new Error('Before the journaled writer exists, --apply is restricted to a test-owned OS temporary directory');
+      await mkdir(this.outputRoot, { recursive: true });
+      const changed = [];
       for (const output of outputs) {
         const target = path.join(this.outputRoot, output.path);
-        await mkdir(path.dirname(target), { recursive: true });
-        await writeFile(target, output.content, 'utf8');
+        if (!inside(this.outputRoot, target) || path.resolve(target) === path.resolve(this.outputRoot)) throw new Error(`Unsafe conversion output '${output.path}'`);
+        const current = await readFile(target).catch((error) => {
+          if (error?.code === 'ENOENT') return undefined;
+          throw error;
+        });
+        if (current !== undefined && current.toString('utf8') !== output.content) {
+          throw new Error(`Conversion target changed at '${output.path}'; refusing to overwrite authored content`);
+        }
+        if (current === undefined) changed.push({ relativePath: output.path, content: output.content, expectedHash: null });
+      }
+      if (changed.length > 0) {
+        const journal = this.journalFactory
+          ? await this.journalFactory(this.outputRoot)
+          : new (await loadContentWriteJournal()).ContentWriteJournal(this.outputRoot);
+        await journal.recover();
+        await journal.commit(changed);
       }
     } else if (mode === 'check') {
       for (const output of outputs) {

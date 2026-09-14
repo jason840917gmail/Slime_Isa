@@ -9,6 +9,7 @@ import { readCatalog as readAnimationCatalog } from './src/game/content/animatio
 import { gameConstantsContentPlugin } from './src/game/content/gameConstantsContentPlugin';
 import { normalizeGameConstants } from './src/game/content/GameConstantsValidation';
 import { sceneContentModulesPlugin } from './src/game/content/scenes/sceneContentModulesPlugin';
+import { sceneStudioContentPlugin } from './src/game/infrastructure/scenes/editor/SceneStudioContentPlugin';
 
 import { parseMapFile, type MapFile } from './src/game/content/maps/mapFormat';
 import { validateMapReferences as validatePureMapReferences, type MapReferenceResolver } from './src/game/content/maps/validateMapReferences';
@@ -1093,7 +1094,7 @@ function connectionTarget(map: MapFile, direction: Direction): string | undefine
 
 export default defineConfig({
   base: './',
-  plugins: [characterContentModulesPlugin(), animationContentModulesPlugin(), sceneContentModulesPlugin(), gameConstantsContentPlugin(), mapEditorSavePlugin()],
+  plugins: [characterContentModulesPlugin(), animationContentModulesPlugin(), sceneContentModulesPlugin(), sceneStudioContentPlugin(), gameConstantsContentPlugin(), mapEditorSavePlugin()],
   server: {
     open: false,
   },

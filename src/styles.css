@@ -1,3 +1,5 @@
+@import './game/editor/scene-studio/scene-studio.css';
+
 :root {
   color-scheme: dark;
   font-family: "Trebuchet MS", "Segoe UI Variable", sans-serif;

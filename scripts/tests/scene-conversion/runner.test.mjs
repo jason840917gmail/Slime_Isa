@@ -27,13 +27,14 @@ test('dry runs are byte-stable and do not write output', async () => {
   await assert.rejects(() => readFile(path.join(setup.outputRoot, 'actor.scene.json')), /ENOENT/);
 });
 
-test('temporary apply installs the exact write set and check detects drift', async () => {
+test('journaled apply installs the exact write set and check detects drift', async () => {
   const setup = await fixture();
   const runner = new ConversionRunner(setup);
   await runner.run({ family: 'character', mode: 'apply' });
   await runner.run({ family: 'character', mode: 'check' });
   await writeFile(path.join(setup.outputRoot, 'actor.scene.json'), 'drift\n');
   await assert.rejects(() => runner.run({ family: 'character', mode: 'check' }), /differs/);
+  await assert.rejects(() => runner.run({ family: 'character', mode: 'apply' }), /refusing to overwrite authored content/);
 });
 
 test('missing adapters and changed source hashes stop conversion', async () => {
