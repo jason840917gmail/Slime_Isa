@@ -26,7 +26,7 @@ export type CollisionShapeValue =
   | { readonly shape: 'rectangle'; readonly width: number; readonly height: number }
   | { readonly shape: 'circle'; readonly radius: number }
   | { readonly shape: 'ellipse'; readonly radiusX: number; readonly radiusY: number }
-  | { readonly shape: 'sector'; readonly radius: number; readonly innerRadius?: number; readonly angleDegrees: number };
+  | { readonly shape: 'sector'; readonly angleRad: number; readonly arcWidthRad: number; readonly innerRadius: number; readonly outerRadius: number };
 
 export interface CollisionShapeResourceDocument extends ResourceDocumentBase {
   readonly kind: 'collision-shape';

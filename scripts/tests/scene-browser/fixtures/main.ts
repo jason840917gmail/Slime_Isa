@@ -1,11 +1,16 @@
 import Phaser from 'phaser';
 
 import { Camera2DNode } from '../../../../src/game/infrastructure/phaser-nodes/Camera2DNode';
+import { Area2DNode } from '../../../../src/game/infrastructure/phaser-nodes/Area2DNode';
+import { CharacterBody2DNode } from '../../../../src/game/infrastructure/phaser-nodes/CharacterBody2DNode';
+import { CollisionShape2DNode } from '../../../../src/game/infrastructure/phaser-nodes/CollisionShape2DNode';
 import { Sprite2DNode } from '../../../../src/game/infrastructure/phaser-nodes/Sprite2DNode';
+import { StaticBody2DNode } from '../../../../src/game/infrastructure/phaser-nodes/StaticBody2DNode';
 import { PhaserNodeContext } from '../../../../src/game/infrastructure/scenes/PhaserNodeContext';
 import { PhaserSceneTreeHost } from '../../../../src/game/infrastructure/scenes/PhaserSceneTreeHost';
 import { authoredNodeId, resourceId, runtimeNodeId } from '../../../../src/game/content/scenes/identifiers';
 import { Node } from '../../../../src/game/runtime/scene/Node';
+import type { PhysicsContact } from '../../../../src/game/runtime/scene/physics/PhysicsContact';
 import { SceneTree } from '../../../../src/game/runtime/scene/SceneTree';
 
 type FixtureSnapshot = {
@@ -21,6 +26,13 @@ type FixtureSnapshot = {
   readonly spriteX?: number;
   readonly spriteY?: number;
   readonly spriteActive?: boolean;
+  readonly managedContactParticipantCount?: number;
+  readonly managedBlockingColliderCount?: number;
+  readonly characterX?: number;
+  readonly blockingContactCount?: number;
+  readonly sensorContactCount?: number;
+  readonly sensorEnterCount?: number;
+  readonly sensorExitCount?: number;
   readonly destroyed: boolean;
   readonly loadedAtMs?: number;
   readonly initializationError?: string;
@@ -32,6 +44,8 @@ type FixtureApi = {
   moveSprite(x: number, y: number): void;
   detachSprite(): void;
   attachSprite(): void;
+  setWallEnabled(enabled: boolean): void;
+  freeWall(): void;
   snapshot(): FixtureSnapshot;
   destroy(): void;
 };
@@ -80,9 +94,19 @@ let advanceHarness: ((deltaSeconds: number) => void) | undefined;
 let moveHarnessSprite: ((x: number, y: number) => void) | undefined;
 let detachHarnessSprite: (() => void) | undefined;
 let attachHarnessSprite: (() => void) | undefined;
+let setHarnessWallEnabled: ((enabled: boolean) => void) | undefined;
+let freeHarnessWall: (() => void) | undefined;
 let harnessSnapshot: (() => Partial<FixtureSnapshot>) | undefined;
 
 if (mode === 'harness') {
+  class TrackingAreaNode extends Area2DNode {
+    enteredCount = 0;
+    exitedCount = 0;
+
+    override contactEntered(contact: PhysicsContact): void { super.contactEntered(contact); this.enteredCount += 1; }
+    override contactExited(contact: PhysicsContact): void { super.contactExited(contact); this.exitedCount += 1; }
+  }
+
   class BrowserHarnessScene extends Phaser.Scene {
     private body?: Phaser.Physics.Arcade.Image;
     private context?: PhaserNodeContext;
@@ -90,6 +114,9 @@ if (mode === 'harness') {
     private host?: PhaserSceneTreeHost;
     private root?: Node;
     private spriteNode?: Sprite2DNode;
+    private character?: CharacterBody2DNode;
+    private wall?: StaticBody2DNode;
+    private sensor?: TrackingAreaNode;
 
     constructor() {
       super('browser-harness');
@@ -102,8 +129,12 @@ if (mode === 'harness') {
       this.body = this.physics.add.image(16, 16, 'browser-harness-dot');
       this.body.setVelocityX(60);
       const textureId = resourceId('texture.browser-dot');
+      const bodyShapeId = resourceId('shape.browser-body');
+      const sensorShapeId = resourceId('shape.browser-sensor');
       this.context = new PhaserNodeContext(this, new Map([
         [textureId, { version: 1, resourceId: textureId, kind: 'texture', assetId: 'browser-harness-dot' }],
+        [bodyShapeId, { version: 1, resourceId: bodyShapeId, kind: 'collision-shape', value: { shape: 'rectangle', width: 12, height: 12 } }],
+        [sensorShapeId, { version: 1, resourceId: sensorShapeId, kind: 'collision-shape', value: { shape: 'circle', radius: 10 } }],
       ]));
       this.root = new Node({ runtimeId: runtimeNodeId('browser', [], authoredNodeId('root')), name: 'Root' });
       this.spriteNode = new Sprite2DNode({
@@ -113,6 +144,30 @@ if (mode === 'harness') {
       const camera = new Camera2DNode({ runtimeId: runtimeNodeId('browser', [], authoredNodeId('camera')), name: 'ManagedCamera', context: this.context, position: { x: 80, y: 60 } });
       this.root.add_child(this.spriteNode);
       this.root.add_child(camera);
+      this.character = new CharacterBody2DNode({
+        runtimeId: runtimeNodeId('browser', [], authoredNodeId('character')), name: 'ManagedCharacter', context: this.context,
+        position: { x: 20, y: 90 }, velocity: { x: 90, y: 0 }, collisionLayer: 1, collisionMask: 2,
+      });
+      this.character.add_child(new CollisionShape2DNode({
+        runtimeId: runtimeNodeId('browser', [], authoredNodeId('character-shape')), name: 'CharacterShape', context: this.context, shape: bodyShapeId,
+      }));
+      this.sensor = new TrackingAreaNode({
+        runtimeId: runtimeNodeId('browser', [], authoredNodeId('sensor')), name: 'ManagedSensor', context: this.context,
+        collisionLayer: 4, collisionMask: 2,
+      });
+      this.sensor.add_child(new CollisionShape2DNode({
+        runtimeId: runtimeNodeId('browser', [], authoredNodeId('sensor-shape')), name: 'SensorShape', context: this.context, shape: sensorShapeId,
+      }));
+      this.character.add_child(this.sensor);
+      this.wall = new StaticBody2DNode({
+        runtimeId: runtimeNodeId('browser', [], authoredNodeId('wall')), name: 'ManagedWall', context: this.context,
+        position: { x: 60, y: 90 }, collisionLayer: 2, collisionMask: 1,
+      });
+      this.wall.add_child(new CollisionShape2DNode({
+        runtimeId: runtimeNodeId('browser', [], authoredNodeId('wall-shape')), name: 'WallShape', context: this.context, shape: bodyShapeId,
+      }));
+      this.root.add_child(this.character);
+      this.root.add_child(this.wall);
       this.tree = new SceneTree();
       this.tree.setRoot(this.root);
       this.host = new PhaserSceneTreeHost({ tree: this.tree, backend: this.context });
@@ -129,6 +184,8 @@ if (mode === 'harness') {
     moveSprite(x: number, y: number): void { if (this.spriteNode) this.spriteNode.position = { x, y }; }
     detachSprite(): void { if (this.root && this.spriteNode?.get_parent() === this.root) { this.root.remove_child(this.spriteNode); this.tree?.flushMutations(); } }
     attachSprite(): void { if (this.root && this.spriteNode && !this.spriteNode.get_parent()) { this.root.add_child(this.spriteNode); this.tree?.flushMutations(); } }
+    setWallEnabled(enabled: boolean): void { if (this.wall) this.wall.collisionEnabled = enabled; }
+    freeWall(): void { this.wall?.queue_free(); this.tree?.flushMutations(); }
     managedSnapshot(): Partial<FixtureSnapshot> {
       const display = this.children.list.find((entry) => entry instanceof Phaser.GameObjects.Sprite) as Phaser.GameObjects.Sprite | undefined;
       return {
@@ -138,6 +195,13 @@ if (mode === 'harness') {
         spriteY: display?.y,
         spriteActive: this.spriteNode?.phaserObjectActive ?? false,
         cameraCount: this.cameras.cameras.length,
+        managedContactParticipantCount: this.context?.managedContactParticipantCount ?? 0,
+        managedBlockingColliderCount: this.context?.managedBlockingColliderCount ?? 0,
+        characterX: this.character?.position.x,
+        blockingContactCount: this.character?.blockingContacts.length ?? 0,
+        sensorContactCount: this.sensor?.currentContacts.length ?? 0,
+        sensorEnterCount: this.sensor?.enteredCount ?? 0,
+        sensorExitCount: this.sensor?.exitedCount ?? 0,
       };
     }
   }
@@ -163,6 +227,8 @@ if (mode === 'harness') {
   moveHarnessSprite = (x, y) => (game?.scene.getScene('browser-harness') as BrowserHarnessScene).moveSprite(x, y);
   detachHarnessSprite = () => (game?.scene.getScene('browser-harness') as BrowserHarnessScene).detachSprite();
   attachHarnessSprite = () => (game?.scene.getScene('browser-harness') as BrowserHarnessScene).attachSprite();
+  setHarnessWallEnabled = (enabled) => (game?.scene.getScene('browser-harness') as BrowserHarnessScene).setWallEnabled(enabled);
+  freeHarnessWall = () => (game?.scene.getScene('browser-harness') as BrowserHarnessScene).freeWall();
   harnessSnapshot = () => (game?.scene.getScene('browser-harness') as BrowserHarnessScene).managedSnapshot();
 } else {
   try {
@@ -200,6 +266,14 @@ const api: FixtureApi = {
   attachSprite() {
     if (!attachHarnessSprite) throw new Error('Managed sprite is only available in harness mode');
     attachHarnessSprite();
+  },
+  setWallEnabled(enabled) {
+    if (!setHarnessWallEnabled) throw new Error('Managed wall is only available in harness mode');
+    setHarnessWallEnabled(enabled);
+  },
+  freeWall() {
+    if (!freeHarnessWall) throw new Error('Managed wall is only available in harness mode');
+    freeHarnessWall();
   },
   snapshot() {
     return {
