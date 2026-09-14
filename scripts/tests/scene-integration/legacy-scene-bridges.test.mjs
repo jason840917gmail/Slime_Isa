@@ -38,6 +38,9 @@ test('managed attacks reach one legacy player receiver and the sensor proxy foll
   const playerBridge = new t.LegacyPlayerBridge(router, state.health, player);
   playerBridge.enter();
   playerBridge.enter();
+  assert.deepEqual(playerBridge.getPrimaryTarget('managed.worm'), {
+    position: { x: 10, y: 20 }, damageAreaNodeId: playerBridge.damageAreaNodeId, active: true, hostile: true,
+  });
   assert.deepEqual(playerBridge.postPhysicsSensorSnapshot().bounds, bounds);
   bounds = { x: 22, y: 24, width: 16, height: 18 };
   assert.deepEqual(playerBridge.postPhysicsSensorSnapshot().bounds, bounds);
@@ -146,4 +149,3 @@ test('map placement bridge assigns the Level 1 camp and nested chest to one scen
   assert.equal(bridge.shouldSuppressLegacyObject(chest), true);
   assert.equal(bridge.shouldSuppressLegacyBossCamp(map.bossCamps[0]), true);
 });
-

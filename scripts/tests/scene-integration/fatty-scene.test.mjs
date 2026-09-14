@@ -14,7 +14,11 @@ async function instantiate() {
   const loader = new t.SceneDocumentLoader(async (id) => id === scene.sceneId ? scene : undefined);
   const resources = new t.SceneResourceLoader(async (id) => content.resources.find((resource) => resource.resourceId === id));
   const packed = await new t.SceneResolver({ documents: loader, resources, registry: descriptors }).prepare_scene(scene.sceneId);
-  const scripts = t.createGameScriptRegistry({ [t.DAMAGE_ROUTER_SERVICE]: router });
+  const scripts = t.createGameScriptRegistry({
+    [t.DAMAGE_ROUTER_SERVICE]: router,
+    [t.ATTACK_ACTIVATION_SERVICE]: activations,
+    [t.ENEMY_TARGET_SERVICE]: { getPrimaryTarget: () => undefined },
+  });
   const root = new t.SceneInstantiator({
     nodeTypes: t.createCoreNodeTypeRegistry(), scripts, descriptors,
   }).instantiate_scene(packed, { runtimeNamespace: 'fatty-fixture' });
@@ -40,6 +44,7 @@ test('Fatty is a boss-ranked EnemyScript with one eye receiver and common author
   assert.equal(script.hp, 140);
   assert.equal(script.getReference('damageArea').configuredTarget.name, 'Eye');
   assert.equal(script.getReference('contactAttack').configuredTarget.name, 'ContactAttack');
+  assert.equal(script.getReference('attackArea').configuredTarget.name, 'ContactAttack');
   assert.deepEqual(
     t.createGameDescriptorRegistry().scripts.get('game.fatty').extends,
     'game.enemy',
