@@ -74,6 +74,7 @@ export default defineConfig({
   plugins: [mapEditorSavePlugin({
     objectDefinitionRoot: ${JSON.stringify(objectRoot.replaceAll('\\', '/'))},
     gameConstantsPath: ${JSON.stringify(gameConstantsPath.replaceAll('\\', '/'))},
+    sceneOwnedObjectIds: new Set(['chest.wooden']),
   })],
 });
 `;
@@ -83,6 +84,10 @@ export default defineConfig({
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     await waitForServer(child, baseUrl);
+
+    const sceneOwnedResult = await postGameplay(baseUrl, { objectId: 'chest.wooden' });
+    assert.equal(sceneOwnedResult.response.status, 400);
+    assert.match(sceneOwnedResult.payload.error, /owned by Scene Studio/);
 
     const unknownResult = await postGameplay(baseUrl, {
       ...basePayload,

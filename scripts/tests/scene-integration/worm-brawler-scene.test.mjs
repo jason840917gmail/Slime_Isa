@@ -1,27 +1,26 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
-import { loadTypescriptModule, REPOSITORY_ROOT } from '../helpers/load-typescript.mjs';
+import { loadAuthoredSceneContent } from '../helpers/load-authored-scene-content.mjs';
+import { loadTypescriptModule } from '../helpers/load-typescript.mjs';
 
 const t = await loadTypescriptModule('src/game/features/scripts/tooling.ts');
-const scene = JSON.parse(await readFile(
-  `${REPOSITORY_ROOT}/src/game/content/scenes/authored/characters/worm-brawler.scene.json`,
-  'utf8',
-));
+const content = await loadAuthoredSceneContent();
+const scene = content.scenes.find((document) => document.sceneId === 'character.worm-brawler');
 
 async function instantiate() {
   const activations = new t.AttackActivation();
   const router = new t.DamageRouter(activations);
   const descriptors = t.createGameDescriptorRegistry();
   const loader = new t.SceneDocumentLoader(async (id) => id === scene.sceneId ? scene : undefined);
-  const packed = await new t.SceneResolver({ documents: loader, registry: descriptors }).prepare_scene(scene.sceneId);
+  const resources = new t.SceneResourceLoader(async (id) => content.resources.find((resource) => resource.resourceId === id));
+  const packed = await new t.SceneResolver({ documents: loader, resources, registry: descriptors }).prepare_scene(scene.sceneId);
   const scripts = t.createGameScriptRegistry({ [t.DAMAGE_ROUTER_SERVICE]: router });
   const root = new t.SceneInstantiator({
     nodeTypes: t.createCoreNodeTypeRegistry(), scripts, descriptors,
   }).instantiate_scene(packed, { runtimeNamespace: 'worm-fixture' });
   const tree = new t.SceneTree();
   tree.setRoot(root);
-  return { activations, router, root, tree, packed, loader };
+  return { activations, router, root, tree, packed, loader, resources };
 }
 
 function request(activationId, targetAreaNodeId, damage) {
@@ -81,6 +80,7 @@ test('Worm Brawler resolves through the universal enemy script, damage router, a
   fixture.tree.shutdown();
   fixture.packed.dispose();
   assert.equal(fixture.loader.activeLeaseCount(), 0);
+  assert.equal(fixture.resources.activeLeaseCount(), 0);
 });
 
 test('Worm attack lifecycle preserves cooldown, cancellation, and sequence identity', async () => {
@@ -97,4 +97,3 @@ test('Worm attack lifecycle preserves cooldown, cancellation, and sequence ident
   fixture.tree.shutdown();
   fixture.packed.dispose();
 });
-

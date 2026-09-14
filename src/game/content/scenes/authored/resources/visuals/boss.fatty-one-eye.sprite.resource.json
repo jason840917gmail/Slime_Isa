@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "resourceId": "boss.fatty-one-eye.sprite",
+  "kind": "sprite-sheet",
+  "assetId": "character.boss.fatty-one-eye",
+  "frameWidth": 96,
+  "frameHeight": 96,
+  "frameCount": 36
+}

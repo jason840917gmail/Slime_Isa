@@ -73,3 +73,14 @@ test('all-family conversion uses dependency order independent of ledger discover
   await new ConversionRunner(setup).run({ family: 'all' });
   assert.deepEqual(calls, ['animation', 'character']);
 });
+
+test('unit selection leaves unrelated legacy-owned units with their current writer', async () => {
+  const setup = await fixture();
+  setup.ledger.rows.push({ ...setup.ledger.rows[0], key: 'character:other' });
+  const report = await new ConversionRunner(setup).run({ family: 'character', unitKeys: ['character:actor'] });
+  assert.deepEqual(report.units, ['character:actor']);
+  await assert.rejects(
+    () => new ConversionRunner(setup).run({ family: 'character', unitKeys: ['character:missing'] }),
+    /Unknown scene conversion units/,
+  );
+});

@@ -33,17 +33,26 @@ export class ConversionRunner {
     this.journalFactory = journalFactory;
   }
 
-  async run({ family = 'all', mode = 'dry-run' } = {}) {
+  async run({ family = 'all', mode = 'dry-run', unitKeys } = {}) {
     if (!['dry-run', 'apply', 'check'].includes(mode)) throw new Error(`Unknown conversion mode '${mode}'`);
-    const families = family === 'all' ? orderedFamilies(this.ledger.rows) : [family];
+    const selectedKeys = unitKeys === undefined ? undefined : new Set(unitKeys);
+    if (selectedKeys?.size === 0) throw new Error('Scene conversion unit selection cannot be empty');
+    if (selectedKeys) {
+      const knownKeys = new Set(this.ledger.rows.map((unit) => unit.key));
+      const unknown = [...selectedKeys].filter((key) => !knownKeys.has(key)).sort();
+      if (unknown.length > 0) throw new Error(`Unknown scene conversion units: ${unknown.join(', ')}`);
+    }
+    const eligibleRows = this.ledger.rows.filter((unit) => selectedKeys === undefined || selectedKeys.has(unit.key));
+    const families = family === 'all' ? orderedFamilies(eligibleRows) : [family];
     const outputs = [];
     const units = [];
     for (const currentFamily of families) {
-      const adapter = this.adapters[currentFamily];
-      if (!adapter) throw new Error(`Missing scene conversion adapter '${currentFamily}'`);
-      const familyUnits = this.ledger.rows
+      const familyUnits = eligibleRows
         .filter((unit) => unit.family === currentFamily && unit.classification === 'convert' && unit.writerState !== 'scene')
         .sort((left, right) => left.key.localeCompare(right.key));
+      if (familyUnits.length === 0) continue;
+      const adapter = this.adapters[currentFamily];
+      if (!adapter) throw new Error(`Missing scene conversion adapter '${currentFamily}'`);
       for (const unit of familyUnits) {
         const currentSource = await readFile(path.join(this.repositoryRoot, unit.oldSourcePath));
         if (unit.sourceHash && sha256(currentSource) !== unit.sourceHash) throw new Error(`Source hash changed for '${unit.key}'`);

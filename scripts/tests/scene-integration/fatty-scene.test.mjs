@@ -1,20 +1,19 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
-import { loadTypescriptModule, REPOSITORY_ROOT } from '../helpers/load-typescript.mjs';
+import { loadAuthoredSceneContent } from '../helpers/load-authored-scene-content.mjs';
+import { loadTypescriptModule } from '../helpers/load-typescript.mjs';
 
 const t = await loadTypescriptModule('src/game/features/scripts/tooling.ts');
-const scene = JSON.parse(await readFile(
-  `${REPOSITORY_ROOT}/src/game/content/scenes/authored/characters/fatty-one-eye.scene.json`,
-  'utf8',
-));
+const content = await loadAuthoredSceneContent();
+const scene = content.scenes.find((document) => document.sceneId === 'character.fatty-one-eye');
 
 async function instantiate() {
   const activations = new t.AttackActivation();
   const router = new t.DamageRouter(activations);
   const descriptors = t.createGameDescriptorRegistry();
   const loader = new t.SceneDocumentLoader(async (id) => id === scene.sceneId ? scene : undefined);
-  const packed = await new t.SceneResolver({ documents: loader, registry: descriptors }).prepare_scene(scene.sceneId);
+  const resources = new t.SceneResourceLoader(async (id) => content.resources.find((resource) => resource.resourceId === id));
+  const packed = await new t.SceneResolver({ documents: loader, resources, registry: descriptors }).prepare_scene(scene.sceneId);
   const scripts = t.createGameScriptRegistry({ [t.DAMAGE_ROUTER_SERVICE]: router });
   const root = new t.SceneInstantiator({
     nodeTypes: t.createCoreNodeTypeRegistry(), scripts, descriptors,
@@ -90,4 +89,3 @@ test('Fatty contact-hop state blocks eye damage and preserves its cooldown', asy
   assert.equal(script.requestContactHop(1100), true);
   fixture.tree.shutdown(); fixture.packed.dispose();
 });
-

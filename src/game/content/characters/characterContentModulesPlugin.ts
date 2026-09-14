@@ -85,6 +85,7 @@ export interface CharacterContentRootOptions {
   readonly assetRoot?: string;
   readonly assetManifestPath?: string;
   readonly gameConstantsPath?: string;
+  readonly sceneOwnedCharacterIds?: ReadonlySet<string>;
 }
 
 async function readResourceTags(gameConstantsPath: string): Promise<ReadonlySet<string>> {
@@ -1333,6 +1334,7 @@ async function packageHandler(
   server: ViteDevServer,
   operation: 'get' | 'update' | 'duplicate',
   requestedId?: string,
+  sceneOwnedCharacterIds: ReadonlySet<string> = new Set(),
 ): Promise<void> {
   await recoverRoot(root);
   if (operation === 'get') {
@@ -1350,6 +1352,10 @@ async function packageHandler(
   const payload = await requestBody(request);
   const characterId = operation === 'duplicate' || operation === 'update' ? payload.characterId : requestedId;
   if (typeof characterId !== 'string' || characterId.trim().length === 0) { jsonResponse(response, 400, failure('invalid-request', 'Character ID is required')); return; }
+  if (operation === 'update' && sceneOwnedCharacterIds.has(characterId)) {
+    jsonResponse(response, 409, failure('scene-owned', `Character '${characterId}' is owned by Scene Studio.`));
+    return;
+  }
   const submittedCharacter = payload.character;
   const submittedVisualSet = payload.visualSet;
   if (!submittedCharacter || !submittedVisualSet) { jsonResponse(response, 400, failure('invalid-request', 'Complete character and visualSet documents are required')); return; }
@@ -1425,6 +1431,7 @@ export function characterContentModulesPlugin(options: CharacterContentRootOptio
     assetRoot,
     assetManifestPath,
     gameConstantsPath: path.resolve(options.gameConstantsPath ?? path.join(process.cwd(), 'src/game/content/game-constants.json')),
+    sceneOwnedCharacterIds: options.sceneOwnedCharacterIds ?? new Set(),
   };
   const invalidate = (server: ViteDevServer): void => invalidateCatalog(server);
   return {
@@ -1506,13 +1513,13 @@ export function characterContentModulesPlugin(options: CharacterContentRootOptio
       });
       server.middlewares.use('/__character-studio/package/update', (request, response, next) => {
         if (request.method !== 'POST') { jsonResponse(response, 405, failure('invalid-request', 'POST required')); return; }
-        void packageHandler(roots.characterRoot, roots.assetManifestPath, request, response, server, 'update').catch((error: unknown) => {
+        void packageHandler(roots.characterRoot, roots.assetManifestPath, request, response, server, 'update', undefined, roots.sceneOwnedCharacterIds).catch((error: unknown) => {
           jsonResponse(response, 400, failure('unknown-commit', error instanceof Error ? error.message : String(error)));
         });
         void next;
       });
       server.middlewares.use('/__character-studio/package/duplicate', (request, response, next) => {
-        void packageHandler(roots.characterRoot, roots.assetManifestPath, request, response, server, 'duplicate').catch((error: unknown) => {
+        void packageHandler(roots.characterRoot, roots.assetManifestPath, request, response, server, 'duplicate', undefined, roots.sceneOwnedCharacterIds).catch((error: unknown) => {
           jsonResponse(response, 400, failure('unknown-commit', error instanceof Error ? error.message : String(error)));
         });
         void next;
