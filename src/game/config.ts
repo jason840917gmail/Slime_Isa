@@ -6,6 +6,11 @@ import { MapLoadScene } from './scenes/MapLoadScene';
 import { bindDevToolsPanel, createDevToolsPanel } from './devTools';
 import { prepareRunStartup } from './features/persistence/StartupPersistence';
 import { ModalStack } from './ui/ModalStack';
+import { createGameDescriptorRegistry } from './features/scripts/registrations';
+import { ASSET_MANIFEST } from './infrastructure/assets/manifest';
+import { PREPARED_SCENE_CONTENT_KEY, PreparedSceneContent } from './infrastructure/scenes/PreparedSceneContent';
+import { sceneDocuments, sceneResourceDocuments } from 'virtual-scene-content';
+import { sceneId } from './content/scenes/identifiers';
 
 export async function createGame(container: HTMLDivElement): Promise<Phaser.Game | undefined> {
   const studioQuery = import.meta.env.DEV ? new URLSearchParams(window.location.search) : undefined;
@@ -74,6 +79,16 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
   if (isEditor) document.title = `Field Cartographer - ${editorMapId}`;
 
   if (!isEditor) await prepareRunStartup(container);
+
+  const preparedSceneContent = !isEditor
+    ? await PreparedSceneContent.prepare({
+        scenes: sceneDocuments,
+        resources: sceneResourceDocuments,
+        registry: createGameDescriptorRegistry(),
+        sceneIds: [sceneId('character.worm-brawler'), sceneId('character.fatty-one-eye'), sceneId('encounter.level-1-fatty-camp')],
+        hasAsset: (assetId) => Object.hasOwn(ASSET_MANIFEST.assets, assetId),
+      })
+    : undefined;
 
   container.innerHTML = `
     <section class="game-shell${import.meta.env.DEV && !isEditor ? ' is-dev-mode' : ''}${isEditor ? ' is-map-editor' : ''}">
@@ -147,10 +162,12 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
     callbacks: {
       preBoot: (bootingGame) => {
         if (modalStack) bootingGame.registry.set('modalStack', modalStack);
+        if (preparedSceneContent) bootingGame.registry.set(PREPARED_SCENE_CONTENT_KEY, preparedSceneContent);
       },
     },
     scene: [BootScene, MapLoadScene, WorldScene, ...editorScenes],
   });
   if (modalStack) game.events.once(Phaser.Core.Events.DESTROY, () => modalStack.destroy());
+  if (preparedSceneContent) game.events.once(Phaser.Core.Events.DESTROY, () => preparedSceneContent.dispose());
   return game;
 }

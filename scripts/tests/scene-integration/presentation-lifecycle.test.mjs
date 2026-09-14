@@ -28,7 +28,7 @@ function fakePhaser() {
 test('Sprite2D and Camera2D own entry leases, synchronize logical transforms, and re-enter cleanly', () => {
   const { scene, state } = fakePhaser();
   const resources = new Map([['texture.dot', { version: 1, resourceId: 'texture.dot', kind: 'texture', assetId: 'dot' }]]);
-  const context = new t.PhaserNodeContext(scene, resources);
+  const context = new t.PhaserNodeContext(scene, resources, (assetId) => `runtime-${assetId}`);
   const root = new t.Node2D({ runtimeId: 'fixture/root', name: 'Root', position: { x: 10, y: 20 } });
   const sprite = new t.Sprite2DNode({ runtimeId: 'fixture/sprite', name: 'Sprite', context, texture: 'texture.dot', position: { x: 2, y: 3 }, visualOffset: { x: 1, y: -1 }, alpha: 0.5, flipX: true });
   const camera = new t.Camera2DNode({ runtimeId: 'fixture/camera', name: 'Camera', context, position: { x: 4, y: 5 }, zoom: 2 });
@@ -36,6 +36,7 @@ test('Sprite2D and Camera2D own entry leases, synchronize logical transforms, an
   const tree = new t.SceneTree(); tree.setRoot(root);
   context.synchronizePresentation(1);
   assert.equal(context.managedPresentationCount, 2);
+  assert.equal(state.sprites[0].texture, 'runtime-dot');
   assert.deepEqual(state.sprites[0].position, [13, 22]);
   assert.deepEqual(state.cameras[0].center, [14, 25]);
   root.remove_child(sprite); tree.flushMutations();

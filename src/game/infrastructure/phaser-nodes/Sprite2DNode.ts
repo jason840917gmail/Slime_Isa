@@ -55,7 +55,7 @@ export class Sprite2DNode extends Node2D implements PresentationParticipant {
     const resource = this.spriteOptions.context.resource(this.spriteOptions.texture);
     if (resource.kind !== 'texture' && resource.kind !== 'sprite-sheet') throw new Error(`Resource '${resource.resourceId}' cannot back Sprite2D`);
     const frame = this.spriteOptions.frame ?? (resource.kind === 'texture' ? resource.frame : undefined);
-    const sprite = this.spriteOptions.context.scene.add.sprite(0, 0, resource.assetId, frame);
+    const sprite = this.spriteOptions.context.scene.add.sprite(0, 0, this.spriteOptions.context.assetKey(resource.assetId), frame);
     this.sprite = sprite;
     sprite.setName(this.runtimeId);
     sprite.setOrigin(this.origin.x, this.origin.y);
