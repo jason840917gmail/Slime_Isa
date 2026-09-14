@@ -90,7 +90,11 @@ export const FATTY_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
   properties: [
     nodeReference('contactAttack', 'Contact-Hop Attack Area', 'area'),
     numberProperty('contactHopCooldownMs', 'Contact-Hop Cooldown', 1000, 'Fatty'),
+    numberProperty('contactHopDurationMs', 'Contact-Hop Duration', 300, 'Fatty'),
     numberProperty('leapCadenceMs', 'Leap Cadence', 5000, 'Fatty'),
+    numberProperty('smallHopCount', 'Small Hop Count', 3, 'Fatty'),
+    numberProperty('smallHopDurationMs', 'Small Hop Duration', 260, 'Fatty'),
+    numberProperty('betweenHopsMs', 'Between Hops', 100, 'Fatty'),
     numberProperty('airTimeMs', 'Air Time', 1000, 'Fatty'),
     numberProperty('recoveryMs', 'Recovery', 700, 'Fatty'),
     numberProperty('landingDamage', 'Landing Damage', 32, 'Fatty'),
