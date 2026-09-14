@@ -189,7 +189,7 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
       return;
     }
 
-    const target = this.targetService?.getPrimaryTarget(this.runtimeId);
+    const target = this.currentTarget();
     if (!target?.active || !target.hostile) {
       this.cancelAttack();
       this.runtimeStateValue = 'idle';
@@ -220,7 +220,7 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
       this.playDirectional('idle', direction);
       return;
     }
-    if (distance <= this.attackRange) {
+    if (distance <= this.attackRange && this.canRunCommonAttack()) {
       this.runtimeStateValue = 'attack';
       body.velocity = { x: 0, y: 0 };
       this.beginRuntimeAttack(direction);
@@ -275,12 +275,45 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
     }
   }
 
-  private body(): VelocityNode {
+  protected body(): VelocityNode {
     const body = this.getReference<Node>('body')?.configuredTarget;
     if (!body || !body.has_runtime_capability('character-body') || !('velocity' in body) || !('get_global_transform' in body)) {
       throw new Error(`EnemyScript '${this.runtimeId}' requires a CharacterBody2D body reference.`);
     }
     return body as VelocityNode;
+  }
+
+  protected currentTarget(): EnemyTargetSnapshot | undefined {
+    return this.targetService?.getPrimaryTarget(this.runtimeId);
+  }
+
+  protected canRunCommonAttack(): boolean { return true; }
+
+  protected playAnimation(name: string): void {
+    const animation = this.getReference<Node>('animation')?.configuredTarget;
+    if (animation instanceof AnimationPlayerNode && animation.currentAnimation !== name && animation.hasAnimation(name)) animation.play(name);
+  }
+
+  protected routeImmediateAttack(target: EnemyTargetSnapshot, baseDamage: number, range: number): void {
+    const attackArea = this.getReference<Node>('attackArea')?.configuredTarget;
+    if (!attackArea || !this.attackActivations || !this.damageRouter) return;
+    const origin = this.body().get_global_transform().position;
+    const movement = this.movementToward(origin, target.position, 1);
+    if (!target.active || !target.hostile || Math.sqrt(this.distanceSquared(origin, target.position)) > range) return;
+    const activationId = this.attackActivations.begin(this.runtimeId, [attackArea.runtimeId]);
+    this.damageRouter.routeStep([{
+      activationId,
+      sourceNodeId: this.runtimeId,
+      attackAreaNodeId: attackArea.runtimeId,
+      targetAreaNodeId: target.damageAreaNodeId,
+      weaponId: 'enemy-contact',
+      weaponTags: ['enemy', 'contact'],
+      damageTypes: ['physical'],
+      baseDamage,
+      effects: [],
+      impact: { x: origin.x, y: origin.y, knockX: movement.x, knockY: movement.y },
+    }], this.simulationTimeMs);
+    this.attackActivations.end(activationId);
   }
 
   private stopBody(): void {
@@ -347,11 +380,8 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
   }
 
   private playDirectional(action: 'idle' | 'walk' | 'attack' | 'die', direction: CharacterPoint): void {
-    const animation = this.getReference<Node>('animation')?.configuredTarget;
-    if (!(animation instanceof AnimationPlayerNode)) return;
     const suffix = Math.abs(direction.y) > Math.abs(direction.x) ? (direction.y < 0 ? 'up' : 'down') : 'side';
-    const clip = `${action}-${suffix}`;
-    if (animation.currentAnimation !== clip && animation.hasAnimation(clip)) animation.play(clip);
+    this.playAnimation(`${action}-${suffix}`);
   }
 
   private attributeNumber(key: string, fallback: number): number {

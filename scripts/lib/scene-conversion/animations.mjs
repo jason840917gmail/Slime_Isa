@@ -22,6 +22,10 @@ function animationDocument(visual) {
   }
   if (visual.visualSetId === 'boss.fatty-one-eye') {
     animations.chase = frameAnimation([6, 7, 8, 9, 10, 11], 7.6923076923, true);
+    animations['small-hop'] = frameAnimation([12, 13, 14, 15], 4 / 0.26, true);
+    animations.airborne = frameAnimation([18, 19, 20, 21, 22, 23], 6, false);
+    animations.landing = frameAnimation([24, 25, 26, 27], 4 / 0.36, false);
+    animations.recovery = frameAnimation([28, 29], 2 / 0.7, true);
     animations.death = frameAnimation([30, 31, 32, 33, 34, 35], 7.6923076923, false);
   }
   return { version: 1, resourceId: `${visual.visualSetId}.animations`, kind: 'animation-library', animations };

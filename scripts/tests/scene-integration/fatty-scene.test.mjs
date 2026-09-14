@@ -7,7 +7,12 @@ const t = await loadTypescriptModule('src/game/features/scripts/tooling.ts');
 const content = await loadAuthoredSceneContent();
 const scene = content.scenes.find((document) => document.sceneId === 'character.fatty-one-eye');
 
-async function instantiate() {
+class TestCharacterBody extends t.Node2D {
+  velocity = { x: 0, y: 0 };
+  collisionEnabled = true;
+}
+
+async function instantiate(targetService = { getPrimaryTarget: () => undefined }) {
   const activations = new t.AttackActivation();
   const router = new t.DamageRouter(activations);
   const descriptors = t.createGameDescriptorRegistry();
@@ -17,10 +22,17 @@ async function instantiate() {
   const scripts = t.createGameScriptRegistry({
     [t.DAMAGE_ROUTER_SERVICE]: router,
     [t.ATTACK_ACTIVATION_SERVICE]: activations,
-    [t.ENEMY_TARGET_SERVICE]: { getPrimaryTarget: () => undefined },
+    [t.ENEMY_TARGET_SERVICE]: targetService,
   });
+  const nodeTypes = t.createCoreNodeTypeRegistry().replace('CharacterBody2D', (context) => new TestCharacterBody({
+    runtimeId: context.runtimeId,
+    name: context.name,
+    position: Array.isArray(context.properties.position)
+      ? { x: Number(context.properties.position[0]), y: Number(context.properties.position[1]) }
+      : undefined,
+  }));
   const root = new t.SceneInstantiator({
-    nodeTypes: t.createCoreNodeTypeRegistry(), scripts, descriptors,
+    nodeTypes, scripts, descriptors,
   }).instantiate_scene(packed, { runtimeNamespace: 'fatty-fixture' });
   const tree = new t.SceneTree(); tree.setRoot(root);
   return { activations, router, root, tree, packed };
@@ -92,5 +104,45 @@ test('Fatty contact-hop state blocks eye damage and preserves its cooldown', asy
   assert.equal(script.resumeChase(300), true);
   assert.equal(script.requestContactHop(1099), false);
   assert.equal(script.requestContactHop(1100), true);
+  fixture.tree.shutdown(); fixture.packed.dispose();
+});
+
+test('Fatty fixed-step phases reuse enemy combat for contact hop and landing damage', async () => {
+  const target = { position: { x: 20, y: 0 }, damageAreaNodeId: 'legacy-player-area', active: true, hostile: true };
+  const fixture = await instantiate({ getPrimaryTarget: () => target });
+  let hp = 100;
+  let commits = 0;
+  fixture.router.registerArea({
+    runtimeNodeId: 'legacy-player',
+    getDamageState: () => ({ hp, maxHp: 100, dead: hp <= 0 }),
+    commitDamage: (commit) => { hp -= commit.result.actualDamage; commits += 1; },
+  }, { areaNodeId: target.damageAreaNodeId, priority: 0, damageMultiplier: 1 });
+  const script = fixture.root.get_node('FattyScript');
+  const body = fixture.root;
+
+  fixture.tree.physicsProcess(1 / 60);
+  assert.equal(script.phase, 'contact-hop');
+  assert.equal(body.collisionEnabled, false);
+  fixture.tree.physicsProcess(0.25);
+  assert.deepEqual({ hp, commits }, { hp: 82, commits: 1 });
+  fixture.tree.physicsProcess(0.05);
+  assert.equal(script.phase, 'chase');
+  assert.equal(body.collisionEnabled, true);
+
+  target.position = { x: 200, y: 0 };
+  fixture.tree.physicsProcess(4.7);
+  assert.equal(script.phase, 'small-hop');
+  fixture.tree.physicsProcess(1.08);
+  assert.equal(script.phase, 'airborne');
+  assert.equal(body.collisionEnabled, false);
+  fixture.tree.physicsProcess(0.5);
+  assert.deepEqual(body.position, { x: 100, y: 0 });
+  fixture.tree.physicsProcess(0.5);
+  assert.equal(script.phase, 'landing');
+  assert.deepEqual({ hp, commits }, { hp: 50, commits: 2 });
+  fixture.tree.physicsProcess(0.36);
+  assert.equal(script.phase, 'recovery');
+  fixture.tree.physicsProcess(0.7);
+  assert.equal(script.phase, 'chase');
   fixture.tree.shutdown(); fixture.packed.dispose();
 });

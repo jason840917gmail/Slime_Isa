@@ -160,7 +160,11 @@
           "allowedWeaponIds": [
             "wooden-spear",
             "stone-spear"
-          ]
+          ],
+          "attackWindupMs": 250,
+          "attackRecoveryMs": 50,
+          "contactDamage": 18,
+          "knockbackStrength": 180
         },
         "damageRule": {
           "priority": 100,
@@ -181,7 +185,11 @@
         },
         "rewards": {},
         "contactHopCooldownMs": 1000,
+        "contactHopDurationMs": 300,
         "leapCadenceMs": 5000,
+        "smallHopCount": 3,
+        "smallHopDurationMs": 260,
+        "betweenHopsMs": 100,
         "airTimeMs": 1000,
         "recoveryMs": 700,
         "landingDamage": 32,
