@@ -1,0 +1,96 @@
+{
+  "version": 1,
+  "sceneId": "character.worm-brawler",
+  "rootNodeId": "body",
+  "nodes": [
+    {
+      "id": "body",
+      "name": "WormBrawler",
+      "type": "CharacterBody2D",
+      "parentId": null,
+      "order": 0,
+      "properties": { "collisionLayer": 2, "collisionMask": 5, "position": [0, 0], "velocity": [0, 0] }
+    },
+    {
+      "id": "body-shape",
+      "name": "BodyShape",
+      "type": "CollisionShape2D",
+      "parentId": "body",
+      "order": 0,
+      "properties": { "shape": { "resourceId": "worm-brawler.body-shape" }, "position": [0, 10] }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "body",
+      "order": 1,
+      "properties": { "texture": { "resourceId": "worm-brawler.sprite" }, "frame": 0, "origin": [0.5, 0.5], "scale": [1, 1] }
+    },
+    {
+      "id": "damage-area",
+      "name": "DamageArea",
+      "type": "Area2D",
+      "parentId": "body",
+      "order": 2,
+      "properties": { "collisionLayer": 8, "collisionMask": 16, "monitoring": true, "monitorable": true }
+    },
+    {
+      "id": "damage-shape",
+      "name": "DamageShape",
+      "type": "CollisionShape2D",
+      "parentId": "damage-area",
+      "order": 0,
+      "properties": { "shape": { "resourceId": "worm-brawler.damage-shape" }, "position": [0, 10] }
+    },
+    {
+      "id": "animation",
+      "name": "Animation",
+      "type": "AnimationPlayer",
+      "parentId": "body",
+      "order": 3,
+      "properties": { "library": { "resourceId": "worm-brawler.animations" }, "domain": "physics", "autoplay": "idle-side" }
+    },
+    {
+      "id": "script",
+      "name": "EnemyScript",
+      "type": "ScriptNode",
+      "scriptId": "game.enemy",
+      "parentId": "body",
+      "order": 4,
+      "properties": {
+        "body": { "nodeId": "body" },
+        "visual": { "nodeId": "visual" },
+        "animation": { "nodeId": "animation" },
+        "damageArea": { "nodeId": "damage-area" },
+        "faction": "hostile",
+        "rank": "ordinary",
+        "maxHealth": 55,
+        "targetingRadius": 240,
+        "attackRange": 34,
+        "movementSpeed": 130,
+        "attackCooldownMs": 1100,
+        "attributes": { "wanderSpeed": 50, "attackWindupMs": 250, "attackRecoveryMs": 250, "contactDamage": 52, "knockbackStrength": 340, "knockbackResist": 0.1 },
+        "damageRule": { "priority": 0, "damageMultiplier": 1 },
+        "rewards": { "xp": 40, "coins": 8 }
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    { "version": 1, "resourceId": "worm-brawler.sprite", "kind": "sprite-sheet", "assetId": "enemy.worm.brawler", "frameWidth": 64, "frameHeight": 64, "frameCount": 43 },
+    { "version": 1, "resourceId": "worm-brawler.body-shape", "kind": "collision-shape", "value": { "shape": "rectangle", "width": 34, "height": 24 } },
+    { "version": 1, "resourceId": "worm-brawler.damage-shape", "kind": "collision-shape", "value": { "shape": "rectangle", "width": 34, "height": 24 } },
+    {
+      "version": 1,
+      "resourceId": "worm-brawler.animations",
+      "kind": "animation-library",
+      "animations": {
+        "idle-side": { "durationSeconds": 0.6666666667, "framesPerSecond": 6, "loop": true, "tracks": [{ "binding": "../Visual", "property": "frame", "keys": [{ "at": 0, "value": 0 }, { "at": 1, "value": 1 }, { "at": 2, "value": 2 }, { "at": 3, "value": 3 }] }] },
+        "walk-side": { "durationSeconds": 0.4, "framesPerSecond": 10, "loop": true, "tracks": [{ "binding": "../Visual", "property": "frame", "keys": [{ "at": 0, "value": 4 }, { "at": 1, "value": 5 }, { "at": 2, "value": 6 }, { "at": 3, "value": 7 }] }] },
+        "attack-side": { "durationSeconds": 0.2727272727, "framesPerSecond": 11, "loop": false, "tracks": [{ "binding": "../Visual", "property": "frame", "keys": [{ "at": 0, "value": 8 }, { "at": 1, "value": 9 }, { "at": 2, "value": 10 }] }], "events": [{ "at": 1, "id": "attack-active", "gameplay": true }] },
+        "die-side": { "durationSeconds": 0.4285714286, "framesPerSecond": 7, "loop": false, "tracks": [{ "binding": "../Visual", "property": "frame", "keys": [{ "at": 0, "value": 11 }, { "at": 1, "value": 12 }, { "at": 2, "value": 13 }] }] }
+      }
+    }
+  ]
+}

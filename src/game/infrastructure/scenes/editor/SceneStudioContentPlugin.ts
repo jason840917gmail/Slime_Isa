@@ -6,7 +6,8 @@ import type { Plugin } from 'vite';
 
 import { ASSET_MANIFEST } from '../../assets/manifest';
 import { SERIALIZED_ID_PATTERN } from '../../../content/scenes/identifiers';
-import { createCoreDescriptorRegistry, type DescriptorRegistry } from '../../../content/scenes/propertyDescriptors';
+import type { DescriptorRegistry } from '../../../content/scenes/propertyDescriptors';
+import { createGameDescriptorRegistry } from '../../../features/scripts/registrations';
 import { SceneCatalog } from '../../../content/scenes/SceneCatalog';
 import type { SceneResourceDocument } from '../../../content/scenes/resources/types';
 import type { SceneDocument } from '../../../content/scenes/types';
@@ -258,7 +259,7 @@ async function validateWriteSet(
 
 export function sceneStudioContentPlugin(options: SceneStudioContentPluginOptions = {}): Plugin {
   const root = path.resolve(options.contentRoot ?? path.join(process.cwd(), 'src/game/content/scenes/authored'));
-  const registry = options.registry ?? createCoreDescriptorRegistry();
+  const registry = options.registry ?? createGameDescriptorRegistry();
   const maximum = options.maxBodyBytes ?? DEFAULT_MAX_BODY_BYTES;
   const hasAsset = options.hasAsset ?? ((assetId: string) => Object.hasOwn(ASSET_MANIFEST.assets, assetId));
   const journal = options.journal ?? new ContentWriteJournal(root);

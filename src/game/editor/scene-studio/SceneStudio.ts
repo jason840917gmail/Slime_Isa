@@ -1,4 +1,5 @@
-import { createCoreDescriptorRegistry, type DescriptorRegistry } from '../../content/scenes/propertyDescriptors';
+import type { DescriptorRegistry } from '../../content/scenes/propertyDescriptors';
+import { createGameDescriptorRegistry } from '../../features/scripts/registrations';
 import type { SceneNodeDocument } from '../../content/scenes/types';
 import { SceneStudioConflictError, SceneStudioRepository, type SceneStudioContentSummary } from '../../infrastructure/scenes/editor/SceneStudioRepository';
 import { handleStudioHistoryShortcut } from '../StudioHistoryShortcut';
@@ -30,7 +31,7 @@ export class SceneStudioController {
   constructor(
     private readonly container: HTMLElement,
     private readonly repository: SceneStudioRepository = new SceneStudioRepository(),
-    private readonly registry: DescriptorRegistry = createCoreDescriptorRegistry(),
+    private readonly registry: DescriptorRegistry = createGameDescriptorRegistry(),
   ) {}
 
   async start(): Promise<void> {

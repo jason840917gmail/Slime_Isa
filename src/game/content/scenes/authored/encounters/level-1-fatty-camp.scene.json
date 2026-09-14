@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "sceneId": "encounter.level-1-fatty-camp",
+  "rootNodeId": "root",
+  "nodes": [
+    { "id": "root", "name": "Level1FattyCamp", "type": "Node2D", "parentId": null, "order": 0, "properties": { "position": [2528, 1472] } },
+    { "id": "activation-area", "name": "ActivationArea", "type": "Area2D", "parentId": "root", "order": 0, "properties": { "collisionLayer": 0, "collisionMask": 2, "monitoring": true, "monitorable": false } },
+    { "id": "activation-shape", "name": "ActivationShape", "type": "CollisionShape2D", "parentId": "activation-area", "order": 0, "properties": { "shape": { "resourceId": "fatty-camp.activation-shape" } } },
+    { "id": "arena-area", "name": "ArenaArea", "type": "Area2D", "parentId": "root", "order": 1, "properties": { "collisionLayer": 0, "collisionMask": 2, "monitoring": true, "monitorable": false } },
+    { "id": "arena-shape", "name": "ArenaShape", "type": "CollisionShape2D", "parentId": "arena-area", "order": 0, "properties": { "shape": { "resourceId": "fatty-camp.arena-shape" } } },
+    { "id": "active-bosses", "name": "ActiveBosses", "type": "Node2D", "parentId": "root", "order": 2, "properties": {} },
+    {
+      "id": "script", "name": "BossCampScript", "type": "ScriptNode", "scriptId": "game.boss-camp", "parentId": "root", "order": 3,
+      "properties": {
+        "mapId": "level-1", "campId": "level-1-fatty-one-eye-camp", "bossId": "fatty-one-eye", "bossScene": { "sceneId": "character.fatty-one-eye" },
+        "activationArea": { "nodeId": "activation-area" }, "arenaArea": { "nodeId": "arena-area" }, "activeBosses": { "nodeId": "active-bosses" },
+        "guardedChest": { "instancePath": ["guarded-chest"], "nodeId": "body" }, "guardedChestInstanceId": "level-1-fatty-guarded-chest",
+        "respawnMs": 180000, "spawn": [0, 0]
+      }
+    }
+  ],
+  "instances": [
+    {
+      "instanceId": "guarded-chest",
+      "name": "GuardedChest",
+      "sceneId": "object.chest-wooden",
+      "parentNodeId": "root",
+      "order": 4,
+      "overrides": [
+        { "sourceInstancePath": [], "sourceNodeId": "body", "property": "position", "value": [320, 0] },
+        { "sourceInstancePath": [], "sourceNodeId": "script", "property": "mapId", "value": "level-1" },
+        { "sourceInstancePath": [], "sourceNodeId": "script", "property": "instanceId", "value": "level-1-fatty-guarded-chest" },
+        { "sourceInstancePath": [], "sourceNodeId": "script", "property": "initialContents", "value": { "green-key": 1 } }
+      ]
+    }
+  ],
+  "subresources": [
+    { "version": 1, "resourceId": "fatty-camp.activation-shape", "kind": "collision-shape", "value": { "shape": "circle", "radius": 954 } },
+    { "version": 1, "resourceId": "fatty-camp.arena-shape", "kind": "collision-shape", "value": { "shape": "circle", "radius": 933 } }
+  ]
+}

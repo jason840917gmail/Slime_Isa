@@ -24,7 +24,7 @@ const resources = resourceFiles.map((file) => JSON.parse(readFileSync(file, 'utf
 const resourceById = new Map(resources.map((resource) => [resource.resourceId, resource]));
 const scenes = sceneFiles.map((file) => JSON.parse(readFileSync(file, 'utf8')));
 const tooling = await loadSceneTooling();
-const registry = tooling.createCoreDescriptorRegistry();
+const registry = tooling.createGameDescriptorRegistry();
 const context = {
   registry,
   hasAsset: (assetId) => Object.hasOwn(manifest.assets, assetId),
