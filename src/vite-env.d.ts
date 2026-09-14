@@ -22,6 +22,14 @@ interface CharacterStudioCharacter {
   npc?: { wanderSpeed: number; pauseMinMs: number; pauseMaxMs: number };
 }
 
+interface ImportMetaEnv {
+  readonly DEV: boolean;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}
+
 declare module 'virtual-character-content' {
   export const characterPackages: ReadonlyArray<{ readonly characterId: string; readonly character: CharacterStudioCharacter; readonly visualSet: CharacterStudioVisualSet }>;
   export const visualSets: readonly CharacterStudioVisualSet[];

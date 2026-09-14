@@ -4,6 +4,7 @@ dist/
 .vite/
 playwright-report/
 test-results/
+.scene-studio-transactions/
 scripts/tests/scene-browser/playwright-report/
 scripts/tests/scene-browser/test-results/
 .scene-conversion-*/

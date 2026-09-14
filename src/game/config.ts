@@ -25,6 +25,15 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
   const weaponStudio = import.meta.env.DEV
     ? studioMode === 'weapons' && !animationStudio
     : false;
+  const sceneStudio = import.meta.env.DEV
+    ? studioMode === 'scenes'
+    : false;
+  if (sceneStudio) {
+    document.title = 'Scene Studio — Field Cartographer';
+    const { mountSceneStudio } = await import('./editor/scene-studio/SceneStudio');
+    mountSceneStudio(container);
+    return undefined;
+  }
   if (characterStudio) {
     document.title = 'Character Studio — Field Cartographer';
     const { mountCharacterStudio } = await import('./editor/CharacterStudio');

@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 import { readFile } from 'node:fs/promises';
-import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -19,7 +18,7 @@ const runner = new ConversionRunner({
   repositoryRoot,
   ledger,
   adapters: {},
-  outputRoot: path.join(os.tmpdir(), 'slime-isa-scene-conversion'),
+  outputRoot: path.join(repositoryRoot, 'src/game/content/scenes/authored'),
   validateWriteSet: (outputs) => validateSceneWriteSet(outputs, { hasAsset: (assetId) => Object.hasOwn(manifest.assets, assetId) }),
 });
 
