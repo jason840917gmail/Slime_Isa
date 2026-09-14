@@ -11,11 +11,12 @@ function fakePhaser() {
     for (const method of ['setName', 'setOrigin', 'setAlpha', 'setFlip', 'setTint', 'setPosition', 'setRotation', 'setScale', 'setVisible', 'setDepth', 'setZoom', 'setRoundPixels', 'setViewport']) {
       target[method] = (...args) => { target[method.slice(3).toLowerCase()] = args.length === 1 ? args[0] : args; return target; };
     }
+    target.setFrame = (frame) => { target.frame.name = frame; return target; };
     return target;
   };
   const scene = {
     scale: { width: 320, height: 180 },
-    add: { sprite: (_x, _y, texture, frame) => { const sprite = chain({ texture, frame, active: true, destroy() { this.active = false; } }); state.sprites.push(sprite); return sprite; } },
+    add: { sprite: (_x, _y, texture, frame) => { const sprite = chain({ texture, frame: { name: frame }, active: true, destroy() { this.active = false; } }); state.sprites.push(sprite); return sprite; } },
     cameras: {
       add: () => { const camera = chain({ active: true, centerOn(x, y) { this.center = [x, y]; return this; } }); state.cameras.push(camera); return camera; },
       remove: (camera) => { camera.active = false; },
@@ -38,6 +39,10 @@ test('Sprite2D and Camera2D own entry leases, synchronize logical transforms, an
   assert.equal(context.managedPresentationCount, 2);
   assert.equal(state.sprites[0].texture, 'runtime-dot');
   assert.deepEqual(state.sprites[0].position, [13, 22]);
+  sprite.frame = 4;
+  sprite.alpha = 0.25;
+  assert.equal(state.sprites[0].frame.name, 4);
+  assert.equal(state.sprites[0].alpha, 0.25);
   assert.deepEqual(state.cameras[0].center, [14, 25]);
   root.remove_child(sprite); tree.flushMutations();
   assert.equal(state.sprites[0].active, false);
@@ -50,6 +55,23 @@ test('Sprite2D and Camera2D own entry leases, synchronize logical transforms, an
   assert.equal(context.managedPresentationCount, 0);
   assert.equal(state.sprites.every((entry) => !entry.active), true);
   assert.equal(state.cameras.every((entry) => !entry.active), true);
+});
+
+test('packed resource leases share identical resources, reject collisions, and release inline resources', () => {
+  const { scene } = fakePhaser();
+  const base = { version: 1, resourceId: 'texture.base', kind: 'texture', assetId: 'base' };
+  const inline = { version: 1, resourceId: 'shape.inline', kind: 'collision-shape', value: { shape: 'circle', radius: 4 } };
+  const context = new t.PhaserNodeContext(scene, new Map([[base.resourceId, base]]));
+  const releaseFirst = context.acquireResources([base, inline]);
+  const releaseSecond = context.acquireResources([structuredClone(inline)]);
+  assert.equal(context.resource('shape.inline').value.radius, 4);
+  assert.throws(() => context.acquireResources([{ ...inline, value: { shape: 'circle', radius: 8 } }]), /conflicts/);
+  releaseFirst();
+  assert.equal(context.resource('shape.inline').value.radius, 4);
+  releaseSecond();
+  assert.throws(() => context.resource('shape.inline'), /not available/);
+  assert.equal(context.resource('texture.base').assetId, 'base');
+  context.shutdown();
 });
 
 test('one context exclusively owns manual Arcade stepping and releases ownership on shutdown', () => {

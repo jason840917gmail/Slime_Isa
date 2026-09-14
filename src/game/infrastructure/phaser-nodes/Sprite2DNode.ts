@@ -30,6 +30,8 @@ function colorNumber(value: string | undefined): number | undefined {
 
 export class Sprite2DNode extends Node2D implements PresentationParticipant {
   private sprite?: Phaser.GameObjects.Sprite;
+  private currentFrame?: number;
+  private currentAlpha: number;
   private readonly origin: Vector2;
   private readonly visualOffset: Vector2;
   private readonly tint?: number;
@@ -41,7 +43,9 @@ export class Sprite2DNode extends Node2D implements PresentationParticipant {
     this.visualOffset = spriteOptions.visualOffset ?? { x: 0, y: 0 };
     this.tint = colorNumber(spriteOptions.tint);
     this.depthResolver = spriteOptions.depthResolver ?? defaultWorldDepthResolver;
-    const alpha = spriteOptions.alpha ?? 1;
+    this.currentFrame = spriteOptions.frame;
+    this.currentAlpha = spriteOptions.alpha ?? 1;
+    const alpha = this.currentAlpha;
     if (![this.origin.x, this.origin.y, this.visualOffset.x, this.visualOffset.y, alpha, spriteOptions.depth ?? 0].every(Number.isFinite)) {
       throw new Error('Sprite presentation values must be finite');
     }
@@ -50,16 +54,29 @@ export class Sprite2DNode extends Node2D implements PresentationParticipant {
   }
 
   get phaserObjectActive(): boolean { return this.sprite !== undefined; }
+  get frame(): number { return this.currentFrame ?? 0; }
+  set frame(value: number) {
+    if (!Number.isInteger(value) || value < 0) throw new Error('Sprite frame must be a non-negative integer');
+    this.currentFrame = value;
+    this.sprite?.setFrame(value);
+  }
+  get alpha(): number { return this.currentAlpha; }
+  set alpha(value: number) {
+    if (!Number.isFinite(value) || value < 0 || value > 1) throw new Error('Sprite alpha must be between 0 and 1');
+    this.currentAlpha = value;
+    this.sprite?.setAlpha(value);
+  }
 
   override _enter_tree(): void {
     const resource = this.spriteOptions.context.resource(this.spriteOptions.texture);
     if (resource.kind !== 'texture' && resource.kind !== 'sprite-sheet') throw new Error(`Resource '${resource.resourceId}' cannot back Sprite2D`);
-    const frame = this.spriteOptions.frame ?? (resource.kind === 'texture' ? resource.frame : undefined);
+    const frame = this.currentFrame ?? (resource.kind === 'texture' ? resource.frame : undefined);
+    if (frame !== undefined) this.currentFrame = frame;
     const sprite = this.spriteOptions.context.scene.add.sprite(0, 0, this.spriteOptions.context.assetKey(resource.assetId), frame);
     this.sprite = sprite;
     sprite.setName(this.runtimeId);
     sprite.setOrigin(this.origin.x, this.origin.y);
-    sprite.setAlpha(this.spriteOptions.alpha ?? 1);
+    sprite.setAlpha(this.currentAlpha);
     sprite.setFlip(Boolean(this.spriteOptions.flipX), Boolean(this.spriteOptions.flipY));
     if (this.tint !== undefined) sprite.setTint(this.tint);
     const unregister = this.spriteOptions.context.registerPresentation(this);
@@ -82,6 +99,8 @@ export class Sprite2DNode extends Node2D implements PresentationParticipant {
     );
     sprite.setRotation(transform.rotation);
     sprite.setScale(transform.scale.x, transform.scale.y);
+    sprite.setAlpha(this.currentAlpha);
+    if (this.currentFrame !== undefined) sprite.setFrame(this.currentFrame);
     sprite.setVisible(this.visible);
     const depth = this.spriteOptions.depthMode === 'explicit'
       ? this.spriteOptions.depth ?? 0

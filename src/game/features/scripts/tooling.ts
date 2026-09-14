@@ -1,4 +1,6 @@
 export * from '../../infrastructure/scenes/tooling';
+export * from '../../infrastructure/scenes/PreparedSceneContent';
+export * from '../../infrastructure/scenes/PhaserUniversalSceneRuntime';
 export * from '../combat/tooling';
 export * from './CharacterScript';
 export * from './EnemyScript';
