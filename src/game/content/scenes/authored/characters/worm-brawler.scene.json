@@ -89,11 +89,37 @@
       }
     },
     {
+      "id": "attack-area",
+      "name": "AttackArea",
+      "type": "Area2D",
+      "parentId": "body",
+      "order": 3,
+      "properties": {
+        "collisionLayer": 16,
+        "collisionMask": 8,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "attack-shape",
+      "name": "AttackShape",
+      "type": "CollisionShape2D",
+      "parentId": "attack-area",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "worm-brawler.attack-shape"
+        },
+        "disabled": true
+      }
+    },
+    {
       "id": "animation",
       "name": "Animation",
       "type": "AnimationPlayer",
       "parentId": "body",
-      "order": 3,
+      "order": 4,
       "properties": {
         "library": {
           "resourceId": "enemy.worm.brawler.animations"
@@ -108,7 +134,7 @@
       "type": "ScriptNode",
       "scriptId": "game.enemy",
       "parentId": "body",
-      "order": 4,
+      "order": 5,
       "properties": {
         "body": {
           "nodeId": "body"
@@ -121,6 +147,9 @@
         },
         "damageArea": {
           "nodeId": "damage-area"
+        },
+        "attackArea": {
+          "nodeId": "attack-area"
         },
         "faction": "hostile",
         "rank": "ordinary",

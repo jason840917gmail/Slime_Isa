@@ -78,6 +78,7 @@ export class AnimationPlayerNode extends Node {
 
   get currentAnimation(): string | undefined { return this.activeAnimation; }
   get playbackState() { return this.clock.state; }
+  hasAnimation(name: string): boolean { return Object.hasOwn(this.animationOptions.animations, name); }
 
   override _enter_tree(): void {
     if (this.animationOptions.advanceSource) {

@@ -19,7 +19,7 @@ function fattyScene(character, visual, boss) {
       {
         id: 'script', name: 'FattyScript', type: 'ScriptNode', scriptId: 'game.fatty', parentId: 'body', order: 5,
         properties: {
-          body: { nodeId: 'body' }, visual: { nodeId: 'visual' }, animation: { nodeId: 'animation' }, damageArea: { nodeId: 'eye' }, contactAttack: { nodeId: 'contact-attack' },
+          body: { nodeId: 'body' }, visual: { nodeId: 'visual' }, animation: { nodeId: 'animation' }, damageArea: { nodeId: 'eye' }, attackArea: { nodeId: 'contact-attack' }, contactAttack: { nodeId: 'contact-attack' },
           faction: 'hostile', rank: 'boss', maxHealth: boss.maxHp, targetingRadius: 933, attackRange: 64,
           movementSpeed: boss.chaseSpeed, attackCooldownMs: boss.contactHop.cooldownMs,
           attributes: { effectImmunities: boss.effectImmunities, allowedWeaponIds: boss.allowedWeaponIds },

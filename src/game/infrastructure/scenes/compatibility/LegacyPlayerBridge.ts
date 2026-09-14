@@ -2,13 +2,14 @@ import type { DamageAreaRule } from '../../../features/combat/DamageReceiver';
 import type { DamageRouter } from '../../../features/combat/DamageRouter';
 import type { PlayerHealthService } from '../../../features/player/PlayerHealthService';
 import type { PlayerRuntimePorts } from '../../../features/player/PlayerServicePorts';
+import type { EnemyTargetService, EnemyTargetSnapshot } from '../../../features/scripts/EnemyScript';
 
 export interface LegacyPlayerSensorSnapshot {
   readonly areaNodeId: string;
   readonly bounds: Readonly<{ x: number; y: number; width: number; height: number }>;
 }
 
-export class LegacyPlayerBridge {
+export class LegacyPlayerBridge implements EnemyTargetService {
   readonly damageAreaNodeId: string;
   private registered = false;
   private disposed = false;
@@ -35,6 +36,15 @@ export class LegacyPlayerBridge {
     return Object.freeze({ areaNodeId: this.damageAreaNodeId, bounds: Object.freeze({ ...this.player.getBodyBounds() }) });
   }
 
+  getPrimaryTarget(_sourceNodeId: string): EnemyTargetSnapshot {
+    return Object.freeze({
+      position: Object.freeze({ ...this.player.getPosition() }),
+      damageAreaNodeId: this.damageAreaNodeId,
+      active: !this.health.isDead(),
+      hostile: true,
+    });
+  }
+
   dispose(): void {
     if (this.disposed) return;
     this.disposed = true;
@@ -42,4 +52,3 @@ export class LegacyPlayerBridge {
     this.registered = false;
   }
 }
-

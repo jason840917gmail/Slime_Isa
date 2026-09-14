@@ -7,16 +7,31 @@ const t = await loadTypescriptModule('src/game/features/scripts/tooling.ts');
 const content = await loadAuthoredSceneContent();
 const scene = content.scenes.find((document) => document.sceneId === 'character.worm-brawler');
 
-async function instantiate() {
+class TestCharacterBody extends t.Node2D {
+  velocity = { x: 0, y: 0 };
+}
+
+async function instantiate(targetService = { getPrimaryTarget: () => undefined }) {
   const activations = new t.AttackActivation();
   const router = new t.DamageRouter(activations);
   const descriptors = t.createGameDescriptorRegistry();
   const loader = new t.SceneDocumentLoader(async (id) => id === scene.sceneId ? scene : undefined);
   const resources = new t.SceneResourceLoader(async (id) => content.resources.find((resource) => resource.resourceId === id));
   const packed = await new t.SceneResolver({ documents: loader, resources, registry: descriptors }).prepare_scene(scene.sceneId);
-  const scripts = t.createGameScriptRegistry({ [t.DAMAGE_ROUTER_SERVICE]: router });
+  const scripts = t.createGameScriptRegistry({
+    [t.DAMAGE_ROUTER_SERVICE]: router,
+    [t.ATTACK_ACTIVATION_SERVICE]: activations,
+    [t.ENEMY_TARGET_SERVICE]: targetService,
+  });
+  const nodeTypes = t.createCoreNodeTypeRegistry().replace('CharacterBody2D', (context) => new TestCharacterBody({
+    runtimeId: context.runtimeId,
+    name: context.name,
+    position: Array.isArray(context.properties.position)
+      ? { x: Number(context.properties.position[0]), y: Number(context.properties.position[1]) }
+      : undefined,
+  }));
   const root = new t.SceneInstantiator({
-    nodeTypes: t.createCoreNodeTypeRegistry(), scripts, descriptors,
+    nodeTypes, scripts, descriptors,
   }).instantiate_scene(packed, { runtimeNamespace: 'worm-fixture' });
   const tree = new t.SceneTree();
   tree.setRoot(root);
@@ -48,6 +63,7 @@ test('Worm Brawler resolves through the universal enemy script, damage router, a
   assert.equal(script.hp, 55);
   assert.equal(script.canTarget({ x: 0, y: 0 }, { x: 240, y: 0 }, true), true);
   assert.equal(script.isInAttackRange({ x: 0, y: 0 }, { x: 35, y: 0 }), false);
+  assert.equal(script.getReference('attackArea').configuredTarget.name, 'AttackArea');
   assert.deepEqual(script.movementToward({ x: 0, y: 0 }, { x: 3, y: 4 }, script.movementSpeed), {
     x: 0.6, y: 0.8, speed: 130,
   });
@@ -94,6 +110,36 @@ test('Worm attack lifecycle preserves cooldown, cancellation, and sequence ident
   assert.equal(script.tryBeginAttack(1100), 2);
   script.cancelAttack();
   assert.equal(script.tryBeginAttack(1101), undefined);
+  fixture.tree.shutdown();
+  fixture.packed.dispose();
+});
+
+test('Worm fixed-step behavior chases and routes one timed contact attack through the shared damage pipeline', async () => {
+  const target = { position: { x: 100, y: 0 }, damageAreaNodeId: 'legacy-player-area', active: true, hostile: true };
+  const fixture = await instantiate({ getPrimaryTarget: () => target });
+  let hp = 100;
+  let commits = 0;
+  fixture.router.registerArea({
+    runtimeNodeId: 'legacy-player',
+    getDamageState: () => ({ hp, maxHp: 100, dead: hp <= 0 }),
+    commitDamage: (commit) => { hp -= commit.result.actualDamage; commits += 1; },
+  }, { areaNodeId: target.damageAreaNodeId, priority: 0, damageMultiplier: 1 });
+  const script = fixture.root.get_node('EnemyScript');
+  const body = fixture.root;
+  fixture.tree.physicsProcess(1 / 60);
+  assert.equal(script.runtimeState, 'chase');
+  assert.deepEqual(body.velocity, { x: 130, y: 0 });
+
+  target.position = { x: 20, y: 0 };
+  fixture.tree.physicsProcess(1 / 60);
+  assert.equal(script.runtimeState, 'attack');
+  assert.deepEqual(body.velocity, { x: 0, y: 0 });
+  fixture.tree.physicsProcess(0.25);
+  assert.equal(commits, 1);
+  assert.equal(hp, 48);
+  fixture.tree.physicsProcess(0.25);
+  assert.equal(script.runtimeState, 'chase');
+  assert.equal(commits, 1);
   fixture.tree.shutdown();
   fixture.packed.dispose();
 });

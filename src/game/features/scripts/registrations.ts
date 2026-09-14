@@ -55,9 +55,11 @@ export const ENEMY_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
     { key: 'visual', label: 'Visual', required: true },
     { key: 'animation', label: 'Animation Player', required: true, expectedNodeType: 'AnimationPlayer' },
     { key: 'damageArea', label: 'Damage Area', required: true, expectedCapability: 'area' },
+    { key: 'attackArea', label: 'Attack Area', required: true, expectedCapability: 'area' },
   ],
   properties: [
     nodeReference('damageArea', 'Damage Area', 'area'),
+    nodeReference('attackArea', 'Attack Area', 'area'),
     { key: 'faction', label: 'Faction', group: 'Identity', value: { kind: 'string', minLength: 1 }, defaultValue: 'hostile', serialized: true, inspector: 'text', overridable: true },
     { key: 'rank', label: 'Rank', group: 'Identity', value: { kind: 'enum', values: ['ordinary', 'elite', 'boss'] }, defaultValue: 'ordinary', serialized: true, inspector: 'select', overridable: true },
     numberProperty('maxHealth', 'Maximum Health', 1, 'Health'),

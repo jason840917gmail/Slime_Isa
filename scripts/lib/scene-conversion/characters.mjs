@@ -45,11 +45,13 @@ function wormScene(character, enemy) {
       { id: 'visual', name: 'Visual', type: 'Sprite2D', parentId: 'body', order: 1, properties: { texture: { resourceId: `${visualPrefix}.sprite` }, frame: 0, origin: [0.5, 0.5], scale: [1, 1] } },
       { id: 'damage-area', name: 'DamageArea', type: 'Area2D', parentId: 'body', order: 2, properties: { collisionLayer: 8, collisionMask: 16, monitoring: true, monitorable: true } },
       { id: 'damage-shape', name: 'DamageShape', type: 'CollisionShape2D', parentId: 'damage-area', order: 0, properties: { shape: { resourceId: `${character.characterId}.body-shape` }, position: [character.body.centerOffsetX, character.body.centerOffsetY] } },
-      { id: 'animation', name: 'Animation', type: 'AnimationPlayer', parentId: 'body', order: 3, properties: { library: { resourceId: `${visualPrefix}.animations` }, domain: 'physics', autoplay: 'idle-side' } },
+      { id: 'attack-area', name: 'AttackArea', type: 'Area2D', parentId: 'body', order: 3, properties: { collisionLayer: 16, collisionMask: 8, monitoring: false, monitorable: false } },
+      { id: 'attack-shape', name: 'AttackShape', type: 'CollisionShape2D', parentId: 'attack-area', order: 0, properties: { shape: { resourceId: `${character.characterId}.attack-shape` }, disabled: true } },
+      { id: 'animation', name: 'Animation', type: 'AnimationPlayer', parentId: 'body', order: 4, properties: { library: { resourceId: `${visualPrefix}.animations` }, domain: 'physics', autoplay: 'idle-side' } },
       {
-        id: 'script', name: 'EnemyScript', type: 'ScriptNode', scriptId: 'game.enemy', parentId: 'body', order: 4,
+        id: 'script', name: 'EnemyScript', type: 'ScriptNode', scriptId: 'game.enemy', parentId: 'body', order: 5,
         properties: {
-          body: { nodeId: 'body' }, visual: { nodeId: 'visual' }, animation: { nodeId: 'animation' }, damageArea: { nodeId: 'damage-area' },
+          body: { nodeId: 'body' }, visual: { nodeId: 'visual' }, animation: { nodeId: 'animation' }, damageArea: { nodeId: 'damage-area' }, attackArea: { nodeId: 'attack-area' },
           faction: 'hostile', rank: 'ordinary', maxHealth: enemy.maxHp, targetingRadius: enemy.ai.aggroRange,
           attackRange: enemy.ai.attackRange, movementSpeed: enemy.ai.chaseSpeed, attackCooldownMs: enemy.ai.attackCooldownMs,
           attributes: {
@@ -73,6 +75,9 @@ export const enemySceneAdapter = {
       const catalog = await readJson(readSource, unit.oldSourcePath);
       const enemy = catalog.types['worm-brawler'];
       const character = await readJson(readSource, 'src/game/content/characters/worm-brawler/character.json');
+      outputs.push(convertedOutput(unit, resourcePath('characters', character.characterId, 'attack-shape'), shapeResource(
+        `${character.characterId}.attack-shape`, { shape: 'circle', radius: enemy.ai.attackRange * 1.35 },
+      ), ['$.types.worm-brawler.ai.attackRange']));
       outputs.push(convertedOutput(unit, 'characters/worm-brawler.scene.json', wormScene(character, enemy), [
         '$.types.worm-brawler',
       ], [

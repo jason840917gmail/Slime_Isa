@@ -140,6 +140,9 @@
         "damageArea": {
           "nodeId": "eye"
         },
+        "attackArea": {
+          "nodeId": "contact-attack"
+        },
         "contactAttack": {
           "nodeId": "contact-attack"
         },
