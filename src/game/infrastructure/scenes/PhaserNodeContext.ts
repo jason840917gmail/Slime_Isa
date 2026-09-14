@@ -44,15 +44,18 @@ export class PhaserNodeContext implements SceneHostBackend {
   private readonly contactBodies = new WeakMap<object, ContactParticipant>();
   private readonly blockingParticipants = new Set<PhaserBlockingParticipant>();
   private readonly blockingColliders = new Map<string, DestroyableCollider>();
+  private readonly baseResources: ReadonlyMap<ResourceId, SceneResourceDocument>;
+  private readonly leasedResources = new Map<ResourceId, { readonly resource: SceneResourceDocument; leases: number }>();
   private ownsManualStepping = false;
   private stopped = false;
   private physicsSteps = 0;
 
   constructor(
     readonly scene: Phaser.Scene,
-    private readonly resources: ReadonlyMap<ResourceId, SceneResourceDocument> = new Map(),
+    resources: ReadonlyMap<ResourceId, SceneResourceDocument> = new Map(),
     private readonly resolveAssetKey: (assetId: string) => string = (assetId) => assetId,
   ) {
+    this.baseResources = new Map(resources);
     this.contactRouter = new ContactRouter((observer, bounds) => this.contactCandidates(observer, bounds));
   }
 
@@ -68,9 +71,40 @@ export class PhaserNodeContext implements SceneHostBackend {
   get managedBlockingColliderCount(): number { return this.blockingColliders.size; }
 
   resource(resourceId: ResourceId): SceneResourceDocument {
-    const resource = this.resources.get(resourceId);
+    const resource = this.leasedResources.get(resourceId)?.resource ?? this.baseResources.get(resourceId);
     if (!resource) throw new Error(`Scene resource '${resourceId}' is not available in this Phaser context`);
     return resource;
+  }
+
+  acquireResources(resources: readonly SceneResourceDocument[]): () => void {
+    this.assertRunning();
+    const acquired: ResourceId[] = [];
+    try {
+      for (const resource of resources) {
+        const base = this.baseResources.get(resource.resourceId);
+        if (base) {
+          this.assertSameResource(resource.resourceId, base, resource);
+          continue;
+        }
+        const leased = this.leasedResources.get(resource.resourceId);
+        if (leased) {
+          this.assertSameResource(resource.resourceId, leased.resource, resource);
+          leased.leases += 1;
+        } else {
+          this.leasedResources.set(resource.resourceId, { resource, leases: 1 });
+        }
+        acquired.push(resource.resourceId);
+      }
+    } catch (error) {
+      this.releaseResources(acquired);
+      throw error;
+    }
+    let active = true;
+    return () => {
+      if (!active) return;
+      active = false;
+      this.releaseResources(acquired);
+    };
   }
 
   registerPresentation(participant: PresentationParticipant): () => void {
@@ -151,6 +185,7 @@ export class PhaserNodeContext implements SceneHostBackend {
     this.blockingParticipants.clear();
     this.contactParticipants.clear();
     this.contactRouter.clear();
+    this.leasedResources.clear();
     if (this.ownsManualStepping) {
       const physics = this.scene.physics as typeof this.scene.physics & { readonly systems?: unknown };
       if (physics.systems) physics.enableUpdate();
@@ -213,4 +248,19 @@ export class PhaserNodeContext implements SceneHostBackend {
   }
 
   private assertRunning(): void { if (this.stopped) throw new Error('Phaser node context has shut down'); }
+
+  private assertSameResource(resourceId: ResourceId, current: SceneResourceDocument, candidate: SceneResourceDocument): void {
+    if (JSON.stringify(current) !== JSON.stringify(candidate)) {
+      throw new Error(`Scene resource '${resourceId}' conflicts with an active Phaser resource`);
+    }
+  }
+
+  private releaseResources(resourceIds: readonly ResourceId[]): void {
+    for (const resourceId of [...resourceIds].reverse()) {
+      const leased = this.leasedResources.get(resourceId);
+      if (!leased) continue;
+      leased.leases -= 1;
+      if (leased.leases === 0) this.leasedResources.delete(resourceId);
+    }
+  }
 }
