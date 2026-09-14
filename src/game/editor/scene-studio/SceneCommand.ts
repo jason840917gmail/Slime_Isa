@@ -153,6 +153,44 @@ export const sceneCommands = {
     });
   },
 
+  renameInstance(instanceId: InstanceId, name: string): SceneCommand {
+    return sceneMutationCommand(`Rename ${instanceId}`, (draft) => {
+      const trimmed = name.trim();
+      if (!trimmed) throw new Error('Instance name cannot be empty');
+      let found = false;
+      draft.instances = draft.instances.map((instance) => instance.instanceId === instanceId
+        ? (found = true, { ...instance, name: trimmed })
+        : instance);
+      if (!found) throw new Error(`Instance '${instanceId}' does not exist`);
+      return { kind: 'instance', instanceId };
+    });
+  },
+
+  moveInstance(instanceId: InstanceId, parentNodeId: AuthoredNodeId, order: number): SceneCommand {
+    return sceneMutationCommand(`Move ${instanceId}`, (draft) => {
+      const instance = draft.instances.find((candidate) => candidate.instanceId === instanceId);
+      if (!instance) throw new Error(`Instance '${instanceId}' does not exist`);
+      if (!draft.nodes.some((candidate) => candidate.id === parentNodeId)) throw new Error(`Parent '${parentNodeId}' does not exist`);
+      const previousParent = instance.parentNodeId;
+      draft.instances = draft.instances.map((candidate) => candidate.instanceId === instanceId ? { ...candidate, parentNodeId, order } : candidate);
+      normalizeChildren(draft, previousParent);
+      placeChild(draft, parentNodeId, { kind: 'instance', id: instanceId }, order);
+      return { kind: 'instance', instanceId };
+    });
+  },
+
+  duplicateInstance(instanceId: InstanceId, duplicateId: InstanceId, name: string): SceneCommand {
+    return sceneMutationCommand(`Duplicate ${instanceId}`, (draft) => {
+      if (draft.instances.some((candidate) => candidate.instanceId === duplicateId)) throw new Error(`Instance '${duplicateId}' already exists`);
+      const source = draft.instances.find((candidate) => candidate.instanceId === instanceId);
+      if (!source) throw new Error(`Instance '${instanceId}' does not exist`);
+      const duplicate = { ...structuredClone(source), instanceId: duplicateId, name: name.trim() || `${source.name} Copy`, order: source.order + 1 };
+      draft.instances.push(duplicate);
+      placeChild(draft, source.parentNodeId, { kind: 'instance', id: duplicateId }, duplicate.order);
+      return { kind: 'instance', instanceId: duplicateId };
+    });
+  },
+
   removeInstance(instanceId: InstanceId): SceneCommand {
     return sceneMutationCommand(`Remove ${instanceId}`, (draft) => {
       const instance = draft.instances.find((candidate) => candidate.instanceId === instanceId);

@@ -32,7 +32,10 @@ export default defineConfig({
     })),
   ],
   optimizeDeps: {
-    entries: [path.join(repositoryRoot, 'scripts/tests/scene-browser/fixtures/index.html')],
+    entries: [
+      path.join(repositoryRoot, 'scripts/tests/scene-browser/fixtures/index.html'),
+      path.join(repositoryRoot, 'scripts/tests/scene-browser/fixtures/studio.html'),
+    ],
   },
   server: {
     host: '127.0.0.1',
