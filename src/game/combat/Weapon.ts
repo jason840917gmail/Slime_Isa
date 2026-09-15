@@ -29,6 +29,21 @@ export interface WeaponContext {
   playCharacterAction: (actionId: string) => void;
   playWeaponAnimation: (animationId: WeaponPlaybackAnimationId, forceRestart?: boolean) => void;
   onWeaponEvent?: (event: WeaponTrackEvent) => void;
+  supplementalHitboxes?: SupplementalWeaponHitboxPort;
+}
+
+export interface SupplementalWeaponAttack {
+  readonly weaponId: string;
+  readonly hitboxIds: readonly string[];
+  readonly playbackId: number;
+}
+
+export interface SupplementalWeaponHitboxRequest extends Omit<WeaponHitRequest, 'target'> {}
+
+export interface SupplementalWeaponHitboxPort {
+  beginAttack(request: SupplementalWeaponAttack): void;
+  activateHitbox(request: SupplementalWeaponHitboxRequest): HitboxActivationHandle;
+  endAttack(): void;
 }
 
 interface AttackSnapshot {
@@ -183,6 +198,11 @@ export class Weapon {
     this.trackRunner?.destroy();
     this.trackRunner = this.createTrackRunner(track);
     this.clock.start(directionalAttack.animation, track.events ?? [], true);
+    this.ctx.supplementalHitboxes?.beginAttack({
+      weaponId: this.def.weaponId,
+      hitboxIds: [...new Set(track.hitboxSpans.map((span) => span.hitboxId))],
+      playbackId: this.clock.state.playbackId,
+    });
     return true;
   }
 
@@ -223,17 +243,36 @@ export class Weapon {
     const snapshot = this.attackSnapshot;
     const hitbox = snapshot?.hitboxes[hitboxId];
     const targets = this.ctx.getTargets();
-    if (!snapshot || !hitbox || !targets) return;
+    if (!snapshot || !hitbox) return;
 
     const hitboxConfig = this.toHitboxConfig(hitbox, snapshot);
-    const handle = hitboxPool.spawn(
+    const request = {
+      damage: hitboxConfig.damage,
+      knockX: hitboxConfig.knockX ?? 0,
+      knockY: hitboxConfig.knockY ?? 0,
+      knockStrength: hitboxConfig.knockStrength ?? 0,
+      weaponId: this.def.weaponId,
+      hitboxId,
+      attackDirection: snapshot.attackDirection,
+      attackVector: [snapshot.direction.x, snapshot.direction.y] as const,
+      playbackId: this.clock.state.playbackId,
+      hitbox: hitboxConfig,
+    };
+    const handles: HitboxActivationHandle[] = [];
+    if (targets) handles.push(hitboxPool.spawn(
       this.ctx.scene,
       targets,
       hitboxConfig,
       (target, damage, knockX, knockY, knockStrength) => {
-        this.ctx.applyHit({ target, damage, knockX, knockY, knockStrength, weaponId: this.def.weaponId, hitboxId, attackDirection: snapshot.attackDirection, attackVector: [snapshot.direction.x, snapshot.direction.y], playbackId: this.clock.state.playbackId, hitbox: hitboxConfig });
+        this.ctx.applyHit({ ...request, target, damage, knockX, knockY, knockStrength });
       },
-    );
+    ));
+    if (this.ctx.supplementalHitboxes) handles.push(this.ctx.supplementalHitboxes.activateHitbox(request));
+    if (handles.length === 0) return;
+    const handle: HitboxActivationHandle = {
+      get isActive(): boolean { return handles.some((candidate) => candidate.isActive); },
+      deactivate: () => { for (const candidate of handles) candidate.deactivate(); },
+    };
     this.activeHitboxes.set(hitboxId, { activationId, handle });
   }
 
@@ -254,6 +293,7 @@ export class Weapon {
     this.legacyEndTimer?.remove();
     this.legacyEndTimer = null;
     this.deactivateAllHitboxes();
+    this.ctx.supplementalHitboxes?.endAttack();
     this.attacking = false;
     this.attackSnapshot = undefined;
     this.ctx.onAttackEnd();

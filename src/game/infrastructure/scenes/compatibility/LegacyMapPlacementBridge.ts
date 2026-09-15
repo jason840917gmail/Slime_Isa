@@ -18,6 +18,7 @@ const OBJECT_SCENES: Readonly<Record<string, string>> = {
 
 export class LegacyMapPlacementBridge {
   private readonly sceneOwnedIds = new Set<string>();
+  private placements?: readonly SceneEnabledPlacement[];
 
   constructor(
     private readonly mapId: string,
@@ -26,6 +27,7 @@ export class LegacyMapPlacementBridge {
   ) {}
 
   scenePlacements(): readonly SceneEnabledPlacement[] {
+    if (this.placements) return this.placements;
     const placements: SceneEnabledPlacement[] = [];
     for (const camp of this.camps) {
       const sceneId = CAMP_SCENES[camp.id];
@@ -44,7 +46,8 @@ export class LegacyMapPlacementBridge {
       const placement = this.standaloneObjectPlacement(instance);
       if (placement) placements.push(placement);
     }
-    return Object.freeze(placements);
+    this.placements = Object.freeze(placements);
+    return this.placements;
   }
 
   shouldSuppressLegacyObject(instance: MapObjectInstance): boolean {

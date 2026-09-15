@@ -5,6 +5,11 @@ import { getStats } from './PlayerStats';
 import type { StatusEffectManager } from './StatusEffects';
 import { PlayerHealthService } from '../features/player/PlayerHealthService';
 import type { DamageAreaRule } from '../features/combat/DamageReceiver';
+import type {
+  DamageCommit,
+  DamageMitigationInput,
+  DamageReceiver,
+} from '../features/combat/DamageReceiver';
 
 /**
  * HealthSystem handles the damage pipeline for the player:
@@ -56,7 +61,7 @@ export interface RejectedDamageResult {
 
 export type DamageResult = AcceptedDamageResult | RejectedDamageResult;
 
-export class HealthSystem {
+export class HealthSystem implements DamageReceiver {
   private readonly playerHealth: PlayerHealthService;
   private legacyActivationSequence = 0;
 
@@ -93,8 +98,45 @@ export class HealthSystem {
     return this.playerHealth.isDead();
   }
 
-  get managedReceiver(): PlayerHealthService {
-    return this.playerHealth;
+  get runtimeNodeId(): string {
+    return this.playerHealth.runtimeNodeId;
+  }
+
+  get managedReceiver(): HealthSystem {
+    return this;
+  }
+
+  getDamageState() {
+    return this.playerHealth.getDamageState();
+  }
+
+  canReceiveDamage(input: DamageMitigationInput) {
+    return this.playerHealth.canReceiveDamage(input);
+  }
+
+  mitigateDamage(input: DamageMitigationInput): number {
+    return this.playerHealth.mitigateDamage(input);
+  }
+
+  commitDamage(commit: DamageCommit): void {
+    this.playerHealth.commitDamage(commit);
+  }
+
+  publishDamageFeedback(commit: DamageCommit): void {
+    this.playerHealth.publishDamageFeedback(commit);
+    if (commit.result.actualDamage > 0) {
+      this.ctx.onHit?.({
+        status: 'accepted',
+        requestedDamage: commit.request.baseDamage,
+        mitigatedDamage: commit.result.actualDamage,
+        actualHpLost: commit.result.actualDamage,
+      });
+    }
+    if (commit.result.defeated) return;
+    const strength = commit.result.appliedEffects.find((effect) => effect.effectId === 'knockback')?.potency ?? 0;
+    if (strength <= 0) return;
+    const direction = new Phaser.Math.Vector2(commit.request.impact.knockX, commit.request.impact.knockY);
+    if (direction.lengthSq() > 0) this.ctx.applyKnockback?.(direction.normalize(), strength, 160);
   }
 
   applyDamage(req: DamageRequest, time: number): DamageResult {

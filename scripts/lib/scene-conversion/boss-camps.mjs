@@ -47,7 +47,7 @@ function campScene(map, camp, chest) {
     sceneId: 'encounter.level-1-fatty-camp',
     rootNodeId: 'root',
     nodes: [
-      { id: 'root', name: 'Level1FattyCamp', type: 'Node2D', parentId: null, order: 0, properties: { position: [camp.spawn.x, camp.spawn.y] } },
+      { id: 'root', name: 'Level1FattyCamp', type: 'Node2D', parentId: null, order: 0, properties: { position: [0, 0] } },
       { id: 'activation-area', name: 'ActivationArea', type: 'Area2D', parentId: 'root', order: 0, properties: { collisionLayer: 0, collisionMask: 2, monitoring: true, monitorable: false } },
       { id: 'activation-shape', name: 'ActivationShape', type: 'CollisionShape2D', parentId: 'activation-area', order: 0, properties: { shape: { resourceId: 'level-1-fatty-camp.activation-shape' } } },
       { id: 'arena-area', name: 'ArenaArea', type: 'Area2D', parentId: 'root', order: 1, properties: { collisionLayer: 0, collisionMask: 2, monitoring: true, monitorable: false } },

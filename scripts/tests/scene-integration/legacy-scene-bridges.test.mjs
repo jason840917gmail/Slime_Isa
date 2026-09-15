@@ -102,6 +102,72 @@ test('legacy weapon contacts reach managed receivers once, while cancellation an
   assert.throws(() => bridge.collectContact(contact), /disposed/);
 });
 
+test('legacy authored hitboxes spatially collect managed damage areas during fixed attack resolution', () => {
+  const activations = new t.AttackActivation();
+  const router = new t.DamageRouter(activations);
+  let hp = 30;
+  let commits = 0;
+  const receiver = {
+    runtimeNodeId: 'managed.worm',
+    getDamageState: () => ({ hp, maxHp: 30, dead: hp <= 0 }),
+    commitDamage: ({ result }) => { commits += 1; hp -= result.actualDamage; },
+  };
+  router.registerArea(receiver, { areaNodeId: 'managed.worm.body', priority: 0, damageMultiplier: 1 });
+
+  let resolution;
+  let unregisters = 0;
+  const participant = {
+    runtimeId: 'managed.worm.body', node: {}, kind: 'area', collisionLayer: 1, collisionMask: 1,
+    monitoring: false, monitorable: true, contactActive: true,
+    contactShapes: () => [{ shapeId: 'managed.worm.shape', shape: 'circle', centerX: 12, centerY: 10, radius: 5 }],
+    contactBounds: () => ({ x: 7, y: 5, width: 10, height: 10 }),
+    contactEntered() {}, contactExited() {},
+  };
+  const context = {
+    registerCallback: (phase, callback) => {
+      assert.equal(phase, 'attack-resolution');
+      resolution = callback;
+      return () => { unregisters += 1; };
+    },
+    queryContactParticipants: () => [participant],
+  };
+  const combat = new t.LegacyCombatBridge(activations, router);
+  const outcomes = [];
+  let transforms = 0;
+  const bridge = new t.LegacyWeaponTargetBridge({
+    context,
+    combat,
+    router,
+    weaponTags: () => ['spear'],
+    transformDamage: (damage, target) => {
+      transforms += 1;
+      assert.equal(target.receiverNodeId, 'managed.worm');
+      return damage + 2;
+    },
+    onOutcome: (outcome, target) => outcomes.push([outcome.result.status, target?.areaNodeId]),
+  });
+  bridge.beginAttack({ weaponId: 'wooden-spear', hitboxIds: ['point'], playbackId: 4 });
+  const handle = bridge.activateHitbox({
+    weaponId: 'wooden-spear', hitboxId: 'point', attackDirection: 'right', attackVector: [1, 0], playbackId: 4,
+    damage: 6, knockX: 1, knockY: 0, knockStrength: 20,
+    hitbox: { x: 10, y: 10, width: 12, height: 8, damage: 6, durationMs: 100, shape: 'rect' },
+  });
+  assert.equal(handle.isActive, true);
+  resolution(1 / 60);
+  resolution(1 / 60);
+  assert.equal(hp, 22);
+  assert.equal(commits, 1);
+  assert.equal(transforms, 1);
+  assert.deepEqual(outcomes, [['accepted', 'managed.worm.body']]);
+
+  handle.deactivate();
+  assert.equal(handle.isActive, false);
+  bridge.endAttack();
+  bridge.dispose();
+  assert.equal(unregisters, 1);
+  assert.throws(() => bridge.beginAttack({ weaponId: 'wooden-spear', hitboxIds: ['point'], playbackId: 5 }), /disposed/);
+});
+
 test('legacy chest and boss UI bridges expose only typed view actions and clean their leases', () => {
   const panelEvents = [];
   const chestUi = new t.LegacyChestUiBridge({

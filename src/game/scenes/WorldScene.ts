@@ -81,6 +81,10 @@ import { NpcRuntimeController } from '../features/npcs/NpcRuntimeController';
 import { ChestController } from '../features/chests/ChestController';
 import { BossCampController } from '../features/bosses/BossCampController';
 import { playerInventoryWorldTransaction } from '../features/progression/InventoryWorldTransaction';
+import { getObjectArchetype, isObjectArchetypeId } from '../content/objects/ObjectCatalog';
+import { PREPARED_SCENE_CONTENT_KEY, PreparedSceneContent } from '../infrastructure/scenes/PreparedSceneContent';
+import { LegacyMapPlacementBridge } from '../infrastructure/scenes/compatibility/LegacyMapPlacementBridge';
+import { UniversalSceneWorldController } from '../features/world/UniversalSceneWorldController';
 
 const EDGE_TRANSITION_GRACE_MS = GAME_CONSTANTS.worldNavigation.edgeTransitionGraceMs;
 const COLLECTIBLE_EVENTS = new CollectibleEventChannel(gameEvents);
@@ -126,6 +130,8 @@ export class WorldScene extends Phaser.Scene {
   private npcRuntimeController?: NpcRuntimeController;
   private chestController?: ChestController;
   private bossCampController?: BossCampController;
+  private universalWorld?: UniversalSceneWorldController;
+  private scenePlacementBridge?: LegacyMapPlacementBridge;
   private questNotifications?: QuestNotificationPresenter;
   private abilitySystem?: AbilitySystem;
   private weaponHotbar?: WeaponHotbar;
@@ -305,6 +311,7 @@ export class WorldScene extends Phaser.Scene {
       },
     });
     // Phase 2: combat system
+    this.createUniversalSceneWorld();
     this.createCombatSystem();
     this.weaponHotbar = new WeaponHotbar({
       scene: this,
@@ -391,6 +398,8 @@ export class WorldScene extends Phaser.Scene {
     this.interactionRouter?.destroy();
     this.interactionRouter = undefined;
     this.combatController?.destroy();
+    this.universalWorld?.destroy();
+    this.universalWorld = undefined;
     this.bossCampController?.destroy();
     this.bossCampController = undefined;
     this.resourceNodes?.destroy();
@@ -426,6 +435,7 @@ export class WorldScene extends Phaser.Scene {
     this.questJournal = undefined;
     this.craftingUI = undefined;
     this.pauseSources.clear();
+    this.scenePlacementBridge = undefined;
     this.paused = false;
     this.actionLocked = false;
   }
@@ -455,6 +465,7 @@ export class WorldScene extends Phaser.Scene {
     }
 
     this.paused = shouldPause;
+    this.universalWorld?.setPaused(shouldPause);
     if (shouldPause) {
       this.stopMovingBodies();
       this.physics.world.pause();
@@ -496,14 +507,24 @@ export class WorldScene extends Phaser.Scene {
   }
 
   update(_time: number, delta: number): void {
+    if (this.universalWorld) {
+      this.universalWorld.advanceFrame(delta / 1000);
+      return;
+    }
+    this.updateLegacyRender(delta);
+    if (!this.paused) this.updateLegacyFixed(delta);
+  }
+
+  private updateLegacyRender(_delta: number): void {
     this.syncCameraLayers();
 
     if (this.paused) {
       this.player.setVelocity(0, 0);
       this.debugRenderer?.update();
-      return;
     }
+  }
 
+  private updateLegacyFixed(delta: number): void {
     this.npcRuntimeController?.update(delta);
 
     this.minimap.update(this.cameras.main, this.player);
@@ -598,6 +619,12 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private buildWorld(): void {
+    this.scenePlacementBridge = new LegacyMapPlacementBridge(
+      this.loadedMap.map.mapId,
+      this.loadedMap.map.objects,
+      this.loadedMap.map.bossCamps ?? [],
+    );
+    this.scenePlacementBridge.scenePlacements();
     let mapBuilder: MapBuilder;
     mapBuilder = new MapBuilder({
       scene: this,
@@ -609,6 +636,7 @@ export class WorldScene extends Phaser.Scene {
         'collectible.walk-over': this.collectibleTargets,
       },
       onTerrainBuilt: (terrainGrid) => { this.terrainGrid = terrainGrid; },
+      shouldBuildObject: (instance) => !this.scenePlacementBridge?.shouldSuppressLegacyObject(instance),
       onObjectCreated: (registration) => {
         this.resourceNodes?.register(registration);
         this.collectibles?.register(registration);
@@ -660,19 +688,26 @@ export class WorldScene extends Phaser.Scene {
       showMessage: (message) => floatingText.spawn(this, this.player.x, this.player.y - 42, message, 'white', true, 1800),
       progress: worldProgress,
     });
-    this.chestController = new ChestController({
-      scene: this,
-      mapId: this.loadedMap.map.mapId,
-      inventory: playerInventory,
-      progress: worldProgress,
-      transaction: playerInventoryWorldTransaction,
-      router: this.interactionRouter!,
-      modalStack: this.modalStack!,
-      getPlayer: () => this.player,
-      isLocked: (instanceId) => this.bossCampController?.isChestLocked(instanceId) ?? false,
-      onPausedChange: (paused) => this.setSimulationPaused('chest', paused),
-      showMessage: (x, y, message, color = 'white', important = false) => floatingText.spawn(this, x, y, message, color, important),
-    });
+    const hasLegacyChest = this.loadedMap.map.objects.some((instance) => (
+      isObjectArchetypeId(instance.objectId)
+      && getObjectArchetype(instance.objectId).chest === true
+      && !this.scenePlacementBridge?.shouldSuppressLegacyObject(instance)
+    ));
+    if (hasLegacyChest) {
+      this.chestController = new ChestController({
+        scene: this,
+        mapId: this.loadedMap.map.mapId,
+        inventory: playerInventory,
+        progress: worldProgress,
+        transaction: playerInventoryWorldTransaction,
+        router: this.interactionRouter!,
+        modalStack: this.modalStack!,
+        getPlayer: () => this.player,
+        isLocked: (instanceId) => this.bossCampController?.isChestLocked(instanceId) ?? false,
+        onPausedChange: (paused) => this.setSimulationPaused('chest', paused),
+        showMessage: (x, y, message, color = 'white', important = false) => floatingText.spawn(this, x, y, message, color, important),
+      });
+    }
     this.builtMap = mapBuilder.build();
     this.terrainGrid = this.builtMap.terrainGrid;
     this.inventoryDrops.restore();
@@ -1082,6 +1117,7 @@ export class WorldScene extends Phaser.Scene {
   private onPlayerDeath(): void {
     this.playerKnockbackUntil = 0;
     this.bossCampController?.resetActiveFights();
+    this.universalWorld?.resetActiveFights();
     this.playAnimation('slime-die', true);
     this.player.setVelocity(0, 0);
     this.player.rotation = 0;
@@ -1267,10 +1303,12 @@ export class WorldScene extends Phaser.Scene {
   // â”€â”€ Phase 2: combat â”€â”€
 
   private createCombatSystem(): void {
+    const legacyBossCamps = (this.builtMap?.bossCamps ?? [])
+      .filter((camp) => !this.scenePlacementBridge?.shouldSuppressLegacyBossCamp(camp));
     this.bossCampController = new BossCampController({
       scene: this,
       mapId: this.loadedMap.map.mapId,
-      camps: this.builtMap?.bossCamps ?? [],
+      camps: legacyBossCamps,
       player: this.player,
       collisionTiles: this.collisionTiles,
       progress: worldProgress,
@@ -1324,6 +1362,41 @@ export class WorldScene extends Phaser.Scene {
       applyBossHit: (request) => this.bossCampController?.applyWeaponHit(request) ?? {
         status: 'rejected', actualDamage: 0, defeated: false, reason: 'invalid',
       },
+      supplementalWeaponHitboxes: this.universalWorld?.supplementalWeaponHitboxes,
+      createManagedEnemy: (request) => this.universalWorld?.createManagedEnemy(request),
+    });
+  }
+
+  private createUniversalSceneWorld(): void {
+    const content = this.game.registry.get(PREPARED_SCENE_CONTENT_KEY);
+    if (!(content instanceof PreparedSceneContent) || !this.scenePlacementBridge || !this.healthSystem) {
+      throw new Error('WorldScene requires prepared universal scene content and initialized compatibility services.');
+    }
+    this.universalWorld = new UniversalSceneWorldController({
+      scene: this,
+      content,
+      map: this.loadedMap.map,
+      placementBridge: this.scenePlacementBridge,
+      player: this.player,
+      collisionTiles: this.collisionTiles,
+      health: this.healthSystem,
+      progress: worldProgress,
+      transaction: playerInventoryWorldTransaction,
+      interactions: this.interactionRouter!,
+      modalStack: this.modalStack!,
+      isPlayerDodging: () => this.playerController.isDodging(),
+      applyPlayerKnockback: (direction, strength, durationMs) => {
+        this.playerKnockbackUntil = Math.max(this.playerKnockbackUntil, this.time.now + durationMs);
+        this.playerController.applyKnockback(new Phaser.Math.Vector2(direction.x, direction.y), strength, durationMs);
+        this.playAnimation('slime-knockback', true);
+      },
+      setChestPaused: (paused) => this.setSimulationPaused('managed-chest', paused),
+      showMessage: (x, y, message, color = 'white', important = false) => floatingText.spawn(this, x, y, message, color, important),
+      updateLegacyFixed: (deltaMs) => this.updateLegacyFixed(deltaMs),
+      updateLegacyRender: (deltaMs) => this.updateLegacyRender(deltaMs),
+      transformManagedWeaponDamage: (damage) => this.combatController?.transformManagedWeaponDamage(damage) ?? damage,
+      onManagedWeaponOutcome: (outcome, target) => this.combatController?.onManagedWeaponOutcome(outcome, target),
+      onManagedEnemyDefeated: (enemy) => this.combatController?.onManagedEnemyDefeated(enemy),
     });
   }
 

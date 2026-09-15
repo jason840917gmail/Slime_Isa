@@ -10,6 +10,7 @@ export * from './BossCampScript';
 export * from './registrations';
 export * from '../../infrastructure/scenes/compatibility/LegacyPlayerBridge';
 export * from '../../infrastructure/scenes/compatibility/LegacyCombatBridge';
+export * from '../../infrastructure/scenes/compatibility/LegacyWeaponTargetBridge';
 export * from '../../infrastructure/scenes/compatibility/LegacyChestUiBridge';
 export * from '../../infrastructure/scenes/compatibility/LegacyBossUiBridge';
 export * from '../../infrastructure/scenes/compatibility/LegacyMapPlacementBridge';

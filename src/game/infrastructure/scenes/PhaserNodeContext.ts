@@ -56,7 +56,7 @@ export class PhaserNodeContext implements SceneHostBackend {
     private readonly resolveAssetKey: (assetId: string) => string = (assetId) => assetId,
   ) {
     this.baseResources = new Map(resources);
-    this.contactRouter = new ContactRouter((observer, bounds) => this.contactCandidates(observer, bounds));
+    this.contactRouter = new ContactRouter((_observer, bounds) => this.contactCandidates(bounds));
   }
 
   assetKey(assetId: string): string {
@@ -69,6 +69,11 @@ export class PhaserNodeContext implements SceneHostBackend {
   get physicsStepCount(): number { return this.physicsSteps; }
   get managedContactParticipantCount(): number { return this.contactRouter.participantCount; }
   get managedBlockingColliderCount(): number { return this.blockingColliders.size; }
+
+  queryContactParticipants(bounds: SensorBounds): readonly ContactParticipant[] {
+    return this.contactCandidates(bounds)
+      .filter((participant) => participant.contactActive);
+  }
 
   resource(resourceId: ResourceId): SceneResourceDocument {
     const resource = this.leasedResources.get(resourceId)?.resource ?? this.baseResources.get(resourceId);
@@ -169,7 +174,7 @@ export class PhaserNodeContext implements SceneHostBackend {
   stepPhysics(deltaSeconds: number): void { this.scene.physics.world.step(deltaSeconds); this.physicsSteps += 1; }
   readAuthoritativePhysicsState(): void { this.run('physics-readback', 0); }
   collectManagedContacts(): void { this.run('contacts', 0); this.contactRouter.reconcile(); }
-  resolveManagedAttacks(): void { this.run('attack-resolution', 0); }
+  resolveManagedAttacks(deltaSeconds: number): void { this.run('attack-resolution', deltaSeconds); }
   runPostPhysics(deltaSeconds: number): void { this.run('post-physics', deltaSeconds); }
   advanceRenderAnimations(deltaSeconds: number): void { this.run('render-animation', deltaSeconds); }
   synchronizePresentation(alpha: number): void { this.presentation.synchronize(alpha); }
@@ -198,7 +203,7 @@ export class PhaserNodeContext implements SceneHostBackend {
     for (const callback of [...(this.callbacks.get(phase) ?? [])]) callback(deltaSeconds);
   }
 
-  private contactCandidates(_observer: ContactParticipant, bounds: SensorBounds): readonly ContactParticipant[] {
+  private contactCandidates(bounds: SensorBounds): readonly ContactParticipant[] {
     const overlapRect = (this.scene.physics.world as unknown as {
       overlapRect?: (x: number, y: number, width: number, height: number, includeDynamic?: boolean, includeStatic?: boolean) => readonly object[];
     }).overlapRect;

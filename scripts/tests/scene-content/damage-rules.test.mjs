@@ -149,6 +149,24 @@ test('router selects highest-priority eligible area and commits before feedback 
   assert.equal(target.commits.length, 1);
 });
 
+test('router uses its shared simulation clock for receivers spanning independently mounted sources', () => {
+  let simulationTime = 4_200;
+  const activations = new AttackActivation();
+  const router = new DamageRouter(activations, () => simulationTime);
+  const observedTimes = [];
+  const target = receiver({
+    canReceiveDamage: (input) => { observedTimes.push(input.simulationTime); return { accepted: true }; },
+  });
+  router.registerArea(target, rule());
+  const first = activations.begin('weapon', ['blade']);
+  router.routeStep([request({ activationId: first })], 25);
+  simulationTime = 9_900;
+  const second = activations.begin('weapon', ['blade']);
+  router.routeStep([request({ activationId: second })], 10);
+  assert.deepEqual(observedTimes, [4_200, 9_900]);
+  assert.deepEqual(target.commits.map((commit) => commit.simulationTime), [4_200, 9_900]);
+});
+
 test('an armor rejection does not suppress a later weak-point hit in the activation', () => {
   const activations = new AttackActivation();
   const router = new DamageRouter(activations);

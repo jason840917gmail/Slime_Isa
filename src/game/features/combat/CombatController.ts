@@ -1,12 +1,16 @@
 ﻿import Phaser from 'phaser';
 import { ComboSystem } from '../../combat/ComboSystem';
 import { TargetDummy } from '../../combat/TargetDummy';
-import { Weapon, type WeaponHitRequest } from '../../combat/Weapon';
+import { Weapon, type SupplementalWeaponHitboxPort, type WeaponHitRequest } from '../../combat/Weapon';
 import type { DamageApplicationResult } from '../../combat/DamageableTarget';
 import { gameEvents } from '../../core/EventBus';
 import { gameState } from '../../core/GameState';
 import { Enemy, type ProjectileReference } from '../../enemies/Enemy';
-import { EnemySpawner } from '../../enemies/EnemySpawner';
+import {
+  EnemySpawner,
+  type EnemyPopulationMember,
+  type EnemySpawnRequest,
+} from '../../enemies/EnemySpawner';
 import type { AnimatedVisual } from '../visuals/AnimatedVisual';
 import { getEnemyConfig } from '../../enemies/library/EnemyTypes';
 import { projectilePool } from '../../enemies/Projectile';
@@ -18,7 +22,7 @@ import { floatingText } from '../../ui/FloatingText';
 import { getWeaponDefinition } from '../../content/weapons/WeaponCatalog';
 import type { WorldDimensions } from '../../world/WorldDimensions';
 import type { MapEnemySafeZone, MapEnemySpawnArea, MapSpawns } from '../../content/maps/mapFormat';
-import { resolveScreenUiDepth } from '../../presentation/WorldDepth';
+import { resolveScreenUiDepth, resolveWorldDepth } from '../../presentation/WorldDepth';
 import { hitboxPool } from '../../combat/Hitbox';
 import { WeaponVisual } from './WeaponVisual';
 import { ObjectAnimationAdapter } from '../objects/ObjectAnimationAdapter';
@@ -29,6 +33,8 @@ import { resolveDamageModifier } from '../../combat/DamageModifiers';
 import type { ResourceNodeController } from '../resources/ResourceNodeController';
 import type { HitboxTargets } from '../../combat/Hitbox';
 import { rejectedDamage } from '../../combat/DamageableTarget';
+import type { RoutedDamageOutcome } from './DamageRouter';
+import type { LegacyWeaponManagedTarget } from '../../infrastructure/scenes/compatibility/LegacyWeaponTargetBridge';
 
 export interface CombatControllerContext {
   scene: Phaser.Scene;
@@ -60,6 +66,15 @@ export interface CombatControllerContext {
   getBossTargets?: () => Phaser.Physics.Arcade.Group | null;
   isBossTarget?: (target: Phaser.GameObjects.GameObject) => boolean;
   applyBossHit?: (request: WeaponHitRequest) => DamageApplicationResult;
+  supplementalWeaponHitboxes?: SupplementalWeaponHitboxPort;
+  createManagedEnemy?: (request: EnemySpawnRequest) => EnemyPopulationMember | null | undefined;
+}
+
+export interface ManagedEnemyDefeat {
+  readonly enemyId: number;
+  readonly config: Enemy['config'];
+  readonly x: number;
+  readonly y: number;
 }
 
 export class CombatController {
@@ -124,6 +139,7 @@ export class CombatController {
         worldWidth: ctx.dimensions.width,
         worldHeight: ctx.dimensions.height,
         targetGroup: this.targets,
+        createEnemyRuntime: ctx.createManagedEnemy,
         getSafeZones: () => this.safeZones(),
         enemyContext: this.enemyContext(),
       });
@@ -204,6 +220,28 @@ export class CombatController {
 
   equippedWeaponId(): string | null {
     return this.weapon?.def.weaponId ?? null;
+  }
+
+  transformManagedWeaponDamage(damage: number): number {
+    return Math.max(0, Math.round(damage * this.combo.registerHit()));
+  }
+
+  onManagedWeaponOutcome(outcome: RoutedDamageOutcome, target: LegacyWeaponManagedTarget | undefined): void {
+    if (outcome.result.status !== 'accepted') return;
+    this.applyLifeSteal(outcome.result.actualDamage);
+    const effectId = this.weapon?.def.onHitEffectId;
+    if (!target || !effectId || outcome.result.actualDamage <= 0) return;
+    this.effects.spawn({
+      effectId,
+      direction: target.attackDirection,
+      x: target.x,
+      y: target.y,
+      depth: resolveWorldDepth(target.y, { stableId: target.receiverNodeId, attachmentSlot: 2 }).depth,
+    });
+  }
+
+  onManagedEnemyDefeated(enemy: ManagedEnemyDefeat): void {
+    this.awardEnemyDefeat(enemy);
   }
 
   spawnDummy(x: number, y: number): void {
@@ -341,6 +379,7 @@ export class CombatController {
       },
       playCharacterAction: this.ctx.playCharacterAction,
       playWeaponAnimation: (animationId, forceRestart) => this.weaponVisual?.play(animationId, forceRestart),
+      supplementalHitboxes: this.ctx.supplementalWeaponHitboxes,
     });
     const visual = new WeaponVisual(scene, player, weapon.def, weapon.clock, {
       getDepth: () => player.depth + 0.01,
@@ -407,6 +446,10 @@ export class CombatController {
   }
 
   private onEnemyDeath(enemy: Enemy): void {
+    this.awardEnemyDefeat(enemy);
+  }
+
+  private awardEnemyDefeat(enemy: ManagedEnemyDefeat): void {
     const { drop } = enemy.config;
     const { scene } = this.ctx;
     gameEvents.emit('enemy.died', {

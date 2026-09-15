@@ -5,6 +5,7 @@ import { defineConfig, type Plugin } from 'vite';
 
 import { animationContentModulesPlugin } from '../../../src/game/content/animations/animationContentModulesPlugin';
 import { characterContentModulesPlugin } from '../../../src/game/content/characters/characterContentModulesPlugin';
+import { sceneContentModulesPlugin } from '../../../src/game/content/scenes/sceneContentModulesPlugin';
 
 const repositoryRoot = fileURLToPath(new URL('../../..', import.meta.url));
 
@@ -30,6 +31,7 @@ export default defineConfig({
     readOnly(animationContentModulesPlugin({
       animationRoot: path.join(repositoryRoot, 'src/game/content/animations'),
     })),
+    readOnly(sceneContentModulesPlugin(path.join(repositoryRoot, 'src/game/content/scenes/authored'))),
   ],
   optimizeDeps: {
     entries: [

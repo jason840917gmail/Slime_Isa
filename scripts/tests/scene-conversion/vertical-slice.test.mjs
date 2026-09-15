@@ -53,7 +53,7 @@ test('vertical-slice converters are byte-stable across two dry runs', async () =
   assert.ok(first.outputs.some((output) => output.path === 'objects/chest-wooden.scene.json'));
 });
 
-test('isolated apply and replay preserve IDs, balance, camp placement, and chest save key', async () => {
+test('isolated apply and replay preserve IDs, balance, local camp origin, and chest save key', async () => {
   const runner = await createRunner();
   const applied = await runner.run({ unitKeys, mode: 'apply' });
   const replay = await runner.run({ unitKeys, mode: 'check' });
@@ -66,7 +66,8 @@ test('isolated apply and replay preserve IDs, balance, camp placement, and chest
   const chest = await load('objects/chest-wooden.scene.json');
   assert.equal(worm.nodes.find((node) => node.scriptId === 'game.enemy').properties.maxHealth, 55);
   assert.equal(fatty.nodes.find((node) => node.scriptId === 'game.fatty').properties.maxHealth, 140);
-  assert.equal(camp.nodes.find((node) => node.id === 'root').properties.position[0], 2528);
+  assert.deepEqual(camp.nodes.find((node) => node.id === 'root').properties.position, [0, 0]);
+  assert.deepEqual(camp.nodes.find((node) => node.scriptId === 'game.boss-camp').properties.spawn, [0, 0]);
   assert.equal(camp.nodes.find((node) => node.scriptId === 'game.boss-camp').properties.guardedChestInstanceId, 'level-1-fatty-guarded-chest');
   assert.equal(chest.sceneId, 'object.chest-wooden');
 });
