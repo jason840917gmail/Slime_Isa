@@ -106,6 +106,7 @@ test('player scene exposes node-backed runtime ports, dodge immunity, and one ro
   assert.deepEqual(fixture.root.teleportedTo, { x: 50, y: 60 });
 
   fixture.tree.shutdown();
+  assert.equal(fixture.router.hasArea(damageArea.runtimeId), false);
   fixture.packed.dispose();
   assert.equal(fixture.loader.activeLeaseCount(), 0);
   assert.equal(fixture.resources.activeLeaseCount(), 0);

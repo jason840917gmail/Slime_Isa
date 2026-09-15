@@ -119,6 +119,7 @@ for (const sceneId of sceneIds) {
 
     fixture.firstTree.shutdown();
     fixture.secondTree.shutdown();
+    assert.equal(fixture.router.hasArea(firstArea.runtimeId), false);
     fixture.packed.dispose();
     assert.equal(fixture.loader.activeLeaseCount(), 0);
     assert.equal(fixture.resources.activeLeaseCount(), 0);

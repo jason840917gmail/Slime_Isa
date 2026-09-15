@@ -1,0 +1,215 @@
+{
+  "version": 1,
+  "resourceId": "character.npc.village-elder-plop.animations",
+  "kind": "animation-library",
+  "animations": {
+    "idle": {
+      "durationSeconds": 2.6666666666666665,
+      "framesPerSecond": 12,
+      "loop": true,
+      "tracks": [
+        {
+          "binding": "../Visual",
+          "property": "frame",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0
+            },
+            {
+              "at": 5,
+              "value": 2
+            },
+            {
+              "at": 8,
+              "value": 4
+            },
+            {
+              "at": 11,
+              "value": 3
+            },
+            {
+              "at": 14,
+              "value": 2
+            },
+            {
+              "at": 17,
+              "value": 3
+            },
+            {
+              "at": 19,
+              "value": 4
+            },
+            {
+              "at": 21,
+              "value": 1
+            },
+            {
+              "at": 23,
+              "value": 0
+            },
+            {
+              "at": 25,
+              "value": 1
+            },
+            {
+              "at": 27,
+              "value": 5
+            }
+          ]
+        }
+      ],
+      "loopMode": "ping-pong"
+    },
+    "walk-down": {
+      "durationSeconds": 0.86,
+      "framesPerSecond": 8,
+      "loop": true,
+      "tracks": [
+        {
+          "binding": "../Visual",
+          "property": "frame",
+          "keys": [
+            {
+              "at": 0,
+              "value": 6
+            },
+            {
+              "at": 1,
+              "value": 7
+            },
+            {
+              "at": 2,
+              "value": 8
+            },
+            {
+              "at": 4,
+              "value": 9
+            },
+            {
+              "at": 5,
+              "value": 10
+            },
+            {
+              "at": 6,
+              "value": 11
+            }
+          ]
+        }
+      ],
+      "loopMode": "wrap"
+    },
+    "walk-up": {
+      "durationSeconds": 0.75,
+      "framesPerSecond": 8,
+      "loop": true,
+      "tracks": [
+        {
+          "binding": "../Visual",
+          "property": "frame",
+          "keys": [
+            {
+              "at": 0,
+              "value": 12
+            },
+            {
+              "at": 1,
+              "value": 13
+            },
+            {
+              "at": 2,
+              "value": 16
+            },
+            {
+              "at": 3,
+              "value": 14
+            },
+            {
+              "at": 4,
+              "value": 15
+            },
+            {
+              "at": 5,
+              "value": 17
+            }
+          ]
+        }
+      ],
+      "loopMode": "wrap"
+    },
+    "walk-left": {
+      "durationSeconds": 0.8571428571428571,
+      "framesPerSecond": 7,
+      "loop": true,
+      "tracks": [
+        {
+          "binding": "../Visual",
+          "property": "frame",
+          "keys": [
+            {
+              "at": 0,
+              "value": 24
+            },
+            {
+              "at": 1,
+              "value": 25
+            },
+            {
+              "at": 2,
+              "value": 26
+            },
+            {
+              "at": 3,
+              "value": 27
+            },
+            {
+              "at": 4,
+              "value": 28
+            },
+            {
+              "at": 5,
+              "value": 29
+            }
+          ]
+        }
+      ]
+    },
+    "walk-right": {
+      "durationSeconds": 0.8571428571428571,
+      "framesPerSecond": 7,
+      "loop": true,
+      "tracks": [
+        {
+          "binding": "../Visual",
+          "property": "frame",
+          "keys": [
+            {
+              "at": 0,
+              "value": 18
+            },
+            {
+              "at": 1,
+              "value": 19
+            },
+            {
+              "at": 2,
+              "value": 20
+            },
+            {
+              "at": 3,
+              "value": 21
+            },
+            {
+              "at": 4,
+              "value": 22
+            },
+            {
+              "at": 5,
+              "value": 23
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

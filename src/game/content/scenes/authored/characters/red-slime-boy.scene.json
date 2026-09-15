@@ -1,0 +1,105 @@
+{
+  "version": 1,
+  "sceneId": "character.red-slime-boy",
+  "rootNodeId": "body",
+  "nodes": [
+    {
+      "id": "body",
+      "name": "RedSlimeBoy",
+      "type": "CharacterBody2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "collisionLayer": 1,
+        "collisionMask": 1,
+        "position": [
+          0,
+          0
+        ],
+        "velocity": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "body-shape",
+      "name": "BodyShape",
+      "type": "CollisionShape2D",
+      "parentId": "body",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "red-slime-boy.body-shape"
+        },
+        "position": [
+          0,
+          10
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "body",
+      "order": 1,
+      "properties": {
+        "texture": {
+          "resourceId": "character.npc.red-slime-boy.sprite"
+        },
+        "frame": 0,
+        "origin": [
+          0.5,
+          1
+        ],
+        "scale": [
+          0.32,
+          0.32
+        ],
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "animation",
+      "name": "Animation",
+      "type": "AnimationPlayer",
+      "parentId": "body",
+      "order": 2,
+      "properties": {
+        "library": {
+          "resourceId": "character.npc.red-slime-boy.animations"
+        },
+        "domain": "physics",
+        "autoplay": "idle"
+      }
+    },
+    {
+      "id": "script",
+      "name": "NpcScript",
+      "type": "ScriptNode",
+      "scriptId": "game.npc",
+      "parentId": "body",
+      "order": 3,
+      "properties": {
+        "body": {
+          "nodeId": "body"
+        },
+        "visual": {
+          "nodeId": "visual"
+        },
+        "animation": {
+          "nodeId": "animation"
+        },
+        "characterId": "red-slime-boy",
+        "wanderSpeed": 38,
+        "pauseMinMs": 800,
+        "pauseMaxMs": 1800
+      }
+    }
+  ],
+  "instances": []
+}

@@ -19,6 +19,11 @@ const mode = args.includes('--apply') ? 'apply' : args.includes('--check') ? 'ch
 const explicitUnitKeys = args.flatMap((argument, index) => argument === '--unit' ? [args[index + 1]] : []).filter(Boolean);
 const sliceUnitKeys = [
   'visual:character.player.slime',
+  'visual:character.npc.lili',
+  'visual:character.npc.mossy-scout',
+  'visual:character.npc.red-slime-boy',
+  'visual:character.npc.village-elder-plop',
+  'visual:character.npc.yellow-blond-slime-girl',
   'visual:enemy.worm.brawler',
   'visual:enemy.worm.archer',
   'visual:enemy.worm.swordsman',
@@ -26,6 +31,11 @@ const sliceUnitKeys = [
   'visual:boss.fatty-one-eye',
   'character:worm-brawler',
   'character:player-slime',
+  'character:lili',
+  'character:mossy-scout',
+  'character:red-slime-boy',
+  'character:village-elder-plop',
+  'character:yellow-blond-slime-girl',
   'character:worm-archer',
   'character:worm-swordsman',
   'character:slime-spider',

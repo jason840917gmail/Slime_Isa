@@ -3,6 +3,11 @@ import { convertedOutput, readJson, requireSupportedUnit, resourcePath } from '.
 const SUPPORTED = new Set([
   'visual:boss.fatty-one-eye',
   'visual:character.player.slime',
+  'visual:character.npc.lili',
+  'visual:character.npc.mossy-scout',
+  'visual:character.npc.red-slime-boy',
+  'visual:character.npc.village-elder-plop',
+  'visual:character.npc.yellow-blond-slime-girl',
   'visual:enemy.slime.spider',
   'visual:enemy.worm.archer',
   'visual:enemy.worm.brawler',
@@ -23,6 +28,7 @@ function animationDocument(visual) {
         keys: clip.frames.map((frame, index) => ({ at: keyframeTimes[index], value: frame })),
       }],
     };
+    if (clip.loopMode && visual.visualSetId.startsWith('character.npc.')) animation.loopMode = clip.loopMode;
     if (clipId === 'attack-side') animation.events = [{ at: 1, id: 'attack-active', gameplay: true }];
     if (clipId === 'contact-hop') animation.events = [{ at: keyframeTimes.at(-1), id: 'contact-hop-impact', gameplay: true }];
     animations[clipId] = animation;

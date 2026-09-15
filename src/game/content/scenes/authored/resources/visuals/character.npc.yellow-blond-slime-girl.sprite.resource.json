@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "resourceId": "character.npc.yellow-blond-slime-girl.sprite",
+  "kind": "sprite-sheet",
+  "assetId": "character.npc.yellow-blond-slime-girl",
+  "frameWidth": 229,
+  "frameHeight": 229,
+  "frameCount": 30
+}

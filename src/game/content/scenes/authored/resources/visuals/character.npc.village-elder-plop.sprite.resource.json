@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "resourceId": "character.npc.village-elder-plop.sprite",
+  "kind": "sprite-sheet",
+  "assetId": "character.npc.village-elder-plop",
+  "frameWidth": 229,
+  "frameHeight": 229,
+  "frameCount": 30
+}
