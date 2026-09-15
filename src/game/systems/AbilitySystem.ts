@@ -7,6 +7,8 @@ import { TargetDummy } from '../combat/TargetDummy';
 import type { WorldDimensions } from '../world/WorldDimensions';
 import type { AnimatedVisual } from '../features/visuals/AnimatedVisual';
 import { resolveWorldDepth } from '../presentation/WorldDepth';
+import { PlayerAbilityService, type PlayerAbilityIntent } from '../features/player/PlayerAbilityService';
+import type { PlayerAbilityId } from '../features/player/PlayerAbilityDefinitions';
 
 /**
  * AbilitySystem â€” owns jump + teleport (preview of Phase 2 ability framework).
@@ -22,33 +24,9 @@ import { resolveWorldDepth } from '../presentation/WorldDepth';
  * Cooldowns tracked in ms via scene.time.now.
  */
 
-export type AbilityId = 'jump' | 'teleport' | 'squash-slam' | 'stretch-lash';
+export type AbilityId = PlayerAbilityId;
 
-const UNLOCK_LEVEL: Record<AbilityId, number> = {
-  jump: 2,
-  teleport: 5,
-  'squash-slam': 3,
-  'stretch-lash': 4,
-};
-
-const JUMP_COOLDOWN_MS = 700;
-const JUMP_DISTANCE = 168;
-const JUMP_DURATION_MS = 420;
 const JUMP_ARC_HEIGHT = 54;
-
-const TELEPORT_COOLDOWN_MS = 1800;
-const TELEPORT_DISTANCE = 240;
-const TELEPORT_ENERGY_COST = 35;
-
-const SLAM_COOLDOWN_MS = 2500;
-const SLAM_ENERGY_COST = 30;
-const SLAM_RADIUS = 90;
-const SLAM_DAMAGE = 30;
-
-const LASH_COOLDOWN_MS = 2000;
-const LASH_ENERGY_COST = 20;
-const LASH_RANGE = 180;
-const LASH_DAMAGE = 18;
 
 export interface AbilitySystemContext {
   scene: Phaser.Scene;
@@ -65,62 +43,53 @@ export interface AbilitySystemContext {
 
 export class AbilitySystem {
   private ctx: AbilitySystemContext;
-  private cooldownUntil: Record<AbilityId, number> = {
-    jump: 0,
-    teleport: 0,
-    'squash-slam': 0,
-    'stretch-lash': 0,
-  };
-  private busy = false;
+  private readonly decisions: PlayerAbilityService;
 
   constructor(ctx: AbilitySystemContext) {
     this.ctx = ctx;
+    this.decisions = new PlayerAbilityService({
+      nowMs: () => ctx.scene.time.now,
+      state: {
+        getLevel: () => gameState.level,
+        getEnergy: () => gameState.energy,
+        isActionLocked: ctx.isActionLocked,
+        setActionLocked: ctx.setActionLocked,
+        spendEnergy: (amount) => gameState.useEnergy(amount),
+      },
+      terrain: {
+        isBlocked: (x, y) => {
+          const grid = ctx.getTerrainGrid();
+          const tileX = Math.floor(x / ctx.dimensions.tileSize);
+          const tileY = Math.floor(y / ctx.dimensions.tileSize);
+          if (tileY < 0 || tileY >= grid.length || tileX < 0 || tileX >= (grid[0]?.length ?? 0)) return true;
+          const tileId = grid[tileY]?.[tileX];
+          return tileId !== undefined && isTileCollidable(tileId);
+        },
+      },
+    });
   }
 
   unlockLevel(ability: AbilityId): number {
-    return UNLOCK_LEVEL[ability];
+    return this.decisions.unlockLevel(ability);
   }
 
   isUnlocked(ability: AbilityId): boolean {
-    return gameState.level >= UNLOCK_LEVEL[ability];
+    return this.decisions.isUnlocked(ability);
   }
 
   isBusy(): boolean {
-    return this.busy;
+    return this.decisions.isBusy();
   }
 
   /** Attempt to jump in the given direction (or facing if zero). */
   tryJump(direction: Phaser.Math.Vector2): boolean {
-    if (this.busy) return false;
-    if (!this.isUnlocked('jump')) {
-      this.notifyLocked('jump');
-      return false;
-    }
+    const intent = this.beginAbility('jump', direction);
+    if (!intent) return false;
     const scene = this.ctx.scene;
-    if (scene.time.now < this.cooldownUntil.jump) return false;
-    if (this.ctx.isActionLocked()) return false;
-
-    const dir = direction.lengthSq() > 0
-      ? direction.clone().normalize()
-      : this.ctx.getFacing().clone().normalize();
-    if (dir.lengthSq() === 0) {
-      // Default to "up" if no facing at all.
-      dir.set(0, -1);
-    }
-
     const player = this.ctx.getPlayer();
     const visual = this.ctx.getPlayerVisual();
-    const start = new Phaser.Math.Vector2(player.x, player.y);
-    const target = this.raycast(start, dir, JUMP_DISTANCE);
-
-    // If we can't move meaningfully, treat as a small in-place hop.
-    const dist = Phaser.Math.Distance.Between(start.x, start.y, target.x, target.y);
-    if (dist < 8) {
-      target.set(start.x + dir.x * 12, start.y + dir.y * 12);
-    }
-
-    this.busy = true;
-    this.ctx.setActionLocked(true);
+    const { start, target } = intent;
+    const durationMs = intent.definition.durationMs ?? 420;
     this.ctx.playAnimation('slime-hop');
 
     // Ground shadow stays at the start position.
@@ -141,14 +110,14 @@ export class AbilitySystem {
       targets: player,
       x: midX,
       y: midY,
-      duration: JUMP_DURATION_MS / 2,
+      duration: durationMs / 2,
       ease: 'Quad.Out',
     });
     scene.tweens.add({
       targets: visual.effects,
       scaleX: 0.82,
       scaleY: 1.35,
-      duration: JUMP_DURATION_MS / 2,
+      duration: durationMs / 2,
       ease: 'Quad.Out',
     });
     // Down: squash + land at target.
@@ -156,8 +125,8 @@ export class AbilitySystem {
       targets: player,
       x: target.x,
       y: target.y,
-      duration: JUMP_DURATION_MS / 2,
-      delay: JUMP_DURATION_MS / 2,
+      duration: durationMs / 2,
+      delay: durationMs / 2,
       ease: 'Quad.In',
       onComplete: () => {
         // Squash rebound.
@@ -184,17 +153,15 @@ export class AbilitySystem {
         dust.emitParticle(8);
         scene.time.delayedCall(400, () => dust.destroy());
 
-        this.busy = false;
-        this.ctx.setActionLocked(false);
-        this.ctx.playAnimation('slime-idle');
+        if (this.decisions.complete(intent.sequenceId)) this.ctx.playAnimation('slime-idle');
       },
     });
     scene.tweens.add({
       targets: visual.effects,
       scaleX: 1.18,
       scaleY: 0.7,
-      duration: JUMP_DURATION_MS / 2,
-      delay: JUMP_DURATION_MS / 2,
+      duration: durationMs / 2,
+      delay: durationMs / 2,
       ease: 'Quad.In',
     });
 
@@ -204,44 +171,22 @@ export class AbilitySystem {
       alpha: 0.12,
       scaleX: 0.7,
       scaleY: 0.7,
-      duration: JUMP_DURATION_MS / 2,
+      duration: durationMs / 2,
       yoyo: true,
       onComplete: () => shadow.destroy(),
     });
 
-    this.cooldownUntil.jump = scene.time.now + JUMP_COOLDOWN_MS;
     return true;
   }
 
   /** Attempt to teleport (blink) in the given direction (or facing). */
   tryTeleport(direction: Phaser.Math.Vector2): boolean {
-    if (this.busy) return false;
-    if (!this.isUnlocked('teleport')) {
-      this.notifyLocked('teleport');
-      return false;
-    }
+    const intent = this.beginAbility('teleport', direction);
+    if (!intent) return false;
     const scene = this.ctx.scene;
-    if (scene.time.now < this.cooldownUntil.teleport) return false;
-    if (this.ctx.isActionLocked()) return false;
-
-    if (gameState.energy < TELEPORT_ENERGY_COST) {
-      floatingText.spawn(scene, this.ctx.getPlayer().x, this.ctx.getPlayer().y - 30, 'Low energy', 'orange');
-      return false;
-    }
-
-    const dir = direction.lengthSq() > 0
-      ? direction.clone().normalize()
-      : this.ctx.getFacing().clone().normalize();
-    if (dir.lengthSq() === 0) dir.set(0, -1);
-
     const player = this.ctx.getPlayer();
     const visual = this.ctx.getPlayerVisual();
-    const start = new Phaser.Math.Vector2(player.x, player.y);
-    const target = this.raycast(start, dir, TELEPORT_DISTANCE);
-
-    this.busy = true;
-    this.ctx.setActionLocked(true);
-    gameState.useEnergy(TELEPORT_ENERGY_COST);
+    const { start, target } = intent;
 
     // Afterimage at origin.
     this.spawnFlash(start.x, start.y, 0x72d8ff);
@@ -268,39 +213,24 @@ export class AbilitySystem {
           duration: 180,
           ease: 'Back.Out',
           onComplete: () => {
-            this.busy = false;
-            this.ctx.setActionLocked(false);
-            this.ctx.playAnimation('slime-idle');
+            if (this.decisions.complete(intent.sequenceId)) this.ctx.playAnimation('slime-idle');
           },
         });
       },
     });
 
-    this.cooldownUntil.teleport = scene.time.now + TELEPORT_COOLDOWN_MS;
     return true;
   }
 
   /** Squash Slam â€” AoE shockwave around the player. Unlocks at level 3. */
   trySquashSlam(): boolean {
-    if (this.busy) return false;
-    if (!this.isUnlocked('squash-slam')) {
-      this.notifyLocked('squash-slam');
-      return false;
-    }
+    const intent = this.beginAbility('squash-slam');
+    if (!intent) return false;
     const scene = this.ctx.scene;
-    if (scene.time.now < this.cooldownUntil['squash-slam']) return false;
-    if (this.ctx.isActionLocked()) return false;
-    if (gameState.energy < SLAM_ENERGY_COST) {
-      floatingText.spawn(scene, this.ctx.getPlayer().x, this.ctx.getPlayer().y - 30, 'Low energy', 'orange');
-      return false;
-    }
-
     const player = this.ctx.getPlayer();
     const visual = this.ctx.getPlayerVisual();
-    gameState.useEnergy(SLAM_ENERGY_COST);
-
-    this.busy = true;
-    this.ctx.setActionLocked(true);
+    const radius = intent.definition.radius ?? 90;
+    const damage = intent.definition.damage ?? 30;
     this.ctx.playAnimation('slime-squash');
     player.setVelocity(0, 0);
 
@@ -326,7 +256,7 @@ export class AbilitySystem {
             }).depth);
             scene.tweens.add({
               targets: ring,
-              scale: SLAM_RADIUS / 10,
+              scale: radius / 10,
               alpha: 0,
               duration: 300,
               onComplete: () => ring.destroy(),
@@ -341,9 +271,9 @@ export class AbilitySystem {
               hitboxPool.spawn(scene, targets, {
                 x: player.x,
                 y: player.y,
-                width: SLAM_RADIUS * 2,
-                height: SLAM_RADIUS * 2,
-                damage: SLAM_DAMAGE,
+                width: radius * 2,
+                height: radius * 2,
+                damage,
                 durationMs: 200,
                 knockStrength: 320,
                 vfxColor: 0x86f0c3,
@@ -366,9 +296,7 @@ export class AbilitySystem {
               duration: 150,
               ease: 'Back.Out',
               onComplete: () => {
-                this.busy = false;
-                this.ctx.setActionLocked(false);
-                this.ctx.playAnimation('slime-idle');
+                if (this.decisions.complete(intent.sequenceId)) this.ctx.playAnimation('slime-idle');
               },
             });
           },
@@ -376,40 +304,25 @@ export class AbilitySystem {
       },
     });
 
-    this.cooldownUntil['squash-slam'] = scene.time.now + SLAM_COOLDOWN_MS;
     return true;
   }
 
   /** Stretch Lash â€” long-range tongue/whip attack in facing direction. Lv 4. */
   tryStretchLash(): boolean {
-    if (this.busy) return false;
-    if (!this.isUnlocked('stretch-lash')) {
-      this.notifyLocked('stretch-lash');
-      return false;
-    }
+    const intent = this.beginAbility('stretch-lash');
+    if (!intent) return false;
     const scene = this.ctx.scene;
-    if (scene.time.now < this.cooldownUntil['stretch-lash']) return false;
-    if (this.ctx.isActionLocked()) return false;
-    if (gameState.energy < LASH_ENERGY_COST) {
-      floatingText.spawn(scene, this.ctx.getPlayer().x, this.ctx.getPlayer().y - 30, 'Low energy', 'orange');
-      return false;
-    }
-
     const player = this.ctx.getPlayer();
     const visual = this.ctx.getPlayerVisual();
-    const facing = this.ctx.getFacing();
-    const dir = facing.lengthSq() > 0 ? facing.clone().normalize() : new Phaser.Math.Vector2(1, 0);
-
-    gameState.useEnergy(LASH_ENERGY_COST);
-
-    this.busy = true;
-    this.ctx.setActionLocked(true);
+    const dir = intent.direction;
+    const range = intent.definition.distance ?? 180;
+    const damage = intent.definition.damage ?? 18;
     this.ctx.playAnimation('slime-stretch');
     player.setVelocity(0, 0);
 
     // Stretch in facing direction.
-    const stretchX = player.x + dir.x * LASH_RANGE * 0.5;
-    const stretchY = player.y + dir.y * LASH_RANGE * 0.5;
+    const stretchX = player.x + dir.x * range * 0.5;
+    const stretchY = player.y + dir.y * range * 0.5;
 
     scene.tweens.add({
       targets: player,
@@ -419,8 +332,8 @@ export class AbilitySystem {
       ease: 'Quad.Out',
       onComplete: () => {
         // Lash VFX: a line from player to the lash tip.
-        const tipX = player.x + dir.x * LASH_RANGE * 0.5;
-        const tipY = player.y + dir.y * LASH_RANGE * 0.5;
+        const tipX = player.x + dir.x * range * 0.5;
+        const tipY = player.y + dir.y * range * 0.5;
         const lash = scene.add.graphics().setDepth(resolveWorldDepth(player.y, {
           band: 'reveal-effects',
           stableId: 'player-stretch-lash',
@@ -441,14 +354,14 @@ export class AbilitySystem {
         // Hitbox along the lash path.
         const targets = this.ctx.getCombatTargets();
         if (targets) {
-          const hx = player.x + dir.x * LASH_RANGE * 0.4;
-          const hy = player.y + dir.y * LASH_RANGE * 0.4;
+          const hx = player.x + dir.x * range * 0.4;
+          const hy = player.y + dir.y * range * 0.4;
           hitboxPool.spawn(scene, targets, {
             x: hx,
             y: hy,
-            width: LASH_RANGE,
+            width: range,
             height: 40,
-            damage: LASH_DAMAGE,
+            damage,
             durationMs: 160,
             knockX: dir.x,
             knockY: dir.y,
@@ -466,14 +379,12 @@ export class AbilitySystem {
         // Retract.
         scene.tweens.add({
           targets: player,
-          x: player.x - dir.x * LASH_RANGE * 0.3,
-          y: player.y - dir.y * LASH_RANGE * 0.3,
+          x: player.x - dir.x * range * 0.3,
+          y: player.y - dir.y * range * 0.3,
           duration: 200,
           ease: 'Quad.In',
           onComplete: () => {
-            this.busy = false;
-            this.ctx.setActionLocked(false);
-            this.ctx.playAnimation('slime-idle');
+            if (this.decisions.complete(intent.sequenceId)) this.ctx.playAnimation('slime-idle');
           },
         });
         scene.tweens.add({
@@ -493,7 +404,6 @@ export class AbilitySystem {
       ease: 'Quad.Out',
     });
 
-    this.cooldownUntil['stretch-lash'] = scene.time.now + LASH_COOLDOWN_MS;
     return true;
   }
 
@@ -502,40 +412,30 @@ export class AbilitySystem {
   }
 
   destroy(): void {
-    this.busy = false;
+    this.decisions.cancel();
   }
 
   // â”€â”€ helpers â”€â”€
 
-  private notifyLocked(ability: AbilityId): void {
-    const scene = this.ctx.scene;
-    const need = UNLOCK_LEVEL[ability];
+  private beginAbility(ability: AbilityId, direction?: Phaser.Math.Vector2): PlayerAbilityIntent | undefined {
     const player = this.ctx.getPlayer();
-    floatingText.spawn(scene, player.x, player.y - 30, `Locked - Lv ${need}`, 'red');
+    const facing = this.ctx.getFacing();
+    const decision = this.decisions.tryBegin(ability, {
+      position: { x: player.x, y: player.y },
+      direction: direction ? { x: direction.x, y: direction.y } : { x: 0, y: 0 },
+      facing: { x: facing.x, y: facing.y },
+    });
+    if (decision.accepted) return decision.intent;
+    if (decision.reason === 'locked') this.notifyLocked(ability);
+    if (decision.reason === 'energy') floatingText.spawn(this.ctx.scene, player.x, player.y - 30, 'Low energy', 'orange');
+    return undefined;
   }
 
-  /** March from `start` in `dir` up to `maxDist`; stop just before a solid tile. */
-  private raycast(start: Phaser.Math.Vector2, dir: Phaser.Math.Vector2, maxDist: number): Phaser.Math.Vector2 {
-    const grid = this.ctx.getTerrainGrid();
-    const steps = Math.ceil(maxDist / 8);
-    let lastValid = start.clone();
-
-    for (let i = 1; i <= steps; i += 1) {
-      const d = (i / steps) * maxDist;
-      const x = start.x + dir.x * d;
-      const y = start.y + dir.y * d;
-      const tileX = Math.floor(x / this.ctx.dimensions.tileSize);
-      const tileY = Math.floor(y / this.ctx.dimensions.tileSize);
-
-      if (tileY < 0 || tileY >= grid.length || tileX < 0 || tileX >= grid[0].length) break;
-
-      const tileId = grid[tileY]?.[tileX];
-      if (tileId && isTileCollidable(tileId)) break;
-
-      lastValid = new Phaser.Math.Vector2(x, y);
-    }
-
-    return lastValid;
+  private notifyLocked(ability: AbilityId): void {
+    const scene = this.ctx.scene;
+    const need = this.decisions.unlockLevel(ability);
+    const player = this.ctx.getPlayer();
+    floatingText.spawn(scene, player.x, player.y - 30, `Locked - Lv ${need}`, 'red');
   }
 
   private spawnFlash(x: number, y: number, color: number): void {
