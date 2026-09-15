@@ -5,6 +5,7 @@ export * from '../combat/tooling';
 export * from './CharacterScript';
 export * from './PlayerScript';
 export * from '../player/PlayerNodePorts';
+export * from '../player/PlayerAbilityPresentation';
 export * from './EnemyScript';
 export * from './FattyScript';
 export * from './ChestScript';
