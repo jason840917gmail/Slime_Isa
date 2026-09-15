@@ -27,7 +27,6 @@ export interface PlayerHealthChanged {
 
 export class PlayerScript extends CharacterScript implements DamageReceiver, PlayerRuntimePorts {
   readonly playerName: string;
-  private damageRouter?: DamageRouter;
   private health?: DamageReceiver;
   private ports?: PlayerNodePorts;
   private simulationTimeMs = 0;
@@ -44,18 +43,18 @@ export class PlayerScript extends CharacterScript implements DamageReceiver, Pla
 
   override _enter_tree(): void {
     super._enter_tree();
-    this.damageRouter = this.service<DamageRouter>(DAMAGE_ROUTER_SERVICE);
+    const damageRouter = this.service<DamageRouter>(DAMAGE_ROUTER_SERVICE);
     this.health = this.service<DamageReceiver>(PLAYER_HEALTH_SERVICE);
     const body = requirePlayerVelocityBody(this.getReference<Node>('body')?.configuredTarget, this.runtimeId);
     const damageArea = requirePlayerBoundsNode(this.getReference<Node>('damageArea')?.configuredTarget, this.runtimeId);
     const animation = requirePlayerAnimationNode(this.getReference<Node>('animation')?.configuredTarget, this.runtimeId);
     this.ports = new PlayerNodePorts(body, damageArea, animation, () => this.isDodging());
-    this.damageRouter.registerArea(this, {
+    damageRouter.registerArea(this, {
       areaNodeId: damageArea.runtimeId,
       priority: 0,
       damageMultiplier: 1,
     });
-    this.entryDisposables.add(() => this.damageRouter?.unregisterArea(this, damageArea.runtimeId));
+    this.entryDisposables.add(() => damageRouter.unregisterArea(this, damageArea.runtimeId));
     this.add_to_group('player');
     this.add_to_group('damage-target');
     this.set_physics_process(true);
@@ -70,7 +69,6 @@ export class PlayerScript extends CharacterScript implements DamageReceiver, Pla
     this.ports?.stop();
     this.ports = undefined;
     this.health = undefined;
-    this.damageRouter = undefined;
   }
 
   getPosition(): CharacterPoint {

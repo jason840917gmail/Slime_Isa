@@ -4,6 +4,8 @@ export * from '../../infrastructure/scenes/PhaserUniversalSceneRuntime';
 export * from '../combat/tooling';
 export * from './CharacterScript';
 export * from './PlayerScript';
+export * from './NpcScript';
+export * from '../npcs/NpcWanderPolicy';
 export * from '../player/PlayerNodePorts';
 export * from '../player/PlayerAbilityPresentation';
 export * from './EnemyScript';

@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "resourceId": "mossy-scout.body-shape",
+  "kind": "collision-shape",
+  "value": {
+    "shape": "ellipse",
+    "radiusX": 18,
+    "radiusY": 12
+  }
+}

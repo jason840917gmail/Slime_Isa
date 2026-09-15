@@ -192,15 +192,16 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
 
   override _enter_tree(): void {
     super._enter_tree();
-    this.damageRouter = this.service<DamageRouter>(DAMAGE_ROUTER_SERVICE);
+    const damageRouter = this.service<DamageRouter>(DAMAGE_ROUTER_SERVICE);
+    this.damageRouter = damageRouter;
     this.attackActivations = this.service<AttackActivation>(ATTACK_ACTIVATION_SERVICE);
     this.targetService = this.service<EnemyRuntimePort>(ENEMY_TARGET_SERVICE);
     const target = this.getReference('damageArea')?.configuredTarget;
     if (!target) throw new Error(`EnemyScript '${this.runtimeId}' requires its damageArea reference.`);
     if (!this.getReference('attackArea')?.configuredTarget) throw new Error(`EnemyScript '${this.runtimeId}' requires its attackArea reference.`);
     const damageRule = this.damageRule(target.runtimeId);
-    this.damageRouter.registerArea(this, damageRule);
-    this.entryDisposables.add(() => this.damageRouter?.unregisterArea(this, target.runtimeId));
+    damageRouter.registerArea(this, damageRule);
+    this.entryDisposables.add(() => damageRouter.unregisterArea(this, target.runtimeId));
     this.set_physics_process(true);
   }
 

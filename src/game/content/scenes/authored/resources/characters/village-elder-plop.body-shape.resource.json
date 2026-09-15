@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "resourceId": "village-elder-plop.body-shape",
+  "kind": "collision-shape",
+  "value": {
+    "shape": "ellipse",
+    "radiusX": 17,
+    "radiusY": 12
+  }
+}

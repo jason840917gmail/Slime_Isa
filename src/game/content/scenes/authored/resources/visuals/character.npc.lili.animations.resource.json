@@ -1,0 +1,192 @@
+{
+  "version": 1,
+  "resourceId": "character.npc.lili.animations",
+  "kind": "animation-library",
+  "animations": {
+    "idle": {
+      "durationSeconds": 0.75,
+      "framesPerSecond": 8,
+      "loop": true,
+      "tracks": [
+        {
+          "binding": "../Visual",
+          "property": "frame",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0
+            },
+            {
+              "at": 1,
+              "value": 1
+            },
+            {
+              "at": 2,
+              "value": 2
+            },
+            {
+              "at": 3,
+              "value": 3
+            },
+            {
+              "at": 4,
+              "value": 4
+            },
+            {
+              "at": 5,
+              "value": 5
+            }
+          ]
+        }
+      ]
+    },
+    "walk-down": {
+      "durationSeconds": 0.6,
+      "framesPerSecond": 10,
+      "loop": true,
+      "tracks": [
+        {
+          "binding": "../Visual",
+          "property": "frame",
+          "keys": [
+            {
+              "at": 0,
+              "value": 6
+            },
+            {
+              "at": 1,
+              "value": 7
+            },
+            {
+              "at": 2,
+              "value": 8
+            },
+            {
+              "at": 3,
+              "value": 9
+            },
+            {
+              "at": 4,
+              "value": 10
+            },
+            {
+              "at": 5,
+              "value": 11
+            }
+          ]
+        }
+      ]
+    },
+    "walk-up": {
+      "durationSeconds": 0.6,
+      "framesPerSecond": 10,
+      "loop": true,
+      "tracks": [
+        {
+          "binding": "../Visual",
+          "property": "frame",
+          "keys": [
+            {
+              "at": 0,
+              "value": 12
+            },
+            {
+              "at": 1,
+              "value": 13
+            },
+            {
+              "at": 2,
+              "value": 14
+            },
+            {
+              "at": 3,
+              "value": 15
+            },
+            {
+              "at": 4,
+              "value": 16
+            },
+            {
+              "at": 5,
+              "value": 17
+            }
+          ]
+        }
+      ]
+    },
+    "walk-left": {
+      "durationSeconds": 0.6,
+      "framesPerSecond": 10,
+      "loop": true,
+      "tracks": [
+        {
+          "binding": "../Visual",
+          "property": "frame",
+          "keys": [
+            {
+              "at": 0,
+              "value": 18
+            },
+            {
+              "at": 1,
+              "value": 19
+            },
+            {
+              "at": 2,
+              "value": 20
+            },
+            {
+              "at": 3,
+              "value": 21
+            },
+            {
+              "at": 4,
+              "value": 22
+            },
+            {
+              "at": 5,
+              "value": 23
+            }
+          ]
+        }
+      ]
+    },
+    "walk-right": {
+      "durationSeconds": 0.6,
+      "framesPerSecond": 10,
+      "loop": true,
+      "tracks": [
+        {
+          "binding": "../Visual",
+          "property": "frame",
+          "keys": [
+            {
+              "at": 0,
+              "value": 24
+            },
+            {
+              "at": 1,
+              "value": 25
+            },
+            {
+              "at": 2,
+              "value": 26
+            },
+            {
+              "at": 3,
+              "value": 27
+            },
+            {
+              "at": 4,
+              "value": 28
+            },
+            {
+              "at": 5,
+              "value": 29
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

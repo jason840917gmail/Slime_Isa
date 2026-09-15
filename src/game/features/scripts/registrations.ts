@@ -7,6 +7,7 @@ import { FattyScript } from './FattyScript';
 import { BossCampScript } from './BossCampScript';
 import { ChestScript } from './ChestScript';
 import { PlayerScript } from './PlayerScript';
+import { NpcScript } from './NpcScript';
 
 const numberProperty = (key: string, label: string, defaultValue: number, group: string): PropertyDescriptor => ({
   key, label, group, value: { kind: 'number', min: 0 }, defaultValue,
@@ -108,6 +109,29 @@ export const PLAYER_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
   ],
 };
 
+export const NPC_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
+  scriptId: 'game.npc',
+  displayName: 'NPC Script',
+  description: 'Node-backed NPC wandering, presentation, and interaction locking.',
+  sourcePath: 'src/game/features/scripts/NpcScript.ts',
+  extends: 'game.character',
+  capabilities: ['npc-script', 'interactable'],
+  references: [
+    { key: 'body', label: 'Character Body', required: true, expectedCapability: 'character-body' },
+    { key: 'visual', label: 'Visual', required: true },
+    { key: 'animation', label: 'Animation Player', required: true, expectedNodeType: 'AnimationPlayer' },
+  ],
+  properties: [
+    stringProperty('characterId', 'Character ID', 'Identity'),
+    numberProperty('wanderSpeed', 'Wander Speed', 0, 'Movement'),
+    numberProperty('pauseMinMs', 'Minimum Pause', 0, 'Movement'),
+    numberProperty('pauseMaxMs', 'Maximum Pause', 0, 'Movement'),
+  ],
+  signals: [
+    { id: 'interaction_lock_changed', payload: 'NpcLockChanged' },
+  ],
+};
+
 export const FATTY_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
   scriptId: 'game.fatty',
   displayName: 'Fatty Script',
@@ -188,6 +212,7 @@ export const BOSS_CAMP_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
 export const GAME_SCRIPT_DESCRIPTORS = Object.freeze([
   CHARACTER_SCRIPT_DESCRIPTOR,
   PLAYER_SCRIPT_DESCRIPTOR,
+  NPC_SCRIPT_DESCRIPTOR,
   ENEMY_SCRIPT_DESCRIPTOR,
   FATTY_SCRIPT_DESCRIPTOR,
   CHEST_SCRIPT_DESCRIPTOR,
@@ -198,6 +223,7 @@ export function createGameScriptRegistry(services: ScriptServiceMap = {}): Scrip
   return new ScriptRegistry(services)
     .registerDefinition({ descriptor: CHARACTER_SCRIPT_DESCRIPTOR, factory: (context) => new CharacterScript(context) })
     .registerDefinition({ descriptor: PLAYER_SCRIPT_DESCRIPTOR, factory: (context) => new PlayerScript(context) })
+    .registerDefinition({ descriptor: NPC_SCRIPT_DESCRIPTOR, factory: (context) => new NpcScript(context) })
     .registerDefinition({ descriptor: ENEMY_SCRIPT_DESCRIPTOR, factory: (context) => new EnemyScript(context) })
     .registerDefinition({ descriptor: FATTY_SCRIPT_DESCRIPTOR, factory: (context) => new FattyScript(context) })
     .registerDefinition({ descriptor: CHEST_SCRIPT_DESCRIPTOR, factory: (context) => new ChestScript(context) })

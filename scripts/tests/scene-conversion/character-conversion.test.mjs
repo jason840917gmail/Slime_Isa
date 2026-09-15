@@ -13,11 +13,21 @@ import { validateSceneWriteSet } from '../../lib/scene-conversion/validate-scene
 const repositoryRoot = fileURLToPath(new URL('../../..', import.meta.url));
 const unitKeys = [
   'visual:character.player.slime',
+  'visual:character.npc.lili',
+  'visual:character.npc.mossy-scout',
+  'visual:character.npc.red-slime-boy',
+  'visual:character.npc.village-elder-plop',
+  'visual:character.npc.yellow-blond-slime-girl',
   'visual:enemy.slime.spider',
   'visual:enemy.worm.archer',
   'visual:enemy.worm.swordsman',
   'character:slime-spider',
   'character:player-slime',
+  'character:lili',
+  'character:mossy-scout',
+  'character:red-slime-boy',
+  'character:village-elder-plop',
+  'character:yellow-blond-slime-girl',
   'character:worm-archer',
   'character:worm-swordsman',
   'enemy:worm-archer',
@@ -82,4 +92,16 @@ test('remaining enemy converters are byte-stable and preserve authored combat se
   assert.deepEqual((await load('resources/characters/player-slime.body-shape.resource.json')).value, {
     shape: 'rectangle', width: 30, height: 26,
   });
+
+  const elder = await load('characters/village-elder-plop.scene.json');
+  const elderScript = elder.nodes.find((node) => node.scriptId === 'game.npc').properties;
+  assert.equal(elderScript.characterId, 'village-elder-plop');
+  assert.equal(elderScript.wanderSpeed, 18);
+  assert.equal(elderScript.pauseMinMs, 3000);
+  assert.equal(elderScript.pauseMaxMs, 50000);
+  assert.deepEqual(elder.nodes.find((node) => node.id === 'visual').properties.scale, [0.32, 0.32]);
+  assert.equal(
+    (await load('resources/visuals/character.npc.village-elder-plop.animations.resource.json')).animations.idle.loopMode,
+    'ping-pong',
+  );
 });

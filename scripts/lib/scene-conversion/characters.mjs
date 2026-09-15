@@ -2,6 +2,11 @@ import { convertedOutput, readJson, requireSupportedUnit, resourcePath, shapeVal
 
 const CHARACTER_SUPPORTED = new Set([
   'character:player-slime',
+  'character:lili',
+  'character:mossy-scout',
+  'character:red-slime-boy',
+  'character:village-elder-plop',
+  'character:yellow-blond-slime-girl',
   'character:worm-archer',
   'character:worm-brawler',
   'character:worm-swordsman',
@@ -47,6 +52,18 @@ export const characterSceneAdapter = {
           { path: '$.defaults', owner: 'src/game/content/characters/player-slime/visual-set.json' },
         ]));
       }
+      if (character.kind === 'npc') {
+        const visual = await readJson(readSource, `src/game/content/characters/${character.characterId}/visual-set.json`);
+        outputs.push(convertedOutput(unit, `characters/${character.characterId}.scene.json`, npcScene(character, visual), [
+          '$.characterId', '$.displayName', '$.kind', '$.visualSetId', '$.npc',
+        ], [
+          { path: '$.$schema', owner: unit.oldSourcePath },
+          { path: '$.version', owner: unit.oldSourcePath },
+          { path: '$.hitboxes', owner: unit.oldSourcePath },
+          { path: '$.animationTracks', owner: unit.oldSourcePath },
+          { path: '$.defaults', owner: `src/game/content/characters/${character.characterId}/visual-set.json` },
+        ]));
+      }
       if (character.characterId === 'slime-spider') {
         outputs.push(...enemyOutputs(unit, character, character.enemy, [
           '$.characterId', '$.displayName', '$.kind', '$.visualSetId', '$.enemy',
@@ -61,6 +78,35 @@ export const characterSceneAdapter = {
     return outputs;
   },
 };
+
+function npcScene(character, visual) {
+  return {
+    version: 1,
+    sceneId: `character.${character.characterId}`,
+    rootNodeId: 'body',
+    nodes: [
+      { id: 'body', name: nodeName(character.characterId), type: 'CharacterBody2D', parentId: null, order: 0, properties: { collisionLayer: 1, collisionMask: 1, position: [0, 0], velocity: [0, 0] } },
+      { id: 'body-shape', name: 'BodyShape', type: 'CollisionShape2D', parentId: 'body', order: 0, properties: { shape: { resourceId: `${character.characterId}.body-shape` }, position: [character.body.centerOffsetX, character.body.centerOffsetY] } },
+      {
+        id: 'visual', name: 'Visual', type: 'Sprite2D', parentId: 'body', order: 1,
+        properties: {
+          texture: { resourceId: `${character.visualSetId}.sprite` }, frame: 0,
+          origin: visual.defaults.origin, scale: visual.defaults.scale, position: visual.defaults.sourceOffset,
+        },
+      },
+      { id: 'animation', name: 'Animation', type: 'AnimationPlayer', parentId: 'body', order: 2, properties: { library: { resourceId: `${character.visualSetId}.animations` }, domain: 'physics', autoplay: 'idle' } },
+      {
+        id: 'script', name: 'NpcScript', type: 'ScriptNode', scriptId: 'game.npc', parentId: 'body', order: 3,
+        properties: {
+          body: { nodeId: 'body' }, visual: { nodeId: 'visual' }, animation: { nodeId: 'animation' },
+          characterId: character.characterId, wanderSpeed: character.npc.wanderSpeed,
+          pauseMinMs: character.npc.pauseMinMs, pauseMaxMs: character.npc.pauseMaxMs,
+        },
+      },
+    ],
+    instances: [],
+  };
+}
 
 function playerScene(character, visual) {
   return {
