@@ -32,6 +32,13 @@ test('Level 1 spawns Worm Brawler through the universal runtime without a legacy
   expect(authored.managedPlayerCount).toBe(1);
   expect(authored.legacyNpcCount).toBe(0);
   expect(authored.hasLegacyChestController).toBe(false);
+  await page.keyboard.down('ArrowRight');
+  await expect.poll(async () => (
+    await page.evaluate(() => window.sceneFixture.snapshot().managedPlayerX ?? 0)
+  )).toBeGreaterThan((authored.managedPlayerX ?? 0) + 10);
+  await page.keyboard.up('ArrowRight');
+  const moved = await page.evaluate(() => window.sceneFixture.snapshot());
+  expect(Math.abs((moved.managedPlayerX ?? 0) - (moved.legacyPlayerX ?? 0))).toBeLessThan(2);
   await page.evaluate(() => window.sceneFixture.teleportProductionPlayer(2_528, 1_472));
   await expect.poll(async () => {
     const snapshot = await page.evaluate(() => window.sceneFixture.snapshot());

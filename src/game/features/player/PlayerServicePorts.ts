@@ -53,3 +53,12 @@ export interface PlayerKnockbackPort {
 }
 
 export interface PlayerRuntimePorts extends PlayerPositionPort, PlayerBodyPort, PlayerDodgePort, PlayerKnockbackPort {}
+
+export interface PlayerMotionPort extends PlayerDodgePort, PlayerKnockbackPort {
+  move(direction: Readonly<{ x: number; y: number }>, speed: number): boolean;
+  stopMovement(): void;
+  beginDodge(direction: Readonly<{ x: number; y: number }>, speed: number, invulnerabilityMs: number): boolean;
+  isMovementSuppressed(): boolean;
+}
+
+export interface PlayerActorPort extends PlayerRuntimePorts, PlayerMotionPort {}

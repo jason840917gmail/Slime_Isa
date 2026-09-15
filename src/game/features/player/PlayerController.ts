@@ -8,10 +8,12 @@ import { getStats, resolveMovementSpeed } from '../../systems/PlayerStats';
 import type { PlayerEntity } from './PlayerFactory';
 import { resolveBodyBottom, resolveWorldDepth } from '../../presentation/WorldDepth';
 import { resolvePhysicsPresentationPosition } from '../../presentation/PhysicsPresentation';
+import type { PlayerMotionPort } from './PlayerServicePorts';
 
 export interface PlayerControllerContext {
   scene: Phaser.Scene;
   entity: PlayerEntity;
+  getMotion: () => PlayerMotionPort;
   getControls: () => Controls;
   getStatusEffects: () => StatusEffectManager | undefined;
   playAnimation: (key: string) => void;
@@ -20,8 +22,6 @@ export interface PlayerControllerContext {
 export class PlayerController {
   readonly facing = new Phaser.Math.Vector2(0, 1);
   private readonly presentationPosition = new Phaser.Math.Vector2();
-  private dodgeInvulnerableUntil = 0;
-  private movementSuppressedUntil = 0;
 
   constructor(private readonly ctx: PlayerControllerContext) {}
 
@@ -55,7 +55,7 @@ export class PlayerController {
 
   move(direction: Phaser.Math.Vector2): void {
     const player = this.ctx.entity.sprite;
-    if (this.ctx.scene.time.now < this.movementSuppressedUntil) {
+    if (this.ctx.getMotion().isMovementSuppressed()) {
       player.rotation = 0;
       return;
     }
@@ -69,7 +69,7 @@ export class PlayerController {
     const speed = resolveMovementSpeed(baseSpeed, 0, statusEffects?.speedMultiplier ?? 1);
 
     if (statusEffects?.isRooted()) {
-      player.setVelocity(0, 0);
+      this.ctx.getMotion().move({ x: 0, y: 0 }, 0);
       player.rotation = 0;
       this.ctx.playAnimation('slime-idle');
       return;
@@ -79,7 +79,7 @@ export class PlayerController {
       direction.normalize().scale(speed);
     }
 
-    player.setVelocity(direction.x, direction.y);
+    this.ctx.getMotion().move(direction, direction.length());
     player.rotation = 0;
 
     if (direction.lengthSq() === 0) {
@@ -107,10 +107,13 @@ export class PlayerController {
       : this.facing.clone().normalize();
     if (dodgeDirection.lengthSq() === 0) dodgeDirection.set(1, 0);
 
-    this.dodgeInvulnerableUntil = scene.time.now + PLAYER_CONFIG.movement.dodgeInvulnerabilityMs;
-    this.ctx.playAnimation('slime-roll');
     const dodgeSpeed = resolveMovementSpeed(PLAYER_CONFIG.movement.dodgeSpeed);
-    player.setVelocity(dodgeDirection.x * dodgeSpeed, dodgeDirection.y * dodgeSpeed);
+    if (!this.ctx.getMotion().beginDodge(
+      dodgeDirection,
+      dodgeSpeed,
+      PLAYER_CONFIG.movement.dodgeInvulnerabilityMs,
+    )) return false;
+    this.ctx.playAnimation('slime-roll');
 
     const dust = scene.add.particles(player.x, player.y, 'xp-orb', {
       lifespan: 280,
@@ -130,20 +133,16 @@ export class PlayerController {
   }
 
   isDodging(): boolean {
-    return this.ctx.scene.time.now < this.dodgeInvulnerableUntil;
+    return this.ctx.getMotion().isDodging();
   }
 
   isMovementSuppressed(): boolean {
-    return this.ctx.scene.time.now < this.movementSuppressedUntil;
+    return this.ctx.getMotion().isMovementSuppressed();
   }
 
   applyKnockback(direction: Phaser.Math.Vector2, strength: number, durationMs: number): void {
     if (direction.lengthSq() === 0 || strength <= 0) return;
     const normalized = direction.clone().normalize();
-    this.movementSuppressedUntil = Math.max(
-      this.movementSuppressedUntil,
-      this.ctx.scene.time.now + durationMs,
-    );
-    this.ctx.entity.sprite.setVelocity(normalized.x * strength, normalized.y * strength);
+    this.ctx.getMotion().applyKnockback(normalized, strength, durationMs);
   }
 }

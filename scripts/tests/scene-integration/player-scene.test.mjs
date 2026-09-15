@@ -84,6 +84,8 @@ test('player scene exposes node-backed runtime ports, dodge immunity, and one ro
 
   assert.equal(script.move({ x: 3, y: 4 }, 100), true);
   assert.deepEqual(fixture.root.velocity, { x: 60, y: 80 });
+  script.stopMovement();
+  assert.deepEqual(fixture.root.velocity, { x: 0, y: 0 });
   assert.equal(script.beginDodge({ x: 1, y: 0 }, 300, 400), true);
   assert.equal(script.isDodging(), true);
   const blockedActivation = fixture.activations.begin('enemy', ['enemy-attack']);

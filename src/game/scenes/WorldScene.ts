@@ -39,6 +39,7 @@ import { ModalStack } from '../ui/ModalStack';
 import { DisposableBag } from '../shared/lifecycle/Disposable';
 import { createPlayerEntity } from '../features/player/PlayerFactory';
 import { PlayerController } from '../features/player/PlayerController';
+import type { PlayerMotionPort } from '../features/player/PlayerServicePorts';
 import { findVisualClipByRuntimeKey, getVisualClip } from '../content/visuals/VisualCatalog';
 import { animationCycleDurationMs } from '../shared/animationLoop';
 import { AnimatedVisual } from '../features/visuals/AnimatedVisual';
@@ -486,7 +487,7 @@ export class WorldScene extends Phaser.Scene {
       }
     };
 
-    if (this.player?.body) this.player.setVelocity(0, 0);
+    this.stopPlayerMotion();
     this.combatController?.targets.children.each((child) => {
       stop(child);
       return true;
@@ -519,7 +520,7 @@ export class WorldScene extends Phaser.Scene {
     this.syncCameraLayers();
 
     if (this.paused) {
-      this.player.setVelocity(0, 0);
+      this.stopPlayerMotion();
       this.debugRenderer?.update();
     }
   }
@@ -547,7 +548,7 @@ export class WorldScene extends Phaser.Scene {
 
     // Respawn override: if dead, skip input but still tick systems above.
     if (this.healthSystem?.isDead()) {
-      this.player.setVelocity(0, 0);
+      this.stopPlayerMotion();
       this.player.rotation = 0;
       this.debugRenderer?.update();
       return;
@@ -562,7 +563,7 @@ export class WorldScene extends Phaser.Scene {
     }
 
     if (this.actionLocked) {
-      this.player.setVelocity(0, 0);
+      this.stopPlayerMotion();
       this.player.rotation = 0;
       this.debugRenderer?.update();
       return;
@@ -605,7 +606,7 @@ export class WorldScene extends Phaser.Scene {
 
   private transitionTo(areaId: AreaId, entryEdge: Direction): void {
     this.transitioning = true;
-    this.player.setVelocity(0, 0);
+    this.stopPlayerMotion();
     this.navigateToArea(areaId, entryEdge, false);
   }
 
@@ -743,6 +744,7 @@ export class WorldScene extends Phaser.Scene {
     this.playerController = new PlayerController({
       scene: this,
       entity,
+      getMotion: () => this.playerMotion(),
       getControls: () => this.controls,
       getStatusEffects: () => this.statusEffects,
       playAnimation: (key) => this.playAnimation(key),
@@ -914,6 +916,22 @@ export class WorldScene extends Phaser.Scene {
     this.cameraController?.stepZoom(deltaY);
   }
 
+  private playerMotion(): PlayerMotionPort {
+    if (!this.universalWorld) throw new Error('The authored player runtime is not initialized.');
+    return this.universalWorld.managedPlayer;
+  }
+
+  private stopPlayerMotion(): void {
+    this.universalWorld?.managedPlayer.stopMovement();
+    if (this.player?.body) this.player.setVelocity(0, 0);
+  }
+
+  private teleportPlayer(position: Readonly<{ x: number; y: number }>): void {
+    this.universalWorld?.managedPlayer.teleport(position);
+    this.player.setPosition(position.x, position.y);
+    (this.player.body as Phaser.Physics.Arcade.Body | null)?.reset(position.x, position.y);
+  }
+
   private handlePresentationPostUpdate(_time: number, delta: number): void {
     this.playerController?.updateVisuals();
     this.combatController?.updatePresentation();
@@ -1066,7 +1084,7 @@ export class WorldScene extends Phaser.Scene {
 
     this.actionLocked = true;
     this.currentAnimation = key;
-    this.player.setVelocity(0, 0);
+    this.stopPlayerMotion();
     this.player.rotation = 0;
     this.playerVisual?.play(clip.runtimeKey, true);
 
@@ -1119,7 +1137,7 @@ export class WorldScene extends Phaser.Scene {
     this.bossCampController?.resetActiveFights();
     this.universalWorld?.resetActiveFights();
     this.playAnimation('slime-die', true);
-    this.player.setVelocity(0, 0);
+    this.stopPlayerMotion();
     this.player.rotation = 0;
     this.cameras.main.shake(400, 0.012);
     floatingText.spawn(this, this.player.x, this.player.y - 40, 'DEFEATED', 'red', true);
@@ -1142,7 +1160,7 @@ export class WorldScene extends Phaser.Scene {
 
     this.healthSystem.respawn();
     this.statusEffects?.clear();
-    this.player.setPosition(pos.x, pos.y);
+    this.teleportPlayer(pos);
     this.playerKnockbackUntil = 0;
     this.playAnimation('slime-idle', true);
     this.playerVisual?.clearTint();
@@ -1384,7 +1402,7 @@ export class WorldScene extends Phaser.Scene {
       transaction: playerInventoryWorldTransaction,
       interactions: this.interactionRouter!,
       modalStack: this.modalStack!,
-      isPlayerDodging: () => this.playerController.isDodging(),
+      isPlayerActionLocked: () => this.actionLocked,
       setChestPaused: (paused) => this.setSimulationPaused('managed-chest', paused),
       showMessage: (x, y, message, color = 'white', important = false) => floatingText.spawn(this, x, y, message, color, important),
       updateLegacyFixed: (deltaMs) => this.updateLegacyFixed(deltaMs),
