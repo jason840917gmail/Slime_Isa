@@ -6,6 +6,7 @@ export interface SceneEnabledPlacement {
   readonly x: number;
   readonly y: number;
   readonly persistenceKey: string;
+  readonly npcDefinitionId?: string;
 }
 
 const CAMP_SCENES: Readonly<Record<string, string>> = {
@@ -14,6 +15,14 @@ const CAMP_SCENES: Readonly<Record<string, string>> = {
 
 const OBJECT_SCENES: Readonly<Record<string, string>> = {
   'chest.wooden': 'object.chest-wooden',
+};
+
+const NPC_SCENES: Readonly<Record<string, Readonly<{ sceneId: string; npcDefinitionId: string }>>> = {
+  'npc.world': { sceneId: 'character.village-elder-plop', npcDefinitionId: 'village-elder-plop' },
+  'npc.world-scout': { sceneId: 'character.mossy-scout', npcDefinitionId: 'level-1-spider-giver' },
+  'npc.lili': { sceneId: 'character.lili', npcDefinitionId: 'lili' },
+  'npc.red-slime-boy': { sceneId: 'character.red-slime-boy', npcDefinitionId: 'red-slime-boy' },
+  'npc.yellow-blond-slime-girl': { sceneId: 'character.yellow-blond-slime-girl', npcDefinitionId: 'yellow-blond-slime-girl' },
 };
 
 export class LegacyMapPlacementBridge {
@@ -60,7 +69,8 @@ export class LegacyMapPlacementBridge {
   }
 
   standaloneObjectPlacement(instance: MapObjectInstance): SceneEnabledPlacement | undefined {
-    const sceneId = OBJECT_SCENES[instance.objectId];
+    const npc = NPC_SCENES[instance.objectId];
+    const sceneId = npc?.sceneId ?? OBJECT_SCENES[instance.objectId];
     if (!sceneId || this.sceneOwnedIds.has(instance.instanceId)) return undefined;
     this.sceneOwnedIds.add(instance.instanceId);
     return {
@@ -69,6 +79,7 @@ export class LegacyMapPlacementBridge {
       x: instance.x,
       y: instance.y,
       persistenceKey: `${this.mapId}.${instance.instanceId}`,
+      ...(npc ? { npcDefinitionId: npc.npcDefinitionId } : {}),
     };
   }
 }
