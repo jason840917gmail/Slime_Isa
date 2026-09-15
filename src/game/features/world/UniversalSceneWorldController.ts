@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 
 import type { SupplementalWeaponHitboxPort } from '../../combat/Weapon';
-import type { MapBossCamp, MapFile } from '../../content/maps/mapFormat';
+import type { MapBossCamp, MapEnemySafeZone, MapFile } from '../../content/maps/mapFormat';
 import { sceneId } from '../../content/scenes/identifiers';
 import { getBossDefinition } from '../../content/bosses/BossCatalog';
 import { ASSET_MANIFEST, type AssetId } from '../../infrastructure/assets/manifest';
@@ -25,6 +25,7 @@ import type { InteractionProvider, InteractionRouter } from '../interaction/Inte
 import type { InventoryWorldTransaction } from '../progression/InventoryWorldTransaction';
 import type { WorldProgress } from '../progression/WorldProgress';
 import type { EnemyPopulationMember, EnemySpawnRequest } from '../../enemies/EnemySpawner';
+import { projectilePool } from '../../enemies/Projectile';
 import type { ManagedEnemyDefeat } from '../combat/CombatController';
 import {
   BOSS_CAMP_PROGRESS_SERVICE,
@@ -44,6 +45,8 @@ import {
   DAMAGE_ROUTER_SERVICE,
   ENEMY_TARGET_SERVICE,
   EnemyScript,
+  type EnemyNavigationSnapshot,
+  type EnemyProjectileRequest,
 } from '../scripts/EnemyScript';
 import { createGameDescriptorRegistry, createGameScriptRegistry } from '../scripts/registrations';
 import type { HealthSystem } from '../../systems/HealthSystem';
@@ -73,6 +76,7 @@ export interface UniversalSceneWorldControllerOptions {
   readonly transformManagedWeaponDamage: (damage: number, target: LegacyWeaponManagedTarget) => number;
   readonly onManagedWeaponOutcome: (outcome: RoutedDamageOutcome, target: LegacyWeaponManagedTarget | undefined) => void;
   readonly onManagedEnemyDefeated: (enemy: ManagedEnemyDefeat) => void;
+  readonly getEnemySafeZones: () => readonly MapEnemySafeZone[];
 }
 
 interface ManagedCamp {
@@ -96,6 +100,13 @@ interface ManagedOrdinaryEnemy {
   defeatNotified: boolean;
   disposeAtMs?: number;
 }
+
+const MANAGED_ENEMY_SCENES = {
+  'worm-archer': 'character.worm-archer',
+  'worm-brawler': 'character.worm-brawler',
+  'worm-swordsman': 'character.worm-swordsman',
+  'slime-spider': 'character.slime-spider',
+} as const;
 
 class ManagedBossBar implements LegacyBossBarHandle {
   readonly bar: BossHealthBar;
@@ -165,7 +176,11 @@ export class UniversalSceneWorldController implements InteractionProvider {
     const scripts = createGameScriptRegistry({
       [DAMAGE_ROUTER_SERVICE]: this.damageRouter,
       [ATTACK_ACTIVATION_SERVICE]: this.activations,
-      [ENEMY_TARGET_SERVICE]: this.playerBridge,
+      [ENEMY_TARGET_SERVICE]: {
+        getPrimaryTarget: (sourceNodeId: string) => this.playerBridge.getPrimaryTarget(sourceNodeId),
+        getNavigation: (sourceNodeId: string) => this.enemyNavigation(sourceNodeId),
+        fireProjectile: (request: EnemyProjectileRequest) => this.fireEnemyProjectile(request),
+      },
       [BOSS_CAMP_PROGRESS_SERVICE]: {
         getRespawnReadyAt: (mapId: string, campId: string) => options.progress.bossCampRespawnReadyAt(mapId, campId),
         setRespawnReadyAt: (mapId: string, campId: string, epochMs: number | undefined) => options.progress.setBossCampRespawnReadyAt(mapId, campId, epochMs),
@@ -278,9 +293,10 @@ export class UniversalSceneWorldController implements InteractionProvider {
   }
 
   createManagedEnemy(request: EnemySpawnRequest): EnemyPopulationMember | null | undefined {
-    if (request.config.id !== 'worm-brawler') return undefined;
+    const authoredSceneId = MANAGED_ENEMY_SCENES[request.config.id as keyof typeof MANAGED_ENEMY_SCENES];
+    if (!authoredSceneId) return undefined;
     const enemyId = this.nextEnemySequence++;
-    const mount = this.runtime.mountScene(sceneId('character.worm-brawler'), {
+    const mount = this.runtime.mountScene(sceneId(authoredSceneId), {
       runtimeNamespace: `managed-enemy-${enemyId}`,
       position: { x: request.x, y: request.y },
     });
@@ -407,6 +423,48 @@ export class UniversalSceneWorldController implements InteractionProvider {
     if (!enemy) return;
     enemy.mount.dispose();
     this.ordinaryEnemies.delete(enemyId);
+  }
+
+  private enemyNavigation(sourceNodeId: string): EnemyNavigationSnapshot | undefined {
+    const enemy = [...this.ordinaryEnemies.values()].find((candidate) => candidate.script.runtimeId === sourceNodeId);
+    if (!enemy) return undefined;
+    return {
+      safeZones: this.options.getEnemySafeZones(),
+      ...(enemy.request.area ? { spawnArea: enemy.request.area } : {}),
+    };
+  }
+
+  private fireEnemyProjectile(request: EnemyProjectileRequest): void {
+    if (request.projectileId) {
+      projectilePool.fireDefinition(
+        this.options.scene,
+        request.position.x,
+        request.position.y,
+        request.direction.x,
+        request.direction.y,
+        request.projectileId,
+        'enemy',
+        request.damage,
+        request.knockbackStrength,
+        request.speed,
+      );
+      return;
+    }
+    if (!request.assetId) throw new Error(`Managed enemy '${request.sourceNodeId}' projectile has no asset identity.`);
+    const asset = ASSET_MANIFEST.assets[request.assetId as AssetId];
+    if (!asset) throw new Error(`Managed enemy '${request.sourceNodeId}' projectile references unknown asset '${request.assetId}'.`);
+    projectilePool.fire(
+      this.options.scene,
+      request.position.x,
+      request.position.y,
+      request.direction.x,
+      request.direction.y,
+      request.speed,
+      asset.runtime.textureKey,
+      'enemy',
+      request.damage,
+      request.knockbackStrength,
+    );
   }
 
   private createBossBar(campId: string, bossId: string): LegacyBossBarHandle {
