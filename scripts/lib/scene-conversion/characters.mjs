@@ -1,7 +1,13 @@
 import { convertedOutput, readJson, requireSupportedUnit, resourcePath, shapeValue } from './adapter-utils.mjs';
 
-const CHARACTER_SUPPORTED = new Set(['character:worm-brawler', 'character:fatty-one-eye']);
-const ENEMY_SUPPORTED = new Set(['enemy:worm-brawler']);
+const CHARACTER_SUPPORTED = new Set([
+  'character:worm-archer',
+  'character:worm-brawler',
+  'character:worm-swordsman',
+  'character:slime-spider',
+  'character:fatty-one-eye',
+]);
+const ENEMY_SUPPORTED = new Set(['enemy:worm-archer', 'enemy:worm-brawler', 'enemy:worm-swordsman']);
 
 function shapeResource(resourceId, value) {
   return { version: 1, resourceId, kind: 'collision-shape', value };
@@ -28,19 +34,29 @@ export const characterSceneAdapter = {
           { path: '$.visualSetId', owner: unit.oldSourcePath },
         ]));
       }
+      if (character.characterId === 'slime-spider') {
+        outputs.push(...enemyOutputs(unit, character, character.enemy, [
+          '$.characterId', '$.displayName', '$.kind', '$.visualSetId', '$.enemy',
+        ], [
+          { path: '$.$schema', owner: unit.oldSourcePath },
+          { path: '$.version', owner: unit.oldSourcePath },
+          { path: '$.hitboxes', owner: unit.oldSourcePath },
+          { path: '$.animationTracks', owner: unit.oldSourcePath },
+        ]));
+      }
     }
     return outputs;
   },
 };
 
-function wormScene(character, enemy) {
+function enemyScene(character, enemy) {
   const visualPrefix = character.visualSetId;
   return {
     version: 1,
     sceneId: `character.${character.characterId}`,
     rootNodeId: 'body',
     nodes: [
-      { id: 'body', name: 'WormBrawler', type: 'CharacterBody2D', parentId: null, order: 0, properties: { collisionLayer: 2, collisionMask: 5, position: [0, 0], velocity: [0, 0] } },
+      { id: 'body', name: nodeName(character.characterId), type: 'CharacterBody2D', parentId: null, order: 0, properties: { collisionLayer: 2, collisionMask: 5, position: [0, 0], velocity: [0, 0] } },
       { id: 'body-shape', name: 'BodyShape', type: 'CollisionShape2D', parentId: 'body', order: 0, properties: { shape: { resourceId: `${character.characterId}.body-shape` }, position: [character.body.centerOffsetX, character.body.centerOffsetY] } },
       { id: 'visual', name: 'Visual', type: 'Sprite2D', parentId: 'body', order: 1, properties: { texture: { resourceId: `${visualPrefix}.sprite` }, frame: 0, origin: [0.5, 0.5], scale: [1, 1] } },
       { id: 'damage-area', name: 'DamageArea', type: 'Area2D', parentId: 'body', order: 2, properties: { collisionLayer: 8, collisionMask: 16, monitoring: true, monitorable: true } },
@@ -58,13 +74,32 @@ function wormScene(character, enemy) {
             wanderSpeed: enemy.ai.wanderSpeed, attackWindupMs: enemy.ai.attackWindupMs,
             attackRecoveryMs: enemy.ai.attackRecoveryMs, contactDamage: enemy.ai.contactDamage,
             knockbackStrength: enemy.ai.knockbackStrength, knockbackResist: enemy.ai.knockbackResist,
+            ...(enemy.ai.behavior ? { behavior: enemy.ai.behavior } : {}),
+            ...(enemy.ai.fleeRange === undefined ? {} : { fleeRange: enemy.ai.fleeRange }),
+            ...(enemy.ai.isRanged ? { isRanged: true, projectileSpeed: enemy.ai.projectileSpeed } : {}),
           },
           damageRule: { priority: 0, damageMultiplier: 1 }, rewards: enemy.drop,
+          ...(enemy.projectile ? { projectile: enemy.projectile } : {}),
+          ...(enemy.impactEffect ? { impactEffect: enemy.impactEffect } : {}),
         },
       },
     ],
     instances: [],
   };
+}
+
+function nodeName(characterId) {
+  return characterId.split('-').map((part) => `${part[0]?.toUpperCase() ?? ''}${part.slice(1)}`).join('');
+}
+
+function enemyOutputs(unit, character, enemy, consumedFieldPaths, intentionallyRetainedFields) {
+  if (!enemy) throw new Error(`Enemy character '${character.characterId}' has no enemy gameplay document`);
+  return [
+    convertedOutput(unit, resourcePath('characters', character.characterId, 'attack-shape'), shapeResource(
+      `${character.characterId}.attack-shape`, { shape: 'circle', radius: enemy.ai.attackRange * 1.35 },
+    ), consumedFieldPaths),
+    convertedOutput(unit, `characters/${character.characterId}.scene.json`, enemyScene(character, enemy), consumedFieldPaths, intentionallyRetainedFields),
+  ];
 }
 
 export const enemySceneAdapter = {
@@ -73,17 +108,17 @@ export const enemySceneAdapter = {
     for (const unit of units) {
       requireSupportedUnit(unit, ENEMY_SUPPORTED);
       const catalog = await readJson(readSource, unit.oldSourcePath);
-      const enemy = catalog.types['worm-brawler'];
-      const character = await readJson(readSource, 'src/game/content/characters/worm-brawler/character.json');
-      outputs.push(convertedOutput(unit, resourcePath('characters', character.characterId, 'attack-shape'), shapeResource(
-        `${character.characterId}.attack-shape`, { shape: 'circle', radius: enemy.ai.attackRange * 1.35 },
-      ), ['$.types.worm-brawler.ai.attackRange']));
-      outputs.push(convertedOutput(unit, 'characters/worm-brawler.scene.json', wormScene(character, enemy), [
-        '$.types.worm-brawler',
+      const characterId = unit.key.slice('enemy:'.length);
+      const enemy = catalog.types[characterId];
+      const character = await readJson(readSource, `src/game/content/characters/${characterId}/character.json`);
+      outputs.push(...enemyOutputs(unit, character, enemy, [
+        `$.types.${characterId}`,
       ], [
         { path: '$.$schema', owner: unit.oldSourcePath },
-        { path: '$.types.worm-archer', owner: unit.oldSourcePath },
-        { path: '$.types.worm-swordsman', owner: unit.oldSourcePath },
+        ...Object.keys(catalog.types)
+          .filter((id) => id !== characterId)
+          .sort()
+          .map((id) => ({ path: `$.types.${id}`, owner: unit.oldSourcePath })),
       ]));
     }
     return outputs;

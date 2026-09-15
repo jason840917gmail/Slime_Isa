@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "resourceId": "worm-swordsman.attack-shape",
+  "kind": "collision-shape",
+  "value": {
+    "shape": "circle",
+    "radius": 51.300000000000004
+  }
+}

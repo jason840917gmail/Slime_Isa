@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "resourceId": "worm-archer.body-shape",
+  "kind": "collision-shape",
+  "value": {
+    "shape": "rectangle",
+    "width": 36,
+    "height": 24
+  }
+}

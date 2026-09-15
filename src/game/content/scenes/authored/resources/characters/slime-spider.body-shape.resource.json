@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "resourceId": "slime-spider.body-shape",
+  "kind": "collision-shape",
+  "value": {
+    "shape": "ellipse",
+    "radiusX": 15,
+    "radiusY": 12
+  }
+}

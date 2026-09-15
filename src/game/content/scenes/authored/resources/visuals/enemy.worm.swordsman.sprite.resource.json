@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "resourceId": "enemy.worm.swordsman.sprite",
+  "kind": "sprite-sheet",
+  "assetId": "enemy.worm.swordsman",
+  "frameWidth": 64,
+  "frameHeight": 64,
+  "frameCount": 38
+}

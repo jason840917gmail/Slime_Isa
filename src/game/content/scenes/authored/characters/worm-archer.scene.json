@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "sceneId": "character.worm-brawler",
+  "sceneId": "character.worm-archer",
   "rootNodeId": "body",
   "nodes": [
     {
       "id": "body",
-      "name": "WormBrawler",
+      "name": "WormArcher",
       "type": "CharacterBody2D",
       "parentId": null,
       "order": 0,
@@ -30,7 +30,7 @@
       "order": 0,
       "properties": {
         "shape": {
-          "resourceId": "worm-brawler.body-shape"
+          "resourceId": "worm-archer.body-shape"
         },
         "position": [
           0,
@@ -46,7 +46,7 @@
       "order": 1,
       "properties": {
         "texture": {
-          "resourceId": "enemy.worm.brawler.sprite"
+          "resourceId": "enemy.worm.archer.sprite"
         },
         "frame": 0,
         "origin": [
@@ -80,7 +80,7 @@
       "order": 0,
       "properties": {
         "shape": {
-          "resourceId": "worm-brawler.body-shape"
+          "resourceId": "worm-archer.body-shape"
         },
         "position": [
           0,
@@ -109,7 +109,7 @@
       "order": 0,
       "properties": {
         "shape": {
-          "resourceId": "worm-brawler.attack-shape"
+          "resourceId": "worm-archer.attack-shape"
         },
         "disabled": true
       }
@@ -122,7 +122,7 @@
       "order": 4,
       "properties": {
         "library": {
-          "resourceId": "enemy.worm.brawler.animations"
+          "resourceId": "enemy.worm.archer.animations"
         },
         "domain": "physics",
         "autoplay": "idle-side"
@@ -153,31 +153,39 @@
         },
         "faction": "hostile",
         "rank": "ordinary",
-        "maxHealth": 55,
-        "targetingRadius": 240,
-        "attackRange": 34,
-        "movementSpeed": 130,
-        "attackCooldownMs": 1100,
+        "maxHealth": 40,
+        "targetingRadius": 280,
+        "attackRange": 220,
+        "movementSpeed": 80,
+        "attackCooldownMs": 2200,
         "attributes": {
-          "wanderSpeed": 50,
-          "attackWindupMs": 250,
-          "attackRecoveryMs": 250,
-          "contactDamage": 52,
-          "knockbackStrength": 340,
-          "knockbackResist": 0.1
+          "wanderSpeed": 30,
+          "attackWindupMs": 600,
+          "attackRecoveryMs": 350,
+          "contactDamage": 22,
+          "knockbackStrength": 180,
+          "knockbackResist": 0,
+          "fleeRange": 120,
+          "isRanged": true,
+          "projectileSpeed": 180
         },
         "damageRule": {
           "priority": 0,
           "damageMultiplier": 1
         },
         "rewards": {
-          "xp": 40,
-          "coins": 8
+          "xp": 45,
+          "coins": 10,
+          "items": [
+            {
+              "itemId": "shard",
+              "chance": 0.15
+            }
+          ]
         },
-        "impactEffect": {
-          "visualSetId": "effect.enemy.worm-brawler-hit",
-          "clipId": "hit",
-          "distance": 22
+        "projectile": {
+          "assetId": "enemy.projectile.worm-arrow",
+          "damage": 22
         }
       }
     }
