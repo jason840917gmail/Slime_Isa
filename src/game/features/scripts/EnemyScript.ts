@@ -20,6 +20,8 @@ import { CharacterScript, type CharacterPoint } from './CharacterScript';
 import type { Node } from '../../runtime/scene/Node';
 import type { Node2D } from '../../runtime/scene/Node2D';
 import { AnimationPlayerNode } from '../../runtime/scene/animation/AnimationPlayerNode';
+import { runState, type EnemyAIConfig, type EnemySafeZone, type EnemyState } from '../../enemies/EnemyAI';
+import type { MapEnemySpawnArea } from '../../content/maps/mapFormat';
 
 export const DAMAGE_ROUTER_SERVICE = 'combat.damage-router';
 export const ATTACK_ACTIVATION_SERVICE = 'combat.attack-activation';
@@ -36,8 +38,29 @@ export interface EnemyTargetService {
   getPrimaryTarget(sourceNodeId: string): EnemyTargetSnapshot | undefined;
 }
 
+export interface EnemyRuntimePort extends EnemyTargetService {
+  getNavigation?(sourceNodeId: string): EnemyNavigationSnapshot | undefined;
+  fireProjectile?(request: EnemyProjectileRequest): void;
+}
+
+export interface EnemyNavigationSnapshot {
+  readonly safeZones?: readonly EnemySafeZone[];
+  readonly spawnArea?: MapEnemySpawnArea;
+}
+
+export interface EnemyProjectileRequest {
+  readonly sourceNodeId: string;
+  readonly position: CharacterPoint;
+  readonly direction: CharacterPoint;
+  readonly speed: number;
+  readonly damage: number;
+  readonly knockbackStrength: number;
+  readonly projectileId?: string;
+  readonly assetId?: string;
+}
+
 export type EnemyRank = 'ordinary' | 'elite' | 'boss';
-export type EnemyRuntimeState = 'idle' | 'chase' | 'attack' | 'dead';
+export type EnemyRuntimeState = EnemyState;
 
 export interface EnemyHealthChanged {
   readonly hp: number;
@@ -87,7 +110,7 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
   private readonly activeEffects = new Map<string, number>();
   private damageRouter?: DamageRouter;
   private attackActivations?: AttackActivation;
-  private targetService?: EnemyTargetService;
+  private targetService?: EnemyRuntimePort;
   private runtimeStateValue: EnemyRuntimeState = 'idle';
   private simulationTimeMs = 0;
   private activeActivationId?: string;
@@ -171,7 +194,7 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
     super._enter_tree();
     this.damageRouter = this.service<DamageRouter>(DAMAGE_ROUTER_SERVICE);
     this.attackActivations = this.service<AttackActivation>(ATTACK_ACTIVATION_SERVICE);
-    this.targetService = this.service<EnemyTargetService>(ENEMY_TARGET_SERVICE);
+    this.targetService = this.service<EnemyRuntimePort>(ENEMY_TARGET_SERVICE);
     const target = this.getReference('damageArea')?.configuredTarget;
     if (!target) throw new Error(`EnemyScript '${this.runtimeId}' requires its damageArea reference.`);
     if (!this.getReference('attackArea')?.configuredTarget) throw new Error(`EnemyScript '${this.runtimeId}' requires its attackArea reference.`);
@@ -215,23 +238,42 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
       return;
     }
 
-    if (distance > this.targetingRadius) {
-      this.runtimeStateValue = 'idle';
-      body.velocity = { x: 0, y: 0 };
-      this.playDirectional('idle', direction);
-      return;
-    }
-    if (distance <= this.attackRange && this.canRunCommonAttack()) {
-      this.runtimeStateValue = 'attack';
-      body.velocity = { x: 0, y: 0 };
-      this.beginRuntimeAttack(direction);
-      return;
-    }
-
-    this.runtimeStateValue = 'chase';
     this.attackDirection = direction;
-    body.velocity = { x: direction.x * this.movementSpeed, y: direction.y * this.movementSpeed };
-    this.playDirectional('walk', direction);
+    const velocity = { x: body.velocity.x, y: body.velocity.y };
+    const velocityPort = {
+      setVelocity: (x: number, y: number) => { velocity.x = x; velocity.y = y; },
+      velocity: { scale: (amount: number) => { velocity.x *= amount; velocity.y *= amount; } },
+    };
+    const navigation = this.targetService?.getNavigation?.(this.runtimeId);
+    const directionPort = { ...direction, clone: () => ({ ...directionPort }) };
+    let state = this.runtimeStateValue;
+    for (let transitions = 0; transitions < 3; transitions += 1) {
+      const before = { ...velocity };
+      const result = runState(state, {
+        enemy: { x: origin.x, y: origin.y, body: velocityPort },
+        player: target.position,
+        time: this.simulationTimeMs,
+        delta: deltaSeconds * 1000,
+        distToPlayer: distance,
+        dirToPlayer: directionPort,
+        config: this.aiConfig(),
+        requestAttack: (attackDirection) => {
+          if (this.canRunCommonAttack()) this.beginRuntimeAttack(attackDirection);
+        },
+        safeZones: navigation?.safeZones ? [...navigation.safeZones] : undefined,
+        spawnArea: navigation?.spawnArea,
+      });
+      if (result === 'continue') break;
+      state = result;
+      const startedMoving = velocity.x !== 0 || velocity.y !== 0;
+      const velocityChanged = velocity.x !== before.x || velocity.y !== before.y;
+      if (startedMoving && velocityChanged) break;
+    }
+    this.runtimeStateValue = this.activeSequenceId === undefined ? state : 'attack';
+    body.velocity = velocity;
+    if (this.activeSequenceId !== undefined) return;
+    if (velocity.x !== 0 || velocity.y !== 0) this.playDirectional('walk', velocity);
+    else this.playDirectional('idle', this.attackDirection);
   }
 
   override _exit_tree(): void {
@@ -345,6 +387,20 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
     if (!activationId || !attackArea || !this.damageRouter) return;
     const targetDistance = Math.sqrt(this.distanceSquared(origin, target.position));
     if (!target.active || !target.hostile || targetDistance > this.attackRange * 1.35) return;
+    const projectile = this.projectileConfiguration();
+    if (projectile) {
+      this.targetService?.fireProjectile?.({
+        sourceNodeId: this.runtimeId,
+        position: origin,
+        direction: this.attackDirection,
+        speed: this.attributeNumber('projectileSpeed', 200),
+        damage: projectile.damage,
+        knockbackStrength: this.attributeNumber('knockbackStrength', 0),
+        ...(projectile.projectileId ? { projectileId: projectile.projectileId } : {}),
+        ...(projectile.assetId ? { assetId: projectile.assetId } : {}),
+      });
+      return;
+    }
     this.damageRouter.routeStep([{
       activationId,
       sourceNodeId: this.runtimeId,
@@ -396,6 +452,53 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
   private knockbackEffects(): readonly { readonly effectId: string; readonly potency: number }[] {
     const potency = this.attributeNumber('knockbackStrength', 0);
     return potency > 0 ? [{ effectId: 'knockback', potency }] : [];
+  }
+
+  private aiConfig(): EnemyAIConfig {
+    return {
+      behavior: this.attributeString('behavior') === 'slime-spider' ? 'slime-spider' : undefined,
+      aggroRange: this.targetingRadius,
+      attackRange: this.attackRange,
+      fleeRange: this.attributeOptionalNumber('fleeRange'),
+      wanderSpeed: this.attributeNumber('wanderSpeed', 0),
+      chaseSpeed: this.movementSpeed,
+      attackCooldownMs: this.attackCooldownMs,
+      attackWindupMs: this.attributeNumber('attackWindupMs', 0),
+      attackRecoveryMs: this.attributeNumber('attackRecoveryMs', 0),
+      contactDamage: this.attributeNumber('contactDamage', 0),
+      knockbackStrength: this.attributeNumber('knockbackStrength', 0),
+      isRanged: this.attributeBoolean('isRanged') || this.projectileConfiguration() !== undefined,
+      projectileSpeed: this.attributeOptionalNumber('projectileSpeed'),
+      knockbackResist: this.attributeNumber('knockbackResist', 0),
+    };
+  }
+
+  private projectileConfiguration(): { readonly projectileId?: string; readonly assetId?: string; readonly damage: number } | undefined {
+    const value = this.jsonProperty('projectile');
+    if (!isRecord(value) || typeof value.damage !== 'number') return undefined;
+    const projectileId = typeof value.projectileId === 'string' ? value.projectileId : undefined;
+    const assetId = typeof value.assetId === 'string' ? value.assetId : undefined;
+    if (!projectileId && !assetId) return undefined;
+    return { ...(projectileId ? { projectileId } : {}), ...(assetId ? { assetId } : {}), damage: value.damage };
+  }
+
+  private attributeOptionalNumber(key: string): number | undefined {
+    const value = this.attributeValue(key);
+    return typeof value === 'number' && Number.isFinite(value) ? value : undefined;
+  }
+
+  private attributeString(key: string): string | undefined {
+    const value = this.attributeValue(key);
+    return typeof value === 'string' ? value : undefined;
+  }
+
+  private attributeBoolean(key: string): boolean {
+    return this.attributeValue(key) === true;
+  }
+
+  private attributeValue(key: string): JsonValue | undefined {
+    const attributes = this.jsonProperty('attributes');
+    return isRecord(attributes) ? attributes[key] : undefined;
   }
 
   protected override _duplicateSelf(runtimeId: RuntimeNodeId): EnemyScript {

@@ -16,7 +16,7 @@ class TestCharacterBody extends t.Node2D {
   velocity = { x: 0, y: 0 };
 }
 
-async function instantiatePair(sceneId) {
+async function instantiatePair(sceneId, targetService = { getPrimaryTarget: () => undefined }) {
   const namespace = sceneId.replaceAll('.', '-');
   const scene = content.scenes.find((document) => document.sceneId === sceneId);
   const activations = new t.AttackActivation();
@@ -28,7 +28,7 @@ async function instantiatePair(sceneId) {
   const scripts = t.createGameScriptRegistry({
     [t.DAMAGE_ROUTER_SERVICE]: router,
     [t.ATTACK_ACTIVATION_SERVICE]: activations,
-    [t.ENEMY_TARGET_SERVICE]: { getPrimaryTarget: () => undefined },
+    [t.ENEMY_TARGET_SERVICE]: targetService,
   });
   const nodeTypes = t.createCoreNodeTypeRegistry().replace('CharacterBody2D', (context) => new TestCharacterBody({
     runtimeId: context.runtimeId,
@@ -46,6 +46,48 @@ async function instantiatePair(sceneId) {
   secondTree.setRoot(second);
   return { activations, router, first, second, firstTree, secondTree, packed, loader, resources };
 }
+
+test('managed ranged enemies preserve flee distance and fire their authored projectile once after windup', async () => {
+  let targetPosition = { x: 100, y: 0 };
+  const projectiles = [];
+  const fixture = await instantiatePair('character.worm-archer', {
+    getPrimaryTarget: () => ({ position: targetPosition, damageAreaNodeId: 'player-area', active: true, hostile: true }),
+    fireProjectile: (request) => projectiles.push(request),
+  });
+  const script = fixture.first.get_node('EnemyScript');
+  fixture.firstTree.physicsProcess(1 / 60);
+  assert.equal(script.runtimeState, 'flee');
+  assert.equal(fixture.first.velocity.x, -80);
+  assert.equal(Math.abs(fixture.first.velocity.y), 0);
+
+  targetPosition = { x: 180, y: 0 };
+  fixture.firstTree.physicsProcess(1 / 60);
+  assert.equal(script.runtimeState, 'attack');
+  fixture.firstTree.physicsProcess(0.6);
+  assert.equal(projectiles.length, 1);
+  assert.equal(projectiles[0].assetId, 'enemy.projectile.worm-arrow');
+  assert.equal(projectiles[0].damage, 22);
+  assert.equal(projectiles[0].speed, 180);
+
+  fixture.firstTree.shutdown();
+  fixture.secondTree.shutdown();
+  fixture.packed.dispose();
+});
+
+test('managed enemy navigation applies injected safe zones before ordinary chase behavior', async () => {
+  const fixture = await instantiatePair('character.worm-swordsman', {
+    getPrimaryTarget: () => ({ position: { x: 100, y: 0 }, damageAreaNodeId: 'player-area', active: true, hostile: true }),
+    getNavigation: () => ({ safeZones: [{ x: -5, y: -5, w: 10, h: 10 }] }),
+  });
+  const script = fixture.first.get_node('EnemyScript');
+  fixture.firstTree.physicsProcess(1 / 60);
+  assert.equal(script.runtimeState, 'flee');
+  assert.deepEqual(fixture.first.velocity, { x: -93.75, y: 0 });
+
+  fixture.firstTree.shutdown();
+  fixture.secondTree.shutdown();
+  fixture.packed.dispose();
+});
 
 for (const sceneId of sceneIds) {
   test(`${sceneId} instances have independent runtime state and stable authored references`, async () => {

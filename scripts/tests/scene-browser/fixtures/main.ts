@@ -18,6 +18,7 @@ import { AnimationPlayerNode } from '../../../../src/game/runtime/scene/animatio
 import { ScriptNode } from '../../../../src/game/runtime/scene/scripts/ScriptNode';
 import type { PhysicsContact } from '../../../../src/game/runtime/scene/physics/PhysicsContact';
 import { SceneTree } from '../../../../src/game/runtime/scene/SceneTree';
+import { getEnemyConfig } from '../../../../src/game/enemies/library/EnemyTypes';
 
 type FixtureSnapshot = {
   readonly mode: 'harness' | 'baseline';
@@ -67,6 +68,7 @@ type FixtureApi = {
   freeWall(): void;
   detachAudio(): void;
   teleportProductionPlayer(x: number, y: number): void;
+  spawnManagedEnemy(type: 'slime-spider' | 'worm-archer' | 'worm-brawler' | 'worm-swordsman', x: number, y: number): boolean;
   snapshot(): FixtureSnapshot;
   destroy(): void;
 };
@@ -366,6 +368,15 @@ const api: FixtureApi = {
     world.player.setPosition(x, y);
     (world.player.body as Phaser.Physics.Arcade.Body).reset(x, y);
     world.player.setVelocity(0, 0);
+  },
+  spawnManagedEnemy(type, x, y) {
+    if (!game || mode !== 'baseline') throw new Error('Production enemy spawning is only available in baseline mode');
+    const world = game.scene.getScene('world') as unknown as {
+      readonly universalWorld?: {
+        createManagedEnemy(request: { x: number; y: number; config: ReturnType<typeof getEnemyConfig> }): unknown;
+      };
+    };
+    return world.universalWorld?.createManagedEnemy({ x, y, config: getEnemyConfig(type) }) !== undefined;
   },
   snapshot() {
     const world = mode === 'baseline' && game

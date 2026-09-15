@@ -1397,6 +1397,10 @@ export class WorldScene extends Phaser.Scene {
       transformManagedWeaponDamage: (damage) => this.combatController?.transformManagedWeaponDamage(damage) ?? damage,
       onManagedWeaponOutcome: (outcome, target) => this.combatController?.onManagedWeaponOutcome(outcome, target),
       onManagedEnemyDefeated: (enemy) => this.combatController?.onManagedEnemyDefeated(enemy),
+      getEnemySafeZones: () => [
+        ...(this.builtMap?.enemySafeZones ?? []),
+        ...(this.loadedMap.map.spawns?.safeZones ?? []),
+      ],
     });
   }
 

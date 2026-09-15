@@ -85,7 +85,14 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
         scenes: sceneDocuments,
         resources: sceneResourceDocuments,
         registry: createGameDescriptorRegistry(),
-        sceneIds: [sceneId('character.worm-brawler'), sceneId('character.fatty-one-eye'), sceneId('encounter.level-1-fatty-camp')],
+        sceneIds: [
+          sceneId('character.slime-spider'),
+          sceneId('character.worm-archer'),
+          sceneId('character.worm-brawler'),
+          sceneId('character.worm-swordsman'),
+          sceneId('character.fatty-one-eye'),
+          sceneId('encounter.level-1-fatty-camp'),
+        ],
         hasAsset: (assetId) => Object.hasOwn(ASSET_MANIFEST.assets, assetId),
       })
     : undefined;
