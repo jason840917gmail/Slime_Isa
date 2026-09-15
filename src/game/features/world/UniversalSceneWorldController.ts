@@ -21,6 +21,7 @@ import {
 import { LegacyWeaponTargetBridge, type LegacyWeaponManagedTarget } from '../../infrastructure/scenes/compatibility/LegacyWeaponTargetBridge';
 import { LegacyWorldAdapter } from '../../infrastructure/scenes/compatibility/LegacyWorldAdapter';
 import type { Node } from '../../runtime/scene/Node';
+import { InputRouter } from '../../runtime/scene/input/InputRouter';
 import type { Node2D } from '../../runtime/scene/Node2D';
 import { AttackActivation } from '../combat/AttackActivation';
 import type { RoutedDamageOutcome } from '../combat/DamageRouter';
@@ -62,6 +63,7 @@ import {
   type NpcWanderAgent,
 } from '../scripts/NpcScript';
 import { PLAYER_HEALTH_SERVICE, PlayerScript } from '../scripts/PlayerScript';
+import { PLAYER_INPUT_ACTIONS } from '../player/PlayerInputActions';
 import type { HealthSystem } from '../../systems/HealthSystem';
 import type { ModalStack } from '../../ui/ModalStack';
 import { ChestInventoryPanel } from '../../ui/ChestInventoryPanel';
@@ -149,6 +151,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
   private readonly weaponBridge: LegacyWeaponTargetBridge;
   private readonly chestUi?: LegacyChestUiBridge;
   private readonly bossUi: LegacyBossUiBridge;
+  private readonly inputRouter: InputRouter;
   private readonly camps = new Map<string, ManagedCamp>();
   private readonly bosses = new Map<string, ManagedBoss>();
   private readonly ordinaryEnemies = new Map<number, ManagedOrdinaryEnemy>();
@@ -255,13 +258,21 @@ export class UniversalSceneWorldController implements InteractionProvider {
       onOutcome: options.onManagedWeaponOutcome,
     });
     this.supplementalWeaponHitboxes = this.weaponBridge;
+    this.inputRouter = new InputRouter({
+      sink: this.runtime,
+      actions: PLAYER_INPUT_ACTIONS,
+      isPaused: () => this.runtime.tree.paused,
+    });
     this.mountPlayer();
     this.mountAuthoredPlacements();
     this.unregisterInteraction = options.interactions.register('managed-chests', this);
   }
 
   advanceFrame(deltaSeconds: number): number { return this.runtime.advanceFrame(deltaSeconds); }
-  setPaused(paused: boolean): void { this.runtime.setPaused(paused); }
+  setPaused(paused: boolean): void {
+    if (paused) this.playerScript?.clearInput();
+    this.runtime.setPaused(paused);
+  }
   get managedOrdinaryEnemyCount(): number { return this.ordinaryEnemies.size; }
   get managedBossCount(): number { return this.bosses.size; }
   get managedCampCount(): number { return this.camps.size; }
@@ -338,6 +349,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
     if (this.disposed) return;
     this.disposed = true;
     this.unregisterInteraction();
+    this.inputRouter.destroy();
     this.weaponBridge.dispose();
     this.combatBridge.dispose();
     this.runtime.shutdown();
