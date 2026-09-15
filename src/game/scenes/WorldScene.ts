@@ -8,7 +8,6 @@ import { HUD } from '../HUD';
 import { gameState } from '../core/GameState';
 import { gameEvents } from '../core/EventBus';
 import { saveSystem } from '../core/SaveSystem';
-import { createControls, createFakeControls, type Controls, type InputBindings } from '../core/Input';
 import {
   HealthSystem,
   type AcceptedDamageResult,
@@ -39,7 +38,7 @@ import { ModalStack } from '../ui/ModalStack';
 import { DisposableBag } from '../shared/lifecycle/Disposable';
 import { createPlayerEntity } from '../features/player/PlayerFactory';
 import { PlayerController } from '../features/player/PlayerController';
-import type { PlayerMotionPort } from '../features/player/PlayerServicePorts';
+import type { PlayerActorPort } from '../features/player/PlayerServicePorts';
 import { findVisualClipByRuntimeKey, getVisualClip } from '../content/visuals/VisualCatalog';
 import { animationCycleDurationMs } from '../shared/animationLoop';
 import { AnimatedVisual } from '../features/visuals/AnimatedVisual';
@@ -101,7 +100,6 @@ export class WorldScene extends Phaser.Scene {
   private player!: Phaser.Physics.Arcade.Sprite;
   private playerVisual?: AnimatedVisual;
   private collisionTiles!: Phaser.Physics.Arcade.StaticGroup;
-  private controls: Controls = createFakeControls();
   private currentAnimation = 'slime-idle';
   private actionLocked = false;
   private paused = false;
@@ -109,7 +107,6 @@ export class WorldScene extends Phaser.Scene {
   private terrainGrid: WorldTileId[][] = [];
   private minimap!: Minimap;
   private hud!: HUD;
-  private inputBindings?: InputBindings;
   private collectibleTargets!: Phaser.Physics.Arcade.StaticGroup;
   private resourceTargets!: Phaser.GameObjects.Group;
   private resourceNodes?: ResourceNodeController;
@@ -231,7 +228,6 @@ export class WorldScene extends Phaser.Scene {
     this.createMinimap();
     this.createHUD();
     this.createCollectibleReactions();
-    this.createControls();
 
     // Phase 1 systems: health, status, level-up modal, inventory UI
     this.statusEffects = new StatusEffectManager();
@@ -378,8 +374,6 @@ export class WorldScene extends Phaser.Scene {
     this.builtMap = undefined;
     this.disposables.dispose();
     this.disposables = new DisposableBag();
-    this.inputBindings?.dispose();
-    this.inputBindings = undefined;
     this.hud?.destroy();
     this.minimap?.destroy();
     this.abilitySystem?.destroy();
@@ -745,7 +739,7 @@ export class WorldScene extends Phaser.Scene {
       scene: this,
       entity,
       getMotion: () => this.playerMotion(),
-      getControls: () => this.controls,
+      getInput: () => this.playerMotion(),
       getStatusEffects: () => this.statusEffects,
       playAnimation: (key) => this.playAnimation(key),
     });
@@ -916,7 +910,7 @@ export class WorldScene extends Phaser.Scene {
     this.cameraController?.stepZoom(deltaY);
   }
 
-  private playerMotion(): PlayerMotionPort {
+  private playerMotion(): PlayerActorPort {
     if (!this.universalWorld) throw new Error('The authored player runtime is not initialized.');
     return this.universalWorld.managedPlayer;
   }
@@ -938,13 +932,6 @@ export class WorldScene extends Phaser.Scene {
     this.cameraController?.update(delta);
     updateDevToolsCameraZoom(this.cameraController?.zoom ?? this.cameras.main.zoom);
     this.renderingDiagnostics?.update(this.time.now);
-  }
-
-  private createControls(): void {
-    this.inputBindings = createControls(this, () => {
-      this.playActionAnimation('slime-eat');
-    });
-    this.controls = this.inputBindings.controls;
   }
 
   private getEntryAnchor(): Phaser.Math.Vector2 | undefined {
@@ -1033,7 +1020,8 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private handleActionInput(direction: Phaser.Math.Vector2): boolean {
-    if (Phaser.Input.Keyboard.JustDown(this.controls.interact)) {
+    const input = this.playerMotion();
+    if (input.consumeActionPress('interact')) {
       // The router owns the visible shared prompt, so its candidate must own
       // the key press whenever one is displayed.
       if (this.interactionRouter?.hasCandidate()) {
@@ -1042,33 +1030,38 @@ export class WorldScene extends Phaser.Scene {
       return true;
     }
 
-    if (Phaser.Input.Keyboard.JustDown(this.controls.jump)) {
+    if (input.consumeActionPress('jump')) {
       this.abilitySystem?.tryJump(direction);
       return true;
     }
 
-    if (Phaser.Input.Keyboard.JustDown(this.controls.boost)) {
+    if (input.consumeActionPress('dodge')) {
       this.playerController.tryDodge(direction);
       return true;
     }
 
-    if (Phaser.Input.Keyboard.JustDown(this.controls.trick)) {
+    if (input.consumeActionPress('attack')) {
       this.combatController?.tryAttack();
       return true;
     }
 
-    if (Phaser.Input.Keyboard.JustDown(this.controls.stretch)) {
+    if (input.consumeActionPress('stretch-lash')) {
       this.abilitySystem?.tryStretchLash();
       return true;
     }
 
-    if (Phaser.Input.Keyboard.JustDown(this.controls.squash)) {
+    if (input.consumeActionPress('squash-slam')) {
       this.abilitySystem?.trySquashSlam();
       return true;
     }
 
-    if (Phaser.Input.Keyboard.JustDown(this.controls.teleport)) {
+    if (input.consumeActionPress('teleport')) {
       this.abilitySystem?.tryTeleport(direction);
+      return true;
+    }
+
+    if (input.consumeActionPress('eat')) {
+      this.playActionAnimation('slime-eat');
       return true;
     }
 

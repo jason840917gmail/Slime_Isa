@@ -1,20 +1,19 @@
 import Phaser from 'phaser';
 import { PLAYER_CONFIG } from '../../content/player';
 import { gameState } from '../../core/GameState';
-import type { Controls } from '../../core/Input';
 import { floatingText } from '../../ui/FloatingText';
 import type { StatusEffectManager } from '../../systems/StatusEffects';
 import { getStats, resolveMovementSpeed } from '../../systems/PlayerStats';
 import type { PlayerEntity } from './PlayerFactory';
 import { resolveBodyBottom, resolveWorldDepth } from '../../presentation/WorldDepth';
 import { resolvePhysicsPresentationPosition } from '../../presentation/PhysicsPresentation';
-import type { PlayerMotionPort } from './PlayerServicePorts';
+import type { PlayerInputPort, PlayerMotionPort } from './PlayerServicePorts';
 
 export interface PlayerControllerContext {
   scene: Phaser.Scene;
   entity: PlayerEntity;
   getMotion: () => PlayerMotionPort;
-  getControls: () => Controls;
+  getInput: () => PlayerInputPort;
   getStatusEffects: () => StatusEffectManager | undefined;
   playAnimation: (key: string) => void;
 }
@@ -26,13 +25,8 @@ export class PlayerController {
   constructor(private readonly ctx: PlayerControllerContext) {}
 
   readDirection(): Phaser.Math.Vector2 {
-    const controls = this.ctx.getControls();
-    const direction = new Phaser.Math.Vector2();
-    if (controls.left.isDown || controls.leftAlt.isDown) direction.x -= 1;
-    if (controls.right.isDown || controls.rightAlt.isDown) direction.x += 1;
-    if (controls.up.isDown || controls.upAlt.isDown) direction.y -= 1;
-    if (controls.down.isDown || controls.downAlt.isDown) direction.y += 1;
-    return direction;
+    const direction = this.ctx.getInput().getMovementInput();
+    return new Phaser.Math.Vector2(direction.x, direction.y);
   }
 
   updateVisuals(): void {
@@ -59,9 +53,8 @@ export class PlayerController {
       player.rotation = 0;
       return;
     }
-    const controls = this.ctx.getControls();
     const statusEffects = this.ctx.getStatusEffects();
-    const wantsBoost = controls.boost.isDown;
+    const wantsBoost = this.ctx.getInput().isActionPressed('boost');
     const stats = getStats();
     const baseSpeed = wantsBoost
       ? PLAYER_CONFIG.movement.boostSpeed + gameState.boostBonus

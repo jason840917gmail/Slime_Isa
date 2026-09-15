@@ -1,6 +1,8 @@
 import type { RuntimeNodeId } from '../../content/scenes/identifiers';
 import type { NodeConstructionContext } from '../../runtime/scene/registries/NodeTypeRegistry';
 import type { Node } from '../../runtime/scene/Node';
+import type { SceneTreeInputEvent } from '../../runtime/scene/SceneTree';
+import type { InputEvent } from '../../runtime/scene/input/InputEvent';
 import type {
   DamageCommit,
   DamageMitigationInput,
@@ -9,6 +11,7 @@ import type {
 } from '../combat/DamageReceiver';
 import type { DamageRouter } from '../combat/DamageRouter';
 import type { PlayerActorPort } from '../player/PlayerServicePorts';
+import { isPlayerInputAction, type PlayerInputAction } from '../player/PlayerInputActions';
 import {
   PlayerNodePorts,
   requirePlayerAnimationNode,
@@ -32,6 +35,8 @@ export class PlayerScript extends CharacterScript implements DamageReceiver, Pla
   private simulationTimeMs = 0;
   private dodgeUntilMs = 0;
   private movementSuppressedUntilMs = 0;
+  private readonly heldInput = new Set<PlayerInputAction>();
+  private readonly pressedInput = new Set<PlayerInputAction>();
 
   constructor(context: NodeConstructionContext) {
     super(context);
@@ -63,14 +68,28 @@ export class PlayerScript extends CharacterScript implements DamageReceiver, Pla
     this.add_to_group('player');
     this.add_to_group('damage-target');
     this.set_physics_process(true);
+    this.set_process_unhandled_input(true);
   }
 
   override _physics_process(deltaSeconds: number): void {
     this.simulationTimeMs += deltaSeconds * 1000;
   }
 
+  override _unhandled_input(event: SceneTreeInputEvent): void {
+    const input = event as InputEvent;
+    if (!isPlayerInputAction(input.action)) return;
+    if (input.pressed) {
+      if (!this.heldInput.has(input.action)) this.pressedInput.add(input.action);
+      this.heldInput.add(input.action);
+    }
+    if (input.released) this.heldInput.delete(input.action);
+    event.handled = true;
+  }
+
   override _exit_tree(): void {
     this.set_physics_process(false);
+    this.set_process_unhandled_input(false);
+    this.clearInput();
     this.ports?.stop();
     this.ports = undefined;
     this.health = undefined;
@@ -102,6 +121,30 @@ export class PlayerScript extends CharacterScript implements DamageReceiver, Pla
 
   stopMovement(): void {
     this.requirePorts().stop();
+  }
+
+  getMovementInput(): CharacterPoint {
+    return {
+      x: Number(this.heldInput.has('move-right')) - Number(this.heldInput.has('move-left')),
+      y: Number(this.heldInput.has('move-down')) - Number(this.heldInput.has('move-up')),
+    };
+  }
+
+  isActionPressed(action: string): boolean {
+    const resolved = action === 'boost' ? 'dodge-boost' : action;
+    return isPlayerInputAction(resolved) && this.heldInput.has(resolved);
+  }
+
+  consumeActionPress(action: string): boolean {
+    const resolved = action === 'dodge' ? 'dodge-boost' : action;
+    if (!isPlayerInputAction(resolved) || !this.pressedInput.has(resolved)) return false;
+    this.pressedInput.delete(resolved);
+    return true;
+  }
+
+  clearInput(): void {
+    this.heldInput.clear();
+    this.pressedInput.clear();
   }
 
   teleport(position: CharacterPoint): void {

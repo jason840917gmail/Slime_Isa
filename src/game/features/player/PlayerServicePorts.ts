@@ -61,4 +61,11 @@ export interface PlayerMotionPort extends PlayerDodgePort, PlayerKnockbackPort {
   isMovementSuppressed(): boolean;
 }
 
-export interface PlayerActorPort extends PlayerRuntimePorts, PlayerMotionPort {}
+export interface PlayerInputPort {
+  getMovementInput(): Readonly<{ x: number; y: number }>;
+  isActionPressed(action: string): boolean;
+  consumeActionPress(action: string): boolean;
+  clearInput(): void;
+}
+
+export interface PlayerActorPort extends PlayerRuntimePorts, PlayerMotionPort, PlayerInputPort {}

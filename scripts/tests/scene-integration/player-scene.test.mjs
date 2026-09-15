@@ -82,6 +82,18 @@ test('player scene exposes node-backed runtime ports, dodge immunity, and one ro
   assert.equal(script.is_in_group('player'), true);
   assert.deepEqual(script.getBodyBounds(), { x: -15, y: 1.56, width: 30, height: 26 });
 
+  fixture.tree.dispatchInput({ handled: false, type: 'key-down', action: 'move-right', pressed: true, released: false });
+  fixture.tree.dispatchInput({ handled: false, type: 'key-down', action: 'move-up', pressed: true, released: false });
+  assert.deepEqual(script.getMovementInput(), { x: 1, y: -1 });
+  fixture.tree.dispatchInput({ handled: false, type: 'key-up', action: 'move-up', pressed: false, released: true });
+  assert.deepEqual(script.getMovementInput(), { x: 1, y: 0 });
+  fixture.tree.dispatchInput({ handled: false, type: 'key-down', action: 'attack', pressed: true, released: false });
+  fixture.tree.dispatchInput({ handled: false, type: 'key-down', action: 'attack', pressed: true, released: false });
+  assert.equal(script.consumeActionPress('attack'), true);
+  assert.equal(script.consumeActionPress('attack'), false);
+  script.clearInput();
+  assert.deepEqual(script.getMovementInput(), { x: 0, y: 0 });
+
   assert.equal(script.move({ x: 3, y: 4 }, 100), true);
   assert.deepEqual(fixture.root.velocity, { x: 60, y: 80 });
   script.stopMovement();
