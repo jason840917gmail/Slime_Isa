@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "resourceId": "player-slime.body-shape",
+  "kind": "collision-shape",
+  "value": {
+    "shape": "rectangle",
+    "width": 30,
+    "height": 26
+  }
+}

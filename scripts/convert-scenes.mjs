@@ -18,12 +18,14 @@ const family = familyIndex >= 0 ? args[familyIndex + 1] : 'all';
 const mode = args.includes('--apply') ? 'apply' : args.includes('--check') ? 'check' : 'dry-run';
 const explicitUnitKeys = args.flatMap((argument, index) => argument === '--unit' ? [args[index + 1]] : []).filter(Boolean);
 const sliceUnitKeys = [
+  'visual:character.player.slime',
   'visual:enemy.worm.brawler',
   'visual:enemy.worm.archer',
   'visual:enemy.worm.swordsman',
   'visual:enemy.slime.spider',
   'visual:boss.fatty-one-eye',
   'character:worm-brawler',
+  'character:player-slime',
   'character:worm-archer',
   'character:worm-swordsman',
   'character:slime-spider',

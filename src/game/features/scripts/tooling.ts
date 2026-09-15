@@ -3,6 +3,8 @@ export * from '../../infrastructure/scenes/PreparedSceneContent';
 export * from '../../infrastructure/scenes/PhaserUniversalSceneRuntime';
 export * from '../combat/tooling';
 export * from './CharacterScript';
+export * from './PlayerScript';
+export * from '../player/PlayerNodePorts';
 export * from './EnemyScript';
 export * from './FattyScript';
 export * from './ChestScript';

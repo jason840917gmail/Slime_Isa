@@ -2,6 +2,7 @@ import { convertedOutput, readJson, requireSupportedUnit, resourcePath } from '.
 
 const SUPPORTED = new Set([
   'visual:boss.fatty-one-eye',
+  'visual:character.player.slime',
   'visual:enemy.slime.spider',
   'visual:enemy.worm.archer',
   'visual:enemy.worm.brawler',
