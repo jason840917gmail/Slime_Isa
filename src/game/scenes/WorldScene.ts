@@ -1401,6 +1401,7 @@ export class WorldScene extends Phaser.Scene {
         ...(this.builtMap?.enemySafeZones ?? []),
         ...(this.loadedMap.map.spawns?.safeZones ?? []),
       ],
+      registerNpc: (registration) => this.questNpcController?.register(registration),
     });
   }
 

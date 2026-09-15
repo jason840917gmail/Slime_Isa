@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 
 import type { SupplementalWeaponHitboxPort } from '../../combat/Weapon';
 import type { MapBossCamp, MapEnemySafeZone, MapFile } from '../../content/maps/mapFormat';
+import { getCharacterPackage } from '../../content/characters/CharacterCatalog';
 import { sceneId } from '../../content/scenes/identifiers';
 import { getBossDefinition } from '../../content/bosses/BossCatalog';
 import { ASSET_MANIFEST, type AssetId } from '../../infrastructure/assets/manifest';
@@ -12,7 +13,10 @@ import type { PreparedSceneContent } from '../../infrastructure/scenes/PreparedS
 import { LegacyBossUiBridge, type LegacyBossBarHandle } from '../../infrastructure/scenes/compatibility/LegacyBossUiBridge';
 import { LegacyChestUiBridge } from '../../infrastructure/scenes/compatibility/LegacyChestUiBridge';
 import { LegacyCombatBridge } from '../../infrastructure/scenes/compatibility/LegacyCombatBridge';
-import { LegacyMapPlacementBridge } from '../../infrastructure/scenes/compatibility/LegacyMapPlacementBridge';
+import {
+  LegacyMapPlacementBridge,
+  type SceneEnabledPlacement,
+} from '../../infrastructure/scenes/compatibility/LegacyMapPlacementBridge';
 import { LegacyPlayerBridge } from '../../infrastructure/scenes/compatibility/LegacyPlayerBridge';
 import { LegacyWeaponTargetBridge, type LegacyWeaponManagedTarget } from '../../infrastructure/scenes/compatibility/LegacyWeaponTargetBridge';
 import { LegacyWorldAdapter } from '../../infrastructure/scenes/compatibility/LegacyWorldAdapter';
@@ -22,6 +26,8 @@ import { AttackActivation } from '../combat/AttackActivation';
 import type { RoutedDamageOutcome } from '../combat/DamageRouter';
 import { DamageRouter } from '../combat/DamageRouter';
 import type { InteractionProvider, InteractionRouter } from '../interaction/InteractionRouter';
+import type { NpcActorHandle, QuestNpcRegistration } from '../interaction/QuestNpcController';
+import { createNpcWanderState, stepNpcWander } from '../npcs/NpcWanderPolicy';
 import type { InventoryWorldTransaction } from '../progression/InventoryWorldTransaction';
 import type { WorldProgress } from '../progression/WorldProgress';
 import type { EnemyPopulationMember, EnemySpawnRequest } from '../../enemies/EnemySpawner';
@@ -49,6 +55,12 @@ import {
   type EnemyProjectileRequest,
 } from '../scripts/EnemyScript';
 import { createGameDescriptorRegistry, createGameScriptRegistry } from '../scripts/registrations';
+import {
+  NPC_RUNTIME_SERVICE,
+  NpcScript,
+  type NpcRuntimeRequest,
+  type NpcWanderAgent,
+} from '../scripts/NpcScript';
 import type { HealthSystem } from '../../systems/HealthSystem';
 import type { ModalStack } from '../../ui/ModalStack';
 import { ChestInventoryPanel } from '../../ui/ChestInventoryPanel';
@@ -77,6 +89,7 @@ export interface UniversalSceneWorldControllerOptions {
   readonly onManagedWeaponOutcome: (outcome: RoutedDamageOutcome, target: LegacyWeaponManagedTarget | undefined) => void;
   readonly onManagedEnemyDefeated: (enemy: ManagedEnemyDefeat) => void;
   readonly getEnemySafeZones: () => readonly MapEnemySafeZone[];
+  readonly registerNpc?: (registration: QuestNpcRegistration) => void;
 }
 
 interface ManagedCamp {
@@ -140,12 +153,14 @@ export class UniversalSceneWorldController implements InteractionProvider {
   private readonly camps = new Map<string, ManagedCamp>();
   private readonly bosses = new Map<string, ManagedBoss>();
   private readonly ordinaryEnemies = new Map<number, ManagedOrdinaryEnemy>();
+  private readonly npcs = new Map<string, NpcScript>();
   private readonly chests = new Map<string, ChestScript>();
   private readonly bossBars = new Set<ManagedBossBar>();
   private readonly unregisterInteraction: () => void;
   private nextBossSequence = 1;
   private nextEnemySequence = 1;
   private simulationTimeMs = 0;
+  private mountingPlacement?: SceneEnabledPlacement;
   private disposed = false;
 
   constructor(private readonly options: UniversalSceneWorldControllerOptions) {
@@ -180,6 +195,9 @@ export class UniversalSceneWorldController implements InteractionProvider {
         getPrimaryTarget: (sourceNodeId: string) => this.playerBridge.getPrimaryTarget(sourceNodeId),
         getNavigation: (sourceNodeId: string) => this.enemyNavigation(sourceNodeId),
         fireProjectile: (request: EnemyProjectileRequest) => this.fireEnemyProjectile(request),
+      },
+      [NPC_RUNTIME_SERVICE]: {
+        acquire: (request: NpcRuntimeRequest) => this.acquireNpcAgent(request),
       },
       [BOSS_CAMP_PROGRESS_SERVICE]: {
         getRespawnReadyAt: (mapId: string, campId: string) => options.progress.bossCampRespawnReadyAt(mapId, campId),
@@ -257,6 +275,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
   get managedBossCount(): number { return this.bosses.size; }
   get managedCampCount(): number { return this.camps.size; }
   get managedChestCount(): number { return this.chests.size; }
+  get managedNpcCount(): number { return this.npcs.size; }
   get managedLiveCampCount(): number { return [...this.camps.values()].filter((camp) => camp.script.hasLiveBoss).length; }
 
   getCandidate() {
@@ -332,23 +351,78 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.camps.clear();
     this.bosses.clear();
     this.ordinaryEnemies.clear();
+    this.npcs.clear();
     this.chests.clear();
     this.bossBars.clear();
   }
 
   private mountAuthoredPlacements(): void {
     for (const placement of this.options.placementBridge.scenePlacements()) {
-      const mount = this.runtime.mountScene(sceneId(placement.sceneId), {
-        runtimeNamespace: `managed-${placement.placementId}`,
-        persistenceKey: placement.persistenceKey,
-        position: { x: placement.x, y: placement.y },
-      });
-      this.registerLegacyColliders(mount);
+      this.mountingPlacement = placement;
+      let mount: MountedScene;
+      try {
+        mount = this.runtime.mountScene(sceneId(placement.sceneId), {
+          runtimeNamespace: `managed-${placement.placementId}`,
+          persistenceKey: placement.persistenceKey,
+          position: { x: placement.x, y: placement.y },
+        });
+      } finally {
+        this.mountingPlacement = undefined;
+      }
+      const npcScript = descendants(mount.root, NpcScript)[0];
+      this.registerLegacyColliders(mount, !npcScript);
+      if (npcScript) this.registerNpcPlacement(placement, npcScript);
       for (const script of descendants(mount.root, ChestScript)) this.chests.set(script.instanceId, script);
       const campScript = descendants(mount.root, BossCampScript)[0];
       const definition = this.options.map.bossCamps?.find((camp) => camp.id === campScript?.campId);
       if (campScript && definition) this.camps.set(campScript.campId, { definition, script: campScript, mount });
     }
+  }
+
+  private acquireNpcAgent(request: NpcRuntimeRequest): NpcWanderAgent | undefined {
+    const placement = this.mountingPlacement;
+    if (!placement?.npcDefinitionId) throw new Error(`NPC '${request.sourceNodeId}' has no authored map placement context.`);
+    const packageValue = getCharacterPackage(request.characterId);
+    const area = this.options.map.npcWanderAreas?.find((candidate) => candidate.npcInstanceId === placement.placementId);
+    if (!area) return undefined;
+    const randomPause = (): number => request.pauseMinMs + Math.random() * Math.max(0, request.pauseMaxMs - request.pauseMinMs);
+    return {
+      initialState: createNpcWanderState(randomPause()),
+      step: (state, input) => {
+        const result = stepNpcWander(state, {
+          position: input.position,
+          deltaMs: input.deltaMs,
+          speed: input.speed,
+          body: packageValue.character.body,
+          perimeter: area.perimeter,
+        });
+        if (result.animation !== 'idle' || result.state.phase !== 'pause' || result.state.pauseRemainingMs !== 0) return result;
+        return { ...result, state: createNpcWanderState(randomPause(), result.state.facing) };
+      },
+      dispose() {},
+    };
+  }
+
+  private registerNpcPlacement(
+    placement: SceneEnabledPlacement,
+    script: NpcScript,
+  ): void {
+    if (!placement.npcDefinitionId) {
+      throw new Error(`NPC scene '${placement.sceneId}' requires an NPC definition identity.`);
+    }
+    const actor: NpcActorHandle = {
+      instanceId: placement.placementId,
+      npcId: placement.npcDefinitionId,
+      isActive: () => script.isActive(),
+      getPosition: () => script.getPosition(),
+      acquireInteractionLock: () => script.acquireInteractionLock(),
+    };
+    this.npcs.set(placement.placementId, script);
+    this.options.registerNpc?.({
+      actor,
+      instanceId: placement.placementId,
+      npcDefinitionId: placement.npcDefinitionId,
+    });
   }
 
   private evaluateCamps(): void {
@@ -475,13 +549,13 @@ export class UniversalSceneWorldController implements InteractionProvider {
     return bar;
   }
 
-  private registerLegacyColliders(mount: MountedScene): void {
+  private registerLegacyColliders(mount: MountedScene, collideDynamicWithPlayer = true): void {
     const colliders: Phaser.Physics.Arcade.Collider[] = [];
     for (const body of descendants(mount.root, PhysicsBody2DNode)) {
       if (body.isStaticBody) colliders.push(this.options.scene.physics.add.collider(this.options.player, body.physicsObject));
       else {
         colliders.push(this.options.scene.physics.add.collider(body.physicsObject, this.options.collisionTiles));
-        colliders.push(this.options.scene.physics.add.collider(this.options.player, body.physicsObject));
+        if (collideDynamicWithPlayer) colliders.push(this.options.scene.physics.add.collider(this.options.player, body.physicsObject));
       }
     }
     mount.mount.lifetimeDisposables.add(() => { for (const collider of colliders) collider.destroy(); });

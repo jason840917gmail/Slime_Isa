@@ -200,18 +200,34 @@ test('legacy chest and boss UI bridges expose only typed view actions and clean 
   assert.deepEqual(bossEvents, [['defeat', 'camp', 'fatty'], ['destroy', 'camp', 'fatty']]);
 });
 
-test('map placement bridge assigns the Level 1 camp and nested chest to one scene owner', async () => {
+test('map placement bridge assigns the Level 1 camp, nested chest, and NPCs to one scene owner', async () => {
   const map = JSON.parse(await readFile(`${REPOSITORY_ROOT}/src/game/content/maps/level-1.map.json`, 'utf8'));
   const bridge = new t.LegacyMapPlacementBridge('level-1', map.objects, map.bossCamps);
   const placements = bridge.scenePlacements();
-  assert.deepEqual(placements, [{
+  assert.deepEqual(placements[0], {
     placementId: 'level-1-fatty-one-eye-camp',
     sceneId: 'encounter.level-1-fatty-camp',
     x: 2528,
     y: 1472,
     persistenceKey: 'level-1-fatty-one-eye-camp',
-  }]);
+  });
+  const npcPlacements = placements.filter((placement) => placement.npcDefinitionId);
+  assert.equal(npcPlacements.length, 5);
+  assert.deepEqual(
+    npcPlacements.map((placement) => [placement.placementId, placement.sceneId, placement.npcDefinitionId]),
+    [
+      ['level-1-npc-village-elder-plop', 'character.village-elder-plop', 'village-elder-plop'],
+      ['level-1-npc-lili', 'character.lili', 'lili'],
+      ['level-1-npc-red-slime-boy', 'character.red-slime-boy', 'red-slime-boy'],
+      ['level-1-npc-yellow-blond-slime-girl', 'character.yellow-blond-slime-girl', 'yellow-blond-slime-girl'],
+      ['level-1-npc-mossy-scout', 'character.mossy-scout', 'level-1-spider-giver'],
+    ],
+  );
   const chest = map.objects.find((entry) => entry.instanceId === 'level-1-fatty-guarded-chest');
   assert.equal(bridge.shouldSuppressLegacyObject(chest), true);
+  for (const placement of npcPlacements) {
+    const npc = map.objects.find((entry) => entry.instanceId === placement.placementId);
+    assert.equal(bridge.shouldSuppressLegacyObject(npc), true);
+  }
   assert.equal(bridge.shouldSuppressLegacyBossCamp(map.bossCamps[0]), true);
 });

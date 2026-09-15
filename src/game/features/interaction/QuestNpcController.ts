@@ -22,6 +22,12 @@ export interface NpcActorHandle {
   acquireInteractionLock(): () => void;
 }
 
+export interface QuestNpcRegistration {
+  readonly actor: NpcActorHandle;
+  readonly instanceId: string;
+  readonly npcDefinitionId: string;
+}
+
 export interface QuestNpcControllerContext {
   readonly scene: Phaser.Scene;
   readonly getPlayer: () => Phaser.Physics.Arcade.Sprite;
@@ -43,7 +49,7 @@ export class QuestNpcController implements InteractionProvider {
     this.modal = new QuestOfferModal(ctx.scene, ctx.modalStack, ctx.onPausedChange);
   }
 
-  register(registration: BuiltNpcRegistration): void {
+  register(registration: BuiltNpcRegistration | QuestNpcRegistration): void {
     if (!getNpcDefinition(registration.npcDefinitionId)) return;
     this.records.push({ actor: registration.actor, instanceId: registration.instanceId, npcId: registration.npcDefinitionId });
   }

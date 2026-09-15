@@ -52,8 +52,10 @@ type FixtureSnapshot = {
   readonly managedCampCount?: number;
   readonly managedLiveCampCount?: number;
   readonly managedChestCount?: number;
+  readonly managedNpcCount?: number;
   readonly legacyEnemyCount?: number;
   readonly legacyBossCount?: number;
+  readonly legacyNpcCount?: number;
   readonly hasLegacyChestController?: boolean;
   readonly universalRuntimePaused?: boolean;
 };
@@ -387,11 +389,13 @@ const api: FixtureApi = {
             readonly managedCampCount: number;
             readonly managedLiveCampCount: number;
             readonly managedChestCount: number;
+            readonly managedNpcCount: number;
             readonly runtime: { readonly tree: { readonly paused: boolean } };
           };
           readonly combatController?: { readonly targets: Phaser.Physics.Arcade.Group };
           readonly bossCampController?: { readonly targets: Phaser.Physics.Arcade.Group };
           readonly chestController?: unknown;
+          readonly builtMap?: { readonly npcActors: readonly unknown[] };
         }
       : undefined;
     return {
@@ -412,9 +416,11 @@ const api: FixtureApi = {
       ...(world?.universalWorld ? { managedCampCount: world.universalWorld.managedCampCount } : {}),
       ...(world?.universalWorld ? { managedLiveCampCount: world.universalWorld.managedLiveCampCount } : {}),
       ...(world?.universalWorld ? { managedChestCount: world.universalWorld.managedChestCount } : {}),
+      ...(world?.universalWorld ? { managedNpcCount: world.universalWorld.managedNpcCount } : {}),
       ...(world?.universalWorld ? { universalRuntimePaused: world.universalWorld.runtime.tree.paused } : {}),
       ...(world?.combatController ? { legacyEnemyCount: world.combatController.targets.countActive(true) } : {}),
       ...(world?.bossCampController ? { legacyBossCount: world.bossCampController.targets.countActive(true) } : {}),
+      ...(world?.builtMap ? { legacyNpcCount: world.builtMap.npcActors.length } : {}),
       ...(world ? { hasLegacyChestController: world.chestController !== undefined } : {}),
     };
   },
