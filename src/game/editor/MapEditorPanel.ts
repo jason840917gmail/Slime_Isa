@@ -150,7 +150,7 @@ function renderNpcPalette(choices: readonly NpcCharacterPlacementChoice[], query
     const assetId = `character.npc.${choice.characterId}`;
     let url = '';
     try { const asset = getAsset(assetId as Parameters<typeof getAsset>[0]); if ('path' in asset.source) url = resolveAssetUrl(asset.source.path); } catch { /* package validation reports missing assets */ }
-    return `<button class="editor-palette-item editor-palette-item--npc" type="button" data-npc-character="${escapeHtml(choice.characterId)}" data-object="${escapeHtml(choice.objectId)}" data-visual="${escapeHtml(choice.visualId)}" title="Select ${escapeHtml(choice.displayName)} for map placement"><span class="editor-palette-preview"><img src="${escapeHtml(url)}" alt="" /></span><span class="editor-palette-copy"><strong>${escapeHtml(choice.displayName)}</strong><small>NPC · ${escapeHtml(choice.characterId)} · place, then edit in Character Studio</small></span></button>`;
+    return `<button class="editor-palette-item editor-palette-item--npc" type="button" data-npc-character="${escapeHtml(choice.characterId)}" data-object="${escapeHtml(choice.objectId)}" data-visual="${escapeHtml(choice.visualId)}" title="Select ${escapeHtml(choice.displayName)} for map placement"><span class="editor-palette-preview"><img src="${escapeHtml(url)}" alt="" /></span><span class="editor-palette-copy"><strong>${escapeHtml(choice.displayName)}</strong><small>NPC · ${escapeHtml(choice.characterId)} · place, then edit in Scene Studio</small></span></button>`;
   }).join('');
 }
 
@@ -193,7 +193,7 @@ export function mountMapEditorPanel(
       <div class="map-editor-mark" aria-hidden="true">M</div>
       <div><p>Slime Isa / Worldworks</p><h1>Field Cartographer</h1></div>
       <nav class="editor-header-actions" aria-label="Editor navigation">
-        <a class="editor-nav-link editor-nav-link--studio" href="?studio=characters&amp;editor=${encodeURIComponent(editor.value.map.mapId)}" data-testid="character-studio-link">Character Studio</a>
+        <a class="editor-nav-link editor-nav-link--studio" href="?studio=scenes&amp;editor=${encodeURIComponent(editor.value.map.mapId)}" data-testid="scene-studio-link">Scene Studio</a>
         <a class="editor-nav-link editor-game-link" href="?area=${editor.value.map.mapId}">Play map</a>
       </nav>
     </header>
@@ -444,7 +444,7 @@ export function mountMapEditorPanel(
       if (target.dataset.object && target.dataset.visual) {
         templateEditor.clearSelection();
         editor.setObject(target.dataset.object as Parameters<typeof editor.setObject>[0], target.dataset.visual);
-        editor.notify(`${target.dataset.npcCharacter} selected — use Character Studio to edit its package`);
+        editor.notify(`${target.dataset.npcCharacter} selected — use Scene Studio to edit its authored scene`);
       }
       return;
     }

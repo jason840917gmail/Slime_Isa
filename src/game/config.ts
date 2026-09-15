@@ -11,16 +11,20 @@ import { ASSET_MANIFEST } from './infrastructure/assets/manifest';
 import { PREPARED_SCENE_CONTENT_KEY, PreparedSceneContent } from './infrastructure/scenes/PreparedSceneContent';
 import { sceneDocuments, sceneResourceDocuments } from 'virtual-scene-content';
 import { sceneId } from './content/scenes/identifiers';
+import { redirectLegacyCharacterStudioRoute } from './editor/scene-studio/SceneStudioRoute';
 
 export async function createGame(container: HTMLDivElement): Promise<Phaser.Game | undefined> {
+  const legacyCharacterStudioRoute = import.meta.env.DEV
+    ? redirectLegacyCharacterStudioRoute(window.location.search)
+    : undefined;
+  if (legacyCharacterStudioRoute !== undefined) {
+    window.history.replaceState(null, '', legacyCharacterStudioRoute);
+  }
   const studioQuery = import.meta.env.DEV ? new URLSearchParams(window.location.search) : undefined;
   const studioMode = studioQuery?.get('studio');
   const editorMapId = import.meta.env.DEV
     ? studioQuery?.get('editor') ?? null
     : null;
-  const characterStudio = import.meta.env.DEV
-    ? studioMode === 'characters'
-    : false;
   const projectileStudio = import.meta.env.DEV
     ? studioMode === 'projectiles'
     : false;
@@ -37,12 +41,6 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
     document.title = 'Scene Studio — Field Cartographer';
     const { mountSceneStudio } = await import('./editor/scene-studio/SceneStudio');
     mountSceneStudio(container);
-    return undefined;
-  }
-  if (characterStudio) {
-    document.title = 'Character Studio — Field Cartographer';
-    const { mountCharacterStudio } = await import('./editor/CharacterStudio');
-    mountCharacterStudio(container);
     return undefined;
   }
   if (projectileStudio) {

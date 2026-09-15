@@ -1126,7 +1126,10 @@ function connectionTarget(map: MapFile, direction: Direction): string | undefine
 export default defineConfig({
   base: './',
   plugins: [
-    characterContentModulesPlugin({ sceneOwnedCharacterIds: SCENE_OWNED_CHARACTER_IDS }),
+    characterContentModulesPlugin({
+      sceneOwnedCharacterIds: SCENE_OWNED_CHARACTER_IDS,
+      characterAuthoring: 'read-only',
+    }),
     animationContentModulesPlugin(),
     sceneContentModulesPlugin(),
     sceneStudioContentPlugin(),
