@@ -13,7 +13,6 @@ export * from './FattyScript';
 export * from './ChestScript';
 export * from './BossCampScript';
 export * from './registrations';
-export * from '../../infrastructure/scenes/compatibility/LegacyPlayerBridge';
 export * from '../../infrastructure/scenes/compatibility/LegacyCombatBridge';
 export * from '../../infrastructure/scenes/compatibility/LegacyWeaponTargetBridge';
 export * from '../../infrastructure/scenes/compatibility/LegacyChestUiBridge';

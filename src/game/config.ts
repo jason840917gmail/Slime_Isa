@@ -86,6 +86,7 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
         resources: sceneResourceDocuments,
         registry: createGameDescriptorRegistry(),
         sceneIds: [
+          sceneId('character.player-slime'),
           sceneId('character.slime-spider'),
           sceneId('character.worm-archer'),
           sceneId('character.worm-brawler'),
