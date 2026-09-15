@@ -57,6 +57,8 @@ type FixtureSnapshot = {
   readonly legacyEnemyCount?: number;
   readonly legacyBossCount?: number;
   readonly legacyNpcCount?: number;
+  readonly legacyPlayerX?: number;
+  readonly managedPlayerX?: number;
   readonly hasLegacyChestController?: boolean;
   readonly universalRuntimePaused?: boolean;
 };
@@ -366,8 +368,10 @@ const api: FixtureApi = {
     if (!game || mode !== 'baseline') throw new Error('Production player is only available in baseline mode');
     const world = game.scene.getScene('world') as unknown as {
       readonly player?: Phaser.Physics.Arcade.Sprite;
+      readonly universalWorld?: { readonly managedPlayer: { teleport(position: Readonly<{ x: number; y: number }>): void } };
     };
     if (!world.player) throw new Error('Production player is unavailable');
+    world.universalWorld?.managedPlayer.teleport({ x, y });
     world.player.setPosition(x, y);
     (world.player.body as Phaser.Physics.Arcade.Body).reset(x, y);
     world.player.setVelocity(0, 0);
@@ -392,12 +396,14 @@ const api: FixtureApi = {
             readonly managedChestCount: number;
             readonly managedNpcCount: number;
             readonly managedPlayerCount: number;
+            readonly managedPlayer: { getPosition(): Readonly<{ x: number; y: number }> };
             readonly runtime: { readonly tree: { readonly paused: boolean } };
           };
           readonly combatController?: { readonly targets: Phaser.Physics.Arcade.Group };
           readonly bossCampController?: { readonly targets: Phaser.Physics.Arcade.Group };
           readonly chestController?: unknown;
           readonly builtMap?: { readonly npcActors: readonly unknown[] };
+          readonly player?: Phaser.Physics.Arcade.Sprite;
         }
       : undefined;
     return {
@@ -424,6 +430,8 @@ const api: FixtureApi = {
       ...(world?.combatController ? { legacyEnemyCount: world.combatController.targets.countActive(true) } : {}),
       ...(world?.bossCampController ? { legacyBossCount: world.bossCampController.targets.countActive(true) } : {}),
       ...(world?.builtMap ? { legacyNpcCount: world.builtMap.npcActors.length } : {}),
+      ...(world?.player ? { legacyPlayerX: world.player.x } : {}),
+      ...(world?.universalWorld ? { managedPlayerX: world.universalWorld.managedPlayer.getPosition().x } : {}),
       ...(world ? { hasLegacyChestController: world.chestController !== undefined } : {}),
     };
   },

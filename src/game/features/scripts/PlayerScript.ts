@@ -8,7 +8,7 @@ import type {
   DamageStateDecision,
 } from '../combat/DamageReceiver';
 import type { DamageRouter } from '../combat/DamageRouter';
-import type { PlayerRuntimePorts } from '../player/PlayerServicePorts';
+import type { PlayerActorPort } from '../player/PlayerServicePorts';
 import {
   PlayerNodePorts,
   requirePlayerAnimationNode,
@@ -25,7 +25,7 @@ export interface PlayerHealthChanged {
   readonly maxHp: number;
 }
 
-export class PlayerScript extends CharacterScript implements DamageReceiver, PlayerRuntimePorts {
+export class PlayerScript extends CharacterScript implements DamageReceiver, PlayerActorPort {
   readonly playerName: string;
   private health?: DamageReceiver;
   private ports?: PlayerNodePorts;
@@ -98,6 +98,10 @@ export class PlayerScript extends CharacterScript implements DamageReceiver, Pla
     if (direction.x !== 0 || direction.y !== 0) this.requirePorts().play('walk');
     else this.requirePorts().play('idle');
     return true;
+  }
+
+  stopMovement(): void {
+    this.requirePorts().stop();
   }
 
   teleport(position: CharacterPoint): void {

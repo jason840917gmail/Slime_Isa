@@ -80,7 +80,7 @@ export interface UniversalSceneWorldControllerOptions {
   readonly transaction: InventoryWorldTransaction;
   readonly interactions: InteractionRouter;
   readonly modalStack: ModalStack;
-  readonly isPlayerDodging: () => boolean;
+  readonly isPlayerActionLocked: () => boolean;
   readonly setChestPaused: (paused: boolean) => void;
   readonly showMessage: (x: number, y: number, message: string, color?: 'white' | 'yellow' | 'green' | 'cyan' | 'orange' | 'red', important?: boolean) => void;
   readonly updateLegacyFixed: (deltaMs: number) => void;
@@ -161,6 +161,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
   private nextBossSequence = 1;
   private nextEnemySequence = 1;
   private simulationTimeMs = 0;
+  private previousPlayerActionLocked = false;
   private mountingPlacement?: SceneEnabledPlacement;
   private disposed = false;
 
@@ -223,6 +224,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
         postPhysics: () => {
           this.finishDefeatedBosses();
           this.finishDefeatedOrdinaryEnemies();
+          this.synchronizeLegacyPlayerProxy();
         },
         render: (deltaSeconds) => {
           options.updateLegacyRender(deltaSeconds * 1000);
@@ -266,6 +268,10 @@ export class UniversalSceneWorldController implements InteractionProvider {
   get managedChestCount(): number { return this.chests.size; }
   get managedNpcCount(): number { return this.npcs.size; }
   get managedPlayerCount(): number { return this.playerScript ? 1 : 0; }
+  get managedPlayer(): PlayerScript {
+    if (!this.playerScript) throw new Error('The authored player scene is not mounted.');
+    return this.playerScript;
+  }
   get managedLiveCampCount(): number { return [...this.camps.values()].filter((camp) => camp.script.hasLiveBoss).length; }
 
   getCandidate() {
@@ -395,14 +401,30 @@ export class UniversalSceneWorldController implements InteractionProvider {
     const body = this.playerBody;
     const legacyBody = this.options.player.body as Phaser.Physics.Arcade.Body | null;
     if (!script || !body || !legacyBody) return;
-    body.set_global_transform({
-      ...body.get_global_transform(),
-      position: { x: this.options.player.x, y: this.options.player.y },
-    });
-    body.velocity = { x: legacyBody.velocity.x, y: legacyBody.velocity.y };
-    if (this.options.isPlayerDodging()) {
-      script.beginDodge(body.velocity, Math.hypot(body.velocity.x, body.velocity.y), 34);
+    const actionLocked = this.options.isPlayerActionLocked();
+    const inheritLegacyPosition = actionLocked || this.previousPlayerActionLocked;
+    this.previousPlayerActionLocked = actionLocked;
+    if (inheritLegacyPosition) {
+      body.set_global_transform({
+        ...body.get_global_transform(),
+        position: { x: this.options.player.x, y: this.options.player.y },
+      });
+      body.velocity = { x: legacyBody.velocity.x, y: legacyBody.velocity.y };
+      return;
     }
+    legacyBody.setVelocity(body.velocity.x, body.velocity.y);
+  }
+
+  private synchronizeLegacyPlayerProxy(): void {
+    if (this.options.isPlayerActionLocked()) return;
+    const script = this.playerScript;
+    const legacyBody = this.options.player.body as Phaser.Physics.Arcade.Body | null;
+    if (!script || !legacyBody) return;
+    const position = script.getPosition();
+    this.options.player.setPosition(position.x, position.y);
+    legacyBody.reset(position.x, position.y);
+    const velocity = this.playerBody?.velocity ?? { x: 0, y: 0 };
+    legacyBody.setVelocity(velocity.x, velocity.y);
   }
 
   private primaryEnemyTarget() {
