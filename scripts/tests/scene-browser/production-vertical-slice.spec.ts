@@ -1,5 +1,17 @@
 import { expect, test } from '@playwright/test';
 
+async function waitForProductionReady(page: import('@playwright/test').Page, pageErrors: readonly string[]): Promise<void> {
+  await expect.poll(async () => {
+    if (pageErrors[0]) throw new Error(pageErrors[0]);
+    const state = await page.evaluate(() => ({
+      ready: window.sceneFixture?.ready() === true,
+      error: window.sceneFixture?.snapshot().initializationError,
+    }));
+    if (state.error) throw new Error(state.error);
+    return state.ready;
+  }, { timeout: 45_000 }).toBe(true);
+}
+
 test('Level 1 spawns Worm Brawler through the universal runtime without a legacy duplicate', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.addInitScript(() => {
@@ -8,12 +20,16 @@ test('Level 1 spawns Worm Brawler through the universal runtime without a legacy
   });
   const pageErrors: string[] = [];
   page.on('pageerror', (error) => pageErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error' && !message.text().startsWith('Failed to load resource:')) pageErrors.push(message.text());
+  });
   await page.goto('./?mode=baseline&map=level-1');
-  await page.waitForFunction(() => window.sceneFixture?.ready() === true, undefined, { timeout: 45_000 });
+  await waitForProductionReady(page, pageErrors);
   const authored = await page.evaluate(() => window.sceneFixture.snapshot());
   expect(authored.managedCampCount).toBe(1);
   expect(authored.managedChestCount).toBe(1);
   expect(authored.managedNpcCount).toBe(5);
+  expect(authored.managedPlayerCount).toBe(1);
   expect(authored.legacyNpcCount).toBe(0);
   expect(authored.hasLegacyChestController).toBe(false);
   await page.evaluate(() => window.sceneFixture.teleportProductionPlayer(2_528, 1_472));
@@ -45,8 +61,11 @@ test('remaining ordinary enemy scenes mount through the production Phaser runtim
   });
   const pageErrors: string[] = [];
   page.on('pageerror', (error) => pageErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error' && !message.text().startsWith('Failed to load resource:')) pageErrors.push(message.text());
+  });
   await page.goto('./?mode=baseline&map=level-1');
-  await page.waitForFunction(() => window.sceneFixture?.ready() === true, undefined, { timeout: 45_000 });
+  await waitForProductionReady(page, pageErrors);
   const before = await page.evaluate(() => window.sceneFixture.snapshot().managedOrdinaryEnemyCount ?? 0);
   const mounted = await page.evaluate(() => [
     window.sceneFixture.spawnManagedEnemy('worm-archer', 1_180, 1_520),

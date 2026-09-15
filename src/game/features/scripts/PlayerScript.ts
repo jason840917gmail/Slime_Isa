@@ -40,6 +40,11 @@ export class PlayerScript extends CharacterScript implements DamageReceiver, Pla
 
   get runtimeNodeId(): string { return this.runtimeId; }
   get simulationTime(): number { return this.simulationTimeMs; }
+  get damageAreaNodeId(): string {
+    const target = this.getReference<Node>('damageArea')?.configuredTarget;
+    if (!target) throw new Error(`PlayerScript '${this.runtimeId}' requires its damageArea reference.`);
+    return target.runtimeId;
+  }
 
   override _enter_tree(): void {
     super._enter_tree();

@@ -7,6 +7,7 @@ import { sceneId } from '../../content/scenes/identifiers';
 import { getBossDefinition } from '../../content/bosses/BossCatalog';
 import { ASSET_MANIFEST, type AssetId } from '../../infrastructure/assets/manifest';
 import { PhysicsBody2DNode } from '../../infrastructure/phaser-nodes/PhysicsBody2DNode';
+import { CharacterBody2DNode } from '../../infrastructure/phaser-nodes/CharacterBody2DNode';
 import { Sprite2DNode } from '../../infrastructure/phaser-nodes/Sprite2DNode';
 import { PhaserUniversalSceneRuntime, type MountedScene } from '../../infrastructure/scenes/PhaserUniversalSceneRuntime';
 import type { PreparedSceneContent } from '../../infrastructure/scenes/PreparedSceneContent';
@@ -17,7 +18,6 @@ import {
   LegacyMapPlacementBridge,
   type SceneEnabledPlacement,
 } from '../../infrastructure/scenes/compatibility/LegacyMapPlacementBridge';
-import { LegacyPlayerBridge } from '../../infrastructure/scenes/compatibility/LegacyPlayerBridge';
 import { LegacyWeaponTargetBridge, type LegacyWeaponManagedTarget } from '../../infrastructure/scenes/compatibility/LegacyWeaponTargetBridge';
 import { LegacyWorldAdapter } from '../../infrastructure/scenes/compatibility/LegacyWorldAdapter';
 import type { Node } from '../../runtime/scene/Node';
@@ -61,6 +61,7 @@ import {
   type NpcRuntimeRequest,
   type NpcWanderAgent,
 } from '../scripts/NpcScript';
+import { PLAYER_HEALTH_SERVICE, PlayerScript } from '../scripts/PlayerScript';
 import type { HealthSystem } from '../../systems/HealthSystem';
 import type { ModalStack } from '../../ui/ModalStack';
 import { ChestInventoryPanel } from '../../ui/ChestInventoryPanel';
@@ -80,7 +81,6 @@ export interface UniversalSceneWorldControllerOptions {
   readonly interactions: InteractionRouter;
   readonly modalStack: ModalStack;
   readonly isPlayerDodging: () => boolean;
-  readonly applyPlayerKnockback: (direction: Readonly<{ x: number; y: number }>, strength: number, durationMs: number) => void;
   readonly setChestPaused: (paused: boolean) => void;
   readonly showMessage: (x: number, y: number, message: string, color?: 'white' | 'yellow' | 'green' | 'cyan' | 'orange' | 'red', important?: boolean) => void;
   readonly updateLegacyFixed: (deltaMs: number) => void;
@@ -145,7 +145,6 @@ export class UniversalSceneWorldController implements InteractionProvider {
   readonly runtime: PhaserUniversalSceneRuntime;
   private readonly activations = new AttackActivation();
   private readonly damageRouter = new DamageRouter(this.activations, () => this.simulationTimeMs);
-  private readonly playerBridge: LegacyPlayerBridge;
   private readonly combatBridge: LegacyCombatBridge;
   private readonly weaponBridge: LegacyWeaponTargetBridge;
   private readonly chestUi?: LegacyChestUiBridge;
@@ -154,6 +153,8 @@ export class UniversalSceneWorldController implements InteractionProvider {
   private readonly bosses = new Map<string, ManagedBoss>();
   private readonly ordinaryEnemies = new Map<number, ManagedOrdinaryEnemy>();
   private readonly npcs = new Map<string, NpcScript>();
+  private playerScript?: PlayerScript;
+  private playerBody?: CharacterBody2DNode;
   private readonly chests = new Map<string, ChestScript>();
   private readonly bossBars = new Set<ManagedBossBar>();
   private readonly unregisterInteraction: () => void;
@@ -165,21 +166,6 @@ export class UniversalSceneWorldController implements InteractionProvider {
 
   constructor(private readonly options: UniversalSceneWorldControllerOptions) {
     this.combatBridge = new LegacyCombatBridge(this.activations, this.damageRouter);
-    this.playerBridge = new LegacyPlayerBridge(
-      this.damageRouter,
-      options.health.managedReceiver,
-      {
-        getPosition: () => ({ x: options.player.x, y: options.player.y }),
-        getBodyBounds: () => {
-          const body = options.player.body as Phaser.Physics.Arcade.Body;
-          return { x: body.x, y: body.y, width: body.width, height: body.height };
-        },
-        isDodging: options.isPlayerDodging,
-        applyKnockback: options.applyPlayerKnockback,
-      },
-    );
-    this.playerBridge.enter();
-
     const chestView = {
       open: (model: Parameters<LegacyChestUiBridge['open']>[0]) => this.chestUi?.open(model),
       close: (instanceId: string) => this.chestUi?.close(instanceId),
@@ -191,8 +177,9 @@ export class UniversalSceneWorldController implements InteractionProvider {
     const scripts = createGameScriptRegistry({
       [DAMAGE_ROUTER_SERVICE]: this.damageRouter,
       [ATTACK_ACTIVATION_SERVICE]: this.activations,
+      [PLAYER_HEALTH_SERVICE]: options.health.managedReceiver,
       [ENEMY_TARGET_SERVICE]: {
-        getPrimaryTarget: (sourceNodeId: string) => this.playerBridge.getPrimaryTarget(sourceNodeId),
+        getPrimaryTarget: () => this.primaryEnemyTarget(),
         getNavigation: (sourceNodeId: string) => this.enemyNavigation(sourceNodeId),
         fireProjectile: (request: EnemyProjectileRequest) => this.fireEnemyProjectile(request),
       },
@@ -230,6 +217,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
         prePhysics: (deltaSeconds) => {
           this.simulationTimeMs += deltaSeconds * 1000;
           options.updateLegacyFixed(deltaSeconds * 1000);
+          this.synchronizeManagedPlayer();
           this.evaluateCamps();
         },
         postPhysics: () => {
@@ -265,6 +253,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
       onOutcome: options.onManagedWeaponOutcome,
     });
     this.supplementalWeaponHitboxes = this.weaponBridge;
+    this.mountPlayer();
     this.mountAuthoredPlacements();
     this.unregisterInteraction = options.interactions.register('managed-chests', this);
   }
@@ -276,6 +265,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
   get managedCampCount(): number { return this.camps.size; }
   get managedChestCount(): number { return this.chests.size; }
   get managedNpcCount(): number { return this.npcs.size; }
+  get managedPlayerCount(): number { return this.playerScript ? 1 : 0; }
   get managedLiveCampCount(): number { return [...this.camps.values()].filter((camp) => camp.script.hasLiveBoss).length; }
 
   getCandidate() {
@@ -345,13 +335,14 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.weaponBridge.dispose();
     this.combatBridge.dispose();
     this.runtime.shutdown();
-    this.playerBridge.dispose();
     this.chestUi?.dispose();
     this.bossUi.dispose();
     this.camps.clear();
     this.bosses.clear();
     this.ordinaryEnemies.clear();
     this.npcs.clear();
+    this.playerScript = undefined;
+    this.playerBody = undefined;
     this.chests.clear();
     this.bossBars.clear();
   }
@@ -377,6 +368,52 @@ export class UniversalSceneWorldController implements InteractionProvider {
       const definition = this.options.map.bossCamps?.find((camp) => camp.id === campScript?.campId);
       if (campScript && definition) this.camps.set(campScript.campId, { definition, script: campScript, mount });
     }
+  }
+
+  private mountPlayer(): void {
+    const mount = this.runtime.mountScene(sceneId('character.player-slime'), {
+      runtimeNamespace: 'managed-player',
+      position: { x: this.options.player.x, y: this.options.player.y },
+    });
+    const script = descendants(mount.root, PlayerScript)[0];
+    const body = descendants(mount.root, CharacterBody2DNode)[0];
+    if (!script || !body) {
+      mount.dispose();
+      throw new Error("Player scene 'character.player-slime' requires PlayerScript and CharacterBody2D.");
+    }
+    // The existing player presentation remains the compatibility view until the
+    // input/presentation cutover; the authored body already owns target geometry.
+    for (const visual of descendants(mount.root, Sprite2DNode)) visual.visible = false;
+    this.playerScript = script;
+    this.playerBody = body;
+    this.registerLegacyColliders(mount, false);
+    this.synchronizeManagedPlayer();
+  }
+
+  private synchronizeManagedPlayer(): void {
+    const script = this.playerScript;
+    const body = this.playerBody;
+    const legacyBody = this.options.player.body as Phaser.Physics.Arcade.Body | null;
+    if (!script || !body || !legacyBody) return;
+    body.set_global_transform({
+      ...body.get_global_transform(),
+      position: { x: this.options.player.x, y: this.options.player.y },
+    });
+    body.velocity = { x: legacyBody.velocity.x, y: legacyBody.velocity.y };
+    if (this.options.isPlayerDodging()) {
+      script.beginDodge(body.velocity, Math.hypot(body.velocity.x, body.velocity.y), 34);
+    }
+  }
+
+  private primaryEnemyTarget() {
+    const script = this.playerScript;
+    if (!script) return undefined;
+    return {
+      position: script.getPosition(),
+      damageAreaNodeId: script.damageAreaNodeId,
+      active: !script.getDamageState().dead,
+      hostile: true,
+    };
   }
 
   private acquireNpcAgent(request: NpcRuntimeRequest): NpcWanderAgent | undefined {

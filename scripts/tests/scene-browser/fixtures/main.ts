@@ -53,6 +53,7 @@ type FixtureSnapshot = {
   readonly managedLiveCampCount?: number;
   readonly managedChestCount?: number;
   readonly managedNpcCount?: number;
+  readonly managedPlayerCount?: number;
   readonly legacyEnemyCount?: number;
   readonly legacyBossCount?: number;
   readonly legacyNpcCount?: number;
@@ -390,6 +391,7 @@ const api: FixtureApi = {
             readonly managedLiveCampCount: number;
             readonly managedChestCount: number;
             readonly managedNpcCount: number;
+            readonly managedPlayerCount: number;
             readonly runtime: { readonly tree: { readonly paused: boolean } };
           };
           readonly combatController?: { readonly targets: Phaser.Physics.Arcade.Group };
@@ -417,6 +419,7 @@ const api: FixtureApi = {
       ...(world?.universalWorld ? { managedLiveCampCount: world.universalWorld.managedLiveCampCount } : {}),
       ...(world?.universalWorld ? { managedChestCount: world.universalWorld.managedChestCount } : {}),
       ...(world?.universalWorld ? { managedNpcCount: world.universalWorld.managedNpcCount } : {}),
+      ...(world?.universalWorld ? { managedPlayerCount: world.universalWorld.managedPlayerCount } : {}),
       ...(world?.universalWorld ? { universalRuntimePaused: world.universalWorld.runtime.tree.paused } : {}),
       ...(world?.combatController ? { legacyEnemyCount: world.combatController.targets.countActive(true) } : {}),
       ...(world?.bossCampController ? { legacyBossCount: world.bossCampController.targets.countActive(true) } : {}),

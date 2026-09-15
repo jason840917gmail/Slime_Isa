@@ -1385,11 +1385,6 @@ export class WorldScene extends Phaser.Scene {
       interactions: this.interactionRouter!,
       modalStack: this.modalStack!,
       isPlayerDodging: () => this.playerController.isDodging(),
-      applyPlayerKnockback: (direction, strength, durationMs) => {
-        this.playerKnockbackUntil = Math.max(this.playerKnockbackUntil, this.time.now + durationMs);
-        this.playerController.applyKnockback(new Phaser.Math.Vector2(direction.x, direction.y), strength, durationMs);
-        this.playAnimation('slime-knockback', true);
-      },
       setChestPaused: (paused) => this.setSimulationPaused('managed-chest', paused),
       showMessage: (x, y, message, color = 'white', important = false) => floatingText.spawn(this, x, y, message, color, important),
       updateLegacyFixed: (deltaMs) => this.updateLegacyFixed(deltaMs),
