@@ -16,6 +16,7 @@ export interface PhysicsBody2DNodeOptions extends Node2DOptions {
 }
 
 type ArcadeBody = Phaser.Physics.Arcade.Body | Phaser.Physics.Arcade.StaticBody;
+type PhysicsGameObject = Phaser.GameObjects.Zone | Phaser.Physics.Arcade.Sprite;
 
 function centers(shape: SensorShape): Vector2 {
   if (shape.shape === 'rectangle') return { x: shape.x + shape.width / 2, y: shape.y + shape.height / 2 };
@@ -25,7 +26,7 @@ function centers(shape: SensorShape): Vector2 {
 
 export abstract class PhysicsBody2DNode extends Node2D implements CollisionShapeOwner, ContactParticipant, PhaserBlockingParticipant {
   private readonly shapes = new Set<CollisionShape2DNode>();
-  private zone?: Phaser.GameObjects.Zone;
+  private physicsGameObject?: PhysicsGameObject;
   private currentBlockingContacts: BlockingContact[] = [];
   private completedBlockingContacts: readonly BlockingContact[] = [];
   private configuredShapeSignature?: string;
@@ -56,7 +57,10 @@ export abstract class PhysicsBody2DNode extends Node2D implements CollisionShape
     if (!value) { if (body) body.enable = false; this.currentBlockingContacts = []; this.completedBlockingContacts = []; }
   }
   get blockingContacts(): readonly BlockingContact[] { return this.completedBlockingContacts; }
-  get physicsObject(): Phaser.GameObjects.GameObject { if (!this.zone) throw new Error(`Physics body '${this.name}' is outside the tree`); return this.zone; }
+  get physicsObject(): Phaser.GameObjects.GameObject {
+    if (!this.physicsGameObject) throw new Error(`Physics body '${this.name}' is outside the tree`);
+    return this.physicsGameObject;
+  }
   get blockingActive(): boolean { return this.contactActive; }
   get node(): Node2D { return this; }
   get monitoring(): boolean { return false; }
@@ -64,12 +68,17 @@ export abstract class PhysicsBody2DNode extends Node2D implements CollisionShape
   get contactActive(): boolean { return this.is_inside_tree() && this._collisionEnabled && !this.is_freed(); }
 
   override _enter_tree(): void {
-    const zone = this.bodyOptions.context.scene.add.zone(0, 0, 1, 1).setName(this.runtimeId).setVisible(false);
-    this.bodyOptions.context.scene.physics.add.existing(zone, this.isStaticBody);
-    this.zone = zone;
-    const body = zone.body as ArcadeBody | null;
+    const physicsGameObject = this.createPhysicsGameObject().setName(this.runtimeId).setVisible(false);
+    if (!physicsGameObject.body) {
+      this.bodyOptions.context.scene.physics.add.existing(physicsGameObject, this.isStaticBody);
+    }
+    this.physicsGameObject = physicsGameObject;
+    const body = physicsGameObject.body as ArcadeBody | null;
     if (body) body.enable = false;
-    this.entryDisposables.add(() => { zone.destroy(); if (this.zone === zone) this.zone = undefined; });
+    this.entryDisposables.add(() => {
+      physicsGameObject.destroy();
+      if (this.physicsGameObject === physicsGameObject) this.physicsGameObject = undefined;
+    });
     this.entryDisposables.add(this.bodyOptions.context.registerContactParticipant(this, body ?? undefined));
     this.entryDisposables.add(this.bodyOptions.context.registerBlockingParticipant(this));
     this.entryDisposables.add(this.bodyOptions.context.registerCallback('physics-sync', () => this.synchronizeToBackend()));
@@ -102,7 +111,10 @@ export abstract class PhysicsBody2DNode extends Node2D implements CollisionShape
     this.currentBlockingContacts.push(contact);
   }
 
-  protected body(): ArcadeBody | undefined { return this.zone?.body as ArcadeBody | undefined; }
+  protected body(): ArcadeBody | undefined { return this.physicsGameObject?.body as ArcadeBody | undefined; }
+  protected createPhysicsGameObject(): PhysicsGameObject {
+    return this.bodyOptions.context.scene.add.zone(0, 0, 1, 1);
+  }
   protected beforeSynchronizeLogicalState(): void {}
   protected onSynchronizeDynamicBody(_body: ArcadeBody): void {}
   protected onReadDynamicBody(_body: ArcadeBody): void {}
@@ -120,8 +132,8 @@ export abstract class PhysicsBody2DNode extends Node2D implements CollisionShape
 
   private synchronizeToBackend(): void {
     const body = this.body();
-    const zone = this.zone;
-    if (!body || !zone) return;
+    const physicsGameObject = this.physicsGameObject;
+    if (!body || !physicsGameObject) return;
     if (!this._collisionEnabled) { body.enable = false; return; }
     this.beforeSynchronizeLogicalState();
     const shape = this.enabledShape().worldShape();
@@ -136,27 +148,30 @@ export abstract class PhysicsBody2DNode extends Node2D implements CollisionShape
         : `circle:${shape.radius}`;
     if (signature !== this.configuredShapeSignature) {
       if (shape.shape === 'rectangle') {
-        zone.setSize(shape.width, shape.height);
+        physicsGameObject.setSize(shape.width, shape.height);
         body.setSize(shape.width, shape.height, true);
       } else if (shape.shape === 'ellipse') {
         const width = shape.radiusX * 2;
         const height = shape.radiusY * 2;
         // Arcade has no ellipse body; match the legacy runtime's conservative bounds contract.
-        zone.setSize(width, height);
+        physicsGameObject.setSize(width, height);
         body.setSize(width, height, true);
       } else if (shape.shape === 'circle') {
-        zone.setSize(shape.radius * 2, shape.radius * 2);
+        physicsGameObject.setSize(shape.radius * 2, shape.radius * 2);
         body.setCircle(shape.radius, 0, 0);
       }
       this.configuredShapeSignature = signature;
     }
     const bodyCenter = body.center;
     if (!this.initialized || Math.abs(bodyCenter.x - center.x) > 1e-7 || Math.abs(bodyCenter.y - center.y) > 1e-7) {
-      zone.setPosition(center.x, center.y);
+      physicsGameObject.setPosition(center.x, center.y);
       if (this.isStaticBody) (body as Phaser.Physics.Arcade.StaticBody).updateFromGameObject();
       else (body as Phaser.Physics.Arcade.Body).reset(center.x, center.y);
       this.initialized = true;
     }
+    // Keep the backend object's public transform at the authored node anchor.
+    // Arcade owns its body center independently during the manual physics step.
+    physicsGameObject.setPosition(anchor.x, anchor.y);
     body.enable = true;
     this.onSynchronizeDynamicBody(body);
   }
@@ -167,6 +182,7 @@ export abstract class PhysicsBody2DNode extends Node2D implements CollisionShape
     const transform = this.get_global_transform();
     const next: Transform2D = { ...transform, position: { x: body.center.x - this.centerOffset.x, y: body.center.y - this.centerOffset.y } };
     this.set_global_transform(next);
+    this.physicsGameObject?.setPosition(next.position.x, next.position.y);
     this.onReadDynamicBody(body);
     this.completedBlockingContacts = this.currentBlockingContacts.map((contact) => ({ ...contact }));
   }

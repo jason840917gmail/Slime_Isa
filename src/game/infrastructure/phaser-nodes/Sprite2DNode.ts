@@ -5,6 +5,11 @@ import { Node2D, type Node2DOptions, type Vector2 } from '../../runtime/scene/No
 import { defaultWorldDepthResolver, type WorldDepthBand, type WorldDepthResolver } from '../../presentation/WorldDepth';
 import type { PhaserNodeContext } from '../scenes/PhaserNodeContext';
 import type { PresentationParticipant } from './PresentationSync';
+import type {
+  WorldVisual,
+  WorldVisualEffects,
+  WorldVisualRenderState,
+} from '../../presentation/WorldVisual';
 
 export interface Sprite2DNodeOptions extends Node2DOptions {
   readonly context: PhaserNodeContext;
@@ -28,7 +33,8 @@ function colorNumber(value: string | undefined): number | undefined {
   return Number.parseInt(value.slice(1), 16);
 }
 
-export class Sprite2DNode extends Node2D implements PresentationParticipant {
+export class Sprite2DNode extends Node2D implements PresentationParticipant, WorldVisual {
+  readonly effects: WorldVisualEffects = { scaleX: 1, scaleY: 1, alpha: 1, offsetX: 0, offsetY: 0 };
   private sprite?: Phaser.GameObjects.Sprite;
   private currentFrame?: number;
   private currentAlpha: number;
@@ -67,6 +73,59 @@ export class Sprite2DNode extends Node2D implements PresentationParticipant {
     this.sprite?.setAlpha(value);
   }
 
+  setFlipX(flipped: boolean): this { this.sprite?.setFlipX(flipped); return this; }
+  setAlpha(alpha: number): this {
+    if (!Number.isFinite(alpha) || alpha < 0 || alpha > 1) throw new Error('Sprite alpha must be between 0 and 1');
+    this.effects.alpha = alpha;
+    this.syncPresentation(1);
+    return this;
+  }
+  setTintFill(color: number): this { this.sprite?.setTintFill(color); return this; }
+  clearTint(): this { this.sprite?.clearTint(); return this; }
+
+  resetEffects(): this {
+    this.effects.scaleX = 1;
+    this.effects.scaleY = 1;
+    this.effects.alpha = 1;
+    this.effects.offsetX = 0;
+    this.effects.offsetY = 0;
+    this.syncPresentation(1);
+    return this;
+  }
+
+  getBounds(): Phaser.Geom.Rectangle { return this.requireSprite().getBounds(); }
+
+  getRenderState(): WorldVisualRenderState {
+    const sprite = this.requireSprite();
+    return {
+      textureKey: sprite.texture.key,
+      frame: sprite.frame.name,
+      sourceFrame: { width: sprite.frame.realWidth, height: sprite.frame.realHeight },
+      x: sprite.x,
+      y: sprite.y,
+      originX: sprite.originX,
+      originY: sprite.originY,
+      scaleX: sprite.scaleX,
+      scaleY: sprite.scaleY,
+      alpha: sprite.alpha,
+      flipX: sprite.flipX,
+      flipY: sprite.flipY,
+      rotation: sprite.rotation,
+    };
+  }
+
+  mirrorTo(target: Phaser.GameObjects.Sprite, alpha = 0.72): void {
+    const state = this.getRenderState();
+    target
+      .setTexture(state.textureKey, state.frame)
+      .setPosition(state.x, state.y)
+      .setOrigin(state.originX, state.originY)
+      .setScale(state.scaleX, state.scaleY)
+      .setFlip(state.flipX, state.flipY)
+      .setRotation(state.rotation)
+      .setAlpha(alpha);
+  }
+
   override _enter_tree(): void {
     const resource = this.spriteOptions.context.resource(this.spriteOptions.texture);
     if (resource.kind !== 'texture' && resource.kind !== 'sprite-sheet') throw new Error(`Resource '${resource.resourceId}' cannot back Sprite2D`);
@@ -94,12 +153,12 @@ export class Sprite2DNode extends Node2D implements PresentationParticipant {
     const cosine = Math.cos(transform.rotation);
     const sine = Math.sin(transform.rotation);
     sprite.setPosition(
-      transform.position.x + offsetX * cosine - offsetY * sine,
-      transform.position.y + offsetX * sine + offsetY * cosine,
+      transform.position.x + offsetX * cosine - offsetY * sine + this.effects.offsetX,
+      transform.position.y + offsetX * sine + offsetY * cosine + this.effects.offsetY,
     );
     sprite.setRotation(transform.rotation);
-    sprite.setScale(transform.scale.x, transform.scale.y);
-    sprite.setAlpha(this.currentAlpha);
+    sprite.setScale(transform.scale.x * this.effects.scaleX, transform.scale.y * this.effects.scaleY);
+    sprite.setAlpha(this.currentAlpha * this.effects.alpha);
     if (this.currentFrame !== undefined) sprite.setFrame(this.currentFrame);
     sprite.setVisible(this.visible);
     const depth = this.spriteOptions.depthMode === 'explicit'
@@ -110,5 +169,10 @@ export class Sprite2DNode extends Node2D implements PresentationParticipant {
 
   protected override _duplicateSelf(runtimeId: RuntimeNodeId): Sprite2DNode {
     return new Sprite2DNode({ ...this.spriteOptions, runtimeId, name: this.name, position: this.position, rotation: this.rotation, scale: this.scale, visible: this.visible });
+  }
+
+  private requireSprite(): Phaser.GameObjects.Sprite {
+    if (!this.sprite) throw new Error(`Sprite2D '${this.runtimeId}' is outside the scene tree.`);
+    return this.sprite;
   }
 }

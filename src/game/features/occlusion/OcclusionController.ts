@@ -12,7 +12,7 @@ import {
   type WorldRectangle,
 } from '../../presentation/WorldOcclusion';
 import { resolveWorldDepth } from '../../presentation/WorldDepth';
-import type { AnimatedVisual, AnimatedVisualRenderState } from '../visuals/AnimatedVisual';
+import type { WorldVisual, WorldVisualRenderState } from '../../presentation/WorldVisual';
 import type { ObjectOccluderRegistration } from '../objects/ObjectFactory';
 
 const CELL_SIZE = 256;
@@ -23,7 +23,7 @@ const ALPHA_THRESHOLD = 8;
 export interface OcclusionActorRegistration {
   readonly id: string;
   readonly owner: Phaser.GameObjects.GameObject;
-  readonly visual: AnimatedVisual;
+  readonly visual: WorldVisual;
   readonly getGroundAnchorY: () => number;
   readonly getDepth: () => number;
   readonly isEligible: () => boolean;
@@ -185,7 +185,7 @@ export class OcclusionController {
     if (this.destroyed) return { dispose: () => undefined };
     const previous = this.actors.get(registration.id);
     previous?.dispose();
-    const state: AnimatedVisualRenderState = registration.visual.getRenderState();
+    const state: WorldVisualRenderState = registration.visual.getRenderState();
     const silhouette = this.scene.add.sprite(state.x, state.y, state.textureKey, state.frame);
     const maskGraphics = this.scene.add.graphics().setVisible(false);
     const mask = maskGraphics.createGeometryMask();

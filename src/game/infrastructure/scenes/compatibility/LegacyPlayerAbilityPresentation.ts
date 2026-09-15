@@ -11,8 +11,8 @@ import type {
   PlayerAbilityIntent,
   PlayerAbilityRejectionReason,
 } from '../../../features/player/PlayerAbilityService';
-import type { AnimatedVisual } from '../../../features/visuals/AnimatedVisual';
 import { resolveWorldDepth } from '../../../presentation/WorldDepth';
+import type { WorldVisual } from '../../../presentation/WorldVisual';
 import { floatingText } from '../../../ui/FloatingText';
 
 const JUMP_ARC_HEIGHT = 54;
@@ -20,7 +20,9 @@ const JUMP_ARC_HEIGHT = 54;
 export interface LegacyPlayerAbilityPresentationContext {
   readonly scene: Phaser.Scene;
   readonly getPlayer: () => Phaser.Physics.Arcade.Sprite;
-  readonly getPlayerVisual: () => AnimatedVisual;
+  readonly getPlayerVisual: () => WorldVisual;
+  readonly stopPlayerMotion: () => void;
+  readonly teleportPlayer: (position: Readonly<{ x: number; y: number }>) => void;
   readonly playAnimation: (key: string) => void;
   readonly getCombatTargets: () => Phaser.Physics.Arcade.Group | null;
 }
@@ -75,10 +77,8 @@ export class LegacyPlayerAbilityPresentation implements PlayerAbilityPresentatio
 
   present(intent: PlayerAbilityIntent, complete: () => void): PlayerAbilityPresentationLease {
     const lease = new PhaserAbilityLease();
-    const player = this.context.getPlayer();
     const visual = this.context.getPlayerVisual();
     lease.add(() => {
-      this.context.scene.tweens.killTweensOf(player);
       this.context.scene.tweens.killTweensOf(visual.effects);
       visual.resetEffects();
     });
@@ -106,12 +106,11 @@ export class LegacyPlayerAbilityPresentation implements PlayerAbilityPresentatio
 
   private presentJump(intent: PlayerAbilityIntent, lease: PhaserAbilityLease, complete: () => void): void {
     const scene = this.context.scene;
-    const player = this.context.getPlayer();
     const visual = this.context.getPlayerVisual();
     const { start, target } = intent;
     const durationMs = intent.definition.durationMs ?? 420;
     this.context.playAnimation('slime-hop');
-    player.setVelocity(0, 0);
+    this.context.stopPlayerMotion();
     visual.resetEffects();
 
     const shadow = scene.add.ellipse(start.x, start.y, 40, 16, 0x000000, 0.35)
@@ -120,16 +119,25 @@ export class LegacyPlayerAbilityPresentation implements PlayerAbilityPresentatio
     lease.trackObject(shadow);
     const midX = (start.x + target.x) / 2;
     const midY = (start.y + target.y) / 2 - JUMP_ARC_HEIGHT;
-    lease.trackTween(scene.tweens.add({ targets: player, x: midX, y: midY, duration: durationMs / 2, ease: 'Quad.Out' }));
+    lease.trackTween(scene.tweens.add({
+      targets: visual.effects,
+      offsetX: midX - start.x,
+      offsetY: midY - start.y,
+      duration: durationMs / 2,
+      ease: 'Quad.Out',
+    }));
     lease.trackTween(scene.tweens.add({ targets: visual.effects, scaleX: 0.82, scaleY: 1.35, duration: durationMs / 2, ease: 'Quad.Out' }));
     lease.trackTween(scene.tweens.add({
-      targets: player,
-      x: target.x,
-      y: target.y,
+      targets: visual.effects,
+      offsetX: target.x - start.x,
+      offsetY: target.y - start.y,
       duration: durationMs / 2,
       delay: durationMs / 2,
       ease: 'Quad.In',
       onComplete: () => {
+        this.context.teleportPlayer(target);
+        visual.effects.offsetX = 0;
+        visual.effects.offsetY = 0;
         lease.trackTween(scene.tweens.add({ targets: visual.effects, scaleX: 1, scaleY: 1, duration: 120, ease: 'Back.Out' }));
         const dust = scene.add.particles(target.x, target.y, 'xp-orb', {
           lifespan: 320,
@@ -168,11 +176,10 @@ export class LegacyPlayerAbilityPresentation implements PlayerAbilityPresentatio
 
   private presentTeleport(intent: PlayerAbilityIntent, lease: PhaserAbilityLease, complete: () => void): void {
     const scene = this.context.scene;
-    const player = this.context.getPlayer();
     const visual = this.context.getPlayerVisual();
     this.spawnFlash(intent.start.x, intent.start.y, 0x72d8ff, lease);
     this.context.playAnimation('slime-teleport');
-    player.setVelocity(0, 0);
+    this.context.stopPlayerMotion();
     lease.trackTween(scene.tweens.add({
       targets: visual.effects,
       alpha: 0,
@@ -181,7 +188,7 @@ export class LegacyPlayerAbilityPresentation implements PlayerAbilityPresentatio
       duration: 120,
       ease: 'Quad.In',
       onComplete: () => {
-        player.setPosition(intent.target.x, intent.target.y);
+        this.context.teleportPlayer(intent.target);
         this.spawnFlash(intent.target.x, intent.target.y, 0xa3f0c0, lease);
         lease.trackTween(scene.tweens.add({
           targets: visual.effects,
@@ -203,7 +210,7 @@ export class LegacyPlayerAbilityPresentation implements PlayerAbilityPresentatio
     const radius = intent.definition.radius ?? 90;
     const damage = intent.definition.damage ?? 30;
     this.context.playAnimation('slime-squash');
-    player.setVelocity(0, 0);
+    this.context.stopPlayerMotion();
     lease.trackTween(scene.tweens.add({
       targets: visual.effects,
       scaleY: 1.36,
@@ -270,18 +277,18 @@ export class LegacyPlayerAbilityPresentation implements PlayerAbilityPresentatio
     const range = intent.definition.distance ?? 180;
     const damage = intent.definition.damage ?? 18;
     this.context.playAnimation('slime-stretch');
-    player.setVelocity(0, 0);
+    this.context.stopPlayerMotion();
     const stretchX = player.x + direction.x * range * 0.5;
     const stretchY = player.y + direction.y * range * 0.5;
     lease.trackTween(scene.tweens.add({
-      targets: player,
-      x: stretchX,
-      y: stretchY,
+      targets: visual.effects,
+      offsetX: stretchX - intent.start.x,
+      offsetY: stretchY - intent.start.y,
       duration: 180,
       ease: 'Quad.Out',
       onComplete: () => {
-        const tipX = player.x + direction.x * range * 0.5;
-        const tipY = player.y + direction.y * range * 0.5;
+        const tipX = intent.start.x + direction.x * range;
+        const tipY = intent.start.y + direction.y * range;
         const lash = scene.add.graphics().setDepth(resolveWorldDepth(player.y, {
           band: 'reveal-effects', stableId: 'player-stretch-lash', attachmentSlot: -2,
         }).depth);
@@ -318,12 +325,20 @@ export class LegacyPlayerAbilityPresentation implements PlayerAbilityPresentatio
           }));
         }
         lease.trackTween(scene.tweens.add({
-          targets: player,
-          x: player.x - direction.x * range * 0.3,
-          y: player.y - direction.y * range * 0.3,
+          targets: visual.effects,
+          offsetX: direction.x * range * 0.2,
+          offsetY: direction.y * range * 0.2,
           duration: 200,
           ease: 'Quad.In',
-          onComplete: complete,
+          onComplete: () => {
+            this.context.teleportPlayer({
+              x: intent.start.x + direction.x * range * 0.2,
+              y: intent.start.y + direction.y * range * 0.2,
+            });
+            visual.effects.offsetX = 0;
+            visual.effects.offsetY = 0;
+            complete();
+          },
         }));
         lease.trackTween(scene.tweens.add({ targets: visual.effects, scaleX: 1, scaleY: 1, duration: 200, ease: 'Quad.In' }));
       },

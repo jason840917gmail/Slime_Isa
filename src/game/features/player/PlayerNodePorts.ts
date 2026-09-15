@@ -61,9 +61,9 @@ export class PlayerNodePorts implements PlayerRuntimePorts {
     this.setVelocity(direction, strength);
   }
 
-  play(animationId: string): boolean {
+  play(animationId: string, forceRestart = false): boolean {
     if (!this.animation.hasAnimation(animationId)) return false;
-    if (this.animation.currentAnimation !== animationId) this.animation.play(animationId);
+    if (forceRestart || this.animation.currentAnimation !== animationId) this.animation.play(animationId);
     return true;
   }
 }

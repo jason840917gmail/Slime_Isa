@@ -30,6 +30,21 @@ export class CharacterBody2DNode extends PhysicsBody2DNode {
     this.queuedTeleport = { ...position };
   }
 
+  get physicsSprite(): Phaser.Physics.Arcade.Sprite {
+    const object = this.physicsObject;
+    if (!('setVelocity' in object)) throw new Error(`Character body '${this.runtimeId}' has no Arcade sprite backend.`);
+    return object as Phaser.Physics.Arcade.Sprite;
+  }
+
+  protected override createPhysicsGameObject(): Phaser.Physics.Arcade.Sprite | Phaser.GameObjects.Zone {
+    const physicsAdd = this.characterOptions.context.scene.physics.add as Phaser.Physics.Arcade.Factory & {
+      sprite?: (x: number, y: number, texture: string) => Phaser.Physics.Arcade.Sprite;
+    };
+    return physicsAdd.sprite
+      ? physicsAdd.sprite(0, 0, '__WHITE')
+      : this.characterOptions.context.scene.add.zone(0, 0, 1, 1);
+  }
+
   protected override beforeSynchronizeLogicalState(): void {
     if (!this.queuedTeleport) return;
     const transform = this.get_global_transform();

@@ -36,12 +36,12 @@ import { craftingService } from '../crafting/Crafting';
 import { reopenPendingLevelUpWhenIdle } from '../ui/LevelUpReopenPolicy';
 import { ModalStack } from '../ui/ModalStack';
 import { DisposableBag } from '../shared/lifecycle/Disposable';
-import { createPlayerEntity } from '../features/player/PlayerFactory';
 import { PlayerController } from '../features/player/PlayerController';
 import type { PlayerActorPort } from '../features/player/PlayerServicePorts';
 import { findVisualClipByRuntimeKey, getVisualClip } from '../content/visuals/VisualCatalog';
 import { animationCycleDurationMs } from '../shared/animationLoop';
-import { AnimatedVisual } from '../features/visuals/AnimatedVisual';
+import type { WorldVisual } from '../presentation/WorldVisual';
+import { UI_THEME } from '../presentation/theme';
 import { registerAllVisualSetAnimations } from '../features/visuals/AnimationRegistrar';
 import {
   clearOneShotNavigationParams,
@@ -98,7 +98,7 @@ interface WorldSceneData {
 export class WorldScene extends Phaser.Scene {
   private static sessionStarted = false;
   private player!: Phaser.Physics.Arcade.Sprite;
-  private playerVisual?: AnimatedVisual;
+  private playerVisual?: WorldVisual;
   private collisionTiles!: Phaser.Physics.Arcade.StaticGroup;
   private currentAnimation = 'slime-idle';
   private actionLocked = false;
@@ -212,6 +212,22 @@ export class WorldScene extends Phaser.Scene {
     this.npcRuntimeController = new NpcRuntimeController();
     this.buildWorld();
     this.questNpcController.finalize();
+    this.statusEffects = new StatusEffectManager();
+    this.healthSystem = new HealthSystem({
+      scene: this,
+      getPlayer: () => this.player,
+      getStatus: () => this.statusEffects!,
+      applyKnockback: (direction, strength, durationMs) => {
+        this.playerKnockbackUntil = Math.max(
+          this.playerKnockbackUntil,
+          this.time.now + durationMs,
+        );
+        this.playerController.applyKnockback(direction, strength, durationMs);
+        this.playAnimation('slime-knockback', true);
+      },
+      onHit: (result) => this.onPlayerHit(result),
+      onDeath: () => this.onPlayerDeath(),
+    });
     this.createPlayer();
     this.disposables.add(saveSystem.setLocationProvider(() => this.capturePlayerLocation()));
     this.depthDiagnostics = new DepthDiagnostics({
@@ -229,29 +245,15 @@ export class WorldScene extends Phaser.Scene {
     this.createHUD();
     this.createCollectibleReactions();
 
-    // Phase 1 systems: health, status, level-up modal, inventory UI
-    this.statusEffects = new StatusEffectManager();
-    this.healthSystem = new HealthSystem({
-      scene: this,
-      getPlayer: () => this.player,
-      getStatus: () => this.statusEffects!,
-      applyKnockback: (direction, strength, durationMs) => {
-        this.playerKnockbackUntil = Math.max(
-          this.playerKnockbackUntil,
-          this.time.now + durationMs,
-        );
-        this.playerController.applyKnockback(direction, strength, durationMs);
-        this.playAnimation('slime-knockback', true);
-      },
-      onHit: (result) => this.onPlayerHit(result),
-      onDeath: () => this.onPlayerDeath(),
-    });
+    // Phase 1 systems: health presentation, abilities, level-up modal, inventory UI
     this.healthBar = new HealthBar(this, this.player);
     this.abilitySystem = new AbilitySystem({
       scene: this,
       dimensions: this.worldDimensions,
       getPlayer: () => this.player,
       getPlayerVisual: () => this.playerVisual!,
+      stopPlayerMotion: () => this.stopPlayerMotion(),
+      teleportPlayer: (position) => this.teleportPlayer(position),
       isActionLocked: () => this.actionLocked,
       setActionLocked: (locked) => { this.actionLocked = locked; },
       getFacing: () => this.playerController.facing,
@@ -308,7 +310,6 @@ export class WorldScene extends Phaser.Scene {
       },
     });
     // Phase 2: combat system
-    this.createUniversalSceneWorld();
     this.createCombatSystem();
     this.weaponHotbar = new WeaponHotbar({
       scene: this,
@@ -409,7 +410,6 @@ export class WorldScene extends Phaser.Scene {
     this.depthDiagnostics?.destroy();
     this.depthDiagnostics = undefined;
     this.healthSystem?.destroy();
-    this.playerVisual?.destroy();
     this.playerVisual = undefined;
     if (this.levelUpNoticeHandler) {
       gameEvents.off('level.up', this.levelUpNoticeHandler);
@@ -732,12 +732,24 @@ export class WorldScene extends Phaser.Scene {
     const spawnPoint = restoredLocation && this.isValidSavedPosition(restoredLocation)
       ? new Phaser.Math.Vector2(restoredLocation.x, restoredLocation.y)
       : this.findSpawnPoint(this.getEntryAnchor());
-    const entity = createPlayerEntity(this, spawnPoint);
-    this.player = entity.sprite;
-    this.playerVisual = entity.visual;
+    this.createUniversalSceneWorld(spawnPoint);
+    this.player = this.universalWorld!.playerPhysicsSprite;
+    this.playerVisual = this.universalWorld!.playerPresentation;
+    const nameTag = this.add.text(this.player.x, this.player.y - 56, this.universalWorld!.managedPlayer.playerName, {
+      fontFamily: UI_THEME.fontFamily,
+      fontSize: '14px',
+      color: UI_THEME.colors.text,
+      stroke: UI_THEME.colors.shadow,
+      strokeThickness: 4,
+    }).setOrigin(0.5).setDepth(resolveWorldDepth(resolveBodyBottom(this.player.body as Phaser.Physics.Arcade.Body), {
+      stableId: 'player',
+      attachmentSlot: 7,
+    }).depth);
     this.playerController = new PlayerController({
       scene: this,
-      entity,
+      player: this.player,
+      visual: this.playerVisual,
+      nameTag,
       getMotion: () => this.playerMotion(),
       getInput: () => this.playerMotion(),
       getStatusEffects: () => this.statusEffects,
@@ -746,11 +758,11 @@ export class WorldScene extends Phaser.Scene {
     if (restoredLocation) this.applyFacing(restoredLocation.facing);
     this.occlusionController?.registerActor({
       id: 'player',
-      owner: entity.sprite,
-      visual: entity.visual,
-      getGroundAnchorY: () => resolveBodyBottom(entity.sprite.body as Phaser.Physics.Arcade.Body),
-      getDepth: () => entity.sprite.depth,
-      isEligible: () => entity.sprite.active,
+      owner: this.player,
+      visual: this.playerVisual,
+      getGroundAnchorY: () => resolveBodyBottom(this.player.body as Phaser.Physics.Arcade.Body),
+      getDepth: () => this.player.depth,
+      isEligible: () => this.player.active,
       silhouetteColor: 0x73d7ff,
     });
   }
@@ -1016,7 +1028,8 @@ export class WorldScene extends Phaser.Scene {
     }
 
     this.currentAnimation = key;
-    this.playerVisual?.play(key, !forceRestart);
+    const animationId = key.startsWith('slime-') ? key.slice('slime-'.length) : key;
+    this.universalWorld?.managedPlayer.playAnimation(animationId, forceRestart);
   }
 
   private handleActionInput(direction: Phaser.Math.Vector2): boolean {
@@ -1079,7 +1092,8 @@ export class WorldScene extends Phaser.Scene {
     this.currentAnimation = key;
     this.stopPlayerMotion();
     this.player.rotation = 0;
-    this.playerVisual?.play(clip.runtimeKey, true);
+    const animationId = key.startsWith('slime-') ? key.slice('slime-'.length) : key;
+    this.universalWorld?.managedPlayer.playAnimation(animationId);
 
     const unlock = () => {
       this.actionLocked = false;
@@ -1087,7 +1101,7 @@ export class WorldScene extends Phaser.Scene {
     };
 
     if (!clip.loop) {
-      this.playerVisual?.onceComplete(clip.runtimeKey, unlock);
+      this.time.delayedCall(Math.max(1, Math.round(animationCycleDurationMs(clip))), unlock);
       return;
     }
 
@@ -1378,7 +1392,7 @@ export class WorldScene extends Phaser.Scene {
     });
   }
 
-  private createUniversalSceneWorld(): void {
+  private createUniversalSceneWorld(playerSpawn: Readonly<{ x: number; y: number }>): void {
     const content = this.game.registry.get(PREPARED_SCENE_CONTENT_KEY);
     if (!(content instanceof PreparedSceneContent) || !this.scenePlacementBridge || !this.healthSystem) {
       throw new Error('WorldScene requires prepared universal scene content and initialized compatibility services.');
@@ -1388,14 +1402,13 @@ export class WorldScene extends Phaser.Scene {
       content,
       map: this.loadedMap.map,
       placementBridge: this.scenePlacementBridge,
-      player: this.player,
+      playerSpawn,
       collisionTiles: this.collisionTiles,
       health: this.healthSystem,
       progress: worldProgress,
       transaction: playerInventoryWorldTransaction,
       interactions: this.interactionRouter!,
       modalStack: this.modalStack!,
-      isPlayerActionLocked: () => this.actionLocked,
       setChestPaused: (paused) => this.setSimulationPaused('managed-chest', paused),
       showMessage: (x, y, message, color = 'white', important = false) => floatingText.spawn(this, x, y, message, color, important),
       updateLegacyFixed: (deltaMs) => this.updateLegacyFixed(deltaMs),
