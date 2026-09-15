@@ -1,5 +1,6 @@
 ﻿import Phaser from 'phaser';
-import type { AbilitySystem, AbilityId } from '../systems/AbilitySystem';
+import type { PlayerAbilityController } from '../features/player/PlayerAbilityController';
+import type { PlayerAbilityId } from '../features/player/PlayerAbilityDefinitions';
 import { resolveScreenUiDepth } from '../presentation/WorldDepth';
 import { createUiSkinImage } from '../presentation/UiSkin';
 
@@ -13,11 +14,11 @@ const FONT = 'Trebuchet MS, Segoe UI Variable, sans-serif';
 
 export interface AbilityBarContext {
   scene: Phaser.Scene;
-  getAbilitySystem: () => AbilitySystem | undefined;
+  getAbilitySystem: () => PlayerAbilityController | undefined;
 }
 
 interface Slot {
-  id: AbilityId;
+  id: PlayerAbilityId;
   key: string;
   bg: Phaser.GameObjects.Graphics;
   icon: Phaser.GameObjects.Text;
@@ -26,7 +27,7 @@ interface Slot {
   locked: Phaser.GameObjects.Text;
 }
 
-const DEFS: { id: AbilityId; key: string; glyph: string; hotkey: string }[] = [
+const DEFS: { id: PlayerAbilityId; key: string; glyph: string; hotkey: string }[] = [
   { id: 'jump', key: 'Space', glyph: 'J', hotkey: 'Space' },
   { id: 'squash-slam', key: 'T', glyph: 'S', hotkey: 'T' },
   { id: 'stretch-lash', key: 'R', glyph: 'L', hotkey: 'R' },

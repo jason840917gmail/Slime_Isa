@@ -1,20 +1,18 @@
 import Phaser from 'phaser';
 
-import { gameState } from '../core/GameState';
-import { isTileCollidable, type WorldTileId } from '../content/terrain/TileCatalog';
-import type { PlayerAbilityId } from '../features/player/PlayerAbilityDefinitions';
-import { PlayerAbilityPresentation } from '../features/player/PlayerAbilityPresentation';
-import { PlayerAbilityService } from '../features/player/PlayerAbilityService';
-import type { WorldVisual } from '../presentation/WorldVisual';
+import { gameState } from '../../core/GameState';
+import { isTileCollidable, type WorldTileId } from '../../content/terrain/TileCatalog';
+import type { PlayerAbilityId } from './PlayerAbilityDefinitions';
+import { PlayerAbilityPresentation } from './PlayerAbilityPresentation';
+import { PlayerAbilityService } from './PlayerAbilityService';
+import type { WorldVisual } from '../../presentation/WorldVisual';
 import {
   LegacyPlayerAbilityPresentation,
   type LegacyPlayerAbilityPresentationContext,
-} from '../infrastructure/scenes/compatibility/LegacyPlayerAbilityPresentation';
-import type { WorldDimensions } from '../world/WorldDimensions';
+} from '../../infrastructure/scenes/compatibility/LegacyPlayerAbilityPresentation';
+import type { WorldDimensions } from '../../world/WorldDimensions';
 
-export type AbilityId = PlayerAbilityId;
-
-export interface AbilitySystemContext extends LegacyPlayerAbilityPresentationContext {
+export interface PlayerAbilityControllerContext extends LegacyPlayerAbilityPresentationContext {
   dimensions: WorldDimensions;
   getPlayer: () => Phaser.Physics.Arcade.Sprite;
   getPlayerVisual: () => WorldVisual;
@@ -30,11 +28,11 @@ export interface AbilitySystemContext extends LegacyPlayerAbilityPresentationCon
  * Compatibility facade for current callers. Decisions and presentation leases
  * are player-feature objects; Phaser rendering lives in the temporary backend.
  */
-export class AbilitySystem {
+export class PlayerAbilityController {
   private readonly decisions: PlayerAbilityService;
   private readonly presentation: PlayerAbilityPresentation;
 
-  constructor(private readonly context: AbilitySystemContext) {
+  constructor(private readonly context: PlayerAbilityControllerContext) {
     this.decisions = new PlayerAbilityService({
       nowMs: () => context.scene.time.now,
       state: {
@@ -58,11 +56,11 @@ export class AbilitySystem {
     this.presentation = new PlayerAbilityPresentation(new LegacyPlayerAbilityPresentation(context));
   }
 
-  unlockLevel(ability: AbilityId): number {
+  unlockLevel(ability: PlayerAbilityId): number {
     return this.decisions.unlockLevel(ability);
   }
 
-  isUnlocked(ability: AbilityId): boolean {
+  isUnlocked(ability: PlayerAbilityId): boolean {
     return this.decisions.isUnlocked(ability);
   }
 
@@ -93,7 +91,7 @@ export class AbilitySystem {
     this.decisions.cancel();
   }
 
-  private tryAbility(abilityId: AbilityId, direction?: Phaser.Math.Vector2): boolean {
+  private tryAbility(abilityId: PlayerAbilityId, direction?: Phaser.Math.Vector2): boolean {
     const player = this.context.getPlayer();
     const facing = this.context.getFacing();
     const decision = this.decisions.tryBegin(abilityId, {

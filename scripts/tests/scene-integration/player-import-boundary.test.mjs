@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { access, readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 const domainFiles = [
@@ -38,4 +38,15 @@ test('production player construction has no PlayerFactory or compatibility proxy
   assert.doesNotMatch(universalWorld, /\.visible\s*=\s*false/);
   assert.match(universalWorld, /playerPhysicsSprite/);
   assert.match(universalWorld, /playerPresentation/);
+});
+
+test('legacy player wrappers do not remain domain systems', async () => {
+  await assert.rejects(access('src/game/systems/AbilitySystem.ts'));
+  await assert.rejects(access('src/game/systems/HealthSystem.ts'));
+  const [abilityController, healthAdapter] = await Promise.all([
+    readFile('src/game/features/player/PlayerAbilityController.ts', 'utf8'),
+    readFile('src/game/infrastructure/scenes/compatibility/LegacyPlayerHealthAdapter.ts', 'utf8'),
+  ]);
+  assert.match(abilityController, /class PlayerAbilityController/);
+  assert.match(healthAdapter, /class LegacyPlayerHealthAdapter/);
 });

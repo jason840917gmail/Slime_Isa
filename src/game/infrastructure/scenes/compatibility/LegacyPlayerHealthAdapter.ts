@@ -1,18 +1,18 @@
 import Phaser from 'phaser';
-import { gameState } from '../core/GameState';
-import { gameEvents } from '../core/EventBus';
-import { getStats } from './PlayerStats';
-import type { StatusEffectManager } from './StatusEffects';
-import { PlayerHealthService } from '../features/player/PlayerHealthService';
-import type { DamageAreaRule } from '../features/combat/DamageReceiver';
+import { gameState } from '../../../core/GameState';
+import { gameEvents } from '../../../core/EventBus';
+import { getStats } from '../../../systems/PlayerStats';
+import type { StatusEffectManager } from '../../../systems/StatusEffects';
+import { PlayerHealthService } from '../../../features/player/PlayerHealthService';
+import type { DamageAreaRule } from '../../../features/combat/DamageReceiver';
 import type {
   DamageCommit,
   DamageMitigationInput,
   DamageReceiver,
-} from '../features/combat/DamageReceiver';
+} from '../../../features/combat/DamageReceiver';
 
 /**
- * HealthSystem handles the damage pipeline for the player:
+ * Transitional adapter for legacy callers of the player damage pipeline:
  *
  *   incoming → defense mitigation → status modifiers → apply
  *            → i-frames → knockback → flash → event → death check
@@ -21,7 +21,7 @@ import type {
  * manager. Knockback applied via the arcade body.
  */
 
-export interface HealthSystemContext {
+export interface LegacyPlayerHealthAdapterContext {
   scene: Phaser.Scene;
   getPlayer: () => Phaser.Physics.Arcade.Sprite;
   getStatus: () => StatusEffectManager;
@@ -61,11 +61,11 @@ export interface RejectedDamageResult {
 
 export type DamageResult = AcceptedDamageResult | RejectedDamageResult;
 
-export class HealthSystem implements DamageReceiver {
+export class LegacyPlayerHealthAdapter implements DamageReceiver {
   private readonly playerHealth: PlayerHealthService;
   private legacyActivationSequence = 0;
 
-  constructor(private readonly ctx: HealthSystemContext) {
+  constructor(private readonly ctx: LegacyPlayerHealthAdapterContext) {
     this.playerHealth = new PlayerHealthService('legacy:player', {
       state: {
         getHp: () => gameState.hp,
@@ -102,7 +102,7 @@ export class HealthSystem implements DamageReceiver {
     return this.playerHealth.runtimeNodeId;
   }
 
-  get managedReceiver(): HealthSystem {
+  get managedReceiver(): LegacyPlayerHealthAdapter {
     return this;
   }
 
