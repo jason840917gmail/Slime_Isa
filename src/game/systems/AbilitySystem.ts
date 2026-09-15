@@ -5,7 +5,7 @@ import { isTileCollidable, type WorldTileId } from '../content/terrain/TileCatal
 import type { PlayerAbilityId } from '../features/player/PlayerAbilityDefinitions';
 import { PlayerAbilityPresentation } from '../features/player/PlayerAbilityPresentation';
 import { PlayerAbilityService } from '../features/player/PlayerAbilityService';
-import type { AnimatedVisual } from '../features/visuals/AnimatedVisual';
+import type { WorldVisual } from '../presentation/WorldVisual';
 import {
   LegacyPlayerAbilityPresentation,
   type LegacyPlayerAbilityPresentationContext,
@@ -17,7 +17,7 @@ export type AbilityId = PlayerAbilityId;
 export interface AbilitySystemContext extends LegacyPlayerAbilityPresentationContext {
   dimensions: WorldDimensions;
   getPlayer: () => Phaser.Physics.Arcade.Sprite;
-  getPlayerVisual: () => AnimatedVisual;
+  getPlayerVisual: () => WorldVisual;
   isActionLocked: () => boolean;
   setActionLocked: (locked: boolean) => void;
   getFacing: () => Phaser.Math.Vector2;

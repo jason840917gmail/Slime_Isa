@@ -10,33 +10,19 @@ import {
 } from '../../content/visuals/VisualCatalog';
 import { getAsset } from '../../infrastructure/assets/manifest';
 import { resolvePhysicsPresentationPosition } from '../../presentation/PhysicsPresentation';
+import type {
+  WorldVisual,
+  WorldVisualEffects,
+  WorldVisualRenderState,
+} from '../../presentation/WorldVisual';
 
 type VisualAnchor = Phaser.GameObjects.GameObject & {
   readonly x: number;
   readonly y: number;
 };
 
-export interface AnimatedVisualRenderState {
-  readonly textureKey: string;
-  readonly frame: number | string;
-  readonly sourceFrame: { readonly width: number; readonly height: number };
-  readonly x: number;
-  readonly y: number;
-  readonly originX: number;
-  readonly originY: number;
-  readonly scaleX: number;
-  readonly scaleY: number;
-  readonly alpha: number;
-  readonly flipX: boolean;
-  readonly flipY: boolean;
-  readonly rotation: number;
-}
-
-export interface VisualEffects {
-  scaleX: number;
-  scaleY: number;
-  alpha: number;
-}
+export type AnimatedVisualRenderState = WorldVisualRenderState;
+export type VisualEffects = WorldVisualEffects;
 
 export interface AnimatedVisualOptions {
   readonly depth?: number;
@@ -50,9 +36,9 @@ export interface AnimatedVisualOptions {
  * Visual-set transforms and temporary effects are applied only to this
  * sprite. They never resize or relocate the anchor's Arcade body.
  */
-export class AnimatedVisual {
+export class AnimatedVisual implements WorldVisual {
   readonly sprite: Phaser.GameObjects.Sprite;
-  readonly effects: VisualEffects = { scaleX: 1, scaleY: 1, alpha: 1 };
+  readonly effects: VisualEffects = { scaleX: 1, scaleY: 1, alpha: 1, offsetX: 0, offsetY: 0 };
 
   private frameIndex: number;
   private activeClipId?: string;
@@ -158,6 +144,8 @@ export class AnimatedVisual {
     this.effects.scaleX = 1;
     this.effects.scaleY = 1;
     this.effects.alpha = 1;
+    this.effects.offsetX = 0;
+    this.effects.offsetY = 0;
     this.applyTransform();
     return this;
   }
@@ -247,7 +235,10 @@ export class AnimatedVisual {
       .setOrigin(this.transform.origin[0], this.transform.origin[1])
       .setScale(resolvedScaleX, resolvedScaleY)
       .setAlpha(this.effects.alpha)
-      .setPosition(anchorPosition.x + offsetX, anchorPosition.y + offsetY);
+      .setPosition(
+        anchorPosition.x + offsetX + this.effects.offsetX,
+        anchorPosition.y + offsetY + this.effects.offsetY,
+      );
     this.sprite.setDepth(this.depthResolver?.() ?? this.depth);
   }
 

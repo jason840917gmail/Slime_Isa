@@ -123,6 +123,10 @@ export class PlayerScript extends CharacterScript implements DamageReceiver, Pla
     this.requirePorts().stop();
   }
 
+  playAnimation(animationId: string, forceRestart = false): boolean {
+    return this.requirePorts().play(animationId, forceRestart);
+  }
+
   getMovementInput(): CharacterPoint {
     return {
       x: Number(this.heldInput.has('move-right')) - Number(this.heldInput.has('move-left')),

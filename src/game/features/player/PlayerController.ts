@@ -4,15 +4,17 @@ import { gameState } from '../../core/GameState';
 import { floatingText } from '../../ui/FloatingText';
 import type { StatusEffectManager } from '../../systems/StatusEffects';
 import { getStats, resolveMovementSpeed } from '../../systems/PlayerStats';
-import type { PlayerEntity } from './PlayerFactory';
 import { resolveBodyBottom, resolveWorldDepth } from '../../presentation/WorldDepth';
 import { resolvePhysicsPresentationPosition } from '../../presentation/PhysicsPresentation';
-import type { PlayerInputPort, PlayerMotionPort } from './PlayerServicePorts';
+import type { WorldVisual } from '../../presentation/WorldVisual';
+import type { PlayerActorPort, PlayerInputPort } from './PlayerServicePorts';
 
 export interface PlayerControllerContext {
   scene: Phaser.Scene;
-  entity: PlayerEntity;
-  getMotion: () => PlayerMotionPort;
+  player: Phaser.Physics.Arcade.Sprite;
+  visual: WorldVisual;
+  nameTag: Phaser.GameObjects.Text;
+  getMotion: () => PlayerActorPort;
   getInput: () => PlayerInputPort;
   getStatusEffects: () => StatusEffectManager | undefined;
   playAnimation: (key: string) => void;
@@ -30,15 +32,16 @@ export class PlayerController {
   }
 
   updateVisuals(): void {
-    const { sprite, visual, nameTag } = this.ctx.entity;
-    visual.update();
-    const body = sprite.body as Phaser.Physics.Arcade.Body;
+    const { player, nameTag } = this.ctx;
+    const authoredPosition = this.ctx.getMotion().getPosition();
+    player.setPosition(authoredPosition.x, authoredPosition.y);
+    const body = player.body as Phaser.Physics.Arcade.Body;
     const presentationPosition = resolvePhysicsPresentationPosition(
       this.ctx.scene,
-      sprite,
+      player,
       this.presentationPosition,
     );
-    sprite.setDepth(resolveWorldDepth(resolveBodyBottom(body), { stableId: 'player' }).depth);
+    player.setDepth(resolveWorldDepth(resolveBodyBottom(body), { stableId: 'player' }).depth);
     nameTag
       .setPosition(presentationPosition.x, presentationPosition.y - 56)
       .setDepth(resolveWorldDepth(resolveBodyBottom(body), {
@@ -48,7 +51,7 @@ export class PlayerController {
   }
 
   move(direction: Phaser.Math.Vector2): void {
-    const player = this.ctx.entity.sprite;
+    const player = this.ctx.player;
     if (this.ctx.getMotion().isMovementSuppressed()) {
       player.rotation = 0;
       return;
@@ -76,13 +79,13 @@ export class PlayerController {
     player.rotation = 0;
 
     if (direction.lengthSq() === 0) {
-      this.ctx.entity.visual.setFlipX(false);
+      this.ctx.visual.setFlipX(false);
       this.ctx.playAnimation('slime-idle');
       return;
     }
 
     this.facing.set(direction.x, direction.y).normalize();
-    this.ctx.entity.visual.setFlipX(
+    this.ctx.visual.setFlipX(
       Math.abs(direction.x) >= Math.abs(direction.y) && direction.x > 0,
     );
 
@@ -94,7 +97,7 @@ export class PlayerController {
 
   tryDodge(direction: Phaser.Math.Vector2): boolean {
     const scene = this.ctx.scene;
-    const player = this.ctx.entity.sprite;
+    const player = this.ctx.player;
     const dodgeDirection = direction.lengthSq() > 0
       ? direction.clone().normalize()
       : this.facing.clone().normalize();
