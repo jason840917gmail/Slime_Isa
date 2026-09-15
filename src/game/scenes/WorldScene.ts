@@ -9,13 +9,13 @@ import { gameState } from '../core/GameState';
 import { gameEvents } from '../core/EventBus';
 import { saveSystem } from '../core/SaveSystem';
 import {
-  HealthSystem,
+  LegacyPlayerHealthAdapter,
   type AcceptedDamageResult,
   type DamageRequest,
-} from '../systems/HealthSystem';
+} from '../infrastructure/scenes/compatibility/LegacyPlayerHealthAdapter';
 import { StatusEffectManager } from '../systems/StatusEffects';
 import { getStats } from '../systems/PlayerStats';
-import { AbilitySystem } from '../systems/AbilitySystem';
+import { PlayerAbilityController } from '../features/player/PlayerAbilityController';
 import { playerInventory, itemRegistry, weaponItemFor } from '../systems/Inventory';
 import { playerWeaponLoadout } from '../systems/WeaponLoadout';
 import { floatingText } from '../ui/FloatingText';
@@ -114,7 +114,7 @@ export class WorldScene extends Phaser.Scene {
   private worldDrops?: WorldDropSpawner;
   private inventoryDrops?: InventoryDropController;
   private playerController!: PlayerController;
-  private healthSystem?: HealthSystem;
+  private healthSystem?: LegacyPlayerHealthAdapter;
   private statusEffects?: StatusEffectManager;
   private healthBar?: HealthBar;
   private levelUpModal?: LevelUpModal;
@@ -131,7 +131,7 @@ export class WorldScene extends Phaser.Scene {
   private universalWorld?: UniversalSceneWorldController;
   private scenePlacementBridge?: LegacyMapPlacementBridge;
   private questNotifications?: QuestNotificationPresenter;
-  private abilitySystem?: AbilitySystem;
+  private abilitySystem?: PlayerAbilityController;
   private weaponHotbar?: WeaponHotbar;
   private iFrameFlashActive = false;
   private playerKnockbackUntil = 0;
@@ -213,7 +213,7 @@ export class WorldScene extends Phaser.Scene {
     this.buildWorld();
     this.questNpcController.finalize();
     this.statusEffects = new StatusEffectManager();
-    this.healthSystem = new HealthSystem({
+    this.healthSystem = new LegacyPlayerHealthAdapter({
       scene: this,
       getPlayer: () => this.player,
       getStatus: () => this.statusEffects!,
@@ -247,7 +247,7 @@ export class WorldScene extends Phaser.Scene {
 
     // Phase 1 systems: health presentation, abilities, level-up modal, inventory UI
     this.healthBar = new HealthBar(this, this.player);
-    this.abilitySystem = new AbilitySystem({
+    this.abilitySystem = new PlayerAbilityController({
       scene: this,
       dimensions: this.worldDimensions,
       getPlayer: () => this.player,

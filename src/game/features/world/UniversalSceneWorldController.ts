@@ -64,7 +64,7 @@ import {
 } from '../scripts/NpcScript';
 import { PLAYER_HEALTH_SERVICE, PlayerScript } from '../scripts/PlayerScript';
 import { PLAYER_INPUT_ACTIONS } from '../player/PlayerInputActions';
-import type { HealthSystem } from '../../systems/HealthSystem';
+import type { LegacyPlayerHealthAdapter } from '../../infrastructure/scenes/compatibility/LegacyPlayerHealthAdapter';
 import type { ModalStack } from '../../ui/ModalStack';
 import { ChestInventoryPanel } from '../../ui/ChestInventoryPanel';
 import { BossHealthBar } from '../../ui/BossHealthBar';
@@ -77,7 +77,7 @@ export interface UniversalSceneWorldControllerOptions {
   readonly placementBridge: LegacyMapPlacementBridge;
   readonly playerSpawn: Readonly<{ x: number; y: number }>;
   readonly collisionTiles: Phaser.Physics.Arcade.StaticGroup;
-  readonly health: HealthSystem;
+  readonly health: LegacyPlayerHealthAdapter;
   readonly progress: WorldProgress;
   readonly transaction: InventoryWorldTransaction;
   readonly interactions: InteractionRouter;
