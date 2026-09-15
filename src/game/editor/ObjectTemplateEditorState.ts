@@ -267,7 +267,7 @@ export class ObjectTemplateEditorState {
     this.draftValue = undefined;
     this.errorsValue = {};
     this.dirtyValue = false;
-    this.statusValue = 'NPC presentation is edited in Character Studio';
+    this.statusValue = 'NPC presentation is edited in Scene Studio';
     this.revisionValue += 1;
     this.emit();
   }

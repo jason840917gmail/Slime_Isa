@@ -877,7 +877,7 @@ function renderWeaponLibrary(state: StudioState, returnEditor: string): string {
     search: state.librarySearch,
     expandedFolders: state.expandedFolders,
     selectedWeaponId: state.selectedId,
-    footerHtml: `<button type="button" class="studio-button studio-button--outline" data-action="new-weapon">NEW WEAPON</button><a class="studio-button studio-button--outline studio-button--navigation" href="?studio=characters&amp;editor=${encodeURIComponent(returnEditor)}">↗ CHARACTER STUDIO</a>`,
+    footerHtml: `<button type="button" class="studio-button studio-button--outline" data-action="new-weapon">NEW WEAPON</button><a class="studio-button studio-button--outline studio-button--navigation" href="?studio=scenes&amp;editor=${encodeURIComponent(returnEditor)}">↗ SCENE STUDIO</a>`,
   });
 }
 

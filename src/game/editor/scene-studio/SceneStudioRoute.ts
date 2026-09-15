@@ -5,6 +5,17 @@ export interface SceneStudioRoute {
   readonly scene?: SceneId;
 }
 
+export function redirectLegacyCharacterStudioRoute(search: string): string | undefined {
+  const query = new URLSearchParams(search.startsWith('?') ? search.slice(1) : search);
+  if (query.get('studio') !== 'characters') return undefined;
+  const character = query.get('character')?.trim();
+  query.delete('character');
+  return formatSceneStudioRoute({
+    active: true,
+    ...(character ? { scene: sceneId(`character.${character}`) } : {}),
+  }, query.toString());
+}
+
 export function parseSceneStudioRoute(search: string): SceneStudioRoute {
   const query = new URLSearchParams(search.startsWith('?') ? search.slice(1) : search);
   if (query.get('studio') !== 'scenes') return { active: false };

@@ -4522,7 +4522,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "character:fatty-one-eye",
@@ -4564,7 +4564,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "character:lili",
@@ -4606,7 +4606,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "character:mossy-scout",
@@ -4648,7 +4648,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "character:player-slime",
@@ -4690,7 +4690,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "character:red-slime-boy",
@@ -4732,7 +4732,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "character:slime-spider",
@@ -4774,7 +4774,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "character:village-elder-plop",
@@ -4816,7 +4816,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "character:worm-archer",
@@ -4858,7 +4858,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "character:worm-brawler",
@@ -4900,7 +4900,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "character:worm-swordsman",
@@ -4942,7 +4942,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "character:yellow-blond-slime-girl",
@@ -4984,7 +4984,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "effect:basic-spear-impact",
@@ -5216,7 +5216,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "enemy:worm-brawler",
@@ -5253,7 +5253,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "enemy:worm-swordsman",
@@ -5290,7 +5290,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "game-constants:global",

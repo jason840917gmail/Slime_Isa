@@ -24,7 +24,12 @@ const unitKeys = [
 ];
 
 async function createRunner() {
-  const ledger = JSON.parse(await readFile(path.join(repositoryRoot, 'scripts/migrations/universal-scene-conversion-ledger.json'), 'utf8'));
+  const productionLedger = JSON.parse(await readFile(path.join(repositoryRoot, 'scripts/migrations/universal-scene-conversion-ledger.json'), 'utf8'));
+  const replayUnitKeys = new Set(unitKeys);
+  const ledger = {
+    ...productionLedger,
+    rows: productionLedger.rows.map((row) => replayUnitKeys.has(row.key) ? { ...row, writerState: 'legacy' } : row),
+  };
   const manifest = JSON.parse(await readFile(path.join(repositoryRoot, 'asset/assets.json'), 'utf8'));
   return new ConversionRunner({
     repositoryRoot,

@@ -86,6 +86,7 @@ export interface CharacterContentRootOptions {
   readonly assetManifestPath?: string;
   readonly gameConstantsPath?: string;
   readonly sceneOwnedCharacterIds?: ReadonlySet<string>;
+  readonly characterAuthoring?: 'writable' | 'read-only';
 }
 
 async function readResourceTags(gameConstantsPath: string): Promise<ReadonlySet<string>> {
@@ -1432,6 +1433,7 @@ export function characterContentModulesPlugin(options: CharacterContentRootOptio
     assetManifestPath,
     gameConstantsPath: path.resolve(options.gameConstantsPath ?? path.join(process.cwd(), 'src/game/content/game-constants.json')),
     sceneOwnedCharacterIds: options.sceneOwnedCharacterIds ?? new Set(),
+    characterAuthoring: options.characterAuthoring ?? 'writable',
   };
   const invalidate = (server: ViteDevServer): void => invalidateCatalog(server);
   return {
@@ -1498,6 +1500,7 @@ export function characterContentModulesPlugin(options: CharacterContentRootOptio
         void next;
       });
       server.middlewares.use('/__character-studio/create', (request, response, next) => {
+        if (roots.characterAuthoring === 'read-only') { jsonResponse(response, 409, failure('scene-owned', 'Character authoring is owned by Scene Studio.')); return; }
         if (request.method !== 'POST') { jsonResponse(response, 405, failure('invalid-request', 'POST required')); return; }
         void unifiedCharacterCreationHandler(roots.characterRoot, roots.assetRoot, roots.assetManifestPath, request, response, server).catch((error: unknown) => {
           jsonResponse(response, 400, failure('character-creation', error instanceof Error ? error.message : String(error)));
@@ -1505,6 +1508,7 @@ export function characterContentModulesPlugin(options: CharacterContentRootOptio
         void next;
       });
       server.middlewares.use('/__character-studio/package/create', (request, response, next) => {
+        if (roots.characterAuthoring === 'read-only') { jsonResponse(response, 409, failure('scene-owned', 'Character authoring is owned by Scene Studio.')); return; }
         if (request.method !== 'POST') { jsonResponse(response, 405, failure('invalid-request', 'POST required')); return; }
         void packageCreationHandler(roots.characterRoot, roots.assetRoot, roots.assetManifestPath, request, response, server).catch((error: unknown) => {
           jsonResponse(response, 400, failure('package-creation', error instanceof Error ? error.message : String(error)));
@@ -1512,6 +1516,7 @@ export function characterContentModulesPlugin(options: CharacterContentRootOptio
         void next;
       });
       server.middlewares.use('/__character-studio/package/update', (request, response, next) => {
+        if (roots.characterAuthoring === 'read-only') { jsonResponse(response, 409, failure('scene-owned', 'Character authoring is owned by Scene Studio.')); return; }
         if (request.method !== 'POST') { jsonResponse(response, 405, failure('invalid-request', 'POST required')); return; }
         void packageHandler(roots.characterRoot, roots.assetManifestPath, request, response, server, 'update', undefined, roots.sceneOwnedCharacterIds).catch((error: unknown) => {
           jsonResponse(response, 400, failure('unknown-commit', error instanceof Error ? error.message : String(error)));
@@ -1519,6 +1524,7 @@ export function characterContentModulesPlugin(options: CharacterContentRootOptio
         void next;
       });
       server.middlewares.use('/__character-studio/package/duplicate', (request, response, next) => {
+        if (roots.characterAuthoring === 'read-only') { jsonResponse(response, 409, failure('scene-owned', 'Character authoring is owned by Scene Studio.')); return; }
         void packageHandler(roots.characterRoot, roots.assetManifestPath, request, response, server, 'duplicate', undefined, roots.sceneOwnedCharacterIds).catch((error: unknown) => {
           jsonResponse(response, 400, failure('unknown-commit', error instanceof Error ? error.message : String(error)));
         });
