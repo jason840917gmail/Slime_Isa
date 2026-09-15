@@ -1,12 +1,16 @@
 import type { DamageAreaRule } from '../../../features/combat/DamageReceiver';
 import type { DamageRouter } from '../../../features/combat/DamageRouter';
-import type { PlayerHealthService } from '../../../features/player/PlayerHealthService';
+import type { DamageReceiver } from '../../../features/combat/DamageReceiver';
 import type { PlayerRuntimePorts } from '../../../features/player/PlayerServicePorts';
 import type { EnemyTargetService, EnemyTargetSnapshot } from '../../../features/scripts/EnemyScript';
 
 export interface LegacyPlayerSensorSnapshot {
   readonly areaNodeId: string;
   readonly bounds: Readonly<{ x: number; y: number; width: number; height: number }>;
+}
+
+export interface LegacyPlayerHealthPort extends DamageReceiver {
+  isDead(): boolean;
 }
 
 export class LegacyPlayerBridge implements EnemyTargetService {
@@ -16,7 +20,7 @@ export class LegacyPlayerBridge implements EnemyTargetService {
 
   constructor(
     private readonly router: DamageRouter,
-    readonly health: PlayerHealthService,
+    readonly health: LegacyPlayerHealthPort,
     readonly player: PlayerRuntimePorts,
     areaNodeId = 'legacy.player.damage-area',
   ) {

@@ -60,6 +60,17 @@ The recorded full-suite comparison run used the procedure above:
 
 Both runs destroyed the game and reached zero remaining fixture canvases. Load time includes cold module/asset startup within the fresh browser document and is therefore not expected to scale only with map size; the final comparison must use the same order and procedure.
 
+## Work Package 9 replacement comparison
+
+The first live replacement run was captured on 2026-09-14 with the same browser suite and procedure after Worm Brawler, Fatty, the Level 1 camp, and its guarded chest were routed through the universal runtime. The suite also ran a Level 1 ownership check proving one managed camp, one managed chest, managed Worm and Fatty instances, zero corresponding legacy instances, an unpaused runtime, and complete canvas cleanup.
+
+| Map | Load ms | Median frame ms | p95 frame ms | Phaser objects | Arcade bodies | Cleanup count |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| `test-rectangle` | 4786.4 | 17.7 | 18.2 | 62 | 2 | 64 |
+| `tiktok` | 4209.2 | 17.6 | 18.4 | 5064 | 1271 | 6335 |
+
+Relative to the pre-refactor baseline, the small map changed by +520.5 ms load, +1.0 ms median, +1.4 ms p95, and no object/body count change. The large map changed by -165.0 ms load, +0.9 ms median, +1.6 ms p95, -1 Phaser object, and +2 Arcade bodies. Wall-clock frame sampling is display- and machine-load-sensitive; the structural counts and passing deterministic fixed-step/browser lifecycle assertions are the stable regression evidence for this checkpoint.
+
 ## Content hashes
 
 Asset-manifest and per-map SHA-256 values are recorded in `universal-scene-conversion-ledger.md`, generated from the same inventory command as the machine ledger.

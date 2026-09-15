@@ -161,9 +161,21 @@ test('native circle bodies use their authored radius for blocking', () => {
   host.shutdown();
 });
 
+test('elliptical blocking bodies use their conservative authored bounds in Arcade', () => {
+  const { scene } = fakePhaser();
+  const context = new t.PhaserNodeContext(scene, new Map([resource('ellipse', { shape: 'ellipse', radiusX: 8, radiusY: 3 })]));
+  const body = new t.CharacterBody2DNode({ runtimeId: 'ellipse/body', name: 'EllipseBody', context });
+  body.add_child(shapeNode(context, 'ellipse/shape', 'ellipse'));
+  const tree = new t.SceneTree();
+  tree.setRoot(body);
+  assert.equal(body.physicsObject.body.width, 16);
+  assert.equal(body.physicsObject.body.height, 6);
+  tree.shutdown();
+  context.shutdown();
+});
+
 test('blocking nodes reject unsupported geometry, multiple enabled shapes, rotation, and non-uniform circles', () => {
   const invalidCases = [
-    { resource: { shape: 'ellipse', radiusX: 5, radiusY: 3 }, extraShape: false, body: {} },
     { resource: { shape: 'rectangle', width: 5, height: 5 }, extraShape: true, body: {} },
     { resource: { shape: 'rectangle', width: 5, height: 5 }, extraShape: false, body: { rotation: 0.2 } },
     { resource: { shape: 'circle', radius: 5 }, extraShape: false, body: { scale: { x: 2, y: 1 } } },

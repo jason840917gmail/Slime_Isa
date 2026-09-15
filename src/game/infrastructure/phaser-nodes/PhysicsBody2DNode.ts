@@ -114,7 +114,7 @@ export abstract class PhysicsBody2DNode extends Node2D implements CollisionShape
     if (enabled.length !== 1) throw new Error(`${this.constructor.name} '${this.name}' requires exactly one enabled CollisionShape2D while collision is enabled`);
     const shape = enabled[0];
     const geometry = shape.worldShape();
-    if (geometry.shape !== 'rectangle' && geometry.shape !== 'circle') throw new Error(`${this.constructor.name} '${this.name}' only supports rectangle or circle blocking geometry`);
+    if (geometry.shape === 'sector') throw new Error(`${this.constructor.name} '${this.name}' only supports rectangle, circle, or ellipse blocking geometry`);
     return shape;
   }
 
@@ -125,15 +125,25 @@ export abstract class PhysicsBody2DNode extends Node2D implements CollisionShape
     if (!this._collisionEnabled) { body.enable = false; return; }
     this.beforeSynchronizeLogicalState();
     const shape = this.enabledShape().worldShape();
-    if (shape.shape !== 'rectangle' && shape.shape !== 'circle') throw new Error(`${this.constructor.name} '${this.name}' only supports rectangle or circle blocking geometry`);
+    if (shape.shape === 'sector') throw new Error(`${this.constructor.name} '${this.name}' only supports rectangle, circle, or ellipse blocking geometry`);
     const anchor = this.get_global_transform().position;
     const center = centers(shape);
     this.centerOffset = { x: center.x - anchor.x, y: center.y - anchor.y };
-    const signature = shape.shape === 'rectangle' ? `rectangle:${shape.width}:${shape.height}` : `circle:${shape.radius}`;
+    const signature = shape.shape === 'rectangle'
+      ? `rectangle:${shape.width}:${shape.height}`
+      : shape.shape === 'ellipse'
+        ? `ellipse:${shape.radiusX}:${shape.radiusY}`
+        : `circle:${shape.radius}`;
     if (signature !== this.configuredShapeSignature) {
       if (shape.shape === 'rectangle') {
         zone.setSize(shape.width, shape.height);
         body.setSize(shape.width, shape.height, true);
+      } else if (shape.shape === 'ellipse') {
+        const width = shape.radiusX * 2;
+        const height = shape.radiusY * 2;
+        // Arcade has no ellipse body; match the legacy runtime's conservative bounds contract.
+        zone.setSize(width, height);
+        body.setSize(width, height, true);
       } else if (shape.shape === 'circle') {
         zone.setSize(shape.radius * 2, shape.radius * 2);
         body.setCircle(shape.radius, 0, 0);

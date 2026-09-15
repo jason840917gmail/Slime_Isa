@@ -114,6 +114,7 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
   get runtimeNodeId(): string { return this.runtimeId; }
   get runtimeState(): EnemyRuntimeState { return this.runtimeStateValue; }
   get simulationTime(): number { return this.simulationTimeMs; }
+  get worldPosition(): CharacterPoint { return this.body().get_global_transform().position; }
 
   getDamageState() {
     return { hp: this.hpValue, maxHp: this.maxHealth, dead: this.defeatedValue };
@@ -310,7 +311,7 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
       weaponTags: ['enemy', 'contact'],
       damageTypes: ['physical'],
       baseDamage,
-      effects: [],
+      effects: this.knockbackEffects(),
       impact: { x: origin.x, y: origin.y, knockX: movement.x, knockY: movement.y },
     }], this.simulationTimeMs);
     this.attackActivations.end(activationId);
@@ -319,6 +320,7 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
   private stopBody(): void {
     const body = this.getReference<Node>('body')?.configuredTarget;
     if (body && 'velocity' in body) (body as unknown as VelocityNode).velocity = { x: 0, y: 0 };
+    if (body && 'collisionEnabled' in body) (body as unknown as { collisionEnabled: boolean }).collisionEnabled = false;
   }
 
   private beginRuntimeAttack(direction: CharacterPoint): void {
@@ -352,7 +354,7 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
       weaponTags: ['enemy', 'contact'],
       damageTypes: ['physical'],
       baseDamage: this.attributeNumber('contactDamage', 0),
-      effects: [],
+      effects: this.knockbackEffects(),
       impact: {
         x: origin.x,
         y: origin.y,
@@ -389,6 +391,11 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
     if (!isRecord(attributes)) return fallback;
     const value = attributes[key];
     return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
+  }
+
+  private knockbackEffects(): readonly { readonly effectId: string; readonly potency: number }[] {
+    const potency = this.attributeNumber('knockbackStrength', 0);
+    return potency > 0 ? [{ effectId: 'knockback', potency }] : [];
   }
 
   protected override _duplicateSelf(runtimeId: RuntimeNodeId): EnemyScript {

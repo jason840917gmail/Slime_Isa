@@ -71,6 +71,7 @@ interface MapBuilderContext {
   readonly onNpcPresentationEvent?: (event: CharacterTrackEvent, instanceId: string) => void;
   readonly onTerrainBuilt?: (terrainGrid: WorldTileId[][]) => void;
   readonly registerOccluder?: (registration: ObjectOccluderRegistration) => { dispose(): void };
+  readonly shouldBuildObject?: (instance: MapFile['objects'][number]) => boolean;
 }
 
 /** Builds validated authored-map data through the same tile/object factories as runtime content. */
@@ -124,6 +125,7 @@ export class MapBuilder {
 
     const npcActors: NpcActor[] = [];
     for (const object of this.ctx.map.objects) {
+      if (this.ctx.shouldBuildObject?.(object) === false) continue;
       if (!isObjectArchetypeId(object.objectId)) {
         throw new Error(`Map '${this.ctx.map.mapId}' reached MapBuilder with invalid object '${object.objectId}'`);
       }

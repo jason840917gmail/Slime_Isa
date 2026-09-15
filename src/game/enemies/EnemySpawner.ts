@@ -20,6 +20,22 @@ export interface SpawnEntry {
   maxAlive?: number;
 }
 
+export interface EnemyPopulationMember {
+  readonly config: EnemyConfig;
+  readonly active: boolean;
+  readonly dead: boolean;
+  readonly x: number;
+  readonly y: number;
+  destroy(): void;
+}
+
+export interface EnemySpawnRequest {
+  readonly x: number;
+  readonly y: number;
+  readonly config: EnemyConfig;
+  readonly area?: MapEnemySpawnArea;
+}
+
 export interface SpawnerContext {
   scene: Phaser.Scene;
   getPlayer: () => Phaser.Physics.Arcade.Sprite;
@@ -43,6 +59,8 @@ export interface SpawnerContext {
   worldHeight: number;
   /** Physics group to add enemies to (for combat hitbox checks). */
   targetGroup?: Phaser.Physics.Arcade.Group;
+  /** Transitional packed-scene factory. Undefined delegates the type to the legacy Enemy constructor. */
+  createEnemyRuntime?: (request: EnemySpawnRequest) => EnemyPopulationMember | null | undefined;
   /** Areas where enemies should never spawn. */
   getSafeZones?: () => EnemySafeZone[];
   /** Delay between population refill attempts. */
@@ -51,8 +69,8 @@ export interface SpawnerContext {
 
 export class EnemySpawner {
   private ctx: SpawnerContext;
-  private enemies: Enemy[] = [];
-  private readonly areaByEnemy = new Map<Enemy, MapEnemySpawnArea | undefined>();
+  private enemies: EnemyPopulationMember[] = [];
+  private readonly areaByEnemy = new Map<EnemyPopulationMember, MapEnemySpawnArea | undefined>();
   private readonly areaLastSpawnAt = new Map<string, number>();
   private lastSpawnAt = 0;
   private spawnIntervalMs = 1500;
@@ -62,7 +80,7 @@ export class EnemySpawner {
     this.spawnIntervalMs = ctx.spawnIntervalMs;
   }
 
-  get group(): Enemy[] {
+  get group(): EnemyPopulationMember[] {
     return this.enemies;
   }
 
@@ -130,7 +148,7 @@ export class EnemySpawner {
     }
   }
 
-  spawnOne(area?: MapEnemySpawnArea): Enemy | null {
+  spawnOne(area?: MapEnemySpawnArea): EnemyPopulationMember | null {
     const player = this.ctx.getPlayer();
     if (!player) return null;
 
@@ -170,13 +188,27 @@ export class EnemySpawner {
     const spawnPoint = this.findSpawnPoint(player, area);
     if (!spawnPoint) return null;
 
-    const enemyContext = this.ctx.createEnemyContext?.(area) ?? { ...this.ctx.enemyContext, spawnArea: area };
-    const enemy = new Enemy(this.ctx.scene, spawnPoint.x, spawnPoint.y, entry.config, enemyContext);
-    if (this.ctx.targetGroup) {
-      this.ctx.targetGroup.add(enemy);
-    }
+    const managedEnemy = this.ctx.createEnemyRuntime?.({
+      x: spawnPoint.x,
+      y: spawnPoint.y,
+      config: entry.config,
+      ...(area ? { area } : {}),
+    });
+    if (managedEnemy === null) return null;
+    const enemy = managedEnemy ?? this.createLegacyEnemy(spawnPoint, entry.config, area);
     this.enemies.push(enemy);
     this.areaByEnemy.set(enemy, area);
+    return enemy;
+  }
+
+  private createLegacyEnemy(
+    spawnPoint: Phaser.Math.Vector2,
+    config: EnemyConfig,
+    area?: MapEnemySpawnArea,
+  ): Enemy {
+    const enemyContext = this.ctx.createEnemyContext?.(area) ?? { ...this.ctx.enemyContext, spawnArea: area };
+    const enemy = new Enemy(this.ctx.scene, spawnPoint.x, spawnPoint.y, config, enemyContext);
+    this.ctx.targetGroup?.add(enemy);
     return enemy;
   }
 

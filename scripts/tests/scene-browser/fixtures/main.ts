@@ -46,6 +46,15 @@ type FixtureSnapshot = {
   readonly destroyed: boolean;
   readonly loadedAtMs?: number;
   readonly initializationError?: string;
+  readonly managedOrdinaryEnemyCount?: number;
+  readonly managedBossCount?: number;
+  readonly managedCampCount?: number;
+  readonly managedLiveCampCount?: number;
+  readonly managedChestCount?: number;
+  readonly legacyEnemyCount?: number;
+  readonly legacyBossCount?: number;
+  readonly hasLegacyChestController?: boolean;
+  readonly universalRuntimePaused?: boolean;
 };
 
 type FixtureApi = {
@@ -57,6 +66,7 @@ type FixtureApi = {
   setWallEnabled(enabled: boolean): void;
   freeWall(): void;
   detachAudio(): void;
+  teleportProductionPlayer(x: number, y: number): void;
   snapshot(): FixtureSnapshot;
   destroy(): void;
 };
@@ -347,7 +357,32 @@ const api: FixtureApi = {
     if (!detachHarnessAudio) throw new Error('Managed audio is only available in harness mode');
     detachHarnessAudio();
   },
+  teleportProductionPlayer(x, y) {
+    if (!game || mode !== 'baseline') throw new Error('Production player is only available in baseline mode');
+    const world = game.scene.getScene('world') as unknown as {
+      readonly player?: Phaser.Physics.Arcade.Sprite;
+    };
+    if (!world.player) throw new Error('Production player is unavailable');
+    world.player.setPosition(x, y);
+    (world.player.body as Phaser.Physics.Arcade.Body).reset(x, y);
+    world.player.setVelocity(0, 0);
+  },
   snapshot() {
+    const world = mode === 'baseline' && game
+      ? game.scene.getScene('world') as unknown as {
+          readonly universalWorld?: {
+            readonly managedOrdinaryEnemyCount: number;
+            readonly managedBossCount: number;
+            readonly managedCampCount: number;
+            readonly managedLiveCampCount: number;
+            readonly managedChestCount: number;
+            readonly runtime: { readonly tree: { readonly paused: boolean } };
+          };
+          readonly combatController?: { readonly targets: Phaser.Physics.Arcade.Group };
+          readonly bossCampController?: { readonly targets: Phaser.Physics.Arcade.Group };
+          readonly chestController?: unknown;
+        }
+      : undefined;
     return {
       mode,
       stepCount,
@@ -361,6 +396,15 @@ const api: FixtureApi = {
       ...(destroyed ? {} : harnessSnapshot?.()),
       ...(loadedAtMs === undefined ? {} : { loadedAtMs }),
       ...(initializationError === undefined ? {} : { initializationError }),
+      ...(world?.universalWorld ? { managedOrdinaryEnemyCount: world.universalWorld.managedOrdinaryEnemyCount } : {}),
+      ...(world?.universalWorld ? { managedBossCount: world.universalWorld.managedBossCount } : {}),
+      ...(world?.universalWorld ? { managedCampCount: world.universalWorld.managedCampCount } : {}),
+      ...(world?.universalWorld ? { managedLiveCampCount: world.universalWorld.managedLiveCampCount } : {}),
+      ...(world?.universalWorld ? { managedChestCount: world.universalWorld.managedChestCount } : {}),
+      ...(world?.universalWorld ? { universalRuntimePaused: world.universalWorld.runtime.tree.paused } : {}),
+      ...(world?.combatController ? { legacyEnemyCount: world.combatController.targets.countActive(true) } : {}),
+      ...(world?.bossCampController ? { legacyBossCount: world.bossCampController.targets.countActive(true) } : {}),
+      ...(world ? { hasLegacyChestController: world.chestController !== undefined } : {}),
     };
   },
   destroy() {

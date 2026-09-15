@@ -28,7 +28,7 @@ export interface SceneHostBackend {
   stepPhysics(deltaSeconds: number): void;
   readAuthoritativePhysicsState(): void;
   collectManagedContacts(): void;
-  resolveManagedAttacks(): void;
+  resolveManagedAttacks(deltaSeconds: number): void;
   runPostPhysics(deltaSeconds: number): void;
   advanceRenderAnimations(deltaSeconds: number): void;
   synchronizePresentation(alpha: number): void;
@@ -96,7 +96,7 @@ export class PhaserSceneTreeHost {
             backend.stepPhysics(this.fixedDeltaSeconds);
             backend.readAuthoritativePhysicsState();
             backend.collectManagedContacts();
-            backend.resolveManagedAttacks();
+            backend.resolveManagedAttacks(this.fixedDeltaSeconds);
             backend.runPostPhysics(this.fixedDeltaSeconds);
             legacy?.postPhysics(this.fixedDeltaSeconds);
           });

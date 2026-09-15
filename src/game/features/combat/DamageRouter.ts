@@ -29,7 +29,18 @@ interface CandidateGroup {
 export class DamageRouter {
   private readonly areas = new Map<RuntimeNodeId, RegisteredArea>();
 
-  constructor(private readonly activations: AttackActivation) {}
+  constructor(
+    private readonly activations: AttackActivation,
+    private readonly simulationClock?: () => number,
+  ) {}
+
+  hasArea(areaNodeId: RuntimeNodeId): boolean {
+    return this.areas.has(areaNodeId);
+  }
+
+  receiverNodeIdForArea(areaNodeId: RuntimeNodeId): RuntimeNodeId | undefined {
+    return this.areas.get(areaNodeId)?.receiver.runtimeNodeId;
+  }
 
   registerArea(receiver: DamageReceiver, rule: DamageAreaRule): void {
     const existing = this.areas.get(rule.areaNodeId);
@@ -51,6 +62,7 @@ export class DamageRouter {
   }
 
   routeStep(requests: readonly DamageRequest[], simulationTime: number): readonly RoutedDamageOutcome[] {
+    const resolvedSimulationTime = this.simulationClock?.() ?? simulationTime;
     const outcomes: RoutedDamageOutcome[] = [];
     const groups = new Map<RuntimeNodeId, CandidateGroup>();
 
@@ -99,7 +111,7 @@ export class DamageRouter {
       }
 
       const result = selected
-        ? resolveDamage(group.receiver, selected.request, selected.area, simulationTime)
+        ? resolveDamage(group.receiver, selected.request, selected.area, resolvedSimulationTime)
         : rejectedDamage('source-blocked', false);
       this.activations.record(firstRequest.activationId, receiverNodeId, signature, result);
       if (result.status === 'accepted' && selected) {
@@ -107,7 +119,7 @@ export class DamageRouter {
           request: selected.request,
           area: selected.area,
           result,
-          simulationTime,
+          simulationTime: resolvedSimulationTime,
         });
         group.receiver.commitDamage(commit);
         group.receiver.publishDamageFeedback?.(commit);
