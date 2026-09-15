@@ -68,6 +68,8 @@ export const ENEMY_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
     numberProperty('movementSpeed', 'Movement Speed', 0, 'Movement'),
     numberProperty('attackCooldownMs', 'Attack Cooldown', 0, 'Combat'),
     jsonProperty('attributes', 'Attributes', 'Combat', {}),
+    jsonProperty('projectile', 'Projectile', 'Combat', {}),
+    jsonProperty('impactEffect', 'Impact Effect', 'Presentation', {}),
     jsonProperty('damageRule', 'Damage Rule', 'Damage Reception', { priority: 0, damageMultiplier: 1 }),
     jsonProperty('rewards', 'Rewards', 'Rewards', {}),
   ],

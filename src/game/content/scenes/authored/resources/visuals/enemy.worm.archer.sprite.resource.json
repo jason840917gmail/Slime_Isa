@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "resourceId": "enemy.worm.archer.sprite",
+  "kind": "sprite-sheet",
+  "assetId": "enemy.worm.archer",
+  "frameWidth": 64,
+  "frameHeight": 64,
+  "frameCount": 36
+}

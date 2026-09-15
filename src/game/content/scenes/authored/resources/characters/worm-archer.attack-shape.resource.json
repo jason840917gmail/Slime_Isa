@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "resourceId": "worm-archer.attack-shape",
+  "kind": "collision-shape",
+  "value": {
+    "shape": "circle",
+    "radius": 297
+  }
+}

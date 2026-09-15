@@ -1,6 +1,12 @@
 import { convertedOutput, readJson, requireSupportedUnit, resourcePath } from './adapter-utils.mjs';
 
-const SUPPORTED = new Set(['visual:enemy.worm.brawler', 'visual:boss.fatty-one-eye']);
+const SUPPORTED = new Set([
+  'visual:boss.fatty-one-eye',
+  'visual:enemy.slime.spider',
+  'visual:enemy.worm.archer',
+  'visual:enemy.worm.brawler',
+  'visual:enemy.worm.swordsman',
+]);
 
 function animationDocument(visual) {
   const animations = {};

@@ -1,0 +1,194 @@
+{
+  "version": 1,
+  "sceneId": "character.worm-archer",
+  "rootNodeId": "body",
+  "nodes": [
+    {
+      "id": "body",
+      "name": "WormArcher",
+      "type": "CharacterBody2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "collisionLayer": 2,
+        "collisionMask": 5,
+        "position": [
+          0,
+          0
+        ],
+        "velocity": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "body-shape",
+      "name": "BodyShape",
+      "type": "CollisionShape2D",
+      "parentId": "body",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "worm-archer.body-shape"
+        },
+        "position": [
+          0,
+          10
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "body",
+      "order": 1,
+      "properties": {
+        "texture": {
+          "resourceId": "enemy.worm.archer.sprite"
+        },
+        "frame": 0,
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "scale": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "id": "damage-area",
+      "name": "DamageArea",
+      "type": "Area2D",
+      "parentId": "body",
+      "order": 2,
+      "properties": {
+        "collisionLayer": 8,
+        "collisionMask": 16,
+        "monitoring": true,
+        "monitorable": true
+      }
+    },
+    {
+      "id": "damage-shape",
+      "name": "DamageShape",
+      "type": "CollisionShape2D",
+      "parentId": "damage-area",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "worm-archer.body-shape"
+        },
+        "position": [
+          0,
+          10
+        ]
+      }
+    },
+    {
+      "id": "attack-area",
+      "name": "AttackArea",
+      "type": "Area2D",
+      "parentId": "body",
+      "order": 3,
+      "properties": {
+        "collisionLayer": 16,
+        "collisionMask": 8,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "attack-shape",
+      "name": "AttackShape",
+      "type": "CollisionShape2D",
+      "parentId": "attack-area",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "worm-archer.attack-shape"
+        },
+        "disabled": true
+      }
+    },
+    {
+      "id": "animation",
+      "name": "Animation",
+      "type": "AnimationPlayer",
+      "parentId": "body",
+      "order": 4,
+      "properties": {
+        "library": {
+          "resourceId": "enemy.worm.archer.animations"
+        },
+        "domain": "physics",
+        "autoplay": "idle-side"
+      }
+    },
+    {
+      "id": "script",
+      "name": "EnemyScript",
+      "type": "ScriptNode",
+      "scriptId": "game.enemy",
+      "parentId": "body",
+      "order": 5,
+      "properties": {
+        "body": {
+          "nodeId": "body"
+        },
+        "visual": {
+          "nodeId": "visual"
+        },
+        "animation": {
+          "nodeId": "animation"
+        },
+        "damageArea": {
+          "nodeId": "damage-area"
+        },
+        "attackArea": {
+          "nodeId": "attack-area"
+        },
+        "faction": "hostile",
+        "rank": "ordinary",
+        "maxHealth": 40,
+        "targetingRadius": 280,
+        "attackRange": 220,
+        "movementSpeed": 80,
+        "attackCooldownMs": 2200,
+        "attributes": {
+          "wanderSpeed": 30,
+          "attackWindupMs": 600,
+          "attackRecoveryMs": 350,
+          "contactDamage": 22,
+          "knockbackStrength": 180,
+          "knockbackResist": 0,
+          "fleeRange": 120,
+          "isRanged": true,
+          "projectileSpeed": 180
+        },
+        "damageRule": {
+          "priority": 0,
+          "damageMultiplier": 1
+        },
+        "rewards": {
+          "xp": 45,
+          "coins": 10,
+          "items": [
+            {
+              "itemId": "shard",
+              "chance": 0.15
+            }
+          ]
+        },
+        "projectile": {
+          "assetId": "enemy.projectile.worm-arrow",
+          "damage": 22
+        }
+      }
+    }
+  ],
+  "instances": []
+}

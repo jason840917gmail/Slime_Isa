@@ -19,10 +19,18 @@ const mode = args.includes('--apply') ? 'apply' : args.includes('--check') ? 'ch
 const explicitUnitKeys = args.flatMap((argument, index) => argument === '--unit' ? [args[index + 1]] : []).filter(Boolean);
 const sliceUnitKeys = [
   'visual:enemy.worm.brawler',
+  'visual:enemy.worm.archer',
+  'visual:enemy.worm.swordsman',
+  'visual:enemy.slime.spider',
   'visual:boss.fatty-one-eye',
   'character:worm-brawler',
+  'character:worm-archer',
+  'character:worm-swordsman',
+  'character:slime-spider',
   'character:fatty-one-eye',
   'enemy:worm-brawler',
+  'enemy:worm-archer',
+  'enemy:worm-swordsman',
   'boss:fatty-one-eye',
   'object:chest.wooden',
 ];

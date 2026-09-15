@@ -173,6 +173,11 @@
         "rewards": {
           "xp": 40,
           "coins": 8
+        },
+        "impactEffect": {
+          "visualSetId": "effect.enemy.worm-brawler-hit",
+          "clipId": "hit",
+          "distance": 22
         }
       }
     }
