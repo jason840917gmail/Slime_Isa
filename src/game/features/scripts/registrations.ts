@@ -6,6 +6,7 @@ import { EnemyScript } from './EnemyScript';
 import { FattyScript } from './FattyScript';
 import { BossCampScript } from './BossCampScript';
 import { ChestScript } from './ChestScript';
+import { PlayerScript } from './PlayerScript';
 
 const numberProperty = (key: string, label: string, defaultValue: number, group: string): PropertyDescriptor => ({
   key, label, group, value: { kind: 'number', min: 0 }, defaultValue,
@@ -79,6 +80,31 @@ export const ENEMY_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
     { id: 'damage_feedback', payload: 'DamageCommit' },
     { id: 'defeated', payload: 'EnemyDefeated' },
     { id: 'reward_requested', payload: 'EnemyRewardRequest' },
+  ],
+};
+
+export const PLAYER_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
+  scriptId: 'game.player',
+  displayName: 'Player Script',
+  description: 'Node-backed player movement, dodge state, damage reception, and typed runtime ports.',
+  sourcePath: 'src/game/features/scripts/PlayerScript.ts',
+  extends: 'game.character',
+  capabilities: ['player-script', 'damage-receiver', 'player-runtime'],
+  references: [
+    { key: 'body', label: 'Character Body', required: true, expectedCapability: 'character-body' },
+    { key: 'visual', label: 'Visual', required: true },
+    { key: 'animation', label: 'Animation Player', required: true, expectedNodeType: 'AnimationPlayer' },
+    { key: 'damageArea', label: 'Damage Area', required: true, expectedCapability: 'area' },
+  ],
+  properties: [
+    nodeReference('damageArea', 'Damage Area', 'area'),
+    stringProperty('playerName', 'Player Name', 'Identity'),
+  ],
+  signals: [
+    { id: 'health_changed', payload: 'PlayerHealthChanged' },
+    { id: 'damaged', payload: 'DamageCommit' },
+    { id: 'damage_feedback', payload: 'DamageCommit' },
+    { id: 'defeated', payload: 'PlayerDefeated' },
   ],
 };
 
@@ -161,6 +187,7 @@ export const BOSS_CAMP_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
 
 export const GAME_SCRIPT_DESCRIPTORS = Object.freeze([
   CHARACTER_SCRIPT_DESCRIPTOR,
+  PLAYER_SCRIPT_DESCRIPTOR,
   ENEMY_SCRIPT_DESCRIPTOR,
   FATTY_SCRIPT_DESCRIPTOR,
   CHEST_SCRIPT_DESCRIPTOR,
@@ -170,6 +197,7 @@ export const GAME_SCRIPT_DESCRIPTORS = Object.freeze([
 export function createGameScriptRegistry(services: ScriptServiceMap = {}): ScriptRegistry {
   return new ScriptRegistry(services)
     .registerDefinition({ descriptor: CHARACTER_SCRIPT_DESCRIPTOR, factory: (context) => new CharacterScript(context) })
+    .registerDefinition({ descriptor: PLAYER_SCRIPT_DESCRIPTOR, factory: (context) => new PlayerScript(context) })
     .registerDefinition({ descriptor: ENEMY_SCRIPT_DESCRIPTOR, factory: (context) => new EnemyScript(context) })
     .registerDefinition({ descriptor: FATTY_SCRIPT_DESCRIPTOR, factory: (context) => new FattyScript(context) })
     .registerDefinition({ descriptor: CHEST_SCRIPT_DESCRIPTOR, factory: (context) => new ChestScript(context) })

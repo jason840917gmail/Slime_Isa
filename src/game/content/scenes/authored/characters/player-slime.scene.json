@@ -1,0 +1,134 @@
+{
+  "version": 1,
+  "sceneId": "character.player-slime",
+  "rootNodeId": "body",
+  "nodes": [
+    {
+      "id": "body",
+      "name": "PlayerSlime",
+      "type": "CharacterBody2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "collisionLayer": 1,
+        "collisionMask": 3,
+        "position": [
+          0,
+          0
+        ],
+        "velocity": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "body-shape",
+      "name": "BodyShape",
+      "type": "CollisionShape2D",
+      "parentId": "body",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "player-slime.body-shape"
+        },
+        "position": [
+          0,
+          14.56
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "body",
+      "order": 1,
+      "properties": {
+        "texture": {
+          "resourceId": "character.player.slime.sprite"
+        },
+        "frame": 0,
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "scale": [
+          0.28125,
+          0.28125
+        ],
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "damage-area",
+      "name": "DamageArea",
+      "type": "Area2D",
+      "parentId": "body",
+      "order": 2,
+      "properties": {
+        "collisionLayer": 8,
+        "collisionMask": 16,
+        "monitoring": false,
+        "monitorable": true
+      }
+    },
+    {
+      "id": "damage-shape",
+      "name": "DamageShape",
+      "type": "CollisionShape2D",
+      "parentId": "damage-area",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "player-slime.body-shape"
+        },
+        "position": [
+          0,
+          14.56
+        ]
+      }
+    },
+    {
+      "id": "animation",
+      "name": "Animation",
+      "type": "AnimationPlayer",
+      "parentId": "body",
+      "order": 3,
+      "properties": {
+        "library": {
+          "resourceId": "character.player.slime.animations"
+        },
+        "domain": "physics",
+        "autoplay": "idle"
+      }
+    },
+    {
+      "id": "script",
+      "name": "PlayerScript",
+      "type": "ScriptNode",
+      "scriptId": "game.player",
+      "parentId": "body",
+      "order": 4,
+      "properties": {
+        "body": {
+          "nodeId": "body"
+        },
+        "visual": {
+          "nodeId": "visual"
+        },
+        "animation": {
+          "nodeId": "animation"
+        },
+        "damageArea": {
+          "nodeId": "damage-area"
+        },
+        "playerName": "bob"
+      }
+    }
+  ],
+  "instances": []
+}

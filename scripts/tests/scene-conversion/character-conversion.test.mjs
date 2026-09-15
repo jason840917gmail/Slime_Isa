@@ -12,10 +12,12 @@ import { validateSceneWriteSet } from '../../lib/scene-conversion/validate-scene
 
 const repositoryRoot = fileURLToPath(new URL('../../..', import.meta.url));
 const unitKeys = [
+  'visual:character.player.slime',
   'visual:enemy.slime.spider',
   'visual:enemy.worm.archer',
   'visual:enemy.worm.swordsman',
   'character:slime-spider',
+  'character:player-slime',
   'character:worm-archer',
   'character:worm-swordsman',
   'enemy:worm-archer',
@@ -70,5 +72,14 @@ test('remaining enemy converters are byte-stable and preserve authored combat se
   assert.equal(spider.projectile.damage, 50);
   assert.deepEqual((await load('resources/characters/slime-spider.body-shape.resource.json')).value, {
     shape: 'ellipse', radiusX: 15, radiusY: 12,
+  });
+
+  const player = await load('characters/player-slime.scene.json');
+  const playerScript = player.nodes.find((node) => node.scriptId === 'game.player').properties;
+  assert.equal(playerScript.playerName, 'bob');
+  assert.equal(Object.hasOwn(playerScript, 'movementSpeed'), false);
+  assert.deepEqual(player.nodes.find((node) => node.id === 'visual').properties.scale, [0.28125, 0.28125]);
+  assert.deepEqual((await load('resources/characters/player-slime.body-shape.resource.json')).value, {
+    shape: 'rectangle', width: 30, height: 26,
   });
 });

@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "resourceId": "character.player.slime.sprite",
+  "kind": "sprite-sheet",
+  "assetId": "character.player.slime",
+  "frameWidth": 256,
+  "frameHeight": 256
+}
