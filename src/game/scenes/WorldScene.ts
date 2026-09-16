@@ -1389,6 +1389,7 @@ export class WorldScene extends Phaser.Scene {
       },
       supplementalWeaponHitboxes: this.universalWorld?.supplementalWeaponHitboxes,
       createManagedEnemy: (request) => this.universalWorld?.createManagedEnemy(request),
+      spawnManagedEffect: (request) => this.universalWorld?.spawnEffect(request) ?? false,
     });
   }
 

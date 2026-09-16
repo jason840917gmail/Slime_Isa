@@ -28,7 +28,7 @@ import { WeaponVisual } from './WeaponVisual';
 import { ObjectAnimationAdapter } from '../objects/ObjectAnimationAdapter';
 import { shouldSpawnConfirmedHitEffect } from '../../combat/ConfirmedHitEffect';
 import { resolveResourceHitPresentation } from '../../combat/ResourceHitPresentation';
-import { WorldEffectPool } from '../effects/WorldEffectPool';
+import { WorldEffectPool, type ManagedWorldEffectSpawner } from '../effects/WorldEffectPool';
 import { resolveDamageModifier } from '../../combat/DamageModifiers';
 import type { ResourceNodeController } from '../resources/ResourceNodeController';
 import type { HitboxTargets } from '../../combat/Hitbox';
@@ -68,6 +68,7 @@ export interface CombatControllerContext {
   applyBossHit?: (request: WeaponHitRequest) => DamageApplicationResult;
   supplementalWeaponHitboxes?: SupplementalWeaponHitboxPort;
   createManagedEnemy?: (request: EnemySpawnRequest) => EnemyPopulationMember | null | undefined;
+  spawnManagedEffect?: ManagedWorldEffectSpawner;
 }
 
 export interface ManagedEnemyDefeat {
@@ -92,7 +93,7 @@ export class CombatController {
     const { scene, player } = ctx;
     const spawnConfig = ctx.spawns;
     this.targets = scene.physics.add.group();
-    this.effects = new WorldEffectPool(scene);
+    this.effects = new WorldEffectPool(scene, ctx.spawnManagedEffect);
     this.comboText = scene.add.text(scene.cameras.main.width / 2, scene.cameras.main.height - 215, '', {
       fontFamily: UI_THEME.fontFamily,
       fontSize: '20px',

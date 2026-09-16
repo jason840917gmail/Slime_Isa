@@ -89,7 +89,7 @@ test('remaining ordinary enemy scenes mount through the production Phaser runtim
   await expect.poll(() => page.locator('canvas').count()).toBe(0);
 });
 
-test('Worm Archer projectiles damage the managed player and release their scene mount', async ({ page }) => {
+test('managed projectile and impact effect scenes complete their production lifecycles', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.addInitScript(() => {
     localStorage.clear();
@@ -117,6 +117,11 @@ test('Worm Archer projectiles damage the managed player and release their scene 
     await page.evaluate(() => window.sceneFixture.snapshot().managedProjectileCount ?? -1)
   ), { timeout: 5_000 }).toBe(0);
   expect((await page.evaluate(() => window.sceneFixture.snapshot())).managedProjectileSpawnCount).toBe(1);
+  expect(await page.evaluate(() => window.sceneFixture.spawnManagedEffect('basic-sword-impact', 'left', 1_200, 1_550))).toBe(true);
+  expect((await page.evaluate(() => window.sceneFixture.snapshot())).managedEffectCount).toBe(1);
+  await expect.poll(async () => (
+    await page.evaluate(() => window.sceneFixture.snapshot().managedEffectCount ?? -1)
+  ), { timeout: 5_000 }).toBe(0);
   expect(pageErrors).toEqual([]);
   await page.evaluate(() => window.sceneFixture.destroy());
   await expect.poll(() => page.locator('canvas').count()).toBe(0);

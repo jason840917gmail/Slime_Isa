@@ -56,6 +56,7 @@ type FixtureSnapshot = {
   readonly managedPlayerCount?: number;
   readonly managedProjectileCount?: number;
   readonly managedProjectileSpawnCount?: number;
+  readonly managedEffectCount?: number;
   readonly playerHp?: number;
   readonly legacyEnemyCount?: number;
   readonly legacyBossCount?: number;
@@ -78,6 +79,7 @@ type FixtureApi = {
   disableProductionEnemySpawning(): void;
   teleportProductionPlayer(x: number, y: number): void;
   spawnManagedEnemy(type: 'slime-spider' | 'worm-archer' | 'worm-brawler' | 'worm-swordsman', x: number, y: number): boolean;
+  spawnManagedEffect(effectId: string, direction: 'right' | 'left' | 'up' | 'down', x: number, y: number): boolean;
   snapshot(): FixtureSnapshot;
   destroy(): void;
 };
@@ -399,6 +401,15 @@ const api: FixtureApi = {
     };
     return world.universalWorld?.createManagedEnemy({ x, y, config: getEnemyConfig(type) }) !== undefined;
   },
+  spawnManagedEffect(effectId, direction, x, y) {
+    if (!game || mode !== 'baseline') throw new Error('Production effects are only available in baseline mode');
+    const world = game.scene.getScene('world') as unknown as {
+      readonly universalWorld?: {
+        spawnEffect(request: { effectId: string; direction: 'right' | 'left' | 'up' | 'down'; x: number; y: number; depth: number }): boolean;
+      };
+    };
+    return world.universalWorld?.spawnEffect({ effectId, direction, x, y, depth: 0 }) ?? false;
+  },
   snapshot() {
     const world = mode === 'baseline' && game
       ? game.scene.getScene('world') as unknown as {
@@ -412,6 +423,7 @@ const api: FixtureApi = {
             readonly managedPlayerCount: number;
             readonly managedProjectileCount: number;
             readonly managedProjectileSpawnCount: number;
+            readonly managedEffectCount: number;
             readonly managedPlayer: { getPosition(): Readonly<{ x: number; y: number }> };
             readonly runtime: { readonly tree: { readonly paused: boolean } };
           };
@@ -445,6 +457,7 @@ const api: FixtureApi = {
       ...(world?.universalWorld ? { managedPlayerCount: world.universalWorld.managedPlayerCount } : {}),
       ...(world?.universalWorld ? { managedProjectileCount: world.universalWorld.managedProjectileCount } : {}),
       ...(world?.universalWorld ? { managedProjectileSpawnCount: world.universalWorld.managedProjectileSpawnCount } : {}),
+      ...(world?.universalWorld ? { managedEffectCount: world.universalWorld.managedEffectCount } : {}),
       ...(world?.healthSystem ? { playerHp: world.healthSystem.getDamageState().hp } : {}),
       ...(world?.universalWorld ? { universalRuntimePaused: world.universalWorld.runtime.tree.paused } : {}),
       ...(world?.combatController ? { legacyEnemyCount: world.combatController.targets.countActive(true) } : {}),

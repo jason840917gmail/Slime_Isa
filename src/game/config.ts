@@ -97,6 +97,11 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
           sceneId('character.yellow-blond-slime-girl'),
           sceneId('encounter.level-1-fatty-camp'),
           sceneId('projectile.worm-arrow'),
+          sceneId('effect.basic-spear-impact'),
+          sceneId('effect.basic-sword-impact'),
+          sceneId('effect.slam-hammer-impact'),
+          sceneId('effect.stone-impact'),
+          sceneId('effect.wood-impact'),
         ],
         hasAsset: (assetId) => Object.hasOwn(ASSET_MANIFEST.assets, assetId),
       })
