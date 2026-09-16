@@ -1,5 +1,6 @@
 import type { JsonValue } from '../../content/scenes/types';
 import type { RuntimeNodeId } from '../../content/scenes/identifiers';
+import { Node2D } from '../../runtime/scene/Node2D';
 import type { DamageCommit, DamageMitigationInput, DamageStateDecision } from '../combat/DamageReceiver';
 import {
   DestructibleScript,
@@ -15,6 +16,8 @@ export interface ResourceDropRequest {
   readonly dropObjectId: string;
   readonly dropVisualId: string;
   readonly pieces: number;
+  readonly x: number;
+  readonly y: number;
   readonly depletionMessage?: string;
 }
 
@@ -23,6 +26,8 @@ export interface ResourceHitFeedbackRequest {
   readonly instanceId: string;
   readonly objectId: string;
   readonly actualDamage: number;
+  readonly x: number;
+  readonly y: number;
   readonly effectId?: string;
   readonly animationId?: string;
 }
@@ -33,6 +38,8 @@ export interface ResourceHarvestBlocked {
   readonly targetTag: string;
   readonly minimumTier: number;
   readonly message: string;
+  readonly x: number;
+  readonly y: number;
 }
 
 export interface ResourceNodePort {
@@ -61,6 +68,10 @@ export class ResourceNodeScript extends DestructibleScript {
   private resourcePort?: ResourceNodePort;
   private dropsPublished = false;
 
+  get dropDefinition(): Readonly<{ objectId: string; visualId: string; pieces: number }> | undefined {
+    return this.dropConfiguration();
+  }
+
   override canReceiveDamage(input: DamageMitigationInput): DamageStateDecision {
     const base = super.canReceiveDamage(input);
     if (!base.accepted) return base;
@@ -76,6 +87,7 @@ export class ResourceNodeScript extends DestructibleScript {
       targetTag: requirement.targetTag,
       minimumTier: requirement.minimumTier,
       message: requirement.failureMessage,
+      ...this.worldPosition(),
     };
     this.resourcePort?.publishHarvestBlocked(blocked);
     this.getSignal<ResourceHarvestBlocked>('harvest_blocked')?.emit(blocked);
@@ -102,6 +114,7 @@ export class ResourceNodeScript extends DestructibleScript {
       instanceId: this.instanceId,
       objectId: this.objectId,
       actualDamage: commit.result.actualDamage,
+      ...this.worldPosition(),
       ...(this.stringProperty('hitEffectId', '') ? { effectId: this.stringProperty('hitEffectId', '') } : {}),
       ...(this.stringProperty('onHitAnimationId', '') ? { animationId: this.stringProperty('onHitAnimationId', '') } : {}),
     };
@@ -122,6 +135,7 @@ export class ResourceNodeScript extends DestructibleScript {
       dropObjectId: drop.objectId,
       dropVisualId: drop.visualId,
       pieces: drop.pieces,
+      ...this.worldPosition(),
       ...(this.stringProperty('depletionMessage', '') ? { depletionMessage: this.stringProperty('depletionMessage', '') } : {}),
     };
     this.resourcePort?.spawnDrops(request);
@@ -150,6 +164,11 @@ export class ResourceNodeScript extends DestructibleScript {
     if (!tag.startsWith(prefix)) return 0;
     const tier = Number(tag.slice(prefix.length));
     return Number.isSafeInteger(tier) && tier > 0 ? tier : 0;
+  }
+
+  private worldPosition(): Readonly<{ x: number; y: number }> {
+    const parent = this.get_parent();
+    return parent instanceof Node2D ? parent.get_global_transform().position : { x: 0, y: 0 };
   }
 
   protected override _duplicateSelf(runtimeId: RuntimeNodeId): ResourceNodeScript {

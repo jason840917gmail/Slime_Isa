@@ -60,6 +60,13 @@ test('map placement bridge assigns the Level 1 camp, nested chest, and NPCs to o
       ['level-1-npc-mossy-scout', 'character.mossy-scout', 'level-1-spider-giver'],
     ],
   );
+  const resourcePlacements = placements.filter((placement) => placement.sceneId.startsWith('object.resource-stone-node'));
+  assert.equal(resourcePlacements.length, 6);
+  assert.ok(resourcePlacements.some((placement) => placement.sceneId === 'object.resource-stone-node.big-stone-mine'));
+  assert.deepEqual(resourcePlacements[0].propertyOverrides, [
+    { nodeId: 'script', property: 'mapId', value: 'level-1' },
+    { nodeId: 'script', property: 'instanceId', value: resourcePlacements[0].placementId },
+  ]);
   const chest = map.objects.find((entry) => entry.instanceId === 'level-1-fatty-guarded-chest');
   assert.equal(bridge.shouldSuppressLegacyObject(chest), true);
   for (const placement of npcPlacements) {

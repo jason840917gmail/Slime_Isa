@@ -62,6 +62,18 @@ import { PLAYER_HEALTH_SERVICE, PlayerScript } from '../scripts/PlayerScript';
 import { ProjectileScript } from '../scripts/ProjectileScript';
 import { EffectScript } from '../scripts/EffectScript';
 import {
+  RESOURCE_NODE_SERVICE,
+  ResourceNodeScript,
+  type ResourceDropRequest,
+  type ResourceHarvestBlocked,
+  type ResourceHitFeedbackRequest,
+} from '../scripts/ResourceNodeScript';
+import {
+  WORLD_OBJECT_STATE_SERVICE,
+  type WorldObjectStatePort,
+} from '../scripts/DestructibleScript';
+import type { ManagedResourceRegistration } from '../resources/ResourceNodeController';
+import {
   PLAYER_WEAPON_COMBAT_SERVICE,
   WeaponScript,
   type ManagedWeaponTarget,
@@ -103,6 +115,8 @@ export interface UniversalSceneWorldControllerOptions {
   readonly onManagedEnemyDefeated: (enemy: ManagedEnemyDefeat) => void;
   readonly getEnemySafeZones: () => readonly MapEnemySafeZone[];
   readonly registerNpc?: (registration: QuestNpcRegistration) => void;
+  readonly registerManagedResource: (registration: ManagedResourceRegistration) => void;
+  readonly spawnManagedResourceDrops: (request: ResourceDropRequest) => void;
 }
 
 interface ManagedCamp {
@@ -143,6 +157,11 @@ interface ManagedWeapon {
   readonly script: WeaponScript;
 }
 
+interface ManagedResource {
+  readonly mount: MountedScene;
+  readonly script: ResourceNodeScript;
+}
+
 const MANAGED_ENEMY_SCENES = {
   'worm-archer': 'character.worm-archer',
   'worm-brawler': 'character.worm-brawler',
@@ -181,6 +200,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
   private readonly ordinaryEnemies = new Map<number, ManagedOrdinaryEnemy>();
   private readonly projectiles = new Map<number, ManagedProjectile>();
   private readonly effects = new Map<number, ManagedEffect>();
+  private readonly resources = new Map<string, ManagedResource>();
   private weapon?: ManagedWeapon;
   private readonly npcs = new Map<string, NpcScript>();
   private playerScript?: PlayerScript;
@@ -215,8 +235,14 @@ export class UniversalSceneWorldController implements InteractionProvider {
         onAttackStarted: options.onManagedWeaponAttackStarted,
         onAttackFinished: options.onManagedWeaponAttackFinished,
         activateLegacyHitbox: options.activateLegacyWeaponHitbox,
-        transformDamage: options.transformManagedWeaponDamage,
-        onOutcome: options.onManagedWeaponOutcome,
+        transformDamage: (damage: number, target: ManagedWeaponTarget) => options.transformManagedWeaponDamage(damage, {
+          ...target,
+          targetTags: this.managedTargetTags(target.receiverNodeId),
+        }),
+        onOutcome: (outcome: RoutedDamageOutcome, target: ManagedWeaponTarget) => options.onManagedWeaponOutcome(outcome, {
+          ...target,
+          targetTags: this.managedTargetTags(target.receiverNodeId),
+        }),
       },
       [PLAYER_HEALTH_SERVICE]: options.health.managedReceiver,
       [ENEMY_TARGET_SERVICE]: {
@@ -244,6 +270,25 @@ export class UniversalSceneWorldController implements InteractionProvider {
       },
       [CHEST_GUARD_SERVICE]: { isLocked: (instanceId: string) => this.isChestLocked(instanceId) },
       [CHEST_VIEW_SERVICE]: chestView,
+      [WORLD_OBJECT_STATE_SERVICE]: {
+        load: (mapId: string, instanceId: string) => {
+          const state = options.progress.resourceState(mapId, instanceId);
+          return state ? { health: state.value, destroyed: state.stage !== 'node' } : undefined;
+        },
+        saveHealth: (mapId: string, instanceId: string, health: number) => {
+          options.progress.setResourceState(mapId, instanceId, { stage: 'node', value: health });
+        },
+        markDestroyed: (mapId: string, instanceId: string) => {
+          options.progress.setResourceState(mapId, instanceId, { stage: 'depleted', value: 0 });
+        },
+      } satisfies WorldObjectStatePort,
+      [RESOURCE_NODE_SERVICE]: {
+        publishHit: (request: ResourceHitFeedbackRequest) => this.publishResourceHit(request),
+        publishHarvestBlocked: (request: ResourceHarvestBlocked) => {
+          options.showMessage(request.x, request.y - 58, request.message, 'cyan', true);
+        },
+        spawnDrops: (request: ResourceDropRequest) => options.spawnManagedResourceDrops(request),
+      },
     });
     this.runtime = new PhaserUniversalSceneRuntime({
       scene: options.scene,
@@ -265,6 +310,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
           this.finishDefeatedOrdinaryEnemies();
           this.finishExpiredProjectiles();
           this.finishExpiredEffects();
+          this.finishDestroyedResources();
         },
         render: (deltaSeconds) => {
           options.updateLegacyRender(deltaSeconds * 1000);
@@ -311,6 +357,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
   get managedProjectileCount(): number { return this.projectiles.size; }
   get managedProjectileSpawnCount(): number { return this.managedProjectileSpawnCountValue; }
   get managedEffectCount(): number { return this.effects.size; }
+  get managedResourceCount(): number { return this.resources.size; }
   get managedWeaponId(): string | null { return this.weapon?.script.weaponId ?? null; }
   get managedWeaponAttacking(): boolean { return this.weapon?.script.attacking ?? false; }
   get managedPlayer(): PlayerScript {
@@ -474,6 +521,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.projectiles.clear();
     for (const effect of this.effects.values()) effect.attachment?.dispose();
     this.effects.clear();
+    this.resources.clear();
     this.weapon = undefined;
     this.npcs.clear();
     this.playerScript = undefined;
@@ -492,11 +540,30 @@ export class UniversalSceneWorldController implements InteractionProvider {
           runtimeNamespace: `managed-${placement.placementId}`,
           persistenceKey: placement.persistenceKey,
           position: { x: placement.x, y: placement.y },
+          ...(placement.propertyOverrides ? { propertyOverrides: placement.propertyOverrides } : {}),
         });
       } finally {
         this.mountingPlacement = undefined;
       }
       const npcScript = descendants(mount.root, NpcScript)[0];
+      const resourceScript = descendants(mount.root, ResourceNodeScript)[0];
+      if (resourceScript) {
+        const drop = resourceScript.dropDefinition;
+        if (!drop) {
+          mount.dispose();
+          throw new Error(`Resource scene '${placement.sceneId}' requires an authored drop definition.`);
+        }
+        this.options.registerManagedResource({
+          instanceId: resourceScript.instanceId,
+          dropObjectId: drop.objectId,
+          dropVisualId: drop.visualId,
+        });
+        if (resourceScript.destroyed) {
+          mount.dispose();
+          continue;
+        }
+        this.resources.set(resourceScript.instanceId, { mount, script: resourceScript });
+      }
       this.registerLegacyColliders(mount, !npcScript);
       if (npcScript) this.registerNpcPlacement(placement, npcScript);
       for (const script of descendants(mount.root, ChestScript)) this.chests.set(script.instanceId, script);
@@ -708,6 +775,48 @@ export class UniversalSceneWorldController implements InteractionProvider {
       effect.mount.dispose();
       this.effects.delete(sequence);
     }
+  }
+
+  private publishResourceHit(request: ResourceHitFeedbackRequest): void {
+    const resource = this.resources.get(request.instanceId);
+    const visual = resource ? descendants(resource.mount.root, Sprite2DNode)[0] : undefined;
+    visual?.setTintFill(0xffd277);
+    if (visual && resource) {
+      this.options.scene.time.delayedCall(110, () => {
+        if (!resource.mount.disposed) visual.clearTint();
+      });
+    }
+    this.options.showMessage(request.x, request.y - 54, `-${Math.round(request.actualDamage)}`, 'white');
+    if (request.effectId) {
+      this.spawnEffect({
+        effectId: request.effectId,
+        direction: 'right',
+        x: request.x,
+        y: request.y,
+        depth: 0,
+      });
+    }
+  }
+
+  private finishDestroyedResources(): void {
+    for (const [instanceId, resource] of [...this.resources]) {
+      if (!resource.script.destroyed) continue;
+      resource.mount.dispose();
+      this.resources.delete(instanceId);
+    }
+  }
+
+  private managedTargetTags(receiverNodeId: string): readonly string[] {
+    for (const resource of this.resources.values()) {
+      if (resource.script.runtimeNodeId === receiverNodeId) return resource.script.tags;
+    }
+    for (const boss of this.bosses.values()) {
+      if (boss.script.runtimeNodeId === receiverNodeId) return ['enemy', 'boss'];
+    }
+    for (const enemy of this.ordinaryEnemies.values()) {
+      if (enemy.script.runtimeNodeId === receiverNodeId) return ['enemy'];
+    }
+    return [];
   }
 
   private createBossBar(campId: string, bossId: string): LegacyBossBarHandle {

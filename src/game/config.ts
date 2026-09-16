@@ -96,6 +96,8 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
           sceneId('character.village-elder-plop'),
           sceneId('character.yellow-blond-slime-girl'),
           sceneId('encounter.level-1-fatty-camp'),
+          sceneId('object.resource-stone-node'),
+          sceneId('object.resource-stone-node.big-stone-mine'),
           sceneId('projectile.worm-arrow'),
           sceneId('effect.basic-spear-impact'),
           sceneId('effect.basic-sword-impact'),

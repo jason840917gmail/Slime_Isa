@@ -1,4 +1,5 @@
 import type { MapBossCamp, MapObjectInstance } from '../../../content/maps/mapFormat';
+import type { SceneInstantiationPropertyOverride } from '../../../runtime/scene/resolution/SceneInstantiator';
 
 export interface SceneEnabledPlacement {
   readonly placementId: string;
@@ -7,6 +8,7 @@ export interface SceneEnabledPlacement {
   readonly y: number;
   readonly persistenceKey: string;
   readonly npcDefinitionId?: string;
+  readonly propertyOverrides?: readonly SceneInstantiationPropertyOverride[];
 }
 
 const CAMP_SCENES: Readonly<Record<string, string>> = {
@@ -15,6 +17,13 @@ const CAMP_SCENES: Readonly<Record<string, string>> = {
 
 const OBJECT_SCENES: Readonly<Record<string, string>> = {
   'chest.wooden': 'object.chest-wooden',
+};
+
+const OBJECT_VISUAL_SCENES: Readonly<Record<string, Readonly<Record<string, string>>>> = {
+  'resource.stone-node': {
+    'stone-node': 'object.resource-stone-node',
+    'big.stone.mine': 'object.resource-stone-node.big-stone-mine',
+  },
 };
 
 const NPC_SCENES: Readonly<Record<string, Readonly<{ sceneId: string; npcDefinitionId: string }>>> = {
@@ -61,7 +70,7 @@ export class LegacyMapPlacementBridge {
 
   shouldSuppressLegacyObject(instance: MapObjectInstance): boolean {
     return this.sceneOwnedIds.has(instance.instanceId)
-      || (OBJECT_SCENES[instance.objectId] !== undefined && this.sceneOwnedIds.has(instance.instanceId));
+      || (this.objectSceneId(instance) !== undefined && this.sceneOwnedIds.has(instance.instanceId));
   }
 
   shouldSuppressLegacyBossCamp(camp: MapBossCamp): boolean {
@@ -70,7 +79,7 @@ export class LegacyMapPlacementBridge {
 
   standaloneObjectPlacement(instance: MapObjectInstance): SceneEnabledPlacement | undefined {
     const npc = NPC_SCENES[instance.objectId];
-    const sceneId = npc?.sceneId ?? OBJECT_SCENES[instance.objectId];
+    const sceneId = npc?.sceneId ?? this.objectSceneId(instance);
     if (!sceneId || this.sceneOwnedIds.has(instance.instanceId)) return undefined;
     this.sceneOwnedIds.add(instance.instanceId);
     return {
@@ -80,6 +89,16 @@ export class LegacyMapPlacementBridge {
       y: instance.y,
       persistenceKey: `${this.mapId}.${instance.instanceId}`,
       ...(npc ? { npcDefinitionId: npc.npcDefinitionId } : {}),
+      ...(!npc && instance.objectId === 'resource.stone-node' ? {
+        propertyOverrides: [
+          { nodeId: 'script', property: 'mapId', value: this.mapId },
+          { nodeId: 'script', property: 'instanceId', value: instance.instanceId },
+        ],
+      } : {}),
     };
+  }
+
+  private objectSceneId(instance: MapObjectInstance): string | undefined {
+    return OBJECT_VISUAL_SCENES[instance.objectId]?.[instance.visualId] ?? OBJECT_SCENES[instance.objectId];
   }
 }

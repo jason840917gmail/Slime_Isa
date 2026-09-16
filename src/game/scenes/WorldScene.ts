@@ -1407,7 +1407,7 @@ export class WorldScene extends Phaser.Scene {
       showMessage: (x, y, message, color = 'white', important = false) => floatingText.spawn(this, x, y, message, color, important),
       updateLegacyFixed: (deltaMs) => this.updateLegacyFixed(deltaMs),
       updateLegacyRender: (deltaMs) => this.updateLegacyRender(deltaMs),
-      transformManagedWeaponDamage: (damage) => this.combatController?.transformManagedWeaponDamage(damage) ?? damage,
+      transformManagedWeaponDamage: (damage, target) => this.combatController?.transformManagedWeaponDamage(damage, target) ?? damage,
       onManagedWeaponOutcome: (outcome, target) => this.combatController?.onManagedWeaponOutcome(outcome, target),
       onManagedWeaponAttackStarted: (weaponId, direction) => this.combatController?.onManagedWeaponAttackStarted(weaponId, direction),
       onManagedWeaponAttackFinished: (weaponId) => this.combatController?.onManagedWeaponAttackFinished(weaponId),
@@ -1418,6 +1418,8 @@ export class WorldScene extends Phaser.Scene {
         ...(this.loadedMap.map.spawns?.safeZones ?? []),
       ],
       registerNpc: (registration) => this.questNpcController?.register(registration),
+      registerManagedResource: (registration) => this.resourceNodes?.registerManagedResource(registration),
+      spawnManagedResourceDrops: (request) => this.resourceNodes?.spawnManagedResourceDrops(request),
     });
   }
 
