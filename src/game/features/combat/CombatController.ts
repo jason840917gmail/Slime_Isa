@@ -29,7 +29,6 @@ import type { WorldDimensions } from '../../world/WorldDimensions';
 import type { MapEnemySafeZone, MapEnemySpawnArea, MapSpawns } from '../../content/maps/mapFormat';
 import { resolveScreenUiDepth, resolveWorldDepth } from '../../presentation/WorldDepth';
 import { hitboxPool } from '../../combat/Hitbox';
-import { WeaponVisual } from './WeaponVisual';
 import { ObjectAnimationAdapter } from '../objects/ObjectAnimationAdapter';
 import { shouldSpawnConfirmedHitEffect } from '../../combat/ConfirmedHitEffect';
 import { resolveResourceHitPresentation } from '../../combat/ResourceHitPresentation';
@@ -75,9 +74,9 @@ export interface CombatControllerContext {
   supplementalWeaponHitboxes?: SupplementalWeaponHitboxPort;
   createManagedEnemy?: (request: EnemySpawnRequest) => EnemyPopulationMember | null | undefined;
   spawnManagedEffect?: ManagedWorldEffectSpawner;
-  mountManagedWeapon?: (weaponId: string) => boolean;
-  playManagedWeaponAttack?: (direction: WeaponAttackDirection, timeMs: number) => boolean;
-  clearManagedWeapon?: () => void;
+  mountManagedWeapon: (weaponId: string) => boolean;
+  playManagedWeaponAttack: (direction: WeaponAttackDirection, timeMs: number) => boolean;
+  clearManagedWeapon: () => void;
 }
 
 export interface ManagedEnemyDefeat {
@@ -90,7 +89,6 @@ export interface ManagedEnemyDefeat {
 export class CombatController {
   readonly targets: Phaser.Physics.Arcade.Group;
   private weapon?: Weapon;
-  private weaponVisual?: WeaponVisual;
   private combo: ComboSystem;
   private spawner?: EnemySpawner;
   private comboText: Phaser.GameObjects.Text;
@@ -126,8 +124,7 @@ export class CombatController {
     const equippedWeaponId = gameState.equippedWeaponId;
     if (equippedWeaponId) {
       const initialWeapon = this.createWeaponRuntime(equippedWeaponId);
-      this.weapon = initialWeapon.weapon;
-      this.weaponVisual = initialWeapon.visual;
+      this.weapon = initialWeapon;
     }
 
     if (ctx.enemySpawnAreas.length > 0 || spawnConfig) {
@@ -195,14 +192,12 @@ export class CombatController {
     this.combo.update();
     this.spawner?.update(time, delta);
     this.weapon?.update(delta);
-    this.weaponVisual?.update(delta);
     this.effects.update(delta);
     hitboxPool.update(this.ctx.scene);
     projectilePool.update(this.ctx.scene);
   }
 
   updatePresentation(): void {
-    this.weaponVisual?.updatePresentation();
     this.effects.updatePresentation();
     projectilePool.updatePresentation(this.ctx.scene);
   }
@@ -215,32 +210,28 @@ export class CombatController {
       facing.lengthSq() > 0 ? facing : new Phaser.Math.Vector2(1, 0),
     );
     const attacked = this.weapon.attack(timeMs);
-    if (attacked) this.ctx.playManagedWeaponAttack?.(direction, timeMs);
-    return attacked;
+    if (!attacked) return false;
+    if (this.ctx.playManagedWeaponAttack(direction, timeMs)) return true;
+    this.weapon.cancel();
+    return false;
   }
 
   equipWeapon(weaponId: string): boolean {
     if (this.attacking || weaponId === this.weapon?.def.weaponId) return !this.attacking;
-    let next: { weapon: Weapon; visual?: WeaponVisual };
+    let next: Weapon;
     try {
       next = this.createWeaponRuntime(weaponId);
     } catch {
       return false;
     }
     this.weapon?.destroy();
-    this.weaponVisual?.destroy();
-    this.weapon = next.weapon;
-    this.weaponVisual = next.visual;
+    this.weapon = next;
     this.ctx.playCharacterAction('idle');
     return true;
   }
 
   equippedWeaponId(): string | null {
     return this.weapon?.def.weaponId ?? null;
-  }
-
-  get usingLegacyWeaponVisual(): boolean {
-    return this.weaponVisual !== undefined;
   }
 
   transformManagedWeaponDamage(damage: number): number {
@@ -272,8 +263,7 @@ export class CombatController {
 
   destroy(): void {
     this.weapon?.destroy();
-    this.weaponVisual?.destroy();
-    this.ctx.clearManagedWeapon?.();
+    this.ctx.clearManagedWeapon();
     this.effects.destroy();
     this.ctx.setActionLocked(false);
     this.projectileWorldColliders.forEach((collider) => collider.destroy());
@@ -282,7 +272,7 @@ export class CombatController {
     this.comboText.destroy();
   }
 
-  private createWeaponRuntime(weaponId: string): { weapon: Weapon; visual?: WeaponVisual } {
+  private createWeaponRuntime(weaponId: string): Weapon {
     const { scene, player } = this.ctx;
     const definition = getWeaponDefinition(weaponId);
     const weapon = new Weapon(definition, {
@@ -401,18 +391,15 @@ export class CombatController {
         this.ctx.playCharacterAction('idle');
       },
       playCharacterAction: this.ctx.playCharacterAction,
-      playWeaponAnimation: (animationId, forceRestart) => this.weaponVisual?.play(animationId, forceRestart),
+      playWeaponAnimation: () => undefined,
       supplementalHitboxes: this.ctx.supplementalWeaponHitboxes,
     });
-    const managedPresentation = this.ctx.mountManagedWeapon?.(weaponId) === true;
-    const visual = managedPresentation
-      ? undefined
-      : new WeaponVisual(scene, player, weapon.def, weapon.clock, {
-          getDepth: () => player.depth + 0.01,
-          getFacing: this.ctx.getFacing,
-        });
+    if (!this.ctx.mountManagedWeapon(weaponId)) {
+      weapon.destroy();
+      throw new Error(`Weapon scene '${weaponId}' could not be mounted.`);
+    }
     weapon.startIdle();
-    return { weapon, ...(visual ? { visual } : {}) };
+    return weapon;
   }
 
   private enemyContext(spawnArea?: MapEnemySpawnArea) {
