@@ -5,15 +5,34 @@ export interface SceneStudioRoute {
   readonly scene?: SceneId;
 }
 
+const LEGACY_SCENE_STUDIOS = Object.freeze({
+  characters: { query: 'character', prefix: 'character' },
+  weapons: { query: 'weapon', prefix: 'weapon' },
+  projectiles: { query: 'projectile', prefix: 'projectile' },
+} as const);
+
+export function redirectLegacyStudioRoute(search: string): string | undefined {
+  const query = new URLSearchParams(search.startsWith('?') ? search.slice(1) : search);
+  const studio = query.get('studio');
+  const mapping = studio && studio in LEGACY_SCENE_STUDIOS
+    ? LEGACY_SCENE_STUDIOS[studio as keyof typeof LEGACY_SCENE_STUDIOS]
+    : undefined;
+  if (!mapping) return undefined;
+  const stableId = query.get(mapping.query)?.trim();
+  query.delete(mapping.query);
+  query.delete('animation');
+  query.delete('slot');
+  query.delete('direction');
+  return formatSceneStudioRoute({
+    active: true,
+    ...(stableId ? { scene: sceneId(`${mapping.prefix}.${stableId}`) } : {}),
+  }, query.toString());
+}
+
 export function redirectLegacyCharacterStudioRoute(search: string): string | undefined {
   const query = new URLSearchParams(search.startsWith('?') ? search.slice(1) : search);
   if (query.get('studio') !== 'characters') return undefined;
-  const character = query.get('character')?.trim();
-  query.delete('character');
-  return formatSceneStudioRoute({
-    active: true,
-    ...(character ? { scene: sceneId(`character.${character}`) } : {}),
-  }, query.toString());
+  return redirectLegacyStudioRoute(search);
 }
 
 export function parseSceneStudioRoute(search: string): SceneStudioRoute {
