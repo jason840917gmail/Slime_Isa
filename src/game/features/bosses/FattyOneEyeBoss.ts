@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 
 import { attackIntersectsCombatBody } from '../../combat/CombatBodyGeometry';
 import { acceptedDamage, rejectedDamage, type DamageApplicationResult } from '../../combat/DamageableTarget';
-import type { WeaponHitRequest } from '../../combat/Weapon';
+import type { WeaponHitRequest } from '../../combat/WeaponHitRequest';
 import type { BossDefinition } from '../../content/bosses/types';
 import { getBossEditorPreview } from '../../content/bosses/BossCatalog';
 import { getCharacterPackage } from '../../content/characters/CharacterCatalog';

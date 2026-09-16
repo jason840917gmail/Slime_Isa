@@ -127,7 +127,7 @@ test('managed projectile and impact effect scenes complete their production life
   await expect.poll(() => page.locator('canvas').count()).toBe(0);
 });
 
-test('equipped weapons mount under the managed player and follow the legacy attack authority', async ({ page }) => {
+test('equipped weapons mount under the managed player and own the attack lifecycle', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.addInitScript(() => {
     localStorage.clear();
