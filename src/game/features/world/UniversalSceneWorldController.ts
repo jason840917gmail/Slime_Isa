@@ -64,6 +64,10 @@ import {
 } from '../scripts/NpcScript';
 import { PLAYER_HEALTH_SERVICE, PlayerScript } from '../scripts/PlayerScript';
 import { ProjectileScript } from '../scripts/ProjectileScript';
+import { EffectScript } from '../scripts/EffectScript';
+import type { WorldEffectSpawnRequest } from '../effects/WorldEffectPool';
+import { WorldEffectPositionAttachment } from '../effects/WorldEffectPositionAttachment';
+import { resolvePhysicsPresentationPosition, type PhysicsPresentationTarget } from '../../presentation/PhysicsPresentation';
 import { PLAYER_INPUT_ACTIONS } from '../player/PlayerInputActions';
 import type { LegacyPlayerHealthAdapter } from '../../infrastructure/scenes/compatibility/LegacyPlayerHealthAdapter';
 import type { ModalStack } from '../../ui/ModalStack';
@@ -121,12 +125,26 @@ interface ManagedProjectile {
   readonly script: ProjectileScript;
 }
 
+interface ManagedEffect {
+  readonly mount: MountedScene;
+  readonly script: EffectScript;
+  readonly attachment?: WorldEffectPositionAttachment;
+}
+
 const MANAGED_ENEMY_SCENES = {
   'worm-archer': 'character.worm-archer',
   'worm-brawler': 'character.worm-brawler',
   'worm-swordsman': 'character.worm-swordsman',
   'slime-spider': 'character.slime-spider',
 } as const;
+
+const MANAGED_EFFECT_IDS = new Set([
+  'basic-spear-impact',
+  'basic-sword-impact',
+  'slam-hammer-impact',
+  'stone-impact',
+  'wood-impact',
+]);
 
 class ManagedBossBar implements LegacyBossBarHandle {
   readonly bar: BossHealthBar;
@@ -161,6 +179,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
   private readonly bosses = new Map<string, ManagedBoss>();
   private readonly ordinaryEnemies = new Map<number, ManagedOrdinaryEnemy>();
   private readonly projectiles = new Map<number, ManagedProjectile>();
+  private readonly effects = new Map<number, ManagedEffect>();
   private readonly npcs = new Map<string, NpcScript>();
   private playerScript?: PlayerScript;
   private playerBody?: CharacterBody2DNode;
@@ -171,6 +190,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
   private nextBossSequence = 1;
   private nextEnemySequence = 1;
   private nextProjectileSequence = 1;
+  private nextEffectSequence = 1;
   private managedProjectileSpawnCountValue = 0;
   private simulationTimeMs = 0;
   private mountingPlacement?: SceneEnabledPlacement;
@@ -235,9 +255,11 @@ export class UniversalSceneWorldController implements InteractionProvider {
           this.finishDefeatedBosses();
           this.finishDefeatedOrdinaryEnemies();
           this.finishExpiredProjectiles();
+          this.finishExpiredEffects();
         },
         render: (deltaSeconds) => {
           options.updateLegacyRender(deltaSeconds * 1000);
+          for (const effect of this.effects.values()) effect.attachment?.update();
           for (const bar of this.bossBars) bar.update();
         },
       }),
@@ -288,6 +310,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
   get managedPlayerCount(): number { return this.playerScript ? 1 : 0; }
   get managedProjectileCount(): number { return this.projectiles.size; }
   get managedProjectileSpawnCount(): number { return this.managedProjectileSpawnCountValue; }
+  get managedEffectCount(): number { return this.effects.size; }
   get managedPlayer(): PlayerScript {
     if (!this.playerScript) throw new Error('The authored player scene is not mounted.');
     return this.playerScript;
@@ -363,6 +386,41 @@ export class UniversalSceneWorldController implements InteractionProvider {
     };
   }
 
+  spawnEffect(request: WorldEffectSpawnRequest): boolean {
+    if (!MANAGED_EFFECT_IDS.has(request.effectId)) return false;
+    const sequence = this.nextEffectSequence++;
+    const mount = this.runtime.mountScene(sceneId(`effect.${request.effectId}`), {
+      runtimeNamespace: `managed-effect-${sequence}`,
+      position: { x: request.x, y: request.y },
+    });
+    const script = descendants(mount.root, EffectScript)[0];
+    if (!script) {
+      mount.dispose();
+      throw new Error(`Effect scene '${request.effectId}' requires EffectScript.`);
+    }
+    const attachment = request.followPositionOf
+      ? new WorldEffectPositionAttachment(
+          {
+            setPosition: (x, y) => { mount.mount.position = { x, y }; },
+            setDepth: () => undefined,
+          },
+          request.followPositionOf,
+          Phaser.GameObjects.Events.DESTROY,
+          request.x,
+          request.y,
+          request.depth,
+          request.followDepthOffset ?? 0,
+          (target) => resolvePhysicsPresentationPosition(
+            this.options.scene,
+            target as unknown as PhysicsPresentationTarget,
+          ),
+        )
+      : undefined;
+    this.effects.set(sequence, { mount, script, ...(attachment ? { attachment } : {}) });
+    script.play(request.direction);
+    return true;
+  }
+
   destroy(): void {
     if (this.disposed) return;
     this.disposed = true;
@@ -377,6 +435,8 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.bosses.clear();
     this.ordinaryEnemies.clear();
     this.projectiles.clear();
+    for (const effect of this.effects.values()) effect.attachment?.dispose();
+    this.effects.clear();
     this.npcs.clear();
     this.playerScript = undefined;
     this.playerBody = undefined;
@@ -614,6 +674,15 @@ export class UniversalSceneWorldController implements InteractionProvider {
       if (projectile.script.launched && !projectile.mount.root.is_freed()) continue;
       projectile.mount.dispose();
       this.projectiles.delete(sequence);
+    }
+  }
+
+  private finishExpiredEffects(): void {
+    for (const [sequence, effect] of [...this.effects]) {
+      if (effect.script.playing && !effect.mount.root.is_freed()) continue;
+      effect.attachment?.dispose();
+      effect.mount.dispose();
+      this.effects.delete(sequence);
     }
   }
 

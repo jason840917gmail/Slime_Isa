@@ -33,6 +33,8 @@ export interface WorldEffectSpawnRequest {
   readonly followDepthOffset?: number;
 }
 
+export type ManagedWorldEffectSpawner = (request: WorldEffectSpawnRequest) => boolean;
+
 /** Scene-owned pool; confirmed effects are independent of weapon lifecycle. */
 export class WorldEffectPool {
   private readonly slots: EffectSlot[] = [];
@@ -40,12 +42,13 @@ export class WorldEffectPool {
   private readonly diagnostics = new Set<string>();
   private destroyed = false;
 
-  constructor(private readonly scene: Phaser.Scene) {
+  constructor(private readonly scene: Phaser.Scene, private readonly spawnManaged?: ManagedWorldEffectSpawner) {
     scene.events.once(Phaser.Scenes.Events.SHUTDOWN, this.handleShutdown);
   }
 
   spawn(request: WorldEffectSpawnRequest): boolean {
     if (this.destroyed) return false;
+    if (this.spawnManaged?.(request)) return true;
     let variant;
     try { variant = getEffectDefinition(request.effectId).variants[request.direction]; }
     catch {
