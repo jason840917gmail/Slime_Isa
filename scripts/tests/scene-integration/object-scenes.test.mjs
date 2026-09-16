@@ -42,7 +42,12 @@ function dispose(fixture) {
   assert.equal(fixture.resources.activeLeaseCount(), 0);
 }
 
-for (const sceneId of ['object.resource-stone-node', 'object.resource-stone-node.big-stone-mine']) {
+for (const sceneId of [
+  'object.resource-stone-node',
+  'object.resource-stone-node.big-stone-mine',
+  'object.tree-world-solid',
+  'object.tree-world-solid.tree-autumn-01',
+]) {
   test(`${sceneId} mounts independent persistent resource state through placement overrides`, async () => {
     const first = await instantiate(sceneId, `${sceneId}-first`, 'level-1', 'stone-1');
     const second = await instantiate(sceneId, `${sceneId}-second`, 'level-2', 'stone-2');

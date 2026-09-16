@@ -47,6 +47,7 @@ const sliceUnitKeys = [
   'boss:fatty-one-eye',
   'object:chest.wooden',
   'object:resource.stone-node',
+  'object:tree.world.solid',
   'weapon:basic-spear',
   'weapon:basic-sword',
   'weapon:goo-gauntlet',

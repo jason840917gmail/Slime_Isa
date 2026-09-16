@@ -2,7 +2,7 @@ import type Phaser from 'phaser';
 
 import type { ResourceId, RuntimeNodeId } from '../../content/scenes/identifiers';
 import { Node2D, type Node2DOptions, type Vector2 } from '../../runtime/scene/Node2D';
-import { defaultWorldDepthResolver, type WorldDepthBand, type WorldDepthResolver } from '../../presentation/WorldDepth';
+import { defaultWorldDepthResolver, resolveObjectDepthAnchorY, type ObjectDepthBounds, type WorldDepthBand, type WorldDepthResolver } from '../../presentation/WorldDepth';
 import type { PhaserNodeContext } from '../scenes/PhaserNodeContext';
 import type { PresentationParticipant } from './PresentationSync';
 import type {
@@ -10,6 +10,7 @@ import type {
   WorldVisualEffects,
   WorldVisualRenderState,
 } from '../../presentation/WorldVisual';
+import type { SourceOcclusionBounds } from '../../presentation/WorldOcclusion';
 
 export interface Sprite2DNodeOptions extends Node2DOptions {
   readonly context: PhaserNodeContext;
@@ -25,6 +26,8 @@ export interface Sprite2DNodeOptions extends Node2DOptions {
   readonly depthBand?: WorldDepthBand;
   readonly depth?: number;
   readonly depthResolver?: WorldDepthResolver;
+  readonly occlusionBounds?: SourceOcclusionBounds;
+  readonly depthBounds?: ObjectDepthBounds;
 }
 
 function colorNumber(value: string | undefined): number | undefined {
@@ -60,6 +63,8 @@ export class Sprite2DNode extends Node2D implements PresentationParticipant, Wor
   }
 
   get phaserObjectActive(): boolean { return this.sprite !== undefined; }
+  get presentationObject(): Phaser.GameObjects.Sprite { return this.requireSprite(); }
+  get occlusionBounds(): SourceOcclusionBounds | undefined { return this.spriteOptions.occlusionBounds; }
   get frame(): number { return this.currentFrame ?? 0; }
   set frame(value: number) {
     if (!Number.isInteger(value) || value < 0) throw new Error('Sprite frame must be a non-negative integer');
@@ -163,7 +168,14 @@ export class Sprite2DNode extends Node2D implements PresentationParticipant, Wor
     sprite.setVisible(this.visible);
     const depth = this.spriteOptions.depthMode === 'explicit'
       ? this.spriteOptions.depth ?? 0
-      : this.depthResolver.resolve(transform.position.y, { band: this.spriteOptions.depthBand, stableId: this.runtimeId }).depth;
+      : this.depthResolver.resolve(this.spriteOptions.depthBounds
+        ? resolveObjectDepthAnchorY(transform.position.y, {
+            sourceFrameHeight: sprite.frame.realHeight,
+            originY: this.origin.y,
+            bounds: this.spriteOptions.depthBounds,
+            scaleY: Math.abs(transform.scale.y * this.effects.scaleY),
+          })
+        : transform.position.y, { band: this.spriteOptions.depthBand, stableId: this.runtimeId }).depth;
     sprite.setDepth(depth);
   }
 

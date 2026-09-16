@@ -1,6 +1,7 @@
 import type { JsonValue } from '../../content/scenes/types';
 import type { RuntimeNodeId } from '../../content/scenes/identifiers';
 import { Node2D } from '../../runtime/scene/Node2D';
+import { AnimationPlayerNode } from '../../runtime/scene/animation/AnimationPlayerNode';
 import type { DamageCommit, DamageMitigationInput, DamageStateDecision } from '../combat/DamageReceiver';
 import {
   DestructibleScript,
@@ -67,6 +68,15 @@ function isRecord(value: JsonValue | undefined): value is Readonly<Record<string
 export class ResourceNodeScript extends DestructibleScript {
   private resourcePort?: ResourceNodePort;
   private dropsPublished = false;
+  private animation?: AnimationPlayerNode;
+
+  constructor(context: ConstructorParameters<typeof DestructibleScript>[0]) {
+    super(context);
+    this.registerSignalHandler<string>('on_animation_finished', (animationId) => {
+      if (animationId !== this.stringProperty('onHitAnimationId', '')) return;
+      this.playAnimation(this.stringProperty('idleAnimationId', ''));
+    });
+  }
 
   get dropDefinition(): Readonly<{ objectId: string; visualId: string; pieces: number }> | undefined {
     return this.dropConfiguration();
@@ -97,10 +107,14 @@ export class ResourceNodeScript extends DestructibleScript {
   override _enter_tree(): void {
     this.resourcePort = this.service<ResourceNodePort>(RESOURCE_NODE_SERVICE);
     super._enter_tree();
+    const animation = this.getReference('animation')?.configuredTarget;
+    this.animation = animation instanceof AnimationPlayerNode ? animation : undefined;
+    if (this.animation) this.animation.animationFinished.connect(this, 'on_animation_finished');
   }
 
   override _exit_tree(): void {
     super._exit_tree();
+    this.animation = undefined;
     this.resourcePort = undefined;
   }
 
@@ -109,6 +123,7 @@ export class ResourceNodeScript extends DestructibleScript {
   }
 
   protected override onPositiveDamage(commit: DamageCommit): void {
+    this.playAnimation(this.stringProperty('onHitAnimationId', ''));
     const request: ResourceHitFeedbackRequest = {
       mapId: this.mapId,
       instanceId: this.instanceId,
@@ -169,6 +184,10 @@ export class ResourceNodeScript extends DestructibleScript {
   private worldPosition(): Readonly<{ x: number; y: number }> {
     const parent = this.get_parent();
     return parent instanceof Node2D ? parent.get_global_transform().position : { x: 0, y: 0 };
+  }
+
+  private playAnimation(animationId: string): void {
+    if (animationId && this.animation?.hasAnimation(animationId)) this.animation.play(animationId);
   }
 
   protected override _duplicateSelf(runtimeId: RuntimeNodeId): ResourceNodeScript {
