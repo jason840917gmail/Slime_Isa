@@ -8,6 +8,9 @@ import { BossCampScript } from './BossCampScript';
 import { ChestScript } from './ChestScript';
 import { PlayerScript } from './PlayerScript';
 import { NpcScript } from './NpcScript';
+import { WeaponScript } from './WeaponScript';
+import { ProjectileScript } from './ProjectileScript';
+import { EffectScript } from './EffectScript';
 
 const numberProperty = (key: string, label: string, defaultValue: number, group: string): PropertyDescriptor => ({
   key, label, group, value: { kind: 'number', min: 0 }, defaultValue,
@@ -209,6 +212,80 @@ export const BOSS_CAMP_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
   ],
 };
 
+export const WEAPON_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
+  scriptId: 'game.weapon',
+  displayName: 'Weapon Script',
+  description: 'Scene-owned weapon timing, directional hitbox windows, and presentation playback.',
+  sourcePath: 'src/game/features/scripts/WeaponScript.ts',
+  capabilities: ['weapon-script', 'attack-source'],
+  exclusiveCapabilities: ['weapon-controller'],
+  references: [
+    { key: 'attackArea', label: 'Attack Area', required: true, expectedCapability: 'area' },
+    { key: 'animation', label: 'Animation Player', required: true, expectedNodeType: 'AnimationPlayer' },
+  ],
+  properties: [
+    stringProperty('weaponId', 'Weapon ID', 'Identity'),
+    { key: 'category', label: 'Category', group: 'Identity', value: { kind: 'enum', values: ['melee', 'ranged'] }, defaultValue: 'melee', serialized: true, inspector: 'select', overridable: true },
+    nodeReference('attackArea', 'Attack Area', 'area'),
+    nodeReference('animation', 'Animation Player'),
+    numberProperty('baseDamage', 'Base Damage', 0, 'Combat'),
+    numberProperty('cooldownMs', 'Cooldown', 0, 'Combat'),
+    numberProperty('knockStrength', 'Knockback Strength', 0, 'Combat'),
+    { key: 'onHitEffectId', label: 'On-Hit Effect ID', group: 'Presentation', value: { kind: 'string' }, serialized: true, inspector: 'text', overridable: true },
+    jsonProperty('damageModifiers', 'Damage Modifiers', 'Combat', []),
+    jsonProperty('harvestCapabilities', 'Harvest Capabilities', 'Combat', {}),
+    jsonProperty('scaling', 'Attribute Scaling', 'Combat', {}),
+    jsonProperty('attackPlans', 'Directional Attack Plans', 'Combat', {}),
+  ],
+  signals: [
+    { id: 'attack_started', payload: 'WeaponAttackEvent' },
+    { id: 'attack_finished', payload: 'WeaponAttackEvent' },
+  ],
+};
+
+export const PROJECTILE_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
+  scriptId: 'game.projectile',
+  displayName: 'Projectile Script',
+  description: 'Scene-owned projectile launch, movement direction, rotation, and lifetime.',
+  sourcePath: 'src/game/features/scripts/ProjectileScript.ts',
+  capabilities: ['projectile-script', 'attack-source'],
+  exclusiveCapabilities: ['projectile-controller'],
+  references: [
+    { key: 'body', label: 'Projectile Body', required: true, expectedCapability: 'character-body' },
+    { key: 'visual', label: 'Visual', required: true },
+    { key: 'animation', label: 'Animation Player', required: true, expectedNodeType: 'AnimationPlayer' },
+  ],
+  properties: [
+    stringProperty('projectileId', 'Projectile ID', 'Identity'),
+    nodeReference('body', 'Projectile Body', 'character-body'),
+    nodeReference('visual', 'Visual'),
+    nodeReference('animation', 'Animation Player'),
+    numberProperty('defaultSpeed', 'Default Speed', 0, 'Movement'),
+    numberProperty('lifetimeMs', 'Lifetime', 0, 'Movement'),
+    { key: 'rotateToVelocity', label: 'Rotate to Velocity', group: 'Movement', value: { kind: 'boolean' }, defaultValue: false, serialized: true, inspector: 'checkbox', overridable: true },
+  ],
+  signals: [
+    { id: 'launched', payload: 'ProjectileEvent' },
+    { id: 'expired', payload: 'ProjectileEvent' },
+  ],
+};
+
+export const EFFECT_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
+  scriptId: 'game.effect',
+  displayName: 'Effect Script',
+  description: 'Scene-owned directional effect playback and finite lifetime.',
+  sourcePath: 'src/game/features/scripts/EffectScript.ts',
+  capabilities: ['effect-script'],
+  exclusiveCapabilities: ['effect-controller'],
+  references: [{ key: 'animation', label: 'Animation Player', required: true, expectedNodeType: 'AnimationPlayer' }],
+  properties: [
+    stringProperty('effectId', 'Effect ID', 'Identity'),
+    nodeReference('animation', 'Animation Player'),
+    numberProperty('lifetimeMs', 'Lifetime', 0, 'Playback'),
+  ],
+  signals: [{ id: 'finished', payload: 'EffectEvent' }],
+};
+
 export const GAME_SCRIPT_DESCRIPTORS = Object.freeze([
   CHARACTER_SCRIPT_DESCRIPTOR,
   PLAYER_SCRIPT_DESCRIPTOR,
@@ -217,6 +294,9 @@ export const GAME_SCRIPT_DESCRIPTORS = Object.freeze([
   FATTY_SCRIPT_DESCRIPTOR,
   CHEST_SCRIPT_DESCRIPTOR,
   BOSS_CAMP_SCRIPT_DESCRIPTOR,
+  WEAPON_SCRIPT_DESCRIPTOR,
+  PROJECTILE_SCRIPT_DESCRIPTOR,
+  EFFECT_SCRIPT_DESCRIPTOR,
 ]);
 
 export function createGameScriptRegistry(services: ScriptServiceMap = {}): ScriptRegistry {
@@ -227,7 +307,10 @@ export function createGameScriptRegistry(services: ScriptServiceMap = {}): Scrip
     .registerDefinition({ descriptor: ENEMY_SCRIPT_DESCRIPTOR, factory: (context) => new EnemyScript(context) })
     .registerDefinition({ descriptor: FATTY_SCRIPT_DESCRIPTOR, factory: (context) => new FattyScript(context) })
     .registerDefinition({ descriptor: CHEST_SCRIPT_DESCRIPTOR, factory: (context) => new ChestScript(context) })
-    .registerDefinition({ descriptor: BOSS_CAMP_SCRIPT_DESCRIPTOR, factory: (context) => new BossCampScript(context) });
+    .registerDefinition({ descriptor: BOSS_CAMP_SCRIPT_DESCRIPTOR, factory: (context) => new BossCampScript(context) })
+    .registerDefinition({ descriptor: WEAPON_SCRIPT_DESCRIPTOR, factory: (context) => new WeaponScript(context) })
+    .registerDefinition({ descriptor: PROJECTILE_SCRIPT_DESCRIPTOR, factory: (context) => new ProjectileScript(context) })
+    .registerDefinition({ descriptor: EFFECT_SCRIPT_DESCRIPTOR, factory: (context) => new EffectScript(context) });
 }
 
 export function createGameDescriptorRegistry() {

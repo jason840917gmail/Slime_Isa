@@ -9,6 +9,7 @@ import { visualSceneAdapter } from './lib/scene-conversion/animations.mjs';
 import { bossCampSceneAdapter } from './lib/scene-conversion/boss-camps.mjs';
 import { characterSceneAdapter, enemySceneAdapter } from './lib/scene-conversion/characters.mjs';
 import { objectSceneAdapter } from './lib/scene-conversion/objects.mjs';
+import { effectSceneAdapter, projectileSceneAdapter, weaponSceneAdapter } from './lib/scene-conversion/combat-entities.mjs';
 import { validateSceneWriteSet } from './lib/scene-conversion/validate-scene-write-set.mjs';
 
 const repositoryRoot = fileURLToPath(new URL('..', import.meta.url));
@@ -45,6 +46,22 @@ const sliceUnitKeys = [
   'enemy:worm-swordsman',
   'boss:fatty-one-eye',
   'object:chest.wooden',
+  'weapon:basic-spear',
+  'weapon:basic-sword',
+  'weapon:goo-gauntlet',
+  'weapon:pickaxe',
+  'weapon:slam-hammer',
+  'weapon:stone-axe',
+  'weapon:stone-pickaxe',
+  'weapon:stone-spear',
+  'weapon:wooden-axe',
+  'weapon:wooden-spear',
+  'projectile:worm-arrow',
+  'effect:basic-spear-impact',
+  'effect:basic-sword-impact',
+  'effect:slam-hammer-impact',
+  'effect:stone-impact',
+  'effect:wood-impact',
 ];
 const unitKeys = explicitUnitKeys.length > 0 ? explicitUnitKeys : sliceUnitKeys;
 const ledger = JSON.parse(await readFile(path.join(repositoryRoot, 'scripts/migrations/universal-scene-conversion-ledger.json'), 'utf8'));
@@ -58,6 +75,9 @@ const runner = new ConversionRunner({
     enemy: enemySceneAdapter,
     boss: bossCampSceneAdapter,
     object: objectSceneAdapter,
+    weapon: weaponSceneAdapter,
+    projectile: projectileSceneAdapter,
+    effect: effectSceneAdapter,
   },
   outputRoot: path.join(repositoryRoot, 'src/game/content/scenes/authored'),
   validateWriteSet: (outputs) => validateSceneWriteSet(outputs, { hasAsset: (assetId) => Object.hasOwn(manifest.assets, assetId) }),

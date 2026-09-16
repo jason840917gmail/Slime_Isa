@@ -1,0 +1,454 @@
+{
+  "version": 1,
+  "sceneId": "weapon.goo-gauntlet",
+  "rootNodeId": "root",
+  "nodes": [
+    {
+      "id": "root",
+      "name": "GooGauntlet",
+      "type": "Node2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "attack-area",
+      "name": "AttackArea",
+      "type": "Area2D",
+      "parentId": "root",
+      "order": 0,
+      "properties": {
+        "collisionLayer": 16,
+        "collisionMask": 8,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "shape-right-punch",
+      "name": "right--punch",
+      "type": "CollisionShape2D",
+      "parentId": "attack-area",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "weapon.goo-gauntlet.right.punch.shape"
+        },
+        "position": [
+          36,
+          0
+        ],
+        "rotation": 0,
+        "disabled": true
+      }
+    },
+    {
+      "id": "shape-right-impact",
+      "name": "right--impact",
+      "type": "CollisionShape2D",
+      "parentId": "attack-area",
+      "order": 1,
+      "properties": {
+        "shape": {
+          "resourceId": "weapon.goo-gauntlet.right.impact.shape"
+        },
+        "position": [
+          52,
+          0
+        ],
+        "rotation": 0,
+        "disabled": true
+      }
+    },
+    {
+      "id": "shape-left-punch",
+      "name": "left--punch",
+      "type": "CollisionShape2D",
+      "parentId": "attack-area",
+      "order": 2,
+      "properties": {
+        "shape": {
+          "resourceId": "weapon.goo-gauntlet.left.punch.shape"
+        },
+        "position": [
+          -36,
+          0
+        ],
+        "rotation": 0,
+        "disabled": true
+      }
+    },
+    {
+      "id": "shape-left-impact",
+      "name": "left--impact",
+      "type": "CollisionShape2D",
+      "parentId": "attack-area",
+      "order": 3,
+      "properties": {
+        "shape": {
+          "resourceId": "weapon.goo-gauntlet.left.impact.shape"
+        },
+        "position": [
+          -52,
+          0
+        ],
+        "rotation": 180,
+        "disabled": true
+      }
+    },
+    {
+      "id": "shape-up-punch",
+      "name": "up--punch",
+      "type": "CollisionShape2D",
+      "parentId": "attack-area",
+      "order": 4,
+      "properties": {
+        "shape": {
+          "resourceId": "weapon.goo-gauntlet.up.punch.shape"
+        },
+        "position": [
+          0,
+          -36
+        ],
+        "rotation": 0,
+        "disabled": true
+      }
+    },
+    {
+      "id": "shape-up-impact",
+      "name": "up--impact",
+      "type": "CollisionShape2D",
+      "parentId": "attack-area",
+      "order": 5,
+      "properties": {
+        "shape": {
+          "resourceId": "weapon.goo-gauntlet.up.impact.shape"
+        },
+        "position": [
+          0,
+          -52
+        ],
+        "rotation": -90,
+        "disabled": true
+      }
+    },
+    {
+      "id": "shape-down-punch",
+      "name": "down--punch",
+      "type": "CollisionShape2D",
+      "parentId": "attack-area",
+      "order": 6,
+      "properties": {
+        "shape": {
+          "resourceId": "weapon.goo-gauntlet.down.punch.shape"
+        },
+        "position": [
+          0,
+          36
+        ],
+        "rotation": 0,
+        "disabled": true
+      }
+    },
+    {
+      "id": "shape-down-impact",
+      "name": "down--impact",
+      "type": "CollisionShape2D",
+      "parentId": "attack-area",
+      "order": 7,
+      "properties": {
+        "shape": {
+          "resourceId": "weapon.goo-gauntlet.down.impact.shape"
+        },
+        "position": [
+          0,
+          52
+        ],
+        "rotation": 90,
+        "disabled": true
+      }
+    },
+    {
+      "id": "animation",
+      "name": "Animation",
+      "type": "AnimationPlayer",
+      "parentId": "root",
+      "order": 1,
+      "properties": {
+        "library": {
+          "resourceId": "weapon.goo-gauntlet.animations"
+        },
+        "domain": "physics",
+        "autoplay": "idle"
+      }
+    },
+    {
+      "id": "script",
+      "name": "WeaponScript",
+      "type": "ScriptNode",
+      "scriptId": "game.weapon",
+      "parentId": "root",
+      "order": 2,
+      "properties": {
+        "weaponId": "goo-gauntlet",
+        "category": "melee",
+        "attackArea": {
+          "nodeId": "attack-area"
+        },
+        "animation": {
+          "nodeId": "animation"
+        },
+        "baseDamage": 12,
+        "cooldownMs": 320,
+        "knockStrength": 200,
+        "damageModifiers": [
+          {
+            "targetTag": "stone",
+            "modifier": 0
+          },
+          {
+            "targetTag": "resource",
+            "modifier": 0.1
+          }
+        ],
+        "harvestCapabilities": {},
+        "scaling": {
+          "damage": {
+            "strength": 0.65,
+            "agility": 0.1
+          },
+          "cooldown": {
+            "agility": 0.35
+          },
+          "knockback": {
+            "strength": 0.35
+          }
+        },
+        "attackPlans": {
+          "right": {
+            "animationId": "attack-right",
+            "durationMs": 357.14285714285717,
+            "framesPerSecond": 14,
+            "hitboxSpans": [
+              {
+                "hitboxId": "punch",
+                "from": 1,
+                "through": 2
+              },
+              {
+                "hitboxId": "impact",
+                "from": 3,
+                "through": 3
+              }
+            ],
+            "events": [],
+            "mirrored": {
+              "x": false,
+              "y": false
+            }
+          },
+          "left": {
+            "animationId": "attack-left",
+            "durationMs": 357.14285714285717,
+            "framesPerSecond": 14,
+            "hitboxSpans": [
+              {
+                "hitboxId": "punch",
+                "from": 1,
+                "through": 2
+              },
+              {
+                "hitboxId": "impact",
+                "from": 3,
+                "through": 3
+              }
+            ],
+            "events": [],
+            "mirrored": {
+              "x": true,
+              "y": false
+            }
+          },
+          "up": {
+            "animationId": "attack-up",
+            "durationMs": 357.14285714285717,
+            "framesPerSecond": 14,
+            "hitboxSpans": [
+              {
+                "hitboxId": "punch",
+                "from": 1,
+                "through": 2
+              },
+              {
+                "hitboxId": "impact",
+                "from": 3,
+                "through": 3
+              }
+            ],
+            "events": [],
+            "mirrored": {
+              "x": false,
+              "y": false
+            }
+          },
+          "down": {
+            "animationId": "attack-down",
+            "durationMs": 357.14285714285717,
+            "framesPerSecond": 14,
+            "hitboxSpans": [
+              {
+                "hitboxId": "punch",
+                "from": 1,
+                "through": 2
+              },
+              {
+                "hitboxId": "impact",
+                "from": 3,
+                "through": 3
+              }
+            ],
+            "events": [],
+            "mirrored": {
+              "x": false,
+              "y": false
+            }
+          }
+        }
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "weapon.goo-gauntlet.right.punch.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "sector",
+        "angleRad": 0,
+        "innerRadius": 0,
+        "outerRadius": 68,
+        "arcWidthRad": 1.35
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "weapon.goo-gauntlet.right.impact.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "circle",
+        "radius": 18
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "weapon.goo-gauntlet.left.punch.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "sector",
+        "angleRad": 3.141592653589793,
+        "innerRadius": 0,
+        "outerRadius": 68,
+        "arcWidthRad": 1.35
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "weapon.goo-gauntlet.left.impact.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "circle",
+        "radius": 18
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "weapon.goo-gauntlet.up.punch.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "sector",
+        "angleRad": -1.5707963267948966,
+        "innerRadius": 0,
+        "outerRadius": 68,
+        "arcWidthRad": 1.35
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "weapon.goo-gauntlet.up.impact.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "circle",
+        "radius": 18
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "weapon.goo-gauntlet.down.punch.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "sector",
+        "angleRad": 1.5707963267948966,
+        "innerRadius": 0,
+        "outerRadius": 68,
+        "arcWidthRad": 1.35
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "weapon.goo-gauntlet.down.impact.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "circle",
+        "radius": 18
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "weapon.goo-gauntlet.animations",
+      "kind": "animation-library",
+      "animations": {
+        "idle": {
+          "durationSeconds": 0.125,
+          "framesPerSecond": 8,
+          "loop": true,
+          "loopMode": "wrap",
+          "tracks": []
+        },
+        "attack-right": {
+          "durationSeconds": 0.35714285714285715,
+          "framesPerSecond": 14,
+          "loop": false,
+          "loopMode": "wrap",
+          "tracks": []
+        },
+        "attack-left": {
+          "durationSeconds": 0.35714285714285715,
+          "framesPerSecond": 14,
+          "loop": false,
+          "loopMode": "wrap",
+          "tracks": []
+        },
+        "attack-up": {
+          "durationSeconds": 0.35714285714285715,
+          "framesPerSecond": 14,
+          "loop": false,
+          "loopMode": "wrap",
+          "tracks": []
+        },
+        "attack-down": {
+          "durationSeconds": 0.35714285714285715,
+          "framesPerSecond": 14,
+          "loop": false,
+          "loopMode": "wrap",
+          "tracks": []
+        }
+      }
+    }
+  ]
+}
