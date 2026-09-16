@@ -80,6 +80,8 @@ test('weapon scene routes one managed hit per activation through the shared dama
   let hp = 100;
   let commits = 0;
   const outcomes = [];
+  const lifecycle = [];
+  let activeLegacyHitboxes = 0;
   router.registerArea({
     runtimeNodeId: 'managed-enemy',
     getDamageState: () => ({ hp, maxHp: 100, dead: false }),
@@ -89,6 +91,12 @@ test('weapon scene routes one managed hit per activation through the shared dama
     [t.ATTACK_ACTIVATION_SERVICE]: activations,
     [t.DAMAGE_ROUTER_SERVICE]: router,
     [t.PLAYER_WEAPON_COMBAT_SERVICE]: {
+      onAttackStarted: (weaponId, direction) => lifecycle.push(['start', weaponId, direction]),
+      onAttackFinished: (weaponId, direction) => lifecycle.push(['finish', weaponId, direction]),
+      activateLegacyHitbox: () => {
+        activeLegacyHitboxes += 1;
+        return () => { activeLegacyHitboxes -= 1; };
+      },
       transformDamage: (damage, target) => {
         assert.equal(target.receiverNodeId, 'managed-enemy');
         return damage * 2;
@@ -99,8 +107,9 @@ test('weapon scene routes one managed hit per activation through the shared dama
   const script = fixture.root.get_node('WeaponScript');
   const area = fixture.root.get_node('AttackArea');
   const shape = area.get_children().find((node) => node.name === 'right--primary');
-  assert.equal(script.playAttack('right', 0, { damage: 7, knockbackStrength: 12 }), true);
+  assert.equal(script.playAttack('right', 0, { damage: 7, knockbackStrength: 12, cooldownMs: 1000 }), true);
   fixture.tree.physicsProcess(0.18);
+  assert.equal(activeLegacyHitboxes, 1);
   const contact = {
     observerId: area.runtimeId,
     otherId: 'managed-enemy-area',
@@ -113,7 +122,18 @@ test('weapon scene routes one managed hit per activation through the shared dama
   assert.equal(hp, 86);
   assert.equal(commits, 1);
   assert.deepEqual(outcomes, [['accepted', 'managed-enemy']]);
+  assert.deepEqual(lifecycle, [['start', 'basic-sword', 'right']]);
+  fixture.tree.physicsProcess(0.3);
+  assert.equal(activeLegacyHitboxes, 0);
+  assert.deepEqual(lifecycle, [['start', 'basic-sword', 'right'], ['finish', 'basic-sword', 'right']]);
+  assert.equal(script.tryBeginAttack('right', 999, { damage: 7, knockbackStrength: 12, cooldownMs: 1000 }), false);
+  assert.equal(script.tryBeginAttack('right', 1000, { damage: 7, knockbackStrength: 12, cooldownMs: 1000 }), true);
   dispose(fixture);
+  assert.equal(activeLegacyHitboxes, 0);
+  assert.deepEqual(lifecycle, [
+    ['start', 'basic-sword', 'right'], ['finish', 'basic-sword', 'right'],
+    ['start', 'basic-sword', 'right'], ['finish', 'basic-sword', 'right'],
+  ]);
 });
 
 test('projectile and effect scenes own finite lifetimes', async () => {

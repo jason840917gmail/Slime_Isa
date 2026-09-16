@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 
 import { rejectedDamage, type DamageApplicationResult } from '../../combat/DamageableTarget';
-import type { WeaponHitRequest } from '../../combat/Weapon';
+import type { WeaponHitRequest } from '../../combat/WeaponHitRequest';
 import { getBossDefinition } from '../../content/bosses/BossCatalog';
 import type { MapBossCamp } from '../../content/maps/mapFormat';
 import type { WorldProgress } from '../progression/WorldProgress';

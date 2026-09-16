@@ -1390,6 +1390,7 @@ export class WorldScene extends Phaser.Scene {
       createManagedEnemy: (request) => this.universalWorld?.createManagedEnemy(request),
       spawnManagedEffect: (request) => this.universalWorld?.spawnEffect(request) ?? false,
       mountManagedWeapon: (weaponId) => this.universalWorld?.mountWeapon(weaponId) ?? false,
+      canManagedWeaponAttack: (timeMs) => this.universalWorld?.canWeaponAttack(timeMs) ?? false,
       playManagedWeaponAttack: (direction, timeMs, damage) => this.universalWorld?.playWeaponAttack(direction, timeMs, damage) ?? false,
       clearManagedWeapon: () => this.universalWorld?.clearWeapon(),
     });
@@ -1418,6 +1419,9 @@ export class WorldScene extends Phaser.Scene {
       updateLegacyRender: (deltaMs) => this.updateLegacyRender(deltaMs),
       transformManagedWeaponDamage: (damage) => this.combatController?.transformManagedWeaponDamage(damage) ?? damage,
       onManagedWeaponOutcome: (outcome, target) => this.combatController?.onManagedWeaponOutcome(outcome, target),
+      onManagedWeaponAttackStarted: (weaponId, direction) => this.combatController?.onManagedWeaponAttackStarted(weaponId, direction),
+      onManagedWeaponAttackFinished: (weaponId) => this.combatController?.onManagedWeaponAttackFinished(weaponId),
+      activateLegacyWeaponHitbox: (request) => this.combatController?.activateLegacyWeaponHitbox(request) ?? (() => undefined),
       onManagedEnemyDefeated: (enemy) => this.combatController?.onManagedEnemyDefeated(enemy),
       getEnemySafeZones: () => [
         ...(this.builtMap?.enemySafeZones ?? []),

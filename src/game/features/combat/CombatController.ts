@@ -1,11 +1,8 @@
 ﻿import Phaser from 'phaser';
 import { ComboSystem } from '../../combat/ComboSystem';
+import { resolveScaledValue } from '../../combat/CombatScaling';
 import { TargetDummy } from '../../combat/TargetDummy';
-import {
-  Weapon,
-  resolveWeaponAttackDirection,
-  type WeaponHitRequest,
-} from '../../combat/Weapon';
+import type { WeaponHitRequest } from '../../combat/WeaponHitRequest';
 import type { DamageApplicationResult } from '../../combat/DamageableTarget';
 import { gameEvents } from '../../core/EventBus';
 import { gameState } from '../../core/GameState';
@@ -24,20 +21,26 @@ import { playerInventory } from '../../systems/Inventory';
 import { getAsset } from '../../infrastructure/assets/manifest';
 import { floatingText } from '../../ui/FloatingText';
 import { getWeaponDefinition } from '../../content/weapons/WeaponCatalog';
+import { resolveWeaponPresentationOffsetY } from '../../content/weapons/presentation';
+import {
+  LEGACY_WEAPON_SECTOR_ARC_RAD,
+  type NormalizedWeaponDefinition,
+  type WeaponHitboxDocument,
+} from '../../content/weapons/types';
 import type { WorldDimensions } from '../../world/WorldDimensions';
 import type { MapEnemySafeZone, MapEnemySpawnArea, MapSpawns } from '../../content/maps/mapFormat';
 import { resolveScreenUiDepth, resolveWorldDepth } from '../../presentation/WorldDepth';
-import { hitboxPool } from '../../combat/Hitbox';
+import { hitboxPool, type HitboxConfig, type HitboxTargets } from '../../combat/Hitbox';
 import { ObjectAnimationAdapter } from '../objects/ObjectAnimationAdapter';
 import { shouldSpawnConfirmedHitEffect } from '../../combat/ConfirmedHitEffect';
 import { resolveResourceHitPresentation } from '../../combat/ResourceHitPresentation';
 import { WorldEffectPool, type ManagedWorldEffectSpawner } from '../effects/WorldEffectPool';
 import { resolveDamageModifier } from '../../combat/DamageModifiers';
 import type { ResourceNodeController } from '../resources/ResourceNodeController';
-import type { HitboxTargets } from '../../combat/Hitbox';
 import { rejectedDamage } from '../../combat/DamageableTarget';
 import type { RoutedDamageOutcome } from './DamageRouter';
 import type {
+  LegacyWeaponHitboxRequest,
   ManagedWeaponTarget,
   WeaponAttackDirection,
   WeaponDamagePayload,
@@ -76,8 +79,28 @@ export interface CombatControllerContext {
   createManagedEnemy?: (request: EnemySpawnRequest) => EnemyPopulationMember | null | undefined;
   spawnManagedEffect?: ManagedWorldEffectSpawner;
   mountManagedWeapon: (weaponId: string) => boolean;
+  canManagedWeaponAttack: (timeMs: number) => boolean;
   playManagedWeaponAttack: (direction: WeaponAttackDirection, timeMs: number, damage: WeaponDamagePayload) => boolean;
   clearManagedWeapon: () => void;
+}
+
+function resolveAttackDirection(direction: Phaser.Math.Vector2): WeaponAttackDirection {
+  if (Math.abs(direction.x) >= Math.abs(direction.y)) return direction.x < 0 ? 'left' : 'right';
+  return direction.y < 0 ? 'up' : 'down';
+}
+
+function attackVector(direction: WeaponAttackDirection): Readonly<{ x: number; y: number }> {
+  if (direction === 'left') return { x: -1, y: 0 };
+  if (direction === 'up') return { x: 0, y: -1 };
+  if (direction === 'down') return { x: 0, y: 1 };
+  return { x: 1, y: 0 };
+}
+
+function directionalOffset(direction: WeaponAttackDirection, x: number, y: number): readonly [number, number] {
+  if (direction === 'left') return [-x, y];
+  if (direction === 'up') return [y, -x];
+  if (direction === 'down') return [-y, x];
+  return [x, y];
 }
 
 export interface ManagedEnemyDefeat {
@@ -89,13 +112,14 @@ export interface ManagedEnemyDefeat {
 
 export class CombatController {
   readonly targets: Phaser.Physics.Arcade.Group;
-  private weapon?: Weapon;
+  private weapon?: NormalizedWeaponDefinition;
   private combo: ComboSystem;
   private spawner?: EnemySpawner;
   private comboText: Phaser.GameObjects.Text;
   private attacking = false;
   private readonly effects: WorldEffectPool;
   private readonly projectileWorldColliders: Phaser.Physics.Arcade.Collider[] = [];
+  private attackSequence = 0;
 
   constructor(private readonly ctx: CombatControllerContext) {
     const { scene, player } = ctx;
@@ -124,8 +148,9 @@ export class CombatController {
 
     const equippedWeaponId = gameState.equippedWeaponId;
     if (equippedWeaponId) {
-      const initialWeapon = this.createWeaponRuntime(equippedWeaponId);
-      this.weapon = initialWeapon;
+      const definition = getWeaponDefinition(equippedWeaponId);
+      if (!ctx.mountManagedWeapon(equippedWeaponId)) throw new Error(`Weapon scene '${equippedWeaponId}' could not be mounted.`);
+      this.weapon = definition;
     }
 
     if (ctx.enemySpawnAreas.length > 0 || spawnConfig) {
@@ -192,7 +217,6 @@ export class CombatController {
   update(time: number, delta: number): void {
     this.combo.update();
     this.spawner?.update(time, delta);
-    this.weapon?.update(delta);
     this.effects.update(delta);
     hitboxPool.update(this.ctx.scene);
     projectilePool.update(this.ctx.scene);
@@ -206,38 +230,46 @@ export class CombatController {
   tryAttack(): boolean {
     if (!this.weapon || this.attacking || !this.ctx.canAttack()) return false;
     const timeMs = this.ctx.scene.time.now;
+    if (!this.ctx.canManagedWeaponAttack(timeMs)) return false;
     const facing = this.ctx.getFacing();
-    const direction = resolveWeaponAttackDirection(
+    const direction = resolveAttackDirection(
       facing.lengthSq() > 0 ? facing : new Phaser.Math.Vector2(1, 0),
     );
-    const attacked = this.weapon.attack(timeMs);
-    if (!attacked) return false;
-    const damage = this.weapon.activeDamageSnapshot();
-    if (damage && this.ctx.playManagedWeaponAttack(direction, timeMs, {
-      ...damage,
-      weaponTags: [this.weapon.def.weaponId.includes('spear') ? 'spear' : 'weapon'],
+    const stats = getStats();
+    const scaledDamage = Math.round(resolveScaledValue(
+      this.weapon.baseDamage * (stats.attack / 10),
+      this.weapon.scaling?.damage,
+      stats.attributes,
+    ));
+    const critical = Math.random() < stats.critChance;
+    const damage = critical ? Math.round(scaledDamage * stats.critMult) : scaledDamage;
+    const attacked = this.ctx.playManagedWeaponAttack(direction, timeMs, {
+      damage,
+      knockbackStrength: resolveScaledValue(this.weapon.knockStrength, this.weapon.scaling?.knockback, stats.attributes),
+      cooldownMs: resolveScaledValue(this.weapon.cooldownMs, this.weapon.scaling?.cooldown, stats.attributes, 1),
+      weaponTags: [this.weapon.weaponId.includes('spear') ? 'spear' : 'weapon'],
       damageTypes: ['physical'],
-    })) return true;
-    this.weapon.cancel();
-    return false;
+    });
+    if (attacked && critical) this.ctx.scene.cameras.main.shake(80, 0.006);
+    return attacked;
   }
 
   equipWeapon(weaponId: string): boolean {
-    if (this.attacking || weaponId === this.weapon?.def.weaponId) return !this.attacking;
-    let next: Weapon;
+    if (this.attacking || weaponId === this.weapon?.weaponId) return !this.attacking;
+    let next: NormalizedWeaponDefinition;
     try {
-      next = this.createWeaponRuntime(weaponId);
+      next = getWeaponDefinition(weaponId);
+      if (!this.ctx.mountManagedWeapon(weaponId)) return false;
     } catch {
       return false;
     }
-    this.weapon?.destroy();
     this.weapon = next;
     this.ctx.playCharacterAction('idle');
     return true;
   }
 
   equippedWeaponId(): string | null {
-    return this.weapon?.def.weaponId ?? null;
+    return this.weapon?.weaponId ?? null;
   }
 
   transformManagedWeaponDamage(damage: number): number {
@@ -247,7 +279,7 @@ export class CombatController {
   onManagedWeaponOutcome(outcome: RoutedDamageOutcome, target: ManagedWeaponTarget | undefined): void {
     if (outcome.result.status !== 'accepted') return;
     this.applyLifeSteal(outcome.result.actualDamage);
-    const effectId = this.weapon?.def.onHitEffectId;
+    const effectId = this.weapon?.onHitEffectId;
     if (!target || !effectId || outcome.result.actualDamage <= 0) return;
     this.effects.spawn({
       effectId,
@@ -268,7 +300,6 @@ export class CombatController {
   }
 
   destroy(): void {
-    this.weapon?.destroy();
     this.ctx.clearManagedWeapon();
     this.effects.destroy();
     this.ctx.setActionLocked(false);
@@ -278,133 +309,180 @@ export class CombatController {
     this.comboText.destroy();
   }
 
-  private createWeaponRuntime(weaponId: string): Weapon {
-    const { scene, player } = this.ctx;
-    const definition = getWeaponDefinition(weaponId);
-    const weapon = new Weapon(definition, {
-      scene,
-      getPlayer: () => player,
-      getFacing: this.ctx.getFacing,
-      getTargets: (): HitboxTargets => {
-        const resourceTargets = this.ctx.getResourceTargets?.();
-        const bossTargets = this.ctx.getBossTargets?.();
-        return [this.targets, ...(resourceTargets ? [resourceTargets] : []), ...(bossTargets ? [bossTargets] : [])];
-      },
-      applyHit: (hitRequest) => {
-        const { target, damage, knockX, knockY, knockStrength, attackDirection } = hitRequest;
-        const isResourceTarget = this.ctx.resourceNodes?.isResourceTarget(target) === true;
-        const isBossTarget = this.ctx.isBossTarget?.(target) === true;
-        const targetTags = target instanceof Enemy
-          ? ['enemy']
-          : isBossTarget
-            ? ['enemy', 'boss']
-          : isResourceTarget
-            ? this.ctx.resourceNodes!.tagsFor(target)
-            : [];
-        if (isResourceTarget) {
-          const requirement = this.ctx.resourceNodes!.harvestRequirementFor(target);
-          const capabilityTier = requirement
-            ? weapon.def.harvestCapabilities?.[requirement.targetTag] ?? 0
-            : 0;
-          if (requirement && capabilityTier < requirement.minimumTier) {
-            this.ctx.resourceNodes!.showHarvestFailure(target, requirement.failureMessage);
-            return rejectedDamage('invalid');
-          }
-        }
-        const damageModifier = resolveDamageModifier(weapon.def.damageModifiers, targetTags);
-        if (damageModifier <= 0) return rejectedDamage('invalid');
-        const comboDamage = damage * this.combo.registerHit();
-        const finalDamage = Math.max(0, Math.round(comboDamage * damageModifier));
-        if (finalDamage <= 0) return rejectedDamage('invalid');
-        const resourceHitAnchor = isResourceTarget
-          ? (() => {
-              const image = target as Phaser.GameObjects.GameObject & { readonly x: number; readonly y: number; readonly depth: number };
-              return { x: image.x, y: image.y, depth: image.depth };
-            })()
-          : undefined;
-        let result;
-        let hitTarget: Enemy | TargetDummy | (Phaser.GameObjects.GameObject & { readonly x: number; readonly y: number; readonly depth: number }) | undefined;
-        if (target instanceof Enemy) {
-          hitTarget = target;
-          result = target.applyDamage({ amount: finalDamage, knockX, knockY, knockStrength });
-          this.applyLifeSteal(result.actualDamage);
-        } else if (target instanceof TargetDummy) {
-          hitTarget = target;
-          result = target.applyDamage({ amount: finalDamage, knockX, knockY, knockStrength });
-        } else if (isBossTarget && this.ctx.applyBossHit) {
-          hitTarget = target as Phaser.GameObjects.GameObject & { readonly x: number; readonly y: number; readonly depth: number };
-          result = this.ctx.applyBossHit({ ...hitRequest, damage: finalDamage });
-          this.applyLifeSteal(result.actualDamage);
-        } else if (isResourceTarget) {
-          result = this.ctx.resourceNodes!.applyDamage(target, finalDamage);
-        } else {
-          result = { status: 'rejected' as const, actualDamage: 0, defeated: false, reason: 'invalid' as const };
-        }
-        const resourceHitEffectId = 'resourceHitEffectId' in result
-          && typeof result.resourceHitEffectId === 'string'
-          ? result.resourceHitEffectId
-          : undefined;
-        const acceptedObjectEvent = isResourceTarget
-          && result.status === 'accepted'
-          && 'acceptedDamage' in result
-          ? result
-          : undefined;
-        const resourceHitPresentation = acceptedObjectEvent
-          ? resolveResourceHitPresentation(acceptedObjectEvent)
-          : 'none';
-        if (acceptedObjectEvent && resourceHitPresentation === 'deplete') {
-          this.ctx.resourceNodes?.completeDepletion(acceptedObjectEvent.target);
-        } else if (acceptedObjectEvent && resourceHitPresentation === 'animate-hit') {
-          (acceptedObjectEvent.target.getData('objectAnimationAdapter') as ObjectAnimationAdapter | undefined)
-            ?.animateOnHit(acceptedObjectEvent.onHitAnimationId);
-        }
-        if (hitTarget && shouldSpawnConfirmedHitEffect(weapon.def.onHitEffectId, result)) {
-          this.effects.spawn({
-            effectId: weapon.def.onHitEffectId!,
-            direction: attackDirection,
-            x: hitTarget.x,
-            y: hitTarget.y,
-            depth: hitTarget.depth + 0.2,
-            followPositionOf: hitTarget,
-            followDepthOffset: 0.2,
-          });
-        } else if (
-          resourceHitAnchor
-          && shouldSpawnConfirmedHitEffect(resourceHitEffectId, result)
-        ) {
-          this.effects.spawn({
-            effectId: resourceHitEffectId!,
-            direction: attackDirection,
-            x: resourceHitAnchor.x,
-            y: resourceHitAnchor.y,
-            depth: resourceHitAnchor.depth + 0.2,
-            ...(target.active ? {
-              followPositionOf: target as Phaser.GameObjects.GameObject & { readonly x: number; readonly y: number; readonly depth: number },
-              followDepthOffset: 0.2,
-            } : {}),
-          });
-        }
-        return result;
-      },
-      onAttackStart: () => {
-        this.attacking = true;
-        this.ctx.setActionLocked(true);
-        player.setVelocity(0, 0);
-      },
-      onAttackEnd: () => {
-        this.attacking = false;
-        this.ctx.setActionLocked(false);
-        this.ctx.playCharacterAction('idle');
-      },
-      playCharacterAction: this.ctx.playCharacterAction,
-      playWeaponAnimation: () => undefined,
+  onManagedWeaponAttackStarted(weaponId: string, direction: WeaponAttackDirection): void {
+    if (this.weapon?.weaponId !== weaponId) return;
+    this.attacking = true;
+    this.attackSequence += 1;
+    this.ctx.setActionLocked(true);
+    this.ctx.player.setVelocity(0, 0);
+    this.ctx.playCharacterAction(this.weapon.directionalAttacks[direction].characterActionId);
+  }
+
+  onManagedWeaponAttackFinished(weaponId: string): void {
+    if (this.weapon?.weaponId !== weaponId) return;
+    this.attacking = false;
+    this.ctx.setActionLocked(false);
+    this.ctx.playCharacterAction('idle');
+  }
+
+  activateLegacyWeaponHitbox(request: LegacyWeaponHitboxRequest): () => void {
+    const weapon = this.weapon;
+    if (!weapon || weapon.weaponId !== request.weaponId) return () => undefined;
+    const hitbox = weapon.directionalAttacks[request.attackDirection].hitboxes[request.hitboxId];
+    if (!hitbox) return () => undefined;
+    const config = this.legacyHitboxConfig(hitbox, request, weapon);
+    const resourceTargets = this.ctx.getResourceTargets?.();
+    const bossTargets = this.ctx.getBossTargets?.();
+    const targets: HitboxTargets = [this.targets, ...(resourceTargets ? [resourceTargets] : []), ...(bossTargets ? [bossTargets] : [])];
+    const vector = attackVector(request.attackDirection);
+    const handle = hitboxPool.spawn(this.ctx.scene, targets, config, (target, damage, knockX, knockY, knockStrength) => {
+      this.applyLegacyWeaponHit({
+        target,
+        damage,
+        knockX,
+        knockY,
+        knockStrength,
+        weaponId: weapon.weaponId,
+        hitboxId: request.hitboxId,
+        attackDirection: request.attackDirection,
+        attackVector: [vector.x, vector.y],
+        playbackId: this.attackSequence,
+        hitbox: config,
+      }, weapon);
     });
-    if (!this.ctx.mountManagedWeapon(weaponId)) {
-      weapon.destroy();
-      throw new Error(`Weapon scene '${weaponId}' could not be mounted.`);
+    return () => handle.deactivate();
+  }
+
+  private applyLegacyWeaponHit(hitRequest: WeaponHitRequest, weapon: NormalizedWeaponDefinition): DamageApplicationResult {
+    const { target, damage, knockX, knockY, knockStrength, attackDirection } = hitRequest;
+    const isResourceTarget = this.ctx.resourceNodes?.isResourceTarget(target) === true;
+    const isBossTarget = this.ctx.isBossTarget?.(target) === true;
+    const targetTags = target instanceof Enemy
+      ? ['enemy']
+      : isBossTarget
+        ? ['enemy', 'boss']
+      : isResourceTarget
+        ? this.ctx.resourceNodes!.tagsFor(target)
+        : [];
+    if (isResourceTarget) {
+      const requirement = this.ctx.resourceNodes!.harvestRequirementFor(target);
+      const capabilityTier = requirement
+        ? weapon.harvestCapabilities?.[requirement.targetTag] ?? 0
+        : 0;
+      if (requirement && capabilityTier < requirement.minimumTier) {
+        this.ctx.resourceNodes!.showHarvestFailure(target, requirement.failureMessage);
+        return rejectedDamage('invalid');
+      }
     }
-    weapon.startIdle();
-    return weapon;
+    const damageModifier = resolveDamageModifier(weapon.damageModifiers, targetTags);
+    if (damageModifier <= 0) return rejectedDamage('invalid');
+    const comboDamage = damage * this.combo.registerHit();
+    const finalDamage = Math.max(0, Math.round(comboDamage * damageModifier));
+    if (finalDamage <= 0) return rejectedDamage('invalid');
+    const resourceHitAnchor = isResourceTarget
+      ? (() => {
+          const image = target as Phaser.GameObjects.GameObject & { readonly x: number; readonly y: number; readonly depth: number };
+          return { x: image.x, y: image.y, depth: image.depth };
+        })()
+      : undefined;
+    let result;
+    let hitTarget: Enemy | TargetDummy | (Phaser.GameObjects.GameObject & { readonly x: number; readonly y: number; readonly depth: number }) | undefined;
+    if (target instanceof Enemy) {
+      hitTarget = target;
+      result = target.applyDamage({ amount: finalDamage, knockX, knockY, knockStrength });
+      this.applyLifeSteal(result.actualDamage);
+    } else if (target instanceof TargetDummy) {
+      hitTarget = target;
+      result = target.applyDamage({ amount: finalDamage, knockX, knockY, knockStrength });
+    } else if (isBossTarget && this.ctx.applyBossHit) {
+      hitTarget = target as Phaser.GameObjects.GameObject & { readonly x: number; readonly y: number; readonly depth: number };
+      result = this.ctx.applyBossHit({ ...hitRequest, damage: finalDamage });
+      this.applyLifeSteal(result.actualDamage);
+    } else if (isResourceTarget) {
+      result = this.ctx.resourceNodes!.applyDamage(target, finalDamage);
+    } else {
+      result = rejectedDamage('invalid');
+    }
+    const resourceHitEffectId = 'resourceHitEffectId' in result
+      && typeof result.resourceHitEffectId === 'string'
+      ? result.resourceHitEffectId
+      : undefined;
+    const acceptedObjectEvent = isResourceTarget
+      && result.status === 'accepted'
+      && 'acceptedDamage' in result
+      ? result
+      : undefined;
+    const resourceHitPresentation = acceptedObjectEvent
+      ? resolveResourceHitPresentation(acceptedObjectEvent)
+      : 'none';
+    if (acceptedObjectEvent && resourceHitPresentation === 'deplete') {
+      this.ctx.resourceNodes?.completeDepletion(acceptedObjectEvent.target);
+    } else if (acceptedObjectEvent && resourceHitPresentation === 'animate-hit') {
+      (acceptedObjectEvent.target.getData('objectAnimationAdapter') as ObjectAnimationAdapter | undefined)
+        ?.animateOnHit(acceptedObjectEvent.onHitAnimationId);
+    }
+    if (hitTarget && shouldSpawnConfirmedHitEffect(weapon.onHitEffectId, result)) {
+      this.effects.spawn({
+        effectId: weapon.onHitEffectId!,
+        direction: attackDirection,
+        x: hitTarget.x,
+        y: hitTarget.y,
+        depth: hitTarget.depth + 0.2,
+        followPositionOf: hitTarget,
+        followDepthOffset: 0.2,
+      });
+    } else if (resourceHitAnchor && shouldSpawnConfirmedHitEffect(resourceHitEffectId, result)) {
+      this.effects.spawn({
+        effectId: resourceHitEffectId!,
+        direction: attackDirection,
+        x: resourceHitAnchor.x,
+        y: resourceHitAnchor.y,
+        depth: resourceHitAnchor.depth + 0.2,
+        ...(target.active ? {
+          followPositionOf: target as Phaser.GameObjects.GameObject & { readonly x: number; readonly y: number; readonly depth: number },
+          followDepthOffset: 0.2,
+        } : {}),
+      });
+    }
+    return result;
+  }
+
+  private legacyHitboxConfig(
+    hitbox: WeaponHitboxDocument,
+    request: LegacyWeaponHitboxRequest,
+    weapon: NormalizedWeaponDefinition,
+  ): HitboxConfig {
+    const [offsetX, offsetY] = directionalOffset(request.attackDirection, hitbox.offsetX, hitbox.offsetY);
+    const presentationOffsetY = weapon.directionalAttacks[request.attackDirection].presentationOffsetY
+      ?? resolveWeaponPresentationOffsetY(weapon.directionalAttacks[request.attackDirection].mirrorY);
+    const x = this.ctx.player.x + offsetX;
+    const y = this.ctx.player.y + offsetY + presentationOffsetY;
+    const vector = attackVector(request.attackDirection);
+    if (hitbox.shape === 'sector') {
+      const outerRadius = hitbox.outerRadius ?? hitbox.offsetX + hitbox.width / 2;
+      return {
+        x, y, width: outerRadius * 2, height: outerRadius * 2,
+        damage: request.damage, durationMs: 1000,
+        knockX: vector.x, knockY: vector.y, knockStrength: request.knockbackStrength,
+        vfxColor: weapon.vfxColor, showVfx: false, shape: 'sector',
+        originX: x, originY: y, angle: Math.atan2(vector.y, vector.x),
+        arcWidth: hitbox.arcWidthRad ?? LEGACY_WEAPON_SECTOR_ARC_RAD,
+        innerRadius: hitbox.innerRadius ?? 0, outerRadius, autoDeactivate: false,
+      };
+    }
+    const radiusX = hitbox.radiusX ?? hitbox.radius ?? hitbox.width / 2;
+    const radiusY = hitbox.radiusY ?? hitbox.radius ?? hitbox.height / 2;
+    return {
+      x, y,
+      width: hitbox.shape === 'circle' ? radiusX * 2 : hitbox.width,
+      height: hitbox.shape === 'circle' ? radiusY * 2 : hitbox.height,
+      radiusX, radiusY,
+      damage: request.damage, durationMs: 1000,
+      knockX: vector.x, knockY: vector.y, knockStrength: request.knockbackStrength,
+      vfxColor: weapon.vfxColor, showVfx: false,
+      shape: hitbox.shape === 'rectangle' ? 'rect' : hitbox.shape,
+      autoDeactivate: false,
+    };
   }
 
   private enemyContext(spawnArea?: MapEnemySpawnArea) {

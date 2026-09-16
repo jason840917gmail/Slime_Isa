@@ -66,6 +66,7 @@ import {
   PLAYER_WEAPON_COMBAT_SERVICE,
   WeaponScript,
   type ManagedWeaponTarget,
+  type LegacyWeaponHitboxRequest,
   type WeaponAttackDirection,
   type WeaponDamagePayload,
 } from '../scripts/WeaponScript';
@@ -97,6 +98,9 @@ export interface UniversalSceneWorldControllerOptions {
   readonly updateLegacyRender: (deltaMs: number) => void;
   readonly transformManagedWeaponDamage: (damage: number, target: ManagedWeaponTarget) => number;
   readonly onManagedWeaponOutcome: (outcome: RoutedDamageOutcome, target: ManagedWeaponTarget | undefined) => void;
+  readonly onManagedWeaponAttackStarted: (weaponId: string, direction: WeaponAttackDirection) => void;
+  readonly onManagedWeaponAttackFinished: (weaponId: string, direction: WeaponAttackDirection) => void;
+  readonly activateLegacyWeaponHitbox: (request: LegacyWeaponHitboxRequest) => () => void;
   readonly onManagedEnemyDefeated: (enemy: ManagedEnemyDefeat) => void;
   readonly getEnemySafeZones: () => readonly MapEnemySafeZone[];
   readonly registerNpc?: (registration: QuestNpcRegistration) => void;
@@ -217,6 +221,9 @@ export class UniversalSceneWorldController implements InteractionProvider {
       [DAMAGE_ROUTER_SERVICE]: this.damageRouter,
       [ATTACK_ACTIVATION_SERVICE]: this.activations,
       [PLAYER_WEAPON_COMBAT_SERVICE]: {
+        onAttackStarted: options.onManagedWeaponAttackStarted,
+        onAttackFinished: options.onManagedWeaponAttackFinished,
+        activateLegacyHitbox: options.activateLegacyWeaponHitbox,
         transformDamage: options.transformManagedWeaponDamage,
         onOutcome: options.onManagedWeaponOutcome,
       },
@@ -451,7 +458,11 @@ export class UniversalSceneWorldController implements InteractionProvider {
   }
 
   playWeaponAttack(direction: WeaponAttackDirection, timeMs: number, damage: WeaponDamagePayload): boolean {
-    return this.weapon?.script.playAttack(direction, timeMs, damage) ?? false;
+    return this.weapon?.script.tryBeginAttack(direction, timeMs, damage) ?? false;
+  }
+
+  canWeaponAttack(timeMs: number): boolean {
+    return this.weapon?.script.canBeginAttack(timeMs) ?? false;
   }
 
   clearWeapon(): void {
