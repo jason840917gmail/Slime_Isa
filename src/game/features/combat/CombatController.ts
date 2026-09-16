@@ -206,7 +206,10 @@ export class CombatController {
       damage,
       knockbackStrength: resolveScaledValue(this.weapon.knockStrength, this.weapon.scaling?.knockback, stats.attributes),
       cooldownMs: resolveScaledValue(this.weapon.cooldownMs, this.weapon.scaling?.cooldown, stats.attributes, 1),
-      weaponTags: [this.weapon.weaponId.includes('spear') ? 'spear' : 'weapon'],
+      weaponTags: [
+        this.weapon.weaponId.includes('spear') ? 'spear' : 'weapon',
+        ...Object.entries(this.weapon.harvestCapabilities ?? {}).map(([tag, tier]) => `harvest:${tag}:${tier}`),
+      ],
       damageTypes: ['physical'],
     });
     if (attacked && critical) this.ctx.scene.cameras.main.shake(80, 0.006);
