@@ -1,0 +1,450 @@
+{
+  "version": 1,
+  "sceneId": "object.tree-world-solid.tree-autumn-01",
+  "rootNodeId": "body",
+  "nodes": [
+    {
+      "id": "body",
+      "name": "Autumntree",
+      "type": "StaticBody2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "collisionLayer": 1,
+        "collisionMask": 2,
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "body-shape",
+      "name": "BodyShape",
+      "type": "CollisionShape2D",
+      "parentId": "body",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "tree-world-solid.tree-autumn-01.shape"
+        },
+        "position": [
+          37,
+          122
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "body",
+      "order": 1,
+      "properties": {
+        "texture": {
+          "resourceId": "tree-world-solid.tree-autumn-01.sprite"
+        },
+        "frame": 0,
+        "origin": [
+          0.5,
+          1
+        ],
+        "scale": [
+          1,
+          1
+        ],
+        "visualOffset": [
+          0,
+          0
+        ],
+        "depthMode": "world-sorted",
+        "depthBand": "world-entities"
+      }
+    },
+    {
+      "id": "damage-area",
+      "name": "DamageArea",
+      "type": "Area2D",
+      "parentId": "body",
+      "order": 2,
+      "properties": {
+        "collisionLayer": 8,
+        "collisionMask": 16,
+        "monitoring": true,
+        "monitorable": true
+      }
+    },
+    {
+      "id": "damage-shape",
+      "name": "DamageShape",
+      "type": "CollisionShape2D",
+      "parentId": "damage-area",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "tree-world-solid.tree-autumn-01.shape"
+        },
+        "position": [
+          37,
+          122
+        ]
+      }
+    },
+    {
+      "id": "animation",
+      "name": "Animation",
+      "type": "AnimationPlayer",
+      "parentId": "body",
+      "order": 3,
+      "properties": {
+        "library": {
+          "resourceId": "tree-world-solid.tree-autumn-01.animations"
+        },
+        "domain": "physics",
+        "autoplay": "object.tree.autumn.idle"
+      }
+    },
+    {
+      "id": "script",
+      "name": "ResourceNodeScript",
+      "type": "ScriptNode",
+      "scriptId": "game.resource-node",
+      "parentId": "body",
+      "order": 4,
+      "properties": {
+        "mapId": "map-template",
+        "instanceId": "resource-template",
+        "objectId": "tree.world.solid",
+        "damageArea": {
+          "nodeId": "damage-area"
+        },
+        "maxHealth": 40,
+        "tags": [
+          "wood",
+          "resource",
+          "tree",
+          "solid"
+        ],
+        "drop": {
+          "objectId": "collectible.wood-pile",
+          "visualId": "wood-pile",
+          "pieces": 1
+        },
+        "hitEffectId": "wood-impact",
+        "onHitAnimationId": "object.tree.autumn.leaf-fall",
+        "persistHealth": true,
+        "depletionMessage": "Tree felled",
+        "harvestRequirement": {
+          "targetTag": "wood",
+          "minimumTier": 1,
+          "failureMessage": "Requires an Axe"
+        },
+        "damageRule": {
+          "priority": 0,
+          "damageMultiplier": 1
+        },
+        "idleAnimationId": "object.tree.autumn.idle",
+        "animation": {
+          "nodeId": "animation"
+        }
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "tree-world-solid.tree-autumn-01.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "sheet.trees.autumn.6x2",
+      "frameWidth": 128,
+      "frameHeight": 170,
+      "frameCount": 12
+    },
+    {
+      "version": 1,
+      "resourceId": "tree-world-solid.tree-autumn-01.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 54,
+        "height": 41
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "tree-world-solid.tree-autumn-01.animations",
+      "kind": "animation-library",
+      "animations": {
+        "object.tree.autumn.idle": {
+          "durationSeconds": 2,
+          "framesPerSecond": 8,
+          "loop": true,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Visual",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                },
+                {
+                  "at": 3,
+                  "value": 1
+                },
+                {
+                  "at": 5,
+                  "value": 2
+                },
+                {
+                  "at": 8,
+                  "value": 3
+                },
+                {
+                  "at": 11,
+                  "value": 4
+                },
+                {
+                  "at": 13,
+                  "value": 5
+                }
+              ]
+            },
+            {
+              "binding": "../Visual",
+              "property": "visualOffset",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "at": 5,
+                  "value": [
+                    -1,
+                    0
+                  ]
+                },
+                {
+                  "at": 8,
+                  "value": [
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "at": 11,
+                  "value": [
+                    -1,
+                    0
+                  ]
+                },
+                {
+                  "at": 13,
+                  "value": [
+                    0,
+                    0
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Visual",
+              "property": "scale",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 5,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 8,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 11,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 13,
+                  "value": [
+                    1,
+                    1
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "object.tree.autumn.leaf-fall": {
+          "durationSeconds": 0.6,
+          "framesPerSecond": 10,
+          "loop": false,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Visual",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 6
+                },
+                {
+                  "at": 1,
+                  "value": 7
+                },
+                {
+                  "at": 2,
+                  "value": 8
+                },
+                {
+                  "at": 3,
+                  "value": 9
+                },
+                {
+                  "at": 4,
+                  "value": 10
+                },
+                {
+                  "at": 5,
+                  "value": 11
+                }
+              ]
+            },
+            {
+              "binding": "../Visual",
+              "property": "visualOffset",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    0,
+                    6
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    2.5,
+                    6
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    0.5,
+                    6
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    0.5,
+                    6
+                  ]
+                },
+                {
+                  "at": 4,
+                  "value": [
+                    -2.25,
+                    6
+                  ]
+                },
+                {
+                  "at": 5,
+                  "value": [
+                    0,
+                    6
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Visual",
+              "property": "scale",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 4,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 5,
+                  "value": [
+                    1,
+                    1
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

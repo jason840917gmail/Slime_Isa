@@ -1,6 +1,12 @@
 import { convertedOutput, readJson, requireSupportedUnit } from './adapter-utils.mjs';
 
-const SUPPORTED = new Set(['object:chest.wooden', 'object:resource.stone-node']);
+const SUPPORTED = new Set(['object:chest.wooden', 'object:resource.stone-node', 'object:tree.world.solid']);
+
+const OBJECT_ANIMATION_PATHS = {
+  'object.tree.idle': 'src/game/content/animations/objects/tree/idle/animation.json',
+  'object.tree.autumn.idle': 'src/game/content/animations/objects/tree/autumn/idle/animation.json',
+  'object.tree.autumn.leaf-fall': 'src/game/content/animations/objects/tree/autumn/leaf-fall/animation.json',
+};
 
 function slug(value) {
   return value.replaceAll('.', '-').replace(/[^a-z0-9-]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
@@ -12,9 +18,57 @@ function shapeValue(collider, scale) {
   return { shape: 'rectangle', width: collider.width * scale, height: collider.height * scale };
 }
 
-function objectVisualScenes(unit, object, manifest) {
+function vectorProduct(first = [1, 1], second = [1, 1], scalar = 1) {
+  return [first[0] * second[0] * scalar, first[1] * second[1] * scalar];
+}
+
+function vectorSum(first = [0, 0], second = [0, 0]) {
+  return [first[0] + second[0], first[1] + second[1]];
+}
+
+function animationDocument(animationPackage, staticScale) {
+  const animation = animationPackage.animation;
+  if (animation.layers.length !== 1) throw new Error(`Object animation '${animationPackage.animationId}' must contain exactly one visual layer`);
+  const layer = animation.layers[0];
+  const layerTransform = layer.transform ?? {};
+  const frameKeys = [];
+  const offsetKeys = [];
+  const scaleKeys = [];
+  for (const block of layer.blocks) {
+    const transform = block.transform ?? {};
+    frameKeys.push({ at: block.from, value: block.sourceFrame });
+    offsetKeys.push({ at: block.from, value: vectorSum(layerTransform.offset, transform.offset) });
+    scaleKeys.push({ at: block.from, value: vectorProduct(layerTransform.scale, transform.scale, staticScale) });
+  }
+  return {
+    durationSeconds: animation.durationSeconds,
+    framesPerSecond: animation.framesPerSecond,
+    loop: animation.loop,
+    loopMode: animation.loopMode,
+    tracks: [
+      { binding: '../Visual', property: 'frame', keys: frameKeys },
+      { binding: '../Visual', property: 'visualOffset', keys: offsetKeys },
+      { binding: '../Visual', property: 'scale', keys: scaleKeys },
+    ],
+  };
+}
+
+async function animationLibrary(frame, staticScale, readSource) {
+  const ids = [frame.idleAnimationId, frame.onHitAnimationId].filter(Boolean);
+  if (ids.length === 0) return undefined;
+  const animations = {};
+  for (const id of ids) {
+    const sourcePath = OBJECT_ANIMATION_PATHS[id];
+    if (!sourcePath) throw new Error(`Object animation '${id}' has no scene conversion source`);
+    const animationPackage = await readJson(readSource, sourcePath);
+    animations[id] = animationDocument(animationPackage, staticScale);
+  }
+  return animations;
+}
+
+async function objectVisualScenes(unit, object, manifest, readSource) {
   const frames = object.variants.flatMap((variant) => variant.frames.map((frame) => ({ assetId: variant.assetId, frame })));
-  return frames.map(({ assetId, frame }, index) => {
+  return Promise.all(frames.map(async ({ assetId, frame }, index) => {
     if (!frame.collider) throw new Error(`Damageable object '${object.objectId}' visual '${frame.visualId}' requires a collider`);
     const asset = manifest.assets[assetId];
     if (!asset || asset.source.kind !== 'spritesheet') throw new Error(`Object '${object.objectId}' visual '${frame.visualId}' requires a spritesheet asset`);
@@ -27,6 +81,12 @@ function objectVisualScenes(unit, object, manifest) {
     const resourcePrefix = `${baseSlug}.${visualSlug}`;
     const origin = Array.isArray(asset.render?.origin) ? asset.render.origin : [0.5, 1];
     const node = object.resourceNode;
+    const animations = await animationLibrary(frame, scale, readSource);
+    const animationResourceId = `${resourcePrefix}.animations`;
+    const animationNode = animations ? {
+      id: 'animation', name: 'Animation', type: 'AnimationPlayer', parentId: 'body', order: 3,
+      properties: { library: { resourceId: animationResourceId }, domain: 'physics', autoplay: frame.idleAnimationId },
+    } : undefined;
     const document = {
       version: 1,
       sceneId: `object.${baseSlug}${sceneSuffix}`,
@@ -34,17 +94,20 @@ function objectVisualScenes(unit, object, manifest) {
       nodes: [
         { id: 'body', name: frame.displayName ?? frame.visualId, type: 'StaticBody2D', parentId: null, order: 0, properties: { collisionLayer: 1, collisionMask: 2, position: [0, 0] } },
         { id: 'body-shape', name: 'BodyShape', type: 'CollisionShape2D', parentId: 'body', order: 0, properties: { shape: { resourceId: `${resourcePrefix}.shape` }, position: [(frame.collider.offsetX - visualOffset.x) * scale, (frame.collider.offsetY - visualOffset.y) * scale] } },
-        { id: 'visual', name: 'Visual', type: 'Sprite2D', parentId: 'body', order: 1, properties: { texture: { resourceId: `${resourcePrefix}.sprite` }, frame: frame.frame, origin, scale: [scale, scale], visualOffset: [visualOffset.x, visualOffset.y], depthMode: 'world-sorted', depthBand: 'world-entities' } },
+        { id: 'visual', name: 'Visual', type: 'Sprite2D', parentId: 'body', order: 1, properties: { texture: { resourceId: `${resourcePrefix}.sprite` }, frame: frame.frame, origin, scale: [scale, scale], visualOffset: [visualOffset.x, visualOffset.y], depthMode: 'world-sorted', depthBand: 'world-entities', ...(frame.occlusionBounds ? { occlusionBounds: frame.occlusionBounds } : {}), ...(frame.depthBounds ? { depthBounds: frame.depthBounds } : {}) } },
         { id: 'damage-area', name: 'DamageArea', type: 'Area2D', parentId: 'body', order: 2, properties: { collisionLayer: 8, collisionMask: 16, monitoring: true, monitorable: true } },
         { id: 'damage-shape', name: 'DamageShape', type: 'CollisionShape2D', parentId: 'damage-area', order: 0, properties: { shape: { resourceId: `${resourcePrefix}.shape` }, position: [(frame.collider.offsetX - visualOffset.x) * scale, (frame.collider.offsetY - visualOffset.y) * scale] } },
+        ...(animationNode ? [animationNode] : []),
         {
-          id: 'script', name: 'ResourceNodeScript', type: 'ScriptNode', scriptId: 'game.resource-node', parentId: 'body', order: 3,
+          id: 'script', name: 'ResourceNodeScript', type: 'ScriptNode', scriptId: 'game.resource-node', parentId: 'body', order: animations ? 4 : 3,
           properties: {
             mapId: 'map-template', instanceId: 'resource-template', objectId: object.objectId,
             damageArea: { nodeId: 'damage-area' }, maxHealth: node.health, tags: object.tags,
             drop: node.drop, hitEffectId: node.hitEffectId ?? '', onHitAnimationId: frame.onHitAnimationId ?? '',
             persistHealth: node.persistHealth ?? true, depletionMessage: node.depletionMessage ?? '',
             harvestRequirement: node.harvestRequirement ?? {}, damageRule: { priority: 0, damageMultiplier: 1 },
+            ...(frame.idleAnimationId ? { idleAnimationId: frame.idleAnimationId } : {}),
+            ...(animations ? { animation: { nodeId: 'animation' } } : {}),
           },
         },
       ],
@@ -52,12 +115,13 @@ function objectVisualScenes(unit, object, manifest) {
       subresources: [
         { version: 1, resourceId: `${resourcePrefix}.sprite`, kind: 'sprite-sheet', assetId, frameWidth: asset.source.frame.w, frameHeight: asset.source.frame.h, frameCount: asset.source.frame.count },
         { version: 1, resourceId: `${resourcePrefix}.shape`, kind: 'collision-shape', value: shapeValue(frame.collider, scale) },
+        ...(animations ? [{ version: 1, resourceId: animationResourceId, kind: 'animation-library', animations }] : []),
       ],
     };
     return convertedOutput(unit, `objects/${baseSlug}${fileSuffix}.scene.json`, document, [
       '$.objectId', '$.selection', '$.variants', '$.physics', '$.behavior', '$.resourceNode', '$.tags',
     ], [{ path: '$.$schema', owner: unit.oldSourcePath }]);
-  });
+  }));
 }
 
 export const objectSceneAdapter = {
@@ -67,8 +131,8 @@ export const objectSceneAdapter = {
     for (const unit of units) {
       requireSupportedUnit(unit, SUPPORTED);
       const object = await readJson(readSource, unit.oldSourcePath);
-      if (unit.key === 'object:resource.stone-node') {
-        outputs.push(...objectVisualScenes(unit, object, manifest));
+      if (unit.key === 'object:resource.stone-node' || unit.key === 'object:tree.world.solid') {
+        outputs.push(...await objectVisualScenes(unit, object, manifest, readSource));
         continue;
       }
       const closed = object.variants[0].frames.find((frame) => frame.visualId === 'wooden-closed');

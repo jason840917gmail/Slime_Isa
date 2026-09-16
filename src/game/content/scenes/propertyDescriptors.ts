@@ -264,6 +264,8 @@ export function createCoreDescriptorRegistry(scripts: readonly ScriptDescriptor[
       { key: 'depthMode', label: 'Depth Mode', value: { kind: 'enum', values: ['world-sorted', 'explicit'] }, defaultValue: 'world-sorted', serialized: true, inspector: 'select', overridable: true },
       { key: 'depthBand', label: 'Depth Band', value: { kind: 'enum', values: ['ground-terrain', 'ground-decals', 'world-entities', 'overhead-artwork', 'reveal-effects', 'screen-ui', 'editor-cursor', 'editor-drag-lift', 'editor-selection-marker', 'editor-template-overlay'] }, defaultValue: 'world-entities', serialized: true, inspector: 'select', overridable: true },
       number('depth', 'Explicit Depth', 0),
+      { key: 'occlusionBounds', label: 'Occlusion Bounds', value: { kind: 'json' }, defaultValue: {}, serialized: true, inspector: 'json', overridable: true },
+      { key: 'depthBounds', label: 'Depth Bounds', value: { kind: 'json' }, defaultValue: {}, serialized: true, inspector: 'json', overridable: true },
     ] },
     { type: 'PhysicsBody2D', extends: 'Node2D', capabilities: ['physics-body'], properties: [
       { key: 'collisionLayer', label: 'Collision Layer', value: { kind: 'number', integer: true, min: 0, max: 0xffff_ffff }, defaultValue: 1, serialized: true, inspector: 'number', overridable: true },

@@ -16,6 +16,8 @@ import { CharacterBody2DNode } from './CharacterBody2DNode';
 import { CollisionShape2DNode } from './CollisionShape2DNode';
 import { Sprite2DNode } from './Sprite2DNode';
 import { StaticBody2DNode } from './StaticBody2DNode';
+import type { SourceOcclusionBounds } from '../../presentation/WorldOcclusion';
+import type { ObjectDepthBounds } from '../../presentation/WorldDepth';
 
 function record(value: JsonValue | undefined): Readonly<Record<string, JsonValue>> | undefined {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) return undefined;
@@ -30,6 +32,28 @@ function textureResourceId(value: JsonValue | undefined): ResourceId {
   const reference = record(value);
   if (typeof reference?.resourceId !== 'string') throw new Error('Sprite2D requires a texture resource reference');
   return reference.resourceId as ResourceId;
+}
+
+function occlusionBounds(value: JsonValue | undefined): SourceOcclusionBounds | undefined {
+  const bounds = record(value);
+  if (!bounds || Object.keys(bounds).length === 0) return undefined;
+  const values = [bounds.width, bounds.height, bounds.offsetX, bounds.offsetY];
+  if (!values.every((entry) => typeof entry === 'number' && Number.isFinite(entry))) {
+    throw new Error('Sprite2D occlusionBounds requires finite width, height, offsetX, and offsetY');
+  }
+  if ((bounds.width as number) <= 0 || (bounds.height as number) <= 0) {
+    throw new Error('Sprite2D occlusionBounds width and height must be positive');
+  }
+  return {
+    width: bounds.width as number,
+    height: bounds.height as number,
+    offsetX: bounds.offsetX as number,
+    offsetY: bounds.offsetY as number,
+  };
+}
+
+function depthBounds(value: JsonValue | undefined): ObjectDepthBounds | undefined {
+  return occlusionBounds(value);
 }
 
 function requiredResourceId(value: JsonValue | undefined, owner: string): ResourceId {
@@ -102,6 +126,8 @@ export function createPhaserNodeRegistry(context: PhaserNodeContext, services: P
       depthMode: construction.properties.depthMode === 'explicit' ? 'explicit' : 'world-sorted',
       depthBand: typeof construction.properties.depthBand === 'string' ? construction.properties.depthBand as WorldDepthBand : undefined,
       depth: typeof construction.properties.depth === 'number' ? construction.properties.depth : undefined,
+      occlusionBounds: occlusionBounds(construction.properties.occlusionBounds),
+      depthBounds: depthBounds(construction.properties.depthBounds),
     }))
     .replace('Camera2D', (construction) => new Camera2DNode({
       ...base(construction), context,

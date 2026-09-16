@@ -328,11 +328,13 @@ export const RESOURCE_NODE_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
   capabilities: ['resource-node'],
   properties: [
     jsonProperty('drop', 'Drop Configuration', 'Resource', {}),
+    { key: 'idleAnimationId', label: 'Idle Animation ID', group: 'Presentation', value: { kind: 'string' }, serialized: true, inspector: 'text', overridable: true },
     { key: 'hitEffectId', label: 'Hit Effect ID', group: 'Presentation', value: { kind: 'string' }, serialized: true, inspector: 'text', overridable: true },
     { key: 'onHitAnimationId', label: 'On-Hit Animation ID', group: 'Presentation', value: { kind: 'string' }, serialized: true, inspector: 'text', overridable: true },
     { key: 'persistHealth', label: 'Persist Health', group: 'Persistence', value: { kind: 'boolean' }, defaultValue: true, serialized: true, inspector: 'checkbox', overridable: true },
     { key: 'depletionMessage', label: 'Depletion Message', group: 'Resource', value: { kind: 'string' }, serialized: true, inspector: 'text', overridable: true },
     jsonProperty('harvestRequirement', 'Harvest Requirement', 'Resource', {}),
+    { key: 'animation', label: 'Animation Player', group: 'Nodes', value: { kind: 'node-reference' }, serialized: true, inspector: 'node', overridable: true },
   ],
   signals: [
     { id: 'resource_hit', payload: 'ResourceHitFeedbackRequest' },

@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "sceneId": "object.resource-stone-node.big-stone-mine",
+  "sceneId": "object.tree-world-solid.green-tree-07",
   "rootNodeId": "body",
   "nodes": [
     {
       "id": "body",
-      "name": "Big_stone",
+      "name": "green-tree-07",
       "type": "StaticBody2D",
       "parentId": null,
       "order": 0,
@@ -26,11 +26,11 @@
       "order": 0,
       "properties": {
         "shape": {
-          "resourceId": "resource-stone-node.big-stone-mine.shape"
+          "resourceId": "tree-world-solid.green-tree-07.shape"
         },
         "position": [
-          15,
-          40
+          43,
+          125
         ]
       }
     },
@@ -42,12 +42,12 @@
       "order": 1,
       "properties": {
         "texture": {
-          "resourceId": "resource-stone-node.big-stone-mine.sprite"
+          "resourceId": "tree-world-solid.green-tree-07.sprite"
         },
-        "frame": 1,
+        "frame": 31,
         "origin": [
           0.5,
-          0.5
+          1
         ],
         "scale": [
           1,
@@ -60,16 +60,10 @@
         "depthMode": "world-sorted",
         "depthBand": "world-entities",
         "occlusionBounds": {
-          "width": 128,
-          "height": 128,
-          "offsetX": 0,
-          "offsetY": 0
-        },
-        "depthBounds": {
-          "width": 128,
-          "height": 40,
-          "offsetX": 0,
-          "offsetY": 0
+          "width": 112,
+          "height": 148,
+          "offsetX": 8,
+          "offsetY": 12
         }
       }
     },
@@ -94,11 +88,11 @@
       "order": 0,
       "properties": {
         "shape": {
-          "resourceId": "resource-stone-node.big-stone-mine.shape"
+          "resourceId": "tree-world-solid.green-tree-07.shape"
         },
         "position": [
-          15,
-          40
+          43,
+          125
         ]
       }
     },
@@ -112,29 +106,30 @@
       "properties": {
         "mapId": "map-template",
         "instanceId": "resource-template",
-        "objectId": "resource.stone-node",
+        "objectId": "tree.world.solid",
         "damageArea": {
           "nodeId": "damage-area"
         },
-        "maxHealth": 80,
+        "maxHealth": 40,
         "tags": [
-          "stone",
+          "wood",
           "resource",
+          "tree",
           "solid"
         ],
         "drop": {
-          "objectId": "collectible.stone-pile",
-          "visualId": "stone-pile",
-          "pieces": 3
+          "objectId": "collectible.wood-pile",
+          "visualId": "wood-pile",
+          "pieces": 1
         },
-        "hitEffectId": "stone-impact",
+        "hitEffectId": "wood-impact",
         "onHitAnimationId": "",
-        "persistHealth": false,
-        "depletionMessage": "Stone broken",
+        "persistHealth": true,
+        "depletionMessage": "Tree felled",
         "harvestRequirement": {
-          "targetTag": "stone",
+          "targetTag": "wood",
           "minimumTier": 1,
-          "failureMessage": "Requires a Pickaxe"
+          "failureMessage": "Requires an Axe"
         },
         "damageRule": {
           "priority": 0,
@@ -147,21 +142,20 @@
   "subresources": [
     {
       "version": 1,
-      "resourceId": "resource-stone-node.big-stone-mine.sprite",
+      "resourceId": "tree-world-solid.green-tree-07.sprite",
       "kind": "sprite-sheet",
-      "assetId": "sheet.resources.starter-materials.2x1",
+      "assetId": "sheet.trees.8x6",
       "frameWidth": 128,
-      "frameHeight": 128,
-      "frameCount": 2
+      "frameHeight": 170
     },
     {
       "version": 1,
-      "resourceId": "resource-stone-node.big-stone-mine.shape",
+      "resourceId": "tree-world-solid.green-tree-07.shape",
       "kind": "collision-shape",
       "value": {
         "shape": "rectangle",
-        "width": 100,
-        "height": 60
+        "width": 42,
+        "height": 42
       }
     }
   ]

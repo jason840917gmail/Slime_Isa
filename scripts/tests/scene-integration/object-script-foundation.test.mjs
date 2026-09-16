@@ -5,12 +5,12 @@ import { loadTypescriptModule } from '../helpers/load-typescript.mjs';
 
 const t = await loadTypescriptModule('src/game/features/scripts/tooling.ts');
 
-async function instantiate(document, services) {
+async function instantiate(document, services, nodeTypes = t.createCoreNodeTypeRegistry()) {
   const descriptors = t.createGameDescriptorRegistry();
   const loader = new t.SceneDocumentLoader(async (id) => id === document.sceneId ? document : undefined);
   const packed = await new t.SceneResolver({ documents: loader, registry: descriptors }).prepare_scene(document.sceneId);
   const root = new t.SceneInstantiator({
-    nodeTypes: t.createCoreNodeTypeRegistry(),
+    nodeTypes,
     scripts: t.createGameScriptRegistry(services),
     descriptors,
   }).instantiate_scene(packed, { runtimeNamespace: `fixture-${document.sceneId}` });
@@ -55,12 +55,13 @@ test('resource nodes receive routed damage, enforce harvest tiers, and publish o
     nodes: [
       { id: 'root', name: 'Resource', type: 'StaticBody2D', parentId: null, order: 0, properties: {} },
       { id: 'damage-area', name: 'DamageArea', type: 'Area2D', parentId: 'root', order: 0, properties: {} },
+      { id: 'animation', name: 'Animation', type: 'AnimationPlayer', parentId: 'root', order: 1, properties: { library: { resourceId: 'resource.animations' }, domain: 'physics', autoplay: 'tree-idle' } },
       {
-        id: 'script', name: 'ResourceNodeScript', type: 'ScriptNode', scriptId: 'game.resource-node', parentId: 'root', order: 1,
+        id: 'script', name: 'ResourceNodeScript', type: 'ScriptNode', scriptId: 'game.resource-node', parentId: 'root', order: 2,
         properties: {
           mapId: 'level-1', instanceId: 'tree-1', objectId: 'tree.world.solid', maxHealth: 10,
           tags: ['wood', 'resource'], damageArea: { nodeId: 'damage-area' }, persistHealth: true,
-          hitEffectId: 'wood-impact', onHitAnimationId: 'tree-hit', depletionMessage: 'Tree felled',
+          animation: { nodeId: 'animation' }, idleAnimationId: 'tree-idle', hitEffectId: 'wood-impact', onHitAnimationId: 'tree-hit', depletionMessage: 'Tree felled',
           harvestRequirement: { targetTag: 'wood', minimumTier: 1, failureMessage: 'Requires an Axe' },
           drop: { objectId: 'collectible.wood-pile', visualId: 'wood-pile', pieces: 2 },
           damageRule: { priority: 0, damageMultiplier: 1 },
@@ -68,7 +69,28 @@ test('resource nodes receive routed damage, enforce harvest tiers, and publish o
       },
     ],
     instances: [],
+    subresources: [{
+      version: 1,
+      resourceId: 'resource.animations',
+      kind: 'animation-library',
+      animations: {
+        'tree-idle': { durationSeconds: 1, framesPerSecond: 1, loop: true, tracks: [] },
+        'tree-hit': { durationSeconds: 0.1, framesPerSecond: 10, loop: false, tracks: [] },
+      },
+    }],
   };
+  const nodeTypes = t.createCoreNodeTypeRegistry().replace('AnimationPlayer', (context) => {
+    const resourceId = context.properties.library.resourceId;
+    const library = context.resources.get(resourceId);
+    return new t.AnimationPlayerNode({
+      runtimeId: context.runtimeId,
+      name: context.name,
+      domain: 'physics',
+      animations: library.animations,
+      autoplay: context.properties.autoplay,
+      resolveBinding: () => { throw new Error('Fixture animations have no tracks'); },
+    });
+  });
   const fixture = await instantiate(document, {
     [t.DAMAGE_ROUTER_SERVICE]: router,
     [t.WORLD_OBJECT_STATE_SERVICE]: {
@@ -81,8 +103,9 @@ test('resource nodes receive routed damage, enforce harvest tiers, and publish o
       publishHarvestBlocked: (request) => blocked.push(request),
       spawnDrops: (request) => drops.push(request),
     },
-  });
+  }, nodeTypes);
   const script = fixture.root.get_node('ResourceNodeScript');
+  const animation = fixture.root.get_node('Animation');
   const targetAreaNodeId = fixture.root.get_node('DamageArea').runtimeId;
   assert.ok(script instanceof t.ResourceNodeScript);
 
@@ -102,6 +125,9 @@ test('resource nodes receive routed damage, enforce harvest tiers, and publish o
   ], 10)[0];
   assert.equal(firstOutcome.result.status, 'accepted');
   assert.equal(script.health, 6);
+  assert.equal(animation.currentAnimation, 'tree-hit');
+  fixture.tree.physicsProcess(0.2);
+  assert.equal(animation.currentAnimation, 'tree-idle');
   assert.deepEqual(savedHealth, [['level-1', 'tree-1', 6, 10]]);
   assert.equal(hits.length, 1);
   assert.equal(hits[0].effectId, 'wood-impact');

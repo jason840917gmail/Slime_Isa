@@ -58,7 +58,19 @@
           0
         ],
         "depthMode": "world-sorted",
-        "depthBand": "world-entities"
+        "depthBand": "world-entities",
+        "occlusionBounds": {
+          "width": 112,
+          "height": 40,
+          "offsetX": 8,
+          "offsetY": 8
+        },
+        "depthBounds": {
+          "width": 128,
+          "height": 50,
+          "offsetX": 0,
+          "offsetY": 0
+        }
       }
     },
     {

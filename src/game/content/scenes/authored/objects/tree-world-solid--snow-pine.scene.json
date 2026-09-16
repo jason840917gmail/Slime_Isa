@@ -1,0 +1,225 @@
+{
+  "version": 1,
+  "sceneId": "object.tree-world-solid.snow-pine",
+  "rootNodeId": "body",
+  "nodes": [
+    {
+      "id": "body",
+      "name": "snow-pine",
+      "type": "StaticBody2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "collisionLayer": 1,
+        "collisionMask": 2,
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "body-shape",
+      "name": "BodyShape",
+      "type": "CollisionShape2D",
+      "parentId": "body",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "tree-world-solid.snow-pine.shape"
+        },
+        "position": [
+          52,
+          127
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "body",
+      "order": 1,
+      "properties": {
+        "texture": {
+          "resourceId": "tree-world-solid.snow-pine.sprite"
+        },
+        "frame": 24,
+        "origin": [
+          0.5,
+          1
+        ],
+        "scale": [
+          1,
+          1
+        ],
+        "visualOffset": [
+          0,
+          0
+        ],
+        "depthMode": "world-sorted",
+        "depthBand": "world-entities"
+      }
+    },
+    {
+      "id": "damage-area",
+      "name": "DamageArea",
+      "type": "Area2D",
+      "parentId": "body",
+      "order": 2,
+      "properties": {
+        "collisionLayer": 8,
+        "collisionMask": 16,
+        "monitoring": true,
+        "monitorable": true
+      }
+    },
+    {
+      "id": "damage-shape",
+      "name": "DamageShape",
+      "type": "CollisionShape2D",
+      "parentId": "damage-area",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "tree-world-solid.snow-pine.shape"
+        },
+        "position": [
+          52,
+          127
+        ]
+      }
+    },
+    {
+      "id": "animation",
+      "name": "Animation",
+      "type": "AnimationPlayer",
+      "parentId": "body",
+      "order": 3,
+      "properties": {
+        "library": {
+          "resourceId": "tree-world-solid.snow-pine.animations"
+        },
+        "domain": "physics",
+        "autoplay": "object.tree.idle"
+      }
+    },
+    {
+      "id": "script",
+      "name": "ResourceNodeScript",
+      "type": "ScriptNode",
+      "scriptId": "game.resource-node",
+      "parentId": "body",
+      "order": 4,
+      "properties": {
+        "mapId": "map-template",
+        "instanceId": "resource-template",
+        "objectId": "tree.world.solid",
+        "damageArea": {
+          "nodeId": "damage-area"
+        },
+        "maxHealth": 40,
+        "tags": [
+          "wood",
+          "resource",
+          "tree",
+          "solid"
+        ],
+        "drop": {
+          "objectId": "collectible.wood-pile",
+          "visualId": "wood-pile",
+          "pieces": 1
+        },
+        "hitEffectId": "wood-impact",
+        "onHitAnimationId": "",
+        "persistHealth": true,
+        "depletionMessage": "Tree felled",
+        "harvestRequirement": {
+          "targetTag": "wood",
+          "minimumTier": 1,
+          "failureMessage": "Requires an Axe"
+        },
+        "damageRule": {
+          "priority": 0,
+          "damageMultiplier": 1
+        },
+        "idleAnimationId": "object.tree.idle",
+        "animation": {
+          "nodeId": "animation"
+        }
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "tree-world-solid.snow-pine.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "sheet.trees.8x6",
+      "frameWidth": 128,
+      "frameHeight": 170
+    },
+    {
+      "version": 1,
+      "resourceId": "tree-world-solid.snow-pine.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 50,
+        "height": 40
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "tree-world-solid.snow-pine.animations",
+      "kind": "animation-library",
+      "animations": {
+        "object.tree.idle": {
+          "durationSeconds": 0.5,
+          "framesPerSecond": 2,
+          "loop": true,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Visual",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 24
+                }
+              ]
+            },
+            {
+              "binding": "../Visual",
+              "property": "visualOffset",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    0,
+                    0
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Visual",
+              "property": "scale",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    1,
+                    1
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
