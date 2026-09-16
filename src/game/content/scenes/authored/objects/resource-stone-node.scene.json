@@ -1,0 +1,156 @@
+{
+  "version": 1,
+  "sceneId": "object.resource-stone-node",
+  "rootNodeId": "body",
+  "nodes": [
+    {
+      "id": "body",
+      "name": "Stone node",
+      "type": "StaticBody2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "collisionLayer": 1,
+        "collisionMask": 2,
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "body-shape",
+      "name": "BodyShape",
+      "type": "CollisionShape2D",
+      "parentId": "body",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "resource-stone-node.stone-node.shape"
+        },
+        "position": [
+          10,
+          50
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "body",
+      "order": 1,
+      "properties": {
+        "texture": {
+          "resourceId": "resource-stone-node.stone-node.sprite"
+        },
+        "frame": 1,
+        "origin": [
+          0.5,
+          1
+        ],
+        "scale": [
+          1,
+          1
+        ],
+        "visualOffset": [
+          0,
+          0
+        ],
+        "depthMode": "world-sorted",
+        "depthBand": "world-entities"
+      }
+    },
+    {
+      "id": "damage-area",
+      "name": "DamageArea",
+      "type": "Area2D",
+      "parentId": "body",
+      "order": 2,
+      "properties": {
+        "collisionLayer": 8,
+        "collisionMask": 16,
+        "monitoring": true,
+        "monitorable": true
+      }
+    },
+    {
+      "id": "damage-shape",
+      "name": "DamageShape",
+      "type": "CollisionShape2D",
+      "parentId": "damage-area",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "resource-stone-node.stone-node.shape"
+        },
+        "position": [
+          10,
+          50
+        ]
+      }
+    },
+    {
+      "id": "script",
+      "name": "ResourceNodeScript",
+      "type": "ScriptNode",
+      "scriptId": "game.resource-node",
+      "parentId": "body",
+      "order": 3,
+      "properties": {
+        "mapId": "map-template",
+        "instanceId": "resource-template",
+        "objectId": "resource.stone-node",
+        "damageArea": {
+          "nodeId": "damage-area"
+        },
+        "maxHealth": 80,
+        "tags": [
+          "stone",
+          "resource",
+          "solid"
+        ],
+        "drop": {
+          "objectId": "collectible.stone-pile",
+          "visualId": "stone-pile",
+          "pieces": 3
+        },
+        "hitEffectId": "stone-impact",
+        "onHitAnimationId": "",
+        "persistHealth": false,
+        "depletionMessage": "Stone broken",
+        "harvestRequirement": {
+          "targetTag": "stone",
+          "minimumTier": 1,
+          "failureMessage": "Requires a Pickaxe"
+        },
+        "damageRule": {
+          "priority": 0,
+          "damageMultiplier": 1
+        }
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "resource-stone-node.stone-node.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "sheet.resources.4x2",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frameCount": 8
+    },
+    {
+      "version": 1,
+      "resourceId": "resource-stone-node.stone-node.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 105,
+        "height": 48
+      }
+    }
+  ]
+}

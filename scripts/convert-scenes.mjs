@@ -46,6 +46,7 @@ const sliceUnitKeys = [
   'enemy:worm-swordsman',
   'boss:fatty-one-eye',
   'object:chest.wooden',
+  'object:resource.stone-node',
   'weapon:basic-spear',
   'weapon:basic-sword',
   'weapon:goo-gauntlet',

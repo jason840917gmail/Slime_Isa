@@ -78,3 +78,24 @@ test('dynamic persistence keys must be explicit and unique within a tree', () =>
   assert.equal(duplicate.lifecycleState, 'detached');
   assert.equal(tree.getNodeByPersistenceKey('placement.one'), root);
 });
+
+test('instantiation overrides configure one mount without mutating packed scene data', () => {
+  const packed = packedFixture();
+  const maker = instantiator();
+  const root = maker.instantiate_scene(packed, {
+    propertyOverrides: [
+      { nodeId: 'emitter', property: 'items', value: ['placement-specific'] },
+      { nodeId: 'emitter', property: 'target', value: { nodeId: 'receiver' } },
+    ],
+  });
+  const emitter = root.get_node('Emitter');
+  assert.deepEqual(emitter.properties.items, ['placement-specific']);
+  assert.equal(emitter.getReference('target').configuredTarget, root.get_node('Receiver'));
+  assert.deepEqual(packed.definition.nodes.find((entry) => entry.key === 'emitter').properties.items, ['source']);
+  assert.throws(() => maker.instantiate_scene(packed, {
+    propertyOverrides: [{ nodeId: 'missing', property: 'items', value: [] }],
+  }), /does not exist/);
+  assert.throws(() => maker.instantiate_scene(packed, {
+    propertyOverrides: [{ nodeId: 'emitter', property: 'items', value: [] }, { nodeId: 'emitter', property: 'items', value: [] }],
+  }), /duplicated/);
+});

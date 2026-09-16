@@ -1,6 +1,7 @@
-import { persistenceKey, runtimeNodeId, type PersistenceKey, type ResourceId } from '../../../content/scenes/identifiers';
+import { persistenceKey, runtimeNodeId, type AuthoredNodeId, type InstanceId, type PersistenceKey, type ResourceId } from '../../../content/scenes/identifiers';
 import { capabilitiesForNode, descriptorMap, propertiesForNode, signalsForNode, type DescriptorRegistry } from '../../../content/scenes/propertyDescriptors';
 import type { JsonValue, NodeReferenceDocument, SceneResourceDocument } from '../../../content/scenes/types';
+import { validatePropertyDocumentValue } from '../../../content/scenes/validation';
 import { Node } from '../Node';
 import { NodeReference } from '../NodeReference';
 import { PackedScene, type PackedNodeDocument } from '../PackedScene';
@@ -16,6 +17,14 @@ export interface SceneInstantiatorOptions {
 export interface SceneInstantiationOptions {
   readonly runtimeNamespace?: string;
   readonly persistenceKey?: PersistenceKey | string;
+  readonly propertyOverrides?: readonly SceneInstantiationPropertyOverride[];
+}
+
+export interface SceneInstantiationPropertyOverride {
+  readonly instancePath?: readonly InstanceId[];
+  readonly nodeId: AuthoredNodeId | string;
+  readonly property: string;
+  readonly value: JsonValue;
 }
 
 let nextDynamicNamespace = 1;
@@ -40,9 +49,10 @@ export class SceneInstantiator {
     const definition = packed.definition;
     const runtimeNamespace = options.runtimeNamespace ?? `dynamic-${nextDynamicNamespace++}`;
     const resources = new Map<ResourceId, SceneResourceDocument>(definition.resources.map((resource) => [resource.resourceId, resource]));
+    const sources = this.applyPropertyOverrides(definition.nodes, options.propertyOverrides ?? [], resources);
     const nodes = new Map<string, Node>();
     try {
-      for (const source of definition.nodes) {
+      for (const source of sources) {
         const properties = structuredClone(source.properties) as Record<string, JsonValue>;
         const context = {
           runtimeId: runtimeNodeId(runtimeNamespace, source.instancePath, source.authoredNodeId),
@@ -60,7 +70,7 @@ export class SceneInstantiator {
         nodes.set(source.key, node);
       }
 
-      for (const source of definition.nodes) {
+      for (const source of sources) {
         if (source.parentKey === null) continue;
         const parent = nodes.get(source.parentKey);
         const node = nodes.get(source.key);
@@ -68,7 +78,7 @@ export class SceneInstantiator {
         parent.add_child(node);
       }
 
-      for (const source of definition.nodes) this.configureNode(source, nodes);
+      for (const source of sources) this.configureNode(source, nodes);
       for (const connection of definition.connections) {
         const source = nodes.get(connection.sourceKey);
         const target = nodes.get(connection.targetKey);
@@ -94,6 +104,50 @@ export class SceneInstantiator {
 
   instantiateScene(packed: PackedScene, options: SceneInstantiationOptions = {}): Node {
     return this.instantiate_scene(packed, options);
+  }
+
+  private applyPropertyOverrides(
+    sources: readonly PackedNodeDocument[],
+    overrides: readonly SceneInstantiationPropertyOverride[],
+    resources: ReadonlyMap<ResourceId, SceneResourceDocument>,
+  ): readonly PackedNodeDocument[] {
+    if (overrides.length === 0) return sources;
+    const byKey = new Map(sources.map((source) => [source.key, source]));
+    const values = new Map<string, Map<string, JsonValue>>();
+    const resourceContext = {
+      hasResource: (resourceId: string): boolean => resources.has(resourceId as ResourceId),
+      getResourceKind: (resourceId: string): string | undefined => resources.get(resourceId as ResourceId)?.kind,
+    };
+    for (const override of overrides) {
+      const key = [...(override.instancePath ?? []), override.nodeId].join('/');
+      const source = byKey.get(key);
+      if (!source) throw new Error(`Instantiation override target '${key}' does not exist`);
+      const descriptor = descriptorMap(propertiesForNode(source.type, source.scriptId, this.options.descriptors) ?? []).get(override.property);
+      if (!descriptor?.serialized || !descriptor.overridable) {
+        throw new Error(`Property '${key}.${override.property}' is not an overridable serialized property`);
+      }
+      const path = `instantiation-override:${key}.${override.property}`;
+      const issues = validatePropertyDocumentValue(override.value, descriptor, path, {
+        registry: this.options.descriptors,
+        ...resourceContext,
+      });
+      if (issues.length > 0) throw new Error(issues.map((issue) => `${issue.path}: ${issue.message}`).join('\n'));
+      const nodeValues = values.get(key) ?? new Map<string, JsonValue>();
+      if (nodeValues.has(override.property)) throw new Error(`Instantiation override '${key}.${override.property}' is duplicated`);
+      nodeValues.set(override.property, structuredClone(override.value));
+      values.set(key, nodeValues);
+    }
+    return sources.map((source) => {
+      const nodeValues = values.get(source.key);
+      if (!nodeValues) return source;
+      const properties = structuredClone(source.properties) as Record<string, JsonValue>;
+      const propertyScopes = { ...source.propertyScopes };
+      for (const [property, value] of nodeValues) {
+        properties[property] = value;
+        propertyScopes[property] = [...source.instancePath];
+      }
+      return { ...source, properties, propertyScopes };
+    });
   }
 
   private configureNode(
