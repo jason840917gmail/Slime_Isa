@@ -29,7 +29,6 @@ import { createNpcWanderState, stepNpcWander } from '../npcs/NpcWanderPolicy';
 import type { InventoryWorldTransaction } from '../progression/InventoryWorldTransaction';
 import type { WorldProgress } from '../progression/WorldProgress';
 import type { EnemyPopulationMember, EnemySpawnRequest } from '../../enemies/EnemySpawner';
-import { projectilePool } from '../../enemies/Projectile';
 import type { ManagedEnemyDefeat } from '../combat/CombatController';
 import {
   BOSS_CAMP_PROGRESS_SERVICE,
@@ -231,7 +230,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
       [ENEMY_TARGET_SERVICE]: {
         getPrimaryTarget: () => this.primaryEnemyTarget(),
         getNavigation: (sourceNodeId: string) => this.enemyNavigation(sourceNodeId),
-        fireProjectile: (request: EnemyProjectileRequest) => this.fireEnemyProjectile(request),
+        fireProjectile: (request: EnemyProjectileRequest) => this.spawnEnemyProjectile(request),
       },
       [NPC_RUNTIME_SERVICE]: {
         acquire: (request: NpcRuntimeRequest) => this.acquireNpcAgent(request),
@@ -674,47 +673,33 @@ export class UniversalSceneWorldController implements InteractionProvider {
     };
   }
 
-  private fireEnemyProjectile(request: EnemyProjectileRequest): void {
-    if (request.projectileId) {
-      const sequence = this.nextProjectileSequence++;
-      const mount = this.runtime.mountScene(sceneId(`projectile.${request.projectileId}`), {
-        runtimeNamespace: `managed-projectile-${sequence}`,
-        position: request.position,
-      });
-      const script = descendants(mount.root, ProjectileScript)[0];
-      if (!script) {
-        mount.dispose();
-        throw new Error(`Projectile scene '${request.projectileId}' requires ProjectileScript.`);
-      }
-      this.projectiles.set(sequence, { mount, script });
-      this.registerLegacyColliders(mount, false);
-      script.launch(request.direction, request.speed, {
-        sourceNodeId: request.sourceNodeId,
-        damage: request.damage,
-        knockbackStrength: request.knockbackStrength,
-        weaponId: request.projectileId,
-        weaponTags: ['enemy', 'projectile'],
-        damageTypes: ['physical'],
-        targetAreaNodeIds: [this.managedPlayer.damageAreaNodeId],
-      });
-      this.managedProjectileSpawnCountValue += 1;
-      return;
+  spawnEnemyProjectile(request: EnemyProjectileRequest): boolean {
+    if (!request.projectileId) {
+      throw new Error(`Enemy '${request.sourceNodeId}' projectile must reference an authored projectile scene.`);
     }
-    if (!request.assetId) throw new Error(`Managed enemy '${request.sourceNodeId}' projectile has no asset identity.`);
-    const asset = ASSET_MANIFEST.assets[request.assetId as AssetId];
-    if (!asset) throw new Error(`Managed enemy '${request.sourceNodeId}' projectile references unknown asset '${request.assetId}'.`);
-    projectilePool.fire(
-      this.options.scene,
-      request.position.x,
-      request.position.y,
-      request.direction.x,
-      request.direction.y,
-      request.speed,
-      asset.runtime.textureKey,
-      'enemy',
-      request.damage,
-      request.knockbackStrength,
-    );
+    const sequence = this.nextProjectileSequence++;
+    const mount = this.runtime.mountScene(sceneId(`projectile.${request.projectileId}`), {
+      runtimeNamespace: `managed-projectile-${sequence}`,
+      position: request.position,
+    });
+    const script = descendants(mount.root, ProjectileScript)[0];
+    if (!script) {
+      mount.dispose();
+      throw new Error(`Projectile scene '${request.projectileId}' requires ProjectileScript.`);
+    }
+    this.projectiles.set(sequence, { mount, script });
+    this.registerLegacyColliders(mount, false);
+    script.launch(request.direction, request.speed, {
+      sourceNodeId: request.sourceNodeId,
+      damage: request.damage,
+      knockbackStrength: request.knockbackStrength,
+      weaponId: request.projectileId,
+      weaponTags: ['enemy', 'projectile'],
+      damageTypes: ['physical'],
+      targetAreaNodeIds: [this.managedPlayer.damageAreaNodeId],
+    });
+    this.managedProjectileSpawnCountValue += 1;
+    return true;
   }
 
   private finishExpiredProjectiles(): void {
