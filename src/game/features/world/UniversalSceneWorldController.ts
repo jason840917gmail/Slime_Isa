@@ -65,6 +65,7 @@ import {
 import { PLAYER_HEALTH_SERVICE, PlayerScript } from '../scripts/PlayerScript';
 import { ProjectileScript } from '../scripts/ProjectileScript';
 import { EffectScript } from '../scripts/EffectScript';
+import { WeaponScript, type WeaponAttackDirection } from '../scripts/WeaponScript';
 import type { WorldEffectSpawnRequest } from '../effects/WorldEffectPool';
 import { WorldEffectPositionAttachment } from '../effects/WorldEffectPositionAttachment';
 import { resolvePhysicsPresentationPosition, type PhysicsPresentationTarget } from '../../presentation/PhysicsPresentation';
@@ -131,6 +132,11 @@ interface ManagedEffect {
   readonly attachment?: WorldEffectPositionAttachment;
 }
 
+interface ManagedWeapon {
+  readonly mount: MountedScene;
+  readonly script: WeaponScript;
+}
+
 const MANAGED_ENEMY_SCENES = {
   'worm-archer': 'character.worm-archer',
   'worm-brawler': 'character.worm-brawler',
@@ -180,6 +186,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
   private readonly ordinaryEnemies = new Map<number, ManagedOrdinaryEnemy>();
   private readonly projectiles = new Map<number, ManagedProjectile>();
   private readonly effects = new Map<number, ManagedEffect>();
+  private weapon?: ManagedWeapon;
   private readonly npcs = new Map<string, NpcScript>();
   private playerScript?: PlayerScript;
   private playerBody?: CharacterBody2DNode;
@@ -191,6 +198,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
   private nextEnemySequence = 1;
   private nextProjectileSequence = 1;
   private nextEffectSequence = 1;
+  private nextWeaponSequence = 1;
   private managedProjectileSpawnCountValue = 0;
   private simulationTimeMs = 0;
   private mountingPlacement?: SceneEnabledPlacement;
@@ -311,6 +319,8 @@ export class UniversalSceneWorldController implements InteractionProvider {
   get managedProjectileCount(): number { return this.projectiles.size; }
   get managedProjectileSpawnCount(): number { return this.managedProjectileSpawnCountValue; }
   get managedEffectCount(): number { return this.effects.size; }
+  get managedWeaponId(): string | null { return this.weapon?.script.weaponId ?? null; }
+  get managedWeaponAttacking(): boolean { return this.weapon?.script.attacking ?? false; }
   get managedPlayer(): PlayerScript {
     if (!this.playerScript) throw new Error('The authored player scene is not mounted.');
     return this.playerScript;
@@ -421,6 +431,40 @@ export class UniversalSceneWorldController implements InteractionProvider {
     return true;
   }
 
+  mountWeapon(weaponId: string): boolean {
+    const playerBody = this.playerBody;
+    if (!playerBody) return false;
+    let mount: MountedScene;
+    try {
+      mount = this.runtime.mountScene(sceneId(`weapon.${weaponId}`), {
+        runtimeNamespace: `managed-player-weapon-${this.nextWeaponSequence++}`,
+      });
+    } catch {
+      return false;
+    }
+    const script = descendants(mount.root, WeaponScript)[0];
+    if (!script || script.weaponId !== weaponId) {
+      mount.dispose();
+      return false;
+    }
+    mount.mount.reparent(playerBody);
+    this.runtime.tree.flushMutations();
+    mount.mount.position = { x: 0, y: 0 };
+    const previous = this.weapon;
+    this.weapon = { mount, script };
+    previous?.mount.dispose();
+    return true;
+  }
+
+  playWeaponAttack(direction: WeaponAttackDirection, timeMs: number): boolean {
+    return this.weapon?.script.playAttack(direction, timeMs) ?? false;
+  }
+
+  clearWeapon(): void {
+    this.weapon?.mount.dispose();
+    this.weapon = undefined;
+  }
+
   destroy(): void {
     if (this.disposed) return;
     this.disposed = true;
@@ -437,6 +481,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.projectiles.clear();
     for (const effect of this.effects.values()) effect.attachment?.dispose();
     this.effects.clear();
+    this.weapon = undefined;
     this.npcs.clear();
     this.playerScript = undefined;
     this.playerBody = undefined;

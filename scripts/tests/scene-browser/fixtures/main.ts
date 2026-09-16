@@ -57,6 +57,9 @@ type FixtureSnapshot = {
   readonly managedProjectileCount?: number;
   readonly managedProjectileSpawnCount?: number;
   readonly managedEffectCount?: number;
+  readonly managedWeaponId?: string | null;
+  readonly managedWeaponAttacking?: boolean;
+  readonly usingLegacyWeaponVisual?: boolean;
   readonly playerHp?: number;
   readonly legacyEnemyCount?: number;
   readonly legacyBossCount?: number;
@@ -80,6 +83,8 @@ type FixtureApi = {
   teleportProductionPlayer(x: number, y: number): void;
   spawnManagedEnemy(type: 'slime-spider' | 'worm-archer' | 'worm-brawler' | 'worm-swordsman', x: number, y: number): boolean;
   spawnManagedEffect(effectId: string, direction: 'right' | 'left' | 'up' | 'down', x: number, y: number): boolean;
+  equipProductionWeapon(weaponId: string): boolean;
+  attackWithProductionWeapon(): boolean;
   snapshot(): FixtureSnapshot;
   destroy(): void;
 };
@@ -410,6 +415,20 @@ const api: FixtureApi = {
     };
     return world.universalWorld?.spawnEffect({ effectId, direction, x, y, depth: 0 }) ?? false;
   },
+  equipProductionWeapon(weaponId) {
+    if (!game || mode !== 'baseline') throw new Error('Production weapons are only available in baseline mode');
+    const world = game.scene.getScene('world') as unknown as {
+      readonly combatController?: { equipWeapon(id: string): boolean };
+    };
+    return world.combatController?.equipWeapon(weaponId) ?? false;
+  },
+  attackWithProductionWeapon() {
+    if (!game || mode !== 'baseline') throw new Error('Production weapons are only available in baseline mode');
+    const world = game.scene.getScene('world') as unknown as {
+      readonly combatController?: { tryAttack(): boolean };
+    };
+    return world.combatController?.tryAttack() ?? false;
+  },
   snapshot() {
     const world = mode === 'baseline' && game
       ? game.scene.getScene('world') as unknown as {
@@ -424,11 +443,16 @@ const api: FixtureApi = {
             readonly managedProjectileCount: number;
             readonly managedProjectileSpawnCount: number;
             readonly managedEffectCount: number;
+            readonly managedWeaponId: string | null;
+            readonly managedWeaponAttacking: boolean;
             readonly managedPlayer: { getPosition(): Readonly<{ x: number; y: number }> };
             readonly runtime: { readonly tree: { readonly paused: boolean } };
           };
           readonly healthSystem?: { getDamageState(): { readonly hp: number } };
-          readonly combatController?: { readonly targets: Phaser.Physics.Arcade.Group };
+          readonly combatController?: {
+            readonly targets: Phaser.Physics.Arcade.Group;
+            readonly usingLegacyWeaponVisual: boolean;
+          };
           readonly bossCampController?: { readonly targets: Phaser.Physics.Arcade.Group };
           readonly chestController?: unknown;
           readonly builtMap?: { readonly npcActors: readonly unknown[] };
@@ -458,9 +482,12 @@ const api: FixtureApi = {
       ...(world?.universalWorld ? { managedProjectileCount: world.universalWorld.managedProjectileCount } : {}),
       ...(world?.universalWorld ? { managedProjectileSpawnCount: world.universalWorld.managedProjectileSpawnCount } : {}),
       ...(world?.universalWorld ? { managedEffectCount: world.universalWorld.managedEffectCount } : {}),
+      ...(world?.universalWorld ? { managedWeaponId: world.universalWorld.managedWeaponId } : {}),
+      ...(world?.universalWorld ? { managedWeaponAttacking: world.universalWorld.managedWeaponAttacking } : {}),
       ...(world?.healthSystem ? { playerHp: world.healthSystem.getDamageState().hp } : {}),
       ...(world?.universalWorld ? { universalRuntimePaused: world.universalWorld.runtime.tree.paused } : {}),
       ...(world?.combatController ? { legacyEnemyCount: world.combatController.targets.countActive(true) } : {}),
+      ...(world?.combatController ? { usingLegacyWeaponVisual: world.combatController.usingLegacyWeaponVisual } : {}),
       ...(world?.bossCampController ? { legacyBossCount: world.bossCampController.targets.countActive(true) } : {}),
       ...(world?.builtMap ? { legacyNpcCount: world.builtMap.npcActors.length } : {}),
       ...(world?.player ? { legacyPlayerX: world.player.x } : {}),

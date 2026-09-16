@@ -69,6 +69,8 @@ test('weapon scene drives directional hitbox windows and cooldown from one scrip
   assert.equal(area.monitoring, false);
   assert.equal(script.tryBeginAttack('right', 480), false);
   assert.equal(script.tryBeginAttack('right', 1200), true);
+  assert.equal(script.playAttack('left', 1201), true);
+  assert.equal(script.attackDirection, 'left');
   dispose(fixture);
 });
 

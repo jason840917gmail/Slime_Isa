@@ -50,7 +50,19 @@ test('converted combat scenes own timelines, collision geometry, and runtime scr
   assert.equal(sword.nodes.filter((node) => node.type === 'AnimationPlayer').length, 1);
   assert.equal(sword.nodes.find((node) => node.scriptId === 'game.weapon').properties.baseDamage, 20);
   assert.ok(sword.nodes.some((node) => node.name === 'right--primary' && node.type === 'CollisionShape2D'));
+  assert.ok(sword.nodes.filter((node) => node.type === 'CollisionShape2D').every((node) => node.properties.rotation === 0));
   assert.ok(sword.subresources.find((resource) => resource.resourceId === 'weapon.basic-sword.animations').animations['attack-right']);
+
+  const hammer = await load('weapons/slam-hammer.scene.json');
+  assert.ok(hammer.nodes.filter((node) => node.type === 'CollisionShape2D').every((node) => node.properties.rotation === 0));
+  for (const key of unitKeys.filter((candidate) => candidate.startsWith('weapon:'))) {
+    const weaponId = key.slice('weapon:'.length);
+    assert.deepEqual(
+      JSON.parse(await readFile(path.join(repositoryRoot, `src/game/content/scenes/authored/weapons/${weaponId}.scene.json`), 'utf8')),
+      await load(`weapons/${weaponId}.scene.json`),
+      `${weaponId} authored scene must match deterministic conversion`,
+    );
+  }
 
   const arrow = await load('projectiles/worm-arrow.scene.json');
   assert.equal(arrow.rootNodeId, 'body');

@@ -1390,6 +1390,9 @@ export class WorldScene extends Phaser.Scene {
       supplementalWeaponHitboxes: this.universalWorld?.supplementalWeaponHitboxes,
       createManagedEnemy: (request) => this.universalWorld?.createManagedEnemy(request),
       spawnManagedEffect: (request) => this.universalWorld?.spawnEffect(request) ?? false,
+      mountManagedWeapon: (weaponId) => this.universalWorld?.mountWeapon(weaponId) ?? false,
+      playManagedWeaponAttack: (direction, timeMs) => this.universalWorld?.playWeaponAttack(direction, timeMs) ?? false,
+      clearManagedWeapon: () => this.universalWorld?.clearWeapon(),
     });
   }
 

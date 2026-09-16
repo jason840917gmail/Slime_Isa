@@ -91,6 +91,16 @@ export class WeaponScript extends ScriptNode {
 
   tryBeginAttack(direction: WeaponAttackDirection, timeMs = this.simulationTimeMs): boolean {
     if (!Number.isFinite(timeMs) || timeMs < this.readyAtMs || this.activePlan) return false;
+    return this.beginAttack(direction, timeMs);
+  }
+
+  playAttack(direction: WeaponAttackDirection, timeMs = this.simulationTimeMs): boolean {
+    if (!Number.isFinite(timeMs)) return false;
+    if (this.activePlan) this.finishAttack();
+    return this.beginAttack(direction, timeMs);
+  }
+
+  private beginAttack(direction: WeaponAttackDirection, timeMs: number): boolean {
     const plan = this.attackPlan(direction);
     if (!plan) return false;
     this.simulationTimeMs = Math.max(this.simulationTimeMs, timeMs);
@@ -131,6 +141,8 @@ export class WeaponScript extends ScriptNode {
     this.setAttackAreaActive(false, new Set());
     this.activeDirection = undefined;
     this.activePlan = undefined;
+    const animation = this.getReference<Node>('animation')?.configuredTarget;
+    if (animation instanceof AnimationPlayerNode && animation.hasAnimation('idle')) animation.play('idle');
     if (direction) this.getSignal<{ weaponId: string; direction: WeaponAttackDirection }>('attack_finished')?.emit({ weaponId: this.weaponId, direction });
   }
 
