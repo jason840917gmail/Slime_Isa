@@ -11,6 +11,10 @@ import { NpcScript } from './NpcScript';
 import { WeaponScript } from './WeaponScript';
 import { ProjectileScript } from './ProjectileScript';
 import { EffectScript } from './EffectScript';
+import { DestructibleScript } from './DestructibleScript';
+import { ResourceNodeScript } from './ResourceNodeScript';
+import { CollectibleScript } from './CollectibleScript';
+import { InteractionScript } from './InteractionScript';
 
 const numberProperty = (key: string, label: string, defaultValue: number, group: string): PropertyDescriptor => ({
   key, label, group, value: { kind: 'number', min: 0 }, defaultValue,
@@ -290,6 +294,94 @@ export const EFFECT_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
   signals: [{ id: 'finished', payload: 'EffectEvent' }],
 };
 
+export const DESTRUCTIBLE_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
+  scriptId: 'game.destructible',
+  displayName: 'Destructible Script',
+  description: 'Shared damage reception, health, destruction, and persistent state for world objects.',
+  sourcePath: 'src/game/features/scripts/DestructibleScript.ts',
+  capabilities: ['destructible-script', 'damage-receiver'],
+  exclusiveCapabilities: ['object-damage-controller'],
+  references: [{ key: 'damageArea', label: 'Damage Area', required: true, expectedCapability: 'area' }],
+  properties: [
+    stringProperty('mapId', 'Map ID', 'Persistence'),
+    stringProperty('instanceId', 'Instance ID', 'Persistence'),
+    stringProperty('objectId', 'Object ID', 'Identity'),
+    nodeReference('damageArea', 'Damage Area', 'area'),
+    numberProperty('maxHealth', 'Maximum Health', 1, 'Health'),
+    jsonProperty('tags', 'Object Tags', 'Identity', []),
+    jsonProperty('damageRule', 'Damage Rule', 'Damage Reception', { priority: 0, damageMultiplier: 1 }),
+  ],
+  signals: [
+    { id: 'health_changed', payload: 'DestructibleHealthChanged' },
+    { id: 'damaged', payload: 'DamageCommit' },
+    { id: 'damage_feedback', payload: 'DamageCommit' },
+    { id: 'destroyed', payload: 'DestructibleDestroyed' },
+  ],
+};
+
+export const RESOURCE_NODE_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
+  scriptId: 'game.resource-node',
+  displayName: 'Resource Node Script',
+  description: 'Harvest requirements, positive-hit feedback, drops, and depletion for damageable resources.',
+  sourcePath: 'src/game/features/scripts/ResourceNodeScript.ts',
+  extends: 'game.destructible',
+  capabilities: ['resource-node'],
+  properties: [
+    jsonProperty('drop', 'Drop Configuration', 'Resource', {}),
+    { key: 'hitEffectId', label: 'Hit Effect ID', group: 'Presentation', value: { kind: 'string' }, serialized: true, inspector: 'text', overridable: true },
+    { key: 'onHitAnimationId', label: 'On-Hit Animation ID', group: 'Presentation', value: { kind: 'string' }, serialized: true, inspector: 'text', overridable: true },
+    { key: 'persistHealth', label: 'Persist Health', group: 'Persistence', value: { kind: 'boolean' }, defaultValue: true, serialized: true, inspector: 'checkbox', overridable: true },
+    { key: 'depletionMessage', label: 'Depletion Message', group: 'Resource', value: { kind: 'string' }, serialized: true, inspector: 'text', overridable: true },
+    jsonProperty('harvestRequirement', 'Harvest Requirement', 'Resource', {}),
+  ],
+  signals: [
+    { id: 'resource_hit', payload: 'ResourceHitFeedbackRequest' },
+    { id: 'harvest_blocked', payload: 'ResourceHarvestBlocked' },
+    { id: 'drops_requested', payload: 'ResourceDropRequest' },
+  ],
+};
+
+export const COLLECTIBLE_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
+  scriptId: 'game.collectible',
+  displayName: 'Collectible Script',
+  description: 'Transactional walk-over pickup for authored collectibles and inventory drops.',
+  sourcePath: 'src/game/features/scripts/CollectibleScript.ts',
+  capabilities: ['collectible-script', 'collectible'],
+  exclusiveCapabilities: ['collectible-controller'],
+  references: [{ key: 'pickupArea', label: 'Pickup Area', required: true, expectedCapability: 'area' }],
+  properties: [
+    stringProperty('mapId', 'Map ID', 'Persistence'),
+    stringProperty('instanceId', 'Instance ID', 'Persistence'),
+    stringProperty('objectId', 'Object ID', 'Identity'),
+    stringProperty('itemId', 'Item ID', 'Inventory'),
+    numberProperty('quantity', 'Quantity', 1, 'Inventory'),
+    { key: 'sourceResourceInstanceId', label: 'Source Resource Instance ID', group: 'Persistence', value: { kind: 'string' }, serialized: true, inspector: 'text', overridable: true },
+    nodeReference('pickupArea', 'Pickup Area', 'area'),
+  ],
+  signals: [
+    { id: 'pickup_resolved', payload: 'CollectiblePickupResult' },
+    { id: 'depleted', payload: 'CollectiblePickupRequest' },
+  ],
+  handlers: [{ id: 'on_area_entered', payload: 'PhysicsContact' }],
+};
+
+export const INTERACTION_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
+  scriptId: 'game.interaction',
+  displayName: 'Interaction Script',
+  description: 'Typed interaction request that delegates domain mutations to a world service.',
+  sourcePath: 'src/game/features/scripts/InteractionScript.ts',
+  capabilities: ['interaction-script', 'interactable'],
+  exclusiveCapabilities: ['interaction-controller'],
+  properties: [
+    stringProperty('interactionId', 'Interaction ID', 'Identity'),
+    stringProperty('instanceId', 'Instance ID', 'Persistence'),
+    stringProperty('prompt', 'Prompt', 'Interaction'),
+    numberProperty('priority', 'Priority', 0, 'Interaction'),
+    jsonProperty('action', 'Action', 'Interaction', {}),
+  ],
+  signals: [{ id: 'interaction_resolved', payload: 'InteractionResult' }],
+};
+
 export const GAME_SCRIPT_DESCRIPTORS = Object.freeze([
   CHARACTER_SCRIPT_DESCRIPTOR,
   PLAYER_SCRIPT_DESCRIPTOR,
@@ -301,6 +393,10 @@ export const GAME_SCRIPT_DESCRIPTORS = Object.freeze([
   WEAPON_SCRIPT_DESCRIPTOR,
   PROJECTILE_SCRIPT_DESCRIPTOR,
   EFFECT_SCRIPT_DESCRIPTOR,
+  DESTRUCTIBLE_SCRIPT_DESCRIPTOR,
+  RESOURCE_NODE_SCRIPT_DESCRIPTOR,
+  COLLECTIBLE_SCRIPT_DESCRIPTOR,
+  INTERACTION_SCRIPT_DESCRIPTOR,
 ]);
 
 export function createGameScriptRegistry(services: ScriptServiceMap = {}): ScriptRegistry {
@@ -314,7 +410,11 @@ export function createGameScriptRegistry(services: ScriptServiceMap = {}): Scrip
     .registerDefinition({ descriptor: BOSS_CAMP_SCRIPT_DESCRIPTOR, factory: (context) => new BossCampScript(context) })
     .registerDefinition({ descriptor: WEAPON_SCRIPT_DESCRIPTOR, factory: (context) => new WeaponScript(context) })
     .registerDefinition({ descriptor: PROJECTILE_SCRIPT_DESCRIPTOR, factory: (context) => new ProjectileScript(context) })
-    .registerDefinition({ descriptor: EFFECT_SCRIPT_DESCRIPTOR, factory: (context) => new EffectScript(context) });
+    .registerDefinition({ descriptor: EFFECT_SCRIPT_DESCRIPTOR, factory: (context) => new EffectScript(context) })
+    .registerDefinition({ descriptor: DESTRUCTIBLE_SCRIPT_DESCRIPTOR, factory: (context) => new DestructibleScript(context) })
+    .registerDefinition({ descriptor: RESOURCE_NODE_SCRIPT_DESCRIPTOR, factory: (context) => new ResourceNodeScript(context) })
+    .registerDefinition({ descriptor: COLLECTIBLE_SCRIPT_DESCRIPTOR, factory: (context) => new CollectibleScript(context) })
+    .registerDefinition({ descriptor: INTERACTION_SCRIPT_DESCRIPTOR, factory: (context) => new InteractionScript(context) });
 }
 
 export function createGameDescriptorRegistry() {
