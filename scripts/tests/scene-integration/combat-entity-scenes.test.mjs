@@ -74,6 +74,48 @@ test('weapon scene drives directional hitbox windows and cooldown from one scrip
   dispose(fixture);
 });
 
+test('weapon scene routes one managed hit per activation through the shared damage authority', async () => {
+  const activations = new t.AttackActivation();
+  const router = new t.DamageRouter(activations);
+  let hp = 100;
+  let commits = 0;
+  const outcomes = [];
+  router.registerArea({
+    runtimeNodeId: 'managed-enemy',
+    getDamageState: () => ({ hp, maxHp: 100, dead: false }),
+    commitDamage: ({ result }) => { commits += 1; hp -= result.actualDamage; },
+  }, { areaNodeId: 'managed-enemy-area', priority: 0, damageMultiplier: 1 });
+  const fixture = await instantiate('weapon.basic-sword', {
+    [t.ATTACK_ACTIVATION_SERVICE]: activations,
+    [t.DAMAGE_ROUTER_SERVICE]: router,
+    [t.PLAYER_WEAPON_COMBAT_SERVICE]: {
+      transformDamage: (damage, target) => {
+        assert.equal(target.receiverNodeId, 'managed-enemy');
+        return damage * 2;
+      },
+      onOutcome: (outcome, target) => outcomes.push([outcome.result.status, target.receiverNodeId]),
+    },
+  });
+  const script = fixture.root.get_node('WeaponScript');
+  const area = fixture.root.get_node('AttackArea');
+  const shape = area.get_children().find((node) => node.name === 'right--primary');
+  assert.equal(script.playAttack('right', 0, { damage: 7, knockbackStrength: 12 }), true);
+  fixture.tree.physicsProcess(0.18);
+  const contact = {
+    observerId: area.runtimeId,
+    otherId: 'managed-enemy-area',
+    observerKind: 'area',
+    otherKind: 'area',
+    shapes: [{ observerShapeId: shape.runtimeId, otherShapeId: 'managed-enemy-shape' }],
+  };
+  area.getSignal('area_entered').emit(contact);
+  area.getSignal('area_entered').emit(contact);
+  assert.equal(hp, 86);
+  assert.equal(commits, 1);
+  assert.deepEqual(outcomes, [['accepted', 'managed-enemy']]);
+  dispose(fixture);
+});
+
 test('projectile and effect scenes own finite lifetimes', async () => {
   const activations = new t.AttackActivation();
   const router = new t.DamageRouter(activations);

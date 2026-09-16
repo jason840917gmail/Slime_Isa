@@ -52,9 +52,11 @@ test('converted combat scenes own timelines, collision geometry, and runtime scr
   assert.ok(sword.nodes.some((node) => node.name === 'right--primary' && node.type === 'CollisionShape2D'));
   assert.ok(sword.nodes.filter((node) => node.type === 'CollisionShape2D').every((node) => node.properties.rotation === 0));
   assert.ok(sword.subresources.find((resource) => resource.resourceId === 'weapon.basic-sword.animations').animations['attack-right']);
+  assert.deepEqual(sword.connections, [{ source: { nodeId: 'attack-area' }, signal: 'area_entered', target: { nodeId: 'script' }, handler: 'on_area_entered' }]);
 
   const hammer = await load('weapons/slam-hammer.scene.json');
   assert.ok(hammer.nodes.filter((node) => node.type === 'CollisionShape2D').every((node) => node.properties.rotation === 0));
+  assert.equal(hammer.nodes.find((node) => node.scriptId === 'game.weapon').properties.attackPlans.right.hitboxSpans[0].knockbackMultiplier, 1.35);
   for (const key of unitKeys.filter((candidate) => candidate.startsWith('weapon:'))) {
     const weaponId = key.slice('weapon:'.length);
     assert.deepEqual(

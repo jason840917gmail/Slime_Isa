@@ -185,7 +185,9 @@
               {
                 "hitboxId": "primary",
                 "from": 4,
-                "through": 8
+                "through": 8,
+                "damageMultiplier": 1,
+                "knockbackMultiplier": 1
               }
             ],
             "events": [],
@@ -202,7 +204,9 @@
               {
                 "hitboxId": "primary",
                 "from": 4,
-                "through": 8
+                "through": 8,
+                "damageMultiplier": 1,
+                "knockbackMultiplier": 1
               }
             ],
             "events": [],
@@ -219,7 +223,9 @@
               {
                 "hitboxId": "primary",
                 "from": 4,
-                "through": 8
+                "through": 8,
+                "damageMultiplier": 1,
+                "knockbackMultiplier": 1
               }
             ],
             "events": [],
@@ -236,7 +242,9 @@
               {
                 "hitboxId": "primary",
                 "from": 4,
-                "through": 8
+                "through": 8,
+                "damageMultiplier": 1,
+                "knockbackMultiplier": 1
               }
             ],
             "events": [],
@@ -250,6 +258,18 @@
     }
   ],
   "instances": [],
+  "connections": [
+    {
+      "source": {
+        "nodeId": "attack-area"
+      },
+      "signal": "area_entered",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_area_entered"
+    }
+  ],
   "subresources": [
     {
       "version": 1,

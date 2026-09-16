@@ -29,21 +29,6 @@ export interface WeaponContext {
   playCharacterAction: (actionId: string) => void;
   playWeaponAnimation: (animationId: WeaponPlaybackAnimationId, forceRestart?: boolean) => void;
   onWeaponEvent?: (event: WeaponTrackEvent) => void;
-  supplementalHitboxes?: SupplementalWeaponHitboxPort;
-}
-
-export interface SupplementalWeaponAttack {
-  readonly weaponId: string;
-  readonly hitboxIds: readonly string[];
-  readonly playbackId: number;
-}
-
-export interface SupplementalWeaponHitboxRequest extends Omit<WeaponHitRequest, 'target'> {}
-
-export interface SupplementalWeaponHitboxPort {
-  beginAttack(request: SupplementalWeaponAttack): void;
-  activateHitbox(request: SupplementalWeaponHitboxRequest): HitboxActivationHandle;
-  endAttack(): void;
 }
 
 interface AttackSnapshot {
@@ -55,6 +40,11 @@ interface AttackSnapshot {
   readonly finalDamage: number;
   readonly isCrit: boolean;
   readonly knockStrength: number;
+}
+
+export interface WeaponDamageSnapshot {
+  readonly damage: number;
+  readonly knockbackStrength: number;
 }
 
 export interface WeaponHitRequest {
@@ -149,6 +139,11 @@ export class Weapon {
     return Phaser.Math.Clamp(1 - remaining / total, 0, 1);
   }
 
+  activeDamageSnapshot(): WeaponDamageSnapshot | undefined {
+    const snapshot = this.attackSnapshot;
+    return snapshot ? { damage: snapshot.finalDamage, knockbackStrength: snapshot.knockStrength } : undefined;
+  }
+
   attack(time: number): boolean {
     if (this.destroyed || this.attacking || !this.isReady(time)) return false;
 
@@ -198,11 +193,6 @@ export class Weapon {
     this.trackRunner?.destroy();
     this.trackRunner = this.createTrackRunner(track);
     this.clock.start(directionalAttack.animation, track.events ?? [], true);
-    this.ctx.supplementalHitboxes?.beginAttack({
-      weaponId: this.def.weaponId,
-      hitboxIds: [...new Set(track.hitboxSpans.map((span) => span.hitboxId))],
-      playbackId: this.clock.state.playbackId,
-    });
     return true;
   }
 
@@ -267,7 +257,6 @@ export class Weapon {
         this.ctx.applyHit({ ...request, target, damage, knockX, knockY, knockStrength });
       },
     ));
-    if (this.ctx.supplementalHitboxes) handles.push(this.ctx.supplementalHitboxes.activateHitbox(request));
     if (handles.length === 0) return;
     const handle: HitboxActivationHandle = {
       get isActive(): boolean { return handles.some((candidate) => candidate.isActive); },
@@ -293,7 +282,6 @@ export class Weapon {
     this.legacyEndTimer?.remove();
     this.legacyEndTimer = null;
     this.deactivateAllHitboxes();
-    this.ctx.supplementalHitboxes?.endAttack();
     this.attacking = false;
     this.attackSnapshot = undefined;
     this.ctx.onAttackEnd();
