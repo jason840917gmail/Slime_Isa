@@ -29,7 +29,7 @@ class TestShape extends t.Node2D {
   }
 }
 
-async function instantiate(sceneId) {
+async function instantiate(sceneId, services = {}) {
   const scene = content.scenes.find((candidate) => candidate.sceneId === sceneId);
   assert.ok(scene, `missing ${sceneId}`);
   const descriptors = t.createGameDescriptorRegistry();
@@ -40,7 +40,7 @@ async function instantiate(sceneId) {
     .replace('CharacterBody2D', (context) => new TestBody({ runtimeId: context.runtimeId, name: context.name }))
     .replace('Area2D', (context) => new TestArea({ runtimeId: context.runtimeId, name: context.name, monitoring: context.properties.monitoring, monitorable: context.properties.monitorable }))
     .replace('CollisionShape2D', (context) => new TestShape({ runtimeId: context.runtimeId, name: context.name, disabled: context.properties.disabled }));
-  const root = new t.SceneInstantiator({ nodeTypes, scripts: t.createGameScriptRegistry(), descriptors }).instantiate_scene(packed, { runtimeNamespace: `fixture-${sceneId}` });
+  const root = new t.SceneInstantiator({ nodeTypes, scripts: t.createGameScriptRegistry(services), descriptors }).instantiate_scene(packed, { runtimeNamespace: `fixture-${sceneId}` });
   const tree = new t.SceneTree();
   tree.setRoot(root);
   return { root, tree, packed, loader, resources };
@@ -73,13 +73,41 @@ test('weapon scene drives directional hitbox windows and cooldown from one scrip
 });
 
 test('projectile and effect scenes own finite lifetimes', async () => {
-  const projectile = await instantiate('projectile.worm-arrow');
+  const activations = new t.AttackActivation();
+  const router = new t.DamageRouter(activations);
+  let hp = 100;
+  let damageSource;
+  router.registerArea({
+    runtimeNodeId: 'player',
+    getDamageState: () => ({ hp, maxHp: 100, dead: false }),
+    commitDamage: (commit) => {
+      hp -= commit.result.actualDamage;
+      damageSource = commit.request.sourceNodeId;
+    },
+  }, { areaNodeId: 'player-area', priority: 0, damageMultiplier: 1 });
+  const projectile = await instantiate('projectile.worm-arrow', {
+    [t.ATTACK_ACTIVATION_SERVICE]: activations,
+    [t.DAMAGE_ROUTER_SERVICE]: router,
+  });
   const projectileScript = projectile.root.get_node('ProjectileScript');
   assert.ok(projectileScript instanceof t.ProjectileScript);
-  projectileScript.launch({ x: 3, y: 4 });
+  projectileScript.launch({ x: 3, y: 4 }, 180, {
+    sourceNodeId: 'archer', damage: 15, knockbackStrength: 20, targetAreaNodeIds: ['player-area'],
+  });
   assert.deepEqual(projectile.root.velocity, { x: 108, y: 144 });
-  assert.equal(projectile.root.rotation, Math.atan2(4, 3));
-  projectile.tree.physicsProcess(3);
+  assert.equal(projectile.root.rotation, 0);
+  assert.equal(projectile.root.get_node('Visual').rotation, Math.atan2(4, 3));
+  projectile.root.get_node('AttackArea').getSignal('area_entered').emit({
+    observerId: 'projectile-area', otherId: 'archer-area', observerKind: 'area', otherKind: 'area', shapes: [],
+  });
+  assert.equal(projectileScript.launched, true);
+  assert.equal(hp, 100);
+  projectile.root.get_node('AttackArea').getSignal('area_entered').emit({
+    observerId: 'projectile-area', otherId: 'player-area', observerKind: 'area', otherKind: 'area', shapes: [],
+  });
+  assert.equal(hp, 85);
+  assert.equal(damageSource, 'archer');
+  projectile.tree.physicsProcess(0);
   assert.equal(projectile.root.is_freed(), true);
   projectile.packed.dispose();
 

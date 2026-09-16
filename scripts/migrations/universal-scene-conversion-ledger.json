@@ -5207,7 +5207,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "0c6d3131ff1abd4221be17446c4307624f7e68232a9b25e85338231001e15fe0",
+      "sourceHash": "23b7ed45012a068c652067b2b2b10fbd7c5e8ae3035d5a761131f0aca63f1e0d",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "worm-archer",
@@ -5244,7 +5244,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "0c6d3131ff1abd4221be17446c4307624f7e68232a9b25e85338231001e15fe0",
+      "sourceHash": "23b7ed45012a068c652067b2b2b10fbd7c5e8ae3035d5a761131f0aca63f1e0d",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "worm-brawler",
@@ -5281,7 +5281,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "0c6d3131ff1abd4221be17446c4307624f7e68232a9b25e85338231001e15fe0",
+      "sourceHash": "23b7ed45012a068c652067b2b2b10fbd7c5e8ae3035d5a761131f0aca63f1e0d",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "worm-swordsman",

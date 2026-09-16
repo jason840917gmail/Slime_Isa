@@ -65,6 +65,7 @@ test('managed ranged enemies preserve flee distance and fire their authored proj
   assert.equal(script.runtimeState, 'attack');
   fixture.firstTree.physicsProcess(0.6);
   assert.equal(projectiles.length, 1);
+  assert.equal(projectiles[0].projectileId, 'worm-arrow');
   assert.equal(projectiles[0].assetId, 'enemy.projectile.worm-arrow');
   assert.equal(projectiles[0].damage, 22);
   assert.equal(projectiles[0].speed, 180);

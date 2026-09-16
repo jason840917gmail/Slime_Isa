@@ -56,6 +56,12 @@ test('converted combat scenes own timelines, collision geometry, and runtime scr
   assert.equal(arrow.rootNodeId, 'body');
   assert.equal(arrow.nodes.find((node) => node.scriptId === 'game.projectile').properties.lifetimeMs, 3000);
   assert.equal(arrow.nodes.filter((node) => node.type === 'AnimationPlayer').length, 1);
+  assert.ok(arrow.nodes.some((node) => node.id === 'attack-area'));
+  assert.deepEqual(arrow.connections, [{ source: { nodeId: 'attack-area' }, signal: 'area_entered', target: { nodeId: 'script' }, handler: 'on_area_entered' }]);
+  assert.deepEqual(
+    JSON.parse(await readFile(path.join(repositoryRoot, 'src/game/content/scenes/authored/projectiles/worm-arrow.scene.json'), 'utf8')),
+    arrow,
+  );
 
   const impact = await load('effects/basic-sword-impact.scene.json');
   assert.equal(impact.nodes.find((node) => node.scriptId === 'game.effect').properties.effectId, 'basic-sword-impact');

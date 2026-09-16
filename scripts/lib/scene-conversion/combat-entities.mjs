@@ -232,16 +232,20 @@ function projectileScene(projectile, manifest) {
   return {
     version: 1, sceneId: prefix, rootNodeId: 'body',
     nodes: [
-      { id: 'body', name: title(projectile.projectileId), type: 'CharacterBody2D', parentId: null, order: 0, properties: { collisionLayer: 16, collisionMask: 8, position: [0, 0], velocity: [0, 0] } },
+      { id: 'body', name: title(projectile.projectileId), type: 'CharacterBody2D', parentId: null, order: 0, properties: { collisionLayer: 0, collisionMask: 0, position: [0, 0], velocity: [0, 0] } },
       { id: 'body-shape', name: 'BodyShape', type: 'CollisionShape2D', parentId: 'body', order: 0, properties: { shape: { resourceId: shape.resourceId }, position: [projectile.body.centerOffsetX, projectile.body.centerOffsetY] } },
       { id: 'visual', name: 'Visual', type: 'Sprite2D', parentId: 'body', order: 1, properties: { texture: { resourceId: texture.resourceId }, frame: 0, position: projectile.visual?.sourceOffset ?? [0, 0], depthMode: 'world-sorted', depthBand: 'world-entities' } },
-      { id: 'animation', name: 'Animation', type: 'AnimationPlayer', parentId: 'body', order: 2, properties: { library: { resourceId: animations.resourceId }, domain: 'physics', autoplay: 'move' } },
-      { id: 'script', name: 'ProjectileScript', type: 'ScriptNode', scriptId: 'game.projectile', parentId: 'body', order: 3, properties: {
-        projectileId: projectile.projectileId, body: { nodeId: 'body' }, visual: { nodeId: 'visual' }, animation: { nodeId: 'animation' },
+      { id: 'attack-area', name: 'AttackArea', type: 'Area2D', parentId: 'body', order: 2, properties: { collisionLayer: 16, collisionMask: 8, monitoring: true, monitorable: false } },
+      { id: 'attack-shape', name: 'AttackShape', type: 'CollisionShape2D', parentId: 'attack-area', order: 0, properties: { shape: { resourceId: shape.resourceId }, position: [projectile.body.centerOffsetX, projectile.body.centerOffsetY] } },
+      { id: 'animation', name: 'Animation', type: 'AnimationPlayer', parentId: 'body', order: 3, properties: { library: { resourceId: animations.resourceId }, domain: 'physics', autoplay: 'move' } },
+      { id: 'script', name: 'ProjectileScript', type: 'ScriptNode', scriptId: 'game.projectile', parentId: 'body', order: 4, properties: {
+        projectileId: projectile.projectileId, body: { nodeId: 'body' }, visual: { nodeId: 'visual' }, animation: { nodeId: 'animation' }, attackArea: { nodeId: 'attack-area' },
         defaultSpeed: projectile.movement.defaultSpeed, lifetimeMs: projectile.movement.lifetimeMs, rotateToVelocity: projectile.movement.rotateToVelocity,
       } },
     ],
-    instances: [], subresources: [texture, shape, animations],
+    instances: [],
+    connections: [{ source: { nodeId: 'attack-area' }, signal: 'area_entered', target: { nodeId: 'script' }, handler: 'on_area_entered' }],
+    subresources: [texture, shape, animations],
   };
 }
 

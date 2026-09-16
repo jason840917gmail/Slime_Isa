@@ -63,6 +63,7 @@ import {
   type NpcWanderAgent,
 } from '../scripts/NpcScript';
 import { PLAYER_HEALTH_SERVICE, PlayerScript } from '../scripts/PlayerScript';
+import { ProjectileScript } from '../scripts/ProjectileScript';
 import { PLAYER_INPUT_ACTIONS } from '../player/PlayerInputActions';
 import type { LegacyPlayerHealthAdapter } from '../../infrastructure/scenes/compatibility/LegacyPlayerHealthAdapter';
 import type { ModalStack } from '../../ui/ModalStack';
@@ -115,6 +116,11 @@ interface ManagedOrdinaryEnemy {
   disposeAtMs?: number;
 }
 
+interface ManagedProjectile {
+  readonly mount: MountedScene;
+  readonly script: ProjectileScript;
+}
+
 const MANAGED_ENEMY_SCENES = {
   'worm-archer': 'character.worm-archer',
   'worm-brawler': 'character.worm-brawler',
@@ -154,6 +160,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
   private readonly camps = new Map<string, ManagedCamp>();
   private readonly bosses = new Map<string, ManagedBoss>();
   private readonly ordinaryEnemies = new Map<number, ManagedOrdinaryEnemy>();
+  private readonly projectiles = new Map<number, ManagedProjectile>();
   private readonly npcs = new Map<string, NpcScript>();
   private playerScript?: PlayerScript;
   private playerBody?: CharacterBody2DNode;
@@ -163,6 +170,8 @@ export class UniversalSceneWorldController implements InteractionProvider {
   private readonly unregisterInteraction: () => void;
   private nextBossSequence = 1;
   private nextEnemySequence = 1;
+  private nextProjectileSequence = 1;
+  private managedProjectileSpawnCountValue = 0;
   private simulationTimeMs = 0;
   private mountingPlacement?: SceneEnabledPlacement;
   private disposed = false;
@@ -225,6 +234,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
         postPhysics: () => {
           this.finishDefeatedBosses();
           this.finishDefeatedOrdinaryEnemies();
+          this.finishExpiredProjectiles();
         },
         render: (deltaSeconds) => {
           options.updateLegacyRender(deltaSeconds * 1000);
@@ -276,6 +286,8 @@ export class UniversalSceneWorldController implements InteractionProvider {
   get managedChestCount(): number { return this.chests.size; }
   get managedNpcCount(): number { return this.npcs.size; }
   get managedPlayerCount(): number { return this.playerScript ? 1 : 0; }
+  get managedProjectileCount(): number { return this.projectiles.size; }
+  get managedProjectileSpawnCount(): number { return this.managedProjectileSpawnCountValue; }
   get managedPlayer(): PlayerScript {
     if (!this.playerScript) throw new Error('The authored player scene is not mounted.');
     return this.playerScript;
@@ -364,6 +376,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.camps.clear();
     this.bosses.clear();
     this.ordinaryEnemies.clear();
+    this.projectiles.clear();
     this.npcs.clear();
     this.playerScript = undefined;
     this.playerBody = undefined;
@@ -555,18 +568,28 @@ export class UniversalSceneWorldController implements InteractionProvider {
 
   private fireEnemyProjectile(request: EnemyProjectileRequest): void {
     if (request.projectileId) {
-      projectilePool.fireDefinition(
-        this.options.scene,
-        request.position.x,
-        request.position.y,
-        request.direction.x,
-        request.direction.y,
-        request.projectileId,
-        'enemy',
-        request.damage,
-        request.knockbackStrength,
-        request.speed,
-      );
+      const sequence = this.nextProjectileSequence++;
+      const mount = this.runtime.mountScene(sceneId(`projectile.${request.projectileId}`), {
+        runtimeNamespace: `managed-projectile-${sequence}`,
+        position: request.position,
+      });
+      const script = descendants(mount.root, ProjectileScript)[0];
+      if (!script) {
+        mount.dispose();
+        throw new Error(`Projectile scene '${request.projectileId}' requires ProjectileScript.`);
+      }
+      this.projectiles.set(sequence, { mount, script });
+      this.registerLegacyColliders(mount, false);
+      script.launch(request.direction, request.speed, {
+        sourceNodeId: request.sourceNodeId,
+        damage: request.damage,
+        knockbackStrength: request.knockbackStrength,
+        weaponId: request.projectileId,
+        weaponTags: ['enemy', 'projectile'],
+        damageTypes: ['physical'],
+        targetAreaNodeIds: [this.managedPlayer.damageAreaNodeId],
+      });
+      this.managedProjectileSpawnCountValue += 1;
       return;
     }
     if (!request.assetId) throw new Error(`Managed enemy '${request.sourceNodeId}' projectile has no asset identity.`);
@@ -584,6 +607,14 @@ export class UniversalSceneWorldController implements InteractionProvider {
       request.damage,
       request.knockbackStrength,
     );
+  }
+
+  private finishExpiredProjectiles(): void {
+    for (const [sequence, projectile] of [...this.projectiles]) {
+      if (projectile.script.launched && !projectile.mount.root.is_freed()) continue;
+      projectile.mount.dispose();
+      this.projectiles.delete(sequence);
+    }
   }
 
   private createBossBar(campId: string, bossId: string): LegacyBossBarHandle {

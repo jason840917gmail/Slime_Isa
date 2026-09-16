@@ -184,6 +184,7 @@
           ]
         },
         "projectile": {
+          "projectileId": "worm-arrow",
           "assetId": "enemy.projectile.worm-arrow",
           "damage": 22
         }
