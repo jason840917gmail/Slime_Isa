@@ -13,6 +13,13 @@ import type { CollectibleStateChange } from '../collectibles/CollectibleControll
 import type { WorldDropRequest } from '../collectibles/WorldDropSpawner';
 import type { WorldDimensions } from '../../world/WorldDimensions';
 import { completeDropPlacements } from './ResourceDropPlacement';
+import type { ResourceDropRequest } from '../scripts/ResourceNodeScript';
+
+export interface ManagedResourceRegistration {
+  readonly instanceId: string;
+  readonly dropObjectId: string;
+  readonly dropVisualId: string;
+}
 
 interface ResourceRecord {
   readonly image: Phaser.GameObjects.Image;
@@ -64,6 +71,31 @@ export class ResourceNodeController {
   private harvestHintReadyAt = 0;
 
   constructor(private readonly ctx: ResourceNodeControllerContext) {}
+
+  registerManagedResource(registration: ManagedResourceRegistration): void {
+    this.dropDefinitions.set(registration.instanceId, {
+      objectId: registration.dropObjectId,
+      visualId: registration.dropVisualId,
+    });
+    const savedState = worldProgress.resourceState(this.ctx.mapId, registration.instanceId);
+    if (savedState?.stage === 'destroyed') this.restoreDynamicDrops(registration.instanceId, savedState.piles ?? []);
+  }
+
+  spawnManagedResourceDrops(request: ResourceDropRequest): void {
+    if (!isObjectArchetypeId(request.dropObjectId)) return;
+    const collectible = getObjectArchetype(request.dropObjectId).collectible;
+    if (!collectible) return;
+    this.spawnConfiguredDrops({
+      sourceInstanceId: request.instanceId,
+      anchorX: request.x,
+      anchorY: request.y,
+      dropObjectId: request.dropObjectId,
+      dropVisualId: request.dropVisualId,
+      pieces: request.pieces,
+      amount: collectible.quantity,
+      depletionMessage: request.depletionMessage ?? 'Resource depleted',
+    });
+  }
 
   register(registration: BuiltObjectRegistration): void {
     if (!isObjectArchetypeId(registration.objectId)) return;
@@ -236,27 +268,48 @@ export class ResourceNodeController {
     const collectible = getObjectArchetype(drop.objectId).collectible;
     if (!collectible) return;
 
-    const sourceCell = this.cellForAnchor(record.anchorX, record.anchorY);
-    const pieces = piecesOverride ?? drop.pieces;
-    const cells = this.findDropCells(sourceCell.cellX, sourceCell.cellY, record.instanceId, pieces);
-    const placements = completeDropPlacements(cells, sourceCell, pieces, this.ctx.dimensions.tileSize);
+    this.spawnConfiguredDrops({
+      sourceInstanceId: record.instanceId,
+      anchorX: record.anchorX,
+      anchorY: record.anchorY,
+      dropObjectId: drop.objectId,
+      dropVisualId: drop.visualId,
+      pieces: piecesOverride ?? drop.pieces,
+      amount: amountOverride ?? collectible.quantity,
+      depletionMessage: source.depletionMessage ?? 'Resource depleted',
+    });
+  }
+
+  private spawnConfiguredDrops(request: {
+    readonly sourceInstanceId: string;
+    readonly anchorX: number;
+    readonly anchorY: number;
+    readonly dropObjectId: string;
+    readonly dropVisualId: string;
+    readonly pieces: number;
+    readonly amount: number;
+    readonly depletionMessage: string;
+  }): void {
+    const sourceCell = this.cellForAnchor(request.anchorX, request.anchorY);
+    const cells = this.findDropCells(sourceCell.cellX, sourceCell.cellY, request.sourceInstanceId, request.pieces);
+    const placements = completeDropPlacements(cells, sourceCell, request.pieces, this.ctx.dimensions.tileSize);
     const piles: ResourcePileProgress[] = placements.map((cell, index) => ({
-      id: `${record.instanceId}-drop-${index + 1}`,
+      id: `${request.sourceInstanceId}-drop-${index + 1}`,
       cellX: cell.cellX,
       cellY: cell.cellY,
       ...(cell.offsetX !== 0 ? { offsetX: cell.offsetX } : {}),
       ...(cell.offsetY !== 0 ? { offsetY: cell.offsetY } : {}),
-      amount: amountOverride ?? collectible.quantity,
-      objectId: drop.objectId,
-      visualId: drop.visualId,
+      amount: request.amount,
+      objectId: request.dropObjectId,
+      visualId: request.dropVisualId,
     }));
-    this.saveDestroyedState(record.instanceId, piles);
-    piles.forEach((pile, index) => this.createDynamicDrop(record.instanceId, pile, {
+    this.saveDestroyedState(request.sourceInstanceId, piles);
+    piles.forEach((pile, index) => this.createDynamicDrop(request.sourceInstanceId, pile, {
       mode: 'launch',
-      source: { x: record.anchorX, y: record.anchorY },
+      source: { x: request.anchorX, y: request.anchorY },
       launchIndex: index,
     }));
-    floatingText.spawn(this.ctx.scene, record.anchorX, record.anchorY - 46, source.depletionMessage ?? 'Resource depleted', 'yellow', true);
+    floatingText.spawn(this.ctx.scene, request.anchorX, request.anchorY - 46, request.depletionMessage, 'yellow', true);
   }
 
   private restoreDynamicDrops(sourceInstanceId: string, piles: readonly ResourcePileProgress[]): void {

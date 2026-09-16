@@ -234,13 +234,16 @@ export class CombatController {
     return this.weapon?.weaponId ?? null;
   }
 
-  transformManagedWeaponDamage(damage: number): number {
-    return Math.max(0, Math.round(damage * this.combo.registerHit()));
+  transformManagedWeaponDamage(damage: number, target?: ManagedWeaponTarget): number {
+    const modifier = resolveDamageModifier(this.weapon?.damageModifiers, target?.targetTags ?? []);
+    return Math.max(0, Math.round(damage * modifier * this.combo.registerHit()));
   }
 
   onManagedWeaponOutcome(outcome: RoutedDamageOutcome, target: ManagedWeaponTarget | undefined): void {
     if (outcome.result.status !== 'accepted') return;
-    this.applyLifeSteal(outcome.result.actualDamage);
+    const targetTags = target?.targetTags ?? [];
+    if (targetTags.includes('enemy')) this.applyLifeSteal(outcome.result.actualDamage);
+    if (targetTags.includes('resource')) return;
     const effectId = this.weapon?.onHitEffectId;
     if (!target || !effectId || outcome.result.actualDamage <= 0) return;
     this.spawnEffect({

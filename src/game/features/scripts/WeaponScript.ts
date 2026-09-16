@@ -35,6 +35,7 @@ export interface ManagedWeaponTarget {
   readonly x: number;
   readonly y: number;
   readonly attackDirection: WeaponAttackDirection;
+  readonly targetTags?: readonly string[];
 }
 
 export interface PlayerWeaponCombatPort {
