@@ -1,0 +1,1537 @@
+{
+  "version": 1,
+  "sceneId": "weapon.wooden-spear",
+  "rootNodeId": "root",
+  "nodes": [
+    {
+      "id": "root",
+      "name": "WoodenSpear",
+      "type": "Node2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "visual-1",
+      "name": "Spear1",
+      "type": "Sprite2D",
+      "parentId": "root",
+      "order": 0,
+      "properties": {
+        "texture": {
+          "resourceId": "weapon.wooden-spear.visual.1"
+        },
+        "frame": 0,
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "position": [
+          0,
+          0
+        ],
+        "scale": [
+          0.6,
+          0.6
+        ],
+        "rotation": 0,
+        "alpha": 0,
+        "depthMode": "world-sorted",
+        "depthBand": "world-entities"
+      }
+    },
+    {
+      "id": "attack-area",
+      "name": "AttackArea",
+      "type": "Area2D",
+      "parentId": "root",
+      "order": 1,
+      "properties": {
+        "collisionLayer": 16,
+        "collisionMask": 8,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "shape-right-spear",
+      "name": "right--spear",
+      "type": "CollisionShape2D",
+      "parentId": "attack-area",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "weapon.wooden-spear.right.spear.shape"
+        },
+        "position": [
+          58,
+          8
+        ],
+        "rotation": 0,
+        "disabled": true
+      }
+    },
+    {
+      "id": "shape-left-spear",
+      "name": "left--spear",
+      "type": "CollisionShape2D",
+      "parentId": "attack-area",
+      "order": 1,
+      "properties": {
+        "shape": {
+          "resourceId": "weapon.wooden-spear.left.spear.shape"
+        },
+        "position": [
+          -58,
+          8
+        ],
+        "rotation": 180,
+        "disabled": true
+      }
+    },
+    {
+      "id": "shape-up-spear",
+      "name": "up--spear",
+      "type": "CollisionShape2D",
+      "parentId": "attack-area",
+      "order": 2,
+      "properties": {
+        "shape": {
+          "resourceId": "weapon.wooden-spear.up.spear.shape"
+        },
+        "position": [
+          0,
+          -58
+        ],
+        "rotation": -90,
+        "disabled": true
+      }
+    },
+    {
+      "id": "shape-down-spear",
+      "name": "down--spear",
+      "type": "CollisionShape2D",
+      "parentId": "attack-area",
+      "order": 3,
+      "properties": {
+        "shape": {
+          "resourceId": "weapon.wooden-spear.down.spear.shape"
+        },
+        "position": [
+          0,
+          58
+        ],
+        "rotation": 90,
+        "disabled": true
+      }
+    },
+    {
+      "id": "animation",
+      "name": "Animation",
+      "type": "AnimationPlayer",
+      "parentId": "root",
+      "order": 2,
+      "properties": {
+        "library": {
+          "resourceId": "weapon.wooden-spear.animations"
+        },
+        "domain": "physics",
+        "autoplay": "idle"
+      }
+    },
+    {
+      "id": "script",
+      "name": "WeaponScript",
+      "type": "ScriptNode",
+      "scriptId": "game.weapon",
+      "parentId": "root",
+      "order": 3,
+      "properties": {
+        "weaponId": "wooden-spear",
+        "category": "melee",
+        "attackArea": {
+          "nodeId": "attack-area"
+        },
+        "animation": {
+          "nodeId": "animation"
+        },
+        "baseDamage": 5,
+        "cooldownMs": 760,
+        "knockStrength": 50,
+        "damageModifiers": [
+          {
+            "targetTag": "resource",
+            "modifier": 0
+          }
+        ],
+        "harvestCapabilities": {},
+        "scaling": {},
+        "onHitEffectId": "basic-spear-impact",
+        "attackPlans": {
+          "right": {
+            "animationId": "attack-right",
+            "durationMs": 400,
+            "framesPerSecond": 20,
+            "hitboxSpans": [
+              {
+                "hitboxId": "spear",
+                "from": 3,
+                "through": 7
+              }
+            ],
+            "events": [],
+            "mirrored": {
+              "x": false,
+              "y": false
+            }
+          },
+          "left": {
+            "animationId": "attack-left",
+            "durationMs": 400,
+            "framesPerSecond": 20,
+            "hitboxSpans": [
+              {
+                "hitboxId": "spear",
+                "from": 3,
+                "through": 7
+              }
+            ],
+            "events": [],
+            "mirrored": {
+              "x": true,
+              "y": false
+            }
+          },
+          "up": {
+            "animationId": "attack-up",
+            "durationMs": 400,
+            "framesPerSecond": 20,
+            "hitboxSpans": [
+              {
+                "hitboxId": "spear",
+                "from": 3,
+                "through": 7
+              }
+            ],
+            "events": [],
+            "mirrored": {
+              "x": false,
+              "y": true
+            }
+          },
+          "down": {
+            "animationId": "attack-down",
+            "durationMs": 400,
+            "framesPerSecond": 20,
+            "hitboxSpans": [
+              {
+                "hitboxId": "spear",
+                "from": 3,
+                "through": 7
+              }
+            ],
+            "events": [],
+            "mirrored": {
+              "x": false,
+              "y": false
+            }
+          }
+        }
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "weapon.wooden-spear.visual.1",
+      "kind": "sprite-sheet",
+      "assetId": "weapon.player.starter-spears-tiles",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frameCount": 4
+    },
+    {
+      "version": 1,
+      "resourceId": "weapon.wooden-spear.right.spear.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 80,
+        "height": 22
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "weapon.wooden-spear.left.spear.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 80,
+        "height": 22
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "weapon.wooden-spear.up.spear.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 28,
+        "height": 82
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "weapon.wooden-spear.down.spear.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 28,
+        "height": 82
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "weapon.wooden-spear.animations",
+      "kind": "animation-library",
+      "animations": {
+        "idle": {
+          "durationSeconds": 1,
+          "framesPerSecond": 8,
+          "loop": true,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Spear1",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                },
+                {
+                  "at": 1,
+                  "value": 0
+                },
+                {
+                  "at": 2,
+                  "value": 0
+                },
+                {
+                  "at": 3,
+                  "value": 0
+                },
+                {
+                  "at": 4,
+                  "value": 0
+                },
+                {
+                  "at": 5,
+                  "value": 0
+                },
+                {
+                  "at": 6,
+                  "value": 0
+                },
+                {
+                  "at": 7,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "binding": "../Spear1",
+              "property": "alpha",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 1
+                },
+                {
+                  "at": 1,
+                  "value": 1
+                },
+                {
+                  "at": 2,
+                  "value": 1
+                },
+                {
+                  "at": 3,
+                  "value": 1
+                },
+                {
+                  "at": 4,
+                  "value": 1
+                },
+                {
+                  "at": 5,
+                  "value": 1
+                },
+                {
+                  "at": 6,
+                  "value": 1
+                },
+                {
+                  "at": 7,
+                  "value": 1
+                }
+              ]
+            },
+            {
+              "binding": "../Spear1",
+              "property": "position",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "at": 4,
+                  "value": [
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "at": 5,
+                  "value": [
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "at": 6,
+                  "value": [
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "at": 7,
+                  "value": [
+                    0,
+                    0
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Spear1",
+              "property": "scale",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 4,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 5,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 6,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 7,
+                  "value": [
+                    1,
+                    1
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Spear1",
+              "property": "rotation",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                },
+                {
+                  "at": 1,
+                  "value": 0
+                },
+                {
+                  "at": 2,
+                  "value": 0
+                },
+                {
+                  "at": 3,
+                  "value": 0
+                },
+                {
+                  "at": 4,
+                  "value": 0
+                },
+                {
+                  "at": 5,
+                  "value": 0
+                },
+                {
+                  "at": 6,
+                  "value": 0
+                },
+                {
+                  "at": 7,
+                  "value": 0
+                }
+              ]
+            }
+          ]
+        },
+        "attack-right": {
+          "durationSeconds": 0.4,
+          "framesPerSecond": 20,
+          "loop": false,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Spear1",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                },
+                {
+                  "at": 1,
+                  "value": 0
+                },
+                {
+                  "at": 2,
+                  "value": 0
+                },
+                {
+                  "at": 3,
+                  "value": 0
+                },
+                {
+                  "at": 4,
+                  "value": 1
+                },
+                {
+                  "at": 5,
+                  "value": 1
+                },
+                {
+                  "at": 6,
+                  "value": 1
+                },
+                {
+                  "at": 7,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "binding": "../Spear1",
+              "property": "alpha",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 1
+                },
+                {
+                  "at": 1,
+                  "value": 1
+                },
+                {
+                  "at": 2,
+                  "value": 1
+                },
+                {
+                  "at": 3,
+                  "value": 1
+                },
+                {
+                  "at": 4,
+                  "value": 1
+                },
+                {
+                  "at": 5,
+                  "value": 1
+                },
+                {
+                  "at": 6,
+                  "value": 1
+                },
+                {
+                  "at": 7,
+                  "value": 1
+                }
+              ]
+            },
+            {
+              "binding": "../Spear1",
+              "property": "position",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    -20,
+                    10
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    0,
+                    10
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    20,
+                    10
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    40,
+                    10
+                  ]
+                },
+                {
+                  "at": 4,
+                  "value": [
+                    60,
+                    8
+                  ]
+                },
+                {
+                  "at": 5,
+                  "value": [
+                    60,
+                    8
+                  ]
+                },
+                {
+                  "at": 6,
+                  "value": [
+                    60,
+                    8
+                  ]
+                },
+                {
+                  "at": 7,
+                  "value": [
+                    40,
+                    10
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Spear1",
+              "property": "scale",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 4,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 5,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 6,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 7,
+                  "value": [
+                    1,
+                    1
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Spear1",
+              "property": "rotation",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0.8377580409572781
+                },
+                {
+                  "at": 1,
+                  "value": 0.8377580409572781
+                },
+                {
+                  "at": 2,
+                  "value": 0.8377580409572781
+                },
+                {
+                  "at": 3,
+                  "value": 0.8377580409572781
+                },
+                {
+                  "at": 4,
+                  "value": 0.8028514559173915
+                },
+                {
+                  "at": 5,
+                  "value": 0.8028514559173915
+                },
+                {
+                  "at": 6,
+                  "value": 0.8028514559173915
+                },
+                {
+                  "at": 7,
+                  "value": 0.8377580409572781
+                }
+              ]
+            }
+          ]
+        },
+        "attack-left": {
+          "durationSeconds": 0.4,
+          "framesPerSecond": 20,
+          "loop": false,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Spear1",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                },
+                {
+                  "at": 1,
+                  "value": 0
+                },
+                {
+                  "at": 2,
+                  "value": 0
+                },
+                {
+                  "at": 3,
+                  "value": 0
+                },
+                {
+                  "at": 4,
+                  "value": 1
+                },
+                {
+                  "at": 5,
+                  "value": 1
+                },
+                {
+                  "at": 6,
+                  "value": 1
+                },
+                {
+                  "at": 7,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "binding": "../Spear1",
+              "property": "alpha",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 1
+                },
+                {
+                  "at": 1,
+                  "value": 1
+                },
+                {
+                  "at": 2,
+                  "value": 1
+                },
+                {
+                  "at": 3,
+                  "value": 1
+                },
+                {
+                  "at": 4,
+                  "value": 1
+                },
+                {
+                  "at": 5,
+                  "value": 1
+                },
+                {
+                  "at": 6,
+                  "value": 1
+                },
+                {
+                  "at": 7,
+                  "value": 1
+                }
+              ]
+            },
+            {
+              "binding": "../Spear1",
+              "property": "position",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    -20,
+                    10
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    0,
+                    10
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    20,
+                    10
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    40,
+                    10
+                  ]
+                },
+                {
+                  "at": 4,
+                  "value": [
+                    60,
+                    8
+                  ]
+                },
+                {
+                  "at": 5,
+                  "value": [
+                    60,
+                    8
+                  ]
+                },
+                {
+                  "at": 6,
+                  "value": [
+                    60,
+                    8
+                  ]
+                },
+                {
+                  "at": 7,
+                  "value": [
+                    40,
+                    10
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Spear1",
+              "property": "scale",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 4,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 5,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 6,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 7,
+                  "value": [
+                    1,
+                    1
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Spear1",
+              "property": "rotation",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0.8377580409572781
+                },
+                {
+                  "at": 1,
+                  "value": 0.8377580409572781
+                },
+                {
+                  "at": 2,
+                  "value": 0.8377580409572781
+                },
+                {
+                  "at": 3,
+                  "value": 0.8377580409572781
+                },
+                {
+                  "at": 4,
+                  "value": 0.8028514559173915
+                },
+                {
+                  "at": 5,
+                  "value": 0.8028514559173915
+                },
+                {
+                  "at": 6,
+                  "value": 0.8028514559173915
+                },
+                {
+                  "at": 7,
+                  "value": 0.8377580409572781
+                }
+              ]
+            }
+          ]
+        },
+        "attack-up": {
+          "durationSeconds": 0.4,
+          "framesPerSecond": 20,
+          "loop": false,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Spear1",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                },
+                {
+                  "at": 1,
+                  "value": 0
+                },
+                {
+                  "at": 2,
+                  "value": 0
+                },
+                {
+                  "at": 3,
+                  "value": 0
+                },
+                {
+                  "at": 4,
+                  "value": 1
+                },
+                {
+                  "at": 5,
+                  "value": 1
+                },
+                {
+                  "at": 6,
+                  "value": 1
+                },
+                {
+                  "at": 7,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "binding": "../Spear1",
+              "property": "alpha",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 1
+                },
+                {
+                  "at": 1,
+                  "value": 1
+                },
+                {
+                  "at": 2,
+                  "value": 1
+                },
+                {
+                  "at": 3,
+                  "value": 1
+                },
+                {
+                  "at": 4,
+                  "value": 1
+                },
+                {
+                  "at": 5,
+                  "value": 1
+                },
+                {
+                  "at": 6,
+                  "value": 1
+                },
+                {
+                  "at": 7,
+                  "value": 1
+                }
+              ]
+            },
+            {
+              "binding": "../Spear1",
+              "property": "position",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    0,
+                    -20
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    0,
+                    20
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    0,
+                    40
+                  ]
+                },
+                {
+                  "at": 4,
+                  "value": [
+                    0,
+                    60
+                  ]
+                },
+                {
+                  "at": 5,
+                  "value": [
+                    0,
+                    60
+                  ]
+                },
+                {
+                  "at": 6,
+                  "value": [
+                    0,
+                    60
+                  ]
+                },
+                {
+                  "at": 7,
+                  "value": [
+                    0,
+                    40
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Spear1",
+              "property": "scale",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 4,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 5,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 6,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 7,
+                  "value": [
+                    1,
+                    1
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Spear1",
+              "property": "rotation",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 2.443460952792061
+                },
+                {
+                  "at": 1,
+                  "value": 2.443460952792061
+                },
+                {
+                  "at": 2,
+                  "value": 2.443460952792061
+                },
+                {
+                  "at": 3,
+                  "value": 2.443460952792061
+                },
+                {
+                  "at": 4,
+                  "value": 2.356194490192345
+                },
+                {
+                  "at": 5,
+                  "value": 2.356194490192345
+                },
+                {
+                  "at": 6,
+                  "value": 2.356194490192345
+                },
+                {
+                  "at": 7,
+                  "value": 2.443460952792061
+                }
+              ]
+            }
+          ]
+        },
+        "attack-down": {
+          "durationSeconds": 0.4,
+          "framesPerSecond": 20,
+          "loop": false,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Spear1",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                },
+                {
+                  "at": 1,
+                  "value": 0
+                },
+                {
+                  "at": 2,
+                  "value": 0
+                },
+                {
+                  "at": 3,
+                  "value": 0
+                },
+                {
+                  "at": 4,
+                  "value": 1
+                },
+                {
+                  "at": 5,
+                  "value": 1
+                },
+                {
+                  "at": 6,
+                  "value": 1
+                },
+                {
+                  "at": 7,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "binding": "../Spear1",
+              "property": "alpha",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 1
+                },
+                {
+                  "at": 1,
+                  "value": 1
+                },
+                {
+                  "at": 2,
+                  "value": 1
+                },
+                {
+                  "at": 3,
+                  "value": 1
+                },
+                {
+                  "at": 4,
+                  "value": 1
+                },
+                {
+                  "at": 5,
+                  "value": 1
+                },
+                {
+                  "at": 6,
+                  "value": 1
+                },
+                {
+                  "at": 7,
+                  "value": 1
+                }
+              ]
+            },
+            {
+              "binding": "../Spear1",
+              "property": "position",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    0,
+                    -20
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    0,
+                    20
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    0,
+                    40
+                  ]
+                },
+                {
+                  "at": 4,
+                  "value": [
+                    0,
+                    60
+                  ]
+                },
+                {
+                  "at": 5,
+                  "value": [
+                    0,
+                    60
+                  ]
+                },
+                {
+                  "at": 6,
+                  "value": [
+                    0,
+                    60
+                  ]
+                },
+                {
+                  "at": 7,
+                  "value": [
+                    0,
+                    40
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Spear1",
+              "property": "scale",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 4,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 5,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 6,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 7,
+                  "value": [
+                    1,
+                    1
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Spear1",
+              "property": "rotation",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 2.443460952792061
+                },
+                {
+                  "at": 1,
+                  "value": 2.443460952792061
+                },
+                {
+                  "at": 2,
+                  "value": 2.443460952792061
+                },
+                {
+                  "at": 3,
+                  "value": 2.443460952792061
+                },
+                {
+                  "at": 4,
+                  "value": 2.356194490192345
+                },
+                {
+                  "at": 5,
+                  "value": 2.356194490192345
+                },
+                {
+                  "at": 6,
+                  "value": 2.356194490192345
+                },
+                {
+                  "at": 7,
+                  "value": 2.443460952792061
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

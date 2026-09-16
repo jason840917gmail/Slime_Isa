@@ -1,0 +1,1775 @@
+{
+  "version": 1,
+  "sceneId": "weapon.basic-spear",
+  "rootNodeId": "root",
+  "nodes": [
+    {
+      "id": "root",
+      "name": "BasicSpear",
+      "type": "Node2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "visual-1",
+      "name": "Base1",
+      "type": "Sprite2D",
+      "parentId": "root",
+      "order": 0,
+      "properties": {
+        "texture": {
+          "resourceId": "weapon.basic-spear.visual.1"
+        },
+        "frame": 0,
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "position": [
+          0,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8
+        ],
+        "rotation": 0,
+        "alpha": 0,
+        "depthMode": "world-sorted",
+        "depthBand": "world-entities"
+      }
+    },
+    {
+      "id": "attack-area",
+      "name": "AttackArea",
+      "type": "Area2D",
+      "parentId": "root",
+      "order": 1,
+      "properties": {
+        "collisionLayer": 16,
+        "collisionMask": 8,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "shape-right-primary",
+      "name": "right--primary",
+      "type": "CollisionShape2D",
+      "parentId": "attack-area",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "weapon.basic-spear.right.primary.shape"
+        },
+        "position": [
+          60,
+          10
+        ],
+        "rotation": 0,
+        "disabled": true
+      }
+    },
+    {
+      "id": "shape-left-primary",
+      "name": "left--primary",
+      "type": "CollisionShape2D",
+      "parentId": "attack-area",
+      "order": 1,
+      "properties": {
+        "shape": {
+          "resourceId": "weapon.basic-spear.left.primary.shape"
+        },
+        "position": [
+          -60,
+          10
+        ],
+        "rotation": 180,
+        "disabled": true
+      }
+    },
+    {
+      "id": "shape-up-primary",
+      "name": "up--primary",
+      "type": "CollisionShape2D",
+      "parentId": "attack-area",
+      "order": 2,
+      "properties": {
+        "shape": {
+          "resourceId": "weapon.basic-spear.up.primary.shape"
+        },
+        "position": [
+          0,
+          -40
+        ],
+        "rotation": -90,
+        "disabled": true
+      }
+    },
+    {
+      "id": "shape-down-primary",
+      "name": "down--primary",
+      "type": "CollisionShape2D",
+      "parentId": "attack-area",
+      "order": 3,
+      "properties": {
+        "shape": {
+          "resourceId": "weapon.basic-spear.down.primary.shape"
+        },
+        "position": [
+          0,
+          60
+        ],
+        "rotation": 90,
+        "disabled": true
+      }
+    },
+    {
+      "id": "animation",
+      "name": "Animation",
+      "type": "AnimationPlayer",
+      "parentId": "root",
+      "order": 2,
+      "properties": {
+        "library": {
+          "resourceId": "weapon.basic-spear.animations"
+        },
+        "domain": "physics",
+        "autoplay": "idle"
+      }
+    },
+    {
+      "id": "script",
+      "name": "WeaponScript",
+      "type": "ScriptNode",
+      "scriptId": "game.weapon",
+      "parentId": "root",
+      "order": 3,
+      "properties": {
+        "weaponId": "basic-spear",
+        "category": "melee",
+        "attackArea": {
+          "nodeId": "attack-area"
+        },
+        "animation": {
+          "nodeId": "animation"
+        },
+        "baseDamage": 10,
+        "cooldownMs": 800,
+        "knockStrength": 200,
+        "damageModifiers": [
+          {
+            "targetTag": "stone",
+            "modifier": 0
+          },
+          {
+            "targetTag": "resource",
+            "modifier": 0.1
+          }
+        ],
+        "harvestCapabilities": {},
+        "scaling": {},
+        "onHitEffectId": "basic-spear-impact",
+        "attackPlans": {
+          "right": {
+            "animationId": "attack-right",
+            "durationMs": 500,
+            "framesPerSecond": 24,
+            "hitboxSpans": [
+              {
+                "hitboxId": "primary",
+                "from": 4,
+                "through": 8
+              }
+            ],
+            "events": [],
+            "mirrored": {
+              "x": false,
+              "y": false
+            }
+          },
+          "left": {
+            "animationId": "attack-left",
+            "durationMs": 500,
+            "framesPerSecond": 24,
+            "hitboxSpans": [
+              {
+                "hitboxId": "primary",
+                "from": 4,
+                "through": 8
+              }
+            ],
+            "events": [],
+            "mirrored": {
+              "x": true,
+              "y": false
+            }
+          },
+          "up": {
+            "animationId": "attack-up",
+            "durationMs": 500,
+            "framesPerSecond": 24,
+            "hitboxSpans": [
+              {
+                "hitboxId": "primary",
+                "from": 4,
+                "through": 8
+              }
+            ],
+            "events": [],
+            "mirrored": {
+              "x": false,
+              "y": false
+            }
+          },
+          "down": {
+            "animationId": "attack-down",
+            "durationMs": 500,
+            "framesPerSecond": 24,
+            "hitboxSpans": [
+              {
+                "hitboxId": "primary",
+                "from": 4,
+                "through": 8
+              }
+            ],
+            "events": [],
+            "mirrored": {
+              "x": false,
+              "y": false
+            }
+          }
+        }
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "weapon.basic-spear.visual.1",
+      "kind": "sprite-sheet",
+      "assetId": "weapon.player.hammer-spear-tiles",
+      "frameWidth": 126,
+      "frameHeight": 126,
+      "frameCount": 4
+    },
+    {
+      "version": 1,
+      "resourceId": "weapon.basic-spear.right.primary.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 80,
+        "height": 24
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "weapon.basic-spear.left.primary.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 80,
+        "height": 24
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "weapon.basic-spear.up.primary.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 24,
+        "height": 80
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "weapon.basic-spear.down.primary.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 24,
+        "height": 80
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "weapon.basic-spear.animations",
+      "kind": "animation-library",
+      "animations": {
+        "idle": {
+          "durationSeconds": 0.08333333333333333,
+          "framesPerSecond": 12,
+          "loop": true,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Base1",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "binding": "../Base1",
+              "property": "alpha",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 1
+                }
+              ]
+            },
+            {
+              "binding": "../Base1",
+              "property": "position",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    10,
+                    -10
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Base1",
+              "property": "scale",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    1,
+                    1
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Base1",
+              "property": "rotation",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                }
+              ]
+            }
+          ]
+        },
+        "attack-right": {
+          "durationSeconds": 0.5,
+          "framesPerSecond": 24,
+          "loop": false,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Base1",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                },
+                {
+                  "at": 1,
+                  "value": 0
+                },
+                {
+                  "at": 2,
+                  "value": 0
+                },
+                {
+                  "at": 3,
+                  "value": 0
+                },
+                {
+                  "at": 4,
+                  "value": 0
+                },
+                {
+                  "at": 5,
+                  "value": 1
+                },
+                {
+                  "at": 6,
+                  "value": 1
+                },
+                {
+                  "at": 7,
+                  "value": 1
+                },
+                {
+                  "at": 8,
+                  "value": 1
+                },
+                {
+                  "at": 9,
+                  "value": 0
+                },
+                {
+                  "at": 10,
+                  "value": 0
+                },
+                {
+                  "at": 11,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "binding": "../Base1",
+              "property": "alpha",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 1
+                },
+                {
+                  "at": 1,
+                  "value": 1
+                },
+                {
+                  "at": 2,
+                  "value": 1
+                },
+                {
+                  "at": 3,
+                  "value": 1
+                },
+                {
+                  "at": 4,
+                  "value": 1
+                },
+                {
+                  "at": 5,
+                  "value": 1
+                },
+                {
+                  "at": 6,
+                  "value": 1
+                },
+                {
+                  "at": 7,
+                  "value": 1
+                },
+                {
+                  "at": 8,
+                  "value": 1
+                },
+                {
+                  "at": 9,
+                  "value": 1
+                },
+                {
+                  "at": 10,
+                  "value": 1
+                },
+                {
+                  "at": 11,
+                  "value": 1
+                }
+              ]
+            },
+            {
+              "binding": "../Base1",
+              "property": "position",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    0,
+                    10
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    0,
+                    10
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    30,
+                    10
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    40,
+                    10
+                  ]
+                },
+                {
+                  "at": 4,
+                  "value": [
+                    40,
+                    10
+                  ]
+                },
+                {
+                  "at": 5,
+                  "value": [
+                    55,
+                    10
+                  ]
+                },
+                {
+                  "at": 6,
+                  "value": [
+                    55,
+                    10
+                  ]
+                },
+                {
+                  "at": 7,
+                  "value": [
+                    55,
+                    10
+                  ]
+                },
+                {
+                  "at": 8,
+                  "value": [
+                    55,
+                    10
+                  ]
+                },
+                {
+                  "at": 9,
+                  "value": [
+                    40,
+                    10
+                  ]
+                },
+                {
+                  "at": 10,
+                  "value": [
+                    20,
+                    10
+                  ]
+                },
+                {
+                  "at": 11,
+                  "value": [
+                    20,
+                    10
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Base1",
+              "property": "scale",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 4,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 5,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 6,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 7,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 8,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 9,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 10,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 11,
+                  "value": [
+                    1,
+                    1
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Base1",
+              "property": "rotation",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0.9075712110370514
+                },
+                {
+                  "at": 1,
+                  "value": 0.9075712110370514
+                },
+                {
+                  "at": 2,
+                  "value": 0.9075712110370514
+                },
+                {
+                  "at": 3,
+                  "value": 0.9075712110370514
+                },
+                {
+                  "at": 4,
+                  "value": 0.9075712110370514
+                },
+                {
+                  "at": 5,
+                  "value": 0.8028514559173915
+                },
+                {
+                  "at": 6,
+                  "value": 0.8028514559173915
+                },
+                {
+                  "at": 7,
+                  "value": 0.8028514559173915
+                },
+                {
+                  "at": 8,
+                  "value": 0.8028514559173915
+                },
+                {
+                  "at": 9,
+                  "value": 0.9075712110370514
+                },
+                {
+                  "at": 10,
+                  "value": 0.9075712110370514
+                },
+                {
+                  "at": 11,
+                  "value": 0.9075712110370514
+                }
+              ]
+            }
+          ]
+        },
+        "attack-left": {
+          "durationSeconds": 0.5,
+          "framesPerSecond": 24,
+          "loop": false,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Base1",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                },
+                {
+                  "at": 1,
+                  "value": 0
+                },
+                {
+                  "at": 2,
+                  "value": 0
+                },
+                {
+                  "at": 3,
+                  "value": 0
+                },
+                {
+                  "at": 4,
+                  "value": 0
+                },
+                {
+                  "at": 5,
+                  "value": 1
+                },
+                {
+                  "at": 6,
+                  "value": 1
+                },
+                {
+                  "at": 7,
+                  "value": 1
+                },
+                {
+                  "at": 8,
+                  "value": 1
+                },
+                {
+                  "at": 9,
+                  "value": 0
+                },
+                {
+                  "at": 10,
+                  "value": 0
+                },
+                {
+                  "at": 11,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "binding": "../Base1",
+              "property": "alpha",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 1
+                },
+                {
+                  "at": 1,
+                  "value": 1
+                },
+                {
+                  "at": 2,
+                  "value": 1
+                },
+                {
+                  "at": 3,
+                  "value": 1
+                },
+                {
+                  "at": 4,
+                  "value": 1
+                },
+                {
+                  "at": 5,
+                  "value": 1
+                },
+                {
+                  "at": 6,
+                  "value": 1
+                },
+                {
+                  "at": 7,
+                  "value": 1
+                },
+                {
+                  "at": 8,
+                  "value": 1
+                },
+                {
+                  "at": 9,
+                  "value": 1
+                },
+                {
+                  "at": 10,
+                  "value": 1
+                },
+                {
+                  "at": 11,
+                  "value": 1
+                }
+              ]
+            },
+            {
+              "binding": "../Base1",
+              "property": "position",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    0,
+                    10
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    0,
+                    10
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    30,
+                    10
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    40,
+                    10
+                  ]
+                },
+                {
+                  "at": 4,
+                  "value": [
+                    40,
+                    10
+                  ]
+                },
+                {
+                  "at": 5,
+                  "value": [
+                    55,
+                    10
+                  ]
+                },
+                {
+                  "at": 6,
+                  "value": [
+                    55,
+                    10
+                  ]
+                },
+                {
+                  "at": 7,
+                  "value": [
+                    55,
+                    10
+                  ]
+                },
+                {
+                  "at": 8,
+                  "value": [
+                    55,
+                    10
+                  ]
+                },
+                {
+                  "at": 9,
+                  "value": [
+                    40,
+                    10
+                  ]
+                },
+                {
+                  "at": 10,
+                  "value": [
+                    20,
+                    10
+                  ]
+                },
+                {
+                  "at": 11,
+                  "value": [
+                    20,
+                    10
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Base1",
+              "property": "scale",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 4,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 5,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 6,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 7,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 8,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 9,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 10,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 11,
+                  "value": [
+                    1,
+                    1
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Base1",
+              "property": "rotation",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0.9075712110370514
+                },
+                {
+                  "at": 1,
+                  "value": 0.9075712110370514
+                },
+                {
+                  "at": 2,
+                  "value": 0.9075712110370514
+                },
+                {
+                  "at": 3,
+                  "value": 0.9075712110370514
+                },
+                {
+                  "at": 4,
+                  "value": 0.9075712110370514
+                },
+                {
+                  "at": 5,
+                  "value": 0.8028514559173915
+                },
+                {
+                  "at": 6,
+                  "value": 0.8028514559173915
+                },
+                {
+                  "at": 7,
+                  "value": 0.8028514559173915
+                },
+                {
+                  "at": 8,
+                  "value": 0.8028514559173915
+                },
+                {
+                  "at": 9,
+                  "value": 0.9075712110370514
+                },
+                {
+                  "at": 10,
+                  "value": 0.9075712110370514
+                },
+                {
+                  "at": 11,
+                  "value": 0.9075712110370514
+                }
+              ]
+            }
+          ]
+        },
+        "attack-up": {
+          "durationSeconds": 0.5,
+          "framesPerSecond": 24,
+          "loop": false,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Base1",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                },
+                {
+                  "at": 1,
+                  "value": 0
+                },
+                {
+                  "at": 2,
+                  "value": 0
+                },
+                {
+                  "at": 3,
+                  "value": 0
+                },
+                {
+                  "at": 4,
+                  "value": 0
+                },
+                {
+                  "at": 5,
+                  "value": 1
+                },
+                {
+                  "at": 6,
+                  "value": 1
+                },
+                {
+                  "at": 7,
+                  "value": 1
+                },
+                {
+                  "at": 8,
+                  "value": 1
+                },
+                {
+                  "at": 9,
+                  "value": 0
+                },
+                {
+                  "at": 10,
+                  "value": 0
+                },
+                {
+                  "at": 11,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "binding": "../Base1",
+              "property": "alpha",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 1
+                },
+                {
+                  "at": 1,
+                  "value": 1
+                },
+                {
+                  "at": 2,
+                  "value": 1
+                },
+                {
+                  "at": 3,
+                  "value": 1
+                },
+                {
+                  "at": 4,
+                  "value": 1
+                },
+                {
+                  "at": 5,
+                  "value": 1
+                },
+                {
+                  "at": 6,
+                  "value": 1
+                },
+                {
+                  "at": 7,
+                  "value": 1
+                },
+                {
+                  "at": 8,
+                  "value": 1
+                },
+                {
+                  "at": 9,
+                  "value": 1
+                },
+                {
+                  "at": 10,
+                  "value": 1
+                },
+                {
+                  "at": 11,
+                  "value": 1
+                }
+              ]
+            },
+            {
+              "binding": "../Base1",
+              "property": "position",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    0,
+                    10
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    0,
+                    -15
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    0,
+                    -15
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    0,
+                    -30
+                  ]
+                },
+                {
+                  "at": 4,
+                  "value": [
+                    0,
+                    -30
+                  ]
+                },
+                {
+                  "at": 5,
+                  "value": [
+                    0,
+                    -40
+                  ]
+                },
+                {
+                  "at": 6,
+                  "value": [
+                    0,
+                    -40
+                  ]
+                },
+                {
+                  "at": 7,
+                  "value": [
+                    0,
+                    -40
+                  ]
+                },
+                {
+                  "at": 8,
+                  "value": [
+                    0,
+                    -40
+                  ]
+                },
+                {
+                  "at": 9,
+                  "value": [
+                    0,
+                    -30
+                  ]
+                },
+                {
+                  "at": 10,
+                  "value": [
+                    0,
+                    -30
+                  ]
+                },
+                {
+                  "at": 11,
+                  "value": [
+                    0,
+                    -15
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Base1",
+              "property": "scale",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 4,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 5,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 6,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 7,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 8,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 9,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 10,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 11,
+                  "value": [
+                    1,
+                    1
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Base1",
+              "property": "rotation",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": -2.4958208303518914
+                },
+                {
+                  "at": 1,
+                  "value": -2.4958208303518914
+                },
+                {
+                  "at": 2,
+                  "value": -2.4958208303518914
+                },
+                {
+                  "at": 3,
+                  "value": -2.4958208303518914
+                },
+                {
+                  "at": 4,
+                  "value": -2.4958208303518914
+                },
+                {
+                  "at": 5,
+                  "value": -2.4085543677521746
+                },
+                {
+                  "at": 6,
+                  "value": -2.4085543677521746
+                },
+                {
+                  "at": 7,
+                  "value": -2.4085543677521746
+                },
+                {
+                  "at": 8,
+                  "value": -2.4085543677521746
+                },
+                {
+                  "at": 9,
+                  "value": -2.4958208303518914
+                },
+                {
+                  "at": 10,
+                  "value": -2.4958208303518914
+                },
+                {
+                  "at": 11,
+                  "value": -2.4958208303518914
+                }
+              ]
+            }
+          ]
+        },
+        "attack-down": {
+          "durationSeconds": 0.5,
+          "framesPerSecond": 24,
+          "loop": false,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Base1",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                },
+                {
+                  "at": 1,
+                  "value": 0
+                },
+                {
+                  "at": 2,
+                  "value": 0
+                },
+                {
+                  "at": 3,
+                  "value": 0
+                },
+                {
+                  "at": 4,
+                  "value": 0
+                },
+                {
+                  "at": 5,
+                  "value": 1
+                },
+                {
+                  "at": 6,
+                  "value": 1
+                },
+                {
+                  "at": 7,
+                  "value": 1
+                },
+                {
+                  "at": 8,
+                  "value": 1
+                },
+                {
+                  "at": 9,
+                  "value": 0
+                },
+                {
+                  "at": 10,
+                  "value": 0
+                },
+                {
+                  "at": 11,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "binding": "../Base1",
+              "property": "alpha",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 1
+                },
+                {
+                  "at": 1,
+                  "value": 1
+                },
+                {
+                  "at": 2,
+                  "value": 1
+                },
+                {
+                  "at": 3,
+                  "value": 1
+                },
+                {
+                  "at": 4,
+                  "value": 1
+                },
+                {
+                  "at": 5,
+                  "value": 1
+                },
+                {
+                  "at": 6,
+                  "value": 1
+                },
+                {
+                  "at": 7,
+                  "value": 1
+                },
+                {
+                  "at": 8,
+                  "value": 1
+                },
+                {
+                  "at": 9,
+                  "value": 1
+                },
+                {
+                  "at": 10,
+                  "value": 1
+                },
+                {
+                  "at": 11,
+                  "value": 1
+                }
+              ]
+            },
+            {
+              "binding": "../Base1",
+              "property": "position",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    0,
+                    25
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    0,
+                    25
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    0,
+                    45
+                  ]
+                },
+                {
+                  "at": 4,
+                  "value": [
+                    0,
+                    45
+                  ]
+                },
+                {
+                  "at": 5,
+                  "value": [
+                    0,
+                    50
+                  ]
+                },
+                {
+                  "at": 6,
+                  "value": [
+                    0,
+                    50
+                  ]
+                },
+                {
+                  "at": 7,
+                  "value": [
+                    0,
+                    50
+                  ]
+                },
+                {
+                  "at": 8,
+                  "value": [
+                    0,
+                    50
+                  ]
+                },
+                {
+                  "at": 9,
+                  "value": [
+                    0,
+                    45
+                  ]
+                },
+                {
+                  "at": 10,
+                  "value": [
+                    0,
+                    45
+                  ]
+                },
+                {
+                  "at": 11,
+                  "value": [
+                    0,
+                    25
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Base1",
+              "property": "scale",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 4,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 5,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 6,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 7,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 8,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 9,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 10,
+                  "value": [
+                    1,
+                    1
+                  ]
+                },
+                {
+                  "at": 11,
+                  "value": [
+                    1,
+                    1
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Base1",
+              "property": "rotation",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 2.4958208303518914
+                },
+                {
+                  "at": 1,
+                  "value": 2.4958208303518914
+                },
+                {
+                  "at": 2,
+                  "value": 2.4958208303518914
+                },
+                {
+                  "at": 3,
+                  "value": 2.4958208303518914
+                },
+                {
+                  "at": 4,
+                  "value": 2.4958208303518914
+                },
+                {
+                  "at": 5,
+                  "value": 2.4085543677521746
+                },
+                {
+                  "at": 6,
+                  "value": 2.4085543677521746
+                },
+                {
+                  "at": 7,
+                  "value": 2.4085543677521746
+                },
+                {
+                  "at": 8,
+                  "value": 2.4085543677521746
+                },
+                {
+                  "at": 9,
+                  "value": 2.4958208303518914
+                },
+                {
+                  "at": 10,
+                  "value": 2.4958208303518914
+                },
+                {
+                  "at": 11,
+                  "value": 2.4958208303518914
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

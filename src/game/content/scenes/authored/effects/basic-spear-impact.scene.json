@@ -1,0 +1,353 @@
+{
+  "version": 1,
+  "sceneId": "effect.basic-spear-impact",
+  "rootNodeId": "root",
+  "nodes": [
+    {
+      "id": "root",
+      "name": "BasicSpearImpact",
+      "type": "Node2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "visual-1",
+      "name": "Layer11",
+      "type": "Sprite2D",
+      "parentId": "root",
+      "order": 0,
+      "properties": {
+        "texture": {
+          "resourceId": "effect.basic-spear-impact.visual.1"
+        },
+        "frame": 0,
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "position": [
+          0,
+          0
+        ],
+        "scale": [
+          0.4,
+          0.4
+        ],
+        "rotation": 0,
+        "alpha": 0,
+        "depthMode": "world-sorted",
+        "depthBand": "world-entities"
+      }
+    },
+    {
+      "id": "animation",
+      "name": "Animation",
+      "type": "AnimationPlayer",
+      "parentId": "root",
+      "order": 1,
+      "properties": {
+        "library": {
+          "resourceId": "effect.basic-spear-impact.animations"
+        },
+        "domain": "physics",
+        "autoplay": "right"
+      }
+    },
+    {
+      "id": "script",
+      "name": "EffectScript",
+      "type": "ScriptNode",
+      "scriptId": "game.effect",
+      "parentId": "root",
+      "order": 2,
+      "properties": {
+        "effectId": "basic-spear-impact",
+        "animation": {
+          "nodeId": "animation"
+        },
+        "lifetimeMs": 1000
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "effect.basic-spear-impact.visual.1",
+      "kind": "sprite-sheet",
+      "assetId": "effect.weapon.hit-tiles",
+      "frameWidth": 126,
+      "frameHeight": 126,
+      "frameCount": 3
+    },
+    {
+      "version": 1,
+      "resourceId": "effect.basic-spear-impact.animations",
+      "kind": "animation-library",
+      "animations": {
+        "right": {
+          "durationSeconds": 1,
+          "framesPerSecond": 1,
+          "loop": false,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Layer11",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 2
+                }
+              ]
+            },
+            {
+              "binding": "../Layer11",
+              "property": "alpha",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 1
+                }
+              ]
+            },
+            {
+              "binding": "../Layer11",
+              "property": "position",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    0,
+                    0
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Layer11",
+              "property": "scale",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    1,
+                    1
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Layer11",
+              "property": "rotation",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                }
+              ]
+            }
+          ]
+        },
+        "left": {
+          "durationSeconds": 1,
+          "framesPerSecond": 1,
+          "loop": false,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Layer11",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 2
+                }
+              ]
+            },
+            {
+              "binding": "../Layer11",
+              "property": "alpha",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 1
+                }
+              ]
+            },
+            {
+              "binding": "../Layer11",
+              "property": "position",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    0,
+                    0
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Layer11",
+              "property": "scale",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    1,
+                    1
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Layer11",
+              "property": "rotation",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                }
+              ]
+            }
+          ]
+        },
+        "up": {
+          "durationSeconds": 1,
+          "framesPerSecond": 1,
+          "loop": false,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Layer11",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 2
+                }
+              ]
+            },
+            {
+              "binding": "../Layer11",
+              "property": "alpha",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 1
+                }
+              ]
+            },
+            {
+              "binding": "../Layer11",
+              "property": "position",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    0,
+                    0
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Layer11",
+              "property": "scale",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    1,
+                    1
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Layer11",
+              "property": "rotation",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                }
+              ]
+            }
+          ]
+        },
+        "down": {
+          "durationSeconds": 1,
+          "framesPerSecond": 1,
+          "loop": false,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Layer11",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 2
+                }
+              ]
+            },
+            {
+              "binding": "../Layer11",
+              "property": "alpha",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 1
+                }
+              ]
+            },
+            {
+              "binding": "../Layer11",
+              "property": "position",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    0,
+                    0
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Layer11",
+              "property": "scale",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    1,
+                    1
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Layer11",
+              "property": "rotation",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

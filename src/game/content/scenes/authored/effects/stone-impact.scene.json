@@ -1,0 +1,665 @@
+{
+  "version": 1,
+  "sceneId": "effect.stone-impact",
+  "rootNodeId": "root",
+  "nodes": [
+    {
+      "id": "root",
+      "name": "StoneImpact",
+      "type": "Node2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "visual-1",
+      "name": "Impact1",
+      "type": "Sprite2D",
+      "parentId": "root",
+      "order": 0,
+      "properties": {
+        "texture": {
+          "resourceId": "effect.stone-impact.visual.1"
+        },
+        "frame": 0,
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "position": [
+          0,
+          0
+        ],
+        "scale": [
+          0.65,
+          0.65
+        ],
+        "rotation": 0,
+        "alpha": 0,
+        "depthMode": "world-sorted",
+        "depthBand": "world-entities"
+      }
+    },
+    {
+      "id": "animation",
+      "name": "Animation",
+      "type": "AnimationPlayer",
+      "parentId": "root",
+      "order": 1,
+      "properties": {
+        "library": {
+          "resourceId": "effect.stone-impact.animations"
+        },
+        "domain": "physics",
+        "autoplay": "right"
+      }
+    },
+    {
+      "id": "script",
+      "name": "EffectScript",
+      "type": "ScriptNode",
+      "scriptId": "game.effect",
+      "parentId": "root",
+      "order": 2,
+      "properties": {
+        "effectId": "stone-impact",
+        "animation": {
+          "nodeId": "animation"
+        },
+        "lifetimeMs": 333.3333333
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "effect.stone-impact.visual.1",
+      "kind": "sprite-sheet",
+      "assetId": "effect.resource.stone-impact-tiles",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frameCount": 4
+    },
+    {
+      "version": 1,
+      "resourceId": "effect.stone-impact.animations",
+      "kind": "animation-library",
+      "animations": {
+        "right": {
+          "durationSeconds": 0.3333333333,
+          "framesPerSecond": 12,
+          "loop": false,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Impact1",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                },
+                {
+                  "at": 1,
+                  "value": 1
+                },
+                {
+                  "at": 2,
+                  "value": 2
+                },
+                {
+                  "at": 3,
+                  "value": 3
+                }
+              ]
+            },
+            {
+              "binding": "../Impact1",
+              "property": "alpha",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 1
+                },
+                {
+                  "at": 1,
+                  "value": 1
+                },
+                {
+                  "at": 2,
+                  "value": 1
+                },
+                {
+                  "at": 3,
+                  "value": 1
+                }
+              ]
+            },
+            {
+              "binding": "../Impact1",
+              "property": "position",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    0,
+                    0
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Impact1",
+              "property": "scale",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    0.65,
+                    0.65
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    0.65,
+                    0.65
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    0.65,
+                    0.65
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    0.65,
+                    0.65
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Impact1",
+              "property": "rotation",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                },
+                {
+                  "at": 1,
+                  "value": 0
+                },
+                {
+                  "at": 2,
+                  "value": 0
+                },
+                {
+                  "at": 3,
+                  "value": 0
+                }
+              ]
+            }
+          ]
+        },
+        "left": {
+          "durationSeconds": 0.3333333333,
+          "framesPerSecond": 12,
+          "loop": false,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Impact1",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                },
+                {
+                  "at": 1,
+                  "value": 1
+                },
+                {
+                  "at": 2,
+                  "value": 2
+                },
+                {
+                  "at": 3,
+                  "value": 3
+                }
+              ]
+            },
+            {
+              "binding": "../Impact1",
+              "property": "alpha",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 1
+                },
+                {
+                  "at": 1,
+                  "value": 1
+                },
+                {
+                  "at": 2,
+                  "value": 1
+                },
+                {
+                  "at": 3,
+                  "value": 1
+                }
+              ]
+            },
+            {
+              "binding": "../Impact1",
+              "property": "position",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    0,
+                    0
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Impact1",
+              "property": "scale",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    0.65,
+                    0.65
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    0.65,
+                    0.65
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    0.65,
+                    0.65
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    0.65,
+                    0.65
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Impact1",
+              "property": "rotation",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                },
+                {
+                  "at": 1,
+                  "value": 0
+                },
+                {
+                  "at": 2,
+                  "value": 0
+                },
+                {
+                  "at": 3,
+                  "value": 0
+                }
+              ]
+            }
+          ]
+        },
+        "up": {
+          "durationSeconds": 0.3333333333,
+          "framesPerSecond": 12,
+          "loop": false,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Impact1",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                },
+                {
+                  "at": 1,
+                  "value": 1
+                },
+                {
+                  "at": 2,
+                  "value": 2
+                },
+                {
+                  "at": 3,
+                  "value": 3
+                }
+              ]
+            },
+            {
+              "binding": "../Impact1",
+              "property": "alpha",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 1
+                },
+                {
+                  "at": 1,
+                  "value": 1
+                },
+                {
+                  "at": 2,
+                  "value": 1
+                },
+                {
+                  "at": 3,
+                  "value": 1
+                }
+              ]
+            },
+            {
+              "binding": "../Impact1",
+              "property": "position",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    0,
+                    0
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Impact1",
+              "property": "scale",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    0.65,
+                    0.65
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    0.65,
+                    0.65
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    0.65,
+                    0.65
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    0.65,
+                    0.65
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Impact1",
+              "property": "rotation",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                },
+                {
+                  "at": 1,
+                  "value": 0
+                },
+                {
+                  "at": 2,
+                  "value": 0
+                },
+                {
+                  "at": 3,
+                  "value": 0
+                }
+              ]
+            }
+          ]
+        },
+        "down": {
+          "durationSeconds": 0.3333333333,
+          "framesPerSecond": 12,
+          "loop": false,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Impact1",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                },
+                {
+                  "at": 1,
+                  "value": 1
+                },
+                {
+                  "at": 2,
+                  "value": 2
+                },
+                {
+                  "at": 3,
+                  "value": 3
+                }
+              ]
+            },
+            {
+              "binding": "../Impact1",
+              "property": "alpha",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 1
+                },
+                {
+                  "at": 1,
+                  "value": 1
+                },
+                {
+                  "at": 2,
+                  "value": 1
+                },
+                {
+                  "at": 3,
+                  "value": 1
+                }
+              ]
+            },
+            {
+              "binding": "../Impact1",
+              "property": "position",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    0,
+                    0
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Impact1",
+              "property": "scale",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    0.65,
+                    0.65
+                  ]
+                },
+                {
+                  "at": 1,
+                  "value": [
+                    0.65,
+                    0.65
+                  ]
+                },
+                {
+                  "at": 2,
+                  "value": [
+                    0.65,
+                    0.65
+                  ]
+                },
+                {
+                  "at": 3,
+                  "value": [
+                    0.65,
+                    0.65
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../Impact1",
+              "property": "rotation",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                },
+                {
+                  "at": 1,
+                  "value": 0
+                },
+                {
+                  "at": 2,
+                  "value": 0
+                },
+                {
+                  "at": 3,
+                  "value": 0
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
