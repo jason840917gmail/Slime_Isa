@@ -10,8 +10,8 @@
       "parentId": null,
       "order": 0,
       "properties": {
-        "collisionLayer": 16,
-        "collisionMask": 8,
+        "collisionLayer": 0,
+        "collisionMask": 0,
         "position": [
           0,
           0
@@ -58,11 +58,40 @@
       }
     },
     {
+      "id": "attack-area",
+      "name": "AttackArea",
+      "type": "Area2D",
+      "parentId": "body",
+      "order": 2,
+      "properties": {
+        "collisionLayer": 16,
+        "collisionMask": 8,
+        "monitoring": true,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "attack-shape",
+      "name": "AttackShape",
+      "type": "CollisionShape2D",
+      "parentId": "attack-area",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "projectile.worm-arrow.body-shape"
+        },
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
       "id": "animation",
       "name": "Animation",
       "type": "AnimationPlayer",
       "parentId": "body",
-      "order": 2,
+      "order": 3,
       "properties": {
         "library": {
           "resourceId": "projectile.worm-arrow.animations"
@@ -77,7 +106,7 @@
       "type": "ScriptNode",
       "scriptId": "game.projectile",
       "parentId": "body",
-      "order": 3,
+      "order": 4,
       "properties": {
         "projectileId": "worm-arrow",
         "body": {
@@ -89,6 +118,9 @@
         "animation": {
           "nodeId": "animation"
         },
+        "attackArea": {
+          "nodeId": "attack-area"
+        },
         "defaultSpeed": 180,
         "lifetimeMs": 3000,
         "rotateToVelocity": true
@@ -96,6 +128,18 @@
     }
   ],
   "instances": [],
+  "connections": [
+    {
+      "source": {
+        "nodeId": "attack-area"
+      },
+      "signal": "area_entered",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_area_entered"
+    }
+  ],
   "subresources": [
     {
       "version": 1,

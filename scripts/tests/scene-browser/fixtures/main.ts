@@ -54,6 +54,9 @@ type FixtureSnapshot = {
   readonly managedChestCount?: number;
   readonly managedNpcCount?: number;
   readonly managedPlayerCount?: number;
+  readonly managedProjectileCount?: number;
+  readonly managedProjectileSpawnCount?: number;
+  readonly playerHp?: number;
   readonly legacyEnemyCount?: number;
   readonly legacyBossCount?: number;
   readonly legacyNpcCount?: number;
@@ -72,6 +75,7 @@ type FixtureApi = {
   setWallEnabled(enabled: boolean): void;
   freeWall(): void;
   detachAudio(): void;
+  disableProductionEnemySpawning(): void;
   teleportProductionPlayer(x: number, y: number): void;
   spawnManagedEnemy(type: 'slime-spider' | 'worm-archer' | 'worm-brawler' | 'worm-swordsman', x: number, y: number): boolean;
   snapshot(): FixtureSnapshot;
@@ -364,6 +368,16 @@ const api: FixtureApi = {
     if (!detachHarnessAudio) throw new Error('Managed audio is only available in harness mode');
     detachHarnessAudio();
   },
+  disableProductionEnemySpawning() {
+    if (!game || mode !== 'baseline') throw new Error('Production enemy spawning is only available in baseline mode');
+    const world = game.scene.getScene('world') as unknown as {
+      readonly combatController?: {
+        spawner?: { destroy(): void };
+      };
+    };
+    world.combatController?.spawner?.destroy();
+    if (world.combatController) world.combatController.spawner = undefined;
+  },
   teleportProductionPlayer(x, y) {
     if (!game || mode !== 'baseline') throw new Error('Production player is only available in baseline mode');
     const world = game.scene.getScene('world') as unknown as {
@@ -396,9 +410,12 @@ const api: FixtureApi = {
             readonly managedChestCount: number;
             readonly managedNpcCount: number;
             readonly managedPlayerCount: number;
+            readonly managedProjectileCount: number;
+            readonly managedProjectileSpawnCount: number;
             readonly managedPlayer: { getPosition(): Readonly<{ x: number; y: number }> };
             readonly runtime: { readonly tree: { readonly paused: boolean } };
           };
+          readonly healthSystem?: { getDamageState(): { readonly hp: number } };
           readonly combatController?: { readonly targets: Phaser.Physics.Arcade.Group };
           readonly bossCampController?: { readonly targets: Phaser.Physics.Arcade.Group };
           readonly chestController?: unknown;
@@ -426,6 +443,9 @@ const api: FixtureApi = {
       ...(world?.universalWorld ? { managedChestCount: world.universalWorld.managedChestCount } : {}),
       ...(world?.universalWorld ? { managedNpcCount: world.universalWorld.managedNpcCount } : {}),
       ...(world?.universalWorld ? { managedPlayerCount: world.universalWorld.managedPlayerCount } : {}),
+      ...(world?.universalWorld ? { managedProjectileCount: world.universalWorld.managedProjectileCount } : {}),
+      ...(world?.universalWorld ? { managedProjectileSpawnCount: world.universalWorld.managedProjectileSpawnCount } : {}),
+      ...(world?.healthSystem ? { playerHp: world.healthSystem.getDamageState().hp } : {}),
       ...(world?.universalWorld ? { universalRuntimePaused: world.universalWorld.runtime.tree.paused } : {}),
       ...(world?.combatController ? { legacyEnemyCount: world.combatController.targets.countActive(true) } : {}),
       ...(world?.bossCampController ? { legacyBossCount: world.bossCampController.targets.countActive(true) } : {}),

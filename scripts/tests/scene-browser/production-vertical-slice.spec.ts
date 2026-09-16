@@ -88,3 +88,36 @@ test('remaining ordinary enemy scenes mount through the production Phaser runtim
   await page.evaluate(() => window.sceneFixture.destroy());
   await expect.poll(() => page.locator('canvas').count()).toBe(0);
 });
+
+test('Worm Archer projectiles damage the managed player and release their scene mount', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.addInitScript(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+  });
+  const pageErrors: string[] = [];
+  page.on('pageerror', (error) => pageErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error' && !message.text().startsWith('Failed to load resource:')) pageErrors.push(message.text());
+  });
+  await page.goto('./?mode=baseline&map=level-1');
+  await waitForProductionReady(page, pageErrors);
+  await page.evaluate(() => window.sceneFixture.disableProductionEnemySpawning());
+  await page.evaluate(() => window.sceneFixture.teleportProductionPlayer(1_200, 1_550));
+  const before = await page.evaluate(() => window.sceneFixture.snapshot());
+  expect(before.playerHp).toBeGreaterThan(0);
+  expect(await page.evaluate(() => window.sceneFixture.spawnManagedEnemy('worm-archer', 1_000, 1_550))).toBe(true);
+  await expect.poll(async () => (
+    await page.evaluate(() => window.sceneFixture.snapshot().managedProjectileSpawnCount ?? 0)
+  ), { timeout: 10_000 }).toBeGreaterThan(0);
+  await expect.poll(async () => (
+    await page.evaluate(() => window.sceneFixture.snapshot().playerHp ?? Number.POSITIVE_INFINITY)
+  ), { timeout: 5_000 }).toBe(before.playerHp! - 20);
+  await expect.poll(async () => (
+    await page.evaluate(() => window.sceneFixture.snapshot().managedProjectileCount ?? -1)
+  ), { timeout: 5_000 }).toBe(0);
+  expect((await page.evaluate(() => window.sceneFixture.snapshot())).managedProjectileSpawnCount).toBe(1);
+  expect(pageErrors).toEqual([]);
+  await page.evaluate(() => window.sceneFixture.destroy());
+  await expect.poll(() => page.locator('canvas').count()).toBe(0);
+});

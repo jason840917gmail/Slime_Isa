@@ -254,12 +254,14 @@ export const PROJECTILE_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
     { key: 'body', label: 'Projectile Body', required: true, expectedCapability: 'character-body' },
     { key: 'visual', label: 'Visual', required: true },
     { key: 'animation', label: 'Animation Player', required: true, expectedNodeType: 'AnimationPlayer' },
+    { key: 'attackArea', label: 'Attack Area', required: true, expectedCapability: 'area' },
   ],
   properties: [
     stringProperty('projectileId', 'Projectile ID', 'Identity'),
     nodeReference('body', 'Projectile Body', 'character-body'),
     nodeReference('visual', 'Visual'),
     nodeReference('animation', 'Animation Player'),
+    nodeReference('attackArea', 'Attack Area', 'area'),
     numberProperty('defaultSpeed', 'Default Speed', 0, 'Movement'),
     numberProperty('lifetimeMs', 'Lifetime', 0, 'Movement'),
     { key: 'rotateToVelocity', label: 'Rotate to Velocity', group: 'Movement', value: { kind: 'boolean' }, defaultValue: false, serialized: true, inspector: 'checkbox', overridable: true },
@@ -268,6 +270,7 @@ export const PROJECTILE_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
     { id: 'launched', payload: 'ProjectileEvent' },
     { id: 'expired', payload: 'ProjectileEvent' },
   ],
+  handlers: [{ id: 'on_area_entered', payload: 'PhysicsContact' }],
 };
 
 export const EFFECT_SCRIPT_DESCRIPTOR: ScriptDescriptor = {

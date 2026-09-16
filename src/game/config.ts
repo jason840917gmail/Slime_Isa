@@ -96,6 +96,7 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
           sceneId('character.village-elder-plop'),
           sceneId('character.yellow-blond-slime-girl'),
           sceneId('encounter.level-1-fatty-camp'),
+          sceneId('projectile.worm-arrow'),
         ],
         hasAsset: (assetId) => Object.hasOwn(ASSET_MANIFEST.assets, assetId),
       })
