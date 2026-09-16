@@ -87,6 +87,7 @@ export interface CharacterContentRootOptions {
   readonly gameConstantsPath?: string;
   readonly sceneOwnedCharacterIds?: ReadonlySet<string>;
   readonly characterAuthoring?: 'writable' | 'read-only';
+  readonly combatAuthoring?: 'writable' | 'read-only';
 }
 
 async function readResourceTags(gameConstantsPath: string): Promise<ReadonlySet<string>> {
@@ -1434,6 +1435,7 @@ export function characterContentModulesPlugin(options: CharacterContentRootOptio
     gameConstantsPath: path.resolve(options.gameConstantsPath ?? path.join(process.cwd(), 'src/game/content/game-constants.json')),
     sceneOwnedCharacterIds: options.sceneOwnedCharacterIds ?? new Set(),
     characterAuthoring: options.characterAuthoring ?? 'writable',
+    combatAuthoring: options.combatAuthoring ?? 'writable',
   };
   const invalidate = (server: ViteDevServer): void => invalidateCatalog(server);
   return {
@@ -1531,6 +1533,7 @@ export function characterContentModulesPlugin(options: CharacterContentRootOptio
         void next;
       });
       server.middlewares.use('/__character-studio/projectile/create', (request, response, next) => {
+        if (roots.combatAuthoring === 'read-only') { jsonResponse(response, 409, failure('scene-owned', 'Projectile authoring is owned by Scene Studio.')); return; }
         if (request.method !== 'POST') { jsonResponse(response, 405, failure('invalid-request', 'POST required')); return; }
         void projectilePackageHandler(roots.projectileRoot, roots.assetManifestPath, request, response, server, 'create').catch((error: unknown) => {
           jsonResponse(response, 400, failure('projectile-creation', error instanceof Error ? error.message : String(error)));
@@ -1538,6 +1541,7 @@ export function characterContentModulesPlugin(options: CharacterContentRootOptio
         void next;
       });
       server.middlewares.use('/__character-studio/projectile/update', (request, response, next) => {
+        if (roots.combatAuthoring === 'read-only') { jsonResponse(response, 409, failure('scene-owned', 'Projectile authoring is owned by Scene Studio.')); return; }
         if (request.method !== 'POST') { jsonResponse(response, 405, failure('invalid-request', 'POST required')); return; }
         void projectilePackageHandler(roots.projectileRoot, roots.assetManifestPath, request, response, server, 'update').catch((error: unknown) => {
           jsonResponse(response, 400, failure('projectile-update', error instanceof Error ? error.message : String(error)));
@@ -1545,6 +1549,7 @@ export function characterContentModulesPlugin(options: CharacterContentRootOptio
         void next;
       });
       server.middlewares.use('/__character-studio/weapon/create', (request, response, next) => {
+        if (roots.combatAuthoring === 'read-only') { jsonResponse(response, 409, failure('scene-owned', 'Weapon authoring is owned by Scene Studio.')); return; }
         if (request.method !== 'POST') { jsonResponse(response, 405, failure('invalid-request', 'POST required')); return; }
         void weaponPackageHandler(roots.weaponRoot, roots.assetManifestPath, roots.gameConstantsPath, request, response, server, 'create').catch((error: unknown) => {
           jsonResponse(response, 400, failure('weapon-creation', error instanceof Error ? error.message : String(error)));
@@ -1552,6 +1557,7 @@ export function characterContentModulesPlugin(options: CharacterContentRootOptio
         void next;
       });
       server.middlewares.use('/__character-studio/weapon/update', (request, response, next) => {
+        if (roots.combatAuthoring === 'read-only') { jsonResponse(response, 409, failure('scene-owned', 'Weapon authoring is owned by Scene Studio.')); return; }
         if (request.method !== 'POST') { jsonResponse(response, 405, failure('invalid-request', 'POST required')); return; }
         void weaponPackageHandler(roots.weaponRoot, roots.assetManifestPath, roots.gameConstantsPath, request, response, server, 'update').catch((error: unknown) => {
           jsonResponse(response, 400, failure('weapon-update', error instanceof Error ? error.message : String(error)));
@@ -1559,6 +1565,7 @@ export function characterContentModulesPlugin(options: CharacterContentRootOptio
         void next;
       });
       server.middlewares.use('/__character-studio/weapon/save-package', (request, response, next) => {
+        if (roots.combatAuthoring === 'read-only') { jsonResponse(response, 409, failure('scene-owned', 'Weapon and effect authoring is owned by Scene Studio.')); return; }
         if (request.method !== 'POST') { jsonResponse(response, 405, failure('invalid-request', 'POST required')); return; }
         void weaponEffectPackageHandler(roots.weaponRoot, roots.effectRoot, roots.assetManifestPath, roots.gameConstantsPath, request, response, server).catch((error: unknown) => {
           jsonResponse(response, 400, failure('weapon-package-save', error instanceof Error ? error.message : String(error)));
@@ -1566,11 +1573,13 @@ export function characterContentModulesPlugin(options: CharacterContentRootOptio
         void next;
       });
       server.middlewares.use('/__character-studio/effect/create', (request, response, next) => {
+        if (roots.combatAuthoring === 'read-only') { jsonResponse(response, 409, failure('scene-owned', 'Effect authoring is owned by Scene Studio.')); return; }
         if (request.method !== 'POST') { jsonResponse(response, 405, failure('invalid-request', 'POST required')); return; }
         void effectPackageHandler(roots.effectRoot, request, response, server, 'create').catch((error: unknown) => jsonResponse(response, 400, failure('effect-creation', error instanceof Error ? error.message : String(error))));
         void next;
       });
       server.middlewares.use('/__character-studio/effect/update', (request, response, next) => {
+        if (roots.combatAuthoring === 'read-only') { jsonResponse(response, 409, failure('scene-owned', 'Effect authoring is owned by Scene Studio.')); return; }
         if (request.method !== 'POST') { jsonResponse(response, 405, failure('invalid-request', 'POST required')); return; }
         void effectPackageHandler(roots.effectRoot, request, response, server, 'update').catch((error: unknown) => jsonResponse(response, 400, failure('effect-update', error instanceof Error ? error.message : String(error))));
         void next;

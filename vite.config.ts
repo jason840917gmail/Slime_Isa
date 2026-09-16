@@ -1129,6 +1129,7 @@ export default defineConfig({
     characterContentModulesPlugin({
       sceneOwnedCharacterIds: SCENE_OWNED_CHARACTER_IDS,
       characterAuthoring: 'read-only',
+      combatAuthoring: 'read-only',
     }),
     animationContentModulesPlugin(),
     sceneContentModulesPlugin(),

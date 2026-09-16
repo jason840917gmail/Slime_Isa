@@ -5023,7 +5023,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "effect:basic-sword-impact",
@@ -5062,7 +5062,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "effect:slam-hammer-impact",
@@ -5101,7 +5101,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "effect:stone-impact",
@@ -5140,7 +5140,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "effect:wood-impact",
@@ -5179,7 +5179,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "enemy:worm-archer",
@@ -12997,7 +12997,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "quest:gather-building-materials",
@@ -14982,7 +14982,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "weapon:basic-sword",
@@ -15023,7 +15023,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "weapon:goo-gauntlet",
@@ -15064,7 +15064,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "weapon:pickaxe",
@@ -15105,7 +15105,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "weapon:slam-hammer",
@@ -15146,7 +15146,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "weapon:stone-axe",
@@ -15187,7 +15187,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "weapon:stone-pickaxe",
@@ -15228,7 +15228,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "weapon:stone-spear",
@@ -15269,7 +15269,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "weapon:wooden-axe",
@@ -15310,7 +15310,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "weapon:wooden-spear",
@@ -15351,7 +15351,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     }
   ],
   "writerEndpoints": [

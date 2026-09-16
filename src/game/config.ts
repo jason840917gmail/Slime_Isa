@@ -11,14 +11,14 @@ import { ASSET_MANIFEST } from './infrastructure/assets/manifest';
 import { PREPARED_SCENE_CONTENT_KEY, PreparedSceneContent } from './infrastructure/scenes/PreparedSceneContent';
 import { sceneDocuments, sceneResourceDocuments } from 'virtual-scene-content';
 import { sceneId } from './content/scenes/identifiers';
-import { redirectLegacyCharacterStudioRoute } from './editor/scene-studio/SceneStudioRoute';
+import { redirectLegacyStudioRoute } from './editor/scene-studio/SceneStudioRoute';
 
 export async function createGame(container: HTMLDivElement): Promise<Phaser.Game | undefined> {
-  const legacyCharacterStudioRoute = import.meta.env.DEV
-    ? redirectLegacyCharacterStudioRoute(window.location.search)
+  const legacyStudioRoute = import.meta.env.DEV
+    ? redirectLegacyStudioRoute(window.location.search)
     : undefined;
-  if (legacyCharacterStudioRoute !== undefined) {
-    window.history.replaceState(null, '', legacyCharacterStudioRoute);
+  if (legacyStudioRoute !== undefined) {
+    window.history.replaceState(null, '', legacyStudioRoute);
   }
   const studioQuery = import.meta.env.DEV ? new URLSearchParams(window.location.search) : undefined;
   const studioMode = studioQuery?.get('studio');
