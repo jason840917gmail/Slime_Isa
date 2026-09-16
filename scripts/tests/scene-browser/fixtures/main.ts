@@ -59,7 +59,6 @@ type FixtureSnapshot = {
   readonly managedEffectCount?: number;
   readonly managedWeaponId?: string | null;
   readonly managedWeaponAttacking?: boolean;
-  readonly usingLegacyWeaponVisual?: boolean;
   readonly playerHp?: number;
   readonly legacyEnemyCount?: number;
   readonly legacyBossCount?: number;
@@ -449,10 +448,7 @@ const api: FixtureApi = {
             readonly runtime: { readonly tree: { readonly paused: boolean } };
           };
           readonly healthSystem?: { getDamageState(): { readonly hp: number } };
-          readonly combatController?: {
-            readonly targets: Phaser.Physics.Arcade.Group;
-            readonly usingLegacyWeaponVisual: boolean;
-          };
+          readonly combatController?: { readonly targets: Phaser.Physics.Arcade.Group };
           readonly bossCampController?: { readonly targets: Phaser.Physics.Arcade.Group };
           readonly chestController?: unknown;
           readonly builtMap?: { readonly npcActors: readonly unknown[] };
@@ -487,7 +483,6 @@ const api: FixtureApi = {
       ...(world?.healthSystem ? { playerHp: world.healthSystem.getDamageState().hp } : {}),
       ...(world?.universalWorld ? { universalRuntimePaused: world.universalWorld.runtime.tree.paused } : {}),
       ...(world?.combatController ? { legacyEnemyCount: world.combatController.targets.countActive(true) } : {}),
-      ...(world?.combatController ? { usingLegacyWeaponVisual: world.combatController.usingLegacyWeaponVisual } : {}),
       ...(world?.bossCampController ? { legacyBossCount: world.bossCampController.targets.countActive(true) } : {}),
       ...(world?.builtMap ? { legacyNpcCount: world.builtMap.npcActors.length } : {}),
       ...(world?.player ? { legacyPlayerX: world.player.x } : {}),

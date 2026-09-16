@@ -143,11 +143,9 @@ test('equipped weapons mount under the managed player and follow the legacy atta
   expect(await page.evaluate(() => window.sceneFixture.equipProductionWeapon('basic-sword'))).toBe(true);
   let snapshot = await page.evaluate(() => window.sceneFixture.snapshot());
   expect(snapshot.managedWeaponId).toBe('basic-sword');
-  expect(snapshot.usingLegacyWeaponVisual).toBe(false);
   expect(await page.evaluate(() => window.sceneFixture.equipProductionWeapon('slam-hammer'))).toBe(true);
   snapshot = await page.evaluate(() => window.sceneFixture.snapshot());
   expect(snapshot.managedWeaponId).toBe('slam-hammer');
-  expect(snapshot.usingLegacyWeaponVisual).toBe(false);
   expect(await page.evaluate(() => window.sceneFixture.attackWithProductionWeapon())).toBe(true);
   expect((await page.evaluate(() => window.sceneFixture.snapshot())).managedWeaponAttacking).toBe(true);
   await expect.poll(async () => (
