@@ -130,10 +130,10 @@ function sourceAttack(weapon, direction) {
 }
 
 function orientation(direction) {
-  if (direction === 'left') return { angle: Math.PI, rotation: 180, x: -1, y: 1, swap: false };
-  if (direction === 'down') return { angle: Math.PI / 2, rotation: 90, x: -1, y: 1, swap: true };
-  if (direction === 'up') return { angle: -Math.PI / 2, rotation: -90, x: 1, y: -1, swap: true };
-  return { angle: 0, rotation: 0, x: 1, y: 1, swap: false };
+  if (direction === 'left') return { angle: Math.PI, x: -1, y: 1, swap: false };
+  if (direction === 'down') return { angle: Math.PI / 2, x: -1, y: 1, swap: true };
+  if (direction === 'up') return { angle: -Math.PI / 2, x: 1, y: -1, swap: true };
+  return { angle: 0, x: 1, y: 1, swap: false };
 }
 
 function orientedPosition(shape, direction) {
@@ -176,7 +176,10 @@ function weaponScene(weapon, manifest) {
         order: shapeNodes.length,
         properties: {
           shape: { resourceId }, position: orientedPosition(hitbox, direction),
-          rotation: hitbox.shape === 'sector' ? 0 : orientation(direction).rotation,
+          // Legacy weapon rectangles, circles, and ellipses remain axis-aligned;
+          // only their directional offsets rotate. Sectors encode direction in
+          // the shape resource's angleRad instead of a node transform.
+          rotation: 0,
           disabled: true,
         },
       });

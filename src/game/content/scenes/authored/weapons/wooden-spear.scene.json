@@ -90,7 +90,7 @@
           -58,
           8
         ],
-        "rotation": 180,
+        "rotation": 0,
         "disabled": true
       }
     },
@@ -108,7 +108,7 @@
           0,
           -58
         ],
-        "rotation": -90,
+        "rotation": 0,
         "disabled": true
       }
     },
@@ -126,7 +126,7 @@
           0,
           58
         ],
-        "rotation": 90,
+        "rotation": 0,
         "disabled": true
       }
     },

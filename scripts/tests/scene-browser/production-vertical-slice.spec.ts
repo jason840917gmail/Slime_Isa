@@ -126,3 +126,34 @@ test('managed projectile and impact effect scenes complete their production life
   await page.evaluate(() => window.sceneFixture.destroy());
   await expect.poll(() => page.locator('canvas').count()).toBe(0);
 });
+
+test('equipped weapons mount under the managed player and follow the legacy attack authority', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.addInitScript(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+  });
+  const pageErrors: string[] = [];
+  page.on('pageerror', (error) => pageErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error' && !message.text().startsWith('Failed to load resource:')) pageErrors.push(message.text());
+  });
+  await page.goto('./?mode=baseline&map=level-1');
+  await waitForProductionReady(page, pageErrors);
+  expect(await page.evaluate(() => window.sceneFixture.equipProductionWeapon('basic-sword'))).toBe(true);
+  let snapshot = await page.evaluate(() => window.sceneFixture.snapshot());
+  expect(snapshot.managedWeaponId).toBe('basic-sword');
+  expect(snapshot.usingLegacyWeaponVisual).toBe(false);
+  expect(await page.evaluate(() => window.sceneFixture.equipProductionWeapon('slam-hammer'))).toBe(true);
+  snapshot = await page.evaluate(() => window.sceneFixture.snapshot());
+  expect(snapshot.managedWeaponId).toBe('slam-hammer');
+  expect(snapshot.usingLegacyWeaponVisual).toBe(false);
+  expect(await page.evaluate(() => window.sceneFixture.attackWithProductionWeapon())).toBe(true);
+  expect((await page.evaluate(() => window.sceneFixture.snapshot())).managedWeaponAttacking).toBe(true);
+  await expect.poll(async () => (
+    await page.evaluate(() => window.sceneFixture.snapshot().managedWeaponAttacking)
+  )).toBe(false);
+  expect(pageErrors).toEqual([]);
+  await page.evaluate(() => window.sceneFixture.destroy());
+  await expect.poll(() => page.locator('canvas').count()).toBe(0);
+});

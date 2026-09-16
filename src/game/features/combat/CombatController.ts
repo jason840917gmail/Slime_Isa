@@ -1,7 +1,12 @@
 ﻿import Phaser from 'phaser';
 import { ComboSystem } from '../../combat/ComboSystem';
 import { TargetDummy } from '../../combat/TargetDummy';
-import { Weapon, type SupplementalWeaponHitboxPort, type WeaponHitRequest } from '../../combat/Weapon';
+import {
+  Weapon,
+  resolveWeaponAttackDirection,
+  type SupplementalWeaponHitboxPort,
+  type WeaponHitRequest,
+} from '../../combat/Weapon';
 import type { DamageApplicationResult } from '../../combat/DamageableTarget';
 import { gameEvents } from '../../core/EventBus';
 import { gameState } from '../../core/GameState';
@@ -35,6 +40,7 @@ import type { HitboxTargets } from '../../combat/Hitbox';
 import { rejectedDamage } from '../../combat/DamageableTarget';
 import type { RoutedDamageOutcome } from './DamageRouter';
 import type { LegacyWeaponManagedTarget } from '../../infrastructure/scenes/compatibility/LegacyWeaponTargetBridge';
+import type { WeaponAttackDirection } from '../../content/weapons/types';
 
 export interface CombatControllerContext {
   scene: Phaser.Scene;
@@ -69,6 +75,9 @@ export interface CombatControllerContext {
   supplementalWeaponHitboxes?: SupplementalWeaponHitboxPort;
   createManagedEnemy?: (request: EnemySpawnRequest) => EnemyPopulationMember | null | undefined;
   spawnManagedEffect?: ManagedWorldEffectSpawner;
+  mountManagedWeapon?: (weaponId: string) => boolean;
+  playManagedWeaponAttack?: (direction: WeaponAttackDirection, timeMs: number) => boolean;
+  clearManagedWeapon?: () => void;
 }
 
 export interface ManagedEnemyDefeat {
@@ -200,12 +209,19 @@ export class CombatController {
 
   tryAttack(): boolean {
     if (!this.weapon || this.attacking || !this.ctx.canAttack()) return false;
-    return this.weapon.attack(this.ctx.scene.time.now);
+    const timeMs = this.ctx.scene.time.now;
+    const facing = this.ctx.getFacing();
+    const direction = resolveWeaponAttackDirection(
+      facing.lengthSq() > 0 ? facing : new Phaser.Math.Vector2(1, 0),
+    );
+    const attacked = this.weapon.attack(timeMs);
+    if (attacked) this.ctx.playManagedWeaponAttack?.(direction, timeMs);
+    return attacked;
   }
 
   equipWeapon(weaponId: string): boolean {
     if (this.attacking || weaponId === this.weapon?.def.weaponId) return !this.attacking;
-    let next: { weapon: Weapon; visual: WeaponVisual };
+    let next: { weapon: Weapon; visual?: WeaponVisual };
     try {
       next = this.createWeaponRuntime(weaponId);
     } catch {
@@ -221,6 +237,10 @@ export class CombatController {
 
   equippedWeaponId(): string | null {
     return this.weapon?.def.weaponId ?? null;
+  }
+
+  get usingLegacyWeaponVisual(): boolean {
+    return this.weaponVisual !== undefined;
   }
 
   transformManagedWeaponDamage(damage: number): number {
@@ -253,6 +273,7 @@ export class CombatController {
   destroy(): void {
     this.weapon?.destroy();
     this.weaponVisual?.destroy();
+    this.ctx.clearManagedWeapon?.();
     this.effects.destroy();
     this.ctx.setActionLocked(false);
     this.projectileWorldColliders.forEach((collider) => collider.destroy());
@@ -261,9 +282,10 @@ export class CombatController {
     this.comboText.destroy();
   }
 
-  private createWeaponRuntime(weaponId: string): { weapon: Weapon; visual: WeaponVisual } {
+  private createWeaponRuntime(weaponId: string): { weapon: Weapon; visual?: WeaponVisual } {
     const { scene, player } = this.ctx;
-    const weapon = new Weapon(getWeaponDefinition(weaponId), {
+    const definition = getWeaponDefinition(weaponId);
+    const weapon = new Weapon(definition, {
       scene,
       getPlayer: () => player,
       getFacing: this.ctx.getFacing,
@@ -382,12 +404,15 @@ export class CombatController {
       playWeaponAnimation: (animationId, forceRestart) => this.weaponVisual?.play(animationId, forceRestart),
       supplementalHitboxes: this.ctx.supplementalWeaponHitboxes,
     });
-    const visual = new WeaponVisual(scene, player, weapon.def, weapon.clock, {
-      getDepth: () => player.depth + 0.01,
-      getFacing: this.ctx.getFacing,
-    });
+    const managedPresentation = this.ctx.mountManagedWeapon?.(weaponId) === true;
+    const visual = managedPresentation
+      ? undefined
+      : new WeaponVisual(scene, player, weapon.def, weapon.clock, {
+          getDepth: () => player.depth + 0.01,
+          getFacing: this.ctx.getFacing,
+        });
     weapon.startIdle();
-    return { weapon, visual };
+    return { weapon, ...(visual ? { visual } : {}) };
   }
 
   private enemyContext(spawnArea?: MapEnemySpawnArea) {
