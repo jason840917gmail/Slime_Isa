@@ -67,6 +67,9 @@ test('map placement bridge assigns the Level 1 camp, nested chest, and NPCs to o
     { nodeId: 'script', property: 'mapId', value: 'level-1' },
     { nodeId: 'script', property: 'instanceId', value: resourcePlacements[0].placementId },
   ]);
+  const treePlacements = placements.filter((placement) => placement.sceneId.startsWith('object.tree-world-solid'));
+  assert.equal(treePlacements.length, 4);
+  assert.ok(treePlacements.every((placement) => placement.sceneId === 'object.tree-world-solid.tree-autumn-01'));
   const chest = map.objects.find((entry) => entry.instanceId === 'level-1-fatty-guarded-chest');
   assert.equal(bridge.shouldSuppressLegacyObject(chest), true);
   for (const placement of npcPlacements) {

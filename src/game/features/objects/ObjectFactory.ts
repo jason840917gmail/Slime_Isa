@@ -25,7 +25,7 @@ import { resolveCollisionShapeDimensions } from '../../shared/collisionShapes';
 
 export interface ObjectOccluderRegistration {
   readonly id: string;
-  readonly owner: Phaser.GameObjects.Image;
+  readonly owner: Phaser.GameObjects.Image | Phaser.GameObjects.Sprite;
   readonly sourceFrame: SourceFrameDimensions;
   readonly bounds: SourceOcclusionBounds;
   readonly getDepth: () => number;

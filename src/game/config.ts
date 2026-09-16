@@ -98,6 +98,9 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
           sceneId('encounter.level-1-fatty-camp'),
           sceneId('object.resource-stone-node'),
           sceneId('object.resource-stone-node.big-stone-mine'),
+          ...sceneDocuments
+            .filter((document) => document.sceneId.startsWith('object.tree-world-solid'))
+            .map((document) => sceneId(document.sceneId)),
           sceneId('projectile.worm-arrow'),
           sceneId('effect.basic-spear-impact'),
           sceneId('effect.basic-sword-impact'),

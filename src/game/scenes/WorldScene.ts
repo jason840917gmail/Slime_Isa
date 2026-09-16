@@ -1420,6 +1420,7 @@ export class WorldScene extends Phaser.Scene {
       registerNpc: (registration) => this.questNpcController?.register(registration),
       registerManagedResource: (registration) => this.resourceNodes?.registerManagedResource(registration),
       spawnManagedResourceDrops: (request) => this.resourceNodes?.spawnManagedResourceDrops(request),
+      registerOccluder: (registration) => this.occlusionController!.registerOccluder(registration),
     });
   }
 
