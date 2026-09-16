@@ -14,11 +14,9 @@ import {
 } from '../../enemies/EnemySpawner';
 import type { AnimatedVisual } from '../visuals/AnimatedVisual';
 import { getEnemyConfig } from '../../enemies/library/EnemyTypes';
-import { projectilePool } from '../../enemies/Projectile';
 import { UI_THEME } from '../../presentation/theme';
 import { getStats } from '../../systems/PlayerStats';
 import { playerInventory } from '../../systems/Inventory';
-import { getAsset } from '../../infrastructure/assets/manifest';
 import { floatingText } from '../../ui/FloatingText';
 import { getWeaponDefinition } from '../../content/weapons/WeaponCatalog';
 import { resolveWeaponPresentationOffsetY } from '../../content/weapons/presentation';
@@ -45,6 +43,7 @@ import type {
   WeaponAttackDirection,
   WeaponDamagePayload,
 } from '../scripts/WeaponScript';
+import type { EnemyProjectileRequest } from '../scripts/EnemyScript';
 
 export interface CombatControllerContext {
   scene: Phaser.Scene;
@@ -81,6 +80,7 @@ export interface CombatControllerContext {
   mountManagedWeapon: (weaponId: string) => boolean;
   canManagedWeaponAttack: (timeMs: number) => boolean;
   playManagedWeaponAttack: (direction: WeaponAttackDirection, timeMs: number, damage: WeaponDamagePayload) => boolean;
+  spawnManagedEnemyProjectile: (request: EnemyProjectileRequest) => boolean;
   clearManagedWeapon: () => void;
 }
 
@@ -118,7 +118,6 @@ export class CombatController {
   private comboText: Phaser.GameObjects.Text;
   private attacking = false;
   private readonly effects: WorldEffectPool;
-  private readonly projectileWorldColliders: Phaser.Physics.Arcade.Collider[] = [];
   private attackSequence = 0;
 
   constructor(private readonly ctx: CombatControllerContext) {
@@ -181,37 +180,6 @@ export class CombatController {
     }
     scene.physics.add.collider(this.targets, ctx.collisionTiles);
     scene.physics.add.collider(player, this.targets);
-    const recycleOnWorldCollision: Phaser.Types.Physics.Arcade.ArcadePhysicsCallback = (projectile) => {
-      projectilePool.recycle(projectile as Phaser.Physics.Arcade.Image);
-    };
-    this.projectileWorldColliders.push(
-      scene.physics.add.collider(
-        projectilePool.enemyGroup(scene),
-        ctx.collisionTiles,
-        recycleOnWorldCollision,
-      ),
-      scene.physics.add.collider(
-        projectilePool.playerGroup(scene),
-        ctx.collisionTiles,
-        recycleOnWorldCollision,
-      ),
-    );
-    scene.physics.add.overlap(player, projectilePool.enemyGroup(scene), (_player, projectile) => {
-      const sprite = projectile as Phaser.Physics.Arcade.Image;
-      if (!sprite.active) return;
-      if (!ctx.isDodging()) {
-        const velocity = (sprite.body as Phaser.Physics.Arcade.Body).velocity.clone();
-        if (velocity.lengthSq() > 0) velocity.normalize();
-        ctx.applyPlayerDamage(
-          projectilePool.damageFor(sprite),
-          'projectile',
-          velocity.x,
-          velocity.y,
-          projectilePool.knockbackFor(sprite),
-        );
-      }
-      projectilePool.recycle(sprite);
-    });
   }
 
   update(time: number, delta: number): void {
@@ -219,12 +187,10 @@ export class CombatController {
     this.spawner?.update(time, delta);
     this.effects.update(delta);
     hitboxPool.update(this.ctx.scene);
-    projectilePool.update(this.ctx.scene);
   }
 
   updatePresentation(): void {
     this.effects.updatePresentation();
-    projectilePool.updatePresentation(this.ctx.scene);
   }
 
   tryAttack(): boolean {
@@ -303,7 +269,6 @@ export class CombatController {
     this.ctx.clearManagedWeapon();
     this.effects.destroy();
     this.ctx.setActionLocked(false);
-    this.projectileWorldColliders.forEach((collider) => collider.destroy());
     this.spawner?.destroy();
     this.combo.reset();
     this.comboText.destroy();
@@ -517,12 +482,17 @@ export class CombatController {
         damage: number,
         knockbackStrength: number,
       ) => {
-        if (projectile.projectileId) {
-          projectilePool.fireDefinition(this.ctx.scene, x, y, dx, dy, projectile.projectileId, 'enemy', damage, knockbackStrength, speed);
-          return;
-        }
-        if (!projectile.assetId) throw new Error('Projectile reference has no projectile ID or asset ID');
-        projectilePool.fire(this.ctx.scene, x, y, dx, dy, speed, getAsset(projectile.assetId).runtime.textureKey, 'enemy', damage, knockbackStrength);
+        if (!projectile.projectileId) throw new Error('Enemy projectile must reference an authored projectile scene.');
+        this.ctx.spawnManagedEnemyProjectile({
+          sourceNodeId: 'legacy.enemy',
+          projectileId: projectile.projectileId,
+          ...(projectile.assetId ? { assetId: projectile.assetId } : {}),
+          position: { x, y },
+          direction: { x: dx, y: dy },
+          speed,
+          damage,
+          knockbackStrength,
+        });
       },
     };
   }

@@ -24,7 +24,6 @@ import { LevelUpModal } from '../ui/LevelUpModal';
 import { InventoryUI } from '../ui/InventoryUI';
 import { WeaponHotbar } from '../ui/WeaponHotbar';
 import { hitboxPool } from '../combat/Hitbox';
-import { projectilePool } from '../enemies/Projectile';
 import { AREAS, type AreaDef, type AreaId, type Direction } from '../world/Area';
 import { BIOMES } from '../world/Biome';
 import { showAreaTitleCard } from '../ui/AreaTitleCard';
@@ -420,7 +419,6 @@ export class WorldScene extends Phaser.Scene {
       this.questCompleteHandler = undefined;
     }
     hitboxPool.clearScene(this);
-    projectilePool.clearScene(this);
 
     this.transitionZones.forEach((zone) => zone.destroy());
     this.transitionZones = [];
@@ -487,14 +485,6 @@ export class WorldScene extends Phaser.Scene {
       return true;
     });
     this.bossCampController?.targets.children.each((child) => {
-      stop(child);
-      return true;
-    });
-    projectilePool.enemyGroup(this).children.each((child) => {
-      stop(child);
-      return true;
-    });
-    projectilePool.playerGroup(this).children.each((child) => {
       stop(child);
       return true;
     });
@@ -1392,6 +1382,7 @@ export class WorldScene extends Phaser.Scene {
       mountManagedWeapon: (weaponId) => this.universalWorld?.mountWeapon(weaponId) ?? false,
       canManagedWeaponAttack: (timeMs) => this.universalWorld?.canWeaponAttack(timeMs) ?? false,
       playManagedWeaponAttack: (direction, timeMs, damage) => this.universalWorld?.playWeaponAttack(direction, timeMs, damage) ?? false,
+      spawnManagedEnemyProjectile: (request) => this.universalWorld?.spawnEnemyProjectile(request) ?? false,
       clearManagedWeapon: () => this.universalWorld?.clearWeapon(),
     });
   }
