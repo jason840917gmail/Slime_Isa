@@ -7,6 +7,7 @@ import { Node } from '../../runtime/scene/Node';
 import { Node2D, type Vector2 } from '../../runtime/scene/Node2D';
 import { SceneTree, type SceneTreeInputEvent } from '../../runtime/scene/SceneTree';
 import { SceneInstantiator } from '../../runtime/scene/resolution/SceneInstantiator';
+import type { SceneInstantiationPropertyOverride } from '../../runtime/scene/resolution/SceneInstantiator';
 import type { ScriptRegistry } from '../../runtime/scene/registries/ScriptRegistry';
 import { ScriptNode } from '../../runtime/scene/scripts/ScriptNode';
 import { createPhaserNodeRegistry, type PhaserNodeRegistryServices } from '../phaser-nodes/PhaserNodeRegistry';
@@ -31,6 +32,7 @@ export interface MountSceneOptions {
   readonly runtimeNamespace?: string;
   readonly persistenceKey?: PersistenceKey | string;
   readonly position?: Vector2;
+  readonly propertyOverrides?: readonly SceneInstantiationPropertyOverride[];
 }
 
 export interface MountedScene {
@@ -97,6 +99,7 @@ export class PhaserUniversalSceneRuntime {
       const root = this.instantiator.instantiate_scene(packed, {
         runtimeNamespace,
         ...(options.persistenceKey === undefined ? {} : { persistenceKey: options.persistenceKey }),
+        ...(options.propertyOverrides === undefined ? {} : { propertyOverrides: options.propertyOverrides }),
       });
       mount = new Node2D({
         runtimeId: runtimeNodeId(runtimeNamespace, [], authoredNodeId('mount')),
