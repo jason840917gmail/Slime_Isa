@@ -32,7 +32,7 @@ import { hitboxPool, type HitboxConfig, type HitboxTargets } from '../../combat/
 import { ObjectAnimationAdapter } from '../objects/ObjectAnimationAdapter';
 import { shouldSpawnConfirmedHitEffect } from '../../combat/ConfirmedHitEffect';
 import { resolveResourceHitPresentation } from '../../combat/ResourceHitPresentation';
-import { WorldEffectPool, type ManagedWorldEffectSpawner } from '../effects/WorldEffectPool';
+import type { ManagedWorldEffectSpawner, WorldEffectSpawnRequest } from '../effects/WorldEffectSpawn';
 import { resolveDamageModifier } from '../../combat/DamageModifiers';
 import type { ResourceNodeController } from '../resources/ResourceNodeController';
 import { rejectedDamage } from '../../combat/DamageableTarget';
@@ -76,7 +76,7 @@ export interface CombatControllerContext {
   isBossTarget?: (target: Phaser.GameObjects.GameObject) => boolean;
   applyBossHit?: (request: WeaponHitRequest) => DamageApplicationResult;
   createManagedEnemy?: (request: EnemySpawnRequest) => EnemyPopulationMember | null | undefined;
-  spawnManagedEffect?: ManagedWorldEffectSpawner;
+  spawnManagedEffect: ManagedWorldEffectSpawner;
   mountManagedWeapon: (weaponId: string) => boolean;
   canManagedWeaponAttack: (timeMs: number) => boolean;
   playManagedWeaponAttack: (direction: WeaponAttackDirection, timeMs: number, damage: WeaponDamagePayload) => boolean;
@@ -117,14 +117,12 @@ export class CombatController {
   private spawner?: EnemySpawner;
   private comboText: Phaser.GameObjects.Text;
   private attacking = false;
-  private readonly effects: WorldEffectPool;
   private attackSequence = 0;
 
   constructor(private readonly ctx: CombatControllerContext) {
     const { scene, player } = ctx;
     const spawnConfig = ctx.spawns;
     this.targets = scene.physics.add.group();
-    this.effects = new WorldEffectPool(scene, ctx.spawnManagedEffect);
     this.comboText = scene.add.text(scene.cameras.main.width / 2, scene.cameras.main.height - 215, '', {
       fontFamily: UI_THEME.fontFamily,
       fontSize: '20px',
@@ -185,12 +183,7 @@ export class CombatController {
   update(time: number, delta: number): void {
     this.combo.update();
     this.spawner?.update(time, delta);
-    this.effects.update(delta);
     hitboxPool.update(this.ctx.scene);
-  }
-
-  updatePresentation(): void {
-    this.effects.updatePresentation();
   }
 
   tryAttack(): boolean {
@@ -247,7 +240,7 @@ export class CombatController {
     this.applyLifeSteal(outcome.result.actualDamage);
     const effectId = this.weapon?.onHitEffectId;
     if (!target || !effectId || outcome.result.actualDamage <= 0) return;
-    this.effects.spawn({
+    this.spawnEffect({
       effectId,
       direction: target.attackDirection,
       x: target.x,
@@ -267,7 +260,6 @@ export class CombatController {
 
   destroy(): void {
     this.ctx.clearManagedWeapon();
-    this.effects.destroy();
     this.ctx.setActionLocked(false);
     this.spawner?.destroy();
     this.combo.reset();
@@ -387,7 +379,7 @@ export class CombatController {
         ?.animateOnHit(acceptedObjectEvent.onHitAnimationId);
     }
     if (hitTarget && shouldSpawnConfirmedHitEffect(weapon.onHitEffectId, result)) {
-      this.effects.spawn({
+      this.spawnEffect({
         effectId: weapon.onHitEffectId!,
         direction: attackDirection,
         x: hitTarget.x,
@@ -397,7 +389,7 @@ export class CombatController {
         followDepthOffset: 0.2,
       });
     } else if (resourceHitAnchor && shouldSpawnConfirmedHitEffect(resourceHitEffectId, result)) {
-      this.effects.spawn({
+      this.spawnEffect({
         effectId: resourceHitEffectId!,
         direction: attackDirection,
         x: resourceHitAnchor.x,
@@ -502,6 +494,12 @@ export class CombatController {
       ...this.ctx.enemySafeZones,
       ...(this.ctx.spawns?.safeZones ?? []),
     ];
+  }
+
+  private spawnEffect(request: WorldEffectSpawnRequest): void {
+    if (!this.ctx.spawnManagedEffect(request)) {
+      throw new Error(`Effect scene '${request.effectId}' could not be spawned.`);
+    }
   }
 
   private applyLifeSteal(damageDealt: number): void {

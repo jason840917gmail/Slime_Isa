@@ -930,7 +930,6 @@ export class WorldScene extends Phaser.Scene {
 
   private handlePresentationPostUpdate(_time: number, delta: number): void {
     this.playerController?.updateVisuals();
-    this.combatController?.updatePresentation();
     this.cameraController?.update(delta);
     updateDevToolsCameraZoom(this.cameraController?.zoom ?? this.cameras.main.zoom);
     this.renderingDiagnostics?.update(this.time.now);

@@ -69,7 +69,7 @@ import {
   type WeaponAttackDirection,
   type WeaponDamagePayload,
 } from '../scripts/WeaponScript';
-import type { WorldEffectSpawnRequest } from '../effects/WorldEffectPool';
+import type { WorldEffectSpawnRequest } from '../effects/WorldEffectSpawn';
 import { WorldEffectPositionAttachment } from '../effects/WorldEffectPositionAttachment';
 import { resolvePhysicsPresentationPosition, type PhysicsPresentationTarget } from '../../presentation/PhysicsPresentation';
 import { PLAYER_INPUT_ACTIONS } from '../player/PlayerInputActions';
@@ -149,14 +149,6 @@ const MANAGED_ENEMY_SCENES = {
   'worm-swordsman': 'character.worm-swordsman',
   'slime-spider': 'character.slime-spider',
 } as const;
-
-const MANAGED_EFFECT_IDS = new Set([
-  'basic-spear-impact',
-  'basic-sword-impact',
-  'slam-hammer-impact',
-  'stone-impact',
-  'wood-impact',
-]);
 
 class ManagedBossBar implements LegacyBossBarHandle {
   readonly bar: BossHealthBar;
@@ -397,7 +389,6 @@ export class UniversalSceneWorldController implements InteractionProvider {
   }
 
   spawnEffect(request: WorldEffectSpawnRequest): boolean {
-    if (!MANAGED_EFFECT_IDS.has(request.effectId)) return false;
     const sequence = this.nextEffectSequence++;
     const mount = this.runtime.mountScene(sceneId(`effect.${request.effectId}`), {
       runtimeNamespace: `managed-effect-${sequence}`,
