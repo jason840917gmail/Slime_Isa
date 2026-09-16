@@ -73,6 +73,7 @@ import {
   type WorldObjectStatePort,
 } from '../scripts/DestructibleScript';
 import type { ManagedResourceRegistration } from '../resources/ResourceNodeController';
+import type { ObjectOccluderRegistration } from '../objects/ObjectFactory';
 import {
   PLAYER_WEAPON_COMBAT_SERVICE,
   WeaponScript,
@@ -117,6 +118,7 @@ export interface UniversalSceneWorldControllerOptions {
   readonly registerNpc?: (registration: QuestNpcRegistration) => void;
   readonly registerManagedResource: (registration: ManagedResourceRegistration) => void;
   readonly spawnManagedResourceDrops: (request: ResourceDropRequest) => void;
+  readonly registerOccluder?: (registration: ObjectOccluderRegistration) => { dispose(): void };
 }
 
 interface ManagedCamp {
@@ -547,6 +549,17 @@ export class UniversalSceneWorldController implements InteractionProvider {
       }
       const npcScript = descendants(mount.root, NpcScript)[0];
       const resourceScript = descendants(mount.root, ResourceNodeScript)[0];
+      for (const visual of descendants(mount.root, Sprite2DNode)) {
+        if (!visual.occlusionBounds || !this.options.registerOccluder) continue;
+        const registration = this.options.registerOccluder({
+          id: visual.runtimeId,
+          owner: visual.presentationObject,
+          sourceFrame: visual.getRenderState().sourceFrame,
+          bounds: visual.occlusionBounds,
+          getDepth: () => visual.presentationObject.depth,
+        });
+        mount.mount.lifetimeDisposables.add(() => registration.dispose());
+      }
       if (resourceScript) {
         const drop = resourceScript.dropDefinition;
         if (!drop) {

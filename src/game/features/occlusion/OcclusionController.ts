@@ -32,7 +32,7 @@ export interface OcclusionActorRegistration {
 
 interface StaticOccluder {
   readonly id: string;
-  readonly owner: Phaser.GameObjects.Image;
+  readonly owner: Phaser.GameObjects.Image | Phaser.GameObjects.Sprite;
   readonly sourceFrame: SourceFrameDimensions;
   readonly bounds: SourceOcclusionBounds;
   readonly rectangle: WorldRectangle;

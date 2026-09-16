@@ -26,6 +26,10 @@ const OBJECT_VISUAL_SCENES: Readonly<Record<string, Readonly<Record<string, stri
   },
 };
 
+function visualSlug(value: string): string {
+  return value.replaceAll('.', '-').replace(/[^a-z0-9-]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+}
+
 const NPC_SCENES: Readonly<Record<string, Readonly<{ sceneId: string; npcDefinitionId: string }>>> = {
   'npc.world': { sceneId: 'character.village-elder-plop', npcDefinitionId: 'village-elder-plop' },
   'npc.world-scout': { sceneId: 'character.mossy-scout', npcDefinitionId: 'level-1-spider-giver' },
@@ -89,7 +93,7 @@ export class LegacyMapPlacementBridge {
       y: instance.y,
       persistenceKey: `${this.mapId}.${instance.instanceId}`,
       ...(npc ? { npcDefinitionId: npc.npcDefinitionId } : {}),
-      ...(!npc && instance.objectId === 'resource.stone-node' ? {
+      ...(!npc && (instance.objectId === 'resource.stone-node' || instance.objectId === 'tree.world.solid') ? {
         propertyOverrides: [
           { nodeId: 'script', property: 'mapId', value: this.mapId },
           { nodeId: 'script', property: 'instanceId', value: instance.instanceId },
@@ -99,6 +103,11 @@ export class LegacyMapPlacementBridge {
   }
 
   private objectSceneId(instance: MapObjectInstance): string | undefined {
+    if (instance.objectId === 'tree.world.solid') {
+      return instance.visualId === 'shadow-pine-01'
+        ? 'object.tree-world-solid'
+        : `object.tree-world-solid.${visualSlug(instance.visualId)}`;
+    }
     return OBJECT_VISUAL_SCENES[instance.objectId]?.[instance.visualId] ?? OBJECT_SCENES[instance.objectId];
   }
 }
