@@ -1387,11 +1387,10 @@ export class WorldScene extends Phaser.Scene {
       applyBossHit: (request) => this.bossCampController?.applyWeaponHit(request) ?? {
         status: 'rejected', actualDamage: 0, defeated: false, reason: 'invalid',
       },
-      supplementalWeaponHitboxes: this.universalWorld?.supplementalWeaponHitboxes,
       createManagedEnemy: (request) => this.universalWorld?.createManagedEnemy(request),
       spawnManagedEffect: (request) => this.universalWorld?.spawnEffect(request) ?? false,
       mountManagedWeapon: (weaponId) => this.universalWorld?.mountWeapon(weaponId) ?? false,
-      playManagedWeaponAttack: (direction, timeMs) => this.universalWorld?.playWeaponAttack(direction, timeMs) ?? false,
+      playManagedWeaponAttack: (direction, timeMs, damage) => this.universalWorld?.playWeaponAttack(direction, timeMs, damage) ?? false,
       clearManagedWeapon: () => this.universalWorld?.clearWeapon(),
     });
   }

@@ -156,7 +156,14 @@ function weaponScene(weapon, manifest) {
   const attackPlans = {};
   for (const [direction, value] of attacks) {
     const attack = value.attack;
-    const spans = attack.attackTrack?.hitboxSpans ?? [];
+    const spans = (attack.attackTrack?.hitboxSpans ?? []).map((span) => {
+      const hitbox = attack.hitboxes?.[span.hitboxId];
+      return {
+        ...span,
+        damageMultiplier: hitbox?.damageMultiplier ?? 1,
+        knockbackMultiplier: hitbox?.knockbackMultiplier ?? 1,
+      };
+    });
     attackPlans[direction] = {
       animationId: `attack-${direction}`,
       durationMs: attack.animation.durationSeconds * 1000,
@@ -209,6 +216,7 @@ function weaponScene(weapon, manifest) {
       },
     ],
     instances: [],
+    connections: [{ source: { nodeId: 'attack-area' }, signal: 'area_entered', target: { nodeId: 'script' }, handler: 'on_area_entered' }],
     subresources: [...visual.resources, ...shapeResources, animationLibrary(animationId, clips, visual.layers, visual.layerNames)],
   };
 }

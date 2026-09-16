@@ -1,6 +1,5 @@
 import Phaser from 'phaser';
 
-import type { SupplementalWeaponHitboxPort } from '../../combat/Weapon';
 import type { MapBossCamp, MapEnemySafeZone, MapFile } from '../../content/maps/mapFormat';
 import { getCharacterPackage } from '../../content/characters/CharacterCatalog';
 import { sceneId } from '../../content/scenes/identifiers';
@@ -13,12 +12,10 @@ import { PhaserUniversalSceneRuntime, type MountedScene } from '../../infrastruc
 import type { PreparedSceneContent } from '../../infrastructure/scenes/PreparedSceneContent';
 import { LegacyBossUiBridge, type LegacyBossBarHandle } from '../../infrastructure/scenes/compatibility/LegacyBossUiBridge';
 import { LegacyChestUiBridge } from '../../infrastructure/scenes/compatibility/LegacyChestUiBridge';
-import { LegacyCombatBridge } from '../../infrastructure/scenes/compatibility/LegacyCombatBridge';
 import {
   LegacyMapPlacementBridge,
   type SceneEnabledPlacement,
 } from '../../infrastructure/scenes/compatibility/LegacyMapPlacementBridge';
-import { LegacyWeaponTargetBridge, type LegacyWeaponManagedTarget } from '../../infrastructure/scenes/compatibility/LegacyWeaponTargetBridge';
 import { LegacyWorldAdapter } from '../../infrastructure/scenes/compatibility/LegacyWorldAdapter';
 import type { Node } from '../../runtime/scene/Node';
 import { InputRouter } from '../../runtime/scene/input/InputRouter';
@@ -65,7 +62,13 @@ import {
 import { PLAYER_HEALTH_SERVICE, PlayerScript } from '../scripts/PlayerScript';
 import { ProjectileScript } from '../scripts/ProjectileScript';
 import { EffectScript } from '../scripts/EffectScript';
-import { WeaponScript, type WeaponAttackDirection } from '../scripts/WeaponScript';
+import {
+  PLAYER_WEAPON_COMBAT_SERVICE,
+  WeaponScript,
+  type ManagedWeaponTarget,
+  type WeaponAttackDirection,
+  type WeaponDamagePayload,
+} from '../scripts/WeaponScript';
 import type { WorldEffectSpawnRequest } from '../effects/WorldEffectPool';
 import { WorldEffectPositionAttachment } from '../effects/WorldEffectPositionAttachment';
 import { resolvePhysicsPresentationPosition, type PhysicsPresentationTarget } from '../../presentation/PhysicsPresentation';
@@ -92,8 +95,8 @@ export interface UniversalSceneWorldControllerOptions {
   readonly showMessage: (x: number, y: number, message: string, color?: 'white' | 'yellow' | 'green' | 'cyan' | 'orange' | 'red', important?: boolean) => void;
   readonly updateLegacyFixed: (deltaMs: number) => void;
   readonly updateLegacyRender: (deltaMs: number) => void;
-  readonly transformManagedWeaponDamage: (damage: number, target: LegacyWeaponManagedTarget) => number;
-  readonly onManagedWeaponOutcome: (outcome: RoutedDamageOutcome, target: LegacyWeaponManagedTarget | undefined) => void;
+  readonly transformManagedWeaponDamage: (damage: number, target: ManagedWeaponTarget) => number;
+  readonly onManagedWeaponOutcome: (outcome: RoutedDamageOutcome, target: ManagedWeaponTarget | undefined) => void;
   readonly onManagedEnemyDefeated: (enemy: ManagedEnemyDefeat) => void;
   readonly getEnemySafeZones: () => readonly MapEnemySafeZone[];
   readonly registerNpc?: (registration: QuestNpcRegistration) => void;
@@ -172,12 +175,9 @@ class ManagedBossBar implements LegacyBossBarHandle {
 }
 
 export class UniversalSceneWorldController implements InteractionProvider {
-  readonly supplementalWeaponHitboxes: SupplementalWeaponHitboxPort;
   readonly runtime: PhaserUniversalSceneRuntime;
   private readonly activations = new AttackActivation();
   private readonly damageRouter = new DamageRouter(this.activations, () => this.simulationTimeMs);
-  private readonly combatBridge: LegacyCombatBridge;
-  private readonly weaponBridge: LegacyWeaponTargetBridge;
   private readonly chestUi?: LegacyChestUiBridge;
   private readonly bossUi: LegacyBossUiBridge;
   private readonly inputRouter: InputRouter;
@@ -205,7 +205,6 @@ export class UniversalSceneWorldController implements InteractionProvider {
   private disposed = false;
 
   constructor(private readonly options: UniversalSceneWorldControllerOptions) {
-    this.combatBridge = new LegacyCombatBridge(this.activations, this.damageRouter);
     const chestView = {
       open: (model: Parameters<LegacyChestUiBridge['open']>[0]) => this.chestUi?.open(model),
       close: (instanceId: string) => this.chestUi?.close(instanceId),
@@ -217,6 +216,10 @@ export class UniversalSceneWorldController implements InteractionProvider {
     const scripts = createGameScriptRegistry({
       [DAMAGE_ROUTER_SERVICE]: this.damageRouter,
       [ATTACK_ACTIVATION_SERVICE]: this.activations,
+      [PLAYER_WEAPON_COMBAT_SERVICE]: {
+        transformDamage: options.transformManagedWeaponDamage,
+        onOutcome: options.onManagedWeaponOutcome,
+      },
       [PLAYER_HEALTH_SERVICE]: options.health.managedReceiver,
       [ENEMY_TARGET_SERVICE]: {
         getPrimaryTarget: () => this.primaryEnemyTarget(),
@@ -286,15 +289,6 @@ export class UniversalSceneWorldController implements InteractionProvider {
       this.chestUi = panelBridge = new LegacyChestUiBridge(panel);
     }
     this.bossUi = new LegacyBossUiBridge((campId, bossId) => this.createBossBar(campId, bossId));
-    this.weaponBridge = new LegacyWeaponTargetBridge({
-      context: this.runtime.context,
-      combat: this.combatBridge,
-      router: this.damageRouter,
-      weaponTags: (weaponId) => [weaponId.includes('spear') ? 'spear' : 'weapon'],
-      transformDamage: options.transformManagedWeaponDamage,
-      onOutcome: options.onManagedWeaponOutcome,
-    });
-    this.supplementalWeaponHitboxes = this.weaponBridge;
     this.inputRouter = new InputRouter({
       sink: this.runtime,
       actions: PLAYER_INPUT_ACTIONS,
@@ -456,8 +450,8 @@ export class UniversalSceneWorldController implements InteractionProvider {
     return true;
   }
 
-  playWeaponAttack(direction: WeaponAttackDirection, timeMs: number): boolean {
-    return this.weapon?.script.playAttack(direction, timeMs) ?? false;
+  playWeaponAttack(direction: WeaponAttackDirection, timeMs: number, damage: WeaponDamagePayload): boolean {
+    return this.weapon?.script.playAttack(direction, timeMs, damage) ?? false;
   }
 
   clearWeapon(): void {
@@ -470,8 +464,6 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.disposed = true;
     this.unregisterInteraction();
     this.inputRouter.destroy();
-    this.weaponBridge.dispose();
-    this.combatBridge.dispose();
     this.runtime.shutdown();
     this.chestUi?.dispose();
     this.bossUi.dispose();

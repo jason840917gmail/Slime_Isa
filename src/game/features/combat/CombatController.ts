@@ -4,7 +4,6 @@ import { TargetDummy } from '../../combat/TargetDummy';
 import {
   Weapon,
   resolveWeaponAttackDirection,
-  type SupplementalWeaponHitboxPort,
   type WeaponHitRequest,
 } from '../../combat/Weapon';
 import type { DamageApplicationResult } from '../../combat/DamageableTarget';
@@ -38,8 +37,11 @@ import type { ResourceNodeController } from '../resources/ResourceNodeController
 import type { HitboxTargets } from '../../combat/Hitbox';
 import { rejectedDamage } from '../../combat/DamageableTarget';
 import type { RoutedDamageOutcome } from './DamageRouter';
-import type { LegacyWeaponManagedTarget } from '../../infrastructure/scenes/compatibility/LegacyWeaponTargetBridge';
-import type { WeaponAttackDirection } from '../../content/weapons/types';
+import type {
+  ManagedWeaponTarget,
+  WeaponAttackDirection,
+  WeaponDamagePayload,
+} from '../scripts/WeaponScript';
 
 export interface CombatControllerContext {
   scene: Phaser.Scene;
@@ -71,11 +73,10 @@ export interface CombatControllerContext {
   getBossTargets?: () => Phaser.Physics.Arcade.Group | null;
   isBossTarget?: (target: Phaser.GameObjects.GameObject) => boolean;
   applyBossHit?: (request: WeaponHitRequest) => DamageApplicationResult;
-  supplementalWeaponHitboxes?: SupplementalWeaponHitboxPort;
   createManagedEnemy?: (request: EnemySpawnRequest) => EnemyPopulationMember | null | undefined;
   spawnManagedEffect?: ManagedWorldEffectSpawner;
   mountManagedWeapon: (weaponId: string) => boolean;
-  playManagedWeaponAttack: (direction: WeaponAttackDirection, timeMs: number) => boolean;
+  playManagedWeaponAttack: (direction: WeaponAttackDirection, timeMs: number, damage: WeaponDamagePayload) => boolean;
   clearManagedWeapon: () => void;
 }
 
@@ -211,7 +212,12 @@ export class CombatController {
     );
     const attacked = this.weapon.attack(timeMs);
     if (!attacked) return false;
-    if (this.ctx.playManagedWeaponAttack(direction, timeMs)) return true;
+    const damage = this.weapon.activeDamageSnapshot();
+    if (damage && this.ctx.playManagedWeaponAttack(direction, timeMs, {
+      ...damage,
+      weaponTags: [this.weapon.def.weaponId.includes('spear') ? 'spear' : 'weapon'],
+      damageTypes: ['physical'],
+    })) return true;
     this.weapon.cancel();
     return false;
   }
@@ -238,7 +244,7 @@ export class CombatController {
     return Math.max(0, Math.round(damage * this.combo.registerHit()));
   }
 
-  onManagedWeaponOutcome(outcome: RoutedDamageOutcome, target: LegacyWeaponManagedTarget | undefined): void {
+  onManagedWeaponOutcome(outcome: RoutedDamageOutcome, target: ManagedWeaponTarget | undefined): void {
     if (outcome.result.status !== 'accepted') return;
     this.applyLifeSteal(outcome.result.actualDamage);
     const effectId = this.weapon?.def.onHitEffectId;
@@ -392,7 +398,6 @@ export class CombatController {
       },
       playCharacterAction: this.ctx.playCharacterAction,
       playWeaponAnimation: () => undefined,
-      supplementalHitboxes: this.ctx.supplementalWeaponHitboxes,
     });
     if (!this.ctx.mountManagedWeapon(weaponId)) {
       weapon.destroy();

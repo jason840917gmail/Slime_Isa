@@ -238,12 +238,16 @@
               {
                 "hitboxId": "punch",
                 "from": 1,
-                "through": 2
+                "through": 2,
+                "damageMultiplier": 1,
+                "knockbackMultiplier": 1
               },
               {
                 "hitboxId": "impact",
                 "from": 3,
-                "through": 3
+                "through": 3,
+                "damageMultiplier": 0.35,
+                "knockbackMultiplier": 0.6
               }
             ],
             "events": [],
@@ -260,12 +264,16 @@
               {
                 "hitboxId": "punch",
                 "from": 1,
-                "through": 2
+                "through": 2,
+                "damageMultiplier": 1,
+                "knockbackMultiplier": 1
               },
               {
                 "hitboxId": "impact",
                 "from": 3,
-                "through": 3
+                "through": 3,
+                "damageMultiplier": 0.35,
+                "knockbackMultiplier": 0.6
               }
             ],
             "events": [],
@@ -282,12 +290,16 @@
               {
                 "hitboxId": "punch",
                 "from": 1,
-                "through": 2
+                "through": 2,
+                "damageMultiplier": 1,
+                "knockbackMultiplier": 1
               },
               {
                 "hitboxId": "impact",
                 "from": 3,
-                "through": 3
+                "through": 3,
+                "damageMultiplier": 0.35,
+                "knockbackMultiplier": 0.6
               }
             ],
             "events": [],
@@ -304,12 +316,16 @@
               {
                 "hitboxId": "punch",
                 "from": 1,
-                "through": 2
+                "through": 2,
+                "damageMultiplier": 1,
+                "knockbackMultiplier": 1
               },
               {
                 "hitboxId": "impact",
                 "from": 3,
-                "through": 3
+                "through": 3,
+                "damageMultiplier": 0.35,
+                "knockbackMultiplier": 0.6
               }
             ],
             "events": [],
@@ -323,6 +339,18 @@
     }
   ],
   "instances": [],
+  "connections": [
+    {
+      "source": {
+        "nodeId": "attack-area"
+      },
+      "signal": "area_entered",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_area_entered"
+    }
+  ],
   "subresources": [
     {
       "version": 1,

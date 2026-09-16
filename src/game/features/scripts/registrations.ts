@@ -241,6 +241,7 @@ export const WEAPON_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
     { id: 'attack_started', payload: 'WeaponAttackEvent' },
     { id: 'attack_finished', payload: 'WeaponAttackEvent' },
   ],
+  handlers: [{ id: 'on_area_entered', payload: 'PhysicsContact' }],
 };
 
 export const PROJECTILE_SCRIPT_DESCRIPTOR: ScriptDescriptor = {

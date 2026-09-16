@@ -2,15 +2,43 @@ import type { JsonValue } from '../../content/scenes/types';
 import type { RuntimeNodeId } from '../../content/scenes/identifiers';
 import type { NodeConstructionContext } from '../../runtime/scene/registries/NodeTypeRegistry';
 import type { Node } from '../../runtime/scene/Node';
+import { Node2D } from '../../runtime/scene/Node2D';
 import { AnimationPlayerNode } from '../../runtime/scene/animation/AnimationPlayerNode';
+import type { PhysicsContact } from '../../runtime/scene/physics/PhysicsContact';
 import { ScriptNode } from '../../runtime/scene/scripts/ScriptNode';
+import type { AttackActivation } from '../combat/AttackActivation';
+import type { DamageRouter, RoutedDamageOutcome } from '../combat/DamageRouter';
+import { ATTACK_ACTIVATION_SERVICE, DAMAGE_ROUTER_SERVICE } from './EnemyScript';
 
 export type WeaponAttackDirection = 'right' | 'left' | 'up' | 'down';
+export const PLAYER_WEAPON_COMBAT_SERVICE = 'combat.player-weapon';
+
+export interface WeaponDamagePayload {
+  readonly damage: number;
+  readonly knockbackStrength: number;
+  readonly weaponTags?: readonly string[];
+  readonly damageTypes?: readonly string[];
+}
+
+export interface ManagedWeaponTarget {
+  readonly areaNodeId: string;
+  readonly receiverNodeId: string;
+  readonly x: number;
+  readonly y: number;
+  readonly attackDirection: WeaponAttackDirection;
+}
+
+export interface PlayerWeaponCombatPort {
+  transformDamage(damage: number, target: ManagedWeaponTarget): number;
+  onOutcome(outcome: RoutedDamageOutcome, target: ManagedWeaponTarget): void;
+}
 
 interface WeaponAttackSpan {
   readonly hitboxId: string;
   readonly from: number;
   readonly through: number;
+  readonly damageMultiplier: number;
+  readonly knockbackMultiplier: number;
 }
 
 interface WeaponAttackPlan {
@@ -48,6 +76,13 @@ export class WeaponScript extends ScriptNode {
   private activeDirection?: WeaponAttackDirection;
   private activePlan?: WeaponAttackPlan;
   private activeSinceMs = 0;
+  private activeHitboxIds = new Set<string>();
+  private damage?: WeaponDamagePayload;
+  private activations?: AttackActivation;
+  private damageRouter?: DamageRouter;
+  private combat?: PlayerWeaponCombatPort;
+  private activationId?: string;
+  private readonly resolvedReceivers = new Set<string>();
 
   constructor(context: NodeConstructionContext) {
     super({ runtimeId: context.runtimeId, name: context.name, scriptId: scriptId(context), exportedProperties: context.properties });
@@ -59,6 +94,7 @@ export class WeaponScript extends ScriptNode {
     this.knockStrength = Math.max(0, this.numberProperty('knockStrength', 0));
     const effectId = this.values.onHitEffectId;
     this.onHitEffectId = typeof effectId === 'string' && effectId.length > 0 ? effectId : undefined;
+    this.registerSignalHandler<PhysicsContact>('on_area_entered', (contact) => this.onAreaEntered(contact));
   }
 
   get attacking(): boolean { return this.activePlan !== undefined; }
@@ -81,6 +117,7 @@ export class WeaponScript extends ScriptNode {
     }
     const frame = Math.floor((elapsedMs / 1000) * plan.framesPerSecond);
     const enabled = new Set(plan.hitboxSpans.filter((span) => frame >= span.from && frame <= span.through).map((span) => span.hitboxId));
+    this.activeHitboxIds = enabled;
     this.setAttackAreaActive(enabled.size > 0, enabled);
   }
 
@@ -94,13 +131,13 @@ export class WeaponScript extends ScriptNode {
     return this.beginAttack(direction, timeMs);
   }
 
-  playAttack(direction: WeaponAttackDirection, timeMs = this.simulationTimeMs): boolean {
+  playAttack(direction: WeaponAttackDirection, timeMs = this.simulationTimeMs, damage?: WeaponDamagePayload): boolean {
     if (!Number.isFinite(timeMs)) return false;
     if (this.activePlan) this.finishAttack();
-    return this.beginAttack(direction, timeMs);
+    return this.beginAttack(direction, timeMs, damage);
   }
 
-  private beginAttack(direction: WeaponAttackDirection, timeMs: number): boolean {
+  private beginAttack(direction: WeaponAttackDirection, timeMs: number, damage?: WeaponDamagePayload): boolean {
     const plan = this.attackPlan(direction);
     if (!plan) return false;
     this.simulationTimeMs = Math.max(this.simulationTimeMs, timeMs);
@@ -108,6 +145,9 @@ export class WeaponScript extends ScriptNode {
     this.activePlan = plan;
     this.activeSinceMs = timeMs;
     this.readyAtMs = timeMs + this.cooldownMs;
+    this.damage = damage;
+    this.resolvedReceivers.clear();
+    if (damage) this.beginDamageActivation();
     const animation = this.getReference<Node>('animation')?.configuredTarget;
     if (animation instanceof AnimationPlayerNode && animation.hasAnimation(plan.animationId)) animation.play(plan.animationId);
     this.getSignal<{ weaponId: string; direction: WeaponAttackDirection }>('attack_started')?.emit({ weaponId: this.weaponId, direction });
@@ -131,7 +171,13 @@ export class WeaponScript extends ScriptNode {
     const hitboxSpans: WeaponAttackSpan[] = [];
     for (const span of spans) {
       if (!isRecord(span) || typeof span.hitboxId !== 'string' || typeof span.from !== 'number' || typeof span.through !== 'number') continue;
-      hitboxSpans.push({ hitboxId: span.hitboxId, from: span.from, through: span.through });
+      hitboxSpans.push({
+        hitboxId: span.hitboxId,
+        from: span.from,
+        through: span.through,
+        damageMultiplier: typeof span.damageMultiplier === 'number' ? span.damageMultiplier : 1,
+        knockbackMultiplier: typeof span.knockbackMultiplier === 'number' ? span.knockbackMultiplier : 1,
+      });
     }
     return { animationId, durationMs, framesPerSecond, hitboxSpans };
   }
@@ -139,11 +185,90 @@ export class WeaponScript extends ScriptNode {
   private finishAttack(): void {
     const direction = this.activeDirection;
     this.setAttackAreaActive(false, new Set());
+    this.activeHitboxIds.clear();
+    this.endDamageActivation();
     this.activeDirection = undefined;
     this.activePlan = undefined;
     const animation = this.getReference<Node>('animation')?.configuredTarget;
     if (animation instanceof AnimationPlayerNode && animation.hasAnimation('idle')) animation.play('idle');
     if (direction) this.getSignal<{ weaponId: string; direction: WeaponAttackDirection }>('attack_finished')?.emit({ weaponId: this.weaponId, direction });
+  }
+
+  private beginDamageActivation(): void {
+    const area = this.getReference<Node>('attackArea')?.configuredTarget;
+    if (!area) throw new Error(`WeaponScript '${this.runtimeId}' requires an attackArea reference.`);
+    this.activations = this.service<AttackActivation>(ATTACK_ACTIVATION_SERVICE);
+    this.damageRouter = this.service<DamageRouter>(DAMAGE_ROUTER_SERVICE);
+    this.combat = this.service<PlayerWeaponCombatPort>(PLAYER_WEAPON_COMBAT_SERVICE);
+    this.activationId = this.activations.begin(this.runtimeId, [area.runtimeId]);
+  }
+
+  private onAreaEntered(contact: PhysicsContact): void {
+    const damage = this.damage;
+    const activationId = this.activationId;
+    const router = this.damageRouter;
+    const combat = this.combat;
+    const direction = this.activeDirection;
+    const attackArea = this.getReference<Node>('attackArea')?.configuredTarget;
+    if (!damage || !activationId || !router || !combat || !direction || !attackArea || contact.otherKind !== 'area') return;
+    const receiverNodeId = router.receiverNodeIdForArea(contact.otherId);
+    if (!receiverNodeId || this.resolvedReceivers.has(receiverNodeId)) return;
+    const span = this.contactSpan(contact);
+    if (!span) return;
+    const targetPosition = contact.other instanceof Node2D
+      ? contact.other.get_global_transform().position
+      : { x: 0, y: 0 };
+    const target: ManagedWeaponTarget = {
+      areaNodeId: contact.otherId,
+      receiverNodeId,
+      x: targetPosition.x,
+      y: targetPosition.y,
+      attackDirection: direction,
+    };
+    this.resolvedReceivers.add(receiverNodeId);
+    const routedDamage = combat.transformDamage(damage.damage * span.damageMultiplier, target);
+    const knock = attackVector(direction);
+    const outcomes = router.routeStep([{
+      activationId,
+      sourceNodeId: this.runtimeId,
+      attackAreaNodeId: attackArea.runtimeId,
+      targetAreaNodeId: contact.otherId,
+      weaponId: this.weaponId,
+      weaponTags: damage.weaponTags ?? [this.weaponId.includes('spear') ? 'spear' : 'weapon'],
+      damageTypes: damage.damageTypes ?? ['physical'],
+      baseDamage: Math.max(0, routedDamage),
+      effects: damage.knockbackStrength > 0
+        ? [{ effectId: 'knockback', potency: damage.knockbackStrength * span.knockbackMultiplier }]
+        : [],
+      impact: { x: target.x, y: target.y, knockX: knock.x, knockY: knock.y },
+    }], this.simulationTimeMs);
+    const outcome = outcomes[0];
+    if (outcome) combat.onOutcome(outcome, target);
+  }
+
+  private contactSpan(contact: PhysicsContact): WeaponAttackSpan | undefined {
+    const plan = this.activePlan;
+    if (!plan) return undefined;
+    const tree = this.get_tree();
+    for (const shape of contact.shapes) {
+      const name = tree?.getNodeById(shape.observerShapeId)?.name;
+      if (!name) continue;
+      const separator = name.indexOf('--');
+      const hitboxId = separator >= 0 ? name.slice(separator + 2) : name;
+      const span = plan.hitboxSpans.find((candidate) => candidate.hitboxId === hitboxId && this.activeHitboxIds.has(hitboxId));
+      if (span) return span;
+    }
+    return plan.hitboxSpans.find((span) => this.activeHitboxIds.has(span.hitboxId));
+  }
+
+  private endDamageActivation(): void {
+    if (this.activationId) this.activations?.end(this.activationId);
+    this.activationId = undefined;
+    this.activations = undefined;
+    this.damageRouter = undefined;
+    this.combat = undefined;
+    this.damage = undefined;
+    this.resolvedReceivers.clear();
   }
 
   private setAttackAreaActive(active: boolean, hitboxIds: ReadonlySet<string>): void {
@@ -172,4 +297,11 @@ export class WeaponScript extends ScriptNode {
   protected override _duplicateSelf(runtimeId: RuntimeNodeId): WeaponScript {
     return new WeaponScript({ runtimeId, name: this.name, type: 'ScriptNode', scriptId: this.scriptId, properties: this.exportedProperties, resources: new Map() });
   }
+}
+
+function attackVector(direction: WeaponAttackDirection): Readonly<{ x: number; y: number }> {
+  if (direction === 'left') return { x: -1, y: 0 };
+  if (direction === 'up') return { x: 0, y: -1 };
+  if (direction === 'down') return { x: 0, y: 1 };
+  return { x: 1, y: 0 };
 }
