@@ -26,6 +26,15 @@ const OBJECT_VISUAL_SCENES: Readonly<Record<string, Readonly<Record<string, stri
   },
 };
 
+const PASSIVE_OBJECT_BASE_VISUALS: Readonly<Record<string, string>> = {
+  'decoration.world.floor': 'sewer-grate',
+  'decoration.world.solid': 'wood-fence',
+  'house.world.solid': 'barn-red',
+  'rock.world-wall.decorative': 'large-01',
+  'rock.world-wall.solid': 'large-01',
+  'wall.stone.solid': 'horizontal-01',
+};
+
 function visualSlug(value: string): string {
   return value.replaceAll('.', '-').replace(/[^a-z0-9-]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
 }
@@ -108,6 +117,13 @@ export class LegacyMapPlacementBridge {
       return instance.visualId === 'shadow-pine-01'
         ? 'object.tree-world-solid'
         : `object.tree-world-solid.${visualSlug(instance.visualId)}`;
+    }
+    const passiveBaseVisual = PASSIVE_OBJECT_BASE_VISUALS[instance.objectId];
+    if (passiveBaseVisual) {
+      const baseSceneId = `object.${visualSlug(instance.objectId)}`;
+      return instance.visualId === passiveBaseVisual
+        ? baseSceneId
+        : `${baseSceneId}.${visualSlug(instance.visualId)}`;
     }
     return OBJECT_VISUAL_SCENES[instance.objectId]?.[instance.visualId] ?? OBJECT_SCENES[instance.objectId];
   }
