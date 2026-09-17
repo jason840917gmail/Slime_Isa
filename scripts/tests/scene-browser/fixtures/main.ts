@@ -221,6 +221,7 @@ if (mode === 'harness') {
         });
         resources.set(tileDataId, {
           version: 1, resourceId: tileDataId, kind: 'tile-data', tileSet: tileSetId,
+          columns: 8, rows: 3,
           cells: [{ x: 6, y: 1, tileId: 'ground' }, { x: 7, y: 1, tileId: 'wall' }, { x: 6, y: 2, tileId: 'ground' }],
         });
       }

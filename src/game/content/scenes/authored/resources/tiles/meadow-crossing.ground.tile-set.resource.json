@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "resourceId": "tiles.meadow-crossing.ground.set",
+  "kind": "tile-set",
+  "tiles": {
+    "grass-a": {
+      "assetIds": [
+        "sheet.grounds.19x19.highland-green"
+      ],
+      "selection": "sheet-order",
+      "physics": null,
+      "allowsDecorations": true,
+      "tags": [
+        "ground",
+        "meadow",
+        "walkable"
+      ],
+      "transition": {
+        "group": "natural-ground",
+        "material": "highland",
+        "priority": 10,
+        "edgeWidth": 12,
+        "style": "noisy-feather"
+      }
+    },
+    "grass-b": {
+      "assetIds": [
+        "sheet.grounds.19x19.highland-green"
+      ],
+      "selection": "sheet-order",
+      "physics": null,
+      "allowsDecorations": true,
+      "tags": [
+        "ground",
+        "meadow",
+        "walkable"
+      ],
+      "transition": {
+        "group": "natural-ground",
+        "material": "highland",
+        "priority": 10,
+        "edgeWidth": 12,
+        "style": "noisy-feather"
+      }
+    }
+  }
+}

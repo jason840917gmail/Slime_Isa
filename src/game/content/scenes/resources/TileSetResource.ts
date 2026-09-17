@@ -11,6 +11,7 @@ export interface TileSetTile {
   };
   readonly allowsDecorations: boolean;
   readonly tags: readonly string[];
+  readonly transition?: Readonly<Record<string, unknown>>;
   readonly editor?: Readonly<Record<string, unknown>>;
 }
 
@@ -70,6 +71,9 @@ export function parseTileSetResource(document: TileSetResourceDocument): Resolve
     if (!Array.isArray(value.tags) || value.tags.some((tag) => typeof tag !== 'string')) {
       throw new Error(`Tile '${tileId}' in '${document.resourceId}' requires string tags`);
     }
+    if (value.transition !== undefined && !isRecord(value.transition)) {
+      throw new Error(`Tile '${tileId}' in '${document.resourceId}' has invalid transition metadata`);
+    }
     if (value.editor !== undefined && !isRecord(value.editor)) {
       throw new Error(`Tile '${tileId}' in '${document.resourceId}' has invalid editor metadata`);
     }
@@ -79,6 +83,7 @@ export function parseTileSetResource(document: TileSetResourceDocument): Resolve
       physics,
       allowsDecorations: value.allowsDecorations,
       tags: [...value.tags] as string[],
+      ...(value.transition ? { transition: structuredClone(value.transition) } : {}),
       ...(value.editor ? { editor: structuredClone(value.editor) } : {}),
     };
   }

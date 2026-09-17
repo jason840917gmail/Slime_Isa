@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "sceneId": "world.level-1",
+  "rootNodeId": "world",
+  "nodes": [
+    {
+      "id": "world",
+      "name": "level-1",
+      "type": "Node2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "layer-ground",
+      "name": "ground",
+      "type": "TileMapLayer2D",
+      "parentId": "world",
+      "order": 0,
+      "properties": {
+        "position": [
+          0,
+          0
+        ],
+        "tileData": {
+          "resourceId": "tiles.level-1.ground.data"
+        },
+        "tileSize": 64,
+        "seed": 1,
+        "depth": 0,
+        "collisionLayer": 1,
+        "collisionMask": 2,
+        "collisionEnabled": true,
+        "editorLocked": false
+      }
+    }
+  ],
+  "instances": []
+}

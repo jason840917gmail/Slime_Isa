@@ -27,6 +27,8 @@ const tileData = {
   resourceId: 'tiles.test-map.ground',
   kind: 'tile-data',
   tileSet: 'tiles.world',
+  columns: 2,
+  rows: 1,
   cells: [
     { x: 0, y: 0, tileId: 'grass' },
     { x: 1, y: 0, tileId: 'wall' },
@@ -43,6 +45,7 @@ test('tile resources preserve stable tile IDs, coordinates, collision, and edito
     { x: 1, y: 0, tileId: 'wall' },
   ]);
   assert.equal(parsedData.tileSet, 'tiles.world');
+  assert.deepEqual({ columns: parsedData.columns, rows: parsedData.rows }, { columns: 2, rows: 1 });
 });
 
 test('tile resource validation rejects unknown media, duplicate cells, and malformed collision insets', () => {
@@ -59,6 +62,13 @@ test('tile resource validation rejects unknown media, duplicate cells, and malfo
   assert.match(
     tooling.validateSceneResourceDocument(duplicateData, context).map((issue) => issue.message).join('\n'),
     /duplicates cell '0,0'/,
+  );
+
+  const outOfBoundsData = structuredClone(tileData);
+  outOfBoundsData.cells.push({ x: 2, y: 0, tileId: 'wall' });
+  assert.match(
+    tooling.validateSceneResourceDocument(outOfBoundsData, context).map((issue) => issue.message).join('\n'),
+    /outside its 2x1 bounds/,
   );
 
   const malformedSet = structuredClone(tileSet);

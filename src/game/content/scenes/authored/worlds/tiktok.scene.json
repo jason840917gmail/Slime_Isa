@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "sceneId": "world.tiktok",
+  "rootNodeId": "world",
+  "nodes": [
+    {
+      "id": "world",
+      "name": "tiktok",
+      "type": "Node2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "layer-ground",
+      "name": "ground",
+      "type": "TileMapLayer2D",
+      "parentId": "world",
+      "order": 0,
+      "properties": {
+        "position": [
+          0,
+          0
+        ],
+        "tileData": {
+          "resourceId": "tiles.tiktok.ground.data"
+        },
+        "tileSize": 64,
+        "seed": 3421253882,
+        "depth": 0,
+        "collisionLayer": 1,
+        "collisionMask": 2,
+        "collisionEnabled": true,
+        "editorLocked": false
+      }
+    }
+  ],
+  "instances": []
+}

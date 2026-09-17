@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "sceneId": "world.236",
+  "rootNodeId": "world",
+  "nodes": [
+    {
+      "id": "world",
+      "name": "236",
+      "type": "Node2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "layer-ground",
+      "name": "ground",
+      "type": "TileMapLayer2D",
+      "parentId": "world",
+      "order": 0,
+      "properties": {
+        "position": [
+          0,
+          0
+        ],
+        "tileData": {
+          "resourceId": "tiles.236.ground.data"
+        },
+        "tileSize": 64,
+        "seed": 49685,
+        "depth": 0,
+        "collisionLayer": 1,
+        "collisionMask": 2,
+        "collisionEnabled": true,
+        "editorLocked": false
+      }
+    }
+  ],
+  "instances": []
+}

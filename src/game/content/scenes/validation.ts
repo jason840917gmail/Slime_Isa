@@ -195,7 +195,7 @@ export function validateSceneResourceDocument(value: unknown, context: Pick<Scen
     'animation-library': ['animations'],
     audio: ['assetId'],
     'tile-set': ['tiles'],
-    'tile-data': ['tileSet', 'cells'],
+    'tile-data': ['tileSet', 'columns', 'rows', 'cells'],
     font: ['assetId'],
     theme: ['values'],
   };
@@ -256,6 +256,8 @@ export function validateSceneResourceDocument(value: unknown, context: Pick<Scen
     if (typeof value.tileSet !== 'string') issues.push({ path: '/tileSet', message: 'tile data requires tileSet resource ID' });
     else if (context.hasResource && !context.hasResource(value.tileSet)) issues.push({ path: '/tileSet', message: `unknown resource '${value.tileSet}'` });
     else if (context.getResourceKind && context.getResourceKind(value.tileSet) !== 'tile-set') issues.push({ path: '/tileSet', message: 'tileSet must reference a tile-set resource' });
+    if (!Number.isSafeInteger(value.columns) || Number(value.columns) < 1) issues.push({ path: '/columns', message: 'tile data requires positive integer columns' });
+    if (!Number.isSafeInteger(value.rows) || Number(value.rows) < 1) issues.push({ path: '/rows', message: 'tile data requires positive integer rows' });
     if (!Array.isArray(value.cells)) issues.push({ path: '/cells', message: 'tile data requires cells' });
     else {
       try {

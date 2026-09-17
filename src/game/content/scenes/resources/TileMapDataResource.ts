@@ -9,6 +9,8 @@ export interface TileMapCell {
 export interface ResolvedTileMapDataResource {
   readonly resourceId: TileDataResourceDocument['resourceId'];
   readonly tileSet: TileDataResourceDocument['tileSet'];
+  readonly columns: number;
+  readonly rows: number;
   readonly cells: readonly TileMapCell[];
 }
 
@@ -17,6 +19,10 @@ function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
 }
 
 export function parseTileMapDataResource(document: TileDataResourceDocument): ResolvedTileMapDataResource {
+  if (!Number.isSafeInteger(document.columns) || document.columns < 1
+    || !Number.isSafeInteger(document.rows) || document.rows < 1) {
+    throw new Error(`Tile data '${document.resourceId}' requires positive integer columns and rows`);
+  }
   const occupied = new Set<string>();
   const cells = document.cells.map((value, index): TileMapCell => {
     if (!isRecord(value)) throw new Error(`Tile data '${document.resourceId}' cell ${index} must be an object`);
@@ -27,10 +33,19 @@ export function parseTileMapDataResource(document: TileDataResourceDocument): Re
     if (typeof value.tileId !== 'string' || value.tileId.length === 0) {
       throw new Error(`Tile data '${document.resourceId}' cell ${index} requires a stable tileId`);
     }
+    if ((value.x as number) >= document.columns || (value.y as number) >= document.rows) {
+      throw new Error(`Tile data '${document.resourceId}' cell ${index} is outside its ${document.columns}x${document.rows} bounds`);
+    }
     const key = `${value.x},${value.y}`;
     if (occupied.has(key)) throw new Error(`Tile data '${document.resourceId}' duplicates cell '${key}'`);
     occupied.add(key);
     return { x: value.x as number, y: value.y as number, tileId: value.tileId };
   });
-  return { resourceId: document.resourceId, tileSet: document.tileSet, cells };
+  return {
+    resourceId: document.resourceId,
+    tileSet: document.tileSet,
+    columns: document.columns,
+    rows: document.rows,
+    cells,
+  };
 }
