@@ -66,6 +66,26 @@ test('Level 1 spawns Worm Brawler through the universal runtime without a legacy
   await expect.poll(() => page.locator('canvas').count()).toBe(0);
 });
 
+test('passive map objects mount through authored scenes without legacy duplicates', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.addInitScript(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+  });
+  const pageErrors: string[] = [];
+  page.on('pageerror', (error) => pageErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error' && !message.text().startsWith('Failed to load resource:')) pageErrors.push(message.text());
+  });
+  await page.goto('./?mode=baseline&map=depth-occlusion-test');
+  await waitForProductionReady(page, pageErrors);
+  const snapshot = await page.evaluate(() => window.sceneFixture.snapshot());
+  expect(snapshot.managedPassiveObjectCount).toBe(2);
+  expect(pageErrors).toEqual([]);
+  await page.evaluate(() => window.sceneFixture.destroy());
+  await expect.poll(() => page.locator('canvas').count()).toBe(0);
+});
+
 test('remaining ordinary enemy scenes mount through the production Phaser runtime', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.addInitScript(() => {

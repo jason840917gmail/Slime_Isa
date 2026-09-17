@@ -92,3 +92,45 @@ test('map placement bridge assigns the Level 1 camp, nested chest, and NPCs to o
   }
   assert.equal(bridge.shouldSuppressLegacyBossCamp(map.bossCamps[0]), true);
 });
+
+test('map placement bridge assigns passive object families to their authored scene variants', () => {
+  const objects = [
+    { instanceId: 'floor', objectId: 'decoration.world.floor', visualId: 'sewer-grate', x: 1, y: 2 },
+    { instanceId: 'decoration', objectId: 'decoration.world.solid', visualId: 'stone-column', x: 3, y: 4 },
+    { instanceId: 'house', objectId: 'house.world.solid', visualId: 'forge-red', x: 5, y: 6 },
+    { instanceId: 'decorative-rock', objectId: 'rock.world-wall.decorative', visualId: 'field-01', x: 7, y: 8 },
+    { instanceId: 'solid-rock', objectId: 'rock.world-wall.solid', visualId: 'large-01', x: 9, y: 10 },
+    { instanceId: 'wall', objectId: 'wall.stone.solid', visualId: 'corner-01', x: 11, y: 12 },
+  ];
+  const bridge = new t.LegacyMapPlacementBridge('passive-test', objects, []);
+  const placements = bridge.scenePlacements();
+  assert.deepEqual(
+    placements.map((placement) => [placement.placementId, placement.sceneId]),
+    [
+      ['floor', 'object.decoration-world-floor'],
+      ['decoration', 'object.decoration-world-solid.stone-column'],
+      ['house', 'object.house-world-solid.forge-red'],
+      ['decorative-rock', 'object.rock-world-wall-decorative.field-01'],
+      ['solid-rock', 'object.rock-world-wall-solid'],
+      ['wall', 'object.wall-stone-solid.corner-01'],
+    ],
+  );
+  assert.ok(objects.every((object) => bridge.shouldSuppressLegacyObject(object)));
+});
+
+test('map placement bridge suppresses every passive object it assigns on an authored map', async () => {
+  const map = JSON.parse(await readFile(`${REPOSITORY_ROOT}/src/game/content/maps/174.map.json`, 'utf8'));
+  const bridge = new t.LegacyMapPlacementBridge('174', map.objects, map.bossCamps ?? []);
+  const placements = bridge.scenePlacements();
+  const passivePlacements = placements.filter((placement) => (
+    placement.sceneId.startsWith('object.house-world-solid')
+    || placement.sceneId.startsWith('object.decoration-world-solid')
+  ));
+  assert.equal(passivePlacements.length, 29);
+  assert.equal(passivePlacements.filter((placement) => placement.sceneId.startsWith('object.house-world-solid')).length, 15);
+  assert.equal(passivePlacements.filter((placement) => placement.sceneId.startsWith('object.decoration-world-solid')).length, 14);
+  assert.ok(passivePlacements.every((placement) => {
+    const object = map.objects.find((candidate) => candidate.instanceId === placement.placementId);
+    return object && bridge.shouldSuppressLegacyObject(object);
+  }));
+});

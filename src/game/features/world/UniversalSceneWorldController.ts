@@ -185,6 +185,13 @@ const MANAGED_ENEMY_SCENES = {
   'slime-spider': 'character.slime-spider',
 } as const;
 
+function isPassiveObjectScene(sceneIdValue: string): boolean {
+  return sceneIdValue.startsWith('object.decoration-world-')
+    || sceneIdValue.startsWith('object.house-world-solid')
+    || sceneIdValue.startsWith('object.rock-world-wall-')
+    || sceneIdValue.startsWith('object.wall-stone-solid');
+}
+
 class ManagedBossBar implements LegacyBossBarHandle {
   readonly bar: BossHealthBar;
   private destroyed = false;
@@ -218,6 +225,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
   private readonly effects = new Map<number, ManagedEffect>();
   private readonly resources = new Map<string, ManagedResource>();
   private readonly collectibles = new Map<string, ManagedCollectible>();
+  private readonly passiveObjects = new Set<MountedScene>();
   private weapon?: ManagedWeapon;
   private readonly npcs = new Map<string, NpcScript>();
   private playerScript?: PlayerScript;
@@ -383,6 +391,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
   get managedEffectCount(): number { return this.effects.size; }
   get managedResourceCount(): number { return this.resources.size; }
   get managedCollectibleCount(): number { return this.collectibles.size; }
+  get managedPassiveObjectCount(): number { return this.passiveObjects.size; }
   get managedWeaponId(): string | null { return this.weapon?.script.weaponId ?? null; }
   get managedWeaponAttacking(): boolean { return this.weapon?.script.attacking ?? false; }
   get managedPlayer(): PlayerScript {
@@ -548,6 +557,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.effects.clear();
     this.resources.clear();
     this.collectibles.clear();
+    this.passiveObjects.clear();
     this.weapon = undefined;
     this.npcs.clear();
     this.playerScript = undefined;
@@ -610,6 +620,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
         }
         this.collectibles.set(collectibleScript.instanceId, { mount, script: collectibleScript });
       }
+      if (isPassiveObjectScene(placement.sceneId)) this.passiveObjects.add(mount);
       this.registerLegacyColliders(mount, !npcScript);
       if (npcScript) this.registerNpcPlacement(placement, npcScript);
       for (const script of descendants(mount.root, ChestScript)) this.chests.set(script.instanceId, script);
