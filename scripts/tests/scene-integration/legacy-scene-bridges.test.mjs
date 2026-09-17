@@ -70,11 +70,25 @@ test('map placement bridge assigns the Level 1 camp, nested chest, and NPCs to o
   const treePlacements = placements.filter((placement) => placement.sceneId.startsWith('object.tree-world-solid'));
   assert.equal(treePlacements.length, 4);
   assert.ok(treePlacements.every((placement) => placement.sceneId === 'object.tree-world-solid.tree-autumn-01'));
+  const collectiblePlacements = placements.filter((placement) => placement.sceneId.startsWith('object.collectible-'));
+  assert.equal(collectiblePlacements.length, 9);
+  assert.deepEqual(
+    [...new Set(collectiblePlacements.map((placement) => placement.sceneId))].sort(),
+    ['object.collectible-purple-berry', 'object.collectible-stone-pile', 'object.collectible-wood-pile'],
+  );
+  assert.deepEqual(collectiblePlacements[0].propertyOverrides, [
+    { nodeId: 'script', property: 'mapId', value: 'level-1' },
+    { nodeId: 'script', property: 'instanceId', value: collectiblePlacements[0].placementId },
+  ]);
   const chest = map.objects.find((entry) => entry.instanceId === 'level-1-fatty-guarded-chest');
   assert.equal(bridge.shouldSuppressLegacyObject(chest), true);
   for (const placement of npcPlacements) {
     const npc = map.objects.find((entry) => entry.instanceId === placement.placementId);
     assert.equal(bridge.shouldSuppressLegacyObject(npc), true);
+  }
+  for (const placement of collectiblePlacements) {
+    const collectible = map.objects.find((entry) => entry.instanceId === placement.placementId);
+    assert.equal(bridge.shouldSuppressLegacyObject(collectible), true);
   }
   assert.equal(bridge.shouldSuppressLegacyBossCamp(map.bossCamps[0]), true);
 });

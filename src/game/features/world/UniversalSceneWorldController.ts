@@ -7,6 +7,7 @@ import { getBossDefinition } from '../../content/bosses/BossCatalog';
 import { ASSET_MANIFEST, type AssetId } from '../../infrastructure/assets/manifest';
 import { PhysicsBody2DNode } from '../../infrastructure/phaser-nodes/PhysicsBody2DNode';
 import { CharacterBody2DNode } from '../../infrastructure/phaser-nodes/CharacterBody2DNode';
+import { Area2DNode } from '../../infrastructure/phaser-nodes/Area2DNode';
 import { Sprite2DNode } from '../../infrastructure/phaser-nodes/Sprite2DNode';
 import { PhaserUniversalSceneRuntime, type MountedScene } from '../../infrastructure/scenes/PhaserUniversalSceneRuntime';
 import type { PreparedSceneContent } from '../../infrastructure/scenes/PreparedSceneContent';
@@ -75,6 +76,13 @@ import {
 import type { ManagedResourceRegistration } from '../resources/ResourceNodeController';
 import type { ObjectOccluderRegistration } from '../objects/ObjectFactory';
 import {
+  COLLECTIBLE_WORLD_SERVICE,
+  CollectibleScript,
+  type CollectiblePickupRequest,
+  type CollectiblePickupResult,
+  type CollectibleWorldPort,
+} from '../scripts/CollectibleScript';
+import {
   PLAYER_WEAPON_COMBAT_SERVICE,
   WeaponScript,
   type ManagedWeaponTarget,
@@ -118,6 +126,7 @@ export interface UniversalSceneWorldControllerOptions {
   readonly registerNpc?: (registration: QuestNpcRegistration) => void;
   readonly registerManagedResource: (registration: ManagedResourceRegistration) => void;
   readonly spawnManagedResourceDrops: (request: ResourceDropRequest) => void;
+  readonly collectibles: CollectibleWorldPort;
   readonly registerOccluder?: (registration: ObjectOccluderRegistration) => { dispose(): void };
 }
 
@@ -164,6 +173,11 @@ interface ManagedResource {
   readonly script: ResourceNodeScript;
 }
 
+interface ManagedCollectible {
+  readonly mount: MountedScene;
+  readonly script: CollectibleScript;
+}
+
 const MANAGED_ENEMY_SCENES = {
   'worm-archer': 'character.worm-archer',
   'worm-brawler': 'character.worm-brawler',
@@ -203,11 +217,13 @@ export class UniversalSceneWorldController implements InteractionProvider {
   private readonly projectiles = new Map<number, ManagedProjectile>();
   private readonly effects = new Map<number, ManagedEffect>();
   private readonly resources = new Map<string, ManagedResource>();
+  private readonly collectibles = new Map<string, ManagedCollectible>();
   private weapon?: ManagedWeapon;
   private readonly npcs = new Map<string, NpcScript>();
   private playerScript?: PlayerScript;
   private playerBody?: CharacterBody2DNode;
   private playerVisual?: Sprite2DNode;
+  private playerPickupArea?: Area2DNode;
   private readonly chests = new Map<string, ChestScript>();
   private readonly bossBars = new Set<ManagedBossBar>();
   private readonly unregisterInteraction: () => void;
@@ -291,6 +307,11 @@ export class UniversalSceneWorldController implements InteractionProvider {
         },
         spawnDrops: (request: ResourceDropRequest) => options.spawnManagedResourceDrops(request),
       },
+      [COLLECTIBLE_WORLD_SERVICE]: {
+        ensureInitialized: (mapId: string, instanceId: string, quantity: number) => options.collectibles.ensureInitialized(mapId, instanceId, quantity),
+        remaining: (mapId: string, instanceId: string) => options.collectibles.remaining(mapId, instanceId),
+        pickup: (request: CollectiblePickupRequest) => this.pickupCollectible(request),
+      } satisfies CollectibleWorldPort,
     });
     this.runtime = new PhaserUniversalSceneRuntime({
       scene: options.scene,
@@ -313,6 +334,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
           this.finishExpiredProjectiles();
           this.finishExpiredEffects();
           this.finishDestroyedResources();
+          this.finishDepletedCollectibles();
         },
         render: (deltaSeconds) => {
           options.updateLegacyRender(deltaSeconds * 1000);
@@ -360,6 +382,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
   get managedProjectileSpawnCount(): number { return this.managedProjectileSpawnCountValue; }
   get managedEffectCount(): number { return this.effects.size; }
   get managedResourceCount(): number { return this.resources.size; }
+  get managedCollectibleCount(): number { return this.collectibles.size; }
   get managedWeaponId(): string | null { return this.weapon?.script.weaponId ?? null; }
   get managedWeaponAttacking(): boolean { return this.weapon?.script.attacking ?? false; }
   get managedPlayer(): PlayerScript {
@@ -524,11 +547,13 @@ export class UniversalSceneWorldController implements InteractionProvider {
     for (const effect of this.effects.values()) effect.attachment?.dispose();
     this.effects.clear();
     this.resources.clear();
+    this.collectibles.clear();
     this.weapon = undefined;
     this.npcs.clear();
     this.playerScript = undefined;
     this.playerBody = undefined;
     this.playerVisual = undefined;
+    this.playerPickupArea = undefined;
     this.chests.clear();
     this.bossBars.clear();
   }
@@ -549,6 +574,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
       }
       const npcScript = descendants(mount.root, NpcScript)[0];
       const resourceScript = descendants(mount.root, ResourceNodeScript)[0];
+      const collectibleScript = descendants(mount.root, CollectibleScript)[0];
       for (const visual of descendants(mount.root, Sprite2DNode)) {
         if (!visual.occlusionBounds || !this.options.registerOccluder) continue;
         const registration = this.options.registerOccluder({
@@ -577,6 +603,13 @@ export class UniversalSceneWorldController implements InteractionProvider {
         }
         this.resources.set(resourceScript.instanceId, { mount, script: resourceScript });
       }
+      if (collectibleScript) {
+        if (collectibleScript.remaining <= 0) {
+          mount.dispose();
+          continue;
+        }
+        this.collectibles.set(collectibleScript.instanceId, { mount, script: collectibleScript });
+      }
       this.registerLegacyColliders(mount, !npcScript);
       if (npcScript) this.registerNpcPlacement(placement, npcScript);
       for (const script of descendants(mount.root, ChestScript)) this.chests.set(script.instanceId, script);
@@ -594,13 +627,15 @@ export class UniversalSceneWorldController implements InteractionProvider {
     const script = descendants(mount.root, PlayerScript)[0];
     const body = descendants(mount.root, CharacterBody2DNode)[0];
     const visual = descendants(mount.root, Sprite2DNode)[0];
-    if (!script || !body || !visual) {
+    const pickupArea = descendants(mount.root, Area2DNode).find((area) => area.name === 'PickupArea');
+    if (!script || !body || !visual || !pickupArea) {
       mount.dispose();
-      throw new Error("Player scene 'character.player-slime' requires PlayerScript, CharacterBody2D, and Sprite2D.");
+      throw new Error("Player scene 'character.player-slime' requires PlayerScript, CharacterBody2D, Sprite2D, and PickupArea.");
     }
     this.playerScript = script;
     this.playerBody = body;
     this.playerVisual = visual;
+    this.playerPickupArea = pickupArea;
   }
 
   private primaryEnemyTarget() {
@@ -816,6 +851,26 @@ export class UniversalSceneWorldController implements InteractionProvider {
       if (!resource.script.destroyed) continue;
       resource.mount.dispose();
       this.resources.delete(instanceId);
+    }
+  }
+
+  private pickupCollectible(request: CollectiblePickupRequest): CollectiblePickupResult {
+    if (!this.playerPickupArea || request.collectorAreaNodeId !== this.playerPickupArea.runtimeId) {
+      return {
+        status: 'rejected',
+        moved: 0,
+        remaining: this.options.collectibles.remaining(request.mapId, request.instanceId),
+        reason: 'invalid-collector',
+      };
+    }
+    return this.options.collectibles.pickup(request);
+  }
+
+  private finishDepletedCollectibles(): void {
+    for (const [instanceId, collectible] of [...this.collectibles]) {
+      if (collectible.script.remaining > 0) continue;
+      collectible.mount.dispose();
+      this.collectibles.delete(instanceId);
     }
   }
 
