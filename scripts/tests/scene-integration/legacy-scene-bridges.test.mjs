@@ -118,6 +118,25 @@ test('map placement bridge assigns passive object families to their authored sce
   assert.ok(objects.every((object) => bridge.shouldSuppressLegacyObject(object)));
 });
 
+test('map placement bridge assigns mineable amber ore with persistent placement identity', () => {
+  const object = {
+    instanceId: 'amber-rock-001', objectId: 'rock.amber-ore.mineable', visualId: 'amber-ore', x: 288, y: 192,
+  };
+  const bridge = new t.LegacyMapPlacementBridge('test-rectangle', [object], []);
+  assert.deepEqual(bridge.scenePlacements(), [{
+    placementId: 'amber-rock-001',
+    sceneId: 'object.rock-amber-ore-mineable',
+    x: 288,
+    y: 192,
+    persistenceKey: 'test-rectangle.amber-rock-001',
+    propertyOverrides: [
+      { nodeId: 'script', property: 'mapId', value: 'test-rectangle' },
+      { nodeId: 'script', property: 'instanceId', value: 'amber-rock-001' },
+    ],
+  }]);
+  assert.equal(bridge.shouldSuppressLegacyObject(object), true);
+});
+
 test('map placement bridge suppresses every passive object it assigns on an authored map', async () => {
   const map = JSON.parse(await readFile(`${REPOSITORY_ROOT}/src/game/content/maps/174.map.json`, 'utf8'));
   const bridge = new t.LegacyMapPlacementBridge('174', map.objects, map.bossCamps ?? []);

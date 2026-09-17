@@ -86,6 +86,26 @@ test('passive map objects mount through authored scenes without legacy duplicate
   await expect.poll(() => page.locator('canvas').count()).toBe(0);
 });
 
+test('mineable amber ore mounts as a managed resource scene', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.addInitScript(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+  });
+  const pageErrors: string[] = [];
+  page.on('pageerror', (error) => pageErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error' && !message.text().startsWith('Failed to load resource:')) pageErrors.push(message.text());
+  });
+  await page.goto('./?mode=baseline&map=test-rectangle');
+  await waitForProductionReady(page, pageErrors);
+  const snapshot = await page.evaluate(() => window.sceneFixture.snapshot());
+  expect(snapshot.managedResourceCount).toBe(1);
+  expect(pageErrors).toEqual([]);
+  await page.evaluate(() => window.sceneFixture.destroy());
+  await expect.poll(() => page.locator('canvas').count()).toBe(0);
+});
+
 test('remaining ordinary enemy scenes mount through the production Phaser runtime', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.addInitScript(() => {

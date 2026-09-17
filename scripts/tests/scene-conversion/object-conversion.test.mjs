@@ -32,7 +32,7 @@ const passiveUnitKeys = [
   'object:rock.world-wall.solid',
   'object:wall.stone.solid',
 ];
-const unitKeys = ['object:resource.stone-node', 'object:tree.world.solid', ...collectibleUnitKeys, ...passiveUnitKeys];
+const unitKeys = ['object:resource.stone-node', 'object:tree.world.solid', 'object:rock.amber-ore.mineable', ...collectibleUnitKeys, ...passiveUnitKeys];
 
 async function createRunner() {
   const productionLedger = JSON.parse(await readFile(path.join(repositoryRoot, 'scripts/migrations/universal-scene-conversion-ledger.json'), 'utf8'));
@@ -53,10 +53,28 @@ test('resource object conversion is deterministic and emits every stone and tree
   const first = await runner.run({ unitKeys, mode: 'dry-run' });
   const replay = await runner.run({ unitKeys: [...unitKeys].reverse(), mode: 'dry-run' });
   assert.deepEqual(replay.outputs, first.outputs);
-  assert.equal(first.outputs.length, 173);
+  assert.equal(first.outputs.length, 174);
   assert.ok(first.outputs.some((output) => output.path === 'objects/resource-stone-node.scene.json'));
   assert.ok(first.outputs.some((output) => output.path === 'objects/tree-world-solid.scene.json'));
   assert.ok(first.outputs.some((output) => output.path === 'objects/tree-world-solid--tree-autumn-01.scene.json'));
+});
+
+test('mineable amber ore preserves durability and resolves item drops to a collectible scene', async () => {
+  const runner = await createRunner();
+  await runner.run({ unitKeys, mode: 'apply' });
+  await runner.run({ unitKeys, mode: 'check' });
+  const converted = JSON.parse(await readFile(path.join(runner.outputRoot, 'objects/rock-amber-ore-mineable.scene.json'), 'utf8'));
+  const authored = JSON.parse(await readFile(path.join(repositoryRoot, 'src/game/content/scenes/authored/objects/rock-amber-ore-mineable.scene.json'), 'utf8'));
+  const script = converted.nodes.find((node) => node.scriptId === 'game.resource-node');
+
+  assert.equal(converted.sceneId, 'object.rock-amber-ore-mineable');
+  assert.equal(script.properties.maxHealth, 30);
+  assert.deepEqual(script.properties.tags, ['rock', 'solid', 'mineable']);
+  assert.deepEqual(script.properties.drop, {
+    objectId: 'collectible.crystal-shard', visualId: 'crystal-shard', pieces: 1,
+  });
+  assert.equal(script.properties.persistHealth, true);
+  assert.deepEqual(authored, converted);
 });
 
 test('passive object scenes preserve collision, occlusion, offsets, and decorative walkability', async () => {

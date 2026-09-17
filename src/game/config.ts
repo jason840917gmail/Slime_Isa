@@ -98,6 +98,7 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
           sceneId('encounter.level-1-fatty-camp'),
           sceneId('object.resource-stone-node'),
           sceneId('object.resource-stone-node.big-stone-mine'),
+          sceneId('object.rock-amber-ore-mineable'),
           ...sceneDocuments
             .filter((document) => document.sceneId.startsWith('object.tree-world-solid'))
             .map((document) => sceneId(document.sceneId)),
