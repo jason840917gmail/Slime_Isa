@@ -19,7 +19,7 @@ class ConfigNode extends t.Node {
 function packedFixture() {
   return new t.PackedScene({ sourceSceneId: 'fixture', rootKey: 'root', resources: [], nodes: [
     { key: 'root', sourceSceneId: 'fixture', authoredNodeId: 'root', instancePath: [], name: 'Root', type: 'Node', parentKey: null, order: 0, properties: {}, propertyScopes: {} },
-    { key: 'receiver', sourceSceneId: 'fixture', authoredNodeId: 'receiver', instancePath: [], name: 'Receiver', type: 'ScriptNode', scriptId: 'test.receiver', parentKey: 'root', order: 0, properties: {}, propertyScopes: {} },
+    { key: 'receiver', sourceSceneId: 'fixture', authoredNodeId: 'receiver', instancePath: [], name: 'Receiver', type: 'ScriptNode', scriptId: 'test.receiver', parentKey: 'root', order: 0, persistenceKey: 'fixture.receiver', properties: {}, propertyScopes: {} },
     { key: 'emitter', sourceSceneId: 'fixture', authoredNodeId: 'emitter', instancePath: [], name: 'Emitter', type: 'ScriptNode', scriptId: 'test.emitter', parentKey: 'root', order: 1, properties: { target: { nodeId: 'receiver' }, items: ['source'] }, propertyScopes: { target: [], items: [] } },
   ], connections: [{ sourceKey: 'emitter', signal: 'ping', targetKey: 'receiver', handler: 'receive' }] });
 }
@@ -44,6 +44,7 @@ test('one immutable packed scene creates independent detached trees with scoped 
   assert.deepEqual(secondEmitter.properties.items, ['source']);
   assert.deepEqual(packed.definition.nodes.find((entry) => entry.key === 'emitter').properties.items, ['source']);
   assert.equal(firstEmitter.getReference('target').configuredTarget, first.get_node('Receiver'));
+  assert.equal(first.get_node('Receiver').explicitPersistenceKey, 'fixture.receiver');
   firstEmitter.getSignal('ping').emit(1);
   assert.deepEqual(first.get_node('Receiver').received, []);
   const tree = new t.SceneTree(); tree.setRoot(first);

@@ -65,6 +65,7 @@ export class SceneInstantiator {
         const node = source.scriptId
           ? this.options.scripts?.construct(context) ?? (() => { throw new Error(`No script registry is configured for '${source.scriptId}'`); })()
           : this.options.nodeTypes.construct(context);
+        node._setPersistenceKeyInternal(source.persistenceKey);
         node._setRuntimeDescriptorInternal(source.type, capabilitiesForNode(source.type, source.scriptId, this.options.descriptors));
         node._setInstanceProvenanceInternal(source.provenance ? structuredClone(source.provenance) : undefined);
         nodes.set(source.key, node);

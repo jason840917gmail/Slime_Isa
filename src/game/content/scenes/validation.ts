@@ -109,9 +109,14 @@ export function validateSceneDocument(value: unknown, context: SceneValidationCo
   else if (nodes.get(scene.rootNodeId)?.parentId !== null) issues.push({ path: '/rootNodeId', message: 'root node must have parentId null' });
 
   const instances = new Set<string>();
+  const persistenceKeys = new Set<string>();
   for (const [index, instance] of scene.instances.entries()) {
     if (instances.has(instance.instanceId)) issues.push({ path: `/instances/${index}/instanceId`, message: `duplicate instance ID '${instance.instanceId}'` });
     instances.add(instance.instanceId);
+    if (instance.persistenceKey !== undefined) {
+      if (persistenceKeys.has(instance.persistenceKey)) issues.push({ path: `/instances/${index}/persistenceKey`, message: `duplicate persistence key '${instance.persistenceKey}'` });
+      persistenceKeys.add(instance.persistenceKey);
+    }
     if (!nodes.has(instance.parentNodeId)) issues.push({ path: `/instances/${index}/parentNodeId`, message: `unknown parent node '${instance.parentNodeId}'` });
     const overrideKeys = new Set<string>();
     for (const [overrideIndex, override] of instance.overrides.entries()) {
