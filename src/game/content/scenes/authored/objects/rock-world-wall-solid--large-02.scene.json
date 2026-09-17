@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "sceneId": "object.rock-world-wall-solid.large-02",
+  "rootNodeId": "body",
+  "nodes": [
+    {
+      "id": "body",
+      "name": "large-02",
+      "type": "StaticBody2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "collisionLayer": 1,
+        "collisionMask": 2,
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "body-shape",
+      "name": "BodyShape",
+      "type": "CollisionShape2D",
+      "parentId": "body",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "rock-world-wall-solid.large-02.shape"
+        },
+        "position": [
+          18,
+          78
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "body",
+      "order": 1,
+      "properties": {
+        "texture": {
+          "resourceId": "rock-world-wall-solid.large-02.sprite"
+        },
+        "frame": 1,
+        "origin": [
+          0.5,
+          1
+        ],
+        "scale": [
+          1,
+          1
+        ],
+        "visualOffset": [
+          0,
+          0
+        ],
+        "depthMode": "world-sorted",
+        "depthBand": "world-entities",
+        "occlusionBounds": {
+          "width": 112,
+          "height": 112,
+          "offsetX": 8,
+          "offsetY": 8
+        }
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "rock-world-wall-solid.large-02.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "sheet.rocks.3x1",
+      "frameWidth": 128,
+      "frameHeight": 128
+    },
+    {
+      "version": 1,
+      "resourceId": "rock-world-wall-solid.large-02.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 84,
+        "height": 44
+      }
+    }
+  ]
+}
