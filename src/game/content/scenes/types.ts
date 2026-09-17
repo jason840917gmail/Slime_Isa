@@ -1,4 +1,4 @@
-import type { AuthoredNodeId, InstanceId, SceneId } from './identifiers';
+import type { AuthoredNodeId, InstanceId, PersistenceKey, SceneId } from './identifiers';
 import type { JsonValue, SceneResourceDocument } from './resources/types';
 
 export interface NodeReferenceDocument {
@@ -33,6 +33,7 @@ export interface SceneInstanceDocument {
   readonly sceneId: SceneId;
   readonly parentNodeId: AuthoredNodeId;
   readonly order: number;
+  readonly persistenceKey?: PersistenceKey;
   readonly overrides: readonly SceneOverrideDocument[];
 }
 
@@ -40,6 +41,7 @@ export interface SceneInstanceProvenance {
   readonly sourceSceneId: SceneId;
   readonly authoredInstanceId: InstanceId;
   readonly containingInstancePath: readonly InstanceId[];
+  readonly persistenceKey?: PersistenceKey;
   readonly overrides: readonly SceneOverrideDocument[];
 }
 

@@ -33,7 +33,7 @@ function fixtureDocuments() {
   const world = { version: 1, sceneId: 'world', rootNodeId: 'root', nodes: [
     node('root', 'World', null, 0), node('receiver', 'Receiver', 'root', 0, {}, 'test.receiver'),
   ], instances: [
-    { instanceId: 'first', name: 'First', sceneId: 'middle', parentNodeId: 'root', order: 1, overrides: [
+    { instanceId: 'first', name: 'First', sceneId: 'middle', parentNodeId: 'root', order: 1, persistenceKey: 'world.first', overrides: [
       { sourceInstancePath: ['leaf-slot'], sourceNodeId: 'link', property: 'label', value: 'outer' },
       { sourceInstancePath: ['leaf-slot'], sourceNodeId: 'link', property: 'target', value: { nodeId: 'receiver' } },
     ] },
@@ -61,6 +61,9 @@ test('preparation expands deep repeated instances, merges order, and preserves o
   assert.deepEqual(second.propertyScopes.target, ['second', 'leaf-slot']);
   const nestedRoot = packed.definition.nodes.find((entry) => entry.key === 'first/leaf-slot/root');
   assert.deepEqual(nestedRoot.provenance.containingInstancePath, ['first']);
+  const placedRoot = packed.definition.nodes.find((entry) => entry.key === 'first/root');
+  assert.equal(placedRoot.persistenceKey, 'world.first');
+  assert.equal(placedRoot.provenance.persistenceKey, 'world.first');
   packed.dispose();
   assert.equal(loader.activeLeaseCount(), 0);
 });

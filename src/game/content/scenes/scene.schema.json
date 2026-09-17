@@ -46,7 +46,7 @@
     },
     "instance": {
       "type": "object", "additionalProperties": false, "required": ["instanceId", "name", "sceneId", "parentNodeId", "order", "overrides"],
-      "properties": { "instanceId": { "$ref": "#/$defs/id" }, "name": { "$ref": "#/$defs/name" }, "sceneId": { "$ref": "#/$defs/id" }, "parentNodeId": { "$ref": "#/$defs/id" }, "order": { "type": "integer", "minimum": 0 }, "overrides": { "type": "array", "items": { "$ref": "#/$defs/override" } } }
+      "properties": { "instanceId": { "$ref": "#/$defs/id" }, "name": { "$ref": "#/$defs/name" }, "sceneId": { "$ref": "#/$defs/id" }, "parentNodeId": { "$ref": "#/$defs/id" }, "order": { "type": "integer", "minimum": 0 }, "persistenceKey": { "$ref": "#/$defs/id" }, "overrides": { "type": "array", "items": { "$ref": "#/$defs/override" } } }
     },
     "connection": {
       "type": "object", "additionalProperties": false, "required": ["source", "signal", "target", "handler"],
@@ -59,7 +59,7 @@
         "assetId": { "type": "string", "minLength": 1 }, "frame": { "type": "integer", "minimum": 0 },
         "frameWidth": { "type": "integer", "minimum": 1 }, "frameHeight": { "type": "integer", "minimum": 1 }, "frameCount": { "type": "integer", "minimum": 1 },
         "value": { "$ref": "#/$defs/json" }, "animations": { "type": "object", "additionalProperties": { "$ref": "#/$defs/json" } }, "tiles": { "type": "object", "additionalProperties": { "$ref": "#/$defs/json" } },
-        "tileSet": { "$ref": "#/$defs/id" }, "cells": { "type": "array", "items": { "$ref": "#/$defs/json" } }, "values": { "type": "object", "additionalProperties": { "$ref": "#/$defs/json" } }
+        "tileSet": { "$ref": "#/$defs/id" }, "columns": { "type": "integer", "minimum": 1 }, "rows": { "type": "integer", "minimum": 1 }, "cells": { "type": "array", "items": { "$ref": "#/$defs/json" } }, "values": { "type": "object", "additionalProperties": { "$ref": "#/$defs/json" } }
       }
     }
   }

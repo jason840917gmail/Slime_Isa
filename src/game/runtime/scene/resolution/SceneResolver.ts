@@ -131,12 +131,16 @@ export class SceneResolver {
             scriptId: source.scriptId,
             parentKey,
             order: orderOverride ?? source.order,
+            ...(placement?.instance.persistenceKey && source.id === document.rootNodeId
+              ? { persistenceKey: placement.instance.persistenceKey }
+              : {}),
             properties,
             propertyScopes,
             provenance: placement && source.id === document.rootNodeId ? {
               sourceSceneId: document.sceneId,
               authoredInstanceId: placement.instance.instanceId,
               containingInstancePath: [...placement.containingPath],
+              ...(placement.instance.persistenceKey ? { persistenceKey: placement.instance.persistenceKey } : {}),
               overrides: structuredClone(placement.instance.overrides),
             } : undefined,
           });

@@ -1,4 +1,4 @@
-import type { AuthoredNodeId, InstanceId, SceneId } from '../../content/scenes/identifiers';
+import type { AuthoredNodeId, InstanceId, PersistenceKey, SceneId } from '../../content/scenes/identifiers';
 import type { JsonValue, SceneInstanceProvenance, SceneResourceDocument } from '../../content/scenes/types';
 import type { Disposable } from '../../shared/lifecycle/Disposable';
 
@@ -12,6 +12,7 @@ export interface PackedNodeDocument {
   readonly scriptId?: string;
   readonly parentKey: string | null;
   readonly order: number;
+  readonly persistenceKey?: PersistenceKey;
   readonly properties: Readonly<Record<string, JsonValue>>;
   readonly propertyScopes: Readonly<Record<string, readonly InstanceId[]>>;
   readonly provenance?: SceneInstanceProvenance;
