@@ -10,7 +10,21 @@ import { objectSceneAdapter } from '../../lib/scene-conversion/objects.mjs';
 import { validateSceneWriteSet } from '../../lib/scene-conversion/validate-scene-write-set.mjs';
 
 const repositoryRoot = fileURLToPath(new URL('../../..', import.meta.url));
-const unitKeys = ['object:resource.stone-node', 'object:tree.world.solid'];
+const collectibleUnitKeys = [
+  'object:collectible.charcoal-pile',
+  'object:collectible.crystal-shard',
+  'object:collectible.energy-potion',
+  'object:collectible.green-key',
+  'object:collectible.hp-potion',
+  'object:collectible.iron-ore-pile',
+  'object:collectible.purple-berry',
+  'object:collectible.silk-clump',
+  'object:collectible.small-stone-pile',
+  'object:collectible.small-wood-pile',
+  'object:collectible.stone-pile',
+  'object:collectible.wood-pile',
+];
+const unitKeys = ['object:resource.stone-node', 'object:tree.world.solid', ...collectibleUnitKeys];
 
 async function createRunner() {
   const productionLedger = JSON.parse(await readFile(path.join(repositoryRoot, 'scripts/migrations/universal-scene-conversion-ledger.json'), 'utf8'));
@@ -31,10 +45,39 @@ test('resource object conversion is deterministic and emits every stone and tree
   const first = await runner.run({ unitKeys, mode: 'dry-run' });
   const replay = await runner.run({ unitKeys: [...unitKeys].reverse(), mode: 'dry-run' });
   assert.deepEqual(replay.outputs, first.outputs);
-  assert.equal(first.outputs.length, 49);
+  assert.equal(first.outputs.length, 61);
   assert.ok(first.outputs.some((output) => output.path === 'objects/resource-stone-node.scene.json'));
   assert.ok(first.outputs.some((output) => output.path === 'objects/tree-world-solid.scene.json'));
   assert.ok(first.outputs.some((output) => output.path === 'objects/tree-world-solid--tree-autumn-01.scene.json'));
+});
+
+test('collectible scenes preserve inventory identity, visuals, and isolated pickup collision', async () => {
+  const runner = await createRunner();
+  await runner.run({ unitKeys, mode: 'apply' });
+  await runner.run({ unitKeys, mode: 'check' });
+  const load = async (relativePath) => JSON.parse(await readFile(path.join(runner.outputRoot, relativePath), 'utf8'));
+  const wood = await load('objects/collectible-wood-pile.scene.json');
+  const potion = await load('objects/collectible-hp-potion.scene.json');
+
+  assert.equal(wood.sceneId, 'object.collectible-wood-pile');
+  assert.equal(wood.nodes.find((node) => node.id === 'visual').properties.texture.resourceId, 'collectible-wood-pile.wood-pile.sprite');
+  assert.deepEqual(wood.nodes.find((node) => node.id === 'pickup-area').properties, {
+    collisionLayer: 64, collisionMask: 32, monitoring: true, monitorable: true,
+  });
+  const woodScript = wood.nodes.find((node) => node.scriptId === 'game.collectible');
+  assert.equal(woodScript.properties.itemId, 'wood');
+  assert.equal(woodScript.properties.quantity, 10);
+  assert.equal(potion.subresources.find((resource) => resource.kind === 'texture').assetId, 'collectible.hp-potion');
+  assert.equal(potion.nodes.find((node) => node.scriptId === 'game.collectible').properties.itemId, 'hp-potion');
+
+  for (const unitKey of collectibleUnitKeys) {
+    const objectId = unitKey.slice('object:'.length);
+    const relativePath = `${objectId.replaceAll('.', '-')}.scene.json`;
+    assert.deepEqual(
+      JSON.parse(await readFile(path.join(repositoryRoot, 'src/game/content/scenes/authored/objects', relativePath), 'utf8')),
+      await load(`objects/${relativePath}`),
+    );
+  }
 });
 
 test('stone resource scenes preserve visual, collision, harvest, drop, and script data', async () => {
