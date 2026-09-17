@@ -638,6 +638,7 @@ export class WorldScene extends Phaser.Scene {
       mapId: this.loadedMap.map.mapId,
       group: this.collectibleTargets,
       inventory: playerInventory,
+      transaction: playerInventoryWorldTransaction,
       progress: worldProgress,
       publisher: COLLECTIBLE_EVENTS,
       showMessage: (x, y, message, color, important) => floatingText.spawn(this, x, y, message, color, important),
@@ -1420,6 +1421,7 @@ export class WorldScene extends Phaser.Scene {
       registerNpc: (registration) => this.questNpcController?.register(registration),
       registerManagedResource: (registration) => this.resourceNodes?.registerManagedResource(registration),
       spawnManagedResourceDrops: (request) => this.resourceNodes?.spawnManagedResourceDrops(request),
+      collectibles: this.collectibles!,
       registerOccluder: (registration) => this.occlusionController!.registerOccluder(registration),
     });
   }

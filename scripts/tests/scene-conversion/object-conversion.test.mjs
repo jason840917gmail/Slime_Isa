@@ -64,6 +64,9 @@ test('collectible scenes preserve inventory identity, visuals, and isolated pick
   assert.deepEqual(wood.nodes.find((node) => node.id === 'pickup-area').properties, {
     collisionLayer: 64, collisionMask: 32, monitoring: true, monitorable: true,
   });
+  assert.deepEqual(wood.connections, [{
+    source: { nodeId: 'pickup-area' }, signal: 'area_entered', target: { nodeId: 'script' }, handler: 'on_area_entered',
+  }]);
   const woodScript = wood.nodes.find((node) => node.scriptId === 'game.collectible');
   assert.equal(woodScript.properties.itemId, 'wood');
   assert.equal(woodScript.properties.quantity, 10);

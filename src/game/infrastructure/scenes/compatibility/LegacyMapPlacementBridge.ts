@@ -93,7 +93,7 @@ export class LegacyMapPlacementBridge {
       y: instance.y,
       persistenceKey: `${this.mapId}.${instance.instanceId}`,
       ...(npc ? { npcDefinitionId: npc.npcDefinitionId } : {}),
-      ...(!npc && (instance.objectId === 'resource.stone-node' || instance.objectId === 'tree.world.solid') ? {
+      ...(!npc && (instance.objectId === 'resource.stone-node' || instance.objectId === 'tree.world.solid' || instance.objectId.startsWith('collectible.')) ? {
         propertyOverrides: [
           { nodeId: 'script', property: 'mapId', value: this.mapId },
           { nodeId: 'script', property: 'instanceId', value: instance.instanceId },
@@ -103,6 +103,7 @@ export class LegacyMapPlacementBridge {
   }
 
   private objectSceneId(instance: MapObjectInstance): string | undefined {
+    if (instance.objectId.startsWith('collectible.')) return `object.${visualSlug(instance.objectId)}`;
     if (instance.objectId === 'tree.world.solid') {
       return instance.visualId === 'shadow-pine-01'
         ? 'object.tree-world-solid'

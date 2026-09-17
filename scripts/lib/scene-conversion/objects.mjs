@@ -173,6 +173,9 @@ function collectibleScene(unit, object, manifest) {
       },
     ],
     instances: [],
+    connections: [
+      { source: { nodeId: 'pickup-area' }, signal: 'area_entered', target: { nodeId: 'script' }, handler: 'on_area_entered' },
+    ],
     subresources: [
       textureResource,
       { version: 1, resourceId: `${resourcePrefix}.pickup-shape`, kind: 'collision-shape', value: { shape: 'circle', radius: pickupRadius } },

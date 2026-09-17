@@ -104,6 +104,7 @@ function harness(capacities, savedState) {
     mapId: 'level-1',
     group,
     inventory: { add: (_itemId, requested) => Math.min(requested, capacities.shift() ?? 0) },
+    transaction: { collectWorldItem: () => { throw new Error('managed pickup is not used by this fixture'); } },
     progress,
     publisher: events,
     showMessage: (...message) => messages.push(message),
@@ -161,6 +162,45 @@ test('collectible teardown destroys quantity badges', () => {
   const state = harness([]);
   state.controller.destroy();
   assert.equal(state.labels[0].active, false);
+});
+
+test('managed scene pickup publishes committed transaction feedback and remaining state', () => {
+  let state;
+  const messages = [];
+  const published = [];
+  const changes = [];
+  const controller = new CollectibleController({
+    scene: { time: { now: 10_000 } },
+    mapId: 'level-1',
+    group: { getChildren: () => [] },
+    inventory: { add: () => 0 },
+    transaction: {
+      collectWorldItem: (input) => {
+        const moved = Math.min(3, input.remaining, input.requested);
+        state = { remaining: input.remaining - moved };
+        return moved;
+      },
+    },
+    progress: {
+      collectibleState: () => state,
+      setCollectibleState: () => {},
+    },
+    publisher: { publishCollected: (payload) => published.push(payload) },
+    showMessage: (...message) => messages.push(message),
+    onStateChanged: (change) => changes.push(change),
+  });
+  controller.ensureInitialized('level-1', 'wood-01', 5);
+  assert.equal(controller.remaining('level-1', 'wood-01'), 5);
+  const request = {
+    mapId: 'level-1', instanceId: 'wood-01', objectId: 'collectible.wood-pile', itemId: 'wood',
+    requested: 5, collectorAreaNodeId: 'managed-player/PickupArea', x: 120, y: 160,
+  };
+  assert.deepEqual(controller.pickup(request), { status: 'partial', moved: 3, remaining: 2 });
+  assert.deepEqual(changes, [{ instanceId: 'wood-01', remaining: 2 }]);
+  assert.equal(messages[0][2], '+3 wood');
+  assert.deepEqual(published[0], {
+    mapId: 'level-1', instanceId: 'wood-01', objectId: 'collectible.wood-pile', itemId: 'wood', quantity: 3,
+  });
 });
 
 test('berry reactions consume the event once and unsubscribe on disposal', () => {
@@ -588,6 +628,7 @@ test('same-item dynamic collectibles merge quantities when the incoming drop lan
     mapId: 'level-1',
     group,
     inventory: { add: () => 0 },
+    transaction: { collectWorldItem: () => { throw new Error('managed pickup is not used by this fixture'); } },
     progress: {
       collectibleState: () => undefined,
       setCollectibleState(_mapId, id, state) { persisted.set(id, state); },

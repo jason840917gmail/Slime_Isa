@@ -101,6 +101,9 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
           ...sceneDocuments
             .filter((document) => document.sceneId.startsWith('object.tree-world-solid'))
             .map((document) => sceneId(document.sceneId)),
+          ...sceneDocuments
+            .filter((document) => document.sceneId.startsWith('object.collectible-'))
+            .map((document) => sceneId(document.sceneId)),
           sceneId('projectile.worm-arrow'),
           sceneId('effect.basic-spear-impact'),
           sceneId('effect.basic-sword-impact'),

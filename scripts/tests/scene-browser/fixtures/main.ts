@@ -58,6 +58,7 @@ type FixtureSnapshot = {
   readonly managedProjectileSpawnCount?: number;
   readonly managedEffectCount?: number;
   readonly managedResourceCount?: number;
+  readonly managedCollectibleCount?: number;
   readonly managedWeaponId?: string | null;
   readonly managedWeaponAttacking?: boolean;
   readonly playerHp?: number;
@@ -444,6 +445,7 @@ const api: FixtureApi = {
             readonly managedProjectileSpawnCount: number;
             readonly managedEffectCount: number;
             readonly managedResourceCount: number;
+            readonly managedCollectibleCount: number;
             readonly managedWeaponId: string | null;
             readonly managedWeaponAttacking: boolean;
             readonly managedPlayer: { getPosition(): Readonly<{ x: number; y: number }> };
@@ -481,6 +483,7 @@ const api: FixtureApi = {
       ...(world?.universalWorld ? { managedProjectileSpawnCount: world.universalWorld.managedProjectileSpawnCount } : {}),
       ...(world?.universalWorld ? { managedEffectCount: world.universalWorld.managedEffectCount } : {}),
       ...(world?.universalWorld ? { managedResourceCount: world.universalWorld.managedResourceCount } : {}),
+      ...(world?.universalWorld ? { managedCollectibleCount: world.universalWorld.managedCollectibleCount } : {}),
       ...(world?.universalWorld ? { managedWeaponId: world.universalWorld.managedWeaponId } : {}),
       ...(world?.universalWorld ? { managedWeaponAttacking: world.universalWorld.managedWeaponAttacking } : {}),
       ...(world?.healthSystem ? { playerHp: world.healthSystem.getDamageState().hp } : {}),
