@@ -82,6 +82,7 @@ import { BossCampController } from '../features/bosses/BossCampController';
 import { playerInventoryWorldTransaction } from '../features/progression/InventoryWorldTransaction';
 import { getObjectArchetype, isObjectArchetypeId } from '../content/objects/ObjectCatalog';
 import { PREPARED_SCENE_CONTENT_KEY, PreparedSceneContent } from '../infrastructure/scenes/PreparedSceneContent';
+import type { LoadedWorldScene } from '../infrastructure/scenes/WorldSceneLoader';
 import { LegacyMapPlacementBridge } from '../infrastructure/scenes/compatibility/LegacyMapPlacementBridge';
 import { UniversalSceneWorldController } from '../features/world/UniversalSceneWorldController';
 
@@ -91,7 +92,7 @@ const COLLECTIBLE_EVENTS = new CollectibleEventChannel(gameEvents);
 interface WorldSceneData {
   areaId?: AreaId;
   entryEdge?: Direction;
-  loadedMap?: LoadedMap | null;
+  loadedWorld?: LoadedWorldScene;
 }
 
 export class WorldScene extends Phaser.Scene {
@@ -138,6 +139,7 @@ export class WorldScene extends Phaser.Scene {
   private currentArea: AreaDef = AREAS.icege;
   private worldDimensions!: WorldDimensions;
   private loadedMap!: LoadedMap;
+  private loadedWorld?: LoadedWorldScene;
   private builtMap?: BuiltMap;
   private entryEdge?: Direction;
   private transitioning = false;
@@ -163,11 +165,12 @@ export class WorldScene extends Phaser.Scene {
 
   init(data: WorldSceneData = {}): void {
     const request = resolveAreaRequest(data);
-    if (!data.loadedMap) {
+    if (!data.loadedWorld) {
       throw new Error(`WorldScene requires an authored map for area '${request.area.id}'`);
     }
     this.currentArea = request.area;
-    this.loadedMap = data.loadedMap;
+    this.loadedWorld = data.loadedWorld;
+    this.loadedMap = this.loadedWorld.loadedMap;
     this.worldDimensions = this.loadedMap.dimensions;
     this.builtMap = undefined;
     this.entryEdge = request.entryEdge;
@@ -1389,8 +1392,11 @@ export class WorldScene extends Phaser.Scene {
 
   private createUniversalSceneWorld(playerSpawn: Readonly<{ x: number; y: number }>): void {
     const content = this.game.registry.get(PREPARED_SCENE_CONTENT_KEY);
-    if (!(content instanceof PreparedSceneContent) || !this.scenePlacementBridge || !this.healthSystem) {
+    if (!(content instanceof PreparedSceneContent) || !this.loadedWorld || !this.scenePlacementBridge || !this.healthSystem) {
       throw new Error('WorldScene requires prepared universal scene content and initialized compatibility services.');
+    }
+    if (content.get(this.loadedWorld.sceneId) !== this.loadedWorld.packedScene) {
+      throw new Error(`WorldScene received stale prepared content for '${this.loadedWorld.sceneId}'.`);
     }
     this.universalWorld = new UniversalSceneWorldController({
       scene: this,

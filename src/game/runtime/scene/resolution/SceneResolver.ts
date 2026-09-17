@@ -25,6 +25,15 @@ interface InstancePlacement {
   readonly containingPath: readonly InstanceId[];
 }
 
+type OrderedChild =
+  | { readonly kind: 'node'; readonly order: number; readonly value: SceneDocument['nodes'][number] }
+  | { readonly kind: 'instance'; readonly order: number; readonly value: SceneInstanceDocument };
+
+interface SceneDocumentIndex {
+  readonly nodesById: ReadonlyMap<string, SceneDocument['nodes'][number]>;
+  readonly childrenByParentId: ReadonlyMap<string, readonly OrderedChild[]>;
+}
+
 export interface SceneResolverOptions {
   readonly documents: SceneDocumentLoader;
   readonly resources?: SceneResourceLoader;
@@ -68,6 +77,29 @@ export class SceneResolver {
       };
       await loadGraph(sceneId, []);
 
+      const documentIndexes = new Map<SceneId, SceneDocumentIndex>();
+      for (const document of documents.values()) {
+        const childrenByParentId = new Map<string, OrderedChild[]>();
+        for (const node of document.nodes) {
+          if (node.parentId === null) continue;
+          const children = childrenByParentId.get(node.parentId) ?? [];
+          children.push({ kind: 'node', order: node.order, value: node });
+          childrenByParentId.set(node.parentId, children);
+        }
+        for (const instance of document.instances) {
+          const children = childrenByParentId.get(instance.parentNodeId) ?? [];
+          children.push({ kind: 'instance', order: instance.order, value: instance });
+          childrenByParentId.set(instance.parentNodeId, children);
+        }
+        for (const children of childrenByParentId.values()) {
+          children.sort((left, right) => left.order - right.order);
+        }
+        documentIndexes.set(document.sceneId, {
+          nodesById: new Map(document.nodes.map((node) => [node.id, node])),
+          childrenByParentId,
+        });
+      }
+
       const nodes: PackedNodeDocument[] = [];
       const connections: PackedSignalConnection[] = [];
       const scopeDocuments = new Map<string, SceneDocument>();
@@ -84,6 +116,8 @@ export class SceneResolver {
         placement?: InstancePlacement,
       ): void => {
         scopeDocuments.set(instancePath.join('/'), document);
+        const documentIndex = documentIndexes.get(document.sceneId);
+        if (!documentIndex) throw new Error(`Scene '${document.sceneId}' has no prepared document index`);
         for (const connection of document.connections ?? []) {
           connections.push({
             sourceKey: referenceKey(instancePath, connection.source),
@@ -94,7 +128,7 @@ export class SceneResolver {
         }
 
         const emitNode = (nodeId: string, parentKey: string | null, nameOverride?: string, orderOverride?: number): void => {
-          const source = document.nodes.find((node) => node.id === nodeId);
+          const source = documentIndex.nodesById.get(nodeId);
           if (!source) throw new Error(`Scene '${document.sceneId}' contains an unresolved node '${nodeId}'`);
           const key = packedKey(instancePath, source.id);
           const declaredProperties = propertiesForNode(source.type, source.scriptId, this.options.registry) ?? [];
@@ -145,10 +179,7 @@ export class SceneResolver {
             } : undefined,
           });
 
-          const children = [
-            ...document.nodes.filter((candidate) => candidate.parentId === source.id).map((candidate) => ({ kind: 'node' as const, order: candidate.order, value: candidate })),
-            ...document.instances.filter((candidate) => candidate.parentNodeId === source.id).map((candidate) => ({ kind: 'instance' as const, order: candidate.order, value: candidate })),
-          ].sort((left, right) => left.order - right.order);
+          const children = documentIndex.childrenByParentId.get(source.id) ?? [];
           for (const child of children) {
             if (child.kind === 'node') emitNode(child.value.id, key);
             else {
