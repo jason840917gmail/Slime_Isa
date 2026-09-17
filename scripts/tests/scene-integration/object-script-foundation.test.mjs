@@ -59,7 +59,7 @@ test('resource nodes receive routed damage, enforce harvest tiers, and publish o
       {
         id: 'script', name: 'ResourceNodeScript', type: 'ScriptNode', scriptId: 'game.resource-node', parentId: 'root', order: 2,
         properties: {
-          mapId: 'level-1', instanceId: 'tree-1', objectId: 'tree.world.solid', maxHealth: 10,
+          mapId: 'level-1', instanceId: 'tree-1', objectId: 'tree.world.solid', maxHealth: 10, initialHealth: 9,
           tags: ['wood', 'resource'], damageArea: { nodeId: 'damage-area' }, persistHealth: true,
           animation: { nodeId: 'animation' }, idleAnimationId: 'tree-idle', hitEffectId: 'wood-impact', onHitAnimationId: 'tree-hit', depletionMessage: 'Tree felled',
           harvestRequirement: { targetTag: 'wood', minimumTier: 1, failureMessage: 'Requires an Axe' },
@@ -115,7 +115,7 @@ test('resource nodes receive routed damage, enforce harvest tiers, and publish o
   ], 0)[0];
   assert.equal(blockedOutcome.result.status, 'rejected');
   assert.equal(blockedOutcome.result.reason, 'state-blocked');
-  assert.equal(script.health, 10);
+  assert.equal(script.health, 9);
   assert.equal(blocked.length, 1);
   assert.equal(blocked[0].message, 'Requires an Axe');
 
@@ -124,11 +124,11 @@ test('resource nodes receive routed damage, enforce harvest tiers, and publish o
     damageRequest(firstActivation, targetAreaNodeId, ['harvest:wood:1', 'weapon'], 4),
   ], 10)[0];
   assert.equal(firstOutcome.result.status, 'accepted');
-  assert.equal(script.health, 6);
+  assert.equal(script.health, 5);
   assert.equal(animation.currentAnimation, 'tree-hit');
   fixture.tree.physicsProcess(0.2);
   assert.equal(animation.currentAnimation, 'tree-idle');
-  assert.deepEqual(savedHealth, [['level-1', 'tree-1', 6, 10]]);
+  assert.deepEqual(savedHealth, [['level-1', 'tree-1', 5, 10]]);
   assert.equal(hits.length, 1);
   assert.equal(hits[0].effectId, 'wood-impact');
 

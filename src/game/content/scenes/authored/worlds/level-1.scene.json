@@ -40,5 +40,709 @@
       }
     }
   ],
-  "instances": []
+  "instances": [
+    {
+      "instanceId": "level-1-fatty-one-eye-camp",
+      "name": "level-1-fatty-one-eye-camp",
+      "sceneId": "encounter.level-1-fatty-camp",
+      "parentNodeId": "world",
+      "order": 1,
+      "persistenceKey": "level-1-fatty-one-eye-camp",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2528,
+            1472
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "level-1-loose-wood-01",
+      "name": "level-1-loose-wood-01",
+      "sceneId": "object.collectible-wood-pile",
+      "parentNodeId": "world",
+      "order": 2,
+      "persistenceKey": "level-1.level-1-loose-wood-01",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            512,
+            512
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "level-1"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "level-1-loose-wood-01"
+        }
+      ]
+    },
+    {
+      "instanceId": "level-1-loose-wood-02",
+      "name": "level-1-loose-wood-02",
+      "sceneId": "object.collectible-wood-pile",
+      "parentNodeId": "world",
+      "order": 3,
+      "persistenceKey": "level-1.level-1-loose-wood-02",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            608,
+            448
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "level-1"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "level-1-loose-wood-02"
+        }
+      ]
+    },
+    {
+      "instanceId": "level-1-loose-wood-03",
+      "name": "level-1-loose-wood-03",
+      "sceneId": "object.collectible-wood-pile",
+      "parentNodeId": "world",
+      "order": 4,
+      "persistenceKey": "level-1.level-1-loose-wood-03",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            704,
+            512
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "level-1"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "level-1-loose-wood-03"
+        }
+      ]
+    },
+    {
+      "instanceId": "level-1-loose-wood-04",
+      "name": "level-1-loose-wood-04",
+      "sceneId": "object.collectible-wood-pile",
+      "parentNodeId": "world",
+      "order": 5,
+      "persistenceKey": "level-1.level-1-loose-wood-04",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            608,
+            576
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "level-1"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "level-1-loose-wood-04"
+        }
+      ]
+    },
+    {
+      "instanceId": "level-1-loose-stone-01",
+      "name": "level-1-loose-stone-01",
+      "sceneId": "object.collectible-stone-pile",
+      "parentNodeId": "world",
+      "order": 6,
+      "persistenceKey": "level-1.level-1-loose-stone-01",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            800,
+            448
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "level-1"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "level-1-loose-stone-01"
+        }
+      ]
+    },
+    {
+      "instanceId": "level-1-loose-stone-02",
+      "name": "level-1-loose-stone-02",
+      "sceneId": "object.collectible-stone-pile",
+      "parentNodeId": "world",
+      "order": 7,
+      "persistenceKey": "level-1.level-1-loose-stone-02",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            832,
+            544
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "level-1"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "level-1-loose-stone-02"
+        }
+      ]
+    },
+    {
+      "instanceId": "level-1-stone-node-01",
+      "name": "level-1-stone-node-01",
+      "sceneId": "object.resource-stone-node",
+      "parentNodeId": "world",
+      "order": 8,
+      "persistenceKey": "level-1.level-1-stone-node-01",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1056,
+            352
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "level-1"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "level-1-stone-node-01"
+        }
+      ]
+    },
+    {
+      "instanceId": "level-1-stone-node-02",
+      "name": "level-1-stone-node-02",
+      "sceneId": "object.resource-stone-node",
+      "parentNodeId": "world",
+      "order": 9,
+      "persistenceKey": "level-1.level-1-stone-node-02",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1184,
+            448
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "level-1"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "level-1-stone-node-02"
+        }
+      ]
+    },
+    {
+      "instanceId": "level-1-tree-01",
+      "name": "level-1-tree-01",
+      "sceneId": "object.tree-world-solid.tree-autumn-01",
+      "parentNodeId": "world",
+      "order": 10,
+      "persistenceKey": "level-1.level-1-tree-01",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            352,
+            288
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "level-1"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "level-1-tree-01"
+        }
+      ]
+    },
+    {
+      "instanceId": "level-1-tree-02",
+      "name": "level-1-tree-02",
+      "sceneId": "object.tree-world-solid.tree-autumn-01",
+      "parentNodeId": "world",
+      "order": 11,
+      "persistenceKey": "level-1.level-1-tree-02",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            288,
+            480
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "level-1"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "level-1-tree-02"
+        }
+      ]
+    },
+    {
+      "instanceId": "level-1-tree-03",
+      "name": "level-1-tree-03",
+      "sceneId": "object.tree-world-solid.tree-autumn-01",
+      "parentNodeId": "world",
+      "order": 12,
+      "persistenceKey": "level-1.level-1-tree-03",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            352,
+            704
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "level-1"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "level-1-tree-03"
+        }
+      ]
+    },
+    {
+      "instanceId": "resource-stone-node-f518b5a3",
+      "name": "resource-stone-node-f518b5a3",
+      "sceneId": "object.resource-stone-node.big-stone-mine",
+      "parentNodeId": "world",
+      "order": 13,
+      "persistenceKey": "level-1.resource-stone-node-f518b5a3",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            800,
+            256
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "level-1"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "resource-stone-node-f518b5a3"
+        }
+      ]
+    },
+    {
+      "instanceId": "resource-stone-node-4c37387b",
+      "name": "resource-stone-node-4c37387b",
+      "sceneId": "object.resource-stone-node.big-stone-mine",
+      "parentNodeId": "world",
+      "order": 14,
+      "persistenceKey": "level-1.resource-stone-node-4c37387b",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            864,
+            256
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "level-1"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "resource-stone-node-4c37387b"
+        }
+      ]
+    },
+    {
+      "instanceId": "resource-stone-node-221c2835",
+      "name": "resource-stone-node-221c2835",
+      "sceneId": "object.resource-stone-node.big-stone-mine",
+      "parentNodeId": "world",
+      "order": 15,
+      "persistenceKey": "level-1.resource-stone-node-221c2835",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            864,
+            320
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "level-1"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "resource-stone-node-221c2835"
+        }
+      ]
+    },
+    {
+      "instanceId": "resource-stone-node-c64bd17b",
+      "name": "resource-stone-node-c64bd17b",
+      "sceneId": "object.resource-stone-node.big-stone-mine",
+      "parentNodeId": "world",
+      "order": 16,
+      "persistenceKey": "level-1.resource-stone-node-c64bd17b",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            800,
+            320
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "level-1"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "resource-stone-node-c64bd17b"
+        }
+      ]
+    },
+    {
+      "instanceId": "level-1-purple-berry-01",
+      "name": "level-1-purple-berry-01",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 17,
+      "persistenceKey": "level-1.level-1-purple-berry-01",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            384,
+            640
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "level-1"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "level-1-purple-berry-01"
+        }
+      ]
+    },
+    {
+      "instanceId": "level-1-purple-berry-02",
+      "name": "level-1-purple-berry-02",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 18,
+      "persistenceKey": "level-1.level-1-purple-berry-02",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            448,
+            640
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "level-1"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "level-1-purple-berry-02"
+        }
+      ]
+    },
+    {
+      "instanceId": "level-1-purple-berry-03",
+      "name": "level-1-purple-berry-03",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 19,
+      "persistenceKey": "level-1.level-1-purple-berry-03",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            576,
+            640
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "level-1"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "level-1-purple-berry-03"
+        }
+      ]
+    },
+    {
+      "instanceId": "level-1-npc-village-elder-plop",
+      "name": "level-1-npc-village-elder-plop",
+      "sceneId": "character.village-elder-plop",
+      "parentNodeId": "world",
+      "order": 20,
+      "persistenceKey": "level-1.level-1-npc-village-elder-plop",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            512,
+            704
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "level-1-npc-lili",
+      "name": "level-1-npc-lili",
+      "sceneId": "character.lili",
+      "parentNodeId": "world",
+      "order": 21,
+      "persistenceKey": "level-1.level-1-npc-lili",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            480,
+            896
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "level-1-npc-red-slime-boy",
+      "name": "level-1-npc-red-slime-boy",
+      "sceneId": "character.red-slime-boy",
+      "parentNodeId": "world",
+      "order": 22,
+      "persistenceKey": "level-1.level-1-npc-red-slime-boy",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            640,
+            896
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "level-1-npc-yellow-blond-slime-girl",
+      "name": "level-1-npc-yellow-blond-slime-girl",
+      "sceneId": "character.yellow-blond-slime-girl",
+      "parentNodeId": "world",
+      "order": 23,
+      "persistenceKey": "level-1.level-1-npc-yellow-blond-slime-girl",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            800,
+            896
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "tree-world-solid-70613972",
+      "name": "tree-world-solid-70613972",
+      "sceneId": "object.tree-world-solid.tree-autumn-01",
+      "parentNodeId": "world",
+      "order": 24,
+      "persistenceKey": "level-1.tree-world-solid-70613972",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            288,
+            832
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "level-1"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "tree-world-solid-70613972"
+        }
+      ]
+    },
+    {
+      "instanceId": "level-1-npc-mossy-scout",
+      "name": "level-1-npc-mossy-scout",
+      "sceneId": "character.mossy-scout",
+      "parentNodeId": "world",
+      "order": 25,
+      "persistenceKey": "level-1.level-1-npc-mossy-scout",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            768,
+            704
+          ]
+        }
+      ]
+    }
+  ]
 }

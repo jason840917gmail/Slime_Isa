@@ -78,7 +78,8 @@ export class DestructibleScript extends ScriptNode implements DamageReceiver {
     this.instanceId = this.stringProperty('instanceId', '');
     this.objectId = this.stringProperty('objectId', '');
     this.maxHealth = Math.max(1, this.numberProperty('maxHealth', 1));
-    this.healthValue = this.maxHealth;
+    const initialHealth = this.numberProperty('initialHealth', 0);
+    this.healthValue = initialHealth > 0 ? Math.min(this.maxHealth, initialHealth) : this.maxHealth;
     this.tags = this.stringArrayProperty('tags');
   }
 

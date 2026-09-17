@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "mapId": "test-rectangle",
+  "sceneId": "world.test-rectangle",
+  "sourceCounts": {
+    "objects": 1,
+    "bossCamps": 0
+  },
+  "worldInstanceCount": 1,
+  "placements": [
+    {
+      "sourceKind": "object",
+      "sourceId": "amber-rock-001",
+      "objectId": "rock.amber-ore.mineable",
+      "visualId": "amber-ore",
+      "ownership": "world-instance",
+      "instanceId": "amber-rock-001",
+      "sceneId": "object.rock-amber-ore-mineable",
+      "persistenceKey": "test-rectangle.amber-rock-001",
+      "initialState": {
+        "health": 30
+      }
+    }
+  ]
+}

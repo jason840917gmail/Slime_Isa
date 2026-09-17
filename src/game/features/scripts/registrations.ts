@@ -308,6 +308,7 @@ export const DESTRUCTIBLE_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
     stringProperty('objectId', 'Object ID', 'Identity'),
     nodeReference('damageArea', 'Damage Area', 'area'),
     numberProperty('maxHealth', 'Maximum Health', 1, 'Health'),
+    numberProperty('initialHealth', 'Initial Health', 0, 'Health'),
     jsonProperty('tags', 'Object Tags', 'Identity', []),
     jsonProperty('damageRule', 'Damage Rule', 'Damage Reception', { priority: 0, damageMultiplier: 1 }),
   ],

@@ -40,5 +40,137 @@
       }
     }
   ],
-  "instances": []
+  "instances": [
+    {
+      "instanceId": "depth-tree-north",
+      "name": "depth-tree-north",
+      "sceneId": "object.tree-world-solid",
+      "parentNodeId": "world",
+      "order": 1,
+      "persistenceKey": "depth-occlusion-test.depth-tree-north",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            288,
+            192
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "depth-occlusion-test"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "depth-tree-north"
+        }
+      ]
+    },
+    {
+      "instanceId": "depth-tree-south",
+      "name": "depth-tree-south",
+      "sceneId": "object.tree-world-solid.shadow-pine-02",
+      "parentNodeId": "world",
+      "order": 2,
+      "persistenceKey": "depth-occlusion-test.depth-tree-south",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            288,
+            384
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "depth-occlusion-test"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "depth-tree-south"
+        }
+      ]
+    },
+    {
+      "instanceId": "depth-tree-equal-y",
+      "name": "depth-tree-equal-y",
+      "sceneId": "object.tree-world-solid.ancient-bare-01",
+      "parentNodeId": "world",
+      "order": 3,
+      "persistenceKey": "depth-occlusion-test.depth-tree-equal-y",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            480,
+            256
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "depth-occlusion-test"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "depth-tree-equal-y"
+        }
+      ]
+    },
+    {
+      "instanceId": "depth-house-west",
+      "name": "depth-house-west",
+      "sceneId": "object.house-world-solid",
+      "parentNodeId": "world",
+      "order": 4,
+      "persistenceKey": "depth-occlusion-test.depth-house-west",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            704,
+            320
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "depth-house-east",
+      "name": "depth-house-east",
+      "sceneId": "object.house-world-solid.cottage-blue",
+      "parentNodeId": "world",
+      "order": 5,
+      "persistenceKey": "depth-occlusion-test.depth-house-east",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            640,
+            320
+          ]
+        }
+      ]
+    }
+  ]
 }

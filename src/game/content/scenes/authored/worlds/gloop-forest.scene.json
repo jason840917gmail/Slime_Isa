@@ -40,5 +40,1241 @@
       }
     }
   ],
-  "instances": []
+  "instances": [
+    {
+      "instanceId": "wall-stone-solid-447f8fe4",
+      "name": "wall-stone-solid-447f8fe4",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 1,
+      "persistenceKey": "gloop-forest.wall-stone-solid-447f8fe4",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1760,
+            1664
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-7d69fd64",
+      "name": "wall-stone-solid-7d69fd64",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 2,
+      "persistenceKey": "gloop-forest.wall-stone-solid-7d69fd64",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1824,
+            1664
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-4ff9c059",
+      "name": "wall-stone-solid-4ff9c059",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 3,
+      "persistenceKey": "gloop-forest.wall-stone-solid-4ff9c059",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1888,
+            1664
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-d1d8793e",
+      "name": "wall-stone-solid-d1d8793e",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 4,
+      "persistenceKey": "gloop-forest.wall-stone-solid-d1d8793e",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2016,
+            1664
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-0d8e14a8",
+      "name": "wall-stone-solid-0d8e14a8",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 5,
+      "persistenceKey": "gloop-forest.wall-stone-solid-0d8e14a8",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1952,
+            1664
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-26477e68",
+      "name": "wall-stone-solid-26477e68",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 6,
+      "persistenceKey": "gloop-forest.wall-stone-solid-26477e68",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2080,
+            1664
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-f73d932b",
+      "name": "wall-stone-solid-f73d932b",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 7,
+      "persistenceKey": "gloop-forest.wall-stone-solid-f73d932b",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2144,
+            1664
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-593b9618",
+      "name": "wall-stone-solid-593b9618",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 8,
+      "persistenceKey": "gloop-forest.wall-stone-solid-593b9618",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2208,
+            1664
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-9d254d4e",
+      "name": "wall-stone-solid-9d254d4e",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 9,
+      "persistenceKey": "gloop-forest.wall-stone-solid-9d254d4e",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2272,
+            1792
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-bdcc08b8",
+      "name": "wall-stone-solid-bdcc08b8",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 10,
+      "persistenceKey": "gloop-forest.wall-stone-solid-bdcc08b8",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2272,
+            1856
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-5a71b84e",
+      "name": "wall-stone-solid-5a71b84e",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 11,
+      "persistenceKey": "gloop-forest.wall-stone-solid-5a71b84e",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2272,
+            1920
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-26bd82f8",
+      "name": "wall-stone-solid-26bd82f8",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 12,
+      "persistenceKey": "gloop-forest.wall-stone-solid-26bd82f8",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2272,
+            1984
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-ee5f6b57",
+      "name": "wall-stone-solid-ee5f6b57",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 13,
+      "persistenceKey": "gloop-forest.wall-stone-solid-ee5f6b57",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2208,
+            1984
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-c2fa42ef",
+      "name": "wall-stone-solid-c2fa42ef",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 14,
+      "persistenceKey": "gloop-forest.wall-stone-solid-c2fa42ef",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2144,
+            1984
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-6fc1c816",
+      "name": "wall-stone-solid-6fc1c816",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 15,
+      "persistenceKey": "gloop-forest.wall-stone-solid-6fc1c816",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2080,
+            1984
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-9ce0a562",
+      "name": "wall-stone-solid-9ce0a562",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 16,
+      "persistenceKey": "gloop-forest.wall-stone-solid-9ce0a562",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2016,
+            1984
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-4942e6ff",
+      "name": "wall-stone-solid-4942e6ff",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 17,
+      "persistenceKey": "gloop-forest.wall-stone-solid-4942e6ff",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1952,
+            1984
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-2801c6eb",
+      "name": "wall-stone-solid-2801c6eb",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 18,
+      "persistenceKey": "gloop-forest.wall-stone-solid-2801c6eb",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1888,
+            1984
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-42e0cdde",
+      "name": "wall-stone-solid-42e0cdde",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 19,
+      "persistenceKey": "gloop-forest.wall-stone-solid-42e0cdde",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1824,
+            1984
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-35b4baf8",
+      "name": "wall-stone-solid-35b4baf8",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 20,
+      "persistenceKey": "gloop-forest.wall-stone-solid-35b4baf8",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1760,
+            1984
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-4d0f8dd5",
+      "name": "wall-stone-solid-4d0f8dd5",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 21,
+      "persistenceKey": "gloop-forest.wall-stone-solid-4d0f8dd5",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1760,
+            1728
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-18002e29",
+      "name": "wall-stone-solid-18002e29",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 22,
+      "persistenceKey": "gloop-forest.wall-stone-solid-18002e29",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1696,
+            1792
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-ada5e458",
+      "name": "wall-stone-solid-ada5e458",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 23,
+      "persistenceKey": "gloop-forest.wall-stone-solid-ada5e458",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1696,
+            1920
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "house-world-solid-2ae59406",
+      "name": "house-world-solid-2ae59406",
+      "sceneId": "object.house-world-solid.cottage-blue",
+      "parentNodeId": "world",
+      "order": 24,
+      "persistenceKey": "gloop-forest.house-world-solid-2ae59406",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2144,
+            1920
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "decoration-world-solid-7d5c04e5",
+      "name": "decoration-world-solid-7d5c04e5",
+      "sceneId": "object.decoration-world-solid.stone-birdbath",
+      "parentNodeId": "world",
+      "order": 25,
+      "persistenceKey": "gloop-forest.decoration-world-solid-7d5c04e5",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1952,
+            1792
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "decoration-world-solid-12a98d3a",
+      "name": "decoration-world-solid-12a98d3a",
+      "sceneId": "object.decoration-world-solid.flower-planter",
+      "parentNodeId": "world",
+      "order": 26,
+      "persistenceKey": "gloop-forest.decoration-world-solid-12a98d3a",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1888,
+            1792
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "decoration-world-solid-42d6f971",
+      "name": "decoration-world-solid-42d6f971",
+      "sceneId": "object.decoration-world-solid.flower-planter",
+      "parentNodeId": "world",
+      "order": 27,
+      "persistenceKey": "gloop-forest.decoration-world-solid-42d6f971",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2272,
+            1920
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-69133265",
+      "name": "wall-stone-solid-69133265",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 28,
+      "persistenceKey": "gloop-forest.wall-stone-solid-69133265",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2336,
+            1664
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-8ebd8fe1",
+      "name": "wall-stone-solid-8ebd8fe1",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 29,
+      "persistenceKey": "gloop-forest.wall-stone-solid-8ebd8fe1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2400,
+            1664
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-66970fde",
+      "name": "wall-stone-solid-66970fde",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 30,
+      "persistenceKey": "gloop-forest.wall-stone-solid-66970fde",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2464,
+            1664
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-af648114",
+      "name": "wall-stone-solid-af648114",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 31,
+      "persistenceKey": "gloop-forest.wall-stone-solid-af648114",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2528,
+            1664
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-5ac8bbfb",
+      "name": "wall-stone-solid-5ac8bbfb",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 32,
+      "persistenceKey": "gloop-forest.wall-stone-solid-5ac8bbfb",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2592,
+            1664
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-39dcd577",
+      "name": "wall-stone-solid-39dcd577",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 33,
+      "persistenceKey": "gloop-forest.wall-stone-solid-39dcd577",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2656,
+            1664
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-300803c1",
+      "name": "wall-stone-solid-300803c1",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 34,
+      "persistenceKey": "gloop-forest.wall-stone-solid-300803c1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2720,
+            1664
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-8c7974df",
+      "name": "wall-stone-solid-8c7974df",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 35,
+      "persistenceKey": "gloop-forest.wall-stone-solid-8c7974df",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2784,
+            1664
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-29b18b1f",
+      "name": "wall-stone-solid-29b18b1f",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 36,
+      "persistenceKey": "gloop-forest.wall-stone-solid-29b18b1f",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2848,
+            1664
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-c5e8de63",
+      "name": "wall-stone-solid-c5e8de63",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 37,
+      "persistenceKey": "gloop-forest.wall-stone-solid-c5e8de63",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2912,
+            1664
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-94e7a89a",
+      "name": "wall-stone-solid-94e7a89a",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 38,
+      "persistenceKey": "gloop-forest.wall-stone-solid-94e7a89a",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2976,
+            1664
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-3ff08d44",
+      "name": "wall-stone-solid-3ff08d44",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 39,
+      "persistenceKey": "gloop-forest.wall-stone-solid-3ff08d44",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            3040,
+            1664
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-4ee0dd54",
+      "name": "wall-stone-solid-4ee0dd54",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 40,
+      "persistenceKey": "gloop-forest.wall-stone-solid-4ee0dd54",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            3104,
+            1664
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-d55fd7b2",
+      "name": "wall-stone-solid-d55fd7b2",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 41,
+      "persistenceKey": "gloop-forest.wall-stone-solid-d55fd7b2",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            3104,
+            1664
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-bbb86d39",
+      "name": "wall-stone-solid-bbb86d39",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 42,
+      "persistenceKey": "gloop-forest.wall-stone-solid-bbb86d39",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            3168,
+            1664
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-7aa641b2",
+      "name": "wall-stone-solid-7aa641b2",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 43,
+      "persistenceKey": "gloop-forest.wall-stone-solid-7aa641b2",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            3232,
+            1664
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-ba27d9ea",
+      "name": "wall-stone-solid-ba27d9ea",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 44,
+      "persistenceKey": "gloop-forest.wall-stone-solid-ba27d9ea",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            3296,
+            1664
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-95d5baae",
+      "name": "wall-stone-solid-95d5baae",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 45,
+      "persistenceKey": "gloop-forest.wall-stone-solid-95d5baae",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            3360,
+            1664
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-c7517386",
+      "name": "wall-stone-solid-c7517386",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 46,
+      "persistenceKey": "gloop-forest.wall-stone-solid-c7517386",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            3424,
+            1664
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-6220f2a0",
+      "name": "wall-stone-solid-6220f2a0",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 47,
+      "persistenceKey": "gloop-forest.wall-stone-solid-6220f2a0",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2336,
+            1856
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-8dcacd2e",
+      "name": "wall-stone-solid-8dcacd2e",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 48,
+      "persistenceKey": "gloop-forest.wall-stone-solid-8dcacd2e",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2400,
+            1856
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-44041b2e",
+      "name": "wall-stone-solid-44041b2e",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 49,
+      "persistenceKey": "gloop-forest.wall-stone-solid-44041b2e",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2464,
+            1856
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-975a0d5f",
+      "name": "wall-stone-solid-975a0d5f",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 50,
+      "persistenceKey": "gloop-forest.wall-stone-solid-975a0d5f",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2528,
+            1856
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-f451f441",
+      "name": "wall-stone-solid-f451f441",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 51,
+      "persistenceKey": "gloop-forest.wall-stone-solid-f451f441",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2592,
+            1856
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-c92d1627",
+      "name": "wall-stone-solid-c92d1627",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 52,
+      "persistenceKey": "gloop-forest.wall-stone-solid-c92d1627",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2656,
+            1856
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-2cba8bbc",
+      "name": "wall-stone-solid-2cba8bbc",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 53,
+      "persistenceKey": "gloop-forest.wall-stone-solid-2cba8bbc",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2784,
+            1856
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-b8883fb9",
+      "name": "wall-stone-solid-b8883fb9",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 54,
+      "persistenceKey": "gloop-forest.wall-stone-solid-b8883fb9",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2720,
+            1856
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-914d0074",
+      "name": "wall-stone-solid-914d0074",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 55,
+      "persistenceKey": "gloop-forest.wall-stone-solid-914d0074",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2848,
+            1856
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-d93f900d",
+      "name": "wall-stone-solid-d93f900d",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 56,
+      "persistenceKey": "gloop-forest.wall-stone-solid-d93f900d",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2912,
+            1856
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-4ba346b9",
+      "name": "wall-stone-solid-4ba346b9",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 57,
+      "persistenceKey": "gloop-forest.wall-stone-solid-4ba346b9",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2976,
+            1856
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-41802005",
+      "name": "wall-stone-solid-41802005",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 58,
+      "persistenceKey": "gloop-forest.wall-stone-solid-41802005",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            3040,
+            1856
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-bb39acd7",
+      "name": "wall-stone-solid-bb39acd7",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 59,
+      "persistenceKey": "gloop-forest.wall-stone-solid-bb39acd7",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            3104,
+            1856
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-6a323e05",
+      "name": "wall-stone-solid-6a323e05",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 60,
+      "persistenceKey": "gloop-forest.wall-stone-solid-6a323e05",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            3232,
+            1856
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-85a8a4e6",
+      "name": "wall-stone-solid-85a8a4e6",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 61,
+      "persistenceKey": "gloop-forest.wall-stone-solid-85a8a4e6",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            3168,
+            1856
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-02c241e4",
+      "name": "wall-stone-solid-02c241e4",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 62,
+      "persistenceKey": "gloop-forest.wall-stone-solid-02c241e4",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            3296,
+            1856
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-647528db",
+      "name": "wall-stone-solid-647528db",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 63,
+      "persistenceKey": "gloop-forest.wall-stone-solid-647528db",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            3360,
+            1856
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-4c57e77b",
+      "name": "wall-stone-solid-4c57e77b",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 64,
+      "persistenceKey": "gloop-forest.wall-stone-solid-4c57e77b",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            3424,
+            1856
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-6097842e",
+      "name": "wall-stone-solid-6097842e",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 65,
+      "persistenceKey": "gloop-forest.wall-stone-solid-6097842e",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2272,
+            1664
+          ]
+        }
+      ]
+    }
+  ]
 }

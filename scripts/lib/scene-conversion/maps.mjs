@@ -6,14 +6,18 @@ function slug(value) {
   return value.replaceAll('.', '-').replace(/[^a-z0-9-]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
 }
 
-async function typescriptExport(readSource, sourcePath, exportName) {
+async function typescriptModule(readSource, sourcePath) {
   const source = await readSource(sourcePath);
   const output = ts.transpileModule(source, {
     compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
     fileName: sourcePath,
   }).outputText;
   const encoded = Buffer.from(output).toString('base64');
-  const loaded = await import(`data:text/javascript;base64,${encoded}`);
+  return import(`data:text/javascript;base64,${encoded}`);
+}
+
+async function typescriptExport(readSource, sourcePath, exportName) {
+  const loaded = await typescriptModule(readSource, sourcePath);
   if (!(exportName in loaded)) throw new Error(`TypeScript source '${sourcePath}' does not export '${exportName}'`);
   return loaded[exportName];
 }
@@ -35,15 +39,126 @@ function tileSetEntry(definition) {
 
 function retainedMapFields(unit, map) {
   return Object.keys(map)
-    .filter((key) => !['mapId', 'tileSize', 'size', 'layers'].includes(key))
+    .filter((key) => !['mapId', 'tileSize', 'size', 'layers', 'objects', 'bossCamps'].includes(key))
     .sort()
     .map((key) => ({ path: `$.${key}`, owner: unit.oldSourcePath }));
+}
+
+function override(sourceNodeId, property, value) {
+  return { sourceInstancePath: [], sourceNodeId, property, value };
+}
+
+function chestContents(initialState, mapId, instanceId) {
+  if (initialState?.contents === undefined) return undefined;
+  if (!Array.isArray(initialState.contents)) {
+    throw new Error(`Map '${mapId}' chest '${instanceId}' initialState.contents must be an array`);
+  }
+  const contents = {};
+  for (const [index, stack] of initialState.contents.entries()) {
+    if (!stack || typeof stack !== 'object' || typeof stack.itemId !== 'string'
+      || !Number.isSafeInteger(stack.quantity) || stack.quantity < 1) {
+      throw new Error(`Map '${mapId}' chest '${instanceId}' contents[${index}] is invalid`);
+    }
+    contents[stack.itemId] = (contents[stack.itemId] ?? 0) + stack.quantity;
+  }
+  return contents;
+}
+
+function objectInstanceOverrides(map, instance, mapping) {
+  const overrides = [override(mapping.rootNodeId, 'position', [instance.x, instance.y])];
+  if (!mapping.scriptNodeId) return overrides;
+  overrides.push(
+    override(mapping.scriptNodeId, 'mapId', map.mapId),
+    override(mapping.scriptNodeId, 'instanceId', instance.instanceId),
+  );
+  if (instance.objectId === 'chest.wooden') {
+    const contents = chestContents(instance.initialState, map.mapId, instance.instanceId);
+    if (contents) overrides.push(override(mapping.scriptNodeId, 'initialContents', contents));
+  }
+  if (typeof instance.initialState?.health === 'number') {
+    overrides.push(override(mapping.scriptNodeId, 'initialHealth', instance.initialState.health));
+  }
+  return overrides;
+}
+
+function worldPlacements(map, mappingModule, firstOrder) {
+  const instances = [];
+  const placements = [];
+  const claimedIds = new Set();
+  const guardedChestOwners = new Map();
+  let order = firstOrder;
+
+  for (const camp of map.bossCamps ?? []) {
+    const sceneId = mappingModule.resolveLegacyBossCampScene(camp.id);
+    if (!sceneId) throw new Error(`Map '${map.mapId}' boss camp '${camp.id}' has no encounter scene mapping`);
+    if (claimedIds.has(camp.id)) throw new Error(`Map '${map.mapId}' duplicates world placement '${camp.id}'`);
+    claimedIds.add(camp.id);
+    if (camp.guardedChestInstanceId) guardedChestOwners.set(camp.guardedChestInstanceId, camp.id);
+    instances.push({
+      instanceId: camp.id,
+      name: camp.id,
+      sceneId,
+      parentNodeId: 'world',
+      order: order++,
+      persistenceKey: camp.id,
+      overrides: [override('root', 'position', [camp.activationPerimeter.x, camp.activationPerimeter.y])],
+    });
+    placements.push({
+      sourceKind: 'boss-camp', sourceId: camp.id, ownership: 'world-instance',
+      instanceId: camp.id, sceneId, persistenceKey: camp.id,
+    });
+  }
+
+  for (const object of map.objects) {
+    const campId = guardedChestOwners.get(object.instanceId);
+    if (campId) {
+      placements.push({
+        sourceKind: 'object', sourceId: object.instanceId, objectId: object.objectId, visualId: object.visualId,
+        ownership: 'encounter-instance', owningInstanceId: campId,
+        sceneId: mappingModule.resolveLegacyMapObjectScene(object)?.sceneId,
+        persistenceKey: `${map.mapId}.${object.instanceId}`,
+        initialState: object.initialState ?? {},
+      });
+      continue;
+    }
+    const mapping = mappingModule.resolveLegacyMapObjectScene(object);
+    if (!mapping) throw new Error(`Map '${map.mapId}' object '${object.instanceId}' (${object.objectId}/${object.visualId}) has no scene mapping`);
+    if (claimedIds.has(object.instanceId)) throw new Error(`Map '${map.mapId}' duplicates world placement '${object.instanceId}'`);
+    claimedIds.add(object.instanceId);
+    const persistenceKey = `${map.mapId}.${object.instanceId}`;
+    instances.push({
+      instanceId: object.instanceId,
+      name: object.instanceId,
+      sceneId: mapping.sceneId,
+      parentNodeId: 'world',
+      order: order++,
+      persistenceKey,
+      overrides: objectInstanceOverrides(map, object, mapping),
+    });
+    placements.push({
+      sourceKind: 'object', sourceId: object.instanceId, objectId: object.objectId, visualId: object.visualId,
+      ownership: 'world-instance', instanceId: object.instanceId, sceneId: mapping.sceneId,
+      persistenceKey, initialState: object.initialState ?? {},
+      ...(mapping.npcDefinitionId ? { npcDefinitionId: mapping.npcDefinitionId } : {}),
+    });
+  }
+
+  for (const [chestId, campId] of guardedChestOwners) {
+    if (!map.objects.some((object) => object.instanceId === chestId)) {
+      throw new Error(`Map '${map.mapId}' boss camp '${campId}' guards missing object '${chestId}'`);
+    }
+  }
+  if (placements.length !== (map.bossCamps?.length ?? 0) + map.objects.length) {
+    throw new Error(`Map '${map.mapId}' lost a world placement during conversion`);
+  }
+  return { instances, placements };
 }
 
 export const mapSceneAdapter = {
   async convert({ units, readSource }) {
     const tileCatalog = await typescriptExport(readSource, 'src/game/content/terrain/TileCatalog.ts', 'TILE_CATALOG');
     const areas = await typescriptExport(readSource, 'src/game/world/Area.ts', 'AREAS');
+    const placementMapping = await typescriptModule(readSource, 'src/game/infrastructure/scenes/compatibility/LegacyMapPlacementMapping.ts');
     const outputs = [];
     for (const unit of units) {
       if (unit.family !== 'map' || !unit.key.startsWith('map:')) throw new Error(`Map adapter does not support unit '${unit.key}'`);
@@ -109,6 +224,8 @@ export const mapSceneAdapter = {
         });
       });
 
+      const world = worldPlacements(map, placementMapping, layerNodes.length);
+
       const scene = {
         version: 1,
         sceneId: `world.${mapSlug}`,
@@ -117,13 +234,27 @@ export const mapSceneAdapter = {
           { id: 'world', name: map.mapId, type: 'Node2D', parentId: null, order: 0, properties: { position: [0, 0] } },
           ...layerNodes,
         ],
-        instances: [],
+        instances: world.instances,
       };
       outputs.push(convertedOutput(
         unit,
         `worlds/${mapSlug}.scene.json`,
         scene,
-        ['$.mapId', '$.tileSize', '$.layers'],
+        ['$.mapId', '$.tileSize', '$.layers', '$.objects', '$.bossCamps'],
+        retained,
+      ));
+      outputs.push(convertedOutput(
+        unit,
+        `reports/worlds/${mapSlug}.mapping.json`,
+        {
+          version: 1,
+          mapId: map.mapId,
+          sceneId: scene.sceneId,
+          sourceCounts: { objects: map.objects.length, bossCamps: map.bossCamps?.length ?? 0 },
+          worldInstanceCount: world.instances.length,
+          placements: world.placements,
+        },
+        ['$.objects', '$.bossCamps'],
         retained,
       ));
     }

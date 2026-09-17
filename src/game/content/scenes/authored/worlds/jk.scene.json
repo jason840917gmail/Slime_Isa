@@ -40,5 +40,4982 @@
       }
     }
   ],
-  "instances": []
+  "instances": [
+    {
+      "instanceId": "tree-world-solid-7cff8fc4",
+      "name": "tree-world-solid-7cff8fc4",
+      "sceneId": "object.tree-world-solid.ancient-bare-02",
+      "parentNodeId": "world",
+      "order": 1,
+      "persistenceKey": "jk.tree-world-solid-7cff8fc4",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            544,
+            768
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "tree-world-solid-7cff8fc4"
+        }
+      ]
+    },
+    {
+      "instanceId": "tree-world-solid-3f956923",
+      "name": "tree-world-solid-3f956923",
+      "sceneId": "object.tree-world-solid.ancient-bare-02",
+      "parentNodeId": "world",
+      "order": 2,
+      "persistenceKey": "jk.tree-world-solid-3f956923",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            864,
+            896
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "tree-world-solid-3f956923"
+        }
+      ]
+    },
+    {
+      "instanceId": "tree-world-solid-651c53be",
+      "name": "tree-world-solid-651c53be",
+      "sceneId": "object.tree-world-solid.ancient-bare-02",
+      "parentNodeId": "world",
+      "order": 3,
+      "persistenceKey": "jk.tree-world-solid-651c53be",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1056,
+            896
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "tree-world-solid-651c53be"
+        }
+      ]
+    },
+    {
+      "instanceId": "tree-world-solid-b9829229",
+      "name": "tree-world-solid-b9829229",
+      "sceneId": "object.tree-world-solid.ancient-bare-02",
+      "parentNodeId": "world",
+      "order": 4,
+      "persistenceKey": "jk.tree-world-solid-b9829229",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            992,
+            1408
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "tree-world-solid-b9829229"
+        }
+      ]
+    },
+    {
+      "instanceId": "tree-world-solid-02056988",
+      "name": "tree-world-solid-02056988",
+      "sceneId": "object.tree-world-solid.ancient-bare-02",
+      "parentNodeId": "world",
+      "order": 5,
+      "persistenceKey": "jk.tree-world-solid-02056988",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            416,
+            1344
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "tree-world-solid-02056988"
+        }
+      ]
+    },
+    {
+      "instanceId": "tree-world-solid-1ba8208f",
+      "name": "tree-world-solid-1ba8208f",
+      "sceneId": "object.tree-world-solid.ancient-bare-02",
+      "parentNodeId": "world",
+      "order": 6,
+      "persistenceKey": "jk.tree-world-solid-1ba8208f",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1760,
+            1024
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "tree-world-solid-1ba8208f"
+        }
+      ]
+    },
+    {
+      "instanceId": "tree-world-solid-ecab415f",
+      "name": "tree-world-solid-ecab415f",
+      "sceneId": "object.tree-world-solid.ancient-bare-02",
+      "parentNodeId": "world",
+      "order": 7,
+      "persistenceKey": "jk.tree-world-solid-ecab415f",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1248,
+            192
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "tree-world-solid-ecab415f"
+        }
+      ]
+    },
+    {
+      "instanceId": "tree-world-solid-26b740fb",
+      "name": "tree-world-solid-26b740fb",
+      "sceneId": "object.tree-world-solid.ancient-bare-02",
+      "parentNodeId": "world",
+      "order": 8,
+      "persistenceKey": "jk.tree-world-solid-26b740fb",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            544,
+            320
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "tree-world-solid-26b740fb"
+        }
+      ]
+    },
+    {
+      "instanceId": "tree-world-solid-61d56cde",
+      "name": "tree-world-solid-61d56cde",
+      "sceneId": "object.tree-world-solid.ancient-bare-02",
+      "parentNodeId": "world",
+      "order": 9,
+      "persistenceKey": "jk.tree-world-solid-61d56cde",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            544,
+            384
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "tree-world-solid-61d56cde"
+        }
+      ]
+    },
+    {
+      "instanceId": "tree-world-solid-c561d705",
+      "name": "tree-world-solid-c561d705",
+      "sceneId": "object.tree-world-solid.ancient-bare-02",
+      "parentNodeId": "world",
+      "order": 10,
+      "persistenceKey": "jk.tree-world-solid-c561d705",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1248,
+            1984
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "tree-world-solid-c561d705"
+        }
+      ]
+    },
+    {
+      "instanceId": "tree-world-solid-8dba1706",
+      "name": "tree-world-solid-8dba1706",
+      "sceneId": "object.tree-world-solid.ancient-bare-02",
+      "parentNodeId": "world",
+      "order": 11,
+      "persistenceKey": "jk.tree-world-solid-8dba1706",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            288,
+            2240
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "tree-world-solid-8dba1706"
+        }
+      ]
+    },
+    {
+      "instanceId": "tree-world-solid-82920de8",
+      "name": "tree-world-solid-82920de8",
+      "sceneId": "object.tree-world-solid.ancient-bare-02",
+      "parentNodeId": "world",
+      "order": 12,
+      "persistenceKey": "jk.tree-world-solid-82920de8",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1248,
+            2752
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "tree-world-solid-82920de8"
+        }
+      ]
+    },
+    {
+      "instanceId": "tree-world-solid-577a4fe7",
+      "name": "tree-world-solid-577a4fe7",
+      "sceneId": "object.tree-world-solid.ancient-bare-02",
+      "parentNodeId": "world",
+      "order": 13,
+      "persistenceKey": "jk.tree-world-solid-577a4fe7",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            800,
+            2048
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "tree-world-solid-577a4fe7"
+        }
+      ]
+    },
+    {
+      "instanceId": "tree-world-solid-ebf025b1",
+      "name": "tree-world-solid-ebf025b1",
+      "sceneId": "object.tree-world-solid.ancient-bare-02",
+      "parentNodeId": "world",
+      "order": 14,
+      "persistenceKey": "jk.tree-world-solid-ebf025b1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1952,
+            1856
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "tree-world-solid-ebf025b1"
+        }
+      ]
+    },
+    {
+      "instanceId": "tree-world-solid-75aaf793",
+      "name": "tree-world-solid-75aaf793",
+      "sceneId": "object.tree-world-solid.ancient-bare-02",
+      "parentNodeId": "world",
+      "order": 15,
+      "persistenceKey": "jk.tree-world-solid-75aaf793",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2208,
+            512
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "tree-world-solid-75aaf793"
+        }
+      ]
+    },
+    {
+      "instanceId": "tree-world-solid-43d60eaf",
+      "name": "tree-world-solid-43d60eaf",
+      "sceneId": "object.tree-world-solid.ancient-bare-02",
+      "parentNodeId": "world",
+      "order": 16,
+      "persistenceKey": "jk.tree-world-solid-43d60eaf",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2144,
+            512
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "tree-world-solid-43d60eaf"
+        }
+      ]
+    },
+    {
+      "instanceId": "tree-world-solid-cb8fab66",
+      "name": "tree-world-solid-cb8fab66",
+      "sceneId": "object.tree-world-solid.ancient-bare-02",
+      "parentNodeId": "world",
+      "order": 17,
+      "persistenceKey": "jk.tree-world-solid-cb8fab66",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1952,
+            2752
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "tree-world-solid-cb8fab66"
+        }
+      ]
+    },
+    {
+      "instanceId": "tree-world-solid-a8b63e98",
+      "name": "tree-world-solid-a8b63e98",
+      "sceneId": "object.tree-world-solid.ancient-bare-02",
+      "parentNodeId": "world",
+      "order": 18,
+      "persistenceKey": "jk.tree-world-solid-a8b63e98",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2720,
+            3200
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "tree-world-solid-a8b63e98"
+        }
+      ]
+    },
+    {
+      "instanceId": "tree-world-solid-de16dbb2",
+      "name": "tree-world-solid-de16dbb2",
+      "sceneId": "object.tree-world-solid.ancient-bare-02",
+      "parentNodeId": "world",
+      "order": 19,
+      "persistenceKey": "jk.tree-world-solid-de16dbb2",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2720,
+            3136
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "tree-world-solid-de16dbb2"
+        }
+      ]
+    },
+    {
+      "instanceId": "tree-world-solid-d208c8d1",
+      "name": "tree-world-solid-d208c8d1",
+      "sceneId": "object.tree-world-solid.ancient-bare-02",
+      "parentNodeId": "world",
+      "order": 20,
+      "persistenceKey": "jk.tree-world-solid-d208c8d1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            800,
+            2752
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "tree-world-solid-d208c8d1"
+        }
+      ]
+    },
+    {
+      "instanceId": "tree-world-solid-d11b9372",
+      "name": "tree-world-solid-d11b9372",
+      "sceneId": "object.tree-world-solid.ancient-bare-02",
+      "parentNodeId": "world",
+      "order": 21,
+      "persistenceKey": "jk.tree-world-solid-d11b9372",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1056,
+            2368
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "tree-world-solid-d11b9372"
+        }
+      ]
+    },
+    {
+      "instanceId": "tree-world-solid-0248604d",
+      "name": "tree-world-solid-0248604d",
+      "sceneId": "object.tree-world-solid.ancient-bare-02",
+      "parentNodeId": "world",
+      "order": 22,
+      "persistenceKey": "jk.tree-world-solid-0248604d",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            416,
+            3136
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "tree-world-solid-0248604d"
+        }
+      ]
+    },
+    {
+      "instanceId": "tree-world-solid-142ea6c0",
+      "name": "tree-world-solid-142ea6c0",
+      "sceneId": "object.tree-world-solid.ancient-bare-02",
+      "parentNodeId": "world",
+      "order": 23,
+      "persistenceKey": "jk.tree-world-solid-142ea6c0",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1568,
+            1344
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "tree-world-solid-142ea6c0"
+        }
+      ]
+    },
+    {
+      "instanceId": "tree-world-solid-20c0498e",
+      "name": "tree-world-solid-20c0498e",
+      "sceneId": "object.tree-world-solid.ancient-bare-02",
+      "parentNodeId": "world",
+      "order": 24,
+      "persistenceKey": "jk.tree-world-solid-20c0498e",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1632,
+            448
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "tree-world-solid-20c0498e"
+        }
+      ]
+    },
+    {
+      "instanceId": "tree-world-solid-2046fd82",
+      "name": "tree-world-solid-2046fd82",
+      "sceneId": "object.tree-world-solid.ancient-bare-02",
+      "parentNodeId": "world",
+      "order": 25,
+      "persistenceKey": "jk.tree-world-solid-2046fd82",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1632,
+            512
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "tree-world-solid-2046fd82"
+        }
+      ]
+    },
+    {
+      "instanceId": "tree-world-solid-0a3f0f0b",
+      "name": "tree-world-solid-0a3f0f0b",
+      "sceneId": "object.tree-world-solid.green-tree-01",
+      "parentNodeId": "world",
+      "order": 26,
+      "persistenceKey": "jk.tree-world-solid-0a3f0f0b",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2528,
+            1600
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "tree-world-solid-0a3f0f0b"
+        }
+      ]
+    },
+    {
+      "instanceId": "tree-world-solid-16e1b84f",
+      "name": "tree-world-solid-16e1b84f",
+      "sceneId": "object.tree-world-solid.green-tree-01",
+      "parentNodeId": "world",
+      "order": 27,
+      "persistenceKey": "jk.tree-world-solid-16e1b84f",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2784,
+            1600
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "tree-world-solid-16e1b84f"
+        }
+      ]
+    },
+    {
+      "instanceId": "tree-world-solid-a8367508",
+      "name": "tree-world-solid-a8367508",
+      "sceneId": "object.tree-world-solid.green-tree-01",
+      "parentNodeId": "world",
+      "order": 28,
+      "persistenceKey": "jk.tree-world-solid-a8367508",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2976,
+            1664
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "tree-world-solid-a8367508"
+        }
+      ]
+    },
+    {
+      "instanceId": "tree-world-solid-73762987",
+      "name": "tree-world-solid-73762987",
+      "sceneId": "object.tree-world-solid.green-tree-01",
+      "parentNodeId": "world",
+      "order": 29,
+      "persistenceKey": "jk.tree-world-solid-73762987",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            3040,
+            1792
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "tree-world-solid-73762987"
+        }
+      ]
+    },
+    {
+      "instanceId": "tree-world-solid-504f5df7",
+      "name": "tree-world-solid-504f5df7",
+      "sceneId": "object.tree-world-solid.green-tree-01",
+      "parentNodeId": "world",
+      "order": 30,
+      "persistenceKey": "jk.tree-world-solid-504f5df7",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            3232,
+            1664
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "tree-world-solid-504f5df7"
+        }
+      ]
+    },
+    {
+      "instanceId": "tree-world-solid-96c06856",
+      "name": "tree-world-solid-96c06856",
+      "sceneId": "object.tree-world-solid.green-tree-01",
+      "parentNodeId": "world",
+      "order": 31,
+      "persistenceKey": "jk.tree-world-solid-96c06856",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            3232,
+            2112
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "tree-world-solid-96c06856"
+        }
+      ]
+    },
+    {
+      "instanceId": "tree-world-solid-30cbd2f6",
+      "name": "tree-world-solid-30cbd2f6",
+      "sceneId": "object.tree-world-solid.green-tree-01",
+      "parentNodeId": "world",
+      "order": 32,
+      "persistenceKey": "jk.tree-world-solid-30cbd2f6",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            3040,
+            2240
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "tree-world-solid-30cbd2f6"
+        }
+      ]
+    },
+    {
+      "instanceId": "tree-world-solid-de7409ed",
+      "name": "tree-world-solid-de7409ed",
+      "sceneId": "object.tree-world-solid.green-tree-01",
+      "parentNodeId": "world",
+      "order": 33,
+      "persistenceKey": "jk.tree-world-solid-de7409ed",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2656,
+            2304
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "tree-world-solid-de7409ed"
+        }
+      ]
+    },
+    {
+      "instanceId": "tree-world-solid-4d57184c",
+      "name": "tree-world-solid-4d57184c",
+      "sceneId": "object.tree-world-solid.green-tree-01",
+      "parentNodeId": "world",
+      "order": 34,
+      "persistenceKey": "jk.tree-world-solid-4d57184c",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2528,
+            2112
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "tree-world-solid-4d57184c"
+        }
+      ]
+    },
+    {
+      "instanceId": "tree-world-solid-b938634c",
+      "name": "tree-world-solid-b938634c",
+      "sceneId": "object.tree-world-solid.green-tree-01",
+      "parentNodeId": "world",
+      "order": 35,
+      "persistenceKey": "jk.tree-world-solid-b938634c",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            3360,
+            2304
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "tree-world-solid-b938634c"
+        }
+      ]
+    },
+    {
+      "instanceId": "tree-world-solid-33cfadb8",
+      "name": "tree-world-solid-33cfadb8",
+      "sceneId": "object.tree-world-solid.green-tree-01",
+      "parentNodeId": "world",
+      "order": 36,
+      "persistenceKey": "jk.tree-world-solid-33cfadb8",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            3360,
+            1536
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "tree-world-solid-33cfadb8"
+        }
+      ]
+    },
+    {
+      "instanceId": "tree-world-solid-633b6b04",
+      "name": "tree-world-solid-633b6b04",
+      "sceneId": "object.tree-world-solid.green-tree-01",
+      "parentNodeId": "world",
+      "order": 37,
+      "persistenceKey": "jk.tree-world-solid-633b6b04",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2528,
+            1984
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "tree-world-solid-633b6b04"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-4575e3ac",
+      "name": "collectible-purple-berry-4575e3ac",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 38,
+      "persistenceKey": "jk.collectible-purple-berry-4575e3ac",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3104,
+            1216
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-4575e3ac"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-1a8abd4c",
+      "name": "collectible-purple-berry-1a8abd4c",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 39,
+      "persistenceKey": "jk.collectible-purple-berry-1a8abd4c",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3104,
+            1344
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-1a8abd4c"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-8023ef09",
+      "name": "collectible-purple-berry-8023ef09",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 40,
+      "persistenceKey": "jk.collectible-purple-berry-8023ef09",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3040,
+            1344
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-8023ef09"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-2b0bb769",
+      "name": "collectible-purple-berry-2b0bb769",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 41,
+      "persistenceKey": "jk.collectible-purple-berry-2b0bb769",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3104,
+            1344
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-2b0bb769"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-f2edf0a8",
+      "name": "collectible-purple-berry-f2edf0a8",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 42,
+      "persistenceKey": "jk.collectible-purple-berry-f2edf0a8",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3168,
+            1344
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-f2edf0a8"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-e5f82d77",
+      "name": "collectible-purple-berry-e5f82d77",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 43,
+      "persistenceKey": "jk.collectible-purple-berry-e5f82d77",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3168,
+            1280
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-e5f82d77"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-c8abcf82",
+      "name": "collectible-purple-berry-c8abcf82",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 44,
+      "persistenceKey": "jk.collectible-purple-berry-c8abcf82",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3168,
+            1216
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-c8abcf82"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-8fbe2e92",
+      "name": "collectible-purple-berry-8fbe2e92",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 45,
+      "persistenceKey": "jk.collectible-purple-berry-8fbe2e92",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3168,
+            1152
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-8fbe2e92"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-b924dee5",
+      "name": "collectible-purple-berry-b924dee5",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 46,
+      "persistenceKey": "jk.collectible-purple-berry-b924dee5",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3232,
+            1152
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-b924dee5"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-33cf50b9",
+      "name": "collectible-purple-berry-33cf50b9",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 47,
+      "persistenceKey": "jk.collectible-purple-berry-33cf50b9",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3232,
+            1088
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-33cf50b9"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-b706b565",
+      "name": "collectible-purple-berry-b706b565",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 48,
+      "persistenceKey": "jk.collectible-purple-berry-b706b565",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3296,
+            1024
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-b706b565"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-85dace30",
+      "name": "collectible-purple-berry-85dace30",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 49,
+      "persistenceKey": "jk.collectible-purple-berry-85dace30",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3232,
+            1024
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-85dace30"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-276eb5df",
+      "name": "collectible-purple-berry-276eb5df",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 50,
+      "persistenceKey": "jk.collectible-purple-berry-276eb5df",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3168,
+            1024
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-276eb5df"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-681488a9",
+      "name": "collectible-purple-berry-681488a9",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 51,
+      "persistenceKey": "jk.collectible-purple-berry-681488a9",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3168,
+            1088
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-681488a9"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-8a7b2c42",
+      "name": "collectible-purple-berry-8a7b2c42",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 52,
+      "persistenceKey": "jk.collectible-purple-berry-8a7b2c42",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3104,
+            1280
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-8a7b2c42"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-0556b62b",
+      "name": "collectible-purple-berry-0556b62b",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 53,
+      "persistenceKey": "jk.collectible-purple-berry-0556b62b",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2976,
+            1344
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-0556b62b"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-354c3f05",
+      "name": "collectible-purple-berry-354c3f05",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 54,
+      "persistenceKey": "jk.collectible-purple-berry-354c3f05",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2912,
+            1344
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-354c3f05"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-ac9edc41",
+      "name": "collectible-purple-berry-ac9edc41",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 55,
+      "persistenceKey": "jk.collectible-purple-berry-ac9edc41",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2912,
+            1408
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-ac9edc41"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-1082f29e",
+      "name": "collectible-purple-berry-1082f29e",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 56,
+      "persistenceKey": "jk.collectible-purple-berry-1082f29e",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2912,
+            1472
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-1082f29e"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-9e4de126",
+      "name": "collectible-purple-berry-9e4de126",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 57,
+      "persistenceKey": "jk.collectible-purple-berry-9e4de126",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2912,
+            1536
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-9e4de126"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-e0d576bc",
+      "name": "collectible-purple-berry-e0d576bc",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 58,
+      "persistenceKey": "jk.collectible-purple-berry-e0d576bc",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2976,
+            1536
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-e0d576bc"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-e125327c",
+      "name": "collectible-purple-berry-e125327c",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 59,
+      "persistenceKey": "jk.collectible-purple-berry-e125327c",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3040,
+            1536
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-e125327c"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-1e7553f2",
+      "name": "collectible-purple-berry-1e7553f2",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 60,
+      "persistenceKey": "jk.collectible-purple-berry-1e7553f2",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3040,
+            1600
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-1e7553f2"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-d7604cb2",
+      "name": "collectible-purple-berry-d7604cb2",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 61,
+      "persistenceKey": "jk.collectible-purple-berry-d7604cb2",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3104,
+            1600
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-d7604cb2"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-bd00bd3e",
+      "name": "collectible-purple-berry-bd00bd3e",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 62,
+      "persistenceKey": "jk.collectible-purple-berry-bd00bd3e",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3104,
+            1664
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-bd00bd3e"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-e46598e1",
+      "name": "collectible-purple-berry-e46598e1",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 63,
+      "persistenceKey": "jk.collectible-purple-berry-e46598e1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3168,
+            1664
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-e46598e1"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-94d701ec",
+      "name": "collectible-purple-berry-94d701ec",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 64,
+      "persistenceKey": "jk.collectible-purple-berry-94d701ec",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3040,
+            1664
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-94d701ec"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-2e1c239c",
+      "name": "collectible-purple-berry-2e1c239c",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 65,
+      "persistenceKey": "jk.collectible-purple-berry-2e1c239c",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3040,
+            1728
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-2e1c239c"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-b287dab1",
+      "name": "collectible-purple-berry-b287dab1",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 66,
+      "persistenceKey": "jk.collectible-purple-berry-b287dab1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3040,
+            1792
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-b287dab1"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-db4b6a5f",
+      "name": "collectible-purple-berry-db4b6a5f",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 67,
+      "persistenceKey": "jk.collectible-purple-berry-db4b6a5f",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2976,
+            1664
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-db4b6a5f"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-117559dd",
+      "name": "collectible-purple-berry-117559dd",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 68,
+      "persistenceKey": "jk.collectible-purple-berry-117559dd",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2976,
+            1600
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-117559dd"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-719d4327",
+      "name": "collectible-purple-berry-719d4327",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 69,
+      "persistenceKey": "jk.collectible-purple-berry-719d4327",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2912,
+            1600
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-719d4327"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-1077c141",
+      "name": "collectible-purple-berry-1077c141",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 70,
+      "persistenceKey": "jk.collectible-purple-berry-1077c141",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2848,
+            1600
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-1077c141"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-7d9b706e",
+      "name": "collectible-purple-berry-7d9b706e",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 71,
+      "persistenceKey": "jk.collectible-purple-berry-7d9b706e",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2848,
+            1536
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-7d9b706e"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-8ac14a32",
+      "name": "collectible-purple-berry-8ac14a32",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 72,
+      "persistenceKey": "jk.collectible-purple-berry-8ac14a32",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2784,
+            1536
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-8ac14a32"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-a162d29a",
+      "name": "collectible-purple-berry-a162d29a",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 73,
+      "persistenceKey": "jk.collectible-purple-berry-a162d29a",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2784,
+            1600
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-a162d29a"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-013eee66",
+      "name": "collectible-purple-berry-013eee66",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 74,
+      "persistenceKey": "jk.collectible-purple-berry-013eee66",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2720,
+            1664
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-013eee66"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-da7b8052",
+      "name": "collectible-purple-berry-da7b8052",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 75,
+      "persistenceKey": "jk.collectible-purple-berry-da7b8052",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2720,
+            1728
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-da7b8052"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-94d369fd",
+      "name": "collectible-purple-berry-94d369fd",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 76,
+      "persistenceKey": "jk.collectible-purple-berry-94d369fd",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2656,
+            1728
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-94d369fd"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-8a1f3aa7",
+      "name": "collectible-purple-berry-8a1f3aa7",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 77,
+      "persistenceKey": "jk.collectible-purple-berry-8a1f3aa7",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2656,
+            1664
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-8a1f3aa7"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-08e61a39",
+      "name": "collectible-purple-berry-08e61a39",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 78,
+      "persistenceKey": "jk.collectible-purple-berry-08e61a39",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2592,
+            1664
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-08e61a39"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-a211872a",
+      "name": "collectible-purple-berry-a211872a",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 79,
+      "persistenceKey": "jk.collectible-purple-berry-a211872a",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2528,
+            1664
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-a211872a"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-e36ceb8f",
+      "name": "collectible-purple-berry-e36ceb8f",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 80,
+      "persistenceKey": "jk.collectible-purple-berry-e36ceb8f",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2528,
+            1728
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-e36ceb8f"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-24ae77db",
+      "name": "collectible-purple-berry-24ae77db",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 81,
+      "persistenceKey": "jk.collectible-purple-berry-24ae77db",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2528,
+            1792
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-24ae77db"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-8aea4c2e",
+      "name": "collectible-purple-berry-8aea4c2e",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 82,
+      "persistenceKey": "jk.collectible-purple-berry-8aea4c2e",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2528,
+            1856
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-8aea4c2e"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-9454eb53",
+      "name": "collectible-purple-berry-9454eb53",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 83,
+      "persistenceKey": "jk.collectible-purple-berry-9454eb53",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2528,
+            1920
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-9454eb53"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-a8f6167e",
+      "name": "collectible-purple-berry-a8f6167e",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 84,
+      "persistenceKey": "jk.collectible-purple-berry-a8f6167e",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2528,
+            1984
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-a8f6167e"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-3bb61f7f",
+      "name": "collectible-purple-berry-3bb61f7f",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 85,
+      "persistenceKey": "jk.collectible-purple-berry-3bb61f7f",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2528,
+            2048
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-3bb61f7f"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-0c1fd788",
+      "name": "collectible-purple-berry-0c1fd788",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 86,
+      "persistenceKey": "jk.collectible-purple-berry-0c1fd788",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2528,
+            2112
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-0c1fd788"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-e762a976",
+      "name": "collectible-purple-berry-e762a976",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 87,
+      "persistenceKey": "jk.collectible-purple-berry-e762a976",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2528,
+            2176
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-e762a976"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-bef17e1e",
+      "name": "collectible-purple-berry-bef17e1e",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 88,
+      "persistenceKey": "jk.collectible-purple-berry-bef17e1e",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2592,
+            2176
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-bef17e1e"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-f500ac49",
+      "name": "collectible-purple-berry-f500ac49",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 89,
+      "persistenceKey": "jk.collectible-purple-berry-f500ac49",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2656,
+            2240
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-f500ac49"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-3549e05a",
+      "name": "collectible-purple-berry-3549e05a",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 90,
+      "persistenceKey": "jk.collectible-purple-berry-3549e05a",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2720,
+            2240
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-3549e05a"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-0f75fb51",
+      "name": "collectible-purple-berry-0f75fb51",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 91,
+      "persistenceKey": "jk.collectible-purple-berry-0f75fb51",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2592,
+            2240
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-0f75fb51"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-8ec80d61",
+      "name": "collectible-purple-berry-8ec80d61",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 92,
+      "persistenceKey": "jk.collectible-purple-berry-8ec80d61",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2656,
+            2112
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-8ec80d61"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-24c6e49e",
+      "name": "collectible-purple-berry-24c6e49e",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 93,
+      "persistenceKey": "jk.collectible-purple-berry-24c6e49e",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2720,
+            2112
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-24c6e49e"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-8ca7b099",
+      "name": "collectible-purple-berry-8ca7b099",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 94,
+      "persistenceKey": "jk.collectible-purple-berry-8ca7b099",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2720,
+            2176
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-8ca7b099"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-2ee5f070",
+      "name": "collectible-purple-berry-2ee5f070",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 95,
+      "persistenceKey": "jk.collectible-purple-berry-2ee5f070",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2784,
+            2240
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-2ee5f070"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-799ea9c7",
+      "name": "collectible-purple-berry-799ea9c7",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 96,
+      "persistenceKey": "jk.collectible-purple-berry-799ea9c7",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2720,
+            2304
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-799ea9c7"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-4a8cf91d",
+      "name": "collectible-purple-berry-4a8cf91d",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 97,
+      "persistenceKey": "jk.collectible-purple-berry-4a8cf91d",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2720,
+            2368
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-4a8cf91d"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-2f4d8aa3",
+      "name": "collectible-purple-berry-2f4d8aa3",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 98,
+      "persistenceKey": "jk.collectible-purple-berry-2f4d8aa3",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2656,
+            2368
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-2f4d8aa3"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-5d23e131",
+      "name": "collectible-purple-berry-5d23e131",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 99,
+      "persistenceKey": "jk.collectible-purple-berry-5d23e131",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2656,
+            2432
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-5d23e131"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-02aa7126",
+      "name": "collectible-purple-berry-02aa7126",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 100,
+      "persistenceKey": "jk.collectible-purple-berry-02aa7126",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2656,
+            2496
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-02aa7126"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-b7d89007",
+      "name": "collectible-purple-berry-b7d89007",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 101,
+      "persistenceKey": "jk.collectible-purple-berry-b7d89007",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2720,
+            2432
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-b7d89007"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-2c43dd9d",
+      "name": "collectible-purple-berry-2c43dd9d",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 102,
+      "persistenceKey": "jk.collectible-purple-berry-2c43dd9d",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2848,
+            2304
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-2c43dd9d"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-eb1cb0cb",
+      "name": "collectible-purple-berry-eb1cb0cb",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 103,
+      "persistenceKey": "jk.collectible-purple-berry-eb1cb0cb",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2912,
+            2240
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-eb1cb0cb"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-17fc2508",
+      "name": "collectible-purple-berry-17fc2508",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 104,
+      "persistenceKey": "jk.collectible-purple-berry-17fc2508",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2976,
+            2240
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-17fc2508"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-ee74eb5c",
+      "name": "collectible-purple-berry-ee74eb5c",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 105,
+      "persistenceKey": "jk.collectible-purple-berry-ee74eb5c",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            2976,
+            2176
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-ee74eb5c"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-c84a5ee0",
+      "name": "collectible-purple-berry-c84a5ee0",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 106,
+      "persistenceKey": "jk.collectible-purple-berry-c84a5ee0",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3040,
+            2176
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-c84a5ee0"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-3061fa82",
+      "name": "collectible-purple-berry-3061fa82",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 107,
+      "persistenceKey": "jk.collectible-purple-berry-3061fa82",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3104,
+            2176
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-3061fa82"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-96e108cf",
+      "name": "collectible-purple-berry-96e108cf",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 108,
+      "persistenceKey": "jk.collectible-purple-berry-96e108cf",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3168,
+            2176
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-96e108cf"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-0b7877ea",
+      "name": "collectible-purple-berry-0b7877ea",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 109,
+      "persistenceKey": "jk.collectible-purple-berry-0b7877ea",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3232,
+            2176
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-0b7877ea"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-2545500d",
+      "name": "collectible-purple-berry-2545500d",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 110,
+      "persistenceKey": "jk.collectible-purple-berry-2545500d",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3168,
+            2240
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-2545500d"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-58db0b1f",
+      "name": "collectible-purple-berry-58db0b1f",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 111,
+      "persistenceKey": "jk.collectible-purple-berry-58db0b1f",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3168,
+            2304
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-58db0b1f"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-b72b9268",
+      "name": "collectible-purple-berry-b72b9268",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 112,
+      "persistenceKey": "jk.collectible-purple-berry-b72b9268",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3232,
+            2304
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-b72b9268"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-463a1a06",
+      "name": "collectible-purple-berry-463a1a06",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 113,
+      "persistenceKey": "jk.collectible-purple-berry-463a1a06",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3232,
+            2240
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-463a1a06"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-4bba76ba",
+      "name": "collectible-purple-berry-4bba76ba",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 114,
+      "persistenceKey": "jk.collectible-purple-berry-4bba76ba",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3296,
+            2240
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-4bba76ba"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-b76d2dad",
+      "name": "collectible-purple-berry-b76d2dad",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 115,
+      "persistenceKey": "jk.collectible-purple-berry-b76d2dad",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3296,
+            2176
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-b76d2dad"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-c3a68b7e",
+      "name": "collectible-purple-berry-c3a68b7e",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 116,
+      "persistenceKey": "jk.collectible-purple-berry-c3a68b7e",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3296,
+            2112
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-c3a68b7e"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-9e73f808",
+      "name": "collectible-purple-berry-9e73f808",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 117,
+      "persistenceKey": "jk.collectible-purple-berry-9e73f808",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3232,
+            2112
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-9e73f808"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-5d546cd1",
+      "name": "collectible-purple-berry-5d546cd1",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 118,
+      "persistenceKey": "jk.collectible-purple-berry-5d546cd1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3168,
+            2048
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-5d546cd1"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-8c367689",
+      "name": "collectible-purple-berry-8c367689",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 119,
+      "persistenceKey": "jk.collectible-purple-berry-8c367689",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3104,
+            1984
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-8c367689"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-a0bfd276",
+      "name": "collectible-purple-berry-a0bfd276",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 120,
+      "persistenceKey": "jk.collectible-purple-berry-a0bfd276",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3168,
+            1984
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-a0bfd276"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-f43cfc44",
+      "name": "collectible-purple-berry-f43cfc44",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 121,
+      "persistenceKey": "jk.collectible-purple-berry-f43cfc44",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3168,
+            1920
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-f43cfc44"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-0e56b200",
+      "name": "collectible-purple-berry-0e56b200",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 122,
+      "persistenceKey": "jk.collectible-purple-berry-0e56b200",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3232,
+            1920
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-0e56b200"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-54a036d6",
+      "name": "collectible-purple-berry-54a036d6",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 123,
+      "persistenceKey": "jk.collectible-purple-berry-54a036d6",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3232,
+            1856
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-54a036d6"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-138ac991",
+      "name": "collectible-purple-berry-138ac991",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 124,
+      "persistenceKey": "jk.collectible-purple-berry-138ac991",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3296,
+            1792
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-138ac991"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-da976ffb",
+      "name": "collectible-purple-berry-da976ffb",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 125,
+      "persistenceKey": "jk.collectible-purple-berry-da976ffb",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3360,
+            1728
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-da976ffb"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-3e0a9ed6",
+      "name": "collectible-purple-berry-3e0a9ed6",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 126,
+      "persistenceKey": "jk.collectible-purple-berry-3e0a9ed6",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3360,
+            1664
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-3e0a9ed6"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-7dd372f6",
+      "name": "collectible-purple-berry-7dd372f6",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 127,
+      "persistenceKey": "jk.collectible-purple-berry-7dd372f6",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3424,
+            1664
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-7dd372f6"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-73f63132",
+      "name": "collectible-purple-berry-73f63132",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 128,
+      "persistenceKey": "jk.collectible-purple-berry-73f63132",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3296,
+            1664
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-73f63132"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-71b257ef",
+      "name": "collectible-purple-berry-71b257ef",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 129,
+      "persistenceKey": "jk.collectible-purple-berry-71b257ef",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3296,
+            1600
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-71b257ef"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-d1855421",
+      "name": "collectible-purple-berry-d1855421",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 130,
+      "persistenceKey": "jk.collectible-purple-berry-d1855421",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3296,
+            1536
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-d1855421"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-a7e02e0f",
+      "name": "collectible-purple-berry-a7e02e0f",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 131,
+      "persistenceKey": "jk.collectible-purple-berry-a7e02e0f",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3296,
+            1472
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-a7e02e0f"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-3c8bbd19",
+      "name": "collectible-purple-berry-3c8bbd19",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 132,
+      "persistenceKey": "jk.collectible-purple-berry-3c8bbd19",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3296,
+            1408
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-3c8bbd19"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-5ea61454",
+      "name": "collectible-purple-berry-5ea61454",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 133,
+      "persistenceKey": "jk.collectible-purple-berry-5ea61454",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3232,
+            1408
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-5ea61454"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-97166f52",
+      "name": "collectible-purple-berry-97166f52",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 134,
+      "persistenceKey": "jk.collectible-purple-berry-97166f52",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3168,
+            1408
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-97166f52"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-7eb4c2b1",
+      "name": "collectible-purple-berry-7eb4c2b1",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 135,
+      "persistenceKey": "jk.collectible-purple-berry-7eb4c2b1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3104,
+            1472
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-7eb4c2b1"
+        }
+      ]
+    },
+    {
+      "instanceId": "collectible-purple-berry-04611005",
+      "name": "collectible-purple-berry-04611005",
+      "sceneId": "object.collectible-purple-berry",
+      "parentNodeId": "world",
+      "order": 136,
+      "persistenceKey": "jk.collectible-purple-berry-04611005",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            3040,
+            1472
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "jk"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "collectible-purple-berry-04611005"
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-2f136f7c",
+      "name": "wall-stone-solid-2f136f7c",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 137,
+      "persistenceKey": "jk.wall-stone-solid-2f136f7c",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2400,
+            640
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-9f8d6a21",
+      "name": "wall-stone-solid-9f8d6a21",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 138,
+      "persistenceKey": "jk.wall-stone-solid-9f8d6a21",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2464,
+            640
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-78230ab0",
+      "name": "wall-stone-solid-78230ab0",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 139,
+      "persistenceKey": "jk.wall-stone-solid-78230ab0",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2528,
+            640
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-14506de9",
+      "name": "wall-stone-solid-14506de9",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 140,
+      "persistenceKey": "jk.wall-stone-solid-14506de9",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2592,
+            640
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-cb302174",
+      "name": "wall-stone-solid-cb302174",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 141,
+      "persistenceKey": "jk.wall-stone-solid-cb302174",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2656,
+            640
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-21b68349",
+      "name": "wall-stone-solid-21b68349",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 142,
+      "persistenceKey": "jk.wall-stone-solid-21b68349",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2720,
+            640
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-be293c90",
+      "name": "wall-stone-solid-be293c90",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 143,
+      "persistenceKey": "jk.wall-stone-solid-be293c90",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2784,
+            640
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-c653cd77",
+      "name": "wall-stone-solid-c653cd77",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 144,
+      "persistenceKey": "jk.wall-stone-solid-c653cd77",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2848,
+            640
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-4ee68459",
+      "name": "wall-stone-solid-4ee68459",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 145,
+      "persistenceKey": "jk.wall-stone-solid-4ee68459",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2400,
+            704
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-59789bc2",
+      "name": "wall-stone-solid-59789bc2",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 146,
+      "persistenceKey": "jk.wall-stone-solid-59789bc2",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2400,
+            768
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-a35e3e18",
+      "name": "wall-stone-solid-a35e3e18",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 147,
+      "persistenceKey": "jk.wall-stone-solid-a35e3e18",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2400,
+            896
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-b5aed9c2",
+      "name": "wall-stone-solid-b5aed9c2",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 148,
+      "persistenceKey": "jk.wall-stone-solid-b5aed9c2",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2400,
+            832
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-1e54cf7e",
+      "name": "wall-stone-solid-1e54cf7e",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 149,
+      "persistenceKey": "jk.wall-stone-solid-1e54cf7e",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2400,
+            960
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-2d88d459",
+      "name": "wall-stone-solid-2d88d459",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 150,
+      "persistenceKey": "jk.wall-stone-solid-2d88d459",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2400,
+            1024
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-579d5c2d",
+      "name": "wall-stone-solid-579d5c2d",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 151,
+      "persistenceKey": "jk.wall-stone-solid-579d5c2d",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2528,
+            1024
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-d1e7c9f0",
+      "name": "wall-stone-solid-d1e7c9f0",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 152,
+      "persistenceKey": "jk.wall-stone-solid-d1e7c9f0",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2464,
+            1024
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-a0d47c06",
+      "name": "wall-stone-solid-a0d47c06",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 153,
+      "persistenceKey": "jk.wall-stone-solid-a0d47c06",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2848,
+            704
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-62bc601d",
+      "name": "wall-stone-solid-62bc601d",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 154,
+      "persistenceKey": "jk.wall-stone-solid-62bc601d",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2848,
+            768
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-f0739e0e",
+      "name": "wall-stone-solid-f0739e0e",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 155,
+      "persistenceKey": "jk.wall-stone-solid-f0739e0e",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2848,
+            832
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-db047572",
+      "name": "wall-stone-solid-db047572",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 156,
+      "persistenceKey": "jk.wall-stone-solid-db047572",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2848,
+            896
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-9b1486f1",
+      "name": "wall-stone-solid-9b1486f1",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 157,
+      "persistenceKey": "jk.wall-stone-solid-9b1486f1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2848,
+            960
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-e8e1f45d",
+      "name": "wall-stone-solid-e8e1f45d",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 158,
+      "persistenceKey": "jk.wall-stone-solid-e8e1f45d",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2848,
+            1024
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-602f0743",
+      "name": "wall-stone-solid-602f0743",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 159,
+      "persistenceKey": "jk.wall-stone-solid-602f0743",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2784,
+            1024
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-f3d907f7",
+      "name": "wall-stone-solid-f3d907f7",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 160,
+      "persistenceKey": "jk.wall-stone-solid-f3d907f7",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2720,
+            1024
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-117e8e10",
+      "name": "wall-stone-solid-117e8e10",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 161,
+      "persistenceKey": "jk.wall-stone-solid-117e8e10",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2528,
+            1088
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-a4304606",
+      "name": "wall-stone-solid-a4304606",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 162,
+      "persistenceKey": "jk.wall-stone-solid-a4304606",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2528,
+            1152
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-98ad6d53",
+      "name": "wall-stone-solid-98ad6d53",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 163,
+      "persistenceKey": "jk.wall-stone-solid-98ad6d53",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2528,
+            1216
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-740f0527",
+      "name": "wall-stone-solid-740f0527",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 164,
+      "persistenceKey": "jk.wall-stone-solid-740f0527",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2528,
+            1280
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-13193187",
+      "name": "wall-stone-solid-13193187",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 165,
+      "persistenceKey": "jk.wall-stone-solid-13193187",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2528,
+            1408
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-3269dec8",
+      "name": "wall-stone-solid-3269dec8",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 166,
+      "persistenceKey": "jk.wall-stone-solid-3269dec8",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2528,
+            1344
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-bc83258a",
+      "name": "wall-stone-solid-bc83258a",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 167,
+      "persistenceKey": "jk.wall-stone-solid-bc83258a",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2528,
+            1408
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-f27d7193",
+      "name": "wall-stone-solid-f27d7193",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 168,
+      "persistenceKey": "jk.wall-stone-solid-f27d7193",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2528,
+            1472
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-a502decb",
+      "name": "wall-stone-solid-a502decb",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 169,
+      "persistenceKey": "jk.wall-stone-solid-a502decb",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2720,
+            1088
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-dab3a373",
+      "name": "wall-stone-solid-dab3a373",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 170,
+      "persistenceKey": "jk.wall-stone-solid-dab3a373",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2720,
+            1152
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-3ff39923",
+      "name": "wall-stone-solid-3ff39923",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 171,
+      "persistenceKey": "jk.wall-stone-solid-3ff39923",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2720,
+            1216
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-1eb4c444",
+      "name": "wall-stone-solid-1eb4c444",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 172,
+      "persistenceKey": "jk.wall-stone-solid-1eb4c444",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2720,
+            1280
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-af390ac1",
+      "name": "wall-stone-solid-af390ac1",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 173,
+      "persistenceKey": "jk.wall-stone-solid-af390ac1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2720,
+            1344
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-1a5fdda6",
+      "name": "wall-stone-solid-1a5fdda6",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 174,
+      "persistenceKey": "jk.wall-stone-solid-1a5fdda6",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2720,
+            1408
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "wall-stone-solid-d6eb5ffa",
+      "name": "wall-stone-solid-d6eb5ffa",
+      "sceneId": "object.wall-stone-solid.horizontal-02",
+      "parentNodeId": "world",
+      "order": 175,
+      "persistenceKey": "jk.wall-stone-solid-d6eb5ffa",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2720,
+            1472
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "house-world-solid-74b30aa4",
+      "name": "house-world-solid-74b30aa4",
+      "sceneId": "object.house-world-solid.cottage-blue",
+      "parentNodeId": "world",
+      "order": 176,
+      "persistenceKey": "jk.house-world-solid-74b30aa4",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2592,
+            960
+          ]
+        }
+      ]
+    }
+  ]
 }

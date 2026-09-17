@@ -1,0 +1,307 @@
+{
+  "version": 1,
+  "mapId": "level-1",
+  "sceneId": "world.level-1",
+  "sourceCounts": {
+    "objects": 25,
+    "bossCamps": 1
+  },
+  "worldInstanceCount": 25,
+  "placements": [
+    {
+      "sourceKind": "boss-camp",
+      "sourceId": "level-1-fatty-one-eye-camp",
+      "ownership": "world-instance",
+      "instanceId": "level-1-fatty-one-eye-camp",
+      "sceneId": "encounter.level-1-fatty-camp",
+      "persistenceKey": "level-1-fatty-one-eye-camp"
+    },
+    {
+      "sourceKind": "object",
+      "sourceId": "level-1-loose-wood-01",
+      "objectId": "collectible.wood-pile",
+      "visualId": "wood-pile",
+      "ownership": "world-instance",
+      "instanceId": "level-1-loose-wood-01",
+      "sceneId": "object.collectible-wood-pile",
+      "persistenceKey": "level-1.level-1-loose-wood-01",
+      "initialState": {}
+    },
+    {
+      "sourceKind": "object",
+      "sourceId": "level-1-loose-wood-02",
+      "objectId": "collectible.wood-pile",
+      "visualId": "wood-pile",
+      "ownership": "world-instance",
+      "instanceId": "level-1-loose-wood-02",
+      "sceneId": "object.collectible-wood-pile",
+      "persistenceKey": "level-1.level-1-loose-wood-02",
+      "initialState": {}
+    },
+    {
+      "sourceKind": "object",
+      "sourceId": "level-1-loose-wood-03",
+      "objectId": "collectible.wood-pile",
+      "visualId": "wood-pile",
+      "ownership": "world-instance",
+      "instanceId": "level-1-loose-wood-03",
+      "sceneId": "object.collectible-wood-pile",
+      "persistenceKey": "level-1.level-1-loose-wood-03",
+      "initialState": {}
+    },
+    {
+      "sourceKind": "object",
+      "sourceId": "level-1-loose-wood-04",
+      "objectId": "collectible.wood-pile",
+      "visualId": "wood-pile",
+      "ownership": "world-instance",
+      "instanceId": "level-1-loose-wood-04",
+      "sceneId": "object.collectible-wood-pile",
+      "persistenceKey": "level-1.level-1-loose-wood-04",
+      "initialState": {}
+    },
+    {
+      "sourceKind": "object",
+      "sourceId": "level-1-loose-stone-01",
+      "objectId": "collectible.stone-pile",
+      "visualId": "stone-pile",
+      "ownership": "world-instance",
+      "instanceId": "level-1-loose-stone-01",
+      "sceneId": "object.collectible-stone-pile",
+      "persistenceKey": "level-1.level-1-loose-stone-01",
+      "initialState": {}
+    },
+    {
+      "sourceKind": "object",
+      "sourceId": "level-1-loose-stone-02",
+      "objectId": "collectible.stone-pile",
+      "visualId": "stone-pile",
+      "ownership": "world-instance",
+      "instanceId": "level-1-loose-stone-02",
+      "sceneId": "object.collectible-stone-pile",
+      "persistenceKey": "level-1.level-1-loose-stone-02",
+      "initialState": {}
+    },
+    {
+      "sourceKind": "object",
+      "sourceId": "level-1-stone-node-01",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "ownership": "world-instance",
+      "instanceId": "level-1-stone-node-01",
+      "sceneId": "object.resource-stone-node",
+      "persistenceKey": "level-1.level-1-stone-node-01",
+      "initialState": {}
+    },
+    {
+      "sourceKind": "object",
+      "sourceId": "level-1-stone-node-02",
+      "objectId": "resource.stone-node",
+      "visualId": "stone-node",
+      "ownership": "world-instance",
+      "instanceId": "level-1-stone-node-02",
+      "sceneId": "object.resource-stone-node",
+      "persistenceKey": "level-1.level-1-stone-node-02",
+      "initialState": {}
+    },
+    {
+      "sourceKind": "object",
+      "sourceId": "level-1-tree-01",
+      "objectId": "tree.world.solid",
+      "visualId": "tree-autumn-01",
+      "ownership": "world-instance",
+      "instanceId": "level-1-tree-01",
+      "sceneId": "object.tree-world-solid.tree-autumn-01",
+      "persistenceKey": "level-1.level-1-tree-01",
+      "initialState": {}
+    },
+    {
+      "sourceKind": "object",
+      "sourceId": "level-1-tree-02",
+      "objectId": "tree.world.solid",
+      "visualId": "tree-autumn-01",
+      "ownership": "world-instance",
+      "instanceId": "level-1-tree-02",
+      "sceneId": "object.tree-world-solid.tree-autumn-01",
+      "persistenceKey": "level-1.level-1-tree-02",
+      "initialState": {}
+    },
+    {
+      "sourceKind": "object",
+      "sourceId": "level-1-tree-03",
+      "objectId": "tree.world.solid",
+      "visualId": "tree-autumn-01",
+      "ownership": "world-instance",
+      "instanceId": "level-1-tree-03",
+      "sceneId": "object.tree-world-solid.tree-autumn-01",
+      "persistenceKey": "level-1.level-1-tree-03",
+      "initialState": {}
+    },
+    {
+      "sourceKind": "object",
+      "sourceId": "resource-stone-node-f518b5a3",
+      "objectId": "resource.stone-node",
+      "visualId": "big.stone.mine",
+      "ownership": "world-instance",
+      "instanceId": "resource-stone-node-f518b5a3",
+      "sceneId": "object.resource-stone-node.big-stone-mine",
+      "persistenceKey": "level-1.resource-stone-node-f518b5a3",
+      "initialState": {}
+    },
+    {
+      "sourceKind": "object",
+      "sourceId": "resource-stone-node-4c37387b",
+      "objectId": "resource.stone-node",
+      "visualId": "big.stone.mine",
+      "ownership": "world-instance",
+      "instanceId": "resource-stone-node-4c37387b",
+      "sceneId": "object.resource-stone-node.big-stone-mine",
+      "persistenceKey": "level-1.resource-stone-node-4c37387b",
+      "initialState": {}
+    },
+    {
+      "sourceKind": "object",
+      "sourceId": "resource-stone-node-221c2835",
+      "objectId": "resource.stone-node",
+      "visualId": "big.stone.mine",
+      "ownership": "world-instance",
+      "instanceId": "resource-stone-node-221c2835",
+      "sceneId": "object.resource-stone-node.big-stone-mine",
+      "persistenceKey": "level-1.resource-stone-node-221c2835",
+      "initialState": {}
+    },
+    {
+      "sourceKind": "object",
+      "sourceId": "resource-stone-node-c64bd17b",
+      "objectId": "resource.stone-node",
+      "visualId": "big.stone.mine",
+      "ownership": "world-instance",
+      "instanceId": "resource-stone-node-c64bd17b",
+      "sceneId": "object.resource-stone-node.big-stone-mine",
+      "persistenceKey": "level-1.resource-stone-node-c64bd17b",
+      "initialState": {}
+    },
+    {
+      "sourceKind": "object",
+      "sourceId": "level-1-purple-berry-01",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "ownership": "world-instance",
+      "instanceId": "level-1-purple-berry-01",
+      "sceneId": "object.collectible-purple-berry",
+      "persistenceKey": "level-1.level-1-purple-berry-01",
+      "initialState": {}
+    },
+    {
+      "sourceKind": "object",
+      "sourceId": "level-1-purple-berry-02",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "ownership": "world-instance",
+      "instanceId": "level-1-purple-berry-02",
+      "sceneId": "object.collectible-purple-berry",
+      "persistenceKey": "level-1.level-1-purple-berry-02",
+      "initialState": {}
+    },
+    {
+      "sourceKind": "object",
+      "sourceId": "level-1-purple-berry-03",
+      "objectId": "collectible.purple-berry",
+      "visualId": "purple-berry",
+      "ownership": "world-instance",
+      "instanceId": "level-1-purple-berry-03",
+      "sceneId": "object.collectible-purple-berry",
+      "persistenceKey": "level-1.level-1-purple-berry-03",
+      "initialState": {}
+    },
+    {
+      "sourceKind": "object",
+      "sourceId": "level-1-npc-village-elder-plop",
+      "objectId": "npc.world",
+      "visualId": "village-elder-plop",
+      "ownership": "world-instance",
+      "instanceId": "level-1-npc-village-elder-plop",
+      "sceneId": "character.village-elder-plop",
+      "persistenceKey": "level-1.level-1-npc-village-elder-plop",
+      "initialState": {},
+      "npcDefinitionId": "village-elder-plop"
+    },
+    {
+      "sourceKind": "object",
+      "sourceId": "level-1-npc-lili",
+      "objectId": "npc.lili",
+      "visualId": "lili",
+      "ownership": "world-instance",
+      "instanceId": "level-1-npc-lili",
+      "sceneId": "character.lili",
+      "persistenceKey": "level-1.level-1-npc-lili",
+      "initialState": {},
+      "npcDefinitionId": "lili"
+    },
+    {
+      "sourceKind": "object",
+      "sourceId": "level-1-npc-red-slime-boy",
+      "objectId": "npc.red-slime-boy",
+      "visualId": "red-slime-boy",
+      "ownership": "world-instance",
+      "instanceId": "level-1-npc-red-slime-boy",
+      "sceneId": "character.red-slime-boy",
+      "persistenceKey": "level-1.level-1-npc-red-slime-boy",
+      "initialState": {},
+      "npcDefinitionId": "red-slime-boy"
+    },
+    {
+      "sourceKind": "object",
+      "sourceId": "level-1-npc-yellow-blond-slime-girl",
+      "objectId": "npc.yellow-blond-slime-girl",
+      "visualId": "yellow-blond-slime-girl",
+      "ownership": "world-instance",
+      "instanceId": "level-1-npc-yellow-blond-slime-girl",
+      "sceneId": "character.yellow-blond-slime-girl",
+      "persistenceKey": "level-1.level-1-npc-yellow-blond-slime-girl",
+      "initialState": {},
+      "npcDefinitionId": "yellow-blond-slime-girl"
+    },
+    {
+      "sourceKind": "object",
+      "sourceId": "tree-world-solid-70613972",
+      "objectId": "tree.world.solid",
+      "visualId": "tree-autumn-01",
+      "ownership": "world-instance",
+      "instanceId": "tree-world-solid-70613972",
+      "sceneId": "object.tree-world-solid.tree-autumn-01",
+      "persistenceKey": "level-1.tree-world-solid-70613972",
+      "initialState": {}
+    },
+    {
+      "sourceKind": "object",
+      "sourceId": "level-1-npc-mossy-scout",
+      "objectId": "npc.world-scout",
+      "visualId": "mossy-scout",
+      "ownership": "world-instance",
+      "instanceId": "level-1-npc-mossy-scout",
+      "sceneId": "character.mossy-scout",
+      "persistenceKey": "level-1.level-1-npc-mossy-scout",
+      "initialState": {},
+      "npcDefinitionId": "level-1-spider-giver"
+    },
+    {
+      "sourceKind": "object",
+      "sourceId": "level-1-fatty-guarded-chest",
+      "objectId": "chest.wooden",
+      "visualId": "wooden-closed",
+      "ownership": "encounter-instance",
+      "owningInstanceId": "level-1-fatty-one-eye-camp",
+      "sceneId": "object.chest-wooden",
+      "persistenceKey": "level-1.level-1-fatty-guarded-chest",
+      "initialState": {
+        "contents": [
+          {
+            "itemId": "green-key",
+            "quantity": 1
+          }
+        ]
+      }
+    }
+  ]
+}
