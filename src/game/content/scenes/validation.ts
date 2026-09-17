@@ -7,6 +7,8 @@ import { descriptorMap, nodeTypeIs, propertiesForNode, validateDescriptorRegistr
 import type { NodeReferenceDocument, SceneDocument, SceneNodeDocument } from './types';
 import type { JsonValue } from './resources/types';
 import type { SceneResourceDocument } from './resources/types';
+import { parseTileMapDataResource } from './resources/TileMapDataResource';
+import { parseTileSetResource } from './resources/TileSetResource';
 
 export interface SceneValidationIssue {
   readonly path: string;
@@ -233,12 +235,35 @@ export function validateSceneResourceDocument(value: unknown, context: Pick<Scen
     else if (!['rectangle', 'circle', 'ellipse', 'sector'].includes(String(shape))) issues.push({ path: '/value', message: 'collision shape resource requires known shape geometry' });
   }
   if (value.kind === 'animation-library' && !isRecord(value.animations)) issues.push({ path: '/animations', message: 'animation library requires animations' });
-  if (value.kind === 'tile-set' && !isRecord(value.tiles)) issues.push({ path: '/tiles', message: 'tile set requires tiles' });
+  if (value.kind === 'tile-set') {
+    if (!isRecord(value.tiles)) issues.push({ path: '/tiles', message: 'tile set requires tiles' });
+    else {
+      try {
+        const parsed = parseTileSetResource(value as unknown as Extract<SceneResourceDocument, { kind: 'tile-set' }>);
+        if (context.hasAsset) {
+          for (const [tileId, tile] of Object.entries(parsed.tiles)) {
+            for (const assetId of tile.assetIds) {
+              if (!context.hasAsset(assetId)) issues.push({ path: `/tiles/${tileId}/assetIds`, message: `unknown raw-media asset '${assetId}'` });
+            }
+          }
+        }
+      } catch (error) {
+        issues.push({ path: '/tiles', message: error instanceof Error ? error.message : String(error) });
+      }
+    }
+  }
   if (value.kind === 'tile-data') {
     if (typeof value.tileSet !== 'string') issues.push({ path: '/tileSet', message: 'tile data requires tileSet resource ID' });
     else if (context.hasResource && !context.hasResource(value.tileSet)) issues.push({ path: '/tileSet', message: `unknown resource '${value.tileSet}'` });
     else if (context.getResourceKind && context.getResourceKind(value.tileSet) !== 'tile-set') issues.push({ path: '/tileSet', message: 'tileSet must reference a tile-set resource' });
     if (!Array.isArray(value.cells)) issues.push({ path: '/cells', message: 'tile data requires cells' });
+    else {
+      try {
+        parseTileMapDataResource(value as unknown as Extract<SceneResourceDocument, { kind: 'tile-data' }>);
+      } catch (error) {
+        issues.push({ path: '/cells', message: error instanceof Error ? error.message : String(error) });
+      }
+    }
   }
   if (value.kind === 'theme' && !isRecord(value.values)) issues.push({ path: '/values', message: 'theme requires values' });
   return issues;

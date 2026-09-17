@@ -286,7 +286,16 @@ export function createCoreDescriptorRegistry(scripts: readonly ScriptDescriptor[
       { ...resource('shape', 'Shape', ['collision-shape']), required: true }, boolean('disabled', 'Disabled', false),
       { key: 'angleRad', label: 'Geometry Angle', units: 'radians', value: { kind: 'number' }, serialized: true, inspector: 'number', animation: { interpolation: 'numeric', domains: ['physics'] }, overridable: true },
     ] },
-    { type: 'TileMapLayer2D', extends: 'Node2D', properties: [resource('tileData', 'Tile Data', ['tile-data'])] },
+    { type: 'TileMapLayer2D', extends: 'Node2D', properties: [
+      { ...resource('tileData', 'Tile Data', ['tile-data']), required: true },
+      number('tileSize', 'Tile Size', 64, 1),
+      { key: 'seed', label: 'Visual Seed', value: { kind: 'number', integer: true }, defaultValue: 0, serialized: true, inspector: 'number', overridable: true },
+      number('depth', 'Render Depth', 0),
+      { key: 'collisionLayer', label: 'Collision Layer', value: { kind: 'number', integer: true, min: 0, max: 0xffff_ffff }, defaultValue: 1, serialized: true, inspector: 'number', overridable: true },
+      { key: 'collisionMask', label: 'Collision Mask', value: { kind: 'number', integer: true, min: 0, max: 0xffff_ffff }, defaultValue: 2, serialized: true, inspector: 'number', overridable: true },
+      boolean('collisionEnabled', 'Collision Enabled', true),
+      boolean('editorLocked', 'Editor Locked', false),
+    ] },
     { type: 'Camera2D', extends: 'Node2D', properties: [number('zoom', 'Zoom', 1, 0.01), boolean('roundPixels', 'Round Pixels', true)] },
     { type: 'AnimationPlayer', extends: 'Node', properties: [
       { ...resource('library', 'Animation Library', ['animation-library']), required: true },
