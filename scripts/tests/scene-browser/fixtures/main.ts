@@ -6,10 +6,12 @@ import { CharacterBody2DNode } from '../../../../src/game/infrastructure/phaser-
 import { CollisionShape2DNode } from '../../../../src/game/infrastructure/phaser-nodes/CollisionShape2DNode';
 import { Sprite2DNode } from '../../../../src/game/infrastructure/phaser-nodes/Sprite2DNode';
 import { StaticBody2DNode } from '../../../../src/game/infrastructure/phaser-nodes/StaticBody2DNode';
+import { TileMapLayer2DNode } from '../../../../src/game/infrastructure/phaser-nodes/TileMapLayer2DNode';
 import { AudioStreamPlayerNode, type AudioUnlockService } from '../../../../src/game/infrastructure/phaser-nodes/AudioStreamPlayerNode';
 import { PhaserNodeContext } from '../../../../src/game/infrastructure/scenes/PhaserNodeContext';
 import { PhaserSceneTreeHost } from '../../../../src/game/infrastructure/scenes/PhaserSceneTreeHost';
-import { authoredNodeId, resourceId, runtimeNodeId } from '../../../../src/game/content/scenes/identifiers';
+import { authoredNodeId, resourceId, runtimeNodeId, type ResourceId } from '../../../../src/game/content/scenes/identifiers';
+import type { SceneResourceDocument } from '../../../../src/game/content/scenes/types';
 import { Node } from '../../../../src/game/runtime/scene/Node';
 import { ControlNode } from '../../../../src/game/runtime/scene/ui/ControlNode';
 import { InputRouter } from '../../../../src/game/runtime/scene/input/InputRouter';
@@ -35,6 +37,8 @@ type FixtureSnapshot = {
   readonly spriteActive?: boolean;
   readonly managedContactParticipantCount?: number;
   readonly managedBlockingColliderCount?: number;
+  readonly tileCount?: number;
+  readonly tileCollisionBodyCount?: number;
   readonly characterX?: number;
   readonly blockingContactCount?: number;
   readonly sensorContactCount?: number;
@@ -99,6 +103,7 @@ declare global {
 
 const params = new URLSearchParams(window.location.search);
 const mode = params.get('mode') === 'baseline' ? 'baseline' : 'harness';
+const tileHarness = mode === 'harness' && params.has('tiles');
 const control = document.querySelector<HTMLButtonElement>('#fixture-control');
 const app = document.querySelector<HTMLDivElement>('#app');
 if (!control || !app) throw new Error('Scene browser fixture mount is incomplete');
@@ -175,6 +180,7 @@ if (mode === 'harness') {
     private spriteNode?: Sprite2DNode;
     private character?: CharacterBody2DNode;
     private wall?: StaticBody2DNode;
+    private tileLayer?: TileMapLayer2DNode;
     private sensor?: TrackingAreaNode;
     private audio?: AudioStreamPlayerNode;
     private audioUnlock?: PointerAudioUnlock;
@@ -188,16 +194,41 @@ if (mode === 'harness') {
       const texture = this.textures.createCanvas('browser-harness-dot', 8, 8);
       texture?.context.fillRect(0, 0, 8, 8);
       texture?.refresh();
+      if (tileHarness) {
+        const ground = this.textures.createCanvas('browser-tile-ground', 16, 16);
+        if (ground) { ground.context.fillStyle = '#4d9960'; ground.context.fillRect(0, 0, 16, 16); ground.refresh(); }
+        const wallTexture = this.textures.createCanvas('browser-tile-wall', 16, 16);
+        if (wallTexture) { wallTexture.context.fillStyle = '#58606b'; wallTexture.context.fillRect(0, 0, 16, 16); wallTexture.refresh(); }
+      }
       this.body = this.physics.add.image(16, 16, 'browser-harness-dot');
       this.body.setVelocityX(60);
       const textureId = resourceId('texture.browser-dot');
       const bodyShapeId = resourceId('shape.browser-body');
       const sensorShapeId = resourceId('shape.browser-sensor');
-      this.context = new PhaserNodeContext(this, new Map([
+      const resources = new Map<ResourceId, SceneResourceDocument>([
         [textureId, { version: 1, resourceId: textureId, kind: 'texture', assetId: 'browser-harness-dot' }],
         [bodyShapeId, { version: 1, resourceId: bodyShapeId, kind: 'collision-shape', value: { shape: 'rectangle', width: 12, height: 12 } }],
         [sensorShapeId, { version: 1, resourceId: sensorShapeId, kind: 'collision-shape', value: { shape: 'circle', radius: 10 } }],
-      ]));
+      ]);
+      const tileSetId = resourceId('tiles.browser');
+      const tileDataId = resourceId('tiles.browser.ground');
+      if (tileHarness) {
+        resources.set(tileSetId, {
+          version: 1, resourceId: tileSetId, kind: 'tile-set', tiles: {
+            ground: { assetIds: ['terrain.water.0'], selection: 'seeded-hash', physics: null, allowsDecorations: true, tags: ['ground'] },
+            wall: { assetIds: ['terrain.forest.tree-wall'], selection: 'seeded-hash', physics: { body: 'static', inset: { left: 2, right: 2, top: 3, bottom: 1 } }, allowsDecorations: false, tags: ['wall'] },
+          },
+        });
+        resources.set(tileDataId, {
+          version: 1, resourceId: tileDataId, kind: 'tile-data', tileSet: tileSetId,
+          cells: [{ x: 6, y: 1, tileId: 'ground' }, { x: 7, y: 1, tileId: 'wall' }, { x: 6, y: 2, tileId: 'ground' }],
+        });
+      }
+      this.context = new PhaserNodeContext(this, resources, (assetId) => (
+        assetId === 'terrain.water.0' ? 'browser-tile-ground'
+          : assetId === 'terrain.forest.tree-wall' ? 'browser-tile-wall'
+            : assetId
+      ));
       const audioContext = (this.sound as unknown as { readonly context?: AudioContext }).context;
       if (audioContext) this.cache.audio.add('browser-silent-loop', audioContext.createBuffer(1, audioContext.sampleRate, audioContext.sampleRate));
       this.tree = new SceneTree();
@@ -254,6 +285,13 @@ if (mode === 'harness') {
       }));
       this.root.add_child(this.character);
       this.root.add_child(this.wall);
+      if (tileHarness) {
+        this.tileLayer = new TileMapLayer2DNode({
+          runtimeId: runtimeNodeId('browser', [], authoredNodeId('tile-layer')), name: 'ManagedTileLayer', context: this.context,
+          tileData: tileDataId, tileSize: 16, seed: 17, collisionLayer: 2, collisionMask: 1, editorLocked: true,
+        });
+        this.root.add_child(this.tileLayer);
+      }
       if (audioContext) {
         this.audio = new AudioStreamPlayerNode({
           runtimeId: runtimeNodeId('browser', [], authoredNodeId('audio')), name: 'ManagedAudio', scene: this,
@@ -290,6 +328,8 @@ if (mode === 'harness') {
         cameraCount: this.cameras.cameras.length,
         managedContactParticipantCount: this.context?.managedContactParticipantCount ?? 0,
         managedBlockingColliderCount: this.context?.managedBlockingColliderCount ?? 0,
+        tileCount: this.tileLayer?.tileCount ?? 0,
+        tileCollisionBodyCount: this.tileLayer?.collisionBodyCount ?? 0,
         characterX: this.character?.position.x,
         blockingContactCount: this.character?.blockingContacts.length ?? 0,
         sensorContactCount: this.sensor?.currentContacts.length ?? 0,

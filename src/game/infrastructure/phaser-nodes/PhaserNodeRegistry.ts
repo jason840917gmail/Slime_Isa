@@ -16,6 +16,7 @@ import { CharacterBody2DNode } from './CharacterBody2DNode';
 import { CollisionShape2DNode } from './CollisionShape2DNode';
 import { Sprite2DNode } from './Sprite2DNode';
 import { StaticBody2DNode } from './StaticBody2DNode';
+import { TileMapLayer2DNode } from './TileMapLayer2DNode';
 import type { SourceOcclusionBounds } from '../../presentation/WorldOcclusion';
 import type { ObjectDepthBounds } from '../../presentation/WorldDepth';
 
@@ -146,6 +147,17 @@ export function createPhaserNodeRegistry(context: PhaserNodeContext, services: P
       collisionLayer: typeof construction.properties.collisionLayer === 'number' ? construction.properties.collisionLayer : undefined,
       collisionMask: typeof construction.properties.collisionMask === 'number' ? construction.properties.collisionMask : undefined,
       collisionEnabled: typeof construction.properties.collisionEnabled === 'boolean' ? construction.properties.collisionEnabled : undefined,
+    }))
+    .replace('TileMapLayer2D', (construction) => new TileMapLayer2DNode({
+      ...base(construction), context,
+      tileData: requiredResourceId(construction.properties.tileData, 'TileMapLayer2D'),
+      tileSize: typeof construction.properties.tileSize === 'number' ? construction.properties.tileSize : undefined,
+      seed: typeof construction.properties.seed === 'number' ? construction.properties.seed : undefined,
+      depth: typeof construction.properties.depth === 'number' ? construction.properties.depth : undefined,
+      collisionLayer: typeof construction.properties.collisionLayer === 'number' ? construction.properties.collisionLayer : undefined,
+      collisionMask: typeof construction.properties.collisionMask === 'number' ? construction.properties.collisionMask : undefined,
+      collisionEnabled: typeof construction.properties.collisionEnabled === 'boolean' ? construction.properties.collisionEnabled : undefined,
+      editorLocked: typeof construction.properties.editorLocked === 'boolean' ? construction.properties.editorLocked : undefined,
     }))
     .replace('Area2D', (construction) => new Area2DNode({
       ...base(construction), context,
