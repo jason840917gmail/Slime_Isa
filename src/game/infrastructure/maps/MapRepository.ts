@@ -22,6 +22,32 @@ export interface LoadedMap {
 const MAP_MODULES = import.meta.glob<JsonModule>('/src/game/content/maps/*.map.json');
 const DIRECTIONS = new Set<Direction>(['north', 'east', 'south', 'west']);
 
+function abortError(): Error {
+  const error = new Error('Map load was aborted');
+  error.name = 'AbortError';
+  return error;
+}
+
+function awaitAbortable<T>(promise: Promise<T>, signal?: AbortSignal): Promise<T> {
+  if (!signal) return promise;
+  if (signal.aborted) return Promise.reject(abortError());
+  return new Promise<T>((resolve, reject) => {
+    const onAbort = (): void => reject(abortError());
+    signal.addEventListener('abort', onAbort, { once: true });
+    promise.then(
+      (value) => {
+        signal.removeEventListener('abort', onAbort);
+        if (signal.aborted) reject(abortError());
+        else resolve(value);
+      },
+      (error: unknown) => {
+        signal.removeEventListener('abort', onAbort);
+        reject(error);
+      },
+    );
+  });
+}
+
 export function getAuthoredMapIds(): readonly MapId[] {
   return Object.keys(MAP_MODULES)
     .map((modulePath) => modulePath.split('/').pop()?.replace(/\.map\.json$/, ''))
@@ -105,13 +131,16 @@ function validateReferences(map: MapFile): void {
 export class MapRepository {
   private readonly cache = new Map<MapId, Promise<LoadedMap | null>>();
 
-  load(mapId: MapId): Promise<LoadedMap | null> {
+  load(mapId: MapId, signal?: AbortSignal): Promise<LoadedMap | null> {
     const cached = this.cache.get(mapId);
-    if (cached) return cached;
+    if (cached) return awaitAbortable(cached, signal);
 
     const pending = this.loadUncached(mapId);
     this.cache.set(mapId, pending);
-    return pending;
+    void pending.catch(() => {
+      if (this.cache.get(mapId) === pending) this.cache.delete(mapId);
+    });
+    return awaitAbortable(pending, signal);
   }
 
   private async loadUncached(mapId: MapId): Promise<LoadedMap | null> {

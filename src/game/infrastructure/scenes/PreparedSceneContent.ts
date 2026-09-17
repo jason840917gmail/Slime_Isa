@@ -26,6 +26,7 @@ export class PreparedSceneContent {
     readonly resources: ReadonlyMap<ResourceId, SceneResourceDocument>,
     readonly documents: SceneDocumentLoader,
     readonly resourceLoader: SceneResourceLoader,
+    private readonly registry: DescriptorRegistry,
   ) {}
 
   static async prepare(options: PreparedSceneContentOptions): Promise<PreparedSceneContent> {
@@ -46,11 +47,10 @@ export class PreparedSceneContent {
       if (!resource) throw new Error(`Unknown scene resource '${resourceId}'`);
       return resource;
     });
-    const prepared = new PreparedSceneContent(catalog, resources, documents, resourceLoader);
-    const resolver = new SceneResolver({ documents, resources: resourceLoader, registry: options.registry });
+    const prepared = new PreparedSceneContent(catalog, resources, documents, resourceLoader, options.registry);
     try {
       for (const sceneId of [...new Set(options.sceneIds)].sort()) {
-        prepared.packed.set(sceneId, await resolver.prepare_scene(sceneId));
+        await prepared.ensure(sceneId);
       }
       return prepared;
     } catch (error) {
@@ -66,6 +66,32 @@ export class PreparedSceneContent {
     return packed;
   }
 
+  async ensure(sceneId: SceneId, signal?: AbortSignal): Promise<PackedScene> {
+    if (this.stopped) throw new Error('Prepared scene content has been disposed');
+    if (signal?.aborted) throw abortError();
+    const existing = this.packed.get(sceneId);
+    if (existing) return existing;
+
+    const resolver = new SceneResolver({
+      documents: this.documents,
+      resources: this.resourceLoader,
+      registry: this.registry,
+    });
+    const candidate = await resolver.prepare_scene(sceneId, signal);
+    if (this.stopped || signal?.aborted) {
+      candidate.dispose();
+      if (signal?.aborted) throw abortError();
+      throw new Error('Prepared scene content was disposed while loading');
+    }
+    const winner = this.packed.get(sceneId);
+    if (winner) {
+      candidate.dispose();
+      return winner;
+    }
+    this.packed.set(sceneId, candidate);
+    return candidate;
+  }
+
   dispose(): void {
     if (this.stopped) return;
     this.stopped = true;
@@ -74,4 +100,10 @@ export class PreparedSceneContent {
     this.documents.clearUnused();
     this.resourceLoader.clearUnused();
   }
+}
+
+function abortError(): Error {
+  const error = new Error('Scene preparation was aborted');
+  error.name = 'AbortError';
+  return error;
 }
