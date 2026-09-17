@@ -243,6 +243,23 @@ export class WorldProgress {
     return { ...snapshot, maps: { ...(snapshot.maps ?? {}), [mapId]: nextMapState } };
   }
 
+  prepareCollectibleRemainingSnapshot(
+    mapId: string,
+    instanceId: string,
+    state: CollectibleProgressState,
+  ): WorldProgressData {
+    const snapshot = this.serialize();
+    const mapState = cloneMapState(snapshot.maps?.[mapId] ?? emptyMapState());
+    const nextMapState: MapRuntimeStateData = {
+      ...mapState,
+      collectibles: {
+        ...(mapState.collectibles ?? {}),
+        [instanceId]: cloneCollectibleState(state),
+      },
+    };
+    return { ...snapshot, maps: { ...(snapshot.maps ?? {}), [mapId]: nextMapState } };
+  }
+
   prepareGateUnlockSnapshot(mapId: string, gateId: string): WorldProgressData {
     const snapshot = this.serialize();
     const mapState = cloneMapState(snapshot.maps?.[mapId] ?? emptyMapState());

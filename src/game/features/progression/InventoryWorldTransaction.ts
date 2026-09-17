@@ -5,6 +5,16 @@ import { worldProgress, type WorldProgress } from './WorldProgress';
 
 export type GateUnlockResult = 'unlocked' | 'already-unlocked' | 'missing-item' | 'failed';
 
+export interface CollectWorldItemInput {
+  readonly mapId: string;
+  readonly instanceId: string;
+  readonly itemId: string;
+  readonly remaining: number;
+  readonly requested?: number;
+  readonly sourceResourceInstanceId?: string;
+  readonly sourceInventoryDropId?: string;
+}
+
 export class InventoryWorldTransaction {
   constructor(
     private readonly inventory: Inventory,
@@ -34,6 +44,38 @@ export class InventoryWorldTransaction {
     if (left > 0) remaining[itemId] = left;
     else delete remaining[itemId];
     const worldAfter = this.progress.prepareChestRemainingSnapshot(mapId, instanceId, remaining);
+
+    return this.commit(inventoryBefore, worldBefore, inventoryAfter, worldAfter, true) ? low : 0;
+  }
+
+  collectWorldItem(input: CollectWorldItemInput): number {
+    const savedState = this.progress.collectibleState(input.mapId, input.instanceId);
+    const remaining = savedState?.remaining ?? input.remaining;
+    const requested = input.requested ?? remaining;
+    if (!Number.isSafeInteger(remaining) || remaining <= 0) return 0;
+    if (!Number.isSafeInteger(requested) || requested <= 0) return 0;
+    const available = Math.min(remaining, requested);
+
+    let low = 0;
+    let high = available;
+    while (low < high) {
+      const candidate = Math.ceil((low + high) / 2);
+      if (this.inventory.prepareTransaction([], [{ itemId: input.itemId, count: candidate }])) low = candidate;
+      else high = candidate - 1;
+    }
+    if (low <= 0) return 0;
+
+    const inventoryBefore = this.inventory.captureTransactionSnapshot();
+    const worldBefore = this.progress.captureTransactionSnapshot();
+    const inventoryAfter = this.inventory.prepareTransaction([], [{ itemId: input.itemId, count: low }]);
+    if (!inventoryAfter) return 0;
+    const sourceResourceInstanceId = savedState?.sourceResourceInstanceId ?? input.sourceResourceInstanceId;
+    const sourceInventoryDropId = savedState?.sourceInventoryDropId ?? input.sourceInventoryDropId;
+    const worldAfter = this.progress.prepareCollectibleRemainingSnapshot(input.mapId, input.instanceId, {
+      remaining: remaining - low,
+      ...(sourceResourceInstanceId ? { sourceResourceInstanceId } : {}),
+      ...(sourceInventoryDropId ? { sourceInventoryDropId } : {}),
+    });
 
     return this.commit(inventoryBefore, worldBefore, inventoryAfter, worldAfter, true) ? low : 0;
   }

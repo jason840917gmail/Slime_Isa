@@ -94,6 +94,13 @@ test('remaining enemy converters are byte-stable and preserve authored combat se
   assert.equal(playerScript.playerName, 'bob');
   assert.equal(Object.hasOwn(playerScript, 'movementSpeed'), false);
   assert.deepEqual(player.nodes.find((node) => node.id === 'visual').properties.scale, [0.28125, 0.28125]);
+  assert.deepEqual(player.nodes.find((node) => node.id === 'pickup-area').properties, {
+    collisionLayer: 32,
+    collisionMask: 64,
+    monitoring: true,
+    monitorable: true,
+  });
+  assert.equal(player.nodes.find((node) => node.id === 'pickup-shape').properties.shape.resourceId, 'player-slime.body-shape');
   assert.deepEqual((await load('resources/characters/player-slime.body-shape.resource.json')).value, {
     shape: 'rectangle', width: 30, height: 26,
   });
