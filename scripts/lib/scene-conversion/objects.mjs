@@ -1,6 +1,20 @@
 import { convertedOutput, readJson, requireSupportedUnit } from './adapter-utils.mjs';
 
-const SUPPORTED = new Set(['object:chest.wooden', 'object:resource.stone-node', 'object:tree.world.solid']);
+const COLLECTIBLE_KEYS = [
+  'object:collectible.charcoal-pile',
+  'object:collectible.crystal-shard',
+  'object:collectible.energy-potion',
+  'object:collectible.green-key',
+  'object:collectible.hp-potion',
+  'object:collectible.iron-ore-pile',
+  'object:collectible.purple-berry',
+  'object:collectible.silk-clump',
+  'object:collectible.small-stone-pile',
+  'object:collectible.small-wood-pile',
+  'object:collectible.stone-pile',
+  'object:collectible.wood-pile',
+];
+const SUPPORTED = new Set(['object:chest.wooden', 'object:resource.stone-node', 'object:tree.world.solid', ...COLLECTIBLE_KEYS]);
 
 const OBJECT_ANIMATION_PATHS = {
   'object.tree.idle': 'src/game/content/animations/objects/tree/idle/animation.json',
@@ -124,6 +138,51 @@ async function objectVisualScenes(unit, object, manifest, readSource) {
   }));
 }
 
+function collectibleScene(unit, object, manifest) {
+  const variant = object.variants[0];
+  const frame = variant.frames[0];
+  const asset = manifest.assets[variant.assetId];
+  if (!asset) throw new Error(`Collectible '${object.objectId}' references missing asset '${variant.assetId}'`);
+  const scale = frame.scale ?? 1;
+  const visualOffset = frame.visualOffset ?? { x: 0, y: 0 };
+  const origin = Array.isArray(asset.render?.origin) ? asset.render.origin : [0.5, 1];
+  const objectSlug = slug(object.objectId);
+  const resourcePrefix = `${objectSlug}.${slug(frame.visualId)}`;
+  const sourceWidth = asset.source.kind === 'spritesheet' ? asset.source.frame.w : 16;
+  const sourceHeight = asset.source.kind === 'spritesheet' ? asset.source.frame.h : 16;
+  const pickupRadius = Math.max(12, Math.min(32, Math.min(sourceWidth, sourceHeight) * scale * 0.28));
+  const textureResource = asset.source.kind === 'spritesheet'
+    ? { version: 1, resourceId: `${resourcePrefix}.sprite`, kind: 'sprite-sheet', assetId: variant.assetId, frameWidth: sourceWidth, frameHeight: sourceHeight, frameCount: asset.source.frame.count }
+    : { version: 1, resourceId: `${resourcePrefix}.sprite`, kind: 'texture', assetId: variant.assetId };
+  const document = {
+    version: 1,
+    sceneId: `object.${objectSlug}`,
+    rootNodeId: 'root',
+    nodes: [
+      { id: 'root', name: frame.displayName ?? frame.visualId, type: 'Node2D', parentId: null, order: 0, properties: { position: [0, 0] } },
+      { id: 'visual', name: 'Visual', type: 'Sprite2D', parentId: 'root', order: 0, properties: { texture: { resourceId: `${resourcePrefix}.sprite` }, frame: frame.frame, origin, scale: [scale, scale], visualOffset: [visualOffset.x, visualOffset.y], depthMode: 'world-sorted', depthBand: 'world-entities' } },
+      { id: 'pickup-area', name: 'PickupArea', type: 'Area2D', parentId: 'root', order: 1, properties: { collisionLayer: 64, collisionMask: 32, monitoring: true, monitorable: true } },
+      { id: 'pickup-shape', name: 'PickupShape', type: 'CollisionShape2D', parentId: 'pickup-area', order: 0, properties: { shape: { resourceId: `${resourcePrefix}.pickup-shape` }, position: [visualOffset.x * scale, visualOffset.y * scale] } },
+      {
+        id: 'script', name: 'CollectibleScript', type: 'ScriptNode', scriptId: 'game.collectible', parentId: 'root', order: 2,
+        properties: {
+          mapId: 'map-template', instanceId: 'collectible-template', objectId: object.objectId,
+          itemId: object.collectible.itemId, quantity: object.collectible.quantity,
+          pickupArea: { nodeId: 'pickup-area' },
+        },
+      },
+    ],
+    instances: [],
+    subresources: [
+      textureResource,
+      { version: 1, resourceId: `${resourcePrefix}.pickup-shape`, kind: 'collision-shape', value: { shape: 'circle', radius: pickupRadius } },
+    ],
+  };
+  return convertedOutput(unit, `objects/${objectSlug}.scene.json`, document, [
+    '$.objectId', '$.selection', '$.variants', '$.physics', '$.behavior', '$.collectible', '$.tags',
+  ], [{ path: '$.$schema', owner: unit.oldSourcePath }]);
+}
+
 export const objectSceneAdapter = {
   async convert({ units, readSource }) {
     const outputs = [];
@@ -131,6 +190,10 @@ export const objectSceneAdapter = {
     for (const unit of units) {
       requireSupportedUnit(unit, SUPPORTED);
       const object = await readJson(readSource, unit.oldSourcePath);
+      if (COLLECTIBLE_KEYS.includes(unit.key)) {
+        outputs.push(collectibleScene(unit, object, manifest));
+        continue;
+      }
       if (unit.key === 'object:resource.stone-node' || unit.key === 'object:tree.world.solid') {
         outputs.push(...await objectVisualScenes(unit, object, manifest, readSource));
         continue;

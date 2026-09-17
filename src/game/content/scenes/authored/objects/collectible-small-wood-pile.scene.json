@@ -1,0 +1,115 @@
+{
+  "version": 1,
+  "sceneId": "object.collectible-small-wood-pile",
+  "rootNodeId": "root",
+  "nodes": [
+    {
+      "id": "root",
+      "name": "Small wood pile",
+      "type": "Node2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "root",
+      "order": 0,
+      "properties": {
+        "texture": {
+          "resourceId": "collectible-small-wood-pile.small-wood-pile.sprite"
+        },
+        "frame": 4,
+        "origin": [
+          0.5,
+          1
+        ],
+        "scale": [
+          1,
+          1
+        ],
+        "visualOffset": [
+          0,
+          0
+        ],
+        "depthMode": "world-sorted",
+        "depthBand": "world-entities"
+      }
+    },
+    {
+      "id": "pickup-area",
+      "name": "PickupArea",
+      "type": "Area2D",
+      "parentId": "root",
+      "order": 1,
+      "properties": {
+        "collisionLayer": 64,
+        "collisionMask": 32,
+        "monitoring": true,
+        "monitorable": true
+      }
+    },
+    {
+      "id": "pickup-shape",
+      "name": "PickupShape",
+      "type": "CollisionShape2D",
+      "parentId": "pickup-area",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "collectible-small-wood-pile.small-wood-pile.pickup-shape"
+        },
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "script",
+      "name": "CollectibleScript",
+      "type": "ScriptNode",
+      "scriptId": "game.collectible",
+      "parentId": "root",
+      "order": 2,
+      "properties": {
+        "mapId": "map-template",
+        "instanceId": "collectible-template",
+        "objectId": "collectible.small-wood-pile",
+        "itemId": "wood",
+        "quantity": 5,
+        "pickupArea": {
+          "nodeId": "pickup-area"
+        }
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "collectible-small-wood-pile.small-wood-pile.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "sheet.resources.4x2",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frameCount": 8
+    },
+    {
+      "version": 1,
+      "resourceId": "collectible-small-wood-pile.small-wood-pile.pickup-shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "circle",
+        "radius": 32
+      }
+    }
+  ]
+}
