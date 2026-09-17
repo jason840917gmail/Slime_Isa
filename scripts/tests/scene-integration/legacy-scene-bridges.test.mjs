@@ -153,3 +153,30 @@ test('map placement bridge suppresses every passive object it assigns on an auth
     return object && bridge.shouldSuppressLegacyObject(object);
   }));
 });
+
+test('every WP12 object ledger row resolves to one scene-owned placement', async () => {
+  const ledger = JSON.parse(await readFile(`${REPOSITORY_ROOT}/scripts/migrations/universal-scene-conversion-ledger.json`, 'utf8'));
+  const rows = ledger.rows.filter((row) => row.family === 'object' && row.migrationWorkPackage === 12);
+  const objects = await Promise.all(rows.map(async (row, index) => {
+    const definition = JSON.parse(await readFile(`${REPOSITORY_ROOT}/${row.oldSourcePath}`, 'utf8'));
+    const visualId = definition.npc?.placementVisualId ?? definition.variants?.[0]?.frames?.[0]?.visualId;
+    assert.equal(typeof visualId, 'string', `${row.key} requires a placement visual`);
+    return {
+      instanceId: `wp12-${index}`,
+      objectId: row.stableId,
+      visualId,
+      x: index * 8,
+      y: index * 4,
+    };
+  }));
+  const bridge = new t.LegacyMapPlacementBridge('wp12-audit', objects, []);
+  const placements = bridge.scenePlacements();
+
+  assert.equal(rows.length, 27);
+  assert.equal(placements.length, rows.length);
+  assert.deepEqual(
+    new Set(placements.map((placement) => placement.placementId)),
+    new Set(objects.map((object) => object.instanceId)),
+  );
+  assert.ok(objects.every((object) => bridge.shouldSuppressLegacyObject(object)));
+});
