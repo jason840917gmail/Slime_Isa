@@ -40,5 +40,43 @@
       }
     }
   ],
-  "instances": []
+  "instances": [
+    {
+      "instanceId": "amber-rock-001",
+      "name": "amber-rock-001",
+      "sceneId": "object.rock-amber-ore-mineable",
+      "parentNodeId": "world",
+      "order": 1,
+      "persistenceKey": "test-rectangle.amber-rock-001",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            288,
+            192
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "mapId",
+          "value": "test-rectangle"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "instanceId",
+          "value": "amber-rock-001"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "script",
+          "property": "initialHealth",
+          "value": 30
+        }
+      ]
+    }
+  ]
 }

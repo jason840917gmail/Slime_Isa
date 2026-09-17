@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -103,6 +103,22 @@ const sliceUnitKeys = [
 const unitKeys = explicitUnitKeys.length > 0 ? explicitUnitKeys : sliceUnitKeys;
 const ledger = JSON.parse(await readFile(path.join(repositoryRoot, 'scripts/migrations/universal-scene-conversion-ledger.json'), 'utf8'));
 const manifest = JSON.parse(await readFile(path.join(repositoryRoot, 'asset/assets.json'), 'utf8'));
+const authoredRoot = path.join(repositoryRoot, 'src/game/content/scenes/authored');
+async function discoverDocuments(directory, suffix) {
+  const discoverFiles = async (current) => {
+    const entries = await readdir(current, { withFileTypes: true });
+    return (await Promise.all(entries.map(async (entry) => {
+      const candidate = path.join(current, entry.name);
+      return entry.isDirectory() ? discoverFiles(candidate) : entry.isFile() && entry.name.endsWith(suffix) ? [candidate] : [];
+    }))).flat();
+  };
+  const files = (await discoverFiles(directory)).sort();
+  return Promise.all(files.map(async (file) => JSON.parse(await readFile(file, 'utf8'))));
+}
+const [existingScenes, existingResources] = await Promise.all([
+  discoverDocuments(authoredRoot, '.scene.json'),
+  discoverDocuments(authoredRoot, '.resource.json'),
+]);
 const runner = new ConversionRunner({
   repositoryRoot,
   ledger,
@@ -117,8 +133,12 @@ const runner = new ConversionRunner({
     effect: effectSceneAdapter,
     map: mapSceneAdapter,
   },
-  outputRoot: path.join(repositoryRoot, 'src/game/content/scenes/authored'),
-  validateWriteSet: (outputs) => validateSceneWriteSet(outputs, { hasAsset: (assetId) => Object.hasOwn(manifest.assets, assetId) }),
+  outputRoot: authoredRoot,
+  validateWriteSet: (outputs) => validateSceneWriteSet(outputs, {
+    hasAsset: (assetId) => Object.hasOwn(manifest.assets, assetId),
+    existingScenes,
+    existingResources,
+  }),
 });
 
 try {

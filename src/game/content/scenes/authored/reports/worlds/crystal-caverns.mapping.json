@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "mapId": "crystal-caverns",
+  "sceneId": "world.crystal-caverns",
+  "sourceCounts": {
+    "objects": 0,
+    "bossCamps": 0
+  },
+  "worldInstanceCount": 0,
+  "placements": []
+}

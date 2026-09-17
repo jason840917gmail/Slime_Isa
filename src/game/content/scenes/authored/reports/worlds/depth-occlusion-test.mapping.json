@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "mapId": "depth-occlusion-test",
+  "sceneId": "world.depth-occlusion-test",
+  "sourceCounts": {
+    "objects": 5,
+    "bossCamps": 0
+  },
+  "worldInstanceCount": 5,
+  "placements": [
+    {
+      "sourceKind": "object",
+      "sourceId": "depth-tree-north",
+      "objectId": "tree.world.solid",
+      "visualId": "shadow-pine-01",
+      "ownership": "world-instance",
+      "instanceId": "depth-tree-north",
+      "sceneId": "object.tree-world-solid",
+      "persistenceKey": "depth-occlusion-test.depth-tree-north",
+      "initialState": {}
+    },
+    {
+      "sourceKind": "object",
+      "sourceId": "depth-tree-south",
+      "objectId": "tree.world.solid",
+      "visualId": "shadow-pine-02",
+      "ownership": "world-instance",
+      "instanceId": "depth-tree-south",
+      "sceneId": "object.tree-world-solid.shadow-pine-02",
+      "persistenceKey": "depth-occlusion-test.depth-tree-south",
+      "initialState": {}
+    },
+    {
+      "sourceKind": "object",
+      "sourceId": "depth-tree-equal-y",
+      "objectId": "tree.world.solid",
+      "visualId": "ancient-bare-01",
+      "ownership": "world-instance",
+      "instanceId": "depth-tree-equal-y",
+      "sceneId": "object.tree-world-solid.ancient-bare-01",
+      "persistenceKey": "depth-occlusion-test.depth-tree-equal-y",
+      "initialState": {}
+    },
+    {
+      "sourceKind": "object",
+      "sourceId": "depth-house-west",
+      "objectId": "house.world.solid",
+      "visualId": "barn-red",
+      "ownership": "world-instance",
+      "instanceId": "depth-house-west",
+      "sceneId": "object.house-world-solid",
+      "persistenceKey": "depth-occlusion-test.depth-house-west",
+      "initialState": {}
+    },
+    {
+      "sourceKind": "object",
+      "sourceId": "depth-house-east",
+      "objectId": "house.world.solid",
+      "visualId": "cottage-blue",
+      "ownership": "world-instance",
+      "instanceId": "depth-house-east",
+      "sceneId": "object.house-world-solid.cottage-blue",
+      "persistenceKey": "depth-occlusion-test.depth-house-east",
+      "initialState": {}
+    }
+  ]
+}

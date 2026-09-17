@@ -1,5 +1,6 @@
 import type { MapBossCamp, MapObjectInstance } from '../../../content/maps/mapFormat';
 import type { SceneInstantiationPropertyOverride } from '../../../runtime/scene/resolution/SceneInstantiator';
+import { resolveLegacyBossCampScene, resolveLegacyMapObjectScene } from './LegacyMapPlacementMapping';
 
 export interface SceneEnabledPlacement {
   readonly placementId: string;
@@ -10,43 +11,6 @@ export interface SceneEnabledPlacement {
   readonly npcDefinitionId?: string;
   readonly propertyOverrides?: readonly SceneInstantiationPropertyOverride[];
 }
-
-const CAMP_SCENES: Readonly<Record<string, string>> = {
-  'level-1-fatty-one-eye-camp': 'encounter.level-1-fatty-camp',
-};
-
-const OBJECT_SCENES: Readonly<Record<string, string>> = {
-  'chest.wooden': 'object.chest-wooden',
-  'rock.amber-ore.mineable': 'object.rock-amber-ore-mineable',
-};
-
-const OBJECT_VISUAL_SCENES: Readonly<Record<string, Readonly<Record<string, string>>>> = {
-  'resource.stone-node': {
-    'stone-node': 'object.resource-stone-node',
-    'big.stone.mine': 'object.resource-stone-node.big-stone-mine',
-  },
-};
-
-const PASSIVE_OBJECT_BASE_VISUALS: Readonly<Record<string, string>> = {
-  'decoration.world.floor': 'sewer-grate',
-  'decoration.world.solid': 'wood-fence',
-  'house.world.solid': 'barn-red',
-  'rock.world-wall.decorative': 'large-01',
-  'rock.world-wall.solid': 'large-01',
-  'wall.stone.solid': 'horizontal-01',
-};
-
-function visualSlug(value: string): string {
-  return value.replaceAll('.', '-').replace(/[^a-z0-9-]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
-}
-
-const NPC_SCENES: Readonly<Record<string, Readonly<{ sceneId: string; npcDefinitionId: string }>>> = {
-  'npc.world': { sceneId: 'character.village-elder-plop', npcDefinitionId: 'village-elder-plop' },
-  'npc.world-scout': { sceneId: 'character.mossy-scout', npcDefinitionId: 'level-1-spider-giver' },
-  'npc.lili': { sceneId: 'character.lili', npcDefinitionId: 'lili' },
-  'npc.red-slime-boy': { sceneId: 'character.red-slime-boy', npcDefinitionId: 'red-slime-boy' },
-  'npc.yellow-blond-slime-girl': { sceneId: 'character.yellow-blond-slime-girl', npcDefinitionId: 'yellow-blond-slime-girl' },
-};
 
 export class LegacyMapPlacementBridge {
   private readonly sceneOwnedIds = new Set<string>();
@@ -62,7 +26,7 @@ export class LegacyMapPlacementBridge {
     if (this.placements) return this.placements;
     const placements: SceneEnabledPlacement[] = [];
     for (const camp of this.camps) {
-      const sceneId = CAMP_SCENES[camp.id];
+      const sceneId = resolveLegacyBossCampScene(camp.id);
       if (!sceneId) continue;
       this.sceneOwnedIds.add(camp.id);
       if (camp.guardedChestInstanceId) this.sceneOwnedIds.add(camp.guardedChestInstanceId);
@@ -92,43 +56,26 @@ export class LegacyMapPlacementBridge {
   }
 
   standaloneObjectPlacement(instance: MapObjectInstance): SceneEnabledPlacement | undefined {
-    const npc = NPC_SCENES[instance.objectId];
-    const sceneId = npc?.sceneId ?? this.objectSceneId(instance);
-    if (!sceneId || this.sceneOwnedIds.has(instance.instanceId)) return undefined;
+    const mapping = resolveLegacyMapObjectScene(instance);
+    if (!mapping || this.sceneOwnedIds.has(instance.instanceId)) return undefined;
     this.sceneOwnedIds.add(instance.instanceId);
     return {
       placementId: instance.instanceId,
-      sceneId,
+      sceneId: mapping.sceneId,
       x: instance.x,
       y: instance.y,
       persistenceKey: `${this.mapId}.${instance.instanceId}`,
-      ...(npc ? { npcDefinitionId: npc.npcDefinitionId } : {}),
-      ...(!npc && (instance.objectId === 'resource.stone-node'
-        || instance.objectId === 'tree.world.solid'
-        || instance.objectId === 'rock.amber-ore.mineable'
-        || instance.objectId.startsWith('collectible.')) ? {
+      ...(mapping.npcDefinitionId ? { npcDefinitionId: mapping.npcDefinitionId } : {}),
+      ...(mapping.scriptNodeId ? {
         propertyOverrides: [
-          { nodeId: 'script', property: 'mapId', value: this.mapId },
-          { nodeId: 'script', property: 'instanceId', value: instance.instanceId },
+          { nodeId: mapping.scriptNodeId, property: 'mapId', value: this.mapId },
+          { nodeId: mapping.scriptNodeId, property: 'instanceId', value: instance.instanceId },
         ],
       } : {}),
     };
   }
 
   private objectSceneId(instance: MapObjectInstance): string | undefined {
-    if (instance.objectId.startsWith('collectible.')) return `object.${visualSlug(instance.objectId)}`;
-    if (instance.objectId === 'tree.world.solid') {
-      return instance.visualId === 'shadow-pine-01'
-        ? 'object.tree-world-solid'
-        : `object.tree-world-solid.${visualSlug(instance.visualId)}`;
-    }
-    const passiveBaseVisual = PASSIVE_OBJECT_BASE_VISUALS[instance.objectId];
-    if (passiveBaseVisual) {
-      const baseSceneId = `object.${visualSlug(instance.objectId)}`;
-      return instance.visualId === passiveBaseVisual
-        ? baseSceneId
-        : `${baseSceneId}.${visualSlug(instance.visualId)}`;
-    }
-    return OBJECT_VISUAL_SCENES[instance.objectId]?.[instance.visualId] ?? OBJECT_SCENES[instance.objectId];
+    return resolveLegacyMapObjectScene(instance)?.sceneId;
   }
 }
