@@ -10,6 +10,7 @@ import { bossCampSceneAdapter } from './lib/scene-conversion/boss-camps.mjs';
 import { characterSceneAdapter, enemySceneAdapter } from './lib/scene-conversion/characters.mjs';
 import { objectSceneAdapter } from './lib/scene-conversion/objects.mjs';
 import { effectSceneAdapter, projectileSceneAdapter, weaponSceneAdapter } from './lib/scene-conversion/combat-entities.mjs';
+import { mapSceneAdapter } from './lib/scene-conversion/maps.mjs';
 import { validateSceneWriteSet } from './lib/scene-conversion/validate-scene-write-set.mjs';
 
 const repositoryRoot = fileURLToPath(new URL('..', import.meta.url));
@@ -83,6 +84,21 @@ const sliceUnitKeys = [
   'effect:slam-hammer-impact',
   'effect:stone-impact',
   'effect:wood-impact',
+  'map:174',
+  'map:236',
+  'map:cole',
+  'map:crystal-caverns',
+  'map:depth-occlusion-test',
+  'map:emberleef',
+  'map:girls',
+  'map:gloop-forest',
+  'map:hot',
+  'map:icege',
+  'map:jk',
+  'map:level-1',
+  'map:meadow-crossing',
+  'map:test-rectangle',
+  'map:tiktok',
 ];
 const unitKeys = explicitUnitKeys.length > 0 ? explicitUnitKeys : sliceUnitKeys;
 const ledger = JSON.parse(await readFile(path.join(repositoryRoot, 'scripts/migrations/universal-scene-conversion-ledger.json'), 'utf8'));
@@ -99,6 +115,7 @@ const runner = new ConversionRunner({
     weapon: weaponSceneAdapter,
     projectile: projectileSceneAdapter,
     effect: effectSceneAdapter,
+    map: mapSceneAdapter,
   },
   outputRoot: path.join(repositoryRoot, 'src/game/content/scenes/authored'),
   validateWriteSet: (outputs) => validateSceneWriteSet(outputs, { hasAsset: (assetId) => Object.hasOwn(manifest.assets, assetId) }),

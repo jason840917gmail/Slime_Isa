@@ -51,6 +51,8 @@ export interface TileSetResourceDocument extends ResourceDocumentBase {
 export interface TileDataResourceDocument extends ResourceDocumentBase {
   readonly kind: 'tile-data';
   readonly tileSet: ResourceId;
+  readonly columns: number;
+  readonly rows: number;
   readonly cells: readonly JsonValue[];
 }
 

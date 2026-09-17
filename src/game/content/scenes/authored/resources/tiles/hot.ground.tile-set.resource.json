@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "resourceId": "tiles.hot.ground.set",
+  "kind": "tile-set",
+  "tiles": {
+    "deep-water": {
+      "assetIds": [
+        "terrain.deep-water"
+      ],
+      "selection": "seeded-hash",
+      "physics": null,
+      "allowsDecorations": false,
+      "tags": [
+        "ground",
+        "water",
+        "deep"
+      ]
+    },
+    "grass-a": {
+      "assetIds": [
+        "sheet.grounds.19x19.highland-green"
+      ],
+      "selection": "sheet-order",
+      "physics": null,
+      "allowsDecorations": true,
+      "tags": [
+        "ground",
+        "meadow",
+        "walkable"
+      ],
+      "transition": {
+        "group": "natural-ground",
+        "material": "highland",
+        "priority": 10,
+        "edgeWidth": 12,
+        "style": "noisy-feather"
+      }
+    },
+    "sanddessert-ground": {
+      "assetIds": [
+        "sheet.grounds.19x19.sanddessert"
+      ],
+      "selection": "sheet-order",
+      "physics": null,
+      "allowsDecorations": true,
+      "tags": [
+        "ground",
+        "sanddessert",
+        "walkable"
+      ],
+      "transition": {
+        "group": "natural-ground",
+        "material": "sanddessert",
+        "priority": 10,
+        "edgeWidth": 12,
+        "style": "noisy-feather"
+      }
+    }
+  }
+}
