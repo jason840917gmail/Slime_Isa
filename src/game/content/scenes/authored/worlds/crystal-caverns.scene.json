@@ -38,7 +38,117 @@
         "collisionEnabled": true,
         "editorLocked": false
       }
+    },
+    {
+      "id": "player-spawn",
+      "name": "player-spawn",
+      "type": "Node2D",
+      "parentId": "world",
+      "order": 1,
+      "properties": {
+        "position": [
+          1728,
+          1728
+        ]
+      }
+    },
+    {
+      "id": "player-entry-east",
+      "name": "player-entry-east",
+      "type": "Node2D",
+      "parentId": "world",
+      "order": 2,
+      "properties": {
+        "position": [
+          3200,
+          1728
+        ]
+      }
+    },
+    {
+      "id": "player-entry-west",
+      "name": "player-entry-west",
+      "type": "Node2D",
+      "parentId": "world",
+      "order": 3,
+      "properties": {
+        "position": [
+          256,
+          1728
+        ]
+      }
+    },
+    {
+      "id": "exit-1",
+      "name": "exit-1",
+      "type": "Area2D",
+      "parentId": "world",
+      "order": 4,
+      "properties": {
+        "position": [
+          16,
+          1728
+        ],
+        "collisionLayer": 0,
+        "collisionMask": 2,
+        "monitoring": true,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "exit-1-shape",
+      "name": "collision-shape",
+      "type": "CollisionShape2D",
+      "parentId": "exit-1",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "crystal-caverns.exit-1.shape"
+        }
+      }
+    },
+    {
+      "id": "exit-1-script",
+      "name": "world-exit-script",
+      "type": "ScriptNode",
+      "scriptId": "game.world-exit",
+      "parentId": "exit-1",
+      "order": 1,
+      "properties": {
+        "mapId": "crystal-caverns",
+        "exitId": "exit-1",
+        "targetAreaId": "gloop-forest",
+        "entry": "east",
+        "area": {
+          "nodeId": "exit-1"
+        },
+        "gate": {}
+      }
     }
   ],
-  "instances": []
+  "instances": [],
+  "connections": [
+    {
+      "source": {
+        "nodeId": "exit-1"
+      },
+      "signal": "body_entered",
+      "target": {
+        "nodeId": "exit-1-script"
+      },
+      "handler": "on_body_entered"
+    }
+  ],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "crystal-caverns.exit-1.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 32,
+        "height": 3456
+      }
+    }
+  ]
 }

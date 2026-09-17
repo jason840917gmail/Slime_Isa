@@ -4,7 +4,9 @@
   "sceneId": "world.gloop-forest",
   "sourceCounts": {
     "objects": 65,
-    "bossCamps": 0
+    "bossCamps": 0,
+    "playerMarkers": 3,
+    "exits": 2
   },
   "worldInstanceCount": 65,
   "placements": [
@@ -722,6 +724,79 @@
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "persistenceKey": "gloop-forest.wall-stone-solid-6097842e",
       "initialState": {}
+    }
+  ],
+  "navigation": [
+    {
+      "sourceKind": "player-spawn",
+      "sourcePath": "$.player.spawn",
+      "nodeId": "player-spawn",
+      "position": [
+        2144,
+        1888
+      ]
+    },
+    {
+      "sourceKind": "player-entry",
+      "sourcePath": "$.player.entries.east",
+      "nodeId": "player-entry-east",
+      "position": [
+        3200,
+        1728
+      ],
+      "direction": "east"
+    },
+    {
+      "sourceKind": "player-entry",
+      "sourcePath": "$.player.entries.west",
+      "nodeId": "player-entry-west",
+      "position": [
+        256,
+        1728
+      ],
+      "direction": "west"
+    },
+    {
+      "sourceKind": "exit",
+      "sourcePath": "$.exits[0]",
+      "sourceId": "exit-1",
+      "areaNodeId": "exit-1",
+      "shapeNodeId": "exit-1-shape",
+      "scriptNodeId": "exit-1-script",
+      "position": [
+        3440,
+        1728
+      ],
+      "zone": {
+        "x": 3424,
+        "y": 0,
+        "w": 32,
+        "h": 3456
+      },
+      "targetAreaId": "crystal-caverns",
+      "entry": "west",
+      "gate": {}
+    },
+    {
+      "sourceKind": "exit",
+      "sourcePath": "$.exits[1]",
+      "sourceId": "exit-2",
+      "areaNodeId": "exit-2",
+      "shapeNodeId": "exit-2-shape",
+      "scriptNodeId": "exit-2-script",
+      "position": [
+        16,
+        1728
+      ],
+      "zone": {
+        "x": 0,
+        "y": 0,
+        "w": 32,
+        "h": 3456
+      },
+      "targetAreaId": "level-1",
+      "entry": "east",
+      "gate": {}
     }
   ]
 }

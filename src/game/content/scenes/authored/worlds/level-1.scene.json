@@ -38,6 +38,84 @@
         "collisionEnabled": true,
         "editorLocked": false
       }
+    },
+    {
+      "id": "player-spawn",
+      "name": "player-spawn",
+      "type": "Node2D",
+      "parentId": "world",
+      "order": 1,
+      "properties": {
+        "position": [
+          640,
+          704
+        ]
+      }
+    },
+    {
+      "id": "player-entry-east",
+      "name": "player-entry-east",
+      "type": "Node2D",
+      "parentId": "world",
+      "order": 2,
+      "properties": {
+        "position": [
+          1408,
+          576
+        ]
+      }
+    },
+    {
+      "id": "exit-1",
+      "name": "exit-1",
+      "type": "Area2D",
+      "parentId": "world",
+      "order": 3,
+      "properties": {
+        "position": [
+          3552,
+          576
+        ],
+        "collisionLayer": 0,
+        "collisionMask": 2,
+        "monitoring": true,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "exit-1-shape",
+      "name": "collision-shape",
+      "type": "CollisionShape2D",
+      "parentId": "exit-1",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "level-1.exit-1.shape"
+        }
+      }
+    },
+    {
+      "id": "exit-1-script",
+      "name": "world-exit-script",
+      "type": "ScriptNode",
+      "scriptId": "game.world-exit",
+      "parentId": "exit-1",
+      "order": 1,
+      "properties": {
+        "mapId": "level-1",
+        "exitId": "exit-1",
+        "targetAreaId": "gloop-forest",
+        "entry": "west",
+        "area": {
+          "nodeId": "exit-1"
+        },
+        "gate": {
+          "id": "level-1-east-verdant-gate",
+          "requiredItemId": "green-key",
+          "consumeOnUnlock": true,
+          "lockedMessage": "The eastern gate needs a green key."
+        }
+      }
     }
   ],
   "instances": [
@@ -46,7 +124,7 @@
       "name": "level-1-fatty-one-eye-camp",
       "sceneId": "encounter.level-1-fatty-camp",
       "parentNodeId": "world",
-      "order": 1,
+      "order": 4,
       "persistenceKey": "level-1-fatty-one-eye-camp",
       "overrides": [
         {
@@ -65,7 +143,7 @@
       "name": "level-1-loose-wood-01",
       "sceneId": "object.collectible-wood-pile",
       "parentNodeId": "world",
-      "order": 2,
+      "order": 5,
       "persistenceKey": "level-1.level-1-loose-wood-01",
       "overrides": [
         {
@@ -96,7 +174,7 @@
       "name": "level-1-loose-wood-02",
       "sceneId": "object.collectible-wood-pile",
       "parentNodeId": "world",
-      "order": 3,
+      "order": 6,
       "persistenceKey": "level-1.level-1-loose-wood-02",
       "overrides": [
         {
@@ -127,7 +205,7 @@
       "name": "level-1-loose-wood-03",
       "sceneId": "object.collectible-wood-pile",
       "parentNodeId": "world",
-      "order": 4,
+      "order": 7,
       "persistenceKey": "level-1.level-1-loose-wood-03",
       "overrides": [
         {
@@ -158,7 +236,7 @@
       "name": "level-1-loose-wood-04",
       "sceneId": "object.collectible-wood-pile",
       "parentNodeId": "world",
-      "order": 5,
+      "order": 8,
       "persistenceKey": "level-1.level-1-loose-wood-04",
       "overrides": [
         {
@@ -189,7 +267,7 @@
       "name": "level-1-loose-stone-01",
       "sceneId": "object.collectible-stone-pile",
       "parentNodeId": "world",
-      "order": 6,
+      "order": 9,
       "persistenceKey": "level-1.level-1-loose-stone-01",
       "overrides": [
         {
@@ -220,7 +298,7 @@
       "name": "level-1-loose-stone-02",
       "sceneId": "object.collectible-stone-pile",
       "parentNodeId": "world",
-      "order": 7,
+      "order": 10,
       "persistenceKey": "level-1.level-1-loose-stone-02",
       "overrides": [
         {
@@ -251,7 +329,7 @@
       "name": "level-1-stone-node-01",
       "sceneId": "object.resource-stone-node",
       "parentNodeId": "world",
-      "order": 8,
+      "order": 11,
       "persistenceKey": "level-1.level-1-stone-node-01",
       "overrides": [
         {
@@ -282,7 +360,7 @@
       "name": "level-1-stone-node-02",
       "sceneId": "object.resource-stone-node",
       "parentNodeId": "world",
-      "order": 9,
+      "order": 12,
       "persistenceKey": "level-1.level-1-stone-node-02",
       "overrides": [
         {
@@ -313,7 +391,7 @@
       "name": "level-1-tree-01",
       "sceneId": "object.tree-world-solid.tree-autumn-01",
       "parentNodeId": "world",
-      "order": 10,
+      "order": 13,
       "persistenceKey": "level-1.level-1-tree-01",
       "overrides": [
         {
@@ -344,7 +422,7 @@
       "name": "level-1-tree-02",
       "sceneId": "object.tree-world-solid.tree-autumn-01",
       "parentNodeId": "world",
-      "order": 11,
+      "order": 14,
       "persistenceKey": "level-1.level-1-tree-02",
       "overrides": [
         {
@@ -375,7 +453,7 @@
       "name": "level-1-tree-03",
       "sceneId": "object.tree-world-solid.tree-autumn-01",
       "parentNodeId": "world",
-      "order": 12,
+      "order": 15,
       "persistenceKey": "level-1.level-1-tree-03",
       "overrides": [
         {
@@ -406,7 +484,7 @@
       "name": "resource-stone-node-f518b5a3",
       "sceneId": "object.resource-stone-node.big-stone-mine",
       "parentNodeId": "world",
-      "order": 13,
+      "order": 16,
       "persistenceKey": "level-1.resource-stone-node-f518b5a3",
       "overrides": [
         {
@@ -437,7 +515,7 @@
       "name": "resource-stone-node-4c37387b",
       "sceneId": "object.resource-stone-node.big-stone-mine",
       "parentNodeId": "world",
-      "order": 14,
+      "order": 17,
       "persistenceKey": "level-1.resource-stone-node-4c37387b",
       "overrides": [
         {
@@ -468,7 +546,7 @@
       "name": "resource-stone-node-221c2835",
       "sceneId": "object.resource-stone-node.big-stone-mine",
       "parentNodeId": "world",
-      "order": 15,
+      "order": 18,
       "persistenceKey": "level-1.resource-stone-node-221c2835",
       "overrides": [
         {
@@ -499,7 +577,7 @@
       "name": "resource-stone-node-c64bd17b",
       "sceneId": "object.resource-stone-node.big-stone-mine",
       "parentNodeId": "world",
-      "order": 16,
+      "order": 19,
       "persistenceKey": "level-1.resource-stone-node-c64bd17b",
       "overrides": [
         {
@@ -530,7 +608,7 @@
       "name": "level-1-purple-berry-01",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 17,
+      "order": 20,
       "persistenceKey": "level-1.level-1-purple-berry-01",
       "overrides": [
         {
@@ -561,7 +639,7 @@
       "name": "level-1-purple-berry-02",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 18,
+      "order": 21,
       "persistenceKey": "level-1.level-1-purple-berry-02",
       "overrides": [
         {
@@ -592,7 +670,7 @@
       "name": "level-1-purple-berry-03",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 19,
+      "order": 22,
       "persistenceKey": "level-1.level-1-purple-berry-03",
       "overrides": [
         {
@@ -623,7 +701,7 @@
       "name": "level-1-npc-village-elder-plop",
       "sceneId": "character.village-elder-plop",
       "parentNodeId": "world",
-      "order": 20,
+      "order": 23,
       "persistenceKey": "level-1.level-1-npc-village-elder-plop",
       "overrides": [
         {
@@ -642,7 +720,7 @@
       "name": "level-1-npc-lili",
       "sceneId": "character.lili",
       "parentNodeId": "world",
-      "order": 21,
+      "order": 24,
       "persistenceKey": "level-1.level-1-npc-lili",
       "overrides": [
         {
@@ -661,7 +739,7 @@
       "name": "level-1-npc-red-slime-boy",
       "sceneId": "character.red-slime-boy",
       "parentNodeId": "world",
-      "order": 22,
+      "order": 25,
       "persistenceKey": "level-1.level-1-npc-red-slime-boy",
       "overrides": [
         {
@@ -680,7 +758,7 @@
       "name": "level-1-npc-yellow-blond-slime-girl",
       "sceneId": "character.yellow-blond-slime-girl",
       "parentNodeId": "world",
-      "order": 23,
+      "order": 26,
       "persistenceKey": "level-1.level-1-npc-yellow-blond-slime-girl",
       "overrides": [
         {
@@ -699,7 +777,7 @@
       "name": "tree-world-solid-70613972",
       "sceneId": "object.tree-world-solid.tree-autumn-01",
       "parentNodeId": "world",
-      "order": 24,
+      "order": 27,
       "persistenceKey": "level-1.tree-world-solid-70613972",
       "overrides": [
         {
@@ -730,7 +808,7 @@
       "name": "level-1-npc-mossy-scout",
       "sceneId": "character.mossy-scout",
       "parentNodeId": "world",
-      "order": 25,
+      "order": 28,
       "persistenceKey": "level-1.level-1-npc-mossy-scout",
       "overrides": [
         {
@@ -743,6 +821,30 @@
           ]
         }
       ]
+    }
+  ],
+  "connections": [
+    {
+      "source": {
+        "nodeId": "exit-1"
+      },
+      "signal": "body_entered",
+      "target": {
+        "nodeId": "exit-1-script"
+      },
+      "handler": "on_body_entered"
+    }
+  ],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "level-1.exit-1.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 64,
+        "height": 128
+      }
     }
   ]
 }

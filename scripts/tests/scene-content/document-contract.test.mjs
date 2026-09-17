@@ -39,6 +39,31 @@ test('hierarchy, identity, names, and combined sibling order are strict', () => 
   assert.match(messages, /dense sequence/);
 });
 
+test('inline resources supplement external references when a catalog is not loaded yet', () => {
+  const mixed = {
+    version: 1,
+    sceneId: 'fixture.mixed-resources',
+    rootNodeId: 'root',
+    nodes: [
+      { id: 'root', name: 'Root', type: 'Node2D', parentId: null, order: 0, properties: {} },
+      { id: 'visual', name: 'Visual', type: 'Sprite2D', parentId: 'root', order: 0, properties: { texture: { resourceId: 'texture.external' } } },
+      { id: 'area', name: 'Area', type: 'Area2D', parentId: 'root', order: 1, properties: {} },
+      { id: 'shape', name: 'Shape', type: 'CollisionShape2D', parentId: 'area', order: 0, properties: { shape: { resourceId: 'shape.inline' } } },
+    ],
+    instances: [],
+    subresources: [{
+      version: 1, resourceId: 'shape.inline', kind: 'collision-shape',
+      value: { shape: 'rectangle', width: 8, height: 8 },
+    }],
+  };
+  assert.deepEqual(tooling.validateSceneDocument(mixed, { registry }), []);
+  assert.deepEqual(tooling.validateSceneDocument(mixed, {
+    registry,
+    hasResource: (id) => id === 'texture.external',
+    getResourceKind: (id) => id === 'texture.external' ? 'texture' : undefined,
+  }), []);
+});
+
 test('runtime IDs encode construction namespaces and survive display-path changes', () => {
   const before = tooling.runtimeNodeId('world-run-17', ['north-camp', 'reward-chest'], 'script');
   assert.equal(before, 'world-run-17/north-camp/reward-chest/script');

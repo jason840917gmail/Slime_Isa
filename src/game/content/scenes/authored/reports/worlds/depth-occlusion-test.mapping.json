@@ -4,7 +4,9 @@
   "sceneId": "world.depth-occlusion-test",
   "sourceCounts": {
     "objects": 5,
-    "bossCamps": 0
+    "bossCamps": 0,
+    "playerMarkers": 1,
+    "exits": 0
   },
   "worldInstanceCount": 5,
   "placements": [
@@ -62,6 +64,17 @@
       "sceneId": "object.house-world-solid.cottage-blue",
       "persistenceKey": "depth-occlusion-test.depth-house-east",
       "initialState": {}
+    }
+  ],
+  "navigation": [
+    {
+      "sourceKind": "player-spawn",
+      "sourcePath": "$.player.spawn",
+      "nodeId": "player-spawn",
+      "position": [
+        288,
+        96
+      ]
     }
   ]
 }

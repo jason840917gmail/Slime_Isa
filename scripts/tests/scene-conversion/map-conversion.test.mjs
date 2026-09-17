@@ -75,7 +75,7 @@ test('map terrain conversion is deterministic and externalizes stable tile cells
   });
   assert.deepEqual(world.instances, [{
     instanceId: 'amber-rock-001', name: 'amber-rock-001', sceneId: 'object.rock-amber-ore-mineable',
-    parentNodeId: 'world', order: 1, persistenceKey: 'test-rectangle.amber-rock-001',
+    parentNodeId: 'world', order: 2, persistenceKey: 'test-rectangle.amber-rock-001',
     overrides: [
       { sourceInstancePath: [], sourceNodeId: 'body', property: 'position', value: [288, 192] },
       { sourceInstancePath: [], sourceNodeId: 'script', property: 'mapId', value: 'test-rectangle' },
@@ -83,9 +83,16 @@ test('map terrain conversion is deterministic and externalizes stable tile cells
       { sourceInstancePath: [], sourceNodeId: 'script', property: 'initialHealth', value: 30 },
     ],
   }]);
-  assert.deepEqual(report.sourceCounts, { objects: 1, bossCamps: 0 });
+  assert.deepEqual(world.nodes.find((node) => node.id === 'player-spawn'), {
+    id: 'player-spawn', name: 'player-spawn', type: 'Node2D', parentId: 'world', order: 1,
+    properties: { position: [96, 96] },
+  });
+  assert.deepEqual(report.sourceCounts, { objects: 1, bossCamps: 0, playerMarkers: 1, exits: 0 });
   assert.equal(report.placements[0].sourceId, 'amber-rock-001');
   assert.equal(report.placements[0].ownership, 'world-instance');
+  assert.deepEqual(report.navigation, [{
+    sourceKind: 'player-spawn', sourcePath: '$.player.spawn', nodeId: 'player-spawn', position: [96, 96],
+  }]);
 
   const levelOne = await load('worlds/level-1.scene.json');
   const levelOneReport = await load('reports/worlds/level-1.mapping.json');
@@ -93,6 +100,40 @@ test('map terrain conversion is deterministic and externalizes stable tile cells
   assert.equal(levelOne.instances.some((instance) => instance.instanceId === 'level-1-fatty-guarded-chest'), false);
   assert.equal(levelOne.instances.find((instance) => instance.instanceId === 'level-1-fatty-one-eye-camp').sceneId, 'encounter.level-1-fatty-camp');
   assert.equal(levelOneReport.placements.find((placement) => placement.sourceId === 'level-1-fatty-guarded-chest').ownership, 'encounter-instance');
+
+  assert.deepEqual(levelOne.nodes.filter((node) => node.id.startsWith('player-')).map((node) => node.id), [
+    'player-spawn', 'player-entry-east',
+  ]);
+  assert.deepEqual(levelOne.nodes.find((node) => node.id === 'exit-1').properties, {
+    position: [3552, 576], collisionLayer: 0, collisionMask: 2, monitoring: true, monitorable: false,
+  });
+  assert.deepEqual(levelOne.nodes.find((node) => node.id === 'exit-1-shape').properties, {
+    shape: { resourceId: 'level-1.exit-1.shape' },
+  });
+  assert.deepEqual(levelOne.nodes.find((node) => node.id === 'exit-1-script').properties, {
+    mapId: 'level-1', exitId: 'exit-1', targetAreaId: 'gloop-forest', entry: 'west', area: { nodeId: 'exit-1' },
+    gate: {
+      id: 'level-1-east-verdant-gate', requiredItemId: 'green-key', consumeOnUnlock: true,
+      lockedMessage: 'The eastern gate needs a green key.',
+    },
+  });
+  assert.deepEqual(levelOne.subresources.find((resource) => resource.resourceId === 'level-1.exit-1.shape'), {
+    version: 1, resourceId: 'level-1.exit-1.shape', kind: 'collision-shape',
+    value: { shape: 'rectangle', width: 64, height: 128 },
+  });
+  assert.deepEqual(levelOne.connections, [{
+    source: { nodeId: 'exit-1' }, signal: 'body_entered',
+    target: { nodeId: 'exit-1-script' }, handler: 'on_body_entered',
+  }]);
+  assert.deepEqual(levelOneReport.navigation.find((mapping) => mapping.sourceKind === 'exit'), {
+    sourceKind: 'exit', sourcePath: '$.exits[0]', sourceId: 'exit-1', areaNodeId: 'exit-1',
+    shapeNodeId: 'exit-1-shape', scriptNodeId: 'exit-1-script', position: [3552, 576],
+    zone: { x: 3520, y: 512, w: 64, h: 128 }, targetAreaId: 'gloop-forest', entry: 'west',
+    gate: {
+      id: 'level-1-east-verdant-gate', requiredItemId: 'green-key', consumeOnUnlock: true,
+      lockedMessage: 'The eastern gate needs a green key.',
+    },
+  });
 });
 
 test('converted world terrain matches checked-in authored resources', async () => {

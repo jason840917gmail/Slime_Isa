@@ -4,7 +4,9 @@
   "sceneId": "world.emberleef",
   "sourceCounts": {
     "objects": 646,
-    "bossCamps": 0
+    "bossCamps": 0,
+    "playerMarkers": 4,
+    "exits": 2
   },
   "worldInstanceCount": 646,
   "placements": [
@@ -7113,6 +7115,89 @@
       "sceneId": "object.decoration-world-solid.stone-pedestal",
       "persistenceKey": "emberleef.decoration-world-solid-83150545",
       "initialState": {}
+    }
+  ],
+  "navigation": [
+    {
+      "sourceKind": "player-spawn",
+      "sourcePath": "$.player.spawn",
+      "nodeId": "player-spawn",
+      "position": [
+        1440,
+        1760
+      ]
+    },
+    {
+      "sourceKind": "player-entry",
+      "sourcePath": "$.player.entries.east",
+      "nodeId": "player-entry-east",
+      "position": [
+        1440,
+        1824
+      ],
+      "direction": "east"
+    },
+    {
+      "sourceKind": "player-entry",
+      "sourcePath": "$.player.entries.south",
+      "nodeId": "player-entry-south",
+      "position": [
+        1728,
+        3200
+      ],
+      "direction": "south"
+    },
+    {
+      "sourceKind": "player-entry",
+      "sourcePath": "$.player.entries.west",
+      "nodeId": "player-entry-west",
+      "position": [
+        1440,
+        1888
+      ],
+      "direction": "west"
+    },
+    {
+      "sourceKind": "exit",
+      "sourcePath": "$.exits[0]",
+      "sourceId": "exit-1",
+      "areaNodeId": "exit-1",
+      "shapeNodeId": "exit-1-shape",
+      "scriptNodeId": "exit-1-script",
+      "position": [
+        1728,
+        3440
+      ],
+      "zone": {
+        "x": 0,
+        "y": 3424,
+        "w": 3456,
+        "h": 32
+      },
+      "targetAreaId": "hot",
+      "entry": "north",
+      "gate": {}
+    },
+    {
+      "sourceKind": "exit",
+      "sourcePath": "$.exits[1]",
+      "sourceId": "exit-2",
+      "areaNodeId": "exit-2",
+      "shapeNodeId": "exit-2-shape",
+      "scriptNodeId": "exit-2-script",
+      "position": [
+        16,
+        1728
+      ],
+      "zone": {
+        "x": 0,
+        "y": 0,
+        "w": 32,
+        "h": 3456
+      },
+      "targetAreaId": "icege",
+      "entry": "east",
+      "gate": {}
     }
   ]
 }

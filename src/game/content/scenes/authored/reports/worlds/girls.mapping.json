@@ -4,7 +4,9 @@
   "sceneId": "world.girls",
   "sourceCounts": {
     "objects": 249,
-    "bossCamps": 0
+    "bossCamps": 0,
+    "playerMarkers": 2,
+    "exits": 0
   },
   "worldInstanceCount": 249,
   "placements": [
@@ -2751,6 +2753,27 @@
       "sceneId": "object.decoration-world-solid.birdhouse",
       "persistenceKey": "girls.decoration-world-solid-a7e03e0b",
       "initialState": {}
+    }
+  ],
+  "navigation": [
+    {
+      "sourceKind": "player-spawn",
+      "sourcePath": "$.player.spawn",
+      "nodeId": "player-spawn",
+      "position": [
+        864,
+        992
+      ]
+    },
+    {
+      "sourceKind": "player-entry",
+      "sourcePath": "$.player.entries.east",
+      "nodeId": "player-entry-east",
+      "position": [
+        928,
+        992
+      ],
+      "direction": "east"
     }
   ]
 }

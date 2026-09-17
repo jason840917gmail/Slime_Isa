@@ -4,7 +4,9 @@
   "sceneId": "world.meadow-crossing",
   "sourceCounts": {
     "objects": 414,
-    "bossCamps": 0
+    "bossCamps": 0,
+    "playerMarkers": 3,
+    "exits": 1
   },
   "worldInstanceCount": 414,
   "placements": [
@@ -4561,6 +4563,58 @@
       "sceneId": "object.tree-world-solid.tree-autumn-01",
       "persistenceKey": "meadow-crossing.tree-world-solid-7a35aaf8",
       "initialState": {}
+    }
+  ],
+  "navigation": [
+    {
+      "sourceKind": "player-spawn",
+      "sourcePath": "$.player.spawn",
+      "nodeId": "player-spawn",
+      "position": [
+        1504,
+        2080
+      ]
+    },
+    {
+      "sourceKind": "player-entry",
+      "sourcePath": "$.player.entries.east",
+      "nodeId": "player-entry-east",
+      "position": [
+        3200,
+        1728
+      ],
+      "direction": "east"
+    },
+    {
+      "sourceKind": "player-entry",
+      "sourcePath": "$.player.entries.west",
+      "nodeId": "player-entry-west",
+      "position": [
+        256,
+        1728
+      ],
+      "direction": "west"
+    },
+    {
+      "sourceKind": "exit",
+      "sourcePath": "$.exits[0]",
+      "sourceId": "exit-1",
+      "areaNodeId": "exit-1",
+      "shapeNodeId": "exit-1-shape",
+      "scriptNodeId": "exit-1-script",
+      "position": [
+        3440,
+        1728
+      ],
+      "zone": {
+        "x": 3424,
+        "y": 0,
+        "w": 32,
+        "h": 3456
+      },
+      "targetAreaId": "gloop-forest",
+      "entry": "west",
+      "gate": {}
     }
   ]
 }

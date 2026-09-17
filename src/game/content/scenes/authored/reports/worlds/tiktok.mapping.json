@@ -4,7 +4,9 @@
   "sceneId": "world.tiktok",
   "sourceCounts": {
     "objects": 1260,
-    "bossCamps": 0
+    "bossCamps": 0,
+    "playerMarkers": 1,
+    "exits": 0
   },
   "worldInstanceCount": 1260,
   "placements": [
@@ -13867,6 +13869,17 @@
       "sceneId": "object.collectible-purple-berry",
       "persistenceKey": "tiktok.collectible-purple-berry-34259eab",
       "initialState": {}
+    }
+  ],
+  "navigation": [
+    {
+      "sourceKind": "player-spawn",
+      "sourcePath": "$.player.spawn",
+      "nodeId": "player-spawn",
+      "position": [
+        992,
+        1056
+      ]
     }
   ]
 }

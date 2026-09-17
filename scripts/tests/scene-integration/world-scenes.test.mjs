@@ -26,6 +26,8 @@ test('every authored map placement has exactly one reported scene owner', async 
     assert.deepEqual(report.sourceCounts, {
       objects: map.objects.length,
       bossCamps: map.bossCamps?.length ?? 0,
+      playerMarkers: 1 + Object.keys(map.player.entries).length,
+      exits: map.exits?.length ?? 0,
     });
     assert.equal(report.placements.length, map.objects.length + (map.bossCamps?.length ?? 0));
     assert.equal(world.instances.length, report.worldInstanceCount);
@@ -36,7 +38,50 @@ test('every authored map placement has exactly one reported scene owner', async 
     assert.equal(new Set(sourceKeys).size, sourceKeys.length, `${map.mapId} has duplicate mapping rows`);
     for (const object of map.objects) assert.ok(sourceKeys.includes(`object:${object.instanceId}`), `${map.mapId} lost ${object.instanceId}`);
     for (const camp of map.bossCamps ?? []) assert.ok(sourceKeys.includes(`boss-camp:${camp.id}`), `${map.mapId} lost ${camp.id}`);
+
+    const expectedNavigationPaths = [
+      '$.player.spawn',
+      ...['north', 'east', 'south', 'west']
+        .filter((direction) => map.player.entries[direction])
+        .map((direction) => `$.player.entries.${direction}`),
+      ...(map.exits ?? []).map((_, index) => `$.exits[${index}]`),
+    ];
+    assert.deepEqual(report.navigation.map((mapping) => mapping.sourcePath), expectedNavigationPaths);
+    assert.equal(new Set(report.navigation.map((mapping) => mapping.sourcePath)).size, report.navigation.length);
+    assert.equal(report.navigation.length, report.sourceCounts.playerMarkers + report.sourceCounts.exits);
+    for (const mapping of report.navigation) {
+      const nodeId = mapping.nodeId ?? mapping.areaNodeId;
+      assert.equal(world.nodes.filter((node) => node.id === nodeId).length, 1, `${map.mapId} lost ${mapping.sourcePath}`);
+    }
   }
+});
+
+test('authored navigation nodes preserve marker order, exit geometry, targets, gates, and signal wiring', () => {
+  const icege = content.scenes.find((scene) => scene.sceneId === 'world.icege');
+  assert.deepEqual(
+    icege.nodes.filter((node) => node.parentId === 'world' && node.id.startsWith('player-')).map((node) => node.id),
+    ['player-spawn', 'player-entry-north', 'player-entry-east', 'player-entry-south', 'player-entry-west'],
+  );
+
+  const levelOne = content.scenes.find((scene) => scene.sceneId === 'world.level-1');
+  const area = levelOne.nodes.find((node) => node.id === 'exit-1');
+  const shape = levelOne.nodes.find((node) => node.id === 'exit-1-shape');
+  const script = levelOne.nodes.find((node) => node.id === 'exit-1-script');
+  assert.deepEqual(area.properties.position, [3552, 576]);
+  assert.deepEqual(shape.properties.shape, { resourceId: 'level-1.exit-1.shape' });
+  assert.deepEqual(script.properties, {
+    mapId: 'level-1', exitId: 'exit-1', targetAreaId: 'gloop-forest', entry: 'west', area: { nodeId: 'exit-1' },
+    gate: {
+      id: 'level-1-east-verdant-gate', requiredItemId: 'green-key', consumeOnUnlock: true,
+      lockedMessage: 'The eastern gate needs a green key.',
+    },
+  });
+  assert.deepEqual(levelOne.subresources.find((resource) => resource.resourceId === 'level-1.exit-1.shape').value, {
+    shape: 'rectangle', width: 64, height: 128,
+  });
+  assert.deepEqual(levelOne.connections, [{
+    source: { nodeId: 'exit-1' }, signal: 'body_entered', target: { nodeId: 'exit-1-script' }, handler: 'on_body_entered',
+  }]);
 });
 
 test('world preparation preserves placement transforms, identities, persistence, and nested encounter ownership', async () => {
