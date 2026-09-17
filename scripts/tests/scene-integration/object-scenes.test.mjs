@@ -88,6 +88,7 @@ function dispose(fixture) {
 for (const sceneId of [
   'object.resource-stone-node',
   'object.resource-stone-node.big-stone-mine',
+  'object.rock-amber-ore-mineable',
   'object.tree-world-solid',
   'object.tree-world-solid.tree-autumn-01',
 ]) {
@@ -108,3 +109,16 @@ for (const sceneId of [
     dispose(second);
   });
 }
+
+test('object.rock-amber-ore-mineable owns persistent ore health and a shard drop', async () => {
+  const fixture = await instantiate('object.rock-amber-ore-mineable', 'amber-fixture', 'test-rectangle', 'amber-rock-001');
+  const script = fixture.root.get_node('ResourceNodeScript');
+  assert.ok(script instanceof t.ResourceNodeScript);
+  assert.equal(script.maxHealth, 30);
+  assert.deepEqual(script.tags, ['rock', 'solid', 'mineable']);
+  assert.deepEqual(script.dropDefinition, {
+    objectId: 'collectible.crystal-shard', visualId: 'crystal-shard', pieces: 1,
+  });
+  assert.equal(fixture.router.hasArea(fixture.root.get_node('DamageArea').runtimeId), true);
+  dispose(fixture);
+});

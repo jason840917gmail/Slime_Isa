@@ -1,0 +1,151 @@
+{
+  "version": 1,
+  "sceneId": "object.rock-amber-ore-mineable",
+  "rootNodeId": "body",
+  "nodes": [
+    {
+      "id": "body",
+      "name": "amber-ore",
+      "type": "StaticBody2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "collisionLayer": 1,
+        "collisionMask": 2,
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "body-shape",
+      "name": "BodyShape",
+      "type": "CollisionShape2D",
+      "parentId": "body",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "rock-amber-ore-mineable.amber-ore.shape"
+        },
+        "position": [
+          28,
+          59
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "body",
+      "order": 1,
+      "properties": {
+        "texture": {
+          "resourceId": "rock-amber-ore-mineable.amber-ore.sprite"
+        },
+        "frame": 0,
+        "origin": [
+          0.5,
+          1
+        ],
+        "scale": [
+          1,
+          1
+        ],
+        "visualOffset": [
+          0,
+          0
+        ],
+        "depthMode": "world-sorted",
+        "depthBand": "world-entities"
+      }
+    },
+    {
+      "id": "damage-area",
+      "name": "DamageArea",
+      "type": "Area2D",
+      "parentId": "body",
+      "order": 2,
+      "properties": {
+        "collisionLayer": 8,
+        "collisionMask": 16,
+        "monitoring": true,
+        "monitorable": true
+      }
+    },
+    {
+      "id": "damage-shape",
+      "name": "DamageShape",
+      "type": "CollisionShape2D",
+      "parentId": "damage-area",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "rock-amber-ore-mineable.amber-ore.shape"
+        },
+        "position": [
+          28,
+          59
+        ]
+      }
+    },
+    {
+      "id": "script",
+      "name": "ResourceNodeScript",
+      "type": "ScriptNode",
+      "scriptId": "game.resource-node",
+      "parentId": "body",
+      "order": 3,
+      "properties": {
+        "mapId": "map-template",
+        "instanceId": "resource-template",
+        "objectId": "rock.amber-ore.mineable",
+        "damageArea": {
+          "nodeId": "damage-area"
+        },
+        "maxHealth": 30,
+        "tags": [
+          "rock",
+          "solid",
+          "mineable"
+        ],
+        "drop": {
+          "objectId": "collectible.crystal-shard",
+          "visualId": "crystal-shard",
+          "pieces": 1
+        },
+        "hitEffectId": "",
+        "onHitAnimationId": "",
+        "persistHealth": true,
+        "depletionMessage": "Ore depleted",
+        "harvestRequirement": {},
+        "damageRule": {
+          "priority": 0,
+          "damageMultiplier": 1
+        }
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "rock-amber-ore-mineable.amber-ore.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "sheet.rocks.8x3",
+      "frameWidth": 96,
+      "frameHeight": 96
+    },
+    {
+      "version": 1,
+      "resourceId": "rock-amber-ore-mineable.amber-ore.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 42,
+        "height": 16
+      }
+    }
+  ]
+}

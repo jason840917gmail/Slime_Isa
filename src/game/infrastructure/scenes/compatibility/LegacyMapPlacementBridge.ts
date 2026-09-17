@@ -17,6 +17,7 @@ const CAMP_SCENES: Readonly<Record<string, string>> = {
 
 const OBJECT_SCENES: Readonly<Record<string, string>> = {
   'chest.wooden': 'object.chest-wooden',
+  'rock.amber-ore.mineable': 'object.rock-amber-ore-mineable',
 };
 
 const OBJECT_VISUAL_SCENES: Readonly<Record<string, Readonly<Record<string, string>>>> = {
@@ -102,7 +103,10 @@ export class LegacyMapPlacementBridge {
       y: instance.y,
       persistenceKey: `${this.mapId}.${instance.instanceId}`,
       ...(npc ? { npcDefinitionId: npc.npcDefinitionId } : {}),
-      ...(!npc && (instance.objectId === 'resource.stone-node' || instance.objectId === 'tree.world.solid' || instance.objectId.startsWith('collectible.')) ? {
+      ...(!npc && (instance.objectId === 'resource.stone-node'
+        || instance.objectId === 'tree.world.solid'
+        || instance.objectId === 'rock.amber-ore.mineable'
+        || instance.objectId.startsWith('collectible.')) ? {
         propertyOverrides: [
           { nodeId: 'script', property: 'mapId', value: this.mapId },
           { nodeId: 'script', property: 'instanceId', value: instance.instanceId },

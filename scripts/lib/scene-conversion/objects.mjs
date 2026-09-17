@@ -24,6 +24,7 @@ const PASSIVE_OBJECT_KEYS = [
 ];
 const SUPPORTED = new Set([
   'object:chest.wooden',
+  'object:rock.amber-ore.mineable',
   'object:resource.stone-node',
   'object:tree.world.solid',
   ...COLLECTIBLE_KEYS,
@@ -94,7 +95,7 @@ async function animationLibrary(frame, staticScale, readSource) {
   return animations;
 }
 
-async function objectVisualScenes(unit, object, manifest, readSource) {
+async function objectVisualScenes(unit, object, manifest, readSource, gameplayFieldPath = '$.resourceNode') {
   const frames = object.variants.flatMap((variant) => variant.frames.map((frame) => ({ assetId: variant.assetId, frame })));
   return Promise.all(frames.map(async ({ assetId, frame }, index) => {
     if (!frame.collider) throw new Error(`Damageable object '${object.objectId}' visual '${frame.visualId}' requires a collider`);
@@ -147,9 +148,37 @@ async function objectVisualScenes(unit, object, manifest, readSource) {
       ],
     };
     return convertedOutput(unit, `objects/${baseSlug}${fileSuffix}.scene.json`, document, [
-      '$.objectId', '$.selection', '$.variants', '$.physics', '$.behavior', '$.resourceNode', '$.tags',
+      '$.objectId', '$.selection', '$.variants', '$.physics', '$.behavior', gameplayFieldPath, '$.tags',
     ], [{ path: '$.$schema', owner: unit.oldSourcePath }]);
   }));
+}
+
+function destructibleResourceNode(object, items) {
+  const dropIds = object.destructible?.drops;
+  if (!Array.isArray(dropIds) || dropIds.length === 0) {
+    throw new Error(`Destructible object '${object.objectId}' requires at least one authored drop`);
+  }
+  const uniqueDropIds = [...new Set(dropIds)];
+  if (uniqueDropIds.length !== 1) {
+    throw new Error(`Destructible object '${object.objectId}' requires one repeatable item drop for resource conversion`);
+  }
+  const item = items[uniqueDropIds[0]];
+  if (!item?.worldDrop?.objectId || !item.worldDrop.visualId) {
+    throw new Error(`Destructible object '${object.objectId}' drop '${uniqueDropIds[0]}' has no world-drop presentation`);
+  }
+  return {
+    ...object,
+    resourceNode: {
+      health: object.destructible.health,
+      drop: {
+        objectId: item.worldDrop.objectId,
+        visualId: item.worldDrop.visualId,
+        pieces: dropIds.length,
+      },
+      persistHealth: true,
+      depletionMessage: 'Ore depleted',
+    },
+  };
 }
 
 function collectibleScene(unit, object, manifest) {
@@ -267,6 +296,7 @@ export const objectSceneAdapter = {
   async convert({ units, readSource }) {
     const outputs = [];
     const manifest = await readJson(readSource, 'asset/assets.json');
+    const items = await readJson(readSource, 'src/game/content/items/items.json');
     for (const unit of units) {
       requireSupportedUnit(unit, SUPPORTED);
       const object = await readJson(readSource, unit.oldSourcePath);
@@ -280,6 +310,16 @@ export const objectSceneAdapter = {
       }
       if (unit.key === 'object:resource.stone-node' || unit.key === 'object:tree.world.solid') {
         outputs.push(...await objectVisualScenes(unit, object, manifest, readSource));
+        continue;
+      }
+      if (unit.key === 'object:rock.amber-ore.mineable') {
+        outputs.push(...await objectVisualScenes(
+          unit,
+          destructibleResourceNode(object, items),
+          manifest,
+          readSource,
+          '$.destructible',
+        ));
         continue;
       }
       const closed = object.variants[0].frames.find((frame) => frame.visualId === 'wooden-closed');
