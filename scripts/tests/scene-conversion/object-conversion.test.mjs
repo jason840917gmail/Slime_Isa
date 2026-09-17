@@ -24,7 +24,15 @@ const collectibleUnitKeys = [
   'object:collectible.stone-pile',
   'object:collectible.wood-pile',
 ];
-const unitKeys = ['object:resource.stone-node', 'object:tree.world.solid', ...collectibleUnitKeys];
+const passiveUnitKeys = [
+  'object:decoration.world.floor',
+  'object:decoration.world.solid',
+  'object:house.world.solid',
+  'object:rock.world-wall.decorative',
+  'object:rock.world-wall.solid',
+  'object:wall.stone.solid',
+];
+const unitKeys = ['object:resource.stone-node', 'object:tree.world.solid', ...collectibleUnitKeys, ...passiveUnitKeys];
 
 async function createRunner() {
   const productionLedger = JSON.parse(await readFile(path.join(repositoryRoot, 'scripts/migrations/universal-scene-conversion-ledger.json'), 'utf8'));
@@ -45,10 +53,33 @@ test('resource object conversion is deterministic and emits every stone and tree
   const first = await runner.run({ unitKeys, mode: 'dry-run' });
   const replay = await runner.run({ unitKeys: [...unitKeys].reverse(), mode: 'dry-run' });
   assert.deepEqual(replay.outputs, first.outputs);
-  assert.equal(first.outputs.length, 61);
+  assert.equal(first.outputs.length, 173);
   assert.ok(first.outputs.some((output) => output.path === 'objects/resource-stone-node.scene.json'));
   assert.ok(first.outputs.some((output) => output.path === 'objects/tree-world-solid.scene.json'));
   assert.ok(first.outputs.some((output) => output.path === 'objects/tree-world-solid--tree-autumn-01.scene.json'));
+});
+
+test('passive object scenes preserve collision, occlusion, offsets, and decorative walkability', async () => {
+  const runner = await createRunner();
+  await runner.run({ unitKeys, mode: 'apply' });
+  await runner.run({ unitKeys, mode: 'check' });
+  const load = async (relativePath) => JSON.parse(await readFile(path.join(runner.outputRoot, relativePath), 'utf8'));
+  const house = await load('objects/house-world-solid.scene.json');
+  const corner = await load('objects/wall-stone-solid--corner-01.scene.json');
+  const floor = await load('objects/decoration-world-floor.scene.json');
+
+  assert.equal(house.sceneId, 'object.house-world-solid');
+  assert.equal(house.nodes[0].type, 'StaticBody2D');
+  assert.deepEqual(house.nodes.find((node) => node.id === 'visual').properties.occlusionBounds, {
+    width: 300, height: 160, offsetX: 10, offsetY: 10,
+  });
+  assert.deepEqual(corner.nodes.find((node) => node.id === 'body-shape').properties.position, [5, 4]);
+  assert.deepEqual(corner.subresources.find((resource) => resource.kind === 'collision-shape').value, {
+    shape: 'rectangle', width: 47, height: 60,
+  });
+  assert.equal(floor.nodes[0].type, 'Node2D');
+  assert.equal(floor.nodes.some((node) => node.type === 'CollisionShape2D'), false);
+  assert.equal(floor.subresources.some((resource) => resource.kind === 'collision-shape'), false);
 });
 
 test('collectible scenes preserve inventory identity, visuals, and isolated pickup collision', async () => {

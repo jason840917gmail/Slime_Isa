@@ -1,0 +1,98 @@
+{
+  "version": 1,
+  "sceneId": "object.house-world-solid",
+  "rootNodeId": "body",
+  "nodes": [
+    {
+      "id": "body",
+      "name": "barn-red",
+      "type": "StaticBody2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "collisionLayer": 1,
+        "collisionMask": 2,
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "body-shape",
+      "name": "BodyShape",
+      "type": "CollisionShape2D",
+      "parentId": "body",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "house-world-solid.barn-red.shape"
+        },
+        "position": [
+          22,
+          157
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "body",
+      "order": 1,
+      "properties": {
+        "texture": {
+          "resourceId": "house-world-solid.barn-red.sprite"
+        },
+        "frame": 0,
+        "origin": [
+          0.5,
+          1
+        ],
+        "scale": [
+          1,
+          1
+        ],
+        "visualOffset": [
+          0,
+          0
+        ],
+        "depthMode": "world-sorted",
+        "depthBand": "world-entities",
+        "occlusionBounds": {
+          "width": 300,
+          "height": 160,
+          "offsetX": 10,
+          "offsetY": 10
+        },
+        "depthBounds": {
+          "width": 320,
+          "height": 160,
+          "offsetX": 0,
+          "offsetY": 0
+        }
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "house-world-solid.barn-red.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "sheet.houses.3x1",
+      "frameWidth": 320,
+      "frameHeight": 320
+    },
+    {
+      "version": 1,
+      "resourceId": "house-world-solid.barn-red.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 277,
+        "height": 150
+      }
+    }
+  ]
+}

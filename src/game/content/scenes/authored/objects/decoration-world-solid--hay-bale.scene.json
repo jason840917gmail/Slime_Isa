@@ -1,0 +1,86 @@
+{
+  "version": 1,
+  "sceneId": "object.decoration-world-solid.hay-bale",
+  "rootNodeId": "body",
+  "nodes": [
+    {
+      "id": "body",
+      "name": "hay-bale",
+      "type": "StaticBody2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "collisionLayer": 1,
+        "collisionMask": 2,
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "body-shape",
+      "name": "BodyShape",
+      "type": "CollisionShape2D",
+      "parentId": "body",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "decoration-world-solid.hay-bale.shape"
+        },
+        "position": [
+          14,
+          80
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "body",
+      "order": 1,
+      "properties": {
+        "texture": {
+          "resourceId": "decoration-world-solid.hay-bale.sprite"
+        },
+        "frame": 9,
+        "origin": [
+          0.5,
+          1
+        ],
+        "scale": [
+          1,
+          1
+        ],
+        "visualOffset": [
+          0,
+          0
+        ],
+        "depthMode": "world-sorted",
+        "depthBand": "world-entities"
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "decoration-world-solid.hay-bale.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "sheet.decorations.8x3",
+      "frameWidth": 128,
+      "frameHeight": 128
+    },
+    {
+      "version": 1,
+      "resourceId": "decoration-world-solid.hay-bale.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 100,
+        "height": 34
+      }
+    }
+  ]
+}

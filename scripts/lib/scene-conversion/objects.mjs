@@ -14,7 +14,21 @@ const COLLECTIBLE_KEYS = [
   'object:collectible.stone-pile',
   'object:collectible.wood-pile',
 ];
-const SUPPORTED = new Set(['object:chest.wooden', 'object:resource.stone-node', 'object:tree.world.solid', ...COLLECTIBLE_KEYS]);
+const PASSIVE_OBJECT_KEYS = [
+  'object:decoration.world.floor',
+  'object:decoration.world.solid',
+  'object:house.world.solid',
+  'object:rock.world-wall.decorative',
+  'object:rock.world-wall.solid',
+  'object:wall.stone.solid',
+];
+const SUPPORTED = new Set([
+  'object:chest.wooden',
+  'object:resource.stone-node',
+  'object:tree.world.solid',
+  ...COLLECTIBLE_KEYS,
+  ...PASSIVE_OBJECT_KEYS,
+]);
 
 const OBJECT_ANIMATION_PATHS = {
   'object.tree.idle': 'src/game/content/animations/objects/tree/idle/animation.json',
@@ -186,6 +200,69 @@ function collectibleScene(unit, object, manifest) {
   ], [{ path: '$.$schema', owner: unit.oldSourcePath }]);
 }
 
+function passiveObjectScenes(unit, object, manifest) {
+  const frames = object.variants.flatMap((variant) => variant.frames.map((frame) => ({ assetId: variant.assetId, frame })));
+  return frames.map(({ assetId, frame }, index) => {
+    const asset = manifest.assets[assetId];
+    if (!asset || asset.source.kind !== 'spritesheet') {
+      throw new Error(`Object '${object.objectId}' visual '${frame.visualId}' requires a spritesheet asset`);
+    }
+    const solid = object.physics?.body === 'static';
+    if (solid && !frame.collider) throw new Error(`Solid object '${object.objectId}' visual '${frame.visualId}' requires a collider`);
+    const scale = frame.scale ?? 1;
+    const visualOffset = frame.visualOffset ?? { x: 0, y: 0 };
+    const objectSlug = slug(object.objectId);
+    const visualSlug = slug(frame.visualId);
+    const sceneSuffix = index === 0 ? '' : `.${visualSlug}`;
+    const fileSuffix = index === 0 ? '' : `--${visualSlug}`;
+    const resourcePrefix = `${objectSlug}.${visualSlug}`;
+    const rootId = solid ? 'body' : 'root';
+    const document = {
+      version: 1,
+      sceneId: `object.${objectSlug}${sceneSuffix}`,
+      rootNodeId: rootId,
+      nodes: [
+        {
+          id: rootId,
+          name: frame.displayName ?? frame.visualId,
+          type: solid ? 'StaticBody2D' : 'Node2D',
+          parentId: null,
+          order: 0,
+          properties: solid
+            ? { collisionLayer: 1, collisionMask: 2, position: [0, 0] }
+            : { position: [0, 0] },
+        },
+        ...(solid ? [{
+          id: 'body-shape', name: 'BodyShape', type: 'CollisionShape2D', parentId: rootId, order: 0,
+          properties: {
+            shape: { resourceId: `${resourcePrefix}.shape` },
+            position: [(frame.collider.offsetX - visualOffset.x) * scale, (frame.collider.offsetY - visualOffset.y) * scale],
+          },
+        }] : []),
+        {
+          id: 'visual', name: 'Visual', type: 'Sprite2D', parentId: rootId, order: solid ? 1 : 0,
+          properties: {
+            texture: { resourceId: `${resourcePrefix}.sprite` }, frame: frame.frame,
+            origin: Array.isArray(asset.render?.origin) ? asset.render.origin : [0.5, 1],
+            scale: [scale, scale], visualOffset: [visualOffset.x, visualOffset.y],
+            depthMode: 'world-sorted', depthBand: 'world-entities',
+            ...(frame.occlusionBounds ? { occlusionBounds: frame.occlusionBounds } : {}),
+            ...(frame.depthBounds ? { depthBounds: frame.depthBounds } : {}),
+          },
+        },
+      ],
+      instances: [],
+      subresources: [
+        { version: 1, resourceId: `${resourcePrefix}.sprite`, kind: 'sprite-sheet', assetId, frameWidth: asset.source.frame.w, frameHeight: asset.source.frame.h, frameCount: asset.source.frame.count },
+        ...(solid ? [{ version: 1, resourceId: `${resourcePrefix}.shape`, kind: 'collision-shape', value: shapeValue(frame.collider, scale) }] : []),
+      ],
+    };
+    return convertedOutput(unit, `objects/${objectSlug}${fileSuffix}.scene.json`, document, [
+      '$.objectId', '$.selection', '$.variants', '$.physics', '$.tags',
+    ], [{ path: '$.$schema', owner: unit.oldSourcePath }]);
+  });
+}
+
 export const objectSceneAdapter = {
   async convert({ units, readSource }) {
     const outputs = [];
@@ -195,6 +272,10 @@ export const objectSceneAdapter = {
       const object = await readJson(readSource, unit.oldSourcePath);
       if (COLLECTIBLE_KEYS.includes(unit.key)) {
         outputs.push(collectibleScene(unit, object, manifest));
+        continue;
+      }
+      if (PASSIVE_OBJECT_KEYS.includes(unit.key)) {
+        outputs.push(...passiveObjectScenes(unit, object, manifest));
         continue;
       }
       if (unit.key === 'object:resource.stone-node' || unit.key === 'object:tree.world.solid') {
