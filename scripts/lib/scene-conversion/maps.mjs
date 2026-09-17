@@ -132,7 +132,7 @@ function navigationContent(map, firstOrder) {
         properties: {
           position,
           collisionLayer: 0,
-          collisionMask: 2,
+          collisionMask: 1,
           monitoring: true,
           monitorable: false,
         },

@@ -90,7 +90,7 @@
           16
         ],
         "collisionLayer": 0,
-        "collisionMask": 2,
+        "collisionMask": 1,
         "monitoring": true,
         "monitorable": false
       }
@@ -137,7 +137,7 @@
           3440
         ],
         "collisionLayer": 0,
-        "collisionMask": 2,
+        "collisionMask": 1,
         "monitoring": true,
         "monitorable": false
       }

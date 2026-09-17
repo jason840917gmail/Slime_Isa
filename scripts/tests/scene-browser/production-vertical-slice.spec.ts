@@ -32,7 +32,6 @@ test('Level 1 spawns Worm Brawler through the universal runtime without a legacy
   expect(authored.managedPlayerCount).toBe(1);
   expect(authored.managedResourceCount).toBe(10);
   expect(authored.managedCollectibleCount).toBe(9);
-  expect(authored.legacyNpcCount).toBe(0);
   expect(authored.hasLegacyChestController).toBe(false);
   await page.keyboard.down('ArrowRight');
   await expect.poll(async () => (
@@ -59,8 +58,31 @@ test('Level 1 spawns Worm Brawler through the universal runtime without a legacy
   expect(live.legacyEnemyCount).toBe(0);
   expect(live.managedBossCount).toBe(1);
   expect(live.managedLiveCampCount).toBe(1);
-  expect(live.legacyBossCount).toBe(0);
+  expect(live.legacyBossCount ?? 0).toBe(0);
   expect(live.universalRuntimePaused).toBe(false);
+  expect(pageErrors).toEqual([]);
+  await page.evaluate(() => window.sceneFixture.destroy());
+  await expect.poll(() => page.locator('canvas').count()).toBe(0);
+});
+
+test('authored world exits route the managed player through the typed navigation service', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.addInitScript(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+  });
+  const pageErrors: string[] = [];
+  page.on('pageerror', (error) => pageErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error' && !message.text().startsWith('Failed to load resource:')) pageErrors.push(message.text());
+  });
+  await page.goto('./?mode=baseline&map=gloop-forest');
+  await waitForProductionReady(page, pageErrors);
+  await page.evaluate(() => window.sceneFixture.teleportProductionPlayer(16, 1_728));
+  await expect.poll(() => new URL(page.url()).searchParams.get('area'), { timeout: 15_000 }).toBe('level-1');
+  await waitForProductionReady(page, pageErrors);
+  const snapshot = await page.evaluate(() => window.sceneFixture.snapshot());
+  expect(snapshot.managedPlayerCount).toBe(1);
   expect(pageErrors).toEqual([]);
   await page.evaluate(() => window.sceneFixture.destroy());
   await expect.poll(() => page.locator('canvas').count()).toBe(0);

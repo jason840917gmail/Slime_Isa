@@ -2,10 +2,10 @@ import Phaser from 'phaser';
 
 import type { MapBossCamp, MapEnemySafeZone, MapFile } from '../../content/maps/mapFormat';
 import { getCharacterPackage } from '../../content/characters/CharacterCatalog';
-import { sceneId } from '../../content/scenes/identifiers';
+import { getObjectArchetype, isObjectArchetypeId } from '../../content/objects/ObjectCatalog';
+import { sceneId, type SceneId } from '../../content/scenes/identifiers';
 import { getBossDefinition } from '../../content/bosses/BossCatalog';
 import { ASSET_MANIFEST, type AssetId } from '../../infrastructure/assets/manifest';
-import { PhysicsBody2DNode } from '../../infrastructure/phaser-nodes/PhysicsBody2DNode';
 import { CharacterBody2DNode } from '../../infrastructure/phaser-nodes/CharacterBody2DNode';
 import { Area2DNode } from '../../infrastructure/phaser-nodes/Area2DNode';
 import { Sprite2DNode } from '../../infrastructure/phaser-nodes/Sprite2DNode';
@@ -13,14 +13,10 @@ import { PhaserUniversalSceneRuntime, type MountedScene } from '../../infrastruc
 import type { PreparedSceneContent } from '../../infrastructure/scenes/PreparedSceneContent';
 import { LegacyBossUiBridge, type LegacyBossBarHandle } from '../../infrastructure/scenes/compatibility/LegacyBossUiBridge';
 import { LegacyChestUiBridge } from '../../infrastructure/scenes/compatibility/LegacyChestUiBridge';
-import {
-  LegacyMapPlacementBridge,
-  type SceneEnabledPlacement,
-} from '../../infrastructure/scenes/compatibility/LegacyMapPlacementBridge';
 import { LegacyWorldAdapter } from '../../infrastructure/scenes/compatibility/LegacyWorldAdapter';
 import type { Node } from '../../runtime/scene/Node';
 import { InputRouter } from '../../runtime/scene/input/InputRouter';
-import type { Node2D } from '../../runtime/scene/Node2D';
+import { Node2D } from '../../runtime/scene/Node2D';
 import { AttackActivation } from '../combat/AttackActivation';
 import type { RoutedDamageOutcome } from '../combat/DamageRouter';
 import { DamageRouter } from '../combat/DamageRouter';
@@ -99,14 +95,19 @@ import type { ModalStack } from '../../ui/ModalStack';
 import { ChestInventoryPanel } from '../../ui/ChestInventoryPanel';
 import { BossHealthBar } from '../../ui/BossHealthBar';
 import { bossPerimeterContains } from '../bosses/BossCampBehavior';
+import {
+  WORLD_EXIT_SERVICE,
+  type WorldExitPort,
+  type WorldExitRequest,
+  type WorldExitResult,
+} from '../scripts/WorldExitScript';
 
 export interface UniversalSceneWorldControllerOptions {
   readonly scene: Phaser.Scene;
   readonly content: PreparedSceneContent;
   readonly map: MapFile;
-  readonly placementBridge: LegacyMapPlacementBridge;
+  readonly worldSceneId: SceneId;
   readonly playerSpawn: Readonly<{ x: number; y: number }>;
-  readonly collisionTiles: Phaser.Physics.Arcade.StaticGroup;
   readonly health: LegacyPlayerHealthAdapter;
   readonly progress: WorldProgress;
   readonly transaction: InventoryWorldTransaction;
@@ -128,12 +129,13 @@ export interface UniversalSceneWorldControllerOptions {
   readonly spawnManagedResourceDrops: (request: ResourceDropRequest) => void;
   readonly collectibles: CollectibleWorldPort;
   readonly registerOccluder?: (registration: ObjectOccluderRegistration) => { dispose(): void };
+  readonly requestExit: (request: WorldExitRequest) => WorldExitResult;
 }
 
 interface ManagedCamp {
   readonly definition: MapBossCamp;
   readonly script: BossCampScript;
-  readonly mount: MountedScene;
+  readonly owner: Node2D;
 }
 
 interface ManagedBoss {
@@ -169,12 +171,12 @@ interface ManagedWeapon {
 }
 
 interface ManagedResource {
-  readonly mount: MountedScene;
+  readonly owner: Node;
   readonly script: ResourceNodeScript;
 }
 
 interface ManagedCollectible {
-  readonly mount: MountedScene;
+  readonly owner: Node;
   readonly script: CollectibleScript;
 }
 
@@ -225,7 +227,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
   private readonly effects = new Map<number, ManagedEffect>();
   private readonly resources = new Map<string, ManagedResource>();
   private readonly collectibles = new Map<string, ManagedCollectible>();
-  private readonly passiveObjects = new Set<MountedScene>();
+  private readonly passiveObjects = new Set<Node>();
   private weapon?: ManagedWeapon;
   private readonly npcs = new Map<string, NpcScript>();
   private playerScript?: PlayerScript;
@@ -242,7 +244,6 @@ export class UniversalSceneWorldController implements InteractionProvider {
   private nextWeaponSequence = 1;
   private managedProjectileSpawnCountValue = 0;
   private simulationTimeMs = 0;
-  private mountingPlacement?: SceneEnabledPlacement;
   private disposed = false;
 
   constructor(private readonly options: UniversalSceneWorldControllerOptions) {
@@ -320,6 +321,14 @@ export class UniversalSceneWorldController implements InteractionProvider {
         remaining: (mapId: string, instanceId: string) => options.collectibles.remaining(mapId, instanceId),
         pickup: (request: CollectiblePickupRequest) => this.pickupCollectible(request),
       } satisfies CollectibleWorldPort,
+      [WORLD_EXIT_SERVICE]: {
+        requestExit: (request: WorldExitRequest) => {
+          if (!this.playerBody || request.actorNodeId !== this.playerBody.runtimeId) {
+            return { status: 'ignored' };
+          }
+          return options.requestExit(request);
+        },
+      } satisfies WorldExitPort,
     });
     this.runtime = new PhaserUniversalSceneRuntime({
       scene: options.scene,
@@ -352,18 +361,16 @@ export class UniversalSceneWorldController implements InteractionProvider {
       }),
     });
 
-    if (options.placementBridge.scenePlacements().length > 0) {
-      let panelBridge: LegacyChestUiBridge | undefined;
-      const panel = new ChestInventoryPanel({
-        scene: options.scene,
-        modalStack: options.modalStack,
-        onPausedChange: options.setChestPaused,
-        getContents: (instanceId) => panelBridge?.getContents(instanceId) ?? {},
-        transferStack: (instanceId, itemId) => panelBridge?.transferStack(instanceId, itemId) ?? 0,
-        onClosed: (instanceId) => this.chests.get(instanceId)?.close(),
-      });
-      this.chestUi = panelBridge = new LegacyChestUiBridge(panel);
-    }
+    let panelBridge: LegacyChestUiBridge | undefined;
+    const panel = new ChestInventoryPanel({
+      scene: options.scene,
+      modalStack: options.modalStack,
+      onPausedChange: options.setChestPaused,
+      getContents: (instanceId) => panelBridge?.getContents(instanceId) ?? {},
+      transferStack: (instanceId, itemId) => panelBridge?.transferStack(instanceId, itemId) ?? 0,
+      onClosed: (instanceId) => this.chests.get(instanceId)?.close(),
+    });
+    this.chestUi = panelBridge = new LegacyChestUiBridge(panel);
     this.bossUi = new LegacyBossUiBridge((campId, bossId) => this.createBossBar(campId, bossId));
     this.inputRouter = new InputRouter({
       sink: this.runtime,
@@ -371,7 +378,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
       isPaused: () => this.runtime.tree.paused,
     });
     this.mountPlayer();
-    this.mountAuthoredPlacements();
+    this.mountAuthoredWorld();
     this.unregisterInteraction = options.interactions.register('managed-chests', this);
   }
 
@@ -457,7 +464,6 @@ export class UniversalSceneWorldController implements InteractionProvider {
     }
     const record: ManagedOrdinaryEnemy = { enemyId, request, script, mount, defeatNotified: false };
     this.ordinaryEnemies.set(enemyId, record);
-    this.registerLegacyColliders(mount);
     const controller = this;
     return {
       config: request.config,
@@ -568,66 +574,50 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.bossBars.clear();
   }
 
-  private mountAuthoredPlacements(): void {
-    for (const placement of this.options.placementBridge.scenePlacements()) {
-      this.mountingPlacement = placement;
-      let mount: MountedScene;
-      try {
-        mount = this.runtime.mountScene(sceneId(placement.sceneId), {
-          runtimeNamespace: `managed-${placement.placementId}`,
-          persistenceKey: placement.persistenceKey,
-          position: { x: placement.x, y: placement.y },
-          ...(placement.propertyOverrides ? { propertyOverrides: placement.propertyOverrides } : {}),
-        });
-      } finally {
-        this.mountingPlacement = undefined;
-      }
-      const npcScript = descendants(mount.root, NpcScript)[0];
-      const resourceScript = descendants(mount.root, ResourceNodeScript)[0];
-      const collectibleScript = descendants(mount.root, CollectibleScript)[0];
-      for (const visual of descendants(mount.root, Sprite2DNode)) {
-        if (!visual.occlusionBounds || !this.options.registerOccluder) continue;
-        const registration = this.options.registerOccluder({
-          id: visual.runtimeId,
-          owner: visual.presentationObject,
-          sourceFrame: visual.getRenderState().sourceFrame,
-          bounds: visual.occlusionBounds,
-          getDepth: () => visual.presentationObject.depth,
-        });
-        mount.mount.lifetimeDisposables.add(() => registration.dispose());
-      }
-      if (resourceScript) {
-        const drop = resourceScript.dropDefinition;
-        if (!drop) {
-          mount.dispose();
-          throw new Error(`Resource scene '${placement.sceneId}' requires an authored drop definition.`);
-        }
-        this.options.registerManagedResource({
-          instanceId: resourceScript.instanceId,
-          dropObjectId: drop.objectId,
-          dropVisualId: drop.visualId,
-        });
-        if (resourceScript.destroyed) {
-          mount.dispose();
-          continue;
-        }
-        this.resources.set(resourceScript.instanceId, { mount, script: resourceScript });
-      }
-      if (collectibleScript) {
-        if (collectibleScript.remaining <= 0) {
-          mount.dispose();
-          continue;
-        }
-        this.collectibles.set(collectibleScript.instanceId, { mount, script: collectibleScript });
-      }
-      if (isPassiveObjectScene(placement.sceneId)) this.passiveObjects.add(mount);
-      this.registerLegacyColliders(mount, !npcScript);
-      if (npcScript) this.registerNpcPlacement(placement, npcScript);
-      for (const script of descendants(mount.root, ChestScript)) this.chests.set(script.instanceId, script);
-      const campScript = descendants(mount.root, BossCampScript)[0];
-      const definition = this.options.map.bossCamps?.find((camp) => camp.id === campScript?.campId);
-      if (campScript && definition) this.camps.set(campScript.campId, { definition, script: campScript, mount });
+  private mountAuthoredWorld(): void {
+    const mount = this.runtime.mountScene(this.options.worldSceneId, {
+      runtimeNamespace: `managed-world-${this.options.map.mapId}`,
+    });
+    for (const visual of descendants(mount.root, Sprite2DNode)) {
+      if (!visual.occlusionBounds || !this.options.registerOccluder) continue;
+      const registration = this.options.registerOccluder({
+        id: visual.runtimeId,
+        owner: visual.presentationObject,
+        sourceFrame: visual.getRenderState().sourceFrame,
+        bounds: visual.occlusionBounds,
+        getDepth: () => visual.presentationObject.depth,
+      });
+      visual.lifetimeDisposables.add(() => registration.dispose());
     }
+
+    for (const script of descendants(mount.root, ResourceNodeScript)) {
+      const owner = authoredInstanceOwner(script);
+      const drop = script.dropDefinition;
+      if (!drop) throw new Error(`Resource '${script.instanceId}' requires an authored drop definition.`);
+      this.options.registerManagedResource({
+        instanceId: script.instanceId,
+        dropObjectId: drop.objectId,
+        dropVisualId: drop.visualId,
+      });
+      if (script.destroyed) owner.queue_free();
+      else this.resources.set(script.instanceId, { owner, script });
+    }
+    for (const script of descendants(mount.root, CollectibleScript)) {
+      const owner = authoredInstanceOwner(script);
+      if (script.remaining <= 0) owner.queue_free();
+      else this.collectibles.set(script.instanceId, { owner, script });
+    }
+    for (const script of descendants(mount.root, NpcScript)) this.registerNpcPlacement(script);
+    for (const script of descendants(mount.root, ChestScript)) this.chests.set(script.instanceId, script);
+    for (const script of descendants(mount.root, BossCampScript)) {
+      const definition = this.options.map.bossCamps?.find((camp) => camp.id === script.campId);
+      const owner = authoredInstanceOwner(script);
+      if (definition && owner instanceof Node2D) this.camps.set(script.campId, { definition, script, owner });
+    }
+    for (const node of directAuthoredInstanceRoots(mount.root)) {
+      if (isPassiveObjectScene(node.authoredInstanceProvenance?.sourceSceneId ?? '')) this.passiveObjects.add(node);
+    }
+    this.runtime.tree.flushMutations();
   }
 
   private mountPlayer(): void {
@@ -661,10 +651,13 @@ export class UniversalSceneWorldController implements InteractionProvider {
   }
 
   private acquireNpcAgent(request: NpcRuntimeRequest): NpcWanderAgent | undefined {
-    const placement = this.mountingPlacement;
-    if (!placement?.npcDefinitionId) throw new Error(`NPC '${request.sourceNodeId}' has no authored map placement context.`);
+    const placement = this.mapObjectForRuntimeId(request.sourceNodeId);
+    const npcDefinitionId = placement && isObjectArchetypeId(placement.objectId)
+      ? getObjectArchetype(placement.objectId).npc?.definitionId
+      : undefined;
+    if (!placement || !npcDefinitionId) throw new Error(`NPC '${request.sourceNodeId}' has no authored map placement context.`);
     const packageValue = getCharacterPackage(request.characterId);
-    const area = this.options.map.npcWanderAreas?.find((candidate) => candidate.npcInstanceId === placement.placementId);
+    const area = this.options.map.npcWanderAreas?.find((candidate) => candidate.npcInstanceId === placement.instanceId);
     if (!area) return undefined;
     const randomPause = (): number => request.pauseMinMs + Math.random() * Math.max(0, request.pauseMaxMs - request.pauseMinMs);
     return {
@@ -684,26 +677,29 @@ export class UniversalSceneWorldController implements InteractionProvider {
     };
   }
 
-  private registerNpcPlacement(
-    placement: SceneEnabledPlacement,
-    script: NpcScript,
-  ): void {
-    if (!placement.npcDefinitionId) {
-      throw new Error(`NPC scene '${placement.sceneId}' requires an NPC definition identity.`);
-    }
+  private registerNpcPlacement(script: NpcScript): void {
+    const placement = this.mapObjectForRuntimeId(script.runtimeId);
+    const npcDefinitionId = placement && isObjectArchetypeId(placement.objectId)
+      ? getObjectArchetype(placement.objectId).npc?.definitionId
+      : undefined;
+    if (!placement || !npcDefinitionId) throw new Error(`NPC '${script.runtimeId}' requires an authored map identity.`);
     const actor: NpcActorHandle = {
-      instanceId: placement.placementId,
-      npcId: placement.npcDefinitionId,
+      instanceId: placement.instanceId,
+      npcId: npcDefinitionId,
       isActive: () => script.isActive(),
       getPosition: () => script.getPosition(),
       acquireInteractionLock: () => script.acquireInteractionLock(),
     };
-    this.npcs.set(placement.placementId, script);
+    this.npcs.set(placement.instanceId, script);
     this.options.registerNpc?.({
       actor,
-      instanceId: placement.placementId,
-      npcDefinitionId: placement.npcDefinitionId,
+      instanceId: placement.instanceId,
+      npcDefinitionId,
     });
+  }
+
+  private mapObjectForRuntimeId(runtimeId: string): MapFile['objects'][number] | undefined {
+    return this.options.map.objects.find((candidate) => runtimeId.includes(`/${candidate.instanceId}/`));
   }
 
   private evaluateCamps(): void {
@@ -719,7 +715,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.removeBoss(request.campId);
     const camp = this.camps.get(request.campId);
     if (!camp) throw new Error(`Managed boss camp '${request.campId}' is not mounted.`);
-    const origin = camp.mount.mount.get_global_transform().position;
+    const origin = camp.owner.get_global_transform().position;
     const mount = this.runtime.mountScene(sceneId(request.sceneId), {
       runtimeNamespace: `managed-boss-${this.nextBossSequence++}`,
       persistenceKey: `${request.campId}.boss`,
@@ -728,7 +724,6 @@ export class UniversalSceneWorldController implements InteractionProvider {
     const script = descendants(mount.root, EnemyScript)[0];
     if (!script) { mount.dispose(); throw new Error(`Boss scene '${request.sceneId}' has no enemy receiver script.`); }
     this.bosses.set(request.campId, { campId: request.campId, script, mount, defeatedNotified: false });
-    this.registerLegacyColliders(mount);
   }
 
   private removeBoss(campId: string): void {
@@ -805,7 +800,6 @@ export class UniversalSceneWorldController implements InteractionProvider {
       throw new Error(`Projectile scene '${request.projectileId}' requires ProjectileScript.`);
     }
     this.projectiles.set(sequence, { mount, script });
-    this.registerLegacyColliders(mount, false);
     script.launch(request.direction, request.speed, {
       sourceNodeId: request.sourceNodeId,
       damage: request.damage,
@@ -838,11 +832,11 @@ export class UniversalSceneWorldController implements InteractionProvider {
 
   private publishResourceHit(request: ResourceHitFeedbackRequest): void {
     const resource = this.resources.get(request.instanceId);
-    const visual = resource ? descendants(resource.mount.root, Sprite2DNode)[0] : undefined;
+    const visual = resource ? descendants(resource.owner, Sprite2DNode)[0] : undefined;
     visual?.setTintFill(0xffd277);
     if (visual && resource) {
       this.options.scene.time.delayedCall(110, () => {
-        if (!resource.mount.disposed) visual.clearTint();
+        if (!resource.owner.is_freed()) visual.clearTint();
       });
     }
     this.options.showMessage(request.x, request.y - 54, `-${Math.round(request.actualDamage)}`, 'white');
@@ -860,9 +854,10 @@ export class UniversalSceneWorldController implements InteractionProvider {
   private finishDestroyedResources(): void {
     for (const [instanceId, resource] of [...this.resources]) {
       if (!resource.script.destroyed) continue;
-      resource.mount.dispose();
+      resource.owner.queue_free();
       this.resources.delete(instanceId);
     }
+    this.runtime.tree.flushMutations();
   }
 
   private pickupCollectible(request: CollectiblePickupRequest): CollectiblePickupResult {
@@ -880,9 +875,10 @@ export class UniversalSceneWorldController implements InteractionProvider {
   private finishDepletedCollectibles(): void {
     for (const [instanceId, collectible] of [...this.collectibles]) {
       if (collectible.script.remaining > 0) continue;
-      collectible.mount.dispose();
+      collectible.owner.queue_free();
       this.collectibles.delete(instanceId);
     }
+    this.runtime.tree.flushMutations();
   }
 
   private managedTargetTags(receiverNodeId: string): readonly string[] {
@@ -906,18 +902,6 @@ export class UniversalSceneWorldController implements InteractionProvider {
     return bar;
   }
 
-  private registerLegacyColliders(mount: MountedScene, collideDynamicWithPlayer = true): void {
-    const colliders: Phaser.Physics.Arcade.Collider[] = [];
-    for (const body of descendants(mount.root, PhysicsBody2DNode)) {
-      if (body.isStaticBody) colliders.push(this.options.scene.physics.add.collider(this.playerPhysicsSprite, body.physicsObject));
-      else {
-        colliders.push(this.options.scene.physics.add.collider(body.physicsObject, this.options.collisionTiles));
-        if (collideDynamicWithPlayer) colliders.push(this.options.scene.physics.add.collider(this.playerPhysicsSprite, body.physicsObject));
-      }
-    }
-    mount.mount.lifetimeDisposables.add(() => { for (const collider of colliders) collider.destroy(); });
-  }
-
   private syncChestFrame(script: ChestScript): void {
     const visual = descendants(script.get_parent() ?? script, Sprite2DNode)[0];
     if (visual) visual.frame = script.empty ? 1 : 0;
@@ -932,4 +916,23 @@ function descendants<T extends Node>(root: Node, type: abstract new (...args: an
   };
   visit(root);
   return matches;
+}
+
+function authoredInstanceOwner(node: Node): Node {
+  let current: Node | undefined = node;
+  while (current) {
+    if (current.authoredInstanceProvenance) return current;
+    current = current.get_parent();
+  }
+  throw new Error(`Node '${node.runtimeId}' is not owned by an authored scene instance.`);
+}
+
+function directAuthoredInstanceRoots(root: Node): Node[] {
+  const output: Node[] = [];
+  const visit = (node: Node): void => {
+    if (node.authoredInstanceProvenance?.containingInstancePath.length === 0) output.push(node);
+    for (const child of node.get_children()) visit(child);
+  };
+  visit(root);
+  return output;
 }

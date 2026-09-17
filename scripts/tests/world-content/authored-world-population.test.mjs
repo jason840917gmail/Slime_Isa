@@ -28,10 +28,17 @@ test('legacy runtime map populations stay removed', () => {
   assert.doesNotMatch(proceduralAssets, /friend-face|friend-ear|crystal-switch|crystal-chest|big-blue-house/);
 });
 
-test('persistent authored objects enter gameplay through MapBuilder', () => {
+test('persistent authored objects enter gameplay through the packed world root', () => {
   const worldScene = read('src/game/scenes/WorldScene.ts');
-  const mapBuilder = read('src/game/features/world/MapBuilder.ts');
-  assert.match(worldScene, /new MapBuilder\(/);
-  assert.match(mapBuilder, /for \(const object of this\.ctx\.map\.objects\)/);
-  assert.match(mapBuilder, /this\.objectFactory\.create\(/);
+  const universalWorld = read('src/game/features/world/UniversalSceneWorldController.ts');
+  assert.doesNotMatch(worldScene, /MapBuilder|LegacyMapPlacementBridge|BossCampController|NpcRuntimeController|ChestController/);
+  assert.match(worldScene, /worldSceneId: this\.loadedWorld\.sceneId/);
+  assert.match(universalWorld, /this\.runtime\.mountScene\(this\.options\.worldSceneId/);
+  assert.match(universalWorld, /descendants\(mount\.root, ResourceNodeScript\)/);
+  assert.match(universalWorld, /descendants\(mount\.root, NpcScript\)/);
+  assert.match(universalWorld, /descendants\(mount\.root, BossCampScript\)/);
+  assert.equal(
+    fs.existsSync(path.join(root, 'src/game/infrastructure/scenes/compatibility/LegacyMapPlacementBridge.ts')),
+    false,
+  );
 });
