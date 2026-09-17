@@ -37,9 +37,12 @@ function tileSetEntry(definition) {
   };
 }
 
-function retainedMapFields(unit, map) {
+const ENTRY_DIRECTIONS = ['north', 'east', 'south', 'west'];
+
+function retainedMapFields(unit, map, consumedKeys = []) {
+  const consumed = new Set(consumedKeys);
   return Object.keys(map)
-    .filter((key) => !['mapId', 'tileSize', 'size', 'layers', 'objects', 'bossCamps'].includes(key))
+    .filter((key) => !['mapId', 'tileSize', 'size', 'layers', 'objects', 'bossCamps'].includes(key) && !consumed.has(key))
     .sort()
     .map((key) => ({ path: `$.${key}`, owner: unit.oldSourcePath }));
 }
@@ -79,6 +82,125 @@ function objectInstanceOverrides(map, instance, mapping) {
     overrides.push(override(mapping.scriptNodeId, 'initialHealth', instance.initialState.health));
   }
   return overrides;
+}
+
+function navigationContent(map, firstOrder) {
+  const nodes = [];
+  const subresources = [];
+  const connections = [];
+  const mappings = [];
+  let order = firstOrder;
+
+  const addMarker = (id, sourcePath, point, sourceKind, direction) => {
+    nodes.push({
+      id,
+      name: id,
+      type: 'Node2D',
+      parentId: 'world',
+      order: order++,
+      properties: { position: [point.x, point.y] },
+    });
+    mappings.push({
+      sourceKind,
+      sourcePath,
+      nodeId: id,
+      position: [point.x, point.y],
+      ...(direction ? { direction } : {}),
+    });
+  };
+
+  addMarker('player-spawn', '$.player.spawn', map.player.spawn, 'player-spawn');
+  for (const direction of ENTRY_DIRECTIONS) {
+    const point = map.player.entries[direction];
+    if (point) addMarker(`player-entry-${direction}`, `$.player.entries.${direction}`, point, 'player-entry', direction);
+  }
+
+  for (const [index, exit] of (map.exits ?? []).entries()) {
+    const exitId = `exit-${index + 1}`;
+    const shapeId = `${exitId}-shape`;
+    const scriptId = `${exitId}-script`;
+    const shapeResourceId = `${map.mapId}.${exitId}.shape`;
+    const position = [exit.zone.x + (exit.zone.w / 2), exit.zone.y + (exit.zone.h / 2)];
+    const gate = exit.gate ?? {};
+    nodes.push(
+      {
+        id: exitId,
+        name: exitId,
+        type: 'Area2D',
+        parentId: 'world',
+        order: order++,
+        properties: {
+          position,
+          collisionLayer: 0,
+          collisionMask: 2,
+          monitoring: true,
+          monitorable: false,
+        },
+      },
+      {
+        id: shapeId,
+        name: 'collision-shape',
+        type: 'CollisionShape2D',
+        parentId: exitId,
+        order: 0,
+        properties: { shape: { resourceId: shapeResourceId } },
+      },
+      {
+        id: scriptId,
+        name: 'world-exit-script',
+        type: 'ScriptNode',
+        scriptId: 'game.world-exit',
+        parentId: exitId,
+        order: 1,
+        properties: {
+          mapId: map.mapId,
+          exitId,
+          targetAreaId: exit.to,
+          entry: exit.entry,
+          area: { nodeId: exitId },
+          gate,
+        },
+      },
+    );
+    subresources.push({
+      version: 1,
+      resourceId: shapeResourceId,
+      kind: 'collision-shape',
+      value: { shape: 'rectangle', width: exit.zone.w, height: exit.zone.h },
+    });
+    connections.push({
+      source: { nodeId: exitId },
+      signal: 'body_entered',
+      target: { nodeId: scriptId },
+      handler: 'on_body_entered',
+    });
+    mappings.push({
+      sourceKind: 'exit',
+      sourcePath: `$.exits[${index}]`,
+      sourceId: exitId,
+      areaNodeId: exitId,
+      shapeNodeId: shapeId,
+      scriptNodeId: scriptId,
+      position,
+      zone: exit.zone,
+      targetAreaId: exit.to,
+      entry: exit.entry,
+      gate,
+    });
+  }
+
+  const expectedMarkerCount = 1 + Object.keys(map.player.entries).length;
+  const markerCount = mappings.filter((mapping) => mapping.sourceKind !== 'exit').length;
+  const exitCount = mappings.filter((mapping) => mapping.sourceKind === 'exit').length;
+  if (markerCount !== expectedMarkerCount || exitCount !== (map.exits?.length ?? 0)) {
+    throw new Error(`Map '${map.mapId}' lost navigation content during conversion`);
+  }
+  const sourcePaths = mappings.map((mapping) => mapping.sourcePath);
+  if (new Set(sourcePaths).size !== sourcePaths.length) {
+    throw new Error(`Map '${map.mapId}' duplicates a navigation source during conversion`);
+  }
+
+  return { nodes, subresources, connections, mappings, rootChildCount: order - firstOrder };
 }
 
 function worldPlacements(map, mappingModule, firstOrder) {
@@ -168,6 +290,7 @@ export const mapSceneAdapter = {
       const seed = Object.values(areas).find((area) => area.mapId === map.mapId)?.seed ?? fallbackSeed(map.mapId);
       const layerNodes = [];
       const retained = retainedMapFields(unit, map);
+      const navigationRetained = retainedMapFields(unit, map, ['player', 'exits']);
 
       map.layers.forEach((layer, layerIndex) => {
         const layerSlug = slug(layer.id);
@@ -224,7 +347,9 @@ export const mapSceneAdapter = {
         });
       });
 
-      const world = worldPlacements(map, placementMapping, layerNodes.length);
+      const navigation = navigationContent(map, layerNodes.length);
+      const rootChildCount = layerNodes.length + navigation.rootChildCount;
+      const world = worldPlacements(map, placementMapping, rootChildCount);
 
       const scene = {
         version: 1,
@@ -233,15 +358,18 @@ export const mapSceneAdapter = {
         nodes: [
           { id: 'world', name: map.mapId, type: 'Node2D', parentId: null, order: 0, properties: { position: [0, 0] } },
           ...layerNodes,
+          ...navigation.nodes,
         ],
         instances: world.instances,
+        ...(navigation.connections.length > 0 ? { connections: navigation.connections } : {}),
+        ...(navigation.subresources.length > 0 ? { subresources: navigation.subresources } : {}),
       };
       outputs.push(convertedOutput(
         unit,
         `worlds/${mapSlug}.scene.json`,
         scene,
-        ['$.mapId', '$.tileSize', '$.layers', '$.objects', '$.bossCamps'],
-        retained,
+        ['$.mapId', '$.tileSize', '$.layers', '$.objects', '$.bossCamps', '$.player', '$.exits'],
+        navigationRetained,
       ));
       outputs.push(convertedOutput(
         unit,
@@ -250,12 +378,18 @@ export const mapSceneAdapter = {
           version: 1,
           mapId: map.mapId,
           sceneId: scene.sceneId,
-          sourceCounts: { objects: map.objects.length, bossCamps: map.bossCamps?.length ?? 0 },
+          sourceCounts: {
+            objects: map.objects.length,
+            bossCamps: map.bossCamps?.length ?? 0,
+            playerMarkers: 1 + Object.keys(map.player.entries).length,
+            exits: map.exits?.length ?? 0,
+          },
           worldInstanceCount: world.instances.length,
           placements: world.placements,
+          navigation: navigation.mappings,
         },
-        ['$.objects', '$.bossCamps'],
-        retained,
+        ['$.objects', '$.bossCamps', '$.player', '$.exits'],
+        navigationRetained,
       ));
     }
     return outputs;

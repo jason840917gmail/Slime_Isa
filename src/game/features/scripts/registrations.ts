@@ -15,6 +15,7 @@ import { DestructibleScript } from './DestructibleScript';
 import { ResourceNodeScript } from './ResourceNodeScript';
 import { CollectibleScript } from './CollectibleScript';
 import { InteractionScript } from './InteractionScript';
+import { WorldExitScript } from './WorldExitScript';
 
 const numberProperty = (key: string, label: string, defaultValue: number, group: string): PropertyDescriptor => ({
   key, label, group, value: { kind: 'number', min: 0 }, defaultValue,
@@ -386,6 +387,26 @@ export const INTERACTION_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
   signals: [{ id: 'interaction_resolved', payload: 'InteractionResult' }],
 };
 
+export const WORLD_EXIT_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
+  scriptId: 'game.world-exit',
+  displayName: 'World Exit Script',
+  description: 'Typed area-exit request with optional gate metadata and domain-owned navigation.',
+  sourcePath: 'src/game/features/scripts/WorldExitScript.ts',
+  capabilities: ['world-exit', 'navigation-trigger'],
+  exclusiveCapabilities: ['navigation-controller'],
+  references: [{ key: 'area', label: 'Exit Area', required: true, expectedCapability: 'area' }],
+  properties: [
+    stringProperty('mapId', 'Map ID', 'Navigation'),
+    stringProperty('exitId', 'Exit ID', 'Navigation'),
+    stringProperty('targetAreaId', 'Target Area ID', 'Navigation'),
+    stringProperty('entry', 'Target Entry', 'Navigation'),
+    nodeReference('area', 'Exit Area', 'area'),
+    jsonProperty('gate', 'Gate', 'Navigation', {}),
+  ],
+  signals: [{ id: 'navigation_resolved', payload: 'WorldExitResult' }],
+  handlers: [{ id: 'on_body_entered', payload: 'PhysicsContact' }],
+};
+
 export const GAME_SCRIPT_DESCRIPTORS = Object.freeze([
   CHARACTER_SCRIPT_DESCRIPTOR,
   PLAYER_SCRIPT_DESCRIPTOR,
@@ -401,6 +422,7 @@ export const GAME_SCRIPT_DESCRIPTORS = Object.freeze([
   RESOURCE_NODE_SCRIPT_DESCRIPTOR,
   COLLECTIBLE_SCRIPT_DESCRIPTOR,
   INTERACTION_SCRIPT_DESCRIPTOR,
+  WORLD_EXIT_SCRIPT_DESCRIPTOR,
 ]);
 
 export function createGameScriptRegistry(services: ScriptServiceMap = {}): ScriptRegistry {
@@ -418,7 +440,8 @@ export function createGameScriptRegistry(services: ScriptServiceMap = {}): Scrip
     .registerDefinition({ descriptor: DESTRUCTIBLE_SCRIPT_DESCRIPTOR, factory: (context) => new DestructibleScript(context) })
     .registerDefinition({ descriptor: RESOURCE_NODE_SCRIPT_DESCRIPTOR, factory: (context) => new ResourceNodeScript(context) })
     .registerDefinition({ descriptor: COLLECTIBLE_SCRIPT_DESCRIPTOR, factory: (context) => new CollectibleScript(context) })
-    .registerDefinition({ descriptor: INTERACTION_SCRIPT_DESCRIPTOR, factory: (context) => new InteractionScript(context) });
+    .registerDefinition({ descriptor: INTERACTION_SCRIPT_DESCRIPTOR, factory: (context) => new InteractionScript(context) })
+    .registerDefinition({ descriptor: WORLD_EXIT_SCRIPT_DESCRIPTOR, factory: (context) => new WorldExitScript(context) });
 }
 
 export function createGameDescriptorRegistry() {

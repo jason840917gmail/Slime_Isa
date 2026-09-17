@@ -56,7 +56,7 @@ export class SceneCatalog {
     const localResources = new Map<string, NonNullable<SceneDocument['subresources']>[number]>((scene.subresources ?? []).map((resource) => [resource.resourceId, resource]));
     return {
       ...this.validation,
-      hasResource: this.validation.hasResource || localResources.size > 0
+      hasResource: this.validation.hasResource
         ? (resourceId) => localResources.has(resourceId) || Boolean(this.validation.hasResource?.(resourceId))
         : undefined,
       getResourceKind: this.validation.getResourceKind || localResources.size > 0

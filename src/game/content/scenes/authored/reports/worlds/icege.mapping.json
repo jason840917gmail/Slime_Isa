@@ -4,7 +4,9 @@
   "sceneId": "world.icege",
   "sourceCounts": {
     "objects": 355,
-    "bossCamps": 0
+    "bossCamps": 0,
+    "playerMarkers": 5,
+    "exits": 2
   },
   "worldInstanceCount": 355,
   "placements": [
@@ -3912,6 +3914,99 @@
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "persistenceKey": "icege.wall-stone-solid-ec5b506c",
       "initialState": {}
+    }
+  ],
+  "navigation": [
+    {
+      "sourceKind": "player-spawn",
+      "sourcePath": "$.player.spawn",
+      "nodeId": "player-spawn",
+      "position": [
+        1632,
+        1312
+      ]
+    },
+    {
+      "sourceKind": "player-entry",
+      "sourcePath": "$.player.entries.north",
+      "nodeId": "player-entry-north",
+      "position": [
+        1696,
+        32
+      ],
+      "direction": "north"
+    },
+    {
+      "sourceKind": "player-entry",
+      "sourcePath": "$.player.entries.east",
+      "nodeId": "player-entry-east",
+      "position": [
+        3360,
+        1248
+      ],
+      "direction": "east"
+    },
+    {
+      "sourceKind": "player-entry",
+      "sourcePath": "$.player.entries.south",
+      "nodeId": "player-entry-south",
+      "position": [
+        1760,
+        2912
+      ],
+      "direction": "south"
+    },
+    {
+      "sourceKind": "player-entry",
+      "sourcePath": "$.player.entries.west",
+      "nodeId": "player-entry-west",
+      "position": [
+        32,
+        1184
+      ],
+      "direction": "west"
+    },
+    {
+      "sourceKind": "exit",
+      "sourcePath": "$.exits[0]",
+      "sourceId": "exit-1",
+      "areaNodeId": "exit-1",
+      "shapeNodeId": "exit-1-shape",
+      "scriptNodeId": "exit-1-script",
+      "position": [
+        3440,
+        1728
+      ],
+      "zone": {
+        "x": 3424,
+        "y": 0,
+        "w": 32,
+        "h": 3456
+      },
+      "targetAreaId": "emberleef",
+      "entry": "west",
+      "gate": {}
+    },
+    {
+      "sourceKind": "exit",
+      "sourcePath": "$.exits[1]",
+      "sourceId": "exit-2",
+      "areaNodeId": "exit-2",
+      "shapeNodeId": "exit-2-shape",
+      "scriptNodeId": "exit-2-script",
+      "position": [
+        1728,
+        16
+      ],
+      "zone": {
+        "x": 0,
+        "y": 0,
+        "w": 3456,
+        "h": 32
+      },
+      "targetAreaId": "hot",
+      "entry": "south",
+      "gate": {}
     }
   ]
 }

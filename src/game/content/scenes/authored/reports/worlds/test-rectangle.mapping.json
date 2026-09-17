@@ -4,7 +4,9 @@
   "sceneId": "world.test-rectangle",
   "sourceCounts": {
     "objects": 1,
-    "bossCamps": 0
+    "bossCamps": 0,
+    "playerMarkers": 1,
+    "exits": 0
   },
   "worldInstanceCount": 1,
   "placements": [
@@ -20,6 +22,17 @@
       "initialState": {
         "health": 30
       }
+    }
+  ],
+  "navigation": [
+    {
+      "sourceKind": "player-spawn",
+      "sourcePath": "$.player.spawn",
+      "nodeId": "player-spawn",
+      "position": [
+        96,
+        96
+      ]
     }
   ]
 }

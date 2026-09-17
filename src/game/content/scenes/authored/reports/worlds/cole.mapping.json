@@ -4,7 +4,9 @@
   "sceneId": "world.cole",
   "sourceCounts": {
     "objects": 780,
-    "bossCamps": 0
+    "bossCamps": 0,
+    "playerMarkers": 2,
+    "exits": 0
   },
   "worldInstanceCount": 780,
   "placements": [
@@ -8587,6 +8589,27 @@
       "sceneId": "object.collectible-purple-berry",
       "persistenceKey": "cole.collectible-purple-berry-bdb9e518",
       "initialState": {}
+    }
+  ],
+  "navigation": [
+    {
+      "sourceKind": "player-spawn",
+      "sourcePath": "$.player.spawn",
+      "nodeId": "player-spawn",
+      "position": [
+        1248,
+        928
+      ]
+    },
+    {
+      "sourceKind": "player-entry",
+      "sourcePath": "$.player.entries.east",
+      "nodeId": "player-entry-east",
+      "position": [
+        1248,
+        928
+      ],
+      "direction": "east"
     }
   ]
 }

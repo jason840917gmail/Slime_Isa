@@ -4,7 +4,9 @@
   "sceneId": "world.jk",
   "sourceCounts": {
     "objects": 176,
-    "bossCamps": 0
+    "bossCamps": 0,
+    "playerMarkers": 1,
+    "exits": 0
   },
   "worldInstanceCount": 176,
   "placements": [
@@ -1943,6 +1945,17 @@
       "sceneId": "object.house-world-solid.cottage-blue",
       "persistenceKey": "jk.house-world-solid-74b30aa4",
       "initialState": {}
+    }
+  ],
+  "navigation": [
+    {
+      "sourceKind": "player-spawn",
+      "sourcePath": "$.player.spawn",
+      "nodeId": "player-spawn",
+      "position": [
+        32,
+        32
+      ]
     }
   ]
 }

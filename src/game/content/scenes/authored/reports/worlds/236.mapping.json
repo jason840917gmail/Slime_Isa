@@ -4,7 +4,9 @@
   "sceneId": "world.236",
   "sourceCounts": {
     "objects": 850,
-    "bossCamps": 0
+    "bossCamps": 0,
+    "playerMarkers": 1,
+    "exits": 0
   },
   "worldInstanceCount": 850,
   "placements": [
@@ -9357,6 +9359,17 @@
       "sceneId": "object.decoration-world-solid.birdhouse",
       "persistenceKey": "236.decoration-world-solid-a71aa8d9",
       "initialState": {}
+    }
+  ],
+  "navigation": [
+    {
+      "sourceKind": "player-spawn",
+      "sourcePath": "$.player.spawn",
+      "nodeId": "player-spawn",
+      "position": [
+        32,
+        32
+      ]
     }
   ]
 }

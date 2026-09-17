@@ -4,7 +4,9 @@
   "sceneId": "world.level-1",
   "sourceCounts": {
     "objects": 25,
-    "bossCamps": 1
+    "bossCamps": 1,
+    "playerMarkers": 2,
+    "exits": 1
   },
   "worldInstanceCount": 25,
   "placements": [
@@ -301,6 +303,53 @@
             "quantity": 1
           }
         ]
+      }
+    }
+  ],
+  "navigation": [
+    {
+      "sourceKind": "player-spawn",
+      "sourcePath": "$.player.spawn",
+      "nodeId": "player-spawn",
+      "position": [
+        640,
+        704
+      ]
+    },
+    {
+      "sourceKind": "player-entry",
+      "sourcePath": "$.player.entries.east",
+      "nodeId": "player-entry-east",
+      "position": [
+        1408,
+        576
+      ],
+      "direction": "east"
+    },
+    {
+      "sourceKind": "exit",
+      "sourcePath": "$.exits[0]",
+      "sourceId": "exit-1",
+      "areaNodeId": "exit-1",
+      "shapeNodeId": "exit-1-shape",
+      "scriptNodeId": "exit-1-script",
+      "position": [
+        3552,
+        576
+      ],
+      "zone": {
+        "x": 3520,
+        "y": 512,
+        "w": 64,
+        "h": 128
+      },
+      "targetAreaId": "gloop-forest",
+      "entry": "west",
+      "gate": {
+        "id": "level-1-east-verdant-gate",
+        "requiredItemId": "green-key",
+        "consumeOnUnlock": true,
+        "lockedMessage": "The eastern gate needs a green key."
       }
     }
   ]

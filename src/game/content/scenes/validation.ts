@@ -86,7 +86,9 @@ export function validateSceneDocument(value: unknown, context: SceneValidationCo
   }
   const resourceContext: SceneValidationContext = {
     ...context,
-    hasResource: context.hasResource || localResources.size > 0
+    // Inline resources supplement an external catalog. Their presence must not
+    // make every non-inline reference invalid when no catalog is available yet.
+    hasResource: context.hasResource
       ? (resourceId) => localResources.has(resourceId) || Boolean(context.hasResource?.(resourceId))
       : undefined,
     getResourceKind: context.getResourceKind || localResources.size > 0

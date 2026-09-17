@@ -4,7 +4,9 @@
   "sceneId": "world.174",
   "sourceCounts": {
     "objects": 385,
-    "bossCamps": 0
+    "bossCamps": 0,
+    "playerMarkers": 1,
+    "exits": 0
   },
   "worldInstanceCount": 385,
   "placements": [
@@ -4242,6 +4244,17 @@
       "sceneId": "object.collectible-purple-berry",
       "persistenceKey": "174.collectible-purple-berry-70e609a1",
       "initialState": {}
+    }
+  ],
+  "navigation": [
+    {
+      "sourceKind": "player-spawn",
+      "sourcePath": "$.player.spawn",
+      "nodeId": "player-spawn",
+      "position": [
+        32,
+        32
+      ]
     }
   ]
 }
