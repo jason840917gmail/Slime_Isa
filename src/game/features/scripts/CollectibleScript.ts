@@ -1,6 +1,7 @@
 import type { RuntimeNodeId } from '../../content/scenes/identifiers';
 import type { NodeConstructionContext } from '../../runtime/scene/registries/NodeTypeRegistry';
 import type { PhysicsContact } from '../../runtime/scene/physics/PhysicsContact';
+import { Node2D } from '../../runtime/scene/Node2D';
 import { ScriptNode } from '../../runtime/scene/scripts/ScriptNode';
 
 export const COLLECTIBLE_WORLD_SERVICE = 'world.collectible-transaction';
@@ -12,7 +13,10 @@ export interface CollectiblePickupRequest {
   readonly itemId: string;
   readonly requested: number;
   readonly collectorAreaNodeId: string;
+  readonly x: number;
+  readonly y: number;
   readonly sourceResourceInstanceId?: string;
+  readonly sourceInventoryDropId?: string;
 }
 
 export type CollectiblePickupResult =
@@ -37,6 +41,7 @@ export class CollectibleScript extends ScriptNode {
   readonly itemId: string;
   readonly quantity: number;
   readonly sourceResourceInstanceId?: string;
+  readonly sourceInventoryDropId?: string;
   private world?: CollectibleWorldPort;
 
   constructor(context: NodeConstructionContext) {
@@ -48,6 +53,8 @@ export class CollectibleScript extends ScriptNode {
     this.quantity = Math.max(1, Math.floor(this.numberProperty('quantity', 1)));
     const source = this.stringProperty('sourceResourceInstanceId', '');
     this.sourceResourceInstanceId = source || undefined;
+    const inventoryDrop = this.stringProperty('sourceInventoryDropId', '');
+    this.sourceInventoryDropId = inventoryDrop || undefined;
     this.registerSignalHandler<PhysicsContact>('on_area_entered', (contact) => {
       if (contact.otherKind === 'area') this.requestPickup(contact.otherId);
     });
@@ -71,6 +78,10 @@ export class CollectibleScript extends ScriptNode {
   }
 
   requestPickup(collectorAreaNodeId: string): CollectiblePickupResult {
+    const pickupArea = this.getReference('pickupArea')?.configuredTarget;
+    const position = pickupArea instanceof Node2D
+      ? pickupArea.get_global_transform().position
+      : { x: 0, y: 0 };
     const request: CollectiblePickupRequest = {
       mapId: this.mapId,
       instanceId: this.instanceId,
@@ -78,7 +89,10 @@ export class CollectibleScript extends ScriptNode {
       itemId: this.itemId,
       requested: this.remaining,
       collectorAreaNodeId,
+      x: position.x,
+      y: position.y,
       ...(this.sourceResourceInstanceId ? { sourceResourceInstanceId: this.sourceResourceInstanceId } : {}),
+      ...(this.sourceInventoryDropId ? { sourceInventoryDropId: this.sourceInventoryDropId } : {}),
     };
     const result = this.world?.pickup(request) ?? {
       status: 'rejected' as const,

@@ -76,10 +76,12 @@ test('player scene exposes node-backed runtime ports, dodge immunity, and one ro
   const fixture = await instantiate();
   const script = fixture.root.get_node('PlayerScript');
   const damageArea = fixture.root.get_node('DamageArea');
+  const pickupArea = fixture.root.get_node('PickupArea');
   assert.deepEqual(fixture.tree.diagnostics, []);
   assert.ok(script instanceof t.PlayerScript);
   assert.equal(script.playerName, 'bob');
   assert.equal(script.is_in_group('player'), true);
+  assert.ok(pickupArea);
   assert.deepEqual(script.getBodyBounds(), { x: -15, y: 1.56, width: 30, height: 26 });
 
   fixture.tree.dispatchInput({ handled: false, type: 'key-down', action: 'move-right', pressed: true, released: false });

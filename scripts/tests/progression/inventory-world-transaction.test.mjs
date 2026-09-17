@@ -69,6 +69,57 @@ test('invalid item and injected install failure change neither owner', () => {
   assert.equal(emittedEvents.length, 0);
 });
 
+test('collectible pickup atomically moves the maximum fit and preserves provenance', () => {
+  const { inventory, progress, transaction } = setup({}, {
+    maxSlots: 1,
+    slots: [{ itemId: 'hp-potion', count: itemRegistry.get('hp-potion').maxStack - 2 }],
+  });
+  progress.setCollectibleState('level-1', 'drop', {
+    remaining: 5,
+    sourceResourceInstanceId: 'tree-1',
+  });
+  emittedEvents.length = 0;
+
+  assert.equal(transaction.collectWorldItem({
+    mapId: 'level-1',
+    instanceId: 'drop',
+    itemId: 'hp-potion',
+    remaining: 5,
+    requested: 4,
+  }), 2);
+  assert.equal(inventory.count('hp-potion'), itemRegistry.get('hp-potion').maxStack);
+  assert.deepEqual(progress.collectibleState('level-1', 'drop'), {
+    remaining: 3,
+    sourceResourceInstanceId: 'tree-1',
+  });
+  assert.deepEqual(emittedEvents.map((event) => event.event), ['inventory.changed', 'world.progress.changed']);
+});
+
+test('collectible pickup rolls both owners back when world installation fails', () => {
+  const { inventory, progress, transaction } = setup({});
+  progress.setCollectibleState('level-1', 'berry', { remaining: 1 });
+  emittedEvents.length = 0;
+  const originalInstall = progress.installTransactionSnapshot.bind(progress);
+  let first = true;
+  progress.installTransactionSnapshot = (snapshot) => {
+    if (first) {
+      first = false;
+      throw new Error('injected');
+    }
+    originalInstall(snapshot);
+  };
+
+  assert.equal(transaction.collectWorldItem({
+    mapId: 'level-1',
+    instanceId: 'berry',
+    itemId: 'purple-berry',
+    remaining: 1,
+  }), 0);
+  assert.equal(inventory.count('purple-berry'), 0);
+  assert.deepEqual(progress.collectibleState('level-1', 'berry'), { remaining: 1 });
+  assert.equal(emittedEvents.length, 0);
+});
+
 test('consuming, non-consuming, missing, and idempotent gate unlocks are aggregate', () => {
   const consuming = setup({}, { maxSlots: 24, slots: [{ itemId: 'green-key', count: 1 }] });
   const request = { mapId: 'level-1', gateId: 'east-gate', requiredItemId: 'green-key', consumeOnUnlock: true };

@@ -358,6 +358,7 @@ export const COLLECTIBLE_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
     stringProperty('itemId', 'Item ID', 'Inventory'),
     numberProperty('quantity', 'Quantity', 1, 'Inventory'),
     { key: 'sourceResourceInstanceId', label: 'Source Resource Instance ID', group: 'Persistence', value: { kind: 'string' }, serialized: true, inspector: 'text', overridable: true },
+    { key: 'sourceInventoryDropId', label: 'Source Inventory Drop ID', group: 'Persistence', value: { kind: 'string' }, serialized: true, inspector: 'text', overridable: true },
     nodeReference('pickupArea', 'Pickup Area', 'area'),
   ],
   signals: [

@@ -160,13 +160,13 @@ test('collectibles delegate capacity-aware pickup and preserve remaining quantit
     sceneId: 'object.collectible-fixture',
     rootNodeId: 'root',
     nodes: [
-      { id: 'root', name: 'Collectible', type: 'Node2D', parentId: null, order: 0, properties: {} },
+      { id: 'root', name: 'Collectible', type: 'Node2D', parentId: null, order: 0, properties: { position: [32, 48] } },
       { id: 'pickup-area', name: 'PickupArea', type: 'Area2D', parentId: 'root', order: 0, properties: {} },
       {
         id: 'script', name: 'CollectibleScript', type: 'ScriptNode', scriptId: 'game.collectible', parentId: 'root', order: 1,
         properties: {
           mapId: 'level-1', instanceId: 'drop-1', objectId: 'collectible.wood-pile', itemId: 'wood', quantity: 5,
-          sourceResourceInstanceId: 'tree-1', pickupArea: { nodeId: 'pickup-area' },
+          sourceResourceInstanceId: 'tree-1', sourceInventoryDropId: 'inventory-drop-1', pickupArea: { nodeId: 'pickup-area' },
         },
       },
     ],
@@ -189,6 +189,8 @@ test('collectibles delegate capacity-aware pickup and preserve remaining quantit
   assert.deepEqual(script.requestPickup('player-area'), { status: 'partial', moved: 3, remaining: 2 });
   assert.deepEqual(script.requestPickup('player-area'), { status: 'collected', moved: 2, remaining: 0 });
   assert.equal(requests[0].sourceResourceInstanceId, 'tree-1');
+  assert.equal(requests[0].sourceInventoryDropId, 'inventory-drop-1');
+  assert.deepEqual({ x: requests[0].x, y: requests[0].y }, { x: 32, y: 48 });
   assert.equal(requests[1].requested, 2);
   dispose(fixture);
 });

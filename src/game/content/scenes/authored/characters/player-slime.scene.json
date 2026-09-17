@@ -93,11 +93,40 @@
       }
     },
     {
+      "id": "pickup-area",
+      "name": "PickupArea",
+      "type": "Area2D",
+      "parentId": "body",
+      "order": 3,
+      "properties": {
+        "collisionLayer": 32,
+        "collisionMask": 64,
+        "monitoring": true,
+        "monitorable": true
+      }
+    },
+    {
+      "id": "pickup-shape",
+      "name": "PickupShape",
+      "type": "CollisionShape2D",
+      "parentId": "pickup-area",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "player-slime.body-shape"
+        },
+        "position": [
+          0,
+          14.56
+        ]
+      }
+    },
+    {
       "id": "animation",
       "name": "Animation",
       "type": "AnimationPlayer",
       "parentId": "body",
-      "order": 3,
+      "order": 4,
       "properties": {
         "library": {
           "resourceId": "character.player.slime.animations"
@@ -112,7 +141,7 @@
       "type": "ScriptNode",
       "scriptId": "game.player",
       "parentId": "body",
-      "order": 4,
+      "order": 5,
       "properties": {
         "body": {
           "nodeId": "body"

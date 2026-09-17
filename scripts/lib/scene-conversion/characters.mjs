@@ -126,9 +126,11 @@ function playerScene(character, visual) {
       },
       { id: 'damage-area', name: 'DamageArea', type: 'Area2D', parentId: 'body', order: 2, properties: { collisionLayer: 8, collisionMask: 16, monitoring: false, monitorable: true } },
       { id: 'damage-shape', name: 'DamageShape', type: 'CollisionShape2D', parentId: 'damage-area', order: 0, properties: { shape: { resourceId: `${character.characterId}.body-shape` }, position: [character.body.centerOffsetX, character.body.centerOffsetY] } },
-      { id: 'animation', name: 'Animation', type: 'AnimationPlayer', parentId: 'body', order: 3, properties: { library: { resourceId: `${character.visualSetId}.animations` }, domain: 'physics', autoplay: 'idle' } },
+      { id: 'pickup-area', name: 'PickupArea', type: 'Area2D', parentId: 'body', order: 3, properties: { collisionLayer: 32, collisionMask: 64, monitoring: true, monitorable: true } },
+      { id: 'pickup-shape', name: 'PickupShape', type: 'CollisionShape2D', parentId: 'pickup-area', order: 0, properties: { shape: { resourceId: `${character.characterId}.body-shape` }, position: [character.body.centerOffsetX, character.body.centerOffsetY] } },
+      { id: 'animation', name: 'Animation', type: 'AnimationPlayer', parentId: 'body', order: 4, properties: { library: { resourceId: `${character.visualSetId}.animations` }, domain: 'physics', autoplay: 'idle' } },
       {
-        id: 'script', name: 'PlayerScript', type: 'ScriptNode', scriptId: 'game.player', parentId: 'body', order: 4,
+        id: 'script', name: 'PlayerScript', type: 'ScriptNode', scriptId: 'game.player', parentId: 'body', order: 5,
         properties: {
           body: { nodeId: 'body' }, visual: { nodeId: 'visual' }, animation: { nodeId: 'animation' }, damageArea: { nodeId: 'damage-area' },
           playerName: character.player.name,
