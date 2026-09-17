@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import {
+  isWorldTileId,
   isTileCollidable,
   type WorldTileId,
 } from '../content/terrain/TileCatalog';
@@ -61,38 +62,45 @@ import { InventoryDropController } from '../features/collectibles/InventoryDropC
 import type { InventoryDropCellInspection } from '../features/collectibles/InventoryDropPlacement';
 import { OcclusionController } from '../features/occlusion/OcclusionController';
 import { DepthDiagnostics } from '../features/occlusion/DepthDiagnostics';
-import { MapBuilder, type BuiltMap } from '../features/world/MapBuilder';
 import {
+  ObjectFactory,
   setObjectAnchor,
   setObjectDepthMode,
 } from '../features/objects/ObjectFactory';
+import { TileFactory } from '../features/world/TileFactory';
+import { TerrainTransitionLayer, TerrainTransitionRenderer } from '../features/world/TerrainTransitionRenderer';
 import { resolveBodyBottom, resolveWorldDepth } from '../presentation/WorldDepth';
 import { ResponsiveCameraController } from '../presentation/ResponsiveCameraController';
 import type { LoadedMap } from '../infrastructure/maps/MapRepository';
 import type { WorldDimensions } from '../world/WorldDimensions';
 import { updateDevToolsCameraZoom } from '../devTools';
 import type { GameLocationData, FacingDirection } from '../infrastructure/persistence/SaveSchema';
-import { GAME_CONSTANTS } from '../Constant';
 import { InteractionRouter } from '../features/interaction/InteractionRouter';
 import { QuestNpcController } from '../features/interaction/QuestNpcController';
 import { QuestNotificationPresenter } from '../features/quests/QuestNotificationPresenter';
-import { NpcRuntimeController } from '../features/npcs/NpcRuntimeController';
-import { ChestController } from '../features/chests/ChestController';
-import { BossCampController } from '../features/bosses/BossCampController';
 import { playerInventoryWorldTransaction } from '../features/progression/InventoryWorldTransaction';
-import { getObjectArchetype, isObjectArchetypeId } from '../content/objects/ObjectCatalog';
 import { PREPARED_SCENE_CONTENT_KEY, PreparedSceneContent } from '../infrastructure/scenes/PreparedSceneContent';
 import type { LoadedWorldScene } from '../infrastructure/scenes/WorldSceneLoader';
-import { LegacyMapPlacementBridge } from '../infrastructure/scenes/compatibility/LegacyMapPlacementBridge';
 import { UniversalSceneWorldController } from '../features/world/UniversalSceneWorldController';
+import type { MapBossCamp, MapEnemySafeZone, MapEnemySpawnArea, MapFile, MapPoint, MapSpawns } from '../content/maps/mapFormat';
+import type { WorldExitRequest, WorldExitResult } from '../features/scripts/WorldExitScript';
 
-const EDGE_TRANSITION_GRACE_MS = GAME_CONSTANTS.worldNavigation.edgeTransitionGraceMs;
 const COLLECTIBLE_EVENTS = new CollectibleEventChannel(gameEvents);
 
 interface WorldSceneData {
   areaId?: AreaId;
   entryEdge?: Direction;
   loadedWorld?: LoadedWorldScene;
+}
+
+interface AuthoredWorldMetadata {
+  readonly terrainGrid: WorldTileId[][];
+  readonly playerSpawn: MapPoint;
+  readonly entries: MapFile['player']['entries'];
+  readonly enemySafeZones: readonly MapEnemySafeZone[];
+  readonly enemySpawnAreas: readonly MapEnemySpawnArea[];
+  readonly bossCamps: readonly MapBossCamp[];
+  readonly spawns?: MapSpawns;
 }
 
 export class WorldScene extends Phaser.Scene {
@@ -125,11 +133,7 @@ export class WorldScene extends Phaser.Scene {
   private craftingUI?: CraftingUI;
   private interactionRouter?: InteractionRouter;
   private questNpcController?: QuestNpcController;
-  private npcRuntimeController?: NpcRuntimeController;
-  private chestController?: ChestController;
-  private bossCampController?: BossCampController;
   private universalWorld?: UniversalSceneWorldController;
-  private scenePlacementBridge?: LegacyMapPlacementBridge;
   private questNotifications?: QuestNotificationPresenter;
   private abilitySystem?: PlayerAbilityController;
   private weaponHotbar?: WeaponHotbar;
@@ -140,12 +144,11 @@ export class WorldScene extends Phaser.Scene {
   private worldDimensions!: WorldDimensions;
   private loadedMap!: LoadedMap;
   private loadedWorld?: LoadedWorldScene;
-  private builtMap?: BuiltMap;
+  private builtMap?: AuthoredWorldMetadata;
+  private terrainTransitionLayer?: TerrainTransitionLayer;
   private entryEdge?: Direction;
   private transitioning = false;
-  private transitionReadyAt = 0;
   private nextGateMessageAt = 0;
-  private transitionZones: Phaser.GameObjects.Zone[] = [];
   private levelUpNoticeHandler?: (payload: { level: number }) => void;
   private questCompleteHandler?: (payload: { questId: string; title: string; rewards: { coins?: number; xp?: number } }) => void;
   private restoredFromAreaTransition = false;
@@ -175,7 +178,6 @@ export class WorldScene extends Phaser.Scene {
     this.builtMap = undefined;
     this.entryEdge = request.entryEdge;
     this.transitioning = false;
-    this.transitionReadyAt = this.time.now + EDGE_TRANSITION_GRACE_MS;
     this.nextGateMessageAt = 0;
   }
 
@@ -211,7 +213,6 @@ export class WorldScene extends Phaser.Scene {
       onPausedChange: (paused) => { this.setSimulationPaused('quest-npc', paused); },
       showMessage: (x, y, message, color = 'white', important = false) => floatingText.spawn(this, x, y, message, color, important),
     });
-    this.npcRuntimeController = new NpcRuntimeController();
     this.buildWorld();
     this.questNpcController.finalize();
     this.statusEffects = new StatusEffectManager();
@@ -370,11 +371,9 @@ export class WorldScene extends Phaser.Scene {
     // lifecycle is still alive; actor teardown follows as the final NPC step.
     this.questNpcController?.destroy();
     this.questNpcController = undefined;
-    this.npcRuntimeController?.destroy();
-    this.npcRuntimeController = undefined;
-    this.chestController?.destroy();
-    this.chestController = undefined;
     this.builtMap = undefined;
+    this.terrainTransitionLayer?.destroy();
+    this.terrainTransitionLayer = undefined;
     this.disposables.dispose();
     this.disposables = new DisposableBag();
     this.hud?.destroy();
@@ -398,8 +397,6 @@ export class WorldScene extends Phaser.Scene {
     this.combatController?.destroy();
     this.universalWorld?.destroy();
     this.universalWorld = undefined;
-    this.bossCampController?.destroy();
-    this.bossCampController = undefined;
     this.resourceNodes?.destroy();
     this.resourceNodes = undefined;
     this.inventoryDrops = undefined;
@@ -423,15 +420,12 @@ export class WorldScene extends Phaser.Scene {
     }
     hitboxPool.clearScene(this);
 
-    this.transitionZones.forEach((zone) => zone.destroy());
-    this.transitionZones = [];
     this.combatController = undefined;
     this.weaponHotbar = undefined;
     this.worldMapUI = undefined;
     this.questJournal = undefined;
     this.craftingUI = undefined;
     this.pauseSources.clear();
-    this.scenePlacementBridge = undefined;
     this.paused = false;
     this.actionLocked = false;
   }
@@ -468,7 +462,6 @@ export class WorldScene extends Phaser.Scene {
     } else {
       this.physics.world.resume();
     }
-    this.npcRuntimeController?.setSimulationPaused(shouldPause);
   }
 
   private stopMovingBodies(): void {
@@ -487,11 +480,6 @@ export class WorldScene extends Phaser.Scene {
       stop(child);
       return true;
     });
-    this.bossCampController?.targets.children.each((child) => {
-      stop(child);
-      return true;
-    });
-    this.npcRuntimeController?.stopMoving();
   }
 
   update(_time: number, delta: number): void {
@@ -513,8 +501,6 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private updateLegacyFixed(delta: number): void {
-    this.npcRuntimeController?.update(delta);
-
     this.minimap.update(this.cameras.main, this.player);
 
     this.interactionRouter?.update();
@@ -523,7 +509,6 @@ export class WorldScene extends Phaser.Scene {
     this.healthBar?.update();
     this.abilitySystem?.update();
     this.combatController?.update(this.time.now, delta);
-    this.bossCampController?.update(this.time.now, delta);
     this.occlusionController?.update();
     this.depthDiagnostics?.update();
     // Passive energy regen (scaled by Quick Recovery perk).
@@ -573,7 +558,7 @@ export class WorldScene extends Phaser.Scene {
       getCombatTargets: () => this.combatController?.targets ?? null,
       getCollisionTiles: () => this.collisionTiles,
       getCollectibleTargets: () => this.collectibleTargets,
-      getTransitionZones: () => this.transitionZones,
+      getTransitionZones: () => [],
       getEnemySpawnAreas: () => this.builtMap?.enemySpawnAreas ?? [],
       getBossCamps: () => this.builtMap?.bossCamps ?? [],
     });
@@ -597,6 +582,54 @@ export class WorldScene extends Phaser.Scene {
     this.navigateToArea(areaId, entryEdge, false);
   }
 
+  private requestAuthoredExit(request: WorldExitRequest): WorldExitResult {
+    if (request.mapId !== this.loadedMap.map.mapId) return { status: 'ignored' };
+    if (this.transitioning) return { status: 'ignored' };
+    if (!request.targetAreaId || !isDirection(request.entry)) {
+      return { status: 'blocked', message: 'Navigation unavailable' };
+    }
+
+    const gate = request.gate;
+    if (isJsonObject(gate) && Object.keys(gate).length > 0) {
+      const gateId = gate.id;
+      const requiredItemId = gate.requiredItemId;
+      const consumeOnUnlock = gate.consumeOnUnlock;
+      const lockedMessage = gate.lockedMessage;
+      if (
+        typeof gateId !== 'string'
+        || typeof requiredItemId !== 'string'
+        || typeof consumeOnUnlock !== 'boolean'
+        || typeof lockedMessage !== 'string'
+      ) {
+        return { status: 'blocked', message: 'Navigation unavailable' };
+      }
+      if (!worldProgress.isGateUnlocked(request.mapId, gateId)) {
+        if (playerInventory.count(requiredItemId) < 1) {
+          if (this.time.now >= this.nextGateMessageAt) {
+            this.nextGateMessageAt = this.time.now + 900;
+            floatingText.spawn(this, this.player.x, this.player.y - 42, lockedMessage, 'white', true);
+          }
+          return { status: 'blocked', message: lockedMessage };
+        }
+        const unlock = playerInventoryWorldTransaction.unlockGate({
+          mapId: request.mapId,
+          gateId,
+          requiredItemId,
+          consumeOnUnlock,
+        });
+        if (unlock !== 'unlocked' && unlock !== 'already-unlocked') {
+          return { status: 'blocked', message: lockedMessage };
+        }
+        floatingText.spawn(this, this.player.x, this.player.y - 42, 'The Verdant Gate unlocks!', 'green', true);
+      }
+    } else if (gate !== null && (!isJsonObject(gate) || Object.keys(gate).length > 0)) {
+      return { status: 'blocked', message: 'Navigation unavailable' };
+    }
+
+    this.transitionTo(request.targetAreaId, request.entry);
+    return { status: 'queued' };
+  }
+
   private navigateToArea(areaId: AreaId, entryEdge?: Direction, respawnHome = false): void {
     navigateToAreaUrl(
       areaId,
@@ -607,32 +640,40 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private buildWorld(): void {
-    this.scenePlacementBridge = new LegacyMapPlacementBridge(
-      this.loadedMap.map.mapId,
-      this.loadedMap.map.objects,
-      this.loadedMap.map.bossCamps ?? [],
-    );
-    this.scenePlacementBridge.scenePlacements();
-    let mapBuilder: MapBuilder;
-    mapBuilder = new MapBuilder({
+    const map = this.loadedMap.map;
+    const terrainGrid = this.buildTerrainGrid(map);
+    this.terrainGrid = terrainGrid;
+    this.builtMap = {
+      terrainGrid,
+      playerSpawn: map.player.spawn,
+      entries: map.player.entries,
+      enemySafeZones: map.enemySafeZones ?? map.spawns?.safeZones ?? [],
+      enemySpawnAreas: map.enemySpawnAreas ?? [],
+      bossCamps: map.bossCamps ?? [],
+      ...(map.spawns ? { spawns: map.spawns } : {}),
+    };
+    this.physics.world.setBounds(0, 0, this.worldDimensions.width, this.worldDimensions.height);
+
+    const transitionTileFactory = new TileFactory({
       scene: this,
-      map: this.loadedMap.map,
-      dimensions: this.worldDimensions,
       collisionTiles: this.collisionTiles,
+      dimensions: this.worldDimensions,
       seed: this.currentArea.seed,
+      physicsEnabled: false,
+    });
+    this.terrainTransitionLayer?.destroy();
+    this.terrainTransitionLayer = new TerrainTransitionRenderer({
+      scene: this,
+      tileFactory: transitionTileFactory,
+      dimensions: this.worldDimensions,
+      seed: this.currentArea.seed,
+    }).render(terrainGrid);
+
+    const dynamicObjectFactory = new ObjectFactory({
+      scene: this,
+      staticGroup: this.collisionTiles,
       behaviorGroups: {
         'collectible.walk-over': this.collectibleTargets,
-      },
-      onTerrainBuilt: (terrainGrid) => { this.terrainGrid = terrainGrid; },
-      shouldBuildObject: (instance) => !this.scenePlacementBridge?.shouldSuppressLegacyObject(instance),
-      onObjectCreated: (registration) => {
-        this.resourceNodes?.register(registration);
-        this.collectibles?.register(registration);
-        this.chestController?.register(registration);
-      },
-      onNpcCreated: (registration) => {
-        this.npcRuntimeController?.register(registration);
-        this.questNpcController?.register(registration);
       },
       registerOccluder: (registration) => this.occlusionController!.registerOccluder(registration),
     });
@@ -652,7 +693,7 @@ export class WorldScene extends Phaser.Scene {
     });
     this.worldDrops = new WorldDropSpawner({
       scene: this,
-      createObject: (objectId, options) => mapBuilder.createDynamicObject(objectId, options),
+      createObject: (objectId, options) => dynamicObjectFactory.create(objectId, options),
       setObjectAnchor,
       setObjectDepthMode,
       registerCollectible: (registration) => this.collectibles?.register(registration),
@@ -677,29 +718,25 @@ export class WorldScene extends Phaser.Scene {
       showMessage: (message) => floatingText.spawn(this, this.player.x, this.player.y - 42, message, 'white', true, 1800),
       progress: worldProgress,
     });
-    const hasLegacyChest = this.loadedMap.map.objects.some((instance) => (
-      isObjectArchetypeId(instance.objectId)
-      && getObjectArchetype(instance.objectId).chest === true
-      && !this.scenePlacementBridge?.shouldSuppressLegacyObject(instance)
-    ));
-    if (hasLegacyChest) {
-      this.chestController = new ChestController({
-        scene: this,
-        mapId: this.loadedMap.map.mapId,
-        inventory: playerInventory,
-        progress: worldProgress,
-        transaction: playerInventoryWorldTransaction,
-        router: this.interactionRouter!,
-        modalStack: this.modalStack!,
-        getPlayer: () => this.player,
-        isLocked: (instanceId) => this.bossCampController?.isChestLocked(instanceId) ?? false,
-        onPausedChange: (paused) => this.setSimulationPaused('chest', paused),
-        showMessage: (x, y, message, color = 'white', important = false) => floatingText.spawn(this, x, y, message, color, important),
+    this.inventoryDrops.restore();
+  }
+
+  private buildTerrainGrid(map: MapFile): WorldTileId[][] {
+    const terrainGrid: WorldTileId[][] = [];
+    for (const layer of map.layers) {
+      layer.rows.forEach((row, tileY) => {
+        const targetRow = terrainGrid[tileY] ?? [];
+        for (let tileX = 0; tileX < row.length; tileX += 1) {
+          const tileId = layer.legend[row[tileX]];
+          if (!isWorldTileId(tileId)) {
+            throw new Error(`Map '${map.mapId}' reached WorldScene with invalid tile '${tileId}'`);
+          }
+          targetRow[tileX] = tileId;
+        }
+        terrainGrid[tileY] = targetRow;
       });
     }
-    this.builtMap = mapBuilder.build();
-    this.terrainGrid = this.builtMap.terrainGrid;
-    this.inventoryDrops.restore();
+    return terrainGrid;
   }
 
   private createCollectibleReactions(): void {
@@ -766,41 +803,6 @@ export class WorldScene extends Phaser.Scene {
     if (this.collectibleTargets) {
       this.physics.add.overlap(this.player, this.collectibleTargets, (_player, collectible) => {
         this.collectibles?.collect(collectible as Phaser.GameObjects.GameObject);
-      });
-    }
-    this.createAreaTransitionZones();
-  }
-
-  private createAreaTransitionZones(): void {
-    for (const exit of this.builtMap?.exits ?? []) {
-      const zone = this.add.zone(
-        exit.zone.x + exit.zone.w / 2,
-        exit.zone.y + exit.zone.h / 2,
-        exit.zone.w,
-        exit.zone.h,
-      );
-      this.physics.add.existing(zone, true);
-      this.transitionZones.push(zone);
-      this.physics.add.overlap(this.player, zone, () => {
-        if (this.transitioning || this.time.now < this.transitionReadyAt) return;
-        if (exit.gate && !worldProgress.isGateUnlocked(this.loadedMap.map.mapId, exit.gate.id)) {
-          if (playerInventory.count(exit.gate.requiredItemId) < 1) {
-            if (this.time.now >= this.nextGateMessageAt) {
-              this.nextGateMessageAt = this.time.now + 900;
-              floatingText.spawn(this, this.player.x, this.player.y - 42, exit.gate.lockedMessage, 'white', true);
-            }
-            return;
-          }
-          const unlock = playerInventoryWorldTransaction.unlockGate({
-            mapId: this.loadedMap.map.mapId,
-            gateId: exit.gate.id,
-            requiredItemId: exit.gate.requiredItemId,
-            consumeOnUnlock: exit.gate.consumeOnUnlock,
-          });
-          if (unlock !== 'unlocked' && unlock !== 'already-unlocked') return;
-          floatingText.spawn(this, this.player.x, this.player.y - 42, 'The Verdant Gate unlocks!', 'green', true);
-        }
-        this.transitionTo(exit.to as AreaId, exit.entry as Direction);
       });
     }
   }
@@ -1134,7 +1136,6 @@ export class WorldScene extends Phaser.Scene {
 
   private onPlayerDeath(): void {
     this.playerKnockbackUntil = 0;
-    this.bossCampController?.resetActiveFights();
     this.universalWorld?.resetActiveFights();
     this.playAnimation('slime-die', true);
     this.stopPlayerMotion();
@@ -1321,21 +1322,6 @@ export class WorldScene extends Phaser.Scene {
   // â”€â”€ Phase 2: combat â”€â”€
 
   private createCombatSystem(): void {
-    const legacyBossCamps = (this.builtMap?.bossCamps ?? [])
-      .filter((camp) => !this.scenePlacementBridge?.shouldSuppressLegacyBossCamp(camp));
-    this.bossCampController = new BossCampController({
-      scene: this,
-      mapId: this.loadedMap.map.mapId,
-      camps: legacyBossCamps,
-      player: this.player,
-      collisionTiles: this.collisionTiles,
-      progress: worldProgress,
-      isPlayerDodging: () => this.playerController.isDodging(),
-      applyPlayerDamage: (amount, source, impactX, impactY, knockbackStrength) => {
-        this.healthSystem?.applyDamage({ amount, source, knockX: impactX, knockY: impactY, knockStrength: knockbackStrength }, this.time.now);
-      },
-      showMessage: (x, y, message, color = 'white', important = false) => floatingText.spawn(this, x, y, message, color, important),
-    });
     this.combatController = new CombatController({
       scene: this,
       player: this.player,
@@ -1375,11 +1361,6 @@ export class WorldScene extends Phaser.Scene {
       }),
       getResourceTargets: () => this.resourceTargets,
       resourceNodes: this.resourceNodes,
-      getBossTargets: () => this.bossCampController?.targets ?? null,
-      isBossTarget: (target) => this.bossCampController?.isBossTarget(target) ?? false,
-      applyBossHit: (request) => this.bossCampController?.applyWeaponHit(request) ?? {
-        status: 'rejected', actualDamage: 0, defeated: false, reason: 'invalid',
-      },
       createManagedEnemy: (request) => this.universalWorld?.createManagedEnemy(request),
       spawnManagedEffect: (request) => this.universalWorld?.spawnEffect(request) ?? false,
       mountManagedWeapon: (weaponId) => this.universalWorld?.mountWeapon(weaponId) ?? false,
@@ -1392,7 +1373,7 @@ export class WorldScene extends Phaser.Scene {
 
   private createUniversalSceneWorld(playerSpawn: Readonly<{ x: number; y: number }>): void {
     const content = this.game.registry.get(PREPARED_SCENE_CONTENT_KEY);
-    if (!(content instanceof PreparedSceneContent) || !this.loadedWorld || !this.scenePlacementBridge || !this.healthSystem) {
+    if (!(content instanceof PreparedSceneContent) || !this.loadedWorld || !this.healthSystem) {
       throw new Error('WorldScene requires prepared universal scene content and initialized compatibility services.');
     }
     if (content.get(this.loadedWorld.sceneId) !== this.loadedWorld.packedScene) {
@@ -1402,9 +1383,8 @@ export class WorldScene extends Phaser.Scene {
       scene: this,
       content,
       map: this.loadedMap.map,
-      placementBridge: this.scenePlacementBridge,
+      worldSceneId: this.loadedWorld.sceneId,
       playerSpawn,
-      collisionTiles: this.collisionTiles,
       health: this.healthSystem,
       progress: worldProgress,
       transaction: playerInventoryWorldTransaction,
@@ -1420,15 +1400,13 @@ export class WorldScene extends Phaser.Scene {
       onManagedWeaponAttackFinished: (weaponId) => this.combatController?.onManagedWeaponAttackFinished(weaponId),
       activateLegacyWeaponHitbox: (request) => this.combatController?.activateLegacyWeaponHitbox(request) ?? (() => undefined),
       onManagedEnemyDefeated: (enemy) => this.combatController?.onManagedEnemyDefeated(enemy),
-      getEnemySafeZones: () => [
-        ...(this.builtMap?.enemySafeZones ?? []),
-        ...(this.loadedMap.map.spawns?.safeZones ?? []),
-      ],
+      getEnemySafeZones: () => this.builtMap?.enemySafeZones ?? [],
       registerNpc: (registration) => this.questNpcController?.register(registration),
       registerManagedResource: (registration) => this.resourceNodes?.registerManagedResource(registration),
       spawnManagedResourceDrops: (request) => this.resourceNodes?.spawnManagedResourceDrops(request),
       collectibles: this.collectibles!,
       registerOccluder: (registration) => this.occlusionController!.registerOccluder(registration),
+      requestExit: (request) => this.requestAuthoredExit(request),
     });
   }
 
@@ -1503,4 +1481,12 @@ export class WorldScene extends Phaser.Scene {
     });
   }
 
+}
+
+function isDirection(value: string): value is Direction {
+  return value === 'north' || value === 'east' || value === 'south' || value === 'west';
+}
+
+function isJsonObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }

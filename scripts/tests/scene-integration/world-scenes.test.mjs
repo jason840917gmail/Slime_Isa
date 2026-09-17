@@ -68,6 +68,7 @@ test('authored navigation nodes preserve marker order, exit geometry, targets, g
   const shape = levelOne.nodes.find((node) => node.id === 'exit-1-shape');
   const script = levelOne.nodes.find((node) => node.id === 'exit-1-script');
   assert.deepEqual(area.properties.position, [3552, 576]);
+  assert.equal(area.properties.collisionMask, 1);
   assert.deepEqual(shape.properties.shape, { resourceId: 'level-1.exit-1.shape' });
   assert.deepEqual(script.properties, {
     mapId: 'level-1', exitId: 'exit-1', targetAreaId: 'gloop-forest', entry: 'west', area: { nodeId: 'exit-1' },

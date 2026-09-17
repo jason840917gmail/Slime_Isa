@@ -105,7 +105,7 @@ test('map terrain conversion is deterministic and externalizes stable tile cells
     'player-spawn', 'player-entry-east',
   ]);
   assert.deepEqual(levelOne.nodes.find((node) => node.id === 'exit-1').properties, {
-    position: [3552, 576], collisionLayer: 0, collisionMask: 2, monitoring: true, monitorable: false,
+    position: [3552, 576], collisionLayer: 0, collisionMask: 1, monitoring: true, monitorable: false,
   });
   assert.deepEqual(levelOne.nodes.find((node) => node.id === 'exit-1-shape').properties, {
     shape: { resourceId: 'level-1.exit-1.shape' },

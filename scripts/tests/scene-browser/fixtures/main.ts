@@ -69,7 +69,6 @@ type FixtureSnapshot = {
   readonly playerHp?: number;
   readonly legacyEnemyCount?: number;
   readonly legacyBossCount?: number;
-  readonly legacyNpcCount?: number;
   readonly legacyPlayerX?: number;
   readonly managedPlayerX?: number;
   readonly hasLegacyChestController?: boolean;
@@ -498,7 +497,6 @@ const api: FixtureApi = {
           readonly combatController?: { readonly targets: Phaser.Physics.Arcade.Group };
           readonly bossCampController?: { readonly targets: Phaser.Physics.Arcade.Group };
           readonly chestController?: unknown;
-          readonly builtMap?: { readonly npcActors: readonly unknown[] };
           readonly player?: Phaser.Physics.Arcade.Sprite;
         }
       : undefined;
@@ -534,7 +532,6 @@ const api: FixtureApi = {
       ...(world?.universalWorld ? { universalRuntimePaused: world.universalWorld.runtime.tree.paused } : {}),
       ...(world?.combatController ? { legacyEnemyCount: world.combatController.targets.countActive(true) } : {}),
       ...(world?.bossCampController ? { legacyBossCount: world.bossCampController.targets.countActive(true) } : {}),
-      ...(world?.builtMap ? { legacyNpcCount: world.builtMap.npcActors.length } : {}),
       ...(world?.player ? { legacyPlayerX: world.player.x } : {}),
       ...(world?.universalWorld ? { managedPlayerX: world.universalWorld.managedPlayer.getPosition().x } : {}),
       ...(world ? { hasLegacyChestController: world.chestController !== undefined } : {}),
