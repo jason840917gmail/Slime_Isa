@@ -129,6 +129,7 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
           sceneId('weapon.stone-spear'),
           sceneId('weapon.wooden-axe'),
           sceneId('weapon.wooden-spear'),
+          sceneId('ui.hud'),
         ],
         hasAsset: (assetId) => Object.hasOwn(ASSET_MANIFEST.assets, assetId),
       })
@@ -138,6 +139,7 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
     <section class="game-shell${import.meta.env.DEV && !isEditor ? ' is-dev-mode' : ''}${isEditor ? ' is-map-editor' : ''}">
       <div class="canvas-frame">
         <div id="game-root"></div>
+        ${isEditor ? '' : '<div class="scene-ui-root" data-scene-ui-root aria-label="Game interface"></div>'}
         ${isEditor ? '' : `<details class="keymap-panel" open>
           <summary>Controls</summary>
           <table>
@@ -172,9 +174,13 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
   }
 
   const gameRoot = container.querySelector<HTMLDivElement>('#game-root');
+  const sceneUiRoot = container.querySelector<HTMLDivElement>('[data-scene-ui-root]');
 
   if (!gameRoot) {
     throw new Error('Missing game mount node.');
+  }
+  if (!isEditor && !sceneUiRoot) {
+    throw new Error('Missing universal UI mount node.');
   }
 
   const game = new Phaser.Game({
@@ -207,6 +213,7 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
       preBoot: (bootingGame) => {
         if (modalStack) bootingGame.registry.set('modalStack', modalStack);
         if (preparedSceneContent) bootingGame.registry.set(PREPARED_SCENE_CONTENT_KEY, preparedSceneContent);
+        if (sceneUiRoot) bootingGame.registry.set('universal-ui-root', sceneUiRoot);
       },
     },
     scene: [BootScene, MapLoadScene, WorldScene, ...editorScenes],

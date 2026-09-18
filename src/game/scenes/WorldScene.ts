@@ -5,7 +5,6 @@ import {
   type WorldTileId,
 } from '../content/terrain/TileCatalog';
 import { Minimap } from '../Minimap';
-import { HUD } from '../HUD';
 import { gameState } from '../core/GameState';
 import { gameEvents } from '../core/EventBus';
 import { saveSystem } from '../core/SaveSystem';
@@ -113,7 +112,6 @@ export class WorldScene extends Phaser.Scene {
   private pauseSources = new Set<string>();
   private terrainGrid: WorldTileId[][] = [];
   private minimap!: Minimap;
-  private hud!: HUD;
   private collectibleTargets!: Phaser.Physics.Arcade.StaticGroup;
   private resourceTargets!: Phaser.GameObjects.Group;
   private resourceNodes?: ResourceNodeController;
@@ -182,6 +180,9 @@ export class WorldScene extends Phaser.Scene {
 
   create(): void {
     this.resetSceneStateForAreaLoad();
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.resetSceneStateForAreaLoad, this);
+    this.game.events.once(Phaser.Core.Events.DESTROY, this.resetSceneStateForAreaLoad, this);
+    this.disposables.add(() => this.game.events.off(Phaser.Core.Events.DESTROY, this.resetSceneStateForAreaLoad, this));
     this.pendingRestoreLocation = undefined;
     this.restoredFromAreaTransition = this.restoreAreaTransitionHandoff();
     // Install the complete run before authored objects are registered. Resource
@@ -244,7 +245,6 @@ export class WorldScene extends Phaser.Scene {
 
     // Phase 2: UI systems
     this.createMinimap();
-    this.createHUD();
     this.createCollectibleReactions();
 
     // Phase 1 systems: health presentation, abilities, level-up modal, inventory UI
@@ -375,7 +375,6 @@ export class WorldScene extends Phaser.Scene {
     this.terrainTransitionLayer = undefined;
     this.disposables.dispose();
     this.disposables = new DisposableBag();
-    this.hud?.destroy();
     this.minimap?.destroy();
     this.abilitySystem?.destroy();
     this.weaponHotbar?.destroy();
@@ -743,7 +742,7 @@ export class WorldScene extends Phaser.Scene {
       events: COLLECTIBLE_EVENTS,
       awardCoins: (amount) => gameState.addCoins(amount),
       playEatAnimation: () => this.playActionAnimation('slime-eat'),
-      flashCoins: () => this.hud.flashCoins(this),
+      flashCoins: () => this.universalWorld?.flashHudCoins(),
     }));
   }
 
@@ -808,10 +807,6 @@ export class WorldScene extends Phaser.Scene {
 
   private createMinimap(): void {
     this.minimap = new Minimap(this, this.worldDimensions);
-  }
-
-  private createHUD(): void {
-    this.hud = new HUD(this);
   }
 
   private createCamera(): void {
@@ -1106,8 +1101,6 @@ export class WorldScene extends Phaser.Scene {
   private handleResize(gameSize: Phaser.Structs.Size): void {
     this.cameras.main.setViewport(0, 0, gameSize.width, gameSize.height);
     this.uiCamera?.setViewport(0, 0, gameSize.width, gameSize.height);
-    this.hud?.resize(gameSize.width);
-
   }
 
   // â”€â”€ Phase 1: health / damage / death / XP / items â”€â”€
@@ -1372,8 +1365,12 @@ export class WorldScene extends Phaser.Scene {
 
   private createUniversalSceneWorld(playerSpawn: Readonly<{ x: number; y: number }>): void {
     const content = this.game.registry.get(PREPARED_SCENE_CONTENT_KEY);
+    const uiRoot = this.game.registry.get('universal-ui-root');
     if (!(content instanceof PreparedSceneContent) || !this.loadedWorld || !this.healthSystem) {
       throw new Error('WorldScene requires prepared universal scene content and initialized compatibility services.');
+    }
+    if (!(uiRoot instanceof HTMLElement)) {
+      throw new Error('WorldScene requires the universal UI mount node.');
     }
     if (content.get(this.loadedWorld.sceneId) !== this.loadedWorld.packedScene) {
       throw new Error(`WorldScene received stale prepared content for '${this.loadedWorld.sceneId}'.`);
@@ -1406,6 +1403,7 @@ export class WorldScene extends Phaser.Scene {
       collectibles: this.collectibles!,
       registerOccluder: (registration) => this.occlusionController!.registerOccluder(registration),
       requestExit: (request) => this.requestAuthoredExit(request),
+      uiRoot,
     });
   }
 
