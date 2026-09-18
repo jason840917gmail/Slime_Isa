@@ -15,6 +15,7 @@ import { LegacyChestUiBridge } from '../../infrastructure/scenes/compatibility/L
 import { LegacyWorldAdapter } from '../../infrastructure/scenes/compatibility/LegacyWorldAdapter';
 import type { Node } from '../../runtime/scene/Node';
 import { InputRouter } from '../../runtime/scene/input/InputRouter';
+import type { InputEventSink } from '../../runtime/scene/input/InputRouter';
 import { Node2D } from '../../runtime/scene/Node2D';
 import { AttackActivation } from '../combat/AttackActivation';
 import type { RoutedDamageOutcome } from '../combat/DamageRouter';
@@ -93,6 +94,9 @@ import type { LegacyPlayerHealthAdapter } from '../../infrastructure/scenes/comp
 import type { ModalStack } from '../../ui/ModalStack';
 import { ChestInventoryPanel } from '../../ui/ChestInventoryPanel';
 import { BossHealthBar } from '../../ui/BossHealthBar';
+import { HtmlControlPresentationAdapter } from '../../infrastructure/phaser-nodes/ui/HtmlControlPresentationAdapter';
+import { HudSurfacePort } from '../ui/HudSurfacePort';
+import { UI_SURFACE_SERVICE } from '../scripts/ui/UiSurfaceScript';
 import {
   WORLD_EXIT_SERVICE,
   type WorldExitPort,
@@ -128,6 +132,7 @@ export interface UniversalSceneWorldControllerOptions {
   readonly collectibles: CollectibleWorldPort;
   readonly registerOccluder?: (registration: ObjectOccluderRegistration) => { dispose(): void };
   readonly requestExit: (request: WorldExitRequest) => WorldExitResult;
+  readonly uiRoot: HTMLElement;
 }
 
 interface ManagedCamp {
@@ -217,6 +222,8 @@ export class UniversalSceneWorldController implements InteractionProvider {
   private readonly chestUi?: LegacyChestUiBridge;
   private readonly bossUi: LegacyBossUiBridge;
   private readonly inputRouter: InputRouter;
+  private readonly uiPresentation: HtmlControlPresentationAdapter;
+  private readonly hudSurface: HudSurfacePort;
   private readonly camps = new Map<string, ManagedCamp>();
   private readonly bosses = new Map<string, ManagedBoss>();
   private readonly ordinaryEnemies = new Map<number, ManagedOrdinaryEnemy>();
@@ -245,6 +252,17 @@ export class UniversalSceneWorldController implements InteractionProvider {
   private disposed = false;
 
   constructor(private readonly options: UniversalSceneWorldControllerOptions) {
+    let inputSink: InputEventSink | undefined;
+    this.hudSurface = new HudSurfacePort();
+    this.inputRouter = new InputRouter({
+      sink: { enqueueInput: (event) => inputSink?.enqueueInput(event) },
+      actions: PLAYER_INPUT_ACTIONS,
+      isPaused: () => this.runtime.tree.paused,
+    });
+    this.uiPresentation = new HtmlControlPresentationAdapter({
+      root: options.uiRoot,
+      viewport: () => ({ width: options.uiRoot.clientWidth, height: options.uiRoot.clientHeight }),
+    });
     const chestView = {
       open: (model: Parameters<LegacyChestUiBridge['open']>[0]) => this.chestUi?.open(model),
       close: (instanceId: string) => this.chestUi?.close(instanceId),
@@ -327,37 +345,50 @@ export class UniversalSceneWorldController implements InteractionProvider {
           return options.requestExit(request);
         },
       } satisfies WorldExitPort,
+      [UI_SURFACE_SERVICE]: this.hudSurface,
     });
-    this.runtime = new PhaserUniversalSceneRuntime({
-      scene: options.scene,
-      content: options.content,
-      descriptors: createGameDescriptorRegistry(),
-      scripts,
-      resolveAssetKey: (assetId) => ASSET_MANIFEST.assets[assetId as AssetId].runtime.textureKey,
-      diagnosticSink: (diagnostic) => {
-        console.error(`[UniversalScene:${diagnostic.phase}] ${diagnostic.message}`, diagnostic.error ?? '');
-      },
-      legacy: new LegacyWorldAdapter({
-        prePhysics: (deltaSeconds) => {
-          this.simulationTimeMs += deltaSeconds * 1000;
-          options.updateLegacyFixed(deltaSeconds * 1000);
-          this.evaluateCamps();
+    try {
+      this.runtime = new PhaserUniversalSceneRuntime({
+        scene: options.scene,
+        content: options.content,
+        descriptors: createGameDescriptorRegistry(),
+        scripts,
+        nodeServices: {
+          inputRouter: this.inputRouter,
+          controlPresentation: this.uiPresentation,
         },
-        postPhysics: () => {
-          this.finishDefeatedBosses();
-          this.finishDefeatedOrdinaryEnemies();
-          this.finishExpiredProjectiles();
-          this.finishExpiredEffects();
-          this.finishDestroyedResources();
-          this.finishDepletedCollectibles();
+        resolveAssetKey: (assetId) => ASSET_MANIFEST.assets[assetId as AssetId].runtime.textureKey,
+        diagnosticSink: (diagnostic) => {
+          console.error(`[UniversalScene:${diagnostic.phase}] ${diagnostic.message}`, diagnostic.error ?? '');
         },
-        render: (deltaSeconds) => {
-          options.updateLegacyRender(deltaSeconds * 1000);
-          for (const effect of this.effects.values()) effect.attachment?.update();
-          for (const bar of this.bossBars) bar.update();
-        },
-      }),
-    });
+        legacy: new LegacyWorldAdapter({
+          prePhysics: (deltaSeconds) => {
+            this.simulationTimeMs += deltaSeconds * 1000;
+            options.updateLegacyFixed(deltaSeconds * 1000);
+            this.evaluateCamps();
+          },
+          postPhysics: () => {
+            this.finishDefeatedBosses();
+            this.finishDefeatedOrdinaryEnemies();
+            this.finishExpiredProjectiles();
+            this.finishExpiredEffects();
+            this.finishDestroyedResources();
+            this.finishDepletedCollectibles();
+          },
+          render: (deltaSeconds) => {
+            options.updateLegacyRender(deltaSeconds * 1000);
+            for (const effect of this.effects.values()) effect.attachment?.update();
+            for (const bar of this.bossBars) bar.update();
+          },
+        }),
+      });
+      inputSink = this.runtime;
+      this.runtime.mountScene(sceneId('ui.hud'), { runtimeNamespace: 'ui-hud' });
+    } catch (error) {
+      this.inputRouter.destroy();
+      this.hudSurface.destroy();
+      throw error;
+    }
 
     let panelBridge: LegacyChestUiBridge | undefined;
     const panel = new ChestInventoryPanel({
@@ -370,11 +401,6 @@ export class UniversalSceneWorldController implements InteractionProvider {
     });
     this.chestUi = panelBridge = new LegacyChestUiBridge(panel);
     this.bossUi = new LegacyBossUiBridge((campId, bossId) => this.createBossBar(campId, bossId));
-    this.inputRouter = new InputRouter({
-      sink: this.runtime,
-      actions: PLAYER_INPUT_ACTIONS,
-      isPaused: () => this.runtime.tree.paused,
-    });
     this.mountPlayer();
     this.mountAuthoredWorld();
     this.unregisterInteraction = options.interactions.register('managed-chests', this);
@@ -412,6 +438,14 @@ export class UniversalSceneWorldController implements InteractionProvider {
     return this.playerVisual;
   }
   get managedLiveCampCount(): number { return [...this.camps.values()].filter((camp) => camp.script.hasLiveBoss).length; }
+
+  flashHudCoins(): void {
+    const coins = this.options.uiRoot.querySelector<HTMLElement>('.game-ui--hud [aria-label="Coins"]');
+    coins?.animate(
+      [{ transform: 'scale(1)' }, { transform: 'scale(1.08)' }, { transform: 'scale(1)' }],
+      { duration: 240, easing: 'ease-out' },
+    );
+  }
 
   getCandidate() {
     let nearest: { readonly script: ChestScript; readonly position: Readonly<{ x: number; y: number }> } | undefined;
@@ -562,6 +596,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.unregisterInteraction();
     this.inputRouter.destroy();
     this.runtime.shutdown();
+    this.hudSurface.destroy();
     this.chestUi?.dispose();
     this.bossUi.dispose();
     this.camps.clear();
