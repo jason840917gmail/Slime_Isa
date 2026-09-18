@@ -95,6 +95,7 @@
           "nodeId": "animation"
         },
         "characterId": "village-elder-plop",
+        "npcDefinitionId": "village-elder-plop",
         "wanderSpeed": 18,
         "pauseMinMs": 3000,
         "pauseMaxMs": 50000

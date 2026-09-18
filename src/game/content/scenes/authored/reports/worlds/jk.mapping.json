@@ -6,7 +6,10 @@
     "objects": 176,
     "bossCamps": 0,
     "playerMarkers": 1,
-    "exits": 0
+    "exits": 0,
+    "enemySafeZones": 9,
+    "enemySpawnAreas": 0,
+    "npcWanderAreas": 0
   },
   "worldInstanceCount": 176,
   "placements": [
@@ -1955,6 +1958,116 @@
       "position": [
         32,
         32
+      ]
+    }
+  ],
+  "areas": [
+    {
+      "sourceKind": "enemy-safe-zone",
+      "sourcePath": "$.enemySafeZones[0]",
+      "sourceId": "enemy-safe-1",
+      "areaNodeId": "area-enemy-safe-1",
+      "shapeNodeId": "area-enemy-safe-1-shape",
+      "scriptNodeId": "area-enemy-safe-1-script",
+      "position": [
+        2624,
+        800
+      ]
+    },
+    {
+      "sourceKind": "enemy-safe-zone",
+      "sourcePath": "$.enemySafeZones[1]",
+      "sourceId": "enemy-safe-2",
+      "areaNodeId": "area-enemy-safe-2",
+      "shapeNodeId": "area-enemy-safe-2-shape",
+      "scriptNodeId": "area-enemy-safe-2-script",
+      "position": [
+        2624,
+        1248
+      ]
+    },
+    {
+      "sourceKind": "enemy-safe-zone",
+      "sourcePath": "$.enemySafeZones[2]",
+      "sourceId": "enemy-safe-3",
+      "areaNodeId": "area-enemy-safe-3",
+      "shapeNodeId": "area-enemy-safe-3-shape",
+      "scriptNodeId": "area-enemy-safe-3-script",
+      "position": [
+        2995,
+        1206
+      ]
+    },
+    {
+      "sourceKind": "enemy-safe-zone",
+      "sourcePath": "$.enemySafeZones[3]",
+      "sourceId": "enemy-safe-4",
+      "areaNodeId": "area-enemy-safe-4",
+      "shapeNodeId": "area-enemy-safe-4-shape",
+      "scriptNodeId": "area-enemy-safe-4-script",
+      "position": [
+        3264,
+        1184
+      ]
+    },
+    {
+      "sourceKind": "enemy-safe-zone",
+      "sourcePath": "$.enemySafeZones[4]",
+      "sourceId": "enemy-safe-5",
+      "areaNodeId": "area-enemy-safe-5",
+      "shapeNodeId": "area-enemy-safe-5-shape",
+      "scriptNodeId": "area-enemy-safe-5-script",
+      "position": [
+        2432,
+        1760
+      ]
+    },
+    {
+      "sourceKind": "enemy-safe-zone",
+      "sourcePath": "$.enemySafeZones[5]",
+      "sourceId": "enemy-safe-6",
+      "areaNodeId": "area-enemy-safe-6",
+      "shapeNodeId": "area-enemy-safe-6-shape",
+      "scriptNodeId": "area-enemy-safe-6-script",
+      "position": [
+        2902,
+        1880
+      ]
+    },
+    {
+      "sourceKind": "enemy-safe-zone",
+      "sourcePath": "$.enemySafeZones[6]",
+      "sourceId": "enemy-safe-7",
+      "areaNodeId": "area-enemy-safe-7",
+      "shapeNodeId": "area-enemy-safe-7-shape",
+      "scriptNodeId": "area-enemy-safe-7-script",
+      "position": [
+        2656,
+        2464
+      ]
+    },
+    {
+      "sourceKind": "enemy-safe-zone",
+      "sourcePath": "$.enemySafeZones[7]",
+      "sourceId": "enemy-safe-8",
+      "areaNodeId": "area-enemy-safe-8",
+      "shapeNodeId": "area-enemy-safe-8-shape",
+      "scriptNodeId": "area-enemy-safe-8-script",
+      "position": [
+        3040,
+        2432
+      ]
+    },
+    {
+      "sourceKind": "enemy-safe-zone",
+      "sourcePath": "$.enemySafeZones[8]",
+      "sourceId": "enemy-safe-9",
+      "areaNodeId": "area-enemy-safe-9",
+      "shapeNodeId": "area-enemy-safe-9-shape",
+      "scriptNodeId": "area-enemy-safe-9-script",
+      "position": [
+        2912,
+        2528
       ]
     }
   ]

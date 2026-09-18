@@ -75,7 +75,7 @@ test('map terrain conversion is deterministic and externalizes stable tile cells
   });
   assert.deepEqual(world.instances, [{
     instanceId: 'amber-rock-001', name: 'amber-rock-001', sceneId: 'object.rock-amber-ore-mineable',
-    parentNodeId: 'world', order: 2, persistenceKey: 'test-rectangle.amber-rock-001',
+    parentNodeId: 'world', order: 3, persistenceKey: 'test-rectangle.amber-rock-001',
     overrides: [
       { sourceInstancePath: [], sourceNodeId: 'body', property: 'position', value: [288, 192] },
       { sourceInstancePath: [], sourceNodeId: 'script', property: 'mapId', value: 'test-rectangle' },
@@ -84,10 +84,20 @@ test('map terrain conversion is deterministic and externalizes stable tile cells
     ],
   }]);
   assert.deepEqual(world.nodes.find((node) => node.id === 'player-spawn'), {
-    id: 'player-spawn', name: 'player-spawn', type: 'Node2D', parentId: 'world', order: 1,
+    id: 'player-spawn', name: 'player-spawn', type: 'Node2D', parentId: 'world', order: 2,
     properties: { position: [96, 96] },
   });
-  assert.deepEqual(report.sourceCounts, { objects: 1, bossCamps: 0, playerMarkers: 1, exits: 0 });
+  assert.deepEqual(world.nodes.find((node) => node.id === 'world-definition').properties, {
+    mapId: 'test-rectangle', tileSize: 64, columns: 8, rows: 5,
+    metadata: {
+      objects: [],
+      player: { spawn: { x: 96, y: 96 }, entries: {} },
+    },
+  });
+  assert.deepEqual(report.sourceCounts, {
+    objects: 1, bossCamps: 0, playerMarkers: 1, exits: 0,
+    enemySafeZones: 0, enemySpawnAreas: 0, npcWanderAreas: 0,
+  });
   assert.equal(report.placements[0].sourceId, 'amber-rock-001');
   assert.equal(report.placements[0].ownership, 'world-instance');
   assert.deepEqual(report.navigation, [{

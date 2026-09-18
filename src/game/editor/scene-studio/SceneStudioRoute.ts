@@ -17,15 +17,23 @@ export function redirectLegacyStudioRoute(search: string): string | undefined {
   const mapping = studio && studio in LEGACY_SCENE_STUDIOS
     ? LEGACY_SCENE_STUDIOS[studio as keyof typeof LEGACY_SCENE_STUDIOS]
     : undefined;
-  if (!mapping) return undefined;
-  const stableId = query.get(mapping.query)?.trim();
-  query.delete(mapping.query);
-  query.delete('animation');
-  query.delete('slot');
-  query.delete('direction');
+  if (mapping) {
+    const stableId = query.get(mapping.query)?.trim();
+    query.delete(mapping.query);
+    query.delete('animation');
+    query.delete('slot');
+    query.delete('direction');
+    return formatSceneStudioRoute({
+      active: true,
+      ...(stableId ? { scene: sceneId(`${mapping.prefix}.${stableId}`) } : {}),
+    }, query.toString());
+  }
+  const mapId = query.get('editor')?.trim();
+  if (!mapId) return undefined;
+  query.delete('editor');
   return formatSceneStudioRoute({
     active: true,
-    ...(stableId ? { scene: sceneId(`${mapping.prefix}.${stableId}`) } : {}),
+    scene: sceneId(`world.${mapId}`),
   }, query.toString());
 }
 

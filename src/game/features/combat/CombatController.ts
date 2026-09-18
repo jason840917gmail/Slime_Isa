@@ -8,10 +8,10 @@ import { gameEvents } from '../../core/EventBus';
 import { gameState } from '../../core/GameState';
 import { Enemy, type ProjectileReference } from '../../enemies/Enemy';
 import {
-  EnemySpawner,
+  AuthoredEnemyPopulationController,
   type EnemyPopulationMember,
   type EnemySpawnRequest,
-} from '../../enemies/EnemySpawner';
+} from '../../enemies/AuthoredEnemyPopulationController';
 import type { AnimatedVisual } from '../visuals/AnimatedVisual';
 import { getEnemyConfig } from '../../enemies/library/EnemyTypes';
 import { UI_THEME } from '../../presentation/theme';
@@ -114,7 +114,7 @@ export class CombatController {
   readonly targets: Phaser.Physics.Arcade.Group;
   private weapon?: NormalizedWeaponDefinition;
   private combo: ComboSystem;
-  private spawner?: EnemySpawner;
+  private spawner?: AuthoredEnemyPopulationController;
   private comboText: Phaser.GameObjects.Text;
   private attacking = false;
   private attackSequence = 0;
@@ -151,7 +151,8 @@ export class CombatController {
     }
 
     if (ctx.enemySpawnAreas.length > 0 || spawnConfig) {
-      this.spawner = new EnemySpawner({
+      if (!ctx.createManagedEnemy) throw new Error('Authored enemy populations require the packed-scene enemy factory.');
+      this.spawner = new AuthoredEnemyPopulationController({
         scene,
         getPlayer: () => player,
         maxPopulation: spawnConfig?.maxPopulation ?? 0,

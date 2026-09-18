@@ -109,7 +109,7 @@ function pointInSector(x: number, y: number, sector: SectorSensorShape): boolean
   return Math.abs(wrappedAngle(Math.atan2(dy, dx) - sector.angleRad)) <= sector.arcWidthRad / 2 + EPSILON;
 }
 
-function pointInShape(x: number, y: number, shape: SensorShape): boolean {
+export function sensorShapeContainsPoint(shape: SensorShape, x: number, y: number): boolean {
   if (shape.shape === 'rectangle') return x >= shape.x - EPSILON && x <= shape.x + shape.width + EPSILON && y >= shape.y - EPSILON && y <= shape.y + shape.height + EPSILON;
   if (shape.shape === 'circle') return squaredDistance(x, y, shape.centerX, shape.centerY) <= shape.radius * shape.radius + EPSILON;
   if (shape.shape === 'ellipse') { const dx = (x - shape.centerX) / shape.radiusX; const dy = (y - shape.centerY) / shape.radiusY; return dx * dx + dy * dy <= 1 + EPSILON; }
@@ -159,7 +159,7 @@ function segmentsIntersect(a: Readonly<{ x: number; y: number }>, b: Readonly<{ 
 function sampledCurvesIntersect(first: SensorShape, second: SensorShape): boolean {
   const firstPoints = boundaryPoints(first);
   const secondPoints = boundaryPoints(second);
-  if (firstPoints.some((point) => pointInShape(point.x, point.y, second)) || secondPoints.some((point) => pointInShape(point.x, point.y, first))) return true;
+  if (firstPoints.some((point) => sensorShapeContainsPoint(second, point.x, point.y)) || secondPoints.some((point) => sensorShapeContainsPoint(first, point.x, point.y))) return true;
   for (let a = 0; a < firstPoints.length; a += 1) {
     const aStart = firstPoints[a]; const aEnd = firstPoints[(a + 1) % firstPoints.length];
     for (let b = 0; b < secondPoints.length; b += 1) {

@@ -40,11 +40,432 @@
       }
     },
     {
+      "id": "world-definition",
+      "name": "world-definition",
+      "type": "ScriptNode",
+      "scriptId": "game.world-definition",
+      "parentId": "world",
+      "order": 1,
+      "properties": {
+        "mapId": "level-1",
+        "tileSize": 64,
+        "columns": 56,
+        "rows": 56,
+        "metadata": {
+          "objects": [],
+          "player": {
+            "spawn": {
+              "x": 640,
+              "y": 704
+            },
+            "entries": {
+              "east": {
+                "x": 1408,
+                "y": 576
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-1",
+      "name": "enemy-safe-1",
+      "type": "Area2D",
+      "parentId": "world",
+      "order": 2,
+      "properties": {
+        "position": [
+          640,
+          608
+        ],
+        "collisionLayer": 0,
+        "collisionMask": 0,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "area-enemy-safe-1-shape",
+      "name": "collision-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-enemy-safe-1",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "level-1.area-enemy-safe-1.shape"
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-1-script",
+      "name": "world-area-script",
+      "type": "ScriptNode",
+      "scriptId": "game.world-area",
+      "parentId": "area-enemy-safe-1",
+      "order": 1,
+      "properties": {
+        "areaKind": "enemy-safe-zone",
+        "areaId": "enemy-safe-1",
+        "area": {
+          "nodeId": "area-enemy-safe-1"
+        },
+        "data": {
+          "x": 416,
+          "y": 384,
+          "w": 448,
+          "h": 448
+        }
+      }
+    },
+    {
+      "id": "area-level-1-starter-camp",
+      "name": "level-1-starter-camp",
+      "type": "Area2D",
+      "parentId": "world",
+      "order": 3,
+      "properties": {
+        "position": [
+          1132,
+          1509.5
+        ],
+        "collisionLayer": 0,
+        "collisionMask": 0,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "area-level-1-starter-camp-shape",
+      "name": "collision-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-level-1-starter-camp",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "level-1.area-level-1-starter-camp.shape"
+        }
+      }
+    },
+    {
+      "id": "area-level-1-starter-camp-script",
+      "name": "world-area-script",
+      "type": "ScriptNode",
+      "scriptId": "game.world-area",
+      "parentId": "area-level-1-starter-camp",
+      "order": 1,
+      "properties": {
+        "areaKind": "enemy-spawn",
+        "areaId": "level-1-starter-camp",
+        "area": {
+          "nodeId": "area-level-1-starter-camp"
+        },
+        "data": {
+          "id": "level-1-starter-camp",
+          "stayPerimeter": {
+            "shape": "rectangle",
+            "x": 1088,
+            "y": 1483,
+            "w": 280,
+            "h": 181
+          },
+          "pursuePerimeter": {
+            "shape": "rectangle",
+            "x": 832,
+            "y": 1291,
+            "w": 600,
+            "h": 437
+          },
+          "enemies": [
+            {
+              "type": "worm-brawler",
+              "weight": 1,
+              "maxAlive": 3
+            }
+          ],
+          "intervalMs": 2500,
+          "maxPopulation": 3
+        }
+      }
+    },
+    {
+      "id": "area-npc-area-01",
+      "name": "npc-area-01",
+      "type": "Area2D",
+      "parentId": "world",
+      "order": 4,
+      "properties": {
+        "position": [
+          512,
+          704
+        ],
+        "collisionLayer": 0,
+        "collisionMask": 0,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "area-npc-area-01-shape",
+      "name": "collision-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-npc-area-01",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "level-1.area-npc-area-01.shape"
+        }
+      }
+    },
+    {
+      "id": "area-npc-area-01-script",
+      "name": "world-area-script",
+      "type": "ScriptNode",
+      "scriptId": "game.world-area",
+      "parentId": "area-npc-area-01",
+      "order": 1,
+      "properties": {
+        "areaKind": "npc-wander",
+        "areaId": "npc-area-01",
+        "area": {
+          "nodeId": "area-npc-area-01"
+        },
+        "data": {
+          "id": "npc-area-01",
+          "npcInstanceId": "level-1-npc-village-elder-plop",
+          "perimeter": {
+            "shape": "circle",
+            "x": 512,
+            "y": 704,
+            "radius": 96
+          }
+        }
+      }
+    },
+    {
+      "id": "area-npc-area-03",
+      "name": "npc-area-03",
+      "type": "Area2D",
+      "parentId": "world",
+      "order": 5,
+      "properties": {
+        "position": [
+          480,
+          896
+        ],
+        "collisionLayer": 0,
+        "collisionMask": 0,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "area-npc-area-03-shape",
+      "name": "collision-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-npc-area-03",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "level-1.area-npc-area-03.shape"
+        }
+      }
+    },
+    {
+      "id": "area-npc-area-03-script",
+      "name": "world-area-script",
+      "type": "ScriptNode",
+      "scriptId": "game.world-area",
+      "parentId": "area-npc-area-03",
+      "order": 1,
+      "properties": {
+        "areaKind": "npc-wander",
+        "areaId": "npc-area-03",
+        "area": {
+          "nodeId": "area-npc-area-03"
+        },
+        "data": {
+          "id": "npc-area-03",
+          "npcInstanceId": "level-1-npc-lili",
+          "perimeter": {
+            "shape": "circle",
+            "x": 480,
+            "y": 896,
+            "radius": 72
+          }
+        }
+      }
+    },
+    {
+      "id": "area-npc-area-04",
+      "name": "npc-area-04",
+      "type": "Area2D",
+      "parentId": "world",
+      "order": 6,
+      "properties": {
+        "position": [
+          640,
+          904
+        ],
+        "collisionLayer": 0,
+        "collisionMask": 0,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "area-npc-area-04-shape",
+      "name": "collision-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-npc-area-04",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "level-1.area-npc-area-04.shape"
+        }
+      }
+    },
+    {
+      "id": "area-npc-area-04-script",
+      "name": "world-area-script",
+      "type": "ScriptNode",
+      "scriptId": "game.world-area",
+      "parentId": "area-npc-area-04",
+      "order": 1,
+      "properties": {
+        "areaKind": "npc-wander",
+        "areaId": "npc-area-04",
+        "area": {
+          "nodeId": "area-npc-area-04"
+        },
+        "data": {
+          "id": "npc-area-04",
+          "npcInstanceId": "level-1-npc-red-slime-boy",
+          "perimeter": {
+            "shape": "rectangle",
+            "x": 576,
+            "y": 832,
+            "w": 128,
+            "h": 144
+          }
+        }
+      }
+    },
+    {
+      "id": "area-npc-area-05",
+      "name": "npc-area-05",
+      "type": "Area2D",
+      "parentId": "world",
+      "order": 7,
+      "properties": {
+        "position": [
+          800,
+          896
+        ],
+        "collisionLayer": 0,
+        "collisionMask": 0,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "area-npc-area-05-shape",
+      "name": "collision-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-npc-area-05",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "level-1.area-npc-area-05.shape"
+        }
+      }
+    },
+    {
+      "id": "area-npc-area-05-script",
+      "name": "world-area-script",
+      "type": "ScriptNode",
+      "scriptId": "game.world-area",
+      "parentId": "area-npc-area-05",
+      "order": 1,
+      "properties": {
+        "areaKind": "npc-wander",
+        "areaId": "npc-area-05",
+        "area": {
+          "nodeId": "area-npc-area-05"
+        },
+        "data": {
+          "id": "npc-area-05",
+          "npcInstanceId": "level-1-npc-yellow-blond-slime-girl",
+          "perimeter": {
+            "shape": "circle",
+            "x": 800,
+            "y": 896,
+            "radius": 72
+          }
+        }
+      }
+    },
+    {
+      "id": "area-npc-area-02",
+      "name": "npc-area-02",
+      "type": "Area2D",
+      "parentId": "world",
+      "order": 8,
+      "properties": {
+        "position": [
+          768,
+          704
+        ],
+        "collisionLayer": 0,
+        "collisionMask": 0,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "area-npc-area-02-shape",
+      "name": "collision-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-npc-area-02",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "level-1.area-npc-area-02.shape"
+        }
+      }
+    },
+    {
+      "id": "area-npc-area-02-script",
+      "name": "world-area-script",
+      "type": "ScriptNode",
+      "scriptId": "game.world-area",
+      "parentId": "area-npc-area-02",
+      "order": 1,
+      "properties": {
+        "areaKind": "npc-wander",
+        "areaId": "npc-area-02",
+        "area": {
+          "nodeId": "area-npc-area-02"
+        },
+        "data": {
+          "id": "npc-area-02",
+          "npcInstanceId": "level-1-npc-mossy-scout",
+          "perimeter": {
+            "shape": "rectangle",
+            "x": 672,
+            "y": 640,
+            "w": 192,
+            "h": 128
+          }
+        }
+      }
+    },
+    {
       "id": "player-spawn",
       "name": "player-spawn",
       "type": "Node2D",
       "parentId": "world",
-      "order": 1,
+      "order": 9,
       "properties": {
         "position": [
           640,
@@ -57,7 +478,7 @@
       "name": "player-entry-east",
       "type": "Node2D",
       "parentId": "world",
-      "order": 2,
+      "order": 10,
       "properties": {
         "position": [
           1408,
@@ -70,7 +491,7 @@
       "name": "exit-1",
       "type": "Area2D",
       "parentId": "world",
-      "order": 3,
+      "order": 11,
       "properties": {
         "position": [
           3552,
@@ -124,7 +545,7 @@
       "name": "level-1-fatty-one-eye-camp",
       "sceneId": "encounter.level-1-fatty-camp",
       "parentNodeId": "world",
-      "order": 4,
+      "order": 12,
       "persistenceKey": "level-1-fatty-one-eye-camp",
       "overrides": [
         {
@@ -143,7 +564,7 @@
       "name": "level-1-loose-wood-01",
       "sceneId": "object.collectible-wood-pile",
       "parentNodeId": "world",
-      "order": 5,
+      "order": 13,
       "persistenceKey": "level-1.level-1-loose-wood-01",
       "overrides": [
         {
@@ -174,7 +595,7 @@
       "name": "level-1-loose-wood-02",
       "sceneId": "object.collectible-wood-pile",
       "parentNodeId": "world",
-      "order": 6,
+      "order": 14,
       "persistenceKey": "level-1.level-1-loose-wood-02",
       "overrides": [
         {
@@ -205,7 +626,7 @@
       "name": "level-1-loose-wood-03",
       "sceneId": "object.collectible-wood-pile",
       "parentNodeId": "world",
-      "order": 7,
+      "order": 15,
       "persistenceKey": "level-1.level-1-loose-wood-03",
       "overrides": [
         {
@@ -236,7 +657,7 @@
       "name": "level-1-loose-wood-04",
       "sceneId": "object.collectible-wood-pile",
       "parentNodeId": "world",
-      "order": 8,
+      "order": 16,
       "persistenceKey": "level-1.level-1-loose-wood-04",
       "overrides": [
         {
@@ -267,7 +688,7 @@
       "name": "level-1-loose-stone-01",
       "sceneId": "object.collectible-stone-pile",
       "parentNodeId": "world",
-      "order": 9,
+      "order": 17,
       "persistenceKey": "level-1.level-1-loose-stone-01",
       "overrides": [
         {
@@ -298,7 +719,7 @@
       "name": "level-1-loose-stone-02",
       "sceneId": "object.collectible-stone-pile",
       "parentNodeId": "world",
-      "order": 10,
+      "order": 18,
       "persistenceKey": "level-1.level-1-loose-stone-02",
       "overrides": [
         {
@@ -329,7 +750,7 @@
       "name": "level-1-stone-node-01",
       "sceneId": "object.resource-stone-node",
       "parentNodeId": "world",
-      "order": 11,
+      "order": 19,
       "persistenceKey": "level-1.level-1-stone-node-01",
       "overrides": [
         {
@@ -360,7 +781,7 @@
       "name": "level-1-stone-node-02",
       "sceneId": "object.resource-stone-node",
       "parentNodeId": "world",
-      "order": 12,
+      "order": 20,
       "persistenceKey": "level-1.level-1-stone-node-02",
       "overrides": [
         {
@@ -391,7 +812,7 @@
       "name": "level-1-tree-01",
       "sceneId": "object.tree-world-solid.tree-autumn-01",
       "parentNodeId": "world",
-      "order": 13,
+      "order": 21,
       "persistenceKey": "level-1.level-1-tree-01",
       "overrides": [
         {
@@ -422,7 +843,7 @@
       "name": "level-1-tree-02",
       "sceneId": "object.tree-world-solid.tree-autumn-01",
       "parentNodeId": "world",
-      "order": 14,
+      "order": 22,
       "persistenceKey": "level-1.level-1-tree-02",
       "overrides": [
         {
@@ -453,7 +874,7 @@
       "name": "level-1-tree-03",
       "sceneId": "object.tree-world-solid.tree-autumn-01",
       "parentNodeId": "world",
-      "order": 15,
+      "order": 23,
       "persistenceKey": "level-1.level-1-tree-03",
       "overrides": [
         {
@@ -484,7 +905,7 @@
       "name": "resource-stone-node-f518b5a3",
       "sceneId": "object.resource-stone-node.big-stone-mine",
       "parentNodeId": "world",
-      "order": 16,
+      "order": 24,
       "persistenceKey": "level-1.resource-stone-node-f518b5a3",
       "overrides": [
         {
@@ -515,7 +936,7 @@
       "name": "resource-stone-node-4c37387b",
       "sceneId": "object.resource-stone-node.big-stone-mine",
       "parentNodeId": "world",
-      "order": 17,
+      "order": 25,
       "persistenceKey": "level-1.resource-stone-node-4c37387b",
       "overrides": [
         {
@@ -546,7 +967,7 @@
       "name": "resource-stone-node-221c2835",
       "sceneId": "object.resource-stone-node.big-stone-mine",
       "parentNodeId": "world",
-      "order": 18,
+      "order": 26,
       "persistenceKey": "level-1.resource-stone-node-221c2835",
       "overrides": [
         {
@@ -577,7 +998,7 @@
       "name": "resource-stone-node-c64bd17b",
       "sceneId": "object.resource-stone-node.big-stone-mine",
       "parentNodeId": "world",
-      "order": 19,
+      "order": 27,
       "persistenceKey": "level-1.resource-stone-node-c64bd17b",
       "overrides": [
         {
@@ -608,7 +1029,7 @@
       "name": "level-1-purple-berry-01",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 20,
+      "order": 28,
       "persistenceKey": "level-1.level-1-purple-berry-01",
       "overrides": [
         {
@@ -639,7 +1060,7 @@
       "name": "level-1-purple-berry-02",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 21,
+      "order": 29,
       "persistenceKey": "level-1.level-1-purple-berry-02",
       "overrides": [
         {
@@ -670,7 +1091,7 @@
       "name": "level-1-purple-berry-03",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 22,
+      "order": 30,
       "persistenceKey": "level-1.level-1-purple-berry-03",
       "overrides": [
         {
@@ -701,7 +1122,7 @@
       "name": "level-1-npc-village-elder-plop",
       "sceneId": "character.village-elder-plop",
       "parentNodeId": "world",
-      "order": 23,
+      "order": 31,
       "persistenceKey": "level-1.level-1-npc-village-elder-plop",
       "overrides": [
         {
@@ -720,7 +1141,7 @@
       "name": "level-1-npc-lili",
       "sceneId": "character.lili",
       "parentNodeId": "world",
-      "order": 24,
+      "order": 32,
       "persistenceKey": "level-1.level-1-npc-lili",
       "overrides": [
         {
@@ -739,7 +1160,7 @@
       "name": "level-1-npc-red-slime-boy",
       "sceneId": "character.red-slime-boy",
       "parentNodeId": "world",
-      "order": 25,
+      "order": 33,
       "persistenceKey": "level-1.level-1-npc-red-slime-boy",
       "overrides": [
         {
@@ -758,7 +1179,7 @@
       "name": "level-1-npc-yellow-blond-slime-girl",
       "sceneId": "character.yellow-blond-slime-girl",
       "parentNodeId": "world",
-      "order": 26,
+      "order": 34,
       "persistenceKey": "level-1.level-1-npc-yellow-blond-slime-girl",
       "overrides": [
         {
@@ -777,7 +1198,7 @@
       "name": "tree-world-solid-70613972",
       "sceneId": "object.tree-world-solid.tree-autumn-01",
       "parentNodeId": "world",
-      "order": 27,
+      "order": 35,
       "persistenceKey": "level-1.tree-world-solid-70613972",
       "overrides": [
         {
@@ -808,7 +1229,7 @@
       "name": "level-1-npc-mossy-scout",
       "sceneId": "character.mossy-scout",
       "parentNodeId": "world",
-      "order": 28,
+      "order": 36,
       "persistenceKey": "level-1.level-1-npc-mossy-scout",
       "overrides": [
         {
@@ -836,6 +1257,73 @@
     }
   ],
   "subresources": [
+    {
+      "version": 1,
+      "resourceId": "level-1.area-enemy-safe-1.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 448,
+        "height": 448
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "level-1.area-level-1-starter-camp.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 600,
+        "height": 437
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "level-1.area-npc-area-01.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "circle",
+        "radius": 96
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "level-1.area-npc-area-03.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "circle",
+        "radius": 72
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "level-1.area-npc-area-04.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 128,
+        "height": 144
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "level-1.area-npc-area-05.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "circle",
+        "radius": 72
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "level-1.area-npc-area-02.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 192,
+        "height": 128
+      }
+    },
     {
       "version": 1,
       "resourceId": "level-1.exit-1.shape",

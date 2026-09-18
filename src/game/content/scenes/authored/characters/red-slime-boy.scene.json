@@ -95,6 +95,7 @@
           "nodeId": "animation"
         },
         "characterId": "red-slime-boy",
+        "npcDefinitionId": "red-slime-boy",
         "wanderSpeed": 38,
         "pauseMinMs": 800,
         "pauseMaxMs": 1800

@@ -6,7 +6,10 @@
     "objects": 780,
     "bossCamps": 0,
     "playerMarkers": 2,
-    "exits": 0
+    "exits": 0,
+    "enemySafeZones": 4,
+    "enemySpawnAreas": 3,
+    "npcWanderAreas": 0
   },
   "worldInstanceCount": 780,
   "placements": [
@@ -8610,6 +8613,92 @@
         928
       ],
       "direction": "east"
+    }
+  ],
+  "areas": [
+    {
+      "sourceKind": "enemy-safe-zone",
+      "sourcePath": "$.enemySafeZones[0]",
+      "sourceId": "enemy-safe-1",
+      "areaNodeId": "area-enemy-safe-1",
+      "shapeNodeId": "area-enemy-safe-1-shape",
+      "scriptNodeId": "area-enemy-safe-1-script",
+      "position": [
+        1248,
+        832
+      ]
+    },
+    {
+      "sourceKind": "enemy-safe-zone",
+      "sourcePath": "$.enemySafeZones[1]",
+      "sourceId": "enemy-safe-2",
+      "areaNodeId": "area-enemy-safe-2",
+      "shapeNodeId": "area-enemy-safe-2-shape",
+      "scriptNodeId": "area-enemy-safe-2-script",
+      "position": [
+        1248,
+        1312
+      ]
+    },
+    {
+      "sourceKind": "enemy-safe-zone",
+      "sourcePath": "$.enemySafeZones[2]",
+      "sourceId": "enemy-safe-3",
+      "areaNodeId": "area-enemy-safe-3",
+      "shapeNodeId": "area-enemy-safe-3-shape",
+      "scriptNodeId": "area-enemy-safe-3-script",
+      "position": [
+        2592,
+        2080
+      ]
+    },
+    {
+      "sourceKind": "enemy-safe-zone",
+      "sourcePath": "$.enemySafeZones[3]",
+      "sourceId": "enemy-safe-4",
+      "areaNodeId": "area-enemy-safe-4",
+      "shapeNodeId": "area-enemy-safe-4-shape",
+      "scriptNodeId": "area-enemy-safe-4-script",
+      "position": [
+        2560,
+        2432
+      ]
+    },
+    {
+      "sourceKind": "enemy-spawn",
+      "sourcePath": "$.enemySpawnAreas[0]",
+      "sourceId": "enemy-area-01",
+      "areaNodeId": "area-enemy-area-01",
+      "shapeNodeId": "area-enemy-area-01-shape",
+      "scriptNodeId": "area-enemy-area-01-script",
+      "position": [
+        2112,
+        1120
+      ]
+    },
+    {
+      "sourceKind": "enemy-spawn",
+      "sourcePath": "$.enemySpawnAreas[1]",
+      "sourceId": "enemy-area-02",
+      "areaNodeId": "area-enemy-area-02",
+      "shapeNodeId": "area-enemy-area-02-shape",
+      "scriptNodeId": "area-enemy-area-02-script",
+      "position": [
+        2619,
+        1164
+      ]
+    },
+    {
+      "sourceKind": "enemy-spawn",
+      "sourcePath": "$.enemySpawnAreas[2]",
+      "sourceId": "enemy-area-03",
+      "areaNodeId": "area-enemy-area-03",
+      "shapeNodeId": "area-enemy-area-03-shape",
+      "scriptNodeId": "area-enemy-area-03-script",
+      "position": [
+        1056,
+        2048
+      ]
     }
   ]
 }

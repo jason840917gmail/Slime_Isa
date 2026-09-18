@@ -40,11 +40,167 @@
       }
     },
     {
+      "id": "world-definition",
+      "name": "world-definition",
+      "type": "ScriptNode",
+      "scriptId": "game.world-definition",
+      "parentId": "world",
+      "order": 1,
+      "properties": {
+        "mapId": "crystal-caverns",
+        "tileSize": 64,
+        "columns": 54,
+        "rows": 54,
+        "metadata": {
+          "objects": [],
+          "player": {
+            "spawn": {
+              "x": 1728,
+              "y": 1728
+            },
+            "entries": {
+              "west": {
+                "x": 256,
+                "y": 1728
+              },
+              "east": {
+                "x": 3200,
+                "y": 1728
+              }
+            }
+          },
+          "spawns": {
+            "enemies": [
+              {
+                "type": "worm-brawler",
+                "weight": 30
+              },
+              {
+                "type": "worm-swordsman",
+                "weight": 40
+              },
+              {
+                "type": "worm-archer",
+                "weight": 30
+              }
+            ],
+            "radius": {
+              "min": 200,
+              "max": 500
+            },
+            "intervalMs": 1500,
+            "maxPopulation": 16,
+            "safeZones": []
+          }
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-1",
+      "name": "enemy-safe-1",
+      "type": "Area2D",
+      "parentId": "world",
+      "order": 2,
+      "properties": {
+        "position": [
+          1728,
+          1696
+        ],
+        "collisionLayer": 0,
+        "collisionMask": 0,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "area-enemy-safe-1-shape",
+      "name": "collision-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-enemy-safe-1",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "crystal-caverns.area-enemy-safe-1.shape"
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-1-script",
+      "name": "world-area-script",
+      "type": "ScriptNode",
+      "scriptId": "game.world-area",
+      "parentId": "area-enemy-safe-1",
+      "order": 1,
+      "properties": {
+        "areaKind": "enemy-safe-zone",
+        "areaId": "enemy-safe-1",
+        "area": {
+          "nodeId": "area-enemy-safe-1"
+        },
+        "data": {
+          "x": 896,
+          "y": 1600,
+          "w": 1664,
+          "h": 192
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-2",
+      "name": "enemy-safe-2",
+      "type": "Area2D",
+      "parentId": "world",
+      "order": 3,
+      "properties": {
+        "position": [
+          2624,
+          1664
+        ],
+        "collisionLayer": 0,
+        "collisionMask": 0,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "area-enemy-safe-2-shape",
+      "name": "collision-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-enemy-safe-2",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "crystal-caverns.area-enemy-safe-2.shape"
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-2-script",
+      "name": "world-area-script",
+      "type": "ScriptNode",
+      "scriptId": "game.world-area",
+      "parentId": "area-enemy-safe-2",
+      "order": 1,
+      "properties": {
+        "areaKind": "enemy-safe-zone",
+        "areaId": "enemy-safe-2",
+        "area": {
+          "nodeId": "area-enemy-safe-2"
+        },
+        "data": {
+          "x": 2560,
+          "y": 1536,
+          "w": 128,
+          "h": 256
+        }
+      }
+    },
+    {
       "id": "player-spawn",
       "name": "player-spawn",
       "type": "Node2D",
       "parentId": "world",
-      "order": 1,
+      "order": 4,
       "properties": {
         "position": [
           1728,
@@ -57,7 +213,7 @@
       "name": "player-entry-east",
       "type": "Node2D",
       "parentId": "world",
-      "order": 2,
+      "order": 5,
       "properties": {
         "position": [
           3200,
@@ -70,7 +226,7 @@
       "name": "player-entry-west",
       "type": "Node2D",
       "parentId": "world",
-      "order": 3,
+      "order": 6,
       "properties": {
         "position": [
           256,
@@ -83,7 +239,7 @@
       "name": "exit-1",
       "type": "Area2D",
       "parentId": "world",
-      "order": 4,
+      "order": 7,
       "properties": {
         "position": [
           16,
@@ -140,6 +296,26 @@
     }
   ],
   "subresources": [
+    {
+      "version": 1,
+      "resourceId": "crystal-caverns.area-enemy-safe-1.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 1664,
+        "height": 192
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "crystal-caverns.area-enemy-safe-2.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 128,
+        "height": 256
+      }
+    },
     {
       "version": 1,
       "resourceId": "crystal-caverns.exit-1.shape",

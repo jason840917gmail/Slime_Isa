@@ -21,6 +21,7 @@ interface NpcAnimationNode extends Node {
 export interface NpcRuntimeRequest {
   readonly sourceNodeId: string;
   readonly characterId: string;
+  readonly npcDefinitionId: string;
   readonly wanderSpeed: number;
   readonly pauseMinMs: number;
   readonly pauseMaxMs: number;
@@ -47,6 +48,7 @@ export interface NpcLockChanged {
 /** Node-owned NPC movement and interaction-lock orchestration. */
 export class NpcScript extends CharacterScript {
   readonly characterId: string;
+  readonly npcDefinitionId: string;
   readonly wanderSpeed: number;
   readonly pauseMinMs: number;
   readonly pauseMaxMs: number;
@@ -61,6 +63,8 @@ export class NpcScript extends CharacterScript {
   constructor(context: NodeConstructionContext) {
     super(context);
     this.characterId = this.stringProperty('characterId', 'npc');
+    this.npcDefinitionId = typeof context.properties.npcDefinitionId === 'string'
+      ? context.properties.npcDefinitionId : this.characterId;
     this.wanderSpeed = Math.max(0, this.numberProperty('wanderSpeed', 0));
     this.pauseMinMs = Math.max(0, this.numberProperty('pauseMinMs', 0));
     this.pauseMaxMs = Math.max(this.pauseMinMs, this.numberProperty('pauseMaxMs', this.pauseMinMs));
@@ -73,6 +77,7 @@ export class NpcScript extends CharacterScript {
     const agent = this.service<NpcRuntimeService>(NPC_RUNTIME_SERVICE).acquire({
       sourceNodeId: this.runtimeId,
       characterId: this.characterId,
+      npcDefinitionId: this.npcDefinitionId,
       wanderSpeed: this.wanderSpeed,
       pauseMinMs: this.pauseMinMs,
       pauseMaxMs: this.pauseMaxMs,

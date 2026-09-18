@@ -6,7 +6,10 @@
     "objects": 0,
     "bossCamps": 0,
     "playerMarkers": 3,
-    "exits": 1
+    "exits": 1,
+    "enemySafeZones": 2,
+    "enemySpawnAreas": 0,
+    "npcWanderAreas": 0
   },
   "worldInstanceCount": 0,
   "placements": [],
@@ -60,6 +63,32 @@
       "targetAreaId": "gloop-forest",
       "entry": "east",
       "gate": {}
+    }
+  ],
+  "areas": [
+    {
+      "sourceKind": "enemy-safe-zone",
+      "sourcePath": "$.enemySafeZones[0]",
+      "sourceId": "enemy-safe-1",
+      "areaNodeId": "area-enemy-safe-1",
+      "shapeNodeId": "area-enemy-safe-1-shape",
+      "scriptNodeId": "area-enemy-safe-1-script",
+      "position": [
+        1728,
+        1696
+      ]
+    },
+    {
+      "sourceKind": "enemy-safe-zone",
+      "sourcePath": "$.enemySafeZones[1]",
+      "sourceId": "enemy-safe-2",
+      "areaNodeId": "area-enemy-safe-2",
+      "shapeNodeId": "area-enemy-safe-2-shape",
+      "scriptNodeId": "area-enemy-safe-2-script",
+      "position": [
+        2624,
+        1664
+      ]
     }
   ]
 }

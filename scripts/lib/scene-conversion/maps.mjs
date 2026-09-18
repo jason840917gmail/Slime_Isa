@@ -74,6 +74,7 @@ function objectInstanceOverrides(map, instance, mapping) {
     override(mapping.scriptNodeId, 'mapId', map.mapId),
     override(mapping.scriptNodeId, 'instanceId', instance.instanceId),
   );
+  if (mapping.npcDefinitionId) overrides.push(override(mapping.scriptNodeId, 'npcDefinitionId', mapping.npcDefinitionId));
   if (instance.objectId === 'chest.wooden') {
     const contents = chestContents(instance.initialState, map.mapId, instance.instanceId);
     if (contents) overrides.push(override(mapping.scriptNodeId, 'initialContents', contents));
@@ -203,6 +204,47 @@ function navigationContent(map, firstOrder) {
   return { nodes, subresources, connections, mappings, rootChildCount: order - firstOrder };
 }
 
+function worldAreaContent(map, firstOrder) {
+  const nodes = [];
+  const subresources = [];
+  const mappings = [];
+  let order = firstOrder;
+  const addArea = (id, kind, sourcePath, perimeter, data) => {
+    const areaNodeId = `area-${id}`;
+    const shapeNodeId = `${areaNodeId}-shape`;
+    const scriptNodeId = `${areaNodeId}-script`;
+    const shapeResourceId = `${map.mapId}.${areaNodeId}.shape`;
+    const rectangle = perimeter.shape === 'rectangle' || perimeter.w !== undefined;
+    const position = rectangle
+      ? [perimeter.x + perimeter.w / 2, perimeter.y + perimeter.h / 2]
+      : [perimeter.x, perimeter.y];
+    const value = rectangle
+      ? { shape: 'rectangle', width: perimeter.w, height: perimeter.h }
+      : { shape: 'circle', radius: perimeter.radius };
+    nodes.push(
+      { id: areaNodeId, name: id, type: 'Area2D', parentId: 'world', order: order++, properties: {
+        position, collisionLayer: 0, collisionMask: 0, monitoring: false, monitorable: false,
+      } },
+      { id: shapeNodeId, name: 'collision-shape', type: 'CollisionShape2D', parentId: areaNodeId, order: 0, properties: { shape: { resourceId: shapeResourceId } } },
+      { id: scriptNodeId, name: 'world-area-script', type: 'ScriptNode', scriptId: 'game.world-area', parentId: areaNodeId, order: 1, properties: {
+        areaKind: kind, areaId: id, area: { nodeId: areaNodeId }, data,
+      } },
+    );
+    subresources.push({ version: 1, resourceId: shapeResourceId, kind: 'collision-shape', value });
+    mappings.push({ sourceKind: kind, sourcePath, sourceId: id, areaNodeId, shapeNodeId, scriptNodeId, position });
+  };
+  for (const [index, zone] of (map.enemySafeZones ?? []).entries()) {
+    addArea(`enemy-safe-${index + 1}`, 'enemy-safe-zone', `$.enemySafeZones[${index}]`, zone, zone);
+  }
+  for (const [index, area] of (map.enemySpawnAreas ?? []).entries()) {
+    addArea(area.id, 'enemy-spawn', `$.enemySpawnAreas[${index}]`, area.pursuePerimeter, area);
+  }
+  for (const [index, area] of (map.npcWanderAreas ?? []).entries()) {
+    addArea(area.id, 'npc-wander', `$.npcWanderAreas[${index}]`, area.perimeter, area);
+  }
+  return { nodes, subresources, mappings, rootChildCount: order - firstOrder };
+}
+
 function worldPlacements(map, mappingModule, firstOrder) {
   const instances = [];
   const placements = [];
@@ -290,7 +332,7 @@ export const mapSceneAdapter = {
       const seed = Object.values(areas).find((area) => area.mapId === map.mapId)?.seed ?? fallbackSeed(map.mapId);
       const layerNodes = [];
       const retained = retainedMapFields(unit, map);
-      const navigationRetained = retainedMapFields(unit, map, ['player', 'exits']);
+      const navigationRetained = retainedMapFields(unit, map, ['player', 'exits', 'enemySafeZones', 'enemySpawnAreas', 'npcWanderAreas', 'spawns']);
 
       map.layers.forEach((layer, layerIndex) => {
         const layerSlug = slug(layer.id);
@@ -347,8 +389,29 @@ export const mapSceneAdapter = {
         });
       });
 
-      const navigation = navigationContent(map, layerNodes.length);
-      const rootChildCount = layerNodes.length + navigation.rootChildCount;
+      const worldMetadata = {
+        objects: [],
+        player: map.player,
+        ...(map.spawns ? { spawns: map.spawns } : {}),
+      };
+      const definitionNode = {
+        id: 'world-definition',
+        name: 'world-definition',
+        type: 'ScriptNode',
+        scriptId: 'game.world-definition',
+        parentId: 'world',
+        order: layerNodes.length,
+        properties: {
+          mapId: map.mapId,
+          tileSize: map.tileSize,
+          columns: map.size.columns,
+          rows: map.size.rows,
+          metadata: worldMetadata,
+        },
+      };
+      const areasContent = worldAreaContent(map, layerNodes.length + 1);
+      const navigation = navigationContent(map, layerNodes.length + 1 + areasContent.rootChildCount);
+      const rootChildCount = layerNodes.length + 1 + areasContent.rootChildCount + navigation.rootChildCount;
       const world = worldPlacements(map, placementMapping, rootChildCount);
 
       const scene = {
@@ -358,11 +421,13 @@ export const mapSceneAdapter = {
         nodes: [
           { id: 'world', name: map.mapId, type: 'Node2D', parentId: null, order: 0, properties: { position: [0, 0] } },
           ...layerNodes,
+          definitionNode,
+          ...areasContent.nodes,
           ...navigation.nodes,
         ],
         instances: world.instances,
         ...(navigation.connections.length > 0 ? { connections: navigation.connections } : {}),
-        ...(navigation.subresources.length > 0 ? { subresources: navigation.subresources } : {}),
+        ...([...areasContent.subresources, ...navigation.subresources].length > 0 ? { subresources: [...areasContent.subresources, ...navigation.subresources] } : {}),
       };
       outputs.push(convertedOutput(
         unit,
@@ -383,10 +448,14 @@ export const mapSceneAdapter = {
             bossCamps: map.bossCamps?.length ?? 0,
             playerMarkers: 1 + Object.keys(map.player.entries).length,
             exits: map.exits?.length ?? 0,
+            enemySafeZones: map.enemySafeZones?.length ?? 0,
+            enemySpawnAreas: map.enemySpawnAreas?.length ?? 0,
+            npcWanderAreas: map.npcWanderAreas?.length ?? 0,
           },
           worldInstanceCount: world.instances.length,
           placements: world.placements,
           navigation: navigation.mappings,
+          areas: areasContent.mappings,
         },
         ['$.objects', '$.bossCamps', '$.player', '$.exits'],
         navigationRetained,

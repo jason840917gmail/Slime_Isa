@@ -99,7 +99,9 @@ function npcScene(character, visual) {
         id: 'script', name: 'NpcScript', type: 'ScriptNode', scriptId: 'game.npc', parentId: 'body', order: 3,
         properties: {
           body: { nodeId: 'body' }, visual: { nodeId: 'visual' }, animation: { nodeId: 'animation' },
-          characterId: character.characterId, wanderSpeed: character.npc.wanderSpeed,
+          characterId: character.characterId,
+          npcDefinitionId: character.characterId === 'mossy-scout' ? 'level-1-spider-giver' : character.characterId,
+          wanderSpeed: character.npc.wanderSpeed,
           pauseMinMs: character.npc.pauseMinMs, pauseMaxMs: character.npc.pauseMaxMs,
         },
       },

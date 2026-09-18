@@ -6,7 +6,10 @@
     "objects": 1,
     "bossCamps": 0,
     "playerMarkers": 1,
-    "exits": 0
+    "exits": 0,
+    "enemySafeZones": 0,
+    "enemySpawnAreas": 0,
+    "npcWanderAreas": 0
   },
   "worldInstanceCount": 1,
   "placements": [
@@ -34,5 +37,6 @@
         96
       ]
     }
-  ]
+  ],
+  "areas": []
 }

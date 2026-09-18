@@ -633,6 +633,7 @@ export interface MapEditorSavePluginOptions {
   readonly gameConstantsPath?: string;
   readonly sceneOwnedObjectIds?: ReadonlySet<string>;
   readonly sceneOwnedMapRecordIds?: ReadonlySet<string>;
+  readonly mapAuthoring?: 'legacy' | 'read-only';
 }
 
 export function mapEditorSavePlugin(options: MapEditorSavePluginOptions = {}): Plugin {
@@ -651,7 +652,15 @@ export function mapEditorSavePlugin(options: MapEditorSavePluginOptions = {}): P
       return undefined;
     },
     configureServer(server) {
+      const rejectRetiredWrite = (response: import('node:http').ServerResponse): boolean => {
+        if (options.mapAuthoring !== 'read-only') return false;
+        response.statusCode = 410;
+        response.setHeader('Content-Type', 'application/json; charset=utf-8');
+        response.end(JSON.stringify({ ok: false, error: 'Map Studio authoring moved to Scene Studio' }));
+        return true;
+      };
       server.middlewares.use('/__map-editor/create', async (request, response) => {
+        if (rejectRetiredWrite(response)) return;
         response.setHeader('Content-Type', 'application/json; charset=utf-8');
         if (request.method !== 'POST') {
           response.statusCode = 405;
@@ -722,6 +731,7 @@ export function mapEditorSavePlugin(options: MapEditorSavePluginOptions = {}): P
       });
 
       server.middlewares.use('/__map-editor/object-template/update', async (request, response) => {
+        if (rejectRetiredWrite(response)) return;
         response.setHeader('Content-Type', 'application/json; charset=utf-8');
         if (request.method !== 'POST') {
           response.statusCode = 405;
@@ -784,6 +794,7 @@ export function mapEditorSavePlugin(options: MapEditorSavePluginOptions = {}): P
       });
 
       server.middlewares.use('/__map-editor/object-gameplay/update', async (request, response) => {
+        if (rejectRetiredWrite(response)) return;
         response.setHeader('Content-Type', 'application/json; charset=utf-8');
         if (request.method !== 'POST') {
           response.statusCode = 405;
@@ -815,6 +826,7 @@ export function mapEditorSavePlugin(options: MapEditorSavePluginOptions = {}): P
       });
 
       server.middlewares.use('/__map-editor/object-template/create', async (request, response) => {
+        if (rejectRetiredWrite(response)) return;
         response.setHeader('Content-Type', 'application/json; charset=utf-8');
         if (request.method !== 'POST') {
           response.statusCode = 405;
@@ -910,6 +922,7 @@ export function mapEditorSavePlugin(options: MapEditorSavePluginOptions = {}): P
       });
 
       server.middlewares.use('/__map-editor/object-template/duplicate', async (request, response) => {
+        if (rejectRetiredWrite(response)) return;
         response.setHeader('Content-Type', 'application/json; charset=utf-8');
         if (request.method !== 'POST') {
           response.statusCode = 405;
@@ -1010,6 +1023,7 @@ export function mapEditorSavePlugin(options: MapEditorSavePluginOptions = {}): P
       });
 
       server.middlewares.use('/__map-editor/save', async (request, response) => {
+        if (rejectRetiredWrite(response)) return;
         response.setHeader('Content-Type', 'application/json; charset=utf-8');
         if (request.method !== 'POST') {
           response.statusCode = 405;
@@ -1135,7 +1149,11 @@ export default defineConfig({
     sceneContentModulesPlugin(),
     sceneStudioContentPlugin(),
     gameConstantsContentPlugin(),
-    mapEditorSavePlugin({ sceneOwnedObjectIds: SCENE_OWNED_OBJECT_IDS, sceneOwnedMapRecordIds: SCENE_OWNED_MAP_RECORD_IDS }),
+    mapEditorSavePlugin({
+      sceneOwnedObjectIds: SCENE_OWNED_OBJECT_IDS,
+      sceneOwnedMapRecordIds: SCENE_OWNED_MAP_RECORD_IDS,
+      mapAuthoring: 'read-only',
+    }),
   ],
   server: {
     open: false,

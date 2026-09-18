@@ -6,7 +6,10 @@
     "objects": 65,
     "bossCamps": 0,
     "playerMarkers": 3,
-    "exits": 2
+    "exits": 2,
+    "enemySafeZones": 2,
+    "enemySpawnAreas": 0,
+    "npcWanderAreas": 0
   },
   "worldInstanceCount": 65,
   "placements": [
@@ -797,6 +800,32 @@
       "targetAreaId": "level-1",
       "entry": "east",
       "gate": {}
+    }
+  ],
+  "areas": [
+    {
+      "sourceKind": "enemy-safe-zone",
+      "sourcePath": "$.enemySafeZones[0]",
+      "sourceId": "enemy-safe-1",
+      "areaNodeId": "area-enemy-safe-1",
+      "shapeNodeId": "area-enemy-safe-1-shape",
+      "scriptNodeId": "area-enemy-safe-1-script",
+      "position": [
+        1984,
+        1792
+      ]
+    },
+    {
+      "sourceKind": "enemy-safe-zone",
+      "sourcePath": "$.enemySafeZones[1]",
+      "sourceId": "enemy-safe-2",
+      "areaNodeId": "area-enemy-safe-2",
+      "shapeNodeId": "area-enemy-safe-2-shape",
+      "scriptNodeId": "area-enemy-safe-2-script",
+      "position": [
+        2880,
+        1728
+      ]
     }
   ]
 }

@@ -1,7 +1,6 @@
 import Phaser from 'phaser';
 
 import { peekRunNavigation, resolveAreaRequest } from '../features/world-navigation/AreaNavigation';
-import { mapRepository } from '../infrastructure/maps/MapRepository';
 import { PREPARED_SCENE_CONTENT_KEY, PreparedSceneContent } from '../infrastructure/scenes/PreparedSceneContent';
 import { WorldSceneLoader } from '../infrastructure/scenes/WorldSceneLoader';
 
@@ -38,7 +37,7 @@ export class MapLoadScene extends Phaser.Scene {
       { fontFamily: 'Arial', fontSize: '20px', color: '#d8fbff' },
     ).setOrigin(0.5);
 
-    void new WorldSceneLoader(mapRepository, content).load(mapId, controller.signal)
+    void new WorldSceneLoader(content).load(mapId, controller.signal)
       .then((loadedWorld) => {
         if (controller.signal.aborted) return;
         status.destroy();

@@ -40,11 +40,967 @@
       }
     },
     {
+      "id": "world-definition",
+      "name": "world-definition",
+      "type": "ScriptNode",
+      "scriptId": "game.world-definition",
+      "parentId": "world",
+      "order": 1,
+      "properties": {
+        "mapId": "icege",
+        "tileSize": 64,
+        "columns": 54,
+        "rows": 54,
+        "metadata": {
+          "objects": [],
+          "player": {
+            "spawn": {
+              "x": 1632,
+              "y": 1312
+            },
+            "entries": {
+              "east": {
+                "x": 3360,
+                "y": 1248
+              },
+              "south": {
+                "x": 1760,
+                "y": 2912
+              },
+              "west": {
+                "x": 32,
+                "y": 1184
+              },
+              "north": {
+                "x": 1696,
+                "y": 32
+              }
+            }
+          },
+          "spawns": {
+            "enemies": [
+              {
+                "type": "worm-swordsman",
+                "weight": 10
+              }
+            ],
+            "radius": {
+              "min": 200,
+              "max": 500
+            },
+            "intervalMs": 1500,
+            "maxPopulation": 16,
+            "safeZones": []
+          }
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-1",
+      "name": "enemy-safe-1",
+      "type": "Area2D",
+      "parentId": "world",
+      "order": 2,
+      "properties": {
+        "position": [
+          1437,
+          764
+        ],
+        "collisionLayer": 0,
+        "collisionMask": 0,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "area-enemy-safe-1-shape",
+      "name": "collision-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-enemy-safe-1",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "icege.area-enemy-safe-1.shape"
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-1-script",
+      "name": "world-area-script",
+      "type": "ScriptNode",
+      "scriptId": "game.world-area",
+      "parentId": "area-enemy-safe-1",
+      "order": 1,
+      "properties": {
+        "areaKind": "enemy-safe-zone",
+        "areaId": "enemy-safe-1",
+        "area": {
+          "nodeId": "area-enemy-safe-1"
+        },
+        "data": {
+          "x": 1277,
+          "y": 188,
+          "w": 320,
+          "h": 1152
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-2",
+      "name": "enemy-safe-2",
+      "type": "Area2D",
+      "parentId": "world",
+      "order": 3,
+      "properties": {
+        "position": [
+          1374,
+          844
+        ],
+        "collisionLayer": 0,
+        "collisionMask": 0,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "area-enemy-safe-2-shape",
+      "name": "collision-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-enemy-safe-2",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "icege.area-enemy-safe-2.shape"
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-2-script",
+      "name": "world-area-script",
+      "type": "ScriptNode",
+      "scriptId": "game.world-area",
+      "parentId": "area-enemy-safe-2",
+      "order": 1,
+      "properties": {
+        "areaKind": "enemy-safe-zone",
+        "areaId": "enemy-safe-2",
+        "area": {
+          "nodeId": "area-enemy-safe-2"
+        },
+        "data": {
+          "x": 1150,
+          "y": 332,
+          "w": 448,
+          "h": 1024
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-3",
+      "name": "enemy-safe-3",
+      "type": "Area2D",
+      "parentId": "world",
+      "order": 4,
+      "properties": {
+        "position": [
+          1216,
+          1536
+        ],
+        "collisionLayer": 0,
+        "collisionMask": 0,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "area-enemy-safe-3-shape",
+      "name": "collision-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-enemy-safe-3",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "icege.area-enemy-safe-3.shape"
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-3-script",
+      "name": "world-area-script",
+      "type": "ScriptNode",
+      "scriptId": "game.world-area",
+      "parentId": "area-enemy-safe-3",
+      "order": 1,
+      "properties": {
+        "areaKind": "enemy-safe-zone",
+        "areaId": "enemy-safe-3",
+        "area": {
+          "nodeId": "area-enemy-safe-3"
+        },
+        "data": {
+          "x": 1088,
+          "y": 1344,
+          "w": 256,
+          "h": 384
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-4",
+      "name": "enemy-safe-4",
+      "type": "Area2D",
+      "parentId": "world",
+      "order": 5,
+      "properties": {
+        "position": [
+          544,
+          1056
+        ],
+        "collisionLayer": 0,
+        "collisionMask": 0,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "area-enemy-safe-4-shape",
+      "name": "collision-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-enemy-safe-4",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "icege.area-enemy-safe-4.shape"
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-4-script",
+      "name": "world-area-script",
+      "type": "ScriptNode",
+      "scriptId": "game.world-area",
+      "parentId": "area-enemy-safe-4",
+      "order": 1,
+      "properties": {
+        "areaKind": "enemy-safe-zone",
+        "areaId": "enemy-safe-4",
+        "area": {
+          "nodeId": "area-enemy-safe-4"
+        },
+        "data": {
+          "x": 256,
+          "y": 832,
+          "w": 576,
+          "h": 448
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-5",
+      "name": "enemy-safe-5",
+      "type": "Area2D",
+      "parentId": "world",
+      "order": 6,
+      "properties": {
+        "position": [
+          544,
+          1312
+        ],
+        "collisionLayer": 0,
+        "collisionMask": 0,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "area-enemy-safe-5-shape",
+      "name": "collision-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-enemy-safe-5",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "icege.area-enemy-safe-5.shape"
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-5-script",
+      "name": "world-area-script",
+      "type": "ScriptNode",
+      "scriptId": "game.world-area",
+      "parentId": "area-enemy-safe-5",
+      "order": 1,
+      "properties": {
+        "areaKind": "enemy-safe-zone",
+        "areaId": "enemy-safe-5",
+        "area": {
+          "nodeId": "area-enemy-safe-5"
+        },
+        "data": {
+          "x": 256,
+          "y": 1280,
+          "w": 576,
+          "h": 64
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-6",
+      "name": "enemy-safe-6",
+      "type": "Area2D",
+      "parentId": "world",
+      "order": 7,
+      "properties": {
+        "position": [
+          2496,
+          928
+        ],
+        "collisionLayer": 0,
+        "collisionMask": 0,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "area-enemy-safe-6-shape",
+      "name": "collision-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-enemy-safe-6",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "icege.area-enemy-safe-6.shape"
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-6-script",
+      "name": "world-area-script",
+      "type": "ScriptNode",
+      "scriptId": "game.world-area",
+      "parentId": "area-enemy-safe-6",
+      "order": 1,
+      "properties": {
+        "areaKind": "enemy-safe-zone",
+        "areaId": "enemy-safe-6",
+        "area": {
+          "nodeId": "area-enemy-safe-6"
+        },
+        "data": {
+          "x": 2432,
+          "y": 704,
+          "w": 128,
+          "h": 448
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-7",
+      "name": "enemy-safe-7",
+      "type": "Area2D",
+      "parentId": "world",
+      "order": 8,
+      "properties": {
+        "position": [
+          1664,
+          1792
+        ],
+        "collisionLayer": 0,
+        "collisionMask": 0,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "area-enemy-safe-7-shape",
+      "name": "collision-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-enemy-safe-7",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "icege.area-enemy-safe-7.shape"
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-7-script",
+      "name": "world-area-script",
+      "type": "ScriptNode",
+      "scriptId": "game.world-area",
+      "parentId": "area-enemy-safe-7",
+      "order": 1,
+      "properties": {
+        "areaKind": "enemy-safe-zone",
+        "areaId": "enemy-safe-7",
+        "area": {
+          "nodeId": "area-enemy-safe-7"
+        },
+        "data": {
+          "x": 1408,
+          "y": 1408,
+          "w": 512,
+          "h": 768
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-8",
+      "name": "enemy-safe-8",
+      "type": "Area2D",
+      "parentId": "world",
+      "order": 9,
+      "properties": {
+        "position": [
+          1504,
+          1760
+        ],
+        "collisionLayer": 0,
+        "collisionMask": 0,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "area-enemy-safe-8-shape",
+      "name": "collision-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-enemy-safe-8",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "icege.area-enemy-safe-8.shape"
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-8-script",
+      "name": "world-area-script",
+      "type": "ScriptNode",
+      "scriptId": "game.world-area",
+      "parentId": "area-enemy-safe-8",
+      "order": 1,
+      "properties": {
+        "areaKind": "enemy-safe-zone",
+        "areaId": "enemy-safe-8",
+        "area": {
+          "nodeId": "area-enemy-safe-8"
+        },
+        "data": {
+          "x": 1344,
+          "y": 1344,
+          "w": 320,
+          "h": 832
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-9",
+      "name": "enemy-safe-9",
+      "type": "Area2D",
+      "parentId": "world",
+      "order": 10,
+      "properties": {
+        "position": [
+          1312,
+          1952
+        ],
+        "collisionLayer": 0,
+        "collisionMask": 0,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "area-enemy-safe-9-shape",
+      "name": "collision-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-enemy-safe-9",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "icege.area-enemy-safe-9.shape"
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-9-script",
+      "name": "world-area-script",
+      "type": "ScriptNode",
+      "scriptId": "game.world-area",
+      "parentId": "area-enemy-safe-9",
+      "order": 1,
+      "properties": {
+        "areaKind": "enemy-safe-zone",
+        "areaId": "enemy-safe-9",
+        "area": {
+          "nodeId": "area-enemy-safe-9"
+        },
+        "data": {
+          "x": 1280,
+          "y": 1728,
+          "w": 64,
+          "h": 448
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-10",
+      "name": "enemy-safe-10",
+      "type": "Area2D",
+      "parentId": "world",
+      "order": 11,
+      "properties": {
+        "position": [
+          2752,
+          1664
+        ],
+        "collisionLayer": 0,
+        "collisionMask": 0,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "area-enemy-safe-10-shape",
+      "name": "collision-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-enemy-safe-10",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "icege.area-enemy-safe-10.shape"
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-10-script",
+      "name": "world-area-script",
+      "type": "ScriptNode",
+      "scriptId": "game.world-area",
+      "parentId": "area-enemy-safe-10",
+      "order": 1,
+      "properties": {
+        "areaKind": "enemy-safe-zone",
+        "areaId": "enemy-safe-10",
+        "area": {
+          "nodeId": "area-enemy-safe-10"
+        },
+        "data": {
+          "x": 2432,
+          "y": 1600,
+          "w": 640,
+          "h": 128
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-11",
+      "name": "enemy-safe-11",
+      "type": "Area2D",
+      "parentId": "world",
+      "order": 12,
+      "properties": {
+        "position": [
+          2338,
+          1373
+        ],
+        "collisionLayer": 0,
+        "collisionMask": 0,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "area-enemy-safe-11-shape",
+      "name": "collision-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-enemy-safe-11",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "icege.area-enemy-safe-11.shape"
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-11-script",
+      "name": "world-area-script",
+      "type": "ScriptNode",
+      "scriptId": "game.world-area",
+      "parentId": "area-enemy-safe-11",
+      "order": 1,
+      "properties": {
+        "areaKind": "enemy-safe-zone",
+        "areaId": "enemy-safe-11",
+        "area": {
+          "nodeId": "area-enemy-safe-11"
+        },
+        "data": {
+          "x": 1602,
+          "y": 1149,
+          "w": 1472,
+          "h": 448
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-12",
+      "name": "enemy-safe-12",
+      "type": "Area2D",
+      "parentId": "world",
+      "order": 13,
+      "properties": {
+        "position": [
+          1024,
+          1024
+        ],
+        "collisionLayer": 0,
+        "collisionMask": 0,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "area-enemy-safe-12-shape",
+      "name": "collision-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-enemy-safe-12",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "icege.area-enemy-safe-12.shape"
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-12-script",
+      "name": "world-area-script",
+      "type": "ScriptNode",
+      "scriptId": "game.world-area",
+      "parentId": "area-enemy-safe-12",
+      "order": 1,
+      "properties": {
+        "areaKind": "enemy-safe-zone",
+        "areaId": "enemy-safe-12",
+        "area": {
+          "nodeId": "area-enemy-safe-12"
+        },
+        "data": {
+          "x": 896,
+          "y": 704,
+          "w": 256,
+          "h": 640
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-13",
+      "name": "enemy-safe-13",
+      "type": "Area2D",
+      "parentId": "world",
+      "order": 14,
+      "properties": {
+        "position": [
+          864,
+          1088
+        ],
+        "collisionLayer": 0,
+        "collisionMask": 0,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "area-enemy-safe-13-shape",
+      "name": "collision-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-enemy-safe-13",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "icege.area-enemy-safe-13.shape"
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-13-script",
+      "name": "world-area-script",
+      "type": "ScriptNode",
+      "scriptId": "game.world-area",
+      "parentId": "area-enemy-safe-13",
+      "order": 1,
+      "properties": {
+        "areaKind": "enemy-safe-zone",
+        "areaId": "enemy-safe-13",
+        "area": {
+          "nodeId": "area-enemy-safe-13"
+        },
+        "data": {
+          "x": 832,
+          "y": 832,
+          "w": 64,
+          "h": 512
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-14",
+      "name": "enemy-safe-14",
+      "type": "Area2D",
+      "parentId": "world",
+      "order": 15,
+      "properties": {
+        "position": [
+          995,
+          414
+        ],
+        "collisionLayer": 0,
+        "collisionMask": 0,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "area-enemy-safe-14-shape",
+      "name": "collision-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-enemy-safe-14",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "icege.area-enemy-safe-14.shape"
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-14-script",
+      "name": "world-area-script",
+      "type": "ScriptNode",
+      "scriptId": "game.world-area",
+      "parentId": "area-enemy-safe-14",
+      "order": 1,
+      "properties": {
+        "areaKind": "enemy-safe-zone",
+        "areaId": "enemy-safe-14",
+        "area": {
+          "nodeId": "area-enemy-safe-14"
+        },
+        "data": {
+          "x": 899,
+          "y": 382,
+          "w": 192,
+          "h": 64
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-15",
+      "name": "enemy-safe-15",
+      "type": "Area2D",
+      "parentId": "world",
+      "order": 16,
+      "properties": {
+        "position": [
+          1120,
+          384
+        ],
+        "collisionLayer": 0,
+        "collisionMask": 0,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "area-enemy-safe-15-shape",
+      "name": "collision-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-enemy-safe-15",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "icege.area-enemy-safe-15.shape"
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-15-script",
+      "name": "world-area-script",
+      "type": "ScriptNode",
+      "scriptId": "game.world-area",
+      "parentId": "area-enemy-safe-15",
+      "order": 1,
+      "properties": {
+        "areaKind": "enemy-safe-zone",
+        "areaId": "enemy-safe-15",
+        "area": {
+          "nodeId": "area-enemy-safe-15"
+        },
+        "data": {
+          "x": 1088,
+          "y": 320,
+          "w": 64,
+          "h": 128
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-16",
+      "name": "enemy-safe-16",
+      "type": "Area2D",
+      "parentId": "world",
+      "order": 17,
+      "properties": {
+        "position": [
+          928,
+          576
+        ],
+        "collisionLayer": 0,
+        "collisionMask": 0,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "area-enemy-safe-16-shape",
+      "name": "collision-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-enemy-safe-16",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "icege.area-enemy-safe-16.shape"
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-16-script",
+      "name": "world-area-script",
+      "type": "ScriptNode",
+      "scriptId": "game.world-area",
+      "parentId": "area-enemy-safe-16",
+      "order": 1,
+      "properties": {
+        "areaKind": "enemy-safe-zone",
+        "areaId": "enemy-safe-16",
+        "area": {
+          "nodeId": "area-enemy-safe-16"
+        },
+        "data": {
+          "x": 896,
+          "y": 448,
+          "w": 64,
+          "h": 256
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-17",
+      "name": "enemy-safe-17",
+      "type": "Area2D",
+      "parentId": "world",
+      "order": 18,
+      "properties": {
+        "position": [
+          1056,
+          480
+        ],
+        "collisionLayer": 0,
+        "collisionMask": 0,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "area-enemy-safe-17-shape",
+      "name": "collision-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-enemy-safe-17",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "icege.area-enemy-safe-17.shape"
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-17-script",
+      "name": "world-area-script",
+      "type": "ScriptNode",
+      "scriptId": "game.world-area",
+      "parentId": "area-enemy-safe-17",
+      "order": 1,
+      "properties": {
+        "areaKind": "enemy-safe-zone",
+        "areaId": "enemy-safe-17",
+        "area": {
+          "nodeId": "area-enemy-safe-17"
+        },
+        "data": {
+          "x": 960,
+          "y": 448,
+          "w": 192,
+          "h": 64
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-18",
+      "name": "enemy-safe-18",
+      "type": "Area2D",
+      "parentId": "world",
+      "order": 19,
+      "properties": {
+        "position": [
+          1056,
+          608
+        ],
+        "collisionLayer": 0,
+        "collisionMask": 0,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "area-enemy-safe-18-shape",
+      "name": "collision-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-enemy-safe-18",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "icege.area-enemy-safe-18.shape"
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-18-script",
+      "name": "world-area-script",
+      "type": "ScriptNode",
+      "scriptId": "game.world-area",
+      "parentId": "area-enemy-safe-18",
+      "order": 1,
+      "properties": {
+        "areaKind": "enemy-safe-zone",
+        "areaId": "enemy-safe-18",
+        "area": {
+          "nodeId": "area-enemy-safe-18"
+        },
+        "data": {
+          "x": 960,
+          "y": 512,
+          "w": 192,
+          "h": 192
+        }
+      }
+    },
+    {
       "id": "player-spawn",
       "name": "player-spawn",
       "type": "Node2D",
       "parentId": "world",
-      "order": 1,
+      "order": 20,
       "properties": {
         "position": [
           1632,
@@ -57,7 +1013,7 @@
       "name": "player-entry-north",
       "type": "Node2D",
       "parentId": "world",
-      "order": 2,
+      "order": 21,
       "properties": {
         "position": [
           1696,
@@ -70,7 +1026,7 @@
       "name": "player-entry-east",
       "type": "Node2D",
       "parentId": "world",
-      "order": 3,
+      "order": 22,
       "properties": {
         "position": [
           3360,
@@ -83,7 +1039,7 @@
       "name": "player-entry-south",
       "type": "Node2D",
       "parentId": "world",
-      "order": 4,
+      "order": 23,
       "properties": {
         "position": [
           1760,
@@ -96,7 +1052,7 @@
       "name": "player-entry-west",
       "type": "Node2D",
       "parentId": "world",
-      "order": 5,
+      "order": 24,
       "properties": {
         "position": [
           32,
@@ -109,7 +1065,7 @@
       "name": "exit-1",
       "type": "Area2D",
       "parentId": "world",
-      "order": 6,
+      "order": 25,
       "properties": {
         "position": [
           3440,
@@ -156,7 +1112,7 @@
       "name": "exit-2",
       "type": "Area2D",
       "parentId": "world",
-      "order": 7,
+      "order": 26,
       "properties": {
         "position": [
           1728,
@@ -205,7 +1161,7 @@
       "name": "rock-world-wall-solid-eb90ecc6",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 8,
+      "order": 27,
       "persistenceKey": "icege.rock-world-wall-solid-eb90ecc6",
       "overrides": [
         {
@@ -224,7 +1180,7 @@
       "name": "rock-world-wall-solid-b63fe670",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 9,
+      "order": 28,
       "persistenceKey": "icege.rock-world-wall-solid-b63fe670",
       "overrides": [
         {
@@ -243,7 +1199,7 @@
       "name": "rock-world-wall-solid-54cef443",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 10,
+      "order": 29,
       "persistenceKey": "icege.rock-world-wall-solid-54cef443",
       "overrides": [
         {
@@ -262,7 +1218,7 @@
       "name": "rock-world-wall-solid-5cc3d0fa",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 11,
+      "order": 30,
       "persistenceKey": "icege.rock-world-wall-solid-5cc3d0fa",
       "overrides": [
         {
@@ -281,7 +1237,7 @@
       "name": "rock-world-wall-solid-8e4eb9a4",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 12,
+      "order": 31,
       "persistenceKey": "icege.rock-world-wall-solid-8e4eb9a4",
       "overrides": [
         {
@@ -300,7 +1256,7 @@
       "name": "rock-world-wall-solid-261ce04f",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 13,
+      "order": 32,
       "persistenceKey": "icege.rock-world-wall-solid-261ce04f",
       "overrides": [
         {
@@ -319,7 +1275,7 @@
       "name": "rock-world-wall-solid-0cef1ed7",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 14,
+      "order": 33,
       "persistenceKey": "icege.rock-world-wall-solid-0cef1ed7",
       "overrides": [
         {
@@ -338,7 +1294,7 @@
       "name": "rock-world-wall-solid-07cc7215",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 15,
+      "order": 34,
       "persistenceKey": "icege.rock-world-wall-solid-07cc7215",
       "overrides": [
         {
@@ -357,7 +1313,7 @@
       "name": "rock-world-wall-solid-2ec61fea",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 16,
+      "order": 35,
       "persistenceKey": "icege.rock-world-wall-solid-2ec61fea",
       "overrides": [
         {
@@ -376,7 +1332,7 @@
       "name": "rock-world-wall-solid-4ebd460b",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 17,
+      "order": 36,
       "persistenceKey": "icege.rock-world-wall-solid-4ebd460b",
       "overrides": [
         {
@@ -395,7 +1351,7 @@
       "name": "rock-world-wall-solid-c82b602f",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 18,
+      "order": 37,
       "persistenceKey": "icege.rock-world-wall-solid-c82b602f",
       "overrides": [
         {
@@ -414,7 +1370,7 @@
       "name": "rock-world-wall-solid-ca01225c",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 19,
+      "order": 38,
       "persistenceKey": "icege.rock-world-wall-solid-ca01225c",
       "overrides": [
         {
@@ -433,7 +1389,7 @@
       "name": "rock-world-wall-solid-fbd3b712",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 20,
+      "order": 39,
       "persistenceKey": "icege.rock-world-wall-solid-fbd3b712",
       "overrides": [
         {
@@ -452,7 +1408,7 @@
       "name": "rock-world-wall-solid-6ea1e2fd",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 21,
+      "order": 40,
       "persistenceKey": "icege.rock-world-wall-solid-6ea1e2fd",
       "overrides": [
         {
@@ -471,7 +1427,7 @@
       "name": "rock-world-wall-solid-9eb70792",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 22,
+      "order": 41,
       "persistenceKey": "icege.rock-world-wall-solid-9eb70792",
       "overrides": [
         {
@@ -490,7 +1446,7 @@
       "name": "rock-world-wall-solid-bb156b24",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 23,
+      "order": 42,
       "persistenceKey": "icege.rock-world-wall-solid-bb156b24",
       "overrides": [
         {
@@ -509,7 +1465,7 @@
       "name": "rock-world-wall-solid-488cc491",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 24,
+      "order": 43,
       "persistenceKey": "icege.rock-world-wall-solid-488cc491",
       "overrides": [
         {
@@ -528,7 +1484,7 @@
       "name": "rock-world-wall-solid-fab9245d",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 25,
+      "order": 44,
       "persistenceKey": "icege.rock-world-wall-solid-fab9245d",
       "overrides": [
         {
@@ -547,7 +1503,7 @@
       "name": "rock-world-wall-solid-d44a5050",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 26,
+      "order": 45,
       "persistenceKey": "icege.rock-world-wall-solid-d44a5050",
       "overrides": [
         {
@@ -566,7 +1522,7 @@
       "name": "rock-world-wall-solid-73be639d",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 27,
+      "order": 46,
       "persistenceKey": "icege.rock-world-wall-solid-73be639d",
       "overrides": [
         {
@@ -585,7 +1541,7 @@
       "name": "rock-world-wall-solid-22e62a8d",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 28,
+      "order": 47,
       "persistenceKey": "icege.rock-world-wall-solid-22e62a8d",
       "overrides": [
         {
@@ -604,7 +1560,7 @@
       "name": "rock-world-wall-solid-e13e26cf",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 29,
+      "order": 48,
       "persistenceKey": "icege.rock-world-wall-solid-e13e26cf",
       "overrides": [
         {
@@ -623,7 +1579,7 @@
       "name": "rock-world-wall-solid-e8e5b807",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 30,
+      "order": 49,
       "persistenceKey": "icege.rock-world-wall-solid-e8e5b807",
       "overrides": [
         {
@@ -642,7 +1598,7 @@
       "name": "rock-world-wall-solid-c1e1b7c9",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 31,
+      "order": 50,
       "persistenceKey": "icege.rock-world-wall-solid-c1e1b7c9",
       "overrides": [
         {
@@ -661,7 +1617,7 @@
       "name": "rock-world-wall-solid-870b55c2",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 32,
+      "order": 51,
       "persistenceKey": "icege.rock-world-wall-solid-870b55c2",
       "overrides": [
         {
@@ -680,7 +1636,7 @@
       "name": "rock-world-wall-solid-72733323",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 33,
+      "order": 52,
       "persistenceKey": "icege.rock-world-wall-solid-72733323",
       "overrides": [
         {
@@ -699,7 +1655,7 @@
       "name": "rock-world-wall-solid-41406161",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 34,
+      "order": 53,
       "persistenceKey": "icege.rock-world-wall-solid-41406161",
       "overrides": [
         {
@@ -718,7 +1674,7 @@
       "name": "rock-world-wall-solid-d395b92f",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 35,
+      "order": 54,
       "persistenceKey": "icege.rock-world-wall-solid-d395b92f",
       "overrides": [
         {
@@ -737,7 +1693,7 @@
       "name": "rock-world-wall-solid-8d4b99fc",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 36,
+      "order": 55,
       "persistenceKey": "icege.rock-world-wall-solid-8d4b99fc",
       "overrides": [
         {
@@ -756,7 +1712,7 @@
       "name": "rock-world-wall-solid-d68b6ac5",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 37,
+      "order": 56,
       "persistenceKey": "icege.rock-world-wall-solid-d68b6ac5",
       "overrides": [
         {
@@ -775,7 +1731,7 @@
       "name": "rock-world-wall-solid-f9abfeca",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 38,
+      "order": 57,
       "persistenceKey": "icege.rock-world-wall-solid-f9abfeca",
       "overrides": [
         {
@@ -794,7 +1750,7 @@
       "name": "rock-world-wall-solid-16f04c5b",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 39,
+      "order": 58,
       "persistenceKey": "icege.rock-world-wall-solid-16f04c5b",
       "overrides": [
         {
@@ -813,7 +1769,7 @@
       "name": "rock-world-wall-solid-6095a111",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 40,
+      "order": 59,
       "persistenceKey": "icege.rock-world-wall-solid-6095a111",
       "overrides": [
         {
@@ -832,7 +1788,7 @@
       "name": "rock-world-wall-solid-c9627f33",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 41,
+      "order": 60,
       "persistenceKey": "icege.rock-world-wall-solid-c9627f33",
       "overrides": [
         {
@@ -851,7 +1807,7 @@
       "name": "rock-world-wall-solid-9887bd09",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 42,
+      "order": 61,
       "persistenceKey": "icege.rock-world-wall-solid-9887bd09",
       "overrides": [
         {
@@ -870,7 +1826,7 @@
       "name": "rock-world-wall-solid-cbf55e01",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 43,
+      "order": 62,
       "persistenceKey": "icege.rock-world-wall-solid-cbf55e01",
       "overrides": [
         {
@@ -889,7 +1845,7 @@
       "name": "rock-world-wall-solid-ca7735da",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 44,
+      "order": 63,
       "persistenceKey": "icege.rock-world-wall-solid-ca7735da",
       "overrides": [
         {
@@ -908,7 +1864,7 @@
       "name": "rock-world-wall-solid-e0420ec4",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 45,
+      "order": 64,
       "persistenceKey": "icege.rock-world-wall-solid-e0420ec4",
       "overrides": [
         {
@@ -927,7 +1883,7 @@
       "name": "rock-world-wall-solid-77b817f6",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 46,
+      "order": 65,
       "persistenceKey": "icege.rock-world-wall-solid-77b817f6",
       "overrides": [
         {
@@ -946,7 +1902,7 @@
       "name": "rock-world-wall-solid-19c7fceb",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 47,
+      "order": 66,
       "persistenceKey": "icege.rock-world-wall-solid-19c7fceb",
       "overrides": [
         {
@@ -965,7 +1921,7 @@
       "name": "rock-world-wall-solid-a0636fd7",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 48,
+      "order": 67,
       "persistenceKey": "icege.rock-world-wall-solid-a0636fd7",
       "overrides": [
         {
@@ -984,7 +1940,7 @@
       "name": "rock-world-wall-solid-0bc2554c",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 49,
+      "order": 68,
       "persistenceKey": "icege.rock-world-wall-solid-0bc2554c",
       "overrides": [
         {
@@ -1003,7 +1959,7 @@
       "name": "rock-world-wall-solid-97f993a7",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 50,
+      "order": 69,
       "persistenceKey": "icege.rock-world-wall-solid-97f993a7",
       "overrides": [
         {
@@ -1022,7 +1978,7 @@
       "name": "rock-world-wall-solid-da6924f4",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 51,
+      "order": 70,
       "persistenceKey": "icege.rock-world-wall-solid-da6924f4",
       "overrides": [
         {
@@ -1041,7 +1997,7 @@
       "name": "rock-world-wall-solid-5527c90a",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 52,
+      "order": 71,
       "persistenceKey": "icege.rock-world-wall-solid-5527c90a",
       "overrides": [
         {
@@ -1060,7 +2016,7 @@
       "name": "rock-world-wall-solid-a04e38a6",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 53,
+      "order": 72,
       "persistenceKey": "icege.rock-world-wall-solid-a04e38a6",
       "overrides": [
         {
@@ -1079,7 +2035,7 @@
       "name": "rock-world-wall-solid-aabd8fc7",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 54,
+      "order": 73,
       "persistenceKey": "icege.rock-world-wall-solid-aabd8fc7",
       "overrides": [
         {
@@ -1098,7 +2054,7 @@
       "name": "rock-world-wall-solid-b1d07bf4",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 55,
+      "order": 74,
       "persistenceKey": "icege.rock-world-wall-solid-b1d07bf4",
       "overrides": [
         {
@@ -1117,7 +2073,7 @@
       "name": "rock-world-wall-solid-bb19fe1f",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 56,
+      "order": 75,
       "persistenceKey": "icege.rock-world-wall-solid-bb19fe1f",
       "overrides": [
         {
@@ -1136,7 +2092,7 @@
       "name": "rock-world-wall-solid-347cb576",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 57,
+      "order": 76,
       "persistenceKey": "icege.rock-world-wall-solid-347cb576",
       "overrides": [
         {
@@ -1155,7 +2111,7 @@
       "name": "rock-world-wall-solid-d08ac087",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 58,
+      "order": 77,
       "persistenceKey": "icege.rock-world-wall-solid-d08ac087",
       "overrides": [
         {
@@ -1174,7 +2130,7 @@
       "name": "rock-world-wall-solid-e7a1c96f",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 59,
+      "order": 78,
       "persistenceKey": "icege.rock-world-wall-solid-e7a1c96f",
       "overrides": [
         {
@@ -1193,7 +2149,7 @@
       "name": "rock-world-wall-solid-419f79d1",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 60,
+      "order": 79,
       "persistenceKey": "icege.rock-world-wall-solid-419f79d1",
       "overrides": [
         {
@@ -1212,7 +2168,7 @@
       "name": "rock-world-wall-solid-89a19f6d",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 61,
+      "order": 80,
       "persistenceKey": "icege.rock-world-wall-solid-89a19f6d",
       "overrides": [
         {
@@ -1231,7 +2187,7 @@
       "name": "rock-world-wall-solid-3808fb4d",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 62,
+      "order": 81,
       "persistenceKey": "icege.rock-world-wall-solid-3808fb4d",
       "overrides": [
         {
@@ -1250,7 +2206,7 @@
       "name": "rock-world-wall-solid-2b499d8b",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 63,
+      "order": 82,
       "persistenceKey": "icege.rock-world-wall-solid-2b499d8b",
       "overrides": [
         {
@@ -1269,7 +2225,7 @@
       "name": "rock-world-wall-solid-8507dd13",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 64,
+      "order": 83,
       "persistenceKey": "icege.rock-world-wall-solid-8507dd13",
       "overrides": [
         {
@@ -1288,7 +2244,7 @@
       "name": "rock-world-wall-solid-ccc58f55",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 65,
+      "order": 84,
       "persistenceKey": "icege.rock-world-wall-solid-ccc58f55",
       "overrides": [
         {
@@ -1307,7 +2263,7 @@
       "name": "rock-world-wall-solid-82c6d28c",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 66,
+      "order": 85,
       "persistenceKey": "icege.rock-world-wall-solid-82c6d28c",
       "overrides": [
         {
@@ -1326,7 +2282,7 @@
       "name": "rock-world-wall-solid-595bc1ae",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 67,
+      "order": 86,
       "persistenceKey": "icege.rock-world-wall-solid-595bc1ae",
       "overrides": [
         {
@@ -1345,7 +2301,7 @@
       "name": "rock-world-wall-solid-e56022ed",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 68,
+      "order": 87,
       "persistenceKey": "icege.rock-world-wall-solid-e56022ed",
       "overrides": [
         {
@@ -1364,7 +2320,7 @@
       "name": "rock-world-wall-solid-c09eb44c",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 69,
+      "order": 88,
       "persistenceKey": "icege.rock-world-wall-solid-c09eb44c",
       "overrides": [
         {
@@ -1383,7 +2339,7 @@
       "name": "rock-world-wall-solid-c42ac320",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 70,
+      "order": 89,
       "persistenceKey": "icege.rock-world-wall-solid-c42ac320",
       "overrides": [
         {
@@ -1402,7 +2358,7 @@
       "name": "rock-world-wall-solid-b05ff332",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 71,
+      "order": 90,
       "persistenceKey": "icege.rock-world-wall-solid-b05ff332",
       "overrides": [
         {
@@ -1421,7 +2377,7 @@
       "name": "rock-world-wall-solid-47fb1a59",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 72,
+      "order": 91,
       "persistenceKey": "icege.rock-world-wall-solid-47fb1a59",
       "overrides": [
         {
@@ -1440,7 +2396,7 @@
       "name": "rock-world-wall-solid-ba9289a2",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 73,
+      "order": 92,
       "persistenceKey": "icege.rock-world-wall-solid-ba9289a2",
       "overrides": [
         {
@@ -1459,7 +2415,7 @@
       "name": "rock-world-wall-solid-5c40e3ee",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 74,
+      "order": 93,
       "persistenceKey": "icege.rock-world-wall-solid-5c40e3ee",
       "overrides": [
         {
@@ -1478,7 +2434,7 @@
       "name": "rock-world-wall-solid-2784d040",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 75,
+      "order": 94,
       "persistenceKey": "icege.rock-world-wall-solid-2784d040",
       "overrides": [
         {
@@ -1497,7 +2453,7 @@
       "name": "rock-world-wall-solid-dd77fdfa",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 76,
+      "order": 95,
       "persistenceKey": "icege.rock-world-wall-solid-dd77fdfa",
       "overrides": [
         {
@@ -1516,7 +2472,7 @@
       "name": "rock-world-wall-solid-deec6f80",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 77,
+      "order": 96,
       "persistenceKey": "icege.rock-world-wall-solid-deec6f80",
       "overrides": [
         {
@@ -1535,7 +2491,7 @@
       "name": "rock-world-wall-solid-0c8be1f1",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 78,
+      "order": 97,
       "persistenceKey": "icege.rock-world-wall-solid-0c8be1f1",
       "overrides": [
         {
@@ -1554,7 +2510,7 @@
       "name": "rock-world-wall-solid-45c5e349",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 79,
+      "order": 98,
       "persistenceKey": "icege.rock-world-wall-solid-45c5e349",
       "overrides": [
         {
@@ -1573,7 +2529,7 @@
       "name": "rock-world-wall-solid-d7dc9196",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 80,
+      "order": 99,
       "persistenceKey": "icege.rock-world-wall-solid-d7dc9196",
       "overrides": [
         {
@@ -1592,7 +2548,7 @@
       "name": "rock-world-wall-solid-675ef3f7",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 81,
+      "order": 100,
       "persistenceKey": "icege.rock-world-wall-solid-675ef3f7",
       "overrides": [
         {
@@ -1611,7 +2567,7 @@
       "name": "rock-world-wall-solid-40d1565c",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 82,
+      "order": 101,
       "persistenceKey": "icege.rock-world-wall-solid-40d1565c",
       "overrides": [
         {
@@ -1630,7 +2586,7 @@
       "name": "rock-world-wall-solid-955e1079",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 83,
+      "order": 102,
       "persistenceKey": "icege.rock-world-wall-solid-955e1079",
       "overrides": [
         {
@@ -1649,7 +2605,7 @@
       "name": "rock-world-wall-solid-0d5ff918",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 84,
+      "order": 103,
       "persistenceKey": "icege.rock-world-wall-solid-0d5ff918",
       "overrides": [
         {
@@ -1668,7 +2624,7 @@
       "name": "rock-world-wall-solid-2cf32053",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 85,
+      "order": 104,
       "persistenceKey": "icege.rock-world-wall-solid-2cf32053",
       "overrides": [
         {
@@ -1687,7 +2643,7 @@
       "name": "rock-world-wall-solid-644bcbdb",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 86,
+      "order": 105,
       "persistenceKey": "icege.rock-world-wall-solid-644bcbdb",
       "overrides": [
         {
@@ -1706,7 +2662,7 @@
       "name": "rock-world-wall-solid-cec6f306",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 87,
+      "order": 106,
       "persistenceKey": "icege.rock-world-wall-solid-cec6f306",
       "overrides": [
         {
@@ -1725,7 +2681,7 @@
       "name": "rock-world-wall-solid-9ebfe949",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 88,
+      "order": 107,
       "persistenceKey": "icege.rock-world-wall-solid-9ebfe949",
       "overrides": [
         {
@@ -1744,7 +2700,7 @@
       "name": "rock-world-wall-solid-d0a55ff4",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 89,
+      "order": 108,
       "persistenceKey": "icege.rock-world-wall-solid-d0a55ff4",
       "overrides": [
         {
@@ -1763,7 +2719,7 @@
       "name": "rock-world-wall-solid-5305f4f5",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 90,
+      "order": 109,
       "persistenceKey": "icege.rock-world-wall-solid-5305f4f5",
       "overrides": [
         {
@@ -1782,7 +2738,7 @@
       "name": "rock-world-wall-solid-a6bdeae7",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 91,
+      "order": 110,
       "persistenceKey": "icege.rock-world-wall-solid-a6bdeae7",
       "overrides": [
         {
@@ -1801,7 +2757,7 @@
       "name": "rock-world-wall-solid-4512ce64",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 92,
+      "order": 111,
       "persistenceKey": "icege.rock-world-wall-solid-4512ce64",
       "overrides": [
         {
@@ -1820,7 +2776,7 @@
       "name": "rock-world-wall-solid-fa838208",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 93,
+      "order": 112,
       "persistenceKey": "icege.rock-world-wall-solid-fa838208",
       "overrides": [
         {
@@ -1839,7 +2795,7 @@
       "name": "rock-world-wall-solid-a63bc9ff",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 94,
+      "order": 113,
       "persistenceKey": "icege.rock-world-wall-solid-a63bc9ff",
       "overrides": [
         {
@@ -1858,7 +2814,7 @@
       "name": "rock-world-wall-solid-4eee2ccc",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 95,
+      "order": 114,
       "persistenceKey": "icege.rock-world-wall-solid-4eee2ccc",
       "overrides": [
         {
@@ -1877,7 +2833,7 @@
       "name": "rock-world-wall-solid-1710b7a6",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 96,
+      "order": 115,
       "persistenceKey": "icege.rock-world-wall-solid-1710b7a6",
       "overrides": [
         {
@@ -1896,7 +2852,7 @@
       "name": "rock-world-wall-solid-14f68ac7",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 97,
+      "order": 116,
       "persistenceKey": "icege.rock-world-wall-solid-14f68ac7",
       "overrides": [
         {
@@ -1915,7 +2871,7 @@
       "name": "rock-world-wall-solid-a333a30c",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 98,
+      "order": 117,
       "persistenceKey": "icege.rock-world-wall-solid-a333a30c",
       "overrides": [
         {
@@ -1934,7 +2890,7 @@
       "name": "rock-world-wall-solid-26585e61",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 99,
+      "order": 118,
       "persistenceKey": "icege.rock-world-wall-solid-26585e61",
       "overrides": [
         {
@@ -1953,7 +2909,7 @@
       "name": "rock-world-wall-solid-a48bb8ef",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 100,
+      "order": 119,
       "persistenceKey": "icege.rock-world-wall-solid-a48bb8ef",
       "overrides": [
         {
@@ -1972,7 +2928,7 @@
       "name": "rock-world-wall-solid-cd10bc79",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 101,
+      "order": 120,
       "persistenceKey": "icege.rock-world-wall-solid-cd10bc79",
       "overrides": [
         {
@@ -1991,7 +2947,7 @@
       "name": "rock-world-wall-solid-180fba95",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 102,
+      "order": 121,
       "persistenceKey": "icege.rock-world-wall-solid-180fba95",
       "overrides": [
         {
@@ -2010,7 +2966,7 @@
       "name": "rock-world-wall-solid-12c38794",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 103,
+      "order": 122,
       "persistenceKey": "icege.rock-world-wall-solid-12c38794",
       "overrides": [
         {
@@ -2029,7 +2985,7 @@
       "name": "rock-world-wall-solid-4b59b0c4",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 104,
+      "order": 123,
       "persistenceKey": "icege.rock-world-wall-solid-4b59b0c4",
       "overrides": [
         {
@@ -2048,7 +3004,7 @@
       "name": "rock-world-wall-solid-9ab8eba6",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 105,
+      "order": 124,
       "persistenceKey": "icege.rock-world-wall-solid-9ab8eba6",
       "overrides": [
         {
@@ -2067,7 +3023,7 @@
       "name": "rock-world-wall-solid-8163df08",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 106,
+      "order": 125,
       "persistenceKey": "icege.rock-world-wall-solid-8163df08",
       "overrides": [
         {
@@ -2086,7 +3042,7 @@
       "name": "rock-world-wall-solid-ee472407",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 107,
+      "order": 126,
       "persistenceKey": "icege.rock-world-wall-solid-ee472407",
       "overrides": [
         {
@@ -2105,7 +3061,7 @@
       "name": "rock-world-wall-solid-27e67e4d",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 108,
+      "order": 127,
       "persistenceKey": "icege.rock-world-wall-solid-27e67e4d",
       "overrides": [
         {
@@ -2124,7 +3080,7 @@
       "name": "rock-world-wall-solid-fcac906e",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 109,
+      "order": 128,
       "persistenceKey": "icege.rock-world-wall-solid-fcac906e",
       "overrides": [
         {
@@ -2143,7 +3099,7 @@
       "name": "rock-world-wall-solid-68605ecf",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 110,
+      "order": 129,
       "persistenceKey": "icege.rock-world-wall-solid-68605ecf",
       "overrides": [
         {
@@ -2162,7 +3118,7 @@
       "name": "rock-world-wall-solid-19dbabb9",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 111,
+      "order": 130,
       "persistenceKey": "icege.rock-world-wall-solid-19dbabb9",
       "overrides": [
         {
@@ -2181,7 +3137,7 @@
       "name": "rock-world-wall-solid-8d108469",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 112,
+      "order": 131,
       "persistenceKey": "icege.rock-world-wall-solid-8d108469",
       "overrides": [
         {
@@ -2200,7 +3156,7 @@
       "name": "rock-world-wall-solid-0a4bba16",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 113,
+      "order": 132,
       "persistenceKey": "icege.rock-world-wall-solid-0a4bba16",
       "overrides": [
         {
@@ -2219,7 +3175,7 @@
       "name": "rock-world-wall-solid-da1dc9ae",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 114,
+      "order": 133,
       "persistenceKey": "icege.rock-world-wall-solid-da1dc9ae",
       "overrides": [
         {
@@ -2238,7 +3194,7 @@
       "name": "rock-world-wall-solid-2910757b",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 115,
+      "order": 134,
       "persistenceKey": "icege.rock-world-wall-solid-2910757b",
       "overrides": [
         {
@@ -2257,7 +3213,7 @@
       "name": "rock-world-wall-solid-a4841a84",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 116,
+      "order": 135,
       "persistenceKey": "icege.rock-world-wall-solid-a4841a84",
       "overrides": [
         {
@@ -2276,7 +3232,7 @@
       "name": "rock-world-wall-solid-22b3771c",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 117,
+      "order": 136,
       "persistenceKey": "icege.rock-world-wall-solid-22b3771c",
       "overrides": [
         {
@@ -2295,7 +3251,7 @@
       "name": "rock-world-wall-solid-0e66899a",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 118,
+      "order": 137,
       "persistenceKey": "icege.rock-world-wall-solid-0e66899a",
       "overrides": [
         {
@@ -2314,7 +3270,7 @@
       "name": "rock-world-wall-solid-9a3a602f",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 119,
+      "order": 138,
       "persistenceKey": "icege.rock-world-wall-solid-9a3a602f",
       "overrides": [
         {
@@ -2333,7 +3289,7 @@
       "name": "rock-world-wall-solid-33e3635c",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 120,
+      "order": 139,
       "persistenceKey": "icege.rock-world-wall-solid-33e3635c",
       "overrides": [
         {
@@ -2352,7 +3308,7 @@
       "name": "rock-world-wall-solid-c99266e1",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 121,
+      "order": 140,
       "persistenceKey": "icege.rock-world-wall-solid-c99266e1",
       "overrides": [
         {
@@ -2371,7 +3327,7 @@
       "name": "rock-world-wall-solid-b1186f4b",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 122,
+      "order": 141,
       "persistenceKey": "icege.rock-world-wall-solid-b1186f4b",
       "overrides": [
         {
@@ -2390,7 +3346,7 @@
       "name": "rock-world-wall-solid-a48a984b",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 123,
+      "order": 142,
       "persistenceKey": "icege.rock-world-wall-solid-a48a984b",
       "overrides": [
         {
@@ -2409,7 +3365,7 @@
       "name": "rock-world-wall-solid-afc8d486",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 124,
+      "order": 143,
       "persistenceKey": "icege.rock-world-wall-solid-afc8d486",
       "overrides": [
         {
@@ -2428,7 +3384,7 @@
       "name": "rock-world-wall-solid-34b2e7e4",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 125,
+      "order": 144,
       "persistenceKey": "icege.rock-world-wall-solid-34b2e7e4",
       "overrides": [
         {
@@ -2447,7 +3403,7 @@
       "name": "rock-world-wall-solid-734a35ae",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 126,
+      "order": 145,
       "persistenceKey": "icege.rock-world-wall-solid-734a35ae",
       "overrides": [
         {
@@ -2466,7 +3422,7 @@
       "name": "rock-world-wall-solid-b318e950",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 127,
+      "order": 146,
       "persistenceKey": "icege.rock-world-wall-solid-b318e950",
       "overrides": [
         {
@@ -2485,7 +3441,7 @@
       "name": "rock-world-wall-solid-cf27756c",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 128,
+      "order": 147,
       "persistenceKey": "icege.rock-world-wall-solid-cf27756c",
       "overrides": [
         {
@@ -2504,7 +3460,7 @@
       "name": "rock-world-wall-solid-2f8a0d1f",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 129,
+      "order": 148,
       "persistenceKey": "icege.rock-world-wall-solid-2f8a0d1f",
       "overrides": [
         {
@@ -2523,7 +3479,7 @@
       "name": "rock-world-wall-solid-79f2ba75",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 130,
+      "order": 149,
       "persistenceKey": "icege.rock-world-wall-solid-79f2ba75",
       "overrides": [
         {
@@ -2542,7 +3498,7 @@
       "name": "rock-world-wall-solid-0d88e5d5",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 131,
+      "order": 150,
       "persistenceKey": "icege.rock-world-wall-solid-0d88e5d5",
       "overrides": [
         {
@@ -2561,7 +3517,7 @@
       "name": "rock-world-wall-solid-675fc834",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 132,
+      "order": 151,
       "persistenceKey": "icege.rock-world-wall-solid-675fc834",
       "overrides": [
         {
@@ -2580,7 +3536,7 @@
       "name": "rock-world-wall-solid-a9568250",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 133,
+      "order": 152,
       "persistenceKey": "icege.rock-world-wall-solid-a9568250",
       "overrides": [
         {
@@ -2599,7 +3555,7 @@
       "name": "rock-world-wall-solid-c54d4cb2",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 134,
+      "order": 153,
       "persistenceKey": "icege.rock-world-wall-solid-c54d4cb2",
       "overrides": [
         {
@@ -2618,7 +3574,7 @@
       "name": "rock-world-wall-solid-c186cf30",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 135,
+      "order": 154,
       "persistenceKey": "icege.rock-world-wall-solid-c186cf30",
       "overrides": [
         {
@@ -2637,7 +3593,7 @@
       "name": "rock-world-wall-solid-92c4fe43",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 136,
+      "order": 155,
       "persistenceKey": "icege.rock-world-wall-solid-92c4fe43",
       "overrides": [
         {
@@ -2656,7 +3612,7 @@
       "name": "rock-world-wall-solid-373daf87",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 137,
+      "order": 156,
       "persistenceKey": "icege.rock-world-wall-solid-373daf87",
       "overrides": [
         {
@@ -2675,7 +3631,7 @@
       "name": "rock-world-wall-solid-a7723c79",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 138,
+      "order": 157,
       "persistenceKey": "icege.rock-world-wall-solid-a7723c79",
       "overrides": [
         {
@@ -2694,7 +3650,7 @@
       "name": "rock-world-wall-solid-fe86bb9b",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 139,
+      "order": 158,
       "persistenceKey": "icege.rock-world-wall-solid-fe86bb9b",
       "overrides": [
         {
@@ -2713,7 +3669,7 @@
       "name": "rock-world-wall-solid-accf7637",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 140,
+      "order": 159,
       "persistenceKey": "icege.rock-world-wall-solid-accf7637",
       "overrides": [
         {
@@ -2732,7 +3688,7 @@
       "name": "rock-world-wall-solid-36a092ea",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 141,
+      "order": 160,
       "persistenceKey": "icege.rock-world-wall-solid-36a092ea",
       "overrides": [
         {
@@ -2751,7 +3707,7 @@
       "name": "rock-world-wall-solid-95379ab2",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 142,
+      "order": 161,
       "persistenceKey": "icege.rock-world-wall-solid-95379ab2",
       "overrides": [
         {
@@ -2770,7 +3726,7 @@
       "name": "rock-world-wall-solid-3cf42423",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 143,
+      "order": 162,
       "persistenceKey": "icege.rock-world-wall-solid-3cf42423",
       "overrides": [
         {
@@ -2789,7 +3745,7 @@
       "name": "rock-world-wall-solid-d1336d42",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 144,
+      "order": 163,
       "persistenceKey": "icege.rock-world-wall-solid-d1336d42",
       "overrides": [
         {
@@ -2808,7 +3764,7 @@
       "name": "rock-world-wall-solid-ba536d7c",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 145,
+      "order": 164,
       "persistenceKey": "icege.rock-world-wall-solid-ba536d7c",
       "overrides": [
         {
@@ -2827,7 +3783,7 @@
       "name": "rock-world-wall-solid-183b53cc",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 146,
+      "order": 165,
       "persistenceKey": "icege.rock-world-wall-solid-183b53cc",
       "overrides": [
         {
@@ -2846,7 +3802,7 @@
       "name": "rock-world-wall-solid-286cac32",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 147,
+      "order": 166,
       "persistenceKey": "icege.rock-world-wall-solid-286cac32",
       "overrides": [
         {
@@ -2865,7 +3821,7 @@
       "name": "rock-world-wall-solid-e444df26",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 148,
+      "order": 167,
       "persistenceKey": "icege.rock-world-wall-solid-e444df26",
       "overrides": [
         {
@@ -2884,7 +3840,7 @@
       "name": "rock-world-wall-solid-215180fd",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 149,
+      "order": 168,
       "persistenceKey": "icege.rock-world-wall-solid-215180fd",
       "overrides": [
         {
@@ -2903,7 +3859,7 @@
       "name": "rock-world-wall-solid-b8a34fcd",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 150,
+      "order": 169,
       "persistenceKey": "icege.rock-world-wall-solid-b8a34fcd",
       "overrides": [
         {
@@ -2922,7 +3878,7 @@
       "name": "rock-world-wall-solid-bd390092",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 151,
+      "order": 170,
       "persistenceKey": "icege.rock-world-wall-solid-bd390092",
       "overrides": [
         {
@@ -2941,7 +3897,7 @@
       "name": "rock-world-wall-solid-73445acd",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 152,
+      "order": 171,
       "persistenceKey": "icege.rock-world-wall-solid-73445acd",
       "overrides": [
         {
@@ -2960,7 +3916,7 @@
       "name": "rock-world-wall-solid-8e9d63a4",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 153,
+      "order": 172,
       "persistenceKey": "icege.rock-world-wall-solid-8e9d63a4",
       "overrides": [
         {
@@ -2979,7 +3935,7 @@
       "name": "rock-world-wall-solid-f9c06d75",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 154,
+      "order": 173,
       "persistenceKey": "icege.rock-world-wall-solid-f9c06d75",
       "overrides": [
         {
@@ -2998,7 +3954,7 @@
       "name": "rock-world-wall-solid-1d7b573d",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 155,
+      "order": 174,
       "persistenceKey": "icege.rock-world-wall-solid-1d7b573d",
       "overrides": [
         {
@@ -3017,7 +3973,7 @@
       "name": "rock-world-wall-solid-9bd76967",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 156,
+      "order": 175,
       "persistenceKey": "icege.rock-world-wall-solid-9bd76967",
       "overrides": [
         {
@@ -3036,7 +3992,7 @@
       "name": "rock-world-wall-solid-aec458b0",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 157,
+      "order": 176,
       "persistenceKey": "icege.rock-world-wall-solid-aec458b0",
       "overrides": [
         {
@@ -3055,7 +4011,7 @@
       "name": "rock-world-wall-solid-b365bb91",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 158,
+      "order": 177,
       "persistenceKey": "icege.rock-world-wall-solid-b365bb91",
       "overrides": [
         {
@@ -3074,7 +4030,7 @@
       "name": "rock-world-wall-solid-a7aa08d8",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 159,
+      "order": 178,
       "persistenceKey": "icege.rock-world-wall-solid-a7aa08d8",
       "overrides": [
         {
@@ -3093,7 +4049,7 @@
       "name": "rock-world-wall-solid-cb67f2a7",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 160,
+      "order": 179,
       "persistenceKey": "icege.rock-world-wall-solid-cb67f2a7",
       "overrides": [
         {
@@ -3112,7 +4068,7 @@
       "name": "rock-world-wall-solid-98de4741",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 161,
+      "order": 180,
       "persistenceKey": "icege.rock-world-wall-solid-98de4741",
       "overrides": [
         {
@@ -3131,7 +4087,7 @@
       "name": "rock-world-wall-solid-61a3307b",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 162,
+      "order": 181,
       "persistenceKey": "icege.rock-world-wall-solid-61a3307b",
       "overrides": [
         {
@@ -3150,7 +4106,7 @@
       "name": "rock-world-wall-solid-753ce50c",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 163,
+      "order": 182,
       "persistenceKey": "icege.rock-world-wall-solid-753ce50c",
       "overrides": [
         {
@@ -3169,7 +4125,7 @@
       "name": "rock-world-wall-solid-ffb2009d",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 164,
+      "order": 183,
       "persistenceKey": "icege.rock-world-wall-solid-ffb2009d",
       "overrides": [
         {
@@ -3188,7 +4144,7 @@
       "name": "rock-world-wall-solid-2ad5851f",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 165,
+      "order": 184,
       "persistenceKey": "icege.rock-world-wall-solid-2ad5851f",
       "overrides": [
         {
@@ -3207,7 +4163,7 @@
       "name": "rock-world-wall-solid-9852a643",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 166,
+      "order": 185,
       "persistenceKey": "icege.rock-world-wall-solid-9852a643",
       "overrides": [
         {
@@ -3226,7 +4182,7 @@
       "name": "rock-world-wall-solid-24d27ac0",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 167,
+      "order": 186,
       "persistenceKey": "icege.rock-world-wall-solid-24d27ac0",
       "overrides": [
         {
@@ -3245,7 +4201,7 @@
       "name": "rock-world-wall-solid-c25dad83",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 168,
+      "order": 187,
       "persistenceKey": "icege.rock-world-wall-solid-c25dad83",
       "overrides": [
         {
@@ -3264,7 +4220,7 @@
       "name": "rock-world-wall-solid-cd513bf9",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 169,
+      "order": 188,
       "persistenceKey": "icege.rock-world-wall-solid-cd513bf9",
       "overrides": [
         {
@@ -3283,7 +4239,7 @@
       "name": "rock-world-wall-solid-40f8e779",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 170,
+      "order": 189,
       "persistenceKey": "icege.rock-world-wall-solid-40f8e779",
       "overrides": [
         {
@@ -3302,7 +4258,7 @@
       "name": "rock-world-wall-solid-c803175b",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 171,
+      "order": 190,
       "persistenceKey": "icege.rock-world-wall-solid-c803175b",
       "overrides": [
         {
@@ -3321,7 +4277,7 @@
       "name": "rock-world-wall-solid-89aa3811",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 172,
+      "order": 191,
       "persistenceKey": "icege.rock-world-wall-solid-89aa3811",
       "overrides": [
         {
@@ -3340,7 +4296,7 @@
       "name": "rock-world-wall-solid-f92c8519",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 173,
+      "order": 192,
       "persistenceKey": "icege.rock-world-wall-solid-f92c8519",
       "overrides": [
         {
@@ -3359,7 +4315,7 @@
       "name": "rock-world-wall-solid-4067bb5d",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 174,
+      "order": 193,
       "persistenceKey": "icege.rock-world-wall-solid-4067bb5d",
       "overrides": [
         {
@@ -3378,7 +4334,7 @@
       "name": "rock-world-wall-solid-90073c1f",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 175,
+      "order": 194,
       "persistenceKey": "icege.rock-world-wall-solid-90073c1f",
       "overrides": [
         {
@@ -3397,7 +4353,7 @@
       "name": "rock-world-wall-solid-dfd0ddbd",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 176,
+      "order": 195,
       "persistenceKey": "icege.rock-world-wall-solid-dfd0ddbd",
       "overrides": [
         {
@@ -3416,7 +4372,7 @@
       "name": "rock-world-wall-solid-d5ebe1da",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 177,
+      "order": 196,
       "persistenceKey": "icege.rock-world-wall-solid-d5ebe1da",
       "overrides": [
         {
@@ -3435,7 +4391,7 @@
       "name": "rock-world-wall-solid-f605053e",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 178,
+      "order": 197,
       "persistenceKey": "icege.rock-world-wall-solid-f605053e",
       "overrides": [
         {
@@ -3454,7 +4410,7 @@
       "name": "rock-world-wall-solid-09166d7b",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 179,
+      "order": 198,
       "persistenceKey": "icege.rock-world-wall-solid-09166d7b",
       "overrides": [
         {
@@ -3473,7 +4429,7 @@
       "name": "rock-world-wall-solid-85d843aa",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 180,
+      "order": 199,
       "persistenceKey": "icege.rock-world-wall-solid-85d843aa",
       "overrides": [
         {
@@ -3492,7 +4448,7 @@
       "name": "rock-world-wall-solid-1fba076a",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 181,
+      "order": 200,
       "persistenceKey": "icege.rock-world-wall-solid-1fba076a",
       "overrides": [
         {
@@ -3511,7 +4467,7 @@
       "name": "rock-world-wall-solid-93c7be15",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 182,
+      "order": 201,
       "persistenceKey": "icege.rock-world-wall-solid-93c7be15",
       "overrides": [
         {
@@ -3530,7 +4486,7 @@
       "name": "rock-world-wall-solid-388e2e5b",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 183,
+      "order": 202,
       "persistenceKey": "icege.rock-world-wall-solid-388e2e5b",
       "overrides": [
         {
@@ -3549,7 +4505,7 @@
       "name": "rock-world-wall-solid-6716a076",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 184,
+      "order": 203,
       "persistenceKey": "icege.rock-world-wall-solid-6716a076",
       "overrides": [
         {
@@ -3568,7 +4524,7 @@
       "name": "rock-world-wall-solid-b472753c",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 185,
+      "order": 204,
       "persistenceKey": "icege.rock-world-wall-solid-b472753c",
       "overrides": [
         {
@@ -3587,7 +4543,7 @@
       "name": "rock-world-wall-solid-30b46c2c",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 186,
+      "order": 205,
       "persistenceKey": "icege.rock-world-wall-solid-30b46c2c",
       "overrides": [
         {
@@ -3606,7 +4562,7 @@
       "name": "rock-world-wall-solid-ecf510b1",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 187,
+      "order": 206,
       "persistenceKey": "icege.rock-world-wall-solid-ecf510b1",
       "overrides": [
         {
@@ -3625,7 +4581,7 @@
       "name": "rock-world-wall-solid-3e3dc589",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 188,
+      "order": 207,
       "persistenceKey": "icege.rock-world-wall-solid-3e3dc589",
       "overrides": [
         {
@@ -3644,7 +4600,7 @@
       "name": "rock-world-wall-solid-fbbbe2a8",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 189,
+      "order": 208,
       "persistenceKey": "icege.rock-world-wall-solid-fbbbe2a8",
       "overrides": [
         {
@@ -3663,7 +4619,7 @@
       "name": "rock-world-wall-solid-7da1d6a9",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 190,
+      "order": 209,
       "persistenceKey": "icege.rock-world-wall-solid-7da1d6a9",
       "overrides": [
         {
@@ -3682,7 +4638,7 @@
       "name": "rock-world-wall-solid-ef7aeda0",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 191,
+      "order": 210,
       "persistenceKey": "icege.rock-world-wall-solid-ef7aeda0",
       "overrides": [
         {
@@ -3701,7 +4657,7 @@
       "name": "rock-world-wall-solid-423bfe5f",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 192,
+      "order": 211,
       "persistenceKey": "icege.rock-world-wall-solid-423bfe5f",
       "overrides": [
         {
@@ -3720,7 +4676,7 @@
       "name": "rock-world-wall-solid-edc8429d",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 193,
+      "order": 212,
       "persistenceKey": "icege.rock-world-wall-solid-edc8429d",
       "overrides": [
         {
@@ -3739,7 +4695,7 @@
       "name": "rock-world-wall-solid-2de11527",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 194,
+      "order": 213,
       "persistenceKey": "icege.rock-world-wall-solid-2de11527",
       "overrides": [
         {
@@ -3758,7 +4714,7 @@
       "name": "rock-world-wall-solid-3e09f7b8",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 195,
+      "order": 214,
       "persistenceKey": "icege.rock-world-wall-solid-3e09f7b8",
       "overrides": [
         {
@@ -3777,7 +4733,7 @@
       "name": "rock-world-wall-solid-4b6595b1",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 196,
+      "order": 215,
       "persistenceKey": "icege.rock-world-wall-solid-4b6595b1",
       "overrides": [
         {
@@ -3796,7 +4752,7 @@
       "name": "rock-world-wall-solid-44351ed8",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 197,
+      "order": 216,
       "persistenceKey": "icege.rock-world-wall-solid-44351ed8",
       "overrides": [
         {
@@ -3815,7 +4771,7 @@
       "name": "rock-world-wall-solid-f6bf7f50",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 198,
+      "order": 217,
       "persistenceKey": "icege.rock-world-wall-solid-f6bf7f50",
       "overrides": [
         {
@@ -3834,7 +4790,7 @@
       "name": "rock-world-wall-solid-1b6bfeed",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 199,
+      "order": 218,
       "persistenceKey": "icege.rock-world-wall-solid-1b6bfeed",
       "overrides": [
         {
@@ -3853,7 +4809,7 @@
       "name": "rock-world-wall-solid-66c3fe8d",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 200,
+      "order": 219,
       "persistenceKey": "icege.rock-world-wall-solid-66c3fe8d",
       "overrides": [
         {
@@ -3872,7 +4828,7 @@
       "name": "rock-world-wall-solid-0c1ffd65",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 201,
+      "order": 220,
       "persistenceKey": "icege.rock-world-wall-solid-0c1ffd65",
       "overrides": [
         {
@@ -3891,7 +4847,7 @@
       "name": "rock-world-wall-solid-4d531d11",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 202,
+      "order": 221,
       "persistenceKey": "icege.rock-world-wall-solid-4d531d11",
       "overrides": [
         {
@@ -3910,7 +4866,7 @@
       "name": "rock-world-wall-solid-dccef169",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 203,
+      "order": 222,
       "persistenceKey": "icege.rock-world-wall-solid-dccef169",
       "overrides": [
         {
@@ -3929,7 +4885,7 @@
       "name": "rock-world-wall-solid-e0d3978f",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 204,
+      "order": 223,
       "persistenceKey": "icege.rock-world-wall-solid-e0d3978f",
       "overrides": [
         {
@@ -3948,7 +4904,7 @@
       "name": "rock-world-wall-solid-c04707b9",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 205,
+      "order": 224,
       "persistenceKey": "icege.rock-world-wall-solid-c04707b9",
       "overrides": [
         {
@@ -3967,7 +4923,7 @@
       "name": "rock-world-wall-solid-2cbcec1c",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 206,
+      "order": 225,
       "persistenceKey": "icege.rock-world-wall-solid-2cbcec1c",
       "overrides": [
         {
@@ -3986,7 +4942,7 @@
       "name": "rock-world-wall-solid-94ba34ce",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 207,
+      "order": 226,
       "persistenceKey": "icege.rock-world-wall-solid-94ba34ce",
       "overrides": [
         {
@@ -4005,7 +4961,7 @@
       "name": "rock-world-wall-solid-6bfcd8a9",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 208,
+      "order": 227,
       "persistenceKey": "icege.rock-world-wall-solid-6bfcd8a9",
       "overrides": [
         {
@@ -4024,7 +4980,7 @@
       "name": "rock-world-wall-solid-2a2ce8e3",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 209,
+      "order": 228,
       "persistenceKey": "icege.rock-world-wall-solid-2a2ce8e3",
       "overrides": [
         {
@@ -4043,7 +4999,7 @@
       "name": "rock-world-wall-solid-f5e441a8",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 210,
+      "order": 229,
       "persistenceKey": "icege.rock-world-wall-solid-f5e441a8",
       "overrides": [
         {
@@ -4062,7 +5018,7 @@
       "name": "rock-world-wall-solid-05fb7cce",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 211,
+      "order": 230,
       "persistenceKey": "icege.rock-world-wall-solid-05fb7cce",
       "overrides": [
         {
@@ -4081,7 +5037,7 @@
       "name": "rock-world-wall-solid-2241da60",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 212,
+      "order": 231,
       "persistenceKey": "icege.rock-world-wall-solid-2241da60",
       "overrides": [
         {
@@ -4100,7 +5056,7 @@
       "name": "rock-world-wall-solid-e90103bb",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 213,
+      "order": 232,
       "persistenceKey": "icege.rock-world-wall-solid-e90103bb",
       "overrides": [
         {
@@ -4119,7 +5075,7 @@
       "name": "rock-world-wall-solid-04f5a75e",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 214,
+      "order": 233,
       "persistenceKey": "icege.rock-world-wall-solid-04f5a75e",
       "overrides": [
         {
@@ -4138,7 +5094,7 @@
       "name": "rock-world-wall-solid-ab0107bd",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 215,
+      "order": 234,
       "persistenceKey": "icege.rock-world-wall-solid-ab0107bd",
       "overrides": [
         {
@@ -4157,7 +5113,7 @@
       "name": "rock-world-wall-solid-80ce8801",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 216,
+      "order": 235,
       "persistenceKey": "icege.rock-world-wall-solid-80ce8801",
       "overrides": [
         {
@@ -4176,7 +5132,7 @@
       "name": "rock-world-wall-solid-655468dc",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 217,
+      "order": 236,
       "persistenceKey": "icege.rock-world-wall-solid-655468dc",
       "overrides": [
         {
@@ -4195,7 +5151,7 @@
       "name": "rock-world-wall-solid-6ee5f2d8",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 218,
+      "order": 237,
       "persistenceKey": "icege.rock-world-wall-solid-6ee5f2d8",
       "overrides": [
         {
@@ -4214,7 +5170,7 @@
       "name": "rock-world-wall-solid-0f275e6b",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 219,
+      "order": 238,
       "persistenceKey": "icege.rock-world-wall-solid-0f275e6b",
       "overrides": [
         {
@@ -4233,7 +5189,7 @@
       "name": "rock-world-wall-solid-b7926796",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 220,
+      "order": 239,
       "persistenceKey": "icege.rock-world-wall-solid-b7926796",
       "overrides": [
         {
@@ -4252,7 +5208,7 @@
       "name": "rock-world-wall-solid-b0601be2",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 221,
+      "order": 240,
       "persistenceKey": "icege.rock-world-wall-solid-b0601be2",
       "overrides": [
         {
@@ -4271,7 +5227,7 @@
       "name": "rock-world-wall-solid-1ed64b96",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 222,
+      "order": 241,
       "persistenceKey": "icege.rock-world-wall-solid-1ed64b96",
       "overrides": [
         {
@@ -4290,7 +5246,7 @@
       "name": "rock-world-wall-solid-1f01c312",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 223,
+      "order": 242,
       "persistenceKey": "icege.rock-world-wall-solid-1f01c312",
       "overrides": [
         {
@@ -4309,7 +5265,7 @@
       "name": "rock-world-wall-solid-e02d7129",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 224,
+      "order": 243,
       "persistenceKey": "icege.rock-world-wall-solid-e02d7129",
       "overrides": [
         {
@@ -4328,7 +5284,7 @@
       "name": "rock-world-wall-solid-43b7d4cf",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 225,
+      "order": 244,
       "persistenceKey": "icege.rock-world-wall-solid-43b7d4cf",
       "overrides": [
         {
@@ -4347,7 +5303,7 @@
       "name": "rock-world-wall-solid-5706ae77",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 226,
+      "order": 245,
       "persistenceKey": "icege.rock-world-wall-solid-5706ae77",
       "overrides": [
         {
@@ -4366,7 +5322,7 @@
       "name": "rock-world-wall-solid-819ec0b0",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 227,
+      "order": 246,
       "persistenceKey": "icege.rock-world-wall-solid-819ec0b0",
       "overrides": [
         {
@@ -4385,7 +5341,7 @@
       "name": "rock-world-wall-solid-819bb74a",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 228,
+      "order": 247,
       "persistenceKey": "icege.rock-world-wall-solid-819bb74a",
       "overrides": [
         {
@@ -4404,7 +5360,7 @@
       "name": "rock-world-wall-solid-dab651c6",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 229,
+      "order": 248,
       "persistenceKey": "icege.rock-world-wall-solid-dab651c6",
       "overrides": [
         {
@@ -4423,7 +5379,7 @@
       "name": "rock-world-wall-solid-8e2ac4b7",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 230,
+      "order": 249,
       "persistenceKey": "icege.rock-world-wall-solid-8e2ac4b7",
       "overrides": [
         {
@@ -4442,7 +5398,7 @@
       "name": "rock-world-wall-solid-f6b86821",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 231,
+      "order": 250,
       "persistenceKey": "icege.rock-world-wall-solid-f6b86821",
       "overrides": [
         {
@@ -4461,7 +5417,7 @@
       "name": "rock-world-wall-solid-40263be1",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 232,
+      "order": 251,
       "persistenceKey": "icege.rock-world-wall-solid-40263be1",
       "overrides": [
         {
@@ -4480,7 +5436,7 @@
       "name": "rock-world-wall-solid-1b9f21b9",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 233,
+      "order": 252,
       "persistenceKey": "icege.rock-world-wall-solid-1b9f21b9",
       "overrides": [
         {
@@ -4499,7 +5455,7 @@
       "name": "rock-world-wall-solid-7e8bc83e",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 234,
+      "order": 253,
       "persistenceKey": "icege.rock-world-wall-solid-7e8bc83e",
       "overrides": [
         {
@@ -4518,7 +5474,7 @@
       "name": "rock-world-wall-solid-2aac4fc2",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 235,
+      "order": 254,
       "persistenceKey": "icege.rock-world-wall-solid-2aac4fc2",
       "overrides": [
         {
@@ -4537,7 +5493,7 @@
       "name": "rock-world-wall-solid-74d8a413",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 236,
+      "order": 255,
       "persistenceKey": "icege.rock-world-wall-solid-74d8a413",
       "overrides": [
         {
@@ -4556,7 +5512,7 @@
       "name": "rock-world-wall-solid-62520eb4",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 237,
+      "order": 256,
       "persistenceKey": "icege.rock-world-wall-solid-62520eb4",
       "overrides": [
         {
@@ -4575,7 +5531,7 @@
       "name": "rock-world-wall-solid-26fb30d4",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 238,
+      "order": 257,
       "persistenceKey": "icege.rock-world-wall-solid-26fb30d4",
       "overrides": [
         {
@@ -4594,7 +5550,7 @@
       "name": "collectible-purple-berry-bbbe9bbc",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 239,
+      "order": 258,
       "persistenceKey": "icege.collectible-purple-berry-bbbe9bbc",
       "overrides": [
         {
@@ -4625,7 +5581,7 @@
       "name": "collectible-purple-berry-c5497dc2",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 240,
+      "order": 259,
       "persistenceKey": "icege.collectible-purple-berry-c5497dc2",
       "overrides": [
         {
@@ -4656,7 +5612,7 @@
       "name": "collectible-purple-berry-7596616e",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 241,
+      "order": 260,
       "persistenceKey": "icege.collectible-purple-berry-7596616e",
       "overrides": [
         {
@@ -4687,7 +5643,7 @@
       "name": "collectible-purple-berry-f0954228",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 242,
+      "order": 261,
       "persistenceKey": "icege.collectible-purple-berry-f0954228",
       "overrides": [
         {
@@ -4718,7 +5674,7 @@
       "name": "collectible-purple-berry-d5a534c3",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 243,
+      "order": 262,
       "persistenceKey": "icege.collectible-purple-berry-d5a534c3",
       "overrides": [
         {
@@ -4749,7 +5705,7 @@
       "name": "collectible-purple-berry-284f7165",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 244,
+      "order": 263,
       "persistenceKey": "icege.collectible-purple-berry-284f7165",
       "overrides": [
         {
@@ -4780,7 +5736,7 @@
       "name": "collectible-purple-berry-bb08e5e8",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 245,
+      "order": 264,
       "persistenceKey": "icege.collectible-purple-berry-bb08e5e8",
       "overrides": [
         {
@@ -4811,7 +5767,7 @@
       "name": "collectible-purple-berry-52c38011",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 246,
+      "order": 265,
       "persistenceKey": "icege.collectible-purple-berry-52c38011",
       "overrides": [
         {
@@ -4842,7 +5798,7 @@
       "name": "collectible-purple-berry-676aa3e2",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 247,
+      "order": 266,
       "persistenceKey": "icege.collectible-purple-berry-676aa3e2",
       "overrides": [
         {
@@ -4873,7 +5829,7 @@
       "name": "collectible-purple-berry-6e47bf39",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 248,
+      "order": 267,
       "persistenceKey": "icege.collectible-purple-berry-6e47bf39",
       "overrides": [
         {
@@ -4904,7 +5860,7 @@
       "name": "collectible-purple-berry-490b5928",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 249,
+      "order": 268,
       "persistenceKey": "icege.collectible-purple-berry-490b5928",
       "overrides": [
         {
@@ -4935,7 +5891,7 @@
       "name": "collectible-purple-berry-d73be0a6",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 250,
+      "order": 269,
       "persistenceKey": "icege.collectible-purple-berry-d73be0a6",
       "overrides": [
         {
@@ -4966,7 +5922,7 @@
       "name": "collectible-purple-berry-415c0245",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 251,
+      "order": 270,
       "persistenceKey": "icege.collectible-purple-berry-415c0245",
       "overrides": [
         {
@@ -4997,7 +5953,7 @@
       "name": "collectible-purple-berry-eef20418",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 252,
+      "order": 271,
       "persistenceKey": "icege.collectible-purple-berry-eef20418",
       "overrides": [
         {
@@ -5028,7 +5984,7 @@
       "name": "collectible-purple-berry-71846187",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 253,
+      "order": 272,
       "persistenceKey": "icege.collectible-purple-berry-71846187",
       "overrides": [
         {
@@ -5059,7 +6015,7 @@
       "name": "rock-world-wall-solid-0d336592",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 254,
+      "order": 273,
       "persistenceKey": "icege.rock-world-wall-solid-0d336592",
       "overrides": [
         {
@@ -5078,7 +6034,7 @@
       "name": "rock-world-wall-solid-7d242b49",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 255,
+      "order": 274,
       "persistenceKey": "icege.rock-world-wall-solid-7d242b49",
       "overrides": [
         {
@@ -5097,7 +6053,7 @@
       "name": "rock-world-wall-solid-185c901b",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 256,
+      "order": 275,
       "persistenceKey": "icege.rock-world-wall-solid-185c901b",
       "overrides": [
         {
@@ -5116,7 +6072,7 @@
       "name": "rock-world-wall-solid-11a033e1",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 257,
+      "order": 276,
       "persistenceKey": "icege.rock-world-wall-solid-11a033e1",
       "overrides": [
         {
@@ -5135,7 +6091,7 @@
       "name": "rock-world-wall-solid-efd32d90",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 258,
+      "order": 277,
       "persistenceKey": "icege.rock-world-wall-solid-efd32d90",
       "overrides": [
         {
@@ -5154,7 +6110,7 @@
       "name": "rock-world-wall-solid-2f1dcd3c",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 259,
+      "order": 278,
       "persistenceKey": "icege.rock-world-wall-solid-2f1dcd3c",
       "overrides": [
         {
@@ -5173,7 +6129,7 @@
       "name": "rock-world-wall-solid-18f3aea2",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 260,
+      "order": 279,
       "persistenceKey": "icege.rock-world-wall-solid-18f3aea2",
       "overrides": [
         {
@@ -5192,7 +6148,7 @@
       "name": "rock-world-wall-solid-4c88000b",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 261,
+      "order": 280,
       "persistenceKey": "icege.rock-world-wall-solid-4c88000b",
       "overrides": [
         {
@@ -5211,7 +6167,7 @@
       "name": "rock-world-wall-solid-358b8392",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 262,
+      "order": 281,
       "persistenceKey": "icege.rock-world-wall-solid-358b8392",
       "overrides": [
         {
@@ -5230,7 +6186,7 @@
       "name": "rock-world-wall-solid-efdb5286",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 263,
+      "order": 282,
       "persistenceKey": "icege.rock-world-wall-solid-efdb5286",
       "overrides": [
         {
@@ -5249,7 +6205,7 @@
       "name": "rock-world-wall-solid-0f46da51",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 264,
+      "order": 283,
       "persistenceKey": "icege.rock-world-wall-solid-0f46da51",
       "overrides": [
         {
@@ -5268,7 +6224,7 @@
       "name": "rock-world-wall-solid-eb77db1b",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 265,
+      "order": 284,
       "persistenceKey": "icege.rock-world-wall-solid-eb77db1b",
       "overrides": [
         {
@@ -5287,7 +6243,7 @@
       "name": "rock-world-wall-solid-f3039c97",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 266,
+      "order": 285,
       "persistenceKey": "icege.rock-world-wall-solid-f3039c97",
       "overrides": [
         {
@@ -5306,7 +6262,7 @@
       "name": "rock-world-wall-solid-a8013a97",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 267,
+      "order": 286,
       "persistenceKey": "icege.rock-world-wall-solid-a8013a97",
       "overrides": [
         {
@@ -5325,7 +6281,7 @@
       "name": "tree-world-solid-9e6f9582",
       "sceneId": "object.tree-world-solid.snow-pine",
       "parentNodeId": "world",
-      "order": 268,
+      "order": 287,
       "persistenceKey": "icege.tree-world-solid-9e6f9582",
       "overrides": [
         {
@@ -5356,7 +6312,7 @@
       "name": "tree-world-solid-a29124a3",
       "sceneId": "object.tree-world-solid.snow-pine",
       "parentNodeId": "world",
-      "order": 269,
+      "order": 288,
       "persistenceKey": "icege.tree-world-solid-a29124a3",
       "overrides": [
         {
@@ -5387,7 +6343,7 @@
       "name": "tree-world-solid-6aca971f",
       "sceneId": "object.tree-world-solid.snow-pine",
       "parentNodeId": "world",
-      "order": 270,
+      "order": 289,
       "persistenceKey": "icege.tree-world-solid-6aca971f",
       "overrides": [
         {
@@ -5418,7 +6374,7 @@
       "name": "tree-world-solid-4ea7adeb",
       "sceneId": "object.tree-world-solid.snow-pine",
       "parentNodeId": "world",
-      "order": 271,
+      "order": 290,
       "persistenceKey": "icege.tree-world-solid-4ea7adeb",
       "overrides": [
         {
@@ -5449,7 +6405,7 @@
       "name": "tree-world-solid-ca520380",
       "sceneId": "object.tree-world-solid.snow-pine",
       "parentNodeId": "world",
-      "order": 272,
+      "order": 291,
       "persistenceKey": "icege.tree-world-solid-ca520380",
       "overrides": [
         {
@@ -5480,7 +6436,7 @@
       "name": "tree-world-solid-143dea1a",
       "sceneId": "object.tree-world-solid.snow-pine",
       "parentNodeId": "world",
-      "order": 273,
+      "order": 292,
       "persistenceKey": "icege.tree-world-solid-143dea1a",
       "overrides": [
         {
@@ -5511,7 +6467,7 @@
       "name": "tree-world-solid-8ccaa997",
       "sceneId": "object.tree-world-solid.snow-pine",
       "parentNodeId": "world",
-      "order": 274,
+      "order": 293,
       "persistenceKey": "icege.tree-world-solid-8ccaa997",
       "overrides": [
         {
@@ -5542,7 +6498,7 @@
       "name": "tree-world-solid-89e7193b",
       "sceneId": "object.tree-world-solid.snow-pine",
       "parentNodeId": "world",
-      "order": 275,
+      "order": 294,
       "persistenceKey": "icege.tree-world-solid-89e7193b",
       "overrides": [
         {
@@ -5573,7 +6529,7 @@
       "name": "tree-world-solid-b96f7250",
       "sceneId": "object.tree-world-solid.snow-pine",
       "parentNodeId": "world",
-      "order": 276,
+      "order": 295,
       "persistenceKey": "icege.tree-world-solid-b96f7250",
       "overrides": [
         {
@@ -5604,7 +6560,7 @@
       "name": "tree-world-solid-fb02740f",
       "sceneId": "object.tree-world-solid.snow-pine",
       "parentNodeId": "world",
-      "order": 277,
+      "order": 296,
       "persistenceKey": "icege.tree-world-solid-fb02740f",
       "overrides": [
         {
@@ -5635,7 +6591,7 @@
       "name": "tree-world-solid-ba160ee6",
       "sceneId": "object.tree-world-solid.snow-pine",
       "parentNodeId": "world",
-      "order": 278,
+      "order": 297,
       "persistenceKey": "icege.tree-world-solid-ba160ee6",
       "overrides": [
         {
@@ -5666,7 +6622,7 @@
       "name": "tree-world-solid-41bb066e",
       "sceneId": "object.tree-world-solid.snow-pine",
       "parentNodeId": "world",
-      "order": 279,
+      "order": 298,
       "persistenceKey": "icege.tree-world-solid-41bb066e",
       "overrides": [
         {
@@ -5697,7 +6653,7 @@
       "name": "tree-world-solid-51c05757",
       "sceneId": "object.tree-world-solid.snow-pine",
       "parentNodeId": "world",
-      "order": 280,
+      "order": 299,
       "persistenceKey": "icege.tree-world-solid-51c05757",
       "overrides": [
         {
@@ -5728,7 +6684,7 @@
       "name": "tree-world-solid-dc798977",
       "sceneId": "object.tree-world-solid.snow-pine",
       "parentNodeId": "world",
-      "order": 281,
+      "order": 300,
       "persistenceKey": "icege.tree-world-solid-dc798977",
       "overrides": [
         {
@@ -5759,7 +6715,7 @@
       "name": "tree-world-solid-fb1f9f05",
       "sceneId": "object.tree-world-solid.snow-pine",
       "parentNodeId": "world",
-      "order": 282,
+      "order": 301,
       "persistenceKey": "icege.tree-world-solid-fb1f9f05",
       "overrides": [
         {
@@ -5790,7 +6746,7 @@
       "name": "house-world-solid-6ab95b4a",
       "sceneId": "object.house-world-solid.cottage-blue",
       "parentNodeId": "world",
-      "order": 283,
+      "order": 302,
       "persistenceKey": "icege.house-world-solid-6ab95b4a",
       "overrides": [
         {
@@ -5809,7 +6765,7 @@
       "name": "house-world-solid-dd573677",
       "sceneId": "object.house-world-solid.cottage-blue",
       "parentNodeId": "world",
-      "order": 284,
+      "order": 303,
       "persistenceKey": "icege.house-world-solid-dd573677",
       "overrides": [
         {
@@ -5828,7 +6784,7 @@
       "name": "house-world-solid-027632f9",
       "sceneId": "object.house-world-solid",
       "parentNodeId": "world",
-      "order": 285,
+      "order": 304,
       "persistenceKey": "icege.house-world-solid-027632f9",
       "overrides": [
         {
@@ -5847,7 +6803,7 @@
       "name": "rock-world-wall-solid-464786cc",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 286,
+      "order": 305,
       "persistenceKey": "icege.rock-world-wall-solid-464786cc",
       "overrides": [
         {
@@ -5866,7 +6822,7 @@
       "name": "rock-world-wall-solid-d99cbf27",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 287,
+      "order": 306,
       "persistenceKey": "icege.rock-world-wall-solid-d99cbf27",
       "overrides": [
         {
@@ -5885,7 +6841,7 @@
       "name": "rock-world-wall-solid-438d85f9",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 288,
+      "order": 307,
       "persistenceKey": "icege.rock-world-wall-solid-438d85f9",
       "overrides": [
         {
@@ -5904,7 +6860,7 @@
       "name": "rock-world-wall-solid-fc06fdc8",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 289,
+      "order": 308,
       "persistenceKey": "icege.rock-world-wall-solid-fc06fdc8",
       "overrides": [
         {
@@ -5923,7 +6879,7 @@
       "name": "rock-world-wall-solid-3403b18e",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 290,
+      "order": 309,
       "persistenceKey": "icege.rock-world-wall-solid-3403b18e",
       "overrides": [
         {
@@ -5942,7 +6898,7 @@
       "name": "rock-world-wall-solid-9bbef758",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 291,
+      "order": 310,
       "persistenceKey": "icege.rock-world-wall-solid-9bbef758",
       "overrides": [
         {
@@ -5961,7 +6917,7 @@
       "name": "decoration-world-solid-f0518695",
       "sceneId": "object.decoration-world-solid.campfire",
       "parentNodeId": "world",
-      "order": 292,
+      "order": 311,
       "persistenceKey": "icege.decoration-world-solid-f0518695",
       "overrides": [
         {
@@ -5980,7 +6936,7 @@
       "name": "rock-world-wall-solid-b0a38370",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 293,
+      "order": 312,
       "persistenceKey": "icege.rock-world-wall-solid-b0a38370",
       "overrides": [
         {
@@ -5999,7 +6955,7 @@
       "name": "rock-world-wall-solid-6c84e5a7",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 294,
+      "order": 313,
       "persistenceKey": "icege.rock-world-wall-solid-6c84e5a7",
       "overrides": [
         {
@@ -6018,7 +6974,7 @@
       "name": "rock-world-wall-solid-d6fcaf08",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 295,
+      "order": 314,
       "persistenceKey": "icege.rock-world-wall-solid-d6fcaf08",
       "overrides": [
         {
@@ -6037,7 +6993,7 @@
       "name": "rock-world-wall-solid-3cf69649",
       "sceneId": "object.rock-world-wall-solid.field-14",
       "parentNodeId": "world",
-      "order": 296,
+      "order": 315,
       "persistenceKey": "icege.rock-world-wall-solid-3cf69649",
       "overrides": [
         {
@@ -6056,7 +7012,7 @@
       "name": "collectible-purple-berry-7b71751b",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 297,
+      "order": 316,
       "persistenceKey": "icege.collectible-purple-berry-7b71751b",
       "overrides": [
         {
@@ -6087,7 +7043,7 @@
       "name": "collectible-purple-berry-b64cd93c",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 298,
+      "order": 317,
       "persistenceKey": "icege.collectible-purple-berry-b64cd93c",
       "overrides": [
         {
@@ -6118,7 +7074,7 @@
       "name": "collectible-purple-berry-2e23deb6",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 299,
+      "order": 318,
       "persistenceKey": "icege.collectible-purple-berry-2e23deb6",
       "overrides": [
         {
@@ -6149,7 +7105,7 @@
       "name": "collectible-purple-berry-765d286a",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 300,
+      "order": 319,
       "persistenceKey": "icege.collectible-purple-berry-765d286a",
       "overrides": [
         {
@@ -6180,7 +7136,7 @@
       "name": "collectible-purple-berry-7badc309",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 301,
+      "order": 320,
       "persistenceKey": "icege.collectible-purple-berry-7badc309",
       "overrides": [
         {
@@ -6211,7 +7167,7 @@
       "name": "collectible-purple-berry-c1a47fa1",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 302,
+      "order": 321,
       "persistenceKey": "icege.collectible-purple-berry-c1a47fa1",
       "overrides": [
         {
@@ -6242,7 +7198,7 @@
       "name": "collectible-purple-berry-4f59f98c",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 303,
+      "order": 322,
       "persistenceKey": "icege.collectible-purple-berry-4f59f98c",
       "overrides": [
         {
@@ -6273,7 +7229,7 @@
       "name": "collectible-purple-berry-a88a2b08",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 304,
+      "order": 323,
       "persistenceKey": "icege.collectible-purple-berry-a88a2b08",
       "overrides": [
         {
@@ -6304,7 +7260,7 @@
       "name": "collectible-purple-berry-7c5d1d64",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 305,
+      "order": 324,
       "persistenceKey": "icege.collectible-purple-berry-7c5d1d64",
       "overrides": [
         {
@@ -6335,7 +7291,7 @@
       "name": "collectible-purple-berry-f16bcb77",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 306,
+      "order": 325,
       "persistenceKey": "icege.collectible-purple-berry-f16bcb77",
       "overrides": [
         {
@@ -6366,7 +7322,7 @@
       "name": "collectible-purple-berry-49798b00",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 307,
+      "order": 326,
       "persistenceKey": "icege.collectible-purple-berry-49798b00",
       "overrides": [
         {
@@ -6397,7 +7353,7 @@
       "name": "collectible-purple-berry-15670ed7",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 308,
+      "order": 327,
       "persistenceKey": "icege.collectible-purple-berry-15670ed7",
       "overrides": [
         {
@@ -6428,7 +7384,7 @@
       "name": "collectible-purple-berry-d8ffd3fc",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 309,
+      "order": 328,
       "persistenceKey": "icege.collectible-purple-berry-d8ffd3fc",
       "overrides": [
         {
@@ -6459,7 +7415,7 @@
       "name": "collectible-purple-berry-d887e3fc",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 310,
+      "order": 329,
       "persistenceKey": "icege.collectible-purple-berry-d887e3fc",
       "overrides": [
         {
@@ -6490,7 +7446,7 @@
       "name": "collectible-purple-berry-4cc39770",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 311,
+      "order": 330,
       "persistenceKey": "icege.collectible-purple-berry-4cc39770",
       "overrides": [
         {
@@ -6521,7 +7477,7 @@
       "name": "collectible-purple-berry-2112382b",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 312,
+      "order": 331,
       "persistenceKey": "icege.collectible-purple-berry-2112382b",
       "overrides": [
         {
@@ -6552,7 +7508,7 @@
       "name": "collectible-purple-berry-6efc2603",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 313,
+      "order": 332,
       "persistenceKey": "icege.collectible-purple-berry-6efc2603",
       "overrides": [
         {
@@ -6583,7 +7539,7 @@
       "name": "collectible-purple-berry-29cb6e43",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 314,
+      "order": 333,
       "persistenceKey": "icege.collectible-purple-berry-29cb6e43",
       "overrides": [
         {
@@ -6614,7 +7570,7 @@
       "name": "collectible-purple-berry-82b09172",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 315,
+      "order": 334,
       "persistenceKey": "icege.collectible-purple-berry-82b09172",
       "overrides": [
         {
@@ -6645,7 +7601,7 @@
       "name": "collectible-purple-berry-e2233e40",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 316,
+      "order": 335,
       "persistenceKey": "icege.collectible-purple-berry-e2233e40",
       "overrides": [
         {
@@ -6676,7 +7632,7 @@
       "name": "collectible-purple-berry-6b7667aa",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 317,
+      "order": 336,
       "persistenceKey": "icege.collectible-purple-berry-6b7667aa",
       "overrides": [
         {
@@ -6707,7 +7663,7 @@
       "name": "collectible-purple-berry-84e1ab0d",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 318,
+      "order": 337,
       "persistenceKey": "icege.collectible-purple-berry-84e1ab0d",
       "overrides": [
         {
@@ -6738,7 +7694,7 @@
       "name": "collectible-purple-berry-ffea5ce7",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 319,
+      "order": 338,
       "persistenceKey": "icege.collectible-purple-berry-ffea5ce7",
       "overrides": [
         {
@@ -6769,7 +7725,7 @@
       "name": "collectible-purple-berry-4b777b97",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 320,
+      "order": 339,
       "persistenceKey": "icege.collectible-purple-berry-4b777b97",
       "overrides": [
         {
@@ -6800,7 +7756,7 @@
       "name": "collectible-purple-berry-7ca30478",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 321,
+      "order": 340,
       "persistenceKey": "icege.collectible-purple-berry-7ca30478",
       "overrides": [
         {
@@ -6831,7 +7787,7 @@
       "name": "collectible-purple-berry-35a95e09",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 322,
+      "order": 341,
       "persistenceKey": "icege.collectible-purple-berry-35a95e09",
       "overrides": [
         {
@@ -6862,7 +7818,7 @@
       "name": "collectible-purple-berry-645d725f",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 323,
+      "order": 342,
       "persistenceKey": "icege.collectible-purple-berry-645d725f",
       "overrides": [
         {
@@ -6893,7 +7849,7 @@
       "name": "collectible-purple-berry-dee0e3ee",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 324,
+      "order": 343,
       "persistenceKey": "icege.collectible-purple-berry-dee0e3ee",
       "overrides": [
         {
@@ -6924,7 +7880,7 @@
       "name": "collectible-purple-berry-53e6b939",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 325,
+      "order": 344,
       "persistenceKey": "icege.collectible-purple-berry-53e6b939",
       "overrides": [
         {
@@ -6955,7 +7911,7 @@
       "name": "collectible-purple-berry-dcc69075",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 326,
+      "order": 345,
       "persistenceKey": "icege.collectible-purple-berry-dcc69075",
       "overrides": [
         {
@@ -6986,7 +7942,7 @@
       "name": "tree-world-solid-3e0a4751",
       "sceneId": "object.tree-world-solid.frost-bare",
       "parentNodeId": "world",
-      "order": 327,
+      "order": 346,
       "persistenceKey": "icege.tree-world-solid-3e0a4751",
       "overrides": [
         {
@@ -7017,7 +7973,7 @@
       "name": "decoration-world-solid-fa6a02d8",
       "sceneId": "object.decoration-world-solid.stone-birdbath",
       "parentNodeId": "world",
-      "order": 328,
+      "order": 347,
       "persistenceKey": "icege.decoration-world-solid-fa6a02d8",
       "overrides": [
         {
@@ -7036,7 +7992,7 @@
       "name": "wall-stone-solid-20b45979",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 329,
+      "order": 348,
       "persistenceKey": "icege.wall-stone-solid-20b45979",
       "overrides": [
         {
@@ -7055,7 +8011,7 @@
       "name": "wall-stone-solid-a07a153d",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 330,
+      "order": 349,
       "persistenceKey": "icege.wall-stone-solid-a07a153d",
       "overrides": [
         {
@@ -7074,7 +8030,7 @@
       "name": "wall-stone-solid-78424230",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 331,
+      "order": 350,
       "persistenceKey": "icege.wall-stone-solid-78424230",
       "overrides": [
         {
@@ -7093,7 +8049,7 @@
       "name": "wall-stone-solid-b2547a3d",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 332,
+      "order": 351,
       "persistenceKey": "icege.wall-stone-solid-b2547a3d",
       "overrides": [
         {
@@ -7112,7 +8068,7 @@
       "name": "wall-stone-solid-f43bc7b5",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 333,
+      "order": 352,
       "persistenceKey": "icege.wall-stone-solid-f43bc7b5",
       "overrides": [
         {
@@ -7131,7 +8087,7 @@
       "name": "wall-stone-solid-f2c65e18",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 334,
+      "order": 353,
       "persistenceKey": "icege.wall-stone-solid-f2c65e18",
       "overrides": [
         {
@@ -7150,7 +8106,7 @@
       "name": "wall-stone-solid-1d8167ca",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 335,
+      "order": 354,
       "persistenceKey": "icege.wall-stone-solid-1d8167ca",
       "overrides": [
         {
@@ -7169,7 +8125,7 @@
       "name": "wall-stone-solid-25810eb6",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 336,
+      "order": 355,
       "persistenceKey": "icege.wall-stone-solid-25810eb6",
       "overrides": [
         {
@@ -7188,7 +8144,7 @@
       "name": "wall-stone-solid-d27bd939",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 337,
+      "order": 356,
       "persistenceKey": "icege.wall-stone-solid-d27bd939",
       "overrides": [
         {
@@ -7207,7 +8163,7 @@
       "name": "wall-stone-solid-ec6bbe3f",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 338,
+      "order": 357,
       "persistenceKey": "icege.wall-stone-solid-ec6bbe3f",
       "overrides": [
         {
@@ -7226,7 +8182,7 @@
       "name": "wall-stone-solid-2b2bb735",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 339,
+      "order": 358,
       "persistenceKey": "icege.wall-stone-solid-2b2bb735",
       "overrides": [
         {
@@ -7245,7 +8201,7 @@
       "name": "wall-stone-solid-d609cccc",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 340,
+      "order": 359,
       "persistenceKey": "icege.wall-stone-solid-d609cccc",
       "overrides": [
         {
@@ -7264,7 +8220,7 @@
       "name": "wall-stone-solid-e786a2f0",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 341,
+      "order": 360,
       "persistenceKey": "icege.wall-stone-solid-e786a2f0",
       "overrides": [
         {
@@ -7283,7 +8239,7 @@
       "name": "wall-stone-solid-357f582a",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 342,
+      "order": 361,
       "persistenceKey": "icege.wall-stone-solid-357f582a",
       "overrides": [
         {
@@ -7302,7 +8258,7 @@
       "name": "wall-stone-solid-265baf4c",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 343,
+      "order": 362,
       "persistenceKey": "icege.wall-stone-solid-265baf4c",
       "overrides": [
         {
@@ -7321,7 +8277,7 @@
       "name": "wall-stone-solid-6c849f0e",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 344,
+      "order": 363,
       "persistenceKey": "icege.wall-stone-solid-6c849f0e",
       "overrides": [
         {
@@ -7340,7 +8296,7 @@
       "name": "wall-stone-solid-0dc2c987",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 345,
+      "order": 364,
       "persistenceKey": "icege.wall-stone-solid-0dc2c987",
       "overrides": [
         {
@@ -7359,7 +8315,7 @@
       "name": "wall-stone-solid-ab970d5d",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 346,
+      "order": 365,
       "persistenceKey": "icege.wall-stone-solid-ab970d5d",
       "overrides": [
         {
@@ -7378,7 +8334,7 @@
       "name": "wall-stone-solid-3103a27b",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 347,
+      "order": 366,
       "persistenceKey": "icege.wall-stone-solid-3103a27b",
       "overrides": [
         {
@@ -7397,7 +8353,7 @@
       "name": "wall-stone-solid-4d7fa086",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 348,
+      "order": 367,
       "persistenceKey": "icege.wall-stone-solid-4d7fa086",
       "overrides": [
         {
@@ -7416,7 +8372,7 @@
       "name": "wall-stone-solid-f06ce1b6",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 349,
+      "order": 368,
       "persistenceKey": "icege.wall-stone-solid-f06ce1b6",
       "overrides": [
         {
@@ -7435,7 +8391,7 @@
       "name": "wall-stone-solid-9bd1b007",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 350,
+      "order": 369,
       "persistenceKey": "icege.wall-stone-solid-9bd1b007",
       "overrides": [
         {
@@ -7454,7 +8410,7 @@
       "name": "wall-stone-solid-b590a8b3",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 351,
+      "order": 370,
       "persistenceKey": "icege.wall-stone-solid-b590a8b3",
       "overrides": [
         {
@@ -7473,7 +8429,7 @@
       "name": "wall-stone-solid-1c27e31a",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 352,
+      "order": 371,
       "persistenceKey": "icege.wall-stone-solid-1c27e31a",
       "overrides": [
         {
@@ -7492,7 +8448,7 @@
       "name": "wall-stone-solid-8c6bb947",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 353,
+      "order": 372,
       "persistenceKey": "icege.wall-stone-solid-8c6bb947",
       "overrides": [
         {
@@ -7511,7 +8467,7 @@
       "name": "wall-stone-solid-df007775",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 354,
+      "order": 373,
       "persistenceKey": "icege.wall-stone-solid-df007775",
       "overrides": [
         {
@@ -7530,7 +8486,7 @@
       "name": "wall-stone-solid-9fa6dfe4",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 355,
+      "order": 374,
       "persistenceKey": "icege.wall-stone-solid-9fa6dfe4",
       "overrides": [
         {
@@ -7549,7 +8505,7 @@
       "name": "wall-stone-solid-a0648501",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 356,
+      "order": 375,
       "persistenceKey": "icege.wall-stone-solid-a0648501",
       "overrides": [
         {
@@ -7568,7 +8524,7 @@
       "name": "wall-stone-solid-f36aad53",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 357,
+      "order": 376,
       "persistenceKey": "icege.wall-stone-solid-f36aad53",
       "overrides": [
         {
@@ -7587,7 +8543,7 @@
       "name": "wall-stone-solid-dbfe8676",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 358,
+      "order": 377,
       "persistenceKey": "icege.wall-stone-solid-dbfe8676",
       "overrides": [
         {
@@ -7606,7 +8562,7 @@
       "name": "wall-stone-solid-3fda220b",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 359,
+      "order": 378,
       "persistenceKey": "icege.wall-stone-solid-3fda220b",
       "overrides": [
         {
@@ -7625,7 +8581,7 @@
       "name": "wall-stone-solid-ffe1167d",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 360,
+      "order": 379,
       "persistenceKey": "icege.wall-stone-solid-ffe1167d",
       "overrides": [
         {
@@ -7644,7 +8600,7 @@
       "name": "wall-stone-solid-d079a59f",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 361,
+      "order": 380,
       "persistenceKey": "icege.wall-stone-solid-d079a59f",
       "overrides": [
         {
@@ -7663,7 +8619,7 @@
       "name": "wall-stone-solid-ec5b506c",
       "sceneId": "object.wall-stone-solid.horizontal-02",
       "parentNodeId": "world",
-      "order": 362,
+      "order": 381,
       "persistenceKey": "icege.wall-stone-solid-ec5b506c",
       "overrides": [
         {
@@ -7701,6 +8657,186 @@
     }
   ],
   "subresources": [
+    {
+      "version": 1,
+      "resourceId": "icege.area-enemy-safe-1.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 320,
+        "height": 1152
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "icege.area-enemy-safe-2.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 448,
+        "height": 1024
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "icege.area-enemy-safe-3.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 256,
+        "height": 384
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "icege.area-enemy-safe-4.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 576,
+        "height": 448
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "icege.area-enemy-safe-5.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 576,
+        "height": 64
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "icege.area-enemy-safe-6.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 128,
+        "height": 448
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "icege.area-enemy-safe-7.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 512,
+        "height": 768
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "icege.area-enemy-safe-8.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 320,
+        "height": 832
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "icege.area-enemy-safe-9.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 64,
+        "height": 448
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "icege.area-enemy-safe-10.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 640,
+        "height": 128
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "icege.area-enemy-safe-11.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 1472,
+        "height": 448
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "icege.area-enemy-safe-12.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 256,
+        "height": 640
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "icege.area-enemy-safe-13.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 64,
+        "height": 512
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "icege.area-enemy-safe-14.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 192,
+        "height": 64
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "icege.area-enemy-safe-15.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 64,
+        "height": 128
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "icege.area-enemy-safe-16.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 64,
+        "height": 256
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "icege.area-enemy-safe-17.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 192,
+        "height": 64
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "icege.area-enemy-safe-18.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 192,
+        "height": 192
+      }
+    },
     {
       "version": 1,
       "resourceId": "icege.exit-1.shape",
