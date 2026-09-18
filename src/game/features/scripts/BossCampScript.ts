@@ -1,5 +1,6 @@
 import type { NodeConstructionContext } from '../../runtime/scene/registries/NodeTypeRegistry';
 import { ScriptNode } from '../../runtime/scene/scripts/ScriptNode';
+import { sensorShapeContainsPoint, type SensorShape } from '../../runtime/scene/physics/SensorGeometry';
 import { bossCampSpawnEligible, resolveBossCampSpawnSuppression } from '../bosses/BossCampBehavior';
 
 export const BOSS_CAMP_PROGRESS_SERVICE = 'world.boss-camp-progress';
@@ -73,6 +74,11 @@ export class BossCampScript extends ScriptNode {
   }
 
   get hasLiveBoss(): boolean { return this.liveBoss; }
+
+  containsActivationPoint(x: number, y: number): boolean {
+    const area = this.getReference('activationArea')?.configuredTarget as { contactShapes?: () => readonly SensorShape[] } | undefined;
+    return area?.contactShapes?.().some((shape) => sensorShapeContainsPoint(shape, x, y)) ?? false;
+  }
 
   evaluateActivation(insideActivation: boolean, epochNow: number): boolean {
     const suppression = resolveBossCampSpawnSuppression(this.suppressSpawnUntilOutside, insideActivation);

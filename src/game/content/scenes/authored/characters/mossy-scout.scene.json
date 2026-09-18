@@ -95,6 +95,7 @@
           "nodeId": "animation"
         },
         "characterId": "mossy-scout",
+        "npcDefinitionId": "level-1-spider-giver",
         "wanderSpeed": 42,
         "pauseMinMs": 2000,
         "pauseMaxMs": 3000

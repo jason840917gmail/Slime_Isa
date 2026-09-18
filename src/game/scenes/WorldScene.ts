@@ -71,7 +71,6 @@ import { TileFactory } from '../features/world/TileFactory';
 import { TerrainTransitionLayer, TerrainTransitionRenderer } from '../features/world/TerrainTransitionRenderer';
 import { resolveBodyBottom, resolveWorldDepth } from '../presentation/WorldDepth';
 import { ResponsiveCameraController } from '../presentation/ResponsiveCameraController';
-import type { LoadedMap } from '../infrastructure/maps/MapRepository';
 import type { WorldDimensions } from '../world/WorldDimensions';
 import { updateDevToolsCameraZoom } from '../devTools';
 import type { GameLocationData, FacingDirection } from '../infrastructure/persistence/SaveSchema';
@@ -142,7 +141,7 @@ export class WorldScene extends Phaser.Scene {
   private combatController?: CombatController;
   private currentArea: AreaDef = AREAS.icege;
   private worldDimensions!: WorldDimensions;
-  private loadedMap!: LoadedMap;
+  private loadedMap!: LoadedWorldScene['loadedMap'];
   private loadedWorld?: LoadedWorldScene;
   private builtMap?: AuthoredWorldMetadata;
   private terrainTransitionLayer?: TerrainTransitionLayer;
@@ -988,12 +987,12 @@ export class WorldScene extends Phaser.Scene {
 
   private isResourceDropCellBlocked(cellX: number, cellY: number, sourceInstanceId: string): boolean {
     if (!this.isWithinWorld(cellX, cellY) || this.isSolidTile(cellX, cellY)) return true;
-    return this.loadedMap.map.objects.some((object) => {
-      if (object.instanceId === sourceInstanceId) return false;
-      const objectCellX = Math.floor(object.x / this.worldDimensions.tileSize);
-      const objectCellY = Math.floor((object.y - 1) / this.worldDimensions.tileSize);
-      return objectCellX === cellX && objectCellY === cellY;
-    });
+    return this.universalWorld?.isAuthoredCellOccupied(
+      cellX,
+      cellY,
+      sourceInstanceId,
+      this.worldDimensions.tileSize,
+    ) ?? false;
   }
 
   private inspectInventoryDropCell(itemId: string, cellX: number, cellY: number): InventoryDropCellInspection {

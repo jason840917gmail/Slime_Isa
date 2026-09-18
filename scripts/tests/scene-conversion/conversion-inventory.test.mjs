@@ -20,7 +20,9 @@ test('every discovered legacy content unit appears exactly once in the conversio
 test('the ledger preserves every authored map and stable persistence key', () => {
   const checkedMaps = checkedIn.rows.filter((entry) => entry.family === 'map');
   const discoveredMaps = discovered.rows.filter((entry) => entry.family === 'map');
-  assert.deepEqual(checkedMaps, discoveredMaps);
+  const withoutWriter = (entry) => Object.fromEntries(Object.entries(entry).filter(([key]) => key !== 'writerState'));
+  assert.deepEqual(checkedMaps.map(withoutWriter), discoveredMaps.map(withoutWriter));
+  assert.ok(checkedMaps.every((entry) => entry.writerState === 'scene'));
   assert.ok(checkedMaps.some((entry) => entry.environment === 'production'));
   assert.ok(checkedMaps.some((entry) => entry.environment === 'development'));
   assert.ok(checkedMaps.reduce((total, entry) => total + entry.persistenceKeys.length, 0) > 0);

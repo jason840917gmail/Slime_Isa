@@ -20,6 +20,13 @@ test('legacy combat studios redirect to their authored scene contexts', () => {
   assert.throws(() => redirectLegacyStudioRoute('?studio=weapons&weapon=../escape'), /SceneId/);
 });
 
+test('legacy Map Studio routes redirect to the authored world scene without retaining a second editor mode', () => {
+  assert.equal(redirectLegacyStudioRoute('?editor=level-1'), '?studio=scenes&scene=world.level-1');
+  assert.equal(redirectLegacyStudioRoute('?editor=gloop-forest&debug=1'), '?debug=1&studio=scenes&scene=world.gloop-forest');
+  assert.equal(redirectLegacyStudioRoute('?studio=scenes&editor=icege'), '?studio=scenes&scene=world.icege');
+  assert.throws(() => redirectLegacyStudioRoute('?editor=../escape'), /SceneId/);
+});
+
 test('Scene Studio route rejects malformed stable IDs', () => {
   assert.throws(() => parseSceneStudioRoute('?studio=scenes&scene=../escape'), /SceneId/);
 });

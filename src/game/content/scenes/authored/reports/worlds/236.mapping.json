@@ -6,7 +6,10 @@
     "objects": 850,
     "bossCamps": 0,
     "playerMarkers": 1,
-    "exits": 0
+    "exits": 0,
+    "enemySafeZones": 6,
+    "enemySpawnAreas": 0,
+    "npcWanderAreas": 0
   },
   "worldInstanceCount": 850,
   "placements": [
@@ -9369,6 +9372,80 @@
       "position": [
         32,
         32
+      ]
+    }
+  ],
+  "areas": [
+    {
+      "sourceKind": "enemy-safe-zone",
+      "sourcePath": "$.enemySafeZones[0]",
+      "sourceId": "enemy-safe-1",
+      "areaNodeId": "area-enemy-safe-1",
+      "shapeNodeId": "area-enemy-safe-1-shape",
+      "scriptNodeId": "area-enemy-safe-1-script",
+      "position": [
+        1504,
+        1536
+      ]
+    },
+    {
+      "sourceKind": "enemy-safe-zone",
+      "sourcePath": "$.enemySafeZones[1]",
+      "sourceId": "enemy-safe-2",
+      "areaNodeId": "area-enemy-safe-2",
+      "shapeNodeId": "area-enemy-safe-2-shape",
+      "scriptNodeId": "area-enemy-safe-2-script",
+      "position": [
+        1440,
+        1184
+      ]
+    },
+    {
+      "sourceKind": "enemy-safe-zone",
+      "sourcePath": "$.enemySafeZones[2]",
+      "sourceId": "enemy-safe-3",
+      "areaNodeId": "area-enemy-safe-3",
+      "shapeNodeId": "area-enemy-safe-3-shape",
+      "scriptNodeId": "area-enemy-safe-3-script",
+      "position": [
+        1760,
+        1174
+      ]
+    },
+    {
+      "sourceKind": "enemy-safe-zone",
+      "sourcePath": "$.enemySafeZones[3]",
+      "sourceId": "enemy-safe-4",
+      "areaNodeId": "area-enemy-safe-4",
+      "shapeNodeId": "area-enemy-safe-4-shape",
+      "scriptNodeId": "area-enemy-safe-4-script",
+      "position": [
+        928,
+        1760
+      ]
+    },
+    {
+      "sourceKind": "enemy-safe-zone",
+      "sourcePath": "$.enemySafeZones[4]",
+      "sourceId": "enemy-safe-5",
+      "areaNodeId": "area-enemy-safe-5",
+      "shapeNodeId": "area-enemy-safe-5-shape",
+      "scriptNodeId": "area-enemy-safe-5-script",
+      "position": [
+        1472,
+        2016
+      ]
+    },
+    {
+      "sourceKind": "enemy-safe-zone",
+      "sourcePath": "$.enemySafeZones[5]",
+      "sourceId": "enemy-safe-6",
+      "areaNodeId": "area-enemy-safe-6",
+      "shapeNodeId": "area-enemy-safe-6-shape",
+      "scriptNodeId": "area-enemy-safe-6-script",
+      "position": [
+        1472,
+        2208
       ]
     }
   ]

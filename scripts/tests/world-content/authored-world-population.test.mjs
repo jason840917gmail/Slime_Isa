@@ -42,3 +42,12 @@ test('persistent authored objects enter gameplay through the packed world root',
     false,
   );
 });
+
+test('production world loading and population no longer invoke legacy map construction', () => {
+  const loadScene = read('src/game/scenes/MapLoadScene.ts');
+  const combat = read('src/game/features/combat/CombatController.ts');
+  assert.doesNotMatch(loadScene, /MapRepository|mapRepository/);
+  assert.match(loadScene, /new WorldSceneLoader\(content\)/);
+  assert.doesNotMatch(combat, /\bEnemySpawner\b/);
+  assert.match(combat, /AuthoredEnemyPopulationController/);
+});

@@ -40,11 +40,35 @@
       }
     },
     {
+      "id": "world-definition",
+      "name": "world-definition",
+      "type": "ScriptNode",
+      "scriptId": "game.world-definition",
+      "parentId": "world",
+      "order": 1,
+      "properties": {
+        "mapId": "depth-occlusion-test",
+        "tileSize": 64,
+        "columns": 12,
+        "rows": 8,
+        "metadata": {
+          "objects": [],
+          "player": {
+            "spawn": {
+              "x": 288,
+              "y": 96
+            },
+            "entries": {}
+          }
+        }
+      }
+    },
+    {
       "id": "player-spawn",
       "name": "player-spawn",
       "type": "Node2D",
       "parentId": "world",
-      "order": 1,
+      "order": 2,
       "properties": {
         "position": [
           288,
@@ -59,7 +83,7 @@
       "name": "depth-tree-north",
       "sceneId": "object.tree-world-solid",
       "parentNodeId": "world",
-      "order": 2,
+      "order": 3,
       "persistenceKey": "depth-occlusion-test.depth-tree-north",
       "overrides": [
         {
@@ -90,7 +114,7 @@
       "name": "depth-tree-south",
       "sceneId": "object.tree-world-solid.shadow-pine-02",
       "parentNodeId": "world",
-      "order": 3,
+      "order": 4,
       "persistenceKey": "depth-occlusion-test.depth-tree-south",
       "overrides": [
         {
@@ -121,7 +145,7 @@
       "name": "depth-tree-equal-y",
       "sceneId": "object.tree-world-solid.ancient-bare-01",
       "parentNodeId": "world",
-      "order": 4,
+      "order": 5,
       "persistenceKey": "depth-occlusion-test.depth-tree-equal-y",
       "overrides": [
         {
@@ -152,7 +176,7 @@
       "name": "depth-house-west",
       "sceneId": "object.house-world-solid",
       "parentNodeId": "world",
-      "order": 5,
+      "order": 6,
       "persistenceKey": "depth-occlusion-test.depth-house-west",
       "overrides": [
         {
@@ -171,7 +195,7 @@
       "name": "depth-house-east",
       "sceneId": "object.house-world-solid.cottage-blue",
       "parentNodeId": "world",
-      "order": 6,
+      "order": 7,
       "persistenceKey": "depth-occlusion-test.depth-house-east",
       "overrides": [
         {

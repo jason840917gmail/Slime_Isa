@@ -6,7 +6,10 @@
     "objects": 414,
     "bossCamps": 0,
     "playerMarkers": 3,
-    "exits": 1
+    "exits": 1,
+    "enemySafeZones": 1,
+    "enemySpawnAreas": 4,
+    "npcWanderAreas": 0
   },
   "worldInstanceCount": 414,
   "placements": [
@@ -4615,6 +4618,68 @@
       "targetAreaId": "gloop-forest",
       "entry": "west",
       "gate": {}
+    }
+  ],
+  "areas": [
+    {
+      "sourceKind": "enemy-safe-zone",
+      "sourcePath": "$.enemySafeZones[0]",
+      "sourceId": "enemy-safe-1",
+      "areaNodeId": "area-enemy-safe-1",
+      "shapeNodeId": "area-enemy-safe-1-shape",
+      "scriptNodeId": "area-enemy-safe-1-script",
+      "position": [
+        1504,
+        2016
+      ]
+    },
+    {
+      "sourceKind": "enemy-spawn",
+      "sourcePath": "$.enemySpawnAreas[0]",
+      "sourceId": "enemy-area-01",
+      "areaNodeId": "area-enemy-area-01",
+      "shapeNodeId": "area-enemy-area-01-shape",
+      "scriptNodeId": "area-enemy-area-01-script",
+      "position": [
+        621,
+        804
+      ]
+    },
+    {
+      "sourceKind": "enemy-spawn",
+      "sourcePath": "$.enemySpawnAreas[1]",
+      "sourceId": "enemy-area-02",
+      "areaNodeId": "area-enemy-area-02",
+      "shapeNodeId": "area-enemy-area-02-shape",
+      "scriptNodeId": "area-enemy-area-02-script",
+      "position": [
+        2304,
+        768
+      ]
+    },
+    {
+      "sourceKind": "enemy-spawn",
+      "sourcePath": "$.enemySpawnAreas[2]",
+      "sourceId": "enemy-area-03",
+      "areaNodeId": "area-enemy-area-03",
+      "shapeNodeId": "area-enemy-area-03-shape",
+      "scriptNodeId": "area-enemy-area-03-script",
+      "position": [
+        640,
+        3072
+      ]
+    },
+    {
+      "sourceKind": "enemy-spawn",
+      "sourcePath": "$.enemySpawnAreas[3]",
+      "sourceId": "enemy-area-04",
+      "areaNodeId": "area-enemy-area-04",
+      "shapeNodeId": "area-enemy-area-04-shape",
+      "scriptNodeId": "area-enemy-area-04-script",
+      "position": [
+        2240,
+        3040
+      ]
     }
   ]
 }

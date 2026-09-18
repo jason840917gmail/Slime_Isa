@@ -40,11 +40,85 @@
       }
     },
     {
+      "id": "world-definition",
+      "name": "world-definition",
+      "type": "ScriptNode",
+      "scriptId": "game.world-definition",
+      "parentId": "world",
+      "order": 1,
+      "properties": {
+        "mapId": "174",
+        "tileSize": 64,
+        "columns": 54,
+        "rows": 54,
+        "metadata": {
+          "objects": [],
+          "player": {
+            "spawn": {
+              "x": 32,
+              "y": 32
+            },
+            "entries": {}
+          }
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-1",
+      "name": "enemy-safe-1",
+      "type": "Area2D",
+      "parentId": "world",
+      "order": 2,
+      "properties": {
+        "position": [
+          1472,
+          1376
+        ],
+        "collisionLayer": 0,
+        "collisionMask": 0,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "area-enemy-safe-1-shape",
+      "name": "collision-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-enemy-safe-1",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "174.area-enemy-safe-1.shape"
+        }
+      }
+    },
+    {
+      "id": "area-enemy-safe-1-script",
+      "name": "world-area-script",
+      "type": "ScriptNode",
+      "scriptId": "game.world-area",
+      "parentId": "area-enemy-safe-1",
+      "order": 1,
+      "properties": {
+        "areaKind": "enemy-safe-zone",
+        "areaId": "enemy-safe-1",
+        "area": {
+          "nodeId": "area-enemy-safe-1"
+        },
+        "data": {
+          "x": 640,
+          "y": 640,
+          "w": 1664,
+          "h": 1472
+        }
+      }
+    },
+    {
       "id": "player-spawn",
       "name": "player-spawn",
       "type": "Node2D",
       "parentId": "world",
-      "order": 1,
+      "order": 3,
       "properties": {
         "position": [
           32,
@@ -59,7 +133,7 @@
       "name": "house-world-solid-197b3a6e",
       "sceneId": "object.house-world-solid.forge-red",
       "parentNodeId": "world",
-      "order": 2,
+      "order": 4,
       "persistenceKey": "174.house-world-solid-197b3a6e",
       "overrides": [
         {
@@ -78,7 +152,7 @@
       "name": "house-world-solid-d1134ecb",
       "sceneId": "object.house-world-solid.forge-red",
       "parentNodeId": "world",
-      "order": 3,
+      "order": 5,
       "persistenceKey": "174.house-world-solid-d1134ecb",
       "overrides": [
         {
@@ -97,7 +171,7 @@
       "name": "house-world-solid-f0e96b4f",
       "sceneId": "object.house-world-solid.forge-red",
       "parentNodeId": "world",
-      "order": 4,
+      "order": 6,
       "persistenceKey": "174.house-world-solid-f0e96b4f",
       "overrides": [
         {
@@ -116,7 +190,7 @@
       "name": "house-world-solid-9f721292",
       "sceneId": "object.house-world-solid.forge-red",
       "parentNodeId": "world",
-      "order": 5,
+      "order": 7,
       "persistenceKey": "174.house-world-solid-9f721292",
       "overrides": [
         {
@@ -135,7 +209,7 @@
       "name": "house-world-solid-a734dda5",
       "sceneId": "object.house-world-solid.forge-red",
       "parentNodeId": "world",
-      "order": 6,
+      "order": 8,
       "persistenceKey": "174.house-world-solid-a734dda5",
       "overrides": [
         {
@@ -154,7 +228,7 @@
       "name": "house-world-solid-aaf24aa0",
       "sceneId": "object.house-world-solid.forge-red",
       "parentNodeId": "world",
-      "order": 7,
+      "order": 9,
       "persistenceKey": "174.house-world-solid-aaf24aa0",
       "overrides": [
         {
@@ -173,7 +247,7 @@
       "name": "house-world-solid-d8f7835a",
       "sceneId": "object.house-world-solid.forge-red",
       "parentNodeId": "world",
-      "order": 8,
+      "order": 10,
       "persistenceKey": "174.house-world-solid-d8f7835a",
       "overrides": [
         {
@@ -192,7 +266,7 @@
       "name": "house-world-solid-ba4cc7b9",
       "sceneId": "object.house-world-solid.forge-red",
       "parentNodeId": "world",
-      "order": 9,
+      "order": 11,
       "persistenceKey": "174.house-world-solid-ba4cc7b9",
       "overrides": [
         {
@@ -211,7 +285,7 @@
       "name": "house-world-solid-9a945e9d",
       "sceneId": "object.house-world-solid.forge-red",
       "parentNodeId": "world",
-      "order": 10,
+      "order": 12,
       "persistenceKey": "174.house-world-solid-9a945e9d",
       "overrides": [
         {
@@ -230,7 +304,7 @@
       "name": "house-world-solid-41d76926",
       "sceneId": "object.house-world-solid.forge-red",
       "parentNodeId": "world",
-      "order": 11,
+      "order": 13,
       "persistenceKey": "174.house-world-solid-41d76926",
       "overrides": [
         {
@@ -249,7 +323,7 @@
       "name": "house-world-solid-9abba5ba",
       "sceneId": "object.house-world-solid.forge-red",
       "parentNodeId": "world",
-      "order": 12,
+      "order": 14,
       "persistenceKey": "174.house-world-solid-9abba5ba",
       "overrides": [
         {
@@ -268,7 +342,7 @@
       "name": "house-world-solid-2f7a17f9",
       "sceneId": "object.house-world-solid.forge-red",
       "parentNodeId": "world",
-      "order": 13,
+      "order": 15,
       "persistenceKey": "174.house-world-solid-2f7a17f9",
       "overrides": [
         {
@@ -287,7 +361,7 @@
       "name": "house-world-solid-b9d9c620",
       "sceneId": "object.house-world-solid.forge-red",
       "parentNodeId": "world",
-      "order": 14,
+      "order": 16,
       "persistenceKey": "174.house-world-solid-b9d9c620",
       "overrides": [
         {
@@ -306,7 +380,7 @@
       "name": "house-world-solid-53afc782",
       "sceneId": "object.house-world-solid.cottage-blue",
       "parentNodeId": "world",
-      "order": 15,
+      "order": 17,
       "persistenceKey": "174.house-world-solid-53afc782",
       "overrides": [
         {
@@ -325,7 +399,7 @@
       "name": "house-world-solid-08c946c6",
       "sceneId": "object.house-world-solid.cottage-blue",
       "parentNodeId": "world",
-      "order": 16,
+      "order": 18,
       "persistenceKey": "174.house-world-solid-08c946c6",
       "overrides": [
         {
@@ -344,7 +418,7 @@
       "name": "decoration-world-solid-dd85c2cf",
       "sceneId": "object.decoration-world-solid.lantern-post",
       "parentNodeId": "world",
-      "order": 17,
+      "order": 19,
       "persistenceKey": "174.decoration-world-solid-dd85c2cf",
       "overrides": [
         {
@@ -363,7 +437,7 @@
       "name": "decoration-world-solid-6a079cbb",
       "sceneId": "object.decoration-world-solid.lantern-post",
       "parentNodeId": "world",
-      "order": 18,
+      "order": 20,
       "persistenceKey": "174.decoration-world-solid-6a079cbb",
       "overrides": [
         {
@@ -382,7 +456,7 @@
       "name": "decoration-world-solid-be8daa9e",
       "sceneId": "object.decoration-world-solid.lantern-post",
       "parentNodeId": "world",
-      "order": 19,
+      "order": 21,
       "persistenceKey": "174.decoration-world-solid-be8daa9e",
       "overrides": [
         {
@@ -401,7 +475,7 @@
       "name": "decoration-world-solid-c73c896d",
       "sceneId": "object.decoration-world-solid.lantern-post",
       "parentNodeId": "world",
-      "order": 20,
+      "order": 22,
       "persistenceKey": "174.decoration-world-solid-c73c896d",
       "overrides": [
         {
@@ -420,7 +494,7 @@
       "name": "decoration-world-solid-26ce2127",
       "sceneId": "object.decoration-world-solid.lantern-post",
       "parentNodeId": "world",
-      "order": 21,
+      "order": 23,
       "persistenceKey": "174.decoration-world-solid-26ce2127",
       "overrides": [
         {
@@ -439,7 +513,7 @@
       "name": "decoration-world-solid-0105a5e6",
       "sceneId": "object.decoration-world-solid.campfire",
       "parentNodeId": "world",
-      "order": 22,
+      "order": 24,
       "persistenceKey": "174.decoration-world-solid-0105a5e6",
       "overrides": [
         {
@@ -458,7 +532,7 @@
       "name": "decoration-world-solid-fa74395e",
       "sceneId": "object.decoration-world-solid.flower-planter",
       "parentNodeId": "world",
-      "order": 23,
+      "order": 25,
       "persistenceKey": "174.decoration-world-solid-fa74395e",
       "overrides": [
         {
@@ -477,7 +551,7 @@
       "name": "decoration-world-solid-a624cdb3",
       "sceneId": "object.decoration-world-solid.flower-planter",
       "parentNodeId": "world",
-      "order": 24,
+      "order": 26,
       "persistenceKey": "174.decoration-world-solid-a624cdb3",
       "overrides": [
         {
@@ -496,7 +570,7 @@
       "name": "decoration-world-solid-69415901",
       "sceneId": "object.decoration-world-solid.flower-planter",
       "parentNodeId": "world",
-      "order": 25,
+      "order": 27,
       "persistenceKey": "174.decoration-world-solid-69415901",
       "overrides": [
         {
@@ -515,7 +589,7 @@
       "name": "decoration-world-solid-3df294ba",
       "sceneId": "object.decoration-world-solid.flower-planter",
       "parentNodeId": "world",
-      "order": 26,
+      "order": 28,
       "persistenceKey": "174.decoration-world-solid-3df294ba",
       "overrides": [
         {
@@ -534,7 +608,7 @@
       "name": "decoration-world-solid-72f2a02b",
       "sceneId": "object.decoration-world-solid.flower-planter",
       "parentNodeId": "world",
-      "order": 27,
+      "order": 29,
       "persistenceKey": "174.decoration-world-solid-72f2a02b",
       "overrides": [
         {
@@ -553,7 +627,7 @@
       "name": "decoration-world-solid-57ebcfff",
       "sceneId": "object.decoration-world-solid.flower-planter",
       "parentNodeId": "world",
-      "order": 28,
+      "order": 30,
       "persistenceKey": "174.decoration-world-solid-57ebcfff",
       "overrides": [
         {
@@ -572,7 +646,7 @@
       "name": "decoration-world-solid-a45e1909",
       "sceneId": "object.decoration-world-solid.flower-planter",
       "parentNodeId": "world",
-      "order": 29,
+      "order": 31,
       "persistenceKey": "174.decoration-world-solid-a45e1909",
       "overrides": [
         {
@@ -591,7 +665,7 @@
       "name": "decoration-world-solid-43139526",
       "sceneId": "object.decoration-world-solid.flower-planter",
       "parentNodeId": "world",
-      "order": 30,
+      "order": 32,
       "persistenceKey": "174.decoration-world-solid-43139526",
       "overrides": [
         {
@@ -610,7 +684,7 @@
       "name": "collectible-purple-berry-93fe4013",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 31,
+      "order": 33,
       "persistenceKey": "174.collectible-purple-berry-93fe4013",
       "overrides": [
         {
@@ -641,7 +715,7 @@
       "name": "collectible-purple-berry-b9745197",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 32,
+      "order": 34,
       "persistenceKey": "174.collectible-purple-berry-b9745197",
       "overrides": [
         {
@@ -672,7 +746,7 @@
       "name": "collectible-purple-berry-52074204",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 33,
+      "order": 35,
       "persistenceKey": "174.collectible-purple-berry-52074204",
       "overrides": [
         {
@@ -703,7 +777,7 @@
       "name": "collectible-purple-berry-261a67e2",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 34,
+      "order": 36,
       "persistenceKey": "174.collectible-purple-berry-261a67e2",
       "overrides": [
         {
@@ -734,7 +808,7 @@
       "name": "collectible-purple-berry-acedf4e3",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 35,
+      "order": 37,
       "persistenceKey": "174.collectible-purple-berry-acedf4e3",
       "overrides": [
         {
@@ -765,7 +839,7 @@
       "name": "collectible-purple-berry-cf31d453",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 36,
+      "order": 38,
       "persistenceKey": "174.collectible-purple-berry-cf31d453",
       "overrides": [
         {
@@ -796,7 +870,7 @@
       "name": "collectible-purple-berry-c2bd9795",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 37,
+      "order": 39,
       "persistenceKey": "174.collectible-purple-berry-c2bd9795",
       "overrides": [
         {
@@ -827,7 +901,7 @@
       "name": "collectible-purple-berry-dacfb34e",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 38,
+      "order": 40,
       "persistenceKey": "174.collectible-purple-berry-dacfb34e",
       "overrides": [
         {
@@ -858,7 +932,7 @@
       "name": "collectible-purple-berry-2564fe67",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 39,
+      "order": 41,
       "persistenceKey": "174.collectible-purple-berry-2564fe67",
       "overrides": [
         {
@@ -889,7 +963,7 @@
       "name": "collectible-purple-berry-40d9be48",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 40,
+      "order": 42,
       "persistenceKey": "174.collectible-purple-berry-40d9be48",
       "overrides": [
         {
@@ -920,7 +994,7 @@
       "name": "collectible-purple-berry-fb05304b",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 41,
+      "order": 43,
       "persistenceKey": "174.collectible-purple-berry-fb05304b",
       "overrides": [
         {
@@ -951,7 +1025,7 @@
       "name": "collectible-purple-berry-917d338b",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 42,
+      "order": 44,
       "persistenceKey": "174.collectible-purple-berry-917d338b",
       "overrides": [
         {
@@ -982,7 +1056,7 @@
       "name": "collectible-purple-berry-a8740fae",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 43,
+      "order": 45,
       "persistenceKey": "174.collectible-purple-berry-a8740fae",
       "overrides": [
         {
@@ -1013,7 +1087,7 @@
       "name": "collectible-purple-berry-49a994b3",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 44,
+      "order": 46,
       "persistenceKey": "174.collectible-purple-berry-49a994b3",
       "overrides": [
         {
@@ -1044,7 +1118,7 @@
       "name": "collectible-purple-berry-77361767",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 45,
+      "order": 47,
       "persistenceKey": "174.collectible-purple-berry-77361767",
       "overrides": [
         {
@@ -1075,7 +1149,7 @@
       "name": "collectible-purple-berry-c1c8338a",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 46,
+      "order": 48,
       "persistenceKey": "174.collectible-purple-berry-c1c8338a",
       "overrides": [
         {
@@ -1106,7 +1180,7 @@
       "name": "collectible-purple-berry-9fce4553",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 47,
+      "order": 49,
       "persistenceKey": "174.collectible-purple-berry-9fce4553",
       "overrides": [
         {
@@ -1137,7 +1211,7 @@
       "name": "collectible-purple-berry-748d2ecb",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 48,
+      "order": 50,
       "persistenceKey": "174.collectible-purple-berry-748d2ecb",
       "overrides": [
         {
@@ -1168,7 +1242,7 @@
       "name": "collectible-purple-berry-8ae48fca",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 49,
+      "order": 51,
       "persistenceKey": "174.collectible-purple-berry-8ae48fca",
       "overrides": [
         {
@@ -1199,7 +1273,7 @@
       "name": "collectible-purple-berry-998b3a38",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 50,
+      "order": 52,
       "persistenceKey": "174.collectible-purple-berry-998b3a38",
       "overrides": [
         {
@@ -1230,7 +1304,7 @@
       "name": "collectible-purple-berry-5e6f66a0",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 51,
+      "order": 53,
       "persistenceKey": "174.collectible-purple-berry-5e6f66a0",
       "overrides": [
         {
@@ -1261,7 +1335,7 @@
       "name": "collectible-purple-berry-461230a6",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 52,
+      "order": 54,
       "persistenceKey": "174.collectible-purple-berry-461230a6",
       "overrides": [
         {
@@ -1292,7 +1366,7 @@
       "name": "collectible-purple-berry-36926fa3",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 53,
+      "order": 55,
       "persistenceKey": "174.collectible-purple-berry-36926fa3",
       "overrides": [
         {
@@ -1323,7 +1397,7 @@
       "name": "collectible-purple-berry-188b8c49",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 54,
+      "order": 56,
       "persistenceKey": "174.collectible-purple-berry-188b8c49",
       "overrides": [
         {
@@ -1354,7 +1428,7 @@
       "name": "collectible-purple-berry-f5865c14",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 55,
+      "order": 57,
       "persistenceKey": "174.collectible-purple-berry-f5865c14",
       "overrides": [
         {
@@ -1385,7 +1459,7 @@
       "name": "collectible-purple-berry-498fd966",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 56,
+      "order": 58,
       "persistenceKey": "174.collectible-purple-berry-498fd966",
       "overrides": [
         {
@@ -1416,7 +1490,7 @@
       "name": "collectible-purple-berry-1ec253e7",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 57,
+      "order": 59,
       "persistenceKey": "174.collectible-purple-berry-1ec253e7",
       "overrides": [
         {
@@ -1447,7 +1521,7 @@
       "name": "collectible-purple-berry-d1d85c7a",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 58,
+      "order": 60,
       "persistenceKey": "174.collectible-purple-berry-d1d85c7a",
       "overrides": [
         {
@@ -1478,7 +1552,7 @@
       "name": "collectible-purple-berry-5239b683",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 59,
+      "order": 61,
       "persistenceKey": "174.collectible-purple-berry-5239b683",
       "overrides": [
         {
@@ -1509,7 +1583,7 @@
       "name": "collectible-purple-berry-debda180",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 60,
+      "order": 62,
       "persistenceKey": "174.collectible-purple-berry-debda180",
       "overrides": [
         {
@@ -1540,7 +1614,7 @@
       "name": "collectible-purple-berry-c8208f56",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 61,
+      "order": 63,
       "persistenceKey": "174.collectible-purple-berry-c8208f56",
       "overrides": [
         {
@@ -1571,7 +1645,7 @@
       "name": "collectible-purple-berry-1485e0c7",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 62,
+      "order": 64,
       "persistenceKey": "174.collectible-purple-berry-1485e0c7",
       "overrides": [
         {
@@ -1602,7 +1676,7 @@
       "name": "collectible-purple-berry-5b605563",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 63,
+      "order": 65,
       "persistenceKey": "174.collectible-purple-berry-5b605563",
       "overrides": [
         {
@@ -1633,7 +1707,7 @@
       "name": "collectible-purple-berry-35dc3dd7",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 64,
+      "order": 66,
       "persistenceKey": "174.collectible-purple-berry-35dc3dd7",
       "overrides": [
         {
@@ -1664,7 +1738,7 @@
       "name": "collectible-purple-berry-7fb54cb0",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 65,
+      "order": 67,
       "persistenceKey": "174.collectible-purple-berry-7fb54cb0",
       "overrides": [
         {
@@ -1695,7 +1769,7 @@
       "name": "collectible-purple-berry-28ddce00",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 66,
+      "order": 68,
       "persistenceKey": "174.collectible-purple-berry-28ddce00",
       "overrides": [
         {
@@ -1726,7 +1800,7 @@
       "name": "collectible-purple-berry-e67953f4",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 67,
+      "order": 69,
       "persistenceKey": "174.collectible-purple-berry-e67953f4",
       "overrides": [
         {
@@ -1757,7 +1831,7 @@
       "name": "collectible-purple-berry-63c2098b",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 68,
+      "order": 70,
       "persistenceKey": "174.collectible-purple-berry-63c2098b",
       "overrides": [
         {
@@ -1788,7 +1862,7 @@
       "name": "collectible-purple-berry-8f73e7ab",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 69,
+      "order": 71,
       "persistenceKey": "174.collectible-purple-berry-8f73e7ab",
       "overrides": [
         {
@@ -1819,7 +1893,7 @@
       "name": "collectible-purple-berry-c3001153",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 70,
+      "order": 72,
       "persistenceKey": "174.collectible-purple-berry-c3001153",
       "overrides": [
         {
@@ -1850,7 +1924,7 @@
       "name": "collectible-purple-berry-dc99f133",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 71,
+      "order": 73,
       "persistenceKey": "174.collectible-purple-berry-dc99f133",
       "overrides": [
         {
@@ -1881,7 +1955,7 @@
       "name": "collectible-purple-berry-8626e3b6",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 72,
+      "order": 74,
       "persistenceKey": "174.collectible-purple-berry-8626e3b6",
       "overrides": [
         {
@@ -1912,7 +1986,7 @@
       "name": "collectible-purple-berry-5cf00db9",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 73,
+      "order": 75,
       "persistenceKey": "174.collectible-purple-berry-5cf00db9",
       "overrides": [
         {
@@ -1943,7 +2017,7 @@
       "name": "collectible-purple-berry-cbc70a14",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 74,
+      "order": 76,
       "persistenceKey": "174.collectible-purple-berry-cbc70a14",
       "overrides": [
         {
@@ -1974,7 +2048,7 @@
       "name": "collectible-purple-berry-3d1b9819",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 75,
+      "order": 77,
       "persistenceKey": "174.collectible-purple-berry-3d1b9819",
       "overrides": [
         {
@@ -2005,7 +2079,7 @@
       "name": "collectible-purple-berry-5302032b",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 76,
+      "order": 78,
       "persistenceKey": "174.collectible-purple-berry-5302032b",
       "overrides": [
         {
@@ -2036,7 +2110,7 @@
       "name": "collectible-purple-berry-53dd0e0d",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 77,
+      "order": 79,
       "persistenceKey": "174.collectible-purple-berry-53dd0e0d",
       "overrides": [
         {
@@ -2067,7 +2141,7 @@
       "name": "collectible-purple-berry-96c3c6fe",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 78,
+      "order": 80,
       "persistenceKey": "174.collectible-purple-berry-96c3c6fe",
       "overrides": [
         {
@@ -2098,7 +2172,7 @@
       "name": "collectible-purple-berry-481ccb79",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 79,
+      "order": 81,
       "persistenceKey": "174.collectible-purple-berry-481ccb79",
       "overrides": [
         {
@@ -2129,7 +2203,7 @@
       "name": "collectible-purple-berry-e0318640",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 80,
+      "order": 82,
       "persistenceKey": "174.collectible-purple-berry-e0318640",
       "overrides": [
         {
@@ -2160,7 +2234,7 @@
       "name": "collectible-purple-berry-749ef936",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 81,
+      "order": 83,
       "persistenceKey": "174.collectible-purple-berry-749ef936",
       "overrides": [
         {
@@ -2191,7 +2265,7 @@
       "name": "collectible-purple-berry-e538264b",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 82,
+      "order": 84,
       "persistenceKey": "174.collectible-purple-berry-e538264b",
       "overrides": [
         {
@@ -2222,7 +2296,7 @@
       "name": "collectible-purple-berry-74c65ba6",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 83,
+      "order": 85,
       "persistenceKey": "174.collectible-purple-berry-74c65ba6",
       "overrides": [
         {
@@ -2253,7 +2327,7 @@
       "name": "collectible-purple-berry-d60ed69f",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 84,
+      "order": 86,
       "persistenceKey": "174.collectible-purple-berry-d60ed69f",
       "overrides": [
         {
@@ -2284,7 +2358,7 @@
       "name": "collectible-purple-berry-e62931f8",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 85,
+      "order": 87,
       "persistenceKey": "174.collectible-purple-berry-e62931f8",
       "overrides": [
         {
@@ -2315,7 +2389,7 @@
       "name": "collectible-purple-berry-1b6fb8d9",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 86,
+      "order": 88,
       "persistenceKey": "174.collectible-purple-berry-1b6fb8d9",
       "overrides": [
         {
@@ -2346,7 +2420,7 @@
       "name": "collectible-purple-berry-3820e8f9",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 87,
+      "order": 89,
       "persistenceKey": "174.collectible-purple-berry-3820e8f9",
       "overrides": [
         {
@@ -2377,7 +2451,7 @@
       "name": "collectible-purple-berry-f476d26a",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 88,
+      "order": 90,
       "persistenceKey": "174.collectible-purple-berry-f476d26a",
       "overrides": [
         {
@@ -2408,7 +2482,7 @@
       "name": "collectible-purple-berry-48f740cb",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 89,
+      "order": 91,
       "persistenceKey": "174.collectible-purple-berry-48f740cb",
       "overrides": [
         {
@@ -2439,7 +2513,7 @@
       "name": "collectible-purple-berry-7ab179d9",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 90,
+      "order": 92,
       "persistenceKey": "174.collectible-purple-berry-7ab179d9",
       "overrides": [
         {
@@ -2470,7 +2544,7 @@
       "name": "collectible-purple-berry-d8ded09e",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 91,
+      "order": 93,
       "persistenceKey": "174.collectible-purple-berry-d8ded09e",
       "overrides": [
         {
@@ -2501,7 +2575,7 @@
       "name": "collectible-purple-berry-d4983a01",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 92,
+      "order": 94,
       "persistenceKey": "174.collectible-purple-berry-d4983a01",
       "overrides": [
         {
@@ -2532,7 +2606,7 @@
       "name": "collectible-purple-berry-563f4460",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 93,
+      "order": 95,
       "persistenceKey": "174.collectible-purple-berry-563f4460",
       "overrides": [
         {
@@ -2563,7 +2637,7 @@
       "name": "collectible-purple-berry-75db4efc",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 94,
+      "order": 96,
       "persistenceKey": "174.collectible-purple-berry-75db4efc",
       "overrides": [
         {
@@ -2594,7 +2668,7 @@
       "name": "collectible-purple-berry-76db1765",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 95,
+      "order": 97,
       "persistenceKey": "174.collectible-purple-berry-76db1765",
       "overrides": [
         {
@@ -2625,7 +2699,7 @@
       "name": "collectible-purple-berry-dd0a2a7b",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 96,
+      "order": 98,
       "persistenceKey": "174.collectible-purple-berry-dd0a2a7b",
       "overrides": [
         {
@@ -2656,7 +2730,7 @@
       "name": "collectible-purple-berry-781eb49d",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 97,
+      "order": 99,
       "persistenceKey": "174.collectible-purple-berry-781eb49d",
       "overrides": [
         {
@@ -2687,7 +2761,7 @@
       "name": "collectible-purple-berry-eeb21ae2",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 98,
+      "order": 100,
       "persistenceKey": "174.collectible-purple-berry-eeb21ae2",
       "overrides": [
         {
@@ -2718,7 +2792,7 @@
       "name": "collectible-purple-berry-907f169d",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 99,
+      "order": 101,
       "persistenceKey": "174.collectible-purple-berry-907f169d",
       "overrides": [
         {
@@ -2749,7 +2823,7 @@
       "name": "collectible-purple-berry-57fa5309",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 100,
+      "order": 102,
       "persistenceKey": "174.collectible-purple-berry-57fa5309",
       "overrides": [
         {
@@ -2780,7 +2854,7 @@
       "name": "collectible-purple-berry-15167847",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 101,
+      "order": 103,
       "persistenceKey": "174.collectible-purple-berry-15167847",
       "overrides": [
         {
@@ -2811,7 +2885,7 @@
       "name": "collectible-purple-berry-2f6f8947",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 102,
+      "order": 104,
       "persistenceKey": "174.collectible-purple-berry-2f6f8947",
       "overrides": [
         {
@@ -2842,7 +2916,7 @@
       "name": "collectible-purple-berry-a8c5ac45",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 103,
+      "order": 105,
       "persistenceKey": "174.collectible-purple-berry-a8c5ac45",
       "overrides": [
         {
@@ -2873,7 +2947,7 @@
       "name": "collectible-purple-berry-4574b092",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 104,
+      "order": 106,
       "persistenceKey": "174.collectible-purple-berry-4574b092",
       "overrides": [
         {
@@ -2904,7 +2978,7 @@
       "name": "collectible-purple-berry-4243f0e2",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 105,
+      "order": 107,
       "persistenceKey": "174.collectible-purple-berry-4243f0e2",
       "overrides": [
         {
@@ -2935,7 +3009,7 @@
       "name": "collectible-purple-berry-90acc90c",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 106,
+      "order": 108,
       "persistenceKey": "174.collectible-purple-berry-90acc90c",
       "overrides": [
         {
@@ -2966,7 +3040,7 @@
       "name": "collectible-purple-berry-9777e90c",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 107,
+      "order": 109,
       "persistenceKey": "174.collectible-purple-berry-9777e90c",
       "overrides": [
         {
@@ -2997,7 +3071,7 @@
       "name": "collectible-purple-berry-c2cad2cd",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 108,
+      "order": 110,
       "persistenceKey": "174.collectible-purple-berry-c2cad2cd",
       "overrides": [
         {
@@ -3028,7 +3102,7 @@
       "name": "collectible-purple-berry-6ecee44f",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 109,
+      "order": 111,
       "persistenceKey": "174.collectible-purple-berry-6ecee44f",
       "overrides": [
         {
@@ -3059,7 +3133,7 @@
       "name": "collectible-purple-berry-051083e6",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 110,
+      "order": 112,
       "persistenceKey": "174.collectible-purple-berry-051083e6",
       "overrides": [
         {
@@ -3090,7 +3164,7 @@
       "name": "collectible-purple-berry-92805311",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 111,
+      "order": 113,
       "persistenceKey": "174.collectible-purple-berry-92805311",
       "overrides": [
         {
@@ -3121,7 +3195,7 @@
       "name": "collectible-purple-berry-4994eccf",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 112,
+      "order": 114,
       "persistenceKey": "174.collectible-purple-berry-4994eccf",
       "overrides": [
         {
@@ -3152,7 +3226,7 @@
       "name": "collectible-purple-berry-deea1e65",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 113,
+      "order": 115,
       "persistenceKey": "174.collectible-purple-berry-deea1e65",
       "overrides": [
         {
@@ -3183,7 +3257,7 @@
       "name": "collectible-purple-berry-55718d6e",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 114,
+      "order": 116,
       "persistenceKey": "174.collectible-purple-berry-55718d6e",
       "overrides": [
         {
@@ -3214,7 +3288,7 @@
       "name": "collectible-purple-berry-12c3492b",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 115,
+      "order": 117,
       "persistenceKey": "174.collectible-purple-berry-12c3492b",
       "overrides": [
         {
@@ -3245,7 +3319,7 @@
       "name": "collectible-purple-berry-c5b02b49",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 116,
+      "order": 118,
       "persistenceKey": "174.collectible-purple-berry-c5b02b49",
       "overrides": [
         {
@@ -3276,7 +3350,7 @@
       "name": "collectible-purple-berry-42709e4f",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 117,
+      "order": 119,
       "persistenceKey": "174.collectible-purple-berry-42709e4f",
       "overrides": [
         {
@@ -3307,7 +3381,7 @@
       "name": "collectible-purple-berry-8566934a",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 118,
+      "order": 120,
       "persistenceKey": "174.collectible-purple-berry-8566934a",
       "overrides": [
         {
@@ -3338,7 +3412,7 @@
       "name": "collectible-purple-berry-ba76cfdd",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 119,
+      "order": 121,
       "persistenceKey": "174.collectible-purple-berry-ba76cfdd",
       "overrides": [
         {
@@ -3369,7 +3443,7 @@
       "name": "collectible-purple-berry-690d965a",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 120,
+      "order": 122,
       "persistenceKey": "174.collectible-purple-berry-690d965a",
       "overrides": [
         {
@@ -3400,7 +3474,7 @@
       "name": "collectible-purple-berry-943d17d7",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 121,
+      "order": 123,
       "persistenceKey": "174.collectible-purple-berry-943d17d7",
       "overrides": [
         {
@@ -3431,7 +3505,7 @@
       "name": "collectible-purple-berry-b557fcf9",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 122,
+      "order": 124,
       "persistenceKey": "174.collectible-purple-berry-b557fcf9",
       "overrides": [
         {
@@ -3462,7 +3536,7 @@
       "name": "collectible-purple-berry-b43d8fd6",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 123,
+      "order": 125,
       "persistenceKey": "174.collectible-purple-berry-b43d8fd6",
       "overrides": [
         {
@@ -3493,7 +3567,7 @@
       "name": "collectible-purple-berry-646ea5f3",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 124,
+      "order": 126,
       "persistenceKey": "174.collectible-purple-berry-646ea5f3",
       "overrides": [
         {
@@ -3524,7 +3598,7 @@
       "name": "collectible-purple-berry-010c9100",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 125,
+      "order": 127,
       "persistenceKey": "174.collectible-purple-berry-010c9100",
       "overrides": [
         {
@@ -3555,7 +3629,7 @@
       "name": "collectible-purple-berry-1bfafb63",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 126,
+      "order": 128,
       "persistenceKey": "174.collectible-purple-berry-1bfafb63",
       "overrides": [
         {
@@ -3586,7 +3660,7 @@
       "name": "collectible-purple-berry-a91f8ae4",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 127,
+      "order": 129,
       "persistenceKey": "174.collectible-purple-berry-a91f8ae4",
       "overrides": [
         {
@@ -3617,7 +3691,7 @@
       "name": "collectible-purple-berry-24f926cb",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 128,
+      "order": 130,
       "persistenceKey": "174.collectible-purple-berry-24f926cb",
       "overrides": [
         {
@@ -3648,7 +3722,7 @@
       "name": "collectible-purple-berry-a4fbaa8a",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 129,
+      "order": 131,
       "persistenceKey": "174.collectible-purple-berry-a4fbaa8a",
       "overrides": [
         {
@@ -3679,7 +3753,7 @@
       "name": "collectible-purple-berry-4fa90477",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 130,
+      "order": 132,
       "persistenceKey": "174.collectible-purple-berry-4fa90477",
       "overrides": [
         {
@@ -3710,7 +3784,7 @@
       "name": "collectible-purple-berry-9dcda7e5",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 131,
+      "order": 133,
       "persistenceKey": "174.collectible-purple-berry-9dcda7e5",
       "overrides": [
         {
@@ -3741,7 +3815,7 @@
       "name": "collectible-purple-berry-37b9876b",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 132,
+      "order": 134,
       "persistenceKey": "174.collectible-purple-berry-37b9876b",
       "overrides": [
         {
@@ -3772,7 +3846,7 @@
       "name": "collectible-purple-berry-44417097",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 133,
+      "order": 135,
       "persistenceKey": "174.collectible-purple-berry-44417097",
       "overrides": [
         {
@@ -3803,7 +3877,7 @@
       "name": "collectible-purple-berry-2b7808e2",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 134,
+      "order": 136,
       "persistenceKey": "174.collectible-purple-berry-2b7808e2",
       "overrides": [
         {
@@ -3834,7 +3908,7 @@
       "name": "collectible-purple-berry-7e0d58ec",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 135,
+      "order": 137,
       "persistenceKey": "174.collectible-purple-berry-7e0d58ec",
       "overrides": [
         {
@@ -3865,7 +3939,7 @@
       "name": "collectible-purple-berry-fb63c30e",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 136,
+      "order": 138,
       "persistenceKey": "174.collectible-purple-berry-fb63c30e",
       "overrides": [
         {
@@ -3896,7 +3970,7 @@
       "name": "collectible-purple-berry-4aa51dfb",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 137,
+      "order": 139,
       "persistenceKey": "174.collectible-purple-berry-4aa51dfb",
       "overrides": [
         {
@@ -3927,7 +4001,7 @@
       "name": "collectible-purple-berry-2eac724d",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 138,
+      "order": 140,
       "persistenceKey": "174.collectible-purple-berry-2eac724d",
       "overrides": [
         {
@@ -3958,7 +4032,7 @@
       "name": "collectible-purple-berry-e8f1d87e",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 139,
+      "order": 141,
       "persistenceKey": "174.collectible-purple-berry-e8f1d87e",
       "overrides": [
         {
@@ -3989,7 +4063,7 @@
       "name": "collectible-purple-berry-ea6e387e",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 140,
+      "order": 142,
       "persistenceKey": "174.collectible-purple-berry-ea6e387e",
       "overrides": [
         {
@@ -4020,7 +4094,7 @@
       "name": "collectible-purple-berry-fd6928de",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 141,
+      "order": 143,
       "persistenceKey": "174.collectible-purple-berry-fd6928de",
       "overrides": [
         {
@@ -4051,7 +4125,7 @@
       "name": "collectible-purple-berry-016890f8",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 142,
+      "order": 144,
       "persistenceKey": "174.collectible-purple-berry-016890f8",
       "overrides": [
         {
@@ -4082,7 +4156,7 @@
       "name": "collectible-purple-berry-ee098e44",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 143,
+      "order": 145,
       "persistenceKey": "174.collectible-purple-berry-ee098e44",
       "overrides": [
         {
@@ -4113,7 +4187,7 @@
       "name": "collectible-purple-berry-cf351313",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 144,
+      "order": 146,
       "persistenceKey": "174.collectible-purple-berry-cf351313",
       "overrides": [
         {
@@ -4144,7 +4218,7 @@
       "name": "collectible-purple-berry-fbd8f267",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 145,
+      "order": 147,
       "persistenceKey": "174.collectible-purple-berry-fbd8f267",
       "overrides": [
         {
@@ -4175,7 +4249,7 @@
       "name": "collectible-purple-berry-3117f034",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 146,
+      "order": 148,
       "persistenceKey": "174.collectible-purple-berry-3117f034",
       "overrides": [
         {
@@ -4206,7 +4280,7 @@
       "name": "collectible-purple-berry-4cc48716",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 147,
+      "order": 149,
       "persistenceKey": "174.collectible-purple-berry-4cc48716",
       "overrides": [
         {
@@ -4237,7 +4311,7 @@
       "name": "collectible-purple-berry-2e2607ff",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 148,
+      "order": 150,
       "persistenceKey": "174.collectible-purple-berry-2e2607ff",
       "overrides": [
         {
@@ -4268,7 +4342,7 @@
       "name": "collectible-purple-berry-6ab1c4af",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 149,
+      "order": 151,
       "persistenceKey": "174.collectible-purple-berry-6ab1c4af",
       "overrides": [
         {
@@ -4299,7 +4373,7 @@
       "name": "collectible-purple-berry-32757ec6",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 150,
+      "order": 152,
       "persistenceKey": "174.collectible-purple-berry-32757ec6",
       "overrides": [
         {
@@ -4330,7 +4404,7 @@
       "name": "collectible-purple-berry-5025b776",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 151,
+      "order": 153,
       "persistenceKey": "174.collectible-purple-berry-5025b776",
       "overrides": [
         {
@@ -4361,7 +4435,7 @@
       "name": "collectible-purple-berry-b269eed5",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 152,
+      "order": 154,
       "persistenceKey": "174.collectible-purple-berry-b269eed5",
       "overrides": [
         {
@@ -4392,7 +4466,7 @@
       "name": "collectible-purple-berry-3fbedf42",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 153,
+      "order": 155,
       "persistenceKey": "174.collectible-purple-berry-3fbedf42",
       "overrides": [
         {
@@ -4423,7 +4497,7 @@
       "name": "collectible-purple-berry-c1aaae38",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 154,
+      "order": 156,
       "persistenceKey": "174.collectible-purple-berry-c1aaae38",
       "overrides": [
         {
@@ -4454,7 +4528,7 @@
       "name": "collectible-purple-berry-bc19f5d2",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 155,
+      "order": 157,
       "persistenceKey": "174.collectible-purple-berry-bc19f5d2",
       "overrides": [
         {
@@ -4485,7 +4559,7 @@
       "name": "collectible-purple-berry-3e8dcb3b",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 156,
+      "order": 158,
       "persistenceKey": "174.collectible-purple-berry-3e8dcb3b",
       "overrides": [
         {
@@ -4516,7 +4590,7 @@
       "name": "collectible-purple-berry-da2ebbc6",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 157,
+      "order": 159,
       "persistenceKey": "174.collectible-purple-berry-da2ebbc6",
       "overrides": [
         {
@@ -4547,7 +4621,7 @@
       "name": "collectible-purple-berry-d67947ff",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 158,
+      "order": 160,
       "persistenceKey": "174.collectible-purple-berry-d67947ff",
       "overrides": [
         {
@@ -4578,7 +4652,7 @@
       "name": "collectible-purple-berry-e820b9cf",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 159,
+      "order": 161,
       "persistenceKey": "174.collectible-purple-berry-e820b9cf",
       "overrides": [
         {
@@ -4609,7 +4683,7 @@
       "name": "collectible-purple-berry-4ff57357",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 160,
+      "order": 162,
       "persistenceKey": "174.collectible-purple-berry-4ff57357",
       "overrides": [
         {
@@ -4640,7 +4714,7 @@
       "name": "collectible-purple-berry-afd6152f",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 161,
+      "order": 163,
       "persistenceKey": "174.collectible-purple-berry-afd6152f",
       "overrides": [
         {
@@ -4671,7 +4745,7 @@
       "name": "collectible-purple-berry-9db10fc9",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 162,
+      "order": 164,
       "persistenceKey": "174.collectible-purple-berry-9db10fc9",
       "overrides": [
         {
@@ -4702,7 +4776,7 @@
       "name": "collectible-purple-berry-5bc6e0ae",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 163,
+      "order": 165,
       "persistenceKey": "174.collectible-purple-berry-5bc6e0ae",
       "overrides": [
         {
@@ -4733,7 +4807,7 @@
       "name": "collectible-purple-berry-ba5f8849",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 164,
+      "order": 166,
       "persistenceKey": "174.collectible-purple-berry-ba5f8849",
       "overrides": [
         {
@@ -4764,7 +4838,7 @@
       "name": "collectible-purple-berry-a41ef626",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 165,
+      "order": 167,
       "persistenceKey": "174.collectible-purple-berry-a41ef626",
       "overrides": [
         {
@@ -4795,7 +4869,7 @@
       "name": "collectible-purple-berry-0cb6f726",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 166,
+      "order": 168,
       "persistenceKey": "174.collectible-purple-berry-0cb6f726",
       "overrides": [
         {
@@ -4826,7 +4900,7 @@
       "name": "collectible-purple-berry-a7dd47db",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 167,
+      "order": 169,
       "persistenceKey": "174.collectible-purple-berry-a7dd47db",
       "overrides": [
         {
@@ -4857,7 +4931,7 @@
       "name": "collectible-purple-berry-c57461c9",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 168,
+      "order": 170,
       "persistenceKey": "174.collectible-purple-berry-c57461c9",
       "overrides": [
         {
@@ -4888,7 +4962,7 @@
       "name": "collectible-purple-berry-68da558f",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 169,
+      "order": 171,
       "persistenceKey": "174.collectible-purple-berry-68da558f",
       "overrides": [
         {
@@ -4919,7 +4993,7 @@
       "name": "collectible-purple-berry-972c6ae2",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 170,
+      "order": 172,
       "persistenceKey": "174.collectible-purple-berry-972c6ae2",
       "overrides": [
         {
@@ -4950,7 +5024,7 @@
       "name": "collectible-purple-berry-c49c703f",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 171,
+      "order": 173,
       "persistenceKey": "174.collectible-purple-berry-c49c703f",
       "overrides": [
         {
@@ -4981,7 +5055,7 @@
       "name": "collectible-purple-berry-ab54e4f9",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 172,
+      "order": 174,
       "persistenceKey": "174.collectible-purple-berry-ab54e4f9",
       "overrides": [
         {
@@ -5012,7 +5086,7 @@
       "name": "collectible-purple-berry-9d1c88a9",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 173,
+      "order": 175,
       "persistenceKey": "174.collectible-purple-berry-9d1c88a9",
       "overrides": [
         {
@@ -5043,7 +5117,7 @@
       "name": "collectible-purple-berry-88a51791",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 174,
+      "order": 176,
       "persistenceKey": "174.collectible-purple-berry-88a51791",
       "overrides": [
         {
@@ -5074,7 +5148,7 @@
       "name": "collectible-purple-berry-e5966687",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 175,
+      "order": 177,
       "persistenceKey": "174.collectible-purple-berry-e5966687",
       "overrides": [
         {
@@ -5105,7 +5179,7 @@
       "name": "collectible-purple-berry-48aed281",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 176,
+      "order": 178,
       "persistenceKey": "174.collectible-purple-berry-48aed281",
       "overrides": [
         {
@@ -5136,7 +5210,7 @@
       "name": "collectible-purple-berry-2cdd580d",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 177,
+      "order": 179,
       "persistenceKey": "174.collectible-purple-berry-2cdd580d",
       "overrides": [
         {
@@ -5167,7 +5241,7 @@
       "name": "collectible-purple-berry-87ee461d",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 178,
+      "order": 180,
       "persistenceKey": "174.collectible-purple-berry-87ee461d",
       "overrides": [
         {
@@ -5198,7 +5272,7 @@
       "name": "collectible-purple-berry-09d6080b",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 179,
+      "order": 181,
       "persistenceKey": "174.collectible-purple-berry-09d6080b",
       "overrides": [
         {
@@ -5229,7 +5303,7 @@
       "name": "collectible-purple-berry-9a80a8f6",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 180,
+      "order": 182,
       "persistenceKey": "174.collectible-purple-berry-9a80a8f6",
       "overrides": [
         {
@@ -5260,7 +5334,7 @@
       "name": "collectible-purple-berry-2172dc51",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 181,
+      "order": 183,
       "persistenceKey": "174.collectible-purple-berry-2172dc51",
       "overrides": [
         {
@@ -5291,7 +5365,7 @@
       "name": "collectible-purple-berry-a0e4cf88",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 182,
+      "order": 184,
       "persistenceKey": "174.collectible-purple-berry-a0e4cf88",
       "overrides": [
         {
@@ -5322,7 +5396,7 @@
       "name": "collectible-purple-berry-b4819dc8",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 183,
+      "order": 185,
       "persistenceKey": "174.collectible-purple-berry-b4819dc8",
       "overrides": [
         {
@@ -5353,7 +5427,7 @@
       "name": "collectible-purple-berry-f70a8d69",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 184,
+      "order": 186,
       "persistenceKey": "174.collectible-purple-berry-f70a8d69",
       "overrides": [
         {
@@ -5384,7 +5458,7 @@
       "name": "collectible-purple-berry-9e1752ab",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 185,
+      "order": 187,
       "persistenceKey": "174.collectible-purple-berry-9e1752ab",
       "overrides": [
         {
@@ -5415,7 +5489,7 @@
       "name": "collectible-purple-berry-e4ded166",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 186,
+      "order": 188,
       "persistenceKey": "174.collectible-purple-berry-e4ded166",
       "overrides": [
         {
@@ -5446,7 +5520,7 @@
       "name": "collectible-purple-berry-179fa9f8",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 187,
+      "order": 189,
       "persistenceKey": "174.collectible-purple-berry-179fa9f8",
       "overrides": [
         {
@@ -5477,7 +5551,7 @@
       "name": "collectible-purple-berry-7657ac97",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 188,
+      "order": 190,
       "persistenceKey": "174.collectible-purple-berry-7657ac97",
       "overrides": [
         {
@@ -5508,7 +5582,7 @@
       "name": "collectible-purple-berry-739819a0",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 189,
+      "order": 191,
       "persistenceKey": "174.collectible-purple-berry-739819a0",
       "overrides": [
         {
@@ -5539,7 +5613,7 @@
       "name": "collectible-purple-berry-3f0bbde9",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 190,
+      "order": 192,
       "persistenceKey": "174.collectible-purple-berry-3f0bbde9",
       "overrides": [
         {
@@ -5570,7 +5644,7 @@
       "name": "collectible-purple-berry-7b438f53",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 191,
+      "order": 193,
       "persistenceKey": "174.collectible-purple-berry-7b438f53",
       "overrides": [
         {
@@ -5601,7 +5675,7 @@
       "name": "collectible-purple-berry-4fd91c3f",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 192,
+      "order": 194,
       "persistenceKey": "174.collectible-purple-berry-4fd91c3f",
       "overrides": [
         {
@@ -5632,7 +5706,7 @@
       "name": "collectible-purple-berry-1d620edd",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 193,
+      "order": 195,
       "persistenceKey": "174.collectible-purple-berry-1d620edd",
       "overrides": [
         {
@@ -5663,7 +5737,7 @@
       "name": "collectible-purple-berry-d1a33dd9",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 194,
+      "order": 196,
       "persistenceKey": "174.collectible-purple-berry-d1a33dd9",
       "overrides": [
         {
@@ -5694,7 +5768,7 @@
       "name": "collectible-purple-berry-e14d8f10",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 195,
+      "order": 197,
       "persistenceKey": "174.collectible-purple-berry-e14d8f10",
       "overrides": [
         {
@@ -5725,7 +5799,7 @@
       "name": "collectible-purple-berry-7fc10c89",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 196,
+      "order": 198,
       "persistenceKey": "174.collectible-purple-berry-7fc10c89",
       "overrides": [
         {
@@ -5756,7 +5830,7 @@
       "name": "collectible-purple-berry-a5f66450",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 197,
+      "order": 199,
       "persistenceKey": "174.collectible-purple-berry-a5f66450",
       "overrides": [
         {
@@ -5787,7 +5861,7 @@
       "name": "collectible-purple-berry-70961781",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 198,
+      "order": 200,
       "persistenceKey": "174.collectible-purple-berry-70961781",
       "overrides": [
         {
@@ -5818,7 +5892,7 @@
       "name": "collectible-purple-berry-5571ebb6",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 199,
+      "order": 201,
       "persistenceKey": "174.collectible-purple-berry-5571ebb6",
       "overrides": [
         {
@@ -5849,7 +5923,7 @@
       "name": "collectible-purple-berry-d038e842",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 200,
+      "order": 202,
       "persistenceKey": "174.collectible-purple-berry-d038e842",
       "overrides": [
         {
@@ -5880,7 +5954,7 @@
       "name": "collectible-purple-berry-1097aed4",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 201,
+      "order": 203,
       "persistenceKey": "174.collectible-purple-berry-1097aed4",
       "overrides": [
         {
@@ -5911,7 +5985,7 @@
       "name": "collectible-purple-berry-58895492",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 202,
+      "order": 204,
       "persistenceKey": "174.collectible-purple-berry-58895492",
       "overrides": [
         {
@@ -5942,7 +6016,7 @@
       "name": "collectible-purple-berry-ec65a642",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 203,
+      "order": 205,
       "persistenceKey": "174.collectible-purple-berry-ec65a642",
       "overrides": [
         {
@@ -5973,7 +6047,7 @@
       "name": "collectible-purple-berry-bb02de4a",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 204,
+      "order": 206,
       "persistenceKey": "174.collectible-purple-berry-bb02de4a",
       "overrides": [
         {
@@ -6004,7 +6078,7 @@
       "name": "collectible-purple-berry-4da97530",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 205,
+      "order": 207,
       "persistenceKey": "174.collectible-purple-berry-4da97530",
       "overrides": [
         {
@@ -6035,7 +6109,7 @@
       "name": "collectible-purple-berry-ed7bc0e4",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 206,
+      "order": 208,
       "persistenceKey": "174.collectible-purple-berry-ed7bc0e4",
       "overrides": [
         {
@@ -6066,7 +6140,7 @@
       "name": "collectible-purple-berry-c195e6a8",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 207,
+      "order": 209,
       "persistenceKey": "174.collectible-purple-berry-c195e6a8",
       "overrides": [
         {
@@ -6097,7 +6171,7 @@
       "name": "collectible-purple-berry-cbe879e4",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 208,
+      "order": 210,
       "persistenceKey": "174.collectible-purple-berry-cbe879e4",
       "overrides": [
         {
@@ -6128,7 +6202,7 @@
       "name": "collectible-purple-berry-c7b9a73a",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 209,
+      "order": 211,
       "persistenceKey": "174.collectible-purple-berry-c7b9a73a",
       "overrides": [
         {
@@ -6159,7 +6233,7 @@
       "name": "collectible-purple-berry-117df89c",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 210,
+      "order": 212,
       "persistenceKey": "174.collectible-purple-berry-117df89c",
       "overrides": [
         {
@@ -6190,7 +6264,7 @@
       "name": "collectible-purple-berry-59f2fcf9",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 211,
+      "order": 213,
       "persistenceKey": "174.collectible-purple-berry-59f2fcf9",
       "overrides": [
         {
@@ -6221,7 +6295,7 @@
       "name": "collectible-purple-berry-d19c6298",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 212,
+      "order": 214,
       "persistenceKey": "174.collectible-purple-berry-d19c6298",
       "overrides": [
         {
@@ -6252,7 +6326,7 @@
       "name": "collectible-purple-berry-91139fcb",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 213,
+      "order": 215,
       "persistenceKey": "174.collectible-purple-berry-91139fcb",
       "overrides": [
         {
@@ -6283,7 +6357,7 @@
       "name": "collectible-purple-berry-e7057063",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 214,
+      "order": 216,
       "persistenceKey": "174.collectible-purple-berry-e7057063",
       "overrides": [
         {
@@ -6314,7 +6388,7 @@
       "name": "collectible-purple-berry-254183ca",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 215,
+      "order": 217,
       "persistenceKey": "174.collectible-purple-berry-254183ca",
       "overrides": [
         {
@@ -6345,7 +6419,7 @@
       "name": "collectible-purple-berry-66541bcf",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 216,
+      "order": 218,
       "persistenceKey": "174.collectible-purple-berry-66541bcf",
       "overrides": [
         {
@@ -6376,7 +6450,7 @@
       "name": "collectible-purple-berry-577738f7",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 217,
+      "order": 219,
       "persistenceKey": "174.collectible-purple-berry-577738f7",
       "overrides": [
         {
@@ -6407,7 +6481,7 @@
       "name": "collectible-purple-berry-5acb809e",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 218,
+      "order": 220,
       "persistenceKey": "174.collectible-purple-berry-5acb809e",
       "overrides": [
         {
@@ -6438,7 +6512,7 @@
       "name": "collectible-purple-berry-f94a2e8c",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 219,
+      "order": 221,
       "persistenceKey": "174.collectible-purple-berry-f94a2e8c",
       "overrides": [
         {
@@ -6469,7 +6543,7 @@
       "name": "collectible-purple-berry-f823446d",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 220,
+      "order": 222,
       "persistenceKey": "174.collectible-purple-berry-f823446d",
       "overrides": [
         {
@@ -6500,7 +6574,7 @@
       "name": "collectible-purple-berry-7115cc57",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 221,
+      "order": 223,
       "persistenceKey": "174.collectible-purple-berry-7115cc57",
       "overrides": [
         {
@@ -6531,7 +6605,7 @@
       "name": "collectible-purple-berry-c8e5ecef",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 222,
+      "order": 224,
       "persistenceKey": "174.collectible-purple-berry-c8e5ecef",
       "overrides": [
         {
@@ -6562,7 +6636,7 @@
       "name": "collectible-purple-berry-fb9cdc6d",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 223,
+      "order": 225,
       "persistenceKey": "174.collectible-purple-berry-fb9cdc6d",
       "overrides": [
         {
@@ -6593,7 +6667,7 @@
       "name": "collectible-purple-berry-81e5b210",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 224,
+      "order": 226,
       "persistenceKey": "174.collectible-purple-berry-81e5b210",
       "overrides": [
         {
@@ -6624,7 +6698,7 @@
       "name": "collectible-purple-berry-9fba1dd8",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 225,
+      "order": 227,
       "persistenceKey": "174.collectible-purple-berry-9fba1dd8",
       "overrides": [
         {
@@ -6655,7 +6729,7 @@
       "name": "collectible-purple-berry-8ed712f2",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 226,
+      "order": 228,
       "persistenceKey": "174.collectible-purple-berry-8ed712f2",
       "overrides": [
         {
@@ -6686,7 +6760,7 @@
       "name": "collectible-purple-berry-17c99b2c",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 227,
+      "order": 229,
       "persistenceKey": "174.collectible-purple-berry-17c99b2c",
       "overrides": [
         {
@@ -6717,7 +6791,7 @@
       "name": "collectible-purple-berry-84327ad6",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 228,
+      "order": 230,
       "persistenceKey": "174.collectible-purple-berry-84327ad6",
       "overrides": [
         {
@@ -6748,7 +6822,7 @@
       "name": "collectible-purple-berry-32dfe8fa",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 229,
+      "order": 231,
       "persistenceKey": "174.collectible-purple-berry-32dfe8fa",
       "overrides": [
         {
@@ -6779,7 +6853,7 @@
       "name": "collectible-purple-berry-d63094cc",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 230,
+      "order": 232,
       "persistenceKey": "174.collectible-purple-berry-d63094cc",
       "overrides": [
         {
@@ -6810,7 +6884,7 @@
       "name": "collectible-purple-berry-5a57f54f",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 231,
+      "order": 233,
       "persistenceKey": "174.collectible-purple-berry-5a57f54f",
       "overrides": [
         {
@@ -6841,7 +6915,7 @@
       "name": "collectible-purple-berry-5938c1ee",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 232,
+      "order": 234,
       "persistenceKey": "174.collectible-purple-berry-5938c1ee",
       "overrides": [
         {
@@ -6872,7 +6946,7 @@
       "name": "collectible-purple-berry-e96f2446",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 233,
+      "order": 235,
       "persistenceKey": "174.collectible-purple-berry-e96f2446",
       "overrides": [
         {
@@ -6903,7 +6977,7 @@
       "name": "collectible-purple-berry-444bf5d7",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 234,
+      "order": 236,
       "persistenceKey": "174.collectible-purple-berry-444bf5d7",
       "overrides": [
         {
@@ -6934,7 +7008,7 @@
       "name": "collectible-purple-berry-31daf168",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 235,
+      "order": 237,
       "persistenceKey": "174.collectible-purple-berry-31daf168",
       "overrides": [
         {
@@ -6965,7 +7039,7 @@
       "name": "collectible-purple-berry-521edddb",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 236,
+      "order": 238,
       "persistenceKey": "174.collectible-purple-berry-521edddb",
       "overrides": [
         {
@@ -6996,7 +7070,7 @@
       "name": "collectible-purple-berry-8e78f875",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 237,
+      "order": 239,
       "persistenceKey": "174.collectible-purple-berry-8e78f875",
       "overrides": [
         {
@@ -7027,7 +7101,7 @@
       "name": "collectible-purple-berry-ccdac4d7",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 238,
+      "order": 240,
       "persistenceKey": "174.collectible-purple-berry-ccdac4d7",
       "overrides": [
         {
@@ -7058,7 +7132,7 @@
       "name": "collectible-purple-berry-41ea09fd",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 239,
+      "order": 241,
       "persistenceKey": "174.collectible-purple-berry-41ea09fd",
       "overrides": [
         {
@@ -7089,7 +7163,7 @@
       "name": "collectible-purple-berry-56148ac2",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 240,
+      "order": 242,
       "persistenceKey": "174.collectible-purple-berry-56148ac2",
       "overrides": [
         {
@@ -7120,7 +7194,7 @@
       "name": "collectible-purple-berry-5ee08093",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 241,
+      "order": 243,
       "persistenceKey": "174.collectible-purple-berry-5ee08093",
       "overrides": [
         {
@@ -7151,7 +7225,7 @@
       "name": "collectible-purple-berry-28fb5a00",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 242,
+      "order": 244,
       "persistenceKey": "174.collectible-purple-berry-28fb5a00",
       "overrides": [
         {
@@ -7182,7 +7256,7 @@
       "name": "collectible-purple-berry-a36bc7cb",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 243,
+      "order": 245,
       "persistenceKey": "174.collectible-purple-berry-a36bc7cb",
       "overrides": [
         {
@@ -7213,7 +7287,7 @@
       "name": "collectible-purple-berry-3ca93ba9",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 244,
+      "order": 246,
       "persistenceKey": "174.collectible-purple-berry-3ca93ba9",
       "overrides": [
         {
@@ -7244,7 +7318,7 @@
       "name": "collectible-purple-berry-ab73f8b4",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 245,
+      "order": 247,
       "persistenceKey": "174.collectible-purple-berry-ab73f8b4",
       "overrides": [
         {
@@ -7275,7 +7349,7 @@
       "name": "collectible-purple-berry-f4eb7589",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 246,
+      "order": 248,
       "persistenceKey": "174.collectible-purple-berry-f4eb7589",
       "overrides": [
         {
@@ -7306,7 +7380,7 @@
       "name": "collectible-purple-berry-76dd27dd",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 247,
+      "order": 249,
       "persistenceKey": "174.collectible-purple-berry-76dd27dd",
       "overrides": [
         {
@@ -7337,7 +7411,7 @@
       "name": "collectible-purple-berry-54ea4328",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 248,
+      "order": 250,
       "persistenceKey": "174.collectible-purple-berry-54ea4328",
       "overrides": [
         {
@@ -7368,7 +7442,7 @@
       "name": "collectible-purple-berry-a1bbc280",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 249,
+      "order": 251,
       "persistenceKey": "174.collectible-purple-berry-a1bbc280",
       "overrides": [
         {
@@ -7399,7 +7473,7 @@
       "name": "collectible-purple-berry-949c1e9c",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 250,
+      "order": 252,
       "persistenceKey": "174.collectible-purple-berry-949c1e9c",
       "overrides": [
         {
@@ -7430,7 +7504,7 @@
       "name": "collectible-purple-berry-790daf04",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 251,
+      "order": 253,
       "persistenceKey": "174.collectible-purple-berry-790daf04",
       "overrides": [
         {
@@ -7461,7 +7535,7 @@
       "name": "collectible-purple-berry-fcb67a5c",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 252,
+      "order": 254,
       "persistenceKey": "174.collectible-purple-berry-fcb67a5c",
       "overrides": [
         {
@@ -7492,7 +7566,7 @@
       "name": "collectible-purple-berry-6403dc6c",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 253,
+      "order": 255,
       "persistenceKey": "174.collectible-purple-berry-6403dc6c",
       "overrides": [
         {
@@ -7523,7 +7597,7 @@
       "name": "collectible-purple-berry-1afa661e",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 254,
+      "order": 256,
       "persistenceKey": "174.collectible-purple-berry-1afa661e",
       "overrides": [
         {
@@ -7554,7 +7628,7 @@
       "name": "collectible-purple-berry-17f32dfd",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 255,
+      "order": 257,
       "persistenceKey": "174.collectible-purple-berry-17f32dfd",
       "overrides": [
         {
@@ -7585,7 +7659,7 @@
       "name": "collectible-purple-berry-ba4038a2",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 256,
+      "order": 258,
       "persistenceKey": "174.collectible-purple-berry-ba4038a2",
       "overrides": [
         {
@@ -7616,7 +7690,7 @@
       "name": "collectible-purple-berry-f697e28f",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 257,
+      "order": 259,
       "persistenceKey": "174.collectible-purple-berry-f697e28f",
       "overrides": [
         {
@@ -7647,7 +7721,7 @@
       "name": "collectible-purple-berry-67e0db74",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 258,
+      "order": 260,
       "persistenceKey": "174.collectible-purple-berry-67e0db74",
       "overrides": [
         {
@@ -7678,7 +7752,7 @@
       "name": "collectible-purple-berry-b87ff4dd",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 259,
+      "order": 261,
       "persistenceKey": "174.collectible-purple-berry-b87ff4dd",
       "overrides": [
         {
@@ -7709,7 +7783,7 @@
       "name": "collectible-purple-berry-5a2cd3c6",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 260,
+      "order": 262,
       "persistenceKey": "174.collectible-purple-berry-5a2cd3c6",
       "overrides": [
         {
@@ -7740,7 +7814,7 @@
       "name": "collectible-purple-berry-cbd61e86",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 261,
+      "order": 263,
       "persistenceKey": "174.collectible-purple-berry-cbd61e86",
       "overrides": [
         {
@@ -7771,7 +7845,7 @@
       "name": "collectible-purple-berry-f59b8762",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 262,
+      "order": 264,
       "persistenceKey": "174.collectible-purple-berry-f59b8762",
       "overrides": [
         {
@@ -7802,7 +7876,7 @@
       "name": "collectible-purple-berry-394836d7",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 263,
+      "order": 265,
       "persistenceKey": "174.collectible-purple-berry-394836d7",
       "overrides": [
         {
@@ -7833,7 +7907,7 @@
       "name": "collectible-purple-berry-94b5ac4b",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 264,
+      "order": 266,
       "persistenceKey": "174.collectible-purple-berry-94b5ac4b",
       "overrides": [
         {
@@ -7864,7 +7938,7 @@
       "name": "collectible-purple-berry-3cb4561d",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 265,
+      "order": 267,
       "persistenceKey": "174.collectible-purple-berry-3cb4561d",
       "overrides": [
         {
@@ -7895,7 +7969,7 @@
       "name": "collectible-purple-berry-6a838093",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 266,
+      "order": 268,
       "persistenceKey": "174.collectible-purple-berry-6a838093",
       "overrides": [
         {
@@ -7926,7 +8000,7 @@
       "name": "collectible-purple-berry-c1ae73fc",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 267,
+      "order": 269,
       "persistenceKey": "174.collectible-purple-berry-c1ae73fc",
       "overrides": [
         {
@@ -7957,7 +8031,7 @@
       "name": "collectible-purple-berry-fce4adde",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 268,
+      "order": 270,
       "persistenceKey": "174.collectible-purple-berry-fce4adde",
       "overrides": [
         {
@@ -7988,7 +8062,7 @@
       "name": "collectible-purple-berry-1be42674",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 269,
+      "order": 271,
       "persistenceKey": "174.collectible-purple-berry-1be42674",
       "overrides": [
         {
@@ -8019,7 +8093,7 @@
       "name": "collectible-purple-berry-e01cf490",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 270,
+      "order": 272,
       "persistenceKey": "174.collectible-purple-berry-e01cf490",
       "overrides": [
         {
@@ -8050,7 +8124,7 @@
       "name": "collectible-purple-berry-d2529df9",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 271,
+      "order": 273,
       "persistenceKey": "174.collectible-purple-berry-d2529df9",
       "overrides": [
         {
@@ -8081,7 +8155,7 @@
       "name": "collectible-purple-berry-80e08cfa",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 272,
+      "order": 274,
       "persistenceKey": "174.collectible-purple-berry-80e08cfa",
       "overrides": [
         {
@@ -8112,7 +8186,7 @@
       "name": "collectible-purple-berry-e2cbe3b6",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 273,
+      "order": 275,
       "persistenceKey": "174.collectible-purple-berry-e2cbe3b6",
       "overrides": [
         {
@@ -8143,7 +8217,7 @@
       "name": "collectible-purple-berry-28488fcb",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 274,
+      "order": 276,
       "persistenceKey": "174.collectible-purple-berry-28488fcb",
       "overrides": [
         {
@@ -8174,7 +8248,7 @@
       "name": "collectible-purple-berry-1449c809",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 275,
+      "order": 277,
       "persistenceKey": "174.collectible-purple-berry-1449c809",
       "overrides": [
         {
@@ -8205,7 +8279,7 @@
       "name": "collectible-purple-berry-8699b5a9",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 276,
+      "order": 278,
       "persistenceKey": "174.collectible-purple-berry-8699b5a9",
       "overrides": [
         {
@@ -8236,7 +8310,7 @@
       "name": "collectible-purple-berry-3eeb208c",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 277,
+      "order": 279,
       "persistenceKey": "174.collectible-purple-berry-3eeb208c",
       "overrides": [
         {
@@ -8267,7 +8341,7 @@
       "name": "collectible-purple-berry-8144718b",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 278,
+      "order": 280,
       "persistenceKey": "174.collectible-purple-berry-8144718b",
       "overrides": [
         {
@@ -8298,7 +8372,7 @@
       "name": "collectible-purple-berry-db984419",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 279,
+      "order": 281,
       "persistenceKey": "174.collectible-purple-berry-db984419",
       "overrides": [
         {
@@ -8329,7 +8403,7 @@
       "name": "collectible-purple-berry-477b8dbf",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 280,
+      "order": 282,
       "persistenceKey": "174.collectible-purple-berry-477b8dbf",
       "overrides": [
         {
@@ -8360,7 +8434,7 @@
       "name": "collectible-purple-berry-33f3fc3f",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 281,
+      "order": 283,
       "persistenceKey": "174.collectible-purple-berry-33f3fc3f",
       "overrides": [
         {
@@ -8391,7 +8465,7 @@
       "name": "collectible-purple-berry-923ab73c",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 282,
+      "order": 284,
       "persistenceKey": "174.collectible-purple-berry-923ab73c",
       "overrides": [
         {
@@ -8422,7 +8496,7 @@
       "name": "collectible-purple-berry-00fab838",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 283,
+      "order": 285,
       "persistenceKey": "174.collectible-purple-berry-00fab838",
       "overrides": [
         {
@@ -8453,7 +8527,7 @@
       "name": "collectible-purple-berry-1d17e500",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 284,
+      "order": 286,
       "persistenceKey": "174.collectible-purple-berry-1d17e500",
       "overrides": [
         {
@@ -8484,7 +8558,7 @@
       "name": "collectible-purple-berry-8457cd73",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 285,
+      "order": 287,
       "persistenceKey": "174.collectible-purple-berry-8457cd73",
       "overrides": [
         {
@@ -8515,7 +8589,7 @@
       "name": "collectible-purple-berry-44f493af",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 286,
+      "order": 288,
       "persistenceKey": "174.collectible-purple-berry-44f493af",
       "overrides": [
         {
@@ -8546,7 +8620,7 @@
       "name": "collectible-purple-berry-462cff11",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 287,
+      "order": 289,
       "persistenceKey": "174.collectible-purple-berry-462cff11",
       "overrides": [
         {
@@ -8577,7 +8651,7 @@
       "name": "collectible-purple-berry-1ccaac74",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 288,
+      "order": 290,
       "persistenceKey": "174.collectible-purple-berry-1ccaac74",
       "overrides": [
         {
@@ -8608,7 +8682,7 @@
       "name": "collectible-purple-berry-c1d078ea",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 289,
+      "order": 291,
       "persistenceKey": "174.collectible-purple-berry-c1d078ea",
       "overrides": [
         {
@@ -8639,7 +8713,7 @@
       "name": "collectible-purple-berry-7816e93e",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 290,
+      "order": 292,
       "persistenceKey": "174.collectible-purple-berry-7816e93e",
       "overrides": [
         {
@@ -8670,7 +8744,7 @@
       "name": "collectible-purple-berry-ecd69077",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 291,
+      "order": 293,
       "persistenceKey": "174.collectible-purple-berry-ecd69077",
       "overrides": [
         {
@@ -8701,7 +8775,7 @@
       "name": "collectible-purple-berry-2351ea51",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 292,
+      "order": 294,
       "persistenceKey": "174.collectible-purple-berry-2351ea51",
       "overrides": [
         {
@@ -8732,7 +8806,7 @@
       "name": "collectible-purple-berry-27be7663",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 293,
+      "order": 295,
       "persistenceKey": "174.collectible-purple-berry-27be7663",
       "overrides": [
         {
@@ -8763,7 +8837,7 @@
       "name": "collectible-purple-berry-9e67a6a5",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 294,
+      "order": 296,
       "persistenceKey": "174.collectible-purple-berry-9e67a6a5",
       "overrides": [
         {
@@ -8794,7 +8868,7 @@
       "name": "collectible-purple-berry-b1a52abc",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 295,
+      "order": 297,
       "persistenceKey": "174.collectible-purple-berry-b1a52abc",
       "overrides": [
         {
@@ -8825,7 +8899,7 @@
       "name": "collectible-purple-berry-98659834",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 296,
+      "order": 298,
       "persistenceKey": "174.collectible-purple-berry-98659834",
       "overrides": [
         {
@@ -8856,7 +8930,7 @@
       "name": "collectible-purple-berry-b8013914",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 297,
+      "order": 299,
       "persistenceKey": "174.collectible-purple-berry-b8013914",
       "overrides": [
         {
@@ -8887,7 +8961,7 @@
       "name": "collectible-purple-berry-aa5fe5c6",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 298,
+      "order": 300,
       "persistenceKey": "174.collectible-purple-berry-aa5fe5c6",
       "overrides": [
         {
@@ -8918,7 +8992,7 @@
       "name": "collectible-purple-berry-79644925",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 299,
+      "order": 301,
       "persistenceKey": "174.collectible-purple-berry-79644925",
       "overrides": [
         {
@@ -8949,7 +9023,7 @@
       "name": "collectible-purple-berry-c9067060",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 300,
+      "order": 302,
       "persistenceKey": "174.collectible-purple-berry-c9067060",
       "overrides": [
         {
@@ -8980,7 +9054,7 @@
       "name": "collectible-purple-berry-213c3072",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 301,
+      "order": 303,
       "persistenceKey": "174.collectible-purple-berry-213c3072",
       "overrides": [
         {
@@ -9011,7 +9085,7 @@
       "name": "collectible-purple-berry-c7f1fa6c",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 302,
+      "order": 304,
       "persistenceKey": "174.collectible-purple-berry-c7f1fa6c",
       "overrides": [
         {
@@ -9042,7 +9116,7 @@
       "name": "collectible-purple-berry-d1853f96",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 303,
+      "order": 305,
       "persistenceKey": "174.collectible-purple-berry-d1853f96",
       "overrides": [
         {
@@ -9073,7 +9147,7 @@
       "name": "collectible-purple-berry-83a93a32",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 304,
+      "order": 306,
       "persistenceKey": "174.collectible-purple-berry-83a93a32",
       "overrides": [
         {
@@ -9104,7 +9178,7 @@
       "name": "collectible-purple-berry-57d8933c",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 305,
+      "order": 307,
       "persistenceKey": "174.collectible-purple-berry-57d8933c",
       "overrides": [
         {
@@ -9135,7 +9209,7 @@
       "name": "collectible-purple-berry-17447911",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 306,
+      "order": 308,
       "persistenceKey": "174.collectible-purple-berry-17447911",
       "overrides": [
         {
@@ -9166,7 +9240,7 @@
       "name": "collectible-purple-berry-b6bbf23b",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 307,
+      "order": 309,
       "persistenceKey": "174.collectible-purple-berry-b6bbf23b",
       "overrides": [
         {
@@ -9197,7 +9271,7 @@
       "name": "collectible-purple-berry-f9b4eb70",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 308,
+      "order": 310,
       "persistenceKey": "174.collectible-purple-berry-f9b4eb70",
       "overrides": [
         {
@@ -9228,7 +9302,7 @@
       "name": "collectible-purple-berry-a2fb3f96",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 309,
+      "order": 311,
       "persistenceKey": "174.collectible-purple-berry-a2fb3f96",
       "overrides": [
         {
@@ -9259,7 +9333,7 @@
       "name": "collectible-purple-berry-2eb43ba0",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 310,
+      "order": 312,
       "persistenceKey": "174.collectible-purple-berry-2eb43ba0",
       "overrides": [
         {
@@ -9290,7 +9364,7 @@
       "name": "collectible-purple-berry-36886fed",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 311,
+      "order": 313,
       "persistenceKey": "174.collectible-purple-berry-36886fed",
       "overrides": [
         {
@@ -9321,7 +9395,7 @@
       "name": "collectible-purple-berry-eeb7d899",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 312,
+      "order": 314,
       "persistenceKey": "174.collectible-purple-berry-eeb7d899",
       "overrides": [
         {
@@ -9352,7 +9426,7 @@
       "name": "collectible-purple-berry-64e1bab0",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 313,
+      "order": 315,
       "persistenceKey": "174.collectible-purple-berry-64e1bab0",
       "overrides": [
         {
@@ -9383,7 +9457,7 @@
       "name": "collectible-purple-berry-322dfa10",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 314,
+      "order": 316,
       "persistenceKey": "174.collectible-purple-berry-322dfa10",
       "overrides": [
         {
@@ -9414,7 +9488,7 @@
       "name": "collectible-purple-berry-ba6b1492",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 315,
+      "order": 317,
       "persistenceKey": "174.collectible-purple-berry-ba6b1492",
       "overrides": [
         {
@@ -9445,7 +9519,7 @@
       "name": "collectible-purple-berry-1eb7510a",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 316,
+      "order": 318,
       "persistenceKey": "174.collectible-purple-berry-1eb7510a",
       "overrides": [
         {
@@ -9476,7 +9550,7 @@
       "name": "collectible-purple-berry-e4247760",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 317,
+      "order": 319,
       "persistenceKey": "174.collectible-purple-berry-e4247760",
       "overrides": [
         {
@@ -9507,7 +9581,7 @@
       "name": "collectible-purple-berry-bc6785dc",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 318,
+      "order": 320,
       "persistenceKey": "174.collectible-purple-berry-bc6785dc",
       "overrides": [
         {
@@ -9538,7 +9612,7 @@
       "name": "collectible-purple-berry-74946cee",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 319,
+      "order": 321,
       "persistenceKey": "174.collectible-purple-berry-74946cee",
       "overrides": [
         {
@@ -9569,7 +9643,7 @@
       "name": "collectible-purple-berry-7a4e1050",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 320,
+      "order": 322,
       "persistenceKey": "174.collectible-purple-berry-7a4e1050",
       "overrides": [
         {
@@ -9600,7 +9674,7 @@
       "name": "collectible-purple-berry-49cbf975",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 321,
+      "order": 323,
       "persistenceKey": "174.collectible-purple-berry-49cbf975",
       "overrides": [
         {
@@ -9631,7 +9705,7 @@
       "name": "collectible-purple-berry-14fbdac3",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 322,
+      "order": 324,
       "persistenceKey": "174.collectible-purple-berry-14fbdac3",
       "overrides": [
         {
@@ -9662,7 +9736,7 @@
       "name": "collectible-purple-berry-ac25c8b1",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 323,
+      "order": 325,
       "persistenceKey": "174.collectible-purple-berry-ac25c8b1",
       "overrides": [
         {
@@ -9693,7 +9767,7 @@
       "name": "collectible-purple-berry-2b1adcf7",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 324,
+      "order": 326,
       "persistenceKey": "174.collectible-purple-berry-2b1adcf7",
       "overrides": [
         {
@@ -9724,7 +9798,7 @@
       "name": "collectible-purple-berry-4999755a",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 325,
+      "order": 327,
       "persistenceKey": "174.collectible-purple-berry-4999755a",
       "overrides": [
         {
@@ -9755,7 +9829,7 @@
       "name": "collectible-purple-berry-95eb6c68",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 326,
+      "order": 328,
       "persistenceKey": "174.collectible-purple-berry-95eb6c68",
       "overrides": [
         {
@@ -9786,7 +9860,7 @@
       "name": "collectible-purple-berry-f7af7b96",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 327,
+      "order": 329,
       "persistenceKey": "174.collectible-purple-berry-f7af7b96",
       "overrides": [
         {
@@ -9817,7 +9891,7 @@
       "name": "collectible-purple-berry-d52c1d9f",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 328,
+      "order": 330,
       "persistenceKey": "174.collectible-purple-berry-d52c1d9f",
       "overrides": [
         {
@@ -9848,7 +9922,7 @@
       "name": "collectible-purple-berry-2d451b2f",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 329,
+      "order": 331,
       "persistenceKey": "174.collectible-purple-berry-2d451b2f",
       "overrides": [
         {
@@ -9879,7 +9953,7 @@
       "name": "collectible-purple-berry-c5b9fec3",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 330,
+      "order": 332,
       "persistenceKey": "174.collectible-purple-berry-c5b9fec3",
       "overrides": [
         {
@@ -9910,7 +9984,7 @@
       "name": "collectible-purple-berry-1babad6d",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 331,
+      "order": 333,
       "persistenceKey": "174.collectible-purple-berry-1babad6d",
       "overrides": [
         {
@@ -9941,7 +10015,7 @@
       "name": "collectible-purple-berry-af6d15a1",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 332,
+      "order": 334,
       "persistenceKey": "174.collectible-purple-berry-af6d15a1",
       "overrides": [
         {
@@ -9972,7 +10046,7 @@
       "name": "collectible-purple-berry-4552793c",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 333,
+      "order": 335,
       "persistenceKey": "174.collectible-purple-berry-4552793c",
       "overrides": [
         {
@@ -10003,7 +10077,7 @@
       "name": "collectible-purple-berry-3259f66e",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 334,
+      "order": 336,
       "persistenceKey": "174.collectible-purple-berry-3259f66e",
       "overrides": [
         {
@@ -10034,7 +10108,7 @@
       "name": "collectible-purple-berry-576629b7",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 335,
+      "order": 337,
       "persistenceKey": "174.collectible-purple-berry-576629b7",
       "overrides": [
         {
@@ -10065,7 +10139,7 @@
       "name": "collectible-purple-berry-dd2da7e0",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 336,
+      "order": 338,
       "persistenceKey": "174.collectible-purple-berry-dd2da7e0",
       "overrides": [
         {
@@ -10096,7 +10170,7 @@
       "name": "collectible-purple-berry-5c842f62",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 337,
+      "order": 339,
       "persistenceKey": "174.collectible-purple-berry-5c842f62",
       "overrides": [
         {
@@ -10127,7 +10201,7 @@
       "name": "collectible-purple-berry-36022b38",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 338,
+      "order": 340,
       "persistenceKey": "174.collectible-purple-berry-36022b38",
       "overrides": [
         {
@@ -10158,7 +10232,7 @@
       "name": "collectible-purple-berry-7f5ea36d",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 339,
+      "order": 341,
       "persistenceKey": "174.collectible-purple-berry-7f5ea36d",
       "overrides": [
         {
@@ -10189,7 +10263,7 @@
       "name": "collectible-purple-berry-afb1a9a2",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 340,
+      "order": 342,
       "persistenceKey": "174.collectible-purple-berry-afb1a9a2",
       "overrides": [
         {
@@ -10220,7 +10294,7 @@
       "name": "collectible-purple-berry-5145b953",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 341,
+      "order": 343,
       "persistenceKey": "174.collectible-purple-berry-5145b953",
       "overrides": [
         {
@@ -10251,7 +10325,7 @@
       "name": "collectible-purple-berry-7e6ee3db",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 342,
+      "order": 344,
       "persistenceKey": "174.collectible-purple-berry-7e6ee3db",
       "overrides": [
         {
@@ -10282,7 +10356,7 @@
       "name": "collectible-purple-berry-a294d618",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 343,
+      "order": 345,
       "persistenceKey": "174.collectible-purple-berry-a294d618",
       "overrides": [
         {
@@ -10313,7 +10387,7 @@
       "name": "collectible-purple-berry-08d38451",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 344,
+      "order": 346,
       "persistenceKey": "174.collectible-purple-berry-08d38451",
       "overrides": [
         {
@@ -10344,7 +10418,7 @@
       "name": "collectible-purple-berry-af2c507d",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 345,
+      "order": 347,
       "persistenceKey": "174.collectible-purple-berry-af2c507d",
       "overrides": [
         {
@@ -10375,7 +10449,7 @@
       "name": "collectible-purple-berry-5e1e939a",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 346,
+      "order": 348,
       "persistenceKey": "174.collectible-purple-berry-5e1e939a",
       "overrides": [
         {
@@ -10406,7 +10480,7 @@
       "name": "collectible-purple-berry-17fa02e0",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 347,
+      "order": 349,
       "persistenceKey": "174.collectible-purple-berry-17fa02e0",
       "overrides": [
         {
@@ -10437,7 +10511,7 @@
       "name": "collectible-purple-berry-175a9ed8",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 348,
+      "order": 350,
       "persistenceKey": "174.collectible-purple-berry-175a9ed8",
       "overrides": [
         {
@@ -10468,7 +10542,7 @@
       "name": "collectible-purple-berry-3a19a93a",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 349,
+      "order": 351,
       "persistenceKey": "174.collectible-purple-berry-3a19a93a",
       "overrides": [
         {
@@ -10499,7 +10573,7 @@
       "name": "collectible-purple-berry-37115d9f",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 350,
+      "order": 352,
       "persistenceKey": "174.collectible-purple-berry-37115d9f",
       "overrides": [
         {
@@ -10530,7 +10604,7 @@
       "name": "collectible-purple-berry-f5310272",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 351,
+      "order": 353,
       "persistenceKey": "174.collectible-purple-berry-f5310272",
       "overrides": [
         {
@@ -10561,7 +10635,7 @@
       "name": "collectible-purple-berry-d0ae104b",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 352,
+      "order": 354,
       "persistenceKey": "174.collectible-purple-berry-d0ae104b",
       "overrides": [
         {
@@ -10592,7 +10666,7 @@
       "name": "collectible-purple-berry-f1cb1e9b",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 353,
+      "order": 355,
       "persistenceKey": "174.collectible-purple-berry-f1cb1e9b",
       "overrides": [
         {
@@ -10623,7 +10697,7 @@
       "name": "collectible-purple-berry-24e4807a",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 354,
+      "order": 356,
       "persistenceKey": "174.collectible-purple-berry-24e4807a",
       "overrides": [
         {
@@ -10654,7 +10728,7 @@
       "name": "collectible-purple-berry-0b2aa9fe",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 355,
+      "order": 357,
       "persistenceKey": "174.collectible-purple-berry-0b2aa9fe",
       "overrides": [
         {
@@ -10685,7 +10759,7 @@
       "name": "collectible-purple-berry-3a15a538",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 356,
+      "order": 358,
       "persistenceKey": "174.collectible-purple-berry-3a15a538",
       "overrides": [
         {
@@ -10716,7 +10790,7 @@
       "name": "collectible-purple-berry-ed1aa001",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 357,
+      "order": 359,
       "persistenceKey": "174.collectible-purple-berry-ed1aa001",
       "overrides": [
         {
@@ -10747,7 +10821,7 @@
       "name": "collectible-purple-berry-94d468f2",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 358,
+      "order": 360,
       "persistenceKey": "174.collectible-purple-berry-94d468f2",
       "overrides": [
         {
@@ -10778,7 +10852,7 @@
       "name": "collectible-purple-berry-a4566858",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 359,
+      "order": 361,
       "persistenceKey": "174.collectible-purple-berry-a4566858",
       "overrides": [
         {
@@ -10809,7 +10883,7 @@
       "name": "collectible-purple-berry-f4772357",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 360,
+      "order": 362,
       "persistenceKey": "174.collectible-purple-berry-f4772357",
       "overrides": [
         {
@@ -10840,7 +10914,7 @@
       "name": "collectible-purple-berry-9652fe0c",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 361,
+      "order": 363,
       "persistenceKey": "174.collectible-purple-berry-9652fe0c",
       "overrides": [
         {
@@ -10871,7 +10945,7 @@
       "name": "collectible-purple-berry-fc25445b",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 362,
+      "order": 364,
       "persistenceKey": "174.collectible-purple-berry-fc25445b",
       "overrides": [
         {
@@ -10902,7 +10976,7 @@
       "name": "collectible-purple-berry-fef10ad4",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 363,
+      "order": 365,
       "persistenceKey": "174.collectible-purple-berry-fef10ad4",
       "overrides": [
         {
@@ -10933,7 +11007,7 @@
       "name": "collectible-purple-berry-e83c2088",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 364,
+      "order": 366,
       "persistenceKey": "174.collectible-purple-berry-e83c2088",
       "overrides": [
         {
@@ -10964,7 +11038,7 @@
       "name": "collectible-purple-berry-35e8e457",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 365,
+      "order": 367,
       "persistenceKey": "174.collectible-purple-berry-35e8e457",
       "overrides": [
         {
@@ -10995,7 +11069,7 @@
       "name": "collectible-purple-berry-c7ca194f",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 366,
+      "order": 368,
       "persistenceKey": "174.collectible-purple-berry-c7ca194f",
       "overrides": [
         {
@@ -11026,7 +11100,7 @@
       "name": "collectible-purple-berry-8ed65106",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 367,
+      "order": 369,
       "persistenceKey": "174.collectible-purple-berry-8ed65106",
       "overrides": [
         {
@@ -11057,7 +11131,7 @@
       "name": "collectible-purple-berry-4461438f",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 368,
+      "order": 370,
       "persistenceKey": "174.collectible-purple-berry-4461438f",
       "overrides": [
         {
@@ -11088,7 +11162,7 @@
       "name": "collectible-purple-berry-1fd016f5",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 369,
+      "order": 371,
       "persistenceKey": "174.collectible-purple-berry-1fd016f5",
       "overrides": [
         {
@@ -11119,7 +11193,7 @@
       "name": "collectible-purple-berry-8bbe33a1",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 370,
+      "order": 372,
       "persistenceKey": "174.collectible-purple-berry-8bbe33a1",
       "overrides": [
         {
@@ -11150,7 +11224,7 @@
       "name": "collectible-purple-berry-ea7c5c81",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 371,
+      "order": 373,
       "persistenceKey": "174.collectible-purple-berry-ea7c5c81",
       "overrides": [
         {
@@ -11181,7 +11255,7 @@
       "name": "collectible-purple-berry-b4b2a341",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 372,
+      "order": 374,
       "persistenceKey": "174.collectible-purple-berry-b4b2a341",
       "overrides": [
         {
@@ -11212,7 +11286,7 @@
       "name": "collectible-purple-berry-62d06d87",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 373,
+      "order": 375,
       "persistenceKey": "174.collectible-purple-berry-62d06d87",
       "overrides": [
         {
@@ -11243,7 +11317,7 @@
       "name": "collectible-purple-berry-8429b277",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 374,
+      "order": 376,
       "persistenceKey": "174.collectible-purple-berry-8429b277",
       "overrides": [
         {
@@ -11274,7 +11348,7 @@
       "name": "collectible-purple-berry-f72b3c42",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 375,
+      "order": 377,
       "persistenceKey": "174.collectible-purple-berry-f72b3c42",
       "overrides": [
         {
@@ -11305,7 +11379,7 @@
       "name": "collectible-purple-berry-a27f022f",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 376,
+      "order": 378,
       "persistenceKey": "174.collectible-purple-berry-a27f022f",
       "overrides": [
         {
@@ -11336,7 +11410,7 @@
       "name": "collectible-purple-berry-35b142dc",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 377,
+      "order": 379,
       "persistenceKey": "174.collectible-purple-berry-35b142dc",
       "overrides": [
         {
@@ -11367,7 +11441,7 @@
       "name": "collectible-purple-berry-b8370dd3",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 378,
+      "order": 380,
       "persistenceKey": "174.collectible-purple-berry-b8370dd3",
       "overrides": [
         {
@@ -11398,7 +11472,7 @@
       "name": "collectible-purple-berry-d8d1b293",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 379,
+      "order": 381,
       "persistenceKey": "174.collectible-purple-berry-d8d1b293",
       "overrides": [
         {
@@ -11429,7 +11503,7 @@
       "name": "collectible-purple-berry-114dda02",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 380,
+      "order": 382,
       "persistenceKey": "174.collectible-purple-berry-114dda02",
       "overrides": [
         {
@@ -11460,7 +11534,7 @@
       "name": "collectible-purple-berry-442e8e74",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 381,
+      "order": 383,
       "persistenceKey": "174.collectible-purple-berry-442e8e74",
       "overrides": [
         {
@@ -11491,7 +11565,7 @@
       "name": "collectible-purple-berry-e4b3affe",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 382,
+      "order": 384,
       "persistenceKey": "174.collectible-purple-berry-e4b3affe",
       "overrides": [
         {
@@ -11522,7 +11596,7 @@
       "name": "collectible-purple-berry-5ecc4d02",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 383,
+      "order": 385,
       "persistenceKey": "174.collectible-purple-berry-5ecc4d02",
       "overrides": [
         {
@@ -11553,7 +11627,7 @@
       "name": "collectible-purple-berry-4df6c0ed",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 384,
+      "order": 386,
       "persistenceKey": "174.collectible-purple-berry-4df6c0ed",
       "overrides": [
         {
@@ -11584,7 +11658,7 @@
       "name": "collectible-purple-berry-65e234a4",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 385,
+      "order": 387,
       "persistenceKey": "174.collectible-purple-berry-65e234a4",
       "overrides": [
         {
@@ -11615,7 +11689,7 @@
       "name": "collectible-purple-berry-70e609a1",
       "sceneId": "object.collectible-purple-berry",
       "parentNodeId": "world",
-      "order": 386,
+      "order": 388,
       "persistenceKey": "174.collectible-purple-berry-70e609a1",
       "overrides": [
         {
@@ -11640,6 +11714,18 @@
           "value": "collectible-purple-berry-70e609a1"
         }
       ]
+    }
+  ],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "174.area-enemy-safe-1.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 1664,
+        "height": 1472
+      }
     }
   ]
 }

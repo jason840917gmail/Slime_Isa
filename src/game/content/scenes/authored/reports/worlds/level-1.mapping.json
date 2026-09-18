@@ -6,7 +6,10 @@
     "objects": 25,
     "bossCamps": 1,
     "playerMarkers": 2,
-    "exits": 1
+    "exits": 1,
+    "enemySafeZones": 1,
+    "enemySpawnAreas": 1,
+    "npcWanderAreas": 5
   },
   "worldInstanceCount": 25,
   "placements": [
@@ -351,6 +354,92 @@
         "consumeOnUnlock": true,
         "lockedMessage": "The eastern gate needs a green key."
       }
+    }
+  ],
+  "areas": [
+    {
+      "sourceKind": "enemy-safe-zone",
+      "sourcePath": "$.enemySafeZones[0]",
+      "sourceId": "enemy-safe-1",
+      "areaNodeId": "area-enemy-safe-1",
+      "shapeNodeId": "area-enemy-safe-1-shape",
+      "scriptNodeId": "area-enemy-safe-1-script",
+      "position": [
+        640,
+        608
+      ]
+    },
+    {
+      "sourceKind": "enemy-spawn",
+      "sourcePath": "$.enemySpawnAreas[0]",
+      "sourceId": "level-1-starter-camp",
+      "areaNodeId": "area-level-1-starter-camp",
+      "shapeNodeId": "area-level-1-starter-camp-shape",
+      "scriptNodeId": "area-level-1-starter-camp-script",
+      "position": [
+        1132,
+        1509.5
+      ]
+    },
+    {
+      "sourceKind": "npc-wander",
+      "sourcePath": "$.npcWanderAreas[0]",
+      "sourceId": "npc-area-01",
+      "areaNodeId": "area-npc-area-01",
+      "shapeNodeId": "area-npc-area-01-shape",
+      "scriptNodeId": "area-npc-area-01-script",
+      "position": [
+        512,
+        704
+      ]
+    },
+    {
+      "sourceKind": "npc-wander",
+      "sourcePath": "$.npcWanderAreas[1]",
+      "sourceId": "npc-area-03",
+      "areaNodeId": "area-npc-area-03",
+      "shapeNodeId": "area-npc-area-03-shape",
+      "scriptNodeId": "area-npc-area-03-script",
+      "position": [
+        480,
+        896
+      ]
+    },
+    {
+      "sourceKind": "npc-wander",
+      "sourcePath": "$.npcWanderAreas[2]",
+      "sourceId": "npc-area-04",
+      "areaNodeId": "area-npc-area-04",
+      "shapeNodeId": "area-npc-area-04-shape",
+      "scriptNodeId": "area-npc-area-04-script",
+      "position": [
+        640,
+        904
+      ]
+    },
+    {
+      "sourceKind": "npc-wander",
+      "sourcePath": "$.npcWanderAreas[3]",
+      "sourceId": "npc-area-05",
+      "areaNodeId": "area-npc-area-05",
+      "shapeNodeId": "area-npc-area-05-shape",
+      "scriptNodeId": "area-npc-area-05-script",
+      "position": [
+        800,
+        896
+      ]
+    },
+    {
+      "sourceKind": "npc-wander",
+      "sourcePath": "$.npcWanderAreas[4]",
+      "sourceId": "npc-area-02",
+      "areaNodeId": "area-npc-area-02",
+      "shapeNodeId": "area-npc-area-02-shape",
+      "scriptNodeId": "area-npc-area-02-script",
+      "position": [
+        768,
+        704
+      ]
     }
   ]
 }

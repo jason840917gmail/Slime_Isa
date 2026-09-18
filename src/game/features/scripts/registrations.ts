@@ -16,6 +16,8 @@ import { ResourceNodeScript } from './ResourceNodeScript';
 import { CollectibleScript } from './CollectibleScript';
 import { InteractionScript } from './InteractionScript';
 import { WorldExitScript } from './WorldExitScript';
+import { WorldDefinitionScript } from './WorldDefinitionScript';
+import { WorldAreaScript } from './WorldAreaScript';
 
 const numberProperty = (key: string, label: string, defaultValue: number, group: string): PropertyDescriptor => ({
   key, label, group, value: { kind: 'number', min: 0 }, defaultValue,
@@ -131,6 +133,7 @@ export const NPC_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
   ],
   properties: [
     stringProperty('characterId', 'Character ID', 'Identity'),
+    stringProperty('npcDefinitionId', 'NPC Definition ID', 'Identity'),
     numberProperty('wanderSpeed', 'Wander Speed', 0, 'Movement'),
     numberProperty('pauseMinMs', 'Minimum Pause', 0, 'Movement'),
     numberProperty('pauseMaxMs', 'Maximum Pause', 0, 'Movement'),
@@ -407,6 +410,37 @@ export const WORLD_EXIT_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
   handlers: [{ id: 'on_body_entered', payload: 'PhysicsContact' }],
 };
 
+export const WORLD_DEFINITION_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
+  scriptId: 'game.world-definition',
+  displayName: 'World Definition',
+  description: 'Scene-owned world dimensions and authored population metadata.',
+  sourcePath: 'src/game/features/scripts/WorldDefinitionScript.ts',
+  capabilities: ['world-definition'],
+  exclusiveCapabilities: ['world-definition'],
+  properties: [
+    stringProperty('mapId', 'Map ID', 'World'),
+    numberProperty('tileSize', 'Tile Size', 64, 'World'),
+    numberProperty('columns', 'Columns', 1, 'World'),
+    numberProperty('rows', 'Rows', 1, 'World'),
+    jsonProperty('metadata', 'World Metadata', 'World', {}),
+  ],
+};
+
+export const WORLD_AREA_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
+  scriptId: 'game.world-area',
+  displayName: 'World Area',
+  description: 'Typed scene-owned safe zone, spawn area, or NPC wander area.',
+  sourcePath: 'src/game/features/scripts/WorldAreaScript.ts',
+  capabilities: ['world-area'],
+  properties: [
+    { key: 'areaKind', label: 'Area Kind', group: 'Area', value: { kind: 'enum', values: ['enemy-safe-zone', 'enemy-spawn', 'npc-wander'] }, required: true, serialized: true, inspector: 'select', overridable: true },
+    stringProperty('areaId', 'Area ID', 'Area'),
+    nodeReference('area', 'Area', 'area'),
+    jsonProperty('data', 'Area Data', 'Area', {}),
+  ],
+  references: [{ key: 'area', label: 'Area', required: true, expectedCapability: 'area' }],
+};
+
 export const GAME_SCRIPT_DESCRIPTORS = Object.freeze([
   CHARACTER_SCRIPT_DESCRIPTOR,
   PLAYER_SCRIPT_DESCRIPTOR,
@@ -423,6 +457,8 @@ export const GAME_SCRIPT_DESCRIPTORS = Object.freeze([
   COLLECTIBLE_SCRIPT_DESCRIPTOR,
   INTERACTION_SCRIPT_DESCRIPTOR,
   WORLD_EXIT_SCRIPT_DESCRIPTOR,
+  WORLD_DEFINITION_SCRIPT_DESCRIPTOR,
+  WORLD_AREA_SCRIPT_DESCRIPTOR,
 ]);
 
 export function createGameScriptRegistry(services: ScriptServiceMap = {}): ScriptRegistry {
@@ -441,7 +477,9 @@ export function createGameScriptRegistry(services: ScriptServiceMap = {}): Scrip
     .registerDefinition({ descriptor: RESOURCE_NODE_SCRIPT_DESCRIPTOR, factory: (context) => new ResourceNodeScript(context) })
     .registerDefinition({ descriptor: COLLECTIBLE_SCRIPT_DESCRIPTOR, factory: (context) => new CollectibleScript(context) })
     .registerDefinition({ descriptor: INTERACTION_SCRIPT_DESCRIPTOR, factory: (context) => new InteractionScript(context) })
-    .registerDefinition({ descriptor: WORLD_EXIT_SCRIPT_DESCRIPTOR, factory: (context) => new WorldExitScript(context) });
+    .registerDefinition({ descriptor: WORLD_EXIT_SCRIPT_DESCRIPTOR, factory: (context) => new WorldExitScript(context) })
+    .registerDefinition({ descriptor: WORLD_DEFINITION_SCRIPT_DESCRIPTOR, factory: (context) => new WorldDefinitionScript(context) })
+    .registerDefinition({ descriptor: WORLD_AREA_SCRIPT_DESCRIPTOR, factory: (context) => new WorldAreaScript(context) });
 }
 
 export function createGameDescriptorRegistry() {

@@ -20,6 +20,8 @@ export * from './ResourceNodeScript';
 export * from './CollectibleScript';
 export * from './InteractionScript';
 export * from './WorldExitScript';
+export * from './WorldDefinitionScript';
+export * from './WorldAreaScript';
 export * from './registrations';
 export * from '../../infrastructure/scenes/compatibility/LegacyChestUiBridge';
 export * from '../../infrastructure/scenes/compatibility/LegacyBossUiBridge';

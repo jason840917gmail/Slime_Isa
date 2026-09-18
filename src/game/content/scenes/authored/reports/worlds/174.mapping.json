@@ -6,7 +6,10 @@
     "objects": 385,
     "bossCamps": 0,
     "playerMarkers": 1,
-    "exits": 0
+    "exits": 0,
+    "enemySafeZones": 1,
+    "enemySpawnAreas": 0,
+    "npcWanderAreas": 0
   },
   "worldInstanceCount": 385,
   "placements": [
@@ -4254,6 +4257,20 @@
       "position": [
         32,
         32
+      ]
+    }
+  ],
+  "areas": [
+    {
+      "sourceKind": "enemy-safe-zone",
+      "sourcePath": "$.enemySafeZones[0]",
+      "sourceId": "enemy-safe-1",
+      "areaNodeId": "area-enemy-safe-1",
+      "shapeNodeId": "area-enemy-safe-1-shape",
+      "scriptNodeId": "area-enemy-safe-1-script",
+      "position": [
+        1472,
+        1376
       ]
     }
   ]

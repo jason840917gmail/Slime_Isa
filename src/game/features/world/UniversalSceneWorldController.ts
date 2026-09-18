@@ -1,8 +1,7 @@
 import Phaser from 'phaser';
 
-import type { MapBossCamp, MapEnemySafeZone, MapFile } from '../../content/maps/mapFormat';
+import type { MapEnemySafeZone, MapFile } from '../../content/maps/mapFormat';
 import { getCharacterPackage } from '../../content/characters/CharacterCatalog';
-import { getObjectArchetype, isObjectArchetypeId } from '../../content/objects/ObjectCatalog';
 import { sceneId, type SceneId } from '../../content/scenes/identifiers';
 import { getBossDefinition } from '../../content/bosses/BossCatalog';
 import { ASSET_MANIFEST, type AssetId } from '../../infrastructure/assets/manifest';
@@ -25,7 +24,7 @@ import type { NpcActorHandle, QuestNpcRegistration } from '../interaction/QuestN
 import { createNpcWanderState, stepNpcWander } from '../npcs/NpcWanderPolicy';
 import type { InventoryWorldTransaction } from '../progression/InventoryWorldTransaction';
 import type { WorldProgress } from '../progression/WorldProgress';
-import type { EnemyPopulationMember, EnemySpawnRequest } from '../../enemies/EnemySpawner';
+import type { EnemyPopulationMember, EnemySpawnRequest } from '../../enemies/AuthoredEnemyPopulationController';
 import type { ManagedEnemyDefeat } from '../combat/CombatController';
 import {
   BOSS_CAMP_PROGRESS_SERVICE,
@@ -94,7 +93,6 @@ import type { LegacyPlayerHealthAdapter } from '../../infrastructure/scenes/comp
 import type { ModalStack } from '../../ui/ModalStack';
 import { ChestInventoryPanel } from '../../ui/ChestInventoryPanel';
 import { BossHealthBar } from '../../ui/BossHealthBar';
-import { bossPerimeterContains } from '../bosses/BossCampBehavior';
 import {
   WORLD_EXIT_SERVICE,
   type WorldExitPort,
@@ -133,7 +131,6 @@ export interface UniversalSceneWorldControllerOptions {
 }
 
 interface ManagedCamp {
-  readonly definition: MapBossCamp;
   readonly script: BossCampScript;
   readonly owner: Node2D;
 }
@@ -228,6 +225,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
   private readonly resources = new Map<string, ManagedResource>();
   private readonly collectibles = new Map<string, ManagedCollectible>();
   private readonly passiveObjects = new Set<Node>();
+  private readonly authoredRoots = new Set<Node2D>();
   private weapon?: ManagedWeapon;
   private readonly npcs = new Map<string, NpcScript>();
   private playerScript?: PlayerScript;
@@ -475,6 +473,17 @@ export class UniversalSceneWorldController implements InteractionProvider {
     };
   }
 
+  isAuthoredCellOccupied(cellX: number, cellY: number, sourceInstanceId: string, tileSize: number): boolean {
+    for (const root of this.authoredRoots) {
+      if (!root.is_inside_tree() || root.is_freed()) continue;
+      const instanceId = root.authoredInstanceProvenance?.authoredInstanceId;
+      if (!instanceId || instanceId === sourceInstanceId) continue;
+      const position = root.get_global_transform().position;
+      if (Math.floor(position.x / tileSize) === cellX && Math.floor((position.y - 1) / tileSize) === cellY) return true;
+    }
+    return false;
+  }
+
   spawnEffect(request: WorldEffectSpawnRequest): boolean {
     const sequence = this.nextEffectSequence++;
     const mount = this.runtime.mountScene(sceneId(`effect.${request.effectId}`), {
@@ -564,6 +573,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.resources.clear();
     this.collectibles.clear();
     this.passiveObjects.clear();
+    this.authoredRoots.clear();
     this.weapon = undefined;
     this.npcs.clear();
     this.playerScript = undefined;
@@ -610,11 +620,11 @@ export class UniversalSceneWorldController implements InteractionProvider {
     for (const script of descendants(mount.root, NpcScript)) this.registerNpcPlacement(script);
     for (const script of descendants(mount.root, ChestScript)) this.chests.set(script.instanceId, script);
     for (const script of descendants(mount.root, BossCampScript)) {
-      const definition = this.options.map.bossCamps?.find((camp) => camp.id === script.campId);
       const owner = authoredInstanceOwner(script);
-      if (definition && owner instanceof Node2D) this.camps.set(script.campId, { definition, script, owner });
+      if (owner instanceof Node2D) this.camps.set(script.campId, { script, owner });
     }
     for (const node of directAuthoredInstanceRoots(mount.root)) {
+      if (node instanceof Node2D) this.authoredRoots.add(node);
       if (isPassiveObjectScene(node.authoredInstanceProvenance?.sourceSceneId ?? '')) this.passiveObjects.add(node);
     }
     this.runtime.tree.flushMutations();
@@ -651,13 +661,8 @@ export class UniversalSceneWorldController implements InteractionProvider {
   }
 
   private acquireNpcAgent(request: NpcRuntimeRequest): NpcWanderAgent | undefined {
-    const placement = this.mapObjectForRuntimeId(request.sourceNodeId);
-    const npcDefinitionId = placement && isObjectArchetypeId(placement.objectId)
-      ? getObjectArchetype(placement.objectId).npc?.definitionId
-      : undefined;
-    if (!placement || !npcDefinitionId) throw new Error(`NPC '${request.sourceNodeId}' has no authored map placement context.`);
     const packageValue = getCharacterPackage(request.characterId);
-    const area = this.options.map.npcWanderAreas?.find((candidate) => candidate.npcInstanceId === placement.instanceId);
+    const area = this.options.map.npcWanderAreas?.find((candidate) => request.sourceNodeId.includes(`/${candidate.npcInstanceId}/`));
     if (!area) return undefined;
     const randomPause = (): number => request.pauseMinMs + Math.random() * Math.max(0, request.pauseMaxMs - request.pauseMinMs);
     return {
@@ -678,35 +683,29 @@ export class UniversalSceneWorldController implements InteractionProvider {
   }
 
   private registerNpcPlacement(script: NpcScript): void {
-    const placement = this.mapObjectForRuntimeId(script.runtimeId);
-    const npcDefinitionId = placement && isObjectArchetypeId(placement.objectId)
-      ? getObjectArchetype(placement.objectId).npc?.definitionId
-      : undefined;
-    if (!placement || !npcDefinitionId) throw new Error(`NPC '${script.runtimeId}' requires an authored map identity.`);
+    const owner = authoredInstanceOwner(script);
+    const instanceId = owner.authoredInstanceProvenance?.authoredInstanceId;
+    if (!instanceId || !script.npcDefinitionId) throw new Error(`NPC '${script.runtimeId}' requires an authored scene identity.`);
     const actor: NpcActorHandle = {
-      instanceId: placement.instanceId,
-      npcId: npcDefinitionId,
+      instanceId,
+      npcId: script.npcDefinitionId,
       isActive: () => script.isActive(),
       getPosition: () => script.getPosition(),
       acquireInteractionLock: () => script.acquireInteractionLock(),
     };
-    this.npcs.set(placement.instanceId, script);
+    this.npcs.set(instanceId, script);
     this.options.registerNpc?.({
       actor,
-      instanceId: placement.instanceId,
-      npcDefinitionId,
+      instanceId,
+      npcDefinitionId: script.npcDefinitionId,
     });
-  }
-
-  private mapObjectForRuntimeId(runtimeId: string): MapFile['objects'][number] | undefined {
-    return this.options.map.objects.find((candidate) => runtimeId.includes(`/${candidate.instanceId}/`));
   }
 
   private evaluateCamps(): void {
     const epochNow = Date.now();
     for (const camp of this.camps.values()) {
       const player = this.managedPlayer.getPosition();
-      const inside = bossPerimeterContains(camp.definition.activationPerimeter, player.x, player.y);
+      const inside = camp.script.containsActivationPoint(player.x, player.y);
       camp.script.evaluateActivation(inside, epochNow);
     }
   }

@@ -6149,7 +6149,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "map:236",
@@ -7041,7 +7041,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "map:cole",
@@ -7867,7 +7867,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "map:crystal-caverns",
@@ -7908,7 +7908,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "map:depth-occlusion-test",
@@ -7955,7 +7955,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "map:emberleef",
@@ -8643,7 +8643,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "map:girls",
@@ -8938,7 +8938,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "map:gloop-forest",
@@ -9045,7 +9045,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "map:hot",
@@ -9190,7 +9190,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "map:icege",
@@ -9587,7 +9587,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "map:jk",
@@ -9805,7 +9805,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "map:level-1",
@@ -9880,7 +9880,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "map:meadow-crossing",
@@ -10341,7 +10341,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "map:test-rectangle",
@@ -10384,7 +10384,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "map:tiktok",
@@ -11688,7 +11688,7 @@
       "outputs": [],
       "consumedFieldPaths": [],
       "intentionallyRetainedFields": [],
-      "writerState": "legacy"
+      "writerState": "scene"
     },
     {
       "key": "npc:level-1-spider-giver",

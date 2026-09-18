@@ -95,6 +95,7 @@
           "nodeId": "animation"
         },
         "characterId": "lili",
+        "npcDefinitionId": "lili",
         "wanderSpeed": 28,
         "pauseMinMs": 1200,
         "pauseMaxMs": 2400

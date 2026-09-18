@@ -5,29 +5,33 @@ import { loadTypescriptModule } from '../helpers/load-typescript.mjs';
 
 const t = await loadTypescriptModule('src/game/infrastructure/scenes/tooling.ts');
 
-function loadedMap(mapId) {
-  return {
-    map: { version: 1, mapId },
-    dimensions: { columns: 1, rows: 1, tileSize: 64, width: 64, height: 64 },
-  };
-}
-
 function packedScene(sceneId) {
-  return { definition: { sourceSceneId: sceneId } };
+  const mapId = sceneId.replace('world.', '');
+  return { definition: {
+    sourceSceneId: sceneId,
+    nodes: [
+      { authoredNodeId: 'world-definition', scriptId: 'game.world-definition', properties: {
+        mapId, tileSize: 64, columns: 1, rows: 1,
+        metadata: { objects: [], player: { spawn: { x: 32, y: 32 }, entries: {} } },
+      } },
+      { authoredNodeId: 'ground', name: 'ground', type: 'TileMapLayer2D', order: 0, properties: { tileData: { resourceId: 'tiles.test.data' } } },
+      { authoredNodeId: 'player-spawn', name: 'player-spawn', type: 'Node2D', order: 1, properties: { position: [32, 32] } },
+    ],
+    resources: [{ version: 1, resourceId: 'tiles.test.data', kind: 'tile-data', tileSet: 'tiles.test.set', columns: 1, rows: 1, cells: [{ x: 0, y: 0, tileId: 'grass' }] }],
+  } };
 }
 
-test('world loading publishes one result only after map and packed scene resolve', async () => {
+test('world loading publishes one result only after the packed scene resolves', async () => {
   const calls = [];
   let finishScene;
   const loader = new t.WorldSceneLoader(
-    { load: async (mapId) => { calls.push(`map:${mapId}`); return loadedMap(mapId); } },
     { ensure: (sceneId) => new Promise((resolve) => { calls.push(`scene:${sceneId}`); finishScene = () => resolve(packedScene(sceneId)); }) },
   );
   let settled = false;
   const pending = loader.load('level-1').then((value) => { settled = true; return value; });
   await new Promise((resolve) => setTimeout(resolve, 0));
   assert.equal(settled, false);
-  assert.deepEqual(calls, ['map:level-1', 'scene:world.level-1']);
+  assert.deepEqual(calls, ['scene:world.level-1']);
   finishScene();
   const result = await pending;
   assert.equal(result.mapId, 'level-1');
@@ -36,38 +40,29 @@ test('world loading publishes one result only after map and packed scene resolve
   assert.equal(result.packedScene.definition.sourceSceneId, 'world.level-1');
 });
 
-test('missing maps and mismatched packed scenes never produce a partial world result', async () => {
-  let sceneLoads = 0;
-  const missing = new t.WorldSceneLoader(
-    { load: async () => null },
-    { ensure: async (sceneId) => { sceneLoads += 1; return packedScene(sceneId); } },
-  );
-  await assert.rejects(missing.load('missing'), /Required authored map 'missing'/);
-  assert.equal(sceneLoads, 0);
-
+test('mismatched or incomplete packed scenes never produce a partial world result', async () => {
   const mismatched = new t.WorldSceneLoader(
-    { load: async (mapId) => loadedMap(mapId) },
     { ensure: async () => packedScene('world.somewhere-else') },
   );
   await assert.rejects(mismatched.load('level-1'), /requested scene 'world.level-1' but resolved 'world.somewhere-else'/);
+
+  const incomplete = new t.WorldSceneLoader({ ensure: async (sceneId) => ({ definition: { sourceSceneId: sceneId, nodes: [], resources: [] } }) });
+  await assert.rejects(incomplete.load('level-1'), /requires a game.world-definition/);
 });
 
-test('world loading forwards cancellation through both source boundaries', async () => {
+test('world loading forwards cancellation through the scene source boundary', async () => {
   const controller = new AbortController();
   let observedSignal;
-  let finishMap;
+  let finishScene;
   const loader = new t.WorldSceneLoader(
-    {
-      load: (_mapId, signal) => new Promise((resolve) => {
+    { ensure: (_sceneId, signal) => new Promise((resolve) => {
         observedSignal = signal;
-        finishMap = () => resolve(loadedMap('level-1'));
-      }),
-    },
-    { ensure: async (sceneId) => packedScene(sceneId) },
+        finishScene = () => resolve(packedScene('world.level-1'));
+      }) },
   );
   const pending = loader.load('level-1', controller.signal);
   controller.abort();
-  finishMap();
+  finishScene();
   await assert.rejects(pending, { name: 'AbortError' });
   assert.equal(observedSignal, controller.signal);
 });

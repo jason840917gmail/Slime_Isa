@@ -28,6 +28,9 @@ test('every authored map placement has exactly one reported scene owner', async 
       bossCamps: map.bossCamps?.length ?? 0,
       playerMarkers: 1 + Object.keys(map.player.entries).length,
       exits: map.exits?.length ?? 0,
+      enemySafeZones: map.enemySafeZones?.length ?? 0,
+      enemySpawnAreas: map.enemySpawnAreas?.length ?? 0,
+      npcWanderAreas: map.npcWanderAreas?.length ?? 0,
     });
     assert.equal(report.placements.length, map.objects.length + (map.bossCamps?.length ?? 0));
     assert.equal(world.instances.length, report.worldInstanceCount);
@@ -53,6 +56,22 @@ test('every authored map placement has exactly one reported scene owner', async 
       const nodeId = mapping.nodeId ?? mapping.areaNodeId;
       assert.equal(world.nodes.filter((node) => node.id === nodeId).length, 1, `${map.mapId} lost ${mapping.sourcePath}`);
     }
+    const expectedAreaPaths = [
+      ...(map.enemySafeZones ?? []).map((_, index) => `$.enemySafeZones[${index}]`),
+      ...(map.enemySpawnAreas ?? []).map((_, index) => `$.enemySpawnAreas[${index}]`),
+      ...(map.npcWanderAreas ?? []).map((_, index) => `$.npcWanderAreas[${index}]`),
+    ];
+    assert.deepEqual(report.areas.map((mapping) => mapping.sourcePath), expectedAreaPaths);
+    for (const mapping of report.areas) {
+      assert.equal(world.nodes.find((node) => node.id === mapping.areaNodeId)?.type, 'Area2D');
+      assert.equal(world.nodes.find((node) => node.id === mapping.scriptNodeId)?.scriptId, 'game.world-area');
+    }
+    const worldDefinition = world.nodes.find((node) => node.scriptId === 'game.world-definition');
+    assert.equal(worldDefinition.properties.mapId, map.mapId);
+    assert.deepEqual(
+      [worldDefinition.properties.tileSize, worldDefinition.properties.columns, worldDefinition.properties.rows],
+      [map.tileSize, map.size.columns, map.size.rows],
+    );
   }
 });
 

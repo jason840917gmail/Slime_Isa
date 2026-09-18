@@ -1,7 +1,9 @@
 import type { DescriptorRegistry } from '../../content/scenes/propertyDescriptors';
 import { createGameDescriptorRegistry } from '../../features/scripts/registrations';
+import type { TileDataResourceDocument, TileSetResourceDocument } from '../../content/scenes/resources/types';
+import type { AuthoredNodeId } from '../../content/scenes/identifiers';
 import type { SceneNodeDocument } from '../../content/scenes/types';
-import { SceneStudioConflictError, SceneStudioRepository, type SceneStudioContentSummary } from '../../infrastructure/scenes/editor/SceneStudioRepository';
+import { SceneStudioConflictError, SceneStudioRepository, type SceneStudioContentSummary, type SceneStudioDocument } from '../../infrastructure/scenes/editor/SceneStudioRepository';
 import { handleStudioHistoryShortcut } from '../StudioHistoryShortcut';
 import { PropertyEditorRegistry } from './PropertyEditorRegistry';
 import { sceneCommands } from './SceneCommand';
@@ -11,9 +13,25 @@ import { renderSceneInspector, sceneInspectorModel } from './SceneInspector';
 import { formatSceneStudioRoute, parseSceneStudioRoute } from './SceneStudioRoute';
 import { renderSceneTreePanel, sceneTreeRows, type SceneTreeRow } from './SceneTreePanel';
 import { SceneViewportState } from './SceneViewport';
+import { createTileLayerDraft, TileMapContext, tileDataResourceId, type TilePaintTool } from './contexts/TileMapContext';
 
 function escapeHtml(value: unknown): string {
   return String(value ?? '').replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character] ?? character);
+}
+
+interface LoadedTileContext {
+  readonly context: TileMapContext;
+  readonly relativePath: string;
+  tileSetDocument: TileSetResourceDocument;
+  hash?: string;
+}
+
+function isTileDataDocument(document: SceneStudioDocument): document is TileDataResourceDocument {
+  return 'kind' in document && document.kind === 'tile-data';
+}
+
+function isTileSetDocument(document: SceneStudioDocument): document is TileSetResourceDocument {
+  return 'kind' in document && document.kind === 'tile-set';
 }
 
 export class SceneStudioController {
@@ -25,6 +43,7 @@ export class SceneStudioController {
   private relativePath?: string;
   private selectedKey?: string;
   private rows: readonly SceneTreeRow[] = [];
+  private readonly tileContexts = new Map<AuthoredNodeId, LoadedTileContext>();
   private message = 'Loading authored content…';
   private creationSearch?: string;
 
@@ -75,6 +94,7 @@ export class SceneStudioController {
     if (record.kind !== 'scene' || !('sceneId' in record.document)) throw new Error(`'${sceneId}' is not a scene document`);
     this.state = new SceneDocumentState(record.document, { registry: this.registry }, record.hash);
     this.relativePath = record.relativePath;
+    await this.loadTileContexts(record.document);
     this.selectedKey = `:${record.document.rootNodeId}`;
     this.message = record.repairMode ? `Repair mode · ${record.issues.length} issue${record.issues.length === 1 ? '' : 's'}` : 'Document matches runtime contracts';
     window.history.replaceState(null, '', formatSceneStudioRoute({ active: true, scene: record.document.sceneId }, window.location.search));
@@ -84,8 +104,27 @@ export class SceneStudioController {
   private async save(): Promise<void> {
     if (!this.state || !this.relativePath) return;
     try {
-      const [result] = await this.repository.save([{ kind: 'scene', id: this.state.sceneId, relativePath: this.relativePath, document: this.state.document, expectedHash: this.state.diskHash ?? null }]);
-      this.state.markSaved(result.hash);
+      const writes = [
+        ...(this.state.dirty ? [{ kind: 'scene' as const, id: this.state.sceneId, relativePath: this.relativePath, document: this.state.document, expectedHash: this.state.diskHash ?? null }] : []),
+        ...[...this.tileContexts.entries()]
+          .filter(([nodeId, entry]) => this.state?.document.nodes.some((node) => node.id === nodeId) && (entry.context.dirty || entry.hash === undefined))
+          .map(([, entry]) => ({
+          kind: 'resource' as const,
+          id: entry.context.document.resourceId,
+          relativePath: entry.relativePath,
+          document: entry.context.document,
+          expectedHash: entry.hash ?? null,
+        })),
+      ];
+      if (writes.length === 0) return;
+      const results = await this.repository.save(writes);
+      for (const result of results) {
+        if (result.kind === 'scene') this.state.markSaved(result.hash);
+        else {
+          const entry = [...this.tileContexts.values()].find((candidate) => candidate.context.document.resourceId === result.id);
+          if (entry) { entry.hash = result.hash; entry.context.markSaved(); }
+        }
+      }
       this.message = 'Committed · disk and editor are synchronized';
     } catch (error) {
       this.message = error instanceof SceneStudioConflictError ? 'Save conflict · reload or preserve your draft before retrying' : error instanceof Error ? error.message : String(error);
@@ -93,12 +132,44 @@ export class SceneStudioController {
     this.render();
   }
 
-  private undo(): boolean { const changed = this.state?.undo() ?? false; if (changed) this.message = 'Undid command'; return changed; }
-  private redo(): boolean { const changed = this.state?.redo() ?? false; if (changed) this.message = 'Redid command'; return changed; }
+  private undo(): boolean {
+    const tile = this.selectedTileContext();
+    const changed = tile?.context.canUndo ? tile.context.undo() : this.state?.undo() ?? false;
+    if (changed) this.message = 'Undid command';
+    return changed;
+  }
+
+  private redo(): boolean {
+    const tile = this.selectedTileContext();
+    const changed = tile?.context.canRedo ? tile.context.redo() : this.state?.redo() ?? false;
+    if (changed) this.message = 'Redid command';
+    return changed;
+  }
 
   private async handleClick(event: Event): Promise<void> {
-    const target = event.target instanceof Element ? event.target.closest<HTMLElement>('[data-scene-id],[data-scene-tree-key],[data-action],[data-scene-add],[data-create-type],[data-create-script-id],[data-open-source],[data-node-id]') : null;
+    const target = event.target instanceof Element ? event.target.closest<HTMLElement>('[data-scene-id],[data-scene-tree-key],[data-action],[data-scene-add],[data-create-type],[data-create-script-id],[data-open-source],[data-node-id],[data-tile-cell],[data-tile-id],[data-tile-tool]') : null;
     if (!target) return;
+    const tile = this.selectedTileContext();
+    if (target.hasAttribute('data-tile-cell') && tile) {
+      try {
+        tile.context.paint({ x: Number(target.dataset.x), y: Number(target.dataset.y) });
+        this.message = `${tile.context.tool === 'erase' ? 'Erased' : 'Painted'} tile ${target.dataset.x},${target.dataset.y}`;
+      } catch (error) { this.message = error instanceof Error ? error.message : String(error); }
+      this.render();
+      return;
+    }
+    if (target.dataset.tileId && tile) {
+      try { tile.context.selectTile(target.dataset.tileId); this.message = `Brush · ${target.dataset.tileId}`; }
+      catch (error) { this.message = error instanceof Error ? error.message : String(error); }
+      this.render();
+      return;
+    }
+    if (target.dataset.tileTool && tile) {
+      tile.context.selectTool(target.dataset.tileTool as TilePaintTool);
+      this.message = `Tile tool · ${target.dataset.tileTool}`;
+      this.render();
+      return;
+    }
     if (target.dataset.sceneId) { await this.open(target.dataset.sceneId); return; }
     if (target.dataset.sceneTreeKey) {
       const row = this.rows.find((candidate) => candidate.key === target.dataset.sceneTreeKey);
@@ -135,12 +206,34 @@ export class SceneStudioController {
     if (target.dataset.action === 'save') await this.save();
     else if (target.dataset.action === 'undo') { this.undo(); this.render(); }
     else if (target.dataset.action === 'redo') { this.redo(); this.render(); }
+    else if (target.dataset.action === 'toggle-tile-collision' && tile) { tile.context.toggleCollision(); this.render(); }
+    else if (target.dataset.action === 'toggle-effective-region' && tile) { tile.context.toggleEffectiveRegion(); this.render(); }
+    else if (target.dataset.action === 'tile-pan-left' && tile) { tile.context.panBy(-8, 0); this.render(); }
+    else if (target.dataset.action === 'tile-pan-right' && tile) { tile.context.panBy(8, 0); this.render(); }
+    else if (target.dataset.action === 'tile-pan-up' && tile) { tile.context.panBy(0, -6); this.render(); }
+    else if (target.dataset.action === 'tile-pan-down' && tile) { tile.context.panBy(0, 6); this.render(); }
+    else if (target.dataset.action === 'tile-zoom-in' && tile) { tile.context.setZoom(tile.context.zoom + 0.25); this.render(); }
+    else if (target.dataset.action === 'tile-zoom-out' && tile) { tile.context.setZoom(tile.context.zoom - 0.25); this.render(); }
+    else if (target.dataset.action === 'tile-layer-up' && tile) { this.reorderSelectedTileLayer(-1); }
+    else if (target.dataset.action === 'tile-layer-down' && tile) { this.reorderSelectedTileLayer(1); }
+    else if (target.dataset.action === 'add-tile-layer' && tile) { this.addTileLayer(tile); }
     else if (target.dataset.action === 'close-create') { this.creationSearch = undefined; this.render(); }
   }
 
   private handleChange(event: Event): void {
     if (!this.state || (!(event.target instanceof HTMLInputElement) && !(event.target instanceof HTMLSelectElement) && !(event.target instanceof HTMLTextAreaElement))) return;
     if (event.target.dataset.creationSearch !== undefined) return;
+    const tile = this.selectedTileContext();
+    if (event.target.dataset.tileBrushSize !== undefined && tile) {
+      try { tile.context.setBrushSize(Number(event.target.value)); this.message = `Brush footprint · ${event.target.value}×${event.target.value}`; }
+      catch (error) { this.message = error instanceof Error ? error.message : String(error); }
+      this.render();
+      return;
+    }
+    if (event.target.dataset.tileSet !== undefined && tile) {
+      void this.changeTileSet(tile, event.target.value);
+      return;
+    }
     const property = event.target.dataset.property;
     const selection = this.state.selection;
     if (!property || selection.kind !== 'node') return;
@@ -152,6 +245,95 @@ export class SceneStudioController {
       this.state.execute(sceneCommands.setProperty(selection.nodeId, property, this.propertyEditors.get(descriptor.inspector).parse(raw, descriptor)));
       this.message = `Changed ${descriptor.label}`;
     } catch (error) { this.message = error instanceof Error ? error.message : String(error); }
+    this.render();
+  }
+
+  private async loadTileContexts(document: { readonly nodes: readonly SceneNodeDocument[] }): Promise<void> {
+    this.tileContexts.clear();
+    for (const node of document.nodes) {
+      if (node.type !== 'TileMapLayer2D') continue;
+      const dataId = tileDataResourceId(node);
+      if (!dataId) throw new Error(`Tile layer '${node.id}' requires an external tileData resource`);
+      const dataRecord = await this.repository.load('resource', dataId);
+      if (dataRecord.kind !== 'resource' || !isTileDataDocument(dataRecord.document)) {
+        throw new Error(`Tile layer '${node.id}' requires tile-data resource '${dataId}'`);
+      }
+      const tileSetRecord = await this.repository.load('resource', dataRecord.document.tileSet);
+      if (tileSetRecord.kind !== 'resource' || !isTileSetDocument(tileSetRecord.document)) {
+        throw new Error(`Tile data '${dataId}' requires tile-set resource '${dataRecord.document.tileSet}'`);
+      }
+      this.tileContexts.set(node.id, {
+        context: new TileMapContext(dataRecord.document, tileSetRecord.document),
+        relativePath: dataRecord.relativePath,
+        tileSetDocument: tileSetRecord.document,
+        hash: dataRecord.hash,
+      });
+    }
+  }
+
+  private selectedTileContext(): LoadedTileContext | undefined {
+    const selection = this.state?.selection;
+    return selection?.kind === 'node' ? this.tileContexts.get(selection.nodeId) : undefined;
+  }
+
+  private async changeTileSet(entry: LoadedTileContext, tileSetId: string): Promise<void> {
+    try {
+      const record = await this.repository.load('resource', tileSetId);
+      if (record.kind !== 'resource' || !isTileSetDocument(record.document)) throw new Error(`'${tileSetId}' is not a tile-set resource`);
+      entry.context.selectTileSet(record.document);
+      entry.tileSetDocument = record.document;
+      this.message = `Tile set · ${tileSetId}`;
+    } catch (error) { this.message = error instanceof Error ? error.message : String(error); }
+    this.render();
+  }
+
+  private reorderSelectedTileLayer(offset: number): void {
+    const selection = this.state?.selection;
+    if (!this.state || selection?.kind !== 'node') return;
+    const node = this.state.document.nodes.find((candidate) => candidate.id === selection.nodeId);
+    if (!node?.parentId) return;
+    this.state.execute(sceneCommands.reorderNode(node.id, node.order + offset));
+    this.message = `Moved ${node.name} ${offset < 0 ? 'up' : 'down'}`;
+    this.render();
+  }
+
+  private addTileLayer(source: LoadedTileContext): void {
+    if (!this.state) return;
+    const document = this.state.document;
+    const selection = this.state.selection;
+    if (selection.kind !== 'node') return;
+    const sourceNode = document.nodes.find((node) => node.id === selection.nodeId);
+    if (!sourceNode?.parentId) return;
+    let sequence = 1;
+    let nodeId = `layer-overlay-${sequence}`;
+    while (document.nodes.some((node) => node.id === nodeId)) nodeId = `layer-overlay-${++sequence}`;
+    const tileSize = typeof sourceNode.properties.tileSize === 'number' ? sourceNode.properties.tileSize : 64;
+    const seed = typeof sourceNode.properties.seed === 'number' ? sourceNode.properties.seed : 1;
+    const draft = createTileLayerDraft({
+      sceneId: document.sceneId,
+      nodeId,
+      name: `overlay-${sequence}`,
+      parentId: sourceNode.parentId,
+      order: sourceNode.order + 1,
+      columns: source.context.document.columns,
+      rows: source.context.document.rows,
+      tileSize,
+      tileSet: source.context.document.tileSet,
+      seed,
+    });
+    this.state.execute(sceneCommands.addNode(draft.node));
+    this.tileContexts.set(draft.node.id, {
+      context: new TileMapContext(draft.data, source.tileSetDocument),
+      relativePath: draft.relativePath,
+      tileSetDocument: source.tileSetDocument,
+    });
+    if (!this.catalog.some((item) => item.kind === 'resource' && item.id === draft.data.resourceId)) {
+      this.catalog = [...this.catalog, { kind: 'resource' as const, id: draft.data.resourceId, relativePath: draft.relativePath }]
+        .sort((left, right) => left.relativePath.localeCompare(right.relativePath));
+    }
+    this.selectedKey = `:${draft.node.id}`;
+    this.state.select({ kind: 'node', nodeId: draft.node.id });
+    this.message = `Added tile layer ${draft.node.name}`;
     this.render();
   }
 
@@ -167,9 +349,20 @@ export class SceneStudioController {
     this.rows = state ? sceneTreeRows(state.document) : [];
     const selectedRow = this.rows.find((row) => row.key === this.selectedKey);
     const selectedNode = state && selectedRow?.kind === 'node' && !selectedRow.readOnly ? state.document.nodes.find((node) => node.id === selectedRow.nodeId) : undefined;
-    const inspector = selectedNode ? renderSceneInspector(sceneInspectorModel(selectedNode, this.registry)) : '<aside class="scene-inspector scene-empty"><span>INSPECTOR</span><p>Select a local node to inspect its authored properties.</p></aside>';
+    const tile = selectedNode ? this.tileContexts.get(selectedNode.id) : undefined;
+    const baseInspector = selectedNode ? renderSceneInspector(sceneInspectorModel(selectedNode, this.registry)) : '<aside class="scene-inspector scene-empty"><span>INSPECTOR</span><p>Select a local node to inspect its authored properties.</p></aside>';
+    const inspector = tile && selectedNode
+      ? baseInspector.replace('</aside>', `${renderTileMapTools(tile.context, this.tileSetSummaries())}</aside>`)
+      : baseInspector;
     const viewportNodes = state ? this.viewport.nodes(state.document.nodes) : [];
-    this.container.innerHTML = `<main class="scene-studio" data-scene-studio><header class="scene-topbar"><div><span>FIELD CARTOGRAPHER / UNIVERSAL GRAPH</span><h1>Scene Studio</h1></div><div class="scene-command-bar"><button type="button" data-action="undo" ${!state?.canUndo ? 'disabled' : ''}>Undo</button><button type="button" data-action="redo" ${!state?.canRedo ? 'disabled' : ''}>Redo</button><button type="button" class="scene-save" data-action="save" ${!state?.dirty ? 'disabled' : ''}>${state?.dirty ? 'Save changes' : 'Saved'}</button></div></header><aside class="scene-explorer" aria-label="Project explorer"><label><span>EXPEDITION INDEX</span><input type="search" placeholder="Filter scenes and resources" aria-label="Filter scenes and resources" /></label><nav aria-label="Scenes"><h2>Scenes <em>${scenes.length}</em></h2>${scenes.map((item) => `<button type="button" data-scene-id="${escapeHtml(item.id)}" class="${item.id === state?.sceneId ? 'is-current' : ''}"><span>◫</span><strong>${escapeHtml(item.id)}</strong></button>`).join('') || '<p>No scene documents</p>'}<h2>Resources <em>${resources.length}</em></h2>${resources.map((item) => `<div class="scene-resource-row"><span>◈</span>${escapeHtml(item.id)}<small>${escapeHtml(item.relativePath)}</small></div>`).join('') || '<p>No external resources</p>'}</nav></aside><section class="scene-workbench">${state ? renderSceneTreePanel(this.rows, this.selectedKey) : '<section class="scene-tree-panel scene-empty"><p>Open a scene to reveal its graph.</p></section>'}<section class="scene-viewport" aria-label="2D viewport"><div class="scene-grid" style="--scene-zoom:${this.viewport.zoom}">${viewportNodes.map((node) => `<button type="button" class="scene-viewport-node${node.selected ? ' is-selected' : ''}" style="--x:${node.position[0]};--y:${node.position[1]}" data-node-id="${escapeHtml(node.id)}" aria-label="Select ${escapeHtml(node.name)}"><span>${escapeHtml(node.name)}</span></button>`).join('')}<div class="scene-origin">0,0</div></div><footer><span>ZOOM ${(this.viewport.zoom * 100).toFixed(0)}%</span><span>${selectedNode ? escapeHtml(selectedNode.type) : 'NO SELECTION'}</span></footer></section>${inspector}</section><footer class="scene-status" role="status"><span class="${state?.repairMode ? 'is-warning' : ''}">${escapeHtml(this.message)}</span><span>${state ? `${state.document.nodes.length} NODES · ${state.document.instances.length} INSTANCES${state.dirty ? ' · UNSAVED' : ''}` : 'AUTHORING SYSTEM READY'}</span></footer>${this.creationSearch !== undefined ? this.renderCreationDialog() : ''}</main>`;
+    const activeTileIds = new Set(state?.document.nodes.filter((node) => node.type === 'TileMapLayer2D').map((node) => node.id) ?? []);
+    const dirty = Boolean(state?.dirty || [...this.tileContexts.entries()].some(([nodeId, entry]) => activeTileIds.has(nodeId) && (entry.context.dirty || entry.hash === undefined)));
+    const canUndo = Boolean(tile?.context.canUndo || state?.canUndo);
+    const canRedo = Boolean(tile?.context.canRedo || state?.canRedo);
+    const viewport = tile && selectedNode
+      ? renderTileMapViewport(tile.context, selectedNode)
+      : `<section class="scene-viewport" aria-label="2D viewport"><div class="scene-grid" style="--scene-zoom:${this.viewport.zoom}">${viewportNodes.map((node) => `<button type="button" class="scene-viewport-node${node.selected ? ' is-selected' : ''}" style="--x:${node.position[0]};--y:${node.position[1]}" data-node-id="${escapeHtml(node.id)}" aria-label="Select ${escapeHtml(node.name)}"><span>${escapeHtml(node.name)}</span></button>`).join('')}<div class="scene-origin">0,0</div></div><footer><span>ZOOM ${(this.viewport.zoom * 100).toFixed(0)}%</span><span>${selectedNode ? escapeHtml(selectedNode.type) : 'NO SELECTION'}</span></footer></section>`;
+    this.container.innerHTML = `<main class="scene-studio" data-scene-studio><header class="scene-topbar"><div><span>FIELD CARTOGRAPHER / UNIVERSAL GRAPH</span><h1>Scene Studio</h1></div><div class="scene-command-bar"><button type="button" data-action="undo" ${!canUndo ? 'disabled' : ''}>Undo</button><button type="button" data-action="redo" ${!canRedo ? 'disabled' : ''}>Redo</button><button type="button" class="scene-save" data-action="save" ${!dirty ? 'disabled' : ''}>${dirty ? 'Save changes' : 'Saved'}</button></div></header><aside class="scene-explorer" aria-label="Project explorer"><label><span>EXPEDITION INDEX</span><input type="search" placeholder="Filter scenes and resources" aria-label="Filter scenes and resources" /></label><nav aria-label="Scenes"><h2>Scenes <em>${scenes.length}</em></h2>${scenes.map((item) => `<button type="button" data-scene-id="${escapeHtml(item.id)}" class="${item.id === state?.sceneId ? 'is-current' : ''}"><span>◫</span><strong>${escapeHtml(item.id)}</strong></button>`).join('') || '<p>No scene documents</p>'}<h2>Resources <em>${resources.length}</em></h2>${resources.map((item) => `<div class="scene-resource-row"><span>◈</span>${escapeHtml(item.id)}<small>${escapeHtml(item.relativePath)}</small></div>`).join('') || '<p>No external resources</p>'}</nav></aside><section class="scene-workbench">${state ? renderSceneTreePanel(this.rows, this.selectedKey) : '<section class="scene-tree-panel scene-empty"><p>Open a scene to reveal its graph.</p></section>'}${viewport}${inspector}</section><footer class="scene-status" role="status"><span class="${state?.repairMode ? 'is-warning' : ''}">${escapeHtml(this.message)}</span><span>${state ? `${state.document.nodes.length} NODES · ${state.document.instances.length} INSTANCES${dirty ? ' · UNSAVED' : ''}` : 'AUTHORING SYSTEM READY'}</span></footer>${this.creationSearch !== undefined ? this.renderCreationDialog() : ''}</main>`;
     if (focused) this.container.querySelector<HTMLElement>(focused)?.focus();
   }
 
@@ -179,6 +372,37 @@ export class SceneStudioController {
   }
 
   private fail(error: unknown): void { this.message = error instanceof Error ? error.message : String(error); this.render(); }
+
+  private tileSetSummaries(): readonly SceneStudioContentSummary[] {
+    return this.catalog.filter((item) => item.kind === 'resource' && item.relativePath.endsWith('.tile-set.resource.json'));
+  }
+}
+
+function renderTileMapTools(context: TileMapContext, tileSets: readonly SceneStudioContentSummary[]): string {
+  const region = context.effectiveRegion;
+  const tileSetOptions = tileSets.map((item) => `<option value="${escapeHtml(item.id)}" ${item.id === context.tileSet.resourceId ? 'selected' : ''}>${escapeHtml(item.id)}</option>`).join('');
+  return `<section class="scene-tile-tools" aria-label="Tile map tools"><header><span>TILE MAP CONTEXT</span><strong>${context.document.columns} × ${context.document.rows}</strong></header><div class="scene-tile-tool-row" role="toolbar" aria-label="Tile paint tools">${(['brush', 'erase', 'fill'] as const).map((tool) => `<button type="button" data-tile-tool="${tool}" aria-pressed="${context.tool === tool}">${tool}</button>`).join('')}</div><label class="scene-tile-field"><span>Brush footprint</span><select data-tile-brush-size><option value="1" ${context.brushSize === 1 ? 'selected' : ''}>1 × 1</option><option value="3" ${context.brushSize === 3 ? 'selected' : ''}>3 × 3</option><option value="5" ${context.brushSize === 5 ? 'selected' : ''}>5 × 5</option></select></label><label class="scene-tile-field"><span>Tile set</span><select data-tile-set>${tileSetOptions}</select></label><div class="scene-tile-palette" aria-label="Tile palette">${Object.entries(context.tileSet.tiles).map(([tileId, tile]) => `<button type="button" data-tile-id="${escapeHtml(tileId)}" class="${context.selectedTile === tileId ? 'is-selected' : ''}"><strong>${escapeHtml(tileId)}</strong><small>${tile.physics ? 'solid' : 'walkable'}</small></button>`).join('')}</div><div class="scene-tile-toggle-row"><button type="button" data-action="toggle-tile-collision" aria-pressed="${context.showCollision}">Collision</button><button type="button" data-action="toggle-effective-region" aria-pressed="${context.showEffectiveRegion}">Effective region</button></div><div class="scene-tile-layer-row"><button type="button" data-action="tile-layer-up">Layer ↑</button><button type="button" data-action="tile-layer-down">Layer ↓</button><button type="button" data-action="add-tile-layer">+ Layer</button></div><p>${region ? `Effective cells ${region.minX},${region.minY} → ${region.maxX},${region.maxY}` : 'Layer is empty'} · snap grid follows authored tile size.</p></section>`;
+}
+
+function renderTileMapViewport(context: TileMapContext, node: SceneNodeDocument): string {
+  const document = context.document;
+  const visibleColumns = Math.min(24, document.columns);
+  const visibleRows = Math.min(18, document.rows);
+  const startX = Math.min(context.pan.x, Math.max(0, document.columns - visibleColumns));
+  const startY = Math.min(context.pan.y, Math.max(0, document.rows - visibleRows));
+  const cells = new Map(context.cells.map((cell) => [`${cell.x},${cell.y}`, cell.tileId]));
+  const region = context.effectiveRegion;
+  const buttons: string[] = [];
+  for (let y = startY; y < startY + visibleRows; y += 1) {
+    for (let x = startX; x < startX + visibleColumns; x += 1) {
+      const tileId = cells.get(`${x},${y}`);
+      const collision = context.showCollision && context.isCollisionCell({ x, y });
+      const effective = context.showEffectiveRegion && region && x >= region.minX && x <= region.maxX && y >= region.minY && y <= region.maxY;
+      buttons.push(`<button type="button" data-tile-cell data-x="${x}" data-y="${y}" class="scene-tile-cell${tileId ? ' is-painted' : ''}${collision ? ' is-collision' : ''}${effective ? ' is-effective' : ''}" aria-label="Cell ${x},${y}${tileId ? ` ${escapeHtml(tileId)}` : ' empty'}"><span>${tileId ? escapeHtml(tileId.slice(0, 2).toUpperCase()) : ''}</span></button>`);
+    }
+  }
+  const tileSize = typeof node.properties.tileSize === 'number' ? node.properties.tileSize : 64;
+  return `<section class="scene-viewport scene-tile-viewport" aria-label="Tile map viewport"><header class="scene-tile-viewport-nav"><div><button type="button" data-action="tile-pan-left" aria-label="Pan left">←</button><button type="button" data-action="tile-pan-up" aria-label="Pan up">↑</button><button type="button" data-action="tile-pan-down" aria-label="Pan down">↓</button><button type="button" data-action="tile-pan-right" aria-label="Pan right">→</button></div><div><button type="button" data-action="tile-zoom-out" aria-label="Zoom out">−</button><button type="button" data-action="tile-zoom-in" aria-label="Zoom in">+</button></div></header><div class="scene-tile-canvas" style="--tile-columns:${visibleColumns};--tile-zoom:${context.zoom}">${buttons.join('')}</div><footer><span>CELLS ${startX},${startY} → ${startX + visibleColumns - 1},${startY + visibleRows - 1}</span><span>SNAP ${tileSize}px · ZOOM ${(context.zoom * 100).toFixed(0)}%</span></footer></section>`;
 }
 
 export function mountSceneStudio(container: HTMLElement): void { void new SceneStudioController(container).start(); }

@@ -95,6 +95,7 @@
           "nodeId": "animation"
         },
         "characterId": "yellow-blond-slime-girl",
+        "npcDefinitionId": "yellow-blond-slime-girl",
         "wanderSpeed": 24,
         "pauseMinMs": 1600,
         "pauseMaxMs": 2800
