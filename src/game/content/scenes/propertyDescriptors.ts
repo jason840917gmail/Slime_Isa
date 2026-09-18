@@ -320,8 +320,52 @@ export function createCoreDescriptorRegistry(scripts: readonly ScriptDescriptor[
       boolean('visible', 'Visible', true), boolean('focused', 'Focused', false), boolean('modal', 'Modal', false),
       boolean('consumeInput', 'Consume Input', false), boolean('processWhenPaused', 'Process When Paused', true),
       { key: 'inputPriority', label: 'Input Priority', value: { kind: 'number', integer: true }, defaultValue: 1000, serialized: true, inspector: 'number', overridable: true },
+      { key: 'styleClass', label: 'Style Class', value: { kind: 'string' }, defaultValue: '', serialized: true, inspector: 'text', overridable: true },
+      { key: 'ariaLabel', label: 'Accessible Label', value: { kind: 'string' }, defaultValue: '', serialized: true, inspector: 'text', overridable: true },
+      { key: 'tooltip', label: 'Tooltip', value: { kind: 'string' }, defaultValue: '', serialized: true, inspector: 'text', overridable: true },
+      { key: 'zIndex', label: 'Stack Order', value: { kind: 'number', integer: true }, defaultValue: 0, serialized: true, inspector: 'number', overridable: true },
       resource('theme', 'Theme', ['theme']),
     ] },
+    { type: 'Container', extends: 'Control', capabilities: ['container'], properties: [
+      { key: 'direction', label: 'Direction', value: { kind: 'enum', values: ['none', 'horizontal', 'vertical'] }, defaultValue: 'none', serialized: true, inspector: 'select', overridable: true },
+      number('gap', 'Gap', 0, 0),
+      { key: 'padding', label: 'Padding', value: { kind: 'json' }, defaultValue: [0, 0, 0, 0], serialized: true, inspector: 'json', overridable: true },
+      { key: 'align', label: 'Cross Axis Alignment', value: { kind: 'enum', values: ['start', 'center', 'end', 'stretch'] }, defaultValue: 'stretch', serialized: true, inspector: 'select', overridable: true },
+      { key: 'justify', label: 'Main Axis Alignment', value: { kind: 'enum', values: ['start', 'center', 'end', 'stretch', 'space-between'] }, defaultValue: 'start', serialized: true, inspector: 'select', overridable: true },
+    ] },
+    { type: 'TextureRect', extends: 'Control', capabilities: ['image-control'], properties: [
+      resource('texture', 'Texture', ['texture', 'sprite-sheet']),
+      { key: 'frame', label: 'Frame', value: { kind: 'number', integer: true, min: 0 }, defaultValue: 0, serialized: true, inspector: 'number', overridable: true },
+      { key: 'fit', label: 'Fit', value: { kind: 'enum', values: ['contain', 'cover', 'fill', 'none'] }, defaultValue: 'contain', serialized: true, inspector: 'select', overridable: true },
+      { key: 'alt', label: 'Alternative Text', value: { kind: 'string' }, defaultValue: '', serialized: true, inspector: 'text', overridable: true },
+    ] },
+    { type: 'Label', extends: 'Control', capabilities: ['text-control'], properties: [
+      { key: 'text', label: 'Text', value: { kind: 'string' }, defaultValue: '', serialized: true, inspector: 'text', overridable: true },
+      { key: 'tone', label: 'Tone', value: { kind: 'enum', values: ['default', 'muted', 'accent', 'info', 'warning', 'danger', 'special'] }, defaultValue: 'default', serialized: true, inspector: 'select', overridable: true },
+      number('fontSize', 'Font Size', 14, 1), number('fontWeight', 'Font Weight', 400, 1),
+      { key: 'textAlign', label: 'Text Alignment', value: { kind: 'enum', values: ['left', 'center', 'right'] }, defaultValue: 'left', serialized: true, inspector: 'select', overridable: true },
+      boolean('wrap', 'Wrap Text', false),
+    ] },
+    { type: 'ProgressBar', extends: 'Control', capabilities: ['status-control'], properties: [
+      number('value', 'Value', 0, 0), number('max', 'Maximum', 1, 0.000001),
+      { key: 'label', label: 'Label', value: { kind: 'string' }, defaultValue: '', serialized: true, inspector: 'text', overridable: true },
+      { key: 'tone', label: 'Tone', value: { kind: 'enum', values: ['default', 'muted', 'accent', 'info', 'warning', 'danger', 'special'] }, defaultValue: 'accent', serialized: true, inspector: 'select', overridable: true },
+      boolean('showValue', 'Show Value', false),
+    ] },
+    { type: 'Button', extends: 'Label', capabilities: ['button-control', 'focusable'], properties: [boolean('disabled', 'Disabled', false)], signals: [{ id: 'pressed' }] },
+    { type: 'ItemList', extends: 'Control', capabilities: ['list-control', 'focusable'], properties: [
+      { key: 'items', label: 'Items', value: { kind: 'json' }, defaultValue: [], serialized: true, inspector: 'json', overridable: true },
+      { key: 'selectedIndex', label: 'Selected Index', value: { kind: 'number', integer: true, min: -1 }, defaultValue: -1, serialized: true, inspector: 'number', overridable: true },
+      { key: 'columns', label: 'Columns', value: { kind: 'number', integer: true, min: 1 }, defaultValue: 1, serialized: true, inspector: 'number', overridable: true },
+      number('gap', 'Gap', 8, 0),
+    ], signals: [{ id: 'item_selected', payload: 'UiListSelection' }] },
+    { type: 'GridContainer', extends: 'Container', capabilities: ['grid-control'], properties: [
+      { key: 'columns', label: 'Columns', value: { kind: 'number', integer: true, min: 1 }, defaultValue: 1, serialized: true, inspector: 'number', overridable: true },
+    ] },
+    { type: 'ScrollContainer', extends: 'Container', capabilities: ['scroll-control'], properties: [
+      { key: 'scrollAxis', label: 'Scroll Axis', value: { kind: 'enum', values: ['horizontal', 'vertical'] }, defaultValue: 'vertical', serialized: true, inspector: 'select', overridable: true },
+    ] },
+    { type: 'ModalRoot', extends: 'Container', capabilities: ['modal-control'], properties: [boolean('open', 'Open', false)], signals: [{ id: 'close_requested' }] },
   ];
   return {
     nodeTypes: new Map(nodeTypes.map((descriptor) => [descriptor.type, descriptor])),

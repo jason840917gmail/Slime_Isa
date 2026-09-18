@@ -1,4 +1,4 @@
-import type { ControlNode, ControlPresentation } from '../../runtime/scene/ui/ControlNode';
+import { ControlNode, type ControlPresentation } from '../../runtime/scene/ui/ControlNode';
 
 export interface ControlPresentationAdapterOptions {
   readonly root: HTMLElement;
@@ -19,7 +19,9 @@ export class ControlPresentationAdapter implements ControlPresentation {
     if (this.elements.has(control)) throw new Error(`Control '${control.name}' already owns a presentation element`);
     const element = this.options.createElement?.(control) ?? document.createElement('div');
     element.dataset.sceneControlId = control.runtimeId;
-    this.options.root.append(element);
+    const parent = control.get_parent();
+    const parentElement = parent instanceof ControlNode ? this.elements.get(parent) : undefined;
+    (parentElement ?? this.options.root).append(element);
     this.elements.set(control, element);
     this.synchronize(control);
     return () => { this.elements.delete(control); element.remove(); };
@@ -28,7 +30,11 @@ export class ControlPresentationAdapter implements ControlPresentation {
   synchronize(control: ControlNode): void {
     const element = this.elements.get(control);
     if (!element) return;
-    const viewport = this.options.viewport?.() ?? { width: this.options.root.clientWidth, height: this.options.root.clientHeight };
+    const parent = control.get_parent();
+    const parentElement = parent instanceof ControlNode ? this.elements.get(parent) : undefined;
+    const viewport = parentElement
+      ? { width: parentElement.clientWidth, height: parentElement.clientHeight }
+      : this.options.viewport?.() ?? { width: this.options.root.clientWidth, height: this.options.root.clientHeight };
     const { anchorMin, anchorMax, offsetMin, offsetMax } = control.layout;
     const left = viewport.width * anchorMin.x + offsetMin.x;
     const top = viewport.height * anchorMin.y + offsetMin.y;

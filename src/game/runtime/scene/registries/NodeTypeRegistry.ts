@@ -44,9 +44,10 @@ export class NodeTypeRegistry {
 export function createCoreNodeTypeRegistry(): NodeTypeRegistry {
   const registry = new NodeTypeRegistry();
   const node2DTypes = ['Node2D', 'Sprite2D', 'CharacterBody2D', 'StaticBody2D', 'Area2D', 'CollisionShape2D', 'TileMapLayer2D', 'Camera2D', 'AudioStreamPlayer2D'];
+  const controlTypes = ['Control', 'Container', 'TextureRect', 'Label', 'ProgressBar', 'Button', 'ItemList', 'GridContainer', 'ScrollContainer', 'ModalRoot'];
   registry.register('Node', ({ runtimeId, name }) => new Node({ runtimeId, name }));
   registry.register('ScriptNode', ({ runtimeId, name }) => new Node({ runtimeId, name }));
-  registry.register('Control', ({ runtimeId, name }) => new Node({ runtimeId, name }));
+  for (const type of controlTypes) registry.register(type, ({ runtimeId, name }) => new Node({ runtimeId, name }));
   registry.register('PhysicsBody2D', () => { throw new Error("PhysicsBody2D is abstract; use CharacterBody2D or StaticBody2D"); });
   for (const type of node2DTypes) registry.register(type, ({ runtimeId, name, properties }) => new Node2D({
     runtimeId,

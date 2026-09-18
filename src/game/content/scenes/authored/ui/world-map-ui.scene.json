@@ -1,0 +1,172 @@
+{
+  "version": 1,
+  "sceneId": "ui.world-map-ui",
+  "rootNodeId": "surface",
+  "nodes": [
+    {
+      "id": "surface",
+      "name": "world-map-ui",
+      "type": "ModalRoot",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "anchorMin": [
+          0.5,
+          0.5
+        ],
+        "anchorMax": [
+          0.5,
+          0.5
+        ],
+        "offsetMin": [
+          -500,
+          -320
+        ],
+        "offsetMax": [
+          500,
+          320
+        ],
+        "theme": {
+          "resourceId": "ui.field-kit.theme"
+        },
+        "styleClass": "game-ui game-ui--world-map-ui",
+        "ariaLabel": "world map ui",
+        "zIndex": 90,
+        "open": false,
+        "focused": false,
+        "inputPriority": 2000
+      }
+    },
+    {
+      "id": "title",
+      "name": "Title",
+      "type": "Label",
+      "parentId": "surface",
+      "order": 0,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          0
+        ],
+        "offsetMax": [
+          0,
+          48
+        ],
+        "text": "World map",
+        "tone": "warning",
+        "fontSize": 24,
+        "fontWeight": 700
+      }
+    },
+    {
+      "id": "map",
+      "name": "Map",
+      "type": "Label",
+      "parentId": "surface",
+      "order": 1,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "offsetMin": [
+          16,
+          60
+        ],
+        "offsetMax": [
+          -16,
+          -56
+        ],
+        "textAlign": "center",
+        "tone": "info",
+        "ariaLabel": "Discovered world map"
+      }
+    },
+    {
+      "id": "close",
+      "name": "Close",
+      "type": "Button",
+      "parentId": "surface",
+      "order": 2,
+      "properties": {
+        "anchorMin": [
+          1,
+          1
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "offsetMin": [
+          -80,
+          -44
+        ],
+        "offsetMax": [
+          0,
+          0
+        ],
+        "text": "Close",
+        "tone": "muted"
+      }
+    },
+    {
+      "id": "script",
+      "name": "UiSurfaceScript",
+      "type": "ScriptNode",
+      "scriptId": "game.ui-surface",
+      "parentId": "surface",
+      "order": 3,
+      "properties": {
+        "surfaceId": "world-map-ui",
+        "modal": true,
+        "bindings": [
+          {
+            "nodePath": "../Map",
+            "property": "text",
+            "model": "summary"
+          },
+          {
+            "nodePath": "..",
+            "property": "open",
+            "model": "open"
+          }
+        ],
+        "actions": {
+          "on_close_action": "close"
+        }
+      }
+    }
+  ],
+  "instances": [],
+  "connections": [
+    {
+      "source": {
+        "nodeId": "surface"
+      },
+      "signal": "close_requested",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_close_action"
+    },
+    {
+      "source": {
+        "nodeId": "close"
+      },
+      "signal": "pressed",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_close_action"
+    }
+  ],
+  "subresources": []
+}

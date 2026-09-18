@@ -11,6 +11,7 @@ import { characterSceneAdapter, enemySceneAdapter } from './lib/scene-conversion
 import { objectSceneAdapter } from './lib/scene-conversion/objects.mjs';
 import { effectSceneAdapter, projectileSceneAdapter, weaponSceneAdapter } from './lib/scene-conversion/combat-entities.mjs';
 import { mapSceneAdapter } from './lib/scene-conversion/maps.mjs';
+import { uiSceneAdapter } from './lib/scene-conversion/ui.mjs';
 import { validateSceneWriteSet } from './lib/scene-conversion/validate-scene-write-set.mjs';
 
 const repositoryRoot = fileURLToPath(new URL('..', import.meta.url));
@@ -99,6 +100,21 @@ const sliceUnitKeys = [
   'map:meadow-crossing',
   'map:test-rectangle',
   'map:tiktok',
+  'ui:ability-bar',
+  'ui:area-title-card',
+  'ui:boss-health-bar',
+  'ui:chest-inventory-panel',
+  'ui:crafting-ui',
+  'ui:floating-text',
+  'ui:health-bar',
+  'ui:hud',
+  'ui:inventory-ui',
+  'ui:level-up-modal',
+  'ui:minimap',
+  'ui:quest-journal',
+  'ui:quest-offer-modal',
+  'ui:weapon-hotbar',
+  'ui:world-map-ui',
 ];
 const unitKeys = explicitUnitKeys.length > 0 ? explicitUnitKeys : sliceUnitKeys;
 const ledger = JSON.parse(await readFile(path.join(repositoryRoot, 'scripts/migrations/universal-scene-conversion-ledger.json'), 'utf8'));
@@ -132,6 +148,7 @@ const runner = new ConversionRunner({
     projectile: projectileSceneAdapter,
     effect: effectSceneAdapter,
     map: mapSceneAdapter,
+    ui: uiSceneAdapter,
   },
   outputRoot: authoredRoot,
   validateWriteSet: (outputs) => validateSceneWriteSet(outputs, {

@@ -1,0 +1,213 @@
+{
+  "version": 1,
+  "sceneId": "ui.quest-journal",
+  "rootNodeId": "surface",
+  "nodes": [
+    {
+      "id": "surface",
+      "name": "quest-journal",
+      "type": "ModalRoot",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "anchorMin": [
+          0.5,
+          0.5
+        ],
+        "anchorMax": [
+          0.5,
+          0.5
+        ],
+        "offsetMin": [
+          -470,
+          -310
+        ],
+        "offsetMax": [
+          470,
+          310
+        ],
+        "theme": {
+          "resourceId": "ui.field-kit.theme"
+        },
+        "styleClass": "game-ui game-ui--quest-journal",
+        "ariaLabel": "quest journal",
+        "zIndex": 90,
+        "open": false,
+        "focused": false,
+        "inputPriority": 2000
+      }
+    },
+    {
+      "id": "title",
+      "name": "Title",
+      "type": "Label",
+      "parentId": "surface",
+      "order": 0,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          0
+        ],
+        "offsetMax": [
+          0,
+          48
+        ],
+        "text": "Quest journal",
+        "tone": "warning",
+        "fontSize": 24,
+        "fontWeight": 700
+      }
+    },
+    {
+      "id": "quests",
+      "name": "Quests",
+      "type": "ItemList",
+      "parentId": "surface",
+      "order": 1,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          0.42,
+          1
+        ],
+        "offsetMin": [
+          0,
+          60
+        ],
+        "offsetMax": [
+          0,
+          -52
+        ],
+        "ariaLabel": "Quests"
+      }
+    },
+    {
+      "id": "details",
+      "name": "Details",
+      "type": "Label",
+      "parentId": "surface",
+      "order": 2,
+      "properties": {
+        "anchorMin": [
+          0.46,
+          0
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "offsetMin": [
+          0,
+          60
+        ],
+        "offsetMax": [
+          0,
+          -52
+        ],
+        "wrap": true,
+        "tone": "muted"
+      }
+    },
+    {
+      "id": "close",
+      "name": "Close",
+      "type": "Button",
+      "parentId": "surface",
+      "order": 3,
+      "properties": {
+        "anchorMin": [
+          1,
+          1
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "offsetMin": [
+          -80,
+          -44
+        ],
+        "offsetMax": [
+          0,
+          0
+        ],
+        "text": "Close",
+        "tone": "muted"
+      }
+    },
+    {
+      "id": "script",
+      "name": "UiSurfaceScript",
+      "type": "ScriptNode",
+      "scriptId": "game.ui-surface",
+      "parentId": "surface",
+      "order": 4,
+      "properties": {
+        "surfaceId": "quest-journal",
+        "modal": true,
+        "bindings": [
+          {
+            "nodePath": "../Quests",
+            "property": "items",
+            "model": "quests"
+          },
+          {
+            "nodePath": "../Details",
+            "property": "text",
+            "model": "details"
+          },
+          {
+            "nodePath": "..",
+            "property": "open",
+            "model": "open"
+          }
+        ],
+        "actions": {
+          "on_item_selected": "select-quest",
+          "on_close_action": "close"
+        }
+      }
+    }
+  ],
+  "instances": [],
+  "connections": [
+    {
+      "source": {
+        "nodeId": "surface"
+      },
+      "signal": "close_requested",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_close_action"
+    },
+    {
+      "source": {
+        "nodeId": "quests"
+      },
+      "signal": "item_selected",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_item_selected"
+    },
+    {
+      "source": {
+        "nodeId": "close"
+      },
+      "signal": "pressed",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_close_action"
+    }
+  ],
+  "subresources": []
+}

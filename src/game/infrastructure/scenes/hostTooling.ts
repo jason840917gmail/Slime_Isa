@@ -10,6 +10,8 @@ export { StaticBody2DNode } from '../phaser-nodes/StaticBody2DNode';
 export { Area2DNode } from '../phaser-nodes/Area2DNode';
 export { CollisionShape2DNode } from '../phaser-nodes/CollisionShape2DNode';
 export { ControlPresentationAdapter } from '../phaser-nodes/ControlPresentationAdapter';
+export { HtmlControlPresentationAdapter } from '../phaser-nodes/ui/HtmlControlPresentationAdapter';
+export * from '../phaser-nodes/ui/ControlNodes';
 export { AudioStreamPlayerNode, AudioPlaybackController } from '../phaser-nodes/AudioStreamPlayerNode';
 export { AudioStreamPlayer2DNode } from '../phaser-nodes/AudioStreamPlayer2DNode';
 export { PresentationSync } from '../phaser-nodes/PresentationSync';

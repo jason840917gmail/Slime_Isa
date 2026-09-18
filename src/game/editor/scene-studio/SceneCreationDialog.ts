@@ -29,4 +29,5 @@ export const COMMON_SCENE_TEMPLATES: readonly SceneAssemblyTemplate[] = [
   { id: 'visual-body', label: 'Visual body', description: 'A generic movable body, sprite, and collision shape.', nodeTypes: ['CharacterBody2D', 'Sprite2D', 'CollisionShape2D'] },
   { id: 'sensor', label: 'Sensor', description: 'A generic area with a collision shape.', nodeTypes: ['Area2D', 'CollisionShape2D'] },
   { id: 'presentation', label: 'Presentation', description: 'Animation and audio presentation nodes.', nodeTypes: ['AnimationPlayer', 'AudioStreamPlayer2D'] },
+  { id: 'interface', label: 'Interface', description: 'Responsive controls authored in the common scene tree.', nodeTypes: ['Control', 'Container', 'TextureRect', 'Label', 'ProgressBar', 'Button', 'ItemList', 'GridContainer', 'ScrollContainer', 'ModalRoot'] },
 ];

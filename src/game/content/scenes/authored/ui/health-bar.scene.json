@@ -1,0 +1,90 @@
+{
+  "version": 1,
+  "sceneId": "ui.health-bar",
+  "rootNodeId": "surface",
+  "nodes": [
+    {
+      "id": "surface",
+      "name": "health-bar",
+      "type": "Container",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "anchorMin": [
+          0.5,
+          0.5
+        ],
+        "anchorMax": [
+          0.5,
+          0.5
+        ],
+        "offsetMin": [
+          -40,
+          -58
+        ],
+        "offsetMax": [
+          40,
+          -48
+        ],
+        "theme": {
+          "resourceId": "ui.field-kit.theme"
+        },
+        "styleClass": "game-ui game-ui--health-bar",
+        "ariaLabel": "health bar",
+        "zIndex": 20,
+        "visible": true
+      }
+    },
+    {
+      "id": "health",
+      "name": "Health",
+      "type": "ProgressBar",
+      "parentId": "surface",
+      "order": 0,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "label": "Health",
+        "tone": "danger"
+      }
+    },
+    {
+      "id": "script",
+      "name": "UiSurfaceScript",
+      "type": "ScriptNode",
+      "scriptId": "game.ui-surface",
+      "parentId": "surface",
+      "order": 1,
+      "properties": {
+        "surfaceId": "health-bar",
+        "modal": false,
+        "bindings": [
+          {
+            "nodePath": "../Health",
+            "property": "value",
+            "model": "hp"
+          },
+          {
+            "nodePath": "../Health",
+            "property": "max",
+            "model": "maxHp"
+          },
+          {
+            "nodePath": "..",
+            "property": "visible",
+            "model": "visible"
+          }
+        ],
+        "actions": {}
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": []
+}

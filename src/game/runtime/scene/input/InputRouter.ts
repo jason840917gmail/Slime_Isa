@@ -8,6 +8,7 @@ export interface InputControl {
   readonly processInputWhenPaused: boolean;
   readonly inputFocused: boolean;
   readonly inputModal: boolean;
+  readonly inputModalDepth: number;
   handleRoutedInput(event: InputEvent): void;
 }
 
@@ -49,9 +50,14 @@ export class InputRouter {
 
   route(event: InputEvent): InputEvent {
     const paused = this.options.isPaused?.() ?? false;
-    const controls = [...this.controls]
-      .filter((control) => control.inputVisible && (control.inputFocused || control.inputModal) && (!paused || control.processInputWhenPaused))
-      .sort((left, right) => Number(right.inputModal) - Number(left.inputModal) || right.routedInputPriority - left.routedInputPriority);
+    const eligible = [...this.controls]
+      .filter((control) => control.inputVisible && (control.inputFocused || control.inputModal) && (!paused || control.processInputWhenPaused));
+    const modalDepth = eligible.reduce((depth, control) => Math.max(depth, control.inputModalDepth), 0);
+    const controls = eligible
+      .filter((control) => modalDepth === 0 || control.inputModalDepth === modalDepth)
+      .sort((left, right) => Number(right.inputFocused) - Number(left.inputFocused)
+        || right.routedInputPriority - left.routedInputPriority
+        || Number(right.inputModal) - Number(left.inputModal));
     for (const control of controls) {
       control.handleRoutedInput(event);
       if (event.handled) break;

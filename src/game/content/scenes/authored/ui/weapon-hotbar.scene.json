@@ -1,0 +1,100 @@
+{
+  "version": 1,
+  "sceneId": "ui.weapon-hotbar",
+  "rootNodeId": "surface",
+  "nodes": [
+    {
+      "id": "surface",
+      "name": "weapon-hotbar",
+      "type": "Container",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "anchorMin": [
+          0.5,
+          1
+        ],
+        "anchorMax": [
+          0.5,
+          1
+        ],
+        "offsetMin": [
+          -190,
+          -72
+        ],
+        "offsetMax": [
+          190,
+          -16
+        ],
+        "theme": {
+          "resourceId": "ui.field-kit.theme"
+        },
+        "styleClass": "game-ui game-ui--weapon-hotbar",
+        "ariaLabel": "weapon hotbar",
+        "zIndex": 20,
+        "visible": true
+      }
+    },
+    {
+      "id": "weapons",
+      "name": "Weapons",
+      "type": "ItemList",
+      "parentId": "surface",
+      "order": 0,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "columns": 5,
+        "gap": 8,
+        "ariaLabel": "Weapon hotbar"
+      }
+    },
+    {
+      "id": "script",
+      "name": "UiSurfaceScript",
+      "type": "ScriptNode",
+      "scriptId": "game.ui-surface",
+      "parentId": "surface",
+      "order": 1,
+      "properties": {
+        "surfaceId": "weapon-hotbar",
+        "modal": false,
+        "bindings": [
+          {
+            "nodePath": "../Weapons",
+            "property": "items",
+            "model": "weapons"
+          },
+          {
+            "nodePath": "../Weapons",
+            "property": "selectedIndex",
+            "model": "selectedIndex"
+          }
+        ],
+        "actions": {
+          "on_item_selected": "equip-slot"
+        }
+      }
+    }
+  ],
+  "instances": [],
+  "connections": [
+    {
+      "source": {
+        "nodeId": "weapons"
+      },
+      "signal": "item_selected",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_item_selected"
+    }
+  ],
+  "subresources": []
+}

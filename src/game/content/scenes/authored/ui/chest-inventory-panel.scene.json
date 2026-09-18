@@ -1,0 +1,220 @@
+{
+  "version": 1,
+  "sceneId": "ui.chest-inventory-panel",
+  "rootNodeId": "surface",
+  "nodes": [
+    {
+      "id": "surface",
+      "name": "chest-inventory-panel",
+      "type": "ModalRoot",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "anchorMin": [
+          0.5,
+          0.5
+        ],
+        "anchorMax": [
+          0.5,
+          0.5
+        ],
+        "offsetMin": [
+          -460,
+          -310
+        ],
+        "offsetMax": [
+          460,
+          310
+        ],
+        "theme": {
+          "resourceId": "ui.field-kit.theme"
+        },
+        "styleClass": "game-ui game-ui--chest-inventory-panel",
+        "ariaLabel": "chest inventory panel",
+        "zIndex": 90,
+        "open": false,
+        "focused": false,
+        "inputPriority": 2000
+      }
+    },
+    {
+      "id": "title",
+      "name": "Title",
+      "type": "Label",
+      "parentId": "surface",
+      "order": 0,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          0
+        ],
+        "offsetMax": [
+          -72,
+          48
+        ],
+        "text": "Chest",
+        "tone": "warning",
+        "fontSize": 22,
+        "fontWeight": 700
+      }
+    },
+    {
+      "id": "items",
+      "name": "Items",
+      "type": "ItemList",
+      "parentId": "surface",
+      "order": 1,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          0.62,
+          1
+        ],
+        "offsetMin": [
+          0,
+          64
+        ],
+        "offsetMax": [
+          0,
+          -56
+        ],
+        "columns": 5,
+        "gap": 10,
+        "ariaLabel": "Chest contents"
+      }
+    },
+    {
+      "id": "details",
+      "name": "Details",
+      "type": "Label",
+      "parentId": "surface",
+      "order": 2,
+      "properties": {
+        "anchorMin": [
+          0.66,
+          0
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "offsetMin": [
+          0,
+          72
+        ],
+        "offsetMax": [
+          0,
+          -56
+        ],
+        "wrap": true,
+        "tone": "muted"
+      }
+    },
+    {
+      "id": "close",
+      "name": "Close",
+      "type": "Button",
+      "parentId": "surface",
+      "order": 3,
+      "properties": {
+        "anchorMin": [
+          1,
+          0
+        ],
+        "anchorMax": [
+          1,
+          0
+        ],
+        "offsetMin": [
+          -64,
+          0
+        ],
+        "offsetMax": [
+          0,
+          40
+        ],
+        "text": "Close",
+        "tone": "accent"
+      }
+    },
+    {
+      "id": "script",
+      "name": "UiSurfaceScript",
+      "type": "ScriptNode",
+      "scriptId": "game.ui-surface",
+      "parentId": "surface",
+      "order": 4,
+      "properties": {
+        "surfaceId": "chest-inventory-panel",
+        "modal": true,
+        "bindings": [
+          {
+            "nodePath": "../Items",
+            "property": "items",
+            "model": "items"
+          },
+          {
+            "nodePath": "../Items",
+            "property": "selectedIndex",
+            "model": "selectedIndex"
+          },
+          {
+            "nodePath": "../Details",
+            "property": "text",
+            "model": "details"
+          },
+          {
+            "nodePath": "..",
+            "property": "open",
+            "model": "open"
+          }
+        ],
+        "actions": {
+          "on_item_selected": "take-stack",
+          "on_close_action": "close"
+        }
+      }
+    }
+  ],
+  "instances": [],
+  "connections": [
+    {
+      "source": {
+        "nodeId": "surface"
+      },
+      "signal": "close_requested",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_close_action"
+    },
+    {
+      "source": {
+        "nodeId": "items"
+      },
+      "signal": "item_selected",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_item_selected"
+    },
+    {
+      "source": {
+        "nodeId": "close"
+      },
+      "signal": "pressed",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_close_action"
+    }
+  ],
+  "subresources": []
+}

@@ -1,0 +1,189 @@
+{
+  "version": 1,
+  "sceneId": "ui.level-up-modal",
+  "rootNodeId": "surface",
+  "nodes": [
+    {
+      "id": "surface",
+      "name": "level-up-modal",
+      "type": "ModalRoot",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "anchorMin": [
+          0.5,
+          0.5
+        ],
+        "anchorMax": [
+          0.5,
+          0.5
+        ],
+        "offsetMin": [
+          -360,
+          -250
+        ],
+        "offsetMax": [
+          360,
+          250
+        ],
+        "theme": {
+          "resourceId": "ui.field-kit.theme"
+        },
+        "styleClass": "game-ui game-ui--level-up-modal",
+        "ariaLabel": "level up modal",
+        "zIndex": 90,
+        "open": false,
+        "focused": false,
+        "inputPriority": 2000
+      }
+    },
+    {
+      "id": "title",
+      "name": "Title",
+      "type": "Label",
+      "parentId": "surface",
+      "order": 0,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          0
+        ],
+        "offsetMax": [
+          0,
+          54
+        ],
+        "text": "Level up",
+        "tone": "warning",
+        "fontSize": 26,
+        "fontWeight": 700,
+        "textAlign": "center"
+      }
+    },
+    {
+      "id": "choices",
+      "name": "Choices",
+      "type": "ItemList",
+      "parentId": "surface",
+      "order": 1,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "offsetMin": [
+          0,
+          70
+        ],
+        "offsetMax": [
+          0,
+          -56
+        ],
+        "columns": 3,
+        "gap": 12,
+        "ariaLabel": "Upgrade choices"
+      }
+    },
+    {
+      "id": "close",
+      "name": "Close",
+      "type": "Button",
+      "parentId": "surface",
+      "order": 2,
+      "properties": {
+        "anchorMin": [
+          1,
+          1
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "offsetMin": [
+          -80,
+          -44
+        ],
+        "offsetMax": [
+          0,
+          0
+        ],
+        "text": "Later",
+        "tone": "muted"
+      }
+    },
+    {
+      "id": "script",
+      "name": "UiSurfaceScript",
+      "type": "ScriptNode",
+      "scriptId": "game.ui-surface",
+      "parentId": "surface",
+      "order": 3,
+      "properties": {
+        "surfaceId": "level-up-modal",
+        "modal": true,
+        "bindings": [
+          {
+            "nodePath": "../Title",
+            "property": "text",
+            "model": "title"
+          },
+          {
+            "nodePath": "../Choices",
+            "property": "items",
+            "model": "choices"
+          },
+          {
+            "nodePath": "..",
+            "property": "open",
+            "model": "open"
+          }
+        ],
+        "actions": {
+          "on_item_selected": "choose-upgrade",
+          "on_close_action": "close"
+        }
+      }
+    }
+  ],
+  "instances": [],
+  "connections": [
+    {
+      "source": {
+        "nodeId": "surface"
+      },
+      "signal": "close_requested",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_close_action"
+    },
+    {
+      "source": {
+        "nodeId": "choices"
+      },
+      "signal": "item_selected",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_item_selected"
+    },
+    {
+      "source": {
+        "nodeId": "close"
+      },
+      "signal": "pressed",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_close_action"
+    }
+  ],
+  "subresources": []
+}

@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "resourceId": "ui.field-kit.theme",
+  "kind": "theme",
+  "values": {
+    "font-family": "Trebuchet MS, Segoe UI Variable, sans-serif",
+    "surface-base": "#101a31",
+    "surface-raised": "#192642",
+    "surface-inset": "#182b46",
+    "border-standard": "#3b5c78",
+    "shadow": "#081022",
+    "text-primary": "#f5f7ff",
+    "text-secondary": "#c7e8d6",
+    "text-tertiary": "#a7bbd6",
+    "text-muted": "#8fbba3",
+    "accent": "#86f0c3",
+    "info": "#72d8ff",
+    "warning": "#ffd277",
+    "danger": "#ff6f88",
+    "special": "#a78bfa",
+    "spacing-unit": 4,
+    "focus-width": 2
+  }
+}
