@@ -18,6 +18,7 @@ import { InteractionScript } from './InteractionScript';
 import { WorldExitScript } from './WorldExitScript';
 import { WorldDefinitionScript } from './WorldDefinitionScript';
 import { WorldAreaScript } from './WorldAreaScript';
+import { UiSurfaceScript } from './ui/UiSurfaceScript';
 
 const numberProperty = (key: string, label: string, defaultValue: number, group: string): PropertyDescriptor => ({
   key, label, group, value: { kind: 'number', min: 0 }, defaultValue,
@@ -441,6 +442,27 @@ export const WORLD_AREA_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
   references: [{ key: 'area', label: 'Area', required: true, expectedCapability: 'area' }],
 };
 
+export const UI_SURFACE_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
+  scriptId: 'game.ui-surface',
+  displayName: 'UI Surface Script',
+  description: 'Binds typed presentation models and injected actions to authored Control scenes.',
+  sourcePath: 'src/game/features/scripts/ui/UiSurfaceScript.ts',
+  capabilities: ['ui-surface-script'],
+  exclusiveCapabilities: ['ui-surface-controller'],
+  properties: [
+    stringProperty('surfaceId', 'Surface ID', 'Identity'),
+    { key: 'modal', label: 'Modal Surface', group: 'Behavior', value: { kind: 'boolean' }, defaultValue: false, serialized: true, inspector: 'checkbox', overridable: true },
+    jsonProperty('bindings', 'Model Bindings', 'Presentation', []),
+    jsonProperty('actions', 'Action Bindings', 'Actions', {}),
+  ],
+  handlers: [
+    { id: 'on_primary_action' },
+    { id: 'on_secondary_action' },
+    { id: 'on_close_action' },
+    { id: 'on_item_selected', payload: 'UiListSelection' },
+  ],
+};
+
 export const GAME_SCRIPT_DESCRIPTORS = Object.freeze([
   CHARACTER_SCRIPT_DESCRIPTOR,
   PLAYER_SCRIPT_DESCRIPTOR,
@@ -459,6 +481,7 @@ export const GAME_SCRIPT_DESCRIPTORS = Object.freeze([
   WORLD_EXIT_SCRIPT_DESCRIPTOR,
   WORLD_DEFINITION_SCRIPT_DESCRIPTOR,
   WORLD_AREA_SCRIPT_DESCRIPTOR,
+  UI_SURFACE_SCRIPT_DESCRIPTOR,
 ]);
 
 export function createGameScriptRegistry(services: ScriptServiceMap = {}): ScriptRegistry {
@@ -479,7 +502,8 @@ export function createGameScriptRegistry(services: ScriptServiceMap = {}): Scrip
     .registerDefinition({ descriptor: INTERACTION_SCRIPT_DESCRIPTOR, factory: (context) => new InteractionScript(context) })
     .registerDefinition({ descriptor: WORLD_EXIT_SCRIPT_DESCRIPTOR, factory: (context) => new WorldExitScript(context) })
     .registerDefinition({ descriptor: WORLD_DEFINITION_SCRIPT_DESCRIPTOR, factory: (context) => new WorldDefinitionScript(context) })
-    .registerDefinition({ descriptor: WORLD_AREA_SCRIPT_DESCRIPTOR, factory: (context) => new WorldAreaScript(context) });
+    .registerDefinition({ descriptor: WORLD_AREA_SCRIPT_DESCRIPTOR, factory: (context) => new WorldAreaScript(context) })
+    .registerDefinition({ descriptor: UI_SURFACE_SCRIPT_DESCRIPTOR, factory: (context) => new UiSurfaceScript(context) });
 }
 
 export function createGameDescriptorRegistry() {

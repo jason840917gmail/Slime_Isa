@@ -1,0 +1,237 @@
+{
+  "version": 1,
+  "themeResourceId": "ui.field-kit.theme",
+  "surfaces": [
+    {
+      "id": "ability-bar",
+      "sourcePath": "src/game/ui/AbilityBar.ts",
+      "sourceHash": "8415a63c4f90accdc073c62efa3630dc62bd562948a2bee7c26fefcb58a683c4",
+      "sceneId": "ui.ability-bar",
+      "modal": false,
+      "layoutValues": { "anchorMin": [0.5, 1], "anchorMax": [0.5, 1], "offsetMin": [-180, -70], "offsetMax": [180, -16] },
+      "themeValues": { "gap": 8, "columns": 4, "tone": "special" },
+      "bindings": [
+        { "nodePath": "../Abilities", "property": "items", "model": "abilities" },
+        { "nodePath": "../Abilities", "property": "selectedIndex", "model": "selectedIndex" }
+      ],
+      "actions": { "on_item_selected": "activate-ability" },
+      "controls": [
+        { "id": "abilities", "name": "Abilities", "type": "ItemList", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 1], "columns": 4, "gap": 8, "ariaLabel": "Abilities" }, "handler": "on_item_selected", "signal": "item_selected" }
+      ]
+    },
+    {
+      "id": "area-title-card",
+      "sourcePath": "src/game/ui/AreaTitleCard.ts",
+      "sourceHash": "7023a7a9539adec17cd67c2250f66ee0b31475e4f2c6fddfbcabdd3ebceb6902",
+      "sceneId": "ui.area-title-card",
+      "modal": false,
+      "layoutValues": { "anchorMin": [0.5, 0], "anchorMax": [0.5, 0], "offsetMin": [-220, 28], "offsetMax": [220, 92] },
+      "themeValues": { "tone": "warning", "fontSize": 24 },
+      "bindings": [{ "nodePath": "../AreaName", "property": "text", "model": "title" }, { "nodePath": "..", "property": "visible", "model": "visible" }],
+      "actions": {},
+      "controls": [
+        { "id": "area-name", "name": "AreaName", "type": "Label", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 1], "textAlign": "center", "tone": "warning", "fontSize": 24, "fontWeight": 700, "ariaLabel": "Area title" } }
+      ]
+    },
+    {
+      "id": "boss-health-bar",
+      "sourcePath": "src/game/ui/BossHealthBar.ts",
+      "sourceHash": "5c618188edb6eb96068013444ea8586b707b24b2a21d2f46776e13bf1ea03f84",
+      "sceneId": "ui.boss-health-bar",
+      "modal": false,
+      "layoutValues": { "anchorMin": [0.5, 1], "anchorMax": [0.5, 1], "offsetMin": [-274, -110], "offsetMax": [274, -38] },
+      "themeValues": { "tone": "danger", "width": 520 },
+      "bindings": [{ "nodePath": "../BossName", "property": "text", "model": "name" }, { "nodePath": "../Health", "property": "value", "model": "hp" }, { "nodePath": "../Health", "property": "max", "model": "maxHp" }, { "nodePath": "..", "property": "visible", "model": "visible" }],
+      "actions": {},
+      "controls": [
+        { "id": "boss-name", "name": "BossName", "type": "Label", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 0], "offsetMax": [0, 28], "tone": "danger", "fontSize": 16, "fontWeight": 700 } },
+        { "id": "health", "name": "Health", "type": "ProgressBar", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 1], "offsetMin": [0, 34], "label": "Boss health", "tone": "danger", "showValue": true } }
+      ]
+    },
+    {
+      "id": "chest-inventory-panel",
+      "sourcePath": "src/game/ui/ChestInventoryPanel.ts",
+      "sourceHash": "a58a345bada4929af55019d6ae6a4a86c0a7861fd177db3eebfc716ad5a80f45",
+      "sceneId": "ui.chest-inventory-panel",
+      "modal": true,
+      "layoutValues": { "anchorMin": [0.5, 0.5], "anchorMax": [0.5, 0.5], "offsetMin": [-460, -310], "offsetMax": [460, 310] },
+      "themeValues": { "columns": 5, "gap": 10, "surface": "inventory" },
+      "bindings": [{ "nodePath": "../Items", "property": "items", "model": "items" }, { "nodePath": "../Items", "property": "selectedIndex", "model": "selectedIndex" }, { "nodePath": "../Details", "property": "text", "model": "details" }, { "nodePath": "..", "property": "open", "model": "open" }],
+      "actions": { "on_item_selected": "take-stack", "on_close_action": "close" },
+      "controls": [
+        { "id": "title", "name": "Title", "type": "Label", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 0], "offsetMax": [-72, 48], "text": "Chest", "tone": "warning", "fontSize": 22, "fontWeight": 700 } },
+        { "id": "items", "name": "Items", "type": "ItemList", "properties": { "anchorMin": [0, 0], "anchorMax": [0.62, 1], "offsetMin": [0, 64], "offsetMax": [0, -56], "columns": 5, "gap": 10, "ariaLabel": "Chest contents" }, "handler": "on_item_selected", "signal": "item_selected" },
+        { "id": "details", "name": "Details", "type": "Label", "properties": { "anchorMin": [0.66, 0], "anchorMax": [1, 1], "offsetMin": [0, 72], "offsetMax": [0, -56], "wrap": true, "tone": "muted" } },
+        { "id": "close", "name": "Close", "type": "Button", "properties": { "anchorMin": [1, 0], "anchorMax": [1, 0], "offsetMin": [-64, 0], "offsetMax": [0, 40], "text": "Close", "tone": "accent" }, "handler": "on_close_action", "signal": "pressed" }
+      ]
+    },
+    {
+      "id": "crafting-ui",
+      "sourcePath": "src/game/ui/CraftingUI.ts",
+      "sourceHash": "7bb75c35d7ab686ce167c52d82f5601e1ab6bcc3d61bb70b6aeacc1b2b754ff4",
+      "sceneId": "ui.crafting-ui",
+      "modal": true,
+      "layoutValues": { "anchorMin": [0.5, 0.5], "anchorMax": [0.5, 0.5], "offsetMin": [-560, -330], "offsetMax": [560, 330] },
+      "themeValues": { "columns": 4, "gap": 12, "surface": "crafting" },
+      "bindings": [{ "nodePath": "../Recipes", "property": "items", "model": "recipes" }, { "nodePath": "../Details", "property": "text", "model": "details" }, { "nodePath": "../Craft", "property": "disabled", "model": "craftDisabled" }, { "nodePath": "..", "property": "open", "model": "open" }],
+      "actions": { "on_item_selected": "select-recipe", "on_primary_action": "craft", "on_close_action": "close" },
+      "controls": [
+        { "id": "title", "name": "Title", "type": "Label", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 0], "offsetMax": [0, 48], "text": "Crafting", "tone": "warning", "fontSize": 24, "fontWeight": 700 } },
+        { "id": "recipes", "name": "Recipes", "type": "ItemList", "properties": { "anchorMin": [0, 0], "anchorMax": [0.58, 1], "offsetMin": [0, 60], "offsetMax": [0, -64], "columns": 4, "gap": 12, "ariaLabel": "Crafting recipes" }, "handler": "on_item_selected", "signal": "item_selected" },
+        { "id": "details", "name": "Details", "type": "Label", "properties": { "anchorMin": [0.62, 0], "anchorMax": [1, 1], "offsetMin": [0, 64], "offsetMax": [0, -64], "wrap": true, "tone": "muted" } },
+        { "id": "craft", "name": "Craft", "type": "Button", "properties": { "anchorMin": [1, 1], "anchorMax": [1, 1], "offsetMin": [-190, -48], "offsetMax": [-88, 0], "text": "Craft", "tone": "accent" }, "handler": "on_primary_action", "signal": "pressed" },
+        { "id": "close", "name": "Close", "type": "Button", "properties": { "anchorMin": [1, 1], "anchorMax": [1, 1], "offsetMin": [-80, -48], "offsetMax": [0, 0], "text": "Close", "tone": "muted" }, "handler": "on_close_action", "signal": "pressed" }
+      ]
+    },
+    {
+      "id": "floating-text",
+      "sourcePath": "src/game/ui/FloatingText.ts",
+      "sourceHash": "11e789c2ffe3e8c1d7bfc6fa9c50b06880fe9eaa4c2dbab65dc93377085e432a",
+      "sceneId": "ui.floating-text",
+      "modal": false,
+      "layoutValues": { "anchorMin": [0.5, 0.5], "anchorMax": [0.5, 0.5], "offsetMin": [-140, -24], "offsetMax": [140, 24] },
+      "themeValues": { "tone": "default", "fontSize": 15 },
+      "bindings": [{ "nodePath": "../Message", "property": "text", "model": "message" }, { "nodePath": "..", "property": "visible", "model": "visible" }],
+      "actions": {},
+      "controls": [{ "id": "message", "name": "Message", "type": "Label", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 1], "textAlign": "center", "fontSize": 15, "fontWeight": 700 } }]
+    },
+    {
+      "id": "health-bar",
+      "sourcePath": "src/game/ui/HealthBar.ts",
+      "sourceHash": "d44f1f3c1ae6d73d74f77b5926267bf82bb6b4cc5e21f75706d98a5ff10cb7ea",
+      "sceneId": "ui.health-bar",
+      "modal": false,
+      "layoutValues": { "anchorMin": [0.5, 0.5], "anchorMax": [0.5, 0.5], "offsetMin": [-40, -58], "offsetMax": [40, -48] },
+      "themeValues": { "tone": "danger", "height": 8 },
+      "bindings": [{ "nodePath": "../Health", "property": "value", "model": "hp" }, { "nodePath": "../Health", "property": "max", "model": "maxHp" }, { "nodePath": "..", "property": "visible", "model": "visible" }],
+      "actions": {},
+      "controls": [{ "id": "health", "name": "Health", "type": "ProgressBar", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 1], "label": "Health", "tone": "danger" } }]
+    },
+    {
+      "id": "hud",
+      "sourcePath": "src/game/HUD.ts",
+      "sourceHash": "574f628135de5020aa69da86267088ed67c4d984c41bc837180e0d63aaccc013",
+      "sceneId": "ui.hud",
+      "modal": false,
+      "layoutValues": { "anchorMin": [0, 0], "anchorMax": [0, 0], "offsetMin": [16, 16], "offsetMax": [300, 112] },
+      "themeValues": { "gap": 3, "meterHeight": 8, "fontSize": 12 },
+      "bindings": [{ "nodePath": "../Level", "property": "text", "model": "levelLabel" }, { "nodePath": "../Coins", "property": "text", "model": "coinsLabel" }, { "nodePath": "../Health", "property": "value", "model": "hp" }, { "nodePath": "../Health", "property": "max", "model": "maxHp" }, { "nodePath": "../Experience", "property": "value", "model": "xp" }, { "nodePath": "../Experience", "property": "max", "model": "xpMax" }, { "nodePath": "../Energy", "property": "value", "model": "energy" }, { "nodePath": "../Energy", "property": "max", "model": "maxEnergy" }],
+      "actions": {},
+      "controls": [
+        { "id": "level", "name": "Level", "type": "Label", "properties": { "anchorMin": [0, 0], "anchorMax": [0.5, 0], "offsetMax": [0, 22], "tone": "accent", "fontWeight": 700 } },
+        { "id": "coins", "name": "Coins", "type": "Label", "properties": { "anchorMin": [0.5, 0], "anchorMax": [1, 0], "offsetMax": [0, 22], "tone": "warning", "fontSize": 12, "fontWeight": 700, "textAlign": "right" } },
+        { "id": "health", "name": "Health", "type": "ProgressBar", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 0], "offsetMin": [0, 28], "offsetMax": [0, 46], "label": "HP", "tone": "danger", "showValue": true } },
+        { "id": "experience", "name": "Experience", "type": "ProgressBar", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 0], "offsetMin": [0, 50], "offsetMax": [0, 68], "label": "XP", "tone": "info", "showValue": true } },
+        { "id": "energy", "name": "Energy", "type": "ProgressBar", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 0], "offsetMin": [0, 72], "offsetMax": [0, 90], "label": "Energy", "tone": "warning", "showValue": true } }
+      ]
+    },
+    {
+      "id": "inventory-ui",
+      "sourcePath": "src/game/ui/InventoryUI.ts",
+      "sourceHash": "a3ef73f330b419d64d9b11c97de239d90d826fb3bf17ed65e4eded40df3525f1",
+      "sceneId": "ui.inventory-ui",
+      "modal": true,
+      "layoutValues": { "anchorMin": [0.5, 0.5], "anchorMax": [0.5, 0.5], "offsetMin": [-500, -320], "offsetMax": [500, 320] },
+      "themeValues": { "columns": 8, "gap": 8, "surface": "inventory" },
+      "bindings": [{ "nodePath": "../Items", "property": "items", "model": "items" }, { "nodePath": "../Items", "property": "selectedIndex", "model": "selectedIndex" }, { "nodePath": "../Details", "property": "text", "model": "details" }, { "nodePath": "..", "property": "open", "model": "open" }],
+      "actions": { "on_item_selected": "select-item", "on_primary_action": "use-or-equip", "on_secondary_action": "drop", "on_close_action": "close" },
+      "controls": [
+        { "id": "title", "name": "Title", "type": "Label", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 0], "offsetMax": [0, 48], "text": "Inventory", "tone": "warning", "fontSize": 24, "fontWeight": 700 } },
+        { "id": "items", "name": "Items", "type": "ItemList", "properties": { "anchorMin": [0, 0], "anchorMax": [0.68, 1], "offsetMin": [0, 60], "offsetMax": [0, -60], "columns": 8, "gap": 8, "ariaLabel": "Inventory slots" }, "handler": "on_item_selected", "signal": "item_selected" },
+        { "id": "details", "name": "Details", "type": "Label", "properties": { "anchorMin": [0.71, 0], "anchorMax": [1, 1], "offsetMin": [0, 64], "offsetMax": [0, -60], "wrap": true, "tone": "muted" } },
+        { "id": "use", "name": "Use", "type": "Button", "properties": { "anchorMin": [1, 1], "anchorMax": [1, 1], "offsetMin": [-178, -48], "offsetMax": [-88, 0], "text": "Use", "tone": "accent" }, "handler": "on_primary_action", "signal": "pressed" },
+        { "id": "close", "name": "Close", "type": "Button", "properties": { "anchorMin": [1, 1], "anchorMax": [1, 1], "offsetMin": [-80, -48], "offsetMax": [0, 0], "text": "Close", "tone": "muted" }, "handler": "on_close_action", "signal": "pressed" }
+      ]
+    },
+    {
+      "id": "level-up-modal",
+      "sourcePath": "src/game/ui/LevelUpModal.ts",
+      "sourceHash": "0c6279cdf0df32305c9382cf920818ac9b682e6503b03083581f172c880acc06",
+      "sceneId": "ui.level-up-modal",
+      "modal": true,
+      "layoutValues": { "anchorMin": [0.5, 0.5], "anchorMax": [0.5, 0.5], "offsetMin": [-360, -250], "offsetMax": [360, 250] },
+      "themeValues": { "columns": 3, "gap": 12, "surface": "level-up" },
+      "bindings": [{ "nodePath": "../Title", "property": "text", "model": "title" }, { "nodePath": "../Choices", "property": "items", "model": "choices" }, { "nodePath": "..", "property": "open", "model": "open" }],
+      "actions": { "on_item_selected": "choose-upgrade", "on_close_action": "close" },
+      "controls": [
+        { "id": "title", "name": "Title", "type": "Label", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 0], "offsetMax": [0, 54], "text": "Level up", "tone": "warning", "fontSize": 26, "fontWeight": 700, "textAlign": "center" } },
+        { "id": "choices", "name": "Choices", "type": "ItemList", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 1], "offsetMin": [0, 70], "offsetMax": [0, -56], "columns": 3, "gap": 12, "ariaLabel": "Upgrade choices" }, "handler": "on_item_selected", "signal": "item_selected" },
+        { "id": "close", "name": "Close", "type": "Button", "properties": { "anchorMin": [1, 1], "anchorMax": [1, 1], "offsetMin": [-80, -44], "offsetMax": [0, 0], "text": "Later", "tone": "muted" }, "handler": "on_close_action", "signal": "pressed" }
+      ]
+    },
+    {
+      "id": "minimap",
+      "sourcePath": "src/game/Minimap.ts",
+      "sourceHash": "947ecc970df4f671fd31388201a181564eeea6a9cd00d30540f6bffc7a7abc1c",
+      "sceneId": "ui.minimap",
+      "modal": false,
+      "layoutValues": { "anchorMin": [0, 1], "anchorMax": [0, 1], "offsetMin": [16, -196], "offsetMax": [196, -16] },
+      "themeValues": { "size": 180, "tintAlpha": 0.16, "surface": "map" },
+      "bindings": [{ "nodePath": "../MapSummary", "property": "text", "model": "summary" }],
+      "actions": {},
+      "controls": [{ "id": "map-summary", "name": "MapSummary", "type": "Label", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 1], "text": "Local map", "tone": "info", "textAlign": "center", "ariaLabel": "Local map" } }]
+    },
+    {
+      "id": "quest-journal",
+      "sourcePath": "src/game/ui/QuestJournal.ts",
+      "sourceHash": "750d5f89f913e225ebbd06e00920c22ffbd59dff04d240ade5e13b20cc4fe47f",
+      "sceneId": "ui.quest-journal",
+      "modal": true,
+      "layoutValues": { "anchorMin": [0.5, 0.5], "anchorMax": [0.5, 0.5], "offsetMin": [-470, -310], "offsetMax": [470, 310] },
+      "themeValues": { "gap": 12, "surface": "journal" },
+      "bindings": [{ "nodePath": "../Quests", "property": "items", "model": "quests" }, { "nodePath": "../Details", "property": "text", "model": "details" }, { "nodePath": "..", "property": "open", "model": "open" }],
+      "actions": { "on_item_selected": "select-quest", "on_close_action": "close" },
+      "controls": [
+        { "id": "title", "name": "Title", "type": "Label", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 0], "offsetMax": [0, 48], "text": "Quest journal", "tone": "warning", "fontSize": 24, "fontWeight": 700 } },
+        { "id": "quests", "name": "Quests", "type": "ItemList", "properties": { "anchorMin": [0, 0], "anchorMax": [0.42, 1], "offsetMin": [0, 60], "offsetMax": [0, -52], "ariaLabel": "Quests" }, "handler": "on_item_selected", "signal": "item_selected" },
+        { "id": "details", "name": "Details", "type": "Label", "properties": { "anchorMin": [0.46, 0], "anchorMax": [1, 1], "offsetMin": [0, 60], "offsetMax": [0, -52], "wrap": true, "tone": "muted" } },
+        { "id": "close", "name": "Close", "type": "Button", "properties": { "anchorMin": [1, 1], "anchorMax": [1, 1], "offsetMin": [-80, -44], "offsetMax": [0, 0], "text": "Close", "tone": "muted" }, "handler": "on_close_action", "signal": "pressed" }
+      ]
+    },
+    {
+      "id": "quest-offer-modal",
+      "sourcePath": "src/game/ui/QuestOfferModal.ts",
+      "sourceHash": "3c757aa35b6f564cda920f13e3418aaecfe0b5998ef05f3bba0e1ceacc5ae034",
+      "sceneId": "ui.quest-offer-modal",
+      "modal": true,
+      "layoutValues": { "anchorMin": [0.5, 0.5], "anchorMax": [0.5, 0.5], "offsetMin": [-360, -230], "offsetMax": [360, 230] },
+      "themeValues": { "gap": 12, "surface": "quest-offer" },
+      "bindings": [{ "nodePath": "../Title", "property": "text", "model": "title" }, { "nodePath": "../Description", "property": "text", "model": "description" }, { "nodePath": "..", "property": "open", "model": "open" }],
+      "actions": { "on_primary_action": "accept", "on_secondary_action": "decline", "on_close_action": "close" },
+      "controls": [
+        { "id": "title", "name": "Title", "type": "Label", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 0], "offsetMax": [0, 54], "tone": "warning", "fontSize": 24, "fontWeight": 700, "textAlign": "center" } },
+        { "id": "description", "name": "Description", "type": "Label", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 1], "offsetMin": [20, 70], "offsetMax": [-20, -70], "wrap": true, "tone": "muted" } },
+        { "id": "accept", "name": "Accept", "type": "Button", "properties": { "anchorMin": [0.5, 1], "anchorMax": [0.5, 1], "offsetMin": [-110, -52], "offsetMax": [-8, 0], "text": "Accept", "tone": "accent" }, "handler": "on_primary_action", "signal": "pressed" },
+        { "id": "decline", "name": "Decline", "type": "Button", "properties": { "anchorMin": [0.5, 1], "anchorMax": [0.5, 1], "offsetMin": [8, -52], "offsetMax": [110, 0], "text": "Decline", "tone": "muted" }, "handler": "on_secondary_action", "signal": "pressed" }
+      ]
+    },
+    {
+      "id": "weapon-hotbar",
+      "sourcePath": "src/game/ui/WeaponHotbar.ts",
+      "sourceHash": "ee06ac48697c25732d6fbf3fca24984a0e4dfa97c945e050c9c49c17a1371937",
+      "sceneId": "ui.weapon-hotbar",
+      "modal": false,
+      "layoutValues": { "anchorMin": [0.5, 1], "anchorMax": [0.5, 1], "offsetMin": [-190, -72], "offsetMax": [190, -16] },
+      "themeValues": { "columns": 5, "gap": 8, "surface": "hotbar" },
+      "bindings": [{ "nodePath": "../Weapons", "property": "items", "model": "weapons" }, { "nodePath": "../Weapons", "property": "selectedIndex", "model": "selectedIndex" }],
+      "actions": { "on_item_selected": "equip-slot" },
+      "controls": [{ "id": "weapons", "name": "Weapons", "type": "ItemList", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 1], "columns": 5, "gap": 8, "ariaLabel": "Weapon hotbar" }, "handler": "on_item_selected", "signal": "item_selected" }]
+    },
+    {
+      "id": "world-map-ui",
+      "sourcePath": "src/game/ui/WorldMapUI.ts",
+      "sourceHash": "adfd0b36dbac23733e63b98a96911309372bd8379e9fcc65da59285ea856fd14",
+      "sceneId": "ui.world-map-ui",
+      "modal": true,
+      "layoutValues": { "anchorMin": [0.5, 0.5], "anchorMax": [0.5, 0.5], "offsetMin": [-500, -320], "offsetMax": [500, 320] },
+      "themeValues": { "surface": "map", "markerTone": "info" },
+      "bindings": [{ "nodePath": "../Map", "property": "text", "model": "summary" }, { "nodePath": "..", "property": "open", "model": "open" }],
+      "actions": { "on_close_action": "close" },
+      "controls": [
+        { "id": "title", "name": "Title", "type": "Label", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 0], "offsetMax": [0, 48], "text": "World map", "tone": "warning", "fontSize": 24, "fontWeight": 700 } },
+        { "id": "map", "name": "Map", "type": "Label", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 1], "offsetMin": [16, 60], "offsetMax": [-16, -56], "textAlign": "center", "tone": "info", "ariaLabel": "Discovered world map" } },
+        { "id": "close", "name": "Close", "type": "Button", "properties": { "anchorMin": [1, 1], "anchorMax": [1, 1], "offsetMin": [-80, -44], "offsetMax": [0, 0], "text": "Close", "tone": "muted" }, "handler": "on_close_action", "signal": "pressed" }
+      ]
+    }
+  ]
+}

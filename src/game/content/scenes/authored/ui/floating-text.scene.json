@@ -1,0 +1,86 @@
+{
+  "version": 1,
+  "sceneId": "ui.floating-text",
+  "rootNodeId": "surface",
+  "nodes": [
+    {
+      "id": "surface",
+      "name": "floating-text",
+      "type": "Container",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "anchorMin": [
+          0.5,
+          0.5
+        ],
+        "anchorMax": [
+          0.5,
+          0.5
+        ],
+        "offsetMin": [
+          -140,
+          -24
+        ],
+        "offsetMax": [
+          140,
+          24
+        ],
+        "theme": {
+          "resourceId": "ui.field-kit.theme"
+        },
+        "styleClass": "game-ui game-ui--floating-text",
+        "ariaLabel": "floating text",
+        "zIndex": 20,
+        "visible": true
+      }
+    },
+    {
+      "id": "message",
+      "name": "Message",
+      "type": "Label",
+      "parentId": "surface",
+      "order": 0,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "textAlign": "center",
+        "fontSize": 15,
+        "fontWeight": 700
+      }
+    },
+    {
+      "id": "script",
+      "name": "UiSurfaceScript",
+      "type": "ScriptNode",
+      "scriptId": "game.ui-surface",
+      "parentId": "surface",
+      "order": 1,
+      "properties": {
+        "surfaceId": "floating-text",
+        "modal": false,
+        "bindings": [
+          {
+            "nodePath": "../Message",
+            "property": "text",
+            "model": "message"
+          },
+          {
+            "nodePath": "..",
+            "property": "visible",
+            "model": "visible"
+          }
+        ],
+        "actions": {}
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": []
+}

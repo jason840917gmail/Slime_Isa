@@ -1,0 +1,82 @@
+{
+  "version": 1,
+  "sceneId": "ui.minimap",
+  "rootNodeId": "surface",
+  "nodes": [
+    {
+      "id": "surface",
+      "name": "minimap",
+      "type": "Container",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "anchorMin": [
+          0,
+          1
+        ],
+        "anchorMax": [
+          0,
+          1
+        ],
+        "offsetMin": [
+          16,
+          -196
+        ],
+        "offsetMax": [
+          196,
+          -16
+        ],
+        "theme": {
+          "resourceId": "ui.field-kit.theme"
+        },
+        "styleClass": "game-ui game-ui--minimap",
+        "ariaLabel": "minimap",
+        "zIndex": 20,
+        "visible": true
+      }
+    },
+    {
+      "id": "map-summary",
+      "name": "MapSummary",
+      "type": "Label",
+      "parentId": "surface",
+      "order": 0,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "text": "Local map",
+        "tone": "info",
+        "textAlign": "center",
+        "ariaLabel": "Local map"
+      }
+    },
+    {
+      "id": "script",
+      "name": "UiSurfaceScript",
+      "type": "ScriptNode",
+      "scriptId": "game.ui-surface",
+      "parentId": "surface",
+      "order": 1,
+      "properties": {
+        "surfaceId": "minimap",
+        "modal": false,
+        "bindings": [
+          {
+            "nodePath": "../MapSummary",
+            "property": "text",
+            "model": "summary"
+          }
+        ],
+        "actions": {}
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": []
+}

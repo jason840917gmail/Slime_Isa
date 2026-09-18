@@ -1,0 +1,100 @@
+{
+  "version": 1,
+  "sceneId": "ui.ability-bar",
+  "rootNodeId": "surface",
+  "nodes": [
+    {
+      "id": "surface",
+      "name": "ability-bar",
+      "type": "Container",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "anchorMin": [
+          0.5,
+          1
+        ],
+        "anchorMax": [
+          0.5,
+          1
+        ],
+        "offsetMin": [
+          -180,
+          -70
+        ],
+        "offsetMax": [
+          180,
+          -16
+        ],
+        "theme": {
+          "resourceId": "ui.field-kit.theme"
+        },
+        "styleClass": "game-ui game-ui--ability-bar",
+        "ariaLabel": "ability bar",
+        "zIndex": 20,
+        "visible": true
+      }
+    },
+    {
+      "id": "abilities",
+      "name": "Abilities",
+      "type": "ItemList",
+      "parentId": "surface",
+      "order": 0,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "columns": 4,
+        "gap": 8,
+        "ariaLabel": "Abilities"
+      }
+    },
+    {
+      "id": "script",
+      "name": "UiSurfaceScript",
+      "type": "ScriptNode",
+      "scriptId": "game.ui-surface",
+      "parentId": "surface",
+      "order": 1,
+      "properties": {
+        "surfaceId": "ability-bar",
+        "modal": false,
+        "bindings": [
+          {
+            "nodePath": "../Abilities",
+            "property": "items",
+            "model": "abilities"
+          },
+          {
+            "nodePath": "../Abilities",
+            "property": "selectedIndex",
+            "model": "selectedIndex"
+          }
+        ],
+        "actions": {
+          "on_item_selected": "activate-ability"
+        }
+      }
+    }
+  ],
+  "instances": [],
+  "connections": [
+    {
+      "source": {
+        "nodeId": "abilities"
+      },
+      "signal": "item_selected",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_item_selected"
+    }
+  ],
+  "subresources": []
+}

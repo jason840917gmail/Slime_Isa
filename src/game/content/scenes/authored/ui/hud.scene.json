@@ -1,0 +1,228 @@
+{
+  "version": 1,
+  "sceneId": "ui.hud",
+  "rootNodeId": "surface",
+  "nodes": [
+    {
+      "id": "surface",
+      "name": "hud",
+      "type": "Container",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          0,
+          0
+        ],
+        "offsetMin": [
+          16,
+          16
+        ],
+        "offsetMax": [
+          300,
+          112
+        ],
+        "theme": {
+          "resourceId": "ui.field-kit.theme"
+        },
+        "styleClass": "game-ui game-ui--hud",
+        "ariaLabel": "hud",
+        "zIndex": 20,
+        "visible": true
+      }
+    },
+    {
+      "id": "level",
+      "name": "Level",
+      "type": "Label",
+      "parentId": "surface",
+      "order": 0,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          0.5,
+          0
+        ],
+        "offsetMax": [
+          0,
+          22
+        ],
+        "tone": "accent",
+        "fontWeight": 700
+      }
+    },
+    {
+      "id": "coins",
+      "name": "Coins",
+      "type": "Label",
+      "parentId": "surface",
+      "order": 1,
+      "properties": {
+        "anchorMin": [
+          0.5,
+          0
+        ],
+        "anchorMax": [
+          1,
+          0
+        ],
+        "offsetMax": [
+          0,
+          22
+        ],
+        "tone": "warning",
+        "fontSize": 12,
+        "fontWeight": 700,
+        "textAlign": "right"
+      }
+    },
+    {
+      "id": "health",
+      "name": "Health",
+      "type": "ProgressBar",
+      "parentId": "surface",
+      "order": 2,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          0
+        ],
+        "offsetMin": [
+          0,
+          28
+        ],
+        "offsetMax": [
+          0,
+          46
+        ],
+        "label": "HP",
+        "tone": "danger",
+        "showValue": true
+      }
+    },
+    {
+      "id": "experience",
+      "name": "Experience",
+      "type": "ProgressBar",
+      "parentId": "surface",
+      "order": 3,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          0
+        ],
+        "offsetMin": [
+          0,
+          50
+        ],
+        "offsetMax": [
+          0,
+          68
+        ],
+        "label": "XP",
+        "tone": "info",
+        "showValue": true
+      }
+    },
+    {
+      "id": "energy",
+      "name": "Energy",
+      "type": "ProgressBar",
+      "parentId": "surface",
+      "order": 4,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          0
+        ],
+        "offsetMin": [
+          0,
+          72
+        ],
+        "offsetMax": [
+          0,
+          90
+        ],
+        "label": "Energy",
+        "tone": "warning",
+        "showValue": true
+      }
+    },
+    {
+      "id": "script",
+      "name": "UiSurfaceScript",
+      "type": "ScriptNode",
+      "scriptId": "game.ui-surface",
+      "parentId": "surface",
+      "order": 5,
+      "properties": {
+        "surfaceId": "hud",
+        "modal": false,
+        "bindings": [
+          {
+            "nodePath": "../Level",
+            "property": "text",
+            "model": "levelLabel"
+          },
+          {
+            "nodePath": "../Coins",
+            "property": "text",
+            "model": "coinsLabel"
+          },
+          {
+            "nodePath": "../Health",
+            "property": "value",
+            "model": "hp"
+          },
+          {
+            "nodePath": "../Health",
+            "property": "max",
+            "model": "maxHp"
+          },
+          {
+            "nodePath": "../Experience",
+            "property": "value",
+            "model": "xp"
+          },
+          {
+            "nodePath": "../Experience",
+            "property": "max",
+            "model": "xpMax"
+          },
+          {
+            "nodePath": "../Energy",
+            "property": "value",
+            "model": "energy"
+          },
+          {
+            "nodePath": "../Energy",
+            "property": "max",
+            "model": "maxEnergy"
+          }
+        ],
+        "actions": {}
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": []
+}

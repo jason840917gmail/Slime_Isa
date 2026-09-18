@@ -69,6 +69,14 @@
 .scene-viewport-node { position: absolute; z-index: 1; top: calc(50% + var(--y) * 1px); left: calc(50% + var(--x) * 1px); width: 18px; height: 18px; transform: translate(-50%, -50%) rotate(45deg); border: 1px solid #76b99c; background: #1c4a3a; }
 .scene-viewport-node span { position: absolute; top: 19px; left: 13px; width: max-content; transform: rotate(-45deg); color: #adc2b7; font-size: 10px; }
 .scene-viewport-node.is-selected { border-color: #ffdc89; background: #b8832d; box-shadow: 0 0 0 4px #d8a94f33; }
+.scene-ui-viewport { display: grid; place-items: center; padding: 24px 24px 53px; background: #09110f; }
+.scene-ui-canvas { position: relative; width: min(100%, 960px); aspect-ratio: 16 / 9; overflow: hidden; border: 1px solid #3a554b; background-color: #101a31; background-image: linear-gradient(#72d8ff0a 1px, transparent 1px), linear-gradient(90deg, #72d8ff0a 1px, transparent 1px); background-size: 5% 8.888%; box-shadow: 0 18px 44px #02070688; }
+.scene-ui-layout-node { position: absolute; left: calc(var(--ui-x) / 1280 * 100%); top: calc(var(--ui-y) / 720 * 100%); width: max(5px, calc(var(--ui-w) / 1280 * 100%)); height: max(5px, calc(var(--ui-h) / 720 * 100%)); overflow: hidden; border: 1px solid #72d8ff66 !important; color: #c7e8d6; background: #19264299; text-align: left; }
+.scene-ui-layout-node:hover { z-index: 20; border-color: #86f0c3 !important; background: #213653cc; }
+.scene-ui-layout-node.is-selected { z-index: 21; border-color: #ffd277 !important; box-shadow: 0 0 0 2px #ffd27755; }
+.scene-ui-layout-node span,
+.scene-ui-layout-node small { display: block; overflow: hidden; padding: 2px 4px; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+.scene-ui-layout-node small { color: #8fbba3; font-size: 8px; }
 .scene-viewport footer { position: absolute; right: 0; bottom: 0; left: 0; display: flex; justify-content: space-between; padding: 7px 10px; border-top: 1px solid var(--scene-line); color: #6f897c; background: #0c1512; font-size: 9px; letter-spacing: .1em; }
 .scene-inspector { padding-bottom: 24px; border-left: 1px solid var(--scene-line); }
 .scene-inspector > header { padding: 14px; border-bottom: 1px solid #2a3e37; background: #13201c; }

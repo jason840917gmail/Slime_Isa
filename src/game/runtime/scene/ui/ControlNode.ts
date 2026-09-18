@@ -63,10 +63,27 @@ export class ControlNode extends Node implements InputControl {
   }
 
   get routedInputPriority(): number { return this.priority; }
-  get inputVisible(): boolean { return this.visible && this.is_inside_tree(); }
+  get inputVisible(): boolean {
+    if (!this.is_inside_tree()) return false;
+    let current: Node | undefined = this;
+    while (current) {
+      if (current instanceof ControlNode && !current.visible) return false;
+      current = current.get_parent();
+    }
+    return true;
+  }
   get processInputWhenPaused(): boolean { return this.can_process_while_paused(); }
   get inputFocused(): boolean { return this.focused; }
   get inputModal(): boolean { return this.modal; }
+  get inputModalDepth(): number {
+    let depth = 0;
+    let current: Node | undefined = this;
+    while (current) {
+      if (current instanceof ControlNode && current.modal && current.visible) depth += 1;
+      current = current.get_parent();
+    }
+    return depth;
+  }
 
   override _enter_tree(): void {
     if (this.controlOptions.inputRouter) this.entryDisposables.add(this.controlOptions.inputRouter.registerControl(this));

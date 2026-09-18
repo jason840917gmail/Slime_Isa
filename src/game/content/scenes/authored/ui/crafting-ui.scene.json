@@ -1,0 +1,258 @@
+{
+  "version": 1,
+  "sceneId": "ui.crafting-ui",
+  "rootNodeId": "surface",
+  "nodes": [
+    {
+      "id": "surface",
+      "name": "crafting-ui",
+      "type": "ModalRoot",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "anchorMin": [
+          0.5,
+          0.5
+        ],
+        "anchorMax": [
+          0.5,
+          0.5
+        ],
+        "offsetMin": [
+          -560,
+          -330
+        ],
+        "offsetMax": [
+          560,
+          330
+        ],
+        "theme": {
+          "resourceId": "ui.field-kit.theme"
+        },
+        "styleClass": "game-ui game-ui--crafting-ui",
+        "ariaLabel": "crafting ui",
+        "zIndex": 90,
+        "open": false,
+        "focused": false,
+        "inputPriority": 2000
+      }
+    },
+    {
+      "id": "title",
+      "name": "Title",
+      "type": "Label",
+      "parentId": "surface",
+      "order": 0,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          0
+        ],
+        "offsetMax": [
+          0,
+          48
+        ],
+        "text": "Crafting",
+        "tone": "warning",
+        "fontSize": 24,
+        "fontWeight": 700
+      }
+    },
+    {
+      "id": "recipes",
+      "name": "Recipes",
+      "type": "ItemList",
+      "parentId": "surface",
+      "order": 1,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          0.58,
+          1
+        ],
+        "offsetMin": [
+          0,
+          60
+        ],
+        "offsetMax": [
+          0,
+          -64
+        ],
+        "columns": 4,
+        "gap": 12,
+        "ariaLabel": "Crafting recipes"
+      }
+    },
+    {
+      "id": "details",
+      "name": "Details",
+      "type": "Label",
+      "parentId": "surface",
+      "order": 2,
+      "properties": {
+        "anchorMin": [
+          0.62,
+          0
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "offsetMin": [
+          0,
+          64
+        ],
+        "offsetMax": [
+          0,
+          -64
+        ],
+        "wrap": true,
+        "tone": "muted"
+      }
+    },
+    {
+      "id": "craft",
+      "name": "Craft",
+      "type": "Button",
+      "parentId": "surface",
+      "order": 3,
+      "properties": {
+        "anchorMin": [
+          1,
+          1
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "offsetMin": [
+          -190,
+          -48
+        ],
+        "offsetMax": [
+          -88,
+          0
+        ],
+        "text": "Craft",
+        "tone": "accent"
+      }
+    },
+    {
+      "id": "close",
+      "name": "Close",
+      "type": "Button",
+      "parentId": "surface",
+      "order": 4,
+      "properties": {
+        "anchorMin": [
+          1,
+          1
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "offsetMin": [
+          -80,
+          -48
+        ],
+        "offsetMax": [
+          0,
+          0
+        ],
+        "text": "Close",
+        "tone": "muted"
+      }
+    },
+    {
+      "id": "script",
+      "name": "UiSurfaceScript",
+      "type": "ScriptNode",
+      "scriptId": "game.ui-surface",
+      "parentId": "surface",
+      "order": 5,
+      "properties": {
+        "surfaceId": "crafting-ui",
+        "modal": true,
+        "bindings": [
+          {
+            "nodePath": "../Recipes",
+            "property": "items",
+            "model": "recipes"
+          },
+          {
+            "nodePath": "../Details",
+            "property": "text",
+            "model": "details"
+          },
+          {
+            "nodePath": "../Craft",
+            "property": "disabled",
+            "model": "craftDisabled"
+          },
+          {
+            "nodePath": "..",
+            "property": "open",
+            "model": "open"
+          }
+        ],
+        "actions": {
+          "on_item_selected": "select-recipe",
+          "on_primary_action": "craft",
+          "on_close_action": "close"
+        }
+      }
+    }
+  ],
+  "instances": [],
+  "connections": [
+    {
+      "source": {
+        "nodeId": "surface"
+      },
+      "signal": "close_requested",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_close_action"
+    },
+    {
+      "source": {
+        "nodeId": "recipes"
+      },
+      "signal": "item_selected",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_item_selected"
+    },
+    {
+      "source": {
+        "nodeId": "craft"
+      },
+      "signal": "pressed",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_primary_action"
+    },
+    {
+      "source": {
+        "nodeId": "close"
+      },
+      "signal": "pressed",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_close_action"
+    }
+  ],
+  "subresources": []
+}

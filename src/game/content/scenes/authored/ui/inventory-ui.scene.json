@@ -1,0 +1,259 @@
+{
+  "version": 1,
+  "sceneId": "ui.inventory-ui",
+  "rootNodeId": "surface",
+  "nodes": [
+    {
+      "id": "surface",
+      "name": "inventory-ui",
+      "type": "ModalRoot",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "anchorMin": [
+          0.5,
+          0.5
+        ],
+        "anchorMax": [
+          0.5,
+          0.5
+        ],
+        "offsetMin": [
+          -500,
+          -320
+        ],
+        "offsetMax": [
+          500,
+          320
+        ],
+        "theme": {
+          "resourceId": "ui.field-kit.theme"
+        },
+        "styleClass": "game-ui game-ui--inventory-ui",
+        "ariaLabel": "inventory ui",
+        "zIndex": 90,
+        "open": false,
+        "focused": false,
+        "inputPriority": 2000
+      }
+    },
+    {
+      "id": "title",
+      "name": "Title",
+      "type": "Label",
+      "parentId": "surface",
+      "order": 0,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          0
+        ],
+        "offsetMax": [
+          0,
+          48
+        ],
+        "text": "Inventory",
+        "tone": "warning",
+        "fontSize": 24,
+        "fontWeight": 700
+      }
+    },
+    {
+      "id": "items",
+      "name": "Items",
+      "type": "ItemList",
+      "parentId": "surface",
+      "order": 1,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          0.68,
+          1
+        ],
+        "offsetMin": [
+          0,
+          60
+        ],
+        "offsetMax": [
+          0,
+          -60
+        ],
+        "columns": 8,
+        "gap": 8,
+        "ariaLabel": "Inventory slots"
+      }
+    },
+    {
+      "id": "details",
+      "name": "Details",
+      "type": "Label",
+      "parentId": "surface",
+      "order": 2,
+      "properties": {
+        "anchorMin": [
+          0.71,
+          0
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "offsetMin": [
+          0,
+          64
+        ],
+        "offsetMax": [
+          0,
+          -60
+        ],
+        "wrap": true,
+        "tone": "muted"
+      }
+    },
+    {
+      "id": "use",
+      "name": "Use",
+      "type": "Button",
+      "parentId": "surface",
+      "order": 3,
+      "properties": {
+        "anchorMin": [
+          1,
+          1
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "offsetMin": [
+          -178,
+          -48
+        ],
+        "offsetMax": [
+          -88,
+          0
+        ],
+        "text": "Use",
+        "tone": "accent"
+      }
+    },
+    {
+      "id": "close",
+      "name": "Close",
+      "type": "Button",
+      "parentId": "surface",
+      "order": 4,
+      "properties": {
+        "anchorMin": [
+          1,
+          1
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "offsetMin": [
+          -80,
+          -48
+        ],
+        "offsetMax": [
+          0,
+          0
+        ],
+        "text": "Close",
+        "tone": "muted"
+      }
+    },
+    {
+      "id": "script",
+      "name": "UiSurfaceScript",
+      "type": "ScriptNode",
+      "scriptId": "game.ui-surface",
+      "parentId": "surface",
+      "order": 5,
+      "properties": {
+        "surfaceId": "inventory-ui",
+        "modal": true,
+        "bindings": [
+          {
+            "nodePath": "../Items",
+            "property": "items",
+            "model": "items"
+          },
+          {
+            "nodePath": "../Items",
+            "property": "selectedIndex",
+            "model": "selectedIndex"
+          },
+          {
+            "nodePath": "../Details",
+            "property": "text",
+            "model": "details"
+          },
+          {
+            "nodePath": "..",
+            "property": "open",
+            "model": "open"
+          }
+        ],
+        "actions": {
+          "on_item_selected": "select-item",
+          "on_primary_action": "use-or-equip",
+          "on_secondary_action": "drop",
+          "on_close_action": "close"
+        }
+      }
+    }
+  ],
+  "instances": [],
+  "connections": [
+    {
+      "source": {
+        "nodeId": "surface"
+      },
+      "signal": "close_requested",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_close_action"
+    },
+    {
+      "source": {
+        "nodeId": "items"
+      },
+      "signal": "item_selected",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_item_selected"
+    },
+    {
+      "source": {
+        "nodeId": "use"
+      },
+      "signal": "pressed",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_primary_action"
+    },
+    {
+      "source": {
+        "nodeId": "close"
+      },
+      "signal": "pressed",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_close_action"
+    }
+  ],
+  "subresources": []
+}

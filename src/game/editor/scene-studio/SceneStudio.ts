@@ -359,9 +359,12 @@ export class SceneStudioController {
     const dirty = Boolean(state?.dirty || [...this.tileContexts.entries()].some(([nodeId, entry]) => activeTileIds.has(nodeId) && (entry.context.dirty || entry.hash === undefined)));
     const canUndo = Boolean(tile?.context.canUndo || state?.canUndo);
     const canRedo = Boolean(tile?.context.canRedo || state?.canRedo);
+    const hasUiLayout = viewportNodes.some((node) => node.kind === 'ui');
     const viewport = tile && selectedNode
       ? renderTileMapViewport(tile.context, selectedNode)
-      : `<section class="scene-viewport" aria-label="2D viewport"><div class="scene-grid" style="--scene-zoom:${this.viewport.zoom}">${viewportNodes.map((node) => `<button type="button" class="scene-viewport-node${node.selected ? ' is-selected' : ''}" style="--x:${node.position[0]};--y:${node.position[1]}" data-node-id="${escapeHtml(node.id)}" aria-label="Select ${escapeHtml(node.name)}"><span>${escapeHtml(node.name)}</span></button>`).join('')}<div class="scene-origin">0,0</div></div><footer><span>ZOOM ${(this.viewport.zoom * 100).toFixed(0)}%</span><span>${selectedNode ? escapeHtml(selectedNode.type) : 'NO SELECTION'}</span></footer></section>`;
+      : hasUiLayout
+        ? renderUiLayoutViewport(viewportNodes.filter((node) => node.kind === 'ui'), selectedNode)
+        : `<section class="scene-viewport" aria-label="2D viewport"><div class="scene-grid" style="--scene-zoom:${this.viewport.zoom}">${viewportNodes.map((node) => `<button type="button" class="scene-viewport-node${node.selected ? ' is-selected' : ''}" style="--x:${node.position[0]};--y:${node.position[1]}" data-node-id="${escapeHtml(node.id)}" aria-label="Select ${escapeHtml(node.name)}"><span>${escapeHtml(node.name)}</span></button>`).join('')}<div class="scene-origin">0,0</div></div><footer><span>ZOOM ${(this.viewport.zoom * 100).toFixed(0)}%</span><span>${selectedNode ? escapeHtml(selectedNode.type) : 'NO SELECTION'}</span></footer></section>`;
     this.container.innerHTML = `<main class="scene-studio" data-scene-studio><header class="scene-topbar"><div><span>FIELD CARTOGRAPHER / UNIVERSAL GRAPH</span><h1>Scene Studio</h1></div><div class="scene-command-bar"><button type="button" data-action="undo" ${!canUndo ? 'disabled' : ''}>Undo</button><button type="button" data-action="redo" ${!canRedo ? 'disabled' : ''}>Redo</button><button type="button" class="scene-save" data-action="save" ${!dirty ? 'disabled' : ''}>${dirty ? 'Save changes' : 'Saved'}</button></div></header><aside class="scene-explorer" aria-label="Project explorer"><label><span>EXPEDITION INDEX</span><input type="search" placeholder="Filter scenes and resources" aria-label="Filter scenes and resources" /></label><nav aria-label="Scenes"><h2>Scenes <em>${scenes.length}</em></h2>${scenes.map((item) => `<button type="button" data-scene-id="${escapeHtml(item.id)}" class="${item.id === state?.sceneId ? 'is-current' : ''}"><span>◫</span><strong>${escapeHtml(item.id)}</strong></button>`).join('') || '<p>No scene documents</p>'}<h2>Resources <em>${resources.length}</em></h2>${resources.map((item) => `<div class="scene-resource-row"><span>◈</span>${escapeHtml(item.id)}<small>${escapeHtml(item.relativePath)}</small></div>`).join('') || '<p>No external resources</p>'}</nav></aside><section class="scene-workbench">${state ? renderSceneTreePanel(this.rows, this.selectedKey) : '<section class="scene-tree-panel scene-empty"><p>Open a scene to reveal its graph.</p></section>'}${viewport}${inspector}</section><footer class="scene-status" role="status"><span class="${state?.repairMode ? 'is-warning' : ''}">${escapeHtml(this.message)}</span><span>${state ? `${state.document.nodes.length} NODES · ${state.document.instances.length} INSTANCES${dirty ? ' · UNSAVED' : ''}` : 'AUTHORING SYSTEM READY'}</span></footer>${this.creationSearch !== undefined ? this.renderCreationDialog() : ''}</main>`;
     if (focused) this.container.querySelector<HTMLElement>(focused)?.focus();
   }
@@ -376,6 +379,15 @@ export class SceneStudioController {
   private tileSetSummaries(): readonly SceneStudioContentSummary[] {
     return this.catalog.filter((item) => item.kind === 'resource' && item.relativePath.endsWith('.tile-set.resource.json'));
   }
+}
+
+function renderUiLayoutViewport(nodes: readonly ReturnType<SceneViewportState['nodes']>[number][], selectedNode?: SceneNodeDocument): string {
+  const controls = nodes.map((node) => {
+    const width = node.size?.[0] ?? 0;
+    const height = node.size?.[1] ?? 0;
+    return `<button type="button" class="scene-ui-layout-node${node.selected ? ' is-selected' : ''}" style="--ui-x:${node.position[0]};--ui-y:${node.position[1]};--ui-w:${width};--ui-h:${height}" data-node-id="${escapeHtml(node.id)}" aria-label="Select ${escapeHtml(node.name)}"><span>${escapeHtml(node.name)}</span><small>${escapeHtml(node.type)}</small></button>`;
+  }).join('');
+  return `<section class="scene-viewport scene-ui-viewport" aria-label="UI layout viewport"><div class="scene-ui-canvas">${controls}</div><footer><span>LAYOUT 1280 × 720</span><span>${selectedNode ? escapeHtml(selectedNode.type) : 'UI CONTEXT'}</span></footer></section>`;
 }
 
 function renderTileMapTools(context: TileMapContext, tileSets: readonly SceneStudioContentSummary[]): string {

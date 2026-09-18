@@ -5,7 +5,7 @@ import type { Vector2 } from '../../runtime/scene/Node2D';
 import { createCoreNodeTypeRegistry, type NodeConstructionContext, type NodeTypeRegistry } from '../../runtime/scene/registries/NodeTypeRegistry';
 import type { PhaserNodeContext } from '../scenes/PhaserNodeContext';
 import type { InputRouter } from '../../runtime/scene/input/InputRouter';
-import { ControlNode, type ControlPresentation } from '../../runtime/scene/ui/ControlNode';
+import type { ControlPresentation } from '../../runtime/scene/ui/ControlNode';
 import { AnimationPlayerNode, parseAnimationLibrary } from '../../runtime/scene/animation/AnimationPlayerNode';
 import type { AnimationBinding } from '../../runtime/scene/animation/AnimationBinding';
 import { AudioStreamPlayerNode, type AudioPreferences, type AudioUnlockService } from './AudioStreamPlayerNode';
@@ -19,6 +19,23 @@ import { StaticBody2DNode } from './StaticBody2DNode';
 import { TileMapLayer2DNode } from './TileMapLayer2DNode';
 import type { SourceOcclusionBounds } from '../../presentation/WorldOcclusion';
 import type { ObjectDepthBounds } from '../../presentation/WorldDepth';
+import {
+  ButtonControlNode,
+  ContainerControlNode,
+  GridContainerControlNode,
+  ItemListControlNode,
+  LabelControlNode,
+  ModalRootControlNode,
+  ProgressBarControlNode,
+  ScrollContainerControlNode,
+  StyledControlNode,
+  TextureRectControlNode,
+  type UiAlignment,
+  type UiAxis,
+  type UiListItem,
+  type UiTextAlignment,
+  type UiTone,
+} from './ui/ControlNodes';
 
 function record(value: JsonValue | undefined): Readonly<Record<string, JsonValue>> | undefined {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) return undefined;
@@ -99,6 +116,73 @@ function themeValues(construction: NodeConstructionContext): Readonly<Record<str
   return resource.values;
 }
 
+function strings(value: JsonValue | undefined): string { return typeof value === 'string' ? value : ''; }
+
+function numberValue(value: JsonValue | undefined, fallback: number): number { return typeof value === 'number' ? value : fallback; }
+
+function padding(value: JsonValue | undefined): readonly [number, number, number, number] {
+  return Array.isArray(value) && value.length === 4 && value.every((entry) => typeof entry === 'number')
+    ? value as unknown as readonly [number, number, number, number]
+    : [0, 0, 0, 0];
+}
+
+function uiItems(value: JsonValue | undefined): readonly UiListItem[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((entry) => {
+    const item = record(entry);
+    if (!item || typeof item.id !== 'string' || typeof item.label !== 'string') return [];
+    return [{ id: item.id, label: item.label, ...(typeof item.disabled === 'boolean' ? { disabled: item.disabled } : {}), ...('metadata' in item ? { metadata: item.metadata } : {}) }];
+  });
+}
+
+function controlOptions(construction: NodeConstructionContext, services: PhaserNodeRegistryServices) {
+  return {
+    runtimeId: construction.runtimeId,
+    name: construction.name,
+    inputRouter: services.inputRouter,
+    presentation: services.controlPresentation,
+    layout: {
+      anchorMin: vector(construction.properties.anchorMin, { x: 0, y: 0 }),
+      anchorMax: vector(construction.properties.anchorMax, { x: 0, y: 0 }),
+      offsetMin: vector(construction.properties.offsetMin, { x: 0, y: 0 }),
+      offsetMax: vector(construction.properties.offsetMax, { x: 0, y: 0 }),
+    },
+    visible: typeof construction.properties.visible === 'boolean' ? construction.properties.visible : undefined,
+    focused: typeof construction.properties.focused === 'boolean' ? construction.properties.focused : undefined,
+    modal: typeof construction.properties.modal === 'boolean' ? construction.properties.modal : undefined,
+    consumeInput: typeof construction.properties.consumeInput === 'boolean' ? construction.properties.consumeInput : undefined,
+    processWhenPaused: typeof construction.properties.processWhenPaused === 'boolean' ? construction.properties.processWhenPaused : undefined,
+    inputPriority: typeof construction.properties.inputPriority === 'number' ? construction.properties.inputPriority : undefined,
+    theme: themeValues(construction),
+    styleClass: strings(construction.properties.styleClass),
+    ariaLabel: strings(construction.properties.ariaLabel),
+    tooltip: strings(construction.properties.tooltip),
+    zIndex: numberValue(construction.properties.zIndex, 0),
+  };
+}
+
+function containerOptions(construction: NodeConstructionContext, services: PhaserNodeRegistryServices) {
+  const direction = construction.properties.direction;
+  const align = construction.properties.align;
+  const justify = construction.properties.justify;
+  return {
+    ...controlOptions(construction, services),
+    direction: (direction === 'horizontal' || direction === 'vertical' ? direction : 'none') as UiAxis | 'none',
+    gap: numberValue(construction.properties.gap, 0),
+    padding: padding(construction.properties.padding),
+    align: (align === 'start' || align === 'center' || align === 'end' ? align : 'stretch') as UiAlignment,
+    justify: (justify === 'center' || justify === 'end' || justify === 'stretch' || justify === 'space-between' ? justify : 'start') as UiAlignment | 'space-between',
+  };
+}
+
+function textureAssetKey(construction: NodeConstructionContext, context: PhaserNodeContext): string | undefined {
+  const reference = record(construction.properties.texture);
+  if (typeof reference?.resourceId !== 'string') return undefined;
+  const resource = construction.resources.get(reference.resourceId as ResourceId);
+  if (!resource || (resource.kind !== 'texture' && resource.kind !== 'sprite-sheet')) throw new Error(`TextureRect requires texture resource '${reference.resourceId}'`);
+  return context.assetKey(resource.assetId);
+}
+
 function audioOptions(construction: NodeConstructionContext, services: PhaserNodeRegistryServices, context: PhaserNodeContext) {
   return {
     assetId: context.assetKey(audioResource(construction).assetId),
@@ -172,24 +256,43 @@ export function createPhaserNodeRegistry(context: PhaserNodeContext, services: P
       disabled: typeof construction.properties.disabled === 'boolean' ? construction.properties.disabled : undefined,
       angleRad: typeof construction.properties.angleRad === 'number' ? construction.properties.angleRad : undefined,
     }))
-    .replace('Control', (construction) => new ControlNode({
-      runtimeId: construction.runtimeId,
-      name: construction.name,
-      inputRouter: services.inputRouter,
-      presentation: services.controlPresentation,
-      layout: {
-        anchorMin: vector(construction.properties.anchorMin, { x: 0, y: 0 }),
-        anchorMax: vector(construction.properties.anchorMax, { x: 0, y: 0 }),
-        offsetMin: vector(construction.properties.offsetMin, { x: 0, y: 0 }),
-        offsetMax: vector(construction.properties.offsetMax, { x: 0, y: 0 }),
-      },
-      visible: typeof construction.properties.visible === 'boolean' ? construction.properties.visible : undefined,
-      focused: typeof construction.properties.focused === 'boolean' ? construction.properties.focused : undefined,
-      modal: typeof construction.properties.modal === 'boolean' ? construction.properties.modal : undefined,
-      consumeInput: typeof construction.properties.consumeInput === 'boolean' ? construction.properties.consumeInput : undefined,
-      processWhenPaused: typeof construction.properties.processWhenPaused === 'boolean' ? construction.properties.processWhenPaused : undefined,
-      inputPriority: typeof construction.properties.inputPriority === 'number' ? construction.properties.inputPriority : undefined,
-      theme: themeValues(construction),
+    .replace('Control', (construction) => new StyledControlNode(controlOptions(construction, services)))
+    .replace('Container', (construction) => new ContainerControlNode(containerOptions(construction, services)))
+    .replace('TextureRect', (construction) => new TextureRectControlNode({
+      ...controlOptions(construction, services), assetKey: textureAssetKey(construction, context),
+      frame: numberValue(construction.properties.frame, 0),
+      fit: (['cover', 'fill', 'none'].includes(String(construction.properties.fit)) ? construction.properties.fit : 'contain') as 'contain' | 'cover' | 'fill' | 'none',
+      alt: strings(construction.properties.alt),
+    }))
+    .replace('Label', (construction) => new LabelControlNode({
+      ...controlOptions(construction, services), text: strings(construction.properties.text),
+      tone: strings(construction.properties.tone) as UiTone || 'default',
+      fontSize: numberValue(construction.properties.fontSize, 14), fontWeight: numberValue(construction.properties.fontWeight, 400),
+      textAlign: (strings(construction.properties.textAlign) as UiTextAlignment) || 'left', wrap: Boolean(construction.properties.wrap),
+    }))
+    .replace('ProgressBar', (construction) => new ProgressBarControlNode({
+      ...controlOptions(construction, services), value: numberValue(construction.properties.value, 0), max: numberValue(construction.properties.max, 1),
+      label: strings(construction.properties.label), tone: strings(construction.properties.tone) as UiTone || 'accent', showValue: Boolean(construction.properties.showValue),
+    }))
+    .replace('Button', (construction) => new ButtonControlNode({
+      ...controlOptions(construction, services), text: strings(construction.properties.text),
+      tone: strings(construction.properties.tone) as UiTone || 'default',
+      fontSize: numberValue(construction.properties.fontSize, 14), fontWeight: numberValue(construction.properties.fontWeight, 400),
+      textAlign: (strings(construction.properties.textAlign) as UiTextAlignment) || 'center', wrap: Boolean(construction.properties.wrap),
+      disabled: Boolean(construction.properties.disabled),
+    }))
+    .replace('ItemList', (construction) => new ItemListControlNode({
+      ...controlOptions(construction, services), items: uiItems(construction.properties.items), selectedIndex: numberValue(construction.properties.selectedIndex, -1),
+      columns: numberValue(construction.properties.columns, 1), gap: numberValue(construction.properties.gap, 8),
+    }))
+    .replace('GridContainer', (construction) => new GridContainerControlNode({
+      ...containerOptions(construction, services), columns: numberValue(construction.properties.columns, 1),
+    }))
+    .replace('ScrollContainer', (construction) => new ScrollContainerControlNode({
+      ...containerOptions(construction, services), scrollAxis: construction.properties.scrollAxis === 'horizontal' ? 'horizontal' : 'vertical',
+    }))
+    .replace('ModalRoot', (construction) => new ModalRootControlNode({
+      ...containerOptions(construction, services), open: Boolean(construction.properties.open),
     }))
     .replace('AnimationPlayer', (construction) => {
       const libraryId = requiredResourceId(construction.properties.library, 'AnimationPlayer');

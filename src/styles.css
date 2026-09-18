@@ -3117,3 +3117,83 @@ body {
 .editor-boss-camp-inspector .editor-inspector-section:nth-child(3) {
   border-inline-start: 3px solid #ffc65c;
 }
+
+/* Universal Control scenes render into this screen-space layer. */
+.scene-ui-root {
+  position: absolute;
+  z-index: 40;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  font-family: "Trebuchet MS", "Segoe UI Variable", sans-serif;
+}
+
+.scene-control {
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 0;
+}
+
+.scene-control--modalroot,
+.scene-control--container.game-ui {
+  color: var(--scene-text-primary, #f5f7ff);
+  border: 1px solid color-mix(in srgb, var(--scene-border-standard, #3b5c78) 74%, transparent);
+  background: color-mix(in srgb, var(--scene-surface-base, #101a31) 94%, transparent);
+}
+
+.scene-control--modalroot {
+  pointer-events: auto;
+}
+
+.scene-control--label {
+  display: flex;
+  align-items: center;
+}
+
+.scene-control--progressbar {
+  display: flex;
+  align-items: center;
+  padding: 2px 6px;
+  overflow: hidden;
+  color: var(--scene-text-primary, #f5f7ff);
+  border: 1px solid color-mix(in srgb, var(--scene-border-standard, #3b5c78) 68%, transparent);
+  background:
+    linear-gradient(90deg, var(--scene-progress-color, #86f0c3) 0 calc(var(--scene-progress, 0) * 100%), transparent calc(var(--scene-progress, 0) * 100%) 100%),
+    var(--scene-surface-inset, #182b46);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.scene-control--button,
+.scene-control--itemlist > button {
+  pointer-events: auto;
+  color: var(--scene-text-primary, #f5f7ff);
+  border: 1px solid color-mix(in srgb, var(--scene-border-standard, #3b5c78) 78%, transparent);
+  background: var(--scene-surface-inset, #182b46);
+  font: inherit;
+}
+
+.scene-control--button:hover:not(:disabled),
+.scene-control--itemlist > button:hover:not(:disabled) {
+  color: var(--scene-accent, #86f0c3);
+  border-color: var(--scene-accent, #86f0c3);
+}
+
+.scene-control--button:focus-visible,
+.scene-control--itemlist:focus-visible,
+.scene-control--itemlist > button:focus-visible {
+  outline: 2px solid var(--scene-warning, #ffd277);
+  outline-offset: 2px;
+}
+
+.scene-control--button:disabled,
+.scene-control--itemlist > button:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.scene-control--itemlist > button[aria-selected="true"] {
+  color: var(--scene-warning, #ffd277);
+  border-color: var(--scene-warning, #ffd277);
+  background: var(--scene-surface-raised, #192642);
+}
