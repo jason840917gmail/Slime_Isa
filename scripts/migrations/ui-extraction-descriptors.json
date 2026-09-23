@@ -211,11 +211,11 @@
       "sourceHash": "ee06ac48697c25732d6fbf3fca24984a0e4dfa97c945e050c9c49c17a1371937",
       "sceneId": "ui.weapon-hotbar",
       "modal": false,
-      "layoutValues": { "anchorMin": [0.5, 1], "anchorMax": [0.5, 1], "offsetMin": [-190, -72], "offsetMax": [190, -16] },
-      "themeValues": { "columns": 5, "gap": 8, "surface": "hotbar" },
+      "layoutValues": { "anchorMin": [0.5, 1], "anchorMax": [0.5, 1], "offsetMin": [-190, -172], "offsetMax": [190, -116] },
+      "themeValues": { "columns": 6, "gap": 4, "surface": "hotbar" },
       "bindings": [{ "nodePath": "../Weapons", "property": "items", "model": "weapons" }, { "nodePath": "../Weapons", "property": "selectedIndex", "model": "selectedIndex" }],
       "actions": { "on_item_selected": "equip-slot" },
-      "controls": [{ "id": "weapons", "name": "Weapons", "type": "ItemList", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 1], "columns": 5, "gap": 8, "ariaLabel": "Weapon hotbar" }, "handler": "on_item_selected", "signal": "item_selected" }]
+      "controls": [{ "id": "weapons", "name": "Weapons", "type": "ItemList", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 1], "columns": 6, "gap": 4, "ariaLabel": "Weapon hotbar" }, "handler": "on_item_selected", "signal": "item_selected" }]
     },
     {
       "id": "world-map-ui",

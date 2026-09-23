@@ -20,11 +20,11 @@
         ],
         "offsetMin": [
           -190,
-          -72
+          -172
         ],
         "offsetMax": [
           190,
-          -16
+          -116
         ],
         "theme": {
           "resourceId": "ui.field-kit.theme"
@@ -50,8 +50,8 @@
           1,
           1
         ],
-        "columns": 5,
-        "gap": 8,
+        "columns": 6,
+        "gap": 4,
         "ariaLabel": "Weapon hotbar"
       }
     },

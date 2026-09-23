@@ -3197,3 +3197,42 @@ body {
   border-color: var(--scene-warning, #ffd277);
   background: var(--scene-surface-raised, #192642);
 }
+
+/* Six compact field-belt slots keep the weapon name and key visible. */
+.game-ui--weapon-hotbar {
+  border-radius: 8px;
+}
+
+.game-ui--weapon-hotbar .scene-control--itemlist > button {
+  min-width: 0;
+  min-height: 0;
+  padding: 2px 3px;
+  overflow: hidden;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  text-align: center;
+  font-size: 10px;
+  line-height: 1.15;
+  border-radius: 5px;
+}
+
+.game-ui--weapon-hotbar .scene-item--illustrated {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.game-ui--weapon-hotbar .scene-item--illustrated img {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.game-ui--weapon-hotbar .scene-item--illustrated span {
+  position: absolute;
+  top: 3px;
+  left: 5px;
+  font-size: 9px;
+  font-weight: 700;
+}

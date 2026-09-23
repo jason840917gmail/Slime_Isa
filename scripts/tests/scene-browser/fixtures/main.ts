@@ -1,3 +1,4 @@
+import '../../../../src/styles.css';
 import Phaser from 'phaser';
 
 import { Camera2DNode } from '../../../../src/game/infrastructure/phaser-nodes/Camera2DNode';
@@ -21,6 +22,8 @@ import { ScriptNode } from '../../../../src/game/runtime/scene/scripts/ScriptNod
 import type { PhysicsContact } from '../../../../src/game/runtime/scene/physics/PhysicsContact';
 import { SceneTree } from '../../../../src/game/runtime/scene/SceneTree';
 import { getEnemyConfig } from '../../../../src/game/enemies/library/EnemyTypes';
+import { playerWeaponLoadout } from '../../../../src/game/systems/WeaponLoadout';
+import { gameState } from '../../../../src/game/core/GameState';
 
 type FixtureSnapshot = {
   readonly mode: 'harness' | 'baseline';
@@ -65,6 +68,8 @@ type FixtureSnapshot = {
   readonly managedCollectibleCount?: number;
   readonly managedPassiveObjectCount?: number;
   readonly managedWeaponId?: string | null;
+  readonly weaponSlots?: readonly (string | null)[];
+  readonly equippedWeaponId?: string | null;
   readonly managedWeaponAttacking?: boolean;
   readonly playerHp?: number;
   readonly legacyEnemyCount?: number;
@@ -89,6 +94,8 @@ type FixtureApi = {
   spawnManagedEnemy(type: 'slime-spider' | 'worm-archer' | 'worm-brawler' | 'worm-swordsman', x: number, y: number): boolean;
   spawnManagedEffect(effectId: string, direction: 'right' | 'left' | 'up' | 'down', x: number, y: number): boolean;
   equipProductionWeapon(weaponId: string): boolean;
+  grantProductionWeapons(): void;
+  setProductionEquippedSlot(slotIndex: number): void;
   attackWithProductionWeapon(): boolean;
   snapshot(): FixtureSnapshot;
   destroy(): void;
@@ -464,6 +471,14 @@ const api: FixtureApi = {
     };
     return world.combatController?.equipWeapon(weaponId) ?? false;
   },
+  grantProductionWeapons() {
+    if (!game || mode !== 'baseline') throw new Error('Production weapons are only available in baseline mode');
+    playerWeaponLoadout.grantDevelopmentArsenal();
+  },
+  setProductionEquippedSlot(slotIndex) {
+    if (!game || mode !== 'baseline') throw new Error('Production weapons are only available in baseline mode');
+    gameState.equipWeapon(playerWeaponLoadout.weaponAt(slotIndex));
+  },
   attackWithProductionWeapon() {
     if (!game || mode !== 'baseline') throw new Error('Production weapons are only available in baseline mode');
     const world = game.scene.getScene('world') as unknown as {
@@ -527,6 +542,7 @@ const api: FixtureApi = {
       ...(world?.universalWorld ? { managedCollectibleCount: world.universalWorld.managedCollectibleCount } : {}),
       ...(world?.universalWorld ? { managedPassiveObjectCount: world.universalWorld.managedPassiveObjectCount } : {}),
       ...(world?.universalWorld ? { managedWeaponId: world.universalWorld.managedWeaponId } : {}),
+      ...(world?.universalWorld ? { weaponSlots: playerWeaponLoadout.slots(), equippedWeaponId: gameState.equippedWeaponId } : {}),
       ...(world?.universalWorld ? { managedWeaponAttacking: world.universalWorld.managedWeaponAttacking } : {}),
       ...(world?.healthSystem ? { playerHp: world.healthSystem.getDamageState().hp } : {}),
       ...(world?.universalWorld ? { universalRuntimePaused: world.universalWorld.runtime.tree.paused } : {}),

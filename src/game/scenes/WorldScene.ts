@@ -22,7 +22,6 @@ import { floatingText } from '../ui/FloatingText';
 import { HealthBar } from '../ui/HealthBar';
 import { LevelUpModal } from '../ui/LevelUpModal';
 import { InventoryUI } from '../ui/InventoryUI';
-import { WeaponHotbar } from '../ui/WeaponHotbar';
 import { hitboxPool } from '../combat/Hitbox';
 import { AREAS, type AreaDef, type AreaId, type Direction } from '../world/Area';
 import { BIOMES } from '../world/Biome';
@@ -133,7 +132,6 @@ export class WorldScene extends Phaser.Scene {
   private universalWorld?: UniversalSceneWorldController;
   private questNotifications?: QuestNotificationPresenter;
   private abilitySystem?: PlayerAbilityController;
-  private weaponHotbar?: WeaponHotbar;
   private iFrameFlashActive = false;
   private playerKnockbackUntil = 0;
   private combatController?: CombatController;
@@ -313,10 +311,6 @@ export class WorldScene extends Phaser.Scene {
     });
     // Phase 2: combat system
     this.createCombatSystem();
-    this.weaponHotbar = new WeaponHotbar({
-      scene: this,
-      onEquipSlot: (slotIndex) => this.equipWeaponSlot(slotIndex),
-    });
 
     this.bindHotkeys();
     this.bindDebugCheats();
@@ -377,7 +371,6 @@ export class WorldScene extends Phaser.Scene {
     this.disposables = new DisposableBag();
     this.minimap?.destroy();
     this.abilitySystem?.destroy();
-    this.weaponHotbar?.destroy();
     this.statusEffects?.destroy();
     this.debugRenderer?.destroy();
     this.renderingDiagnostics?.destroy();
@@ -419,7 +412,6 @@ export class WorldScene extends Phaser.Scene {
     hitboxPool.clearScene(this);
 
     this.combatController = undefined;
-    this.weaponHotbar = undefined;
     this.worldMapUI = undefined;
     this.questJournal = undefined;
     this.craftingUI = undefined;
@@ -1403,6 +1395,7 @@ export class WorldScene extends Phaser.Scene {
       collectibles: this.collectibles!,
       registerOccluder: (registration) => this.occlusionController!.registerOccluder(registration),
       requestExit: (request) => this.requestAuthoredExit(request),
+      onEquipWeaponSlot: (slotIndex) => this.equipWeaponSlot(slotIndex),
       uiRoot,
     });
   }
