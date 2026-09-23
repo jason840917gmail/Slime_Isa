@@ -84,7 +84,7 @@ function synchronizeElement(
   }
   if (control instanceof ItemListControlNode) {
     synchronizeFocusable(element, control);
-    synchronizeList(element, control);
+    synchronizeList(element, control, resolveAssetUrl);
   }
   if (control instanceof ScrollContainerControlNode) {
     element.style.overflowX = control.scrollAxis === 'horizontal' ? 'auto' : 'hidden';
@@ -150,7 +150,11 @@ function synchronizeProgress(element: HTMLElement, control: ProgressBarControlNo
   element.textContent = control.showValue ? `${control.label} ${Math.ceil(control.value)} / ${Math.ceil(control.max)}`.trim() : control.label;
 }
 
-function synchronizeList(element: HTMLElement, control: ItemListControlNode): void {
+function synchronizeList(
+  element: HTMLElement,
+  control: ItemListControlNode,
+  resolveAssetUrl: HtmlControlPresentationOptions['resolveAssetUrl'],
+): void {
   const signature = JSON.stringify([control.items, control.selectedIndex, control.columns, control.gap]);
   if (element.dataset.sceneListSignature === signature) return;
   element.dataset.sceneListSignature = signature;
@@ -163,6 +167,20 @@ function synchronizeList(element: HTMLElement, control: ItemListControlNode): vo
     const option = document.createElement('button');
     option.type = 'button';
     option.textContent = item.label;
+    const icon = itemIcon(item.metadata);
+    const iconUrl = icon ? resolveAssetUrl?.(icon.key, icon.frame) : undefined;
+    if (iconUrl) {
+      const image = document.createElement('img');
+      image.src = iconUrl;
+      image.alt = '';
+      image.setAttribute('aria-hidden', 'true');
+      const shortcut = document.createElement('span');
+      shortcut.textContent = icon?.shortcut ?? '';
+      option.replaceChildren(image, shortcut);
+      option.classList.add('scene-item--illustrated');
+      option.setAttribute('aria-label', item.label.replace(/\s+/g, ' '));
+      option.title = item.label.replace(/\s+/g, ' ');
+    }
     option.disabled = item.disabled ?? false;
     option.dataset.itemId = item.id;
     option.setAttribute('role', 'option');
@@ -170,4 +188,14 @@ function synchronizeList(element: HTMLElement, control: ItemListControlNode): vo
     option.onclick = (event) => { if (control.select(index)) { event.preventDefault(); event.stopPropagation(); } };
     element.append(option);
   });
+}
+
+function itemIcon(metadata: unknown): { readonly key: string; readonly frame: number; readonly shortcut?: string } | undefined {
+  if (!metadata || typeof metadata !== 'object' || Array.isArray(metadata)) return undefined;
+  const candidate = metadata as Readonly<Record<string, unknown>>;
+  if (typeof candidate.iconKey !== 'string' || typeof candidate.iconFrame !== 'number'
+    || !Number.isInteger(candidate.iconFrame) || candidate.iconFrame < 0) return undefined;
+  return { key: candidate.iconKey, frame: candidate.iconFrame,
+    ...(typeof candidate.shortcut === 'string' ? { shortcut: candidate.shortcut } : {}),
+  };
 }

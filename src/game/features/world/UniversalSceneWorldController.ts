@@ -96,7 +96,8 @@ import { ChestInventoryPanel } from '../../ui/ChestInventoryPanel';
 import { BossHealthBar } from '../../ui/BossHealthBar';
 import { HtmlControlPresentationAdapter } from '../../infrastructure/phaser-nodes/ui/HtmlControlPresentationAdapter';
 import { HudSurfacePort } from '../ui/HudSurfacePort';
-import { UI_SURFACE_SERVICE } from '../scripts/ui/UiSurfaceScript';
+import { WeaponHotbarSurfacePort } from '../ui/WeaponHotbarSurfacePort';
+import { UI_SURFACE_SERVICE, type UiSurfacePort } from '../scripts/ui/UiSurfaceScript';
 import {
   WORLD_EXIT_SERVICE,
   type WorldExitPort,
@@ -132,6 +133,7 @@ export interface UniversalSceneWorldControllerOptions {
   readonly collectibles: CollectibleWorldPort;
   readonly registerOccluder?: (registration: ObjectOccluderRegistration) => { dispose(): void };
   readonly requestExit: (request: WorldExitRequest) => WorldExitResult;
+  readonly onEquipWeaponSlot: (slotIndex: number) => void;
   readonly uiRoot: HTMLElement;
 }
 
@@ -224,6 +226,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
   private readonly inputRouter: InputRouter;
   private readonly uiPresentation: HtmlControlPresentationAdapter;
   private readonly hudSurface: HudSurfacePort;
+  private readonly weaponHotbarSurface: WeaponHotbarSurfacePort;
   private readonly camps = new Map<string, ManagedCamp>();
   private readonly bosses = new Map<string, ManagedBoss>();
   private readonly ordinaryEnemies = new Map<number, ManagedOrdinaryEnemy>();
@@ -254,6 +257,19 @@ export class UniversalSceneWorldController implements InteractionProvider {
   constructor(private readonly options: UniversalSceneWorldControllerOptions) {
     let inputSink: InputEventSink | undefined;
     this.hudSurface = new HudSurfacePort();
+    this.weaponHotbarSurface = new WeaponHotbarSurfacePort(options.onEquipWeaponSlot);
+    const uiSurfaces: UiSurfacePort = {
+      snapshot: (surfaceId) => surfaceId === 'weapon-hotbar'
+        ? this.weaponHotbarSurface.snapshot(surfaceId)
+        : this.hudSurface.snapshot(surfaceId),
+      subscribe: (surfaceId, listener) => surfaceId === 'weapon-hotbar'
+        ? this.weaponHotbarSurface.subscribe(surfaceId, listener)
+        : this.hudSurface.subscribe(surfaceId, listener),
+      invoke: (surfaceId, actionId, payload) => {
+        if (surfaceId === 'weapon-hotbar') this.weaponHotbarSurface.invoke(surfaceId, actionId, payload);
+        else this.hudSurface.invoke();
+      },
+    };
     this.inputRouter = new InputRouter({
       sink: { enqueueInput: (event) => inputSink?.enqueueInput(event) },
       actions: PLAYER_INPUT_ACTIONS,
@@ -262,6 +278,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.uiPresentation = new HtmlControlPresentationAdapter({
       root: options.uiRoot,
       viewport: () => ({ width: options.uiRoot.clientWidth, height: options.uiRoot.clientHeight }),
+      resolveAssetUrl: createUiAssetUrlResolver(options.scene),
     });
     const chestView = {
       open: (model: Parameters<LegacyChestUiBridge['open']>[0]) => this.chestUi?.open(model),
@@ -345,10 +362,11 @@ export class UniversalSceneWorldController implements InteractionProvider {
           return options.requestExit(request);
         },
       } satisfies WorldExitPort,
-      [UI_SURFACE_SERVICE]: this.hudSurface,
+      [UI_SURFACE_SERVICE]: uiSurfaces,
     });
+    let mountedRuntime: PhaserUniversalSceneRuntime | undefined;
     try {
-      this.runtime = new PhaserUniversalSceneRuntime({
+      mountedRuntime = this.runtime = new PhaserUniversalSceneRuntime({
         scene: options.scene,
         content: options.content,
         descriptors: createGameDescriptorRegistry(),
@@ -384,9 +402,12 @@ export class UniversalSceneWorldController implements InteractionProvider {
       });
       inputSink = this.runtime;
       this.runtime.mountScene(sceneId('ui.hud'), { runtimeNamespace: 'ui-hud' });
+      this.runtime.mountScene(sceneId('ui.weapon-hotbar'), { runtimeNamespace: 'ui-weapon-hotbar' });
     } catch (error) {
+      mountedRuntime?.shutdown();
       this.inputRouter.destroy();
       this.hudSurface.destroy();
+      this.weaponHotbarSurface.destroy();
       throw error;
     }
 
@@ -597,6 +618,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.inputRouter.destroy();
     this.runtime.shutdown();
     this.hudSurface.destroy();
+    this.weaponHotbarSurface.destroy();
     this.chestUi?.dispose();
     this.bossUi.dispose();
     this.camps.clear();
@@ -969,4 +991,33 @@ function directAuthoredInstanceRoots(root: Node): Node[] {
   };
   visit(root);
   return output;
+}
+
+function createUiAssetUrlResolver(scene: Phaser.Scene): (key: string, frame: number) => string | undefined {
+  const urls = new Map<string, string>();
+  return (key, frame) => {
+    const cacheKey = `${key}:${frame}`;
+    const cached = urls.get(cacheKey);
+    if (cached) return cached;
+    if (!scene.textures.exists(key)) return undefined;
+    const texture = scene.textures.get(key);
+    const frameName = String(frame);
+    const selected = texture.has(frameName)
+      ? texture.get(frameName)
+      : frame === 0 && texture.firstFrame === '__BASE' ? texture.get('__BASE') : undefined;
+    if (!selected || selected.source.image instanceof Uint8Array) return undefined;
+    const canvas = document.createElement('canvas');
+    canvas.width = selected.cutWidth;
+    canvas.height = selected.cutHeight;
+    const context = canvas.getContext('2d');
+    if (!context) return undefined;
+    context.drawImage(
+      selected.source.image,
+      selected.cutX, selected.cutY, selected.cutWidth, selected.cutHeight,
+      0, 0, selected.cutWidth, selected.cutHeight,
+    );
+    const url = canvas.toDataURL('image/png');
+    urls.set(cacheKey, url);
+    return url;
+  };
 }
