@@ -129,6 +129,7 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
           sceneId('weapon.stone-spear'),
           sceneId('weapon.wooden-axe'),
           sceneId('weapon.wooden-spear'),
+          sceneId('audio.global'),
           sceneId('ui.hud'),
           sceneId('ui.weapon-hotbar'),
           sceneId('ui.ability-bar'),

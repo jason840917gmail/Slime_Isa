@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "sceneId": "audio.global",
+  "rootNodeId": "audio",
+  "nodes": [
+    {
+      "id": "audio",
+      "name": "GlobalAudio",
+      "type": "Node2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {}
+    },
+    {
+      "id": "music",
+      "name": "Music",
+      "type": "Node2D",
+      "parentId": "audio",
+      "order": 0,
+      "properties": {}
+    },
+    {
+      "id": "effects",
+      "name": "Effects",
+      "type": "Node2D",
+      "parentId": "audio",
+      "order": 1,
+      "properties": {}
+    }
+  ],
+  "instances": [],
+  "subresources": []
+}

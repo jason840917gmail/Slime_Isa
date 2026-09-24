@@ -86,6 +86,8 @@ type FixtureSnapshot = {
   readonly managedPlayerX?: number;
   readonly hasLegacyChestController?: boolean;
   readonly universalRuntimePaused?: boolean;
+  readonly audioCompositionMounted?: boolean;
+  readonly productionAudioObjectCount?: number;
 };
 
 type FixtureApi = {
@@ -350,7 +352,7 @@ if (mode === 'harness') {
     freeWall(): void { this.wall?.queue_free(); this.tree?.flushMutations(); }
     detachAudio(): void { if (this.root && this.audio?.get_parent() === this.root) { this.root.remove_child(this.audio); this.tree?.flushMutations(); } }
     managedSnapshot(): Partial<FixtureSnapshot> {
-      const display = this.children.list.find((entry) => entry instanceof Phaser.GameObjects.Sprite) as Phaser.GameObjects.Sprite | undefined;
+      const display = this.spriteNode?.phaserObjectActive ? this.spriteNode.presentationObject : undefined;
       return {
         bodyX: (this.body?.body as Phaser.Physics.Arcade.Body | undefined)?.position.x,
         managedPresentationCount: this.context?.managedPresentationCount ?? 0,
@@ -619,7 +621,9 @@ const api: FixtureApi = {
             readonly managedWeaponAttacking: boolean;
             readonly managedPlayer: { getPosition(): Readonly<{ x: number; y: number }> };
             readonly runtime: { readonly tree: { readonly paused: boolean } };
+            readonly audioComposition: { readonly sceneId: string; readonly disposed: boolean };
           };
+          readonly sound: { readonly sounds: readonly unknown[] };
           readonly healthSystem?: { getDamageState(): { readonly hp: number } };
           readonly abilitySystem?: { status(abilityId: 'jump'): { readonly cooldownRemainingMs: number } };
           readonly combatController?: { readonly targets: Phaser.Physics.Arcade.Group };
@@ -661,6 +665,8 @@ const api: FixtureApi = {
       ...(world?.universalWorld ? { managedWeaponAttacking: world.universalWorld.managedWeaponAttacking } : {}),
       ...(world?.healthSystem ? { playerHp: world.healthSystem.getDamageState().hp } : {}),
       ...(world?.universalWorld ? { universalRuntimePaused: world.universalWorld.runtime.tree.paused } : {}),
+      ...(world?.universalWorld ? { audioCompositionMounted: world.universalWorld.audioComposition.sceneId === 'audio.global' && !world.universalWorld.audioComposition.disposed } : {}),
+      ...(world ? { productionAudioObjectCount: world.sound.sounds.length } : {}),
       ...(world?.combatController ? { legacyEnemyCount: world.combatController.targets.countActive(true) } : {}),
       ...(world?.bossCampController ? { legacyBossCount: world.bossCampController.targets.countActive(true) } : {}),
       ...(world?.player ? { legacyPlayerX: world.player.x } : {}),
