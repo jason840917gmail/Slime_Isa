@@ -331,16 +331,637 @@
       "sourceHash": "a3ef73f330b419d64d9b11c97de239d90d826fb3bf17ed65e4eded40df3525f1",
       "sceneId": "ui.inventory-ui",
       "modal": true,
-      "layoutValues": { "anchorMin": [0.5, 0.5], "anchorMax": [0.5, 0.5], "offsetMin": [-500, -320], "offsetMax": [500, 320] },
-      "themeValues": { "columns": 8, "gap": 8, "surface": "inventory" },
-      "bindings": [{ "nodePath": "../Items", "property": "items", "model": "items" }, { "nodePath": "../Items", "property": "selectedIndex", "model": "selectedIndex" }, { "nodePath": "../Details", "property": "text", "model": "details" }, { "nodePath": "..", "property": "open", "model": "open" }],
-      "actions": { "on_item_selected": "select-item", "on_primary_action": "use-or-equip", "on_secondary_action": "drop", "on_close_action": "close" },
+      "layoutValues": {
+        "anchorMin": [
+          0.5,
+          0.5
+        ],
+        "anchorMax": [
+          0.5,
+          0.5
+        ],
+        "offsetMin": [
+          -500,
+          -320
+        ],
+        "offsetMax": [
+          500,
+          320
+        ]
+      },
+      "themeValues": {
+        "columns": 6,
+        "gap": 6,
+        "surface": "inventory"
+      },
+      "bindings": [
+        {
+          "nodePath": "../Scroll/Content/Items",
+          "property": "items",
+          "model": "items"
+        },
+        {
+          "nodePath": "../Scroll/Content/Items",
+          "property": "selectedIndex",
+          "model": "selectedIndex"
+        },
+        {
+          "nodePath": "../Scroll/Content/Details",
+          "property": "text",
+          "model": "details"
+        },
+        {
+          "nodePath": "..",
+          "property": "open",
+          "model": "open"
+        },
+        {
+          "nodePath": "..",
+          "property": "offsetMin",
+          "model": "offsetMin"
+        },
+        {
+          "nodePath": "..",
+          "property": "offsetMax",
+          "model": "offsetMax"
+        },
+        {
+          "nodePath": "../Scroll/Content/Primary",
+          "property": "text",
+          "model": "primaryLabel"
+        },
+        {
+          "nodePath": "../Scroll/Content/Primary",
+          "property": "disabled",
+          "model": "primaryDisabled"
+        },
+        {
+          "nodePath": "../Scroll/Content/HotbarSlots",
+          "property": "items",
+          "model": "hotbarSlots"
+        },
+        {
+          "nodePath": "../Scroll/Content/HotbarSlots",
+          "property": "selectedIndex",
+          "model": "hotbarSelectedIndex"
+        },
+        {
+          "nodePath": "../Scroll/Content/HotbarSlots",
+          "property": "visible",
+          "model": "hotbarVisible"
+        },
+        {
+          "nodePath": "../Scroll/Content/Quantity",
+          "property": "text",
+          "model": "quantity"
+        },
+        {
+          "nodePath": "../Scroll/Content/Quantity",
+          "property": "visible",
+          "model": "quantityVisible"
+        },
+        {
+          "nodePath": "../Scroll/Content/Minus10",
+          "property": "visible",
+          "model": "quantityVisible"
+        },
+        {
+          "nodePath": "../Scroll/Content/Minus1",
+          "property": "visible",
+          "model": "quantityVisible"
+        },
+        {
+          "nodePath": "../Scroll/Content/Plus1",
+          "property": "visible",
+          "model": "quantityVisible"
+        },
+        {
+          "nodePath": "../Scroll/Content/Plus10",
+          "property": "visible",
+          "model": "quantityVisible"
+        },
+        {
+          "nodePath": "../Scroll/Content/Drop",
+          "property": "visible",
+          "model": "actionsVisible"
+        },
+        {
+          "nodePath": "../Scroll/Content/DropAll",
+          "property": "visible",
+          "model": "actionsVisible"
+        },
+        {
+          "nodePath": "../Scroll/Content/Remove",
+          "property": "visible",
+          "model": "actionsVisible"
+        },
+        {
+          "nodePath": "../Scroll/Content/RemoveAll",
+          "property": "visible",
+          "model": "actionsVisible"
+        },
+        {
+          "nodePath": "../Scroll/Content/Drop",
+          "property": "disabled",
+          "model": "dropDisabled"
+        },
+        {
+          "nodePath": "../Scroll/Content/DropAll",
+          "property": "disabled",
+          "model": "dropDisabled"
+        },
+        {
+          "nodePath": "../Scroll/Content/Remove",
+          "property": "disabled",
+          "model": "removeDisabled"
+        },
+        {
+          "nodePath": "../Scroll/Content/RemoveAll",
+          "property": "disabled",
+          "model": "removeDisabled"
+        }
+      ],
+      "actions": {
+        "on_item_selected": "select-item",
+        "on_primary_action": "use-or-equip",
+        "on_secondary_action": "drop",
+        "on_close_action": "close",
+        "on_assign_slot": "assign-slot",
+        "on_quantity_minus_10": "quantity-minus-10",
+        "on_quantity_minus_1": "quantity-minus-1",
+        "on_quantity_plus_1": "quantity-plus-1",
+        "on_quantity_plus_10": "quantity-plus-10",
+        "on_drop_all": "drop-all",
+        "on_remove": "remove",
+        "on_remove_all": "remove-all"
+      },
       "controls": [
-        { "id": "title", "name": "Title", "type": "Label", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 0], "offsetMax": [0, 48], "text": "Inventory", "tone": "warning", "fontSize": 24, "fontWeight": 700 } },
-        { "id": "items", "name": "Items", "type": "ItemList", "properties": { "anchorMin": [0, 0], "anchorMax": [0.68, 1], "offsetMin": [0, 60], "offsetMax": [0, -60], "columns": 8, "gap": 8, "ariaLabel": "Inventory slots" }, "handler": "on_item_selected", "signal": "item_selected" },
-        { "id": "details", "name": "Details", "type": "Label", "properties": { "anchorMin": [0.71, 0], "anchorMax": [1, 1], "offsetMin": [0, 64], "offsetMax": [0, -60], "wrap": true, "tone": "muted" } },
-        { "id": "use", "name": "Use", "type": "Button", "properties": { "anchorMin": [1, 1], "anchorMax": [1, 1], "offsetMin": [-178, -48], "offsetMax": [-88, 0], "text": "Use", "tone": "accent" }, "handler": "on_primary_action", "signal": "pressed" },
-        { "id": "close", "name": "Close", "type": "Button", "properties": { "anchorMin": [1, 1], "anchorMax": [1, 1], "offsetMin": [-80, -48], "offsetMax": [0, 0], "text": "Close", "tone": "muted" }, "handler": "on_close_action", "signal": "pressed" }
+        {
+          "id": "scroll",
+          "name": "Scroll",
+          "type": "ScrollContainer",
+          "properties": {
+            "anchorMin": [
+              0,
+              0
+            ],
+            "anchorMax": [
+              1,
+              1
+            ],
+            "scrollAxis": "vertical"
+          }
+        },
+        {
+          "id": "content",
+          "name": "Content",
+          "type": "Container",
+          "parentId": "scroll",
+          "properties": {
+            "anchorMin": [
+              0,
+              0
+            ],
+            "anchorMax": [
+              1,
+              0
+            ],
+            "offsetMax": [
+              0,
+              640
+            ]
+          }
+        },
+        {
+          "id": "title",
+          "name": "Title",
+          "type": "Label",
+          "properties": {
+            "anchorMin": [
+              0,
+              0
+            ],
+            "anchorMax": [
+              1,
+              0
+            ],
+            "offsetMin": [
+              20,
+              12
+            ],
+            "offsetMax": [
+              -20,
+              52
+            ],
+            "text": "Inventory",
+            "tone": "warning",
+            "fontSize": 24,
+            "fontWeight": 700
+          },
+          "parentId": "content"
+        },
+        {
+          "id": "items",
+          "name": "Items",
+          "type": "ItemList",
+          "properties": {
+            "anchorMin": [
+              0,
+              0
+            ],
+            "anchorMax": [
+              0.65,
+              1
+            ],
+            "offsetMin": [
+              20,
+              66
+            ],
+            "offsetMax": [
+              -8,
+              -20
+            ],
+            "columns": 6,
+            "gap": 6,
+            "ariaLabel": "Inventory slots"
+          },
+          "handler": "on_item_selected",
+          "signal": "item_selected",
+          "parentId": "content"
+        },
+        {
+          "id": "details",
+          "name": "Details",
+          "type": "Label",
+          "properties": {
+            "anchorMin": [
+              0.67,
+              0
+            ],
+            "anchorMax": [
+              1,
+              0.56
+            ],
+            "offsetMin": [
+              0,
+              66
+            ],
+            "offsetMax": [
+              -20,
+              0
+            ],
+            "wrap": true,
+            "tone": "muted",
+            "fontSize": 13
+          },
+          "parentId": "content"
+        },
+        {
+          "id": "hotbar",
+          "name": "HotbarSlots",
+          "type": "ItemList",
+          "properties": {
+            "anchorMin": [
+              0.67,
+              0.56
+            ],
+            "anchorMax": [
+              1,
+              0.56
+            ],
+            "offsetMin": [
+              0,
+              12
+            ],
+            "offsetMax": [
+              -20,
+              52
+            ],
+            "columns": 5,
+            "gap": 4,
+            "ariaLabel": "Assign hotbar slot"
+          },
+          "handler": "on_assign_slot",
+          "signal": "item_selected",
+          "parentId": "content"
+        },
+        {
+          "id": "quantity",
+          "name": "Quantity",
+          "type": "Label",
+          "properties": {
+            "anchorMin": [
+              0.67,
+              0.64
+            ],
+            "anchorMax": [
+              1,
+              0.64
+            ],
+            "offsetMin": [
+              0,
+              0
+            ],
+            "offsetMax": [
+              -20,
+              28
+            ],
+            "text": "Quantity: 1",
+            "tone": "warning",
+            "fontSize": 13
+          },
+          "parentId": "content"
+        },
+        {
+          "id": "minus-10",
+          "name": "Minus10",
+          "type": "Button",
+          "properties": {
+            "anchorMin": [
+              0.67,
+              0.7
+            ],
+            "anchorMax": [
+              0.825,
+              0.75
+            ],
+            "offsetMin": [
+              0,
+              0
+            ],
+            "offsetMax": [
+              -4,
+              0
+            ],
+            "text": "-10",
+            "tone": "muted",
+            "fontSize": 12
+          },
+          "handler": "on_quantity_minus_10",
+          "signal": "pressed",
+          "parentId": "content"
+        },
+        {
+          "id": "minus-1",
+          "name": "Minus1",
+          "type": "Button",
+          "properties": {
+            "anchorMin": [
+              0.67,
+              0.76
+            ],
+            "anchorMax": [
+              0.825,
+              0.81
+            ],
+            "offsetMin": [
+              0,
+              0
+            ],
+            "offsetMax": [
+              -4,
+              0
+            ],
+            "text": "-1",
+            "tone": "muted",
+            "fontSize": 12
+          },
+          "handler": "on_quantity_minus_1",
+          "signal": "pressed",
+          "parentId": "content"
+        },
+        {
+          "id": "plus-1",
+          "name": "Plus1",
+          "type": "Button",
+          "properties": {
+            "anchorMin": [
+              0.835,
+              0.7
+            ],
+            "anchorMax": [
+              0.84,
+              0.75
+            ],
+            "offsetMin": [
+              0,
+              0
+            ],
+            "offsetMax": [
+              -20,
+              0
+            ],
+            "text": "+1",
+            "tone": "muted",
+            "fontSize": 12
+          },
+          "handler": "on_quantity_plus_1",
+          "signal": "pressed",
+          "parentId": "content"
+        },
+        {
+          "id": "plus-10",
+          "name": "Plus10",
+          "type": "Button",
+          "properties": {
+            "anchorMin": [
+              0.835,
+              0.76
+            ],
+            "anchorMax": [
+              0.84,
+              0.81
+            ],
+            "offsetMin": [
+              0,
+              0
+            ],
+            "offsetMax": [
+              -20,
+              0
+            ],
+            "text": "+10",
+            "tone": "muted",
+            "fontSize": 12
+          },
+          "handler": "on_quantity_plus_10",
+          "signal": "pressed",
+          "parentId": "content"
+        },
+        {
+          "id": "drop",
+          "name": "Drop",
+          "type": "Button",
+          "properties": {
+            "anchorMin": [
+              0.67,
+              0.82
+            ],
+            "anchorMax": [
+              0.825,
+              0.88
+            ],
+            "offsetMin": [
+              0,
+              0
+            ],
+            "offsetMax": [
+              -4,
+              0
+            ],
+            "text": "Drop",
+            "tone": "accent",
+            "fontSize": 12
+          },
+          "handler": "on_secondary_action",
+          "signal": "pressed",
+          "parentId": "content"
+        },
+        {
+          "id": "drop-all",
+          "name": "DropAll",
+          "type": "Button",
+          "properties": {
+            "anchorMin": [
+              0.835,
+              0.82
+            ],
+            "anchorMax": [
+              1,
+              0.88
+            ],
+            "offsetMin": [
+              0,
+              0
+            ],
+            "offsetMax": [
+              -20,
+              0
+            ],
+            "text": "Drop all",
+            "tone": "accent",
+            "fontSize": 12
+          },
+          "handler": "on_drop_all",
+          "signal": "pressed",
+          "parentId": "content"
+        },
+        {
+          "id": "remove",
+          "name": "Remove",
+          "type": "Button",
+          "properties": {
+            "anchorMin": [
+              0.67,
+              0.89
+            ],
+            "anchorMax": [
+              0.825,
+              0.95
+            ],
+            "offsetMin": [
+              0,
+              0
+            ],
+            "offsetMax": [
+              -4,
+              0
+            ],
+            "text": "Remove",
+            "tone": "danger",
+            "fontSize": 12
+          },
+          "handler": "on_remove",
+          "signal": "pressed",
+          "parentId": "content"
+        },
+        {
+          "id": "remove-all",
+          "name": "RemoveAll",
+          "type": "Button",
+          "properties": {
+            "anchorMin": [
+              0.835,
+              0.89
+            ],
+            "anchorMax": [
+              1,
+              0.95
+            ],
+            "offsetMin": [
+              0,
+              0
+            ],
+            "offsetMax": [
+              -20,
+              0
+            ],
+            "text": "Remove all",
+            "tone": "danger",
+            "fontSize": 12
+          },
+          "handler": "on_remove_all",
+          "signal": "pressed",
+          "parentId": "content"
+        },
+        {
+          "id": "primary",
+          "name": "Primary",
+          "type": "Button",
+          "properties": {
+            "anchorMin": [
+              0.67,
+              0.96
+            ],
+            "anchorMax": [
+              0.825,
+              1
+            ],
+            "offsetMin": [
+              0,
+              0
+            ],
+            "offsetMax": [
+              -4,
+              0
+            ],
+            "text": "Use",
+            "tone": "accent",
+            "fontSize": 12
+          },
+          "handler": "on_primary_action",
+          "signal": "pressed",
+          "parentId": "content"
+        },
+        {
+          "id": "close",
+          "name": "Close",
+          "type": "Button",
+          "properties": {
+            "anchorMin": [
+              0.835,
+              0.96
+            ],
+            "anchorMax": [
+              1,
+              1
+            ],
+            "offsetMin": [
+              0,
+              0
+            ],
+            "offsetMax": [
+              -20,
+              0
+            ],
+            "text": "Close",
+            "tone": "muted",
+            "fontSize": 12
+          },
+          "handler": "on_close_action",
+          "signal": "pressed",
+          "parentId": "content"
+        }
       ]
     },
     {

@@ -100,6 +100,7 @@ import { PlayerHealthSurfacePort } from '../ui/PlayerHealthSurfacePort';
 import { BossHealthSurfacePort } from '../ui/BossHealthSurfacePort';
 import { AreaTitleSurfacePort } from '../ui/AreaTitleSurfacePort';
 import { FloatingTextSurfacePort } from '../ui/FloatingTextSurfacePort';
+import { InventorySurfacePort } from '../ui/InventorySurfacePort';
 import { floatingText } from '../../ui/FloatingText';
 import type { PlayerAbilityController } from '../player/PlayerAbilityController';
 import type { PlayerAbilityId } from '../player/PlayerAbilityDefinitions';
@@ -123,6 +124,12 @@ export interface UniversalSceneWorldControllerOptions {
   readonly interactions: InteractionRouter;
   readonly modalStack: ModalStack;
   readonly setChestPaused: (paused: boolean) => void;
+  readonly setInventoryPaused: (paused: boolean) => void;
+  readonly onUseInventoryItem: (itemId: string) => void;
+  readonly onEquipInventoryWeapon: (weaponId: string) => void;
+  readonly onAssignInventoryWeapon: (weaponId: string, slotIndex: number) => void;
+  readonly canDropInventoryItem: (itemId: string) => boolean;
+  readonly onDropInventoryItem: (slotIndex: number, quantity: number) => boolean;
   readonly showMessage: (x: number, y: number, message: string, color?: 'white' | 'yellow' | 'green' | 'cyan' | 'orange' | 'red', important?: boolean) => void;
   readonly updateLegacyFixed: (deltaMs: number) => void;
   readonly updateLegacyRender: (deltaMs: number) => void;
@@ -223,6 +230,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
   private readonly weaponHotbarSurface: WeaponHotbarSurfacePort;
   private readonly abilityBarSurface: AbilityBarSurfacePort;
   private readonly playerHealthSurface: PlayerHealthSurfacePort;
+  readonly inventorySurface: InventorySurfacePort;
   private readonly camps = new Map<string, ManagedCamp>();
   private readonly bosses = new Map<string, ManagedBoss>();
   private readonly ordinaryEnemies = new Map<number, ManagedOrdinaryEnemy>();
@@ -255,6 +263,12 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.weaponHotbarSurface = new WeaponHotbarSurfacePort(options.onEquipWeaponSlot);
     this.abilityBarSurface = new AbilityBarSurfacePort(options.getAbilitySystem, options.canUseAbilities, options.onActivateAbility);
     this.playerHealthSurface = new PlayerHealthSurfacePort(options.scene, options.getPlayer);
+    this.inventorySurface = new InventorySurfacePort({
+      modalStack: options.modalStack, uiRoot: options.uiRoot, onPausedChange: options.setInventoryPaused,
+      onUseItem: options.onUseInventoryItem, onEquipWeapon: options.onEquipInventoryWeapon,
+      onAssignWeapon: options.onAssignInventoryWeapon, canDropItem: options.canDropInventoryItem,
+      onDropItem: options.onDropInventoryItem,
+    });
     this.areaTitleSurface = new AreaTitleSurfacePort(options.scene);
     this.floatingTextSurface = new FloatingTextSurfacePort(options.scene, (surfaceId) => {
       this.runtime.mountScene(sceneId('ui.floating-text'), {
@@ -276,6 +290,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
       ['weapon-hotbar', this.weaponHotbarSurface],
       ['ability-bar', this.abilityBarSurface],
       ['health-bar', this.playerHealthSurface],
+      ['inventory-ui', this.inventorySurface],
       ['boss-health-bar', this.bossHealthSurface],
       ['area-title-card', this.areaTitleSurface],
     ]);
@@ -419,6 +434,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
       this.runtime.mountScene(sceneId('ui.health-bar'), { runtimeNamespace: 'ui-health-bar' });
       this.runtime.mountScene(sceneId('ui.boss-health-bar'), { runtimeNamespace: 'ui-boss-health-bar' });
       this.runtime.mountScene(sceneId('ui.area-title-card'), { runtimeNamespace: 'ui-area-title-card' });
+      this.runtime.mountScene(sceneId('ui.inventory-ui'), { runtimeNamespace: 'ui-inventory-ui' });
     } catch (error) {
       mountedRuntime?.shutdown();
       this.inputRouter.destroy();
@@ -429,6 +445,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
       this.bossHealthSurface.destroy();
       this.areaTitleSurface.destroy();
       this.floatingTextSurface.destroy();
+      this.inventorySurface.destroy();
       throw error;
     }
 
@@ -648,6 +665,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.bossHealthSurface.destroy();
     this.areaTitleSurface.destroy();
     this.floatingTextSurface.destroy();
+    this.inventorySurface.destroy();
     this.chestUi?.dispose();
     this.camps.clear();
     this.bosses.clear();

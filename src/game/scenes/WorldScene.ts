@@ -21,7 +21,6 @@ import { playerInventory, itemRegistry, weaponItemFor } from '../systems/Invento
 import { playerWeaponLoadout } from '../systems/WeaponLoadout';
 import { floatingText } from '../ui/FloatingText';
 import { LevelUpModal } from '../ui/LevelUpModal';
-import { InventoryUI } from '../ui/InventoryUI';
 import { hitboxPool } from '../combat/Hitbox';
 import { AREAS, type AreaDef, type AreaId, type Direction } from '../world/Area';
 import { BIOMES } from '../world/Biome';
@@ -121,7 +120,6 @@ export class WorldScene extends Phaser.Scene {
   private statusEffects?: StatusEffectManager;
   private levelUpModal?: LevelUpModal;
   private modalStack?: ModalStack;
-  private inventoryUI?: InventoryUI;
   private worldMapUI?: WorldMapUI;
   private questJournal?: QuestJournal;
   private craftingUI?: CraftingUI;
@@ -263,16 +261,6 @@ export class WorldScene extends Phaser.Scene {
       modalStack,
       onPausedChange: (p) => { this.setSimulationPaused('levelup', p); },
     });
-    this.inventoryUI = new InventoryUI({
-      scene: this,
-      modalStack,
-      onPausedChange: (p) => { this.setSimulationPaused('inventory', p); },
-      onUseItem: (itemId) => this.useItem(itemId),
-      onEquipWeapon: (weaponId) => this.equipWeaponFromInventory(weaponId),
-      onAssignWeapon: (weaponId, slotIndex) => this.assignWeaponSlot(weaponId, slotIndex),
-      canDropItem: (itemId) => this.inventoryDrops?.canDrop(itemId) ?? false,
-      onDropItem: (slotIndex, quantity) => this.inventoryDrops?.dropFromSlot(slotIndex, quantity) ?? false,
-    });
     this.worldMapUI = new WorldMapUI({
       scene: this,
       modalStack,
@@ -374,7 +362,6 @@ export class WorldScene extends Phaser.Scene {
     this.renderingDiagnostics = undefined;
     this.cameraController = undefined;
     this.levelUpModal?.destroy();
-    this.inventoryUI?.destroy();
     this.worldMapUI?.destroy();
     this.questJournal?.destroy();
     this.questNotifications?.destroy();
@@ -1231,7 +1218,7 @@ export class WorldScene extends Phaser.Scene {
     kb.on('keydown-TAB', (event: KeyboardEvent) => {
       event.preventDefault();
       if (this.levelUpModal?.isOpen() || this.actionLocked) return;
-      this.inventoryUI?.toggle();
+      this.universalWorld?.inventorySurface.toggle();
     });
 
     const weaponKeys = ['keydown-ONE', 'keydown-TWO', 'keydown-THREE', 'keydown-FOUR', 'keydown-FIVE', 'keydown-SIX'] as const;
@@ -1245,17 +1232,17 @@ export class WorldScene extends Phaser.Scene {
     });
 
     kb.on('keydown-M', () => {
-      if (this.levelUpModal?.isOpen() || this.inventoryUI?.isOpen() || this.questJournal?.isOpen() || this.craftingUI?.isOpen()) return;
+      if (this.levelUpModal?.isOpen() || this.universalWorld?.inventorySurface.isOpen() || this.questJournal?.isOpen() || this.craftingUI?.isOpen()) return;
       this.worldMapUI?.toggle();
     });
 
     kb.on('keydown-U', () => {
-      if (this.levelUpModal?.isOpen() || this.inventoryUI?.isOpen() || this.worldMapUI?.isOpen() || this.craftingUI?.isOpen()) return;
+      if (this.levelUpModal?.isOpen() || this.universalWorld?.inventorySurface.isOpen() || this.worldMapUI?.isOpen() || this.craftingUI?.isOpen()) return;
       this.questJournal?.toggle();
     });
 
     kb.on('keydown-C', () => {
-      if (this.levelUpModal?.isOpen() || this.inventoryUI?.isOpen() || this.worldMapUI?.isOpen() || this.questJournal?.isOpen()) return;
+      if (this.levelUpModal?.isOpen() || this.universalWorld?.inventorySurface.isOpen() || this.worldMapUI?.isOpen() || this.questJournal?.isOpen()) return;
       this.craftingUI?.toggle();
     });
 
@@ -1387,6 +1374,12 @@ export class WorldScene extends Phaser.Scene {
       interactions: this.interactionRouter!,
       modalStack: this.modalStack!,
       setChestPaused: (paused) => this.setSimulationPaused('managed-chest', paused),
+      setInventoryPaused: (paused) => this.setSimulationPaused('inventory', paused),
+      onUseInventoryItem: (itemId) => this.useItem(itemId),
+      onEquipInventoryWeapon: (weaponId) => this.equipWeaponFromInventory(weaponId),
+      onAssignInventoryWeapon: (weaponId, slotIndex) => this.assignWeaponSlot(weaponId, slotIndex),
+      canDropInventoryItem: (itemId) => this.inventoryDrops?.canDrop(itemId) ?? false,
+      onDropInventoryItem: (slotIndex, quantity) => this.inventoryDrops?.dropFromSlot(slotIndex, quantity) ?? false,
       showMessage: (x, y, message, color = 'white', important = false) => floatingText.spawn(this, x, y, message, color, important),
       updateLegacyFixed: (deltaMs) => this.updateLegacyFixed(deltaMs),
       updateLegacyRender: (deltaMs) => this.updateLegacyRender(deltaMs),

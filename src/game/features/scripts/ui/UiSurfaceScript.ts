@@ -27,7 +27,7 @@ interface UiBinding {
   readonly model: string;
 }
 
-const HANDLERS = ['on_primary_action', 'on_secondary_action', 'on_close_action', 'on_item_selected', 'on_jump_action', 'on_slam_action', 'on_lash_action', 'on_teleport_action'] as const;
+const HANDLERS = ['on_primary_action', 'on_secondary_action', 'on_close_action', 'on_item_selected', 'on_jump_action', 'on_slam_action', 'on_lash_action', 'on_teleport_action', 'on_assign_slot', 'on_quantity_minus_10', 'on_quantity_minus_1', 'on_quantity_plus_1', 'on_quantity_plus_10', 'on_drop_all', 'on_remove', 'on_remove_all'] as const;
 
 export class UiSurfaceScript extends ScriptNode {
   readonly surfaceId: string;

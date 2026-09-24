@@ -30,8 +30,25 @@ const TONE_VARIABLE: Readonly<Record<UiTone, string>> = {
 };
 
 export class HtmlControlPresentationAdapter extends ControlPresentationAdapter {
+  private readonly modalFocus = new Map<ModalRootControlNode, { previous: Element | null; open: boolean }>();
+
   constructor(private readonly htmlOptions: HtmlControlPresentationOptions) {
     super({ ...htmlOptions, createElement: (control) => createElement(control) });
+  }
+
+  override enter(control: ControlNode): () => void {
+    const dispose = super.enter(control);
+    if (!(control instanceof ModalRootControlNode)) return dispose;
+    const element = this.elementFor(control)!;
+    element.tabIndex = -1;
+    element.addEventListener('keydown', trapModalTab);
+    return () => {
+      const focus = this.modalFocus.get(control);
+      if (focus?.open && focus.previous instanceof HTMLElement && focus.previous.isConnected) focus.previous.focus();
+      this.modalFocus.delete(control);
+      element.removeEventListener('keydown', trapModalTab);
+      dispose();
+    };
   }
 
   override synchronize(control: ControlNode): void {
@@ -39,6 +56,36 @@ export class HtmlControlPresentationAdapter extends ControlPresentationAdapter {
     const element = this.elementFor(control);
     if (!element) return;
     synchronizeElement(element, control, this.htmlOptions.resolveAssetUrl);
+    if (control instanceof ModalRootControlNode) {
+      const state = this.modalFocus.get(control);
+      if (control.open && !state?.open) {
+        const previous = document.activeElement;
+        this.modalFocus.set(control, { previous, open: true });
+        requestAnimationFrame(() => {
+          if (!control.open || !element.isConnected) return;
+          (element.querySelector<HTMLElement>('button:not(:disabled), [tabindex="0"]') ?? element).focus();
+        });
+      } else if (!control.open && state?.open) {
+        this.modalFocus.set(control, { previous: state.previous, open: false });
+        if (state.previous instanceof HTMLElement && state.previous.isConnected) state.previous.focus();
+      }
+    }
+  }
+}
+
+function trapModalTab(event: KeyboardEvent): void {
+  event.stopPropagation();
+  if (event.key !== 'Tab') return;
+  const root = event.currentTarget as HTMLElement;
+  const focusable = [...root.querySelectorAll<HTMLElement>('button:not(:disabled), [tabindex="0"]')]
+    .filter((item) => item.getClientRects().length > 0);
+  if (!focusable.length) { event.preventDefault(); root.focus(); return; }
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  if (event.shiftKey && (document.activeElement === first || document.activeElement === root)) {
+    event.preventDefault(); event.stopPropagation(); last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault(); event.stopPropagation(); first.focus();
   }
 }
 
@@ -62,7 +109,8 @@ function synchronizeElement(
 ): void {
   element.className = `scene-control scene-control--${control.runtimeType.toLowerCase()}${control instanceof StyledControlNode && control.styleClass ? ` ${control.styleClass}` : ''}`;
   if (control instanceof StyledControlNode) {
-    element.setAttribute('aria-label', control.ariaLabel || control.name);
+    if (control.ariaLabel) element.setAttribute('aria-label', control.ariaLabel);
+    else element.removeAttribute('aria-label');
     element.title = control.tooltip;
     element.style.zIndex = String(control.zIndex);
   }
@@ -155,8 +203,11 @@ function synchronizeList(
   control: ItemListControlNode,
   resolveAssetUrl: HtmlControlPresentationOptions['resolveAssetUrl'],
 ): void {
-  const signature = JSON.stringify([control.items, control.selectedIndex, control.columns, control.gap]);
-  if (element.dataset.sceneListSignature === signature) return;
+  const signature = JSON.stringify([control.items, control.columns, control.gap]);
+  if (element.dataset.sceneListSignature === signature) {
+    [...element.children].forEach((child, index) => child.setAttribute('aria-selected', String(index === control.selectedIndex)));
+    return;
+  }
   element.dataset.sceneListSignature = signature;
   element.replaceChildren();
   element.setAttribute('role', 'listbox');
@@ -185,6 +236,8 @@ function synchronizeList(
     option.dataset.itemId = item.id;
     option.setAttribute('role', 'option');
     option.setAttribute('aria-selected', String(index === control.selectedIndex));
+    option.onfocus = () => { control.focused = true; };
+    option.onblur = () => { control.focused = false; };
     option.onclick = (event) => { if (control.select(index)) { event.preventDefault(); event.stopPropagation(); } };
     element.append(option);
   });

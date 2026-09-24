@@ -76,9 +76,15 @@ test('UI scenes preserve layout, theme, typed bindings, actions, and common cont
   assert.equal(inventory.nodes[0].type, 'ModalRoot');
   assert.ok(inventory.nodes.some((node) => node.type === 'ItemList'));
   assert.ok(inventory.nodes.some((node) => node.type === 'Button'));
-  assert.deepEqual(inventory.nodes.find((node) => node.scriptId === 'game.ui-surface').properties.actions, {
-    on_item_selected: 'select-item', on_primary_action: 'use-or-equip', on_secondary_action: 'drop', on_close_action: 'close',
-  });
+  const inventoryActions = inventory.nodes.find((node) => node.scriptId === 'game.ui-surface').properties.actions;
+  assert.equal(inventoryActions.on_item_selected, 'select-item');
+  assert.equal(inventoryActions.on_primary_action, 'use-or-equip');
+  assert.equal(inventoryActions.on_assign_slot, 'assign-slot');
+  assert.equal(inventoryActions.on_drop_all, 'drop-all');
+  assert.equal(inventoryActions.on_remove_all, 'remove-all');
+  assert.equal(inventoryActions.on_close_action, 'close');
+  assert.equal(inventory.nodes.find((node) => node.name === 'Items').parentId, 'content');
+  assert.equal(inventory.nodes.find((node) => node.id === 'content').parentId, 'scroll');
   assert.ok(inventory.connections.some((connection) => connection.handler === 'on_item_selected'));
 
   for (const key of unitKeys) {
