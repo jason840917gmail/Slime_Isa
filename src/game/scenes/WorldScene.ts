@@ -20,12 +20,10 @@ import type { PlayerAbilityId } from '../features/player/PlayerAbilityDefinition
 import { playerInventory, itemRegistry, weaponItemFor } from '../systems/Inventory';
 import { playerWeaponLoadout } from '../systems/WeaponLoadout';
 import { floatingText } from '../ui/FloatingText';
-import { LevelUpModal } from '../ui/LevelUpModal';
 import { hitboxPool } from '../combat/Hitbox';
 import { AREAS, type AreaDef, type AreaId, type Direction } from '../world/Area';
 import { BIOMES } from '../world/Biome';
 import { questTracker } from '../quests/QuestTracker';
-import { reopenPendingLevelUpWhenIdle } from '../ui/LevelUpReopenPolicy';
 import { ModalStack } from '../ui/ModalStack';
 import { DisposableBag } from '../shared/lifecycle/Disposable';
 import { PlayerController } from '../features/player/PlayerController';
@@ -114,7 +112,6 @@ export class WorldScene extends Phaser.Scene {
   private playerController!: PlayerController;
   private healthSystem?: LegacyPlayerHealthAdapter;
   private statusEffects?: StatusEffectManager;
-  private levelUpModal?: LevelUpModal;
   private modalStack?: ModalStack;
   private interactionRouter?: InteractionRouter;
   private questNpcController?: QuestNpcController;
@@ -248,11 +245,6 @@ export class WorldScene extends Phaser.Scene {
       getTerrainGrid: () => this.terrainGrid,
       getCombatTargets: () => this.combatController?.targets ?? null,
     });
-    this.levelUpModal = new LevelUpModal({
-      scene: this,
-      modalStack,
-      onPausedChange: (p) => { this.setSimulationPaused('levelup', p); },
-    });
     this.universalWorld?.worldMapSurface.discover(this.currentArea.id);
     this.questNotifications = new QuestNotificationPresenter({
       getPosition: () => ({ x: this.player.x, y: this.player.y }),
@@ -326,7 +318,6 @@ export class WorldScene extends Phaser.Scene {
     this.renderingDiagnostics?.destroy();
     this.renderingDiagnostics = undefined;
     this.cameraController = undefined;
-    this.levelUpModal?.destroy();
     this.questNotifications?.destroy();
     this.questNotifications = undefined;
     this.interactionRouter?.destroy();
@@ -1176,7 +1167,7 @@ export class WorldScene extends Phaser.Scene {
     // before the browser moves focus.
     kb.on('keydown-TAB', (event: KeyboardEvent) => {
       event.preventDefault();
-      if (this.levelUpModal?.isOpen() || this.actionLocked) return;
+      if (this.universalWorld?.levelUpSurface.isOpen() || this.actionLocked) return;
       this.universalWorld?.inventorySurface.toggle();
     });
 
@@ -1191,21 +1182,14 @@ export class WorldScene extends Phaser.Scene {
     });
 
     kb.on('keydown-U', () => {
-      if (this.levelUpModal?.isOpen() || this.universalWorld?.inventorySurface.isOpen() || this.universalWorld?.worldMapSurface.isOpen() || this.universalWorld?.craftingSurface.isOpen()) return;
+      if (this.universalWorld?.levelUpSurface.isOpen() || this.universalWorld?.inventorySurface.isOpen() || this.universalWorld?.worldMapSurface.isOpen() || this.universalWorld?.craftingSurface.isOpen()) return;
       this.universalWorld?.questJournalSurface.toggle();
     });
 
     kb.on('keydown-C', () => {
-      if (this.levelUpModal?.isOpen() || this.universalWorld?.inventorySurface.isOpen() || this.universalWorld?.worldMapSurface.isOpen() || this.universalWorld?.questJournalSurface.isOpen()) return;
+      if (this.universalWorld?.levelUpSurface.isOpen() || this.universalWorld?.inventorySurface.isOpen() || this.universalWorld?.worldMapSurface.isOpen() || this.universalWorld?.questJournalSurface.isOpen()) return;
       this.universalWorld?.craftingSurface.toggle();
     });
-
-    const reopenLevelUp = (): void => {
-      if (!this.modalStack || !this.levelUpModal) return;
-      reopenPendingLevelUpWhenIdle(this.modalStack, this.levelUpModal);
-    };
-    kb.on('keydown-P', reopenLevelUp);
-    this.disposables.add(() => kb.off('keydown-P', reopenLevelUp));
 
     // Left-click triggers an attack in the player's current facing direction.
     this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
@@ -1333,6 +1317,7 @@ export class WorldScene extends Phaser.Scene {
       setJournalPaused: (paused) => this.setSimulationPaused('journal', paused),
       setQuestOfferPaused: (paused) => this.setSimulationPaused('quest-npc', paused),
       setWorldMapPaused: (paused) => this.setSimulationPaused('worldmap', paused),
+      setLevelUpPaused: (paused) => this.setSimulationPaused('levelup', paused),
       getCurrentAreaId: () => this.currentArea.id,
       onCrafted: ({ recipe }) => {
         const craftedWeaponId = itemRegistry.get(recipe.output.itemId)?.equipment?.weaponId;
