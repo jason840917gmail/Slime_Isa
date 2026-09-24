@@ -3237,6 +3237,36 @@ body {
   font-weight: 700;
 }
 
+/* Combat messages are individual authored Controls over the world. */
+.game-ui--floating-text {
+  pointer-events: none;
+  border: 0 !important;
+  background: transparent !important;
+  transform-origin: center;
+}
+
+.game-ui--floating-text .scene-control--label {
+  justify-content: center;
+  color: #f5f7ff;
+  text-shadow: -1px -1px 0 #0b1020, 1px -1px 0 #0b1020, -1px 1px 0 #0b1020, 1px 1px 0 #0b1020;
+}
+
+/* Area announcements sit above the world without claiming pointer input. */
+.game-ui--area-title-card {
+  pointer-events: none;
+  left: 50% !important;
+  max-width: calc(100% - 24px);
+  transform: translateX(-50%);
+  border-color: color-mix(in srgb, var(--scene-accent, #86f0c3) 50%, transparent);
+  border-radius: 12px;
+  background: linear-gradient(180deg, #192642, #101a31);
+}
+
+.game-ui--area-title-card .scene-control--label {
+  justify-content: center;
+  text-shadow: 0 2px 4px #081022;
+}
+
 /* Floating player meter and encounter instrument share the authored Control layer. */
 .game-ui--health-bar {
   pointer-events: none;

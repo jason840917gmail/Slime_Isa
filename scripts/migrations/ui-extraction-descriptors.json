@@ -225,9 +225,9 @@
       "sourceHash": "7023a7a9539adec17cd67c2250f66ee0b31475e4f2c6fddfbcabdd3ebceb6902",
       "sceneId": "ui.area-title-card",
       "modal": false,
-      "layoutValues": { "anchorMin": [0.5, 0], "anchorMax": [0.5, 0], "offsetMin": [-220, 28], "offsetMax": [220, 92] },
+      "layoutValues": { "anchorMin": [0.5, 0], "anchorMax": [0.5, 0], "offsetMin": [-220, 72], "offsetMax": [220, 136] },
       "themeValues": { "tone": "warning", "fontSize": 24 },
-      "bindings": [{ "nodePath": "../AreaName", "property": "text", "model": "title" }, { "nodePath": "..", "property": "visible", "model": "visible" }],
+      "bindings": [{ "nodePath": "../AreaName", "property": "text", "model": "title" }, { "nodePath": "../AreaName", "property": "color", "model": "color" }, { "nodePath": "..", "property": "visible", "model": "visible" }, { "nodePath": "..", "property": "opacity", "model": "opacity" }, { "nodePath": "..", "property": "offsetMin", "model": "offsetMin" }, { "nodePath": "..", "property": "offsetMax", "model": "offsetMax" }],
       "actions": {},
       "controls": [
         { "id": "area-name", "name": "AreaName", "type": "Label", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 1], "textAlign": "center", "tone": "warning", "fontSize": 24, "fontWeight": 700, "ariaLabel": "Area title" } }
@@ -286,12 +286,12 @@
     {
       "id": "floating-text",
       "sourcePath": "src/game/ui/FloatingText.ts",
-      "sourceHash": "11e789c2ffe3e8c1d7bfc6fa9c50b06880fe9eaa4c2dbab65dc93377085e432a",
+      "sourceHash": "99c0cd474996ea81187b66ddd96ca90ded4ac215a5dbea7f6cc9c18d4e51b6c1",
       "sceneId": "ui.floating-text",
       "modal": false,
-      "layoutValues": { "anchorMin": [0.5, 0.5], "anchorMax": [0.5, 0.5], "offsetMin": [-140, -24], "offsetMax": [140, 24] },
+      "layoutValues": { "anchorMin": [0, 0], "anchorMax": [0, 0], "offsetMin": [0, 0], "offsetMax": [280, 48] },
       "themeValues": { "tone": "default", "fontSize": 15 },
-      "bindings": [{ "nodePath": "../Message", "property": "text", "model": "message" }, { "nodePath": "..", "property": "visible", "model": "visible" }],
+      "bindings": [{ "nodePath": "../Message", "property": "text", "model": "message" }, { "nodePath": "../Message", "property": "color", "model": "color" }, { "nodePath": "../Message", "property": "fontSize", "model": "fontSize" }, { "nodePath": "..", "property": "visible", "model": "visible" }, { "nodePath": "..", "property": "opacity", "model": "opacity" }, { "nodePath": "..", "property": "scale", "model": "scale" }, { "nodePath": "..", "property": "offsetMin", "model": "offsetMin" }, { "nodePath": "..", "property": "offsetMax", "model": "offsetMax" }],
       "actions": {},
       "controls": [{ "id": "message", "name": "Message", "type": "Label", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 1], "textAlign": "center", "fontSize": 15, "fontWeight": 700 } }]
     },

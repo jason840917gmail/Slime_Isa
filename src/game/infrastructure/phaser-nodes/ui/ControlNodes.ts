@@ -88,6 +88,7 @@ export class ContainerControlNode extends StyledControlNode {
 
 export interface LabelControlOptions extends StyledControlOptions {
   readonly text?: string;
+  readonly color?: string;
   readonly tone?: UiTone;
   readonly fontSize?: number;
   readonly fontWeight?: number;
@@ -97,8 +98,9 @@ export interface LabelControlOptions extends StyledControlOptions {
 
 export class LabelControlNode extends StyledControlNode {
   text: string;
+  color?: string;
   readonly tone: UiTone;
-  readonly fontSize: number;
+  fontSize: number;
   readonly fontWeight: number;
   readonly textAlign: UiTextAlignment;
   readonly wrap: boolean;
@@ -106,6 +108,7 @@ export class LabelControlNode extends StyledControlNode {
   constructor(protected readonly labelOptions: LabelControlOptions) {
     super(labelOptions);
     this.text = labelOptions.text ?? '';
+    this.color = labelOptions.color;
     this.tone = labelOptions.tone ?? 'default';
     this.fontSize = finitePositive(labelOptions.fontSize ?? 14, 'Label fontSize');
     this.fontWeight = finitePositive(labelOptions.fontWeight ?? 400, 'Label fontWeight');
@@ -114,7 +117,7 @@ export class LabelControlNode extends StyledControlNode {
   }
 
   protected override _duplicateSelf(runtimeId: RuntimeNodeId): LabelControlNode {
-    return new LabelControlNode({ ...this.labelOptions, ...this.duplicateOptions(runtimeId), text: this.text, tone: this.tone, fontSize: this.fontSize, fontWeight: this.fontWeight, textAlign: this.textAlign, wrap: this.wrap });
+    return new LabelControlNode({ ...this.labelOptions, ...this.duplicateOptions(runtimeId), text: this.text, color: this.color, tone: this.tone, fontSize: this.fontSize, fontWeight: this.fontWeight, textAlign: this.textAlign, wrap: this.wrap });
   }
 }
 

@@ -24,6 +24,7 @@ import { SceneTree } from '../../../../src/game/runtime/scene/SceneTree';
 import { getEnemyConfig } from '../../../../src/game/enemies/library/EnemyTypes';
 import { playerWeaponLoadout } from '../../../../src/game/systems/WeaponLoadout';
 import { gameState } from '../../../../src/game/core/GameState';
+import { floatingText, type FloatingTextColor } from '../../../../src/game/ui/FloatingText';
 
 type FixtureSnapshot = {
   readonly mode: 'harness' | 'baseline';
@@ -103,6 +104,8 @@ type FixtureApi = {
   drainProductionEnergy(): void;
   damageProductionPlayer(amount: number): number;
   resetProductionBossFight(): void;
+  showProductionAreaTitle(title: string, color: string): void;
+  spawnProductionFloatingText(message: string, color: FloatingTextColor, big?: boolean, durationMs?: number): void;
   attackWithProductionWeapon(): boolean;
   snapshot(): FixtureSnapshot;
   destroy(): void;
@@ -504,6 +507,19 @@ const api: FixtureApi = {
       readonly universalWorld?: { resetActiveFights(): void };
     };
     world.universalWorld?.resetActiveFights();
+  },
+  showProductionAreaTitle(title, color) {
+    if (!game || mode !== 'baseline') throw new Error('Production area title is only available in baseline mode');
+    const world = game.scene.getScene('world') as unknown as {
+      readonly universalWorld?: { showAreaTitle(title: string, color: string): void };
+    };
+    world.universalWorld?.showAreaTitle(title, color);
+  },
+  spawnProductionFloatingText(message, color, big = false, durationMs) {
+    if (!game || mode !== 'baseline') throw new Error('Production floating text is only available in baseline mode');
+    const world = game.scene.getScene('world') as Phaser.Scene & { readonly player?: Phaser.Physics.Arcade.Sprite };
+    if (!world.player) throw new Error('Production player is unavailable');
+    floatingText.spawn(world, world.player.x, world.player.y - 42, message, color, big, durationMs);
   },
   attackWithProductionWeapon() {
     if (!game || mode !== 'baseline') throw new Error('Production weapons are only available in baseline mode');

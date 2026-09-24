@@ -85,6 +85,8 @@ function applyBinding(script: UiSurfaceScript, binding: UiBinding, value: JsonVa
   let target: Node;
   try { target = script.get_node(binding.nodePath); } catch { return; }
   if (target instanceof LabelControlNode && binding.property === 'text' && typeof value === 'string') target.text = value;
+  else if (target instanceof LabelControlNode && binding.property === 'color' && typeof value === 'string' && /^#[0-9a-f]{6}$/i.test(value)) target.color = value;
+  else if (target instanceof LabelControlNode && binding.property === 'fontSize' && typeof value === 'number' && Number.isFinite(value) && value > 0) target.fontSize = value;
   else if (target instanceof ProgressBarControlNode && binding.property === 'value' && typeof value === 'number') target.value = value;
   else if (target instanceof ProgressBarControlNode && binding.property === 'max' && typeof value === 'number' && value > 0) target.max = value;
   else if (target instanceof ProgressBarControlNode && binding.property === 'label' && typeof value === 'string') target.label = value;
@@ -100,6 +102,8 @@ function applyBinding(script: UiSurfaceScript, binding: UiBinding, value: JsonVa
     return [{ id: entry.id, label: entry.label, ...(typeof entry.disabled === 'boolean' ? { disabled: entry.disabled } : {}), ...('metadata' in entry ? { metadata: entry.metadata } : {}) }];
   });
   else if (target instanceof ModalRootControlNode && binding.property === 'open' && typeof value === 'boolean') target.setOpen(value);
+  else if (target instanceof ControlNode && binding.property === 'opacity' && typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 1) target.opacity = value;
+  else if (target instanceof ControlNode && binding.property === 'scale' && typeof value === 'number' && Number.isFinite(value) && value > 0) target.scale = value;
   else if ('visible' in target && binding.property === 'visible' && typeof value === 'boolean') (target as { visible: boolean }).visible = value;
   else if ('focused' in target && binding.property === 'focused' && typeof value === 'boolean') (target as { focused: boolean }).focused = value;
 }
