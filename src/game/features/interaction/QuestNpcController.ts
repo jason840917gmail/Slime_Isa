@@ -3,7 +3,7 @@ import { gameEvents } from '../../core/EventBus';
 import { getNpcDefinition } from '../../content/npcs/NpcCatalog';
 import type { BuiltNpcRegistration } from '../world/MapBuilder';
 import { questService } from '../../quests/QuestService';
-import { QuestOfferModal } from '../../ui/QuestOfferModal';
+import type { QuestOfferSurfacePort } from '../ui/QuestOfferSurfacePort';
 import type { InteractionCandidate, InteractionRouter, InteractionProvider } from './InteractionRouter';
 
 const NPC_INTERACT_DISTANCE = 96;
@@ -32,21 +32,23 @@ export interface QuestNpcControllerContext {
   readonly scene: Phaser.Scene;
   readonly getPlayer: () => Phaser.Physics.Arcade.Sprite;
   readonly router: InteractionRouter;
-  readonly modalStack: import('../../ui/ModalStack').ModalStack;
-  readonly onPausedChange: (paused: boolean) => void;
+  readonly getOfferSurface: () => QuestOfferSurfacePort | undefined;
   readonly showMessage: (x: number, y: number, message: string, color?: 'white' | 'yellow' | 'green' | 'red', important?: boolean) => void;
 }
 
 /** Registers authored NPC objects and exposes one prioritized interaction provider. */
 export class QuestNpcController implements InteractionProvider {
   private readonly records: QuestNpcRecord[] = [];
-  private readonly modal: QuestOfferModal;
   private readonly pendingReleases = new Set<() => void>();
   private unregisterRouter?: () => void;
   private disposed = false;
 
-  constructor(private readonly ctx: QuestNpcControllerContext) {
-    this.modal = new QuestOfferModal(ctx.scene, ctx.modalStack, ctx.onPausedChange);
+  constructor(private readonly ctx: QuestNpcControllerContext) {}
+
+  private get modal(): QuestOfferSurfacePort {
+    const surface = this.ctx.getOfferSurface();
+    if (!surface) throw new Error('Quest NPC interactions require the authored offer surface.');
+    return surface;
   }
 
   register(registration: BuiltNpcRegistration | QuestNpcRegistration): void {
@@ -171,7 +173,7 @@ export class QuestNpcController implements InteractionProvider {
     this.disposed = true;
     this.unregisterRouter?.();
     this.unregisterRouter = undefined;
-    this.modal.destroy();
+    this.ctx.getOfferSurface()?.close();
     for (const release of [...this.pendingReleases]) release();
     this.records.length = 0;
   }
