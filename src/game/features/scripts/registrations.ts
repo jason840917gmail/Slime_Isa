@@ -460,6 +460,7 @@ export const UI_SURFACE_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
     { id: 'on_secondary_action' },
     { id: 'on_close_action' },
     { id: 'on_item_selected', payload: 'UiListSelection' },
+    { id: 'on_item_secondary', payload: 'UiListSelection' },
     { id: 'on_jump_action' },
     { id: 'on_slam_action' },
     { id: 'on_lash_action' },

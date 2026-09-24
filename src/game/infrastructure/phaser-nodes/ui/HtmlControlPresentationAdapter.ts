@@ -239,6 +239,9 @@ function synchronizeList(
     option.onfocus = () => { control.focused = true; };
     option.onblur = () => { control.focused = false; };
     option.onclick = (event) => { if (control.select(index)) { event.preventDefault(); event.stopPropagation(); } };
+    option.oncontextmenu = (event) => {
+      if (control.secondarySelect(index)) { event.preventDefault(); event.stopPropagation(); }
+    };
     element.append(option);
   });
 }

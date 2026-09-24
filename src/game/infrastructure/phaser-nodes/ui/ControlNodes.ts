@@ -241,6 +241,12 @@ export class ItemListControlNode extends StyledControlNode {
     return true;
   }
 
+  secondarySelect(index: number): boolean {
+    if (!this.select(index)) return false;
+    this.getSignal<Readonly<{ index: number; item: UiListItem }>>('item_secondary')?.emit({ index, item: this.items[index] });
+    return true;
+  }
+
   override handleRoutedInput(event: InputEvent): void {
     if (!this.focused || event.type !== 'key-down') {
       super.handleRoutedInput(event);
@@ -253,6 +259,10 @@ export class ItemListControlNode extends StyledControlNode {
             : 0;
     if (direction !== 0) {
       event.handled = this.selectNearest(this.selectedIndex < 0 ? (direction > 0 ? 0 : this.items.length - 1) : this.selectedIndex + direction, direction);
+      return;
+    }
+    if (event.key === 'ContextMenu' || (event.key === 'F10' && (event.nativeEvent as KeyboardEvent | undefined)?.shiftKey)) {
+      event.handled = this.secondarySelect(this.selectedIndex);
       return;
     }
     if (event.key === 'Home') { event.handled = this.selectNearest(0, 1); return; }

@@ -38,10 +38,28 @@
       }
     },
     {
-      "id": "title",
-      "name": "Title",
-      "type": "Label",
+      "id": "scroll",
+      "name": "Scroll",
+      "type": "ScrollContainer",
       "parentId": "surface",
+      "order": 0,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "scrollAxis": "vertical"
+      }
+    },
+    {
+      "id": "content",
+      "name": "Content",
+      "type": "Container",
+      "parentId": "scroll",
       "order": 0,
       "properties": {
         "anchorMin": [
@@ -53,8 +71,33 @@
           0
         ],
         "offsetMax": [
-          -72,
-          48
+          0,
+          620
+        ]
+      }
+    },
+    {
+      "id": "title",
+      "name": "Title",
+      "type": "Label",
+      "parentId": "content",
+      "order": 0,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          0
+        ],
+        "offsetMin": [
+          24,
+          14
+        ],
+        "offsetMax": [
+          -24,
+          54
         ],
         "text": "Chest",
         "tone": "warning",
@@ -66,7 +109,7 @@
       "id": "items",
       "name": "Items",
       "type": "ItemList",
-      "parentId": "surface",
+      "parentId": "content",
       "order": 1,
       "properties": {
         "anchorMin": [
@@ -78,12 +121,12 @@
           1
         ],
         "offsetMin": [
-          0,
-          64
+          24,
+          68
         ],
         "offsetMax": [
-          0,
-          -56
+          -8,
+          -90
         ],
         "columns": 5,
         "gap": 10,
@@ -94,11 +137,11 @@
       "id": "details",
       "name": "Details",
       "type": "Label",
-      "parentId": "surface",
+      "parentId": "content",
       "order": 2,
       "properties": {
         "anchorMin": [
-          0.66,
+          0.64,
           0
         ],
         "anchorMax": [
@@ -110,38 +153,94 @@
           72
         ],
         "offsetMax": [
-          0,
-          -56
+          -24,
+          -90
         ],
         "wrap": true,
-        "tone": "muted"
+        "tone": "muted",
+        "fontSize": 13
+      }
+    },
+    {
+      "id": "status",
+      "name": "Status",
+      "type": "Label",
+      "parentId": "content",
+      "order": 3,
+      "properties": {
+        "anchorMin": [
+          0,
+          1
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "offsetMin": [
+          24,
+          -78
+        ],
+        "offsetMax": [
+          -24,
+          -52
+        ],
+        "wrap": true,
+        "tone": "info",
+        "fontSize": 12
+      }
+    },
+    {
+      "id": "take",
+      "name": "Take",
+      "type": "Button",
+      "parentId": "content",
+      "order": 4,
+      "properties": {
+        "anchorMin": [
+          0,
+          1
+        ],
+        "anchorMax": [
+          0,
+          1
+        ],
+        "offsetMin": [
+          24,
+          -46
+        ],
+        "offsetMax": [
+          160,
+          -8
+        ],
+        "text": "Take Stack",
+        "tone": "accent"
       }
     },
     {
       "id": "close",
       "name": "Close",
       "type": "Button",
-      "parentId": "surface",
-      "order": 3,
+      "parentId": "content",
+      "order": 5,
       "properties": {
         "anchorMin": [
           1,
-          0
+          1
         ],
         "anchorMax": [
           1,
-          0
+          1
         ],
         "offsetMin": [
-          -64,
-          0
+          -112,
+          -46
         ],
         "offsetMax": [
-          0,
-          40
+          -24,
+          -8
         ],
         "text": "Close",
-        "tone": "accent"
+        "tone": "muted"
       }
     },
     {
@@ -150,34 +249,56 @@
       "type": "ScriptNode",
       "scriptId": "game.ui-surface",
       "parentId": "surface",
-      "order": 4,
+      "order": 1,
       "properties": {
         "surfaceId": "chest-inventory-panel",
         "modal": true,
         "bindings": [
           {
-            "nodePath": "../Items",
+            "nodePath": "../Scroll/Content/Items",
             "property": "items",
             "model": "items"
           },
           {
-            "nodePath": "../Items",
+            "nodePath": "../Scroll/Content/Items",
             "property": "selectedIndex",
             "model": "selectedIndex"
           },
           {
-            "nodePath": "../Details",
+            "nodePath": "../Scroll/Content/Details",
             "property": "text",
             "model": "details"
+          },
+          {
+            "nodePath": "../Scroll/Content/Status",
+            "property": "text",
+            "model": "status"
+          },
+          {
+            "nodePath": "../Scroll/Content/Take",
+            "property": "disabled",
+            "model": "takeDisabled"
           },
           {
             "nodePath": "..",
             "property": "open",
             "model": "open"
+          },
+          {
+            "nodePath": "..",
+            "property": "offsetMin",
+            "model": "offsetMin"
+          },
+          {
+            "nodePath": "..",
+            "property": "offsetMax",
+            "model": "offsetMax"
           }
         ],
         "actions": {
-          "on_item_selected": "take-stack",
+          "on_item_selected": "select-item",
+          "on_item_secondary": "take-selected-stack",
+          "on_primary_action": "take-stack",
           "on_close_action": "close"
         }
       }
@@ -204,6 +325,26 @@
         "nodeId": "script"
       },
       "handler": "on_item_selected"
+    },
+    {
+      "source": {
+        "nodeId": "items"
+      },
+      "signal": "item_secondary",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_item_secondary"
+    },
+    {
+      "source": {
+        "nodeId": "take"
+      },
+      "signal": "pressed",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_primary_action"
     },
     {
       "source": {

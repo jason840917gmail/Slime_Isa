@@ -67,6 +67,7 @@ test('UI scenes preserve layout, theme, typed bindings, actions, and common cont
   const load = async (name) => JSON.parse(await readFile(path.join(runner.outputRoot, `ui/${name}.scene.json`), 'utf8'));
   const hud = await load('hud');
   const inventory = await load('inventory-ui');
+  const chest = await load('chest-inventory-panel');
 
   assert.equal(hud.sceneId, 'ui.hud');
   assert.deepEqual(hud.nodes.find((node) => node.id === 'surface').properties.theme, { resourceId: 'ui.field-kit.theme' });
@@ -86,6 +87,8 @@ test('UI scenes preserve layout, theme, typed bindings, actions, and common cont
   assert.equal(inventory.nodes.find((node) => node.name === 'Items').parentId, 'content');
   assert.equal(inventory.nodes.find((node) => node.id === 'content').parentId, 'scroll');
   assert.ok(inventory.connections.some((connection) => connection.handler === 'on_item_selected'));
+  assert.ok(chest.connections.some((connection) => connection.signal === 'item_secondary' && connection.handler === 'on_item_secondary'));
+  assert.equal(chest.nodes.find((node) => node.name === 'Items').parentId, 'content');
 
   for (const key of unitKeys) {
     const name = key.slice('ui:'.length);

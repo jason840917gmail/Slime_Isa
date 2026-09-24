@@ -3332,3 +3332,40 @@ body {
   .game-ui--inventory-ui .scene-item--illustrated img { width: 20px; height: 20px; }
   .game-ui--inventory-ui .scene-control--button { font-size: 10px !important; }
 }
+
+.game-ui--chest-inventory-panel {
+  border-radius: 12px;
+  box-shadow: 0 18px 48px #080e1abf;
+}
+.game-ui--chest-inventory-panel .scene-control--itemlist {
+  overflow: auto;
+  align-content: start;
+}
+.game-ui--chest-inventory-panel .scene-control--itemlist > button {
+  min-height: 52px;
+  border-radius: 5px;
+  font-size: 11px;
+}
+.game-ui--chest-inventory-panel .scene-item--illustrated {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+.game-ui--chest-inventory-panel .scene-item--illustrated img {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+.game-ui--chest-inventory-panel .scene-item--illustrated span {
+  color: var(--scene-warning, #ffd277);
+  font-size: 10px;
+}
+.game-ui--chest-inventory-panel .scene-control--label {
+  line-height: 1.4;
+  align-items: flex-start;
+  overflow: auto;
+}
+.game-ui--chest-inventory-panel .scene-control--button { border-radius: 5px; }
