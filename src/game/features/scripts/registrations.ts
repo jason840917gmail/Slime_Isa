@@ -470,6 +470,7 @@ export const UI_SURFACE_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
     { id: 'on_quantity_minus_1' },
     { id: 'on_quantity_plus_1' },
     { id: 'on_quantity_plus_10' },
+    { id: 'on_quantity_max' },
     { id: 'on_drop_all' },
     { id: 'on_remove' },
     { id: 'on_remove_all' },

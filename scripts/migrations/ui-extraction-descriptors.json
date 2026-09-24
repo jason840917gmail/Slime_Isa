@@ -539,16 +539,487 @@
       "sourceHash": "7bb75c35d7ab686ce167c52d82f5601e1ab6bcc3d61bb70b6aeacc1b2b754ff4",
       "sceneId": "ui.crafting-ui",
       "modal": true,
-      "layoutValues": { "anchorMin": [0.5, 0.5], "anchorMax": [0.5, 0.5], "offsetMin": [-560, -330], "offsetMax": [560, 330] },
-      "themeValues": { "columns": 4, "gap": 12, "surface": "crafting" },
-      "bindings": [{ "nodePath": "../Recipes", "property": "items", "model": "recipes" }, { "nodePath": "../Details", "property": "text", "model": "details" }, { "nodePath": "../Craft", "property": "disabled", "model": "craftDisabled" }, { "nodePath": "..", "property": "open", "model": "open" }],
-      "actions": { "on_item_selected": "select-recipe", "on_primary_action": "craft", "on_close_action": "close" },
+      "layoutValues": {
+        "anchorMin": [
+          0.5,
+          0.5
+        ],
+        "anchorMax": [
+          0.5,
+          0.5
+        ],
+        "offsetMin": [
+          -560,
+          -330
+        ],
+        "offsetMax": [
+          560,
+          330
+        ]
+      },
+      "themeValues": {
+        "columns": 4,
+        "gap": 12,
+        "surface": "crafting"
+      },
+      "bindings": [
+        {
+          "nodePath": "../Scroll/Content/Recipes",
+          "property": "items",
+          "model": "recipes"
+        },
+        {
+          "nodePath": "../Scroll/Content/Recipes",
+          "property": "selectedIndex",
+          "model": "selectedIndex"
+        },
+        {
+          "nodePath": "../Scroll/Content/Details",
+          "property": "text",
+          "model": "details"
+        },
+        {
+          "nodePath": "../Scroll/Content/Quantity",
+          "property": "text",
+          "model": "quantity"
+        },
+        {
+          "nodePath": "../Scroll/Content/Status",
+          "property": "text",
+          "model": "status"
+        },
+        {
+          "nodePath": "../Scroll/Content/Craft",
+          "property": "disabled",
+          "model": "craftDisabled"
+        },
+        {
+          "nodePath": "../Scroll/Content/Minus10",
+          "property": "disabled",
+          "model": "quantityDisabled"
+        },
+        {
+          "nodePath": "../Scroll/Content/Minus1",
+          "property": "disabled",
+          "model": "quantityDisabled"
+        },
+        {
+          "nodePath": "../Scroll/Content/Plus1",
+          "property": "disabled",
+          "model": "quantityDisabled"
+        },
+        {
+          "nodePath": "../Scroll/Content/Plus10",
+          "property": "disabled",
+          "model": "quantityDisabled"
+        },
+        {
+          "nodePath": "../Scroll/Content/Max",
+          "property": "disabled",
+          "model": "quantityDisabled"
+        },
+        {
+          "nodePath": "..",
+          "property": "open",
+          "model": "open"
+        },
+        {
+          "nodePath": "..",
+          "property": "offsetMin",
+          "model": "offsetMin"
+        },
+        {
+          "nodePath": "..",
+          "property": "offsetMax",
+          "model": "offsetMax"
+        }
+      ],
+      "actions": {
+        "on_item_selected": "select-recipe",
+        "on_primary_action": "craft",
+        "on_close_action": "close",
+        "on_quantity_minus_10": "quantity-minus-10",
+        "on_quantity_minus_1": "quantity-minus-1",
+        "on_quantity_plus_1": "quantity-plus-1",
+        "on_quantity_plus_10": "quantity-plus-10",
+        "on_quantity_max": "quantity-max"
+      },
       "controls": [
-        { "id": "title", "name": "Title", "type": "Label", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 0], "offsetMax": [0, 48], "text": "Crafting", "tone": "warning", "fontSize": 24, "fontWeight": 700 } },
-        { "id": "recipes", "name": "Recipes", "type": "ItemList", "properties": { "anchorMin": [0, 0], "anchorMax": [0.58, 1], "offsetMin": [0, 60], "offsetMax": [0, -64], "columns": 4, "gap": 12, "ariaLabel": "Crafting recipes" }, "handler": "on_item_selected", "signal": "item_selected" },
-        { "id": "details", "name": "Details", "type": "Label", "properties": { "anchorMin": [0.62, 0], "anchorMax": [1, 1], "offsetMin": [0, 64], "offsetMax": [0, -64], "wrap": true, "tone": "muted" } },
-        { "id": "craft", "name": "Craft", "type": "Button", "properties": { "anchorMin": [1, 1], "anchorMax": [1, 1], "offsetMin": [-190, -48], "offsetMax": [-88, 0], "text": "Craft", "tone": "accent" }, "handler": "on_primary_action", "signal": "pressed" },
-        { "id": "close", "name": "Close", "type": "Button", "properties": { "anchorMin": [1, 1], "anchorMax": [1, 1], "offsetMin": [-80, -48], "offsetMax": [0, 0], "text": "Close", "tone": "muted" }, "handler": "on_close_action", "signal": "pressed" }
+        {
+          "id": "scroll",
+          "name": "Scroll",
+          "type": "ScrollContainer",
+          "properties": {
+            "anchorMin": [
+              0,
+              0
+            ],
+            "anchorMax": [
+              1,
+              1
+            ],
+            "scrollAxis": "vertical"
+          }
+        },
+        {
+          "id": "content",
+          "name": "Content",
+          "type": "Container",
+          "parentId": "scroll",
+          "properties": {
+            "anchorMin": [
+              0,
+              0
+            ],
+            "anchorMax": [
+              1,
+              0
+            ],
+            "offsetMax": [
+              0,
+              660
+            ]
+          }
+        },
+        {
+          "id": "title",
+          "name": "Title",
+          "type": "Label",
+          "parentId": "content",
+          "properties": {
+            "anchorMin": [
+              0,
+              0
+            ],
+            "anchorMax": [
+              1,
+              0
+            ],
+            "offsetMin": [
+              20,
+              12
+            ],
+            "offsetMax": [
+              -20,
+              54
+            ],
+            "text": "Crafting",
+            "tone": "warning",
+            "fontSize": 24,
+            "fontWeight": 700
+          }
+        },
+        {
+          "id": "recipes",
+          "name": "Recipes",
+          "type": "ItemList",
+          "parentId": "content",
+          "properties": {
+            "anchorMin": [
+              0,
+              0
+            ],
+            "anchorMax": [
+              0.56,
+              1
+            ],
+            "offsetMin": [
+              20,
+              66
+            ],
+            "offsetMax": [
+              -12,
+              -20
+            ],
+            "columns": 1,
+            "gap": 8,
+            "ariaLabel": "Crafting recipes"
+          },
+          "handler": "on_item_selected",
+          "signal": "item_selected"
+        },
+        {
+          "id": "details",
+          "name": "Details",
+          "type": "Label",
+          "parentId": "content",
+          "properties": {
+            "anchorMin": [
+              0.58,
+              0
+            ],
+            "anchorMax": [
+              1,
+              0
+            ],
+            "offsetMin": [
+              0,
+              66
+            ],
+            "offsetMax": [
+              -20,
+              500
+            ],
+            "wrap": true,
+            "tone": "muted",
+            "fontSize": 13
+          }
+        },
+        {
+          "id": "status",
+          "name": "Status",
+          "type": "Label",
+          "parentId": "content",
+          "properties": {
+            "anchorMin": [
+              0.58,
+              1
+            ],
+            "anchorMax": [
+              1,
+              1
+            ],
+            "offsetMin": [
+              0,
+              -156
+            ],
+            "offsetMax": [
+              -20,
+              -130
+            ],
+            "wrap": true,
+            "tone": "warning",
+            "fontSize": 12
+          }
+        },
+        {
+          "id": "quantity",
+          "name": "Quantity",
+          "type": "Label",
+          "parentId": "content",
+          "properties": {
+            "anchorMin": [
+              0.58,
+              1
+            ],
+            "anchorMax": [
+              1,
+              1
+            ],
+            "offsetMin": [
+              0,
+              -126
+            ],
+            "offsetMax": [
+              -20,
+              -98
+            ],
+            "text": "Amount: 1",
+            "tone": "info",
+            "fontSize": 13
+          }
+        },
+        {
+          "id": "minus-10",
+          "name": "Minus10",
+          "type": "Button",
+          "parentId": "content",
+          "properties": {
+            "anchorMin": [
+              0.58,
+              1
+            ],
+            "anchorMax": [
+              0.655,
+              1
+            ],
+            "offsetMin": [
+              0,
+              -94
+            ],
+            "offsetMax": [
+              0,
+              -60
+            ],
+            "text": "-10",
+            "tone": "muted",
+            "fontSize": 12
+          },
+          "handler": "on_quantity_minus_10",
+          "signal": "pressed"
+        },
+        {
+          "id": "minus-1",
+          "name": "Minus1",
+          "type": "Button",
+          "parentId": "content",
+          "properties": {
+            "anchorMin": [
+              0.66,
+              1
+            ],
+            "anchorMax": [
+              0.735,
+              1
+            ],
+            "offsetMin": [
+              0,
+              -94
+            ],
+            "offsetMax": [
+              0,
+              -60
+            ],
+            "text": "-1",
+            "tone": "muted",
+            "fontSize": 12
+          },
+          "handler": "on_quantity_minus_1",
+          "signal": "pressed"
+        },
+        {
+          "id": "plus-1",
+          "name": "Plus1",
+          "type": "Button",
+          "parentId": "content",
+          "properties": {
+            "anchorMin": [
+              0.74,
+              1
+            ],
+            "anchorMax": [
+              0.815,
+              1
+            ],
+            "offsetMin": [
+              0,
+              -94
+            ],
+            "offsetMax": [
+              0,
+              -60
+            ],
+            "text": "+1",
+            "tone": "muted",
+            "fontSize": 12
+          },
+          "handler": "on_quantity_plus_1",
+          "signal": "pressed"
+        },
+        {
+          "id": "plus-10",
+          "name": "Plus10",
+          "type": "Button",
+          "parentId": "content",
+          "properties": {
+            "anchorMin": [
+              0.82,
+              1
+            ],
+            "anchorMax": [
+              0.895,
+              1
+            ],
+            "offsetMin": [
+              0,
+              -94
+            ],
+            "offsetMax": [
+              0,
+              -60
+            ],
+            "text": "+10",
+            "tone": "muted",
+            "fontSize": 12
+          },
+          "handler": "on_quantity_plus_10",
+          "signal": "pressed"
+        },
+        {
+          "id": "max",
+          "name": "Max",
+          "type": "Button",
+          "parentId": "content",
+          "properties": {
+            "anchorMin": [
+              0.9,
+              1
+            ],
+            "anchorMax": [
+              0.98,
+              1
+            ],
+            "offsetMin": [
+              0,
+              -94
+            ],
+            "offsetMax": [
+              0,
+              -60
+            ],
+            "text": "MAX",
+            "tone": "muted",
+            "fontSize": 12
+          },
+          "handler": "on_quantity_max",
+          "signal": "pressed"
+        },
+        {
+          "id": "craft",
+          "name": "Craft",
+          "type": "Button",
+          "parentId": "content",
+          "properties": {
+            "anchorMin": [
+              0.58,
+              1
+            ],
+            "anchorMax": [
+              0.78,
+              1
+            ],
+            "offsetMin": [
+              0,
+              -52
+            ],
+            "offsetMax": [
+              0,
+              -12
+            ],
+            "text": "Craft",
+            "tone": "accent"
+          },
+          "handler": "on_primary_action",
+          "signal": "pressed"
+        },
+        {
+          "id": "close",
+          "name": "Close",
+          "type": "Button",
+          "parentId": "content",
+          "properties": {
+            "anchorMin": [
+              0.8,
+              1
+            ],
+            "anchorMax": [
+              0.98,
+              1
+            ],
+            "offsetMin": [
+              0,
+              -52
+            ],
+            "offsetMax": [
+              0,
+              -12
+            ],
+            "text": "Close",
+            "tone": "muted"
+          },
+          "handler": "on_close_action",
+          "signal": "pressed"
+        }
       ]
     },
     {

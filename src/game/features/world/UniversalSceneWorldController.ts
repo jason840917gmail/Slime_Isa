@@ -100,6 +100,9 @@ import { AreaTitleSurfacePort } from '../ui/AreaTitleSurfacePort';
 import { FloatingTextSurfacePort } from '../ui/FloatingTextSurfacePort';
 import { InventorySurfacePort } from '../ui/InventorySurfacePort';
 import { ChestInventorySurfacePort } from '../ui/ChestInventorySurfacePort';
+import { CraftingSurfacePort } from '../ui/CraftingSurfacePort';
+import { craftingService } from '../../crafting/Crafting';
+import type { CraftSuccess } from '../../crafting/CraftingService';
 import { floatingText } from '../../ui/FloatingText';
 import type { PlayerAbilityController } from '../player/PlayerAbilityController';
 import type { PlayerAbilityId } from '../player/PlayerAbilityDefinitions';
@@ -124,6 +127,8 @@ export interface UniversalSceneWorldControllerOptions {
   readonly modalStack: ModalStack;
   readonly setChestPaused: (paused: boolean) => void;
   readonly setInventoryPaused: (paused: boolean) => void;
+  readonly setCraftingPaused: (paused: boolean) => void;
+  readonly onCrafted: (result: CraftSuccess) => void;
   readonly onUseInventoryItem: (itemId: string) => void;
   readonly onEquipInventoryWeapon: (weaponId: string) => void;
   readonly onAssignInventoryWeapon: (weaponId: string, slotIndex: number) => void;
@@ -230,6 +235,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
   private readonly abilityBarSurface: AbilityBarSurfacePort;
   private readonly playerHealthSurface: PlayerHealthSurfacePort;
   readonly inventorySurface: InventorySurfacePort;
+  readonly craftingSurface: CraftingSurfacePort;
   private readonly camps = new Map<string, ManagedCamp>();
   private readonly bosses = new Map<string, ManagedBoss>();
   private readonly ordinaryEnemies = new Map<number, ManagedOrdinaryEnemy>();
@@ -266,6 +272,10 @@ export class UniversalSceneWorldController implements InteractionProvider {
       modalStack: options.modalStack, uiRoot: options.uiRoot, onPausedChange: options.setChestPaused,
       getContents: (instanceId) => this.chests.get(instanceId)?.remaining ?? {},
     });
+    this.craftingSurface = new CraftingSurfacePort({
+      modalStack: options.modalStack, uiRoot: options.uiRoot, service: craftingService,
+      onPausedChange: options.setCraftingPaused, onCrafted: options.onCrafted,
+    });
     this.inventorySurface = new InventorySurfacePort({
       modalStack: options.modalStack, uiRoot: options.uiRoot, onPausedChange: options.setInventoryPaused,
       onUseItem: options.onUseInventoryItem, onEquipWeapon: options.onEquipInventoryWeapon,
@@ -295,6 +305,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
       ['health-bar', this.playerHealthSurface],
       ['inventory-ui', this.inventorySurface],
       ['chest-inventory-panel', this.chestUi],
+      ['crafting-ui', this.craftingSurface],
       ['boss-health-bar', this.bossHealthSurface],
       ['area-title-card', this.areaTitleSurface],
     ]);
@@ -436,6 +447,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
       this.runtime.mountScene(sceneId('ui.area-title-card'), { runtimeNamespace: 'ui-area-title-card' });
       this.runtime.mountScene(sceneId('ui.inventory-ui'), { runtimeNamespace: 'ui-inventory-ui' });
       this.runtime.mountScene(sceneId('ui.chest-inventory-panel'), { runtimeNamespace: 'ui-chest-inventory-panel' });
+      this.runtime.mountScene(sceneId('ui.crafting-ui'), { runtimeNamespace: 'ui-crafting-ui' });
     } catch (error) {
       mountedRuntime?.shutdown();
       this.inputRouter.destroy();
@@ -448,6 +460,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
       this.floatingTextSurface.destroy();
       this.inventorySurface.destroy();
       this.chestUi.destroy();
+      this.craftingSurface.destroy();
       throw error;
     }
 
@@ -659,6 +672,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.floatingTextSurface.destroy();
     this.inventorySurface.destroy();
     this.chestUi.destroy();
+    this.craftingSurface.destroy();
     this.camps.clear();
     this.bosses.clear();
     this.ordinaryEnemies.clear();
