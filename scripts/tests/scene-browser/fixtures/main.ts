@@ -26,6 +26,7 @@ import { playerWeaponLoadout } from '../../../../src/game/systems/WeaponLoadout'
 import { playerInventory } from '../../../../src/game/systems/Inventory';
 import { gameState } from '../../../../src/game/core/GameState';
 import { questService } from '../../../../src/game/quests/QuestService';
+import { worldProgress } from '../../../../src/game/features/progression/WorldProgress';
 import type { QuestView } from '../../../../src/game/content/quests/types';
 import { floatingText, type FloatingTextColor } from '../../../../src/game/ui/FloatingText';
 
@@ -108,6 +109,7 @@ type FixtureApi = {
   productionChestRemaining(instanceId: string, itemId: string): number;
   openProductionQuestTurnInForUi(): void;
   productionQuestTurnInClosedCount(): number;
+  discoverProductionArea(areaId: string): void;
   setProductionEquippedSlot(slotIndex: number): void;
   setProductionLevel(level: number): void;
   drainProductionEnergy(): void;
@@ -537,6 +539,10 @@ const api: FixtureApi = {
     world.universalWorld.questOfferSurface.openTurnIn(quest, 'lili', undefined, () => { questTurnInClosedCount += 1; });
   },
   productionQuestTurnInClosedCount() { return questTurnInClosedCount; },
+  discoverProductionArea(areaId) {
+    if (!game || mode !== 'baseline') throw new Error('Production world map is only available in baseline mode');
+    worldProgress.discoverArea(areaId);
+  },
   setProductionEquippedSlot(slotIndex) {
     if (!game || mode !== 'baseline') throw new Error('Production weapons are only available in baseline mode');
     gameState.equipWeapon(playerWeaponLoadout.weaponAt(slotIndex));

@@ -2287,14 +2287,328 @@
       "sourceHash": "adfd0b36dbac23733e63b98a96911309372bd8379e9fcc65da59285ea856fd14",
       "sceneId": "ui.world-map-ui",
       "modal": true,
-      "layoutValues": { "anchorMin": [0.5, 0.5], "anchorMax": [0.5, 0.5], "offsetMin": [-500, -320], "offsetMax": [500, 320] },
-      "themeValues": { "surface": "map", "markerTone": "info" },
-      "bindings": [{ "nodePath": "../Map", "property": "text", "model": "summary" }, { "nodePath": "..", "property": "open", "model": "open" }],
-      "actions": { "on_close_action": "close" },
+      "layoutValues": {
+        "anchorMin": [
+          0.5,
+          0.5
+        ],
+        "anchorMax": [
+          0.5,
+          0.5
+        ],
+        "offsetMin": [
+          -310,
+          -170
+        ],
+        "offsetMax": [
+          310,
+          170
+        ]
+      },
+      "themeValues": {
+        "surface": "map",
+        "markerTone": "info",
+        "styleClass": "game-ui game-ui--world-map-ui",
+        "ariaLabel": "world map",
+        "zIndex": 90
+      },
+      "bindings": [
+        {
+          "nodePath": "../Icege",
+          "property": "text",
+          "model": "icege"
+        },
+        {
+          "nodePath": "../Level1",
+          "property": "text",
+          "model": "level1"
+        },
+        {
+          "nodePath": "../GloopForest",
+          "property": "text",
+          "model": "gloopForest"
+        },
+        {
+          "nodePath": "../CrystalCaverns",
+          "property": "text",
+          "model": "crystalCaverns"
+        },
+        {
+          "nodePath": "../LevelGloop",
+          "property": "text",
+          "model": "levelGloop"
+        },
+        {
+          "nodePath": "../GloopCrystal",
+          "property": "text",
+          "model": "gloopCrystal"
+        },
+        {
+          "nodePath": "../Summary",
+          "property": "text",
+          "model": "summary"
+        },
+        {
+          "nodePath": "..",
+          "property": "open",
+          "model": "open"
+        },
+        {
+          "nodePath": "..",
+          "property": "offsetMin",
+          "model": "offsetMin"
+        },
+        {
+          "nodePath": "..",
+          "property": "offsetMax",
+          "model": "offsetMax"
+        }
+      ],
+      "actions": {
+        "on_close_action": "close"
+      },
       "controls": [
-        { "id": "title", "name": "Title", "type": "Label", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 0], "offsetMax": [0, 48], "text": "World map", "tone": "warning", "fontSize": 24, "fontWeight": 700 } },
-        { "id": "map", "name": "Map", "type": "Label", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 1], "offsetMin": [16, 60], "offsetMax": [-16, -56], "textAlign": "center", "tone": "info", "ariaLabel": "Discovered world map" } },
-        { "id": "close", "name": "Close", "type": "Button", "properties": { "anchorMin": [1, 1], "anchorMax": [1, 1], "offsetMin": [-80, -44], "offsetMax": [0, 0], "text": "Close", "tone": "muted" }, "handler": "on_close_action", "signal": "pressed" }
+        {
+          "id": "title",
+          "name": "Title",
+          "type": "Label",
+          "properties": {
+            "anchorMin": [
+              0,
+              0
+            ],
+            "anchorMax": [
+              1,
+              0
+            ],
+            "offsetMin": [
+              20,
+              12
+            ],
+            "offsetMax": [
+              -20,
+              50
+            ],
+            "text": "World Map",
+            "tone": "warning",
+            "fontSize": 24,
+            "fontWeight": 700,
+            "textAlign": "center"
+          }
+        },
+        {
+          "id": "icege",
+          "name": "Icege",
+          "type": "Label",
+          "properties": {
+            "anchorMin": [
+              0.02,
+              0.34
+            ],
+            "anchorMax": [
+              0.22,
+              0.76
+            ],
+            "offsetMin": [
+              0,
+              0
+            ],
+            "offsetMax": [
+              0,
+              0
+            ],
+            "tone": "info",
+            "fontSize": 15,
+            "textAlign": "center",
+            "wrap": true
+          }
+        },
+        {
+          "id": "level1",
+          "name": "Level1",
+          "type": "Label",
+          "properties": {
+            "anchorMin": [
+              0.26,
+              0.34
+            ],
+            "anchorMax": [
+              0.46,
+              0.76
+            ],
+            "offsetMin": [
+              0,
+              0
+            ],
+            "offsetMax": [
+              0,
+              0
+            ],
+            "tone": "info",
+            "fontSize": 15,
+            "textAlign": "center",
+            "wrap": true
+          }
+        },
+        {
+          "id": "gloop-forest",
+          "name": "GloopForest",
+          "type": "Label",
+          "properties": {
+            "anchorMin": [
+              0.52,
+              0.34
+            ],
+            "anchorMax": [
+              0.72,
+              0.76
+            ],
+            "offsetMin": [
+              0,
+              0
+            ],
+            "offsetMax": [
+              0,
+              0
+            ],
+            "tone": "info",
+            "fontSize": 15,
+            "textAlign": "center",
+            "wrap": true
+          }
+        },
+        {
+          "id": "crystal-caverns",
+          "name": "CrystalCaverns",
+          "type": "Label",
+          "properties": {
+            "anchorMin": [
+              0.78,
+              0.34
+            ],
+            "anchorMax": [
+              0.98,
+              0.76
+            ],
+            "offsetMin": [
+              0,
+              0
+            ],
+            "offsetMax": [
+              0,
+              0
+            ],
+            "tone": "info",
+            "fontSize": 15,
+            "textAlign": "center",
+            "wrap": true
+          }
+        },
+        {
+          "id": "level-gloop",
+          "name": "LevelGloop",
+          "type": "Label",
+          "properties": {
+            "anchorMin": [
+              0.44,
+              0.41
+            ],
+            "anchorMax": [
+              0.54,
+              0.61
+            ],
+            "offsetMin": [
+              0,
+              0
+            ],
+            "offsetMax": [
+              0,
+              0
+            ],
+            "tone": "muted",
+            "fontSize": 12,
+            "textAlign": "center"
+          }
+        },
+        {
+          "id": "gloop-crystal",
+          "name": "GloopCrystal",
+          "type": "Label",
+          "properties": {
+            "anchorMin": [
+              0.7,
+              0.41
+            ],
+            "anchorMax": [
+              0.8,
+              0.61
+            ],
+            "offsetMin": [
+              0,
+              0
+            ],
+            "offsetMax": [
+              0,
+              0
+            ],
+            "tone": "muted",
+            "fontSize": 12,
+            "textAlign": "center"
+          }
+        },
+        {
+          "id": "summary",
+          "name": "Summary",
+          "type": "Label",
+          "properties": {
+            "anchorMin": [
+              0,
+              1
+            ],
+            "anchorMax": [
+              1,
+              1
+            ],
+            "offsetMin": [
+              18,
+              -78
+            ],
+            "offsetMax": [
+              -18,
+              -46
+            ],
+            "tone": "muted",
+            "fontSize": 12,
+            "textAlign": "center"
+          }
+        },
+        {
+          "id": "close",
+          "name": "Close",
+          "type": "Button",
+          "properties": {
+            "anchorMin": [
+              1,
+              1
+            ],
+            "anchorMax": [
+              1,
+              1
+            ],
+            "offsetMin": [
+              -94,
+              -42
+            ],
+            "offsetMax": [
+              -16,
+              -10
+            ],
+            "text": "Close",
+            "tone": "muted"
+          },
+          "handler": "on_close_action",
+          "signal": "pressed"
+        }
       ]
     }
   ]
