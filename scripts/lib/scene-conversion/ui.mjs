@@ -29,12 +29,14 @@ function sceneDocument(descriptor, themeResourceId) {
     ...(descriptor.modal ? [{
       source: { nodeId: 'surface' }, signal: 'close_requested', target: { nodeId: 'script' }, handler: 'on_close_action',
     }] : []),
-    ...descriptor.controls.flatMap((control) => control.signal && control.handler ? [{
-    source: { nodeId: control.id },
-    signal: control.signal,
-    target: { nodeId: 'script' },
-    handler: control.handler,
-    }] : []),
+    ...descriptor.controls.flatMap((control) => [
+      ...(control.signal && control.handler ? [{
+        source: { nodeId: control.id }, signal: control.signal, target: { nodeId: 'script' }, handler: control.handler,
+      }] : []),
+      ...(control.secondarySignal && control.secondaryHandler ? [{
+        source: { nodeId: control.id }, signal: control.secondarySignal, target: { nodeId: 'script' }, handler: control.secondaryHandler,
+      }] : []),
+    ]),
   ];
   return {
     version: 1,

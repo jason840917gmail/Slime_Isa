@@ -33,7 +33,7 @@ test('minimum UI control family is described by the common registry', () => {
   const expected = ['Control', 'Container', 'TextureRect', 'Label', 'ProgressBar', 'Button', 'ItemList', 'GridContainer', 'ScrollContainer', 'ModalRoot'];
   for (const type of expected) assert.equal(registry.nodeTypes.has(type), true, `${type} descriptor`);
   assert.deepEqual(registry.nodeTypes.get('Button').signals, [{ id: 'pressed' }]);
-  assert.deepEqual(registry.nodeTypes.get('ItemList').signals, [{ id: 'item_selected', payload: 'UiListSelection' }]);
+  assert.deepEqual(registry.nodeTypes.get('ItemList').signals, [{ id: 'item_selected', payload: 'UiListSelection' }, { id: 'item_secondary', payload: 'UiListSelection' }]);
 });
 
 test('Phaser registry constructs authored containers, labels, status, buttons, lists, scrolling, and modals', () => {

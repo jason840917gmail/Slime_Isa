@@ -102,6 +102,8 @@ type FixtureApi = {
   grantProductionWeapons(): void;
   grantProductionItem(itemId: string, quantity: number): void;
   productionItemCount(itemId: string): number;
+  openProductionChestForUi(): { instanceId: string; itemId: string; count: number };
+  productionChestRemaining(instanceId: string, itemId: string): number;
   setProductionEquippedSlot(slotIndex: number): void;
   setProductionLevel(level: number): void;
   drainProductionEnergy(): void;
@@ -495,6 +497,30 @@ const api: FixtureApi = {
   productionItemCount(itemId) {
     if (!game || mode !== 'baseline') throw new Error('Production inventory is only available in baseline mode');
     return playerInventory.count(itemId);
+  },
+  openProductionChestForUi() {
+    if (!game || mode !== 'baseline') throw new Error('Production chests are only available in baseline mode');
+    const world = game.scene.getScene('world') as unknown as { readonly universalWorld?: {
+      readonly chestUi: { open(model: { instanceId: string; mapId: string; contents: Readonly<Record<string, number>>; transferStack(itemId: string): number; close(): void }): void };
+      readonly chests: Map<string, { readonly instanceId: string; readonly mapId: string; readonly remaining: Readonly<Record<string, number>>; transferStack(itemId: string): number; close(): void }>;
+    } };
+    const owner = world.universalWorld;
+    const chest = owner ? [...owner.chests.values()][0] : undefined;
+    if (!owner || !chest) throw new Error('No authored production chest is mounted');
+    const [itemId, count] = Object.entries(chest.remaining)[0] ?? [];
+    if (!itemId || !count) throw new Error('Authored production chest is empty');
+    owner.chestUi.open({
+      instanceId: chest.instanceId, mapId: chest.mapId, contents: chest.remaining,
+      transferStack: (id) => chest.transferStack(id), close: () => chest.close(),
+    });
+    return { instanceId: chest.instanceId, itemId, count };
+  },
+  productionChestRemaining(instanceId, itemId) {
+    if (!game || mode !== 'baseline') throw new Error('Production chests are only available in baseline mode');
+    const world = game.scene.getScene('world') as unknown as { readonly universalWorld?: {
+      readonly chests: Map<string, { readonly remaining: Readonly<Record<string, number>> }>;
+    } };
+    return world.universalWorld?.chests.get(instanceId)?.remaining[itemId] ?? 0;
   },
   setProductionEquippedSlot(slotIndex) {
     if (!game || mode !== 'baseline') throw new Error('Production weapons are only available in baseline mode');

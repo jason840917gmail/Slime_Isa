@@ -254,15 +254,283 @@
       "sourceHash": "a58a345bada4929af55019d6ae6a4a86c0a7861fd177db3eebfc716ad5a80f45",
       "sceneId": "ui.chest-inventory-panel",
       "modal": true,
-      "layoutValues": { "anchorMin": [0.5, 0.5], "anchorMax": [0.5, 0.5], "offsetMin": [-460, -310], "offsetMax": [460, 310] },
-      "themeValues": { "columns": 5, "gap": 10, "surface": "inventory" },
-      "bindings": [{ "nodePath": "../Items", "property": "items", "model": "items" }, { "nodePath": "../Items", "property": "selectedIndex", "model": "selectedIndex" }, { "nodePath": "../Details", "property": "text", "model": "details" }, { "nodePath": "..", "property": "open", "model": "open" }],
-      "actions": { "on_item_selected": "take-stack", "on_close_action": "close" },
+      "layoutValues": {
+        "anchorMin": [
+          0.5,
+          0.5
+        ],
+        "anchorMax": [
+          0.5,
+          0.5
+        ],
+        "offsetMin": [
+          -460,
+          -310
+        ],
+        "offsetMax": [
+          460,
+          310
+        ]
+      },
+      "themeValues": {
+        "columns": 5,
+        "gap": 10,
+        "surface": "inventory"
+      },
+      "bindings": [
+        {
+          "nodePath": "../Scroll/Content/Items",
+          "property": "items",
+          "model": "items"
+        },
+        {
+          "nodePath": "../Scroll/Content/Items",
+          "property": "selectedIndex",
+          "model": "selectedIndex"
+        },
+        {
+          "nodePath": "../Scroll/Content/Details",
+          "property": "text",
+          "model": "details"
+        },
+        {
+          "nodePath": "../Scroll/Content/Status",
+          "property": "text",
+          "model": "status"
+        },
+        {
+          "nodePath": "../Scroll/Content/Take",
+          "property": "disabled",
+          "model": "takeDisabled"
+        },
+        {
+          "nodePath": "..",
+          "property": "open",
+          "model": "open"
+        },
+        {
+          "nodePath": "..",
+          "property": "offsetMin",
+          "model": "offsetMin"
+        },
+        {
+          "nodePath": "..",
+          "property": "offsetMax",
+          "model": "offsetMax"
+        }
+      ],
+      "actions": {
+        "on_item_selected": "select-item",
+        "on_item_secondary": "take-selected-stack",
+        "on_primary_action": "take-stack",
+        "on_close_action": "close"
+      },
       "controls": [
-        { "id": "title", "name": "Title", "type": "Label", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 0], "offsetMax": [-72, 48], "text": "Chest", "tone": "warning", "fontSize": 22, "fontWeight": 700 } },
-        { "id": "items", "name": "Items", "type": "ItemList", "properties": { "anchorMin": [0, 0], "anchorMax": [0.62, 1], "offsetMin": [0, 64], "offsetMax": [0, -56], "columns": 5, "gap": 10, "ariaLabel": "Chest contents" }, "handler": "on_item_selected", "signal": "item_selected" },
-        { "id": "details", "name": "Details", "type": "Label", "properties": { "anchorMin": [0.66, 0], "anchorMax": [1, 1], "offsetMin": [0, 72], "offsetMax": [0, -56], "wrap": true, "tone": "muted" } },
-        { "id": "close", "name": "Close", "type": "Button", "properties": { "anchorMin": [1, 0], "anchorMax": [1, 0], "offsetMin": [-64, 0], "offsetMax": [0, 40], "text": "Close", "tone": "accent" }, "handler": "on_close_action", "signal": "pressed" }
+        {
+          "id": "scroll",
+          "name": "Scroll",
+          "type": "ScrollContainer",
+          "properties": {
+            "anchorMin": [
+              0,
+              0
+            ],
+            "anchorMax": [
+              1,
+              1
+            ],
+            "scrollAxis": "vertical"
+          }
+        },
+        {
+          "id": "content",
+          "name": "Content",
+          "type": "Container",
+          "parentId": "scroll",
+          "properties": {
+            "anchorMin": [
+              0,
+              0
+            ],
+            "anchorMax": [
+              1,
+              0
+            ],
+            "offsetMax": [
+              0,
+              620
+            ]
+          }
+        },
+        {
+          "id": "title",
+          "name": "Title",
+          "type": "Label",
+          "parentId": "content",
+          "properties": {
+            "anchorMin": [
+              0,
+              0
+            ],
+            "anchorMax": [
+              1,
+              0
+            ],
+            "offsetMin": [
+              24,
+              14
+            ],
+            "offsetMax": [
+              -24,
+              54
+            ],
+            "text": "Chest",
+            "tone": "warning",
+            "fontSize": 22,
+            "fontWeight": 700
+          }
+        },
+        {
+          "id": "items",
+          "name": "Items",
+          "type": "ItemList",
+          "parentId": "content",
+          "properties": {
+            "anchorMin": [
+              0,
+              0
+            ],
+            "anchorMax": [
+              0.62,
+              1
+            ],
+            "offsetMin": [
+              24,
+              68
+            ],
+            "offsetMax": [
+              -8,
+              -90
+            ],
+            "columns": 5,
+            "gap": 10,
+            "ariaLabel": "Chest contents"
+          },
+          "handler": "on_item_selected",
+          "signal": "item_selected",
+          "secondaryHandler": "on_item_secondary",
+          "secondarySignal": "item_secondary"
+        },
+        {
+          "id": "details",
+          "name": "Details",
+          "type": "Label",
+          "parentId": "content",
+          "properties": {
+            "anchorMin": [
+              0.64,
+              0
+            ],
+            "anchorMax": [
+              1,
+              1
+            ],
+            "offsetMin": [
+              0,
+              72
+            ],
+            "offsetMax": [
+              -24,
+              -90
+            ],
+            "wrap": true,
+            "tone": "muted",
+            "fontSize": 13
+          }
+        },
+        {
+          "id": "status",
+          "name": "Status",
+          "type": "Label",
+          "parentId": "content",
+          "properties": {
+            "anchorMin": [
+              0,
+              1
+            ],
+            "anchorMax": [
+              1,
+              1
+            ],
+            "offsetMin": [
+              24,
+              -78
+            ],
+            "offsetMax": [
+              -24,
+              -52
+            ],
+            "wrap": true,
+            "tone": "info",
+            "fontSize": 12
+          }
+        },
+        {
+          "id": "take",
+          "name": "Take",
+          "type": "Button",
+          "parentId": "content",
+          "properties": {
+            "anchorMin": [
+              0,
+              1
+            ],
+            "anchorMax": [
+              0,
+              1
+            ],
+            "offsetMin": [
+              24,
+              -46
+            ],
+            "offsetMax": [
+              160,
+              -8
+            ],
+            "text": "Take Stack",
+            "tone": "accent"
+          },
+          "handler": "on_primary_action",
+          "signal": "pressed"
+        },
+        {
+          "id": "close",
+          "name": "Close",
+          "type": "Button",
+          "parentId": "content",
+          "properties": {
+            "anchorMin": [
+              1,
+              1
+            ],
+            "anchorMax": [
+              1,
+              1
+            ],
+            "offsetMin": [
+              -112,
+              -46
+            ],
+            "offsetMax": [
+              -24,
+              -8
+            ],
+            "text": "Close",
+            "tone": "muted"
+          },
+          "handler": "on_close_action",
+          "signal": "pressed"
+        }
       ]
     },
     {

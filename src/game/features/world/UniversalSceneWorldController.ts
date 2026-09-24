@@ -10,7 +10,6 @@ import { Area2DNode } from '../../infrastructure/phaser-nodes/Area2DNode';
 import { Sprite2DNode } from '../../infrastructure/phaser-nodes/Sprite2DNode';
 import { PhaserUniversalSceneRuntime, type MountedScene } from '../../infrastructure/scenes/PhaserUniversalSceneRuntime';
 import type { PreparedSceneContent } from '../../infrastructure/scenes/PreparedSceneContent';
-import { LegacyChestUiBridge } from '../../infrastructure/scenes/compatibility/LegacyChestUiBridge';
 import { LegacyWorldAdapter } from '../../infrastructure/scenes/compatibility/LegacyWorldAdapter';
 import type { Node } from '../../runtime/scene/Node';
 import { InputRouter } from '../../runtime/scene/input/InputRouter';
@@ -91,7 +90,6 @@ import { resolvePhysicsPresentationPosition, type PhysicsPresentationTarget } fr
 import { PLAYER_INPUT_ACTIONS } from '../player/PlayerInputActions';
 import type { LegacyPlayerHealthAdapter } from '../../infrastructure/scenes/compatibility/LegacyPlayerHealthAdapter';
 import type { ModalStack } from '../../ui/ModalStack';
-import { ChestInventoryPanel } from '../../ui/ChestInventoryPanel';
 import { HtmlControlPresentationAdapter } from '../../infrastructure/phaser-nodes/ui/HtmlControlPresentationAdapter';
 import { HudSurfacePort } from '../ui/HudSurfacePort';
 import { WeaponHotbarSurfacePort } from '../ui/WeaponHotbarSurfacePort';
@@ -101,6 +99,7 @@ import { BossHealthSurfacePort } from '../ui/BossHealthSurfacePort';
 import { AreaTitleSurfacePort } from '../ui/AreaTitleSurfacePort';
 import { FloatingTextSurfacePort } from '../ui/FloatingTextSurfacePort';
 import { InventorySurfacePort } from '../ui/InventorySurfacePort';
+import { ChestInventorySurfacePort } from '../ui/ChestInventorySurfacePort';
 import { floatingText } from '../../ui/FloatingText';
 import type { PlayerAbilityController } from '../player/PlayerAbilityController';
 import type { PlayerAbilityId } from '../player/PlayerAbilityDefinitions';
@@ -219,7 +218,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
   readonly runtime: PhaserUniversalSceneRuntime;
   private readonly activations = new AttackActivation();
   private readonly damageRouter = new DamageRouter(this.activations, () => this.simulationTimeMs);
-  private readonly chestUi?: LegacyChestUiBridge;
+  readonly chestUi: ChestInventorySurfacePort;
   private readonly bossHealthSurface: BossHealthSurfacePort;
   private readonly areaTitleSurface: AreaTitleSurfacePort;
   private readonly floatingTextSurface: FloatingTextSurfacePort;
@@ -263,6 +262,10 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.weaponHotbarSurface = new WeaponHotbarSurfacePort(options.onEquipWeaponSlot);
     this.abilityBarSurface = new AbilityBarSurfacePort(options.getAbilitySystem, options.canUseAbilities, options.onActivateAbility);
     this.playerHealthSurface = new PlayerHealthSurfacePort(options.scene, options.getPlayer);
+    this.chestUi = new ChestInventorySurfacePort({
+      modalStack: options.modalStack, uiRoot: options.uiRoot, onPausedChange: options.setChestPaused,
+      getContents: (instanceId) => this.chests.get(instanceId)?.remaining ?? {},
+    });
     this.inventorySurface = new InventorySurfacePort({
       modalStack: options.modalStack, uiRoot: options.uiRoot, onPausedChange: options.setInventoryPaused,
       onUseItem: options.onUseInventoryItem, onEquipWeapon: options.onEquipInventoryWeapon,
@@ -291,6 +294,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
       ['ability-bar', this.abilityBarSurface],
       ['health-bar', this.playerHealthSurface],
       ['inventory-ui', this.inventorySurface],
+      ['chest-inventory-panel', this.chestUi],
       ['boss-health-bar', this.bossHealthSurface],
       ['area-title-card', this.areaTitleSurface],
     ]);
@@ -311,10 +315,6 @@ export class UniversalSceneWorldController implements InteractionProvider {
       viewport: () => ({ width: options.uiRoot.clientWidth, height: options.uiRoot.clientHeight }),
       resolveAssetUrl: createUiAssetUrlResolver(options.scene),
     });
-    const chestView = {
-      open: (model: Parameters<LegacyChestUiBridge['open']>[0]) => this.chestUi?.open(model),
-      close: (instanceId: string) => this.chestUi?.close(instanceId),
-    };
     const bossStatus = this.bossHealthSurface;
     const scripts = createGameScriptRegistry({
       [DAMAGE_ROUTER_SERVICE]: this.damageRouter,
@@ -357,7 +357,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
         transferStack: (mapId: string, instanceId: string, itemId: string) => options.transaction.transferChestStack(mapId, instanceId, itemId),
       },
       [CHEST_GUARD_SERVICE]: { isLocked: (instanceId: string) => this.isChestLocked(instanceId) },
-      [CHEST_VIEW_SERVICE]: chestView,
+      [CHEST_VIEW_SERVICE]: this.chestUi,
       [WORLD_OBJECT_STATE_SERVICE]: {
         load: (mapId: string, instanceId: string) => {
           const state = options.progress.resourceState(mapId, instanceId);
@@ -435,6 +435,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
       this.runtime.mountScene(sceneId('ui.boss-health-bar'), { runtimeNamespace: 'ui-boss-health-bar' });
       this.runtime.mountScene(sceneId('ui.area-title-card'), { runtimeNamespace: 'ui-area-title-card' });
       this.runtime.mountScene(sceneId('ui.inventory-ui'), { runtimeNamespace: 'ui-inventory-ui' });
+      this.runtime.mountScene(sceneId('ui.chest-inventory-panel'), { runtimeNamespace: 'ui-chest-inventory-panel' });
     } catch (error) {
       mountedRuntime?.shutdown();
       this.inputRouter.destroy();
@@ -446,19 +447,10 @@ export class UniversalSceneWorldController implements InteractionProvider {
       this.areaTitleSurface.destroy();
       this.floatingTextSurface.destroy();
       this.inventorySurface.destroy();
+      this.chestUi.destroy();
       throw error;
     }
 
-    let panelBridge: LegacyChestUiBridge | undefined;
-    const panel = new ChestInventoryPanel({
-      scene: options.scene,
-      modalStack: options.modalStack,
-      onPausedChange: options.setChestPaused,
-      getContents: (instanceId) => panelBridge?.getContents(instanceId) ?? {},
-      transferStack: (instanceId, itemId) => panelBridge?.transferStack(instanceId, itemId) ?? 0,
-      onClosed: (instanceId) => this.chests.get(instanceId)?.close(),
-    });
-    this.chestUi = panelBridge = new LegacyChestUiBridge(panel);
     this.mountPlayer();
     this.mountAuthoredWorld();
     this.unregisterInteraction = options.interactions.register('managed-chests', this);
@@ -666,7 +658,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.areaTitleSurface.destroy();
     this.floatingTextSurface.destroy();
     this.inventorySurface.destroy();
-    this.chestUi?.dispose();
+    this.chestUi.destroy();
     this.camps.clear();
     this.bosses.clear();
     this.ordinaryEnemies.clear();
