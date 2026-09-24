@@ -19,12 +19,12 @@
           1
         ],
         "offsetMin": [
-          -180,
-          -70
+          -164,
+          -84
         ],
         "offsetMax": [
-          180,
-          -16
+          164,
+          -12
         ],
         "theme": {
           "resourceId": "ui.field-kit.theme"
@@ -36,9 +36,9 @@
       }
     },
     {
-      "id": "abilities",
-      "name": "Abilities",
-      "type": "ItemList",
+      "id": "jump",
+      "name": "Jump",
+      "type": "Button",
       "parentId": "surface",
       "order": 0,
       "properties": {
@@ -47,12 +47,128 @@
           0
         ],
         "anchorMax": [
-          1,
+          0,
           1
         ],
-        "columns": 4,
-        "gap": 8,
-        "ariaLabel": "Abilities"
+        "offsetMin": [
+          8,
+          8
+        ],
+        "offsetMax": [
+          80,
+          -8
+        ],
+        "text": "Lv 2\nJump",
+        "tone": "special",
+        "fontSize": 12,
+        "fontWeight": 700,
+        "textAlign": "center",
+        "wrap": true,
+        "disabled": true,
+        "ariaLabel": "Jump ability",
+        "tooltip": "Space: Jump"
+      }
+    },
+    {
+      "id": "squash-slam",
+      "name": "Slam",
+      "type": "Button",
+      "parentId": "surface",
+      "order": 1,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          0,
+          1
+        ],
+        "offsetMin": [
+          88,
+          8
+        ],
+        "offsetMax": [
+          160,
+          -8
+        ],
+        "text": "Lv 3\nSlam",
+        "tone": "special",
+        "fontSize": 12,
+        "fontWeight": 700,
+        "textAlign": "center",
+        "wrap": true,
+        "disabled": true,
+        "ariaLabel": "Slam ability",
+        "tooltip": "T: Slam"
+      }
+    },
+    {
+      "id": "stretch-lash",
+      "name": "Lash",
+      "type": "Button",
+      "parentId": "surface",
+      "order": 2,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          0,
+          1
+        ],
+        "offsetMin": [
+          168,
+          8
+        ],
+        "offsetMax": [
+          240,
+          -8
+        ],
+        "text": "Lv 4\nLash",
+        "tone": "special",
+        "fontSize": 12,
+        "fontWeight": 700,
+        "textAlign": "center",
+        "wrap": true,
+        "disabled": true,
+        "ariaLabel": "Lash ability",
+        "tooltip": "R: Lash"
+      }
+    },
+    {
+      "id": "teleport",
+      "name": "Teleport",
+      "type": "Button",
+      "parentId": "surface",
+      "order": 3,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          0,
+          1
+        ],
+        "offsetMin": [
+          248,
+          8
+        ],
+        "offsetMax": [
+          320,
+          -8
+        ],
+        "text": "Lv 5\nTeleport",
+        "tone": "special",
+        "fontSize": 12,
+        "fontWeight": 700,
+        "textAlign": "center",
+        "wrap": true,
+        "disabled": true,
+        "ariaLabel": "Teleport ability",
+        "tooltip": "Y: Teleport"
       }
     },
     {
@@ -61,24 +177,57 @@
       "type": "ScriptNode",
       "scriptId": "game.ui-surface",
       "parentId": "surface",
-      "order": 1,
+      "order": 4,
       "properties": {
         "surfaceId": "ability-bar",
         "modal": false,
         "bindings": [
           {
-            "nodePath": "../Abilities",
-            "property": "items",
-            "model": "abilities"
+            "nodePath": "../Jump",
+            "property": "text",
+            "model": "jumpLabel"
           },
           {
-            "nodePath": "../Abilities",
-            "property": "selectedIndex",
-            "model": "selectedIndex"
+            "nodePath": "../Jump",
+            "property": "disabled",
+            "model": "jumpDisabled"
+          },
+          {
+            "nodePath": "../Slam",
+            "property": "text",
+            "model": "slamLabel"
+          },
+          {
+            "nodePath": "../Slam",
+            "property": "disabled",
+            "model": "slamDisabled"
+          },
+          {
+            "nodePath": "../Lash",
+            "property": "text",
+            "model": "lashLabel"
+          },
+          {
+            "nodePath": "../Lash",
+            "property": "disabled",
+            "model": "lashDisabled"
+          },
+          {
+            "nodePath": "../Teleport",
+            "property": "text",
+            "model": "teleportLabel"
+          },
+          {
+            "nodePath": "../Teleport",
+            "property": "disabled",
+            "model": "teleportDisabled"
           }
         ],
         "actions": {
-          "on_item_selected": "activate-ability"
+          "on_jump_action": "jump",
+          "on_slam_action": "squash-slam",
+          "on_lash_action": "stretch-lash",
+          "on_teleport_action": "teleport"
         }
       }
     }
@@ -87,13 +236,43 @@
   "connections": [
     {
       "source": {
-        "nodeId": "abilities"
+        "nodeId": "jump"
       },
-      "signal": "item_selected",
+      "signal": "pressed",
       "target": {
         "nodeId": "script"
       },
-      "handler": "on_item_selected"
+      "handler": "on_jump_action"
+    },
+    {
+      "source": {
+        "nodeId": "squash-slam"
+      },
+      "signal": "pressed",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_slam_action"
+    },
+    {
+      "source": {
+        "nodeId": "stretch-lash"
+      },
+      "signal": "pressed",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_lash_action"
+    },
+    {
+      "source": {
+        "nodeId": "teleport"
+      },
+      "signal": "pressed",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_teleport_action"
     }
   ],
   "subresources": []

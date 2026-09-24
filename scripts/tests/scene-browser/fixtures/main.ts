@@ -70,6 +70,9 @@ type FixtureSnapshot = {
   readonly managedWeaponId?: string | null;
   readonly weaponSlots?: readonly (string | null)[];
   readonly equippedWeaponId?: string | null;
+  readonly playerLevel?: number;
+  readonly playerEnergy?: number;
+  readonly jumpCooldownMs?: number;
   readonly managedWeaponAttacking?: boolean;
   readonly playerHp?: number;
   readonly legacyEnemyCount?: number;
@@ -96,6 +99,8 @@ type FixtureApi = {
   equipProductionWeapon(weaponId: string): boolean;
   grantProductionWeapons(): void;
   setProductionEquippedSlot(slotIndex: number): void;
+  setProductionLevel(level: number): void;
+  drainProductionEnergy(): void;
   attackWithProductionWeapon(): boolean;
   snapshot(): FixtureSnapshot;
   destroy(): void;
@@ -479,6 +484,14 @@ const api: FixtureApi = {
     if (!game || mode !== 'baseline') throw new Error('Production weapons are only available in baseline mode');
     gameState.equipWeapon(playerWeaponLoadout.weaponAt(slotIndex));
   },
+  setProductionLevel(level) {
+    if (!game || mode !== 'baseline') throw new Error('Production levels are only available in baseline mode');
+    gameState.load({ ...gameState.serialize(), level });
+  },
+  drainProductionEnergy() {
+    if (!game || mode !== 'baseline') throw new Error('Production energy is only available in baseline mode');
+    gameState.useEnergy(gameState.energy);
+  },
   attackWithProductionWeapon() {
     if (!game || mode !== 'baseline') throw new Error('Production weapons are only available in baseline mode');
     const world = game.scene.getScene('world') as unknown as {
@@ -509,6 +522,7 @@ const api: FixtureApi = {
             readonly runtime: { readonly tree: { readonly paused: boolean } };
           };
           readonly healthSystem?: { getDamageState(): { readonly hp: number } };
+          readonly abilitySystem?: { status(abilityId: 'jump'): { readonly cooldownRemainingMs: number } };
           readonly combatController?: { readonly targets: Phaser.Physics.Arcade.Group };
           readonly bossCampController?: { readonly targets: Phaser.Physics.Arcade.Group };
           readonly chestController?: unknown;
@@ -543,6 +557,8 @@ const api: FixtureApi = {
       ...(world?.universalWorld ? { managedPassiveObjectCount: world.universalWorld.managedPassiveObjectCount } : {}),
       ...(world?.universalWorld ? { managedWeaponId: world.universalWorld.managedWeaponId } : {}),
       ...(world?.universalWorld ? { weaponSlots: playerWeaponLoadout.slots(), equippedWeaponId: gameState.equippedWeaponId } : {}),
+      ...(world ? { playerLevel: gameState.level, playerEnergy: gameState.energy } : {}),
+      ...(world?.abilitySystem ? { jumpCooldownMs: world.abilitySystem.status('jump').cooldownRemainingMs } : {}),
       ...(world?.universalWorld ? { managedWeaponAttacking: world.universalWorld.managedWeaponAttacking } : {}),
       ...(world?.healthSystem ? { playerHp: world.healthSystem.getDamageState().hp } : {}),
       ...(world?.universalWorld ? { universalRuntimePaused: world.universalWorld.runtime.tree.paused } : {}),

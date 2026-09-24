@@ -16,7 +16,7 @@ export type UiPresentationModel = Readonly<Record<string, JsonValue>>;
 
 export interface UiSurfacePort {
   snapshot(surfaceId: string): UiPresentationModel;
-  subscribe?(surfaceId: string, listener: (model: UiPresentationModel) => void): () => void;
+  subscribe?(surfaceId: string, listener: (model: UiPresentationModel) => void): (() => void) | undefined;
   invoke(surfaceId: string, actionId: string, payload?: JsonValue): void;
 }
 
@@ -26,7 +26,7 @@ interface UiBinding {
   readonly model: string;
 }
 
-const HANDLERS = ['on_primary_action', 'on_secondary_action', 'on_close_action', 'on_item_selected'] as const;
+const HANDLERS = ['on_primary_action', 'on_secondary_action', 'on_close_action', 'on_item_selected', 'on_jump_action', 'on_slam_action', 'on_lash_action', 'on_teleport_action'] as const;
 
 export class UiSurfaceScript extends ScriptNode {
   readonly surfaceId: string;
@@ -35,6 +35,7 @@ export class UiSurfaceScript extends ScriptNode {
   private readonly actions: Readonly<Record<string, string>>;
   private port?: UiSurfacePort;
   private lastModel?: UiPresentationModel;
+  private subscribed = false;
 
   constructor(context: NodeConstructionContext) {
     if (!context.scriptId) throw new Error('UiSurfaceScript requires a registered script identity.');
@@ -52,12 +53,13 @@ export class UiSurfaceScript extends ScriptNode {
     super._enter_tree();
     this.port = this.service<UiSurfacePort>(UI_SURFACE_SERVICE);
     const subscription = this.port.subscribe?.(this.surfaceId, (model) => this.applyModel(model));
+    this.subscribed = !!subscription;
     if (subscription) this.entryDisposables.add(subscription);
     this.applyModel(this.port.snapshot(this.surfaceId));
   }
 
   override _process(): void {
-    if (!this.port?.subscribe) this.applyModel(this.port?.snapshot(this.surfaceId) ?? {});
+    if (!this.subscribed) this.applyModel(this.port?.snapshot(this.surfaceId) ?? {});
   }
 
   invoke(handlerId: string, payload?: JsonValue): boolean {

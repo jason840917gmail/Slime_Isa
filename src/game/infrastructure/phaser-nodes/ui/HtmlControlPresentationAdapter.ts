@@ -136,7 +136,7 @@ function synchronizeLabel(element: HTMLElement, control: LabelControlNode): void
   element.style.fontSize = `${control.fontSize}px`;
   element.style.fontWeight = String(control.fontWeight);
   element.style.textAlign = control.textAlign;
-  element.style.whiteSpace = control.wrap ? 'normal' : 'nowrap';
+  element.style.whiteSpace = control.wrap ? 'pre-line' : 'nowrap';
 }
 
 function synchronizeProgress(element: HTMLElement, control: ProgressBarControlNode): void {
