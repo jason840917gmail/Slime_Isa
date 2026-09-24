@@ -21,6 +21,8 @@ export interface ControlNodeOptions extends NodeOptions {
   readonly presentation?: ControlPresentation;
   readonly layout?: Partial<ControlLayout>;
   readonly visible?: boolean;
+  readonly opacity?: number;
+  readonly scale?: number;
   readonly focused?: boolean;
   readonly modal?: boolean;
   readonly consumeInput?: boolean;
@@ -35,6 +37,8 @@ const ZERO = { x: 0, y: 0 } as const;
 export class ControlNode extends Node implements InputControl {
   layout: ControlLayout;
   visible: boolean;
+  opacity: number;
+  scale: number;
   focused: boolean;
   modal: boolean;
   consumeInput: boolean;
@@ -50,6 +54,10 @@ export class ControlNode extends Node implements InputControl {
       offsetMax: controlOptions.layout?.offsetMax ?? ZERO,
     };
     this.visible = controlOptions.visible ?? true;
+    this.opacity = controlOptions.opacity ?? 1;
+    if (!Number.isFinite(this.opacity) || this.opacity < 0 || this.opacity > 1) throw new Error('Control opacity must be between 0 and 1');
+    this.scale = controlOptions.scale ?? 1;
+    if (!Number.isFinite(this.scale) || this.scale <= 0) throw new Error('Control scale must be positive');
     this.focused = controlOptions.focused ?? false;
     this.modal = controlOptions.modal ?? false;
     this.consumeInput = controlOptions.consumeInput ?? false;
@@ -108,6 +116,6 @@ export class ControlNode extends Node implements InputControl {
   }
 
   protected override _duplicateSelf(runtimeId: RuntimeNodeId): ControlNode {
-    return new ControlNode({ ...this.controlOptions, runtimeId, name: this.name, layout: this.layout, visible: this.visible, focused: this.focused, modal: this.modal, consumeInput: this.consumeInput, processWhenPaused: this.can_process_while_paused(), inputPriority: this.priority });
+    return new ControlNode({ ...this.controlOptions, runtimeId, name: this.name, layout: this.layout, visible: this.visible, opacity: this.opacity, scale: this.scale, focused: this.focused, modal: this.modal, consumeInput: this.consumeInput, processWhenPaused: this.can_process_while_paused(), inputPriority: this.priority });
   }
 }

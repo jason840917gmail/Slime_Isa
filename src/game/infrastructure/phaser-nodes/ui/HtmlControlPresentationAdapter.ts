@@ -132,7 +132,7 @@ function synchronizeContainer(element: HTMLElement, control: ContainerControlNod
 
 function synchronizeLabel(element: HTMLElement, control: LabelControlNode): void {
   element.textContent = control.text;
-  element.style.color = TONE_VARIABLE[control.tone];
+  element.style.color = control.color ?? TONE_VARIABLE[control.tone];
   element.style.fontSize = `${control.fontSize}px`;
   element.style.fontWeight = String(control.fontWeight);
   element.style.textAlign = control.textAlign;

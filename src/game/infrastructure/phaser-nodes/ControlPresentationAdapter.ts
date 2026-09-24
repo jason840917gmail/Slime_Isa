@@ -46,6 +46,8 @@ export class ControlPresentationAdapter implements ControlPresentation {
     element.style.width = `${Math.max(0, right - left)}px`;
     element.style.height = `${Math.max(0, bottom - top)}px`;
     element.style.display = control.visible ? '' : 'none';
+    element.style.opacity = String(control.opacity);
+    element.style.scale = String(control.scale);
     for (const [key, value] of Object.entries(control.theme)) {
       if (value === null || typeof value === 'object') continue;
       element.style.setProperty(`--scene-${key}`, String(value));

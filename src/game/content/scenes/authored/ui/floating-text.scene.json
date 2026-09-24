@@ -11,20 +11,20 @@
       "order": 0,
       "properties": {
         "anchorMin": [
-          0.5,
-          0.5
+          0,
+          0
         ],
         "anchorMax": [
-          0.5,
-          0.5
+          0,
+          0
         ],
         "offsetMin": [
-          -140,
-          -24
+          0,
+          0
         ],
         "offsetMax": [
-          140,
-          24
+          280,
+          48
         ],
         "theme": {
           "resourceId": "ui.field-kit.theme"
@@ -72,9 +72,39 @@
             "model": "message"
           },
           {
+            "nodePath": "../Message",
+            "property": "color",
+            "model": "color"
+          },
+          {
+            "nodePath": "../Message",
+            "property": "fontSize",
+            "model": "fontSize"
+          },
+          {
             "nodePath": "..",
             "property": "visible",
             "model": "visible"
+          },
+          {
+            "nodePath": "..",
+            "property": "opacity",
+            "model": "opacity"
+          },
+          {
+            "nodePath": "..",
+            "property": "scale",
+            "model": "scale"
+          },
+          {
+            "nodePath": "..",
+            "property": "offsetMin",
+            "model": "offsetMin"
+          },
+          {
+            "nodePath": "..",
+            "property": "offsetMax",
+            "model": "offsetMax"
           }
         ],
         "actions": {}

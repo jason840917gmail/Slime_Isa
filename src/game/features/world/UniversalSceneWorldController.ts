@@ -98,6 +98,9 @@ import { WeaponHotbarSurfacePort } from '../ui/WeaponHotbarSurfacePort';
 import { AbilityBarSurfacePort } from '../ui/AbilityBarSurfacePort';
 import { PlayerHealthSurfacePort } from '../ui/PlayerHealthSurfacePort';
 import { BossHealthSurfacePort } from '../ui/BossHealthSurfacePort';
+import { AreaTitleSurfacePort } from '../ui/AreaTitleSurfacePort';
+import { FloatingTextSurfacePort } from '../ui/FloatingTextSurfacePort';
+import { floatingText } from '../../ui/FloatingText';
 import type { PlayerAbilityController } from '../player/PlayerAbilityController';
 import type { PlayerAbilityId } from '../player/PlayerAbilityDefinitions';
 import { UI_SURFACE_SERVICE, type UiSurfacePort } from '../scripts/ui/UiSurfaceScript';
@@ -211,6 +214,9 @@ export class UniversalSceneWorldController implements InteractionProvider {
   private readonly damageRouter = new DamageRouter(this.activations, () => this.simulationTimeMs);
   private readonly chestUi?: LegacyChestUiBridge;
   private readonly bossHealthSurface: BossHealthSurfacePort;
+  private readonly areaTitleSurface: AreaTitleSurfacePort;
+  private readonly floatingTextSurface: FloatingTextSurfacePort;
+  private readonly unregisterFloatingText: () => void;
   private readonly inputRouter: InputRouter;
   private readonly uiPresentation: HtmlControlPresentationAdapter;
   private readonly hudSurface: HudSurfacePort;
@@ -249,6 +255,13 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.weaponHotbarSurface = new WeaponHotbarSurfacePort(options.onEquipWeaponSlot);
     this.abilityBarSurface = new AbilityBarSurfacePort(options.getAbilitySystem, options.canUseAbilities, options.onActivateAbility);
     this.playerHealthSurface = new PlayerHealthSurfacePort(options.scene, options.getPlayer);
+    this.areaTitleSurface = new AreaTitleSurfacePort(options.scene);
+    this.floatingTextSurface = new FloatingTextSurfacePort(options.scene, (surfaceId) => {
+      this.runtime.mountScene(sceneId('ui.floating-text'), {
+        runtimeNamespace: `ui-${surfaceId.replace(':', '-')}`,
+        propertyOverrides: [{ nodeId: 'script', property: 'surfaceId', value: surfaceId }],
+      });
+    });
     this.bossHealthSurface = new BossHealthSurfacePort((campId, bossId) => {
       const boss = this.bosses.get(campId);
       if (!boss) return undefined;
@@ -264,11 +277,14 @@ export class UniversalSceneWorldController implements InteractionProvider {
       ['ability-bar', this.abilityBarSurface],
       ['health-bar', this.playerHealthSurface],
       ['boss-health-bar', this.bossHealthSurface],
+      ['area-title-card', this.areaTitleSurface],
     ]);
+    const portFor = (surfaceId: string): UiSurfacePort | undefined =>
+      ports.get(surfaceId) ?? (surfaceId.startsWith('floating-text:') ? this.floatingTextSurface : undefined);
     const uiSurfaces: UiSurfacePort = {
-      snapshot: (surfaceId) => ports.get(surfaceId)?.snapshot(surfaceId) ?? {},
-      subscribe: (surfaceId, listener) => ports.get(surfaceId)?.subscribe?.(surfaceId, listener),
-      invoke: (surfaceId, actionId, payload) => { ports.get(surfaceId)?.invoke(surfaceId, actionId, payload); },
+      snapshot: (surfaceId) => portFor(surfaceId)?.snapshot(surfaceId) ?? {},
+      subscribe: (surfaceId, listener) => portFor(surfaceId)?.subscribe?.(surfaceId, listener),
+      invoke: (surfaceId, actionId, payload) => { portFor(surfaceId)?.invoke(surfaceId, actionId, payload); },
     };
     this.inputRouter = new InputRouter({
       sink: { enqueueInput: (event) => inputSink?.enqueueInput(event) },
@@ -402,6 +418,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
       this.runtime.mountScene(sceneId('ui.ability-bar'), { runtimeNamespace: 'ui-ability-bar' });
       this.runtime.mountScene(sceneId('ui.health-bar'), { runtimeNamespace: 'ui-health-bar' });
       this.runtime.mountScene(sceneId('ui.boss-health-bar'), { runtimeNamespace: 'ui-boss-health-bar' });
+      this.runtime.mountScene(sceneId('ui.area-title-card'), { runtimeNamespace: 'ui-area-title-card' });
     } catch (error) {
       mountedRuntime?.shutdown();
       this.inputRouter.destroy();
@@ -410,6 +427,8 @@ export class UniversalSceneWorldController implements InteractionProvider {
       this.abilityBarSurface.destroy();
       this.playerHealthSurface.destroy();
       this.bossHealthSurface.destroy();
+      this.areaTitleSurface.destroy();
+      this.floatingTextSurface.destroy();
       throw error;
     }
 
@@ -426,10 +445,12 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.mountPlayer();
     this.mountAuthoredWorld();
     this.unregisterInteraction = options.interactions.register('managed-chests', this);
+    this.unregisterFloatingText = floatingText.registerPresentation(options.scene, this.floatingTextSurface);
   }
 
   advanceFrame(deltaSeconds: number): number { return this.runtime.advanceFrame(deltaSeconds); }
   flashPlayerHealthBar(): void { this.playerHealthSurface.flash(); }
+  showAreaTitle(title: string, color: string): void { this.areaTitleSurface.show(title, color); }
   setPaused(paused: boolean): void {
     if (paused) this.playerScript?.clearInput();
     this.runtime.setPaused(paused);
@@ -617,6 +638,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
     if (this.disposed) return;
     this.disposed = true;
     this.unregisterInteraction();
+    this.unregisterFloatingText();
     this.inputRouter.destroy();
     this.runtime.shutdown();
     this.hudSurface.destroy();
@@ -624,6 +646,8 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.abilityBarSurface.destroy();
     this.playerHealthSurface.destroy();
     this.bossHealthSurface.destroy();
+    this.areaTitleSurface.destroy();
+    this.floatingTextSurface.destroy();
     this.chestUi?.dispose();
     this.camps.clear();
     this.bosses.clear();

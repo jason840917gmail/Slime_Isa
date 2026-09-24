@@ -22,6 +22,10 @@ const COLORS: Record<FloatingTextColor, string> = {
   blue: '#4a90e2',
 };
 
+export interface FloatingTextPresentationPort {
+  spawn(x: number, y: number, content: string, color: FloatingTextColor, big: boolean, durationMs?: number): void;
+}
+
 interface PooledText {
   text: Phaser.GameObjects.Text;
   busy: boolean;
@@ -30,6 +34,13 @@ interface PooledText {
 
 class FloatingTextPool {
   private pools = new Map<Phaser.Scene, PooledText[]>();
+  private readonly presentations = new Map<Phaser.Scene, FloatingTextPresentationPort>();
+
+  registerPresentation(scene: Phaser.Scene, presentation: FloatingTextPresentationPort): () => void {
+    if (this.presentations.has(scene)) throw new Error('Floating text presentation is already registered for this scene');
+    this.presentations.set(scene, presentation);
+    return () => { if (this.presentations.get(scene) === presentation) this.presentations.delete(scene); };
+  }
 
   spawn(
     scene: Phaser.Scene,
@@ -40,6 +51,8 @@ class FloatingTextPool {
     big = false,
     durationMs?: number,
   ): void {
+    const presentation = this.presentations.get(scene);
+    if (presentation) { presentation.spawn(x, y, content, color, big, durationMs); return; }
     const pool = this.getPool(scene);
     const slot = pool.find((p) => !p.busy);
 

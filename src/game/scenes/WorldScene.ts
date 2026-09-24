@@ -25,7 +25,6 @@ import { InventoryUI } from '../ui/InventoryUI';
 import { hitboxPool } from '../combat/Hitbox';
 import { AREAS, type AreaDef, type AreaId, type Direction } from '../world/Area';
 import { BIOMES } from '../world/Biome';
-import { showAreaTitleCard } from '../ui/AreaTitleCard';
 import { WorldMapUI } from '../ui/WorldMapUI';
 import { questTracker } from '../quests/QuestTracker';
 import { QuestJournal } from '../ui/QuestJournal';
@@ -352,7 +351,7 @@ export class WorldScene extends Phaser.Scene {
     gameEvents.emit('area.enter', { areaId: this.currentArea.id });
     saveSystem.writeRecovery(this.capturePlayerLocation());
     clearOneShotNavigationParams();
-    showAreaTitleCard(this, this.currentArea.name, BIOMES[this.currentArea.biome].titleColor);
+    this.universalWorld?.showAreaTitle(this.currentArea.name, BIOMES[this.currentArea.biome].titleColor);
     this.syncCameraLayers();
   }
 
@@ -386,6 +385,7 @@ export class WorldScene extends Phaser.Scene {
     this.combatController?.destroy();
     this.universalWorld?.destroy();
     this.universalWorld = undefined;
+    floatingText.clearScene(this);
     this.resourceNodes?.destroy();
     this.resourceNodes = undefined;
     this.inventoryDrops = undefined;
