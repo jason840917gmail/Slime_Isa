@@ -20,7 +20,6 @@ import type { PlayerAbilityId } from '../features/player/PlayerAbilityDefinition
 import { playerInventory, itemRegistry, weaponItemFor } from '../systems/Inventory';
 import { playerWeaponLoadout } from '../systems/WeaponLoadout';
 import { floatingText } from '../ui/FloatingText';
-import { HealthBar } from '../ui/HealthBar';
 import { LevelUpModal } from '../ui/LevelUpModal';
 import { InventoryUI } from '../ui/InventoryUI';
 import { hitboxPool } from '../combat/Hitbox';
@@ -121,7 +120,6 @@ export class WorldScene extends Phaser.Scene {
   private playerController!: PlayerController;
   private healthSystem?: LegacyPlayerHealthAdapter;
   private statusEffects?: StatusEffectManager;
-  private healthBar?: HealthBar;
   private levelUpModal?: LevelUpModal;
   private modalStack?: ModalStack;
   private inventoryUI?: InventoryUI;
@@ -247,7 +245,6 @@ export class WorldScene extends Phaser.Scene {
     this.createCollectibleReactions();
 
     // Phase 1 systems: health presentation, abilities, level-up modal, inventory UI
-    this.healthBar = new HealthBar(this, this.player);
     this.abilitySystem = new PlayerAbilityController({
       scene: this,
       dimensions: this.worldDimensions,
@@ -497,7 +494,6 @@ export class WorldScene extends Phaser.Scene {
     this.interactionRouter?.update();
     this.statusEffects?.update(this.time.now, delta);
     this.healthSystem?.update(this.time.now);
-    this.healthBar?.update();
     this.abilitySystem?.update();
     this.combatController?.update(this.time.now, delta);
     this.occlusionController?.update();
@@ -1110,7 +1106,7 @@ export class WorldScene extends Phaser.Scene {
   // â”€â”€ Phase 1: health / damage / death / XP / items â”€â”€
 
   private onPlayerHit(result: AcceptedDamageResult): void {
-    this.healthBar?.flash();
+    this.universalWorld?.flashPlayerHealthBar();
     floatingText.spawn(
       this,
       this.player.x,
@@ -1411,6 +1407,7 @@ export class WorldScene extends Phaser.Scene {
       getAbilitySystem: () => this.abilitySystem,
       canUseAbilities: () => !this.paused && !this.healthSystem?.isDead(),
       onActivateAbility: (abilityId) => this.activateAbilityFromUi(abilityId),
+      getPlayer: () => this.player,
       uiRoot,
     });
   }

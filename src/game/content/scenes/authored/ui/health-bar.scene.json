@@ -11,20 +11,20 @@
       "order": 0,
       "properties": {
         "anchorMin": [
-          0.5,
-          0.5
+          0,
+          0
         ],
         "anchorMax": [
-          0.5,
-          0.5
+          0,
+          0
         ],
         "offsetMin": [
-          -40,
-          -58
+          0,
+          0
         ],
         "offsetMax": [
-          40,
-          -48
+          56,
+          8
         ],
         "theme": {
           "resourceId": "ui.field-kit.theme"
@@ -79,6 +79,21 @@
             "nodePath": "..",
             "property": "visible",
             "model": "visible"
+          },
+          {
+            "nodePath": "../Health",
+            "property": "tone",
+            "model": "tone"
+          },
+          {
+            "nodePath": "..",
+            "property": "offsetMin",
+            "model": "offsetMin"
+          },
+          {
+            "nodePath": "..",
+            "property": "offsetMax",
+            "model": "offsetMax"
           }
         ],
         "actions": {}

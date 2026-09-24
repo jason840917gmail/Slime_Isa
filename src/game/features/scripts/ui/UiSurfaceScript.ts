@@ -1,5 +1,6 @@
 import type { JsonValue } from '../../../content/scenes/types';
 import type { Node } from '../../../runtime/scene/Node';
+import { ControlNode } from '../../../runtime/scene/ui/ControlNode';
 import type { NodeConstructionContext } from '../../../runtime/scene/registries/NodeTypeRegistry';
 import { ScriptNode } from '../../../runtime/scene/scripts/ScriptNode';
 import {
@@ -87,6 +88,11 @@ function applyBinding(script: UiSurfaceScript, binding: UiBinding, value: JsonVa
   else if (target instanceof ProgressBarControlNode && binding.property === 'value' && typeof value === 'number') target.value = value;
   else if (target instanceof ProgressBarControlNode && binding.property === 'max' && typeof value === 'number' && value > 0) target.max = value;
   else if (target instanceof ProgressBarControlNode && binding.property === 'label' && typeof value === 'string') target.label = value;
+  else if (target instanceof ProgressBarControlNode && binding.property === 'tone' && isTone(value)) target.tone = value;
+  else if (target instanceof ControlNode && (binding.property === 'offsetMin' || binding.property === 'offsetMax')
+    && Array.isArray(value) && value.length === 2 && typeof value[0] === 'number' && typeof value[1] === 'number') {
+    target.setLayoutOffset(binding.property, { x: value[0], y: value[1] });
+  }
   else if (target instanceof ButtonControlNode && binding.property === 'disabled' && typeof value === 'boolean') target.disabled = value;
   else if (target instanceof ItemListControlNode && binding.property === 'selectedIndex' && Number.isSafeInteger(value)) target.selectedIndex = value as number;
   else if (target instanceof ItemListControlNode && binding.property === 'items' && Array.isArray(value)) target.items = value.flatMap((entry) => {
@@ -96,6 +102,10 @@ function applyBinding(script: UiSurfaceScript, binding: UiBinding, value: JsonVa
   else if (target instanceof ModalRootControlNode && binding.property === 'open' && typeof value === 'boolean') target.setOpen(value);
   else if ('visible' in target && binding.property === 'visible' && typeof value === 'boolean') (target as { visible: boolean }).visible = value;
   else if ('focused' in target && binding.property === 'focused' && typeof value === 'boolean') (target as { focused: boolean }).focused = value;
+}
+
+function isTone(value: JsonValue): value is 'default' | 'muted' | 'accent' | 'info' | 'warning' | 'danger' | 'special' {
+  return typeof value === 'string' && ['default', 'muted', 'accent', 'info', 'warning', 'danger', 'special'].includes(value);
 }
 
 function parseBindings(value: JsonValue | undefined): readonly UiBinding[] {

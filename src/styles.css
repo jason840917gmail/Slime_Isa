@@ -3237,6 +3237,35 @@ body {
   font-weight: 700;
 }
 
+/* Floating player meter and encounter instrument share the authored Control layer. */
+.game-ui--health-bar {
+  pointer-events: none;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.game-ui--health-bar .scene-control--progressbar {
+  padding: 0;
+  font-size: 0;
+  border-radius: 4px;
+}
+
+.game-ui--boss-health-bar {
+  pointer-events: none;
+  left: 50% !important;
+  max-width: calc(100% - 24px);
+  transform: translateX(-50%);
+  border-color: #8b2f2f;
+  border-radius: 12px;
+  padding: 0 12px;
+  background: linear-gradient(180deg, #261727, #101a31);
+}
+
+.game-ui--boss-health-bar .scene-control--progressbar {
+  height: 16px;
+  border-radius: 5px;
+}
+
 /* Ability field instrument: four explicit actions beneath the weapon belt. */
 .game-ui--ability-bar {
   border-radius: 10px;
