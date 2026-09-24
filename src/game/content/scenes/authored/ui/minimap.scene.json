@@ -36,9 +36,9 @@
       }
     },
     {
-      "id": "map-summary",
-      "name": "MapSummary",
-      "type": "Label",
+      "id": "frame",
+      "name": "Frame",
+      "type": "TextureRect",
       "parentId": "surface",
       "order": 0,
       "properties": {
@@ -50,9 +50,47 @@
           1,
           1
         ],
-        "text": "Local map",
-        "tone": "info",
-        "textAlign": "center",
+        "offsetMin": [
+          -6,
+          -6
+        ],
+        "offsetMax": [
+          6,
+          6
+        ],
+        "frame": 0,
+        "fit": "fill",
+        "alt": "",
+        "styleClass": "scene-minimap-frame",
+        "texture": {
+          "resourceId": "minimap.frame"
+        }
+      }
+    },
+    {
+      "id": "map-canvas",
+      "name": "MapCanvas",
+      "type": "Container",
+      "parentId": "surface",
+      "order": 1,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "offsetMin": [
+          0,
+          0
+        ],
+        "offsetMax": [
+          0,
+          0
+        ],
+        "styleClass": "scene-minimap-canvas-host",
         "ariaLabel": "Local map"
       }
     },
@@ -62,15 +100,20 @@
       "type": "ScriptNode",
       "scriptId": "game.ui-surface",
       "parentId": "surface",
-      "order": 1,
+      "order": 2,
       "properties": {
         "surfaceId": "minimap",
         "modal": false,
         "bindings": [
           {
-            "nodePath": "../MapSummary",
-            "property": "text",
-            "model": "summary"
+            "nodePath": "..",
+            "property": "offsetMin",
+            "model": "offsetMin"
+          },
+          {
+            "nodePath": "..",
+            "property": "offsetMax",
+            "model": "offsetMax"
           }
         ],
         "actions": {}
@@ -78,5 +121,12 @@
     }
   ],
   "instances": [],
-  "subresources": []
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "minimap.frame",
+      "kind": "texture",
+      "assetId": "ui.frame.organic-minimap"
+    }
+  ]
 }

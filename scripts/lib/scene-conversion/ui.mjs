@@ -52,7 +52,7 @@ function sceneDocument(descriptor, themeResourceId) {
     ],
     instances: [],
     ...(connections.length > 0 ? { connections } : {}),
-    subresources: [],
+    subresources: descriptor.resources ?? [],
   };
 }
 
@@ -77,7 +77,7 @@ export const uiSceneAdapter = {
         unit,
         `ui/${descriptor.id}.scene.json`,
         sceneDocument(descriptor, extraction.themeResourceId),
-        ['$.sourceHash', '$.layoutValues', '$.themeValues', '$.bindings', '$.actions', '$.controls'],
+        ['$.sourceHash', '$.layoutValues', '$.themeValues', '$.bindings', '$.actions', '$.controls', ...(descriptor.resources ? ['$.resources'] : [])],
         [{ path: '$.sourcePath', owner: descriptor.sourcePath }],
       );
     }));

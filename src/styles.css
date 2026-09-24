@@ -3446,3 +3446,9 @@ body {
   .game-ui--level-up-modal .scene-control--itemlist { grid-template-columns: 1fr !important; }
   .game-ui--level-up-modal .scene-control--itemlist > button { min-height: 100px; }
 }
+
+
+.game-ui--minimap { background: transparent !important; border: 0 !important; box-shadow: none !important; pointer-events: none; }
+.game-ui--minimap .scene-minimap-frame { pointer-events: none; }
+.game-ui--minimap .scene-minimap-canvas-host { overflow: hidden; pointer-events: none; }
+.game-ui--minimap .scene-minimap-canvas { display: block; }
