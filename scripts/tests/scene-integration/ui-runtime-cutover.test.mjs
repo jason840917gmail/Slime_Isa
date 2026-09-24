@@ -4,7 +4,7 @@ import test from 'node:test';
 
 const read = (path) => readFile(new URL(`../../../${path}`, import.meta.url), 'utf8');
 
-test('production mounts authored HUD and weapon hotbar through the universal Control runtime', async () => {
+test('production mounts authored HUD, weapon hotbar, and ability bar through the universal Control runtime', async () => {
   const [config, world, controller] = await Promise.all([
     read('src/game/config.ts'),
     read('src/game/scenes/WorldScene.ts'),
@@ -13,10 +13,12 @@ test('production mounts authored HUD and weapon hotbar through the universal Con
 
   assert.match(config, /sceneId\('ui\.hud'\)/);
   assert.match(config, /sceneId\('ui\.weapon-hotbar'\)/);
+  assert.match(config, /sceneId\('ui\.ability-bar'\)/);
   assert.match(config, /data-scene-ui-root/);
   assert.match(controller, /new HtmlControlPresentationAdapter/);
   assert.match(controller, /mountScene\(sceneId\('ui\.hud'\)/);
   assert.match(controller, /mountScene\(sceneId\('ui\.weapon-hotbar'\)/);
+  assert.match(controller, /mountScene\(sceneId\('ui\.ability-bar'\)/);
   assert.match(controller, /\[UI_SURFACE_SERVICE\]: uiSurfaces/);
   assert.doesNotMatch(world, /new HUD\(/);
   assert.doesNotMatch(world, /new WeaponHotbar\(/);

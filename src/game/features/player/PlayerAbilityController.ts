@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 
 import { gameState } from '../../core/GameState';
 import { isTileCollidable, type WorldTileId } from '../../content/terrain/TileCatalog';
-import type { PlayerAbilityId } from './PlayerAbilityDefinitions';
+import { PLAYER_ABILITY_DEFINITIONS, type PlayerAbilityId } from './PlayerAbilityDefinitions';
 import { PlayerAbilityPresentation } from './PlayerAbilityPresentation';
 import { PlayerAbilityService } from './PlayerAbilityService';
 import type { WorldVisual } from '../../presentation/WorldVisual';
@@ -11,6 +11,16 @@ import {
   type LegacyPlayerAbilityPresentationContext,
 } from '../../infrastructure/scenes/compatibility/LegacyPlayerAbilityPresentation';
 import type { WorldDimensions } from '../../world/WorldDimensions';
+
+export interface PlayerAbilityStatus {
+  readonly unlocked: boolean;
+  readonly unlockLevel: number;
+  readonly cooldownRemainingMs: number;
+  readonly busy: boolean;
+  readonly actionLocked: boolean;
+  readonly insufficientEnergy: boolean;
+  readonly canActivate: boolean;
+}
 
 export interface PlayerAbilityControllerContext extends LegacyPlayerAbilityPresentationContext {
   dimensions: WorldDimensions;
@@ -66,6 +76,24 @@ export class PlayerAbilityController {
 
   isBusy(): boolean {
     return this.decisions.isBusy();
+  }
+
+  status(ability: PlayerAbilityId): PlayerAbilityStatus {
+    const unlockLevel = this.decisions.unlockLevel(ability);
+    const unlocked = this.decisions.isUnlocked(ability);
+    const cooldownRemainingMs = Math.max(0, this.decisions.readyAt(ability) - this.context.scene.time.now);
+    const busy = this.decisions.isBusy();
+    const actionLocked = this.context.isActionLocked();
+    const insufficientEnergy = gameState.energy < PLAYER_ABILITY_DEFINITIONS[ability].energyCost;
+    return {
+      unlocked,
+      unlockLevel,
+      cooldownRemainingMs,
+      busy,
+      actionLocked,
+      insufficientEnergy,
+      canActivate: unlocked && cooldownRemainingMs === 0 && !busy && !actionLocked && !insufficientEnergy,
+    };
   }
 
   tryJump(direction: Phaser.Math.Vector2): boolean {

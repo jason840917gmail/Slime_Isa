@@ -97,6 +97,9 @@ import { BossHealthBar } from '../../ui/BossHealthBar';
 import { HtmlControlPresentationAdapter } from '../../infrastructure/phaser-nodes/ui/HtmlControlPresentationAdapter';
 import { HudSurfacePort } from '../ui/HudSurfacePort';
 import { WeaponHotbarSurfacePort } from '../ui/WeaponHotbarSurfacePort';
+import { AbilityBarSurfacePort } from '../ui/AbilityBarSurfacePort';
+import type { PlayerAbilityController } from '../player/PlayerAbilityController';
+import type { PlayerAbilityId } from '../player/PlayerAbilityDefinitions';
 import { UI_SURFACE_SERVICE, type UiSurfacePort } from '../scripts/ui/UiSurfaceScript';
 import {
   WORLD_EXIT_SERVICE,
@@ -134,6 +137,9 @@ export interface UniversalSceneWorldControllerOptions {
   readonly registerOccluder?: (registration: ObjectOccluderRegistration) => { dispose(): void };
   readonly requestExit: (request: WorldExitRequest) => WorldExitResult;
   readonly onEquipWeaponSlot: (slotIndex: number) => void;
+  readonly getAbilitySystem: () => PlayerAbilityController | undefined;
+  readonly canUseAbilities: () => boolean;
+  readonly onActivateAbility: (abilityId: PlayerAbilityId) => void;
   readonly uiRoot: HTMLElement;
 }
 
@@ -227,6 +233,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
   private readonly uiPresentation: HtmlControlPresentationAdapter;
   private readonly hudSurface: HudSurfacePort;
   private readonly weaponHotbarSurface: WeaponHotbarSurfacePort;
+  private readonly abilityBarSurface: AbilityBarSurfacePort;
   private readonly camps = new Map<string, ManagedCamp>();
   private readonly bosses = new Map<string, ManagedBoss>();
   private readonly ordinaryEnemies = new Map<number, ManagedOrdinaryEnemy>();
@@ -258,17 +265,16 @@ export class UniversalSceneWorldController implements InteractionProvider {
     let inputSink: InputEventSink | undefined;
     this.hudSurface = new HudSurfacePort();
     this.weaponHotbarSurface = new WeaponHotbarSurfacePort(options.onEquipWeaponSlot);
+    this.abilityBarSurface = new AbilityBarSurfacePort(options.getAbilitySystem, options.canUseAbilities, options.onActivateAbility);
+    const ports = new Map<string, UiSurfacePort>([
+      ['hud', this.hudSurface],
+      ['weapon-hotbar', this.weaponHotbarSurface],
+      ['ability-bar', this.abilityBarSurface],
+    ]);
     const uiSurfaces: UiSurfacePort = {
-      snapshot: (surfaceId) => surfaceId === 'weapon-hotbar'
-        ? this.weaponHotbarSurface.snapshot(surfaceId)
-        : this.hudSurface.snapshot(surfaceId),
-      subscribe: (surfaceId, listener) => surfaceId === 'weapon-hotbar'
-        ? this.weaponHotbarSurface.subscribe(surfaceId, listener)
-        : this.hudSurface.subscribe(surfaceId, listener),
-      invoke: (surfaceId, actionId, payload) => {
-        if (surfaceId === 'weapon-hotbar') this.weaponHotbarSurface.invoke(surfaceId, actionId, payload);
-        else this.hudSurface.invoke();
-      },
+      snapshot: (surfaceId) => ports.get(surfaceId)?.snapshot(surfaceId) ?? {},
+      subscribe: (surfaceId, listener) => ports.get(surfaceId)?.subscribe?.(surfaceId, listener),
+      invoke: (surfaceId, actionId, payload) => { ports.get(surfaceId)?.invoke(surfaceId, actionId, payload); },
     };
     this.inputRouter = new InputRouter({
       sink: { enqueueInput: (event) => inputSink?.enqueueInput(event) },
@@ -403,11 +409,13 @@ export class UniversalSceneWorldController implements InteractionProvider {
       inputSink = this.runtime;
       this.runtime.mountScene(sceneId('ui.hud'), { runtimeNamespace: 'ui-hud' });
       this.runtime.mountScene(sceneId('ui.weapon-hotbar'), { runtimeNamespace: 'ui-weapon-hotbar' });
+      this.runtime.mountScene(sceneId('ui.ability-bar'), { runtimeNamespace: 'ui-ability-bar' });
     } catch (error) {
       mountedRuntime?.shutdown();
       this.inputRouter.destroy();
       this.hudSurface.destroy();
       this.weaponHotbarSurface.destroy();
+      this.abilityBarSurface.destroy();
       throw error;
     }
 
@@ -619,6 +627,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.runtime.shutdown();
     this.hudSurface.destroy();
     this.weaponHotbarSurface.destroy();
+    this.abilityBarSurface.destroy();
     this.chestUi?.dispose();
     this.bossUi.dispose();
     this.camps.clear();

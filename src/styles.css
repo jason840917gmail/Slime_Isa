@@ -3236,3 +3236,18 @@ body {
   font-size: 9px;
   font-weight: 700;
 }
+
+/* Ability field instrument: four explicit actions beneath the weapon belt. */
+.game-ui--ability-bar {
+  border-radius: 10px;
+}
+
+.game-ui--ability-bar .scene-control--button {
+  padding: 4px;
+  line-height: 1.15;
+  border-radius: 6px;
+}
+
+.game-ui--ability-bar .scene-control--button:not(:disabled) {
+  border-color: color-mix(in srgb, var(--scene-special, #a78bfa) 65%, transparent);
+}

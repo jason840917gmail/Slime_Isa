@@ -16,6 +16,7 @@ import {
 import { StatusEffectManager } from '../systems/StatusEffects';
 import { getStats } from '../systems/PlayerStats';
 import { PlayerAbilityController } from '../features/player/PlayerAbilityController';
+import type { PlayerAbilityId } from '../features/player/PlayerAbilityDefinitions';
 import { playerInventory, itemRegistry, weaponItemFor } from '../systems/Inventory';
 import { playerWeaponLoadout } from '../systems/WeaponLoadout';
 import { floatingText } from '../ui/FloatingText';
@@ -1013,6 +1014,17 @@ export class WorldScene extends Phaser.Scene {
     this.universalWorld?.managedPlayer.playAnimation(animationId, forceRestart);
   }
 
+  private activateAbilityFromUi(abilityId: PlayerAbilityId): void {
+    if (this.paused || this.healthSystem?.isDead() || !this.abilitySystem) return;
+    const direction = this.playerController.readDirection();
+    switch (abilityId) {
+      case 'jump': this.abilitySystem.tryJump(direction); break;
+      case 'squash-slam': this.abilitySystem.trySquashSlam(); break;
+      case 'stretch-lash': this.abilitySystem.tryStretchLash(); break;
+      case 'teleport': this.abilitySystem.tryTeleport(direction); break;
+    }
+  }
+
   private handleActionInput(direction: Phaser.Math.Vector2): boolean {
     const input = this.playerMotion();
     if (input.consumeActionPress('interact')) {
@@ -1396,6 +1408,9 @@ export class WorldScene extends Phaser.Scene {
       registerOccluder: (registration) => this.occlusionController!.registerOccluder(registration),
       requestExit: (request) => this.requestAuthoredExit(request),
       onEquipWeaponSlot: (slotIndex) => this.equipWeaponSlot(slotIndex),
+      getAbilitySystem: () => this.abilitySystem,
+      canUseAbilities: () => !this.paused && !this.healthSystem?.isDead(),
+      onActivateAbility: (abilityId) => this.activateAbilityFromUi(abilityId),
       uiRoot,
     });
   }

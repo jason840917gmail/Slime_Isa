@@ -16,6 +16,7 @@ export class InteractionRouter {
   private readonly providers = new Map<string, InteractionProvider>();
   private readonly prompt: Phaser.GameObjects.Text;
   private candidate?: InteractionCandidate;
+  private destroyed = false;
 
   constructor(private readonly scene: Phaser.Scene) {
     this.prompt = scene.add.text(scene.cameras.main.width / 2, scene.cameras.main.height - 42, '', {
@@ -59,6 +60,8 @@ export class InteractionRouter {
   }
 
   destroy(): void {
+    if (this.destroyed) return;
+    this.destroyed = true;
     this.scene.scale.off('resize', this.handleResize, this);
     this.providers.clear();
     this.candidate = undefined;
@@ -67,7 +70,7 @@ export class InteractionRouter {
 
   private clearCandidate(): void {
     this.candidate = undefined;
-    this.prompt.setText('').setVisible(false);
+    if (!this.destroyed && this.prompt.active) this.prompt.setVisible(false);
   }
 
   private readonly handleResize = (gameSize: Phaser.Structs.Size): void => {
