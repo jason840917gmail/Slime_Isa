@@ -33,7 +33,7 @@ export interface ControlNodeOptions extends NodeOptions {
 const ZERO = { x: 0, y: 0 } as const;
 
 export class ControlNode extends Node implements InputControl {
-  readonly layout: ControlLayout;
+  layout: ControlLayout;
   visible: boolean;
   focused: boolean;
   modal: boolean;
@@ -60,6 +60,11 @@ export class ControlNode extends Node implements InputControl {
     this.set_process(true);
     this.set_process_when_paused(controlOptions.processWhenPaused ?? true);
     this.set_input_priority(this.priority);
+  }
+
+  setLayoutOffset(edge: 'offsetMin' | 'offsetMax', value: Readonly<{ x: number; y: number }>): void {
+    if (!Number.isFinite(value.x) || !Number.isFinite(value.y)) throw new Error('Control layout offsets must be finite');
+    this.layout = { ...this.layout, [edge]: { x: value.x, y: value.y } };
   }
 
   get routedInputPriority(): number { return this.priority; }

@@ -10,7 +10,6 @@ import { Area2DNode } from '../../infrastructure/phaser-nodes/Area2DNode';
 import { Sprite2DNode } from '../../infrastructure/phaser-nodes/Sprite2DNode';
 import { PhaserUniversalSceneRuntime, type MountedScene } from '../../infrastructure/scenes/PhaserUniversalSceneRuntime';
 import type { PreparedSceneContent } from '../../infrastructure/scenes/PreparedSceneContent';
-import { LegacyBossUiBridge, type LegacyBossBarHandle } from '../../infrastructure/scenes/compatibility/LegacyBossUiBridge';
 import { LegacyChestUiBridge } from '../../infrastructure/scenes/compatibility/LegacyChestUiBridge';
 import { LegacyWorldAdapter } from '../../infrastructure/scenes/compatibility/LegacyWorldAdapter';
 import type { Node } from '../../runtime/scene/Node';
@@ -93,11 +92,12 @@ import { PLAYER_INPUT_ACTIONS } from '../player/PlayerInputActions';
 import type { LegacyPlayerHealthAdapter } from '../../infrastructure/scenes/compatibility/LegacyPlayerHealthAdapter';
 import type { ModalStack } from '../../ui/ModalStack';
 import { ChestInventoryPanel } from '../../ui/ChestInventoryPanel';
-import { BossHealthBar } from '../../ui/BossHealthBar';
 import { HtmlControlPresentationAdapter } from '../../infrastructure/phaser-nodes/ui/HtmlControlPresentationAdapter';
 import { HudSurfacePort } from '../ui/HudSurfacePort';
 import { WeaponHotbarSurfacePort } from '../ui/WeaponHotbarSurfacePort';
 import { AbilityBarSurfacePort } from '../ui/AbilityBarSurfacePort';
+import { PlayerHealthSurfacePort } from '../ui/PlayerHealthSurfacePort';
+import { BossHealthSurfacePort } from '../ui/BossHealthSurfacePort';
 import type { PlayerAbilityController } from '../player/PlayerAbilityController';
 import type { PlayerAbilityId } from '../player/PlayerAbilityDefinitions';
 import { UI_SURFACE_SERVICE, type UiSurfacePort } from '../scripts/ui/UiSurfaceScript';
@@ -140,6 +140,7 @@ export interface UniversalSceneWorldControllerOptions {
   readonly getAbilitySystem: () => PlayerAbilityController | undefined;
   readonly canUseAbilities: () => boolean;
   readonly onActivateAbility: (abilityId: PlayerAbilityId) => void;
+  readonly getPlayer: () => Phaser.Physics.Arcade.Sprite | undefined;
   readonly uiRoot: HTMLElement;
 }
 
@@ -204,36 +205,18 @@ function isPassiveObjectScene(sceneIdValue: string): boolean {
     || sceneIdValue.startsWith('object.wall-stone-solid');
 }
 
-class ManagedBossBar implements LegacyBossBarHandle {
-  readonly bar: BossHealthBar;
-  private destroyed = false;
-
-  constructor(scene: Phaser.Scene, script: EnemyScript, name: string, private readonly onDestroy: (bar: ManagedBossBar) => void) {
-    const target = {
-      get active() { return !script.defeated; },
-      get dead() { return script.defeated; },
-      get hp() { return script.hp; },
-      get maxHp() { return script.maxHealth; },
-    };
-    this.bar = new BossHealthBar(scene, target, name);
-  }
-
-  update(): void { if (!this.destroyed) this.bar.update(); }
-  defeat(): void { if (!this.destroyed) this.bar.defeat(); this.destroyed = true; this.onDestroy(this); }
-  destroy(): void { if (!this.destroyed) this.bar.destroy(); this.destroyed = true; this.onDestroy(this); }
-}
-
 export class UniversalSceneWorldController implements InteractionProvider {
   readonly runtime: PhaserUniversalSceneRuntime;
   private readonly activations = new AttackActivation();
   private readonly damageRouter = new DamageRouter(this.activations, () => this.simulationTimeMs);
   private readonly chestUi?: LegacyChestUiBridge;
-  private readonly bossUi: LegacyBossUiBridge;
+  private readonly bossHealthSurface: BossHealthSurfacePort;
   private readonly inputRouter: InputRouter;
   private readonly uiPresentation: HtmlControlPresentationAdapter;
   private readonly hudSurface: HudSurfacePort;
   private readonly weaponHotbarSurface: WeaponHotbarSurfacePort;
   private readonly abilityBarSurface: AbilityBarSurfacePort;
+  private readonly playerHealthSurface: PlayerHealthSurfacePort;
   private readonly camps = new Map<string, ManagedCamp>();
   private readonly bosses = new Map<string, ManagedBoss>();
   private readonly ordinaryEnemies = new Map<number, ManagedOrdinaryEnemy>();
@@ -250,7 +233,6 @@ export class UniversalSceneWorldController implements InteractionProvider {
   private playerVisual?: Sprite2DNode;
   private playerPickupArea?: Area2DNode;
   private readonly chests = new Map<string, ChestScript>();
-  private readonly bossBars = new Set<ManagedBossBar>();
   private readonly unregisterInteraction: () => void;
   private nextBossSequence = 1;
   private nextEnemySequence = 1;
@@ -266,10 +248,22 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.hudSurface = new HudSurfacePort();
     this.weaponHotbarSurface = new WeaponHotbarSurfacePort(options.onEquipWeaponSlot);
     this.abilityBarSurface = new AbilityBarSurfacePort(options.getAbilitySystem, options.canUseAbilities, options.onActivateAbility);
+    this.playerHealthSurface = new PlayerHealthSurfacePort(options.scene, options.getPlayer);
+    this.bossHealthSurface = new BossHealthSurfacePort((campId, bossId) => {
+      const boss = this.bosses.get(campId);
+      if (!boss) return undefined;
+      return {
+        name: getBossDefinition(bossId).displayName,
+        hp: () => boss.script.hp,
+        maxHp: () => boss.script.maxHealth,
+      };
+    });
     const ports = new Map<string, UiSurfacePort>([
       ['hud', this.hudSurface],
       ['weapon-hotbar', this.weaponHotbarSurface],
       ['ability-bar', this.abilityBarSurface],
+      ['health-bar', this.playerHealthSurface],
+      ['boss-health-bar', this.bossHealthSurface],
     ]);
     const uiSurfaces: UiSurfacePort = {
       snapshot: (surfaceId) => ports.get(surfaceId)?.snapshot(surfaceId) ?? {},
@@ -290,10 +284,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
       open: (model: Parameters<LegacyChestUiBridge['open']>[0]) => this.chestUi?.open(model),
       close: (instanceId: string) => this.chestUi?.close(instanceId),
     };
-    const bossStatus = {
-      showBoss: (campId: string, bossId: string) => this.bossUi.showBoss(campId, bossId),
-      hideBoss: (campId: string, defeated: boolean) => this.bossUi.hideBoss(campId, defeated),
-    };
+    const bossStatus = this.bossHealthSurface;
     const scripts = createGameScriptRegistry({
       [DAMAGE_ROUTER_SERVICE]: this.damageRouter,
       [ATTACK_ACTIVATION_SERVICE]: this.activations,
@@ -402,7 +393,6 @@ export class UniversalSceneWorldController implements InteractionProvider {
           render: (deltaSeconds) => {
             options.updateLegacyRender(deltaSeconds * 1000);
             for (const effect of this.effects.values()) effect.attachment?.update();
-            for (const bar of this.bossBars) bar.update();
           },
         }),
       });
@@ -410,12 +400,16 @@ export class UniversalSceneWorldController implements InteractionProvider {
       this.runtime.mountScene(sceneId('ui.hud'), { runtimeNamespace: 'ui-hud' });
       this.runtime.mountScene(sceneId('ui.weapon-hotbar'), { runtimeNamespace: 'ui-weapon-hotbar' });
       this.runtime.mountScene(sceneId('ui.ability-bar'), { runtimeNamespace: 'ui-ability-bar' });
+      this.runtime.mountScene(sceneId('ui.health-bar'), { runtimeNamespace: 'ui-health-bar' });
+      this.runtime.mountScene(sceneId('ui.boss-health-bar'), { runtimeNamespace: 'ui-boss-health-bar' });
     } catch (error) {
       mountedRuntime?.shutdown();
       this.inputRouter.destroy();
       this.hudSurface.destroy();
       this.weaponHotbarSurface.destroy();
       this.abilityBarSurface.destroy();
+      this.playerHealthSurface.destroy();
+      this.bossHealthSurface.destroy();
       throw error;
     }
 
@@ -429,13 +423,13 @@ export class UniversalSceneWorldController implements InteractionProvider {
       onClosed: (instanceId) => this.chests.get(instanceId)?.close(),
     });
     this.chestUi = panelBridge = new LegacyChestUiBridge(panel);
-    this.bossUi = new LegacyBossUiBridge((campId, bossId) => this.createBossBar(campId, bossId));
     this.mountPlayer();
     this.mountAuthoredWorld();
     this.unregisterInteraction = options.interactions.register('managed-chests', this);
   }
 
   advanceFrame(deltaSeconds: number): number { return this.runtime.advanceFrame(deltaSeconds); }
+  flashPlayerHealthBar(): void { this.playerHealthSurface.flash(); }
   setPaused(paused: boolean): void {
     if (paused) this.playerScript?.clearInput();
     this.runtime.setPaused(paused);
@@ -628,8 +622,9 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.hudSurface.destroy();
     this.weaponHotbarSurface.destroy();
     this.abilityBarSurface.destroy();
+    this.playerHealthSurface.destroy();
+    this.bossHealthSurface.destroy();
     this.chestUi?.dispose();
-    this.bossUi.dispose();
     this.camps.clear();
     this.bosses.clear();
     this.ordinaryEnemies.clear();
@@ -647,7 +642,6 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.playerVisual = undefined;
     this.playerPickupArea = undefined;
     this.chests.clear();
-    this.bossBars.clear();
   }
 
   private mountAuthoredWorld(): void {
@@ -957,14 +951,6 @@ export class UniversalSceneWorldController implements InteractionProvider {
       if (enemy.script.runtimeNodeId === receiverNodeId) return ['enemy'];
     }
     return [];
-  }
-
-  private createBossBar(campId: string, bossId: string): LegacyBossBarHandle {
-    const boss = this.bosses.get(campId);
-    if (!boss) return { destroy() {} };
-    const bar = new ManagedBossBar(this.options.scene, boss.script, getBossDefinition(bossId).displayName, (entry) => this.bossBars.delete(entry));
-    this.bossBars.add(bar);
-    return bar;
   }
 
   private syncChestFrame(script: ChestScript): void {

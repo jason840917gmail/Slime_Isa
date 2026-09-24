@@ -20,11 +20,11 @@
         ],
         "offsetMin": [
           -274,
-          -110
+          -264
         ],
         "offsetMax": [
           274,
-          -38
+          -192
         ],
         "theme": {
           "resourceId": "ui.field-kit.theme"

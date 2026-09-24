@@ -101,6 +101,8 @@ type FixtureApi = {
   setProductionEquippedSlot(slotIndex: number): void;
   setProductionLevel(level: number): void;
   drainProductionEnergy(): void;
+  damageProductionPlayer(amount: number): number;
+  resetProductionBossFight(): void;
   attackWithProductionWeapon(): boolean;
   snapshot(): FixtureSnapshot;
   destroy(): void;
@@ -491,6 +493,17 @@ const api: FixtureApi = {
   drainProductionEnergy() {
     if (!game || mode !== 'baseline') throw new Error('Production energy is only available in baseline mode');
     gameState.useEnergy(gameState.energy);
+  },
+  damageProductionPlayer(amount) {
+    if (!game || mode !== 'baseline') throw new Error('Production health is only available in baseline mode');
+    return gameState.damage(amount, 'scene-browser-fixture');
+  },
+  resetProductionBossFight() {
+    if (!game || mode !== 'baseline') throw new Error('Production boss is only available in baseline mode');
+    const world = game.scene.getScene('world') as unknown as {
+      readonly universalWorld?: { resetActiveFights(): void };
+    };
+    world.universalWorld?.resetActiveFights();
   },
   attackWithProductionWeapon() {
     if (!game || mode !== 'baseline') throw new Error('Production weapons are only available in baseline mode');

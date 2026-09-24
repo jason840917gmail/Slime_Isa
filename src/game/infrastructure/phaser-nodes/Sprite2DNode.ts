@@ -151,7 +151,7 @@ export class Sprite2DNode extends Node2D implements PresentationParticipant, Wor
 
   syncPresentation(_alpha: number): void {
     const sprite = this.sprite;
-    if (!sprite || !sprite.scene) return;
+    if (!sprite || sprite.active === false) return;
     const transform = this.get_global_transform();
     const offsetX = this.visualOffset.x * transform.scale.x;
     const offsetY = this.visualOffset.y * transform.scale.y;
