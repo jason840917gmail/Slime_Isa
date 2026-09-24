@@ -104,6 +104,7 @@ import { CraftingSurfacePort } from '../ui/CraftingSurfacePort';
 import { QuestJournalSurfacePort } from '../ui/QuestJournalSurfacePort';
 import { QuestOfferSurfacePort } from '../ui/QuestOfferSurfacePort';
 import { WorldMapSurfacePort } from '../ui/WorldMapSurfacePort';
+import { LevelUpSurfacePort } from '../ui/LevelUpSurfacePort';
 import { craftingService } from '../../crafting/Crafting';
 import type { CraftSuccess } from '../../crafting/CraftingService';
 import { floatingText } from '../../ui/FloatingText';
@@ -134,6 +135,7 @@ export interface UniversalSceneWorldControllerOptions {
   readonly setJournalPaused: (paused: boolean) => void;
   readonly setQuestOfferPaused: (paused: boolean) => void;
   readonly setWorldMapPaused: (paused: boolean) => void;
+  readonly setLevelUpPaused: (paused: boolean) => void;
   readonly getCurrentAreaId: () => string;
   readonly onCrafted: (result: CraftSuccess) => void;
   readonly onUseInventoryItem: (itemId: string) => void;
@@ -246,6 +248,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
   readonly questJournalSurface: QuestJournalSurfacePort;
   readonly questOfferSurface: QuestOfferSurfacePort;
   readonly worldMapSurface: WorldMapSurfacePort;
+  readonly levelUpSurface: LevelUpSurfacePort;
   private readonly camps = new Map<string, ManagedCamp>();
   private readonly bosses = new Map<string, ManagedBoss>();
   private readonly ordinaryEnemies = new Map<number, ManagedOrdinaryEnemy>();
@@ -292,6 +295,9 @@ export class UniversalSceneWorldController implements InteractionProvider {
       modalStack: options.modalStack, uiRoot: options.uiRoot,
       getCurrentArea: options.getCurrentAreaId, onPausedChange: options.setWorldMapPaused,
     });
+    this.levelUpSurface = new LevelUpSurfacePort({
+      modalStack: options.modalStack, uiRoot: options.uiRoot, onPausedChange: options.setLevelUpPaused,
+    });
     this.craftingSurface = new CraftingSurfacePort({
       modalStack: options.modalStack, uiRoot: options.uiRoot, service: craftingService,
       onPausedChange: options.setCraftingPaused, onCrafted: options.onCrafted,
@@ -329,6 +335,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
       ['quest-journal', this.questJournalSurface],
       ['quest-offer-modal', this.questOfferSurface],
       ['world-map-ui', this.worldMapSurface],
+      ['level-up-modal', this.levelUpSurface],
       ['boss-health-bar', this.bossHealthSurface],
       ['area-title-card', this.areaTitleSurface],
     ]);
@@ -474,6 +481,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
       this.runtime.mountScene(sceneId('ui.quest-journal'), { runtimeNamespace: 'ui-quest-journal' });
       this.runtime.mountScene(sceneId('ui.quest-offer-modal'), { runtimeNamespace: 'ui-quest-offer-modal' });
       this.runtime.mountScene(sceneId('ui.world-map-ui'), { runtimeNamespace: 'ui-world-map-ui' });
+      this.runtime.mountScene(sceneId('ui.level-up-modal'), { runtimeNamespace: 'ui-level-up-modal' });
     } catch (error) {
       mountedRuntime?.shutdown();
       this.inputRouter.destroy();
@@ -490,6 +498,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
       this.questJournalSurface.destroy();
       this.questOfferSurface.destroy();
       this.worldMapSurface.destroy();
+      this.levelUpSurface.destroy();
       throw error;
     }
 
@@ -705,6 +714,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.questJournalSurface.destroy();
     this.questOfferSurface.destroy();
     this.worldMapSurface.destroy();
+    this.levelUpSurface.destroy();
     this.camps.clear();
     this.bosses.clear();
     this.ordinaryEnemies.clear();

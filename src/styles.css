@@ -3436,3 +3436,13 @@ body {
 @media (max-width: 520px) {
   .game-ui--world-map-ui .scene-control--label { font-size: 10px !important; }
 }
+
+
+.game-ui--level-up-modal { border-radius: 14px; box-shadow: 0 18px 52px #080e1ad9; }
+.game-ui--level-up-modal .scene-control--itemlist { overflow: auto; align-content: start; }
+.game-ui--level-up-modal .scene-control--itemlist > button { min-height: 150px; border-radius: 9px; text-align: center; padding: 12px; font-size: 12px; white-space: pre-line; line-height: 1.5; }
+.game-ui--level-up-modal .scene-control--button { border-radius: 6px; }
+@media (max-width: 520px) {
+  .game-ui--level-up-modal .scene-control--itemlist { grid-template-columns: 1fr !important; }
+  .game-ui--level-up-modal .scene-control--itemlist > button { min-height: 100px; }
+}

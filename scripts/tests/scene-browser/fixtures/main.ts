@@ -110,6 +110,9 @@ type FixtureApi = {
   openProductionQuestTurnInForUi(): void;
   productionQuestTurnInClosedCount(): number;
   discoverProductionArea(areaId: string): void;
+  triggerProductionLevelUp(): number;
+  productionSkillPoints(): number;
+  productionPerkRank(perkId: string): number;
   setProductionEquippedSlot(slotIndex: number): void;
   setProductionLevel(level: number): void;
   drainProductionEnergy(): void;
@@ -543,6 +546,15 @@ const api: FixtureApi = {
     if (!game || mode !== 'baseline') throw new Error('Production world map is only available in baseline mode');
     worldProgress.discoverArea(areaId);
   },
+  triggerProductionLevelUp() {
+    if (!game || mode !== 'baseline') throw new Error('Production leveling is only available in baseline mode');
+    const needed = gameState.xpToNextLevel;
+    if (needed === null) throw new Error('Maximum production level reached');
+    gameState.addXp(Math.max(1, needed - gameState.currentXp));
+    return gameState.level;
+  },
+  productionSkillPoints() { return gameState.skillPoints; },
+  productionPerkRank(perkId) { return gameState.perkRank(perkId); },
   setProductionEquippedSlot(slotIndex) {
     if (!game || mode !== 'baseline') throw new Error('Production weapons are only available in baseline mode');
     gameState.equipWeapon(playerWeaponLoadout.weaponAt(slotIndex));

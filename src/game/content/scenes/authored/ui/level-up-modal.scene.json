@@ -53,14 +53,18 @@
           0
         ],
         "offsetMax": [
-          0,
-          54
+          -16,
+          58
         ],
         "text": "Level up",
         "tone": "warning",
         "fontSize": 26,
         "fontWeight": 700,
-        "textAlign": "center"
+        "textAlign": "center",
+        "offsetMin": [
+          16,
+          12
+        ]
       }
     },
     {
@@ -79,12 +83,12 @@
           1
         ],
         "offsetMin": [
-          0,
-          70
+          18,
+          68
         ],
         "offsetMax": [
-          0,
-          -56
+          -18,
+          -60
         ],
         "columns": 3,
         "gap": 12,
@@ -107,12 +111,12 @@
           1
         ],
         "offsetMin": [
-          -80,
-          -44
+          -112,
+          -50
         ],
         "offsetMax": [
-          0,
-          0
+          -18,
+          -10
         ],
         "text": "Later",
         "tone": "muted"
@@ -143,6 +147,16 @@
             "nodePath": "..",
             "property": "open",
             "model": "open"
+          },
+          {
+            "nodePath": "..",
+            "property": "offsetMin",
+            "model": "offsetMin"
+          },
+          {
+            "nodePath": "..",
+            "property": "offsetMax",
+            "model": "offsetMax"
           }
         ],
         "actions": {

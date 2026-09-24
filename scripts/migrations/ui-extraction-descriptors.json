@@ -1709,14 +1709,147 @@
       "sourceHash": "0c6279cdf0df32305c9382cf920818ac9b682e6503b03083581f172c880acc06",
       "sceneId": "ui.level-up-modal",
       "modal": true,
-      "layoutValues": { "anchorMin": [0.5, 0.5], "anchorMax": [0.5, 0.5], "offsetMin": [-360, -250], "offsetMax": [360, 250] },
-      "themeValues": { "columns": 3, "gap": 12, "surface": "level-up" },
-      "bindings": [{ "nodePath": "../Title", "property": "text", "model": "title" }, { "nodePath": "../Choices", "property": "items", "model": "choices" }, { "nodePath": "..", "property": "open", "model": "open" }],
-      "actions": { "on_item_selected": "choose-upgrade", "on_close_action": "close" },
+      "layoutValues": {
+        "anchorMin": [
+          0.5,
+          0.5
+        ],
+        "anchorMax": [
+          0.5,
+          0.5
+        ],
+        "offsetMin": [
+          -360,
+          -250
+        ],
+        "offsetMax": [
+          360,
+          250
+        ]
+      },
+      "themeValues": {
+        "columns": 3,
+        "gap": 12,
+        "surface": "level-up",
+        "styleClass": "game-ui game-ui--level-up-modal",
+        "ariaLabel": "level up choices",
+        "zIndex": 100
+      },
+      "bindings": [
+        {
+          "nodePath": "../Title",
+          "property": "text",
+          "model": "title"
+        },
+        {
+          "nodePath": "../Choices",
+          "property": "items",
+          "model": "choices"
+        },
+        {
+          "nodePath": "..",
+          "property": "open",
+          "model": "open"
+        },
+        {
+          "nodePath": "..",
+          "property": "offsetMin",
+          "model": "offsetMin"
+        },
+        {
+          "nodePath": "..",
+          "property": "offsetMax",
+          "model": "offsetMax"
+        }
+      ],
+      "actions": {
+        "on_item_selected": "choose-upgrade",
+        "on_close_action": "close"
+      },
       "controls": [
-        { "id": "title", "name": "Title", "type": "Label", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 0], "offsetMax": [0, 54], "text": "Level up", "tone": "warning", "fontSize": 26, "fontWeight": 700, "textAlign": "center" } },
-        { "id": "choices", "name": "Choices", "type": "ItemList", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 1], "offsetMin": [0, 70], "offsetMax": [0, -56], "columns": 3, "gap": 12, "ariaLabel": "Upgrade choices" }, "handler": "on_item_selected", "signal": "item_selected" },
-        { "id": "close", "name": "Close", "type": "Button", "properties": { "anchorMin": [1, 1], "anchorMax": [1, 1], "offsetMin": [-80, -44], "offsetMax": [0, 0], "text": "Later", "tone": "muted" }, "handler": "on_close_action", "signal": "pressed" }
+        {
+          "id": "title",
+          "name": "Title",
+          "type": "Label",
+          "properties": {
+            "anchorMin": [
+              0,
+              0
+            ],
+            "anchorMax": [
+              1,
+              0
+            ],
+            "offsetMax": [
+              -16,
+              58
+            ],
+            "text": "Level up",
+            "tone": "warning",
+            "fontSize": 26,
+            "fontWeight": 700,
+            "textAlign": "center",
+            "offsetMin": [
+              16,
+              12
+            ]
+          }
+        },
+        {
+          "id": "choices",
+          "name": "Choices",
+          "type": "ItemList",
+          "properties": {
+            "anchorMin": [
+              0,
+              0
+            ],
+            "anchorMax": [
+              1,
+              1
+            ],
+            "offsetMin": [
+              18,
+              68
+            ],
+            "offsetMax": [
+              -18,
+              -60
+            ],
+            "columns": 3,
+            "gap": 12,
+            "ariaLabel": "Upgrade choices"
+          },
+          "handler": "on_item_selected",
+          "signal": "item_selected"
+        },
+        {
+          "id": "close",
+          "name": "Close",
+          "type": "Button",
+          "properties": {
+            "anchorMin": [
+              1,
+              1
+            ],
+            "anchorMax": [
+              1,
+              1
+            ],
+            "offsetMin": [
+              -112,
+              -50
+            ],
+            "offsetMax": [
+              -18,
+              -10
+            ],
+            "text": "Later",
+            "tone": "muted"
+          },
+          "handler": "on_close_action",
+          "signal": "pressed"
+        }
       ]
     },
     {
