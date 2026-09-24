@@ -1858,11 +1858,110 @@
       "sourceHash": "947ecc970df4f671fd31388201a181564eeea6a9cd00d30540f6bffc7a7abc1c",
       "sceneId": "ui.minimap",
       "modal": false,
-      "layoutValues": { "anchorMin": [0, 1], "anchorMax": [0, 1], "offsetMin": [16, -196], "offsetMax": [196, -16] },
-      "themeValues": { "size": 180, "tintAlpha": 0.16, "surface": "map" },
-      "bindings": [{ "nodePath": "../MapSummary", "property": "text", "model": "summary" }],
+      "layoutValues": {
+        "anchorMin": [
+          0,
+          1
+        ],
+        "anchorMax": [
+          0,
+          1
+        ],
+        "offsetMin": [
+          16,
+          -196
+        ],
+        "offsetMax": [
+          196,
+          -16
+        ]
+      },
+      "themeValues": {
+        "size": 180,
+        "tintAlpha": 0.16,
+        "surface": "map",
+        "styleClass": "game-ui game-ui--minimap",
+        "ariaLabel": "minimap",
+        "zIndex": 20
+      },
+      "bindings": [
+        {
+          "nodePath": "..",
+          "property": "offsetMin",
+          "model": "offsetMin"
+        },
+        {
+          "nodePath": "..",
+          "property": "offsetMax",
+          "model": "offsetMax"
+        }
+      ],
       "actions": {},
-      "controls": [{ "id": "map-summary", "name": "MapSummary", "type": "Label", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 1], "text": "Local map", "tone": "info", "textAlign": "center", "ariaLabel": "Local map" } }]
+      "controls": [
+        {
+          "id": "frame",
+          "name": "Frame",
+          "type": "TextureRect",
+          "properties": {
+            "anchorMin": [
+              0,
+              0
+            ],
+            "anchorMax": [
+              1,
+              1
+            ],
+            "offsetMin": [
+              -6,
+              -6
+            ],
+            "offsetMax": [
+              6,
+              6
+            ],
+            "frame": 0,
+            "fit": "fill",
+            "alt": "",
+            "styleClass": "scene-minimap-frame",
+            "texture": {
+              "resourceId": "minimap.frame"
+            }
+          }
+        },
+        {
+          "id": "map-canvas",
+          "name": "MapCanvas",
+          "type": "Container",
+          "properties": {
+            "anchorMin": [
+              0,
+              0
+            ],
+            "anchorMax": [
+              1,
+              1
+            ],
+            "offsetMin": [
+              0,
+              0
+            ],
+            "offsetMax": [
+              0,
+              0
+            ],
+            "styleClass": "scene-minimap-canvas-host",
+            "ariaLabel": "Local map"
+          }
+        }
+      ],
+      "resources": [
+        {
+          "version": 1,
+          "resourceId": "minimap.frame",
+          "kind": "texture",
+          "assetId": "ui.frame.organic-minimap"
+        }
+      ]
     },
     {
       "id": "quest-journal",

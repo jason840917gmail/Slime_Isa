@@ -143,6 +143,7 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
           sceneId('ui.quest-offer-modal'),
           sceneId('ui.world-map-ui'),
           sceneId('ui.level-up-modal'),
+          sceneId('ui.minimap'),
         ],
         hasAsset: (assetId) => Object.hasOwn(ASSET_MANIFEST.assets, assetId),
       })

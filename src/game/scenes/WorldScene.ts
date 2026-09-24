@@ -4,7 +4,6 @@ import {
   isTileCollidable,
   type WorldTileId,
 } from '../content/terrain/TileCatalog';
-import { Minimap } from '../Minimap';
 import { gameState } from '../core/GameState';
 import { gameEvents } from '../core/EventBus';
 import { saveSystem } from '../core/SaveSystem';
@@ -102,7 +101,6 @@ export class WorldScene extends Phaser.Scene {
   private paused = false;
   private pauseSources = new Set<string>();
   private terrainGrid: WorldTileId[][] = [];
-  private minimap!: Minimap;
   private collectibleTargets!: Phaser.Physics.Arcade.StaticGroup;
   private resourceTargets!: Phaser.GameObjects.Group;
   private resourceNodes?: ResourceNodeController;
@@ -227,7 +225,6 @@ export class WorldScene extends Phaser.Scene {
     this.createDebugRenderer();
 
     // Phase 2: UI systems
-    this.createMinimap();
     this.createCollectibleReactions();
 
     // Phase 1 systems: health presentation, abilities, level-up modal, inventory UI
@@ -311,7 +308,6 @@ export class WorldScene extends Phaser.Scene {
     this.terrainTransitionLayer = undefined;
     this.disposables.dispose();
     this.disposables = new DisposableBag();
-    this.minimap?.destroy();
     this.abilitySystem?.destroy();
     this.statusEffects?.destroy();
     this.debugRenderer?.destroy();
@@ -426,7 +422,7 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private updateLegacyFixed(delta: number): void {
-    this.minimap.update(this.cameras.main, this.player);
+    this.universalWorld?.minimapSurface.update(this.cameras.main, this.player);
 
     this.interactionRouter?.update();
     this.statusEffects?.update(this.time.now, delta);
@@ -729,10 +725,6 @@ export class WorldScene extends Phaser.Scene {
         this.collectibles?.collect(collectible as Phaser.GameObjects.GameObject);
       });
     }
-  }
-
-  private createMinimap(): void {
-    this.minimap = new Minimap(this, this.worldDimensions);
   }
 
   private createCamera(): void {
@@ -1319,6 +1311,7 @@ export class WorldScene extends Phaser.Scene {
       setWorldMapPaused: (paused) => this.setSimulationPaused('worldmap', paused),
       setLevelUpPaused: (paused) => this.setSimulationPaused('levelup', paused),
       getCurrentAreaId: () => this.currentArea.id,
+      worldDimensions: this.worldDimensions,
       onCrafted: ({ recipe }) => {
         const craftedWeaponId = itemRegistry.get(recipe.output.itemId)?.equipment?.weaponId;
         if (craftedWeaponId) {
