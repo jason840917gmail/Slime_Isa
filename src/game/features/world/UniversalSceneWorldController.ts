@@ -5,6 +5,7 @@ import { getCharacterPackage } from '../../content/characters/CharacterCatalog';
 import { sceneId, type SceneId } from '../../content/scenes/identifiers';
 import { getBossDefinition } from '../../content/bosses/BossCatalog';
 import { ASSET_MANIFEST, type AssetId } from '../../infrastructure/assets/manifest';
+import { GlobalAudioServices } from '../../infrastructure/audio/GlobalAudioServices';
 import { CharacterBody2DNode } from '../../infrastructure/phaser-nodes/CharacterBody2DNode';
 import { Area2DNode } from '../../infrastructure/phaser-nodes/Area2DNode';
 import { Sprite2DNode } from '../../infrastructure/phaser-nodes/Sprite2DNode';
@@ -233,6 +234,8 @@ function isPassiveObjectScene(sceneIdValue: string): boolean {
 
 export class UniversalSceneWorldController implements InteractionProvider {
   readonly runtime: PhaserUniversalSceneRuntime;
+  readonly audioComposition: MountedScene;
+  readonly audioServices: GlobalAudioServices;
   private readonly activations = new AttackActivation();
   private readonly damageRouter = new DamageRouter(this.activations, () => this.simulationTimeMs);
   readonly chestUi: ChestInventorySurfacePort;
@@ -281,6 +284,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
 
   constructor(private readonly options: UniversalSceneWorldControllerOptions) {
     let inputSink: InputEventSink | undefined;
+    this.audioServices = new GlobalAudioServices(options.scene.sound);
     this.hudSurface = new HudSurfacePort();
     this.weaponHotbarSurface = new WeaponHotbarSurfacePort(options.onEquipWeaponSlot);
     this.abilityBarSurface = new AbilityBarSurfacePort(options.getAbilitySystem, options.canUseAbilities, options.onActivateAbility);
@@ -449,6 +453,8 @@ export class UniversalSceneWorldController implements InteractionProvider {
         nodeServices: {
           inputRouter: this.inputRouter,
           controlPresentation: this.uiPresentation,
+          audioPreferences: this.audioServices,
+          audioUnlock: this.audioServices,
         },
         resolveAssetKey: (assetId) => ASSET_MANIFEST.assets[assetId as AssetId].runtime.textureKey,
         diagnosticSink: (diagnostic) => {
@@ -475,6 +481,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
         }),
       });
       inputSink = this.runtime;
+      this.audioComposition = this.runtime.mountScene(sceneId('audio.global'), { runtimeNamespace: 'audio-global' });
       this.runtime.mountScene(sceneId('ui.hud'), { runtimeNamespace: 'ui-hud' });
       this.runtime.mountScene(sceneId('ui.weapon-hotbar'), { runtimeNamespace: 'ui-weapon-hotbar' });
       this.runtime.mountScene(sceneId('ui.ability-bar'), { runtimeNamespace: 'ui-ability-bar' });
@@ -491,6 +498,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
       this.runtime.mountScene(sceneId('ui.minimap'), { runtimeNamespace: 'ui-minimap' });
     } catch (error) {
       mountedRuntime?.shutdown();
+      this.audioServices.destroy();
       this.inputRouter.destroy();
       this.hudSurface.destroy();
       this.weaponHotbarSurface.destroy();
@@ -709,6 +717,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.unregisterFloatingText();
     this.inputRouter.destroy();
     this.runtime.shutdown();
+    this.audioServices.destroy();
     this.hudSurface.destroy();
     this.weaponHotbarSurface.destroy();
     this.abilityBarSurface.destroy();

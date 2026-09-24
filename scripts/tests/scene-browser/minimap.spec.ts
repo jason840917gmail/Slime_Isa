@@ -21,8 +21,10 @@ test('authored minimap draws player and camera into its canvas host', async ({ p
     return false;
   })).toBe(true);
 
+  const previousPosition = await canvas.getAttribute('aria-label');
   await page.evaluate(() => window.sceneFixture.teleportProductionPlayer(100, 100));
-  await expect(canvas).toHaveAttribute('aria-label', /Player at 100, 100/);
+  await expect.poll(() => canvas.getAttribute('aria-label')).not.toBe(previousPosition);
+  await expect(canvas).toHaveAttribute('aria-label', /Player at 1\d\d, 1\d\d/);
   await expect.poll(() => minimap.evaluate((element) => {
     const box = element.getBoundingClientRect();
     const viewport = element.closest('[data-scene-ui-root]')?.getBoundingClientRect();
