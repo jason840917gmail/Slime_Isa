@@ -136,6 +136,7 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
           sceneId('ui.boss-health-bar'),
           sceneId('ui.area-title-card'),
           sceneId('ui.floating-text'),
+          sceneId('ui.inventory-ui'),
         ],
         hasAsset: (assetId) => Object.hasOwn(ASSET_MANIFEST.assets, assetId),
       })

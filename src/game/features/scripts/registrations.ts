@@ -464,6 +464,14 @@ export const UI_SURFACE_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
     { id: 'on_slam_action' },
     { id: 'on_lash_action' },
     { id: 'on_teleport_action' },
+    { id: 'on_assign_slot', payload: 'UiListSelection' },
+    { id: 'on_quantity_minus_10' },
+    { id: 'on_quantity_minus_1' },
+    { id: 'on_quantity_plus_1' },
+    { id: 'on_quantity_plus_10' },
+    { id: 'on_drop_all' },
+    { id: 'on_remove' },
+    { id: 'on_remove_all' },
   ],
 };
 

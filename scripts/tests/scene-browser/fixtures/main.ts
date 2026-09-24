@@ -23,6 +23,7 @@ import type { PhysicsContact } from '../../../../src/game/runtime/scene/physics/
 import { SceneTree } from '../../../../src/game/runtime/scene/SceneTree';
 import { getEnemyConfig } from '../../../../src/game/enemies/library/EnemyTypes';
 import { playerWeaponLoadout } from '../../../../src/game/systems/WeaponLoadout';
+import { playerInventory } from '../../../../src/game/systems/Inventory';
 import { gameState } from '../../../../src/game/core/GameState';
 import { floatingText, type FloatingTextColor } from '../../../../src/game/ui/FloatingText';
 
@@ -99,6 +100,8 @@ type FixtureApi = {
   spawnManagedEffect(effectId: string, direction: 'right' | 'left' | 'up' | 'down', x: number, y: number): boolean;
   equipProductionWeapon(weaponId: string): boolean;
   grantProductionWeapons(): void;
+  grantProductionItem(itemId: string, quantity: number): void;
+  productionItemCount(itemId: string): number;
   setProductionEquippedSlot(slotIndex: number): void;
   setProductionLevel(level: number): void;
   drainProductionEnergy(): void;
@@ -484,6 +487,14 @@ const api: FixtureApi = {
   grantProductionWeapons() {
     if (!game || mode !== 'baseline') throw new Error('Production weapons are only available in baseline mode');
     playerWeaponLoadout.grantDevelopmentArsenal();
+  },
+  grantProductionItem(itemId, quantity) {
+    if (!game || mode !== 'baseline') throw new Error('Production inventory is only available in baseline mode');
+    playerInventory.add(itemId, quantity);
+  },
+  productionItemCount(itemId) {
+    if (!game || mode !== 'baseline') throw new Error('Production inventory is only available in baseline mode');
+    return playerInventory.count(itemId);
   },
   setProductionEquippedSlot(slotIndex) {
     if (!game || mode !== 'baseline') throw new Error('Production weapons are only available in baseline mode');

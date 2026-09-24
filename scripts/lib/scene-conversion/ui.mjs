@@ -18,14 +18,13 @@ function sceneDocument(descriptor, themeResourceId) {
     zIndex: descriptor.modal ? 90 : 20,
     ...(descriptor.modal ? { open: false, focused: false, inputPriority: 2000 } : { visible: true }),
   };
-  const controls = descriptor.controls.map((control, index) => ({
-    id: control.id,
-    name: control.name,
-    type: control.type,
-    parentId: 'surface',
-    order: index,
-    properties: control.properties,
-  }));
+  const orderByParent = new Map();
+  const controls = descriptor.controls.map((control) => {
+    const parentId = control.parentId ?? 'surface';
+    const order = orderByParent.get(parentId) ?? 0;
+    orderByParent.set(parentId, order + 1);
+    return { id: control.id, name: control.name, type: control.type, parentId, order, properties: control.properties };
+  });
   const connections = [
     ...(descriptor.modal ? [{
       source: { nodeId: 'surface' }, signal: 'close_requested', target: { nodeId: 'script' }, handler: 'on_close_action',
@@ -45,7 +44,7 @@ function sceneDocument(descriptor, themeResourceId) {
       { id: 'surface', name: descriptor.id, type: rootType, parentId: null, order: 0, properties: rootProperties },
       ...controls,
       {
-        id: 'script', name: 'UiSurfaceScript', type: 'ScriptNode', scriptId: 'game.ui-surface', parentId: 'surface', order: controls.length,
+        id: 'script', name: 'UiSurfaceScript', type: 'ScriptNode', scriptId: 'game.ui-surface', parentId: 'surface', order: orderByParent.get('surface') ?? 0,
         properties: { surfaceId: descriptor.id, modal: descriptor.modal, bindings: descriptor.bindings, actions: descriptor.actions },
       },
     ],
