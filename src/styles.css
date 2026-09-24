@@ -3428,3 +3428,11 @@ body {
 }
 .game-ui--quest-journal .scene-control--button,
 .game-ui--quest-offer-modal .scene-control--button { border-radius: 6px; padding: 4px; }
+
+
+.game-ui--world-map-ui { border-radius: 12px; box-shadow: 0 18px 48px #080e1abf; }
+.game-ui--world-map-ui .scene-control--label { white-space: pre-line; line-height: 1.35; justify-content: center; }
+.game-ui--world-map-ui .scene-control--button { border-radius: 6px; }
+@media (max-width: 520px) {
+  .game-ui--world-map-ui .scene-control--label { font-size: 10px !important; }
+}

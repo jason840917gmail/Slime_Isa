@@ -24,7 +24,6 @@ import { LevelUpModal } from '../ui/LevelUpModal';
 import { hitboxPool } from '../combat/Hitbox';
 import { AREAS, type AreaDef, type AreaId, type Direction } from '../world/Area';
 import { BIOMES } from '../world/Biome';
-import { WorldMapUI } from '../ui/WorldMapUI';
 import { questTracker } from '../quests/QuestTracker';
 import { reopenPendingLevelUpWhenIdle } from '../ui/LevelUpReopenPolicy';
 import { ModalStack } from '../ui/ModalStack';
@@ -117,7 +116,6 @@ export class WorldScene extends Phaser.Scene {
   private statusEffects?: StatusEffectManager;
   private levelUpModal?: LevelUpModal;
   private modalStack?: ModalStack;
-  private worldMapUI?: WorldMapUI;
   private interactionRouter?: InteractionRouter;
   private questNpcController?: QuestNpcController;
   private universalWorld?: UniversalSceneWorldController;
@@ -255,13 +253,7 @@ export class WorldScene extends Phaser.Scene {
       modalStack,
       onPausedChange: (p) => { this.setSimulationPaused('levelup', p); },
     });
-    this.worldMapUI = new WorldMapUI({
-      scene: this,
-      modalStack,
-      getCurrentArea: () => this.currentArea.id,
-      onPausedChange: (p) => { this.setSimulationPaused('worldmap', p); },
-    });
-    this.worldMapUI.discover(this.currentArea.id);
+    this.universalWorld?.worldMapSurface.discover(this.currentArea.id);
     this.questNotifications = new QuestNotificationPresenter({
       getPosition: () => ({ x: this.player.x, y: this.player.y }),
       show: (x, y, message, color, important) => floatingText.spawn(this, x, y, message, color, important),
@@ -335,7 +327,6 @@ export class WorldScene extends Phaser.Scene {
     this.renderingDiagnostics = undefined;
     this.cameraController = undefined;
     this.levelUpModal?.destroy();
-    this.worldMapUI?.destroy();
     this.questNotifications?.destroy();
     this.questNotifications = undefined;
     this.interactionRouter?.destroy();
@@ -368,7 +359,6 @@ export class WorldScene extends Phaser.Scene {
     hitboxPool.clearScene(this);
 
     this.combatController = undefined;
-    this.worldMapUI = undefined;
     this.pauseSources.clear();
     this.paused = false;
     this.actionLocked = false;
@@ -1200,18 +1190,13 @@ export class WorldScene extends Phaser.Scene {
       this.disposables.add(() => kb.off(eventName, equipHandler));
     });
 
-    kb.on('keydown-M', () => {
-      if (this.levelUpModal?.isOpen() || this.universalWorld?.inventorySurface.isOpen() || this.universalWorld?.questJournalSurface.isOpen() || this.universalWorld?.craftingSurface.isOpen()) return;
-      this.worldMapUI?.toggle();
-    });
-
     kb.on('keydown-U', () => {
-      if (this.levelUpModal?.isOpen() || this.universalWorld?.inventorySurface.isOpen() || this.worldMapUI?.isOpen() || this.universalWorld?.craftingSurface.isOpen()) return;
+      if (this.levelUpModal?.isOpen() || this.universalWorld?.inventorySurface.isOpen() || this.universalWorld?.worldMapSurface.isOpen() || this.universalWorld?.craftingSurface.isOpen()) return;
       this.universalWorld?.questJournalSurface.toggle();
     });
 
     kb.on('keydown-C', () => {
-      if (this.levelUpModal?.isOpen() || this.universalWorld?.inventorySurface.isOpen() || this.worldMapUI?.isOpen() || this.universalWorld?.questJournalSurface.isOpen()) return;
+      if (this.levelUpModal?.isOpen() || this.universalWorld?.inventorySurface.isOpen() || this.universalWorld?.worldMapSurface.isOpen() || this.universalWorld?.questJournalSurface.isOpen()) return;
       this.universalWorld?.craftingSurface.toggle();
     });
 
@@ -1347,6 +1332,8 @@ export class WorldScene extends Phaser.Scene {
       setCraftingPaused: (paused) => this.setSimulationPaused('crafting', paused),
       setJournalPaused: (paused) => this.setSimulationPaused('journal', paused),
       setQuestOfferPaused: (paused) => this.setSimulationPaused('quest-npc', paused),
+      setWorldMapPaused: (paused) => this.setSimulationPaused('worldmap', paused),
+      getCurrentAreaId: () => this.currentArea.id,
       onCrafted: ({ recipe }) => {
         const craftedWeaponId = itemRegistry.get(recipe.output.itemId)?.equipment?.weaponId;
         if (craftedWeaponId) {
