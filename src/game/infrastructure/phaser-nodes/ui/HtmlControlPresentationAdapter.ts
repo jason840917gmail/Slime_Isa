@@ -225,9 +225,13 @@ function synchronizeList(
       image.src = iconUrl;
       image.alt = '';
       image.setAttribute('aria-hidden', 'true');
+      const caption = document.createElement('span');
+      caption.className = 'scene-item-label';
+      caption.textContent = item.label;
       const shortcut = document.createElement('span');
+      shortcut.className = 'scene-item-shortcut';
       shortcut.textContent = icon?.shortcut ?? '';
-      option.replaceChildren(image, shortcut);
+      option.replaceChildren(image, ...(icon?.showLabel ? [caption] : []), shortcut);
       option.classList.add('scene-item--illustrated');
       option.setAttribute('aria-label', item.label.replace(/\s+/g, ' '));
       option.title = item.label.replace(/\s+/g, ' ');
@@ -246,12 +250,12 @@ function synchronizeList(
   });
 }
 
-function itemIcon(metadata: unknown): { readonly key: string; readonly frame: number; readonly shortcut?: string } | undefined {
+function itemIcon(metadata: unknown): { readonly key: string; readonly frame: number; readonly shortcut?: string; readonly showLabel: boolean } | undefined {
   if (!metadata || typeof metadata !== 'object' || Array.isArray(metadata)) return undefined;
   const candidate = metadata as Readonly<Record<string, unknown>>;
   if (typeof candidate.iconKey !== 'string' || typeof candidate.iconFrame !== 'number'
     || !Number.isInteger(candidate.iconFrame) || candidate.iconFrame < 0) return undefined;
-  return { key: candidate.iconKey, frame: candidate.iconFrame,
+  return { key: candidate.iconKey, frame: candidate.iconFrame, showLabel: candidate.showLabel === true,
     ...(typeof candidate.shortcut === 'string' ? { shortcut: candidate.shortcut } : {}),
   };
 }

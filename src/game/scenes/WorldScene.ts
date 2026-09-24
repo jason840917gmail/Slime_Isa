@@ -27,8 +27,6 @@ import { BIOMES } from '../world/Biome';
 import { WorldMapUI } from '../ui/WorldMapUI';
 import { questTracker } from '../quests/QuestTracker';
 import { QuestJournal } from '../ui/QuestJournal';
-import { CraftingUI } from '../ui/CraftingUI';
-import { craftingService } from '../crafting/Crafting';
 import { reopenPendingLevelUpWhenIdle } from '../ui/LevelUpReopenPolicy';
 import { ModalStack } from '../ui/ModalStack';
 import { DisposableBag } from '../shared/lifecycle/Disposable';
@@ -122,7 +120,6 @@ export class WorldScene extends Phaser.Scene {
   private modalStack?: ModalStack;
   private worldMapUI?: WorldMapUI;
   private questJournal?: QuestJournal;
-  private craftingUI?: CraftingUI;
   private interactionRouter?: InteractionRouter;
   private questNpcController?: QuestNpcController;
   private universalWorld?: UniversalSceneWorldController;
@@ -278,22 +275,6 @@ export class WorldScene extends Phaser.Scene {
       show: (x, y, message, color, important) => floatingText.spawn(this, x, y, message, color, important),
     });
     questTracker.start();
-    this.craftingUI = new CraftingUI({
-      scene: this,
-      modalStack,
-      craftingService,
-      onPausedChange: (p) => { this.setSimulationPaused('crafting', p); },
-      onCrafted: ({ recipe }) => {
-        const craftedWeaponId = itemRegistry.get(recipe.output.itemId)?.equipment?.weaponId;
-        if (craftedWeaponId) {
-          const slotIndex = playerWeaponLoadout.ensureAssigned(craftedWeaponId);
-          if (slotIndex !== null && playerWeaponLoadout.equippedWeaponId() === null) {
-            this.equipWeaponSlot(slotIndex);
-          }
-        }
-        floatingText.spawn(this, this.player.x, this.player.y - 44, `Crafted: ${recipe.name}`, 'green', true);
-      },
-    });
     // Phase 2: combat system
     this.createCombatSystem();
 
@@ -366,7 +347,6 @@ export class WorldScene extends Phaser.Scene {
     this.questJournal?.destroy();
     this.questNotifications?.destroy();
     this.questNotifications = undefined;
-    this.craftingUI?.destroy();
     this.interactionRouter?.destroy();
     this.interactionRouter = undefined;
     this.combatController?.destroy();
@@ -399,7 +379,6 @@ export class WorldScene extends Phaser.Scene {
     this.combatController = undefined;
     this.worldMapUI = undefined;
     this.questJournal = undefined;
-    this.craftingUI = undefined;
     this.pauseSources.clear();
     this.paused = false;
     this.actionLocked = false;
@@ -884,7 +863,7 @@ export class WorldScene extends Phaser.Scene {
     _deltaX: number,
     deltaY: number,
   ): void {
-    if (this.craftingUI?.isOpen()) return;
+    if (this.universalWorld?.craftingSurface.isOpen()) return;
     this.cameraController?.stepZoom(deltaY);
   }
 
@@ -1232,18 +1211,18 @@ export class WorldScene extends Phaser.Scene {
     });
 
     kb.on('keydown-M', () => {
-      if (this.levelUpModal?.isOpen() || this.universalWorld?.inventorySurface.isOpen() || this.questJournal?.isOpen() || this.craftingUI?.isOpen()) return;
+      if (this.levelUpModal?.isOpen() || this.universalWorld?.inventorySurface.isOpen() || this.questJournal?.isOpen() || this.universalWorld?.craftingSurface.isOpen()) return;
       this.worldMapUI?.toggle();
     });
 
     kb.on('keydown-U', () => {
-      if (this.levelUpModal?.isOpen() || this.universalWorld?.inventorySurface.isOpen() || this.worldMapUI?.isOpen() || this.craftingUI?.isOpen()) return;
+      if (this.levelUpModal?.isOpen() || this.universalWorld?.inventorySurface.isOpen() || this.worldMapUI?.isOpen() || this.universalWorld?.craftingSurface.isOpen()) return;
       this.questJournal?.toggle();
     });
 
     kb.on('keydown-C', () => {
       if (this.levelUpModal?.isOpen() || this.universalWorld?.inventorySurface.isOpen() || this.worldMapUI?.isOpen() || this.questJournal?.isOpen()) return;
-      this.craftingUI?.toggle();
+      this.universalWorld?.craftingSurface.toggle();
     });
 
     const reopenLevelUp = (): void => {
@@ -1375,6 +1354,17 @@ export class WorldScene extends Phaser.Scene {
       modalStack: this.modalStack!,
       setChestPaused: (paused) => this.setSimulationPaused('managed-chest', paused),
       setInventoryPaused: (paused) => this.setSimulationPaused('inventory', paused),
+      setCraftingPaused: (paused) => this.setSimulationPaused('crafting', paused),
+      onCrafted: ({ recipe }) => {
+        const craftedWeaponId = itemRegistry.get(recipe.output.itemId)?.equipment?.weaponId;
+        if (craftedWeaponId) {
+          const slotIndex = playerWeaponLoadout.ensureAssigned(craftedWeaponId);
+          if (slotIndex !== null && playerWeaponLoadout.equippedWeaponId() === null) {
+            this.equipWeaponSlot(slotIndex);
+          }
+        }
+        floatingText.spawn(this, this.player.x, this.player.y - 44, `Crafted: ${recipe.name}`, 'green', true);
+      },
       onUseInventoryItem: (itemId) => this.useItem(itemId),
       onEquipInventoryWeapon: (weaponId) => this.equipWeaponFromInventory(weaponId),
       onAssignInventoryWeapon: (weaponId, slotIndex) => this.assignWeaponSlot(weaponId, slotIndex),

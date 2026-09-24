@@ -3369,3 +3369,38 @@ body {
   overflow: auto;
 }
 .game-ui--chest-inventory-panel .scene-control--button { border-radius: 5px; }
+
+.game-ui--crafting-ui {
+  border-radius: 12px;
+  box-shadow: 0 18px 48px #080e1abf;
+}
+.game-ui--crafting-ui .scene-control--itemlist {
+  overflow: auto;
+  align-content: start;
+}
+.game-ui--crafting-ui .scene-control--itemlist > button {
+  min-height: 60px;
+  border-radius: 6px;
+  text-align: left;
+  padding: 6px 10px;
+  white-space: pre-line;
+}
+.game-ui--crafting-ui .scene-item--illustrated {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.game-ui--crafting-ui .scene-item--illustrated img {
+  width: 36px;
+  height: 36px;
+  flex: none;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+.game-ui--crafting-ui .scene-item--illustrated span { white-space: pre-line; }
+.game-ui--crafting-ui .scene-control--label {
+  line-height: 1.45;
+  align-items: flex-start;
+  overflow: auto;
+}
+.game-ui--crafting-ui .scene-control--button { border-radius: 6px; padding: 3px; }
