@@ -25,6 +25,8 @@ import { getEnemyConfig } from '../../../../src/game/enemies/library/EnemyTypes'
 import { playerWeaponLoadout } from '../../../../src/game/systems/WeaponLoadout';
 import { playerInventory } from '../../../../src/game/systems/Inventory';
 import { gameState } from '../../../../src/game/core/GameState';
+import { questService } from '../../../../src/game/quests/QuestService';
+import type { QuestView } from '../../../../src/game/content/quests/types';
 import { floatingText, type FloatingTextColor } from '../../../../src/game/ui/FloatingText';
 
 type FixtureSnapshot = {
@@ -104,6 +106,8 @@ type FixtureApi = {
   productionItemCount(itemId: string): number;
   openProductionChestForUi(): { instanceId: string; itemId: string; count: number };
   productionChestRemaining(instanceId: string, itemId: string): number;
+  openProductionQuestTurnInForUi(): void;
+  productionQuestTurnInClosedCount(): number;
   setProductionEquippedSlot(slotIndex: number): void;
   setProductionLevel(level: number): void;
   drainProductionEnergy(): void;
@@ -135,6 +139,7 @@ let stepCount = 0;
 let destroyed = false;
 let loadedAtMs: number | undefined;
 let initializationError: string | undefined;
+let questTurnInClosedCount = 0;
 const navigationStart = performance.now();
 const consumeControl = (event: MouseEvent): void => {
   event.preventDefault();
@@ -522,6 +527,16 @@ const api: FixtureApi = {
     } };
     return world.universalWorld?.chests.get(instanceId)?.remaining[itemId] ?? 0;
   },
+  openProductionQuestTurnInForUi() {
+    if (!game || mode !== 'baseline') throw new Error('Production quests are only available in baseline mode');
+    const quest = questService.get('gather-building-materials');
+    const world = game.scene.getScene('world') as unknown as { readonly universalWorld?: {
+      readonly questOfferSurface: { openTurnIn(quest: QuestView, npcId: string, onFinished?: () => void, onClosed?: () => void): void };
+    } };
+    if (!quest || !world.universalWorld) throw new Error('Production quest offer surface is unavailable');
+    world.universalWorld.questOfferSurface.openTurnIn(quest, 'lili', undefined, () => { questTurnInClosedCount += 1; });
+  },
+  productionQuestTurnInClosedCount() { return questTurnInClosedCount; },
   setProductionEquippedSlot(slotIndex) {
     if (!game || mode !== 'baseline') throw new Error('Production weapons are only available in baseline mode');
     gameState.equipWeapon(playerWeaponLoadout.weaponAt(slotIndex));

@@ -26,7 +26,6 @@ import { AREAS, type AreaDef, type AreaId, type Direction } from '../world/Area'
 import { BIOMES } from '../world/Biome';
 import { WorldMapUI } from '../ui/WorldMapUI';
 import { questTracker } from '../quests/QuestTracker';
-import { QuestJournal } from '../ui/QuestJournal';
 import { reopenPendingLevelUpWhenIdle } from '../ui/LevelUpReopenPolicy';
 import { ModalStack } from '../ui/ModalStack';
 import { DisposableBag } from '../shared/lifecycle/Disposable';
@@ -119,7 +118,6 @@ export class WorldScene extends Phaser.Scene {
   private levelUpModal?: LevelUpModal;
   private modalStack?: ModalStack;
   private worldMapUI?: WorldMapUI;
-  private questJournal?: QuestJournal;
   private interactionRouter?: InteractionRouter;
   private questNpcController?: QuestNpcController;
   private universalWorld?: UniversalSceneWorldController;
@@ -200,8 +198,7 @@ export class WorldScene extends Phaser.Scene {
       scene: this,
       getPlayer: () => this.player,
       router: this.interactionRouter,
-      modalStack,
-      onPausedChange: (paused) => { this.setSimulationPaused('quest-npc', paused); },
+      getOfferSurface: () => this.universalWorld?.questOfferSurface,
       showMessage: (x, y, message, color = 'white', important = false) => floatingText.spawn(this, x, y, message, color, important),
     });
     this.buildWorld();
@@ -265,11 +262,6 @@ export class WorldScene extends Phaser.Scene {
       onPausedChange: (p) => { this.setSimulationPaused('worldmap', p); },
     });
     this.worldMapUI.discover(this.currentArea.id);
-    this.questJournal = new QuestJournal({
-      scene: this,
-      modalStack,
-      onPausedChange: (p) => { this.setSimulationPaused('journal', p); },
-    });
     this.questNotifications = new QuestNotificationPresenter({
       getPosition: () => ({ x: this.player.x, y: this.player.y }),
       show: (x, y, message, color, important) => floatingText.spawn(this, x, y, message, color, important),
@@ -344,7 +336,6 @@ export class WorldScene extends Phaser.Scene {
     this.cameraController = undefined;
     this.levelUpModal?.destroy();
     this.worldMapUI?.destroy();
-    this.questJournal?.destroy();
     this.questNotifications?.destroy();
     this.questNotifications = undefined;
     this.interactionRouter?.destroy();
@@ -378,7 +369,6 @@ export class WorldScene extends Phaser.Scene {
 
     this.combatController = undefined;
     this.worldMapUI = undefined;
-    this.questJournal = undefined;
     this.pauseSources.clear();
     this.paused = false;
     this.actionLocked = false;
@@ -1211,17 +1201,17 @@ export class WorldScene extends Phaser.Scene {
     });
 
     kb.on('keydown-M', () => {
-      if (this.levelUpModal?.isOpen() || this.universalWorld?.inventorySurface.isOpen() || this.questJournal?.isOpen() || this.universalWorld?.craftingSurface.isOpen()) return;
+      if (this.levelUpModal?.isOpen() || this.universalWorld?.inventorySurface.isOpen() || this.universalWorld?.questJournalSurface.isOpen() || this.universalWorld?.craftingSurface.isOpen()) return;
       this.worldMapUI?.toggle();
     });
 
     kb.on('keydown-U', () => {
       if (this.levelUpModal?.isOpen() || this.universalWorld?.inventorySurface.isOpen() || this.worldMapUI?.isOpen() || this.universalWorld?.craftingSurface.isOpen()) return;
-      this.questJournal?.toggle();
+      this.universalWorld?.questJournalSurface.toggle();
     });
 
     kb.on('keydown-C', () => {
-      if (this.levelUpModal?.isOpen() || this.universalWorld?.inventorySurface.isOpen() || this.worldMapUI?.isOpen() || this.questJournal?.isOpen()) return;
+      if (this.levelUpModal?.isOpen() || this.universalWorld?.inventorySurface.isOpen() || this.worldMapUI?.isOpen() || this.universalWorld?.questJournalSurface.isOpen()) return;
       this.universalWorld?.craftingSurface.toggle();
     });
 
@@ -1355,6 +1345,8 @@ export class WorldScene extends Phaser.Scene {
       setChestPaused: (paused) => this.setSimulationPaused('managed-chest', paused),
       setInventoryPaused: (paused) => this.setSimulationPaused('inventory', paused),
       setCraftingPaused: (paused) => this.setSimulationPaused('crafting', paused),
+      setJournalPaused: (paused) => this.setSimulationPaused('journal', paused),
+      setQuestOfferPaused: (paused) => this.setSimulationPaused('quest-npc', paused),
       onCrafted: ({ recipe }) => {
         const craftedWeaponId = itemRegistry.get(recipe.output.itemId)?.equipment?.weaponId;
         if (craftedWeaponId) {

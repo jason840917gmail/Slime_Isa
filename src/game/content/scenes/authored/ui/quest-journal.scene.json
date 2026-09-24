@@ -38,10 +38,28 @@
       }
     },
     {
-      "id": "title",
-      "name": "Title",
-      "type": "Label",
+      "id": "scroll",
+      "name": "Scroll",
+      "type": "ScrollContainer",
       "parentId": "surface",
+      "order": 0,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "scrollAxis": "vertical"
+      }
+    },
+    {
+      "id": "content",
+      "name": "Content",
+      "type": "Container",
+      "parentId": "scroll",
       "order": 0,
       "properties": {
         "anchorMin": [
@@ -54,9 +72,34 @@
         ],
         "offsetMax": [
           0,
-          48
+          620
+        ]
+      }
+    },
+    {
+      "id": "title",
+      "name": "Title",
+      "type": "Label",
+      "parentId": "content",
+      "order": 0,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
         ],
-        "text": "Quest journal",
+        "anchorMax": [
+          1,
+          0
+        ],
+        "offsetMin": [
+          20,
+          14
+        ],
+        "offsetMax": [
+          -20,
+          56
+        ],
+        "text": "Quest Journal",
         "tone": "warning",
         "fontSize": 24,
         "fontWeight": 700
@@ -66,7 +109,7 @@
       "id": "quests",
       "name": "Quests",
       "type": "ItemList",
-      "parentId": "surface",
+      "parentId": "content",
       "order": 1,
       "properties": {
         "anchorMin": [
@@ -78,13 +121,15 @@
           1
         ],
         "offsetMin": [
-          0,
-          60
+          20,
+          66
         ],
         "offsetMax": [
-          0,
-          -52
+          -12,
+          -20
         ],
+        "columns": 1,
+        "gap": 8,
         "ariaLabel": "Quests"
       }
     },
@@ -92,11 +137,11 @@
       "id": "details",
       "name": "Details",
       "type": "Label",
-      "parentId": "surface",
+      "parentId": "content",
       "order": 2,
       "properties": {
         "anchorMin": [
-          0.46,
+          0.44,
           0
         ],
         "anchorMax": [
@@ -105,38 +150,94 @@
         ],
         "offsetMin": [
           0,
-          60
+          66
         ],
         "offsetMax": [
+          -20,
+          -132
+        ],
+        "wrap": true,
+        "tone": "muted",
+        "fontSize": 13
+      }
+    },
+    {
+      "id": "status",
+      "name": "Status",
+      "type": "Label",
+      "parentId": "content",
+      "order": 3,
+      "properties": {
+        "anchorMin": [
+          0.44,
+          1
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "offsetMin": [
+          0,
+          -122
+        ],
+        "offsetMax": [
+          -20,
+          -94
+        ],
+        "wrap": true,
+        "tone": "info",
+        "fontSize": 12
+      }
+    },
+    {
+      "id": "action",
+      "name": "Action",
+      "type": "Button",
+      "parentId": "content",
+      "order": 4,
+      "properties": {
+        "anchorMin": [
+          0.44,
+          1
+        ],
+        "anchorMax": [
+          0.7,
+          1
+        ],
+        "offsetMin": [
           0,
           -52
         ],
-        "wrap": true,
-        "tone": "muted"
+        "offsetMax": [
+          0,
+          -12
+        ],
+        "text": "No action",
+        "tone": "danger"
       }
     },
     {
       "id": "close",
       "name": "Close",
       "type": "Button",
-      "parentId": "surface",
-      "order": 3,
+      "parentId": "content",
+      "order": 5,
       "properties": {
         "anchorMin": [
-          1,
+          0.74,
           1
         ],
         "anchorMax": [
-          1,
+          0.98,
           1
         ],
         "offsetMin": [
-          -80,
-          -44
+          0,
+          -52
         ],
         "offsetMax": [
           0,
-          0
+          -12
         ],
         "text": "Close",
         "tone": "muted"
@@ -148,29 +249,60 @@
       "type": "ScriptNode",
       "scriptId": "game.ui-surface",
       "parentId": "surface",
-      "order": 4,
+      "order": 1,
       "properties": {
         "surfaceId": "quest-journal",
         "modal": true,
         "bindings": [
           {
-            "nodePath": "../Quests",
+            "nodePath": "../Scroll/Content/Quests",
             "property": "items",
             "model": "quests"
           },
           {
-            "nodePath": "../Details",
+            "nodePath": "../Scroll/Content/Quests",
+            "property": "selectedIndex",
+            "model": "selectedIndex"
+          },
+          {
+            "nodePath": "../Scroll/Content/Details",
             "property": "text",
             "model": "details"
+          },
+          {
+            "nodePath": "../Scroll/Content/Status",
+            "property": "text",
+            "model": "status"
+          },
+          {
+            "nodePath": "../Scroll/Content/Action",
+            "property": "text",
+            "model": "actionLabel"
+          },
+          {
+            "nodePath": "../Scroll/Content/Action",
+            "property": "disabled",
+            "model": "actionDisabled"
           },
           {
             "nodePath": "..",
             "property": "open",
             "model": "open"
+          },
+          {
+            "nodePath": "..",
+            "property": "offsetMin",
+            "model": "offsetMin"
+          },
+          {
+            "nodePath": "..",
+            "property": "offsetMax",
+            "model": "offsetMax"
           }
         ],
         "actions": {
           "on_item_selected": "select-quest",
+          "on_secondary_action": "quest-action",
           "on_close_action": "close"
         }
       }
@@ -197,6 +329,16 @@
         "nodeId": "script"
       },
       "handler": "on_item_selected"
+    },
+    {
+      "source": {
+        "nodeId": "action"
+      },
+      "signal": "pressed",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_secondary_action"
     },
     {
       "source": {

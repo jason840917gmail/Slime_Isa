@@ -38,10 +38,28 @@
       }
     },
     {
-      "id": "title",
-      "name": "Title",
-      "type": "Label",
+      "id": "scroll",
+      "name": "Scroll",
+      "type": "ScrollContainer",
       "parentId": "surface",
+      "order": 0,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "scrollAxis": "vertical"
+      }
+    },
+    {
+      "id": "content",
+      "name": "Content",
+      "type": "Container",
+      "parentId": "scroll",
       "order": 0,
       "properties": {
         "anchorMin": [
@@ -54,7 +72,32 @@
         ],
         "offsetMax": [
           0,
-          54
+          460
+        ]
+      }
+    },
+    {
+      "id": "title",
+      "name": "Title",
+      "type": "Label",
+      "parentId": "content",
+      "order": 0,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          0
+        ],
+        "offsetMin": [
+          24,
+          18
+        ],
+        "offsetMax": [
+          -24,
+          64
         ],
         "tone": "warning",
         "fontSize": 24,
@@ -66,7 +109,7 @@
       "id": "description",
       "name": "Description",
       "type": "Label",
-      "parentId": "surface",
+      "parentId": "content",
       "order": 1,
       "properties": {
         "anchorMin": [
@@ -78,26 +121,55 @@
           1
         ],
         "offsetMin": [
-          20,
-          70
+          28,
+          76
         ],
         "offsetMax": [
-          -20,
-          -70
+          -28,
+          -126
         ],
         "wrap": true,
-        "tone": "muted"
+        "tone": "muted",
+        "fontSize": 14
+      }
+    },
+    {
+      "id": "error",
+      "name": "Error",
+      "type": "Label",
+      "parentId": "content",
+      "order": 2,
+      "properties": {
+        "anchorMin": [
+          0,
+          1
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "offsetMin": [
+          28,
+          -116
+        ],
+        "offsetMax": [
+          -28,
+          -76
+        ],
+        "wrap": true,
+        "tone": "danger",
+        "fontSize": 12
       }
     },
     {
       "id": "accept",
       "name": "Accept",
       "type": "Button",
-      "parentId": "surface",
-      "order": 2,
+      "parentId": "content",
+      "order": 3,
       "properties": {
         "anchorMin": [
-          0.5,
+          0,
           1
         ],
         "anchorMax": [
@@ -105,14 +177,14 @@
           1
         ],
         "offsetMin": [
-          -110,
-          -52
+          28,
+          -62
         ],
         "offsetMax": [
           -8,
-          0
+          -16
         ],
-        "text": "Accept",
+        "text": "Accept quest",
         "tone": "accent"
       }
     },
@@ -120,26 +192,26 @@
       "id": "decline",
       "name": "Decline",
       "type": "Button",
-      "parentId": "surface",
-      "order": 3,
+      "parentId": "content",
+      "order": 4,
       "properties": {
         "anchorMin": [
           0.5,
           1
         ],
         "anchorMax": [
-          0.5,
+          1,
           1
         ],
         "offsetMin": [
           8,
-          -52
+          -62
         ],
         "offsetMax": [
-          110,
-          0
+          -28,
+          -16
         ],
-        "text": "Decline",
+        "text": "Decline / close",
         "tone": "muted"
       }
     },
@@ -149,25 +221,50 @@
       "type": "ScriptNode",
       "scriptId": "game.ui-surface",
       "parentId": "surface",
-      "order": 4,
+      "order": 1,
       "properties": {
         "surfaceId": "quest-offer-modal",
         "modal": true,
         "bindings": [
           {
-            "nodePath": "../Title",
+            "nodePath": "../Scroll/Content/Title",
             "property": "text",
             "model": "title"
           },
           {
-            "nodePath": "../Description",
+            "nodePath": "../Scroll/Content/Description",
             "property": "text",
             "model": "description"
+          },
+          {
+            "nodePath": "../Scroll/Content/Error",
+            "property": "text",
+            "model": "error"
+          },
+          {
+            "nodePath": "../Scroll/Content/Accept",
+            "property": "text",
+            "model": "acceptLabel"
+          },
+          {
+            "nodePath": "../Scroll/Content/Decline",
+            "property": "text",
+            "model": "declineLabel"
           },
           {
             "nodePath": "..",
             "property": "open",
             "model": "open"
+          },
+          {
+            "nodePath": "..",
+            "property": "offsetMin",
+            "model": "offsetMin"
+          },
+          {
+            "nodePath": "..",
+            "property": "offsetMax",
+            "model": "offsetMax"
           }
         ],
         "actions": {

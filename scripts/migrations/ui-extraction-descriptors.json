@@ -1737,15 +1737,284 @@
       "sourceHash": "750d5f89f913e225ebbd06e00920c22ffbd59dff04d240ade5e13b20cc4fe47f",
       "sceneId": "ui.quest-journal",
       "modal": true,
-      "layoutValues": { "anchorMin": [0.5, 0.5], "anchorMax": [0.5, 0.5], "offsetMin": [-470, -310], "offsetMax": [470, 310] },
-      "themeValues": { "gap": 12, "surface": "journal" },
-      "bindings": [{ "nodePath": "../Quests", "property": "items", "model": "quests" }, { "nodePath": "../Details", "property": "text", "model": "details" }, { "nodePath": "..", "property": "open", "model": "open" }],
-      "actions": { "on_item_selected": "select-quest", "on_close_action": "close" },
+      "layoutValues": {
+        "anchorMin": [
+          0.5,
+          0.5
+        ],
+        "anchorMax": [
+          0.5,
+          0.5
+        ],
+        "offsetMin": [
+          -470,
+          -310
+        ],
+        "offsetMax": [
+          470,
+          310
+        ]
+      },
+      "themeValues": {
+        "gap": 12,
+        "surface": "journal"
+      },
+      "bindings": [
+        {
+          "nodePath": "../Scroll/Content/Quests",
+          "property": "items",
+          "model": "quests"
+        },
+        {
+          "nodePath": "../Scroll/Content/Quests",
+          "property": "selectedIndex",
+          "model": "selectedIndex"
+        },
+        {
+          "nodePath": "../Scroll/Content/Details",
+          "property": "text",
+          "model": "details"
+        },
+        {
+          "nodePath": "../Scroll/Content/Status",
+          "property": "text",
+          "model": "status"
+        },
+        {
+          "nodePath": "../Scroll/Content/Action",
+          "property": "text",
+          "model": "actionLabel"
+        },
+        {
+          "nodePath": "../Scroll/Content/Action",
+          "property": "disabled",
+          "model": "actionDisabled"
+        },
+        {
+          "nodePath": "..",
+          "property": "open",
+          "model": "open"
+        },
+        {
+          "nodePath": "..",
+          "property": "offsetMin",
+          "model": "offsetMin"
+        },
+        {
+          "nodePath": "..",
+          "property": "offsetMax",
+          "model": "offsetMax"
+        }
+      ],
+      "actions": {
+        "on_item_selected": "select-quest",
+        "on_secondary_action": "quest-action",
+        "on_close_action": "close"
+      },
       "controls": [
-        { "id": "title", "name": "Title", "type": "Label", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 0], "offsetMax": [0, 48], "text": "Quest journal", "tone": "warning", "fontSize": 24, "fontWeight": 700 } },
-        { "id": "quests", "name": "Quests", "type": "ItemList", "properties": { "anchorMin": [0, 0], "anchorMax": [0.42, 1], "offsetMin": [0, 60], "offsetMax": [0, -52], "ariaLabel": "Quests" }, "handler": "on_item_selected", "signal": "item_selected" },
-        { "id": "details", "name": "Details", "type": "Label", "properties": { "anchorMin": [0.46, 0], "anchorMax": [1, 1], "offsetMin": [0, 60], "offsetMax": [0, -52], "wrap": true, "tone": "muted" } },
-        { "id": "close", "name": "Close", "type": "Button", "properties": { "anchorMin": [1, 1], "anchorMax": [1, 1], "offsetMin": [-80, -44], "offsetMax": [0, 0], "text": "Close", "tone": "muted" }, "handler": "on_close_action", "signal": "pressed" }
+        {
+          "id": "scroll",
+          "name": "Scroll",
+          "type": "ScrollContainer",
+          "properties": {
+            "anchorMin": [
+              0,
+              0
+            ],
+            "anchorMax": [
+              1,
+              1
+            ],
+            "scrollAxis": "vertical"
+          }
+        },
+        {
+          "id": "content",
+          "name": "Content",
+          "type": "Container",
+          "parentId": "scroll",
+          "properties": {
+            "anchorMin": [
+              0,
+              0
+            ],
+            "anchorMax": [
+              1,
+              0
+            ],
+            "offsetMax": [
+              0,
+              620
+            ]
+          }
+        },
+        {
+          "id": "title",
+          "name": "Title",
+          "type": "Label",
+          "parentId": "content",
+          "properties": {
+            "anchorMin": [
+              0,
+              0
+            ],
+            "anchorMax": [
+              1,
+              0
+            ],
+            "offsetMin": [
+              20,
+              14
+            ],
+            "offsetMax": [
+              -20,
+              56
+            ],
+            "text": "Quest Journal",
+            "tone": "warning",
+            "fontSize": 24,
+            "fontWeight": 700
+          }
+        },
+        {
+          "id": "quests",
+          "name": "Quests",
+          "type": "ItemList",
+          "parentId": "content",
+          "properties": {
+            "anchorMin": [
+              0,
+              0
+            ],
+            "anchorMax": [
+              0.42,
+              1
+            ],
+            "offsetMin": [
+              20,
+              66
+            ],
+            "offsetMax": [
+              -12,
+              -20
+            ],
+            "columns": 1,
+            "gap": 8,
+            "ariaLabel": "Quests"
+          },
+          "handler": "on_item_selected",
+          "signal": "item_selected"
+        },
+        {
+          "id": "details",
+          "name": "Details",
+          "type": "Label",
+          "parentId": "content",
+          "properties": {
+            "anchorMin": [
+              0.44,
+              0
+            ],
+            "anchorMax": [
+              1,
+              1
+            ],
+            "offsetMin": [
+              0,
+              66
+            ],
+            "offsetMax": [
+              -20,
+              -132
+            ],
+            "wrap": true,
+            "tone": "muted",
+            "fontSize": 13
+          }
+        },
+        {
+          "id": "status",
+          "name": "Status",
+          "type": "Label",
+          "parentId": "content",
+          "properties": {
+            "anchorMin": [
+              0.44,
+              1
+            ],
+            "anchorMax": [
+              1,
+              1
+            ],
+            "offsetMin": [
+              0,
+              -122
+            ],
+            "offsetMax": [
+              -20,
+              -94
+            ],
+            "wrap": true,
+            "tone": "info",
+            "fontSize": 12
+          }
+        },
+        {
+          "id": "action",
+          "name": "Action",
+          "type": "Button",
+          "parentId": "content",
+          "properties": {
+            "anchorMin": [
+              0.44,
+              1
+            ],
+            "anchorMax": [
+              0.7,
+              1
+            ],
+            "offsetMin": [
+              0,
+              -52
+            ],
+            "offsetMax": [
+              0,
+              -12
+            ],
+            "text": "No action",
+            "tone": "danger"
+          },
+          "handler": "on_secondary_action",
+          "signal": "pressed"
+        },
+        {
+          "id": "close",
+          "name": "Close",
+          "type": "Button",
+          "parentId": "content",
+          "properties": {
+            "anchorMin": [
+              0.74,
+              1
+            ],
+            "anchorMax": [
+              0.98,
+              1
+            ],
+            "offsetMin": [
+              0,
+              -52
+            ],
+            "offsetMax": [
+              0,
+              -12
+            ],
+            "text": "Close",
+            "tone": "muted"
+          },
+          "handler": "on_close_action",
+          "signal": "pressed"
+        }
       ]
     },
     {
@@ -1754,15 +2023,250 @@
       "sourceHash": "3c757aa35b6f564cda920f13e3418aaecfe0b5998ef05f3bba0e1ceacc5ae034",
       "sceneId": "ui.quest-offer-modal",
       "modal": true,
-      "layoutValues": { "anchorMin": [0.5, 0.5], "anchorMax": [0.5, 0.5], "offsetMin": [-360, -230], "offsetMax": [360, 230] },
-      "themeValues": { "gap": 12, "surface": "quest-offer" },
-      "bindings": [{ "nodePath": "../Title", "property": "text", "model": "title" }, { "nodePath": "../Description", "property": "text", "model": "description" }, { "nodePath": "..", "property": "open", "model": "open" }],
-      "actions": { "on_primary_action": "accept", "on_secondary_action": "decline", "on_close_action": "close" },
+      "layoutValues": {
+        "anchorMin": [
+          0.5,
+          0.5
+        ],
+        "anchorMax": [
+          0.5,
+          0.5
+        ],
+        "offsetMin": [
+          -360,
+          -230
+        ],
+        "offsetMax": [
+          360,
+          230
+        ]
+      },
+      "themeValues": {
+        "gap": 12,
+        "surface": "quest-offer"
+      },
+      "bindings": [
+        {
+          "nodePath": "../Scroll/Content/Title",
+          "property": "text",
+          "model": "title"
+        },
+        {
+          "nodePath": "../Scroll/Content/Description",
+          "property": "text",
+          "model": "description"
+        },
+        {
+          "nodePath": "../Scroll/Content/Error",
+          "property": "text",
+          "model": "error"
+        },
+        {
+          "nodePath": "../Scroll/Content/Accept",
+          "property": "text",
+          "model": "acceptLabel"
+        },
+        {
+          "nodePath": "../Scroll/Content/Decline",
+          "property": "text",
+          "model": "declineLabel"
+        },
+        {
+          "nodePath": "..",
+          "property": "open",
+          "model": "open"
+        },
+        {
+          "nodePath": "..",
+          "property": "offsetMin",
+          "model": "offsetMin"
+        },
+        {
+          "nodePath": "..",
+          "property": "offsetMax",
+          "model": "offsetMax"
+        }
+      ],
+      "actions": {
+        "on_primary_action": "accept",
+        "on_secondary_action": "decline",
+        "on_close_action": "close"
+      },
       "controls": [
-        { "id": "title", "name": "Title", "type": "Label", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 0], "offsetMax": [0, 54], "tone": "warning", "fontSize": 24, "fontWeight": 700, "textAlign": "center" } },
-        { "id": "description", "name": "Description", "type": "Label", "properties": { "anchorMin": [0, 0], "anchorMax": [1, 1], "offsetMin": [20, 70], "offsetMax": [-20, -70], "wrap": true, "tone": "muted" } },
-        { "id": "accept", "name": "Accept", "type": "Button", "properties": { "anchorMin": [0.5, 1], "anchorMax": [0.5, 1], "offsetMin": [-110, -52], "offsetMax": [-8, 0], "text": "Accept", "tone": "accent" }, "handler": "on_primary_action", "signal": "pressed" },
-        { "id": "decline", "name": "Decline", "type": "Button", "properties": { "anchorMin": [0.5, 1], "anchorMax": [0.5, 1], "offsetMin": [8, -52], "offsetMax": [110, 0], "text": "Decline", "tone": "muted" }, "handler": "on_secondary_action", "signal": "pressed" }
+        {
+          "id": "scroll",
+          "name": "Scroll",
+          "type": "ScrollContainer",
+          "properties": {
+            "anchorMin": [
+              0,
+              0
+            ],
+            "anchorMax": [
+              1,
+              1
+            ],
+            "scrollAxis": "vertical"
+          }
+        },
+        {
+          "id": "content",
+          "name": "Content",
+          "type": "Container",
+          "parentId": "scroll",
+          "properties": {
+            "anchorMin": [
+              0,
+              0
+            ],
+            "anchorMax": [
+              1,
+              0
+            ],
+            "offsetMax": [
+              0,
+              460
+            ]
+          }
+        },
+        {
+          "id": "title",
+          "name": "Title",
+          "type": "Label",
+          "parentId": "content",
+          "properties": {
+            "anchorMin": [
+              0,
+              0
+            ],
+            "anchorMax": [
+              1,
+              0
+            ],
+            "offsetMin": [
+              24,
+              18
+            ],
+            "offsetMax": [
+              -24,
+              64
+            ],
+            "tone": "warning",
+            "fontSize": 24,
+            "fontWeight": 700,
+            "textAlign": "center"
+          }
+        },
+        {
+          "id": "description",
+          "name": "Description",
+          "type": "Label",
+          "parentId": "content",
+          "properties": {
+            "anchorMin": [
+              0,
+              0
+            ],
+            "anchorMax": [
+              1,
+              1
+            ],
+            "offsetMin": [
+              28,
+              76
+            ],
+            "offsetMax": [
+              -28,
+              -126
+            ],
+            "wrap": true,
+            "tone": "muted",
+            "fontSize": 14
+          }
+        },
+        {
+          "id": "error",
+          "name": "Error",
+          "type": "Label",
+          "parentId": "content",
+          "properties": {
+            "anchorMin": [
+              0,
+              1
+            ],
+            "anchorMax": [
+              1,
+              1
+            ],
+            "offsetMin": [
+              28,
+              -116
+            ],
+            "offsetMax": [
+              -28,
+              -76
+            ],
+            "wrap": true,
+            "tone": "danger",
+            "fontSize": 12
+          }
+        },
+        {
+          "id": "accept",
+          "name": "Accept",
+          "type": "Button",
+          "parentId": "content",
+          "properties": {
+            "anchorMin": [
+              0,
+              1
+            ],
+            "anchorMax": [
+              0.5,
+              1
+            ],
+            "offsetMin": [
+              28,
+              -62
+            ],
+            "offsetMax": [
+              -8,
+              -16
+            ],
+            "text": "Accept quest",
+            "tone": "accent"
+          },
+          "handler": "on_primary_action",
+          "signal": "pressed"
+        },
+        {
+          "id": "decline",
+          "name": "Decline",
+          "type": "Button",
+          "parentId": "content",
+          "properties": {
+            "anchorMin": [
+              0.5,
+              1
+            ],
+            "anchorMax": [
+              1,
+              1
+            ],
+            "offsetMin": [
+              8,
+              -62
+            ],
+            "offsetMax": [
+              -28,
+              -16
+            ],
+            "text": "Decline / close",
+            "tone": "muted"
+          },
+          "handler": "on_secondary_action",
+          "signal": "pressed"
+        }
       ]
     },
     {
