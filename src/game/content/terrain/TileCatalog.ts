@@ -1,4 +1,20 @@
 import type { AssetId } from '../../infrastructure/assets/manifest';
+import { parseTileSetResource } from '../scenes/resources/TileSetResource';
+import type { TileSetResourceDocument } from '../scenes/resources/types';
+import amberleafGround from '../scenes/authored/resources/terrain/amberleaf-ground.tile-set.resource.json';
+import cavernFloor from '../scenes/authored/resources/terrain/cavern-floor.tile-set.resource.json';
+import crystalFloor from '../scenes/authored/resources/terrain/crystal-floor.tile-set.resource.json';
+import crystalWall from '../scenes/authored/resources/terrain/crystal-wall.tile-set.resource.json';
+import deepWater from '../scenes/authored/resources/terrain/deep-water.tile-set.resource.json';
+import forestFloor from '../scenes/authored/resources/terrain/forest-floor.tile-set.resource.json';
+import forestMoss from '../scenes/authored/resources/terrain/forest-moss.tile-set.resource.json';
+import frozenGround from '../scenes/authored/resources/terrain/frozen-ground.tile-set.resource.json';
+import grassA from '../scenes/authored/resources/terrain/grass-a.tile-set.resource.json';
+import grassB from '../scenes/authored/resources/terrain/grass-b.tile-set.resource.json';
+import rockWall from '../scenes/authored/resources/terrain/rock-wall.tile-set.resource.json';
+import sanddessertGround from '../scenes/authored/resources/terrain/sanddessert-ground.tile-set.resource.json';
+import treeWall from '../scenes/authored/resources/terrain/tree-wall.tile-set.resource.json';
+import water from '../scenes/authored/resources/terrain/water.tile-set.resource.json';
 
 type TileInset = {
   readonly left: number;
@@ -30,100 +46,35 @@ export interface TileDefinition {
   readonly tags: readonly string[];
 }
 
+function tileFromResource(document: unknown, tileId: string): TileDefinition {
+  const resource = parseTileSetResource(document as TileSetResourceDocument);
+  const tile = resource.tiles[tileId];
+  if (!tile) throw new Error(`Tile set '${resource.resourceId}' is missing '${tileId}'`);
+  return {
+    visual: { assetIds: tile.assetIds as AssetId[], selection: tile.selection },
+    physics: tile.physics,
+    allowsDecorations: tile.allowsDecorations,
+    ...(tile.transition ? { transition: tile.transition as TileDefinition['transition'] } : {}),
+    tags: tile.tags,
+  };
+}
+
+// Scene Studio tile-set documents own the metadata; this API preserves stable map tile IDs.
 export const TILE_CATALOG = {
-  'grass-a': {
-    visual: { assetIds: ['sheet.grounds.19x19.highland-green'], selection: 'sheet-order' },
-    physics: null,
-    allowsDecorations: true,
-    transition: { group: 'natural-ground', material: 'highland', priority: 10, edgeWidth: 12, style: 'noisy-feather' },
-    tags: ['ground', 'meadow', 'walkable'],
-  },
-  'grass-b': {
-    visual: { assetIds: ['sheet.grounds.19x19.highland-green'], selection: 'sheet-order' },
-    physics: null,
-    allowsDecorations: true,
-    transition: { group: 'natural-ground', material: 'highland', priority: 10, edgeWidth: 12, style: 'noisy-feather' },
-    tags: ['ground', 'meadow', 'walkable'],
-  },
-  water: {
-    visual: { assetIds: ['terrain.water.0', 'terrain.water.1', 'terrain.water.2'], selection: 'seeded-hash' },
-    physics: null,
-    allowsDecorations: false,
-    tags: ['ground', 'water'],
-  },
-  'rock-wall': {
-    visual: { assetIds: ['sheet.grounds.19x19.highland-green'], selection: 'sheet-order' },
-    physics: { body: 'static', inset: { left: 4, right: 4, top: 6, bottom: 2 } },
-    allowsDecorations: false,
-    tags: ['legacy', 'wall'],
-  },
-  'forest-floor': {
-    visual: { assetIds: ['terrain.forest.floor'], selection: 'seeded-hash' },
-    physics: null,
-    allowsDecorations: true,
-    transition: { group: 'natural-ground', material: 'forest-floor', priority: 10, edgeWidth: 12, style: 'noisy-feather' },
-    tags: ['ground', 'forest', 'walkable'],
-  },
-  'forest-moss': {
-    visual: { assetIds: ['terrain.forest.moss'], selection: 'seeded-hash' },
-    physics: null,
-    allowsDecorations: true,
-    transition: { group: 'natural-ground', material: 'forest-moss', priority: 20, edgeWidth: 12, style: 'noisy-feather' },
-    tags: ['ground', 'forest', 'walkable'],
-  },
-  'tree-wall': {
-    visual: { assetIds: ['terrain.forest.tree-wall'], selection: 'seeded-hash' },
-    physics: { body: 'static', inset: { left: 8, right: 8, top: 8, bottom: 4 } },
-    allowsDecorations: false,
-    tags: ['terrain', 'forest', 'wall'],
-  },
-  'cavern-floor': {
-    visual: { assetIds: ['terrain.cavern.floor'], selection: 'seeded-hash' },
-    physics: null,
-    allowsDecorations: true,
-    transition: { group: 'natural-ground', material: 'cavern-floor', priority: 10, edgeWidth: 12, style: 'noisy-feather' },
-    tags: ['ground', 'cavern', 'walkable'],
-  },
-  'crystal-floor': {
-    visual: { assetIds: ['terrain.cavern.crystal-floor'], selection: 'seeded-hash' },
-    physics: null,
-    allowsDecorations: true,
-    transition: { group: 'natural-ground', material: 'crystal-floor', priority: 20, edgeWidth: 12, style: 'noisy-feather' },
-    tags: ['ground', 'cavern', 'walkable'],
-  },
-  'crystal-wall': {
-    visual: { assetIds: ['terrain.cavern.crystal-wall'], selection: 'seeded-hash' },
-    physics: { body: 'static', inset: { left: 5, right: 5, top: 7, bottom: 3 } },
-    allowsDecorations: false,
-    tags: ['terrain', 'cavern', 'wall'],
-  },
-  'deep-water': {
-    visual: { assetIds: ['terrain.deep-water'], selection: 'seeded-hash' },
-    physics: null,
-    allowsDecorations: false,
-    tags: ['ground', 'water', 'deep'],
-  },
-  'amberleaf-ground': {
-    visual: { assetIds: ['sheet.grounds.19x19.amberleaf'], selection: 'sheet-order' },
-    physics: null,
-    allowsDecorations: true,
-    transition: { group: 'natural-ground', material: 'amberleaf', priority: 10, edgeWidth: 12, style: 'noisy-feather' },
-    tags: ['ground', 'amberleaf', 'walkable'],
-  },
-  'frozen-ground': {
-    visual: { assetIds: ['sheet.grounds.19x19.frozen'], selection: 'sheet-order' },
-    physics: null,
-    allowsDecorations: true,
-    transition: { group: 'natural-ground', material: 'frozen', priority: 10, edgeWidth: 12, style: 'noisy-feather' },
-    tags: ['ground', 'frozen', 'walkable'],
-  },
-  'sanddessert-ground': {
-    visual: { assetIds: ['sheet.grounds.19x19.sanddessert'], selection: 'sheet-order' },
-    physics: null,
-    allowsDecorations: true,
-    transition: { group: 'natural-ground', material: 'sanddessert', priority: 10, edgeWidth: 12, style: 'noisy-feather' },
-    tags: ['ground', 'sanddessert', 'walkable'],
-  },
+  'grass-a': tileFromResource(grassA, 'grass-a'),
+  'grass-b': tileFromResource(grassB, 'grass-b'),
+  water: tileFromResource(water, 'water'),
+  'rock-wall': tileFromResource(rockWall, 'rock-wall'),
+  'forest-floor': tileFromResource(forestFloor, 'forest-floor'),
+  'forest-moss': tileFromResource(forestMoss, 'forest-moss'),
+  'tree-wall': tileFromResource(treeWall, 'tree-wall'),
+  'cavern-floor': tileFromResource(cavernFloor, 'cavern-floor'),
+  'crystal-floor': tileFromResource(crystalFloor, 'crystal-floor'),
+  'crystal-wall': tileFromResource(crystalWall, 'crystal-wall'),
+  'deep-water': tileFromResource(deepWater, 'deep-water'),
+  'amberleaf-ground': tileFromResource(amberleafGround, 'amberleaf-ground'),
+  'frozen-ground': tileFromResource(frozenGround, 'frozen-ground'),
+  'sanddessert-ground': tileFromResource(sanddessertGround, 'sanddessert-ground'),
 } as const satisfies Readonly<Record<string, TileDefinition>>;
 
 export type WorldTileId = keyof typeof TILE_CATALOG;

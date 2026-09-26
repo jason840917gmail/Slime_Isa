@@ -367,34 +367,29 @@ test('the real collectible controller advances a quest exactly once per transfer
   });
   service.start();
 
-  const image = {
-    active: true, x: 100, y: 100,
-    data: new Map(),
-    setData(key, value) { this.data.set(key, value); return this; },
-    destroy() { this.active = false; },
-  };
-  const children = [];
+  let collectibleState;
   const controller = new CollectibleController({
     scene: { time: { now: 10_000 } },
     mapId: 'level-1',
-    group: {
-      getChildren: () => children,
-      add(value) { children.push(value); },
-      remove(value, _remove, destroy) {
-        const index = children.indexOf(value);
-        if (index >= 0) children.splice(index, 1);
-        if (destroy) value.destroy();
+    transaction: {
+      collectWorldItem({ remaining, requested }) {
+        const moved = Math.min(remaining, requested);
+        collectibleState = { remaining: remaining - moved };
+        return moved;
       },
     },
-    inventory: { add: (_itemId, requested) => requested },
-    progress: { collectibleState: () => undefined, setCollectibleState: () => {} },
+    progress: { collectibleState: () => collectibleState },
     publisher: { publishCollected: (payload) => service.handleEvent('collectible.collected', payload) },
     showMessage: () => {},
   });
-  controller.register({ image, objectId: 'collectible.wood-pile', instanceId: 'wood-01' });
+  controller.ensureInitialized('level-1', 'wood-01', 10);
+  const pickup = {
+    mapId: 'level-1', instanceId: 'wood-01', objectId: 'collectible.wood-pile', itemId: 'wood',
+    requested: 10, collectorAreaNodeId: 'managed-player/PickupArea', x: 100, y: 100,
+  };
 
-  controller.collect(image);
-  controller.collect(image);
+  controller.pickup(pickup);
+  controller.pickup(pickup);
 
   assert.equal(service.get('controller-bridge').status, 'completed');
   assert.equal(service.get('controller-bridge').progress.wood, 10);

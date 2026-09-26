@@ -33,7 +33,7 @@ export class ConversionRunner {
     this.journalFactory = journalFactory;
   }
 
-  async run({ family = 'all', mode = 'dry-run', unitKeys } = {}) {
+  async run({ family = 'all', mode = 'dry-run', unitKeys, includeSceneOwned = false } = {}) {
     if (!['dry-run', 'apply', 'check'].includes(mode)) throw new Error(`Unknown conversion mode '${mode}'`);
     const selectedKeys = unitKeys === undefined ? undefined : new Set(unitKeys);
     if (selectedKeys?.size === 0) throw new Error('Scene conversion unit selection cannot be empty');
@@ -48,7 +48,7 @@ export class ConversionRunner {
     const units = [];
     for (const currentFamily of families) {
       const familyUnits = eligibleRows
-        .filter((unit) => unit.family === currentFamily && unit.classification === 'convert' && unit.writerState !== 'scene')
+        .filter((unit) => unit.family === currentFamily && unit.classification === 'convert' && (includeSceneOwned || unit.writerState !== 'scene'))
         .sort((left, right) => left.key.localeCompare(right.key));
       if (familyUnits.length === 0) continue;
       const adapter = this.adapters[currentFamily];

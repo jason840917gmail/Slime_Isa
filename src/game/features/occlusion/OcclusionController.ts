@@ -13,7 +13,7 @@ import {
 } from '../../presentation/WorldOcclusion';
 import { resolveWorldDepth } from '../../presentation/WorldDepth';
 import type { WorldVisual, WorldVisualRenderState } from '../../presentation/WorldVisual';
-import type { ObjectOccluderRegistration } from '../objects/ObjectFactory';
+import type { ObjectOccluderRegistration } from '../objects/ObjectRegistration';
 
 const CELL_SIZE = 256;
 const ACTOR_CAMERA_MARGIN = 128;
@@ -36,7 +36,7 @@ interface StaticOccluder {
   readonly sourceFrame: SourceFrameDimensions;
   readonly bounds: SourceOcclusionBounds;
   readonly rectangle: WorldRectangle;
-  readonly maskRuns: readonly WorldRectangle[];
+  maskRuns?: readonly WorldRectangle[];
   readonly depth: () => number;
   readonly cells: readonly string[];
   readonly dispose: () => void;
@@ -111,6 +111,7 @@ export class OcclusionController {
   private readonly occluders = new Map<string, StaticOccluder>();
   private readonly actors = new Map<string, RevealActor>();
   private readonly alphaMaskCache = new Map<string, SourceAlphaMask>();
+  private alphaCanvas?: HTMLCanvasElement;
   private lastUpdateMs = 0;
   private averageUpdateMs = 0;
   private updateCount = 0;
@@ -132,26 +133,6 @@ export class OcclusionController {
       registration.sourceFrame,
       registration.bounds,
     );
-    const textureKey = registration.owner.texture.key;
-    const frameName = registration.owner.frame.name;
-    const cacheKey = [
-      textureKey,
-      String(frameName),
-      registration.bounds.offsetX,
-      registration.bounds.offsetY,
-      registration.bounds.width,
-      registration.bounds.height,
-    ].join(':');
-    const sourceMask = this.alphaMaskCache.get(cacheKey) ?? buildSourceAlphaMask(
-      registration.sourceFrame,
-      (x, y) => this.scene.textures.getPixelAlpha(x, y, textureKey, frameName),
-      registration.bounds,
-      ALPHA_THRESHOLD,
-    );
-    this.alphaMaskCache.set(cacheKey, sourceMask);
-    const maskRuns = sourceMask.runs.length > 0
-      ? resolveWorldAlphaMaskRuns(registration.owner, registration.sourceFrame, sourceMask)
-      : [rectangle];
     const cells = cellsForRectangle(rectangle);
     let disposed = false;
     let occluder: StaticOccluder;
@@ -166,7 +147,6 @@ export class OcclusionController {
       sourceFrame: registration.sourceFrame,
       bounds: registration.bounds,
       rectangle,
-      maskRuns,
       depth: registration.getDepth,
       cells,
       dispose,
@@ -266,7 +246,7 @@ export class OcclusionController {
         if (!ownerIsActive(candidate.owner) || candidate.depth() <= actorDepth) continue;
         if (!rectanglesIntersect(actorBounds, candidate.rectangle)) continue;
         let candidateIntersects = false;
-        for (const maskRun of candidate.maskRuns) {
+        for (const maskRun of this.maskRunsFor(candidate)) {
           if (!rectanglesIntersect(actorBounds, maskRun)) continue;
           candidateIntersects = true;
           hiddenArea += intersectionArea(actorBounds, maskRun);
@@ -337,6 +317,7 @@ export class OcclusionController {
     for (const occluder of [...this.occluders.values()]) occluder.dispose();
     this.grid.clear();
     this.alphaMaskCache.clear();
+    this.alphaCanvas = undefined;
   };
 
   private removeOccluder(occluder: StaticOccluder): void {
@@ -348,5 +329,53 @@ export class OcclusionController {
       entries?.delete(occluder);
       if (entries?.size === 0) this.grid.delete(cell);
     }
+  }
+
+  private maskRunsFor(occluder: StaticOccluder): readonly WorldRectangle[] {
+    if (occluder.maskRuns) return occluder.maskRuns;
+    const textureKey = occluder.owner.texture.key;
+    const frameName = occluder.owner.frame.name;
+    const cacheKey = [
+      textureKey,
+      String(frameName),
+      occluder.bounds.offsetX,
+      occluder.bounds.offsetY,
+      occluder.bounds.width,
+      occluder.bounds.height,
+    ].join(':');
+    let sourceMask = this.alphaMaskCache.get(cacheKey);
+    if (!sourceMask) {
+      sourceMask = this.readSourceAlphaMask(occluder.sourceFrame, occluder.bounds, textureKey, frameName);
+      this.alphaMaskCache.set(cacheKey, sourceMask);
+    }
+    occluder.maskRuns = sourceMask.runs.length > 0
+      ? resolveWorldAlphaMaskRuns(occluder.owner, occluder.sourceFrame, sourceMask)
+      : [occluder.rectangle];
+    return occluder.maskRuns;
+  }
+
+  private readSourceAlphaMask(
+    sourceFrame: SourceFrameDimensions,
+    bounds: SourceOcclusionBounds,
+    textureKey: string,
+    frameName: string | number,
+  ): SourceAlphaMask {
+    const frame = this.scene.textures.getFrame(textureKey, frameName);
+    if (frame && !(frame.source.image instanceof Uint8Array) && typeof document !== 'undefined') {
+      const canvas = this.alphaCanvas ??= document.createElement('canvas');
+      canvas.width = sourceFrame.width;
+      canvas.height = sourceFrame.height;
+      const context = canvas.getContext('2d', { willReadFrequently: true });
+      if (context) {
+        context.drawImage(frame.source.image, frame.cutX, frame.cutY, frame.cutWidth, frame.cutHeight,
+          frame.x, frame.y, frame.cutWidth, frame.cutHeight);
+        const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data;
+        return buildSourceAlphaMask(sourceFrame,
+          (x, y) => pixels[(y * canvas.width + x) * 4 + 3], bounds, ALPHA_THRESHOLD);
+      }
+    }
+    return buildSourceAlphaMask(sourceFrame,
+      (x, y) => this.scene.textures.getPixelAlpha(x, y, textureKey, frameName) ?? 0,
+      bounds, ALPHA_THRESHOLD);
   }
 }

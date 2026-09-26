@@ -27,7 +27,6 @@ import npcLiliJson from './npcs/npc-lili.json';
 import npcRedSlimeBoyJson from './npcs/npc-red-slime-boy.json';
 import npcYellowBlondSlimeGirlJson from './npcs/npc-yellow-blond-slime-girl.json';
 import chestWoodenJson from './chests/chest-wooden.json';
-import { getNpcDefinition } from '../npcs/NpcCatalog';
 
 export interface ColliderBounds {
   readonly shape?: CollisionShape;
@@ -152,15 +151,6 @@ const OBJECT_FILES = {
 
 export type ObjectArchetypeId = keyof typeof OBJECT_FILES;
 
-/** Serializable layer-three map data: definition reference plus mutable state. */
-export interface ObjectInstance {
-  readonly objectId: ObjectArchetypeId;
-  readonly visualId: string;
-  readonly x: number;
-  readonly y: number;
-  readonly state?: Readonly<Record<string, boolean | number | string>>;
-}
-
 const OBJECTS = OBJECT_FILES as unknown as Readonly<
   Record<ObjectArchetypeId, ObjectArchetypeDefinition>
 >;
@@ -177,141 +167,8 @@ export function isObjectArchetypeId(value: string): value is ObjectArchetypeId {
   return value in OBJECTS;
 }
 
-export interface ObjectVisualChoice {
-  readonly key: string;
-  readonly objectId: ObjectArchetypeId;
-  readonly visualId: string;
-  readonly displayName: string;
-  readonly assetId: AssetId;
-  readonly frame: number;
-  readonly scale: number;
-  readonly idleAnimationId?: string;
-  readonly onHitAnimationId?: string;
-  readonly visualOffset: VisualOffset;
-  readonly collider?: ColliderBounds;
-  readonly occlusionBounds?: OcclusionBounds;
-  readonly depthBounds?: DepthBounds;
-  readonly physics: ObjectArchetypeDefinition['physics'];
-  readonly tags: readonly string[];
-}
-
-export interface NpcCharacterPlacementChoice {
-  readonly kind: 'npc-character';
-  readonly key: string;
-  readonly objectId: ObjectArchetypeId;
-  readonly visualId: string;
-  readonly displayName: string;
-  readonly npcDefinitionId: string;
-  readonly characterId: string;
-  readonly visualSetId: string;
-  readonly tags: readonly string[];
-}
-
-export type ObjectPlacementChoice = (ObjectVisualChoice & { readonly kind: 'object-visual' }) | NpcCharacterPlacementChoice;
-
-export type EditableObjectVisual = Pick<
-  ObjectVisualChoice,
-  'displayName' | 'scale' | 'visualOffset' | 'collider' | 'occlusionBounds' | 'depthBounds' | 'idleAnimationId' | 'onHitAnimationId'
->;
-
-const OBJECT_VISUAL_OVERRIDES = new Map<string, EditableObjectVisual>();
-
-function visualKey(objectId: ObjectArchetypeId, visualId: string): string {
-  return `${objectId}::${visualId}`;
-}
-
-function createObjectVisualChoice(
-  objectId: ObjectArchetypeId,
-  assetId: AssetId,
-  frame: ObjectFrameVariant,
-): ObjectVisualChoice {
-  const object = getObjectArchetype(objectId);
-  const override = OBJECT_VISUAL_OVERRIDES.get(visualKey(objectId, frame.visualId));
-  return {
-    key: visualKey(objectId, frame.visualId),
-    objectId,
-    visualId: frame.visualId,
-    displayName: override?.displayName ?? frame.displayName ?? frame.visualId,
-    assetId,
-    frame: frame.frame,
-    scale: override?.scale ?? frame.scale ?? 1,
-    visualOffset: override?.visualOffset ?? frame.visualOffset ?? { x: 0, y: 0 },
-    collider: override ? override.collider : frame.collider,
-    occlusionBounds: override ? override.occlusionBounds : frame.occlusionBounds,
-    depthBounds: override ? override.depthBounds : frame.depthBounds,
-    idleAnimationId: override ? override.idleAnimationId : frame.idleAnimationId,
-    onHitAnimationId: override ? override.onHitAnimationId : frame.onHitAnimationId,
-    physics: object.physics,
-    tags: object.tags,
-  };
-}
-
-export function getObjectVisualChoices(): readonly ObjectVisualChoice[] {
-  return getObjectArchetypeIds().flatMap((objectId) => {
-    const object = getObjectArchetype(objectId);
-    return (object.variants ?? []).flatMap((variant) => variant.frames.map((frame) => (
-      createObjectVisualChoice(objectId, variant.assetId, frame)
-    )));
-  });
-}
-
-export function getObjectVisualChoice(
-  objectId: ObjectArchetypeId,
-  visualId: string,
-): ObjectVisualChoice | undefined {
-  const object = getObjectArchetype(objectId);
-  for (const variant of object.variants ?? []) {
-    const frame = variant.frames.find((candidate) => candidate.visualId === visualId);
-    if (frame) return createObjectVisualChoice(objectId, variant.assetId, frame);
-  }
-  return undefined;
-}
-
-export function setObjectVisualOverride(
-  objectId: ObjectArchetypeId,
-  visualId: string,
-  override: EditableObjectVisual,
-): void {
-  OBJECT_VISUAL_OVERRIDES.set(visualKey(objectId, visualId), {
-    displayName: override.displayName,
-    scale: override.scale,
-    visualOffset: { ...override.visualOffset },
-    collider: override.collider ? { ...override.collider } : undefined,
-    occlusionBounds: override.occlusionBounds ? { ...override.occlusionBounds } : undefined,
-    depthBounds: override.depthBounds ? { ...override.depthBounds } : undefined,
-    idleAnimationId: override.idleAnimationId,
-    onHitAnimationId: override.onHitAnimationId,
-  });
-}
-
-export function clearObjectVisualOverride(objectId: ObjectArchetypeId, visualId: string): void {
-  OBJECT_VISUAL_OVERRIDES.delete(visualKey(objectId, visualId));
-}
-
 export function hasObjectVisual(objectId: ObjectArchetypeId, visualId: string): boolean {
   return (getObjectArchetype(objectId).variants ?? []).some(
     (variant) => variant.frames.some((frame) => frame.visualId === visualId),
   );
-}
-
-export function getObjectPlacementChoices(): readonly ObjectPlacementChoice[] {
-  const ordinary = getObjectVisualChoices().map((choice) => ({ ...choice, kind: 'object-visual' as const }));
-  const npcChoices = getObjectArchetypeIds().flatMap((objectId) => {
-    const definition = getObjectArchetype(objectId);
-    if (!definition.npc) return [];
-    const npc = getNpcDefinition(definition.npc.definitionId);
-    if (!npc) return [];
-    return [{
-      kind: 'npc-character' as const,
-      key: visualKey(objectId, definition.npc.placementVisualId),
-      objectId,
-      visualId: definition.npc.placementVisualId,
-      displayName: npc.displayName,
-      npcDefinitionId: definition.npc.definitionId,
-      characterId: npc.characterId,
-      visualSetId: `character.npc.${npc.characterId}`,
-      tags: definition.tags,
-    } satisfies NpcCharacterPlacementChoice];
-  });
-  return [...ordinary, ...npcChoices];
 }

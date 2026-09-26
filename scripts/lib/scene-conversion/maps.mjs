@@ -320,7 +320,7 @@ function worldPlacements(map, mappingModule, firstOrder) {
 
 export const mapSceneAdapter = {
   async convert({ units, readSource }) {
-    const tileCatalog = await typescriptExport(readSource, 'src/game/content/terrain/TileCatalog.ts', 'TILE_CATALOG');
+    const tileCatalog = await typescriptExport(readSource, 'scripts/migrations/frozen-sources/TileCatalog.ts', 'TILE_CATALOG');
     const areas = await typescriptExport(readSource, 'src/game/world/Area.ts', 'AREAS');
     const placementMapping = await typescriptModule(readSource, 'src/game/infrastructure/scenes/compatibility/LegacyMapPlacementMapping.ts');
     const outputs = [];

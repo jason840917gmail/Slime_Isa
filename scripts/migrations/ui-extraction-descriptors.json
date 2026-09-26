@@ -250,7 +250,7 @@
     },
     {
       "id": "chest-inventory-panel",
-      "sourcePath": "src/game/ui/ChestInventoryPanel.ts",
+      "sourcePath": "scripts/migrations/frozen-sources/ChestInventoryPanel.ts",
       "sourceHash": "a58a345bada4929af55019d6ae6a4a86c0a7861fd177db3eebfc716ad5a80f45",
       "sceneId": "ui.chest-inventory-panel",
       "modal": true,

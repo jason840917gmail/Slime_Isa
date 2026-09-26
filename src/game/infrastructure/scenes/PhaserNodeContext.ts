@@ -44,6 +44,9 @@ export class PhaserNodeContext implements SceneHostBackend {
   private readonly contactBodies = new WeakMap<object, ContactParticipant>();
   private readonly blockingParticipants = new Set<PhaserBlockingParticipant>();
   private readonly blockingColliders = new Map<string, DestroyableCollider>();
+  private readonly staticBlockingParticipants = new WeakMap<Phaser.GameObjects.GameObject, PhaserBlockingParticipant>();
+  private staticBlockingGroup?: Phaser.Physics.Arcade.StaticGroup;
+  private staticBlockingCount = 0;
   private readonly baseResources: ReadonlyMap<ResourceId, SceneResourceDocument>;
   private readonly leasedResources = new Map<ResourceId, { readonly resource: SceneResourceDocument; leases: number }>();
   private ownsManualStepping = false;
@@ -142,13 +145,39 @@ export class PhaserNodeContext implements SceneHostBackend {
   registerBlockingParticipant(participant: PhaserBlockingParticipant): () => void {
     this.assertRunning();
     if (this.blockingParticipants.has(participant)) throw new Error(`Blocking participant '${participant.runtimeId}' is already registered`);
-    for (const other of this.blockingParticipants) this.createBlockingCollider(participant, other);
+    const staticGroup = this.ensureStaticBlockingGroup();
+    if (staticGroup && participant.isStaticBody) {
+      this.staticBlockingParticipants.set(participant.physicsObject, participant);
+      staticGroup.add(participant.physicsObject);
+      this.staticBlockingCount += 1;
+      if (this.staticBlockingCount === 1) {
+        for (const other of this.blockingParticipants) if (!other.isStaticBody) this.createStaticGroupCollider(other, staticGroup);
+      }
+    } else {
+      for (const other of this.blockingParticipants) {
+        if (staticGroup && other.isStaticBody) continue;
+        this.createBlockingCollider(participant, other);
+      }
+      if (staticGroup && this.staticBlockingCount > 0) this.createStaticGroupCollider(participant, staticGroup);
+    }
     this.blockingParticipants.add(participant);
     let active = true;
     return () => {
       if (!active) return;
       active = false;
       this.blockingParticipants.delete(participant);
+      if (staticGroup && participant.isStaticBody) {
+        staticGroup.remove(participant.physicsObject, false, false);
+        this.staticBlockingParticipants.delete(participant.physicsObject);
+        this.staticBlockingCount -= 1;
+        if (this.staticBlockingCount === 0) {
+          for (const [key, collider] of this.blockingColliders) {
+            if (!key.endsWith('|static-group')) continue;
+            collider.destroy();
+            this.blockingColliders.delete(key);
+          }
+        }
+      }
       for (const [key, collider] of [...this.blockingColliders]) {
         if (!key.split('|').includes(participant.runtimeId)) continue;
         collider.destroy();
@@ -187,6 +216,9 @@ export class PhaserNodeContext implements SceneHostBackend {
     this.callbacks.clear();
     for (const collider of this.blockingColliders.values()) collider.destroy();
     this.blockingColliders.clear();
+    this.staticBlockingGroup?.destroy(false);
+    this.staticBlockingGroup = undefined;
+    this.staticBlockingCount = 0;
     this.blockingParticipants.clear();
     this.contactParticipants.clear();
     this.contactRouter.clear();
@@ -231,6 +263,31 @@ export class PhaserNodeContext implements SceneHostBackend {
     };
     const collider = this.scene.physics.add.collider(first.physicsObject, second.physicsObject, onCollide, process) as unknown as DestroyableCollider;
     this.blockingColliders.set(key, collider);
+  }
+
+  private ensureStaticBlockingGroup(): Phaser.Physics.Arcade.StaticGroup | undefined {
+    if (!this.scene.physics.add.staticGroup) return undefined;
+    return this.staticBlockingGroup ??= this.scene.physics.add.staticGroup();
+  }
+
+  private createStaticGroupCollider(participant: PhaserBlockingParticipant, group: Phaser.Physics.Arcade.StaticGroup): void {
+    const staticFor = (first: unknown, second: unknown): PhaserBlockingParticipant | undefined =>
+      this.staticBlockingParticipants.get(first as Phaser.GameObjects.GameObject)
+      ?? this.staticBlockingParticipants.get(second as Phaser.GameObjects.GameObject);
+    const process = (first: unknown, second: unknown): boolean => {
+      const fixed = staticFor(first, second);
+      return fixed !== undefined && participant.blockingActive && fixed.blockingActive
+        && collisionMembershipAccepts(participant.collisionMask, fixed.collisionLayer)
+        && collisionMembershipAccepts(fixed.collisionMask, participant.collisionLayer);
+    };
+    const onCollide = (first: unknown, second: unknown): void => {
+      const fixed = staticFor(first, second);
+      if (!fixed) return;
+      participant.recordBlockingContact(this.blockingContact(participant, fixed));
+      fixed.recordBlockingContact(this.blockingContact(fixed, participant));
+    };
+    const collider = this.scene.physics.add.collider(participant.physicsObject, group, onCollide, process) as unknown as DestroyableCollider;
+    this.blockingColliders.set(`${participant.runtimeId}|static-group`, collider);
   }
 
   private blockingContact(owner: PhaserBlockingParticipant, other: PhaserBlockingParticipant): BlockingContact {

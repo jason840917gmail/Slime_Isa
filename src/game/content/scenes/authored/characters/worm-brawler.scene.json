@@ -175,8 +175,7 @@
           "coins": 8
         },
         "impactEffect": {
-          "visualSetId": "effect.enemy.worm-brawler-hit",
-          "clipId": "hit",
+          "effectId": "enemy-worm-brawler-hit",
           "distance": 22
         }
       }

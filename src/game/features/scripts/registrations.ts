@@ -118,6 +118,7 @@ export const PLAYER_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
     { id: 'damage_feedback', payload: 'DamageCommit' },
     { id: 'defeated', payload: 'PlayerDefeated' },
   ],
+  handlers: [{ id: 'on_pickup_area_entered', payload: 'PhysicsContact' }],
 };
 
 export const NPC_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
@@ -371,7 +372,6 @@ export const COLLECTIBLE_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
     { id: 'pickup_resolved', payload: 'CollectiblePickupResult' },
     { id: 'depleted', payload: 'CollectiblePickupRequest' },
   ],
-  handlers: [{ id: 'on_area_entered', payload: 'PhysicsContact' }],
 };
 
 export const INTERACTION_SCRIPT_DESCRIPTOR: ScriptDescriptor = {

@@ -4,18 +4,17 @@ import { questTracker } from '../../quests/QuestTracker';
 import { worldProgress } from '../progression/WorldProgress';
 import { getAreaDefinition, type AreaDef, type AreaId, type Direction } from '../../world/Area';
 import type { GameSaveData } from '../../infrastructure/persistence/SaveSchema';
-import { STORAGE_KEYS } from '../../infrastructure/persistence/storageKeys';
+import {
+  consumeRunNavigation,
+  peekRunNavigation,
+  restoreRunNavigation,
+  writeRunNavigation,
+  type RunNavigationHandoff,
+  type RunNavigationKind,
+} from '../../infrastructure/persistence/RunNavigationStore';
 
-export type RunNavigationKind = 'area' | 'load' | 'reset';
-
-export interface RunNavigationHandoff {
-  readonly version: 1;
-  readonly kind: RunNavigationKind;
-  readonly mapId: string;
-  readonly entryEdge?: Direction;
-  readonly respawnHome?: boolean;
-  readonly data: GameSaveData;
-}
+export { peekRunNavigation };
+export type { RunNavigationHandoff, RunNavigationKind };
 
 export interface AreaNavigationRequest {
   areaId?: AreaId;
@@ -26,19 +25,6 @@ export interface ResolvedAreaRequest {
   area: AreaDef;
   entryEdge?: Direction;
   respawnHome: boolean;
-}
-
-export function peekRunNavigation(): RunNavigationHandoff | null {
-  try {
-    const raw = sessionStorage.getItem(STORAGE_KEYS.areaTransition);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as Partial<RunNavigationHandoff>;
-    if (parsed.version !== 1 || !parsed.data || typeof parsed.mapId !== 'string') return null;
-    if (parsed.kind !== 'area' && parsed.kind !== 'load' && parsed.kind !== 'reset') return null;
-    return parsed as RunNavigationHandoff;
-  } catch {
-    return null;
-  }
 }
 
 export function resolveAreaRequest(data: AreaNavigationRequest): ResolvedAreaRequest {
@@ -63,13 +49,8 @@ export function restoreAreaTransition(): {
   kind?: RunNavigationKind;
   data?: GameSaveData;
 } {
-  const pending = peekRunNavigation();
+  const pending = consumeRunNavigation();
   if (!pending) return { restored: false, respawnHome: false };
-  try {
-    sessionStorage.removeItem(STORAGE_KEYS.areaTransition);
-  } catch {
-    // The handoff remains in memory for this scene even if cleanup fails.
-  }
   return {
     restored: true,
     respawnHome: pending.respawnHome === true,
@@ -93,8 +74,7 @@ export function queueRunNavigation(
     ...(respawnHome ? { respawnHome: true } : {}),
     data,
   };
-  const previousHandoff = sessionStorage.getItem(STORAGE_KEYS.areaTransition);
-  sessionStorage.setItem(STORAGE_KEYS.areaTransition, JSON.stringify(handoff));
+  const previousHandoff = writeRunNavigation(handoff);
   const nextUrl = new URL(window.location.href);
   nextUrl.searchParams.set('area', mapId);
   if (entryEdge) nextUrl.searchParams.set('entry', entryEdge);
@@ -105,12 +85,7 @@ export function queueRunNavigation(
   try {
     window.location.assign(nextUrl.toString());
   } catch (error) {
-    try {
-      if (previousHandoff === null) sessionStorage.removeItem(STORAGE_KEYS.areaTransition);
-      else sessionStorage.setItem(STORAGE_KEYS.areaTransition, previousHandoff);
-    } catch {
-      // Preserve the navigation error; handoff rollback is best effort.
-    }
+    restoreRunNavigation(previousHandoff);
     throw error;
   }
 }

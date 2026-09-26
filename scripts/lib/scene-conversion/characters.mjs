@@ -140,6 +140,9 @@ function playerScene(character, visual) {
       },
     ],
     instances: [],
+    connections: [
+      { source: { nodeId: 'pickup-area' }, signal: 'area_entered', target: { nodeId: 'script' }, handler: 'on_pickup_area_entered' },
+    ],
   };
 }
 

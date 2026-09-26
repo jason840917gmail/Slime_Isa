@@ -102,6 +102,7 @@ type FixtureApi = {
   disableProductionEnemySpawning(): void;
   teleportProductionPlayer(x: number, y: number): void;
   spawnManagedEnemy(type: 'slime-spider' | 'worm-archer' | 'worm-brawler' | 'worm-swordsman', x: number, y: number): boolean;
+  spawnProductionDrop(instanceId: string, quantity: number, x: number, y: number): void;
   spawnManagedEffect(effectId: string, direction: 'right' | 'left' | 'up' | 'down', x: number, y: number): boolean;
   equipProductionWeapon(weaponId: string): boolean;
   grantProductionWeapons(): void;
@@ -482,6 +483,22 @@ const api: FixtureApi = {
     };
     return world.universalWorld?.createManagedEnemy({ x, y, config: getEnemyConfig(type) }) !== undefined;
   },
+  spawnProductionDrop(instanceId, quantity, x, y) {
+    if (!game || mode !== 'baseline') throw new Error('Production drops are only available in baseline mode');
+    const world = game.scene.getScene('world') as unknown as {
+      readonly universalWorld?: {
+        spawnWorldDrop(request: {
+          mode: 'launch'; source: { x: number; y: number }; destination: { x: number; y: number };
+          launchIndex: number; drop: { objectId: string; visualId: string; instanceId: string; initialState: { remaining: number } };
+        }): void;
+      };
+    };
+    if (!world.universalWorld) throw new Error('Managed world is unavailable');
+    world.universalWorld.spawnWorldDrop({
+      mode: 'launch', source: { x: x - 32, y: y - 32 }, destination: { x, y }, launchIndex: 0,
+      drop: { objectId: 'collectible.wood-pile', visualId: 'wood-pile', instanceId, initialState: { remaining: quantity } },
+    });
+  },
   spawnManagedEffect(effectId, direction, x, y) {
     if (!game || mode !== 'baseline') throw new Error('Production effects are only available in baseline mode');
     const world = game.scene.getScene('world') as unknown as {
@@ -620,7 +637,7 @@ const api: FixtureApi = {
             readonly managedWeaponId: string | null;
             readonly managedWeaponAttacking: boolean;
             readonly managedPlayer: { getPosition(): Readonly<{ x: number; y: number }> };
-            readonly runtime: { readonly tree: { readonly paused: boolean } };
+            readonly runtime: { readonly tree: { readonly paused: boolean }; readonly context: { readonly managedBlockingColliderCount: number; readonly managedContactParticipantCount: number } };
             readonly audioComposition: { readonly sceneId: string; readonly disposed: boolean };
           };
           readonly sound: { readonly sounds: readonly unknown[] };
@@ -665,6 +682,8 @@ const api: FixtureApi = {
       ...(world?.universalWorld ? { managedWeaponAttacking: world.universalWorld.managedWeaponAttacking } : {}),
       ...(world?.healthSystem ? { playerHp: world.healthSystem.getDamageState().hp } : {}),
       ...(world?.universalWorld ? { universalRuntimePaused: world.universalWorld.runtime.tree.paused } : {}),
+      ...(world?.universalWorld ? { managedBlockingColliderCount: world.universalWorld.runtime.context.managedBlockingColliderCount } : {}),
+      ...(world?.universalWorld ? { managedContactParticipantCount: world.universalWorld.runtime.context.managedContactParticipantCount } : {}),
       ...(world?.universalWorld ? { audioCompositionMounted: world.universalWorld.audioComposition.sceneId === 'audio.global' && !world.universalWorld.audioComposition.disposed } : {}),
       ...(world ? { productionAudioObjectCount: world.sound.sounds.length } : {}),
       ...(world?.combatController ? { legacyEnemyCount: world.combatController.targets.countActive(true) } : {}),

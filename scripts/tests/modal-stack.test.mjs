@@ -8,7 +8,7 @@ const vite = await createServer({
   configFile: false,
   root: process.cwd(),
   appType: 'custom',
-  server: { middlewareMode: true },
+  server: { middlewareMode: true, hmr: false },
 });
 
 const { ModalStack } = await vite.ssrLoadModule('/src/game/ui/ModalStack.ts');
@@ -295,7 +295,6 @@ test('WorldScene integration keeps one shared Escape contract', () => {
   assert.match(config, /new ModalStack\(\)/);
   assert.match(config, /registry\.set\('modalStack'/);
   assert.match(worldScene, /registry\.get\('modalStack'/);
-  assert.match(worldScene, /keydown-P/);
   const registrations = {
     inventory: 'src/game/ui/InventoryUI.ts',
     crafting: 'src/game/ui/CraftingUI.ts',

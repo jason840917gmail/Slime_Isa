@@ -11,6 +11,8 @@ type BaselineSample = {
   p95FrameMs: number;
   gameObjectCount: number;
   bodyCount: number;
+  managedBlockingColliderCount: number;
+  managedContactParticipantCount: number;
   cleanupCount: number;
 };
 
@@ -54,6 +56,8 @@ async function sampleMap(page: import('@playwright/test').Page, mapId: string): 
     p95FrameMs: timing.p95FrameMs,
     gameObjectCount: live.gameObjectCount,
     bodyCount: live.bodyCount,
+    managedBlockingColliderCount: live.managedBlockingColliderCount ?? 0,
+    managedContactParticipantCount: live.managedContactParticipantCount ?? 0,
     cleanupCount: live.gameObjectCount + live.bodyCount,
   };
 }
@@ -78,5 +82,6 @@ test('records deterministic-procedure baselines for small and large authored map
   console.log(`UNIVERSAL_SCENE_BASELINE=${JSON.stringify(samples)}`);
   expect(samples.every((sample) => sample.loadTimeMs > 0)).toBe(true);
   expect(samples.every((sample) => sample.medianFrameMs > 0 && sample.p95FrameMs >= sample.medianFrameMs)).toBe(true);
+  expect(samples.every((sample) => sample.managedBlockingColliderCount < sample.bodyCount)).toBe(true);
   expect(pageErrors).toEqual([]);
 });

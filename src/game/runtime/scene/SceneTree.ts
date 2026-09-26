@@ -24,6 +24,7 @@ export class SceneTree {
   private readonly runtimeIndex = new Map<RuntimeNodeId, Node>();
   private readonly persistenceIndex = new Map<PersistenceKey, Node>();
   private readonly groupIndex = new Map<string, Set<Node>>();
+  private cachedTreeOrder?: Node[];
   private readonly mutations = new SceneMutationQueue();
   private boundaryDepth = 0;
   private flushing = false;
@@ -37,6 +38,7 @@ export class SceneTree {
   setRoot(root: Node): void {
     if (this.root) throw new Error('SceneTree already has a root');
     if (root.get_parent() || root.get_tree() || root.is_freed()) throw new Error('SceneTree root must be a live detached root node');
+    this.cachedTreeOrder = undefined;
     this.boundaryDepth += 1;
     this.currentExternalCommands = [];
     this.stagedRoot = root;
@@ -74,6 +76,7 @@ export class SceneTree {
     if (this.fatalState) throw new Error('Cannot replace the root of a fatal SceneTree');
     if (this.boundaryDepth > 0 || this.flushing || this.mutations.size > 0) throw new Error('Root replacement requires a stable scene boundary');
     if (replacement.get_parent() || replacement.get_tree() || replacement.is_freed()) throw new Error('Replacement root must be a live detached root node');
+    this.cachedTreeOrder = undefined;
     const previous = this.root;
     if (!previous) { this.setRoot(replacement); return replacement.get_tree() === this; }
 
@@ -155,6 +158,7 @@ export class SceneTree {
     if (this.flushing || this.mutations.size === 0) return;
     this.flushing = true;
     const batch = this.mutations.takeBatch();
+    if (batch.length > 0) this.cachedTreeOrder = undefined;
     const freeRoots = batch.filter((mutation): mutation is Extract<SceneMutation, { kind: 'free' }> => mutation.kind === 'free').map((mutation) => mutation.node);
     const suppressed = new Set(batch.filter((mutation) => freeRoots.some((ancestor) => {
       if (ancestor === mutation.node) return false;
@@ -455,7 +459,12 @@ export class SceneTree {
     for (const [group, members] of this.groupIndex) { members.delete(node); if (members.size === 0) this.groupIndex.delete(group); }
   }
 
-  private treeOrder(): Node[] { return this.root ? this.subtreePreorder(this.root).filter((node) => node.lifecycleState === 'ready') : []; }
+  private treeOrder(): Node[] {
+    if (!this.cachedTreeOrder) this.cachedTreeOrder = this.root
+      ? this.subtreePreorder(this.root).filter((node) => node.lifecycleState === 'ready')
+      : [];
+    return this.cachedTreeOrder;
+  }
 
   private inputOrder(): Node[] {
     return this.treeOrder()

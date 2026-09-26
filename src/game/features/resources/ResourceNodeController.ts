@@ -1,16 +1,9 @@
 import type Phaser from 'phaser';
 
-import {
-  getObjectArchetype,
-  isObjectArchetypeId,
-  type ObjectArchetypeId,
-} from '../../content/objects/ObjectCatalog';
-import { acceptedDamage, rejectedDamage, type DamageApplicationResult } from '../../combat/DamageableTarget';
 import { floatingText } from '../../ui/FloatingText';
-import type { BuiltObjectRegistration } from '../world/MapBuilder';
-import { worldProgress, type ResourcePileProgress, type ResourceProgressState } from '../progression/WorldProgress';
+import { worldProgress, type ResourcePileProgress } from '../progression/WorldProgress';
 import type { CollectibleStateChange } from '../collectibles/CollectibleController';
-import type { WorldDropRequest } from '../collectibles/WorldDropSpawner';
+import type { WorldDropRequest } from '../collectibles/WorldDropRequest';
 import type { WorldDimensions } from '../../world/WorldDimensions';
 import { completeDropPlacements } from './ResourceDropPlacement';
 import type { ResourceDropRequest } from '../scripts/ResourceNodeScript';
@@ -21,54 +14,19 @@ export interface ManagedResourceRegistration {
   readonly dropVisualId: string;
 }
 
-interface ResourceRecord {
-  readonly image: Phaser.GameObjects.Image;
-  readonly instanceId: string;
-  readonly objectId: ObjectArchetypeId;
-  readonly tags: readonly string[];
-  health: number;
-  maxHealth: number;
-  depletionPending?: boolean;
-  readonly anchorX: number;
-  readonly anchorY: number;
-  readonly dropObjectId?: string;
-  readonly dropVisualId?: string;
-  readonly dropPieces?: number;
-}
-
-export interface AcceptedObjectDamageEvent extends DamageApplicationResult {
-  readonly status: 'accepted';
-  readonly target: Phaser.GameObjects.Image;
-  readonly acceptedDamage: number;
-  readonly resourceHitEffectId?: string;
-  readonly onHitAnimationId?: string;
-  readonly depleted: boolean;
-}
-
-export type ResourceDamageApplicationResult = DamageApplicationResult | AcceptedObjectDamageEvent;
-
-export interface HarvestRequirement {
-  readonly targetTag: string;
-  readonly minimumTier: number;
-  readonly failureMessage: string;
-}
-
 interface ResourceNodeControllerContext {
   readonly scene: Phaser.Scene;
   readonly mapId: string;
   readonly dimensions: WorldDimensions;
-  readonly collisionGroup: Phaser.Physics.Arcade.StaticGroup;
-  readonly targetGroup: Phaser.GameObjects.Group;
-  readonly spawnWorldDrop: (request: WorldDropRequest) => Phaser.GameObjects.Image;
+  readonly getCollectibleQuantity: (objectId: string) => number;
+  readonly spawnWorldDrop: (request: WorldDropRequest) => void;
   readonly isCellBlocked: (cellX: number, cellY: number, sourceInstanceId: string) => boolean;
 }
 
-/** Owns damageable resource nodes and deterministic collectible drop spawning. */
+/** Places scene-owned resource drops and restores their persisted piles. */
 export class ResourceNodeController {
-  private readonly records = new Map<Phaser.GameObjects.GameObject, ResourceRecord>();
   private readonly reservedCells = new Set<string>();
   private readonly dropDefinitions = new Map<string, { objectId: string; visualId: string }>();
-  private harvestHintReadyAt = 0;
 
   constructor(private readonly ctx: ResourceNodeControllerContext) {}
 
@@ -82,9 +40,7 @@ export class ResourceNodeController {
   }
 
   spawnManagedResourceDrops(request: ResourceDropRequest): void {
-    if (!isObjectArchetypeId(request.dropObjectId)) return;
-    const collectible = getObjectArchetype(request.dropObjectId).collectible;
-    if (!collectible) return;
+    const quantity = this.ctx.getCollectibleQuantity(request.dropObjectId);
     this.spawnConfiguredDrops({
       sourceInstanceId: request.instanceId,
       anchorX: request.x,
@@ -92,139 +48,9 @@ export class ResourceNodeController {
       dropObjectId: request.dropObjectId,
       dropVisualId: request.dropVisualId,
       pieces: request.pieces,
-      amount: collectible.quantity,
+      amount: quantity,
       depletionMessage: request.depletionMessage ?? 'Resource depleted',
     });
-  }
-
-  register(registration: BuiltObjectRegistration): void {
-    if (!isObjectArchetypeId(registration.objectId)) return;
-    const definition = getObjectArchetype(registration.objectId);
-    const node = definition.resourceNode;
-    if (!node) return;
-    this.dropDefinitions.set(registration.instanceId, { objectId: node.drop.objectId, visualId: node.drop.visualId });
-
-    const initialState = registration.initialState ?? {};
-    const customDropObjectId = typeof initialState.dropObjectId === 'string' && isObjectArchetypeId(initialState.dropObjectId)
-      ? initialState.dropObjectId
-      : undefined;
-    const inferredDropVisualId = customDropObjectId
-      ? getObjectArchetype(customDropObjectId).variants?.[0]?.frames[0]?.visualId
-      : undefined;
-    const image = registration.image;
-    const savedState = worldProgress.resourceState(this.ctx.mapId, registration.instanceId);
-    const record: ResourceRecord = {
-      image,
-      instanceId: registration.instanceId,
-      objectId: registration.objectId,
-      tags: definition.tags,
-      health: this.numberState(initialState.health, node.health),
-      maxHealth: node.health,
-      anchorX: this.anchorValue(image, 'objectAnchorX', image.x),
-      anchorY: this.anchorValue(image, 'objectAnchorY', image.y),
-      ...(customDropObjectId ? { dropObjectId: customDropObjectId } : {}),
-      ...(typeof initialState.dropVisualId === 'string'
-        ? { dropVisualId: initialState.dropVisualId }
-        : inferredDropVisualId ? { dropVisualId: inferredDropVisualId } : {}),
-      ...(typeof initialState.dropPieces === 'number' && Number.isInteger(initialState.dropPieces) && initialState.dropPieces > 0 ? { dropPieces: initialState.dropPieces } : {}),
-    };
-    this.records.set(image, record);
-    image.setData('resourceInstanceId', registration.instanceId);
-    image.setData('resourceState', 'node');
-    image.setData('resourceTags', record.tags);
-    image.setData('resourceHealth', record.health);
-
-    if (savedState?.stage === 'depleted') {
-      this.removeNodeVisual(record);
-      this.records.delete(image);
-      return;
-    }
-    if (savedState?.stage === 'destroyed') {
-      this.removeNodeVisual(record);
-      this.records.delete(image);
-      this.restoreDynamicDrops(registration.instanceId, savedState.piles ?? []);
-      return;
-    }
-    if (savedState?.stage === 'node' && node.persistHealth !== false) {
-      record.health = Math.min(node.health, savedState.value);
-      image.setData('resourceHealth', record.health);
-    }
-    if (record.health <= 0) {
-      this.removeNodeVisual(record);
-      this.records.delete(image);
-      this.spawnDrops(record);
-      return;
-    }
-    this.ctx.targetGroup.add(image);
-  }
-
-  isResourceTarget(target: Phaser.GameObjects.GameObject): boolean {
-    return this.records.has(target);
-  }
-
-  tagsFor(target: Phaser.GameObjects.GameObject): readonly string[] {
-    return this.records.get(target)?.tags ?? [];
-  }
-
-  harvestRequirementFor(target: Phaser.GameObjects.GameObject): HarvestRequirement | undefined {
-    const record = this.records.get(target);
-    if (!record) return undefined;
-    return getObjectArchetype(record.objectId).resourceNode?.harvestRequirement;
-  }
-
-  showHarvestFailure(target: Phaser.GameObjects.GameObject, message: string): void {
-    const record = this.records.get(target);
-    if (!record || this.ctx.scene.time.now < this.harvestHintReadyAt) return;
-    this.harvestHintReadyAt = this.ctx.scene.time.now + 900;
-    floatingText.spawn(this.ctx.scene, record.image.x, record.image.y - 58, message, 'cyan', true);
-  }
-
-  applyDamage(target: Phaser.GameObjects.GameObject, amount: number): ResourceDamageApplicationResult {
-    const record = this.records.get(target);
-    if (!record || !Number.isFinite(amount) || amount <= 0) return rejectedDamage('invalid');
-    if (record.health <= 0) return rejectedDamage('dead');
-
-    const before = record.health;
-    const node = getObjectArchetype(record.objectId).resourceNode;
-    const resourceHitEffectId = node?.hitEffectId;
-    const onHitAnimationId = record.image.getData('onHitAnimationId') as string | undefined;
-    record.health = Math.max(0, record.health - amount);
-    record.image.setData('resourceHealth', record.health);
-    if (node?.persistHealth !== false) this.saveState(record, 'node', record.health);
-    record.image.setTintFill(0xffd277);
-    this.ctx.scene.time.delayedCall(110, () => {
-      if (record.image.active) record.image.clearTint();
-    });
-    floatingText.spawn(this.ctx.scene, record.image.x, record.image.y - 54, `-${Math.round(amount)}`, 'white');
-
-    if (record.health <= 0) {
-      record.depletionPending = true;
-      this.ctx.targetGroup.remove(record.image, false, false);
-      const body = record.image.body as Phaser.Physics.Arcade.StaticBody | Phaser.Physics.Arcade.Body | null;
-      if (body) body.enable = false;
-      // Keep the zero-health node recoverable until completeDepletion() authors
-      // and persists the drop list in the same combat resolution.
-      this.saveState(record, 'node', 0);
-    }
-    const result = acceptedDamage(before, record.health);
-    return {
-      ...result,
-      status: 'accepted',
-      target: record.image,
-      acceptedDamage: result.actualDamage,
-      depleted: result.defeated,
-      ...(resourceHitEffectId ? { resourceHitEffectId } : {}),
-      ...(onHitAnimationId ? { onHitAnimationId } : {}),
-    };
-  }
-
-  completeDepletion(target: Phaser.GameObjects.GameObject): void {
-    const record = this.records.get(target);
-    if (!record || !record.depletionPending) return;
-    record.depletionPending = false;
-    this.removeNodeVisual(record);
-    this.records.delete(record.image);
-    this.spawnDrops(record);
   }
 
   onCollectibleStateChanged(change: CollectibleStateChange): void {
@@ -248,36 +74,8 @@ export class ResourceNodeController {
   }
 
   destroy(): void {
-    for (const record of this.records.values()) {
-      if (record.depletionPending) this.completeDepletion(record.image);
-    }
-    this.records.clear();
     this.reservedCells.clear();
     this.dropDefinitions.clear();
-  }
-
-  private spawnDrops(record: ResourceRecord, piecesOverride?: number, amountOverride?: number): void {
-    const source = getObjectArchetype(record.objectId).resourceNode;
-    if (!source) return;
-    const drop = {
-      objectId: record.dropObjectId ?? source.drop.objectId,
-      visualId: record.dropVisualId ?? source.drop.visualId,
-      pieces: record.dropPieces ?? source.drop.pieces,
-    };
-    if (!isObjectArchetypeId(drop.objectId)) return;
-    const collectible = getObjectArchetype(drop.objectId).collectible;
-    if (!collectible) return;
-
-    this.spawnConfiguredDrops({
-      sourceInstanceId: record.instanceId,
-      anchorX: record.anchorX,
-      anchorY: record.anchorY,
-      dropObjectId: drop.objectId,
-      dropVisualId: drop.visualId,
-      pieces: piecesOverride ?? drop.pieces,
-      amount: amountOverride ?? collectible.quantity,
-      depletionMessage: source.depletionMessage ?? 'Resource depleted',
-    });
   }
 
   private spawnConfiguredDrops(request: {
@@ -339,7 +137,7 @@ export class ResourceNodeController {
     const authoredObjectId = pile.objectId;
     const objectId = authoredObjectId ?? sourceDrop?.objectId;
     const visualId = pile.visualId ?? sourceDrop?.visualId;
-    if (!objectId || !visualId || !isObjectArchetypeId(objectId)) return;
+    if (!objectId || !visualId) return;
     const x = pile.cellX * this.ctx.dimensions.tileSize + this.ctx.dimensions.tileSize / 2 + (pile.offsetX ?? 0);
     const y = (pile.cellY + 1) * this.ctx.dimensions.tileSize + (pile.offsetY ?? 0);
     this.ctx.spawnWorldDrop(presentation.mode === 'launch' ? {
@@ -390,29 +188,6 @@ export class ResourceNodeController {
     }
     candidates.sort((a, b) => a.distance - b.distance || a.cellY - b.cellY || a.cellX - b.cellX);
     return candidates.slice(0, limit).map(({ cellX, cellY }) => ({ cellX, cellY }));
-  }
-
-  private removeNodeVisual(record: ResourceRecord): void {
-    const registration = record.image.getData('occlusionRegistration') as { dispose(): void } | undefined;
-    registration?.dispose();
-    this.ctx.targetGroup.remove(record.image, false, false);
-    this.ctx.collisionGroup.remove(record.image, false, false);
-    const body = record.image.body as Phaser.Physics.Arcade.StaticBody | Phaser.Physics.Arcade.Body | null;
-    if (body) body.enable = false;
-    record.image.destroy();
-  }
-
-  private saveState(record: ResourceRecord, stage: ResourceProgressState['stage'], value: number): void {
-    worldProgress.setResourceState(this.ctx.mapId, record.instanceId, { stage, value });
-  }
-
-  private numberState(value: unknown, fallback: number): number {
-    return typeof value === 'number' && Number.isFinite(value) ? Math.max(0, value) : fallback;
-  }
-
-  private anchorValue(image: Phaser.GameObjects.Image, key: string, fallback: number): number {
-    const value = image.getData(key);
-    return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
   }
 
   private cellForAnchor(anchorX: number, anchorY: number): { cellX: number; cellY: number } {

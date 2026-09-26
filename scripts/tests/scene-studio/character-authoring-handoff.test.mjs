@@ -13,34 +13,6 @@ test('all converted characters declare Scene Studio as their writer', async () =
   assert.deepEqual([...new Set(characters.map((row) => row.writerState))], ['scene']);
 });
 
-test('read-only legacy character endpoints reject every package mutation', async () => {
-  const handlers = new Map();
-  const plugin = characterContentModulesPlugin({ characterAuthoring: 'read-only' });
-  const configureServer = plugin.configureServer;
-  assert.ok(configureServer);
-  const server = {
-    middlewares: { use(route, handler) { handlers.set(route, handler); } },
-    moduleGraph: { getModuleById() { return undefined; }, invalidateModule() {} },
-  };
-  if (typeof configureServer === 'function') await configureServer(server);
-  else await configureServer.handler(server);
-
-  for (const route of [
-    '/__character-studio/create',
-    '/__character-studio/package/create',
-    '/__character-studio/package/update',
-    '/__character-studio/package/duplicate',
-  ]) {
-    const handler = handlers.get(route);
-    assert.ok(handler, `${route} is registered`);
-    let payload;
-    const response = {
-      statusCode: 0,
-      setHeader() {},
-      end(body) { payload = JSON.parse(body); },
-    };
-    handler({ method: 'POST' }, response, () => {});
-    assert.equal(response.statusCode, 409);
-    assert.equal(payload.error.code, 'scene-owned');
-  }
+test('the character content loader does not register legacy write routes', () => {
+  assert.equal(characterContentModulesPlugin().configureServer, undefined);
 });

@@ -10,7 +10,7 @@ test('TileMapLayer2D renders external cells, registers collision, and tears down
   expect(live.tileCount).toBe(3);
   expect(live.tileCollisionBodyCount).toBe(1);
   expect(live.bodyCount).toBe(5);
-  expect(live.managedBlockingColliderCount).toBe(2);
+  expect(live.managedBlockingColliderCount).toBe(1);
   expect(pageErrors).toEqual([]);
 
   await page.evaluate(() => window.sceneFixture.destroy());

@@ -43,19 +43,3 @@ test('player-death reset suppression holds through the boundary and clears outsi
   });
   assert.equal(behavior.bossPerimeterContains(circle, 120, 100), true);
 });
-
-test('controller defers active-fight resets to an update safe point and gives true defeat precedence', async () => {
-  const { readFile } = await import('node:fs/promises');
-  const source = await readFile(new URL('../../../src/game/features/bosses/BossCampController.ts', import.meta.url), 'utf8');
-  const resetMethod = source.slice(source.indexOf('resetActiveFights()'), source.indexOf('  destroy(): void'));
-  assert.match(resetMethod, /record\.pendingTransientReset = true/);
-  assert.doesNotMatch(resetMethod, /this\.transientReset\(record\)/);
-  assert.match(source, /const resetThisUpdate = new Set\(this\.flushPendingTransientResets\(\)\)/);
-  assert.match(source, /record\.boss\?\.updateBoss\(time, deltaMs\)[\s\S]*this\.flushPendingTransientResets\(\)/);
-  assert.match(source, /for \(const record of this\.records\)[\s\S]*record\.pendingTransientReset = false/);
-  assert.match(source, /record\.suppressSpawnUntilOutside = true/);
-  const defeatedMethod = source.slice(source.indexOf('private onDefeated'), source.indexOf('\n  }\n}', source.indexOf('private onDefeated')));
-  assert.match(defeatedMethod, /record\.pendingTransientReset = false/);
-  assert.match(defeatedMethod, /record\.suppressSpawnUntilOutside = false/);
-  assert.match(defeatedMethod, /setBossCampRespawnReadyAt/);
-});

@@ -44,6 +44,8 @@
 .scene-resource-row { display: grid; grid-template-columns: 18px 1fr; width: 100%; padding: 8px; gap: 5px; color: #b9c9c0; text-align: left; background: transparent; }
 .scene-explorer nav > button:hover,
 .scene-explorer nav > button.is-current { color: #fff7df; background: #24342d; }
+.scene-explorer .scene-resource-row:hover,
+.scene-explorer .scene-resource-row.is-current { color: #fff7df; background: #24342d; }
 .scene-resource-row small { grid-column: 2; overflow: hidden; color: #607b6d; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
 .scene-explorer p,
 .scene-empty p { padding: 10px; color: var(--scene-muted); }
@@ -92,6 +94,13 @@
 .scene-property textarea { min-height: 64px; resize: vertical; }
 .scene-property > em { color: #657d72; font-size: 8px; font-style: normal; text-transform: uppercase; }
 .scene-property > small { grid-column: 2 / -1; color: #738a7f; font-size: 9px; }
+.scene-resource-field { display: grid; gap: 6px; margin-bottom: 12px; color: #9eb1a7; font-size: 11px; }
+.scene-resource-field input:not([type="checkbox"]),
+.scene-resource-field textarea { min-width: 0; width: 100%; padding: 7px; border: 1px solid #314940; color: #d7e0db; background: #09120f; font: 11px/1.4 monospace; }
+.scene-resource-field textarea { min-height: 80px; resize: vertical; }
+.scene-resource-preview { display: grid; align-content: center; justify-items: center; gap: 10px; padding: 30px; text-align: center; }
+.scene-resource-preview h2 { max-width: 100%; overflow-wrap: anywhere; color: #e6c77d; font: 700 23px Georgia, serif; }
+.scene-resource-preview p { max-width: 320px; color: #8ca99a; font-size: 11px; }
 .scene-script-card { display: grid; margin: 11px; padding: 10px; border: 1px solid #425646; background: #20291d; }
 .scene-script-card span { color: #c7a85d; font-size: 9px; letter-spacing: .14em; }
 .scene-script-card code { margin: 4px 0; color: #8fbba7; }

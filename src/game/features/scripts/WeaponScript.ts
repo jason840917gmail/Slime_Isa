@@ -21,14 +21,6 @@ export interface WeaponDamagePayload {
   readonly damageTypes?: readonly string[];
 }
 
-export interface LegacyWeaponHitboxRequest {
-  readonly weaponId: string;
-  readonly hitboxId: string;
-  readonly attackDirection: WeaponAttackDirection;
-  readonly damage: number;
-  readonly knockbackStrength: number;
-}
-
 export interface ManagedWeaponTarget {
   readonly areaNodeId: string;
   readonly receiverNodeId: string;
@@ -41,7 +33,6 @@ export interface ManagedWeaponTarget {
 export interface PlayerWeaponCombatPort {
   onAttackStarted(weaponId: string, direction: WeaponAttackDirection): void;
   onAttackFinished(weaponId: string, direction: WeaponAttackDirection): void;
-  activateLegacyHitbox(request: LegacyWeaponHitboxRequest): () => void;
   transformDamage(damage: number, target: ManagedWeaponTarget): number;
   onOutcome(outcome: RoutedDamageOutcome, target: ManagedWeaponTarget): void;
 }
@@ -96,7 +87,6 @@ export class WeaponScript extends ScriptNode {
   private combat?: PlayerWeaponCombatPort;
   private activationId?: string;
   private readonly resolvedReceivers = new Set<string>();
-  private readonly legacyHitboxes = new Map<string, () => void>();
 
   constructor(context: NodeConstructionContext) {
     super({ runtimeId: context.runtimeId, name: context.name, scriptId: scriptId(context), exportedProperties: context.properties });
@@ -135,7 +125,6 @@ export class WeaponScript extends ScriptNode {
     }
     const frame = Math.floor((elapsedMs / 1000) * plan.framesPerSecond);
     const enabled = new Set(plan.hitboxSpans.filter((span) => frame >= span.from && frame <= span.through).map((span) => span.hitboxId));
-    this.syncLegacyHitboxes(enabled);
     this.activeHitboxIds = enabled;
     this.setAttackAreaActive(enabled.size > 0, enabled);
   }
@@ -207,7 +196,6 @@ export class WeaponScript extends ScriptNode {
     const combat = this.combat;
     this.setAttackAreaActive(false, new Set());
     this.activeHitboxIds.clear();
-    this.clearLegacyHitboxes();
     this.endDamageActivation();
     this.activeDirection = undefined;
     this.activePlan = undefined;
@@ -292,36 +280,6 @@ export class WeaponScript extends ScriptNode {
     this.combat = undefined;
     this.damage = undefined;
     this.resolvedReceivers.clear();
-  }
-
-  private syncLegacyHitboxes(enabled: ReadonlySet<string>): void {
-    for (const [hitboxId, deactivate] of this.legacyHitboxes) {
-      if (enabled.has(hitboxId)) continue;
-      deactivate();
-      this.legacyHitboxes.delete(hitboxId);
-    }
-    const plan = this.activePlan;
-    const damage = this.damage;
-    const combat = this.combat;
-    const direction = this.activeDirection;
-    if (!plan || !damage || !combat || !direction) return;
-    for (const hitboxId of enabled) {
-      if (this.legacyHitboxes.has(hitboxId)) continue;
-      const span = plan.hitboxSpans.find((candidate) => candidate.hitboxId === hitboxId);
-      if (!span) continue;
-      this.legacyHitboxes.set(hitboxId, combat.activateLegacyHitbox({
-        weaponId: this.weaponId,
-        hitboxId,
-        attackDirection: direction,
-        damage: damage.damage * span.damageMultiplier,
-        knockbackStrength: damage.knockbackStrength * span.knockbackMultiplier,
-      }));
-    }
-  }
-
-  private clearLegacyHitboxes(): void {
-    for (const deactivate of this.legacyHitboxes.values()) deactivate();
-    this.legacyHitboxes.clear();
   }
 
   private setAttackAreaActive(active: boolean, hitboxIds: ReadonlySet<string>): void {

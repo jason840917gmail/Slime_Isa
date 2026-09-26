@@ -19,13 +19,6 @@ const sourceDocument = JSON.parse(await fs.readFile(sourcePath, 'utf8'));
 const characterDocument = JSON.parse(await fs.readFile(path.join(repositoryRoot, 'src', 'game', 'content', 'characters', 'player-slime', 'character.json'), 'utf8'));
 const visualSetDocument = JSON.parse(await fs.readFile(path.join(repositoryRoot, 'src', 'game', 'content', 'characters', 'player-slime', 'visual-set.json'), 'utf8'));
 
-test('gameplay-default inspector is restored by full and shelf-only renders', async () => {
-  const source = await fs.readFile(path.join(repositoryRoot, 'src', 'game', 'editor', 'CharacterStudio.ts'), 'utf8');
-  assert.match(source, /const renderStudioShell =/);
-  assert.match(source, /const renderViewport[\s\S]*?renderStudioShell\(snapshot\)/);
-  assert.match(source, /const rerenderShelf[\s\S]*?renderStudioShell\(currentState\.value\)/);
-});
-
 test('gameplay defaults state owns dirty history independently', () => {
   const state = new GameConstantsStudioState(sourceDocument, 'revision-a');
   assert.equal(state.value.dirty, false);

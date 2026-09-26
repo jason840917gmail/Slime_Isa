@@ -41,6 +41,7 @@ export interface EnemyTargetService {
 export interface EnemyRuntimePort extends EnemyTargetService {
   getNavigation?(sourceNodeId: string): EnemyNavigationSnapshot | undefined;
   fireProjectile?(request: EnemyProjectileRequest): void;
+  spawnImpactEffect?(request: { readonly effectId: string; readonly x: number; readonly y: number }): void;
 }
 
 export interface EnemyNavigationSnapshot {
@@ -345,7 +346,7 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
     const movement = this.movementToward(origin, target.position, 1);
     if (!target.active || !target.hostile || Math.sqrt(this.distanceSquared(origin, target.position)) > range) return;
     const activationId = this.attackActivations.begin(this.runtimeId, [attackArea.runtimeId]);
-    this.damageRouter.routeStep([{
+    const outcomes = this.damageRouter.routeStep([{
       activationId,
       sourceNodeId: this.runtimeId,
       attackAreaNodeId: attackArea.runtimeId,
@@ -357,6 +358,9 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
       effects: this.knockbackEffects(),
       impact: { x: origin.x, y: origin.y, knockX: movement.x, knockY: movement.y },
     }], this.simulationTimeMs);
+    if (outcomes.some((outcome) => outcome.result.status === 'accepted' && outcome.result.actualDamage > 0)) {
+      this.spawnImpactEffect(origin);
+    }
     this.attackActivations.end(activationId);
   }
 
@@ -402,7 +406,7 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
       });
       return;
     }
-    this.damageRouter.routeStep([{
+    const outcomes = this.damageRouter.routeStep([{
       activationId,
       sourceNodeId: this.runtimeId,
       attackAreaNodeId: attackArea.runtimeId,
@@ -419,6 +423,20 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
         knockY: this.attackDirection.y,
       },
     }], this.simulationTimeMs);
+    if (outcomes.some((outcome) => outcome.result.status === 'accepted' && outcome.result.actualDamage > 0)) {
+      this.spawnImpactEffect(origin);
+    }
+  }
+
+  private spawnImpactEffect(origin: CharacterPoint): void {
+    const value = this.jsonProperty('impactEffect');
+    if (!isRecord(value) || typeof value.effectId !== 'string') return;
+    const distance = typeof value.distance === 'number' && Number.isFinite(value.distance) ? value.distance : 0;
+    this.targetService?.spawnImpactEffect?.({
+      effectId: value.effectId,
+      x: origin.x + this.attackDirection.x * distance,
+      y: origin.y + this.attackDirection.y * distance,
+    });
   }
 
   private endRuntimeAttack(): void {

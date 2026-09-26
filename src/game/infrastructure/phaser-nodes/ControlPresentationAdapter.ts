@@ -8,6 +8,7 @@ export interface ControlPresentationAdapterOptions {
 
 export class ControlPresentationAdapter implements ControlPresentation {
   private readonly elements = new Map<ControlNode, HTMLElement>();
+  private readonly signatures = new Map<ControlNode, string>();
 
   constructor(private readonly options: ControlPresentationAdapterOptions) {}
 
@@ -24,7 +25,7 @@ export class ControlPresentationAdapter implements ControlPresentation {
     (parentElement ?? this.options.root).append(element);
     this.elements.set(control, element);
     this.synchronize(control);
-    return () => { this.elements.delete(control); element.remove(); };
+    return () => { this.elements.delete(control); this.signatures.delete(control); element.remove(); };
   }
 
   synchronize(control: ControlNode): void {
@@ -40,6 +41,11 @@ export class ControlPresentationAdapter implements ControlPresentation {
     const top = viewport.height * anchorMin.y + offsetMin.y;
     const right = viewport.width * anchorMax.x + offsetMax.x;
     const bottom = viewport.height * anchorMax.y + offsetMax.y;
+    const signature = JSON.stringify([
+      left, top, right, bottom, control.visible, control.opacity, control.scale,
+      ...Object.entries(control.theme).flatMap(([key, value]) => value === null || typeof value === 'object' ? [] : [key, value]),
+    ]);
+    if (this.signatures.get(control) === signature) return;
     element.style.position = 'absolute';
     element.style.left = `${left}px`;
     element.style.top = `${top}px`;
@@ -52,5 +58,6 @@ export class ControlPresentationAdapter implements ControlPresentation {
       if (value === null || typeof value === 'object') continue;
       element.style.setProperty(`--scene-${key}`, String(value));
     }
+    this.signatures.set(control, signature);
   }
 }

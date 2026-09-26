@@ -1,0 +1,79 @@
+{
+  "version": 1,
+  "sceneId": "effect.enemy-worm-brawler-hit",
+  "rootNodeId": "root",
+  "nodes": [
+    {
+      "id": "root",
+      "name": "EnemyWormBrawlerHit",
+      "type": "Node2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "root",
+      "order": 0,
+      "properties": {
+        "texture": {
+          "resourceId": "effect.enemy.worm-brawler-hit.sprite"
+        },
+        "frame": 0,
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "position": [
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1
+        ],
+        "rotation": 0,
+        "alpha": 1,
+        "depthMode": "world-sorted",
+        "depthBand": "reveal-effects"
+      }
+    },
+    {
+      "id": "animation",
+      "name": "Animation",
+      "type": "AnimationPlayer",
+      "parentId": "root",
+      "order": 1,
+      "properties": {
+        "library": {
+          "resourceId": "effect.enemy.worm-brawler-hit.animations"
+        },
+        "domain": "physics",
+        "autoplay": "right"
+      }
+    },
+    {
+      "id": "script",
+      "name": "EffectScript",
+      "type": "ScriptNode",
+      "scriptId": "game.effect",
+      "parentId": "root",
+      "order": 2,
+      "properties": {
+        "effectId": "enemy-worm-brawler-hit",
+        "animation": {
+          "nodeId": "animation"
+        },
+        "lifetimeMs": 250
+      }
+    }
+  ],
+  "instances": []
+}

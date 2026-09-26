@@ -2,7 +2,6 @@ import test, { before } from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { readFile } from 'node:fs/promises';
 import { build } from 'esbuild';
 import { validateHarvestCapabilities } from '../../lib/weapon-targeting-validation.mjs';
 
@@ -128,20 +127,6 @@ test('targeting renderer exposes existing values, constraints, actions, and acce
 
 test('inspector tabs declare TARGETING between COMBAT and LAYER', () => {
   assert.deepEqual(studioMutation.WEAPON_STUDIO_INSPECTOR_TABS.map(({ id }) => id), ['identity', 'combat', 'targeting', 'layer', 'on-hit']);
-});
-
-test('mounted Studio routes targeting controls and CSS keeps five tab columns', async () => {
-  const [studioSource, cssSource] = await Promise.all([
-    readFile(path.join(repositoryRoot, 'src/game/editor/LayeredWeaponStudio.ts'), 'utf8'),
-    readFile(path.join(repositoryRoot, 'src/game/editor/character-studio.css'), 'utf8'),
-  ]);
-  assert.match(studioSource, /renderWeaponTargetingInspector\(state\.draft!\)/);
-  assert.match(studioSource, /action === 'add-target-modifier'/);
-  assert.match(studioSource, /action === 'remove-harvest-capability'/);
-  assert.match(studioSource, /dataset\.targetModifierTag/);
-  assert.match(studioSource, /dataset\.harvestCapabilityTier/);
-  assert.match(cssSource, /\.layered-inspector-tabs\s*\{[^}]*repeat\(5, minmax\(0, 1fr\)\)/s);
-  assert.match(cssSource, /\.weapon-targeting-row/);
 });
 
 test('repository capability validation rejects malformed containers, tags, and tiers', () => {

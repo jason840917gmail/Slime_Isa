@@ -1,6 +1,5 @@
 import type { RuntimeNodeId } from '../../content/scenes/identifiers';
 import type { NodeConstructionContext } from '../../runtime/scene/registries/NodeTypeRegistry';
-import type { PhysicsContact } from '../../runtime/scene/physics/PhysicsContact';
 import { Node2D } from '../../runtime/scene/Node2D';
 import { ScriptNode } from '../../runtime/scene/scripts/ScriptNode';
 
@@ -55,9 +54,6 @@ export class CollectibleScript extends ScriptNode {
     this.sourceResourceInstanceId = source || undefined;
     const inventoryDrop = this.stringProperty('sourceInventoryDropId', '');
     this.sourceInventoryDropId = inventoryDrop || undefined;
-    this.registerSignalHandler<PhysicsContact>('on_area_entered', (contact) => {
-      if (contact.otherKind === 'area') this.requestPickup(contact.otherId);
-    });
   }
 
   get remaining(): number {

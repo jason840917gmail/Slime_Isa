@@ -5,12 +5,13 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { ConversionRunner } from './lib/scene-conversion/ConversionRunner.mjs';
-import { visualSceneAdapter } from './lib/scene-conversion/animations.mjs';
+import { animationPackageSceneAdapter, visualSceneAdapter } from './lib/scene-conversion/animations.mjs';
 import { bossCampSceneAdapter } from './lib/scene-conversion/boss-camps.mjs';
 import { characterSceneAdapter, enemySceneAdapter } from './lib/scene-conversion/characters.mjs';
 import { objectSceneAdapter } from './lib/scene-conversion/objects.mjs';
 import { effectSceneAdapter, projectileSceneAdapter, weaponSceneAdapter } from './lib/scene-conversion/combat-entities.mjs';
 import { mapSceneAdapter } from './lib/scene-conversion/maps.mjs';
+import { terrainSceneAdapter } from './lib/scene-conversion/terrain.mjs';
 import { uiSceneAdapter } from './lib/scene-conversion/ui.mjs';
 import { validateSceneWriteSet } from './lib/scene-conversion/validate-scene-write-set.mjs';
 
@@ -19,6 +20,7 @@ const args = process.argv.slice(2);
 const familyIndex = args.indexOf('--family');
 const family = familyIndex >= 0 ? args[familyIndex + 1] : 'all';
 const mode = args.includes('--apply') ? 'apply' : args.includes('--check') ? 'check' : 'dry-run';
+const includeSceneOwned = args.includes('--include-scene-owned');
 const explicitUnitKeys = args.flatMap((argument, index) => argument === '--unit' ? [args[index + 1]] : []).filter(Boolean);
 const sliceUnitKeys = [
   'visual:character.player.slime',
@@ -32,6 +34,7 @@ const sliceUnitKeys = [
   'visual:enemy.worm.swordsman',
   'visual:enemy.slime.spider',
   'visual:boss.fatty-one-eye',
+  'visual:effect.enemy.worm-brawler-hit',
   'character:worm-brawler',
   'character:player-slime',
   'character:lili',
@@ -116,8 +119,12 @@ const sliceUnitKeys = [
   'ui:weapon-hotbar',
   'ui:world-map-ui',
 ];
-const unitKeys = explicitUnitKeys.length > 0 ? explicitUnitKeys : sliceUnitKeys;
 const ledger = JSON.parse(await readFile(path.join(repositoryRoot, 'scripts/migrations/universal-scene-conversion-ledger.json'), 'utf8'));
+const unitKeys = explicitUnitKeys.length > 0 ? explicitUnitKeys : [
+  ...ledger.rows.filter((row) => row.family === 'animation' && row.classification === 'convert').map((row) => row.key),
+  ...ledger.rows.filter((row) => row.family === 'terrain' && row.classification === 'convert').map((row) => row.key),
+  ...sliceUnitKeys,
+];
 const manifest = JSON.parse(await readFile(path.join(repositoryRoot, 'asset/assets.json'), 'utf8'));
 const authoredRoot = path.join(repositoryRoot, 'src/game/content/scenes/authored');
 async function discoverDocuments(directory, suffix) {
@@ -139,6 +146,8 @@ const runner = new ConversionRunner({
   repositoryRoot,
   ledger,
   adapters: {
+    animation: animationPackageSceneAdapter,
+    terrain: terrainSceneAdapter,
     visual: visualSceneAdapter,
     character: characterSceneAdapter,
     enemy: enemySceneAdapter,
@@ -159,7 +168,7 @@ const runner = new ConversionRunner({
 });
 
 try {
-  const report = await runner.run({ family, mode, unitKeys });
+  const report = await runner.run({ family, mode, unitKeys, includeSceneOwned });
   console.log(JSON.stringify(report, null, 2));
 } catch (error) {
   console.error(error instanceof Error ? error.message : String(error));

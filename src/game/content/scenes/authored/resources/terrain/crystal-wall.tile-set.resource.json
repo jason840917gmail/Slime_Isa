@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "resourceId": "terrain.crystal-wall",
+  "kind": "tile-set",
+  "tiles": {
+    "crystal-wall": {
+      "assetIds": [
+        "terrain.cavern.crystal-wall"
+      ],
+      "selection": "seeded-hash",
+      "physics": {
+        "body": "static",
+        "inset": {
+          "left": 5,
+          "right": 5,
+          "top": 7,
+          "bottom": 3
+        }
+      },
+      "allowsDecorations": false,
+      "tags": [
+        "terrain",
+        "cavern",
+        "wall"
+      ]
+    }
+  }
+}

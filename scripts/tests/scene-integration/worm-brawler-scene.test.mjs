@@ -116,7 +116,8 @@ test('Worm attack lifecycle preserves cooldown, cancellation, and sequence ident
 
 test('Worm fixed-step behavior chases and routes one timed contact attack through the shared damage pipeline', async () => {
   const target = { position: { x: 100, y: 0 }, damageAreaNodeId: 'legacy-player-area', active: true, hostile: true };
-  const fixture = await instantiate({ getPrimaryTarget: () => target });
+  const effects = [];
+  const fixture = await instantiate({ getPrimaryTarget: () => target, spawnImpactEffect: (request) => effects.push(request) });
   let hp = 100;
   let commits = 0;
   fixture.router.registerArea({
@@ -137,9 +138,19 @@ test('Worm fixed-step behavior chases and routes one timed contact attack throug
   fixture.tree.physicsProcess(0.25);
   assert.equal(commits, 1);
   assert.equal(hp, 48);
+  assert.deepEqual(effects, [{ effectId: 'enemy-worm-brawler-hit', x: 22, y: 0 }]);
   fixture.tree.physicsProcess(0.25);
   assert.equal(script.runtimeState, 'chase');
   assert.equal(commits, 1);
+  assert.equal(effects.length, 1);
   fixture.tree.shutdown();
   fixture.packed.dispose();
+});
+
+test('Worm impact visual resolves to one authored effect scene and shared resources', () => {
+  const effect = content.scenes.find((document) => document.sceneId === 'effect.enemy-worm-brawler-hit');
+  assert.ok(effect);
+  assert.equal(effect.nodes.find((node) => node.scriptId === 'game.effect')?.properties.effectId, 'enemy-worm-brawler-hit');
+  assert.ok(content.resources.some((resource) => resource.resourceId === 'effect.enemy.worm-brawler-hit.sprite'));
+  assert.ok(content.resources.some((resource) => resource.resourceId === 'effect.enemy.worm-brawler-hit.animations'));
 });

@@ -124,7 +124,7 @@ async function objectVisualScenes(unit, object, manifest, readSource, gameplayFi
         { id: 'body', name: frame.displayName ?? frame.visualId, type: 'StaticBody2D', parentId: null, order: 0, properties: { collisionLayer: 1, collisionMask: 2, position: [0, 0] } },
         { id: 'body-shape', name: 'BodyShape', type: 'CollisionShape2D', parentId: 'body', order: 0, properties: { shape: { resourceId: `${resourcePrefix}.shape` }, position: [(frame.collider.offsetX - visualOffset.x) * scale, (frame.collider.offsetY - visualOffset.y) * scale] } },
         { id: 'visual', name: 'Visual', type: 'Sprite2D', parentId: 'body', order: 1, properties: { texture: { resourceId: `${resourcePrefix}.sprite` }, frame: frame.frame, origin, scale: [scale, scale], visualOffset: [visualOffset.x, visualOffset.y], depthMode: 'world-sorted', depthBand: 'world-entities', ...(frame.occlusionBounds ? { occlusionBounds: frame.occlusionBounds } : {}), ...(frame.depthBounds ? { depthBounds: frame.depthBounds } : {}) } },
-        { id: 'damage-area', name: 'DamageArea', type: 'Area2D', parentId: 'body', order: 2, properties: { collisionLayer: 8, collisionMask: 16, monitoring: true, monitorable: true } },
+        { id: 'damage-area', name: 'DamageArea', type: 'Area2D', parentId: 'body', order: 2, properties: { collisionLayer: 8, collisionMask: 16, monitoring: false, monitorable: true } },
         { id: 'damage-shape', name: 'DamageShape', type: 'CollisionShape2D', parentId: 'damage-area', order: 0, properties: { shape: { resourceId: `${resourcePrefix}.shape` }, position: [(frame.collider.offsetX - visualOffset.x) * scale, (frame.collider.offsetY - visualOffset.y) * scale] } },
         ...(animationNode ? [animationNode] : []),
         {
@@ -204,7 +204,7 @@ function collectibleScene(unit, object, manifest) {
     nodes: [
       { id: 'root', name: frame.displayName ?? frame.visualId, type: 'Node2D', parentId: null, order: 0, properties: { position: [0, 0] } },
       { id: 'visual', name: 'Visual', type: 'Sprite2D', parentId: 'root', order: 0, properties: { texture: { resourceId: `${resourcePrefix}.sprite` }, frame: frame.frame, origin, scale: [scale, scale], visualOffset: [visualOffset.x, visualOffset.y], depthMode: 'world-sorted', depthBand: 'world-entities' } },
-      { id: 'pickup-area', name: 'PickupArea', type: 'Area2D', parentId: 'root', order: 1, properties: { collisionLayer: 64, collisionMask: 32, monitoring: true, monitorable: true } },
+      { id: 'pickup-area', name: 'PickupArea', type: 'Area2D', parentId: 'root', order: 1, properties: { collisionLayer: 64, collisionMask: 32, monitoring: false, monitorable: true } },
       { id: 'pickup-shape', name: 'PickupShape', type: 'CollisionShape2D', parentId: 'pickup-area', order: 0, properties: { shape: { resourceId: `${resourcePrefix}.pickup-shape` }, position: [visualOffset.x * scale, visualOffset.y * scale] } },
       {
         id: 'script', name: 'CollectibleScript', type: 'ScriptNode', scriptId: 'game.collectible', parentId: 'root', order: 2,
@@ -216,9 +216,6 @@ function collectibleScene(unit, object, manifest) {
       },
     ],
     instances: [],
-    connections: [
-      { source: { nodeId: 'pickup-area' }, signal: 'area_entered', target: { nodeId: 'script' }, handler: 'on_area_entered' },
-    ],
     subresources: [
       textureResource,
       { version: 1, resourceId: `${resourcePrefix}.pickup-shape`, kind: 'collision-shape', value: { shape: 'circle', radius: pickupRadius } },

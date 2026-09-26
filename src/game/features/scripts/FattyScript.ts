@@ -1,7 +1,8 @@
 import type { RuntimeNodeId } from '../../content/scenes/identifiers';
 import type { DamageMitigationInput, DamageStateDecision } from '../combat/DamageReceiver';
-import type { FattyOneEyePhase } from '../bosses/FattyOneEyeBehavior';
 import { EnemyScript } from './EnemyScript';
+
+type FattyOneEyePhase = 'chase' | 'return-to-center' | 'contact-hop' | 'small-hop' | 'airborne' | 'landing' | 'recovery' | 'dead';
 
 export class FattyScript extends EnemyScript {
   private phaseValue: FattyOneEyePhase = 'chase';
