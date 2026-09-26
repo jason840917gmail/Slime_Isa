@@ -56,7 +56,7 @@ test('weapon and object repository checkers reject unknown resource tags with co
     assert.match(objectOutput, /\[.*:tree\.world\.solid\].*crystal/);
     assert.match(objectOutput, /configured tags: wood, stone, iron, charcoal, grain/);
   } finally {
-    await fs.rm(fixtureRoot, { recursive: true, force: true });
+    await fs.rm(fixtureRoot, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
   }
 });
 
@@ -72,6 +72,6 @@ test('repository checkers reject malformed game constants before validating cont
     assert.equal(result.status, 1, result.stdout || result.stderr);
     assert.match(`${result.stdout}${result.stderr}`, /duplicate tag 'wood'/);
   } finally {
-    await fs.rm(fixtureRoot, { recursive: true, force: true });
+    await fs.rm(fixtureRoot, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
   }
 });

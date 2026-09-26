@@ -6,7 +6,6 @@ const vite = await createServer({ configFile: false, root: process.cwd(), appTyp
 const { parseMapFile, MapValidationError } = await vite.ssrLoadModule('/src/game/content/maps/mapFormat.ts');
 const { validateMapReferences } = await vite.ssrLoadModule('/src/game/content/maps/validateMapReferences.ts');
 const { validateCharacterPackage } = await vite.ssrLoadModule('/src/game/content/characters/validation.ts');
-const { validateMapReferencesForEditor } = await vite.ssrLoadModule('/vite.config.ts');
 const fixture = (await vite.ssrLoadModule('/src/game/content/maps/test-rectangle.map.json')).default;
 const levelOne = (await vite.ssrLoadModule('/src/game/content/maps/level-1.map.json')).default;
 const fattyCharacter = (await vite.ssrLoadModule('/src/game/content/characters/fatty-one-eye/character.json')).default;
@@ -69,14 +68,6 @@ test('reference validation reports unknown bosses and only validates a chest whe
   };
   const issues = validateMapReferences(parseMapFile(mapWith([camp()]), 'refs'), resolver);
   assert.deepEqual(issues, ["bossCamps[0].bossId: unknown boss 'fatty-one-eye'"]);
-});
-
-test('editor save validation accepts authored wooden chest contents after boss radius edits', async () => {
-  const map = structuredClone(levelOne);
-  map.bossCamps[0].activationPerimeter.radius += 1;
-  map.bossCamps[0].arenaPerimeter.radius -= 1;
-  const issues = await validateMapReferencesForEditor(parseMapFile(map, 'editor-save'));
-  assert.deepEqual(issues, []);
 });
 
 test('Fatty boss character package passes the shared Character Studio contract', () => {

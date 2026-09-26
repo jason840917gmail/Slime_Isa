@@ -1,5 +1,4 @@
 import type { SceneTree, SceneTreeInputEvent } from '../../runtime/scene/SceneTree';
-import type { LegacyWorldAdapter } from './compatibility/LegacyWorldAdapter';
 
 export const DEFAULT_FIXED_DELTA_SECONDS = 1 / 60;
 export const MAX_FIXED_STEPS_PER_FRAME = 5;
@@ -39,9 +38,17 @@ export interface SceneHostBackend {
 export interface PhaserSceneTreeHostOptions {
   readonly tree: SceneTree;
   readonly backend: SceneHostBackend;
-  readonly legacy?: LegacyWorldAdapter;
+  readonly lifecycle?: SceneHostLifecycle;
   readonly fixedDeltaSeconds?: number;
   readonly diagnosticSink?: (diagnostic: SceneHostDiagnostic) => void;
+}
+
+export interface SceneHostLifecycle {
+  readonly beforeFixedStep?: (deltaSeconds: number) => void;
+  readonly afterFixedStep?: (deltaSeconds: number) => void;
+  readonly beforePresentation?: (deltaSeconds: number) => void;
+  readonly afterUnhandledInput?: (event: SceneTreeInputEvent) => void;
+  readonly shutdown?: () => void;
 }
 
 interface QueuedInput {
@@ -78,7 +85,7 @@ export class PhaserSceneTreeHost {
   advanceFrame(deltaSeconds: number): number {
     this.assertRunning();
     if (!Number.isFinite(deltaSeconds) || deltaSeconds < 0) throw new Error('Frame delta must be a non-negative finite number');
-    const { tree, backend, legacy } = this.options;
+    const { tree, backend, lifecycle } = this.options;
     try {
       if (this.observedPaused && !tree.paused) this.clearResumeState();
       this.observedPaused = tree.paused;
@@ -89,7 +96,7 @@ export class PhaserSceneTreeHost {
         this.accumulatorSeconds += deltaSeconds;
         while (this.accumulatorSeconds + Number.EPSILON >= this.fixedDeltaSeconds && steps < MAX_FIXED_STEPS_PER_FRAME) {
           tree._deferMutations(() => {
-            legacy?.prePhysics(this.fixedDeltaSeconds);
+            lifecycle?.beforeFixedStep?.(this.fixedDeltaSeconds);
             backend.advancePhysicsAnimations(this.fixedDeltaSeconds);
             tree.physicsProcess(this.fixedDeltaSeconds);
             backend.synchronizePhysicsToBackend();
@@ -98,7 +105,7 @@ export class PhaserSceneTreeHost {
             backend.collectManagedContacts();
             backend.resolveManagedAttacks(this.fixedDeltaSeconds);
             backend.runPostPhysics(this.fixedDeltaSeconds);
-            legacy?.postPhysics(this.fixedDeltaSeconds);
+            lifecycle?.afterFixedStep?.(this.fixedDeltaSeconds);
           });
           this.accumulatorSeconds -= this.fixedDeltaSeconds;
           steps += 1;
@@ -111,7 +118,7 @@ export class PhaserSceneTreeHost {
         }
       }
       tree._deferMutations(() => {
-        legacy?.render(deltaSeconds);
+        lifecycle?.beforePresentation?.(deltaSeconds);
         backend.advanceRenderAnimations(deltaSeconds);
         tree.process(deltaSeconds);
         backend.synchronizePresentation(this.fixedDeltaSeconds === 0 ? 1 : Math.min(1, this.accumulatorSeconds / this.fixedDeltaSeconds));
@@ -139,7 +146,7 @@ export class PhaserSceneTreeHost {
     this.queuedInputs.length = 0;
     const errors: unknown[] = [];
     try { this.options.tree.shutdown(); } catch (error) { errors.push(error); }
-    try { this.options.legacy?.dispose(); } catch (error) { errors.push(error); }
+    try { this.options.lifecycle?.shutdown?.(); } catch (error) { errors.push(error); }
     try { this.options.backend.shutdown(); } catch (error) { errors.push(error); }
     this.accumulatorSeconds = 0;
     if (errors.length > 0) throw new AggregateError(errors, 'Scene tree host shutdown failed');
@@ -149,7 +156,7 @@ export class PhaserSceneTreeHost {
     this.queuedInputs.sort((left, right) => left.timestamp - right.timestamp || left.order - right.order);
     for (const queued of this.queuedInputs.splice(0)) {
       this.options.tree.dispatchInput(queued.event);
-      if (!queued.event.handled) this.options.legacy?.input(queued.event);
+      if (!queued.event.handled) this.options.lifecycle?.afterUnhandledInput?.(queued.event);
       this.options.tree.flushMutations();
     }
   }

@@ -3,6 +3,7 @@ import type { NodeConstructionContext } from '../../runtime/scene/registries/Nod
 import type { Node } from '../../runtime/scene/Node';
 import type { SceneTreeInputEvent } from '../../runtime/scene/SceneTree';
 import type { InputEvent } from '../../runtime/scene/input/InputEvent';
+import type { PhysicsContact } from '../../runtime/scene/physics/PhysicsContact';
 import type {
   DamageCommit,
   DamageMitigationInput,
@@ -20,6 +21,7 @@ import {
 } from '../player/PlayerNodePorts';
 import { CharacterScript, type CharacterPoint } from './CharacterScript';
 import { DAMAGE_ROUTER_SERVICE } from './EnemyScript';
+import { CollectibleScript } from './CollectibleScript';
 
 export const PLAYER_HEALTH_SERVICE = 'player.health-receiver';
 
@@ -41,6 +43,11 @@ export class PlayerScript extends CharacterScript implements DamageReceiver, Pla
   constructor(context: NodeConstructionContext) {
     super(context);
     this.playerName = this.stringProperty('playerName', 'Player');
+    this.registerSignalHandler<PhysicsContact>('on_pickup_area_entered', (contact) => {
+      const collectible = contact.other?.get_parent()?.get_children()
+        .find((node) => node instanceof CollectibleScript);
+      if (collectible instanceof CollectibleScript) collectible.requestPickup(contact.observerId);
+    });
   }
 
   get runtimeNodeId(): string { return this.runtimeId; }

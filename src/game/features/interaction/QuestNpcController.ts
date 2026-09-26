@@ -1,7 +1,6 @@
 import Phaser from 'phaser';
 import { gameEvents } from '../../core/EventBus';
 import { getNpcDefinition } from '../../content/npcs/NpcCatalog';
-import type { BuiltNpcRegistration } from '../world/MapBuilder';
 import { questService } from '../../quests/QuestService';
 import type { QuestOfferSurfacePort } from '../ui/QuestOfferSurfacePort';
 import type { InteractionCandidate, InteractionRouter, InteractionProvider } from './InteractionRouter';
@@ -51,7 +50,7 @@ export class QuestNpcController implements InteractionProvider {
     return surface;
   }
 
-  register(registration: BuiltNpcRegistration | QuestNpcRegistration): void {
+  register(registration: QuestNpcRegistration): void {
     if (!getNpcDefinition(registration.npcDefinitionId)) return;
     this.records.push({ actor: registration.actor, instanceId: registration.instanceId, npcId: registration.npcDefinitionId });
   }

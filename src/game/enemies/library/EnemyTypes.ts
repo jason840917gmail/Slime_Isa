@@ -1,4 +1,4 @@
-import type { EnemyConfig } from '../Enemy';
+import type { EnemyConfig } from '../EnemyConfig';
 import type { AssetId } from '../../infrastructure/assets/manifest';
 import { getEnemyGameplay, getEnemyPackages } from '../../content/characters/CharacterCatalog';
 

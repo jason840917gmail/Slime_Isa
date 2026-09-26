@@ -33,6 +33,12 @@ export class Node2D extends Node {
   private localPosition: Vector2;
   private localRotation: number;
   private localScale: Vector2;
+  private localTransformRevision = 0;
+  private worldTransformRevision = 0;
+  private cachedWorldTransform?: Transform2D;
+  private cachedLocalRevision = -1;
+  private cachedParent?: Node2D;
+  private cachedParentRevision = -1;
   visible: boolean;
 
   constructor(options: Node2DOptions) {
@@ -48,23 +54,71 @@ export class Node2D extends Node {
   }
 
   get position(): Vector2 { return { ...this.localPosition }; }
-  set position(value: Vector2) { finiteVector(value, 'Position'); this.localPosition = { ...value }; }
+  set position(value: Vector2) {
+    finiteVector(value, 'Position');
+    if (value.x === this.localPosition.x && value.y === this.localPosition.y) return;
+    this.localPosition = { ...value };
+    this.localTransformRevision += 1;
+  }
   get rotation(): number { return this.localRotation; }
-  set rotation(value: number) { if (!Number.isFinite(value)) throw new Error('Rotation must be finite'); this.localRotation = value; }
+  set rotation(value: number) {
+    if (!Number.isFinite(value)) throw new Error('Rotation must be finite');
+    if (value === this.localRotation) return;
+    this.localRotation = value;
+    this.localTransformRevision += 1;
+  }
   get scale(): Vector2 { return { ...this.localScale }; }
-  set scale(value: Vector2) { finiteVector(value, 'Scale'); if (value.x <= 0 || value.y <= 0) throw new Error('Scale must be positive'); this.localScale = { ...value }; }
+  set scale(value: Vector2) {
+    finiteVector(value, 'Scale');
+    if (value.x <= 0 || value.y <= 0) throw new Error('Scale must be positive');
+    if (value.x === this.localScale.x && value.y === this.localScale.y) return;
+    this.localScale = { ...value };
+    this.localTransformRevision += 1;
+  }
 
   get_global_transform(): Transform2D {
-    const parent = this.transformParent();
-    if (!parent) return { position: this.position, rotation: this.rotation, scale: this.scale };
-    const parentTransform = parent.get_global_transform();
-    const scaled = { x: this.localPosition.x * parentTransform.scale.x, y: this.localPosition.y * parentTransform.scale.y };
-    const offset = rotate(scaled, parentTransform.rotation);
+    const transform = this.readWorldTransform();
     return {
-      position: { x: parentTransform.position.x + offset.x, y: parentTransform.position.y + offset.y },
-      rotation: parentTransform.rotation + this.localRotation,
-      scale: { x: parentTransform.scale.x * this.localScale.x, y: parentTransform.scale.y * this.localScale.y },
+      position: { ...transform.position },
+      rotation: transform.rotation,
+      scale: { ...transform.scale },
     };
+  }
+
+  /** Changes whenever this node or a transform ancestor changes. */
+  get_global_transform_revision(): number {
+    this.readWorldTransform();
+    return this.worldTransformRevision;
+  }
+
+  private readWorldTransform(): Transform2D {
+    const parent = this.transformParent();
+    const parentTransform = parent?.readWorldTransform();
+    const parentRevision = parent?.worldTransformRevision ?? 0;
+    if (this.cachedWorldTransform
+      && this.cachedLocalRevision === this.localTransformRevision
+      && this.cachedParent === parent
+      && this.cachedParentRevision === parentRevision) return this.cachedWorldTransform;
+    if (!parentTransform) {
+      this.cachedWorldTransform = {
+        position: { ...this.localPosition },
+        rotation: this.localRotation,
+        scale: { ...this.localScale },
+      };
+    } else {
+      const scaled = { x: this.localPosition.x * parentTransform.scale.x, y: this.localPosition.y * parentTransform.scale.y };
+      const offset = rotate(scaled, parentTransform.rotation);
+      this.cachedWorldTransform = {
+        position: { x: parentTransform.position.x + offset.x, y: parentTransform.position.y + offset.y },
+        rotation: parentTransform.rotation + this.localRotation,
+        scale: { x: parentTransform.scale.x * this.localScale.x, y: parentTransform.scale.y * this.localScale.y },
+      };
+    }
+    this.cachedLocalRevision = this.localTransformRevision;
+    this.cachedParent = parent;
+    this.cachedParentRevision = parentRevision;
+    this.worldTransformRevision += 1;
+    return this.cachedWorldTransform;
   }
 
   set_global_transform(transform: Transform2D): void {

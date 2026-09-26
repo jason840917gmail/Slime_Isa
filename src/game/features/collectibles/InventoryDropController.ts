@@ -1,5 +1,3 @@
-import type Phaser from 'phaser';
-
 import { isObjectArchetypeId } from '../../content/objects/ObjectCatalog';
 import { resolveInventoryDropDefinition } from '../../content/items/InventoryDropCatalog';
 import type { InventorySlot } from '../../core/types';
@@ -8,7 +6,7 @@ import type { WorldDimensions } from '../../world/WorldDimensions';
 import type { InventoryWorldDropProgress } from '../progression/WorldProgress';
 import type { CollectibleStateChange } from './CollectibleController';
 import { findInventoryDropDestination, type InventoryDropCellInspection } from './InventoryDropPlacement';
-import type { WorldDropRequest } from './WorldDropSpawner';
+import type { WorldDropRequest } from './WorldDropRequest';
 
 export interface InventoryDropControllerContext {
   readonly mapId: string;
@@ -21,7 +19,7 @@ export interface InventoryDropControllerContext {
   readonly getPlayerAnchor: () => { readonly x: number; readonly y: number };
   readonly getFacing: () => FacingDirection;
   readonly inspectCell: (itemId: string, cellX: number, cellY: number) => InventoryDropCellInspection;
-  readonly spawnWorldDrop: (request: WorldDropRequest) => Phaser.GameObjects.Image;
+  readonly spawnWorldDrop: (request: WorldDropRequest) => void;
   readonly showMessage: (message: string) => void;
   readonly progress: {
     inventoryDrops(mapId: string): readonly InventoryWorldDropProgress[];

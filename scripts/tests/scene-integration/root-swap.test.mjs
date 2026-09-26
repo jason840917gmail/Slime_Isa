@@ -13,10 +13,10 @@ test('host shutdown is idempotent and releases manual physics ownership after tr
     readAuthoritativePhysicsState() {}, collectManagedContacts() {}, resolveManagedAttacks() {}, runPostPhysics() {}, advanceRenderAnimations() {},
     synchronizePresentation() {}, clearHeldInputTransitions() {}, shutdown: () => calls.push('shutdown'),
   };
-  const legacy = new t.LegacyWorldAdapter({ dispose: () => calls.push('legacy:dispose') });
-  const host = new t.PhaserSceneTreeHost({ tree, backend, legacy });
+  const lifecycle = { shutdown: () => calls.push('lifecycle:shutdown') };
+  const host = new t.PhaserSceneTreeHost({ tree, backend, lifecycle });
   host.shutdown(); host.shutdown();
-  assert.deepEqual(calls, ['start', 'legacy:dispose', 'shutdown']);
+  assert.deepEqual(calls, ['start', 'lifecycle:shutdown', 'shutdown']);
   assert.equal(tree.indexedNodeCount, 0);
   assert.throws(() => host.advanceFrame(0), /shut down/);
 });
@@ -52,7 +52,7 @@ test('presentation leases follow successful and rolled-back root swaps', () => {
   assert.equal(state.created, 4);
 });
 
-test('shutdown attempts legacy and backend cleanup even when one disposer fails', () => {
+test('shutdown attempts lifecycle and backend cleanup even when one disposer fails', () => {
   const calls = [];
   const tree = new t.SceneTree(); tree.setRoot(new t.Node({ runtimeId: 'cleanup/root', name: 'Root' }));
   const backend = {
@@ -60,8 +60,8 @@ test('shutdown attempts legacy and backend cleanup even when one disposer fails'
     collectManagedContacts() {}, resolveManagedAttacks() {}, runPostPhysics() {}, advanceRenderAnimations() {}, synchronizePresentation() {}, clearHeldInputTransitions() {},
     shutdown: () => calls.push('backend'),
   };
-  const legacy = new t.LegacyWorldAdapter({ dispose: () => { calls.push('legacy'); throw new Error('legacy cleanup failed'); } });
-  const host = new t.PhaserSceneTreeHost({ tree, backend, legacy });
+  const lifecycle = { shutdown: () => { calls.push('lifecycle'); throw new Error('lifecycle cleanup failed'); } };
+  const host = new t.PhaserSceneTreeHost({ tree, backend, lifecycle });
   assert.throws(() => host.shutdown(), AggregateError);
-  assert.deepEqual(calls, ['legacy', 'backend']);
+  assert.deepEqual(calls, ['lifecycle', 'backend']);
 });

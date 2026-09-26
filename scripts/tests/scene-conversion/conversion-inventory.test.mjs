@@ -20,19 +20,25 @@ test('every discovered legacy content unit appears exactly once in the conversio
 test('the ledger preserves every authored map and stable persistence key', () => {
   const checkedMaps = checkedIn.rows.filter((entry) => entry.family === 'map');
   const discoveredMaps = discovered.rows.filter((entry) => entry.family === 'map');
-  const withoutWriter = (entry) => Object.fromEntries(Object.entries(entry).filter(([key]) => key !== 'writerState'));
-  assert.deepEqual(checkedMaps.map(withoutWriter), discoveredMaps.map(withoutWriter));
+  const migrationMetadata = new Set(['writerState', 'outputs', 'consumedFieldPaths', 'intentionallyRetainedFields']);
+  const stableSource = (entry) => Object.fromEntries(Object.entries(entry).filter(([key]) => !migrationMetadata.has(key)));
+  assert.deepEqual(checkedMaps.map(stableSource), discoveredMaps.map(stableSource));
+  assert.ok(checkedMaps.every((entry) => entry.outputs.length > 0 && entry.consumedFieldPaths.length > 0));
   assert.ok(checkedMaps.every((entry) => entry.writerState === 'scene'));
   assert.ok(checkedMaps.some((entry) => entry.environment === 'production'));
   assert.ok(checkedMaps.some((entry) => entry.environment === 'development'));
   assert.ok(checkedMaps.reduce((total, entry) => total + entry.persistenceKeys.length, 0) > 0);
 });
 
-test('legacy writer endpoints and category routes stay inventoried', () => {
-  assert.deepEqual(checkedIn.writerEndpoints, discovered.writerEndpoints);
-  assert.deepEqual(checkedIn.editorRoutes, discovered.editorRoutes);
+test('the frozen inventory records retired writers and legacy routes redirect to Scene Studio', async () => {
+  const frozenEndpoints = new Set(checkedIn.writerEndpoints.map((entry) => entry.endpoint));
+  assert.ok(discovered.writerEndpoints.every((entry) => frozenEndpoints.has(entry.endpoint)));
   assert.ok(checkedIn.writerEndpoints.some((entry) => entry.endpoint === '/__map-editor/save'));
-  assert.deepEqual(checkedIn.editorRoutes.map((entry) => entry.queryKey), ['editor', 'studio']);
+  assert.ok(!discovered.writerEndpoints.some((entry) => entry.endpoint.startsWith('/__map-editor/')));
+  assert.deepEqual(discovered.editorRoutes.map((entry) => entry.queryKey), ['editor', 'studio']);
+  assert.ok(discovered.editorRoutes.every((entry) => entry.sourcePath.endsWith('/LegacyRouteRedirects.ts')));
+  const config = await readFile(new URL('../../../vite.config.ts', import.meta.url), 'utf8');
+  assert.ok(!config.includes('mapEditorSavePlugin'));
 });
 
 test('every row names its ownership and verification path', () => {

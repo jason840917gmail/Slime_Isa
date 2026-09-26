@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "resourceId": "effect.enemy.worm-brawler-hit.sprite",
+  "kind": "sprite-sheet",
+  "assetId": "effect.enemy.worm-brawler-hit",
+  "frameWidth": 16,
+  "frameHeight": 20,
+  "frameCount": 3
+}

@@ -32,7 +32,7 @@ let tileDataValue: TileDataResourceDocument = {
   rows: 3,
   cells: [{ x: 0, y: 0, tileId: 'grass' }],
 };
-const tileSetValue: TileSetResourceDocument = {
+let tileSetValue: TileSetResourceDocument = {
   version: 1,
   resourceId: 'tiles.browser.ground.set' as TileSetResourceDocument['resourceId'],
   kind: 'tile-set',
@@ -52,11 +52,12 @@ const response = (value: unknown, status = 200): Response => new Response(JSON.s
 const request: typeof fetch = async (_input, init) => {
   if (init?.method === 'POST') {
     if (conflict) return response({ error: 'newer disk version' }, 409);
-    const payload = JSON.parse(String(init.body)) as { writes: Array<{ kind: 'scene' | 'resource'; id: string; relativePath: string; document: SceneDocument | TileDataResourceDocument }> };
+    const payload = JSON.parse(String(init.body)) as { writes: Array<{ kind: 'scene' | 'resource'; id: string; relativePath: string; document: SceneDocument | TileDataResourceDocument | TileSetResourceDocument }> };
     lastWriteIds = payload.writes.map((write) => write.id);
     for (const write of payload.writes) {
       if (write.kind === 'scene') documentValue = structuredClone(write.document as SceneDocument);
       else if (write.id === tileDataValue.resourceId) tileDataValue = structuredClone(write.document as TileDataResourceDocument);
+      else if (write.id === tileSetValue.resourceId) tileSetValue = structuredClone(write.document as TileSetResourceDocument);
     }
     hash = 'b'.repeat(64);
     savedCount += 1;
@@ -81,7 +82,7 @@ declare global {
     sceneStudioFixture: {
       ready(): boolean;
       setConflict(value: boolean): void;
-      snapshot(): { savedCount: number; nodeCount: number; tileCells: number; lastWriteIds: readonly string[]; openedSource?: string };
+      snapshot(): { savedCount: number; nodeCount: number; tileCells: number; tileSetTiles: number; lastWriteIds: readonly string[]; openedSource?: string };
       previewIsolation(): { scripts: number; persistence: boolean; disposed: boolean };
       destroy(): void;
     };
@@ -91,7 +92,7 @@ declare global {
 window.sceneStudioFixture = {
   ready: () => Boolean(document.querySelector('[data-scene-studio] [data-scene-tree-key]')),
   setConflict(value) { conflict = value; },
-  snapshot: () => ({ savedCount, nodeCount: documentValue.nodes.length, tileCells: tileDataValue.cells.length, lastWriteIds, ...(openedSource ? { openedSource } : {}) }),
+  snapshot: () => ({ savedCount, nodeCount: documentValue.nodes.length, tileCells: tileDataValue.cells.length, tileSetTiles: Object.keys(tileSetValue.tiles).length, lastWriteIds, ...(openedSource ? { openedSource } : {}) }),
   previewIsolation() {
     let scripts = -1;
     let persistence = true;

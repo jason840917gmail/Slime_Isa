@@ -25,6 +25,7 @@ export class Area2DNode extends Node2D implements CollisionShapeOwner, ContactPa
   readonly area_exited: Signal<PhysicsContact>;
   private readonly shapes = new Set<CollisionShape2DNode>();
   private zone?: Phaser.GameObjects.Zone;
+  private broadphaseBounds?: SensorBounds;
   private _collisionLayer: number;
   private _collisionMask: number;
   private _monitoring: boolean;
@@ -55,12 +56,13 @@ export class Area2DNode extends Node2D implements CollisionShapeOwner, ContactPa
   get currentContacts(): readonly PhysicsContact[] { return this.areaOptions.context.contactRouter.currentContacts(this.runtimeId); }
 
   override _enter_tree(): void {
+    this.broadphaseBounds = undefined;
     const zone = this.areaOptions.context.scene.add.zone(0, 0, 1, 1).setName(this.runtimeId).setVisible(false);
     this.areaOptions.context.scene.physics.add.existing(zone, true);
     this.zone = zone;
     const body = zone.body as Phaser.Physics.Arcade.StaticBody | null;
     if (body) { body.enable = false; body.checkCollision.none = true; }
-    this.entryDisposables.add(() => { zone.destroy(); if (this.zone === zone) this.zone = undefined; });
+    this.entryDisposables.add(() => { zone.destroy(); if (this.zone === zone) this.zone = undefined; this.broadphaseBounds = undefined; });
     this.entryDisposables.add(this.areaOptions.context.registerContactParticipant(this, body ?? undefined));
     this.entryDisposables.add(this.areaOptions.context.registerCallback('contacts', () => this.synchronizeBroadphaseBody()));
   }
@@ -83,11 +85,15 @@ export class Area2DNode extends Node2D implements CollisionShapeOwner, ContactPa
   private synchronizeBroadphaseBody(): void {
     const body = this.zone?.body as Phaser.Physics.Arcade.StaticBody | null | undefined;
     const bounds = this.contactBounds();
-    if (!body || !this.zone || !bounds) { if (body) body.enable = false; return; }
+    if (!body || !this.zone || !bounds) { if (body) body.enable = false; this.broadphaseBounds = undefined; return; }
+    const previous = this.broadphaseBounds;
+    if (body.enable && previous && previous.x === bounds.x && previous.y === bounds.y
+      && previous.width === bounds.width && previous.height === bounds.height) return;
     this.zone.setPosition(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2).setSize(bounds.width, bounds.height);
     body.setSize(bounds.width, bounds.height);
     body.updateFromGameObject();
     body.checkCollision.none = true;
     body.enable = true;
+    this.broadphaseBounds = bounds;
   }
 }

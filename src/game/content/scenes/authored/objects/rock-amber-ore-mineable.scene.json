@@ -70,7 +70,7 @@
       "properties": {
         "collisionLayer": 8,
         "collisionMask": 16,
-        "monitoring": true,
+        "monitoring": false,
         "monitorable": true
       }
     },

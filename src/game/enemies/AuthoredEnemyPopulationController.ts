@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { Enemy, type EnemyConfig, type EnemyContext } from './Enemy';
+import type { EnemyConfig } from './EnemyConfig';
 import type { EnemySafeZone } from './EnemyAI';
 import type { MapEnemySpawnArea } from '../content/maps/mapFormat';
 import { getEnemyConfig } from './library/EnemyTypes';
@@ -37,9 +37,7 @@ export interface EnemySpawnRequest {
 }
 
 export interface SpawnerContext {
-  scene: Phaser.Scene;
   getPlayer: () => Phaser.Physics.Arcade.Sprite;
-  enemyContext: EnemyContext;
   /** Max concurrent enemies. */
   maxPopulation: number;
   /** Spawn distance from the player (off-screen-ish). */
@@ -52,23 +50,18 @@ export interface SpawnerContext {
   spawnTable: SpawnEntry[];
   /** Authored camps. When non-empty, these replace legacy player-relative spawning. */
   spawnAreas?: readonly MapEnemySpawnArea[];
-  /** Gives each enemy its immutable camp boundary context. */
-  createEnemyContext?: (area?: MapEnemySpawnArea) => EnemyContext;
   /** World bounds for clamping spawn positions. */
   worldWidth: number;
   worldHeight: number;
-  /** Physics group to add enemies to (for combat hitbox checks). */
-  targetGroup?: Phaser.Physics.Arcade.Group;
-  /** Transitional packed-scene factory. Undefined delegates the type to the legacy Enemy constructor. */
-  createEnemyRuntime?: (request: EnemySpawnRequest) => EnemyPopulationMember | null | undefined;
+  /** Creates each enemy from its authored packed scene. */
+  createEnemyRuntime: (request: EnemySpawnRequest) => EnemyPopulationMember | null | undefined;
   /** Areas where enemies should never spawn. */
   getSafeZones?: () => EnemySafeZone[];
   /** Delay between population refill attempts. */
   spawnIntervalMs: number;
 }
 
-/** Scene-owned population orchestration. Production supplies a packed-scene
- * factory; the legacy Enemy fallback remains only for unconverted test/tools. */
+/** Scene-owned population orchestration using authored packed enemy scenes. */
 export class AuthoredEnemyPopulationController {
   private ctx: SpawnerContext;
   private enemies: EnemyPopulationMember[] = [];
@@ -190,27 +183,16 @@ export class AuthoredEnemyPopulationController {
     const spawnPoint = this.findSpawnPoint(player, area);
     if (!spawnPoint) return null;
 
-    const managedEnemy = this.ctx.createEnemyRuntime?.({
+    const enemy = this.ctx.createEnemyRuntime({
       x: spawnPoint.x,
       y: spawnPoint.y,
       config: entry.config,
       ...(area ? { area } : {}),
     });
-    if (managedEnemy === null) return null;
-    const enemy = managedEnemy ?? this.createLegacyEnemy(spawnPoint, entry.config, area);
+    if (enemy === null) return null;
+    if (!enemy) throw new Error(`No authored enemy scene for '${entry.config.id}'`);
     this.enemies.push(enemy);
     this.areaByEnemy.set(enemy, area);
-    return enemy;
-  }
-
-  private createLegacyEnemy(
-    spawnPoint: Phaser.Math.Vector2,
-    config: EnemyConfig,
-    area?: MapEnemySpawnArea,
-  ): Enemy {
-    const enemyContext = this.ctx.createEnemyContext?.(area) ?? { ...this.ctx.enemyContext, spawnArea: area };
-    const enemy = new Enemy(this.ctx.scene, spawnPoint.x, spawnPoint.y, config, enemyContext);
-    this.ctx.targetGroup?.add(enemy);
     return enemy;
   }
 

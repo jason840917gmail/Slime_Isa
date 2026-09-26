@@ -8,10 +8,10 @@ import { gameState } from '../core/GameState';
 import { gameEvents } from '../core/EventBus';
 import { saveSystem } from '../core/SaveSystem';
 import {
-  LegacyPlayerHealthAdapter,
+  PlayerHealthController,
   type AcceptedDamageResult,
   type DamageRequest,
-} from '../infrastructure/scenes/compatibility/LegacyPlayerHealthAdapter';
+} from '../features/player/PlayerHealthController';
 import { StatusEffectManager } from '../systems/StatusEffects';
 import { getStats } from '../systems/PlayerStats';
 import { PlayerAbilityController } from '../features/player/PlayerAbilityController';
@@ -27,11 +27,8 @@ import { ModalStack } from '../ui/ModalStack';
 import { DisposableBag } from '../shared/lifecycle/Disposable';
 import { PlayerController } from '../features/player/PlayerController';
 import type { PlayerActorPort } from '../features/player/PlayerServicePorts';
-import { findVisualClipByRuntimeKey, getVisualClip } from '../content/visuals/VisualCatalog';
-import { animationCycleDurationMs } from '../shared/animationLoop';
 import type { WorldVisual } from '../presentation/WorldVisual';
 import { UI_THEME } from '../presentation/theme';
-import { registerAllVisualSetAnimations } from '../features/visuals/AnimationRegistrar';
 import {
   clearOneShotNavigationParams,
   navigateToArea as navigateToAreaUrl,
@@ -46,16 +43,11 @@ import { worldProgress } from '../features/progression/WorldProgress';
 import { CollectibleController } from '../features/collectibles/CollectibleController';
 import { CollectibleEventChannel } from '../features/collectibles/CollectibleEventChannel';
 import { CollectibleReactionController } from '../features/collectibles/CollectibleReactionController';
-import { WorldDropSpawner } from '../features/collectibles/WorldDropSpawner';
+import type { WorldDropRequest } from '../features/collectibles/WorldDropRequest';
 import { InventoryDropController } from '../features/collectibles/InventoryDropController';
 import type { InventoryDropCellInspection } from '../features/collectibles/InventoryDropPlacement';
 import { OcclusionController } from '../features/occlusion/OcclusionController';
 import { DepthDiagnostics } from '../features/occlusion/DepthDiagnostics';
-import {
-  ObjectFactory,
-  setObjectAnchor,
-  setObjectDepthMode,
-} from '../features/objects/ObjectFactory';
 import { TileFactory } from '../features/world/TileFactory';
 import { TerrainTransitionLayer, TerrainTransitionRenderer } from '../features/world/TerrainTransitionRenderer';
 import { resolveBodyBottom, resolveWorldDepth } from '../presentation/WorldDepth';
@@ -101,14 +93,12 @@ export class WorldScene extends Phaser.Scene {
   private paused = false;
   private pauseSources = new Set<string>();
   private terrainGrid: WorldTileId[][] = [];
-  private collectibleTargets!: Phaser.Physics.Arcade.StaticGroup;
-  private resourceTargets!: Phaser.GameObjects.Group;
   private resourceNodes?: ResourceNodeController;
   private collectibles?: CollectibleController;
-  private worldDrops?: WorldDropSpawner;
+  private pendingWorldDrops: WorldDropRequest[] = [];
   private inventoryDrops?: InventoryDropController;
   private playerController!: PlayerController;
-  private healthSystem?: LegacyPlayerHealthAdapter;
+  private healthSystem?: PlayerHealthController;
   private statusEffects?: StatusEffectManager;
   private modalStack?: ModalStack;
   private interactionRouter?: InteractionRouter;
@@ -179,7 +169,6 @@ export class WorldScene extends Phaser.Scene {
 
     // Phase 1: World entities (no cross-system side effects)
     this.createCollisionLayer();
-    registerAllVisualSetAnimations(this);
     this.occlusionController = new OcclusionController(this);
     const modalStack = this.game.registry.get('modalStack');
     if (!(modalStack instanceof ModalStack)) {
@@ -197,16 +186,14 @@ export class WorldScene extends Phaser.Scene {
     this.buildWorld();
     this.questNpcController.finalize();
     this.statusEffects = new StatusEffectManager();
-    this.healthSystem = new LegacyPlayerHealthAdapter({
-      scene: this,
-      getPlayer: () => this.player,
-      getStatus: () => this.statusEffects!,
+    this.healthSystem = new PlayerHealthController({
+      getPlayerPosition: () => ({ x: this.player.x, y: this.player.y }),
       applyKnockback: (direction, strength, durationMs) => {
         this.playerKnockbackUntil = Math.max(
           this.playerKnockbackUntil,
           this.time.now + durationMs,
         );
-        this.playerController.applyKnockback(direction, strength, durationMs);
+        this.playerController.applyKnockback(new Phaser.Math.Vector2(direction.x, direction.y), strength, durationMs);
         this.playAnimation('slime-knockback', true);
       },
       onHit: (result) => this.onPlayerHit(result),
@@ -325,8 +312,7 @@ export class WorldScene extends Phaser.Scene {
     this.resourceNodes?.destroy();
     this.resourceNodes = undefined;
     this.inventoryDrops = undefined;
-    this.worldDrops?.destroy();
-    this.worldDrops = undefined;
+    this.pendingWorldDrops = [];
     this.collectibles?.destroy();
     this.collectibles = undefined;
     this.occlusionController?.destroy();
@@ -408,11 +394,11 @@ export class WorldScene extends Phaser.Scene {
       this.universalWorld.advanceFrame(delta / 1000);
       return;
     }
-    this.updateLegacyRender(delta);
-    if (!this.paused) this.updateLegacyFixed(delta);
+    this.updatePresentation(delta);
+    if (!this.paused) this.updateGameplay(delta);
   }
 
-  private updateLegacyRender(_delta: number): void {
+  private updatePresentation(_delta: number): void {
     this.syncCameraLayers();
 
     if (this.paused) {
@@ -421,12 +407,11 @@ export class WorldScene extends Phaser.Scene {
     }
   }
 
-  private updateLegacyFixed(delta: number): void {
+  private updateGameplay(delta: number): void {
     this.universalWorld?.minimapSurface.update(this.cameras.main, this.player);
 
     this.interactionRouter?.update();
     this.statusEffects?.update(this.time.now, delta);
-    this.healthSystem?.update(this.time.now);
     this.abilitySystem?.update();
     this.combatController?.update(this.time.now, delta);
     this.occlusionController?.update();
@@ -477,7 +462,6 @@ export class WorldScene extends Phaser.Scene {
       getPlayer: () => this.player,
       getCombatTargets: () => this.combatController?.targets ?? null,
       getCollisionTiles: () => this.collisionTiles,
-      getCollectibleTargets: () => this.collectibleTargets,
       getTransitionZones: () => [],
       getEnemySpawnAreas: () => this.builtMap?.enemySpawnAreas ?? [],
       getBossCamps: () => this.builtMap?.bossCamps ?? [],
@@ -589,19 +573,9 @@ export class WorldScene extends Phaser.Scene {
       seed: this.currentArea.seed,
     }).render(terrainGrid);
 
-    const dynamicObjectFactory = new ObjectFactory({
-      scene: this,
-      staticGroup: this.collisionTiles,
-      behaviorGroups: {
-        'collectible.walk-over': this.collectibleTargets,
-      },
-      registerOccluder: (registration) => this.occlusionController!.registerOccluder(registration),
-    });
     this.collectibles = new CollectibleController({
       scene: this,
       mapId: this.loadedMap.map.mapId,
-      group: this.collectibleTargets,
-      inventory: playerInventory,
       transaction: playerInventoryWorldTransaction,
       progress: worldProgress,
       publisher: COLLECTIBLE_EVENTS,
@@ -611,20 +585,15 @@ export class WorldScene extends Phaser.Scene {
         this.inventoryDrops?.onCollectibleStateChanged(change);
       },
     });
-    this.worldDrops = new WorldDropSpawner({
-      scene: this,
-      createObject: (objectId, options) => dynamicObjectFactory.create(objectId, options),
-      setObjectAnchor,
-      setObjectDepthMode,
-      registerCollectible: (registration) => this.collectibles?.register(registration),
-    });
     this.resourceNodes = new ResourceNodeController({
       scene: this,
       mapId: this.loadedMap.map.mapId,
       dimensions: this.worldDimensions,
-      collisionGroup: this.collisionTiles,
-      targetGroup: this.resourceTargets,
-      spawnWorldDrop: (request) => this.worldDrops!.spawn(request),
+      getCollectibleQuantity: (objectId) => {
+        if (!this.universalWorld) throw new Error(`Collectible scene '${objectId}' is unavailable before world mount`);
+        return this.universalWorld.collectibleQuantity(objectId);
+      },
+      spawnWorldDrop: (request) => this.spawnWorldDrop(request),
       isCellBlocked: (cellX, cellY, sourceInstanceId) => this.isResourceDropCellBlocked(cellX, cellY, sourceInstanceId),
     });
     this.inventoryDrops = new InventoryDropController({
@@ -634,11 +603,15 @@ export class WorldScene extends Phaser.Scene {
       getPlayerAnchor: () => ({ x: this.player.x, y: this.player.y }),
       getFacing: () => this.facingDirection(),
       inspectCell: (itemId, cellX, cellY) => this.inspectInventoryDropCell(itemId, cellX, cellY),
-      spawnWorldDrop: (request) => this.worldDrops!.spawn(request),
+      spawnWorldDrop: (request) => this.spawnWorldDrop(request),
       showMessage: (message) => floatingText.spawn(this, this.player.x, this.player.y - 42, message, 'white', true, 1800),
       progress: worldProgress,
     });
-    this.inventoryDrops.restore();
+  }
+
+  private spawnWorldDrop(request: WorldDropRequest): void {
+    if (this.universalWorld) this.universalWorld.spawnWorldDrop(request);
+    else this.pendingWorldDrops.push(request);
   }
 
   private buildTerrainGrid(map: MapFile): WorldTileId[][] {
@@ -670,8 +643,6 @@ export class WorldScene extends Phaser.Scene {
 
   private createCollisionLayer(): void {
     this.collisionTiles = this.physics.add.staticGroup();
-    this.collectibleTargets = this.physics.add.staticGroup();
-    this.resourceTargets = this.add.group();
   }
 
   private createPlayer(): void {
@@ -720,11 +691,6 @@ export class WorldScene extends Phaser.Scene {
 
   private createPhysics(): void {
     this.physics.add.collider(this.player, this.collisionTiles);
-    if (this.collectibleTargets) {
-      this.physics.add.overlap(this.player, this.collectibleTargets, (_player, collectible) => {
-        this.collectibles?.collect(collectible as Phaser.GameObjects.GameObject);
-      });
-    }
   }
 
   private createCamera(): void {
@@ -908,20 +874,11 @@ export class WorldScene extends Phaser.Scene {
     ) ?? false;
   }
 
-  private inspectInventoryDropCell(itemId: string, cellX: number, cellY: number): InventoryDropCellInspection {
+  private inspectInventoryDropCell(_itemId: string, cellX: number, cellY: number): InventoryDropCellInspection {
     if (this.isResourceDropCellBlocked(cellX, cellY, '__inventory-drop__')) return { kind: 'blocked' };
-    const settled = this.collectibles?.inspectCell(itemId, cellX, cellY, this.worldDimensions.tileSize);
-    if (settled && settled.kind !== 'open') return settled;
-    const hasUnregisteredDrop = this.collectibleTargets.getChildren().some((child) => {
-      const image = child as Phaser.GameObjects.Image;
-      if (!image.active || image.getData('collectibleInstanceId')) return false;
-      const anchorX = image.getData('objectAnchorX');
-      const anchorY = image.getData('objectAnchorY');
-      if (!Number.isFinite(anchorX) || !Number.isFinite(anchorY)) return false;
-      return Math.floor(anchorX / this.worldDimensions.tileSize) === cellX
-        && Math.floor(anchorY / this.worldDimensions.tileSize) - 1 === cellY;
-    });
-    return hasUnregisteredDrop ? { kind: 'blocked' } : { kind: 'open' };
+    return this.universalWorld?.isManagedCollectibleCellOccupied(cellX, cellY, this.worldDimensions.tileSize)
+      ? { kind: 'blocked' }
+      : { kind: 'open' };
   }
 
   private playAnimation(key: string, forceRestart = false): void {
@@ -1001,16 +958,14 @@ export class WorldScene extends Phaser.Scene {
 
   private playActionAnimation(key: string): void {
     if (this.healthSystem?.isDead() || this.time.now < this.playerKnockbackUntil) return;
-    const clip = key.startsWith('slime-')
-      ? getVisualClip('character.player.slime', key.slice('slime-'.length))
-      : findVisualClipByRuntimeKey('character.player.slime', key);
-    if (!clip) return;
+    const animationId = key.startsWith('slime-') ? key.slice('slime-'.length) : key;
+    const durationMs = this.universalWorld?.playerAnimationDurationMs(animationId);
+    if (durationMs === undefined) return;
 
     this.actionLocked = true;
     this.currentAnimation = key;
     this.stopPlayerMotion();
     this.player.rotation = 0;
-    const animationId = key.startsWith('slime-') ? key.slice('slime-'.length) : key;
     this.universalWorld?.managedPlayer.playAnimation(animationId);
 
     const unlock = () => {
@@ -1018,12 +973,6 @@ export class WorldScene extends Phaser.Scene {
       this.playAnimation('slime-idle');
     };
 
-    if (!clip.loop) {
-      this.time.delayedCall(Math.max(1, Math.round(animationCycleDurationMs(clip))), unlock);
-      return;
-    }
-
-    const durationMs = Math.max(1, Math.round(animationCycleDurationMs(clip)));
     this.time.delayedCall(durationMs, unlock);
   }
 
@@ -1245,37 +1194,15 @@ export class WorldScene extends Phaser.Scene {
       playCharacterAction: (actionId) => this.playAnimation(`slime-${actionId}`),
       setActionLocked: (locked) => { this.actionLocked = locked; },
       canAttack: () => !this.actionLocked && !this.paused && !this.healthSystem?.isDead(),
-      isDodging: () => this.playerController.isDodging(),
-      applyPlayerDamage: (amount, source, impactX, impactY, knockbackStrength) => {
-        this.healthSystem?.applyDamage({
-          amount,
-          source,
-          knockX: impactX,
-          knockY: impactY,
-          knockStrength: knockbackStrength,
-        }, this.time.now);
-      },
       healPlayer: (amount) => this.healthSystem?.heal(amount) ?? 0,
       spawnItemDropIcon: (x, y, itemId, count, index, total) => {
         this.spawnItemDropIcon(x, y, itemId, count, index, total);
       },
-      registerRevealActor: (enemy, visual) => this.occlusionController?.registerActor({
-        id: `enemy:${enemy.enemyId}`,
-        owner: enemy,
-        visual,
-        getGroundAnchorY: () => resolveBodyBottom(enemy.body as Phaser.Physics.Arcade.Body),
-        getDepth: () => enemy.depth,
-        isEligible: () => enemy.isRevealEligible(),
-        silhouetteColor: 0xff936d,
-      }),
-      getResourceTargets: () => this.resourceTargets,
-      resourceNodes: this.resourceNodes,
       createManagedEnemy: (request) => this.universalWorld?.createManagedEnemy(request),
       spawnManagedEffect: (request) => this.universalWorld?.spawnEffect(request) ?? false,
       mountManagedWeapon: (weaponId) => this.universalWorld?.mountWeapon(weaponId) ?? false,
       canManagedWeaponAttack: (timeMs) => this.universalWorld?.canWeaponAttack(timeMs) ?? false,
       playManagedWeaponAttack: (direction, timeMs, damage) => this.universalWorld?.playWeaponAttack(direction, timeMs, damage) ?? false,
-      spawnManagedEnemyProjectile: (request) => this.universalWorld?.spawnEnemyProjectile(request) ?? false,
       clearManagedWeapon: () => this.universalWorld?.clearWeapon(),
     });
   }
@@ -1328,13 +1255,12 @@ export class WorldScene extends Phaser.Scene {
       canDropInventoryItem: (itemId) => this.inventoryDrops?.canDrop(itemId) ?? false,
       onDropInventoryItem: (slotIndex, quantity) => this.inventoryDrops?.dropFromSlot(slotIndex, quantity) ?? false,
       showMessage: (x, y, message, color = 'white', important = false) => floatingText.spawn(this, x, y, message, color, important),
-      updateLegacyFixed: (deltaMs) => this.updateLegacyFixed(deltaMs),
-      updateLegacyRender: (deltaMs) => this.updateLegacyRender(deltaMs),
+      updateGameplay: (deltaMs) => this.updateGameplay(deltaMs),
+      updatePresentation: (deltaMs) => this.updatePresentation(deltaMs),
       transformManagedWeaponDamage: (damage, target) => this.combatController?.transformManagedWeaponDamage(damage, target) ?? damage,
       onManagedWeaponOutcome: (outcome, target) => this.combatController?.onManagedWeaponOutcome(outcome, target),
       onManagedWeaponAttackStarted: (weaponId, direction) => this.combatController?.onManagedWeaponAttackStarted(weaponId, direction),
       onManagedWeaponAttackFinished: (weaponId) => this.combatController?.onManagedWeaponAttackFinished(weaponId),
-      activateLegacyWeaponHitbox: (request) => this.combatController?.activateLegacyWeaponHitbox(request) ?? (() => undefined),
       onManagedEnemyDefeated: (enemy) => this.combatController?.onManagedEnemyDefeated(enemy),
       getEnemySafeZones: () => this.builtMap?.enemySafeZones ?? [],
       registerNpc: (registration) => this.questNpcController?.register(registration),
@@ -1350,6 +1276,9 @@ export class WorldScene extends Phaser.Scene {
       getPlayer: () => this.player,
       uiRoot,
     });
+    for (const request of this.pendingWorldDrops) this.universalWorld.spawnWorldDrop(request);
+    this.pendingWorldDrops = [];
+    this.inventoryDrops?.restore();
   }
 
   private bindDebugCheats(): void {

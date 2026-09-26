@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "resourceId": "terrain.forest-moss",
+  "kind": "tile-set",
+  "tiles": {
+    "forest-moss": {
+      "assetIds": [
+        "terrain.forest.moss"
+      ],
+      "selection": "seeded-hash",
+      "physics": null,
+      "allowsDecorations": true,
+      "transition": {
+        "group": "natural-ground",
+        "material": "forest-moss",
+        "priority": 20,
+        "edgeWidth": 12,
+        "style": "noisy-feather"
+      },
+      "tags": [
+        "ground",
+        "forest",
+        "walkable"
+      ]
+    }
+  }
+}

@@ -40,13 +40,14 @@ test('production player construction has no PlayerFactory or compatibility proxy
   assert.match(universalWorld, /playerPresentation/);
 });
 
-test('legacy player wrappers do not remain domain systems', async () => {
+test('player health and ability controllers live in features without a Phaser health dependency', async () => {
   await assert.rejects(access('src/game/systems/AbilitySystem.ts'));
   await assert.rejects(access('src/game/systems/HealthSystem.ts'));
-  const [abilityController, healthAdapter] = await Promise.all([
+  const [abilityController, healthController] = await Promise.all([
     readFile('src/game/features/player/PlayerAbilityController.ts', 'utf8'),
-    readFile('src/game/infrastructure/scenes/compatibility/LegacyPlayerHealthAdapter.ts', 'utf8'),
+    readFile('src/game/features/player/PlayerHealthController.ts', 'utf8'),
   ]);
   assert.match(abilityController, /class PlayerAbilityController/);
-  assert.match(healthAdapter, /class LegacyPlayerHealthAdapter/);
+  assert.match(healthController, /class PlayerHealthController/);
+  assert.doesNotMatch(healthController, /from ['"]phaser['"]/);
 });

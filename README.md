@@ -22,6 +22,7 @@ Then open `http://localhost:3000`.
 - `pnpm typecheck` runs strict TypeScript validation.
 - `pnpm build` type-checks and creates the production build.
 - `pnpm check` runs the complete local verification sequence.
+- `pnpm scene-ownership:check` guards the current Scene Studio and runtime ownership boundaries.
 
 The Phaser project follows a feature-first structure. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for dependency rules, state ownership, persistence, and conventions for new features.
 
@@ -29,7 +30,7 @@ Asset authors should start with [docs/assets/README.md](docs/assets/README.md), 
 
 Map authors should follow [docs/AUTHORED_MAPS.md](docs/AUTHORED_MAPS.md) for the JSON workflow, content rules, preview URL, and validation commands.
 
-Use [docs/MAP_EDITOR.md](docs/MAP_EDITOR.md) for the dev-only Field Cartographer visual editor, controls, and safe-saving workflow.
+Open `http://localhost:3000/?studio=scenes` for Scene Studio. Select a world, character, combat, object, effect, UI, or audio scene, or an external resource, from the project explorer. The shared inspector, undo/redo, and save workflow apply across them. Old editor URLs redirect to Scene Studio. Original content packages remain read-only conversion inputs; NPC identity and placement data remain project data.
 
 ## Android Build And Deploy
 

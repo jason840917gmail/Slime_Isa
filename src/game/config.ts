@@ -20,66 +20,20 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
   if (legacyStudioRoute !== undefined) {
     window.history.replaceState(null, '', legacyStudioRoute);
   }
-  const studioQuery = import.meta.env.DEV ? new URLSearchParams(window.location.search) : undefined;
-  const studioMode = studioQuery?.get('studio');
-  const editorMapId = import.meta.env.DEV
-    ? studioQuery?.get('editor') ?? null
-    : null;
-  const projectileStudio = import.meta.env.DEV
-    ? studioMode === 'projectiles'
-    : false;
-  const animationStudio = import.meta.env.DEV
-    ? studioMode === 'animations' || (studioMode === 'weapons' && studioQuery?.has('animation') === true)
-    : false;
-  const weaponStudio = import.meta.env.DEV
-    ? studioMode === 'weapons' && !animationStudio
-    : false;
   const sceneStudio = import.meta.env.DEV
-    ? studioMode === 'scenes'
-    : false;
+    && new URLSearchParams(window.location.search).get('studio') === 'scenes';
   if (sceneStudio) {
     document.title = 'Scene Studio — Field Cartographer';
     const { mountSceneStudio } = await import('./editor/scene-studio/SceneStudio');
     mountSceneStudio(container);
     return undefined;
   }
-  if (projectileStudio) {
-    document.title = 'Projectile Studio — Field Cartographer';
-    const { mountProjectileStudio } = await import('./editor/ProjectileStudio');
-    mountProjectileStudio(container);
-    return undefined;
-  }
-  if (animationStudio) {
-    if (studioMode === 'weapons' && studioQuery) {
-      studioQuery.set('studio', 'animations');
-      window.history.replaceState(null, '', `?${studioQuery.toString()}`);
-    }
-    document.title = 'Animation Studio — Field Cartographer';
-    const { mountAnimationStudio } = await import('./editor/AnimationStudio');
-    mountAnimationStudio(container);
-    return undefined;
-  }
-  if (weaponStudio) {
-    document.title = 'Weapon Studio — Field Cartographer';
-    const { mountWeaponStudio } = await import('./editor/WeaponStudio');
-    mountWeaponStudio(container);
-    return undefined;
-  }
-  const isEditor = editorMapId !== null;
-  const modalStack = isEditor ? undefined : new ModalStack();
-  const editorScenes = isEditor
-    ? await Promise.all([
-        import('./editor/MapEditorLoadScene').then((module) => module.MapEditorLoadScene),
-        import('./editor/MapEditorScene').then((module) => module.MapEditorScene),
-      ])
-    : [];
-  const devPanel = import.meta.env.DEV && !isEditor ? createDevToolsPanel() : '';
-  if (isEditor) document.title = `Field Cartographer - ${editorMapId}`;
+  const modalStack = new ModalStack();
+  const devPanel = import.meta.env.DEV ? createDevToolsPanel() : '';
 
-  if (!isEditor) await prepareRunStartup(container);
+  await prepareRunStartup(container);
 
-  const preparedSceneContent = !isEditor
-    ? await PreparedSceneContent.prepare({
+  const preparedSceneContent = await PreparedSceneContent.prepare({
         scenes: sceneDocuments,
         resources: sceneResourceDocuments,
         registry: createGameDescriptorRegistry(),
@@ -119,6 +73,7 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
           sceneId('effect.slam-hammer-impact'),
           sceneId('effect.stone-impact'),
           sceneId('effect.wood-impact'),
+          sceneId('effect.enemy-worm-brawler-hit'),
           sceneId('weapon.basic-spear'),
           sceneId('weapon.basic-sword'),
           sceneId('weapon.goo-gauntlet'),
@@ -147,15 +102,14 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
           sceneId('ui.minimap'),
         ],
         hasAsset: (assetId) => Object.hasOwn(ASSET_MANIFEST.assets, assetId),
-      })
-    : undefined;
+      });
 
   container.innerHTML = `
-    <section class="game-shell${import.meta.env.DEV && !isEditor ? ' is-dev-mode' : ''}${isEditor ? ' is-map-editor' : ''}">
+    <section class="game-shell${import.meta.env.DEV ? ' is-dev-mode' : ''}">
       <div class="canvas-frame">
         <div id="game-root"></div>
-        ${isEditor ? '' : '<div class="scene-ui-root" data-scene-ui-root aria-label="Game interface"></div>'}
-        ${isEditor ? '' : `<details class="keymap-panel" open>
+        <div class="scene-ui-root" data-scene-ui-root aria-label="Game interface"></div>
+        <details class="keymap-panel" open>
           <summary>Controls</summary>
           <table>
             <tr><td class="k">Arrows / IJKL</td><td>Move</td></tr>
@@ -174,18 +128,14 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
             <tr><td class="k">C</td><td>Crafting</td></tr>
             <tr><td class="k">Shift + 1–8</td><td>Debug cheats</td></tr>
           </table>
-        </details>`}
+        </details>
       </div>
-      ${isEditor ? `
-        <aside class="map-editor-panel" data-map-editor-panel></aside>
-        <aside class="map-editor-inspector" data-map-editor-inspector></aside>
-      ` : ''}
       ${devPanel}
     </section>
   `;
 
-  if (import.meta.env.DEV && !isEditor) {
-    bindDevToolsPanel(container, modalStack!);
+  if (import.meta.env.DEV) {
+    bindDevToolsPanel(container, modalStack);
   }
 
   const gameRoot = container.querySelector<HTMLDivElement>('#game-root');
@@ -194,7 +144,7 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
   if (!gameRoot) {
     throw new Error('Missing game mount node.');
   }
-  if (!isEditor && !sceneUiRoot) {
+  if (!sceneUiRoot) {
     throw new Error('Missing universal UI mount node.');
   }
 
@@ -218,22 +168,21 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
         gravity: { y: 0, x: 0 },
         debug: false,
         fps: 60,
-        // WorldScene remains on Phaser's legacy automatic fixed step until its
-        // authored-scene cutover. Managed SceneTree hosts disable that scene's
-        // automatic update and become its single manual Arcade step owner.
+        // Managed SceneTree hosts disable the world's automatic update and
+        // own its single manual Arcade step.
         fixedStep: true,
       },
     },
     callbacks: {
       preBoot: (bootingGame) => {
-        if (modalStack) bootingGame.registry.set('modalStack', modalStack);
-        if (preparedSceneContent) bootingGame.registry.set(PREPARED_SCENE_CONTENT_KEY, preparedSceneContent);
-        if (sceneUiRoot) bootingGame.registry.set('universal-ui-root', sceneUiRoot);
+        bootingGame.registry.set('modalStack', modalStack);
+        bootingGame.registry.set(PREPARED_SCENE_CONTENT_KEY, preparedSceneContent);
+        bootingGame.registry.set('universal-ui-root', sceneUiRoot);
       },
     },
-    scene: [BootScene, MapLoadScene, WorldScene, ...editorScenes],
+    scene: [BootScene, MapLoadScene, WorldScene],
   });
-  if (modalStack) game.events.once(Phaser.Core.Events.DESTROY, () => modalStack.destroy());
-  if (preparedSceneContent) game.events.once(Phaser.Core.Events.DESTROY, () => preparedSceneContent.dispose());
+  game.events.once(Phaser.Core.Events.DESTROY, () => modalStack.destroy());
+  game.events.once(Phaser.Core.Events.DESTROY, () => preparedSceneContent.dispose());
   return game;
 }

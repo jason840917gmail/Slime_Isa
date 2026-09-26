@@ -27,5 +27,3 @@ export * from './registrations';
 export * from '../../infrastructure/phaser-nodes/ui/ControlNodes';
 export { createPhaserNodeRegistry } from '../../infrastructure/phaser-nodes/PhaserNodeRegistry';
 export { PhaserNodeContext } from '../../infrastructure/scenes/PhaserNodeContext';
-export * from '../../infrastructure/scenes/compatibility/LegacyChestUiBridge';
-export * from '../../infrastructure/scenes/compatibility/LegacyBossUiBridge';

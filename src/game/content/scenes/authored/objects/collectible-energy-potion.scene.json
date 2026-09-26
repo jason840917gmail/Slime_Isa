@@ -52,7 +52,7 @@
       "properties": {
         "collisionLayer": 64,
         "collisionMask": 32,
-        "monitoring": true,
+        "monitoring": false,
         "monitorable": true
       }
     },
@@ -92,18 +92,6 @@
     }
   ],
   "instances": [],
-  "connections": [
-    {
-      "source": {
-        "nodeId": "pickup-area"
-      },
-      "signal": "area_entered",
-      "target": {
-        "nodeId": "script"
-      },
-      "handler": "on_area_entered"
-    }
-  ],
   "subresources": [
     {
       "version": 1,

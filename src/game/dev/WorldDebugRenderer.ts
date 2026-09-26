@@ -21,7 +21,6 @@ export interface WorldDebugContext {
   getPlayer: () => Phaser.Physics.Arcade.Sprite;
   getCombatTargets: () => Phaser.Physics.Arcade.Group | null;
   getCollisionTiles: () => Phaser.Physics.Arcade.StaticGroup | undefined;
-  getCollectibleTargets: () => Phaser.Physics.Arcade.StaticGroup | undefined;
   getTransitionZones: () => Phaser.GameObjects.Zone[];
   getEnemySpawnAreas: () => readonly MapEnemySpawnArea[];
   getBossCamps: () => readonly MapBossCamp[];
@@ -80,7 +79,6 @@ export class WorldDebugRenderer {
   private drawVisualBounds(g: Phaser.GameObjects.Graphics): void {
     this.drawObjectBounds(g, this.ctx.getPlayer(), 0x72d8ff, 0.95);
     this.forChildren(this.ctx.getCombatTargets(), (child) => this.drawObjectBounds(g, child, 0x72d8ff, 0.85));
-    this.forChildren(this.ctx.getCollectibleTargets(), (child) => this.drawObjectBounds(g, child, 0x72d8ff, 0.55));
     this.forWorldObjects((object) => this.drawObjectBounds(g, object, 0x72d8ff, 0.75));
   }
 
@@ -153,7 +151,6 @@ export class WorldDebugRenderer {
 
   private drawInteractionZones(g: Phaser.GameObjects.Graphics): void {
     for (const zone of this.ctx.getTransitionZones()) this.drawBody(g, this.bodyOf(zone), 0x73e2b1, 0.85);
-    this.forChildren(this.ctx.getCollectibleTargets(), (child) => this.drawBody(g, this.bodyOf(child), 0x73e2b1, 0.75));
   }
 
   private drawActiveAttackHitboxes(g: Phaser.GameObjects.Graphics): void {

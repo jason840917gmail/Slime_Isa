@@ -24,12 +24,9 @@ export default defineConfig({
       projectileRoot: path.join(repositoryRoot, 'src/game/content/projectiles'),
       weaponRoot: path.join(repositoryRoot, 'src/game/content/weapons'),
       effectRoot: path.join(repositoryRoot, 'src/game/content/effects'),
-      assetRoot: path.join(repositoryRoot, 'asset'),
-      assetManifestPath: path.join(repositoryRoot, 'asset/assets.json'),
-      gameConstantsPath: path.join(repositoryRoot, 'src/game/content/game-constants.json'),
     })),
     readOnly(animationContentModulesPlugin({
-      animationRoot: path.join(repositoryRoot, 'src/game/content/animations'),
+      resourceRoot: path.join(repositoryRoot, 'src/game/content/scenes/authored/resources/animations'),
     })),
     readOnly(sceneContentModulesPlugin(path.join(repositoryRoot, 'src/game/content/scenes/authored'))),
   ],

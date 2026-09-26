@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 
 import type { MapEnemySafeZone, MapFile } from '../../content/maps/mapFormat';
 import { getCharacterPackage } from '../../content/characters/CharacterCatalog';
-import { sceneId, type SceneId } from '../../content/scenes/identifiers';
+import { resourceId, sceneId, type SceneId } from '../../content/scenes/identifiers';
 import { getBossDefinition } from '../../content/bosses/BossCatalog';
 import { ASSET_MANIFEST, type AssetId } from '../../infrastructure/assets/manifest';
 import { GlobalAudioServices } from '../../infrastructure/audio/GlobalAudioServices';
@@ -11,7 +11,6 @@ import { Area2DNode } from '../../infrastructure/phaser-nodes/Area2DNode';
 import { Sprite2DNode } from '../../infrastructure/phaser-nodes/Sprite2DNode';
 import { PhaserUniversalSceneRuntime, type MountedScene } from '../../infrastructure/scenes/PhaserUniversalSceneRuntime';
 import type { PreparedSceneContent } from '../../infrastructure/scenes/PreparedSceneContent';
-import { LegacyWorldAdapter } from '../../infrastructure/scenes/compatibility/LegacyWorldAdapter';
 import type { Node } from '../../runtime/scene/Node';
 import { InputRouter } from '../../runtime/scene/input/InputRouter';
 import type { InputEventSink } from '../../runtime/scene/input/InputRouter';
@@ -69,7 +68,16 @@ import {
   type WorldObjectStatePort,
 } from '../scripts/DestructibleScript';
 import type { ManagedResourceRegistration } from '../resources/ResourceNodeController';
-import type { ObjectOccluderRegistration } from '../objects/ObjectFactory';
+import type { ObjectOccluderRegistration } from '../objects/ObjectRegistration';
+import type { WorldDropRequest } from '../collectibles/WorldDropRequest';
+import {
+  resolveWorldDropTrajectory,
+  WORLD_DROP_FLIGHT_MS,
+  WORLD_DROP_REBOUND_HEIGHT,
+  WORLD_DROP_REBOUND_MS,
+  WORLD_DROP_SETTLE_MS,
+  WORLD_DROP_STAGGER_MS,
+} from '../collectibles/WorldDropMotion';
 import {
   COLLECTIBLE_WORLD_SERVICE,
   CollectibleScript,
@@ -81,7 +89,6 @@ import {
   PLAYER_WEAPON_COMBAT_SERVICE,
   WeaponScript,
   type ManagedWeaponTarget,
-  type LegacyWeaponHitboxRequest,
   type WeaponAttackDirection,
   type WeaponDamagePayload,
 } from '../scripts/WeaponScript';
@@ -89,7 +96,7 @@ import type { WorldEffectSpawnRequest } from '../effects/WorldEffectSpawn';
 import { WorldEffectPositionAttachment } from '../effects/WorldEffectPositionAttachment';
 import { resolvePhysicsPresentationPosition, type PhysicsPresentationTarget } from '../../presentation/PhysicsPresentation';
 import { PLAYER_INPUT_ACTIONS } from '../player/PlayerInputActions';
-import type { LegacyPlayerHealthAdapter } from '../../infrastructure/scenes/compatibility/LegacyPlayerHealthAdapter';
+import type { PlayerHealthController } from '../player/PlayerHealthController';
 import type { ModalStack } from '../../ui/ModalStack';
 import { HtmlControlPresentationAdapter } from '../../infrastructure/phaser-nodes/ui/HtmlControlPresentationAdapter';
 import { HudSurfacePort } from '../ui/HudSurfacePort';
@@ -127,7 +134,7 @@ export interface UniversalSceneWorldControllerOptions {
   readonly map: MapFile;
   readonly worldSceneId: SceneId;
   readonly playerSpawn: Readonly<{ x: number; y: number }>;
-  readonly health: LegacyPlayerHealthAdapter;
+  readonly health: PlayerHealthController;
   readonly progress: WorldProgress;
   readonly transaction: InventoryWorldTransaction;
   readonly interactions: InteractionRouter;
@@ -148,13 +155,12 @@ export interface UniversalSceneWorldControllerOptions {
   readonly canDropInventoryItem: (itemId: string) => boolean;
   readonly onDropInventoryItem: (slotIndex: number, quantity: number) => boolean;
   readonly showMessage: (x: number, y: number, message: string, color?: 'white' | 'yellow' | 'green' | 'cyan' | 'orange' | 'red', important?: boolean) => void;
-  readonly updateLegacyFixed: (deltaMs: number) => void;
-  readonly updateLegacyRender: (deltaMs: number) => void;
+  readonly updateGameplay: (deltaMs: number) => void;
+  readonly updatePresentation: (deltaMs: number) => void;
   readonly transformManagedWeaponDamage: (damage: number, target: ManagedWeaponTarget) => number;
   readonly onManagedWeaponOutcome: (outcome: RoutedDamageOutcome, target: ManagedWeaponTarget | undefined) => void;
   readonly onManagedWeaponAttackStarted: (weaponId: string, direction: WeaponAttackDirection) => void;
   readonly onManagedWeaponAttackFinished: (weaponId: string, direction: WeaponAttackDirection) => void;
-  readonly activateLegacyWeaponHitbox: (request: LegacyWeaponHitboxRequest) => () => void;
   readonly onManagedEnemyDefeated: (enemy: ManagedEnemyDefeat) => void;
   readonly getEnemySafeZones: () => readonly MapEnemySafeZone[];
   readonly registerNpc?: (registration: QuestNpcRegistration) => void;
@@ -263,6 +269,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
   private readonly effects = new Map<number, ManagedEffect>();
   private readonly resources = new Map<string, ManagedResource>();
   private readonly collectibles = new Map<string, ManagedCollectible>();
+  private nextDropSequence = 0;
   private readonly passiveObjects = new Set<Node>();
   private readonly authoredRoots = new Set<Node2D>();
   private weapon?: ManagedWeapon;
@@ -373,7 +380,6 @@ export class UniversalSceneWorldController implements InteractionProvider {
       [PLAYER_WEAPON_COMBAT_SERVICE]: {
         onAttackStarted: options.onManagedWeaponAttackStarted,
         onAttackFinished: options.onManagedWeaponAttackFinished,
-        activateLegacyHitbox: options.activateLegacyWeaponHitbox,
         transformDamage: (damage: number, target: ManagedWeaponTarget) => options.transformManagedWeaponDamage(damage, {
           ...target,
           targetTags: this.managedTargetTags(target.receiverNodeId),
@@ -383,11 +389,14 @@ export class UniversalSceneWorldController implements InteractionProvider {
           targetTags: this.managedTargetTags(target.receiverNodeId),
         }),
       },
-      [PLAYER_HEALTH_SERVICE]: options.health.managedReceiver,
+      [PLAYER_HEALTH_SERVICE]: options.health,
       [ENEMY_TARGET_SERVICE]: {
         getPrimaryTarget: () => this.primaryEnemyTarget(),
         getNavigation: (sourceNodeId: string) => this.enemyNavigation(sourceNodeId),
         fireProjectile: (request: EnemyProjectileRequest) => this.spawnEnemyProjectile(request),
+        spawnImpactEffect: (request: { readonly effectId: string; readonly x: number; readonly y: number }) => {
+          this.spawnEffect({ effectId: request.effectId, direction: 'right', x: request.x, y: request.y, depth: 0 });
+        },
       },
       [NPC_RUNTIME_SERVICE]: {
         acquire: (request: NpcRuntimeRequest) => this.acquireNpcAgent(request),
@@ -460,13 +469,13 @@ export class UniversalSceneWorldController implements InteractionProvider {
         diagnosticSink: (diagnostic) => {
           console.error(`[UniversalScene:${diagnostic.phase}] ${diagnostic.message}`, diagnostic.error ?? '');
         },
-        legacy: new LegacyWorldAdapter({
-          prePhysics: (deltaSeconds) => {
+        lifecycle: {
+          beforeFixedStep: (deltaSeconds) => {
             this.simulationTimeMs += deltaSeconds * 1000;
-            options.updateLegacyFixed(deltaSeconds * 1000);
+            options.updateGameplay(deltaSeconds * 1000);
             this.evaluateCamps();
           },
-          postPhysics: () => {
+          afterFixedStep: () => {
             this.finishDefeatedBosses();
             this.finishDefeatedOrdinaryEnemies();
             this.finishExpiredProjectiles();
@@ -474,11 +483,11 @@ export class UniversalSceneWorldController implements InteractionProvider {
             this.finishDestroyedResources();
             this.finishDepletedCollectibles();
           },
-          render: (deltaSeconds) => {
-            options.updateLegacyRender(deltaSeconds * 1000);
+          beforePresentation: (deltaSeconds) => {
+            options.updatePresentation(deltaSeconds * 1000);
             for (const effect of this.effects.values()) effect.attachment?.update();
           },
-        }),
+        },
       });
       inputSink = this.runtime;
       this.audioComposition = this.runtime.mountScene(sceneId('audio.global'), { runtimeNamespace: 'audio-global' });
@@ -548,6 +557,16 @@ export class UniversalSceneWorldController implements InteractionProvider {
   get managedPlayer(): PlayerScript {
     if (!this.playerScript) throw new Error('The authored player scene is not mounted.');
     return this.playerScript;
+  }
+  playerAnimationDurationMs(animationId: string): number | undefined {
+    const library = this.options.content.resources.get(resourceId('character.player.slime.animations'));
+    if (library?.kind !== 'animation-library') return undefined;
+    const clip = library.animations[animationId];
+    if (!clip || typeof clip !== 'object' || Array.isArray(clip)) return undefined;
+    const duration = (clip as Readonly<Record<string, unknown>>).durationSeconds;
+    return typeof duration === 'number' && Number.isFinite(duration) && duration > 0
+      ? Math.max(1, Math.round(duration * 1000))
+      : undefined;
   }
   get playerPhysicsSprite(): Phaser.Physics.Arcade.Sprite {
     if (!this.playerBody) throw new Error('The authored player body is not mounted.');
@@ -627,12 +646,129 @@ export class UniversalSceneWorldController implements InteractionProvider {
     };
   }
 
+  spawnWorldDrop(request: WorldDropRequest): void {
+    const points = request.mode === 'launch' ? [request.source, request.destination] : [request.destination];
+    if (points.some((point) => !Number.isFinite(point.x) || !Number.isFinite(point.y))) {
+      throw new Error('World drop requires finite coordinates');
+    }
+    if (request.mode === 'launch' && (!Number.isSafeInteger(request.launchIndex) || request.launchIndex < 0)) {
+      throw new Error('World drop launch order must be a zero-based non-negative integer');
+    }
+    const objectId = request.drop.objectId;
+    const initial = request.drop.initialState ?? {};
+    const remaining = initial.remaining;
+    if (remaining !== undefined && (!Number.isSafeInteger(remaining) || (remaining as number) <= 0)) {
+      throw new Error(`World drop '${request.drop.instanceId}' requires a positive remaining quantity`);
+    }
+    if (this.collectibles.has(request.drop.instanceId)) {
+      throw new Error(`Collectible '${request.drop.instanceId}' is already mounted`);
+    }
+    const position = request.mode === 'launch' ? request.source : request.destination;
+    const mount = this.runtime.mountScene(sceneId(`object.${objectId.replaceAll('.', '-')}`), {
+      runtimeNamespace: `managed-drop-${++this.nextDropSequence}`,
+      position,
+      propertyOverrides: [
+        { nodeId: 'script', property: 'mapId', value: this.options.map.mapId },
+        { nodeId: 'script', property: 'instanceId', value: request.drop.instanceId },
+        ...(remaining === undefined ? [] : [{ nodeId: 'script', property: 'quantity', value: remaining as number }]),
+        ...(typeof initial.sourceResourceInstanceId === 'string'
+          ? [{ nodeId: 'script', property: 'sourceResourceInstanceId', value: initial.sourceResourceInstanceId }]
+          : []),
+        ...(typeof initial.sourceInventoryDropId === 'string'
+          ? [{ nodeId: 'script', property: 'sourceInventoryDropId', value: initial.sourceInventoryDropId }]
+          : []),
+      ],
+    });
+    const script = descendants(mount.root, CollectibleScript)[0];
+    const area = descendants(mount.root, Area2DNode).find((node) => node.name === 'PickupArea');
+    if (!script || !area || script.objectId !== objectId) {
+      mount.dispose();
+      throw new Error(`Collectible scene for '${objectId}' is incomplete`);
+    }
+    this.collectibles.set(request.drop.instanceId, { owner: mount.mount, script });
+    if (request.mode === 'launch') {
+      area.monitorable = false;
+      this.animateWorldDrop(mount, area, request);
+    }
+  }
+
+  collectibleQuantity(objectId: string): number {
+    const document = this.options.content.catalog.get(sceneId(`object.${objectId.replaceAll('.', '-')}`));
+    const script = document?.nodes.find((node) => node.scriptId === 'game.collectible');
+    const quantity = script?.properties.quantity;
+    if (!Number.isSafeInteger(quantity) || (quantity as number) <= 0) {
+      throw new Error(`Collectible scene for '${objectId}' requires a positive authored quantity`);
+    }
+    return quantity as number;
+  }
+
+  private animateWorldDrop(mount: MountedScene, area: Area2DNode, request: Extract<WorldDropRequest, { mode: 'launch' }>): void {
+    const visual = descendants(mount.root, Sprite2DNode)[0];
+    const tweens = new Set<Phaser.Tweens.Tween>();
+    mount.mount.lifetimeDisposables.add(() => { for (const tween of tweens) tween.remove(); tweens.clear(); });
+    const active = () => !mount.disposed;
+    const finish = () => {
+      if (!active()) return;
+      mount.mount.position = request.destination;
+      if (visual) { visual.effects.scaleX = 1; visual.effects.scaleY = 1; }
+      area.monitorable = true;
+    };
+    const add = (state: { progress: number }, duration: number, delay: number, ease: string, update: () => void, complete: () => void) => {
+      try {
+        let tween: Phaser.Tweens.Tween | undefined;
+        tween = this.options.scene.tweens.add({
+          targets: state, progress: 1, duration, delay, ease,
+          onUpdate: () => { if (active()) update(); },
+          onComplete: () => { if (tween) tweens.delete(tween); if (active()) complete(); },
+        });
+        if (active()) tweens.add(tween);
+        else tween.remove();
+      } catch { finish(); }
+    };
+    const flight = { progress: 0 };
+    add(flight, WORLD_DROP_FLIGHT_MS, request.launchIndex * WORLD_DROP_STAGGER_MS, 'Linear', () => {
+      mount.mount.position = resolveWorldDropTrajectory(request.source, request.destination, flight.progress);
+    }, () => {
+      mount.mount.position = request.destination;
+      if (visual) { visual.effects.scaleX = 1.12; visual.effects.scaleY = 0.82; }
+      const rebound = { progress: 0 };
+      add(rebound, WORLD_DROP_REBOUND_MS, 0, 'Sine.Out', () => {
+        mount.mount.position = { x: request.destination.x, y: request.destination.y - WORLD_DROP_REBOUND_HEIGHT * rebound.progress };
+        if (visual) {
+          visual.effects.scaleX = 1.12 - 0.16 * rebound.progress;
+          visual.effects.scaleY = 0.82 + 0.22 * rebound.progress;
+        }
+      }, () => {
+        const settle = { progress: 0 };
+        add(settle, WORLD_DROP_SETTLE_MS, 0, 'Sine.In', () => {
+          mount.mount.position = { x: request.destination.x, y: request.destination.y - WORLD_DROP_REBOUND_HEIGHT * (1 - settle.progress) };
+          if (visual) {
+            visual.effects.scaleX = 0.96 + 0.04 * settle.progress;
+            visual.effects.scaleY = 1.04 - 0.04 * settle.progress;
+          }
+        }, finish);
+      });
+    });
+  }
+
   isAuthoredCellOccupied(cellX: number, cellY: number, sourceInstanceId: string, tileSize: number): boolean {
     for (const root of this.authoredRoots) {
       if (!root.is_inside_tree() || root.is_freed()) continue;
       const instanceId = root.authoredInstanceProvenance?.authoredInstanceId;
       if (!instanceId || instanceId === sourceInstanceId) continue;
       const position = root.get_global_transform().position;
+      if (Math.floor(position.x / tileSize) === cellX && Math.floor((position.y - 1) / tileSize) === cellY) return true;
+    }
+    return false;
+  }
+
+  isManagedCollectibleCellOccupied(cellX: number, cellY: number, tileSize: number): boolean {
+    for (const collectible of this.collectibles.values()) {
+      if (!(collectible.owner instanceof Node2D)
+        || !collectible.owner.is_inside_tree()
+        || collectible.owner.is_freed()
+        || collectible.script.remaining <= 0) continue;
+      const position = collectible.owner.get_global_transform().position;
       if (Math.floor(position.x / tileSize) === cellX && Math.floor((position.y - 1) / tileSize) === cellY) return true;
     }
     return false;

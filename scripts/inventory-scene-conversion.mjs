@@ -16,7 +16,7 @@ const UI_MODULES = [
   'src/game/ui/AbilityBar.ts',
   'src/game/ui/AreaTitleCard.ts',
   'src/game/ui/BossHealthBar.ts',
-  'src/game/ui/ChestInventoryPanel.ts',
+  'scripts/migrations/frozen-sources/ChestInventoryPanel.ts',
   'src/game/ui/CraftingUI.ts',
   'src/game/ui/FloatingText.ts',
   'src/game/ui/HealthBar.ts',
@@ -265,10 +265,12 @@ function discoverWriterEndpoints(repositoryRoot) {
 }
 
 function discoverRoutes(repositoryRoot) {
-  const sourcePath = 'src/game/config.ts';
-  const source = readFileSync(absolute(repositoryRoot, sourcePath), 'utf8');
-  const values = new Set([...source.matchAll(/\.get\(['"](studio|editor)['"]\)/g)].map((match) => match[1]));
-  return [...values].sort().map((queryKey) => ({ queryKey, sourcePath }));
+  const routes = new Map();
+  for (const sourcePath of ['src/game/config.ts', 'src/game/editor/scene-studio/LegacyRouteRedirects.ts']) {
+    const source = readFileSync(absolute(repositoryRoot, sourcePath), 'utf8');
+    for (const match of source.matchAll(/\.get\(['"](studio|editor)['"]\)/g)) routes.set(match[1], { queryKey: match[1], sourcePath });
+  }
+  return [...routes.values()].sort((left, right) => left.queryKey.localeCompare(right.queryKey));
 }
 
 export function discoverInventory(repositoryRoot = REPOSITORY_ROOT) {
@@ -330,7 +332,7 @@ export function discoverInventory(repositoryRoot = REPOSITORY_ROOT) {
   const npcSource = readFileSync(absolute(repositoryRoot, npcPath), 'utf8');
   for (const id of idsFromReadonlyArray(npcSource, 'NPC_DEFINITIONS')) rows.push(row('npc', id, npcPath));
 
-  const terrainPath = 'src/game/content/terrain/TileCatalog.ts';
+  const terrainPath = 'scripts/migrations/frozen-sources/TileCatalog.ts';
   const terrainSource = readFileSync(absolute(repositoryRoot, terrainPath), 'utf8');
   for (const id of idsFromConstObject(terrainSource, 'TILE_CATALOG')) rows.push(row('terrain', id, terrainPath));
 

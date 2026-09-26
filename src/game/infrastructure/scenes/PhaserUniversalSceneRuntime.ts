@@ -12,8 +12,7 @@ import type { ScriptRegistry } from '../../runtime/scene/registries/ScriptRegist
 import { ScriptNode } from '../../runtime/scene/scripts/ScriptNode';
 import { createPhaserNodeRegistry, type PhaserNodeRegistryServices } from '../phaser-nodes/PhaserNodeRegistry';
 import { PhaserNodeContext } from './PhaserNodeContext';
-import { PhaserSceneTreeHost, type PhaserSceneTreeHostOptions, type SceneHostDiagnostic } from './PhaserSceneTreeHost';
-import type { LegacyWorldAdapter } from './compatibility/LegacyWorldAdapter';
+import { PhaserSceneTreeHost, type PhaserSceneTreeHostOptions, type SceneHostDiagnostic, type SceneHostLifecycle } from './PhaserSceneTreeHost';
 import type { PreparedSceneContent } from './PreparedSceneContent';
 
 export interface PhaserUniversalSceneRuntimeOptions {
@@ -22,7 +21,7 @@ export interface PhaserUniversalSceneRuntimeOptions {
   readonly descriptors: DescriptorRegistry;
   readonly scripts?: ScriptRegistry;
   readonly nodeServices?: Omit<PhaserNodeRegistryServices, 'resolveAnimationBinding'>;
-  readonly legacy?: LegacyWorldAdapter;
+  readonly lifecycle?: SceneHostLifecycle;
   readonly resolveAssetKey?: (assetId: string) => string;
   readonly fixedDeltaSeconds?: number;
   readonly diagnosticSink?: (diagnostic: SceneHostDiagnostic) => void;
@@ -73,7 +72,7 @@ export class PhaserUniversalSceneRuntime {
       const hostOptions: PhaserSceneTreeHostOptions = {
         tree: this.tree,
         backend: this.context,
-        ...(options.legacy ? { legacy: options.legacy } : {}),
+        ...(options.lifecycle ? { lifecycle: options.lifecycle } : {}),
         ...(options.fixedDeltaSeconds === undefined ? {} : { fixedDeltaSeconds: options.fixedDeltaSeconds }),
         ...(options.diagnosticSink ? { diagnosticSink: options.diagnosticSink } : {}),
       };

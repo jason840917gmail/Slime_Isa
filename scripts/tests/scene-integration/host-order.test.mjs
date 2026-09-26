@@ -33,20 +33,20 @@ function backend(trace, overrides = {}) {
 test('the host drains timestamped input and runs the normative fixed/render order', () => {
   const trace = [];
   const tree = new t.SceneTree(); tree.setRoot(new HostNode(trace));
-  const legacy = new t.LegacyWorldAdapter({
-    input: (event) => trace.push(`legacy:input:${event.payload}`),
-    prePhysics: () => trace.push('legacy:pre'), postPhysics: () => trace.push('legacy:post'), render: () => trace.push('legacy:render'),
-  });
-  const host = new t.PhaserSceneTreeHost({ tree, backend: backend(trace), legacy });
+  const lifecycle = {
+    afterUnhandledInput: (event) => trace.push(`lifecycle:input:${event.payload}`),
+    beforeFixedStep: () => trace.push('lifecycle:before'), afterFixedStep: () => trace.push('lifecycle:after'), beforePresentation: () => trace.push('lifecycle:render'),
+  };
+  const host = new t.PhaserSceneTreeHost({ tree, backend: backend(trace), lifecycle });
   trace.length = 0;
   host.enqueueInput({ handled: false, timestamp: 20, payload: 'late' });
   host.enqueueInput({ handled: false, timestamp: 10, payload: 'early' });
   assert.equal(host.advanceFrame(1 / 60), 1);
   assert.deepEqual(trace, [
-    'input:early', 'legacy:input:early', 'input:late', 'legacy:input:late',
-    'legacy:pre', 'animation:physics', 'tree:physics', 'sync:physics', 'backend:step', 'sync:readback',
-    'contacts', 'attacks', 'post:managed', 'legacy:post',
-    'legacy:render', 'animation:render', 'tree:render', 'sync:presentation',
+    'input:early', 'lifecycle:input:early', 'input:late', 'lifecycle:input:late',
+    'lifecycle:before', 'animation:physics', 'tree:physics', 'sync:physics', 'backend:step', 'sync:readback',
+    'contacts', 'attacks', 'post:managed', 'lifecycle:after',
+    'lifecycle:render', 'animation:render', 'tree:render', 'sync:presentation',
   ]);
 });
 
@@ -73,7 +73,7 @@ test('a backend invariant failure pauses the tree and is surfaced', () => {
   assert.equal(diagnostics.at(-1).phase, 'frame');
 });
 
-test('input priority wins before stable tree order and handled input does not reach legacy gameplay', () => {
+test('input priority wins before stable tree order and handled input does not reach lifecycle fallback', () => {
   const trace = [];
   class InputNode extends t.Node {
     constructor(id, priority, handle = false) { super({ runtimeId: `input/${id}`, name: id }); this.set_process_input(true); this.set_input_priority(priority); this.handle = handle; }
@@ -82,7 +82,7 @@ test('input priority wins before stable tree order and handled input does not re
   const root = new t.Node({ runtimeId: 'input/root', name: 'Root' });
   root.add_child(new InputNode('Low', 0)); root.add_child(new InputNode('HighFirst', 10, true)); root.add_child(new InputNode('HighSecond', 10));
   const tree = new t.SceneTree(); tree.setRoot(root);
-  const host = new t.PhaserSceneTreeHost({ tree, backend: backend([]), legacy: new t.LegacyWorldAdapter({ input: () => trace.push('legacy') }) });
+  const host = new t.PhaserSceneTreeHost({ tree, backend: backend([]), lifecycle: { afterUnhandledInput: () => trace.push('fallback') } });
   host.enqueueInput({ handled: false }); host.advanceFrame(0);
   assert.deepEqual(trace, ['HighFirst', 'HighSecond', 'Low']);
 });

@@ -45,6 +45,17 @@ export class Sprite2DNode extends Node2D implements PresentationParticipant, Wor
   private readonly visualOffset: Vector2;
   private readonly tint?: number;
   private readonly depthResolver: WorldDepthResolver;
+  private lastPresentation?: {
+    readonly transformRevision: number;
+    readonly frame: number | undefined;
+    readonly alpha: number;
+    readonly visible: boolean;
+    readonly effectScaleX: number;
+    readonly effectScaleY: number;
+    readonly effectAlpha: number;
+    readonly effectOffsetX: number;
+    readonly effectOffsetY: number;
+  };
 
   constructor(private readonly spriteOptions: Sprite2DNodeOptions) {
     super(spriteOptions);
@@ -138,6 +149,7 @@ export class Sprite2DNode extends Node2D implements PresentationParticipant, Wor
     if (frame !== undefined) this.currentFrame = frame;
     const sprite = this.spriteOptions.context.scene.add.sprite(0, 0, this.spriteOptions.context.assetKey(resource.assetId), frame);
     this.sprite = sprite;
+    this.lastPresentation = undefined;
     sprite.setName(this.runtimeId);
     sprite.setOrigin(this.origin.x, this.origin.y);
     sprite.setAlpha(this.currentAlpha);
@@ -152,6 +164,18 @@ export class Sprite2DNode extends Node2D implements PresentationParticipant, Wor
   syncPresentation(_alpha: number): void {
     const sprite = this.sprite;
     if (!sprite || sprite.active === false) return;
+    const transformRevision = this.get_global_transform_revision();
+    const previous = this.lastPresentation;
+    if (previous
+      && previous.transformRevision === transformRevision
+      && previous.frame === this.currentFrame
+      && previous.alpha === this.currentAlpha
+      && previous.visible === this.visible
+      && previous.effectScaleX === this.effects.scaleX
+      && previous.effectScaleY === this.effects.scaleY
+      && previous.effectAlpha === this.effects.alpha
+      && previous.effectOffsetX === this.effects.offsetX
+      && previous.effectOffsetY === this.effects.offsetY) return;
     const transform = this.get_global_transform();
     const offsetX = this.visualOffset.x * transform.scale.x;
     const offsetY = this.visualOffset.y * transform.scale.y;
@@ -177,6 +201,17 @@ export class Sprite2DNode extends Node2D implements PresentationParticipant, Wor
           })
         : transform.position.y, { band: this.spriteOptions.depthBand, stableId: this.runtimeId }).depth;
     sprite.setDepth(depth);
+    this.lastPresentation = {
+      transformRevision,
+      frame: this.currentFrame,
+      alpha: this.currentAlpha,
+      visible: this.visible,
+      effectScaleX: this.effects.scaleX,
+      effectScaleY: this.effects.scaleY,
+      effectAlpha: this.effects.alpha,
+      effectOffsetX: this.effects.offsetX,
+      effectOffsetY: this.effects.offsetY,
+    };
   }
 
   protected override _duplicateSelf(runtimeId: RuntimeNodeId): Sprite2DNode {
