@@ -8,7 +8,7 @@ import { ASSET_MANIFEST, type AssetId } from '../../../infrastructure/assets/man
 import { ProceduralAssetScene } from '../../../infrastructure/assets/ProceduralAssetScene';
 import { HtmlControlPresentationAdapter } from '../../../infrastructure/phaser-nodes/ui/HtmlControlPresentationAdapter';
 import { PhaserUniversalSceneRuntime, type MountedScene } from '../../../infrastructure/scenes/PhaserUniversalSceneRuntime';
-import { Sprite2DNode } from '../../../infrastructure/phaser-nodes/Sprite2DNode';
+import { Sprite2DNode, type SpriteBoundsGeometry } from '../../../infrastructure/phaser-nodes/Sprite2DNode';
 import { PreparedSceneContent } from '../../../infrastructure/scenes/PreparedSceneContent';
 import { AnimationPlayerNode } from '../../../runtime/scene/animation/AnimationPlayerNode';
 import type { Node } from '../../../runtime/scene/Node';
@@ -236,6 +236,20 @@ export class StudioScenePreview implements ScenePreviewFactory {
             output.set(node.runtimeId, { x: bounds.x, y: bounds.y, width: bounds.width, height: bounds.height });
           }
         } catch { /* presentation not mounted */ }
+      }
+      for (const child of node.get_children()) visit(child);
+    };
+    if (this.mounted) visit(this.mounted.root);
+    return output;
+  }
+
+  /** Runtime IDs of rendered sprites mapped to their frame geometry, for occlusion/depth guides. */
+  spriteGeometry(): ReadonlyMap<string, SpriteBoundsGeometry> {
+    const output = new Map<string, SpriteBoundsGeometry>();
+    const visit = (node: Node): void => {
+      if (node instanceof Sprite2DNode) {
+        const geometry = node.boundsGeometry();
+        if (geometry) output.set(node.runtimeId, geometry);
       }
       for (const child of node.get_children()) visit(child);
     };

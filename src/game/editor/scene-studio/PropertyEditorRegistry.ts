@@ -34,6 +34,19 @@ export class PropertyEditorRegistry {
       return values;
     } });
     this.register({ kind: 'json', parse: (raw) => JSON.parse(String(raw)) as JsonValue });
+    // Source-frame rectangle ({} when disabled); the inspector submits it as JSON.
+    this.register({ kind: 'source-rect', parse: (raw, descriptor) => {
+      const value = JSON.parse(String(raw)) as Record<string, JsonValue>;
+      if (Object.keys(value).length === 0) return {};
+      const rect: Record<string, number> = {};
+      for (const field of ['offsetX', 'offsetY', 'width', 'height'] as const) {
+        const number = value[field];
+        if (typeof number !== 'number' || !Number.isInteger(number)) throw new Error(`${descriptor.label} ${field} must be a whole number of pixels`);
+        rect[field] = number;
+      }
+      if (rect.width! <= 0 || rect.height! <= 0) throw new Error(`${descriptor.label} width and height must be positive`);
+      return rect;
+    } });
     for (const kind of ['text', 'select', 'color'] as const) this.register({ kind, parse: (raw) => String(raw) });
     this.register({ kind: 'node', parse: (raw) => ({ nodeId: String(raw) }) });
     this.register({ kind: 'resource', parse: (raw) => ({ resourceId: String(raw) }) });

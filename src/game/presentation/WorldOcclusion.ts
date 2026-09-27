@@ -76,6 +76,28 @@ export function resolveWorldOcclusionRectangle(
 }
 
 /**
+ * Inverse of `resolveWorldOcclusionRectangle`: converts a world-space rectangle
+ * drawn over a rendered sprite back into whole source-frame pixels.
+ */
+export function resolveSourceBoundsFromWorld(
+  sprite: RenderSpriteGeometry,
+  sourceFrame: SourceFrameDimensions,
+  rectangle: WorldRectangle,
+): SourceOcclusionBounds {
+  const topLeft = resolveRenderedFrameTopLeft(sprite, sourceFrame);
+  const width = Math.max(1, Math.round(rectangle.width / (topLeft.scaleX || 1)));
+  const height = Math.max(1, Math.round(rectangle.height / (topLeft.scaleY || 1)));
+  const sourceX = Math.round((rectangle.x - topLeft.x) / (topLeft.scaleX || 1));
+  const sourceY = Math.round((rectangle.y - topLeft.y) / (topLeft.scaleY || 1));
+  return {
+    width,
+    height,
+    offsetX: sprite.flipX ? sourceFrame.width - sourceX - width : sourceX,
+    offsetY: sprite.flipY ? sourceFrame.height - sourceY - height : sourceY,
+  };
+}
+
+/**
  * Builds a compact source-space mask from an asset's alpha channel. Runs are
  * intentionally row-based so static artwork can be transformed once and
  * reused by every actor that overlaps it.

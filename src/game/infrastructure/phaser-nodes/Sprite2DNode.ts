@@ -2,7 +2,7 @@ import type Phaser from 'phaser';
 
 import type { ResourceId, RuntimeNodeId } from '../../content/scenes/identifiers';
 import { Node2D, type Node2DOptions, type Vector2 } from '../../runtime/scene/Node2D';
-import { defaultWorldDepthResolver, resolveObjectDepthAnchorY, type ObjectDepthBounds, type WorldDepthBand, type WorldDepthResolver } from '../../presentation/WorldDepth';
+import { defaultWorldDepthResolver, resolveObjectDepthAnchorY, type WorldDepthBand, type WorldDepthResolver } from '../../presentation/WorldDepth';
 import type { PhaserNodeContext } from '../scenes/PhaserNodeContext';
 import type { PresentationParticipant } from './PresentationSync';
 import type {
@@ -10,7 +10,29 @@ import type {
   WorldVisualEffects,
   WorldVisualRenderState,
 } from '../../presentation/WorldVisual';
-import type { SourceOcclusionBounds } from '../../presentation/WorldOcclusion';
+import {
+  resolveWorldOcclusionRectangle,
+  type RenderSpriteGeometry,
+  type SourceFrameDimensions,
+  type SourceOcclusionBounds,
+  type WorldRectangle,
+} from '../../presentation/WorldOcclusion';
+
+/**
+ * World-space occlusion and depth-bounds geometry exactly as the runtime
+ * resolves it. Occlusion bounds sit on the rendered frame (visual offset
+ * included); depth bounds sit on the frame at the node's own position, and
+ * their bottom edge is the sort line (see `resolveObjectDepthAnchorY`).
+ */
+export interface SpriteBoundsGeometry {
+  readonly sourceFrame: SourceFrameDimensions;
+  readonly occlusionSprite: RenderSpriteGeometry;
+  readonly depthSprite: RenderSpriteGeometry;
+  readonly occlusion?: WorldRectangle;
+  readonly depth?: WorldRectangle;
+  /** Ground point the sprite sorts by: node X and the resolved sort Y. */
+  readonly anchor: { readonly x: number; readonly y: number };
+}
 
 export interface Sprite2DNodeOptions extends Node2DOptions {
   readonly context: PhaserNodeContext;
@@ -34,7 +56,8 @@ export interface Sprite2DNodeOptions extends Node2DOptions {
   readonly depthOffset?: number;
   readonly depthResolver?: WorldDepthResolver;
   readonly occlusionBounds?: SourceOcclusionBounds;
-  readonly depthBounds?: ObjectDepthBounds;
+  /** Full source rectangle (the editor and dev overlay draw it); only its bottom edge affects sorting. */
+  readonly depthBounds?: SourceOcclusionBounds;
 }
 
 function colorNumber(value: string | undefined): number | undefined {
@@ -97,6 +120,35 @@ export class Sprite2DNode extends Node2D implements PresentationParticipant, Wor
   get phaserObjectActive(): boolean { return this.sprite !== undefined; }
   get presentationObject(): Phaser.GameObjects.Sprite { return this.requireSprite(); }
   get occlusionBounds(): SourceOcclusionBounds | undefined { return this.spriteOptions.occlusionBounds; }
+  get depthBounds(): SourceOcclusionBounds | undefined { return this.spriteOptions.depthBounds; }
+  /** True when this sprite sorts by its own ground point rather than a depth-source ancestor or explicit depth. */
+  get selfSorted(): boolean {
+    const mode = this.spriteOptions.depthMode ?? 'world-sorted';
+    return mode === 'world-sorted' || (mode === 'relative' && !this.isDepthSource && !this.find_depth_source());
+  }
+
+  /** Occlusion/depth-bounds guides for the dev overlay and Scene Studio; undefined while not rendered. */
+  boundsGeometry(): SpriteBoundsGeometry | undefined {
+    const sprite = this.sprite;
+    if (!sprite) return undefined;
+    const sourceFrame = { width: sprite.frame.realWidth, height: sprite.frame.realHeight };
+    const occlusionSprite: RenderSpriteGeometry = {
+      x: sprite.x, y: sprite.y, originX: sprite.originX, originY: sprite.originY,
+      scaleX: sprite.scaleX, scaleY: sprite.scaleY, flipX: sprite.flipX, flipY: sprite.flipY,
+    };
+    const position = this.get_global_transform().position;
+    // The runtime's depth math ignores the visual offset and vertical flip.
+    const depthSprite: RenderSpriteGeometry = { ...occlusionSprite, x: position.x, y: position.y, flipY: false };
+    const { occlusionBounds, depthBounds } = this.spriteOptions;
+    return {
+      sourceFrame,
+      occlusionSprite,
+      depthSprite,
+      ...(occlusionBounds ? { occlusion: resolveWorldOcclusionRectangle(occlusionSprite, sourceFrame, occlusionBounds) } : {}),
+      ...(depthBounds ? { depth: resolveWorldOcclusionRectangle(depthSprite, sourceFrame, depthBounds) } : {}),
+      anchor: { x: position.x, y: this.resolvedSortY },
+    };
+  }
   get frame(): number { return this.currentFrame ?? 0; }
   set frame(value: number) {
     if (!Number.isInteger(value) || value < 0) throw new Error('Sprite frame must be a non-negative integer');

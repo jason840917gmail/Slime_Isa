@@ -18,7 +18,6 @@ import { Sprite2DNode } from './Sprite2DNode';
 import { StaticBody2DNode } from './StaticBody2DNode';
 import { TileMapLayer2DNode } from './TileMapLayer2DNode';
 import type { SourceOcclusionBounds } from '../../presentation/WorldOcclusion';
-import type { ObjectDepthBounds } from '../../presentation/WorldDepth';
 import {
   ButtonControlNode,
   ContainerControlNode,
@@ -70,7 +69,7 @@ function occlusionBounds(value: JsonValue | undefined): SourceOcclusionBounds | 
   };
 }
 
-function depthBounds(value: JsonValue | undefined): ObjectDepthBounds | undefined {
+function depthBounds(value: JsonValue | undefined): SourceOcclusionBounds | undefined {
   return occlusionBounds(value);
 }
 

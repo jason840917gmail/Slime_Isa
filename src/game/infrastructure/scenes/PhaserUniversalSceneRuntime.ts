@@ -55,6 +55,9 @@ export class PhaserUniversalSceneRuntime {
   private nextMount = 1;
   private stopped = false;
 
+  /** Parent of every mounted scene; read-only traversal for diagnostics. */
+  get root(): Node { return this.treeRoot; }
+
   constructor(private readonly options: PhaserUniversalSceneRuntimeOptions) {
     const runtimeNumber = nextRuntime++;
     this.tree = new SceneTree({ diagnosticSink: (diagnostic) => {

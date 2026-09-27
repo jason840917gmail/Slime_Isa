@@ -7,13 +7,18 @@ import {
   resolveBodyBottom,
   resolveExplicitDepth,
 } from '../presentation/WorldDepth';
-import {
-  resolveWorldOcclusionRectangle,
-  type SourceFrameDimensions,
-  type SourceOcclusionBounds,
-} from '../presentation/WorldOcclusion';
+import type { SpriteBoundsGeometry } from '../infrastructure/phaser-nodes/Sprite2DNode';
 
 type DebugGroup = Phaser.GameObjects.Group | Phaser.Physics.Arcade.Group | Phaser.Physics.Arcade.StaticGroup;
+
+/** A mounted world sprite (Sprite2DNode) as the overlay reads it. */
+export interface DebugWorldVisual {
+  readonly phaserObjectActive: boolean;
+  readonly presentationObject: Phaser.GameObjects.Sprite;
+  /** Sorts by its own ground point (objects), not a character body's depth anchor. */
+  readonly selfSorted: boolean;
+  boundsGeometry(): SpriteBoundsGeometry | undefined;
+}
 
 export interface WorldDebugContext {
   scene: Phaser.Scene;
@@ -24,6 +29,8 @@ export interface WorldDebugContext {
   getTransitionZones: () => Phaser.GameObjects.Zone[];
   getEnemySpawnAreas: () => readonly MapEnemySpawnArea[];
   getBossCamps: () => readonly MapBossCamp[];
+  /** Every mounted world sprite; object overlays (visual, occlusion, depth) are drawn from these. */
+  getWorldVisuals: () => readonly DebugWorldVisual[];
 }
 
 export class WorldDebugRenderer {
@@ -79,7 +86,7 @@ export class WorldDebugRenderer {
   private drawVisualBounds(g: Phaser.GameObjects.Graphics): void {
     this.drawObjectBounds(g, this.ctx.getPlayer(), 0x72d8ff, 0.95);
     this.forChildren(this.ctx.getCombatTargets(), (child) => this.drawObjectBounds(g, child, 0x72d8ff, 0.85));
-    this.forWorldObjects((object) => this.drawObjectBounds(g, object, 0x72d8ff, 0.75));
+    this.forWorldObjects((visual) => { if (visual.selfSorted) this.drawObjectBounds(g, visual.presentationObject, 0x72d8ff, 0.75); });
   }
 
   private drawHitBoxes(g: Phaser.GameObjects.Graphics): void {
@@ -92,41 +99,18 @@ export class WorldDebugRenderer {
   }
 
   private drawOcclusionBounds(g: Phaser.GameObjects.Graphics): void {
-    this.forWorldObjects((object) => {
-      const sourceFrame = object.getData('sourceFrame') as SourceFrameDimensions | undefined;
-      const bounds = object.getData('occlusionBounds') as SourceOcclusionBounds | undefined;
-      if (!sourceFrame || !bounds) return;
-      const rectangle = resolveWorldOcclusionRectangle({
-        x: object.x,
-        y: object.y,
-        originX: object.originX,
-        originY: object.originY,
-        scaleX: object.scaleX,
-        scaleY: object.scaleY,
-        flipX: object.flipX,
-        flipY: object.flipY,
-      }, sourceFrame, bounds);
+    this.forWorldObjects((visual) => {
+      const rectangle = visual.boundsGeometry()?.occlusion;
+      if (!rectangle) return;
       this.fillRect(g, rectangle.x, rectangle.y, rectangle.width, rectangle.height, 0x38bdf8, 0.08);
       this.strokeRect(g, rectangle.x, rectangle.y, rectangle.width, rectangle.height, 0x38bdf8, 0.95, 2);
     });
   }
 
   private drawDepthBounds(g: Phaser.GameObjects.Graphics): void {
-    this.forWorldObjects((object) => {
-      const sourceFrame = object.getData('sourceFrame') as SourceFrameDimensions | undefined;
-      const bounds = object.getData('depthBounds') as SourceOcclusionBounds | undefined;
-      if (!sourceFrame || !bounds) return;
-      const visualOffset = object.getData('visualOffset') as { x: number; y: number } | undefined;
-      const rectangle = resolveWorldOcclusionRectangle({
-        x: object.x - (visualOffset?.x ?? 0) * Math.abs(object.scaleX),
-        y: object.y - (visualOffset?.y ?? 0) * Math.abs(object.scaleY),
-        originX: object.originX,
-        originY: object.originY,
-        scaleX: object.scaleX,
-        scaleY: object.scaleY,
-        flipX: object.flipX,
-        flipY: object.flipY,
-      }, sourceFrame, bounds);
+    this.forWorldObjects((visual) => {
+      const rectangle = visual.boundsGeometry()?.depth;
+      if (!rectangle) return;
       this.fillRect(g, rectangle.x, rectangle.y, rectangle.width, rectangle.height, 0xff9f43, 0.1);
       this.strokeRect(g, rectangle.x, rectangle.y, rectangle.width, rectangle.height, 0xff9f43, 0.95, 2);
       g.lineStyle(3, 0xff9f43, 1).lineBetween(
@@ -141,11 +125,10 @@ export class WorldDebugRenderer {
   private drawDepthAnchors(g: Phaser.GameObjects.Graphics): void {
     this.drawActorDepthAnchor(g, this.ctx.getPlayer(), 0x73d7ff, 0.95);
     this.forChildren(this.ctx.getCombatTargets(), (child) => this.drawActorDepthAnchor(g, child, 0xa78bfa, 0.85));
-    this.forWorldObjects((object) => {
-      const x = object.getData('objectAnchorX') as number | undefined;
-      const y = object.getData('depthAnchorY') as number | undefined;
-      if (typeof x !== 'number' || typeof y !== 'number') return;
-      this.drawDepthAnchor(g, x, y, 0xffd166, 0.95);
+    this.forWorldObjects((visual) => {
+      if (!visual.selfSorted) return;
+      const anchor = visual.boundsGeometry()?.anchor;
+      if (anchor) this.drawDepthAnchor(g, anchor.x, anchor.y, 0xffd166, 0.95);
     });
   }
 
@@ -257,11 +240,9 @@ export class WorldDebugRenderer {
     for (const child of group.getChildren()) callback(child);
   }
 
-  private forWorldObjects(callback: (object: Phaser.GameObjects.Image) => void): void {
-    for (const child of this.ctx.scene.children.list) {
-      const object = child as Phaser.GameObjects.Image;
-      if (typeof object.getData('objectId') !== 'string') continue;
-      callback(object);
+  private forWorldObjects(callback: (visual: DebugWorldVisual) => void): void {
+    for (const visual of this.ctx.getWorldVisuals()) {
+      if (visual.phaserObjectActive && visual.presentationObject.visible) callback(visual);
     }
   }
 

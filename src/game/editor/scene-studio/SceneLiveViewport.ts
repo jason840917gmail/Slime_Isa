@@ -1,5 +1,6 @@
 import type { CollisionShapeValue } from '../../content/scenes/resources/types';
 import type { TileMapContext } from './contexts/TileMapContext';
+import { SCENE_DRAG_TYPE } from './ExplorerTree';
 import {
   frameCamera,
   panCamera,
@@ -54,9 +55,21 @@ export interface LiveViewportModel {
   readonly pickables: readonly { readonly key: string; readonly rect: WorldRect }[];
   readonly contentBounds?: WorldRect;
   readonly selectionBounds?: WorldRect;
+  /** Occlusion/depth bounds and depth anchors of the selection, coloured like the in-game dev tools. */
+  readonly boundsGuides?: readonly LiveViewportBoundsGuide[];
   /** Outline of the UI screen (1280×720) for Control scenes. */
   readonly screenRect?: WorldRect;
 }
+
+/**
+ * An editable depth/occlusion guide. `key` is the composed node key; rect
+ * guides carry a world rectangle, anchor guides a world point.
+ */
+export type LiveViewportBoundsGuide =
+  | { readonly key: string; readonly property: string; readonly kind: 'occlusion' | 'depth'; readonly rect: WorldRect; readonly editable: boolean }
+  | { readonly key: string; readonly property: string; readonly kind: 'anchor'; readonly point: readonly [number, number]; readonly editable: boolean };
+
+type BoundsHandle = 'move' | 'nw' | 'ne' | 'sw' | 'se';
 
 export interface LiveViewportHost {
   select(key: string): void;
@@ -65,7 +78,11 @@ export interface LiveViewportHost {
   rotateMarker(key: string, rotation: number): void;
   paintCell(cell: { readonly x: number; readonly y: number }): void;
   editShape(key: string, value: CollisionShapeValue): void;
+  /** A bounds guide drag finished: the new world rectangle, or the new anchor point. */
+  editBounds(key: string, property: string, change: { readonly rect?: WorldRect; readonly point?: readonly [number, number] }): void;
   cameraChanged(camera: ViewportCamera): void;
+  /** A scene dragged from the explorer was dropped at `global` world coordinates. */
+  dropScene(sceneId: string, global: readonly [number, number]): void;
 }
 
 const EMPTY_MODEL: LiveViewportModel = { ariaLabel: '2D viewport', footer: '', markers: [], shapes: [], pickables: [] };
@@ -82,7 +99,8 @@ type Drag =
   | { readonly kind: 'marker'; readonly pointerId: number; readonly key: string; readonly startX: number; readonly startY: number; readonly origin: readonly [number, number]; moved: boolean; current: readonly [number, number] }
   | { readonly kind: 'paint'; readonly pointerId: number; lastCell?: string }
   | { readonly kind: 'rotate'; readonly pointerId: number; readonly key: string; angle: number }
-  | { readonly kind: 'shape'; readonly pointerId: number; readonly key: string; readonly handle: string; value: CollisionShapeValue };
+  | { readonly kind: 'shape'; readonly pointerId: number; readonly key: string; readonly handle: string; value: CollisionShapeValue }
+  | { readonly kind: 'bounds'; readonly pointerId: number; readonly guide: LiveViewportBoundsGuide; readonly handle: BoundsHandle; readonly start: readonly [number, number]; rect?: WorldRect; point?: readonly [number, number]; moved: boolean };
 
 /**
  * Persistent 2D viewport: hosts the embedded runtime canvas and an HTML/SVG
@@ -209,6 +227,7 @@ export class SceneLiveViewport {
     if (tile) this.renderTileLayer(tile, parts, svg, size);
     if (this.model.selectionRect) rectPath(this.model.selectionRect, 'scene-selection-rect');
     for (const shape of this.model.shapes) svg.push(this.shapeSvg(shape));
+    for (const guide of this.model.boundsGuides ?? []) this.renderBoundsGuide(guide, svg, parts);
     const showLabels = zoom >= 0.45;
     for (const marker of this.model.markers) {
       const position = this.drag?.kind === 'marker' && this.drag.key === marker.key ? this.drag.current : marker.position;
@@ -235,6 +254,39 @@ export class SceneLiveViewport {
     this.overlay.innerHTML = `<svg class="scene-overlay-svg" width="${size.width}" height="${size.height}" aria-hidden="true">${svg.join('')}</svg>${parts.join('')}`;
     this.overlay.classList.toggle('is-tile-mode', Boolean(tile));
     this.overlay.classList.toggle('is-compact', zoom < 0.5);
+  }
+
+  /** Current (possibly mid-drag) geometry of a guide. */
+  private guideGeometry(guide: LiveViewportBoundsGuide): { readonly rect?: WorldRect; readonly point?: readonly [number, number] } {
+    const drag = this.drag?.kind === 'bounds' && this.drag.guide.key === guide.key && this.drag.guide.property === guide.property ? this.drag : undefined;
+    return guide.kind === 'anchor' ? { point: drag?.point ?? guide.point } : { rect: drag?.rect ?? guide.rect };
+  }
+
+  private renderBoundsGuide(guide: LiveViewportBoundsGuide, svg: string[], parts: string[]): void {
+    const zoom = this.cameraValue.zoom;
+    const label = guide.kind === 'occlusion' ? 'occlusion bounds' : guide.kind === 'depth' ? 'depth bounds' : 'depth anchor';
+    const handle = (name: BoundsHandle, point: readonly [number, number]): string => {
+      const [x, y] = this.toScreen(point);
+      return `<span class="scene-bounds-handle is-${guide.kind} is-${name}" role="slider" aria-label="${name === 'move' ? 'Move' : 'Resize'} ${label}" title="${name === 'move' ? 'Drag to move' : 'Drag to resize'} ${label}" style="left:${x.toFixed(1)}px;top:${y.toFixed(1)}px" data-bounds-key="${escapeHtml(guide.key)}" data-bounds-property="${escapeHtml(guide.property)}" data-bounds-handle="${name}"></span>`;
+    };
+    const { rect, point } = this.guideGeometry(guide);
+    if (point) {
+      const [x, y] = this.toScreen(point);
+      svg.push(`<g class="scene-bounds is-anchor"><line x1="${(x - 14).toFixed(1)}" y1="${y.toFixed(1)}" x2="${(x + 14).toFixed(1)}" y2="${y.toFixed(1)}" /><rect x="${(x - 5).toFixed(1)}" y="${(y - 5).toFixed(1)}" width="10" height="10" /></g>`);
+      if (guide.editable) parts.push(handle('move', point));
+      return;
+    }
+    if (!rect) return;
+    const [x, y] = this.toScreen([rect.x, rect.y]);
+    const width = Math.max(1, rect.width * zoom);
+    const height = Math.max(1, rect.height * zoom);
+    svg.push(`<g class="scene-bounds is-${guide.kind}"><rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${width.toFixed(1)}" height="${height.toFixed(1)}" />${guide.kind === 'depth' ? `<line class="scene-bounds-sort-line" x1="${x.toFixed(1)}" y1="${(y + height).toFixed(1)}" x2="${(x + width).toFixed(1)}" y2="${(y + height).toFixed(1)}" />` : ''}</g>`);
+    if (!guide.editable) return;
+    parts.push(
+      handle('nw', [rect.x, rect.y]), handle('ne', [rect.x + rect.width, rect.y]),
+      handle('sw', [rect.x, rect.y + rect.height]), handle('se', [rect.x + rect.width, rect.y + rect.height]),
+      handle('move', [rect.x + rect.width / 2, rect.y + rect.height / 2]),
+    );
   }
 
   private renderTileLayer(tile: LiveViewportTileLayer, parts: string[], svg: string[], size: ViewportSize): void {
@@ -361,6 +413,24 @@ export class SceneLiveViewport {
     this.overlay.addEventListener('pointerup', (event) => this.pointerUp(event), { signal });
     this.overlay.addEventListener('pointercancel', () => { this.drag = undefined; this.overlay.classList.remove('is-panning'); }, { signal });
     this.overlay.addEventListener('pointerleave', () => { if (this.hoverCell) { this.hoverCell = undefined; this.scheduleOverlay(); } }, { signal });
+    // Scenes dragged from the explorer are instanced where they are dropped, like Godot.
+    const carriesScene = (event: DragEvent): boolean => Boolean(event.dataTransfer?.types.includes(SCENE_DRAG_TYPE));
+    this.stage.addEventListener('dragover', (event) => {
+      if (!carriesScene(event)) return;
+      event.preventDefault();
+      event.dataTransfer!.dropEffect = 'copy';
+      this.stage.classList.add('is-drop-target');
+    }, { signal });
+    this.stage.addEventListener('dragleave', (event) => {
+      if (!(event.relatedTarget instanceof Node) || !this.stage.contains(event.relatedTarget)) this.stage.classList.remove('is-drop-target');
+    }, { signal });
+    this.stage.addEventListener('drop', (event) => {
+      this.stage.classList.remove('is-drop-target');
+      const sceneId = event.dataTransfer?.getData(SCENE_DRAG_TYPE);
+      if (!sceneId) return;
+      event.preventDefault();
+      this.host.dropScene(sceneId, screenToWorld(this.cameraValue, this.size, this.pointer(event)));
+    }, { signal });
     this.overlay.addEventListener('click', (event) => {
       // Keyboard activation of markers and cells (pointer paths are handled on pointerdown/up).
       if (event.detail !== 0) { event.stopPropagation(); return; }
@@ -411,6 +481,14 @@ export class SceneLiveViewport {
     if (!panRequested && rotateHandle?.dataset.rotateHandle) {
       const marker = this.model.markers.find((candidate) => candidate.key === rotateHandle.dataset.rotateHandle);
       if (marker) { this.drag = { kind: 'rotate', pointerId: event.pointerId, key: marker.key, angle: marker.rotation ?? 0 }; return; }
+    }
+    const boundsHandle = target?.closest<HTMLElement>('[data-bounds-handle]');
+    if (!panRequested && boundsHandle) {
+      const guide = (this.model.boundsGuides ?? []).find((candidate) => candidate.key === boundsHandle.dataset.boundsKey && candidate.property === boundsHandle.dataset.boundsProperty);
+      if (guide?.editable) {
+        this.drag = { kind: 'bounds', pointerId: event.pointerId, guide, handle: (boundsHandle.dataset.boundsHandle ?? 'move') as BoundsHandle, start: screenToWorld(this.cameraValue, this.size, this.pointer(event)), moved: false };
+        return;
+      }
     }
     if (!panRequested && handle) {
       const shape = this.model.shapes.find((candidate) => candidate.key === handle.dataset.shapeKey);
@@ -471,6 +549,24 @@ export class SceneLiveViewport {
       const snap = Math.PI / 12;
       drag.angle = event.shiftKey ? Math.round(raw / snap) * snap : Math.round(raw * 10000) / 10000;
       this.scheduleOverlay();
+    } else if (drag.kind === 'bounds') {
+      const world = screenToWorld(this.cameraValue, this.size, [x, y]);
+      const dx = Math.round(world[0] - drag.start[0]);
+      const dy = Math.round(world[1] - drag.start[1]);
+      drag.moved = drag.moved || dx !== 0 || dy !== 0;
+      const guide = drag.guide;
+      if (guide.kind === 'anchor') drag.point = [guide.point[0] + dx, guide.point[1] + dy];
+      else {
+        const { x: left, y: top, width, height } = guide.rect;
+        let [x0, y0, x1, y1] = [left, top, left + width, top + height];
+        if (drag.handle === 'move') { x0 += dx; x1 += dx; y0 += dy; y1 += dy; }
+        if (drag.handle === 'nw' || drag.handle === 'sw') x0 = Math.min(x0 + dx, x1 - 1);
+        if (drag.handle === 'ne' || drag.handle === 'se') x1 = Math.max(x1 + dx, x0 + 1);
+        if (drag.handle === 'nw' || drag.handle === 'ne') y0 = Math.min(y0 + dy, y1 - 1);
+        if (drag.handle === 'sw' || drag.handle === 'se') y1 = Math.max(y1 + dy, y0 + 1);
+        drag.rect = { x: x0, y: y0, width: x1 - x0, height: y1 - y0 };
+      }
+      this.scheduleOverlay();
     } else if (drag.kind === 'paint') {
       const cell = this.cellAt(event);
       this.hoverCell = cell;
@@ -509,6 +605,8 @@ export class SceneLiveViewport {
       this.host.rotateMarker(drag.key, drag.angle);
     } else if (drag.kind === 'shape') {
       this.host.editShape(drag.key, drag.value);
+    } else if (drag.kind === 'bounds' && drag.moved) {
+      this.host.editBounds(drag.guide.key, drag.guide.property, drag.guide.kind === 'anchor' ? { ...(drag.point ? { point: drag.point } : {}) } : { ...(drag.rect ? { rect: drag.rect } : {}) });
     }
     this.scheduleOverlay();
   }
