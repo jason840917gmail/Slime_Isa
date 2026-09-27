@@ -91,7 +91,8 @@ test('passive object scenes preserve collision, occlusion, offsets, and decorati
   assert.deepEqual(house.nodes.find((node) => node.id === 'visual').properties.occlusionBounds, {
     width: 300, height: 160, offsetX: 10, offsetY: 10,
   });
-  assert.deepEqual(corner.nodes.find((node) => node.id === 'body-shape').properties.position, [5, 4]);
+  // Legacy collider offsets were the body's top-left from the frame's top-left; scenes store the shape centre.
+  assert.deepEqual(corner.nodes.find((node) => node.id === 'body-shape').properties.position, [5.5, -32]);
   assert.deepEqual(corner.subresources.find((resource) => resource.kind === 'collision-shape').value, {
     shape: 'rectangle', width: 47, height: 60,
   });

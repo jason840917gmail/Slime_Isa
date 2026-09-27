@@ -29,8 +29,8 @@
           "resourceId": "wall-stone-solid.vertical-03.shape"
         },
         "position": [
-          8,
-          0
+          0,
+          -35
         ]
       }
     },

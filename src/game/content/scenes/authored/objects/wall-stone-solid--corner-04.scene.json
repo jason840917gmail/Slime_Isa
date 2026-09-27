@@ -29,8 +29,8 @@
           "resourceId": "wall-stone-solid.corner-04.shape"
         },
         "position": [
-          0,
-          3
+          -1.5,
+          -33.5
         ]
       }
     },

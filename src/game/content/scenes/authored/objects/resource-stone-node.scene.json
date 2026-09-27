@@ -29,8 +29,8 @@
           "resourceId": "resource-stone-node.stone-node.shape"
         },
         "position": [
-          10,
-          50
+          -1.5,
+          -54
         ]
       }
     },
@@ -97,8 +97,8 @@
           "resourceId": "resource-stone-node.stone-node.shape"
         },
         "position": [
-          10,
-          50
+          -1.5,
+          -54
         ]
       }
     },

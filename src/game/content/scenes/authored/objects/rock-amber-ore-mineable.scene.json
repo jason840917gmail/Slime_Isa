@@ -29,8 +29,8 @@
           "resourceId": "rock-amber-ore-mineable.amber-ore.shape"
         },
         "position": [
-          28,
-          59
+          1,
+          -29
         ]
       }
     },
@@ -85,8 +85,8 @@
           "resourceId": "rock-amber-ore-mineable.amber-ore.shape"
         },
         "position": [
-          28,
-          59
+          1,
+          -29
         ]
       }
     },
