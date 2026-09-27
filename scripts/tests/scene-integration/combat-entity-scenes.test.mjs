@@ -59,17 +59,18 @@ test('weapon scene drives directional hitbox windows and cooldown from one scrip
   const area = fixture.root.get_node('AttackArea');
   const shape = area.get_children().find((node) => node.name === 'right--primary');
   assert.ok(script instanceof t.WeaponScript);
-  assert.equal(script.tryBeginAttack('right', 0), true);
-  assert.equal(script.tryBeginAttack('right', 0), false);
+  assert.equal(script.tryBeginAttack('right'), true);
+  assert.equal(script.tryBeginAttack('right'), false);
   fixture.tree.physicsProcess(0.18);
   assert.equal(area.monitoring, true);
   assert.equal(shape.disabled, false);
   fixture.tree.physicsProcess(0.3);
   assert.equal(script.attacking, false);
   assert.equal(area.monitoring, false);
-  assert.equal(script.tryBeginAttack('right', 480), false);
-  assert.equal(script.tryBeginAttack('right', 1200), true);
-  assert.equal(script.playAttack('left', 1201), true);
+  assert.equal(script.tryBeginAttack('right'), false);
+  fixture.tree.physicsProcess(0.72);
+  assert.equal(script.tryBeginAttack('right'), true);
+  assert.equal(script.playAttack('left'), true);
   assert.equal(script.attackDirection, 'left');
   dispose(fixture);
 });
@@ -102,7 +103,7 @@ test('weapon scene routes one managed hit per activation through the shared dama
   const script = fixture.root.get_node('WeaponScript');
   const area = fixture.root.get_node('AttackArea');
   const shape = area.get_children().find((node) => node.name === 'right--primary');
-  assert.equal(script.playAttack('right', 0, { damage: 7, knockbackStrength: 12, cooldownMs: 1000 }), true);
+  assert.equal(script.playAttack('right', { damage: 7, knockbackStrength: 12, cooldownMs: 1000 }), true);
   fixture.tree.physicsProcess(0.18);
   assert.equal(shape.disabled, false);
   const contact = {
@@ -121,8 +122,9 @@ test('weapon scene routes one managed hit per activation through the shared dama
   fixture.tree.physicsProcess(0.3);
   assert.equal(shape.disabled, true);
   assert.deepEqual(lifecycle, [['start', 'basic-sword', 'right'], ['finish', 'basic-sword', 'right']]);
-  assert.equal(script.tryBeginAttack('right', 999, { damage: 7, knockbackStrength: 12, cooldownMs: 1000 }), false);
-  assert.equal(script.tryBeginAttack('right', 1000, { damage: 7, knockbackStrength: 12, cooldownMs: 1000 }), true);
+  assert.equal(script.tryBeginAttack('right', { damage: 7, knockbackStrength: 12, cooldownMs: 1000 }), false);
+  fixture.tree.physicsProcess(0.52);
+  assert.equal(script.tryBeginAttack('right', { damage: 7, knockbackStrength: 12, cooldownMs: 1000 }), true);
   dispose(fixture);
   assert.deepEqual(lifecycle, [
     ['start', 'basic-sword', 'right'], ['finish', 'basic-sword', 'right'],

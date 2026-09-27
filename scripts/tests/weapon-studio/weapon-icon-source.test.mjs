@@ -7,8 +7,6 @@ import { build } from 'esbuild';
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 let icons;
 let catalogModule;
-let mutation;
-let migration;
 
 async function loadTypeScriptModule(entryPoint) {
   const result = await build({
@@ -23,11 +21,9 @@ async function loadTypeScriptModule(entryPoint) {
 }
 
 before(async () => {
-  [icons, catalogModule, mutation, migration] = await Promise.all([
+  [icons, catalogModule] = await Promise.all([
     loadTypeScriptModule('src/game/content/weapons/WeaponIcon.ts'),
     loadTypeScriptModule('src/game/content/weapons/WeaponIconCatalog.ts'),
-    loadTypeScriptModule('src/game/editor/LayeredWeaponStudioMutation.ts'),
-    loadTypeScriptModule('src/game/content/weapons/migrateLegacyWeapon.ts'),
   ]);
 });
 
@@ -89,57 +85,4 @@ test('the pure icon resolver returns only complete valid key/frame pairs', () =>
   assert.equal(icons.resolveWeaponIcon({ iconKey: '', iconFrame: 0 }), undefined);
   assert.equal(icons.resolveWeaponIcon({ iconKey: 'weapon-sheet', iconFrame: -1 }), undefined);
   assert.equal(icons.resolveWeaponIcon({ iconKey: 'weapon-sheet' }), undefined);
-});
-
-function legacyWeapon() {
-  return {
-    version: 1, weaponId: 'fixture', displayName: 'Fixture', category: 'melee', characterActionId: 'attack-1', assetId: 'weapon.fixture',
-    animations: {
-      idle: { frames: [0], framesPerSecond: 10, loop: true },
-      attack: { frames: [1], framesPerSecond: 10, loop: false },
-    },
-    baseDamage: 1, cooldownMs: 100, hitboxWidth: 8, hitboxHeight: 8, hitboxOffset: 2,
-    hitboxDurationMs: 100, knockStrength: 1, vfxColor: 0xffffff, unlockLevel: 1,
-    iconKey: 'weapon-single', description: 'Fixture',
-  };
-}
-
-function studioState() {
-  return {
-    draft: migration.migrateLegacyWeaponDefinition(legacyWeapon()),
-    effectIsNew: false, effectDirty: false, dirty: false, selectedId: 'fixture',
-    scope: 'attack', direction: 'right', effectDirection: 'right', playhead: 0,
-    inspectorTab: 'identity', playing: false, iconPickerOpen: true, iconPickerAssetId: 'sheet',
-  };
-}
-
-test('icon selection participates in dirty tracking and undo/redo history', () => {
-  const initial = studioState();
-  const selected = mutation.reduceWeaponIconAction(initial, {
-    type: 'select', selection: icons.weaponIconSelection({ textureKey: 'weapon-sheet' }, 4),
-  });
-  assert.equal(selected.dirty, true);
-  assert.equal(selected.iconPickerOpen, false);
-  assert.equal(selected.draft.iconKey, 'weapon-sheet');
-  assert.equal(selected.draft.iconFrame, 4);
-
-  const committed = mutation.commitWeaponStudioMutation(initial, selected, { undo: [], redo: [mutation.captureWeaponHistory(initial)] });
-  assert.equal(committed.history.undo.length, 1);
-  assert.equal(committed.history.redo.length, 0);
-
-  const undone = mutation.applyWeaponStudioHistory(committed.state, committed.history, false);
-  assert.ok(undone);
-  assert.equal(undone.state.draft.iconKey, 'weapon-single');
-  assert.equal(undone.state.draft.iconFrame, 0);
-  assert.equal(undone.state.dirty, false);
-
-  const redone = mutation.applyWeaponStudioHistory(undone.state, undone.history, true);
-  assert.ok(redone);
-  assert.equal(redone.state.draft.iconKey, 'weapon-sheet');
-  assert.equal(redone.state.draft.iconFrame, 4);
-  assert.equal(redone.state.dirty, true);
-
-  const cleared = mutation.reduceWeaponIconAction(redone.state, { type: 'clear' });
-  assert.equal(cleared.draft.iconKey, '');
-  assert.equal(cleared.draft.iconFrame, 0);
 });

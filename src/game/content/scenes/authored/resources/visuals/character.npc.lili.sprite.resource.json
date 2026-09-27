@@ -1,9 +1,0 @@
-{
-  "version": 1,
-  "resourceId": "character.npc.lili.sprite",
-  "kind": "sprite-sheet",
-  "assetId": "character.npc.lili",
-  "frameWidth": 229,
-  "frameHeight": 229,
-  "frameCount": 30
-}

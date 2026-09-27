@@ -32,6 +32,8 @@ export interface PlayerAbilityControllerContext extends LegacyPlayerAbilityPrese
   playAnimation: (key: string) => void;
   getTerrainGrid: () => WorldTileId[][];
   getCombatTargets: () => Phaser.Physics.Arcade.Group | null;
+  /** Gameplay clock for cooldowns; defaults to the Phaser scene clock. */
+  nowMs?: () => number;
 }
 
 /**
@@ -44,7 +46,7 @@ export class PlayerAbilityController {
 
   constructor(private readonly context: PlayerAbilityControllerContext) {
     this.decisions = new PlayerAbilityService({
-      nowMs: () => context.scene.time.now,
+      nowMs: () => this.now(),
       state: {
         getLevel: () => gameState.level,
         getEnergy: () => gameState.energy,
@@ -66,6 +68,10 @@ export class PlayerAbilityController {
     this.presentation = new PlayerAbilityPresentation(new LegacyPlayerAbilityPresentation(context));
   }
 
+  private now(): number {
+    return this.context.nowMs?.() ?? this.context.scene.time.now;
+  }
+
   unlockLevel(ability: PlayerAbilityId): number {
     return this.decisions.unlockLevel(ability);
   }
@@ -81,7 +87,7 @@ export class PlayerAbilityController {
   status(ability: PlayerAbilityId): PlayerAbilityStatus {
     const unlockLevel = this.decisions.unlockLevel(ability);
     const unlocked = this.decisions.isUnlocked(ability);
-    const cooldownRemainingMs = Math.max(0, this.decisions.readyAt(ability) - this.context.scene.time.now);
+    const cooldownRemainingMs = Math.max(0, this.decisions.readyAt(ability) - this.now());
     const busy = this.decisions.isBusy();
     const actionLocked = this.context.isActionLocked();
     const insufficientEnergy = gameState.energy < PLAYER_ABILITY_DEFINITIONS[ability].energyCost;

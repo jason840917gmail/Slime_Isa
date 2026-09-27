@@ -5,7 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { ConversionRunner } from './lib/scene-conversion/ConversionRunner.mjs';
-import { animationPackageSceneAdapter, visualSceneAdapter } from './lib/scene-conversion/animations.mjs';
+import { visualSceneAdapter } from './lib/scene-conversion/animations.mjs';
 import { bossCampSceneAdapter } from './lib/scene-conversion/boss-camps.mjs';
 import { characterSceneAdapter, enemySceneAdapter } from './lib/scene-conversion/characters.mjs';
 import { objectSceneAdapter } from './lib/scene-conversion/objects.mjs';
@@ -21,6 +21,7 @@ const familyIndex = args.indexOf('--family');
 const family = familyIndex >= 0 ? args[familyIndex + 1] : 'all';
 const mode = args.includes('--apply') ? 'apply' : args.includes('--check') ? 'check' : 'dry-run';
 const includeSceneOwned = args.includes('--include-scene-owned');
+const overwriteSceneOwned = args.includes('--overwrite-scene-owned');
 const explicitUnitKeys = args.flatMap((argument, index) => argument === '--unit' ? [args[index + 1]] : []).filter(Boolean);
 const sliceUnitKeys = [
   'visual:character.player.slime',
@@ -121,7 +122,6 @@ const sliceUnitKeys = [
 ];
 const ledger = JSON.parse(await readFile(path.join(repositoryRoot, 'scripts/migrations/universal-scene-conversion-ledger.json'), 'utf8'));
 const unitKeys = explicitUnitKeys.length > 0 ? explicitUnitKeys : [
-  ...ledger.rows.filter((row) => row.family === 'animation' && row.classification === 'convert').map((row) => row.key),
   ...ledger.rows.filter((row) => row.family === 'terrain' && row.classification === 'convert').map((row) => row.key),
   ...sliceUnitKeys,
 ];
@@ -146,7 +146,6 @@ const runner = new ConversionRunner({
   repositoryRoot,
   ledger,
   adapters: {
-    animation: animationPackageSceneAdapter,
     terrain: terrainSceneAdapter,
     visual: visualSceneAdapter,
     character: characterSceneAdapter,
@@ -160,6 +159,7 @@ const runner = new ConversionRunner({
     ui: uiSceneAdapter,
   },
   outputRoot: authoredRoot,
+  existingScenes,
   validateWriteSet: (outputs) => validateSceneWriteSet(outputs, {
     hasAsset: (assetId) => Object.hasOwn(manifest.assets, assetId),
     existingScenes,
@@ -168,7 +168,7 @@ const runner = new ConversionRunner({
 });
 
 try {
-  const report = await runner.run({ family, mode, unitKeys, includeSceneOwned });
+  const report = await runner.run({ family, mode, unitKeys, includeSceneOwned, overwriteSceneOwned });
   console.log(JSON.stringify(report, null, 2));
 } catch (error) {
   console.error(error instanceof Error ? error.message : String(error));

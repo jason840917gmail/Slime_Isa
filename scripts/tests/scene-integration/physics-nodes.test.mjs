@@ -156,8 +156,14 @@ test('native circle bodies use their authored radius for blocking', () => {
   wall.collisionMask = 0;
   character.queue_teleport({ x: 0, y: 0 });
   character.velocity = { x: 60, y: 0 };
+  for (let step = 0; step < 20 && character.velocity.x !== 0; step += 1) host.advanceFrame(1 / 60);
+  assert.equal(character.position.x, 8, 'a static body\'s mask is irrelevant: the mover\'s mask alone decides');
+  character.collisionMask = 0;
+  character.queue_teleport({ x: 0, y: 0 });
+  character.velocity = { x: 60, y: 0 };
   for (let step = 0; step < 20; step += 1) host.advanceFrame(1 / 60);
-  assert.equal(character.position.x, 20, 'blocking requires both body masks to accept the other layer');
+  assert.equal(character.position.x, 20, 'a mover whose mask excludes the wall layer passes through');
+  assert.equal(context.managedBlockingColliderCount, 0, 'pairs the blocking rule can never accept own no collider');
   host.shutdown();
 });
 
@@ -193,4 +199,30 @@ test('blocking nodes reject unsupported geometry, multiple enabled shapes, rotat
     assert.match(diagnostics.map((entry) => entry.message).join('\n'), /only supports|exactly one|rotated|uniform/, `invalid case ${index}`);
     context.shutdown();
   }
+});
+
+test('manual stepping runs the Arcade preUpdate bookkeeping (flag reset, prev/prevFrame) before every world.step', () => {
+  const order = [];
+  const vector = (x, y) => ({ x, y });
+  const makeBody = (name, enable, moves = true) => ({
+    name, enable, moves, position: vector(5, 6), prev: vector(0, 0), prevFrame: vector(0, 0),
+    touching: { none: false, right: true }, embedded: true,
+    resetFlags() { order.push(`reset:${name}`); this.touching = { none: true, right: false }; this.embedded = false; },
+  });
+  const moving = makeBody('moving', true);
+  const disabled = makeBody('disabled', false);
+  const immovable = makeBody('immovable', true, false);
+  const scene = { physics: { disableUpdate() {}, enableUpdate() {}, systems: {}, world: {
+    bodies: { entries: [moving, disabled, immovable] },
+    step(delta) { order.push(`step:${delta}`); },
+  } } };
+  const context = new t.PhaserNodeContext(scene);
+  context.stepPhysics(1 / 60);
+  assert.deepEqual(order, ['reset:moving', 'reset:immovable', `step:${1 / 60}`]);
+  assert.deepEqual(moving.touching, { none: true, right: false });
+  assert.equal(moving.embedded, false);
+  assert.deepEqual([moving.prev, moving.prevFrame], [vector(5, 6), vector(5, 6)]);
+  assert.deepEqual(disabled.touching, { none: false, right: true }, 'disabled bodies are left alone, like World.update');
+  assert.deepEqual(immovable.prev, vector(0, 0), 'bodies that do not move keep prev, like Body.preUpdate');
+  context.shutdown();
 });

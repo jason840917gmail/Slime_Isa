@@ -15,7 +15,8 @@ test('production development routing hands legacy map URLs to authored world sce
 
 test('legacy Map Studio write endpoints are retired while Scene Studio owns atomic resources', () => {
   assert.doesNotMatch(vite.slice(vite.indexOf('export default defineConfig')), /mapEditorSavePlugin\(/);
-  assert.match(vite, /animationContentModulesPlugin\(\)/);
+  // Shared animation packages were retired; animations live in their scenes.
+  assert.doesNotMatch(vite, /animationContentModulesPlugin/);
   assert.match(studio, /this\.repository\.save\(writes\)/);
   assert.match(studio, /kind: 'resource' as const/);
   assert.ok(ledger.rows.filter((row) => row.family === 'map').every((row) => row.writerState === 'scene'));

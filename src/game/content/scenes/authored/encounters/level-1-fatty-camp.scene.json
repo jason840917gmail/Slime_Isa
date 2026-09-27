@@ -23,8 +23,8 @@
       "parentId": "root",
       "order": 0,
       "properties": {
-        "collisionLayer": 0,
-        "collisionMask": 2,
+        "collisionLayer": 512,
+        "collisionMask": 4,
         "monitoring": true,
         "monitorable": false
       }
@@ -48,8 +48,8 @@
       "parentId": "root",
       "order": 1,
       "properties": {
-        "collisionLayer": 0,
-        "collisionMask": 2,
+        "collisionLayer": 512,
+        "collisionMask": 4,
         "monitoring": true,
         "monitorable": false
       }

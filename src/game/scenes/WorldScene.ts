@@ -108,6 +108,7 @@ export class WorldScene extends Phaser.Scene {
   private abilitySystem?: PlayerAbilityController;
   private iFrameFlashActive = false;
   private playerKnockbackUntil = 0;
+  private actionAnimationUntil?: number;
   private combatController?: CombatController;
   private currentArea: AreaDef = AREAS.icege;
   private worldDimensions!: WorldDimensions;
@@ -191,7 +192,7 @@ export class WorldScene extends Phaser.Scene {
       applyKnockback: (direction, strength, durationMs) => {
         this.playerKnockbackUntil = Math.max(
           this.playerKnockbackUntil,
-          this.time.now + durationMs,
+          this.simulationNow() + durationMs,
         );
         this.playerController.applyKnockback(new Phaser.Math.Vector2(direction.x, direction.y), strength, durationMs);
         this.playAnimation('slime-knockback', true);
@@ -228,6 +229,7 @@ export class WorldScene extends Phaser.Scene {
       playAnimation: (key) => this.playAnimation(key),
       getTerrainGrid: () => this.terrainGrid,
       getCombatTargets: () => this.combatController?.targets ?? null,
+      nowMs: () => this.simulationNow(),
     });
     this.universalWorld?.worldMapSurface.discover(this.currentArea.id);
     this.questNotifications = new QuestNotificationPresenter({
@@ -335,6 +337,9 @@ export class WorldScene extends Phaser.Scene {
     this.pauseSources.clear();
     this.paused = false;
     this.actionLocked = false;
+    this.actionAnimationUntil = undefined;
+    // Gameplay deadlines are simulation times of the area runtime being replaced.
+    this.playerKnockbackUntil = 0;
   }
 
   private restoreAreaTransitionHandoff(): boolean {
@@ -410,10 +415,12 @@ export class WorldScene extends Phaser.Scene {
   private updateGameplay(delta: number): void {
     this.universalWorld?.minimapSurface.update(this.cameras.main, this.player);
 
+    const now = this.simulationNow();
+    this.finishExpiredActionAnimation(now);
     this.interactionRouter?.update();
-    this.statusEffects?.update(this.time.now, delta);
+    this.statusEffects?.update(now, delta);
     this.abilitySystem?.update();
-    this.combatController?.update(this.time.now, delta);
+    this.combatController?.update(now, delta);
     this.occlusionController?.update();
     this.depthDiagnostics?.update();
     // Passive energy regen (scaled by Quick Recovery perk).
@@ -678,15 +685,6 @@ export class WorldScene extends Phaser.Scene {
       playAnimation: (key) => this.playAnimation(key),
     });
     if (restoredLocation) this.applyFacing(restoredLocation.facing);
-    this.occlusionController?.registerActor({
-      id: 'player',
-      owner: this.player,
-      visual: this.playerVisual,
-      getGroundAnchorY: () => resolveBodyBottom(this.player.body as Phaser.Physics.Arcade.Body),
-      getDepth: () => this.player.depth,
-      isEligible: () => this.player.active,
-      silhouetteColor: 0x73d7ff,
-    });
   }
 
   private createPhysics(): void {
@@ -883,7 +881,7 @@ export class WorldScene extends Phaser.Scene {
 
   private playAnimation(key: string, forceRestart = false): void {
     if (this.healthSystem?.isDead() && key !== 'slime-die') return;
-    const knockbackHasPriority = this.time.now < this.playerKnockbackUntil;
+    const knockbackHasPriority = this.simulationNow() < this.playerKnockbackUntil;
     const isForcedKnockback = forceRestart && key === 'slime-knockback';
     if (knockbackHasPriority && key !== 'slime-die' && !isForcedKnockback) return;
 
@@ -957,7 +955,7 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private playActionAnimation(key: string): void {
-    if (this.healthSystem?.isDead() || this.time.now < this.playerKnockbackUntil) return;
+    if (this.healthSystem?.isDead() || this.simulationNow() < this.playerKnockbackUntil) return;
     const animationId = key.startsWith('slime-') ? key.slice('slime-'.length) : key;
     const durationMs = this.universalWorld?.playerAnimationDurationMs(animationId);
     if (durationMs === undefined) return;
@@ -967,13 +965,21 @@ export class WorldScene extends Phaser.Scene {
     this.stopPlayerMotion();
     this.player.rotation = 0;
     this.universalWorld?.managedPlayer.playAnimation(animationId);
+    // Unlocked from updateGameplay on the simulation clock, so modal pauses
+    // hold the lock instead of letting it expire underneath them.
+    this.actionAnimationUntil = this.simulationNow() + durationMs;
+  }
 
-    const unlock = () => {
-      this.actionLocked = false;
-      this.playAnimation('slime-idle');
-    };
+  private finishExpiredActionAnimation(now: number): void {
+    if (this.actionAnimationUntil === undefined || now < this.actionAnimationUntil) return;
+    this.actionAnimationUntil = undefined;
+    this.actionLocked = false;
+    this.playAnimation('slime-idle');
+  }
 
-    this.time.delayedCall(durationMs, unlock);
+  /** Gameplay time in ms; stands still while the simulation is paused. */
+  private simulationNow(): number {
+    return this.universalWorld?.simulationTime ?? 0;
   }
 
   private handleResize(gameSize: Phaser.Structs.Size): void {
@@ -1194,6 +1200,7 @@ export class WorldScene extends Phaser.Scene {
       playCharacterAction: (actionId) => this.playAnimation(`slime-${actionId}`),
       setActionLocked: (locked) => { this.actionLocked = locked; },
       canAttack: () => !this.actionLocked && !this.paused && !this.healthSystem?.isDead(),
+      nowMs: () => this.simulationNow(),
       healPlayer: (amount) => this.healthSystem?.heal(amount) ?? 0,
       spawnItemDropIcon: (x, y, itemId, count, index, total) => {
         this.spawnItemDropIcon(x, y, itemId, count, index, total);
@@ -1201,8 +1208,8 @@ export class WorldScene extends Phaser.Scene {
       createManagedEnemy: (request) => this.universalWorld?.createManagedEnemy(request),
       spawnManagedEffect: (request) => this.universalWorld?.spawnEffect(request) ?? false,
       mountManagedWeapon: (weaponId) => this.universalWorld?.mountWeapon(weaponId) ?? false,
-      canManagedWeaponAttack: (timeMs) => this.universalWorld?.canWeaponAttack(timeMs) ?? false,
-      playManagedWeaponAttack: (direction, timeMs, damage) => this.universalWorld?.playWeaponAttack(direction, timeMs, damage) ?? false,
+      canManagedWeaponAttack: () => this.universalWorld?.canWeaponAttack() ?? false,
+      playManagedWeaponAttack: (direction, damage) => this.universalWorld?.playWeaponAttack(direction, damage) ?? false,
       clearManagedWeapon: () => this.universalWorld?.clearWeapon(),
     });
   }
@@ -1268,6 +1275,7 @@ export class WorldScene extends Phaser.Scene {
       spawnManagedResourceDrops: (request) => this.resourceNodes?.spawnManagedResourceDrops(request),
       collectibles: this.collectibles!,
       registerOccluder: (registration) => this.occlusionController!.registerOccluder(registration),
+      registerOcclusionActor: (registration) => this.occlusionController!.registerActor(registration),
       requestExit: (request) => this.requestAuthoredExit(request),
       onEquipWeaponSlot: (slotIndex) => this.equipWeaponSlot(slotIndex),
       getAbilitySystem: () => this.abilitySystem,
@@ -1300,7 +1308,7 @@ export class WorldScene extends Phaser.Scene {
       const dx = this.player.x;
       req.knockX = dx > this.worldDimensions.width / 2 ? -1 : 1;
       req.knockY = 0;
-      this.healthSystem?.applyDamage(req, this.time.now);
+      this.healthSystem?.applyDamage(req, this.simulationNow());
     });
 
     kb.on('keydown-TWO', (event: KeyboardEvent) => {

@@ -48,9 +48,11 @@ export interface CombatControllerContext {
   createManagedEnemy: (request: EnemySpawnRequest) => EnemyPopulationMember | null | undefined;
   spawnManagedEffect: ManagedWorldEffectSpawner;
   mountManagedWeapon: (weaponId: string) => boolean;
-  canManagedWeaponAttack: (timeMs: number) => boolean;
-  playManagedWeaponAttack: (direction: WeaponAttackDirection, timeMs: number, damage: WeaponDamagePayload) => boolean;
+  canManagedWeaponAttack: () => boolean;
+  playManagedWeaponAttack: (direction: WeaponAttackDirection, damage: WeaponDamagePayload) => boolean;
   clearManagedWeapon: () => void;
+  /** Gameplay clock (simulation time) for combo windows. */
+  nowMs: () => number;
 }
 
 function resolveAttackDirection(direction: Phaser.Math.Vector2): WeaponAttackDirection {
@@ -85,7 +87,7 @@ export class CombatController {
       strokeThickness: 4,
     }).setOrigin(0.5).setScrollFactor(0).setDepth(resolveScreenUiDepth(10)).setAlpha(0);
 
-    this.combo = new ComboSystem(scene, {
+    this.combo = new ComboSystem(ctx.nowMs, {
       onComboHit: (count, multiplier) => {
         this.comboText.setText(`${count}x COMBO  x${multiplier.toFixed(2)}`).setAlpha(1);
         scene.tweens.add({ targets: this.comboText, scale: { from: 1.2, to: 1 }, duration: 150, ease: 'Back.Out' });
@@ -137,8 +139,7 @@ export class CombatController {
 
   tryAttack(): boolean {
     if (!this.weapon || this.attacking || !this.ctx.canAttack()) return false;
-    const timeMs = this.ctx.scene.time.now;
-    if (!this.ctx.canManagedWeaponAttack(timeMs)) return false;
+    if (!this.ctx.canManagedWeaponAttack()) return false;
     const facing = this.ctx.getFacing();
     const direction = resolveAttackDirection(
       facing.lengthSq() > 0 ? facing : new Phaser.Math.Vector2(1, 0),
@@ -151,7 +152,7 @@ export class CombatController {
     ));
     const critical = Math.random() < stats.critChance;
     const damage = critical ? Math.round(scaledDamage * stats.critMult) : scaledDamage;
-    const attacked = this.ctx.playManagedWeaponAttack(direction, timeMs, {
+    const attacked = this.ctx.playManagedWeaponAttack(direction, {
       damage,
       knockbackStrength: resolveScaledValue(this.weapon.knockStrength, this.weapon.scaling?.knockback, stats.attributes),
       cooldownMs: resolveScaledValue(this.weapon.cooldownMs, this.weapon.scaling?.cooldown, stats.attributes, 1),

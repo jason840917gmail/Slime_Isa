@@ -41,7 +41,8 @@
         ],
         "rotation": 0,
         "alpha": 0,
-        "depthMode": "world-sorted",
+        "depthMode": "relative",
+        "depthOffset": 0.01,
         "depthBand": "world-entities"
       }
     },
@@ -388,8 +389,8 @@
                 {
                   "at": 0,
                   "value": [
-                    1,
-                    1
+                    0.58,
+                    0.58
                   ]
                 }
               ]
@@ -401,6 +402,36 @@
                 {
                   "at": 0,
                   "value": 0
+                }
+              ]
+            },
+            {
+              "binding": "../Axe1",
+              "property": "flipX",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Axe1",
+              "property": "flipY",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Axe1",
+              "property": "depthOffset",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0.01
                 }
               ]
             }
@@ -557,57 +588,57 @@
                 {
                   "at": 0,
                   "value": [
-                    1,
-                    1
+                    0.62,
+                    0.62
                   ]
                 },
                 {
                   "at": 1,
                   "value": [
-                    1,
-                    1
+                    0.62,
+                    0.62
                   ]
                 },
                 {
                   "at": 2,
                   "value": [
-                    1,
-                    1
+                    0.62,
+                    0.62
                   ]
                 },
                 {
                   "at": 3,
                   "value": [
-                    1,
-                    1
+                    0.62,
+                    0.62
                   ]
                 },
                 {
                   "at": 4,
                   "value": [
-                    1,
-                    1
+                    0.62,
+                    0.62
                   ]
                 },
                 {
                   "at": 5,
                   "value": [
-                    1,
-                    1
+                    0.62,
+                    0.62
                   ]
                 },
                 {
                   "at": 6,
                   "value": [
-                    1,
-                    1
+                    0.62,
+                    0.62
                   ]
                 },
                 {
                   "at": 7,
                   "value": [
-                    1,
-                    1
+                    0.62,
+                    0.62
                   ]
                 }
               ]
@@ -647,6 +678,120 @@
                 {
                   "at": 7,
                   "value": 1.3962634015954636
+                }
+              ]
+            },
+            {
+              "binding": "../Axe1",
+              "property": "flipX",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                },
+                {
+                  "at": 4,
+                  "value": false
+                },
+                {
+                  "at": 5,
+                  "value": false
+                },
+                {
+                  "at": 6,
+                  "value": false
+                },
+                {
+                  "at": 7,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Axe1",
+              "property": "flipY",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                },
+                {
+                  "at": 4,
+                  "value": false
+                },
+                {
+                  "at": 5,
+                  "value": false
+                },
+                {
+                  "at": 6,
+                  "value": false
+                },
+                {
+                  "at": 7,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Axe1",
+              "property": "depthOffset",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0.01
+                },
+                {
+                  "at": 1,
+                  "value": 0.01
+                },
+                {
+                  "at": 2,
+                  "value": 0.01
+                },
+                {
+                  "at": 3,
+                  "value": 0.01
+                },
+                {
+                  "at": 4,
+                  "value": 0.01
+                },
+                {
+                  "at": 5,
+                  "value": 0.01
+                },
+                {
+                  "at": 6,
+                  "value": 0.01
+                },
+                {
+                  "at": 7,
+                  "value": 0.01
                 }
               ]
             }
@@ -741,56 +886,56 @@
                 {
                   "at": 0,
                   "value": [
-                    8,
+                    -8,
                     -22
                   ]
                 },
                 {
                   "at": 1,
                   "value": [
-                    16,
+                    -16,
                     -14
                   ]
                 },
                 {
                   "at": 2,
                   "value": [
-                    20,
+                    -20,
                     -10
                   ]
                 },
                 {
                   "at": 3,
                   "value": [
-                    28,
+                    -28,
                     -10
                   ]
                 },
                 {
                   "at": 4,
                   "value": [
-                    35,
+                    -35,
                     0
                   ]
                 },
                 {
                   "at": 5,
                   "value": [
-                    35,
+                    -35,
                     20
                   ]
                 },
                 {
                   "at": 6,
                   "value": [
-                    35,
+                    -35,
                     20
                   ]
                 },
                 {
                   "at": 7,
                   "value": [
-                    35,
+                    -35,
                     20
                   ]
                 }
@@ -803,57 +948,57 @@
                 {
                   "at": 0,
                   "value": [
-                    1,
-                    1
+                    0.62,
+                    0.62
                   ]
                 },
                 {
                   "at": 1,
                   "value": [
-                    1,
-                    1
+                    0.62,
+                    0.62
                   ]
                 },
                 {
                   "at": 2,
                   "value": [
-                    1,
-                    1
+                    0.62,
+                    0.62
                   ]
                 },
                 {
                   "at": 3,
                   "value": [
-                    1,
-                    1
+                    0.62,
+                    0.62
                   ]
                 },
                 {
                   "at": 4,
                   "value": [
-                    1,
-                    1
+                    0.62,
+                    0.62
                   ]
                 },
                 {
                   "at": 5,
                   "value": [
-                    1,
-                    1
+                    0.62,
+                    0.62
                   ]
                 },
                 {
                   "at": 6,
                   "value": [
-                    1,
-                    1
+                    0.62,
+                    0.62
                   ]
                 },
                 {
                   "at": 7,
                   "value": [
-                    1,
-                    1
+                    0.62,
+                    0.62
                   ]
                 }
               ]
@@ -864,35 +1009,149 @@
               "keys": [
                 {
                   "at": 0,
-                  "value": -1.1344640137963142
+                  "value": 1.1344640137963142
                 },
                 {
                   "at": 1,
-                  "value": -0.7853981633974483
+                  "value": 0.7853981633974483
                 },
                 {
                   "at": 2,
-                  "value": -0.3490658503988659
+                  "value": 0.3490658503988659
                 },
                 {
                   "at": 3,
-                  "value": 0.17453292519943295
+                  "value": -0.17453292519943295
                 },
                 {
                   "at": 4,
-                  "value": 0.8726646259971648
+                  "value": -0.8726646259971648
                 },
                 {
                   "at": 5,
-                  "value": 1.3962634015954636
+                  "value": -1.3962634015954636
                 },
                 {
                   "at": 6,
-                  "value": 1.3962634015954636
+                  "value": -1.3962634015954636
                 },
                 {
                   "at": 7,
-                  "value": 1.3962634015954636
+                  "value": -1.3962634015954636
+                }
+              ]
+            },
+            {
+              "binding": "../Axe1",
+              "property": "flipX",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": true
+                },
+                {
+                  "at": 1,
+                  "value": true
+                },
+                {
+                  "at": 2,
+                  "value": true
+                },
+                {
+                  "at": 3,
+                  "value": true
+                },
+                {
+                  "at": 4,
+                  "value": true
+                },
+                {
+                  "at": 5,
+                  "value": true
+                },
+                {
+                  "at": 6,
+                  "value": true
+                },
+                {
+                  "at": 7,
+                  "value": true
+                }
+              ]
+            },
+            {
+              "binding": "../Axe1",
+              "property": "flipY",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                },
+                {
+                  "at": 4,
+                  "value": false
+                },
+                {
+                  "at": 5,
+                  "value": false
+                },
+                {
+                  "at": 6,
+                  "value": false
+                },
+                {
+                  "at": 7,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Axe1",
+              "property": "depthOffset",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0.01
+                },
+                {
+                  "at": 1,
+                  "value": 0.01
+                },
+                {
+                  "at": 2,
+                  "value": 0.01
+                },
+                {
+                  "at": 3,
+                  "value": 0.01
+                },
+                {
+                  "at": 4,
+                  "value": 0.01
+                },
+                {
+                  "at": 5,
+                  "value": 0.01
+                },
+                {
+                  "at": 6,
+                  "value": 0.01
+                },
+                {
+                  "at": 7,
+                  "value": 0.01
                 }
               ]
             }
@@ -1049,57 +1308,57 @@
                 {
                   "at": 0,
                   "value": [
-                    1,
-                    1
+                    0.62,
+                    0.62
                   ]
                 },
                 {
                   "at": 1,
                   "value": [
-                    1,
-                    1
+                    0.62,
+                    0.62
                   ]
                 },
                 {
                   "at": 2,
                   "value": [
-                    1,
-                    1
+                    0.62,
+                    0.62
                   ]
                 },
                 {
                   "at": 3,
                   "value": [
-                    1,
-                    1
+                    0.62,
+                    0.62
                   ]
                 },
                 {
                   "at": 4,
                   "value": [
-                    1,
-                    1
+                    0.62,
+                    0.62
                   ]
                 },
                 {
                   "at": 5,
                   "value": [
-                    1,
-                    1
+                    0.62,
+                    0.62
                   ]
                 },
                 {
                   "at": 6,
                   "value": [
-                    1,
-                    1
+                    0.62,
+                    0.62
                   ]
                 },
                 {
                   "at": 7,
                   "value": [
-                    1,
-                    1
+                    0.62,
+                    0.62
                   ]
                 }
               ]
@@ -1139,6 +1398,120 @@
                 {
                   "at": 7,
                   "value": 3.141592653589793
+                }
+              ]
+            },
+            {
+              "binding": "../Axe1",
+              "property": "flipX",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                },
+                {
+                  "at": 4,
+                  "value": false
+                },
+                {
+                  "at": 5,
+                  "value": false
+                },
+                {
+                  "at": 6,
+                  "value": false
+                },
+                {
+                  "at": 7,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Axe1",
+              "property": "flipY",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                },
+                {
+                  "at": 4,
+                  "value": false
+                },
+                {
+                  "at": 5,
+                  "value": false
+                },
+                {
+                  "at": 6,
+                  "value": false
+                },
+                {
+                  "at": 7,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Axe1",
+              "property": "depthOffset",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0.01
+                },
+                {
+                  "at": 1,
+                  "value": 0.01
+                },
+                {
+                  "at": 2,
+                  "value": 0.01
+                },
+                {
+                  "at": 3,
+                  "value": 0.01
+                },
+                {
+                  "at": 4,
+                  "value": 0.01
+                },
+                {
+                  "at": 5,
+                  "value": 0.01
+                },
+                {
+                  "at": 6,
+                  "value": 0.01
+                },
+                {
+                  "at": 7,
+                  "value": 0.01
                 }
               ]
             }
@@ -1295,57 +1668,57 @@
                 {
                   "at": 0,
                   "value": [
-                    1,
-                    1
+                    0.62,
+                    0.62
                   ]
                 },
                 {
                   "at": 1,
                   "value": [
-                    1,
-                    1
+                    0.62,
+                    0.62
                   ]
                 },
                 {
                   "at": 2,
                   "value": [
-                    1,
-                    1
+                    0.62,
+                    0.62
                   ]
                 },
                 {
                   "at": 3,
                   "value": [
-                    1,
-                    1
+                    0.62,
+                    0.62
                   ]
                 },
                 {
                   "at": 4,
                   "value": [
-                    1,
-                    1
+                    0.62,
+                    0.62
                   ]
                 },
                 {
                   "at": 5,
                   "value": [
-                    1,
-                    1
+                    0.62,
+                    0.62
                   ]
                 },
                 {
                   "at": 6,
                   "value": [
-                    1,
-                    1
+                    0.62,
+                    0.62
                   ]
                 },
                 {
                   "at": 7,
                   "value": [
-                    1,
-                    1
+                    0.62,
+                    0.62
                   ]
                 }
               ]
@@ -1385,6 +1758,120 @@
                 {
                   "at": 7,
                   "value": 3.141592653589793
+                }
+              ]
+            },
+            {
+              "binding": "../Axe1",
+              "property": "flipX",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                },
+                {
+                  "at": 4,
+                  "value": false
+                },
+                {
+                  "at": 5,
+                  "value": false
+                },
+                {
+                  "at": 6,
+                  "value": false
+                },
+                {
+                  "at": 7,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Axe1",
+              "property": "flipY",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                },
+                {
+                  "at": 4,
+                  "value": false
+                },
+                {
+                  "at": 5,
+                  "value": false
+                },
+                {
+                  "at": 6,
+                  "value": false
+                },
+                {
+                  "at": 7,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Axe1",
+              "property": "depthOffset",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0.01
+                },
+                {
+                  "at": 1,
+                  "value": 0.01
+                },
+                {
+                  "at": 2,
+                  "value": 0.01
+                },
+                {
+                  "at": 3,
+                  "value": 0.01
+                },
+                {
+                  "at": 4,
+                  "value": 0.01
+                },
+                {
+                  "at": 5,
+                  "value": 0.01
+                },
+                {
+                  "at": 6,
+                  "value": 0.01
+                },
+                {
+                  "at": 7,
+                  "value": 0.01
                 }
               ]
             }

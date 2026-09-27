@@ -3,7 +3,6 @@ import { fileURLToPath } from 'node:url';
 
 import { defineConfig, type Plugin } from 'vite';
 
-import { animationContentModulesPlugin } from '../../../src/game/content/animations/animationContentModulesPlugin';
 import { characterContentModulesPlugin } from '../../../src/game/content/characters/characterContentModulesPlugin';
 import { sceneContentModulesPlugin } from '../../../src/game/content/scenes/sceneContentModulesPlugin';
 
@@ -24,9 +23,6 @@ export default defineConfig({
       projectileRoot: path.join(repositoryRoot, 'src/game/content/projectiles'),
       weaponRoot: path.join(repositoryRoot, 'src/game/content/weapons'),
       effectRoot: path.join(repositoryRoot, 'src/game/content/effects'),
-    })),
-    readOnly(animationContentModulesPlugin({
-      resourceRoot: path.join(repositoryRoot, 'src/game/content/scenes/authored/resources/animations'),
     })),
     readOnly(sceneContentModulesPlugin(path.join(repositoryRoot, 'src/game/content/scenes/authored'))),
   ],

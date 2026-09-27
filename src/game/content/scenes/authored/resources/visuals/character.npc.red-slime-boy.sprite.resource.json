@@ -1,9 +1,0 @@
-{
-  "version": 1,
-  "resourceId": "character.npc.red-slime-boy.sprite",
-  "kind": "sprite-sheet",
-  "assetId": "character.npc.red-slime-boy",
-  "frameWidth": 229,
-  "frameHeight": 229,
-  "frameCount": 30
-}

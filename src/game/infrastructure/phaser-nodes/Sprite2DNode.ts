@@ -22,9 +22,16 @@ export interface Sprite2DNodeOptions extends Node2DOptions {
   readonly tint?: string;
   readonly flipX?: boolean;
   readonly flipY?: boolean;
-  readonly depthMode?: 'world-sorted' | 'explicit';
+  /**
+   * `world-sorted` sorts by this sprite's own ground point, `explicit` uses
+   * `depth`, and `relative` draws at the nearest depth-source ancestor's depth
+   * plus `depthOffset` (attachments such as weapons, effect layers and
+   * character visuals that sort by their body's feet).
+   */
+  readonly depthMode?: 'world-sorted' | 'explicit' | 'relative';
   readonly depthBand?: WorldDepthBand;
   readonly depth?: number;
+  readonly depthOffset?: number;
   readonly depthResolver?: WorldDepthResolver;
   readonly occlusionBounds?: SourceOcclusionBounds;
   readonly depthBounds?: ObjectDepthBounds;
@@ -41,14 +48,25 @@ export class Sprite2DNode extends Node2D implements PresentationParticipant, Wor
   private sprite?: Phaser.GameObjects.Sprite;
   private currentFrame?: number;
   private currentAlpha: number;
+  private currentFlipX: boolean;
+  private currentFlipY: boolean;
+  private currentDepthOffset: number;
+  private currentVisualOffset: Vector2;
+  private resolvedDepth = 0;
+  private resolvedSortY = 0;
+  private relativeBase?: { readonly source: Node2D; readonly sortY: number; readonly depth: number };
   private readonly origin: Vector2;
-  private readonly visualOffset: Vector2;
   private readonly tint?: number;
   private readonly depthResolver: WorldDepthResolver;
   private lastPresentation?: {
     readonly transformRevision: number;
     readonly frame: number | undefined;
     readonly alpha: number;
+    readonly flipX: boolean;
+    readonly flipY: boolean;
+    readonly depth: number;
+    readonly visualOffsetX: number;
+    readonly visualOffsetY: number;
     readonly visible: boolean;
     readonly effectScaleX: number;
     readonly effectScaleY: number;
@@ -60,13 +78,16 @@ export class Sprite2DNode extends Node2D implements PresentationParticipant, Wor
   constructor(private readonly spriteOptions: Sprite2DNodeOptions) {
     super(spriteOptions);
     this.origin = spriteOptions.origin ?? { x: 0.5, y: 0.5 };
-    this.visualOffset = spriteOptions.visualOffset ?? { x: 0, y: 0 };
+    this.currentVisualOffset = spriteOptions.visualOffset ?? { x: 0, y: 0 };
+    this.currentFlipX = spriteOptions.flipX === true;
+    this.currentFlipY = spriteOptions.flipY === true;
+    this.currentDepthOffset = spriteOptions.depthOffset ?? 0;
     this.tint = colorNumber(spriteOptions.tint);
     this.depthResolver = spriteOptions.depthResolver ?? defaultWorldDepthResolver;
     this.currentFrame = spriteOptions.frame;
     this.currentAlpha = spriteOptions.alpha ?? 1;
     const alpha = this.currentAlpha;
-    if (![this.origin.x, this.origin.y, this.visualOffset.x, this.visualOffset.y, alpha, spriteOptions.depth ?? 0].every(Number.isFinite)) {
+    if (![this.origin.x, this.origin.y, this.currentVisualOffset.x, this.currentVisualOffset.y, alpha, spriteOptions.depth ?? 0, this.currentDepthOffset].every(Number.isFinite)) {
       throw new Error('Sprite presentation values must be finite');
     }
     if (alpha < 0 || alpha > 1) throw new Error('Sprite alpha must be between 0 and 1');
@@ -89,7 +110,30 @@ export class Sprite2DNode extends Node2D implements PresentationParticipant, Wor
     this.sprite?.setAlpha(value);
   }
 
-  setFlipX(flipped: boolean): this { this.sprite?.setFlipX(flipped); return this; }
+  /** Horizontal mirror of the texture; animatable and settable by scripts (e.g. facing). */
+  get flipX(): boolean { return this.currentFlipX; }
+  set flipX(value: boolean) { this.currentFlipX = value === true; this.syncPresentation(1); }
+  get flipY(): boolean { return this.currentFlipY; }
+  set flipY(value: boolean) { this.currentFlipY = value === true; this.syncPresentation(1); }
+  get visualOffset(): Vector2 { return { ...this.currentVisualOffset }; }
+  set visualOffset(value: Vector2) {
+    if (!Number.isFinite(value.x) || !Number.isFinite(value.y)) throw new Error('Sprite visual offset must be finite');
+    this.currentVisualOffset = { x: value.x, y: value.y };
+    this.syncPresentation(1);
+  }
+  /** Offset added to the depth source's depth when `depthMode` is `relative`. */
+  get depthOffset(): number { return this.currentDepthOffset; }
+  set depthOffset(value: number) {
+    if (!Number.isFinite(value)) throw new Error('Sprite depth offset must be finite');
+    this.currentDepthOffset = value;
+    this.syncPresentation(1);
+  }
+  /** Render depth applied by the last presentation sync. */
+  get renderDepth(): number { return this.resolvedDepth; }
+  /** World-space ground Y this sprite's depth was sorted by in the last presentation sync. */
+  get depthSortY(): number { return this.resolvedSortY; }
+
+  setFlipX(flipped: boolean): this { this.flipX = flipped; return this; }
   setAlpha(alpha: number): this {
     if (!Number.isFinite(alpha) || alpha < 0 || alpha > 1) throw new Error('Sprite alpha must be between 0 and 1');
     this.effects.alpha = alpha;
@@ -153,7 +197,7 @@ export class Sprite2DNode extends Node2D implements PresentationParticipant, Wor
     sprite.setName(this.runtimeId);
     sprite.setOrigin(this.origin.x, this.origin.y);
     sprite.setAlpha(this.currentAlpha);
-    sprite.setFlip(Boolean(this.spriteOptions.flipX), Boolean(this.spriteOptions.flipY));
+    sprite.setFlip(this.currentFlipX, this.currentFlipY);
     if (this.tint !== undefined) sprite.setTint(this.tint);
     const unregister = this.spriteOptions.context.registerPresentation(this);
     this.entryDisposables.add(() => unregister());
@@ -165,11 +209,19 @@ export class Sprite2DNode extends Node2D implements PresentationParticipant, Wor
     const sprite = this.sprite;
     if (!sprite || sprite.active === false) return;
     const transformRevision = this.get_global_transform_revision();
+    // Relative depth depends on another node, so it is re-resolved every sync;
+    // self-sorted depth only changes with this sprite's own presentation.
+    const relativeDepth = this.spriteOptions.depthMode === 'relative' ? this.resolveDepth(sprite) : undefined;
     const previous = this.lastPresentation;
     if (previous
       && previous.transformRevision === transformRevision
       && previous.frame === this.currentFrame
       && previous.alpha === this.currentAlpha
+      && previous.flipX === this.currentFlipX
+      && previous.flipY === this.currentFlipY
+      && (relativeDepth === undefined || previous.depth === relativeDepth)
+      && previous.visualOffsetX === this.currentVisualOffset.x
+      && previous.visualOffsetY === this.currentVisualOffset.y
       && previous.visible === this.visible
       && previous.effectScaleX === this.effects.scaleX
       && previous.effectScaleY === this.effects.scaleY
@@ -177,8 +229,8 @@ export class Sprite2DNode extends Node2D implements PresentationParticipant, Wor
       && previous.effectOffsetX === this.effects.offsetX
       && previous.effectOffsetY === this.effects.offsetY) return;
     const transform = this.get_global_transform();
-    const offsetX = this.visualOffset.x * transform.scale.x;
-    const offsetY = this.visualOffset.y * transform.scale.y;
+    const offsetX = this.currentVisualOffset.x * transform.scale.x;
+    const offsetY = this.currentVisualOffset.y * transform.scale.y;
     const cosine = Math.cos(transform.rotation);
     const sine = Math.sin(transform.rotation);
     sprite.setPosition(
@@ -188,23 +240,20 @@ export class Sprite2DNode extends Node2D implements PresentationParticipant, Wor
     sprite.setRotation(transform.rotation);
     sprite.setScale(transform.scale.x * this.effects.scaleX, transform.scale.y * this.effects.scaleY);
     sprite.setAlpha(this.currentAlpha * this.effects.alpha);
+    sprite.setFlip(this.currentFlipX, this.currentFlipY);
     if (this.currentFrame !== undefined) sprite.setFrame(this.currentFrame);
     sprite.setVisible(this.visible);
-    const depth = this.spriteOptions.depthMode === 'explicit'
-      ? this.spriteOptions.depth ?? 0
-      : this.depthResolver.resolve(this.spriteOptions.depthBounds
-        ? resolveObjectDepthAnchorY(transform.position.y, {
-            sourceFrameHeight: sprite.frame.realHeight,
-            originY: this.origin.y,
-            bounds: this.spriteOptions.depthBounds,
-            scaleY: Math.abs(transform.scale.y * this.effects.scaleY),
-          })
-        : transform.position.y, { band: this.spriteOptions.depthBand, stableId: this.runtimeId }).depth;
+    const depth = relativeDepth ?? this.resolveDepth(sprite);
     sprite.setDepth(depth);
     this.lastPresentation = {
       transformRevision,
       frame: this.currentFrame,
       alpha: this.currentAlpha,
+      flipX: this.currentFlipX,
+      flipY: this.currentFlipY,
+      depth,
+      visualOffsetX: this.currentVisualOffset.x,
+      visualOffsetY: this.currentVisualOffset.y,
       visible: this.visible,
       effectScaleX: this.effects.scaleX,
       effectScaleY: this.effects.scaleY,
@@ -215,7 +264,46 @@ export class Sprite2DNode extends Node2D implements PresentationParticipant, Wor
   }
 
   protected override _duplicateSelf(runtimeId: RuntimeNodeId): Sprite2DNode {
-    return new Sprite2DNode({ ...this.spriteOptions, runtimeId, name: this.name, position: this.position, rotation: this.rotation, scale: this.scale, visible: this.visible });
+    return new Sprite2DNode({
+      ...this.spriteOptions, runtimeId, name: this.name, position: this.position, rotation: this.rotation, scale: this.scale, visible: this.visible,
+      flipX: this.currentFlipX, flipY: this.currentFlipY, depthOffset: this.currentDepthOffset, visualOffset: this.currentVisualOffset,
+      depthAnchor: this.depthAnchor,
+    });
+  }
+
+  private resolveDepth(sprite: Phaser.GameObjects.Sprite): number {
+    const mode = this.spriteOptions.depthMode ?? 'world-sorted';
+    if (mode === 'explicit') {
+      this.resolvedSortY = this.get_global_transform().position.y;
+      this.resolvedDepth = this.spriteOptions.depth ?? 0;
+      return this.resolvedDepth;
+    }
+    if (mode === 'relative') {
+      const source = this.isDepthSource ? this : this.find_depth_source();
+      if (source) {
+        const sortY = source.get_global_depth_anchor_y();
+        const cache = this.relativeBase;
+        const base = source.depthOverride ?? (cache && cache.source === source && cache.sortY === sortY
+          ? cache.depth
+          : this.depthResolver.resolve(sortY, { band: this.spriteOptions.depthBand, stableId: source.runtimeId }).depth);
+        if (source.depthOverride === undefined) this.relativeBase = { source, sortY, depth: base };
+        this.resolvedSortY = sortY;
+        this.resolvedDepth = base + this.currentDepthOffset;
+        return this.resolvedDepth;
+      }
+    }
+    const transform = this.get_global_transform();
+    this.resolvedSortY = this.spriteOptions.depthBounds
+      ? resolveObjectDepthAnchorY(transform.position.y, {
+          sourceFrameHeight: sprite.frame.realHeight,
+          originY: this.origin.y,
+          bounds: this.spriteOptions.depthBounds,
+          scaleY: Math.abs(transform.scale.y * this.effects.scaleY),
+        })
+      : transform.position.y;
+    this.resolvedDepth = this.depthResolver.resolve(this.resolvedSortY, { band: this.spriteOptions.depthBand, stableId: this.runtimeId }).depth
+      + (mode === 'relative' ? this.currentDepthOffset : 0);
+    return this.resolvedDepth;
   }
 
   private requireSprite(): Phaser.GameObjects.Sprite {

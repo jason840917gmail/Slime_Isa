@@ -46,7 +46,6 @@ const vite = await createServer({
       'virtual-projectile-content': path.join(contentRoot, 'projectiles/virtual-projectile-content.ts'),
       'virtual-weapon-content': path.join(contentRoot, 'weapons/virtual-weapon-content.ts'),
       'virtual-effect-content': path.join(contentRoot, 'effects/virtual-effect-content.ts'),
-      'virtual-animation-content': path.join(contentRoot, 'animations/virtual-animation-content.ts'),
     },
   },
   optimizeDeps: { noDiscovery: true },

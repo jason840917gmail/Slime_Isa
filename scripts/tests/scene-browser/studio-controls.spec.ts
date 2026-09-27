@@ -51,7 +51,7 @@ test('tile map context paints external resources with overlays, undo, and atomic
   expect(errors).toEqual([]);
 });
 
-test('adding a tile layer commits the scene reference and new external resource together', async ({ page }) => {
+test('adding a tile layer embeds its tile data in the scene save', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('./studio.html?studio=scenes&scene=browser.studio');
@@ -61,6 +61,8 @@ test('adding a tile layer commits the scene reference and new external resource 
   await expect(page.getByRole('treeitem', { name: /overlay-1/ })).toBeVisible();
   await page.getByRole('button', { name: 'Save changes' }).click();
   const snapshot = await page.evaluate(() => window.sceneStudioFixture.snapshot());
-  expect(snapshot.lastWriteIds).toEqual(['browser.studio', 'tiles.browser.studio.overlay-1.data']);
+  // Godot keeps TileMapLayer cells in the scene: one scene write, no new tile-data file.
+  expect(snapshot.lastWriteIds).toEqual(['browser.studio']);
+  expect(snapshot.sceneSubresourceIds).toContain('tiles.browser.studio.overlay-1.data');
   expect(errors).toEqual([]);
 });

@@ -24,12 +24,39 @@ function centers(shape: SensorShape): Vector2 {
   return { x: shape.originX, y: shape.originY };
 }
 
+/**
+ * The body's true geometric centre. Arcade's `body.center` uses the floored
+ * `halfWidth`/`halfHeight`, which is half a pixel off for odd sizes and would
+ * make every sync see a mismatch (and drift the node) for such bodies.
+ */
+function geometricCenter(body: ArcadeBody): Vector2 {
+  return { x: body.position.x + body.width / 2, y: body.position.y + body.height / 2 };
+}
+
+/**
+ * Places a dynamic body so its centre is exactly `center`. `Body.reset(x, y)`
+ * puts the body's top-left at the game object's top-left and ignores the body
+ * offset, so on its own it lands the body `offset` pixels away from the
+ * requested point (teleports and spawns were off by about half a body).
+ */
+function placeDynamicBody(body: Phaser.Physics.Arcade.Body, center: Vector2): void {
+  body.reset(center.x, center.y);
+  const x = center.x - body.width / 2;
+  const y = center.y - body.height / 2;
+  const frames = body as unknown as Partial<Record<'position' | 'prev' | 'prevFrame' | 'autoFrame', { x: number; y: number }>>;
+  for (const vector of [frames.position, frames.prev, frames.prevFrame, frames.autoFrame]) {
+    if (vector) { vector.x = x; vector.y = y; }
+  }
+  if (typeof body.updateCenter === 'function') body.updateCenter();
+}
+
 export abstract class PhysicsBody2DNode extends Node2D implements CollisionShapeOwner, ContactParticipant, PhaserBlockingParticipant {
   private readonly shapes = new Set<CollisionShape2DNode>();
   private physicsGameObject?: PhysicsGameObject;
   private currentBlockingContacts: BlockingContact[] = [];
   private completedBlockingContacts: readonly BlockingContact[] = [];
   private configuredShapeSignature?: string;
+  private staticSyncKey?: string;
   private centerOffset: Vector2 = { x: 0, y: 0 };
   private initialized = false;
   private _collisionLayer: number;
@@ -47,9 +74,9 @@ export abstract class PhysicsBody2DNode extends Node2D implements CollisionShape
   }
 
   get collisionLayer(): number { return this._collisionLayer; }
-  set collisionLayer(value: number) { this._collisionLayer = validateCollisionBits(value, 'Collision layer'); }
+  set collisionLayer(value: number) { this._collisionLayer = validateCollisionBits(value, 'Collision layer'); this.refreshBlockingMembership(); }
   get collisionMask(): number { return this._collisionMask; }
-  set collisionMask(value: number) { this._collisionMask = validateCollisionBits(value, 'Collision mask'); }
+  set collisionMask(value: number) { this._collisionMask = validateCollisionBits(value, 'Collision mask'); this.refreshBlockingMembership(); }
   get collisionEnabled(): boolean { return this._collisionEnabled; }
   set collisionEnabled(value: boolean) {
     this._collisionEnabled = value;
@@ -79,7 +106,7 @@ export abstract class PhysicsBody2DNode extends Node2D implements CollisionShape
       physicsGameObject.destroy();
       if (this.physicsGameObject === physicsGameObject) this.physicsGameObject = undefined;
     });
-    this.entryDisposables.add(this.bodyOptions.context.registerContactParticipant(this, body ?? undefined));
+    this.entryDisposables.add(this.bodyOptions.context.registerContactParticipant(this));
     this.entryDisposables.add(this.bodyOptions.context.registerBlockingParticipant(this));
     this.entryDisposables.add(this.bodyOptions.context.registerCallback('physics-sync', () => this.synchronizeToBackend()));
     this.entryDisposables.add(this.bodyOptions.context.registerCallback('physics-readback', () => this.readAuthoritativeState()));
@@ -111,6 +138,10 @@ export abstract class PhysicsBody2DNode extends Node2D implements CollisionShape
     this.currentBlockingContacts.push(contact);
   }
 
+  private refreshBlockingMembership(): void {
+    if (this.physicsGameObject) this.bodyOptions.context.refreshBlockingParticipant(this);
+  }
+
   protected body(): ArcadeBody | undefined { return this.physicsGameObject?.body as ArcadeBody | undefined; }
   protected createPhysicsGameObject(): PhysicsGameObject {
     return this.bodyOptions.context.scene.add.zone(0, 0, 1, 1);
@@ -122,9 +153,10 @@ export abstract class PhysicsBody2DNode extends Node2D implements CollisionShape
   protected override _duplicateSelf(runtimeId: RuntimeNodeId): PhysicsBody2DNode { return this.duplicateBody(runtimeId); }
 
   private enabledShape(): CollisionShape2DNode {
-    const enabled = [...this.shapes].filter((shape) => !shape.disabled);
-    if (enabled.length !== 1) throw new Error(`${this.constructor.name} '${this.name}' requires exactly one enabled CollisionShape2D while collision is enabled`);
-    const shape = enabled[0];
+    let shape: CollisionShape2DNode | undefined;
+    let enabledCount = 0;
+    for (const candidate of this.shapes) if (!candidate.disabled) { shape = candidate; enabledCount += 1; }
+    if (enabledCount !== 1 || !shape) throw new Error(`${this.constructor.name} '${this.name}' requires exactly one enabled CollisionShape2D while collision is enabled`);
     const geometry = shape.worldShape();
     if (geometry.shape === 'sector') throw new Error(`${this.constructor.name} '${this.name}' only supports rectangle, circle, or ellipse blocking geometry`);
     return shape;
@@ -136,7 +168,14 @@ export abstract class PhysicsBody2DNode extends Node2D implements CollisionShape
     if (!body || !physicsGameObject) return;
     if (!this._collisionEnabled) { body.enable = false; return; }
     this.beforeSynchronizeLogicalState();
-    const shape = this.enabledShape().worldShape();
+    const shapeNode = this.enabledShape();
+    // Static bodies never move on their own: only touch Arcade's static tree
+    // when the body/shape world transform or the enabled shape changed.
+    const staticSyncKey = this.isStaticBody
+      ? `${shapeNode.runtimeId}:${shapeNode.get_global_transform_revision()}:${this.get_global_transform_revision()}`
+      : undefined;
+    if (staticSyncKey !== undefined && this.initialized && body.enable && staticSyncKey === this.staticSyncKey) return;
+    const shape = shapeNode.worldShape();
     if (shape.shape === 'sector') throw new Error(`${this.constructor.name} '${this.name}' only supports rectangle, circle, or ellipse blocking geometry`);
     const anchor = this.get_global_transform().position;
     const center = centers(shape);
@@ -162,25 +201,33 @@ export abstract class PhysicsBody2DNode extends Node2D implements CollisionShape
       }
       this.configuredShapeSignature = signature;
     }
-    const bodyCenter = body.center;
+    const bodyCenter = geometricCenter(body);
     if (!this.initialized || Math.abs(bodyCenter.x - center.x) > 1e-7 || Math.abs(bodyCenter.y - center.y) > 1e-7) {
       physicsGameObject.setPosition(center.x, center.y);
       if (this.isStaticBody) (body as Phaser.Physics.Arcade.StaticBody).updateFromGameObject();
-      else (body as Phaser.Physics.Arcade.Body).reset(center.x, center.y);
+      else placeDynamicBody(body as Phaser.Physics.Arcade.Body, center);
       this.initialized = true;
     }
     // Keep the backend object's public transform at the authored node anchor.
     // Arcade owns its body center independently during the manual physics step.
     physicsGameObject.setPosition(anchor.x, anchor.y);
     body.enable = true;
+    this.staticSyncKey = staticSyncKey;
     this.onSynchronizeDynamicBody(body);
   }
 
   private readAuthoritativeState(): void {
     const body = this.body();
     if (!body || !body.enable || !this.initialized) return;
+    if (this.isStaticBody) {
+      // Arcade never moves a static body, so there is no authoritative
+      // position to read back (and rewriting it would force a static resync).
+      this.completedBlockingContacts = this.currentBlockingContacts.map((contact) => ({ ...contact }));
+      return;
+    }
     const transform = this.get_global_transform();
-    const next: Transform2D = { ...transform, position: { x: body.center.x - this.centerOffset.x, y: body.center.y - this.centerOffset.y } };
+    const bodyCenter = geometricCenter(body);
+    const next: Transform2D = { ...transform, position: { x: bodyCenter.x - this.centerOffset.x, y: bodyCenter.y - this.centerOffset.y } };
     this.set_global_transform(next);
     this.physicsGameObject?.setPosition(next.position.x, next.position.y);
     this.onReadDynamicBody(body);

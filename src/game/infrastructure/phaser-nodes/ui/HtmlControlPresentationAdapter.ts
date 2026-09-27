@@ -102,51 +102,81 @@ function createElement(control: ControlNode): HTMLElement {
   return document.createElement('div');
 }
 
+/**
+ * Controls synchronize every frame. Each writer below compares against the
+ * live DOM first: redundant writes invalidate style/layout, and the base
+ * adapter's per-control size reads would then force a reflow every frame.
+ */
+function setText(element: HTMLElement, text: string): void {
+  if (element.textContent !== text) element.textContent = text;
+}
+
+function setAttribute(element: Element, name: string, value: string): void {
+  if (element.getAttribute(name) !== value) element.setAttribute(name, value);
+}
+
+function removeAttribute(element: Element, name: string): void {
+  if (element.hasAttribute(name)) element.removeAttribute(name);
+}
+
+function setStyle(element: HTMLElement, property: string, value: string): void {
+  if (element.style.getPropertyValue(property) !== value) element.style.setProperty(property, value);
+}
+
+/** Elements whose DOM event handlers are wired; each element serves one control for its lifetime. */
+const wiredElements = new WeakSet<HTMLElement>();
+
 function synchronizeElement(
   element: HTMLElement,
   control: ControlNode,
   resolveAssetUrl: HtmlControlPresentationOptions['resolveAssetUrl'],
 ): void {
-  element.className = `scene-control scene-control--${control.runtimeType.toLowerCase()}${control instanceof StyledControlNode && control.styleClass ? ` ${control.styleClass}` : ''}`;
+  const className = `scene-control scene-control--${control.runtimeType.toLowerCase()}${control instanceof StyledControlNode && control.styleClass ? ` ${control.styleClass}` : ''}`;
+  if (element.className !== className) element.className = className;
   if (control instanceof StyledControlNode) {
-    if (control.ariaLabel) element.setAttribute('aria-label', control.ariaLabel);
-    else element.removeAttribute('aria-label');
-    element.title = control.tooltip;
-    element.style.zIndex = String(control.zIndex);
+    if (control.ariaLabel) setAttribute(element, 'aria-label', control.ariaLabel);
+    else removeAttribute(element, 'aria-label');
+    if (element.title !== control.tooltip) element.title = control.tooltip;
+    setStyle(element, 'z-index', String(control.zIndex));
   }
   if (control instanceof ContainerControlNode) synchronizeContainer(element, control);
   if (control instanceof LabelControlNode) synchronizeLabel(element, control);
   if (control instanceof ButtonControlNode && element instanceof HTMLButtonElement) {
-    element.type = 'button';
-    element.disabled = control.disabled;
-    element.onclick = (event) => { if (control.activate()) { event.preventDefault(); event.stopPropagation(); } };
+    if (element.type !== 'button') element.type = 'button';
+    if (element.disabled !== control.disabled) element.disabled = control.disabled;
+    if (!wiredElements.has(element)) {
+      element.onclick = (event) => { if (control.activate()) { event.preventDefault(); event.stopPropagation(); } };
+    }
     synchronizeFocusable(element, control);
   }
   if (control instanceof ProgressBarControlNode) synchronizeProgress(element, control);
   if (control instanceof TextureRectControlNode && element instanceof HTMLImageElement) {
-    element.alt = control.alt;
-    element.style.objectFit = control.fit;
+    if (element.alt !== control.alt) element.alt = control.alt;
+    setStyle(element, 'object-fit', control.fit);
     const url = control.assetKey ? resolveAssetUrl?.(control.assetKey, control.frame) : undefined;
-    if (url) element.src = url;
-    else element.removeAttribute('src');
+    if (url) setAttribute(element, 'src', url);
+    else removeAttribute(element, 'src');
   }
   if (control instanceof ItemListControlNode) {
     synchronizeFocusable(element, control);
     synchronizeList(element, control, resolveAssetUrl);
   }
   if (control instanceof ScrollContainerControlNode) {
-    element.style.overflowX = control.scrollAxis === 'horizontal' ? 'auto' : 'hidden';
-    element.style.overflowY = control.scrollAxis === 'vertical' ? 'auto' : 'hidden';
+    setStyle(element, 'overflow-x', control.scrollAxis === 'horizontal' ? 'auto' : 'hidden');
+    setStyle(element, 'overflow-y', control.scrollAxis === 'vertical' ? 'auto' : 'hidden');
   }
   if (control instanceof ModalRootControlNode) {
-    element.setAttribute('role', 'dialog');
-    element.setAttribute('aria-modal', 'true');
-    element.setAttribute('aria-hidden', String(!control.open));
+    setAttribute(element, 'role', 'dialog');
+    setAttribute(element, 'aria-modal', 'true');
+    setAttribute(element, 'aria-hidden', String(!control.open));
   }
+  wiredElements.add(element);
 }
 
 function synchronizeFocusable(element: HTMLElement, control: ButtonControlNode | ItemListControlNode): void {
-  element.tabIndex = control instanceof ButtonControlNode && control.disabled ? -1 : 0;
+  const tabIndex = control instanceof ButtonControlNode && control.disabled ? -1 : 0;
+  if (element.tabIndex !== tabIndex) element.tabIndex = tabIndex;
+  if (wiredElements.has(element)) return;
   element.onfocus = () => { control.focused = true; };
   element.onblur = () => { control.focused = false; };
   element.onkeydown = (nativeEvent) => {
@@ -169,33 +199,33 @@ function synchronizeFocusable(element: HTMLElement, control: ButtonControlNode |
 }
 
 function synchronizeContainer(element: HTMLElement, control: ContainerControlNode): void {
-  element.style.display = control.visible ? (control instanceof GridContainerControlNode ? 'grid' : control.direction === 'none' ? 'block' : 'flex') : 'none';
-  if (control.direction !== 'none') element.style.flexDirection = control.direction === 'horizontal' ? 'row' : 'column';
-  element.style.gap = `${control.gap}px`;
-  element.style.padding = control.padding.map((value) => `${value}px`).join(' ');
-  element.style.alignItems = control.align === 'start' ? 'flex-start' : control.align === 'end' ? 'flex-end' : control.align;
-  element.style.justifyContent = control.justify === 'start' ? 'flex-start' : control.justify === 'end' ? 'flex-end' : control.justify;
-  if (control instanceof GridContainerControlNode) element.style.gridTemplateColumns = `repeat(${control.columns}, minmax(0, 1fr))`;
+  setStyle(element, 'display', control.visible ? (control instanceof GridContainerControlNode ? 'grid' : control.direction === 'none' ? 'block' : 'flex') : 'none');
+  if (control.direction !== 'none') setStyle(element, 'flex-direction', control.direction === 'horizontal' ? 'row' : 'column');
+  setStyle(element, 'gap', `${control.gap}px`);
+  setStyle(element, 'padding', control.padding.map((value) => `${value}px`).join(' '));
+  setStyle(element, 'align-items', control.align === 'start' ? 'flex-start' : control.align === 'end' ? 'flex-end' : control.align);
+  setStyle(element, 'justify-content', control.justify === 'start' ? 'flex-start' : control.justify === 'end' ? 'flex-end' : control.justify);
+  if (control instanceof GridContainerControlNode) setStyle(element, 'grid-template-columns', `repeat(${control.columns}, minmax(0, 1fr))`);
 }
 
 function synchronizeLabel(element: HTMLElement, control: LabelControlNode): void {
-  element.textContent = control.text;
-  element.style.color = control.color ?? TONE_VARIABLE[control.tone];
-  element.style.fontSize = `${control.fontSize}px`;
-  element.style.fontWeight = String(control.fontWeight);
-  element.style.textAlign = control.textAlign;
-  element.style.whiteSpace = control.wrap ? 'pre-line' : 'nowrap';
+  setText(element, control.text);
+  setStyle(element, 'color', control.color ?? TONE_VARIABLE[control.tone]);
+  setStyle(element, 'font-size', `${control.fontSize}px`);
+  setStyle(element, 'font-weight', String(control.fontWeight));
+  setStyle(element, 'text-align', control.textAlign);
+  setStyle(element, 'white-space', control.wrap ? 'pre-line' : 'nowrap');
 }
 
 function synchronizeProgress(element: HTMLElement, control: ProgressBarControlNode): void {
-  element.setAttribute('role', 'progressbar');
-  element.setAttribute('aria-valuemin', '0');
-  element.setAttribute('aria-valuemax', String(control.max));
-  element.setAttribute('aria-valuenow', String(control.value));
-  element.setAttribute('aria-label', control.label || control.name);
-  element.style.setProperty('--scene-progress', String(control.ratio));
-  element.style.setProperty('--scene-progress-color', TONE_VARIABLE[control.tone]);
-  element.textContent = control.showValue ? `${control.label} ${Math.ceil(control.value)} / ${Math.ceil(control.max)}`.trim() : control.label;
+  setAttribute(element, 'role', 'progressbar');
+  setAttribute(element, 'aria-valuemin', '0');
+  setAttribute(element, 'aria-valuemax', String(control.max));
+  setAttribute(element, 'aria-valuenow', String(control.value));
+  setAttribute(element, 'aria-label', control.label || control.name);
+  setStyle(element, '--scene-progress', String(control.ratio));
+  setStyle(element, '--scene-progress-color', TONE_VARIABLE[control.tone]);
+  setText(element, control.showValue ? `${control.label} ${Math.ceil(control.value)} / ${Math.ceil(control.max)}`.trim() : control.label);
 }
 
 function synchronizeList(
@@ -205,7 +235,7 @@ function synchronizeList(
 ): void {
   const signature = JSON.stringify([control.items, control.columns, control.gap]);
   if (element.dataset.sceneListSignature === signature) {
-    [...element.children].forEach((child, index) => child.setAttribute('aria-selected', String(index === control.selectedIndex)));
+    [...element.children].forEach((child, index) => setAttribute(child, 'aria-selected', String(index === control.selectedIndex)));
     return;
   }
   element.dataset.sceneListSignature = signature;

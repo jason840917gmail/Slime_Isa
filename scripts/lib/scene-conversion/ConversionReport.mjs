@@ -1,6 +1,6 @@
-import { createHash } from 'node:crypto';
+import { contentSha256 } from './contentHash.mjs';
 
-export const sha256 = (value) => createHash('sha256').update(value).digest('hex');
+export const sha256 = (value) => contentSha256(value);
 
 export function conversionReport(family, mode, units, outputs) {
   return {
@@ -15,6 +15,7 @@ export function conversionReport(family, mode, units, outputs) {
       bytes: Buffer.byteLength(output.content),
       consumedFieldPaths: [...(output.consumedFieldPaths ?? [])].sort(),
       intentionallyRetainedFields: [...(output.intentionallyRetainedFields ?? [])].sort((left, right) => left.path.localeCompare(right.path)),
+      ...(output.contributions?.length ? { contributions: output.contributions } : {}),
     })).sort((left, right) => left.path.localeCompare(right.path)),
   };
 }

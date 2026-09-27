@@ -1,4 +1,6 @@
-import { convertedOutput, readJson, requireSupportedUnit, resourcePath, shapeValue } from './adapter-utils.mjs';
+import { convertedOutput, effectIdForVisualSet, readJson, requireSupportedUnit, resourcePath, shapeValue, withCharacterDepthAnchor } from './adapter-utils.mjs';
+import { collision } from './collision-layers.mjs';
+import { loadAnimationSampling } from './load-animation-sampling.mjs';
 
 const CHARACTER_SUPPORTED = new Set([
   'character:player-slime',
@@ -25,6 +27,7 @@ export const characterSceneAdapter = {
     for (const unit of units) {
       requireSupportedUnit(unit, CHARACTER_SUPPORTED);
       const character = await readJson(readSource, unit.oldSourcePath);
+      const depthAnchor = (await loadAnimationSampling()).bodyDepthAnchor(character.body);
       outputs.push(convertedOutput(unit, resourcePath('characters', character.characterId, 'body-shape'), shapeResource(
         `${character.characterId}.body-shape`, shapeValue(character.body),
       ), ['$.characterId', '$.body']));
@@ -42,7 +45,7 @@ export const characterSceneAdapter = {
       }
       if (character.characterId === 'player-slime') {
         const visual = await readJson(readSource, 'src/game/content/characters/player-slime/visual-set.json');
-        outputs.push(convertedOutput(unit, `characters/${character.characterId}.scene.json`, playerScene(character, visual), [
+        outputs.push(convertedOutput(unit, `characters/${character.characterId}.scene.json`, withCharacterDepthAnchor(playerScene(character, visual), depthAnchor), [
           '$.characterId', '$.displayName', '$.kind', '$.runtimeRole', '$.visualSetId', '$.player',
         ], [
           { path: '$.$schema', owner: unit.oldSourcePath },
@@ -54,7 +57,7 @@ export const characterSceneAdapter = {
       }
       if (character.kind === 'npc') {
         const visual = await readJson(readSource, `src/game/content/characters/${character.characterId}/visual-set.json`);
-        outputs.push(convertedOutput(unit, `characters/${character.characterId}.scene.json`, npcScene(character, visual), [
+        outputs.push(convertedOutput(unit, `characters/${character.characterId}.scene.json`, withCharacterDepthAnchor(npcScene(character, visual), depthAnchor), [
           '$.characterId', '$.displayName', '$.kind', '$.visualSetId', '$.npc',
         ], [
           { path: '$.$schema', owner: unit.oldSourcePath },
@@ -65,13 +68,16 @@ export const characterSceneAdapter = {
         ]));
       }
       if (character.characterId === 'slime-spider') {
-        outputs.push(...enemyOutputs(unit, character, character.enemy, [
+        const visualPath = `src/game/content/characters/${character.characterId}/visual-set.json`;
+        const visual = await readJson(readSource, visualPath);
+        outputs.push(...enemyOutputs(unit, character, visual, depthAnchor, character.enemy, [
           '$.characterId', '$.displayName', '$.kind', '$.visualSetId', '$.enemy',
         ], [
           { path: '$.$schema', owner: unit.oldSourcePath },
           { path: '$.version', owner: unit.oldSourcePath },
           { path: '$.hitboxes', owner: unit.oldSourcePath },
           { path: '$.animationTracks', owner: unit.oldSourcePath },
+          { path: '$.defaults', owner: visualPath },
         ]));
       }
     }
@@ -85,7 +91,7 @@ function npcScene(character, visual) {
     sceneId: `character.${character.characterId}`,
     rootNodeId: 'body',
     nodes: [
-      { id: 'body', name: nodeName(character.characterId), type: 'CharacterBody2D', parentId: null, order: 0, properties: { collisionLayer: 1, collisionMask: 1, position: [0, 0], velocity: [0, 0] } },
+      { id: 'body', name: nodeName(character.characterId), type: 'CharacterBody2D', parentId: null, order: 0, properties: { ...collision(['npc'], ['world']), position: [0, 0], velocity: [0, 0] } },
       { id: 'body-shape', name: 'BodyShape', type: 'CollisionShape2D', parentId: 'body', order: 0, properties: { shape: { resourceId: `${character.characterId}.body-shape` }, position: [character.body.centerOffsetX, character.body.centerOffsetY] } },
       {
         id: 'visual', name: 'Visual', type: 'Sprite2D', parentId: 'body', order: 1,
@@ -116,7 +122,7 @@ function playerScene(character, visual) {
     sceneId: `character.${character.characterId}`,
     rootNodeId: 'body',
     nodes: [
-      { id: 'body', name: 'PlayerSlime', type: 'CharacterBody2D', parentId: null, order: 0, properties: { collisionLayer: 1, collisionMask: 3, position: [0, 0], velocity: [0, 0] } },
+      { id: 'body', name: 'PlayerSlime', type: 'CharacterBody2D', parentId: null, order: 0, properties: { ...collision(['player'], ['world', 'enemy']), collideWorldBounds: true, position: [0, 0], velocity: [0, 0] } },
       { id: 'body-shape', name: 'BodyShape', type: 'CollisionShape2D', parentId: 'body', order: 0, properties: { shape: { resourceId: `${character.characterId}.body-shape` }, position: [character.body.centerOffsetX, character.body.centerOffsetY] } },
       {
         id: 'visual', name: 'Visual', type: 'Sprite2D', parentId: 'body', order: 1,
@@ -126,9 +132,9 @@ function playerScene(character, visual) {
           position: visual.defaults.sourceOffset,
         },
       },
-      { id: 'damage-area', name: 'DamageArea', type: 'Area2D', parentId: 'body', order: 2, properties: { collisionLayer: 8, collisionMask: 16, monitoring: false, monitorable: true } },
+      { id: 'damage-area', name: 'DamageArea', type: 'Area2D', parentId: 'body', order: 2, properties: { ...collision(['hurtbox'], ['hitbox']), monitoring: false, monitorable: true } },
       { id: 'damage-shape', name: 'DamageShape', type: 'CollisionShape2D', parentId: 'damage-area', order: 0, properties: { shape: { resourceId: `${character.characterId}.body-shape` }, position: [character.body.centerOffsetX, character.body.centerOffsetY] } },
-      { id: 'pickup-area', name: 'PickupArea', type: 'Area2D', parentId: 'body', order: 3, properties: { collisionLayer: 32, collisionMask: 64, monitoring: true, monitorable: true } },
+      { id: 'pickup-area', name: 'PickupArea', type: 'Area2D', parentId: 'body', order: 3, properties: { ...collision(['pickup-seeker'], ['pickup']), monitoring: true, monitorable: true } },
       { id: 'pickup-shape', name: 'PickupShape', type: 'CollisionShape2D', parentId: 'pickup-area', order: 0, properties: { shape: { resourceId: `${character.characterId}.body-shape` }, position: [character.body.centerOffsetX, character.body.centerOffsetY] } },
       { id: 'animation', name: 'Animation', type: 'AnimationPlayer', parentId: 'body', order: 4, properties: { library: { resourceId: `${character.visualSetId}.animations` }, domain: 'physics', autoplay: 'idle' } },
       {
@@ -146,19 +152,25 @@ function playerScene(character, visual) {
   };
 }
 
-function enemyScene(character, enemy) {
+function enemyScene(character, visual, enemy) {
   const visualPrefix = character.visualSetId;
   return {
     version: 1,
     sceneId: `character.${character.characterId}`,
     rootNodeId: 'body',
     nodes: [
-      { id: 'body', name: nodeName(character.characterId), type: 'CharacterBody2D', parentId: null, order: 0, properties: { collisionLayer: 2, collisionMask: 5, position: [0, 0], velocity: [0, 0] } },
+      { id: 'body', name: nodeName(character.characterId), type: 'CharacterBody2D', parentId: null, order: 0, properties: { ...collision(['enemy'], ['world', 'player']), collideWorldBounds: true, position: [0, 0], velocity: [0, 0] } },
       { id: 'body-shape', name: 'BodyShape', type: 'CollisionShape2D', parentId: 'body', order: 0, properties: { shape: { resourceId: `${character.characterId}.body-shape` }, position: [character.body.centerOffsetX, character.body.centerOffsetY] } },
-      { id: 'visual', name: 'Visual', type: 'Sprite2D', parentId: 'body', order: 1, properties: { texture: { resourceId: `${visualPrefix}.sprite` }, frame: 0, origin: [0.5, 0.5], scale: [1, 1] } },
-      { id: 'damage-area', name: 'DamageArea', type: 'Area2D', parentId: 'body', order: 2, properties: { collisionLayer: 8, collisionMask: 16, monitoring: true, monitorable: true } },
+      {
+        id: 'visual', name: 'Visual', type: 'Sprite2D', parentId: 'body', order: 1,
+        properties: {
+          texture: { resourceId: `${visualPrefix}.sprite` }, frame: 0,
+          origin: visual.defaults.origin, scale: visual.defaults.scale, position: visual.defaults.sourceOffset,
+        },
+      },
+      { id: 'damage-area', name: 'DamageArea', type: 'Area2D', parentId: 'body', order: 2, properties: { ...collision(['hurtbox'], ['hitbox']), monitoring: true, monitorable: true } },
       { id: 'damage-shape', name: 'DamageShape', type: 'CollisionShape2D', parentId: 'damage-area', order: 0, properties: { shape: { resourceId: `${character.characterId}.body-shape` }, position: [character.body.centerOffsetX, character.body.centerOffsetY] } },
-      { id: 'attack-area', name: 'AttackArea', type: 'Area2D', parentId: 'body', order: 3, properties: { collisionLayer: 16, collisionMask: 8, monitoring: false, monitorable: false } },
+      { id: 'attack-area', name: 'AttackArea', type: 'Area2D', parentId: 'body', order: 3, properties: { ...collision(['hitbox'], ['hurtbox']), monitoring: false, monitorable: false } },
       { id: 'attack-shape', name: 'AttackShape', type: 'CollisionShape2D', parentId: 'attack-area', order: 0, properties: { shape: { resourceId: `${character.characterId}.attack-shape` }, disabled: true } },
       { id: 'animation', name: 'Animation', type: 'AnimationPlayer', parentId: 'body', order: 4, properties: { library: { resourceId: `${visualPrefix}.animations` }, domain: 'physics', autoplay: 'idle-side' } },
       {
@@ -177,7 +189,7 @@ function enemyScene(character, enemy) {
           },
           damageRule: { priority: 0, damageMultiplier: 1 }, rewards: enemy.drop,
           ...(enemy.projectile ? { projectile: enemy.projectile } : {}),
-          ...(enemy.impactEffect ? { impactEffect: enemy.impactEffect } : {}),
+          ...(enemy.impactEffect ? { impactEffect: { effectId: effectIdForVisualSet(enemy.impactEffect.visualSetId), distance: enemy.impactEffect.distance ?? 0 } } : {}),
         },
       },
     ],
@@ -189,13 +201,13 @@ function nodeName(characterId) {
   return characterId.split('-').map((part) => `${part[0]?.toUpperCase() ?? ''}${part.slice(1)}`).join('');
 }
 
-function enemyOutputs(unit, character, enemy, consumedFieldPaths, intentionallyRetainedFields) {
+function enemyOutputs(unit, character, visual, depthAnchor, enemy, consumedFieldPaths, intentionallyRetainedFields) {
   if (!enemy) throw new Error(`Enemy character '${character.characterId}' has no enemy gameplay document`);
   return [
     convertedOutput(unit, resourcePath('characters', character.characterId, 'attack-shape'), shapeResource(
       `${character.characterId}.attack-shape`, { shape: 'circle', radius: enemy.ai.attackRange * 1.35 },
     ), consumedFieldPaths),
-    convertedOutput(unit, `characters/${character.characterId}.scene.json`, enemyScene(character, enemy), consumedFieldPaths, intentionallyRetainedFields),
+    convertedOutput(unit, `characters/${character.characterId}.scene.json`, withCharacterDepthAnchor(enemyScene(character, visual, enemy), depthAnchor), consumedFieldPaths, intentionallyRetainedFields),
   ];
 }
 
@@ -208,10 +220,14 @@ export const enemySceneAdapter = {
       const characterId = unit.key.slice('enemy:'.length);
       const enemy = catalog.types[characterId];
       const character = await readJson(readSource, `src/game/content/characters/${characterId}/character.json`);
-      outputs.push(...enemyOutputs(unit, character, enemy, [
+      const visualPath = `src/game/content/characters/${characterId}/visual-set.json`;
+      const visual = await readJson(readSource, visualPath);
+      const depthAnchor = (await loadAnimationSampling()).bodyDepthAnchor(character.body);
+      outputs.push(...enemyOutputs(unit, character, visual, depthAnchor, enemy, [
         `$.types.${characterId}`,
       ], [
         { path: '$.$schema', owner: unit.oldSourcePath },
+        { path: '$.defaults', owner: visualPath },
         ...Object.keys(catalog.types)
           .filter((id) => id !== characterId)
           .sort()

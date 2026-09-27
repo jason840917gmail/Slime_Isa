@@ -66,6 +66,7 @@ export class SceneDocumentState {
   private readonly history = new SceneHistory();
   private readonly validation: SceneValidationState;
   private diskHashValue?: string;
+  private revisionValue = 0;
 
   constructor(document: SceneDocument, validationContext: SceneValidationContext, diskHash?: string) {
     this.documentValue = clone(document);
@@ -83,6 +84,8 @@ export class SceneDocumentState {
   get canUndo(): boolean { return this.history.canUndo; }
   get canRedo(): boolean { return this.history.canRedo; }
   get diskHash(): string | undefined { return this.diskHashValue; }
+  /** Increments whenever the document content changes (execute, undo, redo). */
+  get revision(): number { return this.revisionValue; }
 
   select(selection: SceneSelection): void { this.selectionState.select(selection); }
 
@@ -125,6 +128,7 @@ export class SceneDocumentState {
 
   private restore(snapshot: SceneHistorySnapshot): void {
     this.documentValue = clone(snapshot.document);
+    this.revisionValue += 1;
     this.selectionState.restore(snapshot.selection);
     this.validation.update(this.documentValue);
   }

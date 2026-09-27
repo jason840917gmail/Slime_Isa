@@ -8,6 +8,7 @@ const { SceneViewportState } = await loadTypescriptModule('src/game/editor/scene
 const creation = await loadTypescriptModule('src/game/editor/scene-studio/SceneCreationDialog.ts');
 const descriptors = await loadTypescriptModule('src/game/infrastructure/scenes/tooling.ts');
 const studioSource = await readFile(new URL('../../../src/game/editor/scene-studio/SceneStudio.ts', import.meta.url), 'utf8');
+const viewportSource = await readFile(new URL('../../../src/game/editor/scene-studio/SceneLiveViewport.ts', import.meta.url), 'utf8');
 
 test('the common creation registry exposes the complete Control family', () => {
   const registry = descriptors.createCoreDescriptorRegistry();
@@ -36,7 +37,9 @@ test('UI layout handles resolve nested anchors in the universal viewport', () =>
 });
 
 test('Scene Studio renders UI layout handles as a context in the shared viewport', () => {
-  assert.match(studioSource, /renderUiLayoutViewport/);
-  assert.match(studioSource, /aria-label="UI layout viewport"/);
+  // UI scenes share the live viewport: Control rectangles become overlay handles above the runtime-rendered UI.
+  assert.match(studioSource, /'UI layout viewport'/);
+  assert.match(studioSource, /kind: 'ui'/);
+  assert.match(viewportSource, /scene-ui-layout-node/);
   assert.doesNotMatch(studioSource, /mountUiStudio|UiStudioController/);
 });

@@ -15,6 +15,13 @@ export interface CollisionShape2DNodeOptions extends Node2DOptions {
   readonly angleRad?: number;
 }
 
+interface CachedWorldShape {
+  readonly transformRevision: number;
+  readonly resource: CollisionShapeResourceDocument;
+  readonly angleRad: number | undefined;
+  readonly shape: SensorShape;
+}
+
 function shapeOwner(value: unknown): value is CollisionShapeOwner {
   return typeof (value as Partial<CollisionShapeOwner> | undefined)?.registerCollisionShape === 'function';
 }
@@ -22,6 +29,7 @@ function shapeOwner(value: unknown): value is CollisionShapeOwner {
 export class CollisionShape2DNode extends Node2D {
   private _disabled: boolean;
   private _angleRad?: number;
+  private cachedWorldShape?: CachedWorldShape;
 
   constructor(private readonly shapeOptions: CollisionShape2DNodeOptions) {
     super(shapeOptions);
@@ -42,8 +50,22 @@ export class CollisionShape2DNode extends Node2D {
     this.entryDisposables.add(parent.registerCollisionShape(this));
   }
 
+  /**
+   * World-space geometry, recomputed only when this node's global transform
+   * revision (which covers every ancestor), backing resource, or angle changes.
+   * Physics queries this for every participant each fixed step.
+   */
   worldShape(): SensorShape {
-    const geometry = this.resource().value;
+    const resource = this.resource();
+    const transformRevision = this.get_global_transform_revision();
+    const cached = this.cachedWorldShape;
+    if (cached && cached.transformRevision === transformRevision && cached.resource === resource && cached.angleRad === this._angleRad) return cached.shape;
+    const shape = this.computeWorldShape(resource.value);
+    this.cachedWorldShape = { transformRevision, resource, angleRad: this._angleRad, shape };
+    return shape;
+  }
+
+  private computeWorldShape(geometry: CollisionShapeValue): SensorShape {
     const transform = this.get_global_transform();
     this.validateTransform(geometry);
     if (geometry.shape === 'rectangle') return {

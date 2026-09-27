@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { createHash } from 'node:crypto';
+import { contentSha256 } from './lib/scene-conversion/contentHash.mjs';
 import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -29,14 +29,6 @@ const UI_MODULES = [
 ];
 
 const FAMILY_CONTRACTS = {
-  animation: {
-    catalog: ['AnimationCatalog', 'animation-package.schema.json', 'animation validation'],
-    runtime: ['AnimationClock', 'LayeredAnimationPlayer', 'AnimatedVisual'],
-    writers: ['/__animation-library/save', '/__animation-library/transaction'],
-    destination: (id) => `resource://animations/${id}`,
-    migrationWorkPackage: 6,
-    verification: ['test:scene-content', 'test:scene-runtime', 'test:scene-conversion'],
-  },
   asset: {
     catalog: ['asset/assets.json', 'check-assets.mjs'],
     runtime: ['AssetLoader', 'manifest'],
@@ -248,7 +240,6 @@ function idsFromReadonlyArray(source, constName) {
 function discoverWriterEndpoints(repositoryRoot) {
   const sources = [
     'vite.config.ts',
-    'src/game/content/animations/animationContentModulesPlugin.ts',
     'src/game/content/characters/characterContentModulesPlugin.ts',
     'src/game/content/gameConstantsContentPlugin.ts',
   ];
@@ -288,10 +279,6 @@ export function discoverInventory(repositoryRoot = REPOSITORY_ROOT) {
   ]) {
     const document = json(repositoryRoot, sourcePath);
     rows.push(row('visual', document.visualSetId, sourcePath));
-  }
-  for (const sourcePath of walk(repositoryRoot, 'src/game/content/animations', 'animation.json')) {
-    const document = json(repositoryRoot, sourcePath);
-    rows.push(row('animation', document.animationId, sourcePath));
   }
   for (const sourcePath of walk(repositoryRoot, 'src/game/content/weapons', 'weapon.json')) {
     const document = json(repositoryRoot, sourcePath);
@@ -414,7 +401,7 @@ export function discoverInventory(repositoryRoot = REPOSITORY_ROOT) {
 }
 
 export function sha256File(repositoryRoot, relativePath) {
-  return createHash('sha256').update(readFileSync(absolute(repositoryRoot, relativePath))).digest('hex');
+  return contentSha256(readFileSync(absolute(repositoryRoot, relativePath)));
 }
 
 function renderMarkdown(ledger, repositoryRoot) {

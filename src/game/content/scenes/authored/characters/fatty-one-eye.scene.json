@@ -10,8 +10,9 @@
       "parentId": null,
       "order": 0,
       "properties": {
-        "collisionLayer": 2,
-        "collisionMask": 5,
+        "collisionLayer": 4,
+        "collisionMask": 3,
+        "collideWorldBounds": true,
         "position": [
           0,
           0
@@ -19,6 +20,10 @@
         "velocity": [
           0,
           0
+        ],
+        "depthAnchor": [
+          0,
+          42
         ]
       }
     },
@@ -31,7 +36,11 @@
       "properties": {
         "shape": {
           "resourceId": "fatty-one-eye.body-shape"
-        }
+        },
+        "position": [
+          1,
+          -29
+        ]
       }
     },
     {
@@ -52,7 +61,8 @@
         "scale": [
           1.5,
           1.5
-        ]
+        ],
+        "depthMode": "relative"
       }
     },
     {
@@ -77,7 +87,11 @@
       "properties": {
         "shape": {
           "resourceId": "fatty-one-eye.eye-shape"
-        }
+        },
+        "position": [
+          2,
+          -35
+        ]
       }
     },
     {
@@ -103,7 +117,11 @@
         "shape": {
           "resourceId": "fatty-one-eye.contact-shape"
         },
-        "disabled": true
+        "disabled": true,
+        "position": [
+          1,
+          -15
+        ]
       }
     },
     {
@@ -197,5 +215,288 @@
       }
     }
   ],
-  "instances": []
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "boss.fatty-one-eye.animations",
+      "kind": "animation-library",
+      "animations": {
+        "chase": {
+          "durationSeconds": 0.78,
+          "framesPerSecond": 7.6923076923,
+          "loop": true,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Visual",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 6
+                },
+                {
+                  "at": 1,
+                  "value": 7
+                },
+                {
+                  "at": 2,
+                  "value": 8
+                },
+                {
+                  "at": 3,
+                  "value": 9
+                },
+                {
+                  "at": 4,
+                  "value": 10
+                },
+                {
+                  "at": 5,
+                  "value": 11
+                }
+              ]
+            }
+          ]
+        },
+        "small-hop": {
+          "durationSeconds": 0.26,
+          "framesPerSecond": 15.3846153846,
+          "loop": true,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Visual",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 12
+                },
+                {
+                  "at": 1,
+                  "value": 13
+                },
+                {
+                  "at": 2,
+                  "value": 14
+                },
+                {
+                  "at": 3,
+                  "value": 15
+                }
+              ]
+            }
+          ]
+        },
+        "airborne": {
+          "durationSeconds": 1,
+          "framesPerSecond": 6,
+          "loop": false,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Visual",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 18
+                },
+                {
+                  "at": 1,
+                  "value": 19
+                },
+                {
+                  "at": 2,
+                  "value": 20
+                },
+                {
+                  "at": 3,
+                  "value": 21
+                },
+                {
+                  "at": 4,
+                  "value": 22
+                },
+                {
+                  "at": 5,
+                  "value": 23
+                }
+              ]
+            }
+          ]
+        },
+        "landing": {
+          "durationSeconds": 0.36,
+          "framesPerSecond": 11.1111111111,
+          "loop": false,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Visual",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 24
+                },
+                {
+                  "at": 1,
+                  "value": 25
+                },
+                {
+                  "at": 2,
+                  "value": 26
+                },
+                {
+                  "at": 3,
+                  "value": 27
+                }
+              ]
+            }
+          ]
+        },
+        "recovery": {
+          "durationSeconds": 0.36,
+          "framesPerSecond": 5.5555555556,
+          "loop": true,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Visual",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 28
+                },
+                {
+                  "at": 1,
+                  "value": 29
+                }
+              ]
+            }
+          ]
+        },
+        "death": {
+          "durationSeconds": 0.66,
+          "framesPerSecond": 9.0909090909,
+          "loop": false,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Visual",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 30
+                },
+                {
+                  "at": 1,
+                  "value": 31
+                },
+                {
+                  "at": 2,
+                  "value": 32
+                },
+                {
+                  "at": 3,
+                  "value": 33
+                },
+                {
+                  "at": 4,
+                  "value": 34
+                },
+                {
+                  "at": 5,
+                  "value": 35
+                }
+              ]
+            }
+          ]
+        },
+        "contact-hop": {
+          "durationSeconds": 0.3,
+          "framesPerSecond": 20,
+          "loop": false,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "../Visual",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 12
+                },
+                {
+                  "at": 1,
+                  "value": 13
+                },
+                {
+                  "at": 3,
+                  "value": 14
+                },
+                {
+                  "at": 5,
+                  "value": 15
+                }
+              ]
+            }
+          ],
+          "events": [
+            {
+              "at": 5,
+              "eventId": "hitbox-activated",
+              "payload": {
+                "hitboxId": "contact-hop-impact",
+                "spanIndex": 0
+              },
+              "gameplay": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "boss.fatty-one-eye.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "character.boss.fatty-one-eye",
+      "frameWidth": 96,
+      "frameHeight": 96,
+      "frameCount": 36
+    },
+    {
+      "version": 1,
+      "resourceId": "fatty-one-eye.body-shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "ellipse",
+        "radiusX": 44,
+        "radiusY": 42
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "fatty-one-eye.contact-shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "circle",
+        "radius": 80
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "fatty-one-eye.eye-shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "circle",
+        "radius": 19.5
+      }
+    }
+  ]
 }

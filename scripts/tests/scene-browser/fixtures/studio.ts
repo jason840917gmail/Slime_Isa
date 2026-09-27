@@ -82,8 +82,10 @@ declare global {
     sceneStudioFixture: {
       ready(): boolean;
       setConflict(value: boolean): void;
-      snapshot(): { savedCount: number; nodeCount: number; tileCells: number; tileSetTiles: number; lastWriteIds: readonly string[]; openedSource?: string };
+      snapshot(): { savedCount: number; nodeCount: number; tileCells: number; tileSetTiles: number; lastWriteIds: readonly string[]; sceneSubresourceIds: readonly string[]; openedSource?: string };
       previewIsolation(): { scripts: number; persistence: boolean; disposed: boolean };
+      defaultRepositoryList(): Promise<readonly string[]>;
+      diagnostics(): SceneStudioController['diagnostics'];
       destroy(): void;
     };
   }
@@ -92,7 +94,7 @@ declare global {
 window.sceneStudioFixture = {
   ready: () => Boolean(document.querySelector('[data-scene-studio] [data-scene-tree-key]')),
   setConflict(value) { conflict = value; },
-  snapshot: () => ({ savedCount, nodeCount: documentValue.nodes.length, tileCells: tileDataValue.cells.length, tileSetTiles: Object.keys(tileSetValue.tiles).length, lastWriteIds, ...(openedSource ? { openedSource } : {}) }),
+  snapshot: () => ({ savedCount, nodeCount: documentValue.nodes.length, tileCells: tileDataValue.cells.length, tileSetTiles: Object.keys(tileSetValue.tiles).length, lastWriteIds, sceneSubresourceIds: (documentValue.subresources ?? []).map((resource) => resource.resourceId), ...(openedSource ? { openedSource } : {}) }),
   previewIsolation() {
     let scripts = -1;
     let persistence = true;
@@ -102,5 +104,10 @@ window.sceneStudioFixture = {
     preview.close();
     return { scripts, persistence, disposed };
   },
+  async defaultRepositoryList() {
+    // Uses the production default constructor (unbound global fetch) on purpose.
+    return (await new SceneStudioRepository().list()).map((item) => item.id);
+  },
+  diagnostics: () => controller.diagnostics,
   destroy() { controller.destroy(); },
 };

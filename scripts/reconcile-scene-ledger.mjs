@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { spawnSync } from 'node:child_process';
-import { createHash } from 'node:crypto';
+import { contentSha256, normalizeContent } from './lib/scene-conversion/contentHash.mjs';
 import { readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -17,10 +17,15 @@ const result = spawnSync(process.execPath, [path.join(root, 'scripts/convert-sce
 if (result.status !== 0) throw new Error(result.stderr || result.stdout || 'Scene conversion check failed');
 const report = JSON.parse(result.stdout);
 const grouped = new Map();
-for (const output of report.outputs) {
-  const current = grouped.get(output.unitKey) ?? [];
+const addOutput = (unitKey, output) => {
+  const current = grouped.get(unitKey) ?? [];
   current.push(output);
-  grouped.set(output.unitKey, current);
+  grouped.set(unitKey, current);
+};
+for (const output of report.outputs) {
+  addOutput(output.unitKey, output);
+  // Units whose resources were embedded into another unit's scene own that scene file too.
+  for (const contribution of output.contributions ?? []) addOutput(contribution.unitKey, { ...output, ...contribution });
 }
 
 const rows = ledger.rows.map((row) => {
@@ -32,11 +37,11 @@ const rows = ledger.rows.map((row) => {
   const paths = outputs.map((output) => {
     const relativePath = `src/game/content/scenes/authored/${output.path}`;
     const bytes = readFileSync(path.join(root, relativePath));
-    const sha256 = createHash('sha256').update(bytes).digest('hex');
+    const sha256 = contentSha256(bytes);
     if (row.writerState !== 'scene' && sha256 !== output.sha256) {
       throw new Error(`Legacy-owned conversion output changed at '${relativePath}'`);
     }
-    return { path: relativePath, sha256, bytes: bytes.length };
+    return { path: relativePath, sha256, bytes: Buffer.byteLength(normalizeContent(bytes)) };
   }).sort((a, b) => a.path.localeCompare(b.path));
   const consumedFieldPaths = [...new Set(outputs.flatMap((output) => output.consumedFieldPaths))].sort();
   const retained = new Map(outputs.flatMap((output) => output.intentionallyRetainedFields)

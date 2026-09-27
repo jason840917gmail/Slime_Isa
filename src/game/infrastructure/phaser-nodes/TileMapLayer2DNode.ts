@@ -10,6 +10,7 @@ import { createGroundSheetSelection, type GroundSheetSelection } from '../../fea
 import type { PhaserBlockingParticipant } from '../scenes/PhaserNodeContext';
 import type { PhaserNodeContext } from '../scenes/PhaserNodeContext';
 import type { BlockingContact } from '../../runtime/scene/physics/PhysicsContact';
+import { collisionBits } from '../../content/physics/CollisionLayers';
 import type { PresentationParticipant } from './PresentationSync';
 
 export interface TileMapLayer2DNodeOptions extends Node2DOptions {
@@ -24,12 +25,25 @@ export interface TileMapLayer2DNodeOptions extends Node2DOptions {
   readonly editorLocked?: boolean;
 }
 
+interface TileBodyRect {
+  readonly x: number;
+  readonly y: number;
+  readonly width: number;
+  readonly height: number;
+}
+
 interface MountedTile {
   readonly x: number;
   readonly y: number;
   readonly image: Phaser.GameObjects.Image;
   readonly collidable: boolean;
+  /** Authored tile-set collision rectangle, relative to the cell's top-left corner. */
+  readonly bodyRect?: TileBodyRect;
 }
+
+type TileStaticBody = Phaser.Physics.Arcade.StaticBody & {
+  readonly world: { readonly staticTree: { remove(body: unknown): void; insert(body: unknown): void } };
+};
 
 function tileHash(tileX: number, tileY: number, seed: number): number {
   return (
@@ -49,6 +63,8 @@ export class TileMapLayer2DNode extends Node2D implements PresentationParticipan
   private collisionEnabledValue: boolean;
   private readonly mountedTiles: MountedTile[] = [];
   private readonly groundSelections = new Map<string, GroundSheetSelection>();
+  private syncedTransformRevision?: number;
+  private syncedVisible?: boolean;
 
   constructor(private readonly tileOptions: TileMapLayer2DNodeOptions) {
     super(tileOptions);
@@ -56,8 +72,9 @@ export class TileMapLayer2DNode extends Node2D implements PresentationParticipan
     this.tileSize = tileOptions.tileSize ?? 64;
     this.seed = tileOptions.seed ?? 0;
     this.depth = tileOptions.depth ?? DEPTH_BANDS['ground-terrain'];
-    this.collisionLayer = tileOptions.collisionLayer ?? 1;
-    this.collisionMask = tileOptions.collisionMask ?? 2;
+    this.collisionLayer = tileOptions.collisionLayer ?? collisionBits('world');
+    // Tile bodies are static; a static body's mask never participates in blocking.
+    this.collisionMask = tileOptions.collisionMask ?? 0;
     this.collisionEnabledValue = tileOptions.collisionEnabled ?? true;
     this.editorLocked = tileOptions.editorLocked ?? false;
     if (!Number.isFinite(this.tileSize) || this.tileSize <= 0) throw new Error('TileMapLayer2D tileSize must be positive');
@@ -68,6 +85,14 @@ export class TileMapLayer2DNode extends Node2D implements PresentationParticipan
   get tileCount(): number { return this.mountedTiles.length; }
   get collisionBodyCount(): number { return this.mountedTiles.filter((tile) => tile.collidable).length; }
   get collisionEnabled(): boolean { return this.collisionEnabledValue; }
+
+  /** World-space Arcade rectangles of the collidable tiles, for inspection and tests. */
+  collisionBodyBounds(): readonly TileBodyRect[] {
+    return this.mountedTiles.flatMap((tile) => {
+      const body = tile.collidable ? tile.image.body as Phaser.Physics.Arcade.StaticBody | null : null;
+      return body ? [{ x: body.position.x, y: body.position.y, width: body.width, height: body.height }] : [];
+    });
+  }
 
   setCollisionEnabled(enabled: boolean): void {
     this.collisionEnabledValue = enabled;
@@ -101,11 +126,23 @@ export class TileMapLayer2DNode extends Node2D implements PresentationParticipan
       for (const tile of this.mountedTiles) tile.image.destroy();
       this.mountedTiles.length = 0;
       this.groundSelections.clear();
+      this.syncedTransformRevision = undefined;
+      this.syncedVisible = undefined;
     });
     this.syncPresentation(1);
   }
 
+  /**
+   * Tiles only move when the layer's global transform (or visibility)
+   * changes, so tile images and static tile bodies are left untouched on
+   * every other frame: re-inserting static bodies into Arcade's static tree
+   * is the expensive part.
+   */
   syncPresentation(_alpha: number): void {
+    const revision = this.get_global_transform_revision();
+    if (revision === this.syncedTransformRevision && this.visible === this.syncedVisible) return;
+    this.syncedTransformRevision = revision;
+    this.syncedVisible = this.visible;
     const transform = this.get_global_transform();
     const cosine = Math.cos(transform.rotation);
     const sine = Math.sin(transform.rotation);
@@ -121,9 +158,29 @@ export class TileMapLayer2DNode extends Node2D implements PresentationParticipan
         .setScale(transform.scale.x, transform.scale.y)
         .setVisible(this.visible)
         .setDepth(this.depth);
-      const body = tile.image.body as Phaser.Physics.Arcade.StaticBody | null;
-      body?.updateFromGameObject();
+      if (tile.bodyRect) this.placeTileBody(tile, tile.bodyRect, transform.position);
     }
+  }
+
+  /**
+   * Places a static tile body at its authored tile-set collision rectangle.
+   * `updateFromGameObject`/`refreshBody` would reset the body to the image's
+   * display size and discard the authored inset, so the body is positioned
+   * directly (collidable layers are unrotated and unscaled).
+   */
+  private placeTileBody(tile: MountedTile, rect: TileBodyRect, layerPosition: Readonly<{ x: number; y: number }>): void {
+    const body = tile.image.body as TileStaticBody | null;
+    if (!body) return;
+    const x = layerPosition.x + tile.x * this.tileSize + rect.x;
+    const y = layerPosition.y + tile.y * this.tileSize + rect.y;
+    body.world.staticTree.remove(body);
+    body.width = rect.width;
+    body.height = rect.height;
+    body.halfWidth = Math.abs(rect.width / 2);
+    body.halfHeight = Math.abs(rect.height / 2);
+    body.position.set(x, y);
+    body.updateCenter();
+    body.world.staticTree.insert(body);
   }
 
   protected override _duplicateSelf(runtimeId: RuntimeNodeId): TileMapLayer2DNode {
@@ -159,11 +216,8 @@ export class TileMapLayer2DNode extends Node2D implements PresentationParticipan
       throw new Error(`Tile collision inset at '${x},${y}' consumes its entire ${this.tileSize}px cell`);
     }
     const body = image.body as Phaser.Physics.Arcade.StaticBody;
-    body.setSize(bodyWidth, bodyHeight);
-    body.setOffset(inset.left, inset.top);
-    image.refreshBody();
     body.enable = this.collisionEnabledValue;
-    this.mountedTiles.push({ x, y, image, collidable: true });
+    this.mountedTiles.push({ x, y, image, collidable: true, bodyRect: { x: inset.left, y: inset.top, width: bodyWidth, height: bodyHeight } });
     const node = this;
     const participant: PhaserBlockingParticipant = {
       runtimeId: `${this.runtimeId}/tile-${x}-${y}` as RuntimeNodeId,

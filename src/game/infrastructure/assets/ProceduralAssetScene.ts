@@ -3,7 +3,11 @@ import proceduralWeaponIcons from '../../content/weapons/procedural-weapon-icons
 import { assertAssetBundleTextures, loadAssetBundle } from './AssetLoader';
 
 export class ProceduralAssetScene extends Phaser.Scene {
-  constructor() {
+  /**
+   * @param nextSceneKey Scene started once boot textures exist. Embedded hosts
+   * (Scene Studio preview) pass their own scene; the game uses map routing.
+   */
+  constructor(private readonly nextSceneKey?: string) {
     super('boot');
   }
 
@@ -14,6 +18,10 @@ export class ProceduralAssetScene extends Phaser.Scene {
   create(): void {
     this.createTerrainTextures();
     assertAssetBundleTextures(this, 'boot');
+    if (this.nextSceneKey) {
+      this.scene.start(this.nextSceneKey);
+      return;
+    }
     const editorMapId = import.meta.env.DEV
       ? new URLSearchParams(window.location.search).get('editor')
       : null;

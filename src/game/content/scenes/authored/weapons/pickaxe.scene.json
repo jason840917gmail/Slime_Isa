@@ -41,7 +41,8 @@
         ],
         "rotation": 0,
         "alpha": 0,
-        "depthMode": "world-sorted",
+        "depthMode": "relative",
+        "depthOffset": 0.01,
         "depthBand": "world-entities"
       }
     },
@@ -106,7 +107,7 @@
         },
         "position": [
           0,
-          -42
+          -22
         ],
         "rotation": 0,
         "disabled": true
@@ -351,10 +352,6 @@
                 {
                   "at": 0,
                   "value": 0
-                },
-                {
-                  "at": 1,
-                  "value": 0
                 }
               ]
             },
@@ -365,10 +362,6 @@
                 {
                   "at": 0,
                   "value": 1
-                },
-                {
-                  "at": 1,
-                  "value": 0
                 }
               ]
             },
@@ -382,13 +375,6 @@
                     -10,
                     0
                   ]
-                },
-                {
-                  "at": 1,
-                  "value": [
-                    0,
-                    0
-                  ]
                 }
               ]
             },
@@ -398,13 +384,6 @@
               "keys": [
                 {
                   "at": 0,
-                  "value": [
-                    1,
-                    1
-                  ]
-                },
-                {
-                  "at": 1,
                   "value": [
                     0.5,
                     0.5
@@ -419,10 +398,36 @@
                 {
                   "at": 0,
                   "value": -0.5235987755982988
-                },
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "flipX",
+              "keys": [
                 {
-                  "at": 1,
-                  "value": 0
+                  "at": 0,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "flipY",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "depthOffset",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0.01
                 }
               ]
             }
@@ -549,43 +554,43 @@
                 {
                   "at": 0,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 1,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 2,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 3,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 4,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 5,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 }
               ]
@@ -617,6 +622,96 @@
                 {
                   "at": 5,
                   "value": 1.5707963267948966
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "flipX",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                },
+                {
+                  "at": 4,
+                  "value": false
+                },
+                {
+                  "at": 5,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "flipY",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                },
+                {
+                  "at": 4,
+                  "value": false
+                },
+                {
+                  "at": 5,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "depthOffset",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0.01
+                },
+                {
+                  "at": 1,
+                  "value": 0.01
+                },
+                {
+                  "at": 2,
+                  "value": 0.01
+                },
+                {
+                  "at": 3,
+                  "value": 0.01
+                },
+                {
+                  "at": 4,
+                  "value": 0.01
+                },
+                {
+                  "at": 5,
+                  "value": 0.01
                 }
               ]
             }
@@ -695,7 +790,7 @@
                 {
                   "at": 0,
                   "value": [
-                    -20,
+                    20,
                     -15
                   ]
                 },
@@ -709,28 +804,28 @@
                 {
                   "at": 2,
                   "value": [
-                    20,
+                    -20,
                     -10
                   ]
                 },
                 {
                   "at": 3,
                   "value": [
-                    30,
+                    -30,
                     0
                   ]
                 },
                 {
                   "at": 4,
                   "value": [
-                    40,
+                    -40,
                     20
                   ]
                 },
                 {
                   "at": 5,
                   "value": [
-                    40,
+                    -40,
                     20
                   ]
                 }
@@ -743,43 +838,43 @@
                 {
                   "at": 0,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 1,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 2,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 3,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 4,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 5,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 }
               ]
@@ -790,7 +885,7 @@
               "keys": [
                 {
                   "at": 0,
-                  "value": -0.5235987755982988
+                  "value": 0.5235987755982988
                 },
                 {
                   "at": 1,
@@ -798,19 +893,109 @@
                 },
                 {
                   "at": 2,
-                  "value": 0.5235987755982988
+                  "value": -0.5235987755982988
                 },
                 {
                   "at": 3,
-                  "value": 1.0471975511965976
+                  "value": -1.0471975511965976
                 },
                 {
                   "at": 4,
-                  "value": 1.5707963267948966
+                  "value": -1.5707963267948966
                 },
                 {
                   "at": 5,
-                  "value": 1.5707963267948966
+                  "value": -1.5707963267948966
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "flipX",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": true
+                },
+                {
+                  "at": 1,
+                  "value": true
+                },
+                {
+                  "at": 2,
+                  "value": true
+                },
+                {
+                  "at": 3,
+                  "value": true
+                },
+                {
+                  "at": 4,
+                  "value": true
+                },
+                {
+                  "at": 5,
+                  "value": true
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "flipY",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                },
+                {
+                  "at": 4,
+                  "value": false
+                },
+                {
+                  "at": 5,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "depthOffset",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0.01
+                },
+                {
+                  "at": 1,
+                  "value": 0.01
+                },
+                {
+                  "at": 2,
+                  "value": 0.01
+                },
+                {
+                  "at": 3,
+                  "value": 0.01
+                },
+                {
+                  "at": 4,
+                  "value": 0.01
+                },
+                {
+                  "at": 5,
+                  "value": 0.01
                 }
               ]
             }
@@ -890,42 +1075,42 @@
                   "at": 0,
                   "value": [
                     30,
-                    0
+                    20
                   ]
                 },
                 {
                   "at": 1,
                   "value": [
                     30,
-                    20
+                    0
                   ]
                 },
                 {
                   "at": 2,
                   "value": [
                     30,
-                    40
+                    -20
                   ]
                 },
                 {
                   "at": 3,
                   "value": [
                     10,
-                    50
+                    -30
                   ]
                 },
                 {
                   "at": 4,
                   "value": [
                     0,
-                    55
+                    -35
                   ]
                 },
                 {
                   "at": 5,
                   "value": [
                     0,
-                    55
+                    -35
                   ]
                 }
               ]
@@ -937,43 +1122,43 @@
                 {
                   "at": 0,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 1,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 2,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 3,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 4,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 5,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 }
               ]
@@ -984,27 +1169,117 @@
               "keys": [
                 {
                   "at": 0,
-                  "value": 1.0471975511965976
+                  "value": -1.0471975511965976
                 },
                 {
                   "at": 1,
-                  "value": 1.5707963267948966
+                  "value": -1.5707963267948966
                 },
                 {
                   "at": 2,
-                  "value": 2.0943951023931953
+                  "value": -2.0943951023931953
                 },
                 {
                   "at": 3,
-                  "value": 2.792526803190927
+                  "value": -2.792526803190927
                 },
                 {
                   "at": 4,
-                  "value": 3.3161255787892263
+                  "value": -3.3161255787892263
                 },
                 {
                   "at": 5,
-                  "value": 3.3161255787892263
+                  "value": -3.3161255787892263
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "flipX",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                },
+                {
+                  "at": 4,
+                  "value": false
+                },
+                {
+                  "at": 5,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "flipY",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": true
+                },
+                {
+                  "at": 1,
+                  "value": true
+                },
+                {
+                  "at": 2,
+                  "value": true
+                },
+                {
+                  "at": 3,
+                  "value": true
+                },
+                {
+                  "at": 4,
+                  "value": true
+                },
+                {
+                  "at": 5,
+                  "value": true
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "depthOffset",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0.01
+                },
+                {
+                  "at": 1,
+                  "value": 0.01
+                },
+                {
+                  "at": 2,
+                  "value": 0.01
+                },
+                {
+                  "at": 3,
+                  "value": 0.01
+                },
+                {
+                  "at": 4,
+                  "value": 0.01
+                },
+                {
+                  "at": 5,
+                  "value": 0.01
                 }
               ]
             }
@@ -1131,43 +1406,43 @@
                 {
                   "at": 0,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 1,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 2,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 3,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 4,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 5,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 }
               ]
@@ -1199,6 +1474,96 @@
                 {
                   "at": 5,
                   "value": 3.3161255787892263
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "flipX",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                },
+                {
+                  "at": 4,
+                  "value": false
+                },
+                {
+                  "at": 5,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "flipY",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                },
+                {
+                  "at": 4,
+                  "value": false
+                },
+                {
+                  "at": 5,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Pickaxe1",
+              "property": "depthOffset",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0.01
+                },
+                {
+                  "at": 1,
+                  "value": 0.01
+                },
+                {
+                  "at": 2,
+                  "value": 0.01
+                },
+                {
+                  "at": 3,
+                  "value": 0.01
+                },
+                {
+                  "at": 4,
+                  "value": 0.01
+                },
+                {
+                  "at": 5,
+                  "value": 0.01
                 }
               ]
             }

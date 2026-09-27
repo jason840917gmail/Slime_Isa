@@ -10,8 +10,9 @@
       "parentId": null,
       "order": 0,
       "properties": {
-        "collisionLayer": 0,
-        "collisionMask": 0,
+        "collisionLayer": 256,
+        "collisionMask": 1,
+        "collideWorldBounds": false,
         "position": [
           0,
           0
@@ -49,7 +50,7 @@
           "resourceId": "projectile.worm-arrow.visual"
         },
         "frame": 0,
-        "position": [
+        "visualOffset": [
           0,
           0
         ],

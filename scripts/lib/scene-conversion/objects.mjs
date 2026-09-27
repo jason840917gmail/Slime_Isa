@@ -1,4 +1,5 @@
 import { convertedOutput, readJson, requireSupportedUnit } from './adapter-utils.mjs';
+import { collision } from './collision-layers.mjs';
 
 const COLLECTIBLE_KEYS = [
   'object:collectible.charcoal-pile',
@@ -31,10 +32,11 @@ const SUPPORTED = new Set([
   ...PASSIVE_OBJECT_KEYS,
 ]);
 
+/** Frozen tree clips; the authored tree scenes embed them in their own AnimationPlayer libraries. */
 const OBJECT_ANIMATION_PATHS = {
-  'object.tree.idle': 'src/game/content/animations/objects/tree/idle/animation.json',
-  'object.tree.autumn.idle': 'src/game/content/animations/objects/tree/autumn/idle/animation.json',
-  'object.tree.autumn.leaf-fall': 'src/game/content/animations/objects/tree/autumn/leaf-fall/animation.json',
+  'object.tree.idle': 'scripts/migrations/frozen-sources/animations/object.tree.idle.json',
+  'object.tree.autumn.idle': 'scripts/migrations/frozen-sources/animations/object.tree.autumn.idle.json',
+  'object.tree.autumn.leaf-fall': 'scripts/migrations/frozen-sources/animations/object.tree.autumn.leaf-fall.json',
 };
 
 function slug(value) {
@@ -121,10 +123,10 @@ async function objectVisualScenes(unit, object, manifest, readSource, gameplayFi
       sceneId: `object.${baseSlug}${sceneSuffix}`,
       rootNodeId: 'body',
       nodes: [
-        { id: 'body', name: frame.displayName ?? frame.visualId, type: 'StaticBody2D', parentId: null, order: 0, properties: { collisionLayer: 1, collisionMask: 2, position: [0, 0] } },
+        { id: 'body', name: frame.displayName ?? frame.visualId, type: 'StaticBody2D', parentId: null, order: 0, properties: { ...collision(['world'], []), position: [0, 0] } },
         { id: 'body-shape', name: 'BodyShape', type: 'CollisionShape2D', parentId: 'body', order: 0, properties: { shape: { resourceId: `${resourcePrefix}.shape` }, position: [(frame.collider.offsetX - visualOffset.x) * scale, (frame.collider.offsetY - visualOffset.y) * scale] } },
         { id: 'visual', name: 'Visual', type: 'Sprite2D', parentId: 'body', order: 1, properties: { texture: { resourceId: `${resourcePrefix}.sprite` }, frame: frame.frame, origin, scale: [scale, scale], visualOffset: [visualOffset.x, visualOffset.y], depthMode: 'world-sorted', depthBand: 'world-entities', ...(frame.occlusionBounds ? { occlusionBounds: frame.occlusionBounds } : {}), ...(frame.depthBounds ? { depthBounds: frame.depthBounds } : {}) } },
-        { id: 'damage-area', name: 'DamageArea', type: 'Area2D', parentId: 'body', order: 2, properties: { collisionLayer: 8, collisionMask: 16, monitoring: false, monitorable: true } },
+        { id: 'damage-area', name: 'DamageArea', type: 'Area2D', parentId: 'body', order: 2, properties: { ...collision(['hurtbox'], ['hitbox']), monitoring: false, monitorable: true } },
         { id: 'damage-shape', name: 'DamageShape', type: 'CollisionShape2D', parentId: 'damage-area', order: 0, properties: { shape: { resourceId: `${resourcePrefix}.shape` }, position: [(frame.collider.offsetX - visualOffset.x) * scale, (frame.collider.offsetY - visualOffset.y) * scale] } },
         ...(animationNode ? [animationNode] : []),
         {
@@ -204,7 +206,7 @@ function collectibleScene(unit, object, manifest) {
     nodes: [
       { id: 'root', name: frame.displayName ?? frame.visualId, type: 'Node2D', parentId: null, order: 0, properties: { position: [0, 0] } },
       { id: 'visual', name: 'Visual', type: 'Sprite2D', parentId: 'root', order: 0, properties: { texture: { resourceId: `${resourcePrefix}.sprite` }, frame: frame.frame, origin, scale: [scale, scale], visualOffset: [visualOffset.x, visualOffset.y], depthMode: 'world-sorted', depthBand: 'world-entities' } },
-      { id: 'pickup-area', name: 'PickupArea', type: 'Area2D', parentId: 'root', order: 1, properties: { collisionLayer: 64, collisionMask: 32, monitoring: false, monitorable: true } },
+      { id: 'pickup-area', name: 'PickupArea', type: 'Area2D', parentId: 'root', order: 1, properties: { ...collision(['pickup'], ['pickup-seeker']), monitoring: false, monitorable: true } },
       { id: 'pickup-shape', name: 'PickupShape', type: 'CollisionShape2D', parentId: 'pickup-area', order: 0, properties: { shape: { resourceId: `${resourcePrefix}.pickup-shape` }, position: [visualOffset.x * scale, visualOffset.y * scale] } },
       {
         id: 'script', name: 'CollectibleScript', type: 'ScriptNode', scriptId: 'game.collectible', parentId: 'root', order: 2,
@@ -255,7 +257,7 @@ function passiveObjectScenes(unit, object, manifest) {
           parentId: null,
           order: 0,
           properties: solid
-            ? { collisionLayer: 1, collisionMask: 2, position: [0, 0] }
+            ? { ...collision(['world'], []), position: [0, 0] }
             : { position: [0, 0] },
         },
         ...(solid ? [{
@@ -327,7 +329,7 @@ export const objectSceneAdapter = {
         sceneId: 'object.chest-wooden',
         rootNodeId: 'body',
         nodes: [
-          { id: 'body', name: 'WoodenChest', type: 'StaticBody2D', parentId: null, order: 0, properties: { collisionLayer: 1, collisionMask: 2, position: [0, 0] } },
+          { id: 'body', name: 'WoodenChest', type: 'StaticBody2D', parentId: null, order: 0, properties: { ...collision(['world'], []), position: [0, 0] } },
           { id: 'body-shape', name: 'BodyShape', type: 'CollisionShape2D', parentId: 'body', order: 0, properties: { shape: { resourceId: 'chest-wooden.body-shape' }, position: [closed.collider.offsetX, closed.collider.offsetY] } },
           { id: 'visual', name: 'Visual', type: 'Sprite2D', parentId: 'body', order: 1, properties: { texture: { resourceId: 'chest-wooden.sprite' }, frame: closed.frame, origin: [0.5, 0.75], scale: [closed.scale, closed.scale] } },
           { id: 'script', name: 'ChestScript', type: 'ScriptNode', scriptId: 'game.chest', parentId: 'body', order: 2, properties: { mapId: 'level-1', instanceId: 'chest-template', initialContents: {} } },

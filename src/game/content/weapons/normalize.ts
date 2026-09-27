@@ -4,7 +4,6 @@ import {
   resolveDirectionalVariant,
   RIGHT_LEFT_INHERITANCE,
 } from '../../shared/animation';
-import { resolveAnimationDefinition } from '../animations/AnimationCatalog';
 import { migrateLegacyWeaponDefinition, normalizeWeaponHitboxes } from './migrateLegacyWeapon';
 import { resolveWeaponPresentationOffsetY } from './presentation';
 import type {
@@ -27,17 +26,17 @@ function emptyLayeredAnimation(timeline?: WeaponAnimationTimelineDocument) {
   };
 }
 
+/**
+ * Weapon definitions embed their animations. The shared animation package
+ * catalog was retired: each weapon scene owns its clips in its AnimationPlayer.
+ */
 function resolveSharedAnimation(
   animationId: string | undefined,
   embeddedAnimation: LayeredWeaponDefinition['animations']['idle'] | undefined,
   timeline: WeaponAnimationTimelineDocument | undefined,
   label: string,
 ) {
-  if (animationId) {
-    const resolved = resolveAnimationDefinition(animationId);
-    if (!resolved.ok) throw new Error(`${label}: ${resolved.diagnostic.message}`);
-    return resolved.animation;
-  }
+  if (animationId) throw new Error(`${label}: shared animation '${animationId}' is not supported; embed the animation in the weapon`);
   return embeddedAnimation ?? emptyLayeredAnimation(timeline);
 }
 

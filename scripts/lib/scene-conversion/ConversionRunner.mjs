@@ -1,7 +1,9 @@
+import { createHash } from 'node:crypto';
 import { mkdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import { conversionReport, sha256 } from './ConversionReport.mjs';
+import { embedOwnedResources } from './embed-owned-resources.mjs';
 import { loadContentWriteJournal } from './load-content-write-journal.mjs';
 import { StableIdMap } from './StableIdMap.mjs';
 
@@ -23,7 +25,7 @@ function orderedFamilies(rows) {
 }
 
 export class ConversionRunner {
-  constructor({ repositoryRoot, ledger, adapters, outputRoot, stableIds = new StableIdMap(), validateWriteSet, journalFactory }) {
+  constructor({ repositoryRoot, ledger, adapters, outputRoot, stableIds = new StableIdMap(), validateWriteSet, journalFactory, existingScenes = [] }) {
     this.repositoryRoot = repositoryRoot;
     this.ledger = ledger;
     this.adapters = adapters;
@@ -31,9 +33,11 @@ export class ConversionRunner {
     this.stableIds = stableIds;
     this.validateWriteSet = validateWriteSet;
     this.journalFactory = journalFactory;
+    this.existingScenes = existingScenes;
   }
 
-  async run({ family = 'all', mode = 'dry-run', unitKeys, includeSceneOwned = false } = {}) {
+  async run({ family = 'all', mode = 'dry-run', unitKeys, includeSceneOwned = false, overwriteSceneOwned = false } = {}) {
+    if (overwriteSceneOwned && !includeSceneOwned) throw new Error('Overwriting scene-owned outputs requires including scene-owned units');
     if (!['dry-run', 'apply', 'check'].includes(mode)) throw new Error(`Unknown conversion mode '${mode}'`);
     const selectedKeys = unitKeys === undefined ? undefined : new Set(unitKeys);
     if (selectedKeys?.size === 0) throw new Error('Scene conversion unit selection cannot be empty');
@@ -44,7 +48,7 @@ export class ConversionRunner {
     }
     const eligibleRows = this.ledger.rows.filter((unit) => selectedKeys === undefined || selectedKeys.has(unit.key));
     const families = family === 'all' ? orderedFamilies(eligibleRows) : [family];
-    const outputs = [];
+    const convertedOutputs = [];
     const units = [];
     for (const currentFamily of families) {
       const familyUnits = eligibleRows
@@ -63,8 +67,10 @@ export class ConversionRunner {
         stableIds: this.stableIds,
         readSource: async (relativePath) => readFile(path.join(this.repositoryRoot, relativePath), 'utf8'),
       });
-      outputs.push(...converted);
+      convertedOutputs.push(...converted);
     }
+    // Single-scene shapes, sprite sheets, animation libraries, and tile data become that scene's subresources.
+    const outputs = embedOwnedResources(convertedOutputs, { existingScenes: this.existingScenes });
     const paths = new Set();
     for (const output of outputs) {
       const normalized = output.path.replaceAll('\\', '/');
@@ -78,7 +84,8 @@ export class ConversionRunner {
       const unit = units.find((candidate) => candidate.key === output.unitKey);
       if (!unit) throw new Error(`Output '${normalized}' references unknown unit '${output.unitKey}'`);
     }
-    for (const unit of units) if (!outputs.some((output) => output.unitKey === unit.key)) throw new Error(`Conversion unit '${unit.key}' produced no output`);
+    const producers = new Set(outputs.flatMap((output) => [output.unitKey, ...(output.contributions ?? []).map((entry) => entry.unitKey)]));
+    for (const unit of units) if (!producers.has(unit.key)) throw new Error(`Conversion unit '${unit.key}' produced no output`);
     if (!this.validateWriteSet) throw new Error('Scene conversion requires the canonical write-set validator');
     await this.validateWriteSet(outputs);
     if (mode === 'apply') {
@@ -92,7 +99,10 @@ export class ConversionRunner {
           throw error;
         });
         if (current !== undefined && current.toString('utf8') !== output.content) {
-          throw new Error(`Conversion target changed at '${output.path}'; refusing to overwrite authored content`);
+          // Regeneration is an explicit, reviewed maintenance action (converter bug fixes);
+          // the journal still guards against concurrent edits via the current raw hash.
+          if (!overwriteSceneOwned) throw new Error(`Conversion target changed at '${output.path}'; refusing to overwrite authored content`);
+          changed.push({ relativePath: output.path, content: output.content, expectedHash: createHash('sha256').update(current).digest('hex') });
         }
         if (current === undefined) changed.push({ relativePath: output.path, content: output.content, expectedHash: null });
       }

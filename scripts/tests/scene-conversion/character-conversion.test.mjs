@@ -55,6 +55,13 @@ async function createRunner() {
   });
 }
 
+/** Single-owner shapes, sprite sheets, and animation libraries are embedded in their scene. */
+function subresource(scene, resourceId) {
+  const resource = (scene.subresources ?? []).find((candidate) => candidate.resourceId === resourceId);
+  assert.ok(resource, `scene '${scene.sceneId}' should embed '${resourceId}'`);
+  return resource;
+}
+
 function scriptProperties(scene) {
   return scene.nodes.find((node) => node.scriptId === 'game.enemy').properties;
 }
@@ -81,11 +88,12 @@ test('remaining enemy converters are byte-stable and preserve authored combat se
   assert.equal(swordsman.movementSpeed, 75);
   assert.equal(swordsman.attributes.contactDamage, 37);
 
-  const spider = scriptProperties(await load('characters/slime-spider.scene.json'));
+  const spiderScene = await load('characters/slime-spider.scene.json');
+  const spider = scriptProperties(spiderScene);
   assert.equal(spider.attributes.behavior, 'slime-spider');
   assert.equal(spider.attributes.isRanged, true);
   assert.equal(spider.projectile.damage, 50);
-  assert.deepEqual((await load('resources/characters/slime-spider.body-shape.resource.json')).value, {
+  assert.deepEqual(subresource(spiderScene, 'slime-spider.body-shape').value, {
     shape: 'ellipse', radiusX: 15, radiusY: 12,
   });
 
@@ -101,7 +109,7 @@ test('remaining enemy converters are byte-stable and preserve authored combat se
     monitorable: true,
   });
   assert.equal(player.nodes.find((node) => node.id === 'pickup-shape').properties.shape.resourceId, 'player-slime.body-shape');
-  assert.deepEqual((await load('resources/characters/player-slime.body-shape.resource.json')).value, {
+  assert.deepEqual(subresource(player, 'player-slime.body-shape').value, {
     shape: 'rectangle', width: 30, height: 26,
   });
 
@@ -113,7 +121,13 @@ test('remaining enemy converters are byte-stable and preserve authored combat se
   assert.equal(elderScript.pauseMaxMs, 50000);
   assert.deepEqual(elder.nodes.find((node) => node.id === 'visual').properties.scale, [0.32, 0.32]);
   assert.equal(
-    (await load('resources/visuals/character.npc.village-elder-plop.animations.resource.json')).animations.idle.loopMode,
+    subresource(elder, 'character.npc.village-elder-plop.animations').animations.idle.loopMode,
     'ping-pong',
   );
+  assert.equal(subresource(elder, 'character.npc.village-elder-plop.sprite').kind, 'sprite-sheet');
+  assert.deepEqual(applied.outputs.filter((output) => output.path.startsWith('resources/')).map((output) => output.path), [],
+    'character shapes, sprite sheets, and animation libraries are not written as standalone resources');
+  const archerOutput = applied.outputs.find((output) => output.path === 'characters/worm-archer.scene.json');
+  assert.deepEqual(archerOutput.contributions.map((entry) => entry.unitKey), ['character:worm-archer', 'visual:enemy.worm.archer'],
+    'units whose resources were embedded are attributed to the owning scene');
 });

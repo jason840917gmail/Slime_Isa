@@ -1,9 +1,0 @@
-{
-  "version": 1,
-  "resourceId": "enemy.slime.spider.sprite",
-  "kind": "sprite-sheet",
-  "assetId": "character.enemy.slime-spider",
-  "frameWidth": 64,
-  "frameHeight": 64,
-  "frameCount": 80
-}

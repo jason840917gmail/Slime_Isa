@@ -288,6 +288,7 @@ export class Node {
     if (this.children.some((child) => child.name === node.name)) throw new Error(`Sibling name '${node.name}' already exists`);
     node.parent = this;
     this.children.push(node);
+    node._invalidateGlobalTransformInternal();
   }
   /** @internal */
   _detachImmediate(node: Node): void {
@@ -295,6 +296,14 @@ export class Node {
     if (index < 0) throw new Error(`Node '${node.name}' is not a child of '${this.name}'`);
     this.children.splice(index, 1);
     node.parent = undefined;
+    node._invalidateGlobalTransformInternal();
+  }
+  /**
+   * @internal Marks cached global transforms in this subtree stale after an
+   * ancestry or transform change. Plain nodes only forward to their children.
+   */
+  _invalidateGlobalTransformInternal(): void {
+    for (const child of this.children) child._invalidateGlobalTransformInternal();
   }
   /** @internal */
   _reorderChildInternal(node: Node, index: number): void {

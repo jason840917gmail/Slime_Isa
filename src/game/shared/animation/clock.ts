@@ -139,6 +139,9 @@ export class AnimationClock {
     const previous = this.position;
     this.position = nextPosition;
     this.absoluteStep = nextPosition;
+    this.loopIteration = 0;
+    // Resuming after a scrub continues from the scrubbed frame, not the old elapsed time.
+    this.elapsedMs = nextPosition * (1000 / this.timeline.framesPerSecond);
     this.dispatchFrame(previous, nextPosition >= previous ? 1 : -1, true);
   }
 
