@@ -582,6 +582,11 @@ export class UniversalSceneWorldController implements InteractionProvider {
     if (!this.playerBody) throw new Error('The authored player body is not mounted.');
     return this.playerBody.physicsSprite;
   }
+  /** Every rendered sprite in the runtime tree, for the dev overlay. */
+  get worldVisuals(): readonly Sprite2DNode[] {
+    return descendants(this.runtime.root, Sprite2DNode).filter((visual) => visual.phaserObjectActive);
+  }
+
   get playerPresentation(): Sprite2DNode {
     if (!this.playerVisual) throw new Error('The authored player visual is not mounted.');
     return this.playerVisual;

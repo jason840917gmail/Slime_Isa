@@ -9,8 +9,8 @@ import type {
   TileDataResourceDocument,
   TileSetResourceDocument,
 } from '../../content/scenes/resources/types';
-import { authoredNodeId, resourceId as toResourceId, runtimeNodeId, sceneId as toSceneId, type AuthoredNodeId, type InstanceId, type ResourceId, type SceneId } from '../../content/scenes/identifiers';
-import type { JsonValue, SceneDocument, SceneNodeDocument, SceneResourceDocument } from '../../content/scenes/types';
+import { authoredNodeId, instanceId as toInstanceId, persistenceKey as toPersistenceKey, resourceId as toResourceId, runtimeNodeId, sceneId as toSceneId, type AuthoredNodeId, type InstanceId, type ResourceId, type SceneId } from '../../content/scenes/identifiers';
+import type { JsonValue, SceneDocument, SceneNodeDocument, SceneOverrideDocument, SceneResourceDocument } from '../../content/scenes/types';
 import { ASSET_MANIFEST } from '../../infrastructure/assets/manifest';
 import { SceneStudioConflictError, SceneStudioRepository, type SceneStudioContentSummary, type SceneStudioDocument } from '../../infrastructure/scenes/editor/SceneStudioRepository';
 import { handleStudioHistoryShortcut } from '../StudioHistoryShortcut';
@@ -23,11 +23,13 @@ import { resourceConsumers } from './ResourceBrowser';
 import { SceneClipboard } from './SceneClipboard';
 import { sceneCommands, sceneMutationCommand } from './SceneCommand';
 import { sceneCreationEntries } from './SceneCreationDialog';
-import { buildExplorerTree, explorerFolderKeysFor, renderExplorerTree } from './ExplorerTree';
+import { buildExplorerTree, explorerFolderKeysFor, renderExplorerTree, SCENE_DRAG_TYPE } from './ExplorerTree';
 import { SceneDocumentState } from './SceneDocumentState';
 import { ResourceDocumentState } from './ResourceDocumentState';
 import { renderSceneInspector, sceneInspectorModel } from './SceneInspector';
-import { SceneLiveViewport, type LiveViewportMarker, type LiveViewportModel, type LiveViewportShape } from './SceneLiveViewport';
+import { SceneLiveViewport, type LiveViewportBoundsGuide, type LiveViewportMarker, type LiveViewportModel, type LiveViewportShape } from './SceneLiveViewport';
+import { resolveSourceBoundsFromWorld, resolveWorldOcclusionRectangle, type SourceOcclusionBounds } from '../../presentation/WorldOcclusion';
+import type { SpriteBoundsGeometry } from '../../infrastructure/phaser-nodes/Sprite2DNode';
 import { ScenePreview } from './ScenePreview';
 import { formatSceneStudioRoute, parseSceneStudioRoute } from './SceneStudioRoute';
 import { renderSceneTreePanel, sceneTreeRows, type SceneTreeRow } from './SceneTreePanel';
@@ -75,6 +77,54 @@ interface LoadedShapeResource {
   readonly relativePath: string;
 }
 
+/**
+ * One open document tab, like Godot's scene tabs. The controller's live fields
+ * mirror the active tab; `stashActiveTab` writes them back before switching.
+ */
+interface StudioTab {
+  readonly key: string;
+  readonly kind: 'scene' | 'resource';
+  readonly id: string;
+  state: SceneDocumentState | undefined;
+  resourceState: ResourceDocumentState | undefined;
+  relativePath: string | undefined;
+  resourceRelativePath: string | undefined;
+  selectedKey: string | undefined;
+  expanded: Set<string>;
+  tileContexts: Map<AuthoredNodeId, LoadedTileContext>;
+  shapeResources: Map<ResourceId, LoadedShapeResource>;
+  lastShapeEdit: ResourceId | undefined;
+  animationPlayerKey: string | undefined;
+  animationClosedAt: string | undefined;
+  camera: ViewportCamera | undefined;
+  message: string;
+}
+
+function tabDirty(tab: StudioTab): boolean {
+  const layers = new Set(tab.state?.document.nodes.filter((node) => node.type === 'TileMapLayer2D').map((node) => node.id) ?? []);
+  return Boolean(tab.state?.dirty || tab.resourceState?.dirty
+    || [...tab.shapeResources.values()].some((entry) => entry.state.dirty)
+    || [...tab.tileContexts.entries()].some(([nodeId, entry]) => layers.has(nodeId) && tileContextUnsaved(entry)));
+}
+
+/** Tab label: the file name without its document suffix, as Godot shows `name.tscn`. */
+function tabLabel(tab: StudioTab): string {
+  const path = tab.relativePath ?? tab.resourceRelativePath;
+  return path ? path.slice(path.lastIndexOf('/') + 1).replace(/\.(?:scene|resource)\.json$/, '') : tab.id;
+}
+
+/** True when `document` is `target` or instances it at any depth (instancing it would recurse). */
+function sceneContains(document: SceneDocument, target: SceneId, resolve: (sceneId: SceneId) => SceneDocument | undefined, visited = new Set<SceneId>()): boolean {
+  if (document.sceneId === target) return true;
+  if (visited.has(document.sceneId)) return false;
+  visited.add(document.sceneId);
+  return document.instances.some((instance) => {
+    if (instance.sceneId === target) return true;
+    const source = resolve(instance.sceneId);
+    return source ? sceneContains(source, target, resolve, visited) : false;
+  });
+}
+
 /** What the inspector edits: a local node, or an instanced node through overrides. */
 interface InspectorTarget {
   readonly node: SceneNodeDocument;
@@ -112,7 +162,11 @@ export class SceneStudioController {
   private readonly clipboard = new SceneClipboard();
   private readonly library = new Map<SceneId, SceneDocument>();
   private readonly externalResources = new Map<ResourceId, SceneResourceDocument>();
-  private readonly expanded = new Set<string>();
+  private expanded = new Set<string>();
+  private readonly tabs: StudioTab[] = [];
+  private activeTabKey?: string;
+  /** Bumped whenever a library scene changes so compositions that instance it refresh. */
+  private libraryRevision = 0;
   private catalog: readonly SceneStudioContentSummary[] = [];
   private state?: SceneDocumentState;
   private resourceState?: ResourceDocumentState;
@@ -120,11 +174,13 @@ export class SceneStudioController {
   private relativePath?: string;
   private selectedKey?: string;
   private rows: readonly SceneTreeRow[] = [];
-  private readonly tileContexts = new Map<AuthoredNodeId, LoadedTileContext>();
-  private readonly shapeResources = new Map<ResourceId, LoadedShapeResource>();
+  private tileContexts = new Map<AuthoredNodeId, LoadedTileContext>();
+  private shapeResources = new Map<ResourceId, LoadedShapeResource>();
   private lastShapeEdit?: ResourceId;
   private message = 'Loading authored content…';
   private creationSearch?: string;
+  /** Search text of the open "Instance child scene" dialog; undefined while closed. */
+  private instanceSearch?: string;
   private explorerFilter = '';
   /** Explorer folder keys the author expanded; everything else starts collapsed. */
   private readonly explorerOpen = new Set<string>();
@@ -218,7 +274,9 @@ export class SceneStudioController {
       rotateMarker: (key, rotation) => this.rotateFromViewport(key, rotation),
       paintCell: (cell) => this.paintFromViewport(cell),
       editShape: (key, value) => { void this.editShapeFromViewport(key, value); },
+      editBounds: (key, property, change) => this.editBoundsFromViewport(key, property, change),
       cameraChanged: (camera) => this.preview?.setCamera(camera),
+      dropScene: (sceneId, global) => { void this.instantiateScene(sceneId, { global }); },
     });
   }
 
@@ -229,9 +287,21 @@ export class SceneStudioController {
     this.container.addEventListener('input', (event) => {
       if (!(event.target instanceof HTMLInputElement)) return;
       if (event.target.dataset.explorerFilter !== undefined) { this.explorerFilter = event.target.value; this.applyExplorerFilter(); return; }
+      if (event.target.dataset.instanceSearch !== undefined) { this.instanceSearch = event.target.value; this.render(); return; }
       if (event.target.dataset.creationSearch === undefined) return;
       this.creationSearch = event.target.value;
       this.render();
+    }, { signal });
+    this.bindSceneDrag(signal);
+    this.container.addEventListener('auxclick', (event) => {
+      const tab = event.button === 1 && event.target instanceof Element ? event.target.closest<HTMLElement>('[data-tab-key]') : null;
+      if (tab?.dataset.tabKey) { event.preventDefault(); this.closeTab(tab.dataset.tabKey); }
+    }, { signal });
+    this.container.addEventListener('dblclick', (event) => {
+      // Double-clicking an instance opens its source scene in a tab, like Godot's "Open in Editor".
+      const key = event.target instanceof Element ? event.target.closest<HTMLElement>('[data-scene-tree-key]')?.dataset.sceneTreeKey : undefined;
+      const row = key ? this.rows.find((candidate) => candidate.key === key) : undefined;
+      if (row?.kind === 'instance') void this.open(row.sceneId).catch((error: unknown) => this.fail(error));
     }, { signal });
     this.container.addEventListener('keydown', (event) => {
       if (!(event.target instanceof HTMLElement) || event.target.getAttribute('role') !== 'treeitem') return;
@@ -255,17 +325,47 @@ export class SceneStudioController {
     }, { signal });
     window.addEventListener('keydown', (event) => {
       if ((this.state || this.resourceState) && handleStudioHistoryShortcut(event, () => this.undo(), () => this.redo())) { this.render(); return; }
-      if (!this.state || isEditableTarget(event.target) || this.creationSearch !== undefined) return;
+      if (event.key === 'Escape' && (this.creationSearch !== undefined || this.instanceSearch !== undefined)) { this.creationSearch = undefined; this.instanceSearch = undefined; this.render(); return; }
+      if (!this.state || isEditableTarget(event.target) || this.creationSearch !== undefined || this.instanceSearch !== undefined) return;
       // The animation dock handles its own clipboard and delete keys for keys and events.
       if (event.target instanceof Node && this.animationPanel.element.contains(event.target)) return;
       const inStudio = event.target instanceof Node && (this.container.contains(event.target) || event.target === document.body);
       if (!inStudio) return;
       const modifier = event.ctrlKey || event.metaKey;
-      if (modifier && event.key.toLowerCase() === 'c') { if (this.copySelection()) event.preventDefault(); }
+      if (modifier && event.shiftKey && event.key.toLowerCase() === 'a') { event.preventDefault(); this.instanceSearch = ''; this.render(); }
+      else if (modifier && event.key.toLowerCase() === 'c') { if (this.copySelection()) event.preventDefault(); }
       else if (modifier && event.key.toLowerCase() === 'v') { if (this.pasteClipboard()) event.preventDefault(); }
       else if (modifier && event.key.toLowerCase() === 'd') { event.preventDefault(); if (this.copySelection()) this.pasteClipboard(); }
       else if (event.key === 'Delete') { if (this.deleteSelection()) event.preventDefault(); }
     }, { signal });
+  }
+
+  /** Explorer scene rows drag into the scene tree (as children of the row under the cursor) or the viewport. */
+  private bindSceneDrag(signal: AbortSignal): void {
+    const clearTargets = (): void => { for (const element of this.container.querySelectorAll('.is-drop-target')) element.classList.remove('is-drop-target'); };
+    const treePanel = (event: DragEvent): Element | null => event.target instanceof Element ? event.target.closest('.scene-tree-panel') : null;
+    this.container.addEventListener('dragstart', (event) => {
+      const item = event.target instanceof Element ? event.target.closest<HTMLElement>('[data-scene-id][draggable="true"]') : null;
+      if (!item?.dataset.sceneId || !event.dataTransfer) return;
+      event.dataTransfer.setData(SCENE_DRAG_TYPE, item.dataset.sceneId);
+      event.dataTransfer.setData('text/plain', item.dataset.sceneId);
+      event.dataTransfer.effectAllowed = 'copy';
+    }, { signal });
+    this.container.addEventListener('dragover', (event) => {
+      if (!this.state || !event.dataTransfer?.types.includes(SCENE_DRAG_TYPE) || !treePanel(event)) return;
+      event.preventDefault();
+      event.dataTransfer.dropEffect = 'copy';
+      const row = event.target instanceof Element ? event.target.closest('[data-scene-tree-key]') ?? treePanel(event) : null;
+      if (row && !row.classList.contains('is-drop-target')) { clearTargets(); row.classList.add('is-drop-target'); }
+    }, { signal });
+    this.container.addEventListener('drop', (event) => {
+      const sceneId = event.dataTransfer?.getData(SCENE_DRAG_TYPE);
+      clearTargets();
+      if (!sceneId || !treePanel(event)) return;
+      event.preventDefault();
+      void this.instantiateScene(sceneId, { parentId: this.treeDropParent(event.target instanceof Element ? event.target : null) });
+    }, { signal });
+    this.container.addEventListener('dragend', clearTargets, { signal });
   }
 
   // -------------------------------------------------------------------------
@@ -273,21 +373,14 @@ export class SceneStudioController {
   // -------------------------------------------------------------------------
 
   private async open(sceneId: string): Promise<void> {
+    if (this.tabs.some((tab) => tab.key === `scene:${sceneId}`)) { this.activateTab(`scene:${sceneId}`); return; }
     const record = await this.repository.load('scene', sceneId);
     if (record.kind !== 'scene' || !('sceneId' in record.document)) throw new Error(`'${sceneId}' is not a scene document`);
+    this.beginTab('scene', record.document.sceneId);
     this.state = new SceneDocumentState(record.document, { registry: this.registry }, record.hash);
-    this.library.set(record.document.sceneId, record.document);
-    this.resourceState = undefined;
-    this.resourceRelativePath = undefined;
+    this.setLibraryScene(record.document);
     this.relativePath = record.relativePath;
     this.revealInExplorer(record.relativePath);
-    this.expanded.clear();
-    this.shapeResources.clear();
-    this.lastShapeEdit = undefined;
-    this.composedCache = undefined;
-    this.animationPlayerKey = undefined;
-    this.animationClosedAt = undefined;
-    this.preview?.stopAnimation();
     await this.loadTileContexts(record.document);
     this.selectedKey = `:${record.document.rootNodeId}`;
     this.message = record.repairMode ? `Repair mode · ${record.issues.length} issue${record.issues.length === 1 ? '' : 's'}` : 'Document matches runtime contracts';
@@ -297,23 +390,120 @@ export class SceneStudioController {
   }
 
   private async openResource(id: string): Promise<void> {
+    if (this.tabs.some((tab) => tab.key === `resource:${id}`)) { this.activateTab(`resource:${id}`); return; }
     const record = await this.repository.load('resource', id);
     if (record.kind !== 'resource' || !('resourceId' in record.document)) throw new Error(`'${id}' is not a resource document`);
+    this.beginTab('resource', record.document.resourceId);
     this.resourceState = new ResourceDocumentState(record.document, record.hash);
     this.resourceRelativePath = record.relativePath;
     this.revealInExplorer(record.relativePath);
-    this.state = undefined;
-    this.relativePath = undefined;
-    this.selectedKey = undefined;
-    this.tileContexts.clear();
-    this.shapeResources.clear();
-    this.composedCache = undefined;
-    this.animationPlayerKey = undefined;
-    this.preview?.stopAnimation();
     this.message = record.repairMode ? `Repair mode · ${record.issues.length} issue${record.issues.length === 1 ? '' : 's'}` : 'Resource matches runtime contracts';
     window.history.replaceState(null, '', formatSceneStudioRoute({ active: true, resource: record.document.resourceId }, window.location.search));
     this.frameInitial(`resource:${record.document.resourceId}`);
     this.render();
+  }
+
+  // -------------------------------------------------------------------------
+  // Tabs
+  // -------------------------------------------------------------------------
+
+  private activeTab(): StudioTab | undefined {
+    return this.tabs.find((tab) => tab.key === this.activeTabKey);
+  }
+
+  /** Writes the live editing fields back into the active tab. */
+  private stashActiveTab(): void {
+    const tab = this.activeTab();
+    if (!tab) return;
+    tab.state = this.state;
+    tab.resourceState = this.resourceState;
+    tab.relativePath = this.relativePath;
+    tab.resourceRelativePath = this.resourceRelativePath;
+    tab.selectedKey = this.selectedKey;
+    tab.expanded = this.expanded;
+    tab.tileContexts = this.tileContexts;
+    tab.shapeResources = this.shapeResources;
+    tab.lastShapeEdit = this.lastShapeEdit;
+    tab.animationPlayerKey = this.animationPlayerKey;
+    tab.animationClosedAt = this.animationClosedAt;
+    tab.camera = this.liveViewport?.camera;
+    tab.message = this.message;
+  }
+
+  /** Makes `tab` (or an empty workspace) live, without rendering. */
+  private restoreTab(tab: StudioTab | undefined): void {
+    this.activeTabKey = tab?.key;
+    this.state = tab?.state;
+    this.resourceState = tab?.resourceState;
+    this.relativePath = tab?.relativePath;
+    this.resourceRelativePath = tab?.resourceRelativePath;
+    this.selectedKey = tab?.selectedKey;
+    this.expanded = tab?.expanded ?? new Set();
+    this.tileContexts = tab?.tileContexts ?? new Map();
+    this.shapeResources = tab?.shapeResources ?? new Map();
+    this.lastShapeEdit = tab?.lastShapeEdit;
+    this.animationPlayerKey = tab?.animationPlayerKey;
+    this.animationClosedAt = tab?.animationClosedAt;
+    this.message = tab?.message ?? 'No open documents · choose a scene from the expedition index.';
+    this.composedCache = undefined;
+    this.posedCache = undefined;
+    this.preview?.stopAnimation();
+    const route = !tab ? { active: true } : tab.kind === 'scene' ? { active: true, scene: toSceneId(tab.id) } : { active: true, resource: toResourceId(tab.id) };
+    window.history.replaceState(null, '', formatSceneStudioRoute(route, window.location.search));
+    const path = tab?.relativePath ?? tab?.resourceRelativePath;
+    if (path) this.revealInExplorer(path);
+    if (tab?.camera && this.liveViewport) { this.pendingFrame = undefined; this.liveViewport.setCamera(tab.camera); }
+    else if (tab) this.frameInitial(tab.key);
+  }
+
+  /** Opens a fresh tab after the active one and makes it live; the caller loads its document. */
+  private beginTab(kind: StudioTab['kind'], id: string): void {
+    this.stashActiveTab();
+    const tab: StudioTab = {
+      key: `${kind}:${id}`, kind, id,
+      state: undefined, resourceState: undefined, relativePath: undefined, resourceRelativePath: undefined, selectedKey: undefined,
+      expanded: new Set(), tileContexts: new Map(), shapeResources: new Map(),
+      lastShapeEdit: undefined, animationPlayerKey: undefined, animationClosedAt: undefined, camera: undefined, message: '',
+    };
+    const activeIndex = this.tabs.findIndex((candidate) => candidate.key === this.activeTabKey);
+    this.tabs.splice(activeIndex < 0 ? this.tabs.length : activeIndex + 1, 0, tab);
+    this.restoreTab(tab);
+  }
+
+  private activateTab(key: string): void {
+    const tab = this.tabs.find((candidate) => candidate.key === key);
+    if (!tab) return;
+    if (key !== this.activeTabKey) {
+      this.stashActiveTab();
+      this.restoreTab(tab);
+    }
+    this.render();
+  }
+
+  private closeTab(key: string): void {
+    const index = this.tabs.findIndex((candidate) => candidate.key === key);
+    if (index < 0) return;
+    this.stashActiveTab();
+    const tab = this.tabs[index];
+    if (tabDirty(tab) && !window.confirm(`${tabLabel(tab)} has unsaved changes. Close it and discard them?`)) return;
+    this.tabs.splice(index, 1);
+    if (key === this.activeTabKey) this.restoreTab(this.tabs[index] ?? this.tabs[index - 1]);
+    this.render();
+  }
+
+  private renderTabs(): string {
+    if (this.tabs.length === 0) return '';
+    return `<nav class="scene-tabs" role="tablist" aria-label="Open documents">${this.tabs.map((tab) => {
+      const active = tab.key === this.activeTabKey;
+      const dirty = tabDirty(tab);
+      const title = `${tab.id}\n${tab.relativePath ?? tab.resourceRelativePath ?? ''}`;
+      return `<div class="scene-tab${active ? ' is-active' : ''}${dirty ? ' is-dirty' : ''}" data-tab-key="${escapeHtml(tab.key)}"><button type="button" role="tab" aria-selected="${active}" data-tab-activate="${escapeHtml(tab.key)}" title="${escapeHtml(title)}"><span aria-hidden="true">${tab.kind === 'scene' ? '◫' : '◈'}</span>${escapeHtml(tabLabel(tab))}${dirty ? '<em aria-label="unsaved">(*)</em>' : ''}</button><button type="button" class="scene-tab-close" data-tab-close="${escapeHtml(tab.key)}" aria-label="Close ${escapeHtml(tabLabel(tab))}" title="Close (middle-click)">×</button></div>`;
+    }).join('')}</nav>`;
+  }
+
+  private setLibraryScene(document: SceneDocument): void {
+    this.library.set(document.sceneId, document);
+    this.libraryRevision += 1;
   }
 
   private frameInitial(identity: string): void {
@@ -363,6 +553,8 @@ export class SceneStudioController {
       for (const result of results) {
         if (result.kind === 'scene') {
           this.state?.markSaved(result.hash);
+          // Other tabs instancing this scene pick up the saved version, like Godot.
+          if (this.state) this.setLibraryScene(this.sceneDocumentWithTileEdits() ?? this.state.document);
           for (const entry of embeddedTiles) entry.context.markSaved();
         } else {
           if (this.resourceState?.document.resourceId === result.id) this.resourceState.markSaved(result.hash);
@@ -407,7 +599,7 @@ export class SceneStudioController {
   private composed(): { readonly nodes: readonly ComposedSceneNode[]; readonly byKey: ReadonlyMap<string, ComposedSceneNode> } {
     const state = this.state;
     if (!state) return { nodes: [], byKey: new Map() };
-    const signature = `${state.sceneId}:${state.revision}:${this.library.size}`;
+    const signature = `${state.sceneId}:${state.revision}:${this.libraryRevision}`;
     if (this.composedCache?.signature === signature) return this.composedCache;
     const nodes = composeSceneNodes(state.document, this.resolveScene, this.isTransformType);
     this.composedCache = { signature, nodes, byKey: new Map(nodes.map((node) => [node.key, node])) };
@@ -423,7 +615,7 @@ export class SceneStudioController {
     const state = this.state;
     const overrides = this.animationPanel.visible ? this.animationPanel.poseOverrides() : undefined;
     if (!state || !overrides || overrides.size === 0) return this.composed();
-    const signature = `${state.sceneId}:${state.revision}:${this.library.size}:${JSON.stringify([...overrides])}`;
+    const signature = `${state.sceneId}:${state.revision}:${this.libraryRevision}:${JSON.stringify([...overrides])}`;
     if (this.posedCache?.signature === signature) return this.posedCache;
     const posed: SceneDocument = { ...state.document, nodes: state.document.nodes.map((node) => {
       const values = overrides.get(`:${node.id}`);
@@ -519,7 +711,7 @@ export class SceneStudioController {
     if (state) {
       const tiles = [...this.tileContexts.values()].map((entry) => `${entry.context.document.resourceId}@${entry.context.revision}`).join(',');
       const shapes = [...this.shapeResources.values()].map((entry) => JSON.stringify(entry.state.document)).join(',');
-      const signature = `scene:${state.sceneId}:${state.revision}:${tiles}:${shapes.length}:${hashString(shapes)}`;
+      const signature = `scene:${state.sceneId}:${state.revision}:${this.libraryRevision}:${tiles}:${shapes.length}:${hashString(shapes)}`;
       const immediate = !this.previewSignature?.startsWith(`scene:${state.sceneId}:`);
       return {
         signature, immediate,
@@ -594,6 +786,7 @@ export class SceneStudioController {
     const uiSelection = uiNodes.find((node) => `:${node.id}` === selectedComposed);
     const selectionRect = selectedComposed === `:${state.document.rootNodeId}` ? undefined : unionRects(selectionRects);
     const shapes = [...this.selectedShapes(nodes, selectedSubtree), ...this.animationHitboxShapes(nodes)];
+    const boundsGuides = this.boundsGuides(nodes, selectedSubtree);
     const tile = this.selectedTileContext();
     const tileNode = tile && selectedComposed ? byKey.get(selectedComposed) : undefined;
     const tileSize = tileNode && typeof tileNode.properties.tileSize === 'number' ? tileNode.properties.tileSize : 64;
@@ -613,6 +806,7 @@ export class SceneStudioController {
       markers,
       ...(selectionRect ? { selectionRect } : {}),
       shapes,
+      boundsGuides,
       ...(tile && tileNode?.global ? { tile: { context: tile.context, origin: tileNode.global.position, tileSize } } : {}),
       pickables,
       ...(contentBounds ? { contentBounds } : {}),
@@ -799,6 +993,11 @@ export class SceneStudioController {
     const toggle = event.target instanceof Element ? event.target.closest<HTMLElement>('[data-tree-toggle]') : null;
     if (toggle?.dataset.treeToggle) { event.stopPropagation(); this.toggleExpanded(toggle.dataset.treeToggle); return; }
     if (event.target instanceof Node && this.animationPanel.element.contains(event.target)) return;
+    const tabControl = event.target instanceof Element ? event.target.closest<HTMLElement>('[data-tab-close],[data-tab-activate]') : null;
+    if (tabControl?.dataset.tabClose) { this.closeTab(tabControl.dataset.tabClose); return; }
+    if (tabControl?.dataset.tabActivate) { this.activateTab(tabControl.dataset.tabActivate); return; }
+    const instanceOption = event.target instanceof Element ? event.target.closest<HTMLElement>('[data-instance-scene]') : null;
+    if (instanceOption?.dataset.instanceScene) { await this.instantiateScene(instanceOption.dataset.instanceScene); return; }
     const keyToggle = event.target instanceof Element ? event.target.closest<HTMLElement>('[data-key-toggle]') : null;
     const keyRow = keyToggle?.closest<HTMLElement>('[data-key-property]');
     if (keyRow?.dataset.keyNode && keyRow.dataset.keyProperty) { this.animationPanel.toggleNodeKey(keyRow.dataset.keyNode, keyRow.dataset.keyProperty); return; }
@@ -852,6 +1051,8 @@ export class SceneStudioController {
     else if (action === 'tile-layer-down' && tile) { this.reorderSelectedTileLayer(1); }
     else if (action === 'add-tile-layer' && tile) { this.addTileLayer(tile); }
     else if (action === 'close-create') { this.creationSearch = undefined; this.render(); }
+    else if (action === 'instance-scene' && this.state) { this.instanceSearch = ''; this.render(); }
+    else if (action === 'close-instance') { this.instanceSearch = undefined; this.render(); }
   }
 
   private toggleExpanded(key: string): void {
@@ -863,7 +1064,7 @@ export class SceneStudioController {
 
   private handleChange(event: Event): void {
     if (!(event.target instanceof HTMLInputElement) && !(event.target instanceof HTMLSelectElement) && !(event.target instanceof HTMLTextAreaElement)) return;
-    if (event.target.dataset.creationSearch !== undefined || event.target.dataset.explorerFilter !== undefined) return;
+    if (event.target.dataset.creationSearch !== undefined || event.target.dataset.explorerFilter !== undefined || event.target.dataset.instanceSearch !== undefined) return;
     const keyRow = event.target.closest<HTMLElement>('[data-key-property]');
     if (keyRow?.dataset.keyNode && keyRow.dataset.keyProperty) {
       try { this.animationPanel.keyNodeProperty(keyRow.dataset.keyNode, keyRow.dataset.keyProperty, readAnimationValue(keyRow, keyRow.dataset.kind as AnimationValueKind)); }
@@ -902,7 +1103,8 @@ export class SceneStudioController {
     const descriptor = [...sceneInspectorModel(target.node, this.registry).groups.values()].flat().find((candidate) => candidate.descriptor.key === property)?.descriptor;
     if (!descriptor) return;
     try {
-      const raw = descriptor.inspector === 'checkbox' && event.target instanceof HTMLInputElement ? event.target.checked : event.target.value;
+      const raw = descriptor.inspector === 'source-rect' ? this.sourceRectRaw(event.target, target)
+        : descriptor.inspector === 'checkbox' && event.target instanceof HTMLInputElement ? event.target.checked : event.target.value;
       const value = this.propertyEditors.get(descriptor.inspector).parse(raw, descriptor);
       if (target.mode === 'local') this.state.execute(sceneCommands.setProperty(target.node.id, property, value));
       else {
@@ -910,6 +1112,171 @@ export class SceneStudioController {
         this.state.execute(sceneCommands.setOverride(target.instanceId!, { sourceInstancePath: [...(target.sourceInstancePath ?? [])], sourceNodeId: target.node.id, property, value }));
       }
       this.message = `Changed ${descriptor.label}${target.mode === 'override' ? ' (instance override)' : ''}`;
+    } catch (error) { this.message = error instanceof Error ? error.message : String(error); }
+    this.render();
+  }
+
+  // -------------------------------------------------------------------------
+  // Scene instancing (Godot's "Instance Child Scene" and explorer drag-and-drop)
+  // -------------------------------------------------------------------------
+
+  /** Where a new instance goes: under the selected local node, beside a selected instance, else under the root. */
+  private instanceParentId(): AuthoredNodeId | undefined {
+    const state = this.state;
+    if (!state) return undefined;
+    const row = this.rows.find((candidate) => candidate.key === this.selectedKey);
+    if (row?.kind === 'node' && !row.readOnly) return row.nodeId;
+    if (row?.kind === 'instance' && (row.instancePath ?? []).length === 0) return row.parentNodeId;
+    return state.document.rootNodeId;
+  }
+
+  /** Tree drop target: a local node row adopts the instance, an instance row gets a sibling. */
+  private treeDropParent(element: Element | null): AuthoredNodeId | undefined {
+    const key = element?.closest<HTMLElement>('[data-scene-tree-key]')?.dataset.sceneTreeKey;
+    const row = key ? this.rows.find((candidate) => candidate.key === key) : undefined;
+    if (row?.kind === 'node' && !row.readOnly) return row.nodeId;
+    if (row?.kind === 'instance' && (row.instancePath ?? []).length === 0) return row.parentNodeId;
+    return this.state?.document.rootNodeId;
+  }
+
+  private async instantiateScene(id: string, placement: { readonly parentId?: AuthoredNodeId; readonly global?: readonly [number, number] } = {}): Promise<void> {
+    try {
+      const state = this.state;
+      if (!state) throw new Error('Open a scene before instancing another scene into it');
+      const sourceId = toSceneId(id);
+      let source = this.library.get(sourceId);
+      if (!source) {
+        const record = await this.repository.load('scene', sourceId);
+        if (record.kind !== 'scene' || !('sceneId' in record.document)) throw new Error(`'${sourceId}' is not a scene document`);
+        source = record.document;
+        this.setLibraryScene(source);
+      }
+      if (sceneContains(source, state.sceneId, this.resolveScene)) {
+        throw new Error(sourceId === state.sceneId ? 'A scene cannot be instanced into itself' : `Cannot instance ${sourceId}: it already contains ${state.sceneId}`);
+      }
+      const document = state.document;
+      const parentId = placement.parentId ?? this.instanceParentId() ?? document.rootNodeId;
+      const root = source.nodes.find((node) => node.id === source.rootNodeId);
+      const baseName = root?.name ?? sourceId;
+      const siblingNames = new Set([
+        ...document.nodes.filter((node) => node.parentId === parentId).map((node) => node.name),
+        ...document.instances.filter((instance) => instance.parentNodeId === parentId).map((instance) => instance.name),
+      ]);
+      let name = baseName;
+      for (let suffix = 2; siblingNames.has(name); suffix += 1) name = `${baseName}${suffix}`;
+      const newId = toInstanceId(uniqueId(sourceId.replace(/\./g, '-'), new Set(document.instances.map((instance) => instance.instanceId))));
+      const overrides: SceneOverrideDocument[] = [];
+      if (placement.global && root && this.isTransformType(root.type)) {
+        const parent = this.composed().byKey.get(`:${parentId}`);
+        const local = localPositionFor(parent?.global, placement.global);
+        overrides.push({ sourceInstancePath: [], sourceNodeId: source.rootNodeId, property: 'position', value: [Math.round(local[0]), Math.round(local[1])] });
+      }
+      // Follow the document's convention: world scenes key every placed instance for save data.
+      const keyed = document.instances.some((instance) => instance.persistenceKey !== undefined);
+      const order = document.nodes.filter((node) => node.parentId === parentId).length + document.instances.filter((instance) => instance.parentNodeId === parentId).length;
+      state.execute(sceneCommands.addInstance({
+        instanceId: newId, name, sceneId: sourceId, parentNodeId: parentId, order,
+        ...(keyed ? { persistenceKey: toPersistenceKey(`${state.sceneId}.${newId}`) } : {}),
+        overrides,
+      }));
+      this.selectedKey = `:instance:${newId}`;
+      this.instanceSearch = undefined;
+      this.message = `Instanced ${sourceId} as ${name}${placement.global ? ` at ${Math.round(placement.global[0])}, ${Math.round(placement.global[1])}` : ''}`;
+    } catch (error) { this.message = error instanceof Error ? error.message : String(error); }
+    this.render();
+  }
+
+  private renderInstanceDialog(): string {
+    const query = (this.instanceSearch ?? '').trim().toLowerCase();
+    const current = this.state?.sceneId;
+    const scenes = this.catalog
+      .filter((item) => item.kind === 'scene' && item.id !== current && (!query || `${item.id} ${item.relativePath}`.toLowerCase().includes(query)))
+      .slice(0, 200);
+    return `<div class="scene-dialog-backdrop"><section role="dialog" aria-modal="true" aria-labelledby="scene-instance-title" class="scene-create-dialog"><header><div><span>PROJECT SCENES</span><h2 id="scene-instance-title">Instance child scene</h2></div><button type="button" data-action="close-instance" aria-label="Close instance dialog">×</button></header><label><span>Search scenes</span><input autofocus type="search" data-instance-search value="${escapeHtml(this.instanceSearch)}" /></label><div role="listbox">${scenes.map((item) => `<button type="button" role="option" data-instance-scene="${escapeHtml(item.id)}"><span>◫</span><strong>${escapeHtml(item.id)}</strong><small>${escapeHtml(item.relativePath)}</small></button>`).join('') || '<p>No matching scenes</p>'}</div></section></div>`;
+  }
+
+  // -------------------------------------------------------------------------
+  // Occlusion / depth bounds and depth anchors
+  // -------------------------------------------------------------------------
+
+  /** Rendered frame geometry of a composed sprite node, from the live preview. */
+  private spriteGeometry(node: ComposedSceneNode | undefined): SpriteBoundsGeometry | undefined {
+    return node ? this.preview?.spriteGeometry().get(runtimeIdFor(node)) : undefined;
+  }
+
+  /** The inspector's rect control as a JSON value; switching it on starts from the sprite's frame. */
+  private sourceRectRaw(input: HTMLElement, target: InspectorTarget): string {
+    const group = input.closest<HTMLElement>('[data-rect-property]');
+    if (!group) throw new Error('Rectangle control is missing its fields');
+    if (input.dataset.rectField === 'enabled') {
+      if (!(input instanceof HTMLInputElement) || !input.checked) return '{}';
+      const frame = this.spriteGeometry(target.composed)?.sourceFrame ?? { width: 64, height: 64 };
+      const width = Math.max(1, Math.round(frame.width));
+      const height = Math.max(1, Math.round(frame.height));
+      // Depth bounds start as the bottom quarter (a footprint); occlusion covers the whole frame.
+      const footprint = group.dataset.rectProperty === 'depthBounds' ? Math.max(1, Math.round(height / 4)) : height;
+      return JSON.stringify({ offsetX: 0, offsetY: height - footprint, width, height: footprint });
+    }
+    const values: Record<string, number> = {};
+    for (const field of group.querySelectorAll<HTMLInputElement>('[data-rect-field]:not([data-rect-field="enabled"])')) values[field.dataset.rectField!] = Number(field.value);
+    return JSON.stringify(values);
+  }
+
+  /** Writes a property on a composed node: directly when local, as an instance override otherwise. */
+  private writeComposedProperty(node: ComposedSceneNode, property: string, value: JsonValue): void {
+    const state = this.state;
+    if (!state) return;
+    if (!node.readOnly) { state.execute(sceneCommands.setProperty(node.nodeId, property, value)); return; }
+    const [top, ...rest] = node.instancePath;
+    if (!top || !state.document.instances.some((instance) => instance.instanceId === top)) throw new Error(`${node.name} cannot be edited from this scene`);
+    state.execute(sceneCommands.setOverride(top, { sourceInstancePath: rest, sourceNodeId: node.nodeId, property, value }));
+  }
+
+  /**
+   * Guides for the selected subtree: occlusion and depth bounds of sprites and
+   * depth anchors of Node2Ds. Selecting a scene root shows its own nodes only,
+   * so a world root does not draw every placed object.
+   */
+  private boundsGuides(nodes: readonly ComposedSceneNode[], subtree: ReadonlySet<string>): LiveViewportBoundsGuide[] {
+    const state = this.state;
+    if (!state) return [];
+    const rootSelected = subtree.has(`:${state.document.rootNodeId}`);
+    const guides: LiveViewportBoundsGuide[] = [];
+    for (const node of nodes) {
+      if (!subtree.has(node.key) || (rootSelected && node.readOnly) || guides.length >= 96) continue;
+      const editable = !node.readOnly || state.document.instances.some((instance) => instance.instanceId === node.instancePath[0]);
+      const anchor = node.properties.depthAnchor;
+      if (Array.isArray(anchor) && anchor.length === 2 && node.global) {
+        const local: readonly [number, number] = [Number(anchor[0]), Number(anchor[1])];
+        guides.push({ key: node.key, property: 'depthAnchor', kind: 'anchor', point: localToGlobalPoint(node.global, local), editable });
+      }
+      if (node.type !== 'Sprite2D') continue;
+      const geometry = this.spriteGeometry(node);
+      if (!geometry) continue;
+      for (const [property, kind, sprite] of [['occlusionBounds', 'occlusion', geometry.occlusionSprite], ['depthBounds', 'depth', geometry.depthSprite]] as const) {
+        const bounds = sourceRectValue(node.properties[property]);
+        if (bounds) guides.push({ key: node.key, property, kind, rect: resolveWorldOcclusionRectangle(sprite, geometry.sourceFrame, bounds), editable });
+      }
+    }
+    return guides;
+  }
+
+  private editBoundsFromViewport(key: string, property: string, change: { readonly rect?: WorldRect; readonly point?: readonly [number, number] }): void {
+    try {
+      const node = this.composed().byKey.get(key);
+      if (!node) return;
+      if (property === 'depthAnchor' && change.point && node.global) {
+        const local = localPositionFor(node.global, change.point);
+        const value: [number, number] = [Math.round(local[0]), Math.round(local[1])];
+        this.writeComposedProperty(node, 'depthAnchor', value);
+        this.message = `Moved ${node.name} depth anchor to ${value.join(', ')}`;
+      } else if ((property === 'occlusionBounds' || property === 'depthBounds') && change.rect) {
+        const geometry = this.spriteGeometry(node);
+        if (!geometry) throw new Error(`${node.name} is not rendered yet`);
+        const bounds = resolveSourceBoundsFromWorld(property === 'depthBounds' ? geometry.depthSprite : geometry.occlusionSprite, geometry.sourceFrame, change.rect);
+        this.writeComposedProperty(node, property, { ...bounds });
+        this.message = `${property === 'depthBounds' ? 'Depth' : 'Occlusion'} bounds of ${node.name} · ${bounds.offsetX}, ${bounds.offsetY} · ${bounds.width}×${bounds.height}px`;
+      }
     } catch (error) { this.message = error instanceof Error ? error.message : String(error); }
     this.render();
   }
@@ -1285,10 +1652,11 @@ export class SceneStudioController {
   // -------------------------------------------------------------------------
 
   private render(): void {
+    this.stashActiveTab();
     const active = document.activeElement instanceof HTMLElement ? document.activeElement : undefined;
     const focused = active
       ? (active.dataset.sceneTreeKey ? `[data-scene-tree-key="${CSS.escape(active.dataset.sceneTreeKey)}"]`
-        : active.dataset.property ? `[data-property="${CSS.escape(active.dataset.property)}"]`
+        : active.dataset.property ? `[data-property="${CSS.escape(active.dataset.property)}"]${active.dataset.rectField ? `[data-rect-field="${CSS.escape(active.dataset.rectField)}"]` : ''}`
           : active.dataset.resourceField ? `[data-resource-field="${CSS.escape(active.dataset.resourceField)}"]`
             : active.dataset.explorerFilter !== undefined ? '[data-explorer-filter]'
               : active.dataset.action ? `[data-action="${CSS.escape(active.dataset.action)}"]` : undefined)
@@ -1318,10 +1686,10 @@ export class SceneStudioController {
     });
     const canCopy = Boolean(state && selectedRow?.kind === 'node' && !selectedRow.readOnly && selectedRow.nodeId !== state.document.rootNodeId);
     const treePanel = state
-      ? renderSceneTreePanel(this.rows, this.selectedKey).replace('<button type="button" data-scene-add', `<span class="scene-tree-actions"><button type="button" data-action="copy-node" ${canCopy ? '' : 'disabled'} aria-label="Copy node" title="Copy (Ctrl+C)">⧉</button><button type="button" data-action="paste-node" ${this.clipboard.hasContent ? '' : 'disabled'} aria-label="Paste node" title="Paste (Ctrl+V)">⎘</button><button type="button" data-action="delete-node" ${canCopy || (selectedRow?.kind === 'instance' && (selectedRow.instancePath ?? []).length === 0) ? '' : 'disabled'} aria-label="Delete selection" title="Delete (Del)">⌫</button></span><button type="button" data-scene-add`)
+      ? renderSceneTreePanel(this.rows, this.selectedKey).replace('<button type="button" data-scene-add', `<span class="scene-tree-actions"><button type="button" data-action="copy-node" ${canCopy ? '' : 'disabled'} aria-label="Copy node" title="Copy (Ctrl+C)">⧉</button><button type="button" data-action="paste-node" ${this.clipboard.hasContent ? '' : 'disabled'} aria-label="Paste node" title="Paste (Ctrl+V)">⎘</button><button type="button" data-action="delete-node" ${canCopy || (selectedRow?.kind === 'instance' && (selectedRow.instancePath ?? []).length === 0) ? '' : 'disabled'} aria-label="Delete selection" title="Delete (Del)">⌫</button><button type="button" data-action="instance-scene" aria-label="Instance child scene" title="Instance child scene (Ctrl+Shift+A) · or drag a scene from the explorer">⛓</button></span><button type="button" data-scene-add`)
       : resource ? `<section class="scene-tree-panel scene-empty"><p>Resource <strong>${escapeHtml(resource.document.resourceId)}</strong> · ${escapeHtml(resource.document.kind)}</p></section>`
         : '<section class="scene-tree-panel scene-empty"><p>Open a scene or resource from the project explorer.</p></section>';
-    this.container.innerHTML = `<main class="scene-studio" data-scene-studio><header class="scene-topbar"><div><span>FIELD CARTOGRAPHER / UNIVERSAL GRAPH</span><h1>Scene Studio</h1></div><div class="scene-command-bar"><button type="button" data-action="undo" ${!canUndo ? 'disabled' : ''}>Undo</button><button type="button" data-action="redo" ${!canRedo ? 'disabled' : ''}>Redo</button><button type="button" class="scene-save" data-action="save" ${!dirty ? 'disabled' : ''}>${dirty ? 'Save changes' : 'Saved'}</button></div></header><aside class="scene-explorer" aria-label="Project explorer"><label><span>EXPEDITION INDEX</span><input type="search" data-explorer-filter value="${escapeHtml(this.explorerFilter)}" placeholder="Filter scenes and resources" aria-label="Filter scenes and resources" /></label><nav aria-label="Project files"><h2><span>Project</span><small><em data-explorer-count="scene">${scenes.length}</em> scenes · <em data-explorer-count="resource">${resources.length}</em> resources</small></h2>${explorerTree || '<p>No scene documents or resources</p>'}</nav></aside><section class="scene-workbench${animation ? ' has-animation-dock' : ''}">${treePanel}<section data-viewport-slot></section>${this.renderInspector()}${animation ? '<section data-animation-slot></section>' : ''}</section><footer class="scene-status" role="status"><span class="${state?.repairMode ? 'is-warning' : ''}">${escapeHtml(this.message)}</span><span>${state ? `${state.document.nodes.length} NODES · ${state.document.instances.length} INSTANCES${dirty ? ' · UNSAVED' : ''}` : resource ? `${escapeHtml(resource.document.kind.toUpperCase())} RESOURCE${dirty ? ' · UNSAVED' : ''}` : 'AUTHORING SYSTEM READY'}</span></footer>${this.creationSearch !== undefined ? this.renderCreationDialog() : ''}</main>`;
+    this.container.innerHTML = `<main class="scene-studio" data-scene-studio><header class="scene-topbar"><div><span>FIELD CARTOGRAPHER / UNIVERSAL GRAPH</span><h1>Scene Studio</h1></div><div class="scene-command-bar"><button type="button" data-action="undo" ${!canUndo ? 'disabled' : ''}>Undo</button><button type="button" data-action="redo" ${!canRedo ? 'disabled' : ''}>Redo</button><button type="button" class="scene-save" data-action="save" ${!dirty ? 'disabled' : ''}>${dirty ? 'Save changes' : 'Saved'}</button></div></header><aside class="scene-explorer" aria-label="Project explorer"><label><span>EXPEDITION INDEX</span><input type="search" data-explorer-filter value="${escapeHtml(this.explorerFilter)}" placeholder="Filter scenes and resources" aria-label="Filter scenes and resources" /></label><nav aria-label="Project files"><h2><span>Project</span><small><em data-explorer-count="scene">${scenes.length}</em> scenes · <em data-explorer-count="resource">${resources.length}</em> resources</small></h2>${explorerTree || '<p>No scene documents or resources</p>'}</nav></aside><section class="scene-main">${this.renderTabs()}<section class="scene-workbench${animation ? ' has-animation-dock' : ''}">${treePanel}<section data-viewport-slot></section>${this.renderInspector()}${animation ? '<section data-animation-slot></section>' : ''}</section></section><footer class="scene-status" role="status"><span class="${state?.repairMode ? 'is-warning' : ''}">${escapeHtml(this.message)}</span><span>${state ? `${state.document.nodes.length} NODES · ${state.document.instances.length} INSTANCES${dirty ? ' · UNSAVED' : ''}` : resource ? `${escapeHtml(resource.document.kind.toUpperCase())} RESOURCE${dirty ? ' · UNSAVED' : ''}` : 'AUTHORING SYSTEM READY'}</span></footer>${this.creationSearch !== undefined ? this.renderCreationDialog() : ''}${this.instanceSearch !== undefined ? this.renderInstanceDialog() : ''}</main>`;
     this.applyExplorerFilter();
     const explorer = this.container.querySelector('.scene-explorer');
     if (explorer) explorer.scrollTop = explorerScroll;
@@ -1341,7 +1709,11 @@ export class SceneStudioController {
       this.framedFor = this.pendingFrame;
       this.liveViewport.frameAll();
     }
-    if (focused) {
+    const instanceSearch = this.container.querySelector<HTMLInputElement>('[data-instance-search]');
+    if (instanceSearch) {
+      instanceSearch.focus();
+      instanceSearch.setSelectionRange(instanceSearch.value.length, instanceSearch.value.length);
+    } else if (focused) {
       const element = this.container.querySelector<HTMLElement>(focused);
       element?.focus();
       if (element instanceof HTMLInputElement && element.dataset.explorerFilter !== undefined) element.setSelectionRange(element.value.length, element.value.length);
@@ -1406,6 +1778,23 @@ function runtimeIdFor(node: ComposedSceneNode): string {
 }
 
 function round2(value: number): number { return Math.round(value * 100) / 100; }
+
+/** A complete authored source rectangle, or undefined for `{}` / partial values. */
+function sourceRectValue(value: JsonValue | undefined): SourceOcclusionBounds | undefined {
+  if (value === null || value === undefined || typeof value !== 'object' || Array.isArray(value)) return undefined;
+  const { offsetX, offsetY, width, height } = value as Readonly<Record<string, JsonValue>>;
+  return typeof offsetX === 'number' && typeof offsetY === 'number' && typeof width === 'number' && typeof height === 'number' && width > 0 && height > 0
+    ? { offsetX, offsetY, width, height }
+    : undefined;
+}
+
+function localToGlobalPoint(transform: { readonly position: readonly [number, number]; readonly rotation: number; readonly scale: readonly [number, number] }, point: readonly [number, number]): readonly [number, number] {
+  const x = point[0] * transform.scale[0];
+  const y = point[1] * transform.scale[1];
+  const cosine = Math.cos(transform.rotation);
+  const sine = Math.sin(transform.rotation);
+  return [transform.position[0] + x * cosine - y * sine, transform.position[1] + x * sine + y * cosine];
+}
 
 function uniqueId(base: string, taken: ReadonlySet<string>): AuthoredNodeId {
   const normalized = base.replace(/[^a-z0-9._-]+/gi, '-').toLowerCase() || 'node';

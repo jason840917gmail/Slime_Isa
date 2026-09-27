@@ -28,6 +28,9 @@ interface MutableFolder {
 
 const FAMILY_SEPARATOR = '--';
 
+/** Drag payload type for scene files dragged out of the explorer to be instanced. */
+export const SCENE_DRAG_TYPE = 'application/x-scene-studio-scene';
+
 function fileName(relativePath: string): string {
   return relativePath.slice(relativePath.lastIndexOf('/') + 1);
 }
@@ -143,7 +146,7 @@ function renderItem(item: SceneStudioContentSummary, family: string | undefined,
   const title = escape(`${item.id}\n${item.relativePath}`);
   const label = escape(itemLabel(item, family));
   return item.kind === 'scene'
-    ? `<button type="button" data-scene-id="${escape(item.id)}" data-explorer-item="${searchText}" class="scene-explorer-item${current}" title="${title}"><span>◫</span><strong>${label}</strong></button>`
+    ? `<button type="button" draggable="true" data-scene-id="${escape(item.id)}" data-explorer-item="${searchText}" class="scene-explorer-item${current}" title="${title}"><span>◫</span><strong>${label}</strong></button>`
     : `<button type="button" data-resource-id="${escape(item.id)}" data-explorer-item="${searchText}" class="scene-explorer-item scene-resource-row${current}" title="${title}"><span>◈</span>${label}</button>`;
 }
 

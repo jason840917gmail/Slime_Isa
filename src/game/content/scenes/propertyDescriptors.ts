@@ -23,7 +23,7 @@ export interface PropertyDescriptor {
   readonly defaultValue?: JsonValue;
   readonly required?: boolean;
   readonly serialized: boolean;
-  readonly inspector: 'checkbox' | 'text' | 'number' | 'select' | 'vector2' | 'color' | 'node' | 'resource' | 'scene' | 'json';
+  readonly inspector: 'checkbox' | 'text' | 'number' | 'select' | 'vector2' | 'color' | 'node' | 'resource' | 'scene' | 'json' | 'source-rect';
   readonly animation?: {
     readonly interpolation: 'step' | 'numeric';
     readonly domains: readonly ('physics' | 'render')[];
@@ -274,8 +274,8 @@ export function createCoreDescriptorRegistry(scripts: readonly ScriptDescriptor[
       { ...number('depthOffset', 'Relative Depth Offset', 0), animation: { interpolation: 'step', domains: ['physics', 'render'] } },
       { key: 'depthBand', label: 'Depth Band', value: { kind: 'enum', values: ['ground-terrain', 'ground-decals', 'world-entities', 'overhead-artwork', 'reveal-effects', 'screen-ui', 'editor-cursor', 'editor-drag-lift', 'editor-selection-marker', 'editor-template-overlay'] }, defaultValue: 'world-entities', serialized: true, inspector: 'select', overridable: true },
       number('depth', 'Explicit Depth', 0),
-      { key: 'occlusionBounds', label: 'Occlusion Bounds', value: { kind: 'json' }, defaultValue: {}, serialized: true, inspector: 'json', overridable: true },
-      { key: 'depthBounds', label: 'Depth Bounds', value: { kind: 'json' }, defaultValue: {}, serialized: true, inspector: 'json', overridable: true },
+      { key: 'occlusionBounds', label: 'Occlusion Bounds', help: 'Source-frame pixels of the artwork that hides actors walking behind it (they show as a silhouette).', value: { kind: 'json' }, defaultValue: {}, serialized: true, inspector: 'source-rect', overridable: true },
+      { key: 'depthBounds', label: 'Depth Bounds', help: 'Source-frame pixels of the footprint; its bottom edge (Y + H) is the line this sprite sorts front/behind by.', value: { kind: 'json' }, defaultValue: {}, serialized: true, inspector: 'source-rect', overridable: true },
     ] },
     { type: 'PhysicsBody2D', extends: 'Node2D', capabilities: ['physics-body'], properties: [
       collisionBitsProperty('collisionLayer', 'Collision Layer', collisionBits('world'), 'Named layers this body occupies.'),

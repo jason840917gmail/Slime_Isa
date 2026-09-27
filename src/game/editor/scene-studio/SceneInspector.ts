@@ -60,7 +60,25 @@ export function renderSceneInspector(model: SceneInspectorModel): string {
     const value = typeof property.value === 'string' || typeof property.value === 'number' ? property.value : property.value === undefined ? '' : JSON.stringify(property.value);
     return `<input type="${type}" ${attributes}${constraints} value="${escapeHtml(value)}" />`;
   };
-  const groups = [...model.groups].map(([label, properties]) => `<fieldset><legend>${escapeHtml(label)}</legend>${properties.map((property) => `<label class="scene-property"><span>${escapeHtml(property.descriptor.label)}${property.descriptor.units ? `<small>${escapeHtml(property.descriptor.units)}</small>` : ''}</span>${input(property)}<em>${property.origin}</em>${property.descriptor.help ? `<small id="help-${escapeHtml(property.descriptor.key)}">${escapeHtml(property.descriptor.help)}</small>` : ''}</label>`).join('')}</fieldset>`).join('');
+  const groups = [...model.groups].map(([label, properties]) => `<fieldset><legend>${escapeHtml(label)}</legend>${properties.map((property) => property.descriptor.inspector === 'source-rect' ? renderSourceRect(property) : `<label class="scene-property"><span>${escapeHtml(property.descriptor.label)}${property.descriptor.units ? `<small>${escapeHtml(property.descriptor.units)}</small>` : ''}</span>${input(property)}<em>${property.origin}</em>${property.descriptor.help ? `<small id="help-${escapeHtml(property.descriptor.key)}">${escapeHtml(property.descriptor.help)}</small>` : ''}</label>`).join('')}</fieldset>`).join('');
   const script = model.script ? `<section class="scene-script-card"><span>SCRIPT</span><strong>${escapeHtml(model.script.displayName)}</strong><code>${escapeHtml(model.script.scriptId)}</code><button type="button" data-open-source="${escapeHtml(model.script.sourcePath)}">Open ${escapeHtml(model.script.sourcePath)}</button></section>` : '';
   return `<aside class="scene-inspector" aria-label="Inspector"><header><span>INSPECTOR</span><h2>${escapeHtml(model.node.name)}</h2><small>${escapeHtml(model.node.type)}</small></header>${script}${groups}${model.warnings.map((warning) => `<p role="alert">${escapeHtml(warning)}</p>`).join('')}</aside>`;
+}
+
+/** Guide colours shared with the in-game dev tools overlay (dev/WorldDebugRenderer.ts). */
+const SOURCE_RECT_TONES: Readonly<Record<string, string>> = { occlusionBounds: 'occlusion', depthBounds: 'depth' };
+
+/** Enable toggle plus X/Y/W/H pixel fields for a source-frame rectangle such as occlusion or depth bounds. */
+function renderSourceRect(property: InspectorProperty): string {
+  const key = property.descriptor.key;
+  const value = property.value !== null && typeof property.value === 'object' && !Array.isArray(property.value) ? property.value as Readonly<Record<string, JsonValue>> : {};
+  const enabled = ['offsetX', 'offsetY', 'width', 'height'].every((field) => typeof value[field] === 'number');
+  const field = (name: string, label: string, min?: number): string => `<label><small>${label}</small><input type="number" step="1"${min === undefined ? '' : ` min="${min}"`} data-property="${escapeHtml(key)}" data-rect-field="${name}" value="${enabled ? escapeHtml(value[name]) : ''}" ${enabled ? '' : 'disabled'} /></label>`;
+  const sortLine = key === 'depthBounds' && enabled ? `<small class="scene-rect-note">Sort line at source Y ${Number(value.offsetY) + Number(value.height)}px</small>` : '';
+  return `<div class="scene-property scene-rect-property is-${SOURCE_RECT_TONES[key] ?? 'bounds'}" data-rect-property="${escapeHtml(key)}" role="group" aria-labelledby="rect-${escapeHtml(key)}">`
+    + `<span id="rect-${escapeHtml(key)}"><i class="scene-rect-swatch" aria-hidden="true"></i>${escapeHtml(property.descriptor.label)}</span>`
+    + `<label class="scene-rect-toggle"><input type="checkbox" data-property="${escapeHtml(key)}" data-rect-field="enabled" ${enabled ? 'checked' : ''} />${enabled ? 'On' : 'Off'}</label><em>${property.origin}</em>`
+    + `<div class="scene-rect-fields">${field('offsetX', 'X')}${field('offsetY', 'Y')}${field('width', 'W', 1)}${field('height', 'H', 1)}</div>${sortLine}`
+    + (property.descriptor.help ? `<small id="help-${escapeHtml(key)}">${escapeHtml(property.descriptor.help)} Drag its handles in the viewport to edit.</small>` : '')
+    + '</div>';
 }

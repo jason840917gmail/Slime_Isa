@@ -472,6 +472,7 @@ export class WorldScene extends Phaser.Scene {
       getTransitionZones: () => [],
       getEnemySpawnAreas: () => this.builtMap?.enemySpawnAreas ?? [],
       getBossCamps: () => this.builtMap?.bossCamps ?? [],
+      getWorldVisuals: () => this.universalWorld?.worldVisuals ?? [],
     });
   }
 
