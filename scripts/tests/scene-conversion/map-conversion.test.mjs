@@ -6,6 +6,7 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 import { ConversionRunner } from '../../lib/scene-conversion/ConversionRunner.mjs';
+import { collisionBits } from '../../lib/scene-conversion/collision-layers.mjs';
 import { mapSceneAdapter } from '../../lib/scene-conversion/maps.mjs';
 import { validateSceneWriteSet } from '../../lib/scene-conversion/validate-scene-write-set.mjs';
 
@@ -45,30 +46,36 @@ async function createRunner() {
   });
 }
 
-test('map terrain conversion is deterministic and externalizes stable tile cells', async () => {
+test('map terrain conversion is deterministic and embeds stable tile cells in the world scene', async () => {
   const runner = await createRunner();
   const first = await runner.run({ unitKeys, mode: 'dry-run' });
   const replay = await runner.run({ unitKeys: [...unitKeys].reverse(), mode: 'dry-run' });
   assert.deepEqual(replay.outputs, first.outputs);
-  assert.equal(first.outputs.length, 8);
+  assert.equal(first.outputs.length, 4);
+  assert.ok(!first.outputs.some((output) => output.path.startsWith('resources/')), 'maps write neither tile sets nor standalone tile data');
 
   await runner.run({ unitKeys, mode: 'apply' });
   await runner.run({ unitKeys, mode: 'check' });
   const load = async (relativePath) => JSON.parse(await readFile(path.join(runner.outputRoot, relativePath), 'utf8'));
   const world = await load('worlds/test-rectangle.scene.json');
-  const data = await load('resources/tiles/test-rectangle.ground.tile-data.resource.json');
-  const set = await load('resources/tiles/test-rectangle.ground.tile-set.resource.json');
+  // Godot keeps TileMapLayer cells in the scene: the layer's tile data is a subresource.
+  const data = world.subresources.find((resource) => resource.resourceId === 'tiles.test-rectangle.ground.data');
+  assert.equal(data?.kind, 'tile-data');
+  // Every map layer paints with the one shared terrain TileSet.
+  const set = JSON.parse(await readFile(path.join(repositoryRoot, 'src/game/content/scenes/authored/resources/terrain/terrain.tile-set.resource.json'), 'utf8'));
   const report = await load('reports/worlds/test-rectangle.mapping.json');
 
   assert.equal(world.sceneId, 'world.test-rectangle');
   assert.deepEqual(world.nodes.find((node) => node.type === 'TileMapLayer2D').properties, {
     position: [0, 0], tileData: { resourceId: 'tiles.test-rectangle.ground.data' }, tileSize: 64,
-    seed: 2455619060, depth: 0, collisionLayer: 1, collisionMask: 2, collisionEnabled: true, editorLocked: false,
+    seed: 2455619060, depth: 0, collisionLayer: collisionBits('world'), collisionMask: 0, collisionEnabled: true, editorLocked: false,
   });
   assert.deepEqual({ columns: data.columns, rows: data.rows }, { columns: 8, rows: 5 });
   assert.equal(data.cells.length, 40);
   assert.deepEqual(data.cells[19], { x: 3, y: 2, tileId: 'water' });
-  assert.deepEqual(Object.keys(set.tiles), ['grass-a', 'water']);
+  assert.equal(data.tileSet, 'terrain.tiles');
+  assert.equal(set.resourceId, 'terrain.tiles');
+  assert.ok(data.cells.every((cell) => Object.hasOwn(set.tiles, cell.tileId)));
   assert.deepEqual(set.tiles['grass-a'].assetIds, ['sheet.grounds.19x19.highland-green']);
   assert.deepEqual(set.tiles['grass-a'].transition, {
     group: 'natural-ground', material: 'highland', priority: 10, edgeWidth: 12, style: 'noisy-feather',
@@ -115,7 +122,7 @@ test('map terrain conversion is deterministic and externalizes stable tile cells
     'player-spawn', 'player-entry-east',
   ]);
   assert.deepEqual(levelOne.nodes.find((node) => node.id === 'exit-1').properties, {
-    position: [3552, 576], collisionLayer: 0, collisionMask: 1, monitoring: true, monitorable: false,
+    position: [3552, 576], collisionLayer: collisionBits('trigger'), collisionMask: collisionBits('player', 'npc'), monitoring: true, monitorable: false,
   });
   assert.deepEqual(levelOne.nodes.find((node) => node.id === 'exit-1-shape').properties, {
     shape: { resourceId: 'level-1.exit-1.shape' },
@@ -151,8 +158,6 @@ test('converted world terrain matches checked-in authored resources', async () =
   await runner.run({ unitKeys, mode: 'apply' });
   for (const relativePath of [
     'worlds/test-rectangle.scene.json',
-    'resources/tiles/test-rectangle.ground.tile-data.resource.json',
-    'resources/tiles/test-rectangle.ground.tile-set.resource.json',
     'reports/worlds/test-rectangle.mapping.json',
   ]) {
     assert.deepEqual(

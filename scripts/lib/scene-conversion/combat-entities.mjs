@@ -1,4 +1,6 @@
 import { convertedOutput, readJson, shapeValue } from './adapter-utils.mjs';
+import { collision } from './collision-layers.mjs';
+import { loadAnimationSampling } from './load-animation-sampling.mjs';
 
 const DIRECTIONS = ['right', 'left', 'up', 'down'];
 const WEAPON_KEYS = new Set([
@@ -41,16 +43,17 @@ function collisionShape(shape, angleRad = 0) {
   return { shape: 'rectangle', width: shape.width, height: shape.height };
 }
 
-function layeredClips(entries) {
-  const clips = [];
-  for (const [animationId, animation] of entries) {
-    if (!animation) continue;
-    clips.push({ animationId, animation });
-  }
-  return clips;
-}
+/**
+ * Draw order of a wielded weapon relative to its wielder, from the old
+ * `CombatController` (`getDepth: () => player.depth + 0.01`). Layer order and
+ * authored `depthOffset` are added on top by `animationLayerRelativeDepth`.
+ */
+const WIELDED_WEAPON_DEPTH_OFFSET = 0.01;
 
-function layerKey(layer) { return `${layer.layerId}:${layer.assetId}`; }
+function layerKey(layer) {
+  const origin = layer.transform?.origin ?? [0.5, 0.5];
+  return `${layer.layerId}:${layer.assetId}:${origin[0]},${origin[1]}`;
+}
 
 function collectLayers(clips) {
   const layers = new Map();
@@ -62,26 +65,55 @@ function collectLayers(clips) {
 
 function layerNodeName(layer, index) { return `${title(layer.layerId)}${index + 1}`; }
 
-function animationLibrary(resourceId, clips, layers, layerNames) {
+function restingLayerState(layer, baseDepthOffset) {
+  const transform = layer.transform ?? {};
+  return {
+    sourceFrame: 0,
+    x: transform.offset?.[0] ?? 0,
+    y: transform.offset?.[1] ?? 0,
+    scaleX: transform.scale?.[0] ?? 1,
+    scaleY: transform.scale?.[1] ?? 1,
+    rotationRad: (transform.rotationDeg ?? 0) * Math.PI / 180,
+    flipX: transform.flipX ?? false,
+    flipY: transform.flipY ?? false,
+    depth: 0,
+    baseDepthOffset,
+  };
+}
+
+/**
+ * Samples every clip through the shared layered-animation composition (the
+ * exact functions the old runtime rendered with, including directional
+ * mirroring and the host presentation offset) and writes one step-accurate
+ * key per timeline frame for every animated Sprite2D property.
+ */
+function animationLibrary(resourceId, clips, layers, layerNames, sampling, baseDepthOffset) {
   const animations = {};
-  for (const { animationId, animation } of clips) {
-    const frameCount = Math.max(1, Math.ceil(animation.durationSeconds * animation.framesPerSecond));
+  for (const { animationId, animation, host } of clips) {
+    const samples = sampling.sampleLayeredAnimation(animation, host);
     const tracks = [];
     for (const [key, knownLayer] of layers) {
-      const layer = (animation.layers ?? []).find((candidate) => layerKey(candidate) === key);
-      const base = layer?.transform ?? knownLayer.transform ?? {};
-      const samples = [];
-      for (let frame = 0; frame < frameCount; frame += 1) {
-        const block = layer?.blocks?.find((candidate) => frame >= candidate.from && frame <= candidate.through);
-        const transform = { ...base, ...(block?.transform ?? {}) };
-        samples.push({ frame, block, transform });
-      }
+      const resting = restingLayerState(knownLayer, baseDepthOffset);
+      const perFrame = samples.map(({ layers: active }) => active.find((candidate) => {
+        const source = animation.layers[candidate.layerIndex];
+        return layerKey(source) === key;
+      }));
+      const firstActive = perFrame.find(Boolean);
+      let held = firstActive ?? resting;
+      const states = perFrame.map((active) => {
+        if (active) held = active;
+        return { visible: Boolean(active), value: active ?? held };
+      });
       const binding = `../${layerNames.get(key)}`;
-      tracks.push({ binding, property: 'frame', keys: samples.map(({ frame, block }) => ({ at: frame, value: block?.sourceFrame ?? 0 })) });
-      tracks.push({ binding, property: 'alpha', keys: samples.map(({ frame, block }) => ({ at: frame, value: block ? 1 : 0 })) });
-      tracks.push({ binding, property: 'position', keys: samples.map(({ frame, transform }) => ({ at: frame, value: transform.offset ?? [0, 0] })) });
-      tracks.push({ binding, property: 'scale', keys: samples.map(({ frame, transform }) => ({ at: frame, value: transform.scale ?? [1, 1] })) });
-      tracks.push({ binding, property: 'rotation', keys: samples.map(({ frame, transform }) => ({ at: frame, value: (transform.rotationDeg ?? 0) * Math.PI / 180 })) });
+      const keys = (read) => states.map((state, at) => ({ at, value: read(state) }));
+      tracks.push({ binding, property: 'frame', keys: keys(({ value }) => value.sourceFrame) });
+      tracks.push({ binding, property: 'alpha', keys: keys(({ visible }) => (visible ? 1 : 0)) });
+      tracks.push({ binding, property: 'position', keys: keys(({ value }) => [value.x, value.y]) });
+      tracks.push({ binding, property: 'scale', keys: keys(({ value }) => [value.scaleX, value.scaleY]) });
+      tracks.push({ binding, property: 'rotation', keys: keys(({ value }) => value.rotationRad) });
+      tracks.push({ binding, property: 'flipX', keys: keys(({ value }) => value.flipX) });
+      tracks.push({ binding, property: 'flipY', keys: keys(({ value }) => value.flipY) });
+      tracks.push({ binding, property: 'depthOffset', keys: keys(({ value }) => baseDepthOffset + value.depth) });
     }
     animations[animationId] = {
       durationSeconds: animation.durationSeconds,
@@ -94,7 +126,7 @@ function animationLibrary(resourceId, clips, layers, layerNames) {
   return { version: 1, resourceId, kind: 'animation-library', animations };
 }
 
-function visualContent(rootId, clips, manifest) {
+function visualContent(rootId, clips, manifest, baseDepthOffset) {
   const layers = collectLayers(clips);
   const layerNames = new Map([...layers].map(([key, layer], index) => [key, layerNodeName(layer, index)]));
   const resourceByAsset = new Map();
@@ -115,18 +147,12 @@ function visualContent(rootId, clips, manifest) {
       scale: layer.transform?.scale ?? [1, 1],
       rotation: (layer.transform?.rotationDeg ?? 0) * Math.PI / 180,
       alpha: 0,
-      depthMode: 'world-sorted', depthBand: 'world-entities',
+      // Layers draw relative to the nearest depth source: the wielder's body
+      // for weapons, the effect root (or its requested depth) for effects.
+      depthMode: 'relative', depthOffset: baseDepthOffset, depthBand: 'world-entities',
     },
   }));
   return { layers, layerNames, resources, nodes };
-}
-
-function sourceAttack(weapon, direction) {
-  const direct = weapon.directionalAttacks?.[direction];
-  if (direct) return { attack: direct, mirrorX: false, mirrorY: false };
-  if (direction === 'left' && weapon.directionalAttacks?.right) return { attack: weapon.directionalAttacks.right, mirrorX: true, mirrorY: false };
-  if (direction === 'up' && weapon.directionalAttacks?.down) return { attack: weapon.directionalAttacks.down, mirrorX: false, mirrorY: true };
-  return undefined;
 }
 
 function orientation(direction) {
@@ -136,26 +162,32 @@ function orientation(direction) {
   return { angle: 0, x: 1, y: 1, swap: false };
 }
 
-function orientedPosition(shape, direction) {
+/** Old `Weapon.toHitboxConfig`: directional offset plus the attack's presentation offset. */
+function orientedPosition(shape, direction, presentationOffsetY) {
   const value = orientation(direction);
   const x = shape.offsetX ?? 0;
   const y = shape.offsetY ?? 0;
-  return value.swap ? [y * value.x, x * value.y] : [x * value.x, y * value.y];
+  const [px, py] = value.swap ? [y * value.x, x * value.y] : [x * value.x, y * value.y];
+  return [px, py + presentationOffsetY];
 }
 
-function weaponScene(weapon, manifest) {
-  const attacks = DIRECTIONS.map((direction) => [direction, sourceAttack(weapon, direction)]).filter(([, value]) => value);
-  const clips = layeredClips([
-    ['idle', weapon.animations?.idle],
-    ...attacks.map(([direction, value]) => [`attack-${direction}`, value.attack.animation]),
-  ]);
-  const visual = visualContent(`weapon.${weapon.weaponId}`, clips, manifest);
+function weaponScene(source, manifest, sampling) {
+  const weapon = sampling.normalizeWeaponDefinition(source);
+  const attacks = DIRECTIONS.map((direction) => [direction, weapon.directionalAttacks[direction]]);
+  const clips = [
+    { animationId: 'idle', animation: weapon.animations.idle, host: {} },
+    ...attacks.map(([direction, attack]) => ({
+      animationId: `attack-${direction}`,
+      animation: attack.animation,
+      host: { offsetY: attack.presentationOffsetY, mirrorX: attack.mirrorX, mirrorY: attack.mirrorY },
+    })),
+  ];
+  const visual = visualContent(`weapon.${weapon.weaponId}`, clips, manifest, WIELDED_WEAPON_DEPTH_OFFSET);
   const animationId = `weapon.${weapon.weaponId}.animations`;
   const shapeResources = [];
   const shapeNodes = [];
   const attackPlans = {};
-  for (const [direction, value] of attacks) {
-    const attack = value.attack;
+  for (const [direction, attack] of attacks) {
     const spans = (attack.attackTrack?.hitboxSpans ?? []).map((span) => {
       const hitbox = attack.hitboxes?.[span.hitboxId];
       return {
@@ -170,7 +202,7 @@ function weaponScene(weapon, manifest) {
       framesPerSecond: attack.animation.framesPerSecond,
       hitboxSpans: spans,
       events: attack.attackTrack?.events ?? [],
-      mirrored: { x: value.mirrorX, y: value.mirrorY },
+      mirrored: { x: attack.mirrorX, y: attack.mirrorY },
     };
     for (const [hitboxId, hitbox] of Object.entries(attack.hitboxes ?? {})) {
       const resourceId = `weapon.${weapon.weaponId}.${direction}.${hitboxId}.shape`;
@@ -182,7 +214,7 @@ function weaponScene(weapon, manifest) {
         parentId: 'attack-area',
         order: shapeNodes.length,
         properties: {
-          shape: { resourceId }, position: orientedPosition(hitbox, direction),
+          shape: { resourceId }, position: orientedPosition(hitbox, direction, attack.presentationOffsetY),
           // Legacy weapon rectangles, circles, and ellipses remain axis-aligned;
           // only their directional offsets rotate. Sectors encode direction in
           // the shape resource's angleRad instead of a node transform.
@@ -200,7 +232,7 @@ function weaponScene(weapon, manifest) {
     nodes: [
       { id: 'root', name: title(weapon.weaponId), type: 'Node2D', parentId: null, order: 0, properties: { position: [0, 0] } },
       ...visual.nodes,
-      { id: 'attack-area', name: 'AttackArea', type: 'Area2D', parentId: 'root', order: visualCount, properties: { collisionLayer: 16, collisionMask: 8, monitoring: false, monitorable: false } },
+      { id: 'attack-area', name: 'AttackArea', type: 'Area2D', parentId: 'root', order: visualCount, properties: { ...collision(['hitbox'], ['hurtbox']), monitoring: false, monitorable: false } },
       ...shapeNodes,
       { id: 'animation', name: 'Animation', type: 'AnimationPlayer', parentId: 'root', order: visualCount + 1, properties: { library: { resourceId: animationId }, domain: 'physics', autoplay: 'idle' } },
       {
@@ -217,8 +249,20 @@ function weaponScene(weapon, manifest) {
     ],
     instances: [],
     connections: [{ source: { nodeId: 'attack-area' }, signal: 'area_entered', target: { nodeId: 'script' }, handler: 'on_area_entered' }],
-    subresources: [...visual.resources, ...shapeResources, animationLibrary(animationId, clips, visual.layers, visual.layerNames)],
+    subresources: [...visual.resources, ...shapeResources, animationLibrary(animationId, clips, visual.layers, visual.layerNames, sampling, WIELDED_WEAPON_DEPTH_OFFSET)],
   };
+}
+
+/**
+ * Old `Projectile.syncVisual`: the per-frame `frameOffsets` (else the source
+ * offset) is a visual offset rotated by the projectile's rotation, so it is
+ * written to Sprite2D.visualOffset, which Sprite2D rotates with the node.
+ */
+function projectileFrameOffsetTracks(projectile, animation) {
+  const frameOffsets = projectile.visual?.frameOffsets ?? {};
+  if (Object.keys(frameOffsets).length === 0) return [];
+  const fallback = projectile.visual?.sourceOffset ?? [0, 0];
+  return [{ binding: '../Visual', property: 'visualOffset', keys: animation.frames.map((frame, at) => ({ at, value: frameOffsets[String(frame)] ?? fallback })) }];
 }
 
 function projectileAnimationLibrary(projectile) {
@@ -229,7 +273,10 @@ function projectileAnimationLibrary(projectile) {
       framesPerSecond: animation.framesPerSecond,
       loop: animation.loop,
       ...(animation.loopMode ? { loopMode: animation.loopMode } : {}),
-      tracks: [{ binding: '../Visual', property: 'frame', keys: animation.frames.map((value, at) => ({ at, value })) }],
+      tracks: [
+        { binding: '../Visual', property: 'frame', keys: animation.frames.map((value, at) => ({ at, value })) },
+        ...projectileFrameOffsetTracks(projectile, animation),
+      ],
     };
   }
   return { version: 1, resourceId: `projectile.${projectile.projectileId}.animations`, kind: 'animation-library', animations };
@@ -243,10 +290,10 @@ function projectileScene(projectile, manifest) {
   return {
     version: 1, sceneId: prefix, rootNodeId: 'body',
     nodes: [
-      { id: 'body', name: title(projectile.projectileId), type: 'CharacterBody2D', parentId: null, order: 0, properties: { collisionLayer: 0, collisionMask: 0, position: [0, 0], velocity: [0, 0] } },
+      { id: 'body', name: title(projectile.projectileId), type: 'CharacterBody2D', parentId: null, order: 0, properties: { ...collision(['projectile'], ['world']), collideWorldBounds: false, position: [0, 0], velocity: [0, 0] } },
       { id: 'body-shape', name: 'BodyShape', type: 'CollisionShape2D', parentId: 'body', order: 0, properties: { shape: { resourceId: shape.resourceId }, position: [projectile.body.centerOffsetX, projectile.body.centerOffsetY] } },
-      { id: 'visual', name: 'Visual', type: 'Sprite2D', parentId: 'body', order: 1, properties: { texture: { resourceId: texture.resourceId }, frame: 0, position: projectile.visual?.sourceOffset ?? [0, 0], depthMode: 'world-sorted', depthBand: 'world-entities' } },
-      { id: 'attack-area', name: 'AttackArea', type: 'Area2D', parentId: 'body', order: 2, properties: { collisionLayer: 16, collisionMask: 8, monitoring: true, monitorable: false } },
+      { id: 'visual', name: 'Visual', type: 'Sprite2D', parentId: 'body', order: 1, properties: { texture: { resourceId: texture.resourceId }, frame: 0, visualOffset: projectile.visual?.sourceOffset ?? [0, 0], depthMode: 'world-sorted', depthBand: 'world-entities' } },
+      { id: 'attack-area', name: 'AttackArea', type: 'Area2D', parentId: 'body', order: 2, properties: { ...collision(['hitbox'], ['hurtbox']), monitoring: true, monitorable: false } },
       { id: 'attack-shape', name: 'AttackShape', type: 'CollisionShape2D', parentId: 'attack-area', order: 0, properties: { shape: { resourceId: shape.resourceId }, position: [projectile.body.centerOffsetX, projectile.body.centerOffsetY] } },
       { id: 'animation', name: 'Animation', type: 'AnimationPlayer', parentId: 'body', order: 3, properties: { library: { resourceId: animations.resourceId }, domain: 'physics', autoplay: 'move' } },
       { id: 'script', name: 'ProjectileScript', type: 'ScriptNode', scriptId: 'game.projectile', parentId: 'body', order: 4, properties: {
@@ -260,28 +307,27 @@ function projectileScene(projectile, manifest) {
   };
 }
 
-function sourceEffect(effect, direction) {
-  if (effect.directions?.[direction]) return effect.directions[direction];
-  if (direction === 'left' && effect.mirrorLeftFromRight && effect.directions?.right) return effect.directions.right;
-  if (direction === 'up' && effect.mirrorUpFromDown && effect.directions?.down) return effect.directions.down;
-  return effect.default ?? effect.directions?.right ?? effect.directions?.down;
-}
-
-function effectScene(effect, manifest) {
-  const clips = layeredClips(DIRECTIONS.map((direction) => [direction, sourceEffect(effect, direction)]));
-  const visual = visualContent(`effect.${effect.effectId}`, clips, manifest);
+function effectScene(effect, manifest, sampling) {
+  const clips = sampling.EFFECT_DIRECTIONS.map((direction) => {
+    const variant = sampling.resolveEffectVariant(effect, direction);
+    if (!variant) throw new Error(`Effect '${effect.effectId}' does not resolve direction '${direction}'`);
+    return { animationId: direction, animation: variant.animation, host: { mirrorX: variant.mirrorX, mirrorY: variant.mirrorY } };
+  });
+  const visual = visualContent(`effect.${effect.effectId}`, clips, manifest, 0);
   const animationId = `effect.${effect.effectId}.animations`;
   const lifetimeMs = Math.max(...clips.map(({ animation }) => animation.durationSeconds * 1000), 0);
   const visualCount = visual.nodes.length;
   return {
     version: 1, sceneId: `effect.${effect.effectId}`, rootNodeId: 'root',
     nodes: [
-      { id: 'root', name: title(effect.effectId), type: 'Node2D', parentId: null, order: 0, properties: { position: [0, 0] } },
+      // The root's depth anchor makes it the depth source of its layers; a
+      // spawn request's explicit depth overrides it at runtime.
+      { id: 'root', name: title(effect.effectId), type: 'Node2D', parentId: null, order: 0, properties: { position: [0, 0], depthAnchor: [0, 0] } },
       ...visual.nodes,
       { id: 'animation', name: 'Animation', type: 'AnimationPlayer', parentId: 'root', order: visualCount, properties: { library: { resourceId: animationId }, domain: 'physics', autoplay: 'right' } },
       { id: 'script', name: 'EffectScript', type: 'ScriptNode', scriptId: 'game.effect', parentId: 'root', order: visualCount + 1, properties: { effectId: effect.effectId, animation: { nodeId: 'animation' }, lifetimeMs } },
     ],
-    instances: [], subresources: [...visual.resources, animationLibrary(animationId, clips, visual.layers, visual.layerNames)],
+    instances: [], subresources: [...visual.resources, animationLibrary(animationId, clips, visual.layers, visual.layerNames, sampling, 0)],
   };
 }
 
@@ -290,11 +336,12 @@ async function manifest(readSource) { return readJson(readSource, 'asset/assets.
 export const weaponSceneAdapter = {
   async convert({ units, readSource }) {
     const assets = await manifest(readSource);
+    const sampling = await loadAnimationSampling();
     const outputs = [];
     for (const unit of units) {
       requireUnit(unit, WEAPON_KEYS);
       const weapon = await readJson(readSource, unit.oldSourcePath);
-      outputs.push(convertedOutput(unit, `weapons/${weapon.weaponId}.scene.json`, weaponScene(weapon, assets), ['$']));
+      outputs.push(convertedOutput(unit, `weapons/${weapon.weaponId}.scene.json`, weaponScene(weapon, assets, sampling), ['$']));
     }
     return outputs;
   },
@@ -316,11 +363,12 @@ export const projectileSceneAdapter = {
 export const effectSceneAdapter = {
   async convert({ units, readSource }) {
     const assets = await manifest(readSource);
+    const sampling = await loadAnimationSampling();
     const outputs = [];
     for (const unit of units) {
       requireUnit(unit, EFFECT_KEYS);
       const effect = await readJson(readSource, unit.oldSourcePath);
-      outputs.push(convertedOutput(unit, `effects/${effect.effectId}.scene.json`, effectScene(effect, assets), ['$']));
+      outputs.push(convertedOutput(unit, `effects/${effect.effectId}.scene.json`, effectScene(effect, assets, sampling), ['$']));
     }
     return outputs;
   },

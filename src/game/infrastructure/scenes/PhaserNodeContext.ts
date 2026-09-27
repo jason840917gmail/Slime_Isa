@@ -5,10 +5,10 @@ import type { SceneResourceDocument } from '../../content/scenes/types';
 import { contactPointAtTargetEdge } from '../../combat/ContactPoint';
 import type { Node } from '../../runtime/scene/Node';
 import { ContactRouter, type ContactParticipant } from '../../runtime/scene/physics/ContactRouter';
-import { collisionMembershipAccepts, type BlockingContact } from '../../runtime/scene/physics/PhysicsContact';
-import type { SensorBounds } from '../../runtime/scene/physics/SensorGeometry';
+import { blockingPairAccepts, type BlockingContact, type BlockingMembership } from '../../runtime/scene/physics/PhysicsContact';
 import type { SceneHostBackend } from './PhaserSceneTreeHost';
 import { PresentationSync, type PresentationParticipant } from '../phaser-nodes/PresentationSync';
+import { prepareArcadeBodiesForStep, type ArcadeStepBody } from './ArcadeStepBookkeeping';
 
 export type PhaserHostCallbackPhase =
   | 'physics-animation'
@@ -36,12 +36,14 @@ export interface PhaserBlockingParticipant {
 
 interface DestroyableCollider { destroy(): void }
 
+function membership(participant: PhaserBlockingParticipant): BlockingMembership {
+  return { collisionLayer: participant.collisionLayer, collisionMask: participant.collisionMask, isStatic: participant.isStaticBody };
+}
+
 export class PhaserNodeContext implements SceneHostBackend {
   private readonly presentation = new PresentationSync();
   readonly contactRouter: ContactRouter;
   private readonly callbacks = new Map<PhaserHostCallbackPhase, Set<(deltaSeconds: number) => void>>();
-  private readonly contactParticipants = new Set<ContactParticipant>();
-  private readonly contactBodies = new WeakMap<object, ContactParticipant>();
   private readonly blockingParticipants = new Set<PhaserBlockingParticipant>();
   private readonly blockingColliders = new Map<string, DestroyableCollider>();
   private readonly staticBlockingParticipants = new WeakMap<Phaser.GameObjects.GameObject, PhaserBlockingParticipant>();
@@ -59,7 +61,7 @@ export class PhaserNodeContext implements SceneHostBackend {
     private readonly resolveAssetKey: (assetId: string) => string = (assetId) => assetId,
   ) {
     this.baseResources = new Map(resources);
-    this.contactRouter = new ContactRouter((_observer, bounds) => this.contactCandidates(bounds));
+    this.contactRouter = new ContactRouter();
   }
 
   assetKey(assetId: string): string {
@@ -72,11 +74,6 @@ export class PhaserNodeContext implements SceneHostBackend {
   get physicsStepCount(): number { return this.physicsSteps; }
   get managedContactParticipantCount(): number { return this.contactRouter.participantCount; }
   get managedBlockingColliderCount(): number { return this.blockingColliders.size; }
-
-  queryContactParticipants(bounds: SensorBounds): readonly ContactParticipant[] {
-    return this.contactCandidates(bounds)
-      .filter((participant) => participant.contactActive);
-  }
 
   resource(resourceId: ResourceId): SceneResourceDocument {
     const resource = this.leasedResources.get(resourceId)?.resource ?? this.baseResources.get(resourceId);
@@ -127,19 +124,9 @@ export class PhaserNodeContext implements SceneHostBackend {
     return () => { if (!active) return; active = false; callbacks.delete(callback); if (callbacks.size === 0) this.callbacks.delete(phase); };
   }
 
-  registerContactParticipant(participant: ContactParticipant, backendBody?: object): () => void {
+  registerContactParticipant(participant: ContactParticipant): () => void {
     this.assertRunning();
-    this.contactParticipants.add(participant);
-    if (backendBody) this.contactBodies.set(backendBody, participant);
-    const unregisterRouter = this.contactRouter.register(participant);
-    let active = true;
-    return () => {
-      if (!active) return;
-      active = false;
-      unregisterRouter();
-      this.contactParticipants.delete(participant);
-      if (backendBody) this.contactBodies.delete(backendBody);
-    };
+    return this.contactRouter.register(participant);
   }
 
   registerBlockingParticipant(participant: PhaserBlockingParticipant): () => void {
@@ -156,7 +143,7 @@ export class PhaserNodeContext implements SceneHostBackend {
     } else {
       for (const other of this.blockingParticipants) {
         if (staticGroup && other.isStaticBody) continue;
-        this.createBlockingCollider(participant, other);
+        this.synchronizePairCollider(participant, other);
       }
       if (staticGroup && this.staticBlockingCount > 0) this.createStaticGroupCollider(participant, staticGroup);
     }
@@ -186,6 +173,23 @@ export class PhaserNodeContext implements SceneHostBackend {
     };
   }
 
+  /**
+   * Re-evaluates which dynamic pairs can block each other after a
+   * participant's collision layer or mask changed. Pair colliders exist only
+   * for pairs the blocking rule can accept, so bodies whose layers never
+   * interact (NPC vs NPC, enemy vs enemy, projectiles vs characters) cost
+   * nothing per step.
+   */
+  refreshBlockingParticipant(participant: PhaserBlockingParticipant): void {
+    if (!this.blockingParticipants.has(participant)) return;
+    const grouped = this.staticBlockingGroup !== undefined;
+    if (grouped && participant.isStaticBody) return;
+    for (const other of this.blockingParticipants) {
+      if (other === participant || (grouped && other.isStaticBody)) continue;
+      this.synchronizePairCollider(participant, other);
+    }
+  }
+
   startManualStepping(): void {
     this.assertRunning();
     const physics = this.scene.physics as unknown as object;
@@ -200,7 +204,19 @@ export class PhaserNodeContext implements SceneHostBackend {
     for (const participant of this.blockingParticipants) participant.beginBlockingStep();
     this.run('physics-sync', 0);
   }
-  stepPhysics(deltaSeconds: number): void { this.scene.physics.world.step(deltaSeconds); this.physicsSteps += 1; }
+  /**
+   * Owns the whole Arcade step contract. `World.step` does not run
+   * `Body.preUpdate` (only `World.update` does, and that path is disabled for
+   * manual stepping), so the per-step flag reset and prev/prevFrame refresh
+   * happen here before the step. `updateFromGameObject` is deliberately
+   * skipped: the backend object sits at the node anchor, not the body centre.
+   */
+  stepPhysics(deltaSeconds: number): void {
+    const world = this.scene.physics.world as unknown as { readonly bodies?: { readonly entries?: readonly ArcadeStepBody[] } };
+    prepareArcadeBodiesForStep(world.bodies?.entries ?? []);
+    this.scene.physics.world.step(deltaSeconds);
+    this.physicsSteps += 1;
+  }
   readAuthoritativePhysicsState(): void { this.run('physics-readback', 0); }
   collectManagedContacts(): void { this.run('contacts', 0); this.contactRouter.reconcile(); }
   resolveManagedAttacks(deltaSeconds: number): void { this.run('attack-resolution', deltaSeconds); }
@@ -220,7 +236,6 @@ export class PhaserNodeContext implements SceneHostBackend {
     this.staticBlockingGroup = undefined;
     this.staticBlockingCount = 0;
     this.blockingParticipants.clear();
-    this.contactParticipants.clear();
     this.contactRouter.clear();
     this.leasedResources.clear();
     if (this.ownsManualStepping) {
@@ -235,28 +250,18 @@ export class PhaserNodeContext implements SceneHostBackend {
     for (const callback of [...(this.callbacks.get(phase) ?? [])]) callback(deltaSeconds);
   }
 
-  private contactCandidates(bounds: SensorBounds): readonly ContactParticipant[] {
-    const overlapRect = (this.scene.physics.world as unknown as {
-      overlapRect?: (x: number, y: number, width: number, height: number, includeDynamic?: boolean, includeStatic?: boolean) => readonly object[];
-    }).overlapRect;
-    if (!overlapRect) return [...this.contactParticipants];
-    const padding = 1e-6;
-    const bodies = overlapRect.call(this.scene.physics.world, bounds.x - padding, bounds.y - padding, bounds.width + padding * 2, bounds.height + padding * 2, true, true);
-    const candidates = new Set<ContactParticipant>();
-    for (const body of bodies) {
-      const participant = this.contactBodies.get(body);
-      if (participant) candidates.add(participant);
-    }
-    return [...candidates];
-  }
-
-  private createBlockingCollider(first: PhaserBlockingParticipant, second: PhaserBlockingParticipant): void {
-    if (first.isStaticBody && second.isStaticBody) return;
+  private synchronizePairCollider(first: PhaserBlockingParticipant, second: PhaserBlockingParticipant): void {
     const ids = [first.runtimeId, second.runtimeId].sort();
     const key = `${ids[0]}|${ids[1]}`;
+    const wanted = blockingPairAccepts(membership(first), membership(second));
+    const existing = this.blockingColliders.get(key);
+    if (wanted && !existing) this.createBlockingCollider(key, first, second);
+    else if (!wanted && existing) { existing.destroy(); this.blockingColliders.delete(key); }
+  }
+
+  private createBlockingCollider(key: string, first: PhaserBlockingParticipant, second: PhaserBlockingParticipant): void {
     const process = (): boolean => first.blockingActive && second.blockingActive
-      && collisionMembershipAccepts(first.collisionMask, second.collisionLayer)
-      && collisionMembershipAccepts(second.collisionMask, first.collisionLayer);
+      && blockingPairAccepts(membership(first), membership(second));
     const onCollide = (): void => {
       first.recordBlockingContact(this.blockingContact(first, second));
       second.recordBlockingContact(this.blockingContact(second, first));
@@ -277,8 +282,7 @@ export class PhaserNodeContext implements SceneHostBackend {
     const process = (first: unknown, second: unknown): boolean => {
       const fixed = staticFor(first, second);
       return fixed !== undefined && participant.blockingActive && fixed.blockingActive
-        && collisionMembershipAccepts(participant.collisionMask, fixed.collisionLayer)
-        && collisionMembershipAccepts(fixed.collisionMask, participant.collisionLayer);
+        && blockingPairAccepts(membership(participant), membership(fixed));
     };
     const onCollide = (first: unknown, second: unknown): void => {
       const fixed = staticFor(first, second);

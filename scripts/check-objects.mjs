@@ -9,7 +9,8 @@ import { loadValidatedResourceTags } from './lib/resource-tag-catalog.mjs';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 const objectRoot = resolve(process.env.SLIME_CHECK_OBJECT_ROOT ?? join(repoRoot, 'src', 'game', 'content', 'objects'));
-const animationRoot = join(repoRoot, 'src', 'game', 'content', 'animations');
+// Legacy tree templates reference the frozen clips that the authored tree scenes embed.
+const animationRoot = join(repoRoot, 'scripts', 'migrations', 'frozen-sources', 'animations');
 const effectRoot = join(repoRoot, 'src', 'game', 'content', 'effects');
 const itemRoot = join(repoRoot, 'src', 'game', 'content', 'items');
 const weaponRoot = join(repoRoot, 'src', 'game', 'content', 'weapons');
@@ -66,7 +67,7 @@ function listAnimationFiles(directory) {
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
     const path = join(directory, entry.name);
     if (entry.isDirectory()) files.push(...listAnimationFiles(path));
-    else if (entry.isFile() && entry.name === 'animation.json') files.push(path);
+    else if (entry.isFile() && entry.name.endsWith('.json')) files.push(path);
   }
   return files;
 }

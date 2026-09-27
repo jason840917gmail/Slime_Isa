@@ -1,9 +1,10 @@
+import { collisionBits, DEFINED_COLLISION_BITS } from '../physics/CollisionLayers';
 import type { JsonValue } from './resources/types';
 
 export type PropertyValueDescriptor =
   | { readonly kind: 'boolean' }
   | { readonly kind: 'string'; readonly pattern?: RegExp; readonly minLength?: number; readonly maxLength?: number }
-  | { readonly kind: 'number'; readonly integer?: boolean; readonly min?: number; readonly max?: number }
+  | { readonly kind: 'number'; readonly integer?: boolean; readonly min?: number; readonly max?: number; /** Value is a bit set over the named project collision layers; undefined bits are rejected. */ readonly collisionLayers?: boolean }
   | { readonly kind: 'enum'; readonly values: readonly string[] }
   | { readonly kind: 'vector2' }
   | { readonly kind: 'color' }
@@ -250,40 +251,53 @@ const number = (key: string, label: string, defaultValue: number, min?: number, 
   defaultValue, serialized: true, inspector: 'number', animation: { interpolation: 'numeric', domains: ['physics', 'render'] }, overridable: true,
 });
 
+const collisionBitsProperty = (key: string, label: string, defaultValue: number, help: string): PropertyDescriptor => ({
+  key, label, help, value: { kind: 'number', integer: true, min: 0, max: 0xffff_ffff, collisionLayers: true },
+  defaultValue, serialized: true, inspector: 'number', overridable: true,
+});
+
 export function createCoreDescriptorRegistry(scripts: readonly ScriptDescriptor[] = []): DescriptorRegistry {
   const nodeTypes: NodeTypeDescriptor[] = [
     { type: 'Node', properties: [] },
-    { type: 'Node2D', extends: 'Node', properties: [vector('position', 'Position', [0, 0]), vector('scale', 'Scale', [1, 1]), { key: 'rotation', label: 'Rotation', units: 'degrees', value: { kind: 'number' }, defaultValue: 0, serialized: true, inspector: 'number', animation: { interpolation: 'numeric', domains: ['physics', 'render'] }, overridable: true }, boolean('visible', 'Visible', true)] },
+    { type: 'Node2D', extends: 'Node', properties: [vector('position', 'Position', [0, 0]), vector('scale', 'Scale', [1, 1]), { key: 'rotation', label: 'Rotation', units: 'degrees', value: { kind: 'number' }, defaultValue: 0, serialized: true, inspector: 'number', animation: { interpolation: 'numeric', domains: ['physics', 'render'] }, overridable: true }, { ...boolean('visible', 'Visible', true), animation: { interpolation: 'step', domains: ['physics', 'render'] } },
+      { key: 'depthAnchor', label: 'Depth Anchor', value: { kind: 'vector2' }, serialized: true, inspector: 'vector2', overridable: true },
+    ] },
     { type: 'Sprite2D', extends: 'Node2D', properties: [
       { ...resource('texture', 'Texture', ['texture', 'sprite-sheet']), required: true },
       { key: 'frame', label: 'Frame', value: { kind: 'number', integer: true, min: 0 }, defaultValue: 0, serialized: true, inspector: 'number', animation: { interpolation: 'step', domains: ['physics', 'render'] }, overridable: true },
       vector('origin', 'Origin', [0.5, 0.5]), vector('visualOffset', 'Visual Offset', [0, 0]),
       number('alpha', 'Alpha', 1, 0, 1),
       { key: 'tint', label: 'Tint', value: { kind: 'string', pattern: /^#[0-9a-f]{6}$/i }, defaultValue: '#ffffff', serialized: true, inspector: 'color', overridable: true },
-      boolean('flipX', 'Flip X', false), boolean('flipY', 'Flip Y', false),
-      { key: 'depthMode', label: 'Depth Mode', value: { kind: 'enum', values: ['world-sorted', 'explicit'] }, defaultValue: 'world-sorted', serialized: true, inspector: 'select', overridable: true },
+      { ...boolean('flipX', 'Flip X', false), animation: { interpolation: 'step', domains: ['physics', 'render'] } },
+      { ...boolean('flipY', 'Flip Y', false), animation: { interpolation: 'step', domains: ['physics', 'render'] } },
+      { key: 'depthMode', label: 'Depth Mode', value: { kind: 'enum', values: ['world-sorted', 'explicit', 'relative'] }, defaultValue: 'world-sorted', serialized: true, inspector: 'select', overridable: true },
+      { ...number('depthOffset', 'Relative Depth Offset', 0), animation: { interpolation: 'step', domains: ['physics', 'render'] } },
       { key: 'depthBand', label: 'Depth Band', value: { kind: 'enum', values: ['ground-terrain', 'ground-decals', 'world-entities', 'overhead-artwork', 'reveal-effects', 'screen-ui', 'editor-cursor', 'editor-drag-lift', 'editor-selection-marker', 'editor-template-overlay'] }, defaultValue: 'world-entities', serialized: true, inspector: 'select', overridable: true },
       number('depth', 'Explicit Depth', 0),
       { key: 'occlusionBounds', label: 'Occlusion Bounds', value: { kind: 'json' }, defaultValue: {}, serialized: true, inspector: 'json', overridable: true },
       { key: 'depthBounds', label: 'Depth Bounds', value: { kind: 'json' }, defaultValue: {}, serialized: true, inspector: 'json', overridable: true },
     ] },
     { type: 'PhysicsBody2D', extends: 'Node2D', capabilities: ['physics-body'], properties: [
-      { key: 'collisionLayer', label: 'Collision Layer', value: { kind: 'number', integer: true, min: 0, max: 0xffff_ffff }, defaultValue: 1, serialized: true, inspector: 'number', overridable: true },
-      { key: 'collisionMask', label: 'Collision Mask', value: { kind: 'number', integer: true, min: 0, max: 0xffff_ffff }, defaultValue: 0xffff_ffff, serialized: true, inspector: 'number', overridable: true },
+      collisionBitsProperty('collisionLayer', 'Collision Layer', collisionBits('world'), 'Named layers this body occupies.'),
+      collisionBitsProperty('collisionMask', 'Collision Mask', collisionBits('world'), 'Named layers that block this body while it moves. A static body\'s mask is ignored.'),
       boolean('collisionEnabled', 'Collision Enabled', true),
     ] },
-    { type: 'CharacterBody2D', extends: 'PhysicsBody2D', capabilities: ['character-body'], properties: [vector('velocity', 'Velocity', [0, 0])] },
+    { type: 'CharacterBody2D', extends: 'PhysicsBody2D', capabilities: ['character-body'], properties: [
+      vector('velocity', 'Velocity', [0, 0]),
+      { ...boolean('collideWorldBounds', 'Collide With World Bounds', true), help: 'Keep the body inside the loaded world\'s bounds.' },
+      { ...boolean('allowWorldPassThrough', 'Allow World Pass-Through', false), help: 'Explicit opt-out of the scenes:check rule that an enabled CharacterBody2D mask must include the world layer.' },
+    ] },
     { type: 'StaticBody2D', extends: 'PhysicsBody2D', properties: [] },
     { type: 'Area2D', extends: 'Node2D', capabilities: ['area'], properties: [
-      { key: 'collisionLayer', label: 'Collision Layer', value: { kind: 'number', integer: true, min: 0, max: 0xffff_ffff }, defaultValue: 1, serialized: true, inspector: 'number', overridable: true },
-      { key: 'collisionMask', label: 'Collision Mask', value: { kind: 'number', integer: true, min: 0, max: 0xffff_ffff }, defaultValue: 0xffff_ffff, serialized: true, inspector: 'number', overridable: true },
-      boolean('monitoring', 'Monitoring', true), boolean('monitorable', 'Monitorable', true),
+      collisionBitsProperty('collisionLayer', 'Collision Layer', collisionBits('world'), 'Named layers this area occupies.'),
+      collisionBitsProperty('collisionMask', 'Collision Mask', DEFINED_COLLISION_BITS, 'Named layers this area detects.'),
+      { ...boolean('monitoring', 'Monitoring', true), animation: { interpolation: 'step', domains: ['physics'] } }, boolean('monitorable', 'Monitorable', true),
     ], signals: [
       { id: 'body_entered', payload: 'PhysicsContact' }, { id: 'body_exited', payload: 'PhysicsContact' },
       { id: 'area_entered', payload: 'PhysicsContact' }, { id: 'area_exited', payload: 'PhysicsContact' },
     ] },
     { type: 'CollisionShape2D', extends: 'Node2D', capabilities: ['collision-shape'], allowedParentTypes: ['CharacterBody2D', 'StaticBody2D', 'Area2D'], properties: [
-      { ...resource('shape', 'Shape', ['collision-shape']), required: true }, boolean('disabled', 'Disabled', false),
+      { ...resource('shape', 'Shape', ['collision-shape']), required: true }, { ...boolean('disabled', 'Disabled', false), animation: { interpolation: 'step', domains: ['physics'] } },
       { key: 'angleRad', label: 'Geometry Angle', units: 'radians', value: { kind: 'number' }, serialized: true, inspector: 'number', animation: { interpolation: 'numeric', domains: ['physics'] }, overridable: true },
     ] },
     { type: 'TileMapLayer2D', extends: 'Node2D', properties: [
@@ -291,8 +305,8 @@ export function createCoreDescriptorRegistry(scripts: readonly ScriptDescriptor[
       number('tileSize', 'Tile Size', 64, 1),
       { key: 'seed', label: 'Visual Seed', value: { kind: 'number', integer: true }, defaultValue: 0, serialized: true, inspector: 'number', overridable: true },
       number('depth', 'Render Depth', 0),
-      { key: 'collisionLayer', label: 'Collision Layer', value: { kind: 'number', integer: true, min: 0, max: 0xffff_ffff }, defaultValue: 1, serialized: true, inspector: 'number', overridable: true },
-      { key: 'collisionMask', label: 'Collision Mask', value: { kind: 'number', integer: true, min: 0, max: 0xffff_ffff }, defaultValue: 2, serialized: true, inspector: 'number', overridable: true },
+      collisionBitsProperty('collisionLayer', 'Collision Layer', collisionBits('world'), 'Named layers the collidable tiles occupy.'),
+      collisionBitsProperty('collisionMask', 'Collision Mask', 0, 'Unused: tile bodies are static, and a static body\'s mask is ignored.'),
       boolean('collisionEnabled', 'Collision Enabled', true),
       boolean('editorLocked', 'Editor Locked', false),
     ] },

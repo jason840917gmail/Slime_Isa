@@ -66,6 +66,12 @@ export class PreparedSceneContent {
     return packed;
   }
 
+  /** A resource as the scene sees it: its own subresource first, then the shared resource file. */
+  resourceForScene(sceneId: SceneId, resourceId: ResourceId): SceneResourceDocument | undefined {
+    return this.catalog.get(sceneId)?.subresources?.find((resource) => resource.resourceId === resourceId)
+      ?? this.resources.get(resourceId);
+  }
+
   async ensure(sceneId: SceneId, signal?: AbortSignal): Promise<PackedScene> {
     if (this.stopped) throw new Error('Prepared scene content has been disposed');
     if (signal?.aborted) throw abortError();

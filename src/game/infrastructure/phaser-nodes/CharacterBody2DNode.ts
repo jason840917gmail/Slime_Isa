@@ -8,6 +8,8 @@ import { PhysicsBody2DNode, type PhysicsBody2DNodeOptions } from './PhysicsBody2
 export interface CharacterBody2DNodeOptions extends PhysicsBody2DNodeOptions {
   readonly context: PhaserNodeContext;
   readonly velocity?: Vector2;
+  /** Keep the body inside the physics world bounds (the loaded world's size). Defaults to true. */
+  readonly collideWorldBounds?: boolean;
 }
 
 export class CharacterBody2DNode extends PhysicsBody2DNode {
@@ -15,10 +17,12 @@ export class CharacterBody2DNode extends PhysicsBody2DNode {
   readonly isStaticBody = false;
   private _velocity: Vector2;
   private queuedTeleport?: Vector2;
+  collideWorldBounds: boolean;
 
   constructor(private readonly characterOptions: CharacterBody2DNodeOptions) {
     super(characterOptions);
     this._velocity = characterOptions.velocity ?? { x: 0, y: 0 };
+    this.collideWorldBounds = characterOptions.collideWorldBounds ?? true;
     this.assertVelocity(this._velocity);
   }
 
@@ -54,6 +58,7 @@ export class CharacterBody2DNode extends PhysicsBody2DNode {
 
   protected override onSynchronizeDynamicBody(body: Phaser.Physics.Arcade.Body | Phaser.Physics.Arcade.StaticBody): void {
     if (!('setVelocity' in body)) return;
+    body.collideWorldBounds = this.collideWorldBounds;
     body.setVelocity(this._velocity.x, this._velocity.y);
   }
 
@@ -62,7 +67,7 @@ export class CharacterBody2DNode extends PhysicsBody2DNode {
   }
 
   protected override duplicateBody(runtimeId: RuntimeNodeId): CharacterBody2DNode {
-    return new CharacterBody2DNode({ ...this.characterOptions, runtimeId, name: this.name, position: this.position, rotation: this.rotation, scale: this.scale, visible: this.visible, velocity: this.velocity, collisionLayer: this.collisionLayer, collisionMask: this.collisionMask, collisionEnabled: this.collisionEnabled });
+    return new CharacterBody2DNode({ ...this.characterOptions, runtimeId, name: this.name, position: this.position, rotation: this.rotation, scale: this.scale, visible: this.visible, velocity: this.velocity, collideWorldBounds: this.collideWorldBounds, collisionLayer: this.collisionLayer, collisionMask: this.collisionMask, collisionEnabled: this.collisionEnabled });
   }
 
   private assertVelocity(value: Vector2): void { if (!Number.isFinite(value.x) || !Number.isFinite(value.y)) throw new Error('Character velocity/teleport coordinates must be finite'); }

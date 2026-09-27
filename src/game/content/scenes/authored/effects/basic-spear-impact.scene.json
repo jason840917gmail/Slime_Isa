@@ -13,6 +13,10 @@
         "position": [
           0,
           0
+        ],
+        "depthAnchor": [
+          0,
+          0
         ]
       }
     },
@@ -41,7 +45,8 @@
         ],
         "rotation": 0,
         "alpha": 0,
-        "depthMode": "world-sorted",
+        "depthMode": "relative",
+        "depthOffset": 0,
         "depthBand": "world-entities"
       }
     },
@@ -137,8 +142,8 @@
                 {
                   "at": 0,
                   "value": [
-                    1,
-                    1
+                    0.4,
+                    0.4
                   ]
                 }
               ]
@@ -146,6 +151,36 @@
             {
               "binding": "../Layer11",
               "property": "rotation",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "binding": "../Layer11",
+              "property": "flipX",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Layer11",
+              "property": "flipY",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Layer11",
+              "property": "depthOffset",
               "keys": [
                 {
                   "at": 0,
@@ -201,8 +236,8 @@
                 {
                   "at": 0,
                   "value": [
-                    1,
-                    1
+                    0.4,
+                    0.4
                   ]
                 }
               ]
@@ -210,6 +245,36 @@
             {
               "binding": "../Layer11",
               "property": "rotation",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "binding": "../Layer11",
+              "property": "flipX",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": true
+                }
+              ]
+            },
+            {
+              "binding": "../Layer11",
+              "property": "flipY",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Layer11",
+              "property": "depthOffset",
               "keys": [
                 {
                   "at": 0,
@@ -265,8 +330,8 @@
                 {
                   "at": 0,
                   "value": [
-                    1,
-                    1
+                    0.4,
+                    0.4
                   ]
                 }
               ]
@@ -274,6 +339,36 @@
             {
               "binding": "../Layer11",
               "property": "rotation",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "binding": "../Layer11",
+              "property": "flipX",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Layer11",
+              "property": "flipY",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Layer11",
+              "property": "depthOffset",
               "keys": [
                 {
                   "at": 0,
@@ -329,8 +424,8 @@
                 {
                   "at": 0,
                   "value": [
-                    1,
-                    1
+                    0.4,
+                    0.4
                   ]
                 }
               ]
@@ -338,6 +433,36 @@
             {
               "binding": "../Layer11",
               "property": "rotation",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "binding": "../Layer11",
+              "property": "flipX",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Layer11",
+              "property": "flipY",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Layer11",
+              "property": "depthOffset",
               "keys": [
                 {
                   "at": 0,

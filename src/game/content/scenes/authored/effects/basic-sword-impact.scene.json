@@ -13,6 +13,10 @@
         "position": [
           0,
           0
+        ],
+        "depthAnchor": [
+          0,
+          0
         ]
       }
     },
@@ -41,7 +45,8 @@
         ],
         "rotation": 0,
         "alpha": 0,
-        "depthMode": "world-sorted",
+        "depthMode": "relative",
+        "depthOffset": 0,
         "depthBand": "world-entities"
       }
     },
@@ -137,8 +142,8 @@
                 {
                   "at": 0,
                   "value": [
-                    1,
-                    1
+                    0.3,
+                    0.3
                   ]
                 }
               ]
@@ -146,6 +151,36 @@
             {
               "binding": "../Base1",
               "property": "rotation",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "binding": "../Base1",
+              "property": "flipX",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Base1",
+              "property": "flipY",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Base1",
+              "property": "depthOffset",
               "keys": [
                 {
                   "at": 0,
@@ -201,8 +236,8 @@
                 {
                   "at": 0,
                   "value": [
-                    1,
-                    1
+                    0.3,
+                    0.3
                   ]
                 }
               ]
@@ -210,6 +245,36 @@
             {
               "binding": "../Base1",
               "property": "rotation",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "binding": "../Base1",
+              "property": "flipX",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": true
+                }
+              ]
+            },
+            {
+              "binding": "../Base1",
+              "property": "flipY",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Base1",
+              "property": "depthOffset",
               "keys": [
                 {
                   "at": 0,
@@ -430,85 +495,85 @@
                 {
                   "at": 0,
                   "value": [
-                    1,
-                    1
+                    0.3,
+                    0.3
                   ]
                 },
                 {
                   "at": 1,
                   "value": [
-                    1,
-                    1
+                    0.3,
+                    0.3
                   ]
                 },
                 {
                   "at": 2,
                   "value": [
-                    1,
-                    1
+                    0.3,
+                    0.3
                   ]
                 },
                 {
                   "at": 3,
                   "value": [
-                    1,
-                    1
+                    0.3,
+                    0.3
                   ]
                 },
                 {
                   "at": 4,
                   "value": [
-                    1,
-                    1
+                    0.3,
+                    0.3
                   ]
                 },
                 {
                   "at": 5,
                   "value": [
-                    1,
-                    1
+                    0.3,
+                    0.3
                   ]
                 },
                 {
                   "at": 6,
                   "value": [
-                    1,
-                    1
+                    0.3,
+                    0.3
                   ]
                 },
                 {
                   "at": 7,
                   "value": [
-                    1,
-                    1
+                    0.3,
+                    0.3
                   ]
                 },
                 {
                   "at": 8,
                   "value": [
-                    1,
-                    1
+                    0.3,
+                    0.3
                   ]
                 },
                 {
                   "at": 9,
                   "value": [
-                    1,
-                    1
+                    0.3,
+                    0.3
                   ]
                 },
                 {
                   "at": 10,
                   "value": [
-                    1,
-                    1
+                    0.3,
+                    0.3
                   ]
                 },
                 {
                   "at": 11,
                   "value": [
-                    1,
-                    1
+                    0.3,
+                    0.3
                   ]
                 }
               ]
@@ -516,6 +581,168 @@
             {
               "binding": "../Base1",
               "property": "rotation",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                },
+                {
+                  "at": 1,
+                  "value": 0
+                },
+                {
+                  "at": 2,
+                  "value": 0
+                },
+                {
+                  "at": 3,
+                  "value": 0
+                },
+                {
+                  "at": 4,
+                  "value": 0
+                },
+                {
+                  "at": 5,
+                  "value": 0
+                },
+                {
+                  "at": 6,
+                  "value": 0
+                },
+                {
+                  "at": 7,
+                  "value": 0
+                },
+                {
+                  "at": 8,
+                  "value": 0
+                },
+                {
+                  "at": 9,
+                  "value": 0
+                },
+                {
+                  "at": 10,
+                  "value": 0
+                },
+                {
+                  "at": 11,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "binding": "../Base1",
+              "property": "flipX",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                },
+                {
+                  "at": 4,
+                  "value": false
+                },
+                {
+                  "at": 5,
+                  "value": false
+                },
+                {
+                  "at": 6,
+                  "value": false
+                },
+                {
+                  "at": 7,
+                  "value": false
+                },
+                {
+                  "at": 8,
+                  "value": false
+                },
+                {
+                  "at": 9,
+                  "value": false
+                },
+                {
+                  "at": 10,
+                  "value": false
+                },
+                {
+                  "at": 11,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Base1",
+              "property": "flipY",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                },
+                {
+                  "at": 4,
+                  "value": false
+                },
+                {
+                  "at": 5,
+                  "value": false
+                },
+                {
+                  "at": 6,
+                  "value": false
+                },
+                {
+                  "at": 7,
+                  "value": false
+                },
+                {
+                  "at": 8,
+                  "value": false
+                },
+                {
+                  "at": 9,
+                  "value": false
+                },
+                {
+                  "at": 10,
+                  "value": false
+                },
+                {
+                  "at": 11,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Base1",
+              "property": "depthOffset",
               "keys": [
                 {
                   "at": 0,
@@ -780,85 +1007,85 @@
                 {
                   "at": 0,
                   "value": [
-                    1,
-                    1
+                    0.3,
+                    0.3
                   ]
                 },
                 {
                   "at": 1,
                   "value": [
-                    1,
-                    1
+                    0.3,
+                    0.3
                   ]
                 },
                 {
                   "at": 2,
                   "value": [
-                    1,
-                    1
+                    0.3,
+                    0.3
                   ]
                 },
                 {
                   "at": 3,
                   "value": [
-                    1,
-                    1
+                    0.3,
+                    0.3
                   ]
                 },
                 {
                   "at": 4,
                   "value": [
-                    1,
-                    1
+                    0.3,
+                    0.3
                   ]
                 },
                 {
                   "at": 5,
                   "value": [
-                    1,
-                    1
+                    0.3,
+                    0.3
                   ]
                 },
                 {
                   "at": 6,
                   "value": [
-                    1,
-                    1
+                    0.3,
+                    0.3
                   ]
                 },
                 {
                   "at": 7,
                   "value": [
-                    1,
-                    1
+                    0.3,
+                    0.3
                   ]
                 },
                 {
                   "at": 8,
                   "value": [
-                    1,
-                    1
+                    0.3,
+                    0.3
                   ]
                 },
                 {
                   "at": 9,
                   "value": [
-                    1,
-                    1
+                    0.3,
+                    0.3
                   ]
                 },
                 {
                   "at": 10,
                   "value": [
-                    1,
-                    1
+                    0.3,
+                    0.3
                   ]
                 },
                 {
                   "at": 11,
                   "value": [
-                    1,
-                    1
+                    0.3,
+                    0.3
                   ]
                 }
               ]
@@ -866,6 +1093,168 @@
             {
               "binding": "../Base1",
               "property": "rotation",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                },
+                {
+                  "at": 1,
+                  "value": 0
+                },
+                {
+                  "at": 2,
+                  "value": 0
+                },
+                {
+                  "at": 3,
+                  "value": 0
+                },
+                {
+                  "at": 4,
+                  "value": 0
+                },
+                {
+                  "at": 5,
+                  "value": 0
+                },
+                {
+                  "at": 6,
+                  "value": 0
+                },
+                {
+                  "at": 7,
+                  "value": 0
+                },
+                {
+                  "at": 8,
+                  "value": 0
+                },
+                {
+                  "at": 9,
+                  "value": 0
+                },
+                {
+                  "at": 10,
+                  "value": 0
+                },
+                {
+                  "at": 11,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "binding": "../Base1",
+              "property": "flipX",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                },
+                {
+                  "at": 4,
+                  "value": false
+                },
+                {
+                  "at": 5,
+                  "value": false
+                },
+                {
+                  "at": 6,
+                  "value": false
+                },
+                {
+                  "at": 7,
+                  "value": false
+                },
+                {
+                  "at": 8,
+                  "value": false
+                },
+                {
+                  "at": 9,
+                  "value": false
+                },
+                {
+                  "at": 10,
+                  "value": false
+                },
+                {
+                  "at": 11,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Base1",
+              "property": "flipY",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                },
+                {
+                  "at": 4,
+                  "value": false
+                },
+                {
+                  "at": 5,
+                  "value": false
+                },
+                {
+                  "at": 6,
+                  "value": false
+                },
+                {
+                  "at": 7,
+                  "value": false
+                },
+                {
+                  "at": 8,
+                  "value": false
+                },
+                {
+                  "at": 9,
+                  "value": false
+                },
+                {
+                  "at": 10,
+                  "value": false
+                },
+                {
+                  "at": 11,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Base1",
+              "property": "depthOffset",
               "keys": [
                 {
                   "at": 0,

@@ -1,5 +1,6 @@
 import Ajv2020, { type ErrorObject } from 'ajv/dist/2020';
 
+import { CHARACTER_BODY_REQUIRED_MASK, collisionLayerNames, undefinedCollisionBits } from '../physics/CollisionLayers';
 import sceneSchema from './scene.schema.json';
 import { SERIALIZED_ID_PATTERN } from './identifiers';
 import type { DescriptorRegistry, PropertyDescriptor } from './propertyDescriptors';
@@ -50,6 +51,9 @@ export function validatePropertyDocumentValue(value: JsonValue, descriptor: Prop
       else if (descriptor.value.integer && !Number.isInteger(value)) invalid('expected integer');
       else if (descriptor.value.min !== undefined && value < descriptor.value.min) invalid(`must be >= ${descriptor.value.min}`);
       else if (descriptor.value.max !== undefined && value > descriptor.value.max) invalid(`must be <= ${descriptor.value.max}`);
+      else if (descriptor.value.collisionLayers && undefinedCollisionBits(value) !== 0) {
+        invalid(`uses collision bits 0x${undefinedCollisionBits(value).toString(16)} that no named layer in collision-layers.json defines`);
+      }
       break;
     }
     case 'enum': if (typeof value !== 'string' || !descriptor.value.values.includes(value)) invalid(`expected one of ${descriptor.value.values.join(', ')}`); break;
@@ -163,6 +167,17 @@ export function validateSceneDocument(value: unknown, context: SceneValidationCo
       }
     }
     for (const descriptor of descriptors) if (descriptor.required && node.properties[descriptor.key] === undefined) issues.push({ path: `${nodePath}/properties/${descriptor.key}`, message: 'required property is missing' });
+    if (nodeTypeIs(node.type, 'CharacterBody2D', context.registry)) {
+      const resolved = (key: string): JsonValue | undefined => node.properties[key] ?? byKey.get(key)?.defaultValue;
+      const mask = resolved('collisionMask');
+      if (resolved('collisionEnabled') !== false && resolved('allowWorldPassThrough') !== true
+        && typeof mask === 'number' && ((mask >>> 0) & CHARACTER_BODY_REQUIRED_MASK) !== CHARACTER_BODY_REQUIRED_MASK) {
+        issues.push({
+          path: `${nodePath}/properties/collisionMask`,
+          message: `enabled CharacterBody2D mask must include the '${collisionLayerNames(CHARACTER_BODY_REQUIRED_MASK).join("', '")}' layer (or set allowWorldPassThrough: true)`,
+        });
+      }
+    }
   }
 
   const childrenByParent = new Map<string, Array<{ name: string; order: number; path: string; type?: string }>>();
@@ -262,7 +277,12 @@ export function validateSceneResourceDocument(value: unknown, context: Pick<Scen
   if (value.kind === 'tile-data') {
     if (typeof value.tileSet !== 'string') issues.push({ path: '/tileSet', message: 'tile data requires tileSet resource ID' });
     else if (context.hasResource && !context.hasResource(value.tileSet)) issues.push({ path: '/tileSet', message: `unknown resource '${value.tileSet}'` });
-    else if (context.getResourceKind && context.getResourceKind(value.tileSet) !== 'tile-set') issues.push({ path: '/tileSet', message: 'tileSet must reference a tile-set resource' });
+    else {
+      // Like resource-reference properties, only a known, different kind is an error:
+      // tile data embedded in a scene may be validated before the shared TileSet catalog is known.
+      const tileSetKind = context.getResourceKind?.(value.tileSet);
+      if (tileSetKind !== undefined && tileSetKind !== 'tile-set') issues.push({ path: '/tileSet', message: 'tileSet must reference a tile-set resource' });
+    }
     if (!Number.isSafeInteger(value.columns) || Number(value.columns) < 1) issues.push({ path: '/columns', message: 'tile data requires positive integer columns' });
     if (!Number.isSafeInteger(value.rows) || Number(value.rows) < 1) issues.push({ path: '/rows', message: 'tile data requires positive integer rows' });
     if (!Array.isArray(value.cells)) issues.push({ path: '/cells', message: 'tile data requires cells' });

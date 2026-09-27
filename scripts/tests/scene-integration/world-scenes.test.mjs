@@ -5,6 +5,7 @@ import test from 'node:test';
 
 import { loadAuthoredSceneContent } from '../helpers/load-authored-scene-content.mjs';
 import { loadTypescriptModule, REPOSITORY_ROOT } from '../helpers/load-typescript.mjs';
+import { collisionBits } from '../../lib/scene-conversion/collision-layers.mjs';
 
 const t = await loadTypescriptModule('src/game/features/scripts/tooling.ts');
 const content = await loadAuthoredSceneContent();
@@ -87,7 +88,8 @@ test('authored navigation nodes preserve marker order, exit geometry, targets, g
   const shape = levelOne.nodes.find((node) => node.id === 'exit-1-shape');
   const script = levelOne.nodes.find((node) => node.id === 'exit-1-script');
   assert.deepEqual(area.properties.position, [3552, 576]);
-  assert.equal(area.properties.collisionMask, 1);
+  assert.equal(area.properties.collisionLayer, collisionBits('trigger'));
+  assert.equal(area.properties.collisionMask, collisionBits('player', 'npc'), 'exits detect the character bodies they detected before the named-layer table');
   assert.deepEqual(shape.properties.shape, { resourceId: 'level-1.exit-1.shape' });
   assert.deepEqual(script.properties, {
     mapId: 'level-1', exitId: 'exit-1', targetAreaId: 'gloop-forest', entry: 'west', area: { nodeId: 'exit-1' },

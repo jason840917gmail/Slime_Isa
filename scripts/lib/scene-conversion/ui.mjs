@@ -1,11 +1,11 @@
-import { createHash } from 'node:crypto';
+import { contentSha256 } from './contentHash.mjs';
 
 import { convertedOutput, readJson } from './adapter-utils.mjs';
 
 const DESCRIPTOR_PATH = 'scripts/migrations/ui-extraction-descriptors.json';
 
 function sha256(value) {
-  return createHash('sha256').update(value).digest('hex');
+  return contentSha256(value);
 }
 
 function sceneDocument(descriptor, themeResourceId) {

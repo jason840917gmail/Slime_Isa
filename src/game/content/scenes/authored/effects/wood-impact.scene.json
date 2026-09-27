@@ -13,6 +13,10 @@
         "position": [
           0,
           0
+        ],
+        "depthAnchor": [
+          0,
+          0
         ]
       }
     },
@@ -41,7 +45,8 @@
         ],
         "rotation": 0,
         "alpha": 0,
-        "depthMode": "world-sorted",
+        "depthMode": "relative",
+        "depthOffset": 0,
         "depthBand": "world-entities"
       }
     },
@@ -230,6 +235,72 @@
                   "value": 0
                 }
               ]
+            },
+            {
+              "binding": "../Impact1",
+              "property": "flipX",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Impact1",
+              "property": "flipY",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Impact1",
+              "property": "depthOffset",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                },
+                {
+                  "at": 1,
+                  "value": 0
+                },
+                {
+                  "at": 2,
+                  "value": 0
+                },
+                {
+                  "at": 3,
+                  "value": 0
+                }
+              ]
             }
           ]
         },
@@ -354,6 +425,72 @@
             {
               "binding": "../Impact1",
               "property": "rotation",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                },
+                {
+                  "at": 1,
+                  "value": 0
+                },
+                {
+                  "at": 2,
+                  "value": 0
+                },
+                {
+                  "at": 3,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "binding": "../Impact1",
+              "property": "flipX",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Impact1",
+              "property": "flipY",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Impact1",
+              "property": "depthOffset",
               "keys": [
                 {
                   "at": 0,
@@ -514,6 +651,72 @@
                   "value": 0
                 }
               ]
+            },
+            {
+              "binding": "../Impact1",
+              "property": "flipX",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Impact1",
+              "property": "flipY",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Impact1",
+              "property": "depthOffset",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                },
+                {
+                  "at": 1,
+                  "value": 0
+                },
+                {
+                  "at": 2,
+                  "value": 0
+                },
+                {
+                  "at": 3,
+                  "value": 0
+                }
+              ]
             }
           ]
         },
@@ -638,6 +841,72 @@
             {
               "binding": "../Impact1",
               "property": "rotation",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                },
+                {
+                  "at": 1,
+                  "value": 0
+                },
+                {
+                  "at": 2,
+                  "value": 0
+                },
+                {
+                  "at": 3,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "binding": "../Impact1",
+              "property": "flipX",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Impact1",
+              "property": "flipY",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Impact1",
+              "property": "depthOffset",
               "keys": [
                 {
                   "at": 0,

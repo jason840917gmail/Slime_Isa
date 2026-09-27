@@ -1,21 +1,6 @@
-import { convertedOutput, readJson, requireSupportedUnit, resourcePath } from './adapter-utils.mjs';
+import path from 'node:path';
 
-export const animationPackageSceneAdapter = {
-  async convert({ units, readSource }) {
-    return Promise.all(units.map(async (unit) => {
-      const source = await readJson(readSource, unit.oldSourcePath);
-      if (source.animationId !== unit.stableId || source.version !== 1 || !source.animation) {
-        throw new Error(`Shared animation '${unit.key}' does not match its conversion ledger identity`);
-      }
-      return convertedOutput(unit, resourcePath('animations', unit.stableId, 'package'), {
-        version: 1,
-        resourceId: `animation.${unit.stableId}`,
-        kind: 'animation-library',
-        animations: { package: source },
-      }, ['$.animationId', '$.displayName', '$.description', '$.animation', '$.version', '$.$schema']);
-    }));
-  },
-};
+import { convertedOutput, effectIdForVisualSet, readJson, requireSupportedUnit, resourcePath } from './adapter-utils.mjs';
 
 const SUPPORTED = new Set([
   'visual:boss.fatty-one-eye',
@@ -32,59 +17,105 @@ const SUPPORTED = new Set([
   'visual:effect.enemy.worm-brawler-hit',
 ]);
 
-function animationDocument(visual) {
+/** Timeline frames of a frame clip, as `normalizeAnimationClip` samples it. */
+function clipTimelineFrames(clip) {
+  return clip.durationSeconds === undefined ? clip.frames.length : Math.max(1, Math.round(clip.durationSeconds * clip.framesPerSecond));
+}
+
+/**
+ * Gameplay events come from the character's authored animation track for the
+ * clip: its events verbatim, plus one activation/deactivation event per hitbox
+ * span (what `CharacterAnimationTrackRunner` used to dispatch).
+ */
+function clipEvents(track, timelineFrames) {
+  if (!track) return [];
+  const events = (track.events ?? []).map((event) => ({
+    at: event.at, eventId: event.eventId ?? event.id, ...(event.payload === undefined ? {} : { payload: event.payload }), gameplay: true,
+  }));
+  (track.hitboxSpans ?? []).forEach((span, spanIndex) => {
+    events.push({ at: span.from, eventId: 'hitbox-activated', payload: { hitboxId: span.hitboxId, spanIndex }, gameplay: true });
+    if (span.through + 1 < timelineFrames) {
+      events.push({ at: span.through + 1, eventId: 'hitbox-deactivated', payload: { hitboxId: span.hitboxId, spanIndex }, gameplay: true });
+    }
+  });
+  return events.sort((left, right) => left.at - right.at);
+}
+
+/**
+ * Effect visual sets play their single clip for whichever direction the effect
+ * is spawned with; the effect scene's animation ids are the effect directions.
+ */
+const EFFECT_DIRECTIONS = ['right', 'left', 'up', 'down'];
+
+const samePair = (left, right) => left[0] === right[0] && left[1] === right[1];
+
+/**
+ * Per-frame visual transforms (`frameVisuals`, clip `sourceOffset`) resolved
+ * like the old `resolveFrameVisual`. Returns scale/position tracks for the
+ * Visual sprite only when some frame differs from the visual-set defaults.
+ */
+function frameVisualTracks(visual, clip, keyframeTimes) {
+  const defaults = visual.defaults;
+  const resolved = clip.frames.map((frame) => {
+    const override = visual.frameVisuals?.[String(frame)];
+    const origin = override?.origin ?? defaults.origin;
+    if (!samePair(origin, defaults.origin)) throw new Error(`Visual '${visual.visualSetId}' frame ${frame} changes origin, which Sprite2D cannot animate`);
+    return { scale: override?.scale ?? defaults.scale, offset: override?.sourceOffset ?? clip.sourceOffset ?? defaults.sourceOffset };
+  });
+  const tracks = [];
+  if (resolved.some(({ scale }) => !samePair(scale, defaults.scale))) {
+    tracks.push({ binding: '../Visual', property: 'scale', keys: resolved.map(({ scale }, index) => ({ at: keyframeTimes[index], value: scale })) });
+  }
+  if (resolved.some(({ offset }) => !samePair(offset, defaults.sourceOffset))) {
+    tracks.push({ binding: '../Visual', property: 'position', keys: resolved.map(({ offset }, index) => ({ at: keyframeTimes[index], value: offset })) });
+  }
+  return tracks;
+}
+
+function animationDocument(visual, character) {
   const animations = {};
-  for (const [clipId, clip] of Object.entries(visual.clips)) {
+  const isEffect = visual.visualSetId.startsWith('effect.');
+  const clips = Object.entries(visual.clips);
+  if (isEffect && clips.length !== 1) throw new Error(`Effect visual set '${visual.visualSetId}' must have exactly one clip`);
+  for (const [clipId, clip] of clips) {
     const keyframeTimes = clip.keyframeTimes ?? clip.frames.map((_, index) => index);
+    const timelineFrames = clipTimelineFrames(clip);
     const animation = {
       durationSeconds: clip.durationSeconds ?? clip.frames.length / clip.framesPerSecond,
       framesPerSecond: clip.framesPerSecond,
       loop: clip.loop,
+      ...(clip.loopMode ? { loopMode: clip.loopMode } : {}),
       tracks: [{
         binding: '../Visual',
         property: 'frame',
         keys: clip.frames.map((frame, index) => ({ at: keyframeTimes[index], value: frame })),
-      }],
+      }, ...frameVisualTracks(visual, clip, keyframeTimes)],
     };
-    if (clip.loopMode && visual.visualSetId.startsWith('character.npc.')) animation.loopMode = clip.loopMode;
-    if (clipId === 'attack-side') animation.events = [{ at: 1, id: 'attack-active', gameplay: true }];
-    if (clipId === 'contact-hop') animation.events = [{ at: keyframeTimes.at(-1), id: 'contact-hop-impact', gameplay: true }];
-    animations[visual.visualSetId === 'effect.enemy.worm-brawler-hit' && clipId === 'hit' ? 'right' : clipId] = animation;
-  }
-  if (visual.visualSetId === 'boss.fatty-one-eye') {
-    animations.chase = frameAnimation([6, 7, 8, 9, 10, 11], 7.6923076923, true);
-    animations['small-hop'] = frameAnimation([12, 13, 14, 15], 4 / 0.26, true);
-    animations.airborne = frameAnimation([18, 19, 20, 21, 22, 23], 6, false);
-    animations.landing = frameAnimation([24, 25, 26, 27], 4 / 0.36, false);
-    animations.recovery = frameAnimation([28, 29], 2 / 0.7, true);
-    animations.death = frameAnimation([30, 31, 32, 33, 34, 35], 7.6923076923, false);
+    const events = clipEvents(character?.animationTracks?.[clipId], timelineFrames);
+    if (events.length > 0) animation.events = events;
+    if (isEffect) for (const direction of EFFECT_DIRECTIONS) animations[direction] = animation;
+    else animations[clipId] = animation;
   }
   return { version: 1, resourceId: `${visual.visualSetId}.animations`, kind: 'animation-library', animations };
 }
 
-function frameAnimation(frames, framesPerSecond, loop) {
-  return {
-    durationSeconds: frames.length / framesPerSecond,
-    framesPerSecond,
-    loop,
-    tracks: [{ binding: '../Visual', property: 'frame', keys: frames.map((value, at) => ({ at, value })) }],
-  };
-}
-
-function enemyImpactScene(visual) {
+function effectVisualScene(visual) {
   const prefix = visual.visualSetId;
+  const effectId = effectIdForVisualSet(visual.visualSetId);
+  const [clip] = Object.values(visual.clips);
+  const lifetimeMs = Math.round((clip.durationSeconds ?? clip.frames.length / clip.framesPerSecond) * 1000);
   return {
     version: 1,
-    sceneId: 'effect.enemy-worm-brawler-hit',
+    sceneId: `effect.${effectId}`,
     rootNodeId: 'root',
     nodes: [
-      { id: 'root', name: 'EnemyWormBrawlerHit', type: 'Node2D', parentId: null, order: 0, properties: { position: [0, 0] } },
+      { id: 'root', name: effectId.split('-').map((part) => `${part[0]?.toUpperCase() ?? ''}${part.slice(1)}`).join(''), type: 'Node2D', parentId: null, order: 0, properties: { position: [0, 0], depthAnchor: [0, 0] } },
       {
         id: 'visual', name: 'Visual', type: 'Sprite2D', parentId: 'root', order: 0,
         properties: {
           texture: { resourceId: `${prefix}.sprite` }, frame: 0, origin: visual.defaults.origin,
           position: visual.defaults.sourceOffset, scale: visual.defaults.scale, rotation: 0, alpha: 1,
-          depthMode: 'world-sorted', depthBand: 'reveal-effects',
+          depthMode: 'relative', depthBand: 'world-entities',
         },
       },
       {
@@ -93,11 +124,23 @@ function enemyImpactScene(visual) {
       },
       {
         id: 'script', name: 'EffectScript', type: 'ScriptNode', scriptId: 'game.effect', parentId: 'root', order: 2,
-        properties: { effectId: 'enemy-worm-brawler-hit', animation: { nodeId: 'animation' }, lifetimeMs: 250 },
+        properties: { effectId, animation: { nodeId: 'animation' }, lifetimeMs },
       },
     ],
     instances: [],
   };
+}
+
+async function characterForVisual(readSource, visual, visualPath) {
+  const characterPath = `${path.posix.dirname(visualPath)}/character.json`;
+  let character;
+  try {
+    character = await readJson(readSource, characterPath);
+  } catch (error) {
+    if (error?.code === 'ENOENT') return undefined;
+    throw error;
+  }
+  return character.visualSetId === visual.visualSetId ? { character, characterPath } : undefined;
 }
 
 export const visualSceneAdapter = {
@@ -106,6 +149,7 @@ export const visualSceneAdapter = {
     for (const unit of units) {
       requireSupportedUnit(unit, SUPPORTED);
       const visual = await readJson(readSource, unit.oldSourcePath);
+      const owner = await characterForVisual(readSource, visual, unit.oldSourcePath);
       const manifest = await readJson(readSource, 'asset/assets.json');
       const frame = manifest.assets[visual.assetId]?.source?.frame;
       if (!frame) throw new Error(`Visual '${visual.visualSetId}' uses non-spritesheet asset '${visual.assetId}'`);
@@ -118,15 +162,15 @@ export const visualSceneAdapter = {
         frameHeight: frame.h,
         frameCount: frame.count,
       }, ['$.assetId']));
-      outputs.push(convertedOutput(unit, resourcePath('visuals', visual.visualSetId, 'animations'), animationDocument(visual), [
+      outputs.push(convertedOutput(unit, resourcePath('visuals', visual.visualSetId, 'animations'), animationDocument(visual, owner?.character), [
         '$.visualSetId', '$.clips',
       ], [
         { path: '$.$schema', owner: unit.oldSourcePath },
         { path: '$.version', owner: unit.oldSourcePath },
         { path: '$.defaults', owner: unit.oldSourcePath },
       ]));
-      if (visual.visualSetId === 'effect.enemy.worm-brawler-hit') {
-        outputs.push(convertedOutput(unit, 'effects/enemy-worm-brawler-hit.scene.json', enemyImpactScene(visual), [
+      if (visual.visualSetId.startsWith('effect.')) {
+        outputs.push(convertedOutput(unit, `effects/${effectIdForVisualSet(visual.visualSetId)}.scene.json`, effectVisualScene(visual), [
           '$.visualSetId', '$.assetId', '$.defaults', '$.clips',
         ], [{ path: '$.$schema', owner: unit.oldSourcePath }, { path: '$.version', owner: unit.oldSourcePath }]));
       }

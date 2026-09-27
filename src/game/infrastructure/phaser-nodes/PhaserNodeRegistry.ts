@@ -88,7 +88,12 @@ function base(context: NodeConstructionContext) {
     rotation: typeof context.properties.rotation === 'number' ? context.properties.rotation : 0,
     scale: vector(context.properties.scale, { x: 1, y: 1 }),
     visible: typeof context.properties.visible === 'boolean' ? context.properties.visible : true,
+    depthAnchor: Array.isArray(context.properties.depthAnchor) ? vector(context.properties.depthAnchor, { x: 0, y: 0 }) : undefined,
   };
+}
+
+function spriteDepthMode(value: JsonValue | undefined): 'world-sorted' | 'explicit' | 'relative' {
+  return value === 'explicit' || value === 'relative' ? value : 'world-sorted';
 }
 
 export interface PhaserNodeRegistryServices {
@@ -208,7 +213,8 @@ export function createPhaserNodeRegistry(context: PhaserNodeContext, services: P
       tint: typeof construction.properties.tint === 'string' ? construction.properties.tint : undefined,
       flipX: Boolean(construction.properties.flipX),
       flipY: Boolean(construction.properties.flipY),
-      depthMode: construction.properties.depthMode === 'explicit' ? 'explicit' : 'world-sorted',
+      depthMode: spriteDepthMode(construction.properties.depthMode),
+      depthOffset: typeof construction.properties.depthOffset === 'number' ? construction.properties.depthOffset : undefined,
       depthBand: typeof construction.properties.depthBand === 'string' ? construction.properties.depthBand as WorldDepthBand : undefined,
       depth: typeof construction.properties.depth === 'number' ? construction.properties.depth : undefined,
       occlusionBounds: occlusionBounds(construction.properties.occlusionBounds),
@@ -225,6 +231,7 @@ export function createPhaserNodeRegistry(context: PhaserNodeContext, services: P
       collisionMask: typeof construction.properties.collisionMask === 'number' ? construction.properties.collisionMask : undefined,
       collisionEnabled: typeof construction.properties.collisionEnabled === 'boolean' ? construction.properties.collisionEnabled : undefined,
       velocity: vector(construction.properties.velocity, { x: 0, y: 0 }),
+      collideWorldBounds: typeof construction.properties.collideWorldBounds === 'boolean' ? construction.properties.collideWorldBounds : undefined,
     }))
     .replace('StaticBody2D', (construction) => new StaticBody2DNode({
       ...base(construction), context,

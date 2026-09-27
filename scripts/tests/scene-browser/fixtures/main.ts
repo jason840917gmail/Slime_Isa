@@ -29,6 +29,8 @@ import { questService } from '../../../../src/game/quests/QuestService';
 import { worldProgress } from '../../../../src/game/features/progression/WorldProgress';
 import type { QuestView } from '../../../../src/game/content/quests/types';
 import { floatingText, type FloatingTextColor } from '../../../../src/game/ui/FloatingText';
+import { createPhysicsProbe } from './physics-probe';
+import { collisionBits } from '../../../../src/game/content/physics/CollisionLayers';
 
 type FixtureSnapshot = {
   readonly mode: 'harness' | 'baseline';
@@ -47,7 +49,10 @@ type FixtureSnapshot = {
   readonly managedBlockingColliderCount?: number;
   readonly tileCount?: number;
   readonly tileCollisionBodyCount?: number;
+  readonly tileCollisionBounds?: readonly { readonly x: number; readonly y: number; readonly width: number; readonly height: number }[];
   readonly characterX?: number;
+  readonly characterTouching?: { readonly left: boolean; readonly right: boolean; readonly up: boolean; readonly down: boolean; readonly none: boolean };
+  readonly characterEmbedded?: boolean;
   readonly blockingContactCount?: number;
   readonly sensorContactCount?: number;
   readonly sensorEnterCount?: number;
@@ -97,6 +102,7 @@ type FixtureApi = {
   detachSprite(): void;
   attachSprite(): void;
   setWallEnabled(enabled: boolean): void;
+  setCharacterVelocity(x: number, y: number): void;
   freeWall(): void;
   detachAudio(): void;
   disableProductionEnemySpawning(): void;
@@ -176,6 +182,7 @@ let moveHarnessSprite: ((x: number, y: number) => void) | undefined;
 let detachHarnessSprite: (() => void) | undefined;
 let attachHarnessSprite: (() => void) | undefined;
 let setHarnessWallEnabled: ((enabled: boolean) => void) | undefined;
+let setHarnessCharacterVelocity: ((x: number, y: number) => void) | undefined;
 let freeHarnessWall: (() => void) | undefined;
 let detachHarnessAudio: (() => void) | undefined;
 let harnessSnapshot: (() => Partial<FixtureSnapshot>) | undefined;
@@ -298,14 +305,14 @@ if (mode === 'harness') {
       this.root.add_child(camera);
       this.character = new CharacterBody2DNode({
         runtimeId: runtimeNodeId('browser', [], authoredNodeId('character')), name: 'ManagedCharacter', context: this.context,
-        position: { x: 20, y: 90 }, velocity: { x: 90, y: 0 }, collisionLayer: 1, collisionMask: 2,
+        position: { x: 20, y: 90 }, velocity: { x: 90, y: 0 }, collisionLayer: collisionBits('player'), collisionMask: collisionBits('world'),
       });
       this.character.add_child(new CollisionShape2DNode({
         runtimeId: runtimeNodeId('browser', [], authoredNodeId('character-shape')), name: 'CharacterShape', context: this.context, shape: bodyShapeId,
       }));
       this.sensor = new TrackingAreaNode({
         runtimeId: runtimeNodeId('browser', [], authoredNodeId('sensor')), name: 'ManagedSensor', context: this.context,
-        collisionLayer: 4, collisionMask: 2,
+        collisionLayer: collisionBits('trigger'), collisionMask: collisionBits('world'),
       });
       this.sensor.add_child(new CollisionShape2DNode({
         runtimeId: runtimeNodeId('browser', [], authoredNodeId('sensor-shape')), name: 'SensorShape', context: this.context, shape: sensorShapeId,
@@ -313,7 +320,7 @@ if (mode === 'harness') {
       this.character.add_child(this.sensor);
       this.wall = new StaticBody2DNode({
         runtimeId: runtimeNodeId('browser', [], authoredNodeId('wall')), name: 'ManagedWall', context: this.context,
-        position: { x: 60, y: 90 }, collisionLayer: 2, collisionMask: 1,
+        position: { x: 60, y: 90 }, collisionLayer: collisionBits('world'), collisionMask: 0,
       });
       this.wall.add_child(new CollisionShape2DNode({
         runtimeId: runtimeNodeId('browser', [], authoredNodeId('wall-shape')), name: 'WallShape', context: this.context, shape: bodyShapeId,
@@ -323,7 +330,7 @@ if (mode === 'harness') {
       if (tileHarness) {
         this.tileLayer = new TileMapLayer2DNode({
           runtimeId: runtimeNodeId('browser', [], authoredNodeId('tile-layer')), name: 'ManagedTileLayer', context: this.context,
-          tileData: tileDataId, tileSize: 16, seed: 17, collisionLayer: 2, collisionMask: 1, editorLocked: true,
+          tileData: tileDataId, tileSize: 16, seed: 17, collisionLayer: collisionBits('world'), collisionMask: 0, editorLocked: true,
         });
         this.root.add_child(this.tileLayer);
       }
@@ -350,6 +357,7 @@ if (mode === 'harness') {
     detachSprite(): void { if (this.root && this.spriteNode?.get_parent() === this.root) { this.root.remove_child(this.spriteNode); this.tree?.flushMutations(); } }
     attachSprite(): void { if (this.root && this.spriteNode && !this.spriteNode.get_parent()) { this.root.add_child(this.spriteNode); this.tree?.flushMutations(); } }
     setWallEnabled(enabled: boolean): void { if (this.wall) this.wall.collisionEnabled = enabled; }
+    setCharacterVelocity(x: number, y: number): void { if (this.character) this.character.velocity = { x, y }; }
     freeWall(): void { this.wall?.queue_free(); this.tree?.flushMutations(); }
     detachAudio(): void { if (this.root && this.audio?.get_parent() === this.root) { this.root.remove_child(this.audio); this.tree?.flushMutations(); } }
     managedSnapshot(): Partial<FixtureSnapshot> {
@@ -365,7 +373,12 @@ if (mode === 'harness') {
         managedBlockingColliderCount: this.context?.managedBlockingColliderCount ?? 0,
         tileCount: this.tileLayer?.tileCount ?? 0,
         tileCollisionBodyCount: this.tileLayer?.collisionBodyCount ?? 0,
+        tileCollisionBounds: this.tileLayer?.collisionBodyBounds() ?? [],
         characterX: this.character?.position.x,
+        ...(() => {
+          const arcade = this.character?.is_inside_tree() ? this.character.physicsObject.body as Phaser.Physics.Arcade.Body | null : null;
+          return arcade ? { characterTouching: { ...arcade.touching }, characterEmbedded: arcade.embedded } : {};
+        })(),
         blockingContactCount: this.character?.blockingContacts.length ?? 0,
         sensorContactCount: this.sensor?.currentContacts.length ?? 0,
         sensorEnterCount: this.sensor?.enteredCount ?? 0,
@@ -400,6 +413,7 @@ if (mode === 'harness') {
   detachHarnessSprite = () => (game?.scene.getScene('browser-harness') as BrowserHarnessScene).detachSprite();
   attachHarnessSprite = () => (game?.scene.getScene('browser-harness') as BrowserHarnessScene).attachSprite();
   setHarnessWallEnabled = (enabled) => (game?.scene.getScene('browser-harness') as BrowserHarnessScene).setWallEnabled(enabled);
+  setHarnessCharacterVelocity = (x, y) => (game?.scene.getScene('browser-harness') as BrowserHarnessScene).setCharacterVelocity(x, y);
   freeHarnessWall = () => (game?.scene.getScene('browser-harness') as BrowserHarnessScene).freeWall();
   detachHarnessAudio = () => (game?.scene.getScene('browser-harness') as BrowserHarnessScene).detachAudio();
   harnessSnapshot = () => (game?.scene.getScene('browser-harness') as BrowserHarnessScene).managedSnapshot();
@@ -443,6 +457,10 @@ const api: FixtureApi = {
   setWallEnabled(enabled) {
     if (!setHarnessWallEnabled) throw new Error('Managed wall is only available in harness mode');
     setHarnessWallEnabled(enabled);
+  },
+  setCharacterVelocity(x, y) {
+    if (!setHarnessCharacterVelocity) throw new Error('Managed character is only available in harness mode');
+    setHarnessCharacterVelocity(x, y);
   },
   freeWall() {
     if (!freeHarnessWall) throw new Error('Managed wall is only available in harness mode');
@@ -707,3 +725,4 @@ const api: FixtureApi = {
 };
 
 window.sceneFixture = api;
+if (mode === 'baseline') window.physicsProbe = createPhysicsProbe(() => (destroyed ? undefined : game));

@@ -5,7 +5,9 @@ import { loadTypescriptModule } from '../helpers/load-typescript.mjs';
 const { createCoreDescriptorRegistry } = await loadTypescriptModule('src/game/content/scenes/propertyDescriptors.ts');
 const { SceneDocumentState } = await loadTypescriptModule('src/game/editor/scene-studio/SceneDocumentState.ts');
 const { sceneCommands } = await loadTypescriptModule('src/game/editor/scene-studio/SceneCommand.ts');
-const animation = await loadTypescriptModule('src/game/editor/scene-studio/contexts/AnimationContext.ts');
+const animation = await loadTypescriptModule('src/game/editor/scene-studio/animation/AnimationClipModel.ts');
+const { animatableProperties } = await loadTypescriptModule('src/game/editor/scene-studio/animation/AnimationTargets.ts');
+const { AnimationClock } = await loadTypescriptModule('src/game/shared/animation/clock.ts');
 const { sceneInspectorModel } = await loadTypescriptModule('src/game/editor/scene-studio/SceneInspector.ts');
 const { AudioPreviewContext } = await loadTypescriptModule('src/game/editor/scene-studio/contexts/AudioContext.ts');
 const { compatibleSignalConnections } = await loadTypescriptModule('src/game/editor/scene-studio/contexts/SignalContext.ts');
@@ -21,29 +23,26 @@ test('ordinary-enemy authoring uses only common nodes, resources, descriptors, a
   const body = state.document.nodes.find((node) => node.id === 'body');
   const model = sceneInspectorModel(body, registry);
   assert.ok(model.groups.get('Properties').some((entry) => entry.descriptor.key === 'velocity'));
-  assert.ok(animation.animationTrackOptions([...model.groups.values()].flat().map((entry) => entry.descriptor)).some((entry) => entry.property === 'velocity' && entry.domains.includes('physics')));
+  assert.ok(animatableProperties(body, registry, 'physics').some((descriptor) => descriptor.key === 'velocity'));
   assert.equal(state.document.nodes.some((node) => /boss|fatty/i.test(`${node.type} ${node.name}`)), false);
   assert.equal(state.issues.length, 0);
 });
 
-test('animation context authors arbitrary typed tracks and seek-only preview stays silent', () => {
-  const registry = createCoreDescriptorRegistry();
-  const velocity = [...sceneInspectorModel({ id: 'body', name: 'Body', type: 'CharacterBody2D', parentId: 'root', order: 0, properties: {} }, registry).groups.values()].flat().find((entry) => entry.descriptor.key === 'velocity').descriptor;
-  let library = { version: 1, resourceId: 'animation.enemy', kind: 'animation-library', animations: { attack: { durationSeconds: 1, framesPerSecond: 10, loop: false, tracks: [], events: [] } } };
-  library = animation.addPropertyTrack(library, 'attack', '../body', velocity);
-  library = animation.setPropertyKey(library, 'attack', '../body', 'velocity', 0, [0, 0]);
-  library = animation.setPropertyKey(library, 'attack', '../body', 'velocity', 4, [20, 0]);
-  library = animation.addAnimationEvent(library, 'attack', { at: 4, eventId: 'damage', gameplay: true });
-  assert.equal(library.animations.attack.tracks[0].keys.length, 2);
-  assert.match(animation.validateAnimationDomain(library.animations.attack, 'render').join('\n'), /physics domain/);
+test('animation timeline authors arbitrary typed tracks and seek-only preview stays silent', () => {
+  let clip = { durationSeconds: 1, framesPerSecond: 10, loop: false, tracks: [], events: [] };
+  clip = animation.addTrack(clip, '../body', 'velocity', { at: 0, value: [0, 0] });
+  clip = animation.setKey(clip, 0, 4, [20, 0]);
+  clip = animation.addEvent(clip, { at: 4, eventId: 'damage', gameplay: true }).clip;
+  assert.equal(clip.tracks[0].keys.length, 2);
+  assert.match(animation.clipDomainIssues(clip, 'render').join('\n'), /physics clock domain/);
   const events = [];
-  const workbench = new animation.AnimationWorkbenchState((event) => events.push(event.eventId));
-  workbench.play(library.animations.attack);
-  workbench.seek(4);
+  const clock = new AnimationClock({ onEvent: (event) => events.push(event.eventId) });
+  clock.start(clip, clip.events);
+  clock.pause();
+  clock.scrub(4);
   assert.deepEqual(events, []);
-  assert.equal(workbench.playing, false);
-  workbench.play(library.animations.attack);
-  workbench.update(500);
+  clock.start(clip, clip.events);
+  clock.update(500);
   assert.ok(events.includes('damage'));
 });
 

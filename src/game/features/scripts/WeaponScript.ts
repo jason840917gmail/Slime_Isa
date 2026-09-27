@@ -57,6 +57,17 @@ interface ToggleNode extends Node {
   disabled?: boolean;
 }
 
+interface OverlapObservingArea extends Node {
+  readonly currentContacts: readonly PhysicsContact[];
+}
+
+/** One contiguous activation of one authored hitbox span; hits are unique per (window, receiver). */
+interface HitboxWindow {
+  readonly span: WeaponAttackSpan;
+  readonly activationId?: string;
+  readonly resolvedReceivers: Set<string>;
+}
+
 function isRecord(value: JsonValue | undefined): value is Readonly<Record<string, JsonValue>> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
@@ -80,13 +91,11 @@ export class WeaponScript extends ScriptNode {
   private activeDirection?: WeaponAttackDirection;
   private activePlan?: WeaponAttackPlan;
   private activeSinceMs = 0;
-  private activeHitboxIds = new Set<string>();
+  private readonly windows = new Map<number, HitboxWindow>();
   private damage?: WeaponDamagePayload;
   private activations?: AttackActivation;
   private damageRouter?: DamageRouter;
   private combat?: PlayerWeaponCombatPort;
-  private activationId?: string;
-  private readonly resolvedReceivers = new Set<string>();
 
   constructor(context: NodeConstructionContext) {
     super({ runtimeId: context.runtimeId, name: context.name, scriptId: scriptId(context), exportedProperties: context.properties });
@@ -104,9 +113,11 @@ export class WeaponScript extends ScriptNode {
   get attacking(): boolean { return this.activePlan !== undefined; }
   get attackDirection(): WeaponAttackDirection | undefined { return this.activeDirection; }
   get nextReadyAt(): number { return this.readyAtMs; }
+  /** Milliseconds of simulation this weapon has been stepped for; all of its timing uses this clock. */
+  get simulationTime(): number { return this.simulationTimeMs; }
 
-  canBeginAttack(timeMs = this.simulationTimeMs): boolean {
-    return Number.isFinite(timeMs) && timeMs >= this.readyAtMs && !this.activePlan;
+  canBeginAttack(): boolean {
+    return this.simulationTimeMs >= this.readyAtMs && !this.activePlan;
   }
 
   override _enter_tree(): void {
@@ -118,15 +129,17 @@ export class WeaponScript extends ScriptNode {
     this.simulationTimeMs += deltaSeconds * 1000;
     const plan = this.activePlan;
     if (!plan || !this.activeDirection) return;
+    // Contacts gathered after the previous step still describe the windows
+    // that were open then. Level-triggered resolution hits targets that were
+    // already inside a shape when its window opened, or that stay inside
+    // while the next hitbox of the same area takes over.
+    this.resolveCurrentOverlaps();
     const elapsedMs = this.simulationTimeMs - this.activeSinceMs;
     if (elapsedMs >= plan.durationMs) {
       this.finishAttack();
       return;
     }
-    const frame = Math.floor((elapsedMs / 1000) * plan.framesPerSecond);
-    const enabled = new Set(plan.hitboxSpans.filter((span) => frame >= span.from && frame <= span.through).map((span) => span.hitboxId));
-    this.activeHitboxIds = enabled;
-    this.setAttackAreaActive(enabled.size > 0, enabled);
+    this.updateWindows(plan, Math.floor((elapsedMs / 1000) * plan.framesPerSecond));
   }
 
   override _exit_tree(): void {
@@ -134,28 +147,25 @@ export class WeaponScript extends ScriptNode {
     this.set_physics_process(false);
   }
 
-  tryBeginAttack(direction: WeaponAttackDirection, timeMs = this.simulationTimeMs, damage?: WeaponDamagePayload): boolean {
-    if (!this.canBeginAttack(timeMs)) return false;
-    return this.beginAttack(direction, timeMs, damage);
+  tryBeginAttack(direction: WeaponAttackDirection, damage?: WeaponDamagePayload): boolean {
+    if (!this.canBeginAttack()) return false;
+    return this.beginAttack(direction, damage);
   }
 
-  playAttack(direction: WeaponAttackDirection, timeMs = this.simulationTimeMs, damage?: WeaponDamagePayload): boolean {
-    if (!Number.isFinite(timeMs)) return false;
+  playAttack(direction: WeaponAttackDirection, damage?: WeaponDamagePayload): boolean {
     if (this.activePlan) this.finishAttack();
-    return this.beginAttack(direction, timeMs, damage);
+    return this.beginAttack(direction, damage);
   }
 
-  private beginAttack(direction: WeaponAttackDirection, timeMs: number, damage?: WeaponDamagePayload): boolean {
+  private beginAttack(direction: WeaponAttackDirection, damage?: WeaponDamagePayload): boolean {
     const plan = this.attackPlan(direction);
     if (!plan) return false;
-    this.simulationTimeMs = Math.max(this.simulationTimeMs, timeMs);
     this.activeDirection = direction;
     this.activePlan = plan;
-    this.activeSinceMs = timeMs;
-    this.readyAtMs = timeMs + (damage?.cooldownMs ?? this.cooldownMs);
+    this.activeSinceMs = this.simulationTimeMs;
+    this.readyAtMs = this.simulationTimeMs + (damage?.cooldownMs ?? this.cooldownMs);
     this.damage = damage;
-    this.resolvedReceivers.clear();
-    if (damage) this.beginDamageActivation();
+    if (damage) this.bindDamageServices();
     this.combat?.onAttackStarted(this.weaponId, direction);
     const animation = this.getReference<Node>('animation')?.configuredTarget;
     if (animation instanceof AnimationPlayerNode && animation.hasAnimation(plan.animationId)) animation.play(plan.animationId);
@@ -195,8 +205,8 @@ export class WeaponScript extends ScriptNode {
     const direction = this.activeDirection;
     const combat = this.combat;
     this.setAttackAreaActive(false, new Set());
-    this.activeHitboxIds.clear();
-    this.endDamageActivation();
+    this.closeWindows();
+    this.releaseDamageServices();
     this.activeDirection = undefined;
     this.activePlan = undefined;
     const animation = this.getReference<Node>('animation')?.configuredTarget;
@@ -205,81 +215,118 @@ export class WeaponScript extends ScriptNode {
     if (direction) this.getSignal<{ weaponId: string; direction: WeaponAttackDirection }>('attack_finished')?.emit({ weaponId: this.weaponId, direction });
   }
 
-  private beginDamageActivation(): void {
-    const area = this.getReference<Node>('attackArea')?.configuredTarget;
-    if (!area) throw new Error(`WeaponScript '${this.runtimeId}' requires an attackArea reference.`);
+  private bindDamageServices(): void {
+    if (!this.getReference<Node>('attackArea')?.configuredTarget) throw new Error(`WeaponScript '${this.runtimeId}' requires an attackArea reference.`);
     this.activations = this.service<AttackActivation>(ATTACK_ACTIVATION_SERVICE);
     this.damageRouter = this.service<DamageRouter>(DAMAGE_ROUTER_SERVICE);
     this.combat = this.service<PlayerWeaponCombatPort>(PLAYER_WEAPON_COMBAT_SERVICE);
-    this.activationId = this.activations.begin(this.runtimeId, [area.runtimeId]);
   }
 
-  private onAreaEntered(contact: PhysicsContact): void {
-    const damage = this.damage;
-    const activationId = this.activationId;
-    const router = this.damageRouter;
-    const combat = this.combat;
-    const direction = this.activeDirection;
-    const attackArea = this.getReference<Node>('attackArea')?.configuredTarget;
-    if (!damage || !activationId || !router || !combat || !direction || !attackArea || contact.otherKind !== 'area') return;
-    const receiverNodeId = router.receiverNodeIdForArea(contact.otherId);
-    if (!receiverNodeId || this.resolvedReceivers.has(receiverNodeId)) return;
-    const span = this.contactSpan(contact);
-    if (!span) return;
-    const targetPosition = contact.other instanceof Node2D
-      ? contact.other.get_global_transform().position
-      : { x: 0, y: 0 };
-    const target: ManagedWeaponTarget = {
-      areaNodeId: contact.otherId,
-      receiverNodeId,
-      x: targetPosition.x,
-      y: targetPosition.y,
-      attackDirection: direction,
-    };
-    this.resolvedReceivers.add(receiverNodeId);
-    const routedDamage = combat.transformDamage(damage.damage * span.damageMultiplier, target);
-    const knock = attackVector(direction);
-    const outcomes = router.routeStep([{
-      activationId,
-      sourceNodeId: this.runtimeId,
-      attackAreaNodeId: attackArea.runtimeId,
-      targetAreaNodeId: contact.otherId,
-      weaponId: this.weaponId,
-      weaponTags: damage.weaponTags ?? [this.weaponId.includes('spear') ? 'spear' : 'weapon'],
-      damageTypes: damage.damageTypes ?? ['physical'],
-      baseDamage: Math.max(0, routedDamage),
-      effects: damage.knockbackStrength > 0
-        ? [{ effectId: 'knockback', potency: damage.knockbackStrength * span.knockbackMultiplier }]
-        : [],
-      impact: { x: target.x, y: target.y, knockX: knock.x, knockY: knock.y },
-    }], this.simulationTimeMs);
-    const outcome = outcomes[0];
-    if (outcome) combat.onOutcome(outcome, target);
-  }
-
-  private contactSpan(contact: PhysicsContact): WeaponAttackSpan | undefined {
-    const plan = this.activePlan;
-    if (!plan) return undefined;
-    const tree = this.get_tree();
-    for (const shape of contact.shapes) {
-      const name = tree?.getNodeById(shape.observerShapeId)?.name;
-      if (!name) continue;
-      const separator = name.indexOf('--');
-      const hitboxId = separator >= 0 ? name.slice(separator + 2) : name;
-      const span = plan.hitboxSpans.find((candidate) => candidate.hitboxId === hitboxId && this.activeHitboxIds.has(hitboxId));
-      if (span) return span;
-    }
-    return plan.hitboxSpans.find((span) => this.activeHitboxIds.has(span.hitboxId));
-  }
-
-  private endDamageActivation(): void {
-    if (this.activationId) this.activations?.end(this.activationId);
-    this.activationId = undefined;
+  private releaseDamageServices(): void {
     this.activations = undefined;
     this.damageRouter = undefined;
     this.combat = undefined;
     this.damage = undefined;
-    this.resolvedReceivers.clear();
+  }
+
+  /** Opens a window (with its own attack activation) per span entering its frames and closes the rest. */
+  private updateWindows(plan: WeaponAttackPlan, frame: number): void {
+    const area = this.getReference<Node>('attackArea')?.configuredTarget;
+    plan.hitboxSpans.forEach((span, index) => {
+      const open = frame >= span.from && frame <= span.through;
+      const window = this.windows.get(index);
+      if (open && !window) {
+        const activationId = this.damage && area && this.activations
+          ? this.activations.begin(this.runtimeId, [area.runtimeId])
+          : undefined;
+        this.windows.set(index, { span, ...(activationId ? { activationId } : {}), resolvedReceivers: new Set() });
+      } else if (!open && window) {
+        this.closeWindow(index, window);
+      }
+    });
+    const hitboxIds = new Set([...this.windows.values()].map((window) => window.span.hitboxId));
+    this.setAttackAreaActive(hitboxIds.size > 0, hitboxIds);
+  }
+
+  private closeWindow(index: number, window: HitboxWindow): void {
+    if (window.activationId) this.activations?.end(window.activationId);
+    this.windows.delete(index);
+  }
+
+  private closeWindows(): void {
+    for (const [index, window] of [...this.windows]) this.closeWindow(index, window);
+  }
+
+  private resolveCurrentOverlaps(): void {
+    const area = this.getReference<Node>('attackArea')?.configuredTarget as Partial<OverlapObservingArea> | undefined;
+    if (!area || this.windows.size === 0 || !Array.isArray(area.currentContacts)) return;
+    for (const contact of area.currentContacts) this.resolveContact(contact);
+  }
+
+  private onAreaEntered(contact: PhysicsContact): void {
+    this.resolveContact(contact);
+  }
+
+  /** Routes one hit per open window whose hitbox shape takes part in the contact. */
+  private resolveContact(contact: PhysicsContact): void {
+    const damage = this.damage;
+    const router = this.damageRouter;
+    const combat = this.combat;
+    const direction = this.activeDirection;
+    const attackArea = this.getReference<Node>('attackArea')?.configuredTarget;
+    if (!damage || !router || !combat || !direction || !attackArea || contact.otherKind !== 'area') return;
+    const receiverNodeId = router.receiverNodeIdForArea(contact.otherId);
+    if (!receiverNodeId) return;
+    const touching = this.contactHitboxIds(contact);
+    for (const window of this.windows.values()) {
+      if (!window.activationId || window.resolvedReceivers.has(receiverNodeId)) continue;
+      if (touching && !touching.has(window.span.hitboxId)) continue;
+      window.resolvedReceivers.add(receiverNodeId);
+      const targetPosition = contact.other instanceof Node2D
+        ? contact.other.get_global_transform().position
+        : { x: 0, y: 0 };
+      const target: ManagedWeaponTarget = {
+        areaNodeId: contact.otherId,
+        receiverNodeId,
+        x: targetPosition.x,
+        y: targetPosition.y,
+        attackDirection: direction,
+      };
+      const routedDamage = combat.transformDamage(damage.damage * window.span.damageMultiplier, target);
+      const knock = attackVector(direction);
+      const outcomes = router.routeStep([{
+        activationId: window.activationId,
+        sourceNodeId: this.runtimeId,
+        attackAreaNodeId: attackArea.runtimeId,
+        targetAreaNodeId: contact.otherId,
+        weaponId: this.weaponId,
+        weaponTags: damage.weaponTags ?? [this.weaponId.includes('spear') ? 'spear' : 'weapon'],
+        damageTypes: damage.damageTypes ?? ['physical'],
+        baseDamage: Math.max(0, routedDamage),
+        effects: damage.knockbackStrength > 0
+          ? [{ effectId: 'knockback', potency: damage.knockbackStrength * window.span.knockbackMultiplier }]
+          : [],
+        impact: { x: target.x, y: target.y, knockX: knock.x, knockY: knock.y },
+      }], this.simulationTimeMs);
+      const outcome = outcomes[0];
+      if (outcome) combat.onOutcome(outcome, target);
+      // Routing can end the attack (e.g. a defeat handler); stop using stale state.
+      if (this.damage !== damage) return;
+    }
+  }
+
+  /** Hitbox ids of this attack's shapes in the contact, or undefined when the contact names no known shape. */
+  private contactHitboxIds(contact: PhysicsContact): ReadonlySet<string> | undefined {
+    const tree = this.get_tree();
+    const ids = new Set<string>();
+    for (const shape of contact.shapes) {
+      const name = tree?.getNodeById(shape.observerShapeId)?.name;
+      if (!name) continue;
+      const separator = name.indexOf('--');
+      if (separator >= 0 && name.slice(0, separator) !== this.activeDirection) continue;
+      ids.add(separator >= 0 ? name.slice(separator + 2) : name);
+    }
+    return ids.size > 0 ? ids : undefined;
   }
 
   private setAttackAreaActive(active: boolean, hitboxIds: ReadonlySet<string>): void {

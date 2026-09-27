@@ -57,7 +57,7 @@ export function renderSceneInspector(model: SceneInspectorModel): string {
     if (descriptor.inspector === 'json') return `<textarea ${attributes}>${escapeHtml(JSON.stringify(property.value ?? null, null, 2))}</textarea>`;
     const type = descriptor.inspector === 'number' ? 'number' : descriptor.inspector === 'color' ? 'color' : 'text';
     const constraints = descriptor.value.kind === 'number' ? `${descriptor.value.min === undefined ? '' : ` min="${descriptor.value.min}"`}${descriptor.value.max === undefined ? '' : ` max="${descriptor.value.max}"`}${descriptor.value.integer ? ' step="1"' : ''}` : '';
-    const value = typeof property.value === 'string' || typeof property.value === 'number' ? property.value : JSON.stringify(property.value ?? '');
+    const value = typeof property.value === 'string' || typeof property.value === 'number' ? property.value : property.value === undefined ? '' : JSON.stringify(property.value);
     return `<input type="${type}" ${attributes}${constraints} value="${escapeHtml(value)}" />`;
   };
   const groups = [...model.groups].map(([label, properties]) => `<fieldset><legend>${escapeHtml(label)}</legend>${properties.map((property) => `<label class="scene-property"><span>${escapeHtml(property.descriptor.label)}${property.descriptor.units ? `<small>${escapeHtml(property.descriptor.units)}</small>` : ''}</span>${input(property)}<em>${property.origin}</em>${property.descriptor.help ? `<small id="help-${escapeHtml(property.descriptor.key)}">${escapeHtml(property.descriptor.help)}</small>` : ''}</label>`).join('')}</fieldset>`).join('');

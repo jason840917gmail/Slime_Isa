@@ -1,9 +1,0 @@
-{
-  "version": 1,
-  "resourceId": "enemy.worm.brawler.sprite",
-  "kind": "sprite-sheet",
-  "assetId": "enemy.worm.brawler",
-  "frameWidth": 64,
-  "frameHeight": 64,
-  "frameCount": 43
-}

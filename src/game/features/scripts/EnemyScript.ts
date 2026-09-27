@@ -42,6 +42,42 @@ export interface EnemyRuntimePort extends EnemyTargetService {
   getNavigation?(sourceNodeId: string): EnemyNavigationSnapshot | undefined;
   fireProjectile?(request: EnemyProjectileRequest): void;
   spawnImpactEffect?(request: { readonly effectId: string; readonly x: number; readonly y: number }): void;
+  showDamageNumber?(request: EnemyDamageNumberRequest): void;
+}
+
+export interface EnemyDamageNumberRequest {
+  readonly sourceNodeId: string;
+  readonly x: number;
+  readonly y: number;
+  readonly amount: number;
+}
+
+/** Knockback added to every accepted hit before resistance (legacy Enemy.applyDamage). */
+export const ENEMY_HIT_KNOCKBACK_BASE = 120;
+/** Hit-stun is BASE + min(MAX_BONUS, knockback * PER_STRENGTH) milliseconds. */
+export const ENEMY_HIT_STUN_BASE_MS = 320;
+export const ENEMY_HIT_STUN_MAX_BONUS_MS = 280;
+export const ENEMY_HIT_STUN_PER_STRENGTH_MS = 0.35;
+/** Knockback velocity retained per 60 Hz step while stunned. */
+export const ENEMY_HIT_STUN_VELOCITY_DECAY = 0.94;
+export const ENEMY_HIT_FLASH_MS = 120;
+export const ENEMY_HIT_FLASH_COLOR = 0xff6f88;
+/** Attack sequences outlive their clip by this margin and never exceed the cap. */
+export const ENEMY_ATTACK_SEQUENCE_PADDING_MS = 250;
+export const ENEMY_ATTACK_SEQUENCE_MAX_MS = 2000;
+/** Melee impacts land only while the target is within this multiple of attackRange. */
+export const ENEMY_MELEE_REACH_MULTIPLIER = 1.35;
+
+type EnemyFacing = 'side' | 'up' | 'down';
+type EnemyAnimationAction = 'idle' | 'walk' | 'attack' | 'knockback' | 'die';
+
+interface FlippableVisual {
+  flipX: boolean;
+}
+
+interface TintableVisual {
+  setTintFill(color: number): unknown;
+  clearTint(): unknown;
 }
 
 export interface EnemyNavigationSnapshot {
@@ -120,6 +156,11 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
   private attackFinishAt = 0;
   private attackResolved = false;
   private attackDirection: CharacterPoint = { x: 0, y: 1 };
+  private aiState: EnemyState = 'idle';
+  private facing: EnemyFacing = 'down';
+  private facingFlipped = false;
+  private hitStunUntil = 0;
+  private hitFlashUntil = 0;
 
   constructor(context: NodeConstructionContext) {
     super(context);
@@ -138,6 +179,9 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
   get runtimeNodeId(): string { return this.runtimeId; }
   get runtimeState(): EnemyRuntimeState { return this.runtimeStateValue; }
   get simulationTime(): number { return this.simulationTimeMs; }
+  get staggered(): boolean { return this.simulationTimeMs < this.hitStunUntil; }
+  get attacking(): boolean { return this.activeSequenceId !== undefined; }
+  get facingDirection(): EnemyFacing { return this.facing; }
   get worldPosition(): CharacterPoint { return this.body().get_global_transform().position; }
 
   getDamageState() {
@@ -156,7 +200,41 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
     for (const effect of commit.result.appliedEffects) this.activeEffects.set(effect.effectId, effect.potency);
     this.getSignal<EnemyHealthChanged>('health_changed')?.emit({ hp: this.hpValue, maxHp: this.maxHealth });
     this.getSignal<DamageCommit>('damaged')?.emit(commit);
-    if (commit.result.defeated || this.hpValue <= 0) this.defeat();
+    const defeated = commit.result.defeated || this.hpValue <= 0;
+    this.reactToDamage(commit, defeated);
+    if (defeated) this.defeat();
+  }
+
+  /**
+   * Ordinary hit reaction: flash, damage number, cancel the current attack,
+   * knock back by (potency + base) * (1 - knockbackResist) and stun for a
+   * duration that grows with the applied knockback. Bosses override this.
+   */
+  protected reactToDamage(commit: DamageCommit, defeated: boolean): void {
+    this.hitFlashUntil = this.simulationTimeMs + ENEMY_HIT_FLASH_MS;
+    this.tintableVisual()?.setTintFill(ENEMY_HIT_FLASH_COLOR);
+    const origin = this.body().get_global_transform().position;
+    this.targetService?.showDamageNumber?.({ sourceNodeId: this.runtimeId, x: origin.x, y: origin.y, amount: commit.result.actualDamage });
+    if (defeated) return;
+
+    this.cancelAttack();
+    const knockbackImmune = commit.result.rejectedEffects.some((effect) => effect.effectId === 'knockback' && effect.reason === 'immune');
+    const potency = commit.result.appliedEffects
+      .filter((effect) => effect.effectId === 'knockback')
+      .reduce((total, effect) => total + effect.potency, 0);
+    const resist = Math.min(1, Math.max(0, this.attributeNumber('knockbackResist', 0)));
+    const strength = knockbackImmune ? 0 : (potency + ENEMY_HIT_KNOCKBACK_BASE) * (1 - resist);
+    const length = Math.hypot(commit.request.impact.knockX, commit.request.impact.knockY);
+    if (strength > 0 && length > 0) {
+      this.body().velocity = {
+        x: (commit.request.impact.knockX / length) * strength,
+        y: (commit.request.impact.knockY / length) * strength,
+      };
+    }
+    const stunMs = ENEMY_HIT_STUN_BASE_MS + Math.min(ENEMY_HIT_STUN_MAX_BONUS_MS, strength * ENEMY_HIT_STUN_PER_STRENGTH_MS);
+    this.hitStunUntil = Math.max(this.hitStunUntil, this.simulationTimeMs + stunMs);
+    this.playFacing('knockback', true);
+    this.getSignal<{ durationMs: number; strength: number }>('hit_reaction')?.emit({ durationMs: stunMs, strength });
   }
 
   publishDamageFeedback(commit: DamageCommit): void {
@@ -208,6 +286,7 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
 
   override _physics_process(deltaSeconds: number): void {
     this.simulationTimeMs += deltaSeconds * 1000;
+    this.updateHitFlash();
     const body = this.body();
     if (this.defeatedValue) {
       body.velocity = { x: 0, y: 0 };
@@ -215,12 +294,19 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
       return;
     }
 
+    if (this.simulationTimeMs < this.hitStunUntil) {
+      const decay = Math.pow(ENEMY_HIT_STUN_VELOCITY_DECAY, deltaSeconds * 60);
+      body.velocity = { x: body.velocity.x * decay, y: body.velocity.y * decay };
+      return;
+    }
+
     const target = this.currentTarget();
     if (!target?.active || !target.hostile) {
       this.cancelAttack();
+      this.aiState = 'idle';
       this.runtimeStateValue = 'idle';
       body.velocity = { x: 0, y: 0 };
-      this.playDirectional('idle', this.attackDirection);
+      this.playFacing('idle');
       return;
     }
 
@@ -230,17 +316,17 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
     const distance = Math.sqrt(this.distanceSquared(origin, target.position));
 
     if (this.activeSequenceId !== undefined) {
-      body.velocity = { x: 0, y: 0 };
       if (!this.attackResolved && this.simulationTimeMs >= this.attackImpactAt) this.resolveRuntimeAttack(target, origin);
-      if (this.simulationTimeMs >= this.attackFinishAt) {
-        const sequenceId = this.activeSequenceId;
-        this.finishAttack(sequenceId);
-        this.runtimeStateValue = 'chase';
+      if (this.activeSequenceId !== undefined && this.simulationTimeMs >= this.attackFinishAt) {
+        this.finishAttack(this.activeSequenceId);
+        const fleeRange = this.attributeOptionalNumber('fleeRange');
+        this.aiState = fleeRange !== undefined && fleeRange > 0 && distance < fleeRange ? 'flee' : 'chase';
       }
-      return;
     }
 
-    this.attackDirection = direction;
+    // The AI keeps running during an attack exactly as the legacy enemy did:
+    // the attack state holds position, and a target that escapes beyond the
+    // attack range is chased while the committed swing plays out.
     const velocity = { x: body.velocity.x, y: body.velocity.y };
     const velocityPort = {
       setVelocity: (x: number, y: number) => { velocity.x = x; velocity.y = y; },
@@ -248,7 +334,7 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
     };
     const navigation = this.targetService?.getNavigation?.(this.runtimeId);
     const directionPort = { ...direction, clone: () => ({ ...directionPort }) };
-    let state = this.runtimeStateValue;
+    let state = this.aiState;
     for (let transitions = 0; transitions < 3; transitions += 1) {
       const before = { ...velocity };
       const result = runState(state, {
@@ -271,11 +357,12 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
       const velocityChanged = velocity.x !== before.x || velocity.y !== before.y;
       if (startedMoving && velocityChanged) break;
     }
+    this.aiState = state;
     this.runtimeStateValue = this.activeSequenceId === undefined ? state : 'attack';
     body.velocity = velocity;
     if (this.activeSequenceId !== undefined) return;
-    if (velocity.x !== 0 || velocity.y !== 0) this.playDirectional('walk', velocity);
-    else this.playDirectional('idle', this.attackDirection);
+    this.updateFacing(velocity);
+    this.playFacing(Math.hypot(velocity.x, velocity.y) > 2 ? 'walk' : 'idle');
   }
 
   override _exit_tree(): void {
@@ -308,7 +395,7 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
     this.runtimeStateValue = 'dead';
     this.stopBody();
     this.setAttackAreaActive(false);
-    this.playDirectional('die', this.attackDirection);
+    this.playFacing('die', true);
     this.getSignal<EnemyHealthChanged>('health_changed')?.emit({ hp: 0, maxHp: this.maxHealth });
     this.getSignal<{ receiverNodeId: string }>('defeated')?.emit({ receiverNodeId: this.runtimeId });
     if (!this.rewardPublished) {
@@ -334,9 +421,17 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
 
   protected canRunCommonAttack(): boolean { return true; }
 
-  protected playAnimation(name: string): void {
+  /** Directional enemies mirror their side clips when facing left. */
+  protected mirrorsSideFacing(): boolean { return true; }
+
+  protected playAnimation(name: string, restart = false): void {
+    const animation = this.animationPlayer();
+    if (animation && (restart || animation.currentAnimation !== name) && animation.hasAnimation(name)) animation.play(name);
+  }
+
+  protected animationPlayer(): AnimationPlayerNode | undefined {
     const animation = this.getReference<Node>('animation')?.configuredTarget;
-    if (animation instanceof AnimationPlayerNode && animation.currentAnimation !== name && animation.hasAnimation(name)) animation.play(name);
+    return animation instanceof AnimationPlayerNode ? animation : undefined;
   }
 
   protected routeImmediateAttack(target: EnemyTargetSnapshot, baseDamage: number, range: number): void {
@@ -375,14 +470,22 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
     if (sequenceId === undefined) return;
     const attackArea = this.getReference<Node>('attackArea')?.configuredTarget;
     if (!attackArea || !this.attackActivations) return;
-    this.attackDirection = direction;
+    const length = Math.hypot(direction.x, direction.y);
+    this.attackDirection = length > 0 ? { x: direction.x / length, y: direction.y / length } : this.attackDirection;
     this.activeSequenceId = sequenceId;
     this.activeActivationId = this.attackActivations.begin(this.runtimeId, [attackArea.runtimeId]);
-    this.attackImpactAt = this.simulationTimeMs + this.attributeNumber('attackWindupMs', 0);
-    this.attackFinishAt = this.attackImpactAt + this.attributeNumber('attackRecoveryMs', 0);
+    const windupMs = Math.max(0, this.attributeNumber('attackWindupMs', 0));
+    const recoveryMs = Math.max(0, this.attributeNumber('attackRecoveryMs', 0));
+    this.updateFacing(this.attackDirection);
+    const clipMs = this.animationPlayer()?.animationLengthMs(this.facingAnimation('attack')) ?? 0;
+    this.attackImpactAt = this.simulationTimeMs + windupMs;
+    this.attackFinishAt = this.simulationTimeMs + Math.min(
+      ENEMY_ATTACK_SEQUENCE_MAX_MS,
+      Math.max(windupMs + recoveryMs, clipMs) + ENEMY_ATTACK_SEQUENCE_PADDING_MS,
+    );
     this.attackResolved = false;
     this.setAttackAreaActive(true);
-    this.playDirectional('attack', direction);
+    this.playFacing('attack', true);
   }
 
   private resolveRuntimeAttack(target: EnemyTargetSnapshot, origin: CharacterPoint): void {
@@ -390,10 +493,11 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
     const activationId = this.activeActivationId;
     const attackArea = this.getReference<Node>('attackArea')?.configuredTarget;
     if (!activationId || !attackArea || !this.damageRouter) return;
-    const targetDistance = Math.sqrt(this.distanceSquared(origin, target.position));
-    if (!target.active || !target.hostile || targetDistance > this.attackRange * 1.35) return;
+    if (!target.active || !target.hostile) return;
     const projectile = this.projectileConfiguration();
     if (projectile) {
+      // Ranged attacks commit at windup start: the projectile always leaves in
+      // the aimed direction and its own flight decides whether it connects.
       this.targetService?.fireProjectile?.({
         sourceNodeId: this.runtimeId,
         position: origin,
@@ -406,6 +510,9 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
       });
       return;
     }
+    const targetDistance = Math.sqrt(this.distanceSquared(origin, target.position));
+    if (targetDistance > this.attackRange * ENEMY_MELEE_REACH_MULTIPLIER) return;
+    const knock = this.movementToward(origin, target.position, 1);
     const outcomes = this.damageRouter.routeStep([{
       activationId,
       sourceNodeId: this.runtimeId,
@@ -419,8 +526,8 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
       impact: {
         x: origin.x,
         y: origin.y,
-        knockX: this.attackDirection.x,
-        knockY: this.attackDirection.y,
+        knockX: knock.speed > 0 ? knock.x : this.attackDirection.x,
+        knockY: knock.speed > 0 ? knock.y : this.attackDirection.y,
       },
     }], this.simulationTimeMs);
     if (outcomes.some((outcome) => outcome.result.status === 'accepted' && outcome.result.actualDamage > 0)) {
@@ -456,9 +563,48 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
     }
   }
 
-  private playDirectional(action: 'idle' | 'walk' | 'attack' | 'die', direction: CharacterPoint): void {
-    const suffix = Math.abs(direction.y) > Math.abs(direction.x) ? (direction.y < 0 ? 'up' : 'down') : 'side';
-    this.playAnimation(`${action}-${suffix}`);
+  /** Legacy facing rule: horizontal-dominant vectors use the side clip, mirrored when moving left. */
+  private updateFacing(vector: CharacterPoint): void {
+    if (Math.hypot(vector.x, vector.y) < 1e-6) return;
+    if (Math.abs(vector.x) > Math.abs(vector.y)) {
+      this.facing = 'side';
+      this.facingFlipped = vector.x < 0;
+    } else {
+      this.facing = vector.y < 0 ? 'up' : 'down';
+      this.facingFlipped = false;
+    }
+    const visual = this.mirrorsSideFacing() ? this.flippableVisual() : undefined;
+    if (visual && visual.flipX !== this.facingFlipped) visual.flipX = this.facingFlipped;
+  }
+
+  private facingAnimation(action: EnemyAnimationAction): string {
+    return `${action}-${this.facing}`;
+  }
+
+  private playFacing(action: EnemyAnimationAction, restart = false): void {
+    this.playAnimation(this.facingAnimation(action), restart);
+  }
+
+  private visualNode(): Node | undefined {
+    return this.getReference<Node>('visual')?.configuredTarget;
+  }
+
+  private flippableVisual(): FlippableVisual | undefined {
+    const visual = this.visualNode();
+    return visual && 'flipX' in visual ? visual as unknown as FlippableVisual : undefined;
+  }
+
+  private tintableVisual(): TintableVisual | undefined {
+    const visual = this.visualNode() as (Node & Partial<TintableVisual>) | undefined;
+    return visual && typeof visual.setTintFill === 'function' && typeof visual.clearTint === 'function'
+      ? visual as unknown as TintableVisual
+      : undefined;
+  }
+
+  private updateHitFlash(): void {
+    if (this.hitFlashUntil <= 0 || this.simulationTimeMs < this.hitFlashUntil) return;
+    this.hitFlashUntil = 0;
+    this.tintableVisual()?.clearTint();
   }
 
   private attributeNumber(key: string, fallback: number): number {

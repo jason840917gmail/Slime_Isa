@@ -41,7 +41,8 @@
         ],
         "rotation": 0,
         "alpha": 0,
-        "depthMode": "world-sorted",
+        "depthMode": "relative",
+        "depthOffset": 0.01,
         "depthBand": "world-entities"
       }
     },
@@ -70,7 +71,8 @@
         ],
         "rotation": 0,
         "alpha": 0,
-        "depthMode": "world-sorted",
+        "depthMode": "relative",
+        "depthOffset": 0.01,
         "depthBand": "world-entities"
       }
     },
@@ -406,8 +408,8 @@
                 {
                   "at": 0,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 }
               ]
@@ -419,6 +421,36 @@
                 {
                   "at": 0,
                   "value": 0
+                }
+              ]
+            },
+            {
+              "binding": "../Layer11",
+              "property": "flipX",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Layer11",
+              "property": "flipY",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Layer11",
+              "property": "depthOffset",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0.01
                 }
               ]
             },
@@ -475,6 +507,36 @@
                 {
                   "at": 0,
                   "value": 0
+                }
+              ]
+            },
+            {
+              "binding": "../Layer22",
+              "property": "flipX",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Layer22",
+              "property": "flipY",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Layer22",
+              "property": "depthOffset",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0.01
                 }
               ]
             }
@@ -691,85 +753,85 @@
                 {
                   "at": 0,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 1,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 2,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 3,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 4,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 5,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 6,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 7,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 8,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 9,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 10,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 11,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 }
               ]
@@ -829,28 +891,190 @@
               ]
             },
             {
+              "binding": "../Layer11",
+              "property": "flipX",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                },
+                {
+                  "at": 4,
+                  "value": false
+                },
+                {
+                  "at": 5,
+                  "value": false
+                },
+                {
+                  "at": 6,
+                  "value": false
+                },
+                {
+                  "at": 7,
+                  "value": false
+                },
+                {
+                  "at": 8,
+                  "value": false
+                },
+                {
+                  "at": 9,
+                  "value": false
+                },
+                {
+                  "at": 10,
+                  "value": false
+                },
+                {
+                  "at": 11,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Layer11",
+              "property": "flipY",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                },
+                {
+                  "at": 4,
+                  "value": false
+                },
+                {
+                  "at": 5,
+                  "value": false
+                },
+                {
+                  "at": 6,
+                  "value": false
+                },
+                {
+                  "at": 7,
+                  "value": false
+                },
+                {
+                  "at": 8,
+                  "value": false
+                },
+                {
+                  "at": 9,
+                  "value": false
+                },
+                {
+                  "at": 10,
+                  "value": false
+                },
+                {
+                  "at": 11,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Layer11",
+              "property": "depthOffset",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0.01
+                },
+                {
+                  "at": 1,
+                  "value": 0.01
+                },
+                {
+                  "at": 2,
+                  "value": 0.01
+                },
+                {
+                  "at": 3,
+                  "value": 0.01
+                },
+                {
+                  "at": 4,
+                  "value": 0.01
+                },
+                {
+                  "at": 5,
+                  "value": 0.01
+                },
+                {
+                  "at": 6,
+                  "value": 0.01
+                },
+                {
+                  "at": 7,
+                  "value": 0.01
+                },
+                {
+                  "at": 8,
+                  "value": 0.01
+                },
+                {
+                  "at": 9,
+                  "value": 0.01
+                },
+                {
+                  "at": 10,
+                  "value": 0.01
+                },
+                {
+                  "at": 11,
+                  "value": 0.01
+                }
+              ]
+            },
+            {
               "binding": "../Layer22",
               "property": "frame",
               "keys": [
                 {
                   "at": 0,
-                  "value": 0
+                  "value": 3
                 },
                 {
                   "at": 1,
-                  "value": 0
+                  "value": 3
                 },
                 {
                   "at": 2,
-                  "value": 0
+                  "value": 3
                 },
                 {
                   "at": 3,
-                  "value": 0
+                  "value": 3
                 },
                 {
                   "at": 4,
-                  "value": 0
+                  "value": 3
                 },
                 {
                   "at": 5,
@@ -862,23 +1086,23 @@
                 },
                 {
                   "at": 7,
-                  "value": 0
+                  "value": 3
                 },
                 {
                   "at": 8,
-                  "value": 0
+                  "value": 3
                 },
                 {
                   "at": 9,
-                  "value": 0
+                  "value": 3
                 },
                 {
                   "at": 10,
-                  "value": 0
+                  "value": 3
                 },
                 {
                   "at": 11,
-                  "value": 0
+                  "value": 3
                 }
               ]
             },
@@ -943,36 +1167,36 @@
                 {
                   "at": 0,
                   "value": [
-                    0,
-                    0
+                    54.5,
+                    20
                   ]
                 },
                 {
                   "at": 1,
                   "value": [
-                    0,
-                    0
+                    54.5,
+                    20
                   ]
                 },
                 {
                   "at": 2,
                   "value": [
-                    0,
-                    0
+                    54.5,
+                    20
                   ]
                 },
                 {
                   "at": 3,
                   "value": [
-                    0,
-                    0
+                    54.5,
+                    20
                   ]
                 },
                 {
                   "at": 4,
                   "value": [
-                    0,
-                    0
+                    54.5,
+                    20
                   ]
                 },
                 {
@@ -992,36 +1216,36 @@
                 {
                   "at": 7,
                   "value": [
-                    0,
-                    0
+                    54.5,
+                    20
                   ]
                 },
                 {
                   "at": 8,
                   "value": [
-                    0,
-                    0
+                    54.5,
+                    20
                   ]
                 },
                 {
                   "at": 9,
                   "value": [
-                    0,
-                    0
+                    54.5,
+                    20
                   ]
                 },
                 {
                   "at": 10,
                   "value": [
-                    0,
-                    0
+                    54.5,
+                    20
                   ]
                 },
                 {
                   "at": 11,
                   "value": [
-                    0,
-                    0
+                    54.5,
+                    20
                   ]
                 }
               ]
@@ -1068,15 +1292,15 @@
                 {
                   "at": 5,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 6,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
@@ -1122,23 +1346,23 @@
               "keys": [
                 {
                   "at": 0,
-                  "value": 0
+                  "value": 0.6981317007977318
                 },
                 {
                   "at": 1,
-                  "value": 0
+                  "value": 0.6981317007977318
                 },
                 {
                   "at": 2,
-                  "value": 0
+                  "value": 0.6981317007977318
                 },
                 {
                   "at": 3,
-                  "value": 0
+                  "value": 0.6981317007977318
                 },
                 {
                   "at": 4,
-                  "value": 0
+                  "value": 0.6981317007977318
                 },
                 {
                   "at": 5,
@@ -1150,23 +1374,185 @@
                 },
                 {
                   "at": 7,
-                  "value": 0
+                  "value": 0.6981317007977318
                 },
                 {
                   "at": 8,
-                  "value": 0
+                  "value": 0.6981317007977318
                 },
                 {
                   "at": 9,
-                  "value": 0
+                  "value": 0.6981317007977318
                 },
                 {
                   "at": 10,
-                  "value": 0
+                  "value": 0.6981317007977318
                 },
                 {
                   "at": 11,
-                  "value": 0
+                  "value": 0.6981317007977318
+                }
+              ]
+            },
+            {
+              "binding": "../Layer22",
+              "property": "flipX",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                },
+                {
+                  "at": 4,
+                  "value": false
+                },
+                {
+                  "at": 5,
+                  "value": false
+                },
+                {
+                  "at": 6,
+                  "value": false
+                },
+                {
+                  "at": 7,
+                  "value": false
+                },
+                {
+                  "at": 8,
+                  "value": false
+                },
+                {
+                  "at": 9,
+                  "value": false
+                },
+                {
+                  "at": 10,
+                  "value": false
+                },
+                {
+                  "at": 11,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Layer22",
+              "property": "flipY",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                },
+                {
+                  "at": 4,
+                  "value": false
+                },
+                {
+                  "at": 5,
+                  "value": false
+                },
+                {
+                  "at": 6,
+                  "value": false
+                },
+                {
+                  "at": 7,
+                  "value": false
+                },
+                {
+                  "at": 8,
+                  "value": false
+                },
+                {
+                  "at": 9,
+                  "value": false
+                },
+                {
+                  "at": 10,
+                  "value": false
+                },
+                {
+                  "at": 11,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Layer22",
+              "property": "depthOffset",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 1.011
+                },
+                {
+                  "at": 1,
+                  "value": 1.011
+                },
+                {
+                  "at": 2,
+                  "value": 1.011
+                },
+                {
+                  "at": 3,
+                  "value": 1.011
+                },
+                {
+                  "at": 4,
+                  "value": 1.011
+                },
+                {
+                  "at": 5,
+                  "value": 1.011
+                },
+                {
+                  "at": 6,
+                  "value": 1.011
+                },
+                {
+                  "at": 7,
+                  "value": 1.011
+                },
+                {
+                  "at": 8,
+                  "value": 1.011
+                },
+                {
+                  "at": 9,
+                  "value": 1.011
+                },
+                {
+                  "at": 10,
+                  "value": 1.011
+                },
+                {
+                  "at": 11,
+                  "value": 1.011
                 }
               ]
             }
@@ -1307,70 +1693,70 @@
                 {
                   "at": 2,
                   "value": [
-                    10,
+                    -10,
                     -20
                   ]
                 },
                 {
                   "at": 3,
                   "value": [
-                    30,
+                    -30,
                     -10
                   ]
                 },
                 {
                   "at": 4,
                   "value": [
-                    40,
+                    -40,
                     10
                   ]
                 },
                 {
                   "at": 5,
                   "value": [
-                    45,
+                    -45,
                     25
                   ]
                 },
                 {
                   "at": 6,
                   "value": [
-                    45,
+                    -45,
                     25
                   ]
                 },
                 {
                   "at": 7,
                   "value": [
-                    45,
+                    -45,
                     25
                   ]
                 },
                 {
                   "at": 8,
                   "value": [
-                    45,
+                    -45,
                     25
                   ]
                 },
                 {
                   "at": 9,
                   "value": [
-                    40,
+                    -40,
                     10
                   ]
                 },
                 {
                   "at": 10,
                   "value": [
-                    30,
+                    -30,
                     -10
                   ]
                 },
                 {
                   "at": 11,
                   "value": [
-                    30,
+                    -30,
                     -10
                   ]
                 }
@@ -1383,85 +1769,85 @@
                 {
                   "at": 0,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 1,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 2,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 3,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 4,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 5,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 6,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 7,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 8,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 9,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 10,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 11,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 }
               ]
@@ -1472,15 +1858,15 @@
               "keys": [
                 {
                   "at": 0,
-                  "value": -0.6981317007977318
+                  "value": 0.6981317007977318
                 },
                 {
                   "at": 1,
-                  "value": -0.6981317007977318
+                  "value": 0.6981317007977318
                 },
                 {
                   "at": 2,
-                  "value": -0.3490658503988659
+                  "value": 0.3490658503988659
                 },
                 {
                   "at": 3,
@@ -1488,27 +1874,27 @@
                 },
                 {
                   "at": 4,
-                  "value": 0.6981317007977318
+                  "value": -0.6981317007977318
                 },
                 {
                   "at": 5,
-                  "value": 1.0471975511965976
+                  "value": -1.0471975511965976
                 },
                 {
                   "at": 6,
-                  "value": 1.0471975511965976
+                  "value": -1.0471975511965976
                 },
                 {
                   "at": 7,
-                  "value": 1.0471975511965976
+                  "value": -1.0471975511965976
                 },
                 {
                   "at": 8,
-                  "value": 1.0471975511965976
+                  "value": -1.0471975511965976
                 },
                 {
                   "at": 9,
-                  "value": 0.6981317007977318
+                  "value": -0.6981317007977318
                 },
                 {
                   "at": 10,
@@ -1521,28 +1907,190 @@
               ]
             },
             {
+              "binding": "../Layer11",
+              "property": "flipX",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": true
+                },
+                {
+                  "at": 1,
+                  "value": true
+                },
+                {
+                  "at": 2,
+                  "value": true
+                },
+                {
+                  "at": 3,
+                  "value": true
+                },
+                {
+                  "at": 4,
+                  "value": true
+                },
+                {
+                  "at": 5,
+                  "value": true
+                },
+                {
+                  "at": 6,
+                  "value": true
+                },
+                {
+                  "at": 7,
+                  "value": true
+                },
+                {
+                  "at": 8,
+                  "value": true
+                },
+                {
+                  "at": 9,
+                  "value": true
+                },
+                {
+                  "at": 10,
+                  "value": true
+                },
+                {
+                  "at": 11,
+                  "value": true
+                }
+              ]
+            },
+            {
+              "binding": "../Layer11",
+              "property": "flipY",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                },
+                {
+                  "at": 4,
+                  "value": false
+                },
+                {
+                  "at": 5,
+                  "value": false
+                },
+                {
+                  "at": 6,
+                  "value": false
+                },
+                {
+                  "at": 7,
+                  "value": false
+                },
+                {
+                  "at": 8,
+                  "value": false
+                },
+                {
+                  "at": 9,
+                  "value": false
+                },
+                {
+                  "at": 10,
+                  "value": false
+                },
+                {
+                  "at": 11,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Layer11",
+              "property": "depthOffset",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0.01
+                },
+                {
+                  "at": 1,
+                  "value": 0.01
+                },
+                {
+                  "at": 2,
+                  "value": 0.01
+                },
+                {
+                  "at": 3,
+                  "value": 0.01
+                },
+                {
+                  "at": 4,
+                  "value": 0.01
+                },
+                {
+                  "at": 5,
+                  "value": 0.01
+                },
+                {
+                  "at": 6,
+                  "value": 0.01
+                },
+                {
+                  "at": 7,
+                  "value": 0.01
+                },
+                {
+                  "at": 8,
+                  "value": 0.01
+                },
+                {
+                  "at": 9,
+                  "value": 0.01
+                },
+                {
+                  "at": 10,
+                  "value": 0.01
+                },
+                {
+                  "at": 11,
+                  "value": 0.01
+                }
+              ]
+            },
+            {
               "binding": "../Layer22",
               "property": "frame",
               "keys": [
                 {
                   "at": 0,
-                  "value": 0
+                  "value": 3
                 },
                 {
                   "at": 1,
-                  "value": 0
+                  "value": 3
                 },
                 {
                   "at": 2,
-                  "value": 0
+                  "value": 3
                 },
                 {
                   "at": 3,
-                  "value": 0
+                  "value": 3
                 },
                 {
                   "at": 4,
-                  "value": 0
+                  "value": 3
                 },
                 {
                   "at": 5,
@@ -1554,23 +2102,23 @@
                 },
                 {
                   "at": 7,
-                  "value": 0
+                  "value": 3
                 },
                 {
                   "at": 8,
-                  "value": 0
+                  "value": 3
                 },
                 {
                   "at": 9,
-                  "value": 0
+                  "value": 3
                 },
                 {
                   "at": 10,
-                  "value": 0
+                  "value": 3
                 },
                 {
                   "at": 11,
-                  "value": 0
+                  "value": 3
                 }
               ]
             },
@@ -1635,85 +2183,85 @@
                 {
                   "at": 0,
                   "value": [
-                    0,
-                    0
+                    -54.5,
+                    20
                   ]
                 },
                 {
                   "at": 1,
                   "value": [
-                    0,
-                    0
+                    -54.5,
+                    20
                   ]
                 },
                 {
                   "at": 2,
                   "value": [
-                    0,
-                    0
+                    -54.5,
+                    20
                   ]
                 },
                 {
                   "at": 3,
                   "value": [
-                    0,
-                    0
+                    -54.5,
+                    20
                   ]
                 },
                 {
                   "at": 4,
                   "value": [
-                    0,
-                    0
+                    -54.5,
+                    20
                   ]
                 },
                 {
                   "at": 5,
                   "value": [
-                    54.5,
+                    -54.5,
                     20
                   ]
                 },
                 {
                   "at": 6,
                   "value": [
-                    54.5,
+                    -54.5,
                     20
                   ]
                 },
                 {
                   "at": 7,
                   "value": [
-                    0,
-                    0
+                    -54.5,
+                    20
                   ]
                 },
                 {
                   "at": 8,
                   "value": [
-                    0,
-                    0
+                    -54.5,
+                    20
                   ]
                 },
                 {
                   "at": 9,
                   "value": [
-                    0,
-                    0
+                    -54.5,
+                    20
                   ]
                 },
                 {
                   "at": 10,
                   "value": [
-                    0,
-                    0
+                    -54.5,
+                    20
                   ]
                 },
                 {
                   "at": 11,
                   "value": [
-                    0,
-                    0
+                    -54.5,
+                    20
                   ]
                 }
               ]
@@ -1760,15 +2308,15 @@
                 {
                   "at": 5,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 6,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
@@ -1814,51 +2362,213 @@
               "keys": [
                 {
                   "at": 0,
-                  "value": 0
+                  "value": -0.6981317007977318
                 },
                 {
                   "at": 1,
-                  "value": 0
+                  "value": -0.6981317007977318
                 },
                 {
                   "at": 2,
-                  "value": 0
+                  "value": -0.6981317007977318
                 },
                 {
                   "at": 3,
-                  "value": 0
+                  "value": -0.6981317007977318
                 },
                 {
                   "at": 4,
-                  "value": 0
+                  "value": -0.6981317007977318
                 },
                 {
                   "at": 5,
-                  "value": 0.6981317007977318
+                  "value": -0.6981317007977318
                 },
                 {
                   "at": 6,
-                  "value": 0.6981317007977318
+                  "value": -0.6981317007977318
                 },
                 {
                   "at": 7,
-                  "value": 0
+                  "value": -0.6981317007977318
                 },
                 {
                   "at": 8,
-                  "value": 0
+                  "value": -0.6981317007977318
                 },
                 {
                   "at": 9,
-                  "value": 0
+                  "value": -0.6981317007977318
                 },
                 {
                   "at": 10,
-                  "value": 0
+                  "value": -0.6981317007977318
                 },
                 {
                   "at": 11,
-                  "value": 0
+                  "value": -0.6981317007977318
+                }
+              ]
+            },
+            {
+              "binding": "../Layer22",
+              "property": "flipX",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": true
+                },
+                {
+                  "at": 1,
+                  "value": true
+                },
+                {
+                  "at": 2,
+                  "value": true
+                },
+                {
+                  "at": 3,
+                  "value": true
+                },
+                {
+                  "at": 4,
+                  "value": true
+                },
+                {
+                  "at": 5,
+                  "value": true
+                },
+                {
+                  "at": 6,
+                  "value": true
+                },
+                {
+                  "at": 7,
+                  "value": true
+                },
+                {
+                  "at": 8,
+                  "value": true
+                },
+                {
+                  "at": 9,
+                  "value": true
+                },
+                {
+                  "at": 10,
+                  "value": true
+                },
+                {
+                  "at": 11,
+                  "value": true
+                }
+              ]
+            },
+            {
+              "binding": "../Layer22",
+              "property": "flipY",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                },
+                {
+                  "at": 4,
+                  "value": false
+                },
+                {
+                  "at": 5,
+                  "value": false
+                },
+                {
+                  "at": 6,
+                  "value": false
+                },
+                {
+                  "at": 7,
+                  "value": false
+                },
+                {
+                  "at": 8,
+                  "value": false
+                },
+                {
+                  "at": 9,
+                  "value": false
+                },
+                {
+                  "at": 10,
+                  "value": false
+                },
+                {
+                  "at": 11,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Layer22",
+              "property": "depthOffset",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 1.011
+                },
+                {
+                  "at": 1,
+                  "value": 1.011
+                },
+                {
+                  "at": 2,
+                  "value": 1.011
+                },
+                {
+                  "at": 3,
+                  "value": 1.011
+                },
+                {
+                  "at": 4,
+                  "value": 1.011
+                },
+                {
+                  "at": 5,
+                  "value": 1.011
+                },
+                {
+                  "at": 6,
+                  "value": 1.011
+                },
+                {
+                  "at": 7,
+                  "value": 1.011
+                },
+                {
+                  "at": 8,
+                  "value": 1.011
+                },
+                {
+                  "at": 9,
+                  "value": 1.011
+                },
+                {
+                  "at": 10,
+                  "value": 1.011
+                },
+                {
+                  "at": 11,
+                  "value": 1.011
                 }
               ]
             }
@@ -2075,85 +2785,85 @@
                 {
                   "at": 0,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 1,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 2,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 3,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 4,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 5,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 6,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 7,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 8,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 9,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 10,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 11,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 }
               ]
@@ -2213,28 +2923,190 @@
               ]
             },
             {
+              "binding": "../Layer11",
+              "property": "flipX",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                },
+                {
+                  "at": 4,
+                  "value": false
+                },
+                {
+                  "at": 5,
+                  "value": false
+                },
+                {
+                  "at": 6,
+                  "value": false
+                },
+                {
+                  "at": 7,
+                  "value": false
+                },
+                {
+                  "at": 8,
+                  "value": false
+                },
+                {
+                  "at": 9,
+                  "value": false
+                },
+                {
+                  "at": 10,
+                  "value": false
+                },
+                {
+                  "at": 11,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Layer11",
+              "property": "flipY",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": true
+                },
+                {
+                  "at": 1,
+                  "value": true
+                },
+                {
+                  "at": 2,
+                  "value": true
+                },
+                {
+                  "at": 3,
+                  "value": true
+                },
+                {
+                  "at": 4,
+                  "value": true
+                },
+                {
+                  "at": 5,
+                  "value": true
+                },
+                {
+                  "at": 6,
+                  "value": true
+                },
+                {
+                  "at": 7,
+                  "value": true
+                },
+                {
+                  "at": 8,
+                  "value": true
+                },
+                {
+                  "at": 9,
+                  "value": true
+                },
+                {
+                  "at": 10,
+                  "value": true
+                },
+                {
+                  "at": 11,
+                  "value": true
+                }
+              ]
+            },
+            {
+              "binding": "../Layer11",
+              "property": "depthOffset",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0.01
+                },
+                {
+                  "at": 1,
+                  "value": 0.01
+                },
+                {
+                  "at": 2,
+                  "value": 0.01
+                },
+                {
+                  "at": 3,
+                  "value": 0.01
+                },
+                {
+                  "at": 4,
+                  "value": 0.01
+                },
+                {
+                  "at": 5,
+                  "value": 0.01
+                },
+                {
+                  "at": 6,
+                  "value": 0.01
+                },
+                {
+                  "at": 7,
+                  "value": 0.01
+                },
+                {
+                  "at": 8,
+                  "value": 0.01
+                },
+                {
+                  "at": 9,
+                  "value": 0.01
+                },
+                {
+                  "at": 10,
+                  "value": 0.01
+                },
+                {
+                  "at": 11,
+                  "value": 0.01
+                }
+              ]
+            },
+            {
               "binding": "../Layer22",
               "property": "frame",
               "keys": [
                 {
                   "at": 0,
-                  "value": 0
+                  "value": 3
                 },
                 {
                   "at": 1,
-                  "value": 0
+                  "value": 3
                 },
                 {
                   "at": 2,
-                  "value": 0
+                  "value": 3
                 },
                 {
                   "at": 3,
-                  "value": 0
+                  "value": 3
                 },
                 {
                   "at": 4,
-                  "value": 0
+                  "value": 3
                 },
                 {
                   "at": 5,
@@ -2250,19 +3122,19 @@
                 },
                 {
                   "at": 8,
-                  "value": 0
+                  "value": 3
                 },
                 {
                   "at": 9,
-                  "value": 0
+                  "value": 3
                 },
                 {
                   "at": 10,
-                  "value": 0
+                  "value": 3
                 },
                 {
                   "at": 11,
-                  "value": 0
+                  "value": 3
                 }
               ]
             },
@@ -2327,36 +3199,36 @@
                 {
                   "at": 0,
                   "value": [
-                    0,
-                    0
+                    -10.25,
+                    -50
                   ]
                 },
                 {
                   "at": 1,
                   "value": [
-                    0,
-                    0
+                    -10.25,
+                    -50
                   ]
                 },
                 {
                   "at": 2,
                   "value": [
-                    0,
-                    0
+                    -10.25,
+                    -50
                   ]
                 },
                 {
                   "at": 3,
                   "value": [
-                    0,
-                    0
+                    -10.25,
+                    -50
                   ]
                 },
                 {
                   "at": 4,
                   "value": [
-                    0,
-                    0
+                    -10.25,
+                    -50
                   ]
                 },
                 {
@@ -2383,29 +3255,29 @@
                 {
                   "at": 8,
                   "value": [
-                    0,
-                    0
+                    -10.25,
+                    -50
                   ]
                 },
                 {
                   "at": 9,
                   "value": [
-                    0,
-                    0
+                    -10.25,
+                    -50
                   ]
                 },
                 {
                   "at": 10,
                   "value": [
-                    0,
-                    0
+                    -10.25,
+                    -50
                   ]
                 },
                 {
                   "at": 11,
                   "value": [
-                    0,
-                    0
+                    -10.25,
+                    -50
                   ]
                 }
               ]
@@ -2452,22 +3324,22 @@
                 {
                   "at": 5,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 6,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 7,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
@@ -2506,23 +3378,23 @@
               "keys": [
                 {
                   "at": 0,
-                  "value": 0
+                  "value": -2.443460952792061
                 },
                 {
                   "at": 1,
-                  "value": 0
+                  "value": -2.443460952792061
                 },
                 {
                   "at": 2,
-                  "value": 0
+                  "value": -2.443460952792061
                 },
                 {
                   "at": 3,
-                  "value": 0
+                  "value": -2.443460952792061
                 },
                 {
                   "at": 4,
-                  "value": 0
+                  "value": -2.443460952792061
                 },
                 {
                   "at": 5,
@@ -2538,19 +3410,181 @@
                 },
                 {
                   "at": 8,
-                  "value": 0
+                  "value": -2.443460952792061
                 },
                 {
                   "at": 9,
-                  "value": 0
+                  "value": -2.443460952792061
                 },
                 {
                   "at": 10,
-                  "value": 0
+                  "value": -2.443460952792061
                 },
                 {
                   "at": 11,
-                  "value": 0
+                  "value": -2.443460952792061
+                }
+              ]
+            },
+            {
+              "binding": "../Layer22",
+              "property": "flipX",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                },
+                {
+                  "at": 4,
+                  "value": false
+                },
+                {
+                  "at": 5,
+                  "value": false
+                },
+                {
+                  "at": 6,
+                  "value": false
+                },
+                {
+                  "at": 7,
+                  "value": false
+                },
+                {
+                  "at": 8,
+                  "value": false
+                },
+                {
+                  "at": 9,
+                  "value": false
+                },
+                {
+                  "at": 10,
+                  "value": false
+                },
+                {
+                  "at": 11,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Layer22",
+              "property": "flipY",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": true
+                },
+                {
+                  "at": 1,
+                  "value": true
+                },
+                {
+                  "at": 2,
+                  "value": true
+                },
+                {
+                  "at": 3,
+                  "value": true
+                },
+                {
+                  "at": 4,
+                  "value": true
+                },
+                {
+                  "at": 5,
+                  "value": true
+                },
+                {
+                  "at": 6,
+                  "value": true
+                },
+                {
+                  "at": 7,
+                  "value": true
+                },
+                {
+                  "at": 8,
+                  "value": true
+                },
+                {
+                  "at": 9,
+                  "value": true
+                },
+                {
+                  "at": 10,
+                  "value": true
+                },
+                {
+                  "at": 11,
+                  "value": true
+                }
+              ]
+            },
+            {
+              "binding": "../Layer22",
+              "property": "depthOffset",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 1.011
+                },
+                {
+                  "at": 1,
+                  "value": 1.011
+                },
+                {
+                  "at": 2,
+                  "value": 1.011
+                },
+                {
+                  "at": 3,
+                  "value": 1.011
+                },
+                {
+                  "at": 4,
+                  "value": 1.011
+                },
+                {
+                  "at": 5,
+                  "value": 1.011
+                },
+                {
+                  "at": 6,
+                  "value": 1.011
+                },
+                {
+                  "at": 7,
+                  "value": 1.011
+                },
+                {
+                  "at": 8,
+                  "value": 1.011
+                },
+                {
+                  "at": 9,
+                  "value": 1.011
+                },
+                {
+                  "at": 10,
+                  "value": 1.011
+                },
+                {
+                  "at": 11,
+                  "value": 1.011
                 }
               ]
             }
@@ -2767,85 +3801,85 @@
                 {
                   "at": 0,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 1,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 2,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 3,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 4,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 5,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 6,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 7,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 8,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 9,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 10,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 11,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 }
               ]
@@ -2905,28 +3939,190 @@
               ]
             },
             {
+              "binding": "../Layer11",
+              "property": "flipX",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                },
+                {
+                  "at": 4,
+                  "value": false
+                },
+                {
+                  "at": 5,
+                  "value": false
+                },
+                {
+                  "at": 6,
+                  "value": false
+                },
+                {
+                  "at": 7,
+                  "value": false
+                },
+                {
+                  "at": 8,
+                  "value": false
+                },
+                {
+                  "at": 9,
+                  "value": false
+                },
+                {
+                  "at": 10,
+                  "value": false
+                },
+                {
+                  "at": 11,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Layer11",
+              "property": "flipY",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                },
+                {
+                  "at": 4,
+                  "value": false
+                },
+                {
+                  "at": 5,
+                  "value": false
+                },
+                {
+                  "at": 6,
+                  "value": false
+                },
+                {
+                  "at": 7,
+                  "value": false
+                },
+                {
+                  "at": 8,
+                  "value": false
+                },
+                {
+                  "at": 9,
+                  "value": false
+                },
+                {
+                  "at": 10,
+                  "value": false
+                },
+                {
+                  "at": 11,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Layer11",
+              "property": "depthOffset",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0.01
+                },
+                {
+                  "at": 1,
+                  "value": 0.01
+                },
+                {
+                  "at": 2,
+                  "value": 0.01
+                },
+                {
+                  "at": 3,
+                  "value": 0.01
+                },
+                {
+                  "at": 4,
+                  "value": 0.01
+                },
+                {
+                  "at": 5,
+                  "value": 0.01
+                },
+                {
+                  "at": 6,
+                  "value": 0.01
+                },
+                {
+                  "at": 7,
+                  "value": 0.01
+                },
+                {
+                  "at": 8,
+                  "value": 0.01
+                },
+                {
+                  "at": 9,
+                  "value": 0.01
+                },
+                {
+                  "at": 10,
+                  "value": 0.01
+                },
+                {
+                  "at": 11,
+                  "value": 0.01
+                }
+              ]
+            },
+            {
               "binding": "../Layer22",
               "property": "frame",
               "keys": [
                 {
                   "at": 0,
-                  "value": 0
+                  "value": 3
                 },
                 {
                   "at": 1,
-                  "value": 0
+                  "value": 3
                 },
                 {
                   "at": 2,
-                  "value": 0
+                  "value": 3
                 },
                 {
                   "at": 3,
-                  "value": 0
+                  "value": 3
                 },
                 {
                   "at": 4,
-                  "value": 0
+                  "value": 3
                 },
                 {
                   "at": 5,
@@ -2942,19 +4138,19 @@
                 },
                 {
                   "at": 8,
-                  "value": 0
+                  "value": 3
                 },
                 {
                   "at": 9,
-                  "value": 0
+                  "value": 3
                 },
                 {
                   "at": 10,
-                  "value": 0
+                  "value": 3
                 },
                 {
                   "at": 11,
-                  "value": 0
+                  "value": 3
                 }
               ]
             },
@@ -3019,36 +4215,36 @@
                 {
                   "at": 0,
                   "value": [
-                    0,
-                    0
+                    -10.25,
+                    65
                   ]
                 },
                 {
                   "at": 1,
                   "value": [
-                    0,
-                    0
+                    -10.25,
+                    65
                   ]
                 },
                 {
                   "at": 2,
                   "value": [
-                    0,
-                    0
+                    -10.25,
+                    65
                   ]
                 },
                 {
                   "at": 3,
                   "value": [
-                    0,
-                    0
+                    -10.25,
+                    65
                   ]
                 },
                 {
                   "at": 4,
                   "value": [
-                    0,
-                    0
+                    -10.25,
+                    65
                   ]
                 },
                 {
@@ -3075,29 +4271,29 @@
                 {
                   "at": 8,
                   "value": [
-                    0,
-                    0
+                    -10.25,
+                    65
                   ]
                 },
                 {
                   "at": 9,
                   "value": [
-                    0,
-                    0
+                    -10.25,
+                    65
                   ]
                 },
                 {
                   "at": 10,
                   "value": [
-                    0,
-                    0
+                    -10.25,
+                    65
                   ]
                 },
                 {
                   "at": 11,
                   "value": [
-                    0,
-                    0
+                    -10.25,
+                    65
                   ]
                 }
               ]
@@ -3144,22 +4340,22 @@
                 {
                   "at": 5,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 6,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
                   "at": 7,
                   "value": [
-                    1,
-                    1
+                    0.5,
+                    0.5
                   ]
                 },
                 {
@@ -3198,23 +4394,23 @@
               "keys": [
                 {
                   "at": 0,
-                  "value": 0
+                  "value": 2.443460952792061
                 },
                 {
                   "at": 1,
-                  "value": 0
+                  "value": 2.443460952792061
                 },
                 {
                   "at": 2,
-                  "value": 0
+                  "value": 2.443460952792061
                 },
                 {
                   "at": 3,
-                  "value": 0
+                  "value": 2.443460952792061
                 },
                 {
                   "at": 4,
-                  "value": 0
+                  "value": 2.443460952792061
                 },
                 {
                   "at": 5,
@@ -3230,19 +4426,181 @@
                 },
                 {
                   "at": 8,
-                  "value": 0
+                  "value": 2.443460952792061
                 },
                 {
                   "at": 9,
-                  "value": 0
+                  "value": 2.443460952792061
                 },
                 {
                   "at": 10,
-                  "value": 0
+                  "value": 2.443460952792061
                 },
                 {
                   "at": 11,
-                  "value": 0
+                  "value": 2.443460952792061
+                }
+              ]
+            },
+            {
+              "binding": "../Layer22",
+              "property": "flipX",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                },
+                {
+                  "at": 4,
+                  "value": false
+                },
+                {
+                  "at": 5,
+                  "value": false
+                },
+                {
+                  "at": 6,
+                  "value": false
+                },
+                {
+                  "at": 7,
+                  "value": false
+                },
+                {
+                  "at": 8,
+                  "value": false
+                },
+                {
+                  "at": 9,
+                  "value": false
+                },
+                {
+                  "at": 10,
+                  "value": false
+                },
+                {
+                  "at": 11,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Layer22",
+              "property": "flipY",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": false
+                },
+                {
+                  "at": 1,
+                  "value": false
+                },
+                {
+                  "at": 2,
+                  "value": false
+                },
+                {
+                  "at": 3,
+                  "value": false
+                },
+                {
+                  "at": 4,
+                  "value": false
+                },
+                {
+                  "at": 5,
+                  "value": false
+                },
+                {
+                  "at": 6,
+                  "value": false
+                },
+                {
+                  "at": 7,
+                  "value": false
+                },
+                {
+                  "at": 8,
+                  "value": false
+                },
+                {
+                  "at": 9,
+                  "value": false
+                },
+                {
+                  "at": 10,
+                  "value": false
+                },
+                {
+                  "at": 11,
+                  "value": false
+                }
+              ]
+            },
+            {
+              "binding": "../Layer22",
+              "property": "depthOffset",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 1.011
+                },
+                {
+                  "at": 1,
+                  "value": 1.011
+                },
+                {
+                  "at": 2,
+                  "value": 1.011
+                },
+                {
+                  "at": 3,
+                  "value": 1.011
+                },
+                {
+                  "at": 4,
+                  "value": 1.011
+                },
+                {
+                  "at": 5,
+                  "value": 1.011
+                },
+                {
+                  "at": 6,
+                  "value": 1.011
+                },
+                {
+                  "at": 7,
+                  "value": 1.011
+                },
+                {
+                  "at": 8,
+                  "value": 1.011
+                },
+                {
+                  "at": 9,
+                  "value": 1.011
+                },
+                {
+                  "at": 10,
+                  "value": 1.011
+                },
+                {
+                  "at": 11,
+                  "value": 1.011
                 }
               ]
             }

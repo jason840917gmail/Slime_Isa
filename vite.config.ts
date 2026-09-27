@@ -1,6 +1,5 @@
 import { defineConfig } from 'vite';
 
-import { animationContentModulesPlugin } from './src/game/content/animations/animationContentModulesPlugin';
 import { characterContentModulesPlugin } from './src/game/content/characters/characterContentModulesPlugin';
 import { gameConstantsContentPlugin } from './src/game/content/gameConstantsContentPlugin';
 import { sceneContentModulesPlugin } from './src/game/content/scenes/sceneContentModulesPlugin';
@@ -10,7 +9,6 @@ export default defineConfig({
   base: './',
   plugins: [
     characterContentModulesPlugin(),
-    animationContentModulesPlugin(),
     sceneContentModulesPlugin(),
     sceneStudioContentPlugin(),
     gameConstantsContentPlugin(),

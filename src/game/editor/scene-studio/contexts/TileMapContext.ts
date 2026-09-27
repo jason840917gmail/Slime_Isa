@@ -1,3 +1,4 @@
+import { collisionBits } from '../../../content/physics/CollisionLayers';
 import { authoredNodeId, resourceId, type AuthoredNodeId, type ResourceId } from '../../../content/scenes/identifiers';
 import { parseTileMapDataResource, type TileMapCell } from '../../../content/scenes/resources/TileMapDataResource';
 import { parseTileSetResource, type ResolvedTileSetResource } from '../../../content/scenes/resources/TileSetResource';
@@ -67,8 +68,8 @@ export function createTileLayerDraft(options: {
         tileSize: options.tileSize,
         seed: options.seed,
         depth: options.order,
-        collisionLayer: 1,
-        collisionMask: 2,
+        collisionLayer: collisionBits('world'),
+        collisionMask: 0,
         collisionEnabled: true,
         editorLocked: false,
       },
@@ -99,6 +100,7 @@ export class TileMapContext {
   private showEffectiveRegionValue = true;
   private panValue: TileCoordinate = { x: 0, y: 0 };
   private zoomValue = 1;
+  private revisionValue = 0;
 
   constructor(
     document: TileDataResourceDocument,
@@ -111,12 +113,15 @@ export class TileMapContext {
     }
     this.documentValue = clone(document);
     this.tileSetValue = parsedSet;
+    this.revisionValue += 1;
     this.selectedTileValue = Object.keys(parsedSet.tiles)[0];
     this.savedDocument = JSON.stringify(document);
     this.assertTilesExist();
   }
 
   get document(): TileDataResourceDocument { return clone(this.documentValue); }
+  /** Increments whenever tile data or the bound tile set changes. */
+  get revision(): number { return this.revisionValue; }
   get tileSet(): ResolvedTileSetResource { return clone(this.tileSetValue); }
   get tool(): TilePaintTool { return this.toolValue; }
   get selectedTile(): string { return this.selectedTileValue; }
@@ -146,6 +151,7 @@ export class TileMapContext {
     this.assertDocument(next);
     this.past.push({ document: clone(this.documentValue), label: command.label });
     this.documentValue = next;
+    this.revisionValue += 1;
     this.future.length = 0;
   }
 
@@ -178,6 +184,7 @@ export class TileMapContext {
     const missing = [...new Set(this.cells.map((cell) => cell.tileId).filter((tileId) => !Object.hasOwn(parsed.tiles, tileId)))];
     if (missing.length > 0) throw new Error(`Tile set '${parsed.resourceId}' is missing used tiles: ${missing.join(', ')}`);
     this.tileSetValue = parsed;
+    this.revisionValue += 1;
     this.execute(tilePaintCommands.selectTileSet(parsed.resourceId));
     if (!Object.hasOwn(parsed.tiles, this.selectedTileValue)) this.selectedTileValue = Object.keys(parsed.tiles)[0];
   }
@@ -212,6 +219,7 @@ export class TileMapContext {
     if (!previous) return false;
     this.future.push({ document: clone(this.documentValue), label: previous.label });
     this.documentValue = previous.document;
+    this.revisionValue += 1;
     return true;
   }
 
@@ -220,6 +228,7 @@ export class TileMapContext {
     if (!next) return false;
     this.past.push({ document: clone(this.documentValue), label: next.label });
     this.documentValue = next.document;
+    this.revisionValue += 1;
     return true;
   }
 

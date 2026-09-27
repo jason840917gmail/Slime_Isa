@@ -1,6 +1,8 @@
 import ts from 'typescript';
+import { collision } from './collision-layers.mjs';
 
 import { convertedOutput, readJson } from './adapter-utils.mjs';
+import { TERRAIN_TILE_SET_ID } from './terrain.mjs';
 
 function slug(value) {
   return value.replaceAll('.', '-').replace(/[^a-z0-9-]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
@@ -24,17 +26,6 @@ async function typescriptExport(readSource, sourcePath, exportName) {
 
 function fallbackSeed(mapId) {
   return [...mapId].reduce((hash, character) => ((hash * 31) + character.charCodeAt(0)) >>> 0, 0);
-}
-
-function tileSetEntry(definition) {
-  return {
-    assetIds: definition.visual.assetIds,
-    selection: definition.visual.selection,
-    physics: definition.physics,
-    allowsDecorations: definition.allowsDecorations,
-    tags: definition.tags,
-    ...(definition.transition ? { transition: definition.transition } : {}),
-  };
 }
 
 const ENTRY_DIRECTIONS = ['north', 'east', 'south', 'west'];
@@ -132,8 +123,7 @@ function navigationContent(map, firstOrder) {
         order: order++,
         properties: {
           position,
-          collisionLayer: 0,
-          collisionMask: 1,
+          ...collision(['trigger'], ['player', 'npc']),
           monitoring: true,
           monitorable: false,
         },
@@ -223,7 +213,7 @@ function worldAreaContent(map, firstOrder) {
       : { shape: 'circle', radius: perimeter.radius };
     nodes.push(
       { id: areaNodeId, name: id, type: 'Area2D', parentId: 'world', order: order++, properties: {
-        position, collisionLayer: 0, collisionMask: 0, monitoring: false, monitorable: false,
+        position, ...collision(['trigger'], []), monitoring: false, monitorable: false,
       } },
       { id: shapeNodeId, name: 'collision-shape', type: 'CollisionShape2D', parentId: areaNodeId, order: 0, properties: { shape: { resourceId: shapeResourceId } } },
       { id: scriptNodeId, name: 'world-area-script', type: 'ScriptNode', scriptId: 'game.world-area', parentId: areaNodeId, order: 1, properties: {
@@ -336,32 +326,22 @@ export const mapSceneAdapter = {
 
       map.layers.forEach((layer, layerIndex) => {
         const layerSlug = slug(layer.id);
-        const tileSetId = `tiles.${mapSlug}.${layerSlug}.set`;
         const tileDataId = `tiles.${mapSlug}.${layerSlug}.data`;
         const usedTileIds = [...new Set(layer.rows.flatMap((row) => [...row].map((character) => layer.legend[character])))].sort();
-        const tiles = Object.fromEntries(usedTileIds.map((tileId) => {
-          const definition = tileCatalog[tileId];
-          if (!definition) throw new Error(`Map '${map.mapId}' layer '${layer.id}' references unknown tile '${tileId}'`);
-          return [tileId, tileSetEntry(definition)];
-        }));
+        for (const tileId of usedTileIds) {
+          if (!tileCatalog[tileId]) throw new Error(`Map '${map.mapId}' layer '${layer.id}' references unknown tile '${tileId}'`);
+        }
         const cells = layer.rows.flatMap((row, y) => [...row].map((character, x) => ({ x, y, tileId: layer.legend[character] })));
-        const tileSet = { version: 1, resourceId: tileSetId, kind: 'tile-set', tiles };
+        // Every map layer paints with the one shared terrain TileSet.
         const tileData = {
           version: 1,
           resourceId: tileDataId,
           kind: 'tile-data',
-          tileSet: tileSetId,
+          tileSet: TERRAIN_TILE_SET_ID,
           columns: map.size.columns,
           rows: map.size.rows,
           cells,
         };
-        outputs.push(convertedOutput(
-          unit,
-          `resources/tiles/${mapSlug}.${layerSlug}.tile-set.resource.json`,
-          tileSet,
-          ['$.layers'],
-          retained,
-        ));
         outputs.push(convertedOutput(
           unit,
           `resources/tiles/${mapSlug}.${layerSlug}.tile-data.resource.json`,
@@ -381,8 +361,7 @@ export const mapSceneAdapter = {
             tileSize: map.tileSize,
             seed,
             depth: layerIndex,
-            collisionLayer: 1,
-            collisionMask: 2,
+            ...collision(['world'], []),
             collisionEnabled: true,
             editorLocked: false,
           },

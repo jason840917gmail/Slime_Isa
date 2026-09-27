@@ -12,7 +12,8 @@ test('real Phaser initializes, Arcade steps, DOM input is consumed, and teardown
   expect(live.stepCount).toBe(1);
   expect(live.controlCount).toBe(1);
   expect(live.gameObjectCount).toBeGreaterThan(0);
-  expect(live.bodyCount).toBe(4);
+  // Area2D sensors are indexed by the contact router, not by Arcade bodies.
+  expect(live.bodyCount).toBe(3);
   expect(live.canvasCount).toBe(1);
 
   await page.evaluate(() => window.sceneFixture.destroy());

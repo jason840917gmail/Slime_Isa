@@ -1,5 +1,3 @@
-import Phaser from 'phaser';
-
 /**
  * ComboSystem tracks consecutive attacks within a chain window. Each hit
  * increases the combo count and damage multiplier. The 3rd hit applies bonus
@@ -20,13 +18,14 @@ export interface ComboCallbacks {
 }
 
 export class ComboSystem {
-  private scene: Phaser.Scene;
+  private readonly now: () => number;
   private cb: ComboCallbacks;
   private combo = 0;
   private lastHitAt = 0;
 
-  constructor(scene: Phaser.Scene, cb: ComboCallbacks) {
-    this.scene = scene;
+  /** `now` is the gameplay clock the chain window is measured on. */
+  constructor(now: () => number, cb: ComboCallbacks) {
+    this.now = now;
     this.cb = cb;
   }
 
@@ -44,7 +43,7 @@ export class ComboSystem {
 
   /** Register a hit. Returns the damage multiplier to apply. */
   registerHit(): number {
-    const now = this.scene.time.now;
+    const now = this.now();
 
     if (now - this.lastHitAt > CHAIN_WINDOW_MS) {
       this.combo = 0;
@@ -66,7 +65,7 @@ export class ComboSystem {
   }
 
   update(): void {
-    if (this.combo > 0 && this.scene.time.now - this.lastHitAt > CHAIN_WINDOW_MS) {
+    if (this.combo > 0 && this.now() - this.lastHitAt > CHAIN_WINDOW_MS) {
       this.combo = 0;
       this.cb.onComboReset();
     }

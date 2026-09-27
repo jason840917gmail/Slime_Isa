@@ -9,7 +9,6 @@ import { loadValidatedResourceTags } from './lib/resource-tag-catalog.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const weaponRoot = resolve(process.env.SLIME_CHECK_WEAPON_ROOT ?? join(root, 'src', 'game', 'content', 'weapons'));
-const animationRoot = join(root, 'src', 'game', 'content', 'animations');
 const effectRoot = join(root, 'src', 'game', 'content', 'effects');
 const assetManifestPath = join(root, 'asset', 'assets.json');
 const gameConstantsPath = resolve(process.env.SLIME_CHECK_GAME_CONSTANTS_PATH ?? join(root, 'src', 'game', 'content', 'game-constants.json'));
@@ -53,20 +52,9 @@ function effectFiles(directory) {
   return output;
 }
 
-function animationFiles(directory) {
-  const output = [];
-  for (const entry of readdirSync(directory, { withFileTypes: true })) {
-    const target = join(directory, entry.name);
-    if (entry.isDirectory()) output.push(...animationFiles(target));
-    else if (entry.name === 'animation.json') output.push(target);
-  }
-  return output;
-}
 for (const file of effectFiles(effectRoot)) effectIds.add(JSON.parse(readFileSync(file, 'utf8')).effectId);
-const animations = new Map(animationFiles(animationRoot).map((file) => {
-  const value = JSON.parse(readFileSync(file, 'utf8'));
-  return [value.animationId, value];
-}));
+// Shared animation packages were retired: weapons embed their animations, so any animation ID is missing.
+const animations = new Map();
 
 function legacyFrameCount(animation) {
   return animation?.keyframeTimes !== undefined && animation?.durationSeconds !== undefined

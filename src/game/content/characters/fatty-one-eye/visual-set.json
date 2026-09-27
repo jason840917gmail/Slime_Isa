@@ -9,6 +9,54 @@
     "sourceOffset": [0, 0]
   },
   "clips": {
+    "chase": {
+      "frames": [6, 7, 8, 9, 10, 11],
+      "keyframeTimes": [0, 1, 2, 3, 4, 5],
+      "durationSeconds": 0.78,
+      "framesPerSecond": 7.6923076923,
+      "loop": true,
+      "loopMode": "wrap"
+    },
+    "small-hop": {
+      "frames": [12, 13, 14, 15],
+      "keyframeTimes": [0, 1, 2, 3],
+      "durationSeconds": 0.26,
+      "framesPerSecond": 15.3846153846,
+      "loop": true,
+      "loopMode": "wrap"
+    },
+    "airborne": {
+      "frames": [18, 19, 20, 21, 22, 23],
+      "keyframeTimes": [0, 1, 2, 3, 4, 5],
+      "durationSeconds": 1,
+      "framesPerSecond": 6,
+      "loop": false,
+      "loopMode": "wrap"
+    },
+    "landing": {
+      "frames": [24, 25, 26, 27],
+      "keyframeTimes": [0, 1, 2, 3],
+      "durationSeconds": 0.36,
+      "framesPerSecond": 11.1111111111,
+      "loop": false,
+      "loopMode": "wrap"
+    },
+    "recovery": {
+      "frames": [28, 29],
+      "keyframeTimes": [0, 1],
+      "durationSeconds": 0.36,
+      "framesPerSecond": 5.5555555556,
+      "loop": true,
+      "loopMode": "wrap"
+    },
+    "death": {
+      "frames": [30, 31, 32, 33, 34, 35],
+      "keyframeTimes": [0, 1, 2, 3, 4, 5],
+      "durationSeconds": 0.66,
+      "framesPerSecond": 9.0909090909,
+      "loop": false,
+      "loopMode": "wrap"
+    },
     "contact-hop": {
       "frames": [12, 13, 14, 15],
       "keyframeTimes": [0, 1, 3, 5],

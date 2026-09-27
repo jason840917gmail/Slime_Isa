@@ -1,5 +1,3 @@
-import type Phaser from 'phaser';
-
 import type { RuntimeNodeId } from '../../content/scenes/identifiers';
 import { Node2D, type Node2DOptions } from '../../runtime/scene/Node2D';
 import type { ContactParticipant } from '../../runtime/scene/physics/ContactRouter';
@@ -24,8 +22,7 @@ export class Area2DNode extends Node2D implements CollisionShapeOwner, ContactPa
   readonly area_entered: Signal<PhysicsContact>;
   readonly area_exited: Signal<PhysicsContact>;
   private readonly shapes = new Set<CollisionShape2DNode>();
-  private zone?: Phaser.GameObjects.Zone;
-  private broadphaseBounds?: SensorBounds;
+  private contactGeometry: { readonly shapes: readonly SensorShape[]; readonly bounds: SensorBounds | undefined } = { shapes: [], bounds: undefined };
   private _collisionLayer: number;
   private _collisionMask: number;
   private _monitoring: boolean;
@@ -56,15 +53,7 @@ export class Area2DNode extends Node2D implements CollisionShapeOwner, ContactPa
   get currentContacts(): readonly PhysicsContact[] { return this.areaOptions.context.contactRouter.currentContacts(this.runtimeId); }
 
   override _enter_tree(): void {
-    this.broadphaseBounds = undefined;
-    const zone = this.areaOptions.context.scene.add.zone(0, 0, 1, 1).setName(this.runtimeId).setVisible(false);
-    this.areaOptions.context.scene.physics.add.existing(zone, true);
-    this.zone = zone;
-    const body = zone.body as Phaser.Physics.Arcade.StaticBody | null;
-    if (body) { body.enable = false; body.checkCollision.none = true; }
-    this.entryDisposables.add(() => { zone.destroy(); if (this.zone === zone) this.zone = undefined; this.broadphaseBounds = undefined; });
-    this.entryDisposables.add(this.areaOptions.context.registerContactParticipant(this, body ?? undefined));
-    this.entryDisposables.add(this.areaOptions.context.registerCallback('contacts', () => this.synchronizeBroadphaseBody()));
+    this.entryDisposables.add(this.areaOptions.context.registerContactParticipant(this));
   }
 
   registerCollisionShape(shape: CollisionShape2DNode): () => void {
@@ -73,8 +62,8 @@ export class Area2DNode extends Node2D implements CollisionShapeOwner, ContactPa
     return () => { if (!active) return; active = false; this.shapes.delete(shape); };
   }
 
-  contactShapes(): readonly SensorShape[] { return this.contactActive ? [...this.shapes].filter((shape) => !shape.disabled).map((shape) => shape.worldShape()) : []; }
-  contactBounds(): SensorBounds | undefined { return unionSensorBounds(this.contactShapes()); }
+  contactShapes(): readonly SensorShape[] { return this.resolveContactGeometry().shapes; }
+  contactBounds(): SensorBounds | undefined { return this.resolveContactGeometry().bounds; }
   contactEntered(contact: PhysicsContact): void { (contact.otherKind === 'area' ? this.area_entered : this.body_entered).emit(contact); }
   contactExited(contact: PhysicsContact): void { (contact.otherKind === 'area' ? this.area_exited : this.body_exited).emit(contact); }
 
@@ -82,18 +71,16 @@ export class Area2DNode extends Node2D implements CollisionShapeOwner, ContactPa
     return new Area2DNode({ ...this.areaOptions, runtimeId, name: this.name, position: this.position, rotation: this.rotation, scale: this.scale, visible: this.visible, collisionLayer: this.collisionLayer, collisionMask: this.collisionMask, monitoring: this.monitoring, monitorable: this.monitorable });
   }
 
-  private synchronizeBroadphaseBody(): void {
-    const body = this.zone?.body as Phaser.Physics.Arcade.StaticBody | null | undefined;
-    const bounds = this.contactBounds();
-    if (!body || !this.zone || !bounds) { if (body) body.enable = false; this.broadphaseBounds = undefined; return; }
-    const previous = this.broadphaseBounds;
-    if (body.enable && previous && previous.x === bounds.x && previous.y === bounds.y
-      && previous.width === bounds.width && previous.height === bounds.height) return;
-    this.zone.setPosition(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2).setSize(bounds.width, bounds.height);
-    body.setSize(bounds.width, bounds.height);
-    body.updateFromGameObject();
-    body.checkCollision.none = true;
-    body.enable = true;
-    this.broadphaseBounds = bounds;
+  /**
+   * Reuses the previous shape list and union bounds while every enabled
+   * shape still returns its identical cached world shape.
+   */
+  private resolveContactGeometry(): { readonly shapes: readonly SensorShape[]; readonly bounds: SensorBounds | undefined } {
+    const shapes: SensorShape[] = [];
+    if (this.contactActive) for (const shape of this.shapes) if (!shape.disabled) shapes.push(shape.worldShape());
+    const previous = this.contactGeometry;
+    if (shapes.length === previous.shapes.length && shapes.every((shape, index) => shape === previous.shapes[index])) return previous;
+    this.contactGeometry = { shapes, bounds: unionSensorBounds(shapes) };
+    return this.contactGeometry;
   }
 }

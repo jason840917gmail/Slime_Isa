@@ -43,6 +43,7 @@ import {
   DAMAGE_ROUTER_SERVICE,
   ENEMY_TARGET_SERVICE,
   EnemyScript,
+  type EnemyDamageNumberRequest,
   type EnemyNavigationSnapshot,
   type EnemyProjectileRequest,
 } from '../scripts/EnemyScript';
@@ -69,6 +70,7 @@ import {
 } from '../scripts/DestructibleScript';
 import type { ManagedResourceRegistration } from '../resources/ResourceNodeController';
 import type { ObjectOccluderRegistration } from '../objects/ObjectRegistration';
+import type { OcclusionActorRegistration } from '../occlusion/OcclusionController';
 import type { WorldDropRequest } from '../collectibles/WorldDropRequest';
 import {
   resolveWorldDropTrajectory,
@@ -168,6 +170,8 @@ export interface UniversalSceneWorldControllerOptions {
   readonly spawnManagedResourceDrops: (request: ResourceDropRequest) => void;
   readonly collectibles: CollectibleWorldPort;
   readonly registerOccluder?: (registration: ObjectOccluderRegistration) => { dispose(): void };
+  /** Registers a character visual that should reveal a silhouette when occluded. */
+  readonly registerOcclusionActor?: (registration: OcclusionActorRegistration) => { dispose(): void };
   readonly requestExit: (request: WorldExitRequest) => WorldExitResult;
   readonly onEquipWeaponSlot: (slotIndex: number) => void;
   readonly getAbilitySystem: () => PlayerAbilityController | undefined;
@@ -223,6 +227,9 @@ interface ManagedCollectible {
   readonly owner: Node;
   readonly script: CollectibleScript;
 }
+
+const PLAYER_SILHOUETTE_COLOR = 0x73d7ff;
+const HOSTILE_SILHOUETTE_COLOR = 0xff936d;
 
 const MANAGED_ENEMY_SCENES = {
   'worm-archer': 'character.worm-archer',
@@ -395,8 +402,9 @@ export class UniversalSceneWorldController implements InteractionProvider {
         getNavigation: (sourceNodeId: string) => this.enemyNavigation(sourceNodeId),
         fireProjectile: (request: EnemyProjectileRequest) => this.spawnEnemyProjectile(request),
         spawnImpactEffect: (request: { readonly effectId: string; readonly x: number; readonly y: number }) => {
-          this.spawnEffect({ effectId: request.effectId, direction: 'right', x: request.x, y: request.y, depth: 0 });
+          this.spawnEffect({ effectId: request.effectId, direction: 'right', x: request.x, y: request.y });
         },
+        showDamageNumber: (request: EnemyDamageNumberRequest) => this.showEnemyDamageNumber(request),
       },
       [NPC_RUNTIME_SERVICE]: {
         acquire: (request: NpcRuntimeRequest) => this.acquireNpcAgent(request),
@@ -534,6 +542,8 @@ export class UniversalSceneWorldController implements InteractionProvider {
   }
 
   advanceFrame(deltaSeconds: number): number { return this.runtime.advanceFrame(deltaSeconds); }
+  /** Gameplay clock: advances only with fixed simulation steps, so it stands still while paused. */
+  get simulationTime(): number { return this.simulationTimeMs; }
   flashPlayerHealthBar(): void { this.playerHealthSurface.flash(); }
   showAreaTitle(title: string, color: string): void { this.areaTitleSurface.show(title, color); }
   setPaused(paused: boolean): void {
@@ -559,7 +569,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
     return this.playerScript;
   }
   playerAnimationDurationMs(animationId: string): number | undefined {
-    const library = this.options.content.resources.get(resourceId('character.player.slime.animations'));
+    const library = this.options.content.resourceForScene(sceneId('character.player-slime'), resourceId('character.player.slime.animations'));
     if (library?.kind !== 'animation-library') return undefined;
     const clip = library.animations[animationId];
     if (!clip || typeof clip !== 'object' || Array.isArray(clip)) return undefined;
@@ -635,6 +645,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
     }
     const record: ManagedOrdinaryEnemy = { enemyId, request, script, mount, defeatNotified: false };
     this.ordinaryEnemies.set(enemyId, record);
+    this.registerCharacterOcclusion(mount.root, HOSTILE_SILHOUETTE_COLOR, () => !script.defeated);
     const controller = this;
     return {
       config: request.config,
@@ -785,17 +796,21 @@ export class UniversalSceneWorldController implements InteractionProvider {
       mount.dispose();
       throw new Error(`Effect scene '${request.effectId}' requires EffectScript.`);
     }
+    // The effect root is the depth source of its relative-depth layers; an
+    // explicit request depth replaces its world-sorted base depth.
+    const depthSource = mount.root instanceof Node2D ? mount.root : mount.mount;
+    if (request.depth !== undefined) depthSource.depthOverride = request.depth;
     const attachment = request.followPositionOf
       ? new WorldEffectPositionAttachment(
           {
             setPosition: (x, y) => { mount.mount.position = { x, y }; },
-            setDepth: () => undefined,
+            setDepth: (depth) => { if (request.depth !== undefined) depthSource.depthOverride = depth; },
           },
           request.followPositionOf,
           Phaser.GameObjects.Events.DESTROY,
           request.x,
           request.y,
-          request.depth,
+          request.depth ?? Number.NaN,
           request.followDepthOffset ?? 0,
           (target) => resolvePhysicsPresentationPosition(
             this.options.scene,
@@ -833,12 +848,12 @@ export class UniversalSceneWorldController implements InteractionProvider {
     return true;
   }
 
-  playWeaponAttack(direction: WeaponAttackDirection, timeMs: number, damage: WeaponDamagePayload): boolean {
-    return this.weapon?.script.tryBeginAttack(direction, timeMs, damage) ?? false;
+  playWeaponAttack(direction: WeaponAttackDirection, damage: WeaponDamagePayload): boolean {
+    return this.weapon?.script.tryBeginAttack(direction, damage) ?? false;
   }
 
-  canWeaponAttack(timeMs: number): boolean {
-    return this.weapon?.script.canBeginAttack(timeMs) ?? false;
+  canWeaponAttack(): boolean {
+    return this.weapon?.script.canBeginAttack() ?? false;
   }
 
   clearWeapon(): void {
@@ -951,6 +966,33 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.playerBody = body;
     this.playerVisual = visual;
     this.playerPickupArea = pickupArea;
+    this.registerCharacterOcclusion(mount.root, PLAYER_SILHOUETTE_COLOR, () => !script.getDamageState().dead);
+  }
+
+  /**
+   * Every character body with an authored depth anchor sorts by its feet; its
+   * direct Sprite2D children are the character's visuals and are registered
+   * for occlusion silhouettes using the same depth they render with.
+   */
+  private registerCharacterOcclusion(root: Node, silhouetteColor: number, isAlive: () => boolean): void {
+    const register = this.options.registerOcclusionActor;
+    if (!register) return;
+    for (const body of descendants(root, CharacterBody2DNode)) {
+      if (!body.depthAnchor) continue;
+      for (const visual of body.get_children()) {
+        if (!(visual instanceof Sprite2DNode) || !visual.phaserObjectActive) continue;
+        const registration = register({
+          id: visual.runtimeId,
+          owner: visual.presentationObject,
+          visual,
+          getGroundAnchorY: () => visual.depthSortY,
+          getDepth: () => visual.renderDepth,
+          isEligible: () => visual.is_inside_tree() && visual.visible && isAlive(),
+          silhouetteColor,
+        });
+        visual.lifetimeDisposables.add(() => registration.dispose());
+      }
+    }
   }
 
   private primaryEnemyTarget() {
@@ -1026,6 +1068,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
     });
     const script = descendants(mount.root, EnemyScript)[0];
     if (!script) { mount.dispose(); throw new Error(`Boss scene '${request.sceneId}' has no enemy receiver script.`); }
+    this.registerCharacterOcclusion(mount.root, HOSTILE_SILHOUETTE_COLOR, () => !script.defeated);
     this.bosses.set(request.campId, { campId: request.campId, script, mount, defeatedNotified: false });
   }
 
@@ -1051,6 +1094,14 @@ export class UniversalSceneWorldController implements InteractionProvider {
       boss.mount.dispose();
       this.bosses.delete(campId);
     }
+  }
+
+  private showEnemyDamageNumber(request: EnemyDamageNumberRequest): void {
+    const enemy = [...this.ordinaryEnemies.values()].find((entry) => entry.script.runtimeId === request.sourceNodeId);
+    const visual = enemy ? descendants(enemy.mount.root, Sprite2DNode)[0] : undefined;
+    const top = visual?.phaserObjectActive ? visual.getBounds().top : request.y;
+    const important = request.amount > 15;
+    this.options.showMessage(request.x, top - 8, `-${request.amount}`, important ? 'yellow' : 'white', important);
   }
 
   private finishDefeatedOrdinaryEnemies(): void {
@@ -1149,7 +1200,6 @@ export class UniversalSceneWorldController implements InteractionProvider {
         direction: 'right',
         x: request.x,
         y: request.y,
-        depth: 0,
       });
     }
   }
@@ -1232,7 +1282,7 @@ function directAuthoredInstanceRoots(root: Node): Node[] {
   return output;
 }
 
-function createUiAssetUrlResolver(scene: Phaser.Scene): (key: string, frame: number) => string | undefined {
+export function createUiAssetUrlResolver(scene: Phaser.Scene): (key: string, frame: number) => string | undefined {
   const urls = new Map<string, string>();
   return (key, frame) => {
     const cacheKey = `${key}:${frame}`;

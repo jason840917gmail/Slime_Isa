@@ -5,7 +5,6 @@ import { fileURLToPath } from 'node:url';
 const REPOSITORY_ROOT = fileURLToPath(new URL('../../..', import.meta.url));
 const GUARDED_IMPORTS = new Set([
   'phaser',
-  'virtual-animation-content',
   'virtual-character-content',
   'virtual-effect-content',
   'virtual-projectile-content',

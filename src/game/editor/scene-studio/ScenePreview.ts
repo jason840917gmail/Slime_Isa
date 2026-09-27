@@ -21,9 +21,32 @@ export interface PreviewMarker {
 
 export function isolatedPreviewDocument(document: SceneDocument): SceneDocument {
   const disabled = new Set(document.nodes.filter((node) => node.type === 'ScriptNode').map((node) => node.id));
+  // Script subtrees go too, so no orphaned children survive.
+  let grown = true;
+  while (grown) {
+    grown = false;
+    for (const node of document.nodes) if (node.parentId && disabled.has(node.parentId) && !disabled.has(node.id)) { disabled.add(node.id); grown = true; }
+  }
+  const nodes = document.nodes.filter((node) => !disabled.has(node.id)).map((node) => structuredClone(node));
+  const instances = document.instances.filter((instance) => !disabled.has(instance.parentNodeId)).map((instance) => structuredClone(instance));
+  // Sibling order must stay the dense sequence 0..n-1 the runtime validates.
+  const siblings = new Map<string, { order: number; assign: (order: number) => void }[]>();
+  for (const node of nodes) {
+    if (!node.parentId) continue;
+    const list = siblings.get(node.parentId) ?? [];
+    list.push({ order: node.order, assign: (order) => { (node as { order: number }).order = order; } });
+    siblings.set(node.parentId, list);
+  }
+  for (const instance of instances) {
+    const list = siblings.get(instance.parentNodeId) ?? [];
+    list.push({ order: instance.order, assign: (order) => { (instance as { order: number }).order = order; } });
+    siblings.set(instance.parentNodeId, list);
+  }
+  for (const list of siblings.values()) list.sort((left, right) => left.order - right.order).forEach((entry, index) => entry.assign(index));
   return {
     ...structuredClone(document),
-    nodes: document.nodes.filter((node) => !disabled.has(node.id)).map((node) => structuredClone(node)),
+    nodes,
+    instances,
     connections: (document.connections ?? []).filter((connection) => !disabled.has(connection.source.nodeId) && !disabled.has(connection.target.nodeId)).map((connection) => structuredClone(connection)),
   };
 }

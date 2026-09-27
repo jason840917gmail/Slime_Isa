@@ -6,7 +6,8 @@ export interface WorldEffectSpawnRequest {
   readonly direction: EffectDirection;
   readonly x: number;
   readonly y: number;
-  readonly depth: number;
+  /** Absolute base depth; when omitted the effect sorts by its own world position. */
+  readonly depth?: number;
   readonly followPositionOf?: WorldEffectPositionTarget;
   readonly followDepthOffset?: number;
 }

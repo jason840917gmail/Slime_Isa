@@ -50,7 +50,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 export class SceneStudioRepository {
   constructor(
     private readonly endpoint = '/__scene-studio/content',
-    private readonly request: Fetch = fetch,
+    private readonly request: Fetch = (input, init) => globalThis.fetch(input, init),
   ) {}
 
   async list(): Promise<readonly SceneStudioContentSummary[]> {

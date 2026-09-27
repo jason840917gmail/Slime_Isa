@@ -13,19 +13,44 @@ test('real Arcade blocking, post-step sensors, disable/free exits, and teardown 
   expect(blocked.sensorEnterCount).toBe(1);
   expect(blocked.managedContactParticipantCount).toBe(3);
   expect(blocked.managedBlockingColliderCount).toBe(1);
+  // Push once more into the wall: the step that separates reports the contact side.
+  await page.evaluate(() => { window.sceneFixture.setCharacterVelocity(90, 0); window.sceneFixture.step(1 / 60); });
+  const pushing = await page.evaluate(() => window.sceneFixture.snapshot());
+  expect(pushing.characterX).toBeCloseTo(48, 4);
+  expect(pushing.characterTouching?.right).toBe(true);
+  expect(pushing.blockingContactCount).toBe(1);
+
+  // Arcade's per-step flag reset must run under manual stepping: once the
+  // body walks away, touching/embedded clear and blocking contacts end.
+  await page.evaluate(() => window.sceneFixture.setCharacterVelocity(-90, 0));
+  for (let step = 0; step < 20; step += 1) await page.evaluate(() => window.sceneFixture.step(1 / 60));
+  const separated = await page.evaluate(() => window.sceneFixture.snapshot());
+  expect(separated.characterX).toBeLessThan(40);
+  expect(separated.characterTouching).toEqual({ none: true, up: false, down: false, left: false, right: false });
+  expect(separated.characterEmbedded).toBe(false);
+  expect(separated.blockingContactCount).toBe(0);
+  expect(separated.sensorContactCount).toBe(0);
+  expect(separated.sensorExitCount).toBe(1);
+  await page.evaluate(() => window.sceneFixture.setCharacterVelocity(90, 0));
+  for (let step = 0; step < 30; step += 1) await page.evaluate(() => window.sceneFixture.step(1 / 60));
+  const reblocked = await page.evaluate(() => window.sceneFixture.snapshot());
+  expect(reblocked.characterX).toBeCloseTo(48, 4);
+  expect(reblocked.sensorEnterCount).toBe(2);
+  await page.evaluate(() => { window.sceneFixture.setCharacterVelocity(90, 0); window.sceneFixture.step(1 / 60); });
+  expect((await page.evaluate(() => window.sceneFixture.snapshot())).characterTouching?.right).toBe(true);
 
   await page.evaluate(() => { window.sceneFixture.setWallEnabled(false); window.sceneFixture.step(1 / 60); });
   const disabled = await page.evaluate(() => window.sceneFixture.snapshot());
   expect(disabled.sensorContactCount).toBe(0);
-  expect(disabled.sensorExitCount).toBe(1);
+  expect(disabled.sensorExitCount).toBe(2);
 
   await page.evaluate(() => { window.sceneFixture.setWallEnabled(true); window.sceneFixture.step(1 / 60); });
   const reenabled = await page.evaluate(() => window.sceneFixture.snapshot());
-  expect(reenabled.sensorEnterCount).toBe(2);
+  expect(reenabled.sensorEnterCount).toBe(3);
   await page.evaluate(() => { window.sceneFixture.freeWall(); window.sceneFixture.step(1 / 60); });
   const freed = await page.evaluate(() => window.sceneFixture.snapshot());
   expect(freed.sensorContactCount).toBe(0);
-  expect(freed.sensorExitCount).toBe(2);
+  expect(freed.sensorExitCount).toBe(3);
   expect(freed.managedContactParticipantCount).toBe(2);
   expect(freed.managedBlockingColliderCount).toBe(0);
 

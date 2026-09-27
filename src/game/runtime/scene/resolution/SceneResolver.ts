@@ -243,6 +243,10 @@ export class SceneResolver {
         if (lease.resource.kind === 'tile-data') await acquireResource(lease.resource.tileSet);
       };
       for (const resourceId of [...externalResourceIds].sort()) await acquireResource(resourceId);
+      // Tile data embedded in a scene still paints with a shared TileSet file.
+      for (const resource of [...packedResources.values()]) {
+        if (resource.kind === 'tile-data') await acquireResource(resource.tileSet);
+      }
       if (signal?.aborted) throw this.abortError();
 
       const resourceContext = {

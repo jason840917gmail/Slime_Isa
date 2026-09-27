@@ -56,6 +56,7 @@ export function createCoreNodeTypeRegistry(): NodeTypeRegistry {
     rotation: typeof properties.rotation === 'number' ? properties.rotation : undefined,
     scale: Array.isArray(properties.scale) ? { x: Number(properties.scale[0]), y: Number(properties.scale[1]) } : undefined,
     visible: typeof properties.visible === 'boolean' ? properties.visible : undefined,
+    depthAnchor: Array.isArray(properties.depthAnchor) ? { x: Number(properties.depthAnchor[0]), y: Number(properties.depthAnchor[1]) } : undefined,
   }));
   for (const type of ['AnimationPlayer', 'AudioStreamPlayer']) registry.register(type, ({ runtimeId, name }) => new Node({ runtimeId, name }));
   return registry;

@@ -140,17 +140,21 @@ test('Worm fixed-step behavior chases and routes one timed contact attack throug
   assert.equal(hp, 48);
   assert.deepEqual(effects, [{ effectId: 'enemy-worm-brawler-hit', x: 22, y: 0 }]);
   fixture.tree.physicsProcess(0.25);
-  assert.equal(script.runtimeState, 'chase');
+  // The committed sequence lasts max(windup + recovery, clip) + 250 ms.
+  assert.equal(script.attacking, true);
+  fixture.tree.physicsProcess(0.26);
+  assert.equal(script.attacking, false);
   assert.equal(commits, 1);
   assert.equal(effects.length, 1);
   fixture.tree.shutdown();
   fixture.packed.dispose();
 });
 
-test('Worm impact visual resolves to one authored effect scene and shared resources', () => {
+test('Worm impact visual resolves to one authored effect scene that embeds its visual resources', () => {
   const effect = content.scenes.find((document) => document.sceneId === 'effect.enemy-worm-brawler-hit');
   assert.ok(effect);
   assert.equal(effect.nodes.find((node) => node.scriptId === 'game.effect')?.properties.effectId, 'enemy-worm-brawler-hit');
-  assert.ok(content.resources.some((resource) => resource.resourceId === 'effect.enemy.worm-brawler-hit.sprite'));
-  assert.ok(content.resources.some((resource) => resource.resourceId === 'effect.enemy.worm-brawler-hit.animations'));
+  const embedded = (effect.subresources ?? []).map((resource) => resource.resourceId).sort();
+  assert.deepEqual(embedded, ['effect.enemy.worm-brawler-hit.animations', 'effect.enemy.worm-brawler-hit.sprite']);
+  assert.ok(!content.resources.some((resource) => embedded.includes(resource.resourceId)), 'single-owner visual resources are not also shared files');
 });

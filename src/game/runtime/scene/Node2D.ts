@@ -17,6 +17,11 @@ export interface Node2DOptions extends NodeOptions {
   readonly rotation?: number;
   readonly scale?: Vector2;
   readonly visible?: boolean;
+  /**
+   * Local ground point used for depth sorting. A node with a depth anchor is a
+   * depth source for descendants rendered with parent-relative depth.
+   */
+  readonly depthAnchor?: Vector2;
 }
 
 function finiteVector(value: Vector2, label: string): void {
@@ -39,6 +44,18 @@ export class Node2D extends Node {
   private cachedLocalRevision = -1;
   private cachedParent?: Node2D;
   private cachedParentRevision = -1;
+  /**
+   * Set when this node or an ancestor changed transform or ancestry since the
+   * cached world transform was validated. A stale node's Node2D descendants are
+   * always stale too, because reading any descendant revalidates its ancestors.
+   */
+  private worldTransformStale = true;
+  private readonly localDepthAnchor?: Vector2;
+  /**
+   * Runtime-only absolute base depth. When set, this node is a depth source
+   * whose descendants with relative depth draw at this depth plus their offset.
+   */
+  depthOverride?: number;
   visible: boolean;
 
   constructor(options: Node2DOptions) {
@@ -47,6 +64,10 @@ export class Node2D extends Node {
     this.localRotation = options.rotation ?? 0;
     this.localScale = options.scale ?? { x: 1, y: 1 };
     this.visible = options.visible ?? true;
+    if (options.depthAnchor) {
+      finiteVector(options.depthAnchor, 'Depth anchor');
+      this.localDepthAnchor = { ...options.depthAnchor };
+    }
     finiteVector(this.localPosition, 'Position');
     finiteVector(this.localScale, 'Scale');
     if (this.localScale.x <= 0 || this.localScale.y <= 0) throw new Error('Scale must be positive');
@@ -59,6 +80,7 @@ export class Node2D extends Node {
     if (value.x === this.localPosition.x && value.y === this.localPosition.y) return;
     this.localPosition = { ...value };
     this.localTransformRevision += 1;
+    this._invalidateGlobalTransformInternal();
   }
   get rotation(): number { return this.localRotation; }
   set rotation(value: number) {
@@ -66,6 +88,7 @@ export class Node2D extends Node {
     if (value === this.localRotation) return;
     this.localRotation = value;
     this.localTransformRevision += 1;
+    this._invalidateGlobalTransformInternal();
   }
   get scale(): Vector2 { return { ...this.localScale }; }
   set scale(value: Vector2) {
@@ -74,6 +97,33 @@ export class Node2D extends Node {
     if (value.x === this.localScale.x && value.y === this.localScale.y) return;
     this.localScale = { ...value };
     this.localTransformRevision += 1;
+    this._invalidateGlobalTransformInternal();
+  }
+
+  get depthAnchor(): Vector2 | undefined { return this.localDepthAnchor ? { ...this.localDepthAnchor } : undefined; }
+
+  /** True when descendants with relative depth should anchor to this node. */
+  get isDepthSource(): boolean {
+    return this.localDepthAnchor !== undefined || this.depthOverride !== undefined;
+  }
+
+  /** World-space Y of this node's depth anchor, or its origin when it has none. */
+  get_global_depth_anchor_y(): number {
+    const transform = this.readWorldTransform();
+    const anchor = this.localDepthAnchor;
+    if (!anchor) return transform.position.y;
+    const offset = rotate({ x: anchor.x * transform.scale.x, y: anchor.y * transform.scale.y }, transform.rotation);
+    return transform.position.y + offset.y;
+  }
+
+  /** Nearest Node2D ancestor that is a depth source. */
+  find_depth_source(): Node2D | undefined {
+    let current = this.transformParent();
+    while (current) {
+      if (current.isDepthSource) return current;
+      current = current.transformParent();
+    }
+    return undefined;
   }
 
   get_global_transform(): Transform2D {
@@ -91,7 +141,16 @@ export class Node2D extends Node {
     return this.worldTransformRevision;
   }
 
+  /** @internal */
+  override _invalidateGlobalTransformInternal(): void {
+    if (this.worldTransformStale) return;
+    this.worldTransformStale = true;
+    super._invalidateGlobalTransformInternal();
+  }
+
   private readWorldTransform(): Transform2D {
+    if (!this.worldTransformStale && this.cachedWorldTransform) return this.cachedWorldTransform;
+    this.worldTransformStale = false;
     const parent = this.transformParent();
     const parentTransform = parent?.readWorldTransform();
     const parentRevision = parent?.worldTransformRevision ?? 0;
@@ -140,7 +199,7 @@ export class Node2D extends Node {
   }
 
   protected override _duplicateSelf(runtimeId: RuntimeNodeId): Node {
-    return new Node2D({ runtimeId, name: this.name, position: this.position, rotation: this.rotation, scale: this.scale, visible: this.visible });
+    return new Node2D({ runtimeId, name: this.name, position: this.position, rotation: this.rotation, scale: this.scale, visible: this.visible, depthAnchor: this.depthAnchor });
   }
 
   private transformParent(): Node2D | undefined {

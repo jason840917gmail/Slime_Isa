@@ -19,3 +19,4 @@ export * from '../../runtime/scene/physics/PhysicsContact';
 export * from '../../runtime/scene/physics/SensorGeometry';
 export * from '../../runtime/scene/physics/ContactRouter';
 export * from '../../runtime/scene/tooling';
+export { prepareArcadeBodyForStep, prepareArcadeBodiesForStep } from './ArcadeStepBookkeeping';

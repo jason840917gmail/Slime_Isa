@@ -28,7 +28,8 @@ export class PropertyEditorRegistry {
     this.register({ kind: 'checkbox', parse: (raw) => Boolean(raw) });
     this.register({ kind: 'number', parse: (raw, descriptor) => numeric(String(raw), descriptor) });
     this.register({ kind: 'vector2', parse: (raw, descriptor) => {
-      const values = String(raw).split(',').map((part) => numeric(part.trim(), descriptor));
+      // Accepts both '12, 34' and the '[12,34]' form the inspector displays.
+      const values = String(raw).trim().replace(/^\[|\]$/g, '').split(',').map((part) => numeric(part.trim(), descriptor));
       if (values.length !== 2) throw new Error(`${descriptor.label} requires x and y`);
       return values;
     } });

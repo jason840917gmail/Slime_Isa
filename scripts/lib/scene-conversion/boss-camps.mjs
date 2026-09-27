@@ -1,4 +1,6 @@
-import { convertedOutput, readJson, requireSupportedUnit, resourcePath } from './adapter-utils.mjs';
+import { convertedOutput, readJson, requireSupportedUnit, resourcePath, withCharacterDepthAnchor } from './adapter-utils.mjs';
+import { collision } from './collision-layers.mjs';
+import { loadAnimationSampling } from './load-animation-sampling.mjs';
 
 const SUPPORTED = new Set(['boss:fatty-one-eye']);
 
@@ -8,12 +10,12 @@ function fattyScene(character, visual, boss) {
     sceneId: 'character.fatty-one-eye',
     rootNodeId: 'body',
     nodes: [
-      { id: 'body', name: 'FattyOneEye', type: 'CharacterBody2D', parentId: null, order: 0, properties: { collisionLayer: 2, collisionMask: 5, position: [0, 0], velocity: [0, 0] } },
+      { id: 'body', name: 'FattyOneEye', type: 'CharacterBody2D', parentId: null, order: 0, properties: { ...collision(['enemy'], ['world', 'player']), collideWorldBounds: true, position: [0, 0], velocity: [0, 0] } },
       { id: 'body-shape', name: 'BodyShape', type: 'CollisionShape2D', parentId: 'body', order: 0, properties: { shape: { resourceId: 'fatty-one-eye.body-shape' } } },
       { id: 'visual', name: 'Visual', type: 'Sprite2D', parentId: 'body', order: 1, properties: { texture: { resourceId: `${visual.visualSetId}.sprite` }, frame: 0, origin: visual.defaults.origin, scale: visual.defaults.scale } },
-      { id: 'eye', name: 'Eye', type: 'Area2D', parentId: 'body', order: 2, properties: { collisionLayer: 8, collisionMask: 16, monitoring: true, monitorable: true } },
+      { id: 'eye', name: 'Eye', type: 'Area2D', parentId: 'body', order: 2, properties: { ...collision(['hurtbox'], ['hitbox']), monitoring: true, monitorable: true } },
       { id: 'eye-shape', name: 'EyeShape', type: 'CollisionShape2D', parentId: 'eye', order: 0, properties: { shape: { resourceId: 'fatty-one-eye.eye-shape' } } },
-      { id: 'contact-attack', name: 'ContactAttack', type: 'Area2D', parentId: 'body', order: 3, properties: { collisionLayer: 16, collisionMask: 8, monitoring: false, monitorable: false } },
+      { id: 'contact-attack', name: 'ContactAttack', type: 'Area2D', parentId: 'body', order: 3, properties: { ...collision(['hitbox'], ['hurtbox']), monitoring: false, monitorable: false } },
       { id: 'contact-shape', name: 'ContactShape', type: 'CollisionShape2D', parentId: 'contact-attack', order: 0, properties: { shape: { resourceId: 'fatty-one-eye.contact-shape' }, disabled: true } },
       { id: 'animation', name: 'Animation', type: 'AnimationPlayer', parentId: 'body', order: 4, properties: { library: { resourceId: `${visual.visualSetId}.animations` }, domain: 'physics', autoplay: 'chase' } },
       {
@@ -48,9 +50,9 @@ function campScene(map, camp, chest) {
     rootNodeId: 'root',
     nodes: [
       { id: 'root', name: 'Level1FattyCamp', type: 'Node2D', parentId: null, order: 0, properties: { position: [0, 0] } },
-      { id: 'activation-area', name: 'ActivationArea', type: 'Area2D', parentId: 'root', order: 0, properties: { collisionLayer: 0, collisionMask: 2, monitoring: true, monitorable: false } },
+      { id: 'activation-area', name: 'ActivationArea', type: 'Area2D', parentId: 'root', order: 0, properties: { ...collision(['trigger'], ['enemy']), monitoring: true, monitorable: false } },
       { id: 'activation-shape', name: 'ActivationShape', type: 'CollisionShape2D', parentId: 'activation-area', order: 0, properties: { shape: { resourceId: 'level-1-fatty-camp.activation-shape' } } },
-      { id: 'arena-area', name: 'ArenaArea', type: 'Area2D', parentId: 'root', order: 1, properties: { collisionLayer: 0, collisionMask: 2, monitoring: true, monitorable: false } },
+      { id: 'arena-area', name: 'ArenaArea', type: 'Area2D', parentId: 'root', order: 1, properties: { ...collision(['trigger'], ['enemy']), monitoring: true, monitorable: false } },
       { id: 'arena-shape', name: 'ArenaShape', type: 'CollisionShape2D', parentId: 'arena-area', order: 0, properties: { shape: { resourceId: 'level-1-fatty-camp.arena-shape' } } },
       { id: 'active-bosses', name: 'ActiveBosses', type: 'Node2D', parentId: 'root', order: 2, properties: {} },
       {
@@ -93,7 +95,7 @@ export const bossCampSceneAdapter = {
       outputs.push(convertedOutput(unit, resourcePath('characters', 'fatty-one-eye', 'eye-shape'), {
         version: 1, resourceId: 'fatty-one-eye.eye-shape', kind: 'collision-shape', value: { shape: 'circle', radius: boss.eye.width / 2 },
       }, ['$.eye']));
-      outputs.push(convertedOutput(unit, 'characters/fatty-one-eye.scene.json', fattyScene(character, visual, boss), [
+      outputs.push(convertedOutput(unit, 'characters/fatty-one-eye.scene.json', withCharacterDepthAnchor(fattyScene(character, visual, boss), (await loadAnimationSampling()).bodyDepthAnchor(character.body)), [
         '$.id', '$.characterId', '$.visualSetId', '$.maxHp', '$.eye', '$.chaseSpeed', '$.contactHop', '$.leap', '$.allowedWeaponIds', '$.effectImmunities',
       ], [
         { path: '$.$schema', owner: unit.oldSourcePath },

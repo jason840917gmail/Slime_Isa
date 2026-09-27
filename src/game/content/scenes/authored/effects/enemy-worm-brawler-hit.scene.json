@@ -13,6 +13,10 @@
         "position": [
           0,
           0
+        ],
+        "depthAnchor": [
+          0,
+          0
         ]
       }
     },
@@ -41,8 +45,8 @@
         ],
         "rotation": 0,
         "alpha": 1,
-        "depthMode": "world-sorted",
-        "depthBand": "reveal-effects"
+        "depthMode": "relative",
+        "depthBand": "world-entities"
       }
     },
     {
@@ -75,5 +79,123 @@
       }
     }
   ],
-  "instances": []
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "effect.enemy.worm-brawler-hit.animations",
+      "kind": "animation-library",
+      "animations": {
+        "right": {
+          "durationSeconds": 0.25,
+          "framesPerSecond": 12,
+          "loop": false,
+          "tracks": [
+            {
+              "binding": "../Visual",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                },
+                {
+                  "at": 1,
+                  "value": 1
+                },
+                {
+                  "at": 2,
+                  "value": 2
+                }
+              ]
+            }
+          ]
+        },
+        "left": {
+          "durationSeconds": 0.25,
+          "framesPerSecond": 12,
+          "loop": false,
+          "tracks": [
+            {
+              "binding": "../Visual",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                },
+                {
+                  "at": 1,
+                  "value": 1
+                },
+                {
+                  "at": 2,
+                  "value": 2
+                }
+              ]
+            }
+          ]
+        },
+        "up": {
+          "durationSeconds": 0.25,
+          "framesPerSecond": 12,
+          "loop": false,
+          "tracks": [
+            {
+              "binding": "../Visual",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                },
+                {
+                  "at": 1,
+                  "value": 1
+                },
+                {
+                  "at": 2,
+                  "value": 2
+                }
+              ]
+            }
+          ]
+        },
+        "down": {
+          "durationSeconds": 0.25,
+          "framesPerSecond": 12,
+          "loop": false,
+          "tracks": [
+            {
+              "binding": "../Visual",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                },
+                {
+                  "at": 1,
+                  "value": 1
+                },
+                {
+                  "at": 2,
+                  "value": 2
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "effect.enemy.worm-brawler-hit.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "effect.enemy.worm-brawler-hit",
+      "frameWidth": 16,
+      "frameHeight": 20,
+      "frameCount": 3
+    }
+  ]
 }

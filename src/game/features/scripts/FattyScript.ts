@@ -1,5 +1,5 @@
 import type { RuntimeNodeId } from '../../content/scenes/identifiers';
-import type { DamageMitigationInput, DamageStateDecision } from '../combat/DamageReceiver';
+import type { DamageCommit, DamageMitigationInput, DamageStateDecision } from '../combat/DamageReceiver';
 import { EnemyScript } from './EnemyScript';
 
 type FattyOneEyePhase = 'chase' | 'return-to-center' | 'contact-hop' | 'small-hop' | 'airborne' | 'landing' | 'recovery' | 'dead';
@@ -19,6 +19,24 @@ export class FattyScript extends EnemyScript {
       return { accepted: false as const, reason: 'state-blocked' as const };
     }
     return super.canReceiveDamage(input);
+  }
+
+  /**
+   * Bosses keep their authored phase flow: a hit never cancels a phase or
+   * stuns. Only while chasing does a non-immune knockback shove the body, with
+   * the raw knockback strength and no resistance scaling (legacy boss rule).
+   */
+  protected override reactToDamage(commit: DamageCommit, defeated: boolean): void {
+    if (defeated || this.phaseValue !== 'chase') return;
+    const potency = commit.result.appliedEffects
+      .filter((effect) => effect.effectId === 'knockback')
+      .reduce((total, effect) => total + effect.potency, 0);
+    const length = Math.hypot(commit.request.impact.knockX, commit.request.impact.knockY);
+    if (potency <= 0 || length === 0) return;
+    this.body().velocity = {
+      x: (commit.request.impact.knockX / length) * potency,
+      y: (commit.request.impact.knockY / length) * potency,
+    };
   }
 
   override _enter_tree(): void {
@@ -152,6 +170,7 @@ export class FattyScript extends EnemyScript {
   }
 
   protected override canRunCommonAttack(): boolean { return this.phaseValue === 'chase'; }
+  protected override mirrorsSideFacing(): boolean { return false; }
 
   private transitionTo(phase: FattyOneEyePhase, time: number): void {
     this.phaseValue = phase;

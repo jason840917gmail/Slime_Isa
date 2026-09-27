@@ -82,10 +82,9 @@ function validateNumber(value: unknown, path: string, issues: string[], minimum 
   if (typeof value !== 'number' || !Number.isFinite(value) || value < minimum) issues.push(`${path}: must be a finite number >= ${minimum}`);
 }
 
-function validateAnimationReference(value: unknown, path: string, issues: string[]): void {
-  if (typeof value !== 'string' || !/^[a-z0-9]+(?:[.-][a-z0-9]+(?:-[a-z0-9]+)*)+$/.test(value)) {
-    issues.push(`${path}: must be a lowercase stable animation ID`);
-  }
+/** Shared animation packages were retired; weapons embed their animations. */
+function rejectAnimationReference(path: string, issues: string[]): void {
+  issues.push(`${path}: shared animation IDs are no longer supported; embed the animation`);
 }
 
 function validateAnimationTimeline(value: unknown, path: string, issues: string[]): void {
@@ -354,13 +353,13 @@ function validateLayeredWeaponDefinition(weapon: LayeredWeaponDefinition, resour
   }
   if (!isRecord(weapon.animations)) issues.push('weapon.animations: is required');
   else if (typeof weapon.animations.idleAnimationId === 'string') {
-    validateAnimationReference(weapon.animations.idleAnimationId, 'weapon.animations.idleAnimationId', issues);
+    rejectAnimationReference('weapon.animations.idleAnimationId', issues);
   } else if ('idleTimeline' in weapon.animations) {
     validateAnimationTimeline(weapon.animations.idleTimeline, 'weapon.animations.idleTimeline', issues);
   } else if ('idle' in weapon.animations) {
     issues.push(...validateLayeredAnimationDocument(weapon.animations.idle, { path: 'weapon.animations.idle', allowNoVisualLayers: true }));
   } else {
-    issues.push('weapon.animations.idleAnimationId: is required');
+    issues.push('weapon.animations.idle: is required');
   }
   if (isRecord(weapon.animations)) {
     for (const forbidden of ['attack', 'impact']) {
@@ -379,14 +378,14 @@ function validateLayeredWeaponDefinition(weapon: LayeredWeaponDefinition, resour
     if (!['right', 'left', 'up', 'down'].includes(direction)) { issues.push(`${path}: direction is not supported in version 2`); continue; }
     if (!isRecord(rawAttack)) { issues.push(`${path}: must be an object`); continue; }
     if (typeof rawAttack.animationId === 'string') {
-      validateAnimationReference(rawAttack.animationId, `${path}.animationId`, issues);
+      rejectAnimationReference(`${path}.animationId`, issues);
     } else if (rawAttack.animation !== undefined) {
       issues.push(...validateLayeredAnimationDocument(rawAttack.animation, { path: `${path}.animation`, allowLoop: false, allowNoVisualLayers: true }));
     } else if (rawAttack.animationTimeline !== undefined) {
       validateAnimationTimeline(rawAttack.animationTimeline, `${path}.animationTimeline`, issues);
       if (rawAttack.animationTimeline.loop) issues.push(`${path}.animationTimeline.loop: must be false for an attack`);
     } else {
-      issues.push(`${path}.animationId: is required`);
+      issues.push(`${path}.animation: is required`);
     }
     if (typeof rawAttack.characterActionId !== 'string' || !rawAttack.characterActionId.trim()) issues.push(`${path}.characterActionId: must be non-empty`);
     validateHitboxes(rawAttack.hitboxes, issues, `${path}.hitboxes`);
