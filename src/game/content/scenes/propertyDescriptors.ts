@@ -259,7 +259,7 @@ const collisionBitsProperty = (key: string, label: string, defaultValue: number,
 export function createCoreDescriptorRegistry(scripts: readonly ScriptDescriptor[] = []): DescriptorRegistry {
   const nodeTypes: NodeTypeDescriptor[] = [
     { type: 'Node', properties: [] },
-    { type: 'Node2D', extends: 'Node', properties: [vector('position', 'Position', [0, 0]), vector('scale', 'Scale', [1, 1]), { key: 'rotation', label: 'Rotation', units: 'degrees', value: { kind: 'number' }, defaultValue: 0, serialized: true, inspector: 'number', animation: { interpolation: 'numeric', domains: ['physics', 'render'] }, overridable: true }, { ...boolean('visible', 'Visible', true), animation: { interpolation: 'step', domains: ['physics', 'render'] } },
+    { type: 'Node2D', extends: 'Node', properties: [vector('position', 'Position', [0, 0]), vector('scale', 'Scale', [1, 1]), { key: 'rotation', label: 'Rotation', units: 'radians', help: 'Stored in radians like the runtime; the animation timeline and Keyframes section edit it in degrees.', value: { kind: 'number' }, defaultValue: 0, serialized: true, inspector: 'number', animation: { interpolation: 'numeric', domains: ['physics', 'render'] }, overridable: true }, { ...boolean('visible', 'Visible', true), animation: { interpolation: 'step', domains: ['physics', 'render'] } },
       { key: 'depthAnchor', label: 'Depth Anchor', value: { kind: 'vector2' }, serialized: true, inspector: 'vector2', overridable: true },
     ] },
     { type: 'Sprite2D', extends: 'Node2D', properties: [

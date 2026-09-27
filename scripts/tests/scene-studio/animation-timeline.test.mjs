@@ -162,3 +162,13 @@ test('runtime bindings apply key transitions, track interpolation overrides and 
   assert.throws(() => binding.trackInterpolation(step, 'linear'), /nearest/);
   assert.equal(binding.easeAnimationRatio(0.5, 'ease-in-out'), 0.5);
 });
+
+test('value fields show angles in degrees and pick editors from descriptors', async () => {
+  const fields = await loadTypescriptModule('src/game/editor/scene-studio/animation/AnimationValueFields.ts');
+  assert.equal(fields.formatAnimationValue('rotation', Math.PI / 2), '90°');
+  assert.equal(fields.formatAnimationValue('position', [55.123, 10]), '55.12, 10');
+  assert.equal(fields.animationValueKind('rotation', undefined, 0.5), 'angle');
+  assert.equal(fields.animationValueKind('frame', { value: { kind: 'number', integer: true } }, 1), 'integer');
+  assert.equal(fields.animationValueKind('position', { value: { kind: 'vector2' } }), 'vector');
+  assert.match(fields.renderAnimationValueFields('angle', Math.PI, { disabled: false, label: 'Rotation' }), /value="180"/);
+});
