@@ -21,6 +21,9 @@ export interface LiveViewportMarker {
   readonly rect?: WorldRect;
   readonly selected: boolean;
   readonly movable: boolean;
+  /** Global rotation in radians; a selected rotatable marker shows a rotate handle. */
+  readonly rotation?: number;
+  readonly rotatable?: boolean;
 }
 
 export interface LiveViewportShape {
@@ -58,6 +61,8 @@ export interface LiveViewportModel {
 export interface LiveViewportHost {
   select(key: string): void;
   moveMarker(key: string, global: readonly [number, number]): void;
+  /** Rotate-handle drag finished; `rotation` is the new global rotation in radians. */
+  rotateMarker(key: string, rotation: number): void;
   paintCell(cell: { readonly x: number; readonly y: number }): void;
   editShape(key: string, value: CollisionShapeValue): void;
   cameraChanged(camera: ViewportCamera): void;
@@ -66,6 +71,7 @@ export interface LiveViewportHost {
 const EMPTY_MODEL: LiveViewportModel = { ariaLabel: '2D viewport', footer: '', markers: [], shapes: [], pickables: [] };
 const CELL_BUTTON_MIN_PIXELS = 14;
 const CELL_BUTTON_LIMIT = 2400;
+const ROTATE_HANDLE_RADIUS = 46;
 
 function escapeHtml(value: unknown): string {
   return String(value ?? '').replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character] ?? character);
@@ -75,6 +81,7 @@ type Drag =
   | { readonly kind: 'pan'; readonly pointerId: number; lastX: number; lastY: number; readonly startX: number; readonly startY: number; moved: boolean; readonly clickSelect: boolean }
   | { readonly kind: 'marker'; readonly pointerId: number; readonly key: string; readonly startX: number; readonly startY: number; readonly origin: readonly [number, number]; moved: boolean; current: readonly [number, number] }
   | { readonly kind: 'paint'; readonly pointerId: number; lastCell?: string }
+  | { readonly kind: 'rotate'; readonly pointerId: number; readonly key: string; angle: number }
   | { readonly kind: 'shape'; readonly pointerId: number; readonly key: string; readonly handle: string; value: CollisionShapeValue };
 
 /**
@@ -215,6 +222,16 @@ export class SceneLiveViewport {
       parts.push(`<button type="button" class="scene-viewport-node is-${marker.kind}${marker.selected ? ' is-selected' : ''}${marker.movable ? ' is-movable' : ''}${showLabels || marker.selected ? ' has-label' : ''}" style="left:${x.toFixed(1)}px;top:${y.toFixed(1)}px" data-viewport-key="${escapeHtml(marker.key)}" aria-label="Select ${escapeHtml(marker.label)}" title="${escapeHtml(marker.label)} · ${escapeHtml(marker.type)}"><i aria-hidden="true"></i><span>${escapeHtml(marker.label)}</span></button>`);
     }
     for (const shape of this.model.shapes) if (shape.editable) parts.push(...this.shapeHandles(shape));
+    const rotatable = this.model.markers.find((marker) => marker.selected && marker.rotatable && marker.kind !== 'ui');
+    if (rotatable) {
+      const [x, y] = this.toScreen(this.drag?.kind === 'marker' && this.drag.key === rotatable.key ? this.drag.current : rotatable.position);
+      const angle = this.drag?.kind === 'rotate' && this.drag.key === rotatable.key ? this.drag.angle : rotatable.rotation ?? 0;
+      const hx = x + Math.cos(angle) * ROTATE_HANDLE_RADIUS;
+      const hy = y + Math.sin(angle) * ROTATE_HANDLE_RADIUS;
+      svg.push(`<circle class="scene-rotate-ring" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${ROTATE_HANDLE_RADIUS}" /><line class="scene-rotate-arm" x1="${x.toFixed(1)}" y1="${y.toFixed(1)}" x2="${hx.toFixed(1)}" y2="${hy.toFixed(1)}" />`);
+      const degrees = Math.round(angle * 1800 / Math.PI) / 10;
+      parts.push(`<button type="button" class="scene-rotate-handle" style="left:${hx.toFixed(1)}px;top:${hy.toFixed(1)}px" data-rotate-handle="${escapeHtml(rotatable.key)}" aria-label="Rotate ${escapeHtml(rotatable.label)}" title="Rotate ${escapeHtml(rotatable.label)} · ${degrees}° (Shift snaps to 15°)"></button>${this.drag?.kind === 'rotate' ? `<span class="scene-rotate-readout" style="left:${hx.toFixed(1)}px;top:${hy.toFixed(1)}px">${degrees}°</span>` : ''}`);
+    }
     this.overlay.innerHTML = `<svg class="scene-overlay-svg" width="${size.width}" height="${size.height}" aria-hidden="true">${svg.join('')}</svg>${parts.join('')}`;
     this.overlay.classList.toggle('is-tile-mode', Boolean(tile));
     this.overlay.classList.toggle('is-compact', zoom < 0.5);
@@ -390,6 +407,11 @@ export class SceneLiveViewport {
     this.overlay.focus({ preventScroll: true });
     this.overlay.setPointerCapture(event.pointerId);
     event.preventDefault();
+    const rotateHandle = target?.closest<HTMLElement>('[data-rotate-handle]');
+    if (!panRequested && rotateHandle?.dataset.rotateHandle) {
+      const marker = this.model.markers.find((candidate) => candidate.key === rotateHandle.dataset.rotateHandle);
+      if (marker) { this.drag = { kind: 'rotate', pointerId: event.pointerId, key: marker.key, angle: marker.rotation ?? 0 }; return; }
+    }
     if (!panRequested && handle) {
       const shape = this.model.shapes.find((candidate) => candidate.key === handle.dataset.shapeKey);
       if (shape) { this.drag = { kind: 'shape', pointerId: event.pointerId, key: shape.key, handle: handle.dataset.shapeHandle ?? '', value: shape.value }; return; }
@@ -441,6 +463,14 @@ export class SceneLiveViewport {
       const zoom = this.cameraValue.zoom;
       drag.current = [Math.round(drag.origin[0] + (x - drag.startX) / zoom), Math.round(drag.origin[1] + (y - drag.startY) / zoom)];
       this.scheduleOverlay();
+    } else if (drag.kind === 'rotate') {
+      const marker = this.model.markers.find((candidate) => candidate.key === drag.key);
+      if (!marker) return;
+      const [cx, cy] = this.toScreen(marker.position);
+      const raw = Math.atan2(y - cy, x - cx);
+      const snap = Math.PI / 12;
+      drag.angle = event.shiftKey ? Math.round(raw / snap) * snap : Math.round(raw * 10000) / 10000;
+      this.scheduleOverlay();
     } else if (drag.kind === 'paint') {
       const cell = this.cellAt(event);
       this.hoverCell = cell;
@@ -475,6 +505,8 @@ export class SceneLiveViewport {
       if (hits[0]) this.host.select(hits[0].key);
     } else if (drag.kind === 'marker' && drag.moved) {
       this.host.moveMarker(drag.key, drag.current);
+    } else if (drag.kind === 'rotate') {
+      this.host.rotateMarker(drag.key, drag.angle);
     } else if (drag.kind === 'shape') {
       this.host.editShape(drag.key, drag.value);
     }

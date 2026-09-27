@@ -43,6 +43,7 @@ import {
   type ClipEdit,
 } from './AnimationClipModel';
 import { descriptorIsNumeric, initialKeyValue, resolveBinding, type AnimationTarget } from './AnimationTargets';
+import { animationValueKind, formatAnimationValue, readAnimationValue, renderAnimationValueFields, type AnimationValueKind } from './AnimationValueFields';
 import { attackLanes, hitboxActiveAt, planDirectionsForClip, removeHitboxSpan, renamePlanClip, setHitboxFrame, syncPlansWithClip, updateHitboxSpan, type AttackPlans, type WeaponAttackLane } from './WeaponAttackLanes';
 
 /** Everything the timeline needs to know about the selected AnimationPlayer. */
@@ -88,6 +89,8 @@ export interface AnimationEditorHost {
   /** Sprite-sheet frame image and frame count for a Sprite2D texture reference. */
   spriteFrames(texture: JsonValue | undefined): { readonly count: number; readonly thumbnail: (frame: number) => string | undefined } | undefined;
   openScene(sceneId: string): void;
+  /** Selects a node in the scene tree and viewport (e.g. a hitbox shape to edit its geometry). */
+  selectNode(nodeKey: string): void;
   /** The playhead moved or the clip changed (the viewport highlights active hitboxes). */
   playheadChanged(): void;
   close(): void;
@@ -117,23 +120,13 @@ type Drag =
 
 const ONION_PAST = 0x4fb4ff;
 const ONION_FUTURE = 0xff7a59;
-const LABEL_WIDTH = 236;
+const LABEL_WIDTH = 340;
 
 function escapeHtml(value: unknown): string {
   return String(value ?? '').replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character] ?? character);
 }
 
 function refId(ref: AnimationKeyRef): string { return `${ref.track}:${ref.at}`; }
-
-function formatValue(value: JsonValue | undefined): string {
-  if (value === undefined) return '—';
-  if (typeof value === 'number') return String(Math.round(value * 100) / 100);
-  if (typeof value === 'boolean') return value ? 'on' : 'off';
-  if (Array.isArray(value)) return value.map((entry) => formatValue(entry)).join(', ');
-  if (value === null) return 'null';
-  if (typeof value === 'object') return '{…}';
-  return String(value);
-}
 
 /**
  * Godot-style animation dock: clip toolbar, per-node track groups with keys,
@@ -151,6 +144,8 @@ export class AnimationTimelinePanel {
   private zoom = 18;
   private height = 300;
   private onion = false;
+  /** Viewport drags and inspector edits of animated nodes become keys at the playhead. */
+  private autoKey = true;
   private keepDuration = true;
   private stretchLength = false;
   private addTrackFilter?: string;
@@ -207,6 +202,93 @@ export class AnimationTimelinePanel {
     }
     this.clampState();
     this.render();
+  }
+
+  /** Animatable properties of a node the pinned player can bind, or undefined when it cannot key it. */
+  private keyableTarget(nodeKey: string): AnimationTarget | undefined {
+    if (!this.editable || !this.clip) return undefined;
+    return this.context?.targets.find((target) => target.key === nodeKey);
+  }
+
+  /** Whether viewport and inspector edits of this node should become keys (auto-key on). */
+  autoKeys(nodeKey: string): boolean {
+    return this.autoKey && this.keyableTarget(nodeKey) !== undefined;
+  }
+
+  /** Keys a node property at the playhead, creating its track when needed. */
+  keyNodeProperty(nodeKey: string, property: string, value: JsonValue): boolean {
+    const target = this.keyableTarget(nodeKey);
+    const clip = this.clip;
+    if (!target || !clip) return false;
+    if (!target.properties.some((descriptor) => descriptor.key === property)) { this.host.notify(`'${property}' cannot be animated here`); return false; }
+    try {
+      const index = clip.tracks.findIndex((track) => track.binding === target.binding && track.property === property);
+      const next = index >= 0 ? setKey(clip, index, this.playhead, value) : addTrack(clip, target.binding, property, { at: this.playhead, value });
+      const trackIndex = index >= 0 ? index : next.tracks.length - 1;
+      if (!this.commitClip(`Key ${target.name} ${property} @ ${this.playhead}`, next)) return false;
+      this.focusedTrack = trackIndex;
+      this.selection = { kind: 'keys', refs: [{ track: trackIndex, at: this.playhead }] };
+      return true;
+    } catch (error) {
+      this.host.notify(error instanceof Error ? error.message : String(error));
+      return false;
+    }
+  }
+
+  /** Inserts a key holding the current value, or removes the key already at the playhead. */
+  toggleNodeKey(nodeKey: string, property: string): void {
+    const target = this.keyableTarget(nodeKey);
+    const clip = this.clip;
+    const descriptor = target?.properties.find((candidate) => candidate.key === property);
+    if (!target || !clip || !descriptor) return;
+    const index = clip.tracks.findIndex((track) => track.binding === target.binding && track.property === property);
+    if (index >= 0 && keyAt(clip.tracks[index], this.playhead)) {
+      this.attempt(() => { if (this.commitClip('Remove key', removeKeys(clip, [{ track: index, at: this.playhead }]))) this.selection = { kind: 'none' }; });
+      return;
+    }
+    this.keyNodeProperty(nodeKey, property, this.nodeValue(target, descriptor));
+  }
+
+  /** Posed values of every enabled track at the playhead, keyed by composed node key. */
+  poseOverrides(): ReadonlyMap<string, Readonly<Record<string, JsonValue>>> {
+    const output = new Map<string, Record<string, JsonValue>>();
+    for (const view of this.trackViews()) {
+      if (!view.node || view.track.enabled === false) continue;
+      const value = sampleTrack(view.track, this.playhead, view.linear);
+      if (value === undefined) continue;
+      output.set(view.node.key, { ...(output.get(view.node.key) ?? {}), [view.track.property]: value });
+    }
+    return output;
+  }
+
+  /** Keyframe rows for the node inspector (Godot's key icons), or '' when the node is not animatable here. */
+  renderNodeKeyframes(nodeKey: string): string {
+    const target = this.keyableTarget(nodeKey);
+    const clip = this.clip;
+    if (!target || !clip) return '';
+    const rows = target.properties.map((descriptor) => {
+      const track = clip.tracks.find((candidate) => candidate.binding === target.binding && candidate.property === descriptor.key);
+      const value = this.nodeValue(target, descriptor);
+      const kind = animationValueKind(descriptor.key, descriptor, value);
+      const keyed = Boolean(track && keyAt(track, this.playhead));
+      const state = !track ? 'not animated' : keyed ? 'key on this frame' : 'animated';
+      return `<div class="scene-keyframe-row${track ? ' is-animated' : ''}" data-key-node="${escapeHtml(nodeKey)}" data-key-property="${escapeHtml(descriptor.key)}" data-kind="${kind}"><span title="${escapeHtml(state)}">${escapeHtml(descriptor.label)}</span><div>${renderAnimationValueFields(kind, value, { disabled: false, descriptor, label: descriptor.label, compact: true })}</div><button type="button" class="anim-key-toggle${keyed ? ' is-keyed' : ''}" data-key-toggle title="${keyed ? 'Remove the key at the playhead' : 'Insert a key at the playhead'}" aria-label="${keyed ? 'Remove key' : 'Insert key'} for ${escapeHtml(descriptor.label)}">${keyed ? '◆' : '◇'}</button></div>`;
+    }).join('');
+    return `<section class="scene-keyframes" aria-label="Animation keyframes"><header><span>KEYFRAMES · ${escapeHtml(this.clipId)} @ ${this.playhead}</span></header><p>Edits key this frame. ◆ = key here · filled label = animated.</p>${rows}</section>`;
+  }
+
+  private nodeValue(target: AnimationTarget, descriptor: PropertyDescriptor): JsonValue {
+    const view = this.trackViews().find((candidate) => candidate.track.binding === target.binding && candidate.track.property === descriptor.key);
+    return (view ? sampleTrack(view.track, this.playhead, view.linear) : undefined) ?? initialKeyValue(target.node, descriptor);
+  }
+
+  private keyTrackValue(index: number, value: JsonValue): void {
+    const clip = this.clip;
+    if (!clip) return;
+    if (this.commitClip('Key value', setKey(clip, index, this.playhead, value))) {
+      this.focusedTrack = index;
+      this.selection = { kind: 'keys', refs: [{ track: index, at: this.playhead }] };
+    }
   }
 
   /** Called after the preview re-mounted (every draft edit rebuilds it) to restore the pose or playback. */
@@ -341,6 +423,7 @@ export class AnimationTimelinePanel {
     if (readout && this.clip) readout.textContent = `${this.playhead} / ${this.frames - 1} · ${formatClipSeconds(this.playhead, this.clip.framesPerSecond)}`;
     for (const cell of this.element.querySelectorAll<HTMLElement>('.anim-ruler-cell.is-current')) cell.classList.remove('is-current');
     this.element.querySelector<HTMLElement>(`.anim-ruler-cell[data-frame="${this.playhead}"]`)?.classList.add('is-current');
+    this.syncTrackValues();
     this.host.playheadChanged();
     if (this.playing) {
       const scroller = this.element.querySelector<HTMLElement>('.anim-scroll');
@@ -373,6 +456,8 @@ export class AnimationTimelinePanel {
   focusSnapshot(): string | undefined {
     const active = document.activeElement;
     if (!(active instanceof HTMLElement) || !this.element.contains(active)) return undefined;
+    const valueHost = active.closest<HTMLElement>('[data-anim-value-track]');
+    if (valueHost && active.dataset.valuePart) return `[data-anim-value-track="${valueHost.dataset.animValueTrack}"] [data-value-part="${active.dataset.valuePart}"]`;
     if (active.dataset.animField) return `[data-anim-field="${CSS.escape(active.dataset.animField)}"]`;
     if (active.dataset.animAction) return `[data-anim-action="${CSS.escape(active.dataset.animAction)}"]`;
     if (active.dataset.animAddFilter !== undefined) return '[data-anim-add-filter]';
@@ -428,6 +513,7 @@ export class AnimationTimelinePanel {
         <button type="button" data-anim-action="insert-frame" ${disabled} title="Insert a frame at the playhead">+ Frame</button>
         <button type="button" data-anim-action="delete-frame" ${disabled} title="Delete the frame at the playhead">− Frame</button>
         <button type="button" data-anim-action="simplify" ${disabled} title="Remove keys that do not change the result">Simplify keys</button>
+        <button type="button" data-anim-action="auto-key" aria-pressed="${this.autoKey}" title="Auto-key: moving or rotating an animated node in the viewport, or editing it in the inspector's Keyframes section, keys it at the playhead">● Auto-key</button>
         <button type="button" data-anim-action="onion" aria-pressed="${this.onion}" title="Onion skin: previous (blue) and next (orange) frames">Onion</button>
         <label title="Timeline zoom (Ctrl+wheel)">Zoom <input type="range" min="6" max="48" step="1" data-anim-field="zoom" value="${this.zoom}" /></label>
       </span>` : ''}
@@ -465,7 +551,7 @@ export class AnimationTimelinePanel {
     }).join('');
     const eventRow = `<div class="anim-row anim-event-row"><div class="anim-label"><span class="anim-node-type">EVENTS</span><strong>Call events</strong><button type="button" data-anim-action="add-event" ${disabled} title="Add an event at the playhead">+ Event</button></div><div class="anim-lane" data-anim-lane="events" style="width:${laneWidth}px">${eventMarkers}</div></div>`;
     const hitboxRows = this.lanes().map((lane) => this.renderHitboxRow(lane, laneWidth)).join('');
-    const hitboxHeader = hitboxRows ? `<div class="anim-row anim-group-row"><div class="anim-label"><span class="anim-node-type">HITBOXES</span><strong>Attack windows</strong><small>click or drag frames</small></div><div class="anim-lane anim-group-lane" style="width:${laneWidth}px"></div></div>` : '';
+    const hitboxHeader = hitboxRows ? `<div class="anim-row anim-group-row anim-hitbox-header"><div class="anim-label"><span class="anim-node-type">HITBOXES</span><strong>Attack windows</strong><small>Red frames = when the shape deals damage. Its size and position = the CollisionShape2D named on each row (Edit shape). Click or drag frames to change timing.</small></div></div>` : '';
     return `<div class="anim-timeline">
       <div class="anim-scroll" tabindex="0" aria-label="Tracks and keys">
         <div class="anim-content" style="width:${LABEL_WIDTH + laneWidth}px">
@@ -488,23 +574,21 @@ export class AnimationTimelinePanel {
       const end = keyIndex + 1 < keys.length ? keys[keyIndex + 1].at : this.frames;
       const width = (end - key.at) * this.zoom;
       const thumbnail = track.property === 'frame' && typeof key.value === 'number' ? this.thumbnailFor(view, key.value) : undefined;
-      return `<span class="anim-hold${linear ? ' is-linear' : ''}" style="left:${key.at * this.zoom}px;width:${width}px">${thumbnail ? `<img src="${escapeHtml(thumbnail)}" alt="" />` : ''}<em>${escapeHtml(formatValue(key.value))}</em></span>`;
+      return `<span class="anim-hold${linear ? ' is-linear' : ''}" style="left:${key.at * this.zoom}px;width:${width}px">${thumbnail ? `<img src="${escapeHtml(thumbnail)}" alt="" />` : ''}<em>${escapeHtml(formatAnimationValue(track.property, key.value))}</em></span>`;
     }).join('');
     const keyButtons = keys.map((key) => {
       const id = `${index}:${key.at}`;
-      return `<button type="button" class="anim-key${selected.has(id) ? ' is-selected' : ''}${key.transition ? ' is-eased' : ''}" data-anim-key="${id}" style="left:${(key.at + 0.5) * this.zoom}px" title="${escapeHtml(track.property)} @ ${key.at}: ${escapeHtml(formatValue(key.value))}${key.transition ? ` · ${key.transition}` : ''}" aria-pressed="${selected.has(id)}"></button>`;
+      return `<button type="button" class="anim-key${selected.has(id) ? ' is-selected' : ''}${key.transition ? ' is-eased' : ''}" data-anim-key="${id}" style="left:${(key.at + 0.5) * this.zoom}px" title="${escapeHtml(track.property)} @ ${key.at}: ${escapeHtml(formatAnimationValue(track.property, key.value))}${key.transition ? ` · ${key.transition}` : ''}" aria-pressed="${selected.has(id)}"></button>`;
     }).join('');
-    const numeric = descriptorIsNumeric(descriptor);
-    const interpolation = numeric
-      ? `<select data-anim-interp="${index}" aria-label="Interpolation" ${disabled} title="Interpolation"><option value="linear" ${track.interpolation !== 'nearest' ? 'selected' : ''}>Linear</option><option value="nearest" ${track.interpolation === 'nearest' ? 'selected' : ''}>Nearest</option></select>`
-      : '<span class="anim-interp-fixed" title="Discrete property">Step</span>';
+    const keyed = keyAt(track, this.playhead) !== undefined;
     const enabled = track.enabled !== false;
     const focused = this.focusedTrack === index;
     return `<div class="anim-row anim-track-row${enabled ? '' : ' is-disabled'}${focused ? ' is-focused' : ''}${view.node && descriptor ? '' : ' is-broken'}">
       <div class="anim-label" data-anim-track="${index}">
         <button type="button" class="anim-toggle" data-anim-enable="${index}" aria-pressed="${enabled}" ${disabled} title="${enabled ? 'Disable track' : 'Enable track'}">${enabled ? '●' : '○'}</button>
-        <span class="anim-property" title="${escapeHtml(track.binding)}:${escapeHtml(track.property)}">${escapeHtml(descriptor?.label ?? track.property)}</span>
-        ${interpolation}
+        <span class="anim-property" title="${escapeHtml(track.binding)}:${escapeHtml(track.property)}${linear ? ' · linear' : ' · step'}">${escapeHtml(descriptor?.label ?? track.property)}</span>
+        ${this.renderTrackValue(view)}
+        <button type="button" class="anim-key-toggle${keyed ? ' is-keyed' : ''}" data-anim-key-toggle="${index}" ${disabled} title="${keyed ? 'Remove the key at the playhead' : 'Insert a key at the playhead (K)'}" aria-label="${keyed ? 'Remove key at playhead' : 'Insert key at playhead'}">${keyed ? '◆' : '◇'}</button>
         <span class="anim-track-menu">
           <button type="button" data-anim-track-up="${index}" ${disabled} title="Move track up" aria-label="Move track up">↑</button>
           <button type="button" data-anim-track-down="${index}" ${disabled} title="Move track down" aria-label="Move track down">↓</button>
@@ -515,13 +599,40 @@ export class AnimationTimelinePanel {
     </div>`;
   }
 
+  /** Inline editor showing the track's value at the playhead; editing it keys that frame. */
+  private renderTrackValue(view: TrackView): string {
+    const value = sampleTrack(view.track, this.playhead, view.linear) ?? (view.descriptor ? initialKeyValue(view.node, view.descriptor) : undefined);
+    const kind = animationValueKind(view.track.property, view.descriptor, value);
+    return `<span class="anim-value" data-anim-value-track="${view.index}" data-kind="${kind}">${renderAnimationValueFields(kind, value, { disabled: !this.editable || !view.node || !view.descriptor, descriptor: view.descriptor, label: `${view.node?.name ?? view.track.binding} ${view.descriptor?.label ?? view.track.property}`, compact: true })}</span>`;
+  }
+
+  /** Refreshes the per-row values and key markers after the playhead moves. */
+  private syncTrackValues(): void {
+    const views = this.trackViews();
+    const active = document.activeElement;
+    for (const host of this.element.querySelectorAll<HTMLElement>('[data-anim-value-track]')) {
+      if (active instanceof Node && host.contains(active)) continue;
+      const view = views[Number(host.dataset.animValueTrack)];
+      if (view) host.outerHTML = this.renderTrackValue(view);
+    }
+    for (const toggle of this.element.querySelectorAll<HTMLElement>('[data-anim-key-toggle]')) {
+      const track = this.clip?.tracks[Number(toggle.dataset.animKeyToggle)];
+      const keyed = Boolean(track && keyAt(track, this.playhead));
+      toggle.classList.toggle('is-keyed', keyed);
+      toggle.textContent = keyed ? '◆' : '◇';
+    }
+  }
+
   private renderHitboxRow(lane: WeaponAttackLane, laneWidth: number): string {
     const cells = Array.from({ length: this.frames }, (_, frame) => {
       const span = lane.spans.find((candidate) => candidate.from <= frame && frame <= candidate.through);
       const selected = span && this.selection.kind === 'span' && this.selection.direction === lane.direction && this.selection.index === span.index;
       return `<span class="anim-hit-cell${span ? ' is-active' : ''}${selected ? ' is-selected' : ''}" data-frame="${frame}"${span ? ` data-anim-span="${span.index}"` : ''}></span>`;
     }).join('');
-    return `<div class="anim-row anim-hitbox-row${lane.hasShape ? '' : ' is-broken'}"><div class="anim-label"><span class="anim-node-type">${escapeHtml(lane.direction.toUpperCase())}</span><strong>${escapeHtml(lane.hitboxId)}</strong>${lane.hasShape ? '' : `<small title="Add a CollisionShape2D named ${escapeHtml(lane.direction)}--${escapeHtml(lane.hitboxId)} under the attack area">no shape</small>`}</div><div class="anim-lane anim-hit-lane" data-anim-lane="hitbox" data-direction="${escapeHtml(lane.direction)}" data-hitbox="${escapeHtml(lane.hitboxId)}" style="width:${laneWidth}px">${cells}</div></div>`;
+    const shapeName = `${lane.direction}--${lane.hitboxId}`;
+    const shape = this.context?.nodes.find((node) => node.type === 'CollisionShape2D' && node.name === shapeName);
+    const frames = lane.spans.length > 0 ? lane.spans.map((span) => span.from === span.through ? `${span.from}` : `${span.from}–${span.through}`).join(', ') : 'never active';
+    return `<div class="anim-row anim-hitbox-row${lane.hasShape ? '' : ' is-broken'}"><div class="anim-label"><span class="anim-node-type">${escapeHtml(lane.direction.toUpperCase())}</span><strong title="Shape node ${escapeHtml(shapeName)}">${escapeHtml(shapeName)}</strong><small>frames ${escapeHtml(frames)}</small>${shape ? `<button type="button" data-anim-select-node="${escapeHtml(shape.key)}" title="Select ${escapeHtml(shapeName)} to resize or move the hitbox">Edit shape</button>` : `<small title="Add a CollisionShape2D named ${escapeHtml(shapeName)} under the attack area">no shape</small>`}</div><div class="anim-lane anim-hit-lane" data-anim-lane="hitbox" data-direction="${escapeHtml(lane.direction)}" data-hitbox="${escapeHtml(lane.hitboxId)}" style="width:${laneWidth}px">${cells}</div></div>`;
   }
 
   private thumbnailFor(view: TrackView, frame: number): string | undefined {
@@ -562,27 +673,16 @@ export class AnimationTimelinePanel {
       : '';
     return `<h3>${escapeHtml(view.node?.name ?? view.track.binding)} · ${escapeHtml(view.descriptor?.label ?? view.track.property)}</h3>
       <label>Frame <input type="number" min="0" max="${this.frames - 1}" step="1" data-anim-field="key-at" value="${key.at}" ${disabled} /></label>
-      ${this.renderValueEditor(view, key.value, disabled)}
+      ${this.renderKeyValue(view, key.value)}
       ${transition}
       <div class="anim-inspector-actions"><button type="button" data-anim-action="copy-keys">Copy</button><button type="button" data-anim-action="delete-keys" ${disabled}>Delete key</button></div>
       ${view.track.property === 'frame' ? this.renderFramePicker(view, key.value, disabled) : ''}`;
   }
 
-  private renderValueEditor(view: TrackView, value: JsonValue, disabled: string): string {
-    const kind = view.descriptor?.value.kind;
-    if (kind === 'boolean' || typeof value === 'boolean') return `<label class="anim-check"><input type="checkbox" data-anim-field="key-bool" ${value === true ? 'checked' : ''} ${disabled} /> ${escapeHtml(view.descriptor?.label ?? 'Value')}</label>`;
-    if (kind === 'vector2' || (Array.isArray(value) && value.length === 2)) {
-      const [x, y] = Array.isArray(value) ? value : [0, 0];
-      return `<div class="anim-vector"><label>X <input type="number" step="any" data-anim-field="key-x" value="${escapeHtml(x)}" ${disabled} /></label><label>Y <input type="number" step="any" data-anim-field="key-y" value="${escapeHtml(y)}" ${disabled} /></label></div>`;
-    }
-    if (kind === 'number' || typeof value === 'number') {
-      const units = view.descriptor?.units ? ` <small>${escapeHtml(view.descriptor.units)}</small>` : '';
-      return `<label>Value${units} <input type="number" step="${view.descriptor?.value.kind === 'number' && view.descriptor.value.integer ? 1 : 'any'}" data-anim-field="key-number" value="${escapeHtml(value)}" ${disabled} /></label>`;
-    }
-    if (kind === 'enum' && view.descriptor?.value.kind === 'enum') {
-      return `<label>Value <select data-anim-field="key-text" ${disabled}>${view.descriptor.value.values.map((option) => `<option value="${escapeHtml(option)}" ${option === value ? 'selected' : ''}>${escapeHtml(option)}</option>`).join('')}</select></label>`;
-    }
-    return `<label>Value (JSON) <textarea rows="3" data-anim-field="key-json" ${disabled}>${escapeHtml(JSON.stringify(value))}</textarea></label>`;
+  private renderKeyValue(view: TrackView, value: JsonValue): string {
+    const kind = animationValueKind(view.track.property, view.descriptor, value);
+    const label = view.descriptor?.label ?? view.track.property;
+    return `<div class="anim-key-value" data-anim-key-value data-kind="${kind}"><span>${escapeHtml(label)}${kind === 'vector' ? ' (x, y)' : ''}</span><div>${renderAnimationValueFields(kind, value, { disabled: !this.editable, descriptor: view.descriptor, label })}</div></div>`;
   }
 
   private renderFramePicker(view: TrackView, value: JsonValue, disabled: string): string {
@@ -601,7 +701,8 @@ export class AnimationTimelinePanel {
     const disabled = this.editable ? '' : 'disabled';
     const current = sampleTrack(view.track, this.playhead, view.linear);
     return `<h3>${escapeHtml(view.node?.name ?? view.track.binding)} · ${escapeHtml(view.descriptor?.label ?? view.track.property)}</h3>
-      <dl><dt>Path</dt><dd><code>${escapeHtml(view.track.binding)}</code></dd><dt>Keys</dt><dd>${view.track.keys.length}</dd><dt>At ${this.playhead}</dt><dd>${escapeHtml(formatValue(current))}</dd></dl>
+      <dl><dt>Path</dt><dd><code>${escapeHtml(view.track.binding)}</code></dd><dt>Keys</dt><dd>${view.track.keys.length}</dd><dt>At ${this.playhead}</dt><dd>${escapeHtml(formatAnimationValue(view.track.property, current))}</dd></dl>
+      ${descriptorIsNumeric(view.descriptor) ? `<label>Interpolation <select data-anim-interp="${index}" ${disabled}><option value="linear" ${view.track.interpolation !== 'nearest' ? 'selected' : ''}>Linear (blend between keys)</option><option value="nearest" ${view.track.interpolation === 'nearest' ? 'selected' : ''}>Nearest (hold each key)</option></select></label>` : '<p class="anim-help">Discrete property: each key holds until the next.</p>'}
       ${view.node && view.descriptor ? '' : '<p class="anim-warning">The track path or property no longer resolves. Fix it from the node row.</p>'}
       <div class="anim-inspector-actions"><button type="button" data-anim-action="key-track" ${disabled}>◆ Insert key (K)</button><button type="button" data-anim-action="paste-keys" ${disabled || (this.clipboard ? '' : 'disabled')}>Paste</button></div>`;
   }
@@ -678,6 +779,7 @@ export class AnimationTimelinePanel {
       case 'close-add-track': this.addTrackFilter = undefined; this.render(); return;
       case 'copy-keys': this.copySelection(); return;
       case 'paste-keys': this.paste(); return;
+      case 'auto-key': this.autoKey = !this.autoKey; this.render(); return;
       case 'close': this.stopPlayback(false); this.host.stop(); this.host.close(); return;
     }
     this.attempt(() => {
@@ -845,15 +947,26 @@ export class AnimationTimelinePanel {
   private onClick(event: MouseEvent): void {
     const target = event.target instanceof Element ? event.target : null;
     if (!target) return;
-    const button = target.closest<HTMLElement>('[data-anim-action],[data-anim-open-scene],[data-anim-enable],[data-anim-track-up],[data-anim-track-down],[data-anim-track-remove],[data-anim-key-group],[data-anim-add-binding],[data-anim-pick-frame],[data-anim-track]');
+    const button = target.closest<HTMLElement>('[data-anim-select-node],[data-anim-key-toggle],[data-anim-action],[data-anim-open-scene],[data-anim-enable],[data-anim-track-up],[data-anim-track-down],[data-anim-track-remove],[data-anim-key-group],[data-anim-add-binding],[data-anim-pick-frame],[data-anim-track]');
     if (!button) return;
     const data = button.dataset;
     if (data.animAction) { this.runAction(data.animAction); return; }
     if (data.animOpenScene) { this.host.openScene(data.animOpenScene); return; }
+    if (data.animSelectNode) { this.host.selectNode(data.animSelectNode); return; }
     if (data.animAddBinding && data.animAddProperty) { this.addTrackFor(data.animAddBinding, data.animAddProperty); return; }
     if (data.animPickFrame !== undefined) { this.updateSelectedKey(Number(data.animPickFrame)); return; }
     const clip = this.clip;
     if (!clip) return;
+    if (data.animKeyToggle !== undefined) {
+      const index = Number(data.animKeyToggle);
+      this.attempt(() => {
+        const track = clip.tracks[index];
+        if (track && keyAt(track, this.playhead)) {
+          if (this.commitClip('Remove key', removeKeys(clip, [{ track: index, at: this.playhead }]))) this.selection = { kind: 'none' };
+        } else this.keyTracks([index]);
+      });
+      return;
+    }
     if (data.animEnable !== undefined) { const index = Number(data.animEnable); this.attempt(() => { this.commitClip('Toggle track', setTrackEnabled(clip, index, clip.tracks[index]?.enabled === false)); }); return; }
     if (data.animTrackUp !== undefined) { const index = Number(data.animTrackUp); this.attempt(() => { if (this.commitClip('Move track', moveTrack(clip, index, -1))) { this.selection = { kind: 'none' }; this.focusedTrack = Math.max(0, index - 1); } }); return; }
     if (data.animTrackDown !== undefined) { const index = Number(data.animTrackDown); this.attempt(() => { if (this.commitClip('Move track', moveTrack(clip, index, 1))) { this.selection = { kind: 'none' }; this.focusedTrack = Math.min(clip.tracks.length - 1, index + 1); } }); return; }
@@ -870,7 +983,7 @@ export class AnimationTimelinePanel {
       this.attempt(() => this.keyTracks(indexes));
       return;
     }
-    if (data.animTrack !== undefined && !target.closest('button,select')) {
+    if (data.animTrack !== undefined && !target.closest('button,select,input,textarea')) {
       this.focusedTrack = Number(data.animTrack);
       this.selection = { kind: 'none' };
       this.render();
@@ -895,6 +1008,15 @@ export class AnimationTimelinePanel {
     if (!(input instanceof HTMLInputElement || input instanceof HTMLSelectElement || input instanceof HTMLTextAreaElement)) return;
     const clip = this.clip;
     const context = this.context;
+    const valueHost = input.closest<HTMLElement>('[data-anim-value-track],[data-anim-key-value]');
+    if (valueHost) {
+      this.attempt(() => {
+        const value = readAnimationValue(valueHost, valueHost.dataset.kind as AnimationValueKind);
+        if (valueHost.dataset.animValueTrack !== undefined) this.keyTrackValue(Number(valueHost.dataset.animValueTrack), value);
+        else this.updateSelectedKey(value);
+      });
+      return;
+    }
     if (input.dataset.animInterp !== undefined && clip) {
       const index = Number(input.dataset.animInterp);
       this.attempt(() => { this.commitClip('Change interpolation', setTrackInterpolation(clip, index, input.value === 'nearest' ? 'nearest' : undefined as AnimationTrackInterpolation | undefined)); });
@@ -939,18 +1061,6 @@ export class AnimationTimelinePanel {
           if (this.selection.kind !== 'keys' || this.selection.refs.length !== 1) return;
           const result = moveKeys(clip, this.selection.refs, Math.round(number) - this.selection.refs[0].at);
           if (this.commitClip('Move key', result.clip)) this.selection = { kind: 'keys', refs: result.refs };
-          return;
-        }
-        case 'key-number': if (Number.isFinite(number) && input.value !== '') this.updateSelectedKey(number); else throw new Error('Enter a number'); return;
-        case 'key-bool': this.updateSelectedKey(checked); return;
-        case 'key-text': this.updateSelectedKey(input.value); return;
-        case 'key-json': this.updateSelectedKey(JSON.parse(input.value) as JsonValue); return;
-        case 'key-x':
-        case 'key-y': {
-          const x = Number(this.element.querySelector<HTMLInputElement>('[data-anim-field="key-x"]')?.value);
-          const y = Number(this.element.querySelector<HTMLInputElement>('[data-anim-field="key-y"]')?.value);
-          if (!Number.isFinite(x) || !Number.isFinite(y)) throw new Error('Enter numbers for X and Y');
-          this.updateSelectedKey([x, y]);
           return;
         }
         case 'event-id':

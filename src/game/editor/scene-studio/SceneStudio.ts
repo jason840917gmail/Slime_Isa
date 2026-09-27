@@ -16,6 +16,7 @@ import { SceneStudioConflictError, SceneStudioRepository, type SceneStudioConten
 import { handleStudioHistoryShortcut } from '../StudioHistoryShortcut';
 import { animationTargets } from './animation/AnimationTargets';
 import { AnimationTimelinePanel, type AnimationEditorContext, type AnimationLibraryChange } from './animation/AnimationTimelinePanel';
+import { readAnimationValue, type AnimationValueKind } from './animation/AnimationValueFields';
 import { attackPlanOwner, type AttackPlans } from './animation/WeaponAttackLanes';
 import { PropertyEditorRegistry } from './PropertyEditorRegistry';
 import { resourceConsumers } from './ResourceBrowser';
@@ -128,6 +129,7 @@ export class SceneStudioController {
   /** Explorer folder keys the author expanded; everything else starts collapsed. */
   private readonly explorerOpen = new Set<string>();
   private composedCache?: { readonly signature: string; readonly nodes: readonly ComposedSceneNode[]; readonly byKey: ReadonlyMap<string, ComposedSceneNode> };
+  private posedCache?: { readonly signature: string; readonly nodes: readonly ComposedSceneNode[]; readonly byKey: ReadonlyMap<string, ComposedSceneNode> };
   private liveViewport?: SceneLiveViewport;
   private preview?: StudioScenePreview;
   private previewSession?: ScenePreview;
@@ -159,7 +161,8 @@ export class SceneStudioController {
       onionSkin: (frames) => { if (frames.length > 0) this.preview?.showOnionSkin(frames); else this.preview?.clearOnionSkin(); },
       spriteFrames: (texture) => this.spriteFrames(texture),
       openScene: (sceneId) => { void this.open(sceneId).catch((error: unknown) => this.fail(error)); },
-      playheadChanged: () => this.liveViewport?.update(this.viewportModel()),
+      selectNode: (nodeKey) => this.selectFromViewport(nodeKey),
+      playheadChanged: () => { this.liveViewport?.update(this.viewportModel()); this.refreshKeyframeSection(); },
       close: () => { this.animationClosedAt = this.selectedKey; this.animationPlayerKey = undefined; this.render(); },
     });
   }
@@ -212,6 +215,7 @@ export class SceneStudioController {
     this.liveViewport = new SceneLiveViewport(this.preview?.element, {
       select: (key) => this.selectFromViewport(key),
       moveMarker: (key, global) => this.moveFromViewport(key, global),
+      rotateMarker: (key, rotation) => this.rotateFromViewport(key, rotation),
       paintCell: (cell) => this.paintFromViewport(cell),
       editShape: (key, value) => { void this.editShapeFromViewport(key, value); },
       cameraChanged: (camera) => this.preview?.setCamera(camera),
@@ -410,6 +414,26 @@ export class SceneStudioController {
     return this.composedCache;
   }
 
+  /**
+   * The composition the viewport shows: while the animation dock is open, local
+   * nodes take their animated values at the playhead, so markers, handles and
+   * hitboxes sit where the posed preview draws them.
+   */
+  private viewComposed(): { readonly nodes: readonly ComposedSceneNode[]; readonly byKey: ReadonlyMap<string, ComposedSceneNode> } {
+    const state = this.state;
+    const overrides = this.animationPanel.visible ? this.animationPanel.poseOverrides() : undefined;
+    if (!state || !overrides || overrides.size === 0) return this.composed();
+    const signature = `${state.sceneId}:${state.revision}:${this.library.size}:${JSON.stringify([...overrides])}`;
+    if (this.posedCache?.signature === signature) return this.posedCache;
+    const posed: SceneDocument = { ...state.document, nodes: state.document.nodes.map((node) => {
+      const values = overrides.get(`:${node.id}`);
+      return values ? { ...node, properties: { ...node.properties, ...values } } : node;
+    }) };
+    const nodes = composeSceneNodes(posed, this.resolveScene, this.isTransformType);
+    this.posedCache = { signature, nodes, byKey: new Map(nodes.map((node) => [node.key, node])) };
+    return this.posedCache;
+  }
+
   private instanceRootKey(row: Extract<SceneTreeRow, { kind: 'instance' }>): string | undefined {
     const source = this.library.get(row.sceneId);
     return source ? `${[...(row.instancePath ?? []), row.instanceId].join('/')}:${source.rootNodeId}` : undefined;
@@ -526,7 +550,7 @@ export class SceneStudioController {
     if (resource) return this.resourceViewportModel(resource, status, statusTone, previewBounds);
     const state = this.state;
     if (!state) return { ariaLabel: '2D viewport', footer: 'NO DOCUMENT', markers: [], shapes: [], pickables: [], ...(status ? { status, statusTone } : {}) };
-    const { nodes, byKey } = this.composed();
+    const { nodes, byKey } = this.viewComposed();
     const selectedComposed = this.selectedComposedKey();
     const selectedSubtree = this.subtreeKeys(selectedComposed);
     const selectedRow = this.rows.find((row) => row.key === this.selectedKey);
@@ -548,7 +572,7 @@ export class SceneStudioController {
       if (!node.global) continue;
       const selected = node.key === selectedComposed;
       if (!node.readOnly) {
-        markers.push({ key: node.key, label: node.name, type: node.type, kind: 'node', position: node.global.position, selected, movable: true });
+        markers.push({ key: node.key, label: node.name, type: node.type, kind: 'node', position: node.global.position, selected, movable: true, rotation: node.global.rotation, rotatable: node.key !== `:${state.document.rootNodeId}` });
       } else if (node.instancePath.length === 1 && node.parentKey && byKey.get(node.parentKey)?.readOnly === false) {
         const instance = state.document.instances.find((candidate) => candidate.instanceId === node.instancePath[0]);
         markers.push({ key: topInstanceKey(node), label: instance?.name ?? node.name, type: instance?.sceneId ?? node.type, kind: 'instance', position: node.global.position, selected: selected || selectedRow?.key === topInstanceKey(node), movable: true });
@@ -672,10 +696,15 @@ export class SceneStudioController {
         this.preview?.patchPosition(runtimeIdFor(root), [round2(local[0]), round2(local[1])]);
         this.message = `Moved ${instance.name} to ${Math.round(global[0])}, ${Math.round(global[1])}`;
       } else {
-        const node = this.composed().byKey.get(key);
+        const node = this.viewComposed().byKey.get(key);
         if (!node || node.readOnly) return;
         const local = localPositionFor(node.parentGlobal, global);
         const position: [number, number] = [round2(local[0]), round2(local[1])];
+        if (this.animationPanel.autoKeys(key)) {
+          if (this.animationPanel.keyNodeProperty(key, 'position', position)) this.message = `Keyed ${node.name} position ${position.join(', ')}`;
+          this.render();
+          return;
+        }
         const authored = state.document.nodes.find((candidate) => candidate.id === node.nodeId);
         const rotation = typeof authored?.properties.rotation === 'number' ? authored.properties.rotation : 0;
         const scale = Array.isArray(authored?.properties.scale) ? authored.properties.scale as [number, number] : [1, 1] as [number, number];
@@ -686,6 +715,29 @@ export class SceneStudioController {
           : sceneCommands.setProperty(node.nodeId, 'position', position));
         this.preview?.patchPosition(runtimeIdFor(node), position);
         this.message = `Moved ${node.name} to ${position.join(', ')}`;
+      }
+    } catch (error) { this.message = error instanceof Error ? error.message : String(error); }
+    this.render();
+  }
+
+  private rotateFromViewport(key: string, globalRotation: number): void {
+    const state = this.state;
+    const node = this.viewComposed().byKey.get(key);
+    if (!state || !node || node.readOnly) return;
+    let rotation = globalRotation - (node.parentGlobal?.rotation ?? 0);
+    rotation = Math.round(Math.atan2(Math.sin(rotation), Math.cos(rotation)) * 10000) / 10000;
+    const degrees = Math.round(rotation * 1800 / Math.PI) / 10;
+    try {
+      if (this.animationPanel.autoKeys(key)) {
+        if (this.animationPanel.keyNodeProperty(key, 'rotation', rotation)) this.message = `Keyed ${node.name} rotation ${degrees}°`;
+      } else {
+        const authored = state.document.nodes.find((candidate) => candidate.id === node.nodeId);
+        const position = Array.isArray(authored?.properties.position) ? authored.properties.position as [number, number] : [0, 0] as [number, number];
+        const scale = Array.isArray(authored?.properties.scale) ? authored.properties.scale as [number, number] : [1, 1] as [number, number];
+        const issues = validateViewportTransform(node.type, { position, rotation, scale });
+        if (issues.length > 0) throw new Error(issues.join('; '));
+        state.execute(transformNodeCommand(node.nodeId, node.type, { position, rotation, scale }));
+        this.message = `Rotated ${node.name} to ${degrees}°`;
       }
     } catch (error) { this.message = error instanceof Error ? error.message : String(error); }
     this.render();
@@ -747,6 +799,9 @@ export class SceneStudioController {
     const toggle = event.target instanceof Element ? event.target.closest<HTMLElement>('[data-tree-toggle]') : null;
     if (toggle?.dataset.treeToggle) { event.stopPropagation(); this.toggleExpanded(toggle.dataset.treeToggle); return; }
     if (event.target instanceof Node && this.animationPanel.element.contains(event.target)) return;
+    const keyToggle = event.target instanceof Element ? event.target.closest<HTMLElement>('[data-key-toggle]') : null;
+    const keyRow = keyToggle?.closest<HTMLElement>('[data-key-property]');
+    if (keyRow?.dataset.keyNode && keyRow.dataset.keyProperty) { this.animationPanel.toggleNodeKey(keyRow.dataset.keyNode, keyRow.dataset.keyProperty); return; }
     const target = event.target instanceof Element ? event.target.closest<HTMLElement>('[data-scene-id],[data-resource-id],[data-scene-tree-key],[data-action],[data-scene-add],[data-create-type],[data-create-script-id],[data-open-source],[data-tile-id],[data-tile-tool]') : null;
     if (!target) return;
     const tile = this.selectedTileContext();
@@ -809,6 +864,12 @@ export class SceneStudioController {
   private handleChange(event: Event): void {
     if (!(event.target instanceof HTMLInputElement) && !(event.target instanceof HTMLSelectElement) && !(event.target instanceof HTMLTextAreaElement)) return;
     if (event.target.dataset.creationSearch !== undefined || event.target.dataset.explorerFilter !== undefined) return;
+    const keyRow = event.target.closest<HTMLElement>('[data-key-property]');
+    if (keyRow?.dataset.keyNode && keyRow.dataset.keyProperty) {
+      try { this.animationPanel.keyNodeProperty(keyRow.dataset.keyNode, keyRow.dataset.keyProperty, readAnimationValue(keyRow, keyRow.dataset.kind as AnimationValueKind)); }
+      catch (error) { this.message = error instanceof Error ? error.message : String(error); this.render(); }
+      return;
+    }
     if (this.resourceState && event.target.dataset.resourceField) {
       const field = event.target.dataset.resourceField;
       const current = (this.resourceState.document as unknown as Record<string, JsonValue>)[field];
@@ -1061,6 +1122,7 @@ export class SceneStudioController {
     }
     const tile = this.selectedTileContext();
     const extras = [
+      target.composed ? this.animationPanel.renderNodeKeyframes(target.composed.key) : '',
       tile ? renderTileMapTools(tile.context, this.tileSetSummaries()) : '',
       this.renderNodeResources(target),
     ].join('');
@@ -1151,6 +1213,16 @@ export class SceneStudioController {
       ...(owner ? { attack: { plans: owner.properties.attackPlans as AttackPlans, shapeNames: nodes.filter((node) => node.type === 'CollisionShape2D' && node.parentKey === attackAreaKey).map((node) => node.name) } } : {}),
       propertyDescriptors: (node) => propertiesForNode(node.type, node.scriptId, this.registry) ?? [],
     };
+  }
+
+  /** Re-renders the inspector's keyframe values after the playhead moves, unless the author is typing there. */
+  private refreshKeyframeSection(): void {
+    const section = this.container.querySelector<HTMLElement>('.scene-keyframes');
+    const key = this.selectedComposedKey();
+    if (!section || !key || (document.activeElement instanceof Node && section.contains(document.activeElement))) return;
+    const html = this.animationPanel.renderNodeKeyframes(key);
+    if (html) section.outerHTML = html;
+    else section.remove();
   }
 
   /** Applies one timeline edit as a single undoable scene command (library, attack plans and autoplay together). */
