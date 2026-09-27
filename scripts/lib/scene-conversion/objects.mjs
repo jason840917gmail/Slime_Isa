@@ -43,6 +43,22 @@ function slug(value) {
   return value.replaceAll('.', '-').replace(/[^a-z0-9-]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
 }
 
+/**
+ * Centre of a legacy collider relative to the object's anchor. Legacy bodies were
+ * placed with Arcade `setOffset`, i.e. the body's top-left measured from the
+ * sprite frame's top-left; the visual offset moved sprite and offset equally
+ * and cancels out.
+ */
+function colliderCenter(collider, scale, origin, frameSize) {
+  const shape = shapeValue(collider, scale);
+  const halfWidth = shape.shape === 'circle' ? shape.radius : shape.shape === 'ellipse' ? shape.radiusX : shape.width / 2;
+  const halfHeight = shape.shape === 'circle' ? shape.radius : shape.shape === 'ellipse' ? shape.radiusY : shape.height / 2;
+  return [
+    (collider.offsetX - origin[0] * frameSize.w) * scale + halfWidth,
+    (collider.offsetY - origin[1] * frameSize.h) * scale + halfHeight,
+  ];
+}
+
 function shapeValue(collider, scale) {
   if (collider.shape === 'circle') return { shape: 'circle', radius: (collider.radius ?? Math.min(collider.width, collider.height) / 2) * scale };
   if (collider.shape === 'ellipse') return { shape: 'ellipse', radiusX: (collider.radiusX ?? collider.width / 2) * scale, radiusY: (collider.radiusY ?? collider.height / 2) * scale };
@@ -124,10 +140,10 @@ async function objectVisualScenes(unit, object, manifest, readSource, gameplayFi
       rootNodeId: 'body',
       nodes: [
         { id: 'body', name: frame.displayName ?? frame.visualId, type: 'StaticBody2D', parentId: null, order: 0, properties: { ...collision(['world'], []), position: [0, 0] } },
-        { id: 'body-shape', name: 'BodyShape', type: 'CollisionShape2D', parentId: 'body', order: 0, properties: { shape: { resourceId: `${resourcePrefix}.shape` }, position: [(frame.collider.offsetX - visualOffset.x) * scale, (frame.collider.offsetY - visualOffset.y) * scale] } },
+        { id: 'body-shape', name: 'BodyShape', type: 'CollisionShape2D', parentId: 'body', order: 0, properties: { shape: { resourceId: `${resourcePrefix}.shape` }, position: colliderCenter(frame.collider, scale, origin, asset.source.frame) } },
         { id: 'visual', name: 'Visual', type: 'Sprite2D', parentId: 'body', order: 1, properties: { texture: { resourceId: `${resourcePrefix}.sprite` }, frame: frame.frame, origin, scale: [scale, scale], visualOffset: [visualOffset.x, visualOffset.y], depthMode: 'world-sorted', depthBand: 'world-entities', ...(frame.occlusionBounds ? { occlusionBounds: frame.occlusionBounds } : {}), ...(frame.depthBounds ? { depthBounds: frame.depthBounds } : {}) } },
         { id: 'damage-area', name: 'DamageArea', type: 'Area2D', parentId: 'body', order: 2, properties: { ...collision(['hurtbox'], ['hitbox']), monitoring: false, monitorable: true } },
-        { id: 'damage-shape', name: 'DamageShape', type: 'CollisionShape2D', parentId: 'damage-area', order: 0, properties: { shape: { resourceId: `${resourcePrefix}.shape` }, position: [(frame.collider.offsetX - visualOffset.x) * scale, (frame.collider.offsetY - visualOffset.y) * scale] } },
+        { id: 'damage-shape', name: 'DamageShape', type: 'CollisionShape2D', parentId: 'damage-area', order: 0, properties: { shape: { resourceId: `${resourcePrefix}.shape` }, position: colliderCenter(frame.collider, scale, origin, asset.source.frame) } },
         ...(animationNode ? [animationNode] : []),
         {
           id: 'script', name: 'ResourceNodeScript', type: 'ScriptNode', scriptId: 'game.resource-node', parentId: 'body', order: animations ? 4 : 3,
@@ -245,6 +261,7 @@ function passiveObjectScenes(unit, object, manifest) {
     const fileSuffix = index === 0 ? '' : `--${visualSlug}`;
     const resourcePrefix = `${objectSlug}.${visualSlug}`;
     const rootId = solid ? 'body' : 'root';
+    const origin = Array.isArray(asset.render?.origin) ? asset.render.origin : [0.5, 1];
     const document = {
       version: 1,
       sceneId: `object.${objectSlug}${sceneSuffix}`,
@@ -264,14 +281,14 @@ function passiveObjectScenes(unit, object, manifest) {
           id: 'body-shape', name: 'BodyShape', type: 'CollisionShape2D', parentId: rootId, order: 0,
           properties: {
             shape: { resourceId: `${resourcePrefix}.shape` },
-            position: [(frame.collider.offsetX - visualOffset.x) * scale, (frame.collider.offsetY - visualOffset.y) * scale],
+            position: colliderCenter(frame.collider, scale, origin, asset.source.frame),
           },
         }] : []),
         {
           id: 'visual', name: 'Visual', type: 'Sprite2D', parentId: rootId, order: solid ? 1 : 0,
           properties: {
             texture: { resourceId: `${resourcePrefix}.sprite` }, frame: frame.frame,
-            origin: Array.isArray(asset.render?.origin) ? asset.render.origin : [0.5, 1],
+            origin,
             scale: [scale, scale], visualOffset: [visualOffset.x, visualOffset.y],
             depthMode: 'world-sorted', depthBand: 'world-entities',
             ...(frame.occlusionBounds ? { occlusionBounds: frame.occlusionBounds } : {}),
@@ -330,14 +347,14 @@ export const objectSceneAdapter = {
         rootNodeId: 'body',
         nodes: [
           { id: 'body', name: 'WoodenChest', type: 'StaticBody2D', parentId: null, order: 0, properties: { ...collision(['world'], []), position: [0, 0] } },
-          { id: 'body-shape', name: 'BodyShape', type: 'CollisionShape2D', parentId: 'body', order: 0, properties: { shape: { resourceId: 'chest-wooden.body-shape' }, position: [closed.collider.offsetX, closed.collider.offsetY] } },
+          { id: 'body-shape', name: 'BodyShape', type: 'CollisionShape2D', parentId: 'body', order: 0, properties: { shape: { resourceId: 'chest-wooden.body-shape' }, position: colliderCenter(closed.collider, closed.scale ?? 1, [0.5, 0.75], frame) } },
           { id: 'visual', name: 'Visual', type: 'Sprite2D', parentId: 'body', order: 1, properties: { texture: { resourceId: 'chest-wooden.sprite' }, frame: closed.frame, origin: [0.5, 0.75], scale: [closed.scale, closed.scale] } },
           { id: 'script', name: 'ChestScript', type: 'ScriptNode', scriptId: 'game.chest', parentId: 'body', order: 2, properties: { mapId: 'level-1', instanceId: 'chest-template', initialContents: {} } },
         ],
         instances: [],
         subresources: [
           { version: 1, resourceId: 'chest-wooden.sprite', kind: 'sprite-sheet', assetId, frameWidth: frame.w, frameHeight: frame.h, frameCount: frame.count },
-          { version: 1, resourceId: 'chest-wooden.body-shape', kind: 'collision-shape', value: { shape: 'rectangle', width: closed.collider.width, height: closed.collider.height } },
+          { version: 1, resourceId: 'chest-wooden.body-shape', kind: 'collision-shape', value: shapeValue(closed.collider, closed.scale ?? 1) },
         ],
       };
       outputs.push(convertedOutput(unit, 'objects/chest-wooden.scene.json', document, [

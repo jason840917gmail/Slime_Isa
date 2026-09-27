@@ -29,8 +29,8 @@
           "resourceId": "decoration-world-solid.village-banner.shape"
         },
         "position": [
-          48,
-          103
+          -1,
+          -12.5
         ]
       }
     },

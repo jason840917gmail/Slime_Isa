@@ -29,8 +29,8 @@
           "resourceId": "chest-wooden.body-shape"
         },
         "position": [
-          4,
-          34
+          0,
+          -1.5
         ]
       }
     },
@@ -86,8 +86,8 @@
       "kind": "collision-shape",
       "value": {
         "shape": "rectangle",
-        "width": 56,
-        "height": 26
+        "width": 84,
+        "height": 39
       }
     }
   ]

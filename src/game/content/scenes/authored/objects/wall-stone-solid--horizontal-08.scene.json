@@ -29,8 +29,8 @@
           "resourceId": "wall-stone-solid.horizontal-08.shape"
         },
         "position": [
-          0,
-          6
+          -6,
+          -34.5
         ]
       }
     },
