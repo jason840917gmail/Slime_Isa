@@ -16,7 +16,7 @@ test('virtual scene discovery is recursive, deterministic, and read-only', async
   await writeFile(path.join(contentRoot, 'nested', 'a.scene.json'), '{}\n');
   await writeFile(path.join(contentRoot, 'nested', 'theme.resource.json'), '{}\n');
   const plugin = tooling.sceneContentModulesPlugin(contentRoot);
-  assert.equal(plugin.configureServer, undefined);
+  assert.equal(typeof plugin.configureServer, 'function');
   assert.equal(plugin.resolveId('virtual-scene-content'), '\0virtual-scene-content');
   const source = await plugin.load('\0virtual-scene-content');
   assert.ok(source.indexOf('a.scene.json') < source.indexOf('z.scene.json'));
