@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "sceneId": "character.mossy-scout",
+  "sceneId": "character.fisherman-slime",
   "rootNodeId": "body",
   "nodes": [
     {
       "id": "body",
-      "name": "MossyScout",
+      "name": "FishermanSlime",
       "type": "CharacterBody2D",
       "parentId": null,
       "order": 0,
@@ -22,7 +22,7 @@
         ],
         "depthAnchor": [
           0,
-          -6
+          -10
         ]
       }
     },
@@ -34,11 +34,11 @@
       "order": 0,
       "properties": {
         "shape": {
-          "resourceId": "mossy-scout.body-shape"
+          "resourceId": "fisherman-slime.body-shape"
         },
         "position": [
           0,
-          -17
+          -23
         ]
       }
     },
@@ -50,7 +50,7 @@
       "order": 1,
       "properties": {
         "texture": {
-          "resourceId": "character.npc.mossy-scout.sprite"
+          "resourceId": "character.npc.fisherman-slime.sprite"
         },
         "frame": 0,
         "origin": [
@@ -76,7 +76,7 @@
       "order": 2,
       "properties": {
         "library": {
-          "resourceId": "character.npc.mossy-scout.animations"
+          "resourceId": "character.npc.fisherman-slime.animations"
         },
         "domain": "physics",
         "autoplay": "idle"
@@ -99,11 +99,11 @@
         "animation": {
           "nodeId": "animation"
         },
-        "characterId": "mossy-scout",
-        "npcDefinitionId": "level-1-spider-giver",
-        "wanderSpeed": 42,
-        "pauseMinMs": 2000,
-        "pauseMaxMs": 3000
+        "characterId": "fisherman-slime",
+        "npcDefinitionId": "fisherman-slime",
+        "wanderSpeed": 30,
+        "pauseMinMs": 1400,
+        "pauseMaxMs": 3200
       }
     }
   ],
@@ -111,14 +111,13 @@
   "subresources": [
     {
       "version": 1,
-      "resourceId": "character.npc.mossy-scout.animations",
+      "resourceId": "character.npc.fisherman-slime.animations",
       "kind": "animation-library",
       "animations": {
         "idle": {
-          "durationSeconds": 1.9166666666666667,
-          "framesPerSecond": 12,
+          "durationSeconds": 0.75,
+          "framesPerSecond": 8,
           "loop": true,
-          "loopMode": "wrap",
           "tracks": [
             {
               "binding": "../Visual",
@@ -129,36 +128,24 @@
                   "value": 0
                 },
                 {
-                  "at": 4,
+                  "at": 1,
+                  "value": 1
+                },
+                {
+                  "at": 2,
+                  "value": 2
+                },
+                {
+                  "at": 3,
                   "value": 3
                 },
                 {
-                  "at": 6,
-                  "value": 1
-                },
-                {
-                  "at": 8,
-                  "value": 1
-                },
-                {
-                  "at": 10,
-                  "value": 5
-                },
-                {
-                  "at": 12,
+                  "at": 4,
                   "value": 4
                 },
                 {
-                  "at": 15,
-                  "value": 0
-                },
-                {
-                  "at": 18,
-                  "value": 3
-                },
-                {
-                  "at": 20,
-                  "value": 2
+                  "at": 5,
+                  "value": 5
                 }
               ]
             }
@@ -316,21 +303,21 @@
     },
     {
       "version": 1,
-      "resourceId": "character.npc.mossy-scout.sprite",
+      "resourceId": "character.npc.fisherman-slime.sprite",
       "kind": "sprite-sheet",
-      "assetId": "character.npc.mossy-scout",
+      "assetId": "character.npc.fisherman-slime",
       "frameWidth": 229,
       "frameHeight": 229,
       "frameCount": 30
     },
     {
       "version": 1,
-      "resourceId": "mossy-scout.body-shape",
+      "resourceId": "fisherman-slime.body-shape",
       "kind": "collision-shape",
       "value": {
         "shape": "rectangle",
-        "width": 26,
-        "height": 22
+        "width": 30,
+        "height": 26
       }
     }
   ]

@@ -76,9 +76,10 @@ test('production scenes reproduce the pre-refactor blocking relationships (ec027
     }
   }
   // Old WorldScene/CombatController/BossCampController: player <-> enemies collided;
-  // no collider existed for player <-> NPC, enemy <-> enemy, NPC <-> NPC or projectile bodies <-> characters.
+  // no collider existed for enemy <-> enemy, NPC <-> NPC or projectile bodies <-> characters.
+  // Player <-> NPC was passable before the refactor; NPCs are now solid to the player.
   for (const enemy of enemies) assert.equal(tooling.blockingPairAccepts(player, enemy), true, `player blocks ${enemy.sceneId}`);
-  for (const npc of npcs) assert.equal(tooling.blockingPairAccepts(player, npc), false, `player walks through ${npc.sceneId}`);
+  for (const npc of npcs) assert.equal(tooling.blockingPairAccepts(player, npc), true, `player blocks ${npc.sceneId}`);
   for (const first of enemies) for (const second of enemies) assert.equal(tooling.blockingPairAccepts(first, second), false);
   for (const first of npcs) for (const second of npcs) assert.equal(tooling.blockingPairAccepts(first, second), false);
   for (const character of [player, ...npcs, ...enemies]) assert.equal(tooling.blockingPairAccepts(arrow, character), false);

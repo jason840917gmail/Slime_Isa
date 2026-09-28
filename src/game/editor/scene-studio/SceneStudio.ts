@@ -45,6 +45,9 @@ import {
 } from './SceneViewport';
 import { collisionShapeGuide, editCollisionShape } from './ShapeEditor';
 import { transformNodeCommand, validateViewportTransform } from './ViewportSelection';
+import { bossCampShapeRoles, bossCampSummary, bossSceneIdOf, bossSceneInfo, bossSpawnPoint, isBossCampScript, owningBossCamp, type BossSceneInfo } from './BossCampStudio';
+import { ENEMY_TYPE_IDS } from '../../enemies/library/EnemyTypes';
+import { convertShapeKind, editAreaSettings, spawnSettings, isWorldAreaScript, owningWorldArea, WORLD_AREA_TEMPLATES, worldAreaShapeKeys, worldAreaShapeRoles, worldAreaSummary, worldAreaTemplateCommand, type WorldAreaTemplateKind } from './WorldAreaStudio';
 import { createTileLayerDraft, TileMapContext, tileDataResourceId, type TilePaintTool } from './contexts/TileMapContext';
 import type { StudioPreviewState, StudioScenePreview } from './preview/StudioScenePreview';
 
@@ -102,7 +105,7 @@ interface StudioTab {
 
 function tabDirty(tab: StudioTab): boolean {
   const layers = new Set(tab.state?.document.nodes.filter((node) => node.type === 'TileMapLayer2D').map((node) => node.id) ?? []);
-  return Boolean(tab.state?.dirty || tab.resourceState?.dirty
+  return Boolean(tab.state?.dirty || (tab.state && tab.state.diskHash === undefined) || tab.resourceState?.dirty
     || [...tab.shapeResources.values()].some((entry) => entry.state.dirty)
     || [...tab.tileContexts.entries()].some(([nodeId, entry]) => layers.has(nodeId) && tileContextUnsaved(entry)));
 }
@@ -111,6 +114,38 @@ function tabDirty(tab: StudioTab): boolean {
 function tabLabel(tab: StudioTab): string {
   const path = tab.relativePath ?? tab.resourceRelativePath;
   return path ? path.slice(path.lastIndexOf('/') + 1).replace(/\.(?:scene|resource)\.json$/, '') : tab.id;
+}
+
+/** State of the open "New scene" / "New folder" dialog (Godot's FileSystem dock actions). */
+interface FileDialogState {
+  readonly mode: 'scene' | 'folder';
+  /** Folder the new item goes in; '' is the content root. */
+  parent: string;
+  name: string;
+  /** Scene ID; follows the name until the author edits it. */
+  sceneId: string;
+  sceneIdEdited: boolean;
+  rootType: string;
+  error?: string;
+}
+
+const FILE_NAME_PATTERN = /^[a-z0-9]+(?:[._-][a-z0-9]+)*$/;
+/** Root types offered first in the New scene dialog, as Godot's "Create Root Node" does. */
+const COMMON_ROOT_TYPES = ['Node2D', 'CharacterBody2D', 'StaticBody2D', 'Area2D', 'Control', 'Node'];
+
+/** `object.chest-wooden` style ID: the prefix sibling scenes share, else the singular folder name. */
+function suggestedSceneId(parent: string, name: string, catalog: readonly SceneStudioContentSummary[]): string {
+  const siblings = catalog.filter((item) => item.kind === 'scene' && item.relativePath.slice(0, Math.max(0, item.relativePath.lastIndexOf('/'))) === parent);
+  const prefixes = new Set(siblings.map((item) => item.id.includes('.') ? item.id.slice(0, item.id.indexOf('.')) : ''));
+  const shared = prefixes.size === 1 ? [...prefixes][0] : undefined;
+  const top = parent.split('/')[0] ?? '';
+  const prefix = shared ?? (top.endsWith('s') ? top.slice(0, -1) : top);
+  return prefix && name ? `${prefix}.${name}` : name;
+}
+
+/** PascalCase node name for a new scene's root, e.g. `chest-wooden` -> `ChestWooden`. */
+function rootNodeName(name: string): string {
+  return name.split(/[._-]/).filter(Boolean).map((part) => part[0].toUpperCase() + part.slice(1)).join('') || 'Root';
 }
 
 /** True when `document` is `target` or instances it at any depth (instancing it would recurse). */
@@ -168,6 +203,9 @@ export class SceneStudioController {
   /** Bumped whenever a library scene changes so compositions that instance it refresh. */
   private libraryRevision = 0;
   private catalog: readonly SceneStudioContentSummary[] = [];
+  /** Every folder under the content root, including empty ones. */
+  private folders: readonly string[] = [];
+  private fileDialog?: FileDialogState;
   private state?: SceneDocumentState;
   private resourceState?: ResourceDocumentState;
   private resourceRelativePath?: string;
@@ -184,6 +222,8 @@ export class SceneStudioController {
   private explorerFilter = '';
   /** Explorer folder keys the author expanded; everything else starts collapsed. */
   private readonly explorerOpen = new Set<string>();
+  /** Folder the author last opened or closed; default parent for new scenes and folders. */
+  private explorerFolder?: string;
   private composedCache?: { readonly signature: string; readonly nodes: readonly ComposedSceneNode[]; readonly byKey: ReadonlyMap<string, ComposedSceneNode> };
   private posedCache?: { readonly signature: string; readonly nodes: readonly ComposedSceneNode[]; readonly byKey: ReadonlyMap<string, ComposedSceneNode> };
   private liveViewport?: SceneLiveViewport;
@@ -228,7 +268,9 @@ export class SceneStudioController {
     await this.createViewport();
     this.render();
     try {
-      this.catalog = await this.repository.list();
+      const index = await this.repository.index();
+      this.catalog = index.items;
+      this.folders = index.folders;
       const route = parseSceneStudioRoute(window.location.search);
       if (route.resource) await this.openResource(route.resource);
       else if (route.scene) await this.open(route.scene);
@@ -285,12 +327,18 @@ export class SceneStudioController {
     this.container.addEventListener('click', (event) => { void this.handleClick(event); }, { signal });
     this.container.addEventListener('change', (event) => this.handleChange(event), { signal });
     this.container.addEventListener('input', (event) => {
+      if (event.target instanceof HTMLElement && event.target.dataset.fileField !== undefined) { this.updateFileDialogField(event.target); return; }
       if (!(event.target instanceof HTMLInputElement)) return;
       if (event.target.dataset.explorerFilter !== undefined) { this.explorerFilter = event.target.value; this.applyExplorerFilter(); return; }
       if (event.target.dataset.instanceSearch !== undefined) { this.instanceSearch = event.target.value; this.render(); return; }
       if (event.target.dataset.creationSearch === undefined) return;
       this.creationSearch = event.target.value;
       this.render();
+    }, { signal });
+    this.container.addEventListener('submit', (event) => {
+      if (!(event.target instanceof HTMLFormElement) || event.target.dataset.fileDialog === undefined) return;
+      event.preventDefault();
+      void this.submitFileDialog();
     }, { signal });
     this.bindSceneDrag(signal);
     this.container.addEventListener('auxclick', (event) => {
@@ -325,8 +373,9 @@ export class SceneStudioController {
     }, { signal });
     window.addEventListener('keydown', (event) => {
       if ((this.state || this.resourceState) && handleStudioHistoryShortcut(event, () => this.undo(), () => this.redo())) { this.render(); return; }
-      if (event.key === 'Escape' && (this.creationSearch !== undefined || this.instanceSearch !== undefined)) { this.creationSearch = undefined; this.instanceSearch = undefined; this.render(); return; }
-      if (!this.state || isEditableTarget(event.target) || this.creationSearch !== undefined || this.instanceSearch !== undefined) return;
+      if (event.key === 'Escape' && (this.creationSearch !== undefined || this.instanceSearch !== undefined || this.fileDialog)) { this.creationSearch = undefined; this.instanceSearch = undefined; this.fileDialog = undefined; this.render(); return; }
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's' && !this.fileDialog && (this.state || this.resourceState)) { event.preventDefault(); void this.save(); return; }
+      if (!this.state || isEditableTarget(event.target) || this.creationSearch !== undefined || this.instanceSearch !== undefined || this.fileDialog) return;
       // The animation dock handles its own clipboard and delete keys for keys and events.
       if (event.target instanceof Node && this.animationPanel.element.contains(event.target)) return;
       const inStudio = event.target instanceof Node && (this.container.contains(event.target) || event.target === document.body);
@@ -521,7 +570,7 @@ export class SceneStudioController {
     try {
       // Embedded tile layers save inside the scene file, like Godot's TileMapLayer cells.
       const embeddedTiles = this.activeTileContexts().filter((entry) => entry.relativePath === undefined);
-      const sceneDirty = Boolean(this.state?.dirty || embeddedTiles.some(tileContextUnsaved));
+      const sceneDirty = Boolean(this.state?.dirty || (this.state && this.state.diskHash === undefined) || embeddedTiles.some(tileContextUnsaved));
       const writes = [
         ...(this.state && sceneDirty && this.relativePath ? [{ kind: 'scene' as const, id: this.state.sceneId, relativePath: this.relativePath, document: this.sceneDocumentWithTileEdits()!, expectedHash: this.state.diskHash ?? null }] : []),
         ...this.activeTileContexts()
@@ -563,7 +612,14 @@ export class SceneStudioController {
           this.shapeResources.get(toResourceId(result.id))?.state.markSaved(result.hash);
         }
       }
-      this.message = 'Committed · disk and editor are synchronized';
+      // Files written for the first time (new scenes) join the explorer.
+      const added = results.filter((result) => !this.catalog.some((item) => item.kind === result.kind && item.id === result.id));
+      if (added.length > 0) {
+        this.catalog = [...this.catalog, ...added.map(({ kind, id, relativePath }) => ({ kind, id, relativePath }))];
+        for (const result of added) this.revealInExplorer(result.relativePath);
+      }
+      const createdScene = added.find((result) => result.kind === 'scene');
+      this.message = createdScene ? `Created ${createdScene.relativePath}` : 'Committed · disk and editor are synchronized';
     } catch (error) {
       this.message = error instanceof SceneStudioConflictError ? 'Save conflict · reload or preserve your draft before retrying' : error instanceof Error ? error.message : String(error);
     }
@@ -700,6 +756,7 @@ export class SceneStudioController {
     const run = (): void => {
       this.previewTimer = undefined;
       this.preview?.setResourceOverrides(request.resources());
+      this.preview?.setBossGhosts(this.resourceState ? [] : this.bossGhostRequests());
       preview.open(request.document());
     };
     if (immediate) run();
@@ -772,6 +829,12 @@ export class SceneStudioController {
         markers.push({ key: node.key, label: node.name, type: node.type, kind: 'node', position: node.global.position, selected, movable: false });
       }
     }
+    // Where each boss camp's boss will appear (the preview also draws a translucent copy of it).
+    for (const camp of nodes.filter(isBossCampScript)) {
+      const spawn = bossSpawnPoint(camp, byKey);
+      const boss = this.bossInfo(camp);
+      if (spawn) markers.push({ key: camp.key, label: `Boss · ${boss?.name ?? 'not set'}`, type: boss?.sceneId ?? 'boss', kind: 'boss', position: spawn, selected: false, movable: false });
+    }
     const bounds = this.preview?.nodeBounds() ?? new Map<string, WorldRect>();
     const runtimeKey = new Map(nodes.map((node) => [runtimeIdFor(node), node]));
     const pickables: { key: string; rect: WorldRect }[] = [];
@@ -785,7 +848,13 @@ export class SceneStudioController {
     const selectionPoints = nodes.filter((node) => selectedSubtree.has(node.key) && node.global).map((node) => ({ x: node.global!.position[0], y: node.global!.position[1], width: 0, height: 0 }));
     const uiSelection = uiNodes.find((node) => `:${node.id}` === selectedComposed);
     const selectionRect = selectedComposed === `:${state.document.rootNodeId}` ? undefined : unionRects(selectionRects);
-    const shapes = [...this.selectedShapes(nodes, selectedSubtree), ...this.animationHitboxShapes(nodes)];
+    const selectedShapes = this.selectedShapes(nodes, selectedSubtree);
+    const shapes = [...selectedShapes, ...this.animationHitboxShapes(nodes)];
+    // Framing a selection includes its collision shapes, so large world areas fit on screen.
+    const shapeRects = selectedShapes.map((shape): WorldRect => {
+      const extent = shapeExtent(shape.value) * Math.max(Math.abs(shape.transform.scale[0]), Math.abs(shape.transform.scale[1]));
+      return { x: shape.transform.position[0] - extent, y: shape.transform.position[1] - extent, width: extent * 2, height: extent * 2 };
+    });
     const boundsGuides = this.boundsGuides(nodes, selectedSubtree);
     const tile = this.selectedTileContext();
     const tileNode = tile && selectedComposed ? byKey.get(selectedComposed) : undefined;
@@ -797,7 +866,7 @@ export class SceneStudioController {
     const selectionBounds = uiSelection
       ? { x: uiSelection.position[0], y: uiSelection.position[1], width: uiSelection.size?.[0] ?? 0, height: uiSelection.size?.[1] ?? 0 }
       : tile && tileNode?.global ? { x: tileNode.global.position[0], y: tileNode.global.position[1], width: tile.context.document.columns * tileSize, height: tile.context.document.rows * tileSize }
-        : unionRects([...selectionRects, ...selectionPoints]);
+        : unionRects([...selectionRects, ...selectionPoints, ...shapeRects]);
     const selectedType = selectedRow?.kind === 'instance' ? `INSTANCE ${selectedRow.sceneId}` : selectedRow?.kind === 'node' ? selectedRow.type : 'NO SELECTION';
     return {
       ariaLabel: tile ? 'Tile map viewport' : isUiScene ? 'UI layout viewport' : '2D viewport',
@@ -844,17 +913,29 @@ export class SceneStudioController {
     const rootKey = this.state ? `:${this.state.document.rootNodeId}` : undefined;
     // The scene root selects everything; drawing every area/body shape there is noise.
     if (subtree.size === 0 || subtree.has(rootKey ?? '')) return output;
+    // Selecting a world-area script also shows (and lets you drag) the shapes it references.
+    const included = new Set(subtree);
+    for (const node of nodes) if (subtree.has(node.key) && isWorldAreaScript(node)) for (const key of worldAreaShapeKeys(node)) included.add(key);
+    const roles = new Map<string, NonNullable<LiveViewportShape['tone']>>([...worldAreaShapeRoles(nodes), ...bossCampShapeRoles(nodes)]);
     for (const node of nodes) {
-      if (!subtree.has(node.key) || node.type !== 'CollisionShape2D' || !node.global) continue;
+      if (!included.has(node.key) || node.type !== 'CollisionShape2D' || !node.global) continue;
       if (output.length >= 64) break;
-      const resourceId = referencedResourceId(node.properties.shape);
-      const resource = resourceId ? this.findResource(resourceId, node.sourceSceneId) : undefined;
-      if (!resource || resource.kind !== 'collision-shape') continue;
-      const isLocalSubresource = (this.state?.document.subresources ?? []).some((candidate) => candidate.resourceId === resourceId);
-      const isExternal = this.externalResources.has(resource.resourceId) || this.shapeResources.has(resource.resourceId);
-      output.push({ key: node.key, transform: node.global, value: resource.value, editable: isLocalSubresource || isExternal });
+      const shape = this.collisionShapeOf(node);
+      if (!shape) continue;
+      const role = roles.get(node.key);
+      output.push({ key: node.key, transform: node.global, value: shape.value, editable: shape.editable, ...(role ? { tone: role } : {}) });
     }
     return output;
+  }
+
+  /** The collision-shape resource a CollisionShape2D uses, and whether this scene may edit it. */
+  private collisionShapeOf(node: ComposedSceneNode): { readonly value: CollisionShapeValue; readonly editable: boolean } | undefined {
+    const resourceId = referencedResourceId(node.properties.shape);
+    const resource = resourceId ? this.findResource(resourceId, node.sourceSceneId) : undefined;
+    if (!resource || resource.kind !== 'collision-shape') return undefined;
+    const isLocalSubresource = (this.state?.document.subresources ?? []).some((candidate) => candidate.resourceId === resourceId);
+    const isExternal = this.externalResources.has(resource.resourceId) || this.shapeResources.has(resource.resourceId);
+    return { value: resource.value, editable: isLocalSubresource || isExternal };
   }
 
   private selectFromViewport(key: string): void {
@@ -988,8 +1069,14 @@ export class SceneStudioController {
   // -------------------------------------------------------------------------
 
   private async handleClick(event: Event): Promise<void> {
+    const folderAction = event.target instanceof Element ? event.target.closest<HTMLElement>('[data-explorer-new-scene],[data-explorer-new-folder]') : null;
+    if (folderAction) {
+      const newScene = folderAction.dataset.explorerNewScene;
+      this.openFileDialog(newScene !== undefined ? 'scene' : 'folder', newScene ?? folderAction.dataset.explorerNewFolder ?? '');
+      return;
+    }
     const folderToggle = event.target instanceof Element ? event.target.closest<HTMLElement>('[data-explorer-folder-toggle]') : null;
-    if (folderToggle?.dataset.explorerFolderToggle !== undefined) { this.toggleExplorerFolder(folderToggle); return; }
+    if (folderToggle?.dataset.explorerFolderToggle !== undefined) { this.explorerFolder = folderToggle.dataset.explorerFolderToggle; this.toggleExplorerFolder(folderToggle); return; }
     const toggle = event.target instanceof Element ? event.target.closest<HTMLElement>('[data-tree-toggle]') : null;
     if (toggle?.dataset.treeToggle) { event.stopPropagation(); this.toggleExpanded(toggle.dataset.treeToggle); return; }
     if (event.target instanceof Node && this.animationPanel.element.contains(event.target)) return;
@@ -1001,7 +1088,7 @@ export class SceneStudioController {
     const keyToggle = event.target instanceof Element ? event.target.closest<HTMLElement>('[data-key-toggle]') : null;
     const keyRow = keyToggle?.closest<HTMLElement>('[data-key-property]');
     if (keyRow?.dataset.keyNode && keyRow.dataset.keyProperty) { this.animationPanel.toggleNodeKey(keyRow.dataset.keyNode, keyRow.dataset.keyProperty); return; }
-    const target = event.target instanceof Element ? event.target.closest<HTMLElement>('[data-scene-id],[data-resource-id],[data-scene-tree-key],[data-action],[data-scene-add],[data-create-type],[data-create-script-id],[data-open-source],[data-tile-id],[data-tile-tool]') : null;
+    const target = event.target instanceof Element ? event.target.closest<HTMLElement>('[data-scene-id],[data-resource-id],[data-scene-tree-key],[data-action],[data-scene-add],[data-create-type],[data-create-script-id],[data-create-template],[data-area-enemy-add],[data-area-enemy-remove],[data-open-source],[data-tile-id],[data-tile-tool]') : null;
     if (!target) return;
     const tile = this.selectedTileContext();
     if (target.dataset.tileId && tile) {
@@ -1024,6 +1111,13 @@ export class SceneStudioController {
       return;
     }
     if (target.hasAttribute('data-scene-add')) { this.creationSearch = ''; this.render(); return; }
+    if (target.dataset.areaEnemyAdd) { this.editAreaSettings(target.dataset.areaEnemyAdd, { kind: 'enemy-add', type: this.enemyTypeIds()[0] ?? '' }); return; }
+    if (target.dataset.areaEnemyRemove !== undefined) {
+      const scriptKey = target.closest<HTMLElement>('[data-area-settings]')?.dataset.areaSettings;
+      if (scriptKey) this.editAreaSettings(scriptKey, { kind: 'enemy-remove', index: Number(target.dataset.areaEnemyRemove) });
+      return;
+    }
+    if (target.dataset.createTemplate && this.state) { this.addWorldArea(target.dataset.createTemplate as WorldAreaTemplateKind); return; }
     if ((target.dataset.createType || target.dataset.createScriptId) && this.state) {
       const parentId = this.state.selection.kind === 'node' ? this.state.selection.nodeId : this.state.document.rootNodeId;
       const scriptId = target.dataset.createScriptId;
@@ -1053,6 +1147,9 @@ export class SceneStudioController {
     else if (action === 'close-create') { this.creationSearch = undefined; this.render(); }
     else if (action === 'instance-scene' && this.state) { this.instanceSearch = ''; this.render(); }
     else if (action === 'close-instance') { this.instanceSearch = undefined; this.render(); }
+    else if (action === 'new-scene') this.openFileDialog('scene', this.defaultNewParent());
+    else if (action === 'new-folder') this.openFileDialog('folder', this.defaultNewParent());
+    else if (action === 'close-file-dialog') { this.fileDialog = undefined; this.render(); }
   }
 
   private toggleExpanded(key: string): void {
@@ -1065,6 +1162,7 @@ export class SceneStudioController {
   private handleChange(event: Event): void {
     if (!(event.target instanceof HTMLInputElement) && !(event.target instanceof HTMLSelectElement) && !(event.target instanceof HTMLTextAreaElement)) return;
     if (event.target.dataset.creationSearch !== undefined || event.target.dataset.explorerFilter !== undefined || event.target.dataset.instanceSearch !== undefined) return;
+    if (event.target.dataset.fileField !== undefined) { this.updateFileDialogField(event.target); return; }
     const keyRow = event.target.closest<HTMLElement>('[data-key-property]');
     if (keyRow?.dataset.keyNode && keyRow.dataset.keyProperty) {
       try { this.animationPanel.keyNodeProperty(keyRow.dataset.keyNode, keyRow.dataset.keyProperty, readAnimationValue(keyRow, keyRow.dataset.kind as AnimationValueKind)); }
@@ -1097,6 +1195,18 @@ export class SceneStudioController {
       void this.changeTileSet(tile, event.target.value);
       return;
     }
+    const areaSettings = event.target.closest<HTMLElement>('[data-area-settings]');
+    if (areaSettings?.dataset.areaSettings) {
+      const input = event.target;
+      if (input.dataset.areaEnemyField) {
+        this.editAreaSettings(areaSettings.dataset.areaSettings, { kind: 'enemy-field', index: Number(input.dataset.index), field: input.dataset.areaEnemyField as 'type' | 'weight' | 'maxAlive', value: input.value });
+      } else if (input.dataset.areaSetting) {
+        this.editAreaSettings(areaSettings.dataset.areaSettings, { kind: 'setting', key: input.dataset.areaSetting as 'intervalMs' | 'maxPopulation' | 'npcInstanceId', value: input.value });
+      }
+      return;
+    }
+    const shapeSection = event.target.closest<HTMLElement>('[data-shape-section]');
+    if (shapeSection) { void this.editShapeFromInspector(shapeSection, event.target); return; }
     const property = event.target.dataset.property;
     const target = this.inspectorTarget();
     if (!property || !target || target.mode === 'read-only') return;
@@ -1333,6 +1443,25 @@ export class SceneStudioController {
     return true;
   }
 
+  /** Adds a ready-to-edit world area at the centre of the viewport. */
+  private addWorldArea(kind: WorldAreaTemplateKind): void {
+    const state = this.state;
+    if (!state) return;
+    const parentId = state.selection.kind === 'node' ? state.selection.nodeId : state.document.rootNodeId;
+    const parent = this.composed().byKey.get(`:${parentId}`);
+    const camera = this.liveViewport?.camera;
+    const local = camera ? localPositionFor(parent?.global ?? parent?.parentGlobal, [camera.centerX, camera.centerY]) : [0, 0] as const;
+    try {
+      const { command, areaNodeId, areaId } = worldAreaTemplateCommand(state.document, kind, parentId, local);
+      state.execute(command);
+      this.creationSearch = undefined;
+      this.selectedKey = `:${areaNodeId}`;
+      this.expanded.add(`:${areaNodeId}`);
+      this.message = `Added ${areaId} · drag its shapes in the viewport`;
+    } catch (error) { this.message = error instanceof Error ? error.message : String(error); }
+    this.render();
+  }
+
   private uniqueNodeId(base: string): AuthoredNodeId {
     return uniqueId(base, new Set(this.state?.document.nodes.map((node) => node.id) ?? []));
   }
@@ -1489,11 +1618,163 @@ export class SceneStudioController {
     }
     const tile = this.selectedTileContext();
     const extras = [
+      target.composed ? this.renderBossCampSection(target.composed) : '',
+      target.composed ? this.renderWorldAreaSection(target.composed) : '',
+      target.composed && target.node.type === 'CollisionShape2D' ? this.renderShapeSection(target.composed, target.mode === 'read-only') : '',
       target.composed ? this.animationPanel.renderNodeKeyframes(target.composed.key) : '',
       tile ? renderTileMapTools(tile.context, this.tileSetSummaries()) : '',
       this.renderNodeResources(target),
     ].join('');
     return html.replace(/<\/aside>$/, `${extras}</aside>`);
+  }
+
+  /** Numeric size fields for a CollisionShape2D, mirroring its viewport handles. */
+  private renderShapeSection(node: ComposedSceneNode, readOnly: boolean): string {
+    const shape = this.collisionShapeOf(node);
+    if (!shape) return '';
+    const editable = shape.editable && !readOnly;
+    const disabled = editable ? '' : ' disabled';
+    const value = shape.value;
+    const field = (name: string, label: string, amount: number): string => `<label><small>${label}</small><input type="number" min="1" step="1" data-shape-field="${name}" value="${escapeHtml(Math.round(amount * 100) / 100)}"${disabled} /></label>`;
+    const fields = value.shape === 'rectangle' ? field('width', 'Width', value.width) + field('height', 'Height', value.height)
+      : value.shape === 'circle' ? field('radius', 'Radius', value.radius)
+        : value.shape === 'ellipse' ? field('radiusX', 'Radius X', value.radiusX) + field('radiusY', 'Radius Y', value.radiusY)
+          : '<small>Sector shapes are edited in their resource.</small>';
+    const kinds = value.shape === 'sector' ? '' : `<label><small>Kind</small><select data-shape-kind${disabled}>${(['rectangle', 'circle', 'ellipse'] as const).map((kind) => `<option ${kind === value.shape ? 'selected' : ''}>${kind}</option>`).join('')}</select></label>`;
+    const note = editable ? 'Or drag its handle in the viewport; move the node to reposition it.' : 'This shape belongs to another scene or resource; open it there to edit.';
+    return `<section class="scene-shape-fields" data-shape-section="${escapeHtml(node.key)}" aria-label="Collision shape size"><header><span>SHAPE</span></header><div class="scene-shape-field-row">${kinds}${fields}</div><small>${note}</small></section>`;
+  }
+
+  /** Enemy types spawn areas can use: catalogued enemies that have a `character.<type>` scene. */
+  private enemyTypeIds(): readonly string[] {
+    return ENEMY_TYPE_IDS.filter((id) => this.library.has(toSceneId(`character.${id}`))).sort();
+  }
+
+  /** Enemy picker plus spawn timing for an enemy-spawn area; edits write the script's Area Settings. */
+  private renderSpawnSettings(script: ComposedSceneNode, enemyTypes: readonly string[]): string {
+    const settings = spawnSettings(script);
+    const typeOptions = (selected: string): string => [...new Set([...enemyTypes, ...(selected ? [selected] : [])])]
+      .map((type) => `<option value="${escapeHtml(type)}" ${type === selected ? 'selected' : ''}>${escapeHtml(type)}${enemyTypes.includes(type) ? '' : ' (unknown)'}</option>`).join('');
+    const rows = settings.enemies.map((entry, index) => `<div class="scene-area-enemy-row">`
+      + `<select data-area-enemy-field="type" data-index="${index}" aria-label="Enemy type">${typeOptions(entry.type)}</select>`
+      + `<label><small>Weight</small><input type="number" min="1" step="1" data-area-enemy-field="weight" data-index="${index}" value="${escapeHtml(entry.weight)}" /></label>`
+      + `<label><small>Max alive</small><input type="number" min="1" step="1" placeholder="any" data-area-enemy-field="maxAlive" data-index="${index}" value="${escapeHtml(entry.maxAlive ?? '')}" /></label>`
+      + `<button type="button" data-area-enemy-remove="${index}" aria-label="Remove enemy">×</button></div>`).join('');
+    return `<div class="scene-area-settings" data-area-settings="${escapeHtml(script.key)}"><small>ENEMIES · picked by weight</small>${rows}`
+      + `<button type="button" class="scene-link" data-area-enemy-add="${escapeHtml(script.key)}">+ Add enemy</button>`
+      + `<div class="scene-shape-field-row"><label><small>Spawn every (ms)</small><input type="number" min="1" step="100" data-area-setting="intervalMs" value="${escapeHtml(settings.intervalMs)}" /></label>`
+      + `<label><small>Max population</small><input type="number" min="1" step="1" data-area-setting="maxPopulation" value="${escapeHtml(settings.maxPopulation)}" /></label></div></div>`;
+  }
+
+  /** NPC picker for a wander area: the placed NPC instances in this scene. */
+  private renderWanderSettings(script: ComposedSceneNode, nodes: readonly ComposedSceneNode[]): string {
+    const data = script.properties.data;
+    const npcInstanceId = data && typeof data === 'object' && !Array.isArray(data) ? (data as Readonly<Record<string, JsonValue>>).npcInstanceId : undefined;
+    const current = typeof npcInstanceId === 'string' ? npcInstanceId : '';
+    const npcs = [...new Set(nodes.filter((node) => node.scriptId === 'game.npc' && node.instancePath.length > 0).map((node) => node.instancePath[0]!))].sort();
+    const options = ['', ...new Set([...npcs, ...(current ? [current] : [])])]
+      .map((id) => `<option value="${escapeHtml(id)}" ${id === current ? 'selected' : ''}>${id ? escapeHtml(id) : '(choose an NPC)'}</option>`).join('');
+    return `<div class="scene-area-settings" data-area-settings="${escapeHtml(script.key)}"><label><small>NPC THAT WANDERS HERE</small><select data-area-setting="npcInstanceId">${options}</select></label></div>`;
+  }
+
+  /** Applies one Area Settings edit from the inspector editor to the world-area script. */
+  private editAreaSettings(scriptKey: string, edit: Parameters<typeof editAreaSettings>[1]): void {
+    const script = this.composed().byKey.get(scriptKey);
+    if (!script) return;
+    try {
+      this.writeComposedProperty(script, 'data', editAreaSettings(script.properties.data, edit));
+      this.message = `Updated ${String(script.properties.areaId ?? script.name)} settings`;
+    } catch (error) { this.message = error instanceof Error ? error.message : String(error); }
+    this.render();
+  }
+
+  /** The boss a camp spawns, where it appears, and its activation/arena circles. */
+  private renderBossCampSection(node: ComposedSceneNode): string {
+    const { nodes } = this.composed();
+    const camp = owningBossCamp(node, nodes);
+    if (!camp) return '';
+    const boss = this.bossInfo(camp);
+    const summary = bossCampSummary(camp, nodes, (shapeNode) => this.collisionShapeOf(shapeNode), boss);
+    const bossId = typeof camp.properties.bossId === 'string' ? camp.properties.bossId : '';
+    const encounterSceneId = camp.sourceSceneId !== this.state?.document.sceneId ? camp.sourceSceneId : undefined;
+    const bossCard = boss
+      ? `<div class="scene-boss-link"><small>SPAWNS BOSS</small><strong>${escapeHtml(boss.name)}</strong><code>${escapeHtml(boss.sceneId)}</code>${bossId ? `<small>bossId · ${escapeHtml(bossId)}</small>` : ''}<button type="button" data-scene-id="${escapeHtml(boss.sceneId)}">Open boss scene</button></div>`
+      : '';
+    const shapeNote = summary.shapesEditableHere
+      ? 'Drag the teal activation and amber arena circles in the viewport.'
+      : `The circles belong to the encounter scene; open it to resize them (every placement shares them).`;
+    return `<section class="scene-world-area scene-boss-camp" aria-label="Boss encounter"><header><span>BOSS ENCOUNTER</span></header>${bossCard}`
+      + summary.lines.map((line) => `<p>${escapeHtml(line)}</p>`).join('')
+      + summary.issues.map((issue) => `<p role="alert">${escapeHtml(issue)}</p>`).join('')
+      + (summary.issues.length === 0 ? '<p class="is-ok">Valid · the boss will spawn and stay in its arena.</p>' : '')
+      + (encounterSceneId ? `<button type="button" class="scene-link" data-scene-id="${escapeHtml(encounterSceneId)}">Open encounter scene ${escapeHtml(encounterSceneId)}</button>` : '')
+      + `<small>${shapeNote} Change the boss with the camp script's Boss Scene property.</small></section>`;
+  }
+
+  /** Every boss camp's boss scene and spawn point, for the preview's translucent boss copies. */
+  private bossGhostRequests(): readonly { readonly sceneId: SceneId; readonly position: readonly [number, number] }[] {
+    if (!this.state) return [];
+    const { nodes, byKey } = this.composed();
+    return nodes.filter(isBossCampScript).flatMap((camp) => {
+      const bossSceneId = bossSceneIdOf(camp);
+      const spawn = bossSpawnPoint(camp, byKey);
+      const sceneId = bossSceneId ? toSceneId(bossSceneId) : undefined;
+      return sceneId && spawn && this.library.has(sceneId) && this.bossInfo(camp)?.spawnable ? [{ sceneId, position: spawn }] : [];
+    });
+  }
+
+  /** Name and spawnability of the boss scene a camp script points to. */
+  private bossInfo(camp: ComposedSceneNode): BossSceneInfo | undefined {
+    const bossSceneId = bossSceneIdOf(camp);
+    if (!bossSceneId) return undefined;
+    const bossId = typeof camp.properties.bossId === 'string' ? camp.properties.bossId : bossSceneId;
+    return bossSceneInfo(bossSceneId, this.library.get(toSceneId(bossSceneId)), (scriptId) => this.isEnemyScript(scriptId), bossId);
+  }
+
+  /** Whether a script is the enemy script or extends it (every boss and enemy behavior does). */
+  private isEnemyScript(scriptId: string): boolean {
+    for (let current: string | undefined = scriptId, depth = 0; current && depth < 16; depth += 1) {
+      if (current === 'game.enemy') return true;
+      current = this.registry.scripts.get(current)?.extends;
+    }
+    return false;
+  }
+
+  /** What the game will load for a world area, with the same checks the world loader applies. */
+  private renderWorldAreaSection(node: ComposedSceneNode): string {
+    const { nodes } = this.composed();
+    const script = owningWorldArea(node, nodes);
+    if (!script) return '';
+    const enemyTypes = this.enemyTypeIds();
+    const summary = worldAreaSummary(script, nodes, (shapeNode) => this.collisionShapeOf(shapeNode)?.value, new Set(enemyTypes));
+    const legend = summary.kind === 'enemy-spawn'
+      ? 'Drag the cyan pursue and amber stay shapes; move the Area2D to move both.'
+      : 'Drag the shape in the viewport; move the Area2D to reposition it.';
+    const settings = summary.kind === 'enemy-spawn' ? this.renderSpawnSettings(script, enemyTypes)
+      : summary.kind === 'npc-wander' ? this.renderWanderSettings(script, nodes) : '';
+    return `<section class="scene-world-area" aria-label="World area"><header><span>WORLD AREA · ${escapeHtml(summary.kind.toUpperCase())}</span></header>`
+      + settings
+      + summary.lines.map((line) => `<p>${escapeHtml(line)}</p>`).join('')
+      + summary.issues.map((issue) => `<p role="alert">${escapeHtml(issue)}</p>`).join('')
+      + (summary.issues.length === 0 ? '<p class="is-ok">Valid · the game will load this area.</p>' : '<p class="is-bad">The world will not load until this is fixed.</p>')
+      + `<small>${legend}</small></section>`;
+  }
+
+  private async editShapeFromInspector(section: HTMLElement, input: HTMLElement): Promise<void> {
+    const key = section.dataset.shapeSection ?? '';
+    const node = this.composed().byKey.get(key);
+    const current = node ? this.collisionShapeOf(node)?.value : undefined;
+    if (!current) return;
+    if (input.dataset.shapeKind !== undefined && input instanceof HTMLSelectElement) {
+      await this.editShapeFromViewport(key, convertShapeKind(current, input.value as 'rectangle' | 'circle' | 'ellipse'));
+      return;
+    }
+    const read = (name: string): number => Number(section.querySelector<HTMLInputElement>(`[data-shape-field="${name}"]`)?.value);
+    const next: CollisionShapeValue = current.shape === 'rectangle' ? { shape: 'rectangle', width: read('width'), height: read('height') }
+      : current.shape === 'circle' ? { shape: 'circle', radius: read('radius') }
+        : current.shape === 'ellipse' ? { shape: 'ellipse', radiusX: read('radiusX'), radiusY: read('radiusY') }
+          : current;
+    await this.editShapeFromViewport(key, next);
   }
 
   private renderNodeResources(target: InspectorTarget): string {
@@ -1675,11 +1956,11 @@ export class SceneStudioController {
     this.animationPanel.update(animation);
     const tile = this.selectedTileContext();
     const activeTileIds = new Set(state?.document.nodes.filter((node) => node.type === 'TileMapLayer2D').map((node) => node.id) ?? []);
-    const dirty = Boolean(resource?.dirty || state?.dirty || [...this.shapeResources.values()].some((entry) => entry.state.dirty) || [...this.tileContexts.entries()].some(([nodeId, entry]) => activeTileIds.has(nodeId) && tileContextUnsaved(entry)));
+    const dirty = Boolean(resource?.dirty || state?.dirty || (state && state.diskHash === undefined) || [...this.shapeResources.values()].some((entry) => entry.state.dirty) || [...this.tileContexts.entries()].some(([nodeId, entry]) => activeTileIds.has(nodeId) && tileContextUnsaved(entry)));
     const shape = this.lastShapeEdit ? this.shapeResources.get(this.lastShapeEdit) : undefined;
     const canUndo = Boolean(resource?.canUndo || shape?.state.canUndo || tile?.context.canUndo || state?.canUndo);
     const canRedo = Boolean(resource?.canRedo || shape?.state.canRedo || tile?.context.canRedo || state?.canRedo);
-    const explorerTree = renderExplorerTree(buildExplorerTree(this.catalog), {
+    const explorerTree = renderExplorerTree(buildExplorerTree(this.catalog, this.folders), {
       isOpen: (key) => this.explorerOpen.has(key),
       isCurrent: (item) => item.kind === 'scene' ? item.id === state?.sceneId : item.id === resource?.document.resourceId,
       escape: escapeHtml,
@@ -1689,7 +1970,7 @@ export class SceneStudioController {
       ? renderSceneTreePanel(this.rows, this.selectedKey).replace('<button type="button" data-scene-add', `<span class="scene-tree-actions"><button type="button" data-action="copy-node" ${canCopy ? '' : 'disabled'} aria-label="Copy node" title="Copy (Ctrl+C)">⧉</button><button type="button" data-action="paste-node" ${this.clipboard.hasContent ? '' : 'disabled'} aria-label="Paste node" title="Paste (Ctrl+V)">⎘</button><button type="button" data-action="delete-node" ${canCopy || (selectedRow?.kind === 'instance' && (selectedRow.instancePath ?? []).length === 0) ? '' : 'disabled'} aria-label="Delete selection" title="Delete (Del)">⌫</button><button type="button" data-action="instance-scene" aria-label="Instance child scene" title="Instance child scene (Ctrl+Shift+A) · or drag a scene from the explorer">⛓</button></span><button type="button" data-scene-add`)
       : resource ? `<section class="scene-tree-panel scene-empty"><p>Resource <strong>${escapeHtml(resource.document.resourceId)}</strong> · ${escapeHtml(resource.document.kind)}</p></section>`
         : '<section class="scene-tree-panel scene-empty"><p>Open a scene or resource from the project explorer.</p></section>';
-    this.container.innerHTML = `<main class="scene-studio" data-scene-studio><header class="scene-topbar"><div><span>FIELD CARTOGRAPHER / UNIVERSAL GRAPH</span><h1>Scene Studio</h1></div><div class="scene-command-bar"><button type="button" data-action="undo" ${!canUndo ? 'disabled' : ''}>Undo</button><button type="button" data-action="redo" ${!canRedo ? 'disabled' : ''}>Redo</button><button type="button" class="scene-save" data-action="save" ${!dirty ? 'disabled' : ''}>${dirty ? 'Save changes' : 'Saved'}</button></div></header><aside class="scene-explorer" aria-label="Project explorer"><label><span>EXPEDITION INDEX</span><input type="search" data-explorer-filter value="${escapeHtml(this.explorerFilter)}" placeholder="Filter scenes and resources" aria-label="Filter scenes and resources" /></label><nav aria-label="Project files"><h2><span>Project</span><small><em data-explorer-count="scene">${scenes.length}</em> scenes · <em data-explorer-count="resource">${resources.length}</em> resources</small></h2>${explorerTree || '<p>No scene documents or resources</p>'}</nav></aside><section class="scene-main">${this.renderTabs()}<section class="scene-workbench${animation ? ' has-animation-dock' : ''}">${treePanel}<section data-viewport-slot></section>${this.renderInspector()}${animation ? '<section data-animation-slot></section>' : ''}</section></section><footer class="scene-status" role="status"><span class="${state?.repairMode ? 'is-warning' : ''}">${escapeHtml(this.message)}</span><span>${state ? `${state.document.nodes.length} NODES · ${state.document.instances.length} INSTANCES${dirty ? ' · UNSAVED' : ''}` : resource ? `${escapeHtml(resource.document.kind.toUpperCase())} RESOURCE${dirty ? ' · UNSAVED' : ''}` : 'AUTHORING SYSTEM READY'}</span></footer>${this.creationSearch !== undefined ? this.renderCreationDialog() : ''}${this.instanceSearch !== undefined ? this.renderInstanceDialog() : ''}</main>`;
+    this.container.innerHTML = `<main class="scene-studio" data-scene-studio><header class="scene-topbar"><div><span>FIELD CARTOGRAPHER / UNIVERSAL GRAPH</span><h1>Scene Studio</h1></div><div class="scene-command-bar"><button type="button" data-action="undo" ${!canUndo ? 'disabled' : ''}>Undo</button><button type="button" data-action="redo" ${!canRedo ? 'disabled' : ''}>Redo</button><button type="button" class="scene-save" data-action="save" ${!dirty ? 'disabled' : ''}>${dirty ? 'Save changes' : 'Saved'}</button></div></header><aside class="scene-explorer" aria-label="Project explorer"><label><span>EXPEDITION INDEX</span><input type="search" data-explorer-filter value="${escapeHtml(this.explorerFilter)}" placeholder="Filter scenes and resources" aria-label="Filter scenes and resources" /></label><nav aria-label="Project files"><div class="scene-explorer-create"><button type="button" data-action="new-scene" title="New scene (in the last folder you opened)">＋ Scene</button><button type="button" data-action="new-folder" title="New folder (in the last folder you opened)">＋ Folder</button></div><h2><span>Project</span><small><em data-explorer-count="scene">${scenes.length}</em> scenes · <em data-explorer-count="resource">${resources.length}</em> resources</small></h2>${explorerTree || '<p>No scene documents or resources</p>'}</nav></aside><section class="scene-main">${this.renderTabs()}<section class="scene-workbench${animation ? ' has-animation-dock' : ''}">${treePanel}<section data-viewport-slot></section>${this.renderInspector()}${animation ? '<section data-animation-slot></section>' : ''}</section></section><footer class="scene-status" role="status"><span class="${state?.repairMode ? 'is-warning' : ''}">${escapeHtml(this.message)}</span><span>${state ? `${state.document.nodes.length} NODES · ${state.document.instances.length} INSTANCES${dirty ? ' · UNSAVED' : ''}` : resource ? `${escapeHtml(resource.document.kind.toUpperCase())} RESOURCE${dirty ? ' · UNSAVED' : ''}` : 'AUTHORING SYSTEM READY'}</span></footer>${this.creationSearch !== undefined ? this.renderCreationDialog() : ''}${this.instanceSearch !== undefined ? this.renderInstanceDialog() : ''}${this.fileDialog ? this.renderFileDialog() : ''}</main>`;
     this.applyExplorerFilter();
     const explorer = this.container.querySelector('.scene-explorer');
     if (explorer) explorer.scrollTop = explorerScroll;
@@ -1710,7 +1991,11 @@ export class SceneStudioController {
       this.liveViewport.frameAll();
     }
     const instanceSearch = this.container.querySelector<HTMLInputElement>('[data-instance-search]');
-    if (instanceSearch) {
+    const fileName = this.container.querySelector<HTMLInputElement>('[data-file-field="name"]');
+    if (fileName) {
+      fileName.focus();
+      fileName.setSelectionRange(fileName.value.length, fileName.value.length);
+    } else if (instanceSearch) {
       instanceSearch.focus();
       instanceSearch.setSelectionRange(instanceSearch.value.length, instanceSearch.value.length);
     } else if (focused) {
@@ -1748,7 +2033,7 @@ export class SceneStudioController {
 
   /** Expands every folder containing the document so the open file is visible. */
   private revealInExplorer(relativePath: string): void {
-    for (const key of explorerFolderKeysFor(buildExplorerTree(this.catalog), relativePath)) this.explorerOpen.add(key);
+    for (const key of explorerFolderKeysFor(buildExplorerTree(this.catalog, this.folders), relativePath)) this.explorerOpen.add(key);
   }
 
   /** Folder toggles only change explorer DOM, avoiding a full studio re-render. */
@@ -1760,9 +2045,118 @@ export class SceneStudioController {
     toggle.setAttribute('aria-expanded', String(open));
   }
 
+  // -------------------------------------------------------------------------
+  // New scene / new folder (Godot's FileSystem dock "New Scene..." and "New Folder...")
+  // -------------------------------------------------------------------------
+
+  /** Folder last opened in the explorer, else the active document's folder, else the root. */
+  private defaultNewParent(): string {
+    if (this.explorerFolder !== undefined && this.folders.includes(this.explorerFolder)) return this.explorerFolder;
+    const path = this.relativePath ?? this.resourceRelativePath;
+    return path && path.includes('/') ? path.slice(0, path.lastIndexOf('/')) : '';
+  }
+
+  private openFileDialog(mode: FileDialogState['mode'], parent: string): void {
+    this.fileDialog = { mode, parent, name: '', sceneId: '', sceneIdEdited: false, rootType: COMMON_ROOT_TYPES[0] };
+    this.render();
+  }
+
+  /** Updates dialog fields in place so typing keeps focus; only the derived hints change. */
+  private updateFileDialogField(input: HTMLElement): void {
+    const dialog = this.fileDialog;
+    if (!dialog || !(input instanceof HTMLInputElement || input instanceof HTMLSelectElement)) return;
+    const field = input.dataset.fileField;
+    if (field === 'name') dialog.name = input.value.trim();
+    else if (field === 'parent') dialog.parent = input.value;
+    else if (field === 'root-type') dialog.rootType = input.value;
+    else if (field === 'scene-id') { dialog.sceneId = input.value.trim(); dialog.sceneIdEdited = dialog.sceneId.length > 0; }
+    dialog.error = undefined;
+    if (!dialog.sceneIdEdited) {
+      dialog.sceneId = suggestedSceneId(dialog.parent, dialog.name, this.catalog);
+      const sceneIdInput = this.container.querySelector<HTMLInputElement>('[data-file-field="scene-id"]');
+      if (sceneIdInput && sceneIdInput !== input) sceneIdInput.value = dialog.sceneId;
+    }
+    const preview = this.container.querySelector('[data-file-preview]');
+    if (preview) preview.textContent = this.fileDialogPath(dialog);
+    const error = this.container.querySelector('[data-file-error]');
+    if (error) error.textContent = '';
+  }
+
+  private fileDialogPath(dialog: FileDialogState): string {
+    const leaf = dialog.mode === 'scene' ? `${dialog.name || '…'}.scene.json` : dialog.name || '…';
+    return dialog.parent ? `${dialog.parent}/${leaf}` : leaf;
+  }
+
+  private async submitFileDialog(): Promise<void> {
+    const dialog = this.fileDialog;
+    if (!dialog) return;
+    try {
+      if (!FILE_NAME_PATTERN.test(dialog.name)) throw new Error("Name must be lowercase letters and digits, with '.', '_' or '-' between them (e.g. crystal-cave)");
+      const relativePath = this.fileDialogPath(dialog);
+      if (dialog.mode === 'folder') {
+        if (this.folders.includes(relativePath)) throw new Error(`Folder '${relativePath}' already exists`);
+        const created = await this.repository.createFolder(relativePath);
+        this.folders = [...this.folders, created].sort();
+        for (let index = created.indexOf('/'); index >= 0; index = created.indexOf('/', index + 1)) this.explorerOpen.add(created.slice(0, index));
+        this.explorerOpen.add(created);
+        this.explorerFolder = created;
+        this.fileDialog = undefined;
+        this.message = `Created folder ${created}`;
+        this.render();
+        return;
+      }
+      const sceneId = dialog.sceneId || suggestedSceneId(dialog.parent, dialog.name, this.catalog);
+      if (!FILE_NAME_PATTERN.test(sceneId)) throw new Error(`Scene ID '${sceneId}' must be lowercase letters and digits, with '.', '_' or '-' between them`);
+      if (this.catalog.some((item) => item.kind === 'scene' && item.id === sceneId) || this.tabs.some((tab) => tab.key === `scene:${sceneId}`)) throw new Error(`Scene ID '${sceneId}' is already used`);
+      if (this.catalog.some((item) => item.relativePath === relativePath) || this.tabs.some((tab) => tab.relativePath === relativePath)) throw new Error(`'${relativePath}' already exists`);
+      if (!this.registry.nodeTypes.has(dialog.rootType)) throw new Error(`Unknown root node type '${dialog.rootType}'`);
+      this.createSceneTab(toSceneId(sceneId), relativePath, dialog.rootType, rootNodeName(dialog.name));
+    } catch (error) {
+      dialog.error = error instanceof Error ? error.message : String(error);
+      this.render();
+    }
+  }
+
+  /** Opens an unsaved scene in a new tab; the first save writes it to `relativePath`. */
+  private createSceneTab(sceneId: SceneId, relativePath: string, rootType: string, rootName: string): void {
+    const rootId = authoredNodeId('root');
+    const document: SceneDocument = {
+      version: 1,
+      sceneId,
+      rootNodeId: rootId,
+      nodes: [{ id: rootId, name: rootName, type: rootType, parentId: null, order: 0, properties: {} }],
+      instances: [],
+    };
+    this.fileDialog = undefined;
+    this.beginTab('scene', sceneId);
+    this.state = new SceneDocumentState(document, { registry: this.registry });
+    this.setLibraryScene(document);
+    this.relativePath = relativePath;
+    this.selectedKey = `:${rootId}`;
+    this.message = `New scene · Save (Ctrl+S) writes ${relativePath}`;
+    window.history.replaceState(null, '', formatSceneStudioRoute({ active: true, scene: sceneId }, window.location.search));
+    this.frameInitial(`scene:${sceneId}`);
+    this.render();
+  }
+
+  private renderFileDialog(): string {
+    const dialog = this.fileDialog!;
+    const scene = dialog.mode === 'scene';
+    const folderOptions = ['', ...this.folders].map((folder) => `<option value="${escapeHtml(folder)}"${folder === dialog.parent ? ' selected' : ''}>${escapeHtml(folder ? `${folder}/` : '(content root)/')}</option>`).join('');
+    const types = [...this.registry.nodeTypes.keys()].filter((type) => type !== 'ScriptNode');
+    const ordered = [...COMMON_ROOT_TYPES.filter((type) => types.includes(type)), ...types.filter((type) => !COMMON_ROOT_TYPES.includes(type)).sort()];
+    const typeOptions = ordered.map((type) => `<option value="${escapeHtml(type)}"${type === dialog.rootType ? ' selected' : ''}>${escapeHtml(type)}</option>`).join('');
+    const sceneFields = scene
+      ? `<label><span>Root node type</span><select data-file-field="root-type">${typeOptions}</select></label><label><span>Scene ID (referenced by instances and maps)</span><input type="text" data-file-field="scene-id" value="${escapeHtml(dialog.sceneId)}" placeholder="auto from folder and name" spellcheck="false" /></label>`
+      : '';
+    return `<div class="scene-dialog-backdrop"><form data-file-dialog class="scene-create-dialog scene-file-dialog" role="dialog" aria-modal="true" aria-labelledby="scene-file-title"><header><div><span>PROJECT FILES</span><h2 id="scene-file-title">${scene ? 'New scene' : 'New folder'}</h2></div><button type="button" data-action="close-file-dialog" aria-label="Close">×</button></header><label><span>In folder</span><select data-file-field="parent">${folderOptions}</select></label><label><span>${scene ? 'File name' : 'Folder name'}</span><input type="text" data-file-field="name" value="${escapeHtml(dialog.name)}" placeholder="${scene ? 'crystal-cave' : 'caves'}" spellcheck="false" autocomplete="off" /></label>${sceneFields}<p class="scene-file-preview"><span>Path</span><code data-file-preview>${escapeHtml(this.fileDialogPath(dialog))}</code></p><p class="scene-file-error" data-file-error role="alert">${escapeHtml(dialog.error ?? '')}</p><footer><button type="button" data-action="close-file-dialog">Cancel</button><button type="submit" class="scene-save">${scene ? 'Create scene' : 'Create folder'}</button></footer></form></div>`;
+  }
+
   private renderCreationDialog(): string {
     const entries = sceneCreationEntries(this.registry, this.creationSearch);
-    return `<div class="scene-dialog-backdrop"><section role="dialog" aria-modal="true" aria-labelledby="scene-create-title" class="scene-create-dialog"><header><div><span>REGISTRY</span><h2 id="scene-create-title">Add a universal node</h2></div><button type="button" data-action="close-create" aria-label="Close creation dialog">×</button></header><label><span>Search registered types</span><input autofocus type="search" data-creation-search value="${escapeHtml(this.creationSearch)}" /></label><div role="listbox">${entries.map((entry) => `<button type="button" role="option" ${entry.kind === 'script' ? `data-create-script-id="${escapeHtml(entry.id)}"` : `data-create-type="${escapeHtml(entry.id)}"`}><span>${entry.kind === 'script' ? 'S' : 'N'}</span><strong>${escapeHtml(entry.label)}</strong><small>${escapeHtml(entry.description)}</small></button>`).join('')}</div></section></div>`;
+    const query = (this.creationSearch ?? '').trim().toLowerCase();
+    const templates = WORLD_AREA_TEMPLATES.filter((template) => !query || `${template.label} ${template.description} world area`.toLowerCase().includes(query));
+    return `<div class="scene-dialog-backdrop"><section role="dialog" aria-modal="true" aria-labelledby="scene-create-title" class="scene-create-dialog"><header><div><span>REGISTRY</span><h2 id="scene-create-title">Add a universal node</h2></div><button type="button" data-action="close-create" aria-label="Close creation dialog">×</button></header><label><span>Search registered types</span><input autofocus type="search" data-creation-search value="${escapeHtml(this.creationSearch)}" /></label><div role="listbox">${templates.map((template) => `<button type="button" role="option" data-create-template="${escapeHtml(template.kind)}"><span>A</span><strong>${escapeHtml(template.label)}</strong><small>${escapeHtml(template.description)}</small></button>`).join('')}${entries.map((entry) => `<button type="button" role="option" ${entry.kind === 'script' ? `data-create-script-id="${escapeHtml(entry.id)}"` : `data-create-type="${escapeHtml(entry.id)}"`}><span>${entry.kind === 'script' ? 'S' : 'N'}</span><strong>${escapeHtml(entry.label)}</strong><small>${escapeHtml(entry.description)}</small></button>`).join('')}</div></section></div>`;
   }
 
   private fail(error: unknown): void { this.message = error instanceof Error ? error.message : String(error); this.render(); }

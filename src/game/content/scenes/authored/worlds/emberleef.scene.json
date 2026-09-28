@@ -118,11 +118,9 @@
         "area": {
           "nodeId": "area-enemy-safe-1"
         },
-        "data": {
-          "x": 740,
-          "y": 894,
-          "w": 1472,
-          "h": 1280
+        "data": {},
+        "shape": {
+          "nodeId": "area-enemy-safe-1-shape"
         }
       }
     },
@@ -168,11 +166,9 @@
         "area": {
           "nodeId": "area-enemy-safe-2"
         },
-        "data": {
-          "x": 704,
-          "y": 1280,
-          "w": 64,
-          "h": 832
+        "data": {},
+        "shape": {
+          "nodeId": "area-enemy-safe-2-shape"
         }
       }
     },
@@ -218,11 +214,9 @@
         "area": {
           "nodeId": "area-enemy-safe-3"
         },
-        "data": {
-          "x": 2176,
-          "y": 1216,
-          "w": 128,
-          "h": 960
+        "data": {},
+        "shape": {
+          "nodeId": "area-enemy-safe-3-shape"
         }
       }
     },
@@ -268,11 +262,9 @@
         "area": {
           "nodeId": "area-enemy-safe-4"
         },
-        "data": {
-          "x": 2176,
-          "y": 896,
-          "w": 64,
-          "h": 320
+        "data": {},
+        "shape": {
+          "nodeId": "area-enemy-safe-4-shape"
         }
       }
     },
@@ -318,11 +310,9 @@
         "area": {
           "nodeId": "area-enemy-safe-5"
         },
-        "data": {
-          "x": 704,
-          "y": 896,
-          "w": 64,
-          "h": 384
+        "data": {},
+        "shape": {
+          "nodeId": "area-enemy-safe-5-shape"
         }
       }
     },
@@ -368,11 +358,9 @@
         "area": {
           "nodeId": "area-enemy-safe-6"
         },
-        "data": {
-          "x": 640,
-          "y": 1216,
-          "w": 64,
-          "h": 896
+        "data": {},
+        "shape": {
+          "nodeId": "area-enemy-safe-6-shape"
         }
       }
     },

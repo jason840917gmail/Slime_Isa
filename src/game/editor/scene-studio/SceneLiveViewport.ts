@@ -17,7 +17,8 @@ export interface LiveViewportMarker {
   readonly key: string;
   readonly label: string;
   readonly type: string;
-  readonly kind: 'node' | 'instance' | 'ui';
+  /** `boss` marks where a boss camp spawns its boss; its label is always shown. */
+  readonly kind: 'node' | 'instance' | 'ui' | 'boss';
   readonly position: readonly [number, number];
   readonly rect?: WorldRect;
   readonly selected: boolean;
@@ -34,6 +35,8 @@ export interface LiveViewportShape {
   readonly editable: boolean;
   /** A hitbox the animation timeline shows as active on the current frame. */
   readonly active?: boolean;
+  /** World-area role, coloured like the in-game enemy/NPC boundary overlays. */
+  readonly tone?: 'perimeter' | 'stay' | 'safe' | 'wander' | 'activation' | 'arena';
 }
 
 export interface LiveViewportTileLayer {
@@ -238,7 +241,7 @@ export class SceneLiveViewport {
       }
       const [x, y] = this.toScreen(position);
       if (x < -40 || y < -40 || x > size.width + 40 || y > size.height + 40) continue;
-      parts.push(`<button type="button" class="scene-viewport-node is-${marker.kind}${marker.selected ? ' is-selected' : ''}${marker.movable ? ' is-movable' : ''}${showLabels || marker.selected ? ' has-label' : ''}" style="left:${x.toFixed(1)}px;top:${y.toFixed(1)}px" data-viewport-key="${escapeHtml(marker.key)}" aria-label="Select ${escapeHtml(marker.label)}" title="${escapeHtml(marker.label)} · ${escapeHtml(marker.type)}"><i aria-hidden="true"></i><span>${escapeHtml(marker.label)}</span></button>`);
+      parts.push(`<button type="button" class="scene-viewport-node is-${marker.kind}${marker.selected ? ' is-selected' : ''}${marker.movable ? ' is-movable' : ''}${showLabels || marker.selected || marker.kind === 'boss' ? ' has-label' : ''}" style="left:${x.toFixed(1)}px;top:${y.toFixed(1)}px" data-viewport-key="${escapeHtml(marker.key)}" aria-label="Select ${escapeHtml(marker.label)}" title="${escapeHtml(marker.label)} · ${escapeHtml(marker.type)}"><i aria-hidden="true"></i><span>${escapeHtml(marker.label)}</span></button>`);
     }
     for (const shape of this.model.shapes) if (shape.editable) parts.push(...this.shapeHandles(shape));
     const rotatable = this.model.markers.find((marker) => marker.selected && marker.rotatable && marker.kind !== 'ui');
@@ -333,7 +336,7 @@ export class SceneLiveViewport {
     const sx = shape.transform.scale[0] * this.cameraValue.zoom;
     const sy = shape.transform.scale[1] * this.cameraValue.zoom;
     const transform = `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${(shape.transform.rotation * 180 / Math.PI).toFixed(2)}) scale(${sx.toFixed(4)} ${sy.toFixed(4)})`;
-    const className = `scene-shape${shape.editable ? ' is-editable' : ''}${shape.active ? ' is-active' : ''}`;
+    const className = `scene-shape${shape.editable ? ' is-editable' : ''}${shape.active ? ' is-active' : ''}${shape.tone ? ` is-area-${shape.tone}` : ''}`;
     if (value.shape === 'rectangle') return `<rect class="${className}" transform="${transform}" x="${-value.width / 2}" y="${-value.height / 2}" width="${value.width}" height="${value.height}" vector-effect="non-scaling-stroke" />`;
     if (value.shape === 'circle') return `<circle class="${className}" transform="${transform}" r="${value.radius}" vector-effect="non-scaling-stroke" />`;
     if (value.shape === 'ellipse') return `<ellipse class="${className}" transform="${transform}" rx="${value.radiusX}" ry="${value.radiusY}" vector-effect="non-scaling-stroke" />`;

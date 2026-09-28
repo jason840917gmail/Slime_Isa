@@ -38,18 +38,11 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
         resources: sceneResourceDocuments,
         registry: createGameDescriptorRegistry(),
         sceneIds: [
-          sceneId('character.player-slime'),
-          sceneId('character.slime-spider'),
-          sceneId('character.worm-archer'),
-          sceneId('character.worm-brawler'),
-          sceneId('character.worm-swordsman'),
-          sceneId('character.fatty-one-eye'),
-          sceneId('character.lili'),
-          sceneId('character.mossy-scout'),
-          sceneId('character.red-slime-boy'),
-          sceneId('character.village-elder-plop'),
-          sceneId('character.yellow-blond-slime-girl'),
-          sceneId('encounter.level-1-fatty-camp'),
+          // Every character and encounter: enemies and bosses are mounted on demand
+          // by spawn areas and boss camps, so new ones need no registration here.
+          ...sceneDocuments
+            .filter((document) => document.sceneId.startsWith('character.') || document.sceneId.startsWith('encounter.'))
+            .map((document) => sceneId(document.sceneId)),
           sceneId('object.resource-stone-node'),
           sceneId('object.resource-stone-node.big-stone-mine'),
           sceneId('object.rock-amber-ore-mineable'),

@@ -91,11 +91,15 @@ function freeze(folder: MutableFolder): ExplorerFolder {
   };
 }
 
-export function buildExplorerTree(items: readonly SceneStudioContentSummary[]): ExplorerFolder {
+/**
+ * `folders` lists folder paths on disk (e.g. `worlds/caves`) so empty folders
+ * still appear; folders holding documents are derived from `items` anyway.
+ */
+export function buildExplorerTree(items: readonly SceneStudioContentSummary[], folders: readonly string[] = []): ExplorerFolder {
   const root = createFolder('', '');
-  for (const item of items) {
+  const descend = (segments: readonly string[]): MutableFolder => {
     let folder = root;
-    for (const segment of item.relativePath.split('/').slice(0, -1)) {
+    for (const segment of segments) {
       let child = folder.folders.get(segment);
       if (!child) {
         child = createFolder(folder.key ? `${folder.key}/${segment}` : segment, segment);
@@ -103,8 +107,10 @@ export function buildExplorerTree(items: readonly SceneStudioContentSummary[]): 
       }
       folder = child;
     }
-    folder.items.push(item);
-  }
+    return folder;
+  };
+  for (const folder of folders) descend(folder.split('/'));
+  for (const item of items) descend(item.relativePath.split('/').slice(0, -1)).items.push(item);
   groupFamilies(root);
   return freeze(root);
 }
@@ -160,6 +166,7 @@ function renderFolder(folder: ExplorerFolder, options: ExplorerRenderOptions): s
   return `<div class="scene-explorer-folder${folder.family ? ' is-family' : ''}${open ? ' is-open' : ''}" data-explorer-folder="${escape(folder.key)}" data-explorer-total="${folder.total}">`
     + `<button type="button" class="scene-explorer-folder-toggle" data-explorer-folder-toggle="${escape(folder.key)}" aria-expanded="${open}" title="${escape(folder.key)}">`
     + `<span aria-hidden="true">▸</span><strong>${escape(folder.label)}</strong><em data-explorer-folder-count>${folder.total}</em></button>`
+    + (folder.family ? '' : `<span class="scene-explorer-folder-actions"><button type="button" data-explorer-new-scene="${escape(folder.key)}" title="New scene in ${escape(folder.key)}" aria-label="New scene in ${escape(folder.key)}">＋◫</button><button type="button" data-explorer-new-folder="${escape(folder.key)}" title="New folder in ${escape(folder.key)}" aria-label="New folder in ${escape(folder.key)}">＋▭</button></span>`)
     + `<div class="scene-explorer-children" role="group" aria-label="${escape(folder.label)}">${children}</div></div>`;
 }
 

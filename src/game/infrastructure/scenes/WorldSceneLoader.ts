@@ -1,8 +1,9 @@
 import { sceneId, type SceneId } from '../../content/scenes/identifiers';
 import { MAP_FORMAT_VERSION, type MapDirection, type MapFile, type MapId, type MapLayer, type MapPoint } from '../../content/maps/mapFormat';
-import type { TileDataResourceDocument } from '../../content/scenes/resources/types';
+import type { CollisionShapeResourceDocument, JsonValue, TileDataResourceDocument } from '../../content/scenes/resources/types';
+import { enemySpawnPerimeterIssues, perimeterFromCollisionShape, type WorldAreaTransform } from '../../content/scenes/worldAreaGeometry';
 import { parseTileMapDataResource } from '../../content/scenes/resources/TileMapDataResource';
-import type { PackedScene } from '../../runtime/scene/PackedScene';
+import type { PackedNodeDocument, PackedScene } from '../../runtime/scene/PackedScene';
 import { dimensionsFromMap, type WorldDimensions } from '../../world/WorldDimensions';
 
 export interface LoadedWorldMap {
@@ -92,10 +93,7 @@ function loadedMapFromScene(packedScene: PackedScene): LoadedWorldMap {
   const entries = Object.fromEntries((['north', 'east', 'south', 'west'] as const)
     .map((direction) => [direction, markerPoint(`player-entry-${direction}`)] as const)
     .filter((entry): entry is readonly [MapDirection, MapPoint] => entry[1] !== undefined));
-  const authoredAreas = packedScene.definition.nodes.filter((node) => node.scriptId === 'game.world-area');
-  const areaData = (kind: string) => authoredAreas
-    .filter((node) => node.properties.areaKind === kind)
-    .map((node) => structuredClone(node.properties.data)) as never[];
+  const areaData = worldAreaData(packedScene);
   const map = {
     version: MAP_FORMAT_VERSION,
     mapId,
@@ -109,6 +107,87 @@ function loadedMapFromScene(packedScene: PackedScene): LoadedWorldMap {
     npcWanderAreas: areaData('npc-wander'),
   } satisfies MapFile;
   return { map, dimensions: dimensionsFromMap(map) };
+}
+
+type WorldAreaDataKind = 'enemy-safe-zone' | 'enemy-spawn' | 'npc-wander';
+
+function isJsonRecord(value: JsonValue | undefined): value is { readonly [key: string]: JsonValue } {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+/**
+ * Builds the legacy map-format area records from scene-authored world areas.
+ * Settings come from the script's `data`; every perimeter comes from the
+ * CollisionShape2D nodes it references, placed by their global transforms.
+ */
+function worldAreaData(packedScene: PackedScene): (kind: WorldAreaDataKind) => never[] {
+  const { nodes, resources } = packedScene.definition;
+  const byKey = new Map(nodes.map((node) => [node.key, node]));
+  const shapes = new Map(resources
+    .filter((resource): resource is CollisionShapeResourceDocument => resource.kind === 'collision-shape')
+    .map((resource) => [resource.resourceId as string, resource.value]));
+  const transforms = new Map<string, WorldAreaTransform>();
+  const globalTransform = (node: PackedNodeDocument): WorldAreaTransform => {
+    const cached = transforms.get(node.key);
+    if (cached) return cached;
+    const parent = node.parentKey ? byKey.get(node.parentKey) : undefined;
+    const base: WorldAreaTransform = parent ? globalTransform(parent) : { position: [0, 0], rotation: 0, scale: [1, 1] };
+    const vector = (value: JsonValue | undefined, fallback: readonly [number, number]): readonly [number, number] => (
+      Array.isArray(value) && value.length === 2 && typeof value[0] === 'number' && typeof value[1] === 'number' ? [value[0], value[1]] : fallback
+    );
+    // Mirrors Node2D.readWorldTransform; non-2D nodes carry no transform and pass the parent's through.
+    const [lx, ly] = vector(node.properties.position, [0, 0]);
+    const rotation = typeof node.properties.rotation === 'number' ? node.properties.rotation : 0;
+    const [sx, sy] = vector(node.properties.scale, [1, 1]);
+    const scaledX = lx * base.scale[0];
+    const scaledY = ly * base.scale[1];
+    const cosine = Math.cos(base.rotation);
+    const sine = Math.sin(base.rotation);
+    const result: WorldAreaTransform = {
+      position: [base.position[0] + scaledX * cosine - scaledY * sine, base.position[1] + scaledX * sine + scaledY * cosine],
+      rotation: base.rotation + rotation,
+      scale: [base.scale[0] * sx, base.scale[1] * sy],
+    };
+    transforms.set(node.key, result);
+    return result;
+  };
+  const referenced = (script: PackedNodeDocument, key: string): PackedNodeDocument | undefined => {
+    const reference = script.properties[key];
+    if (!isJsonRecord(reference) || typeof reference.nodeId !== 'string') return undefined;
+    // Same scoping rule SceneResolver uses when it validates node references.
+    const scope = script.propertyScopes[key] ?? script.instancePath;
+    const path = [...scope, ...(Array.isArray(reference.instancePath) ? reference.instancePath as string[] : []), reference.nodeId];
+    return byKey.get(path.join('/'));
+  };
+  const perimeter = (script: PackedNodeDocument, key: string, label: string) => {
+    const where = `World area '${String(script.properties.areaId ?? script.authoredNodeId)}' in '${packedScene.sourceSceneId}'`;
+    const node = referenced(script, key);
+    if (!node) throw new Error(`${where} requires its ${label} shape reference`);
+    if (node.type !== 'CollisionShape2D') throw new Error(`${where}: ${label} must reference a CollisionShape2D`);
+    const shapeReference = node.properties.shape;
+    const value = isJsonRecord(shapeReference) && typeof shapeReference.resourceId === 'string' ? shapes.get(shapeReference.resourceId) : undefined;
+    if (!value) throw new Error(`${where}: ${label} shape has no collision-shape resource`);
+    const result = perimeterFromCollisionShape(value, globalTransform(node));
+    if (!result.perimeter) throw new Error(`${where}: ${label} ${result.issue}`);
+    return result.perimeter;
+  };
+  const scripts = nodes.filter((node) => node.scriptId === 'game.world-area');
+  return (kind) => scripts
+    .filter((script) => script.properties.areaKind === kind)
+    .map((script) => {
+      const data = isJsonRecord(script.properties.data) ? structuredClone(script.properties.data) : {};
+      const id = typeof script.properties.areaId === 'string' ? script.properties.areaId : script.authoredNodeId;
+      const outer = perimeter(script, 'shape', 'perimeter');
+      if (kind === 'enemy-safe-zone') {
+        if (outer.shape !== 'rectangle') throw new Error(`World area '${id}' in '${packedScene.sourceSceneId}': safe zones must be rectangles`);
+        return { x: outer.x, y: outer.y, w: outer.w, h: outer.h };
+      }
+      if (kind === 'npc-wander') return { ...data, id, perimeter: outer };
+      const stay = perimeter(script, 'stayShape', 'stay');
+      const issues = enemySpawnPerimeterIssues(stay, outer);
+      if (issues.length > 0) throw new Error(`World area '${id}' in '${packedScene.sourceSceneId}': ${issues.join('; ')}`);
+      return { ...data, id, stayPerimeter: stay, pursuePerimeter: outer };
+    }) as never[];
 }
 
 function throwIfAborted(signal?: AbortSignal): void {

@@ -199,38 +199,53 @@ function worldAreaContent(map, firstOrder) {
   const subresources = [];
   const mappings = [];
   let order = firstOrder;
-  const addArea = (id, kind, sourcePath, perimeter, data) => {
+  // Perimeters live on CollisionShape2D nodes (shape / stayShape); `data` keeps only settings.
+  const shapeOf = (perimeter) => {
+    const rectangle = perimeter.shape === 'rectangle' || perimeter.w !== undefined;
+    return {
+      center: rectangle ? [perimeter.x + perimeter.w / 2, perimeter.y + perimeter.h / 2] : [perimeter.x, perimeter.y],
+      value: rectangle ? { shape: 'rectangle', width: perimeter.w, height: perimeter.h } : { shape: 'circle', radius: perimeter.radius },
+    };
+  };
+  const addArea = (id, kind, sourcePath, perimeter, data, stayPerimeter) => {
     const areaNodeId = `area-${id}`;
     const shapeNodeId = `${areaNodeId}-shape`;
+    const stayNodeId = `${areaNodeId}-stay-shape`;
     const scriptNodeId = `${areaNodeId}-script`;
     const shapeResourceId = `${map.mapId}.${areaNodeId}.shape`;
-    const rectangle = perimeter.shape === 'rectangle' || perimeter.w !== undefined;
-    const position = rectangle
-      ? [perimeter.x + perimeter.w / 2, perimeter.y + perimeter.h / 2]
-      : [perimeter.x, perimeter.y];
-    const value = rectangle
-      ? { shape: 'rectangle', width: perimeter.w, height: perimeter.h }
-      : { shape: 'circle', radius: perimeter.radius };
+    const stayResourceId = `${map.mapId}.${areaNodeId}.stay-shape`;
+    const outer = shapeOf(perimeter);
+    const position = outer.center;
+    const stay = stayPerimeter ? shapeOf(stayPerimeter) : undefined;
+    const offset = (center) => {
+      const local = [center[0] - position[0], center[1] - position[1]];
+      return local[0] === 0 && local[1] === 0 ? {} : { position: local };
+    };
     nodes.push(
       { id: areaNodeId, name: id, type: 'Area2D', parentId: 'world', order: order++, properties: {
         position, ...collision(['trigger'], []), monitoring: false, monitorable: false,
       } },
-      { id: shapeNodeId, name: 'collision-shape', type: 'CollisionShape2D', parentId: areaNodeId, order: 0, properties: { shape: { resourceId: shapeResourceId } } },
-      { id: scriptNodeId, name: 'world-area-script', type: 'ScriptNode', scriptId: 'game.world-area', parentId: areaNodeId, order: 1, properties: {
-        areaKind: kind, areaId: id, area: { nodeId: areaNodeId }, data,
+      { id: shapeNodeId, name: stay ? 'pursue-shape' : 'collision-shape', type: 'CollisionShape2D', parentId: areaNodeId, order: 0, properties: { shape: { resourceId: shapeResourceId } } },
+      ...(stay ? [{ id: stayNodeId, name: 'stay-shape', type: 'CollisionShape2D', parentId: areaNodeId, order: 1, properties: { ...offset(stay.center), shape: { resourceId: stayResourceId } } }] : []),
+      { id: scriptNodeId, name: 'world-area-script', type: 'ScriptNode', scriptId: 'game.world-area', parentId: areaNodeId, order: stay ? 2 : 1, properties: {
+        areaKind: kind, areaId: id, area: { nodeId: areaNodeId }, shape: { nodeId: shapeNodeId },
+        ...(stay ? { stayShape: { nodeId: stayNodeId } } : {}), data,
       } },
     );
-    subresources.push({ version: 1, resourceId: shapeResourceId, kind: 'collision-shape', value });
+    subresources.push({ version: 1, resourceId: shapeResourceId, kind: 'collision-shape', value: outer.value });
+    if (stay) subresources.push({ version: 1, resourceId: stayResourceId, kind: 'collision-shape', value: stay.value });
     mappings.push({ sourceKind: kind, sourcePath, sourceId: id, areaNodeId, shapeNodeId, scriptNodeId, position });
   };
   for (const [index, zone] of (map.enemySafeZones ?? []).entries()) {
-    addArea(`enemy-safe-${index + 1}`, 'enemy-safe-zone', `$.enemySafeZones[${index}]`, zone, zone);
+    addArea(`enemy-safe-${index + 1}`, 'enemy-safe-zone', `$.enemySafeZones[${index}]`, zone, {});
   }
   for (const [index, area] of (map.enemySpawnAreas ?? []).entries()) {
-    addArea(area.id, 'enemy-spawn', `$.enemySpawnAreas[${index}]`, area.pursuePerimeter, area);
+    const { id: _id, stayPerimeter, pursuePerimeter, ...settings } = area;
+    addArea(area.id, 'enemy-spawn', `$.enemySpawnAreas[${index}]`, pursuePerimeter, settings, stayPerimeter);
   }
   for (const [index, area] of (map.npcWanderAreas ?? []).entries()) {
-    addArea(area.id, 'npc-wander', `$.npcWanderAreas[${index}]`, area.perimeter, area);
+    const { id: _id, perimeter, ...settings } = area;
+    addArea(area.id, 'npc-wander', `$.npcWanderAreas[${index}]`, perimeter, settings);
   }
   return { nodes, subresources, mappings, rootChildCount: order - firstOrder };
 }

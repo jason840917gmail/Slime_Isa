@@ -137,6 +137,9 @@ export class StudioScenePreview implements ScenePreviewFactory {
   private runtime?: PhaserUniversalSceneRuntime;
   private content?: PreparedSceneContent;
   private mounted?: MountedScene;
+  /** Editor-only translucent copies of the bosses boss camps would spawn. */
+  private bossGhosts: MountedScene[] = [];
+  private bossGhostRequests: readonly BossGhostRequest[] = [];
   private generation = 0;
   private dirty = false;
   private camera: ViewportCamera = { centerX: 0, centerY: 0, zoom: 1 };
@@ -198,6 +201,9 @@ export class StudioScenePreview implements ScenePreviewFactory {
   get state(): StudioPreviewState { return this.stateValue; }
   get phaserGame(): Phaser.Game | undefined { return this.game; }
   get runtimeTree(): Node | undefined { return this.mounted?.root; }
+
+  /** Bosses to show at their camps' spawn points on the next mount (the camp scripts themselves are stripped from previews). */
+  setBossGhosts(requests: readonly BossGhostRequest[]): void { this.bossGhostRequests = requests; }
 
   /** Draft external resources (tile data, tile sets…) that shadow disk versions. */
   setResourceOverrides(resources: readonly SceneResourceDocument[]): void { this.resourceOverrides = resources; }
@@ -407,14 +413,18 @@ export class StudioScenePreview implements ScenePreviewFactory {
       const scene = await this.booted;
       const known = new Map(this.options.content.scenes().map((candidate) => [candidate.sceneId, candidate]));
       known.set(document.sceneId, document);
-      const scenes = previewSceneClosure(document, (sceneId) => known.get(sceneId));
+      const ghosts = this.bossGhostRequests.filter((request) => known.has(request.sceneId));
+      // Ghost boss scenes (and whatever they instance) join the prepared content.
+      const closure = new Map(previewSceneClosure(document, (sceneId) => known.get(sceneId)).map((scene) => [scene.sceneId, scene]));
+      for (const ghost of ghosts) for (const scene of previewSceneClosure(known.get(ghost.sceneId)!, (sceneId) => known.get(sceneId))) if (!closure.has(scene.sceneId)) closure.set(scene.sceneId, scene);
+      const scenes = [...closure.values()];
       const resources = new Map<ResourceId, SceneResourceDocument>(this.options.content.resources().map((resource) => [resource.resourceId, resource]));
       for (const resource of this.resourceOverrides) resources.set(resource.resourceId, resource);
       content = await PreparedSceneContent.prepare({
         scenes,
         resources: [...resources.values()],
         registry: this.options.registry,
-        sceneIds: [document.sceneId],
+        sceneIds: [document.sceneId, ...ghosts.map((ghost) => ghost.sceneId)],
         hasAsset: (assetId) => Object.hasOwn(ASSET_MANIFEST.assets, assetId),
       });
       if (generation !== this.generation) { content.dispose(); return; }
@@ -440,6 +450,7 @@ export class StudioScenePreview implements ScenePreviewFactory {
       this.content = content;
       runtime.setPaused(true);
       this.mounted = runtime.mountScene(document.sceneId, { runtimeNamespace: STUDIO_PREVIEW_NAMESPACE });
+      this.mountBossGhosts(runtime, ghosts, diagnostics);
       this.synchronize();
       this.setState({
         status: 'ready', kind, sceneId: document.sceneId, mountMs: Math.round(performance.now() - started), prepareMs: Math.round(prepared - started),
@@ -454,7 +465,27 @@ export class StudioScenePreview implements ScenePreviewFactory {
     }
   }
 
+  /**
+   * Bosses are spawned at runtime, so they are not part of the authored tree.
+   * Mount a translucent, inert copy at each requested spawn point so the level
+   * shows where (and which) boss will appear.
+   */
+  private mountBossGhosts(runtime: PhaserUniversalSceneRuntime, requests: readonly BossGhostRequest[], diagnostics: string[]): void {
+    requests.forEach((request, index) => {
+      try {
+        const ghost = runtime.mountScene(request.sceneId, { runtimeNamespace: `studio-boss-ghost-${index}`, position: { x: request.position[0], y: request.position[1] } });
+        const fade = (node: Node): void => {
+          if (node instanceof Sprite2DNode) node.alpha = BOSS_GHOST_ALPHA;
+          for (const child of node.get_children()) fade(child);
+        };
+        fade(ghost.root);
+        this.bossGhosts.push(ghost);
+      } catch (error) { diagnostics.push(`Boss preview '${request.sceneId}': ${message(error)}`); }
+    });
+  }
+
   private unmount(): void {
+    this.bossGhosts = [];
     this.clearOnionSkin();
     this.animationPlayer = undefined;
     const runtime = this.runtime;
@@ -518,6 +549,14 @@ export class StudioScenePreview implements ScenePreviewFactory {
     this.stateValue = state;
     this.options.onChange?.(state);
   }
+}
+
+const BOSS_GHOST_ALPHA = 0.55;
+
+/** A boss scene to preview at a world position (where its camp would spawn it). */
+export interface BossGhostRequest {
+  readonly sceneId: SceneId;
+  readonly position: readonly [number, number];
 }
 
 export function previewRuntimeId(instancePath: readonly string[], nodeId: string): string {

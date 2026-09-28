@@ -11,7 +11,7 @@
       "order": 0,
       "properties": {
         "collisionLayer": 128,
-        "collisionMask": 1,
+        "collisionMask": 3,
         "position": [
           0,
           0
@@ -22,7 +22,7 @@
         ],
         "depthAnchor": [
           0,
-          22
+          -7
         ]
       }
     },
@@ -38,7 +38,7 @@
         },
         "position": [
           0,
-          10
+          -20
         ]
       }
     },
@@ -315,9 +315,9 @@
       "resourceId": "lili.body-shape",
       "kind": "collision-shape",
       "value": {
-        "shape": "ellipse",
-        "radiusX": 18,
-        "radiusY": 12
+        "shape": "rectangle",
+        "width": 30,
+        "height": 26
       }
     }
   ]

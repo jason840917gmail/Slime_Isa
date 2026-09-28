@@ -1,5 +1,6 @@
 import type { RuntimeNodeId } from '../../content/scenes/identifiers';
 import type { DamageCommit, DamageMitigationInput, DamageStateDecision } from '../combat/DamageReceiver';
+import { bossPerimeterContains, clampToBossArena } from '../bosses/BossCampBehavior';
 import { EnemyScript } from './EnemyScript';
 
 type FattyOneEyePhase = 'chase' | 'return-to-center' | 'contact-hop' | 'small-hop' | 'airborne' | 'landing' | 'recovery' | 'dead';
@@ -50,7 +51,12 @@ export class FattyScript extends EnemyScript {
     const time = this.simulationTime;
     const body = this.body();
 
+    // The arena leash itself lives in EnemyScript; Fatty only mirrors it as a phase.
     if (this.phaseValue === 'chase') {
+      if (this.returningToArena) {
+        this.beginReturn(time);
+        return;
+      }
       if (this.runtimeState === 'attack') {
         if (this.requestContactHop(time)) this.playAnimation('contact-hop');
         return;
@@ -63,11 +69,15 @@ export class FattyScript extends EnemyScript {
       return;
     }
 
+    if (this.phaseValue === 'return-to-center') {
+      if (!this.returningToArena) this.resumeChase(time);
+      return;
+    }
+
     body.velocity = { x: 0, y: 0 };
     if (this.phaseValue === 'contact-hop') {
       if (this.elapsedInPhase(time) >= Math.max(1, this.numberProperty('contactHopDurationMs', 300))) {
         this.resumeChase(time);
-        this.playAnimation('chase');
       }
       return;
     }
@@ -95,14 +105,15 @@ export class FattyScript extends EnemyScript {
       return;
     }
     if (this.phaseValue === 'recovery' && this.elapsedInPhase(time) >= Math.max(1, this.numberProperty('recoveryMs', 700))) {
-      this.resumeChase(time);
       this.nextLeapAt = time + Math.max(1, this.numberProperty('leapCadenceMs', 5000));
-      this.playAnimation('chase');
+      this.resumeChase(time);
     }
   }
 
   requestContactHop(time: number): boolean {
     if (this.defeated || this.phaseValue !== 'chase' || time < this.nextContactHopAt) return false;
+    const arena = this.arena();
+    if (arena && !bossPerimeterContains(arena, this.worldPosition.x, this.worldPosition.y)) return false;
     this.transitionTo('contact-hop', time);
     this.nextContactHopAt = time + Math.max(1, this.numberProperty('contactHopCooldownMs', 1000));
     this.setBodyCollision(false);
@@ -119,7 +130,9 @@ export class FattyScript extends EnemyScript {
   beginAirborne(time: number): boolean {
     if (this.phaseValue !== 'small-hop') return false;
     this.leapFrom = this.body().get_global_transform().position;
-    this.leapTarget = this.currentTarget()?.position ?? this.leapFrom;
+    const target = this.currentTarget()?.position ?? this.leapFrom;
+    const arena = this.arena();
+    this.leapTarget = arena ? clampToBossArena(arena, target) : target;
     this.setBodyCollision(false);
     this.transitionTo('airborne', time);
     this.playAnimation('airborne');
@@ -153,7 +166,9 @@ export class FattyScript extends EnemyScript {
 
   beginReturn(time: number): boolean {
     if (this.defeated || this.phaseValue === 'dead') return false;
+    this.setBodyCollision(true);
     this.transitionTo('return-to-center', time);
+    this.playAnimation('chase');
     return true;
   }
 

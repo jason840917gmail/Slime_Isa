@@ -21,7 +21,8 @@ import type { Node } from '../../runtime/scene/Node';
 import type { Node2D } from '../../runtime/scene/Node2D';
 import { AnimationPlayerNode } from '../../runtime/scene/animation/AnimationPlayerNode';
 import { runState, type EnemyAIConfig, type EnemySafeZone, type EnemyState } from '../../enemies/EnemyAI';
-import type { MapEnemySpawnArea } from '../../content/maps/mapFormat';
+import type { MapEnemyAreaPerimeter, MapEnemySpawnArea } from '../../content/maps/mapFormat';
+import { bossArenaCenter, bossPerimeterContains } from '../bosses/BossCampBehavior';
 
 export const DAMAGE_ROUTER_SERVICE = 'combat.damage-router';
 export const ATTACK_ACTIVATION_SERVICE = 'combat.attack-activation';
@@ -83,6 +84,8 @@ interface TintableVisual {
 export interface EnemyNavigationSnapshot {
   readonly safeZones?: readonly EnemySafeZone[];
   readonly spawnArea?: MapEnemySpawnArea;
+  /** Boss camp arena the boss must not pursue beyond. */
+  readonly arena?: MapEnemyAreaPerimeter;
 }
 
 export interface EnemyProjectileRequest {
@@ -132,6 +135,7 @@ function isRecord(value: JsonValue | undefined): value is { readonly [key: strin
 }
 
 export class EnemyScript extends CharacterScript implements DamageReceiver {
+  readonly displayName: string;
   readonly faction: string;
   readonly rank: EnemyRank;
   readonly maxHealth: number;
@@ -161,9 +165,11 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
   private facingFlipped = false;
   private hitStunUntil = 0;
   private hitFlashUntil = 0;
+  private returningToArenaValue = false;
 
   constructor(context: NodeConstructionContext) {
     super(context);
+    this.displayName = this.stringProperty('displayName', '');
     this.faction = this.stringProperty('faction', 'hostile');
     this.rank = this.stringProperty('rank', 'ordinary') as EnemyRank;
     this.maxHealth = Math.max(1, this.numberProperty('maxHealth', 1));
@@ -182,6 +188,8 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
   get staggered(): boolean { return this.simulationTimeMs < this.hitStunUntil; }
   get attacking(): boolean { return this.activeSequenceId !== undefined; }
   get facingDirection(): EnemyFacing { return this.facing; }
+  /** True while an arena-leashed enemy walks home because its target left the arena. */
+  get returningToArena(): boolean { return this.returningToArenaValue; }
   get worldPosition(): CharacterPoint { return this.body().get_global_transform().position; }
 
   getDamageState() {
@@ -311,6 +319,20 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
     }
 
     const origin = body.get_global_transform().position;
+    const navigation = this.navigation();
+    // Arena leash (boss camps): outside the arena the enemy drops the fight and walks home.
+    if (navigation?.arena && !bossPerimeterContains(navigation.arena, target.position.x, target.position.y)) {
+      this.cancelAttack();
+      this.returningToArenaValue = true;
+      this.aiState = 'idle';
+      this.runtimeStateValue = 'idle';
+      const velocity = this.velocityTowardArenaCenter(navigation.arena, origin, deltaSeconds);
+      body.velocity = velocity;
+      this.updateFacing(velocity);
+      this.playFacing(Math.hypot(velocity.x, velocity.y) > 2 ? 'walk' : 'idle');
+      return;
+    }
+    this.returningToArenaValue = false;
     const movement = this.movementToward(origin, target.position, 1);
     const direction = movement.speed > 0 ? { x: movement.x, y: movement.y } : this.attackDirection;
     const distance = Math.sqrt(this.distanceSquared(origin, target.position));
@@ -332,7 +354,6 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
       setVelocity: (x: number, y: number) => { velocity.x = x; velocity.y = y; },
       velocity: { scale: (amount: number) => { velocity.x *= amount; velocity.y *= amount; } },
     };
-    const navigation = this.targetService?.getNavigation?.(this.runtimeId);
     const directionPort = { ...direction, clone: () => ({ ...directionPort }) };
     let state = this.aiState;
     for (let transitions = 0; transitions < 3; transitions += 1) {
@@ -417,6 +438,29 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
 
   protected currentTarget(): EnemyTargetSnapshot | undefined {
     return this.targetService?.getPrimaryTarget(this.runtimeId);
+  }
+
+  protected navigation(): EnemyNavigationSnapshot | undefined {
+    return this.targetService?.getNavigation?.(this.runtimeId);
+  }
+
+  /** The arena this enemy is leashed to, when a boss camp spawned it. */
+  protected arena(): MapEnemyAreaPerimeter | undefined {
+    return this.navigation()?.arena;
+  }
+
+  /** Walks toward the arena centre at movement speed, snapping onto it on the last step. */
+  private velocityTowardArenaCenter(arena: MapEnemyAreaPerimeter, origin: CharacterPoint, deltaSeconds: number): CharacterPoint {
+    const center = bossArenaCenter(arena);
+    const dx = center.x - origin.x;
+    const dy = center.y - origin.y;
+    const remaining = Math.hypot(dx, dy);
+    if (remaining <= Math.max(1, this.movementSpeed * Math.max(0, deltaSeconds))) {
+      const body = this.body();
+      body.set_global_transform({ ...body.get_global_transform(), position: { x: center.x, y: center.y } });
+      return { x: 0, y: 0 };
+    }
+    return { x: (dx / remaining) * this.movementSpeed, y: (dy / remaining) * this.movementSpeed };
   }
 
   protected canRunCommonAttack(): boolean { return true; }

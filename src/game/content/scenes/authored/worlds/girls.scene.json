@@ -110,11 +110,9 @@
         "area": {
           "nodeId": "area-enemy-safe-1"
         },
-        "data": {
-          "x": 384,
-          "y": 448,
-          "w": 1024,
-          "h": 640
+        "data": {},
+        "shape": {
+          "nodeId": "area-enemy-safe-1-shape"
         }
       }
     },
@@ -137,7 +135,7 @@
     },
     {
       "id": "area-enemy-area-01-shape",
-      "name": "collision-shape",
+      "name": "pursue-shape",
       "type": "CollisionShape2D",
       "parentId": "area-enemy-area-01",
       "order": 0,
@@ -148,12 +146,24 @@
       }
     },
     {
+      "id": "area-enemy-area-01-stay-shape",
+      "name": "stay-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-enemy-area-01",
+      "order": 1,
+      "properties": {
+        "shape": {
+          "resourceId": "girls.area-enemy-area-01.stay-shape"
+        }
+      }
+    },
+    {
       "id": "area-enemy-area-01-script",
       "name": "world-area-script",
       "type": "ScriptNode",
       "scriptId": "game.world-area",
       "parentId": "area-enemy-area-01",
-      "order": 1,
+      "order": 2,
       "properties": {
         "areaKind": "enemy-spawn",
         "areaId": "enemy-area-01",
@@ -161,21 +171,6 @@
           "nodeId": "area-enemy-area-01"
         },
         "data": {
-          "id": "enemy-area-01",
-          "stayPerimeter": {
-            "shape": "rectangle",
-            "x": 2304,
-            "y": 768,
-            "w": 640,
-            "h": 640
-          },
-          "pursuePerimeter": {
-            "shape": "rectangle",
-            "x": 2176,
-            "y": 640,
-            "w": 896,
-            "h": 896
-          },
           "enemies": [
             {
               "type": "slime-spider",
@@ -192,6 +187,12 @@
           ],
           "intervalMs": 1500,
           "maxPopulation": 8
+        },
+        "shape": {
+          "nodeId": "area-enemy-area-01-shape"
+        },
+        "stayShape": {
+          "nodeId": "area-enemy-area-01-stay-shape"
         }
       }
     },
@@ -214,7 +215,7 @@
     },
     {
       "id": "area-enemy-area-02-shape",
-      "name": "collision-shape",
+      "name": "pursue-shape",
       "type": "CollisionShape2D",
       "parentId": "area-enemy-area-02",
       "order": 0,
@@ -225,12 +226,28 @@
       }
     },
     {
+      "id": "area-enemy-area-02-stay-shape",
+      "name": "stay-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-enemy-area-02",
+      "order": 1,
+      "properties": {
+        "shape": {
+          "resourceId": "girls.area-enemy-area-02.stay-shape"
+        },
+        "position": [
+          -32,
+          32
+        ]
+      }
+    },
+    {
       "id": "area-enemy-area-02-script",
       "name": "world-area-script",
       "type": "ScriptNode",
       "scriptId": "game.world-area",
       "parentId": "area-enemy-area-02",
-      "order": 1,
+      "order": 2,
       "properties": {
         "areaKind": "enemy-spawn",
         "areaId": "enemy-area-02",
@@ -238,21 +255,6 @@
           "nodeId": "area-enemy-area-02"
         },
         "data": {
-          "id": "enemy-area-02",
-          "stayPerimeter": {
-            "shape": "rectangle",
-            "x": 256,
-            "y": 1664,
-            "w": 768,
-            "h": 576
-          },
-          "pursuePerimeter": {
-            "shape": "rectangle",
-            "x": 128,
-            "y": 1536,
-            "w": 1088,
-            "h": 768
-          },
           "enemies": [
             {
               "type": "slime-spider",
@@ -269,6 +271,12 @@
           ],
           "intervalMs": 1500,
           "maxPopulation": 8
+        },
+        "shape": {
+          "nodeId": "area-enemy-area-02-shape"
+        },
+        "stayShape": {
+          "nodeId": "area-enemy-area-02-stay-shape"
         }
       }
     },
@@ -291,7 +299,7 @@
     },
     {
       "id": "area-enemy-area-03-shape",
-      "name": "collision-shape",
+      "name": "pursue-shape",
       "type": "CollisionShape2D",
       "parentId": "area-enemy-area-03",
       "order": 0,
@@ -302,12 +310,24 @@
       }
     },
     {
+      "id": "area-enemy-area-03-stay-shape",
+      "name": "stay-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-enemy-area-03",
+      "order": 1,
+      "properties": {
+        "shape": {
+          "resourceId": "girls.area-enemy-area-03.stay-shape"
+        }
+      }
+    },
+    {
       "id": "area-enemy-area-03-script",
       "name": "world-area-script",
       "type": "ScriptNode",
       "scriptId": "game.world-area",
       "parentId": "area-enemy-area-03",
-      "order": 1,
+      "order": 2,
       "properties": {
         "areaKind": "enemy-spawn",
         "areaId": "enemy-area-03",
@@ -315,21 +335,6 @@
           "nodeId": "area-enemy-area-03"
         },
         "data": {
-          "id": "enemy-area-03",
-          "stayPerimeter": {
-            "shape": "rectangle",
-            "x": 1984,
-            "y": 2304,
-            "w": 1280,
-            "h": 832
-          },
-          "pursuePerimeter": {
-            "shape": "rectangle",
-            "x": 1856,
-            "y": 2176,
-            "w": 1536,
-            "h": 1088
-          },
           "enemies": [
             {
               "type": "slime-spider",
@@ -346,6 +351,12 @@
           ],
           "intervalMs": 1500,
           "maxPopulation": 8
+        },
+        "shape": {
+          "nodeId": "area-enemy-area-03-shape"
+        },
+        "stayShape": {
+          "nodeId": "area-enemy-area-03-stay-shape"
         }
       }
     },
@@ -7304,6 +7315,16 @@
     },
     {
       "version": 1,
+      "resourceId": "girls.area-enemy-area-01.stay-shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 640,
+        "height": 640
+      }
+    },
+    {
+      "version": 1,
       "resourceId": "girls.area-enemy-area-02.shape",
       "kind": "collision-shape",
       "value": {
@@ -7314,12 +7335,32 @@
     },
     {
       "version": 1,
+      "resourceId": "girls.area-enemy-area-02.stay-shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 768,
+        "height": 576
+      }
+    },
+    {
+      "version": 1,
       "resourceId": "girls.area-enemy-area-03.shape",
       "kind": "collision-shape",
       "value": {
         "shape": "rectangle",
         "width": 1536,
         "height": 1088
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "girls.area-enemy-area-03.stay-shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 1280,
+        "height": 832
       }
     },
     {

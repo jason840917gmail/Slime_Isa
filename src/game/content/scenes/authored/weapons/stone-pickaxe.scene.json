@@ -70,7 +70,7 @@
           "resourceId": "weapon.stone-pickaxe.right.pickaxe-head.shape"
         },
         "position": [
-          42,
+          60,
           15
         ],
         "rotation": 0,
@@ -88,7 +88,7 @@
           "resourceId": "weapon.stone-pickaxe.left.pickaxe-head.shape"
         },
         "position": [
-          -42,
+          -60,
           15
         ],
         "rotation": 0,
@@ -107,7 +107,7 @@
         },
         "position": [
           0,
-          -22
+          -60
         ],
         "rotation": 0,
         "disabled": true
@@ -125,7 +125,7 @@
         },
         "position": [
           0,
-          42
+          60
         ],
         "rotation": 0,
         "disabled": true
@@ -285,46 +285,6 @@
       "frameWidth": 128,
       "frameHeight": 128,
       "frameCount": 4
-    },
-    {
-      "version": 1,
-      "resourceId": "weapon.stone-pickaxe.right.pickaxe-head.shape",
-      "kind": "collision-shape",
-      "value": {
-        "shape": "rectangle",
-        "width": 40,
-        "height": 40
-      }
-    },
-    {
-      "version": 1,
-      "resourceId": "weapon.stone-pickaxe.left.pickaxe-head.shape",
-      "kind": "collision-shape",
-      "value": {
-        "shape": "rectangle",
-        "width": 40,
-        "height": 40
-      }
-    },
-    {
-      "version": 1,
-      "resourceId": "weapon.stone-pickaxe.up.pickaxe-head.shape",
-      "kind": "collision-shape",
-      "value": {
-        "shape": "rectangle",
-        "width": 40,
-        "height": 40
-      }
-    },
-    {
-      "version": 1,
-      "resourceId": "weapon.stone-pickaxe.down.pickaxe-head.shape",
-      "kind": "collision-shape",
-      "value": {
-        "shape": "rectangle",
-        "width": 40,
-        "height": 40
-      }
     },
     {
       "version": 1,
@@ -1561,6 +1521,46 @@
             }
           ]
         }
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "weapon.stone-pickaxe.right.pickaxe-head.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 26,
+        "height": 26
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "weapon.stone-pickaxe.left.pickaxe-head.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 26,
+        "height": 26
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "weapon.stone-pickaxe.up.pickaxe-head.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 26,
+        "height": 26
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "weapon.stone-pickaxe.down.pickaxe-head.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 26,
+        "height": 26
       }
     }
   ]

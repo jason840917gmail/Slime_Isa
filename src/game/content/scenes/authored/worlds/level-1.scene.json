@@ -110,11 +110,9 @@
         "area": {
           "nodeId": "area-enemy-safe-1"
         },
-        "data": {
-          "x": 416,
-          "y": 384,
-          "w": 448,
-          "h": 448
+        "data": {},
+        "shape": {
+          "nodeId": "area-enemy-safe-1-shape"
         }
       }
     },
@@ -137,7 +135,7 @@
     },
     {
       "id": "area-level-1-starter-camp-shape",
-      "name": "collision-shape",
+      "name": "pursue-shape",
       "type": "CollisionShape2D",
       "parentId": "area-level-1-starter-camp",
       "order": 0,
@@ -148,12 +146,28 @@
       }
     },
     {
+      "id": "area-level-1-starter-camp-stay-shape",
+      "name": "stay-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-level-1-starter-camp",
+      "order": 1,
+      "properties": {
+        "shape": {
+          "resourceId": "level-1.area-level-1-starter-camp.stay-shape"
+        },
+        "position": [
+          -2,
+          4.5
+        ]
+      }
+    },
+    {
       "id": "area-level-1-starter-camp-script",
       "name": "world-area-script",
       "type": "ScriptNode",
       "scriptId": "game.world-area",
       "parentId": "area-level-1-starter-camp",
-      "order": 1,
+      "order": 2,
       "properties": {
         "areaKind": "enemy-spawn",
         "areaId": "level-1-starter-camp",
@@ -161,21 +175,6 @@
           "nodeId": "area-level-1-starter-camp"
         },
         "data": {
-          "id": "level-1-starter-camp",
-          "stayPerimeter": {
-            "shape": "rectangle",
-            "x": 1088,
-            "y": 1483,
-            "w": 280,
-            "h": 181
-          },
-          "pursuePerimeter": {
-            "shape": "rectangle",
-            "x": 832,
-            "y": 1291,
-            "w": 600,
-            "h": 437
-          },
           "enemies": [
             {
               "type": "worm-brawler",
@@ -185,6 +184,12 @@
           ],
           "intervalMs": 2500,
           "maxPopulation": 3
+        },
+        "shape": {
+          "nodeId": "area-level-1-starter-camp-shape"
+        },
+        "stayShape": {
+          "nodeId": "area-level-1-starter-camp-stay-shape"
         }
       }
     },
@@ -231,14 +236,10 @@
           "nodeId": "area-npc-area-01"
         },
         "data": {
-          "id": "npc-area-01",
-          "npcInstanceId": "level-1-npc-village-elder-plop",
-          "perimeter": {
-            "shape": "circle",
-            "x": 512,
-            "y": 704,
-            "radius": 96
-          }
+          "npcInstanceId": "level-1-npc-village-elder-plop"
+        },
+        "shape": {
+          "nodeId": "area-npc-area-01-shape"
         }
       }
     },
@@ -285,14 +286,10 @@
           "nodeId": "area-npc-area-03"
         },
         "data": {
-          "id": "npc-area-03",
-          "npcInstanceId": "level-1-npc-lili",
-          "perimeter": {
-            "shape": "circle",
-            "x": 480,
-            "y": 896,
-            "radius": 72
-          }
+          "npcInstanceId": "level-1-npc-lili"
+        },
+        "shape": {
+          "nodeId": "area-npc-area-03-shape"
         }
       }
     },
@@ -339,15 +336,10 @@
           "nodeId": "area-npc-area-04"
         },
         "data": {
-          "id": "npc-area-04",
-          "npcInstanceId": "level-1-npc-red-slime-boy",
-          "perimeter": {
-            "shape": "rectangle",
-            "x": 576,
-            "y": 832,
-            "w": 128,
-            "h": 144
-          }
+          "npcInstanceId": "level-1-npc-red-slime-boy"
+        },
+        "shape": {
+          "nodeId": "area-npc-area-04-shape"
         }
       }
     },
@@ -394,14 +386,60 @@
           "nodeId": "area-npc-area-05"
         },
         "data": {
-          "id": "npc-area-05",
-          "npcInstanceId": "level-1-npc-yellow-blond-slime-girl",
-          "perimeter": {
-            "shape": "circle",
-            "x": 800,
-            "y": 896,
-            "radius": 72
-          }
+          "npcInstanceId": "level-1-npc-yellow-blond-slime-girl"
+        },
+        "shape": {
+          "nodeId": "area-npc-area-05-shape"
+        }
+      }
+    },
+    {
+      "id": "area-npc-area-06",
+      "name": "npc-area-06",
+      "type": "Area2D",
+      "parentId": "world",
+      "order": 40,
+      "properties": {
+        "position": [
+          1351,
+          750
+        ],
+        "collisionLayer": 512,
+        "collisionMask": 0,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "area-npc-area-06-shape",
+      "name": "collision-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-npc-area-06",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "level-1.area-npc-area-06.shape"
+        }
+      }
+    },
+    {
+      "id": "area-npc-area-06-script",
+      "name": "world-area-script",
+      "type": "ScriptNode",
+      "scriptId": "game.world-area",
+      "parentId": "area-npc-area-06",
+      "order": 1,
+      "properties": {
+        "areaKind": "npc-wander",
+        "areaId": "npc-area-06",
+        "area": {
+          "nodeId": "area-npc-area-06"
+        },
+        "data": {
+          "npcInstanceId": "level-1-npc-fisherman-slime"
+        },
+        "shape": {
+          "nodeId": "area-npc-area-06-shape"
         }
       }
     },
@@ -448,15 +486,10 @@
           "nodeId": "area-npc-area-02"
         },
         "data": {
-          "id": "npc-area-02",
-          "npcInstanceId": "level-1-npc-mossy-scout",
-          "perimeter": {
-            "shape": "rectangle",
-            "x": 672,
-            "y": 640,
-            "w": 192,
-            "h": 128
-          }
+          "npcInstanceId": "level-1-npc-mossy-scout"
+        },
+        "shape": {
+          "nodeId": "area-npc-area-02-shape"
         }
       }
     },
@@ -1242,6 +1275,63 @@
           ]
         }
       ]
+    },
+    {
+      "instanceId": "object-decoration-world-solid",
+      "name": "wood-fence",
+      "sceneId": "object.decoration-world-solid",
+      "parentNodeId": "world",
+      "order": 37,
+      "persistenceKey": "world.level-1.object-decoration-world-solid",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1083,
+            560
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "object-house-world-solid-forge-red",
+      "name": "forge-red",
+      "sceneId": "object.house-world-solid.forge-red",
+      "parentNodeId": "world",
+      "order": 38,
+      "persistenceKey": "world.level-1.object-house-world-solid-forge-red",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1081,
+            921
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "level-1-npc-fisherman-slime",
+      "name": "level-1-npc-fisherman-slime",
+      "sceneId": "character.fisherman-slime",
+      "parentNodeId": "world",
+      "order": 39,
+      "persistenceKey": "level-1.level-1-npc-fisherman-slime",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1351,
+            748
+          ]
+        }
+      ]
     }
   ],
   "connections": [
@@ -1269,12 +1359,12 @@
     },
     {
       "version": 1,
-      "resourceId": "level-1.area-level-1-starter-camp.shape",
+      "resourceId": "level-1.area-level-1-starter-camp.stay-shape",
       "kind": "collision-shape",
       "value": {
         "shape": "rectangle",
-        "width": 600,
-        "height": 437
+        "width": 280,
+        "height": 181
       }
     },
     {
@@ -17023,6 +17113,25 @@
           "tileId": "grass-a"
         }
       ]
+    },
+    {
+      "version": 1,
+      "resourceId": "level-1.area-level-1-starter-camp.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 1288.5,
+        "height": 880.5
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "level-1.area-npc-area-06.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "circle",
+        "radius": 500
+      }
     }
   ]
 }

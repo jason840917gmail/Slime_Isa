@@ -1,9 +1,8 @@
 import Phaser from 'phaser';
 
-import type { MapEnemySafeZone, MapFile } from '../../content/maps/mapFormat';
+import type { MapEnemyAreaPerimeter, MapEnemySafeZone, MapFile } from '../../content/maps/mapFormat';
 import { getCharacterPackage } from '../../content/characters/CharacterCatalog';
 import { resourceId, sceneId, type SceneId } from '../../content/scenes/identifiers';
-import { getBossDefinition } from '../../content/bosses/BossCatalog';
 import { ASSET_MANIFEST, type AssetId } from '../../infrastructure/assets/manifest';
 import { GlobalAudioServices } from '../../infrastructure/audio/GlobalAudioServices';
 import { CharacterBody2DNode } from '../../infrastructure/phaser-nodes/CharacterBody2DNode';
@@ -21,6 +20,8 @@ import { DamageRouter } from '../combat/DamageRouter';
 import type { InteractionProvider, InteractionRouter } from '../interaction/InteractionRouter';
 import type { NpcActorHandle, QuestNpcRegistration } from '../interaction/QuestNpcController';
 import { createNpcWanderState, stepNpcWander } from '../npcs/NpcWanderPolicy';
+import { NpcNameTags } from '../npcs/NpcNameTags';
+import { getNpcDefinition } from '../../content/npcs/NpcCatalog';
 import type { InventoryWorldTransaction } from '../progression/InventoryWorldTransaction';
 import type { WorldProgress } from '../progression/WorldProgress';
 import type { EnemyPopulationMember, EnemySpawnRequest } from '../../enemies/AuthoredEnemyPopulationController';
@@ -181,6 +182,11 @@ export interface UniversalSceneWorldControllerOptions {
   readonly uiRoot: HTMLElement;
 }
 
+export interface BossBattleAreas {
+  readonly activation?: MapEnemyAreaPerimeter;
+  readonly arena?: MapEnemyAreaPerimeter;
+}
+
 interface ManagedCamp {
   readonly script: BossCampScript;
   readonly owner: Node2D;
@@ -188,6 +194,7 @@ interface ManagedCamp {
 
 interface ManagedBoss {
   readonly campId: string;
+  readonly bossId: string;
   readonly script: EnemyScript;
   readonly mount: MountedScene;
   defeatedNotified: boolean;
@@ -231,12 +238,16 @@ interface ManagedCollectible {
 const PLAYER_SILHOUETTE_COLOR = 0x73d7ff;
 const HOSTILE_SILHOUETTE_COLOR = 0xff936d;
 
-const MANAGED_ENEMY_SCENES = {
-  'worm-archer': 'character.worm-archer',
-  'worm-brawler': 'character.worm-brawler',
-  'worm-swordsman': 'character.worm-swordsman',
-  'slime-spider': 'character.slime-spider',
-} as const;
+/** Enemy spawn-area types resolve to their character scene by convention: `character.<type>`. */
+function enemySceneId(enemyType: string): string {
+  return `character.${enemyType}`;
+}
+
+/** The boss scene's authored display name, or a readable fallback from its id. */
+function bossDisplayName(script: EnemyScript, fallbackId: string): string {
+  if (script.displayName) return script.displayName;
+  return fallbackId.split(/[-_.]/).filter(Boolean).map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+}
 
 function isPassiveObjectScene(sceneIdValue: string): boolean {
   return sceneIdValue.startsWith('object.decoration-world-')
@@ -281,6 +292,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
   private readonly authoredRoots = new Set<Node2D>();
   private weapon?: ManagedWeapon;
   private readonly npcs = new Map<string, NpcScript>();
+  private readonly npcNameTags: NpcNameTags;
   private playerScript?: PlayerScript;
   private playerBody?: CharacterBody2DNode;
   private playerVisual?: Sprite2DNode;
@@ -299,6 +311,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
   constructor(private readonly options: UniversalSceneWorldControllerOptions) {
     let inputSink: InputEventSink | undefined;
     this.audioServices = new GlobalAudioServices(options.scene.sound);
+    this.npcNameTags = new NpcNameTags(options.scene);
     this.hudSurface = new HudSurfacePort();
     this.weaponHotbarSurface = new WeaponHotbarSurfacePort(options.onEquipWeaponSlot);
     this.abilityBarSurface = new AbilityBarSurfacePort(options.getAbilitySystem, options.canUseAbilities, options.onActivateAbility);
@@ -342,7 +355,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
       const boss = this.bosses.get(campId);
       if (!boss) return undefined;
       return {
-        name: getBossDefinition(bossId).displayName,
+        name: bossDisplayName(boss.script, bossId),
         hp: () => boss.script.hp,
         maxHp: () => boss.script.maxHealth,
       };
@@ -495,6 +508,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
             options.updatePresentation(deltaSeconds * 1000);
             for (const effect of this.effects.values()) effect.attachment?.update();
           },
+          afterPresentation: () => this.npcNameTags.update(),
         },
       });
       inputSink = this.runtime;
@@ -591,6 +605,14 @@ export class UniversalSceneWorldController implements InteractionProvider {
     if (!this.playerVisual) throw new Error('The authored player visual is not mounted.');
     return this.playerVisual;
   }
+  /** World-space activation and arena perimeters of every mounted boss camp. */
+  get bossBattleAreas(): readonly BossBattleAreas[] {
+    return [...this.camps.values()].map(({ script }) => ({
+      activation: script.activationPerimeter,
+      arena: script.arenaPerimeter,
+    }));
+  }
+
   get managedLiveCampCount(): number { return [...this.camps.values()].filter((camp) => camp.script.hasLiveBoss).length; }
 
   flashHudCoins(): void {
@@ -636,8 +658,8 @@ export class UniversalSceneWorldController implements InteractionProvider {
   }
 
   createManagedEnemy(request: EnemySpawnRequest): EnemyPopulationMember | null | undefined {
-    const authoredSceneId = MANAGED_ENEMY_SCENES[request.config.id as keyof typeof MANAGED_ENEMY_SCENES];
-    if (!authoredSceneId) return undefined;
+    const authoredSceneId = enemySceneId(request.config.id);
+    if (!this.options.content.catalog.has(sceneId(authoredSceneId))) return undefined;
     const enemyId = this.nextEnemySequence++;
     const mount = this.runtime.mountScene(sceneId(authoredSceneId), {
       runtimeNamespace: `managed-enemy-${enemyId}`,
@@ -873,6 +895,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.unregisterFloatingText();
     this.inputRouter.destroy();
     this.runtime.shutdown();
+    this.npcNameTags.destroy();
     this.audioServices.destroy();
     this.hudSurface.destroy();
     this.weaponHotbarSurface.destroy();
@@ -1045,6 +1068,14 @@ export class UniversalSceneWorldController implements InteractionProvider {
       acquireInteractionLock: () => script.acquireInteractionLock(),
     };
     this.npcs.set(instanceId, script);
+    const visual = script.getReference<Node>('visual')?.configuredTarget;
+    if (visual instanceof Sprite2DNode) {
+      this.npcNameTags.add(instanceId, {
+        label: getNpcDefinition(script.npcDefinitionId)?.displayName ?? script.npcDefinitionId,
+        isActive: () => script.isActive(),
+        sprite: () => visual.presentationObject,
+      });
+    }
     this.options.registerNpc?.({
       actor,
       instanceId,
@@ -1074,7 +1105,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
     const script = descendants(mount.root, EnemyScript)[0];
     if (!script) { mount.dispose(); throw new Error(`Boss scene '${request.sceneId}' has no enemy receiver script.`); }
     this.registerCharacterOcclusion(mount.root, HOSTILE_SILHOUETTE_COLOR, () => !script.defeated);
-    this.bosses.set(request.campId, { campId: request.campId, script, mount, defeatedNotified: false });
+    this.bosses.set(request.campId, { campId: request.campId, bossId: request.bossId, script, mount, defeatedNotified: false });
   }
 
   private removeBoss(campId: string): void {
@@ -1092,7 +1123,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
       this.options.showMessage(
         boss.script.worldPosition.x,
         boss.script.worldPosition.y - 84,
-        'Fatty One Eye defeated!',
+        `${bossDisplayName(boss.script, boss.bossId)} defeated!`,
         'yellow',
         true,
       );
@@ -1136,6 +1167,11 @@ export class UniversalSceneWorldController implements InteractionProvider {
   }
 
   private enemyNavigation(sourceNodeId: string): EnemyNavigationSnapshot | undefined {
+    const boss = [...this.bosses.values()].find((candidate) => candidate.script.runtimeId === sourceNodeId);
+    if (boss) {
+      const arena = this.camps.get(boss.campId)?.script.arenaPerimeter;
+      return arena ? { arena } : undefined;
+    }
     const enemy = [...this.ordinaryEnemies.values()].find((candidate) => candidate.script.runtimeId === sourceNodeId);
     if (!enemy) return undefined;
     return {

@@ -171,6 +171,13 @@
 .scene-overlay-svg .scene-shape { fill: #5fd0ff1c; stroke: #5fd0ff; stroke-width: 1.5; }
 .scene-overlay-svg .scene-shape.is-editable { stroke: #86f0c3; fill: #86f0c31c; }
 .scene-overlay-svg .scene-shape.is-active { stroke: #ff6b5a; stroke-width: 2; fill: #ff6b5a33; }
+/* World areas use the in-game dev overlay colours (dev/WorldDebugRenderer.ts). */
+.scene-overlay-svg .scene-shape.is-area-perimeter { stroke: #5ee7ff; fill: #5ee7ff14; stroke-width: 2; }
+.scene-overlay-svg .scene-shape.is-area-stay { stroke: #ffc65c; fill: #ffc65c1f; stroke-width: 2; }
+.scene-overlay-svg .scene-shape.is-area-safe { stroke: #86f0c3; fill: #86f0c31a; stroke-width: 2; stroke-dasharray: 6 4; }
+.scene-overlay-svg .scene-shape.is-area-wander { stroke: #c9a2ff; fill: #c9a2ff1a; stroke-width: 2; }
+.scene-overlay-svg .scene-shape.is-area-activation { stroke: #40e0d0; fill: #40e0d00f; stroke-width: 2; stroke-dasharray: 8 5; }
+.scene-overlay-svg .scene-shape.is-area-arena { stroke: #ffb84d; fill: #ffb84d14; stroke-width: 2; }
 .scene-overlay-svg .scene-tile-bounds { fill: none; stroke: #d8a94f99; stroke-width: 1; stroke-dasharray: 6 4; }
 .scene-overlay-svg .scene-tile-effective { fill: none; stroke: #6ba383aa; stroke-width: 1; }
 .scene-overlay-svg .scene-tile-collision { fill: #d8924333; stroke: #d89243; stroke-width: 1; }
@@ -178,6 +185,8 @@
 .scene-viewport-node { position: absolute; z-index: 2; width: 16px; height: 16px; margin: -8px 0 0 -8px; padding: 0; background: transparent; pointer-events: auto; }
 .scene-viewport-node i { position: absolute; left: 2px; top: 2px; width: 12px; height: 12px; transform: rotate(45deg); border: 1px solid #76b99c; background: #1c4a3acc; box-shadow: 0 0 0 1px #02070688; }
 .scene-viewport-node.is-instance i { border-color: #72d8ff; background: #17324acc; border-radius: 2px; }
+.scene-viewport-node.is-boss i { border-color: #ffb84d; background: #6b3f12cc; border-radius: 50%; transform: none; }
+.scene-viewport-node.is-boss span { color: #ffd9a0; background: #2a1a0bdd; font-weight: 700; }
 .scene-viewport-node span { position: absolute; top: 16px; left: 16px; display: none; width: max-content; max-width: 220px; overflow: hidden; padding: 1px 4px; color: #d5e4dc; background: #09110fcc; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; pointer-events: none; }
 .scene-viewport-node.has-label span, .scene-viewport-node:hover span { display: block; }
 .scene-viewport-node.is-movable { cursor: move; }
@@ -423,3 +432,44 @@
   .scene-workbench { grid-template-columns: 190px 1fr; }
   .scene-inspector { position: absolute; top: 72px; right: 0; bottom: 30px; width: 280px; box-shadow: -16px 0 36px #0009; }
 }
+
+/* Collision shape size fields and the world-area summary in the inspector. */
+.scene-shape-fields, .scene-world-area { display: grid; gap: 6px; margin: 11px; padding: 10px; border: 1px solid #36504a; background: #13201c; }
+.scene-shape-fields header span, .scene-world-area header span { color: #72d8ff; font-size: 9px; letter-spacing: .14em; }
+.scene-shape-field-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(78px, 1fr)); gap: 5px; }
+.scene-shape-field-row label { display: grid; gap: 2px; }
+.scene-shape-fields small, .scene-world-area small { color: #6f897c; font-size: 9px; }
+.scene-shape-fields input:disabled, .scene-shape-fields select:disabled { opacity: .4; }
+.scene-world-area p { margin: 0; color: #cfe3d8; font-size: 11px; }
+.scene-world-area p[role="alert"] { color: #ff9c8f; }
+.scene-world-area p.is-ok { color: #86f0c3; }
+.scene-world-area p.is-bad { color: #ffc65c; }
+
+/* New scene / new folder (explorer header, folder rows, dialog) */
+.scene-explorer-create { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 4px 7px 2px; }
+.scene-explorer-create button { padding: 6px 8px; border: 1px solid #2d463d; color: #cfe0d6; background: #13201b; font-size: 11px; letter-spacing: .04em; }
+.scene-explorer-create button:hover { border-color: var(--scene-accent); color: #fff7df; }
+.scene-explorer-folder { position: relative; }
+.scene-explorer-folder-actions { position: absolute; top: 3px; right: 30px; display: none; gap: 2px; }
+.scene-explorer-folder-toggle:hover + .scene-explorer-folder-actions,
+.scene-explorer-folder-actions:hover { display: flex; }
+.scene-explorer-folder-actions button { padding: 1px 5px; border: 1px solid #2d463d; color: #9fc2b1; background: #0d1714; font-size: 10px; }
+.scene-explorer-folder-actions button:hover { border-color: var(--scene-accent); color: #fff7df; }
+.scene-file-dialog > label { display: block; padding: 10px 16px 0; }
+.scene-file-dialog > label span { display: block; margin-bottom: 5px; color: #789084; font-size: 10px; text-transform: uppercase; }
+.scene-file-dialog select { width: 100%; padding: 8px; border: 1px solid #466256; color: inherit; background: #07100d; }
+.scene-file-preview { display: flex; gap: 8px; align-items: baseline; margin: 14px 16px 0; color: #789084; font-size: 10px; text-transform: uppercase; }
+.scene-file-preview code { color: #d9e6de; font-size: 12px; text-transform: none; word-break: break-all; }
+.scene-file-error { min-height: 1.2em; margin: 8px 16px 0; color: #ff9b83; font-size: 12px; }
+.scene-file-dialog footer { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 16px 16px; }
+.scene-file-dialog footer button { padding: 8px 14px; border: 1px solid #466256; color: #cfe0d6; background: transparent; }
+.scene-boss-link { display: grid; gap: 3px; padding: 8px; border: 1px solid #6b4b2a; background: #1d1710; }
+.scene-boss-link small { color: #b08a5a; font-size: 9px; letter-spacing: .12em; }
+.scene-boss-link strong { color: #ffd9a0; font-size: 14px; }
+.scene-boss-link code { color: #d9b98a; font-size: 10px; }
+.scene-boss-link button { justify-self: start; margin-top: 4px; padding: 4px 8px; color: #1d1710; background: #ffb84d; font-weight: 700; }
+.scene-area-settings { display: grid; gap: 5px; padding: 8px; border: 1px solid #2c4540; background: #0f1a17; }
+.scene-area-settings > small, .scene-area-settings label > small { color: #6f897c; font-size: 9px; letter-spacing: .1em; }
+.scene-area-settings label { display: grid; gap: 2px; }
+.scene-area-enemy-row { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, .8fr) minmax(0, .8fr) auto; gap: 5px; align-items: end; }
+.scene-area-enemy-row button { padding: 4px 8px; color: #ff9c8f; background: #2a1a18; }
