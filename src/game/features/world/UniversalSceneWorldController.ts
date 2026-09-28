@@ -21,6 +21,7 @@ import type { InteractionProvider, InteractionRouter } from '../interaction/Inte
 import type { NpcActorHandle, QuestNpcRegistration } from '../interaction/QuestNpcController';
 import { createNpcWanderState, stepNpcWander } from '../npcs/NpcWanderPolicy';
 import { NpcNameTags } from '../npcs/NpcNameTags';
+import { AttackTelegraphs } from '../effects/AttackTelegraphs';
 import { getNpcDefinition } from '../../content/npcs/NpcCatalog';
 import type { InventoryWorldTransaction } from '../progression/InventoryWorldTransaction';
 import type { WorldProgress } from '../progression/WorldProgress';
@@ -45,6 +46,7 @@ import {
   ENEMY_TARGET_SERVICE,
   EnemyScript,
   type EnemyDamageNumberRequest,
+  type EnemyTelegraphRequest,
   type EnemyNavigationSnapshot,
   type EnemyProjectileRequest,
 } from '../scripts/EnemyScript';
@@ -293,6 +295,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
   private weapon?: ManagedWeapon;
   private readonly npcs = new Map<string, NpcScript>();
   private readonly npcNameTags: NpcNameTags;
+  private readonly attackTelegraphs: AttackTelegraphs;
   private playerScript?: PlayerScript;
   private playerBody?: CharacterBody2DNode;
   private playerVisual?: Sprite2DNode;
@@ -312,6 +315,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
     let inputSink: InputEventSink | undefined;
     this.audioServices = new GlobalAudioServices(options.scene.sound);
     this.npcNameTags = new NpcNameTags(options.scene);
+    this.attackTelegraphs = new AttackTelegraphs(options.scene);
     this.hudSurface = new HudSurfacePort();
     this.weaponHotbarSurface = new WeaponHotbarSurfacePort(options.onEquipWeaponSlot);
     this.abilityBarSurface = new AbilityBarSurfacePort(options.getAbilitySystem, options.canUseAbilities, options.onActivateAbility);
@@ -418,6 +422,9 @@ export class UniversalSceneWorldController implements InteractionProvider {
           this.spawnEffect({ effectId: request.effectId, direction: 'right', x: request.x, y: request.y });
         },
         showDamageNumber: (request: EnemyDamageNumberRequest) => this.showEnemyDamageNumber(request),
+        showTelegraph: (request: EnemyTelegraphRequest) => this.attackTelegraphs.show(request),
+        clearTelegraph: (sourceNodeId: string) => this.attackTelegraphs.clear(sourceNodeId),
+        shakeCamera: (request: { readonly durationMs: number; readonly intensity: number }) => options.scene.cameras.main.shake(request.durationMs, request.intensity),
       },
       [NPC_RUNTIME_SERVICE]: {
         acquire: (request: NpcRuntimeRequest) => this.acquireNpcAgent(request),
@@ -896,6 +903,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.inputRouter.destroy();
     this.runtime.shutdown();
     this.npcNameTags.destroy();
+    this.attackTelegraphs.destroy();
     this.audioServices.destroy();
     this.hudSurface.destroy();
     this.weaponHotbarSurface.destroy();
@@ -1203,6 +1211,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
       weaponTags: ['enemy', 'projectile'],
       damageTypes: ['physical'],
       targetAreaNodeIds: [this.managedPlayer.damageAreaNodeId],
+      ...(request.stickMs ? { effects: [{ effectId: 'web', potency: request.stickMs }] } : {}),
     });
     this.managedProjectileSpawnCountValue += 1;
     return true;

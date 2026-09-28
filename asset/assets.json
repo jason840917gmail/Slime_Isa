@@ -49,6 +49,8 @@
       "enemy.worm.swordsman",
       "enemy.worm.brawler",
       "enemy.projectile.worm-arrow",
+      "enemy.projectile.spider-web",
+      "effect.enemy.spider-web-cover",
       "effect.enemy.worm-brawler-hit",
       "character.enemy.slime-spider",
       "character.boss.fatty-one-eye",
@@ -1089,11 +1091,18 @@
     },
     "enemy.projectile.worm-arrow": {
       "source": {
-        "kind": "image",
-        "path": "MAPS/enemies/16x10-1x1-worm-arrow.png",
+        "kind": "spritesheet",
+        "path": "MAPS/enemies/40x40-1x5-worm-arrows.png",
+        "frame": {
+          "w": 40,
+          "h": 40,
+          "cols": 1,
+          "rows": 5,
+          "count": 5
+        },
         "expect": {
-          "w": 16,
-          "h": 10
+          "w": 40,
+          "h": 200
         }
       },
       "runtime": {
@@ -1109,6 +1118,30 @@
         "enemy",
         "projectile"
       ],
+      "status": "ready"
+    },
+    "enemy.projectile.spider-web": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/enemies/40x40-7x1-spider-web.png",
+        "frame": { "w": 40, "h": 40, "cols": 7, "rows": 1, "count": 7 },
+        "expect": { "w": 280, "h": 40 }
+      },
+      "runtime": { "textureKey": "enemy-spider-web" },
+      "render": { "origin": [0.5, 0.5] },
+      "tags": ["enemy", "projectile", "animated"],
+      "status": "ready"
+    },
+    "effect.enemy.spider-web-cover": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/enemies/64x64-4x1-spider-web-cover.png",
+        "frame": { "w": 64, "h": 64, "cols": 4, "rows": 1, "count": 4 },
+        "expect": { "w": 256, "h": 64 }
+      },
+      "runtime": { "textureKey": "effect-enemy-spider-web-cover" },
+      "render": { "origin": [0.5, 0.5] },
+      "tags": ["enemy", "effect", "animated"],
       "status": "ready"
     },
     "effect.enemy.worm-brawler-hit": {
@@ -1278,7 +1311,7 @@
     "character.enemy.slime-spider": {
       "source": {
         "kind": "spritesheet",
-        "path": "characters/authored/character-enemy-slime-spider.png",
+        "path": "MAPS/enemies/64x64-8x10-forest-orb-weaver-slime.png",
         "frame": {
           "w": 64,
           "h": 64,
@@ -1303,12 +1336,12 @@
     "character.boss.fatty-one-eye": {
       "source": {
         "kind": "spritesheet",
-        "path": "characters/authored/bosses/fatty-one-eye-6x6.png",
-        "frame": { "w": 96, "h": 96, "cols": 6, "rows": 6, "count": 36 },
-        "expect": { "w": 576, "h": 576 }
+        "path": "characters/authored/bosses/fatty-one-eye-6x7.png",
+        "frame": { "w": 108, "h": 118, "cols": 6, "rows": 7, "count": 37 },
+        "expect": { "w": 648, "h": 826 }
       },
       "runtime": { "textureKey": "boss-fatty-one-eye" },
-      "render": { "origin": [0.5, 0.72], "pixelArt": true },
+      "render": { "origin": [0.5, 0.762712], "pixelArt": true },
       "tags": ["character", "enemy", "boss", "animated"],
       "status": "ready"
     },

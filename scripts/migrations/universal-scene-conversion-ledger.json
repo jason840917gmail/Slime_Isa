@@ -742,6 +742,48 @@
       "writerState": "legacy"
     },
     {
+      "key": "asset:effect.enemy.spider-web-cover",
+      "family": "asset",
+      "stableId": "effect.enemy.spider-web-cover",
+      "environment": "production",
+      "classification": "retain",
+      "oldSourcePath": "asset/assets.json",
+      "oldCatalogValidator": [
+        "asset/assets.json",
+        "check-assets.mjs"
+      ],
+      "oldFactoryController": [
+        "AssetLoader",
+        "manifest"
+      ],
+      "oldEditorWriteEndpoints": [
+        "/__character-studio/asset/register"
+      ],
+      "destinationId": "asset://effect.enemy.spider-web-cover",
+      "persistenceKeys": [],
+      "migrationWorkPackage": null,
+      "focusedVerification": [
+        "assets:check",
+        "test:scene-conversion"
+      ],
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "enemy.projectile.worm-arrow",
+        "targetId": "asset://enemy.projectile.worm-arrow"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://enemy.projectile.worm-arrow"
+        }
+      ],
+      "writerState": "legacy"
+    },
+    {
       "key": "asset:effect.enemy.worm-brawler-hit",
       "family": "asset",
       "stableId": "effect.enemy.worm-brawler-hit",
@@ -905,6 +947,48 @@
         {
           "path": "$",
           "owner": "asset://effect.weapon.hit-tiles"
+        }
+      ],
+      "writerState": "legacy"
+    },
+    {
+      "key": "asset:enemy.projectile.spider-web",
+      "family": "asset",
+      "stableId": "enemy.projectile.spider-web",
+      "environment": "production",
+      "classification": "retain",
+      "oldSourcePath": "asset/assets.json",
+      "oldCatalogValidator": [
+        "asset/assets.json",
+        "check-assets.mjs"
+      ],
+      "oldFactoryController": [
+        "AssetLoader",
+        "manifest"
+      ],
+      "oldEditorWriteEndpoints": [
+        "/__character-studio/asset/register"
+      ],
+      "destinationId": "asset://enemy.projectile.spider-web",
+      "persistenceKeys": [],
+      "migrationWorkPackage": null,
+      "focusedVerification": [
+        "assets:check",
+        "test:scene-conversion"
+      ],
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "enemy.projectile.worm-arrow",
+        "targetId": "asset://enemy.projectile.worm-arrow"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://enemy.projectile.worm-arrow"
         }
       ],
       "writerState": "legacy"
@@ -3587,7 +3671,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "a60581121771c9e9a409237a0006aeef22e53b3d1ba5e9e2f1e86e4ec5c98e00",
+      "sourceHash": "fd38d87af969e806b0f53c6eb37dab3b2740236213e7bd04ca47ea0df62e5c78",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "slime-spider",
@@ -13891,6 +13975,50 @@
       "writerState": "scene"
     },
     {
+      "key": "projectile:spider-web",
+      "family": "projectile",
+      "stableId": "spider-web",
+      "environment": "production",
+      "classification": "retain",
+      "oldSourcePath": "src/game/content/projectiles/spider-web/projectile.json",
+      "oldCatalogValidator": [
+        "ProjectileCatalog",
+        "projectile.schema.json",
+        "projectile validation"
+      ],
+      "oldFactoryController": [
+        "ProjectilePoolImpl",
+        "CombatController"
+      ],
+      "oldEditorWriteEndpoints": [
+        "/__character-studio/projectile/create",
+        "/__character-studio/projectile/update"
+      ],
+      "destinationId": "scene://projectiles/spider-web",
+      "persistenceKeys": [],
+      "migrationWorkPackage": null,
+      "focusedVerification": [
+        "test:scene-integration",
+        "test:scene-conversion"
+      ],
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "523ae0db340f13dd11a52edb92e5b6c9b3f0ae10228443c85691c5a9d2a19107",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "spider-web",
+        "targetId": "scene://projectiles/spider-web"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "scene://projectiles/spider-web"
+        }
+      ],
+      "writerState": "legacy"
+    },
+    {
       "key": "projectile:worm-arrow",
       "family": "projectile",
       "stableId": "worm-arrow",
@@ -15824,7 +15952,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "331ce3e42efcdf5f7e741bee7239a002b711faf102f33e48b8c7b86c7ce19249",
+      "sourceHash": "87ced5cb175f39a560e131e8ef2b3e65c803f06b5f49fce4db6e6a6249ae73fd",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "boss.fatty-one-eye",
@@ -16321,7 +16449,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "75afcb9ca2abb01ce4bf79f3777d3db8c89c7101ba058f3893ba29994a6e7f44",
+      "sourceHash": "7692238d452b85700560e811c0cfdc8e693ffce2840180ef1df9b2e0814b7704",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "enemy.slime.spider",

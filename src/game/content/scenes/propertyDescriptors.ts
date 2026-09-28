@@ -3,7 +3,7 @@ import type { JsonValue } from './resources/types';
 
 export type PropertyValueDescriptor =
   | { readonly kind: 'boolean' }
-  | { readonly kind: 'string'; readonly pattern?: RegExp; readonly minLength?: number; readonly maxLength?: number }
+  | { readonly kind: 'string'; readonly pattern?: RegExp; readonly minLength?: number; readonly maxLength?: number; /** Studio option list (e.g. 'effects') a 'select' inspector picks from; the value stays a plain string. */ readonly optionSource?: string }
   | { readonly kind: 'number'; readonly integer?: boolean; readonly min?: number; readonly max?: number; /** Value is a bit set over the named project collision layers; undefined bits are rejected. */ readonly collisionLayers?: boolean }
   | { readonly kind: 'enum'; readonly values: readonly string[] }
   | { readonly kind: 'vector2' }

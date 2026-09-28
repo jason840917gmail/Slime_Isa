@@ -178,6 +178,8 @@
 .scene-overlay-svg .scene-shape.is-area-wander { stroke: #c9a2ff; fill: #c9a2ff1a; stroke-width: 2; }
 .scene-overlay-svg .scene-shape.is-area-activation { stroke: #40e0d0; fill: #40e0d00f; stroke-width: 2; stroke-dasharray: 8 5; }
 .scene-overlay-svg .scene-shape.is-area-arena { stroke: #ffb84d; fill: #ffb84d14; stroke-width: 2; }
+/* Attack areas match the in-game landing warning (features/effects/AttackTelegraphs.ts). */
+.scene-overlay-svg .scene-shape.is-area-attack { stroke: #ffc85a; fill: #ff7a3d26; stroke-width: 2; }
 .scene-overlay-svg .scene-tile-bounds { fill: none; stroke: #d8a94f99; stroke-width: 1; stroke-dasharray: 6 4; }
 .scene-overlay-svg .scene-tile-effective { fill: none; stroke: #6ba383aa; stroke-width: 1; }
 .scene-overlay-svg .scene-tile-collision { fill: #d8924333; stroke: #d89243; stroke-width: 1; }
@@ -473,3 +475,35 @@
 .scene-area-settings label { display: grid; gap: 2px; }
 .scene-area-enemy-row { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, .8fr) minmax(0, .8fr) auto; gap: 5px; align-items: end; }
 .scene-area-enemy-row button { padding: 4px 8px; color: #ff9c8f; background: #2a1a18; }
+
+/* Friendly JSON property forms with a locked JSON preview */
+.scene-json-property { grid-template-columns: 1fr auto; gap: 6px; }
+.scene-json-property > .scene-json-form,
+.scene-json-property > .scene-json-source { grid-column: 1 / -1; }
+.scene-json-form { display: grid; gap: 7px; min-width: 0; margin: 0; padding: 8px; border: 1px solid #2d463d; background: #0b1512; }
+.scene-json-form[disabled] { opacity: .45; }
+.scene-json-field { display: grid; gap: 3px; min-width: 0; }
+.scene-json-field > small, .scene-json-group > small { color: #8fae9f; font-size: 10px; letter-spacing: .04em; }
+.scene-json-field > i { color: #607b6d; font-size: 10px; font-style: normal; }
+.scene-json-field.is-check { grid-template-columns: 1fr auto; align-items: center; }
+.scene-json-field.is-toggle > small { color: #d7e4dc; font-size: 11px; }
+.scene-json-field input, .scene-json-field select, .scene-json-adder select { width: 100%; min-width: 0; padding: 5px 6px; border: 1px solid #2d463d; color: inherit; background: #07100d; }
+.scene-json-field input[type="checkbox"] { width: auto; }
+.scene-json-group { display: grid; gap: 5px; }
+.scene-json-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)) 24px; align-items: end; gap: 5px; padding: 5px; border: 1px solid #1f322b; }
+.scene-json-remove { height: 26px; color: #bdc9c2; background: transparent; border: 1px solid #2d463d; }
+.scene-json-remove:hover { border-color: #ff9b83; color: #ff9b83; }
+.scene-json-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.scene-json-chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 4px 2px 8px; border: 1px solid #466256; color: #d7e4dc; background: #13201b; font-size: 11px; }
+.scene-json-chip button { padding: 0 4px; color: #9fb3a8; background: transparent; }
+.scene-json-adder { display: grid; grid-template-columns: 1fr auto; gap: 5px; align-items: center; }
+.scene-json-empty { margin: 0; color: #607b6d; font-size: 11px; }
+.scene-json-note { margin: 0; color: #789084; font-size: 11px; }
+.scene-json-source { display: grid; gap: 4px; }
+.scene-json-source-bar { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.scene-json-source-bar small { color: #607b6d; font-size: 9px; letter-spacing: .12em; }
+.scene-json-source-bar button { padding: 3px 8px; border: 1px solid #466256; color: #cfe0d6; background: transparent; font-size: 11px; }
+.scene-json-source textarea { min-height: 70px; font: 11px/1.4 ui-monospace, Consolas, monospace; }
+.scene-json-source:not(.is-editing) textarea { color: #7d9689; background: #0a1210; border-color: #1f322b; cursor: default; }
+.scene-json-source.is-editing textarea { min-height: 140px; border-color: var(--scene-accent); }
+.scene-json-error { margin: 0; color: #ff9b83; font-size: 11px; white-space: pre-wrap; }

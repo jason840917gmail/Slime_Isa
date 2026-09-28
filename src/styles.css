@@ -65,6 +65,17 @@ body {
   border: none;
   background: var(--ui-bg);
   display: block;
+  /* Game surface text is never selectable, so a text caret (e.g. browser caret
+     browsing, F7) cannot land in HUD labels and walk focus onto their buttons. */
+  -webkit-user-select: none;
+  user-select: none;
+  caret-color: transparent;
+}
+
+.canvas-frame :is(input, textarea, select, [contenteditable]:not([contenteditable="false"])) {
+  -webkit-user-select: text;
+  user-select: text;
+  caret-color: auto;
 }
 
 .game-shell.is-dev-mode {

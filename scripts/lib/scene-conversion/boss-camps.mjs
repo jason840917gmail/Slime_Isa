@@ -17,9 +17,11 @@ function fattyScene(character, visual, boss) {
       { id: 'eye-shape', name: 'EyeShape', type: 'CollisionShape2D', parentId: 'eye', order: 0, properties: { shape: { resourceId: 'fatty-one-eye.eye-shape' } } },
       { id: 'contact-attack', name: 'ContactAttack', type: 'Area2D', parentId: 'body', order: 3, properties: { ...collision(['hitbox'], ['hurtbox']), monitoring: false, monitorable: false } },
       { id: 'contact-shape', name: 'ContactShape', type: 'CollisionShape2D', parentId: 'contact-attack', order: 0, properties: { shape: { resourceId: 'fatty-one-eye.contact-shape' }, disabled: true } },
-      { id: 'animation', name: 'Animation', type: 'AnimationPlayer', parentId: 'body', order: 4, properties: { library: { resourceId: `${visual.visualSetId}.animations` }, domain: 'physics', autoplay: 'chase' } },
+      { id: 'landing-zone', name: 'LandingZone', type: 'Area2D', parentId: 'body', order: 4, properties: { ...collision(['hitbox'], ['hurtbox']), monitoring: false, monitorable: false } },
+      { id: 'landing-shape', name: 'LandingShape', type: 'CollisionShape2D', parentId: 'landing-zone', order: 0, properties: { shape: { resourceId: 'fatty-one-eye.landing-shape' } } },
+      { id: 'animation', name: 'Animation', type: 'AnimationPlayer', parentId: 'body', order: 5, properties: { library: { resourceId: `${visual.visualSetId}.animations` }, domain: 'physics', autoplay: 'chase' } },
       {
-        id: 'script', name: 'FattyScript', type: 'ScriptNode', scriptId: 'game.fatty', parentId: 'body', order: 5,
+        id: 'script', name: 'FattyScript', type: 'ScriptNode', scriptId: 'game.fatty', parentId: 'body', order: 6,
         properties: {
           body: { nodeId: 'body' }, visual: { nodeId: 'visual' }, animation: { nodeId: 'animation' }, damageArea: { nodeId: 'eye' }, attackArea: { nodeId: 'contact-attack' }, contactAttack: { nodeId: 'contact-attack' },
           faction: 'hostile', rank: 'boss', maxHealth: boss.maxHp, targetingRadius: 933, attackRange: 64,
@@ -34,11 +36,16 @@ function fattyScene(character, visual, boss) {
           leapCadenceMs: boss.leap.cadenceMs, smallHopCount: boss.leap.smallHopCount,
           smallHopDurationMs: boss.leap.smallHopDurationMs, betweenHopsMs: boss.leap.betweenHopsMs,
           airTimeMs: boss.leap.airTimeMs, recoveryMs: boss.leap.recoveryMs,
-          landingDamage: boss.leap.landingDamage, landingRadius: boss.leap.landingRadius,
+          landingDamage: boss.leap.landingDamage, landingZone: { nodeId: 'landing-zone' },
+          landingKnockbackStrength: boss.leap.landingKnockbackStrength, landingEffectId: 'boss-ground-crack',
+          landingShakeMs: 100, landingShakeIntensity: 0.003,
         },
       },
     ],
     instances: [],
+    subresources: [
+      { version: 1, resourceId: 'fatty-one-eye.landing-shape', kind: 'collision-shape', value: { shape: 'circle', radius: boss.leap.landingRadius } },
+    ],
   };
 }
 

@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "sceneId": "projectile.worm-arrow",
+  "sceneId": "projectile.spider-web",
   "rootNodeId": "body",
   "nodes": [
     {
       "id": "body",
-      "name": "WormArrow",
+      "name": "SpiderWeb",
       "type": "CharacterBody2D",
       "parentId": null,
       "order": 0,
@@ -20,6 +20,10 @@
         "velocity": [
           0,
           0
+        ],
+        "scale": [
+          1,
+          1
         ]
       }
     },
@@ -31,7 +35,7 @@
       "order": 0,
       "properties": {
         "shape": {
-          "resourceId": "projectile.worm-arrow.body-shape"
+          "resourceId": "projectile.spider-web.body-shape"
         },
         "position": [
           0,
@@ -47,7 +51,7 @@
       "order": 1,
       "properties": {
         "texture": {
-          "resourceId": "projectile.worm-arrow.visual"
+          "resourceId": "projectile.spider-web.visual"
         },
         "frame": 0,
         "visualOffset": [
@@ -79,7 +83,7 @@
       "order": 0,
       "properties": {
         "shape": {
-          "resourceId": "projectile.worm-arrow.body-shape"
+          "resourceId": "projectile.spider-web.body-shape"
         },
         "position": [
           0,
@@ -95,7 +99,7 @@
       "order": 3,
       "properties": {
         "library": {
-          "resourceId": "projectile.worm-arrow.animations"
+          "resourceId": "projectile.spider-web.animations"
         },
         "domain": "physics",
         "autoplay": "move"
@@ -109,7 +113,7 @@
       "parentId": "body",
       "order": 4,
       "properties": {
-        "projectileId": "worm-arrow",
+        "projectileId": "spider-web",
         "body": {
           "nodeId": "body"
         },
@@ -122,7 +126,7 @@
         "attackArea": {
           "nodeId": "attack-area"
         },
-        "defaultSpeed": 180,
+        "defaultSpeed": 170,
         "lifetimeMs": 3000,
         "rotateToVelocity": true
       }
@@ -144,33 +148,32 @@
   "subresources": [
     {
       "version": 1,
-      "resourceId": "projectile.worm-arrow.visual",
+      "resourceId": "projectile.spider-web.visual",
       "kind": "sprite-sheet",
-      "assetId": "enemy.projectile.worm-arrow",
-      "frameWidth": 16,
-      "frameHeight": 10,
-      "frameCount": 5
+      "assetId": "enemy.projectile.spider-web",
+      "frameWidth": 24,
+      "frameHeight": 24,
+      "frameCount": 7
     },
     {
       "version": 1,
-      "resourceId": "projectile.worm-arrow.body-shape",
+      "resourceId": "projectile.spider-web.body-shape",
       "kind": "collision-shape",
       "value": {
-        "shape": "rectangle",
-        "width": 16,
-        "height": 10
+        "shape": "circle",
+        "radius": 7
       }
     },
     {
       "version": 1,
-      "resourceId": "projectile.worm-arrow.animations",
+      "resourceId": "projectile.spider-web.animations",
       "kind": "animation-library",
       "animations": {
         "move": {
-          "durationSeconds": 0.08333333333333333,
-          "framesPerSecond": 12,
+          "durationSeconds": 1,
+          "framesPerSecond": 6,
           "loop": true,
-          "loopMode": "wrap",
+          "loopMode": "ping-pong",
           "tracks": [
             {
               "binding": "../Visual",
@@ -179,14 +182,22 @@
                 {
                   "at": 0,
                   "value": 0
+                },
+                {
+                  "at": 2,
+                  "value": 4
+                },
+                {
+                  "at": 3,
+                  "value": 6
                 }
               ]
             }
           ]
         },
         "impact": {
-          "durationSeconds": 0.08333333333333333,
-          "framesPerSecond": 12,
+          "durationSeconds": 0.21428571428571427,
+          "framesPerSecond": 14,
           "loop": false,
           "loopMode": "wrap",
           "tracks": [
@@ -196,7 +207,15 @@
               "keys": [
                 {
                   "at": 0,
-                  "value": 0
+                  "value": 4
+                },
+                {
+                  "at": 1,
+                  "value": 5
+                },
+                {
+                  "at": 2,
+                  "value": 6
                 }
               ]
             }

@@ -134,7 +134,7 @@ Evidence/notes:
 
 ## E. Guarded camp, chest, key, and exit
 
-- [ ] The existing worm camp keeps its ordinary refill behavior unchanged.
+- [x] The existing worm camp keeps its ordinary refill behavior unchanged.
 - [ ] Fatty One Eye spawns only through the separate authored boss camp.
 - [ ] Fatty has a round, mouthless body and one eye embedded at its exact center.
 - [ ] Only Wooden Spear and Stone Spear hits that intersect the central eye deal damage.

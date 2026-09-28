@@ -23,6 +23,8 @@ export interface PlayerHealthControllerContext {
   getPlayerPosition: () => { readonly x: number; readonly y: number };
   /** Applies accepted-hit knockback without allowing movement to overwrite it. */
   applyKnockback?: (direction: { readonly x: number; readonly y: number }, strength: number, durationMs: number) => void;
+  /** Sticks the player in place (web hit) for the given milliseconds. */
+  applyWeb?: (durationMs: number) => void;
   /** Called after an accepted hit so the scene can render feedback. */
   onHit?: (result: AcceptedDamageResult) => void;
   /** Called when the player dies (scene decides respawn / game over). */
@@ -125,6 +127,8 @@ export class PlayerHealthController implements DamageReceiver {
       });
     }
     if (commit.result.defeated) return;
+    const webMs = commit.result.appliedEffects.find((effect) => effect.effectId === 'web')?.potency ?? 0;
+    if (webMs > 0) this.ctx.applyWeb?.(webMs);
     const strength = commit.result.appliedEffects.find((effect) => effect.effectId === 'knockback')?.potency ?? 0;
     if (strength <= 0) return;
     this.applyKnockback(commit.request.impact.knockX, commit.request.impact.knockY, strength, 160);

@@ -1332,6 +1332,53 @@
           ]
         }
       ]
+    },
+    {
+      "instanceId": "character-slime-spider",
+      "name": "SlimeSpider",
+      "sceneId": "character.slime-spider",
+      "parentNodeId": "world",
+      "order": 41,
+      "persistenceKey": "world.level-1.character-slime-spider",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            2639,
+            501
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "depthAnchor",
+          "value": [
+            1,
+            -1
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "character-worm-archer",
+      "name": "WormArcher",
+      "sceneId": "character.worm-archer",
+      "parentNodeId": "world",
+      "order": 42,
+      "persistenceKey": "world.level-1.character-worm-archer",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            384,
+            1536
+          ]
+        }
+      ]
     }
   ],
   "connections": [

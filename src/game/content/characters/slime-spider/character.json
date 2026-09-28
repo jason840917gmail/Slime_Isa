@@ -70,8 +70,8 @@
       ]
     },
     "projectile": {
-      "projectileId": "worm-arrow",
-      "assetId": "enemy.projectile.worm-arrow",
+      "projectileId": "spider-web",
+      "assetId": "enemy.projectile.spider-web",
       "damage": 50
     }
   }

@@ -56,7 +56,7 @@
         "frame": 0,
         "origin": [
           0.5,
-          0.72
+          0.762712
         ],
         "scale": [
           1.5,
@@ -125,11 +125,36 @@
       }
     },
     {
+      "id": "landing-zone",
+      "name": "LandingZone",
+      "type": "Area2D",
+      "parentId": "body",
+      "order": 4,
+      "properties": {
+        "collisionLayer": 16,
+        "collisionMask": 8,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "landing-shape",
+      "name": "LandingShape",
+      "type": "CollisionShape2D",
+      "parentId": "landing-zone",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "fatty-one-eye.landing-shape"
+        }
+      }
+    },
+    {
       "id": "animation",
       "name": "Animation",
       "type": "AnimationPlayer",
       "parentId": "body",
-      "order": 4,
+      "order": 5,
       "properties": {
         "library": {
           "resourceId": "boss.fatty-one-eye.animations"
@@ -144,7 +169,7 @@
       "type": "ScriptNode",
       "scriptId": "game.fatty",
       "parentId": "body",
-      "order": 5,
+      "order": 6,
       "properties": {
         "body": {
           "nodeId": "body"
@@ -212,7 +237,13 @@
         "airTimeMs": 1000,
         "recoveryMs": 700,
         "landingDamage": 32,
-        "landingRadius": 64
+        "landingZone": {
+          "nodeId": "landing-zone"
+        },
+        "landingKnockbackStrength": 280,
+        "landingEffectId": "boss-ground-crack",
+        "landingShakeMs": 100,
+        "landingShakeIntensity": 0.003
       }
     }
   ],
@@ -256,6 +287,19 @@
                 {
                   "at": 5,
                   "value": 11
+                }
+              ]
+            },
+            {
+              "binding": "../LandingZone/LandingShape",
+              "property": "position",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    0,
+                    0
+                  ]
                 }
               ]
             }
@@ -467,9 +511,9 @@
       "resourceId": "boss.fatty-one-eye.sprite",
       "kind": "sprite-sheet",
       "assetId": "character.boss.fatty-one-eye",
-      "frameWidth": 96,
-      "frameHeight": 96,
-      "frameCount": 36
+      "frameWidth": 108,
+      "frameHeight": 118,
+      "frameCount": 37
     },
     {
       "version": 1,
@@ -483,20 +527,29 @@
     },
     {
       "version": 1,
-      "resourceId": "fatty-one-eye.contact-shape",
-      "kind": "collision-shape",
-      "value": {
-        "shape": "circle",
-        "radius": 80
-      }
-    },
-    {
-      "version": 1,
       "resourceId": "fatty-one-eye.eye-shape",
       "kind": "collision-shape",
       "value": {
         "shape": "circle",
         "radius": 19.5
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "fatty-one-eye.contact-shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "circle",
+        "radius": 67.5
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "fatty-one-eye.landing-shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "circle",
+        "radius": 106
       }
     }
   ]

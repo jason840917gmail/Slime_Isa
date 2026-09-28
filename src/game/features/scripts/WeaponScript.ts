@@ -6,6 +6,7 @@ import { Node2D } from '../../runtime/scene/Node2D';
 import { AnimationPlayerNode } from '../../runtime/scene/animation/AnimationPlayerNode';
 import type { PhysicsContact } from '../../runtime/scene/physics/PhysicsContact';
 import { ScriptNode } from '../../runtime/scene/scripts/ScriptNode';
+import { resolveWorldDepth } from '../../presentation/WorldDepth';
 import type { AttackActivation } from '../combat/AttackActivation';
 import type { DamageRouter, RoutedDamageOutcome } from '../combat/DamageRouter';
 import { ATTACK_ACTIVATION_SERVICE, DAMAGE_ROUTER_SERVICE } from './EnemyScript';
@@ -26,6 +27,8 @@ export interface ManagedWeaponTarget {
   readonly receiverNodeId: string;
   readonly x: number;
   readonly y: number;
+  /** Base draw depth of the target's visuals (its depth source), so hit feedback can sit in front of it. */
+  readonly depth?: number;
   readonly attackDirection: WeaponAttackDirection;
   readonly targetTags?: readonly string[];
 }
@@ -285,11 +288,13 @@ export class WeaponScript extends ScriptNode {
       const targetPosition = contact.other instanceof Node2D
         ? contact.other.get_global_transform().position
         : { x: 0, y: 0 };
+      const targetDepth = contact.other instanceof Node2D ? visualBaseDepth(contact.other) : undefined;
       const target: ManagedWeaponTarget = {
         areaNodeId: contact.otherId,
         receiverNodeId,
         x: targetPosition.x,
         y: targetPosition.y,
+        ...(targetDepth === undefined ? {} : { depth: targetDepth }),
         attackDirection: direction,
       };
       const routedDamage = combat.transformDamage(damage.damage * window.span.damageMultiplier, target);
@@ -355,6 +360,13 @@ export class WeaponScript extends ScriptNode {
   protected override _duplicateSelf(runtimeId: RuntimeNodeId): WeaponScript {
     return new WeaponScript({ runtimeId, name: this.name, type: 'ScriptNode', scriptId: this.scriptId, properties: this.exportedProperties, resources: new Map() });
   }
+}
+
+/** The depth relative-depth sprites under `node`'s depth source draw from (e.g. an enemy's feet anchor). */
+function visualBaseDepth(node: Node2D): number | undefined {
+  const source = node.isDepthSource ? node : node.find_depth_source();
+  if (!source) return undefined;
+  return source.depthOverride ?? resolveWorldDepth(source.get_global_depth_anchor_y(), { stableId: source.runtimeId }).depth;
 }
 
 function attackVector(direction: WeaponAttackDirection): Readonly<{ x: number; y: number }> {

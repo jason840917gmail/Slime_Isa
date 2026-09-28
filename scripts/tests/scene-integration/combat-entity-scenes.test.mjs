@@ -132,6 +132,38 @@ test('weapon scene routes one managed hit per activation through the shared dama
   ]);
 });
 
+test('spider webs carry a stick effect to the player and the web cover lasts as long', async () => {
+  const activations = new t.AttackActivation();
+  const router = new t.DamageRouter(activations);
+  const commits = [];
+  router.registerArea({
+    runtimeNodeId: 'player',
+    getDamageState: () => ({ hp: 100, maxHp: 100, dead: false }),
+    commitDamage: (commit) => commits.push(commit),
+  }, { areaNodeId: 'player-area', priority: 0, damageMultiplier: 1 });
+  const web = await instantiate('projectile.spider-web', {
+    [t.ATTACK_ACTIVATION_SERVICE]: activations,
+    [t.DAMAGE_ROUTER_SERVICE]: router,
+  });
+  const script = web.root.get_node('ProjectileScript');
+  assert.equal(script.projectileId, 'spider-web');
+  script.launch({ x: 1, y: 0 }, 170, {
+    sourceNodeId: 'spider', damage: 50, knockbackStrength: 0, targetAreaNodeIds: ['player-area'],
+    effects: [{ effectId: 'web', potency: 1000 }],
+  });
+  web.root.get_node('AttackArea').getSignal('area_entered').emit({
+    observerId: 'web-area', otherId: 'player-area', observerKind: 'area', otherKind: 'area', shapes: [],
+  });
+  assert.equal(commits.length, 1);
+  assert.equal(commits[0].result.actualDamage, 50);
+  assert.deepEqual(commits[0].result.appliedEffects.filter((effect) => effect.effectId === 'web'), [{ effectId: 'web', potency: 1000 }]);
+  web.packed.dispose();
+
+  const cover = await instantiate('effect.spider-web-cover');
+  assert.equal(cover.root.get_node('EffectScript').lifetimeMs, 1000);
+  cover.packed.dispose();
+});
+
 test('projectile and effect scenes own finite lifetimes', async () => {
   const activations = new t.AttackActivation();
   const router = new t.DamageRouter(activations);

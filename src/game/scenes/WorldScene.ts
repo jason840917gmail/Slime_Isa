@@ -196,6 +196,7 @@ export class WorldScene extends Phaser.Scene {
         this.playerController.applyKnockback(new Phaser.Math.Vector2(direction.x, direction.y), strength, durationMs);
         this.playAnimation('slime-knockback', true);
       },
+      applyWeb: (durationMs) => this.applyWeb(durationMs),
       onHit: (result) => this.onPlayerHit(result),
       onDeath: () => this.onPlayerDeath(),
     });
@@ -903,8 +904,25 @@ export class WorldScene extends Phaser.Scene {
     }
   }
 
+  /** Web hit: the player is stuck in place and wrapped in web until it wears off. */
+  private applyWeb(durationMs: number): void {
+    const alreadyStuck = this.statusEffects?.isRooted() ?? false;
+    this.statusEffects?.apply('sticky', durationMs);
+    if (alreadyStuck) return;
+    this.universalWorld?.spawnEffect({
+      effectId: 'spider-web-cover',
+      direction: 'right',
+      x: this.player.x,
+      y: this.player.y,
+      followPositionOf: this.player,
+      followDepthOffset: 1,
+    });
+  }
+
   private handleActionInput(direction: Phaser.Math.Vector2): boolean {
     const input = this.playerMotion();
+    // Stuck in a web: attacks still work, but nothing that moves the player.
+    const stuck = this.statusEffects?.isRooted() ?? false;
     if (input.consumeActionPress('interact')) {
       // The router owns the visible shared prompt, so its candidate must own
       // the key press whenever one is displayed.
@@ -915,12 +933,12 @@ export class WorldScene extends Phaser.Scene {
     }
 
     if (input.consumeActionPress('jump')) {
-      this.abilitySystem?.tryJump(direction);
+      if (!stuck) this.abilitySystem?.tryJump(direction);
       return true;
     }
 
     if (input.consumeActionPress('dodge')) {
-      this.playerController.tryDodge(direction);
+      if (!stuck) this.playerController.tryDodge(direction);
       return true;
     }
 
@@ -940,7 +958,7 @@ export class WorldScene extends Phaser.Scene {
     }
 
     if (input.consumeActionPress('teleport')) {
-      this.abilitySystem?.tryTeleport(direction);
+      if (!stuck) this.abilitySystem?.tryTeleport(direction);
       return true;
     }
 

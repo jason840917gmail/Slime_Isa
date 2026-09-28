@@ -26,7 +26,14 @@ import { sceneCreationEntries } from './SceneCreationDialog';
 import { buildExplorerTree, explorerFolderKeysFor, renderExplorerTree, SCENE_DRAG_TYPE } from './ExplorerTree';
 import { SceneDocumentState } from './SceneDocumentState';
 import { ResourceDocumentState } from './ResourceDocumentState';
-import { renderSceneInspector, sceneInspectorModel } from './SceneInspector';
+import { renderSceneInspector, sceneInspectorModel, type InspectorProperty, type SceneInspectorModel } from './SceneInspector';
+import { applyJsonFormEdit, jsonFormFor, renderJsonForm, validateJsonForm, type FormOption, type FormOptions, type JsonFormContext, type JsonFormEdit, type JsonPath } from './JsonPropertyForms';
+import { getBaseItemDefinitions, getKnownItemIds } from '../../content/items/ItemCatalog';
+import { getNpcDefinition } from '../../content/npcs/NpcCatalog';
+import { getObjectArchetype, getObjectArchetypeIds, isObjectArchetypeId } from '../../content/objects/ObjectCatalog';
+import { getEffectDefinitions } from '../../content/effects/EffectCatalog';
+import { getProjectileDefinitions } from '../../content/projectiles/ProjectileCatalog';
+import { RESOURCE_TAGS } from '../../content/ResourceTags';
 import { SceneLiveViewport, type LiveViewportBoundsGuide, type LiveViewportMarker, type LiveViewportModel, type LiveViewportShape } from './SceneLiveViewport';
 import { resolveSourceBoundsFromWorld, resolveWorldOcclusionRectangle, type SourceOcclusionBounds } from '../../presentation/WorldOcclusion';
 import type { SpriteBoundsGeometry } from '../../infrastructure/phaser-nodes/Sprite2DNode';
@@ -47,7 +54,7 @@ import { collisionShapeGuide, editCollisionShape } from './ShapeEditor';
 import { transformNodeCommand, validateViewportTransform } from './ViewportSelection';
 import { bossCampShapeRoles, bossCampSummary, bossSceneIdOf, bossSceneInfo, bossSpawnPoint, isBossCampScript, owningBossCamp, type BossSceneInfo } from './BossCampStudio';
 import { ENEMY_TYPE_IDS } from '../../enemies/library/EnemyTypes';
-import { convertShapeKind, editAreaSettings, spawnSettings, isWorldAreaScript, owningWorldArea, WORLD_AREA_TEMPLATES, worldAreaShapeKeys, worldAreaShapeRoles, worldAreaSummary, worldAreaTemplateCommand, type WorldAreaTemplateKind } from './WorldAreaStudio';
+import { convertShapeKind, editAreaSettings, spawnSettings, isWorldAreaScript, owningWorldArea, referencedNodeKey, WORLD_AREA_TEMPLATES, worldAreaShapeKeys, worldAreaShapeRoles, worldAreaSummary, worldAreaTemplateCommand, type WorldAreaTemplateKind } from './WorldAreaStudio';
 import { createTileLayerDraft, TileMapContext, tileDataResourceId, type TilePaintTool } from './contexts/TileMapContext';
 import type { StudioPreviewState, StudioScenePreview } from './preview/StudioScenePreview';
 
@@ -180,6 +187,9 @@ function isTileSetDocument(document: SceneStudioDocument): document is TileSetRe
   return 'kind' in document && document.kind === 'tile-set';
 }
 
+/** Script references that point at areas which deal damage; their shapes show in the warning colour. */
+const ATTACK_AREA_REFERENCES = ['attackArea', 'contactAttack', 'landingZone'] as const;
+
 function referencedResourceId(value: JsonValue | undefined): ResourceId | undefined {
   if (value === null || value === undefined || Array.isArray(value) || typeof value !== 'object') return undefined;
   const id = (value as Readonly<Record<string, JsonValue>>).resourceId;
@@ -206,6 +216,8 @@ export class SceneStudioController {
   /** Every folder under the content root, including empty ones. */
   private folders: readonly string[] = [];
   private fileDialog?: FileDialogState;
+  /** JSON properties unlocked with "Edit JSON", keyed by node key and property: the draft text and its last error. */
+  private readonly jsonDrafts = new Map<string, { draft: string; error?: string }>();
   private state?: SceneDocumentState;
   private resourceState?: ResourceDocumentState;
   private resourceRelativePath?: string;
@@ -328,6 +340,11 @@ export class SceneStudioController {
     this.container.addEventListener('change', (event) => this.handleChange(event), { signal });
     this.container.addEventListener('input', (event) => {
       if (event.target instanceof HTMLElement && event.target.dataset.fileField !== undefined) { this.updateFileDialogField(event.target); return; }
+      if (event.target instanceof HTMLTextAreaElement && event.target.dataset.jsonSource) {
+        const entry = this.jsonDrafts.get(this.jsonDraftKey(event.target.dataset.jsonSource));
+        if (entry) entry.draft = event.target.value;
+        return;
+      }
       if (!(event.target instanceof HTMLInputElement)) return;
       if (event.target.dataset.explorerFilter !== undefined) { this.explorerFilter = event.target.value; this.applyExplorerFilter(); return; }
       if (event.target.dataset.instanceSearch !== undefined) { this.instanceSearch = event.target.value; this.render(); return; }
@@ -917,6 +934,14 @@ export class SceneStudioController {
     const included = new Set(subtree);
     for (const node of nodes) if (subtree.has(node.key) && isWorldAreaScript(node)) for (const key of worldAreaShapeKeys(node)) included.add(key);
     const roles = new Map<string, NonNullable<LiveViewportShape['tone']>>([...worldAreaShapeRoles(nodes), ...bossCampShapeRoles(nodes)]);
+    // Selecting a character script shows the attack areas it references (contact hop, landing zone…).
+    for (const script of nodes) {
+      if (!subtree.has(script.key) || !script.scriptId) continue;
+      for (const property of ATTACK_AREA_REFERENCES) {
+        const areaKey = referencedNodeKey(script, property);
+        for (const node of nodes) if (areaKey && node.parentKey === areaKey && node.type === 'CollisionShape2D') { included.add(node.key); roles.set(node.key, 'attack'); }
+      }
+    }
     for (const node of nodes) {
       if (!included.has(node.key) || node.type !== 'CollisionShape2D' || !node.global) continue;
       if (output.length >= 64) break;
@@ -1080,6 +1105,8 @@ export class SceneStudioController {
     const toggle = event.target instanceof Element ? event.target.closest<HTMLElement>('[data-tree-toggle]') : null;
     if (toggle?.dataset.treeToggle) { event.stopPropagation(); this.toggleExpanded(toggle.dataset.treeToggle); return; }
     if (event.target instanceof Node && this.animationPanel.element.contains(event.target)) return;
+    const jsonButton = event.target instanceof Element ? event.target.closest<HTMLElement>('[data-json-add],[data-json-remove],[data-json-unlock],[data-json-apply],[data-json-cancel]') : null;
+    if (jsonButton) { this.handleJsonButton(jsonButton); return; }
     const tabControl = event.target instanceof Element ? event.target.closest<HTMLElement>('[data-tab-close],[data-tab-activate]') : null;
     if (tabControl?.dataset.tabClose) { this.closeTab(tabControl.dataset.tabClose); return; }
     if (tabControl?.dataset.tabActivate) { this.activateTab(tabControl.dataset.tabActivate); return; }
@@ -1195,6 +1222,8 @@ export class SceneStudioController {
       void this.changeTileSet(tile, event.target.value);
       return;
     }
+    const jsonForm = event.target.closest<HTMLElement>('[data-json-form]');
+    if (jsonForm?.dataset.jsonForm) { this.handleJsonFormChange(jsonForm.dataset.jsonForm, event.target); return; }
     const areaSettings = event.target.closest<HTMLElement>('[data-area-settings]');
     if (areaSettings?.dataset.areaSettings) {
       const input = event.target;
@@ -1608,7 +1637,11 @@ export class SceneStudioController {
     const instance = target.mode === 'override' && (target.sourceInstancePath ?? []).length === 0
       ? this.state?.document.instances.find((candidate) => candidate.instanceId === target.instanceId)
       : undefined;
-    let html = renderSceneInspector(sceneInspectorModel(target.node, this.registry, instance));
+    const model = sceneInspectorModel(target.node, this.registry, instance);
+    let html = renderSceneInspector(model, {
+      jsonControl: (property) => this.renderJsonControl(model, property, target.mode === 'read-only'),
+      selectOptions: (source) => this.jsonFormContext().options(source, {}),
+    });
     const row = this.rows.find((candidate) => candidate.key === this.selectedKey);
     if (target.mode !== 'local') {
       const instanceRow = row?.kind === 'instance' ? row : undefined;
@@ -1671,10 +1704,170 @@ export class SceneStudioController {
     const data = script.properties.data;
     const npcInstanceId = data && typeof data === 'object' && !Array.isArray(data) ? (data as Readonly<Record<string, JsonValue>>).npcInstanceId : undefined;
     const current = typeof npcInstanceId === 'string' ? npcInstanceId : '';
-    const npcs = [...new Set(nodes.filter((node) => node.scriptId === 'game.npc' && node.instancePath.length > 0).map((node) => node.instancePath[0]!))].sort();
-    const options = ['', ...new Set([...npcs, ...(current ? [current] : [])])]
-      .map((id) => `<option value="${escapeHtml(id)}" ${id === current ? 'selected' : ''}>${id ? escapeHtml(id) : '(choose an NPC)'}</option>`).join('');
+    const npcs = this.npcOptions(nodes);
+    const options = [{ value: '', label: '(choose an NPC)' }, ...npcs, ...(current && !npcs.some((npc) => npc.value === current) ? [{ value: current, label: `${current} (not in this world)` }] : [])]
+      .map((option) => `<option value="${escapeHtml(option.value)}" ${option.value === current ? 'selected' : ''}>${escapeHtml(option.label)}</option>`).join('');
     return `<div class="scene-area-settings" data-area-settings="${escapeHtml(script.key)}"><label><small>NPC THAT WANDERS HERE</small><select data-area-setting="npcInstanceId">${options}</select></label></div>`;
+  }
+
+  // -------------------------------------------------------------------------
+  // Friendly JSON property forms (see JsonPropertyForms.ts)
+  // -------------------------------------------------------------------------
+
+  /** NPCs placed in this world, labelled "Lili · level-1-npc-lili". */
+  private npcOptions(nodes: readonly ComposedSceneNode[]): readonly FormOption[] {
+    const byInstance = new Map<string, string>();
+    for (const node of nodes) {
+      const instanceId = node.instancePath[0];
+      if (node.scriptId !== 'game.npc' || !instanceId || byInstance.has(instanceId)) continue;
+      const definitionId = node.properties.npcDefinitionId;
+      const root = nodes.find((candidate) => candidate.instancePath.length === 1 && candidate.instancePath[0] === instanceId && !candidate.parentKey?.startsWith(`${instanceId}:`))
+        ?? nodes.find((candidate) => candidate.instancePath[0] === instanceId);
+      const name = (typeof definitionId === 'string' ? getNpcDefinition(definitionId)?.displayName : undefined) ?? root?.name ?? instanceId;
+      byInstance.set(instanceId, `${name} · ${instanceId}`);
+    }
+    return [...byInstance].map(([value, label]) => ({ value, label })).sort((left, right) => left.label.localeCompare(right.label));
+  }
+
+  /** Option lists the forms pick from; `strict` lists are complete, so other values are flagged. */
+  private jsonFormContext(): JsonFormContext {
+    const ids = (values: Iterable<string>, strict: boolean): FormOptions => ({ options: [...new Set(values)].sort().map((value) => ({ value, label: value })), strict });
+    return {
+      options: (source, parent) => {
+        switch (source) {
+          case 'items': {
+            const definitions = getBaseItemDefinitions();
+            return { options: getKnownItemIds().map((id) => ({ value: id, label: definitions[id] ? `${definitions[id].name} · ${id}` : id })), strict: true };
+          }
+          case 'npcs': return { options: this.npcOptions(this.composed().nodes), strict: true };
+          case 'enemyTypes': return ids(this.enemyTypeIds(), true);
+          case 'enemyBehaviors': return ids(['slime-spider'], false);
+          case 'resourceTags': return ids(RESOURCE_TAGS, true);
+          case 'collectibles': return ids(getObjectArchetypeIds().filter((id) => id.startsWith('collectible.')), true);
+          case 'objectVisuals': {
+            const objectId = typeof parent.objectId === 'string' ? parent.objectId : '';
+            if (!isObjectArchetypeId(objectId)) return ids([], false);
+            const visuals = (getObjectArchetype(objectId).variants ?? []).flatMap((variant) => variant.frames.map((frame) => frame.visualId));
+            return ids(visuals, visuals.length > 0);
+          }
+          case 'effects': return ids([...getEffectDefinitions().map((effect) => effect.effectId), ...[...this.library.keys()].filter((id) => id.startsWith('effect.')).map((id) => id.slice('effect.'.length))], false);
+          // Hit feedback mounts `effect.<id>` scenes, so only effects with a scene are valid.
+          case 'effectScenes': return ids([...this.library.keys()].filter((id) => id.startsWith('effect.')).map((id) => id.slice('effect.'.length)), true);
+          case 'projectiles': return ids(getProjectileDefinitions().map((projectile) => projectile.projectileId), false);
+          default: return ids([], false);
+        }
+      },
+    };
+  }
+
+  private jsonDraftKey(property: string): string {
+    const target = this.inspectorTarget();
+    return `${target?.composed?.key ?? target?.node.id ?? ''}|${property}`;
+  }
+
+  /** Friendly form (when the property has one) above the JSON, which stays read-only until "Edit JSON". */
+  private renderJsonControl(model: SceneInspectorModel, property: InspectorProperty, readOnly: boolean): string {
+    const key = property.descriptor.key;
+    const values = Object.fromEntries([...model.groups.values()].flat().flatMap((entry) => entry.value === undefined ? [] : [[entry.descriptor.key, entry.value]]));
+    const form = jsonFormFor(model.node.scriptId, key, values);
+    const json = JSON.stringify(property.value ?? null, null, 2);
+    const editing = readOnly ? undefined : this.jsonDrafts.get(this.jsonDraftKey(key));
+    const formHtml = form ? `<fieldset class="scene-json-form" data-json-form="${escapeHtml(key)}"${editing || readOnly ? ' disabled' : ''}>${renderJsonForm(form, property.value, this.jsonFormContext())}</fieldset>` : '';
+    const actions = readOnly ? ''
+      : editing ? `<button type="button" class="scene-save" data-json-apply="${escapeHtml(key)}">Apply JSON</button><button type="button" data-json-cancel="${escapeHtml(key)}">Cancel</button>`
+        : `<button type="button" data-json-unlock="${escapeHtml(key)}" title="Advanced: edit the raw JSON">Edit JSON</button>`;
+    return `${formHtml}<div class="scene-json-source${editing ? ' is-editing' : ''}"><div class="scene-json-source-bar"><small>JSON</small>${actions}</div>`
+      + `<textarea data-json-source="${escapeHtml(key)}" spellcheck="false" aria-label="${escapeHtml(property.descriptor.label)} JSON" ${editing ? '' : 'readonly'}>${escapeHtml(editing?.draft ?? json)}</textarea>`
+      + (editing?.error ? `<p class="scene-json-error" role="alert">${escapeHtml(editing.error)}</p>` : '') + '</div>';
+  }
+
+  /** The inspector's current value of a JSON property, including instance overrides. */
+  private jsonPropertyState(property: string): { readonly value: JsonValue | undefined; readonly model: SceneInspectorModel } | undefined {
+    const target = this.inspectorTarget();
+    if (!target || target.mode === 'read-only') return undefined;
+    const instance = target.mode === 'override' && (target.sourceInstancePath ?? []).length === 0
+      ? this.state?.document.instances.find((candidate) => candidate.instanceId === target.instanceId)
+      : undefined;
+    const model = sceneInspectorModel(target.node, this.registry, instance);
+    const entry = [...model.groups.values()].flat().find((candidate) => candidate.descriptor.key === property);
+    return entry ? { value: entry.value, model } : undefined;
+  }
+
+  /** Writes a JSON property on the selected node, as an override on instances. */
+  private commitJsonProperty(property: string, value: JsonValue): void {
+    const target = this.inspectorTarget();
+    if (!this.state || !target || target.mode === 'read-only') throw new Error('This node cannot be edited from this scene');
+    const descriptor = [...sceneInspectorModel(target.node, this.registry).groups.values()].flat().find((candidate) => candidate.descriptor.key === property)?.descriptor;
+    if (!descriptor) throw new Error(`Unknown property '${property}'`);
+    if (target.mode === 'local') this.state.execute(sceneCommands.setProperty(target.node.id, property, value));
+    else {
+      if (!descriptor.overridable) throw new Error(`${descriptor.label} cannot be overridden on instances`);
+      this.state.execute(sceneCommands.setOverride(target.instanceId!, { sourceInstancePath: [...(target.sourceInstancePath ?? [])], sourceNodeId: target.node.id, property, value }));
+    }
+    this.message = `Changed ${descriptor.label}${target.mode === 'override' ? ' (instance override)' : ''}`;
+  }
+
+  private applyJsonEdit(property: string, edit: JsonFormEdit): void {
+    try {
+      const current = this.jsonPropertyState(property);
+      if (!current) return;
+      const values = Object.fromEntries([...current.model.groups.values()].flat().flatMap((entry) => entry.value === undefined ? [] : [[entry.descriptor.key, entry.value]]));
+      const form = jsonFormFor(current.model.node.scriptId, property, values);
+      if (!form) return;
+      this.commitJsonProperty(property, applyJsonFormEdit(form, current.value, edit));
+    } catch (error) { this.message = error instanceof Error ? error.message : String(error); }
+    this.render();
+  }
+
+  private handleJsonFormChange(property: string, input: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement): void {
+    const path = (attribute: string | undefined): JsonPath => JSON.parse(attribute ?? '[]') as JsonPath;
+    if (input.dataset.jsonPick !== undefined) return;
+    if (input.dataset.jsonToggle !== undefined && input instanceof HTMLInputElement) this.applyJsonEdit(property, { kind: 'toggle', on: input.checked });
+    else if (input.dataset.jsonRename) this.applyJsonEdit(property, { kind: 'rename', path: path(input.dataset.jsonRename), to: input.value });
+    else if (input.dataset.jsonPath) {
+      const raw = input instanceof HTMLInputElement && input.type === 'checkbox' ? input.checked : input.value;
+      this.applyJsonEdit(property, { kind: 'set', path: path(input.dataset.jsonPath), raw });
+    }
+  }
+
+  private handleJsonButton(button: HTMLElement): void {
+    const { jsonAdd, jsonRemove, jsonUnlock, jsonApply, jsonCancel } = button.dataset;
+    const property = button.closest<HTMLElement>('[data-json-form]')?.dataset.jsonForm;
+    if (jsonAdd !== undefined && property) {
+      const option = button.closest('.scene-json-adder')?.querySelector<HTMLSelectElement>('[data-json-pick]')?.value;
+      this.applyJsonEdit(property, { kind: 'add', path: JSON.parse(jsonAdd) as JsonPath, ...(option ? { option } : {}) });
+    } else if (jsonRemove !== undefined && property) this.applyJsonEdit(property, { kind: 'remove', path: JSON.parse(jsonRemove) as JsonPath });
+    else if (jsonUnlock) {
+      const current = this.jsonPropertyState(jsonUnlock);
+      if (!current) return;
+      this.jsonDrafts.set(this.jsonDraftKey(jsonUnlock), { draft: JSON.stringify(current.value ?? null, null, 2) });
+      this.render();
+    } else if (jsonCancel) { this.jsonDrafts.delete(this.jsonDraftKey(jsonCancel)); this.render(); }
+    else if (jsonApply) this.applyJsonDraft(jsonApply);
+  }
+
+  /** Parses and checks hand-edited JSON; only a value the form accepts is saved. */
+  private applyJsonDraft(property: string): void {
+    const draftKey = this.jsonDraftKey(property);
+    const entry = this.jsonDrafts.get(draftKey);
+    const current = this.jsonPropertyState(property);
+    if (!entry || !current) return;
+    try {
+      let value: JsonValue;
+      try { value = JSON.parse(entry.draft) as JsonValue; } catch (error) {
+        throw new Error(`Not valid JSON: ${error instanceof Error ? error.message : String(error)}`);
+      }
+      const values = Object.fromEntries([...current.model.groups.values()].flat().flatMap((item) => item.value === undefined ? [] : [[item.descriptor.key, item.value]]));
+      const form = jsonFormFor(current.model.node.scriptId, property, values);
+      const issues = form ? validateJsonForm(form, value, this.jsonFormContext()) : [];
+      if (issues.length > 0) throw new Error(issues.join(' · '));
+      this.commitJsonProperty(property, value);
+      this.jsonDrafts.delete(draftKey);
+    } catch (error) {
+      entry.error = error instanceof Error ? error.message : String(error);
+      this.message = 'JSON not applied · fix the highlighted problem or Cancel';
+    }
+    this.render();
   }
 
   /** Applies one Area Settings edit from the inspector editor to the world-area script. */
@@ -1750,7 +1943,7 @@ export class SceneStudioController {
     const legend = summary.kind === 'enemy-spawn'
       ? 'Drag the cyan pursue and amber stay shapes; move the Area2D to move both.'
       : 'Drag the shape in the viewport; move the Area2D to reposition it.';
-    const settings = summary.kind === 'enemy-spawn' ? this.renderSpawnSettings(script, enemyTypes)
+    const settings = script.key === node.key ? '' : summary.kind === 'enemy-spawn' ? this.renderSpawnSettings(script, enemyTypes)
       : summary.kind === 'npc-wander' ? this.renderWanderSettings(script, nodes) : '';
     return `<section class="scene-world-area" aria-label="World area"><header><span>WORLD AREA · ${escapeHtml(summary.kind.toUpperCase())}</span></header>`
       + settings

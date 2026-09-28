@@ -1868,6 +1868,61 @@
               ]
             }
           ]
+        },
+        "idle-left": {
+          "durationSeconds": 1,
+          "framesPerSecond": 1,
+          "loop": false,
+          "loopMode": "wrap",
+          "tracks": [
+            {
+              "binding": "..",
+              "property": "visible",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": true
+                }
+              ]
+            },
+            {
+              "binding": "..",
+              "property": "scale",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    1,
+                    1
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "..",
+              "property": "rotation",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "binding": "..",
+              "property": "position",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    0,
+                    0
+                  ]
+                }
+              ]
+            }
+          ],
+          "events": []
         }
       }
     }

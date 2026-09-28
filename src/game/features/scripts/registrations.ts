@@ -164,9 +164,19 @@ export const FATTY_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
     numberProperty('airTimeMs', 'Air Time', 1000, 'Fatty'),
     numberProperty('recoveryMs', 'Recovery', 700, 'Fatty'),
     numberProperty('landingDamage', 'Landing Damage', 32, 'Fatty'),
-    numberProperty('landingRadius', 'Landing Radius', 64, 'Fatty'),
+    {
+      ...nodeReference('landingZone', 'Landing Zone', 'area'),
+      help: 'Area whose collision shape is the leap splash: shown as a warning while airborne, damages on landing. Resize it in the viewport.',
+    },
+    numberProperty('landingKnockbackStrength', 'Landing Knockback', 280, 'Fatty'),
+    { key: 'landingEffectId', label: 'Landing Effect', group: 'Fatty', help: 'Effect scene played where Fatty lands and after each contact hop.', value: { kind: 'string', optionSource: 'effectScenes' }, defaultValue: 'boss-ground-crack', serialized: true, inspector: 'select', overridable: true },
+    numberProperty('landingShakeMs', 'Landing Shake Duration', 100, 'Fatty'),
+    { ...numberProperty('landingShakeIntensity', 'Landing Shake Intensity', 0.003, 'Fatty'), help: 'Camera shake strength (fraction of the view).' },
   ],
-  references: [{ key: 'contactAttack', label: 'Contact-Hop Attack Area', required: true, expectedCapability: 'area' }],
+  references: [
+    { key: 'contactAttack', label: 'Contact-Hop Attack Area', required: true, expectedCapability: 'area' },
+    { key: 'landingZone', label: 'Landing Zone', required: true, expectedCapability: 'area' },
+  ],
   signals: [{ id: 'phase_changed', payload: 'FattyPhaseChanged' }],
 };
 
@@ -242,7 +252,7 @@ export const WEAPON_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
     numberProperty('baseDamage', 'Base Damage', 0, 'Combat'),
     numberProperty('cooldownMs', 'Cooldown', 0, 'Combat'),
     numberProperty('knockStrength', 'Knockback Strength', 0, 'Combat'),
-    { key: 'onHitEffectId', label: 'On-Hit Effect ID', group: 'Presentation', value: { kind: 'string' }, serialized: true, inspector: 'text', overridable: true },
+    { key: 'onHitEffectId', label: 'On-Hit Effect ID', group: 'Presentation', value: { kind: 'string', optionSource: 'effectScenes' }, serialized: true, inspector: 'select', overridable: true },
     jsonProperty('damageModifiers', 'Damage Modifiers', 'Combat', []),
     jsonProperty('harvestCapabilities', 'Harvest Capabilities', 'Combat', {}),
     jsonProperty('scaling', 'Attribute Scaling', 'Combat', {}),
@@ -337,7 +347,7 @@ export const RESOURCE_NODE_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
   properties: [
     jsonProperty('drop', 'Drop Configuration', 'Resource', {}),
     { key: 'idleAnimationId', label: 'Idle Animation ID', group: 'Presentation', value: { kind: 'string' }, serialized: true, inspector: 'text', overridable: true },
-    { key: 'hitEffectId', label: 'Hit Effect ID', group: 'Presentation', value: { kind: 'string' }, serialized: true, inspector: 'text', overridable: true },
+    { key: 'hitEffectId', label: 'Hit Effect ID', group: 'Presentation', value: { kind: 'string', optionSource: 'effectScenes' }, serialized: true, inspector: 'select', overridable: true },
     { key: 'onHitAnimationId', label: 'On-Hit Animation ID', group: 'Presentation', value: { kind: 'string' }, serialized: true, inspector: 'text', overridable: true },
     { key: 'persistHealth', label: 'Persist Health', group: 'Persistence', value: { kind: 'boolean' }, defaultValue: true, serialized: true, inspector: 'checkbox', overridable: true },
     { key: 'depletionMessage', label: 'Depletion Message', group: 'Resource', value: { kind: 'string' }, serialized: true, inspector: 'text', overridable: true },
