@@ -37,4 +37,10 @@ export const NPC_DEFINITIONS: readonly NpcDefinition[] = [
     displayName: 'Yellow Blond Slime Girl',
     description: 'A little sunshine makes every adventure brighter!',
   },
+  {
+    id: 'fisherman-slime',
+    characterId: 'fisherman-slime',
+    displayName: 'Lily the Fishergirl',
+    description: 'Patience, friend. The big one always bites right after you give up.',
+  },
 ] as const;

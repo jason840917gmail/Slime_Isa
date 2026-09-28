@@ -73,6 +73,7 @@ export const ENEMY_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
   properties: [
     nodeReference('damageArea', 'Damage Area', 'area'),
     nodeReference('attackArea', 'Attack Area', 'area'),
+    { key: 'displayName', label: 'Display Name', group: 'Identity', help: 'Shown on the boss health bar and in the defeat message.', value: { kind: 'string' }, defaultValue: '', serialized: true, inspector: 'text', overridable: true },
     { key: 'faction', label: 'Faction', group: 'Identity', value: { kind: 'string', minLength: 1 }, defaultValue: 'hostile', serialized: true, inspector: 'text', overridable: true },
     { key: 'rank', label: 'Rank', group: 'Identity', value: { kind: 'enum', values: ['ordinary', 'elite', 'boss'] }, defaultValue: 'ordinary', serialized: true, inspector: 'select', overridable: true },
     numberProperty('maxHealth', 'Maximum Health', 1, 'Health'),
@@ -430,16 +431,32 @@ export const WORLD_DEFINITION_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
 export const WORLD_AREA_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
   scriptId: 'game.world-area',
   displayName: 'World Area',
-  description: 'Typed scene-owned safe zone, spawn area, or NPC wander area.',
+  description: 'Typed scene-owned safe zone, spawn area, or NPC wander area. Its perimeters come from the referenced collision shapes.',
   sourcePath: 'src/game/features/scripts/WorldAreaScript.ts',
   capabilities: ['world-area'],
   properties: [
     { key: 'areaKind', label: 'Area Kind', group: 'Area', value: { kind: 'enum', values: ['enemy-safe-zone', 'enemy-spawn', 'npc-wander'] }, required: true, serialized: true, inspector: 'select', overridable: true },
     stringProperty('areaId', 'Area ID', 'Area'),
     nodeReference('area', 'Area', 'area'),
-    jsonProperty('data', 'Area Data', 'Area', {}),
+    {
+      ...nodeReference('shape', 'Perimeter Shape', 'collision-shape'),
+      help: 'Safe zone or wander perimeter; the outer pursue perimeter for enemy spawn areas. Rectangle or circle.',
+    },
+    {
+      ...nodeReference('stayShape', 'Stay Shape', 'collision-shape'),
+      required: false,
+      help: 'Enemy spawn areas only: where enemies spawn and settle. Must be the same shape kind as, and fit inside, the perimeter shape.',
+    },
+    {
+      ...jsonProperty('data', 'Area Settings', 'Area', {}),
+      help: 'Non-geometry settings. enemy-spawn: enemies, intervalMs, maxPopulation. npc-wander: npcInstanceId. enemy-safe-zone: none.',
+    },
   ],
-  references: [{ key: 'area', label: 'Area', required: true, expectedCapability: 'area' }],
+  references: [
+    { key: 'area', label: 'Area', required: true, expectedCapability: 'area' },
+    { key: 'shape', label: 'Perimeter Shape', required: true, expectedCapability: 'collision-shape' },
+    { key: 'stayShape', label: 'Stay Shape', required: false, expectedCapability: 'collision-shape' },
+  ],
 };
 
 export const UI_SURFACE_SCRIPT_DESCRIPTOR: ScriptDescriptor = {

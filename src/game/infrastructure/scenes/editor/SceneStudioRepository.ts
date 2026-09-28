@@ -18,6 +18,11 @@ export interface SceneStudioContentRecord extends SceneStudioContentSummary {
   readonly issues: readonly SceneValidationIssue[];
 }
 
+export interface SceneStudioContentIndex {
+  readonly items: readonly SceneStudioContentSummary[];
+  readonly folders: readonly string[];
+}
+
 export interface SceneStudioWriteRequest extends SceneStudioContentSummary {
   readonly document: SceneStudioDocument;
   readonly expectedHash: string | null;
@@ -54,9 +59,31 @@ export class SceneStudioRepository {
   ) {}
 
   async list(): Promise<readonly SceneStudioContentSummary[]> {
+    return (await this.index()).items;
+  }
+
+  /** Documents plus every folder under the content root, so empty folders still show. */
+  async index(): Promise<SceneStudioContentIndex> {
     const payload = await this.#readJson(`${this.endpoint}?action=list`);
     if (!isRecord(payload) || !Array.isArray(payload.items)) throw new Error('Scene Studio returned an invalid content list');
-    return payload.items as unknown as readonly SceneStudioContentSummary[];
+    const folders = Array.isArray(payload.folders) ? payload.folders.filter((folder): folder is string => typeof folder === 'string') : [];
+    return { items: payload.items as unknown as readonly SceneStudioContentSummary[], folders };
+  }
+
+  /** Creates an (empty) folder under the content root; `relativePath` like `worlds/caves`. */
+  async createFolder(relativePath: string): Promise<string> {
+    const response = await this.request(`${this.endpoint}?action=create-folder`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ relativePath }),
+    });
+    const payload = await response.json().catch(() => undefined) as unknown;
+    if (!response.ok) {
+      const message = isRecord(payload) && typeof payload.error === 'string' ? payload.error : `Scene Studio folder creation failed (${response.status})`;
+      throw new SceneStudioRepositoryError(message, response.status);
+    }
+    if (!isRecord(payload) || typeof payload.relativePath !== 'string') throw new Error('Scene Studio returned an invalid folder result');
+    return payload.relativePath;
   }
 
   async load(kind: SceneStudioContentKind, id: string): Promise<SceneStudioContentRecord> {

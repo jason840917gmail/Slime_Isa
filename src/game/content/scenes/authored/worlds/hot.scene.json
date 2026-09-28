@@ -114,11 +114,9 @@
         "area": {
           "nodeId": "area-enemy-safe-1"
         },
-        "data": {
-          "x": 0,
-          "y": 1536,
-          "w": 768,
-          "h": 896
+        "data": {},
+        "shape": {
+          "nodeId": "area-enemy-safe-1-shape"
         }
       }
     },
@@ -164,11 +162,9 @@
         "area": {
           "nodeId": "area-enemy-safe-2"
         },
-        "data": {
-          "x": 2368,
-          "y": 1920,
-          "w": 640,
-          "h": 704
+        "data": {},
+        "shape": {
+          "nodeId": "area-enemy-safe-2-shape"
         }
       }
     },

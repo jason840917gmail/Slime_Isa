@@ -110,11 +110,9 @@
         "area": {
           "nodeId": "area-enemy-safe-1"
         },
-        "data": {
-          "x": 768,
-          "y": 448,
-          "w": 960,
-          "h": 768
+        "data": {},
+        "shape": {
+          "nodeId": "area-enemy-safe-1-shape"
         }
       }
     },
@@ -160,11 +158,9 @@
         "area": {
           "nodeId": "area-enemy-safe-2"
         },
-        "data": {
-          "x": 1088,
-          "y": 1216,
-          "w": 320,
-          "h": 192
+        "data": {},
+        "shape": {
+          "nodeId": "area-enemy-safe-2-shape"
         }
       }
     },
@@ -210,11 +206,9 @@
         "area": {
           "nodeId": "area-enemy-safe-3"
         },
-        "data": {
-          "x": 2240,
-          "y": 1792,
-          "w": 704,
-          "h": 576
+        "data": {},
+        "shape": {
+          "nodeId": "area-enemy-safe-3-shape"
         }
       }
     },
@@ -260,11 +254,9 @@
         "area": {
           "nodeId": "area-enemy-safe-4"
         },
-        "data": {
-          "x": 2432,
-          "y": 2368,
-          "w": 256,
-          "h": 128
+        "data": {},
+        "shape": {
+          "nodeId": "area-enemy-safe-4-shape"
         }
       }
     },
@@ -287,7 +279,7 @@
     },
     {
       "id": "area-enemy-area-01-shape",
-      "name": "collision-shape",
+      "name": "pursue-shape",
       "type": "CollisionShape2D",
       "parentId": "area-enemy-area-01",
       "order": 0,
@@ -298,12 +290,28 @@
       }
     },
     {
+      "id": "area-enemy-area-01-stay-shape",
+      "name": "stay-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-enemy-area-01",
+      "order": 1,
+      "properties": {
+        "shape": {
+          "resourceId": "cole.area-enemy-area-01.stay-shape"
+        },
+        "position": [
+          64,
+          64
+        ]
+      }
+    },
+    {
       "id": "area-enemy-area-01-script",
       "name": "world-area-script",
       "type": "ScriptNode",
       "scriptId": "game.world-area",
       "parentId": "area-enemy-area-01",
-      "order": 1,
+      "order": 2,
       "properties": {
         "areaKind": "enemy-spawn",
         "areaId": "enemy-area-01",
@@ -311,21 +319,6 @@
           "nodeId": "area-enemy-area-01"
         },
         "data": {
-          "id": "enemy-area-01",
-          "stayPerimeter": {
-            "shape": "rectangle",
-            "x": 1984,
-            "y": 1024,
-            "w": 384,
-            "h": 320
-          },
-          "pursuePerimeter": {
-            "shape": "rectangle",
-            "x": 1856,
-            "y": 896,
-            "w": 512,
-            "h": 448
-          },
           "enemies": [
             {
               "type": "slime-spider",
@@ -342,6 +335,12 @@
           ],
           "intervalMs": 1500,
           "maxPopulation": 8
+        },
+        "shape": {
+          "nodeId": "area-enemy-area-01-shape"
+        },
+        "stayShape": {
+          "nodeId": "area-enemy-area-01-stay-shape"
         }
       }
     },
@@ -364,7 +363,7 @@
     },
     {
       "id": "area-enemy-area-02-shape",
-      "name": "collision-shape",
+      "name": "pursue-shape",
       "type": "CollisionShape2D",
       "parentId": "area-enemy-area-02",
       "order": 0,
@@ -375,12 +374,24 @@
       }
     },
     {
+      "id": "area-enemy-area-02-stay-shape",
+      "name": "stay-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-enemy-area-02",
+      "order": 1,
+      "properties": {
+        "shape": {
+          "resourceId": "cole.area-enemy-area-02.stay-shape"
+        }
+      }
+    },
+    {
       "id": "area-enemy-area-02-script",
       "name": "world-area-script",
       "type": "ScriptNode",
       "scriptId": "game.world-area",
       "parentId": "area-enemy-area-02",
-      "order": 1,
+      "order": 2,
       "properties": {
         "areaKind": "enemy-spawn",
         "areaId": "enemy-area-02",
@@ -388,21 +399,6 @@
           "nodeId": "area-enemy-area-02"
         },
         "data": {
-          "id": "enemy-area-02",
-          "stayPerimeter": {
-            "shape": "rectangle",
-            "x": 2363,
-            "y": 1036,
-            "w": 512,
-            "h": 256
-          },
-          "pursuePerimeter": {
-            "shape": "rectangle",
-            "x": 2235,
-            "y": 908,
-            "w": 768,
-            "h": 512
-          },
           "enemies": [
             {
               "type": "slime-spider",
@@ -419,6 +415,12 @@
           ],
           "intervalMs": 1500,
           "maxPopulation": 8
+        },
+        "shape": {
+          "nodeId": "area-enemy-area-02-shape"
+        },
+        "stayShape": {
+          "nodeId": "area-enemy-area-02-stay-shape"
         }
       }
     },
@@ -441,7 +443,7 @@
     },
     {
       "id": "area-enemy-area-03-shape",
-      "name": "collision-shape",
+      "name": "pursue-shape",
       "type": "CollisionShape2D",
       "parentId": "area-enemy-area-03",
       "order": 0,
@@ -452,12 +454,24 @@
       }
     },
     {
+      "id": "area-enemy-area-03-stay-shape",
+      "name": "stay-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-enemy-area-03",
+      "order": 1,
+      "properties": {
+        "shape": {
+          "resourceId": "cole.area-enemy-area-03.stay-shape"
+        }
+      }
+    },
+    {
       "id": "area-enemy-area-03-script",
       "name": "world-area-script",
       "type": "ScriptNode",
       "scriptId": "game.world-area",
       "parentId": "area-enemy-area-03",
-      "order": 1,
+      "order": 2,
       "properties": {
         "areaKind": "enemy-spawn",
         "areaId": "enemy-area-03",
@@ -465,21 +479,6 @@
           "nodeId": "area-enemy-area-03"
         },
         "data": {
-          "id": "enemy-area-03",
-          "stayPerimeter": {
-            "shape": "rectangle",
-            "x": 768,
-            "y": 1984,
-            "w": 576,
-            "h": 128
-          },
-          "pursuePerimeter": {
-            "shape": "rectangle",
-            "x": 640,
-            "y": 1856,
-            "w": 832,
-            "h": 384
-          },
           "enemies": [
             {
               "type": "slime-spider",
@@ -496,6 +495,12 @@
           ],
           "intervalMs": 1500,
           "maxPopulation": 8
+        },
+        "shape": {
+          "nodeId": "area-enemy-area-03-shape"
+        },
+        "stayShape": {
+          "nodeId": "area-enemy-area-03-stay-shape"
         }
       }
     },
@@ -23549,6 +23554,16 @@
     },
     {
       "version": 1,
+      "resourceId": "cole.area-enemy-area-01.stay-shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 384,
+        "height": 320
+      }
+    },
+    {
+      "version": 1,
       "resourceId": "cole.area-enemy-area-02.shape",
       "kind": "collision-shape",
       "value": {
@@ -23559,12 +23574,32 @@
     },
     {
       "version": 1,
+      "resourceId": "cole.area-enemy-area-02.stay-shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 512,
+        "height": 256
+      }
+    },
+    {
+      "version": 1,
       "resourceId": "cole.area-enemy-area-03.shape",
       "kind": "collision-shape",
       "value": {
         "shape": "rectangle",
         "width": 832,
         "height": 384
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "cole.area-enemy-area-03.stay-shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 576,
+        "height": 128
       }
     },
     {

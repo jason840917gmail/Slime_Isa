@@ -105,11 +105,9 @@
         "area": {
           "nodeId": "area-enemy-safe-1"
         },
-        "data": {
-          "x": 640,
-          "y": 704,
-          "w": 704,
-          "h": 384
+        "data": {},
+        "shape": {
+          "nodeId": "area-enemy-safe-1-shape"
         }
       }
     },
@@ -155,11 +153,9 @@
         "area": {
           "nodeId": "area-enemy-safe-2"
         },
-        "data": {
-          "x": 1464,
-          "y": 579,
-          "w": 832,
-          "h": 512
+        "data": {},
+        "shape": {
+          "nodeId": "area-enemy-safe-2-shape"
         }
       }
     },
@@ -205,11 +201,9 @@
         "area": {
           "nodeId": "area-enemy-safe-3"
         },
-        "data": {
-          "x": 2176,
-          "y": 1088,
-          "w": 128,
-          "h": 960
+        "data": {},
+        "shape": {
+          "nodeId": "area-enemy-safe-3-shape"
         }
       }
     },
@@ -255,11 +249,9 @@
         "area": {
           "nodeId": "area-enemy-safe-4"
         },
-        "data": {
-          "x": 1792,
-          "y": 1408,
-          "w": 128,
-          "h": 128
+        "data": {},
+        "shape": {
+          "nodeId": "area-enemy-safe-4-shape"
         }
       }
     },
@@ -305,11 +297,9 @@
         "area": {
           "nodeId": "area-enemy-safe-5"
         },
-        "data": {
-          "x": 1792,
-          "y": 1536,
-          "w": 64,
-          "h": 512
+        "data": {},
+        "shape": {
+          "nodeId": "area-enemy-safe-5-shape"
         }
       }
     },
@@ -355,11 +345,9 @@
         "area": {
           "nodeId": "area-enemy-safe-6"
         },
-        "data": {
-          "x": 704,
-          "y": 1920,
-          "w": 1024,
-          "h": 128
+        "data": {},
+        "shape": {
+          "nodeId": "area-enemy-safe-6-shape"
         }
       }
     },
@@ -405,11 +393,9 @@
         "area": {
           "nodeId": "area-enemy-safe-7"
         },
-        "data": {
-          "x": 1664,
-          "y": 1856,
-          "w": 128,
-          "h": 192
+        "data": {},
+        "shape": {
+          "nodeId": "area-enemy-safe-7-shape"
         }
       }
     },
@@ -455,11 +441,9 @@
         "area": {
           "nodeId": "area-enemy-safe-8"
         },
-        "data": {
-          "x": 640,
-          "y": 1920,
-          "w": 64,
-          "h": 128
+        "data": {},
+        "shape": {
+          "nodeId": "area-enemy-safe-8-shape"
         }
       }
     },
@@ -505,11 +489,9 @@
         "area": {
           "nodeId": "area-enemy-safe-9"
         },
-        "data": {
-          "x": 704,
-          "y": 1408,
-          "w": 832,
-          "h": 320
+        "data": {},
+        "shape": {
+          "nodeId": "area-enemy-safe-9-shape"
         }
       }
     },
@@ -555,11 +537,9 @@
         "area": {
           "nodeId": "area-enemy-safe-10"
         },
-        "data": {
-          "x": 0,
-          "y": 1344,
-          "w": 576,
-          "h": 384
+        "data": {},
+        "shape": {
+          "nodeId": "area-enemy-safe-10-shape"
         }
       }
     },
@@ -605,11 +585,9 @@
         "area": {
           "nodeId": "area-enemy-safe-11"
         },
-        "data": {
-          "x": 128,
-          "y": 0,
-          "w": 1280,
-          "h": 704
+        "data": {},
+        "shape": {
+          "nodeId": "area-enemy-safe-11-shape"
         }
       }
     },
@@ -655,11 +633,9 @@
         "area": {
           "nodeId": "area-enemy-safe-12"
         },
-        "data": {
-          "x": 192,
-          "y": 704,
-          "w": 2112,
-          "h": 1408
+        "data": {},
+        "shape": {
+          "nodeId": "area-enemy-safe-12-shape"
         }
       }
     },
@@ -705,11 +681,9 @@
         "area": {
           "nodeId": "area-enemy-safe-13"
         },
-        "data": {
-          "x": 64,
-          "y": 768,
-          "w": 640,
-          "h": 704
+        "data": {},
+        "shape": {
+          "nodeId": "area-enemy-safe-13-shape"
         }
       }
     },
@@ -732,7 +706,7 @@
     },
     {
       "id": "area-enemy-area-01-shape",
-      "name": "collision-shape",
+      "name": "pursue-shape",
       "type": "CollisionShape2D",
       "parentId": "area-enemy-area-01",
       "order": 0,
@@ -743,12 +717,24 @@
       }
     },
     {
+      "id": "area-enemy-area-01-stay-shape",
+      "name": "stay-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-enemy-area-01",
+      "order": 1,
+      "properties": {
+        "shape": {
+          "resourceId": "tiktok.area-enemy-area-01.stay-shape"
+        }
+      }
+    },
+    {
       "id": "area-enemy-area-01-script",
       "name": "world-area-script",
       "type": "ScriptNode",
       "scriptId": "game.world-area",
       "parentId": "area-enemy-area-01",
-      "order": 1,
+      "order": 2,
       "properties": {
         "areaKind": "enemy-spawn",
         "areaId": "enemy-area-01",
@@ -756,21 +742,6 @@
           "nodeId": "area-enemy-area-01"
         },
         "data": {
-          "id": "enemy-area-01",
-          "stayPerimeter": {
-            "shape": "rectangle",
-            "x": 128,
-            "y": 192,
-            "w": 3200,
-            "h": 2880
-          },
-          "pursuePerimeter": {
-            "shape": "rectangle",
-            "x": 64,
-            "y": 128,
-            "w": 3328,
-            "h": 3008
-          },
           "enemies": [
             {
               "type": "slime-spider",
@@ -791,6 +762,12 @@
           ],
           "intervalMs": 1500,
           "maxPopulation": 8
+        },
+        "shape": {
+          "nodeId": "area-enemy-area-01-shape"
+        },
+        "stayShape": {
+          "nodeId": "area-enemy-area-01-stay-shape"
         }
       }
     },
@@ -36205,6 +36182,16 @@
         "shape": "rectangle",
         "width": 3328,
         "height": 3008
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "tiktok.area-enemy-area-01.stay-shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 3200,
+        "height": 2880
       }
     },
     {

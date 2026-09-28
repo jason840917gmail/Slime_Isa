@@ -80,7 +80,7 @@ async function discoverFiles(root: string): Promise<readonly string[]> {
       throw error;
     }
     for (const entry of entries) {
-      if (entry.name === '.scene-studio-transactions') continue;
+      if (entry.name === JOURNAL_FOLDER) continue;
       const candidate = path.join(current, entry.name);
       if (entry.isDirectory()) await visit(candidate);
       else if (entry.isFile() && kindForPath(entry.name)) files.push(candidate);
@@ -88,6 +88,39 @@ async function discoverFiles(root: string): Promise<readonly string[]> {
   };
   await visit(root);
   return files.sort();
+}
+
+const FOLDER_SEGMENT_PATTERN = /^[a-z0-9]+(?:[._-][a-z0-9]+)*$/;
+const JOURNAL_FOLDER = '.scene-studio-transactions';
+
+/** Every folder under the content root (relative, `/`-separated), including empty ones. */
+async function discoverFolders(root: string): Promise<readonly string[]> {
+  const folders: string[] = [];
+  const visit = async (current: string, relative: string): Promise<void> => {
+    let entries;
+    try { entries = await fs.readdir(current, { withFileTypes: true }); } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') return;
+      throw error;
+    }
+    for (const entry of entries) {
+      if (!entry.isDirectory() || entry.name === JOURNAL_FOLDER) continue;
+      const child = relative ? `${relative}/${entry.name}` : entry.name;
+      folders.push(child);
+      await visit(path.join(current, entry.name), child);
+    }
+  };
+  await visit(root, '');
+  return folders.sort();
+}
+
+/** A new folder path of lowercase ID-style segments, e.g. `worlds/caves`. */
+function normalizeFolderPath(value: unknown): string {
+  if (typeof value !== 'string') throw new Error('Folder relativePath is required');
+  const segments = value.split('/');
+  if (segments.some((segment) => !FOLDER_SEGMENT_PATTERN.test(segment))) {
+    throw new Error(`Folder '${value}' must use lowercase letters, digits, '.', '_' or '-' in each segment`);
+  }
+  return segments.join('/');
 }
 
 async function contentIndex(root: string): Promise<readonly IndexedContent[]> {
@@ -276,7 +309,7 @@ export function sceneStudioContentPlugin(options: SceneStudioContentPluginOption
           if (request.method === 'GET') {
             const indexed = await contentIndex(root);
             if (url.searchParams.get('action') === 'list') {
-              send(response, 200, { items: indexed.map(({ kind, id, relativePath }) => ({ kind, id, relativePath })) });
+              send(response, 200, { items: indexed.map(({ kind, id, relativePath }) => ({ kind, id, relativePath })), folders: await discoverFolders(root) });
               return;
             }
             if (url.searchParams.get('action') !== 'load') throw new Error('Unknown Scene Studio read action');
@@ -300,6 +333,15 @@ export function sceneStudioContentPlugin(options: SceneStudioContentPluginOption
             return;
           }
           if (request.method !== 'POST') { send(response, 405, { error: 'GET or POST required' }); return; }
+          if (url.searchParams.get('action') === 'create-folder') {
+            const body = JSON.parse(await readBody(request, maximum)) as unknown;
+            const relativePath = normalizeFolderPath(isRecord(body) ? body.relativePath : undefined);
+            const target = path.resolve(root, ...relativePath.split('/'));
+            if (await fs.stat(target).then(() => true, () => false)) throw new Error(`Folder '${relativePath}' already exists`);
+            await fs.mkdir(target, { recursive: true });
+            send(response, 200, { relativePath });
+            return;
+          }
           const payload = parsePayload(JSON.parse(await readBody(request, maximum)));
           const execute = async (): Promise<readonly SceneStudioWriteResult[]> => {
             const indexed = await contentIndex(root);

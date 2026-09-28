@@ -47,6 +47,8 @@ export interface SceneHostLifecycle {
   readonly beforeFixedStep?: (deltaSeconds: number) => void;
   readonly afterFixedStep?: (deltaSeconds: number) => void;
   readonly beforePresentation?: (deltaSeconds: number) => void;
+  /** Runs once presentation objects hold this frame's interpolated positions. */
+  readonly afterPresentation?: (deltaSeconds: number) => void;
   readonly afterUnhandledInput?: (event: SceneTreeInputEvent) => void;
   readonly shutdown?: () => void;
 }
@@ -122,6 +124,7 @@ export class PhaserSceneTreeHost {
         backend.advanceRenderAnimations(deltaSeconds);
         tree.process(deltaSeconds);
         backend.synchronizePresentation(this.fixedDeltaSeconds === 0 ? 1 : Math.min(1, this.accumulatorSeconds / this.fixedDeltaSeconds));
+        lifecycle?.afterPresentation?.(deltaSeconds);
       });
       return steps;
     } catch (error) {

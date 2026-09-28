@@ -68,8 +68,8 @@
         "depthBounds": {
           "width": 320,
           "height": 160,
-          "offsetX": 0,
-          "offsetY": 0
+          "offsetX": -2,
+          "offsetY": 156
         }
       }
     }

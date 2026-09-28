@@ -1,7 +1,7 @@
 ﻿import Phaser from 'phaser';
 import { hitboxPool, type HitboxConfig } from '../combat/Hitbox';
 import { devToolsState } from '../devTools';
-import type { MapBossCamp, MapEnemyAreaPerimeter, MapEnemySpawnArea } from '../content/maps/mapFormat';
+import type { MapEnemyAreaPerimeter, MapEnemySpawnArea } from '../content/maps/mapFormat';
 import type { WorldDimensions } from '../world/WorldDimensions';
 import {
   resolveBodyBottom,
@@ -25,10 +25,10 @@ export interface WorldDebugContext {
   dimensions: WorldDimensions;
   getPlayer: () => Phaser.Physics.Arcade.Sprite;
   getCombatTargets: () => Phaser.Physics.Arcade.Group | null;
-  getCollisionTiles: () => Phaser.Physics.Arcade.StaticGroup | undefined;
   getTransitionZones: () => Phaser.GameObjects.Zone[];
   getEnemySpawnAreas: () => readonly MapEnemySpawnArea[];
-  getBossCamps: () => readonly MapBossCamp[];
+  /** Live boss camp perimeters, resolved from the mounted encounter scenes. */
+  getBossBattleAreas: () => readonly { readonly activation?: MapEnemyAreaPerimeter; readonly arena?: MapEnemyAreaPerimeter }[];
   /** Every mounted world sprite; object overlays (visual, occlusion, depth) are drawn from these. */
   getWorldVisuals: () => readonly DebugWorldVisual[];
 }
@@ -89,13 +89,11 @@ export class WorldDebugRenderer {
     this.forWorldObjects((visual) => { if (visual.selfSorted) this.drawObjectBounds(g, visual.presentationObject, 0x72d8ff, 0.75); });
   }
 
+  /** Every enabled Arcade body: scene-tree bodies are registered with the world, not with a scene group. */
   private drawHitBoxes(g: Phaser.GameObjects.Graphics): void {
-    this.drawBody(g, this.ctx.getPlayer().body, 0xff4d6d, 0.95);
-    this.forChildren(this.ctx.getCombatTargets(), (child) => {
-      if (!child.active) return;
-      this.drawBody(g, this.bodyOf(child), 0xff4d6d, 0.9);
-    });
-    this.forChildren(this.ctx.getCollisionTiles(), (child) => this.drawBody(g, this.bodyOf(child), 0xff4d6d, 0.35));
+    const world = this.ctx.scene.physics.world;
+    for (const body of world.staticBodies.entries) this.drawBody(g, body, 0xff4d6d, 0.7);
+    for (const body of world.bodies.entries) this.drawBody(g, body, 0xff4d6d, 0.95);
   }
 
   private drawOcclusionBounds(g: Phaser.GameObjects.Graphics): void {
@@ -148,9 +146,9 @@ export class WorldDebugRenderer {
   }
 
   private drawBossBattleAreas(g: Phaser.GameObjects.Graphics): void {
-    for (const camp of this.ctx.getBossCamps()) {
-      this.drawEnemyPerimeter(g, camp.activationPerimeter, 0x40e0d0, 0.045, 3);
-      this.drawEnemyPerimeter(g, camp.arenaPerimeter, 0xffb84d, 0.07, 3);
+    for (const camp of this.ctx.getBossBattleAreas()) {
+      if (camp.activation) this.drawEnemyPerimeter(g, camp.activation, 0x40e0d0, 0.045, 3);
+      if (camp.arena) this.drawEnemyPerimeter(g, camp.arena, 0xffb84d, 0.07, 3);
     }
   }
 

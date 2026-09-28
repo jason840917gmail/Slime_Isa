@@ -70,7 +70,7 @@
           "resourceId": "weapon.pickaxe.right.pickaxe-head.shape"
         },
         "position": [
-          42,
+          60,
           15
         ],
         "rotation": 0,
@@ -88,7 +88,7 @@
           "resourceId": "weapon.pickaxe.left.pickaxe-head.shape"
         },
         "position": [
-          -42,
+          -60,
           15
         ],
         "rotation": 0,
@@ -107,7 +107,7 @@
         },
         "position": [
           0,
-          -22
+          -60
         ],
         "rotation": 0,
         "disabled": true
@@ -125,7 +125,7 @@
         },
         "position": [
           0,
-          42
+          60
         ],
         "rotation": 0,
         "disabled": true
@@ -300,8 +300,8 @@
       "kind": "collision-shape",
       "value": {
         "shape": "rectangle",
-        "width": 40,
-        "height": 40
+        "width": 26,
+        "height": 26
       }
     },
     {
@@ -310,8 +310,8 @@
       "kind": "collision-shape",
       "value": {
         "shape": "rectangle",
-        "width": 40,
-        "height": 40
+        "width": 26,
+        "height": 26
       }
     },
     {
@@ -320,8 +320,8 @@
       "kind": "collision-shape",
       "value": {
         "shape": "rectangle",
-        "width": 40,
-        "height": 40
+        "width": 26,
+        "height": 26
       }
     },
     {
@@ -330,8 +330,8 @@
       "kind": "collision-shape",
       "value": {
         "shape": "rectangle",
-        "width": 40,
-        "height": 40
+        "width": 26,
+        "height": 26
       }
     },
     {

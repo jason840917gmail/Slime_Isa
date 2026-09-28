@@ -11,7 +11,7 @@
       "order": 0,
       "properties": {
         "collisionLayer": 2,
-        "collisionMask": 5,
+        "collisionMask": 133,
         "collideWorldBounds": true,
         "position": [
           0,

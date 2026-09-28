@@ -62,7 +62,7 @@ import { playerInventoryWorldTransaction } from '../features/progression/Invento
 import { PREPARED_SCENE_CONTENT_KEY, PreparedSceneContent } from '../infrastructure/scenes/PreparedSceneContent';
 import type { LoadedWorldScene } from '../infrastructure/scenes/WorldSceneLoader';
 import { UniversalSceneWorldController } from '../features/world/UniversalSceneWorldController';
-import type { MapBossCamp, MapEnemySafeZone, MapEnemySpawnArea, MapFile, MapPoint, MapSpawns } from '../content/maps/mapFormat';
+import type { MapEnemySafeZone, MapEnemySpawnArea, MapFile, MapPoint, MapSpawns } from '../content/maps/mapFormat';
 import type { WorldExitRequest, WorldExitResult } from '../features/scripts/WorldExitScript';
 
 const COLLECTIBLE_EVENTS = new CollectibleEventChannel(gameEvents);
@@ -79,7 +79,6 @@ interface AuthoredWorldMetadata {
   readonly entries: MapFile['player']['entries'];
   readonly enemySafeZones: readonly MapEnemySafeZone[];
   readonly enemySpawnAreas: readonly MapEnemySpawnArea[];
-  readonly bossCamps: readonly MapBossCamp[];
   readonly spawns?: MapSpawns;
 }
 
@@ -468,10 +467,9 @@ export class WorldScene extends Phaser.Scene {
       dimensions: this.worldDimensions,
       getPlayer: () => this.player,
       getCombatTargets: () => this.combatController?.targets ?? null,
-      getCollisionTiles: () => this.collisionTiles,
       getTransitionZones: () => [],
       getEnemySpawnAreas: () => this.builtMap?.enemySpawnAreas ?? [],
-      getBossCamps: () => this.builtMap?.bossCamps ?? [],
+      getBossBattleAreas: () => this.universalWorld?.bossBattleAreas ?? [],
       getWorldVisuals: () => this.universalWorld?.worldVisuals ?? [],
     });
   }
@@ -561,7 +559,6 @@ export class WorldScene extends Phaser.Scene {
       entries: map.player.entries,
       enemySafeZones: map.enemySafeZones ?? map.spawns?.safeZones ?? [],
       enemySpawnAreas: map.enemySpawnAreas ?? [],
-      bossCamps: map.bossCamps ?? [],
       ...(map.spawns ? { spawns: map.spawns } : {}),
     };
     this.physics.world.setBounds(0, 0, this.worldDimensions.width, this.worldDimensions.height);

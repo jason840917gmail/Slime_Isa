@@ -1,7 +1,8 @@
 import type { NodeConstructionContext } from '../../runtime/scene/registries/NodeTypeRegistry';
 import { ScriptNode } from '../../runtime/scene/scripts/ScriptNode';
 import { sensorShapeContainsPoint, type SensorShape } from '../../runtime/scene/physics/SensorGeometry';
-import { bossCampSpawnEligible, resolveBossCampSpawnSuppression } from '../bosses/BossCampBehavior';
+import type { MapEnemyAreaPerimeter } from '../../content/maps/mapFormat';
+import { bossCampSpawnEligible, bossPerimeterFromSensorShape, resolveBossCampSpawnSuppression } from '../bosses/BossCampBehavior';
 
 export const BOSS_CAMP_PROGRESS_SERVICE = 'world.boss-camp-progress';
 export const BOSS_SCENE_SPAWNER_SERVICE = 'world.scene-spawner';
@@ -76,8 +77,30 @@ export class BossCampScript extends ScriptNode {
   get hasLiveBoss(): boolean { return this.liveBoss; }
 
   containsActivationPoint(x: number, y: number): boolean {
-    const area = this.getReference('activationArea')?.configuredTarget as { contactShapes?: () => readonly SensorShape[] } | undefined;
-    return area?.contactShapes?.().some((shape) => sensorShapeContainsPoint(shape, x, y)) ?? false;
+    return this.areaShapes('activationArea').some((shape) => sensorShapeContainsPoint(shape, x, y));
+  }
+
+  /** World-space perimeter of the first activation shape, for overlays. */
+  get activationPerimeter(): MapEnemyAreaPerimeter | undefined {
+    return this.firstPerimeter('activationArea');
+  }
+
+  /** World-space perimeter the live boss may pursue within. */
+  get arenaPerimeter(): MapEnemyAreaPerimeter | undefined {
+    return this.firstPerimeter('arenaArea');
+  }
+
+  private areaShapes(key: 'activationArea' | 'arenaArea'): readonly SensorShape[] {
+    const area = this.getReference(key)?.configuredTarget as { contactShapes?: () => readonly SensorShape[] } | undefined;
+    return area?.contactShapes?.() ?? [];
+  }
+
+  private firstPerimeter(key: 'activationArea' | 'arenaArea'): MapEnemyAreaPerimeter | undefined {
+    for (const shape of this.areaShapes(key)) {
+      const perimeter = bossPerimeterFromSensorShape(shape);
+      if (perimeter) return perimeter;
+    }
+    return undefined;
   }
 
   evaluateActivation(insideActivation: boolean, epochNow: number): boolean {

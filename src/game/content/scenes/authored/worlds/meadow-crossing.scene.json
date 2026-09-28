@@ -114,11 +114,9 @@
         "area": {
           "nodeId": "area-enemy-safe-1"
         },
-        "data": {
-          "x": 768,
-          "y": 1408,
-          "w": 1472,
-          "h": 1216
+        "data": {},
+        "shape": {
+          "nodeId": "area-enemy-safe-1-shape"
         }
       }
     },
@@ -141,7 +139,7 @@
     },
     {
       "id": "area-enemy-area-01-shape",
-      "name": "collision-shape",
+      "name": "pursue-shape",
       "type": "CollisionShape2D",
       "parentId": "area-enemy-area-01",
       "order": 0,
@@ -152,12 +150,24 @@
       }
     },
     {
+      "id": "area-enemy-area-01-stay-shape",
+      "name": "stay-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-enemy-area-01",
+      "order": 1,
+      "properties": {
+        "shape": {
+          "resourceId": "meadow-crossing.area-enemy-area-01.stay-shape"
+        }
+      }
+    },
+    {
       "id": "area-enemy-area-01-script",
       "name": "world-area-script",
       "type": "ScriptNode",
       "scriptId": "game.world-area",
       "parentId": "area-enemy-area-01",
-      "order": 1,
+      "order": 2,
       "properties": {
         "areaKind": "enemy-spawn",
         "areaId": "enemy-area-01",
@@ -165,19 +175,6 @@
           "nodeId": "area-enemy-area-01"
         },
         "data": {
-          "id": "enemy-area-01",
-          "stayPerimeter": {
-            "shape": "circle",
-            "x": 621,
-            "y": 804,
-            "radius": 256
-          },
-          "pursuePerimeter": {
-            "shape": "circle",
-            "x": 621,
-            "y": 804,
-            "radius": 576
-          },
           "enemies": [
             {
               "type": "slime-spider",
@@ -187,6 +184,12 @@
           ],
           "intervalMs": 1500,
           "maxPopulation": 8
+        },
+        "shape": {
+          "nodeId": "area-enemy-area-01-shape"
+        },
+        "stayShape": {
+          "nodeId": "area-enemy-area-01-stay-shape"
         }
       }
     },
@@ -209,7 +212,7 @@
     },
     {
       "id": "area-enemy-area-02-shape",
-      "name": "collision-shape",
+      "name": "pursue-shape",
       "type": "CollisionShape2D",
       "parentId": "area-enemy-area-02",
       "order": 0,
@@ -220,12 +223,24 @@
       }
     },
     {
+      "id": "area-enemy-area-02-stay-shape",
+      "name": "stay-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-enemy-area-02",
+      "order": 1,
+      "properties": {
+        "shape": {
+          "resourceId": "meadow-crossing.area-enemy-area-02.stay-shape"
+        }
+      }
+    },
+    {
       "id": "area-enemy-area-02-script",
       "name": "world-area-script",
       "type": "ScriptNode",
       "scriptId": "game.world-area",
       "parentId": "area-enemy-area-02",
-      "order": 1,
+      "order": 2,
       "properties": {
         "areaKind": "enemy-spawn",
         "areaId": "enemy-area-02",
@@ -233,21 +248,6 @@
           "nodeId": "area-enemy-area-02"
         },
         "data": {
-          "id": "enemy-area-02",
-          "stayPerimeter": {
-            "shape": "rectangle",
-            "x": 1536,
-            "y": 512,
-            "w": 1536,
-            "h": 512
-          },
-          "pursuePerimeter": {
-            "shape": "rectangle",
-            "x": 1408,
-            "y": 384,
-            "w": 1792,
-            "h": 768
-          },
           "enemies": [
             {
               "type": "worm-archer",
@@ -256,6 +256,12 @@
           ],
           "intervalMs": 1500,
           "maxPopulation": 8
+        },
+        "shape": {
+          "nodeId": "area-enemy-area-02-shape"
+        },
+        "stayShape": {
+          "nodeId": "area-enemy-area-02-stay-shape"
         }
       }
     },
@@ -278,7 +284,7 @@
     },
     {
       "id": "area-enemy-area-03-shape",
-      "name": "collision-shape",
+      "name": "pursue-shape",
       "type": "CollisionShape2D",
       "parentId": "area-enemy-area-03",
       "order": 0,
@@ -289,12 +295,24 @@
       }
     },
     {
+      "id": "area-enemy-area-03-stay-shape",
+      "name": "stay-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-enemy-area-03",
+      "order": 1,
+      "properties": {
+        "shape": {
+          "resourceId": "meadow-crossing.area-enemy-area-03.stay-shape"
+        }
+      }
+    },
+    {
       "id": "area-enemy-area-03-script",
       "name": "world-area-script",
       "type": "ScriptNode",
       "scriptId": "game.world-area",
       "parentId": "area-enemy-area-03",
-      "order": 1,
+      "order": 2,
       "properties": {
         "areaKind": "enemy-spawn",
         "areaId": "enemy-area-03",
@@ -302,21 +320,6 @@
           "nodeId": "area-enemy-area-03"
         },
         "data": {
-          "id": "enemy-area-03",
-          "stayPerimeter": {
-            "shape": "rectangle",
-            "x": 192,
-            "y": 2880,
-            "w": 896,
-            "h": 384
-          },
-          "pursuePerimeter": {
-            "shape": "rectangle",
-            "x": 64,
-            "y": 2752,
-            "w": 1152,
-            "h": 640
-          },
           "enemies": [
             {
               "type": "worm-brawler",
@@ -325,6 +328,12 @@
           ],
           "intervalMs": 1500,
           "maxPopulation": 8
+        },
+        "shape": {
+          "nodeId": "area-enemy-area-03-shape"
+        },
+        "stayShape": {
+          "nodeId": "area-enemy-area-03-stay-shape"
         }
       }
     },
@@ -347,7 +356,7 @@
     },
     {
       "id": "area-enemy-area-04-shape",
-      "name": "collision-shape",
+      "name": "pursue-shape",
       "type": "CollisionShape2D",
       "parentId": "area-enemy-area-04",
       "order": 0,
@@ -358,12 +367,24 @@
       }
     },
     {
+      "id": "area-enemy-area-04-stay-shape",
+      "name": "stay-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-enemy-area-04",
+      "order": 1,
+      "properties": {
+        "shape": {
+          "resourceId": "meadow-crossing.area-enemy-area-04.stay-shape"
+        }
+      }
+    },
+    {
       "id": "area-enemy-area-04-script",
       "name": "world-area-script",
       "type": "ScriptNode",
       "scriptId": "game.world-area",
       "parentId": "area-enemy-area-04",
-      "order": 1,
+      "order": 2,
       "properties": {
         "areaKind": "enemy-spawn",
         "areaId": "enemy-area-04",
@@ -371,21 +392,6 @@
           "nodeId": "area-enemy-area-04"
         },
         "data": {
-          "id": "enemy-area-04",
-          "stayPerimeter": {
-            "shape": "rectangle",
-            "x": 1216,
-            "y": 2752,
-            "w": 2048,
-            "h": 576
-          },
-          "pursuePerimeter": {
-            "shape": "rectangle",
-            "x": 1088,
-            "y": 2624,
-            "w": 2304,
-            "h": 832
-          },
           "enemies": [
             {
               "type": "worm-swordsman",
@@ -394,6 +400,12 @@
           ],
           "intervalMs": 1500,
           "maxPopulation": 8
+        },
+        "shape": {
+          "nodeId": "area-enemy-area-04-shape"
+        },
+        "stayShape": {
+          "nodeId": "area-enemy-area-04-stay-shape"
         }
       }
     },
@@ -11998,12 +12010,31 @@
     },
     {
       "version": 1,
+      "resourceId": "meadow-crossing.area-enemy-area-01.stay-shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "circle",
+        "radius": 256
+      }
+    },
+    {
+      "version": 1,
       "resourceId": "meadow-crossing.area-enemy-area-02.shape",
       "kind": "collision-shape",
       "value": {
         "shape": "rectangle",
         "width": 1792,
         "height": 768
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "meadow-crossing.area-enemy-area-02.stay-shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 1536,
+        "height": 512
       }
     },
     {
@@ -12018,12 +12049,32 @@
     },
     {
       "version": 1,
+      "resourceId": "meadow-crossing.area-enemy-area-03.stay-shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 896,
+        "height": 384
+      }
+    },
+    {
+      "version": 1,
       "resourceId": "meadow-crossing.area-enemy-area-04.shape",
       "kind": "collision-shape",
       "value": {
         "shape": "rectangle",
         "width": 2304,
         "height": 832
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "meadow-crossing.area-enemy-area-04.stay-shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 2048,
+        "height": 576
       }
     },
     {

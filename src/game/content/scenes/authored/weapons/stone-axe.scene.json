@@ -70,8 +70,8 @@
           "resourceId": "weapon.stone-axe.right.axe-head.shape"
         },
         "position": [
-          50,
-          20
+          60,
+          15
         ],
         "rotation": 0,
         "disabled": true
@@ -88,8 +88,8 @@
           "resourceId": "weapon.stone-axe.left.axe-head.shape"
         },
         "position": [
-          -50,
-          20
+          -60,
+          15
         ],
         "rotation": 0,
         "disabled": true
@@ -107,7 +107,7 @@
         },
         "position": [
           0,
-          -50
+          -60
         ],
         "rotation": 0,
         "disabled": true
@@ -125,7 +125,7 @@
         },
         "position": [
           0,
-          70
+          60
         ],
         "rotation": 0,
         "disabled": true
@@ -296,8 +296,8 @@
       "kind": "collision-shape",
       "value": {
         "shape": "rectangle",
-        "width": 30,
-        "height": 30
+        "width": 26,
+        "height": 26
       }
     },
     {
@@ -306,8 +306,8 @@
       "kind": "collision-shape",
       "value": {
         "shape": "rectangle",
-        "width": 30,
-        "height": 30
+        "width": 26,
+        "height": 26
       }
     },
     {
@@ -316,8 +316,8 @@
       "kind": "collision-shape",
       "value": {
         "shape": "rectangle",
-        "width": 30,
-        "height": 30
+        "width": 26,
+        "height": 26
       }
     },
     {
@@ -326,8 +326,8 @@
       "kind": "collision-shape",
       "value": {
         "shape": "rectangle",
-        "width": 30,
-        "height": 30
+        "width": 26,
+        "height": 26
       }
     },
     {

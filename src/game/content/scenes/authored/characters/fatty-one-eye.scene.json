@@ -164,6 +164,7 @@
         "contactAttack": {
           "nodeId": "contact-attack"
         },
+        "displayName": "Fatty One Eye",
         "faction": "hostile",
         "rank": "boss",
         "maxHealth": 140,

@@ -16,6 +16,7 @@
       "character.npc.lili",
       "character.npc.red-slime-boy",
       "character.npc.yellow-blond-slime-girl",
+      "character.npc.fisherman-slime",
       "sheet.grounds.19x19.highland-green",
       "sheet.grounds.19x19.amberleaf",
       "sheet.grounds.19x19.frozen",
@@ -265,6 +266,40 @@
       },
       "runtime": {
         "textureKey": "character-npc-yellow-blond-slime-girl"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": false
+      },
+      "tags": [
+        "character",
+        "npc",
+        "animated"
+      ],
+      "status": "ready",
+      "notes": "Rows: idle, walk-down, walk-up, walk-left, walk-right; six frames per row."
+    },
+    "character.npc.fisherman-slime": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "characters/authored/npcs/fisherman-slime.png",
+        "frame": {
+          "w": 229,
+          "h": 229,
+          "cols": 6,
+          "rows": 5,
+          "count": 30
+        },
+        "expect": {
+          "w": 1374,
+          "h": 1145
+        }
+      },
+      "runtime": {
+        "textureKey": "character-npc-fisherman-slime"
       },
       "render": {
         "origin": [

@@ -9,7 +9,8 @@ test('developer tools expose a separate boss battle area overlay', async () => {
   assert.match(devTools, /bossBattleAreas: boolean/);
   assert.match(devTools, /label: 'Boss battle areas'/);
   assert.match(renderer, /devToolsState\.bossBattleAreas/);
-  assert.match(renderer, /camp\.activationPerimeter/);
-  assert.match(renderer, /camp\.arenaPerimeter/);
-  assert.match(worldScene, /getBossCamps: \(\) => this\.builtMap\?\.bossCamps \?\? \[\]/);
+  assert.match(renderer, /camp\.activation\)/);
+  assert.match(renderer, /camp\.arena\)/);
+  // Authored worlds carry boss camps as encounter scenes, not map.bossCamps.
+  assert.match(worldScene, /getBossBattleAreas: \(\) => this\.universalWorld\?\.bossBattleAreas \?\? \[\]/);
 });
