@@ -6,6 +6,7 @@ import { Node2D } from '../../runtime/scene/Node2D';
 import type { PhysicsContact } from '../../runtime/scene/physics/PhysicsContact';
 import { ScriptNode } from '../../runtime/scene/scripts/ScriptNode';
 import type { AttackActivation } from '../combat/AttackActivation';
+import type { DamageEffectRequest } from '../combat/DamageReceiver';
 import type { DamageRouter } from '../combat/DamageRouter';
 import { ATTACK_ACTIVATION_SERVICE, DAMAGE_ROUTER_SERVICE } from './EnemyScript';
 
@@ -22,6 +23,8 @@ export interface ProjectileDamagePayload {
   readonly weaponTags?: readonly string[];
   readonly damageTypes?: readonly string[];
   readonly targetAreaNodeIds?: readonly string[];
+  /** Extra on-hit effects besides knockback, e.g. `web` (potency = stuck milliseconds). */
+  readonly effects?: readonly DamageEffectRequest[];
 }
 
 function scriptId(context: NodeConstructionContext): string {
@@ -120,7 +123,10 @@ export class ProjectileScript extends ScriptNode {
       weaponTags: damage.weaponTags ?? ['projectile'],
       damageTypes: damage.damageTypes ?? ['physical'],
       baseDamage: damage.damage,
-      effects: damage.knockbackStrength > 0 ? [{ effectId: 'knockback', potency: damage.knockbackStrength }] : [],
+      effects: [
+        ...(damage.knockbackStrength > 0 ? [{ effectId: 'knockback', potency: damage.knockbackStrength }] : []),
+        ...(damage.effects ?? []),
+      ],
       impact: { x: 0, y: 0, knockX: velocity.x / length, knockY: velocity.y / length },
     }], this.ageMs);
     this.expire();

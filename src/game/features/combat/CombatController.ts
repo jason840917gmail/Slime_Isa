@@ -19,7 +19,7 @@ import { getWeaponDefinition } from '../../content/weapons/WeaponCatalog';
 import type { NormalizedWeaponDefinition } from '../../content/weapons/types';
 import type { WorldDimensions } from '../../world/WorldDimensions';
 import type { MapEnemySafeZone, MapEnemySpawnArea, MapSpawns } from '../../content/maps/mapFormat';
-import { resolveScreenUiDepth, resolveWorldDepth } from '../../presentation/WorldDepth';
+import { MAX_ATTACHMENT_SLOT, resolveScreenUiDepth, resolveWorldDepth } from '../../presentation/WorldDepth';
 import type { ManagedWorldEffectSpawner, WorldEffectSpawnRequest } from '../effects/WorldEffectSpawn';
 import { resolveDamageModifier } from '../../combat/DamageModifiers';
 import type { RoutedDamageOutcome } from './DamageRouter';
@@ -201,7 +201,10 @@ export class CombatController {
       direction: target.attackDirection,
       x: target.x,
       y: target.y,
-      depth: resolveWorldDepth(target.y, { stableId: target.receiverNodeId, attachmentSlot: 2 }).depth,
+      // Just above every attachment slot of the target so the impact draws in front of it.
+      depth: target.depth !== undefined
+        ? target.depth + MAX_ATTACHMENT_SLOT + 1
+        : resolveWorldDepth(target.y, { stableId: target.receiverNodeId, attachmentSlot: 2 }).depth,
     });
   }
 

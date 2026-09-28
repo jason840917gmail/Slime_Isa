@@ -1,0 +1,48 @@
+{
+  "$schema": "../projectile.schema.json",
+  "version": 1,
+  "projectileId": "spider-web",
+  "displayName": "Spider Web",
+  "assetId": "enemy.projectile.spider-web",
+  "visual": {
+    "sourceOffset": [
+      0,
+      0
+    ],
+    "frameOffsets": {}
+  },
+  "animations": {
+    "move": {
+      "frames": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "framesPerSecond": 10,
+      "loop": true,
+      "loopMode": "wrap"
+    },
+    "impact": {
+      "frames": [
+        4,
+        5,
+        6
+      ],
+      "framesPerSecond": 14,
+      "loop": false,
+      "loopMode": "wrap"
+    }
+  },
+  "body": {
+    "width": 14,
+    "height": 14,
+    "centerOffsetX": 0,
+    "centerOffsetY": 0
+  },
+  "movement": {
+    "defaultSpeed": 170,
+    "lifetimeMs": 3000,
+    "rotateToVelocity": true
+  }
+}

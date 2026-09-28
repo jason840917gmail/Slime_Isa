@@ -36,7 +36,7 @@ export interface LiveViewportShape {
   /** A hitbox the animation timeline shows as active on the current frame. */
   readonly active?: boolean;
   /** World-area role, coloured like the in-game enemy/NPC boundary overlays. */
-  readonly tone?: 'perimeter' | 'stay' | 'safe' | 'wander' | 'activation' | 'arena';
+  readonly tone?: 'perimeter' | 'stay' | 'safe' | 'wander' | 'activation' | 'arena' | 'attack';
 }
 
 export interface LiveViewportTileLayer {

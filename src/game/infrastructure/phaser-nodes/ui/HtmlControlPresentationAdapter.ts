@@ -44,7 +44,7 @@ export class HtmlControlPresentationAdapter extends ControlPresentationAdapter {
     element.addEventListener('keydown', trapModalTab);
     return () => {
       const focus = this.modalFocus.get(control);
-      if (focus?.open && focus.previous instanceof HTMLElement && focus.previous.isConnected) focus.previous.focus();
+      if (focus?.open) restoreFocus(focus.previous);
       this.modalFocus.delete(control);
       element.removeEventListener('keydown', trapModalTab);
       dispose();
@@ -67,10 +67,30 @@ export class HtmlControlPresentationAdapter extends ControlPresentationAdapter {
         });
       } else if (!control.open && state?.open) {
         this.modalFocus.set(control, { previous: state.previous, open: false });
-        if (state.previous instanceof HTMLElement && state.previous.isConnected) state.previous.focus();
+        restoreFocus(state.previous);
       }
     }
   }
+}
+
+/**
+ * Returns focus to the element that opened a modal, except HUD scene controls
+ * (weapon belt, ability bar) outside an open dialog: they must not regain
+ * keyboard focus, or arrow keys and Space would drive them while the player walks.
+ */
+function restoreFocus(previous: Element | null): void {
+  if (previous instanceof HTMLElement && previous.isConnected
+    && (!previous.closest('.scene-control') || previous.closest('[role="dialog"][aria-hidden="false"]'))) {
+    previous.focus();
+    return;
+  }
+  const active = document.activeElement;
+  if (active instanceof HTMLElement && active !== document.body && active.closest('.scene-control')) active.blur();
+}
+
+/** HUD controls outside dialogs stay clickable but never take keyboard focus from a pointer press. */
+function keepPointerFocusOutsideHud(event: MouseEvent): void {
+  if (!(event.currentTarget as HTMLElement).closest('[role="dialog"]')) event.preventDefault();
 }
 
 function trapModalTab(event: KeyboardEvent): void {
@@ -158,8 +178,8 @@ function synchronizeElement(
     else removeAttribute(element, 'src');
   }
   if (control instanceof ItemListControlNode) {
-    synchronizeFocusable(element, control);
     synchronizeList(element, control, resolveAssetUrl);
+    synchronizeFocusable(element, control);
   }
   if (control instanceof ScrollContainerControlNode) {
     setStyle(element, 'overflow-x', control.scrollAxis === 'horizontal' ? 'auto' : 'hidden');
@@ -174,9 +194,24 @@ function synchronizeElement(
 }
 
 function synchronizeFocusable(element: HTMLElement, control: ButtonControlNode | ItemListControlNode): void {
-  const tabIndex = control instanceof ButtonControlNode && control.disabled ? -1 : 0;
+  // HUD controls outside dialogs stay out of the Tab order: the game owns Tab,
+  // and a focused weapon belt or ability bar would turn walking keys into UI input.
+  const inHud = !element.closest('[role="dialog"]');
+  const tabIndex = inHud || (control instanceof ButtonControlNode && control.disabled) ? -1 : 0;
   if (element.tabIndex !== tabIndex) element.tabIndex = tabIndex;
+  if (control instanceof ItemListControlNode) {
+    const optionTabIndex = inHud ? -1 : 0;
+    for (const option of element.children) {
+      if (option instanceof HTMLElement && option.tabIndex !== optionTabIndex) option.tabIndex = optionTabIndex;
+    }
+  }
+  // Browsers skip `blur` when a focused element is disabled or removed (ItemList
+  // rebuilds its options), which would leave `focused` stuck and let the router
+  // feed every document key to this control. Re-derive it from the live DOM.
+  const hasFocus = element.contains(document.activeElement);
+  if (control.focused !== hasFocus) control.focused = hasFocus;
   if (wiredElements.has(element)) return;
+  element.onmousedown = keepPointerFocusOutsideHud;
   element.onfocus = () => { control.focused = true; };
   element.onblur = () => { control.focused = false; };
   element.onkeydown = (nativeEvent) => {
@@ -270,6 +305,7 @@ function synchronizeList(
     option.dataset.itemId = item.id;
     option.setAttribute('role', 'option');
     option.setAttribute('aria-selected', String(index === control.selectedIndex));
+    option.onmousedown = keepPointerFocusOutsideHud;
     option.onfocus = () => { control.focused = true; };
     option.onblur = () => { control.focused = false; };
     option.onclick = (event) => { if (control.select(index)) { event.preventDefault(); event.stopPropagation(); } };

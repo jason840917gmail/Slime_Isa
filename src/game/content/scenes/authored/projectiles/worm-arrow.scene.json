@@ -145,8 +145,11 @@
     {
       "version": 1,
       "resourceId": "projectile.worm-arrow.visual",
-      "kind": "texture",
-      "assetId": "enemy.projectile.worm-arrow"
+      "kind": "sprite-sheet",
+      "assetId": "enemy.projectile.worm-arrow",
+      "frameWidth": 16,
+      "frameHeight": 10,
+      "frameCount": 5
     },
     {
       "version": 1,

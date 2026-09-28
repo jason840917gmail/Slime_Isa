@@ -1,5 +1,6 @@
 import { capabilitiesForNode, propertiesForNode, type DescriptorRegistry, type PropertyDescriptor, type ScriptDescriptor } from '../../content/scenes/propertyDescriptors';
 import type { JsonValue, SceneInstanceDocument, SceneNodeDocument, SceneOverrideDocument } from '../../content/scenes/types';
+import { optionTags, type FormOptions } from './JsonPropertyForms';
 
 export interface InspectorProperty {
   readonly descriptor: PropertyDescriptor;
@@ -48,19 +49,35 @@ function escapeHtml(value: unknown): string {
   return String(value ?? '').replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character] ?? character);
 }
 
-export function renderSceneInspector(model: SceneInspectorModel): string {
+export interface SceneInspectorRenderOptions {
+  /** Replaces a JSON property's textarea (e.g. with a friendly form and a locked preview). */
+  readonly jsonControl?: (property: InspectorProperty) => string | undefined;
+  /** Resolves a string property's `optionSource` (e.g. 'effects') into dropdown options. */
+  readonly selectOptions?: (source: string) => FormOptions;
+}
+
+export function renderSceneInspector(model: SceneInspectorModel, options: SceneInspectorRenderOptions = {}): string {
   const input = (property: InspectorProperty): string => {
     const descriptor = property.descriptor;
     const attributes = `data-property="${escapeHtml(descriptor.key)}" aria-describedby="help-${escapeHtml(descriptor.key)}"`;
     if (descriptor.inspector === 'checkbox') return `<input type="checkbox" ${attributes} ${property.value === true ? 'checked' : ''} />`;
     if (descriptor.inspector === 'select' && descriptor.value.kind === 'enum') return `<select ${attributes}>${descriptor.value.values.map((value) => `<option ${property.value === value ? 'selected' : ''}>${escapeHtml(value)}</option>`).join('')}</select>`;
+    if (descriptor.inspector === 'select' && descriptor.value.kind === 'string' && descriptor.value.optionSource && options.selectOptions) {
+      return `<select ${attributes}>${optionTags(options.selectOptions(descriptor.value.optionSource), typeof property.value === 'string' ? property.value : '', '(none)')}</select>`;
+    }
     if (descriptor.inspector === 'json') return `<textarea ${attributes}>${escapeHtml(JSON.stringify(property.value ?? null, null, 2))}</textarea>`;
     const type = descriptor.inspector === 'number' ? 'number' : descriptor.inspector === 'color' ? 'color' : 'text';
     const constraints = descriptor.value.kind === 'number' ? `${descriptor.value.min === undefined ? '' : ` min="${descriptor.value.min}"`}${descriptor.value.max === undefined ? '' : ` max="${descriptor.value.max}"`}${descriptor.value.integer ? ' step="1"' : ''}` : '';
     const value = typeof property.value === 'string' || typeof property.value === 'number' ? property.value : property.value === undefined ? '' : JSON.stringify(property.value);
     return `<input type="${type}" ${attributes}${constraints} value="${escapeHtml(value)}" />`;
   };
-  const groups = [...model.groups].map(([label, properties]) => `<fieldset><legend>${escapeHtml(label)}</legend>${properties.map((property) => property.descriptor.inspector === 'source-rect' ? renderSourceRect(property) : `<label class="scene-property"><span>${escapeHtml(property.descriptor.label)}${property.descriptor.units ? `<small>${escapeHtml(property.descriptor.units)}</small>` : ''}</span>${input(property)}<em>${property.origin}</em>${property.descriptor.help ? `<small id="help-${escapeHtml(property.descriptor.key)}">${escapeHtml(property.descriptor.help)}</small>` : ''}</label>`).join('')}</fieldset>`).join('');
+  const jsonProperty = (property: InspectorProperty): string | undefined => {
+    const control = property.descriptor.inspector === 'json' ? options.jsonControl?.(property) : undefined;
+    if (control === undefined) return undefined;
+    const key = escapeHtml(property.descriptor.key);
+    return `<div class="scene-property scene-json-property" role="group" aria-labelledby="json-${key}"><span id="json-${key}">${escapeHtml(property.descriptor.label)}</span><em>${property.origin}</em>${control}</div>`;
+  };
+  const groups = [...model.groups].map(([label, properties]) => `<fieldset><legend>${escapeHtml(label)}</legend>${properties.map((property) => property.descriptor.inspector === 'source-rect' ? renderSourceRect(property) : jsonProperty(property) ?? `<label class="scene-property"><span>${escapeHtml(property.descriptor.label)}${property.descriptor.units ? `<small>${escapeHtml(property.descriptor.units)}</small>` : ''}</span>${input(property)}<em>${property.origin}</em>${property.descriptor.help ? `<small id="help-${escapeHtml(property.descriptor.key)}">${escapeHtml(property.descriptor.help)}</small>` : ''}</label>`).join('')}</fieldset>`).join('');
   const script = model.script ? `<section class="scene-script-card"><span>SCRIPT</span><strong>${escapeHtml(model.script.displayName)}</strong><code>${escapeHtml(model.script.scriptId)}</code><button type="button" data-open-source="${escapeHtml(model.script.sourcePath)}">Open ${escapeHtml(model.script.sourcePath)}</button></section>` : '';
   return `<aside class="scene-inspector" aria-label="Inspector"><header><span>INSPECTOR</span><h2>${escapeHtml(model.node.name)}</h2><small>${escapeHtml(model.node.type)}</small></header>${script}${groups}${model.warnings.map((warning) => `<p role="alert">${escapeHtml(warning)}</p>`).join('')}</aside>`;
 }

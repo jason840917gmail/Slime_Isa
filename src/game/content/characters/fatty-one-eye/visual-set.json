@@ -4,7 +4,7 @@
   "visualSetId": "boss.fatty-one-eye",
   "assetId": "character.boss.fatty-one-eye",
   "defaults": {
-    "origin": [0.5, 0.72],
+    "origin": [0.5, 0.762712],
     "scale": [1.5, 1.5],
     "sourceOffset": [0, 0]
   },

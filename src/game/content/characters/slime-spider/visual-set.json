@@ -57,7 +57,6 @@
     },
     "idle-side": {
       "frames": [
-        23,
         24,
         25,
         26,
@@ -65,7 +64,8 @@
         28,
         29,
         30,
-        31
+        31,
+        32
       ],
       "framesPerSecond": 8,
       "loop": true,
@@ -73,7 +73,6 @@
     },
     "walk-side": {
       "frames": [
-        32,
         33,
         34,
         35,
@@ -95,7 +94,8 @@
         51,
         52,
         53,
-        54
+        54,
+        55
       ],
       "framesPerSecond": 16,
       "loop": true,
@@ -150,9 +150,9 @@
     },
     "attack-side": {
       "frames": [
-        23,
         24,
-        23
+        25,
+        24
       ],
       "framesPerSecond": 10,
       "loop": false
@@ -175,7 +175,7 @@
     },
     "knockback-side": {
       "frames": [
-        24
+        25
       ],
       "framesPerSecond": 8,
       "loop": false
@@ -197,8 +197,8 @@
     },
     "die-side": {
       "frames": [
-        23,
-        24
+        24,
+        25
       ],
       "framesPerSecond": 7,
       "loop": false

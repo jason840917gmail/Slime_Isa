@@ -23,6 +23,7 @@ import { AnimationPlayerNode } from '../../runtime/scene/animation/AnimationPlay
 import { runState, type EnemyAIConfig, type EnemySafeZone, type EnemyState } from '../../enemies/EnemyAI';
 import type { MapEnemyAreaPerimeter, MapEnemySpawnArea } from '../../content/maps/mapFormat';
 import { bossArenaCenter, bossPerimeterContains } from '../bosses/BossCampBehavior';
+import type { SensorShape } from '../../runtime/scene/physics/SensorGeometry';
 
 export const DAMAGE_ROUTER_SERVICE = 'combat.damage-router';
 export const ATTACK_ACTIVATION_SERVICE = 'combat.attack-activation';
@@ -44,6 +45,26 @@ export interface EnemyRuntimePort extends EnemyTargetService {
   fireProjectile?(request: EnemyProjectileRequest): void;
   spawnImpactEffect?(request: { readonly effectId: string; readonly x: number; readonly y: number }): void;
   showDamageNumber?(request: EnemyDamageNumberRequest): void;
+  /** Ground warning where an attack will land (world-space shapes plus a shadow point); replaces any previous one. */
+  showTelegraph?(request: EnemyTelegraphRequest): void;
+  clearTelegraph?(sourceNodeId: string): void;
+  shakeCamera?(request: { readonly durationMs: number; readonly intensity: number }): void;
+}
+
+export interface EnemyTelegraphRequest {
+  readonly sourceNodeId: string;
+  readonly shapes: readonly SensorShape[];
+  readonly shadow?: CharacterPoint;
+}
+
+export interface ImmediateAttackOptions {
+  readonly baseDamage: number;
+  /** Only targets within this distance are hit (omit when the caller already checked its area). */
+  readonly range?: number;
+  /** Overrides the script's contact knockback strength for this hit. */
+  readonly knockbackStrength?: number;
+  /** Plays the script's impactEffect on a successful hit (default true). */
+  readonly impactEffect?: boolean;
 }
 
 export interface EnemyDamageNumberRequest {
@@ -97,6 +118,8 @@ export interface EnemyProjectileRequest {
   readonly knockbackStrength: number;
   readonly projectileId?: string;
   readonly assetId?: string;
+  /** Milliseconds a hit keeps the player stuck in place (spider webs). */
+  readonly stickMs?: number;
 }
 
 export type EnemyRank = 'ordinary' | 'elite' | 'boss';
@@ -478,12 +501,13 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
     return animation instanceof AnimationPlayerNode ? animation : undefined;
   }
 
-  protected routeImmediateAttack(target: EnemyTargetSnapshot, baseDamage: number, range: number): void {
+  protected routeImmediateAttack(target: EnemyTargetSnapshot, options: ImmediateAttackOptions): boolean {
     const attackArea = this.getReference<Node>('attackArea')?.configuredTarget;
-    if (!attackArea || !this.attackActivations || !this.damageRouter) return;
+    if (!attackArea || !this.attackActivations || !this.damageRouter) return false;
     const origin = this.body().get_global_transform().position;
     const movement = this.movementToward(origin, target.position, 1);
-    if (!target.active || !target.hostile || Math.sqrt(this.distanceSquared(origin, target.position)) > range) return;
+    if (!target.active || !target.hostile) return false;
+    if (options.range !== undefined && Math.sqrt(this.distanceSquared(origin, target.position)) > options.range) return false;
     const activationId = this.attackActivations.begin(this.runtimeId, [attackArea.runtimeId]);
     const outcomes = this.damageRouter.routeStep([{
       activationId,
@@ -493,14 +517,31 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
       weaponId: 'enemy-contact',
       weaponTags: ['enemy', 'contact'],
       damageTypes: ['physical'],
-      baseDamage,
-      effects: this.knockbackEffects(),
+      baseDamage: options.baseDamage,
+      effects: this.knockbackEffects(options.knockbackStrength),
       impact: { x: origin.x, y: origin.y, knockX: movement.x, knockY: movement.y },
     }], this.simulationTimeMs);
-    if (outcomes.some((outcome) => outcome.result.status === 'accepted' && outcome.result.actualDamage > 0)) {
-      this.spawnImpactEffect(origin);
-    }
+    const hit = outcomes.some((outcome) => outcome.result.status === 'accepted' && outcome.result.actualDamage > 0);
+    if (hit && options.impactEffect !== false) this.spawnImpactEffect(origin);
     this.attackActivations.end(activationId);
+    return hit;
+  }
+
+  /** Plays an effect scene (`effect.<id>`) at a world point. */
+  protected spawnEffectAt(effectId: string, point: CharacterPoint): void {
+    if (effectId) this.targetService?.spawnImpactEffect?.({ effectId, x: point.x, y: point.y });
+  }
+
+  protected showTelegraph(shapes: readonly SensorShape[], shadow?: CharacterPoint): void {
+    this.targetService?.showTelegraph?.({ sourceNodeId: this.runtimeId, shapes, ...(shadow ? { shadow } : {}) });
+  }
+
+  protected clearTelegraph(): void {
+    this.targetService?.clearTelegraph?.(this.runtimeId);
+  }
+
+  protected shakeCamera(durationMs: number, intensity: number): void {
+    if (durationMs > 0 && intensity > 0) this.targetService?.shakeCamera?.({ durationMs, intensity });
   }
 
   private stopBody(): void {
@@ -551,6 +592,7 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
         knockbackStrength: this.attributeNumber('knockbackStrength', 0),
         ...(projectile.projectileId ? { projectileId: projectile.projectileId } : {}),
         ...(projectile.assetId ? { assetId: projectile.assetId } : {}),
+        ...(projectile.stickMs ? { stickMs: projectile.stickMs } : {}),
       });
       return;
     }
@@ -658,8 +700,8 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
     return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
   }
 
-  private knockbackEffects(): readonly { readonly effectId: string; readonly potency: number }[] {
-    const potency = this.attributeNumber('knockbackStrength', 0);
+  private knockbackEffects(strength?: number): readonly { readonly effectId: string; readonly potency: number }[] {
+    const potency = strength ?? this.attributeNumber('knockbackStrength', 0);
     return potency > 0 ? [{ effectId: 'knockback', potency }] : [];
   }
 
@@ -682,13 +724,14 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
     };
   }
 
-  private projectileConfiguration(): { readonly projectileId?: string; readonly assetId?: string; readonly damage: number } | undefined {
+  private projectileConfiguration(): { readonly projectileId?: string; readonly assetId?: string; readonly damage: number; readonly stickMs?: number } | undefined {
     const value = this.jsonProperty('projectile');
     if (!isRecord(value) || typeof value.damage !== 'number') return undefined;
     const projectileId = typeof value.projectileId === 'string' ? value.projectileId : undefined;
     const assetId = typeof value.assetId === 'string' ? value.assetId : undefined;
     if (!projectileId && !assetId) return undefined;
-    return { ...(projectileId ? { projectileId } : {}), ...(assetId ? { assetId } : {}), damage: value.damage };
+    const stickMs = typeof value.stickMs === 'number' && value.stickMs > 0 ? value.stickMs : undefined;
+    return { ...(projectileId ? { projectileId } : {}), ...(assetId ? { assetId } : {}), damage: value.damage, ...(stickMs ? { stickMs } : {}) };
   }
 
   private attributeOptionalNumber(key: string): number | undefined {

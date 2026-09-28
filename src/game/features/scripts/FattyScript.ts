@@ -2,6 +2,8 @@ import type { RuntimeNodeId } from '../../content/scenes/identifiers';
 import type { DamageCommit, DamageMitigationInput, DamageStateDecision } from '../combat/DamageReceiver';
 import { bossPerimeterContains, clampToBossArena } from '../bosses/BossCampBehavior';
 import { EnemyScript } from './EnemyScript';
+import type { Node } from '../../runtime/scene/Node';
+import { sensorShapeContainsPoint, type SensorShape } from '../../runtime/scene/physics/SensorGeometry';
 
 type FattyOneEyePhase = 'chase' | 'return-to-center' | 'contact-hop' | 'small-hop' | 'airborne' | 'landing' | 'recovery' | 'dead';
 
@@ -77,6 +79,8 @@ export class FattyScript extends EnemyScript {
     body.velocity = { x: 0, y: 0 };
     if (this.phaseValue === 'contact-hop') {
       if (this.elapsedInPhase(time) >= Math.max(1, this.numberProperty('contactHopDurationMs', 300))) {
+        this.clearTelegraph();
+        this.spawnEffectAt(this.stringProperty('landingEffectId', ''), this.worldPosition);
         this.resumeChase(time);
       }
       return;
@@ -117,6 +121,7 @@ export class FattyScript extends EnemyScript {
     this.transitionTo('contact-hop', time);
     this.nextContactHopAt = time + Math.max(1, this.numberProperty('contactHopCooldownMs', 1000));
     this.setBodyCollision(false);
+    this.showTelegraph(this.areaShapes('contactAttack'), this.worldPosition);
     return true;
   }
 
@@ -133,6 +138,10 @@ export class FattyScript extends EnemyScript {
     const target = this.currentTarget()?.position ?? this.leapFrom;
     const arena = this.arena();
     this.leapTarget = arena ? clampToBossArena(arena, target) : target;
+    // Warn where the splash will land: the landing zone moved from Fatty onto the target.
+    const dx = this.leapTarget.x - this.leapFrom.x;
+    const dy = this.leapTarget.y - this.leapFrom.y;
+    this.showTelegraph(this.areaShapes('landingZone').map((shape) => translateShape(shape, dx, dy)), this.leapTarget);
     this.setBodyCollision(false);
     this.transitionTo('airborne', time);
     this.playAnimation('airborne');
@@ -144,8 +153,18 @@ export class FattyScript extends EnemyScript {
     this.setBodyCollision(true);
     this.transitionTo('landing', time);
     this.playAnimation('landing');
+    this.clearTelegraph();
+    const splash = this.areaShapes('landingZone');
     const target = this.currentTarget();
-    if (target) this.routeImmediateAttack(target, this.numberProperty('landingDamage', 32), this.numberProperty('landingRadius', 64));
+    if (target && splash.some((shape) => sensorShapeContainsPoint(shape, target.position.x, target.position.y))) {
+      this.routeImmediateAttack(target, {
+        baseDamage: this.numberProperty('landingDamage', 32),
+        knockbackStrength: this.numberProperty('landingKnockbackStrength', 280),
+        impactEffect: false,
+      });
+    }
+    this.spawnEffectAt(this.stringProperty('landingEffectId', ''), this.worldPosition);
+    this.shakeCamera(this.numberProperty('landingShakeMs', 100), this.numberProperty('landingShakeIntensity', 0.003));
     return true;
   }
 
@@ -176,8 +195,14 @@ export class FattyScript extends EnemyScript {
     return Math.max(0, time - this.phaseStartedAt);
   }
 
+  override _exit_tree(): void {
+    this.clearTelegraph();
+    super._exit_tree();
+  }
+
   protected override defeat(): void {
     if (this.defeated) return;
+    this.clearTelegraph();
     super.defeat();
     this.setBodyCollision(false);
     this.playAnimation('death');
@@ -186,6 +211,15 @@ export class FattyScript extends EnemyScript {
 
   protected override canRunCommonAttack(): boolean { return this.phaseValue === 'chase'; }
   protected override mirrorsSideFacing(): boolean { return false; }
+
+  /** World-space shapes of an area reference (the landing zone or the contact-hop area). */
+  private areaShapes(reference: 'landingZone' | 'contactAttack'): readonly SensorShape[] {
+    const area = this.getReference<Node>(reference)?.configuredTarget;
+    return (area?.get_children() ?? []).flatMap((child) => {
+      const shape = child as unknown as { worldShape?: () => SensorShape };
+      return typeof shape.worldShape === 'function' ? [shape.worldShape()] : [];
+    });
+  }
 
   private transitionTo(phase: FattyOneEyePhase, time: number): void {
     this.phaseValue = phase;
@@ -208,4 +242,10 @@ export class FattyScript extends EnemyScript {
       resources: new Map(),
     });
   }
+}
+
+function translateShape(shape: SensorShape, dx: number, dy: number): SensorShape {
+  if (shape.shape === 'rectangle') return { ...shape, x: shape.x + dx, y: shape.y + dy };
+  if (shape.shape === 'sector') return { ...shape, originX: shape.originX + dx, originY: shape.originY + dy };
+  return { ...shape, centerX: shape.centerX + dx, centerY: shape.centerY + dy };
 }
