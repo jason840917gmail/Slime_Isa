@@ -184,17 +184,17 @@ test('Fatty warns where its leap lands, splashes only inside its landing zone, a
   }, { areaNodeId: target.damageAreaNodeId, priority: 0, damageMultiplier: 1 });
   const script = fixture.root.get_node('FattyScript');
 
-  // Leap toward (300, 0): the 64 px landing zone is shown there with the shadow, before Fatty arrives.
+  // Leap toward (300, 0): the authored landing zone is shown there with the shadow, before Fatty arrives.
   target.position = { x: 300, y: 0 };
   assert.equal(script.beginLeapTelegraph(0), true);
   assert.equal(script.beginAirborne(10), true);
   assert.equal(telegraphs.length, 1);
   assert.deepEqual(telegraphs[0].shadow, { x: 300, y: 0 });
-  assert.deepEqual(telegraphs[0].shapes.map(({ shape, centerX, centerY, radius }) => ({ shape, centerX, centerY, radius })), [{ shape: 'circle', centerX: 300, centerY: 0, radius: 64 }]);
+  assert.deepEqual(telegraphs[0].shapes.map(({ shape, centerX, centerY, radius }) => ({ shape, centerX, centerY, radius })), [{ shape: 'circle', centerX: 300, centerY: 0, radius: 106 }]);
 
   // The player steps just outside the zone before the landing: no damage, but the crack and shake still happen.
   fixture.root.set_global_transform({ ...fixture.root.get_global_transform(), position: { x: 300, y: 0 } });
-  target.position = { x: 370, y: 0 };
+  target.position = { x: 410, y: 0 };
   assert.equal(script.land(20), true);
   assert.deepEqual(knockbacks, []);
   assert.deepEqual(cleared.at(-1), script.runtimeId);
@@ -218,6 +218,6 @@ test('the landing zone is an authored area Studio can show and resize', () => {
   assert.deepEqual(script.properties.landingZone, { nodeId: 'landing-zone' });
   assert.equal(script.properties.landingRadius, undefined);
   const shape = scene.nodes.find((node) => node.parentId === 'landing-zone' && node.type === 'CollisionShape2D');
-  assert.deepEqual(scene.subresources.find((resource) => resource.resourceId === shape.properties.shape.resourceId).value, { shape: 'circle', radius: 64 });
+  assert.deepEqual(scene.subresources.find((resource) => resource.resourceId === shape.properties.shape.resourceId).value, { shape: 'circle', radius: 106 });
   assert.ok(content.scenes.some((document) => document.sceneId === `effect.${script.properties.landingEffectId}`), 'the landing effect scene exists');
 });

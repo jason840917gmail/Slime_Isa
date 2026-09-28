@@ -34,7 +34,11 @@ test('every authored map placement has exactly one reported scene owner', async 
       npcWanderAreas: map.npcWanderAreas?.length ?? 0,
     });
     assert.equal(report.placements.length, map.objects.length + (map.bossCamps?.length ?? 0));
-    assert.equal(world.instances.length, report.worldInstanceCount);
+    const reportedInstances = report.placements.filter((placement) => placement.ownership === 'world-instance');
+    assert.equal(reportedInstances.length, report.worldInstanceCount);
+    for (const placement of reportedInstances) {
+      assert.equal(world.instances.filter((instance) => instance.instanceId === placement.instanceId).length, 1, `${map.mapId} lost ${placement.instanceId}`);
+    }
     assert.equal(new Set(world.instances.map((instance) => instance.instanceId)).size, world.instances.length);
     assert.equal(new Set(world.instances.map((instance) => instance.persistenceKey)).size, world.instances.length);
 
