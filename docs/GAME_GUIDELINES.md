@@ -1,15 +1,20 @@
 # Game Guidelines
 
-> **Status: incomplete living draft — resume later.**
->
-> This document records agreed direction for the first version. It is not a
-> complete production specification; unresolved topics remain open below.
-> Task status lives in the [Game Roadmap](./GAME_ROADMAP.md).
+> **Status: living draft.** This document records the agreed design direction.
+> Task order and status live in the [Game Roadmap](./GAME_ROADMAP.md).
+> Updated 2026-09-29: it absorbed the useful parts of the former
+> `BETA_PLAN.md`, which was removed.
+
+## The Game In One Line
+
+Slime Isa is a top-down action-adventure with crafting: a small slime explores,
+fights, gathers, and rebuilds Slimeshire, and grows stronger through the gear
+it crafts, not through experience levels.
 
 ## Core Loop
 
 Explore and gather resources. Fight enemies for drops and access to dangerous
-areas. Build up home and its crafting buildings. Craft stronger tools and
+areas. Rebuild Slimeshire's crafting buildings. Craft stronger tools and
 weapons, then tackle tougher enemies to obtain rarer materials.
 
 Chapter 1 ("The Clearing", in Slimeshire Meadow, map `level-1`) is the
@@ -18,57 +23,187 @@ workbench, craft stone tools, clear the worm camp with a spear, defeat Fatty
 One Eye for the green key, and open the Verdant Gate into Gloop Forest. Quests
 guide each step and teach the next recipe.
 
-## Home
+**Release 1** is Chapters 1 and 2 as a free web build; its scope and order are
+in the [roadmap](./GAME_ROADMAP.md#release-1-v01--the-target).
 
-There is no single authored home instance. Any bed the player sleeps in
-becomes the respawn point, doors can be placed anywhere and link to any
-interior, and placed furniture (starting with the workbench) persists per map.
-Home is not automatically safe: map conditions and nearby enemies determine
-whether it is safe to use.
+## Progression: Gear, Not Levels
+
+Decided 2026-09-29. There are no XP, levels, or perks (roadmap Milestone 5
+removes the current ones). The player grows through:
+
+- **Crafted gear:** weapon and tool tiers (wood → stone → iron → later
+  materials) are the main power curve.
+- **Goo Hearts:** collectibles that permanently raise max HP, hidden in secrets
+  and dropped by bosses. Exploration pays off in strength.
+- **Story-unlocked abilities:** quests and bosses teach abilities (Jump, Squash
+  Slam, Stretch Lash, Teleport, and later ones), the same way they teach
+  recipes.
+- **Gulp forms:** temporary forms that change how the slime plays (see below).
+
+Enemies are worth fighting for their drops, which gate recipes, and for access
+to places, never for XP. Each region's difficulty is tuned to the gear a player
+can have there, so grinding is never required. After Release 1, **Goo charms**
+(equippable trinkets crafted from enemy materials) may bring back effects the
+old perks gave, such as crit, life steal, and speed, as gear.
+
+## Signature Mechanic: Gulp
+
+The slime eats a Gulp material and takes its form for a while. Each form has a
+clear look and exactly one rule.
+
+- **One key, W, is the slime's mouth, and no menu ever opens to eat.** Tap W
+  near a Gulp spot to eat from the world; tap W elsewhere to eat the last-used
+  Gulp material from the inventory; hold W for a quick wheel of carried Gulp
+  materials while the game keeps running. In a form, tapping W away from a
+  Gulp spot burps the form away.
+- **Gulp spots** (a mossy boulder, a silk cocoon) never run out and look
+  different from walk-over piles. Every Gulp puzzle has its spot beside it, so
+  a puzzle never depends on what the player carries. Carried materials are for
+  freedom: using a form in a fight, for a secret, or anywhere else.
+- A form lasts **1 minute** to start with (a tunable constant). Eating a
+  different material switches straight to that form; eating the same one at a
+  Gulp spot resets the timer.
+- New forms are tried in the dev-only `playground` map and enter chapter
+  content only after the user accepts them as fun.
+- **Release 1 forms:** **Heavy** (stone): no knockback, holds pressure plates
+  down, moves slower. **Sticky** (silk): crosses spider webs that would catch
+  a normal slime.
+- **Later forms:** **Glow** (crystal shard) lights dark caves; **Bouncy**
+  (berry); biome forms such as ice and lava for later regions.
+- Forms open traversal puzzles and secrets. A fight requires a form only when
+  that fight exists to teach it.
+
+Gulp replaces the old "slime forms" idea: one system, many forms, each form
+added as data plus art.
+
+## Home And Slimeshire
+
+- The player's home stays in Slimeshire (Level 1) and never moves. Other maps
+  can have their own homes with their own interiors, linked door to door.
+- Any bed the player sleeps in becomes the respawn point.
+- Placed furniture (starting with the workbench) persists per map.
+- Home is not automatically safe: map conditions and nearby enemies determine
+  whether it is safe to use.
+
+**Rebuild Slimeshire.** The crafting buildings are ruined buildings in town.
+Restoring one (a quest and materials) turns it into a station the player uses
+directly and unlocks its recipes; no NPC runs it. Upgrading a building unlocks
+its next recipe tier. Slimeshire visibly grows as the story advances.
 
 ## Crafting And Buildings
 
 Simple survival recipes may be portable. Weapons, advanced tools, building
-pieces, and other progression recipes require the correct crafting building.
-Today the only station is the placeable **workbench**: the workbench itself is
-craftable anywhere, and every wood and stone tool or weapon recipe needs a
-placed one.
+pieces, and other progression recipes require the right station. Every station
+uses one shared crafting popup and one recipe authority, filtered by station
+and tier.
 
-Each building owns a clear recipe family, and upgrading it unlocks the next
-recipe tier in that family. Buildings unlock gradually:
+| Station | Crafts | Main inputs | When |
+|---|---|---|---|
+| **Placeable workbench** | Chapter 1 tier-1 tools and spears | Wood, stone | Today |
+| **Workshop** | Everything the workbench does, plus weapons, tools, bombs, storage, building parts, and repairs | Wood, stone, metal bars, enemy materials | Release 1 (Chapter 1 → 2) |
+| **Forge** | Smelts ore into metal bars, later alloys; never outputs weapons | Ore and fuel | Release 1 (Chapter 2) |
+| **Kitchen** | Food, healing and buff meals, potions, and antidotes | Forage, fish, crops, monster materials | After Release 1 |
+| **Builder's table** | Furniture, storage, and defenses for homes | Building parts, bars | After Release 1 |
 
-- **Workshop:** weapons, tools, bombs, storage, building parts, and repairs.
-- **Forge:** smelts ore into metal bars (later alloys); it never outputs
-  weapons. Metal gear goes ore → Forge (bars) → Workshop.
-- **Kitchen:** food, healing and buff meals, potions, and antidotes.
-- **Builder’s table:** home upgrades, furniture, and defenses.
+- Metal gear goes ore → Forge (bars) → Workshop.
+- The workbench recipe itself, Slime Tonic, and Berry Basket stay portable so a
+  fresh save can never softlock.
+- The Alchemy table is retired: potions belong to the Kitchen and bombs to the
+  Workshop. A loom or enchanting station are examples only, not committed
+  direction.
 
-The separate Alchemy table is retired: potions belong to the Kitchen and bombs
-to the Workshop. Future possibilities such as a loom or enchanting station are
-examples only and are not committed direction.
+## Coins
+
+Coins are earned from quests and enemies and spent after Release 1 at a
+Slimeshire shop and on equipment repairs. Restoring buildings costs materials,
+not coins.
 
 ## Resource Progression
 
 Tool-gated and enemy-gated progression work together. The player starts
 unarmed, gathers loose wood and stone, and crafts basic harvesting tools; tree
-and stone nodes need the matching stone tool. Improved tools will harvest iron
-and later rarer materials in tougher regions. Enemies provide special
-ingredients for high-tier weapons, potions, and upgrades.
+and stone nodes need the matching stone tool. In Chapter 2, a Reinforced
+Pickaxe made with an enemy-only material harvests iron, and the Forge turns
+iron into bars for metal gear. Later regions add rarer materials.
+
+Harvested trees and rock nodes respawn after a long timer (roadmap 5.5). Until
+then Level 1 is a fixed material budget, and loose starter piles and quest
+rewards keep the chain softlock-free.
 
 ## Recipe Discovery
 
-Chapter 1 teaches recipes as quest rewards (`learnedByQuest` recipes stay
-visible but locked until learned). Whether later recipes come from building
-tiers, exploration, drops, or more quests is still open.
+- Chapter 1: quest rewards teach recipes (`learnedByQuest` recipes stay
+  visible but locked until learned).
+- From Chapter 2: restoring or upgrading a building unlocks its recipes.
+  Quests may still teach special recipes.
+
+## World
+
+- Areas are authored maps joined by edge exits and doors. Production never
+  generates worlds procedurally.
+- Each chapter's region brings one new resource goal, at least one new enemy,
+  and one boss.
+- Region order: **Slimeshire Meadow** (Chapter 1), **Gloop Forest**
+  (Chapter 2), **Crystal Caverns** (Chapter 3 candidate). Later biome ideas:
+  Sticky Swamp (slow, poison, rain), Frostpeak (ice physics, snow), and Volcano
+  Ridge (lava, burn, the finale). The authored but unconnected `icege`,
+  `emberleef`, and `hot` maps are candidates for them.
+
+## Enemies And Bosses
+
+- A new enemy needs authored art, an animation set, behavior, and validation
+  before it enters the roster. Archived concepts are in
+  [Future Enemy Types](./task/ideas/open/future-enemy-types.md).
+- **The boss model** is Fatty One Eye: a telegraphed signature attack, a boss
+  bar, an arena leash, a guarded reward, persisted defeat, and a timed respawn.
+  Telegraphs make the dodge a skill, not a stat.
+- Fatty One Eye is the finished Chapter 1 boss; his fight does not change.
+- Each boss should teach something: a weapon, a form, or a way to move.
+
+## Game Feel
+
+- Audio shapes perceived quality more than any single visual.
+- Hit-stop, screen shake, and squash and stretch are most of a slime's feel.
+  Every hit, landing, pickup, and Gulp gets feedback.
+- The slime leaves a fading goo trail that slows enemies crossing it.
+- Accessibility from day one: every shake, flash, and strong motion respects
+  the reduce-motion setting, and status colors must stay readable for
+  colorblind players.
+
+## Art Style
+
+**Cozy storybook woodland, hand-painted miniatures**, defined from the NPC and
+interior sprites. Every new asset follows the
+[art style guide](./assets/visual-style-guide.md).
+
+## UI Style
+
+On 2026-09-04 the in-world HUD direction was approved as **artwork-first**: the
+world stays visible, and the HUD, minimap, and weapon hotbar use transparent
+interiors with restrained outlines, text shadows, and state accents instead of
+opaque dark boxes. Inventory and crafting are excluded and get their own
+redesign; the ability bar's skin is deferred. Details:
+[World HUD Artwork-First Presentation](./superpowers/specs/2026-09-04-world-hud-artwork-first-design.md),
+refining the [Game UI Visual Skin System](./superpowers/specs/2026-09-03-game-ui-visual-skin-design.md).
+
+## Scope Discipline
+
+- New ideas go to the roadmap's
+  [parking lot](./GAME_ROADMAP.md#after-release-1--idea-parking-lot), not into
+  a Release 1 milestone.
+- Scene Studio is feature-frozen until Release 1 ships: bug fixes and blockers
+  only.
+- The Android app in `MobileVersion/` is frozen until after Release 1.
+- New art is added only with an authored-scene home; reuse existing atlases and
+  generated scene sets first.
 
 ## Open Questions
 
-- Should the home (or its buildings) still be movable and upgradable, now that
-  beds and doors replace a single home instance?
-- What are the safety, recovery, and storage rules?
-- What are the exact material tiers and biome distributions?
-- Which enemy drops exist, and at what progression points?
-- How many recipes should each family contain, and how are they balanced?
-- How are recipes discovered after Chapter 1?
-- What is the scope of building and defenses?
-- How fast should progression advance?
+- Does equipment wear out? Coin-paid repairs (below) need a durability rule.
+- How long is the resource respawn time for trees, rocks, and ore?
+- What are the safety, recovery, and storage rules for homes?
+- What is the Chapter 2 boss's final design?
+- What are the material tiers after iron, and where does each appear?
+- How many recipes should each station have, and how fast should progression
+  advance?
+- Where will Release 1 be published?
