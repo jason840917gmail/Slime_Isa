@@ -89,6 +89,7 @@ type FixtureSnapshot = {
   readonly legacyBossCount?: number;
   readonly legacyPlayerX?: number;
   readonly managedPlayerX?: number;
+  readonly managedPlayerY?: number;
   readonly hasLegacyChestController?: boolean;
   readonly universalRuntimePaused?: boolean;
   readonly audioCompositionMounted?: boolean;
@@ -707,7 +708,7 @@ const api: FixtureApi = {
       ...(world?.combatController ? { legacyEnemyCount: world.combatController.targets.countActive(true) } : {}),
       ...(world?.bossCampController ? { legacyBossCount: world.bossCampController.targets.countActive(true) } : {}),
       ...(world?.player ? { legacyPlayerX: world.player.x } : {}),
-      ...(world?.universalWorld ? { managedPlayerX: world.universalWorld.managedPlayer.getPosition().x } : {}),
+      ...(world?.universalWorld ? { managedPlayerX: world.universalWorld.managedPlayer.getPosition().x, managedPlayerY: world.universalWorld.managedPlayer.getPosition().y } : {}),
       ...(world ? { hasLegacyChestController: world.chestController !== undefined } : {}),
     };
   },

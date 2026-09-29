@@ -18,11 +18,12 @@ Sources:
 
 Requires Pillow and numpy.
 
-Usage: python scripts/grounds/pack-ground-sheets.py
+Usage: python scripts/grounds/pack-ground-sheets.py [--only <sheet name>...]
 """
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -48,6 +49,7 @@ SHEETS: dict[str, str] = {
     "crystal-floor": "generated/crystal-floor-a.png",
     "water": "generated/water-a.png",
     "deep-water": "generated/deep-water-a.png",
+    "town-cobble": "generated/town-cobble-a.png",
 }
 
 # (brightness, saturation) grade per ground. Neighbouring materials that meet on
@@ -60,6 +62,13 @@ GRADES: dict[str, tuple[float, float]] = {
     "cavern-floor": (1.15, 1.0),
     "crystal-floor": (0.82, 0.9),
     "water": (0.8, 0.85),
+    "town-cobble": (0.94, 0.95),
+}
+
+# Sheets whose source is repeated NxN (after being made seamless) to shrink its
+# features, e.g. cobblestones that would otherwise dwarf the props.
+REPEATS: dict[str, int] = {
+    "town-cobble": 2,
 }
 
 WRAP_BAND = 0.34  # fraction of the half-size over which the offset copy fades out
@@ -97,15 +106,27 @@ def make_wrap_seamless(image: Image.Image, seed: int) -> Image.Image:
 
 def main() -> None:
     PROMOTED.mkdir(parents=True, exist_ok=True)
+    only = set(sys.argv[sys.argv.index("--only") + 1:]) if "--only" in sys.argv else None
+    packed = 0
     for index, (name, source) in enumerate(SHEETS.items()):
+        if only is not None and name not in only:
+            continue
+        packed += 1
         image = Image.open(ORIGINALS / source).convert("RGBA")
         if image.size != (SIZE, SIZE):
             image = image.resize((SIZE, SIZE), Image.LANCZOS)
         brightness, saturation = GRADES.get(name, (1.0, 1.0))
         image = ImageEnhance.Color(ImageEnhance.Brightness(image).enhance(brightness)).enhance(saturation)
         image = make_wrap_seamless(image, seed=1000 + index)
+        repeat = REPEATS.get(name, 1)
+        if repeat > 1:
+            tiled = Image.new(image.mode, (SIZE * repeat, SIZE * repeat))
+            for row in range(repeat):
+                for column in range(repeat):
+                    tiled.paste(image, (column * SIZE, row * SIZE))
+            image = tiled.resize((SIZE, SIZE), Image.LANCZOS)
         image.save(PROMOTED / f"{TILE}x{TILE}-tile_{GRID}x{GRID}_{name}.png", optimize=True)
-    print(f"packed {len(SHEETS)} wrap-seamless ground sheets into {PROMOTED.relative_to(ROOT)}")
+    print(f"packed {packed} wrap-seamless ground sheets into {PROMOTED.relative_to(ROOT)}")
 
 
 if __name__ == "__main__":

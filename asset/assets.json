@@ -27,7 +27,9 @@
       "sheet.grounds.19x19.crystal-floor",
       "sheet.grounds.19x19.water",
       "sheet.grounds.19x19.deep-water",
+      "sheet.grounds.19x19.town-cobble",
       "sheet.decorations.8x3",
+      "sheet.landmarks.level-1.4x1",
       "sheet.walls.horizontal.8x1",
       "sheet.walls.corners.4x2",
       "sheet.walls.t-junctions.7x1",
@@ -700,6 +702,31 @@
       ],
       "status": "ready"
     },
+    "sheet.grounds.19x19.town-cobble": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/grounds/64x64-tile_19x19_town-cobble.png",
+        "frame": {
+          "w": 64,
+          "h": 64,
+          "cols": 19,
+          "rows": 19
+        },
+        "expect": {
+          "w": 1216,
+          "h": 1216
+        }
+      },
+      "runtime": {
+        "textureKey": "grounds-19x19-town-cobble"
+      },
+      "tags": [
+        "ground",
+        "town"
+      ],
+      "status": "ready",
+      "notes": "Village square cobblestones (Magnific GPT-2 texture in asset/Originals/grounds/generated/town-cobble-a.png), packed by pnpm grounds:pack."
+    },
     "sheet.grounds.19x19.crystal-floor": {
       "source": {
         "kind": "spritesheet",
@@ -805,6 +832,40 @@
         "prop"
       ],
       "status": "ready"
+    },
+    "sheet.landmarks.level-1.4x1": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/landmarks/320x256-tile_4x1-level-1-landmarks.png",
+        "frame": {
+          "w": 320,
+          "h": 256,
+          "cols": 4,
+          "rows": 1
+        },
+        "expect": {
+          "w": 1280,
+          "h": 256
+        }
+      },
+      "runtime": {
+        "textureKey": "landmarks-level-1-4x1"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "object",
+        "decoration",
+        "prop",
+        "landmark"
+      ],
+      "status": "ready",
+      "notes": "Level-1 landmark props (frame 0 Verdant Gate closed, 1 open, 2 village well, 3 wooden footbridge) generated with Magnific GPT-2; sources in asset/Originals/props/level-1/, packed by scripts/props/pack-level-1-landmarks.py."
     },
     "sheet.interiors.structure.8x8": {
       "source": {

@@ -314,6 +314,26 @@
         "interior",
         "walkable"
       ]
+    },
+    "town-cobble": {
+      "assetIds": [
+        "sheet.grounds.19x19.town-cobble"
+      ],
+      "selection": "sheet-wrap",
+      "physics": null,
+      "allowsDecorations": true,
+      "transition": {
+        "group": "natural-ground",
+        "material": "town-cobble",
+        "priority": 12,
+        "edgeWidth": 12,
+        "style": "noisy-feather"
+      },
+      "tags": [
+        "ground",
+        "town",
+        "walkable"
+      ]
     }
   }
 }
