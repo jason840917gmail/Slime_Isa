@@ -16,14 +16,18 @@ import {
 export { peekRunNavigation };
 export type { RunNavigationHandoff, RunNavigationKind };
 
-export interface AreaNavigationRequest {
-  areaId?: AreaId;
-  entryEdge?: Direction;
+/** Where the player appears in the target world: a map-edge entry or a linked door. */
+export interface AreaEntry {
+  readonly entryEdge?: Direction;
+  readonly entryDoor?: string;
 }
 
-export interface ResolvedAreaRequest {
+export interface AreaNavigationRequest extends AreaEntry {
+  areaId?: AreaId;
+}
+
+export interface ResolvedAreaRequest extends AreaEntry {
   area: AreaDef;
-  entryEdge?: Direction;
   respawnHome: boolean;
 }
 
@@ -32,6 +36,7 @@ export function resolveAreaRequest(data: AreaNavigationRequest): ResolvedAreaReq
   const pending = peekRunNavigation();
   const queryArea = params.get('area');
   const queryEntry = params.get('entry');
+  const queryDoor = params.get('door');
   const areaId = data.areaId
     ?? pending?.mapId
     ?? (queryArea && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(queryArea) ? queryArea : 'level-1');
@@ -39,6 +44,7 @@ export function resolveAreaRequest(data: AreaNavigationRequest): ResolvedAreaReq
   return {
     area: getAreaDefinition(areaId),
     entryEdge: data.entryEdge ?? pending?.entryEdge ?? (isDirection(queryEntry) ? queryEntry : undefined),
+    entryDoor: data.entryDoor ?? pending?.entryDoor ?? (queryDoor || undefined),
     respawnHome: pending?.respawnHome === true || params.get('respawn') === 'home',
   };
 }
@@ -63,14 +69,16 @@ export function queueRunNavigation(
   kind: RunNavigationKind,
   data: GameSaveData,
   mapId: string,
-  entryEdge?: Direction,
+  entry: AreaEntry = {},
   respawnHome = false,
 ): void {
+  const { entryEdge, entryDoor } = entry;
   const handoff: RunNavigationHandoff = {
     version: 1,
     kind,
     mapId,
     ...(entryEdge ? { entryEdge } : {}),
+    ...(entryDoor ? { entryDoor } : {}),
     ...(respawnHome ? { respawnHome: true } : {}),
     data,
   };
@@ -79,6 +87,8 @@ export function queueRunNavigation(
   nextUrl.searchParams.set('area', mapId);
   if (entryEdge) nextUrl.searchParams.set('entry', entryEdge);
   else nextUrl.searchParams.delete('entry');
+  if (entryDoor) nextUrl.searchParams.set('door', entryDoor);
+  else nextUrl.searchParams.delete('door');
   if (respawnHome) nextUrl.searchParams.set('respawn', 'home');
   else nextUrl.searchParams.delete('respawn');
   nextUrl.searchParams.set('t', `${Date.now()}`);
@@ -92,7 +102,7 @@ export function queueRunNavigation(
 
 export function navigateToArea(
   areaId: AreaId,
-  entryEdge?: Direction,
+  entry: AreaEntry = {},
   respawnHome = false,
   data?: GameSaveData,
 ): void {
@@ -110,13 +120,14 @@ export function navigateToArea(
     world: worldProgress.serialize(),
     playTimeMs: 0,
   };
-  queueRunNavigation('area', handoffData, areaId, entryEdge, respawnHome);
+  queueRunNavigation('area', handoffData, areaId, entry, respawnHome);
 }
 
 export function clearOneShotNavigationParams(): void {
   const url = new URL(window.location.href);
-  if (!url.searchParams.has('entry') && !url.searchParams.has('respawn') && !url.searchParams.has('t')) return;
+  if (!['entry', 'door', 'respawn', 't'].some((key) => url.searchParams.has(key))) return;
   url.searchParams.delete('entry');
+  url.searchParams.delete('door');
   url.searchParams.delete('respawn');
   url.searchParams.delete('t');
   window.history.replaceState({}, '', url.toString());

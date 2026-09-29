@@ -44,6 +44,7 @@ export class MapLoadScene extends Phaser.Scene {
         this.scene.start('world', {
           areaId: pending?.mapId ?? request.area.id,
           entryEdge: pending?.entryEdge ?? request.entryEdge,
+          entryDoor: pending?.entryDoor ?? request.entryDoor,
           loadedWorld,
         });
       })

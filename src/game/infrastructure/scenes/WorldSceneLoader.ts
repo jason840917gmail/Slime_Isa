@@ -97,7 +97,9 @@ function loadedMapFromScene(packedScene: PackedScene): LoadedWorldMap {
   const entries = Object.fromEntries((['north', 'east', 'south', 'west'] as const)
     .map((direction) => [direction, markerPoint(`player-entry-${direction}`)] as const)
     .filter((entry): entry is readonly [MapDirection, MapPoint] => entry[1] !== undefined));
-  const areaData = worldAreaData(packedScene);
+  const globalTransform = packedGlobalTransforms(packedScene);
+  const doors = doorArrivals(packedScene, globalTransform);
+  const areaData = worldAreaData(packedScene, globalTransform);
   const map = {
     version: MAP_FORMAT_VERSION,
     mapId,
@@ -105,7 +107,7 @@ function loadedMapFromScene(packedScene: PackedScene): LoadedWorldMap {
     size: { columns: resolvedColumns, rows: resolvedRows },
     layers,
     ...worldData,
-    player: { spawn, entries },
+    player: { spawn, entries, doors },
     enemySafeZones: areaData('enemy-safe-zone'),
     enemySpawnAreas: areaData('enemy-spawn'),
     npcWanderAreas: areaData('npc-wander'),
@@ -121,17 +123,9 @@ function isJsonRecord(value: JsonValue | undefined): value is { readonly [key: s
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 
-/**
- * Builds the legacy map-format area records from scene-authored world areas.
- * Settings come from the script's `data`; every perimeter comes from the
- * CollisionShape2D nodes it references, placed by their global transforms.
- */
-function worldAreaData(packedScene: PackedScene): (kind: WorldAreaDataKind) => never[] {
-  const { nodes, resources } = packedScene.definition;
-  const byKey = new Map(nodes.map((node) => [node.key, node]));
-  const shapes = new Map(resources
-    .filter((resource): resource is CollisionShapeResourceDocument => resource.kind === 'collision-shape')
-    .map((resource) => [resource.resourceId as string, resource.value]));
+/** Global transform of each packed node, cached by node key. */
+function packedGlobalTransforms(packedScene: PackedScene): (node: PackedNodeDocument) => WorldAreaTransform {
+  const byKey = new Map(packedScene.definition.nodes.map((node) => [node.key, node]));
   const transforms = new Map<string, WorldAreaTransform>();
   const globalTransform = (node: PackedNodeDocument): WorldAreaTransform => {
     const cached = transforms.get(node.key);
@@ -157,6 +151,40 @@ function worldAreaData(packedScene: PackedScene): (kind: WorldAreaDataKind) => n
     transforms.set(node.key, result);
     return result;
   };
+  return globalTransform;
+}
+
+/**
+ * Arrival point of every door, keyed by door ID: the global position of the
+ * door node's `arrival` child, or of the door node itself when it has none.
+ */
+function doorArrivals(packedScene: PackedScene, globalTransform: (node: PackedNodeDocument) => WorldAreaTransform): Record<string, MapPoint> {
+  const { nodes } = packedScene.definition;
+  const byKey = new Map(nodes.map((node) => [node.key, node]));
+  const arrivals: Record<string, MapPoint> = {};
+  for (const script of nodes.filter((node) => node.scriptId === 'game.door')) {
+    const doorId = script.properties.doorId;
+    const door = script.parentKey ? byKey.get(script.parentKey) : undefined;
+    if (typeof doorId !== 'string' || doorId.length === 0 || !door) continue;
+    if (doorId in arrivals) throw new Error(`World scene '${packedScene.sourceSceneId}' has duplicate door ID '${doorId}'`);
+    const arrival = nodes.find((node) => node.parentKey === door.key && node.name === 'arrival') ?? door;
+    const [x, y] = globalTransform(arrival).position;
+    arrivals[doorId] = { x: Math.round(x), y: Math.round(y) };
+  }
+  return arrivals;
+}
+
+/**
+ * Builds the legacy map-format area records from scene-authored world areas.
+ * Settings come from the script's `data`; every perimeter comes from the
+ * CollisionShape2D nodes it references, placed by their global transforms.
+ */
+function worldAreaData(packedScene: PackedScene, globalTransform: (node: PackedNodeDocument) => WorldAreaTransform): (kind: WorldAreaDataKind) => never[] {
+  const { nodes, resources } = packedScene.definition;
+  const byKey = new Map(nodes.map((node) => [node.key, node]));
+  const shapes = new Map(resources
+    .filter((resource): resource is CollisionShapeResourceDocument => resource.kind === 'collision-shape')
+    .map((resource) => [resource.resourceId as string, resource.value]));
   const referenced = (script: PackedNodeDocument, key: string): PackedNodeDocument | undefined => {
     const reference = script.properties[key];
     if (!isJsonRecord(reference) || typeof reference.nodeId !== 'string') return undefined;

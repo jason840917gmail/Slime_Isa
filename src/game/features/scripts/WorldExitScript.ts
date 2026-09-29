@@ -13,6 +13,8 @@ export interface WorldExitRequest {
   readonly exitId: string;
   readonly targetAreaId: string;
   readonly entry: string;
+  /** Door in the target area to arrive at; takes precedence over `entry`. */
+  readonly targetDoorId?: string;
   readonly actorNodeId: string;
   readonly gate: JsonValue;
 }

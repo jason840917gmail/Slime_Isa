@@ -762,7 +762,8 @@ export class UniversalSceneWorldController implements InteractionProvider {
           mapId: door.mapId,
           exitId: door.doorId,
           targetAreaId: door.targetAreaId,
-          entry: door.entry,
+          entry: '',
+          targetDoorId: door.targetDoorId,
           actorNodeId,
           gate: {},
         });
