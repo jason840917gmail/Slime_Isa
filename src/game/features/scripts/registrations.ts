@@ -430,7 +430,7 @@ export const WORLD_EXIT_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
 export const DOOR_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
   scriptId: 'game.door',
   displayName: 'Door Script',
-  description: 'Press-to-use door that travels to a linked area entry (house exterior <-> interior).',
+  description: 'Press-to-use door that travels to a linked door in another area (house exterior <-> interior); arrivals appear at the arrival child of the target door.',
   sourcePath: 'src/game/features/scripts/DoorScript.ts',
   capabilities: ['door', 'interactable'],
   exclusiveCapabilities: ['navigation-controller'],
@@ -438,7 +438,7 @@ export const DOOR_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
     stringProperty('mapId', 'Map ID', 'Navigation'),
     stringProperty('doorId', 'Door ID', 'Navigation'),
     stringProperty('targetAreaId', 'Target Area ID', 'Navigation'),
-    stringProperty('entry', 'Target Entry', 'Navigation'),
+    stringProperty('targetDoorId', 'Target Door ID', 'Navigation'),
     stringProperty('prompt', 'Prompt', 'Interaction'),
     numberProperty('interactRadius', 'Interact Radius', 96, 'Interaction'),
     numberProperty('badgeRise', 'Key Badge Rise', 56, 'Interaction'),

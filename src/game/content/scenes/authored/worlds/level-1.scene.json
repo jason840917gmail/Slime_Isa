@@ -612,26 +612,22 @@
         "mapId": "level-1",
         "doorId": "home-door",
         "targetAreaId": "slime-home",
-        "entry": "south",
+        "targetDoorId": "house-door",
         "prompt": "Enter house",
         "interactRadius": 90
       }
     },
     {
-      "id": "sfx-music-player",
-      "name": "MusicPlayer",
-      "type": "AudioStreamPlayer",
-      "parentId": "world",
-      "order": 45,
+      "id": "home-door-arrival",
+      "name": "arrival",
+      "type": "Node2D",
+      "parentId": "home-door",
+      "order": 1,
       "properties": {
-        "stream": {
-          "resourceId": "music.level-1-home-town"
-        },
-        "bus": "music",
-        "loop": true,
-        "autoplay": true,
-        "volume": 0.55,
-        "polyphony": 1
+        "position": [
+          2,
+          51
+        ]
       }
     },
     {
@@ -639,7 +635,7 @@
       "name": "mushroom-door-level-1",
       "type": "Node2D",
       "parentId": "world",
-      "order": 47,
+      "order": 46,
       "properties": {
         "position": [
           1438,
@@ -656,10 +652,40 @@
       "order": 0,
       "properties": {
         "mapId": "level-1",
-        "doorId": "mushroom-door-script",
+        "doorId": "mushroom-home-door",
         "targetAreaId": "mushroom-home",
-        "entry": "south",
+        "targetDoorId": "house-door",
         "prompt": "Enter house"
+      }
+    },
+    {
+      "id": "mushroom-home-door-arrival",
+      "name": "arrival",
+      "type": "Node2D",
+      "parentId": "node2d",
+      "order": 1,
+      "properties": {
+        "position": [
+          1,
+          48
+        ]
+      }
+    },
+    {
+      "id": "sfx-music-player",
+      "name": "MusicPlayer",
+      "type": "AudioStreamPlayer",
+      "parentId": "world",
+      "order": 47,
+      "properties": {
+        "stream": {
+          "resourceId": "music.level-1-home-town"
+        },
+        "bus": "music",
+        "loop": true,
+        "autoplay": true,
+        "volume": 0.55,
+        "polyphony": 1
       }
     }
   ],
@@ -1476,7 +1502,7 @@
       "name": "mushroom-red",
       "sceneId": "object.house-mushroom",
       "parentNodeId": "world",
-      "order": 46,
+      "order": 45,
       "persistenceKey": "world.level-1.object-house-mushroom",
       "overrides": [
         {

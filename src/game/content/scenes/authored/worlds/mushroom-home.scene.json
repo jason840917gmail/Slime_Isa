@@ -119,10 +119,23 @@
         "mapId": "mushroom-home",
         "doorId": "house-door",
         "targetAreaId": "level-1",
-        "entry": "south",
+        "targetDoorId": "mushroom-home-door",
         "prompt": "Leave house",
         "interactRadius": 80,
         "badgeRise": 84
+      }
+    },
+    {
+      "id": "house-door-arrival",
+      "name": "arrival",
+      "type": "Node2D",
+      "parentId": "house-door",
+      "order": 1,
+      "properties": {
+        "position": [
+          0,
+          -176
+        ]
       }
     }
   ],

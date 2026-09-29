@@ -36,6 +36,7 @@ import {
   navigateToArea as navigateToAreaUrl,
   resolveAreaRequest,
   restoreAreaTransition,
+  type AreaEntry,
 } from '../features/world-navigation/AreaNavigation';
 import { WorldDebugRenderer } from '../dev/WorldDebugRenderer';
 import { RenderingDiagnostics } from '../dev/RenderingDiagnostics';
@@ -74,9 +75,8 @@ import { questRewardLines } from '../features/quests/QuestRewardText';
 
 const COLLECTIBLE_EVENTS = new CollectibleEventChannel(gameEvents);
 
-interface WorldSceneData {
+interface WorldSceneData extends AreaEntry {
   areaId?: AreaId;
-  entryEdge?: Direction;
   loadedWorld?: LoadedWorldScene;
 }
 
@@ -84,6 +84,7 @@ interface AuthoredWorldMetadata {
   readonly terrainGrid: WorldTileId[][];
   readonly playerSpawn: MapPoint;
   readonly entries: MapFile['player']['entries'];
+  readonly doors: NonNullable<MapFile['player']['doors']>;
   readonly enemySafeZones: readonly MapEnemySafeZone[];
   readonly enemySpawnAreas: readonly MapEnemySpawnArea[];
   readonly spawns?: MapSpawns;
@@ -125,6 +126,7 @@ export class WorldScene extends Phaser.Scene {
   private loadedWorld?: LoadedWorldScene;
   private builtMap?: AuthoredWorldMetadata;
   private entryEdge?: Direction;
+  private entryDoor?: string;
   private transitioning = false;
   private nextGateMessageAt = 0;
   private levelUpNoticeHandler?: (payload: { level: number }) => void;
@@ -155,6 +157,7 @@ export class WorldScene extends Phaser.Scene {
     this.worldDimensions = this.loadedMap.dimensions;
     this.builtMap = undefined;
     this.entryEdge = request.entryEdge;
+    this.entryDoor = request.entryDoor;
     this.transitioning = false;
     this.nextGateMessageAt = 0;
   }
@@ -522,16 +525,19 @@ export class WorldScene extends Phaser.Scene {
     );
   }
 
-  private transitionTo(areaId: AreaId, entryEdge: Direction): void {
+  private transitionTo(areaId: AreaId, entry: AreaEntry): void {
     this.transitioning = true;
     this.stopPlayerMotion();
-    this.navigateToArea(areaId, entryEdge, false);
+    this.navigateToArea(areaId, entry, false);
   }
 
   private requestAuthoredExit(request: WorldExitRequest): WorldExitResult {
     if (request.mapId !== this.loadedMap.map.mapId) return { status: 'ignored' };
     if (this.transitioning) return { status: 'ignored' };
-    if (!request.targetAreaId || !isDirection(request.entry)) {
+    const entry: AreaEntry | undefined = request.targetDoorId
+      ? { entryDoor: request.targetDoorId }
+      : isDirection(request.entry) ? { entryEdge: request.entry } : undefined;
+    if (!request.targetAreaId || !entry) {
       return { status: 'blocked', message: 'Navigation unavailable' };
     }
 
@@ -572,7 +578,7 @@ export class WorldScene extends Phaser.Scene {
       return { status: 'blocked', message: 'Navigation unavailable' };
     }
 
-    this.transitionTo(request.targetAreaId, request.entry);
+    this.transitionTo(request.targetAreaId, entry);
     return { status: 'queued' };
   }
 
@@ -580,7 +586,7 @@ export class WorldScene extends Phaser.Scene {
   private navigateToRespawnPoint(point: RespawnPointData): void {
     navigateToAreaUrl(
       point.areaId,
-      undefined,
+      {},
       true,
       saveSystem.captureCurrentState({
         ...this.capturePlayerLocation(),
@@ -724,10 +730,10 @@ export class WorldScene extends Phaser.Scene {
     });
   }
 
-  private navigateToArea(areaId: AreaId, entryEdge?: Direction, respawnHome = false): void {
+  private navigateToArea(areaId: AreaId, entry: AreaEntry = {}, respawnHome = false): void {
     navigateToAreaUrl(
       areaId,
-      entryEdge,
+      entry,
       respawnHome,
       saveSystem.captureCurrentState(this.capturePlayerLocation()),
     );
@@ -741,6 +747,7 @@ export class WorldScene extends Phaser.Scene {
       terrainGrid,
       playerSpawn: map.player.spawn,
       entries: map.player.entries,
+      doors: map.player.doors ?? {},
       enemySafeZones: map.enemySafeZones ?? map.spawns?.safeZones ?? [],
       enemySpawnAreas: map.enemySpawnAreas ?? [],
       ...(map.spawns ? { spawns: map.spawns } : {}),
@@ -992,9 +999,9 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private getEntryAnchor(): Phaser.Math.Vector2 | undefined {
-    const authoredPoint = this.entryEdge
-      ? this.builtMap?.entries[this.entryEdge]
-      : this.builtMap?.playerSpawn;
+    const authoredPoint = (this.entryDoor ? this.builtMap?.doors[this.entryDoor] : undefined)
+      ?? (this.entryEdge ? this.builtMap?.entries[this.entryEdge] : undefined)
+      ?? this.builtMap?.playerSpawn;
     return authoredPoint
       ? new Phaser.Math.Vector2(authoredPoint.x, authoredPoint.y)
       : undefined;
@@ -1244,7 +1251,7 @@ export class WorldScene extends Phaser.Scene {
     if (!bed && this.currentArea.id !== 'level-1') {
       gameState.revive();
       this.statusEffects?.clear();
-      this.navigateToArea('level-1', undefined, true);
+      this.navigateToArea('level-1', {}, true);
       return;
     }
 

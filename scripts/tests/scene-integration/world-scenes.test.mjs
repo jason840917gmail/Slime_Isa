@@ -139,3 +139,25 @@ test('world preparation preserves placement transforms, identities, persistence,
   assert.equal(documents.activeLeaseCount(), 0);
   assert.equal(resources.activeLeaseCount(), 0);
 });
+
+test('every door links to an existing door in its target world and has an arrival point', () => {
+  const doorsOf = (scene) => scene.nodes
+    .filter((node) => node.scriptId === 'game.door')
+    .map((script) => ({ script, door: scene.nodes.find((node) => node.id === script.parentId) }));
+  const worlds = content.scenes.filter((scene) => scene.sceneId.startsWith('world.'));
+  let linked = 0;
+  for (const world of worlds) {
+    for (const { script, door } of doorsOf(world)) {
+      const where = `${world.sceneId} door '${script.properties.doorId}'`;
+      assert.ok(door, `${where} has no parent node`);
+      assert.equal(script.properties.entry, undefined, `${where} still uses a compass entry`);
+      assert.equal(world.nodes.filter((node) => node.parentId === door.id && node.name === 'arrival').length, 1, `${where} needs one arrival child`);
+      const target = worlds.find((scene) => scene.sceneId === `world.${script.properties.targetAreaId}`);
+      assert.ok(target, `${where} targets missing world '${script.properties.targetAreaId}'`);
+      const targetDoors = doorsOf(target).filter(({ script: other }) => other.properties.doorId === script.properties.targetDoorId);
+      assert.equal(targetDoors.length, 1, `${where} targets door '${script.properties.targetDoorId}' that ${target.sceneId} does not define exactly once`);
+      linked += 1;
+    }
+  }
+  assert.ok(linked >= 4);
+});

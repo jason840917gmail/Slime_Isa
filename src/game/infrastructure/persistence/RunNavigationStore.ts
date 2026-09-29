@@ -9,6 +9,8 @@ export interface RunNavigationHandoff {
   readonly kind: RunNavigationKind;
   readonly mapId: string;
   readonly entryEdge?: Direction;
+  /** Door ID in the target world whose arrival point the player appears at. */
+  readonly entryDoor?: string;
   readonly respawnHome?: boolean;
   readonly data: GameSaveData;
 }

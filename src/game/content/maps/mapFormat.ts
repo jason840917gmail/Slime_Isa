@@ -155,6 +155,8 @@ export interface MapFile {
   readonly player: {
     readonly spawn: MapPoint;
     readonly entries: Partial<Readonly<Record<MapDirection, MapPoint>>>;
+    /** Where the player appears when arriving through each door, keyed by door ID. */
+    readonly doors?: Readonly<Record<string, MapPoint>>;
   };
   readonly exits?: readonly MapExit[];
   /** Areas enemies cannot enter or spawn in, independent of spawn configuration. */

@@ -3,8 +3,10 @@ import type { NodeConstructionContext } from '../../runtime/scene/registries/Nod
 import { ScriptNode } from '../../runtime/scene/scripts/ScriptNode';
 
 /**
- * A door the player uses on purpose (press interact nearby) to travel to a
- * linked area entry, e.g. from a house exterior into its interior and back.
+ * A door the player uses on purpose (press interact nearby) to travel to its
+ * linked door in another area, e.g. from a house exterior into its interior
+ * and back. The player arrives at the target door's `arrival` child node, or
+ * at the door itself when it has none.
  * The world controller discovers doors and offers them to the InteractionRouter;
  * navigation itself goes through the same exit flow as walk-in area exits.
  */
@@ -17,7 +19,7 @@ export class DoorScript extends ScriptNode {
   readonly mapId: string;
   readonly doorId: string;
   readonly targetAreaId: string;
-  readonly entry: string;
+  readonly targetDoorId: string;
   readonly prompt: string;
   /** World-space distance from the door origin within which it can be used. */
   readonly interactRadius: number;
@@ -29,7 +31,7 @@ export class DoorScript extends ScriptNode {
     this.mapId = this.stringProperty('mapId', '');
     this.doorId = this.stringProperty('doorId', '');
     this.targetAreaId = this.stringProperty('targetAreaId', '');
-    this.entry = this.stringProperty('entry', '');
+    this.targetDoorId = this.stringProperty('targetDoorId', '');
     this.prompt = this.stringProperty('prompt', 'Use door');
     const radius = context.properties.interactRadius;
     this.interactRadius = typeof radius === 'number' && Number.isFinite(radius) && radius > 0 ? radius : 96;
