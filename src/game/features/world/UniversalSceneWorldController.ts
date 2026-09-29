@@ -146,6 +146,7 @@ import type { CraftingContext } from '../../content/recipes/types';
 import type { PlacedFurnitureData } from '../../infrastructure/persistence/SaveSchema';
 import type { PlaceableVisual } from '../building/FurniturePlacementController';
 import { DoorScript } from '../scripts/DoorScript';
+import { GATE_LOCK_SERVICE, GateScript, type GateLockPort } from '../scripts/GateScript';
 import type { SleepRequest } from '../rest/SleepController';
 
 export interface UniversalSceneWorldControllerOptions {
@@ -334,6 +335,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
   private playerPickupArea?: Area2DNode;
   private readonly chests = new Map<string, ChestScript>();
   private readonly doors = new Set<DoorScript>();
+  private readonly gates = new Set<GateScript>();
   private readonly beds = new Set<BedScript>();
   private readonly workbenches = new Set<WorkbenchScript>();
   /** Player-placed furniture mounted at runtime, keyed by placement id. */
@@ -342,6 +344,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
   private readonly scriptPlacement = new Map<Node, string>();
   private readonly unregisterInteraction: () => void;
   private readonly unregisterDoorInteraction: () => void;
+  private readonly unregisterGateInteraction: () => void;
   private readonly unregisterBedInteraction: () => void;
   private readonly unregisterWorkbenchInteraction: () => void;
   private readonly unregisterFurnitureInteraction: () => void;
@@ -536,6 +539,9 @@ export class UniversalSceneWorldController implements InteractionProvider {
           return options.requestExit(request);
         },
       } satisfies WorldExitPort,
+      [GATE_LOCK_SERVICE]: {
+        isUnlocked: (mapId: string, gateId: string) => options.progress.isGateUnlocked(mapId, gateId),
+      } satisfies GateLockPort,
       [UI_SURFACE_SERVICE]: uiSurfaces,
     });
     let mountedRuntime: PhaserUniversalSceneRuntime | undefined;
@@ -627,6 +633,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.mountAuthoredWorld();
     this.unregisterInteraction = options.interactions.register('managed-chests', this);
     this.unregisterDoorInteraction = options.interactions.register('world-doors', { getCandidate: () => this.doorCandidate() });
+    this.unregisterGateInteraction = options.interactions.register('world-gates', { getCandidate: () => this.gateCandidate() });
     this.unregisterBedInteraction = options.interactions.register('world-beds', { getCandidate: () => this.bedCandidate() });
     this.unregisterWorkbenchInteraction = options.interactions.register('world-workbenches', { getCandidate: () => this.workbenchCandidate() });
     this.unregisterFurnitureInteraction = options.interactions.register('placed-furniture', { getCandidate: () => this.furnitureCandidate() });
@@ -768,6 +775,45 @@ export class UniversalSceneWorldController implements InteractionProvider {
           gate: {},
         });
         return result.status === 'queued';
+      },
+    };
+  }
+
+  private gateCandidate() {
+    if (!this.playerBody) return undefined;
+    const player = this.managedPlayer.getPosition();
+    let nearest: GateScript | undefined;
+    let nearestDistance = Number.POSITIVE_INFINITY;
+    for (const gate of this.gates) {
+      const parent = gate.get_parent() as Node2D | undefined;
+      if (gate.isOpen || !parent) continue;
+      const position = parent.get_global_transform().position;
+      const distance = Phaser.Math.Distance.Between(player.x, player.y, position.x, position.y);
+      if (distance <= gate.interactRadius && distance < nearestDistance) { nearest = gate; nearestDistance = distance; }
+    }
+    if (!nearest) return undefined;
+    const gate = nearest;
+    const origin = () => (gate.get_parent() as Node2D).get_global_transform().position;
+    return {
+      id: `world-gates:${gate.gateId}`,
+      prompt: `[F] ${gate.prompt}`,
+      priority: 95,
+      anchor: () => ({ x: origin().x, y: origin().y - gate.badgeRise }),
+      execute: () => {
+        const result = this.options.transaction.unlockGate({
+          mapId: gate.mapId,
+          gateId: gate.gateId,
+          requiredItemId: gate.requiredItemId,
+          consumeOnUnlock: gate.consumeOnUnlock,
+        });
+        const { x, y } = origin();
+        if (result === 'unlocked' || result === 'already-unlocked') {
+          gate.open();
+          this.options.showMessage(x, y - gate.badgeRise, gate.unlockedMessage, 'green', true);
+          return true;
+        }
+        this.options.showMessage(x, y - gate.badgeRise, result === 'missing-item' ? gate.lockedMessage : 'The gate will not budge.', 'white', true);
+        return true;
       },
     };
   }
@@ -1098,6 +1144,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.disposed = true;
     this.unregisterInteraction();
     this.unregisterDoorInteraction();
+    this.unregisterGateInteraction();
     this.unregisterBedInteraction();
     this.unregisterWorkbenchInteraction();
     this.unregisterFurnitureInteraction();
@@ -1144,6 +1191,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.playerPickupArea = undefined;
     this.chests.clear();
     this.doors.clear();
+    this.gates.clear();
     this.beds.clear();
     this.workbenches.clear();
     this.placedFurniture.clear();
@@ -1198,15 +1246,17 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.runtime.tree.flushMutations();
   }
 
-  /** Doors, beds, and stations inside a mounted subtree become interaction candidates. */
+  /** Doors, gates, beds, and stations inside a mounted subtree become interaction candidates. */
   private registerInteractables(root: Node, placementId?: string): Node[] {
     const scripts: Node[] = [
       ...descendants(root, DoorScript),
+      ...descendants(root, GateScript),
       ...descendants(root, BedScript),
       ...descendants(root, WorkbenchScript),
     ];
     for (const script of scripts) {
       if (script instanceof DoorScript) this.doors.add(script);
+      else if (script instanceof GateScript) this.gates.add(script);
       else if (script instanceof BedScript) this.beds.add(script);
       else if (script instanceof WorkbenchScript) this.workbenches.add(script);
       if (placementId) this.scriptPlacement.set(script, placementId);
@@ -1238,6 +1288,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
     if (!placed) return;
     for (const script of placed.scripts) {
       this.doors.delete(script as DoorScript);
+      this.gates.delete(script as GateScript);
       this.beds.delete(script as BedScript);
       this.workbenches.delete(script as WorkbenchScript);
       this.scriptPlacement.delete(script);

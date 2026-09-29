@@ -17,6 +17,7 @@ import { CollectibleScript } from './CollectibleScript';
 import { BedScript } from './BedScript';
 import { WorkbenchScript } from './WorkbenchScript';
 import { DoorScript } from './DoorScript';
+import { GateScript } from './GateScript';
 import { InteractionScript } from './InteractionScript';
 import { WorldExitScript } from './WorldExitScript';
 import { WorldDefinitionScript } from './WorldDefinitionScript';
@@ -445,6 +446,36 @@ export const DOOR_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
   ],
 };
 
+export const GATE_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
+  scriptId: 'game.gate',
+  displayName: 'Gate Script',
+  description: 'Press-to-unlock gate: blocks a passage until the player uses the required key item, then swaps to its open frame and stops colliding. Shares the persisted gate record with gated world exits.',
+  sourcePath: 'src/game/features/scripts/GateScript.ts',
+  capabilities: ['gate', 'interactable'],
+  exclusiveCapabilities: ['gate-controller'],
+  references: [
+    { key: 'visual', label: 'Gate Sprite', required: true, expectedNodeType: 'Sprite2D' },
+    { key: 'doors', label: 'Door Body', required: true, expectedNodeType: 'StaticBody2D' },
+  ],
+  properties: [
+    stringProperty('mapId', 'Map ID', 'Gate'),
+    stringProperty('gateId', 'Gate ID', 'Gate'),
+    stringProperty('requiredItemId', 'Required Item ID', 'Gate'),
+    { key: 'consumeOnUnlock', label: 'Consume Key', group: 'Gate', value: { kind: 'boolean' }, defaultValue: true, serialized: true, inspector: 'checkbox', overridable: true },
+    stringProperty('prompt', 'Unlock Prompt', 'Interaction'),
+    stringProperty('lockedPrompt', 'Locked Prompt', 'Interaction'),
+    stringProperty('lockedMessage', 'Locked Message', 'Interaction'),
+    stringProperty('unlockedMessage', 'Unlocked Message', 'Interaction'),
+    numberProperty('interactRadius', 'Interact Radius', 150, 'Interaction'),
+    numberProperty('badgeRise', 'Key Badge Rise', 120, 'Interaction'),
+    numberProperty('closedFrame', 'Closed Frame', 0, 'Visual'),
+    numberProperty('openFrame', 'Open Frame', 1, 'Visual'),
+    nodeReference('visual', 'Gate Sprite'),
+    nodeReference('doors', 'Door Body'),
+  ],
+  signals: [{ id: 'opened', payload: 'GateOpened' }],
+};
+
 const vectorProperty = (key: string, label: string, group: string, defaultValue: readonly [number, number]): PropertyDescriptor => ({
   key, label, group, value: { kind: 'vector2' }, defaultValue: [...defaultValue],
   serialized: true, inspector: 'vector2', overridable: true,
@@ -586,6 +617,7 @@ export const GAME_SCRIPT_DESCRIPTORS = Object.freeze([
   INTERACTION_SCRIPT_DESCRIPTOR,
   WORLD_EXIT_SCRIPT_DESCRIPTOR,
   DOOR_SCRIPT_DESCRIPTOR,
+  GATE_SCRIPT_DESCRIPTOR,
   BED_SCRIPT_DESCRIPTOR,
   WORKBENCH_SCRIPT_DESCRIPTOR,
   WORLD_DEFINITION_SCRIPT_DESCRIPTOR,
@@ -611,6 +643,7 @@ export function createGameScriptRegistry(services: ScriptServiceMap = {}): Scrip
     .registerDefinition({ descriptor: INTERACTION_SCRIPT_DESCRIPTOR, factory: (context) => new InteractionScript(context) })
     .registerDefinition({ descriptor: WORLD_EXIT_SCRIPT_DESCRIPTOR, factory: (context) => new WorldExitScript(context) })
     .registerDefinition({ descriptor: DOOR_SCRIPT_DESCRIPTOR, factory: (context) => new DoorScript(context) })
+    .registerDefinition({ descriptor: GATE_SCRIPT_DESCRIPTOR, factory: (context) => new GateScript(context) })
     .registerDefinition({ descriptor: BED_SCRIPT_DESCRIPTOR, factory: (context) => new BedScript(context) })
     .registerDefinition({ descriptor: WORKBENCH_SCRIPT_DESCRIPTOR, factory: (context) => new WorkbenchScript(context) })
     .registerDefinition({ descriptor: WORLD_DEFINITION_SCRIPT_DESCRIPTOR, factory: (context) => new WorldDefinitionScript(context) })

@@ -75,6 +75,7 @@ export const TILE_CATALOG = {
   'mushroom-earth-floor': tileFromResource('mushroom-earth-floor'),
   'mushroom-clover-floor': tileFromResource('mushroom-clover-floor'),
   'mushroom-plain-floor': tileFromResource('mushroom-plain-floor'),
+  'town-cobble': tileFromResource('town-cobble'),
 } as const satisfies Readonly<Record<string, TileDefinition>>;
 
 export type WorldTileId = keyof typeof TILE_CATALOG;
