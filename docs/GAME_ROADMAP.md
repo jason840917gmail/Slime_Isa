@@ -1,1150 +1,924 @@
-# Game Roadmap — Playable Task Checklist
+# Game Roadmap — Road to Release 1
 
-> **Status: active living checklist.** Follow this in small vertical slices and
-> update it as the game changes. The design direction lives in
-> [Game Guidelines](./GAME_GUIDELINES.md). This file owns task status;
-> [BETA_PLAN.md](./BETA_PLAN.md) keeps the long-range beta vision (content
-> targets and feel ideas) and no longer tracks status.
+> **Status: active living checklist.** Design direction lives in
+> [Game Guidelines](./GAME_GUIDELINES.md); this file owns task order and
+> status. Reorganized on 2026-09-29 around **Release 1**. The former
+> `BETA_PLAN.md` was folded into this file and the guidelines, then removed.
 
-This roadmap is ordered for visible progress. A milestone is complete only when
-the player can perform the loop in the running game and the authored map/editor
-workflow supports the content it introduces.
+## Release 1 (v0.1) — The Target
 
-Milestones 1 and 2 and the save/load foundation are verified in fresh-game
-playtests. Level 1 is now **Slimeshire Meadow** (town, Fatty's hedge maze,
-worm ruins, Webwood, river and lake, and the Verdant Gate), and **Chapter 1 —
-The Clearing** is a six-quest line that walks a fresh run from an empty
-clearing to Gloop Forest (see [Done outside the milestones](#done-outside-the-milestones)).
-Between 2026-09-12 and 2026-09-26 the whole game moved onto the
-Godot-inspired universal scene architecture: authored SceneTrees, ScriptNode
-behavior, and one editor, **Scene Studio** (`?studio=scenes`). Every authoring
-task below uses Scene Studio. The former Map, Character, Animation, Weapon, and
-Projectile Studios and Field Cartographer are retired, and their URLs redirect
-to Scene Studio. See [Universal Scene Architecture](#cross-cutting-engine--universal-scene-architecture).
+Release 1 is a free web build of **Chapters 1 and 2**, about an hour of play
+from the title screen to an end-of-Chapter-2 card: a first-time player takes
+**45–75 minutes**, timed in the blind playtest (11.1). In it, a player can:
 
-## Locked UI Style Decisions
+- start from a title screen, continue an autosave, pause, change settings, and
+  wake at their last bed after a defeat;
+- finish Chapter 1 in Slimeshire Meadow (playable today), then Chapter 2 in
+  Gloop Forest: a new enemy, iron, an enemy-only material, the Forge, metal
+  gear, and a second boss;
+- restore two Slimeshire buildings, the Workshop and the Forge, and use them
+  to craft the recipes they unlock;
+- grow stronger through crafted gear, Goo Hearts, and story-unlocked
+  abilities (no XP or levels);
+- use **Gulp**, the signature mechanic, to solve Chapter 2 puzzles;
+- hear music and ambience in every area and feel every hit.
 
-On 2026-09-04 the in-world gameplay HUD direction was approved as **Option C —
-artwork-first**: the world background remains visible, and the HUD,
-minimap, and weapon hotbar use transparent interiors with restrained outlines,
-text shadows, and state accents instead of opaque dark boxes. Inventory and
-crafting are explicitly excluded because they are being redesigned separately.
-The ability bar is now mounted as an authored UI scene (commit `42ad451`), but
-its artwork-first skin remains deferred.
-The detailed implementation contract is in
-[World HUD Artwork-First Presentation](./superpowers/specs/2026-09-04-world-hud-artwork-first-design.md),
-which refines the broader
-[Game UI Visual Skin System](./superpowers/specs/2026-09-03-game-ui-visual-skin-design.md).
+**Not in Release 1:** the Kitchen, farming, hats, Crystal Caverns beyond a
+locked teaser, the unconnected `icege`/`emberleef`/`hot` maps, the mobile app,
+and new Scene Studio features. They wait in
+[After Release 1](#after-release-1--idea-parking-lot).
 
-## How To Use The Checklist
+**No target date.** Release 1 ships when it is ready. By choice, milestones
+are ordered but not sized or dated (decided 2026-09-29).
 
-- `[ ]` not started, `[~]` in progress, `[x]` verified in the running game, `[—]` dropped.
-- Finish one milestone before expanding its next tier.
-- After each milestone, do a short playtest and record one screenshot or note
-  describing what became possible.
-- Keep unresolved design choices in the open-question tasks instead of silently
-  inventing rules.
+### Rules That Keep Release 1 Shippable
+
+- **New ideas go to the [parking lot](#after-release-1--idea-parking-lot)**,
+  never straight into a Release 1 milestone. An idea moves in only by replacing
+  work of the same size.
+- **Scene Studio is feature-frozen.** Fix bugs and real blockers for Release 1
+  content only. Tooling is not progress unless a player can see the result.
+- **Every milestone lists its art and audio.** Placeholders are fine while
+  building; a milestone is `[x]` only when its assets are final or explicitly
+  accepted as final. All new art follows the
+  [art style guide](./assets/visual-style-guide.md) and is generated with
+  Magnific following the [Magnific MCP guide](./assets/magnific-mcp-guide.md),
+  then packed and registered through [docs/assets/](./assets/README.md).
+- **New features prove they are fun first.** A new mechanic (Gulp, the slime
+  trail, a new enemy behavior) is built in the dev-only `playground` map
+  (3.7). It enters chapter content only after the user accepts it there.
+- **Testing:** at the end of each milestone (not after every task), Claude
+  plays the milestone's player proofs once in the in-app browser and reports
+  what works. The user does the final acceptance. Players who have never seen
+  the game test twice: after the game shell (4.9) and before release (11.1).
+- **A task is `[x]` only when a fresh save can do it in the running game**,
+  without debug grants.
+- **Finish milestones in order.** Two exceptions: the rough Gulp prototype
+  (7.0) runs right after the playground (3.7), and Milestone 9 (game feel) may
+  run alongside 6–8. No task's check depends on a later milestone; work that
+  needs later content lives in the milestone that builds that content.
 
 ## Progress Board
 
-| Milestone | Player-visible result | Status |
-|---|---|---|
-| 1. Wood gathering | Chop a visible tree and collect wood | `[x]` |
-| 2. Stone and starter tools | Walk over loose materials, craft starter gear, defeat Fatty One Eye, loot the guarded chest, and unlock the next area | `[x]` |
-| P. Save, load, and reset foundation | Create or overwrite named saves, load complete runs, or reset to authored defaults | `[x]` |
-| S. Universal scene architecture | Every world, entity, effect, UI, and audio surface is an authored scene editable in Scene Studio | `[x]` |
-| Q. Chapter 1 quest line | NPC-given quests teach recipes and lead from the clearing to Gloop Forest | `[x]` |
-| A. Audio and SFX | Combat, gathering, UI, and boss actions are audible; music and ambience follow the area | `[~]` |
-| 3. Home exterior | Doors anywhere lead into interiors; the last bed slept in is home | `[~]` |
-| 4. Home interior | Enter a real interior, move inside, and return outside | `[~]` |
-| 5. Workshop | Craft weapons, tools, and items in the first crafting building | `[ ]` |
-| 6. Iron region | Reach a tougher region and harvest iron with the right tool | `[ ]` |
-| 7. Enemy materials | Fight enemies for special drops and access | `[ ]` |
-| 8. Forge | Smelt iron and other ores into metal bars | `[ ]` |
-| 9. Kitchen | Cook healing or buff food in the kitchen | `[ ]` |
-| 10. Kitchen potions | Brew potions and antidotes from monster materials in the kitchen | `[ ]` |
-| 11. Builder’s table | Upgrade and move the home while keeping its interior | `[ ]` |
-| 12. Safety and persistence | Understand danger, recover, store items, and reload safely | `[ ]` |
-| 13. Progression pass | Discover recipes and complete a balanced material path | `[ ]` |
-| 14. Beta slice | Play a complete gather → fight → craft → upgrade loop | `[ ]` |
+| # | Milestone | Player-visible result | Status |
+|---|---|---|---|
+| 1 | Wood gathering | Chop a tree and keep the wood | `[x]` |
+| 2 | Stone and starter tools | Craft starter gear, beat Fatty One Eye, open the Verdant Gate | `[x]` |
+| Q | Chapter 1 — The Clearing | Six NPC quests lead from an empty clearing to Gloop Forest | `[x]` |
+| P | Save, load, and reset | Named saves, recovery autosave, per-map progress | `[x]` |
+| S | Universal scene architecture | Every world, entity, UI, and audio surface is an authored scene | `[x]` |
+| **Release 1** | | | |
+| 3 | Finish homes, interiors, and audio | Beds are home, interiors are solid and persistent, today's content sounds finished | `[~]` |
+| 4 | Game shell | Title, continue, pause, game over, settings, credits | `[ ]` |
+| 5 | Gear-based progression | XP and levels are gone; gear, Goo Hearts, and story unlocks make you stronger | `[ ]` |
+| 6 | Rebuild Slimeshire: the Workshop | Restore a ruined building and craft at the Workshop | `[ ]` |
+| 7 | Gulp | Swallow a material to take its form and solve a puzzle | `[ ]` |
+| 8 | Chapter 2 — Gloop Forest | New enemy, iron, Forge, metal gear, second boss | `[ ]` |
+| 9 | Game feel | Hit-stop, shake, squash and stretch, particles, slime trail | `[ ]` |
+| 10 | Release hygiene | Small download, production-only content, licenses, browsers | `[ ]` |
+| 11 | Playtest and ship | Blind playtest, fixes, `v0.1.0` published | `[ ]` |
 
-## Task Tile Format
+Why this order: 3 closes the work already half done. 4 gives every later
+playtest a real start and end. 5 comes before new content so Chapter 2 is
+balanced once, against gear. 6 and 7 build the systems Chapter 2 uses. 10 and
+11 turn the build into a release.
 
-Use this shape when adding a new task:
+## How To Use The Checklist
+
+- `[ ]` not started, `[~]` in progress, `[x]` verified in the running game,
+  `[—]` dropped (keep the line and say why).
+- After each milestone, do a short fresh-save playtest and note what became
+  possible.
+- Unresolved design choices go to the guidelines'
+  [open questions](./GAME_GUIDELINES.md#open-questions), not into silent rules.
+
+Task tile format:
 
 ```md
-### [ ] 1.1 — Short task name
+### [ ] 6.1 — Short task name
 
 - Build: the smallest implementation or content change.
 - Player proof: what the player can see or do afterward.
 - Done when: the concrete acceptance check passes.
 ```
 
-## 1. Wood Gathering — First Complete Resource Loop
+Each milestone ends with an **Assets** list: what can be reused and which new
+art or audio must be made. See [docs/assets/](./assets/README.md) for sizes,
+packing, and registration.
 
-### [x] 1.0 — Add numeric resource damage modifiers
+## 3. Finish Homes, Interiors, And Audio
 
-- Build: weapons now carry direct `{ targetTag, modifier }` entries; existing
-  weapons use `resource: 0.1`, with normal damage as the fallback.
-- Player proof: resource targets can be balanced independently from enemy damage.
-- Done when: the weapon catalog and combat pipeline validate and apply numeric
-  resource modifiers.
+The home stays in Slimeshire (Level 1) and never moves. Other maps can have
+their own homes with their own interiors, linked by doors. The last bed slept
+in is where the player wakes.
 
-### [x] 1.1 — Add wood as a persistent material
+### [x] 3.1 — Doors link to doors (was 4.1)
 
-- Build: define the stable wood item, stack rules, inventory display, and save data.
-- Current: `wood` is registered, stackable, shown in the inventory, and included
-  in saved inventory/world progress.
-- Player proof: wood appears as a named resource instead of an anonymous pickup.
-- Done when: collect, reload, and still have the same wood count.
+- Done: `game.door` ScriptNodes name a `targetDoorId` and own an `arrival`
+  child, so leaving a house puts the player in front of the door they used.
+  Level 1 doors lead to `slime-home` and `mushroom-home` and back; a test checks
+  that every door targets an existing door with an arrival.
 
-### [x] 1.2 — Author harvestable tree objects
+### [x] 3.2 — First interior visual kit (was 4.2)
 
-- Build: create tree object definitions with a harvest state, drop payload, and
-  collision layer; place several instances in an authored map.
-- Current: authored trees have colliders, health, wood drops, persistent state,
-  and replace themselves with the catalog wood-pile visual.
-- Player proof: trees are visible world objects that occupy space.
-- Done when: the runtime and map validator accept the same tree IDs.
+- Done: `wood-floor` terrain plus one `object.interior-<category>-*` scene per
+  atlas sprite (842 scenes, generated from `scripts/interiors/interior_catalog.py`).
+  `world.slime-home` and `world.mushroom-home` are furnished rooms.
 
-### [x] 1.3 — Add wood visuals and feedback
+### [x] 3.3 — Enter, move, and leave (was 4.4)
 
-- Build: add the tree variants, hit/harvest feedback, wood pickup icon, and a
-  small collection notification.
-- Current: tree/pile art, wood inventory art, hit feedback, collection prompts,
-  floating reward text, and the independent resource-impact effect are present.
-- Player proof: chopping feels like an action, not an invisible counter change.
-- Done when: the player can identify the tree, the hit, and the reward.
+- Done: F near a door travels through the queued navigation path; interior
+  worlds use a fixed camera that fits the room; a bobbing F badge marks the
+  door, chest, or NPC in range.
 
-### [x] 1.4 — Add the starter gathering tool
+### [~] 3.4 — Beds are home (was 3.3)
 
-- Build: add a starter axe or equivalent tool, equip/use flow, and the resource
-  interaction that lets it harvest wood.
-- Current: the Wooden Axe is a fifth starter hotbar item with directional art,
-  wood `1.0` damage, non-wood resource `0.1` damage, enemy `0.2` damage, and a
-  resource-only impact effect.
-- Player proof: the tool visibly performs the action and produces wood.
-- Done when: the player can harvest several trees without a debug shortcut.
+- Build: sleeping in a bed saves `world.respawnPoint`; defeat returns the
+  player to that bed's map and wake point, falling back to the Level 1 start.
+- Player proof: sleep in a bed, get defeated elsewhere, wake at that bed.
+- Done when: the respawn bed survives save/load and falls back to Level 1 when
+  the bed's map no longer has it.
 
-### [x] 1.5 — Verify the first playtest loop
+### [~] 3.5 — Interior collision and interaction (was 4.5)
 
-- Build: add any missing pickup, HUD, sound, or save feedback needed to make the
-  loop readable.
-- Player proof: explore → find tree → harvest → collect → see inventory.
-- Current: user-verified in a fresh-game playtest; the complete loop works
-  reliably.
-- Done when: a five-minute fresh-game playtest completes the loop reliably.
+- Current: `game.bed` scripts on sleepable beds; F plays the `doze`/`sleep`
+  clips with floating z's and restores `rest.sleepHpRegenPerSec` HP/s; input or
+  damage wakes the player.
+- Build: block walls and solid furniture everywhere in both rooms.
+- Done when: collision, interaction, and depth are correct from every direction.
 
-**Milestone 1 complete:** the player can gather and keep wood through a normal
-play session, verified in the running game.
+### [~] 3.6 — Persist placed furniture (was 4.6)
 
-## 2. Stone And Starter Tools
+- Current: the workbench is placed from the inventory with a grid-snapped
+  preview (R variant, Esc cancel), saved per map as `placedFurniture`, and
+  picked up with G.
+- Done when: placed furniture in homes and outdoors survives leaving, reload,
+  and a second placement without duplication.
 
-Implementation order, ownership, save migration, and acceptance checks are
-defined in the
-[Stone and Starter Tools implementation plan](./superpowers/plans/2026-08-23-stone-and-starter-tools-implementation-plan.md).
+### [ ] 3.7 — The playground map
 
-The resource/collectible taxonomy correction, walk-over pickup behavior, save
-migration, and Map Studio attribute work are defined in the
-[Walk-over Collectibles and Editor Attributes implementation plan](./superpowers/plans/2026-08-24-walk-over-collectibles-and-editor-attributes-implementation-plan.md).
+- Build: a dev-only `playground` world scene for trying new mechanics: open
+  ground, a few enemies, resource nodes, and room for test puzzles. It is
+  reachable with `?map=playground` in development and left out of production
+  builds. Today every world ships, so this task adds the dev-only world list
+  that keeps it out; 10.2 later adds the other test maps to the same list. It
+  is built early because 4.7, 7.x, 8.2, and 9.4 test in it.
+- Player proof: a new feature can be tried in isolation before any chapter
+  depends on it.
+- Done when: the map opens with `?map=playground`, `pnpm scenes:check`
+  passes, and a production build does not contain it.
 
-Close-out evidence is in the
-[Level 1 and Milestone 2 verification checklist](./task/ideas/completed/level-1-milestone-2-verification-checklist.md).
-The user verified the milestone in a playtest on the refactored build on
-2026-09-28.
+Interior authoring in Scene Studio (was 4.3) is not a separate task: the next
+interior, the Gloop Forest hut, is built in 8.8 with Scene Studio as it is
+today, and only real blockers get fixed.
 
-### [x] 2.1 — Author stone resource nodes
+### [ ] 3.8 — Pick one sound flavour (was A.4)
 
-- Build: add stone material, visible rock nodes, collision, map placement, deterministic three-pile drops, and reload-safe depletion state.
-- Current: the implementation and validators are present: stone nodes use the
-  intentional Level 1 visual variants, carry 80 health, and break into up to
-  three adjacent small stone piles. Partial node health resets on reload while
-  broken piles and their remaining amounts persist. Loose starter stone and its
-  persistence path are implemented and verified in a fresh-save/reload pass.
-- Player proof: wood and stone are distinct resources with distinct visuals.
-- Done when: both resources can be collected and saved.
-
-### [x] 2.2 — Add basic tool recipes
-
-- Build: add recipes for Wooden Spear (`20 wood`), Stone Axe
-  (`10 wood + 10 stone`), Stone Pickaxe (`10 wood + 10 stone`), and Stone
-  Spear (`20 wood + 20 stone`). Add enough hand-collectible loose wood and stone
-  to prevent a fresh-save softlock.
-- Current: the four recipes, atomic inventory transaction, crafted weapon
-  assignment, dedicated spear swing art, and a hand-collectible starter budget
-  are implemented in the Level 1 map. Normal fresh runs begin with no weapon,
-  tool, attack, or production test potion; the legacy starter arsenal is
-  available only through the explicit development grant. Since Chapter 1 the
-  four recipes use the `workbench` context (they need a placed workbench, which
-  is itself a portable `40 wood` recipe) and are `learnedByQuest`, taught by
-  Chapter 1 quest rewards; quest wood rewards keep the fixed Level 1 budget
-  softlock-free.
-- Player proof: gathered materials turn into equipped tools and a first crafted weapon.
-- Done when: a new save can craft and assign the starter gear without cheats or
-  automatic production grants.
-
-### [x] 2.3 — Enforce tool-gated harvesting
-
-- Build: give resource nodes a required tool tier and show a clear feedback state
-  when the tool is insufficient.
-- Current: tree and stone archetypes declare explicit tier-one requirements;
-  combat checks the equipped weapon's harvest capability before damage and
-  displays Stone Axe or Stone Pickaxe guidance when the requirement is unmet.
-  Verified in a fresh-save runtime pass.
-- Player proof: the player understands why a harder node cannot be harvested yet.
-- Done when: the gate works consistently in runtime and authored maps.
-
-### [x] 2.4 — Build the shared animation library (superseded by Scene Studio)
-
-- Build: originally, layered animation packages shared through a recursive
-  catalog, edited in Weapon/Animation Studio and picked in Map Studio.
-- Outcome: the universal scene refactor replaced this design. Weapons, trees,
-  and objects now embed their clips in their own scene's `AnimationPlayer`
-  library, and truly shared data lives in standalone `*.resource.json` files.
-  The 34 package rows were retired. Scene Studio's animation dock is the only
-  animation editor. Its timeline, viewport, and inspector keying, and a
-  weapon script's `attackPlans` hitbox timing, are covered by scene and browser
-  tests.
-- Done: weapons keep their authored visuals, and object animation is authored
-  once per scene and reused by every instance.
-
-### [x] 2.5 — Add new object authoring (superseded by Scene Studio)
-
-- Build: originally, a New Object dialog in Map Studio.
-- Outcome: Scene Studio replaces it. A new object is an authored scene with a
-  sprite, collision shapes, depth guide, and ScriptNode behavior. It is placed
-  in a world scene as an instance with reversible local overrides, and
-  undo/redo and hash-checked saves cover the whole flow (commits `4a41d93`,
-  `f4fd578`).
-- Done: objects can be created, placed, saved, and reloaded without editing
-  JSON by hand. `scenes:check`, `objects:check`, `maps:check`, typecheck, and
-  the build validate them.
-
-### [x] 2.6 — Move loose materials to walk-over collectibles
-
-- Build: replace resource-pile pickup data with a generic collectible payload;
-  collect loose wood, stone, and berries by player overlap without `F`;
-  preserve partial quantities and existing save progress; let resource nodes
-  choose a catalog-backed collectible death drop and piece count.
-- Player proof: walking over loose wood or stone collects it immediately, while
-  trees and stone nodes remain tool-damaged resource targets.
-- Outcome: shipped and verified with persistence and collectible-runtime tests.
-  The original Map Studio inspector work (Collectibles/Resource Nodes grouping,
-  two inspector tabs, yield preview) was retired with Map Studio; these
-  attributes are now scene and instance properties edited in Scene Studio.
-
-### [x] 2.7 — Complete the first guarded-key progression gate
-
-- Build: keep the ordinary worm camp unchanged and add a separate authored boss
-  camp for Fatty One Eye. Fatty is a round, mouthless, translucent slime whose
-  exact-center eye can be damaged only by the Wooden or Stone Spear. He deals
-  a collision-triggered 300 ms stationary contact hop with one 64 px landing
-  hit, ignores knockback through the shared enemy-effect immunity field, and
-  telegraphs a targeted one-second leap with three small
-  hops, a shadow, landing marker, landing-area damage, and ground cracks. A true
-  defeat starts the camp-authored three-minute wall-clock respawn timer; an
-  eligible respawn waits for exit and re-entry.
-- Build: add a reusable authored chest with closed/open sprites, Map Studio
-  placement and editable item stacks, and an inventory-skinned loot panel.
-  Left-click inspects an item; right-click transfers the maximum amount of its
-  stack that fits and leaves any remainder. Fatty locks the chest while alive;
-  partial contents persist and relock on respawn, while an emptied chest stays
-  visibly open forever.
-- Build: put exactly one persistent green key in the Level 1 chest and require
-  it at the east exit (now the physical Verdant Gate, a `game.gate` script
-  that shares the persisted gate record with the exit behind it). The key is
-  consumed only on the first unlock and the
-  permanent gate state survives reload. Save/load or player death during the
-  fight resets Fatty to full health without starting the defeat timer.
-- Current: Fatty is a ranked enemy scene with ScriptNode behavior. The chest
-  and its UI, save-schema version 9 state, the authored Level 1 camp and chest
-  inside Fatty's hedge maze, and the Verdant Gate in front of the Gloop Forest
-  exit are all implemented. The encounter's shape-based
-  area and shared arena leash, its boss links, and the landing splash are
-  authored in Scene Studio (commits `a3aa9a2`, `8e34a88`). The encounter,
-  three-minute respawn, chest, and key/gate round trip were verified by the user
-  on 2026-09-28. See
-  [Fatty One Eye guarded chest design](./superpowers/specs/2026-09-11-fatty-one-eye-guarded-chest-design.md).
-- Player proof: collecting and crafting starter gear leads to a readable boss
-  fight, deliberate spear-range eye strikes, selectable chest loot, and visible
-  access to Gloop Forest.
-- Done when: the Section E matrix passes in a fresh run, including partial
-  inventory transfer, save/reload, boss respawn/relocking, exact-once key use,
-  and the complete collect → craft → gather → fight → chest → key → exit loop.
-
-**Milestone 2 complete (verified 2026-09-28):** wood and stone form a readable
-starting economy, and crafted starter gear opens the first guarded progression
-gate.
-
-## A. Audio And SFX — Make The World Audible
-
-The full cue list (ranked P1 combat feel, P2 living world, P3 polish), the
-hooks for each cue, and the phase details are in the
-[Audio & SFX implementation plan](./superpowers/plans/2026-09-28-audio-sfx-implementation-plan.md).
-
-**Sourcing:** every cue ships in two flavours under the same cue ID
-(`audio.sfx.<category>.<cue>`): `synth`, rendered deterministically by
-`pnpm audio:bake` from `scripts/audio/cues.mjs`, and `library`, CC0 samples
-(Kenney and others, credited in `asset/audio/CREDITS.md`). Library is the
-shipping default; `?sfx=synth` switches a session to the synth takes for A/B
-listening.
-
-### [x] A.0–A.3 — Loadable audio, upgraded nodes, P1 sounds, and wiring
-
-- Done: audio entries in `asset/assets.json` load at boot and are validated by
-  `assets:check`. `AudioStreamPlayer`/`AudioStreamPlayer2D` nodes support
-  variants, pitch randomness, polyphony, minimum interval, and detached
-  one-shots, on `effects`, `music`, and `ambience` buses. All P1 cues exist in
-  both flavours. Scene audio nodes and signal connections are authored by
-  `pnpm audio:wire` (drift fails `pnpm audio:check`), and
-  `features/audio/AudioEventBridge.ts` plays `audio.global` cues for UI,
-  quest, progression, and status events.
-
-### [ ] A.4 — Pick a flavour
-
-- Build: the user compares synth and library sounds for each category. Delete
-  the losing flavour and remove the `?sfx` toggle if it is no longer needed.
+- Build: compare synth and library takes per category, delete the losing
+  flavour, and remove the `?sfx` toggle.
 - Done when: each cue ID has one shipped flavour and `assets:check` finds no
   orphans.
 
-### [~] A.5 — Bring the world to life (P2)
+### [~] 3.9 — World sounds for today's content (was A.5)
 
-- Build: add terrain-aware footsteps, status-effect cues, chest, gate, and NPC
-  sounds, prop loops (campfire, cauldron, grindstone, anvil), biome ambience,
-  and area music with stings.
 - Current: terrain footsteps, status, chest, gate, NPC, and area-title cues
-  are in, and Level 1 plays its town music. Prop loops, biome ambience, and
-  music for the other areas are missing.
-- Player proof: each area sounds different and the camp props can be heard as
-  you approach them.
-
-### [~] A.6 — Add audio settings and polish (P3)
-
-- Build: add volume settings, duck the music while paused, crossfade it on
-  `area.enter`, and switch to boss music on `boss_spawn_requested`. Pass the
-  crit flag through to hit sounds, and add the remaining P3 cues.
-- Current: the Esc sound settings modal has master, effects, and music sliders
-  plus mute; they persist per device (`AudioSettingsStore`), deliberately
-  separate from save slots, and ambience follows the effects slider. Ducking,
-  crossfades, and boss music are not built.
-- Done when: volume settings survive a reload, and music transitions never
-  stack or cut off abruptly.
-
-**Audio milestone complete when:** P1 combat, gathering, UI, and boss cues are
-wired in one final flavour, and the world has ambience, music, and persistent
-volume settings.
-
-## Crafting Buildings — Where Each Craft Happens
-
-Crafting past the starter tier happens in **dedicated buildings**, not in a
-portable menu. Each building is its own authored scene: an exterior in the
-world, and a station you use at or inside it. It has its own recipe family and
-its own upgrade tiers. Today the first station is the placeable **workbench**
-(a portable `40 wood` recipe): the four starter tool and spear recipes need a
-placed workbench, while the workbench, Slime Tonic, and Berry Basket stay
-`portable` so a fresh save can never softlock.
-
-| Building | Crafts | Main inputs | Milestone |
-|---|---|---|---|
-| **Workshop** | Weapons, tools, and items (bombs, storage, building parts, repairs) | Wood, stone, metal bars, enemy materials | 5 (grows out of the placeable workbench), then new tiers in 6–8 |
-| **Forge** | Smelts iron and other ores into metal bars, later alloys | Ore and fuel | 8 |
-| **Kitchen** | Food, healing and buff meals, potions, and antidotes | Forage, crops, monster materials | 9 (food), 10 (potions) |
-| **Builder's table** | Home upgrades, furniture, defenses, and moving the home | Building parts, bars | 11 |
-
-- Metal weapons and tools use a two-step chain: ore → **Forge** (bars) →
-  **Workshop** (weapon or tool). The Forge only smelts and never outputs
-  weapons.
-- Potions belong to the Kitchen. The separate Alchemy table is retired from
-  the plan.
-- Code today: `CraftingContext` in `src/game/content/recipes/types.ts` is
-  `'portable' | 'workbench' | 'forge' | 'kitchen' | 'alchemy'`. Rename
-  `workbench` to `workshop` and remove `alchemy` when UX.2 is implemented.
-  The two `alchemy` recipes (`brew-fizzy`, `weave-tonics`) have no station
-  that offers them, so they are not craftable until they move to the Kitchen.
-- Every building uses one shared crafting popup and recipe authority, filtered
-  by building and tier (see UX.2).
-
-## 3. Home Exterior
-
-### [—] 3.1 — Author the one player home
-
-- Dropped: doors can be placed anywhere and link to any interior, so there is
-  no single authored home instance to build.
-
-### [—] 3.2 — Add home ownership and persistence
-
-- Dropped: home identity is no longer a concept; beds and placed furniture own
-  the persistent state instead (see 3.3 and 4.6).
-
-### [~] 3.3 — Beds are home: respawn at the last bed slept in
-
-- Build: sleeping in any bed makes it the player's respawn point (saved), so
-  defeat returns the player to that bed instead of the level-1 start.
-- Current: sleeping in a bed saves `world.respawnPoint`; defeat reloads into
-  that bed's area (or teleports within the same map) with the player at the
-  bed's wake point, falling back to the level-1 start when no bed is set.
-- Player proof: sleep in a bed, get defeated elsewhere, wake up at that bed.
-- Done when: the respawn bed survives save/load and falls back to level 1 when
-  the bed's map no longer has it.
-
-**Milestone 3 complete when:** the last bed slept in reliably acts as home
-across defeat, save/load, and map changes, without procedural fallback.
-
-## 4. Home Interior — Visuals, Logic, And Editor Support
-
-### [x] 4.1 — Define the interior map link
-
-- Build: define a stable relationship between the exterior home instance and its
-  authored interior map/room, including entry and return points.
-- Current: `game.door` ScriptNodes link door to door: each door names a
-  `targetDoorId` and has an `arrival` child, so leaving a house puts the player
-  in front of the door they entered and a world can hold any number of houses.
-  Level 1 doors lead to the `slime-home` and `mushroom-home` interiors and
-  back; a test checks that every door targets an existing door with an
-  arrival. Verified in game.
-- Player proof: entering a particular home always leads to its matching interior.
-- Done when: the link is validated and survives save/load.
-
-### [x] 4.2 — Author the first interior visual kit
-
-- Build: create an interior floor, walls, doorway, bed, and a small set of
-  furniture visuals that follow the project’s object/depth conventions.
-- Current: `wood-floor` terrain tile plus one `object.interior-<category>-*`
-  scene per atlas sprite (842 scenes in `objects/interiors/<category>/`,
-  including the mushroom-cottage set, generated from
-  `scripts/interiors/interior_catalog.py`). `world.slime-home` follows the
-  `woody.png` concept; `world.mushroom-home` is a mushroom-cottage room.
-- Player proof: the interior feels like a room rather than a camera overlay.
-- Done when: the complete room renders with coherent collision and depth.
-
-### [ ] 4.3 — Add interior authoring to Scene Studio
-
-- Build: support creating and opening an interior world scene, painting its
-  floor with the shared terrain TileSet, placing furniture scene instances,
-  setting the entrance and exit, and editing collision shapes and depth guides
-  with the same stable-ID rules as outdoor maps.
-- Player proof: an editor change appears in the playable interior.
-- Done when: an interior can be authored and saved without hand-editing JSON.
+  exist, and Level 1 plays its town music.
+- Build: prop loops for the campfire, cauldron, grindstone, and anvil; Level 1
+  ambience; interior ambience or music.
+- Player proof: Slimeshire sounds alive and props can be heard as you approach.
+- Done when: each of the four props plays its loop within hearing range and
+  fades out when the player walks away; Level 1 and both interiors each have
+  ambience or music; `pnpm audio:check` passes.
+
+### [~] 3.10 — Audio polish (was A.6)
+
+- Current: the Esc sound modal has master, effects, and music sliders plus
+  mute, saved per device by `AudioSettingsStore`.
+- Build: duck music while paused, crossfade on `area.enter`, switch to boss
+  music on `boss_spawn_requested`, and pass the crit flag to hit sounds.
+- Done when: music transitions never stack or cut off abruptly.
 
-### [x] 4.4 — Implement enter, move, and leave logic
-
-- Build: transition from the exterior door into the interior, place the player at
-  the authored entry, constrain the camera, and return to the exterior door.
-- Current: press F near a door to travel (same queued navigation as area
-  exits). Interior worlds use a fixed `cameraMode` that centres and fits the
-  room (`slime-home` 14×11, `mushroom-home` 16×12). A bobbing F key badge marks
-  the chosen door, chest, or NPC whenever one is in range.
-- Player proof: walk inside, move around, then leave through the door.
-- Done when: repeated enter/leave cycles do not duplicate players or lose state.
-
-### [~] 4.5 — Add interior collision and interaction
-
-- Build: block walls and solid furniture, keep walkable floor clear, and connect
-  bed/home interactions to the existing home system.
-- Current: `game.bed` scripts on every sleepable interior bed; F to sleep plays
-  the new `doze`/`sleep` clips with floating z's, restores
-  `rest.sleepHpRegenPerSec` HP/s, and any input or damage wakes the player.
-- Player proof: the room has believable boundaries and a useful bed/interior action.
-- Done when: collision, interaction, and depth remain correct from every direction.
-
-### [~] 4.6 — Persist interior state
-
-- Build: save the home interior’s furniture/upgrades and restore them when the
-  player re-enters or reloads.
-- Current: the `workbench` item (craft-workbench: 40 wood, craftable anywhere)
-  is placed from the inventory with a mouse-aimed, grid-snapped preview (R
-  switches variant, Esc cancels) and saved per map as `placedFurniture`;
-  placed furniture is re-mounted on every visit and G picks it back up. F at a
-  placed workbench opens its recipes — every wood and stone recipe now needs one.
-- Player proof: a change made inside the home is still there later.
-- Done when: the exterior home, interior map, and save data remain in sync.
-
-**Milestone 4 complete when:** the player can enter a visibly authored home,
-walk through it, use it, leave it, and see the same interior after reload;
-Scene Studio can create the room and the checks validate it.
-
-## 5. Workshop — First Crafting Building
-
-### [ ] 5.1 — Author the Workshop building
-
-- Build: add a Workshop building scene (exterior, collision, depth guide, and
-  an interaction point or interior station) and place it at the home site in
-  Scene Studio.
-- Player proof: the Workshop is a real building the player walks to, not a
-  button in a menu.
-- Done when: it can be moved or replaced through the authored-scene workflow
-  and survives reload.
-
-### [ ] 5.2 — Give the Workshop its recipe family
-
-- Build: assign weapons, tools, and items (bombs, storage, building parts,
-  repairs) to the `workshop` context, and show locked recipes clearly. This
-  needs UX.2 (station-aware crafting).
-- Player proof: the player knows which recipes belong at the Workshop.
-- Done when: progression recipes can only be crafted at the Workshop.
-
-### [ ] 5.3 — Add the first Workshop upgrade tier
-
-- Build: add one upgrade step that visibly changes the building and unlocks a
-  next-tier recipe.
-- Player proof: upgrading the Workshop immediately unlocks something useful.
-- Done when: the tier and its unlock survive save/load.
-
-**Milestone 5 complete when:** the Workshop is the first meaningful crafting
-destination.
-
-## 6. Iron And Tool-Gated Regions
-
-### [ ] 6.1 — Author the first tougher region
-
-- Build: add a connected authored region with a distinct visual identity, map
-  connection, and clear reason it is more dangerous.
-- Current: Gloop Forest (behind the Verdant Gate) and Crystal Caverns are
-  authored, connected maps with forest-wall and crystal-cluster scenes and worm
-  spawn areas, but neither has a harder enemy tier or iron yet.
-- Player proof: leaving the starter area feels like progress.
-- Done when: the region is reachable through exits authored in Scene Studio.
-
-### [ ] 6.2 — Add iron nodes and improved harvesting
-
-- Build: add iron ore material and nodes. Add the improved tool tier that can
-  harvest them, crafted at the Workshop.
-- Player proof: returning with a better tool opens previously blocked resources.
-- Done when: the old tool fails clearly and the improved tool succeeds.
-
-### [ ] 6.3 — Verify the tool-gated path
-
-- Build: add map placement, feedback, inventory, and save coverage for the full
-  wood → stone → iron path.
-- Player proof: the player can name the next resource they are working toward.
-- Done when: a fresh playthrough reaches iron without debug grants.
-
-**Milestone 6 complete when:** tool upgrades open a new region and a new material.
-
-## 7. Enemy Drops And Dangerous Access
-
-### [ ] 7.1 — Add special enemy materials
-
-- Build: define one enemy-gated material and add it to an authored enemy drop table.
-- Player proof: fighting has a resource purpose beyond XP or coins.
-- Done when: the material is collectible, visible, saved, and counted correctly.
-
-### [ ] 7.2 — Make danger affect access
-
-- Build: author a dangerous area with enemy presence, readable boundaries, and a
-  reward path that uses the new material.
-- Player proof: the player chooses whether the reward is worth the risk.
-- Done when: enemies cannot appear in authored safe zones and the area remains fair.
-
-### [ ] 7.3 — Connect enemy materials to crafting
-
-- Build: add one recipe that cannot be completed without the enemy material.
-- Player proof: defeating the enemy visibly advances a recipe goal.
-- Done when: the complete fight → drop → craft chain works in one playtest.
-
-**Milestone 7 complete when:** enemies gate a real crafting outcome and a dangerous
-area has a meaningful reward.
-
-## 8. Forge — Smelting Metal Bars
-
-### [ ] 8.1 — Author the Forge building
-
-- Build: add the Forge building scene with collision, depth guide, interaction,
-  a looping anvil/fire sound (A.5), and placement at the home site.
-- Player proof: the Forge has a clearly different purpose from the Workshop.
-- Done when: Scene Studio and the runtime show the same Forge instance.
-
-### [ ] 8.2 — Smelt ore into bars
-
-- Build: add `forge` recipes that turn iron ore (and later other ores) plus
-  fuel into metal bars. The Forge outputs bars, never weapons.
-- Player proof: raw ore becomes a visible, stackable bar material.
-- Done when: bars are collected, saved, and counted correctly.
-
-### [ ] 8.3 — Use bars in Workshop recipes
-
-- Build: add the first metal weapon and metal tool to the Workshop, both
-  requiring bars and at least one enemy-gated material.
-- Player proof: the player sees the chain ore → Forge → bar → Workshop →
-  stronger weapon.
-- Done when: the first stronger weapon can be crafted in a fresh run without
-  debug grants.
-
-### [ ] 8.4 — Upgrade the Forge once
-
-- Build: add one Forge upgrade that visibly changes the building and unlocks
-  the next ore or alloy tier.
-- Player proof: upgrading the Forge immediately expands what can be smelted.
-- Done when: the upgrade persists and portable crafting cannot bypass it.
-
-**Milestone 8 complete when:** the player can smelt ore into bars and turn
-them into a stronger weapon or metal tool at the Workshop.
-
-## 9. Kitchen — Food, Healing, And Buffs
-
-### [ ] 9.1 — Establish edible forage
-
-- Build: add at least one hand-collectible edible ingredient and distinguish raw
-  food, seeds, and crafting-only materials in inventory and item-use feedback.
-- Player proof: the player can find, collect, save, and consume or reserve food.
-- Done when: edible forage is obtainable through normal exploration and never
-  conflicts with its recipe-material form.
-
-### [ ] 9.2 — Add the first persistent crop loop
-
-- Build: author one plot and seed with planting, growth, harvesting, and
-  reload-safe state. Defer watering, seasons, and large farm management until
-  the first loop is proven.
-- Player proof: planting now produces a later harvest instead of an instant item.
-- Done when: one crop survives area changes and reload, then yields a cookable ingredient.
-
-### [ ] 9.3 — Author the Kitchen building
-
-- Build: add the Kitchen building scene (exterior, collision, depth guide, and
-  interaction, with a cauldron or campfire station inside) and place it at the
-  home site in Scene Studio.
-- Player proof: the Kitchen is visually distinct and easy to find.
-- Done when: its recipe family is separate from the Workshop and Forge recipes.
-
-### [ ] 9.4 — Add food and buff recipes
-
-- Build: add at least one healing recipe and one temporary buff recipe with readable
-  item descriptions and use feedback through the shared station-aware crafting
-  workflow.
-- Player proof: preparation changes how the next exploration trip feels.
-- Done when: crafted food persists and applies its intended effect once.
-
-### [ ] 9.5 — Add one kitchen tier upgrade
-
-- Build: add a station upgrade and one stronger recipe tier.
-- Player proof: the kitchen has a reason to be upgraded.
-- Done when: the next tier is locked until the station upgrade is complete.
-
-**Milestone 9 complete when:** the player can forage or farm an ingredient, cook
-it at home, and use the result to prepare for exploration.
-
-## 10. Kitchen Potions — Monster-Material Brewing
-
-The separate Alchemy table has been dropped: potions and antidotes are brewed
-in the Kitchen, and bombs are crafted at the Workshop (see
-[Crafting Buildings](#crafting-buildings--where-each-craft-happens)).
-
-### [ ] 10.1 — Add a brewing station to the Kitchen
-
-- Build: add a brewing station (cauldron) to the Kitchen building as a Kitchen
-  upgrade or a second station inside it. It shares the Kitchen's recipe
-  context.
-- Player proof: the Kitchen visibly gains a place to brew.
-- Done when: Scene Studio and the runtime show the same station, and it
-  persists.
-
-### [ ] 10.2 — Add potion-family recipes
-
-- Build: add healing potions, antidotes, and at least one recipe that needs a
-  monster material. Add the first bomb recipe to the Workshop.
-- Player proof: enemy drops now unlock several ways to prepare for a trip.
-- Done when: ingredients, output capacity, and recipe feedback are reliable.
-
-### [ ] 10.3 — Add the brewing tier step
-
-- Build: upgrade the brewing station once to unlock a stronger potion tier.
-- Player proof: the player can see what the next expedition requires.
-- Done when: tier ownership and crafted items survive reload.
-
-**Milestone 10 complete when:** enemy materials support a clear preparation loop
-through Kitchen potions.
-
-## 11. Builder’s Table — Upgrades And Moving The Home
-
-### [ ] 11.1 — Place the builder’s table
-
-- Build: author the station and its editor/runtime interaction path.
-- Player proof: the home now has a visible construction center.
-- Done when: its recipe family is distinct from crafting consumables and weapons.
-
-### [ ] 11.2 — Add visible home upgrades
-
-- Build: add one home upgrade that changes interior or exterior visuals, capacity,
-  or available functionality.
-- Player proof: resources spent at home produce a visible improvement.
-- Done when: the upgrade is represented in authored content and saved state.
-
-### [ ] 11.3 — Add furniture, storage, and defenses
-
-- Build: add the first placeable furniture/storage piece and one defensive piece,
-  each with clear collision and interaction rules.
-- Player proof: the home becomes more useful and more personal over time.
-- Done when: placed pieces are editable, persistent, and not duplicated on reload.
-
-### [ ] 11.4 — Make the one home movable
-
-- Build: add the move-home flow through the builder’s table; preserve the home’s
-  stable identity, interior link, upgrades, furniture, and storage contents.
-- Player proof: the player can relocate the home without losing its progress.
-- Done when: moving once and reloading produces the same home at its new location.
-
-### [ ] 11.5 — Verify Scene Studio support for moving home content
-
-- Build: support placing and editing the exterior anchor, interior link,
-  crafting buildings, furniture, defenses, visual bounds, and collision guides
-  in Scene Studio.
-- Player proof: editor-authored home content matches what appears in play.
-- Done when: the map checker rejects broken home/interior references clearly.
-
-**Milestone 11 complete when:** the home is visibly upgradable, useful, and movable
-without losing its interior or persistent contents.
-
-## 12. Safety, Recovery, And Storage
-
-### [ ] 12.1 — Decide and document safety rules
-
-- Build: resolve how map conditions and nearby enemies determine home safety,
-  including what recovery is allowed when the home is unsafe.
-- Player proof: the player can understand the current safety state.
-- Done when: the rule is written before it is encoded in gameplay.
-
-### [ ] 12.2 — Add safety and recovery feedback
-
-- Build: show safe/unsafe state, recovery outcome, and any nearby-enemy reason.
-- Player proof: returning home reduces uncertainty instead of creating a hidden rule.
-- Done when: the same conditions always produce the same result.
-
-### [ ] 12.3 — Add persistent storage
-
-- Build: implement storage capacity, item transfer, save/load, and failure feedback.
-- Player proof: the home can hold supplies for a later expedition.
-- Done when: stored items remain correct after moving home and reloading.
-
-### [ ] 12.4 — Verify recovery and no-loss behavior
-
-- Build: test death, unsafe-home arrival, interrupted transitions, and full storage.
-- Player proof: failure is understandable and does not silently erase progression.
-- Done when: the agreed recovery/storage rules hold in repeated playtests.
-
-**Milestone 12 complete when:** the home is a dependable planning point without
-being an automatic invulnerability zone.
-
-## 13. Recipe Discovery, Content, And Balance
-
-### [ ] 13.1 — Decide recipe discovery
-
-- Build: choose whether recipes are learned by station tier, exploration, quests,
-  drops, or another documented rule.
-- Player proof: the player knows how to find the next recipe.
-- Done when: the discovery rule is written and testable.
-
-### [ ] 13.2 — Set material tiers and biome distribution
-
-- Build: define the exact wood/stone/iron/rare-material path and where each tier appears.
-- Player proof: each new region introduces a recognizable resource goal.
-- Done when: no recipe requires a material with no reachable source.
-
-### [ ] 13.3 — Set enemy drops and recipe counts
-
-- Build: author enemy drop tables and target recipe counts per workstation family.
-- Player proof: fights and exploration advance the next station goal at a readable pace.
-- Done when: early recipes are attainable and high-tier recipes remain aspirational.
-
-### [ ] 13.4 — Tune progression pacing
-
-- Build: balance harvest rates, station upgrade costs, tool durability/repairs if used,
-  enemy difficulty, and recipe outputs.
-- Player proof: the loop feels motivating rather than stalled or finished too quickly.
-- Done when: a fresh playtest reaches the next milestone without debug grants.
-
-**Milestone 13 complete when:** the resource, enemy, station, and recipe systems
-form one understandable progression path.
-
-## 14. Beta Slice — Complete Playable Loop
-
-### [ ] 14.1 — Run the full first-version loop
-
-- Build: connect exploration, resource gathering, combat, drops, home return,
-  station crafting, home upgrade, and tougher-area access.
-- Player proof: the player always has a clear next goal.
-- Done when: a fresh save can complete the loop without debug shortcuts.
-
-### [ ] 14.2 — Verify authored-map workflow end to end
-
-- Build: create or edit an outdoor region, home exterior, interior, resource
-  node, enemy camp, crafting building, and exit through Scene Studio.
-- Player proof: editor-authored content is playable immediately after validation.
-- Done when: `pnpm scenes:check`, `pnpm maps:check`, and the runtime agree on
-  every authored reference.
-
-### [ ] 14.3 — Do the motivation and readability pass
-
-- Build: improve task feedback, loot visibility, station lock messaging, map hints,
-  and milestone notifications where playtests show confusion.
-- Player proof: progress feels visible after every short session.
-- Done when: a new player can explain what to gather, where to go, and what to upgrade.
-
-### [ ] 14.4 — Harden saves, transitions, and performance
-
-- Build: extend and harden the Roadmap P save/load foundation under home moves,
-  interior transitions, full inventories, enemy camps, repeated station use,
-  and larger multi-map snapshots; fix duplication, loss, and softlock cases.
-- Player proof: progress feels safe enough to keep playing.
-- Done when: the target beta loop is stable and no known progression blocker remains.
-
-**Milestone 14 complete when:** Slime Isa delivers a motivating gather → fight →
-upgrade home → craft → tackle tougher area loop with authored interiors and maps.
-
-## Done Outside The Milestones
-
-- **Chapter 1 — The Clearing** (`src/game/content/quests/quests/chapterOne.ts`):
-  Village Elder Plop, Mossy, Lili, and Lily the Fishergirl give six quests
-  (`a-place-to-work`, `stone-tools`, `worm-trouble`,
-  `the-one-eyed-guardian`, `a-tonic-for-lili`, `snack-for-the-road`) with
-  dialogue, chapter banner, quest-taught recipes, and a `chapter-1-complete`
-  story flag. The quest journal, offer modal, tracker, and NPC markers are
-  authored UI. See the [Quest authoring guide](./knowledge/quest-authoring-guide.md).
-- **Slimeshire Meadow** (`level-1`, generated by
-  `scripts/maps/build-level-1.mjs`): Slimeshire town, forest-wall border,
-  river with footbridges, lake, Fatty's hedge maze, worm ruins, the Webwood
-  spider thicket, enemy spawn areas, and the Verdant Gate pocket before the
-  Gloop Forest exit.
-- **Placeable workbench and furniture placement** (see 4.6) and the
-  **bed/sleep** loop (see 3.3 and 4.5).
+The cue list, hooks, and sourcing rules are in the
+[Audio & SFX implementation plan](./superpowers/plans/2026-09-28-audio-sfx-implementation-plan.md).
+
+**Milestone 3 complete when:** the home and bed loop works across defeat,
+save/load, and map changes, and today's content has final sound and music.
+
+**Assets**
+
+- Reuse: interior catalog, `house-*` exteriors, the CC0 library packs listed in
+  `asset/audio/CREDITS.md`, `level-1-home-town.ogg`.
+- [ ] Ambience loops: meadow day, forest, interior.
+- [ ] Prop loops: campfire, cauldron, grindstone, anvil.
+- [ ] Boss music track (CC0 or commissioned).
+
+## 4. Game Shell
+
+Today there is no title, pause, or game-over screen, and Save, Load, and Reset
+live in the Development Tools panel (see P.4).
+
+### [ ] 4.1 — Title screen
+
+- Build: New Game, Continue (newest save or recovery autosave), Load,
+  Settings, Credits, and the version number. A slow camera pan over Slimeshire
+  can serve as the background.
+- Player proof: the game starts like a game.
+- Done when: every button works on a fresh browser profile and with saves.
+
+### [ ] 4.2 — Pause menu
+
+- Build: Escape with no other surface open pauses and shows Resume, Journal,
+  Inventory, Map, Settings, Save, and Quit to Title, routed through the
+  existing `ModalStack`. The sound settings become a Settings tab.
+- Done when: pause state, Escape order, and resume are correct from every
+  surface.
+
+### [ ] 4.3 — Player-facing saves
+
+- Build: move Save, Load, and Reset Run out of Development Tools into the pause
+  menu and title screen, and hide Development Tools in production builds.
+- Player proof: a player can save, quit, and continue without developer UI.
+- Done when: the P.5 persistence matrix still passes through the new menus.
+
+### [ ] 4.4 — Game over
+
+- Build: on defeat, a short screen (what defeated you, time played) with
+  "Wake at your bed" and "Load a save".
+- Done when: repeated defeats never duplicate the player or lose progress.
+
+### [ ] 4.5 — Settings
+
+- Build: sound (existing), screen shake, reduce motion, and a controls list.
+  Settings stay per device, separate from save slots.
+- Done when: every setting survives a reload and is readable by gameplay code
+  through one settings store. (Milestone 9 checks that its effects obey them.)
+
+### [ ] 4.6 — First-time control hints
+
+- Build: contextual hints for move, attack, dodge, interact (F), inventory,
+  and crafting that fade after first use.
+- Player proof: a new player never needs a manual.
+- Done when: on a fresh save each of the six hints appears once, disappears
+  after the player performs that action, and never returns on reload.
+
+### [ ] 4.7 — Credits screen and end-card component
+
+- Build: a credits screen, opened from the title, that reads its entries from
+  one credits data file (today: the audio packs in `asset/audio/CREDITS.md`
+  and Magnific-generated art), and a reusable end-card screen that any story
+  flag can trigger. Chapter 2 hooks the card up in 8.11; 10.3 completes the
+  credits list.
+- Done when: the credits screen shows every entry in the data file, and
+  setting a test flag in the playground shows the end card and returns to the
+  title.
+
+### [ ] 4.8 — Artwork-first HUD (was UX.0.1)
+
+- Build: apply the approved artwork-first treatment to the `hud`, `minimap`,
+  and `weapon-hotbar` UI scenes. See
+  [World HUD Artwork-First Presentation](./superpowers/specs/2026-09-04-world-hud-artwork-first-design.md).
+- Done when: the world art shows through the widgets and every value fits at
+  wide, medium, and narrow viewports.
+
+### [ ] 4.9 — First fresh-eyes playtest
+
+- Build: two people who have never seen the game play Chapter 1 from the
+  title screen while you watch without helping. Note where they get stuck and
+  time each run.
+- Player proof: Chapter 2 is built on what new players actually did, not on
+  guesses.
+- Done when: both runs have written notes and a time recorded under this task,
+  every blocker they hit is fixed or has its own task, and lessons that affect
+  Chapter 2 are carried into the outline (8.1).
+
+**Milestone 4 complete when:** boot → title → new game → play → defeat →
+wake → pause → settings → save → quit → title → continue works end to end,
+and two new players have played Chapter 1 (4.9).
+
+**Assets**
+
+- Reuse: `ui-organic-modal-frame`, `ui-map-journal-paper`, the existing UI
+  sound cues, the player's defeat clip.
+- [ ] Game logo (title screen, browser tab icon, store page).
+- [ ] Menu button states (normal, hover, pressed, disabled), matching the
+      organic frame style.
+- [ ] Title music (CC0 or commissioned).
+- [ ] Game-over illustration or an animated melted-slime puddle.
+- [ ] Control-hint key and mouse glyphs.
+
+## 5. Gear-Based Progression
+
+Decided 2026-09-29: the player gets stronger through gear, not experience.
+XP, levels, and perks are removed. See
+[Progression](./GAME_GUIDELINES.md#progression-gear-not-levels).
+
+Today XP and levels touch about 36 source files: enemy drops, quest rewards,
+the HUD, the level-up modal and perks, save schema v9, `game-constants.json`
+level tables, weapon `unlockLevel`, and ability unlocks (Jump at level 2, Squash
+Slam 3, Stretch Lash 4, Teleport 5).
+
+### [ ] 5.1 — Retire XP, levels, and perks
+
+- Build: remove XP from enemy drops and quest rewards, the XP bar, the level-up
+  modal and its `P` reopen, perks, weapon `unlockLevel`, and the level tables.
+  Add a save migration (schema v10) that drops level, XP, and perk data without
+  touching anything else.
+- Done when: no XP or level text remains, old saves load, and `pnpm check`
+  passes.
+
+### [ ] 5.2 — Story-unlocked abilities
+
+- Build: quest and boss rewards can grant abilities, like they grant recipes.
+  A Chapter 1 quest teaches Jump (players reach level 2 during Chapter 1
+  today). Teleport waits for a later chapter. The ability bar says how a
+  locked ability is earned instead of "Lv N". Chapter 2 assigns its two
+  abilities in 8.1: Stretch Lash from a Chapter 2 quest, Squash Slam from the
+  boss (8.7).
+- Player proof: a new ability arrives as a story moment.
+- Done when: Jump unlocks from its Chapter 1 quest on a fresh save and
+  survives save/load, and the reward type is covered by the quest tests
+  (`pnpm test:quests`).
+
+### [ ] 5.3 — Goo Hearts
+
+- Build: a collectible that permanently raises max HP, and hide at least two
+  in Slimeshire Meadow. Gloop Forest's hearts are placed in 8.9 and the
+  boss's heart in 8.7.
+- Player proof: exploring pays off in permanent strength.
+- Done when: both Meadow hearts raise max HP by the configured amount, can be
+  collected only once per run, and stay collected after save/load.
+
+### [ ] 5.4 — Rebalance Chapter 1 without levels
+
+- Build: set base stats so a fresh run with stone gear matches today's typical
+  end-of-Chapter-1 player. Fatty One Eye and the worms keep their current
+  numbers and behavior.
+- Done when: before 5.1, record how many hits each starter weapon needs to
+  defeat a worm brawler and Fatty One Eye, and how many worm hits the player
+  survives; after the change, a fresh Chapter 1 run with the same gear matches
+  each number within one hit, with no debug grants.
+
+### [ ] 5.5 — Resources respawn
+
+- Build: harvested trees and stone nodes (and later iron nodes) come back after
+  a long respawn time set in `game-constants.json`, tracked per map in the
+  saved progress like Fatty's respawn timer. Loose starter piles and quest
+  rewards still keep a fresh save softlock-free.
+- Player proof: returning to a harvested area later finds it grown back.
+- Done when: a harvested node respawns after its timer across map changes and
+  save/load, and never respawns early.
+
+**Milestone 5 complete when:** the player grows only through gear, Goo Hearts,
+and story unlocks, and Chapter 1 still plays as it did.
+
+**Assets**
+
+- Reuse: the area-title banner for "ability learned", Kenney music jingles.
+- [ ] Goo Heart world sprite, inventory icon, and pickup effect.
+- [ ] HUD heart or max-HP growth display.
+- [ ] Ability-learned sting.
+- Retire: `ui-levelup-crest-frame` (2.2 MB) and the eight perk icons.
+
+## 6. Rebuild Slimeshire: The Workshop
+
+Crafting buildings are ruined buildings in Slimeshire. Restoring one turns it
+into a station the player uses directly and unlocks its recipes; no NPC runs
+it. The placeable
+workbench stays as the Chapter 1 field station for tier-1 recipes; portable
+recipes stay portable so a fresh save cannot softlock.
+
+### [ ] 6.1 — Story-flag scene variants
+
+- Build: a ScriptNode that shows one child subtree per story-flag state, so a
+  building can be authored as both ruined and restored in the same world scene,
+  including collision. Story flags already persist; quests can already test
+  them.
+- Player proof: the town changes when the story does.
+- Done when: setting the flag swaps visuals and collision, and save/load keeps
+  the right variant.
+
+### [ ] 6.2 — Station-aware crafting (was UX.2)
+
+- Build: one crafting popup and recipe catalog filtered by unlock, station
+  (`portable`, `workbench`, `workshop`, `forge`), and station tier; explain
+  every lock; validate before consuming ingredients. Remove the `alchemy`
+  context and move `brew-fizzy` and `weave-tonics` to `kitchen`, where they
+  stay unavailable until the Kitchen exists. Write a short spec first.
+- Done when: a wrong station cannot craft a recipe, and a failed craft never
+  consumes materials.
+
+### [ ] 6.3 — Restore the Workshop
+
+- Build: a ruined Workshop in Slimeshire and a restoration quest paid in
+  materials (wood and stone; coins are saved for the later shop and repairs).
+  Restoring it swaps the variant (6.1); pressing F at its station opens the
+  Workshop recipes.
+- Player proof: the player rebuilt part of the town and can see it.
+- Done when: the restoration quest completes on a fresh save, and the restored
+  Workshop and its station survive leaving the map and save/load.
+
+### [ ] 6.4 — Restoring a building unlocks its recipes
+
+- Build: restoring the Workshop unlocks its tier-1 recipes; upgrading it
+  unlocks the next tier. The Workshop crafts everything the workbench does,
+  plus its own recipes. Its tier-2 upgrade happens in Chapter 2 (8.6).
+- Done when: before restoration the Workshop recipes show as locked with the
+  reason, afterwards they are craftable, and the unlock survives save/load.
+
+**Milestone 6 complete when:** the player restores the Workshop and crafts
+there, and the town visibly changed.
+
+**Assets**
+
+- Reuse: `decoration-world-solid--tool-bench`, `--anvil`, `--grindstone`, the
+  crafting backplates.
+- [ ] Ruined Workshop exterior (320 × 320 house frame).
+- [ ] Restored Workshop exterior.
+- [ ] Restoration effect (dust puff or scaffold) and a construction sound.
+- [ ] Workshop header art for the crafting popup (optional).
+
+## 7. Gulp — The Signature Mechanic
+
+The slime eats a Gulp material and takes its form for a while. Each form has a
+look and one rule. See
+[Gulp](./GAME_GUIDELINES.md#signature-mechanic-gulp).
+
+**Controls (decided 2026-09-29): W is the slime's mouth.** W is already bound
+to an unused `eat` action with a short eat clip. No menu ever opens to eat.
+
+| Input | Result |
+|---|---|
+| Tap W near a Gulp spot | Eat from the world: free, uses nothing from the inventory |
+| Tap W anywhere else | Eat the last-used Gulp material from the inventory (costs one) |
+| Tap W in a form, away from a Gulp spot | Burp the form away (cancel) |
+| Hold W | Quick wheel of carried Gulp materials; the game keeps running; release on one to eat it (from 7.2) |
+
+Eating a different material switches forms; eating the same material at a
+Gulp spot resets the timer. **Gulp spots** are world objects (a mossy
+boulder, a silk cocoon) that never run out and look different from walk-over
+piles, which are collected on contact. Every Gulp puzzle has its spot beside
+it, so a puzzle never depends on what the player carries.
+
+### [ ] 7.0 — Rough Gulp prototype
+
+- Build: right after the playground (3.7), and ahead of Milestones 4–6: the
+  Heavy form only, with placeholder art, in the playground. Tapping W at a
+  stone Gulp spot or with stone in the inventory starts it; tapping W again
+  burps it; one rough pressure plate opens one gate. No save/load, no polish.
+- Player proof: Gulp can be felt in a day or two instead of on paper.
+- Done when: the user has played it and decided keep, change, or drop; the
+  verdict and any control changes are written under this task before the
+  Chapter 2 outline (8.1) is finished.
+
+### [ ] 7.1 — Gulp action and the Heavy form
+
+- Build: the W controls above for stone, with a proper Gulp spot. Heavy lasts
+  **1 minute** (a `game-constants.json` value, tuned after playtests): no
+  knockback, holds pressure plates down, moves slower. A HUD timer shows the
+  form, and a prompt near a Gulp spot reads "[W] Gulp".
+- Player proof: the slime visibly becomes heavier and plays differently.
+- Done when: the form starts from a Gulp spot and from the inventory, ends,
+  cancels with a burp, and survives map changes and save/load safely (or ends
+  cleanly on them); eating never opens a menu; and the user accepts it as fun
+  in the playground (3.7).
+
+### [ ] 7.2 — The Sticky form and the quick wheel
+
+- Build: eating silk makes the slime Sticky: it crosses spider webs that would
+  catch it normally. Holding W opens the quick wheel of carried Gulp materials.
+- Done when: both forms reuse one form system, eating the other material
+  switches forms, the wheel picks a form without pausing, and adding a third
+  form is data plus art.
+
+### [ ] 7.3 — Gulp puzzle pieces
+
+- Build: stone and silk Gulp spots, a pressure plate linked to a gate (reuse
+  `game.gate`), and a web barrier or bridge, all authored in world scenes.
+- Done when: the pieces work from Scene Studio placement alone, and a Gulp spot
+  can be eaten any number of times.
+
+**Milestone 7 complete when:** the playground has one Heavy and one Sticky
+puzzle that a player solves without a hint, and the user has accepted Gulp as
+fun.
+
+**Assets**
+
+- Reuse: stone and silk icons, status-effect tints, the player's `eat` clip.
+- [ ] Player form-end (burp) clip: new frames on the player sheet or an
+      overlay effect.
+- [ ] Heavy and Sticky form overlays (stone flecks, silk strands).
+- [ ] Two form icons for the HUD timer and the quick wheel.
+- [ ] Gulp spots: a stone spot and a silk cocoon, clearly different from
+      loose piles.
+- [ ] Pressure plate (up and down) and web barrier or bridge sprites.
+- [ ] Eat, burp, plate click, and web tear sounds.
+
+## 8. Chapter 2 — Gloop Forest
+
+Chapter 2 turns Gloop Forest from an empty map behind the Verdant Gate into
+the second chapter. It absorbs the former milestones 6 (iron), 7 (enemy
+materials), 8 (Forge), and 13 (progression pass).
+
+### [ ] 8.1 — Write the Chapter 2 outline
+
+- Build: 5–6 quests in `chapterTwo.ts` form, with givers, objectives,
+  rewards, flags, and material sources (resources respawn after 5.5). Assign
+  the chapter's abilities: Stretch Lash from a quest, Squash Slam from the boss
+  (8.7). Plan the Gulp puzzles and the boss's use of Sticky form around the
+  Gulp prototype's verdict (7.0) and the fresh-eyes playtest notes (4.9).
+- Done when: the outline is written, every recipe in the chapter has a
+  reachable source, it follows the 7.0 verdict, and `pnpm quests:check` passes
+  on the stubbed quests. If Gulp changes later in Milestone 7, update the
+  outline before starting 8.7 and 8.9.
+
+### [ ] 8.2 — A new Gloop Forest enemy
+
+- Build: add the Forest Orb-Weaver Slime to the roster: behavior, drops, spawn
+  areas. Its sprite sheet is already registered in `asset/assets.json` but
+  has no enemy type. Try it in the playground (3.7) before placing it.
+- Player proof: Gloop Forest has a threat the Meadow did not.
+- Done when: the user accepts it in the playground, `pnpm enemies:check`
+  passes, and Gloop Forest has at least two orb-weaver spawn areas outside its
+  safe zones.
+
+### [ ] 8.3 — An enemy-only material
+
+- Build: the orb-weaver drops a material that the Reinforced Pickaxe (8.4)
+  needs. Nothing else in the game drops it.
+- Player proof: fighting has a purpose beyond coins.
+- Done when: defeating orb-weavers on a fresh save yields the material at its
+  configured rate, and it stacks, saves, and reloads with the right count.
+
+### [ ] 8.4 — Iron and the Reinforced Pickaxe
+
+- Build: iron ore nodes in Gloop Forest that need the Reinforced Pickaxe
+  (stone plus the enemy material, crafted at the Workshop). The `iron-ore`
+  item and its loose pile already exist.
+- Player proof: the stone pickaxe fails clearly, the new one succeeds.
+- Done when: hitting an iron node with the Stone Pickaxe shows the
+  Reinforced Pickaxe hint and deals no damage; the Reinforced Pickaxe breaks it
+  into `iron-ore`; the node respawns (5.5).
+
+### [ ] 8.5 — Restore the Forge
+
+- Build: a second restoration using 6.1: a ruined Forge in Slimeshire and a
+  Chapter 2 quest to rebuild it. The player uses the restored Forge directly to
+  smelt iron ore and charcoal into iron bars; it never outputs weapons.
+- Done when: bars are crafted, stacked, and saved correctly.
+
+### [ ] 8.6 — Metal gear and the Workshop's second tier
+
+- Build: upgrade the Workshop to tier 2 with bars, then craft an iron spear or
+  sword and an iron axe.
+- Player proof: ore → Forge → bar → Workshop → stronger weapon.
+- Done when: the tier-2 recipes stay locked until the upgrade, the upgrade
+  persists, and the iron weapon defeats an orb-weaver in fewer hits than the
+  Stone Spear.
+
+### [ ] 8.7 — The Chapter 2 boss
+
+- Build: one boss on the Fatty model: a telegraphed signature attack, boss
+  bar, arena leash, guarded reward, and persisted defeat. Proposal: the
+  **Orb-Weaver Matron** webs the arena, and Sticky form lets you cross her
+  webs. She drops a Goo Heart and teaches Squash Slam. Write a short spec
+  first.
+- Done when: every attack has a telegraph of at least half a second; the
+  user beats her with Chapter 2 gear; defeat, save/load, and leaving the arena
+  reset or persist her as the spec says; the heart and Squash Slam are granted
+  exactly once.
+
+### [ ] 8.8 — A second home in Gloop Forest
+
+- Build: a hut exterior and furnished interior with a bed, so Chapter 2 has its
+  own respawn point. Build the interior with Scene Studio as it is today (this
+  replaces the old interior-authoring task 4.3); write the steps in a short
+  note in `docs/knowledge/` and fix only real blockers.
+- Done when: the hut's doors link both ways, sleeping in its bed sets the
+  respawn point, and the room was built without hand-editing JSON (or the
+  blockers are listed with their fixes).
+
+### [ ] 8.9 — Gulp puzzles and hearts in the world
+
+- Build: at least three Gulp puzzles in Gloop Forest, each with its Gulp spot
+  beside it, and at least two hidden Goo Hearts, one of them behind a puzzle.
+- Done when: a playtester solves each puzzle without a hint, and each heart is
+  collectable once and persists.
+
+### [ ] 8.10 — Build the Chapter 2 quests
+
+- Build: turn the 8.1 stubs into full quests in `chapterTwo.ts`, alongside
+  8.2–8.9: givers (existing NPC sheets unless the outline asks for new art),
+  dialogue, objectives, rewards, the Stretch Lash grant, a chapter banner, and
+  the `chapter-2-complete` flag. The Forge restoration quest (8.5) is one of
+  them.
+- Player proof: Chapter 2 is guided step by step, the way Chapter 1 is.
+- Done when: `pnpm quests:check` and `pnpm test:quests` pass; on a fresh save
+  every quest can be accepted and completed in order without debug grants;
+  and Stretch Lash is granted exactly once and survives save/load.
+
+### [ ] 8.11 — Close the chapter
+
+- Build: the exit to Crystal Caverns stays locked with a "Chapter 3" hint, and
+  finishing Chapter 2 sets the flag that shows the end card (4.7).
+- Done when: a fresh run reaches the end card without debug grants.
+
+**Milestone 8 complete when:** Chapter 2 plays from the Verdant Gate to the end
+card, and the gear path wood → stone → iron is complete.
+
+**Assets**
+
+- Reuse: `64x64-8x10-forest-orb-weaver-slime.png`, `house-world-solid--forge-red`
+  (the restored Forge), `collectible-iron-ore-pile`, `collectible-charcoal-pile`,
+  `rock-amber-ore-mineable` (as a style reference), the interior catalog.
+- [ ] Iron ore node (intact and depleted).
+- [ ] Icons: enemy material, iron bar, Reinforced Pickaxe, iron weapons.
+- [ ] Weapon art for the iron spear or sword and iron axe (directional swing
+      art like the stone weapons).
+- [ ] Ruined Forge exterior.
+- [ ] Boss sprite sheet, web projectile and web-ground effects, and arena
+      dressing.
+- [ ] Gloop Forest hut exterior.
+- [ ] Gloop Forest music and ambience; Forge fire and anvil loops.
+
+## 9. Game Feel
+
+A slime's feel is mostly hit-stop, screen shake, and squash and stretch. Every
+effect respects the reduce-motion setting (4.5).
+
+### [ ] 9.1 — Hit-stop and screen shake
+
+- Build: named presets per event (light hit, heavy hit, boss slam, defeat).
+- Done when: each preset fires on its event, the screen-shake setting (4.5)
+  scales or disables shake, and reduce motion turns both off.
+
+### [ ] 9.2 — Squash and stretch
+
+- Build: event-driven squash and stretch on move start, jump, land, hit, and
+  Gulp.
+- Done when: each of the five events plays its deformation, the slime always
+  returns to its rest shape, and reduce motion softens it.
+
+### [ ] 9.3 — Particle presets
+
+- Build: pooled hit sparks, slime splash, dodge dust, loot sparkle, and boss
+  defeat bursts.
+- Done when: each preset plays on its event, particles come from a pool (no
+  per-hit allocations), and a 20-enemy fight in the playground holds 60 fps.
+
+### [ ] 9.4 — Slime trail
+
+- Build: the slime leaves fading goo marks behind it. Enemies that cross fresh
+  goo are slowed through the existing `slow` status.
+- Player proof: the slime leaves a mark on the world and can use it tactically.
+- Done when: trail marks are pooled, fade, cost no measurable frame time, and
+  the user accepts the trail in the playground (3.7).
+
+**Milestone 9 complete when:** a side-by-side capture shows the difference and
+reduce motion turns the strong effects off.
+
+**Assets**
+
+- [ ] Small particle sprites (spark, splash, dust, sparkle).
+- [ ] Two or three goo splat decals for the trail.
+
+## 10. Release Hygiene
+
+### [ ] 10.1 — Download size
+
+- Build: `dist/` is 70 MB today: a 5.4 MB main script and UI backplates of
+  2–5 MB each. Compress and resize images to their display size, load area art
+  when the area loads, and show a loading bar.
+- Done when: the first load is under about 25 MB and a cold start on a normal
+  connection shows the title within a few seconds.
+
+### [ ] 10.2 — Production-only content
+
+- Build: ship only reachable worlds (`level-1`, `slime-home`, `mushroom-home`,
+  `gloop-forest`, `crystal-caverns`, and the 8.8 hut). Add these to the
+  dev-only world list from 3.7, next to `playground`: `174`, `236`, `cole`,
+  `girls`, `jk`, `tiktok`, `test-rectangle`, `depth-occlusion-test`,
+  `meadow-crossing`, `icege`, `emberleef`, and `hot`.
+  Disable `?map=`, the dev item grant, debug hotkeys, and Development Tools in
+  production.
+- Done when: a production build contains none of them.
+
+### [ ] 10.3 — Licenses and credits
+
+- Build: record the source and license of every image, sound, and font in the
+  production build.
+- Done when: every asset may be redistributed and appears in the credits (4.7).
+
+### [ ] 10.4 — Browsers and performance (absorbs R.1)
+
+- Build: test Chrome, Edge, Firefox, and Safari; hold 60 fps on the reference
+  laptop (a mid-range laptop with integrated graphics; record its model here
+  the first time this task runs) in Level 1 and Gloop Forest; close the
+  [motion rendering](./task/bugs/world-motion-rendering-instability.md) work or
+  accept its current state.
+- Done when: a fresh run through Chapter 1 works in all four browsers, the
+  frame rate stays at 60 fps in the busiest spot of each map on the reference
+  laptop, and R.1 is closed or its state accepted in writing.
+
+### [ ] 10.5 — Save safety
+
+- Build: saves from the release build must load in later builds; a corrupted
+  save shows an error and never blocks New Game.
+- Done when: a persistence test loads a saved `v0.1.0` fixture, and a test
+  with a corrupted save shows the error while New Game still works.
+
+### [ ] 10.6 — Hosting and store page
+
+- Build: choose where to publish (for example itch.io as an HTML5 game), with
+  screenshots, a short GIF, and a description.
+- Done when: the store page exists (it can stay private) and the uploaded
+  production build runs from it in a fresh browser.
+
+**Assets**
+
+- [ ] Store-page cover image, screenshots, and a gameplay GIF.
+
+## 11. Playtest And Ship
+
+### [ ] 11.1 — Blind playtest
+
+- Build: 3–5 people who have never seen the game play from the title screen
+  while you watch without helping. Note where they get stuck and time each run
+  from the title screen to the end card.
+- Done when: at least three players finished or quit, each has written notes
+  and a time, and the median time is compared with the 45–75 minute target.
+
+### [ ] 11.2 — Fix what they hit
+
+- Build: fix the top confusions and every blocker; sweep for softlocks (defeat
+  during a boss, full inventory, leaving mid-quest, quitting mid-transition).
+- Done when: every blocker from 11.1 is fixed, each softlock case above was
+  tried and passes, and the three most common confusions are fixed or
+  accepted in writing.
+
+### [ ] 11.3 — Tag and publish
+
+- Build: tag `v0.1.0`, publish, and record the release in this file.
+- Done when: `pnpm check` passes on the tagged commit, the store page is
+  public, and the published build runs in a fresh browser.
+
+## After Release 1 — Idea Parking Lot
+
+Everything here waits until Release 1 ships. When one is picked up, it gets a
+numbered milestone and task tiles.
+
+### First update candidates
+
+- **Kitchen** (was milestones 9 and 10): a third restorable building; fishing
+  at the lake feeds it; healing and buff meals, then potions and antidotes from monster
+  materials. The two parked `kitchen` recipes return here.
+- **Hats:** cosmetic hats that wobble with squash and stretch, earned from
+  quests and secrets. Needs hat art and a per-frame anchor on the player sheet.
+- **Goo charms:** equippable trinkets crafted from enemy materials that bring
+  back the old perk effects (crit, life steal, speed) as gear.
+- **Goo-pedia:** a bestiary filled in by defeating enemies, with notes from
+  Elder Plop.
+- **Coins get a use:** a Slimeshire shop, and repairing equipment at the
+  Workshop (repairs need a durability rule first). Until then coins are only
+  earned and saved.
+- **Home furnishing** (was milestone 11, without moving the home): a builder's
+  table for furniture, storage, and defenses.
+- **Home storage and safety rules** (was milestone 12).
+- **More Gulp forms:** Glow (crystal shard, lights dark caves), Bouncy
+  (berry), and later biome forms such as ice and lava.
+
+### World
+
+- **Chapter 3 — Crystal Caverns** with the Crystal Colossus (armored, weak to
+  hammers; teaches weapon switching) and the Glow form.
+- Later biomes: Sticky Swamp (slow, poison, spider-slimes, rain), Frostpeak
+  (ice physics, snow), Volcano Ridge (lava, burn, the finale). The authored
+  `icege`, `emberleef`, and `hot` maps are candidates.
+- Shallow and deep water (was E.3), then swimming gear (was E.4).
+- Day and night (enemies stronger at night, glowing slimes), weather with
+  gameplay hooks (rain puts out burn), fast-travel shrines.
+
+### Characters and enemies
+
+- **The worm who surrenders:** one unique, named worm (its own scene, so
+  ordinary worms are untouched) that gives up at low HP. Sparing him sets a
+  story flag; the 6.1 variant node then places him in Slimeshire as a
+  shopkeeper, which also gives coins a use.
+- A mimic slime; see-through slimes that show the loot inside them;
+  companions; a rideable mount.
+- More enemies from [Future Enemy Types](./task/ideas/open/future-enemy-types.md);
+  each needs authored art, animation, behavior, and validation.
+- Boss extras: HP phases, intro name cards and camera pans, victory sequences.
+
+### Combat and abilities
+
+- Weapons: Bouncy Bow (arrows bounce off walls), Sticky Whip (pulls enemies
+  in), Bubble Wand (AoE slow). Charge attacks and weapon upgrade tiers.
+- Abilities: Slime Split (two mini-slimes, one per switch), Puddle form (slip
+  under fences, hide in grass), Bouncy Bubble shield, Fizzy Frenzy, Sticky
+  Trap, Geyser Leap.
+- Bombs at the Workshop.
+
+### Interface and platform
+
+- Unified action dashboard (was UX.1):
+  [Player action dashboard and loadout](./task/ideas/open/player-action-dashboard-and-loadout.md).
+- Weapon dropping and pickup (was UX.3).
+- Gamepad support, key rebinding, colorblind-safe status colors, text size,
+  photo mode.
+- The Android app in `MobileVersion/` stays frozen until after Release 1.
+
+### Tooling (frozen)
+
+- Shared world graph and all-map organizer (was E.1):
+  [Shared world map and Map Studio graph](./task/ideas/open/global-map-and-map-joining.md).
+- Remaining shared gameplay defaults (was C.5).
+- New Scene Studio features of any kind.
+
+### Dropped
+
+- `[—]` Moving the home: the home stays in Slimeshire; other maps get their
+  own homes.
+- `[—]` A single authored home instance with ownership (was 3.1, 3.2).
+- `[—]` The Alchemy table: potions belong to the Kitchen, bombs to the
+  Workshop.
+- `[—]` XP, levels, and perks: replaced by gear-based progression (Milestone 5).
 
 ## Immediate Next Sprint
 
-Milestones 1 and 2, the save/load foundation, the universal scene refactor,
-Chapter 1, and audio phases A.0–A.3 are complete.
+1. Milestone 3: pick the sound flavour (3.8), verify the bed respawn round
+   trip (3.4), finish interior collision (3.5), and build the playground
+   (3.7).
+2. The rough Gulp prototype (7.0) in the playground, so the Chapter 2 outline
+   builds on a Gulp that has been played.
+3. Milestone 4: title screen, pause menu, and player-facing saves (4.1–4.3).
+4. In parallel, write the gear-progression change list (Milestone 5). Start
+   the Chapter 2 outline (8.1) once the 7.0 verdict is in.
 
-1. A.4: do the synth vs. library A/B listen and delete the losing flavour.
-2. Continue Milestones 3 and 4: verify the bed respawn round trip (3.3),
-   finish interior collision and persistence (4.5, 4.6), and interior
-   authoring in Scene Studio (4.3).
-3. Draft the replacement for the deleted station-aware crafting doc before
-   Milestone 5, following
-   [Crafting Buildings](#crafting-buildings--where-each-craft-happens).
+## Done — Foundations
 
-A.5 and A.6 (world sounds, music, settings polish) can run alongside
-Milestones 3 and 4. Keep the legacy debug grant clearly separated from
-production progression.
+Completed milestones, kept short. Their plans and evidence hold the details.
 
-## Cross-Cutting Engine — Universal Scene Architecture
+### [x] 1 — Wood gathering (1.0–1.5)
 
-Design:
-[Godot-inspired universal scene node architecture](./superpowers/specs/2026-09-12-godot-inspired-universal-scene-node-architecture-design.md).
-Plan:
-[Universal scene node full refactor](./superpowers/plans/2026-09-12-universal-scene-node-full-refactor-implementation-plan.md).
-Evidence:
-[Final implementation report](./superpowers/plans/evidence/universal-scene-final-report.md).
+Numeric resource damage modifiers, persistent wood, harvestable authored trees
+with hit feedback, the starter axe, and a verified five-minute fresh-game loop.
 
-### [x] S.1 — Author every world as a scene
+### [x] 2 — Stone and starter tools (2.1–2.7), verified 2026-09-28
 
-- Result: world scenes nest authored placements and navigation areas and use
-  shape-based world areas. Production loads authored worlds only, and the
-  cutover was atomic.
+- Stone nodes (80 HP, up to three piles), walk-over collectibles for loose wood,
+  stone, and berries, and tool-gated harvesting with clear feedback.
+- Workbench-context recipes for the Wooden Spear, Stone Axe, Stone Pickaxe, and
+  Stone Spear, taught by Chapter 1 quests; fresh runs start unarmed.
+- Fatty One Eye: a mouthless one-eyed slime whose eye only spears can hit, a
+  telegraphed leap, an arena leash, a guarded chest with a persistent green
+  key, a three-minute respawn, and the Verdant Gate.
+- Animation packages and the New Object dialog (2.4, 2.5) were superseded by
+  Scene Studio.
+- Plans: [Stone and starter tools](./superpowers/plans/2026-08-23-stone-and-starter-tools-implementation-plan.md),
+  [Walk-over collectibles](./superpowers/plans/2026-08-24-walk-over-collectibles-and-editor-attributes-implementation-plan.md),
+  [Fatty One Eye design](./superpowers/specs/2026-09-11-fatty-one-eye-guarded-chest-design.md),
+  [verification checklist](./task/ideas/completed/level-1-milestone-2-verification-checklist.md).
 
-### [x] S.2 — Mount UI and audio as authored scenes
+### [x] Q — Chapter 1 — The Clearing
 
-- Result: the HUD, weapon hotbar, ability bar, health and boss bars, area title
-  and floating text, inventory, chest panel, crafting, quest journal and offer,
-  world map, level-up modal, canvas minimap, and the global audio composition
-  are authored UI and audio scenes.
+`src/game/content/quests/quests/chapterOne.ts`: Village Elder Plop, Mossy,
+Lili, and Lily the Fishergirl give six quests (`a-place-to-work`,
+`stone-tools`, `worm-trouble`, `the-one-eyed-guardian`, `a-tonic-for-lili`,
+`snack-for-the-road`) with dialogue, a chapter banner, quest-taught recipes, and
+the `chapter-1-complete` flag. Slimeshire Meadow (`level-1`, built by
+`scripts/maps/build-level-1.mjs`) holds the town, river and lake, Fatty's hedge
+maze, the worm ruins, the Webwood, and the Verdant Gate. See the
+[Quest authoring guide](./knowledge/quest-authoring-guide.md).
 
-### [x] S.3 — Move behavior to ScriptNodes and retire the legacy paths
+### [x] P — Save, load, and reset (P.1–P.5), verified 2026-09-28
 
-- Result: behavior lives in registered TypeScript ScriptNodes, and scene
-  documents store data only. The direct entity factories, world adapter,
-  temporary chest and boss UI bridges, and old category editors are retired.
-  `scene-ownership:check` guards against their return. Fatty is a ranked enemy
-  that uses the ordinary enemy capabilities. The object catalog stays as a
-  read-only validator, and NPC identity and placement stay as project data.
+Immutable initial run state, map-keyed progress, independent named saves with
+explicit overwrite, a recovery autosave, save schema v9 with migrations, and
+Save/Load/Reset controls. Plan:
+[Named save, load, and reset](./superpowers/plans/2026-08-24-named-save-load-reset-implementation-plan.md).
 
-### [x] S.4 — Ship one editor: Scene Studio
+### [x] S — Universal scene architecture (S.1–S.5)
 
-- Result: `?studio=scenes` edits every scene and external resource with a shared
-  inspector, undo/redo, hash-checked saves, and instance overrides you can
-  revert. It adds document tabs, editable depth guides, animation keys set from
-  the timeline, viewport, and inspector, and boss links. Resources follow
-  Godot's sub-resource convention. Legacy editor URLs redirect here.
+Worlds, UI, and audio are authored scenes; behavior lives in ScriptNodes;
+Scene Studio (`?studio=scenes`) is the only editor; `pnpm check` and 43
+browser cases pass. Design:
+[universal scene architecture](./superpowers/specs/2026-09-12-godot-inspired-universal-scene-node-architecture-design.md);
+evidence: [final report](./superpowers/plans/evidence/universal-scene-final-report.md).
 
-### [x] S.5 — Hold performance and verification
+### [x] Audio foundation (A.0–A.3)
 
-- Result: `pnpm check` and 43 real-Chromium browser cases pass. On the large
-  `tiktok` map, the main thread does 9–14% less work per frame than before the
-  refactor. The user gameplay checklist was covered by the Milestone 2 playtest
-  on 2026-09-28.
+Audio loads from `asset/assets.json`; audio nodes support variants, pitch
+randomness, polyphony, and buses; every P1 cue exists; `pnpm audio:wire` and
+`audio:check` keep scene wiring in sync. Plan:
+[Audio & SFX](./superpowers/plans/2026-09-28-audio-sfx-implementation-plan.md).
 
-## Cross-Cutting Persistence
+### [x] Other finished cross-cutting work
 
-Implementation order, schema ownership, UI behavior, migration rules, and the
-acceptance matrix are defined in the
-[Named save, load, and reset implementation plan](./superpowers/plans/2026-08-24-named-save-load-reset-implementation-plan.md).
-
-### [x] P.1 — Define immutable initial game state
-
-- Build: declare `level-1.map.json` as the initial authored map and move the
-  initial player stats, equipment, inventory, location, and quest defaults into
-  one content-owned initial-state definition.
-- Player proof: starting or resetting a run always produces the same intentional
-  Level 1 setup without rebuilding inventory ad hoc in `WorldScene`.
-- Current: `src/game/content/initial-state/InitialRun.ts` owns the fresh-run
-  player, starter inventory, quests, Level 1 location, and empty map progress;
-  `GameState` and Reset Run consume fresh clones from that factory.
-- Done when: authored map files and the initial-player definition are the only
-  sources used to create a new run.
-
-### [x] P.2 — Store runtime progress per map
-
-- Build: replace the flat resource-state collection with a map-keyed runtime
-  state model. Each `mapId` owns deltas for its stable object instances,
-  resources, encounters, boss respawn timers, chest contents, rewards, gates,
-  and future placed content; authored map JSON remains unchanged and acts only
-  as the baseline.
-- Player proof: leaving Level 1, changing another map, and returning restores the
-  correct state of both maps independently.
-- Current: `WorldProgress` stores map-keyed resource, collectible, inventory-drop,
-  encounter, boss-camp timer, partial chest-content, reward, gate, and object-state
-  containers. Save schema version 9 preserves that state, retains unknown map
-  IDs, and migrates legacy composite resource keys at the progress boundary.
-- Done when: a save can contain state for multiple maps and loading one map never
-  discards state belonging to another.
-
-### [x] P.3 — Add named save records with explicit overwrite
-
-- Build: add a save index and independent named snapshot records. Save first
-  shows existing records, then lets the player explicitly overwrite one selected
-  record or create a new named record with a new stable ID. Overwrite requires
-  confirmation and never changes another record. Keep one separate recovery
-  autosave that never appears as a user-created named save.
-- Player proof: the player can create several named moments and see their name,
-  last-saved time, current map, and player level before deciding whether to
-  overwrite or create new.
-- Current: the repository now owns an indexed, newest-first list, independent
-  snapshot keys, recovery autosave, name validation, explicit conflict errors,
-  rollback-safe create/overwrite/delete, schema guards, and legacy-envelope
-  migration.
-- Done when: new-save and overwrite paths are explicit, canceling an overwrite
-  changes nothing, and older schemas migrate through validators instead of casts.
-
-### [x] P.4 — Add Save, Load, and Reset controls
-
-- Build: replace the ambiguous Restart Map action with three explicit controls:
-  **Save Game**, **Load Game**, and **Reset Run**. Save opens the snapshot browser
-  with **Overwrite** and **Create New Save** actions; Load opens the same records
-  in load mode; Reset confirms, discards only the active runtime state, restores
-  the initial player, and starts from the authored Level 1 map. Named saves
-  remain untouched unless the player explicitly overwrites or deletes one.
-- Player proof: the player can understand whether an action creates a snapshot,
-  loads one, or begins again from defaults before confirming it.
-- Current: Development Tools now exposes Save Game, Load Game, and Reset Run
-  modals with explicit overwrite confirmation, delete confirmation, name
-  validation feedback, operation locking, Escape/backdrop close, focus return,
-  and a persistence pause event. Typed handoffs rebuild the normal map-load path.
-- Done when: the controls pause gameplay safely, report failures, clean up their
-  listeners, and rebuild the world through the normal map-loading path.
-
-### [x] P.5 — Verify complete multi-map round trips
-
-- Build: add schema/repository tests and a manual two-map playtest covering
-  partial resource damage, depleted objects, inventory, equipment, player
-  position, quests, boss respawn timing, partial and empty chests, keyed gates,
-  map transitions, new saves, confirmed/canceled overwrites, reset, and load.
-- Player proof: any named snapshot restores one coherent moment—player and every
-  visited map agree—while Reset Run reliably returns to untouched Level 1.
-- Current: schema tests, including boss timers and partial chest contents,
-  persistence tests (20/20), authored-content checks, and the production build
-  are green. A local browser pass already covers named create/conflict/overwrite/
-  load and modal focus. The reset click, the boss/chest/gate state matrix, and
-  the manual Level 1 → Gloop Forest → Level 1 round trip were verified by the
-  user on 2026-09-28. The old Windows Character Studio `EPERM` blocker went
-  away when Character Studio was retired.
-- Done when: the persistence acceptance matrix passes, corrupted saves fail
-  visibly without damaging valid snapshots, and `pnpm check` passes.
-
-**Persistence foundation complete (verified 2026-09-28):** authored maps remain immutable
-defaults, named saves are independent snapshots, every visited map keeps its own
-runtime deltas, and Reset Run restores Level 1 plus the initial player without
-deleting saved games.
-
-## Cross-Cutting Gameplay Configuration
-
-The phased ownership, migration rules, and acceptance gates are defined in the
-[Central gameplay configuration implementation plan](./superpowers/plans/2026-08-26-central-game-constants-implementation-plan.md).
-
-### [x] C.1 — Define central gameplay configuration ownership
-
-- Build: add the validated JSON source, strict schema, pure validator, readonly runtime gateway, and repository checker.
-- Current: invalid configuration fails before game startup, and runtime code imports the frozen gateway instead of the JSON document.
-- Done when: configuration validation, item-ID parity, ownership guards, typecheck, and production build pass.
-
-### [x] C.2 — Centralize inventory tuning
-
-- Build: centralize initial capacity and item/weapon stack limits, then persist mutable per-run capacity with legacy migration.
-- Current: stack rules and initial capacity are centralized; mutable per-run capacity is persisted, and legacy overflow expands capacity without dropping items.
-- Done when: capacity upgrades and legacy overflow survive every save path without item loss.
-
-### [x] C.3 — Centralize player character tuning
-
-- Build: centralize initial attributes, movement, protection, base combat values, level cap, XP requirements, and level gains.
-- Current: player defaults, global rules, level cap, XP requirements, and level gains are centralized. Saves persist level/current XP and legacy cumulative XP migrates through explicit clamp rules.
-- Done when: saved level/current XP drive table-resolved stats and legacy saves migrate without synthetic rewards.
-
-### [x] C.4 — Add Character Studio constants authoring
-
-- Build: add independent validated editing and atomic persistence for gameplay constants.
-- Current: the primary-player inspector provides a separate gameplay-defaults draft, validation/history, conflict-aware atomic save, progression ledger, and max-level controls.
-- Done when: package and gameplay-default edits have separate revisions, dirty states, conflicts, and save actions.
-- Since: Character Studio was retired in the universal scene refactor and Scene Studio has no constants editor, so this UI is gone. Edit `src/game/content/game-constants.json` directly and run `pnpm constants:check`.
-
-### [ ] C.5 — Migrate remaining shared gameplay defaults by domain
-
-- Build: move additional cross-feature balance values only after classifying each as a default, global rule, or mutable saved value.
-- Done when: each migrated value has one named owner and focused runtime and persistence coverage.
-
-## Cross-Cutting Player Experience
-
-### [x] UX.0 — Make Escape close the topmost UI surface
-
-- Build: add a shared modal stack and route Escape through it for inventory,
-  crafting, world map, quest journal, level-up, chat, shop, persistence
-  dialogs, and future dashboards.
-- Current: the shared `ModalStack` owns LIFO ordering, document-capture Escape
-  routing, token-scoped cleanup, nested-surface handling, and stale-registration
-  protection. Current gameplay and DOM surfaces no longer install independent
-  Escape listeners. Transient persistence dialogs unregister after successful
-  close and remain topmost while busy. Escape dismisses a pending level-up
-  without spending the point; `P` reopens the same choices only when idle.
-- Player proof: pressing Escape closes only the currently active surface, and
-  nested dialogs close from the top down.
-- Done when: runtime keyboard/DOM-focused playtests confirm every current
-  surface closes correctly, pause state remains correct, and complete project
-  verification passes. The implementation design is documented in
-  [Escape closes open overlays](./superpowers/specs/2026-08-26-escape-closes-overlays-design.md).
-
-### [ ] UX.0.1 — Apply artwork-first in-world HUD surfaces
-
-- Build: omit the compact-frame asset from the visible HUD and six-slot weapon
-  hotbar, then remove dark slot fills, filled key plates, and heavy shadows.
-  Keep the organic minimap border, transparent meter tracks, compact labels,
-  and clear active-slot treatment; use a low-opacity minimap tint only for
-  marker readability.
-- Scope: the authored `hud`, `minimap`, and `weapon-hotbar` UI scenes
-  (`src/game/content/scenes/authored/ui/`). Inventory and crafting remain
-  separate work; the now-mounted ability bar's skin remains deferred.
-- Player proof: the grass/world art remains visible through the three widgets,
-  all values fit at wide, medium, and narrow viewports, and active/owned/
-  unavailable states remain understandable.
-- Done when: the approved visual treatment passes the manual viewport matrix,
-  resize and pointer behavior remain correct, inventory/crafting are untouched,
-  and the scoped typecheck/build checks pass. See
-  [World HUD Artwork-First Presentation](./superpowers/specs/2026-09-04-world-hud-artwork-first-design.md).
-
-### [ ] UX.1 — Unify the bottom action dashboard and loadout workflow
-
-- Build: compose the existing six weapon/tool slots and fixed ability slots into
-  one responsive bottom dashboard. Add weapon assignment by drag/drop and an
-  accessible **Equip to slot 1–6** control, both routed through the existing
-  loadout authority. Follow
-  [Player action dashboard and loadout assignment](./task/ideas/open/player-action-dashboard-and-loadout.md).
-- Player proof: weapons, tools, abilities, hotkeys, cooldowns, locks, and the
-  active weapon are readable in one place.
-- Done when: both assignment methods produce identical saved state, swaps never
-  duplicate items, and the dashboard works on narrow through ultrawide layouts.
-
-### [ ] UX.2 — Make crafting building-aware without duplicating the popup
-
-- Build: refactor the authored crafting UI scene and the recipe catalog to
-  filter recipes by unlock, context (`portable`, Workshop, Forge, or Kitchen),
-  and building tier. Rename the `workbench` context to `workshop` and remove
-  `alchemy`. Validate the transaction before consuming ingredients. The earlier
-  design doc was deleted, so write a new spec from
-  [Crafting Buildings](#crafting-buildings--where-each-craft-happens) before
-  Milestone 5.
-- Player proof: opening crafting in the field or at a building shows the right
-  recipes and explains every lock.
-- Done when: all station families use one component and recipe authority, wrong
-  stations cannot craft a recipe, and failed output never consumes materials.
-
-### [ ] UX.3 — Add authored weapon dropping and pickup
-
-- Build: give every droppable weapon an explicit ground visual and physical
-  pickup definition, then route inventory removal, equipped/hotbar cleanup,
-  map-scoped persistence, and recollection through the shared world-drop
-  lifecycle. Define unique-weapon and full-inventory behavior before enabling
-  the action.
-- Player proof: the player can discard excess weapons into the world, recognize
-  each weapon on the ground, leave or reload, and pick it up again later.
-- Done when: no weapon can be duplicated or lost across drop, pickup, map
-  transition, save/load, equipped state, or a full inventory.
-
-## Cross-Cutting World Authoring
-
-### [ ] E.1 — Build the shared world graph and all-map organizer
-
-- Build: project one validated world graph from authored exits; add draggable
-  map-preview cards and north/east/south/west connectors to Scene Studio, then
-  rebuild the player full-map view from the same graph. Preserve dropdown
-  connection editing as the accessible fallback. Follow
-  [Shared world map and Map Studio graph](./task/ideas/open/global-map-and-map-joining.md).
-- Player proof: creators can see and organize every map, while players get a
-  useful discovered-world representation with current location and locked exits.
-- Done when: visual connectors and dropdowns edit the same reciprocal links,
-  graph layout never changes map-local content, and runtime/editor/validator all
-  agree on neighbors.
-
-### [x] E.2 — Terrain is ground; walls are placed objects
-
-- Build: ground tiles stay plain textured terrain with organic blended borders
-  (`TerrainBlendField`). Crystal clusters and forest trees become real object
-  scenes (sprite plus a collision shape fitted to the rock or trunk base), placed
-  as instances in the world scenes, the same way interior furniture works. A
-  one-time conversion replaces `crystal-wall` / `tree-wall` cells with floor plus
-  placed objects. Water collision merges neighbouring solid cells into larger
-  rectangles instead of one body per cell.
-- Player proof: caves and forests read as scenes of real objects; bumping into a
-  crystal or trunk stops the player where the art is, not on a square cell.
-- Done when: crystals and trees are selectable, movable, and deletable in Scene
-  Studio, no world uses wall tiles for them, and water uses merged collision.
-
-### [ ] E.3 — Shallow water and deep water
-
-- Build: split water behaviour by tile. Shallow `water` is walkable but slows
-  movement (with a wading visual such as a lower body cut or ripple); only
-  `deep-water` blocks. Keep the rule in the tile set (a movement modifier on the
-  tile), not in map data, so every map picks it up.
-- Player proof: the player can wade through rivers and puddles more slowly, but
-  deep lakes stay a barrier.
-- Done when: shallow water applies the speed modifier and visual, deep water
-  blocks, enemies respect the same rules, and existing maps are reviewed so
-  shallow crossings and deep barriers are intentional.
-
-### [ ] E.4 — Swimming with the right equipment
-
-- Build: add a swimming ability unlocked by equipment (for example flippers or
-  a swim charm). With it equipped, deep water stops blocking and the player
-  swims (swim animation, slower speed, no attacking or item use while swimming);
-  without it, deep water stays a barrier.
-- Player proof: deep lakes that were barriers become explorable once the player
-  finds or crafts the swimming gear, opening islands and hidden areas.
-- Done when: the gear toggles deep-water passability for the player only,
-  swimming state persists across saves and area changes safely, and at least one
-  area is gated behind deep water.
-
-## Cross-Cutting Rendering Quality
-
-### [~] R.1 — Stabilize pixel rendering during movement
-
-- Build: replace the unsuccessful fractional-grid snapping path with fixed-step
-  physics plus interpolated presentation transforms, a responsive camera
-  deadzone, refresh-independent camera damping, and intentional high-DPI output
-  scaling without mass-rescaling source artwork.
-- Current: the core runtime fix is implemented: default integer `1.0` zoom,
-  explicit smooth overview levels, fixed-step presentation interpolation,
-  post-physics visual synchronization, responsive deadzone, time-based camera
-  damping, ten-speed tuning ladder, and expanded diagnostics/tests. Hardware
-  capture and device-pixel/output-scaling approval remain. The plan is documented in
-  [World Motion Rendering Instability](./task/bugs/world-motion-rendering-instability.md).
-- Player proof: terrain, characters, attachments, projectiles, and effects remain
-  stable while moving; the camera stays still inside its responsive deadzone and
-  follows the interpolated player smoothly outside it. Normal gameplay defaults
-  to integer `1.0` zoom; fractional wheel levels remain smooth overview modes.
-- Done when: default `1.0` zoom, fractional overview zoom, and the ten-speed
-  movement ladder pass the documented refresh-rate/device-pixel motion matrix,
-  responsive resize keeps the canvas and screen UI aligned, teleports reset
-  interpolation, wheel zoom remains stable, and complete verification passes.
+- **C.1–C.4 — Central gameplay configuration:** `game-constants.json` with a
+  strict schema and a frozen runtime gateway
+  ([plan](./superpowers/plans/2026-08-26-central-game-constants-implementation-plan.md)).
+  Edit the JSON directly and run `pnpm constants:check`.
+- **UX.0 — Escape closes the topmost surface** through the shared `ModalStack`
+  ([design](./superpowers/specs/2026-08-26-escape-closes-overlays-design.md)).
+- **E.2 — Terrain is ground; walls are placed objects:** crystal clusters and
+  forest trees are object scenes, and water collision is merged.

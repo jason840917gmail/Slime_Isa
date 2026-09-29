@@ -2,10 +2,14 @@
 
 Copy this template into the generation tool and replace every `[MARKER]` before
 submitting it. Keep the camera, background, and output rules unchanged so the
-result can be converted into a predictable sprite sheet.
+result can be converted into a predictable sprite sheet. The style wording
+comes from the [art style guide](./visual-style-guide.md#generating-assets);
+if that guide changes, update `[STYLE_BLOCK]` from it.
 
 ## Replacement markers
 
+- `[STYLE_BLOCK]` — the style block from the art style guide, plus its slime
+  character line for slimes.
 - `[CHARACTER_DESCRIPTION]` — exact appearance, colors, body shape, equipment, and accessories.
 - `[ACTION]` — `idle`, `walk`, `attack`, `die`, `knockback`, `hurt`, `jump`, `cast`, or another single action.
 - `[ACTION_BEATS]` — what happens during the motion, in order.
@@ -26,8 +30,11 @@ uses that convention, then map it to the runtime clip name in the scene.
 ## General prompt
 
 ```text
+[STYLE_BLOCK]
+
 Create a clean character-animation video for frame extraction and sprite-sheet
-creation in Slime Isa's polished stylized top-down 2D game style.
+creation in Slime Isa's cozy storybook woodland style, hand-painted 2D
+miniature.
 
 The character is [CHARACTER_DESCRIPTION]. Preserve the exact character design,
 silhouette, proportions, colors, palette, facial features, clothing, weapons,
@@ -49,16 +56,18 @@ character travel across the screen. Walking, recoil, knockback, jump, attack,
 and death motion may move the body within the animation, but the character's
 center stays fixed so every frame fits one spritesheet cell.
 
-Use a fixed top-down game camera and keep the character at the same scale and
-screen position in every frame. Do not zoom, pan, tilt, rotate, shake, cut, or
+Use a fixed three-quarter top-down game camera (about 45°) and keep the
+character at the same scale and screen position in every frame. Do not zoom, pan, tilt, rotate, shake, cut, or
 change perspective. Keep the entire character visible with generous empty
 space around the head, feet, equipment, weapons, and effects.
 
-Use polished stylized 2D game art: chunky readable silhouettes, deliberate
-shape clusters, saturated colors, selective highlights, and cool shadows. Keep
-edges crisp and preserve the same visual language in every frame.
-Do not switch to photorealism, glossy 3D, painterly illustration, low-poly
-rendering, or a different art style.
+Use hand-painted 2D miniature game art: chunky rounded silhouettes, soft
+painted shading with visible texture, warm golden light from the upper left,
+warm brown shadows, and a dark warm brown outline. Slimes are glossy
+translucent jelly with a bright rim light and no legs. Keep the lighting and
+the same visual language identical in every frame. Do not switch to
+photorealism, 3D rendering, pixel art, low-poly rendering, cold blue shadows,
+flat black outlines, or a different art style.
 
 Use a completely solid chroma-purple background: #FF00FF. The background must
 be flat, uniform, and featureless for removal. Do not add scenery, floor lines,
@@ -66,8 +75,8 @@ horizon lines, gradients, texture, fog, shadows, reflections, glow, dust,
 smoke, particles, motion trails, or background animation. Do not use purple or
 magenta on the character where it could blend into the background.
 
-Duration: [DURATION]. Frame rate: [FRAME_RATE]. Camera: fixed TOP-DOWN. Audio:
-none. No voice, music, or sound effects.
+Duration: [DURATION]. Frame rate: [FRAME_RATE]. Camera: fixed THREE-QUARTER
+TOP-DOWN. Audio: none. No voice, music, or sound effects.
 
 Maintain identical anatomy, proportions, design, palette, lighting, camera
 distance, screen position, scale, and facing direction in every frame. Generate
@@ -179,7 +188,7 @@ The game can mirror this source for the opposite side.
 No rotation. No direction change. No camera movement. No zoom. No pan. No
 tilt. No shake. No cuts. No transitions. No multiple camera angles. No travel
 across the screen. No cropping. No changing scale. No changing character
-design. No style drift. No extra characters. No extra actions. No secondary
+design. No style drift. No pixel art. No 3D rendering. No extra characters. No extra actions. No secondary
 gestures. No objects or scenery. No floor or horizon. No shadows or reflections.
 No glow. No dust, smoke, particles, or motion trails. No text. No border. No
 logo. No watermark. No audio. No purple or magenta details that blend into

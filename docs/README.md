@@ -11,8 +11,7 @@ structure, rules) is [`AGENTS.md`](../AGENTS.md) at the repository root.
 - [TERRAIN_TRANSITIONS.md](./TERRAIN_TRANSITIONS.md) — how logical terrain tiles are blended into organic regions.
 - [camera-and-minimap-guide.md](./camera-and-minimap-guide.md) — responsive camera, wheel zoom, and minimap.
 - [GAME_GUIDELINES.md](./GAME_GUIDELINES.md) — agreed game design direction (living draft).
-- [GAME_ROADMAP.md](./GAME_ROADMAP.md) — playable task checklist.
-- [BETA_PLAN.md](./BETA_PLAN.md) — larger roadmap-to-beta reference.
+- [GAME_ROADMAP.md](./GAME_ROADMAP.md) — the road to Release 1: ordered milestones, task status, needed assets, and the post-release idea parking lot.
 
 ## Folders
 

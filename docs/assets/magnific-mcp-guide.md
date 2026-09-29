@@ -21,8 +21,28 @@ catalog, verify them with `images_models_list({ search: "gpt" })` (pick the
 newest non-beta OpenAI model that flags `transparentBackground`) and
 `video_models_list({ search: "Seedance 1.5 Pro" })` before updating this guide.
 
-Project visual direction: [Polished Stylized Top-Down Visual
-Guide](./visual-style-guide.md).
+## Art style
+
+Every generated asset follows the [Slime Isa Art Style
+Guide](./visual-style-guide.md): **cozy storybook woodland, hand-painted 2D
+miniatures**, seen from a three-quarter top-down view with warm light from the
+upper left. It is not pixel art, not 3D, and never uses cold shadows or flat
+black outlines.
+
+- **Style block:** start every image and video prompt with the style block
+  from the style guide's
+  [Generating Assets](./visual-style-guide.md#generating-assets) section.
+  Copy it from there, not from older prompts, so the wording has one source.
+- **Background line:** add the one for the output type. Sprites use the
+  transparent-background line (below). Animation videos use the `#FF00FF`
+  chroma background from the
+  [character-animation prompt](./character-animation-video-prompt.md).
+- **Style reference:** attach one reference sheet from the style guide's
+  Reference Art table to every generation (see
+  [Style references](#style-references)).
+- **Style check:** before packing a result, compare it with the style guide's
+  [checklist](./visual-style-guide.md#checklist-for-a-new-asset). Regenerate
+  results that fail it instead of painting over them.
 
 ## Standard call sequence
 
@@ -46,9 +66,12 @@ Always pass `mode: "gpt-2"` for project images; never omit `mode` (it
 defaults to `auto`). The following is the default shape for a sprite:
 
 ```ts
+// Copied from the style guide's Generating Assets section.
+const STYLE_BLOCK = "Cozy storybook woodland game art, hand-painted 2D miniature, three-quarter top-down view, ...";
+
 const imageArguments = {
   mode: "gpt-2",
-  prompt: "A polished stylized top-down 2D game asset of the Sticky Spider-Slime, isolated on a transparent background...",
+  prompt: `${STYLE_BLOCK} A ruined Workshop: collapsed roof, missing planks, overgrown with moss and weeds. Isolated on a transparent background, no ground shadow plate, no scenery.`,
   aspectRatio: "1:1",
   resolution: "1k",
   transparentBackground: true,
@@ -68,8 +91,21 @@ regenerating with another model. Only full-frame art that is intentionally
 edge-to-edge (concept art, backgrounds, opaque UI backplates) may omit
 `transparentBackground`.
 
-For style matching, pass references as creation identifiers returned by
-Magnific uploads or earlier generations:
+### Style references
+
+Every generation attaches one reference sheet from the style guide's
+[Reference Art](./visual-style-guide.md#reference-art) table:
+
+| Asset | Reference sheet |
+| --- | --- |
+| Slime characters and NPCs | `village-elder-plop.png` or `lili.png` |
+| Enemies | the same character sheets; enemies keep the painting and light but may look meaner |
+| Objects, props, and buildings | `192x192-tile_8x8-interior-mushroom-furniture-props.png` |
+| Directional objects | `256x256-tile_6x8-interior-beds-directional.png` |
+
+Upload the sheet once per session and reuse its creation identifier for every
+generation in that session. Pass references as creation identifiers returned
+by Magnific uploads or earlier generations:
 
 ```ts
 await tools.mcp__magnific__images_generate({
@@ -100,7 +136,7 @@ const videoArguments = {
         aspectRatio: "1:1",
         resolution: "1080p",
         withSoundEffects: false,
-        prompt: "Create a seamless polished stylized top-down character animation...",
+        prompt: `${STYLE_BLOCK} Create a seamless 5-second animation of the provided slime character hopping in place...`,
       },
     ],
   },
@@ -126,9 +162,10 @@ For character animation, use the project prompt guide:
 
 That guide is the source for the character-animation constraints: fixed
 direction, centered in-place motion, unchanged proportions and equipment,
-polished stylized top-down 2D visual language, solid `#FF00FF`
-chroma-purple background, fixed camera, no extra actions, no audio, and
-seamless looping. Its duration is five seconds for Magnific output.
+the hand-painted storybook style from the art style guide, a fixed
+three-quarter top-down camera, solid `#FF00FF` chroma-purple background, no
+extra actions, no audio, and seamless looping. Its duration is five seconds
+for Magnific output.
 
 ## Handling results
 
