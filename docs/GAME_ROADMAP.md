@@ -2,15 +2,20 @@
 
 > **Status: active living checklist.** Follow this in small vertical slices and
 > update it as the game changes. The design direction lives in
-> [Game Guidelines](./GAME_GUIDELINES.md); the larger beta reference remains
-> [BETA_PLAN.md](./BETA_PLAN.md).
+> [Game Guidelines](./GAME_GUIDELINES.md). This file owns task status;
+> [BETA_PLAN.md](./BETA_PLAN.md) keeps the long-range beta vision (content
+> targets and feel ideas) and no longer tracks status.
 
 This roadmap is ordered for visible progress. A milestone is complete only when
 the player can perform the loop in the running game and the authored map/editor
 workflow supports the content it introduces.
 
 Milestones 1 and 2 and the save/load foundation are verified in fresh-game
-playtests. Between 2026-09-12 and 2026-09-26 the whole game moved onto the
+playtests. Level 1 is now **Slimeshire Meadow** (town, Fatty's hedge maze,
+worm ruins, Webwood, river and lake, and the Verdant Gate), and **Chapter 1 —
+The Clearing** is a six-quest line that walks a fresh run from an empty
+clearing to Gloop Forest (see [Done outside the milestones](#done-outside-the-milestones)).
+Between 2026-09-12 and 2026-09-26 the whole game moved onto the
 Godot-inspired universal scene architecture: authored SceneTrees, ScriptNode
 behavior, and one editor, **Scene Studio** (`?studio=scenes`). Every authoring
 task below uses Scene Studio. The former Map, Character, Animation, Weapon, and
@@ -48,6 +53,7 @@ which refines the broader
 | 2. Stone and starter tools | Walk over loose materials, craft starter gear, defeat Fatty One Eye, loot the guarded chest, and unlock the next area | `[x]` |
 | P. Save, load, and reset foundation | Create or overwrite named saves, load complete runs, or reset to authored defaults | `[x]` |
 | S. Universal scene architecture | Every world, entity, effect, UI, and audio surface is an authored scene editable in Scene Studio | `[x]` |
+| Q. Chapter 1 quest line | NPC-given quests teach recipes and lead from the clearing to Gloop Forest | `[x]` |
 | A. Audio and SFX | Combat, gathering, UI, and boss actions are audible; music and ambience follow the area | `[~]` |
 | 3. Home exterior | Doors anywhere lead into interiors; the last bed slept in is home | `[~]` |
 | 4. Home interior | Enter a real interior, move inside, and return outside | `[~]` |
@@ -160,16 +166,19 @@ The user verified the milestone in a playtest on the refactored build on
 
 ### [x] 2.2 — Add basic tool recipes
 
-- Build: add portable recipes for Wooden Spear (`20 wood`), Stone Axe
+- Build: add recipes for Wooden Spear (`20 wood`), Stone Axe
   (`10 wood + 10 stone`), Stone Pickaxe (`10 wood + 10 stone`), and Stone
   Spear (`20 wood + 20 stone`). Add enough hand-collectible loose wood and stone
   to prevent a fresh-save softlock.
-- Current: the four portable recipes, atomic inventory transaction, crafted
-  weapon assignment, dedicated spear swing art, and a hand-collectible starter
-  budget are implemented in the Level 1 map. Normal fresh runs now begin with
-  no weapon, tool, attack, or production test potion; the legacy starter arsenal
-  is available only through the explicit development grant. The complete flow
-  passed its fresh-save playtest.
+- Current: the four recipes, atomic inventory transaction, crafted weapon
+  assignment, dedicated spear swing art, and a hand-collectible starter budget
+  are implemented in the Level 1 map. Normal fresh runs begin with no weapon,
+  tool, attack, or production test potion; the legacy starter arsenal is
+  available only through the explicit development grant. Since Chapter 1 the
+  four recipes use the `workbench` context (they need a placed workbench, which
+  is itself a portable `40 wood` recipe) and are `learnedByQuest`, taught by
+  Chapter 1 quest rewards; quest wood rewards keep the fixed Level 1 budget
+  softlock-free.
 - Player proof: gathered materials turn into equipped tools and a first crafted weapon.
 - Done when: a new save can craft and assign the starter gear without cheats or
   automatic production grants.
@@ -214,33 +223,15 @@ The user verified the milestone in a playtest on the refactored build on
 ### [x] 2.6 — Move loose materials to walk-over collectibles
 
 - Build: replace resource-pile pickup data with a generic collectible payload;
-  move loose wood and stone into Collectibles; collect all collectibles by
-  player overlap without `F`; preserve partial quantities and existing save
-  progress. Group Map Studio objects by behavior capability and expose editable
-  shared gameplay defaults plus supported per-instance overrides, including
-  collectible material/quantity and resource-node life/drop/tool attributes.
-  Resource nodes choose their death drop from a catalog-backed collectible
-  dropdown and specify how many collectible pieces spawn. Split the right
-  inspector into **Visuals & collisions** and **Gameplay attributes** tabs with
-  independent validation and save state.
+  collect loose wood, stone, and berries by player overlap without `F`;
+  preserve partial quantities and existing save progress; let resource nodes
+  choose a catalog-backed collectible death drop and piece count.
 - Player proof: walking over loose wood or stone collects it immediately, while
   trees and stone nodes remain tool-damaged resource targets.
-- Creator proof: wood, stone, and berries appear under Collectibles; resource
-  nodes appear under Resource Nodes; selecting either shows its resolved
-  gameplay attributes and safe edit scope. A stone node can select the stone
-  collectible and set, for example, 3 or 4 dropped pieces with a visible total
-  material-yield preview, while visual/collision controls remain organized in
-  their own inspector tab.
-- Done when: no collectible uses the `F` pickup route, partial/full inventory
-  behavior and save migration are verified, editor attribute edits survive
-  save/reload, the two inspector tabs cannot overwrite each other's data, and
-  the automated/manual matrix in the linked plan passes.
-- Verification: focused persistence, collectible-runtime, and Map Studio state
-  tests cover migration, partial/exact-once collection, deterministic overflow
-  placement, draft preservation, grouping/search, per-instance validation, and
-  granular override reset. The production build and all content validators pass;
-  the running Map Studio confirms tab navigation, yield preview, dirty-state
-  preservation, and reset behavior.
+- Outcome: shipped and verified with persistence and collectible-runtime tests.
+  The original Map Studio inspector work (Collectibles/Resource Nodes grouping,
+  two inspector tabs, yield preview) was retired with Map Studio; these
+  attributes are now scene and instance properties edited in Scene Studio.
 
 ### [x] 2.7 — Complete the first guarded-key progression gate
 
@@ -260,12 +251,15 @@ The user verified the milestone in a playtest on the refactored build on
   partial contents persist and relock on respawn, while an emptied chest stays
   visibly open forever.
 - Build: put exactly one persistent green key in the Level 1 chest and require
-  it at the east exit. The key is consumed only on the first unlock and the
+  it at the east exit (now the physical Verdant Gate, a `game.gate` script
+  that shares the persisted gate record with the exit behind it). The key is
+  consumed only on the first unlock and the
   permanent gate state survives reload. Save/load or player death during the
   fight resets Fatty to full health without starting the defeat timer.
 - Current: Fatty is a ranked enemy scene with ScriptNode behavior. The chest
-  and its UI, save-schema version 9 state, the authored Level 1 camp and chest,
-  and the keyed Gloop Forest exit are all implemented. The encounter's shape-based
+  and its UI, save-schema version 9 state, the authored Level 1 camp and chest
+  inside Fatty's hedge maze, and the Verdant Gate in front of the Gloop Forest
+  exit are all implemented. The encounter's shape-based
   area and shared arena leash, its boss links, and the landing splash are
   authored in Scene Studio (commits `a3aa9a2`, `8e34a88`). The encounter,
   three-minute respawn, chest, and key/gate round trip were verified by the user
@@ -284,86 +278,55 @@ gate.
 
 ## A. Audio And SFX — Make The World Audible
 
-Current focus. Milestone 3 starts once A.0–A.4 are done. The full cue list
-(about 150 cues, ranked P1 combat feel, P2 living world, P3 polish), the hooks
-for each cue, and the phase details are in the
+The full cue list (ranked P1 combat feel, P2 living world, P3 polish), the
+hooks for each cue, and the phase details are in the
 [Audio & SFX implementation plan](./superpowers/plans/2026-09-28-audio-sfx-implementation-plan.md).
 
-What already exists: `AudioStreamPlayer` and `AudioStreamPlayer2D` nodes, the
-`effects` and `music` buses with volume and mute, audio unlock on first input,
-2D falloff and pan, scene signal `connections`, and the mounted `audio.global`
-scene. What is missing: sound files, audio loading, variation, polyphony, sounds
-that outlive their node, the `gameEvents` bridge, and a volume UI.
+**Sourcing:** every cue ships in two flavours under the same cue ID
+(`audio.sfx.<category>.<cue>`): `synth`, rendered deterministically by
+`pnpm audio:bake` from `scripts/audio/cues.mjs`, and `library`, CC0 samples
+(Kenney and others, credited in `asset/audio/CREDITS.md`). Library is the
+shipping default; `?sfx=synth` switches a session to the synth takes for A/B
+listening.
 
-**Sourcing:** each P1 cue ships in two flavours under the same cue ID: `synth`
-(made by our deterministic `pnpm audio:bake`) and `library` (Kenney CC0 samples,
-credited in `asset/audio/CREDITS.md`). A dev toggle, `?sfx=synth|library`,
-switches between them. After an A/B listen, the losing flavour is deleted.
+### [x] A.0–A.3 — Loadable audio, upgraded nodes, P1 sounds, and wiring
 
-### [~] A.0 — Make audio loadable
-
-- Build: add `source.kind: "audio"` entries to `asset/assets.json`, route them
-  through `scene.load.audio` in `AssetLoader`, check the audio cache instead of
-  textures, and load them in a boot-time `audio` bundle. `assets:check` must
-  validate audio files and extensions. Asset IDs follow
-  `audio.sfx.<flavour>.<category>.<cue>[.<n>]`, `audio.music.<id>`, and
-  `audio.ambience.<id>`.
-- Done when: an audio asset loads at boot, and `assets:check` and `pnpm check`
-  pass.
-
-### [~] A.1 — Upgrade the audio nodes
-
-- Build: add built-in node handlers (for example `AudioStreamPlayer.play`) and
-  an `AudioPlaybackController` that supports `variants`, `pitchRandomness`,
-  `polyphony` (default 4), `minInterval`, and `detached` one-shots that outlive
-  their node. Add an `ambience` bus.
-- Current: node-type handler descriptors and signal/handler payload
-  compatibility are being added in `propertyDescriptors.ts`.
-- Done when: rapid hits overlap instead of cutting each other off, a pickup's
-  sound survives the pickup being freed, and scene checks pass.
-
-### [ ] A.2 — Create the P1 sounds
-
-- Build: write the synth bake tool (`scripts/audio/sfx-bake.mjs` plus JSON
-  recipes) that outputs deterministic 22.05 kHz WAV files. Add all P1 synth
-  cues, then the Kenney P1 cues (after the user approves the download) and the
-  flavour toggle.
-- Done when: every P1 cue exists in both flavours, and `pnpm audio:bake`
-  reproduces the synth files byte-for-byte.
-
-### [ ] A.3 — Wire P1 sounds into scenes
-
-- Build: author the sound nodes in the effect, weapon, player, enemy, Fatty,
-  resource, projectile, and collectible scenes, connected to their existing
-  signals. Add `features/audio/AudioEventBridge` for UI and `gameEvents` cues.
-  It receives a context interface, never imports `WorldScene`, and cleans up
-  through `DisposableBag`.
-- Player proof: swings, hits, chops, the wrong-tool clank, pickups, crafting,
-  level-up, and every Fatty phase can be heard.
-- Done when: a browser preview playtest hears every P1 cue once per trigger,
-  with no duplicates and no console audio errors.
+- Done: audio entries in `asset/assets.json` load at boot and are validated by
+  `assets:check`. `AudioStreamPlayer`/`AudioStreamPlayer2D` nodes support
+  variants, pitch randomness, polyphony, minimum interval, and detached
+  one-shots, on `effects`, `music`, and `ambience` buses. All P1 cues exist in
+  both flavours. Scene audio nodes and signal connections are authored by
+  `pnpm audio:wire` (drift fails `pnpm audio:check`), and
+  `features/audio/AudioEventBridge.ts` plays `audio.global` cues for UI,
+  quest, progression, and status events.
 
 ### [ ] A.4 — Pick a flavour
 
 - Build: the user compares synth and library sounds for each category. Delete
-  the losing flavour and remove the toggle if it is no longer needed.
+  the losing flavour and remove the `?sfx` toggle if it is no longer needed.
 - Done when: each cue ID has one shipped flavour and `assets:check` finds no
   orphans.
 
-### [ ] A.5 — Bring the world to life (P2)
+### [~] A.5 — Bring the world to life (P2)
 
 - Build: add terrain-aware footsteps, status-effect cues, chest, gate, and NPC
   sounds, prop loops (campfire, cauldron, grindstone, anvil), biome ambience,
   and area music with stings.
+- Current: terrain footsteps, status, chest, gate, NPC, and area-title cues
+  are in, and Level 1 plays its town music. Prop loops, biome ambience, and
+  music for the other areas are missing.
 - Player proof: each area sounds different and the camp props can be heard as
   you approach them.
 
-### [ ] A.6 — Add audio settings and polish (P3)
+### [~] A.6 — Add audio settings and polish (P3)
 
-- Build: add master, effects, music, and ambience volume sliders persisted
-  through `SaveSystem`. Duck the music while paused, crossfade it on
+- Build: add volume settings, duck the music while paused, crossfade it on
   `area.enter`, and switch to boss music on `boss_spawn_requested`. Pass the
   crit flag through to hit sounds, and add the remaining P3 cues.
+- Current: the Esc sound settings modal has master, effects, and music sliders
+  plus mute; they persist per device (`AudioSettingsStore`), deliberately
+  separate from save slots, and ambience follows the effects slider. Ducking,
+  crossfades, and boss music are not built.
 - Done when: volume settings survive a reload, and music transitions never
   stack or cut off abruptly.
 
@@ -376,12 +339,14 @@ volume settings.
 Crafting past the starter tier happens in **dedicated buildings**, not in a
 portable menu. Each building is its own authored scene: an exterior in the
 world, and a station you use at or inside it. It has its own recipe family and
-its own upgrade tiers. The four starter recipes stay `portable` so a fresh save
-can never softlock.
+its own upgrade tiers. Today the first station is the placeable **workbench**
+(a portable `40 wood` recipe): the four starter tool and spear recipes need a
+placed workbench, while the workbench, Slime Tonic, and Berry Basket stay
+`portable` so a fresh save can never softlock.
 
 | Building | Crafts | Main inputs | Milestone |
 |---|---|---|---|
-| **Workshop** | Weapons, tools, and items (bombs, storage, building parts, repairs) | Wood, stone, metal bars, enemy materials | 5 (built at home), then new tiers in 6–8 |
+| **Workshop** | Weapons, tools, and items (bombs, storage, building parts, repairs) | Wood, stone, metal bars, enemy materials | 5 (grows out of the placeable workbench), then new tiers in 6–8 |
 | **Forge** | Smelts iron and other ores into metal bars, later alloys | Ore and fuel | 8 |
 | **Kitchen** | Food, healing and buff meals, potions, and antidotes | Forage, crops, monster materials | 9 (food), 10 (potions) |
 | **Builder's table** | Home upgrades, furniture, defenses, and moving the home | Building parts, bars | 11 |
@@ -394,6 +359,8 @@ can never softlock.
 - Code today: `CraftingContext` in `src/game/content/recipes/types.ts` is
   `'portable' | 'workbench' | 'forge' | 'kitchen' | 'alchemy'`. Rename
   `workbench` to `workshop` and remove `alchemy` when UX.2 is implemented.
+  The two `alchemy` recipes (`brew-fizzy`, `weave-tonics`) have no station
+  that offers them, so they are not craftable until they move to the Kitchen.
 - Every building uses one shared crafting popup and recipe authority, filtered
   by building and tier (see UX.2).
 
@@ -404,21 +371,10 @@ can never softlock.
 - Dropped: doors can be placed anywhere and link to any interior, so there is
   no single authored home instance to build.
 
-- Build: place one stable player-home instance in an authored map with its visual,
-  collider, depth bounds, and interaction point.
-- Player proof: the player can recognize a home and walk up to its entrance.
-- Done when: Scene Studio, `maps:check`/`scenes:check`, and the runtime agree
-  on the same instance.
-
 ### [—] 3.2 — Add home ownership and persistence
 
 - Dropped: home identity is no longer a concept; beds and placed furniture own
   the persistent state instead (see 3.3 and 4.6).
-
-- Build: give the home a stable identity and save its placement, ownership, and
-  current upgrade state.
-- Player proof: the same home remains the player’s home after reload.
-- Done when: no duplicate or fallback player home appears.
 
 ### [~] 3.3 — Beds are home: respawn at the last bed slept in
 
@@ -431,8 +387,8 @@ can never softlock.
 - Done when: the respawn bed survives save/load and falls back to level 1 when
   the bed's map no longer has it.
 
-**Milestone 3 complete when:** one authored, persistent home exists in the world
-and is usable without procedural fallback.
+**Milestone 3 complete when:** the last bed slept in reliably acts as home
+across defeat, save/load, and map changes, without procedural fallback.
 
 ## 4. Home Interior — Visuals, Logic, And Editor Support
 
@@ -440,10 +396,12 @@ and is usable without procedural fallback.
 
 - Build: define a stable relationship between the exterior home instance and its
   authored interior map/room, including entry and return points.
-- Current: `game.door` ScriptNodes link level 1's `home-door` (in front of the
-  forge house) to `slime-home` entry `south`, and the interior `house-door` back to
-  level 1 entry `south`. Doors can be placed anywhere and linked to any
-  interior. Verified in game.
+- Current: `game.door` ScriptNodes link door to door: each door names a
+  `targetDoorId` and has an `arrival` child, so leaving a house puts the player
+  in front of the door they entered and a world can hold any number of houses.
+  Level 1 doors lead to the `slime-home` and `mushroom-home` interiors and
+  back; a test checks that every door targets an existing door with an
+  arrival. Verified in game.
 - Player proof: entering a particular home always leads to its matching interior.
 - Done when: the link is validated and survives save/load.
 
@@ -452,9 +410,10 @@ and is usable without procedural fallback.
 - Build: create an interior floor, walls, doorway, bed, and a small set of
   furniture visuals that follow the project’s object/depth conventions.
 - Current: `wood-floor` terrain tile plus one `object.interior-<category>-*`
-  scene per atlas sprite (529 scenes in `objects/interiors/<category>/`,
-  generated from `scripts/interiors/interior_catalog.py`);
-  `world.slime-home` follows the `woody.png` concept.
+  scene per atlas sprite (842 scenes in `objects/interiors/<category>/`,
+  including the mushroom-cottage set, generated from
+  `scripts/interiors/interior_catalog.py`). `world.slime-home` follows the
+  `woody.png` concept; `world.mushroom-home` is a mushroom-cottage room.
 - Player proof: the interior feels like a room rather than a camera overlay.
 - Done when: the complete room renders with coherent collision and depth.
 
@@ -471,9 +430,10 @@ and is usable without procedural fallback.
 
 - Build: transition from the exterior door into the interior, place the player at
   the authored entry, constrain the camera, and return to the exterior door.
-- Current: press F near either door to travel (same queued navigation as area
-  exits); the camera and physics are bounded by the 14×11 room. A bobbing F key
-  badge marks the chosen door, chest, or NPC whenever one is in range.
+- Current: press F near a door to travel (same queued navigation as area
+  exits). Interior worlds use a fixed `cameraMode` that centres and fits the
+  room (`slime-home` 14×11, `mushroom-home` 16×12). A bobbing F key badge marks
+  the chosen door, chest, or NPC whenever one is in range.
 - Player proof: walk inside, move around, then leave through the door.
 - Done when: repeated enter/leave cycles do not duplicate players or lose state.
 
@@ -539,6 +499,9 @@ destination.
 
 - Build: add a connected authored region with a distinct visual identity, map
   connection, and clear reason it is more dangerous.
+- Current: Gloop Forest (behind the Verdant Gate) and Crystal Caverns are
+  authored, connected maps with forest-wall and crystal-cluster scenes and worm
+  spawn areas, but neither has a harder enemy tier or iron yet.
 - Player proof: leaving the starter area feels like progress.
 - Done when: the region is reachable through exits authored in Scene Studio.
 
@@ -827,26 +790,39 @@ form one understandable progression path.
 **Milestone 14 complete when:** Slime Isa delivers a motivating gather → fight →
 upgrade home → craft → tackle tougher area loop with authored interiors and maps.
 
+## Done Outside The Milestones
+
+- **Chapter 1 — The Clearing** (`src/game/content/quests/quests/chapterOne.ts`):
+  Village Elder Plop, Mossy, Lili, and Lily the Fishergirl give six quests
+  (`a-place-to-work`, `stone-tools`, `worm-trouble`,
+  `the-one-eyed-guardian`, `a-tonic-for-lili`, `snack-for-the-road`) with
+  dialogue, chapter banner, quest-taught recipes, and a `chapter-1-complete`
+  story flag. The quest journal, offer modal, tracker, and NPC markers are
+  authored UI. See the [Quest authoring guide](./knowledge/quest-authoring-guide.md).
+- **Slimeshire Meadow** (`level-1`, generated by
+  `scripts/maps/build-level-1.mjs`): Slimeshire town, forest-wall border,
+  river with footbridges, lake, Fatty's hedge maze, worm ruins, the Webwood
+  spider thicket, enemy spawn areas, and the Verdant Gate pocket before the
+  Gloop Forest exit.
+- **Placeable workbench and furniture placement** (see 4.6) and the
+  **bed/sleep** loop (see 3.3 and 4.5).
+
 ## Immediate Next Sprint
 
-Milestones 1 and 2, the save/load foundation, and the universal scene
-refactor are complete. The current sprint is **Audio** (Milestone A); then
-Milestone 3.
+Milestones 1 and 2, the save/load foundation, the universal scene refactor,
+Chapter 1, and audio phases A.0–A.3 are complete.
 
-1. Finish A.0 and A.1 (audio loading and node upgrades) and get `pnpm check`
-   passing again. The in-progress `propertyDescriptors.ts` change currently
-   breaks `scenes:check` and typecheck.
-2. Build the synth bake tool and the P1 synth cues. Get approval before
-   downloading the Kenney library packs.
-3. Wire the P1 cues into scenes and the `AudioEventBridge`, then verify them in
-   the browser preview.
-4. Do the synth vs. library A/B listen and delete the losing flavour.
-5. Start Milestone 3 (home exterior). Draft the replacement for the deleted
-   station-aware crafting doc before Milestone 5, following
+1. A.4: do the synth vs. library A/B listen and delete the losing flavour.
+2. Continue Milestones 3 and 4: verify the bed respawn round trip (3.3),
+   finish interior collision and persistence (4.5, 4.6), and interior
+   authoring in Scene Studio (4.3).
+3. Draft the replacement for the deleted station-aware crafting doc before
+   Milestone 5, following
    [Crafting Buildings](#crafting-buildings--where-each-craft-happens).
 
-A.5 and A.6 (world sounds, music, settings) can run alongside Milestone 3.
-Keep the legacy debug grant clearly separated from production progression.
+A.5 and A.6 (world sounds, music, settings polish) can run alongside
+Milestones 3 and 4. Keep the legacy debug grant clearly separated from
+production progression.
 
 ## Cross-Cutting Engine — Universal Scene Architecture
 
@@ -1014,6 +990,7 @@ The phased ownership, migration rules, and acceptance gates are defined in the
 - Build: add independent validated editing and atomic persistence for gameplay constants.
 - Current: the primary-player inspector provides a separate gameplay-defaults draft, validation/history, conflict-aware atomic save, progression ledger, and max-level controls.
 - Done when: package and gameplay-default edits have separate revisions, dirty states, conflicts, and save actions.
+- Since: Character Studio was retired in the universal scene refactor and Scene Studio has no constants editor, so this UI is gone. Edit `src/game/content/game-constants.json` directly and run `pnpm constants:check`.
 
 ### [ ] C.5 — Migrate remaining shared gameplay defaults by domain
 
@@ -1047,9 +1024,9 @@ The phased ownership, migration rules, and acceptance gates are defined in the
   Keep the organic minimap border, transparent meter tracks, compact labels,
   and clear active-slot treatment; use a low-opacity minimap tint only for
   marker readability.
-- Scope: `HUD.ts`, `Minimap.ts`, and `WeaponHotbar.ts`. Inventory and crafting
-  remain separate work; `AbilityBar.ts` remains deferred until it is mounted in
-  `WorldScene`.
+- Scope: the authored `hud`, `minimap`, and `weapon-hotbar` UI scenes
+  (`src/game/content/scenes/authored/ui/`). Inventory and crafting remain
+  separate work; the now-mounted ability bar's skin remains deferred.
 - Player proof: the grass/world art remains visible through the three widgets,
   all values fit at wide, medium, and narrow viewports, and active/owned/
   unavailable states remain understandable.

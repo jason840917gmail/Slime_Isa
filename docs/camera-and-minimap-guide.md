@@ -15,8 +15,8 @@ const CAMERA_ZOOM_LEVELS = [0.5, 0.625, 0.75, 0.875, 1, 1.125, 1.25];
 - `1x` is the normal gameplay mode. Phaser camera rounding is enabled for the
   most stable authored-pixel presentation.
 - Fractional wheel levels are overview mode. Rounding is disabled because
-  fractional zoom cannot remain pixel-perfect; linear filtering avoids harsh
-  nearest-neighbor shimmer.
+  fractional zoom cannot remain pixel-perfect; the game runs with
+  `pixelArt: false`, so linear filtering avoids harsh nearest-neighbor shimmer.
 - Wheel changes are immediate and stepped. There is no tween through arbitrary
   fractional values, and each change re-centers on the followed player instead
   of scaling around the deadzone's previous camera center.
@@ -52,21 +52,29 @@ different display refresh rates. Phaser camera scroll remains relative to the
 unzoomed viewport midpoint; only the deadzone's screen size is converted through
 zoom when comparing it with world positions.
 
-## House transitions and respawn
+## Fixed cameras and respawn
 
-Scripted house and respawn pans temporarily stop normal following. Returning to
-the player restores the default `1x` zoom and resumes the responsive controller.
-Camera bounds remain the authored map dimensions.
+A world whose `game.world-definition` sets `cameraMode: "fixed"` (small
+interiors) does not follow the player. The camera removes its bounds, centers
+on the whole world, and zooms out only as far as needed to fit it (never above
+`1x`); it re-fits on resize and wheel zoom re-centers on the world.
+
+Otherwise camera bounds are the authored world dimensions. On respawn the camera
+pans to the respawn point, restores the default `1x` zoom, and resumes the
+responsive controller; a fixed camera just re-fits.
 
 ## Screen-space UI and minimap
 
 `setScrollFactor(0)` ignores camera scroll but not camera zoom. The runtime
-therefore renders HUD and minimap objects through a dedicated `screen-ui` camera
-at `1x`, while the world camera ignores those objects.
+therefore renders Phaser objects with a zero scroll factor through a dedicated
+`screen-ui` camera at `1x`, while the world camera ignores them.
 
-The minimap recalculates its size and lower-left position from the viewport. It
-uses the world camera's visible bounds for the view rectangle, so wheel zoom is
-still represented correctly.
+The HUD and minimap are authored DOM UI scenes (`ui.minimap`), not Phaser
+objects. `features/ui/MinimapSurfacePort.ts` draws the minimap into a canvas
+inside that scene's Control host, sizes it from the viewport (24% of the short
+side, clamped to 128–180 px) in the lower-left corner, and derives the view
+rectangle from the world camera's scroll and zoom, so wheel zoom is still
+represented.
 
 ## Rendering diagnostics
 

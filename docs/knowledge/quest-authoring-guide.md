@@ -1,91 +1,84 @@
 # Quest Authoring Guide
 
-This guide explains how to create, connect, validate, and safely evolve quests in Slime Isa. It covers every objective currently supported by the quest engine and the steps required to add an entirely new objective type.
+How to create, connect, validate, and safely evolve quests in Slime Isa. It
+covers every objective the quest engine supports today and the steps for
+adding a new objective type.
+
+The shipped catalog is **Chapter 1 — The Clearing**
+(`src/game/content/quests/quests/chapterOne.ts`): `a-place-to-work` →
+`stone-tools` → `worm-trouble` → `the-one-eyed-guardian` on the main line, plus
+the optional `a-tonic-for-lili` → `snack-for-the-road`. Read it first; it is
+the best working example of every field below.
 
 ## The quest model
 
-A quest is one journal entry with one lifecycle, one reward package, and one or more sequential stages.
+A quest is one journal entry with one lifecycle, one reward package, and one or
+more sequential stages.
 
-- Stages run sequentially in their array order.
-- All objectives inside the active stage progress in parallel.
-- Every objective in the active stage must reach its target before the next stage starts.
-- Objectives in later stages do not listen to gameplay events until their stage becomes active.
-- Completing the last stage either completes the quest automatically or makes it ready for an NPC turn-in.
+- Stages run in array order; all objectives inside the active stage progress
+  in parallel, and every one must reach its target before the next stage
+  starts.
+- Objectives in later stages ignore gameplay events until their stage becomes
+  active.
+- Finishing the last stage either completes the quest automatically or makes
+  it ready for an NPC turn-in.
 
-Use stages when several steps belong to the same quest:
-
-```text
-Quest: Prepare for the expedition
-  Stage 1: collect berries AND wood
-  Stage 2: defeat spiders
-  Stage 3: report to the elder
-  Reward: granted once after the entire quest
-```
-
-Use separate quests when each part should have its own journal entry, acceptance, completion, or rewards. Chain them with a `quest-status` prerequisite:
-
-```ts
-prerequisites: [
-  { kind: 'quest-status', questId: 'previous-quest', status: 'completed' },
-],
-```
-
-There is no separate quest-sequence entity. If the chained quest uses automatic acquisition, it starts immediately when the previous quest completes. If it uses NPC acquisition, it becomes available from its configured NPC.
+Use stages when several steps belong to one journal entry. Use separate quests
+when each part needs its own acceptance, completion, or rewards, and chain them
+with a `quest-status` prerequisite (see [Chaining quests](#chaining-quests)).
 
 ## Where quest content lives
 
 | Purpose | Location |
 | --- | --- |
-| Quest and objective types | `src/game/content/quests/types.ts` |
-| Individual quest definitions | `src/game/content/quests/quests/` |
-| Registered quest list | `src/game/content/quests/QuestCatalog.ts` |
+| Quest, objective, and event types | `src/game/content/quests/types.ts` |
+| Quest definitions | `src/game/content/quests/quests/` (currently `chapterOne.ts`) |
+| Registered quest list and retired IDs | `src/game/content/quests/QuestCatalog.ts` |
 | Catalog validation | `src/game/content/quests/validateQuestCatalog.ts` |
 | Objective event matching | `src/game/quests/matchers/ObjectiveMatchers.ts` |
 | Event subscriptions | `src/game/quests/QuestEventBridge.ts` |
-| Runtime lifecycle | `src/game/quests/QuestService.ts` |
+| Runtime lifecycle | `src/game/quests/QuestService.ts` (facade: `QuestTracker.ts`) |
+| NPC offer/turn-in/dialogue flow | `src/game/features/interaction/QuestNpcController.ts` |
+| Learned recipes, story flags, talked NPCs | `src/game/features/progression/StoryProgress.ts` |
 | Save reconciliation | `src/game/infrastructure/persistence/quests/QuestReconciliationRegistry.ts` |
-| NPC identities | `src/game/content/npcs/NpcCatalog.ts` |
-| NPC object archetypes | `src/game/content/objects/npcs/` |
-| Authored maps | `src/game/content/maps/` |
-
-The production catalog intentionally starts empty. Add each authored quest as a
-new definition and use the synthetic quest-service tests for lifecycle examples.
+| NPC identities | `src/game/content/npcs/NpcDefinitions.ts` (read through `NpcCatalog.ts`) |
+| Items / recipes / bosses | `content/items/items.json`, `content/recipes/RecipeCatalog.ts`, `content/bosses/*.json` |
+| World scenes (NPC placement) | `src/game/content/scenes/authored/worlds/<map-id>.scene.json` |
 
 ## Quick-start workflow
 
-For a quest made entirely from existing objective types:
-
-1. Decide whether the actions are parallel objectives, sequential stages, or separate chained quests.
-2. Confirm every referenced item, recipe, NPC, area, enemy, object, boss, or encounter ID.
-3. Copy the template below into a new file under `src/game/content/quests/quests/`.
-4. Configure acquisition, stages, completion, policies, and rewards.
-5. Import the definition and add it to `QUEST_DEFINITIONS` in `QuestCatalog.ts`.
-6. If it uses a new NPC, create and place that NPC as described below.
-7. Confirm the owning gameplay feature emits the objective's authoritative event.
-8. Run the validation checklist at the end of this guide.
-9. Play through every route: acceptance, each stage transition, turn-in, reward, save/load, and any retry or abandonment path.
+1. Decide whether the actions are parallel objectives, sequential stages, or
+   separate chained quests.
+2. Confirm every referenced item, recipe, NPC, area, enemy kind, and boss ID
+   (see [Valid IDs](#valid-ids-today)).
+3. Add the definition to `chapterOne.ts`, or to a new file under
+   `src/game/content/quests/quests/` that you spread into `QUEST_DEFINITIONS`
+   in `QuestCatalog.ts`.
+4. Configure acquisition, stages, completion, policies, rewards, and dialogue.
+5. If it uses a new NPC, create and place that NPC as described below.
+6. Confirm the owning gameplay feature emits each objective's event (see the
+   [objective table](#objective-reference)).
+7. Run `pnpm quests:check`, then the rest of the
+   [validation checklist](#validation-checklist).
+8. Play every route: acceptance, each stage transition, turn-in, reward,
+   save/load, and any retry or abandonment path.
 
 ## Copy-ready quest template
-
-Create `src/game/content/quests/quests/myQuest.ts`:
 
 ```ts
 import type { QuestDefinition } from '../types';
 
 export const myQuest: QuestDefinition = {
-  // Stable, globally unique, kebab-case ID. Never reuse an old ID.
+  // Stable, globally unique, kebab-case. Never reuse an old or retired ID.
   id: 'my-quest',
   definitionVersion: 1,
-
+  chapter: 'Chapter 1 — The Clearing', // optional banner shown on accept
   title: 'My Quest',
   description: 'Explain the overall goal to the player.',
-  category: 'optional',
+  category: 'optional', // 'mandatory' quests must use abandonment 'forbidden'
 
-  // Every prerequisite must pass. An empty array means no prerequisite.
-  prerequisites: [],
-
-  // Use automatic, or use npc with one or more valid NPC IDs.
-  acquisition: { kind: 'automatic' },
+  prerequisites: [], // every entry must pass (AND)
+  acquisition: { kind: 'npc', npcIds: ['lili'] }, // or { kind: 'automatic' }
 
   stages: [
     {
@@ -93,20 +86,12 @@ export const myQuest: QuestDefinition = {
       title: 'First step',
       description: 'Explain what the player should do now.',
       objectives: [
-        {
-          id: 'collect-berries',
-          kind: 'collect',
-          label: 'Collect purple berries',
-          target: 3,
-          itemIds: ['purple-berry-mat'],
-        },
+        { id: 'collect-berries', kind: 'collect', label: 'Collect purple berries', target: 3, itemIds: ['purple-berry-mat'] },
       ],
     },
   ],
 
-  // Use automatic, or npc-turn-in with one or more valid NPC IDs.
-  completion: { kind: 'automatic' },
-
+  completion: { kind: 'npc-turn-in', npcIds: ['lili'] }, // or { kind: 'automatic' }
   failurePolicy: { kind: 'permanent' },
   abandonmentPolicy: { kind: 'retryable', reset: 'quest' },
 
@@ -114,780 +99,388 @@ export const myQuest: QuestDefinition = {
     coins: 25,
     xp: 30,
     items: [{ itemId: 'hp-potion', count: 1 }],
+    // recipeIds: ['craft-stone-spear'], // recipe must have learnedByQuest: true
+    // flags: ['my-story-flag'],         // persistent story flag
+  },
+
+  dialogue: {
+    offer: ['Lines before the Accept / Decline choice.'],
+    progress: ['Lines when talking to the giver mid-quest.'],
+    complete: ['Lines before the reward is handed over.'],
   },
 };
 ```
 
-Register it in `src/game/content/quests/QuestCatalog.ts`:
-
-```ts
-import { myQuest } from './quests/myQuest';
-
-export const QUEST_DEFINITIONS: readonly QuestDefinition[] = [
-  myQuest,
-];
-```
-
-Catalog validation runs as soon as the catalog loads. `pnpm quests:check` gives the shortest feedback loop.
+Catalog validation runs when `QuestCatalog.ts` loads, so an invalid definition
+fails the game at startup; `pnpm quests:check` is the shortest feedback loop.
 
 ## Definition fields
 
 ### Identity and text
 
-- `id`: stable, globally unique, kebab-case quest ID.
-- `definitionVersion`: positive integer used to reconcile old saves after structural changes.
-- `title`: journal and notification title.
-- `description`: overall quest description.
+- `id`: stable, unique, kebab-case. When removing a quest, add its ID to
+  `RETIRED_QUEST_IDS` in `QuestCatalog.ts` so old saves drop its state instead
+  of failing to load; never reuse a retired ID.
+- `definitionVersion`: positive integer used to reconcile old saves (see
+  [Save compatibility](#save-compatibility-and-definition-versions)).
+- `title`, `description`: journal and notification text.
 - `category`: `mandatory` or `optional`.
+- `chapter` (optional): chapter banner shown when the quest is accepted.
+- `dialogue` (optional): `offer`, `progress`, and `complete` page arrays shown
+  in the NPC conversation box. Without `progress`, the giver shows the
+  remaining objectives; without dialogue at all the NPC falls back to its own
+  `dialogue`/`description`.
 
-Stage and objective IDs must also be kebab-case. Stage IDs must be unique within the quest. Objective IDs must be unique across the entire quest, including different stages, because progress is stored by objective ID.
-
-Treat all persisted IDs as permanent. Renaming a quest, stage, or objective ID can invalidate or lose saved progress unless a reconciliation migrates it.
+Stage and objective IDs must also be kebab-case. Stage IDs must be unique
+within the quest; objective IDs must be unique across the whole quest because
+progress is stored by objective ID. Treat all persisted IDs as permanent.
 
 ### Acquisition
 
-Automatic acquisition starts the quest as soon as all prerequisites pass:
+- `{ kind: 'automatic' }` starts the quest as soon as all prerequisites pass
+  (with none, when the quest service starts).
+- `{ kind: 'npc', npcIds: [...] }` makes it available from any listed NPC; the
+  player must accept it. Every ID must exist in `NpcDefinitions.ts`.
 
-```ts
-acquisition: { kind: 'automatic' },
-```
+### Stages and backfill
 
-NPC acquisition makes the quest available from any listed NPC. The player must accept it:
-
-```ts
-acquisition: {
-  kind: 'npc',
-  npcIds: ['mossy-scout'],
-},
-```
-
-With no prerequisites, an automatic quest starts when the quest service starts; an NPC quest becomes immediately available. With prerequisites, both remain locked until all conditions pass.
-
-### Stages and objectives
-
-Stages are always sequential. Objectives within one stage are parallel:
-
-```ts
-stages: [
-  {
-    id: 'prepare',
-    title: 'Prepare',
-    description: 'Gather both supplies.',
-    objectives: [
-      {
-        id: 'collect-berries',
-        kind: 'collect',
-        label: 'Collect berries',
-        target: 3,
-        itemIds: ['purple-berry-mat'],
-      },
-      {
-        id: 'collect-wood',
-        kind: 'collect',
-        label: 'Collect wood',
-        target: 5,
-        itemIds: ['wood'],
-      },
-    ],
-  },
-  {
-    id: 'hunt',
-    title: 'Clear the route',
-    description: 'Defeat the spiders after preparing.',
-    objectives: [
-      {
-        id: 'defeat-spiders',
-        kind: 'kill',
-        label: 'Defeat slime-spiders',
-        target: 3,
-        enemyKinds: ['slime-spider'],
-      },
-    ],
-  },
-],
-```
-
-An event that occurs before its stage becomes active is normally ignored. On initial quest activation only, the service can backfill already-known `discover-area`, `talk-to-npc`, and `defeat-boss` facts for the first active stage. It does not backfill collect, kill, craft, escort, activation, or survival progress, and it does not reapply known facts automatically when advancing to a later stage.
-
-Design later stages around actions that have not happened yet or that the player can repeat. For example, do not put “discover the forest” after a stage that already requires the player to fight inside that forest.
+An event that happens before its stage is active is ignored. Only when a quest
+first activates does the service backfill already-known facts, and only for
+`discover-area`, `talk-to-npc`, and `defeat-boss` objectives in the first
+active stage. Collect, kill, craft, place, escort, activation, and survival
+progress is never backfilled, and known facts are not reapplied on later stage
+transitions. Design later stages around actions the player has not done yet or
+can repeat.
 
 ### Completion
 
-Automatic completion grants rewards immediately after the last stage finishes:
-
-```ts
-completion: { kind: 'automatic' },
-```
-
-An NPC turn-in keeps the quest active and marks it ready to turn in after the last stage finishes:
-
-```ts
-completion: {
-  kind: 'npc-turn-in',
-  npcIds: ['village-elder-plop'],
-},
-```
-
-The completion NPC does not have to be the acquisition NPC. Every listed ID must exist in `NpcCatalog.ts` and have an NPC object placed in an accessible map if the player is expected to interact with it.
+- `{ kind: 'automatic' }` grants rewards as soon as the last stage finishes.
+- `{ kind: 'npc-turn-in', npcIds: [...] }` keeps the quest active and marks it
+  ready to turn in. The turn-in NPC need not be the giver, but it must exist
+  and be placed somewhere reachable.
 
 ### Failure and abandonment
 
-Failure behavior:
-
 ```ts
-failurePolicy: { kind: 'permanent' },
-
-// Or retry from the beginning:
-failurePolicy: { kind: 'retryable', reset: 'quest' },
-
-// Or retain completed stages and reset the failed stage:
-failurePolicy: { kind: 'retryable', reset: 'current-stage' },
+failurePolicy: { kind: 'permanent' }
+failurePolicy: { kind: 'retryable', reset: 'quest' | 'current-stage' }
+abandonmentPolicy: { kind: 'forbidden' }
+abandonmentPolicy: { kind: 'retryable', reset: 'quest' | 'current-stage' }
 ```
 
-The owning gameplay feature must explicitly call `questService.fail(questId, reason)` when a failure condition occurs. Defining a failure policy does not create a timer, escort failure, or death rule by itself.
-
-Abandonment behavior:
-
-```ts
-abandonmentPolicy: { kind: 'forbidden' },
-
-// Or allow a later retry:
-abandonmentPolicy: { kind: 'retryable', reset: 'quest' },
-abandonmentPolicy: { kind: 'retryable', reset: 'current-stage' },
-```
-
-Mandatory quests must use `forbidden`; catalog validation rejects an abandonable mandatory quest. Optional NPC quests are re-offered by their acquisition NPC. Automatic abandoned quests use the automatic retry path.
+A failure policy creates no timer or death rule: the owning feature must call
+`questService.fail(questId, reason)`. No production feature calls it today.
+Mandatory quests must use `forbidden` abandonment (validation rejects
+anything else). Abandoned optional NPC quests are re-offered by their
+acquisition NPC; automatic ones use the automatic retry path. Players abandon
+from the quest journal.
 
 ### Rewards
 
-All reward fields are optional and may be combined:
+All fields are optional and combinable. The service persists `rewardsGranted`,
+so rewards are granted exactly once.
 
-```ts
-rewards: {
-  coins: 100,
-  xp: 75,
-  items: [
-    { itemId: 'hp-potion', count: 2 },
-    { itemId: 'wooden-spear', count: 1 },
-  ],
-},
-```
-
-Coins and XP must be non-negative integers. Item counts must be positive integers, and item IDs must exist in the item catalog. The service persists `rewardsGranted` and guards completion so rewards are granted only once.
+- `coins`, `xp`: non-negative integers.
+- `items`: `{ itemId, count }` with a known item and positive count.
+- `recipeIds`: recipes the player learns. Each must exist in `RecipeCatalog.ts`
+  and be marked `learnedByQuest: true`; such recipes stay visible but locked
+  until learned.
+- `flags`: persistent story flags (pattern `a-z0-9` segments joined by `-`,
+  `:`, or `.`) stored in `StoryProgress`; other content can require them with a
+  `world-flag` prerequisite. Chapter 1 sets `chapter-1-complete`.
 
 ## Prerequisite recipes
 
-Every entry in `prerequisites` must pass; the array uses AND logic. Within `areaIds` or `npcIds`, matching any listed ID is enough.
-
-### Require another quest state
-
-This is the normal way to create a quest chain:
+Every entry in `prerequisites` must pass (AND). Within one entry's `areaIds` or
+`npcIds`, any listed ID is enough (OR).
 
 ```ts
-prerequisites: [
-  { kind: 'quest-status', questId: 'previous-quest', status: 'completed' },
-],
+{ kind: 'quest-status', questId: 'previous-quest', status: 'completed' } // referenced quest must exist; cycles are rejected
+{ kind: 'area-entered', areaIds: ['gloop-forest'] }                      // discovered map/area IDs
+{ kind: 'player-level', minimumLevel: 3 }
+{ kind: 'inventory-count', itemId: 'wood', minimumCount: 10 }           // checked, not consumed
+{ kind: 'world-flag', flagId: 'chapter-1-complete' }                    // story flag, or boss:<bossId>
+{ kind: 'npc-talked', npcIds: ['village-elder-plop'] }
 ```
 
-The referenced quest must exist. Dependency cycles are rejected. Although all lifecycle statuses are valid, `completed` is the safest status for normal story chains.
+All of these facts survive save/load: discovered areas and defeated bosses
+live in world progress (a defeated boss is exposed as the flag
+`boss:<bossId>`), and story flags and talked-to NPCs live in the save's
+`story` block.
 
-### Require entering any listed area
-
-```ts
-prerequisites: [
-  { kind: 'area-entered', areaIds: ['gloop-forest', 'crystal-caverns'] },
-],
-```
-
-### Require a player level
-
-```ts
-prerequisites: [
-  { kind: 'player-level', minimumLevel: 5 },
-],
-```
-
-### Require inventory
-
-```ts
-prerequisites: [
-  { kind: 'inventory-count', itemId: 'wood', minimumCount: 10 },
-],
-```
-
-This checks the current inventory count. The item is not consumed by accepting the quest.
-
-### Require a world flag
-
-```ts
-prerequisites: [
-  { kind: 'world-flag', flagId: 'bridge-repaired' },
-],
-```
-
-The feature that owns the flag must make it available to the quest service through restored facts or condition queries. Boss events automatically expose `boss:<bossId>` as an in-run world flag.
-
-### Require talking to any listed NPC
-
-```ts
-prerequisites: [
-  { kind: 'npc-talked', npcIds: ['village-elder-plop'] },
-],
-```
-
-`area-entered` facts and defeated bosses are restored by the current save installation path. Generic world flags and talked-NPC facts are supported by the service but are not currently included in the normal saved world snapshot. If a quest depends on either across save/load, add persistence for that fact before shipping the quest.
-
-### Combine conditions
-
-This requires all three conditions:
-
-```ts
-prerequisites: [
-  { kind: 'quest-status', questId: 'previous-quest', status: 'completed' },
-  { kind: 'player-level', minimumLevel: 3 },
-  { kind: 'inventory-count', itemId: 'wood', minimumCount: 5 },
-],
-```
-
-Prerequisites are evaluated when the service starts, after relevant quest input events, when a quest completes, after save facts are restored, and when another system explicitly requests reevaluation. If a new condition can change without one of those signals, its owning feature must trigger `questTracker.evaluatePrerequisites()` or an appropriate quest input event.
+Prerequisites are evaluated when the service starts, after quest input events,
+when a quest completes, and after save facts are restored. A new condition
+that can change without one of those signals must trigger
+`questTracker.evaluatePrerequisites()`.
 
 ## Objective reference
 
-Objectives only count events while their quest is active and their stage is current. Progress is capped at `target`.
+Objectives count events only while their quest is active and their stage is
+current. Progress is capped at `target`.
 
-| Objective kind | Event | Amount per matching event | Duplicate protection |
-| --- | --- | --- | --- |
-| `collect` | `collectible.collected` | payload `quantity` | None; producer must emit once per collection |
-| `kill` | `enemy.died` | 1 | None; producer must emit once per death |
-| `talk-to-npc` | `npc.talked` | 1 | None; repeated conversations can count again |
-| `craft-item` | `craft.completed` | payload `quantity` | None; producer must emit once per craft |
-| `escort-character` | `escort.completed` | 1 | `runId`, falling back to `escortId` |
-| `defeat-boss` | `boss.defeated` | 1 | `factId`, falling back to `bossId` |
-| `activate-object` | `object.activated` | 1 | `instanceId` |
-| `survive-duration` | `survival.completed` | 1 | `factId`, falling back to `encounterId` |
-| `discover-area` | `area.enter` | 1 | `areaId` |
+| Kind | Event | Amount per match | Deduplicated by | Production producer |
+| --- | --- | --- | --- | --- |
+| `collect` | `collectible.collected` | payload `quantity` | none | `CollectibleController` (walk-over pickups, including resource drops) |
+| `kill` | `enemy.died` | 1 | none | `CombatController` (no `tags` yet) |
+| `talk-to-npc` | `npc.talked` | 1 | none | `QuestNpcController` |
+| `craft-item` | `craft.completed` | payload `quantity` | none | `crafting/Crafting.ts` |
+| `place-item` | `furniture.placed` | 1 | `placementId` | `WorldScene` furniture placement |
+| `defeat-boss` | `boss.defeated` | 1 | `factId`, else `bossId` | boss camp progress service (`UniversalSceneWorldController`) |
+| `discover-area` | `area.enter` | 1 | `areaId` | `WorldScene` on map entry |
+| `escort-character` | `escort.completed` | 1 | `runId`, else `escortId` | **none yet** |
+| `activate-object` | `object.activated` | 1 | `instanceId` | **none yet** |
+| `survive-duration` | `survival.completed` | 1 | `factId`, else `encounterId` | **none yet** |
 
-### Collect items
-
-```ts
-{
-  id: 'collect-materials',
-  kind: 'collect',
-  label: 'Collect berries or silk',
-  target: 5,
-  itemIds: ['purple-berry-mat', 'silk-clump'],
-}
-```
-
-Any listed item matches. The collected quantity is added; this objective does not check the player's current inventory and does not consume items. Item IDs are validated against `ItemCatalog.ts`.
-
-### Kill enemies
+Do not ship a quest that uses a kind with no producer until the owning feature
+emits its event.
 
 ```ts
-{
-  id: 'defeat-forest-spiders',
-  kind: 'kill',
-  label: 'Defeat forest slime-spiders',
-  target: 3,
-  enemyKinds: ['slime-spider'],
-  areaIds: ['gloop-forest'],
-  enemyTags: ['spider', 'corrupted'],
-}
+// Collect: any listed item matches; counts pickups, not inventory; consumes nothing.
+{ id: 'gather-silk', kind: 'collect', label: 'Collect spider silk', target: 5, itemIds: ['silk-clump'] }
+
+// Kill: every configured filter must match; with no filters any death counts.
+// enemyTags never match today because combat does not emit tags.
+{ id: 'defeat-worms', kind: 'kill', label: 'Defeat worm brawlers', target: 5, enemyKinds: ['worm-brawler'], areaIds: ['level-1'] }
+
+// Talk: repeated conversations count again, so keep target 1 unless repeats are intended.
+{ id: 'speak-to-elder', kind: 'talk-to-npc', label: 'Talk to Village Elder Plop', target: 1, npcIds: ['village-elder-plop'] }
+
+// Craft: output item must match; recipeIds optionally narrows the recipe.
+{ id: 'brew-tonic', kind: 'craft-item', label: 'Brew a Slime Tonic', target: 1, itemIds: ['hp-potion'], recipeIds: ['brew-tonic'] }
+
+// Place: counts a placed furniture item from the inventory (today: the workbench).
+{ id: 'place-workbench', kind: 'place-item', label: 'Place the Workbench', target: 1, itemIds: ['workbench'] }
+
+// Boss: each boss counts once unless the producer supplies distinct factIds.
+{ id: 'defeat-fatty', kind: 'defeat-boss', label: 'Defeat Fatty One Eye', target: 1, bossIds: ['fatty-one-eye'] }
+
+// Discover: each area counts once, so target must not exceed the number of listed areas.
+{ id: 'enter-gloop-forest', kind: 'discover-area', label: 'Enter Gloop Forest', target: 1, areaIds: ['gloop-forest'] }
+
+// Contract-only kinds (no producer yet):
+{ id: 'escort-trader', kind: 'escort-character', label: 'Escort the trader', target: 1, escortIds: ['trader-escort'], destinationIds: ['camp'] } // needs escortIds or characterIds
+{ id: 'light-shrines', kind: 'activate-object', label: 'Light the shrines', target: 3, objectIds: ['shrine'], areaIds: ['gloop-forest'] } // needs objectIds or instanceIds
+{ id: 'survive-night', kind: 'survive-duration', label: 'Survive the assault', target: 1, encounterIds: ['night-assault'], requiredDurationMs: 60_000 }
 ```
 
-All configured filter groups must match:
-
-- `enemyKinds`: the event's `kind` must be one of these IDs.
-- `areaIds`: the event's `areaId` must be one of these IDs.
-- `enemyTags`: the event must contain every configured tag.
-
-Every filter is optional. With no filters, every enemy death counts. The current combat producer emits `enemyId`, `areaId`, and `kind`, but not tags, so a tag-filtered quest will not progress until combat emits `tags`.
-
-### Talk to an NPC
-
-```ts
-{
-  id: 'speak-to-elder',
-  kind: 'talk-to-npc',
-  label: 'Talk to Village Elder Plop',
-  target: 1,
-  npcIds: ['village-elder-plop'],
-}
-```
-
-Any listed NPC matches. NPC IDs are validated against `NpcCatalog.ts`. Because repeated `npc.talked` events are not deduplicated, use a target above 1 only when repeated conversations should count.
-
-### Craft items
-
-```ts
-{
-  id: 'brew-tonics',
-  kind: 'craft-item',
-  label: 'Brew two slime tonics',
-  target: 2,
-  itemIds: ['hp-potion'],
-  recipeIds: ['brew-tonic', 'weave-tonics'],
-}
-```
-
-The output item must match `itemIds`. When `recipeIds` is present, the recipe must also match. The output quantity is added. Item and recipe IDs are validated against their catalogs.
-
-### Escort a character
-
-```ts
-{
-  id: 'escort-trader',
-  kind: 'escort-character',
-  label: 'Escort the trader to camp',
-  target: 1,
-  escortIds: ['forest-trader-escort'],
-  characterIds: ['forest-trader'],
-  destinationIds: ['meadow-camp'],
-}
-```
-
-At least `escortIds` or `characterIds` is required. Every configured filter must match. A producer should supply a stable, unique `runId` for each escort attempt. Without one, the matcher uses `escortId`, so repeated completions of the same escort cannot increment the same objective more than once.
-
-The event contract and matcher exist, but no production escort feature currently emits `escort.completed`. Connect the escort feature before authoring a playable quest with this objective.
-
-### Defeat a boss
-
-```ts
-{
-  id: 'defeat-guardians',
-  kind: 'defeat-boss',
-  label: 'Defeat both guardians',
-  target: 2,
-  bossIds: ['amber-guardian', 'crystal-guardian'],
-}
-```
-
-Any listed boss matches. Each boss normally counts once because `bossId` is the default fact ID. Supply a different stable `factId` only if repeatable defeats of the same boss are intentionally distinct.
-
-The event contract and matcher exist, but no production boss feature currently emits `boss.defeated`. Connect the boss feature and persist the defeated boss through world progress before using it in a shipped quest.
-
-### Activate an object
-
-```ts
-{
-  id: 'activate-shrines',
-  kind: 'activate-object',
-  label: 'Activate the forest shrines',
-  target: 3,
-  objectIds: ['shrine.world'],
-  areaIds: ['gloop-forest'],
-}
-```
-
-At least `objectIds` or `instanceIds` is required. Use `objectIds` to accept any instance of an archetype; use `instanceIds` to require specific authored map instances. Every configured filter must match. Each `instanceId` can count only once for an objective.
-
-The event contract and matcher exist, but no production interaction feature currently emits `object.activated`. Emit it only after activation succeeds, not when the player merely presses the interaction key.
-
-### Survive for a duration
-
-```ts
-{
-  id: 'survive-night',
-  kind: 'survive-duration',
-  label: 'Survive the night assault',
-  target: 1,
-  encounterIds: ['forest-night-assault'],
-  requiredDurationMs: 60_000,
-}
-```
-
-The encounter ID must match and the event duration must be at least `requiredDurationMs`. Progress increases by one completed survival run, not by milliseconds. For targets above 1, emit a different stable `factId` for each completed run; otherwise the encounter ID deduplicates later completions.
-
-The event contract and matcher exist, but no production survival feature currently emits `survival.completed`. The encounter feature must own the timer and emit only after authoritative success.
-
-### Discover an area
-
-```ts
-{
-  id: 'discover-regions',
-  kind: 'discover-area',
-  label: 'Discover both regions',
-  target: 2,
-  areaIds: ['gloop-forest', 'crystal-caverns'],
-}
-```
-
-Any listed area matches, and each area counts once. The world scene already emits `area.enter`. Discovered area facts are persisted and may be applied when the quest activates.
-
-Make the target achievable: because area IDs are deduplicated, `target` must not exceed the number of distinct matching areas the player can enter.
+`area.enter` fires with the **map ID** when the player enters a map
+(`level-1`, `gloop-forest`, `crystal-caverns`, ...). Named `Area2D` world areas
+inside a map (spawn, safe, NPC-wander, boss-arena areas) do not emit it.
 
 ## Authoritative gameplay events
 
-A quest definition describes what counts; it does not inspect gameplay systems directly. The feature that owns a successful action must emit the corresponding event through `gameEvents`:
+A quest describes what counts; it never inspects gameplay systems. The feature
+that owns a successful action emits the event on `gameEvents`
+(`src/game/core/EventBus.ts`) with the payload declared in `QuestInputEvents`:
 
 ```ts
-gameEvents.emit('collectible.collected', {
-  mapId,
-  instanceId,
-  objectId,
-  itemId,
-  quantity,
-});
-
-gameEvents.emit('enemy.died', {
-  enemyId,
-  areaId,
-  kind: enemyKind,
-  tags: ['spider'], // Optional; needed by tag-filtered objectives.
-});
-
-gameEvents.emit('npc.talked', { npcId, conversationId });
+gameEvents.emit('collectible.collected', { mapId, instanceId, objectId, itemId, quantity });
+gameEvents.emit('enemy.died', { enemyId, areaId, kind, tags }); // tags optional
+gameEvents.emit('npc.talked', { npcId, conversationId });        // conversationId optional
 gameEvents.emit('craft.completed', { recipeId, itemId, quantity });
+gameEvents.emit('furniture.placed', { mapId, placementId, itemId, sceneId, x, y });
+gameEvents.emit('boss.defeated', { bossId, factId });           // factId optional
+gameEvents.emit('area.enter', { areaId });
 gameEvents.emit('escort.completed', { escortId, characterId, destinationId, runId });
-gameEvents.emit('boss.defeated', { bossId, factId });
 gameEvents.emit('object.activated', { objectId, instanceId, areaId });
 gameEvents.emit('survival.completed', { encounterId, durationMs, factId });
-gameEvents.emit('area.enter', { areaId });
 ```
 
-Emit after the action succeeds and state has been committed. Do not emit from buttons, quest UI, animations, or speculative attempts. Emit exactly once unless repeated events are part of the objective's intended meaning.
-
-The `QuestEventBridge` must subscribe to every quest input event and forward it to `QuestService.handleEvent`. All current objective events are already connected there, including the contract-ready objective types that do not yet have gameplay producers.
+Emit after the action succeeds and state is committed, exactly once, never from
+buttons, quest UI, animations, or speculative attempts. `QuestEventBridge`
+already forwards every event above to `QuestService.handleEvent`.
 
 ## Creating and placing a quest NPC
 
-Skip this section if all acquisition and completion are automatic and no objective refers to a new NPC.
+Skip this if the quest uses only existing NPCs. NPCs are universal scenes; the
+most recent example to copy is `fisherman-slime` (commit `a3aa9a2`).
 
-### 1. Add the NPC identity
+1. **Sprite asset.** Add the sheet under `asset/characters/authored/npcs/` and
+   its `character.npc.<id>` entry to `asset/assets.json`; run
+   `pnpm assets:check`.
+2. **Character package.** Create `src/game/content/characters/<id>/character.json`
+   (`"kind": "npc"`, `visualSetId: "character.npc.<id>"`) and
+   `visual-set.json`, and register both in
+   `src/game/content/characters/virtual-character-content.ts`.
+3. **NPC identity.** Add an entry to `NPC_DEFINITIONS` in
+   `src/game/content/npcs/NpcDefinitions.ts`:
 
-Add a stable definition to `src/game/content/npcs/NpcCatalog.ts`:
+   ```ts
+   {
+     id: 'old-miner',          // the ID quests reference
+     characterId: 'old-miner', // one NPC per character package
+     displayName: 'Old Miner',
+     description: 'Fallback line when there is no dialogue.',
+     dialogue: ['Pages shown when the NPC has no quest action.'],
+   },
+   ```
 
-```ts
-{
-  id: 'mossy-scout',
-  displayName: 'Mossy Scout',
-  description: 'A scout keeping watch over the forest path.',
-},
-```
+4. **Character scene.** Create
+   `src/game/content/scenes/authored/characters/<id>.scene.json` (copy
+   `fisherman-slime.scene.json`, or use Scene Studio at `?studio=scenes`). Its
+   `game.npc` ScriptNode carries `characterId` and `npcDefinitionId` (the NPC
+   ID) plus wander tuning.
+5. **Place it.** In Scene Studio, open the world scene
+   (`scenes/authored/worlds/<map-id>.scene.json`) and add an instance of
+   `character.<id>` under the `world` node, overriding the `body` position.
+   Optionally add an `npc-wander` world area (a `game.world-area` script with
+   `data.npcInstanceId`) to keep it roaming nearby. In level 1, instances
+   outside the generated `gen-*` groups survive
+   `scripts/maps/build-level-1.mjs`; add the instance to that script's pinned
+   position table only if the builder should own its position.
 
-The `description` is the fallback message when the NPC has no offer or turn-in. `visualId` is optional metadata; the placed object archetype owns the current visual.
+The `npc.*` object archetypes in `src/game/content/objects/npcs/` and
+`LegacyMapPlacementMapping.ts` exist only for the older NPCs' map-JSON
+placements; new NPCs do not need them.
 
-### 2. Create an NPC object archetype
-
-Create a JSON file under `src/game/content/objects/npcs/`, following an existing NPC file:
-
-```json
-{
-  "$schema": "../objects.schema.json",
-  "objectId": "npc.mossy-scout",
-  "selection": "authored",
-  "variants": [
-    {
-      "assetId": "character.player.slime",
-      "frames": [
-        {
-          "visualId": "mossy-scout",
-          "frame": 9,
-          "scale": 0.28125,
-          "displayName": "Mossy Scout"
-        }
-      ]
-    }
-  ],
-  "physics": null,
-  "npc": { "definitionId": "mossy-scout" },
-  "tags": ["npc", "interactable"]
-}
-```
-
-NPC identity is currently owned by the object archetype, so create a separate archetype for each NPC identity.
-
-### 3. Register the object archetype
-
-Import the JSON and add its `objectId` to `OBJECT_FILES` in `src/game/content/objects/ObjectCatalog.ts`.
-
-### 4. Place the NPC in an authored map
-
-Add it through the map editor or add an object entry to the relevant map JSON:
-
-```json
-{
-  "instanceId": "level-1-npc-mossy-scout",
-  "objectId": "npc.mossy-scout",
-  "visualId": "mossy-scout",
-  "x": 768,
-  "y": 704
-}
-```
-
-The `instanceId` must be stable and unique within the map. The object and visual IDs must exactly match the object catalog. Place the NPC somewhere reachable; the interaction distance is 96 world pixels.
-
-### 5. Reference the NPC from the quest
-
-The same NPC ID may appear in acquisition, completion, talk objectives, or prerequisites:
-
-```ts
-acquisition: { kind: 'npc', npcIds: ['mossy-scout'] },
-completion: { kind: 'npc-turn-in', npcIds: ['mossy-scout'] },
-```
-
-When interacting, ready turn-ins have priority over available offers, abandoned quest re-offers, and ordinary dialogue. The controller currently presents the first applicable quest action for that NPC.
+Players interact within 96 world pixels. A ready turn-in has priority over an
+available offer, which has priority over an abandoned re-offer and ordinary
+dialogue; the controller shows the first applicable quest action and an
+overhead marker for it.
 
 ## Chaining quests
 
-### Start the next quest automatically
-
 ```ts
-export const secondQuest: QuestDefinition = {
-  id: 'second-quest',
-  // ...
-  prerequisites: [
-    { kind: 'quest-status', questId: 'first-quest', status: 'completed' },
-  ],
-  acquisition: { kind: 'automatic' },
-  // ...
-};
+prerequisites: [{ kind: 'quest-status', questId: 'first-quest', status: 'completed' }],
+acquisition: { kind: 'automatic' },                 // starts the moment first-quest completes
+// or
+acquisition: { kind: 'npc', npcIds: ['lili'] },    // becomes available at Lili; the player accepts it
 ```
 
-When `first-quest` completes, `second-quest` becomes active immediately.
-
-### Reveal the next quest at an NPC
-
-```ts
-prerequisites: [
-  { kind: 'quest-status', questId: 'first-quest', status: 'completed' },
-],
-acquisition: { kind: 'npc', npcIds: ['mossy-scout'] },
-```
-
-When `first-quest` completes, this quest becomes available. It remains unaccepted until the player talks to the NPC and accepts it.
-
-Create separate quests only when that separation matters to the player or the lifecycle. Otherwise, prefer stages in one quest.
+There is no separate quest-sequence entity. Prefer stages in one quest unless
+the separation matters to the player or the lifecycle.
 
 ## Save compatibility and definition versions
 
-Quest state persists the quest ID, definition version, status, active stage, objective progress, consumed fact IDs, timestamps, retry stage, and reward state.
+Quest state persists the quest ID, definition version, status, active stage,
+objective progress, consumed fact IDs, timestamps, resume stage, and reward
+state. Keep `definitionVersion` unchanged for wording-only edits. Increment it
+when a saved state needs transformation, for example when you rename or remove
+a stage or objective ID, reorder stages, split or combine objectives, or lower
+a target below possibly saved progress.
 
-Keep `definitionVersion` unchanged for wording-only edits that do not alter saved-state meaning. Increment it when an existing saved quest needs transformation, for example when you:
-
-- Rename or remove a stage or objective ID.
-- Change stage ordering in a way that changes the active stage.
-- Split or combine objectives.
-- Lower targets below potentially saved progress.
-- Change facts or lifecycle semantics that existing states cannot safely interpret.
-
-When incrementing from version N to N+1, register a reconciler in `QuestReconciliationRegistry.ts`:
+When going from version N to N+1, register a reconciler (no quest needs one
+yet; register at module scope in `QuestReconciliationRegistry.ts`):
 
 ```ts
-questReconciliationRegistry.register('my-quest', 1, 2, (state, definition) => {
-  return {
-    ...state,
-    definitionVersion: 2,
-    // Rename, clamp, remove, or initialize persisted fields as needed.
-  };
-});
+questReconciliationRegistry.register('my-quest', 1, 2, (state, definition) => ({
+  ...state,
+  definitionVersion: 2,
+  // Rename, clamp, or remove progress, consumedFactIds, activeStageId, resumeStageId.
+}));
 ```
 
-Migrations must be contiguous. A saved version 1 loading definition version 3 needs both `1 -> 2` and `2 -> 3`. Loading fails loudly if any step is missing or if the save contains a newer version than the game.
-
-For a brand-new quest, use version 1. Old saves that do not contain it receive a new locked state, after which prerequisites are evaluated.
+Migrations must be contiguous (1→2 and 2→3 to load a v1 save into v3). Loading
+fails loudly if a step is missing or the save is newer than the game. New
+quests start at version 1; old saves that lack them get a new locked state.
 
 ## Adding a brand-new objective type
 
-Use this path only when none of the existing objective kinds describes the gameplay fact. A new label or different IDs do not require a new kind.
+Only do this when no existing kind describes the gameplay fact. Example:
+`repair-structure`, driven by `structure.repaired`.
 
-Assume a new objective named `repair-structure` driven by `structure.repaired`.
-
-### 1. Define the objective and event contract
-
-In `src/game/content/quests/types.ts`:
-
-```ts
-export interface RepairStructureObjective extends QuestObjectiveBase {
-  readonly kind: 'repair-structure';
-  readonly structureIds: readonly string[];
-}
-```
-
-Add it to `QuestObjectiveDefinition`. `QuestObjectiveKind` is derived from that union.
-
-Add the authoritative event payload to `QuestInputEvents`:
-
-```ts
-'structure.repaired': {
-  readonly structureId: string;
-  readonly instanceId: string;
-};
-```
-
-Because `GameEvents` includes `QuestInputEvents`, the central event bus becomes type-safe for the event automatically.
-
-### 2. Add catalog validation
-
-Add a case to `validateObjective` in `validateQuestCatalog.ts`. Validate required arrays, positive values, mutually required fields, and referenced catalog IDs where a catalog exists. Prefer rejecting impossible definitions during `quests:check` instead of silently accepting them.
-
-### 3. Implement and register the matcher
-
-In `ObjectiveMatchers.ts`:
-
-```ts
-function repairStructureMatch(
-  objective: RepairStructureObjective,
-  payload: QuestInputEvents['structure.repaired'],
-): ObjectiveMatchResult {
-  return objective.structureIds.includes(payload.structureId)
-    ? matched(1, payload.instanceId)
-    : { matched: false };
-}
-```
-
-Add the matcher to `OBJECTIVE_MATCHERS` and add its kind to the registry's completeness set. Decide deliberately whether progress is:
-
-- Quantity-based, such as collected or crafted item counts.
-- Event-based, such as kills or conversations.
-- Fact-based, where a stable `factId` prevents one world fact from counting more than once.
-
-Use fact deduplication for persistent or replayed facts. The fact ID must be stable for the same fact and different for distinct facts that should each count.
-
-### 4. Connect the event bridge
-
-Subscribe, unsubscribe, and forward the new event in `QuestEventBridge.ts`, following the existing handlers.
-
-### 5. Emit from the owning feature
-
-The structure feature should emit only after the repair succeeds:
-
-```ts
-gameEvents.emit('structure.repaired', { structureId, instanceId });
-```
-
-Do not put quest-specific logic into the producer. It reports a domain fact; the matcher decides which quests care.
-
-### 6. Decide whether the fact must be remembered
-
-If a quest accepted later should receive credit for an already-completed repair:
-
-1. Persist repaired structure IDs in the owning world-progress data.
-2. Restore them into the quest service or expose them through condition queries.
-3. Record the event in `handleEvent`.
-4. Apply matching known facts in `applyKnownFacts`.
-5. Update the save schema and migration if the saved shape changes.
-
-If the objective should count only actions performed while active, do not add known-fact backfill.
-
-### 7. Test the new kind
-
-Add quest tests covering:
-
-- Matching and non-matching payloads.
-- Filter combinations.
-- Progress amount and target capping.
-- Duplicate behavior.
-- Stage gating.
-- Save serialization and loading if fact IDs or migrations are involved.
-- Prerequisite reevaluation if the event can unlock quests.
-
-Run the complete validation checklist before authoring production quests with the new kind.
+1. **Types** (`content/quests/types.ts`): add a `RepairStructureObjective`
+   interface to the `QuestObjectiveDefinition` union (`QuestObjectiveKind` is
+   derived from it) and the payload to `QuestInputEvents`. `GameEvents`
+   includes `QuestInputEvents`, so the bus becomes type-safe automatically.
+2. **Validation** (`validateQuestCatalog.ts`): add a `validateObjective` case
+   that checks required arrays, positive numbers, and catalog references.
+3. **Matcher** (`ObjectiveMatchers.ts`): write the match function, add it to
+   `OBJECTIVE_MATCHERS`, and add the kind to the completeness set in
+   `QuestObjectiveRegistry`. Choose quantity-based, event-based, or fact-based
+   progress; use a stable fact ID when one world fact must count once.
+4. **Bridge** (`QuestEventBridge.ts`): subscribe, unsubscribe, and forward.
+5. **Producer**: the owning feature emits after success. Keep quest logic out
+   of it; it reports a domain fact.
+6. **Remembered facts** (optional): if a quest accepted later should get
+   credit, persist the fact in world or story progress, restore it through
+   `restoreKnownFacts` (called from `core/SaveSystem.ts`), record it in
+   `handleEvent`, apply it in `applyKnownFacts`, and update the save schema.
+7. **Tests** (`scripts/tests/quests/`): matching and non-matching payloads,
+   filters, amount and capping, duplicates, stage gating, save round trips, and
+   prerequisite reevaluation.
 
 ## Validation checklist
 
-During authoring, run the narrow checks first:
-
 ```powershell
-pnpm quests:check
+pnpm quests:check        # catalog + NPC-to-character references
 pnpm test:quests
 pnpm typecheck
 ```
 
-If you add or change NPC object archetypes or map placement, also run:
+For new NPCs or placements also run `pnpm characters:check`,
+`pnpm scenes:check`, `pnpm assets:check`, and `pnpm test:npcs`. For save,
+migration, or known-fact changes run `pnpm test:persistence`. Finish with
+`pnpm check`.
 
-```powershell
-pnpm objects:check
-pnpm maps:check
-```
-
-If you change save state, migrations, or known facts, also run:
-
-```powershell
-pnpm test:persistence
-```
-
-Before considering the quest finished:
-
-```powershell
-pnpm check
-```
-
-Then play-test this exact lifecycle:
-
-1. Start from a new run and from an older save.
-2. Verify the quest is locked, available, or active at the intended time.
-3. Accept or decline it if NPC-acquired.
-4. Trigger matching and near-miss events for every objective.
-5. Confirm same-stage objectives progress in parallel.
-6. Confirm future-stage objectives do not progress early.
-7. Complete each stage and check journal visibility.
-8. Turn in or auto-complete the quest.
-9. Confirm rewards are granted once.
-10. Save and reload during at least one active stage.
-11. Test failure, retry, abandonment, and re-offer paths when configured.
-12. Confirm any chained quest becomes active or available as intended.
+Then play-test: start from a new run and from an older save; confirm the quest
+is locked, available, or active at the right time; accept and decline; trigger
+matching and near-miss events for every objective; confirm same-stage
+objectives progress together and future stages do not; complete each stage;
+turn in or auto-complete; confirm rewards arrive once; save and reload during
+an active stage; exercise failure, retry, abandonment, and re-offer paths; and
+confirm any chained quest appears as intended.
 
 ## Troubleshooting
 
-### The quest remains locked
+**The quest stays locked.** Separate prerequisite entries are ANDed. Check the
+exact IDs and requested status, and that the changing system triggers
+reevaluation.
 
-- Remember that separate prerequisite entries use AND logic.
-- Check the exact prerequisite IDs and requested quest status.
-- Confirm the changing system causes prerequisite reevaluation.
-- For save-dependent area or boss facts, confirm they exist in world progress and are restored.
-- For world flags or talked-NPC facts, confirm the owning feature persists and restores them if needed across loads.
+**An NPC does not offer the quest.** The status must be `available` (not
+`locked`, `active`, or `abandoned`); acquisition must be `npc` with the same
+NPC ID; the NPC's character scene must set that `npcDefinitionId`; an instance
+must be placed in the current world scene; and the player must be within 96 px
+with no higher-priority action on that NPC.
 
-### An NPC does not offer the quest
+**An objective does not progress.** The quest must be `active` and the
+objective in the active stage. Confirm a producer exists and emits after
+success, that payload IDs match every filter exactly (case-sensitive), that a
+fact ID was not already consumed, and that `target` is reachable after
+deduplication. Items owned before acceptance never satisfy `collect`.
 
-- Confirm the quest status is `available`, not `locked`, `active`, or `abandoned`.
-- Confirm acquisition is `npc` and contains the same NPC definition ID.
-- Confirm the NPC exists in `NpcCatalog.ts`.
-- Confirm its object archetype points to that definition ID and is registered in `ObjectCatalog.ts`.
-- Confirm a valid object instance is placed in the current authored map.
-- Move within 96 world pixels and ensure another higher-priority interaction is not taking precedence.
+**A later stage starts at zero although the action happened earlier.** That is
+the stage gate. Reorder stages, merge the objectives into one stage, make the
+action repeatable, or extend known-fact backfill.
 
-### An objective does not progress
+**The quest is ready but does not complete.** An `npc-turn-in` quest stays
+active until the player talks to one of its completion NPCs.
 
-- Confirm the quest is `active` and the objective belongs to the active stage.
-- Confirm the owning feature emits the expected event after success.
-- Compare the payload IDs with every configured filter; matching is exact and case-sensitive.
-- For kill tags, confirm the producer actually supplies `tags`.
-- For fact-backed objectives, check whether that fact ID was already consumed.
-- Confirm `target` is achievable with the number of distinct deduplicated facts.
-- Remember that inventory already owned before acceptance does not satisfy a `collect` objective.
+**A definition-version change breaks loading.** Add every contiguous
+reconciliation step, rename IDs in progress, consumed facts, active stage, and
+resume stage, clamp progress to new targets, and run the persistence tests.
 
-### A later stage starts at zero even though the action happened earlier
+## Valid IDs today
 
-That is the intended stage gate. Future stages do not listen to events. Known-fact backfill happens on quest activation, not every stage transition. Reorder the stages, combine the objectives in one stage, make the action repeatable, or extend known-fact application if the game design requires retrospective credit.
+Verify against the source before relying on this list.
 
-### The quest is ready but does not complete
-
-Check `completion`. An `npc-turn-in` quest intentionally remains active after its objectives finish. The player must interact with one of its completion NPCs.
-
-### A definition-version change breaks loading
-
-- Confirm the definition version is a positive integer.
-- Add every contiguous reconciliation step.
-- Update renamed stage and objective IDs in saved progress, consumed fact IDs, active stage, and retry stage.
-- Clamp progress to new targets.
-- Run persistence tests with representative old states.
+- **NPCs** (`NpcDefinitions.ts`): `village-elder-plop`, `level-1-spider-giver`
+  (Mossy; character `mossy-scout`), `lili`, `red-slime-boy`,
+  `yellow-blond-slime-girl`, `fisherman-slime`.
+- **Enemy kinds** (character packages with `kind: "enemy"`): `worm-brawler`,
+  `worm-swordsman`, `worm-archer`, `slime-spider`.
+- **Bosses**: `fatty-one-eye`.
+- **Areas / maps** reachable in play: `level-1`, `gloop-forest`,
+  `crystal-caverns`; interiors `slime-home`, `mushroom-home`.
+- **Items** (`items.json`): `wood`, `stone`, `iron-ore`, `charcoal`,
+  `hp-potion`, `energy-potion`, `purple-berry-mat`, `silk-clump`, `shard`,
+  `green-key`, `workbench`, `berry-basket`, plus every weapon ID under
+  `content/weapons/` (for example `wooden-spear`, `stone-spear`).
+- **Recipes**: `craft-workbench`, `craft-wooden-spear`, `craft-stone-axe`,
+  `craft-stone-pickaxe`, `craft-stone-spear`, `brew-tonic`,
+  `cook-berry-basket`, `brew-fizzy`, `weave-tonics`.
 
 ## Final author review
 
-Before shipping a quest, answer yes to each item:
-
-- Are quest, stage, and objective IDs stable, unique, and kebab-case?
-- Are actions in the same stage intentionally parallel?
-- Are stages in the order actions should begin counting?
-- Should this be one multi-stage quest rather than several chained quests, or vice versa?
-- Does every prerequisite have a reliable reevaluation and persistence path?
-- Does every objective have an authoritative production event?
-- Are all IDs exact and backed by the appropriate catalogs or authored content?
-- Can every target be reached after deduplication and filtering?
-- Are acquisition and turn-in NPCs defined, registered, placed, and reachable?
-- Do failure and abandonment policies match the available gameplay controls?
-- Are rewards valid and appropriate for a one-time grant?
-- Does an existing save need a definition reconciliation?
-- Do all relevant checks pass?
-- Has the complete lifecycle been play-tested?
+- Are quest, stage, and objective IDs stable, unique, kebab-case, and not
+  retired?
+- Are same-stage objectives meant to be parallel, and stages in the order they
+  should start counting?
+- Does every prerequisite have a reevaluation and persistence path?
+- Does every objective have a production event producer?
+- Can every target be reached after filtering and deduplication?
+- Are the giver and turn-in NPCs defined, placed, and reachable?
+- Do failure and abandonment policies match the controls that exist?
+- Are rewards valid, and are rewarded recipes marked `learnedByQuest`?
+- Does an existing save need a reconciler?
+- Do the checks pass, and has the full lifecycle been play-tested?

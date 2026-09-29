@@ -1,67 +1,53 @@
 # Slime Sheet Guide
 
-This guide defines the exact format for the player slime sheet and any future animated character sheet that wants to reuse the same animation system.
+The format of the player slime sheet, the reference layout for slime-style
+animated characters.
 
-## Required Sheet Format
+## Sheet format
 
-- Runtime sheet key: `slime`
-- Loaded from: `asset/slime_normalized.png`
-- Full sheet size: `2048 x 2048 px`
-- Grid layout: `8 columns x 8 rows`
-- Frame size: `256 x 256 px`
+- Asset ID: `character.player.slime`; texture key `slime`
+- File: `asset/characters/slime_normalized.png`
+- Sheet: `2048 x 2048 px`, `8 columns x 8 rows` of `256 x 256 px` frames
 - Index rule: `frame = row * 8 + column`
-- Default art facing: left
-- Runtime display scale: `0.28`
+- Default art facing: left (flipped at runtime when moving right)
 
-## Runtime Measurements
+## Runtime measurements
 
-- Physics body size: `108 x 80`
-- Physics body offset: `74, 140`
+Set in `src/game/content/scenes/authored/characters/player-slime.scene.json`:
 
-These values mean the visible slime should stay grounded in the lower-middle of each frame. If the character shifts too far up, down, or sideways inside the frame, the collision body will stop matching the art.
+- `Visual` sprite: origin `[0.5, 0.5]`, scale `0.28125` (72 px on screen)
+- Movement body: `30 x 26` rectangle on the `CharacterBody2D`
 
-## Frame Placement Rules
+The slime should sit in the lower middle of each cell and stay there across
+frames; if it drifts, the art no longer matches the body.
 
-- Use a uniform grid only.
-- Keep every frame inside its own `256 x 256` cell.
-- Keep the slime bottom-aligned across frames.
-- Keep the body visually centered.
-- Use transparent padding instead of changing frame size.
-- Keep squash and stretch poses inside the same frame bounds.
+## Frame placement rules
 
-## Animation Row Layout
+- Uniform grid only; keep every pose inside its own `256 x 256` cell,
+  including the widest squash and tallest stretch.
+- Keep the slime bottom-aligned and horizontally centred.
+- Use transparent padding instead of changing the frame size.
 
-Current row usage:
+## Row layout
 
-- Row 0: idle and expressions
-- Row 1: walk or scoot
-- Row 2: hop
-- Row 3: squash or landing
-- Row 4: stretch
-- Row 5: roll or boost
-- Row 6: trick or attack
-- Row 7: special actions
+Clip frame indices live in the scene's `AnimationPlayer` library. Current use:
 
-If you change this layout, update `src/game/slimeAnimations.ts` to match the new frame map.
+| Row | Frames | Clips |
+| --- | --- | --- |
+| 0 | 0-7 | idle (and doze pose) |
+| 1 | 8-15 | walk |
+| 2 | 16-23 | hop (moving down) |
+| 3 | 24-31 | squash: hurt, knockback, die |
+| 4 | 32-39 | stretch (moving up) |
+| 5 | 40-47 | roll/boost, eat, doze, sleep |
+| 6 | 48-55 | trick, attacks, charge |
+| 7 | 56-63 | teleport, cast |
 
-## Orientation Rules
+If you change the layout, update the frame keys of the affected clips in the
+Scene Studio animation dock.
 
-- Draw the source art facing left.
-- The game flips the sprite horizontally for right movement.
-- If the source art faces right, movement direction will look wrong until code is updated.
-
-## Authoring Tips
+## Authoring tips
 
 - Keep a shared baseline guide visible while animating.
-- Keep the widest and tallest poses inside the same `256 x 256` frame.
-- Test idle, walk, and special frames together before exporting the full sheet.
-- Avoid frame-to-frame anchor drift in the feet or lower body.
-
-## Safe Template
-
-Use this template if you want the sheet to work immediately:
-
-- Canvas: `2048 x 2048 px`
-- Grid: `8 x 8`
-- Cell size: `256 x 256 px`
-- Character anchor: bottom-centered in each cell
+- Test idle, walk, and special frames together before exporting the sheet.
+- Avoid frame-to-frame anchor drift in the lower body.

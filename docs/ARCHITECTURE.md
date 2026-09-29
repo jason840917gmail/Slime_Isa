@@ -1,6 +1,6 @@
 # Slime Isa Architecture
 
-The Phaser game uses a feature-first architecture. A feature owns its runtime behavior and configuration; scenes only compose features and coordinate engine lifecycle.
+The Phaser game uses a feature-first architecture on top of a Godot-style scene tree. A feature owns its runtime behavior and configuration; Phaser scenes only compose features and coordinate engine lifecycle.
 
 ## Dependency direction
 
@@ -11,19 +11,22 @@ scenes -> features -> content/shared
    +------> infrastructure
 ```
 
-- `content/` contains immutable gameplay definitions and balancing values.
-- `features/` contains gameplay controllers and use cases.
-- `infrastructure/` owns browser storage, asset generation, and other external concerns.
-- `presentation/` owns shared visual tokens and UI presentation code.
-- `shared/` contains small engine-independent utilities used by multiple features.
-- `scenes/` are Phaser composition roots. They create controllers, connect callbacks, forward updates, and dispose owned resources.
-- `runtime/scene/` owns the common Node, SceneTree, ScriptNode, and scene-instantiation contracts. `infrastructure/scenes/` connects that tree to Phaser; authored scene documents and resources live under `content/scenes/authored/`.
-- Existing `systems/`, `combat/`, `enemies/`, and `ui/` folders contain reusable runtime components. New feature orchestration belongs in `features/`.
+Folders under `src/game/`:
+
+- `content/` — immutable definitions and balancing: `game-constants.json`, authored scene documents (`content/scenes/authored/`), map conversion inputs (`content/maps/`), item/weapon/character/effect/object catalogs, quests, recipes, terrain.
+- `features/` — gameplay controllers and use cases, including every ScriptNode behavior in `features/scripts/`.
+- `runtime/scene/` — engine-independent Node, SceneTree, ScriptNode, signals, animation, and scene-instantiation contracts.
+- `infrastructure/` — Phaser node implementations (`phaser-nodes/`), the scene host and loaders (`scenes/`), map loading, audio, asset loading/procedural textures, and browser persistence.
+- `presentation/` — shared visual tokens, depth, camera, and UI skin.
+- `shared/` — small engine-independent utilities (`animation/`, `lifecycle/`, collision shapes).
+- `scenes/` — Phaser composition roots: `BootScene` (facade for `infrastructure/assets/ProceduralAssetScene`), `MapLoadScene`, `WorldScene`.
+- `editor/` — dev-only Scene Studio (`editor/scene-studio/`).
+- Older reusable-component folders still in use: `core/` (EventBus, GameState, SaveSystem), `systems/` (inventory, stats, loadout), `combat/`, `enemies/`, `ui/`, `world/` (Area, Biome, WorldDimensions), `quests/`, `crafting/`, `dev/` (debug renderers). New feature orchestration belongs in `features/`.
 
 ## Ownership rules
 
 1. A gameplay rule has exactly one source of truth. Shared balancing values live in `content/`, next to the definition they configure.
-2. `content/game-constants.json` is the only authored source of cross-feature gameplay values and new-run defaults. `game-constants.schema.json` owns their structural contract and generates both TypeScript types and a standalone validator; `GameConstantsValidation.ts` adds only cross-field invariants. Runtime code imports the validated, deeply readonly `GAME_CONSTANTS` value and its re-exported types through `game/Constant.ts`; direct runtime JSON imports, hand-written duplicate property interfaces, and fallback balance literals are forbidden. Local drawing and tween values stay local.
+2. `content/game-constants.json` is the only authored source of cross-feature gameplay values and new-run defaults (see below). Local drawing and tween values stay local.
 3. Only `infrastructure/persistence` may access `localStorage` or define storage keys.
 4. Scenes must not contain storage parsing, content registries, or complete feature implementations.
 5. Feature controllers receive dependencies through a context interface. They do not import `WorldScene`.
@@ -31,61 +34,54 @@ scenes -> features -> content/shared
 7. Persistent data is saved through the schema-versioned `SaveSystem`; migrations belong in the persistence layer.
 8. UI may display state and invoke provided actions. It must not reach into unrelated scene internals.
 9. Prefer typed identifiers and readonly definitions for content registries.
-10. `pnpm build` must pass before changes are considered complete.
+10. Verify a change with `pnpm typecheck` plus the targeted checks/tests for the area changed (for example `pnpm scenes:check`, `pnpm maps:check`, or the matching `pnpm test:*` suite). Run the full `pnpm build` / `pnpm check` only when asked, or before a release or a commit of broad changes.
 
 ## Gameplay configuration
 
-The versioned gameplay constants document currently owns inventory capacity and stack rules, initial player attributes, movement speeds and cap, dodge protection, hit protection, world-navigation timing, and the ordered `resources.tags` harvesting catalog. Changing an authored value requires changing only that JSON document. Adding a structurally independent property requires adding it to the JSON and schema, while TypeScript validation changes only when the property participates in a cross-field invariant. Harvest capability and requirement fields persist stable string IDs from that closed catalog; editors, save endpoints, and repository checks reject unknown values. Damage-modifier tags remain an independent open domain because they also classify enemies and other combat targets. New runs copy initial attributes, while movement and protection remain current global rules. Base item definitions omit stack limits and are normalized against the exact configured item-ID map; weapon items use the configured global weapon stack limit.
+`content/game-constants.json` owns inventory capacity and stack rules, initial player attributes, movement speeds and cap, dodge and hit protection, the player progression table, world-navigation timing, sleep regeneration, and the ordered `resources.tags` harvesting catalog. `game-constants.schema.json` owns the structural contract and generates both TypeScript types and a standalone validator; `GameConstantsValidation.ts` adds only cross-field invariants. Runtime code imports the validated, deeply readonly `GAME_CONSTANTS` and its types through `src/game/Constant.ts`; direct runtime JSON imports, duplicate hand-written interfaces, and fallback balance literals are forbidden.
 
-After a schema edit, run `pnpm constants:generate`; `constants:check` rejects stale generated types or validation code. Development keeps Vite available when the document is invalid so it can be repaired, while gameplay still fails before `BootScene`. Production builds reject invalid constants.
+After a schema edit run `pnpm constants:generate`; `pnpm constants:check` rejects stale generated code. In development Vite stays available when the document is invalid so it can be repaired (a dev endpoint, `/__game-constants`, serves and saves it), while gameplay fails before `BootScene`. Production builds reject invalid constants.
 
-The primary character package owns authored identity, body, and visuals. It must not contain primary-player attributes, movement, or progression rules. Gameplay constants own the primary-player progression table; runtime XP uses that table, saves persist level plus current XP, and legacy cumulative XP is migrated without granting synthetic rewards. Enemy packages may continue to own their attributes and per-entity gameplay values.
+Harvest capability and requirement fields persist stable IDs from the closed `resources.tags` catalog. Damage-modifier tags are a separate open domain. Character packages own identity, body, and visuals, not player attributes or progression; enemy packages may own their own stats.
 
-## Shared animation ownership
+## Scene tree and Scene Studio
 
-`shared/animation` owns timeline timing, layered visual documents, frame resolution, and playback order. Domain adapters for characters, enemies, weapons, projectiles, and effects may select content and provide a world anchor, but must not copy the clock, renderer, transform composition, or layered timeline editor. Every visual layer and combat/event track for one animation consumes the same master frame. Animations belong to the scene that plays them: each character, weapon, effect, and animated object embeds its animation library in its own `AnimationPlayer`. The former shared animation packages and their `content/animations` sources were retired; only the three tree clips the object converter embeds remain, as frozen inputs under `scripts/migrations/frozen-sources/animations/`.
+`UniversalSceneWorldController` mounts world, entity, UI, and audio SceneTrees. A ScriptNode stores a registered script ID and data only; behavior is registered in `features/scripts/registrations.ts` and reaches domain services through typed ports. The Phaser host performs one Arcade step for scene-owned bodies and areas; authored circles, capsules, and polygons are approximated with Arcade-compatible shapes, not pixel-perfect collision. Persistent world populations come only from authored world scenes; Phaser scenes must not add hidden NPCs, houses, puzzles, or props.
 
-Scene Studio's animation dock (`editor/scene-studio/animation/`) is the only animation editor. It edits the scene's embedded `AnimationPlayer` library through scene commands, one undo step per edit, previews through the paused studio runtime, and keeps a weapon script's `attackPlans` duration, frame rate and hitbox spans in step with the clip each plan names. Tracks may be disabled or forced to nearest interpolation, and keys may carry an easing `transition`; `AnimationPlayerNode` honours all three at runtime.
+Scene Studio (`?studio=scenes`, dev server only) creates and edits authored scene documents and resources with a shared inspector, undo/redo, and hash-checked saves written through the dev-only `/__scene-studio/content` Vite endpoint. Legacy editor URLs (`?studio=characters|weapons|projectiles|animations`, `?editor=<map>`) redirect into it. `scripts/check-scene-ownership.mjs` rejects retired editor and construction paths.
 
-Weapon definitions version 2 store Idle and directional Attack animations as layered documents. Hitbox activation remains a weapon-owned directional track on that same clock. Reusable contact visuals live in `content/effects`; enemy feedback uses weapon `onHitEffectId`, while resource nodes own material `hitEffectId` feedback dispatched only after positive damage. Confirmed effects start at the damaged object's `x`/`y` anchor, follow its world-sort depth with a fixed front offset while it remains active, and freeze at the last valid position if the target is destroyed. Timeline events must never synthesize weapon impact effects or bypass confirmed damage. Authored weapon scenes now own the mounted combat composition; old packages remain checked conversion inputs until their consumers and writers are retired.
+Resources follow Godot's sub-resource convention: a collision shape, sprite sheet, animation library, or tile layer used by one scene lives in that scene's `subresources`. Only data shared by several scenes is a standalone `*.resource.json` (the UI theme and the project terrain TileSet `terrain.tiles`). Images and audio stay in `asset/assets.json`.
+
+## Animation ownership
+
+`shared/animation` owns timeline timing, layered visual documents, frame resolution, and playback order; domain adapters select content and a world anchor but do not copy the clock or renderer. Each character, weapon, effect, and animated object embeds its animation library in its own `AnimationPlayer` node (`runtime/scene/animation/`). Scene Studio's animation dock (`editor/scene-studio/animation/`) is the only animation editor; it keeps a weapon script's `attackPlans` in step with the clips they name. Three frozen tree clips used by the object converter remain under `scripts/migrations/frozen-sources/animations/`.
+
+Weapon hitbox activation is a weapon-owned track on the same clock. Contact visuals live in `content/effects`; enemy feedback uses weapon `onHitEffectId`, resource nodes use material `hitEffectId`, and both fire only after confirmed positive damage. Weapon packages in `content/weapons/` are still read at runtime by the item registry and loadout alongside the authored weapon scenes.
 
 ## Current composition
 
-`WorldScene` delegates major responsibilities to:
+`WorldScene` delegates to `PlayerController`, `UniversalSceneWorldController`, `CombatController`, `ResourceNodeController`, collectible/occlusion/interaction controllers, `WorldDebugRenderer`, and the `saveSystem`/`worldProgress` singletons. `MapLoadScene` resolves the destination through `AreaNavigation` and `WorldSceneLoader` before `WorldScene` starts. Terrain is drawn by `TileMapLayer2D` nodes in the world scene. `WorldScene` still owns camera/input coordination, domain services, and the host boundary.
 
-- `PlayerController` and `UniversalSceneWorldController`
-- `CombatController`
-- `MapRepository`, `TileFactory`, and the authored world SceneTree
-- `AreaNavigation`
-- `WorldDebugRenderer`
-- `SaveSystem`, `SaveRepository`, and `WorldProgress`
+## Worlds and maps
 
-`UniversalSceneWorldController` mounts world, entity, UI, and audio SceneTrees. A ScriptNode contains feature behavior registered through `features/scripts/registrations.ts`; it obtains domain services through typed ports instead of importing `WorldScene`. The Phaser host performs one Arcade step for scene-owned bodies and areas. Blocking bodies and overlap sensors are distinct; area shape approximation follows the documented Phaser geometry limits. Persistent world populations come only from authored map JSON; scenes must not add hidden NPCs, houses, puzzles, or props. `WorldScene` still owns terrain rendering, camera/input coordination, domain services, and the host boundary.
+Each world is an authored scene `content/scenes/authored/worlds/<map-id>.scene.json` (scene ID `world.<map-id>`) containing a `game.world-definition` script and its tile layers. `WorldSceneLoader` resolves it before the active scene changes; a missing world fails visibly. `content/maps/<map-id>.map.json` (format v1, `mapFormat.ts`) are the conversion inputs the world scenes were produced from; `MapRepository` still validates them (e.g. a saved location's map on load) and `maps:check` checks them.
 
-Scene Studio (`?studio=scenes`) creates and edits authored scene documents and external resources with common property descriptors, undo/redo, hash-checked saves, and preview isolation. Select a scene or resource in the project explorer, edit its properties, and save; legacy category URLs redirect to the corresponding Scene Studio context. Runtime instances carry source provenance and reversible local overrides, so editing one instance does not mutate its packed source. ScriptNode documents store a registered script ID and data only; executable behavior lives in `features/scripts/`. Keep source-hash-audited conversion inputs and frozen fixtures for repeatability. `scripts/check-scene-ownership.mjs` rejects retired editor and construction paths. The object catalog remains a read-only map/save compatibility validator; NPC identity and placement definitions remain project data. Neither is an alternate writable editor.
-
-Resources follow Godot's sub-resource convention. A collision shape, sprite sheet, animation library, or painted tile layer used by one scene is stored in that scene's `subresources`, and the studio saves it with the scene. Only data shared by several scenes is a standalone `*.resource.json` file: currently the UI theme and the one project terrain TileSet (`terrain.tiles`) that every map layer paints with. Images and audio stay in `asset/assets.json`. The scene converters apply the same rule (`scripts/lib/scene-conversion/embed-owned-resources.mjs`), so regeneration produces this layout.
-
-Scene-owned collisions use Phaser Arcade bodies and area sensors. The host approximates authored circles, capsules, and polygons with Arcade-compatible shapes where needed; authored geometry is not a promise of pixel-perfect narrow-phase collision. Static blockers are grouped, and the managed tree owns explicit teardown of bodies, timers, subscriptions, and Phaser objects.
-
-Only user gameplay acceptance can close the interactive movement, combat, interaction, and visual-quality checklist. Deterministic editor contracts and browser fixtures verify specific behavior, but cannot substitute for that playthrough.
-
-## Persistence
-
-Save schema version 4 stores player state, inventory, quests, and world progress in one envelope. Player equipment includes the active weapon ID and six persistent weapon hotbar slots. The repository reads older envelopes and split keys, drops retired population fields, and normalizes missing loadout fields to the starter loadout. Autosave is driven by typed domain events and is debounced.
-
-Weapon ownership is inventory-backed. Weapon definitions are registered as unique equipment items, `WeaponLoadout` validates ownership and slot assignment, and `CombatController` replaces the active weapon gameplay/visual pair only after the loadout authorizes a switch. Plain number keys 1–6 select the six loadout slots; development cheats use Shift+1–Shift+8.
+`scripts/lib/procedural-map-generator.mjs` is tooling only; gameplay never imports it. `pnpm maps:bake` rewrites only `gloop-forest.map.json` and `crystal-caverns.map.json`.
 
 ## World dimensions
 
-`WorldDimensions` is the single geometry value for a loaded map: tile size, columns, rows, pixel width, and pixel height. `WorldScene` passes it through feature contexts to world building, physics, navigation, spawning, abilities, camera, minimap, and debug rendering. Do not introduce global world-width or tile-count constants. Production dimensions always come from `dimensionsFromMap(map)`.
+`WorldDimensions` (`world/WorldDimensions.ts`) is the single geometry value for a loaded map: tile size, columns, rows, pixel width, and pixel height, always built by `dimensionsFromMap(map)`. It is passed through feature contexts; do not introduce global world-size constants.
 
-## Authored production maps
+## Persistence
 
-Every area references a required JSON map in `src/game/content/maps/`. `MapRepository` validates and lazy-loads it before `WorldScene`; the authored world SceneTree creates reusable objects, populations, and interactions while `TileFactory` renders the terrain layer. Missing production maps fail visibly instead of falling back to runtime generation.
+Save schema version 9 (`infrastructure/persistence/SaveSchema.ts`) stores player state, inventory, quests, location, world progress, story, and play time in one envelope, with multiple named saves plus a debounced recovery autosave driven by typed domain events. `SaveRepository` migrates older envelopes and legacy split keys.
 
-The deterministic generator in `scripts/lib/procedural-map-generator.mjs` is tooling only. `pnpm maps:bake` can recreate the initial three production maps, but gameplay never imports the generator. Once a generated map is manually edited, do not rebake it unless replacing those edits is intentional.
+Weapon ownership is inventory-backed: `WeaponLoadout` validates ownership and the six persistent hotbar slots, and `CombatController` swaps the active weapon only after the loadout authorizes it. Number keys 1–6 select loadout slots; development cheats use Shift+1–Shift+8.
+
+## Verification scope
+
+Deterministic checks and browser fixtures verify specific contracts, but only a user playthrough can accept movement, combat, interaction, and visual quality.
 
 ## Phaser and Godot
 
-`src/` is the Phaser/Vite application. `MobileVersion/` is an independent Godot application. They may share design documents and source art, but they must not share engine-specific runtime code.
+`src/` is the Phaser/Vite application. `MobileVersion/` is an independent Godot application. They may share design documents and source art, but not engine-specific runtime code.

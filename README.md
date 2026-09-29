@@ -19,22 +19,18 @@ Then open `http://localhost:3000`.
 ## Development
 
 - `pnpm dev` starts Vite on port 3000.
-- `pnpm typecheck` runs strict TypeScript validation.
-- `pnpm build` type-checks and creates the production build.
-- `pnpm check` runs the complete local verification sequence.
-- `pnpm scene-ownership:check` guards the current Scene Studio and runtime ownership boundaries.
+- `pnpm typecheck` runs strict TypeScript validation (game, Vite config, and browser-test configs).
+- Targeted checks and tests: `pnpm scenes:check`, `pnpm maps:check`, `pnpm assets:check`, `pnpm test:<suite>` (see `package.json`).
+- `pnpm build` type-checks and creates the production build in `dist/`.
+- `pnpm check` runs every check, all Node test suites, the build, and the Playwright browser tests (slow; use before releases or broad commits).
 
-The Phaser project follows a feature-first structure. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for dependency rules, state ownership, persistence, and conventions for new features.
+See [AGENTS.md](AGENTS.md) for the full command list and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for dependency rules, ownership, and persistence. Asset authors start with [docs/assets/README.md](docs/assets/README.md).
 
-Asset authors should start with [docs/assets/README.md](docs/assets/README.md), which covers generation, sheet preparation, media registration, reusable object archetypes, character visuals, and map-instance layers.
-
-Map authors should follow [docs/AUTHORED_MAPS.md](docs/AUTHORED_MAPS.md) for the JSON workflow, content rules, preview URL, and validation commands.
-
-Open `http://localhost:3000/?studio=scenes` for Scene Studio. Select a world, character, combat, object, effect, UI, or audio scene, or an external resource, from the project explorer. The shared inspector, undo/redo, and save workflow apply across them. Old editor URLs redirect to Scene Studio. Original content packages remain read-only conversion inputs; NPC identity and placement data remain project data.
+Open `http://localhost:3000/?studio=scenes` (dev server only) for Scene Studio, the editor for every authored scene: worlds, characters, weapons, objects, effects, UI, and audio, plus shared resources. It provides a scene tree, inspector, animation timeline, tile painting, undo/redo, and saves straight to `src/game/content/scenes/authored/`. Old editor URLs (including `?editor=<map>`) redirect to it. In development, `http://localhost:3000/?map=<map-id>` starts directly in a world.
 
 ## Android Build And Deploy
 
-The Android version is the Godot project in `MobileVersion/`.
+The Android version is the separate Godot project in `MobileVersion/`. The paths below are from one developer machine; adjust them to your JDK, Android SDK, Godot, and checkout locations.
 
 Use an Android virtual device with **API 35**. For emulator testing, the debug export includes `x86_64` and `arm64-v8a`.
 
@@ -84,4 +80,4 @@ adb -s emulator-5554 install -r "D:\projects\Slime isa\MobileVersion\export\andr
 
 ## Status
 
-Work in progress. Core movement and animations are functional.
+Work in progress. Playable today: the Slimeshire Meadow level-1 world and several other areas, combat with a six-slot weapon hotbar, enemies and bosses, harvesting, crafting, quests and NPCs, house interiors, named saves, and sound effects. Gameplay tuning and visual polish are ongoing, and there is no CI.

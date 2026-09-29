@@ -1,45 +1,37 @@
 # Documentation
 
-This folder contains the asset and implementation notes for the game.
+Project notes for Slime Isa. The agent/developer quick reference (commands,
+structure, rules) is [`AGENTS.md`](../AGENTS.md) at the repository root.
 
-## Asset Creation And Integration
+## Top-level docs
 
-All operational documentation for generating, preparing, registering, and
-incorporating new art now lives in the [Asset Creation And Integration](./assets/README.md)
-folder. Start there for the recommended workflow and links to every asset guide.
+- [ARCHITECTURE.md](./ARCHITECTURE.md) — dependency direction, feature/scene ownership rules, the universal scene tree, Scene Studio, and authored maps.
+- [AUTHORED_MAPS.md](./AUTHORED_MAPS.md) — authored worlds: world scenes, map JSON, areas, exits, and spawns.
+- [TOOLING.md](./TOOLING.md) — what each `pnpm` script and generator/pack tool touches.
+- [TERRAIN_TRANSITIONS.md](./TERRAIN_TRANSITIONS.md) — how logical terrain tiles are blended into organic regions.
+- [camera-and-minimap-guide.md](./camera-and-minimap-guide.md) — responsive camera, wheel zoom, and minimap.
+- [GAME_GUIDELINES.md](./GAME_GUIDELINES.md) — agreed game design direction (living draft).
+- [GAME_ROADMAP.md](./GAME_ROADMAP.md) — playable task checklist.
+- [BETA_PLAN.md](./BETA_PLAN.md) — larger roadmap-to-beta reference.
 
-## Knowledge Notes
+## Folders
 
-- [Knowledge index](./knowledge/README.md)
+- [assets/](./assets/README.md) — creating, packing, registering, and integrating art. Start here for any new media.
+- [knowledge/](./knowledge/README.md) — focused how-to notes (quest authoring).
+- `superpowers/` — dated historical specs and implementation plans. Not maintained; may describe retired systems.
+- `task/` — bug reports (`task/bugs/`) and idea/plan notes (`task/ideas/`).
 
-The character-sprite integration guide is now maintained in the asset folder:
-[Character sprites and animated visuals](./assets/character-sprites-guide.md)
+## Asset size quick reference
 
-## Recommended Reading Order
+Measured from `asset/assets.json` and the files on disk:
 
-1. Read [Asset Creation And Integration](./assets/README.md) first.
-2. Follow the shared sheet contract and the focused art-type guide.
-3. Use the generation prompt and Magnific guide when creating source art.
-4. Register the finished media and integrate it into a character, object, projectile, or map.
+- World tile: `64 x 64 px`. Ground materials are `1216 x 1216` sheets (`19 x 19` tiles of 64 px) in `asset/MAPS/grounds/`.
+- Player slime: `2048 x 2048` sheet, `8 x 8` grid of `256 x 256` frames, drawn at scale `0.28125` in its character scene.
+- NPC sheets: `6 x 5` grid of `229 x 229` frames. Worm/spider enemies: `64 x 64` frames.
+- Trees: `128 x 170` frames; rocks and props: `96`, `128`, or `256 px` square frames; houses: `320 x 320` frames.
+- Item icons: `64 x 64` frames in `5 x 2` (or `5 x 4`) sheets.
+- Interior furniture: `128`, `192`, or `256 px` square frames.
 
-## Current Safe Defaults
-
-- Slime-style animated sheet: `8 x 8` grid, `256 x 256 px` per frame
-- Terrain tile: `64 x 64 px`
-- House texture: `128 x 128 px`
-- Small world prop: around `16 x 16 px` to `48 x 20 px`
-
-Tile size: 64×64
-Slime sprite: 48×48 or 64×64
-Tools: 16×16 to 32×32
-Buildings: multiples of 64×64
-
-Example:
-
-Tree: 1 tile wide, 2 tiles tall
-Small rock: 1 tile
-House: 3×3 tiles
-Storage: 2×2 tiles
-Farm plot: 1×1 or 2×2 tiles
-
-If new art stays inside those measurements, it should work with the current code with little or no adjustment.
+These are current conventions, not hard limits: every object scene sets its own
+scale, origin, collision shape, and depth bounds, so a new size only needs a
+matching manifest entry and scene.
