@@ -41,6 +41,15 @@ export interface CollectibleProgressStateData {
   readonly sourceInventoryDropId?: string;
 }
 
+/** A furniture item the player placed on a map from their inventory. */
+export interface PlacedFurnitureData {
+  readonly id: string;
+  readonly itemId: string;
+  readonly sceneId: string;
+  readonly x: number;
+  readonly y: number;
+}
+
 export interface InventoryWorldDropProgressData {
   readonly id: string;
   readonly itemId: string;
@@ -64,6 +73,9 @@ export interface MapRuntimeStateData {
   readonly collectibles?: Record<string, CollectibleProgressStateData>;
   readonly inventoryDrops?: Record<string, InventoryWorldDropProgressData>;
   readonly nextInventoryDropSequence?: number;
+  /** Optional so saves from before furniture placement load unchanged. */
+  readonly placedFurniture?: Record<string, PlacedFurnitureData>;
+  readonly nextPlacedFurnitureSequence?: number;
   readonly bossCamps?: Record<string, BossCampProgressData>;
   readonly chests?: Record<string, ChestProgressData>;
   readonly completedEncounterIds: readonly string[];
@@ -72,11 +84,21 @@ export interface MapRuntimeStateData {
   readonly objectStates: Record<string, unknown>;
 }
 
+/** Where the player wakes after defeat: the last bed they slept in. */
+export interface RespawnPointData {
+  readonly areaId: AreaId;
+  readonly mapId: string;
+  readonly x: number;
+  readonly y: number;
+}
+
 export interface WorldProgressData {
   readonly discoveredAreas: readonly AreaId[];
   readonly defeatedBossIds: readonly string[];
   readonly completedDungeonIds: readonly string[];
   readonly maps: Record<string, MapRuntimeStateData>;
+  /** Optional so saves written before beds existed load unchanged. */
+  readonly respawnPoint?: RespawnPointData;
   /** Supported only as an input to the v4 → v5 migration. */
   readonly resourceStates?: Record<string, ResourceProgressStateData>;
 }
@@ -86,12 +108,20 @@ export interface InventorySaveData {
   readonly slots: readonly InventorySlot[];
 }
 
+/** Run-wide narrative facts; optional so saves written before it load unchanged. */
+export interface StorySaveData {
+  readonly worldFlags: readonly string[];
+  readonly learnedRecipeIds: readonly string[];
+  readonly talkedNpcIds: readonly string[];
+}
+
 export interface GameSaveData {
   readonly player: GameStateData;
   readonly inventory: InventorySaveData;
   readonly quests: readonly QuestState[];
   readonly location: GameLocationData;
   readonly world: WorldProgressData;
+  readonly story?: StorySaveData;
   readonly playTimeMs: number;
 }
 
@@ -136,6 +166,11 @@ export function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
+export function isRespawnPoint(value: unknown): value is RespawnPointData {
+  return isRecord(value) && typeof value.areaId === 'string' && typeof value.mapId === 'string'
+    && isFiniteNumber(value.x) && isFiniteNumber(value.y);
+}
+
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value);
 }
@@ -146,6 +181,11 @@ function isNonNegativeNumber(value: unknown): value is number {
 
 function isStringArray(value: unknown): value is string[] {
   return Array.isArray(value) && value.every((entry) => typeof entry === 'string');
+}
+
+function isStory(value: unknown): value is StorySaveData {
+  return isRecord(value) && isStringArray(value.worldFlags)
+    && isStringArray(value.learnedRecipeIds) && isStringArray(value.talkedNpcIds);
 }
 
 function isInventorySlots(value: unknown): value is InventorySlot[] {
@@ -227,6 +267,15 @@ function isResourceState(value: unknown): value is ResourceProgressStateData {
   ));
 }
 
+export function isPlacedFurniture(value: unknown): value is PlacedFurnitureData {
+  return isRecord(value)
+    && typeof value.id === 'string'
+    && typeof value.itemId === 'string'
+    && typeof value.sceneId === 'string'
+    && isFiniteNumber(value.x)
+    && isFiniteNumber(value.y);
+}
+
 function isInventoryWorldDrop(value: unknown): value is InventoryWorldDropProgressData {
   return isRecord(value)
     && typeof value.id === 'string'
@@ -264,6 +313,10 @@ function isMapRuntimeState(value: unknown): value is MapRuntimeStateData {
       && Object.values(value.inventoryDrops).every(isInventoryWorldDrop)))
     && (value.nextInventoryDropSequence === undefined
       || (Number.isInteger(value.nextInventoryDropSequence) && (value.nextInventoryDropSequence as number) >= 1))
+    && (value.placedFurniture === undefined || (isRecord(value.placedFurniture)
+      && Object.values(value.placedFurniture).every(isPlacedFurniture)))
+    && (value.nextPlacedFurnitureSequence === undefined
+      || (Number.isInteger(value.nextPlacedFurnitureSequence) && (value.nextPlacedFurnitureSequence as number) >= 1))
     && (value.bossCamps === undefined || (isRecord(value.bossCamps)
       && Object.values(value.bossCamps).every(isBossCampState)))
     && (value.chests === undefined || (isRecord(value.chests)
@@ -286,5 +339,7 @@ export function isGameSaveData(value: unknown): value is GameSaveData {
   if (!isRecord(world) || !isStringArray(world.discoveredAreas)
     || !isStringArray(world.defeatedBossIds) || !isStringArray(world.completedDungeonIds)
     || !isRecord(world.maps) || !Object.values(world.maps).every(isMapRuntimeState)) return false;
+  if (world.respawnPoint !== undefined && !isRespawnPoint(world.respawnPoint)) return false;
+  if (value.story !== undefined && !isStory(value.story)) return false;
   return isNonNegativeNumber(value.playTimeMs);
 }

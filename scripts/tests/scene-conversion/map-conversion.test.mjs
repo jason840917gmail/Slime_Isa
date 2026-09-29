@@ -119,7 +119,7 @@ test('map terrain conversion is deterministic and embeds stable tile cells in th
   assert.equal(levelOneReport.placements.find((placement) => placement.sourceId === 'level-1-fatty-guarded-chest').ownership, 'encounter-instance');
 
   assert.deepEqual(levelOne.nodes.filter((node) => node.id.startsWith('player-')).map((node) => node.id), [
-    'player-spawn', 'player-entry-east',
+    'player-spawn', 'player-entry-east', 'player-entry-south',
   ]);
   assert.deepEqual(levelOne.nodes.find((node) => node.id === 'exit-1').properties, {
     position: [3552, 576], collisionLayer: collisionBits('trigger'), collisionMask: collisionBits('player', 'npc'), monitoring: true, monitorable: false,

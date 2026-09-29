@@ -1,0 +1,107 @@
+{
+  "version": 1,
+  "sceneId": "object.interior-mushroom-large-hammock-leaf",
+  "rootNodeId": "body",
+  "nodes": [
+    {
+      "id": "body",
+      "name": "hammock-leaf",
+      "type": "StaticBody2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "collisionLayer": 1,
+        "collisionMask": 0,
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "body-shape",
+      "name": "BodyShape",
+      "type": "CollisionShape2D",
+      "parentId": "body",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "interior-mushroom-large-hammock-leaf.shape"
+        },
+        "position": [
+          -0.39,
+          -25.12
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "body",
+      "order": 1,
+      "properties": {
+        "texture": {
+          "resourceId": "interior-mushroom-large-hammock-leaf.sprite"
+        },
+        "frame": 3,
+        "origin": [
+          0.5,
+          1
+        ],
+        "scale": [
+          0.78,
+          0.78
+        ],
+        "visualOffset": [
+          0,
+          0
+        ],
+        "depthMode": "world-sorted",
+        "depthBand": "world-entities"
+      }
+    },
+    {
+      "id": "script",
+      "name": "BedScript",
+      "type": "ScriptNode",
+      "scriptId": "game.bed",
+      "parentId": "body",
+      "order": 2,
+      "properties": {
+        "prompt": "Sleep",
+        "interactRadius": 133.99,
+        "badgeRise": 164.78,
+        "sleepPoint": [
+          -0.39,
+          -87.633
+        ],
+        "wakePoint": [
+          -0.39,
+          16
+        ]
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "interior-mushroom-large-hammock-leaf.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "sheet.interiors.mushroom-large-furniture.4x4",
+      "frameWidth": 256,
+      "frameHeight": 256
+    },
+    {
+      "version": 1,
+      "resourceId": "interior-mushroom-large-hammock-leaf.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 165.4224,
+        "height": 44
+      }
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "version": 1,
+  "sceneId": "object.interior-specialty-root-crate",
+  "rootNodeId": "body",
+  "nodes": [
+    {
+      "id": "body",
+      "name": "root-crate",
+      "type": "StaticBody2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "collisionLayer": 1,
+        "collisionMask": 0,
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "body-shape",
+      "name": "BodyShape",
+      "type": "CollisionShape2D",
+      "parentId": "body",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "interior-specialty-root-crate.shape"
+        },
+        "position": [
+          0,
+          -15.632
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "body",
+      "order": 1,
+      "properties": {
+        "texture": {
+          "resourceId": "interior-specialty-root-crate.sprite"
+        },
+        "frame": 36,
+        "origin": [
+          0.5,
+          1
+        ],
+        "scale": [
+          0.8,
+          0.8
+        ],
+        "visualOffset": [
+          0,
+          0
+        ],
+        "depthMode": "world-sorted",
+        "depthBand": "world-entities"
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "interior-specialty-root-crate.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "sheet.interiors.specialty-rooms.8x8",
+      "frameWidth": 128,
+      "frameHeight": 128
+    },
+    {
+      "version": 1,
+      "resourceId": "interior-specialty-root-crate.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 70.4,
+        "height": 24.864
+      }
+    }
+  ]
+}

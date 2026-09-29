@@ -141,6 +141,34 @@
           "damageMultiplier": 1
         }
       }
+    },
+    {
+      "id": "sfx-wrong-tool-sfx",
+      "name": "WrongToolSfx",
+      "type": "AudioStreamPlayer2D",
+      "parentId": "body",
+      "order": 4,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.resource.wrong-tool"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 200
+      }
+    },
+    {
+      "id": "sfx-crumble-sfx",
+      "name": "CrumbleSfx",
+      "type": "AudioStreamPlayer2D",
+      "parentId": "body",
+      "order": 5,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.resource.stone-crumble"
+        },
+        "pitchRandomness": 0.06,
+        "detached": true
+      }
     }
   ],
   "instances": [],
@@ -163,6 +191,43 @@
         "width": 105,
         "height": 48
       }
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.resource.wrong-tool",
+      "kind": "audio",
+      "assetId": "audio.sfx.resource.wrong-tool.1",
+      "variants": [
+        "audio.sfx.resource.wrong-tool.2"
+      ]
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.resource.stone-crumble",
+      "kind": "audio",
+      "assetId": "audio.sfx.resource.stone-crumble.1"
+    }
+  ],
+  "connections": [
+    {
+      "source": {
+        "nodeId": "script"
+      },
+      "signal": "harvest_blocked",
+      "target": {
+        "nodeId": "sfx-wrong-tool-sfx"
+      },
+      "handler": "play"
+    },
+    {
+      "source": {
+        "nodeId": "script"
+      },
+      "signal": "drops_requested",
+      "target": {
+        "nodeId": "sfx-crumble-sfx"
+      },
+      "handler": "play"
     }
   ]
 }

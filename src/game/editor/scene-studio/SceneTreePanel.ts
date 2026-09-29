@@ -45,10 +45,83 @@ export function sceneTreeRows(document: SceneDocument, resolve: SceneDocumentRes
   return rows;
 }
 
+/** An authored tree entry that can be dragged: a node of this scene or one of its own instances. */
+export type SceneTreeEntry = { readonly kind: 'node'; readonly nodeId: AuthoredNodeId } | { readonly kind: 'instance'; readonly instanceId: InstanceId };
+
+/** Where a drop lands relative to the row under the cursor. */
+export type SceneTreeDropZone = 'before' | 'inside' | 'after';
+
+/** Rows the user may drag: authored non-root nodes and this scene's own instances. */
+export function sceneTreeRowMovable(row: SceneTreeRow, rootNodeId: AuthoredNodeId): boolean {
+  if (row.kind === 'instance') return (row.instancePath ?? []).length === 0;
+  return !row.readOnly && row.nodeId !== rootNodeId;
+}
+
+/** The authored entry a row stands for, when it belongs to this scene. */
+export function sceneTreeEntry(row: SceneTreeRow): SceneTreeEntry | undefined {
+  if (row.kind === 'instance') return (row.instancePath ?? []).length === 0 ? { kind: 'instance', instanceId: row.instanceId } : undefined;
+  return row.readOnly ? undefined : { kind: 'node', nodeId: row.nodeId };
+}
+
+/** `before`/`after` in the outer quarters of a row, `inside` in the middle (only nodes accept children). */
+export function sceneTreeDropZone(offsetY: number, height: number, target: SceneTreeEntry): SceneTreeDropZone {
+  const ratio = height > 0 ? offsetY / height : 0.5;
+  if (target.kind === 'instance') return ratio < 0.5 ? 'before' : 'after';
+  return ratio < 0.25 ? 'before' : ratio > 0.75 ? 'after' : 'inside';
+}
+
+function entryKey(entry: SceneTreeEntry): string {
+  return entry.kind === 'node' ? `node:${entry.nodeId}` : `instance:${entry.instanceId}`;
+}
+
+/**
+ * Parent and sibling position for dropping `dragged` on `target`, in the
+ * `order` convention of `reparentNode`/`moveInstance` (index among the new
+ * parent's other children). Undefined when the drop is not allowed: onto
+ * itself, into its own subtree, beside the root, or inside an instance.
+ */
+export function planSceneTreeDrop(
+  document: SceneDocument,
+  dragged: SceneTreeEntry,
+  target: SceneTreeEntry,
+  zone: SceneTreeDropZone,
+): { readonly parentId: AuthoredNodeId; readonly order: number } | undefined {
+  if (entryKey(dragged) === entryKey(target)) return undefined;
+  if (dragged.kind === 'node' && dragged.nodeId === document.rootNodeId) return undefined;
+  const parentOf = (entry: SceneTreeEntry): AuthoredNodeId | null | undefined => entry.kind === 'node'
+    ? document.nodes.find((node) => node.id === entry.nodeId)?.parentId
+    : document.instances.find((instance) => instance.instanceId === entry.instanceId)?.parentNodeId;
+  if (parentOf(dragged) === undefined) return undefined;
+  let parentId: AuthoredNodeId;
+  if (zone === 'inside') {
+    if (target.kind !== 'node' || !document.nodes.some((node) => node.id === target.nodeId)) return undefined;
+    parentId = target.nodeId;
+  } else {
+    const parent = parentOf(target);
+    if (!parent) return undefined; // the root has no siblings; missing targets are rejected too
+    parentId = parent;
+  }
+  if (dragged.kind === 'node') {
+    // a node cannot move beneath itself
+    for (let current: AuthoredNodeId | null | undefined = parentId; current; current = document.nodes.find((node) => node.id === current)?.parentId) {
+      if (current === dragged.nodeId) return undefined;
+    }
+  }
+  const draggedKey = entryKey(dragged);
+  const siblings = [
+    ...document.nodes.filter((node) => node.parentId === parentId).map((node) => ({ key: `node:${node.id}`, order: node.order })),
+    ...document.instances.filter((instance) => instance.parentNodeId === parentId).map((instance) => ({ key: `instance:${instance.instanceId}`, order: instance.order })),
+  ].filter((entry) => entry.key !== draggedKey).sort((left, right) => left.order - right.order || left.key.localeCompare(right.key));
+  if (zone === 'inside') return { parentId, order: siblings.length };
+  const index = siblings.findIndex((entry) => entry.key === entryKey(target));
+  if (index < 0) return undefined;
+  return { parentId, order: zone === 'before' ? index : index + 1 };
+}
+
 function escapeHtml(value: unknown): string {
   return String(value ?? '').replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character] ?? character);
 }
 
-export function renderSceneTreePanel(rows: readonly SceneTreeRow[], selectedKey?: string): string {
-  return `<section class="scene-tree-panel" aria-label="Scene tree"><header><span>COMPOSITION</span><button type="button" data-scene-add aria-label="Add node">＋</button></header><div role="tree">${rows.map((row) => `<button type="button" role="treeitem" aria-level="${row.depth + 1}"${row.kind === 'instance' && row.expandable ? ` aria-expanded="${Boolean(row.expanded)}"` : ''} aria-selected="${row.key === selectedKey}" class="scene-tree-row${row.key === selectedKey ? ' is-selected' : ''}${row.readOnly ? ' is-readonly' : ''}" style="--scene-depth:${row.depth}" data-scene-tree-key="${escapeHtml(row.key)}">${row.kind === 'instance' && row.expandable ? `<span class="scene-tree-toggle" data-tree-toggle="${escapeHtml(row.key)}" aria-hidden="true" title="${row.expanded ? 'Collapse' : 'Expand'} instance">${row.expanded ? '▾' : '▸'}</span>` : `<span aria-hidden="true">${row.kind === 'instance' ? '◇' : row.readOnly ? '·' : '◆'}</span>`}<strong>${escapeHtml(row.name)}</strong><small>${escapeHtml(row.kind === 'instance' ? row.sceneId : row.type)}</small></button>`).join('')}</div></section>`;
+export function renderSceneTreePanel(rows: readonly SceneTreeRow[], selectedKey?: string, rootNodeId?: AuthoredNodeId): string {
+  return `<section class="scene-tree-panel" aria-label="Scene tree"><header><span>COMPOSITION</span><button type="button" data-scene-add aria-label="Add node">＋</button></header><div role="tree">${rows.map((row) => `<button type="button" role="treeitem" aria-level="${row.depth + 1}"${row.kind === 'instance' && row.expandable ? ` aria-expanded="${Boolean(row.expanded)}"` : ''} aria-selected="${row.key === selectedKey}" class="scene-tree-row${row.key === selectedKey ? ' is-selected' : ''}${row.readOnly ? ' is-readonly' : ''}" style="--scene-depth:${row.depth}"${rootNodeId !== undefined && sceneTreeRowMovable(row, rootNodeId) ? ' draggable="true"' : ''} data-scene-tree-key="${escapeHtml(row.key)}">${row.kind === 'instance' && row.expandable ? `<span class="scene-tree-toggle" data-tree-toggle="${escapeHtml(row.key)}" aria-hidden="true" title="${row.expanded ? 'Collapse' : 'Expand'} instance">${row.expanded ? '▾' : '▸'}</span>` : `<span aria-hidden="true">${row.kind === 'instance' ? '◇' : row.readOnly ? '·' : '◆'}</span>`}<strong>${escapeHtml(row.name)}</strong><small>${escapeHtml(row.kind === 'instance' ? row.sceneId : row.type)}</small></button>`).join('')}</div></section>`;
 }

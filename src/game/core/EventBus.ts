@@ -10,6 +10,9 @@ import type { QuestDomainEvents, QuestInputEvents } from '../content/quests/type
  * safety on payloads.
  */
 
+/** Where restored HP came from; omitted for ordinary heals (potions, abilities). */
+export type HealSource = 'rest';
+
 export type GameEvents = {
   'coins.changed': { coins: number; delta: number };
   'boost.changed': { boostBonus: number; delta: number };
@@ -25,7 +28,16 @@ export type GameEvents = {
   // ── Phase 1: health / leveling / inventory ──
   'hp.changed': { hp: number; maxHp: number; delta: number };
   'player.damage': { amount: number; source?: string; crit: boolean };
-  'player.heal': { amount: number };
+  /** `source: 'rest'` marks slow sleep healing, which stays silent. */
+  'player.heal': { amount: number; source?: HealSource };
+  /** The player fell asleep in a bed or woke up. */
+  'player.sleep': { asleep: boolean };
+  /** HP reached full while sleeping. */
+  'player.rested': {};
+  /** Player-placed furniture went back into the inventory (`furniture.placed` is declared with the quest inputs). */
+  'furniture.picked-up': { mapId: string; placementId: string; itemId: string };
+  /** A crafting station was opened; `placementId` is set for player-placed stations. */
+  'workbench.opened': { mapId: string; placementId?: string; context: string };
   'player.death': {};
   'player.respawn': {};
   'xp.changed': { currentXp: number; xpToNextLevel: number | null; level: number; delta: number };

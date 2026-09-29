@@ -1,0 +1,231 @@
+{
+  "version": 1,
+  "sceneId": "ui.quest-tracker",
+  "rootNodeId": "surface",
+  "nodes": [
+    {
+      "id": "surface",
+      "name": "quest-tracker",
+      "type": "Container",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          0,
+          0
+        ],
+        "offsetMin": [
+          16,
+          124
+        ],
+        "offsetMax": [
+          300,
+          232
+        ],
+        "theme": {
+          "resourceId": "ui.field-kit.theme"
+        },
+        "styleClass": "game-ui game-ui--quest-tracker",
+        "ariaLabel": "quest tracker",
+        "zIndex": 18,
+        "visible": false
+      }
+    },
+    {
+      "id": "heading",
+      "name": "Heading",
+      "type": "Label",
+      "parentId": "surface",
+      "order": 0,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          0
+        ],
+        "offsetMin": [
+          12,
+          6
+        ],
+        "offsetMax": [
+          -12,
+          22
+        ],
+        "tone": "muted",
+        "fontSize": 10,
+        "fontWeight": 700
+      }
+    },
+    {
+      "id": "book-hint",
+      "name": "BookHint",
+      "type": "Label",
+      "parentId": "surface",
+      "order": 1,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          0
+        ],
+        "offsetMin": [
+          12,
+          6
+        ],
+        "offsetMax": [
+          -12,
+          22
+        ],
+        "text": "U · Quest book",
+        "tone": "muted",
+        "fontSize": 10,
+        "textAlign": "right"
+      }
+    },
+    {
+      "id": "title",
+      "name": "Title",
+      "type": "Label",
+      "parentId": "surface",
+      "order": 2,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          0
+        ],
+        "offsetMin": [
+          12,
+          20
+        ],
+        "offsetMax": [
+          -12,
+          42
+        ],
+        "tone": "warning",
+        "fontSize": 15,
+        "fontWeight": 700
+      }
+    },
+    {
+      "id": "objectives",
+      "name": "Objectives",
+      "type": "Label",
+      "parentId": "surface",
+      "order": 3,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "offsetMin": [
+          14,
+          44
+        ],
+        "offsetMax": [
+          -12,
+          -26
+        ],
+        "fontSize": 12,
+        "wrap": true
+      }
+    },
+    {
+      "id": "hint",
+      "name": "Hint",
+      "type": "Label",
+      "parentId": "surface",
+      "order": 4,
+      "properties": {
+        "anchorMin": [
+          0,
+          1
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "offsetMin": [
+          12,
+          -24
+        ],
+        "offsetMax": [
+          -12,
+          -6
+        ],
+        "tone": "muted",
+        "fontSize": 11
+      }
+    },
+    {
+      "id": "script",
+      "name": "UiSurfaceScript",
+      "type": "ScriptNode",
+      "scriptId": "game.ui-surface",
+      "parentId": "surface",
+      "order": 5,
+      "properties": {
+        "surfaceId": "quest-tracker",
+        "modal": false,
+        "bindings": [
+          {
+            "nodePath": "../Heading",
+            "property": "text",
+            "model": "heading"
+          },
+          {
+            "nodePath": "../Title",
+            "property": "text",
+            "model": "title"
+          },
+          {
+            "nodePath": "../Objectives",
+            "property": "text",
+            "model": "objectives"
+          },
+          {
+            "nodePath": "../Hint",
+            "property": "text",
+            "model": "hint"
+          },
+          {
+            "nodePath": "..",
+            "property": "visible",
+            "model": "visible"
+          },
+          {
+            "nodePath": "..",
+            "property": "offsetMin",
+            "model": "offsetMin"
+          },
+          {
+            "nodePath": "..",
+            "property": "offsetMax",
+            "model": "offsetMax"
+          }
+        ],
+        "actions": {}
+      }
+    }
+  ],
+  "instances": [],
+  "connections": [],
+  "subresources": []
+}

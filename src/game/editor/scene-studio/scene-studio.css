@@ -47,6 +47,9 @@
 .scene-explorer-item:hover,
 .scene-explorer-item.is-current { color: #fff7df; background: #24342d; }
 .scene-explorer-item.is-current { box-shadow: inset 2px 0 0 var(--scene-accent); }
+.scene-explorer-item:has(.scene-explorer-portrait) { grid-template-columns: 32px 1fr; align-items: center; gap: 8px; padding-block: 3px; }
+.scene-explorer-portrait { display: grid; place-items: center; width: 32px; height: 32px; overflow: hidden; border-radius: 4px; background: #0f1916; box-shadow: inset 0 0 0 1px #22352f; }
+.scene-explorer-portrait i { display: block; width: 32px; height: 32px; background-repeat: no-repeat; background-position: center; image-rendering: pixelated; }
 .scene-explorer-folder-toggle { display: grid; grid-template-columns: 14px 1fr auto; align-items: center; width: 100%; padding: 6px 8px; gap: 6px; color: #d7e4dc; text-align: left; background: transparent; }
 .scene-explorer-folder-toggle:hover { background: #1a2823; }
 .scene-explorer-folder-toggle span { color: #7faa97; font-size: 10px; transition: transform .12s ease; }
@@ -88,6 +91,9 @@
 .scene-inspector { padding-bottom: 24px; border-left: 1px solid var(--scene-line); }
 .scene-inspector > header { padding: 14px; border-bottom: 1px solid #2a3e37; background: #13201c; }
 .scene-inspector h2 { margin: 3px 0 1px; font: 700 19px Georgia, serif; }
+.scene-inspector h2 .scene-name-field { width: 100%; margin: 0 0 0 -5px; padding: 1px 4px; color: inherit; font: inherit; background: transparent; border: 1px solid transparent; border-radius: 3px; }
+.scene-inspector h2 .scene-name-field:hover { border-color: #2f463d; }
+.scene-inspector h2 .scene-name-field:focus { border-color: var(--scene-accent); background: #0d1714; outline: none; }
 .scene-inspector fieldset { margin: 0; padding: 12px; border: 0; border-bottom: 1px solid #253a33; }
 .scene-inspector legend { padding: 0 0 8px; color: #d9b76d; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
 .scene-property { display: grid; grid-template-columns: 92px 1fr auto; align-items: center; gap: 7px; margin-bottom: 8px; }
@@ -424,6 +430,10 @@
 
 /* Scene drag-and-drop instancing targets. */
 .scene-explorer-item[draggable="true"] { cursor: grab; }
+.scene-tree-row.is-drop-before { box-shadow: inset 0 2px 0 var(--scene-accent); }
+.scene-tree-row.is-drop-after { box-shadow: inset 0 -2px 0 var(--scene-accent); }
+.scene-explorer-folder.is-drop-target > .scene-explorer-folder-toggle,
+.scene-tree-row.is-drop-inside,
 .scene-tree-row.is-drop-target,
 .scene-tree-panel.is-drop-target { box-shadow: inset 0 0 0 2px var(--scene-accent); background: #2b3a2b; }
 .scene-viewport-stage.is-drop-target { box-shadow: inset 0 0 0 2px var(--scene-accent); }

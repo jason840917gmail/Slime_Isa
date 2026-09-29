@@ -54,6 +54,11 @@ export interface SceneInspectorRenderOptions {
   readonly jsonControl?: (property: InspectorProperty) => string | undefined;
   /** Resolves a string property's `optionSource` (e.g. 'effects') into dropdown options. */
   readonly selectOptions?: (source: string) => FormOptions;
+  /**
+   * Makes the header title an editable name field (committed on change). `name`
+   * replaces the node's own name, e.g. with an instance's name.
+   */
+  readonly rename?: { readonly name: string; readonly label: string };
 }
 
 export function renderSceneInspector(model: SceneInspectorModel, options: SceneInspectorRenderOptions = {}): string {
@@ -79,7 +84,10 @@ export function renderSceneInspector(model: SceneInspectorModel, options: SceneI
   };
   const groups = [...model.groups].map(([label, properties]) => `<fieldset><legend>${escapeHtml(label)}</legend>${properties.map((property) => property.descriptor.inspector === 'source-rect' ? renderSourceRect(property) : jsonProperty(property) ?? `<label class="scene-property"><span>${escapeHtml(property.descriptor.label)}${property.descriptor.units ? `<small>${escapeHtml(property.descriptor.units)}</small>` : ''}</span>${input(property)}<em>${property.origin}</em>${property.descriptor.help ? `<small id="help-${escapeHtml(property.descriptor.key)}">${escapeHtml(property.descriptor.help)}</small>` : ''}</label>`).join('')}</fieldset>`).join('');
   const script = model.script ? `<section class="scene-script-card"><span>SCRIPT</span><strong>${escapeHtml(model.script.displayName)}</strong><code>${escapeHtml(model.script.scriptId)}</code><button type="button" data-open-source="${escapeHtml(model.script.sourcePath)}">Open ${escapeHtml(model.script.sourcePath)}</button></section>` : '';
-  return `<aside class="scene-inspector" aria-label="Inspector"><header><span>INSPECTOR</span><h2>${escapeHtml(model.node.name)}</h2><small>${escapeHtml(model.node.type)}</small></header>${script}${groups}${model.warnings.map((warning) => `<p role="alert">${escapeHtml(warning)}</p>`).join('')}</aside>`;
+  const title = options.rename
+    ? `<h2><input type="text" class="scene-name-field" data-node-name value="${escapeHtml(options.rename.name)}" aria-label="${escapeHtml(options.rename.label)}" title="${escapeHtml(options.rename.label)} (F2)" spellcheck="false" autocomplete="off" /></h2>`
+    : `<h2>${escapeHtml(model.node.name)}</h2>`;
+  return `<aside class="scene-inspector" aria-label="Inspector"><header><span>INSPECTOR</span>${title}<small>${escapeHtml(model.node.type)}</small></header>${script}${groups}${model.warnings.map((warning) => `<p role="alert">${escapeHtml(warning)}</p>`).join('')}</aside>`;
 }
 
 /** Guide colours shared with the in-game dev tools overlay (dev/WorldDebugRenderer.ts). */

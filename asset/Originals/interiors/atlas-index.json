@@ -1,0 +1,327 @@
+{
+  "version": 1,
+  "styleReference": "approved-concept/slime-artisan-house-approved.png",
+  "directionOrder": [
+    "north",
+    "east",
+    "south",
+    "west"
+  ],
+  "totalCells": 840,
+  "atlases": [
+    {
+      "id": "interior.structure",
+      "file": "normalized-sheets/interior-01-structure-128px.png",
+      "promoted": "MAPS/interiors/128x128-tile_8x8-interior-structure.png",
+      "columns": 8,
+      "rows": 8,
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "cellCount": 64,
+      "rowCounts": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "sourceScale": 1.0535
+    },
+    {
+      "id": "interior.seating.directional",
+      "file": "normalized-sheets/interior-02-seating-directional-128px.png",
+      "promoted": "MAPS/interiors/128x128-tile_8x8-interior-seating-directional.png",
+      "columns": 8,
+      "rows": 8,
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "cellCount": 64,
+      "rowCounts": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "sourceScale": 0.7547
+    },
+    {
+      "id": "interior.beds.directional",
+      "file": "normalized-sheets/interior-03-beds-directional-256px.png",
+      "promoted": "MAPS/interiors/256x256-tile_6x8-interior-beds-directional.png",
+      "columns": 6,
+      "rows": 8,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "cellCount": 43,
+      "rowCounts": [
+        6,
+        5,
+        5,
+        5,
+        5,
+        5,
+        6,
+        6
+      ],
+      "sourceScale": 1.0
+    },
+    {
+      "id": "interior.tables.directional",
+      "file": "normalized-sheets/interior-04-tables-directional-256px.png",
+      "promoted": "MAPS/interiors/256x256-tile_5x9-interior-tables-directional.png",
+      "columns": 5,
+      "rows": 9,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "cellCount": 37,
+      "rowCounts": [
+        5,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "sourceScale": 0.8702
+    },
+    {
+      "id": "interior.storage.states",
+      "file": "normalized-sheets/interior-05-storage-states-128px.png",
+      "promoted": "MAPS/interiors/128x128-tile_8x8-interior-storage-states.png",
+      "columns": 8,
+      "rows": 8,
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "cellCount": 64,
+      "rowCounts": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "sourceScale": 0.6742
+    },
+    {
+      "id": "interior.kitchen-hearth",
+      "file": "normalized-sheets/interior-06-kitchen-hearth-128px.png",
+      "promoted": "MAPS/interiors/128x128-tile_8x8-interior-kitchen-hearth.png",
+      "columns": 8,
+      "rows": 8,
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "cellCount": 64,
+      "rowCounts": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "sourceScale": 0.597
+    },
+    {
+      "id": "interior.workshop-crafting",
+      "file": "normalized-sheets/interior-07-workshop-crafting-128px.png",
+      "promoted": "MAPS/interiors/128x128-tile_8x8-interior-workshop-crafting.png",
+      "columns": 8,
+      "rows": 8,
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "cellCount": 64,
+      "rowCounts": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "sourceScale": 0.7143
+    },
+    {
+      "id": "interior.decor-lighting-utility",
+      "file": "normalized-sheets/interior-08-decor-lighting-utility-128px.png",
+      "promoted": "MAPS/interiors/128x128-tile_8x8-interior-decor-lighting-utility.png",
+      "columns": 8,
+      "rows": 8,
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "cellCount": 64,
+      "rowCounts": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "sourceScale": 0.6704
+    },
+    {
+      "id": "interior.specialty-rooms",
+      "file": "normalized-sheets/interior-09-specialty-rooms-128px.png",
+      "promoted": "MAPS/interiors/128x128-tile_8x8-interior-specialty-rooms.png",
+      "columns": 8,
+      "rows": 8,
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "cellCount": 64,
+      "rowCounts": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "sourceScale": 0.7186
+    },
+    {
+      "id": "interior.mushroom.structure",
+      "file": "normalized-sheets/mushroom-01-structure-128px.png",
+      "promoted": "MAPS/interiors/128x128-tile_8x8-interior-mushroom-structure.png",
+      "columns": 8,
+      "rows": 8,
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "cellCount": 64,
+      "rowCounts": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "sourceScale": 0.5689
+    },
+    {
+      "id": "interior.mushroom.large-furniture",
+      "file": "normalized-sheets/mushroom-02-large-furniture-256px.png",
+      "promoted": "MAPS/interiors/256x256-tile_4x4-interior-mushroom-large-furniture.png",
+      "columns": 4,
+      "rows": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "cellCount": 16,
+      "rowCounts": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "sourceScale": 0.5082
+    },
+    {
+      "id": "interior.mushroom.furniture-props",
+      "file": "normalized-sheets/mushroom-03-furniture-props-192px.png",
+      "promoted": "MAPS/interiors/192x192-tile_8x8-interior-mushroom-furniture-props.png",
+      "columns": 8,
+      "rows": 8,
+      "frameWidth": 192,
+      "frameHeight": 192,
+      "cellCount": 64,
+      "rowCounts": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "sourceScale": 0.6715
+    },
+    {
+      "id": "interior.mushroom.decor-lighting",
+      "file": "normalized-sheets/mushroom-04-decor-lighting-192px.png",
+      "promoted": "MAPS/interiors/192x192-tile_8x8-interior-mushroom-decor-lighting.png",
+      "columns": 8,
+      "rows": 8,
+      "frameWidth": 192,
+      "frameHeight": 192,
+      "cellCount": 64,
+      "rowCounts": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "sourceScale": 0.5559
+    },
+    {
+      "id": "interior.mushroom.floor-decor",
+      "file": "normalized-sheets/mushroom-06-floor-decor-128px.png",
+      "promoted": "MAPS/interiors/128x128-tile_8x8-interior-mushroom-floor-decor.png",
+      "columns": 8,
+      "rows": 8,
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "cellCount": 64,
+      "rowCounts": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "sourceScale": 0.4743
+    },
+    {
+      "id": "interior.mushroom.room-shell",
+      "file": "normalized-sheets/mushroom-05-room-shell-128px.png",
+      "promoted": "MAPS/interiors/128x128-tile_8x7-interior-mushroom-room-shell.png",
+      "columns": 8,
+      "rows": 7,
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "cellCount": 40,
+      "layout": "room-shell-grid",
+      "worldSize": [
+        1024,
+        768
+      ],
+      "doorway": [
+        434,
+        672,
+        592,
+        768
+      ]
+    }
+  ],
+  "anchor": "bottom-center",
+  "padding": 4
+}

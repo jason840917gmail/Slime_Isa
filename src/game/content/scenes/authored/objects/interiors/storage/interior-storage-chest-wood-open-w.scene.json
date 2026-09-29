@@ -1,0 +1,86 @@
+{
+  "version": 1,
+  "sceneId": "object.interior-storage-chest-wood-open-w",
+  "rootNodeId": "body",
+  "nodes": [
+    {
+      "id": "body",
+      "name": "chest-wood-open-w",
+      "type": "StaticBody2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "collisionLayer": 1,
+        "collisionMask": 0,
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "body-shape",
+      "name": "BodyShape",
+      "type": "CollisionShape2D",
+      "parentId": "body",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "interior-storage-chest-wood-open-w.shape"
+        },
+        "position": [
+          -0.375,
+          -14.4975
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "body",
+      "order": 1,
+      "properties": {
+        "texture": {
+          "resourceId": "interior-storage-chest-wood-open-w.sprite"
+        },
+        "frame": 7,
+        "origin": [
+          0.5,
+          1
+        ],
+        "scale": [
+          0.75,
+          0.75
+        ],
+        "visualOffset": [
+          0,
+          0
+        ],
+        "depthMode": "world-sorted",
+        "depthBand": "world-entities"
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "interior-storage-chest-wood-open-w.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "sheet.interiors.storage-states.8x8",
+      "frameWidth": 128,
+      "frameHeight": 128
+    },
+    {
+      "version": 1,
+      "resourceId": "interior-storage-chest-wood-open-w.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 42.9,
+        "height": 22.995
+      }
+    }
+  ]
+}

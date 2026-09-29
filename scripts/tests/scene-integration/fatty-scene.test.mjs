@@ -54,6 +54,16 @@ async function instantiate(targetService = { getPrimaryTarget: () => undefined }
   return { activations, router, root, tree, packed };
 }
 
+/** An authored collision-shape value of Fatty's scene, by the area node that owns the shape. */
+function authoredAreaShape(areaNodeId) {
+  const shape = scene.nodes.find((node) => node.parentId === areaNodeId && node.type === 'CollisionShape2D');
+  return scene.subresources.find((resource) => resource.resourceId === shape.properties.shape.resourceId).value;
+}
+
+function horizontalReach(value) {
+  return value.shape === 'circle' ? value.radius : value.shape === 'ellipse' ? value.radiusX : value.width / 2;
+}
+
 function request(activationId, targetAreaNodeId, weaponId = 'wooden-spear') {
   return {
     activationId, sourceNodeId: 'player-weapon', attackAreaNodeId: 'player-swing', targetAreaNodeId,
@@ -190,11 +200,13 @@ test('Fatty warns where its leap lands, splashes only inside its landing zone, a
   assert.equal(script.beginAirborne(10), true);
   assert.equal(telegraphs.length, 1);
   assert.deepEqual(telegraphs[0].shadow, { x: 300, y: 0 });
-  assert.deepEqual(telegraphs[0].shapes.map(({ shape, centerX, centerY, radius }) => ({ shape, centerX, centerY, radius })), [{ shape: 'circle', centerX: 300, centerY: 0, radius: 106 }]);
+  // The telegraph is exactly the authored LandingShape, moved onto the target.
+  const landing = authoredAreaShape('landing-zone');
+  assert.deepEqual(telegraphs[0].shapes.map(({ shapeId: _shapeId, ...shape }) => shape), [{ ...landing, centerX: 300, centerY: 0 }]);
 
   // The player steps just outside the zone before the landing: no damage, but the crack and shake still happen.
   fixture.root.set_global_transform({ ...fixture.root.get_global_transform(), position: { x: 300, y: 0 } });
-  target.position = { x: 410, y: 0 };
+  target.position = { x: 300 + horizontalReach(landing) + 4, y: 0 };
   assert.equal(script.land(20), true);
   assert.deepEqual(knockbacks, []);
   assert.deepEqual(cleared.at(-1), script.runtimeId);
@@ -218,6 +230,35 @@ test('the landing zone is an authored area Studio can show and resize', () => {
   assert.deepEqual(script.properties.landingZone, { nodeId: 'landing-zone' });
   assert.equal(script.properties.landingRadius, undefined);
   const shape = scene.nodes.find((node) => node.parentId === 'landing-zone' && node.type === 'CollisionShape2D');
-  assert.deepEqual(scene.subresources.find((resource) => resource.resourceId === shape.properties.shape.resourceId).value, { shape: 'circle', radius: 106 });
+  assert.ok(scene.subresources.some((resource) => resource.resourceId === shape.properties.shape.resourceId), 'the landing shape is an authored resource');
   assert.ok(content.scenes.some((document) => document.sceneId === `effect.${script.properties.landingEffectId}`), 'the landing effect scene exists');
+});
+
+test('Fatty contact-hops exactly when the player hurtbox overlaps the authored ContactShape, from any side', async () => {
+  const contact = authoredAreaShape('contact-attack');
+  const reachY = contact.shape === 'circle' ? contact.radius : contact.shape === 'ellipse' ? contact.radiusY : contact.height / 2;
+  const hurtbox = (x, y) => [{ shapeId: 'player-hurtbox', shape: 'rectangle', x: x - 15, y: y - 13, width: 30, height: 26 }];
+  const target = { position: { x: 0, y: 0 }, damageShapes: [], damageAreaNodeId: 'legacy-player-area', active: true, hostile: true };
+  const telegraphs = [];
+  const fixture = await instantiate({ getPrimaryTarget: () => target, showTelegraph: (request) => telegraphs.push(request), clearTelegraph: () => {} });
+  const script = fixture.root.get_node('FattyScript');
+  const shapeNode = fixture.root.get_node('ContactAttack').get_children()[0];
+  const center = shapeNode.worldShape();
+  const centerY = center.centerY ?? center.y + center.height / 2;
+
+  // Well above the shape (beyond the old 64 px attackRange): no hop.
+  const above = { x: 0, y: centerY - reachY - 40 };
+  target.position = above; target.damageShapes = hurtbox(above.x, above.y);
+  fixture.tree.physicsProcess(0.016);
+  assert.equal(script.phase, 'chase');
+
+  // Touching the top of the shape — still > 64 px from Fatty's origin — starts the hop.
+  const touchingTop = { x: 0, y: centerY - reachY - 10 };
+  assert.ok(Math.hypot(touchingTop.x, touchingTop.y) > 64, 'the old distance rule would not have fired here');
+  target.position = touchingTop; target.damageShapes = hurtbox(touchingTop.x, touchingTop.y);
+  fixture.tree.physicsProcess(0.016);
+  fixture.tree.physicsProcess(0.016);
+  assert.equal(script.phase, 'contact-hop');
+  assert.equal(telegraphs.length, 1);
+  fixture.tree.shutdown(); fixture.packed.dispose();
 });

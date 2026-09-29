@@ -16,7 +16,7 @@ test('the common creation registry exposes the complete Control family', () => {
   assert.ok(entries.some((entry) => entry.id === 'Control'));
   assert.ok(entries.some((entry) => entry.id === 'ScrollContainer'));
   const template = creation.COMMON_SCENE_TEMPLATES.find((candidate) => candidate.id === 'interface');
-  assert.deepEqual(template.nodeTypes, ['Control', 'Container', 'TextureRect', 'Label', 'ProgressBar', 'Button', 'ItemList', 'GridContainer', 'ScrollContainer', 'ModalRoot']);
+  assert.deepEqual(template.nodeTypes, ['Control', 'Container', 'TextureRect', 'Label', 'ProgressBar', 'Slider', 'Button', 'ItemList', 'GridContainer', 'ScrollContainer', 'ModalRoot']);
 });
 
 test('UI layout handles resolve nested anchors in the universal viewport', () => {

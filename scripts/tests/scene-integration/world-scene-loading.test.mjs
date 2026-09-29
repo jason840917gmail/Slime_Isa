@@ -88,3 +88,15 @@ test('prepared content can add a validated world scene lazily and releases it on
   content.dispose();
   assert.equal(content.documents.activeLeaseCount(), 0);
 });
+
+test('world scenes choose a following or fixed camera on their world definition', async () => {
+  const withCamera = (cameraMode) => {
+    const scene = packedScene('world.room');
+    const definition = scene.definition.nodes[0];
+    if (cameraMode !== undefined) definition.properties.cameraMode = cameraMode;
+    return new t.WorldSceneLoader({ ensure: async () => scene }).load('room');
+  };
+  assert.equal((await withCamera(undefined)).loadedMap.cameraMode, 'follow');
+  assert.equal((await withCamera('fixed')).loadedMap.cameraMode, 'fixed');
+  await assert.rejects(() => withCamera('orbit'), /unknown camera mode 'orbit'/);
+});

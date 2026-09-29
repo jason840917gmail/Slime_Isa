@@ -79,6 +79,35 @@ test('accepts valid persistent inventory drops and rejects malformed records', (
   assert.equal(isGameSaveData(invalid), false);
 });
 
+test('accepts player-placed furniture per map and rejects malformed records', () => {
+  const valid = validSave();
+  valid.world.maps['level-1'].placedFurniture = {
+    'placed-furniture-1': {
+      id: 'placed-furniture-1', itemId: 'workbench', sceneId: 'object.interior-workshop-workbench', x: 704, y: 896,
+    },
+  };
+  valid.world.maps['level-1'].nextPlacedFurnitureSequence = 2;
+  assert.equal(isGameSaveData(valid), true);
+
+  const missingScene = structuredClone(valid);
+  delete missingScene.world.maps['level-1'].placedFurniture['placed-furniture-1'].sceneId;
+  assert.equal(isGameSaveData(missingScene), false);
+
+  const badSequence = structuredClone(valid);
+  badSequence.world.maps['level-1'].nextPlacedFurnitureSequence = 0;
+  assert.equal(isGameSaveData(badSequence), false);
+});
+
+test('accepts an optional bed respawn point and rejects malformed ones', () => {
+  const valid = validSave();
+  valid.world.respawnPoint = { areaId: 'slime-home', mapId: 'slime-home', x: 160, y: 356 };
+  assert.equal(isGameSaveData(valid), true);
+
+  const invalid = structuredClone(valid);
+  invalid.world.respawnPoint = { areaId: 'slime-home', mapId: 'slime-home', x: 'bed', y: 356 };
+  assert.equal(isGameSaveData(invalid), false);
+});
+
 test('accepts boss respawn timestamps and persistent partial chest contents', () => {
   const valid = validSave();
   valid.world.maps['level-1'].bossCamps = {

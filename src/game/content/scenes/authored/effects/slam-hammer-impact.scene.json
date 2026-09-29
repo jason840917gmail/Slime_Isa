@@ -78,6 +78,21 @@
         },
         "lifetimeMs": 1000
       }
+    },
+    {
+      "id": "sfx-impact-sfx",
+      "name": "ImpactSfx",
+      "type": "AudioStreamPlayer2D",
+      "parentId": "root",
+      "order": 3,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.weapon.hit-heavy"
+        },
+        "autoplay": true,
+        "detached": true,
+        "pitchRandomness": 0.07
+      }
     }
   ],
   "instances": [],
@@ -473,6 +488,15 @@
           ]
         }
       }
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.weapon.hit-heavy",
+      "kind": "audio",
+      "assetId": "audio.sfx.weapon.hit-heavy.1",
+      "variants": [
+        "audio.sfx.weapon.hit-heavy.2"
+      ]
     }
   ]
 }

@@ -91,7 +91,7 @@ function npcScene(character, visual) {
     sceneId: `character.${character.characterId}`,
     rootNodeId: 'body',
     nodes: [
-      { id: 'body', name: nodeName(character.characterId), type: 'CharacterBody2D', parentId: null, order: 0, properties: { ...collision(['npc'], ['world']), position: [0, 0], velocity: [0, 0] } },
+      { id: 'body', name: nodeName(character.characterId), type: 'CharacterBody2D', parentId: null, order: 0, properties: { ...collision(['npc'], ['world', 'water']), position: [0, 0], velocity: [0, 0] } },
       { id: 'body-shape', name: 'BodyShape', type: 'CollisionShape2D', parentId: 'body', order: 0, properties: { shape: { resourceId: `${character.characterId}.body-shape` }, position: [character.body.centerOffsetX, character.body.centerOffsetY] } },
       {
         id: 'visual', name: 'Visual', type: 'Sprite2D', parentId: 'body', order: 1,
@@ -122,7 +122,7 @@ function playerScene(character, visual) {
     sceneId: `character.${character.characterId}`,
     rootNodeId: 'body',
     nodes: [
-      { id: 'body', name: 'PlayerSlime', type: 'CharacterBody2D', parentId: null, order: 0, properties: { ...collision(['player'], ['world', 'enemy']), collideWorldBounds: true, position: [0, 0], velocity: [0, 0] } },
+      { id: 'body', name: 'PlayerSlime', type: 'CharacterBody2D', parentId: null, order: 0, properties: { ...collision(['player'], ['world', 'water', 'enemy']), collideWorldBounds: true, position: [0, 0], velocity: [0, 0] } },
       { id: 'body-shape', name: 'BodyShape', type: 'CollisionShape2D', parentId: 'body', order: 0, properties: { shape: { resourceId: `${character.characterId}.body-shape` }, position: [character.body.centerOffsetX, character.body.centerOffsetY] } },
       {
         id: 'visual', name: 'Visual', type: 'Sprite2D', parentId: 'body', order: 1,
@@ -159,7 +159,7 @@ function enemyScene(character, visual, enemy) {
     sceneId: `character.${character.characterId}`,
     rootNodeId: 'body',
     nodes: [
-      { id: 'body', name: nodeName(character.characterId), type: 'CharacterBody2D', parentId: null, order: 0, properties: { ...collision(['enemy'], ['world', 'player']), collideWorldBounds: true, position: [0, 0], velocity: [0, 0] } },
+      { id: 'body', name: nodeName(character.characterId), type: 'CharacterBody2D', parentId: null, order: 0, properties: { ...collision(['enemy'], ['world', 'water', 'player']), collideWorldBounds: true, position: [0, 0], velocity: [0, 0] } },
       { id: 'body-shape', name: 'BodyShape', type: 'CollisionShape2D', parentId: 'body', order: 0, properties: { shape: { resourceId: `${character.characterId}.body-shape` }, position: [character.body.centerOffsetX, character.body.centerOffsetY] } },
       {
         id: 'visual', name: 'Visual', type: 'Sprite2D', parentId: 'body', order: 1,

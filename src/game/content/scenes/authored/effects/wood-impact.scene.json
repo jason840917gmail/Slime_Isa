@@ -78,6 +78,21 @@
         },
         "lifetimeMs": 333.3333333333333
       }
+    },
+    {
+      "id": "sfx-impact-sfx",
+      "name": "ImpactSfx",
+      "type": "AudioStreamPlayer2D",
+      "parentId": "root",
+      "order": 3,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.weapon.chop-wood"
+        },
+        "autoplay": true,
+        "detached": true,
+        "pitchRandomness": 0.07
+      }
     }
   ],
   "instances": [],
@@ -929,6 +944,17 @@
           ]
         }
       }
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.weapon.chop-wood",
+      "kind": "audio",
+      "assetId": "audio.sfx.weapon.chop-wood.1",
+      "variants": [
+        "audio.sfx.weapon.chop-wood.2",
+        "audio.sfx.weapon.chop-wood.3",
+        "audio.sfx.weapon.chop-wood.4"
+      ]
     }
   ]
 }

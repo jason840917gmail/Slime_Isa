@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { ConversionRunner } from '../../lib/scene-conversion/ConversionRunner.mjs';
 import { objectSceneAdapter } from '../../lib/scene-conversion/objects.mjs';
 import { validateSceneWriteSet } from '../../lib/scene-conversion/validate-scene-write-set.mjs';
+import { withoutSceneAudio } from '../helpers/scene-audio.mjs';
 
 const repositoryRoot = fileURLToPath(new URL('../../..', import.meta.url));
 const collectibleUnitKeys = [
@@ -74,7 +75,7 @@ test('mineable amber ore preserves durability and resolves item drops to a colle
     objectId: 'collectible.crystal-shard', visualId: 'crystal-shard', pieces: 1,
   });
   assert.equal(script.properties.persistHealth, true);
-  assert.deepEqual(authored, converted);
+  assert.deepEqual(withoutSceneAudio(authored), converted);
 });
 
 test('passive object scenes preserve collision, occlusion, offsets, and decorative walkability', async () => {
@@ -118,14 +119,16 @@ test('collectible scenes preserve inventory identity, visuals, and isolated pick
   const woodScript = wood.nodes.find((node) => node.scriptId === 'game.collectible');
   assert.equal(woodScript.properties.itemId, 'wood');
   assert.equal(woodScript.properties.quantity, 10);
-  assert.equal(potion.subresources.find((resource) => resource.kind === 'texture').assetId, 'collectible.hp-potion');
+  assert.deepEqual(potion.subresources.find((resource) => resource.kind === 'sprite-sheet'), {
+    version: 1, resourceId: 'collectible-hp-potion.hp-potion.sprite', kind: 'sprite-sheet', assetId: 'sheet.items.potions.5x2', frameWidth: 64, frameHeight: 64, frameCount: 10,
+  });
   assert.equal(potion.nodes.find((node) => node.scriptId === 'game.collectible').properties.itemId, 'hp-potion');
 
   for (const unitKey of collectibleUnitKeys) {
     const objectId = unitKey.slice('object:'.length);
     const relativePath = `${objectId.replaceAll('.', '-')}.scene.json`;
     assert.deepEqual(
-      JSON.parse(await readFile(path.join(repositoryRoot, 'src/game/content/scenes/authored/objects', relativePath), 'utf8')),
+      withoutSceneAudio(JSON.parse(await readFile(path.join(repositoryRoot, 'src/game/content/scenes/authored/objects', relativePath), 'utf8'))),
       await load(`objects/${relativePath}`),
     );
   }
@@ -152,7 +155,7 @@ test('stone resource scenes preserve visual, collision, harvest, drop, and scrip
 
   for (const relativePath of ['resource-stone-node.scene.json', 'resource-stone-node--big-stone-mine.scene.json']) {
     assert.deepEqual(
-      JSON.parse(await readFile(path.join(repositoryRoot, 'src/game/content/scenes/authored/objects', relativePath), 'utf8')),
+      withoutSceneAudio(JSON.parse(await readFile(path.join(repositoryRoot, 'src/game/content/scenes/authored/objects', relativePath), 'utf8'))),
       await load(`objects/${relativePath}`),
     );
   }

@@ -16,12 +16,17 @@
       "purple-berry-mat": 99,
       "silk-clump": 99,
       "shard": 99,
-      "green-key": 1
+      "green-key": 1,
+      "workbench": 1,
+      "berry-basket": 9
     },
     "weaponMaxStack": 1
   },
   "worldNavigation": {
   "edgeTransitionGraceMs": 650
+  },
+  "rest": {
+    "sleepHpRegenPerSec": 2
   },
   "character": {
     "player": {

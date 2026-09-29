@@ -17,6 +17,10 @@ export interface QuestRewards {
   readonly coins?: number;
   readonly xp?: number;
   readonly items?: readonly QuestRewardItem[];
+  /** Recipes the player learns; locked recipes stay visible but uncraftable until learned. */
+  readonly recipeIds?: readonly string[];
+  /** Persistent story flags other content (gates, quests) can require. */
+  readonly flags?: readonly string[];
 }
 
 interface QuestObjectiveBase {
@@ -74,6 +78,11 @@ export interface SurviveDurationObjective extends QuestObjectiveBase {
   readonly requiredDurationMs: number;
 }
 
+export interface PlaceItemObjective extends QuestObjectiveBase {
+  readonly kind: 'place-item';
+  readonly itemIds: readonly string[];
+}
+
 export interface DiscoverAreaObjective extends QuestObjectiveBase {
   readonly kind: 'discover-area';
   readonly areaIds: readonly string[];
@@ -88,6 +97,7 @@ export type QuestObjectiveDefinition =
   | DefeatBossObjective
   | ActivateObjectObjective
   | SurviveDurationObjective
+  | PlaceItemObjective
   | DiscoverAreaObjective;
 
 export type QuestObjectiveKind = QuestObjectiveDefinition['kind'];
@@ -143,6 +153,16 @@ export interface QuestStageDefinition {
   readonly objectives: readonly QuestObjectiveDefinition[];
 }
 
+/** Lines the giver speaks in the conversation box around the quest. */
+export interface QuestDialogue {
+  /** Before the Accept / Decline choice. */
+  readonly offer?: readonly string[];
+  /** When talking to the giver while the quest is still in progress. */
+  readonly progress?: readonly string[];
+  /** Before the reward is handed over. */
+  readonly complete?: readonly string[];
+}
+
 export interface QuestDefinition {
   readonly id: QuestId;
   readonly definitionVersion: number;
@@ -156,6 +176,9 @@ export interface QuestDefinition {
   readonly failurePolicy: QuestFailurePolicy;
   readonly abandonmentPolicy: QuestAbandonmentPolicy;
   readonly rewards: QuestRewards;
+  /** Chapter banner shown when the quest is accepted, e.g. 'Chapter 1 — The Clearing'. */
+  readonly chapter?: string;
+  readonly dialogue?: QuestDialogue;
 }
 
 export interface QuestState {
@@ -232,6 +255,14 @@ export type QuestInputEvents = {
   'area.enter': {
     readonly areaId: string;
   };
+  'furniture.placed': {
+    readonly mapId: string;
+    readonly placementId: string;
+    readonly itemId: string;
+    readonly sceneId: string;
+    readonly x: number;
+    readonly y: number;
+  };
 };
 
 export type QuestInputEventName = keyof QuestInputEvents;
@@ -251,4 +282,5 @@ export type QuestDomainEvents = {
   'quest.failed': { readonly questId: QuestId; readonly reason: string };
   'quest.abandoned': { readonly questId: QuestId };
   'quest.changed': { readonly questId: QuestId };
+  'story.changed': {};
 };

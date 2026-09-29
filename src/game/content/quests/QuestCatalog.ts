@@ -1,12 +1,21 @@
 import { validateQuestCatalog } from './validateQuestCatalog';
 import type { QuestDefinition, QuestState } from './types';
-import { gatherBuildingMaterials } from './quests/gatherBuildingMaterials';
+import { CHAPTER_ONE_QUESTS } from './quests/chapterOne';
 
 export const QUEST_DEFINITIONS: readonly QuestDefinition[] = [
-  gatherBuildingMaterials,
+  ...CHAPTER_ONE_QUESTS,
 ];
 
 validateQuestCatalog(QUEST_DEFINITIONS);
+
+/**
+ * Quests removed from the catalog. Saved states for these IDs are dropped on load
+ * instead of rejecting the whole save; never reuse one of these IDs.
+ */
+export const RETIRED_QUEST_IDS: ReadonlySet<string> = new Set<string>([
+  // Replaced by Chapter 1 ('a-place-to-work' onward).
+  'gather-building-materials',
+]);
 
 const QUEST_BY_ID = new Map(QUEST_DEFINITIONS.map((definition) => [definition.id, definition]));
 

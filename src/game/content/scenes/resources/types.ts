@@ -41,6 +41,8 @@ export interface AnimationLibraryResourceDocument extends ResourceDocumentBase {
 export interface AudioResourceDocument extends ResourceDocumentBase {
   readonly kind: 'audio';
   readonly assetId: string;
+  /** Extra interchangeable takes; each one-shot play picks randomly among assetId and these. */
+  readonly variants?: readonly string[];
 }
 
 export interface TileSetResourceDocument extends ResourceDocumentBase {

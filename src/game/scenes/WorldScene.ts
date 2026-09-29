@@ -23,6 +23,8 @@ import { hitboxPool } from '../combat/Hitbox';
 import { AREAS, type AreaDef, type AreaId, type Direction } from '../world/Area';
 import { BIOMES } from '../world/Biome';
 import { questTracker } from '../quests/QuestTracker';
+import { bindQuestStory } from '../quests/QuestService';
+import { storyProgress } from '../features/progression/StoryProgress';
 import { ModalStack } from '../ui/ModalStack';
 import { DisposableBag } from '../shared/lifecycle/Disposable';
 import { PlayerController } from '../features/player/PlayerController';
@@ -40,6 +42,12 @@ import { RenderingDiagnostics } from '../dev/RenderingDiagnostics';
 import { CombatController } from '../features/combat/CombatController';
 import { ResourceNodeController } from '../features/resources/ResourceNodeController';
 import { worldProgress } from '../features/progression/WorldProgress';
+import { SleepController, type SleepRequest } from '../features/rest/SleepController';
+import { FurniturePlacementController, type FootprintRect, type PlacementRequest } from '../features/building/FurniturePlacementController';
+import { recipesFor } from '../content/recipes/RecipeCatalog';
+import type { CraftingContext } from '../content/recipes/types';
+import type { ModalHandle } from '../ui/ModalStack';
+import type { RespawnPointData } from '../infrastructure/persistence/SaveSchema';
 import { CollectibleController } from '../features/collectibles/CollectibleController';
 import { CollectibleEventChannel } from '../features/collectibles/CollectibleEventChannel';
 import { CollectibleReactionController } from '../features/collectibles/CollectibleReactionController';
@@ -48,8 +56,6 @@ import { InventoryDropController } from '../features/collectibles/InventoryDropC
 import type { InventoryDropCellInspection } from '../features/collectibles/InventoryDropPlacement';
 import { OcclusionController } from '../features/occlusion/OcclusionController';
 import { DepthDiagnostics } from '../features/occlusion/DepthDiagnostics';
-import { TileFactory } from '../features/world/TileFactory';
-import { TerrainTransitionLayer, TerrainTransitionRenderer } from '../features/world/TerrainTransitionRenderer';
 import { resolveBodyBottom, resolveWorldDepth } from '../presentation/WorldDepth';
 import { ResponsiveCameraController } from '../presentation/ResponsiveCameraController';
 import type { WorldDimensions } from '../world/WorldDimensions';
@@ -64,6 +70,7 @@ import type { LoadedWorldScene } from '../infrastructure/scenes/WorldSceneLoader
 import { UniversalSceneWorldController } from '../features/world/UniversalSceneWorldController';
 import type { MapEnemySafeZone, MapEnemySpawnArea, MapFile, MapPoint, MapSpawns } from '../content/maps/mapFormat';
 import type { WorldExitRequest, WorldExitResult } from '../features/scripts/WorldExitScript';
+import { questRewardLines } from '../features/quests/QuestRewardText';
 
 const COLLECTIBLE_EVENTS = new CollectibleEventChannel(gameEvents);
 
@@ -98,6 +105,9 @@ export class WorldScene extends Phaser.Scene {
   private inventoryDrops?: InventoryDropController;
   private playerController!: PlayerController;
   private healthSystem?: PlayerHealthController;
+  private sleepController?: SleepController;
+  private furniturePlacement?: FurniturePlacementController;
+  private placementModal?: ModalHandle;
   private statusEffects?: StatusEffectManager;
   private modalStack?: ModalStack;
   private interactionRouter?: InteractionRouter;
@@ -114,7 +124,6 @@ export class WorldScene extends Phaser.Scene {
   private loadedMap!: LoadedWorldScene['loadedMap'];
   private loadedWorld?: LoadedWorldScene;
   private builtMap?: AuthoredWorldMetadata;
-  private terrainTransitionLayer?: TerrainTransitionLayer;
   private entryEdge?: Direction;
   private transitioning = false;
   private nextGateMessageAt = 0;
@@ -181,6 +190,8 @@ export class WorldScene extends Phaser.Scene {
       getPlayer: () => this.player,
       router: this.interactionRouter,
       getOfferSurface: () => this.universalWorld?.questOfferSurface,
+      getDialogueSurface: () => this.universalWorld?.npcDialogueSurface,
+      setMarker: (instanceId, marker) => this.universalWorld?.setNpcQuestMarker(instanceId, marker),
       showMessage: (x, y, message, color = 'white', important = false) => floatingText.spawn(this, x, y, message, color, important),
     });
     this.buildWorld();
@@ -201,6 +212,8 @@ export class WorldScene extends Phaser.Scene {
       onDeath: () => this.onPlayerDeath(),
     });
     this.createPlayer();
+    this.sleepController = this.createSleepController();
+    this.furniturePlacement = this.createFurniturePlacement();
     this.disposables.add(saveSystem.setLocationProvider(() => this.capturePlayerLocation()));
     this.depthDiagnostics = new DepthDiagnostics({
       scene: this,
@@ -235,6 +248,14 @@ export class WorldScene extends Phaser.Scene {
     this.questNotifications = new QuestNotificationPresenter({
       getPosition: () => ({ x: this.player.x, y: this.player.y }),
       show: (x, y, message, color, important) => floatingText.spawn(this, x, y, message, color, important),
+      showBanner: (title) => this.universalWorld?.showAreaTitle(title, '#ffd277'),
+    });
+    bindQuestStory({
+      hasDiscoveredArea: (areaId) => worldProgress.discovered().has(areaId),
+      hasWorldFlag: (flagId) => storyProgress.hasFlag(flagId),
+      hasTalkedToNpc: (npcId) => storyProgress.hasTalkedTo(npcId),
+      learnRecipes: (recipeIds) => storyProgress.learnRecipes(recipeIds),
+      setFlags: (flagIds) => storyProgress.setFlags(flagIds),
     });
     questTracker.start();
     // Phase 2: combat system
@@ -267,9 +288,10 @@ export class WorldScene extends Phaser.Scene {
     });
 
     this.questCompleteHandler = (p) => {
-      const reward = [`+${p.rewards.coins ?? 0}c`, `+${p.rewards.xp ?? 0} XP`].join('  ');
-      floatingText.spawn(this, this.player.x, this.player.y - 70, `QUEST COMPLETE: ${p.title}`, 'yellow', true);
-      floatingText.spawn(this, this.player.x, this.player.y - 48, reward, 'green', true);
+      floatingText.spawn(this, this.player.x, this.player.y - 70, `QUEST COMPLETE: ${p.title}`, 'yellow', true, 2400);
+      questRewardLines(p.rewards).forEach((line, index) => {
+        floatingText.spawn(this, this.player.x, this.player.y - 46 + index * 20, `+ ${line}`, 'green', true, 2400);
+      });
     };
     gameEvents.on('quest.completed', this.questCompleteHandler);
     this.disposables.add(() => {
@@ -293,8 +315,6 @@ export class WorldScene extends Phaser.Scene {
     this.questNpcController?.destroy();
     this.questNpcController = undefined;
     this.builtMap = undefined;
-    this.terrainTransitionLayer?.destroy();
-    this.terrainTransitionLayer = undefined;
     this.disposables.dispose();
     this.disposables = new DisposableBag();
     this.abilitySystem?.destroy();
@@ -305,6 +325,12 @@ export class WorldScene extends Phaser.Scene {
     this.cameraController = undefined;
     this.questNotifications?.destroy();
     this.questNotifications = undefined;
+    this.sleepController?.destroy();
+    this.sleepController = undefined;
+    this.furniturePlacement?.destroy();
+    this.furniturePlacement = undefined;
+    this.placementModal?.unregister();
+    this.placementModal = undefined;
     this.interactionRouter?.destroy();
     this.interactionRouter = undefined;
     this.combatController?.destroy();
@@ -417,7 +443,9 @@ export class WorldScene extends Phaser.Scene {
 
     const now = this.simulationNow();
     this.finishExpiredActionAnimation(now);
+    this.interactionRouter?.setSuppressed((this.sleepController?.sleeping ?? false) || (this.furniturePlacement?.active ?? false));
     this.interactionRouter?.update();
+    this.furniturePlacement?.update();
     this.statusEffects?.update(now, delta);
     this.abilitySystem?.update();
     this.combatController?.update(now, delta);
@@ -434,6 +462,12 @@ export class WorldScene extends Phaser.Scene {
     if (this.healthSystem?.isDead()) {
       this.stopPlayerMotion();
       this.player.rotation = 0;
+      this.debugRenderer?.update();
+      return;
+    }
+
+    if (this.sleepController?.sleeping) {
+      this.sleepController.update(delta);
       this.debugRenderer?.update();
       return;
     }
@@ -472,6 +506,7 @@ export class WorldScene extends Phaser.Scene {
       getEnemySpawnAreas: () => this.builtMap?.enemySpawnAreas ?? [],
       getBossBattleAreas: () => this.universalWorld?.bossBattleAreas ?? [],
       getWorldVisuals: () => this.universalWorld?.worldVisuals ?? [],
+      getEnemyAttackAreas: () => this.universalWorld?.enemyAttackAreas ?? [],
     });
   }
 
@@ -541,6 +576,154 @@ export class WorldScene extends Phaser.Scene {
     return { status: 'queued' };
   }
 
+  /** Reloads into the bed's area with the player standing at the bed. */
+  private navigateToRespawnPoint(point: RespawnPointData): void {
+    navigateToAreaUrl(
+      point.areaId,
+      undefined,
+      true,
+      saveSystem.captureCurrentState({
+        ...this.capturePlayerLocation(),
+        areaId: point.areaId,
+        mapId: point.mapId,
+        x: point.x,
+        y: point.y,
+      }),
+    );
+  }
+
+  private createFurniturePlacement(): FurniturePlacementController {
+    const controller = new FurniturePlacementController({
+      scene: this,
+      describe: (sceneIdValue) => this.universalWorld?.describePlaceable(sceneIdValue),
+      playerPosition: () => ({ x: this.player.x, y: this.player.y }),
+      isAreaFree: (rect) => this.isFootprintFree(rect),
+      place: (request) => this.placeFurniture(request),
+      onActiveChange: (active) => {
+        if (active) this.placementModal?.open();
+        else this.placementModal?.close();
+      },
+      showHint: (message) => floatingText.spawn(this, this.player.x, this.player.y - 56, message, 'white', false),
+    });
+    this.placementModal = this.modalStack?.register('furniture-placement', {
+      isOpen: () => controller.active,
+      close: () => controller.cancel(),
+    });
+    return controller;
+  }
+
+  private startFurniturePlacement(itemId: string): void {
+    const sceneIds = itemRegistry.get(itemId)?.placeable?.sceneIds ?? [];
+    if (!this.furniturePlacement || this.paused || this.transitioning || this.healthSystem?.isDead() || playerInventory.count(itemId) < 1) return;
+    this.furniturePlacement.start(itemId, sceneIds);
+  }
+
+  /** Only blocking geometry counts: static bodies (walls, furniture, solid tiles) and the player. */
+  private isFootprintFree(rect: FootprintRect): boolean {
+    const { width, height } = this.worldDimensions;
+    if (rect.x < 0 || rect.y < 0 || rect.x + rect.width > width || rect.y + rect.height > height) return false;
+    if (this.physics.overlapRect(rect.x, rect.y, rect.width, rect.height, false, true).length > 0) return false;
+    const player = this.player.body as Phaser.Physics.Arcade.Body | null;
+    return !player || !Phaser.Geom.Rectangle.Overlaps(
+      new Phaser.Geom.Rectangle(rect.x, rect.y, rect.width, rect.height),
+      new Phaser.Geom.Rectangle(player.x, player.y, player.width, player.height),
+    );
+  }
+
+  private placeFurniture(request: PlacementRequest): boolean {
+    const mapId = this.loadedMap.map.mapId;
+    const name = itemRegistry.get(request.itemId)?.name ?? request.itemId;
+    if (!playerInventory.transact([{ itemId: request.itemId, count: 1 }], [])) return false;
+    const record = worldProgress.placeFurniture(mapId, request);
+    if (!this.universalWorld?.mountPlacedFurniture(record)) {
+      worldProgress.removePlacedFurniture(mapId, record.id);
+      playerInventory.transact([], [{ itemId: request.itemId, count: 1 }]);
+      floatingText.spawn(this, request.x, request.y - 48, `${name} could not be placed`, 'white', true);
+      return false;
+    }
+    gameEvents.emit('furniture.placed', {
+      mapId, placementId: record.id, itemId: record.itemId, sceneId: record.sceneId, x: record.x, y: record.y,
+    });
+    floatingText.spawn(this, request.x, request.y - 48, `Placed ${name}`, 'green', false);
+    return true;
+  }
+
+  private pickUpFurniture(placementId: string): boolean {
+    const mapId = this.loadedMap.map.mapId;
+    const record = worldProgress.placedFurniture(mapId).find((placed) => placed.id === placementId);
+    if (!record || this.paused || this.furniturePlacement?.active) return false;
+    const name = itemRegistry.get(record.itemId)?.name ?? record.itemId;
+    if (!playerInventory.previewTransact([], [{ itemId: record.itemId, count: 1 }])) {
+      floatingText.spawn(this, record.x, record.y - 56, 'Inventory full', 'white', true);
+      return false;
+    }
+    worldProgress.removePlacedFurniture(mapId, placementId);
+    this.universalWorld?.unmountPlacedFurniture(placementId);
+    playerInventory.transact([], [{ itemId: record.itemId, count: 1 }]);
+    // A bed that is picked up can no longer be woken up in.
+    const respawn = worldProgress.respawnPoint;
+    if (respawn && respawn.mapId === mapId && Phaser.Math.Distance.Between(respawn.x, respawn.y, record.x, record.y) < 128) {
+      worldProgress.clearRespawnPoint();
+    }
+    gameEvents.emit('furniture.picked-up', { mapId, placementId, itemId: record.itemId });
+    floatingText.spawn(this, record.x, record.y - 56, `Picked up ${name}`, 'cyan', false);
+    return true;
+  }
+
+  private openCraftingStation(context: CraftingContext): boolean {
+    const world = this.universalWorld;
+    if (!world || this.paused || world.craftingSurface.isOpen() || world.inventorySurface.isOpen()) return false;
+    world.craftingSurface.open(recipesFor(context));
+    gameEvents.emit('workbench.opened', { mapId: this.loadedMap.map.mapId, context });
+    return true;
+  }
+
+  private requestSleep(request: SleepRequest): boolean {
+    if (!this.sleepController || this.paused || this.transitioning || this.actionLocked || this.healthSystem?.isDead()) return false;
+    return this.sleepController.sleep(request);
+  }
+
+  private createSleepController(): SleepController {
+    const wakeActions = ['interact', 'pickup', 'attack', 'jump', 'dodge', 'stretch-lash', 'squash-slam', 'teleport', 'eat'];
+    return new SleepController({
+      scene: this,
+      now: () => this.simulationNow(),
+      teleportPlayer: (point) => this.teleportPlayer(point),
+      setPlayerArtOffset: (offset) => {
+        const visual = this.universalWorld?.playerPresentation;
+        if (!visual) return;
+        const scale = visual.get_global_transform().scale;
+        visual.visualOffset = { x: offset.x / (scale.x || 1), y: offset.y / (scale.y || 1) };
+      },
+      setActionLocked: (locked) => { this.actionLocked = locked; },
+      stopPlayerMotion: () => this.stopPlayerMotion(),
+      playAnimation: (animationId, forceRestart) => this.playAnimation(`slime-${animationId}`, forceRestart),
+      animationDurationMs: (animationId) => this.universalWorld?.playerAnimationDurationMs(animationId),
+      heal: (amount) => this.healthSystem?.heal(amount, 'rest') ?? 0,
+      isAtFullHealth: () => gameState.hp >= gameState.maxHp,
+      consumeWakeInput: () => {
+        const input = this.universalWorld?.managedPlayer;
+        if (!input) return false;
+        const moving = this.playerController.readDirection().lengthSq() > 0;
+        // Consume every pending press so a stale key cannot wake the next nap.
+        const pressed = wakeActions.filter((action) => input.consumeActionPress(action)).length > 0;
+        return moving || pressed;
+      },
+      onFellAsleep: (request) => {
+        worldProgress.setRespawnPoint({
+          areaId: this.currentArea.id,
+          mapId: this.loadedMap.map.mapId,
+          x: Math.round(request.wakePoint.x),
+          y: Math.round(request.wakePoint.y),
+        });
+        floatingText.spawn(this, request.sleepPoint.x, request.sleepPoint.y - 48, 'Respawn point set', 'cyan', false);
+      },
+      onSleepStateChanged: (asleep) => gameEvents.emit('player.sleep', { asleep }),
+      onRested: () => gameEvents.emit('player.rested', {}),
+      showMessage: (point, message, color) => floatingText.spawn(this, point.x, point.y, message, color, false),
+    });
+  }
+
   private navigateToArea(areaId: AreaId, entryEdge?: Direction, respawnHome = false): void {
     navigateToAreaUrl(
       areaId,
@@ -564,20 +747,7 @@ export class WorldScene extends Phaser.Scene {
     };
     this.physics.world.setBounds(0, 0, this.worldDimensions.width, this.worldDimensions.height);
 
-    const transitionTileFactory = new TileFactory({
-      scene: this,
-      collisionTiles: this.collisionTiles,
-      dimensions: this.worldDimensions,
-      seed: this.currentArea.seed,
-      physicsEnabled: false,
-    });
-    this.terrainTransitionLayer?.destroy();
-    this.terrainTransitionLayer = new TerrainTransitionRenderer({
-      scene: this,
-      tileFactory: transitionTileFactory,
-      dimensions: this.worldDimensions,
-      seed: this.currentArea.seed,
-    }).render(terrainGrid);
+    // Blended terrain borders and wall props are drawn by the world's TileMapLayer2D node.
 
     this.collectibles = new CollectibleController({
       scene: this,
@@ -695,8 +865,13 @@ export class WorldScene extends Phaser.Scene {
     this.cameras.main.resetFX();
     this.cameras.main.setBounds(0, 0, this.worldDimensions.width, this.worldDimensions.height);
     this.cameraController = new ResponsiveCameraController(this, this.cameras.main);
-    this.cameraController.resetZoom();
-    this.cameraController.startFollow(this.player, true);
+    if (this.loadedMap.cameraMode === 'fixed') {
+      const { width, height } = this.worldDimensions;
+      this.cameraController.holdFixed({ centerX: width / 2, centerY: height / 2, width, height });
+    } else {
+      this.cameraController.resetZoom();
+      this.cameraController.startFollow(this.player, true);
+    }
 
     this.events.on(Phaser.Scenes.Events.POST_UPDATE, this.handlePresentationPostUpdate, this);
     this.disposables.add(() => {
@@ -921,6 +1096,14 @@ export class WorldScene extends Phaser.Scene {
 
   private handleActionInput(direction: Phaser.Math.Vector2): boolean {
     const input = this.playerMotion();
+    if (this.furniturePlacement?.active) {
+      // Placing furniture: the player may walk, but keys that act (attack,
+      // abilities, R which cycles the variant) must not also fire their action.
+      for (const action of ['interact', 'pickup', 'attack', 'jump', 'dodge', 'stretch-lash', 'squash-slam', 'teleport', 'eat']) {
+        input.consumeActionPress(action);
+      }
+      return false;
+    }
     // Stuck in a web: attacks still work, but nothing that moves the player.
     const stuck = this.statusEffects?.isRooted() ?? false;
     if (input.consumeActionPress('interact')) {
@@ -929,6 +1112,10 @@ export class WorldScene extends Phaser.Scene {
       if (this.interactionRouter?.hasCandidate()) {
         this.interactionRouter.handleInteract();
       }
+      return true;
+    }
+    if (input.consumeActionPress('pickup')) {
+      this.interactionRouter?.handleSecondary();
       return true;
     }
 
@@ -975,6 +1162,7 @@ export class WorldScene extends Phaser.Scene {
     const animationId = key.startsWith('slime-') ? key.slice('slime-'.length) : key;
     const durationMs = this.universalWorld?.playerAnimationDurationMs(animationId);
     if (durationMs === undefined) return;
+    gameEvents.emit('player.action', { anim: animationId });
 
     this.actionLocked = true;
     this.currentAnimation = key;
@@ -1001,11 +1189,13 @@ export class WorldScene extends Phaser.Scene {
   private handleResize(gameSize: Phaser.Structs.Size): void {
     this.cameras.main.setViewport(0, 0, gameSize.width, gameSize.height);
     this.uiCamera?.setViewport(0, 0, gameSize.width, gameSize.height);
+    this.cameraController?.refitFixed();
   }
 
   // â”€â”€ Phase 1: health / damage / death / XP / items â”€â”€
 
   private onPlayerHit(result: AcceptedDamageResult): void {
+    this.sleepController?.wake('damage');
     this.universalWorld?.flashPlayerHealthBar();
     floatingText.spawn(
       this,
@@ -1027,6 +1217,7 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private onPlayerDeath(): void {
+    this.sleepController?.wake('death');
     this.playerKnockbackUntil = 0;
     this.universalWorld?.resetActiveFights();
     this.playAnimation('slime-die', true);
@@ -1042,14 +1233,22 @@ export class WorldScene extends Phaser.Scene {
   private respawnPlayer(): void {
     if (!this.healthSystem) return;
 
-    if (this.currentArea.id !== 'level-1') {
+    // Home is the last bed slept in; without one, the level-1 start.
+    const bed = worldProgress.respawnPoint;
+    if (bed && bed.mapId !== this.loadedMap.map.mapId) {
+      gameState.revive();
+      this.statusEffects?.clear();
+      this.navigateToRespawnPoint(bed);
+      return;
+    }
+    if (!bed && this.currentArea.id !== 'level-1') {
       gameState.revive();
       this.statusEffects?.clear();
       this.navigateToArea('level-1', undefined, true);
       return;
     }
 
-    const pos = this.findSpawnPoint(this.getEntryAnchor());
+    const pos = this.findSpawnPoint(bed ? new Phaser.Math.Vector2(bed.x, bed.y) : this.getEntryAnchor());
 
     this.healthSystem.respawn();
     this.statusEffects?.clear();
@@ -1059,9 +1258,12 @@ export class WorldScene extends Phaser.Scene {
     this.playerVisual?.clearTint();
     this.playerVisual?.setAlpha(1);
 
-    this.cameras.main.pan(pos.x, pos.y, 350, 'Power2');
-    this.cameraController?.resetZoom();
-    this.cameraController?.startFollow(this.player);
+    if (this.loadedMap.cameraMode === 'fixed') this.cameraController?.resetZoom();
+    else {
+      this.cameras.main.pan(pos.x, pos.y, 350, 'Power2');
+      this.cameraController?.resetZoom();
+      this.cameraController?.startFollow(this.player);
+    }
 
     floatingText.spawn(this, pos.x, pos.y - 40, 'Respawned', 'green', true);
   }
@@ -1130,7 +1332,7 @@ export class WorldScene extends Phaser.Scene {
     // before the browser moves focus.
     kb.on('keydown-TAB', (event: KeyboardEvent) => {
       event.preventDefault();
-      if (this.universalWorld?.levelUpSurface.isOpen() || this.actionLocked) return;
+      if (this.universalWorld?.levelUpSurface.isOpen() || this.universalWorld?.audioSettingsSurface.isOpen() || this.actionLocked) return;
       this.universalWorld?.inventorySurface.toggle();
     });
 
@@ -1145,18 +1347,20 @@ export class WorldScene extends Phaser.Scene {
     });
 
     kb.on('keydown-U', () => {
-      if (this.universalWorld?.levelUpSurface.isOpen() || this.universalWorld?.inventorySurface.isOpen() || this.universalWorld?.worldMapSurface.isOpen() || this.universalWorld?.craftingSurface.isOpen()) return;
+      if (this.universalWorld?.levelUpSurface.isOpen() || this.universalWorld?.inventorySurface.isOpen() || this.universalWorld?.worldMapSurface.isOpen() || this.universalWorld?.craftingSurface.isOpen() || this.universalWorld?.audioSettingsSurface.isOpen()) return;
       this.universalWorld?.questJournalSurface.toggle();
     });
 
     kb.on('keydown-C', () => {
-      if (this.universalWorld?.levelUpSurface.isOpen() || this.universalWorld?.inventorySurface.isOpen() || this.universalWorld?.worldMapSurface.isOpen() || this.universalWorld?.questJournalSurface.isOpen()) return;
-      this.universalWorld?.craftingSurface.toggle();
+      if (this.universalWorld?.levelUpSurface.isOpen() || this.universalWorld?.inventorySurface.isOpen() || this.universalWorld?.worldMapSurface.isOpen() || this.universalWorld?.questJournalSurface.isOpen() || this.universalWorld?.audioSettingsSurface.isOpen()) return;
+      if (this.furniturePlacement?.active) return;
+      this.universalWorld?.craftingSurface.toggle(recipesFor('portable'));
     });
 
     // Left-click triggers an attack in the player's current facing direction.
     this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
       if (pointer.leftButtonDown()) {
+        if (this.furniturePlacement?.handlePointerDown()) return;
         this.combatController?.tryAttack();
       }
     });
@@ -1258,8 +1462,10 @@ export class WorldScene extends Phaser.Scene {
       setCraftingPaused: (paused) => this.setSimulationPaused('crafting', paused),
       setJournalPaused: (paused) => this.setSimulationPaused('journal', paused),
       setQuestOfferPaused: (paused) => this.setSimulationPaused('quest-npc', paused),
+      setNpcDialoguePaused: (paused) => this.setSimulationPaused('npc-dialogue', paused),
       setWorldMapPaused: (paused) => this.setSimulationPaused('worldmap', paused),
       setLevelUpPaused: (paused) => this.setSimulationPaused('levelup', paused),
+      setAudioSettingsPaused: (paused) => this.setSimulationPaused('audio-settings', paused),
       getCurrentAreaId: () => this.currentArea.id,
       worldDimensions: this.worldDimensions,
       onCrafted: ({ recipe }) => {
@@ -1273,6 +1479,7 @@ export class WorldScene extends Phaser.Scene {
         floatingText.spawn(this, this.player.x, this.player.y - 44, `Crafted: ${recipe.name}`, 'green', true);
       },
       onUseInventoryItem: (itemId) => this.useItem(itemId),
+      onPlaceInventoryItem: (itemId) => this.startFurniturePlacement(itemId),
       onEquipInventoryWeapon: (weaponId) => this.equipWeaponFromInventory(weaponId),
       onAssignInventoryWeapon: (weaponId, slotIndex) => this.assignWeaponSlot(weaponId, slotIndex),
       canDropInventoryItem: (itemId) => this.inventoryDrops?.canDrop(itemId) ?? false,
@@ -1293,6 +1500,9 @@ export class WorldScene extends Phaser.Scene {
       registerOccluder: (registration) => this.occlusionController!.registerOccluder(registration),
       registerOcclusionActor: (registration) => this.occlusionController!.registerActor(registration),
       requestExit: (request) => this.requestAuthoredExit(request),
+      requestSleep: (request) => this.requestSleep(request),
+      openCraftingStation: (context) => this.openCraftingStation(context),
+      pickUpFurniture: (placementId) => this.pickUpFurniture(placementId),
       onEquipWeaponSlot: (slotIndex) => this.equipWeaponSlot(slotIndex),
       getAbilitySystem: () => this.abilitySystem,
       canUseAbilities: () => !this.paused && !this.healthSystem?.isDead(),

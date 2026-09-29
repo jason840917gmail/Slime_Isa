@@ -1,0 +1,338 @@
+{
+  "version": 1,
+  "sceneId": "ui.npc-dialogue",
+  "rootNodeId": "surface",
+  "nodes": [
+    {
+      "id": "surface",
+      "name": "npc-dialogue",
+      "type": "ModalRoot",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "anchorMin": [
+          0.5,
+          1
+        ],
+        "anchorMax": [
+          0.5,
+          1
+        ],
+        "offsetMin": [
+          -380,
+          -220
+        ],
+        "offsetMax": [
+          380,
+          -24
+        ],
+        "theme": {
+          "resourceId": "ui.field-kit.theme"
+        },
+        "styleClass": "game-ui game-ui--npc-dialogue",
+        "ariaLabel": "npc dialogue",
+        "zIndex": 88,
+        "open": false,
+        "focused": false,
+        "inputPriority": 1900
+      }
+    },
+    {
+      "id": "speaker",
+      "name": "Speaker",
+      "type": "Label",
+      "parentId": "surface",
+      "order": 0,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          0,
+          0
+        ],
+        "offsetMin": [
+          18,
+          -18
+        ],
+        "offsetMax": [
+          300,
+          16
+        ],
+        "tone": "warning",
+        "fontSize": 16,
+        "fontWeight": 700
+      }
+    },
+    {
+      "id": "page",
+      "name": "Page",
+      "type": "Label",
+      "parentId": "surface",
+      "order": 1,
+      "properties": {
+        "anchorMin": [
+          1,
+          0
+        ],
+        "anchorMax": [
+          1,
+          0
+        ],
+        "offsetMin": [
+          -120,
+          10
+        ],
+        "offsetMax": [
+          -52,
+          34
+        ],
+        "tone": "muted",
+        "fontSize": 12,
+        "textAlign": "right"
+      }
+    },
+    {
+      "id": "close",
+      "name": "Close",
+      "type": "Button",
+      "parentId": "surface",
+      "order": 2,
+      "properties": {
+        "anchorMin": [
+          1,
+          0
+        ],
+        "anchorMax": [
+          1,
+          0
+        ],
+        "offsetMin": [
+          -44,
+          8
+        ],
+        "offsetMax": [
+          -12,
+          38
+        ],
+        "text": "✕",
+        "tone": "muted",
+        "ariaLabel": "Close conversation"
+      }
+    },
+    {
+      "id": "text",
+      "name": "Text",
+      "type": "Label",
+      "parentId": "surface",
+      "order": 3,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "offsetMin": [
+          24,
+          34
+        ],
+        "offsetMax": [
+          -24,
+          -58
+        ],
+        "wrap": true,
+        "fontSize": 17
+      }
+    },
+    {
+      "id": "hint",
+      "name": "Hint",
+      "type": "Label",
+      "parentId": "surface",
+      "order": 4,
+      "properties": {
+        "anchorMin": [
+          0,
+          1
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "offsetMin": [
+          24,
+          -46
+        ],
+        "offsetMax": [
+          -170,
+          -14
+        ],
+        "tone": "muted",
+        "fontSize": 11
+      }
+    },
+    {
+      "id": "next",
+      "name": "Next",
+      "type": "Button",
+      "parentId": "surface",
+      "order": 5,
+      "properties": {
+        "anchorMin": [
+          1,
+          1
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "offsetMin": [
+          -156,
+          -50
+        ],
+        "offsetMax": [
+          -18,
+          -12
+        ],
+        "text": "Next  ▸",
+        "tone": "accent"
+      }
+    },
+    {
+      "id": "script",
+      "name": "UiSurfaceScript",
+      "type": "ScriptNode",
+      "scriptId": "game.ui-surface",
+      "parentId": "surface",
+      "order": 6,
+      "properties": {
+        "surfaceId": "npc-dialogue",
+        "modal": true,
+        "bindings": [
+          {
+            "nodePath": "../Speaker",
+            "property": "text",
+            "model": "speaker"
+          },
+          {
+            "nodePath": "../Page",
+            "property": "text",
+            "model": "pageLabel"
+          },
+          {
+            "nodePath": "../Text",
+            "property": "text",
+            "model": "text"
+          },
+          {
+            "nodePath": "../Hint",
+            "property": "text",
+            "model": "hint"
+          },
+          {
+            "nodePath": "../Next",
+            "property": "text",
+            "model": "nextLabel"
+          },
+          {
+            "nodePath": "..",
+            "property": "open",
+            "model": "open"
+          },
+          {
+            "nodePath": "..",
+            "property": "offsetMin",
+            "model": "offsetMin"
+          },
+          {
+            "nodePath": "..",
+            "property": "offsetMax",
+            "model": "offsetMax"
+          }
+        ],
+        "actions": {
+          "on_primary_action": "next",
+          "on_close_action": "close"
+        }
+      }
+    },
+    {
+      "id": "sfx-click-sfx",
+      "name": "ClickSfx",
+      "type": "AudioStreamPlayer",
+      "parentId": "surface",
+      "order": 7,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.ui.click"
+        },
+        "minIntervalMs": 40
+      }
+    }
+  ],
+  "instances": [],
+  "connections": [
+    {
+      "source": {
+        "nodeId": "surface"
+      },
+      "signal": "close_requested",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_close_action"
+    },
+    {
+      "source": {
+        "nodeId": "next"
+      },
+      "signal": "pressed",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_primary_action"
+    },
+    {
+      "source": {
+        "nodeId": "close"
+      },
+      "signal": "pressed",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_close_action"
+    },
+    {
+      "source": {
+        "nodeId": "close"
+      },
+      "signal": "pressed",
+      "target": {
+        "nodeId": "sfx-click-sfx"
+      },
+      "handler": "play"
+    },
+    {
+      "source": {
+        "nodeId": "next"
+      },
+      "signal": "pressed",
+      "target": {
+        "nodeId": "sfx-click-sfx"
+      },
+      "handler": "play"
+    }
+  ],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "sfx.ui.click",
+      "kind": "audio",
+      "assetId": "audio.sfx.ui.click.1"
+    }
+  ]
+}

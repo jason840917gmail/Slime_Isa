@@ -22,7 +22,17 @@ const FALLBACK_ASSET_URL = `data:image/svg+xml,${encodeURIComponent(`
   </svg>
 `)}`;
 
+const AUDIO_URLS = import.meta.glob(
+  ['/asset/audio/**/*.wav', '/asset/audio/**/*.ogg', '/asset/audio/**/*.mp3', '/asset/audio/**/*.m4a'],
+  { eager: true, query: '?url', import: 'default' },
+) as Record<string, string>;
+
 const warnedPaths = new Set<string>();
+
+/** Audio has no visual placeholder: a missing file resolves to undefined and the cue stays silent. */
+export function tryResolveAudioUrl(manifestPath: string): string | undefined {
+  return AUDIO_URLS[`/asset/${manifestPath}`];
+}
 
 export function tryResolveAssetUrl(manifestPath: string): string | undefined {
   return ASSET_URLS[`/asset/${manifestPath}`];

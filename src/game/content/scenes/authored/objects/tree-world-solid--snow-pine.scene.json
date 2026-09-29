@@ -148,6 +148,48 @@
           "nodeId": "animation"
         }
       }
+    },
+    {
+      "id": "sfx-rustle-sfx",
+      "name": "RustleSfx",
+      "type": "AudioStreamPlayer2D",
+      "parentId": "body",
+      "order": 5,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.resource.leaf-rustle"
+        },
+        "pitchRandomness": 0.06,
+        "volume": 0.8
+      }
+    },
+    {
+      "id": "sfx-wrong-tool-sfx",
+      "name": "WrongToolSfx",
+      "type": "AudioStreamPlayer2D",
+      "parentId": "body",
+      "order": 6,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.resource.wrong-tool"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 200
+      }
+    },
+    {
+      "id": "sfx-fall-sfx",
+      "name": "FallSfx",
+      "type": "AudioStreamPlayer2D",
+      "parentId": "body",
+      "order": 7,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.resource.tree-fall"
+        },
+        "pitchRandomness": 0.06,
+        "detached": true
+      }
     }
   ],
   "instances": [],
@@ -220,6 +262,62 @@
           ]
         }
       }
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.resource.leaf-rustle",
+      "kind": "audio",
+      "assetId": "audio.sfx.resource.leaf-rustle.1",
+      "variants": [
+        "audio.sfx.resource.leaf-rustle.2"
+      ]
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.resource.wrong-tool",
+      "kind": "audio",
+      "assetId": "audio.sfx.resource.wrong-tool.1",
+      "variants": [
+        "audio.sfx.resource.wrong-tool.2"
+      ]
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.resource.tree-fall",
+      "kind": "audio",
+      "assetId": "audio.sfx.resource.tree-fall.1"
+    }
+  ],
+  "connections": [
+    {
+      "source": {
+        "nodeId": "script"
+      },
+      "signal": "resource_hit",
+      "target": {
+        "nodeId": "sfx-rustle-sfx"
+      },
+      "handler": "play"
+    },
+    {
+      "source": {
+        "nodeId": "script"
+      },
+      "signal": "harvest_blocked",
+      "target": {
+        "nodeId": "sfx-wrong-tool-sfx"
+      },
+      "handler": "play"
+    },
+    {
+      "source": {
+        "nodeId": "script"
+      },
+      "signal": "drops_requested",
+      "target": {
+        "nodeId": "sfx-fall-sfx"
+      },
+      "handler": "play"
     }
   ]
 }

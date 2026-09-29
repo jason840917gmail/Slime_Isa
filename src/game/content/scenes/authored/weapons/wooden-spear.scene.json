@@ -70,7 +70,7 @@
           "resourceId": "weapon.wooden-spear.right.spear.shape"
         },
         "position": [
-          58,
+          65,
           8
         ],
         "rotation": 0,
@@ -88,7 +88,7 @@
           "resourceId": "weapon.wooden-spear.left.spear.shape"
         },
         "position": [
-          -58,
+          -65,
           8
         ],
         "rotation": 0,
@@ -107,7 +107,7 @@
         },
         "position": [
           0,
-          -38
+          -65
         ],
         "rotation": 0,
         "disabled": true
@@ -125,7 +125,7 @@
         },
         "position": [
           0,
-          58
+          65
         ],
         "rotation": 0,
         "disabled": true
@@ -252,6 +252,19 @@
           }
         }
       }
+    },
+    {
+      "id": "sfx-swing-sfx",
+      "name": "SwingSfx",
+      "type": "AudioStreamPlayer",
+      "parentId": "root",
+      "order": 4,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.weapon.thrust"
+        },
+        "pitchRandomness": 0.06
+      }
     }
   ],
   "instances": [],
@@ -265,6 +278,16 @@
         "nodeId": "script"
       },
       "handler": "on_area_entered"
+    },
+    {
+      "source": {
+        "nodeId": "script"
+      },
+      "signal": "attack_started",
+      "target": {
+        "nodeId": "sfx-swing-sfx"
+      },
+      "handler": "play"
     }
   ],
   "subresources": [
@@ -276,46 +299,6 @@
       "frameWidth": 128,
       "frameHeight": 128,
       "frameCount": 4
-    },
-    {
-      "version": 1,
-      "resourceId": "weapon.wooden-spear.right.spear.shape",
-      "kind": "collision-shape",
-      "value": {
-        "shape": "rectangle",
-        "width": 80,
-        "height": 22
-      }
-    },
-    {
-      "version": 1,
-      "resourceId": "weapon.wooden-spear.left.spear.shape",
-      "kind": "collision-shape",
-      "value": {
-        "shape": "rectangle",
-        "width": 80,
-        "height": 22
-      }
-    },
-    {
-      "version": 1,
-      "resourceId": "weapon.wooden-spear.up.spear.shape",
-      "kind": "collision-shape",
-      "value": {
-        "shape": "rectangle",
-        "width": 28,
-        "height": 82
-      }
-    },
-    {
-      "version": 1,
-      "resourceId": "weapon.wooden-spear.down.spear.shape",
-      "kind": "collision-shape",
-      "value": {
-        "shape": "rectangle",
-        "width": 28,
-        "height": 82
-      }
     },
     {
       "version": 1,
@@ -2123,6 +2106,55 @@
           ]
         }
       }
+    },
+    {
+      "version": 1,
+      "resourceId": "weapon.wooden-spear.right.spear.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 50,
+        "height": 22
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "weapon.wooden-spear.left.spear.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 50,
+        "height": 22
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "weapon.wooden-spear.up.spear.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 22,
+        "height": 50
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "weapon.wooden-spear.down.spear.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 22,
+        "height": 50
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.weapon.thrust",
+      "kind": "audio",
+      "assetId": "audio.sfx.weapon.thrust.1",
+      "variants": [
+        "audio.sfx.weapon.thrust.2"
+      ]
     }
   ]
 }

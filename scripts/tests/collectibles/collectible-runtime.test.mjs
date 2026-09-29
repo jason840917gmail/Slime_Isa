@@ -189,12 +189,14 @@ function inventoryDropHarness({ blocked = false, throwOnSpawn = false, throwOnPe
 }
 
 test('every current non-equipment item has an explicit valid world-drop presentation', () => {
-  const stackableItems = Object.values(getBaseItemDefinitions()).filter((item) => !item.equipment);
+  // Furniture is placed as its own scene, never dropped as a pile.
+  const stackableItems = Object.values(getBaseItemDefinitions()).filter((item) => !item.equipment && !item.placeable);
   assert.ok(stackableItems.length > 0);
   for (const item of stackableItems) {
     assert.ok(resolveInventoryDropDefinition(item.id), `missing world drop for ${item.id}`);
   }
   assert.equal(resolveInventoryDropDefinition('wooden-axe'), undefined);
+  assert.equal(resolveInventoryDropDefinition('workbench'), undefined);
 });
 
 test('inventory drop placement searches outward, favors facing, and accepts compatible stacks', () => {

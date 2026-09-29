@@ -10,7 +10,7 @@ function fattyScene(character, visual, boss) {
     sceneId: 'character.fatty-one-eye',
     rootNodeId: 'body',
     nodes: [
-      { id: 'body', name: 'FattyOneEye', type: 'CharacterBody2D', parentId: null, order: 0, properties: { ...collision(['enemy'], ['world', 'player']), collideWorldBounds: true, position: [0, 0], velocity: [0, 0] } },
+      { id: 'body', name: 'FattyOneEye', type: 'CharacterBody2D', parentId: null, order: 0, properties: { ...collision(['enemy'], ['world', 'water', 'player']), collideWorldBounds: true, position: [0, 0], velocity: [0, 0] } },
       { id: 'body-shape', name: 'BodyShape', type: 'CollisionShape2D', parentId: 'body', order: 0, properties: { shape: { resourceId: 'fatty-one-eye.body-shape' } } },
       { id: 'visual', name: 'Visual', type: 'Sprite2D', parentId: 'body', order: 1, properties: { texture: { resourceId: `${visual.visualSetId}.sprite` }, frame: 0, origin: visual.defaults.origin, scale: visual.defaults.scale } },
       { id: 'eye', name: 'Eye', type: 'Area2D', parentId: 'body', order: 2, properties: { ...collision(['hurtbox'], ['hitbox']), monitoring: true, monitorable: true } },

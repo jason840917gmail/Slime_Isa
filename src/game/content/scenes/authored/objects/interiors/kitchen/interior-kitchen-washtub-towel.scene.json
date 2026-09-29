@@ -1,0 +1,86 @@
+{
+  "version": 1,
+  "sceneId": "object.interior-kitchen-washtub-towel",
+  "rootNodeId": "body",
+  "nodes": [
+    {
+      "id": "body",
+      "name": "washtub-towel",
+      "type": "StaticBody2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "collisionLayer": 1,
+        "collisionMask": 0,
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "body-shape",
+      "name": "BodyShape",
+      "type": "CollisionShape2D",
+      "parentId": "body",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "interior-kitchen-washtub-towel.shape"
+        },
+        "position": [
+          0,
+          -12.102
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "body",
+      "order": 1,
+      "properties": {
+        "texture": {
+          "resourceId": "interior-kitchen-washtub-towel.sprite"
+        },
+        "frame": 46,
+        "origin": [
+          0.5,
+          1
+        ],
+        "scale": [
+          0.6,
+          0.6
+        ],
+        "visualOffset": [
+          0,
+          0
+        ],
+        "depthMode": "world-sorted",
+        "depthBand": "world-entities"
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "interior-kitchen-washtub-towel.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "sheet.interiors.kitchen-hearth.8x8",
+      "frameWidth": 128,
+      "frameHeight": 128
+    },
+    {
+      "version": 1,
+      "resourceId": "interior-kitchen-washtub-towel.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 45.408,
+        "height": 19.404
+      }
+    }
+  ]
+}

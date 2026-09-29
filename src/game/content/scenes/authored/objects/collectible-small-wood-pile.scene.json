@@ -89,6 +89,35 @@
           "nodeId": "pickup-area"
         }
       }
+    },
+    {
+      "id": "sfx-pickup-sfx",
+      "name": "PickupSfx",
+      "type": "AudioStreamPlayer2D",
+      "parentId": "root",
+      "order": 3,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.pickup.wood"
+        },
+        "pitchRandomness": 0.06,
+        "detached": true,
+        "payloadFilter": "status=collected|partial"
+      }
+    },
+    {
+      "id": "sfx-inventory-full-sfx",
+      "name": "InventoryFullSfx",
+      "type": "AudioStreamPlayer2D",
+      "parentId": "root",
+      "order": 4,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.pickup.inventory-full"
+        },
+        "minIntervalMs": 600,
+        "payloadFilter": "status=rejected"
+      }
     }
   ],
   "instances": [],
@@ -110,6 +139,40 @@
         "shape": "circle",
         "radius": 32
       }
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.pickup.wood",
+      "kind": "audio",
+      "assetId": "audio.sfx.pickup.wood.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.pickup.inventory-full",
+      "kind": "audio",
+      "assetId": "audio.sfx.pickup.inventory-full.1"
+    }
+  ],
+  "connections": [
+    {
+      "source": {
+        "nodeId": "script"
+      },
+      "signal": "pickup_resolved",
+      "target": {
+        "nodeId": "sfx-pickup-sfx"
+      },
+      "handler": "play"
+    },
+    {
+      "source": {
+        "nodeId": "script"
+      },
+      "signal": "pickup_resolved",
+      "target": {
+        "nodeId": "sfx-inventory-full-sfx"
+      },
+      "handler": "play"
     }
   ]
 }

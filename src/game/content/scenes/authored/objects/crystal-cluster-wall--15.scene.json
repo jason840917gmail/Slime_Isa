@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "sceneId": "object.crystal-cluster-wall.15",
+  "rootNodeId": "body",
+  "nodes": [
+    {
+      "id": "body",
+      "name": "Body",
+      "type": "StaticBody2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "collisionLayer": 1,
+        "collisionMask": 0,
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "body-shape",
+      "name": "BodyShape",
+      "type": "CollisionShape2D",
+      "parentId": "body",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "crystal-cluster-wall.15.shape"
+        },
+        "position": [
+          0,
+          -22
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "body",
+      "order": 1,
+      "properties": {
+        "texture": {
+          "resourceId": "crystal-cluster-wall.15.sprite"
+        },
+        "frame": 14,
+        "origin": [
+          0.5,
+          1
+        ],
+        "scale": [
+          1,
+          1
+        ],
+        "visualOffset": [
+          0,
+          0
+        ],
+        "depthMode": "world-sorted",
+        "depthBand": "world-entities",
+        "occlusionBounds": {
+          "width": 68,
+          "height": 71,
+          "offsetX": 30,
+          "offsetY": 53
+        }
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "crystal-cluster-wall.15.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "sheet.rocks.crystal-clusters.8x2",
+      "frameWidth": 128,
+      "frameHeight": 128
+    },
+    {
+      "version": 1,
+      "resourceId": "crystal-cluster-wall.15.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 48,
+        "height": 44
+      }
+    }
+  ]
+}

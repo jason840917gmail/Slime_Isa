@@ -1,5 +1,5 @@
 import type { DescriptorRegistry, PropertyDescriptor } from '../../../content/scenes/propertyDescriptors';
-import { capabilitiesForNode, descriptorMap, handlersForScript, nodeTypeIs, propertiesForNode, signalsForNode } from '../../../content/scenes/propertyDescriptors';
+import { capabilitiesForNode, descriptorMap, handlersForNode, nodeTypeIs, propertiesForNode, signalPayloadCompatible, signalsForNode } from '../../../content/scenes/propertyDescriptors';
 import type { InstanceId, ResourceId, SceneId } from '../../../content/scenes/identifiers';
 import type {
   JsonValue,
@@ -301,9 +301,9 @@ export class SceneResolver {
         const target = packedByKey.get(connection.targetKey);
         if (!source || !target) throw new Error(`Signal connection endpoint does not resolve in packed scene '${sceneId}'`);
         const signalDescriptor = signalsForNode(source.type, source.scriptId, this.options.registry).get(connection.signal);
-        const handlerDescriptor = handlersForScript(target.scriptId, this.options.registry).get(connection.handler);
+        const handlerDescriptor = handlersForNode(target.type, target.scriptId, this.options.registry).get(connection.handler);
         if (!signalDescriptor || !handlerDescriptor) throw new Error(`Signal connection '${connection.signal}' to '${connection.handler}' is not registered`);
-        if ((signalDescriptor.payload ?? 'void') !== (handlerDescriptor.payload ?? 'void')) throw new Error(`Signal connection payload mismatch for '${connection.signal}'`);
+        if (!signalPayloadCompatible(signalDescriptor, handlerDescriptor)) throw new Error(`Signal connection payload mismatch for '${connection.signal}'`);
       }
 
       return new PackedScene({

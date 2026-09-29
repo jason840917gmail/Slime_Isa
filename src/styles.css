@@ -3209,6 +3209,80 @@ body {
   background: var(--scene-surface-raised, #192642);
 }
 
+.scene-control--slider {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  pointer-events: auto;
+  color: var(--scene-text-primary, #f5f7ff);
+  font-variant-numeric: tabular-nums;
+}
+
+.scene-control--slider > .scene-slider-label {
+  font-size: 14px;
+  white-space: pre;
+}
+
+.scene-control--slider > input[type="range"] {
+  width: 100%;
+  height: 18px;
+  margin: 0;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.scene-control--slider > input[type="range"]::-webkit-slider-runnable-track {
+  height: 8px;
+  border: 1px solid color-mix(in srgb, var(--scene-border-standard, #3b5c78) 78%, transparent);
+  border-radius: 4px;
+  background:
+    linear-gradient(90deg, var(--scene-slider-color, #86f0c3) 0 calc(var(--scene-slider-ratio, 0) * 100%), transparent calc(var(--scene-slider-ratio, 0) * 100%) 100%),
+    var(--scene-surface-inset, #182b46);
+}
+
+.scene-control--slider > input[type="range"]::-moz-range-track {
+  height: 8px;
+  border: 1px solid color-mix(in srgb, var(--scene-border-standard, #3b5c78) 78%, transparent);
+  border-radius: 4px;
+  background: var(--scene-surface-inset, #182b46);
+}
+
+.scene-control--slider > input[type="range"]::-moz-range-progress {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--scene-slider-color, #86f0c3);
+}
+
+.scene-control--slider > input[type="range"]::-webkit-slider-thumb {
+  width: 16px;
+  height: 16px;
+  margin-top: -5px;
+  appearance: none;
+  border: 2px solid var(--scene-surface-inset, #182b46);
+  border-radius: 50%;
+  background: var(--scene-warning, #ffd277);
+}
+
+.scene-control--slider > input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--scene-surface-inset, #182b46);
+  border-radius: 50%;
+  background: var(--scene-warning, #ffd277);
+}
+
+.scene-control--slider > input[type="range"]:focus-visible {
+  outline: 2px solid var(--scene-warning, #ffd277);
+  outline-offset: 4px;
+}
+
+.scene-control--slider > input[type="range"]:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
 /* Six compact field-belt slots keep the weapon name and key visible. */
 .game-ui--weapon-hotbar {
   border-radius: 8px;
@@ -3415,6 +3489,10 @@ body {
   overflow: auto;
 }
 .game-ui--crafting-ui .scene-control--button { border-radius: 6px; padding: 3px; }
+/* Recipes a quest has not taught yet: still selectable to read, visibly unavailable. */
+.scene-item--locked { opacity: 0.5; }
+.scene-item--locked img { filter: grayscale(1) brightness(0.8); }
+.game-ui--crafting-ui .scene-item--locked span { color: #9aa6b8; }
 
 
 .game-ui--quest-journal,
@@ -3429,6 +3507,8 @@ body {
   text-align: left;
   padding: 8px;
   font-size: 12px;
+  white-space: pre-line;
+  line-height: 1.4;
 }
 .game-ui--quest-journal .scene-control--label,
 .game-ui--quest-offer-modal .scene-control--label {
@@ -3439,6 +3519,36 @@ body {
 }
 .game-ui--quest-journal .scene-control--button,
 .game-ui--quest-offer-modal .scene-control--button { border-radius: 6px; padding: 4px; }
+
+/* NPC conversation box: bottom-anchored RPG dialogue with a name plate riding the top edge. */
+.game-ui--npc-dialogue {
+  overflow: visible;
+  border: 2px solid color-mix(in srgb, var(--scene-warning, #ffd277) 55%, transparent);
+  border-radius: 14px;
+  box-shadow: 0 16px 44px #080e1ad9, inset 0 0 0 1px #ffffff14;
+}
+.game-ui--npc-dialogue .scene-control--label {
+  white-space: pre-line;
+  line-height: 1.5;
+  align-items: flex-start;
+}
+.game-ui--npc-dialogue [data-scene-control-id$="/speaker"] {
+  align-items: center;
+  width: max-content !important;
+  max-width: 300px;
+  padding: 0 14px;
+  border: 2px solid color-mix(in srgb, var(--scene-warning, #ffd277) 70%, transparent);
+  border-radius: 999px;
+  background: var(--scene-surface-inset, #182b46);
+  box-shadow: 0 4px 12px #080e1a99;
+}
+.game-ui--npc-dialogue [data-scene-control-id$="/text"] { color: var(--scene-text-primary, #f5f7ff); }
+.game-ui--npc-dialogue .scene-control--button { border-radius: 8px; padding: 4px 10px; font-weight: 700; text-align: center; justify-content: center; }
+.game-ui--npc-dialogue [data-scene-control-id$="/next"] { animation: npc-dialogue-nudge 1.2s ease-in-out infinite; }
+@keyframes npc-dialogue-nudge { 50% { transform: translateX(3px); } }
+@media (prefers-reduced-motion: reduce) {
+  .game-ui--npc-dialogue [data-scene-control-id$="/next"] { animation: none; }
+}
 
 
 .game-ui--world-map-ui { border-radius: 12px; box-shadow: 0 18px 48px #080e1abf; }
@@ -3463,3 +3573,20 @@ body {
 .game-ui--minimap .scene-minimap-frame { pointer-events: none; }
 .game-ui--minimap .scene-minimap-canvas-host { overflow: hidden; pointer-events: none; }
 .game-ui--minimap .scene-minimap-canvas { display: block; }
+
+/* Quest tracker: artwork-first "what do I do next?" card under the HUD. */
+.game-ui--quest-tracker {
+  pointer-events: none;
+  border: 1px solid color-mix(in srgb, var(--scene-warning, #ffd277) 38%, transparent) !important;
+  border-left: 3px solid var(--scene-warning, #ffd277) !important;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #081022a6, #0810224d) !important;
+  text-shadow: 0 1px 2px #081022, 0 0 6px #081022;
+}
+.game-ui--quest-tracker .scene-control--label {
+  white-space: pre-line;
+  line-height: 1.45;
+  align-items: flex-start;
+  overflow: hidden;
+}
+.game-ui--quest-tracker [data-scene-control-id$="/heading"] { letter-spacing: 0.12em; }

@@ -7,6 +7,14 @@
 - `pnpm assets:check` — validate `asset/assets.json` against disk truth (paths, dimensions, orphans)
 - `pnpm maps:check` — validate authored maps in `src/game/content/maps/` (structure, legends, instance IDs)
 - `pnpm maps:bake` — regenerate the three production maps from the deterministic seed tool (overwrites those map files)
+- `pnpm interiors:scenes` — regenerate one `object.interior-*` scene per interior atlas sprite from `scripts/interiors/interior_catalog.py` into `objects/interiors/<category>/` (`interiors:check` fails on drift; needs Python + Pillow). `python scripts/interiors/normalize-interior-sheets.py` rebuilds the atlases themselves
+- `pnpm grounds:pack` — build every 19x19 (64x64 tile) `asset/MAPS/grounds/64x64-tile_19x19_<ground>.png` sheet from `asset/Originals/grounds/{generated,legacy-sheets}/`, graded and made wrap-seamless so the tile set repeats them with `sheet-wrap` (no mirror seams; needs Python + Pillow + numpy)
+- `pnpm props:pack` — pack prop sources in `asset/Originals/props/` into bottom-anchored `asset/MAPS/rocks/<frame>x<frame>-tile_<cols>x<rows>-<name>.png` atlases (crystal cluster art for the `crystal-cluster-wall` object scenes)
+- `node scripts/maps/scatter-decorations.mjs <world-id>... [--write]` — scatter walk-over ground decorations (leaves, twigs, roots, moss, pebbles, small mushrooms from the mushroom-floor decal scenes) over forest grounds as instances under a `decorations` node; grounds stay mostly plain on purpose. Re-running replaces the previous scatter (dry run by default)
+- `pnpm maps:smooth -- <world-id>... [--write]` — smooth single-cell terrain speckle in world scenes; only ever makes terrain more walkable (dry run by default)
+- `pnpm items:pack` — re-slice the Magnific item icon sources in `asset/Originals/items/` into the 64x64 `asset/MAPS/items/{gems,materials,forage}-5x2.png` atlases; `asset/Originals/items/atlas-index.json` names every frame, including ones not yet wired to an item (needs Python + Pillow + numpy)
+- `pnpm audio:bake` — render the synthesized SFX in `scripts/audio/cues.mjs` to `asset/audio/sfx/synth/` and rewrite the generated `audio.sfx.*` manifest block (`-- --library <dir>` re-imports the CC0 library takes listed in `asset/audio/CREDITS.md`)
+- `pnpm audio:wire` — author audio nodes/connections into scene JSON from the table in `scripts/audio/wire-scene-audio.mjs`; `pnpm audio:check` fails when scenes drift from it
 - `pnpm build` — typecheck and create the production build
 - `pnpm check` — run the complete local verification sequence
 
@@ -23,6 +31,7 @@
 - Phaser scene composition: `src/game/scenes/`
 - Feature orchestration: `src/game/features/`
 - Immutable definitions and balancing: `src/game/content/`
+- Audio: cues are `AudioStreamPlayer`/`AudioStreamPlayer2D` nodes in scene JSON triggered by signal connections (`play`/`stop` handlers, optional `payloadFilter`); global game events play named cues in `audio.global` via `features/audio/AudioEventBridge.ts`. CC0 library samples play by default; `?sfx=synth` switches to the synthesized takes for A/B listening. Volume settings (master/effects/music) live in the Esc settings menu and persist per device
 - Authored maps: `src/game/content/maps/` (format v1 in `mapFormat.ts`; maps persist stable IDs only — terrain tile IDs, archetype IDs, enemy keys, area IDs)
 - Storage and procedural assets: `src/game/infrastructure/`
 - Shared UI tokens: `src/game/presentation/`
@@ -42,6 +51,7 @@
 - Production gameplay requires authored maps and must not invoke procedural world generation. The deterministic bake source lives in `scripts/lib/procedural-map-generator.mjs` for editor/tooling use only.
 - Persistent NPCs, houses, props, and interaction objects must be authored in map JSON and created through `MapBuilder`/`ObjectFactory`; scenes must not inject map populations.
 - Procedural textures are generated in `infrastructure/assets/ProceduralAssetScene.ts`; `scenes/BootScene.ts` is a stable scene facade.
+- Terrain is ground only. Tiles with a `natural-ground` `transition` are blended into organic regions (`features/world/TerrainBlendField.ts` plans, `TerrainTransitionLayer.ts` bakes canvas chunks), mounted by `TileMapLayer2DNode` so the game and Scene Studio render identical terrain; blending never changes physics or map data. Cave and forest walls are placed object instances (`object.crystal-cluster-wall.*`, `object.tree-forest-wall.*` from `scripts/props/generate-wall-prop-scenes.py`), not tiles; `node scripts/maps/convert-wall-tiles.mjs` converted the old wall tiles.
 
 ## Build Behavior
 

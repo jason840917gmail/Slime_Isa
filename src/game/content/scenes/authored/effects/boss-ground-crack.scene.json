@@ -78,6 +78,22 @@
         },
         "lifetimeMs": 650
       }
+    },
+    {
+      "id": "sfx-impact-sfx",
+      "name": "ImpactSfx",
+      "type": "AudioStreamPlayer2D",
+      "parentId": "root",
+      "order": 3,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.resource.stone-crumble"
+        },
+        "autoplay": true,
+        "detached": true,
+        "pitchRandomness": 0.07,
+        "volume": 0.6
+      }
     }
   ],
   "instances": [],
@@ -141,6 +157,12 @@
           ]
         }
       }
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.resource.stone-crumble",
+      "kind": "audio",
+      "assetId": "audio.sfx.resource.stone-crumble.1"
     }
   ]
 }

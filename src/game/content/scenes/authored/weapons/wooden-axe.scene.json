@@ -273,6 +273,19 @@
           }
         }
       }
+    },
+    {
+      "id": "sfx-swing-sfx",
+      "name": "SwingSfx",
+      "type": "AudioStreamPlayer",
+      "parentId": "root",
+      "order": 4,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.weapon.swing-tool"
+        },
+        "pitchRandomness": 0.06
+      }
     }
   ],
   "instances": [],
@@ -286,6 +299,16 @@
         "nodeId": "script"
       },
       "handler": "on_area_entered"
+    },
+    {
+      "source": {
+        "nodeId": "script"
+      },
+      "signal": "attack_started",
+      "target": {
+        "nodeId": "sfx-swing-sfx"
+      },
+      "handler": "play"
     }
   ],
   "subresources": [
@@ -1878,6 +1901,15 @@
           ]
         }
       }
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.weapon.swing-tool",
+      "kind": "audio",
+      "assetId": "audio.sfx.weapon.swing-tool.1",
+      "variants": [
+        "audio.sfx.weapon.swing-tool.2"
+      ]
     }
   ]
 }

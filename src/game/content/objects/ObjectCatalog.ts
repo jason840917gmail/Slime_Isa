@@ -7,6 +7,7 @@ import purpleBerryJson from './collectibles/collectible-purple-berry.json';
 import charcoalPileJson from './collectibles/collectible-charcoal-pile.json';
 import ironOrePileJson from './collectibles/collectible-iron-ore-pile.json';
 import hpPotionJson from './collectibles/collectible-hp-potion.json';
+import berryBasketJson from './collectibles/collectible-berry-basket.json';
 import energyPotionJson from './collectibles/collectible-energy-potion.json';
 import silkClumpJson from './collectibles/collectible-silk-clump.json';
 import crystalShardJson from './collectibles/collectible-crystal-shard.json';
@@ -124,6 +125,7 @@ const OBJECT_FILES = {
   'collectible.charcoal-pile': charcoalPileJson,
   'collectible.iron-ore-pile': ironOrePileJson,
   'collectible.hp-potion': hpPotionJson,
+  'collectible.berry-basket': berryBasketJson,
   'collectible.energy-potion': energyPotionJson,
   'collectible.silk-clump': silkClumpJson,
   'collectible.crystal-shard': crystalShardJson,

@@ -1,0 +1,98 @@
+{
+  "version": 1,
+  "sceneId": "object.house-mushroom",
+  "rootNodeId": "body",
+  "nodes": [
+    {
+      "id": "body",
+      "name": "mushroom-red",
+      "type": "StaticBody2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "collisionLayer": 1,
+        "collisionMask": 0,
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "body-shape",
+      "name": "BodyShape",
+      "type": "CollisionShape2D",
+      "parentId": "body",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "house-mushroom.shape"
+        },
+        "position": [
+          0,
+          -115
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "body",
+      "order": 1,
+      "properties": {
+        "texture": {
+          "resourceId": "house-mushroom.sprite"
+        },
+        "frame": 0,
+        "origin": [
+          0.5,
+          1
+        ],
+        "scale": [
+          1,
+          1
+        ],
+        "visualOffset": [
+          0,
+          0
+        ],
+        "depthMode": "world-sorted",
+        "depthBand": "world-entities",
+        "occlusionBounds": {
+          "width": 280,
+          "height": 215,
+          "offsetX": 20,
+          "offsetY": 23
+        },
+        "depthBounds": {
+          "width": 320,
+          "height": 66,
+          "offsetX": 0,
+          "offsetY": 230
+        }
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "house-mushroom.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "sheet.houses.mushroom.2x1",
+      "frameWidth": 320,
+      "frameHeight": 320
+    },
+    {
+      "version": 1,
+      "resourceId": "house-mushroom.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 240,
+        "height": 170
+      }
+    }
+  ]
+}

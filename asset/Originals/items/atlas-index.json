@@ -1,0 +1,47 @@
+{
+  "gems": {
+    "source": "gems-a.png",
+    "frames": {
+      "crystal-shard": 0,
+      "emerald-shard": 1,
+      "ruby-shard": 2,
+      "sapphire-shard": 3,
+      "amber-shard": 4,
+      "gold-coin": 5,
+      "silver-coin": 6,
+      "copper-coin": 7,
+      "gold-coin-stack": 8,
+      "diamond": 9
+    }
+  },
+  "materials": {
+    "source": "materials-b.png",
+    "frames": {
+      "silk-clump": 0,
+      "spider-fang": 1,
+      "slime-gel": 2,
+      "feather": 3,
+      "bone": 4,
+      "beetle-carapace": 5,
+      "hide-scrap": 6,
+      "fur-tuft": 7,
+      "honeycomb": 8,
+      "monster-eye": 9
+    }
+  },
+  "forage": {
+    "source": "forage-a.png",
+    "frames": {
+      "purple-berry": 0,
+      "red-berry": 1,
+      "blueberry": 2,
+      "red-mushroom": 3,
+      "brown-mushroom": 4,
+      "apple": 5,
+      "carrot": 6,
+      "wheat-bundle": 7,
+      "healing-herb": 8,
+      "acorn": 9
+    }
+  }
+}

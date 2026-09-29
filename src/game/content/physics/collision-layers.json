@@ -12,6 +12,7 @@
     { "layer": 7, "name": "pickup", "description": "Area2D of a collectible that can be picked up." },
     { "layer": 8, "name": "npc", "description": "Friendly NPC CharacterBody2D bodies." },
     { "layer": 9, "name": "projectile", "description": "Projectile CharacterBody2D bodies." },
-    { "layer": 10, "name": "trigger", "description": "World trigger Area2Ds (exits, navigation and encounter areas)." }
+    { "layer": 10, "name": "trigger", "description": "World trigger Area2Ds (exits, navigation and encounter areas)." },
+    { "layer": 11, "name": "water", "description": "Water tiles. Blocks walking bodies (player, enemies, NPCs include it in their mask) but not projectiles, which fly over water." }
   ]
 }

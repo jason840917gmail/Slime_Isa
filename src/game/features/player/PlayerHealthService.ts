@@ -1,3 +1,4 @@
+import type { HealSource } from '../../core/EventBus';
 import type {
   DamageAreaRule,
   DamageCommit,
@@ -98,9 +99,9 @@ export class PlayerHealthService implements DamageReceiver {
     this.ports.feedback?.onDeath?.();
   }
 
-  heal(amount: number): number {
+  heal(amount: number, source?: HealSource): number {
     if (this.isDead()) return 0;
-    return this.ports.state.heal(amount);
+    return this.ports.state.heal(amount, source);
   }
 
   respawn(): void {

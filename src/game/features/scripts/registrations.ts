@@ -14,6 +14,9 @@ import { EffectScript } from './EffectScript';
 import { DestructibleScript } from './DestructibleScript';
 import { ResourceNodeScript } from './ResourceNodeScript';
 import { CollectibleScript } from './CollectibleScript';
+import { BedScript } from './BedScript';
+import { WorkbenchScript } from './WorkbenchScript';
+import { DoorScript } from './DoorScript';
 import { InteractionScript } from './InteractionScript';
 import { WorldExitScript } from './WorldExitScript';
 import { WorldDefinitionScript } from './WorldDefinitionScript';
@@ -93,6 +96,8 @@ export const ENEMY_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
     { id: 'damage_feedback', payload: 'DamageCommit' },
     { id: 'defeated', payload: 'EnemyDefeated' },
     { id: 'reward_requested', payload: 'EnemyRewardRequest' },
+    { id: 'alerted', payload: 'EnemyAlerted' },
+    { id: 'attack_started', payload: 'EnemyAttackStarted' },
   ],
 };
 
@@ -422,6 +427,60 @@ export const WORLD_EXIT_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
   handlers: [{ id: 'on_body_entered', payload: 'PhysicsContact' }],
 };
 
+export const DOOR_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
+  scriptId: 'game.door',
+  displayName: 'Door Script',
+  description: 'Press-to-use door that travels to a linked area entry (house exterior <-> interior).',
+  sourcePath: 'src/game/features/scripts/DoorScript.ts',
+  capabilities: ['door', 'interactable'],
+  exclusiveCapabilities: ['navigation-controller'],
+  properties: [
+    stringProperty('mapId', 'Map ID', 'Navigation'),
+    stringProperty('doorId', 'Door ID', 'Navigation'),
+    stringProperty('targetAreaId', 'Target Area ID', 'Navigation'),
+    stringProperty('entry', 'Target Entry', 'Navigation'),
+    stringProperty('prompt', 'Prompt', 'Interaction'),
+    numberProperty('interactRadius', 'Interact Radius', 96, 'Interaction'),
+    numberProperty('badgeRise', 'Key Badge Rise', 56, 'Interaction'),
+  ],
+};
+
+const vectorProperty = (key: string, label: string, group: string, defaultValue: readonly [number, number]): PropertyDescriptor => ({
+  key, label, group, value: { kind: 'vector2' }, defaultValue: [...defaultValue],
+  serialized: true, inspector: 'vector2', overridable: true,
+});
+
+export const BED_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
+  scriptId: 'game.bed',
+  displayName: 'Bed Script',
+  description: 'Press-to-use bed: the player sleeps to recover HP and makes it their respawn point.',
+  sourcePath: 'src/game/features/scripts/BedScript.ts',
+  capabilities: ['bed', 'interactable'],
+  exclusiveCapabilities: ['rest-controller'],
+  properties: [
+    stringProperty('prompt', 'Prompt', 'Interaction'),
+    numberProperty('interactRadius', 'Interact Radius', 90, 'Interaction'),
+    numberProperty('badgeRise', 'Key Badge Rise', 70, 'Interaction'),
+    vectorProperty('sleepPoint', 'Sleep Point', 'Rest', [0, -30]),
+    vectorProperty('wakePoint', 'Wake Point', 'Rest', [0, 28]),
+  ],
+};
+
+export const WORKBENCH_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
+  scriptId: 'game.workbench',
+  displayName: 'Workbench Script',
+  description: 'Crafting station: press F nearby to craft the recipes of its context.',
+  sourcePath: 'src/game/features/scripts/WorkbenchScript.ts',
+  capabilities: ['crafting-station', 'interactable'],
+  exclusiveCapabilities: ['station-controller'],
+  properties: [
+    stringProperty('prompt', 'Prompt', 'Interaction'),
+    stringProperty('recipeContext', 'Recipe Context', 'Crafting'),
+    numberProperty('interactRadius', 'Interact Radius', 90, 'Interaction'),
+    numberProperty('badgeRise', 'Key Badge Rise', 80, 'Interaction'),
+  ],
+};
+
 export const WORLD_DEFINITION_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
   scriptId: 'game.world-definition',
   displayName: 'World Definition',
@@ -434,6 +493,11 @@ export const WORLD_DEFINITION_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
     numberProperty('tileSize', 'Tile Size', 64, 'World'),
     numberProperty('columns', 'Columns', 1, 'World'),
     numberProperty('rows', 'Rows', 1, 'World'),
+    {
+      key: 'cameraMode', label: 'Camera', group: 'World',
+      help: 'follow: the camera tracks the player. fixed: the camera stays centred on the whole world, zoomed out just enough to fit it (interior rooms).',
+      value: { kind: 'enum', values: ['follow', 'fixed'] }, defaultValue: 'follow', serialized: true, inspector: 'select', overridable: true,
+    },
     jsonProperty('metadata', 'World Metadata', 'World', {}),
   ],
 };
@@ -501,6 +565,7 @@ export const UI_SURFACE_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
     { id: 'on_drop_all' },
     { id: 'on_remove' },
     { id: 'on_remove_all' },
+    { id: 'on_value_changed', payload: 'UiSliderChange' },
   ],
 };
 
@@ -520,6 +585,9 @@ export const GAME_SCRIPT_DESCRIPTORS = Object.freeze([
   COLLECTIBLE_SCRIPT_DESCRIPTOR,
   INTERACTION_SCRIPT_DESCRIPTOR,
   WORLD_EXIT_SCRIPT_DESCRIPTOR,
+  DOOR_SCRIPT_DESCRIPTOR,
+  BED_SCRIPT_DESCRIPTOR,
+  WORKBENCH_SCRIPT_DESCRIPTOR,
   WORLD_DEFINITION_SCRIPT_DESCRIPTOR,
   WORLD_AREA_SCRIPT_DESCRIPTOR,
   UI_SURFACE_SCRIPT_DESCRIPTOR,
@@ -542,6 +610,9 @@ export function createGameScriptRegistry(services: ScriptServiceMap = {}): Scrip
     .registerDefinition({ descriptor: COLLECTIBLE_SCRIPT_DESCRIPTOR, factory: (context) => new CollectibleScript(context) })
     .registerDefinition({ descriptor: INTERACTION_SCRIPT_DESCRIPTOR, factory: (context) => new InteractionScript(context) })
     .registerDefinition({ descriptor: WORLD_EXIT_SCRIPT_DESCRIPTOR, factory: (context) => new WorldExitScript(context) })
+    .registerDefinition({ descriptor: DOOR_SCRIPT_DESCRIPTOR, factory: (context) => new DoorScript(context) })
+    .registerDefinition({ descriptor: BED_SCRIPT_DESCRIPTOR, factory: (context) => new BedScript(context) })
+    .registerDefinition({ descriptor: WORKBENCH_SCRIPT_DESCRIPTOR, factory: (context) => new WorkbenchScript(context) })
     .registerDefinition({ descriptor: WORLD_DEFINITION_SCRIPT_DESCRIPTOR, factory: (context) => new WorldDefinitionScript(context) })
     .registerDefinition({ descriptor: WORLD_AREA_SCRIPT_DESCRIPTOR, factory: (context) => new WorldAreaScript(context) })
     .registerDefinition({ descriptor: UI_SURFACE_SCRIPT_DESCRIPTOR, factory: (context) => new UiSurfaceScript(context) });

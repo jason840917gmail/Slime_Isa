@@ -21,6 +21,11 @@ export interface InputRouterOptions {
 
 const DOM_INPUT_TYPES = ['keydown', 'keyup', 'pointerdown', 'pointerup', 'pointermove'] as const;
 
+function isNativeFormField(target: EventTarget | null): boolean {
+  const element = target as { closest?: (selector: string) => unknown } | null;
+  return typeof element?.closest === 'function' && element.closest('input, select, textarea') !== null;
+}
+
 export class InputRouter {
   private readonly controls = new Set<InputControl>();
   private readonly eventTarget: EventTarget;
@@ -29,7 +34,9 @@ export class InputRouter {
     if (!event) return;
     this.route(event);
     if (event.handled) {
-      nativeEvent.preventDefault();
+      // A consumed pointer press on a native form field (range slider, text box) still needs
+      // its browser default, or the field never receives mousedown/drag/input.
+      if (!(event.type.startsWith('pointer') && isNativeFormField(nativeEvent.target))) nativeEvent.preventDefault();
       nativeEvent.stopPropagation();
     }
     this.options.sink.enqueueInput(event);

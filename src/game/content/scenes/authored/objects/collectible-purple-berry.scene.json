@@ -5,7 +5,7 @@
   "nodes": [
     {
       "id": "root",
-      "name": "purple-berry",
+      "name": "Purple Berry",
       "type": "Node2D",
       "parentId": null,
       "order": 0,
@@ -32,8 +32,8 @@
           0.5
         ],
         "scale": [
-          1,
-          1
+          0.5,
+          0.5
         ],
         "visualOffset": [
           0,
@@ -89,6 +89,35 @@
           "nodeId": "pickup-area"
         }
       }
+    },
+    {
+      "id": "sfx-pickup-sfx",
+      "name": "PickupSfx",
+      "type": "AudioStreamPlayer2D",
+      "parentId": "root",
+      "order": 3,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.pickup.berry"
+        },
+        "pitchRandomness": 0.06,
+        "detached": true,
+        "payloadFilter": "status=collected|partial"
+      }
+    },
+    {
+      "id": "sfx-inventory-full-sfx",
+      "name": "InventoryFullSfx",
+      "type": "AudioStreamPlayer2D",
+      "parentId": "root",
+      "order": 4,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.pickup.inventory-full"
+        },
+        "minIntervalMs": 600,
+        "payloadFilter": "status=rejected"
+      }
     }
   ],
   "instances": [],
@@ -96,8 +125,11 @@
     {
       "version": 1,
       "resourceId": "collectible-purple-berry.purple-berry.sprite",
-      "kind": "texture",
-      "assetId": "collectible.purple-berry"
+      "kind": "sprite-sheet",
+      "assetId": "sheet.items.forage.5x2",
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "frameCount": 10
     },
     {
       "version": 1,
@@ -107,6 +139,40 @@
         "shape": "circle",
         "radius": 12
       }
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.pickup.berry",
+      "kind": "audio",
+      "assetId": "audio.sfx.pickup.berry.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.pickup.inventory-full",
+      "kind": "audio",
+      "assetId": "audio.sfx.pickup.inventory-full.1"
+    }
+  ],
+  "connections": [
+    {
+      "source": {
+        "nodeId": "script"
+      },
+      "signal": "pickup_resolved",
+      "target": {
+        "nodeId": "sfx-pickup-sfx"
+      },
+      "handler": "play"
+    },
+    {
+      "source": {
+        "nodeId": "script"
+      },
+      "signal": "pickup_resolved",
+      "target": {
+        "nodeId": "sfx-inventory-full-sfx"
+      },
+      "handler": "play"
     }
   ]
 }

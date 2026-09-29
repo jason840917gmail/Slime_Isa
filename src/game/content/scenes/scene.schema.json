@@ -56,7 +56,7 @@
       "type": "object", "additionalProperties": false, "required": ["version", "resourceId", "kind"],
       "properties": {
         "version": { "const": 1 }, "resourceId": { "$ref": "#/$defs/id" }, "kind": { "enum": ["texture", "sprite-sheet", "collision-shape", "animation-library", "audio", "tile-set", "tile-data", "font", "theme"] },
-        "assetId": { "type": "string", "minLength": 1 }, "frame": { "type": "integer", "minimum": 0 },
+        "assetId": { "type": "string", "minLength": 1 }, "variants": { "type": "array", "items": { "type": "string", "minLength": 1 } }, "frame": { "type": "integer", "minimum": 0 },
         "frameWidth": { "type": "integer", "minimum": 1 }, "frameHeight": { "type": "integer", "minimum": 1 }, "frameCount": { "type": "integer", "minimum": 1 },
         "value": { "$ref": "#/$defs/json" }, "animations": { "type": "object", "additionalProperties": { "$ref": "#/$defs/json" } }, "tiles": { "type": "object", "additionalProperties": { "$ref": "#/$defs/json" } },
         "tileSet": { "$ref": "#/$defs/id" }, "columns": { "type": "integer", "minimum": 1 }, "rows": { "type": "integer", "minimum": 1 }, "cells": { "type": "array", "items": { "$ref": "#/$defs/json" } }, "values": { "type": "object", "additionalProperties": { "$ref": "#/$defs/json" } }

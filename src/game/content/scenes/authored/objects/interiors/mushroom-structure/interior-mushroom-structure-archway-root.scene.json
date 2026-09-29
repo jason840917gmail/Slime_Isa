@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "sceneId": "object.interior-mushroom-structure-archway-root",
+  "rootNodeId": "root",
+  "nodes": [
+    {
+      "id": "root",
+      "name": "archway-root",
+      "type": "Node2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "root",
+      "order": 0,
+      "properties": {
+        "texture": {
+          "resourceId": "interior-mushroom-structure-archway-root.sprite"
+        },
+        "frame": 26,
+        "origin": [
+          0.5,
+          1
+        ],
+        "scale": [
+          1,
+          1
+        ],
+        "visualOffset": [
+          0,
+          0
+        ],
+        "depthMode": "world-sorted",
+        "depthBand": "world-entities"
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "interior-mushroom-structure-archway-root.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "sheet.interiors.mushroom-structure.8x8",
+      "frameWidth": 128,
+      "frameHeight": 128
+    }
+  ]
+}

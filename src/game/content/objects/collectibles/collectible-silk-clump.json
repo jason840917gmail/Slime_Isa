@@ -3,8 +3,8 @@
   "objectId": "collectible.silk-clump",
   "selection": "authored",
   "variants": [{
-    "assetId": "collectible.silk-clump",
-    "frames": [{ "visualId": "silk-clump", "frame": 0, "displayName": "Sticky Silk", "scale": 2 }]
+    "assetId": "sheet.items.materials.5x2",
+    "frames": [{ "visualId": "silk-clump", "frame": 0, "displayName": "Sticky Silk", "scale": 0.5 }]
   }],
   "physics": null,
   "behavior": "collectible.walk-over",

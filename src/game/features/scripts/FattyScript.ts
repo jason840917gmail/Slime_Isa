@@ -1,9 +1,8 @@
 import type { RuntimeNodeId } from '../../content/scenes/identifiers';
 import type { DamageCommit, DamageMitigationInput, DamageStateDecision } from '../combat/DamageReceiver';
 import { bossPerimeterContains, clampToBossArena } from '../bosses/BossCampBehavior';
-import { EnemyScript } from './EnemyScript';
-import type { Node } from '../../runtime/scene/Node';
-import { sensorShapeContainsPoint, type SensorShape } from '../../runtime/scene/physics/SensorGeometry';
+import { EnemyScript, type EnemyTargetSnapshot } from './EnemyScript';
+import type { SensorShape } from '../../runtime/scene/physics/SensorGeometry';
 
 type FattyOneEyePhase = 'chase' | 'return-to-center' | 'contact-hop' | 'small-hop' | 'airborne' | 'landing' | 'recovery' | 'dead';
 
@@ -156,7 +155,7 @@ export class FattyScript extends EnemyScript {
     this.clearTelegraph();
     const splash = this.areaShapes('landingZone');
     const target = this.currentTarget();
-    if (target && splash.some((shape) => sensorShapeContainsPoint(shape, target.position.x, target.position.y))) {
+    if (target?.active && this.targetOverlapsShapes(splash, target)) {
       this.routeImmediateAttack(target, {
         baseDamage: this.numberProperty('landingDamage', 32),
         knockbackStrength: this.numberProperty('landingKnockbackStrength', 280),
@@ -210,15 +209,13 @@ export class FattyScript extends EnemyScript {
   }
 
   protected override canRunCommonAttack(): boolean { return this.phaseValue === 'chase'; }
+  /** The authored ContactShape decides when the contact hop starts and whether it connects. */
+  protected override attackAreaReach(target: EnemyTargetSnapshot): boolean { return this.targetOverlapsArea('contactAttack', target); }
   protected override mirrorsSideFacing(): boolean { return false; }
 
   /** World-space shapes of an area reference (the landing zone or the contact-hop area). */
   private areaShapes(reference: 'landingZone' | 'contactAttack'): readonly SensorShape[] {
-    const area = this.getReference<Node>(reference)?.configuredTarget;
-    return (area?.get_children() ?? []).flatMap((child) => {
-      const shape = child as unknown as { worldShape?: () => SensorShape };
-      return typeof shape.worldShape === 'function' ? [shape.worldShape()] : [];
-    });
+    return this.referencedAreaShapes(reference);
   }
 
   private transitionTo(phase: FattyOneEyePhase, time: number): void {

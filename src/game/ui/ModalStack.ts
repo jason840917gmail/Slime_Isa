@@ -32,6 +32,12 @@ interface RegisteredModal {
 
 const CAPTURE_OPTIONS = { capture: true } as const;
 
+/** A surface entering or leaving the stack (presentation hooks such as menu sounds). */
+export interface ModalStackChange {
+  readonly id: string;
+  readonly open: boolean;
+}
+
 /**
  * Routes one Escape press to the most recently opened active surface.
  *
@@ -42,6 +48,7 @@ export class ModalStack {
   private readonly registrations = new Map<string, RegisteredModal>();
   private readonly stack: RegisteredModal[] = [];
   private readonly eventTarget: ModalStackEventTarget;
+  private readonly observers = new Set<(change: ModalStackChange) => void>();
   private destroyed = false;
   private handlingEscape = false;
 
@@ -82,12 +89,16 @@ export class ModalStack {
       id,
       open: () => {
         if (!isCurrent()) return;
+        const wasActive = this.stack.includes(entry);
         this.removeEntry(entry);
         this.stack.push(entry);
+        if (!wasActive) this.notify({ id, open: true });
       },
       close: () => {
         if (!isCurrent()) return;
+        const wasActive = this.stack.includes(entry);
         this.removeEntry(entry);
+        if (wasActive) this.notify({ id, open: false });
       },
       unregister: () => {
         if (!registered) return;
@@ -98,6 +109,12 @@ export class ModalStack {
         this.removeEntry(entry);
       },
     };
+  }
+
+  /** Observes surfaces opening and closing; returns the unsubscribe callback. */
+  observe(listener: (change: ModalStackChange) => void): () => void {
+    this.observers.add(listener);
+    return () => { this.observers.delete(listener); };
   }
 
   hasActiveSurface(): boolean {
@@ -122,6 +139,7 @@ export class ModalStack {
       if (entry.registration.canClose?.() === false) return true;
 
       this.removeEntry(entry);
+      this.notify({ id: entry.id, open: false });
       entry.registration.close();
       return true;
     } catch (error) {
@@ -138,6 +156,7 @@ export class ModalStack {
   destroy(): void {
     if (this.destroyed) return;
     this.destroyed = true;
+    this.observers.clear();
     this.eventTarget.removeEventListener('keydown', this.handleKeyDown, CAPTURE_OPTIONS);
     const activeEntries = [...this.stack];
     this.stack.length = 0;
@@ -148,6 +167,10 @@ export class ModalStack {
     for (const entry of activeEntries) {
       if (entry.registration.isOpen()) entry.registration.close();
     }
+  }
+
+  private notify(change: ModalStackChange): void {
+    for (const observer of [...this.observers]) observer(change);
   }
 
   private isCurrentEntry(entry: RegisteredModal): boolean {

@@ -96,45 +96,53 @@ function dependencies() {
   };
 }
 
-test('the first production quest starts in level 1 and tracks wood and stone in parallel', () => {
-  const definition = getQuestDefinitions().find((quest) => quest.id === 'gather-building-materials');
-  assert.ok(definition, 'expected gather-building-materials in the production catalog');
-
+test('chapter 1 plays through from the workbench to Gloop Forest, each quest opening the next', () => {
   const deps = dependencies();
-  const service = new QuestService({ catalog: [definition], ...deps });
+  const service = new QuestService({ catalog: getQuestDefinitions(), ...deps });
   service.start();
-  assert.equal(service.get(definition.id).status, 'locked');
+  assert.equal(service.get('a-place-to-work').status, 'locked');
 
   service.handleEvent('area.enter', { areaId: 'level-1' });
-  assert.equal(service.get(definition.id).status, 'active');
-  assert.equal(deps.eventsLog.filter((entry) => entry.event === 'quest.accepted').length, 1);
+  assert.equal(service.get('a-place-to-work').status, 'available');
+  assert.equal(service.offersForNpc('village-elder-plop')[0].quest.questId, 'a-place-to-work');
+  assert.equal(service.accept('a-place-to-work', 'village-elder-plop').ok, true);
 
-  service.handleEvent('collectible.collected', {
-    mapId: 'level-1', instanceId: 'wood', objectId: 'collectible.wood-pile', itemId: 'wood', quantity: 30,
-  });
-  assert.equal(service.get(definition.id).status, 'active');
-  assert.equal(service.get(definition.id).progress['collect-wood'], 30);
-  assert.equal(service.get(definition.id).progress['collect-stone'] ?? 0, 0);
+  const craft = (itemId) => service.handleEvent('craft.completed', { recipeId: `craft-${itemId}`, itemId, quantity: 1 });
+  const collect = (itemId, quantity) => service.handleEvent('collectible.collected', { mapId: 'level-1', instanceId: `${itemId}-${quantity}`, objectId: 'x', itemId, quantity });
+  const turnIn = (questId, npcId) => assert.equal(service.turnIn(questId, npcId).ok, true, `${questId} turn-in`);
 
-  service.handleEvent('collectible.collected', {
-    mapId: 'level-1', instanceId: 'stone', objectId: 'collectible.stone-pile', itemId: 'stone', quantity: 30,
-  });
-  assert.equal(service.get(definition.id).status, 'completed');
+  craft('workbench');
+  service.handleEvent('furniture.placed', { mapId: 'level-1', placementId: 'bench-1', itemId: 'workbench', sceneId: 'object.interior-workshop-workbench', x: 0, y: 0 });
+  turnIn('a-place-to-work', 'village-elder-plop');
+  assert.equal(service.get('stone-tools').status, 'available');
+  assert.equal(service.get('a-tonic-for-lili').status, 'available');
 
-  service.handleEvent('area.enter', { areaId: 'level-1' });
-  assert.equal(deps.eventsLog.filter((entry) => entry.event === 'quest.accepted').length, 1);
+  service.accept('stone-tools', 'village-elder-plop');
+  craft('stone-axe');
+  craft('stone-pickaxe');
+  collect('wood', 20);
+  collect('stone', 20);
+  turnIn('stone-tools', 'village-elder-plop');
+
+  service.accept('worm-trouble', 'level-1-spider-giver');
+  craft('wooden-spear');
+  for (let enemyId = 0; enemyId < 5; enemyId += 1) service.handleEvent('enemy.died', { enemyId, areaId: 'level-1', kind: 'worm-brawler' });
+  turnIn('worm-trouble', 'level-1-spider-giver');
+
+  service.accept('the-one-eyed-guardian', 'village-elder-plop');
+  craft('stone-spear');
+  service.handleEvent('boss.defeated', { bossId: 'fatty-one-eye' });
+  service.handleEvent('area.enter', { areaId: 'gloop-forest' });
+  assert.equal(service.get('the-one-eyed-guardian').status, 'completed');
 });
 
-test('an existing save missing the first quest receives it after restoring level 1', () => {
-  const definition = getQuestDefinitions().find((quest) => quest.id === 'gather-building-materials');
-  assert.ok(definition, 'expected gather-building-materials in the production catalog');
-
-  const service = new QuestService({ catalog: [definition], ...dependencies() });
-  service.load([]);
+test('saves holding the retired starter quest still load and receive chapter 1', () => {
+  const service = new QuestService({ catalog: getQuestDefinitions(), ...dependencies() });
+  service.load([{ questId: 'gather-building-materials', definitionVersion: 1, status: 'active', activeStageId: 'gather-materials', progress: { 'collect-wood': 12 }, rewardsGranted: false }]);
   service.restoreKnownFacts({ discoveredAreas: ['level-1'] });
   service.start();
-
-  assert.equal(service.get(definition.id).status, 'active');
+  assert.equal(service.get('gather-building-materials'), undefined);
+  assert.equal(service.get('a-place-to-work').status, 'available');
 });
 
 test('objectives in one stage progress in parallel and later stages stay hidden', () => {

@@ -9,6 +9,16 @@ export interface SceneStudioContentSummary {
   readonly kind: SceneStudioContentKind;
   readonly id: string;
   readonly relativePath: string;
+  /** Representative sprite frame for the explorer thumbnail, when one resolves. */
+  readonly portrait?: SceneStudioPortrait;
+}
+
+export interface SceneStudioPortrait {
+  readonly assetId: string;
+  readonly frame: number;
+  /** Frame size from a sprite-sheet resource; otherwise the asset manifest's frame geometry applies. */
+  readonly frameWidth?: number;
+  readonly frameHeight?: number;
 }
 
 export interface SceneStudioContentRecord extends SceneStudioContentSummary {
@@ -84,6 +94,25 @@ export class SceneStudioRepository {
     }
     if (!isRecord(payload) || typeof payload.relativePath !== 'string') throw new Error('Scene Studio returned an invalid folder result');
     return payload.relativePath;
+  }
+
+  /**
+   * Moves a document into `folder` (`''` is the content root), keeping its file
+   * name unless `fileName` renames it (e.g. into a variant family).
+   */
+  async move(kind: SceneStudioContentKind, id: string, folder: string, fileName?: string): Promise<SceneStudioContentSummary> {
+    const response = await this.request(`${this.endpoint}?action=move`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(fileName === undefined ? { kind, id, folder } : { kind, id, folder, fileName }),
+    });
+    const payload = await response.json().catch(() => undefined) as unknown;
+    if (!response.ok) {
+      const message = isRecord(payload) && typeof payload.error === 'string' ? payload.error : `Scene Studio move failed (${response.status})`;
+      throw new SceneStudioRepositoryError(message, response.status);
+    }
+    if (!isRecord(payload) || !isRecord(payload.item) || typeof payload.item.relativePath !== 'string') throw new Error('Scene Studio returned an invalid move result');
+    return payload.item as unknown as SceneStudioContentSummary;
   }
 
   async load(kind: SceneStudioContentKind, id: string): Promise<SceneStudioContentRecord> {

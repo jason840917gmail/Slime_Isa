@@ -16,6 +16,7 @@ export const PLAYER_INPUT_ACTIONS: InputActionMap = Object.freeze({
   KeyT: 'squash-slam',
   KeyY: 'teleport',
   KeyF: 'interact',
+  KeyG: 'pickup',
   KeyW: 'eat',
 });
 
@@ -31,11 +32,12 @@ export type PlayerInputAction =
   | 'squash-slam'
   | 'teleport'
   | 'interact'
+  | 'pickup'
   | 'eat';
 
 export function isPlayerInputAction(value: string | undefined): value is PlayerInputAction {
   return value === 'move-up' || value === 'move-down' || value === 'move-left'
     || value === 'move-right' || value === 'dodge-boost' || value === 'jump'
     || value === 'attack' || value === 'stretch-lash' || value === 'squash-slam'
-    || value === 'teleport' || value === 'interact' || value === 'eat';
+    || value === 'teleport' || value === 'interact' || value === 'pickup' || value === 'eat';
 }

@@ -1,0 +1,107 @@
+{
+  "version": 1,
+  "sceneId": "object.interior-beds-four-poster-w",
+  "rootNodeId": "body",
+  "nodes": [
+    {
+      "id": "body",
+      "name": "four-poster-w",
+      "type": "StaticBody2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "collisionLayer": 1,
+        "collisionMask": 0,
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "body-shape",
+      "name": "BodyShape",
+      "type": "CollisionShape2D",
+      "parentId": "body",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "interior-beds-four-poster-w.shape"
+        },
+        "position": [
+          0,
+          -24.735
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "body",
+      "order": 1,
+      "properties": {
+        "texture": {
+          "resourceId": "interior-beds-four-poster-w.sprite"
+        },
+        "frame": 25,
+        "origin": [
+          0.5,
+          1
+        ],
+        "scale": [
+          0.75,
+          0.75
+        ],
+        "visualOffset": [
+          0,
+          0
+        ],
+        "depthMode": "world-sorted",
+        "depthBand": "world-entities"
+      }
+    },
+    {
+      "id": "script",
+      "name": "BedScript",
+      "type": "ScriptNode",
+      "scriptId": "game.bed",
+      "parentId": "body",
+      "order": 2,
+      "properties": {
+        "prompt": "Sleep",
+        "interactRadius": 110.5,
+        "badgeRise": 114.5,
+        "sleepPoint": [
+          0,
+          -59.925
+        ],
+        "wakePoint": [
+          0,
+          16
+        ]
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "interior-beds-four-poster-w.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "sheet.interiors.beds-directional.6x8",
+      "frameWidth": 256,
+      "frameHeight": 256
+    },
+    {
+      "version": 1,
+      "resourceId": "interior-beds-four-poster-w.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 124.08,
+        "height": 43.47
+      }
+    }
+  ]
+}

@@ -4,8 +4,8 @@
   "selection": "authored",
   "variants": [
     {
-      "assetId": "collectible.purple-berry",
-      "frames": [{ "visualId": "purple-berry", "frame": 0 }]
+      "assetId": "sheet.items.forage.5x2",
+      "frames": [{ "visualId": "purple-berry", "frame": 0, "displayName": "Purple Berry", "scale": 0.5 }]
     }
   ],
   "physics": null,

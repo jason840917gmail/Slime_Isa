@@ -8,7 +8,7 @@ import type { InputRouter } from '../../runtime/scene/input/InputRouter';
 import type { ControlPresentation } from '../../runtime/scene/ui/ControlNode';
 import { AnimationPlayerNode, parseAnimationLibrary } from '../../runtime/scene/animation/AnimationPlayerNode';
 import type { AnimationBinding } from '../../runtime/scene/animation/AnimationBinding';
-import { AudioStreamPlayerNode, type AudioPreferences, type AudioUnlockService } from './AudioStreamPlayerNode';
+import { AudioStreamPlayerNode, type AudioBus, type AudioPreferences, type AudioUnlockService } from './AudioStreamPlayerNode';
 import { AudioStreamPlayer2DNode } from './AudioStreamPlayer2DNode';
 import { Camera2DNode } from './Camera2DNode';
 import { Area2DNode } from './Area2DNode';
@@ -26,6 +26,7 @@ import {
   LabelControlNode,
   ModalRootControlNode,
   ProgressBarControlNode,
+  SliderControlNode,
   ScrollContainerControlNode,
   StyledControlNode,
   TextureRectControlNode,
@@ -188,13 +189,22 @@ function textureAssetKey(construction: NodeConstructionContext, context: PhaserN
 }
 
 function audioOptions(construction: NodeConstructionContext, services: PhaserNodeRegistryServices, context: PhaserNodeContext) {
+  const resource = audioResource(construction);
+  const properties = construction.properties;
+  const numberProperty = (key: string): number | undefined => (typeof properties[key] === 'number' ? properties[key] as number : undefined);
+  const booleanProperty = (key: string): boolean | undefined => (typeof properties[key] === 'boolean' ? properties[key] as boolean : undefined);
   return {
-    assetId: context.assetKey(audioResource(construction).assetId),
-    bus: construction.properties.bus === 'music' ? 'music' as const : 'effects' as const,
-    volume: typeof construction.properties.volume === 'number' ? construction.properties.volume : undefined,
-    pitch: typeof construction.properties.pitch === 'number' ? construction.properties.pitch : undefined,
-    loop: typeof construction.properties.loop === 'boolean' ? construction.properties.loop : undefined,
-    autoplay: typeof construction.properties.autoplay === 'boolean' ? construction.properties.autoplay : undefined,
+    assetId: context.assetKey(resource.assetId),
+    variantAssetIds: (resource.variants ?? []).map((assetId) => context.assetKey(assetId)),
+    bus: (properties.bus === 'music' || properties.bus === 'ambience' ? properties.bus : 'effects') as AudioBus,
+    volume: numberProperty('volume'),
+    pitch: numberProperty('pitch'),
+    pitchRandomness: numberProperty('pitchRandomness'),
+    polyphony: numberProperty('polyphony'),
+    minIntervalMs: numberProperty('minIntervalMs'),
+    loop: booleanProperty('loop'),
+    autoplay: booleanProperty('autoplay'),
+    payloadFilter: typeof properties.payloadFilter === 'string' && properties.payloadFilter.length > 0 ? properties.payloadFilter : undefined,
     preferences: services.audioPreferences,
     unlock: services.audioUnlock,
   };
@@ -280,6 +290,11 @@ export function createPhaserNodeRegistry(context: PhaserNodeContext, services: P
       ...controlOptions(construction, services), value: numberValue(construction.properties.value, 0), max: numberValue(construction.properties.max, 1),
       label: strings(construction.properties.label), tone: strings(construction.properties.tone) as UiTone || 'accent', showValue: Boolean(construction.properties.showValue),
     }))
+    .replace('Slider', (construction) => new SliderControlNode({
+      ...controlOptions(construction, services), value: numberValue(construction.properties.value, 0),
+      min: numberValue(construction.properties.min, 0), max: numberValue(construction.properties.max, 1), step: numberValue(construction.properties.step, 0.05),
+      label: strings(construction.properties.label), tone: strings(construction.properties.tone) as UiTone || 'accent', disabled: Boolean(construction.properties.disabled),
+    }))
     .replace('Button', (construction) => new ButtonControlNode({
       ...controlOptions(construction, services), text: strings(construction.properties.text),
       tone: strings(construction.properties.tone) as UiTone || 'default',
@@ -327,5 +342,6 @@ export function createPhaserNodeRegistry(context: PhaserNodeContext, services: P
       ...audioOptions(construction, services, context),
       maxDistance: typeof construction.properties.maxDistance === 'number' ? construction.properties.maxDistance : undefined,
       panDistance: typeof construction.properties.panDistance === 'number' ? construction.properties.panDistance : undefined,
+      detached: construction.properties.detached === true,
     }));
 }

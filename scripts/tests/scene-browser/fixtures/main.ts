@@ -256,8 +256,8 @@ if (mode === 'harness') {
       if (tileHarness) {
         resources.set(tileSetId, {
           version: 1, resourceId: tileSetId, kind: 'tile-set', tiles: {
-            ground: { assetIds: ['terrain.water.0'], selection: 'seeded-hash', physics: null, allowsDecorations: true, tags: ['ground'] },
-            wall: { assetIds: ['terrain.forest.tree-wall'], selection: 'seeded-hash', physics: { body: 'static', inset: { left: 2, right: 2, top: 3, bottom: 1 } }, allowsDecorations: false, tags: ['wall'] },
+            ground: { assetIds: ['sheet.grounds.19x19.water'], selection: 'seeded-hash', physics: null, allowsDecorations: true, tags: ['ground'] },
+            wall: { assetIds: ['sheet.grounds.19x19.cavern-floor'], selection: 'seeded-hash', physics: { body: 'static', inset: { left: 2, right: 2, top: 3, bottom: 1 } }, allowsDecorations: false, tags: ['wall'] },
           },
         });
         resources.set(tileDataId, {
@@ -267,8 +267,8 @@ if (mode === 'harness') {
         });
       }
       this.context = new PhaserNodeContext(this, resources, (assetId) => (
-        assetId === 'terrain.water.0' ? 'browser-tile-ground'
-          : assetId === 'terrain.forest.tree-wall' ? 'browser-tile-wall'
+        assetId === 'sheet.grounds.19x19.water' ? 'browser-tile-ground'
+          : assetId === 'sheet.grounds.19x19.cavern-floor' ? 'browser-tile-wall'
             : assetId
       ));
       const audioContext = (this.sound as unknown as { readonly context?: AudioContext }).context;
@@ -571,12 +571,12 @@ const api: FixtureApi = {
   },
   openProductionQuestTurnInForUi() {
     if (!game || mode !== 'baseline') throw new Error('Production quests are only available in baseline mode');
-    const quest = questService.get('gather-building-materials');
+    const quest = questService.get('a-place-to-work');
     const world = game.scene.getScene('world') as unknown as { readonly universalWorld?: {
       readonly questOfferSurface: { openTurnIn(quest: QuestView, npcId: string, onFinished?: () => void, onClosed?: () => void): void };
     } };
     if (!quest || !world.universalWorld) throw new Error('Production quest offer surface is unavailable');
-    world.universalWorld.questOfferSurface.openTurnIn(quest, 'lili', undefined, () => { questTurnInClosedCount += 1; });
+    world.universalWorld.questOfferSurface.openTurnIn(quest, 'village-elder-plop', undefined, () => { questTurnInClosedCount += 1; });
   },
   productionQuestTurnInClosedCount() { return questTurnInClosedCount; },
   discoverProductionArea(areaId) {

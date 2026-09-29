@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 
 import { hitboxPool, type HitboxActivationHandle } from '../../../combat/Hitbox';
+import { gameEvents } from '../../../core/EventBus';
 import { TargetDummy } from '../../../combat/TargetDummy';
 import type { PlayerAbilityId } from '../../../features/player/PlayerAbilityDefinitions';
 import type {
@@ -82,6 +83,7 @@ export class LegacyPlayerAbilityPresentation implements PlayerAbilityPresentatio
       this.context.scene.tweens.killTweensOf(visual.effects);
       visual.resetEffects();
     });
+    gameEvents.emit('player.action', { anim: `ability-${intent.abilityId}` });
     switch (intent.abilityId) {
       case 'jump': this.presentJump(intent, lease, complete); break;
       case 'teleport': this.presentTeleport(intent, lease, complete); break;
@@ -97,6 +99,7 @@ export class LegacyPlayerAbilityPresentation implements PlayerAbilityPresentatio
     unlockLevel?: number,
   ): void {
     const player = this.context.getPlayer();
+    if (reason !== 'busy') gameEvents.emit('player.action', { anim: 'ability-denied' });
     if (reason === 'locked') {
       floatingText.spawn(this.context.scene, player.x, player.y - 30, `Locked - Lv ${unlockLevel ?? '?'}`, 'red');
     } else if (reason === 'energy') {
@@ -136,6 +139,7 @@ export class LegacyPlayerAbilityPresentation implements PlayerAbilityPresentatio
       ease: 'Quad.In',
       onComplete: () => {
         this.context.teleportPlayer(target);
+        gameEvents.emit('player.action', { anim: 'jump-land' });
         visual.effects.offsetX = 0;
         visual.effects.offsetY = 0;
         lease.trackTween(scene.tweens.add({ targets: visual.effects, scaleX: 1, scaleY: 1, duration: 120, ease: 'Back.Out' }));
@@ -189,6 +193,7 @@ export class LegacyPlayerAbilityPresentation implements PlayerAbilityPresentatio
       ease: 'Quad.In',
       onComplete: () => {
         this.context.teleportPlayer(intent.target);
+        gameEvents.emit('player.action', { anim: 'teleport-in' });
         this.spawnFlash(intent.target.x, intent.target.y, 0xa3f0c0, lease);
         lease.trackTween(scene.tweens.add({
           targets: visual.effects,
@@ -235,6 +240,7 @@ export class LegacyPlayerAbilityPresentation implements PlayerAbilityPresentatio
               onComplete: () => ring.destroy(),
             }));
             scene.cameras.main.shake(150, 0.01);
+            gameEvents.emit('player.action', { anim: 'slam-impact' });
             const targets = this.context.getCombatTargets();
             if (targets) {
               lease.trackHitbox(hitboxPool.spawn(scene, targets, {

@@ -1,0 +1,86 @@
+{
+  "version": 1,
+  "sceneId": "object.interior-mushroom-furniture-cutting-stump",
+  "rootNodeId": "body",
+  "nodes": [
+    {
+      "id": "body",
+      "name": "cutting-stump",
+      "type": "StaticBody2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "collisionLayer": 1,
+        "collisionMask": 0,
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "body-shape",
+      "name": "BodyShape",
+      "type": "CollisionShape2D",
+      "parentId": "body",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "interior-mushroom-furniture-cutting-stump.shape"
+        },
+        "position": [
+          0,
+          -17.855
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "body",
+      "order": 1,
+      "properties": {
+        "texture": {
+          "resourceId": "interior-mushroom-furniture-cutting-stump.sprite"
+        },
+        "frame": 46,
+        "origin": [
+          0.5,
+          1
+        ],
+        "scale": [
+          0.5,
+          0.5
+        ],
+        "visualOffset": [
+          0,
+          0
+        ],
+        "depthMode": "world-sorted",
+        "depthBand": "world-entities"
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "interior-mushroom-furniture-cutting-stump.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "sheet.interiors.mushroom-furniture-props.8x8",
+      "frameWidth": 192,
+      "frameHeight": 192
+    },
+    {
+      "version": 1,
+      "resourceId": "interior-mushroom-furniture-cutting-stump.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 61.6,
+        "height": 31.71
+      }
+    }
+  ]
+}

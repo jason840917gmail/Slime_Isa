@@ -45,6 +45,12 @@ export interface EnemyStateContext {
   delta: number;
   /** Distance to player. */
   distToPlayer: number;
+  /**
+   * Authored attack-area reach: when defined, it replaces the `attackRange`
+   * distance checks, so the enemy attacks exactly when the target overlaps
+   * its authored attack area.
+   */
+  inAttackReach?: boolean;
   /** Normalized direction to player. */
   dirToPlayer: EnemyDirection;
   /** Config-driven behavior parameters. */
@@ -251,6 +257,10 @@ function stateWander(ctx: EnemyStateContext): StateResult {
   return 'continue';
 }
 
+function inAttackReach(ctx: EnemyStateContext): boolean {
+  return ctx.inAttackReach ?? ctx.distToPlayer <= ctx.config.attackRange;
+}
+
 function stateChase(ctx: EnemyStateContext): StateResult {
   const { enemy, dirToPlayer, distToPlayer, config } = ctx;
   const body = enemy.body as EnemyVelocityBody;
@@ -264,7 +274,7 @@ function stateChase(ctx: EnemyStateContext): StateResult {
     return 'flee';
   }
 
-  if (distToPlayer <= config.attackRange) {
+  if (inAttackReach(ctx)) {
     body.setVelocity(0, 0);
     return 'attack';
   }
@@ -284,7 +294,7 @@ function stateAttack(ctx: EnemyStateContext): StateResult {
   const body = enemy.body as EnemyVelocityBody;
 
   // If the player moved away, resume chasing.
-  if (distToPlayer > config.attackRange * 1.3) {
+  if (ctx.inAttackReach === false || (ctx.inAttackReach === undefined && distToPlayer > config.attackRange * 1.3)) {
     return 'chase';
   }
 

@@ -28,7 +28,7 @@ class TestShape extends t.Node2D {
   }
 }
 
-async function instantiateWeapon(sceneId) {
+async function instantiateWeapon(sceneId, { wielderReceiverNodeId } = {}) {
   const activations = new t.AttackActivation();
   const router = new t.DamageRouter(activations);
   const enemy = { hp: 1000, commits: [] };
@@ -52,6 +52,7 @@ async function instantiateWeapon(sceneId) {
       onAttackFinished: () => {},
       transformDamage: (damage) => damage,
       onOutcome: () => {},
+      wielderReceiverNodeId: () => wielderReceiverNodeId,
     },
   });
   const root = new t.SceneInstantiator({ nodeTypes, scripts, descriptors }).instantiate_scene(packed, { runtimeNamespace: `hit-windows-${sceneId}` });
@@ -128,6 +129,18 @@ test('a target already overlapping when a window opens is hit without a new ente
   }
   assert.equal(fixture.enemy.commits.length, 1);
   assert.equal(fixture.enemy.commits[0].result.actualDamage, 9);
+  fixture.dispose();
+});
+
+test('a weapon never damages the character wielding it', async () => {
+  // The overlapping receiver is the wielder: its own hurt area sits inside every swing.
+  const fixture = await instantiateWeapon('weapon.basic-sword', { wielderReceiverNodeId: 'enemy' });
+  for (const direction of ['right', 'left', 'up', 'down']) {
+    fixture.script.playAttack(direction, { damage: 20, knockbackStrength: 0, cooldownMs: 0 });
+    runAttack(fixture, [`${direction}--primary`]);
+  }
+  assert.equal(fixture.enemy.commits.length, 0);
+  assert.equal(fixture.enemy.hp, 1000);
   fixture.dispose();
 });
 

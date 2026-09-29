@@ -7,7 +7,7 @@
       "assetIds": [
         "sheet.grounds.19x19.amberleaf"
       ],
-      "selection": "sheet-order",
+      "selection": "sheet-wrap",
       "physics": null,
       "allowsDecorations": true,
       "transition": {
@@ -25,9 +25,9 @@
     },
     "cavern-floor": {
       "assetIds": [
-        "terrain.cavern.floor"
+        "sheet.grounds.19x19.cavern-floor"
       ],
-      "selection": "seeded-hash",
+      "selection": "sheet-wrap",
       "physics": null,
       "allowsDecorations": true,
       "transition": {
@@ -45,9 +45,9 @@
     },
     "crystal-floor": {
       "assetIds": [
-        "terrain.cavern.crystal-floor"
+        "sheet.grounds.19x19.crystal-floor"
       ],
-      "selection": "seeded-hash",
+      "selection": "sheet-wrap",
       "physics": null,
       "allowsDecorations": true,
       "transition": {
@@ -63,34 +63,29 @@
         "walkable"
       ]
     },
-    "crystal-wall": {
+    "deep-water": {
       "assetIds": [
-        "terrain.cavern.crystal-wall"
+        "sheet.grounds.19x19.deep-water"
       ],
-      "selection": "seeded-hash",
+      "selection": "sheet-wrap",
       "physics": {
         "body": "static",
         "inset": {
-          "left": 5,
-          "right": 5,
-          "top": 7,
-          "bottom": 3
-        }
+          "left": 10,
+          "right": 10,
+          "top": 10,
+          "bottom": 10
+        },
+        "layer": "water"
       },
       "allowsDecorations": false,
-      "tags": [
-        "terrain",
-        "cavern",
-        "wall"
-      ]
-    },
-    "deep-water": {
-      "assetIds": [
-        "terrain.deep-water"
-      ],
-      "selection": "seeded-hash",
-      "physics": null,
-      "allowsDecorations": false,
+      "transition": {
+        "group": "natural-ground",
+        "material": "deep-water",
+        "priority": 4,
+        "edgeWidth": 12,
+        "style": "noisy-feather"
+      },
       "tags": [
         "ground",
         "water",
@@ -99,9 +94,9 @@
     },
     "forest-floor": {
       "assetIds": [
-        "terrain.forest.floor"
+        "sheet.grounds.19x19.forest-floor"
       ],
-      "selection": "seeded-hash",
+      "selection": "sheet-wrap",
       "physics": null,
       "allowsDecorations": true,
       "transition": {
@@ -119,9 +114,9 @@
     },
     "forest-moss": {
       "assetIds": [
-        "terrain.forest.moss"
+        "sheet.grounds.19x19.forest-moss"
       ],
-      "selection": "seeded-hash",
+      "selection": "sheet-wrap",
       "physics": null,
       "allowsDecorations": true,
       "transition": {
@@ -141,7 +136,7 @@
       "assetIds": [
         "sheet.grounds.19x19.frozen"
       ],
-      "selection": "sheet-order",
+      "selection": "sheet-wrap",
       "physics": null,
       "allowsDecorations": true,
       "transition": {
@@ -161,7 +156,7 @@
       "assetIds": [
         "sheet.grounds.19x19.highland-green"
       ],
-      "selection": "sheet-order",
+      "selection": "sheet-wrap",
       "physics": null,
       "allowsDecorations": true,
       "transition": {
@@ -181,7 +176,7 @@
       "assetIds": [
         "sheet.grounds.19x19.highland-green"
       ],
-      "selection": "sheet-order",
+      "selection": "sheet-wrap",
       "physics": null,
       "allowsDecorations": true,
       "transition": {
@@ -201,7 +196,7 @@
       "assetIds": [
         "sheet.grounds.19x19.highland-green"
       ],
-      "selection": "sheet-order",
+      "selection": "sheet-wrap",
       "physics": {
         "body": "static",
         "inset": {
@@ -221,7 +216,7 @@
       "assetIds": [
         "sheet.grounds.19x19.sanddessert"
       ],
-      "selection": "sheet-order",
+      "selection": "sheet-wrap",
       "physics": null,
       "allowsDecorations": true,
       "transition": {
@@ -237,39 +232,87 @@
         "walkable"
       ]
     },
-    "tree-wall": {
+    "water": {
       "assetIds": [
-        "terrain.forest.tree-wall"
+        "sheet.grounds.19x19.water"
       ],
-      "selection": "seeded-hash",
+      "selection": "sheet-wrap",
       "physics": {
         "body": "static",
         "inset": {
-          "left": 8,
-          "right": 8,
-          "top": 8,
-          "bottom": 4
-        }
+          "left": 10,
+          "right": 10,
+          "top": 10,
+          "bottom": 10
+        },
+        "layer": "water"
       },
       "allowsDecorations": false,
-      "tags": [
-        "terrain",
-        "forest",
-        "wall"
-      ]
-    },
-    "water": {
-      "assetIds": [
-        "terrain.water.0",
-        "terrain.water.1",
-        "terrain.water.2"
-      ],
-      "selection": "seeded-hash",
-      "physics": null,
-      "allowsDecorations": false,
+      "transition": {
+        "group": "natural-ground",
+        "material": "water",
+        "priority": 5,
+        "edgeWidth": 12,
+        "style": "noisy-feather"
+      },
       "tags": [
         "ground",
         "water"
+      ]
+    },
+    "wood-floor": {
+      "assetIds": [
+        "terrain.interior.floor-wood-a",
+        "terrain.interior.floor-wood-b"
+      ],
+      "selection": "seeded-hash",
+      "physics": null,
+      "allowsDecorations": true,
+      "tags": [
+        "ground",
+        "interior",
+        "walkable"
+      ]
+    },
+    "mushroom-earth-floor": {
+      "assetIds": [
+        "terrain.interior.floor-mushroom-earth-a",
+        "terrain.interior.floor-mushroom-earth-b"
+      ],
+      "selection": "seeded-hash",
+      "physics": null,
+      "allowsDecorations": true,
+      "tags": [
+        "ground",
+        "interior",
+        "walkable"
+      ]
+    },
+    "mushroom-plain-floor": {
+      "assetIds": [
+        "terrain.interior.floor-mushroom-plain"
+      ],
+      "selection": "seeded-hash",
+      "physics": null,
+      "allowsDecorations": true,
+      "tags": [
+        "ground",
+        "interior",
+        "walkable"
+      ]
+    },
+    "mushroom-clover-floor": {
+      "assetIds": [
+        "terrain.interior.floor-mushroom-clover-a",
+        "terrain.interior.floor-mushroom-clover-b"
+      ],
+      "selection": "seeded-hash",
+      "physics": null,
+      "allowsDecorations": true,
+      "tags": [
+        "ground",
+        "interior",
+        "walkable"
       ]
     }
   }

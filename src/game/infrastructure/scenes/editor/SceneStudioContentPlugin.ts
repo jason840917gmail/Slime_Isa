@@ -18,7 +18,9 @@ import {
   type SceneValidationContext,
   type SceneValidationIssue,
 } from '../../../content/scenes/validation';
+import { resolvePortraits } from './ScenePortraits';
 import { ContentWriteJournal, contentHash, type ContentWrite } from './ContentWriteJournal';
+import { toolOwnedContentGuard, type ContentMoveGuard } from './ToolOwnedContent';
 import type {
   SceneStudioContentKind,
   SceneStudioContentRecord,
@@ -36,6 +38,8 @@ export interface SceneStudioContentPluginOptions {
   readonly maxBodyBytes?: number;
   readonly journal?: ContentWriteJournal;
   readonly hasAsset?: (assetId: string) => boolean;
+  /** Refuses moves of files that tooling owns; defaults to the ledger and generated-folder guard. */
+  readonly moveGuard?: ContentMoveGuard;
 }
 
 interface IndexedContent extends SceneStudioContentSummary {
@@ -121,6 +125,45 @@ function normalizeFolderPath(value: unknown): string {
     throw new Error(`Folder '${value}' must use lowercase letters, digits, '.', '_' or '-' in each segment`);
   }
   return segments.join('/');
+}
+
+async function exists(target: string): Promise<boolean> {
+  return fs.stat(target).then(() => true, () => false);
+}
+
+/** A document file name: ID-style segments, `--` allowed before a variant, then the kind suffix. */
+const FILE_STEM_PATTERN = /^[a-z0-9]+(?:(?:[._]|--?)[a-z0-9]+)*$/;
+
+/**
+ * Moves one document into another folder, keeping its file name unless
+ * `fileName` renames it. IDs, not paths, link scenes and resources together,
+ * so nothing else is rewritten.
+ */
+async function moveContent(root: string, body: unknown, guard: ContentMoveGuard): Promise<SceneStudioContentSummary> {
+  if (!isRecord(body)) throw new Error('A move request is required');
+  const { kind, id, folder, fileName } = body;
+  if (kind !== 'scene' && kind !== 'resource') throw new Error('Move kind must be scene or resource');
+  if (typeof id !== 'string' || !SERIALIZED_ID_PATTERN.test(id)) throw new Error(`Invalid ${kind} ID '${String(id)}'`);
+  const targetFolder = folder === '' ? '' : normalizeFolderPath(folder);
+  const item = (await contentIndex(root)).find((candidate) => candidate.kind === kind && candidate.id === id);
+  if (!item) throw new Error(`Unknown ${kind} '${id}'`);
+  const suffix = kind === 'scene' ? '.scene.json' : '.resource.json';
+  if (fileName !== undefined && (typeof fileName !== 'string' || !fileName.endsWith(suffix) || !FILE_STEM_PATTERN.test(fileName.slice(0, -suffix.length)))) {
+    throw new Error(`File name '${String(fileName)}' must be lowercase ID segments ending in ${suffix}`);
+  }
+  const name = fileName ?? item.relativePath.slice(item.relativePath.lastIndexOf('/') + 1);
+  const relativePath = targetFolder ? `${targetFolder}/${name}` : name;
+  if (relativePath === item.relativePath) throw new Error(`'${name}' is already in ${targetFolder || 'the project root'}`);
+  const folderPath = path.resolve(root, ...targetFolder.split('/').filter(Boolean));
+  if (!(await fs.stat(folderPath).then((stat) => stat.isDirectory(), () => false))) throw new Error(`Folder '${targetFolder}' does not exist`);
+  for (const candidate of [item.relativePath, relativePath]) {
+    const reason = await guard(candidate);
+    if (reason) throw new Error(reason);
+  }
+  const target = path.resolve(root, ...relativePath.split('/'));
+  if (await exists(target)) throw new Error(`'${relativePath}' already exists`);
+  await fs.rename(item.absolutePath, target);
+  return { kind, id, relativePath };
 }
 
 async function contentIndex(root: string): Promise<readonly IndexedContent[]> {
@@ -296,6 +339,7 @@ export function sceneStudioContentPlugin(options: SceneStudioContentPluginOption
   const maximum = options.maxBodyBytes ?? DEFAULT_MAX_BODY_BYTES;
   const hasAsset = options.hasAsset ?? ((assetId: string) => Object.hasOwn(ASSET_MANIFEST.assets, assetId));
   const journal = options.journal ?? new ContentWriteJournal(root);
+  const moveGuard = options.moveGuard ?? toolOwnedContentGuard();
   let writeQueue = Promise.resolve();
 
   return {
@@ -309,7 +353,12 @@ export function sceneStudioContentPlugin(options: SceneStudioContentPluginOption
           if (request.method === 'GET') {
             const indexed = await contentIndex(root);
             if (url.searchParams.get('action') === 'list') {
-              send(response, 200, { items: indexed.map(({ kind, id, relativePath }) => ({ kind, id, relativePath })), folders: await discoverFolders(root) });
+              const portraits = resolvePortraits(indexed);
+              const items = indexed.map(({ kind, id, relativePath }) => {
+                const portrait = portraits.get(`${kind}:${id}`);
+                return portrait ? { kind, id, relativePath, portrait } : { kind, id, relativePath };
+              });
+              send(response, 200, { items, folders: await discoverFolders(root) });
               return;
             }
             if (url.searchParams.get('action') !== 'load') throw new Error('Unknown Scene Studio read action');
@@ -337,9 +386,17 @@ export function sceneStudioContentPlugin(options: SceneStudioContentPluginOption
             const body = JSON.parse(await readBody(request, maximum)) as unknown;
             const relativePath = normalizeFolderPath(isRecord(body) ? body.relativePath : undefined);
             const target = path.resolve(root, ...relativePath.split('/'));
-            if (await fs.stat(target).then(() => true, () => false)) throw new Error(`Folder '${relativePath}' already exists`);
+            if (await exists(target)) throw new Error(`Folder '${relativePath}' already exists`);
             await fs.mkdir(target, { recursive: true });
             send(response, 200, { relativePath });
+            return;
+          }
+          if (url.searchParams.get('action') === 'move') {
+            const body = JSON.parse(await readBody(request, maximum)) as unknown;
+            const move = (): Promise<SceneStudioContentSummary> => moveContent(root, body, moveGuard);
+            const pending = writeQueue.then(move, move);
+            writeQueue = pending.then(() => undefined, () => undefined);
+            send(response, 200, { item: await pending });
             return;
           }
           const payload = parsePayload(JSON.parse(await readBody(request, maximum)));

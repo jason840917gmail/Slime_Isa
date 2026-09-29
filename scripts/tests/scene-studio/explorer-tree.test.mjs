@@ -3,7 +3,7 @@ import test from 'node:test';
 
 import { loadTypescriptModule } from '../helpers/load-typescript.mjs';
 
-const { buildExplorerTree, explorerFolderKeysFor, renderExplorerTree } = await loadTypescriptModule('src/game/editor/scene-studio/ExplorerTree.ts');
+const { buildExplorerTree, explorerFolderKeysFor, familyFileName, renderExplorerTree } = await loadTypescriptModule('src/game/editor/scene-studio/ExplorerTree.ts');
 
 const scene = (relativePath) => ({ kind: 'scene', id: `scene.${relativePath}`, relativePath });
 const resource = (relativePath) => ({ kind: 'resource', id: `resource.${relativePath}`, relativePath });
@@ -83,4 +83,26 @@ test('explorer renders collapsible folders with open state, counts, and escaped 
   assert.match(html, /data-scene-id="scene\.characters\/lili\.scene\.json"[^>]*><span>◫<\/span><strong>lili<\/strong>/);
   assert.match(html, /data-scene-id="scene\.objects\/house-world-solid--01\.scene\.json"[^>]*><span>◫<\/span><strong>01<\/strong>/);
   assert.match(html, /data-scene-id="scene\.objects\/house-world-solid\.scene\.json"[^>]*><span>◫<\/span><strong>house-world-solid<\/strong>/);
+});
+
+test('explorer rows are draggable and folders name the folder a drop moves into', () => {
+  const html = renderExplorerTree(buildExplorerTree(catalog), { isOpen: () => true, isCurrent: () => false, escape: String });
+  assert.match(html, /<button type="button" draggable="true" data-scene-id="scene\.characters\/lili\.scene\.json"/);
+  assert.match(html, /<button type="button" draggable="true" data-resource-id="resource\.resources\/tiles\/ground\.tile-set\.resource\.json"/);
+  assert.match(html, /data-explorer-folder-toggle="resources\/tiles" data-explorer-drop="resources\/tiles"/);
+  // Family groups are not folders on disk: dropping on one targets the folder holding the family.
+  assert.match(html, /data-explorer-folder-toggle="objects\/house-world-solid" data-explorer-drop="objects" data-explorer-family="house-world-solid"/);
+  assert.doesNotMatch(html, /data-explorer-folder-toggle="objects" data-explorer-drop="objects" data-explorer-family/);
+});
+
+test('a file dropped on a family group is renamed into that family', () => {
+  assert.equal(familyFileName('objects/house-mushroom.scene.json', 'house-world-solid'), 'house-world-solid--house-mushroom.scene.json');
+  assert.equal(familyFileName('objects/houses/house-world-solid--02.scene.json', 'house-world-solid'), 'house-world-solid--02.scene.json');
+  assert.equal(familyFileName('objects/house-world-solid.scene.json', 'house-world-solid'), 'house-world-solid.scene.json');
+  assert.equal(familyFileName('resources/tiles/ground.tile-set.resource.json', 'tiles'), 'tiles--ground.tile-set.resource.json');
+  // the renamed file joins the group in the tree
+  const tree = buildExplorerTree([...catalog, scene('objects/house-world-solid--house-mushroom.scene.json')]);
+  const objects = tree.folders.find((folder) => folder.key === 'objects');
+  const family = objects.folders.find((folder) => folder.key === 'objects/house-world-solid');
+  assert.ok(family.items.some((item) => item.relativePath === 'objects/house-world-solid--house-mushroom.scene.json'));
 });

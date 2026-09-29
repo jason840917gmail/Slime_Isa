@@ -8,6 +8,9 @@ import {
   SAVE_NAME_MAX_LENGTH,
   SAVE_SCHEMA_VERSION,
   isGameSaveData,
+  isPlacedFurniture,
+  type PlacedFurnitureData,
+  isRespawnPoint,
   isRecord,
   type GameSaveData,
   type CollectibleProgressStateData,
@@ -97,6 +100,15 @@ function isResourceState(value: unknown): value is ResourceProgressStateData {
     && value.value >= 0;
 }
 
+/** Next free `placed-furniture-<n>` id: past every stored id and never below a stored counter. */
+function nextPlacementSequence(records: Record<string, unknown>, stored: unknown): number {
+  const inferred = Math.max(1, ...Object.keys(records).map((id) => {
+    const match = /^placed-furniture-(\d+)$/.exec(id);
+    return match ? Number(match[1]) + 1 : 1;
+  }));
+  return Math.max(inferred, Number.isInteger(stored) && (stored as number) >= 1 ? stored as number : 1);
+}
+
 function mapWorld(value: unknown, storage: StorageLike | null): WorldProgressData {
   if (!isRecord(value)) return { ...emptyWorld(), ...readLegacyWorld(storage) };
   const discoveredAreas = Array.isArray(value.discoveredAreas) ? value.discoveredAreas.filter(isAreaId) : [];
@@ -139,6 +151,11 @@ function mapWorld(value: unknown, storage: StorageLike | null): WorldProgressDat
         const match = /^inventory-drop-(\d+)$/.exec(id);
         return match ? Number(match[1]) + 1 : 1;
       }));
+      const placedFurniture = isRecord(candidate.placedFurniture)
+        ? Object.fromEntries(Object.entries(candidate.placedFurniture)
+          .filter((entry): entry is [string, PlacedFurnitureData] => isPlacedFurniture(entry[1]))
+          .map(([id, furniture]) => [id, { ...furniture, id }]))
+        : {};
       const bossCamps = isRecord(candidate.bossCamps)
         ? Object.fromEntries(Object.entries(candidate.bossCamps).flatMap(([id, state]) => (
             isRecord(state) && typeof state.respawnReadyAtEpochMs === 'number'
@@ -167,6 +184,10 @@ function mapWorld(value: unknown, storage: StorageLike | null): WorldProgressDat
             ? candidate.nextInventoryDropSequence as number
             : 1,
         ),
+        ...(Object.keys(placedFurniture).length > 0 ? {
+          placedFurniture,
+          nextPlacedFurnitureSequence: nextPlacementSequence(placedFurniture, candidate.nextPlacedFurnitureSequence),
+        } : {}),
         bossCamps,
         chests,
         completedEncounterIds: Array.isArray(candidate.completedEncounterIds) ? candidate.completedEncounterIds.filter(isString) : [],
@@ -189,7 +210,10 @@ function mapWorld(value: unknown, storage: StorageLike | null): WorldProgressDat
       maps[mapId] = map;
     }
   }
-  return { discoveredAreas, defeatedBossIds, completedDungeonIds, maps };
+  return {
+    discoveredAreas, defeatedBossIds, completedDungeonIds, maps,
+    ...(isRespawnPoint(value.respawnPoint) ? { respawnPoint: { ...value.respawnPoint } } : {}),
+  };
 }
 
 function isInventoryWorldDrop(value: unknown): value is InventoryWorldDropProgressData {

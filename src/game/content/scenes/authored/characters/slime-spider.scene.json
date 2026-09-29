@@ -11,7 +11,7 @@
       "order": 0,
       "properties": {
         "collisionLayer": 4,
-        "collisionMask": 3,
+        "collisionMask": 1027,
         "collideWorldBounds": true,
         "position": [
           0,
@@ -200,6 +200,48 @@
           "damage": 50,
           "stickMs": 1000
         }
+      }
+    },
+    {
+      "id": "sfx-hurt-sfx",
+      "name": "HurtSfx",
+      "type": "AudioStreamPlayer2D",
+      "parentId": "body",
+      "order": 6,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.enemy.spider-hurt"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 90
+      }
+    },
+    {
+      "id": "sfx-death-sfx",
+      "name": "DeathSfx",
+      "type": "AudioStreamPlayer2D",
+      "parentId": "body",
+      "order": 7,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.enemy.spider-death"
+        },
+        "pitchRandomness": 0.06,
+        "detached": true
+      }
+    },
+    {
+      "id": "sfx-alert-sfx",
+      "name": "AlertSfx",
+      "type": "AudioStreamPlayer2D",
+      "parentId": "body",
+      "order": 8,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.enemy.spider-hiss"
+        },
+        "pitchRandomness": 0.06,
+        "volume": 0.8
       }
     }
   ],
@@ -828,6 +870,59 @@
         "radiusX": 15,
         "radiusY": 12
       }
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.enemy.spider-hurt",
+      "kind": "audio",
+      "assetId": "audio.sfx.enemy.spider-hurt.1",
+      "variants": [
+        "audio.sfx.enemy.spider-hurt.2"
+      ]
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.enemy.spider-death",
+      "kind": "audio",
+      "assetId": "audio.sfx.enemy.spider-death.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.enemy.spider-hiss",
+      "kind": "audio",
+      "assetId": "audio.sfx.enemy.spider-hiss.1"
+    }
+  ],
+  "connections": [
+    {
+      "source": {
+        "nodeId": "script"
+      },
+      "signal": "damaged",
+      "target": {
+        "nodeId": "sfx-hurt-sfx"
+      },
+      "handler": "play"
+    },
+    {
+      "source": {
+        "nodeId": "script"
+      },
+      "signal": "defeated",
+      "target": {
+        "nodeId": "sfx-death-sfx"
+      },
+      "handler": "play"
+    },
+    {
+      "source": {
+        "nodeId": "script"
+      },
+      "signal": "alerted",
+      "target": {
+        "nodeId": "sfx-alert-sfx"
+      },
+      "handler": "play"
     }
   ]
 }

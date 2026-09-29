@@ -84,3 +84,36 @@ test('router teardown unregisters DOM ownership and is idempotent', () => {
     else globalThis.KeyboardEvent = previousKeyboardEvent;
   }
 });
+
+test('a consumed pointer press keeps its browser default on native form fields (range sliders) but never reaches gameplay', () => {
+  class PointerEventFixture extends Event {
+    constructor(type, fieldTarget) {
+      super(type, { cancelable: true, bubbles: true });
+      this.clientX = 0; this.clientY = 0; this.button = 0;
+      Object.defineProperty(this, 'target', { value: fieldTarget });
+    }
+  }
+  const previousPointerEvent = globalThis.PointerEvent;
+  globalThis.PointerEvent = PointerEventFixture;
+  try {
+    const target = new EventTarget();
+    const queued = [];
+    const tree = new SceneTree();
+    const router = new InputRouter({ sink: { enqueueInput: (event) => queued.push(event) }, eventTarget: target });
+    const modal = new ControlNode({ runtimeId: 'input/modal', name: 'Modal', inputRouter: router, modal: true, consumeInput: true });
+    tree.setRoot(modal);
+    const slider = { closest: (selector) => (selector.includes('input') ? {} : null) };
+    const button = { closest: () => null };
+    const onSlider = new PointerEventFixture('pointerdown', slider);
+    const onButton = new PointerEventFixture('pointerdown', button);
+    target.dispatchEvent(onSlider);
+    target.dispatchEvent(onButton);
+    assert.equal(onSlider.defaultPrevented, false, 'range inputs need the default to start dragging');
+    assert.equal(onButton.defaultPrevented, true);
+    assert.ok(queued.every((event) => event.handled), 'both presses stay consumed by the modal');
+    router.destroy();
+    tree.shutdown();
+  } finally {
+    globalThis.PointerEvent = previousPointerEvent;
+  }
+});

@@ -11,7 +11,7 @@
       "order": 0,
       "properties": {
         "collisionLayer": 4,
-        "collisionMask": 3,
+        "collisionMask": 1027,
         "collideWorldBounds": true,
         "position": [
           0,
@@ -120,7 +120,7 @@
         "disabled": true,
         "position": [
           1,
-          -15
+          -25
         ]
       }
     },
@@ -245,6 +245,104 @@
         "landingShakeMs": 100,
         "landingShakeIntensity": 0.003
       }
+    },
+    {
+      "id": "sfx-hurt-sfx",
+      "name": "HurtSfx",
+      "type": "AudioStreamPlayer2D",
+      "parentId": "body",
+      "order": 7,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.boss.fatty-hurt"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 150
+      }
+    },
+    {
+      "id": "sfx-hop-sfx",
+      "name": "HopSfx",
+      "type": "AudioStreamPlayer2D",
+      "parentId": "body",
+      "order": 8,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.boss.fatty-hop"
+        },
+        "pitchRandomness": 0.06,
+        "payloadFilter": "phase=contact-hop|small-hop"
+      }
+    },
+    {
+      "id": "sfx-leap-sfx",
+      "name": "LeapSfx",
+      "type": "AudioStreamPlayer2D",
+      "parentId": "body",
+      "order": 9,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.boss.fatty-leap"
+        },
+        "payloadFilter": "phase=airborne"
+      }
+    },
+    {
+      "id": "sfx-fall-sfx",
+      "name": "FallSfx",
+      "type": "AudioStreamPlayer2D",
+      "parentId": "body",
+      "order": 10,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.boss.fatty-fall"
+        },
+        "volume": 0.7,
+        "payloadFilter": "phase=airborne"
+      }
+    },
+    {
+      "id": "sfx-land-sfx",
+      "name": "LandSfx",
+      "type": "AudioStreamPlayer2D",
+      "parentId": "body",
+      "order": 11,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.boss.fatty-land"
+        },
+        "maxDistance": 1400,
+        "payloadFilter": "phase=landing"
+      }
+    },
+    {
+      "id": "sfx-recover-sfx",
+      "name": "RecoverSfx",
+      "type": "AudioStreamPlayer2D",
+      "parentId": "body",
+      "order": 12,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.boss.fatty-recover"
+        },
+        "volume": 0.7,
+        "payloadFilter": "phase=recovery"
+      }
+    },
+    {
+      "id": "sfx-death-sfx",
+      "name": "DeathSfx",
+      "type": "AudioStreamPlayer2D",
+      "parentId": "body",
+      "order": 13,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.boss.fatty-death"
+        },
+        "detached": true,
+        "maxDistance": 1400,
+        "payloadFilter": "phase=dead"
+      }
     }
   ],
   "instances": [],
@@ -299,6 +397,19 @@
                   "value": [
                     0,
                     0
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "../ContactAttack/ContactShape",
+              "property": "position",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": [
+                    1,
+                    -25
                   ]
                 }
               ]
@@ -536,21 +647,143 @@
     },
     {
       "version": 1,
-      "resourceId": "fatty-one-eye.contact-shape",
+      "resourceId": "fatty-one-eye.landing-shape",
       "kind": "collision-shape",
       "value": {
-        "shape": "circle",
-        "radius": 67.5
+        "shape": "ellipse",
+        "radiusX": 110.5,
+        "radiusY": 60.5
       }
     },
     {
       "version": 1,
-      "resourceId": "fatty-one-eye.landing-shape",
+      "resourceId": "fatty-one-eye.contact-shape",
       "kind": "collision-shape",
       "value": {
-        "shape": "circle",
-        "radius": 106
+        "shape": "ellipse",
+        "radiusX": 83.5,
+        "radiusY": 52
       }
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.boss.fatty-hurt",
+      "kind": "audio",
+      "assetId": "audio.sfx.boss.fatty-hurt.1",
+      "variants": [
+        "audio.sfx.boss.fatty-hurt.2"
+      ]
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.boss.fatty-hop",
+      "kind": "audio",
+      "assetId": "audio.sfx.boss.fatty-hop.1",
+      "variants": [
+        "audio.sfx.boss.fatty-hop.2"
+      ]
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.boss.fatty-leap",
+      "kind": "audio",
+      "assetId": "audio.sfx.boss.fatty-leap.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.boss.fatty-fall",
+      "kind": "audio",
+      "assetId": "audio.sfx.boss.fatty-fall.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.boss.fatty-land",
+      "kind": "audio",
+      "assetId": "audio.sfx.boss.fatty-land.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.boss.fatty-recover",
+      "kind": "audio",
+      "assetId": "audio.sfx.boss.fatty-recover.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.boss.fatty-death",
+      "kind": "audio",
+      "assetId": "audio.sfx.boss.fatty-death.1"
+    }
+  ],
+  "connections": [
+    {
+      "source": {
+        "nodeId": "script"
+      },
+      "signal": "damaged",
+      "target": {
+        "nodeId": "sfx-hurt-sfx"
+      },
+      "handler": "play"
+    },
+    {
+      "source": {
+        "nodeId": "script"
+      },
+      "signal": "phase_changed",
+      "target": {
+        "nodeId": "sfx-hop-sfx"
+      },
+      "handler": "play"
+    },
+    {
+      "source": {
+        "nodeId": "script"
+      },
+      "signal": "phase_changed",
+      "target": {
+        "nodeId": "sfx-leap-sfx"
+      },
+      "handler": "play"
+    },
+    {
+      "source": {
+        "nodeId": "script"
+      },
+      "signal": "phase_changed",
+      "target": {
+        "nodeId": "sfx-fall-sfx"
+      },
+      "handler": "play"
+    },
+    {
+      "source": {
+        "nodeId": "script"
+      },
+      "signal": "phase_changed",
+      "target": {
+        "nodeId": "sfx-land-sfx"
+      },
+      "handler": "play"
+    },
+    {
+      "source": {
+        "nodeId": "script"
+      },
+      "signal": "phase_changed",
+      "target": {
+        "nodeId": "sfx-recover-sfx"
+      },
+      "handler": "play"
+    },
+    {
+      "source": {
+        "nodeId": "script"
+      },
+      "signal": "phase_changed",
+      "target": {
+        "nodeId": "sfx-death-sfx"
+      },
+      "handler": "play"
     }
   ]
 }

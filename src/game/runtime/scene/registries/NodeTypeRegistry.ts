@@ -43,13 +43,19 @@ export class NodeTypeRegistry {
 
 export function createCoreNodeTypeRegistry(): NodeTypeRegistry {
   const registry = new NodeTypeRegistry();
-  const node2DTypes = ['Node2D', 'Sprite2D', 'CharacterBody2D', 'StaticBody2D', 'Area2D', 'CollisionShape2D', 'TileMapLayer2D', 'Camera2D', 'AudioStreamPlayer2D'];
-  const controlTypes = ['Control', 'Container', 'TextureRect', 'Label', 'ProgressBar', 'Button', 'ItemList', 'GridContainer', 'ScrollContainer', 'ModalRoot'];
+  const node2DTypes = ['Node2D', 'Sprite2D', 'CharacterBody2D', 'StaticBody2D', 'Area2D', 'CollisionShape2D', 'TileMapLayer2D', 'Camera2D'];
+  // Silent audio placeholders keep the play/stop handlers authored connections target.
+  const withAudioHandlers = <T extends Node>(node: T): T => {
+    node.registerSignalHandler('play', () => undefined);
+    node.registerSignalHandler('stop', () => undefined);
+    return node;
+  };
+  const controlTypes = ['Control', 'Container', 'TextureRect', 'Label', 'ProgressBar', 'Slider', 'Button', 'ItemList', 'GridContainer', 'ScrollContainer', 'ModalRoot'];
   registry.register('Node', ({ runtimeId, name }) => new Node({ runtimeId, name }));
   registry.register('ScriptNode', ({ runtimeId, name }) => new Node({ runtimeId, name }));
   for (const type of controlTypes) registry.register(type, ({ runtimeId, name }) => new Node({ runtimeId, name }));
   registry.register('PhysicsBody2D', () => { throw new Error("PhysicsBody2D is abstract; use CharacterBody2D or StaticBody2D"); });
-  for (const type of node2DTypes) registry.register(type, ({ runtimeId, name, properties }) => new Node2D({
+  const node2D = ({ runtimeId, name, properties }: NodeConstructionContext): Node2D => new Node2D({
     runtimeId,
     name,
     position: Array.isArray(properties.position) ? { x: Number(properties.position[0]), y: Number(properties.position[1]) } : undefined,
@@ -57,7 +63,10 @@ export function createCoreNodeTypeRegistry(): NodeTypeRegistry {
     scale: Array.isArray(properties.scale) ? { x: Number(properties.scale[0]), y: Number(properties.scale[1]) } : undefined,
     visible: typeof properties.visible === 'boolean' ? properties.visible : undefined,
     depthAnchor: Array.isArray(properties.depthAnchor) ? { x: Number(properties.depthAnchor[0]), y: Number(properties.depthAnchor[1]) } : undefined,
-  }));
-  for (const type of ['AnimationPlayer', 'AudioStreamPlayer']) registry.register(type, ({ runtimeId, name }) => new Node({ runtimeId, name }));
+  });
+  for (const type of node2DTypes) registry.register(type, node2D);
+  registry.register('AudioStreamPlayer2D', (context) => withAudioHandlers(node2D(context)));
+  registry.register('AnimationPlayer', ({ runtimeId, name }) => new Node({ runtimeId, name }));
+  registry.register('AudioStreamPlayer', ({ runtimeId, name }) => withAudioHandlers(new Node({ runtimeId, name })));
   return registry;
 }

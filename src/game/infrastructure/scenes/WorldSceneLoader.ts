@@ -6,9 +6,13 @@ import { parseTileMapDataResource } from '../../content/scenes/resources/TileMap
 import type { PackedNodeDocument, PackedScene } from '../../runtime/scene/PackedScene';
 import { dimensionsFromMap, type WorldDimensions } from '../../world/WorldDimensions';
 
+/** How the world camera behaves: track the player, or hold still centred on the whole world. */
+export type WorldCameraMode = 'follow' | 'fixed';
+
 export interface LoadedWorldMap {
   readonly map: MapFile;
   readonly dimensions: WorldDimensions;
+  readonly cameraMode: WorldCameraMode;
 }
 
 export interface WorldSceneSource {
@@ -106,7 +110,9 @@ function loadedMapFromScene(packedScene: PackedScene): LoadedWorldMap {
     enemySpawnAreas: areaData('enemy-spawn'),
     npcWanderAreas: areaData('npc-wander'),
   } satisfies MapFile;
-  return { map, dimensions: dimensionsFromMap(map) };
+  const cameraMode = definition.properties.cameraMode ?? 'follow';
+  if (cameraMode !== 'follow' && cameraMode !== 'fixed') throw new Error(`World scene '${packedScene.sourceSceneId}' has unknown camera mode '${String(cameraMode)}'`);
+  return { map, dimensions: dimensionsFromMap(map), cameraMode };
 }
 
 type WorldAreaDataKind = 'enemy-safe-zone' | 'enemy-spawn' | 'npc-wander';

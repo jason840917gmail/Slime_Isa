@@ -2,6 +2,7 @@ import { convertedOutput, readJson, requireSupportedUnit } from './adapter-utils
 import { collision } from './collision-layers.mjs';
 
 const COLLECTIBLE_KEYS = [
+  'object:collectible.berry-basket',
   'object:collectible.charcoal-pile',
   'object:collectible.crystal-shard',
   'object:collectible.energy-potion',

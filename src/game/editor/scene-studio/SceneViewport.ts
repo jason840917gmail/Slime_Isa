@@ -13,7 +13,7 @@ export interface ViewportNode {
 }
 
 const WORLD_NODE_TYPES = new Set(['Node2D', 'Sprite2D', 'CharacterBody2D', 'StaticBody2D', 'Area2D', 'CollisionShape2D', 'Camera2D', 'AudioStreamPlayer2D']);
-const UI_NODE_TYPES = new Set(['Control', 'Container', 'TextureRect', 'Label', 'ProgressBar', 'Button', 'ItemList', 'GridContainer', 'ScrollContainer', 'ModalRoot']);
+const UI_NODE_TYPES = new Set(['Control', 'Container', 'TextureRect', 'Label', 'ProgressBar', 'Slider', 'Button', 'ItemList', 'GridContainer', 'ScrollContainer', 'ModalRoot']);
 export const UI_PREVIEW_SIZE = { width: 1280, height: 720 } as const;
 
 export class SceneViewportState {

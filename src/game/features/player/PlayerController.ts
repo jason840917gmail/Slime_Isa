@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { PLAYER_CONFIG } from '../../content/player';
+import { gameEvents } from '../../core/EventBus';
 import { gameState } from '../../core/GameState';
 import { floatingText } from '../../ui/FloatingText';
 import type { StatusEffectManager } from '../../systems/StatusEffects';
@@ -110,6 +111,7 @@ export class PlayerController {
       PLAYER_CONFIG.movement.dodgeInvulnerabilityMs,
     )) return false;
     this.ctx.playAnimation('slime-roll');
+    gameEvents.emit('player.action', { anim: 'dodge' });
 
     const dust = scene.add.particles(player.x, player.y, 'xp-orb', {
       lifespan: 280,

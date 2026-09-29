@@ -110,6 +110,19 @@
           0
         ]
       }
+    },
+    {
+      "id": "sfx-roar-sfx",
+      "name": "RoarSfx",
+      "type": "AudioStreamPlayer2D",
+      "parentId": "root",
+      "order": 5,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.boss.fatty-roar"
+        },
+        "maxDistance": 1600
+      }
     }
   ],
   "instances": [
@@ -170,6 +183,24 @@
         "shape": "circle",
         "radius": 933
       }
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.boss.fatty-roar",
+      "kind": "audio",
+      "assetId": "audio.sfx.boss.fatty-roar.1"
+    }
+  ],
+  "connections": [
+    {
+      "source": {
+        "nodeId": "script"
+      },
+      "signal": "boss_spawn_requested",
+      "target": {
+        "nodeId": "sfx-roar-sfx"
+      },
+      "handler": "play"
     }
   ]
 }

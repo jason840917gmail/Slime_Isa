@@ -4,6 +4,7 @@ import { gameEvents } from '../core/EventBus';
 import { itemRegistry, playerInventory } from '../systems/Inventory';
 import { getWeaponDefinitions } from '../content/weapons/WeaponCatalog';
 import { CraftingService } from './CraftingService';
+import { storyProgress } from '../features/progression/StoryProgress';
 
 export type { RecipeDef, RecipeIngredient } from '../content/recipes/types';
 
@@ -14,6 +15,7 @@ const craftingService = new CraftingService({
   getItem: (itemId) => itemRegistry.get(itemId),
   getWeapon: (weaponId) => getWeaponDefinitions().find((weapon) => weapon.weaponId === weaponId),
   emitCompleted: (payload) => gameEvents.emit('craft.completed', payload),
+  isRecipeLearned: (recipeId) => storyProgress.knowsRecipe(recipeId),
 });
 
 export { craftingService };

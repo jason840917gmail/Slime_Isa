@@ -3,6 +3,7 @@ import type { QuestOfferView, QuestView } from '../../content/quests/types';
 import { questService, type QuestCommandResult } from '../../quests/QuestService';
 import type { ModalHandle, ModalStack } from '../../ui/ModalStack';
 import type { UiPresentationModel, UiSurfacePort } from '../scripts/ui/UiSurfaceScript';
+import { questRewardSummary } from '../quests/QuestRewardText';
 
 export interface QuestOfferSurfaceOptions {
   readonly modalStack: ModalStack;
@@ -74,7 +75,7 @@ export class QuestOfferSurfacePort implements UiSurfacePort {
       offsetMax: [Math.round(width / 2), Math.round(height / 2)],
       title: session ? session.kind === 'turn-in' ? `Complete: ${quest!.definition.title}` : quest!.definition.title : '',
       description: quest ? [quest.definition.description, '', ...objectives, '',
-        `Reward: ${quest.definition.rewards.coins ?? 0} coins · ${quest.definition.rewards.xp ?? 0} XP`].join('\n') : '',
+        questRewardSummary(quest.definition.rewards)].join('\n') : '',
       acceptLabel: session?.kind === 'turn-in' ? 'Turn in and claim reward' : 'Accept quest',
       declineLabel: session?.kind === 'turn-in' ? 'Close' : 'Decline / close',
       error: this.error,

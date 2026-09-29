@@ -23,7 +23,7 @@ export interface PerkChoice {
 
 export const WEAPON_HOTBAR_SLOT_COUNT = 6;
 
-export type ItemCategory = 'consumable' | 'material' | 'key' | 'collectible' | 'weapon' | 'tool';
+export type ItemCategory = 'consumable' | 'material' | 'key' | 'collectible' | 'weapon' | 'tool' | 'furniture';
 
 export interface ItemDef {
   id: string;
@@ -41,6 +41,13 @@ export interface ItemDef {
   /** Equipment items resolve to a reusable weapon definition at runtime. */
   equipment?: {
     weaponId: string;
+  };
+  /**
+   * Furniture the player can place in the world from the inventory. The first
+   * scene is the default; R cycles the others (e.g. facing variants).
+   */
+  placeable?: {
+    sceneIds: string[];
   };
   /** Explicit catalog presentation used when this item is dropped into the world. */
   worldDrop?: {

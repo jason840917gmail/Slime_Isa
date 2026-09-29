@@ -27,6 +27,12 @@ export interface GameConstantsDocument {
   worldNavigation: {
     edgeTransitionGraceMs: number;
   };
+  rest: {
+    /**
+     * HP restored per second while the player sleeps in a bed.
+     */
+    sleepHpRegenPerSec: number;
+  };
 }
 /**
  * This interface was referenced by `GameConstantsDocument`'s JSON-Schema

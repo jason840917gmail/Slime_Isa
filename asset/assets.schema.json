@@ -134,7 +134,13 @@
       "additionalProperties": false,
       "properties": {
         "kind": { "const": "audio" },
-        "path": { "$ref": "#/$defs/path" }
+        "path": { "$ref": "#/$defs/path" },
+        "alternates": {
+          "type": "object",
+          "description": "Optional alternate renditions of the same cue keyed by flavour (e.g. library samples vs the default synthesized path). The runtime picks one flavour at boot; the cache key stays runtime.textureKey.",
+          "propertyNames": { "pattern": "^[a-z0-9-]+$" },
+          "additionalProperties": { "$ref": "#/$defs/path" }
+        }
       }
     },
     "sourceTilemap": {
@@ -210,7 +216,7 @@
             "textureKey": {
               "type": "string",
               "minLength": 1,
-              "description": "Phaser texture key. Existing keys are preserved verbatim during migration."
+              "description": "Phaser cache key: the texture key for images, the sound cache key for audio. Existing keys are preserved verbatim during migration."
             }
           }
         },

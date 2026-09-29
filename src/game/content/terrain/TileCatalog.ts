@@ -13,14 +13,22 @@ type TileInset = {
 export interface TileDefinition {
   readonly visual: {
     readonly assetIds: readonly AssetId[];
-    readonly selection: 'seeded-hash' | 'ground-sheet-region' | 'sheet-order';
+    readonly selection: 'seeded-hash' | 'ground-sheet-region' | 'sheet-order' | 'sheet-wrap';
   };
   readonly physics: null | {
     readonly body: 'static';
     readonly inset?: Partial<TileInset>;
+    /** Named collision layer for this tile's bodies (default `world`). */
+    readonly layer?: string;
   };
   readonly allowsDecorations: boolean;
-  /** Visual-only derived edge blending. Never affects physics or map data. */
+  /**
+   * Visual-only derived blending (see features/world/TerrainBlendField). Tiles
+   * of different materials in the same group blend into organic regions;
+   * priority decides which material edges into the other. `edgeWidth` and
+   * `style` are retained data from the earlier per-edge feathering and no
+   * longer drive rendering. Never affects physics or map data.
+   */
   readonly transition?: {
     readonly group: 'natural-ground';
     /** Same material means no transition even when logical tile IDs differ. */
@@ -57,14 +65,16 @@ export const TILE_CATALOG = {
   'rock-wall': tileFromResource('rock-wall'),
   'forest-floor': tileFromResource('forest-floor'),
   'forest-moss': tileFromResource('forest-moss'),
-  'tree-wall': tileFromResource('tree-wall'),
   'cavern-floor': tileFromResource('cavern-floor'),
   'crystal-floor': tileFromResource('crystal-floor'),
-  'crystal-wall': tileFromResource('crystal-wall'),
   'deep-water': tileFromResource('deep-water'),
   'amberleaf-ground': tileFromResource('amberleaf-ground'),
   'frozen-ground': tileFromResource('frozen-ground'),
   'sanddessert-ground': tileFromResource('sanddessert-ground'),
+  'wood-floor': tileFromResource('wood-floor'),
+  'mushroom-earth-floor': tileFromResource('mushroom-earth-floor'),
+  'mushroom-clover-floor': tileFromResource('mushroom-clover-floor'),
+  'mushroom-plain-floor': tileFromResource('mushroom-plain-floor'),
 } as const satisfies Readonly<Record<string, TileDefinition>>;
 
 export type WorldTileId = keyof typeof TILE_CATALOG;

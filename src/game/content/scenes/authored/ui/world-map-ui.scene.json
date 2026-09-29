@@ -360,6 +360,19 @@
           "on_close_action": "close"
         }
       }
+    },
+    {
+      "id": "sfx-click-sfx",
+      "name": "ClickSfx",
+      "type": "AudioStreamPlayer",
+      "parentId": "surface",
+      "order": 10,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.ui.click"
+        },
+        "minIntervalMs": 40
+      }
     }
   ],
   "instances": [],
@@ -383,7 +396,24 @@
         "nodeId": "script"
       },
       "handler": "on_close_action"
+    },
+    {
+      "source": {
+        "nodeId": "close"
+      },
+      "signal": "pressed",
+      "target": {
+        "nodeId": "sfx-click-sfx"
+      },
+      "handler": "play"
     }
   ],
-  "subresources": []
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "sfx.ui.click",
+      "kind": "audio",
+      "assetId": "audio.sfx.ui.click.1"
+    }
+  ]
 }

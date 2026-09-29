@@ -12,6 +12,7 @@ import type {
 const ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const QUEST_STATUSES: readonly QuestStatus[] = ['locked', 'available', 'active', 'completed', 'failed', 'abandoned'];
 const RECIPE_IDS = new Set(RECIPE_CATALOG.map((recipe) => recipe.id));
+const FLAG_PATTERN = /^[a-z0-9]+(?:[-:.][a-z0-9]+)*$/;
 
 export class QuestCatalogValidationError extends Error {
   constructor(public readonly issues: readonly string[]) {
@@ -133,6 +134,10 @@ function validateObjective(objective: QuestObjectiveDefinition, path: string, is
     case 'discover-area':
       validateValues(objective.areaIds, 'areaIds');
       break;
+    case 'place-item':
+      validateValues(objective.itemIds, 'itemIds');
+      for (const itemId of objective.itemIds ?? []) if (!isKnownItemId(itemId)) issues.push(`${path}.itemIds: unknown item '${itemId}'`);
+      break;
     default:
       issues.push(`${path}.kind: unknown objective kind`);
   }
@@ -208,6 +213,26 @@ function validateQuest(quest: QuestDefinition, index: number, ids: Set<string>, 
   for (const reward of (Array.isArray(rewards.items) ? rewards.items : [])) {
     if (!isKnownItemId(reward.itemId)) issues.push(`${path}.rewards.items: unknown item '${reward.itemId}'`);
     if (!Number.isInteger(reward.count) || reward.count <= 0) issues.push(`${path}.rewards.items: counts must be positive integers`);
+  }
+  if (rewards.recipeIds !== undefined) {
+    if (!nonEmptyStringArray(rewards.recipeIds)) issues.push(`${path}.rewards.recipeIds: expected a non-empty string array`);
+    for (const recipeId of Array.isArray(rewards.recipeIds) ? rewards.recipeIds : []) {
+      const recipe = RECIPE_CATALOG.find((entry) => entry.id === recipeId);
+      if (!recipe) issues.push(`${path}.rewards.recipeIds: unknown recipe '${recipeId}'`);
+      else if (!recipe.learnedByQuest) issues.push(`${path}.rewards.recipeIds: recipe '${recipeId}' is not marked learnedByQuest`);
+    }
+  }
+  if (rewards.flags !== undefined) {
+    if (!nonEmptyStringArray(rewards.flags)) issues.push(`${path}.rewards.flags: expected a non-empty string array`);
+    for (const flag of Array.isArray(rewards.flags) ? rewards.flags : []) if (typeof flag === 'string' && !FLAG_PATTERN.test(flag)) issues.push(`${path}.rewards.flags: invalid flag '${flag}'`);
+  }
+  if (quest.chapter !== undefined && !nonEmptyString(quest.chapter)) issues.push(`${path}.chapter: expected a non-empty string`);
+  if (quest.dialogue !== undefined) {
+    if (!isRecord(quest.dialogue)) issues.push(`${path}.dialogue: expected an object`);
+    else for (const key of ['offer', 'progress', 'complete'] as const) {
+      const pages = quest.dialogue[key];
+      if (pages !== undefined && !nonEmptyStringArray(pages)) issues.push(`${path}.dialogue.${key}: expected a non-empty string array`);
+    }
   }
 }
 

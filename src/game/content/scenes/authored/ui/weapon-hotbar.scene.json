@@ -81,6 +81,20 @@
           "on_item_selected": "equip-slot"
         }
       }
+    },
+    {
+      "id": "sfx-select-sfx",
+      "name": "SelectSfx",
+      "type": "AudioStreamPlayer",
+      "parentId": "surface",
+      "order": 2,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.ui.hover"
+        },
+        "minIntervalMs": 40,
+        "volume": 0.8
+      }
     }
   ],
   "instances": [],
@@ -94,7 +108,24 @@
         "nodeId": "script"
       },
       "handler": "on_item_selected"
+    },
+    {
+      "source": {
+        "nodeId": "weapons"
+      },
+      "signal": "item_selected",
+      "target": {
+        "nodeId": "sfx-select-sfx"
+      },
+      "handler": "play"
     }
   ],
-  "subresources": []
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "sfx.ui.hover",
+      "kind": "audio",
+      "assetId": "audio.sfx.ui.hover.1"
+    }
+  ]
 }

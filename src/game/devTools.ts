@@ -17,6 +17,7 @@ export interface DevToolsState {
   attackBoxes: boolean;
   enemyBoundaries: boolean;
   bossBattleAreas: boolean;
+  enemyAttackAreas: boolean;
 }
 
 type DevToolKey = keyof Omit<DevToolsState, 'enabled'>;
@@ -32,6 +33,7 @@ const TOGGLES: Array<{ key: DevToolKey; label: string; description: string }> = 
   { key: 'attackBoxes', label: 'Active attack hitboxes', description: 'Live authored collision shapes and timing' },
   { key: 'enemyBoundaries', label: 'Enemy boundaries', description: 'Stay and pursue perimeters' },
   { key: 'bossBattleAreas', label: 'Boss battle areas', description: 'Activation and combat arena perimeters' },
+  { key: 'enemyAttackAreas', label: 'Enemy attack areas', description: 'Authored contact and landing zones; red while the player is inside' },
 ];
 
 export const devToolsState: DevToolsState = {
@@ -46,6 +48,7 @@ export const devToolsState: DevToolsState = {
   attackBoxes: true,
   enemyBoundaries: false,
   bossBattleAreas: false,
+  enemyAttackAreas: false,
 };
 
 let displayedCameraZoom = 1;

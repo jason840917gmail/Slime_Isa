@@ -154,7 +154,8 @@ test('Worm impact visual resolves to one authored effect scene that embeds its v
   const effect = content.scenes.find((document) => document.sceneId === 'effect.enemy-worm-brawler-hit');
   assert.ok(effect);
   assert.equal(effect.nodes.find((node) => node.scriptId === 'game.effect')?.properties.effectId, 'enemy-worm-brawler-hit');
-  const embedded = (effect.subresources ?? []).map((resource) => resource.resourceId).sort();
+  const embedded = (effect.subresources ?? []).filter((resource) => resource.kind !== 'audio').map((resource) => resource.resourceId).sort();
   assert.deepEqual(embedded, ['effect.enemy.worm-brawler-hit.animations', 'effect.enemy.worm-brawler-hit.sprite']);
+  assert.deepEqual((effect.subresources ?? []).filter((resource) => resource.kind === 'audio').map((resource) => resource.resourceId), ['sfx.weapon.hit-punch']);
   assert.ok(!content.resources.some((resource) => embedded.includes(resource.resourceId)), 'single-owner visual resources are not also shared files');
 });

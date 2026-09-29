@@ -6,18 +6,31 @@ interface UnlockableSoundManager {
   off(event: 'unlocked', callback: () => void): unknown;
 }
 
-/** One audio gate and one pair of bus preferences for the active authored world. */
+/** One audio gate and the bus mix (master × per-bus volume, mutes) for the active authored world. */
 export class GlobalAudioServices implements AudioPreferences, AudioUnlockService {
-  private readonly volumes: Record<AudioBus, number> = { effects: 1, music: 1 };
-  private readonly mutedBuses: Record<AudioBus, boolean> = { effects: false, music: false };
+  private master = 1;
+  private masterMuted = false;
+  private readonly volumes: Record<AudioBus, number> = { effects: 1, music: 1, ambience: 1 };
+  private readonly mutedBuses: Record<AudioBus, boolean> = { effects: false, music: false, ambience: false };
   private readonly unlockCallbacks = new Set<() => void>();
   private listening = false;
   private disposed = false;
 
   constructor(private readonly sound: UnlockableSoundManager) {}
 
-  volume(bus: AudioBus): number { return this.volumes[bus]; }
-  muted(bus: AudioBus): boolean { return this.mutedBuses[bus]; }
+  /** Effective bus gain: the bus slider scaled by the master slider. */
+  volume(bus: AudioBus): number { return this.volumes[bus] * this.master; }
+  muted(bus: AudioBus): boolean { return this.masterMuted || this.mutedBuses[bus]; }
+  busVolume(bus: AudioBus): number { return this.volumes[bus]; }
+  masterVolume(): number { return this.master; }
+  isMasterMuted(): boolean { return this.masterMuted; }
+
+  setMasterVolume(volume: number): void {
+    if (!Number.isFinite(volume) || volume < 0 || volume > 1) throw new Error('Master volume must be between 0 and 1');
+    this.master = volume;
+  }
+
+  setMasterMuted(muted: boolean): void { this.masterMuted = muted; }
 
   setVolume(bus: AudioBus, volume: number): void {
     if (!Number.isFinite(volume) || volume < 0 || volume > 1) throw new Error('Audio bus volume must be between 0 and 1');

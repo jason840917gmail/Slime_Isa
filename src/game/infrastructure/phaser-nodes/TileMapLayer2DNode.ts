@@ -10,8 +10,9 @@ import { createGroundSheetSelection, type GroundSheetSelection } from '../../fea
 import type { PhaserBlockingParticipant } from '../scenes/PhaserNodeContext';
 import type { PhaserNodeContext } from '../scenes/PhaserNodeContext';
 import type { BlockingContact } from '../../runtime/scene/physics/PhysicsContact';
-import { collisionBits } from '../../content/physics/CollisionLayers';
+import { collisionBits, collisionLayerValue } from '../../content/physics/CollisionLayers';
 import type { PresentationParticipant } from './PresentationSync';
+import { renderTerrainBlend, terrainBlendLookup, type TerrainTransitionLayer } from '../../features/world/TerrainTransitionRenderer';
 
 export interface TileMapLayer2DNodeOptions extends Node2DOptions {
   readonly context: PhaserNodeContext;
@@ -36,9 +37,64 @@ interface MountedTile {
   readonly x: number;
   readonly y: number;
   readonly image: Phaser.GameObjects.Image;
-  readonly collidable: boolean;
-  /** Authored tile-set collision rectangle, relative to the cell's top-left corner. */
-  readonly bodyRect?: TileBodyRect;
+}
+
+/**
+ * One static body covering a rectangle of same-tile solid cells. Neighbouring
+ * solid cells merge (rows first, then equal-span rows stack), and the tile's
+ * authored inset applies only to the rectangle's outer edges, so a lake is a
+ * handful of bodies instead of one per cell, with no seams inside it.
+ */
+interface MountedBody {
+  readonly zone: Phaser.GameObjects.Zone;
+  /** Body rectangle relative to the layer origin, in world pixels. */
+  readonly rect: TileBodyRect;
+}
+
+export interface CellRectangle {
+  readonly x: number;
+  readonly y: number;
+  readonly width: number;
+  readonly height: number;
+}
+
+/**
+ * Deterministic greedy rectangle cover of a cell set: horizontal runs per row,
+ * then runs with the same span on consecutive rows stack into one rectangle.
+ */
+export function mergeCellRectangles(cells: Iterable<{ readonly x: number; readonly y: number }>): CellRectangle[] {
+  const byRow = new Map<number, number[]>();
+  for (const { x, y } of cells) {
+    const row = byRow.get(y) ?? [];
+    row.push(x);
+    byRow.set(y, row);
+  }
+  let open = new Map<string, { x: number; y: number; width: number; height: number }>();
+  const done: CellRectangle[] = [];
+  for (const y of [...byRow.keys()].sort((a, b) => a - b)) {
+    const runs: { x: number; width: number }[] = [];
+    for (const x of byRow.get(y)!.sort((a, b) => a - b)) {
+      const last = runs.at(-1);
+      if (last && last.x + last.width === x) last.width += 1;
+      else if (!last || last.x + last.width - 1 !== x) runs.push({ x, width: 1 });
+    }
+    const next = new Map<string, { x: number; y: number; width: number; height: number }>();
+    for (const run of runs) {
+      const key = `${run.x}:${run.width}`;
+      const rect = open.get(key);
+      if (rect && rect.y + rect.height === y) {
+        rect.height += 1;
+        open.delete(key);
+        next.set(key, rect);
+      } else {
+        next.set(key, { x: run.x, y, width: run.width, height: 1 });
+      }
+    }
+    done.push(...open.values());
+    open = next;
+  }
+  done.push(...open.values());
+  return done.sort((a, b) => a.y - b.y || a.x - b.x);
 }
 
 type TileStaticBody = Phaser.Physics.Arcade.StaticBody & {
@@ -62,7 +118,10 @@ export class TileMapLayer2DNode extends Node2D implements PresentationParticipan
   readonly editorLocked: boolean;
   private collisionEnabledValue: boolean;
   private readonly mountedTiles: MountedTile[] = [];
+  private readonly mountedBodies: MountedBody[] = [];
   private readonly groundSelections = new Map<string, GroundSheetSelection>();
+  /** Blended material borders derived from the tiles (visual only). */
+  private terrainBlend?: TerrainTransitionLayer;
   private syncedTransformRevision?: number;
   private syncedVisible?: boolean;
 
@@ -83,22 +142,22 @@ export class TileMapLayer2DNode extends Node2D implements PresentationParticipan
   }
 
   get tileCount(): number { return this.mountedTiles.length; }
-  get collisionBodyCount(): number { return this.mountedTiles.filter((tile) => tile.collidable).length; }
+  get blendChunkCount(): number { return this.terrainBlend?.chunkCount ?? 0; }
+  get collisionBodyCount(): number { return this.mountedBodies.length; }
   get collisionEnabled(): boolean { return this.collisionEnabledValue; }
 
-  /** World-space Arcade rectangles of the collidable tiles, for inspection and tests. */
+  /** World-space Arcade rectangles of the merged tile bodies, for inspection and tests. */
   collisionBodyBounds(): readonly TileBodyRect[] {
-    return this.mountedTiles.flatMap((tile) => {
-      const body = tile.collidable ? tile.image.body as Phaser.Physics.Arcade.StaticBody | null : null;
+    return this.mountedBodies.flatMap(({ zone }) => {
+      const body = zone.body as Phaser.Physics.Arcade.StaticBody | null;
       return body ? [{ x: body.position.x, y: body.position.y, width: body.width, height: body.height }] : [];
     });
   }
 
   setCollisionEnabled(enabled: boolean): void {
     this.collisionEnabledValue = enabled;
-    for (const tile of this.mountedTiles) {
-      if (!tile.collidable || !tile.image.body) continue;
-      (tile.image.body as Phaser.Physics.Arcade.StaticBody).enable = enabled;
+    for (const { zone } of this.mountedBodies) {
+      if (zone.body) (zone.body as Phaser.Physics.Arcade.StaticBody).enable = enabled;
     }
   }
 
@@ -120,11 +179,17 @@ export class TileMapLayer2DNode extends Node2D implements PresentationParticipan
       if (!tile) throw new Error(`Tile data '${data.resourceId}' references unknown tile '${cell.tileId}'`);
       this.mountCell(cell.x, cell.y, tile);
     }
+    this.mountCollision(data.cells, tileSet.tiles);
+    this.mountTerrainPresentation(data.columns, data.rows, data.cells, tileSet.tiles, transform);
     const unregister = this.tileOptions.context.registerPresentation(this);
     this.entryDisposables.add(() => unregister());
     this.entryDisposables.add(() => {
+      this.terrainBlend?.destroy();
+      this.terrainBlend = undefined;
       for (const tile of this.mountedTiles) tile.image.destroy();
       this.mountedTiles.length = 0;
+      for (const { zone } of this.mountedBodies) zone.destroy();
+      this.mountedBodies.length = 0;
       this.groundSelections.clear();
       this.syncedTransformRevision = undefined;
       this.syncedVisible = undefined;
@@ -147,8 +212,8 @@ export class TileMapLayer2DNode extends Node2D implements PresentationParticipan
     const cosine = Math.cos(transform.rotation);
     const sine = Math.sin(transform.rotation);
     for (const tile of this.mountedTiles) {
-      const localX = (tile.x + (tile.collidable ? 0.5 : 0)) * this.tileSize * transform.scale.x;
-      const localY = (tile.y + (tile.collidable ? 0.5 : 0)) * this.tileSize * transform.scale.y;
+      const localX = tile.x * this.tileSize * transform.scale.x;
+      const localY = tile.y * this.tileSize * transform.scale.y;
       tile.image
         .setPosition(
           transform.position.x + localX * cosine - localY * sine,
@@ -158,21 +223,52 @@ export class TileMapLayer2DNode extends Node2D implements PresentationParticipan
         .setScale(transform.scale.x, transform.scale.y)
         .setVisible(this.visible)
         .setDepth(this.depth);
-      if (tile.bodyRect) this.placeTileBody(tile, tile.bodyRect, transform.position);
     }
+    for (const body of this.mountedBodies) this.placeTileBody(body, transform.position);
+    this.terrainBlend?.setOrigin(transform.position.x, transform.position.y);
+    this.terrainBlend?.setVisible(this.visible);
   }
 
   /**
-   * Places a static tile body at its authored tile-set collision rectangle.
-   * `updateFromGameObject`/`refreshBody` would reset the body to the image's
-   * display size and discard the authored inset, so the body is positioned
-   * directly (collidable layers are unrotated and unscaled).
+   * Visual-only terrain derived from the tiles, shared by the game and Scene
+   * Studio: material borders blend into organic regions. Walls, trees and
+   * crystals are placed objects, not tiles. Only for unrotated, unscaled
+   * layers, like collision.
    */
-  private placeTileBody(tile: MountedTile, rect: TileBodyRect, layerPosition: Readonly<{ x: number; y: number }>): void {
-    const body = tile.image.body as TileStaticBody | null;
+  private mountTerrainPresentation(
+    columns: number,
+    rows: number,
+    cells: readonly { readonly x: number; readonly y: number; readonly tileId: string }[],
+    tiles: Readonly<Record<string, TileSetTile>>,
+    transform: Readonly<{ rotation: number; scale: Readonly<{ x: number; y: number }> }>,
+  ): void {
+    if (transform.rotation !== 0 || transform.scale.x !== 1 || transform.scale.y !== 1) return;
+    const grid: (string | undefined)[][] = Array.from({ length: rows }, () => Array<string | undefined>(columns).fill(undefined));
+    for (const cell of cells) if (cell.y >= 0 && cell.y < rows && cell.x >= 0 && cell.x < columns) grid[cell.y][cell.x] = cell.tileId;
+    const scene = this.tileOptions.context.scene;
+    this.terrainBlend = renderTerrainBlend({
+      scene,
+      grid,
+      lookup: terrainBlendLookup(tiles),
+      resolveVisual: (tileId, x, y) => {
+        const visual = this.resolveVisual(tiles[tileId], x, y);
+        return { ...visual, textureKey: this.tileOptions.context.assetKey(visual.assetId) };
+      },
+      dimensions: { width: columns * this.tileSize, height: rows * this.tileSize, tileSize: this.tileSize, columns, rows },
+      seed: this.seed,
+    });
+  }
+
+  /**
+   * Places a merged static body at its rectangle. `updateFromGameObject` /
+   * `refreshBody` would reset the body to its game object's size, so the body
+   * is positioned directly (collidable layers are unrotated and unscaled).
+   */
+  private placeTileBody({ zone, rect }: MountedBody, layerPosition: Readonly<{ x: number; y: number }>): void {
+    const body = zone.body as TileStaticBody | null;
     if (!body) return;
-    const x = layerPosition.x + tile.x * this.tileSize + rect.x;
-    const y = layerPosition.y + tile.y * this.tileSize + rect.y;
+    const x = layerPosition.x + rect.x;
+    const y = layerPosition.y + rect.y;
     body.world.staticTree.remove(body);
     body.width = rect.width;
     body.height = rect.height;
@@ -199,32 +295,57 @@ export class TileMapLayer2DNode extends Node2D implements PresentationParticipan
   private mountCell(x: number, y: number, tile: TileSetTile): void {
     const visual = this.resolveVisual(tile, x, y);
     const textureKey = this.tileOptions.context.assetKey(visual.assetId);
-    if (!tile.physics) {
-      const image = this.tileOptions.context.scene.add.image(0, 0, textureKey, visual.frame)
-        .setOrigin(0)
-        .setFlip(visual.flipX, visual.flipY);
-      this.mountedTiles.push({ x, y, image, collidable: false });
-      return;
-    }
-    const image = this.tileOptions.context.scene.physics.add.staticImage(0, 0, textureKey, visual.frame)
+    const image = this.tileOptions.context.scene.add.image(0, 0, textureKey, visual.frame)
+      .setOrigin(0)
       .setFlip(visual.flipX, visual.flipY);
-    const inset = { left: 6, right: 6, top: 8, bottom: 8, ...tile.physics.inset };
-    const bodyWidth = this.tileSize - inset.left - inset.right;
-    const bodyHeight = this.tileSize - inset.top - inset.bottom;
-    if (bodyWidth <= 0 || bodyHeight <= 0) {
-      image.destroy();
-      throw new Error(`Tile collision inset at '${x},${y}' consumes its entire ${this.tileSize}px cell`);
+    this.mountedTiles.push({ x, y, image });
+  }
+
+  /** Merges solid cells of the same tile into rectangles and mounts one static body per rectangle. */
+  private mountCollision(
+    cells: readonly { readonly x: number; readonly y: number; readonly tileId: string }[],
+    tiles: Readonly<Record<string, TileSetTile>>,
+  ): void {
+    const solidByTile = new Map<string, { x: number; y: number }[]>();
+    for (const cell of cells) {
+      if (!tiles[cell.tileId]?.physics) continue;
+      const list = solidByTile.get(cell.tileId) ?? [];
+      list.push(cell);
+      solidByTile.set(cell.tileId, list);
     }
-    const body = image.body as Phaser.Physics.Arcade.StaticBody;
+    for (const [tileId, solid] of solidByTile) {
+      const inset = { left: 6, right: 6, top: 8, bottom: 8, ...tiles[tileId].physics!.inset };
+      // A tile may name its own layer: water blocks walkers but not projectiles.
+      const tileLayer = tiles[tileId].physics!.layer;
+      const layer = tileLayer === undefined ? this.collisionLayer : collisionLayerValue(tileLayer);
+      if (this.tileSize - inset.left - inset.right <= 0 || this.tileSize - inset.top - inset.bottom <= 0) {
+        throw new Error(`Tile '${tileId}' collision inset consumes its entire ${this.tileSize}px cell`);
+      }
+      for (const cellRect of mergeCellRectangles(solid)) {
+        this.mountBody({
+          x: cellRect.x * this.tileSize + inset.left,
+          y: cellRect.y * this.tileSize + inset.top,
+          width: cellRect.width * this.tileSize - inset.left - inset.right,
+          height: cellRect.height * this.tileSize - inset.top - inset.bottom,
+        }, `${tileId}-${cellRect.x}-${cellRect.y}`, layer);
+      }
+    }
+  }
+
+  private mountBody(rect: TileBodyRect, key: string, collisionLayer: number): void {
+    const scene = this.tileOptions.context.scene;
+    const zone = scene.add.zone(rect.x, rect.y, rect.width, rect.height).setOrigin(0);
+    scene.physics.add.existing(zone, true);
+    const body = zone.body as Phaser.Physics.Arcade.StaticBody;
     body.enable = this.collisionEnabledValue;
-    this.mountedTiles.push({ x, y, image, collidable: true, bodyRect: { x: inset.left, y: inset.top, width: bodyWidth, height: bodyHeight } });
+    this.mountedBodies.push({ zone, rect });
     const node = this;
     const participant: PhaserBlockingParticipant = {
-      runtimeId: `${this.runtimeId}/tile-${x}-${y}` as RuntimeNodeId,
+      runtimeId: `${this.runtimeId}/tile-body-${key}` as RuntimeNodeId,
       node: this,
-      physicsObject: image,
+      physicsObject: zone,
       isStaticBody: true,
-      collisionLayer: this.collisionLayer,
+      collisionLayer,
       collisionMask: this.collisionMask,
       get blockingActive() { return node.collisionEnabled && node.visible && body.enable; },
       beginBlockingStep() {},

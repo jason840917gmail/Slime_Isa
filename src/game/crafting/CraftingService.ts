@@ -2,7 +2,7 @@ import type { InventorySlot, ItemDef } from '../core/types';
 import type { NormalizedWeaponDefinition } from '../content/weapons/types';
 import type { RecipeDef } from '../content/recipes/types';
 
-export type CraftFailureReason = 'invalid-recipe' | 'unique-owned' | 'missing-materials' | 'inventory-full';
+export type CraftFailureReason = 'invalid-recipe' | 'not-learned' | 'unique-owned' | 'missing-materials' | 'inventory-full';
 
 export interface CraftCompletedPayload {
   readonly recipeId: string;
@@ -21,6 +21,8 @@ export interface CraftingServiceDependencies {
   readonly getItem: (itemId: string) => ItemDef | undefined;
   readonly getWeapon: (weaponId: string) => NormalizedWeaponDefinition | undefined;
   readonly emitCompleted: (payload: CraftCompletedPayload) => void;
+  /** Recipes flagged `learnedByQuest` stay locked until this returns true. Defaults to all known. */
+  readonly isRecipeLearned?: (recipeId: string) => boolean;
 }
 
 export interface CraftRequirementQuote {
@@ -250,6 +252,7 @@ export class CraftingService {
     maxCraftable: number,
     requirements: readonly CraftRequirementQuote[],
   ): 'ready' | CraftFailureReason {
+    if (recipe.learnedByQuest && !(this.deps.isRecipeLearned?.(recipe.id) ?? true)) return 'not-learned';
     if (recipe.uniqueOutput && this.deps.inventory.count(recipe.output.itemId) > 0) return 'unique-owned';
     if (requirements.some((requirement) => requirement.available < requirement.perCraft)) return 'missing-materials';
     if (maxCraftable === 0) return outputDef ? 'inventory-full' : 'invalid-recipe';

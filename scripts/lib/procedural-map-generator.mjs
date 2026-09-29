@@ -39,12 +39,12 @@ const TILE_TOKENS = {
     tokenByTile: { 'grass-a': 'a', 'grass-b': 'b' },
   },
   'gloop-forest': {
-    legend: { f: 'forest-floor', m: 'forest-moss', t: 'tree-wall', w: 'deep-water' },
-    tokenByTile: { 'forest-floor': 'f', 'forest-moss': 'm', 'tree-wall': 't', 'deep-water': 'w' },
+    legend: { f: 'forest-floor', m: 'forest-moss', w: 'deep-water' },
+    tokenByTile: { 'forest-floor': 'f', 'forest-moss': 'm', 'deep-water': 'w' },
   },
   'crystal-caverns': {
-    legend: { c: 'cavern-floor', r: 'crystal-floor', x: 'crystal-wall', w: 'deep-water' },
-    tokenByTile: { 'cavern-floor': 'c', 'crystal-floor': 'r', 'crystal-wall': 'x', 'deep-water': 'w' },
+    legend: { c: 'cavern-floor', r: 'crystal-floor', w: 'deep-water' },
+    tokenByTile: { 'cavern-floor': 'c', 'crystal-floor': 'r', 'deep-water': 'w' },
   },
 };
 
@@ -67,14 +67,16 @@ function resolveTile(tileX, tileY, biome, seed) {
 
   if (biome === 'gloop-forest') {
     if (edgeLane) return 'forest-floor';
-    if (ridge > 0.78 && shelf > 0.48) return 'tree-wall';
+    // Forest walls are placed tree objects (object.tree-forest-wall.*), not tiles.
+    if (ridge > 0.78 && shelf > 0.48) return 'forest-moss';
     if (noise > 0.78) return 'deep-water';
     return noise > 0.42 ? 'forest-moss' : 'forest-floor';
   }
 
   if (biome === 'crystal-caverns') {
     if (edgeLane) return 'cavern-floor';
-    if (ridge > 0.7 || shelf > 0.84) return 'crystal-wall';
+    // Cave walls are placed crystal objects (object.crystal-cluster-wall.*), not tiles.
+    if (ridge > 0.7 || shelf > 0.84) return 'crystal-floor';
     if (noise > 0.76) return 'deep-water';
     return noise > 0.46 ? 'crystal-floor' : 'cavern-floor';
   }

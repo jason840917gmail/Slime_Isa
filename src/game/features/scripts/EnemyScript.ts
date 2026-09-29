@@ -23,7 +23,7 @@ import { AnimationPlayerNode } from '../../runtime/scene/animation/AnimationPlay
 import { runState, type EnemyAIConfig, type EnemySafeZone, type EnemyState } from '../../enemies/EnemyAI';
 import type { MapEnemyAreaPerimeter, MapEnemySpawnArea } from '../../content/maps/mapFormat';
 import { bossArenaCenter, bossPerimeterContains } from '../bosses/BossCampBehavior';
-import type { SensorShape } from '../../runtime/scene/physics/SensorGeometry';
+import { sensorShapeContainsPoint, sensorShapesIntersect, type SensorShape } from '../../runtime/scene/physics/SensorGeometry';
 
 export const DAMAGE_ROUTER_SERVICE = 'combat.damage-router';
 export const ATTACK_ACTIVATION_SERVICE = 'combat.attack-activation';
@@ -32,9 +32,22 @@ export const ENEMY_TARGET_SERVICE = 'world.enemy-target';
 export interface EnemyTargetSnapshot {
   readonly position: CharacterPoint;
   readonly damageAreaNodeId: string;
+  /** World-space hurtbox shapes; authored attack areas test against these (the position when absent). */
+  readonly damageShapes?: readonly SensorShape[];
   readonly active: boolean;
   readonly hostile: boolean;
 }
+
+/** One authored attack area as the dev overlay draws it. */
+export interface EnemyDebugAttackArea {
+  readonly reference: string;
+  readonly shapes: readonly SensorShape[];
+  /** The primary target currently overlaps the area. */
+  readonly overlapsTarget: boolean;
+}
+
+/** Area references the dev overlay draws when a script authors them. */
+const DEBUG_ATTACK_AREA_REFERENCES = ['attackArea', 'contactAttack', 'landingZone'] as const;
 
 export interface EnemyTargetService {
   getPrimaryTarget(sourceNodeId: string): EnemyTargetSnapshot | undefined;
@@ -387,6 +400,7 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
         time: this.simulationTimeMs,
         delta: deltaSeconds * 1000,
         distToPlayer: distance,
+        inAttackReach: this.attackAreaReach(target),
         dirToPlayer: directionPort,
         config: this.aiConfig(),
         requestAttack: (attackDirection) => {
@@ -400,6 +414,10 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
       const startedMoving = velocity.x !== 0 || velocity.y !== 0;
       const velocityChanged = velocity.x !== before.x || velocity.y !== before.y;
       if (startedMoving && velocityChanged) break;
+    }
+    // Presentation hook (alert chirp/hiss): idle or wandering enemies that start pursuing or fleeing.
+    if ((this.aiState === 'idle' || this.aiState === 'wander') && (state === 'chase' || state === 'flee')) {
+      this.getSignal<{ state: string }>('alerted')?.emit({ state });
     }
     this.aiState = state;
     this.runtimeStateValue = this.activeSequenceId === undefined ? state : 'attack';
@@ -488,6 +506,54 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
 
   protected canRunCommonAttack(): boolean { return true; }
 
+  /**
+   * Authored-area reach for the common attack (trigger and impact). Undefined
+   * keeps the `attackRange` distance rule; scripts whose attack is an authored
+   * area return `targetOverlapsArea(...)` so the drawn shape is the truth.
+   */
+  protected attackAreaReach(_target: EnemyTargetSnapshot): boolean | undefined { return undefined; }
+
+  /**
+   * World-space shapes of every CollisionShape2D under an Area2D reference.
+   * Disabled shapes count: `disabled` only gates physics monitoring while idle,
+   * the authored geometry is still the attack's reach.
+   */
+  protected referencedAreaShapes(reference: string): readonly SensorShape[] {
+    const area = this.getReference<Node>(reference)?.configuredTarget;
+    return (area?.get_children() ?? []).flatMap((child) => {
+      const shape = child as unknown as { worldShape?: () => SensorShape };
+      return typeof shape.worldShape === 'function' ? [shape.worldShape()] : [];
+    });
+  }
+
+  /** Whether the target's hurtbox (its position when it exposes none) overlaps any of the shapes. */
+  protected targetOverlapsShapes(shapes: readonly SensorShape[], target: EnemyTargetSnapshot): boolean {
+    const hurtbox = target.damageShapes;
+    if (hurtbox && hurtbox.length > 0) return shapes.some((shape) => hurtbox.some((other) => sensorShapesIntersect(shape, other)));
+    return shapes.some((shape) => sensorShapeContainsPoint(shape, target.position.x, target.position.y));
+  }
+
+  protected targetOverlapsArea(reference: string, target: EnemyTargetSnapshot): boolean {
+    return this.targetOverlapsShapes(this.referencedAreaShapes(reference), target);
+  }
+
+  /** Authored attack areas with their live overlap state, for the dev overlay. */
+  debugAttackAreas(): readonly EnemyDebugAttackArea[] {
+    if (this.defeatedValue) return [];
+    const target = this.currentTarget();
+    const seen = new Set<string>();
+    const areas: EnemyDebugAttackArea[] = [];
+    for (const reference of DEBUG_ATTACK_AREA_REFERENCES) {
+      const node = this.getReference<Node>(reference)?.configuredTarget;
+      if (!node || seen.has(node.runtimeId)) continue;
+      seen.add(node.runtimeId);
+      const shapes = this.referencedAreaShapes(reference);
+      if (shapes.length === 0) continue;
+      areas.push({ reference, shapes, overlapsTarget: target?.active === true && this.targetOverlapsShapes(shapes, target) });
+    }
+    return areas;
+  }
+
   /** Directional enemies mirror their side clips when facing left. */
   protected mirrorsSideFacing(): boolean { return true; }
 
@@ -571,6 +637,7 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
     this.attackResolved = false;
     this.setAttackAreaActive(true);
     this.playFacing('attack', true);
+    this.getSignal<{ ranged: boolean; windupMs: number }>('attack_started')?.emit({ ranged: this.projectileConfiguration() !== undefined, windupMs });
   }
 
   private resolveRuntimeAttack(target: EnemyTargetSnapshot, origin: CharacterPoint): void {
@@ -596,8 +663,9 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
       });
       return;
     }
+    const reach = this.attackAreaReach(target);
     const targetDistance = Math.sqrt(this.distanceSquared(origin, target.position));
-    if (targetDistance > this.attackRange * ENEMY_MELEE_REACH_MULTIPLIER) return;
+    if (reach === false || (reach === undefined && targetDistance > this.attackRange * ENEMY_MELEE_REACH_MULTIPLIER)) return;
     const knock = this.movementToward(origin, target.position, 1);
     const outcomes = this.damageRouter.routeStep([{
       activationId,
