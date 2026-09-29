@@ -38,6 +38,8 @@ export interface PlayerWeaponCombatPort {
   onAttackFinished(weaponId: string, direction: WeaponAttackDirection): void;
   transformDamage(damage: number, target: ManagedWeaponTarget): number;
   onOutcome(outcome: RoutedDamageOutcome, target: ManagedWeaponTarget): void;
+  /** Damage receiver of the character holding this weapon; its own hurt areas are never hit. */
+  wielderReceiverNodeId?(): string | undefined;
 }
 
 interface WeaponAttackSpan {
@@ -279,7 +281,7 @@ export class WeaponScript extends ScriptNode {
     const attackArea = this.getReference<Node>('attackArea')?.configuredTarget;
     if (!damage || !router || !combat || !direction || !attackArea || contact.otherKind !== 'area') return;
     const receiverNodeId = router.receiverNodeIdForArea(contact.otherId);
-    if (!receiverNodeId) return;
+    if (!receiverNodeId || receiverNodeId === combat.wielderReceiverNodeId?.()) return;
     const touching = this.contactHitboxIds(contact);
     for (const window of this.windows.values()) {
       if (!window.activationId || window.resolvedReceivers.has(receiverNodeId)) continue;

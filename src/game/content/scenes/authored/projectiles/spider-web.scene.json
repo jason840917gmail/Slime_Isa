@@ -130,6 +130,19 @@
         "lifetimeMs": 3000,
         "rotateToVelocity": true
       }
+    },
+    {
+      "id": "sfx-spit-sfx",
+      "name": "SpitSfx",
+      "type": "AudioStreamPlayer2D",
+      "parentId": "body",
+      "order": 5,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.enemy.web-spit"
+        },
+        "pitchRandomness": 0.06
+      }
     }
   ],
   "instances": [],
@@ -143,6 +156,16 @@
         "nodeId": "script"
       },
       "handler": "on_area_entered"
+    },
+    {
+      "source": {
+        "nodeId": "script"
+      },
+      "signal": "launched",
+      "target": {
+        "nodeId": "sfx-spit-sfx"
+      },
+      "handler": "play"
     }
   ],
   "subresources": [
@@ -222,6 +245,15 @@
           ]
         }
       }
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.enemy.web-spit",
+      "kind": "audio",
+      "assetId": "audio.sfx.enemy.web-spit.1",
+      "variants": [
+        "audio.sfx.enemy.web-spit.2"
+      ]
     }
   ]
 }

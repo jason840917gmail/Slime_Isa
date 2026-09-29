@@ -11,7 +11,7 @@
       "order": 0,
       "properties": {
         "collisionLayer": 128,
-        "collisionMask": 3,
+        "collisionMask": 1027,
         "position": [
           0,
           0

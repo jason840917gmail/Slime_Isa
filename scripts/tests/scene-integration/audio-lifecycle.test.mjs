@@ -109,3 +109,62 @@ test('Phaser registry resolves audio resources into positional and non-positiona
   assert.equal(flat instanceof t.AudioStreamPlayerNode, true);
   assert.equal(spatial instanceof t.AudioStreamPlayer2DNode, true);
 });
+
+test('one-shots layer up to polyphony, pick variants, jitter pitch, and throttle retriggers', () => {
+  const { scene, handles } = fakeAudioScene();
+  let now = 0;
+  const rolls = [0.9, 0.5, 0.1, 0.5, 0.5, 1 - 1e-9, 0.5];
+  const audio = new t.AudioStreamPlayerNode({
+    runtimeId: 'audio/hits', name: 'Hits', scene, assetId: 'hit-1', variantAssetIds: ['hit-2'], polyphony: 2, pitchRandomness: 0.1, minIntervalMs: 50,
+    unlock: unlockFixture(true).service, random: () => rolls.shift() ?? 0.5, now: () => now,
+  });
+  const tree = new t.SceneTree(); tree.setRoot(audio);
+  audio.play();
+  assert.deepEqual(handles.map((handle) => [handle.assetId, handle.plays]), [['hit-1', 0], ['hit-2', 1]]);
+  assert.equal(handles[1].rate, 1);
+  now = 10; audio.play();
+  assert.equal(handles.reduce((sum, handle) => sum + handle.plays, 0), 1, 'retrigger inside minIntervalMs is dropped');
+  now = 100; audio.play();
+  assert.deepEqual(handles.map((handle) => [handle.assetId, handle.plays]), [['hit-1', 1], ['hit-2', 1]]);
+  now = 200; audio.play();
+  assert.equal(handles.length, 3, 'the oldest voice is recycled once polyphony is exhausted');
+  assert.equal(handles[1].destroyed, true);
+  assert.equal(handles[2].plays, 1);
+  assert.ok(Math.abs(handles[2].rate - 1.1) < 1e-6, 'pitch jitter scales the base pitch');
+  tree.shutdown();
+});
+
+test('detached one-shots finish after their node leaves the tree and then free themselves', () => {
+  const { scene, handles } = fakeAudioScene();
+  const audio = new t.AudioStreamPlayer2DNode({ runtimeId: 'audio/pickup', name: 'Pickup', scene, assetId: 'pop', detached: true, unlock: unlockFixture(true).service });
+  const tree = new t.SceneTree(); tree.setRoot(audio);
+  audio.play();
+  tree.shutdown();
+  assert.equal(handles[0].stops, 0);
+  assert.equal(handles[0].destroyed, false);
+  handles[0].emit('complete');
+  assert.equal(handles[0].destroyed, true);
+});
+
+test('play/stop signal handlers honour the payload filter', () => {
+  const { scene, handles } = fakeAudioScene();
+  const audio = new t.AudioStreamPlayerNode({ runtimeId: 'audio/phase', name: 'Land', scene, assetId: 'land', payloadFilter: 'phase=landing|dead', unlock: unlockFixture(true).service });
+  const tree = new t.SceneTree(); tree.setRoot(audio);
+  audio._invokeSignalHandler('play', { phase: 'airborne' });
+  assert.equal(handles[0].plays, 0);
+  audio._invokeSignalHandler('play', { phase: 'landing' });
+  assert.equal(handles[0].plays, 1);
+  tree.shutdown();
+  const filter = t.compilePayloadFilter('result.status=collected');
+  assert.equal(filter({ result: { status: 'collected' } }), true);
+  assert.equal(filter({ result: { status: 'rejected' } }), false);
+  assert.equal(filter(undefined), false);
+  assert.equal(t.compilePayloadFilter('')(undefined), true);
+});
+
+test('audio nodes stay silent instead of throwing when the host has no sound manager', () => {
+  const audio = new t.AudioStreamPlayerNode({ runtimeId: 'audio/headless', name: 'Headless', scene: {}, assetId: 'click', autoplay: true });
+  const tree = new t.SceneTree(); tree.setRoot(audio);
+  audio.play();
+  tree.shutdown();
+});

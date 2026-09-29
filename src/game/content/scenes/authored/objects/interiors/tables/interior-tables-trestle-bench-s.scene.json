@@ -1,0 +1,86 @@
+{
+  "version": 1,
+  "sceneId": "object.interior-tables-trestle-bench-s",
+  "rootNodeId": "body",
+  "nodes": [
+    {
+      "id": "body",
+      "name": "trestle-bench-s",
+      "type": "StaticBody2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "collisionLayer": 1,
+        "collisionMask": 0,
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "body-shape",
+      "name": "BodyShape",
+      "type": "CollisionShape2D",
+      "parentId": "body",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "interior-tables-trestle-bench-s.shape"
+        },
+        "position": [
+          0,
+          -24.012
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "body",
+      "order": 1,
+      "properties": {
+        "texture": {
+          "resourceId": "interior-tables-trestle-bench-s.sprite"
+        },
+        "frame": 40,
+        "origin": [
+          0.5,
+          1
+        ],
+        "scale": [
+          0.9,
+          0.9
+        ],
+        "visualOffset": [
+          0,
+          0
+        ],
+        "depthMode": "world-sorted",
+        "depthBand": "world-entities"
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "interior-tables-trestle-bench-s.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "sheet.interiors.tables-directional.5x9",
+      "frameWidth": 256,
+      "frameHeight": 256
+    },
+    {
+      "version": 1,
+      "resourceId": "interior-tables-trestle-bench-s.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 139.392,
+        "height": 40.824
+      }
+    }
+  ]
+}

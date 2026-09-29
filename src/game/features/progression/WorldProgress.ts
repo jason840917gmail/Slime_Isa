@@ -1,5 +1,6 @@
 import { saveRepository } from '../../infrastructure/persistence/SaveRepository';
-import type { BossCampProgressData, ChestProgressData, CollectibleProgressStateData, InventoryWorldDropProgressData, MapRuntimeStateData, ResourceProgressStateData, WorldProgressData } from '../../infrastructure/persistence/SaveSchema';
+import { isPlacedFurniture } from '../../infrastructure/persistence/SaveSchema';
+import type { BossCampProgressData, ChestProgressData, CollectibleProgressStateData, InventoryWorldDropProgressData, MapRuntimeStateData, PlacedFurnitureData, ResourceProgressStateData, RespawnPointData, WorldProgressData } from '../../infrastructure/persistence/SaveSchema';
 import type { AreaId } from '../../world/Area';
 import { gameEvents } from '../../core/EventBus';
 
@@ -77,6 +78,12 @@ function cloneMapState(state: MapRuntimeStateData): MapRuntimeStateData {
       Object.entries(state.inventoryDrops ?? {}).map(([id, drop]) => [id, { ...drop }]),
     ),
     nextInventoryDropSequence: state.nextInventoryDropSequence ?? 1,
+    ...(state.placedFurniture && Object.keys(state.placedFurniture).length > 0 ? {
+      placedFurniture: Object.fromEntries(
+        Object.entries(state.placedFurniture).map(([id, furniture]) => [id, { ...furniture }]),
+      ),
+      nextPlacedFurnitureSequence: state.nextPlacedFurnitureSequence ?? 1,
+    } : {}),
     bossCamps: Object.fromEntries(
       Object.entries(state.bossCamps ?? {}).map(([id, bossCamp]) => [id, { ...bossCamp }]),
     ),
@@ -97,12 +104,14 @@ export class WorldProgress {
   private defeatedBossIds = new Set<string>();
   private completedDungeonIds = new Set<string>();
   private mapStates = new Map<string, MapRuntimeStateData>();
+  private respawn?: RespawnPointData;
   private loaded = false;
 
   load(data: WorldProgressData): void {
     this.discoveredAreas = new Set(data.discoveredAreas ?? []);
     this.defeatedBossIds = new Set(data.defeatedBossIds ?? []);
     this.completedDungeonIds = new Set(data.completedDungeonIds ?? []);
+    this.respawn = data.respawnPoint ? { ...data.respawnPoint } : undefined;
     this.mapStates = new Map();
     for (const [mapId, state] of Object.entries(data.maps ?? {})) {
       if (!state || typeof state !== 'object') continue;
@@ -147,6 +156,15 @@ export class WorldProgress {
         const match = /^inventory-drop-(\d+)$/.exec(id);
         return match ? Number(match[1]) + 1 : 1;
       }));
+      const placedFurniture = candidate.placedFurniture && typeof candidate.placedFurniture === 'object'
+        ? Object.fromEntries(Object.entries(candidate.placedFurniture).flatMap(([id, furniture]) => (
+            isPlacedFurniture(furniture) ? [[id, { ...furniture, id }]] : []
+          )))
+        : {};
+      const inferredFurnitureSequence = Math.max(1, ...Object.keys(placedFurniture).map((id) => {
+        const match = /^placed-furniture-(\d+)$/.exec(id);
+        return match ? Number(match[1]) + 1 : 1;
+      }));
       const bossCamps = candidate.bossCamps && typeof candidate.bossCamps === 'object'
         ? Object.fromEntries(Object.entries(candidate.bossCamps).flatMap(([id, bossCamp]) => (
             bossCamp && typeof bossCamp === 'object'
@@ -177,6 +195,15 @@ export class WorldProgress {
             ? candidate.nextInventoryDropSequence ?? 1
             : 1,
         ),
+        ...(Object.keys(placedFurniture).length > 0 ? {
+          placedFurniture,
+          nextPlacedFurnitureSequence: Math.max(
+            inferredFurnitureSequence,
+            Number.isInteger(candidate.nextPlacedFurnitureSequence) && (candidate.nextPlacedFurnitureSequence ?? 0) >= 1
+              ? candidate.nextPlacedFurnitureSequence ?? 1
+              : 1,
+          ),
+        } : {}),
         bossCamps,
         chests,
         completedEncounterIds: Array.isArray(candidate.completedEncounterIds)
@@ -215,7 +242,22 @@ export class WorldProgress {
       maps: Object.fromEntries(
         [...this.mapStates.entries()].map(([mapId, state]) => [mapId, cloneMapState(state)]),
       ),
+      ...(this.respawn ? { respawnPoint: { ...this.respawn } } : {}),
     };
+  }
+
+  /** The last bed slept in, where defeat returns the player. */
+  get respawnPoint(): RespawnPointData | undefined {
+    this.ensureLoaded();
+    return this.respawn ? { ...this.respawn } : undefined;
+  }
+
+  setRespawnPoint(point: RespawnPointData): void {
+    this.ensureLoaded();
+    const current = this.respawn;
+    if (current && current.mapId === point.mapId && current.x === point.x && current.y === point.y) return;
+    this.respawn = { ...point };
+    gameEvents.emit('world.progress.changed', {});
   }
 
   captureTransactionSnapshot(): WorldProgressData {
@@ -406,6 +448,44 @@ export class WorldProgress {
     if (normalizedAmount > 0) inventoryDrops[instanceId] = { ...current, amount: normalizedAmount };
     else delete inventoryDrops[instanceId];
     this.mapStates.set(mapId, { ...mapState, inventoryDrops });
+    gameEvents.emit('world.progress.changed', {});
+  }
+
+  placedFurniture(mapId: string): readonly PlacedFurnitureData[] {
+    this.ensureLoaded();
+    return Object.values(this.mapStates.get(mapId)?.placedFurniture ?? {}).map((furniture) => ({ ...furniture }));
+  }
+
+  placeFurniture(mapId: string, furniture: Omit<PlacedFurnitureData, 'id'>): PlacedFurnitureData {
+    this.ensureLoaded();
+    const mapState = this.mapStates.get(mapId) ?? emptyMapState();
+    const sequence = mapState.nextPlacedFurnitureSequence ?? 1;
+    const record: PlacedFurnitureData = { ...furniture, id: `placed-furniture-${sequence}` };
+    this.mapStates.set(mapId, {
+      ...mapState,
+      placedFurniture: { ...(mapState.placedFurniture ?? {}), [record.id]: record },
+      nextPlacedFurnitureSequence: sequence + 1,
+    });
+    gameEvents.emit('world.progress.changed', {});
+    return { ...record };
+  }
+
+  removePlacedFurniture(mapId: string, placementId: string): PlacedFurnitureData | undefined {
+    this.ensureLoaded();
+    const mapState = this.mapStates.get(mapId);
+    const current = mapState?.placedFurniture?.[placementId];
+    if (!mapState || !current) return undefined;
+    const placedFurniture = { ...(mapState.placedFurniture ?? {}) };
+    delete placedFurniture[placementId];
+    this.mapStates.set(mapId, { ...mapState, placedFurniture });
+    gameEvents.emit('world.progress.changed', {});
+    return { ...current };
+  }
+
+  clearRespawnPoint(): void {
+    this.ensureLoaded();
+    if (!this.respawn) return;
+    this.respawn = undefined;
     gameEvents.emit('world.progress.changed', {});
   }
 

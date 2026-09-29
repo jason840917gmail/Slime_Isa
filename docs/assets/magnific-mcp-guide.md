@@ -7,11 +7,18 @@ output defaults below consistent so generated assets remain predictable.
 
 | Media | Tool | Required model | Required output defaults |
 | --- | --- | --- | --- |
-| Images | `mcp__magnific__images_generate` | `cinematic` | Use `1:1` and `1k` unless the task specifies another format. |
+| Images | `mcp__magnific__images_generate` | `gpt-2` (OpenAI GPT 2) | Use `1:1` and `1k` unless the task specifies another format. Sprites always set `transparentBackground: true`. |
 | Videos | `mcp__magnific__video_generate` | `bytedance-seedance-pro-1.5` | One 5-second clip, no audio or sound effects. |
 
+Images always use an OpenAI image model. Do not fall back to `auto` or a
+non-OpenAI model (for example `cinematic`, Flux, Seedream, or Nano Banana).
+`gpt-2` is the default because it is the stable OpenAI model that supports
+alpha output. `gpt-2-mini` (GPT 2.5, beta) is the only permitted alternative,
+and only when the task asks for it.
+
 The current catalog identifies these exact slugs. If Magnific changes its
-catalog, verify them with `images_models_list({ search: "cinematic" })` and
+catalog, verify them with `images_models_list({ search: "gpt" })` (pick the
+newest non-beta OpenAI model that flags `transparentBackground`) and
 `video_models_list({ search: "Seedance 1.5 Pro" })` before updating this guide.
 
 Project visual direction: [Polished Stylized Top-Down Visual
@@ -35,20 +42,31 @@ Use `tool: "video_generate"` for video cost estimates.
 
 ## Image generation
 
-Always pass `mode: "cinematic"` for project images. This is the project's
-subscription-backed default image model. The following is the default shape
-for a square image:
+Always pass `mode: "gpt-2"` for project images; never omit `mode` (it
+defaults to `auto`). The following is the default shape for a sprite:
 
 ```ts
 const imageArguments = {
-  mode: "cinematic",
-  prompt: "A polished stylized top-down 2D game asset of the Sticky Spider-Slime...",
+  mode: "gpt-2",
+  prompt: "A polished stylized top-down 2D game asset of the Sticky Spider-Slime, isolated on a transparent background...",
   aspectRatio: "1:1",
   resolution: "1k",
+  transparentBackground: true,
 };
 
 await tools.mcp__magnific__images_generate(imageArguments);
 ```
+
+### Sprites always use transparent backgrounds
+
+Every sprite, sprite sheet, prop, item icon, effect, and other in-game cutout
+must be generated with `transparentBackground: true`. Also state
+"isolated on a transparent background, no ground shadow plate, no scenery" in
+the prompt so the model does not paint a backdrop. If a result still contains
+an opaque background, chain `images_remove_background` on it rather than
+regenerating with another model. Only full-frame art that is intentionally
+edge-to-edge (concept art, backgrounds, opaque UI backplates) may omit
+`transparentBackground`.
 
 For style matching, pass references as creation identifiers returned by
 Magnific uploads or earlier generations:

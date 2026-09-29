@@ -179,6 +179,81 @@ export class ProgressBarControlNode extends StyledControlNode {
   }
 }
 
+export interface SliderControlOptions extends StyledControlOptions {
+  readonly value?: number;
+  readonly min?: number;
+  readonly max?: number;
+  readonly step?: number;
+  readonly label?: string;
+  readonly tone?: UiTone;
+  readonly disabled?: boolean;
+}
+
+/** Payload of a Slider's `value_changed` signal; `control` is the slider's node name. */
+export interface UiSliderChange { readonly control: string; readonly value: number }
+
+/** Horizontal range input (volume, sensitivity). Emits `value_changed` only for user-driven changes. */
+export class SliderControlNode extends StyledControlNode {
+  private currentValue: number;
+  readonly min: number;
+  readonly max: number;
+  readonly step: number;
+  label: string;
+  tone: UiTone;
+  disabled: boolean;
+
+  constructor(protected readonly sliderOptions: SliderControlOptions) {
+    super(sliderOptions);
+    this.min = finiteNumber(sliderOptions.min ?? 0, 'Slider min');
+    this.max = finiteNumber(sliderOptions.max ?? 1, 'Slider max');
+    if (this.max <= this.min) throw new Error('Slider max must be greater than min');
+    this.step = finitePositive(sliderOptions.step ?? (this.max - this.min) / 20, 'Slider step');
+    this.currentValue = this.clamp(sliderOptions.value ?? this.min);
+    this.label = sliderOptions.label ?? '';
+    this.tone = sliderOptions.tone ?? 'accent';
+    this.disabled = sliderOptions.disabled ?? false;
+  }
+
+  get value(): number { return this.currentValue; }
+  /** Presentation-model writes: clamps and snaps without emitting. */
+  set value(next: number) { this.currentValue = this.clamp(next); }
+  get ratio(): number { return (this.currentValue - this.min) / (this.max - this.min); }
+
+  /** User input path: snaps, clamps, and emits `value_changed` when the value moved. */
+  change(next: number): boolean {
+    if (this.disabled || !this.visible) return false;
+    const value = this.clamp(next);
+    if (value === this.currentValue) return false;
+    this.currentValue = value;
+    this.getSignal<UiSliderChange>('value_changed')?.emit({ control: this.name, value });
+    return true;
+  }
+
+  override handleRoutedInput(event: InputEvent): void {
+    if (this.focused && event.type === 'key-down') {
+      const delta = event.key === 'ArrowLeft' || event.key === 'ArrowDown' ? -this.step
+        : event.key === 'ArrowRight' || event.key === 'ArrowUp' ? this.step
+          : event.key === 'PageDown' ? -this.step * 5
+            : event.key === 'PageUp' ? this.step * 5
+              : 0;
+      if (delta !== 0) { this.change(this.currentValue + delta); event.handled = true; return; }
+      if (event.key === 'Home') { this.change(this.min); event.handled = true; return; }
+      if (event.key === 'End') { this.change(this.max); event.handled = true; return; }
+    }
+    super.handleRoutedInput(event);
+  }
+
+  private clamp(value: number): number {
+    if (!Number.isFinite(value)) return this.currentValue ?? this.min;
+    const snapped = this.min + Math.round((value - this.min) / this.step) * this.step;
+    return Number(Math.min(this.max, Math.max(this.min, snapped)).toFixed(6));
+  }
+
+  protected override _duplicateSelf(runtimeId: RuntimeNodeId): SliderControlNode {
+    return new SliderControlNode({ ...this.sliderOptions, ...this.duplicateOptions(runtimeId), value: this.currentValue, label: this.label, tone: this.tone, disabled: this.disabled });
+  }
+}
+
 export interface ButtonControlOptions extends LabelControlOptions { readonly disabled?: boolean }
 
 export class ButtonControlNode extends LabelControlNode {
@@ -343,6 +418,11 @@ export class ModalRootControlNode extends ContainerControlNode {
 
 function finiteNonNegative(value: number, label: string): number {
   if (!Number.isFinite(value) || value < 0) throw new Error(`${label} must be finite and non-negative`);
+  return value;
+}
+
+function finiteNumber(value: number, label: string): number {
+  if (!Number.isFinite(value)) throw new Error(`${label} must be finite`);
   return value;
 }
 

@@ -54,6 +54,11 @@ function shapeCenterY(shape: SensorShape): number {
 
 function drawShape(graphics: Phaser.GameObjects.Graphics, shape: SensorShape): void {
   graphics.fillStyle(FILL, FILL_ALPHA).lineStyle(3, STROKE, STROKE_ALPHA);
+  traceSensorShape(graphics, shape);
+}
+
+/** Fills and strokes a world-space sensor shape with the graphics' current styles. */
+export function traceSensorShape(graphics: Phaser.GameObjects.Graphics, shape: SensorShape): void {
   if (shape.shape === 'circle') {
     graphics.fillCircle(shape.centerX, shape.centerY, shape.radius).strokeCircle(shape.centerX, shape.centerY, shape.radius);
   } else if (shape.shape === 'ellipse') {

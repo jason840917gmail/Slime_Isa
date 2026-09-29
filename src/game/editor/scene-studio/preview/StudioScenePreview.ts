@@ -20,7 +20,7 @@ import { UI_PREVIEW_SIZE, type ViewportCamera, type WorldRect } from '../SceneVi
 
 export const STUDIO_PREVIEW_NAMESPACE = 'studio-preview';
 const PREVIEW_SCENE_KEY = 'scene-studio-preview';
-const UI_ROOT_TYPES = new Set(['Control', 'Container', 'TextureRect', 'Label', 'ProgressBar', 'Button', 'ItemList', 'GridContainer', 'ScrollContainer', 'ModalRoot']);
+const UI_ROOT_TYPES = new Set(['Control', 'Container', 'TextureRect', 'Label', 'ProgressBar', 'Slider', 'Button', 'ItemList', 'GridContainer', 'ScrollContainer', 'ModalRoot']);
 
 export type StudioPreviewStatus = 'booting' | 'loading' | 'ready' | 'error' | 'idle';
 

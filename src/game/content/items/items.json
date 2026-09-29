@@ -39,7 +39,8 @@
     "id": "hp-potion",
     "name": "Slime Tonic",
     "category": "consumable",
-    "icon": "hp-potion",
+    "icon": "items-potions-5x2",
+    "iconFrame": 0,
     "description": "Restores 40 HP.",
     "worldDrop": { "objectId": "collectible.hp-potion", "visualId": "hp-potion" },
     "use": { "healHp": 40 }
@@ -48,7 +49,8 @@
     "id": "energy-potion",
     "name": "Fizzy Brew",
     "category": "consumable",
-    "icon": "energy-potion",
+    "icon": "items-potions-5x2",
+    "iconFrame": 6,
     "description": "Restores 50 energy.",
     "worldDrop": { "objectId": "collectible.energy-potion", "visualId": "energy-potion" },
     "use": { "healEnergy": 50 }
@@ -57,7 +59,8 @@
     "id": "purple-berry-mat",
     "name": "Purple Berry",
     "category": "material",
-    "icon": "purple-berry",
+    "icon": "items-forage-5x2",
+    "iconFrame": 0,
     "description": "A sweet foraged berry. Used in brewing.",
     "worldDrop": { "objectId": "collectible.purple-berry", "visualId": "purple-berry" }
   },
@@ -65,7 +68,8 @@
     "id": "silk-clump",
     "name": "Sticky Silk",
     "category": "material",
-    "icon": "silk-clump",
+    "icon": "items-materials-5x2",
+    "iconFrame": 0,
     "description": "Clumpy silk from a spider-slime.",
     "worldDrop": { "objectId": "collectible.silk-clump", "visualId": "silk-clump" }
   },
@@ -73,7 +77,8 @@
     "id": "shard",
     "name": "Crystal Shard",
     "category": "collectible",
-    "icon": "shard",
+    "icon": "items-gems-5x2",
+    "iconFrame": 0,
     "description": "A glittering crystal. Could power something.",
     "worldDrop": { "objectId": "collectible.crystal-shard", "visualId": "crystal-shard" }
   },
@@ -85,5 +90,24 @@
     "iconFrame": 0,
     "description": "A leaf-shaped green key carried by Fatty One Eye's guarded chest.",
     "worldDrop": { "objectId": "collectible.green-key", "visualId": "green-key" }
+  },
+  "workbench": {
+    "id": "workbench",
+    "name": "Workbench",
+    "category": "furniture",
+    "icon": "interior-workshop-crafting-8x8",
+    "iconFrame": 8,
+    "description": "A sturdy bench for shaping wood and stone into tools and weapons. Place it anywhere, then press F at it to craft.",
+    "placeable": { "sceneIds": ["object.interior-workshop-workbench", "object.interior-workshop-workbench-vise"] }
+  },
+  "berry-basket": {
+    "id": "berry-basket",
+    "name": "Berry Basket",
+    "category": "consumable",
+    "icon": "interior-kitchen-hearth-8x8",
+    "iconFrame": 50,
+    "description": "A woven basket of sweet berries. Restores 20 HP and 30 energy.",
+    "worldDrop": { "objectId": "collectible.berry-basket", "visualId": "berry-basket" },
+    "use": { "healHp": 20, "healEnergy": 30 }
   }
 }

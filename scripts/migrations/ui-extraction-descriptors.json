@@ -536,7 +536,7 @@
     {
       "id": "crafting-ui",
       "sourcePath": "src/game/ui/CraftingUI.ts",
-      "sourceHash": "7bb75c35d7ab686ce167c52d82f5601e1ab6bcc3d61bb70b6aeacc1b2b754ff4",
+      "sourceHash": "aa4c7a3b0b2e37ce7ebe2da791bfd54b87e2ceb5768c854e71cf31741f36731f",
       "sceneId": "ui.crafting-ui",
       "modal": true,
       "layoutValues": {

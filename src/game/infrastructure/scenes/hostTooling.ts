@@ -11,7 +11,7 @@ export { CollisionShape2DNode } from '../phaser-nodes/CollisionShape2DNode';
 export { ControlPresentationAdapter } from '../phaser-nodes/ControlPresentationAdapter';
 export { HtmlControlPresentationAdapter } from '../phaser-nodes/ui/HtmlControlPresentationAdapter';
 export * from '../phaser-nodes/ui/ControlNodes';
-export { AudioStreamPlayerNode, AudioPlaybackController } from '../phaser-nodes/AudioStreamPlayerNode';
+export { AudioStreamPlayerNode, AudioPlaybackController, compilePayloadFilter } from '../phaser-nodes/AudioStreamPlayerNode';
 export { AudioStreamPlayer2DNode } from '../phaser-nodes/AudioStreamPlayer2DNode';
 export { PresentationSync } from '../phaser-nodes/PresentationSync';
 export { createPhaserNodeRegistry } from '../phaser-nodes/PhaserNodeRegistry';

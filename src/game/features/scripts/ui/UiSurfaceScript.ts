@@ -9,6 +9,7 @@ import {
   LabelControlNode,
   ModalRootControlNode,
   ProgressBarControlNode,
+  SliderControlNode,
 } from '../../../infrastructure/phaser-nodes/ui/ControlNodes';
 
 export const UI_SURFACE_SERVICE = 'ui.surface-models';
@@ -27,7 +28,7 @@ interface UiBinding {
   readonly model: string;
 }
 
-const HANDLERS = ['on_primary_action', 'on_secondary_action', 'on_close_action', 'on_item_selected', 'on_jump_action', 'on_slam_action', 'on_lash_action', 'on_teleport_action', 'on_assign_slot', 'on_quantity_minus_10', 'on_quantity_minus_1', 'on_quantity_plus_1', 'on_quantity_plus_10', 'on_drop_all', 'on_remove', 'on_remove_all', 'on_item_secondary', 'on_quantity_max'] as const;
+const HANDLERS = ['on_primary_action', 'on_secondary_action', 'on_close_action', 'on_item_selected', 'on_jump_action', 'on_slam_action', 'on_lash_action', 'on_teleport_action', 'on_assign_slot', 'on_quantity_minus_10', 'on_quantity_minus_1', 'on_quantity_plus_1', 'on_quantity_plus_10', 'on_drop_all', 'on_remove', 'on_remove_all', 'on_item_secondary', 'on_quantity_max', 'on_value_changed'] as const;
 
 export class UiSurfaceScript extends ScriptNode {
   readonly surfaceId: string;
@@ -91,6 +92,9 @@ function applyBinding(script: UiSurfaceScript, binding: UiBinding, value: JsonVa
   else if (target instanceof ProgressBarControlNode && binding.property === 'max' && typeof value === 'number' && value > 0) target.max = value;
   else if (target instanceof ProgressBarControlNode && binding.property === 'label' && typeof value === 'string') target.label = value;
   else if (target instanceof ProgressBarControlNode && binding.property === 'tone' && isTone(value)) target.tone = value;
+  else if (target instanceof SliderControlNode && binding.property === 'value' && typeof value === 'number') target.value = value;
+  else if (target instanceof SliderControlNode && binding.property === 'label' && typeof value === 'string') target.label = value;
+  else if (target instanceof SliderControlNode && binding.property === 'disabled' && typeof value === 'boolean') target.disabled = value;
   else if (target instanceof ControlNode && (binding.property === 'offsetMin' || binding.property === 'offsetMax')
     && Array.isArray(value) && value.length === 2 && typeof value[0] === 'number' && typeof value[1] === 'number') {
     target.setLayoutOffset(binding.property, { x: value[0], y: value[1] });

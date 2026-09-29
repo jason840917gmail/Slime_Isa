@@ -77,6 +77,21 @@
         },
         "lifetimeMs": 1000
       }
+    },
+    {
+      "id": "sfx-impact-sfx",
+      "name": "ImpactSfx",
+      "type": "AudioStreamPlayer2D",
+      "parentId": "root",
+      "order": 3,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.enemy.web-splat"
+        },
+        "autoplay": true,
+        "detached": true,
+        "pitchRandomness": 0.07
+      }
     }
   ],
   "instances": [],
@@ -87,7 +102,7 @@
       "kind": "animation-library",
       "animations": {
         "right": {
-          "durationSeconds": 1.0,
+          "durationSeconds": 1,
           "framesPerSecond": 12,
           "loop": false,
           "loopMode": "wrap",
@@ -117,7 +132,7 @@
           ]
         },
         "left": {
-          "durationSeconds": 1.0,
+          "durationSeconds": 1,
           "framesPerSecond": 12,
           "loop": false,
           "loopMode": "wrap",
@@ -147,7 +162,7 @@
           ]
         },
         "up": {
-          "durationSeconds": 1.0,
+          "durationSeconds": 1,
           "framesPerSecond": 12,
           "loop": false,
           "loopMode": "wrap",
@@ -177,7 +192,7 @@
           ]
         },
         "down": {
-          "durationSeconds": 1.0,
+          "durationSeconds": 1,
           "framesPerSecond": 12,
           "loop": false,
           "loopMode": "wrap",
@@ -216,6 +231,15 @@
       "frameWidth": 64,
       "frameHeight": 64,
       "frameCount": 4
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.enemy.web-splat",
+      "kind": "audio",
+      "assetId": "audio.sfx.enemy.web-splat.1",
+      "variants": [
+        "audio.sfx.enemy.web-splat.2"
+      ]
     }
   ]
 }

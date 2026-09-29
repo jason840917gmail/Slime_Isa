@@ -1,0 +1,86 @@
+{
+  "version": 1,
+  "sceneId": "object.interior-mushroom-structure-wall-glow-mushrooms",
+  "rootNodeId": "body",
+  "nodes": [
+    {
+      "id": "body",
+      "name": "wall-glow-mushrooms",
+      "type": "StaticBody2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "collisionLayer": 1,
+        "collisionMask": 0,
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "body-shape",
+      "name": "BodyShape",
+      "type": "CollisionShape2D",
+      "parentId": "body",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "interior-mushroom-structure-wall-glow-mushrooms.shape"
+        },
+        "position": [
+          0,
+          -26
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "body",
+      "order": 1,
+      "properties": {
+        "texture": {
+          "resourceId": "interior-mushroom-structure-wall-glow-mushrooms.sprite"
+        },
+        "frame": 10,
+        "origin": [
+          0.5,
+          1
+        ],
+        "scale": [
+          1,
+          1
+        ],
+        "visualOffset": [
+          0,
+          0
+        ],
+        "depthMode": "world-sorted",
+        "depthBand": "world-entities"
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "interior-mushroom-structure-wall-glow-mushrooms.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "sheet.interiors.mushroom-structure.8x8",
+      "frameWidth": 128,
+      "frameHeight": 128
+    },
+    {
+      "version": 1,
+      "resourceId": "interior-mushroom-structure-wall-glow-mushrooms.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 93.28,
+        "height": 44
+      }
+    }
+  ]
+}

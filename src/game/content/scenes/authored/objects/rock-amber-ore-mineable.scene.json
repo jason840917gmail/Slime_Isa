@@ -125,6 +125,47 @@
           "damageMultiplier": 1
         }
       }
+    },
+    {
+      "id": "sfx-clink-sfx",
+      "name": "ClinkSfx",
+      "type": "AudioStreamPlayer2D",
+      "parentId": "body",
+      "order": 4,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.resource.ore-clink"
+        },
+        "pitchRandomness": 0.06
+      }
+    },
+    {
+      "id": "sfx-wrong-tool-sfx",
+      "name": "WrongToolSfx",
+      "type": "AudioStreamPlayer2D",
+      "parentId": "body",
+      "order": 5,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.resource.wrong-tool"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 200
+      }
+    },
+    {
+      "id": "sfx-shatter-sfx",
+      "name": "ShatterSfx",
+      "type": "AudioStreamPlayer2D",
+      "parentId": "body",
+      "order": 6,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.resource.ore-shatter"
+        },
+        "pitchRandomness": 0.06,
+        "detached": true
+      }
     }
   ],
   "instances": [],
@@ -146,6 +187,63 @@
         "width": 42,
         "height": 16
       }
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.resource.ore-clink",
+      "kind": "audio",
+      "assetId": "audio.sfx.resource.ore-clink.1",
+      "variants": [
+        "audio.sfx.resource.ore-clink.2",
+        "audio.sfx.resource.ore-clink.3"
+      ]
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.resource.wrong-tool",
+      "kind": "audio",
+      "assetId": "audio.sfx.resource.wrong-tool.1",
+      "variants": [
+        "audio.sfx.resource.wrong-tool.2"
+      ]
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.resource.ore-shatter",
+      "kind": "audio",
+      "assetId": "audio.sfx.resource.ore-shatter.1"
+    }
+  ],
+  "connections": [
+    {
+      "source": {
+        "nodeId": "script"
+      },
+      "signal": "resource_hit",
+      "target": {
+        "nodeId": "sfx-clink-sfx"
+      },
+      "handler": "play"
+    },
+    {
+      "source": {
+        "nodeId": "script"
+      },
+      "signal": "harvest_blocked",
+      "target": {
+        "nodeId": "sfx-wrong-tool-sfx"
+      },
+      "handler": "play"
+    },
+    {
+      "source": {
+        "nodeId": "script"
+      },
+      "signal": "drops_requested",
+      "target": {
+        "nodeId": "sfx-shatter-sfx"
+      },
+      "handler": "play"
     }
   ]
 }

@@ -1,0 +1,46 @@
+{
+  "$schema": "./maps.schema.json",
+  "version": 1,
+  "mapId": "mushroom-home",
+  "tileSize": 64,
+  "size": {
+    "columns": 16,
+    "rows": 12
+  },
+  "layers": [
+    {
+      "id": "ground",
+      "encoding": "legend-chars-v1",
+      "legend": {
+        "p": "mushroom-plain-floor"
+      },
+      "rows": [
+        "pppppppppppppppp",
+        "pppppppppppppppp",
+        "pppppppppppppppp",
+        "pppppppppppppppp",
+        "pppppppppppppppp",
+        "pppppppppppppppp",
+        "pppppppppppppppp",
+        "pppppppppppppppp",
+        "pppppppppppppppp",
+        "pppppppppppppppp",
+        "pppppppppppppppp",
+        "pppppppppppppppp"
+      ]
+    }
+  ],
+  "objects": [],
+  "player": {
+    "spawn": {
+      "x": 512,
+      "y": 540
+    },
+    "entries": {
+      "south": {
+        "x": 512,
+        "y": 540
+      }
+    }
+  }
+}

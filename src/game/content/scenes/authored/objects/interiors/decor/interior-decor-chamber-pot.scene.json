@@ -1,0 +1,86 @@
+{
+  "version": 1,
+  "sceneId": "object.interior-decor-chamber-pot",
+  "rootNodeId": "body",
+  "nodes": [
+    {
+      "id": "body",
+      "name": "chamber-pot",
+      "type": "StaticBody2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "collisionLayer": 1,
+        "collisionMask": 0,
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "body-shape",
+      "name": "BodyShape",
+      "type": "CollisionShape2D",
+      "parentId": "body",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "interior-decor-chamber-pot.shape"
+        },
+        "position": [
+          0,
+          -10.285
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "body",
+      "order": 1,
+      "properties": {
+        "texture": {
+          "resourceId": "interior-decor-chamber-pot.sprite"
+        },
+        "frame": 53,
+        "origin": [
+          0.5,
+          1
+        ],
+        "scale": [
+          0.55,
+          0.55
+        ],
+        "visualOffset": [
+          0,
+          0
+        ],
+        "depthMode": "world-sorted",
+        "depthBand": "world-entities"
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "interior-decor-chamber-pot.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "sheet.interiors.decor-lighting-utility.8x8",
+      "frameWidth": 128,
+      "frameHeight": 128
+    },
+    {
+      "version": 1,
+      "resourceId": "interior-decor-chamber-pot.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 39.688,
+        "height": 16.17
+      }
+    }
+  ]
+}

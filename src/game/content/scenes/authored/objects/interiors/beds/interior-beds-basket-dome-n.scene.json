@@ -1,0 +1,107 @@
+{
+  "version": 1,
+  "sceneId": "object.interior-beds-basket-dome-n",
+  "rootNodeId": "body",
+  "nodes": [
+    {
+      "id": "body",
+      "name": "basket-dome-n",
+      "type": "StaticBody2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "collisionLayer": 1,
+        "collisionMask": 0,
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "body-shape",
+      "name": "BodyShape",
+      "type": "CollisionShape2D",
+      "parentId": "body",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "interior-beds-basket-dome-n.shape"
+        },
+        "position": [
+          0,
+          -23.3175
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "body",
+      "order": 1,
+      "properties": {
+        "texture": {
+          "resourceId": "interior-beds-basket-dome-n.sprite"
+        },
+        "frame": 40,
+        "origin": [
+          0.5,
+          1
+        ],
+        "scale": [
+          0.75,
+          0.75
+        ],
+        "visualOffset": [
+          0,
+          0
+        ],
+        "depthMode": "world-sorted",
+        "depthBand": "world-entities"
+      }
+    },
+    {
+      "id": "script",
+      "name": "BedScript",
+      "type": "ScriptNode",
+      "scriptId": "game.bed",
+      "parentId": "body",
+      "order": 2,
+      "properties": {
+        "prompt": "Sleep",
+        "interactRadius": 96.25,
+        "badgeRise": 107.75,
+        "sleepPoint": [
+          0,
+          -56.2125
+        ],
+        "wakePoint": [
+          0,
+          16
+        ]
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "interior-beds-basket-dome-n.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "sheet.interiors.beds-directional.6x8",
+      "frameWidth": 256,
+      "frameHeight": 256
+    },
+    {
+      "version": 1,
+      "resourceId": "interior-beds-basket-dome-n.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 99,
+        "height": 40.635
+      }
+    }
+  ]
+}

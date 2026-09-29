@@ -1,0 +1,13 @@
+{
+  "$schema": "../objects.schema.json",
+  "objectId": "collectible.berry-basket",
+  "selection": "authored",
+  "variants": [{
+    "assetId": "sheet.interiors.kitchen-hearth.8x8",
+    "frames": [{ "visualId": "berry-basket", "frame": 50, "displayName": "Berry Basket", "scale": 0.4 }]
+  }],
+  "physics": null,
+  "behavior": "collectible.walk-over",
+  "collectible": { "itemId": "berry-basket", "quantity": 1 },
+  "tags": ["collectible", "consumable", "food"]
+}

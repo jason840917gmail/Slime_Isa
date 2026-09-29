@@ -262,3 +262,27 @@ test('maps tool harvest capabilities and consumable effects into stat lines', ()
     { label: 'Effect', value: '+10 energy' },
   ]);
 });
+
+test('quest-learned recipes stay locked until the story grants them', () => {
+  const definitions = new Map([['wood', item('wood')], ['spear', item('spear', 1)]]);
+  const inventory = new FakeInventory(definitions, [{ itemId: 'wood', count: 20 }]);
+  const learned = new Set();
+  const service = new CraftingService({
+    inventory,
+    getItem: (itemId) => definitions.get(itemId),
+    getWeapon: () => undefined,
+    emitCompleted: () => {},
+    isRecipeLearned: (recipeId) => learned.has(recipeId),
+  });
+  const locked = recipe('craft-spear', [{ itemId: 'wood', count: 10 }], { itemId: 'spear', count: 1 }, { learnedByQuest: true });
+  const open = recipe('craft-open-spear', [{ itemId: 'wood', count: 10 }], { itemId: 'spear', count: 1 });
+
+  assert.equal(service.quote(locked, 1).status, 'not-learned');
+  assert.equal(service.craft(locked, 1).ok, false);
+  assert.equal(inventory.count('wood'), 20);
+  assert.equal(service.quote(open, 1).status, 'ready');
+
+  learned.add('craft-spear');
+  assert.equal(service.quote(locked, 1).status, 'ready');
+  assert.equal(service.craft(locked, 1).ok, true);
+});

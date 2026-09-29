@@ -3,6 +3,7 @@ import { getAsset } from '../../infrastructure/assets/manifest';
 import {
   resolveGroundSheetFrame,
   resolveSheetOrderFrame,
+  resolveSheetWrapFrame,
   selectGroundSheetRegion,
 } from './GroundSheetRegion';
 
@@ -12,8 +13,10 @@ import {
  *   (legacy; visible repetition/mirroring on smooth sheets).
  * - 'sheet-order': full-sheet row-major order with true mirrored repeats;
  *   matches how the ground sheets are authored and joins repeat edges.
+ * - 'sheet-wrap': full-sheet row-major order repeated without mirroring, for
+ *   sheets whose opposite edges wrap seamlessly (no symmetry seams).
  */
-export type GroundFrameStrategy = 'ground-sheet-region' | 'sheet-order';
+export type GroundFrameStrategy = 'ground-sheet-region' | 'sheet-order' | 'sheet-wrap';
 
 export interface GroundSheetSelection {
   resolveAt(tileX: number, tileY: number): {
@@ -44,6 +47,12 @@ export function createGroundSheetSelection(
   }
   const frame = asset.source.frame;
   const saltedSeed = seed ^ assetSalt(assetId);
+
+  if (strategy === 'sheet-wrap') {
+    return {
+      resolveAt: (tileX, tileY) => resolveSheetWrapFrame(frame.cols, frame.rows, tileX, tileY),
+    };
+  }
 
   if (strategy === 'sheet-order') {
     return {

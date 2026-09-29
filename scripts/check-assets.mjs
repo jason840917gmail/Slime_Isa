@@ -12,8 +12,10 @@
  *      in bounds.
  *   6. derived sources reference an existing image/spritesheet asset and a
  *      crop cell inside its grid.
- *   7. Orphan detection: every .png under asset/ is either mapped or
- *      covered by an ignore pattern.
+ *   7. Orphan detection: every .png under asset/ and every audio file under
+ *      asset/audio/ is either mapped (including audio alternates) or covered
+ *      by an ignore pattern.
+ *   8. Audio sources use a browser-playable extension, and alternates exist.
  *
  * No third-party dependencies; run via `pnpm assets:check`.
  */
@@ -104,14 +106,16 @@ function globToRegExp(glob) {
   return new RegExp(`^${pattern}$`);
 }
 
-function listPngFiles(dir) {
+const AUDIO_EXTENSIONS = ['.wav', '.ogg', '.mp3', '.m4a'];
+
+function listPngFiles(dir, extensions = ['.png']) {
   const results = [];
 
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const fullPath = join(dir, entry.name);
     if (entry.isDirectory()) {
-      results.push(...listPngFiles(fullPath));
-    } else if (entry.isFile() && entry.name.toLowerCase().endsWith('.png')) {
+      results.push(...listPngFiles(fullPath, extensions));
+    } else if (entry.isFile() && extensions.some((extension) => entry.name.toLowerCase().endsWith(extension))) {
       results.push(fullPath);
     }
   }
@@ -296,6 +300,19 @@ for (const [id, asset] of Object.entries(assets)) {
     continue;
   }
 
+  if (source.kind === 'audio') {
+    const renditions = [['source.path', path], ...Object.entries(source.alternates ?? {}).map(([flavour, alternate]) => [`source.alternates.${flavour}`, alternate])];
+    for (const [field, renditionPath] of renditions) {
+      if (!AUDIO_EXTENSIONS.some((extension) => String(renditionPath).toLowerCase().endsWith(extension))) {
+        fail(id, field, `audio must be one of ${AUDIO_EXTENSIONS.join(', ')}: '${renditionPath}'`);
+      } else if (field !== 'source.path') {
+        const alternateMismatch = findCaseMismatch(renditionPath);
+        if (alternateMismatch) fail(id, field, alternateMismatch);
+      }
+    }
+    continue;
+  }
+
   if (!path.toLowerCase().endsWith('.png')) continue;
 
   const size = readPngSize(join(assetRoot, path));
@@ -346,7 +363,7 @@ const mappedPaths = new Set(
   Object.values(assets)
     .map((asset) => asset.source)
     .filter((source) => source && PATH_KINDS.has(source.kind) && typeof source.path === 'string')
-    .map((source) => source.path),
+    .flatMap((source) => [source.path, ...Object.values(source.alternates ?? {})]),
 );
 
 for (const absolutePath of listPngFiles(assetRoot)) {
@@ -356,6 +373,16 @@ for (const absolutePath of listPngFiles(assetRoot)) {
   if (ignoreRegExps.some((pattern) => pattern.test(relativePath))) continue;
 
   fail(relativePath, 'orphan', 'PNG on disk is neither mapped in assets nor covered by ignore');
+}
+
+const audioRoot = join(assetRoot, 'audio');
+let audioFiles = [];
+try { audioFiles = statSync(audioRoot).isDirectory() ? listPngFiles(audioRoot, AUDIO_EXTENSIONS) : []; } catch { audioFiles = []; }
+for (const absolutePath of audioFiles) {
+  const relativePath = toManifestPath(absolutePath);
+  if (mappedPaths.has(relativePath)) continue;
+  if (ignoreRegExps.some((pattern) => pattern.test(relativePath))) continue;
+  fail(relativePath, 'orphan', 'audio file on disk is neither mapped in assets nor covered by ignore');
 }
 
 // ── Report ──────────────────────────────────────────────────────────────────

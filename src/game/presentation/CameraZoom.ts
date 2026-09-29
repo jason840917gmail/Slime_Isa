@@ -44,3 +44,12 @@ export function nextCameraZoom(currentZoom: number, deltaY: number): number {
   );
   return CAMERA_ZOOM_LEVELS[nextIndex];
 }
+
+/**
+ * Largest zoom, never above `preferred`, at which a `width`×`height` world area
+ * fits inside a `viewWidth`×`viewHeight` camera (fixed interior cameras).
+ */
+export function fixedCameraZoom(area: { readonly width: number; readonly height: number }, viewWidth: number, viewHeight: number, preferred: number): number {
+  if (!(area.width > 0) || !(area.height > 0)) return preferred;
+  return Math.min(preferred, viewWidth / area.width, viewHeight / area.height);
+}

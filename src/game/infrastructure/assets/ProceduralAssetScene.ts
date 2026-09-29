@@ -13,11 +13,17 @@ export class ProceduralAssetScene extends Phaser.Scene {
 
   preload(): void {
     loadAssetBundle(this, 'boot');
+    loadAssetBundle(this, 'interiors');
+    loadAssetBundle(this, 'audio');
+    loadAssetBundle(this, 'music');
   }
 
   create(): void {
-    this.createTerrainTextures();
+    this.createProceduralTextures();
     assertAssetBundleTextures(this, 'boot');
+    assertAssetBundleTextures(this, 'interiors');
+    assertAssetBundleTextures(this, 'audio');
+    assertAssetBundleTextures(this, 'music');
     if (this.nextSceneKey) {
       this.scene.start(this.nextSceneKey);
       return;
@@ -28,201 +34,14 @@ export class ProceduralAssetScene extends Phaser.Scene {
     this.scene.start(editorMapId ? 'map-editor-load' : 'map-load');
   }
 
-  private createTerrainTextures(): void {
+  private createProceduralTextures(): void {
     const graphics = this.add.graphics();
-
-    // Gloop Forest tiles
-    graphics.fillStyle(0x244d34, 1);
-    graphics.fillRect(0, 0, 64, 64);
-    graphics.fillStyle(0x2f6b42, 1);
-    graphics.fillCircle(18, 18, 12);
-    graphics.fillCircle(48, 38, 14);
-    graphics.fillStyle(0x163320, 0.8);
-    graphics.fillEllipse(34, 50, 28, 10);
-    graphics.generateTexture('forest-floor', 64, 64);
-    graphics.clear();
-
-    graphics.fillStyle(0x1d422d, 1);
-    graphics.fillRect(0, 0, 64, 64);
-    graphics.fillStyle(0x3f8f52, 0.95);
-    graphics.fillCircle(16, 44, 12);
-    graphics.fillCircle(42, 18, 15);
-    graphics.fillCircle(50, 50, 9);
-    graphics.generateTexture('forest-moss', 64, 64);
-    graphics.clear();
-
-    graphics.fillStyle(0x15311f, 1);
-    graphics.fillRect(0, 0, 64, 64);
-    graphics.fillStyle(0x2b5a34, 1);
-    graphics.fillRoundedRect(6, 4, 52, 56, 18);
-    graphics.fillStyle(0x18351f, 1);
-    graphics.fillRect(28, 22, 8, 34);
-    graphics.fillStyle(0x4fa85e, 0.85);
-    graphics.fillCircle(22, 20, 12);
-    graphics.fillCircle(42, 22, 13);
-    graphics.fillCircle(32, 12, 14);
-    graphics.generateTexture('tree-wall', 64, 64);
-    graphics.clear();
-
-    // Crystal Caverns tiles
-    graphics.fillStyle(0x25324a, 1);
-    graphics.fillRect(0, 0, 64, 64);
-    graphics.fillStyle(0x334766, 1);
-    graphics.fillCircle(18, 18, 10);
-    graphics.fillCircle(44, 42, 12);
-    graphics.generateTexture('cavern-floor', 64, 64);
-    graphics.clear();
-
-    graphics.fillStyle(0x263c5d, 1);
-    graphics.fillRect(0, 0, 64, 64);
-    graphics.fillStyle(0x72d8ff, 0.55);
-    graphics.fillTriangle(16, 48, 26, 14, 34, 48);
-    graphics.fillTriangle(38, 52, 46, 24, 56, 52);
-    graphics.fillStyle(0xffffff, 0.35);
-    graphics.fillCircle(22, 28, 3);
-    graphics.generateTexture('crystal-floor', 64, 64);
-    graphics.clear();
-
-    graphics.fillStyle(0x1c2638, 1);
-    graphics.fillRect(0, 0, 64, 64);
-    graphics.fillStyle(0x3c5578, 1);
-    graphics.fillRoundedRect(5, 6, 54, 52, 12);
-    graphics.fillStyle(0x8ce8ff, 0.8);
-    graphics.fillTriangle(12, 50, 24, 12, 34, 50);
-    graphics.fillTriangle(32, 54, 44, 18, 56, 54);
-    graphics.generateTexture('crystal-wall', 64, 64);
-    graphics.clear();
-
-    // Meadow water remains procedural while meadow ground comes from the
-    // Highland Green manifest spritesheet.
-    for (const [key, baseColor, rippleColor] of [
-      ['water', 0x2f7190, 0x62b7cf],
-      ['water-1', 0x326d88, 0x70c1d6],
-      ['water-2', 0x2a6782, 0x58a9c2],
-    ] as const) {
-      graphics.fillStyle(baseColor, 1);
-      graphics.fillRect(0, 0, 64, 64);
-      graphics.lineStyle(2, rippleColor, 0.65);
-      graphics.beginPath();
-      graphics.moveTo(8, 18);
-      graphics.lineTo(24, 18);
-      graphics.moveTo(34, 38);
-      graphics.lineTo(56, 38);
-      graphics.strokePath();
-      graphics.generateTexture(key, 64, 64);
-      graphics.clear();
-    }
-
-    graphics.fillStyle(0x172438, 1);
-    graphics.fillRect(0, 0, 64, 64);
-    graphics.fillStyle(0x223d5a, 0.9);
-    graphics.fillEllipse(22, 26, 30, 18);
-    graphics.fillEllipse(46, 42, 24, 16);
-    graphics.generateTexture('deep-water', 64, 64);
-    graphics.clear();
-
-    graphics.fillStyle(0x95d66a, 1);
-    graphics.fillCircle(8, 8, 6);
-    graphics.fillStyle(0xffd36a, 1);
-    graphics.fillCircle(8, 8, 2);
-    graphics.generateTexture('flower', 16, 16);
-    graphics.clear();
-
-    // Purple edible berry texture (collected by player)
-    graphics.fillStyle(0x8e44ad, 1);
-    graphics.fillCircle(8, 8, 6);
-    graphics.fillStyle(0xffffff, 0.65);
-    graphics.fillCircle(6, 6, 2);
-    graphics.generateTexture('purple-berry', 16, 16);
-    graphics.clear();
 
     graphics.fillStyle(0x8ca76a, 1);
     graphics.fillRoundedRect(0, 0, 32, 18, 9);
     graphics.fillStyle(0x6f8452, 1);
     graphics.fillRoundedRect(4, 4, 24, 10, 6);
     graphics.generateTexture('stone', 32, 18);
-    graphics.clear();
-
-    // --- Player skin accessory textures ---
-    // Helmet / cap (white shapes so player tint can recolor)
-    graphics.clear();
-    graphics.fillStyle(0xffffff, 1);
-    graphics.fillRoundedRect(16, 36, 96, 44, 20);
-    graphics.fillRect(28, 48, 72, 12);
-    graphics.generateTexture('skin-helmet', 128, 128);
-    graphics.clear();
-
-    // Spots (random white spots) â€” will be tinted by player skin
-    graphics.fillStyle(0xffffff, 1);
-    for (let i = 0; i < 12; i += 1) {
-      const x = Phaser.Math.Between(24, 104);
-      const y = Phaser.Math.Between(36, 104);
-      const r = Phaser.Math.Between(4, 10);
-      graphics.fillCircle(x, y, r);
-    }
-    graphics.generateTexture('skin-spots', 128, 128);
-    graphics.clear();
-
-    // Stripe (horizontal band)
-    graphics.fillStyle(0xffffff, 1);
-    graphics.fillRect(0, 56, 128, 16);
-    graphics.generateTexture('skin-stripe', 128, 128);
-    graphics.clear();
-
-    // Halo (outline circle over head)
-    graphics.lineStyle(6, 0xffffff, 1);
-    graphics.strokeCircle(64, 36, 28);
-    graphics.generateTexture('skin-halo', 128, 128);
-    graphics.clear();
-
-    // â”€â”€ Phase 1: consumables, materials, XP orbs, perk icons â”€â”€
-
-    // HP potion â€” small red vial with cork
-    graphics.fillStyle(0x2b1a1a, 1);
-    graphics.fillRoundedRect(3, 6, 10, 12, 2);
-    graphics.fillStyle(0xff4d5a, 1);
-    graphics.fillRoundedRect(4, 8, 8, 9, 2);
-    graphics.fillStyle(0x8b5a3c, 1);
-    graphics.fillRect(5, 4, 6, 3);
-    graphics.fillStyle(0xffffff, 0.55);
-    graphics.fillRect(5, 9, 2, 4);
-    graphics.generateTexture('hp-potion', 16, 20);
-    graphics.clear();
-
-    // Energy potion â€” small yellow vial, fizzy bubbles
-    graphics.fillStyle(0x2b2a1a, 1);
-    graphics.fillRoundedRect(3, 6, 10, 12, 2);
-    graphics.fillStyle(0xffdf8a, 1);
-    graphics.fillRoundedRect(4, 8, 8, 9, 2);
-    graphics.fillStyle(0x8b5a3c, 1);
-    graphics.fillRect(5, 4, 6, 3);
-    graphics.fillStyle(0xffffff, 0.7);
-    graphics.fillCircle(6, 11, 1);
-    graphics.fillCircle(9, 13, 1);
-    graphics.fillCircle(7, 14, 0.8);
-    graphics.generateTexture('energy-potion', 16, 20);
-    graphics.clear();
-
-    // Sticky silk clump â€” white-ish webby blob
-    graphics.fillStyle(0xeaf4f0, 0.95);
-    graphics.fillCircle(8, 8, 6);
-    graphics.lineStyle(1, 0xb8c9c1, 0.9);
-    graphics.beginPath();
-    graphics.moveTo(2, 8); graphics.lineTo(14, 8);
-    graphics.moveTo(8, 2); graphics.lineTo(8, 14);
-    graphics.moveTo(4, 4); graphics.lineTo(12, 12);
-    graphics.moveTo(12, 4); graphics.lineTo(4, 12);
-    graphics.strokePath();
-    graphics.generateTexture('silk-clump', 16, 16);
-    graphics.clear();
-
-    // Crystal shard â€” faceted cyan crystal
-    graphics.fillStyle(0x72d8ff, 1);
-    graphics.fillTriangle(8, 1, 14, 8, 8, 15);
-    graphics.fillTriangle(8, 1, 2, 8, 8, 15);
-    graphics.fillStyle(0xffffff, 0.55);
-    graphics.fillTriangle(8, 1, 11, 6, 8, 8);
-    graphics.generateTexture('shard', 16, 16);
     graphics.clear();
 
     // XP orb â€” glowing green orb with bright core
@@ -337,40 +156,6 @@ export class ProceduralAssetScene extends Phaser.Scene {
     graphics.fillStyle(0xc0c0c0, 1);
     graphics.fillTriangle(16, 2, 20, 8, 12, 8);
     graphics.generateTexture(proceduralWeaponIcons.spear, 32, 32);
-    graphics.clear();
-
-    // Bouncy Bow â€” curved arc
-    graphics.lineStyle(3, 0x8b5a3c, 1);
-    graphics.beginPath();
-    graphics.arc(16, 16, 10, -Math.PI / 3, Math.PI / 3, false);
-    graphics.strokePath();
-    graphics.lineStyle(1, 0xffdf8a, 1);
-    graphics.beginPath();
-    graphics.moveTo(21, 7);
-    graphics.lineTo(21, 25);
-    graphics.strokePath();
-    graphics.generateTexture('weapon-bow', 32, 32);
-    graphics.clear();
-
-    // Sticky Whip â€” coiled line
-    graphics.lineStyle(3, 0xeaf4f0, 1);
-    graphics.beginPath();
-    graphics.moveTo(6, 16);
-    graphics.lineTo(12, 10);
-    graphics.lineTo(18, 22);
-    graphics.lineTo(24, 12);
-    graphics.strokePath();
-    graphics.generateTexture('weapon-whip', 32, 32);
-    graphics.clear();
-
-    // Bubble Wand â€” wand + bubble
-    graphics.fillStyle(0x8b5a3c, 1);
-    graphics.fillRect(14, 14, 4, 14);
-    graphics.fillStyle(0x72d8ff, 0.6);
-    graphics.fillCircle(16, 8, 6);
-    graphics.fillStyle(0xffffff, 0.5);
-    graphics.fillCircle(14, 6, 2);
-    graphics.generateTexture('weapon-wand', 32, 32);
     graphics.clear();
 
     // Slam Hammer â€” big head + handle

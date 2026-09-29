@@ -126,6 +126,33 @@
         "lifetimeMs": 3000,
         "rotateToVelocity": true
       }
+    },
+    {
+      "id": "sfx-release-sfx",
+      "name": "ReleaseSfx",
+      "type": "AudioStreamPlayer2D",
+      "parentId": "body",
+      "order": 5,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.enemy.arrow-release"
+        },
+        "pitchRandomness": 0.06
+      }
+    },
+    {
+      "id": "sfx-thunk-sfx",
+      "name": "ThunkSfx",
+      "type": "AudioStreamPlayer2D",
+      "parentId": "body",
+      "order": 6,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.enemy.arrow-thunk"
+        },
+        "pitchRandomness": 0.06,
+        "detached": true
+      }
     }
   ],
   "instances": [],
@@ -139,6 +166,26 @@
         "nodeId": "script"
       },
       "handler": "on_area_entered"
+    },
+    {
+      "source": {
+        "nodeId": "script"
+      },
+      "signal": "launched",
+      "target": {
+        "nodeId": "sfx-release-sfx"
+      },
+      "handler": "play"
+    },
+    {
+      "source": {
+        "nodeId": "script"
+      },
+      "signal": "expired",
+      "target": {
+        "nodeId": "sfx-thunk-sfx"
+      },
+      "handler": "play"
     }
   ],
   "subresources": [
@@ -203,6 +250,24 @@
           ]
         }
       }
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.enemy.arrow-release",
+      "kind": "audio",
+      "assetId": "audio.sfx.enemy.arrow-release.1",
+      "variants": [
+        "audio.sfx.enemy.arrow-release.2"
+      ]
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.enemy.arrow-thunk",
+      "kind": "audio",
+      "assetId": "audio.sfx.enemy.arrow-thunk.1",
+      "variants": [
+        "audio.sfx.enemy.arrow-thunk.2"
+      ]
     }
   ]
 }

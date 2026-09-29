@@ -5,7 +5,7 @@
   "sourceCounts": {
     "objects": 25,
     "bossCamps": 1,
-    "playerMarkers": 2,
+    "playerMarkers": 3,
     "exits": 1,
     "enemySafeZones": 1,
     "enemySpawnAreas": 1,
@@ -328,6 +328,16 @@
         576
       ],
       "direction": "east"
+    },
+    {
+      "sourceKind": "player-entry",
+      "sourcePath": "$.player.entries.south",
+      "nodeId": "player-entry-south",
+      "position": [
+        1081,
+        990
+      ],
+      "direction": "south"
     },
     {
       "sourceKind": "exit",

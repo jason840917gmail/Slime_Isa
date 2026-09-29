@@ -9,6 +9,7 @@ import {
 import {
   cameraRenderingMode,
   DEFAULT_CAMERA_ZOOM,
+  fixedCameraZoom,
   isIntegerCameraZoom,
   nextCameraZoom,
   type CameraRenderingMode,
@@ -30,10 +31,19 @@ export interface CameraPresentationState {
   readonly targetY?: number;
 }
 
+/** The whole-world view a fixed camera holds: its centre and the size that must stay visible. */
+export interface FixedCameraView {
+  readonly centerX: number;
+  readonly centerY: number;
+  readonly width: number;
+  readonly height: number;
+}
+
 /** Owns integer gameplay zoom, fractional overview zoom, and deadzone following. */
 export class ResponsiveCameraController {
   private followTarget?: PhysicsPresentationTarget;
   private following = false;
+  private fixedView?: FixedCameraView;
   private targetZoom = DEFAULT_CAMERA_ZOOM;
   private readonly presentationTarget = new Phaser.Math.Vector2();
   private state: CameraPresentationState = {
@@ -65,10 +75,6 @@ export class ResponsiveCameraController {
     this.refreshState();
   }
 
-  resetZoom(): void {
-    this.setZoom(DEFAULT_CAMERA_ZOOM);
-  }
-
   stepZoom(deltaY: number): boolean {
     if (deltaY === 0) return false;
     const nextZoom = nextCameraZoom(this.targetZoom, deltaY);
@@ -77,11 +83,38 @@ export class ResponsiveCameraController {
     // A deadzone intentionally lets the player sit away from the camera center.
     // Re-anchor wheel zoom on the followed actor so changing scale never zooms
     // toward that stale camera center.
-    if (this.following) this.centerOnTarget();
+    if (this.fixedView) this.camera.centerOn(this.fixedView.centerX, this.fixedView.centerY);
+    else if (this.following) this.centerOnTarget();
     return true;
   }
 
+  /**
+   * Holds the camera still, centred on `view` and zoomed out just enough to
+   * show all of it (never zoomed in past the default). Bounds are lifted so a
+   * room smaller than the screen sits in the middle instead of a corner.
+   */
+  holdFixed(view: FixedCameraView): void {
+    this.stopFollow();
+    this.camera.stopFollow();
+    this.camera.removeBounds();
+    this.fixedView = view;
+    this.setZoom(fixedCameraZoom(view, this.camera.width, this.camera.height, DEFAULT_CAMERA_ZOOM));
+    this.camera.centerOn(view.centerX, view.centerY);
+  }
+
+  /** Re-fits and re-centres a fixed camera after the view changes size; no-op while following. */
+  refitFixed(): void {
+    if (this.fixedView) this.holdFixed(this.fixedView);
+  }
+
+  /** Zoom a fixed camera returns to (e.g. after a respawn); the default zoom when following. */
+  resetZoom(): void {
+    if (this.fixedView) this.holdFixed(this.fixedView);
+    else this.setZoom(DEFAULT_CAMERA_ZOOM);
+  }
+
   startFollow(target: PhysicsPresentationTarget, centerImmediately = false): void {
+    if (this.fixedView) return;
     this.camera.stopFollow();
     this.followTarget = target;
     this.following = true;

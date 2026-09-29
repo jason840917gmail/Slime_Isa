@@ -336,6 +336,19 @@
           }
         }
       }
+    },
+    {
+      "id": "sfx-swing-sfx",
+      "name": "SwingSfx",
+      "type": "AudioStreamPlayer",
+      "parentId": "root",
+      "order": 3,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.weapon.swing-light"
+        },
+        "pitchRandomness": 0.06
+      }
     }
   ],
   "instances": [],
@@ -349,6 +362,16 @@
         "nodeId": "script"
       },
       "handler": "on_area_entered"
+    },
+    {
+      "source": {
+        "nodeId": "script"
+      },
+      "signal": "attack_started",
+      "target": {
+        "nodeId": "sfx-swing-sfx"
+      },
+      "handler": "play"
     }
   ],
   "subresources": [
@@ -477,6 +500,15 @@
           "tracks": []
         }
       }
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.weapon.swing-light",
+      "kind": "audio",
+      "assetId": "audio.sfx.weapon.swing-light.1",
+      "variants": [
+        "audio.sfx.weapon.swing-light.2"
+      ]
     }
   ]
 }

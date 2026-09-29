@@ -1,7 +1,7 @@
 import { gameEvents } from '../core/EventBus';
 import { gameState } from '../core/GameState';
 import { playerInventory } from '../systems/Inventory';
-import { getQuestDefinitions } from '../content/quests/QuestCatalog';
+import { getQuestDefinitions, RETIRED_QUEST_IDS } from '../content/quests/QuestCatalog';
 import { validateQuestState } from '../content/quests/validateQuestCatalog';
 import type {
   QuestConditionDefinition,
@@ -68,12 +68,30 @@ export class QuestLoadError extends Error {
 }
 
 const defaultClock: QuestClock = { now: () => Date.now() };
+/**
+ * Run-wide story facts owned outside the quest domain. The composition root binds
+ * them once (see WorldScene) so this module stays loadable without the browser.
+ */
+export interface QuestStoryBinding {
+  hasDiscoveredArea(areaId: string): boolean;
+  hasWorldFlag(flagId: string): boolean;
+  hasTalkedToNpc(npcId: string): boolean;
+  learnRecipes(recipeIds: readonly string[]): void;
+  setFlags(flagIds: readonly string[]): void;
+}
+
+let storyBinding: QuestStoryBinding | undefined;
+
+export function bindQuestStory(binding: QuestStoryBinding): void {
+  storyBinding = binding;
+}
+
 const defaultConditions: QuestConditionQueries = {
   playerLevel: () => gameState.level,
   inventoryCount: (itemId) => playerInventory.count(itemId),
-  hasDiscoveredArea: () => false,
-  hasWorldFlag: () => false,
-  hasTalkedToNpc: () => false,
+  hasDiscoveredArea: (areaId) => storyBinding?.hasDiscoveredArea(areaId) ?? false,
+  hasWorldFlag: (flagId) => storyBinding?.hasWorldFlag(flagId) ?? false,
+  hasTalkedToNpc: (npcId) => storyBinding?.hasTalkedToNpc(npcId) ?? false,
 };
 const defaultRewards: QuestRewardPort = {
   grant: (_questId, rewards) => {
@@ -81,6 +99,11 @@ const defaultRewards: QuestRewardPort = {
     if (additions.length > 0 && !playerInventory.transact([], additions)) {
       throw new Error(`Could not grant all reward items for quest '${_questId}'.`);
     }
+    if ((rewards.recipeIds?.length || rewards.flags?.length) && !storyBinding) {
+      throw new Error(`Quest '${_questId}' grants story rewards before the story binding exists.`);
+    }
+    if (rewards.recipeIds?.length) storyBinding!.learnRecipes(rewards.recipeIds);
+    if (rewards.flags?.length) storyBinding!.setFlags(rewards.flags);
     if (rewards.coins) gameState.addCoins(rewards.coins);
     if (rewards.xp) gameState.addXp(rewards.xp);
   },
@@ -190,6 +213,7 @@ export class QuestService {
     const issues: string[] = [];
     for (const state of states) {
       const definition = this.definitionById.get(state.questId);
+      if (!definition && RETIRED_QUEST_IDS.has(state.questId)) continue;
       if (!definition) {
         issues.push(`quest '${state.questId}': unknown quest ID`);
         continue;

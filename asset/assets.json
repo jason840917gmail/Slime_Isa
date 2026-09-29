@@ -21,6 +21,12 @@
       "sheet.grounds.19x19.amberleaf",
       "sheet.grounds.19x19.frozen",
       "sheet.grounds.19x19.sanddessert",
+      "sheet.grounds.19x19.forest-floor",
+      "sheet.grounds.19x19.forest-moss",
+      "sheet.grounds.19x19.cavern-floor",
+      "sheet.grounds.19x19.crystal-floor",
+      "sheet.grounds.19x19.water",
+      "sheet.grounds.19x19.deep-water",
       "sheet.decorations.8x3",
       "sheet.walls.horizontal.8x1",
       "sheet.walls.corners.4x2",
@@ -31,20 +37,11 @@
       "sheet.resources.4x2",
       "sheet.resources.starter-materials.2x1",
       "sheet.trees.8x6",
+      "sheet.rocks.crystal-clusters.8x2",
       "sheet.trees.autumn.6x2",
       "sheet.trees.3x1",
       "sheet.houses.3x1",
-      "terrain.water.0",
-      "terrain.water.1",
-      "terrain.water.2",
-      "terrain.deep-water",
-      "terrain.forest.floor",
-      "terrain.forest.moss",
-      "terrain.forest.tree-wall",
-      "terrain.cavern.floor",
-      "terrain.cavern.crystal-floor",
-      "terrain.cavern.crystal-wall",
-      "collectible.purple-berry",
+      "sheet.houses.mushroom.2x1",
       "enemy.worm.archer",
       "enemy.worm.swordsman",
       "enemy.worm.brawler",
@@ -57,6 +54,9 @@
       "sheet.objects.chest-wooden.2x1",
       "sheet.items.keys.5x4",
       "sheet.items.potions.5x2",
+      "sheet.items.gems.5x2",
+      "sheet.items.materials.5x2",
+      "sheet.items.forage.5x2",
       "effect.boss.ground-crack",
       "weapon.player.sword-tiles",
       "effect.weapon.hit-tiles",
@@ -79,6 +79,220 @@
       "ui.frame.levelup-crest",
       "ui.frame.boss-health",
       "ui.banner.area-title"
+    ],
+    "interiors": [
+      "sheet.interiors.structure.8x8",
+      "sheet.interiors.seating-directional.8x8",
+      "sheet.interiors.beds-directional.6x8",
+      "sheet.interiors.tables-directional.5x9",
+      "sheet.interiors.storage-states.8x8",
+      "sheet.interiors.kitchen-hearth.8x8",
+      "sheet.interiors.workshop-crafting.8x8",
+      "sheet.interiors.decor-lighting-utility.8x8",
+      "sheet.interiors.specialty-rooms.8x8",
+      "terrain.interior.floor-wood-a",
+      "terrain.interior.floor-wood-b",
+      "sheet.interiors.mushroom-structure.8x8",
+      "sheet.interiors.mushroom-large-furniture.4x4",
+      "sheet.interiors.mushroom-furniture-props.8x8",
+      "sheet.interiors.mushroom-decor-lighting.8x8",
+      "sheet.interiors.mushroom-floor-decor.8x8",
+      "sheet.interiors.mushroom-room-shell.8x7",
+      "terrain.interior.floor-mushroom-earth-a",
+      "terrain.interior.floor-mushroom-earth-b",
+      "terrain.interior.floor-mushroom-clover-a",
+      "terrain.interior.floor-mushroom-clover-b",
+      "terrain.interior.floor-mushroom-plain"
+    ],
+    "music": [
+      "audio.music.level-1-home-town"
+    ],
+    "audio": [
+      "audio.sfx.weapon.swing-light.1",
+      "audio.sfx.weapon.swing-light.2",
+      "audio.sfx.weapon.swing-blade.1",
+      "audio.sfx.weapon.swing-blade.2",
+      "audio.sfx.weapon.swing-blade.3",
+      "audio.sfx.weapon.thrust.1",
+      "audio.sfx.weapon.thrust.2",
+      "audio.sfx.weapon.swing-heavy.1",
+      "audio.sfx.weapon.swing-heavy.2",
+      "audio.sfx.weapon.swing-tool.1",
+      "audio.sfx.weapon.swing-tool.2",
+      "audio.sfx.weapon.hit-punch.1",
+      "audio.sfx.weapon.hit-punch.2",
+      "audio.sfx.weapon.hit-punch.3",
+      "audio.sfx.weapon.hit-slash.1",
+      "audio.sfx.weapon.hit-slash.2",
+      "audio.sfx.weapon.hit-slash.3",
+      "audio.sfx.weapon.hit-stab.1",
+      "audio.sfx.weapon.hit-stab.2",
+      "audio.sfx.weapon.hit-stab.3",
+      "audio.sfx.weapon.hit-heavy.1",
+      "audio.sfx.weapon.hit-heavy.2",
+      "audio.sfx.weapon.chop-wood.1",
+      "audio.sfx.weapon.chop-wood.2",
+      "audio.sfx.weapon.chop-wood.3",
+      "audio.sfx.weapon.chop-wood.4",
+      "audio.sfx.weapon.mine-stone.1",
+      "audio.sfx.weapon.mine-stone.2",
+      "audio.sfx.weapon.mine-stone.3",
+      "audio.sfx.weapon.mine-stone.4",
+      "audio.sfx.weapon.hit-dull.1",
+      "audio.sfx.weapon.hit-dull.2",
+      "audio.sfx.weapon.hit-blocked.1",
+      "audio.sfx.weapon.hit-blocked.2",
+      "audio.sfx.weapon.crit.1",
+      "audio.sfx.weapon.combo-1.1",
+      "audio.sfx.weapon.combo-2.1",
+      "audio.sfx.weapon.combo-3.1",
+      "audio.sfx.weapon.combo-finisher.1",
+      "audio.sfx.weapon.equip-blade.1",
+      "audio.sfx.weapon.equip-tool.1",
+      "audio.sfx.player.hurt.1",
+      "audio.sfx.player.hurt.2",
+      "audio.sfx.player.hurt.3",
+      "audio.sfx.player.death.1",
+      "audio.sfx.player.respawn.1",
+      "audio.sfx.player.dodge.1",
+      "audio.sfx.player.dodge.2",
+      "audio.sfx.player.jump.1",
+      "audio.sfx.player.jump.2",
+      "audio.sfx.player.land.1",
+      "audio.sfx.player.land.2",
+      "audio.sfx.player.slam-windup.1",
+      "audio.sfx.player.slam-impact.1",
+      "audio.sfx.player.lash.1",
+      "audio.sfx.player.lash.2",
+      "audio.sfx.player.teleport-out.1",
+      "audio.sfx.player.teleport-in.1",
+      "audio.sfx.player.eat.1",
+      "audio.sfx.player.eat.2",
+      "audio.sfx.player.heal.1",
+      "audio.sfx.player.potion-drink.1",
+      "audio.sfx.player.energy-restore.1",
+      "audio.sfx.player.level-up.1",
+      "audio.sfx.player.coin.1",
+      "audio.sfx.player.coin.2",
+      "audio.sfx.player.sleep-breath.1",
+      "audio.sfx.player.rested.1",
+      "audio.sfx.player.web-struggle.1",
+      "audio.sfx.footstep.grass.1",
+      "audio.sfx.footstep.grass.2",
+      "audio.sfx.footstep.grass.3",
+      "audio.sfx.footstep.forest.1",
+      "audio.sfx.footstep.forest.2",
+      "audio.sfx.footstep.forest.3",
+      "audio.sfx.footstep.stone.1",
+      "audio.sfx.footstep.stone.2",
+      "audio.sfx.footstep.stone.3",
+      "audio.sfx.footstep.snow.1",
+      "audio.sfx.footstep.snow.2",
+      "audio.sfx.footstep.snow.3",
+      "audio.sfx.footstep.sand.1",
+      "audio.sfx.footstep.sand.2",
+      "audio.sfx.footstep.sand.3",
+      "audio.sfx.footstep.water.1",
+      "audio.sfx.footstep.water.2",
+      "audio.sfx.footstep.water.3",
+      "audio.sfx.status.burn.1",
+      "audio.sfx.status.poison.1",
+      "audio.sfx.status.slow.1",
+      "audio.sfx.status.sticky.1",
+      "audio.sfx.status.bouncy.1",
+      "audio.sfx.status.frenzy.1",
+      "audio.sfx.status.expire.1",
+      "audio.sfx.enemy.worm-hurt.1",
+      "audio.sfx.enemy.worm-hurt.2",
+      "audio.sfx.enemy.worm-hurt.3",
+      "audio.sfx.enemy.worm-death.1",
+      "audio.sfx.enemy.worm-death.2",
+      "audio.sfx.enemy.worm-alert.1",
+      "audio.sfx.enemy.worm-windup.1",
+      "audio.sfx.enemy.worm-windup.2",
+      "audio.sfx.enemy.bow-draw.1",
+      "audio.sfx.enemy.arrow-release.1",
+      "audio.sfx.enemy.arrow-release.2",
+      "audio.sfx.enemy.arrow-hit.1",
+      "audio.sfx.enemy.arrow-hit.2",
+      "audio.sfx.enemy.arrow-thunk.1",
+      "audio.sfx.enemy.arrow-thunk.2",
+      "audio.sfx.enemy.spider-hurt.1",
+      "audio.sfx.enemy.spider-hurt.2",
+      "audio.sfx.enemy.spider-death.1",
+      "audio.sfx.enemy.spider-hiss.1",
+      "audio.sfx.enemy.web-spit.1",
+      "audio.sfx.enemy.web-spit.2",
+      "audio.sfx.enemy.web-splat.1",
+      "audio.sfx.enemy.web-splat.2",
+      "audio.sfx.enemy.telegraph.1",
+      "audio.sfx.boss.fatty-roar.1",
+      "audio.sfx.boss.fatty-step.1",
+      "audio.sfx.boss.fatty-step.2",
+      "audio.sfx.boss.fatty-hop.1",
+      "audio.sfx.boss.fatty-hop.2",
+      "audio.sfx.boss.fatty-leap.1",
+      "audio.sfx.boss.fatty-fall.1",
+      "audio.sfx.boss.fatty-land.1",
+      "audio.sfx.boss.fatty-hurt.1",
+      "audio.sfx.boss.fatty-hurt.2",
+      "audio.sfx.boss.fatty-recover.1",
+      "audio.sfx.boss.fatty-death.1",
+      "audio.sfx.boss.victory.1",
+      "audio.sfx.resource.leaf-rustle.1",
+      "audio.sfx.resource.leaf-rustle.2",
+      "audio.sfx.resource.tree-fall.1",
+      "audio.sfx.resource.stone-crumble.1",
+      "audio.sfx.resource.ore-clink.1",
+      "audio.sfx.resource.ore-clink.2",
+      "audio.sfx.resource.ore-clink.3",
+      "audio.sfx.resource.ore-shatter.1",
+      "audio.sfx.resource.wrong-tool.1",
+      "audio.sfx.resource.wrong-tool.2",
+      "audio.sfx.resource.drop-pop.1",
+      "audio.sfx.resource.drop-pop.2",
+      "audio.sfx.resource.drop-land.1",
+      "audio.sfx.resource.drop-land.2",
+      "audio.sfx.pickup.wood.1",
+      "audio.sfx.pickup.stone.1",
+      "audio.sfx.pickup.ore.1",
+      "audio.sfx.pickup.silk.1",
+      "audio.sfx.pickup.berry.1",
+      "audio.sfx.pickup.potion.1",
+      "audio.sfx.pickup.key.1",
+      "audio.sfx.pickup.generic.1",
+      "audio.sfx.pickup.inventory-full.1",
+      "audio.sfx.world.chest-open.1",
+      "audio.sfx.world.chest-close.1",
+      "audio.sfx.world.chest-locked.1",
+      "audio.sfx.world.gate-locked.1",
+      "audio.sfx.world.gate-unlock.1",
+      "audio.sfx.world.area-transition.1",
+      "audio.sfx.world.area-title.1",
+      "audio.sfx.world.npc-blip.1",
+      "audio.sfx.world.npc-blip.2",
+      "audio.sfx.world.npc-blip.3",
+      "audio.sfx.world.interact.1",
+      "audio.sfx.world.save.1",
+      "audio.sfx.ui.hover.1",
+      "audio.sfx.ui.click.1",
+      "audio.sfx.ui.confirm.1",
+      "audio.sfx.ui.cancel.1",
+      "audio.sfx.ui.error.1",
+      "audio.sfx.ui.open.1",
+      "audio.sfx.ui.close.1",
+      "audio.sfx.ui.craft-success.1",
+      "audio.sfx.ui.craft-fail.1",
+      "audio.sfx.ui.perk-choose.1",
+      "audio.sfx.ui.quest-accept.1",
+      "audio.sfx.ui.quest-progress.1",
+      "audio.sfx.ui.quest-complete.1",
+      "audio.sfx.ui.quest-failed.1",
+      "audio.sfx.ui.hotbar-switch.1",
+      "audio.sfx.ui.ability-denied.1",
+      "audio.sfx.ui.ability-ready.1",
+      "audio.sfx.ui.journal-open.1",
+      "audio.sfx.ui.toast.1"
     ]
   },
   "assets": {
@@ -414,6 +628,152 @@
       ],
       "status": "ready"
     },
+    "sheet.grounds.19x19.forest-floor": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/grounds/64x64-tile_19x19_forest-floor.png",
+        "frame": {
+          "w": 64,
+          "h": 64,
+          "cols": 19,
+          "rows": 19
+        },
+        "expect": {
+          "w": 1216,
+          "h": 1216
+        }
+      },
+      "runtime": {
+        "textureKey": "grounds-19x19-forest-floor"
+      },
+      "tags": [
+        "ground",
+        "forest"
+      ],
+      "status": "ready"
+    },
+    "sheet.grounds.19x19.forest-moss": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/grounds/64x64-tile_19x19_forest-moss.png",
+        "frame": {
+          "w": 64,
+          "h": 64,
+          "cols": 19,
+          "rows": 19
+        },
+        "expect": {
+          "w": 1216,
+          "h": 1216
+        }
+      },
+      "runtime": {
+        "textureKey": "grounds-19x19-forest-moss"
+      },
+      "tags": [
+        "ground",
+        "forest"
+      ],
+      "status": "ready"
+    },
+    "sheet.grounds.19x19.cavern-floor": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/grounds/64x64-tile_19x19_cavern-floor.png",
+        "frame": {
+          "w": 64,
+          "h": 64,
+          "cols": 19,
+          "rows": 19
+        },
+        "expect": {
+          "w": 1216,
+          "h": 1216
+        }
+      },
+      "runtime": {
+        "textureKey": "grounds-19x19-cavern-floor"
+      },
+      "tags": [
+        "ground",
+        "cavern"
+      ],
+      "status": "ready"
+    },
+    "sheet.grounds.19x19.crystal-floor": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/grounds/64x64-tile_19x19_crystal-floor.png",
+        "frame": {
+          "w": 64,
+          "h": 64,
+          "cols": 19,
+          "rows": 19
+        },
+        "expect": {
+          "w": 1216,
+          "h": 1216
+        }
+      },
+      "runtime": {
+        "textureKey": "grounds-19x19-crystal-floor"
+      },
+      "tags": [
+        "ground",
+        "cavern",
+        "crystal"
+      ],
+      "status": "ready"
+    },
+    "sheet.grounds.19x19.water": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/grounds/64x64-tile_19x19_water.png",
+        "frame": {
+          "w": 64,
+          "h": 64,
+          "cols": 19,
+          "rows": 19
+        },
+        "expect": {
+          "w": 1216,
+          "h": 1216
+        }
+      },
+      "runtime": {
+        "textureKey": "grounds-19x19-water"
+      },
+      "tags": [
+        "ground",
+        "water"
+      ],
+      "status": "ready"
+    },
+    "sheet.grounds.19x19.deep-water": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/grounds/64x64-tile_19x19_deep-water.png",
+        "frame": {
+          "w": 64,
+          "h": 64,
+          "cols": 19,
+          "rows": 19
+        },
+        "expect": {
+          "w": 1216,
+          "h": 1216
+        }
+      },
+      "runtime": {
+        "textureKey": "grounds-19x19-deep-water"
+      },
+      "tags": [
+        "ground",
+        "water",
+        "deep"
+      ],
+      "status": "ready"
+    },
     "sheet.decorations.8x3": {
       "source": {
         "kind": "spritesheet",
@@ -446,6 +806,558 @@
       ],
       "status": "ready"
     },
+    "sheet.interiors.structure.8x8": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/interiors/128x128-tile_8x8-interior-structure.png",
+        "frame": {
+          "w": 128,
+          "h": 128,
+          "cols": 8,
+          "rows": 8
+        },
+        "expect": {
+          "w": 1024,
+          "h": 1024
+        }
+      },
+      "runtime": {
+        "textureKey": "interior-structure-8x8"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": true
+      },
+      "placement": {
+        "tile": true
+      },
+      "tags": [
+        "interior",
+        "structure",
+        "tile"
+      ],
+      "status": "draft",
+      "notes": "Interior floors, walls, corners, doors, windows, stairs, and hatches. Generated source retained under asset/Originals/interiors/."
+    },
+    "sheet.interiors.seating-directional.8x8": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/interiors/128x128-tile_8x8-interior-seating-directional.png",
+        "frame": {
+          "w": 128,
+          "h": 128,
+          "cols": 8,
+          "rows": 8
+        },
+        "expect": {
+          "w": 1024,
+          "h": 1024
+        }
+      },
+      "runtime": {
+        "textureKey": "interior-seating-directional-8x8"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": true
+      },
+      "placement": {
+        "tile": true
+      },
+      "tags": [
+        "interior",
+        "furniture",
+        "seating",
+        "directional"
+      ],
+      "status": "draft"
+    },
+    "sheet.interiors.beds-directional.6x8": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/interiors/256x256-tile_6x8-interior-beds-directional.png",
+        "frame": {
+          "w": 256,
+          "h": 256,
+          "cols": 6,
+          "rows": 8,
+          "count": 43
+        },
+        "expect": {
+          "w": 1536,
+          "h": 2048
+        }
+      },
+      "runtime": {
+        "textureKey": "interior-beds-directional-6x8"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": true
+      },
+      "placement": {
+        "tile": true
+      },
+      "tags": [
+        "interior",
+        "furniture",
+        "bed",
+        "directional"
+      ],
+      "status": "draft"
+    },
+    "sheet.interiors.tables-directional.5x9": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/interiors/256x256-tile_5x9-interior-tables-directional.png",
+        "frame": {
+          "w": 256,
+          "h": 256,
+          "cols": 5,
+          "rows": 9,
+          "count": 37
+        },
+        "expect": {
+          "w": 1280,
+          "h": 2304
+        }
+      },
+      "runtime": {
+        "textureKey": "interior-tables-directional-5x9"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": true
+      },
+      "placement": {
+        "tile": true
+      },
+      "tags": [
+        "interior",
+        "furniture",
+        "table",
+        "directional"
+      ],
+      "status": "draft"
+    },
+    "sheet.interiors.storage-states.8x8": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/interiors/128x128-tile_8x8-interior-storage-states.png",
+        "frame": {
+          "w": 128,
+          "h": 128,
+          "cols": 8,
+          "rows": 8
+        },
+        "expect": {
+          "w": 1024,
+          "h": 1024
+        }
+      },
+      "runtime": {
+        "textureKey": "interior-storage-states-8x8"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": true
+      },
+      "placement": {
+        "tile": true
+      },
+      "tags": [
+        "interior",
+        "storage",
+        "interactive",
+        "directional"
+      ],
+      "status": "draft"
+    },
+    "sheet.interiors.kitchen-hearth.8x8": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/interiors/128x128-tile_8x8-interior-kitchen-hearth.png",
+        "frame": {
+          "w": 128,
+          "h": 128,
+          "cols": 8,
+          "rows": 8
+        },
+        "expect": {
+          "w": 1024,
+          "h": 1024
+        }
+      },
+      "runtime": {
+        "textureKey": "interior-kitchen-hearth-8x8"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": true
+      },
+      "placement": {
+        "tile": true
+      },
+      "tags": [
+        "interior",
+        "kitchen",
+        "hearth",
+        "prop"
+      ],
+      "status": "draft"
+    },
+    "sheet.interiors.workshop-crafting.8x8": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/interiors/128x128-tile_8x8-interior-workshop-crafting.png",
+        "frame": {
+          "w": 128,
+          "h": 128,
+          "cols": 8,
+          "rows": 8
+        },
+        "expect": {
+          "w": 1024,
+          "h": 1024
+        }
+      },
+      "runtime": {
+        "textureKey": "interior-workshop-crafting-8x8"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": true
+      },
+      "placement": {
+        "tile": true
+      },
+      "tags": [
+        "interior",
+        "workshop",
+        "crafting",
+        "prop"
+      ],
+      "status": "draft"
+    },
+    "sheet.interiors.decor-lighting-utility.8x8": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/interiors/128x128-tile_8x8-interior-decor-lighting-utility.png",
+        "frame": {
+          "w": 128,
+          "h": 128,
+          "cols": 8,
+          "rows": 8
+        },
+        "expect": {
+          "w": 1024,
+          "h": 1024
+        }
+      },
+      "runtime": {
+        "textureKey": "interior-decor-lighting-utility-8x8"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": true
+      },
+      "placement": {
+        "tile": true
+      },
+      "tags": [
+        "interior",
+        "decoration",
+        "lighting",
+        "utility"
+      ],
+      "status": "draft"
+    },
+    "sheet.interiors.specialty-rooms.8x8": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/interiors/128x128-tile_8x8-interior-specialty-rooms.png",
+        "frame": {
+          "w": 128,
+          "h": 128,
+          "cols": 8,
+          "rows": 8
+        },
+        "expect": {
+          "w": 1024,
+          "h": 1024
+        }
+      },
+      "runtime": {
+        "textureKey": "interior-specialty-rooms-8x8"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": true
+      },
+      "placement": {
+        "tile": true
+      },
+      "tags": [
+        "interior",
+        "specialty-room",
+        "furniture",
+        "prop"
+      ],
+      "status": "draft"
+    },
+    "sheet.interiors.mushroom-structure.8x8": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/interiors/128x128-tile_8x8-interior-mushroom-structure.png",
+        "frame": {
+          "w": 128,
+          "h": 128,
+          "cols": 8,
+          "rows": 8
+        },
+        "expect": {
+          "w": 1024,
+          "h": 1024
+        }
+      },
+      "runtime": {
+        "textureKey": "interior-mushroom-structure-8x8"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": true
+      },
+      "placement": {
+        "tile": true
+      },
+      "tags": [
+        "interior",
+        "mushroom",
+        "structure",
+        "tile"
+      ],
+      "status": "draft",
+      "notes": "Mossy mushroom-cottage floors, root-timber walls, corners, doors, windows, hatches, eaves and fences. GPT-2 generated source retained under asset/Originals/interiors/generated-sheets/."
+    },
+    "sheet.interiors.mushroom-large-furniture.4x4": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/interiors/256x256-tile_4x4-interior-mushroom-large-furniture.png",
+        "frame": {
+          "w": 256,
+          "h": 256,
+          "cols": 4,
+          "rows": 4
+        },
+        "expect": {
+          "w": 1024,
+          "h": 1024
+        }
+      },
+      "runtime": {
+        "textureKey": "interior-mushroom-large-furniture-4x4"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": true
+      },
+      "placement": {
+        "tile": true
+      },
+      "tags": [
+        "interior",
+        "mushroom",
+        "furniture",
+        "bed",
+        "table"
+      ],
+      "status": "draft",
+      "notes": "Mushroom-cottage beds, tables, hearths, shelves and counters. GPT-2 generated source retained under asset/Originals/interiors/generated-sheets/."
+    },
+    "sheet.interiors.mushroom-furniture-props.8x8": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/interiors/192x192-tile_8x8-interior-mushroom-furniture-props.png",
+        "frame": {
+          "w": 192,
+          "h": 192,
+          "cols": 8,
+          "rows": 8
+        },
+        "expect": {
+          "w": 1536,
+          "h": 1536
+        }
+      },
+      "runtime": {
+        "textureKey": "interior-mushroom-furniture-props-8x8"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": true
+      },
+      "placement": {
+        "tile": true
+      },
+      "tags": [
+        "interior",
+        "mushroom",
+        "furniture",
+        "storage",
+        "kitchen",
+        "prop"
+      ],
+      "status": "draft",
+      "notes": "Mushroom-cottage seating, small tables, chests, storage, kitchen and washing props. GPT-2 generated source retained under asset/Originals/interiors/generated-sheets/."
+    },
+    "sheet.interiors.mushroom-decor-lighting.8x8": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/interiors/192x192-tile_8x8-interior-mushroom-decor-lighting.png",
+        "frame": {
+          "w": 192,
+          "h": 192,
+          "cols": 8,
+          "rows": 8
+        },
+        "expect": {
+          "w": 1536,
+          "h": 1536
+        }
+      },
+      "runtime": {
+        "textureKey": "interior-mushroom-decor-lighting-8x8"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": true
+      },
+      "placement": {
+        "tile": true
+      },
+      "tags": [
+        "interior",
+        "mushroom",
+        "decoration",
+        "lighting",
+        "plant"
+      ],
+      "status": "draft",
+      "notes": "Mushroom-cottage lights, wall hangings, rugs, plants, curios and clutter. GPT-2 generated source retained under asset/Originals/interiors/generated-sheets/."
+    },
+    "sheet.interiors.mushroom-floor-decor.8x8": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/interiors/128x128-tile_8x8-interior-mushroom-floor-decor.png",
+        "frame": {
+          "w": 128,
+          "h": 128,
+          "cols": 8,
+          "rows": 8
+        },
+        "expect": {
+          "w": 1024,
+          "h": 1024
+        }
+      },
+      "runtime": {
+        "textureKey": "interior-mushroom-floor-decor-8x8"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": true
+      },
+      "placement": {
+        "tile": true
+      },
+      "tags": [
+        "interior",
+        "mushroom",
+        "decoration",
+        "floor"
+      ],
+      "status": "draft",
+      "notes": "Flat mushroom-cottage floor decals: stepping stones, clover, flowers, moss, pebbles, roots, leaf litter, tiny mushrooms. GPT-2 generated source retained under asset/Originals/interiors/generated-sheets/."
+    },
+    "sheet.interiors.mushroom-room-shell.8x7": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/interiors/128x128-tile_8x7-interior-mushroom-room-shell.png",
+        "frame": {
+          "w": 128,
+          "h": 128,
+          "cols": 8,
+          "rows": 7
+        },
+        "expect": {
+          "w": 1024,
+          "h": 896
+        }
+      },
+      "runtime": {
+        "textureKey": "interior-mushroom-room-shell-8x7"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": true
+      },
+      "placement": {
+        "tile": true
+      },
+      "tags": [
+        "interior",
+        "mushroom",
+        "structure",
+        "wall"
+      ],
+      "status": "draft",
+      "notes": "Mushroom-cottage room shell cut into world-aligned 128 px cells (rows 0-5) plus walkable doorway floor (row 6). GPT-2 generated source retained under asset/Originals/interiors/generated-sheets/."
+    },
     "sheet.houses.3x1": {
       "source": {
         "kind": "spritesheet",
@@ -476,6 +1388,39 @@
         "house"
       ],
       "status": "ready"
+    },
+    "sheet.houses.mushroom.2x1": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/Houses/320-mushroom-2x1.png",
+        "frame": {
+          "w": 320,
+          "h": 320,
+          "cols": 2,
+          "rows": 1
+        },
+        "expect": {
+          "w": 640,
+          "h": 320
+        }
+      },
+      "runtime": {
+        "textureKey": "houses-mushroom-2x1"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          1
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "object",
+        "house",
+        "mushroom"
+      ],
+      "status": "draft",
+      "notes": "Top-down mushroom house exteriors (frame 0 wide cap, frame 1 round cap) generated with Magnific GPT-2; sources in asset/Originals/houses/, packed by scripts/houses/normalize-mushroom-houses.py."
     },
     "sheet.rocks.3x1": {
       "source": {
@@ -653,14 +1598,30 @@
         "pixelArt": false
       },
       "frames": {
-        "0": { "name": "wood-pile" },
-        "1": { "name": "stone-pile" },
-        "2": { "name": "iron-ore-pile" },
-        "3": { "name": "charcoal-pile" },
-        "4": { "name": "small-wood-pile" },
-        "5": { "name": "small-stone-pile" },
-        "6": { "name": "iron-ore-pile-small" },
-        "7": { "name": "charcoal-pile-small" }
+        "0": {
+          "name": "wood-pile"
+        },
+        "1": {
+          "name": "stone-pile"
+        },
+        "2": {
+          "name": "iron-ore-pile"
+        },
+        "3": {
+          "name": "charcoal-pile"
+        },
+        "4": {
+          "name": "small-wood-pile"
+        },
+        "5": {
+          "name": "small-stone-pile"
+        },
+        "6": {
+          "name": "iron-ore-pile-small"
+        },
+        "7": {
+          "name": "charcoal-pile-small"
+        }
       },
       "tags": [
         "object",
@@ -702,6 +1663,40 @@
       ],
       "status": "ready"
     },
+    "sheet.rocks.crystal-clusters.8x2": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/rocks/128x128-tile_8x2-crystal-clusters.png",
+        "frame": {
+          "w": 128,
+          "h": 128,
+          "cols": 8,
+          "rows": 2,
+          "count": 16
+        },
+        "expect": {
+          "w": 1024,
+          "h": 256
+        }
+      },
+      "runtime": {
+        "textureKey": "rocks-crystal-clusters-8x2"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.97
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "prop",
+        "crystal",
+        "cavern",
+        "terrain-dressing"
+      ],
+      "status": "ready"
+    },
     "sheet.resources.starter-materials.2x1": {
       "source": {
         "kind": "spritesheet",
@@ -729,8 +1724,12 @@
         "pixelArt": false
       },
       "frames": {
-        "0": { "name": "wood-pile" },
-        "1": { "name": "stone-pile" }
+        "0": {
+          "name": "wood-pile"
+        },
+        "1": {
+          "name": "stone-pile"
+        }
       },
       "tags": [
         "resource",
@@ -802,197 +1801,6 @@
       "tags": [
         "object",
         "tree"
-      ],
-      "status": "ready"
-    },
-    "terrain.water.0": {
-      "source": {
-        "kind": "procedural",
-        "generator": "water"
-      },
-      "runtime": {
-        "textureKey": "water"
-      },
-      "tags": [
-        "ground",
-        "water"
-      ],
-      "status": "ready"
-    },
-    "terrain.water.1": {
-      "source": {
-        "kind": "procedural",
-        "generator": "water-1"
-      },
-      "runtime": {
-        "textureKey": "water-1"
-      },
-      "tags": [
-        "ground",
-        "water"
-      ],
-      "status": "ready"
-    },
-    "terrain.water.2": {
-      "source": {
-        "kind": "procedural",
-        "generator": "water-2"
-      },
-      "runtime": {
-        "textureKey": "water-2"
-      },
-      "tags": [
-        "ground",
-        "water"
-      ],
-      "status": "ready"
-    },
-    "terrain.deep-water": {
-      "source": {
-        "kind": "procedural",
-        "generator": "deep-water"
-      },
-      "runtime": {
-        "textureKey": "deep-water"
-      },
-      "tags": [
-        "ground",
-        "water"
-      ],
-      "status": "ready"
-    },
-    "terrain.forest.floor": {
-      "source": {
-        "kind": "procedural",
-        "generator": "forest-floor"
-      },
-      "runtime": {
-        "textureKey": "forest-floor"
-      },
-      "tags": [
-        "ground",
-        "forest"
-      ],
-      "status": "ready"
-    },
-    "terrain.forest.moss": {
-      "source": {
-        "kind": "procedural",
-        "generator": "forest-moss"
-      },
-      "runtime": {
-        "textureKey": "forest-moss"
-      },
-      "tags": [
-        "ground",
-        "forest"
-      ],
-      "status": "ready"
-    },
-    "terrain.forest.tree-wall": {
-      "source": {
-        "kind": "procedural",
-        "generator": "tree-wall"
-      },
-      "runtime": {
-        "textureKey": "tree-wall"
-      },
-      "tags": [
-        "ground",
-        "forest",
-        "wall"
-      ],
-      "status": "ready"
-    },
-    "terrain.cavern.floor": {
-      "source": {
-        "kind": "procedural",
-        "generator": "cavern-floor"
-      },
-      "runtime": {
-        "textureKey": "cavern-floor"
-      },
-      "tags": [
-        "ground",
-        "cavern"
-      ],
-      "status": "ready"
-    },
-    "terrain.cavern.crystal-floor": {
-      "source": {
-        "kind": "procedural",
-        "generator": "crystal-floor"
-      },
-      "runtime": {
-        "textureKey": "crystal-floor"
-      },
-      "tags": [
-        "ground",
-        "cavern"
-      ],
-      "status": "ready"
-    },
-    "terrain.cavern.crystal-wall": {
-      "source": {
-        "kind": "procedural",
-        "generator": "crystal-wall"
-      },
-      "runtime": {
-        "textureKey": "crystal-wall"
-      },
-      "tags": [
-        "ground",
-        "cavern",
-        "wall"
-      ],
-      "status": "ready"
-    },
-    "collectible.hp-potion": {
-      "source": { "kind": "procedural", "generator": "hp-potion" },
-      "runtime": { "textureKey": "hp-potion" },
-      "render": { "origin": [0.5, 1] },
-      "tags": ["object", "collectible", "consumable"],
-      "status": "ready"
-    },
-    "collectible.energy-potion": {
-      "source": { "kind": "procedural", "generator": "energy-potion" },
-      "runtime": { "textureKey": "energy-potion" },
-      "render": { "origin": [0.5, 1] },
-      "tags": ["object", "collectible", "consumable"],
-      "status": "ready"
-    },
-    "collectible.silk-clump": {
-      "source": { "kind": "procedural", "generator": "silk-clump" },
-      "runtime": { "textureKey": "silk-clump" },
-      "render": { "origin": [0.5, 1] },
-      "tags": ["object", "collectible", "material"],
-      "status": "ready"
-    },
-    "collectible.crystal-shard": {
-      "source": { "kind": "procedural", "generator": "shard" },
-      "runtime": { "textureKey": "shard" },
-      "render": { "origin": [0.5, 1] },
-      "tags": ["object", "collectible", "material"],
-      "status": "ready"
-    },
-    "collectible.purple-berry": {
-      "source": {
-        "kind": "procedural",
-        "generator": "purple-berry"
-      },
-      "runtime": {
-        "textureKey": "purple-berry"
-      },
-      "render": {
-        "origin": [
-          0.5,
-          0.5
-        ]
-      },
-      "tags": [
-        "object",
-        "collectible",
-        "food"
       ],
       "status": "ready"
     },
@@ -1124,24 +1932,64 @@
       "source": {
         "kind": "spritesheet",
         "path": "MAPS/enemies/40x40-7x1-spider-web.png",
-        "frame": { "w": 40, "h": 40, "cols": 7, "rows": 1, "count": 7 },
-        "expect": { "w": 280, "h": 40 }
+        "frame": {
+          "w": 40,
+          "h": 40,
+          "cols": 7,
+          "rows": 1,
+          "count": 7
+        },
+        "expect": {
+          "w": 280,
+          "h": 40
+        }
       },
-      "runtime": { "textureKey": "enemy-spider-web" },
-      "render": { "origin": [0.5, 0.5] },
-      "tags": ["enemy", "projectile", "animated"],
+      "runtime": {
+        "textureKey": "enemy-spider-web"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ]
+      },
+      "tags": [
+        "enemy",
+        "projectile",
+        "animated"
+      ],
       "status": "ready"
     },
     "effect.enemy.spider-web-cover": {
       "source": {
         "kind": "spritesheet",
         "path": "MAPS/enemies/64x64-4x1-spider-web-cover.png",
-        "frame": { "w": 64, "h": 64, "cols": 4, "rows": 1, "count": 4 },
-        "expect": { "w": 256, "h": 64 }
+        "frame": {
+          "w": 64,
+          "h": 64,
+          "cols": 4,
+          "rows": 1,
+          "count": 4
+        },
+        "expect": {
+          "w": 256,
+          "h": 64
+        }
       },
-      "runtime": { "textureKey": "effect-enemy-spider-web-cover" },
-      "render": { "origin": [0.5, 0.5] },
-      "tags": ["enemy", "effect", "animated"],
+      "runtime": {
+        "textureKey": "effect-enemy-spider-web-cover"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ]
+      },
+      "tags": [
+        "enemy",
+        "effect",
+        "animated"
+      ],
       "status": "ready"
     },
     "effect.enemy.worm-brawler-hit": {
@@ -1337,64 +2185,276 @@
       "source": {
         "kind": "spritesheet",
         "path": "characters/authored/bosses/fatty-one-eye-6x7.png",
-        "frame": { "w": 108, "h": 118, "cols": 6, "rows": 7, "count": 37 },
-        "expect": { "w": 648, "h": 826 }
+        "frame": {
+          "w": 108,
+          "h": 118,
+          "cols": 6,
+          "rows": 7,
+          "count": 37
+        },
+        "expect": {
+          "w": 648,
+          "h": 826
+        }
       },
-      "runtime": { "textureKey": "boss-fatty-one-eye" },
-      "render": { "origin": [0.5, 0.762712], "pixelArt": true },
-      "tags": ["character", "enemy", "boss", "animated"],
+      "runtime": {
+        "textureKey": "boss-fatty-one-eye"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.762712
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "character",
+        "enemy",
+        "boss",
+        "animated"
+      ],
       "status": "ready"
     },
     "sheet.objects.chest-wooden.2x1": {
       "source": {
         "kind": "spritesheet",
         "path": "MAPS/objects/chest-wooden-2x1.png",
-        "frame": { "w": 64, "h": 64, "cols": 2, "rows": 1, "count": 2 },
-        "expect": { "w": 128, "h": 64 }
+        "frame": {
+          "w": 64,
+          "h": 64,
+          "cols": 2,
+          "rows": 1,
+          "count": 2
+        },
+        "expect": {
+          "w": 128,
+          "h": 64
+        }
       },
-      "runtime": { "textureKey": "objects-chest-wooden-2x1" },
-      "render": { "origin": [0.5, 0.75], "pixelArt": true },
+      "runtime": {
+        "textureKey": "objects-chest-wooden-2x1"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.75
+        ],
+        "pixelArt": true
+      },
       "frames": {
-        "0": { "name": "closed" },
-        "1": { "name": "open" }
+        "0": {
+          "name": "closed"
+        },
+        "1": {
+          "name": "open"
+        }
       },
-      "tags": ["object", "chest", "container"],
+      "tags": [
+        "object",
+        "chest",
+        "container"
+      ],
       "status": "ready"
     },
     "sheet.items.keys.5x4": {
       "source": {
         "kind": "spritesheet",
         "path": "MAPS/items/keys-5x4.png",
-        "frame": { "w": 64, "h": 64, "cols": 5, "rows": 4, "count": 20 },
-        "expect": { "w": 320, "h": 256 }
+        "frame": {
+          "w": 64,
+          "h": 64,
+          "cols": 5,
+          "rows": 4,
+          "count": 20
+        },
+        "expect": {
+          "w": 320,
+          "h": 256
+        }
       },
-      "runtime": { "textureKey": "items-keys-5x4" },
-      "render": { "origin": [0.5, 0.5], "pixelArt": true },
-      "tags": ["item", "key", "inventory"],
+      "runtime": {
+        "textureKey": "items-keys-5x4"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "item",
+        "key",
+        "inventory"
+      ],
       "status": "ready"
     },
     "sheet.items.potions.5x2": {
       "source": {
         "kind": "spritesheet",
         "path": "MAPS/items/potions-5x2.png",
-        "frame": { "w": 64, "h": 64, "cols": 5, "rows": 2, "count": 10 },
-        "expect": { "w": 320, "h": 128 }
+        "frame": {
+          "w": 64,
+          "h": 64,
+          "cols": 5,
+          "rows": 2,
+          "count": 10
+        },
+        "expect": {
+          "w": 320,
+          "h": 128
+        }
       },
-      "runtime": { "textureKey": "items-potions-5x2" },
-      "render": { "origin": [0.5, 0.5], "pixelArt": true },
-      "tags": ["item", "potion", "inventory"],
+      "runtime": {
+        "textureKey": "items-potions-5x2"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "item",
+        "potion",
+        "inventory"
+      ],
+      "status": "ready"
+    },
+    "sheet.items.gems.5x2": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/items/gems-5x2.png",
+        "frame": {
+          "w": 64,
+          "h": 64,
+          "cols": 5,
+          "rows": 2,
+          "count": 10
+        },
+        "expect": {
+          "w": 320,
+          "h": 128
+        }
+      },
+      "runtime": {
+        "textureKey": "items-gems-5x2"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "item",
+        "gem",
+        "currency",
+        "inventory"
+      ],
+      "status": "ready"
+    },
+    "sheet.items.materials.5x2": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/items/materials-5x2.png",
+        "frame": {
+          "w": 64,
+          "h": 64,
+          "cols": 5,
+          "rows": 2,
+          "count": 10
+        },
+        "expect": {
+          "w": 320,
+          "h": 128
+        }
+      },
+      "runtime": {
+        "textureKey": "items-materials-5x2"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "item",
+        "material",
+        "creature-drop",
+        "inventory"
+      ],
+      "status": "ready"
+    },
+    "sheet.items.forage.5x2": {
+      "source": {
+        "kind": "spritesheet",
+        "path": "MAPS/items/forage-5x2.png",
+        "frame": {
+          "w": 64,
+          "h": 64,
+          "cols": 5,
+          "rows": 2,
+          "count": 10
+        },
+        "expect": {
+          "w": 320,
+          "h": 128
+        }
+      },
+      "runtime": {
+        "textureKey": "items-forage-5x2"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "item",
+        "food",
+        "forage",
+        "inventory"
+      ],
       "status": "ready"
     },
     "effect.boss.ground-crack": {
       "source": {
         "kind": "spritesheet",
         "path": "MAPS/effects/boss-ground-crack-4x1.png",
-        "frame": { "w": 96, "h": 96, "cols": 4, "rows": 1, "count": 4 },
-        "expect": { "w": 384, "h": 96 }
+        "frame": {
+          "w": 96,
+          "h": 96,
+          "cols": 4,
+          "rows": 1,
+          "count": 4
+        },
+        "expect": {
+          "w": 384,
+          "h": 96
+        }
       },
-      "runtime": { "textureKey": "effect-boss-ground-crack" },
-      "render": { "origin": [0.5, 0.5], "pixelArt": true },
-      "tags": ["effect", "boss", "animated"],
+      "runtime": {
+        "textureKey": "effect-boss-ground-crack"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "effect",
+        "boss",
+        "animated"
+      ],
       "status": "ready"
     },
     "weapon.player.sword-tiles": {
@@ -1533,10 +2593,18 @@
         "pixelArt": false
       },
       "frames": {
-        "0": { "name": "stone-spear" },
-        "1": { "name": "stone-spear-thrust" },
-        "2": { "name": "stone-axe" },
-        "3": { "name": "stone-pickaxe" }
+        "0": {
+          "name": "stone-spear"
+        },
+        "1": {
+          "name": "stone-spear-thrust"
+        },
+        "2": {
+          "name": "stone-axe"
+        },
+        "3": {
+          "name": "stone-pickaxe"
+        }
       },
       "tags": [
         "weapon",
@@ -1573,9 +2641,15 @@
         "pixelArt": false
       },
       "frames": {
-        "0": { "name": "down" },
-        "1": { "name": "side-right" },
-        "2": { "name": "up" }
+        "0": {
+          "name": "down"
+        },
+        "1": {
+          "name": "side-right"
+        },
+        "2": {
+          "name": "up"
+        }
       },
       "tags": [
         "weapon",
@@ -1658,10 +2732,18 @@
         "pixelArt": false
       },
       "frames": {
-        "0": { "name": "contact" },
-        "1": { "name": "burst" },
-        "2": { "name": "peak" },
-        "3": { "name": "dissipate" }
+        "0": {
+          "name": "contact"
+        },
+        "1": {
+          "name": "burst"
+        },
+        "2": {
+          "name": "peak"
+        },
+        "3": {
+          "name": "dissipate"
+        }
       },
       "tags": [
         "effect",
@@ -1675,18 +2757,47 @@
       "source": {
         "kind": "spritesheet",
         "path": "MAPS/weapons/128x128-tile_2x2-starter-spears.png",
-        "frame": { "w": 128, "h": 128, "cols": 2, "rows": 2, "count": 4 },
-        "expect": { "w": 256, "h": 256 }
+        "frame": {
+          "w": 128,
+          "h": 128,
+          "cols": 2,
+          "rows": 2,
+          "count": 4
+        },
+        "expect": {
+          "w": 256,
+          "h": 256
+        }
       },
-      "runtime": { "textureKey": "weapon-player-starter-spears-tiles" },
-      "render": { "origin": [0.5, 0.5], "pixelArt": false },
+      "runtime": {
+        "textureKey": "weapon-player-starter-spears-tiles"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "pixelArt": false
+      },
       "frames": {
-        "0": { "name": "wooden-spear" },
-        "1": { "name": "wooden-spear-thrust" },
-        "2": { "name": "stone-spear" },
-        "3": { "name": "stone-spear-thrust" }
+        "0": {
+          "name": "wooden-spear"
+        },
+        "1": {
+          "name": "wooden-spear-thrust"
+        },
+        "2": {
+          "name": "stone-spear"
+        },
+        "3": {
+          "name": "stone-spear-thrust"
+        }
       },
-      "tags": ["weapon", "spear", "animated"],
+      "tags": [
+        "weapon",
+        "spear",
+        "animated"
+      ],
       "status": "ready"
     },
     "weapon.player.hammer-spear-tiles": {
@@ -1725,11 +2836,26 @@
       "source": {
         "kind": "image",
         "path": "UI/ui-organic-modal-frame.png",
-        "expect": { "w": 1448, "h": 1086 }
+        "expect": {
+          "w": 1448,
+          "h": 1086
+        }
       },
-      "runtime": { "textureKey": "ui-organic-modal-frame" },
-      "render": { "origin": [0.5, 0.5], "pixelArt": false },
-      "tags": ["ui", "frame", "modal"],
+      "runtime": {
+        "textureKey": "ui-organic-modal-frame"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "pixelArt": false
+      },
+      "tags": [
+        "ui",
+        "frame",
+        "modal"
+      ],
       "status": "ready",
       "notes": "Shared large organic modal frame; dynamic content stays in UI code."
     },
@@ -1737,11 +2863,26 @@
       "source": {
         "kind": "image",
         "path": "UI/ui-organic-compact-frame.png",
-        "expect": { "w": 2172, "h": 724 }
+        "expect": {
+          "w": 2172,
+          "h": 724
+        }
       },
-      "runtime": { "textureKey": "ui-organic-compact-frame" },
-      "render": { "origin": [0.5, 0.5], "pixelArt": false },
-      "tags": ["ui", "frame", "compact"],
+      "runtime": {
+        "textureKey": "ui-organic-compact-frame"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "pixelArt": false
+      },
+      "tags": [
+        "ui",
+        "frame",
+        "compact"
+      ],
       "status": "ready",
       "notes": "Wide compact frame for HUD, hotbar, ability bar, and prompts."
     },
@@ -1749,11 +2890,26 @@
       "source": {
         "kind": "image",
         "path": "UI/ui-inventory-backplate.png",
-        "expect": { "w": 1672, "h": 941 }
+        "expect": {
+          "w": 1672,
+          "h": 941
+        }
       },
-      "runtime": { "textureKey": "ui-inventory-backplate" },
-      "render": { "origin": [0.5, 0.5], "pixelArt": false },
-      "tags": ["ui", "backplate", "inventory"],
+      "runtime": {
+        "textureKey": "ui-inventory-backplate"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "pixelArt": false
+      },
+      "tags": [
+        "ui",
+        "backplate",
+        "inventory"
+      ],
       "status": "ready",
       "notes": "Inventory-specific backplate with quiet grid and detail regions."
     },
@@ -1761,11 +2917,28 @@
       "source": {
         "kind": "image",
         "path": "UI/ui-map-journal-paper.png",
-        "expect": { "w": 1448, "h": 1086 }
+        "expect": {
+          "w": 1448,
+          "h": 1086
+        }
       },
-      "runtime": { "textureKey": "ui-map-journal-paper" },
-      "render": { "origin": [0.5, 0.5], "pixelArt": false },
-      "tags": ["ui", "surface", "paper", "map", "journal"],
+      "runtime": {
+        "textureKey": "ui-map-journal-paper"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "pixelArt": false
+      },
+      "tags": [
+        "ui",
+        "surface",
+        "paper",
+        "map",
+        "journal"
+      ],
       "status": "ready",
       "notes": "Warm map and quest-journal paper surface; routes and text stay dynamic."
     },
@@ -1773,11 +2946,26 @@
       "source": {
         "kind": "image",
         "path": "UI/ui-organic-minimap-frame.png",
-        "expect": { "w": 1254, "h": 1254 }
+        "expect": {
+          "w": 1254,
+          "h": 1254
+        }
       },
-      "runtime": { "textureKey": "ui-organic-minimap-frame" },
-      "render": { "origin": [0.5, 0.5], "pixelArt": false },
-      "tags": ["ui", "frame", "minimap"],
+      "runtime": {
+        "textureKey": "ui-organic-minimap-frame"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "pixelArt": false
+      },
+      "tags": [
+        "ui",
+        "frame",
+        "minimap"
+      ],
       "status": "ready",
       "notes": "Square minimap frame; terrain, camera rectangle, and markers stay dynamic."
     },
@@ -1785,11 +2973,26 @@
       "source": {
         "kind": "image",
         "path": "UI/ui-crafting-workbench-backplate.png",
-        "expect": { "w": 1672, "h": 941 }
+        "expect": {
+          "w": 1672,
+          "h": 941
+        }
       },
-      "runtime": { "textureKey": "ui-crafting-workbench-backplate" },
-      "render": { "origin": [0.5, 0.5], "pixelArt": false },
-      "tags": ["ui", "backplate", "crafting"],
+      "runtime": {
+        "textureKey": "ui-crafting-workbench-backplate"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "pixelArt": false
+      },
+      "tags": [
+        "ui",
+        "backplate",
+        "crafting"
+      ],
       "status": "ready",
       "notes": "Crafting workbench backplate with quiet recipe and output regions."
     },
@@ -1797,11 +3000,27 @@
       "source": {
         "kind": "image",
         "path": "UI/ui-crafting-detail-workbench-backplate.png",
-        "expect": { "w": 2048, "h": 1152 }
+        "expect": {
+          "w": 2048,
+          "h": 1152
+        }
       },
-      "runtime": { "textureKey": "ui-crafting-detail-workbench-backplate" },
-      "render": { "origin": [0.5, 0.5], "pixelArt": false },
-      "tags": ["ui", "backplate", "crafting", "detail"],
+      "runtime": {
+        "textureKey": "ui-crafting-detail-workbench-backplate"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "pixelArt": false
+      },
+      "tags": [
+        "ui",
+        "backplate",
+        "crafting",
+        "detail"
+      ],
       "status": "ready",
       "notes": "Wide two-column crafting workbench with a carved detail divider and recessed action area."
     },
@@ -1809,11 +3028,26 @@
       "source": {
         "kind": "image",
         "path": "UI/ui-quest-journal-backplate.png",
-        "expect": { "w": 1448, "h": 1086 }
+        "expect": {
+          "w": 1448,
+          "h": 1086
+        }
       },
-      "runtime": { "textureKey": "ui-quest-journal-backplate" },
-      "render": { "origin": [0.5, 0.5], "pixelArt": false },
-      "tags": ["ui", "backplate", "journal"],
+      "runtime": {
+        "textureKey": "ui-quest-journal-backplate"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "pixelArt": false
+      },
+      "tags": [
+        "ui",
+        "backplate",
+        "journal"
+      ],
       "status": "ready",
       "notes": "Quest journal binding frame layered over the paper surface."
     },
@@ -1821,11 +3055,26 @@
       "source": {
         "kind": "image",
         "path": "UI/ui-quest-offer-scroll-frame.png",
-        "expect": { "w": 1672, "h": 941 }
+        "expect": {
+          "w": 1672,
+          "h": 941
+        }
       },
-      "runtime": { "textureKey": "ui-quest-offer-scroll-frame" },
-      "render": { "origin": [0.5, 0.5], "pixelArt": false },
-      "tags": ["ui", "frame", "quest"],
+      "runtime": {
+        "textureKey": "ui-quest-offer-scroll-frame"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "pixelArt": false
+      },
+      "tags": [
+        "ui",
+        "frame",
+        "quest"
+      ],
       "status": "ready",
       "notes": "Quest offer and turn-in scroll frame; objectives and rewards stay dynamic."
     },
@@ -1833,11 +3082,26 @@
       "source": {
         "kind": "image",
         "path": "UI/ui-levelup-crest-frame.png",
-        "expect": { "w": 1448, "h": 1086 }
+        "expect": {
+          "w": 1448,
+          "h": 1086
+        }
       },
-      "runtime": { "textureKey": "ui-levelup-crest-frame" },
-      "render": { "origin": [0.5, 0.5], "pixelArt": false },
-      "tags": ["ui", "frame", "levelup"],
+      "runtime": {
+        "textureKey": "ui-levelup-crest-frame"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "pixelArt": false
+      },
+      "tags": [
+        "ui",
+        "frame",
+        "levelup"
+      ],
       "status": "ready",
       "notes": "Special-event level-up frame with a central slime and crystal crest."
     },
@@ -1845,11 +3109,26 @@
       "source": {
         "kind": "image",
         "path": "UI/ui-boss-health-frame.png",
-        "expect": { "w": 2172, "h": 724 }
+        "expect": {
+          "w": 2172,
+          "h": 724
+        }
       },
-      "runtime": { "textureKey": "ui-boss-health-frame" },
-      "render": { "origin": [0.5, 0.5], "pixelArt": false },
-      "tags": ["ui", "frame", "boss"],
+      "runtime": {
+        "textureKey": "ui-boss-health-frame"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "pixelArt": false
+      },
+      "tags": [
+        "ui",
+        "frame",
+        "boss"
+      ],
       "status": "ready",
       "notes": "Boss health frame with stretchable center channel and strong end caps."
     },
@@ -1857,13 +3136,2268 @@
       "source": {
         "kind": "image",
         "path": "UI/ui-area-title-banner.png",
-        "expect": { "w": 2172, "h": 724 }
+        "expect": {
+          "w": 2172,
+          "h": 724
+        }
       },
-      "runtime": { "textureKey": "ui-area-title-banner" },
-      "render": { "origin": [0.5, 0.5], "pixelArt": false },
-      "tags": ["ui", "banner", "area"],
+      "runtime": {
+        "textureKey": "ui-area-title-banner"
+      },
+      "render": {
+        "origin": [
+          0.5,
+          0.5
+        ],
+        "pixelArt": false
+      },
+      "tags": [
+        "ui",
+        "banner",
+        "area"
+      ],
       "status": "ready",
       "notes": "Area title banner; title and biome subtitle stay dynamic."
+    },
+    "audio.music.level-1-home-town": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/music/level-1-home-town.ogg"
+      },
+      "runtime": {
+        "textureKey": "music-level-1-home-town"
+      },
+      "tags": [
+        "audio",
+        "music",
+        "loop"
+      ],
+      "status": "ready",
+      "notes": "Juhani Junkala, 'Home Town' (JRPG Pack 2: Towns), CC0. Seamless loop. See asset/audio/CREDITS.md."
+    },
+    "terrain.interior.floor-wood-a": {
+      "source": {
+        "kind": "image",
+        "path": "MAPS/interiors/128x128-interior-floor-wood-a.png",
+        "expect": {
+          "w": 128,
+          "h": 128
+        }
+      },
+      "runtime": {
+        "textureKey": "interior-floor-wood-a"
+      },
+      "render": {
+        "origin": [
+          0,
+          0
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "ground",
+        "interior",
+        "floor"
+      ],
+      "status": "draft",
+      "notes": "Seamless plank floor cut from the interior structure atlas by scripts/interiors/normalize-interior-sheets.py."
+    },
+    "terrain.interior.floor-wood-b": {
+      "source": {
+        "kind": "image",
+        "path": "MAPS/interiors/128x128-interior-floor-wood-b.png",
+        "expect": {
+          "w": 128,
+          "h": 128
+        }
+      },
+      "runtime": {
+        "textureKey": "interior-floor-wood-b"
+      },
+      "render": {
+        "origin": [
+          0,
+          0
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "ground",
+        "interior",
+        "floor"
+      ],
+      "status": "draft",
+      "notes": "Seamless plank floor cut from the interior structure atlas by scripts/interiors/normalize-interior-sheets.py."
+    },
+    "terrain.interior.floor-mushroom-earth-a": {
+      "source": {
+        "kind": "image",
+        "path": "MAPS/interiors/128x128-interior-floor-mushroom-earth-a.png",
+        "expect": {
+          "w": 128,
+          "h": 128
+        }
+      },
+      "runtime": {
+        "textureKey": "interior-floor-mushroom-earth-a"
+      },
+      "render": {
+        "origin": [
+          0,
+          0
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "ground",
+        "interior",
+        "floor",
+        "mushroom"
+      ],
+      "status": "draft",
+      "notes": "Packed earth floor cut from the mushroom structure atlas by scripts/interiors/normalize-interior-sheets.py."
+    },
+    "terrain.interior.floor-mushroom-earth-b": {
+      "source": {
+        "kind": "image",
+        "path": "MAPS/interiors/128x128-interior-floor-mushroom-earth-b.png",
+        "expect": {
+          "w": 128,
+          "h": 128
+        }
+      },
+      "runtime": {
+        "textureKey": "interior-floor-mushroom-earth-b"
+      },
+      "render": {
+        "origin": [
+          0,
+          0
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "ground",
+        "interior",
+        "floor",
+        "mushroom"
+      ],
+      "status": "draft",
+      "notes": "Packed earth floor cut from the mushroom structure atlas by scripts/interiors/normalize-interior-sheets.py."
+    },
+    "terrain.interior.floor-mushroom-clover-a": {
+      "source": {
+        "kind": "image",
+        "path": "MAPS/interiors/128x128-interior-floor-mushroom-clover-a.png",
+        "expect": {
+          "w": 128,
+          "h": 128
+        }
+      },
+      "runtime": {
+        "textureKey": "interior-floor-mushroom-clover-a"
+      },
+      "render": {
+        "origin": [
+          0,
+          0
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "ground",
+        "interior",
+        "floor",
+        "mushroom"
+      ],
+      "status": "draft",
+      "notes": "Clover earth floor cut from the mushroom structure atlas by scripts/interiors/normalize-interior-sheets.py."
+    },
+    "terrain.interior.floor-mushroom-clover-b": {
+      "source": {
+        "kind": "image",
+        "path": "MAPS/interiors/128x128-interior-floor-mushroom-clover-b.png",
+        "expect": {
+          "w": 128,
+          "h": 128
+        }
+      },
+      "runtime": {
+        "textureKey": "interior-floor-mushroom-clover-b"
+      },
+      "render": {
+        "origin": [
+          0,
+          0
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "ground",
+        "interior",
+        "floor",
+        "mushroom"
+      ],
+      "status": "draft",
+      "notes": "Clover earth floor cut from the mushroom structure atlas by scripts/interiors/normalize-interior-sheets.py."
+    },
+    "terrain.interior.floor-mushroom-plain": {
+      "source": {
+        "kind": "image",
+        "path": "MAPS/interiors/128x128-interior-floor-mushroom-plain.png",
+        "expect": {
+          "w": 128,
+          "h": 128
+        }
+      },
+      "runtime": {
+        "textureKey": "interior-floor-mushroom-plain"
+      },
+      "render": {
+        "origin": [
+          0,
+          0
+        ],
+        "pixelArt": true
+      },
+      "tags": [
+        "ground",
+        "interior",
+        "floor",
+        "mushroom"
+      ],
+      "status": "draft",
+      "notes": "Plain packed-earth floor recoloured to the mushroom concept and made seamless by scripts/interiors/normalize-interior-sheets.py."
+    },
+    "audio.sfx.weapon.swing-light.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/swing-light-1.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/swing-light-1.wav" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-swing-light-1" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.weapon.swing-light.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/swing-light-2.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/swing-light-2.wav" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-swing-light-2" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.weapon.swing-blade.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/swing-blade-1.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/swing-blade-1.wav" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-swing-blade-1" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.weapon.swing-blade.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/swing-blade-2.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/swing-blade-2.wav" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-swing-blade-2" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.weapon.swing-blade.3": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/swing-blade-3.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/swing-blade-3.wav" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-swing-blade-3" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.weapon.thrust.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/thrust-1.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/thrust-1.wav" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-thrust-1" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.weapon.thrust.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/thrust-2.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/thrust-2.wav" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-thrust-2" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.weapon.swing-heavy.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/swing-heavy-1.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/swing-heavy-1.wav" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-swing-heavy-1" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.weapon.swing-heavy.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/swing-heavy-2.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/swing-heavy-2.wav" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-swing-heavy-2" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.weapon.swing-tool.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/swing-tool-1.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/swing-tool-1.wav" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-swing-tool-1" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.weapon.swing-tool.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/swing-tool-2.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/swing-tool-2.wav" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-swing-tool-2" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.weapon.hit-punch.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/hit-punch-1.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/hit-punch-1.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-hit-punch-1" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.weapon.hit-punch.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/hit-punch-2.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/hit-punch-2.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-hit-punch-2" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.weapon.hit-punch.3": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/hit-punch-3.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/hit-punch-3.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-hit-punch-3" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.weapon.hit-slash.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/hit-slash-1.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/hit-slash-1.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-hit-slash-1" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.weapon.hit-slash.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/hit-slash-2.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/hit-slash-2.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-hit-slash-2" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.weapon.hit-slash.3": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/hit-slash-3.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/hit-slash-3.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-hit-slash-3" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.weapon.hit-stab.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/hit-stab-1.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/hit-stab-1.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-hit-stab-1" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.weapon.hit-stab.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/hit-stab-2.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/hit-stab-2.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-hit-stab-2" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.weapon.hit-stab.3": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/hit-stab-3.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/hit-stab-3.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-hit-stab-3" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.weapon.hit-heavy.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/hit-heavy-1.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/hit-heavy-1.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-hit-heavy-1" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.weapon.hit-heavy.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/hit-heavy-2.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/hit-heavy-2.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-hit-heavy-2" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.weapon.chop-wood.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/chop-wood-1.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/chop-wood-1.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-chop-wood-1" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.weapon.chop-wood.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/chop-wood-2.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/chop-wood-2.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-chop-wood-2" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.weapon.chop-wood.3": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/chop-wood-3.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/chop-wood-3.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-chop-wood-3" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.weapon.chop-wood.4": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/chop-wood-4.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/chop-wood-4.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-chop-wood-4" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.weapon.mine-stone.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/mine-stone-1.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/mine-stone-1.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-mine-stone-1" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.weapon.mine-stone.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/mine-stone-2.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/mine-stone-2.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-mine-stone-2" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.weapon.mine-stone.3": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/mine-stone-3.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/mine-stone-3.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-mine-stone-3" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.weapon.mine-stone.4": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/mine-stone-4.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/mine-stone-4.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-mine-stone-4" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.weapon.hit-dull.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/hit-dull-1.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/hit-dull-1.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-hit-dull-1" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.weapon.hit-dull.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/hit-dull-2.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/hit-dull-2.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-hit-dull-2" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.weapon.hit-blocked.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/hit-blocked-1.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/hit-blocked-1.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-hit-blocked-1" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.weapon.hit-blocked.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/hit-blocked-2.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/hit-blocked-2.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-hit-blocked-2" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.weapon.crit.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/crit.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/crit.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-crit-1" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.weapon.combo-1.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/combo-1.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/combo-1.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-combo-1-1" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.weapon.combo-2.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/combo-2.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/combo-2.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-combo-2-1" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.weapon.combo-3.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/combo-3.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/combo-3.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-combo-3-1" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.weapon.combo-finisher.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/combo-finisher.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/combo-finisher.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-combo-finisher-1" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.weapon.equip-blade.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/equip-blade.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/equip-blade.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-equip-blade-1" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.weapon.equip-tool.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/weapon/equip-tool.wav",
+        "alternates": { "library": "audio/sfx/library/weapon/equip-tool.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-weapon-equip-tool-1" },
+      "tags": ["audio", "sfx", "weapon"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.player.hurt.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/player/hurt-1.wav",
+        "alternates": { "library": "audio/sfx/library/player/hurt-1.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-player-hurt-1" },
+      "tags": ["audio", "sfx", "player"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.player.hurt.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/player/hurt-2.wav",
+        "alternates": { "library": "audio/sfx/library/player/hurt-2.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-player-hurt-2" },
+      "tags": ["audio", "sfx", "player"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.player.hurt.3": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/player/hurt-3.wav",
+        "alternates": { "library": "audio/sfx/library/player/hurt-3.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-player-hurt-3" },
+      "tags": ["audio", "sfx", "player"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.player.death.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/player/death.wav",
+        "alternates": { "library": "audio/sfx/library/player/death.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-player-death-1" },
+      "tags": ["audio", "sfx", "player"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.player.respawn.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/player/respawn.wav",
+        "alternates": { "library": "audio/sfx/library/player/respawn.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-player-respawn-1" },
+      "tags": ["audio", "sfx", "player"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.player.dodge.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/player/dodge-1.wav",
+        "alternates": { "library": "audio/sfx/library/player/dodge-1.wav" }
+      },
+      "runtime": { "textureKey": "sfx-player-dodge-1" },
+      "tags": ["audio", "sfx", "player"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.player.dodge.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/player/dodge-2.wav",
+        "alternates": { "library": "audio/sfx/library/player/dodge-2.wav" }
+      },
+      "runtime": { "textureKey": "sfx-player-dodge-2" },
+      "tags": ["audio", "sfx", "player"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.player.jump.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/player/jump-1.wav",
+        "alternates": { "library": "audio/sfx/library/player/jump-1.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-player-jump-1" },
+      "tags": ["audio", "sfx", "player"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.player.jump.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/player/jump-2.wav",
+        "alternates": { "library": "audio/sfx/library/player/jump-2.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-player-jump-2" },
+      "tags": ["audio", "sfx", "player"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.player.land.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/player/land-1.wav",
+        "alternates": { "library": "audio/sfx/library/player/land-1.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-player-land-1" },
+      "tags": ["audio", "sfx", "player"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.player.land.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/player/land-2.wav",
+        "alternates": { "library": "audio/sfx/library/player/land-2.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-player-land-2" },
+      "tags": ["audio", "sfx", "player"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.player.slam-windup.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/player/slam-windup.wav",
+        "alternates": { "library": "audio/sfx/library/player/slam-windup.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-player-slam-windup-1" },
+      "tags": ["audio", "sfx", "player"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.player.slam-impact.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/player/slam-impact.wav",
+        "alternates": { "library": "audio/sfx/library/player/slam-impact.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-player-slam-impact-1" },
+      "tags": ["audio", "sfx", "player"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.player.lash.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/player/lash-1.wav",
+        "alternates": { "library": "audio/sfx/library/player/lash-1.wav" }
+      },
+      "runtime": { "textureKey": "sfx-player-lash-1" },
+      "tags": ["audio", "sfx", "player"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.player.lash.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/player/lash-2.wav",
+        "alternates": { "library": "audio/sfx/library/player/lash-2.wav" }
+      },
+      "runtime": { "textureKey": "sfx-player-lash-2" },
+      "tags": ["audio", "sfx", "player"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.player.teleport-out.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/player/teleport-out.wav",
+        "alternates": { "library": "audio/sfx/library/player/teleport-out.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-player-teleport-out-1" },
+      "tags": ["audio", "sfx", "player"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.player.teleport-in.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/player/teleport-in.wav",
+        "alternates": { "library": "audio/sfx/library/player/teleport-in.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-player-teleport-in-1" },
+      "tags": ["audio", "sfx", "player"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.player.eat.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/player/eat-1.wav",
+        "alternates": { "library": "audio/sfx/library/player/eat-1.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-player-eat-1" },
+      "tags": ["audio", "sfx", "player"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.player.eat.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/player/eat-2.wav",
+        "alternates": { "library": "audio/sfx/library/player/eat-2.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-player-eat-2" },
+      "tags": ["audio", "sfx", "player"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.player.heal.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/player/heal.wav",
+        "alternates": { "library": "audio/sfx/library/player/heal.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-player-heal-1" },
+      "tags": ["audio", "sfx", "player"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.player.potion-drink.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/player/potion-drink.wav",
+        "alternates": { "library": "audio/sfx/library/player/potion-drink.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-player-potion-drink-1" },
+      "tags": ["audio", "sfx", "player"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.player.energy-restore.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/player/energy-restore.wav",
+        "alternates": { "library": "audio/sfx/library/player/energy-restore.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-player-energy-restore-1" },
+      "tags": ["audio", "sfx", "player"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.player.level-up.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/player/level-up.wav",
+        "alternates": { "library": "audio/sfx/library/player/level-up.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-player-level-up-1" },
+      "tags": ["audio", "sfx", "player"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.player.coin.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/player/coin-1.wav",
+        "alternates": { "library": "audio/sfx/library/player/coin-1.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-player-coin-1" },
+      "tags": ["audio", "sfx", "player"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.player.coin.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/player/coin-2.wav",
+        "alternates": { "library": "audio/sfx/library/player/coin-2.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-player-coin-2" },
+      "tags": ["audio", "sfx", "player"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.player.sleep-breath.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/player/sleep-breath.wav"
+      },
+      "runtime": { "textureKey": "sfx-player-sleep-breath-1" },
+      "tags": ["audio", "sfx", "player"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.player.rested.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/player/rested.wav"
+      },
+      "runtime": { "textureKey": "sfx-player-rested-1" },
+      "tags": ["audio", "sfx", "player"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.player.web-struggle.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/player/web-struggle.wav",
+        "alternates": { "library": "audio/sfx/library/player/web-struggle.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-player-web-struggle-1" },
+      "tags": ["audio", "sfx", "player"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.footstep.grass.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/footstep/grass-1.wav",
+        "alternates": { "library": "audio/sfx/library/footstep/grass-1.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-footstep-grass-1" },
+      "tags": ["audio", "sfx", "footstep"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.footstep.grass.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/footstep/grass-2.wav",
+        "alternates": { "library": "audio/sfx/library/footstep/grass-2.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-footstep-grass-2" },
+      "tags": ["audio", "sfx", "footstep"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.footstep.grass.3": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/footstep/grass-3.wav",
+        "alternates": { "library": "audio/sfx/library/footstep/grass-3.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-footstep-grass-3" },
+      "tags": ["audio", "sfx", "footstep"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.footstep.forest.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/footstep/forest-1.wav",
+        "alternates": { "library": "audio/sfx/library/footstep/forest-1.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-footstep-forest-1" },
+      "tags": ["audio", "sfx", "footstep"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.footstep.forest.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/footstep/forest-2.wav",
+        "alternates": { "library": "audio/sfx/library/footstep/forest-2.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-footstep-forest-2" },
+      "tags": ["audio", "sfx", "footstep"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.footstep.forest.3": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/footstep/forest-3.wav",
+        "alternates": { "library": "audio/sfx/library/footstep/forest-3.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-footstep-forest-3" },
+      "tags": ["audio", "sfx", "footstep"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.footstep.stone.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/footstep/stone-1.wav",
+        "alternates": { "library": "audio/sfx/library/footstep/stone-1.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-footstep-stone-1" },
+      "tags": ["audio", "sfx", "footstep"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.footstep.stone.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/footstep/stone-2.wav",
+        "alternates": { "library": "audio/sfx/library/footstep/stone-2.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-footstep-stone-2" },
+      "tags": ["audio", "sfx", "footstep"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.footstep.stone.3": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/footstep/stone-3.wav",
+        "alternates": { "library": "audio/sfx/library/footstep/stone-3.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-footstep-stone-3" },
+      "tags": ["audio", "sfx", "footstep"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.footstep.snow.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/footstep/snow-1.wav",
+        "alternates": { "library": "audio/sfx/library/footstep/snow-1.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-footstep-snow-1" },
+      "tags": ["audio", "sfx", "footstep"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.footstep.snow.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/footstep/snow-2.wav",
+        "alternates": { "library": "audio/sfx/library/footstep/snow-2.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-footstep-snow-2" },
+      "tags": ["audio", "sfx", "footstep"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.footstep.snow.3": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/footstep/snow-3.wav",
+        "alternates": { "library": "audio/sfx/library/footstep/snow-3.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-footstep-snow-3" },
+      "tags": ["audio", "sfx", "footstep"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.footstep.sand.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/footstep/sand-1.wav",
+        "alternates": { "library": "audio/sfx/library/footstep/sand-1.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-footstep-sand-1" },
+      "tags": ["audio", "sfx", "footstep"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.footstep.sand.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/footstep/sand-2.wav",
+        "alternates": { "library": "audio/sfx/library/footstep/sand-2.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-footstep-sand-2" },
+      "tags": ["audio", "sfx", "footstep"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.footstep.sand.3": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/footstep/sand-3.wav",
+        "alternates": { "library": "audio/sfx/library/footstep/sand-3.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-footstep-sand-3" },
+      "tags": ["audio", "sfx", "footstep"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.footstep.water.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/footstep/water-1.wav",
+        "alternates": { "library": "audio/sfx/library/footstep/water-1.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-footstep-water-1" },
+      "tags": ["audio", "sfx", "footstep"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.footstep.water.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/footstep/water-2.wav",
+        "alternates": { "library": "audio/sfx/library/footstep/water-2.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-footstep-water-2" },
+      "tags": ["audio", "sfx", "footstep"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.footstep.water.3": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/footstep/water-3.wav",
+        "alternates": { "library": "audio/sfx/library/footstep/water-3.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-footstep-water-3" },
+      "tags": ["audio", "sfx", "footstep"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.status.burn.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/status/burn.wav"
+      },
+      "runtime": { "textureKey": "sfx-status-burn-1" },
+      "tags": ["audio", "sfx", "status"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.status.poison.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/status/poison.wav",
+        "alternates": { "library": "audio/sfx/library/status/poison.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-status-poison-1" },
+      "tags": ["audio", "sfx", "status"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.status.slow.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/status/slow.wav",
+        "alternates": { "library": "audio/sfx/library/status/slow.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-status-slow-1" },
+      "tags": ["audio", "sfx", "status"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.status.sticky.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/status/sticky.wav",
+        "alternates": { "library": "audio/sfx/library/status/sticky.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-status-sticky-1" },
+      "tags": ["audio", "sfx", "status"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.status.bouncy.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/status/bouncy.wav",
+        "alternates": { "library": "audio/sfx/library/status/bouncy.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-status-bouncy-1" },
+      "tags": ["audio", "sfx", "status"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.status.frenzy.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/status/frenzy.wav",
+        "alternates": { "library": "audio/sfx/library/status/frenzy.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-status-frenzy-1" },
+      "tags": ["audio", "sfx", "status"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.status.expire.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/status/expire.wav",
+        "alternates": { "library": "audio/sfx/library/status/expire.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-status-expire-1" },
+      "tags": ["audio", "sfx", "status"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.enemy.worm-hurt.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/enemy/worm-hurt-1.wav",
+        "alternates": { "library": "audio/sfx/library/enemy/worm-hurt-1.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-enemy-worm-hurt-1" },
+      "tags": ["audio", "sfx", "enemy"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.enemy.worm-hurt.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/enemy/worm-hurt-2.wav",
+        "alternates": { "library": "audio/sfx/library/enemy/worm-hurt-2.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-enemy-worm-hurt-2" },
+      "tags": ["audio", "sfx", "enemy"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.enemy.worm-hurt.3": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/enemy/worm-hurt-3.wav",
+        "alternates": { "library": "audio/sfx/library/enemy/worm-hurt-3.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-enemy-worm-hurt-3" },
+      "tags": ["audio", "sfx", "enemy"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.enemy.worm-death.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/enemy/worm-death-1.wav",
+        "alternates": { "library": "audio/sfx/library/enemy/worm-death-1.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-enemy-worm-death-1" },
+      "tags": ["audio", "sfx", "enemy"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.enemy.worm-death.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/enemy/worm-death-2.wav",
+        "alternates": { "library": "audio/sfx/library/enemy/worm-death-2.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-enemy-worm-death-2" },
+      "tags": ["audio", "sfx", "enemy"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.enemy.worm-alert.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/enemy/worm-alert.wav",
+        "alternates": { "library": "audio/sfx/library/enemy/worm-alert.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-enemy-worm-alert-1" },
+      "tags": ["audio", "sfx", "enemy"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.enemy.worm-windup.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/enemy/worm-windup-1.wav",
+        "alternates": { "library": "audio/sfx/library/enemy/worm-windup-1.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-enemy-worm-windup-1" },
+      "tags": ["audio", "sfx", "enemy"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.enemy.worm-windup.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/enemy/worm-windup-2.wav",
+        "alternates": { "library": "audio/sfx/library/enemy/worm-windup-2.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-enemy-worm-windup-2" },
+      "tags": ["audio", "sfx", "enemy"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.enemy.bow-draw.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/enemy/bow-draw.wav",
+        "alternates": { "library": "audio/sfx/library/enemy/bow-draw.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-enemy-bow-draw-1" },
+      "tags": ["audio", "sfx", "enemy"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.enemy.arrow-release.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/enemy/arrow-release-1.wav",
+        "alternates": { "library": "audio/sfx/library/enemy/arrow-release-1.wav" }
+      },
+      "runtime": { "textureKey": "sfx-enemy-arrow-release-1" },
+      "tags": ["audio", "sfx", "enemy"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.enemy.arrow-release.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/enemy/arrow-release-2.wav",
+        "alternates": { "library": "audio/sfx/library/enemy/arrow-release-2.wav" }
+      },
+      "runtime": { "textureKey": "sfx-enemy-arrow-release-2" },
+      "tags": ["audio", "sfx", "enemy"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.enemy.arrow-hit.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/enemy/arrow-hit-1.wav",
+        "alternates": { "library": "audio/sfx/library/enemy/arrow-hit-1.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-enemy-arrow-hit-1" },
+      "tags": ["audio", "sfx", "enemy"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.enemy.arrow-hit.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/enemy/arrow-hit-2.wav",
+        "alternates": { "library": "audio/sfx/library/enemy/arrow-hit-2.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-enemy-arrow-hit-2" },
+      "tags": ["audio", "sfx", "enemy"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.enemy.arrow-thunk.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/enemy/arrow-thunk-1.wav",
+        "alternates": { "library": "audio/sfx/library/enemy/arrow-thunk-1.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-enemy-arrow-thunk-1" },
+      "tags": ["audio", "sfx", "enemy"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.enemy.arrow-thunk.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/enemy/arrow-thunk-2.wav",
+        "alternates": { "library": "audio/sfx/library/enemy/arrow-thunk-2.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-enemy-arrow-thunk-2" },
+      "tags": ["audio", "sfx", "enemy"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.enemy.spider-hurt.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/enemy/spider-hurt-1.wav",
+        "alternates": { "library": "audio/sfx/library/enemy/spider-hurt-1.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-enemy-spider-hurt-1" },
+      "tags": ["audio", "sfx", "enemy"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.enemy.spider-hurt.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/enemy/spider-hurt-2.wav",
+        "alternates": { "library": "audio/sfx/library/enemy/spider-hurt-2.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-enemy-spider-hurt-2" },
+      "tags": ["audio", "sfx", "enemy"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.enemy.spider-death.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/enemy/spider-death.wav",
+        "alternates": { "library": "audio/sfx/library/enemy/spider-death.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-enemy-spider-death-1" },
+      "tags": ["audio", "sfx", "enemy"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.enemy.spider-hiss.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/enemy/spider-hiss.wav",
+        "alternates": { "library": "audio/sfx/library/enemy/spider-hiss.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-enemy-spider-hiss-1" },
+      "tags": ["audio", "sfx", "enemy"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.enemy.web-spit.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/enemy/web-spit-1.wav",
+        "alternates": { "library": "audio/sfx/library/enemy/web-spit-1.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-enemy-web-spit-1" },
+      "tags": ["audio", "sfx", "enemy"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.enemy.web-spit.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/enemy/web-spit-2.wav",
+        "alternates": { "library": "audio/sfx/library/enemy/web-spit-2.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-enemy-web-spit-2" },
+      "tags": ["audio", "sfx", "enemy"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.enemy.web-splat.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/enemy/web-splat-1.wav",
+        "alternates": { "library": "audio/sfx/library/enemy/web-splat-1.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-enemy-web-splat-1" },
+      "tags": ["audio", "sfx", "enemy"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.enemy.web-splat.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/enemy/web-splat-2.wav",
+        "alternates": { "library": "audio/sfx/library/enemy/web-splat-2.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-enemy-web-splat-2" },
+      "tags": ["audio", "sfx", "enemy"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.enemy.telegraph.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/enemy/telegraph.wav",
+        "alternates": { "library": "audio/sfx/library/enemy/telegraph.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-enemy-telegraph-1" },
+      "tags": ["audio", "sfx", "enemy"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.boss.fatty-roar.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/boss/fatty-roar.wav",
+        "alternates": { "library": "audio/sfx/library/boss/fatty-roar.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-boss-fatty-roar-1" },
+      "tags": ["audio", "sfx", "boss"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.boss.fatty-step.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/boss/fatty-step-1.wav",
+        "alternates": { "library": "audio/sfx/library/boss/fatty-step-1.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-boss-fatty-step-1" },
+      "tags": ["audio", "sfx", "boss"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.boss.fatty-step.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/boss/fatty-step-2.wav",
+        "alternates": { "library": "audio/sfx/library/boss/fatty-step-2.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-boss-fatty-step-2" },
+      "tags": ["audio", "sfx", "boss"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.boss.fatty-hop.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/boss/fatty-hop-1.wav",
+        "alternates": { "library": "audio/sfx/library/boss/fatty-hop-1.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-boss-fatty-hop-1" },
+      "tags": ["audio", "sfx", "boss"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.boss.fatty-hop.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/boss/fatty-hop-2.wav",
+        "alternates": { "library": "audio/sfx/library/boss/fatty-hop-2.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-boss-fatty-hop-2" },
+      "tags": ["audio", "sfx", "boss"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.boss.fatty-leap.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/boss/fatty-leap.wav",
+        "alternates": { "library": "audio/sfx/library/boss/fatty-leap.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-boss-fatty-leap-1" },
+      "tags": ["audio", "sfx", "boss"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.boss.fatty-fall.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/boss/fatty-fall.wav"
+      },
+      "runtime": { "textureKey": "sfx-boss-fatty-fall-1" },
+      "tags": ["audio", "sfx", "boss"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.boss.fatty-land.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/boss/fatty-land.wav",
+        "alternates": { "library": "audio/sfx/library/boss/fatty-land.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-boss-fatty-land-1" },
+      "tags": ["audio", "sfx", "boss"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.boss.fatty-hurt.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/boss/fatty-hurt-1.wav",
+        "alternates": { "library": "audio/sfx/library/boss/fatty-hurt-1.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-boss-fatty-hurt-1" },
+      "tags": ["audio", "sfx", "boss"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.boss.fatty-hurt.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/boss/fatty-hurt-2.wav",
+        "alternates": { "library": "audio/sfx/library/boss/fatty-hurt-2.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-boss-fatty-hurt-2" },
+      "tags": ["audio", "sfx", "boss"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.boss.fatty-recover.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/boss/fatty-recover.wav",
+        "alternates": { "library": "audio/sfx/library/boss/fatty-recover.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-boss-fatty-recover-1" },
+      "tags": ["audio", "sfx", "boss"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.boss.fatty-death.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/boss/fatty-death.wav",
+        "alternates": { "library": "audio/sfx/library/boss/fatty-death.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-boss-fatty-death-1" },
+      "tags": ["audio", "sfx", "boss"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.boss.victory.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/boss/victory.wav",
+        "alternates": { "library": "audio/sfx/library/boss/victory.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-boss-victory-1" },
+      "tags": ["audio", "sfx", "boss"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.resource.leaf-rustle.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/resource/leaf-rustle-1.wav",
+        "alternates": { "library": "audio/sfx/library/resource/leaf-rustle-1.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-resource-leaf-rustle-1" },
+      "tags": ["audio", "sfx", "resource"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.resource.leaf-rustle.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/resource/leaf-rustle-2.wav",
+        "alternates": { "library": "audio/sfx/library/resource/leaf-rustle-2.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-resource-leaf-rustle-2" },
+      "tags": ["audio", "sfx", "resource"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.resource.tree-fall.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/resource/tree-fall.wav",
+        "alternates": { "library": "audio/sfx/library/resource/tree-fall.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-resource-tree-fall-1" },
+      "tags": ["audio", "sfx", "resource"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.resource.stone-crumble.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/resource/stone-crumble.wav",
+        "alternates": { "library": "audio/sfx/library/resource/stone-crumble.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-resource-stone-crumble-1" },
+      "tags": ["audio", "sfx", "resource"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.resource.ore-clink.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/resource/ore-clink-1.wav",
+        "alternates": { "library": "audio/sfx/library/resource/ore-clink-1.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-resource-ore-clink-1" },
+      "tags": ["audio", "sfx", "resource"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.resource.ore-clink.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/resource/ore-clink-2.wav",
+        "alternates": { "library": "audio/sfx/library/resource/ore-clink-2.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-resource-ore-clink-2" },
+      "tags": ["audio", "sfx", "resource"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.resource.ore-clink.3": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/resource/ore-clink-3.wav",
+        "alternates": { "library": "audio/sfx/library/resource/ore-clink-3.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-resource-ore-clink-3" },
+      "tags": ["audio", "sfx", "resource"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.resource.ore-shatter.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/resource/ore-shatter.wav",
+        "alternates": { "library": "audio/sfx/library/resource/ore-shatter.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-resource-ore-shatter-1" },
+      "tags": ["audio", "sfx", "resource"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.resource.wrong-tool.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/resource/wrong-tool-1.wav",
+        "alternates": { "library": "audio/sfx/library/resource/wrong-tool-1.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-resource-wrong-tool-1" },
+      "tags": ["audio", "sfx", "resource"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.resource.wrong-tool.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/resource/wrong-tool-2.wav",
+        "alternates": { "library": "audio/sfx/library/resource/wrong-tool-2.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-resource-wrong-tool-2" },
+      "tags": ["audio", "sfx", "resource"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.resource.drop-pop.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/resource/drop-pop-1.wav",
+        "alternates": { "library": "audio/sfx/library/resource/drop-pop-1.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-resource-drop-pop-1" },
+      "tags": ["audio", "sfx", "resource"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.resource.drop-pop.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/resource/drop-pop-2.wav",
+        "alternates": { "library": "audio/sfx/library/resource/drop-pop-2.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-resource-drop-pop-2" },
+      "tags": ["audio", "sfx", "resource"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.resource.drop-land.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/resource/drop-land-1.wav",
+        "alternates": { "library": "audio/sfx/library/resource/drop-land-1.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-resource-drop-land-1" },
+      "tags": ["audio", "sfx", "resource"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.resource.drop-land.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/resource/drop-land-2.wav",
+        "alternates": { "library": "audio/sfx/library/resource/drop-land-2.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-resource-drop-land-2" },
+      "tags": ["audio", "sfx", "resource"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.pickup.wood.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/pickup/wood.wav",
+        "alternates": { "library": "audio/sfx/library/pickup/wood.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-pickup-wood-1" },
+      "tags": ["audio", "sfx", "pickup"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.pickup.stone.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/pickup/stone.wav",
+        "alternates": { "library": "audio/sfx/library/pickup/stone.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-pickup-stone-1" },
+      "tags": ["audio", "sfx", "pickup"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.pickup.ore.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/pickup/ore.wav",
+        "alternates": { "library": "audio/sfx/library/pickup/ore.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-pickup-ore-1" },
+      "tags": ["audio", "sfx", "pickup"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.pickup.silk.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/pickup/silk.wav",
+        "alternates": { "library": "audio/sfx/library/pickup/silk.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-pickup-silk-1" },
+      "tags": ["audio", "sfx", "pickup"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.pickup.berry.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/pickup/berry.wav",
+        "alternates": { "library": "audio/sfx/library/pickup/berry.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-pickup-berry-1" },
+      "tags": ["audio", "sfx", "pickup"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.pickup.potion.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/pickup/potion.wav",
+        "alternates": { "library": "audio/sfx/library/pickup/potion.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-pickup-potion-1" },
+      "tags": ["audio", "sfx", "pickup"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.pickup.key.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/pickup/key.wav",
+        "alternates": { "library": "audio/sfx/library/pickup/key.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-pickup-key-1" },
+      "tags": ["audio", "sfx", "pickup"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.pickup.generic.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/pickup/generic.wav",
+        "alternates": { "library": "audio/sfx/library/pickup/generic.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-pickup-generic-1" },
+      "tags": ["audio", "sfx", "pickup"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.pickup.inventory-full.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/pickup/inventory-full.wav",
+        "alternates": { "library": "audio/sfx/library/pickup/inventory-full.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-pickup-inventory-full-1" },
+      "tags": ["audio", "sfx", "pickup"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.world.chest-open.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/world/chest-open.wav",
+        "alternates": { "library": "audio/sfx/library/world/chest-open.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-world-chest-open-1" },
+      "tags": ["audio", "sfx", "world"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.world.chest-close.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/world/chest-close.wav",
+        "alternates": { "library": "audio/sfx/library/world/chest-close.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-world-chest-close-1" },
+      "tags": ["audio", "sfx", "world"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.world.chest-locked.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/world/chest-locked.wav",
+        "alternates": { "library": "audio/sfx/library/world/chest-locked.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-world-chest-locked-1" },
+      "tags": ["audio", "sfx", "world"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.world.gate-locked.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/world/gate-locked.wav",
+        "alternates": { "library": "audio/sfx/library/world/gate-locked.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-world-gate-locked-1" },
+      "tags": ["audio", "sfx", "world"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.world.gate-unlock.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/world/gate-unlock.wav",
+        "alternates": { "library": "audio/sfx/library/world/gate-unlock.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-world-gate-unlock-1" },
+      "tags": ["audio", "sfx", "world"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.world.area-transition.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/world/area-transition.wav"
+      },
+      "runtime": { "textureKey": "sfx-world-area-transition-1" },
+      "tags": ["audio", "sfx", "world"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.world.area-title.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/world/area-title.wav",
+        "alternates": { "library": "audio/sfx/library/world/area-title.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-world-area-title-1" },
+      "tags": ["audio", "sfx", "world"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.world.npc-blip.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/world/npc-blip-1.wav",
+        "alternates": { "library": "audio/sfx/library/world/npc-blip-1.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-world-npc-blip-1" },
+      "tags": ["audio", "sfx", "world"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.world.npc-blip.2": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/world/npc-blip-2.wav",
+        "alternates": { "library": "audio/sfx/library/world/npc-blip-2.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-world-npc-blip-2" },
+      "tags": ["audio", "sfx", "world"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.world.npc-blip.3": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/world/npc-blip-3.wav",
+        "alternates": { "library": "audio/sfx/library/world/npc-blip-3.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-world-npc-blip-3" },
+      "tags": ["audio", "sfx", "world"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.world.interact.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/world/interact.wav",
+        "alternates": { "library": "audio/sfx/library/world/interact.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-world-interact-1" },
+      "tags": ["audio", "sfx", "world"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.world.save.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/world/save.wav",
+        "alternates": { "library": "audio/sfx/library/world/save.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-world-save-1" },
+      "tags": ["audio", "sfx", "world"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.ui.hover.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/ui/hover.wav",
+        "alternates": { "library": "audio/sfx/library/ui/hover.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-ui-hover-1" },
+      "tags": ["audio", "sfx", "ui"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.ui.click.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/ui/click.wav",
+        "alternates": { "library": "audio/sfx/library/ui/click.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-ui-click-1" },
+      "tags": ["audio", "sfx", "ui"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.ui.confirm.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/ui/confirm.wav",
+        "alternates": { "library": "audio/sfx/library/ui/confirm.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-ui-confirm-1" },
+      "tags": ["audio", "sfx", "ui"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.ui.cancel.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/ui/cancel.wav",
+        "alternates": { "library": "audio/sfx/library/ui/cancel.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-ui-cancel-1" },
+      "tags": ["audio", "sfx", "ui"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.ui.error.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/ui/error.wav",
+        "alternates": { "library": "audio/sfx/library/ui/error.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-ui-error-1" },
+      "tags": ["audio", "sfx", "ui"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.ui.open.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/ui/open.wav",
+        "alternates": { "library": "audio/sfx/library/ui/open.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-ui-open-1" },
+      "tags": ["audio", "sfx", "ui"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.ui.close.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/ui/close.wav",
+        "alternates": { "library": "audio/sfx/library/ui/close.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-ui-close-1" },
+      "tags": ["audio", "sfx", "ui"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.ui.craft-success.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/ui/craft-success.wav",
+        "alternates": { "library": "audio/sfx/library/ui/craft-success.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-ui-craft-success-1" },
+      "tags": ["audio", "sfx", "ui"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.ui.craft-fail.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/ui/craft-fail.wav",
+        "alternates": { "library": "audio/sfx/library/ui/craft-fail.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-ui-craft-fail-1" },
+      "tags": ["audio", "sfx", "ui"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.ui.perk-choose.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/ui/perk-choose.wav",
+        "alternates": { "library": "audio/sfx/library/ui/perk-choose.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-ui-perk-choose-1" },
+      "tags": ["audio", "sfx", "ui"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.ui.quest-accept.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/ui/quest-accept.wav",
+        "alternates": { "library": "audio/sfx/library/ui/quest-accept.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-ui-quest-accept-1" },
+      "tags": ["audio", "sfx", "ui"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.ui.quest-progress.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/ui/quest-progress.wav",
+        "alternates": { "library": "audio/sfx/library/ui/quest-progress.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-ui-quest-progress-1" },
+      "tags": ["audio", "sfx", "ui"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.ui.quest-complete.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/ui/quest-complete.wav",
+        "alternates": { "library": "audio/sfx/library/ui/quest-complete.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-ui-quest-complete-1" },
+      "tags": ["audio", "sfx", "ui"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.ui.quest-failed.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/ui/quest-failed.wav",
+        "alternates": { "library": "audio/sfx/library/ui/quest-failed.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-ui-quest-failed-1" },
+      "tags": ["audio", "sfx", "ui"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.ui.hotbar-switch.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/ui/hotbar-switch.wav",
+        "alternates": { "library": "audio/sfx/library/ui/hotbar-switch.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-ui-hotbar-switch-1" },
+      "tags": ["audio", "sfx", "ui"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.ui.ability-denied.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/ui/ability-denied.wav",
+        "alternates": { "library": "audio/sfx/library/ui/ability-denied.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-ui-ability-denied-1" },
+      "tags": ["audio", "sfx", "ui"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.ui.ability-ready.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/ui/ability-ready.wav",
+        "alternates": { "library": "audio/sfx/library/ui/ability-ready.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-ui-ability-ready-1" },
+      "tags": ["audio", "sfx", "ui"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.ui.journal-open.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/ui/journal-open.wav",
+        "alternates": { "library": "audio/sfx/library/ui/journal-open.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-ui-journal-open-1" },
+      "tags": ["audio", "sfx", "ui"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
+    },
+    "audio.sfx.ui.toast.1": {
+      "source": {
+        "kind": "audio",
+        "path": "audio/sfx/synth/ui/toast.wav",
+        "alternates": { "library": "audio/sfx/library/ui/toast.ogg" }
+      },
+      "runtime": { "textureKey": "sfx-ui-toast-1" },
+      "tags": ["audio", "sfx", "ui"],
+      "status": "draft",
+      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
     }
   }
 }

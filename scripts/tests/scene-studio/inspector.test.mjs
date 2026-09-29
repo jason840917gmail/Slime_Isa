@@ -27,3 +27,15 @@ test('property editors parse descriptor types and enforce numeric constraints', 
   assert.throws(() => editors.get('number').parse('0', health), /at least 1/);
   assert.deepEqual(editors.get('node').parse('body', { ...health, inspector: 'node' }), { nodeId: 'body' });
 });
+
+test('inspector header becomes an editable name field when renaming is allowed', async () => {
+  const { renderSceneInspector: render, sceneInspectorModel: model } = await loadTypescriptModule('src/game/editor/scene-studio/SceneInspector.ts');
+  const { createCoreDescriptorRegistry: registry } = await loadTypescriptModule('src/game/content/scenes/propertyDescriptors.ts');
+  const node = { id: 'sign', name: 'Sign <old>', type: 'Node2D', parentId: 'root', order: 0, properties: {} };
+  const inspected = model(node, registry());
+  const plain = render(inspected);
+  assert.match(plain, /<h2>Sign &lt;old&gt;<\/h2>/);
+  assert.doesNotMatch(plain, /data-node-name/);
+  const editable = render(inspected, { rename: { name: 'Welcome "Sign"', label: 'Instance name' } });
+  assert.match(editable, /<h2><input type="text" class="scene-name-field" data-node-name value="Welcome &quot;Sign&quot;" aria-label="Instance name"/);
+});

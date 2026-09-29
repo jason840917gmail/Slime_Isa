@@ -8,6 +8,8 @@ import {
   resolveExplicitDepth,
 } from '../presentation/WorldDepth';
 import type { SpriteBoundsGeometry } from '../infrastructure/phaser-nodes/Sprite2DNode';
+import type { EnemyDebugAttackArea } from '../features/scripts/EnemyScript';
+import { traceSensorShape } from '../features/effects/AttackTelegraphs';
 
 type DebugGroup = Phaser.GameObjects.Group | Phaser.Physics.Arcade.Group | Phaser.Physics.Arcade.StaticGroup;
 
@@ -31,6 +33,8 @@ export interface WorldDebugContext {
   getBossBattleAreas: () => readonly { readonly activation?: MapEnemyAreaPerimeter; readonly arena?: MapEnemyAreaPerimeter }[];
   /** Every mounted world sprite; object overlays (visual, occlusion, depth) are drawn from these. */
   getWorldVisuals: () => readonly DebugWorldVisual[];
+  /** Authored enemy attack areas (contact, landing) with live target overlap. */
+  getEnemyAttackAreas: () => readonly EnemyDebugAttackArea[];
 }
 
 export class WorldDebugRenderer {
@@ -61,6 +65,7 @@ export class WorldDebugRenderer {
     if (devToolsState.attackBoxes) this.drawActiveAttackHitboxes(g);
     if (devToolsState.enemyBoundaries) this.drawEnemyBoundaries(g);
     if (devToolsState.bossBattleAreas) this.drawBossBattleAreas(g);
+    if (devToolsState.enemyAttackAreas) this.drawEnemyAttackAreas(g);
   }
 
   destroy(): void {
@@ -149,6 +154,15 @@ export class WorldDebugRenderer {
     for (const camp of this.ctx.getBossBattleAreas()) {
       if (camp.activation) this.drawEnemyPerimeter(g, camp.activation, 0x40e0d0, 0.045, 3);
       if (camp.arena) this.drawEnemyPerimeter(g, camp.arena, 0xffb84d, 0.07, 3);
+    }
+  }
+
+  /** Landing zones in blue, other attack areas in amber; any area the player overlaps turns red. */
+  private drawEnemyAttackAreas(g: Phaser.GameObjects.Graphics): void {
+    for (const area of this.ctx.getEnemyAttackAreas()) {
+      const color = area.overlapsTarget ? 0xff3b3b : area.reference === 'landingZone' ? 0x4da3ff : 0xffb020;
+      g.fillStyle(color, area.overlapsTarget ? 0.18 : 0.07).lineStyle(2, color, 0.95);
+      for (const shape of area.shapes) traceSensorShape(g, shape);
     }
   }
 

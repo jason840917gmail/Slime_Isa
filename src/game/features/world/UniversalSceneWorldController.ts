@@ -4,7 +4,12 @@ import type { MapEnemyAreaPerimeter, MapEnemySafeZone, MapFile } from '../../con
 import { getCharacterPackage } from '../../content/characters/CharacterCatalog';
 import { resourceId, sceneId, type SceneId } from '../../content/scenes/identifiers';
 import { ASSET_MANIFEST, type AssetId } from '../../infrastructure/assets/manifest';
+import { createGlobalAudioCuePort } from '../../infrastructure/audio/GlobalAudioCuePort';
 import { GlobalAudioServices } from '../../infrastructure/audio/GlobalAudioServices';
+import { DEFAULT_AUDIO_SETTINGS, loadAudioSettings, saveAudioSettings } from '../../infrastructure/persistence/AudioSettingsStore';
+import { AudioSettingsSurfacePort } from '../ui/AudioSettingsSurfacePort';
+import { gameEvents } from '../../core/EventBus';
+import { AudioEventBridge } from '../audio/AudioEventBridge';
 import { CharacterBody2DNode } from '../../infrastructure/phaser-nodes/CharacterBody2DNode';
 import { Area2DNode } from '../../infrastructure/phaser-nodes/Area2DNode';
 import { Sprite2DNode } from '../../infrastructure/phaser-nodes/Sprite2DNode';
@@ -20,7 +25,7 @@ import { DamageRouter } from '../combat/DamageRouter';
 import type { InteractionProvider, InteractionRouter } from '../interaction/InteractionRouter';
 import type { NpcActorHandle, QuestNpcRegistration } from '../interaction/QuestNpcController';
 import { createNpcWanderState, stepNpcWander } from '../npcs/NpcWanderPolicy';
-import { NpcNameTags } from '../npcs/NpcNameTags';
+import { NpcNameTags, type NpcQuestMarker } from '../npcs/NpcNameTags';
 import { AttackTelegraphs } from '../effects/AttackTelegraphs';
 import { getNpcDefinition } from '../../content/npcs/NpcCatalog';
 import type { InventoryWorldTransaction } from '../progression/InventoryWorldTransaction';
@@ -46,6 +51,7 @@ import {
   ENEMY_TARGET_SERVICE,
   EnemyScript,
   type EnemyDamageNumberRequest,
+  type EnemyDebugAttackArea,
   type EnemyTelegraphRequest,
   type EnemyNavigationSnapshot,
   type EnemyProjectileRequest,
@@ -116,6 +122,8 @@ import { ChestInventorySurfacePort } from '../ui/ChestInventorySurfacePort';
 import { CraftingSurfacePort } from '../ui/CraftingSurfacePort';
 import { QuestJournalSurfacePort } from '../ui/QuestJournalSurfacePort';
 import { QuestOfferSurfacePort } from '../ui/QuestOfferSurfacePort';
+import { NpcDialogueSurfacePort } from '../ui/NpcDialogueSurfacePort';
+import { QuestTrackerSurfacePort } from '../ui/QuestTrackerSurfacePort';
 import { WorldMapSurfacePort } from '../ui/WorldMapSurfacePort';
 import { LevelUpSurfacePort } from '../ui/LevelUpSurfacePort';
 import { MinimapSurfacePort } from '../ui/MinimapSurfacePort';
@@ -132,6 +140,13 @@ import {
   type WorldExitRequest,
   type WorldExitResult,
 } from '../scripts/WorldExitScript';
+import { BedScript } from '../scripts/BedScript';
+import { WorkbenchScript } from '../scripts/WorkbenchScript';
+import type { CraftingContext } from '../../content/recipes/types';
+import type { PlacedFurnitureData } from '../../infrastructure/persistence/SaveSchema';
+import type { PlaceableVisual } from '../building/FurniturePlacementController';
+import { DoorScript } from '../scripts/DoorScript';
+import type { SleepRequest } from '../rest/SleepController';
 
 export interface UniversalSceneWorldControllerOptions {
   readonly scene: Phaser.Scene;
@@ -149,12 +164,15 @@ export interface UniversalSceneWorldControllerOptions {
   readonly setCraftingPaused: (paused: boolean) => void;
   readonly setJournalPaused: (paused: boolean) => void;
   readonly setQuestOfferPaused: (paused: boolean) => void;
+  readonly setNpcDialoguePaused: (paused: boolean) => void;
   readonly setWorldMapPaused: (paused: boolean) => void;
   readonly setLevelUpPaused: (paused: boolean) => void;
+  readonly setAudioSettingsPaused: (paused: boolean) => void;
   readonly getCurrentAreaId: () => string;
   readonly worldDimensions: WorldDimensions;
   readonly onCrafted: (result: CraftSuccess) => void;
   readonly onUseInventoryItem: (itemId: string) => void;
+  readonly onPlaceInventoryItem: (itemId: string) => void;
   readonly onEquipInventoryWeapon: (weaponId: string) => void;
   readonly onAssignInventoryWeapon: (weaponId: string, slotIndex: number) => void;
   readonly canDropInventoryItem: (itemId: string) => boolean;
@@ -176,6 +194,12 @@ export interface UniversalSceneWorldControllerOptions {
   /** Registers a character visual that should reveal a silhouette when occluded. */
   readonly registerOcclusionActor?: (registration: OcclusionActorRegistration) => { dispose(): void };
   readonly requestExit: (request: WorldExitRequest) => WorldExitResult;
+  /** Lies the player down in a bed; returns false when sleeping is not possible now. */
+  readonly requestSleep: (request: SleepRequest) => boolean;
+  /** Opens the crafting surface for a station's recipe context. */
+  readonly openCraftingStation: (context: CraftingContext) => boolean;
+  /** Returns placed furniture to the inventory; false when it cannot be picked up now. */
+  readonly pickUpFurniture: (placementId: string) => boolean;
   readonly onEquipWeaponSlot: (slotIndex: number) => void;
   readonly getAbilitySystem: () => PlayerAbilityController | undefined;
   readonly canUseAbilities: () => boolean;
@@ -251,17 +275,22 @@ function bossDisplayName(script: EnemyScript, fallbackId: string): string {
   return fallbackId.split(/[-_.]/).filter(Boolean).map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 }
 
+/** Key-badge height above a chest's body origin. */
+const CHEST_BADGE_RISE_PX = 56;
+
 function isPassiveObjectScene(sceneIdValue: string): boolean {
   return sceneIdValue.startsWith('object.decoration-world-')
     || sceneIdValue.startsWith('object.house-world-solid')
     || sceneIdValue.startsWith('object.rock-world-wall-')
-    || sceneIdValue.startsWith('object.wall-stone-solid');
+    || sceneIdValue.startsWith('object.wall-stone-solid')
+    || sceneIdValue.startsWith('object.interior-');
 }
 
 export class UniversalSceneWorldController implements InteractionProvider {
   readonly runtime: PhaserUniversalSceneRuntime;
   readonly audioComposition: MountedScene;
   readonly audioServices: GlobalAudioServices;
+  private readonly audioEvents: AudioEventBridge;
   private readonly activations = new AttackActivation();
   private readonly damageRouter = new DamageRouter(this.activations, () => this.simulationTimeMs);
   readonly chestUi: ChestInventorySurfacePort;
@@ -279,8 +308,11 @@ export class UniversalSceneWorldController implements InteractionProvider {
   readonly craftingSurface: CraftingSurfacePort;
   readonly questJournalSurface: QuestJournalSurfacePort;
   readonly questOfferSurface: QuestOfferSurfacePort;
+  readonly npcDialogueSurface: NpcDialogueSurfacePort;
+  private readonly questTrackerSurface: QuestTrackerSurfacePort;
   readonly worldMapSurface: WorldMapSurfacePort;
   readonly levelUpSurface: LevelUpSurfacePort;
+  readonly audioSettingsSurface: AudioSettingsSurfacePort;
   readonly minimapSurface: MinimapSurfacePort;
   private readonly camps = new Map<string, ManagedCamp>();
   private readonly bosses = new Map<string, ManagedBoss>();
@@ -301,7 +333,18 @@ export class UniversalSceneWorldController implements InteractionProvider {
   private playerVisual?: Sprite2DNode;
   private playerPickupArea?: Area2DNode;
   private readonly chests = new Map<string, ChestScript>();
+  private readonly doors = new Set<DoorScript>();
+  private readonly beds = new Set<BedScript>();
+  private readonly workbenches = new Set<WorkbenchScript>();
+  /** Player-placed furniture mounted at runtime, keyed by placement id. */
+  private readonly placedFurniture = new Map<string, { readonly record: PlacedFurnitureData; readonly mount: MountedScene; readonly scripts: readonly Node[] }>();
+  /** Which placement an interactable script belongs to (absent for authored objects). */
+  private readonly scriptPlacement = new Map<Node, string>();
   private readonly unregisterInteraction: () => void;
+  private readonly unregisterDoorInteraction: () => void;
+  private readonly unregisterBedInteraction: () => void;
+  private readonly unregisterWorkbenchInteraction: () => void;
+  private readonly unregisterFurnitureInteraction: () => void;
   private nextBossSequence = 1;
   private nextEnemySequence = 1;
   private nextProjectileSequence = 1;
@@ -330,9 +373,17 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.questOfferSurface = new QuestOfferSurfacePort({
       modalStack: options.modalStack, uiRoot: options.uiRoot, onPausedChange: options.setQuestOfferPaused,
     });
+    this.questTrackerSurface = new QuestTrackerSurfacePort();
+    this.npcDialogueSurface = new NpcDialogueSurfacePort({
+      modalStack: options.modalStack, uiRoot: options.uiRoot, onPausedChange: options.setNpcDialoguePaused,
+    });
     this.worldMapSurface = new WorldMapSurfacePort({
       modalStack: options.modalStack, uiRoot: options.uiRoot,
       getCurrentArea: options.getCurrentAreaId, onPausedChange: options.setWorldMapPaused,
+    });
+    this.audioSettingsSurface = new AudioSettingsSurfacePort({
+      modalStack: options.modalStack, mixer: this.audioServices, load: loadAudioSettings, save: saveAudioSettings,
+      defaults: DEFAULT_AUDIO_SETTINGS, onPausedChange: options.setAudioSettingsPaused,
     });
     this.levelUpSurface = new LevelUpSurfacePort({
       modalStack: options.modalStack, uiRoot: options.uiRoot, onPausedChange: options.setLevelUpPaused,
@@ -344,7 +395,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
     });
     this.inventorySurface = new InventorySurfacePort({
       modalStack: options.modalStack, uiRoot: options.uiRoot, onPausedChange: options.setInventoryPaused,
-      onUseItem: options.onUseInventoryItem, onEquipWeapon: options.onEquipInventoryWeapon,
+      onUseItem: options.onUseInventoryItem, onPlaceItem: options.onPlaceInventoryItem, onEquipWeapon: options.onEquipInventoryWeapon,
       onAssignWeapon: options.onAssignInventoryWeapon, canDropItem: options.canDropInventoryItem,
       onDropItem: options.onDropInventoryItem,
     });
@@ -374,8 +425,11 @@ export class UniversalSceneWorldController implements InteractionProvider {
       ['crafting-ui', this.craftingSurface],
       ['quest-journal', this.questJournalSurface],
       ['quest-offer-modal', this.questOfferSurface],
+      ['npc-dialogue', this.npcDialogueSurface],
+      ['quest-tracker', this.questTrackerSurface],
       ['world-map-ui', this.worldMapSurface],
       ['level-up-modal', this.levelUpSurface],
+      ['audio-settings', this.audioSettingsSurface],
       ['minimap', this.minimapSurface],
       ['boss-health-bar', this.bossHealthSurface],
       ['area-title-card', this.areaTitleSurface],
@@ -412,6 +466,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
           ...target,
           targetTags: this.managedTargetTags(target.receiverNodeId),
         }),
+        wielderReceiverNodeId: () => this.playerScript?.runtimeNodeId,
       },
       [PLAYER_HEALTH_SERVICE]: options.health,
       [ENEMY_TARGET_SERVICE]: {
@@ -432,7 +487,10 @@ export class UniversalSceneWorldController implements InteractionProvider {
       [BOSS_CAMP_PROGRESS_SERVICE]: {
         getRespawnReadyAt: (mapId: string, campId: string) => options.progress.bossCampRespawnReadyAt(mapId, campId),
         setRespawnReadyAt: (mapId: string, campId: string, epochMs: number | undefined) => options.progress.setBossCampRespawnReadyAt(mapId, campId, epochMs),
-        markBossDefeated: (bossId: string) => options.progress.defeatBoss(bossId),
+        markBossDefeated: (bossId: string) => {
+          options.progress.defeatBoss(bossId);
+          gameEvents.emit('boss.defeated', { bossId });
+        },
       },
       [BOSS_SCENE_SPAWNER_SERVICE]: {
         spawnBoss: (request: BossSceneSpawnRequest) => this.spawnBoss(request),
@@ -481,6 +539,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
       [UI_SURFACE_SERVICE]: uiSurfaces,
     });
     let mountedRuntime: PhaserUniversalSceneRuntime | undefined;
+    let audioEvents: AudioEventBridge | undefined;
     try {
       mountedRuntime = this.runtime = new PhaserUniversalSceneRuntime({
         scene: options.scene,
@@ -520,6 +579,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
       });
       inputSink = this.runtime;
       this.audioComposition = this.runtime.mountScene(sceneId('audio.global'), { runtimeNamespace: 'audio-global' });
+      audioEvents = this.audioEvents = new AudioEventBridge(createGlobalAudioCuePort(this.audioComposition.root), gameEvents, options.modalStack);
       this.runtime.mountScene(sceneId('ui.hud'), { runtimeNamespace: 'ui-hud' });
       this.runtime.mountScene(sceneId('ui.weapon-hotbar'), { runtimeNamespace: 'ui-weapon-hotbar' });
       this.runtime.mountScene(sceneId('ui.ability-bar'), { runtimeNamespace: 'ui-ability-bar' });
@@ -531,11 +591,15 @@ export class UniversalSceneWorldController implements InteractionProvider {
       this.runtime.mountScene(sceneId('ui.crafting-ui'), { runtimeNamespace: 'ui-crafting-ui' });
       this.runtime.mountScene(sceneId('ui.quest-journal'), { runtimeNamespace: 'ui-quest-journal' });
       this.runtime.mountScene(sceneId('ui.quest-offer-modal'), { runtimeNamespace: 'ui-quest-offer-modal' });
+      this.runtime.mountScene(sceneId('ui.npc-dialogue'), { runtimeNamespace: 'ui-npc-dialogue' });
+      this.runtime.mountScene(sceneId('ui.quest-tracker'), { runtimeNamespace: 'ui-quest-tracker' });
       this.runtime.mountScene(sceneId('ui.world-map-ui'), { runtimeNamespace: 'ui-world-map-ui' });
       this.runtime.mountScene(sceneId('ui.level-up-modal'), { runtimeNamespace: 'ui-level-up-modal' });
+      this.runtime.mountScene(sceneId('ui.audio-settings'), { runtimeNamespace: 'ui-audio-settings' });
       this.runtime.mountScene(sceneId('ui.minimap'), { runtimeNamespace: 'ui-minimap' });
     } catch (error) {
       mountedRuntime?.shutdown();
+      audioEvents?.dispose();
       this.audioServices.destroy();
       this.inputRouter.destroy();
       this.hudSurface.destroy();
@@ -550,8 +614,11 @@ export class UniversalSceneWorldController implements InteractionProvider {
       this.craftingSurface.destroy();
       this.questJournalSurface.destroy();
       this.questOfferSurface.destroy();
+      this.npcDialogueSurface.destroy();
+      this.questTrackerSurface.destroy();
       this.worldMapSurface.destroy();
       this.levelUpSurface.destroy();
+      this.audioSettingsSurface.destroy();
       this.minimapSurface.destroy();
       throw error;
     }
@@ -559,6 +626,10 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.mountPlayer();
     this.mountAuthoredWorld();
     this.unregisterInteraction = options.interactions.register('managed-chests', this);
+    this.unregisterDoorInteraction = options.interactions.register('world-doors', { getCandidate: () => this.doorCandidate() });
+    this.unregisterBedInteraction = options.interactions.register('world-beds', { getCandidate: () => this.bedCandidate() });
+    this.unregisterWorkbenchInteraction = options.interactions.register('world-workbenches', { getCandidate: () => this.workbenchCandidate() });
+    this.unregisterFurnitureInteraction = options.interactions.register('placed-furniture', { getCandidate: () => this.furnitureCandidate() });
     this.unregisterFloatingText = floatingText.registerPresentation(options.scene, this.floatingTextSurface);
   }
 
@@ -567,6 +638,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
   get simulationTime(): number { return this.simulationTimeMs; }
   flashPlayerHealthBar(): void { this.playerHealthSurface.flash(); }
   showAreaTitle(title: string, color: string): void { this.areaTitleSurface.show(title, color); }
+  setNpcQuestMarker(instanceId: string, marker: NpcQuestMarker | undefined): void { this.npcNameTags.setMarker(instanceId, marker); }
   setPaused(paused: boolean): void {
     if (paused) this.playerScript?.clearInput();
     this.runtime.setPaused(paused);
@@ -620,6 +692,11 @@ export class UniversalSceneWorldController implements InteractionProvider {
     }));
   }
 
+  /** Authored attack areas of every live enemy, for the dev overlay. */
+  get enemyAttackAreas(): readonly EnemyDebugAttackArea[] {
+    return descendants(this.runtime.root, EnemyScript).flatMap((script) => script.debugAttackAreas());
+  }
+
   get managedLiveCampCount(): number { return [...this.camps.values()].filter((camp) => camp.script.hasLiveBoss).length; }
 
   flashHudCoins(): void {
@@ -648,11 +725,131 @@ export class UniversalSceneWorldController implements InteractionProvider {
       id: `managed-chests:${nearest.script.instanceId}`,
       prompt: locked ? '[F] Chest locked by Fatty One Eye' : nearest.script.empty ? '[F] Inspect empty chest' : '[F] Open chest',
       priority: 80,
+      anchor: () => ({ x: nearest!.position.x, y: nearest!.position.y - CHEST_BADGE_RISE_PX }),
       execute: () => {
         const result = nearest!.script.requestOpen();
         if (result === 'guarded') this.options.showMessage(nearest!.position.x, nearest!.position.y - 48, 'Fatty One Eye is guarding this chest!', 'white', true);
         return true;
       },
+    };
+  }
+
+  private doorCandidate() {
+    if (!this.playerBody) return undefined;
+    const player = this.managedPlayer.getPosition();
+    let nearest: DoorScript | undefined;
+    let nearestDistance = Number.POSITIVE_INFINITY;
+    for (const door of this.doors) {
+      const parent = door.get_parent() as Node2D | undefined;
+      if (!parent) continue;
+      const position = parent.get_global_transform().position;
+      const distance = Phaser.Math.Distance.Between(player.x, player.y, position.x, position.y);
+      if (distance <= door.interactRadius && distance < nearestDistance) { nearest = door; nearestDistance = distance; }
+    }
+    if (!nearest) return undefined;
+    const door = nearest;
+    const actorNodeId = this.playerBody.runtimeId;
+    return {
+      id: `world-doors:${door.doorId}`,
+      prompt: `[F] ${door.prompt}`,
+      priority: 90,
+      anchor: () => {
+        const position = (door.get_parent() as Node2D).get_global_transform().position;
+        return { x: position.x, y: position.y - door.badgeRise };
+      },
+      execute: () => {
+        const result = this.options.requestExit({
+          mapId: door.mapId,
+          exitId: door.doorId,
+          targetAreaId: door.targetAreaId,
+          entry: door.entry,
+          actorNodeId,
+          gate: {},
+        });
+        return result.status === 'queued';
+      },
+    };
+  }
+
+  /** G on placed furniture puts it back in the inventory. */
+  private pickUpAction(script: Node) {
+    const placementId = this.scriptPlacement.get(script);
+    if (!placementId) return undefined;
+    return { prompt: '[G] Pick up', execute: () => this.options.pickUpFurniture(placementId) };
+  }
+
+  private workbenchCandidate() {
+    if (!this.playerBody) return undefined;
+    const player = this.managedPlayer.getPosition();
+    let nearest: { readonly bench: WorkbenchScript; readonly origin: Readonly<{ x: number; y: number }> } | undefined;
+    let nearestDistance = Number.POSITIVE_INFINITY;
+    for (const bench of this.workbenches) {
+      const parent = bench.get_parent() as Node2D | undefined;
+      if (!parent) continue;
+      const origin = parent.get_global_transform().position;
+      const distance = Phaser.Math.Distance.Between(player.x, player.y, origin.x, origin.y);
+      if (distance <= bench.interactRadius && distance < nearestDistance) { nearest = { bench, origin }; nearestDistance = distance; }
+    }
+    if (!nearest) return undefined;
+    const { bench, origin } = nearest;
+    const secondary = this.pickUpAction(bench);
+    return {
+      id: `world-workbenches:${bench.runtimeId}`,
+      prompt: `[F] ${bench.prompt}`,
+      priority: 88,
+      anchor: () => ({ x: origin.x, y: origin.y - bench.badgeRise }),
+      ...(secondary ? { secondary } : {}),
+      execute: () => this.options.openCraftingStation(bench.recipeContext),
+    };
+  }
+
+  /** Placed furniture without its own interaction can still be picked up (G or F). */
+  private furnitureCandidate() {
+    if (!this.playerBody) return undefined;
+    const player = this.managedPlayer.getPosition();
+    let nearest: { readonly placementId: string; readonly x: number; readonly y: number } | undefined;
+    let nearestDistance = Number.POSITIVE_INFINITY;
+    for (const [placementId, placed] of this.placedFurniture) {
+      if (placed.scripts.length > 0) continue;
+      const distance = Phaser.Math.Distance.Between(player.x, player.y, placed.record.x, placed.record.y);
+      if (distance <= 90 && distance < nearestDistance) { nearest = { placementId, x: placed.record.x, y: placed.record.y }; nearestDistance = distance; }
+    }
+    if (!nearest) return undefined;
+    const { placementId, x, y } = nearest;
+    const execute = () => this.options.pickUpFurniture(placementId);
+    return {
+      id: `placed-furniture:${placementId}`,
+      prompt: '[F] Pick up',
+      priority: 40,
+      anchor: () => ({ x, y: y - 72 }),
+      execute,
+    };
+  }
+
+  private bedCandidate() {
+    if (!this.playerBody) return undefined;
+    const player = this.managedPlayer.getPosition();
+    let nearest: { readonly bed: BedScript; readonly origin: Readonly<{ x: number; y: number }> } | undefined;
+    let nearestDistance = Number.POSITIVE_INFINITY;
+    for (const bed of this.beds) {
+      const parent = bed.get_parent() as Node2D | undefined;
+      if (!parent) continue;
+      const origin = parent.get_global_transform().position;
+      const distance = Phaser.Math.Distance.Between(player.x, player.y, origin.x, origin.y);
+      if (distance <= bed.interactRadius && distance < nearestDistance) { nearest = { bed, origin }; nearestDistance = distance; }
+    }
+    if (!nearest) return undefined;
+    const { bed, origin } = nearest;
+    return {
+      id: `world-beds:${bed.runtimeId}`,
+      prompt: `[F] ${bed.prompt}`,
+      priority: 85,
+      anchor: () => ({ x: origin.x, y: origin.y - bed.badgeRise }),
+      ...(this.pickUpAction(bed) ? { secondary: this.pickUpAction(bed)! } : {}),
+      execute: () => this.options.requestSleep({
+        sleepPoint: { x: origin.x + bed.sleepPoint.x, y: origin.y + bed.sleepPoint.y },
+        wakePoint: { x: origin.x + bed.wakePoint.x, y: origin.y + bed.wakePoint.y },
+      }),
     };
   }
 
@@ -899,11 +1096,16 @@ export class UniversalSceneWorldController implements InteractionProvider {
     if (this.disposed) return;
     this.disposed = true;
     this.unregisterInteraction();
+    this.unregisterDoorInteraction();
+    this.unregisterBedInteraction();
+    this.unregisterWorkbenchInteraction();
+    this.unregisterFurnitureInteraction();
     this.unregisterFloatingText();
     this.inputRouter.destroy();
     this.runtime.shutdown();
     this.npcNameTags.destroy();
     this.attackTelegraphs.destroy();
+    this.audioEvents.dispose();
     this.audioServices.destroy();
     this.hudSurface.destroy();
     this.weaponHotbarSurface.destroy();
@@ -917,8 +1119,11 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.craftingSurface.destroy();
     this.questJournalSurface.destroy();
     this.questOfferSurface.destroy();
+    this.npcDialogueSurface.destroy();
+    this.questTrackerSurface.destroy();
     this.worldMapSurface.destroy();
     this.levelUpSurface.destroy();
+    this.audioSettingsSurface.destroy();
     this.minimapSurface.destroy();
     this.camps.clear();
     this.bosses.clear();
@@ -937,6 +1142,11 @@ export class UniversalSceneWorldController implements InteractionProvider {
     this.playerVisual = undefined;
     this.playerPickupArea = undefined;
     this.chests.clear();
+    this.doors.clear();
+    this.beds.clear();
+    this.workbenches.clear();
+    this.placedFurniture.clear();
+    this.scriptPlacement.clear();
   }
 
   private mountAuthoredWorld(): void {
@@ -974,6 +1184,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
     }
     for (const script of descendants(mount.root, NpcScript)) this.registerNpcPlacement(script);
     for (const script of descendants(mount.root, ChestScript)) this.chests.set(script.instanceId, script);
+    this.registerInteractables(mount.root);
     for (const script of descendants(mount.root, BossCampScript)) {
       const owner = authoredInstanceOwner(script);
       if (owner instanceof Node2D) this.camps.set(script.campId, { script, owner });
@@ -982,7 +1193,93 @@ export class UniversalSceneWorldController implements InteractionProvider {
       if (node instanceof Node2D) this.authoredRoots.add(node);
       if (isPassiveObjectScene(node.authoredInstanceProvenance?.sourceSceneId ?? '')) this.passiveObjects.add(node);
     }
+    for (const record of this.options.progress.placedFurniture(this.options.map.mapId)) this.mountPlacedFurniture(record);
     this.runtime.tree.flushMutations();
+  }
+
+  /** Doors, beds, and stations inside a mounted subtree become interaction candidates. */
+  private registerInteractables(root: Node, placementId?: string): Node[] {
+    const scripts: Node[] = [
+      ...descendants(root, DoorScript),
+      ...descendants(root, BedScript),
+      ...descendants(root, WorkbenchScript),
+    ];
+    for (const script of scripts) {
+      if (script instanceof DoorScript) this.doors.add(script);
+      else if (script instanceof BedScript) this.beds.add(script);
+      else if (script instanceof WorkbenchScript) this.workbenches.add(script);
+      if (placementId) this.scriptPlacement.set(script, placementId);
+    }
+    return scripts;
+  }
+
+  /** Mounts one player-placed furniture record; false if its scene is unavailable. */
+  mountPlacedFurniture(record: PlacedFurnitureData): boolean {
+    if (this.placedFurniture.has(record.id)) return true;
+    let mount: MountedScene;
+    try {
+      mount = this.runtime.mountScene(sceneId(record.sceneId), {
+        runtimeNamespace: `placed-furniture-${record.id}`,
+        position: { x: record.x, y: record.y },
+      });
+    } catch (error) {
+      console.error(`Placed furniture '${record.id}' (${record.sceneId}) could not be mounted`, error);
+      return false;
+    }
+    const scripts = this.registerInteractables(mount.root, record.id);
+    this.placedFurniture.set(record.id, { record, mount, scripts });
+    this.runtime.tree.flushMutations();
+    return true;
+  }
+
+  unmountPlacedFurniture(placementId: string): void {
+    const placed = this.placedFurniture.get(placementId);
+    if (!placed) return;
+    for (const script of placed.scripts) {
+      this.doors.delete(script as DoorScript);
+      this.beds.delete(script as BedScript);
+      this.workbenches.delete(script as WorkbenchScript);
+      this.scriptPlacement.delete(script);
+    }
+    this.placedFurniture.delete(placementId);
+    placed.mount.dispose();
+    this.runtime.tree.flushMutations();
+  }
+
+  /** Texture, scale, origin, and blocking footprint of an object scene, for placement previews. */
+  describePlaceable(sceneIdValue: string): PlaceableVisual | undefined {
+    const document = this.options.content.catalog.get(sceneId(sceneIdValue));
+    if (!document) return undefined;
+    const visual = document.nodes.find((node) => node.type === 'Sprite2D');
+    const texture = visual?.properties.texture as { resourceId?: string } | undefined;
+    const sheet = document.subresources?.find((resource) => resource.resourceId === texture?.resourceId) as { assetId?: string } | undefined;
+    const asset = sheet?.assetId ? ASSET_MANIFEST.assets[sheet.assetId as AssetId] : undefined;
+    if (!visual || !asset) return undefined;
+    const pair = (value: unknown, fallback: readonly [number, number]): readonly [number, number] => (
+      Array.isArray(value) && value.length === 2 && value.every((part) => typeof part === 'number')
+        ? [value[0] as number, value[1] as number] : fallback
+    );
+    const shapeNode = document.nodes.find((node) => node.type === 'CollisionShape2D');
+    const shapeRef = shapeNode?.properties.shape as { resourceId?: string } | undefined;
+    const shape = document.subresources?.find((resource) => resource.resourceId === shapeRef?.resourceId) as
+      { value?: { shape?: string; width?: number; height?: number } } | undefined;
+    const shapePosition = pair(shapeNode?.properties.position, [0, 0]);
+    const width = shape?.value?.width;
+    const height = shape?.value?.height;
+    const [scaleX, scaleY] = pair(visual.properties.scale, [1, 1]);
+    const [originX, originY] = pair(visual.properties.origin, [0.5, 1]);
+    return {
+      textureKey: asset.runtime.textureKey,
+      frame: typeof visual.properties.frame === 'number' ? visual.properties.frame : 0,
+      scaleX,
+      scaleY,
+      originX,
+      originY,
+      rotation: typeof visual.properties.rotation === 'number' ? visual.properties.rotation : 0,
+      footprint: typeof width === 'number' && typeof height === 'number'
+        ? { x: shapePosition[0], y: shapePosition[1], width, height }
+        : undefined,
+    };
   }
 
   private mountPlayer(): void {
@@ -1037,6 +1334,7 @@ export class UniversalSceneWorldController implements InteractionProvider {
     return {
       position: script.getPosition(),
       damageAreaNodeId: script.damageAreaNodeId,
+      damageShapes: script.damageShapes,
       active: !script.getDamageState().dead,
       hostile: true,
     };

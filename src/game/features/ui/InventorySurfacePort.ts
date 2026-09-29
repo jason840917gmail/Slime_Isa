@@ -10,6 +10,8 @@ export interface InventorySurfaceActions {
   readonly uiRoot: HTMLElement;
   readonly onPausedChange: (paused: boolean) => void;
   readonly onUseItem: (itemId: string) => void;
+  /** Starts placing a furniture item from the inventory. */
+  readonly onPlaceItem: (itemId: string) => void;
   readonly onEquipWeapon: (weaponId: string) => void;
   readonly onAssignWeapon: (weaponId: string, slotIndex: number) => void;
   readonly canDropItem: (itemId: string) => boolean;
@@ -99,8 +101,8 @@ export class InventorySurfacePort implements UiSurfacePort {
         ...(effects ? ['', effects] : []),
       ].join('\n') : 'Select an item',
       quantity: `Quantity: ${this.quantity}`,
-      primaryLabel: equipment ? 'Equip Now' : 'Use',
-      primaryDisabled: !def || (!equipment && !def.use),
+      primaryLabel: equipment ? 'Equip Now' : def?.placeable ? 'Place' : 'Use',
+      primaryDisabled: !def || (!equipment && !def.use && !def.placeable),
       hotbarVisible: !!equipment,
       hotbarSlots: Array.from({ length: 5 }, (_, index) => ({ id: `assign-${index + 1}`, label: `${index + 1}` })),
       hotbarSelectedIndex: assignedIndex,
@@ -137,7 +139,11 @@ export class InventorySurfacePort implements UiSurfacePort {
     if (!def) return;
     if (actionId === 'use-or-equip') {
       if (def.equipment) this.actions.onEquipWeapon(def.equipment.weaponId);
-      else if (def.use) this.actions.onUseItem(def.id);
+      else if (def.placeable) {
+        this.close();
+        this.actions.onPlaceItem(def.id);
+        return;
+      } else if (def.use) this.actions.onUseItem(def.id);
     } else if (actionId === 'assign-slot' && def.equipment) {
       const index = selectionIndex(payload);
       if (index !== undefined && index >= 0 && index < 5) this.actions.onAssignWeapon(def.equipment.weaponId, index);

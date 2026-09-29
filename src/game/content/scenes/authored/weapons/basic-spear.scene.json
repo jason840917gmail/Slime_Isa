@@ -70,7 +70,7 @@
           "resourceId": "weapon.basic-spear.right.primary.shape"
         },
         "position": [
-          60,
+          65,
           10
         ],
         "rotation": 0,
@@ -88,7 +88,7 @@
           "resourceId": "weapon.basic-spear.left.primary.shape"
         },
         "position": [
-          -60,
+          -65,
           10
         ],
         "rotation": 0,
@@ -107,7 +107,7 @@
         },
         "position": [
           0,
-          -40
+          -65
         ],
         "rotation": 0,
         "disabled": true
@@ -125,7 +125,7 @@
         },
         "position": [
           0,
-          60
+          65
         ],
         "rotation": 0,
         "disabled": true
@@ -256,6 +256,19 @@
           }
         }
       }
+    },
+    {
+      "id": "sfx-swing-sfx",
+      "name": "SwingSfx",
+      "type": "AudioStreamPlayer",
+      "parentId": "root",
+      "order": 4,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.weapon.thrust"
+        },
+        "pitchRandomness": 0.06
+      }
     }
   ],
   "instances": [],
@@ -269,6 +282,16 @@
         "nodeId": "script"
       },
       "handler": "on_area_entered"
+    },
+    {
+      "source": {
+        "nodeId": "script"
+      },
+      "signal": "attack_started",
+      "target": {
+        "nodeId": "sfx-swing-sfx"
+      },
+      "handler": "play"
     }
   ],
   "subresources": [
@@ -280,46 +303,6 @@
       "frameWidth": 126,
       "frameHeight": 126,
       "frameCount": 4
-    },
-    {
-      "version": 1,
-      "resourceId": "weapon.basic-spear.right.primary.shape",
-      "kind": "collision-shape",
-      "value": {
-        "shape": "rectangle",
-        "width": 80,
-        "height": 24
-      }
-    },
-    {
-      "version": 1,
-      "resourceId": "weapon.basic-spear.left.primary.shape",
-      "kind": "collision-shape",
-      "value": {
-        "shape": "rectangle",
-        "width": 80,
-        "height": 24
-      }
-    },
-    {
-      "version": 1,
-      "resourceId": "weapon.basic-spear.up.primary.shape",
-      "kind": "collision-shape",
-      "value": {
-        "shape": "rectangle",
-        "width": 24,
-        "height": 80
-      }
-    },
-    {
-      "version": 1,
-      "resourceId": "weapon.basic-spear.down.primary.shape",
-      "kind": "collision-shape",
-      "value": {
-        "shape": "rectangle",
-        "width": 24,
-        "height": 80
-      }
     },
     {
       "version": 1,
@@ -372,8 +355,8 @@
                 {
                   "at": 0,
                   "value": [
-                    0.8,
-                    0.8
+                    0.5,
+                    0.5
                   ]
                 }
               ]
@@ -2469,6 +2452,55 @@
           ]
         }
       }
+    },
+    {
+      "version": 1,
+      "resourceId": "weapon.basic-spear.right.primary.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 50,
+        "height": 22
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "weapon.basic-spear.left.primary.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 50,
+        "height": 22
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "weapon.basic-spear.up.primary.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 22,
+        "height": 50
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "weapon.basic-spear.down.primary.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 22,
+        "height": 50
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.weapon.thrust",
+      "kind": "audio",
+      "assetId": "audio.sfx.weapon.thrust.1",
+      "variants": [
+        "audio.sfx.weapon.thrust.2"
+      ]
     }
   ]
 }

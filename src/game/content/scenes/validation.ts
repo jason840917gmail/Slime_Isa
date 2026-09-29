@@ -79,6 +79,15 @@ function localReferenceExists(reference: NodeReferenceDocument, nodes: ReadonlyM
   return (reference.instancePath?.length ?? 0) > 0 || nodes.has(reference.nodeId);
 }
 
+const SCALE_MESSAGE = 'scale must be positive; mirror sprites with flipX/flipY instead of a negative scale';
+
+/** Node2D (vector) and Control (number) scales must be positive, as the runtime enforces. */
+function positiveScale(value: unknown): boolean {
+  if (value === undefined) return true;
+  if (typeof value === 'number') return value > 0;
+  return !Array.isArray(value) || value.every((component) => typeof component !== 'number' || component > 0);
+}
+
 export function validateSceneDocument(value: unknown, context: SceneValidationContext): readonly SceneValidationIssue[] {
   if (!validateStructure(value)) return (validateStructure.errors ?? []).map(schemaIssue);
   const scene = value as unknown as SceneDocument;
@@ -108,6 +117,7 @@ export function validateSceneDocument(value: unknown, context: SceneValidationCo
   for (const [index, node] of scene.nodes.entries()) {
     if (nodes.has(node.id)) issues.push({ path: `/nodes/${index}/id`, message: `duplicate node ID '${node.id}'` });
     nodes.set(node.id, node);
+    if (!positiveScale(node.properties.scale)) issues.push({ path: `/nodes/${index}/properties/scale`, message: SCALE_MESSAGE });
   }
   const roots = scene.nodes.filter((node) => node.parentId === null);
   if (roots.length !== 1) issues.push({ path: '/nodes', message: `expected exactly one root, found ${roots.length}` });
@@ -129,6 +139,9 @@ export function validateSceneDocument(value: unknown, context: SceneValidationCo
       const key = `${override.sourceInstancePath.join('/')}|${override.sourceNodeId}|${override.property}`;
       if (overrideKeys.has(key)) issues.push({ path: `/instances/${index}/overrides/${overrideIndex}`, message: 'duplicate override target/property' });
       overrideKeys.add(key);
+      if (override.property === 'scale' && !positiveScale(override.value)) {
+        issues.push({ path: `/instances/${index}/overrides/${overrideIndex}/value`, message: SCALE_MESSAGE });
+      }
     }
   }
 
@@ -215,7 +228,7 @@ export function validateSceneResourceDocument(value: unknown, context: Pick<Scen
     'sprite-sheet': ['assetId', 'frameWidth', 'frameHeight', 'frameCount'],
     'collision-shape': ['value'],
     'animation-library': ['animations'],
-    audio: ['assetId'],
+    audio: ['assetId', 'variants'],
     'tile-set': ['tiles'],
     'tile-data': ['tileSet', 'columns', 'rows', 'cells'],
     font: ['assetId'],
@@ -230,6 +243,13 @@ export function validateSceneResourceDocument(value: unknown, context: Pick<Scen
   if (media.includes(String(value.kind))) {
     if (typeof value.assetId !== 'string') issues.push({ path: '/assetId', message: 'media resource requires assetId' });
     else if (context.hasAsset && !context.hasAsset(value.assetId)) issues.push({ path: '/assetId', message: `unknown raw-media asset '${value.assetId}'` });
+  }
+  if (value.kind === 'audio' && value.variants !== undefined) {
+    if (!Array.isArray(value.variants)) issues.push({ path: '/variants', message: 'expected an array of asset IDs' });
+    else for (const [index, variant] of value.variants.entries()) {
+      if (typeof variant !== 'string') issues.push({ path: `/variants/${index}`, message: 'expected asset ID' });
+      else if (context.hasAsset && !context.hasAsset(variant)) issues.push({ path: `/variants/${index}`, message: `unknown raw-media asset '${variant}'` });
+    }
   }
   if (value.kind === 'sprite-sheet') {
     if (!Number.isInteger(value.frameWidth) || Number(value.frameWidth) < 1) issues.push({ path: '/frameWidth', message: 'expected positive integer' });

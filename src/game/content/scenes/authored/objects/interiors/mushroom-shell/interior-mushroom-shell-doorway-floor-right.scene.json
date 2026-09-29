@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "sceneId": "object.interior-mushroom-shell-doorway-floor-right",
+  "rootNodeId": "root",
+  "nodes": [
+    {
+      "id": "root",
+      "name": "doorway-floor-right",
+      "type": "Node2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "root",
+      "order": 0,
+      "properties": {
+        "texture": {
+          "resourceId": "interior-mushroom-shell-doorway-floor-right.sprite"
+        },
+        "frame": 52,
+        "origin": [
+          0.5,
+          1
+        ],
+        "scale": [
+          1,
+          1
+        ],
+        "visualOffset": [
+          0,
+          0
+        ],
+        "depthMode": "world-sorted",
+        "depthBand": "ground-decals"
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "interior-mushroom-shell-doorway-floor-right.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "sheet.interiors.mushroom-room-shell.8x7",
+      "frameWidth": 128,
+      "frameHeight": 128
+    }
+  ]
+}

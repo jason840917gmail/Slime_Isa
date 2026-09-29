@@ -326,6 +326,8 @@ function worldPlacements(map, mappingModule, firstOrder) {
 export const mapSceneAdapter = {
   async convert({ units, readSource }) {
     const tileCatalog = await typescriptExport(readSource, 'scripts/migrations/frozen-sources/TileCatalog.ts', 'TILE_CATALOG');
+    // Tiles authored after the freeze exist only in the shared TileSet resource.
+    const tileSet = await readJson(readSource, 'src/game/content/scenes/authored/resources/terrain/terrain.tile-set.resource.json');
     const areas = await typescriptExport(readSource, 'src/game/world/Area.ts', 'AREAS');
     const placementMapping = await typescriptModule(readSource, 'src/game/infrastructure/scenes/compatibility/LegacyMapPlacementMapping.ts');
     const outputs = [];
@@ -344,7 +346,7 @@ export const mapSceneAdapter = {
         const tileDataId = `tiles.${mapSlug}.${layerSlug}.data`;
         const usedTileIds = [...new Set(layer.rows.flatMap((row) => [...row].map((character) => layer.legend[character])))].sort();
         for (const tileId of usedTileIds) {
-          if (!tileCatalog[tileId]) throw new Error(`Map '${map.mapId}' layer '${layer.id}' references unknown tile '${tileId}'`);
+          if (!tileCatalog[tileId] && !tileSet.tiles?.[tileId]) throw new Error(`Map '${map.mapId}' layer '${layer.id}' references unknown tile '${tileId}'`);
         }
         const cells = layer.rows.flatMap((row, y) => [...row].map((character, x) => ({ x, y, tileId: layer.legend[character] })));
         // Every map layer paints with the one shared terrain TileSet.

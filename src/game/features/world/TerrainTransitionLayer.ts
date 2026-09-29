@@ -1,62 +1,89 @@
-import Phaser from 'phaser';
+import type Phaser from 'phaser';
 import { DEPTH_BANDS } from '../../presentation/WorldDepth';
 import { rectanglesIntersect } from '../../presentation/WorldOcclusion';
 import { DisposableBag } from '../../shared/lifecycle/Disposable';
-import type { TileFactory } from './TileFactory';
-import {
-  TERRAIN_CHUNK_GUTTER,
-  type TerrainTransitionChunk,
-} from './TerrainTransitionChunks';
+import type { TerrainBlendChunk } from './TerrainBlendField';
 
 let nextTextureId = 0;
 
-/** The camera has finalized its worldView before Phaser calls willRender. */
-class TerrainChunkImage extends Phaser.GameObjects.Image {
-  override willRender(camera: Phaser.Cameras.Scene2D.Camera): boolean {
-    return super.willRender(camera)
-      // Retain chunks conservatively when the camera's view is rotated.
-      && (('rotation' in camera && camera.rotation !== 0) || rectanglesIntersect(this, camera.worldView));
-  }
+/** Texture frame for a tile at a cell, as the base tile layer draws it. */
+export type TerrainVisualResolver = (tileId: string, cellX: number, cellY: number) => {
+  readonly textureKey: string;
+  readonly frame?: number;
+  readonly flipX: boolean;
+  readonly flipY: boolean;
+};
+
+/** Canvas factory seam; tests pass a headless double. */
+export type TerrainCanvasFactory = (width: number, height: number) => HTMLCanvasElement;
+
+const defaultCanvasFactory: TerrainCanvasFactory = (width, height) => {
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  return canvas;
+};
+
+// Phaser's scene shutdown event; a literal keeps this module free of a runtime Phaser import.
+const SCENE_SHUTDOWN = 'shutdown';
+
+/**
+ * Skips chunks outside the camera. The camera has finalized its worldView
+ * before Phaser calls willRender; rotated cameras keep chunks conservatively.
+ */
+function cullToCamera(image: Phaser.GameObjects.Image): void {
+  const willRender = image.willRender.bind(image);
+  image.willRender = (camera: Phaser.Cameras.Scene2D.Camera): boolean => willRender(camera)
+    && (('rotation' in camera && camera.rotation !== 0) || rectanglesIntersect(image, camera.worldView));
 }
 
-/** Owns baked terrain textures. No geometry masks survive construction. */
+function context2d(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
+  const context = canvas.getContext('2d');
+  if (!context) throw new Error('Terrain blending requires a 2D canvas context');
+  return context;
+}
+
+/**
+ * Owns the baked blended-terrain chunk textures. Each chunk composites every
+ * material's ground texture through its upscaled alpha mask (see
+ * TerrainBlendField) on a canvas, which then becomes one cached image.
+ * Chunks are laid out relative to the terrain origin and follow it.
+ */
 export class TerrainTransitionLayer {
   private readonly images: Phaser.GameObjects.Image[] = [];
+  /** Chunk positions relative to the terrain origin, for following the tile layer. */
+  private readonly localPositions: { readonly x: number; readonly y: number }[] = [];
   private readonly textureKeys: string[] = [];
   private readonly disposables = new DisposableBag();
   private destroyed = false;
 
   constructor(
     private readonly scene: Phaser.Scene,
-    tileFactory: TileFactory,
+    resolveVisual: TerrainVisualResolver,
     tileSize: number,
-    chunks: readonly TerrainTransitionChunk[],
+    chunks: readonly TerrainBlendChunk[],
+    createCanvas: TerrainCanvasFactory = defaultCanvasFactory,
   ) {
-    scene.events.once(Phaser.Scenes.Events.SHUTDOWN, this.destroy);
-    this.disposables.add(() => scene.events.off(Phaser.Scenes.Events.SHUTDOWN, this.destroy));
+    scene.events.once(SCENE_SHUTDOWN, this.destroy);
+    this.disposables.add(() => scene.events.off(SCENE_SHUTDOWN, this.destroy));
     if (chunks.length === 0) return;
-
-    // Detached scratch objects are reused for every command and never enter
-    // the scene display/update lists or its collision groups.
-    const scratch = new DisposableBag();
     try {
-      const image = new Phaser.GameObjects.Image(scene, 0, 0, '__WHITE').setOrigin(0);
-      scratch.add(() => image.destroy());
-      const graphics = scene.make.graphics({}, false);
-      scratch.add(() => graphics.destroy());
-      const mask = graphics.createGeometryMask();
-      scratch.add(() => mask.destroy());
-      image.setMask(mask);
-      scratch.add(() => image.clearMask(false));
-      for (const chunk of chunks) {
-        this.bakeChunk(chunk, tileFactory, tileSize, image, graphics);
-      }
+      for (const chunk of chunks) this.bakeChunk(chunk, resolveVisual, tileSize, createCanvas);
     } catch (error) {
       this.destroy();
       throw error;
-    } finally {
-      scratch.dispose();
     }
+  }
+
+  get chunkCount(): number { return this.images.length; }
+
+  /** Moves every chunk with the terrain origin (the tile layer's position). */
+  setOrigin(x: number, y: number): void {
+    this.images.forEach((image, index) => image.setPosition(x + this.localPositions[index].x, y + this.localPositions[index].y));
+  }
+
+  setVisible(visible: boolean): void {
+    for (const image of this.images) image.setVisible(visible);
   }
 
   destroy = (): void => {
@@ -65,49 +92,87 @@ export class TerrainTransitionLayer {
     this.disposables.dispose();
     for (const image of this.images) image.destroy();
     this.images.length = 0;
+    this.localPositions.length = 0;
     for (const key of this.textureKeys) this.scene.textures.remove(key);
     this.textureKeys.length = 0;
   };
 
   private bakeChunk(
-    chunk: TerrainTransitionChunk,
-    tileFactory: TileFactory,
+    chunk: TerrainBlendChunk,
+    resolveVisual: TerrainVisualResolver,
     tileSize: number,
-    image: Phaser.GameObjects.Image,
-    graphics: Phaser.GameObjects.Graphics,
+    createCanvas: TerrainCanvasFactory,
   ): void {
+    const canvas = createCanvas(chunk.textureWidth, chunk.textureHeight);
+    const target = context2d(canvas);
+    const layerCanvas = createCanvas(chunk.textureWidth, chunk.textureHeight);
+    const layer = context2d(layerCanvas);
+    const maskCanvas = createCanvas(chunk.samplesX, chunk.samplesY);
+    const mask = context2d(maskCanvas);
+
+    for (const blendLayer of chunk.layers) {
+      layer.globalCompositeOperation = 'source-over';
+      layer.clearRect(0, 0, chunk.textureWidth, chunk.textureHeight);
+      for (const cell of blendLayer.cells) {
+        this.drawTile(layer, resolveVisual, blendLayer.tileId, cell.x, cell.y, tileSize, chunk);
+      }
+      const pixels = mask.createImageData(chunk.samplesX, chunk.samplesY);
+      for (let index = 0; index < blendLayer.alpha.length; index += 1) {
+        pixels.data[index * 4 + 3] = blendLayer.alpha[index];
+      }
+      mask.putImageData(pixels, 0, 0);
+      layer.globalCompositeOperation = 'destination-in';
+      layer.imageSmoothingEnabled = true;
+      layer.drawImage(maskCanvas, 0, 0, chunk.samplesX * chunk.sampleStep, chunk.samplesY * chunk.sampleStep);
+      target.drawImage(layerCanvas, 0, 0);
+    }
+    // Cells outside the blend group keep their own base tile underneath.
+    for (const cell of chunk.excludedCells) {
+      target.clearRect(cell.x * tileSize - chunk.originX, cell.y * tileSize - chunk.originY, tileSize, tileSize);
+    }
+
     let key: string;
     do { key = `terrain-transition-chunk:${nextTextureId++}`; }
     while (this.scene.textures.exists(key));
-    const gutter = TERRAIN_CHUNK_GUTTER;
-    const texture = this.scene.textures.addDynamicTexture(key, chunk.width + gutter * 2, chunk.height + gutter * 2);
+    const texture = this.scene.textures.addCanvas(key, canvas);
     if (!texture) throw new Error(`Could not allocate terrain transition chunk '${key}'`);
     this.textureKeys.push(key);
-    texture.camera.setScroll(chunk.x - gutter, chunk.y - gutter);
-    texture.clear();
-    texture.beginDraw();
-    try {
-      for (const command of chunk.commands) {
-        const visual = tileFactory.resolveVisual(command.tileId, command.tileX, command.tileY);
-        image.setTexture(visual.textureKey, visual.frame)
-          .setPosition(command.tileX * tileSize, command.tileY * tileSize)
-          .setFlip(visual.flipX, visual.flipY)
-          .setAlpha(command.alpha);
-        graphics.clear().fillStyle(0xffffff, 1).fillPoints([...command.polygon], true);
-        // The baking camera translates BOTH the world-space image and mask.
-        // Passing draw offsets instead would move only the image.
-        texture.batchDraw(image);
-      }
-    } finally {
-      texture.endDraw();
-    }
-    texture.add('interior', 0, gutter, gutter, chunk.width, chunk.height);
-    const cachedImage = new TerrainChunkImage(this.scene, chunk.x, chunk.y, key, 'interior')
+    const gutterX = chunk.x - chunk.originX;
+    const gutterY = chunk.y - chunk.originY;
+    texture.add('interior', 0, gutterX, gutterY, chunk.width, chunk.height);
+    const cachedImage = this.scene.add.image(chunk.x, chunk.y, key, 'interior')
       .setOrigin(0)
       .setDepth(DEPTH_BANDS['ground-decals'] + 0.2)
       .setName('terrain-transition-chunk')
-      .setData('textureBytes', texture.width * texture.height * 4);
+      .setData('textureBytes', chunk.textureWidth * chunk.textureHeight * 4);
+    cullToCamera(cachedImage);
     this.images.push(cachedImage);
-    this.scene.add.existing(cachedImage);
+    this.localPositions.push({ x: chunk.x, y: chunk.y });
+  }
+
+  private drawTile(
+    layer: CanvasRenderingContext2D,
+    resolveVisual: TerrainVisualResolver,
+    tileId: string,
+    cellX: number,
+    cellY: number,
+    tileSize: number,
+    chunk: TerrainBlendChunk,
+  ): void {
+    const visual = resolveVisual(tileId, cellX, cellY);
+    const frame = this.scene.textures.getFrame(visual.textureKey, visual.frame);
+    if (!frame) return;
+    const source = frame.source.image as CanvasImageSource;
+    const x = cellX * tileSize - chunk.originX;
+    const y = cellY * tileSize - chunk.originY;
+    if (!visual.flipX && !visual.flipY) {
+      layer.drawImage(source, frame.cutX, frame.cutY, frame.cutWidth, frame.cutHeight, x, y, tileSize, tileSize);
+      return;
+    }
+    layer.save();
+    layer.translate(x + (visual.flipX ? tileSize : 0), y + (visual.flipY ? tileSize : 0));
+    layer.scale(visual.flipX ? -1 : 1, visual.flipY ? -1 : 1);
+    layer.drawImage(source, frame.cutX, frame.cutY, frame.cutWidth, frame.cutHeight, 0, 0, tileSize, tileSize);
+    layer.restore();
   }
 }

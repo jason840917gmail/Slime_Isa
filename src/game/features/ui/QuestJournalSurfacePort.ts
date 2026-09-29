@@ -1,8 +1,10 @@
 import type { JsonValue } from '../../content/scenes/types';
 import type { QuestView } from '../../content/quests/types';
+import { getNpcDefinition } from '../../content/npcs/NpcCatalog';
 import { gameEvents } from '../../core/EventBus';
 import { questService, type QuestCommandResult } from '../../quests/QuestService';
 import type { ModalHandle, ModalStack } from '../../ui/ModalStack';
+import { questRewardSummary } from '../quests/QuestRewardText';
 import type { UiPresentationModel, UiSurfacePort } from '../scripts/ui/UiSurfaceScript';
 
 export interface QuestJournalSurfaceOptions {
@@ -63,7 +65,12 @@ export class QuestJournalSurfacePort implements UiSurfacePort {
       open: this.openValue,
       offsetMin: [-Math.round(width / 2), -Math.round(height / 2)],
       offsetMax: [Math.round(width / 2), Math.round(height / 2)],
-      quests: quests.map((quest) => ({ id: quest.questId, label: `[${quest.status.toUpperCase()}] ${quest.definition.title}` })),
+      quests: quests.map((quest) => ({
+        id: quest.questId,
+        label: `${questMarker(quest)} ${quest.definition.title}\n${questState(quest)}`,
+        // Finished quests stay readable but step back visually.
+        ...(isFinished(quest) ? { metadata: { locked: true } } : {}),
+      })),
       selectedIndex: selected ? quests.indexOf(selected) : -1,
       details: selected ? detailsFor(selected) : 'No quests yet.',
       status: this.status,
@@ -128,14 +135,52 @@ export class QuestJournalSurfacePort implements UiSurfacePort {
   };
 }
 
+/**
+ * Only quests the player has taken on: what to do now (main before side), then
+ * history. Offers the player has not accepted stay with their quest giver.
+ */
 function listedQuests(): readonly QuestView[] {
+  const mainFirst = (quests: readonly QuestView[]) => [...quests].sort((a, b) => (
+    Number(b.definition.category === 'mandatory') - Number(a.definition.category === 'mandatory')
+    || (b.acceptedAt ?? 0) - (a.acceptedAt ?? 0)
+  ));
   return [
-    ...questService.list('available'),
-    ...questService.list('active'),
-    ...questService.list('completed'),
+    ...mainFirst(questService.list('active')),
+    ...mainFirst(questService.list('completed')),
     ...questService.list('failed'),
     ...questService.list('abandoned'),
   ];
+}
+
+function isFinished(quest: QuestView): boolean {
+  return quest.status === 'completed' || quest.status === 'failed' || quest.status === 'abandoned';
+}
+
+function questMarker(quest: QuestView): string {
+  if (quest.status === 'completed') return '✓';
+  return quest.definition.category === 'mandatory' ? '★' : '◆';
+}
+
+function npcName(npcId: string | undefined): string {
+  return npcId ? getNpcDefinition(npcId)?.displayName ?? npcId : 'the quest giver';
+}
+
+function stepOf(quest: QuestView): string {
+  const stages = quest.definition.stages;
+  const index = stages.findIndex((stage) => stage.id === quest.activeStageId);
+  return stages.length > 1 && index >= 0 ? ` · Step ${index + 1}/${stages.length}` : '';
+}
+
+/** One short status line under each quest in the list. */
+function questState(quest: QuestView): string {
+  const kind = quest.definition.category === 'mandatory' ? 'Main' : 'Side';
+  if (quest.status === 'active') return quest.readyToTurnIn ? `${kind} · Ready to turn in` : `${kind} · In progress${stepOf(quest)}`;
+  if (quest.status === 'available') {
+    const giver = quest.definition.acquisition.kind === 'npc' ? npcName(quest.definition.acquisition.npcIds[0]) : undefined;
+    return giver ? `${kind} · Talk to ${giver}` : `${kind} · Available`;
+  }
+  if (quest.status === 'completed') return `${kind} · Done`;
+  return `${kind} · ${quest.status === 'failed' ? 'Failed' : 'Abandoned'}`;
 }
 
 function actionFor(quest: QuestView): 'abandon' | 'retry' | undefined {
@@ -146,18 +191,38 @@ function actionFor(quest: QuestView): 'abandon' | 'retry' | undefined {
   return undefined;
 }
 
+/** The book page: story first, then every step with each requirement on its own row. */
 function detailsFor(quest: QuestView): string {
   const def = quest.definition;
-  const stages = quest.visibleStages.length ? quest.visibleStages : def.stages.slice(0, 1);
-  const progress = stages.flatMap((stage) => [
-    ...(def.stages.length > 1 ? [stage.title] : []),
-    ...stage.objectives.map((objective) => {
-      const current = Math.min(objective.target, quest.progress[objective.id] ?? 0);
-      return `${current >= objective.target ? '✓' : '•'} ${objective.label}: ${current}/${objective.target}`;
-    }),
-  ]);
-  return [def.title, quest.status.toUpperCase(), '', def.description, '', ...progress, '',
-    `Reward: ${def.rewards.coins ?? 0} coins · ${def.rewards.xp ?? 0} XP`,
+  const visible = quest.visibleStages.length ? quest.visibleStages : def.stages.slice(0, 1);
+  const activeIndex = def.stages.findIndex((stage) => stage.id === quest.activeStageId);
+  const finished = quest.status === 'completed';
+  const steps = visible.flatMap((stage) => {
+    const index = def.stages.indexOf(stage);
+    const done = finished || (activeIndex >= 0 && index < activeIndex);
+    const current = !finished && index === activeIndex;
+    const heading = def.stages.length > 1
+      ? `${done ? '✓' : current ? '▶' : '○'} Step ${index + 1}: ${stage.title}`
+      : undefined;
+    const requirements = stage.objectives.map((objective) => {
+      const progress = done ? objective.target : Math.min(objective.target, quest.progress[objective.id] ?? 0);
+      const count = objective.target > 1 ? `  ${progress}/${objective.target}` : '';
+      return `   ${progress >= objective.target ? '✓' : '•'} ${objective.label}${count}`;
+    });
+    return [...(heading ? [heading] : []), ...requirements, ''];
+  });
+  const turnIn = quest.status === 'active' && quest.readyToTurnIn && def.completion.kind === 'npc-turn-in'
+    ? [`? Return to ${npcName(def.completion.npcIds[0])} for your reward.`, '']
+    : [];
+  return [
+    def.title,
+    questState(quest),
+    '',
+    def.description,
+    '',
+    ...steps,
+    ...turnIn,
+    questRewardSummary(def.rewards),
     ...(quest.status === 'abandoned' && def.acquisition.kind === 'npc' ? ['', 'Return to the quest giver to continue.'] : []),
   ].join('\n');
 }

@@ -490,216 +490,6 @@
       "writerState": "legacy"
     },
     {
-      "key": "asset:collectible.crystal-shard",
-      "family": "asset",
-      "stableId": "collectible.crystal-shard",
-      "environment": "production",
-      "classification": "retain",
-      "oldSourcePath": "asset/assets.json",
-      "oldCatalogValidator": [
-        "asset/assets.json",
-        "check-assets.mjs"
-      ],
-      "oldFactoryController": [
-        "AssetLoader",
-        "manifest"
-      ],
-      "oldEditorWriteEndpoints": [
-        "/__character-studio/asset/register"
-      ],
-      "destinationId": "asset://collectible.crystal-shard",
-      "persistenceKeys": [],
-      "migrationWorkPackage": null,
-      "focusedVerification": [
-        "assets:check",
-        "test:scene-conversion"
-      ],
-      "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
-      "converterVersion": 1,
-      "oldToNewIdMap": {
-        "sourceId": "collectible.crystal-shard",
-        "targetId": "asset://collectible.crystal-shard"
-      },
-      "outputs": [],
-      "consumedFieldPaths": [],
-      "intentionallyRetainedFields": [
-        {
-          "path": "$",
-          "owner": "asset://collectible.crystal-shard"
-        }
-      ],
-      "writerState": "legacy"
-    },
-    {
-      "key": "asset:collectible.energy-potion",
-      "family": "asset",
-      "stableId": "collectible.energy-potion",
-      "environment": "production",
-      "classification": "retain",
-      "oldSourcePath": "asset/assets.json",
-      "oldCatalogValidator": [
-        "asset/assets.json",
-        "check-assets.mjs"
-      ],
-      "oldFactoryController": [
-        "AssetLoader",
-        "manifest"
-      ],
-      "oldEditorWriteEndpoints": [
-        "/__character-studio/asset/register"
-      ],
-      "destinationId": "asset://collectible.energy-potion",
-      "persistenceKeys": [],
-      "migrationWorkPackage": null,
-      "focusedVerification": [
-        "assets:check",
-        "test:scene-conversion"
-      ],
-      "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
-      "converterVersion": 1,
-      "oldToNewIdMap": {
-        "sourceId": "collectible.energy-potion",
-        "targetId": "asset://collectible.energy-potion"
-      },
-      "outputs": [],
-      "consumedFieldPaths": [],
-      "intentionallyRetainedFields": [
-        {
-          "path": "$",
-          "owner": "asset://collectible.energy-potion"
-        }
-      ],
-      "writerState": "legacy"
-    },
-    {
-      "key": "asset:collectible.hp-potion",
-      "family": "asset",
-      "stableId": "collectible.hp-potion",
-      "environment": "production",
-      "classification": "retain",
-      "oldSourcePath": "asset/assets.json",
-      "oldCatalogValidator": [
-        "asset/assets.json",
-        "check-assets.mjs"
-      ],
-      "oldFactoryController": [
-        "AssetLoader",
-        "manifest"
-      ],
-      "oldEditorWriteEndpoints": [
-        "/__character-studio/asset/register"
-      ],
-      "destinationId": "asset://collectible.hp-potion",
-      "persistenceKeys": [],
-      "migrationWorkPackage": null,
-      "focusedVerification": [
-        "assets:check",
-        "test:scene-conversion"
-      ],
-      "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
-      "converterVersion": 1,
-      "oldToNewIdMap": {
-        "sourceId": "collectible.hp-potion",
-        "targetId": "asset://collectible.hp-potion"
-      },
-      "outputs": [],
-      "consumedFieldPaths": [],
-      "intentionallyRetainedFields": [
-        {
-          "path": "$",
-          "owner": "asset://collectible.hp-potion"
-        }
-      ],
-      "writerState": "legacy"
-    },
-    {
-      "key": "asset:collectible.purple-berry",
-      "family": "asset",
-      "stableId": "collectible.purple-berry",
-      "environment": "production",
-      "classification": "retain",
-      "oldSourcePath": "asset/assets.json",
-      "oldCatalogValidator": [
-        "asset/assets.json",
-        "check-assets.mjs"
-      ],
-      "oldFactoryController": [
-        "AssetLoader",
-        "manifest"
-      ],
-      "oldEditorWriteEndpoints": [
-        "/__character-studio/asset/register"
-      ],
-      "destinationId": "asset://collectible.purple-berry",
-      "persistenceKeys": [],
-      "migrationWorkPackage": null,
-      "focusedVerification": [
-        "assets:check",
-        "test:scene-conversion"
-      ],
-      "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
-      "converterVersion": 1,
-      "oldToNewIdMap": {
-        "sourceId": "collectible.purple-berry",
-        "targetId": "asset://collectible.purple-berry"
-      },
-      "outputs": [],
-      "consumedFieldPaths": [],
-      "intentionallyRetainedFields": [
-        {
-          "path": "$",
-          "owner": "asset://collectible.purple-berry"
-        }
-      ],
-      "writerState": "legacy"
-    },
-    {
-      "key": "asset:collectible.silk-clump",
-      "family": "asset",
-      "stableId": "collectible.silk-clump",
-      "environment": "production",
-      "classification": "retain",
-      "oldSourcePath": "asset/assets.json",
-      "oldCatalogValidator": [
-        "asset/assets.json",
-        "check-assets.mjs"
-      ],
-      "oldFactoryController": [
-        "AssetLoader",
-        "manifest"
-      ],
-      "oldEditorWriteEndpoints": [
-        "/__character-studio/asset/register"
-      ],
-      "destinationId": "asset://collectible.silk-clump",
-      "persistenceKeys": [],
-      "migrationWorkPackage": null,
-      "focusedVerification": [
-        "assets:check",
-        "test:scene-conversion"
-      ],
-      "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
-      "converterVersion": 1,
-      "oldToNewIdMap": {
-        "sourceId": "collectible.silk-clump",
-        "targetId": "asset://collectible.silk-clump"
-      },
-      "outputs": [],
-      "consumedFieldPaths": [],
-      "intentionallyRetainedFields": [
-        {
-          "path": "$",
-          "owner": "asset://collectible.silk-clump"
-        }
-      ],
-      "writerState": "legacy"
-    },
-    {
       "key": "asset:effect.boss.ground-crack",
       "family": "asset",
       "stableId": "effect.boss.ground-crack",
@@ -1246,6 +1036,216 @@
       "writerState": "legacy"
     },
     {
+      "key": "asset:sheet.grounds.19x19.cavern-floor",
+      "family": "asset",
+      "stableId": "sheet.grounds.19x19.cavern-floor",
+      "environment": "production",
+      "classification": "retain",
+      "oldSourcePath": "asset/assets.json",
+      "oldCatalogValidator": [
+        "asset/assets.json",
+        "check-assets.mjs"
+      ],
+      "oldFactoryController": [
+        "AssetLoader",
+        "manifest"
+      ],
+      "oldEditorWriteEndpoints": [
+        "/__character-studio/asset/register"
+      ],
+      "destinationId": "asset://sheet.grounds.19x19.cavern-floor",
+      "persistenceKeys": [],
+      "migrationWorkPackage": null,
+      "focusedVerification": [
+        "assets:check",
+        "test:scene-conversion"
+      ],
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "d196afd279ab92c20b9069b0e17570ad42f78c962dc51e979188fca0af137974",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.grounds.19x19.cavern-floor",
+        "targetId": "asset://sheet.grounds.19x19.cavern-floor"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.grounds.19x19.cavern-floor"
+        }
+      ],
+      "writerState": "legacy"
+    },
+    {
+      "key": "asset:sheet.grounds.19x19.crystal-floor",
+      "family": "asset",
+      "stableId": "sheet.grounds.19x19.crystal-floor",
+      "environment": "production",
+      "classification": "retain",
+      "oldSourcePath": "asset/assets.json",
+      "oldCatalogValidator": [
+        "asset/assets.json",
+        "check-assets.mjs"
+      ],
+      "oldFactoryController": [
+        "AssetLoader",
+        "manifest"
+      ],
+      "oldEditorWriteEndpoints": [
+        "/__character-studio/asset/register"
+      ],
+      "destinationId": "asset://sheet.grounds.19x19.crystal-floor",
+      "persistenceKeys": [],
+      "migrationWorkPackage": null,
+      "focusedVerification": [
+        "assets:check",
+        "test:scene-conversion"
+      ],
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "d196afd279ab92c20b9069b0e17570ad42f78c962dc51e979188fca0af137974",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.grounds.19x19.crystal-floor",
+        "targetId": "asset://sheet.grounds.19x19.crystal-floor"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.grounds.19x19.crystal-floor"
+        }
+      ],
+      "writerState": "legacy"
+    },
+    {
+      "key": "asset:sheet.grounds.19x19.deep-water",
+      "family": "asset",
+      "stableId": "sheet.grounds.19x19.deep-water",
+      "environment": "production",
+      "classification": "retain",
+      "oldSourcePath": "asset/assets.json",
+      "oldCatalogValidator": [
+        "asset/assets.json",
+        "check-assets.mjs"
+      ],
+      "oldFactoryController": [
+        "AssetLoader",
+        "manifest"
+      ],
+      "oldEditorWriteEndpoints": [
+        "/__character-studio/asset/register"
+      ],
+      "destinationId": "asset://sheet.grounds.19x19.deep-water",
+      "persistenceKeys": [],
+      "migrationWorkPackage": null,
+      "focusedVerification": [
+        "assets:check",
+        "test:scene-conversion"
+      ],
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "d196afd279ab92c20b9069b0e17570ad42f78c962dc51e979188fca0af137974",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.grounds.19x19.deep-water",
+        "targetId": "asset://sheet.grounds.19x19.deep-water"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.grounds.19x19.deep-water"
+        }
+      ],
+      "writerState": "legacy"
+    },
+    {
+      "key": "asset:sheet.grounds.19x19.forest-floor",
+      "family": "asset",
+      "stableId": "sheet.grounds.19x19.forest-floor",
+      "environment": "production",
+      "classification": "retain",
+      "oldSourcePath": "asset/assets.json",
+      "oldCatalogValidator": [
+        "asset/assets.json",
+        "check-assets.mjs"
+      ],
+      "oldFactoryController": [
+        "AssetLoader",
+        "manifest"
+      ],
+      "oldEditorWriteEndpoints": [
+        "/__character-studio/asset/register"
+      ],
+      "destinationId": "asset://sheet.grounds.19x19.forest-floor",
+      "persistenceKeys": [],
+      "migrationWorkPackage": null,
+      "focusedVerification": [
+        "assets:check",
+        "test:scene-conversion"
+      ],
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "d196afd279ab92c20b9069b0e17570ad42f78c962dc51e979188fca0af137974",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.grounds.19x19.forest-floor",
+        "targetId": "asset://sheet.grounds.19x19.forest-floor"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.grounds.19x19.forest-floor"
+        }
+      ],
+      "writerState": "legacy"
+    },
+    {
+      "key": "asset:sheet.grounds.19x19.forest-moss",
+      "family": "asset",
+      "stableId": "sheet.grounds.19x19.forest-moss",
+      "environment": "production",
+      "classification": "retain",
+      "oldSourcePath": "asset/assets.json",
+      "oldCatalogValidator": [
+        "asset/assets.json",
+        "check-assets.mjs"
+      ],
+      "oldFactoryController": [
+        "AssetLoader",
+        "manifest"
+      ],
+      "oldEditorWriteEndpoints": [
+        "/__character-studio/asset/register"
+      ],
+      "destinationId": "asset://sheet.grounds.19x19.forest-moss",
+      "persistenceKeys": [],
+      "migrationWorkPackage": null,
+      "focusedVerification": [
+        "assets:check",
+        "test:scene-conversion"
+      ],
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "d196afd279ab92c20b9069b0e17570ad42f78c962dc51e979188fca0af137974",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.grounds.19x19.forest-moss",
+        "targetId": "asset://sheet.grounds.19x19.forest-moss"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.grounds.19x19.forest-moss"
+        }
+      ],
+      "writerState": "legacy"
+    },
+    {
       "key": "asset:sheet.grounds.19x19.frozen",
       "family": "asset",
       "stableId": "sheet.grounds.19x19.frozen",
@@ -1372,6 +1372,48 @@
       "writerState": "legacy"
     },
     {
+      "key": "asset:sheet.grounds.19x19.water",
+      "family": "asset",
+      "stableId": "sheet.grounds.19x19.water",
+      "environment": "production",
+      "classification": "retain",
+      "oldSourcePath": "asset/assets.json",
+      "oldCatalogValidator": [
+        "asset/assets.json",
+        "check-assets.mjs"
+      ],
+      "oldFactoryController": [
+        "AssetLoader",
+        "manifest"
+      ],
+      "oldEditorWriteEndpoints": [
+        "/__character-studio/asset/register"
+      ],
+      "destinationId": "asset://sheet.grounds.19x19.water",
+      "persistenceKeys": [],
+      "migrationWorkPackage": null,
+      "focusedVerification": [
+        "assets:check",
+        "test:scene-conversion"
+      ],
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "d196afd279ab92c20b9069b0e17570ad42f78c962dc51e979188fca0af137974",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.grounds.19x19.water",
+        "targetId": "asset://sheet.grounds.19x19.water"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.grounds.19x19.water"
+        }
+      ],
+      "writerState": "legacy"
+    },
+    {
       "key": "asset:sheet.houses.3x1",
       "family": "asset",
       "stableId": "sheet.houses.3x1",
@@ -1414,6 +1456,90 @@
       "writerState": "legacy"
     },
     {
+      "key": "asset:sheet.items.forage.5x2",
+      "family": "asset",
+      "stableId": "sheet.items.forage.5x2",
+      "environment": "production",
+      "classification": "retain",
+      "oldSourcePath": "asset/assets.json",
+      "oldCatalogValidator": [
+        "asset/assets.json",
+        "check-assets.mjs"
+      ],
+      "oldFactoryController": [
+        "AssetLoader",
+        "manifest"
+      ],
+      "oldEditorWriteEndpoints": [
+        "/__character-studio/asset/register"
+      ],
+      "destinationId": "asset://sheet.items.forage.5x2",
+      "persistenceKeys": [],
+      "migrationWorkPackage": null,
+      "focusedVerification": [
+        "assets:check",
+        "test:scene-conversion"
+      ],
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "4914e0e81e2b2bcc4202d9af95d8cd4e3e81a5e53d35b3a44b1d4a64c8ab1fae",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.items.forage.5x2",
+        "targetId": "asset://sheet.items.forage.5x2"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.items.forage.5x2"
+        }
+      ],
+      "writerState": "legacy"
+    },
+    {
+      "key": "asset:sheet.items.gems.5x2",
+      "family": "asset",
+      "stableId": "sheet.items.gems.5x2",
+      "environment": "production",
+      "classification": "retain",
+      "oldSourcePath": "asset/assets.json",
+      "oldCatalogValidator": [
+        "asset/assets.json",
+        "check-assets.mjs"
+      ],
+      "oldFactoryController": [
+        "AssetLoader",
+        "manifest"
+      ],
+      "oldEditorWriteEndpoints": [
+        "/__character-studio/asset/register"
+      ],
+      "destinationId": "asset://sheet.items.gems.5x2",
+      "persistenceKeys": [],
+      "migrationWorkPackage": null,
+      "focusedVerification": [
+        "assets:check",
+        "test:scene-conversion"
+      ],
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "4914e0e81e2b2bcc4202d9af95d8cd4e3e81a5e53d35b3a44b1d4a64c8ab1fae",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.items.gems.5x2",
+        "targetId": "asset://sheet.items.gems.5x2"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.items.gems.5x2"
+        }
+      ],
+      "writerState": "legacy"
+    },
+    {
       "key": "asset:sheet.items.keys.5x4",
       "family": "asset",
       "stableId": "sheet.items.keys.5x4",
@@ -1451,6 +1577,48 @@
         {
           "path": "$",
           "owner": "asset://sheet.items.keys.5x4"
+        }
+      ],
+      "writerState": "legacy"
+    },
+    {
+      "key": "asset:sheet.items.materials.5x2",
+      "family": "asset",
+      "stableId": "sheet.items.materials.5x2",
+      "environment": "production",
+      "classification": "retain",
+      "oldSourcePath": "asset/assets.json",
+      "oldCatalogValidator": [
+        "asset/assets.json",
+        "check-assets.mjs"
+      ],
+      "oldFactoryController": [
+        "AssetLoader",
+        "manifest"
+      ],
+      "oldEditorWriteEndpoints": [
+        "/__character-studio/asset/register"
+      ],
+      "destinationId": "asset://sheet.items.materials.5x2",
+      "persistenceKeys": [],
+      "migrationWorkPackage": null,
+      "focusedVerification": [
+        "assets:check",
+        "test:scene-conversion"
+      ],
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "4914e0e81e2b2bcc4202d9af95d8cd4e3e81a5e53d35b3a44b1d4a64c8ab1fae",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.items.materials.5x2",
+        "targetId": "asset://sheet.items.materials.5x2"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.items.materials.5x2"
         }
       ],
       "writerState": "legacy"
@@ -1703,6 +1871,48 @@
         {
           "path": "$",
           "owner": "asset://sheet.rocks.8x3"
+        }
+      ],
+      "writerState": "legacy"
+    },
+    {
+      "key": "asset:sheet.rocks.crystal-clusters.8x2",
+      "family": "asset",
+      "stableId": "sheet.rocks.crystal-clusters.8x2",
+      "environment": "production",
+      "classification": "retain",
+      "oldSourcePath": "asset/assets.json",
+      "oldCatalogValidator": [
+        "asset/assets.json",
+        "check-assets.mjs"
+      ],
+      "oldFactoryController": [
+        "AssetLoader",
+        "manifest"
+      ],
+      "oldEditorWriteEndpoints": [
+        "/__character-studio/asset/register"
+      ],
+      "destinationId": "asset://sheet.rocks.crystal-clusters.8x2",
+      "persistenceKeys": [],
+      "migrationWorkPackage": null,
+      "focusedVerification": [
+        "assets:check",
+        "test:scene-conversion"
+      ],
+      "legacyRemovalWorkPackage": null,
+      "sourceHash": "ee79f76ced07abe01c049dbfc62665dd0e93b063797446124404fe8244ed5400",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "sheet.rocks.crystal-clusters.8x2",
+        "targetId": "asset://sheet.rocks.crystal-clusters.8x2"
+      },
+      "outputs": [],
+      "consumedFieldPaths": [],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$",
+          "owner": "asset://sheet.rocks.crystal-clusters.8x2"
         }
       ],
       "writerState": "legacy"
@@ -1997,426 +2207,6 @@
         {
           "path": "$",
           "owner": "asset://sheet.walls.vertical.1x8"
-        }
-      ],
-      "writerState": "legacy"
-    },
-    {
-      "key": "asset:terrain.cavern.crystal-floor",
-      "family": "asset",
-      "stableId": "terrain.cavern.crystal-floor",
-      "environment": "production",
-      "classification": "retain",
-      "oldSourcePath": "asset/assets.json",
-      "oldCatalogValidator": [
-        "asset/assets.json",
-        "check-assets.mjs"
-      ],
-      "oldFactoryController": [
-        "AssetLoader",
-        "manifest"
-      ],
-      "oldEditorWriteEndpoints": [
-        "/__character-studio/asset/register"
-      ],
-      "destinationId": "asset://terrain.cavern.crystal-floor",
-      "persistenceKeys": [],
-      "migrationWorkPackage": null,
-      "focusedVerification": [
-        "assets:check",
-        "test:scene-conversion"
-      ],
-      "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
-      "converterVersion": 1,
-      "oldToNewIdMap": {
-        "sourceId": "terrain.cavern.crystal-floor",
-        "targetId": "asset://terrain.cavern.crystal-floor"
-      },
-      "outputs": [],
-      "consumedFieldPaths": [],
-      "intentionallyRetainedFields": [
-        {
-          "path": "$",
-          "owner": "asset://terrain.cavern.crystal-floor"
-        }
-      ],
-      "writerState": "legacy"
-    },
-    {
-      "key": "asset:terrain.cavern.crystal-wall",
-      "family": "asset",
-      "stableId": "terrain.cavern.crystal-wall",
-      "environment": "production",
-      "classification": "retain",
-      "oldSourcePath": "asset/assets.json",
-      "oldCatalogValidator": [
-        "asset/assets.json",
-        "check-assets.mjs"
-      ],
-      "oldFactoryController": [
-        "AssetLoader",
-        "manifest"
-      ],
-      "oldEditorWriteEndpoints": [
-        "/__character-studio/asset/register"
-      ],
-      "destinationId": "asset://terrain.cavern.crystal-wall",
-      "persistenceKeys": [],
-      "migrationWorkPackage": null,
-      "focusedVerification": [
-        "assets:check",
-        "test:scene-conversion"
-      ],
-      "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
-      "converterVersion": 1,
-      "oldToNewIdMap": {
-        "sourceId": "terrain.cavern.crystal-wall",
-        "targetId": "asset://terrain.cavern.crystal-wall"
-      },
-      "outputs": [],
-      "consumedFieldPaths": [],
-      "intentionallyRetainedFields": [
-        {
-          "path": "$",
-          "owner": "asset://terrain.cavern.crystal-wall"
-        }
-      ],
-      "writerState": "legacy"
-    },
-    {
-      "key": "asset:terrain.cavern.floor",
-      "family": "asset",
-      "stableId": "terrain.cavern.floor",
-      "environment": "production",
-      "classification": "retain",
-      "oldSourcePath": "asset/assets.json",
-      "oldCatalogValidator": [
-        "asset/assets.json",
-        "check-assets.mjs"
-      ],
-      "oldFactoryController": [
-        "AssetLoader",
-        "manifest"
-      ],
-      "oldEditorWriteEndpoints": [
-        "/__character-studio/asset/register"
-      ],
-      "destinationId": "asset://terrain.cavern.floor",
-      "persistenceKeys": [],
-      "migrationWorkPackage": null,
-      "focusedVerification": [
-        "assets:check",
-        "test:scene-conversion"
-      ],
-      "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
-      "converterVersion": 1,
-      "oldToNewIdMap": {
-        "sourceId": "terrain.cavern.floor",
-        "targetId": "asset://terrain.cavern.floor"
-      },
-      "outputs": [],
-      "consumedFieldPaths": [],
-      "intentionallyRetainedFields": [
-        {
-          "path": "$",
-          "owner": "asset://terrain.cavern.floor"
-        }
-      ],
-      "writerState": "legacy"
-    },
-    {
-      "key": "asset:terrain.deep-water",
-      "family": "asset",
-      "stableId": "terrain.deep-water",
-      "environment": "production",
-      "classification": "retain",
-      "oldSourcePath": "asset/assets.json",
-      "oldCatalogValidator": [
-        "asset/assets.json",
-        "check-assets.mjs"
-      ],
-      "oldFactoryController": [
-        "AssetLoader",
-        "manifest"
-      ],
-      "oldEditorWriteEndpoints": [
-        "/__character-studio/asset/register"
-      ],
-      "destinationId": "asset://terrain.deep-water",
-      "persistenceKeys": [],
-      "migrationWorkPackage": null,
-      "focusedVerification": [
-        "assets:check",
-        "test:scene-conversion"
-      ],
-      "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
-      "converterVersion": 1,
-      "oldToNewIdMap": {
-        "sourceId": "terrain.deep-water",
-        "targetId": "asset://terrain.deep-water"
-      },
-      "outputs": [],
-      "consumedFieldPaths": [],
-      "intentionallyRetainedFields": [
-        {
-          "path": "$",
-          "owner": "asset://terrain.deep-water"
-        }
-      ],
-      "writerState": "legacy"
-    },
-    {
-      "key": "asset:terrain.forest.floor",
-      "family": "asset",
-      "stableId": "terrain.forest.floor",
-      "environment": "production",
-      "classification": "retain",
-      "oldSourcePath": "asset/assets.json",
-      "oldCatalogValidator": [
-        "asset/assets.json",
-        "check-assets.mjs"
-      ],
-      "oldFactoryController": [
-        "AssetLoader",
-        "manifest"
-      ],
-      "oldEditorWriteEndpoints": [
-        "/__character-studio/asset/register"
-      ],
-      "destinationId": "asset://terrain.forest.floor",
-      "persistenceKeys": [],
-      "migrationWorkPackage": null,
-      "focusedVerification": [
-        "assets:check",
-        "test:scene-conversion"
-      ],
-      "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
-      "converterVersion": 1,
-      "oldToNewIdMap": {
-        "sourceId": "terrain.forest.floor",
-        "targetId": "asset://terrain.forest.floor"
-      },
-      "outputs": [],
-      "consumedFieldPaths": [],
-      "intentionallyRetainedFields": [
-        {
-          "path": "$",
-          "owner": "asset://terrain.forest.floor"
-        }
-      ],
-      "writerState": "legacy"
-    },
-    {
-      "key": "asset:terrain.forest.moss",
-      "family": "asset",
-      "stableId": "terrain.forest.moss",
-      "environment": "production",
-      "classification": "retain",
-      "oldSourcePath": "asset/assets.json",
-      "oldCatalogValidator": [
-        "asset/assets.json",
-        "check-assets.mjs"
-      ],
-      "oldFactoryController": [
-        "AssetLoader",
-        "manifest"
-      ],
-      "oldEditorWriteEndpoints": [
-        "/__character-studio/asset/register"
-      ],
-      "destinationId": "asset://terrain.forest.moss",
-      "persistenceKeys": [],
-      "migrationWorkPackage": null,
-      "focusedVerification": [
-        "assets:check",
-        "test:scene-conversion"
-      ],
-      "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
-      "converterVersion": 1,
-      "oldToNewIdMap": {
-        "sourceId": "terrain.forest.moss",
-        "targetId": "asset://terrain.forest.moss"
-      },
-      "outputs": [],
-      "consumedFieldPaths": [],
-      "intentionallyRetainedFields": [
-        {
-          "path": "$",
-          "owner": "asset://terrain.forest.moss"
-        }
-      ],
-      "writerState": "legacy"
-    },
-    {
-      "key": "asset:terrain.forest.tree-wall",
-      "family": "asset",
-      "stableId": "terrain.forest.tree-wall",
-      "environment": "production",
-      "classification": "retain",
-      "oldSourcePath": "asset/assets.json",
-      "oldCatalogValidator": [
-        "asset/assets.json",
-        "check-assets.mjs"
-      ],
-      "oldFactoryController": [
-        "AssetLoader",
-        "manifest"
-      ],
-      "oldEditorWriteEndpoints": [
-        "/__character-studio/asset/register"
-      ],
-      "destinationId": "asset://terrain.forest.tree-wall",
-      "persistenceKeys": [],
-      "migrationWorkPackage": null,
-      "focusedVerification": [
-        "assets:check",
-        "test:scene-conversion"
-      ],
-      "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
-      "converterVersion": 1,
-      "oldToNewIdMap": {
-        "sourceId": "terrain.forest.tree-wall",
-        "targetId": "asset://terrain.forest.tree-wall"
-      },
-      "outputs": [],
-      "consumedFieldPaths": [],
-      "intentionallyRetainedFields": [
-        {
-          "path": "$",
-          "owner": "asset://terrain.forest.tree-wall"
-        }
-      ],
-      "writerState": "legacy"
-    },
-    {
-      "key": "asset:terrain.water.0",
-      "family": "asset",
-      "stableId": "terrain.water.0",
-      "environment": "production",
-      "classification": "retain",
-      "oldSourcePath": "asset/assets.json",
-      "oldCatalogValidator": [
-        "asset/assets.json",
-        "check-assets.mjs"
-      ],
-      "oldFactoryController": [
-        "AssetLoader",
-        "manifest"
-      ],
-      "oldEditorWriteEndpoints": [
-        "/__character-studio/asset/register"
-      ],
-      "destinationId": "asset://terrain.water.0",
-      "persistenceKeys": [],
-      "migrationWorkPackage": null,
-      "focusedVerification": [
-        "assets:check",
-        "test:scene-conversion"
-      ],
-      "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
-      "converterVersion": 1,
-      "oldToNewIdMap": {
-        "sourceId": "terrain.water.0",
-        "targetId": "asset://terrain.water.0"
-      },
-      "outputs": [],
-      "consumedFieldPaths": [],
-      "intentionallyRetainedFields": [
-        {
-          "path": "$",
-          "owner": "asset://terrain.water.0"
-        }
-      ],
-      "writerState": "legacy"
-    },
-    {
-      "key": "asset:terrain.water.1",
-      "family": "asset",
-      "stableId": "terrain.water.1",
-      "environment": "production",
-      "classification": "retain",
-      "oldSourcePath": "asset/assets.json",
-      "oldCatalogValidator": [
-        "asset/assets.json",
-        "check-assets.mjs"
-      ],
-      "oldFactoryController": [
-        "AssetLoader",
-        "manifest"
-      ],
-      "oldEditorWriteEndpoints": [
-        "/__character-studio/asset/register"
-      ],
-      "destinationId": "asset://terrain.water.1",
-      "persistenceKeys": [],
-      "migrationWorkPackage": null,
-      "focusedVerification": [
-        "assets:check",
-        "test:scene-conversion"
-      ],
-      "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
-      "converterVersion": 1,
-      "oldToNewIdMap": {
-        "sourceId": "terrain.water.1",
-        "targetId": "asset://terrain.water.1"
-      },
-      "outputs": [],
-      "consumedFieldPaths": [],
-      "intentionallyRetainedFields": [
-        {
-          "path": "$",
-          "owner": "asset://terrain.water.1"
-        }
-      ],
-      "writerState": "legacy"
-    },
-    {
-      "key": "asset:terrain.water.2",
-      "family": "asset",
-      "stableId": "terrain.water.2",
-      "environment": "production",
-      "classification": "retain",
-      "oldSourcePath": "asset/assets.json",
-      "oldCatalogValidator": [
-        "asset/assets.json",
-        "check-assets.mjs"
-      ],
-      "oldFactoryController": [
-        "AssetLoader",
-        "manifest"
-      ],
-      "oldEditorWriteEndpoints": [
-        "/__character-studio/asset/register"
-      ],
-      "destinationId": "asset://terrain.water.2",
-      "persistenceKeys": [],
-      "migrationWorkPackage": null,
-      "focusedVerification": [
-        "assets:check",
-        "test:scene-conversion"
-      ],
-      "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
-      "converterVersion": 1,
-      "oldToNewIdMap": {
-        "sourceId": "terrain.water.2",
-        "targetId": "asset://terrain.water.2"
-      },
-      "outputs": [],
-      "consumedFieldPaths": [],
-      "intentionallyRetainedFields": [
-        {
-          "path": "$",
-          "owner": "asset://terrain.water.2"
         }
       ],
       "writerState": "legacy"
@@ -3212,13 +3002,13 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/fatty-one-eye.scene.json",
-          "sha256": "ec66ffeff6b137a8a01191d9c4373d944da66b4cf653b424c81e4f01cf3b2430",
-          "bytes": 11311
+          "sha256": "64f33c46417a35b311a24b64006844947fbfcbc6669b24f6568ac2fe105afdde",
+          "bytes": 17750
         },
         {
           "path": "src/game/content/scenes/authored/encounters/level-1-fatty-camp.scene.json",
-          "sha256": "423a23e8e031f6301345e81657392ea3b7b162a506a965f492886924be078560",
-          "bytes": 3856
+          "sha256": "2f6ccadba88d0c54cf04ba71fb8916fce9be9165bef7a1014d10101f17cc965a",
+          "bytes": 4498
         }
       ],
       "consumedFieldPaths": [
@@ -3301,8 +3091,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/fatty-one-eye.scene.json",
-          "sha256": "ec66ffeff6b137a8a01191d9c4373d944da66b4cf653b424c81e4f01cf3b2430",
-          "bytes": 11311
+          "sha256": "64f33c46417a35b311a24b64006844947fbfcbc6669b24f6568ac2fe105afdde",
+          "bytes": 17750
         }
       ],
       "consumedFieldPaths": [
@@ -3375,7 +3165,7 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/lili.scene.json",
-          "sha256": "2c57dc8c8d90a5b7681401fe241aeea0e59cd01792fd4f6539b7606424b14870",
+          "sha256": "2c26fc42973e72001e6622895f58bb0b269932b22280afcc752d0dc96f2b32f8",
           "bytes": 7023
         }
       ],
@@ -3451,7 +3241,7 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/mossy-scout.scene.json",
-          "sha256": "8fa33d97e79a3f8dadb3120d3aeae8fe8156211c981c558472cdea7da33c3f80",
+          "sha256": "319b71bf92b69223f80e7a8914c9eb4a1455f16b89e2600ed4aab577155c6814",
           "bytes": 7437
         }
       ],
@@ -3527,8 +3317,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/player-slime.scene.json",
-          "sha256": "012879bbb2e2fc82d8fe0548e875190fe63c408d1860c9299ba6422accc80135",
-          "bytes": 18245
+          "sha256": "a75b5f933139f2c7d71facc6f9c657f438a4d8b4df949b944b3cede455cbe0c8",
+          "bytes": 20875
         }
       ],
       "consumedFieldPaths": [
@@ -3604,7 +3394,7 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/red-slime-boy.scene.json",
-          "sha256": "21dbb5f10b73ab825611639aadebb869869310c2190f7073122c91a0321c1e90",
+          "sha256": "baf6f33c3b6e7b2c4d90e900afd1eba43c3f1a47b17ef5c77c18502420fd7a55",
           "bytes": 7119
         }
       ],
@@ -3680,8 +3470,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/slime-spider.scene.json",
-          "sha256": "aff4678a8f532e81e1362fbecaf1b505dd260ab4377d09927b1d143486e2b2f8",
-          "bytes": 19038
+          "sha256": "3b936d499dae75dec39e17bbfdea22e2a6468ac24c0b4de3fa048d5a47f7837c",
+          "bytes": 21093
         }
       ],
       "consumedFieldPaths": [
@@ -3756,8 +3546,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/village-elder-plop.scene.json",
-          "sha256": "af29cb8b4d50cf185a020af3f9b8e29b202e60659ef978c3c2dba71a7ccdc252",
-          "bytes": 7787
+          "sha256": "855ed2b79c2e385f44eab1ae6323cc9cebcd7e293f16d30f985de20157eb9617",
+          "bytes": 7788
         }
       ],
       "consumedFieldPaths": [
@@ -3832,8 +3622,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/worm-archer.scene.json",
-          "sha256": "9fcb7f638b007122f7db211cecb820761f366210dc0318507b1774486bb6572a",
-          "bytes": 14145
+          "sha256": "bda656d81af9d744287e3c9b15ae3d3204c99d51b16f24fa907eabb5fbf7c8d5",
+          "bytes": 16906
         }
       ],
       "consumedFieldPaths": [
@@ -3883,8 +3673,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/worm-brawler.scene.json",
-          "sha256": "6502724ffdf8c069557796bd2ff11a4736ac8af6e97ddae7959c19ab64f9e957",
-          "bytes": 13824
+          "sha256": "ce32c52438d12167ed4c12a6da16d64324db0ed09cb5cfb79b804db1e093fcd1",
+          "bytes": 16663
         }
       ],
       "consumedFieldPaths": [
@@ -3934,8 +3724,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/worm-swordsman.scene.json",
-          "sha256": "2cb693415beb426b287e403cfdf090f17e8baf104a77bf8459abbc1a7694186a",
-          "bytes": 14602
+          "sha256": "2f0982a671ee769f68812c62f9d6a421e70bb6190c4f8142860c249531ca0000",
+          "bytes": 17441
         }
       ],
       "consumedFieldPaths": [
@@ -3985,7 +3775,7 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/yellow-blond-slime-girl.scene.json",
-          "sha256": "8d068567fcae58d4154afbc525ec1e5b82d2b38b6d793b76cb2929f7ac097ac8",
+          "sha256": "8d22f61265c53acab09d302e9f38ddaecf3489ece9136889e47cd602d98ffaea",
           "bytes": 7226
         }
       ],
@@ -4058,8 +3848,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/effects/basic-spear-impact.scene.json",
-          "sha256": "24b2a079a035a9160f7e2004a0aad8db564216c91a0dc9aca635964cd9df16f4",
-          "bytes": 10930
+          "sha256": "a9208f6c665e845fc69a4a2bce729e09473175b020bdba6f40d4d7a961e3000c",
+          "bytes": 11524
         }
       ],
       "consumedFieldPaths": [
@@ -4105,8 +3895,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/effects/basic-sword-impact.scene.json",
-          "sha256": "ea3b8856a9d54a9a375ef9546e0a30ed687f4a038c5b107f7f968c8bc3757e0d",
-          "bytes": 30390
+          "sha256": "a02e2ce8faeb28002beba1dd0a37697eff0a8f7a24cca330ef72ca33f5fc67bb",
+          "bytes": 30989
         }
       ],
       "consumedFieldPaths": [
@@ -4152,8 +3942,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/effects/slam-hammer-impact.scene.json",
-          "sha256": "5106300196a56efb46b83433563485a0bc9463b44c8989d6106fd603f03e8a8d",
-          "bytes": 10929
+          "sha256": "961f44b0be22cdb94fe538dec412d3857441ab14b1a683ab293e645e2adbb155",
+          "bytes": 11488
         }
       ],
       "consumedFieldPaths": [
@@ -4199,8 +3989,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/effects/stone-impact.scene.json",
-          "sha256": "f36adfba6e3341383529754db814734849c2a3bfb15515e0fdf29d29dc29602b",
-          "bytes": 21654
+          "sha256": "8d92aa571c40e19001f978ac09e2fdee98789793b60dbaf1ee46c0b434bec4ff",
+          "bytes": 22299
         }
       ],
       "consumedFieldPaths": [
@@ -4246,8 +4036,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/effects/wood-impact.scene.json",
-          "sha256": "a09ad652b88ef5a0c93ddfa942351c5c78fed5a75ae6aa27aa0f6db5227a6a87",
-          "bytes": 21639
+          "sha256": "68e2b8b19776616a4451c3cbdeacb1328db67c2651614ac3f38ccd2070a1fec4",
+          "bytes": 22278
         }
       ],
       "consumedFieldPaths": [
@@ -4291,8 +4081,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/worm-archer.scene.json",
-          "sha256": "9fcb7f638b007122f7db211cecb820761f366210dc0318507b1774486bb6572a",
-          "bytes": 14145
+          "sha256": "bda656d81af9d744287e3c9b15ae3d3204c99d51b16f24fa907eabb5fbf7c8d5",
+          "bytes": 16906
         }
       ],
       "consumedFieldPaths": [
@@ -4353,8 +4143,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/worm-brawler.scene.json",
-          "sha256": "6502724ffdf8c069557796bd2ff11a4736ac8af6e97ddae7959c19ab64f9e957",
-          "bytes": 13824
+          "sha256": "ce32c52438d12167ed4c12a6da16d64324db0ed09cb5cfb79b804db1e093fcd1",
+          "bytes": 16663
         }
       ],
       "consumedFieldPaths": [
@@ -4415,8 +4205,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/worm-swordsman.scene.json",
-          "sha256": "2cb693415beb426b287e403cfdf090f17e8baf104a77bf8459abbc1a7694186a",
-          "bytes": 14602
+          "sha256": "2f0982a671ee769f68812c62f9d6a421e70bb6190c4f8142860c249531ca0000",
+          "bytes": 17441
         }
       ],
       "consumedFieldPaths": [
@@ -5304,8 +5094,8 @@
         },
         {
           "path": "src/game/content/scenes/authored/worlds/174.scene.json",
-          "sha256": "fafb04b947cf9a85fcb6d415a2d699811158162e0b070e9df25e46867cf02567",
-          "bytes": 581865
+          "sha256": "1308c1cfb18aa1f569eabaa0bcfbde388c6ec1c76bb91ca806873f46baafdf73",
+          "bytes": 581851
         }
       ],
       "consumedFieldPaths": [
@@ -6237,8 +6027,8 @@
         },
         {
           "path": "src/game/content/scenes/authored/worlds/236.scene.json",
-          "sha256": "f33d698684482610133452b987ce60cd994f37a7e852ff408e3083eb315eca10",
-          "bytes": 966417
+          "sha256": "13f143f0a9a2146ae42053926ae6aa3e93feb8668a5a11f4bb041d4f77dee831",
+          "bytes": 966338
         }
       ],
       "consumedFieldPaths": [
@@ -7104,8 +6894,8 @@
         },
         {
           "path": "src/game/content/scenes/authored/worlds/cole.scene.json",
-          "sha256": "8f90c4a688f19c4c708a7a19e42e166364046c487ad0ed32bb503c1485225756",
-          "bytes": 912813
+          "sha256": "dffc903a3e378a86bf3a143032a7e38eb8848a98cfaea61637b696ec56b790c3",
+          "bytes": 913771
         }
       ],
       "consumedFieldPaths": [
@@ -7176,7 +6966,7 @@
       ],
       "legacyRemovalWorkPackage": 15,
       "embeddedEncounterIds": [],
-      "sourceHash": "644d80315d4c797ea163f404f105079026deea25a25dc4896539ca1209b6d2e1",
+      "sourceHash": "ed4ec90ed1d72cb87a6a06e67c1e78481a6fba00062683b6c6a27bc61e006065",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "crystal-caverns",
@@ -7190,8 +6980,8 @@
         },
         {
           "path": "src/game/content/scenes/authored/worlds/crystal-caverns.scene.json",
-          "sha256": "97dc7f6c677713deab58c0add387e7fa64176beaa1fc9cae576713028d00651e",
-          "bytes": 280729
+          "sha256": "ad713fe9193980233ebdc2dcca52a0e563e07c7ffaf749fb6dc4edb9d9d3025b",
+          "bytes": 280701
         }
       ],
       "consumedFieldPaths": [
@@ -8003,8 +7793,8 @@
         },
         {
           "path": "src/game/content/scenes/authored/worlds/emberleef.scene.json",
-          "sha256": "a3bb0b74ee8ecdb1e7d5103dd82387377cfac826075ab5b0fb4efb4d45f0ef8c",
-          "bytes": 799341
+          "sha256": "524d40d52d2490071f1035f51d0c6d20c173fb41ec5f876369ba290ea4ebf2d8",
+          "bytes": 799266
         }
       ],
       "consumedFieldPaths": [
@@ -8339,8 +8129,8 @@
         },
         {
           "path": "src/game/content/scenes/authored/worlds/girls.scene.json",
-          "sha256": "9e53ea604b5e54ba7b7b12cc02ba29672016eb1172df3d00c07d505fb8d0ad94",
-          "bytes": 471873
+          "sha256": "c01ff3abbe7ef5ad79522c19e87c6a508cf32bb36196c135f8424b1b30347aad",
+          "bytes": 472876
         }
       ],
       "consumedFieldPaths": [
@@ -8477,7 +8267,7 @@
       ],
       "legacyRemovalWorkPackage": 15,
       "embeddedEncounterIds": [],
-      "sourceHash": "ffabefb94e4f687f41c39804e44d4aa37d4301798cc8a054d3c0477d09952f11",
+      "sourceHash": "7b91c655ae11a89b050205159e6c6c905435ed88b29f0399d0a48b3736a6419a",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "gloop-forest",
@@ -8491,8 +8281,8 @@
         },
         {
           "path": "src/game/content/scenes/authored/worlds/gloop-forest.scene.json",
-          "sha256": "22df7b601638c3fb42c6283591e7bb700ec96791bad6e8454f6ecb67229a8848",
-          "bytes": 312903
+          "sha256": "ddd7c8b08db06aee56afad15e0a414d36b1f347102fda62ca5c421efcad64ed9",
+          "bytes": 312874
         }
       ],
       "consumedFieldPaths": [
@@ -8685,8 +8475,8 @@
         },
         {
           "path": "src/game/content/scenes/authored/worlds/hot.scene.json",
-          "sha256": "db494fa4eb0375e2c0a83464a911a0253e81f03c6f38a87f96b326992bfcc6ff",
-          "bytes": 357611
+          "sha256": "01981f49cfdaf0837ac43476f10b36e37bc1bd03aa3042e0c9a0824aba5ccf8a",
+          "bytes": 357586
         }
       ],
       "consumedFieldPaths": [
@@ -9123,8 +8913,8 @@
         },
         {
           "path": "src/game/content/scenes/authored/worlds/icege.scene.json",
-          "sha256": "e62f978e01ddee67c0255bc0d6d66e199c3a2e8ce5ca40c04b1560c76e4f0dd4",
-          "bytes": 506727
+          "sha256": "2c8132665abaa13be05882c3805be9930cb7cce3ce853cb043850874da7f1d4a",
+          "bytes": 506507
         }
       ],
       "consumedFieldPaths": [
@@ -9386,8 +9176,8 @@
         },
         {
           "path": "src/game/content/scenes/authored/worlds/jk.scene.json",
-          "sha256": "4fe77f1695ce98d05d7791132ef10ee50041834bfd1931689f5de88dc9da9dcb",
-          "bytes": 434395
+          "sha256": "0403551b12fd220819979e0fc1a6d13241ca2a4f874236e4d5402ad6a88e1a98",
+          "bytes": 434274
         }
       ],
       "consumedFieldPaths": [
@@ -9492,7 +9282,7 @@
         "npc-area-04",
         "npc-area-05"
       ],
-      "sourceHash": "12fb29a9fd813961c1168626d0d48742cbbb602abbbe21af773115d9e8859f61",
+      "sourceHash": "a10bd0716d1029eba508cc3f35d711b7308e7751e294b0de97d6290fa67c452c",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "level-1",
@@ -9501,13 +9291,13 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/reports/worlds/level-1.mapping.json",
-          "sha256": "bf3ae48ef5f49d27f839aa36e661c611878d7886d83ad9df295f1e558e9acea2",
-          "bytes": 13792
+          "sha256": "92db8426d3c17e3e2b55b9ab5e4ef67efe867c46f498f6479f8b07a2779b62d9",
+          "bytes": 14007
         },
         {
           "path": "src/game/content/scenes/authored/worlds/level-1.scene.json",
-          "sha256": "9b9838f8f71e7e2080d1424513104596a335d8f82f509a6b9ddba8c078b8d715",
-          "bytes": 310697
+          "sha256": "3771ebb489d0997137f523083eb970218824903088e1901a66dff6da1598b310",
+          "bytes": 316057
         }
       ],
       "consumedFieldPaths": [
@@ -10016,8 +9806,8 @@
         },
         {
           "path": "src/game/content/scenes/authored/worlds/meadow-crossing.scene.json",
-          "sha256": "c9fb3623c95053f53f38d195d3e9b49fbed523f2a9390c06c8022e952725f2f4",
-          "bytes": 588502
+          "sha256": "b2d1baa9a77451af09751f728fada00440807c61febb248c4dde5f2987b21898",
+          "bytes": 589860
         }
       ],
       "consumedFieldPaths": [
@@ -10054,6 +9844,80 @@
         {
           "path": "$.version",
           "owner": "src/game/content/maps/meadow-crossing.map.json"
+        }
+      ],
+      "writerState": "scene"
+    },
+    {
+      "key": "map:slime-home",
+      "family": "map",
+      "stableId": "slime-home",
+      "environment": "development",
+      "classification": "convert",
+      "oldSourcePath": "src/game/content/maps/slime-home.map.json",
+      "oldCatalogValidator": [
+        "MapRepository",
+        "maps.schema.json",
+        "mapFormat"
+      ],
+      "oldFactoryController": [
+        "MapBuilder",
+        "ObjectFactory",
+        "TileFactory"
+      ],
+      "oldEditorWriteEndpoints": [
+        "/__map-editor/create",
+        "/__map-editor/save"
+      ],
+      "destinationId": "scene://worlds/slime-home",
+      "persistenceKeys": [],
+      "migrationWorkPackage": 13,
+      "focusedVerification": [
+        "test:scene-integration",
+        "test:scene-conversion"
+      ],
+      "legacyRemovalWorkPackage": 15,
+      "embeddedEncounterIds": [],
+      "sourceHash": "7ca71b837dfcdd40dcfe0af266142802f869d5980644a5252eac8851829b33d2",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "slime-home",
+        "targetId": "scene://worlds/slime-home"
+      },
+      "outputs": [
+        {
+          "path": "src/game/content/scenes/authored/reports/worlds/slime-home.mapping.json",
+          "sha256": "cd86fa48ddf03e47f28b745eefa5fa0db628466eee3858c8f6be6a525082cea2",
+          "bytes": 725
+        },
+        {
+          "path": "src/game/content/scenes/authored/worlds/slime-home.scene.json",
+          "sha256": "56f5576d90378e3035808d217dfd09716904807886c717e55c325be6736305ab",
+          "bytes": 42681
+        }
+      ],
+      "consumedFieldPaths": [
+        "$.bossCamps",
+        "$.exits",
+        "$.layers",
+        "$.mapId",
+        "$.objects",
+        "$.player",
+        "$.size",
+        "$.tileSize"
+      ],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$.$schema",
+          "owner": "src/game/content/maps/slime-home.map.json"
+        },
+        {
+          "path": "$.player",
+          "owner": "src/game/content/maps/slime-home.map.json"
+        },
+        {
+          "path": "$.version",
+          "owner": "src/game/content/maps/slime-home.map.json"
         }
       ],
       "writerState": "scene"
@@ -11441,8 +11305,8 @@
         },
         {
           "path": "src/game/content/scenes/authored/worlds/tiktok.scene.json",
-          "sha256": "0b59fc6d8ca6845fecffbd89e5b9bfcf7fa1cf4918de1d54094c572f330f8814",
-          "bytes": 1247819
+          "sha256": "85dbf1e4bc5dfe2f11c4048d89e9925711e65a8a4bace980e56ef0626c2c5fcb",
+          "bytes": 1247980
         }
       ],
       "consumedFieldPaths": [
@@ -11736,8 +11600,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/objects/chest-wooden.scene.json",
-          "sha256": "01af5a6f006dd7558692c71e28ab1203aeb400f55e79493836265ae091d89d71",
-          "bytes": 1839
+          "sha256": "cc6b1089b62795bf3409e6b7e9a2d58f90d6c99cbbd68c1edc48722d5bed3738",
+          "bytes": 4281
         }
       ],
       "consumedFieldPaths": [
@@ -11795,8 +11659,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/objects/collectible-charcoal-pile.scene.json",
-          "sha256": "3ef4c93172a852fd48be9698abad27ce93634a35bedb4f6c10e730672cc74a8e",
-          "bytes": 2456
+          "sha256": "0793abd598ea4ab5af6c44ebd169abcaa08820986e6106b21343f72073f930dc",
+          "bytes": 3879
         }
       ],
       "consumedFieldPaths": [
@@ -11845,7 +11709,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "500768adadcb6252f96591a18c1292ec8f2a5f7810bba1b4e4bb2e7d4ae23b32",
+      "sourceHash": "1706e6ecfeff491f1a680267cb8f8973a6c7d43cc81684bc12a84afaa397ca16",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "collectible.crystal-shard",
@@ -11854,8 +11718,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/objects/collectible-crystal-shard.scene.json",
-          "sha256": "d6f395ce2b4a8e62ff545673138e838833918a2274880f42f2183070f461c0f6",
-          "bytes": 2380
+          "sha256": "89a7d5df12da36c82aa6e7a28f77290f8ff7a92cd321f7416761e9a8f898fe63",
+          "bytes": 3876
         }
       ],
       "consumedFieldPaths": [
@@ -11904,7 +11768,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "88db6902f61d539433511ae02d7f7a45da7a4c3323985b94dae33374ee5f6097",
+      "sourceHash": "39d080dd2aa9ac5fb11b72665af41d4c46761e4e20af68c71d6728ff86cb1a95",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "collectible.energy-potion",
@@ -11913,8 +11777,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/objects/collectible-energy-potion.scene.json",
-          "sha256": "d7f604965149c8c05b297f1ef38569dabfa64b73672c6718284a60058f389b42",
-          "bytes": 2385
+          "sha256": "495e2410029e70ab26648ecb9a93a8be39bdcc7768f0d6976dca64cb261dde20",
+          "bytes": 3893
         }
       ],
       "consumedFieldPaths": [
@@ -11972,8 +11836,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/objects/collectible-green-key.scene.json",
-          "sha256": "92edcbd10ba9dbdd72bcff54962f9bb76008578ced76cdd439f835a390d26db5",
-          "bytes": 2420
+          "sha256": "857f2a15584e79f83bf33d754afc607abdb9deaef46c82bae0cc735396497f2d",
+          "bytes": 3837
         }
       ],
       "consumedFieldPaths": [
@@ -11989,6 +11853,65 @@
         {
           "path": "$.$schema",
           "owner": "src/game/content/objects/collectibles/collectible-green-key.json"
+        }
+      ],
+      "writerState": "scene"
+    },
+    {
+      "key": "object:collectible.berry-basket",
+      "family": "object",
+      "stableId": "collectible.berry-basket",
+      "environment": "production",
+      "classification": "convert",
+      "oldSourcePath": "src/game/content/objects/collectibles/collectible-berry-basket.json",
+      "oldCatalogValidator": [
+        "ObjectCatalog",
+        "objects.schema.json"
+      ],
+      "oldFactoryController": [
+        "ObjectFactory",
+        "MapBuilder"
+      ],
+      "oldEditorWriteEndpoints": [
+        "/__map-editor/object-template/update",
+        "/__map-editor/object-gameplay/update",
+        "/__map-editor/object-template/create",
+        "/__map-editor/object-template/duplicate"
+      ],
+      "destinationId": "scene://objects/collectible.berry-basket",
+      "persistenceKeys": [],
+      "migrationWorkPackage": 12,
+      "focusedVerification": [
+        "test:scene-integration",
+        "test:scene-conversion"
+      ],
+      "legacyRemovalWorkPackage": 15,
+      "sourceHash": "38ecb325bc211da304283cbd751e7453fb94a686f442059cfd7d3bce7b460df2",
+      "converterVersion": 1,
+      "oldToNewIdMap": {
+        "sourceId": "collectible.berry-basket",
+        "targetId": "scene://objects/collectible.berry-basket"
+      },
+      "outputs": [
+        {
+          "path": "src/game/content/scenes/authored/objects/collectible-berry-basket.scene.json",
+          "sha256": "ec3ccef5b22d4c7066b4af2a4c708598d14bce36d3ab8bf7b154dac27455ef9d",
+          "bytes": 2462
+        }
+      ],
+      "consumedFieldPaths": [
+        "$.behavior",
+        "$.collectible",
+        "$.objectId",
+        "$.physics",
+        "$.selection",
+        "$.tags",
+        "$.variants"
+      ],
+      "intentionallyRetainedFields": [
+        {
+          "path": "$.$schema",
+          "owner": "src/game/content/objects/collectibles/collectible-berry-basket.json"
         }
       ],
       "writerState": "scene"
@@ -12022,7 +11945,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "4696ab1499635f2fb15654485931cdb74a57ad40041292105917ae428294ae4f",
+      "sourceHash": "38a83b3417200712f09926f16940bb45716e99b8d9fabf368aec3ba2d4a7d9d7",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "collectible.hp-potion",
@@ -12031,8 +11954,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/objects/collectible-hp-potion.scene.json",
-          "sha256": "cba7d56f52a6960b0ecf6943b4b601a5dea06256056f1ce22c6de841efcd7dc6",
-          "bytes": 2338
+          "sha256": "c79554d6a732c5dc8dfff4fe2d494425abcf13deb803d5f9968328800c862b71",
+          "bytes": 3850
         }
       ],
       "consumedFieldPaths": [
@@ -12090,8 +12013,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/objects/collectible-iron-ore-pile.scene.json",
-          "sha256": "63ab08e78c25d0b4eea3329751ec1baf49113b35874374ff69d3357e59a58f41",
-          "bytes": 2456
+          "sha256": "dce2527a4d5bc1555421fcc6d10d43019123a58e7540072f9d48fcdc89939b02",
+          "bytes": 3873
         }
       ],
       "consumedFieldPaths": [
@@ -12140,7 +12063,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "47c8db71a51187e8cf8446d61a00c4690a92bff094f29ae963c03a1043e9411a",
+      "sourceHash": "62a2900bbdde6cc0e4e6fca93df5f9d40ab0bc0ca7117c80b9ddeb619f05522a",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "collectible.purple-berry",
@@ -12149,8 +12072,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/objects/collectible-purple-berry.scene.json",
-          "sha256": "8ee8ed8b3b35d645a3d7569d81ef5acc549d0b31499cc5d4808865682279ed7c",
-          "bytes": 2381
+          "sha256": "b51df8e7638e3028940f7300f5b72cb0f5aa3bea4ed4af80a366f4ded801e8cd",
+          "bytes": 3884
         }
       ],
       "consumedFieldPaths": [
@@ -12199,7 +12122,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "da30734bf56a02504b8879f24b9637883783e229bdce7097a2a37af90805fab9",
+      "sourceHash": "868fdaade396965fd9803feb446208e789e41e5ee11fc14977fec840ce453b60",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "collectible.silk-clump",
@@ -12208,8 +12131,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/objects/collectible-silk-clump.scene.json",
-          "sha256": "010b17ec5194b82a423ab2282058dc6cb77daec4ffb76e8cc4d6a520dac1d9d4",
-          "bytes": 2350
+          "sha256": "d6fb03b1613ec2ddb338ed70c991c11c51674c43b674e07d908616625eba8432",
+          "bytes": 3857
         }
       ],
       "consumedFieldPaths": [
@@ -12267,8 +12190,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/objects/collectible-small-stone-pile.scene.json",
-          "sha256": "0374a57c6756d366804cbe187375d95616201eab914d3be375347e5f526a81c6",
-          "bytes": 2486
+          "sha256": "5d3fa4e33feb18f6248923109987739f028dc1b664ae9ce43af3ab11077b4ae3",
+          "bytes": 3909
         }
       ],
       "consumedFieldPaths": [
@@ -12326,8 +12249,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/objects/collectible-small-wood-pile.scene.json",
-          "sha256": "a68b2d1655034b23e3edd5a18806a5e0b3238800233ffbb3a47baffd435dcc94",
-          "bytes": 2474
+          "sha256": "936475ceaa5e6122a25286b7d94c2b92327b867d071b1711579701a720082d0b",
+          "bytes": 3894
         }
       ],
       "consumedFieldPaths": [
@@ -12385,8 +12308,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/objects/collectible-stone-pile.scene.json",
-          "sha256": "71c6d07a251ef53d4cbf3dc3c379ce8b5718672147aa52ade213524cdb6418ea",
-          "bytes": 2449
+          "sha256": "a74d339937a250a6f8e184c368ab9d7ea7817cafaa7e764352d6b49fba9e9993",
+          "bytes": 3872
         }
       ],
       "consumedFieldPaths": [
@@ -12444,8 +12367,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/objects/collectible-wood-pile.scene.json",
-          "sha256": "b006e69ebb088b6cacd53afca586f4bb6d10b703422a252f15ccea3e4508a8ab",
-          "bytes": 2437
+          "sha256": "adba9f25ee9167954902dc57cdcd9b17c3eda405702dd16361dc6b8c731770c4",
+          "bytes": 3857
         }
       ],
       "consumedFieldPaths": [
@@ -12560,118 +12483,118 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/objects/decoration-world-solid--anvil.scene.json",
-          "sha256": "a7c1f6a966201662c723e6b7709e1d4fa482fbeb5c2715b2013d634fd3e0f32a",
-          "bytes": 1710
+          "sha256": "082d311e5715943e494e455cc1fb3ea6ad5cb760352c2e7b049e711240a05baf",
+          "bytes": 1711
         },
         {
           "path": "src/game/content/scenes/authored/objects/decoration-world-solid--armor-statue.scene.json",
-          "sha256": "9566d1f3694a2e58dfe1463e7a8771bb1fc8a042827704e0d6410e47f6790d67",
-          "bytes": 1752
+          "sha256": "376bfe5d85d1a3348764cad7697c7ee26c44f9e80340aa97c8e56a8f68ae77a8",
+          "bytes": 1753
         },
         {
           "path": "src/game/content/scenes/authored/objects/decoration-world-solid--birdhouse.scene.json",
-          "sha256": "9e91b4b7cdc27f1dc6c498178a5a5a9ca7f18963c57bead9036306435095a778",
-          "bytes": 1734
+          "sha256": "2c7f16ee302228ed03742dd06658029c8025d85f08b7ec82270563fffddae388",
+          "bytes": 1735
         },
         {
           "path": "src/game/content/scenes/authored/objects/decoration-world-solid--campfire.scene.json",
-          "sha256": "fc5ce185df35c97be582820ba35299134192f6767bdc420bbb05327e62f3eb40",
-          "bytes": 1727
+          "sha256": "5f62fa5f77cf5c966b30af1d62482f0de91717f99234b80f75a01be2cf93005a",
+          "bytes": 1729
         },
         {
           "path": "src/game/content/scenes/authored/objects/decoration-world-solid--canvas-tent.scene.json",
-          "sha256": "b90524af3675cabe859f5d119837366627dc167639d16d09504258650024402c",
+          "sha256": "d5a86f5ce6b97c91a09238439665f36ec7fd13a456bcb16cb0050fdafb3a9191",
           "bytes": 1881
         },
         {
           "path": "src/game/content/scenes/authored/objects/decoration-world-solid--cooking-cauldron.scene.json",
-          "sha256": "a22ff7563cc16c76c304ef5a03190bf2a341b3a4233414e871ea4c626411ea7b",
-          "bytes": 1775
+          "sha256": "52f30ad94ed1863259c2555b09c5ba46024d288e1ce7bd68f547b605ac58d33c",
+          "bytes": 1780
         },
         {
           "path": "src/game/content/scenes/authored/objects/decoration-world-solid--double-gate.scene.json",
-          "sha256": "173b397e84e7d82a424faee78a11a827d4e268c618902bc59ae413c4e5b73ccb",
-          "bytes": 1745
+          "sha256": "d08b0789a9382b7fe6c181ad0116dd6092feda72e1756cba4d621d274c266c27",
+          "bytes": 1748
         },
         {
           "path": "src/game/content/scenes/authored/objects/decoration-world-solid--flower-planter.scene.json",
-          "sha256": "0c9e2b4310b1d128959136971cbf4e52ed67959cf7b4fed761540c9d6b2f4fa1",
-          "bytes": 2032
+          "sha256": "8be6984498a78f498ae5268fc3ba010ca943bcc61db2784c099018198f7ead68",
+          "bytes": 2033
         },
         {
           "path": "src/game/content/scenes/authored/objects/decoration-world-solid--grindstone.scene.json",
-          "sha256": "8a25266fdea8055e61321ebec25941f0eb91b3d4d08ad772c8d0ca78820779b8",
-          "bytes": 1740
+          "sha256": "b9adbec3cd27f57a2e30e7a0399e9f3d95f4d947d7d67e85782ecc61d1b527af",
+          "bytes": 1741
         },
         {
           "path": "src/game/content/scenes/authored/objects/decoration-world-solid--hay-bale.scene.json",
-          "sha256": "6ef085a25fe9930a4e58e712c7b54bd85dc99705d836a29297f6754fa2f1ee6f",
+          "sha256": "061fc53033138901bb314052beaaa7575a3d38d7e60c3fb8fe6a5daa75c0bd65",
           "bytes": 1728
         },
         {
           "path": "src/game/content/scenes/authored/objects/decoration-world-solid--haystack.scene.json",
-          "sha256": "c574eb89899a76019ec55498cd4b418333e12e5716b0a9550d7a850a8c548990",
-          "bytes": 1728
+          "sha256": "9ee209fdfad38e8c74906ffbba1b4e4023f4710e4c8a1130b46e6a1b95f092eb",
+          "bytes": 1731
         },
         {
           "path": "src/game/content/scenes/authored/objects/decoration-world-solid--herb-planter.scene.json",
-          "sha256": "bfcd1b4f766a8633e2d9d930db24484407720561ff730e26dd0614abe9cd5d64",
+          "sha256": "511116d1dfafacf8d8a87f8434b290ca777c54244ea7240843cfbf8578d65472",
           "bytes": 1752
         },
         {
           "path": "src/game/content/scenes/authored/objects/decoration-world-solid--lantern-post.scene.json",
-          "sha256": "4d269e679a9c0dcc192d03d416fb15ab2804219b12bfdec7bcf8c9b867448b2d",
-          "bytes": 1751
+          "sha256": "98cd8dd6401292cef385fa077fbe78bedd91317875e2dad40fd502aedc615ee7",
+          "bytes": 1752
         },
         {
           "path": "src/game/content/scenes/authored/objects/decoration-world-solid--palisade-cluster.scene.json",
-          "sha256": "f8780a877708c7e87a358e4969d994ddb2fb61311d6930f76c858bcdfc3cc7c2",
-          "bytes": 1775
+          "sha256": "0c2b017df18b86fa63233619e6c9fe8d932cca2b5c1dc7e092246a2aa8690b7a",
+          "bytes": 1776
         },
         {
           "path": "src/game/content/scenes/authored/objects/decoration-world-solid--palisade-gap.scene.json",
-          "sha256": "4b827a3a053afd61f8c552f536d1dbbbb0d1a1c46b526c2b14204e3ad35ee804",
+          "sha256": "3df7f36214227905e422512c7e0879b40e92f6b99fcdac079cc55ab847c851e0",
           "bytes": 1751
         },
         {
           "path": "src/game/content/scenes/authored/objects/decoration-world-solid--reinforced-fence.scene.json",
-          "sha256": "b2a27664373fce829ed99b3ab1f55d85c659b72265693dac90df3b1e3880593b",
-          "bytes": 1776
+          "sha256": "29d2a276c62a5f423df6c8c41278e8a5bd2172f65f44371aa304cce9465065a2",
+          "bytes": 1778
         },
         {
           "path": "src/game/content/scenes/authored/objects/decoration-world-solid--stone-birdbath.scene.json",
-          "sha256": "23fe2d1fb17cbfec4218b31c3ba17a69d13e9ef96d2a925a633b8efcde6b688e",
-          "bytes": 1764
-        },
-        {
-          "path": "src/game/content/scenes/authored/objects/decoration-world-solid--stone-pedestal.scene.json",
-          "sha256": "98febd9e20baf281c9f3089911a9d7a52d284a7b064db4b6546b583e374f48ad",
-          "bytes": 1764
-        },
-        {
-          "path": "src/game/content/scenes/authored/objects/decoration-world-solid--tool-bench.scene.json",
-          "sha256": "a7f437b2eafdab4daed720fb04f2f2be3e7ff6b774302da0ef6f070498b5d504",
-          "bytes": 1740
-        },
-        {
-          "path": "src/game/content/scenes/authored/objects/decoration-world-solid--village-banner.scene.json",
-          "sha256": "f013d3fcde3bd35f2132e751c82eaef4d8f3d26aea0eb216d7bd85b5b21ce51e",
+          "sha256": "7e9690196d98e656eec1d118849374ec4f1a099c6e626d24a7bda451e71d7996",
           "bytes": 1765
         },
         {
+          "path": "src/game/content/scenes/authored/objects/decoration-world-solid--stone-pedestal.scene.json",
+          "sha256": "ab4787ddf16b3fbb79f260daa247770842a0077d2c17bdae6139c076f300f962",
+          "bytes": 1765
+        },
+        {
+          "path": "src/game/content/scenes/authored/objects/decoration-world-solid--tool-bench.scene.json",
+          "sha256": "72e8b3efb9d3ff870bce597c584b5c5d8078a6111c81ee8e5f5a5fd59afa5bd1",
+          "bytes": 1743
+        },
+        {
+          "path": "src/game/content/scenes/authored/objects/decoration-world-solid--village-banner.scene.json",
+          "sha256": "708eda9a24a3ccf2a2c0c137d7f980f2e8c69ed9334b6e5ac8baae8c0356a3d5",
+          "bytes": 1767
+        },
+        {
           "path": "src/game/content/scenes/authored/objects/decoration-world-solid--wood-door.scene.json",
-          "sha256": "5142637e6a7f3ac0ab6a93254bbdcf4ed0071c0840f8d3c8b8d7a34930354866",
-          "bytes": 1733
+          "sha256": "319695205d4a45aa70c81d1809ad7e17c08266554b3ba3d0f4783f2ca62bfe35",
+          "bytes": 1735
         },
         {
           "path": "src/game/content/scenes/authored/objects/decoration-world-solid--wood-table.scene.json",
-          "sha256": "7e757c53a13076495e0ab98c5b53b1b2c3b6710e2a652f8e4bce8c63b59f587b",
-          "bytes": 1740
+          "sha256": "3e32947f9e23ae75e98b2ac0f1b7e62c2741e50024aaa07fb1bdd5d76f9060f0",
+          "bytes": 1743
         },
         {
           "path": "src/game/content/scenes/authored/objects/decoration-world-solid.scene.json",
-          "sha256": "7c300cd75ef112c250310ee9804a6441c199ad1c866517cdeb7be2bee0de8eb8",
-          "bytes": 1729
+          "sha256": "269754bf2486927af5b5cea3e12c215d2f45562c2a1141958d312613a69baaa2",
+          "bytes": 1812
         }
       ],
       "consumedFieldPaths": [
@@ -12727,18 +12650,18 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/objects/house-world-solid--cottage-blue.scene.json",
-          "sha256": "630b9cee8226976f0bd45968a9be1fec38bbe05417ef81387632a2f34962c46a",
-          "bytes": 1994
+          "sha256": "51868bbb20780ea8ac5755f6cdad8bf3207e67f13dfa73f002bdbf068e7a117d",
+          "bytes": 1999
         },
         {
           "path": "src/game/content/scenes/authored/objects/house-world-solid--forge-red.scene.json",
-          "sha256": "b54e03c6efaa51bb1e946a42b129fff5b4f69f60b71c79c285312c4a1c654215",
-          "bytes": 1976
+          "sha256": "041c80e9c0f5ea3dcd3b8780bf4e28979605ca8e43b997236d03c0ab498e92a0",
+          "bytes": 1980
         },
         {
           "path": "src/game/content/scenes/authored/objects/house-world-solid.scene.json",
-          "sha256": "348c5e437ce7ecd9ea69677b4be2b0e803aa0e8f67ad41b32b69e9ba8ff0ee22",
-          "bytes": 1961
+          "sha256": "7f677c8698f5f7ba89576a95e079a711863124584beb903911c128572d9ed614",
+          "bytes": 1965
         }
       ],
       "consumedFieldPaths": [
@@ -13019,13 +12942,13 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/objects/resource-stone-node--big-stone-mine.scene.json",
-          "sha256": "b1de5975b3bd0e1088b644fcf5e8ddd2a0fe24787b2bf8be1c9987d2b809f5e0",
-          "bytes": 3713
+          "sha256": "96df08b5f79dc6083a236db4395aeeec56a46fec97d10f0a3b9f2b0fdf795187",
+          "bytes": 5154
         },
         {
           "path": "src/game/content/scenes/authored/objects/resource-stone-node.scene.json",
-          "sha256": "6a24eef9a1882267aa55d2871264737629f07cc8aa9b6af375921830f4351e6e",
-          "bytes": 3658
+          "sha256": "c19110227e8860404cf769c48fe34385ffea2cbbb002170bf66bc90cc2a1d3fe",
+          "bytes": 5109
         }
       ],
       "consumedFieldPaths": [
@@ -13083,8 +13006,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/objects/rock-amber-ore-mineable.scene.json",
-          "sha256": "f61a7a4e059fab3edcf40e680af9ff11e5bbf596faad3421cbcead554e2ab72c",
-          "bytes": 3258
+          "sha256": "83940d0e9c35fddb18c374bbe0a82e56f238fbf16badd34fe8936763c8522f19",
+          "bytes": 5436
         }
       ],
       "consumedFieldPaths": [
@@ -13329,138 +13252,138 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/objects/rock-world-wall-solid--field-01.scene.json",
-          "sha256": "5f362b5fd59aab1280f47c1bd620659f2cea3aa0512cb3de8c3b14ea2df4a9c5",
+          "sha256": "d90cd4dc45b225395aa2596b96ff1e9774e3fa562016151e572664e9f295448e",
           "bytes": 1848
         },
         {
           "path": "src/game/content/scenes/authored/objects/rock-world-wall-solid--field-02.scene.json",
-          "sha256": "5d9c2d5bd407421e92f35f6b3ad919368a0024820a41dd4d5fa4cb6f1bd4c91c",
-          "bytes": 1848
+          "sha256": "40b350b040914fcb8ddff5b7b3b64d703d926bda8ccaf1914b388c7cb0c2b551",
+          "bytes": 1849
         },
         {
           "path": "src/game/content/scenes/authored/objects/rock-world-wall-solid--field-03.scene.json",
-          "sha256": "858ab74ea9290da3be1497ddd59e674c72f262d9476e897c52483d611aac9dcb",
+          "sha256": "dc74993098f5d5badf671afef69de3867c11cbfbe493443c9197ef1a3c3b6514",
           "bytes": 1848
         },
         {
           "path": "src/game/content/scenes/authored/objects/rock-world-wall-solid--field-04.scene.json",
-          "sha256": "eea9f3aac320c7b63fc75e452adf49b3207f3a018099f96531bdd992afacfb4c",
-          "bytes": 1848
+          "sha256": "51633b5a87869ba85d8eff4d9e4336edcd783826077a464aa5f0b0fdc6decbd6",
+          "bytes": 1850
         },
         {
           "path": "src/game/content/scenes/authored/objects/rock-world-wall-solid--field-05.scene.json",
-          "sha256": "7403c85269e5b80ef80cf2c119b46527abade323130725bafa7ca7b5c8dd272f",
-          "bytes": 1848
+          "sha256": "937c94cf4b37b3a8f81fd3d07d1759b71cef989b1642cbfd0dd99c3342e06b86",
+          "bytes": 1850
         },
         {
           "path": "src/game/content/scenes/authored/objects/rock-world-wall-solid--field-06.scene.json",
-          "sha256": "76aa7b55f548a59eb444ed4fb815948dedec8b2c55d441ac677fe4f33fa3d0cf",
-          "bytes": 1848
+          "sha256": "03e383f610c4509d6915712fc695ad904d602e78958872fb64a4c25eec4551ac",
+          "bytes": 1853
         },
         {
           "path": "src/game/content/scenes/authored/objects/rock-world-wall-solid--field-07.scene.json",
-          "sha256": "097ef415dbb2d33cb29fdf83d855896a21a62685680693f0c4bc6650c828ae41",
-          "bytes": 1848
+          "sha256": "2f33438e924b6d31eb73e965242217542e7cded7d8b135583ad09a5cc8b93fe5",
+          "bytes": 1852
         },
         {
           "path": "src/game/content/scenes/authored/objects/rock-world-wall-solid--field-08.scene.json",
-          "sha256": "5c9a945617d7f1b26cc37dde48e2e7167fa4fd8c9a018729bb7dabae6a7d06c1",
-          "bytes": 1848
+          "sha256": "3ead2e54357dcc42ad603810978f9829c0161cae30bd3ca5ff4d2d2dfca73492",
+          "bytes": 1851
         },
         {
           "path": "src/game/content/scenes/authored/objects/rock-world-wall-solid--field-09.scene.json",
-          "sha256": "7a1ecb60389ad3bfef8ffd19349a813ab79178b37d4726a6f6ba6133ceb5f57a",
+          "sha256": "3550a5710d437d761eda77c800435698e0e457977785c60b4a8d47363887b517",
           "bytes": 1848
         },
         {
           "path": "src/game/content/scenes/authored/objects/rock-world-wall-solid--field-10.scene.json",
-          "sha256": "5a046373c43358df9358d5c780a150050980481ba7f18c743b84472c0ffbb054",
-          "bytes": 1848
+          "sha256": "8c643bb8c01b1a512b30b379fa313757c30144e8be7eb2666ba6d8de81c030be",
+          "bytes": 1849
         },
         {
           "path": "src/game/content/scenes/authored/objects/rock-world-wall-solid--field-11.scene.json",
-          "sha256": "e19d9ad73e373b81b91d551b29bdbd22bc13e851fb0c56aed6bf41d7721284cd",
-          "bytes": 1849
+          "sha256": "0a16ea20d80e2c8d505d431040eb77fede762b2010cef2766b14c0d1349e0f04",
+          "bytes": 1854
         },
         {
           "path": "src/game/content/scenes/authored/objects/rock-world-wall-solid--field-12.scene.json",
-          "sha256": "fecd03d1a910e91dcdfe2f167e151f2050da9eec95fd43a8ab6de30ed95aaf61",
-          "bytes": 1849
+          "sha256": "bd32e34404fd87ac8e748c922b5b738d71f582fa47dc20ed4b210786b4aecd7c",
+          "bytes": 1853
         },
         {
           "path": "src/game/content/scenes/authored/objects/rock-world-wall-solid--field-13.scene.json",
-          "sha256": "d9bf7f9b555e6ce7c953b92d49a69b62e56909125aa3ad6b02bc35f26b380cbe",
-          "bytes": 1849
+          "sha256": "db3ced67a978b831e742515492522628cdff2e0a249fa588d47bcbac54f86119",
+          "bytes": 1850
         },
         {
           "path": "src/game/content/scenes/authored/objects/rock-world-wall-solid--field-14.scene.json",
-          "sha256": "c93c69872b46dee1a4ed3f9b5f1875120e4dcc4fc5e764aa75ba2f4ffe0222a1",
-          "bytes": 1849
+          "sha256": "26dd270fe5ca3a5d3e5a65a0a383623127c4545357ea98fb12d4eadb3f110f6e",
+          "bytes": 1851
         },
         {
           "path": "src/game/content/scenes/authored/objects/rock-world-wall-solid--field-15.scene.json",
-          "sha256": "d50a4c5a9109ce2c69a9bdc89081d411df83da2b08730d1191ac28af6390ae1a",
-          "bytes": 1849
+          "sha256": "e23f0dc74bc7c93ca64396cc2e620fdbc0c875827f977a21e51b6b01e54e5fa0",
+          "bytes": 1853
         },
         {
           "path": "src/game/content/scenes/authored/objects/rock-world-wall-solid--field-16.scene.json",
-          "sha256": "2aabec5299ef6db1aab6339bc1544d7e827971f18dedb85dfb914bd669a9a902",
-          "bytes": 1849
-        },
-        {
-          "path": "src/game/content/scenes/authored/objects/rock-world-wall-solid--field-17.scene.json",
-          "sha256": "a1730d37d382b4f9155c9a4fd8ee07cc26a3ed9ae261d4c8c0f1030a33ec6ed1",
-          "bytes": 1849
-        },
-        {
-          "path": "src/game/content/scenes/authored/objects/rock-world-wall-solid--field-18.scene.json",
-          "sha256": "a6f090303647d42923a12ed7612fbf65df68bdf721cc9277cd18ff6235d4256a",
-          "bytes": 1849
-        },
-        {
-          "path": "src/game/content/scenes/authored/objects/rock-world-wall-solid--field-19.scene.json",
-          "sha256": "9afe31da3bf31ae5f31257b860ce687d2271bf77f95e4ae7de3fefd2fdbc8ca4",
-          "bytes": 1849
-        },
-        {
-          "path": "src/game/content/scenes/authored/objects/rock-world-wall-solid--field-20.scene.json",
-          "sha256": "8e6afcd3ca562e557f457b6fd4c8c7690a7368918e25d4335f0c3781e2d7ef8d",
-          "bytes": 1849
-        },
-        {
-          "path": "src/game/content/scenes/authored/objects/rock-world-wall-solid--field-21.scene.json",
-          "sha256": "a776baafea5ec4e1e7fce5c6e46712916867087678bdf9d1c4bdb980dfee7dd9",
-          "bytes": 1849
-        },
-        {
-          "path": "src/game/content/scenes/authored/objects/rock-world-wall-solid--field-22.scene.json",
-          "sha256": "7c32513645818532830ea72e306402bc69ed387110dbdb704f74af3a77c3c53e",
-          "bytes": 1849
-        },
-        {
-          "path": "src/game/content/scenes/authored/objects/rock-world-wall-solid--field-23.scene.json",
-          "sha256": "1cebbda576d7d12346c7a366754d38e3f4ad9718968b3102e51170b79d6d97e0",
-          "bytes": 1849
-        },
-        {
-          "path": "src/game/content/scenes/authored/objects/rock-world-wall-solid--field-24.scene.json",
-          "sha256": "032932ebf9e9d51767af0d7b5453c908fef9e9b5e612b05060080c1bb7fe27ac",
-          "bytes": 1849
-        },
-        {
-          "path": "src/game/content/scenes/authored/objects/rock-world-wall-solid--large-02.scene.json",
-          "sha256": "d8177b4c2dd66dcb8679ea004bec2a1ef070a39b0e1ab7ec2beebe9f7bfaed62",
+          "sha256": "297c6c8d228a18a0aa66512e44b383816aa1b00bb24a3e1ae34586b9689fda1d",
           "bytes": 1852
         },
         {
+          "path": "src/game/content/scenes/authored/objects/rock-world-wall-solid--field-17.scene.json",
+          "sha256": "d9971d6f961d9331e18c0c2b61f6ce2e602bcad2c3c8e8feb65471c2d3647c7c",
+          "bytes": 1854
+        },
+        {
+          "path": "src/game/content/scenes/authored/objects/rock-world-wall-solid--field-18.scene.json",
+          "sha256": "73ab6c7bc7d8fbdd92102ad172ac61994fee8d27aeea0175772b0de1451158cd",
+          "bytes": 1851
+        },
+        {
+          "path": "src/game/content/scenes/authored/objects/rock-world-wall-solid--field-19.scene.json",
+          "sha256": "670a82ac0af9279ebe2f4fd1e04be0d1b096b3cd5c27cb723691735cc2c79f2e",
+          "bytes": 1852
+        },
+        {
+          "path": "src/game/content/scenes/authored/objects/rock-world-wall-solid--field-20.scene.json",
+          "sha256": "adf32e5bc5ed500837f3028f80ffd590aa9670ca82edad5342ddfabc53c3b57a",
+          "bytes": 1854
+        },
+        {
+          "path": "src/game/content/scenes/authored/objects/rock-world-wall-solid--field-21.scene.json",
+          "sha256": "c27f42c3851482bf5692fd929ec152191b36a5d4380a86dcfb469d8892040fa1",
+          "bytes": 1851
+        },
+        {
+          "path": "src/game/content/scenes/authored/objects/rock-world-wall-solid--field-22.scene.json",
+          "sha256": "ab062b2a69010d9f466cfa63973a4097ac7688aad909088b828cbd4f1f0d4a00",
+          "bytes": 1850
+        },
+        {
+          "path": "src/game/content/scenes/authored/objects/rock-world-wall-solid--field-23.scene.json",
+          "sha256": "13986021da5c8e705e158351fd974b9ea2924a3a6f09811bca91d4688dca78af",
+          "bytes": 1851
+        },
+        {
+          "path": "src/game/content/scenes/authored/objects/rock-world-wall-solid--field-24.scene.json",
+          "sha256": "05007d8f08c606b52974f4a9cda2ba76ad297b0bb019bcdb0547c18806abd571",
+          "bytes": 1852
+        },
+        {
+          "path": "src/game/content/scenes/authored/objects/rock-world-wall-solid--large-02.scene.json",
+          "sha256": "ab48249ef170c470c3b201fa4eeca1a597f13927b837c263046e4156eb9eae78",
+          "bytes": 1853
+        },
+        {
           "path": "src/game/content/scenes/authored/objects/rock-world-wall-solid--large-03.scene.json",
-          "sha256": "e62f983221be80c12b7540b73ff8b87f32005c824569554110b1a251568d4396",
+          "sha256": "4737ec1416ce6decc97d24b429f39a8f549e8b59bed0cf9640c042c21929c054",
           "bytes": 1852
         },
         {
           "path": "src/game/content/scenes/authored/objects/rock-world-wall-solid.scene.json",
-          "sha256": "a5b88dfa6bf9c801b0577db8735ae99fd85780322a2a13c6077899219783b427",
-          "bytes": 1843
+          "sha256": "fb6a33821fe555f3f335b02626b7aa8f5be5a45120278bcb86080ee148433a6d",
+          "bytes": 1846
         }
       ],
       "consumedFieldPaths": [
@@ -13516,238 +13439,238 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--ancient-bare-01.scene.json",
-          "sha256": "b07fa78ec79431eba1b1bcc0af1b6a0c61a25bd1aab9425ef0cafe128d58717c",
-          "bytes": 3536
+          "sha256": "550d2f15366ab8f9136c65eb9a7398af12805d09d3969edb8b2ca605e7f73229",
+          "bytes": 5689
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--ancient-bare-02.scene.json",
-          "sha256": "e186e1e289814cad9e2226285342fe6ee6ecad850e4a127a0d2e2b953e729398",
-          "bytes": 3536
+          "sha256": "0df5ea1a9565c55d1e47da393f6c106499ba4bfabda56a74c8ce4950302b2e87",
+          "bytes": 5689
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--ancient-bare-03.scene.json",
-          "sha256": "cc8f5f918f909fbe5ec777e7126e752459c080b0f2b6d133081cfb3c708dd851",
-          "bytes": 3536
+          "sha256": "02eef432e5d43d4861bb8214f7acfcbb73a028f7d56dd19510f65f37794d5389",
+          "bytes": 5689
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--ancient-bare-04.scene.json",
-          "sha256": "ef1d51e38fce22925a9209794f7aefaf96577fb1c4e819f336b1d3db2b71b0db",
-          "bytes": 3536
+          "sha256": "c9fff7d26a957977912f3faa428bf53257d10f44781ea2941d0fa0f860122f0d",
+          "bytes": 5689
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--ancient-bare-05.scene.json",
-          "sha256": "5259611a504bdf7d7f1075b3c22b018e95abcc6056814d9e9558f53fbac4a841",
-          "bytes": 3536
+          "sha256": "4a6a87579cef1252599310cb8cd6caa40960e86a1b4df1775a41d3f96175d289",
+          "bytes": 5689
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--ancient-bare-06.scene.json",
-          "sha256": "33b5a3c1e2acdd4df2cbfb1f65f58eb80d2e5be7055f1654b0852de9abe2c061",
-          "bytes": 3536
+          "sha256": "5937c7da709843c7ecedc56456d028d2334b7620b4354e6e51aff44192cf0cce",
+          "bytes": 5689
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--ancient-blossom.scene.json",
-          "sha256": "19ef64a3fcbc8e154e968333c42f1faf63408814b6faa83a3ac654d443df1c35",
-          "bytes": 3538
+          "sha256": "7ff5eb7a7eb93e20acade9eebc6a02606c5bd9ee14527548e96b8c8e901db858",
+          "bytes": 5691
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--ancient-dark.scene.json",
-          "sha256": "0307fd6390b62db98938e317962334fe3bd958ef8b8258c60575b13d8e153a6d",
-          "bytes": 3517
+          "sha256": "328394e110046837f3a57f934886af0678b205b07e90fc3f600a57cff48117f5",
+          "bytes": 5670
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--ancient-green.scene.json",
-          "sha256": "da23a80844f5cc3dc9adea2929c3fbe7ec60e5dc7d0e55f72508dcfdc8d62803",
-          "bytes": 3524
+          "sha256": "e23d44a86cc258d7fb018537ad589e852deedf5bdd9d1067f809002851089b8c",
+          "bytes": 5677
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--autumn-tree-01.scene.json",
-          "sha256": "7fa9672fe139989f563e5796bf3f007bc710652d0b60f48c0796b48b3370432c",
-          "bytes": 3530
+          "sha256": "c4d462f253fe0d09f2ae71ea7fe5450abc80f35de4ede16e2c3ec70401e5ded5",
+          "bytes": 5683
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--autumn-tree-02.scene.json",
-          "sha256": "6d0f11ac325af7c616b6ff83ef7828d68acefa18bb7781c78dd1b91aa0658f86",
-          "bytes": 3530
+          "sha256": "0c95e69d1056313d23eb0278d9a2a8744ec73c38452c8082580685a48441b8dd",
+          "bytes": 5683
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--autumn-tree-03.scene.json",
-          "sha256": "076c39b62ec3f6f6da955c7722d5048ebdfee5e831957cd0b6c5b191c4c81da2",
-          "bytes": 3530
+          "sha256": "5b791da2da0244d53cd0bf7242f52c24f008b31d122651518f19e9daf6901c69",
+          "bytes": 5683
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--autumn-tree-04.scene.json",
-          "sha256": "446144161e295a464fb37fc756c6e039ab9154be0825fef564b17ebce295bb23",
-          "bytes": 3530
+          "sha256": "3efdbceaab379ee36b2e27cd5e6f5c867649029d9302499f6545242a37c3ba1c",
+          "bytes": 5683
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--autumn-tree-05.scene.json",
-          "sha256": "da2ed9395247a2cbbdb5792838e506ae98e7369d5f09a2750b8f24ed42d7b6bd",
-          "bytes": 3530
+          "sha256": "f3f73c690debfcb6de291b39f808c75d6e5da5ccc2d12e94ee96d906470a3d66",
+          "bytes": 5683
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--frost-bare.scene.json",
-          "sha256": "f395125a5d4c6f4d044e6abff138a4dc514fa1468db001d79e2951978d006fed",
-          "bytes": 3501
+          "sha256": "0d6a6f326f3735fdb271797769261673afd787ae4188216d650441301ed5cdac",
+          "bytes": 5654
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--golden-tree-01.scene.json",
-          "sha256": "a1e0aad96a08e62c5a859fc52a070e41113f586dcf29d376d33f7a28d13c786c",
-          "bytes": 3529
+          "sha256": "65e978541105701b57f60b7bf39a7e1daef95ac305ee31c365c8b40f6e4a23a6",
+          "bytes": 5682
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--golden-tree-02.scene.json",
-          "sha256": "14828ea2817ad8f8f5890fc88540bd4376a84896f572d5e7d8bed4fc09b8f9b4",
-          "bytes": 3530
+          "sha256": "4fd6953cf29a511f0a304d984aa7893ccad4bfbb2c53f8aa004dc5459b03402d",
+          "bytes": 5683
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--green-tree-01.scene.json",
-          "sha256": "4224389a46efa2598970ee97bd72fce85a1f7dc08c6884269d2c2d91de103fab",
-          "bytes": 3523
+          "sha256": "2bb597b33e5f03f7300e746478685d70213cd338a18e8660e0cdeaeed8d3efde",
+          "bytes": 5676
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--green-tree-02.scene.json",
-          "sha256": "655cedc7187357a01abd40ff5f20d6867a985c25ecf3d5bbf826e0a142019524",
-          "bytes": 3523
+          "sha256": "6814deb603d877a50c2ec91a78cfce5e076b20fe0d5d9e8669f1ce0dda191998",
+          "bytes": 5676
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--green-tree-03.scene.json",
-          "sha256": "1e0cc564f98f957812a1873e2eae1b36bb48207b3d774bfcf074e5bc70758093",
-          "bytes": 3523
+          "sha256": "42b17e238a39f46b2a276b6fe578f07fdea76ca4d42793e720fef6432438793c",
+          "bytes": 5676
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--green-tree-04.scene.json",
-          "sha256": "a58ed99b4fafe138eaebf7ebb532ed941fbaa355ffba67c85581054778dc5464",
-          "bytes": 3523
+          "sha256": "1b02c176cd4e8fac2ca43cacb88ea326c85614ea1861c89349e5a201ca60db6b",
+          "bytes": 5676
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--green-tree-05.scene.json",
-          "sha256": "fdba567acf51683e70ff8b9b24341b3fd37724c805f00762c6f62a46beab20aa",
-          "bytes": 3523
+          "sha256": "407b3518af16e286c555ad3dec75265a735da1ba0b6295ba492ae9a07c22a829",
+          "bytes": 5676
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--green-tree-06.scene.json",
-          "sha256": "ebbac61afc07d2c2d37e6b66a981284c3bb19c55bf2076935c0e03237d9671cd",
-          "bytes": 3523
+          "sha256": "c43bb48a3b76396a3060897b58463c1e11b4c6a05a2b8f22fe8c3288f2e3df27",
+          "bytes": 5676
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--green-tree-07.scene.json",
-          "sha256": "f250ea9b7ff6cdbe2cbee2ba9170b9ad809a1708376687abdc463cb307c6b2d8",
-          "bytes": 3523
+          "sha256": "fddc71e0f0591c3276f7cd93637146ef5cece8f05c386d6affec18ce45e14193",
+          "bytes": 5676
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--grove-tree-01.scene.json",
-          "sha256": "cdd35930a2d9e563352258eee0631315300efdc96182d061fc92c1bd18837748",
-          "bytes": 3523
+          "sha256": "b8840ca9f17a79d52c5c597557dcd938f6afb53d4905c17c31b72e5d63a60b44",
+          "bytes": 5676
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--grove-tree-02.scene.json",
-          "sha256": "081888206c2846d79eca2b469db713abc484c0c1c859c167b62cd1e0295b326a",
-          "bytes": 3523
+          "sha256": "1210e30e67b9ca93d53cc5405352429a1ad1eb29b3d349bf89ab628c1aa712f6",
+          "bytes": 5676
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--grove-tree-03.scene.json",
-          "sha256": "84761ae8e87e0d37000259e7cab8e9051dae9322418f01eed117d3f5df67a743",
-          "bytes": 3523
+          "sha256": "d6308ab6ae006e4e3e48bb0e143ef0e2484dd88f058df2980517cedf5771b56d",
+          "bytes": 5676
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--grove-tree-04.scene.json",
-          "sha256": "6c7d7755ecad0c650cafe2e9c957d5703f23e01bc93863761e896a3f31403576",
-          "bytes": 3523
+          "sha256": "eadaf4b76943ef34b71ef9d8409bce4791cdfa58250b00314178bbdc204b6ca8",
+          "bytes": 5676
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--grove-tree-05.scene.json",
-          "sha256": "7f0cd8e6d61dd56c0e3bfdf95b83a63afb2116b9319f04a73e65d8ff83608d42",
-          "bytes": 3523
+          "sha256": "596e3b4055b0768325fb976e9dd26eb63caa0be619563079bebfb8d30b21ba8b",
+          "bytes": 5676
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--grove-tree-06.scene.json",
-          "sha256": "7c6db2978352d83ef3e58c0f079f11c73172bd46e14a125c5dc42df13f35f988",
-          "bytes": 3523
+          "sha256": "ba9265caabcc2136daa424b6d2c1353277fd5783506b0b93724f333abd78282a",
+          "bytes": 5676
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--grove-tree-07.scene.json",
-          "sha256": "a555783a61ebd2c35c136d68763b3d5e6d37ffe624e05b1c1ee52aa6dd51bd35",
-          "bytes": 3523
+          "sha256": "3ffc058c5d44e9d4245de5bfd89fbbce942eb16a58a5a7ae53f2d4f692418070",
+          "bytes": 5676
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--grove-tree-08.scene.json",
-          "sha256": "f889a8a45e917db94ccaa65c72f738a71f0e672eb05694109e4b6f7b25882d34",
-          "bytes": 3523
+          "sha256": "c554a81941e88d6cb987e34ee0ed0f93831c0a5a745b60e0642158536a41a69b",
+          "bytes": 5676
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--grove-tree-09.scene.json",
-          "sha256": "4d73bd4999eefc60fc314e31333d11a83c6047543011f095307d5a0769124afa",
-          "bytes": 3523
+          "sha256": "a6d1d94113dc6767f0075c263b0b387c53ea5dd7a82b8a37930034db9e29c6b4",
+          "bytes": 5676
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--grove-tree-10.scene.json",
-          "sha256": "d7b32041fda57f26c714147f58f1299128440018dada7dd507628881a112decd",
-          "bytes": 3523
+          "sha256": "76f6804678d2c8c58c91dc0df279d618ed70b031e15356dd25d449fce580a57d",
+          "bytes": 5676
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--grove-tree-11.scene.json",
-          "sha256": "5050db7e6018e45fdc5d97f2415025fecb3e28fde63804abb07b8d11c9739bd0",
-          "bytes": 3523
+          "sha256": "0bbb57007c7915311f6f0374e3fe327d3db4305e5976cc3e27cd2b956adce5e4",
+          "bytes": 5676
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--pine-01.scene.json",
-          "sha256": "216f46ebb9639de53b1f9ca19ae289570825648f144bfba3a764c3d7ad238392",
-          "bytes": 3481
+          "sha256": "4e5b7e6aeeecd1bffcd04d132f46be450d5010d83193b9d4e36cfa51eedf12e1",
+          "bytes": 5634
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--pine-02.scene.json",
-          "sha256": "d108a20eb702e8e0cbcd2f5347c75209144e1d6982c0430dbf79df5c7908bf84",
-          "bytes": 3481
+          "sha256": "48cc940ef4c8bee2858150c85d934798d1e9d481ade74d96c4a6d3cddd98b2c8",
+          "bytes": 5634
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--pine-03.scene.json",
-          "sha256": "8b4313dfb44d5e378fdcc6e679e62a614fa71388235197a829558d3fcf122f20",
-          "bytes": 3481
+          "sha256": "d44eec52e62b9fa4670e357be567b87a326c52287310e296d7ace22ee4ba96c6",
+          "bytes": 5634
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--pine-04.scene.json",
-          "sha256": "541172fb33e425b2e25fb40b9509ec991122a44b8d88ad385540638432e3a88d",
-          "bytes": 3481
+          "sha256": "bbe38cdde608d09cadc6422af2f3995f6fed2cad83e22efd1713a7996c99857d",
+          "bytes": 5634
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--pine-05.scene.json",
-          "sha256": "d22785d9c2fa3c2cc36ce37aead082fa573aaa12d3795ff21ce2028c53059baa",
-          "bytes": 3481
+          "sha256": "b1bac707dea798d284dcfdfd92ed64b14e2dd08d402da828e0d21348d6cfd2bf",
+          "bytes": 5634
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--pine-06.scene.json",
-          "sha256": "4eb7eedeebb6a1a221a6c009005baec92ed65b140f1177c1bd5d06f5eb43e2d4",
-          "bytes": 3481
+          "sha256": "7692e617408ba86d6e6e93138e6c2cfa0cac1df515260eae6f8ef6f14b562c70",
+          "bytes": 5634
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--pine-07.scene.json",
-          "sha256": "b006bed40262249ecc08c87a29313637512bcc7d34aed38c83960d7eb56d3fdb",
-          "bytes": 3481
+          "sha256": "846d8019d15b0d46aff0d1132e0852c03267de008ae9a53cd92ce9bdad362097",
+          "bytes": 5634
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--red-tree.scene.json",
-          "sha256": "03b5d06e4fc60398a5642f4fbfdf2b51f65e378f2ed13276a274e686081dad17",
-          "bytes": 3488
+          "sha256": "82d945e712d856f298a4b39362787ffe02748a748717f7294ed0ee32292869b8",
+          "bytes": 5641
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--shadow-pine-02.scene.json",
-          "sha256": "720cae5b14f1348b72d6cdf6fb553f95745fe2b6fc5ac222ed0fa71ba68c4f4c",
-          "bytes": 3529
+          "sha256": "c14f1f44ac4e884157e83fa20ad010d42703b146aff4f54a4def04f56efd7584",
+          "bytes": 5682
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--snow-pine.scene.json",
-          "sha256": "1c6420c7b7f7d44329012e545fb712a28db97e065f4d21457ceaeebb39dfc380",
-          "bytes": 4999
+          "sha256": "8002e907fbb6d694bb8195af16f442b62ef21438dbe8f77a6270c1d9e15802dc",
+          "bytes": 7154
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid--tree-autumn-01.scene.json",
-          "sha256": "13b35e6e034dfeacf9df5db3a0349ebf1e2aaded036d9d6dceb3ebdc4939c2c2",
-          "bytes": 10273
+          "sha256": "831dad10d9625bd2a6ab2a2cebf38921eb5ce59884042aa98af98daac047c587",
+          "bytes": 12430
         },
         {
           "path": "src/game/content/scenes/authored/objects/tree-world-solid.scene.json",
-          "sha256": "bb3616ddcf598585fda952234fbb450e5d5c3b39a1ea79f9ea2c7c3fa8bf04a1",
-          "bytes": 3513
+          "sha256": "71fc11afe987f6af59b614efca840f6ec18ba8afdeafd43aeb123782be0a0984",
+          "bytes": 5668
         }
       ],
       "consumedFieldPaths": [
@@ -13805,158 +13728,158 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/objects/wall-stone-solid--corner-01.scene.json",
-          "sha256": "6ad84e5d4c6813c166b59eaac419529f950c7e91f70bcc559b7daec52175ff9a",
-          "bytes": 1836
+          "sha256": "c9d292f6d32c4087db8be3c7d101f8ea30e71b3c9eb8d5dedab2f9d77e94c556",
+          "bytes": 1840
         },
         {
           "path": "src/game/content/scenes/authored/objects/wall-stone-solid--corner-02.scene.json",
-          "sha256": "5ee4d85176591f701550a75b14063a87df745c9a16348acaad0132185a4daecd",
-          "bytes": 1835
-        },
-        {
-          "path": "src/game/content/scenes/authored/objects/wall-stone-solid--corner-03.scene.json",
-          "sha256": "d7d6b54fb7141350073a557b894033c0c49a2f3e1c6f681b37cfc67d8d65877e",
-          "bytes": 1836
-        },
-        {
-          "path": "src/game/content/scenes/authored/objects/wall-stone-solid--corner-04.scene.json",
-          "sha256": "79a7c9469266d033800ded609fc16cb5da59e3d7c0786c0875f6e9a51ec31215",
-          "bytes": 1835
-        },
-        {
-          "path": "src/game/content/scenes/authored/objects/wall-stone-solid--corner-05.scene.json",
-          "sha256": "37a98007116ff875780cd7651f1de27f2b87f0aa9780e22a92862cb5d7a0a76c",
-          "bytes": 1835
-        },
-        {
-          "path": "src/game/content/scenes/authored/objects/wall-stone-solid--corner-06.scene.json",
-          "sha256": "926ffdd1e92ad86347ff16a0d25f582d54a1a61e898028d2cd885abe4e1e865c",
+          "sha256": "d18f8d1c25d884d9c810b7161e0bac536be99e330394be83797248c4a78c05aa",
           "bytes": 1837
         },
         {
+          "path": "src/game/content/scenes/authored/objects/wall-stone-solid--corner-03.scene.json",
+          "sha256": "cee89ee44c43df30f153b7a3751f6ce622df316b65e6604893f71030bd3e52a7",
+          "bytes": 1840
+        },
+        {
+          "path": "src/game/content/scenes/authored/objects/wall-stone-solid--corner-04.scene.json",
+          "sha256": "51b24647046bc926f5a3528f890d17e8b1a705b08c2e845e10f02e168842ca29",
+          "bytes": 1842
+        },
+        {
+          "path": "src/game/content/scenes/authored/objects/wall-stone-solid--corner-05.scene.json",
+          "sha256": "9f196d1addc478c06429caa1648b6d8c1a1f1c4e83765b4facc0d5dcdd22cc5e",
+          "bytes": 1841
+        },
+        {
+          "path": "src/game/content/scenes/authored/objects/wall-stone-solid--corner-06.scene.json",
+          "sha256": "8726d89fea78835a4317ec66b3eabdebd59363b0fe522a10c3ee853d9d442719",
+          "bytes": 1838
+        },
+        {
           "path": "src/game/content/scenes/authored/objects/wall-stone-solid--corner-07.scene.json",
-          "sha256": "f5632c0712db3981a1d6e212aab48ce299ad375a8df02d15fe6a9aae85e8d039",
-          "bytes": 1835
+          "sha256": "3153b05d343d6cffefd0d5e42fd94657e0a352eee54bc6e44ed87bb349a96fdb",
+          "bytes": 1838
         },
         {
           "path": "src/game/content/scenes/authored/objects/wall-stone-solid--corner-08.scene.json",
-          "sha256": "300dedf0aafdd741106af53de809271b4a0c52579ff3189af8ccdb6975b81d91",
-          "bytes": 1835
+          "sha256": "72674c9095f626b6a133c8e9a1c5da4ddb510827a0d487ec4dd5c790994b08b0",
+          "bytes": 1840
         },
         {
           "path": "src/game/content/scenes/authored/objects/wall-stone-solid--horizontal-02.scene.json",
-          "sha256": "efb226bd1c4526bf4d0b0b78dbea1336447935af527d073b4878ba003b339939",
-          "bytes": 1862
+          "sha256": "333c522d7666a230dda537cd35c0e35a7056c9d75e8d15f63939ddad2cf2b95e",
+          "bytes": 1864
         },
         {
           "path": "src/game/content/scenes/authored/objects/wall-stone-solid--horizontal-03.scene.json",
-          "sha256": "303fb755698e3271b3a96acffaf34d2004fd8d683e2d440c711e0fcf38d768b0",
-          "bytes": 1862
+          "sha256": "ecc4d488ebaedbd34022ff92ac9ba0f0e060db64e874831b2acb1adf0621811f",
+          "bytes": 1864
         },
         {
           "path": "src/game/content/scenes/authored/objects/wall-stone-solid--horizontal-04.scene.json",
-          "sha256": "77c5fe3d2b305473c873ed2c531c764cc1e57e5e46d929720462c7e18c5ca716",
-          "bytes": 1862
+          "sha256": "055db894cc0348d811349a0fd7b7c1f01eecfcc09e9b97385fe3a418eadabcd9",
+          "bytes": 1864
         },
         {
           "path": "src/game/content/scenes/authored/objects/wall-stone-solid--horizontal-05.scene.json",
-          "sha256": "f57ee4cac459d89e046075b87c8c3a5d26408e00292b285ec0d97069cd348078",
-          "bytes": 1862
+          "sha256": "7ab9cb0bab960f507c9cf7b3f21d7352780a11d48bdd3d8f4dd783e85f3d18dd",
+          "bytes": 1864
         },
         {
           "path": "src/game/content/scenes/authored/objects/wall-stone-solid--horizontal-06.scene.json",
-          "sha256": "f1eb21f92df46e2f7ecfa759c0e7cb1b5730a90bedf5c65042d55314b71e1002",
-          "bytes": 1862
+          "sha256": "102175f454a37bbb9f95a3c8971a33d68283eb30776182f0f8ffa320269ac186",
+          "bytes": 1864
         },
         {
           "path": "src/game/content/scenes/authored/objects/wall-stone-solid--horizontal-07.scene.json",
-          "sha256": "f72d698f8cd153ee521d699e31a7b02637b6f9c05d9520944644fb3800e8d4f1",
-          "bytes": 1862
+          "sha256": "baf668b3375c60cd85c80d3d3a9e2b96f0c507190fda2f50a1d7d6bd36c636fa",
+          "bytes": 1866
         },
         {
           "path": "src/game/content/scenes/authored/objects/wall-stone-solid--horizontal-08.scene.json",
-          "sha256": "d3037dbb3420885e29e68dcc1cd3e8484153eb4b98996035f138f162872f286a",
-          "bytes": 1862
+          "sha256": "8cc8771223925101231cfb0c874d7eb4cbf63720f27f4cf4bd08ef96d0c2a4e4",
+          "bytes": 1867
         },
         {
           "path": "src/game/content/scenes/authored/objects/wall-stone-solid--junction-01.scene.json",
-          "sha256": "93fdd42d16a103e667469f2f24777e93732b4e3f9cab21a3ecc4e7ce5a69e7df",
-          "bytes": 1851
+          "sha256": "0bf599fac209e3cf6d74260dc480f5cebfcf5ad597fd6df6ada6494df4fae6a2",
+          "bytes": 1853
         },
         {
           "path": "src/game/content/scenes/authored/objects/wall-stone-solid--junction-02.scene.json",
-          "sha256": "6bc480696a18834a3c62e2291adcba54c8fcd38add784b21406154e002db6b4f",
-          "bytes": 1851
+          "sha256": "a4daab15faf1c352f5cd4f1813a261154048295dde0ad2e1df96770d71723f5e",
+          "bytes": 1853
         },
         {
           "path": "src/game/content/scenes/authored/objects/wall-stone-solid--junction-03.scene.json",
-          "sha256": "232f202100f2113e4a596c11e28a090b31abde3aad1d988883be72dd31598c8b",
-          "bytes": 1851
+          "sha256": "f6947c96a8e8e9492fab2421d94474ae2b5d651c540c2f3ed1073dfbfa090bba",
+          "bytes": 1853
         },
         {
           "path": "src/game/content/scenes/authored/objects/wall-stone-solid--junction-04.scene.json",
-          "sha256": "6aa913640615a62d78d20b9c6d7592d019100655285e1d1ae61c3cedb48f25f8",
-          "bytes": 1851
+          "sha256": "c14ff60f4051a7fa448d68126bb9746ec62217ed833e332c8838f157cb5bcb89",
+          "bytes": 1853
         },
         {
           "path": "src/game/content/scenes/authored/objects/wall-stone-solid--junction-05.scene.json",
-          "sha256": "ef7434ac54646095e313dc06018adbafc56f62844bb6a70034028c13f3112ee8",
-          "bytes": 1851
+          "sha256": "c2ca4ada5fdcaf648c1d440503d51d0d36c7246e981ce0c4b9e86dd1fcab1000",
+          "bytes": 1853
         },
         {
           "path": "src/game/content/scenes/authored/objects/wall-stone-solid--junction-06.scene.json",
-          "sha256": "b8755da87661a39315d4f24b8cc95b06af97191af924427e29fb1f543de16a0f",
-          "bytes": 1851
+          "sha256": "ae15de783c661feb0f4bff8d2e5aa5ac51a22e0cbb35087e38349141f28c1f88",
+          "bytes": 1854
         },
         {
           "path": "src/game/content/scenes/authored/objects/wall-stone-solid--junction-07.scene.json",
-          "sha256": "d4a1577398dcb9fe57fb21546ade47a62a9089acacd0a1f1ac18304b422593f6",
-          "bytes": 1851
+          "sha256": "3f33f8de6a8847b09655d3ff81ccdbcbd15ff8d453dd9c005ecaea5fbab1374a",
+          "bytes": 1855
         },
         {
           "path": "src/game/content/scenes/authored/objects/wall-stone-solid--vertical-01.scene.json",
-          "sha256": "9bc080b196191b509d1316221eeddabca3627d51ed42d2e360257f78e9eea6a3",
-          "bytes": 1848
+          "sha256": "36fdd97bb3292da7b15fe1b76ae060d839d722696141f03ab1dddddcd2f0720f",
+          "bytes": 1850
         },
         {
           "path": "src/game/content/scenes/authored/objects/wall-stone-solid--vertical-02.scene.json",
-          "sha256": "0a5da22f42d176f0a21fb52f37519261bfae8e6dd2bf9a4a11399153f877f69d",
-          "bytes": 1848
+          "sha256": "412c67d2245a264b10055c10de1f2bb74e76b1d12494383b48d8ee346f7b60a2",
+          "bytes": 1850
         },
         {
           "path": "src/game/content/scenes/authored/objects/wall-stone-solid--vertical-03.scene.json",
-          "sha256": "fb3e580143218e49c64be1de3e8a223ab25e103ed648247e522d3ac86fca4bae",
-          "bytes": 1848
+          "sha256": "448d914014e09a5d3fe9bdb0cdc0a6bbe371684ea34d8037702319f25897d1fd",
+          "bytes": 1850
         },
         {
           "path": "src/game/content/scenes/authored/objects/wall-stone-solid--vertical-04.scene.json",
-          "sha256": "54cc78142bea08be04d86de42e493bc5ae151fd564c8fb41f6371f7a2b2992ef",
-          "bytes": 1848
+          "sha256": "0fd3d5388a3918593f1686a0f45ec553529da05559d758fddb3926448097ca72",
+          "bytes": 1850
         },
         {
           "path": "src/game/content/scenes/authored/objects/wall-stone-solid--vertical-05.scene.json",
-          "sha256": "c0bbdec923fde1286cd1cf782c31e7af21a08dceae41892942aaf95e82ad24b4",
-          "bytes": 1848
+          "sha256": "3b05b5f759df83887fd8b2b39be54d415ffd8c269ed2a306bdd61dbd62b58a04",
+          "bytes": 1851
         },
         {
           "path": "src/game/content/scenes/authored/objects/wall-stone-solid--vertical-06.scene.json",
-          "sha256": "6fdb1de35d1dadb9ecdd906f007a8218ef24db9d60efb7516e38c4fdbdb2844a",
-          "bytes": 1848
+          "sha256": "97407dbad5bb85753bae1fd44356c07d22aec39dda6f0d39520df8cd9b6da02e",
+          "bytes": 1851
         },
         {
           "path": "src/game/content/scenes/authored/objects/wall-stone-solid--vertical-07.scene.json",
-          "sha256": "d392151f34ff6f3c24f5b0bd12d5cc6176c2a4f674cc73b6c64928334c7c2896",
-          "bytes": 1848
+          "sha256": "316de99248036a16027ed14fcc463f68f856bf664fb472389bb3fb8fd311540f",
+          "bytes": 1850
         },
         {
           "path": "src/game/content/scenes/authored/objects/wall-stone-solid--vertical-08.scene.json",
-          "sha256": "0bc3eef84e35c03e159e6da5d5afe7aa275ba3698c26fa1b3895761a6f1a11d1",
-          "bytes": 1848
+          "sha256": "6db066fae41afe7e52bb03e89d35382d6652f51fa547729e2c8d6c4a7e7cd28f",
+          "bytes": 1852
         },
         {
           "path": "src/game/content/scenes/authored/objects/wall-stone-solid.scene.json",
-          "sha256": "ebdb20253399eea285dab30c8094d7f068feba3585440ac6d61700e5033ca724",
-          "bytes": 1849
+          "sha256": "f911be98606b4708ae0f080a80f24767d371b49e954d38b764a4967c1b4acb0f",
+          "bytes": 1852
         }
       ],
       "consumedFieldPaths": [
@@ -14055,8 +13978,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/projectiles/worm-arrow.scene.json",
-          "sha256": "598de1d763c04f4128acc91fb76e965b090ac1f8d776f511ebccfd42a2d47d66",
-          "bytes": 4372
+          "sha256": "9a8a222f64ec6f6bbfc668668cf90f6a453fd69cc8b6d1e477925a26146b6763",
+          "bytes": 5866
         }
       ],
       "consumedFieldPaths": [
@@ -14537,7 +14460,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "520e46514849221e698441bb6957d5f14f5bd4a30c7c3fc8d3d366b0708829b8",
+      "sourceHash": "ebb11701116d073dc0f5bd532fa26ab6cfd57b3bc898ca727852e88bbf2a06de",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "amberleaf-ground",
@@ -14546,8 +14469,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/resources/terrain/terrain.tile-set.resource.json",
-          "sha256": "2350e601a2a810b1233aa7f31c06b380eea9843cbeaf43f33d95ce0ac7b518a6",
-          "bytes": 5854
+          "sha256": "78c0c916003827674000725225bd5eeea2001c2a4e8055f5b9520256525f5417",
+          "bytes": 7126
         }
       ],
       "consumedFieldPaths": [
@@ -14581,7 +14504,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "520e46514849221e698441bb6957d5f14f5bd4a30c7c3fc8d3d366b0708829b8",
+      "sourceHash": "ebb11701116d073dc0f5bd532fa26ab6cfd57b3bc898ca727852e88bbf2a06de",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "cavern-floor",
@@ -14590,8 +14513,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/resources/terrain/terrain.tile-set.resource.json",
-          "sha256": "2350e601a2a810b1233aa7f31c06b380eea9843cbeaf43f33d95ce0ac7b518a6",
-          "bytes": 5854
+          "sha256": "78c0c916003827674000725225bd5eeea2001c2a4e8055f5b9520256525f5417",
+          "bytes": 7126
         }
       ],
       "consumedFieldPaths": [
@@ -14625,7 +14548,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "520e46514849221e698441bb6957d5f14f5bd4a30c7c3fc8d3d366b0708829b8",
+      "sourceHash": "ebb11701116d073dc0f5bd532fa26ab6cfd57b3bc898ca727852e88bbf2a06de",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "crystal-floor",
@@ -14634,56 +14557,12 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/resources/terrain/terrain.tile-set.resource.json",
-          "sha256": "2350e601a2a810b1233aa7f31c06b380eea9843cbeaf43f33d95ce0ac7b518a6",
-          "bytes": 5854
+          "sha256": "78c0c916003827674000725225bd5eeea2001c2a4e8055f5b9520256525f5417",
+          "bytes": 7126
         }
       ],
       "consumedFieldPaths": [
         "$.TILE_CATALOG.crystal-floor"
-      ],
-      "intentionallyRetainedFields": [],
-      "writerState": "scene"
-    },
-    {
-      "key": "terrain:crystal-wall",
-      "family": "terrain",
-      "stableId": "crystal-wall",
-      "environment": "production",
-      "classification": "convert",
-      "oldSourcePath": "scripts/migrations/frozen-sources/TileCatalog.ts",
-      "oldCatalogValidator": [
-        "TileCatalog"
-      ],
-      "oldFactoryController": [
-        "TileFactory",
-        "TerrainTransitionRenderer"
-      ],
-      "oldEditorWriteEndpoints": [
-        "/__map-editor/save"
-      ],
-      "destinationId": "resource://terrain/crystal-wall",
-      "persistenceKeys": [],
-      "migrationWorkPackage": 13,
-      "focusedVerification": [
-        "test:scene-integration",
-        "test:scene-conversion"
-      ],
-      "legacyRemovalWorkPackage": 15,
-      "sourceHash": "520e46514849221e698441bb6957d5f14f5bd4a30c7c3fc8d3d366b0708829b8",
-      "converterVersion": 1,
-      "oldToNewIdMap": {
-        "sourceId": "crystal-wall",
-        "targetId": "resource://terrain/crystal-wall"
-      },
-      "outputs": [
-        {
-          "path": "src/game/content/scenes/authored/resources/terrain/terrain.tile-set.resource.json",
-          "sha256": "2350e601a2a810b1233aa7f31c06b380eea9843cbeaf43f33d95ce0ac7b518a6",
-          "bytes": 5854
-        }
-      ],
-      "consumedFieldPaths": [
-        "$.TILE_CATALOG.crystal-wall"
       ],
       "intentionallyRetainedFields": [],
       "writerState": "scene"
@@ -14713,7 +14592,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "520e46514849221e698441bb6957d5f14f5bd4a30c7c3fc8d3d366b0708829b8",
+      "sourceHash": "ebb11701116d073dc0f5bd532fa26ab6cfd57b3bc898ca727852e88bbf2a06de",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "deep-water",
@@ -14722,8 +14601,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/resources/terrain/terrain.tile-set.resource.json",
-          "sha256": "2350e601a2a810b1233aa7f31c06b380eea9843cbeaf43f33d95ce0ac7b518a6",
-          "bytes": 5854
+          "sha256": "78c0c916003827674000725225bd5eeea2001c2a4e8055f5b9520256525f5417",
+          "bytes": 7126
         }
       ],
       "consumedFieldPaths": [
@@ -14757,7 +14636,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "520e46514849221e698441bb6957d5f14f5bd4a30c7c3fc8d3d366b0708829b8",
+      "sourceHash": "ebb11701116d073dc0f5bd532fa26ab6cfd57b3bc898ca727852e88bbf2a06de",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "forest-floor",
@@ -14766,8 +14645,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/resources/terrain/terrain.tile-set.resource.json",
-          "sha256": "2350e601a2a810b1233aa7f31c06b380eea9843cbeaf43f33d95ce0ac7b518a6",
-          "bytes": 5854
+          "sha256": "78c0c916003827674000725225bd5eeea2001c2a4e8055f5b9520256525f5417",
+          "bytes": 7126
         }
       ],
       "consumedFieldPaths": [
@@ -14801,7 +14680,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "520e46514849221e698441bb6957d5f14f5bd4a30c7c3fc8d3d366b0708829b8",
+      "sourceHash": "ebb11701116d073dc0f5bd532fa26ab6cfd57b3bc898ca727852e88bbf2a06de",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "forest-moss",
@@ -14810,8 +14689,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/resources/terrain/terrain.tile-set.resource.json",
-          "sha256": "2350e601a2a810b1233aa7f31c06b380eea9843cbeaf43f33d95ce0ac7b518a6",
-          "bytes": 5854
+          "sha256": "78c0c916003827674000725225bd5eeea2001c2a4e8055f5b9520256525f5417",
+          "bytes": 7126
         }
       ],
       "consumedFieldPaths": [
@@ -14845,7 +14724,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "520e46514849221e698441bb6957d5f14f5bd4a30c7c3fc8d3d366b0708829b8",
+      "sourceHash": "ebb11701116d073dc0f5bd532fa26ab6cfd57b3bc898ca727852e88bbf2a06de",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "frozen-ground",
@@ -14854,8 +14733,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/resources/terrain/terrain.tile-set.resource.json",
-          "sha256": "2350e601a2a810b1233aa7f31c06b380eea9843cbeaf43f33d95ce0ac7b518a6",
-          "bytes": 5854
+          "sha256": "78c0c916003827674000725225bd5eeea2001c2a4e8055f5b9520256525f5417",
+          "bytes": 7126
         }
       ],
       "consumedFieldPaths": [
@@ -14889,7 +14768,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "520e46514849221e698441bb6957d5f14f5bd4a30c7c3fc8d3d366b0708829b8",
+      "sourceHash": "ebb11701116d073dc0f5bd532fa26ab6cfd57b3bc898ca727852e88bbf2a06de",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "grass-a",
@@ -14898,8 +14777,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/resources/terrain/terrain.tile-set.resource.json",
-          "sha256": "2350e601a2a810b1233aa7f31c06b380eea9843cbeaf43f33d95ce0ac7b518a6",
-          "bytes": 5854
+          "sha256": "78c0c916003827674000725225bd5eeea2001c2a4e8055f5b9520256525f5417",
+          "bytes": 7126
         }
       ],
       "consumedFieldPaths": [
@@ -14933,7 +14812,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "520e46514849221e698441bb6957d5f14f5bd4a30c7c3fc8d3d366b0708829b8",
+      "sourceHash": "ebb11701116d073dc0f5bd532fa26ab6cfd57b3bc898ca727852e88bbf2a06de",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "grass-b",
@@ -14942,8 +14821,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/resources/terrain/terrain.tile-set.resource.json",
-          "sha256": "2350e601a2a810b1233aa7f31c06b380eea9843cbeaf43f33d95ce0ac7b518a6",
-          "bytes": 5854
+          "sha256": "78c0c916003827674000725225bd5eeea2001c2a4e8055f5b9520256525f5417",
+          "bytes": 7126
         }
       ],
       "consumedFieldPaths": [
@@ -14977,7 +14856,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "520e46514849221e698441bb6957d5f14f5bd4a30c7c3fc8d3d366b0708829b8",
+      "sourceHash": "ebb11701116d073dc0f5bd532fa26ab6cfd57b3bc898ca727852e88bbf2a06de",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "rock-wall",
@@ -14986,8 +14865,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/resources/terrain/terrain.tile-set.resource.json",
-          "sha256": "2350e601a2a810b1233aa7f31c06b380eea9843cbeaf43f33d95ce0ac7b518a6",
-          "bytes": 5854
+          "sha256": "78c0c916003827674000725225bd5eeea2001c2a4e8055f5b9520256525f5417",
+          "bytes": 7126
         }
       ],
       "consumedFieldPaths": [
@@ -15021,7 +14900,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "520e46514849221e698441bb6957d5f14f5bd4a30c7c3fc8d3d366b0708829b8",
+      "sourceHash": "ebb11701116d073dc0f5bd532fa26ab6cfd57b3bc898ca727852e88bbf2a06de",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sanddessert-ground",
@@ -15030,56 +14909,12 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/resources/terrain/terrain.tile-set.resource.json",
-          "sha256": "2350e601a2a810b1233aa7f31c06b380eea9843cbeaf43f33d95ce0ac7b518a6",
-          "bytes": 5854
+          "sha256": "78c0c916003827674000725225bd5eeea2001c2a4e8055f5b9520256525f5417",
+          "bytes": 7126
         }
       ],
       "consumedFieldPaths": [
         "$.TILE_CATALOG.sanddessert-ground"
-      ],
-      "intentionallyRetainedFields": [],
-      "writerState": "scene"
-    },
-    {
-      "key": "terrain:tree-wall",
-      "family": "terrain",
-      "stableId": "tree-wall",
-      "environment": "production",
-      "classification": "convert",
-      "oldSourcePath": "scripts/migrations/frozen-sources/TileCatalog.ts",
-      "oldCatalogValidator": [
-        "TileCatalog"
-      ],
-      "oldFactoryController": [
-        "TileFactory",
-        "TerrainTransitionRenderer"
-      ],
-      "oldEditorWriteEndpoints": [
-        "/__map-editor/save"
-      ],
-      "destinationId": "resource://terrain/tree-wall",
-      "persistenceKeys": [],
-      "migrationWorkPackage": 13,
-      "focusedVerification": [
-        "test:scene-integration",
-        "test:scene-conversion"
-      ],
-      "legacyRemovalWorkPackage": 15,
-      "sourceHash": "520e46514849221e698441bb6957d5f14f5bd4a30c7c3fc8d3d366b0708829b8",
-      "converterVersion": 1,
-      "oldToNewIdMap": {
-        "sourceId": "tree-wall",
-        "targetId": "resource://terrain/tree-wall"
-      },
-      "outputs": [
-        {
-          "path": "src/game/content/scenes/authored/resources/terrain/terrain.tile-set.resource.json",
-          "sha256": "2350e601a2a810b1233aa7f31c06b380eea9843cbeaf43f33d95ce0ac7b518a6",
-          "bytes": 5854
-        }
-      ],
-      "consumedFieldPaths": [
-        "$.TILE_CATALOG.tree-wall"
       ],
       "intentionallyRetainedFields": [],
       "writerState": "scene"
@@ -15109,7 +14944,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "520e46514849221e698441bb6957d5f14f5bd4a30c7c3fc8d3d366b0708829b8",
+      "sourceHash": "ebb11701116d073dc0f5bd532fa26ab6cfd57b3bc898ca727852e88bbf2a06de",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "water",
@@ -15118,8 +14953,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/resources/terrain/terrain.tile-set.resource.json",
-          "sha256": "2350e601a2a810b1233aa7f31c06b380eea9843cbeaf43f33d95ce0ac7b518a6",
-          "bytes": 5854
+          "sha256": "78c0c916003827674000725225bd5eeea2001c2a4e8055f5b9520256525f5417",
+          "bytes": 7126
         }
       ],
       "consumedFieldPaths": [
@@ -15161,8 +14996,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/ui/ability-bar.scene.json",
-          "sha256": "f33beb5d4953fbb41dda99939898f0c8d2d1bb1bbb08916a417d7bf088b90379",
-          "bytes": 5703
+          "sha256": "60abc0a4b0546a6848c96c535f491ce44569fa50d9b8a65d51a1b8014d962e79",
+          "bytes": 6842
         }
       ],
       "consumedFieldPaths": [
@@ -15320,8 +15155,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/ui/chest-inventory-panel.scene.json",
-          "sha256": "5803d8e6e1f36330134ba6de138ddfc844c114921f88e95f37b2482649cdf3e5",
-          "bytes": 6921
+          "sha256": "cc54032c14c3aa9980695766bcb559b5e66a323efa318322ac3c3239626d0cb0",
+          "bytes": 8308
         }
       ],
       "consumedFieldPaths": [
@@ -15364,7 +15199,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "7bb75c35d7ab686ce167c52d82f5601e1ab6bcc3d61bb70b6aeacc1b2b754ff4",
+      "sourceHash": "aa4c7a3b0b2e37ce7ebe2da791bfd54b87e2ceb5768c854e71cf31741f36731f",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "crafting-ui",
@@ -15373,8 +15208,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/ui/crafting-ui.scene.json",
-          "sha256": "3042663ad397e5c2a27237550f802f9c724a4c8efe281ff5537660aadf7a1694",
-          "bytes": 11617
+          "sha256": "a4f541adbc9999fe48e76edbaf753272d902fa22203b665c51a3529a257e90da",
+          "bytes": 13903
         }
       ],
       "consumedFieldPaths": [
@@ -15585,8 +15420,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/ui/inventory-ui.scene.json",
-          "sha256": "1cb998f5923f19e58e38b4e03924095178c9dc0b7598c63b368b56882f78fbe2",
-          "bytes": 15752
+          "sha256": "615bed5c31f267d4be501e0fdfc8c7a9e005d50510f0e7cb3a30b7f85974ef2f",
+          "bytes": 18768
         }
       ],
       "consumedFieldPaths": [
@@ -15638,8 +15473,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/ui/level-up-modal.scene.json",
-          "sha256": "e348bd3e4233b76df715308ba1cb665991b411827ca2dd4a380543cb377b78ce",
-          "bytes": 3925
+          "sha256": "7f239027ef42f97836e8018c47c7a08588eec01a4f2b75cd86214cccab851d84",
+          "bytes": 5137
         }
       ],
       "consumedFieldPaths": [
@@ -15745,8 +15580,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/ui/quest-journal.scene.json",
-          "sha256": "3257df7d74ba6a633e8ea3039fa3922a8cf01addabb061d1007dff6ccca7c109",
-          "bytes": 6811
+          "sha256": "43b38ca88ef2df0a24873ccd18192f6f4e1b760739af9d4b507de1b3a6c401ed",
+          "bytes": 8201
         }
       ],
       "consumedFieldPaths": [
@@ -15798,8 +15633,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/ui/quest-offer-modal.scene.json",
-          "sha256": "db51418e4fb28cc43a5338ea7dcaddc75afc2579776bcb9d62de352b82344d7b",
-          "bytes": 6017
+          "sha256": "3f76ac6943761b6f9648859639bed5998047491aa2c7d8631199f8047bca5a07",
+          "bytes": 6788
         }
       ],
       "consumedFieldPaths": [
@@ -15851,8 +15686,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/ui/weapon-hotbar.scene.json",
-          "sha256": "625a183a2599d760c5deee9d722565b85870d41f866f423a8e63fa3dc81f4bad",
-          "bytes": 1988
+          "sha256": "bf875574472739d1d14f9e0b500878cc36cf33f8c03304108bf9c60c801a9cf1",
+          "bytes": 2612
         }
       ],
       "consumedFieldPaths": [
@@ -15904,8 +15739,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/ui/world-map-ui.scene.json",
-          "sha256": "e8109533c9ffd6b059f021f6f929b613e81d57aa90bd08d79c2e982c995adffe",
-          "bytes": 7384
+          "sha256": "4c047bb6bb56536ac1da1943d3ec4f0db1783ea4ff5054e3e992dc611b933530",
+          "bytes": 7975
         }
       ],
       "consumedFieldPaths": [
@@ -15961,8 +15796,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/fatty-one-eye.scene.json",
-          "sha256": "ec66ffeff6b137a8a01191d9c4373d944da66b4cf653b424c81e4f01cf3b2430",
-          "bytes": 11311
+          "sha256": "64f33c46417a35b311a24b64006844947fbfcbc6669b24f6568ac2fe105afdde",
+          "bytes": 17750
         }
       ],
       "consumedFieldPaths": [
@@ -16023,7 +15858,7 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/lili.scene.json",
-          "sha256": "2c57dc8c8d90a5b7681401fe241aeea0e59cd01792fd4f6539b7606424b14870",
+          "sha256": "2c26fc42973e72001e6622895f58bb0b269932b22280afcc752d0dc96f2b32f8",
           "bytes": 7023
         }
       ],
@@ -16085,7 +15920,7 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/mossy-scout.scene.json",
-          "sha256": "8fa33d97e79a3f8dadb3120d3aeae8fe8156211c981c558472cdea7da33c3f80",
+          "sha256": "319b71bf92b69223f80e7a8914c9eb4a1455f16b89e2600ed4aab577155c6814",
           "bytes": 7437
         }
       ],
@@ -16147,7 +15982,7 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/red-slime-boy.scene.json",
-          "sha256": "21dbb5f10b73ab825611639aadebb869869310c2190f7073122c91a0321c1e90",
+          "sha256": "baf6f33c3b6e7b2c4d90e900afd1eba43c3f1a47b17ef5c77c18502420fd7a55",
           "bytes": 7119
         }
       ],
@@ -16209,8 +16044,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/village-elder-plop.scene.json",
-          "sha256": "af29cb8b4d50cf185a020af3f9b8e29b202e60659ef978c3c2dba71a7ccdc252",
-          "bytes": 7787
+          "sha256": "855ed2b79c2e385f44eab1ae6323cc9cebcd7e293f16d30f985de20157eb9617",
+          "bytes": 7788
         }
       ],
       "consumedFieldPaths": [
@@ -16271,7 +16106,7 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/yellow-blond-slime-girl.scene.json",
-          "sha256": "8d068567fcae58d4154afbc525ec1e5b82d2b38b6d793b76cb2929f7ac097ac8",
+          "sha256": "8d22f61265c53acab09d302e9f38ddaecf3489ece9136889e47cd602d98ffaea",
           "bytes": 7226
         }
       ],
@@ -16333,8 +16168,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/player-slime.scene.json",
-          "sha256": "012879bbb2e2fc82d8fe0548e875190fe63c408d1860c9299ba6422accc80135",
-          "bytes": 18245
+          "sha256": "a75b5f933139f2c7d71facc6f9c657f438a4d8b4df949b944b3cede455cbe0c8",
+          "bytes": 20875
         }
       ],
       "consumedFieldPaths": [
@@ -16395,8 +16230,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/effects/enemy-worm-brawler-hit.scene.json",
-          "sha256": "fe5f2e12257d0999e46f51352971e45ad6f8c9fbda393364abcc56d671cc1a1c",
-          "bytes": 4364
+          "sha256": "2a5a20685ad09b9124a701777c19b106a995e95e947fe4c66b0963937da87abf",
+          "bytes": 4963
         }
       ],
       "consumedFieldPaths": [
@@ -16458,8 +16293,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/slime-spider.scene.json",
-          "sha256": "aff4678a8f532e81e1362fbecaf1b505dd260ab4377d09927b1d143486e2b2f8",
-          "bytes": 19038
+          "sha256": "3b936d499dae75dec39e17bbfdea22e2a6468ac24c0b4de3fa048d5a47f7837c",
+          "bytes": 21093
         }
       ],
       "consumedFieldPaths": [
@@ -16520,8 +16355,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/worm-archer.scene.json",
-          "sha256": "9fcb7f638b007122f7db211cecb820761f366210dc0318507b1774486bb6572a",
-          "bytes": 14145
+          "sha256": "bda656d81af9d744287e3c9b15ae3d3204c99d51b16f24fa907eabb5fbf7c8d5",
+          "bytes": 16906
         }
       ],
       "consumedFieldPaths": [
@@ -16582,8 +16417,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/worm-brawler.scene.json",
-          "sha256": "6502724ffdf8c069557796bd2ff11a4736ac8af6e97ddae7959c19ab64f9e957",
-          "bytes": 13824
+          "sha256": "ce32c52438d12167ed4c12a6da16d64324db0ed09cb5cfb79b804db1e093fcd1",
+          "bytes": 16663
         }
       ],
       "consumedFieldPaths": [
@@ -16644,8 +16479,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/worm-swordsman.scene.json",
-          "sha256": "2cb693415beb426b287e403cfdf090f17e8baf104a77bf8459abbc1a7694186a",
-          "bytes": 14602
+          "sha256": "2f0982a671ee769f68812c62f9d6a421e70bb6190c4f8142860c249531ca0000",
+          "bytes": 17441
         }
       ],
       "consumedFieldPaths": [
@@ -16708,8 +16543,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/weapons/basic-spear.scene.json",
-          "sha256": "9f66e32638a2d12e6f2bd4f2957ff875e1fc9bda4b8949ef505449a6da8d7d30",
-          "bytes": 58640
+          "sha256": "e773efcab74d6eb2df6543ca8b5fe1869a07443f19b749fd705c2a90c7cccbc9",
+          "bytes": 59317
         }
       ],
       "consumedFieldPaths": [
@@ -16757,8 +16592,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/weapons/basic-sword.scene.json",
-          "sha256": "cb44aab3b67c64427f025b19f4b00b02d45089624316e48785f093c9e8c25275",
-          "bytes": 78239
+          "sha256": "f1eb9db54102a0faeded061eb9022f478ef914487df49f4b3a7dd8769c1cbc97",
+          "bytes": 78978
         }
       ],
       "consumedFieldPaths": [
@@ -16806,8 +16641,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/weapons/goo-gauntlet.scene.json",
-          "sha256": "223777148f88cbe624041b1ad3b26615b3564dda52de1944add7fdb5f90be1b2",
-          "bytes": 11342
+          "sha256": "80de56dc6b4f328e273f2718a478b0d2b901e39a0305984d67bfbd5997e0524e",
+          "bytes": 12039
         }
       ],
       "consumedFieldPaths": [
@@ -16855,8 +16690,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/weapons/pickaxe.scene.json",
-          "sha256": "0b4ab02e0213fb87e71193d1eb4169d4a32427f85a3af03d4fc19fa2821b9f55",
-          "bytes": 37174
+          "sha256": "e81f497c9ea8a0c9b530bca816ea816a42ada586f1af5696838eb2c8b3c0f20a",
+          "bytes": 37867
         }
       ],
       "consumedFieldPaths": [
@@ -16904,8 +16739,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/weapons/slam-hammer.scene.json",
-          "sha256": "ca86e2fc59e961f62578783b96f5b9e801e74855c09546aec03146073d99e2fb",
-          "bytes": 109914
+          "sha256": "b3abb85834be592c12a28c93e332d94912218bbb66bdb482bf2a595192789f9a",
+          "bytes": 110611
         }
       ],
       "consumedFieldPaths": [
@@ -16953,8 +16788,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/weapons/stone-axe.scene.json",
-          "sha256": "b5afa3062ec6ac17ccabc6cee00e11c55ed12746ef432e9b607cdf5f008fdd6b",
-          "bytes": 44245
+          "sha256": "3b0a60af26bef7a6b760522bbd82587f4e34b17033d113d12ebd04a755c715b8",
+          "bytes": 46187
         }
       ],
       "consumedFieldPaths": [
@@ -17002,8 +16837,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/weapons/stone-pickaxe.scene.json",
-          "sha256": "1b12f79c9230c38507ee5c6de0f1dade3dc01a01dbd5378e197e7a569ab2b08c",
-          "bytes": 37093
+          "sha256": "6af7a18e8425309c0079dc6f7832a21673ac79b1ce80c7dccac80a035ca4cf63",
+          "bytes": 37786
         }
       ],
       "consumedFieldPaths": [
@@ -17051,8 +16886,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/weapons/stone-spear.scene.json",
-          "sha256": "83d44adeda2794fcc32ba493562d1152e16d303fab240c3f88b3b05f522caec2",
-          "bytes": 79665
+          "sha256": "d1e513dc47b93300b1dadb06e40f4cdabf68a775396398fb6d1863177b29696b",
+          "bytes": 80342
         }
       ],
       "consumedFieldPaths": [
@@ -17100,8 +16935,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/weapons/wooden-axe.scene.json",
-          "sha256": "bc5d672211e15906ea8c9080bb8561874578e2770ee19c325a5651e0ee695c16",
-          "bytes": 44544
+          "sha256": "8c241d1ee15ff21d7a913fc3b2bd142c3ff1c9b137cf144bacb2ad16464f8318",
+          "bytes": 45237
         }
       ],
       "consumedFieldPaths": [
@@ -17149,8 +16984,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/weapons/wooden-spear.scene.json",
-          "sha256": "85a68403562c42a4fc55dbe27836533a2a8886f05962636c9e16eb95dedf1483",
-          "bytes": 50162
+          "sha256": "e824e40a6d42c6e682a9b7d22ab7b2bf2c9b4ac67b059051866e352d471b6a0c",
+          "bytes": 50839
         }
       ],
       "consumedFieldPaths": [

@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "sceneId": "object.interior-kitchen-pan-rack-angled-b",
+  "rootNodeId": "root",
+  "nodes": [
+    {
+      "id": "root",
+      "name": "pan-rack-angled-b",
+      "type": "Node2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "root",
+      "order": 0,
+      "properties": {
+        "texture": {
+          "resourceId": "interior-kitchen-pan-rack-angled-b.sprite"
+        },
+        "frame": 60,
+        "origin": [
+          0.5,
+          1
+        ],
+        "scale": [
+          0.8,
+          0.8
+        ],
+        "visualOffset": [
+          0,
+          0
+        ],
+        "depthMode": "world-sorted",
+        "depthBand": "world-entities"
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "interior-kitchen-pan-rack-angled-b.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "sheet.interiors.kitchen-hearth.8x8",
+      "frameWidth": 128,
+      "frameHeight": 128
+    }
+  ]
+}

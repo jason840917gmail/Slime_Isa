@@ -1,0 +1,86 @@
+{
+  "version": 1,
+  "sceneId": "object.interior-specialty-shrine-alcove",
+  "rootNodeId": "body",
+  "nodes": [
+    {
+      "id": "body",
+      "name": "shrine-alcove",
+      "type": "StaticBody2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "collisionLayer": 1,
+        "collisionMask": 0,
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "body-shape",
+      "name": "BodyShape",
+      "type": "CollisionShape2D",
+      "parentId": "body",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "interior-specialty-shrine-alcove.shape"
+        },
+        "position": [
+          -0.425,
+          -23.5705
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "body",
+      "order": 1,
+      "properties": {
+        "texture": {
+          "resourceId": "interior-specialty-shrine-alcove.sprite"
+        },
+        "frame": 26,
+        "origin": [
+          0.5,
+          1
+        ],
+        "scale": [
+          0.85,
+          0.85
+        ],
+        "visualOffset": [
+          0,
+          0
+        ],
+        "depthMode": "world-sorted",
+        "depthBand": "world-entities"
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "interior-specialty-shrine-alcove.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "sheet.interiors.specialty-rooms.8x8",
+      "frameWidth": 128,
+      "frameHeight": 128
+    },
+    {
+      "version": 1,
+      "resourceId": "interior-specialty-shrine-alcove.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 75.548,
+        "height": 40.341
+      }
+    }
+  ]
+}

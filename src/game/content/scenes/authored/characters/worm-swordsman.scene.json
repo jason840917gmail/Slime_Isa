@@ -11,7 +11,7 @@
       "order": 0,
       "properties": {
         "collisionLayer": 4,
-        "collisionMask": 3,
+        "collisionMask": 1027,
         "collideWorldBounds": true,
         "position": [
           0,
@@ -190,6 +190,62 @@
             }
           ]
         }
+      }
+    },
+    {
+      "id": "sfx-hurt-sfx",
+      "name": "HurtSfx",
+      "type": "AudioStreamPlayer2D",
+      "parentId": "body",
+      "order": 6,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.enemy.worm-hurt"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 90
+      }
+    },
+    {
+      "id": "sfx-death-sfx",
+      "name": "DeathSfx",
+      "type": "AudioStreamPlayer2D",
+      "parentId": "body",
+      "order": 7,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.enemy.worm-death"
+        },
+        "pitchRandomness": 0.06,
+        "detached": true
+      }
+    },
+    {
+      "id": "sfx-alert-sfx",
+      "name": "AlertSfx",
+      "type": "AudioStreamPlayer2D",
+      "parentId": "body",
+      "order": 8,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.enemy.worm-alert"
+        },
+        "pitchRandomness": 0.06,
+        "volume": 0.7
+      }
+    },
+    {
+      "id": "sfx-windup-sfx",
+      "name": "WindupSfx",
+      "type": "AudioStreamPlayer2D",
+      "parentId": "body",
+      "order": 9,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.enemy.worm-windup"
+        },
+        "pitchRandomness": 0.06,
+        "volume": 0.8
       }
     }
   ],
@@ -640,6 +696,82 @@
         "width": 36,
         "height": 26
       }
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.enemy.worm-hurt",
+      "kind": "audio",
+      "assetId": "audio.sfx.enemy.worm-hurt.1",
+      "variants": [
+        "audio.sfx.enemy.worm-hurt.2",
+        "audio.sfx.enemy.worm-hurt.3"
+      ]
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.enemy.worm-death",
+      "kind": "audio",
+      "assetId": "audio.sfx.enemy.worm-death.1",
+      "variants": [
+        "audio.sfx.enemy.worm-death.2"
+      ]
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.enemy.worm-alert",
+      "kind": "audio",
+      "assetId": "audio.sfx.enemy.worm-alert.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.enemy.worm-windup",
+      "kind": "audio",
+      "assetId": "audio.sfx.enemy.worm-windup.1",
+      "variants": [
+        "audio.sfx.enemy.worm-windup.2"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "source": {
+        "nodeId": "script"
+      },
+      "signal": "damaged",
+      "target": {
+        "nodeId": "sfx-hurt-sfx"
+      },
+      "handler": "play"
+    },
+    {
+      "source": {
+        "nodeId": "script"
+      },
+      "signal": "defeated",
+      "target": {
+        "nodeId": "sfx-death-sfx"
+      },
+      "handler": "play"
+    },
+    {
+      "source": {
+        "nodeId": "script"
+      },
+      "signal": "alerted",
+      "target": {
+        "nodeId": "sfx-alert-sfx"
+      },
+      "handler": "play"
+    },
+    {
+      "source": {
+        "nodeId": "script"
+      },
+      "signal": "attack_started",
+      "target": {
+        "nodeId": "sfx-windup-sfx"
+      },
+      "handler": "play"
     }
   ]
 }

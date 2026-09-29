@@ -10,6 +10,7 @@ import type {
   QuestObjectiveDefinition,
   QuestObjectiveKind,
   ActivateObjectObjective,
+  PlaceItemObjective,
   SurviveDurationObjective,
   TalkToNpcObjective,
 } from '../../content/quests/types';
@@ -100,6 +101,10 @@ function survivalMatch(objective: SurviveDurationObjective, payload: QuestInputE
     : { matched: false };
 }
 
+function placeMatch(objective: PlaceItemObjective, payload: QuestInputEvents['furniture.placed']): ObjectiveMatchResult {
+  return objective.itemIds.includes(payload.itemId) ? matched(1, payload.placementId) : { matched: false };
+}
+
 function areaMatch(objective: DiscoverAreaObjective, payload: QuestInputEvents['area.enter']): ObjectiveMatchResult {
   return objective.areaIds.includes(payload.areaId) ? matched(1, payload.areaId) : { matched: false };
 }
@@ -113,6 +118,7 @@ export const OBJECTIVE_MATCHERS: readonly ObjectiveMatcher[] = [
   { kind: 'defeat-boss', event: 'boss.defeated', match: (objective, payload) => bossMatch(objective as DefeatBossObjective, payload as QuestInputEvents['boss.defeated']) },
   { kind: 'activate-object', event: 'object.activated', match: (objective, payload) => objectMatch(objective as ActivateObjectObjective, payload as QuestInputEvents['object.activated']) },
   { kind: 'survive-duration', event: 'survival.completed', match: (objective, payload) => survivalMatch(objective as SurviveDurationObjective, payload as QuestInputEvents['survival.completed']) },
+  { kind: 'place-item', event: 'furniture.placed', match: (objective, payload) => placeMatch(objective as PlaceItemObjective, payload as QuestInputEvents['furniture.placed']) },
   { kind: 'discover-area', event: 'area.enter', match: (objective, payload) => areaMatch(objective as DiscoverAreaObjective, payload as QuestInputEvents['area.enter']) },
 ];
 
@@ -122,7 +128,7 @@ export class QuestObjectiveRegistry {
   constructor() {
     const kinds = new Set<QuestObjectiveKind>([
       'collect', 'kill', 'talk-to-npc', 'craft-item', 'escort-character',
-      'defeat-boss', 'activate-object', 'survive-duration', 'discover-area',
+      'defeat-boss', 'activate-object', 'survive-duration', 'place-item', 'discover-area',
     ]);
     if (this.byKind.size !== kinds.size || [...kinds].some((kind) => !this.byKind.has(kind))) {
       throw new Error('Quest objective matcher registry is incomplete.');

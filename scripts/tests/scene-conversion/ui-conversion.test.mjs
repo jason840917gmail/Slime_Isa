@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { ConversionRunner } from '../../lib/scene-conversion/ConversionRunner.mjs';
 import { uiSceneAdapter } from '../../lib/scene-conversion/ui.mjs';
 import { validateSceneWriteSet } from '../../lib/scene-conversion/validate-scene-write-set.mjs';
+import { withoutSceneAudio } from '../helpers/scene-audio.mjs';
 
 const repositoryRoot = fileURLToPath(new URL('../../..', import.meta.url));
 const authoredRoot = path.join(repositoryRoot, 'src/game/content/scenes/authored');
@@ -93,7 +94,7 @@ test('UI scenes preserve layout, theme, typed bindings, actions, and common cont
   for (const key of unitKeys) {
     const name = key.slice('ui:'.length);
     assert.deepEqual(
-      JSON.parse(await readFile(path.join(authoredRoot, `ui/${name}.scene.json`), 'utf8')),
+      withoutSceneAudio(JSON.parse(await readFile(path.join(authoredRoot, `ui/${name}.scene.json`), 'utf8'))),
       await load(name),
     );
   }

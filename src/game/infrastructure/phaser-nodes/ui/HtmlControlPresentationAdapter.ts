@@ -10,6 +10,7 @@ import {
   ModalRootControlNode,
   ProgressBarControlNode,
   ScrollContainerControlNode,
+  SliderControlNode,
   StyledControlNode,
   TextureRectControlNode,
   type UiTone,
@@ -170,6 +171,7 @@ function synchronizeElement(
     synchronizeFocusable(element, control);
   }
   if (control instanceof ProgressBarControlNode) synchronizeProgress(element, control);
+  if (control instanceof SliderControlNode) synchronizeSlider(element, control);
   if (control instanceof TextureRectControlNode && element instanceof HTMLImageElement) {
     if (element.alt !== control.alt) element.alt = control.alt;
     setStyle(element, 'object-fit', control.fit);
@@ -263,6 +265,40 @@ function synchronizeProgress(element: HTMLElement, control: ProgressBarControlNo
   setText(element, control.showValue ? `${control.label} ${Math.ceil(control.value)} / ${Math.ceil(control.max)}`.trim() : control.label);
 }
 
+/**
+ * Slider: a caption plus a native range input; input events route through
+ * SliderControlNode.change. Inside a dialog the modal key trap already keeps
+ * arrow keys away from the game.
+ */
+function synchronizeSlider(element: HTMLElement, control: SliderControlNode): void {
+  let caption = element.querySelector<HTMLSpanElement>(':scope > .scene-slider-label');
+  let input = element.querySelector<HTMLInputElement>(':scope > input[type="range"]');
+  if (!caption || !input) {
+    caption = document.createElement('span');
+    caption.className = 'scene-slider-label';
+    input = document.createElement('input');
+    input.type = 'range';
+    const range = input;
+    range.oninput = () => { control.change(Number(range.value)); };
+    range.onfocus = () => { control.focused = true; };
+    range.onblur = () => { control.focused = false; };
+    element.replaceChildren(caption, range);
+  }
+  setText(caption, control.label);
+  setAttribute(input, 'min', String(control.min));
+  setAttribute(input, 'max', String(control.max));
+  setAttribute(input, 'step', String(control.step));
+  setAttribute(input, 'aria-label', control.label || control.name);
+  if (input.disabled !== control.disabled) input.disabled = control.disabled;
+  // Native drags feed change() with already-snapped values, so this only writes on model or keyboard updates.
+  if (Number(input.value) !== control.value) input.value = String(control.value);
+  const inHud = !element.closest('[role="dialog"]');
+  const tabIndex = inHud || control.disabled ? -1 : 0;
+  if (input.tabIndex !== tabIndex) input.tabIndex = tabIndex;
+  setStyle(element, '--scene-slider-ratio', String(control.ratio));
+  setStyle(element, '--scene-slider-color', TONE_VARIABLE[control.tone]);
+}
+
 function synchronizeList(
   element: HTMLElement,
   control: ItemListControlNode,
@@ -302,6 +338,8 @@ function synchronizeList(
       option.title = item.label.replace(/\s+/g, ' ');
     }
     option.disabled = item.disabled ?? false;
+    // Locked rows stay selectable (their details are still worth reading) but read as unavailable.
+    option.classList.toggle('scene-item--locked', isLockedItem(item.metadata));
     option.dataset.itemId = item.id;
     option.setAttribute('role', 'option');
     option.setAttribute('aria-selected', String(index === control.selectedIndex));
@@ -314,6 +352,11 @@ function synchronizeList(
     };
     element.append(option);
   });
+}
+
+function isLockedItem(metadata: unknown): boolean {
+  return !!metadata && typeof metadata === 'object' && !Array.isArray(metadata)
+    && (metadata as Readonly<Record<string, unknown>>).locked === true;
 }
 
 function itemIcon(metadata: unknown): { readonly key: string; readonly frame: number; readonly shortcut?: string; readonly showLabel: boolean } | undefined {

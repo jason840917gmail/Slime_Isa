@@ -1,0 +1,2669 @@
+{
+  "version": 1,
+  "sceneId": "world.mushroom-home",
+  "rootNodeId": "world",
+  "nodes": [
+    {
+      "id": "world",
+      "name": "mushroom-home",
+      "type": "Node2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "layer-ground",
+      "name": "ground",
+      "type": "TileMapLayer2D",
+      "parentId": "world",
+      "order": 0,
+      "properties": {
+        "position": [
+          0,
+          0
+        ],
+        "tileData": {
+          "resourceId": "tiles.mushroom-home.ground.data"
+        },
+        "tileSize": 64,
+        "seed": 11,
+        "depth": 0,
+        "collisionLayer": 1,
+        "collisionMask": 0,
+        "collisionEnabled": true,
+        "editorLocked": false
+      }
+    },
+    {
+      "id": "world-definition",
+      "name": "world-definition",
+      "type": "ScriptNode",
+      "scriptId": "game.world-definition",
+      "parentId": "world",
+      "order": 1,
+      "properties": {
+        "mapId": "mushroom-home",
+        "tileSize": 64,
+        "columns": 16,
+        "rows": 12,
+        "cameraMode": "fixed",
+        "metadata": {
+          "objects": [],
+          "player": {
+            "spawn": {
+              "x": 512,
+              "y": 540
+            },
+            "entries": {
+              "south": {
+                "x": 512,
+                "y": 540
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "player-spawn",
+      "name": "player-spawn",
+      "type": "Node2D",
+      "parentId": "world",
+      "order": 2,
+      "properties": {
+        "position": [
+          512,
+          540
+        ]
+      }
+    },
+    {
+      "id": "player-entry-south",
+      "name": "player-entry-south",
+      "type": "Node2D",
+      "parentId": "world",
+      "order": 3,
+      "properties": {
+        "position": [
+          512,
+          540
+        ]
+      }
+    },
+    {
+      "id": "house-door",
+      "name": "house-door",
+      "type": "Node2D",
+      "parentId": "world",
+      "order": 4,
+      "properties": {
+        "position": [
+          512,
+          716
+        ]
+      }
+    },
+    {
+      "id": "house-door-script",
+      "name": "door-script",
+      "type": "ScriptNode",
+      "scriptId": "game.door",
+      "parentId": "house-door",
+      "order": 0,
+      "properties": {
+        "mapId": "mushroom-home",
+        "doorId": "house-door",
+        "targetAreaId": "level-1",
+        "entry": "south",
+        "prompt": "Leave house",
+        "interactRadius": 80,
+        "badgeRise": 84
+      }
+    }
+  ],
+  "instances": [
+    {
+      "instanceId": "mushroom-home-shell-r0-c0",
+      "name": "shell-r0-c0",
+      "sceneId": "object.interior-mushroom-shell-cell-r0-c0",
+      "parentNodeId": "world",
+      "order": 5,
+      "persistenceKey": "world.mushroom-home.shell-r0-c0",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            64,
+            128
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-shell-r0-c1",
+      "name": "shell-r0-c1",
+      "sceneId": "object.interior-mushroom-shell-cell-r0-c1",
+      "parentNodeId": "world",
+      "order": 6,
+      "persistenceKey": "world.mushroom-home.shell-r0-c1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            192,
+            128
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-shell-r0-c2",
+      "name": "shell-r0-c2",
+      "sceneId": "object.interior-mushroom-shell-cell-r0-c2",
+      "parentNodeId": "world",
+      "order": 7,
+      "persistenceKey": "world.mushroom-home.shell-r0-c2",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            320,
+            128
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-shell-r0-c3",
+      "name": "shell-r0-c3",
+      "sceneId": "object.interior-mushroom-shell-cell-r0-c3",
+      "parentNodeId": "world",
+      "order": 8,
+      "persistenceKey": "world.mushroom-home.shell-r0-c3",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            448,
+            128
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-shell-r0-c4",
+      "name": "shell-r0-c4",
+      "sceneId": "object.interior-mushroom-shell-cell-r0-c4",
+      "parentNodeId": "world",
+      "order": 9,
+      "persistenceKey": "world.mushroom-home.shell-r0-c4",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            576,
+            128
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-shell-r0-c5",
+      "name": "shell-r0-c5",
+      "sceneId": "object.interior-mushroom-shell-cell-r0-c5",
+      "parentNodeId": "world",
+      "order": 10,
+      "persistenceKey": "world.mushroom-home.shell-r0-c5",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            704,
+            128
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-shell-r0-c6",
+      "name": "shell-r0-c6",
+      "sceneId": "object.interior-mushroom-shell-cell-r0-c6",
+      "parentNodeId": "world",
+      "order": 11,
+      "persistenceKey": "world.mushroom-home.shell-r0-c6",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            832,
+            128
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-shell-r0-c7",
+      "name": "shell-r0-c7",
+      "sceneId": "object.interior-mushroom-shell-cell-r0-c7",
+      "parentNodeId": "world",
+      "order": 12,
+      "persistenceKey": "world.mushroom-home.shell-r0-c7",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            960,
+            128
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-shell-r1-c0",
+      "name": "shell-r1-c0",
+      "sceneId": "object.interior-mushroom-shell-cell-r1-c0",
+      "parentNodeId": "world",
+      "order": 13,
+      "persistenceKey": "world.mushroom-home.shell-r1-c0",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            64,
+            256
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-shell-r1-c1",
+      "name": "shell-r1-c1",
+      "sceneId": "object.interior-mushroom-shell-cell-r1-c1",
+      "parentNodeId": "world",
+      "order": 14,
+      "persistenceKey": "world.mushroom-home.shell-r1-c1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            192,
+            256
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-shell-r1-c2",
+      "name": "shell-r1-c2",
+      "sceneId": "object.interior-mushroom-shell-cell-r1-c2",
+      "parentNodeId": "world",
+      "order": 15,
+      "persistenceKey": "world.mushroom-home.shell-r1-c2",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            320,
+            256
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-shell-r1-c3",
+      "name": "shell-r1-c3",
+      "sceneId": "object.interior-mushroom-shell-cell-r1-c3",
+      "parentNodeId": "world",
+      "order": 16,
+      "persistenceKey": "world.mushroom-home.shell-r1-c3",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            448,
+            256
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-shell-r1-c4",
+      "name": "shell-r1-c4",
+      "sceneId": "object.interior-mushroom-shell-cell-r1-c4",
+      "parentNodeId": "world",
+      "order": 17,
+      "persistenceKey": "world.mushroom-home.shell-r1-c4",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            576,
+            256
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-shell-r1-c5",
+      "name": "shell-r1-c5",
+      "sceneId": "object.interior-mushroom-shell-cell-r1-c5",
+      "parentNodeId": "world",
+      "order": 18,
+      "persistenceKey": "world.mushroom-home.shell-r1-c5",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            704,
+            256
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-shell-r1-c6",
+      "name": "shell-r1-c6",
+      "sceneId": "object.interior-mushroom-shell-cell-r1-c6",
+      "parentNodeId": "world",
+      "order": 19,
+      "persistenceKey": "world.mushroom-home.shell-r1-c6",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            832,
+            256
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-shell-r1-c7",
+      "name": "shell-r1-c7",
+      "sceneId": "object.interior-mushroom-shell-cell-r1-c7",
+      "parentNodeId": "world",
+      "order": 20,
+      "persistenceKey": "world.mushroom-home.shell-r1-c7",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            960,
+            256
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-shell-r2-c0",
+      "name": "shell-r2-c0",
+      "sceneId": "object.interior-mushroom-shell-cell-r2-c0",
+      "parentNodeId": "world",
+      "order": 21,
+      "persistenceKey": "world.mushroom-home.shell-r2-c0",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            64,
+            384
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-shell-r2-c1",
+      "name": "shell-r2-c1",
+      "sceneId": "object.interior-mushroom-shell-cell-r2-c1",
+      "parentNodeId": "world",
+      "order": 22,
+      "persistenceKey": "world.mushroom-home.shell-r2-c1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            192,
+            384
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-shell-r2-c6",
+      "name": "shell-r2-c6",
+      "sceneId": "object.interior-mushroom-shell-cell-r2-c6",
+      "parentNodeId": "world",
+      "order": 23,
+      "persistenceKey": "world.mushroom-home.shell-r2-c6",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            832,
+            384
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-shell-r2-c7",
+      "name": "shell-r2-c7",
+      "sceneId": "object.interior-mushroom-shell-cell-r2-c7",
+      "parentNodeId": "world",
+      "order": 24,
+      "persistenceKey": "world.mushroom-home.shell-r2-c7",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            960,
+            384
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-shell-r3-c0",
+      "name": "shell-r3-c0",
+      "sceneId": "object.interior-mushroom-shell-cell-r3-c0",
+      "parentNodeId": "world",
+      "order": 25,
+      "persistenceKey": "world.mushroom-home.shell-r3-c0",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            64,
+            512
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-shell-r3-c7",
+      "name": "shell-r3-c7",
+      "sceneId": "object.interior-mushroom-shell-cell-r3-c7",
+      "parentNodeId": "world",
+      "order": 26,
+      "persistenceKey": "world.mushroom-home.shell-r3-c7",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            960,
+            512
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-shell-r4-c0",
+      "name": "shell-r4-c0",
+      "sceneId": "object.interior-mushroom-shell-cell-r4-c0",
+      "parentNodeId": "world",
+      "order": 27,
+      "persistenceKey": "world.mushroom-home.shell-r4-c0",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            64,
+            640
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-shell-r4-c1",
+      "name": "shell-r4-c1",
+      "sceneId": "object.interior-mushroom-shell-cell-r4-c1",
+      "parentNodeId": "world",
+      "order": 28,
+      "persistenceKey": "world.mushroom-home.shell-r4-c1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            192,
+            640
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-shell-r4-c2",
+      "name": "shell-r4-c2",
+      "sceneId": "object.interior-mushroom-shell-cell-r4-c2",
+      "parentNodeId": "world",
+      "order": 29,
+      "persistenceKey": "world.mushroom-home.shell-r4-c2",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            320,
+            640
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-shell-r4-c3",
+      "name": "shell-r4-c3",
+      "sceneId": "object.interior-mushroom-shell-cell-r4-c3",
+      "parentNodeId": "world",
+      "order": 30,
+      "persistenceKey": "world.mushroom-home.shell-r4-c3",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            448,
+            640
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-shell-r4-c4",
+      "name": "shell-r4-c4",
+      "sceneId": "object.interior-mushroom-shell-cell-r4-c4",
+      "parentNodeId": "world",
+      "order": 31,
+      "persistenceKey": "world.mushroom-home.shell-r4-c4",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            576,
+            640
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-shell-r4-c5",
+      "name": "shell-r4-c5",
+      "sceneId": "object.interior-mushroom-shell-cell-r4-c5",
+      "parentNodeId": "world",
+      "order": 32,
+      "persistenceKey": "world.mushroom-home.shell-r4-c5",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            704,
+            640
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-shell-r4-c6",
+      "name": "shell-r4-c6",
+      "sceneId": "object.interior-mushroom-shell-cell-r4-c6",
+      "parentNodeId": "world",
+      "order": 33,
+      "persistenceKey": "world.mushroom-home.shell-r4-c6",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            832,
+            640
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-shell-r4-c7",
+      "name": "shell-r4-c7",
+      "sceneId": "object.interior-mushroom-shell-cell-r4-c7",
+      "parentNodeId": "world",
+      "order": 34,
+      "persistenceKey": "world.mushroom-home.shell-r4-c7",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            960,
+            640
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-shell-r5-c0",
+      "name": "shell-r5-c0",
+      "sceneId": "object.interior-mushroom-shell-cell-r5-c0",
+      "parentNodeId": "world",
+      "order": 35,
+      "persistenceKey": "world.mushroom-home.shell-r5-c0",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            64,
+            768
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-shell-r5-c1",
+      "name": "shell-r5-c1",
+      "sceneId": "object.interior-mushroom-shell-cell-r5-c1",
+      "parentNodeId": "world",
+      "order": 36,
+      "persistenceKey": "world.mushroom-home.shell-r5-c1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            192,
+            768
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-shell-r5-c2",
+      "name": "shell-r5-c2",
+      "sceneId": "object.interior-mushroom-shell-cell-r5-c2",
+      "parentNodeId": "world",
+      "order": 37,
+      "persistenceKey": "world.mushroom-home.shell-r5-c2",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            320,
+            768
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-shell-r5-c3",
+      "name": "shell-r5-c3",
+      "sceneId": "object.interior-mushroom-shell-cell-r5-c3",
+      "parentNodeId": "world",
+      "order": 38,
+      "persistenceKey": "world.mushroom-home.shell-r5-c3",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            448,
+            768
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-shell-r5-c4",
+      "name": "shell-r5-c4",
+      "sceneId": "object.interior-mushroom-shell-cell-r5-c4",
+      "parentNodeId": "world",
+      "order": 39,
+      "persistenceKey": "world.mushroom-home.shell-r5-c4",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            576,
+            768
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-shell-r5-c5",
+      "name": "shell-r5-c5",
+      "sceneId": "object.interior-mushroom-shell-cell-r5-c5",
+      "parentNodeId": "world",
+      "order": 40,
+      "persistenceKey": "world.mushroom-home.shell-r5-c5",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            704,
+            768
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-shell-r5-c6",
+      "name": "shell-r5-c6",
+      "sceneId": "object.interior-mushroom-shell-cell-r5-c6",
+      "parentNodeId": "world",
+      "order": 41,
+      "persistenceKey": "world.mushroom-home.shell-r5-c6",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            832,
+            768
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-shell-r5-c7",
+      "name": "shell-r5-c7",
+      "sceneId": "object.interior-mushroom-shell-cell-r5-c7",
+      "parentNodeId": "world",
+      "order": 42,
+      "persistenceKey": "world.mushroom-home.shell-r5-c7",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            960,
+            768
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-doorway-floor-left",
+      "name": "doorway-floor-left",
+      "sceneId": "object.interior-mushroom-shell-doorway-floor-left",
+      "parentNodeId": "world",
+      "order": 43,
+      "persistenceKey": "world.mushroom-home.doorway-floor-left",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            448,
+            768
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-doorway-floor-right",
+      "name": "doorway-floor-right",
+      "sceneId": "object.interior-mushroom-shell-doorway-floor-right",
+      "parentNodeId": "world",
+      "order": 44,
+      "persistenceKey": "world.mushroom-home.doorway-floor-right",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            576,
+            768
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-path-stone-1",
+      "name": "path-stone-1",
+      "sceneId": "object.interior-mushroom-floor-stepping-stone-5",
+      "parentNodeId": "world",
+      "order": 45,
+      "persistenceKey": "world.mushroom-home.path-stone-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            512,
+            604
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-path-stone-2",
+      "name": "path-stone-2",
+      "sceneId": "object.interior-mushroom-floor-stepping-stone-2",
+      "parentNodeId": "world",
+      "order": 46,
+      "persistenceKey": "world.mushroom-home.path-stone-2",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            538,
+            566
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-path-stone-3",
+      "name": "path-stone-3",
+      "sceneId": "object.interior-mushroom-floor-stepping-stone-6",
+      "parentNodeId": "world",
+      "order": 47,
+      "persistenceKey": "world.mushroom-home.path-stone-3",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            494,
+            530
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-clover-1",
+      "name": "clover-1",
+      "sceneId": "object.interior-mushroom-floor-clover-7",
+      "parentNodeId": "world",
+      "order": 48,
+      "persistenceKey": "world.mushroom-home.clover-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            150,
+            262
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-clover-2",
+      "name": "clover-2",
+      "sceneId": "object.interior-mushroom-floor-clover-5",
+      "parentNodeId": "world",
+      "order": 49,
+      "persistenceKey": "world.mushroom-home.clover-2",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            300,
+            418
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-clover-3",
+      "name": "clover-3",
+      "sceneId": "object.interior-mushroom-floor-clover-8",
+      "parentNodeId": "world",
+      "order": 50,
+      "persistenceKey": "world.mushroom-home.clover-3",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            648,
+            382
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-clover-4",
+      "name": "clover-4",
+      "sceneId": "object.interior-mushroom-floor-clover-4",
+      "parentNodeId": "world",
+      "order": 51,
+      "persistenceKey": "world.mushroom-home.clover-4",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            384,
+            584
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-clover-5",
+      "name": "clover-5",
+      "sceneId": "object.interior-mushroom-floor-clover-6",
+      "parentNodeId": "world",
+      "order": 52,
+      "persistenceKey": "world.mushroom-home.clover-5",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            626,
+            566
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-clover-6",
+      "name": "clover-6",
+      "sceneId": "object.interior-mushroom-floor-clover-8",
+      "parentNodeId": "world",
+      "order": 53,
+      "persistenceKey": "world.mushroom-home.clover-6",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            880,
+            474
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-clover-7",
+      "name": "clover-7",
+      "sceneId": "object.interior-mushroom-floor-clover-3",
+      "parentNodeId": "world",
+      "order": 54,
+      "persistenceKey": "world.mushroom-home.clover-7",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            132,
+            470
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-clover-8",
+      "name": "clover-8",
+      "sceneId": "object.interior-mushroom-floor-clover-6",
+      "parentNodeId": "world",
+      "order": 55,
+      "persistenceKey": "world.mushroom-home.clover-8",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            404,
+            232
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-clover-9",
+      "name": "clover-9",
+      "sceneId": "object.interior-mushroom-floor-clover-2",
+      "parentNodeId": "world",
+      "order": 56,
+      "persistenceKey": "world.mushroom-home.clover-9",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            640,
+            236
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-clover-10",
+      "name": "clover-10",
+      "sceneId": "object.interior-mushroom-floor-clover-5",
+      "parentNodeId": "world",
+      "order": 57,
+      "persistenceKey": "world.mushroom-home.clover-10",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            772,
+            424
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-clover-11",
+      "name": "clover-11",
+      "sceneId": "object.interior-mushroom-floor-clover-3",
+      "parentNodeId": "world",
+      "order": 58,
+      "persistenceKey": "world.mushroom-home.clover-11",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            318,
+            250
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-flowers-1",
+      "name": "flowers-1",
+      "sceneId": "object.interior-mushroom-floor-flowers-daisy",
+      "parentNodeId": "world",
+      "order": 59,
+      "persistenceKey": "world.mushroom-home.flowers-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            360,
+            452
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-flowers-2",
+      "name": "flowers-2",
+      "sceneId": "object.interior-mushroom-floor-flowers-forget-me-not",
+      "parentNodeId": "world",
+      "order": 60,
+      "persistenceKey": "world.mushroom-home.flowers-2",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            690,
+            474
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-flowers-3",
+      "name": "flowers-3",
+      "sceneId": "object.interior-mushroom-floor-flowers-white-clover",
+      "parentNodeId": "world",
+      "order": 61,
+      "persistenceKey": "world.mushroom-home.flowers-3",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            142,
+            330
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-flowers-4",
+      "name": "flowers-4",
+      "sceneId": "object.interior-mushroom-floor-flowers-mixed",
+      "parentNodeId": "world",
+      "order": 62,
+      "persistenceKey": "world.mushroom-home.flowers-4",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            884,
+            362
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-flowers-5",
+      "name": "flowers-5",
+      "sceneId": "object.interior-mushroom-floor-daisy-single",
+      "parentNodeId": "world",
+      "order": 63,
+      "persistenceKey": "world.mushroom-home.flowers-5",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            606,
+            390
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-flowers-6",
+      "name": "flowers-6",
+      "sceneId": "object.interior-mushroom-floor-flowers-violet",
+      "parentNodeId": "world",
+      "order": 64,
+      "persistenceKey": "world.mushroom-home.flowers-6",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            424,
+            396
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-flowers-7",
+      "name": "flowers-7",
+      "sceneId": "object.interior-mushroom-floor-flowers-buttercup",
+      "parentNodeId": "world",
+      "order": 65,
+      "persistenceKey": "world.mushroom-home.flowers-7",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            820,
+            566
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-flowers-8",
+      "name": "flowers-8",
+      "sceneId": "object.interior-mushroom-floor-flowers-pink",
+      "parentNodeId": "world",
+      "order": 66,
+      "persistenceKey": "world.mushroom-home.flowers-8",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            262,
+            566
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-moss-1",
+      "name": "moss-1",
+      "sceneId": "object.interior-mushroom-floor-moss-2",
+      "parentNodeId": "world",
+      "order": 67,
+      "persistenceKey": "world.mushroom-home.moss-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            124,
+            526
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-moss-2",
+      "name": "moss-2",
+      "sceneId": "object.interior-mushroom-floor-grass-moss-1",
+      "parentNodeId": "world",
+      "order": 68,
+      "persistenceKey": "world.mushroom-home.moss-2",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            898,
+            560
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-moss-3",
+      "name": "moss-3",
+      "sceneId": "object.interior-mushroom-floor-moss-4",
+      "parentNodeId": "world",
+      "order": 69,
+      "persistenceKey": "world.mushroom-home.moss-3",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            612,
+            214
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-pebbles-1",
+      "name": "pebbles-1",
+      "sceneId": "object.interior-mushroom-floor-pebbles-3",
+      "parentNodeId": "world",
+      "order": 70,
+      "persistenceKey": "world.mushroom-home.pebbles-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            704,
+            404
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-pebbles-2",
+      "name": "pebbles-2",
+      "sceneId": "object.interior-mushroom-floor-pebbles-1",
+      "parentNodeId": "world",
+      "order": 71,
+      "persistenceKey": "world.mushroom-home.pebbles-2",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            330,
+            504
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-root-1",
+      "name": "root-1",
+      "sceneId": "object.interior-mushroom-floor-root-3",
+      "parentNodeId": "world",
+      "order": 72,
+      "persistenceKey": "world.mushroom-home.root-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            874,
+            252
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-root-2",
+      "name": "root-2",
+      "sceneId": "object.interior-mushroom-floor-root-6",
+      "parentNodeId": "world",
+      "order": 73,
+      "persistenceKey": "world.mushroom-home.root-2",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            236,
+            470
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-mushrooms-1",
+      "name": "mushrooms-1",
+      "sceneId": "object.interior-mushroom-floor-mushrooms-brown",
+      "parentNodeId": "world",
+      "order": 74,
+      "persistenceKey": "world.mushroom-home.mushrooms-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            350,
+            386
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-mushrooms-2",
+      "name": "mushrooms-2",
+      "sceneId": "object.interior-mushroom-floor-mushrooms-glow",
+      "parentNodeId": "world",
+      "order": 75,
+      "persistenceKey": "world.mushroom-home.mushrooms-2",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            884,
+            318
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-leaves-1",
+      "name": "leaves-1",
+      "sceneId": "object.interior-mushroom-floor-leaves-fallen",
+      "parentNodeId": "world",
+      "order": 76,
+      "persistenceKey": "world.mushroom-home.leaves-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            628,
+            332
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-acorns-1",
+      "name": "acorns-1",
+      "sceneId": "object.interior-mushroom-floor-acorns-leaves",
+      "parentNodeId": "world",
+      "order": 77,
+      "persistenceKey": "world.mushroom-home.acorns-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            420,
+            316
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-dining-rug",
+      "name": "dining-rug",
+      "sceneId": "object.interior-mushroom-decor-rug-round-sprout",
+      "parentNodeId": "world",
+      "order": 78,
+      "persistenceKey": "world.mushroom-home.dining-rug",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            512,
+            512
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "scale",
+          "value": [
+            2.1,
+            2.1
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-dining-table",
+      "name": "dining-table",
+      "sceneId": "object.interior-mushroom-large-table-toadstool-dining",
+      "parentNodeId": "world",
+      "order": 79,
+      "persistenceKey": "world.mushroom-home.dining-table",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            505,
+            436
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-bed",
+      "name": "bed",
+      "sceneId": "object.interior-mushroom-large-bed-mushroom-cap-s",
+      "parentNodeId": "world",
+      "order": 80,
+      "persistenceKey": "world.mushroom-home.bed",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            238,
+            352
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-nightstand",
+      "name": "nightstand",
+      "sceneId": "object.interior-mushroom-furniture-nightstand-mushroom-candle",
+      "parentNodeId": "world",
+      "order": 81,
+      "persistenceKey": "world.mushroom-home.nightstand",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            366,
+            330
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-glow-cluster",
+      "name": "glow-cluster",
+      "sceneId": "object.interior-mushroom-decor-glow-mushroom-cluster",
+      "parentNodeId": "world",
+      "order": 82,
+      "persistenceKey": "world.mushroom-home.glow-cluster",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            136,
+            384
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-potion-shelf",
+      "name": "potion-shelf",
+      "sceneId": "object.interior-mushroom-large-potion-shelf-tall",
+      "parentNodeId": "world",
+      "order": 83,
+      "persistenceKey": "world.mushroom-home.potion-shelf",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            506,
+            254
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-herb-basket",
+      "name": "herb-basket",
+      "sceneId": "object.interior-mushroom-furniture-basket-mushrooms",
+      "parentNodeId": "world",
+      "order": 84,
+      "persistenceKey": "world.mushroom-home.herb-basket",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            614,
+            268
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-hearth",
+      "name": "hearth",
+      "sceneId": "object.interior-mushroom-large-hearth-root-lit",
+      "parentNodeId": "world",
+      "order": 85,
+      "persistenceKey": "world.mushroom-home.hearth",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            772,
+            316
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-hearth-candle",
+      "name": "hearth-candle",
+      "sceneId": "object.interior-mushroom-decor-toadstool-candle-lit",
+      "parentNodeId": "world",
+      "order": 86,
+      "persistenceKey": "world.mushroom-home.hearth-candle",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            668,
+            318
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-firewood",
+      "name": "firewood",
+      "sceneId": "object.interior-mushroom-decor-firewood-logs",
+      "parentNodeId": "world",
+      "order": 87,
+      "persistenceKey": "world.mushroom-home.firewood",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            880,
+            330
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-chest",
+      "name": "chest",
+      "sceneId": "object.interior-mushroom-furniture-chest-vine-closed",
+      "parentNodeId": "world",
+      "order": 88,
+      "persistenceKey": "world.mushroom-home.chest",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            860,
+            520
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-tall-glow",
+      "name": "tall-glow",
+      "sceneId": "object.interior-mushroom-decor-glow-mushroom-tall",
+      "parentNodeId": "world",
+      "order": 89,
+      "persistenceKey": "world.mushroom-home.tall-glow",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            872,
+            420
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-alchemy",
+      "name": "alchemy",
+      "sceneId": "object.interior-mushroom-large-alchemy-workbench",
+      "parentNodeId": "world",
+      "order": 90,
+      "persistenceKey": "world.mushroom-home.alchemy",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            706,
+            572
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-water-basin",
+      "name": "water-basin",
+      "sceneId": "object.interior-mushroom-large-water-basin-stump",
+      "parentNodeId": "world",
+      "order": 91,
+      "persistenceKey": "world.mushroom-home.water-basin",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            212,
+            574
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-fern",
+      "name": "fern",
+      "sceneId": "object.interior-mushroom-decor-plant-fern-pot",
+      "parentNodeId": "world",
+      "order": 92,
+      "persistenceKey": "world.mushroom-home.fern",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            352,
+            566
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "mushroom-home-fern-basket",
+      "name": "fern-basket",
+      "sceneId": "object.interior-mushroom-decor-fern-basket-large",
+      "parentNodeId": "world",
+      "order": 93,
+      "persistenceKey": "world.mushroom-home.fern-basket",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            128,
+            470
+          ]
+        }
+      ]
+    }
+  ],
+  "connections": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "tiles.mushroom-home.ground.data",
+      "kind": "tile-data",
+      "tileSet": "terrain.tiles",
+      "columns": 16,
+      "rows": 12,
+      "cells": [
+        {
+          "x": 0,
+          "y": 0,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 5,
+          "y": 0,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 6,
+          "y": 0,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 7,
+          "y": 0,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 8,
+          "y": 0,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 9,
+          "y": 0,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 10,
+          "y": 0,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 11,
+          "y": 0,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 12,
+          "y": 0,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 13,
+          "y": 0,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 14,
+          "y": 0,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 4,
+          "y": 1,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 5,
+          "y": 1,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 6,
+          "y": 1,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 7,
+          "y": 1,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 8,
+          "y": 1,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 9,
+          "y": 1,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 10,
+          "y": 1,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 11,
+          "y": 1,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 12,
+          "y": 1,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 13,
+          "y": 1,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 14,
+          "y": 1,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 3,
+          "y": 2,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 4,
+          "y": 2,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 5,
+          "y": 2,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 6,
+          "y": 2,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 7,
+          "y": 2,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 8,
+          "y": 2,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 9,
+          "y": 2,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 10,
+          "y": 2,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 11,
+          "y": 2,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 12,
+          "y": 2,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 13,
+          "y": 2,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 14,
+          "y": 2,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 0,
+          "y": 3,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 1,
+          "y": 3,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 2,
+          "y": 3,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 3,
+          "y": 3,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 4,
+          "y": 3,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 5,
+          "y": 3,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 6,
+          "y": 3,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 7,
+          "y": 3,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 8,
+          "y": 3,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 9,
+          "y": 3,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 10,
+          "y": 3,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 11,
+          "y": 3,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 12,
+          "y": 3,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 13,
+          "y": 3,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 14,
+          "y": 3,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 0,
+          "y": 4,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 1,
+          "y": 4,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 2,
+          "y": 4,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 3,
+          "y": 4,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 4,
+          "y": 4,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 5,
+          "y": 4,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 6,
+          "y": 4,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 7,
+          "y": 4,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 8,
+          "y": 4,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 9,
+          "y": 4,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 10,
+          "y": 4,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 11,
+          "y": 4,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 12,
+          "y": 4,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 13,
+          "y": 4,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 14,
+          "y": 4,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 0,
+          "y": 5,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 1,
+          "y": 5,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 2,
+          "y": 5,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 3,
+          "y": 5,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 4,
+          "y": 5,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 5,
+          "y": 5,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 6,
+          "y": 5,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 7,
+          "y": 5,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 8,
+          "y": 5,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 9,
+          "y": 5,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 10,
+          "y": 5,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 11,
+          "y": 5,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 12,
+          "y": 5,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 13,
+          "y": 5,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 14,
+          "y": 5,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 0,
+          "y": 6,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 1,
+          "y": 6,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 2,
+          "y": 6,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 3,
+          "y": 6,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 4,
+          "y": 6,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 5,
+          "y": 6,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 6,
+          "y": 6,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 7,
+          "y": 6,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 8,
+          "y": 6,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 9,
+          "y": 6,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 10,
+          "y": 6,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 11,
+          "y": 6,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 12,
+          "y": 6,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 13,
+          "y": 6,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 14,
+          "y": 6,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 0,
+          "y": 7,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 1,
+          "y": 7,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 2,
+          "y": 7,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 3,
+          "y": 7,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 4,
+          "y": 7,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 5,
+          "y": 7,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 6,
+          "y": 7,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 7,
+          "y": 7,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 8,
+          "y": 7,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 9,
+          "y": 7,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 10,
+          "y": 7,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 11,
+          "y": 7,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 12,
+          "y": 7,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 13,
+          "y": 7,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 14,
+          "y": 7,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 0,
+          "y": 8,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 1,
+          "y": 8,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 2,
+          "y": 8,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 3,
+          "y": 8,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 4,
+          "y": 8,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 5,
+          "y": 8,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 6,
+          "y": 8,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 7,
+          "y": 8,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 8,
+          "y": 8,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 9,
+          "y": 8,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 10,
+          "y": 8,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 11,
+          "y": 8,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 12,
+          "y": 8,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 13,
+          "y": 8,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 14,
+          "y": 8,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 0,
+          "y": 9,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 1,
+          "y": 9,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 2,
+          "y": 9,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 3,
+          "y": 9,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 4,
+          "y": 9,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 5,
+          "y": 9,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 6,
+          "y": 9,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 7,
+          "y": 9,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 8,
+          "y": 9,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 9,
+          "y": 9,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 10,
+          "y": 9,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 11,
+          "y": 9,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 12,
+          "y": 9,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 13,
+          "y": 9,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 14,
+          "y": 9,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 0,
+          "y": 10,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 1,
+          "y": 10,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 2,
+          "y": 10,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 3,
+          "y": 10,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 4,
+          "y": 10,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 5,
+          "y": 10,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 6,
+          "y": 10,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 7,
+          "y": 10,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 8,
+          "y": 10,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 9,
+          "y": 10,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 10,
+          "y": 10,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 11,
+          "y": 10,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 12,
+          "y": 10,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 13,
+          "y": 10,
+          "tileId": "mushroom-plain-floor"
+        },
+        {
+          "x": 14,
+          "y": 10,
+          "tileId": "mushroom-plain-floor"
+        }
+      ]
+    }
+  ]
+}

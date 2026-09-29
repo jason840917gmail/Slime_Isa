@@ -11,6 +11,7 @@ import { ASSET_MANIFEST } from './infrastructure/assets/manifest';
 import { PREPARED_SCENE_CONTENT_KEY, PreparedSceneContent } from './infrastructure/scenes/PreparedSceneContent';
 import { sceneDocuments, sceneResourceDocuments } from 'virtual-scene-content';
 import { sceneId } from './content/scenes/identifiers';
+import { itemRegistry } from './systems/Inventory';
 import { redirectLegacyStudioRoute } from './editor/scene-studio/SceneStudioRoute';
 
 export async function createGame(container: HTMLDivElement): Promise<Phaser.Game | undefined> {
@@ -60,6 +61,8 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
               || document.sceneId.startsWith('object.wall-stone-solid')
             ))
             .map((document) => sceneId(document.sceneId)),
+          // Furniture the player can place from the inventory is mounted at runtime.
+          ...itemRegistry.all().flatMap((item) => item.placeable?.sceneIds ?? []).map((id) => sceneId(id)),
           sceneId('projectile.worm-arrow'),
           sceneId('projectile.spider-web'),
           sceneId('effect.spider-web-cover'),
@@ -93,8 +96,11 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
           sceneId('ui.crafting-ui'),
           sceneId('ui.quest-journal'),
           sceneId('ui.quest-offer-modal'),
+          sceneId('ui.npc-dialogue'),
+          sceneId('ui.quest-tracker'),
           sceneId('ui.world-map-ui'),
           sceneId('ui.level-up-modal'),
+          sceneId('ui.audio-settings'),
           sceneId('ui.minimap'),
         ],
         hasAsset: (assetId) => Object.hasOwn(ASSET_MANIFEST.assets, assetId),
@@ -117,11 +123,13 @@ export async function createGame(container: HTMLDivElement): Promise<Phaser.Game
             <tr><td class="k">R</td><td>Stretch Lash <span class="lock">Lv 4</span></td></tr>
             <tr><td class="k">Y</td><td>Teleport <span class="lock">Lv 5</span></td></tr>
             <tr><td class="k">F</td><td>Interact</td></tr>
+            <tr><td class="k">G</td><td>Pick up placed furniture</td></tr>
             <tr><td class="k">1–6</td><td>Equip inventory weapon</td></tr>
             <tr><td class="k">Tab</td><td>Inventory</td></tr>
             <tr><td class="k">M</td><td>World Map</td></tr>
-            <tr><td class="k">U</td><td>Quest Journal</td></tr>
+            <tr><td class="k">U</td><td>Quest Book</td></tr>
             <tr><td class="k">C</td><td>Crafting</td></tr>
+            <tr><td class="k">Esc</td><td>Sound settings</td></tr>
             <tr><td class="k">Shift + 1–8</td><td>Debug cheats</td></tr>
           </table>
         </details>

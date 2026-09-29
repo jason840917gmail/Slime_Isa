@@ -302,6 +302,33 @@
           "on_close_action": "close"
         }
       }
+    },
+    {
+      "id": "sfx-click-sfx",
+      "name": "ClickSfx",
+      "type": "AudioStreamPlayer",
+      "parentId": "surface",
+      "order": 2,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.ui.click"
+        },
+        "minIntervalMs": 40
+      }
+    },
+    {
+      "id": "sfx-select-sfx",
+      "name": "SelectSfx",
+      "type": "AudioStreamPlayer",
+      "parentId": "surface",
+      "order": 3,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.ui.hover"
+        },
+        "minIntervalMs": 40,
+        "volume": 0.8
+      }
     }
   ],
   "instances": [],
@@ -355,7 +382,50 @@
         "nodeId": "script"
       },
       "handler": "on_close_action"
+    },
+    {
+      "source": {
+        "nodeId": "take"
+      },
+      "signal": "pressed",
+      "target": {
+        "nodeId": "sfx-click-sfx"
+      },
+      "handler": "play"
+    },
+    {
+      "source": {
+        "nodeId": "close"
+      },
+      "signal": "pressed",
+      "target": {
+        "nodeId": "sfx-click-sfx"
+      },
+      "handler": "play"
+    },
+    {
+      "source": {
+        "nodeId": "items"
+      },
+      "signal": "item_selected",
+      "target": {
+        "nodeId": "sfx-select-sfx"
+      },
+      "handler": "play"
     }
   ],
-  "subresources": []
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "sfx.ui.click",
+      "kind": "audio",
+      "assetId": "audio.sfx.ui.click.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.ui.hover",
+      "kind": "audio",
+      "assetId": "audio.sfx.ui.hover.1"
+    }
+  ]
 }

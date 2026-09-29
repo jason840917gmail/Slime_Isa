@@ -19,6 +19,7 @@ export class QuestEventBridge {
     gameEvents.on('object.activated', this.onObjectActivated, this);
     gameEvents.on('survival.completed', this.onSurvivalCompleted, this);
     gameEvents.on('area.enter', this.onAreaEnter, this);
+    gameEvents.on('furniture.placed', this.onFurniturePlaced, this);
   }
 
   dispose(): void {
@@ -33,6 +34,7 @@ export class QuestEventBridge {
     gameEvents.off('object.activated', this.onObjectActivated, this);
     gameEvents.off('survival.completed', this.onSurvivalCompleted, this);
     gameEvents.off('area.enter', this.onAreaEnter, this);
+    gameEvents.off('furniture.placed', this.onFurniturePlaced, this);
   }
 
   private onCollectible = (payload: QuestInputEvents['collectible.collected']): void => {
@@ -69,5 +71,9 @@ export class QuestEventBridge {
 
   private onAreaEnter = (payload: QuestInputEvents['area.enter']): void => {
     this.service.handleEvent('area.enter', payload);
+  };
+
+  private onFurniturePlaced = (payload: QuestInputEvents['furniture.placed']): void => {
+    this.service.handleEvent('furniture.placed', payload);
   };
 }

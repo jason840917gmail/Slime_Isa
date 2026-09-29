@@ -81,6 +81,7 @@ interface PanelLayout {
 function reasonText(reason: CraftFailureReason): string {
   switch (reason) {
     case 'invalid-recipe': return 'This recipe is unavailable.';
+    case 'not-learned': return 'Not learned yet — a quest will teach it.';
     case 'unique-owned': return 'You already have this item.';
     case 'missing-materials': return 'More materials are needed.';
     case 'inventory-full': return 'Make room in your inventory first.';

@@ -144,3 +144,15 @@ export function resolveSheetOrderFrame(
     flipY,
   };
 }
+
+/** Row-major order repeated without mirroring; the sheet's opposite edges must wrap seamlessly. */
+export function resolveSheetWrapFrame(
+  sheetColumns: number,
+  sheetRows: number,
+  tileX: number,
+  tileY: number,
+): OrderedGroundFrame {
+  const column = ((tileX % sheetColumns) + sheetColumns) % sheetColumns;
+  const row = ((tileY % sheetRows) + sheetRows) % sheetRows;
+  return { frame: row * sheetColumns + column, flipX: false, flipY: false };
+}

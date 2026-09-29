@@ -33,7 +33,7 @@ async function prepare(sceneId) {
 }
 
 test('every authored UI scene resolves through the common scene document pipeline', async () => {
-  assert.equal(uiScenes.length, 15);
+  assert.equal(uiScenes.length, 18);
   for (const scene of uiScenes) {
     const { packed, documents, resources } = await prepare(scene.sceneId);
     assert.equal(packed.definition.sourceSceneId, scene.sceneId);

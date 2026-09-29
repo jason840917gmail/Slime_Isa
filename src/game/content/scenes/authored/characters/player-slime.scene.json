@@ -11,7 +11,7 @@
       "order": 0,
       "properties": {
         "collisionLayer": 2,
-        "collisionMask": 133,
+        "collisionMask": 1157,
         "collideWorldBounds": true,
         "position": [
           0,
@@ -163,6 +163,32 @@
         },
         "playerName": "bob"
       }
+    },
+    {
+      "id": "sfx-hurt-sfx",
+      "name": "HurtSfx",
+      "type": "AudioStreamPlayer",
+      "parentId": "body",
+      "order": 6,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.player.hurt"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 120
+      }
+    },
+    {
+      "id": "sfx-death-sfx",
+      "name": "DeathSfx",
+      "type": "AudioStreamPlayer",
+      "parentId": "body",
+      "order": 7,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.player.death"
+        }
+      }
     }
   ],
   "instances": [],
@@ -176,6 +202,26 @@
         "nodeId": "script"
       },
       "handler": "on_pickup_area_entered"
+    },
+    {
+      "source": {
+        "nodeId": "script"
+      },
+      "signal": "damaged",
+      "target": {
+        "nodeId": "sfx-hurt-sfx"
+      },
+      "handler": "play"
+    },
+    {
+      "source": {
+        "nodeId": "script"
+      },
+      "signal": "defeated",
+      "target": {
+        "nodeId": "sfx-death-sfx"
+      },
+      "handler": "play"
     }
   ],
   "subresources": [
@@ -781,6 +827,64 @@
               ]
             }
           ]
+        },
+        "doze": {
+          "durationSeconds": 1,
+          "framesPerSecond": 4,
+          "loop": false,
+          "tracks": [
+            {
+              "binding": "../Visual",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 40
+                },
+                {
+                  "at": 1,
+                  "value": 6
+                },
+                {
+                  "at": 2,
+                  "value": 6
+                },
+                {
+                  "at": 3,
+                  "value": 41
+                }
+              ]
+            }
+          ]
+        },
+        "sleep": {
+          "durationSeconds": 2,
+          "framesPerSecond": 2,
+          "loop": true,
+          "tracks": [
+            {
+              "binding": "../Visual",
+              "property": "frame",
+              "keys": [
+                {
+                  "at": 0,
+                  "value": 41
+                },
+                {
+                  "at": 1,
+                  "value": 41
+                },
+                {
+                  "at": 2,
+                  "value": 42
+                },
+                {
+                  "at": 3,
+                  "value": 42
+                }
+              ]
+            }
+          ]
         }
       }
     },
@@ -801,6 +905,22 @@
         "width": 30,
         "height": 26
       }
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.player.hurt",
+      "kind": "audio",
+      "assetId": "audio.sfx.player.hurt.1",
+      "variants": [
+        "audio.sfx.player.hurt.2",
+        "audio.sfx.player.hurt.3"
+      ]
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.player.death",
+      "kind": "audio",
+      "assetId": "audio.sfx.player.death.1"
     }
   ]
 }

@@ -4,6 +4,7 @@ import type { Node } from '../../runtime/scene/Node';
 import type { SceneTreeInputEvent } from '../../runtime/scene/SceneTree';
 import type { InputEvent } from '../../runtime/scene/input/InputEvent';
 import type { PhysicsContact } from '../../runtime/scene/physics/PhysicsContact';
+import type { SensorShape } from '../../runtime/scene/physics/SensorGeometry';
 import type {
   DamageCommit,
   DamageMitigationInput,
@@ -56,6 +57,12 @@ export class PlayerScript extends CharacterScript implements DamageReceiver, Pla
     const target = this.getReference<Node>('damageArea')?.configuredTarget;
     if (!target) throw new Error(`PlayerScript '${this.runtimeId}' requires its damageArea reference.`);
     return target.runtimeId;
+  }
+
+  /** World-space hurtbox shapes (the damage area's enabled collision shapes). */
+  get damageShapes(): readonly SensorShape[] {
+    const target = this.getReference<Node>('damageArea')?.configuredTarget as (Node & { contactShapes?: () => readonly SensorShape[] }) | undefined;
+    return typeof target?.contactShapes === 'function' ? target.contactShapes() : [];
   }
 
   override _enter_tree(): void {

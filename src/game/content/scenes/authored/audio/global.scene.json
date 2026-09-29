@@ -26,8 +26,792 @@
       "parentId": "audio",
       "order": 1,
       "properties": {}
+    },
+    {
+      "id": "sfx-dodge",
+      "name": "Dodge",
+      "type": "AudioStreamPlayer",
+      "parentId": "effects",
+      "order": 0,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.player.dodge"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 60
+      }
+    },
+    {
+      "id": "sfx-eat",
+      "name": "Eat",
+      "type": "AudioStreamPlayer",
+      "parentId": "effects",
+      "order": 1,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.player.eat"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 60
+      }
+    },
+    {
+      "id": "sfx-jump",
+      "name": "Jump",
+      "type": "AudioStreamPlayer",
+      "parentId": "effects",
+      "order": 2,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.player.jump"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 60
+      }
+    },
+    {
+      "id": "sfx-land",
+      "name": "Land",
+      "type": "AudioStreamPlayer",
+      "parentId": "effects",
+      "order": 3,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.player.land"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 60
+      }
+    },
+    {
+      "id": "sfx-teleport-out",
+      "name": "TeleportOut",
+      "type": "AudioStreamPlayer",
+      "parentId": "effects",
+      "order": 4,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.player.teleport-out"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 60
+      }
+    },
+    {
+      "id": "sfx-teleport-in",
+      "name": "TeleportIn",
+      "type": "AudioStreamPlayer",
+      "parentId": "effects",
+      "order": 5,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.player.teleport-in"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 60
+      }
+    },
+    {
+      "id": "sfx-slam-windup",
+      "name": "SlamWindup",
+      "type": "AudioStreamPlayer",
+      "parentId": "effects",
+      "order": 6,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.player.slam-windup"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 60
+      }
+    },
+    {
+      "id": "sfx-slam-impact",
+      "name": "SlamImpact",
+      "type": "AudioStreamPlayer",
+      "parentId": "effects",
+      "order": 7,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.player.slam-impact"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 60
+      }
+    },
+    {
+      "id": "sfx-lash",
+      "name": "Lash",
+      "type": "AudioStreamPlayer",
+      "parentId": "effects",
+      "order": 8,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.player.lash"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 60
+      }
+    },
+    {
+      "id": "sfx-ability-denied",
+      "name": "AbilityDenied",
+      "type": "AudioStreamPlayer",
+      "parentId": "effects",
+      "order": 9,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.ui.ability-denied"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 60
+      }
+    },
+    {
+      "id": "sfx-heal",
+      "name": "Heal",
+      "type": "AudioStreamPlayer",
+      "parentId": "effects",
+      "order": 10,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.player.heal"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 60
+      }
+    },
+    {
+      "id": "sfx-respawn",
+      "name": "Respawn",
+      "type": "AudioStreamPlayer",
+      "parentId": "effects",
+      "order": 11,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.player.respawn"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 60
+      }
+    },
+    {
+      "id": "sfx-energy-restore",
+      "name": "EnergyRestore",
+      "type": "AudioStreamPlayer",
+      "parentId": "effects",
+      "order": 12,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.player.energy-restore"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 60
+      }
+    },
+    {
+      "id": "sfx-coin",
+      "name": "Coin",
+      "type": "AudioStreamPlayer",
+      "parentId": "effects",
+      "order": 13,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.player.coin"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 60
+      }
+    },
+    {
+      "id": "sfx-level-up",
+      "name": "LevelUp",
+      "type": "AudioStreamPlayer",
+      "parentId": "effects",
+      "order": 14,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.player.level-up"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 60
+      }
+    },
+    {
+      "id": "sfx-perk-choose",
+      "name": "PerkChoose",
+      "type": "AudioStreamPlayer",
+      "parentId": "effects",
+      "order": 15,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.ui.perk-choose"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 60
+      }
+    },
+    {
+      "id": "sfx-status-burn",
+      "name": "StatusBurn",
+      "type": "AudioStreamPlayer",
+      "parentId": "effects",
+      "order": 16,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.status.burn"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 60
+      }
+    },
+    {
+      "id": "sfx-status-poison",
+      "name": "StatusPoison",
+      "type": "AudioStreamPlayer",
+      "parentId": "effects",
+      "order": 17,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.status.poison"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 60
+      }
+    },
+    {
+      "id": "sfx-status-slow",
+      "name": "StatusSlow",
+      "type": "AudioStreamPlayer",
+      "parentId": "effects",
+      "order": 18,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.status.slow"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 60
+      }
+    },
+    {
+      "id": "sfx-status-sticky",
+      "name": "StatusSticky",
+      "type": "AudioStreamPlayer",
+      "parentId": "effects",
+      "order": 19,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.status.sticky"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 60
+      }
+    },
+    {
+      "id": "sfx-status-bouncy",
+      "name": "StatusBouncy",
+      "type": "AudioStreamPlayer",
+      "parentId": "effects",
+      "order": 20,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.status.bouncy"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 60
+      }
+    },
+    {
+      "id": "sfx-status-frenzy",
+      "name": "StatusFrenzy",
+      "type": "AudioStreamPlayer",
+      "parentId": "effects",
+      "order": 21,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.status.frenzy"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 60
+      }
+    },
+    {
+      "id": "sfx-status-expire",
+      "name": "StatusExpire",
+      "type": "AudioStreamPlayer",
+      "parentId": "effects",
+      "order": 22,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.status.expire"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 60
+      }
+    },
+    {
+      "id": "sfx-equip-blade",
+      "name": "EquipBlade",
+      "type": "AudioStreamPlayer",
+      "parentId": "effects",
+      "order": 23,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.weapon.equip-blade"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 60
+      }
+    },
+    {
+      "id": "sfx-equip-tool",
+      "name": "EquipTool",
+      "type": "AudioStreamPlayer",
+      "parentId": "effects",
+      "order": 24,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.weapon.equip-tool"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 60
+      }
+    },
+    {
+      "id": "sfx-craft-success",
+      "name": "CraftSuccess",
+      "type": "AudioStreamPlayer",
+      "parentId": "effects",
+      "order": 25,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.ui.craft-success"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 60
+      }
+    },
+    {
+      "id": "sfx-npc-blip",
+      "name": "NpcBlip",
+      "type": "AudioStreamPlayer",
+      "parentId": "effects",
+      "order": 26,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.world.npc-blip"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 60
+      }
+    },
+    {
+      "id": "sfx-quest-accept",
+      "name": "QuestAccept",
+      "type": "AudioStreamPlayer",
+      "parentId": "effects",
+      "order": 27,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.ui.quest-accept"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 60
+      }
+    },
+    {
+      "id": "sfx-quest-progress",
+      "name": "QuestProgress",
+      "type": "AudioStreamPlayer",
+      "parentId": "effects",
+      "order": 28,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.ui.quest-progress"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 60
+      }
+    },
+    {
+      "id": "sfx-quest-complete",
+      "name": "QuestComplete",
+      "type": "AudioStreamPlayer",
+      "parentId": "effects",
+      "order": 29,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.ui.quest-complete"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 60
+      }
+    },
+    {
+      "id": "sfx-quest-failed",
+      "name": "QuestFailed",
+      "type": "AudioStreamPlayer",
+      "parentId": "effects",
+      "order": 30,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.ui.quest-failed"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 60
+      }
+    },
+    {
+      "id": "sfx-victory",
+      "name": "Victory",
+      "type": "AudioStreamPlayer",
+      "parentId": "effects",
+      "order": 31,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.boss.victory"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 60
+      }
+    },
+    {
+      "id": "sfx-area-transition",
+      "name": "AreaTransition",
+      "type": "AudioStreamPlayer",
+      "parentId": "effects",
+      "order": 32,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.world.area-transition"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 60
+      }
+    },
+    {
+      "id": "sfx-menu-open",
+      "name": "MenuOpen",
+      "type": "AudioStreamPlayer",
+      "parentId": "effects",
+      "order": 33,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.ui.open"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 60
+      }
+    },
+    {
+      "id": "sfx-menu-close",
+      "name": "MenuClose",
+      "type": "AudioStreamPlayer",
+      "parentId": "effects",
+      "order": 34,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.ui.close"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 60
+      }
+    },
+    {
+      "id": "sfx-journal-open",
+      "name": "JournalOpen",
+      "type": "AudioStreamPlayer",
+      "parentId": "effects",
+      "order": 35,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.ui.journal-open"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 60
+      }
+    },
+    {
+      "id": "sfx-sleep-breath",
+      "name": "SleepBreath",
+      "type": "AudioStreamPlayer",
+      "parentId": "effects",
+      "order": 36,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.player.sleep-breath"
+        },
+        "loop": true,
+        "volume": 0.3,
+        "polyphony": 1
+      }
+    },
+    {
+      "id": "sfx-rested",
+      "name": "Rested",
+      "type": "AudioStreamPlayer",
+      "parentId": "effects",
+      "order": 37,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.player.rested"
+        },
+        "volume": 0.35,
+        "minIntervalMs": 1000
+      }
     }
   ],
   "instances": [],
-  "subresources": []
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "sfx.player.dodge",
+      "kind": "audio",
+      "assetId": "audio.sfx.player.dodge.1",
+      "variants": [
+        "audio.sfx.player.dodge.2"
+      ]
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.player.eat",
+      "kind": "audio",
+      "assetId": "audio.sfx.player.eat.1",
+      "variants": [
+        "audio.sfx.player.eat.2"
+      ]
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.player.jump",
+      "kind": "audio",
+      "assetId": "audio.sfx.player.jump.1",
+      "variants": [
+        "audio.sfx.player.jump.2"
+      ]
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.player.land",
+      "kind": "audio",
+      "assetId": "audio.sfx.player.land.1",
+      "variants": [
+        "audio.sfx.player.land.2"
+      ]
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.player.teleport-out",
+      "kind": "audio",
+      "assetId": "audio.sfx.player.teleport-out.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.player.teleport-in",
+      "kind": "audio",
+      "assetId": "audio.sfx.player.teleport-in.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.player.slam-windup",
+      "kind": "audio",
+      "assetId": "audio.sfx.player.slam-windup.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.player.slam-impact",
+      "kind": "audio",
+      "assetId": "audio.sfx.player.slam-impact.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.player.lash",
+      "kind": "audio",
+      "assetId": "audio.sfx.player.lash.1",
+      "variants": [
+        "audio.sfx.player.lash.2"
+      ]
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.ui.ability-denied",
+      "kind": "audio",
+      "assetId": "audio.sfx.ui.ability-denied.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.player.heal",
+      "kind": "audio",
+      "assetId": "audio.sfx.player.heal.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.player.respawn",
+      "kind": "audio",
+      "assetId": "audio.sfx.player.respawn.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.player.energy-restore",
+      "kind": "audio",
+      "assetId": "audio.sfx.player.energy-restore.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.player.coin",
+      "kind": "audio",
+      "assetId": "audio.sfx.player.coin.1",
+      "variants": [
+        "audio.sfx.player.coin.2"
+      ]
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.player.level-up",
+      "kind": "audio",
+      "assetId": "audio.sfx.player.level-up.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.ui.perk-choose",
+      "kind": "audio",
+      "assetId": "audio.sfx.ui.perk-choose.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.status.burn",
+      "kind": "audio",
+      "assetId": "audio.sfx.status.burn.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.status.poison",
+      "kind": "audio",
+      "assetId": "audio.sfx.status.poison.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.status.slow",
+      "kind": "audio",
+      "assetId": "audio.sfx.status.slow.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.status.sticky",
+      "kind": "audio",
+      "assetId": "audio.sfx.status.sticky.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.status.bouncy",
+      "kind": "audio",
+      "assetId": "audio.sfx.status.bouncy.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.status.frenzy",
+      "kind": "audio",
+      "assetId": "audio.sfx.status.frenzy.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.status.expire",
+      "kind": "audio",
+      "assetId": "audio.sfx.status.expire.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.weapon.equip-blade",
+      "kind": "audio",
+      "assetId": "audio.sfx.weapon.equip-blade.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.weapon.equip-tool",
+      "kind": "audio",
+      "assetId": "audio.sfx.weapon.equip-tool.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.ui.craft-success",
+      "kind": "audio",
+      "assetId": "audio.sfx.ui.craft-success.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.world.npc-blip",
+      "kind": "audio",
+      "assetId": "audio.sfx.world.npc-blip.1",
+      "variants": [
+        "audio.sfx.world.npc-blip.2",
+        "audio.sfx.world.npc-blip.3"
+      ]
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.ui.quest-accept",
+      "kind": "audio",
+      "assetId": "audio.sfx.ui.quest-accept.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.ui.quest-progress",
+      "kind": "audio",
+      "assetId": "audio.sfx.ui.quest-progress.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.ui.quest-complete",
+      "kind": "audio",
+      "assetId": "audio.sfx.ui.quest-complete.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.ui.quest-failed",
+      "kind": "audio",
+      "assetId": "audio.sfx.ui.quest-failed.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.boss.victory",
+      "kind": "audio",
+      "assetId": "audio.sfx.boss.victory.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.world.area-transition",
+      "kind": "audio",
+      "assetId": "audio.sfx.world.area-transition.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.ui.open",
+      "kind": "audio",
+      "assetId": "audio.sfx.ui.open.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.ui.close",
+      "kind": "audio",
+      "assetId": "audio.sfx.ui.close.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.ui.journal-open",
+      "kind": "audio",
+      "assetId": "audio.sfx.ui.journal-open.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.player.sleep-breath",
+      "kind": "audio",
+      "assetId": "audio.sfx.player.sleep-breath.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.player.rested",
+      "kind": "audio",
+      "assetId": "audio.sfx.player.rested.1"
+    }
+  ]
 }

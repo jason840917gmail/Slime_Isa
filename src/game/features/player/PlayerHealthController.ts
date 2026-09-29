@@ -1,5 +1,5 @@
 import { gameState } from '../../core/GameState';
-import { gameEvents } from '../../core/EventBus';
+import { gameEvents, type HealSource } from '../../core/EventBus';
 import { getStats } from '../../systems/PlayerStats';
 import { PlayerHealthService } from './PlayerHealthService';
 import type { DamageAreaRule } from '../combat/DamageReceiver';
@@ -69,7 +69,7 @@ export class PlayerHealthController implements DamageReceiver {
         getHp: () => gameState.hp,
         getMaxHp: () => gameState.maxHp,
         commitResolvedDamage: (amount, source) => gameState.damage(amount, source),
-        heal: (amount) => gameState.heal(amount),
+        heal: (amount, source) => gameState.heal(amount, source),
         revive: () => gameState.revive(),
       },
       stats: {
@@ -183,8 +183,8 @@ export class PlayerHealthController implements DamageReceiver {
     return result;
   }
 
-  heal(amount: number): number {
-    return this.playerHealth.heal(amount);
+  heal(amount: number, source?: HealSource): number {
+    return this.playerHealth.heal(amount, source);
   }
 
   respawn(): void {

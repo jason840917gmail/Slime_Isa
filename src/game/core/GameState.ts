@@ -1,4 +1,4 @@
-import { gameEvents } from './EventBus';
+import { gameEvents, type HealSource } from './EventBus';
 import { createInitialRunState } from '../content/initial-state/InitialRun';
 import { GAME_CONSTANTS } from '../Constant';
 import { PERK_BALANCE } from '../content/perks';
@@ -265,12 +265,12 @@ class GameStateImpl {
     return actualHpLost;
   }
 
-  heal(amount: number): number {
+  heal(amount: number, source?: HealSource): number {
     if (amount <= 0 || this.data.hp <= 0) return 0;
     const newHp = Math.min(this.maxHp, this.data.hp + amount);
     const healed = newHp - this.data.hp;
     this.data.hp = newHp;
-    if (healed > 0) gameEvents.emit('player.heal', { amount: healed });
+    if (healed > 0) gameEvents.emit('player.heal', source ? { amount: healed, source } : { amount: healed });
     this.emitHp(healed);
     return healed;
   }

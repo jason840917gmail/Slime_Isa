@@ -1,10 +1,11 @@
+import type { HealSource } from '../../core/EventBus';
 import type { AppliedDamageEffect, DamageImpact } from '../combat/DamageReceiver';
 
 export interface PlayerHealthStatePort {
   getHp(): number;
   getMaxHp(): number;
   commitResolvedDamage(amount: number, source?: string): number;
-  heal(amount: number): number;
+  heal(amount: number, source?: HealSource): number;
   revive(): void;
 }
 

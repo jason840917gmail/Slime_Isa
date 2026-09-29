@@ -1,0 +1,1965 @@
+{
+  "version": 1,
+  "sceneId": "world.slime-home",
+  "rootNodeId": "world",
+  "nodes": [
+    {
+      "id": "world",
+      "name": "slime-home",
+      "type": "Node2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "layer-ground",
+      "name": "ground",
+      "type": "TileMapLayer2D",
+      "parentId": "world",
+      "order": 0,
+      "properties": {
+        "position": [
+          0,
+          0
+        ],
+        "tileData": {
+          "resourceId": "tiles.slime-home.ground.data"
+        },
+        "tileSize": 64,
+        "seed": 7,
+        "depth": 0,
+        "collisionLayer": 1,
+        "collisionMask": 0,
+        "collisionEnabled": true,
+        "editorLocked": false
+      }
+    },
+    {
+      "id": "world-definition",
+      "name": "world-definition",
+      "type": "ScriptNode",
+      "scriptId": "game.world-definition",
+      "parentId": "world",
+      "order": 1,
+      "properties": {
+        "mapId": "slime-home",
+        "tileSize": 64,
+        "columns": 14,
+        "rows": 11,
+        "cameraMode": "fixed",
+        "metadata": {
+          "objects": [],
+          "player": {
+            "spawn": {
+              "x": 448,
+              "y": 624
+            },
+            "entries": {
+              "south": {
+                "x": 448,
+                "y": 624
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "player-spawn",
+      "name": "player-spawn",
+      "type": "Node2D",
+      "parentId": "world",
+      "order": 2,
+      "properties": {
+        "position": [
+          448,
+          624
+        ]
+      }
+    },
+    {
+      "id": "player-entry-south",
+      "name": "player-entry-south",
+      "type": "Node2D",
+      "parentId": "world",
+      "order": 3,
+      "properties": {
+        "position": [
+          448,
+          624
+        ]
+      }
+    },
+    {
+      "id": "house-door",
+      "name": "house-door",
+      "type": "Node2D",
+      "parentId": "world",
+      "order": 4,
+      "properties": {
+        "position": [
+          448,
+          694
+        ]
+      }
+    },
+    {
+      "id": "house-door-script",
+      "name": "door-script",
+      "type": "ScriptNode",
+      "scriptId": "game.door",
+      "parentId": "house-door",
+      "order": 0,
+      "properties": {
+        "mapId": "slime-home",
+        "doorId": "house-door",
+        "targetAreaId": "level-1",
+        "entry": "south",
+        "prompt": "Leave house",
+        "interactRadius": 80,
+        "badgeRise": 84
+      }
+    }
+  ],
+  "instances": [
+    {
+      "instanceId": "slime-home-back-wall-1",
+      "name": "back-wall-1",
+      "sceneId": "object.interior-structure-wall-plaster-post",
+      "parentNodeId": "world",
+      "order": 5,
+      "persistenceKey": "world.slime-home.back-wall-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            64,
+            150
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-back-wall-2",
+      "name": "back-wall-2",
+      "sceneId": "object.interior-structure-wall-plaster-post",
+      "parentNodeId": "world",
+      "order": 6,
+      "persistenceKey": "world.slime-home.back-wall-2",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            192,
+            150
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-back-wall-3",
+      "name": "back-wall-3",
+      "sceneId": "object.interior-structure-wall-plaster-post",
+      "parentNodeId": "world",
+      "order": 7,
+      "persistenceKey": "world.slime-home.back-wall-3",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            320,
+            150
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-back-wall-4",
+      "name": "back-wall-4",
+      "sceneId": "object.interior-structure-wall-plaster-post",
+      "parentNodeId": "world",
+      "order": 8,
+      "persistenceKey": "world.slime-home.back-wall-4",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            448,
+            150
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-back-wall-5",
+      "name": "back-wall-5",
+      "sceneId": "object.interior-structure-wall-plaster-post",
+      "parentNodeId": "world",
+      "order": 9,
+      "persistenceKey": "world.slime-home.back-wall-5",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            576,
+            150
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-back-wall-6",
+      "name": "back-wall-6",
+      "sceneId": "object.interior-structure-wall-plaster-post",
+      "parentNodeId": "world",
+      "order": 10,
+      "persistenceKey": "world.slime-home.back-wall-6",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            704,
+            150
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-back-wall-7",
+      "name": "back-wall-7",
+      "sceneId": "object.interior-structure-wall-plaster-post",
+      "parentNodeId": "world",
+      "order": 11,
+      "persistenceKey": "world.slime-home.back-wall-7",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            832,
+            150
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-back-wall-end",
+      "name": "back-wall-end",
+      "sceneId": "object.interior-structure-wall-plaster-end",
+      "parentNodeId": "world",
+      "order": 12,
+      "persistenceKey": "world.slime-home.back-wall-end",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            876,
+            150
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-west-wall-1",
+      "name": "west-wall-1",
+      "sceneId": "object.interior-structure-beam-wood-vertical",
+      "parentNodeId": "world",
+      "order": 13,
+      "persistenceKey": "world.slime-home.west-wall-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            23,
+            210
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-east-wall-1",
+      "name": "east-wall-1",
+      "sceneId": "object.interior-structure-beam-wood-vertical",
+      "parentNodeId": "world",
+      "order": 14,
+      "persistenceKey": "world.slime-home.east-wall-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            873,
+            210
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-west-wall-2",
+      "name": "west-wall-2",
+      "sceneId": "object.interior-structure-beam-wood-vertical",
+      "parentNodeId": "world",
+      "order": 15,
+      "persistenceKey": "world.slime-home.west-wall-2",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            23,
+            326
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-east-wall-2",
+      "name": "east-wall-2",
+      "sceneId": "object.interior-structure-beam-wood-vertical",
+      "parentNodeId": "world",
+      "order": 16,
+      "persistenceKey": "world.slime-home.east-wall-2",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            873,
+            326
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-west-wall-3",
+      "name": "west-wall-3",
+      "sceneId": "object.interior-structure-beam-wood-vertical",
+      "parentNodeId": "world",
+      "order": 17,
+      "persistenceKey": "world.slime-home.west-wall-3",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            23,
+            442
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-east-wall-3",
+      "name": "east-wall-3",
+      "sceneId": "object.interior-structure-beam-wood-vertical",
+      "parentNodeId": "world",
+      "order": 18,
+      "persistenceKey": "world.slime-home.east-wall-3",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            873,
+            442
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-west-wall-4",
+      "name": "west-wall-4",
+      "sceneId": "object.interior-structure-beam-wood-vertical",
+      "parentNodeId": "world",
+      "order": 19,
+      "persistenceKey": "world.slime-home.west-wall-4",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            23,
+            558
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-east-wall-4",
+      "name": "east-wall-4",
+      "sceneId": "object.interior-structure-beam-wood-vertical",
+      "parentNodeId": "world",
+      "order": 20,
+      "persistenceKey": "world.slime-home.east-wall-4",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            873,
+            558
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-west-wall-5",
+      "name": "west-wall-5",
+      "sceneId": "object.interior-structure-beam-wood-vertical",
+      "parentNodeId": "world",
+      "order": 21,
+      "persistenceKey": "world.slime-home.west-wall-5",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            23,
+            674
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-east-wall-5",
+      "name": "east-wall-5",
+      "sceneId": "object.interior-structure-beam-wood-vertical",
+      "parentNodeId": "world",
+      "order": 22,
+      "persistenceKey": "world.slime-home.east-wall-5",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            873,
+            674
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-front-wall-1",
+      "name": "front-wall-1",
+      "sceneId": "object.interior-structure-beam-wood",
+      "parentNodeId": "world",
+      "order": 23,
+      "persistenceKey": "world.slime-home.front-wall-1",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            64,
+            702
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-front-wall-2",
+      "name": "front-wall-2",
+      "sceneId": "object.interior-structure-beam-wood",
+      "parentNodeId": "world",
+      "order": 24,
+      "persistenceKey": "world.slime-home.front-wall-2",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            176,
+            702
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-front-wall-3",
+      "name": "front-wall-3",
+      "sceneId": "object.interior-structure-beam-wood",
+      "parentNodeId": "world",
+      "order": 25,
+      "persistenceKey": "world.slime-home.front-wall-3",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            288,
+            702
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-front-wall-4",
+      "name": "front-wall-4",
+      "sceneId": "object.interior-structure-beam-wood",
+      "parentNodeId": "world",
+      "order": 26,
+      "persistenceKey": "world.slime-home.front-wall-4",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            608,
+            702
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-front-wall-5",
+      "name": "front-wall-5",
+      "sceneId": "object.interior-structure-beam-wood",
+      "parentNodeId": "world",
+      "order": 27,
+      "persistenceKey": "world.slime-home.front-wall-5",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            720,
+            702
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-front-wall-6",
+      "name": "front-wall-6",
+      "sceneId": "object.interior-structure-beam-wood",
+      "parentNodeId": "world",
+      "order": 28,
+      "persistenceKey": "world.slime-home.front-wall-6",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            832,
+            702
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-door-post-west",
+      "name": "door-post-west",
+      "sceneId": "object.interior-structure-post-wood",
+      "parentNodeId": "world",
+      "order": 29,
+      "persistenceKey": "world.slime-home.door-post-west",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            372,
+            702
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-door-post-east",
+      "name": "door-post-east",
+      "sceneId": "object.interior-structure-post-wood",
+      "parentNodeId": "world",
+      "order": 30,
+      "persistenceKey": "world.slime-home.door-post-east",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            524,
+            702
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-doormat",
+      "name": "doormat",
+      "sceneId": "object.interior-decor-rug-green-small",
+      "parentNodeId": "world",
+      "order": 31,
+      "persistenceKey": "world.slime-home.doormat",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            448,
+            696
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "scale",
+          "value": [
+            0.8,
+            0.8
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-hearth",
+      "name": "hearth",
+      "sceneId": "object.interior-kitchen-hearth-lit-s",
+      "parentNodeId": "world",
+      "order": 32,
+      "persistenceKey": "world.slime-home.hearth",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            448,
+            196
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-hearth-rug",
+      "name": "hearth-rug",
+      "sceneId": "object.interior-decor-rug-green-small",
+      "parentNodeId": "world",
+      "order": 33,
+      "persistenceKey": "world.slime-home.hearth-rug",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            448,
+            270
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "scale",
+          "value": [
+            1.1,
+            1.1
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-dish-cabinet",
+      "name": "dish-cabinet",
+      "sceneId": "object.interior-kitchen-dish-shelf",
+      "parentNodeId": "world",
+      "order": 34,
+      "persistenceKey": "world.slime-home.dish-cabinet",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            190,
+            184
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-barrel",
+      "name": "barrel",
+      "sceneId": "object.interior-storage-barrel",
+      "parentNodeId": "world",
+      "order": 35,
+      "persistenceKey": "world.slime-home.barrel",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            292,
+            186
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-apple-basket",
+      "name": "apple-basket",
+      "sceneId": "object.interior-kitchen-basket-fruit",
+      "parentNodeId": "world",
+      "order": 36,
+      "persistenceKey": "world.slime-home.apple-basket",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            320,
+            230
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-firewood",
+      "name": "firewood",
+      "sceneId": "object.interior-decor-firewood-basket",
+      "parentNodeId": "world",
+      "order": 37,
+      "persistenceKey": "world.slime-home.firewood",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            575,
+            190
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-pan-rack",
+      "name": "pan-rack",
+      "sceneId": "object.interior-kitchen-herb-rack",
+      "parentNodeId": "world",
+      "order": 38,
+      "persistenceKey": "world.slime-home.pan-rack",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            690,
+            152
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "visualOffset",
+          "value": [
+            0,
+            -57.5
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-leaf-banner",
+      "name": "leaf-banner",
+      "sceneId": "object.interior-decor-banner-green",
+      "parentNodeId": "world",
+      "order": 39,
+      "persistenceKey": "world.slime-home.leaf-banner",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            810,
+            152
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "visualOffset",
+          "value": [
+            0,
+            -50
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-west-bed-rug",
+      "name": "west-bed-rug",
+      "sceneId": "object.interior-decor-rug-round-green",
+      "parentNodeId": "world",
+      "order": 40,
+      "persistenceKey": "world.slime-home.west-bed-rug",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            160,
+            360
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-west-bed",
+      "name": "west-bed",
+      "sceneId": "object.interior-beds-straw-nest-s",
+      "parentNodeId": "world",
+      "order": 41,
+      "persistenceKey": "world.slime-home.west-bed",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            160,
+            340
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-east-bed-rug",
+      "name": "east-bed-rug",
+      "sceneId": "object.interior-decor-rug-round-green",
+      "parentNodeId": "world",
+      "order": 42,
+      "persistenceKey": "world.slime-home.east-bed-rug",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            740,
+            300
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-east-bed",
+      "name": "east-bed",
+      "sceneId": "object.interior-beds-straw-nest-s",
+      "parentNodeId": "world",
+      "order": 43,
+      "persistenceKey": "world.slime-home.east-bed",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            740,
+            280
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-west-side-table",
+      "name": "west-side-table",
+      "sceneId": "object.interior-tables-low-round-emblem",
+      "parentNodeId": "world",
+      "order": 44,
+      "persistenceKey": "world.slime-home.west-side-table",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            275,
+            360
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-west-candle",
+      "name": "west-candle",
+      "sceneId": "object.interior-decor-candle-lit",
+      "parentNodeId": "world",
+      "order": 45,
+      "persistenceKey": "world.slime-home.west-candle",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            275,
+            361
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "visualOffset",
+          "value": [
+            0,
+            -57.8
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-east-side-table",
+      "name": "east-side-table",
+      "sceneId": "object.interior-tables-low-round-emblem",
+      "parentNodeId": "world",
+      "order": 46,
+      "persistenceKey": "world.slime-home.east-side-table",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            640,
+            300
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-east-candle",
+      "name": "east-candle",
+      "sceneId": "object.interior-decor-candle-lit",
+      "parentNodeId": "world",
+      "order": 47,
+      "persistenceKey": "world.slime-home.east-candle",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            640,
+            301
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "visualOffset",
+          "value": [
+            0,
+            -57.8
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-dining-rug",
+      "name": "dining-rug",
+      "sceneId": "object.interior-decor-rug-green-large",
+      "parentNodeId": "world",
+      "order": 48,
+      "persistenceKey": "world.slime-home.dining-rug",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            448,
+            520
+          ]
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "visual",
+          "property": "scale",
+          "value": [
+            1.5,
+            1.5
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-dining-table",
+      "name": "dining-table",
+      "sceneId": "object.interior-tables-banquet-green-runner-s",
+      "parentNodeId": "world",
+      "order": 49,
+      "persistenceKey": "world.slime-home.dining-table",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            450,
+            490
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-banded-chest",
+      "name": "banded-chest",
+      "sceneId": "object.interior-storage-chest-banded-closed-s",
+      "parentNodeId": "world",
+      "order": 50,
+      "persistenceKey": "world.slime-home.banded-chest",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            790,
+            470
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-pantry-shelf",
+      "name": "pantry-shelf",
+      "sceneId": "object.interior-storage-dish-cabinet-s",
+      "parentNodeId": "world",
+      "order": 51,
+      "persistenceKey": "world.slime-home.pantry-shelf",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            800,
+            630
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-pantry-barrel",
+      "name": "pantry-barrel",
+      "sceneId": "object.interior-storage-barrel",
+      "parentNodeId": "world",
+      "order": 52,
+      "persistenceKey": "world.slime-home.pantry-barrel",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            715,
+            640
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-wash-stand",
+      "name": "wash-stand",
+      "sceneId": "object.interior-decor-wash-stand",
+      "parentNodeId": "world",
+      "order": 53,
+      "persistenceKey": "world.slime-home.wash-stand",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            105,
+            560
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-water-bucket",
+      "name": "water-bucket",
+      "sceneId": "object.interior-kitchen-bucket",
+      "parentNodeId": "world",
+      "order": 54,
+      "persistenceKey": "world.slime-home.water-bucket",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            95,
+            645
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-potted-plant",
+      "name": "potted-plant",
+      "sceneId": "object.interior-decor-plant-potted-large",
+      "parentNodeId": "world",
+      "order": 55,
+      "persistenceKey": "world.slime-home.potted-plant",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            80,
+            440
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "slime-home-corner-plant",
+      "name": "corner-plant",
+      "sceneId": "object.interior-decor-plant-potted-large",
+      "parentNodeId": "world",
+      "order": 56,
+      "persistenceKey": "world.slime-home.corner-plant",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            240,
+            650
+          ]
+        }
+      ]
+    }
+  ],
+  "connections": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "tiles.slime-home.ground.data",
+      "kind": "tile-data",
+      "tileSet": "terrain.tiles",
+      "columns": 14,
+      "rows": 11,
+      "cells": [
+        {
+          "x": 0,
+          "y": 0,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 5,
+          "y": 0,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 6,
+          "y": 0,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 7,
+          "y": 0,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 8,
+          "y": 0,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 9,
+          "y": 0,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 10,
+          "y": 0,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 11,
+          "y": 0,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 12,
+          "y": 0,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 13,
+          "y": 0,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 4,
+          "y": 1,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 5,
+          "y": 1,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 6,
+          "y": 1,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 7,
+          "y": 1,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 8,
+          "y": 1,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 9,
+          "y": 1,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 10,
+          "y": 1,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 11,
+          "y": 1,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 12,
+          "y": 1,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 13,
+          "y": 1,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 3,
+          "y": 2,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 4,
+          "y": 2,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 5,
+          "y": 2,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 6,
+          "y": 2,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 7,
+          "y": 2,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 8,
+          "y": 2,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 9,
+          "y": 2,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 10,
+          "y": 2,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 11,
+          "y": 2,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 12,
+          "y": 2,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 13,
+          "y": 2,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 0,
+          "y": 3,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 1,
+          "y": 3,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 2,
+          "y": 3,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 3,
+          "y": 3,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 4,
+          "y": 3,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 5,
+          "y": 3,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 6,
+          "y": 3,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 7,
+          "y": 3,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 8,
+          "y": 3,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 9,
+          "y": 3,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 10,
+          "y": 3,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 11,
+          "y": 3,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 12,
+          "y": 3,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 13,
+          "y": 3,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 0,
+          "y": 4,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 1,
+          "y": 4,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 2,
+          "y": 4,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 3,
+          "y": 4,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 4,
+          "y": 4,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 5,
+          "y": 4,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 6,
+          "y": 4,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 7,
+          "y": 4,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 8,
+          "y": 4,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 9,
+          "y": 4,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 10,
+          "y": 4,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 11,
+          "y": 4,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 12,
+          "y": 4,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 13,
+          "y": 4,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 0,
+          "y": 5,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 1,
+          "y": 5,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 2,
+          "y": 5,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 3,
+          "y": 5,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 4,
+          "y": 5,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 5,
+          "y": 5,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 6,
+          "y": 5,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 7,
+          "y": 5,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 8,
+          "y": 5,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 9,
+          "y": 5,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 10,
+          "y": 5,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 11,
+          "y": 5,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 12,
+          "y": 5,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 13,
+          "y": 5,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 0,
+          "y": 6,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 1,
+          "y": 6,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 2,
+          "y": 6,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 3,
+          "y": 6,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 4,
+          "y": 6,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 5,
+          "y": 6,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 6,
+          "y": 6,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 7,
+          "y": 6,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 8,
+          "y": 6,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 9,
+          "y": 6,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 10,
+          "y": 6,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 11,
+          "y": 6,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 12,
+          "y": 6,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 13,
+          "y": 6,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 0,
+          "y": 7,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 1,
+          "y": 7,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 2,
+          "y": 7,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 3,
+          "y": 7,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 4,
+          "y": 7,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 5,
+          "y": 7,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 6,
+          "y": 7,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 7,
+          "y": 7,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 8,
+          "y": 7,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 9,
+          "y": 7,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 10,
+          "y": 7,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 11,
+          "y": 7,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 12,
+          "y": 7,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 13,
+          "y": 7,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 0,
+          "y": 8,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 1,
+          "y": 8,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 2,
+          "y": 8,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 3,
+          "y": 8,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 4,
+          "y": 8,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 5,
+          "y": 8,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 6,
+          "y": 8,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 7,
+          "y": 8,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 8,
+          "y": 8,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 9,
+          "y": 8,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 10,
+          "y": 8,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 11,
+          "y": 8,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 12,
+          "y": 8,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 13,
+          "y": 8,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 0,
+          "y": 9,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 1,
+          "y": 9,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 2,
+          "y": 9,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 3,
+          "y": 9,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 4,
+          "y": 9,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 5,
+          "y": 9,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 6,
+          "y": 9,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 7,
+          "y": 9,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 8,
+          "y": 9,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 9,
+          "y": 9,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 10,
+          "y": 9,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 11,
+          "y": 9,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 12,
+          "y": 9,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 13,
+          "y": 9,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 0,
+          "y": 10,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 1,
+          "y": 10,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 2,
+          "y": 10,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 3,
+          "y": 10,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 4,
+          "y": 10,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 5,
+          "y": 10,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 6,
+          "y": 10,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 7,
+          "y": 10,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 8,
+          "y": 10,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 9,
+          "y": 10,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 10,
+          "y": 10,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 11,
+          "y": 10,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 12,
+          "y": 10,
+          "tileId": "wood-floor"
+        },
+        {
+          "x": 13,
+          "y": 10,
+          "tileId": "wood-floor"
+        }
+      ]
+    }
+  ]
+}

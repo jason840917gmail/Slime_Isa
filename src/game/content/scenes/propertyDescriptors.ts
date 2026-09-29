@@ -49,6 +49,7 @@ export interface NodeTypeDescriptor {
   readonly allowedChildTypes?: readonly string[];
   readonly properties: readonly PropertyDescriptor[];
   readonly signals?: readonly SignalDescriptor[];
+  readonly handlers?: readonly HandlerDescriptor[];
 }
 
 export interface ScriptDescriptor {
@@ -145,6 +146,23 @@ export function handlersForScript(scriptId: string | undefined, registry: Descri
     for (const handler of descriptor.handlers ?? []) merged.set(handler.id, handler);
   }
   return merged;
+}
+
+/** Built-in node-type handlers (e.g. AudioStreamPlayer.play) merged with the attached script's handlers. */
+export function handlersForNode(type: string, scriptId: string | undefined, registry: DescriptorRegistry): ReadonlyMap<string, HandlerDescriptor> {
+  const merged = new Map<string, HandlerDescriptor>();
+  for (const descriptor of nodeTypeChain(type, registry)) {
+    for (const handler of descriptor.handlers ?? []) merged.set(handler.id, handler);
+  }
+  for (const [id, handler] of handlersForScript(scriptId, registry)) merged.set(id, handler);
+  return merged;
+}
+
+/** Payload id a handler declares to accept (and ignore) any signal payload. */
+export const ANY_SIGNAL_PAYLOAD = 'Any';
+
+export function signalPayloadCompatible(signal: SignalDescriptor, handler: HandlerDescriptor): boolean {
+  return handler.payload === ANY_SIGNAL_PAYLOAD || (signal.payload ?? 'void') === (handler.payload ?? 'void');
 }
 
 export function capabilitiesForNode(type: string, scriptId: string | undefined, registry: DescriptorRegistry): ReadonlySet<string> {
@@ -256,6 +274,18 @@ const collisionBitsProperty = (key: string, label: string, defaultValue: number,
   defaultValue, serialized: true, inspector: 'number', overridable: true,
 });
 
+const AUDIO_PLAYER_HANDLERS: readonly HandlerDescriptor[] = [{ id: 'play', payload: ANY_SIGNAL_PAYLOAD }, { id: 'stop', payload: ANY_SIGNAL_PAYLOAD }];
+
+const audioPlayerProperties = (): PropertyDescriptor[] => [
+  { ...resource('stream', 'Audio Stream', ['audio']), required: true },
+  { key: 'bus', label: 'Audio Bus', value: { kind: 'enum', values: ['effects', 'music', 'ambience'] }, defaultValue: 'effects', serialized: true, inspector: 'select', overridable: true },
+  number('volume', 'Volume', 1, 0), number('pitch', 'Pitch', 1, 0.01), boolean('loop', 'Loop', false), boolean('autoplay', 'Autoplay', false),
+  { ...number('pitchRandomness', 'Pitch Randomness', 0, 0, 0.9), help: 'Each one-shot play offsets pitch by a random amount within +/- this value.' },
+  { key: 'polyphony', label: 'Max Overlapping Plays', value: { kind: 'number', integer: true, min: 1, max: 16 }, defaultValue: 4, serialized: true, inspector: 'number', overridable: true },
+  { ...number('minIntervalMs', 'Min Retrigger Interval (ms)', 0, 0), help: 'Plays requested sooner than this after the previous one are dropped.' },
+  { key: 'payloadFilter', label: 'Signal Payload Filter', help: 'Optional "field=value|value" test on the triggering signal payload (dotted field path). Only matching signals play or stop the stream.', value: { kind: 'string', pattern: /^$|^[A-Za-z0-9_]+(\.[A-Za-z0-9_]+)*=[^=]+$/ }, defaultValue: '', serialized: true, inspector: 'text', overridable: true },
+];
+
 export function createCoreDescriptorRegistry(scripts: readonly ScriptDescriptor[] = []): DescriptorRegistry {
   const nodeTypes: NodeTypeDescriptor[] = [
     { type: 'Node', properties: [] },
@@ -316,17 +346,12 @@ export function createCoreDescriptorRegistry(scripts: readonly ScriptDescriptor[
       { key: 'domain', label: 'Clock Domain', value: { kind: 'enum', values: ['physics', 'render'] }, defaultValue: 'render', serialized: true, inspector: 'select', overridable: true },
       { key: 'autoplay', label: 'Autoplay', value: { kind: 'string' }, serialized: true, inspector: 'text', overridable: true },
     ], signals: [{ id: 'animation_event', payload: 'AnimationEventEmission' }, { id: 'animation_finished', payload: 'string' }] },
-    { type: 'AudioStreamPlayer', extends: 'Node', properties: [
-      { ...resource('stream', 'Audio Stream', ['audio']), required: true },
-      { key: 'bus', label: 'Audio Bus', value: { kind: 'enum', values: ['effects', 'music'] }, defaultValue: 'effects', serialized: true, inspector: 'select', overridable: true },
-      number('volume', 'Volume', 1, 0), number('pitch', 'Pitch', 1, 0.01), boolean('loop', 'Loop', false), boolean('autoplay', 'Autoplay', false),
-    ], signals: [{ id: 'playback_finished' }] },
+    { type: 'AudioStreamPlayer', extends: 'Node', properties: audioPlayerProperties(), signals: [{ id: 'playback_finished' }], handlers: AUDIO_PLAYER_HANDLERS },
     { type: 'AudioStreamPlayer2D', extends: 'Node2D', properties: [
-      { ...resource('stream', 'Audio Stream', ['audio']), required: true },
-      { key: 'bus', label: 'Audio Bus', value: { kind: 'enum', values: ['effects', 'music'] }, defaultValue: 'effects', serialized: true, inspector: 'select', overridable: true },
-      number('volume', 'Volume', 1, 0), number('pitch', 'Pitch', 1, 0.01), boolean('loop', 'Loop', false), boolean('autoplay', 'Autoplay', false),
+      ...audioPlayerProperties(),
       number('maxDistance', 'Maximum Distance', 800, 0.01), number('panDistance', 'Pan Distance', 400, 0.01),
-    ], signals: [{ id: 'playback_finished' }] },
+      boolean('detached', 'Outlive Owner', false),
+    ], signals: [{ id: 'playback_finished' }], handlers: AUDIO_PLAYER_HANDLERS },
     { type: 'ScriptNode', extends: 'Node', properties: [] },
     { type: 'Control', extends: 'Node', capabilities: ['control'], properties: [
       vector('anchorMin', 'Minimum Anchor', [0, 0]), vector('anchorMax', 'Maximum Anchor', [0, 0]),
@@ -366,6 +391,12 @@ export function createCoreDescriptorRegistry(scripts: readonly ScriptDescriptor[
       { key: 'tone', label: 'Tone', value: { kind: 'enum', values: ['default', 'muted', 'accent', 'info', 'warning', 'danger', 'special'] }, defaultValue: 'accent', serialized: true, inspector: 'select', overridable: true },
       boolean('showValue', 'Show Value', false),
     ] },
+    { type: 'Slider', extends: 'Control', capabilities: ['value-control', 'focusable'], properties: [
+      number('value', 'Value', 0), number('min', 'Minimum', 0), number('max', 'Maximum', 1), number('step', 'Step', 0.05, 0.000001),
+      { key: 'label', label: 'Label', value: { kind: 'string' }, defaultValue: '', serialized: true, inspector: 'text', overridable: true },
+      { key: 'tone', label: 'Tone', value: { kind: 'enum', values: ['default', 'muted', 'accent', 'info', 'warning', 'danger', 'special'] }, defaultValue: 'accent', serialized: true, inspector: 'select', overridable: true },
+      boolean('disabled', 'Disabled', false),
+    ], signals: [{ id: 'value_changed', payload: 'UiSliderChange' }] },
     { type: 'Button', extends: 'Label', capabilities: ['button-control', 'focusable'], properties: [boolean('disabled', 'Disabled', false)], signals: [{ id: 'pressed' }] },
     { type: 'ItemList', extends: 'Control', capabilities: ['list-control', 'focusable'], properties: [
       { key: 'items', label: 'Items', value: { kind: 'json' }, defaultValue: [], serialized: true, inspector: 'json', overridable: true },

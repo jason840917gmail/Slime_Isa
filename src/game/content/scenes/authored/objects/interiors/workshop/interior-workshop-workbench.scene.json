@@ -1,0 +1,100 @@
+{
+  "version": 1,
+  "sceneId": "object.interior-workshop-workbench",
+  "rootNodeId": "body",
+  "nodes": [
+    {
+      "id": "body",
+      "name": "workbench",
+      "type": "StaticBody2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "collisionLayer": 1,
+        "collisionMask": 0,
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "body-shape",
+      "name": "BodyShape",
+      "type": "CollisionShape2D",
+      "parentId": "body",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "interior-workshop-workbench.shape"
+        },
+        "position": [
+          0,
+          -17.1445
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "body",
+      "order": 1,
+      "properties": {
+        "texture": {
+          "resourceId": "interior-workshop-workbench.sprite"
+        },
+        "frame": 8,
+        "origin": [
+          0.5,
+          1
+        ],
+        "scale": [
+          0.85,
+          0.85
+        ],
+        "visualOffset": [
+          0,
+          0
+        ],
+        "depthMode": "world-sorted",
+        "depthBand": "world-entities"
+      }
+    },
+    {
+      "id": "script",
+      "name": "WorkbenchScript",
+      "type": "ScriptNode",
+      "scriptId": "game.workbench",
+      "parentId": "body",
+      "order": 2,
+      "properties": {
+        "prompt": "Use workbench",
+        "recipeContext": "workbench",
+        "interactRadius": 90,
+        "badgeRise": 76.85
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "interior-workshop-workbench.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "sheet.interiors.workshop-crafting.8x8",
+      "frameWidth": 128,
+      "frameHeight": 128
+    },
+    {
+      "version": 1,
+      "resourceId": "interior-workshop-workbench.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 79.288,
+        "height": 27.489
+      }
+    }
+  ]
+}

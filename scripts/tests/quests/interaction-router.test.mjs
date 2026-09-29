@@ -18,6 +18,7 @@ class FakeText {
   text = '';
   visible = false;
   destroyed = false;
+  active = true;
 
   setOrigin() { return this; }
   setScrollFactor() { return this; }
@@ -28,15 +29,44 @@ class FakeText {
   destroy() { this.destroyed = true; }
 }
 
+/** Minimal chainable stand-in for the badge graphics and container. */
+class FakeObject {
+  x = 0;
+  y = 0;
+  visible = false;
+  active = true;
+  constructor(children = []) { this.children = children; }
+  fillStyle() { return this; }
+  fillRoundedRect() { return this; }
+  lineStyle() { return this; }
+  strokeRoundedRect() { return this; }
+  setOrigin() { return this; }
+  setDepth() { return this; }
+  setScale() { return this; }
+  setAlpha() { return this; }
+  setVisible(value) { this.visible = value; return this; }
+  setPosition(x, y) { this.x = x; this.y = y; return this; }
+  destroy() { this.active = false; }
+}
+
 function harness() {
   const prompt = new FakeText();
+  let texts = 0;
+  let badge;
   const scene = {
     cameras: { main: { width: 1280, height: 720 } },
-    add: { text: () => prompt },
+    add: {
+      // The first text is the shared prompt; later ones belong to the key badge.
+      text: () => (texts++ === 0 ? prompt : new FakeObject()),
+      graphics: () => new FakeObject(),
+      container: (_x, _y, children) => (badge = new FakeObject(children)),
+    },
+    tweens: { add: () => ({ remove: () => {} }) },
+    time: { now: 0 },
     scale: { on: () => {}, off: () => {} },
     events: { once: () => {} },
   };
-  return { router: new InteractionRouter(scene), prompt };
+  return { router: new InteractionRouter(scene), prompt, badge: () => badge };
 }
 
 test('the router displays and executes only the highest-priority candidate', () => {
@@ -60,6 +90,32 @@ test('the router displays and executes only the highest-priority candidate', () 
   assert.equal(prompt.text, 'Low');
   router.handleInteract();
   assert.deepEqual(executed, ['high', 'low']);
+  router.destroy();
+});
+
+test('a candidate anchor shows the key badge above its target and a secondary action runs on G', () => {
+  const { router, prompt, badge } = harness();
+  const executed = [];
+  router.register('bench', {
+    getCandidate: () => ({
+      id: 'bench:one', prompt: '[F] Use workbench', priority: 50,
+      anchor: () => ({ x: 320, y: 200 }),
+      secondary: { prompt: '[G] Pick up', execute: () => { executed.push('pick-up'); return true; } },
+      execute: () => { executed.push('use'); return true; },
+    }),
+  });
+
+  router.update();
+  assert.match(prompt.text, /\[F\] Use workbench.*\[G\] Pick up/);
+  assert.equal(badge().visible, true);
+  assert.equal(badge().x, 320);
+  assert.equal(router.handleSecondary(), true);
+  assert.deepEqual(executed, ['pick-up']);
+
+  router.setSuppressed(true);
+  assert.equal(badge().visible, false);
+  assert.equal(prompt.visible, false);
+  assert.equal(router.hasCandidate(), false);
   router.destroy();
 });
 

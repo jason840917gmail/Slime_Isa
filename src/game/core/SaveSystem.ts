@@ -15,6 +15,7 @@ import {
 import { playerInventory } from '../systems/Inventory';
 import { questTracker } from '../quests/QuestTracker';
 import { worldProgress } from '../features/progression/WorldProgress';
+import { storyProgress } from '../features/progression/StoryProgress';
 import { gameEvents } from './EventBus';
 import { gameState } from './GameState';
 import { queueRunNavigation, type RunNavigationKind } from '../features/world-navigation/AreaNavigation';
@@ -56,6 +57,7 @@ class SaveSystem {
     gameEvents.on('weapon.equipped', this.scheduleRecovery, this);
     gameEvents.on('quest.changed', this.scheduleRecovery, this);
     gameEvents.on('world.progress.changed', this.scheduleRecovery, this);
+    gameEvents.on('story.changed', this.scheduleRecovery, this);
     window.addEventListener('pagehide', this.saveOnPageHide);
   }
 
@@ -81,6 +83,7 @@ class SaveSystem {
       quests: questTracker.serialize(),
       location: { ...location },
       world: worldProgress.serialize(),
+      story: storyProgress.serialize(),
       playTimeMs: this.playTimeBaseMs + Math.max(0, Date.now() - this.playTimeStartedAt),
     };
   }
@@ -93,9 +96,12 @@ class SaveSystem {
     gameState.load(data.player);
     playerInventory.load(data.inventory);
     worldProgress.load(data.world);
+    storyProgress.load(data.story);
     questTracker.restoreKnownFacts({
       discoveredAreas: data.world.discoveredAreas,
       defeatedBossIds: data.world.defeatedBossIds,
+      talkedNpcIds: data.story?.talkedNpcIds,
+      worldFlags: data.story?.worldFlags,
     });
     // WorldScene calls questTracker.start() after quest notification listeners
     // exist. That boundary evaluates prerequisites, preserving startup events.

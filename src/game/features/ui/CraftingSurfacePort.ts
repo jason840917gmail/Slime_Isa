@@ -26,6 +26,8 @@ export class CraftingSurfacePort implements UiSurfacePort {
   private status?: string;
   private openValue = false;
   private stopped = false;
+  /** Recipes of the station (or portable list) this modal was last opened for. */
+  private activeRecipes?: readonly RecipeDef[];
 
   constructor(private readonly options: CraftingSurfaceOptions) {
     this.modalHandle = options.modalStack.register('crafting', {
@@ -38,10 +40,13 @@ export class CraftingSurfacePort implements UiSurfacePort {
   }
 
   isOpen(): boolean { return this.openValue; }
-  toggle(): void { if (this.openValue) this.close(); else this.open(); }
+  toggle(recipes?: readonly RecipeDef[]): void { if (this.openValue) this.close(); else this.open(recipes); }
 
-  open(): void {
+  /** Opens the modal; `recipes` selects the station's list (defaults to the configured list). */
+  open(recipes?: readonly RecipeDef[]): void {
     if (this.stopped || this.openValue) return;
+    if (recipes) this.activeRecipes = recipes;
+    if (!this.recipes().some((recipe) => recipe.id === this.selectedRecipeId)) this.selectedRecipeId = undefined;
     this.selectedRecipeId ??= this.recipes()[0]?.id;
     this.status = undefined;
     this.openValue = true;
@@ -73,11 +78,17 @@ export class CraftingSurfacePort implements UiSurfacePort {
       offsetMax: [Math.round(width / 2), Math.round(height / 2)],
       recipes: recipes.map((entry) => {
         const item = itemRegistry.get(entry.output.itemId);
-        const available = this.options.service.quote(entry, 1).status === 'ready';
+        const status = this.options.service.quote(entry, 1).status;
+        // Quest-taught recipes read as locked (greyed, craft disabled) until learned.
+        const locked = status === 'not-learned';
+        const state = locked ? 'Not learned yet' : status === 'ready' ? 'Ready to craft' : 'Materials needed';
         return {
           id: entry.id,
-          label: `${entry.name}\n${available ? 'Ready to craft' : 'Materials needed'}`,
-          ...(item ? { metadata: { iconKey: item.icon, iconFrame: item.iconFrame ?? 0, showLabel: true } } : {}),
+          label: `${entry.name}\n${state}`,
+          ...(item || locked ? { metadata: {
+            ...(item ? { iconKey: item.icon, iconFrame: item.iconFrame ?? 0, showLabel: true } : {}),
+            ...(locked ? { locked: true } : {}),
+          } } : {}),
         };
       }),
       selectedIndex: recipe ? selectedIndex : -1,
@@ -140,7 +151,7 @@ export class CraftingSurfacePort implements UiSurfacePort {
     this.listeners.clear();
   }
 
-  private recipes(): readonly RecipeDef[] { return this.options.recipes ?? RECIPES; }
+  private recipes(): readonly RecipeDef[] { return this.activeRecipes ?? this.options.recipes ?? RECIPES; }
 
   private quote(recipe: RecipeDef): CraftQuote {
     const max = this.options.service.quote(recipe, 1).maxCraftable;
@@ -175,6 +186,7 @@ function detailsFor(recipe: RecipeDef, quote: CraftQuote): string {
 function reasonText(reason: CraftFailureReason): string {
   switch (reason) {
     case 'invalid-recipe': return 'This recipe is unavailable.';
+    case 'not-learned': return 'Not learned yet — a quest will teach it.';
     case 'unique-owned': return 'You already have this item.';
     case 'missing-materials': return 'More materials are needed.';
     case 'inventory-full': return 'Make room in your inventory first.';

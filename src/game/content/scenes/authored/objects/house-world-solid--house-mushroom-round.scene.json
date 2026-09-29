@@ -1,0 +1,98 @@
+{
+  "version": 1,
+  "sceneId": "object.house-mushroom-round",
+  "rootNodeId": "body",
+  "nodes": [
+    {
+      "id": "body",
+      "name": "mushroom-red-round",
+      "type": "StaticBody2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "collisionLayer": 1,
+        "collisionMask": 0,
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "body-shape",
+      "name": "BodyShape",
+      "type": "CollisionShape2D",
+      "parentId": "body",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "house-mushroom-round.shape"
+        },
+        "position": [
+          0,
+          -122.5
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "body",
+      "order": 1,
+      "properties": {
+        "texture": {
+          "resourceId": "house-mushroom-round.sprite"
+        },
+        "frame": 1,
+        "origin": [
+          0.5,
+          1
+        ],
+        "scale": [
+          1,
+          1
+        ],
+        "visualOffset": [
+          0,
+          0
+        ],
+        "depthMode": "world-sorted",
+        "depthBand": "world-entities",
+        "occlusionBounds": {
+          "width": 280,
+          "height": 205,
+          "offsetX": 20,
+          "offsetY": 21
+        },
+        "depthBounds": {
+          "width": 320,
+          "height": 64,
+          "offsetX": 0,
+          "offsetY": 222
+        }
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "house-mushroom-round.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "sheet.houses.mushroom.2x1",
+      "frameWidth": 320,
+      "frameHeight": 320
+    },
+    {
+      "version": 1,
+      "resourceId": "house-mushroom-round.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 240,
+        "height": 165
+      }
+    }
+  ]
+}

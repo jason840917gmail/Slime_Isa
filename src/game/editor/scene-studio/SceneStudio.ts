@@ -23,7 +23,8 @@ import { resourceConsumers } from './ResourceBrowser';
 import { SceneClipboard } from './SceneClipboard';
 import { sceneCommands, sceneMutationCommand } from './SceneCommand';
 import { sceneCreationEntries } from './SceneCreationDialog';
-import { buildExplorerTree, explorerFolderKeysFor, renderExplorerTree, SCENE_DRAG_TYPE } from './ExplorerTree';
+import { explorerPortraitStyle } from './ExplorerPortraits';
+import { buildExplorerTree, CONTENT_MOVE_DRAG_TYPE, explorerFolderKeysFor, familyFileName, renderExplorerTree, SCENE_DRAG_TYPE } from './ExplorerTree';
 import { SceneDocumentState } from './SceneDocumentState';
 import { ResourceDocumentState } from './ResourceDocumentState';
 import { renderSceneInspector, sceneInspectorModel, type InspectorProperty, type SceneInspectorModel } from './SceneInspector';
@@ -39,7 +40,7 @@ import { resolveSourceBoundsFromWorld, resolveWorldOcclusionRectangle, type Sour
 import type { SpriteBoundsGeometry } from '../../infrastructure/phaser-nodes/Sprite2DNode';
 import { ScenePreview } from './ScenePreview';
 import { formatSceneStudioRoute, parseSceneStudioRoute } from './SceneStudioRoute';
-import { renderSceneTreePanel, sceneTreeRows, type SceneTreeRow } from './SceneTreePanel';
+import { planSceneTreeDrop, renderSceneTreePanel, sceneTreeDropZone, sceneTreeEntry, sceneTreeRows, type SceneTreeDropZone, type SceneTreeRow } from './SceneTreePanel';
 import {
   composeSceneNodes,
   composedBounds,
@@ -91,6 +92,9 @@ interface LoadedShapeResource {
  * One open document tab, like Godot's scene tabs. The controller's live fields
  * mirror the active tab; `stashActiveTab` writes them back before switching.
  */
+/** Drag payload type for scene tree rows being reparented or reordered. */
+const TREE_ROW_DRAG_TYPE = 'application/x-scene-studio-tree-row';
+
 interface StudioTab {
   readonly key: string;
   readonly kind: 'scene' | 'resource';
@@ -229,6 +233,8 @@ export class SceneStudioController {
   private lastShapeEdit?: ResourceId;
   private message = 'Loading authored content…';
   private creationSearch?: string;
+  /** Set when the next render should put the cursor in the inspector's name field (new node, F2, double-click). */
+  private focusNameField = false;
   /** Search text of the open "Instance child scene" dialog; undefined while closed. */
   private instanceSearch?: string;
   private explorerFilter = '';
@@ -367,6 +373,7 @@ export class SceneStudioController {
       const key = event.target instanceof Element ? event.target.closest<HTMLElement>('[data-scene-tree-key]')?.dataset.sceneTreeKey : undefined;
       const row = key ? this.rows.find((candidate) => candidate.key === key) : undefined;
       if (row?.kind === 'instance') void this.open(row.sceneId).catch((error: unknown) => this.fail(error));
+      else if (row?.kind === 'node' && !row.readOnly) this.startRename();
     }, { signal });
     this.container.addEventListener('keydown', (event) => {
       if (!(event.target instanceof HTMLElement) || event.target.getAttribute('role') !== 'treeitem') return;
@@ -388,7 +395,17 @@ export class SceneStudioController {
       next.focus();
       next.click();
     }, { signal });
+    this.container.addEventListener('keydown', (event) => {
+      if (!(event.target instanceof HTMLInputElement) || event.target.dataset.nodeName === undefined) return;
+      if (event.key === 'Enter') { event.preventDefault(); event.target.blur(); }
+      else if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); this.render(); }
+    }, { signal });
     window.addEventListener('keydown', (event) => {
+      if (event.key === 'F2' && this.state && !isEditableTarget(event.target) && this.creationSearch === undefined && this.instanceSearch === undefined && !this.fileDialog) {
+        event.preventDefault();
+        this.startRename();
+        return;
+      }
       if ((this.state || this.resourceState) && handleStudioHistoryShortcut(event, () => this.undo(), () => this.redo())) { this.render(); return; }
       if (event.key === 'Escape' && (this.creationSearch !== undefined || this.instanceSearch !== undefined || this.fileDialog)) { this.creationSearch = undefined; this.instanceSearch = undefined; this.fileDialog = undefined; this.render(); return; }
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's' && !this.fileDialog && (this.state || this.resourceState)) { event.preventDefault(); void this.save(); return; }
@@ -406,16 +423,43 @@ export class SceneStudioController {
     }, { signal });
   }
 
-  /** Explorer scene rows drag into the scene tree (as children of the row under the cursor) or the viewport. */
+  /**
+   * Explorer scene rows drag into the scene tree (as children of the row under the cursor) or the viewport.
+   * Any explorer row also drops on an explorer folder to move its file there.
+   */
   private bindSceneDrag(signal: AbortSignal): void {
     const clearTargets = (): void => { for (const element of this.container.querySelectorAll('.is-drop-target')) element.classList.remove('is-drop-target'); };
     const treePanel = (event: DragEvent): Element | null => event.target instanceof Element ? event.target.closest('.scene-tree-panel') : null;
+    const explorerDrop = (event: DragEvent): HTMLElement | null => event.target instanceof Element
+      ? event.target.closest<HTMLElement>('.scene-explorer [data-explorer-folder]')?.querySelector<HTMLElement>(':scope > [data-explorer-drop]') ?? null
+      : null;
     this.container.addEventListener('dragstart', (event) => {
-      const item = event.target instanceof Element ? event.target.closest<HTMLElement>('[data-scene-id][draggable="true"]') : null;
-      if (!item?.dataset.sceneId || !event.dataTransfer) return;
-      event.dataTransfer.setData(SCENE_DRAG_TYPE, item.dataset.sceneId);
-      event.dataTransfer.setData('text/plain', item.dataset.sceneId);
-      event.dataTransfer.effectAllowed = 'copy';
+      const row = event.target instanceof Element ? event.target.closest<HTMLElement>('.scene-explorer [data-explorer-item][draggable="true"]') : null;
+      const kind = row?.dataset.sceneId ? 'scene' : row?.dataset.resourceId ? 'resource' : undefined;
+      const id = row?.dataset.sceneId ?? row?.dataset.resourceId;
+      if (!kind || !id || !event.dataTransfer) return;
+      event.dataTransfer.setData(CONTENT_MOVE_DRAG_TYPE, JSON.stringify({ kind, id }));
+      event.dataTransfer.setData('text/plain', id);
+      if (kind === 'scene') event.dataTransfer.setData(SCENE_DRAG_TYPE, id);
+      event.dataTransfer.effectAllowed = kind === 'scene' ? 'copyMove' : 'move';
+    }, { signal });
+    this.container.addEventListener('dragover', (event) => {
+      if (!event.dataTransfer?.types.includes(CONTENT_MOVE_DRAG_TYPE)) return;
+      const drop = explorerDrop(event);
+      if (!drop) return;
+      event.preventDefault();
+      event.dataTransfer.dropEffect = 'move';
+      const folder = drop.closest('[data-explorer-folder]');
+      if (folder && !folder.classList.contains('is-drop-target')) { clearTargets(); folder.classList.add('is-drop-target'); }
+    }, { signal });
+    this.container.addEventListener('drop', (event) => {
+      const drop = explorerDrop(event);
+      const payload = event.dataTransfer?.getData(CONTENT_MOVE_DRAG_TYPE);
+      if (!drop || !payload) return;
+      event.preventDefault();
+      clearTargets();
+      const { kind, id } = JSON.parse(payload) as { kind: 'scene' | 'resource'; id: string };
+      void this.moveContent(kind, id, drop.dataset.explorerDrop ?? '', drop.dataset.explorerFamily);
     }, { signal });
     this.container.addEventListener('dragover', (event) => {
       if (!this.state || !event.dataTransfer?.types.includes(SCENE_DRAG_TYPE) || !treePanel(event)) return;
@@ -432,6 +476,69 @@ export class SceneStudioController {
       void this.instantiateScene(sceneId, { parentId: this.treeDropParent(event.target instanceof Element ? event.target : null) });
     }, { signal });
     this.container.addEventListener('dragend', clearTargets, { signal });
+    this.bindTreeRowDrag(signal);
+  }
+
+  /**
+   * Scene tree rows drag onto other rows, like Godot's scene dock: the middle
+   * of a node row makes the dragged entry its last child, the top or bottom
+   * edge places it before or after that row. Each drop is one undoable command.
+   */
+  private bindTreeRowDrag(signal: AbortSignal): void {
+    let draggedKey: string | undefined;
+    const rowAt = (event: DragEvent): { element: HTMLElement; row: SceneTreeRow } | undefined => {
+      const element = event.target instanceof Element ? event.target.closest<HTMLElement>('.scene-tree-panel [data-scene-tree-key]') : null;
+      const row = element ? this.rows.find((candidate) => candidate.key === element.dataset.sceneTreeKey) : undefined;
+      return element && row ? { element, row } : undefined;
+    };
+    const plan = (event: DragEvent): { element: HTMLElement; zone: SceneTreeDropZone; dragged: SceneTreeRow; parentId: AuthoredNodeId; order: number } | undefined => {
+      const dragged = draggedKey ? this.rows.find((candidate) => candidate.key === draggedKey) : undefined;
+      const over = rowAt(event);
+      const draggedEntry = dragged ? sceneTreeEntry(dragged) : undefined;
+      const targetEntry = over ? sceneTreeEntry(over.row) : undefined;
+      if (!this.state || !dragged || !over || !draggedEntry || !targetEntry) return undefined;
+      const bounds = over.element.getBoundingClientRect();
+      const zone = sceneTreeDropZone(event.clientY - bounds.top, bounds.height, targetEntry);
+      const placement = planSceneTreeDrop(this.state.document, draggedEntry, targetEntry, zone);
+      return placement ? { element: over.element, zone, dragged, ...placement } : undefined;
+    };
+    this.container.addEventListener('dragstart', (event) => {
+      const over = rowAt(event);
+      if (!over || !event.dataTransfer || over.element.getAttribute('draggable') !== 'true') return;
+      draggedKey = over.row.key;
+      event.dataTransfer.setData(TREE_ROW_DRAG_TYPE, over.row.key);
+      event.dataTransfer.effectAllowed = 'move';
+    }, { signal });
+    const clearZones = (): void => {
+      for (const element of this.container.querySelectorAll('.is-drop-before, .is-drop-inside, .is-drop-after')) element.classList.remove('is-drop-before', 'is-drop-inside', 'is-drop-after');
+    };
+    this.container.addEventListener('dragover', (event) => {
+      if (!event.dataTransfer?.types.includes(TREE_ROW_DRAG_TYPE)) return;
+      const drop = plan(event);
+      clearZones();
+      if (!drop) return;
+      event.preventDefault();
+      event.dataTransfer.dropEffect = 'move';
+      drop.element.classList.add(`is-drop-${drop.zone}`);
+    }, { signal });
+    this.container.addEventListener('drop', (event) => {
+      if (!event.dataTransfer?.types.includes(TREE_ROW_DRAG_TYPE)) return;
+      const drop = plan(event);
+      clearZones();
+      draggedKey = undefined;
+      if (!drop || !this.state) return;
+      event.preventDefault();
+      try {
+        const { dragged } = drop;
+        this.state.execute(dragged.kind === 'node'
+          ? sceneCommands.reparentNode(dragged.nodeId, drop.parentId, drop.order)
+          : sceneCommands.moveInstance(dragged.instanceId, drop.parentId, drop.order));
+        const parentName = this.state.document.nodes.find((node) => node.id === drop.parentId)?.name ?? drop.parentId;
+        this.message = `Moved ${dragged.name} ${drop.zone === 'inside' ? 'into' : 'under'} ${parentName}`;
+      } catch (error) { this.message = error instanceof Error ? error.message : String(error); }
+      this.render();
+    }, { signal });
+    this.container.addEventListener('dragend', () => { draggedKey = undefined; clearZones(); }, { signal });
   }
 
   // -------------------------------------------------------------------------
@@ -1155,6 +1262,8 @@ export class SceneStudioController {
       this.state.execute(sceneCommands.addNode({ id, name, type, ...(scriptId ? { scriptId } : {}), parentId, order, properties: {} } as SceneNodeDocument));
       this.creationSearch = undefined;
       this.selectedKey = `:${id}`;
+      this.focusNameField = true;
+      this.message = `Added ${name} · type a name and press Enter`;
       this.render();
       return;
     }
@@ -1190,6 +1299,7 @@ export class SceneStudioController {
     if (!(event.target instanceof HTMLInputElement) && !(event.target instanceof HTMLSelectElement) && !(event.target instanceof HTMLTextAreaElement)) return;
     if (event.target.dataset.creationSearch !== undefined || event.target.dataset.explorerFilter !== undefined || event.target.dataset.instanceSearch !== undefined) return;
     if (event.target.dataset.fileField !== undefined) { this.updateFileDialogField(event.target); return; }
+    if (event.target.dataset.nodeName !== undefined) { this.renameSelection(event.target.value); return; }
     const keyRow = event.target.closest<HTMLElement>('[data-key-property]');
     if (keyRow?.dataset.keyNode && keyRow.dataset.keyProperty) {
       try { this.animationPanel.keyNodeProperty(keyRow.dataset.keyNode, keyRow.dataset.keyProperty, readAnimationValue(keyRow, keyRow.dataset.kind as AnimationValueKind)); }
@@ -1638,9 +1748,12 @@ export class SceneStudioController {
       ? this.state?.document.instances.find((candidate) => candidate.instanceId === target.instanceId)
       : undefined;
     const model = sceneInspectorModel(target.node, this.registry, instance);
+    const rename = target.mode === 'local' ? { name: target.node.name, label: 'Node name' }
+      : instance ? { name: instance.name, label: 'Instance name' } : undefined;
     let html = renderSceneInspector(model, {
       jsonControl: (property) => this.renderJsonControl(model, property, target.mode === 'read-only'),
       selectOptions: (source) => this.jsonFormContext().options(source, {}),
+      ...(rename ? { rename } : {}),
     });
     const row = this.rows.find((candidate) => candidate.key === this.selectedKey);
     if (target.mode !== 'local') {
@@ -2157,10 +2270,11 @@ export class SceneStudioController {
       isOpen: (key) => this.explorerOpen.has(key),
       isCurrent: (item) => item.kind === 'scene' ? item.id === state?.sceneId : item.id === resource?.document.resourceId,
       escape: escapeHtml,
+      portraitStyle: (item) => item.portrait ? explorerPortraitStyle(item.portrait) : undefined,
     });
     const canCopy = Boolean(state && selectedRow?.kind === 'node' && !selectedRow.readOnly && selectedRow.nodeId !== state.document.rootNodeId);
     const treePanel = state
-      ? renderSceneTreePanel(this.rows, this.selectedKey).replace('<button type="button" data-scene-add', `<span class="scene-tree-actions"><button type="button" data-action="copy-node" ${canCopy ? '' : 'disabled'} aria-label="Copy node" title="Copy (Ctrl+C)">⧉</button><button type="button" data-action="paste-node" ${this.clipboard.hasContent ? '' : 'disabled'} aria-label="Paste node" title="Paste (Ctrl+V)">⎘</button><button type="button" data-action="delete-node" ${canCopy || (selectedRow?.kind === 'instance' && (selectedRow.instancePath ?? []).length === 0) ? '' : 'disabled'} aria-label="Delete selection" title="Delete (Del)">⌫</button><button type="button" data-action="instance-scene" aria-label="Instance child scene" title="Instance child scene (Ctrl+Shift+A) · or drag a scene from the explorer">⛓</button></span><button type="button" data-scene-add`)
+      ? renderSceneTreePanel(this.rows, this.selectedKey, this.state?.document.rootNodeId).replace('<button type="button" data-scene-add', `<span class="scene-tree-actions"><button type="button" data-action="copy-node" ${canCopy ? '' : 'disabled'} aria-label="Copy node" title="Copy (Ctrl+C)">⧉</button><button type="button" data-action="paste-node" ${this.clipboard.hasContent ? '' : 'disabled'} aria-label="Paste node" title="Paste (Ctrl+V)">⎘</button><button type="button" data-action="delete-node" ${canCopy || (selectedRow?.kind === 'instance' && (selectedRow.instancePath ?? []).length === 0) ? '' : 'disabled'} aria-label="Delete selection" title="Delete (Del)">⌫</button><button type="button" data-action="instance-scene" aria-label="Instance child scene" title="Instance child scene (Ctrl+Shift+A) · or drag a scene from the explorer">⛓</button></span><button type="button" data-scene-add`)
       : resource ? `<section class="scene-tree-panel scene-empty"><p>Resource <strong>${escapeHtml(resource.document.resourceId)}</strong> · ${escapeHtml(resource.document.kind)}</p></section>`
         : '<section class="scene-tree-panel scene-empty"><p>Open a scene or resource from the project explorer.</p></section>';
     this.container.innerHTML = `<main class="scene-studio" data-scene-studio><header class="scene-topbar"><div><span>FIELD CARTOGRAPHER / UNIVERSAL GRAPH</span><h1>Scene Studio</h1></div><div class="scene-command-bar"><button type="button" data-action="undo" ${!canUndo ? 'disabled' : ''}>Undo</button><button type="button" data-action="redo" ${!canRedo ? 'disabled' : ''}>Redo</button><button type="button" class="scene-save" data-action="save" ${!dirty ? 'disabled' : ''}>${dirty ? 'Save changes' : 'Saved'}</button></div></header><aside class="scene-explorer" aria-label="Project explorer"><label><span>EXPEDITION INDEX</span><input type="search" data-explorer-filter value="${escapeHtml(this.explorerFilter)}" placeholder="Filter scenes and resources" aria-label="Filter scenes and resources" /></label><nav aria-label="Project files"><div class="scene-explorer-create"><button type="button" data-action="new-scene" title="New scene (in the last folder you opened)">＋ Scene</button><button type="button" data-action="new-folder" title="New folder (in the last folder you opened)">＋ Folder</button></div><h2><span>Project</span><small><em data-explorer-count="scene">${scenes.length}</em> scenes · <em data-explorer-count="resource">${resources.length}</em> resources</small></h2>${explorerTree || '<p>No scene documents or resources</p>'}</nav></aside><section class="scene-main">${this.renderTabs()}<section class="scene-workbench${animation ? ' has-animation-dock' : ''}">${treePanel}<section data-viewport-slot></section>${this.renderInspector()}${animation ? '<section data-animation-slot></section>' : ''}</section></section><footer class="scene-status" role="status"><span class="${state?.repairMode ? 'is-warning' : ''}">${escapeHtml(this.message)}</span><span>${state ? `${state.document.nodes.length} NODES · ${state.document.instances.length} INSTANCES${dirty ? ' · UNSAVED' : ''}` : resource ? `${escapeHtml(resource.document.kind.toUpperCase())} RESOURCE${dirty ? ' · UNSAVED' : ''}` : 'AUTHORING SYSTEM READY'}</span></footer>${this.creationSearch !== undefined ? this.renderCreationDialog() : ''}${this.instanceSearch !== undefined ? this.renderInstanceDialog() : ''}${this.fileDialog ? this.renderFileDialog() : ''}</main>`;
@@ -2184,13 +2298,23 @@ export class SceneStudioController {
       this.liveViewport.frameAll();
     }
     const instanceSearch = this.container.querySelector<HTMLInputElement>('[data-instance-search]');
+    const creationSearch = this.container.querySelector<HTMLInputElement>('[data-creation-search]');
     const fileName = this.container.querySelector<HTMLInputElement>('[data-file-field="name"]');
-    if (fileName) {
+    const nameField = this.focusNameField ? this.container.querySelector<HTMLInputElement>('[data-node-name]') : null;
+    this.focusNameField = false;
+    if (nameField && !fileName && !instanceSearch && !creationSearch) {
+      nameField.focus();
+      nameField.select();
+    } else if (fileName) {
       fileName.focus();
       fileName.setSelectionRange(fileName.value.length, fileName.value.length);
     } else if (instanceSearch) {
       instanceSearch.focus();
       instanceSearch.setSelectionRange(instanceSearch.value.length, instanceSearch.value.length);
+    } else if (creationSearch) {
+      // the add-node dialog re-renders on every keystroke; keep typing in its search box
+      creationSearch.focus();
+      creationSearch.setSelectionRange(creationSearch.value.length, creationSearch.value.length);
     } else if (focused) {
       const element = this.container.querySelector<HTMLElement>(focused);
       element?.focus();
@@ -2222,6 +2346,68 @@ export class SceneStudioController {
       const badge = folder.querySelector(':scope > button [data-explorer-folder-count]');
       if (badge) badge.textContent = String(matching);
     }
+  }
+
+  /**
+   * Moves a document's file into `folder`; dropped on a family group it is also
+   * renamed into that family so it shows inside the group. Refused while any tab
+   * has unsaved edits: the dev server reloads the studio when content files move.
+   */
+  private async moveContent(kind: 'scene' | 'resource', id: string, folder: string, family?: string): Promise<void> {
+    const item = this.catalog.find((entry) => entry.kind === kind && entry.id === id);
+    if (!item) return;
+    const current = item.relativePath.slice(item.relativePath.lastIndexOf('/') + 1);
+    const name = family ? familyFileName(item.relativePath, family) : current;
+    if (item.relativePath === (folder ? `${folder}/${name}` : name)) return;
+    this.stashActiveTab();
+    if (this.tabs.some(tabDirty)) {
+      this.message = `Save or close unsaved tabs before moving ${current}; the studio reloads after a file moves.`;
+      this.render();
+      return;
+    }
+    try {
+      const moved = await this.repository.move(kind, id, folder, name === current ? undefined : name);
+      this.catalog = this.catalog.map((entry) => entry.kind === kind && entry.id === id ? { ...entry, relativePath: moved.relativePath } : entry);
+      for (const tab of this.tabs) {
+        if (tab.kind !== kind || tab.id !== id) continue;
+        if (kind === 'scene') tab.relativePath = moved.relativePath; else tab.resourceRelativePath = moved.relativePath;
+      }
+      const active = this.activeTab();
+      if (active?.kind === kind && active.id === id) {
+        if (kind === 'scene') this.relativePath = moved.relativePath; else this.resourceRelativePath = moved.relativePath;
+      }
+      if (folder) this.explorerOpen.add(folder);
+      this.revealInExplorer(moved.relativePath);
+      this.message = family ? `Moved ${current} into the ${family} group as ${name}` : `Moved ${current} to ${folder || 'the project root'}`;
+      this.render();
+    } catch (error) { this.fail(error); }
+  }
+
+  /** Focuses the selected node's (or instance's) name field in the inspector, like Godot's F2. */
+  private startRename(): void {
+    const field = this.container.querySelector<HTMLInputElement>('[data-node-name]');
+    if (field) { field.focus(); field.select(); return; }
+    this.message = 'Select a node or instance of this scene to rename it';
+    this.render();
+  }
+
+  /** Renames the selected node or top-level instance as one undoable command. */
+  private renameSelection(value: string): void {
+    const state = this.state;
+    const row = this.rows.find((candidate) => candidate.key === this.selectedKey);
+    if (!state || !row) return;
+    const name = value.trim();
+    try {
+      if (!name) throw new Error('A name cannot be empty');
+      if (row.kind === 'node' && !row.readOnly) {
+        const node = state.document.nodes.find((candidate) => candidate.id === row.nodeId);
+        if (node && node.name !== name) { state.execute(sceneCommands.renameNode(row.nodeId, name)); this.message = `Renamed ${node.name} to ${name}`; }
+      } else if (row.kind === 'instance' && (row.instancePath ?? []).length === 0) {
+        const instance = state.document.instances.find((candidate) => candidate.instanceId === row.instanceId);
+        if (instance && instance.name !== name) { state.execute(sceneCommands.renameInstance(row.instanceId, name)); this.message = `Renamed ${instance.name} to ${name}`; }
+      }
+    } catch (error) { this.message = error instanceof Error ? error.message : String(error); }
+    this.render();
   }
 
   /** Expands every folder containing the document so the open file is visible. */

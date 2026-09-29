@@ -10,7 +10,8 @@
     "resources",
     "inventory",
     "character",
-    "worldNavigation"
+    "worldNavigation",
+    "rest"
   ],
   "properties": {
     "$schema": {
@@ -47,6 +48,20 @@
         "edgeTransitionGraceMs": {
           "type": "integer",
           "minimum": 0
+        }
+      }
+    },
+    "rest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sleepHpRegenPerSec"
+      ],
+      "properties": {
+        "sleepHpRegenPerSec": {
+          "description": "HP restored per second while the player sleeps in a bed.",
+          "type": "number",
+          "exclusiveMinimum": 0
         }
       }
     }

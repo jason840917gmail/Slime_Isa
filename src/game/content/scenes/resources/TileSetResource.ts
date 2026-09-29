@@ -1,6 +1,6 @@
 import type { TileSetResourceDocument } from './types';
 
-export type TileFrameSelection = 'seeded-hash' | 'ground-sheet-region' | 'sheet-order';
+export type TileFrameSelection = 'seeded-hash' | 'ground-sheet-region' | 'sheet-order' | 'sheet-wrap';
 
 export interface TileSetTile {
   readonly assetIds: readonly string[];
@@ -8,6 +8,8 @@ export interface TileSetTile {
   readonly physics: null | {
     readonly body: 'static';
     readonly inset?: Readonly<Partial<Record<'left' | 'right' | 'top' | 'bottom', number>>>;
+    /** Named collision layer for this tile's bodies (default: the tile layer node's layer, `world`). */
+    readonly layer?: string;
   };
   readonly allowsDecorations: boolean;
   readonly tags: readonly string[];
@@ -28,6 +30,7 @@ function finiteNonNegative(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value) && value >= 0;
 }
 
+
 export function parseTileSetResource(document: TileSetResourceDocument): ResolvedTileSetResource {
   const tiles: Record<string, TileSetTile> = {};
   for (const [tileId, value] of Object.entries(document.tiles)) {
@@ -38,7 +41,7 @@ export function parseTileSetResource(document: TileSetResourceDocument): Resolve
       throw new Error(`Tile '${tileId}' in '${document.resourceId}' requires non-empty assetIds`);
     }
     const selection = value.selection;
-    if (!['seeded-hash', 'ground-sheet-region', 'sheet-order'].includes(String(selection))) {
+    if (!['seeded-hash', 'ground-sheet-region', 'sheet-order', 'sheet-wrap'].includes(String(selection))) {
       throw new Error(`Tile '${tileId}' in '${document.resourceId}' has invalid frame selection`);
     }
     let physics: TileSetTile['physics'] = null;
@@ -56,8 +59,13 @@ export function parseTileSetResource(document: TileSetResourceDocument): Resolve
           throw new Error(`Tile '${tileId}' in '${document.resourceId}' has invalid '${edge}' collision inset`);
         }
       }
+      const layer = value.physics.layer;
+      if (layer !== undefined && (typeof layer !== 'string' || !/^[a-z][a-z0-9-]*$/.test(layer))) {
+        throw new Error(`Tile '${tileId}' in '${document.resourceId}' has an invalid collision layer name`);
+      }
       physics = {
         body: 'static',
+        ...(layer !== undefined ? { layer } : {}),
         ...(inset ? { inset: Object.fromEntries(
           (['left', 'right', 'top', 'bottom'] as const)
             .filter((edge) => inset[edge] !== undefined)

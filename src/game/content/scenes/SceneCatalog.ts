@@ -1,7 +1,8 @@
 import {
   capabilitiesForNode,
   descriptorMap,
-  handlersForScript,
+  handlersForNode,
+  signalPayloadCompatible,
   propertiesForNode,
   signalsForNode,
   type PropertyDescriptor,
@@ -139,9 +140,9 @@ export class SceneCatalog {
         if (!source || !target) continue;
         const signal = signalsForNode(source.node.type, source.node.scriptId, this.validation.registry).get(connection.signal);
         if (!signal) issues.push({ path: `${path}/signal`, message: `unknown signal '${connection.signal}' on node '${source.node.id}'` });
-        const handler = handlersForScript(target.node.scriptId, this.validation.registry).get(connection.handler);
+        const handler = handlersForNode(target.node.type, target.node.scriptId, this.validation.registry).get(connection.handler);
         if (!handler) issues.push({ path: `${path}/handler`, message: `unknown handler '${connection.handler}' on node '${target.node.id}'` });
-        if (signal && handler && (signal.payload ?? 'void') !== (handler.payload ?? 'void')) {
+        if (signal && handler && !signalPayloadCompatible(signal, handler)) {
           issues.push({ path, message: `signal payload '${signal.payload ?? 'void'}' is incompatible with handler payload '${handler.payload ?? 'void'}'` });
         }
       }

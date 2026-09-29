@@ -62,6 +62,10 @@
               "east": {
                 "x": 1408,
                 "y": 576
+              },
+              "south": {
+                "x": 1081,
+                "y": 990
               }
             }
           }
@@ -520,6 +524,19 @@
       }
     },
     {
+      "id": "player-entry-south",
+      "name": "player-entry-south",
+      "type": "Node2D",
+      "parentId": "world",
+      "order": 43,
+      "properties": {
+        "position": [
+          1081,
+          990
+        ]
+      }
+    },
+    {
       "id": "exit-1",
       "name": "exit-1",
       "type": "Area2D",
@@ -569,6 +586,80 @@
           "consumeOnUnlock": true,
           "lockedMessage": "The eastern gate needs a green key."
         }
+      }
+    },
+    {
+      "id": "home-door",
+      "name": "home-door",
+      "type": "Node2D",
+      "parentId": "world",
+      "order": 44,
+      "properties": {
+        "position": [
+          1081,
+          903
+        ]
+      }
+    },
+    {
+      "id": "home-door-script",
+      "name": "door-script",
+      "type": "ScriptNode",
+      "scriptId": "game.door",
+      "parentId": "home-door",
+      "order": 0,
+      "properties": {
+        "mapId": "level-1",
+        "doorId": "home-door",
+        "targetAreaId": "slime-home",
+        "entry": "south",
+        "prompt": "Enter house",
+        "interactRadius": 90
+      }
+    },
+    {
+      "id": "sfx-music-player",
+      "name": "MusicPlayer",
+      "type": "AudioStreamPlayer",
+      "parentId": "world",
+      "order": 45,
+      "properties": {
+        "stream": {
+          "resourceId": "music.level-1-home-town"
+        },
+        "bus": "music",
+        "loop": true,
+        "autoplay": true,
+        "volume": 0.55,
+        "polyphony": 1
+      }
+    },
+    {
+      "id": "node2d",
+      "name": "mushroom-door-level-1",
+      "type": "Node2D",
+      "parentId": "world",
+      "order": 47,
+      "properties": {
+        "position": [
+          1438,
+          292
+        ]
+      }
+    },
+    {
+      "id": "scriptnode",
+      "name": "Door Script",
+      "type": "ScriptNode",
+      "scriptId": "game.door",
+      "parentId": "node2d",
+      "order": 0,
+      "properties": {
+        "mapId": "level-1",
+        "doorId": "mushroom-door-script",
+        "targetAreaId": "mushroom-home",
+        "entry": "south",
+        "prompt": "Enter house"
       }
     }
   ],
@@ -1067,15 +1158,6 @@
       "overrides": [
         {
           "sourceInstancePath": [],
-          "sourceNodeId": "root",
-          "property": "position",
-          "value": [
-            384,
-            640
-          ]
-        },
-        {
-          "sourceInstancePath": [],
           "sourceNodeId": "script",
           "property": "mapId",
           "value": "level-1"
@@ -1085,6 +1167,15 @@
           "sourceNodeId": "script",
           "property": "instanceId",
           "value": "level-1-purple-berry-01"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            204,
+            745
+          ]
         }
       ]
     },
@@ -1098,15 +1189,6 @@
       "overrides": [
         {
           "sourceInstancePath": [],
-          "sourceNodeId": "root",
-          "property": "position",
-          "value": [
-            448,
-            640
-          ]
-        },
-        {
-          "sourceInstancePath": [],
           "sourceNodeId": "script",
           "property": "mapId",
           "value": "level-1"
@@ -1116,6 +1198,15 @@
           "sourceNodeId": "script",
           "property": "instanceId",
           "value": "level-1-purple-berry-02"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            217,
+            1017
+          ]
         }
       ]
     },
@@ -1129,15 +1220,6 @@
       "overrides": [
         {
           "sourceInstancePath": [],
-          "sourceNodeId": "root",
-          "property": "position",
-          "value": [
-            576,
-            640
-          ]
-        },
-        {
-          "sourceInstancePath": [],
           "sourceNodeId": "script",
           "property": "mapId",
           "value": "level-1"
@@ -1147,6 +1229,15 @@
           "sourceNodeId": "script",
           "property": "instanceId",
           "value": "level-1-purple-berry-03"
+        },
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "root",
+          "property": "position",
+          "value": [
+            176,
+            833
+          ]
         }
       ]
     },
@@ -1376,6 +1467,25 @@
           "value": [
             384,
             1536
+          ]
+        }
+      ]
+    },
+    {
+      "instanceId": "object-house-mushroom",
+      "name": "mushroom-red",
+      "sceneId": "object.house-mushroom",
+      "parentNodeId": "world",
+      "order": 46,
+      "persistenceKey": "world.level-1.object-house-mushroom",
+      "overrides": [
+        {
+          "sourceInstancePath": [],
+          "sourceNodeId": "body",
+          "property": "position",
+          "value": [
+            1437,
+            308
           ]
         }
       ]
@@ -17179,6 +17289,12 @@
         "shape": "circle",
         "radius": 500
       }
+    },
+    {
+      "version": 1,
+      "resourceId": "music.level-1-home-town",
+      "kind": "audio",
+      "assetId": "audio.music.level-1-home-town"
     }
   ]
 }

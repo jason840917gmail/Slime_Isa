@@ -14,8 +14,8 @@ test('authored quest journal shows active objectives and restores focus', async 
   await priorFocus.focus();
   await page.keyboard.press('u');
   await expect(journal).toBeVisible();
-  await expect(journal.getByRole('listbox', { name: 'Quests' })).toContainText('Gather Building Materials');
-  await expect(journal).toContainText('Collect wood: 0/30');
+  await expect(journal.getByRole('listbox', { name: 'Quests' })).toContainText('A Place to Work');
+  await expect(journal).toContainText('Craft a Workbench (40 wood): 0/1');
   await expect(journal.getByRole('button', { name: 'No action' })).toBeDisabled();
   await expect.poll(() => page.evaluate(() => window.sceneFixture.snapshot().universalRuntimePaused)).toBe(true);
 
@@ -42,7 +42,7 @@ test('authored quest turn-in retains service errors and releases its modal sessi
   await priorFocus.focus();
   await page.evaluate(() => window.sceneFixture.openProductionQuestTurnInForUi());
   await expect(offer).toBeVisible();
-  await expect(offer).toContainText('Gather Building Materials');
+  await expect(offer).toContainText('A Place to Work');
   await expect.poll(() => page.evaluate(() => window.sceneFixture.snapshot().universalRuntimePaused)).toBe(true);
   await offer.getByRole('button', { name: 'Turn in and claim reward' }).click();
   await expect(offer).toBeVisible();

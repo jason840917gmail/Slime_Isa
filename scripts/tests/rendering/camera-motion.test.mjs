@@ -5,6 +5,7 @@ import {
   CAMERA_ZOOM_LEVELS,
   DEFAULT_CAMERA_ZOOM,
   cameraRenderingMode,
+  fixedCameraZoom,
   closestCameraZoomIndex,
   formatCameraZoom,
   isIntegerCameraZoom,
@@ -74,4 +75,16 @@ test('physics interpolation bridges the previous and current fixed-step position
   assert.deepEqual(interpolatePhysicsPosition({ x: 20, y: 10 }, { x: 4, y: -2 }, 0), { x: 16, y: 12 });
   assert.deepEqual(interpolatePhysicsPosition({ x: 20, y: 10 }, { x: 4, y: -2 }, 0.5), { x: 18, y: 11 });
   assert.deepEqual(interpolatePhysicsPosition({ x: 20, y: 10 }, { x: 4, y: -2 }, 1), { x: 20, y: 10 });
+});
+
+test('fixed interior cameras zoom out only as far as needed to show the whole room', () => {
+  // a room smaller than the view keeps the default zoom
+  assert.equal(fixedCameraZoom({ width: 896, height: 704 }, 1280, 720, 1), 1);
+  // a room taller than the view zooms out to fit its height
+  assert.equal(fixedCameraZoom({ width: 1024, height: 768 }, 1280, 720, 1), 720 / 768);
+  // and a wide one to fit its width
+  assert.equal(fixedCameraZoom({ width: 2560, height: 400 }, 1280, 720, 1), 0.5);
+  // never zooms in past the preferred zoom, and ignores empty areas
+  assert.equal(fixedCameraZoom({ width: 100, height: 100 }, 1280, 720, 2), 2);
+  assert.equal(fixedCameraZoom({ width: 0, height: 0 }, 1280, 720, 1), 1);
 });
