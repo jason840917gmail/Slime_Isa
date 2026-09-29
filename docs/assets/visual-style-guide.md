@@ -50,7 +50,7 @@ against the dark base and use the same contrast hierarchy.
 
 ## UI and editor presentation
 
-The HUD, menus, chat, map editor, and development panels share the same night
+The HUD, menus, chat, Scene Studio, and development panels share the same night
 field, cool slate surfaces, mint interaction accent, cyan information accent,
 warm reward accent, and coral danger feedback. UI should feel like a playful
 field atlas: compact, high-contrast, and tactile, with restrained shadows and

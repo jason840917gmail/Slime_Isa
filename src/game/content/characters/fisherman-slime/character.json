@@ -2,7 +2,7 @@
   "$schema": "../character.schema.json",
   "version": 1,
   "characterId": "fisherman-slime",
-  "displayName": "Finn the Fisherman",
+  "displayName": "Lily the Fishergirl",
   "kind": "npc",
   "visualSetId": "character.npc.fisherman-slime",
   "body": {

@@ -1,69 +1,59 @@
 # Slime Isa — Agent Guide
 
-## Dev Commands
+Top-down open-world slime game: Phaser 3 + TypeScript + Vite (ES2022, ESNext modules, Bundler resolution). pnpm is required.
 
-- `pnpm dev` — start Vite on port 3000
-- `pnpm typecheck` — run strict TypeScript validation
-- `pnpm assets:check` — validate `asset/assets.json` against disk truth (paths, dimensions, orphans)
-- `pnpm maps:check` — validate authored maps in `src/game/content/maps/` (structure, legends, instance IDs)
-- `pnpm maps:bake` — regenerate the three production maps from the deterministic seed tool (overwrites those map files)
-- `pnpm interiors:scenes` — regenerate one `object.interior-*` scene per interior atlas sprite from `scripts/interiors/interior_catalog.py` into `objects/interiors/<category>/` (`interiors:check` fails on drift; needs Python + Pillow). `python scripts/interiors/normalize-interior-sheets.py` rebuilds the atlases themselves
-- `pnpm grounds:pack` — build every 19x19 (64x64 tile) `asset/MAPS/grounds/64x64-tile_19x19_<ground>.png` sheet from `asset/Originals/grounds/{generated,legacy-sheets}/`, graded and made wrap-seamless so the tile set repeats them with `sheet-wrap` (no mirror seams; `-- --only <sheet>` packs a subset; needs Python + Pillow + numpy)
-- `pnpm props:pack` — pack prop sources in `asset/Originals/props/` into bottom-anchored `asset/MAPS/rocks/<frame>x<frame>-tile_<cols>x<rows>-<name>.png` atlases (crystal cluster art for the `crystal-cluster-wall` object scenes)
-- `node scripts/maps/scatter-decorations.mjs <world-id>... [--write]` — scatter walk-over ground decorations (leaves, twigs, roots, moss, pebbles, small mushrooms from the mushroom-floor decal scenes) over forest grounds as instances under a `decorations` node; grounds stay mostly plain on purpose. Re-running replaces the previous scatter (dry run by default)
-- `node scripts/maps/build-level-1.mjs [--write] [--ascii]` — regenerate level-1 ("Slimeshire Meadow") from its deterministic layout: terrain, forest-wall border, Slimeshire town, Fatty's hedge maze, worm ruins, Webwood, river/lake/bridges, the Verdant Gate pocket, enemy/NPC areas and ground decals. Generated content lives under `gen-*` group nodes and `area-level-1-gen-*` areas, so re-running replaces it; pinned nodes/instances (NPCs, Fatty camp, exit-1, resources) are kept and only moved. Hand edits to generated content are lost on the next run (dry run by default)
-- `python scripts/props/pack-level-1-landmarks.py` — pack the level-1 landmark sources in `asset/Originals/props/level-1/` (Verdant Gate closed/open, village well, footbridge) into `asset/MAPS/landmarks/320x256-tile_4x1-level-1-landmarks.png`
-- `pnpm maps:smooth -- <world-id>... [--write]` — smooth single-cell terrain speckle in world scenes; only ever makes terrain more walkable (dry run by default)
-- `pnpm items:pack` — re-slice the Magnific item icon sources in `asset/Originals/items/` into the 64x64 `asset/MAPS/items/{gems,materials,forage}-5x2.png` atlases; `asset/Originals/items/atlas-index.json` names every frame, including ones not yet wired to an item (needs Python + Pillow + numpy)
-- `pnpm audio:bake` — render the synthesized SFX in `scripts/audio/cues.mjs` to `asset/audio/sfx/synth/` and rewrite the generated `audio.sfx.*` manifest block (`-- --library <dir>` re-imports the CC0 library takes listed in `asset/audio/CREDITS.md`)
-- `pnpm audio:wire` — author audio nodes/connections into scene JSON from the table in `scripts/audio/wire-scene-audio.mjs`; `pnpm audio:check` fails when scenes drift from it
-- `pnpm build` — typecheck and create the production build
-- `pnpm check` — run the complete local verification sequence
+## Working Rules
 
-## Stack
+- Work on the current branch. Do not create new branches unless the user asks for one.
+- Do not rebuild after every change — it wastes compute. After an edit run `pnpm typecheck` plus the targeted check or test for the area you touched (see below). Run `pnpm build` or `pnpm check` only when the user asks, or once before committing a broad change.
+- Never run `pnpm scenes:regenerate`, `pnpm maps:bake`, or a `--write` map script unless the task calls for it: they overwrite authored content.
+- While `pnpm dev` is running, Scene Studio saves into `src/game/content/scenes/authored/` through a dev endpoint (and `/__game-constants` can write `game-constants.json`); an open Studio tab can overwrite files you edit by hand.
+- Editing a conversion input (`asset/assets.json`, `items.json`, `enemy-types.json`, `NpcDefinitions.ts`, `RecipeCatalog.ts`, `game-constants.json`) invalidates the scene conversion ledger; re-hash it as described in [docs/TOOLING.md](docs/TOOLING.md#scene-conversion).
+- Keep docs truthful: when you change behavior, paths, or commands, update the doc that describes them in the same change.
 
-- Phaser 3, TypeScript, and Vite
-- ES2022 with ESNext modules and Bundler module resolution
-- pnpm is required by `packageManager`
+## Commands
 
-## Project Structure
+- `pnpm dev` — Vite on port 3000. Game: `http://localhost:3000`; Scene Studio (dev only): `?studio=scenes[&scene=<sceneId>]`; world preview: `?map=<id>`
+- `pnpm typecheck` — strict `tsc` over `src/`, `vite.config.ts`, and the Playwright specs
+- Targeted checks: `scenes:check` (scene JSON), `assets:check` (`asset/assets.json`), `constants:check`, `audio:check`, `quests:check`, `scene-ownership:check`, and per-domain `visuals|characters|weapons|projectiles|effects|enemies|objects:check`
+- Targeted tests: `pnpm test:<suite>` (Node `--test` suites in `scripts/tests/`, e.g. `test:combat`, `test:quests`, `test:scene-runtime`, `test:persistence`); `test:scene-browser` runs Playwright
+- `pnpm build` — typecheck + production build to `dist/`
+- `pnpm check` — every check, every test suite, build and Playwright; slow
 
-- Entry point: `src/main.ts` → `src/game/config.ts`
-- Asset manifest: `asset/assets.json` (+ `assets.schema.json`) catalogs runtime/loadable media with stable IDs; source art (`asset/Originals/`) and experiments stay unmapped via `ignore` patterns
-- Phaser scene composition: `src/game/scenes/`
-- Feature orchestration: `src/game/features/`
-- Immutable definitions and balancing: `src/game/content/`
-- Audio: cues are `AudioStreamPlayer`/`AudioStreamPlayer2D` nodes in scene JSON triggered by signal connections (`play`/`stop` handlers, optional `payloadFilter`); global game events play named cues in `audio.global` via `features/audio/AudioEventBridge.ts`. CC0 library samples play by default; `?sfx=synth` switches to the synthesized takes for A/B listening. Volume settings (master/effects/music) live in the Esc settings menu and persist per device
-- Authored maps: `src/game/content/maps/` (format v1 in `mapFormat.ts`; maps persist stable IDs only — terrain tile IDs, archetype IDs, enemy keys, area IDs)
-- Storage and procedural assets: `src/game/infrastructure/`
-- Shared UI tokens: `src/game/presentation/`
-- Small cross-feature utilities: `src/game/shared/`
-- Architecture rules: `docs/ARCHITECTURE.md`
-- `MobileVersion/` is an independent Godot application
-- `tools/` is unrelated to the game build
+Content/art/audio generators (map builders, sheet packers, audio bake, interior scenes) are documented in [docs/TOOLING.md](docs/TOOLING.md).
+
+## Project Map
+
+- Entry: `src/main.ts` → `src/game/config.ts`; Phaser scenes `BootScene`, `MapLoadScene`, `WorldScene` in `src/game/scenes/`
+- `src/game/content/` — immutable definitions and balancing; `content/scenes/authored/` holds every authored scene (worlds, characters, objects, encounters, weapons, effects, UI, audio) edited by Scene Studio
+- `src/game/features/` — feature controllers; ScriptNode behavior is registered in `features/scripts/registrations.ts`
+- `src/game/runtime/scene/` — Node/SceneTree/ScriptNode contracts; `infrastructure/scenes/` and `infrastructure/phaser-nodes/` host them in Phaser
+- `src/game/infrastructure/` — persistence, procedural textures, audio, map loading
+- `src/game/presentation/` (UI tokens), `src/game/shared/` (small cross-feature utilities)
+- `src/game/editor/scene-studio/` — Scene Studio
+- Older runtime folders still in use: `core`, `systems`, `combat`, `enemies`, `ui`, `world`, `quests`, `crafting`, `dev`. New orchestration goes in `features/`
+- `asset/assets.json` (+ `assets.schema.json`) — runtime media catalog with stable IDs; source art in `asset/Originals/` stays unmapped
+- `scripts/` — checks, tests, generators; `MobileVersion/` is an independent Godot app; `tools/` is unrelated to the game build
 
 ## Architecture Rules
 
-- `WorldScene` is a Phaser composition root. Keep complete feature implementations out of it.
-- Browser persistence belongs exclusively in `src/game/infrastructure/persistence/`; use `SaveSystem` and the versioned repository.
-- Gameplay balancing values have one owner in `content/` or their owning feature. Do not create a global constants file.
-- `asset/assets.json` owns media-loading metadata only (paths, frames, texture keys, editor placement hints). Collision/solidity, animations, AI, stats, and biome rules stay in TypeScript.
-- Feature controllers receive dependencies through context interfaces and must never import `WorldScene`.
-- Global events, input bindings, DOM listeners, and controllers require explicit cleanup. Use `DisposableBag` for scene-owned callbacks.
-- Production gameplay requires authored maps and must not invoke procedural world generation. The deterministic bake source lives in `scripts/lib/procedural-map-generator.mjs` for editor/tooling use only.
-- Persistent NPCs, houses, props, and interaction objects must be authored in map JSON and created through `MapBuilder`/`ObjectFactory`; scenes must not inject map populations.
-- Procedural textures are generated in `infrastructure/assets/ProceduralAssetScene.ts`; `scenes/BootScene.ts` is a stable scene facade.
-- Terrain is ground only. Tiles with a `natural-ground` `transition` are blended into organic regions (`features/world/TerrainBlendField.ts` plans, `TerrainTransitionLayer.ts` bakes canvas chunks), mounted by `TileMapLayer2DNode` so the game and Scene Studio render identical terrain; blending never changes physics or map data. Cave and forest walls are placed object instances (`object.crystal-cluster-wall.*`, `object.tree-forest-wall.*` from `scripts/props/generate-wall-prop-scenes.py`), not tiles; `node scripts/maps/convert-wall-tiles.mjs` converted the old wall tiles.
-- Physical locked gates are `game.gate` scripts (`features/scripts/GateScript.ts`, e.g. `object.gate-verdant`): the gate blocks until the player interacts with the key item, then shows its open frame and disables its door body. They share the persisted `mapId` + `gateId` record with gated `game.world-exit` scripts, so an exit behind a gate opens with it.
+Full rules and rationale: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
-## Build Behavior
+- `WorldScene` is a composition root; keep feature implementations out of it. Feature controllers get dependencies through context interfaces and never import `WorldScene`.
+- Worlds are scenes: the game loads `content/scenes/authored/worlds/<id>.scene.json` (`world.<id>`). NPCs, houses, props, walls, gates and interactions are instances in that scene JSON — never injected by code. `content/maps/*.map.json` are legacy conversion inputs (still used for new-run spawn and save validation). See [docs/AUTHORED_MAPS.md](docs/AUTHORED_MAPS.md).
+- Production gameplay never invokes procedural world generation; `scripts/lib/procedural-map-generator.mjs` is tooling only.
+- Cross-feature gameplay values live only in `content/game-constants.json` (+ schema; run `pnpm constants:generate` after a schema edit) and are read through `src/game/Constant.ts`. Don't add other global constants files or fallback balance literals.
+- Browser storage belongs exclusively to `infrastructure/persistence/`; save through `SaveSystem` and the versioned repository.
+- `assets.json` owns media-loading metadata only. Collision, animation, AI, stats and biome rules stay in TypeScript or scene JSON.
+- Global events, input bindings, DOM listeners and controllers need explicit cleanup; use `DisposableBag` for scene-owned callbacks.
+- Terrain is ground only and blending never changes physics; walls are placed object instances (`object.crystal-cluster-wall.*`, `object.tree-forest-wall.*`). Details: [docs/TERRAIN_TRANSITIONS.md](docs/TERRAIN_TRANSITIONS.md).
 
-- `tsconfig.json` includes only `src/`
-- Strict TypeScript also rejects unused locals, unused parameters, and switch fallthrough
-- `vite.config.ts` must retain `base: './'` for deployed asset paths
-- Build output is `dist/`
-- Phaser is emitted as a separate vendor chunk; large source images still need future asset optimization
+## Build Gotchas
+
+- `tsconfig.json` includes only `src/`; strict mode also rejects unused locals/parameters and switch fallthrough.
+- `vite.config.ts` must keep `base: './'` for deployed asset paths. Phaser ships as a separate vendor chunk.
+- Python tools need Pillow (several also numpy).
 
 ## Status
 
-There are no automated gameplay tests or CI yet.
+No CI. Automated coverage is the Node test suites and Playwright specs above; interactive feel (movement, combat, visuals) still needs a manual playthrough.

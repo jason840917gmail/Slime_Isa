@@ -32,7 +32,6 @@ A second style generated with Magnific GPT-2 (see `docs/assets/magnific-mcp-guid
 | `mushroom-02-large-furniture-256px.png` | 4×4 | 256×256 | 16 | Mushroom-cap and nest beds, hammock, dining/stump tables, root hearths, shelves, wardrobe, basin, counter |
 | `mushroom-03-furniture-props-192px.png` | 8×8 | 192×192 | 64 | Stools, root chairs, leaf armchairs, benches, chests, storage, cauldrons, ovens, food, washing |
 | `mushroom-04-decor-lighting-192px.png` | 8×8 | 192×192 | 64 | Glow mushrooms, lanterns, banners, rugs, plants, curios, clutter, curtains, wall hangings |
-
 | `mushroom-05-room-shell-128px.png` | 8×7 | 128×128 | 40 | One 1024×768 room shell (root walls, mushroom-cap eave, doorway) cut into world-aligned cells; row 6 holds the walkable doorway floor |
 | `mushroom-06-floor-decor-128px.png` | 8×8 | 128×128 | 64 | Flat floor decals: stepping stones, clover, flowers, moss, pebbles, surface roots, leaf litter, tiny mushrooms |
 
@@ -52,4 +51,9 @@ Total working library: **840 sprites** (including the 40 room-shell cells).
 - All normalized sheets use real alpha transparency and contain no modern objects.
 - The untouched generated sheets are retained so individual sprites can be repainted or re-sliced without generation loss.
 
-These atlases remain under `Originals` until individual cells receive final visual QA, collision/placement metadata, stable asset IDs, and promotion into `asset/MAPS/`. Runtime metadata belongs in `asset/assets.json`; gameplay behavior does not.
+## Runtime pipeline
+
+- The normalizer also writes the promoted copies to `asset/MAPS/interiors/` (`<frame>x<frame>-tile_<cols>x<rows>-interior-*.png`); they are registered as `sheet.interiors.*` in the `interiors` bundle of `asset/assets.json` (add or update entries there by hand).
+- `pnpm interiors:scenes` writes one `object.interior-<category>-<name>` scene per sprite listed in `scripts/interiors/interior_catalog.py` to `src/game/content/scenes/authored/objects/interiors/<category>/`; `pnpm interiors:check` fails when the scenes drift from the catalog. Re-running overwrites catalog-owned scenes.
+- Both tools need Python with Pillow (the normalizer also needs numpy).
+- Collision, depth, and behavior live in those scenes, never in the manifest.

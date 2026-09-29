@@ -20,6 +20,13 @@
       "ai": { "aggroRange": 240, "attackRange": 34, "wanderSpeed": 50, "chaseSpeed": 130, "attackCooldownMs": 1100, "attackWindupMs": 250, "attackRecoveryMs": 250, "contactDamage": 52, "knockbackStrength": 340, "isRanged": false, "knockbackResist": 0.1 },
       "drop": { "xp": 40, "coins": 8 },
       "impactEffect": { "visualSetId": "effect.enemy.worm-brawler-hit", "clipId": "hit", "distance": 22 }
+    },
+    "slime-spider": {
+      "id": "slime-spider", "visualSetId": "enemy.slime.spider", "maxHp": 40,
+      "body": { "width": 30, "height": 30, "centerOffsetX": 0, "centerOffsetY": 0 },
+      "ai": { "aggroRange": 280, "behavior": "slime-spider", "attackRange": 220, "fleeRange": 120, "wanderSpeed": 30, "chaseSpeed": 80, "attackCooldownMs": 2200, "attackWindupMs": 600, "attackRecoveryMs": 350, "contactDamage": 22, "knockbackStrength": 180, "isRanged": true, "projectileSpeed": 180, "knockbackResist": 0 },
+      "drop": { "xp": 45, "coins": 10, "items": [{ "itemId": "shard", "chance": 0.15 }] },
+      "projectile": { "projectileId": "spider-web", "assetId": "enemy.projectile.spider-web", "damage": 50 }
     }
   }
 }

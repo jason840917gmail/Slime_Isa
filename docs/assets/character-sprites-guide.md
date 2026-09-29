@@ -1,136 +1,87 @@
 # Character sprites and animated visuals
 
-This guide explains how file-backed and procedural art becomes a player, enemy, or world-object visual. The implementation deliberately separates rendering from gameplay physics.
+How a registered sprite sheet becomes an animated player, NPC, enemy, weapon,
+effect, or object. Rendering is kept separate from gameplay physics.
 
-## Workflow
+## Pipeline
 
 ```mermaid
 flowchart LR
-    A["asset/assets.json<br/>asset ID, path, sheet geometry, texture key"]
-    B["BootScene / AssetLoader<br/>load or generate texture"]
-    C["visual-set.json<br/>clips and frame transforms"]
-    D["VisualCatalog<br/>validate and resolve IDs"]
-    E["AnimationRegistrar<br/>create Phaser animations"]
-    F["Physics anchor<br/>position, body, velocity"]
-    G["AnimatedVisual<br/>render sprite and effects"]
+    A["asset/assets.json<br/>path, frame grid, texture key, bundle"]
+    B["ProceduralAssetScene<br/>loads boot/interiors/audio/music bundles"]
+    C["Scene JSON<br/>sprite-sheet subresource + Sprite2D"]
+    D["AnimationPlayer<br/>animation-library subresource"]
+    E["Body + CollisionShape2D<br/>stable gameplay anchor"]
 
     A --> B
-    A --> D
+    A --> C
     C --> D
-    D --> E
-    B --> E
-    F --> G
-    E --> G
+    E --> C
 ```
 
-`asset/assets.json` owns media-loading facts. A character visual set in
-`src/game/content/characters/<name>/visual-set.json` owns how that media is
-rendered. Loose world or effect visual sets use
-`src/game/content/visuals/<name>/visual-set.json` instead:
+Every animated thing is a scene under `src/game/content/scenes/authored/`
+(`characters/`, `weapons/`, `effects/`, `projectiles/`, `objects/`). Edit it in
+Scene Studio (`?studio=scenes`); the animation dock there is the only animation
+editor. The former Character, Weapon, Projectile, and Animation Studios and the
+shared `content/animations` packages were retired; old `?studio=characters`-style
+URLs redirect to Scene Studio.
 
-- default origin, scale, and source-frame offset;
-- optional per-frame transform overrides;
-- named clips, frame order, timing, repeat behavior, and stable runtime keys.
+## Anatomy of a character scene
 
-Gameplay facts such as collision, health, movement, AI, and damage remain in TypeScript content or their owning feature.
+`characters/player-slime.scene.json`, trimmed:
 
-## Why `slime` is no longer hardcoded
+| Node | Type | Role |
+| --- | --- | --- |
+| `body` | `CharacterBody2D` | Physics anchor; world position and velocity |
+| `body-shape` | `CollisionShape2D` | Movement collider (`collision-shape` subresource, e.g. `30 x 26` rectangle) |
+| `visual` | `Sprite2D` | `texture` → `sprite-sheet` subresource (`assetId`, `frameWidth`, `frameHeight`), `frame`, `origin`, `scale`, `position` |
+| `damage-area`, `attack-area` | `Area2D` + shape | Hurt/hit sensors |
+| `animation` | `AnimationPlayer` | `library` → `animation-library` subresource, `autoplay` clip |
+| `script` | `ScriptNode` | `game.player`, `game.npc`, `game.enemy`, ... plus node references and data |
+| `sfx-*` | `AudioStreamPlayer(2D)` | Cues wired by signal connections |
 
-The old animation helper always generated frames from the Phaser texture key `slime`. Idle and walk differed only because their clip definitions selected different frame sequences. This worked for one player texture, but it could not safely describe trees, enemies, or another player skin.
+An `animation-library` maps clip names to `durationSeconds`,
+`framesPerSecond`, `loop`, and `tracks`. The usual track binds `../Visual`
+property `frame` to keyed sheet frame indices:
 
-The replacement resolves a visual set through its stable manifest `assetId`. `AnimationRegistrar` obtains the associated texture key and registers every clip. Callers use a stable visual-set ID and clip ID, for example:
-
-```ts
-visual.play("walk");
+```json
+"walk": { "durationSeconds": 0.8, "framesPerSecond": 10, "loop": true,
+  "tracks": [{ "binding": "../Visual", "property": "frame",
+    "keys": [{ "at": 0, "value": 9 }, { "at": 1, "value": 10 }, { "at": 2, "value": 11 }] }] }
 ```
 
-They do not need to know the image path, Phaser texture key, or sheet layout.
+Tracks can also animate other properties, be disabled, or use nearest
+interpolation; keys may carry an easing `transition`.
+
+Directional characters use one clip per direction (`idle-side`, `walk-up`,
+`attack-down`, ... for worms; `walk-left`/`walk-right` for NPCs). Side art that
+faces one way is mirrored at runtime with `flipX`; the player slime is drawn
+facing left and flipped when moving right.
 
 ## Visual offset and scale
 
-Every animated entity has a stable gameplay anchor and a separate render sprite:
+The body is measured in world units; frame changes never resize or move it.
+The sprite's `scale`, `origin`, `position`, and `visualOffset` only move the art
+around that anchor. Fix art alignment on the `Sprite2D`, and fix gameplay
+footprint on the collision shapes, never the other way round.
 
-```mermaid
-flowchart TB
-    A["Stable anchor<br/>world position, velocity, collision body"]
-    V["AnimatedVisual"]
-    S["Render sprite<br/>origin, frame, flip, tint, alpha"]
-    T["Resolved frame transform<br/>source offset and scale"]
-    E["Temporary effects<br/>squash, stretch, fade"]
+## Gameplay data
 
-    A --> V
-    V --> S
-    T --> S
-    E --> S
-```
-
-The physics anchor is measured in world units. Frame changes never resize or reposition its body.
-
-`sourceOffset` is stored in source-art pixels. For each displayed frame:
-
-1. Start with the visual-set defaults.
-2. Replace any properties supplied by that frame's override.
-3. Compute render scale as `frame scale × temporary effect scale`.
-4. Compute render offset as `sourceOffset × resolved scale × temporary effect scale`.
-5. Mirror the horizontal offset when the visual faces left.
-6. Place the render sprite at `anchor position + render offset`.
-
-This keeps art correction close to the animation data while preserving stable collision. The current slime file supports per-frame overrides but does not invent corrections for frames that have not been artist-reviewed.
-
-## One-frame animations
-
-The same model handles static-looking art. The blob enemy and selected tree each use a looping one-frame clip. For an image or procedural texture, frame `0` means the texture's base frame. For a spritesheet, the number addresses that sheet's source frame.
-
-This gives trees and enemies the same API now and allows their JSON clips to gain additional frames later without rewriting entity behavior.
-
-## Runtime object patterns
-
-### Player: factory plus controller
-
-`PlayerFactory` creates an invisible Arcade physics anchor, an `AnimatedVisual`, and the name tag. `PlayerController` controls velocity, facing, and clip selection. `AbilitySystem` applies temporary squash, stretch, and alpha effects to the visual while movement and collision remain on the anchor.
-
-Use this pattern for a character coordinated by several feature systems.
-
-### Enemy: Phaser subclass with a composed visual
-
-`Enemy` remains an Arcade Sprite so existing AI and collision code continue to use it as the anchor. Configured enemy types compose an `AnimatedVisual`; legacy types can still render the anchor's original texture.
-
-Use this migration pattern when a Phaser subclass already owns substantial gameplay behavior.
-
-### World object: factory-selected visual path
-
-`ObjectFactory` keeps ordinary objects as lightweight images. An object visual that declares a shared `idleAnimationId` or `onHitAnimationId` receives a stable anchor plus the shared layered animation adapter. Authored collision and map position remain attached to the anchor.
-
-The map editor selects shared animation packages without embedding timeline data in object templates or map files; maps continue to store stable object/archetype IDs.
-
-### Composite object: plain wrapper
-
-`House` is a plain class that owns several Phaser images and interaction zones. This remains useful when one gameplay concept contains several independently positioned objects and does not need frame animation.
+Character packages in `src/game/content/characters/<id>/` (`character.json`,
+`visual-set.json`) still supply runtime gameplay data such as enemy stats, NPC
+wander settings, and the player package through `CharacterCatalog`, and are
+validated by `pnpm characters:check` and `pnpm visuals:check`. They are not
+edited through a studio.
 
 ## Adding another animated thing
 
-1. Add or confirm its stable entry in `asset/assets.json`.
-2. Add a shared `src/game/content/animations/<domain>/<name>/<slot>/animation.json`
-   package for reusable layered animation, or a character visual set when the
-   animation is character-specific.
-3. Define the layered timing, visual layers, source frames, and transforms.
-4. Reference the package by its stable `animationId` from the owning weapon or object definition.
-5. Keep collision and gameplay values outside the visual-set JSON.
-6. Run `pnpm assets:check`, `pnpm visuals:check`, the relevant content checks, and `pnpm build`.
-7. Smoke-test playback, effects, collision alignment, and cleanup during scene transitions.
-
-## Important files
-
-- [`asset/assets.json`](../../asset/assets.json) — media paths, texture keys, sheet geometry, and bundles.
-- [`src/game/content/visuals/visual-set.schema.json`](../../src/game/content/visuals/visual-set.schema.json) — editor-friendly JSON contract.
-- [`src/game/content/visuals/VisualCatalog.ts`](../../src/game/content/visuals/VisualCatalog.ts) — typed loading, validation, and transform resolution.
-- [`src/game/content/animations/AnimationCatalog.ts`](../../src/game/content/animations/AnimationCatalog.ts) — shared layered animation package resolution.
-- [`src/game/features/objects/ObjectAnimationAdapter.ts`](../../src/game/features/objects/ObjectAnimationAdapter.ts) — object host for shared idle and on-hit animation packages.
-- [`src/game/features/visuals/AnimationRegistrar.ts`](../../src/game/features/visuals/AnimationRegistrar.ts) — generic Phaser animation registration.
-- [`src/game/features/visuals/AnimatedVisual.ts`](../../src/game/features/visuals/AnimatedVisual.ts) — render sprite, frame transforms, playback, effects, and cleanup.
-- [`src/game/content/characters/player-slime/visual-set.json`](../../src/game/content/characters/player-slime/visual-set.json) — migrated slime clips and visual defaults.
-- [`src/game/content/characters/slime-spider/visual-set.json`](../../src/game/content/characters/slime-spider/visual-set.json) — directional enemy package example.
-- [`src/game/features/player/PlayerFactory.ts`](../../src/game/features/player/PlayerFactory.ts) — player anchor and visual composition.
-- [`src/game/enemies/Enemy.ts`](../../src/game/enemies/Enemy.ts) — enemy integration and visual effects.
-- [`src/game/features/objects/ObjectFactory.ts`](../../src/game/features/objects/ObjectFactory.ts) — static versus animated object creation.
-- [`scripts/check-visuals.mjs`](../../scripts/check-visuals.mjs) — repository-level visual content validation.
+1. Export a uniform-grid PNG ([sheet rules](./asset-sheet-spec.md)) and register
+   it in `asset/assets.json` ([Adding Game Assets](./adding-assets.md)).
+2. In Scene Studio, duplicate a similar scene (for example an existing NPC or
+   worm) or create one, then point its `sprite-sheet` subresource at the new
+   `assetId` with the matching frame size.
+3. Author clips in the animation dock, set the sprite scale/origin, and size the
+   body and sensor shapes.
+4. Place an instance in a world scene.
+5. Run `pnpm assets:check`, `pnpm scenes:check`, and the relevant content check,
+   then smoke-test playback and collision in game.

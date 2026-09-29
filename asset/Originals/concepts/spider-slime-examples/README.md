@@ -7,3 +7,6 @@ Three generated concept directions based only on the project's non-spider slime 
 - `ember-tarantula-slime.png` — molten-orange heavy variant with rounded dark-tipped legs.
 
 These are concept illustrations, not production sprite sheets.
+
+The forest orb-weaver direction became the runtime spider
+(`asset/MAPS/enemies/64x64-8x10-forest-orb-weaver-slime.png`, `character.enemy.slime-spider`).

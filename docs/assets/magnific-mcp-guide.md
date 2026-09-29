@@ -149,8 +149,11 @@ next tool; do not pass a `webUrl` as a media input.
 
 ## Project asset placement
 
-Generated source art belongs under `asset/Originals/`. Keep experimental or
-future enemy art in `asset/Originals/enemies/future/` unless the task
-explicitly requests a different folder. Do not add source art to
-`asset/assets.json` until it is ready to be a runtime-loaded asset and has
-passed the repository asset checks.
+Generated source art belongs under `asset/Originals/<family>/` (for example
+`grounds/generated/`, `props/`, `items/`, `houses/`, `interiors/generated-sheets/`).
+Keep experimental or future enemy art in `asset/Originals/enemies/future/`
+unless the task names another folder. `asset/Originals/**` is ignored by the
+manifest; only the packed runtime file in `asset/MAPS/` (or `asset/characters/`,
+`asset/UI/`) is registered in `asset/assets.json`, once it passes
+`pnpm assets:check`. See [Asset Creation And Integration](./README.md) for the
+pack scripts.

@@ -18,10 +18,10 @@ result can be converted into a predictable sprite sheet.
 - `[DURATION]` — normally `5 seconds`.
 - `[FRAME_RATE]` — normally `12 frames per second`.
 
-Project naming note: runtime enemy clips use `down`, `side`, and `up`. Use
-`down` for the game's front-facing/down-screen view when the generated sheet
-will become an enemy package. Use `front` when the art tool or source sheet
-uses that convention, then map it to the runtime name during import.
+Project naming note: enemy clips are named `<action>-down`, `<action>-side`,
+and `<action>-up` (e.g. `walk-down`). Use `down` for the game's
+front-facing/down-screen view. Use `front` when the art tool or source sheet
+uses that convention, then map it to the runtime clip name in the scene.
 
 ## General prompt
 
@@ -192,8 +192,8 @@ logo. No watermark. No audio. No purple or magenta details that blend into
 2. Remove the chroma-purple background without trimming the character's cell.
 3. Place every frame on a uniform grid with identical cell dimensions.
 4. Keep the character centered and grounded consistently across frames.
-5. Confirm frame `0` is valid; Character Studio uses it as the safe starter frame.
+5. Confirm frame `0` is valid; scenes use it as the default sprite frame.
 6. Register the finished PNG sheet through [Adding Game Assets](./adding-assets.md).
-7. For a character or enemy, continue with [Character Sprites And Animated Visuals](./character-sprites-guide.md) and create the package in Character Studio.
-8. Run `pnpm assets:check`, `pnpm visuals:check`, the relevant content checks,
-   and `pnpm build` before placing the asset in a map.
+7. For a character or enemy, continue with [Character Sprites And Animated Visuals](./character-sprites-guide.md) and build its scene in Scene Studio.
+8. Run `pnpm assets:check`, `pnpm scenes:check`, and the relevant content
+   checks before placing the asset in a world.

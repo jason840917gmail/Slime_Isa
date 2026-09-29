@@ -2,150 +2,140 @@
 
 Game content has three layers. Never mix their responsibilities.
 
-1. **Asset manifest:** file identity and loading.
-2. **Object file:** reusable appearance, scale, collider, and behavior.
-3. **Map instance:** object ID, exact visual ID, position, and mutable state.
+1. **Asset manifest** (`asset/assets.json`): file identity and loading.
+2. **Scene** (`src/game/content/scenes/authored/**/*.scene.json`): sprite, frame,
+   scale, collision, depth/occlusion, animation, audio, and script data.
+3. **Instance** in a world scene: which scene, where, and per-instance overrides.
 
 ## 1. Register the media
 
-Put the source file under `asset/`, then register it in `asset/assets.json`.
+Put the runtime file under `asset/` (usually `asset/MAPS/<family>/`; source art
+stays in `asset/Originals/`, which the manifest ignores), then add an entry to
+`asset/assets.json`:
 
 ```json
-"sheet.trees.oak": {
+"sheet.rocks.crystal-clusters.8x2": {
   "source": {
     "kind": "spritesheet",
-    "path": "MAPS/trees/oak.png",
-    "frame": { "w": 128, "h": 170, "cols": 3, "rows": 1 },
-    "expect": { "w": 384, "h": 170 }
+    "path": "MAPS/rocks/128x128-tile_8x2-crystal-clusters.png",
+    "frame": { "w": 128, "h": 128, "cols": 8, "rows": 2, "count": 16 },
+    "expect": { "w": 1024, "h": 256 }
   },
-  "runtime": { "textureKey": "trees-oak" },
-  "render": { "origin": [0.5, 1] },
-  "frames": {
-    "0": { "name": "oak-small" },
-    "1": { "name": "oak-medium" },
-    "2": { "name": "oak-large" }
-  },
-  "tags": ["object", "tree"],
+  "runtime": { "textureKey": "rocks-crystal-clusters-8x2" },
+  "render": { "origin": [0.5, 0.97], "pixelArt": true },
+  "tags": ["prop", "crystal", "cavern", "terrain-dressing"],
   "status": "ready"
 }
 ```
 
-Add runtime media to the appropriate bundle, such as `boot`.
+Then add the ID to a load bundle. `boot`, `interiors`, `audio`, and `music` are
+all loaded at startup by `ProceduralAssetScene`.
 
-Manifest rules:
+Manifest rules (schema: `asset/assets.schema.json`):
 
-- Use stable dotted asset IDs.
+- Required fields are `source`, `runtime.textureKey`, and `status`
+  (`draft`, `ready`, or `deprecated`). Optional: `frames` (per-index `name`),
+  `render` (`origin`, `nativeSize`, `pixelArt`), `placement` (editor hints only),
+  `tags`, `notes`.
+- `source.kind` is one of `image`, `spritesheet`, `atlas`, `audio`, `tilemap`,
+  `derived`, or `procedural`. `frame.count` marks a partly filled last row.
+- Use stable dotted asset IDs and unique texture keys.
 - Paths are relative to `asset/`, use `/`, and match filename casing.
-- Name spritesheets with their frame size and grid when practical, for example
+- Name sheets with their frame size and grid, for example
   `128x128-tile_4x2-resource-piles.png`.
-- Frame entries describe the sheet; they do not define game objects.
 - Never put colliders, solidity, health, drops, damage, AI, or interactions here.
-- Run `pnpm assets:check` after editing the manifest.
+- Run `pnpm assets:check`. It verifies paths, casing, `expect` dimensions, even
+  frame division, unique texture keys, bundles, and fails on unregistered PNGs.
 
-## 2. Create one file per object
+## 2. Build a scene
 
-Create a JSON file under a family directory such as `src/game/content/objects/trees/`. Its filename is the dotted object ID with dots replaced by hyphens.
+Every placeable object, character, weapon, effect, and UI surface is a scene.
+Create or duplicate one in Scene Studio (`pnpm dev`, then open
+`http://localhost:3000/?studio=scenes`); it saves JSON under
+`src/game/content/scenes/authored/`, and scene files there are discovered
+automatically, so there is no catalog to register.
 
-Example: `tree.oak.solid` becomes `tree-oak-solid.json`.
+A static object is a `StaticBody2D` root with a `CollisionShape2D` and a
+`Sprite2D`; a decoration without collision uses a `Node2D` root. The sprite
+references the manifest through a scene-owned `sprite-sheet` subresource:
 
 ```json
 {
-  "$schema": "../objects.schema.json",
-  "objectId": "tree.oak.solid",
-  "selection": "authored",
-  "variants": [
-    {
-      "assetId": "sheet.trees.oak",
-      "frames": [
-        {
-          "visualId": "oak-small",
-          "frame": 0,
-          "scale": 1,
-          "collider": { "width": 30, "height": 40, "offsetX": 49, "offsetY": 125 }
-        }
-      ]
-    }
+  "version": 1,
+  "sceneId": "object.crystal-cluster-wall.01",
+  "rootNodeId": "body",
+  "nodes": [
+    { "id": "body", "name": "Body", "type": "StaticBody2D", "parentId": null, "order": 0,
+      "properties": { "collisionLayer": 1, "collisionMask": 0, "position": [0, 0] } },
+    { "id": "body-shape", "name": "BodyShape", "type": "CollisionShape2D", "parentId": "body", "order": 0,
+      "properties": { "shape": { "resourceId": "crystal-cluster-wall.01.shape" }, "position": [0, -22] } },
+    { "id": "visual", "name": "Visual", "type": "Sprite2D", "parentId": "body", "order": 1,
+      "properties": {
+        "texture": { "resourceId": "crystal-cluster-wall.01.sprite" }, "frame": 0,
+        "origin": [0.5, 1], "scale": [1, 1], "visualOffset": [0, 0],
+        "depthMode": "world-sorted", "depthBand": "world-entities",
+        "occlusionBounds": { "width": 65, "height": 114, "offsetX": 31, "offsetY": 10 } } }
   ],
-  "physics": { "body": "static" },
-  "tags": ["tree", "solid"]
+  "instances": [],
+  "subresources": [
+    { "version": 1, "resourceId": "crystal-cluster-wall.01.sprite", "kind": "sprite-sheet",
+      "assetId": "sheet.rocks.crystal-clusters.8x2", "frameWidth": 128, "frameHeight": 128 },
+    { "version": 1, "resourceId": "crystal-cluster-wall.01.shape", "kind": "collision-shape",
+      "value": { "shape": "rectangle", "width": 48, "height": 44 } }
+  ]
 }
 ```
 
-Register the JSON import in `ObjectCatalog.ts`. This keeps object IDs available to TypeScript and lets `ObjectFactory` resolve the definition.
+Scene rules:
 
-Object rules:
+- One scene per distinct visual/boundary. Reuse the same frame in two scenes
+  when they need different collision or behavior.
+- Behavior comes from a `ScriptNode` with a registered `scriptId`
+  (`game.resource-node`, `game.collectible`, `game.chest`, `game.door`,
+  `game.gate`, `game.npc`, ...; see `src/game/features/scripts/registrations.ts`).
+  The node stores only the script ID and its data.
+- Animations live in the scene's own `AnimationPlayer` library; sounds are
+  `AudioStreamPlayer`/`AudioStreamPlayer2D` nodes (see `pnpm audio:wire`).
+- Large families are generated rather than hand-built: interiors
+  (`pnpm interiors:scenes`) and wall props
+  (`python scripts/props/generate-wall-prop-scenes.py`). Re-running those tools
+  overwrites the files they own.
+- Run `pnpm scenes:check`.
 
-- The object file owns every collider and gameplay behavior.
-- `scale` is an optional uniform visual multiplier. It defaults to `1`; the runtime applies it to the artwork and authored collider, depth, and occlusion geometry while preserving the map anchor.
-- Every frame used by a solid object must define its collider.
-- Decorative objects use `"physics": null` and define no colliders.
-- Interactive objects may declare a stable `behavior` ID; the scene composition registers the matching behavior group.
-- Multiple visuals may be declared in one object when they share behavior. Every frame needs a stable, unique `visualId`; map authors choose it explicitly.
-- Create a new object file whenever behavior or boundaries differ.
-- Run `pnpm objects:check` after adding or editing an object.
+The legacy object definitions in `src/game/content/objects/` (and
+`ObjectCatalog.ts`) are a read-only compatibility validator for older map/save
+data. New objects do not need an entry there.
 
-Current solid environment content includes `tree.world.solid` (46 explicitly selectable tree visuals) and `house.world.solid` (3 house visuals). They intentionally have no decorative/no-collision counterpart; create one only if that gameplay distinction is actually needed.
+## 3. Place instances
 
-### Reusing one frame in different objects
-
-Two objects may reference the same asset and frame while behaving differently. For example, `rock-amber-decorative.json` can contain:
+Open the world scene (`world.<map-id>`, file
+`scenes/authored/worlds/<map-id>.scene.json`) in Scene Studio and add an
+instance of the new scene. An instance stores the source `sceneId`, a stable
+`instanceId`/`persistenceKey`, and property `overrides`, such as position, a
+`visualOffset`/`scale` tweak, or script data like a collectible's quantity:
 
 ```json
 {
-  "$schema": "../objects.schema.json",
-  "objectId": "rock.amber.decorative",
-  "selection": "authored",
-  "variants": [{ "assetId": "sheet.rocks.8x3", "frames": [{ "visualId": "amber", "frame": 0 }] }],
-  "physics": null,
-  "tags": ["rock", "decorative"]
+  "instanceId": "l1-border-tree-001",
+  "name": "l1-border-tree-001",
+  "sceneId": "object.tree-forest-wall.pine-07",
+  "parentNodeId": "gen-forest",
+  "order": 0,
+  "persistenceKey": "level-1.l1-border-tree-001",
+  "overrides": [
+    { "sourceInstancePath": [], "sourceNodeId": "body", "property": "position", "value": [32, 54] }
+  ]
 }
 ```
 
-The separate `rock-amber-mineable.json` can use a different boundary and behavior:
-
-```json
-{
-  "$schema": "../objects.schema.json",
-  "objectId": "rock.amber.mineable",
-  "selection": "authored",
-  "variants": [{
-    "assetId": "sheet.rocks.8x3",
-    "frames": [{
-      "visualId": "amber",
-      "frame": 0,
-      "collider": { "width": 42, "height": 16, "offsetX": 28, "offsetY": 59 }
-    }]
-  }],
-  "physics": { "body": "static" },
-  "destructible": { "health": 30, "drops": ["shard"] },
-  "tags": ["rock", "solid", "mineable"]
-}
-```
-
-## 3. Place object instances
-
-Maps reference object and visual IDs—not asset IDs, paths, texture keys, frames, colliders, or scale. Scale is shared by every map instance using that visual template.
-
-```json
-{
-  "instanceId": "tree-001",
-  "objectId": "tree.oak.solid",
-  "visualId": "oak-small",
-  "x": 640,
-  "y": 320,
-  "initialState": { "health": 20 }
-}
-```
-
-Only mutable per-instance state belongs here, such as remaining health, whether a chest is open, or whether an item was collected. Physics and behavior cannot be overridden by a map instance; create another object file instead.
-
-At runtime, pass the object ID, visual ID, and placement coordinates to `ObjectFactory`. World-generation code must not know texture keys, frames, or collider values.
+Instances never carry asset paths or texture keys. Run `pnpm scenes:check`
+(world scenes are scenes). `pnpm maps:check` validates the separate map JSON in
+`src/game/content/maps/` (terrain layers, spawns, exits, areas).
 
 ## Completion checklist
 
-- Media file added under `asset/`.
-- Loading-only manifest entry and bundle added.
-- One JSON file created for each distinct object behavior/boundary set.
-- Object registered in `ObjectCatalog.ts`.
-- Maps reference only object IDs, visual IDs, positions, and mutable state.
-- `pnpm check` passes.
+- Runtime file under `asset/`, source art under `asset/Originals/`.
+- Manifest entry added to a bundle; `pnpm assets:check` passes.
+- Scene created (Studio, generator, or JSON); `pnpm scenes:check` passes.
+- Instances placed in the world scene; `pnpm scenes:check` passes again.
+- `pnpm check` passes; the object looks and collides correctly in game.

@@ -37,9 +37,9 @@
         "intellect": 10
       },
       "movement": {
-        "baseSpeed": 240,
-        "boostSpeed": 360,
-        "dodgeSpeed": 420,
+        "baseSpeed": 200,
+        "boostSpeed": 300,
+        "dodgeSpeed": 380,
         "dodgeInvulnerabilityMs": 400,
         "movementSpeedCap": 480
       },

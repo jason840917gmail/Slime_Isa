@@ -1,45 +1,46 @@
 # Asset Sheet And Size Guide
 
-This is the overview document for the asset size contract used by the game.
-
-If you are adding new art, start here, then continue with the focused guide for the asset type you are working on.
-
-## Asset Guides
+The shared sheet contract. Continue with the focused guide for the asset type:
 
 - [Slime Sheet Guide](./slime-sheet-guide.md)
 - [Terrain And Tile Guide](./terrain-tile-guide.md)
 - [Houses And World Props Guide](./houses-and-world-props-guide.md)
 
-## Shared Safe Defaults
+## Sheet rules
 
-- Animated slime-style sheet: `256 x 256 px` frames on an `8 x 8` grid
-- Terrain tile: `64 x 64 px`
-- House texture: `128 x 128 px`
-- Small prop: around `16 x 16 px` to `48 x 20 px`
+- Uniform grids only: every frame the same size, frames indexed row-major
+  (`frame = row * cols + col`). A partly filled last row sets `frame.count`.
+- Transparent background (real alpha) for anything that is not a full tile.
+- Keep every pixel inside its own cell; leave a small transparent margin.
+- World props and furniture are bottom-centre anchored (`render.origin`
+  `[0.5, 1]`) so the frame's bottom edge is the ground contact line.
+- Name runtime files with frame size and grid, e.g.
+  `128x128-tile_8x2-crystal-clusters.png`.
 
-## When New Art Works Without Code Changes
+## Current sizes
 
-New art should fit the current game immediately if it follows these rules:
+| Asset | Frame | Example |
+| --- | --- | --- |
+| World tile | `64 x 64` | map `tileSize` is 64 |
+| Ground material | `64 x 64` cells, `19 x 19` sheet (`1216 x 1216`) | `MAPS/grounds/64x64-tile_19x19_forest-floor.png` |
+| Player slime | `256 x 256`, `8 x 8` | `characters/slime_normalized.png` |
+| NPC | `229 x 229`, `6 x 5` | `characters/authored/npcs/lili.png` |
+| Worm / spider enemy | `64 x 64` | `MAPS/enemies/64x64-8x6-worm-archer.png` |
+| Tree | `128 x 170` | `MAPS/trees/128X170-tiles_8x6.png` |
+| Rock / prop | `96`, `128`, or `256` square | `MAPS/rocks/96x96-tile_8x3.png` |
+| House | `320 x 320` | `MAPS/Houses/320-3x1.png` |
+| Item icon | `64 x 64`, `5 x 2` | `MAPS/items/gems-5x2.png` |
+| Interior furniture | `128`, `192`, or `256` square | `MAPS/interiors/` |
+| Weapon / hit effect | `120`-`128` square | `MAPS/weapons/` |
 
-- Slime or animated hero sheets keep the same `8 x 8` layout and `256 x 256 px` frame size.
-- Terrain art stays on the `64 x 64 px` world tile grid.
-- Houses keep the entrance near the bottom-center and stay close to `128 x 128 px`.
+## What needs changing for a new size
 
-## When Code Must Change
+Frame size is not hardcoded. A new size needs:
 
-Update the code if any of these change:
+- a manifest entry with the correct `frame` and `expect` values;
+- a scene whose sprite-sheet subresource uses the same `frameWidth`/`frameHeight`,
+  and whose `scale`, `origin`, collision shape, and depth/occlusion bounds fit
+  the art (see [Adding Game Assets](./adding-assets.md)).
 
-- Slime frame size
-- Slime sheet grid layout
-- Terrain tile size
-- Authored NPC frame size
-- Authored house art size or doorway placement
-- Collision footprint for obstacle tiles
-
-Main code locations:
-
-- `asset/assets.json`
-- `src/game/infrastructure/assets/ProceduralAssetScene.ts`
-- `src/game/scenes/WorldScene.ts`
-- `src/game/content/terrain/TileCatalog.ts`
-- `src/game/content/objects/`
+Changing the grid layout of an existing animated sheet also means updating the
+frame indices in that scene's `AnimationPlayer` library.

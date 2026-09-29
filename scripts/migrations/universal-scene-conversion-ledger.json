@@ -179,7 +179,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "character.boss.fatty-one-eye",
@@ -221,7 +221,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "character.enemy.slime-spider",
@@ -263,7 +263,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "character.npc.lili",
@@ -305,7 +305,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "character.npc.mossy-scout",
@@ -347,7 +347,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "character.npc.red-slime-boy",
@@ -389,7 +389,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "character.npc.village-elder-plop",
@@ -431,7 +431,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "character.npc.yellow-blond-slime-girl",
@@ -473,7 +473,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "character.player.slime",
@@ -515,7 +515,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "effect.boss.ground-crack",
@@ -557,7 +557,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "enemy.projectile.worm-arrow",
@@ -599,7 +599,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "effect.enemy.worm-brawler-hit",
@@ -641,7 +641,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "effect.resource.impact-tiles",
@@ -683,7 +683,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "effect.resource.stone-impact-tiles",
@@ -725,7 +725,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "effect.weapon.hit-tiles",
@@ -767,7 +767,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "enemy.projectile.worm-arrow",
@@ -809,7 +809,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "enemy.projectile.worm-arrow",
@@ -851,7 +851,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "enemy.worm.archer",
@@ -893,7 +893,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "enemy.worm.brawler",
@@ -935,7 +935,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "enemy.worm.swordsman",
@@ -977,7 +977,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.decorations.8x3",
@@ -1019,7 +1019,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.grounds.19x19.amberleaf",
@@ -1061,7 +1061,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "d196afd279ab92c20b9069b0e17570ad42f78c962dc51e979188fca0af137974",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.grounds.19x19.cavern-floor",
@@ -1103,7 +1103,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "d196afd279ab92c20b9069b0e17570ad42f78c962dc51e979188fca0af137974",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.grounds.19x19.crystal-floor",
@@ -1145,7 +1145,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "d196afd279ab92c20b9069b0e17570ad42f78c962dc51e979188fca0af137974",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.grounds.19x19.deep-water",
@@ -1187,7 +1187,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "d196afd279ab92c20b9069b0e17570ad42f78c962dc51e979188fca0af137974",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.grounds.19x19.forest-floor",
@@ -1229,7 +1229,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "d196afd279ab92c20b9069b0e17570ad42f78c962dc51e979188fca0af137974",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.grounds.19x19.forest-moss",
@@ -1271,7 +1271,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.grounds.19x19.frozen",
@@ -1313,7 +1313,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.grounds.19x19.highland-green",
@@ -1355,7 +1355,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.grounds.19x19.sanddessert",
@@ -1397,7 +1397,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "d196afd279ab92c20b9069b0e17570ad42f78c962dc51e979188fca0af137974",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.grounds.19x19.water",
@@ -1439,7 +1439,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.houses.3x1",
@@ -1481,7 +1481,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4914e0e81e2b2bcc4202d9af95d8cd4e3e81a5e53d35b3a44b1d4a64c8ab1fae",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.items.forage.5x2",
@@ -1523,7 +1523,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4914e0e81e2b2bcc4202d9af95d8cd4e3e81a5e53d35b3a44b1d4a64c8ab1fae",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.items.gems.5x2",
@@ -1565,7 +1565,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.items.keys.5x4",
@@ -1607,7 +1607,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4914e0e81e2b2bcc4202d9af95d8cd4e3e81a5e53d35b3a44b1d4a64c8ab1fae",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.items.materials.5x2",
@@ -1649,7 +1649,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.items.potions.5x2",
@@ -1691,7 +1691,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.objects.chest-wooden.2x1",
@@ -1733,7 +1733,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.resources.4x2",
@@ -1775,7 +1775,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.resources.starter-materials.2x1",
@@ -1817,7 +1817,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.rocks.3x1",
@@ -1859,7 +1859,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.rocks.8x3",
@@ -1901,7 +1901,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ee79f76ced07abe01c049dbfc62665dd0e93b063797446124404fe8244ed5400",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.rocks.crystal-clusters.8x2",
@@ -1943,7 +1943,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.trees.3x1",
@@ -1985,7 +1985,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.trees.8x6",
@@ -2027,7 +2027,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.trees.autumn.6x2",
@@ -2069,7 +2069,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.walls.corners.4x2",
@@ -2111,7 +2111,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.walls.horizontal.8x1",
@@ -2153,7 +2153,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.walls.t-junctions.7x1",
@@ -2195,7 +2195,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.walls.vertical.1x8",
@@ -2237,7 +2237,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "ui.backplate.crafting-detail-workbench",
@@ -2279,7 +2279,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "ui.backplate.crafting-workbench",
@@ -2321,7 +2321,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "ui.backplate.inventory",
@@ -2363,7 +2363,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "ui.backplate.quest-journal",
@@ -2405,7 +2405,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "ui.banner.area-title",
@@ -2447,7 +2447,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "ui.frame.boss-health",
@@ -2489,7 +2489,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "ui.frame.levelup-crest",
@@ -2531,7 +2531,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "ui.frame.organic-compact",
@@ -2573,7 +2573,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "ui.frame.organic-minimap",
@@ -2615,7 +2615,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "ui.frame.organic-modal",
@@ -2657,7 +2657,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "ui.frame.quest-offer-scroll",
@@ -2699,7 +2699,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "ui.surface.map-journal-paper",
@@ -2741,7 +2741,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "weapon.player.hammer-spear-tiles",
@@ -2783,7 +2783,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "weapon.player.pickaxe-tiles",
@@ -2825,7 +2825,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "weapon.player.starter-spears-tiles",
@@ -2867,7 +2867,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "weapon.player.stone-tools-tiles",
@@ -2909,7 +2909,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "weapon.player.sword-tiles",
@@ -2951,7 +2951,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "4e4736623aea24a04103135617f047f90bc3624dad13256543c281ee51445eb6",
+      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "weapon.player.wooden-axe-tiles",
@@ -3002,8 +3002,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/fatty-one-eye.scene.json",
-          "sha256": "64f33c46417a35b311a24b64006844947fbfcbc6669b24f6568ac2fe105afdde",
-          "bytes": 17750
+          "sha256": "a750f1dbdfe1019e8546da21f3838cc776952caebcbc89dc124b2e23c0c43810",
+          "bytes": 17753
         },
         {
           "path": "src/game/content/scenes/authored/encounters/level-1-fatty-camp.scene.json",
@@ -3091,8 +3091,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/fatty-one-eye.scene.json",
-          "sha256": "64f33c46417a35b311a24b64006844947fbfcbc6669b24f6568ac2fe105afdde",
-          "bytes": 17750
+          "sha256": "a750f1dbdfe1019e8546da21f3838cc776952caebcbc89dc124b2e23c0c43810",
+          "bytes": 17753
         }
       ],
       "consumedFieldPaths": [
@@ -3165,8 +3165,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/lili.scene.json",
-          "sha256": "2c26fc42973e72001e6622895f58bb0b269932b22280afcc752d0dc96f2b32f8",
-          "bytes": 7023
+          "sha256": "819107c9b7ff679b79155e795d2b52867c40ea46fab6f0d15237985884d81fda",
+          "bytes": 7026
         }
       ],
       "consumedFieldPaths": [
@@ -3241,8 +3241,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/mossy-scout.scene.json",
-          "sha256": "319b71bf92b69223f80e7a8914c9eb4a1455f16b89e2600ed4aab577155c6814",
-          "bytes": 7437
+          "sha256": "eed1272157a4f8dacbe1af9da75342a351d9ea8c0c7e77ec6f32d64844488886",
+          "bytes": 7440
         }
       ],
       "consumedFieldPaths": [
@@ -3317,8 +3317,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/player-slime.scene.json",
-          "sha256": "a75b5f933139f2c7d71facc6f9c657f438a4d8b4df949b944b3cede455cbe0c8",
-          "bytes": 20875
+          "sha256": "c0dccf18341b6b9825e10c5fea154498815158593da99f45df038b47c0d3f4bf",
+          "bytes": 20876
         }
       ],
       "consumedFieldPaths": [
@@ -3394,8 +3394,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/red-slime-boy.scene.json",
-          "sha256": "baf6f33c3b6e7b2c4d90e900afd1eba43c3f1a47b17ef5c77c18502420fd7a55",
-          "bytes": 7119
+          "sha256": "1ec838fb95d97fdf1350c538bd22364945687e408b1cd0ad4826eb7f9aa602a7",
+          "bytes": 7122
         }
       ],
       "consumedFieldPaths": [
@@ -3470,8 +3470,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/slime-spider.scene.json",
-          "sha256": "3b936d499dae75dec39e17bbfdea22e2a6468ac24c0b4de3fa048d5a47f7837c",
-          "bytes": 21093
+          "sha256": "bb9f6e6694e3350704b7ae60a1a38c915572578442b111f42439f38c1c4d8c5d",
+          "bytes": 21096
         }
       ],
       "consumedFieldPaths": [
@@ -3546,8 +3546,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/village-elder-plop.scene.json",
-          "sha256": "855ed2b79c2e385f44eab1ae6323cc9cebcd7e293f16d30f985de20157eb9617",
-          "bytes": 7788
+          "sha256": "5a696e9eba80be85710694096983848ce7be872b47403d76659ae31d1fb97208",
+          "bytes": 7791
         }
       ],
       "consumedFieldPaths": [
@@ -3622,8 +3622,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/worm-archer.scene.json",
-          "sha256": "bda656d81af9d744287e3c9b15ae3d3204c99d51b16f24fa907eabb5fbf7c8d5",
-          "bytes": 16906
+          "sha256": "75e032db611e37683664756356c40e2376bc0dba2f630e8193a9b8fc03014824",
+          "bytes": 16909
         }
       ],
       "consumedFieldPaths": [
@@ -3673,8 +3673,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/worm-brawler.scene.json",
-          "sha256": "ce32c52438d12167ed4c12a6da16d64324db0ed09cb5cfb79b804db1e093fcd1",
-          "bytes": 16663
+          "sha256": "d73d05cccb63b7dc30828c6c1aee9fc81ffb8c4d0caf4608acc497ae780e3d66",
+          "bytes": 16666
         }
       ],
       "consumedFieldPaths": [
@@ -3724,8 +3724,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/worm-swordsman.scene.json",
-          "sha256": "2f0982a671ee769f68812c62f9d6a421e70bb6190c4f8142860c249531ca0000",
-          "bytes": 17441
+          "sha256": "1d355fcbbac61b53aaafe6488e3a4eee4f5fee44888e5dc7b26e58d663d935d2",
+          "bytes": 17444
         }
       ],
       "consumedFieldPaths": [
@@ -3775,8 +3775,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/yellow-blond-slime-girl.scene.json",
-          "sha256": "8d22f61265c53acab09d302e9f38ddaecf3489ece9136889e47cd602d98ffaea",
-          "bytes": 7226
+          "sha256": "f23736b56d0b19ce5801a217cf385e06b26f41b9e92a819a60891a6e3e6595be",
+          "bytes": 7229
         }
       ],
       "consumedFieldPaths": [
@@ -4072,7 +4072,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "23b7ed45012a068c652067b2b2b10fbd7c5e8ae3035d5a761131f0aca63f1e0d",
+      "sourceHash": "70ee40bde5458dcd937cb12f6eca7fc758c29ab3439052f5bf4fb0759ff43b1f",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "worm-archer",
@@ -4081,8 +4081,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/worm-archer.scene.json",
-          "sha256": "bda656d81af9d744287e3c9b15ae3d3204c99d51b16f24fa907eabb5fbf7c8d5",
-          "bytes": 16906
+          "sha256": "75e032db611e37683664756356c40e2376bc0dba2f630e8193a9b8fc03014824",
+          "bytes": 16909
         }
       ],
       "consumedFieldPaths": [
@@ -4096,6 +4096,10 @@
         {
           "path": "$.defaults",
           "owner": "src/game/content/characters/worm-archer/visual-set.json"
+        },
+        {
+          "path": "$.types.slime-spider",
+          "owner": "src/game/content/enemies/enemy-types.json"
         },
         {
           "path": "$.types.worm-brawler",
@@ -4134,7 +4138,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "23b7ed45012a068c652067b2b2b10fbd7c5e8ae3035d5a761131f0aca63f1e0d",
+      "sourceHash": "70ee40bde5458dcd937cb12f6eca7fc758c29ab3439052f5bf4fb0759ff43b1f",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "worm-brawler",
@@ -4143,8 +4147,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/worm-brawler.scene.json",
-          "sha256": "ce32c52438d12167ed4c12a6da16d64324db0ed09cb5cfb79b804db1e093fcd1",
-          "bytes": 16663
+          "sha256": "d73d05cccb63b7dc30828c6c1aee9fc81ffb8c4d0caf4608acc497ae780e3d66",
+          "bytes": 16666
         }
       ],
       "consumedFieldPaths": [
@@ -4158,6 +4162,10 @@
         {
           "path": "$.defaults",
           "owner": "src/game/content/characters/worm-brawler/visual-set.json"
+        },
+        {
+          "path": "$.types.slime-spider",
+          "owner": "src/game/content/enemies/enemy-types.json"
         },
         {
           "path": "$.types.worm-archer",
@@ -4196,7 +4204,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "23b7ed45012a068c652067b2b2b10fbd7c5e8ae3035d5a761131f0aca63f1e0d",
+      "sourceHash": "70ee40bde5458dcd937cb12f6eca7fc758c29ab3439052f5bf4fb0759ff43b1f",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "worm-swordsman",
@@ -4205,8 +4213,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/worm-swordsman.scene.json",
-          "sha256": "2f0982a671ee769f68812c62f9d6a421e70bb6190c4f8142860c249531ca0000",
-          "bytes": 17441
+          "sha256": "1d355fcbbac61b53aaafe6488e3a4eee4f5fee44888e5dc7b26e58d663d935d2",
+          "bytes": 17444
         }
       ],
       "consumedFieldPaths": [
@@ -4220,6 +4228,10 @@
         {
           "path": "$.defaults",
           "owner": "src/game/content/characters/worm-swordsman/visual-set.json"
+        },
+        {
+          "path": "$.types.slime-spider",
+          "owner": "src/game/content/enemies/enemy-types.json"
         },
         {
           "path": "$.types.worm-archer",
@@ -4258,7 +4270,7 @@
         "test:game-constants"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "b2b49ed5ad2f6bf8a6c9d8fe2bd37e84179199f0e65fa2ecc52d2878dc668fbd",
+      "sourceHash": "600161eaacc456cd85a79fb117a5ebf397a448665e4467c7a41747224b58114a",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "global",
@@ -4297,7 +4309,7 @@
         "test:progression"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "93bd11854093f7786174970c50477c909a3f62fe13a6c4f97c44f5b13fa79854",
+      "sourceHash": "d20fe9834d9e56d6d1349956f7506d8fd7495a41299090b5d3eb9b3b1d58873d",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "charcoal",
@@ -4336,7 +4348,7 @@
         "test:progression"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "93bd11854093f7786174970c50477c909a3f62fe13a6c4f97c44f5b13fa79854",
+      "sourceHash": "d20fe9834d9e56d6d1349956f7506d8fd7495a41299090b5d3eb9b3b1d58873d",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "energy-potion",
@@ -4375,7 +4387,7 @@
         "test:progression"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "93bd11854093f7786174970c50477c909a3f62fe13a6c4f97c44f5b13fa79854",
+      "sourceHash": "d20fe9834d9e56d6d1349956f7506d8fd7495a41299090b5d3eb9b3b1d58873d",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "green-key",
@@ -4414,7 +4426,7 @@
         "test:progression"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "93bd11854093f7786174970c50477c909a3f62fe13a6c4f97c44f5b13fa79854",
+      "sourceHash": "d20fe9834d9e56d6d1349956f7506d8fd7495a41299090b5d3eb9b3b1d58873d",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "hp-potion",
@@ -4453,7 +4465,7 @@
         "test:progression"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "93bd11854093f7786174970c50477c909a3f62fe13a6c4f97c44f5b13fa79854",
+      "sourceHash": "d20fe9834d9e56d6d1349956f7506d8fd7495a41299090b5d3eb9b3b1d58873d",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "iron-ore",
@@ -4492,7 +4504,7 @@
         "test:progression"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "93bd11854093f7786174970c50477c909a3f62fe13a6c4f97c44f5b13fa79854",
+      "sourceHash": "d20fe9834d9e56d6d1349956f7506d8fd7495a41299090b5d3eb9b3b1d58873d",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "purple-berry-mat",
@@ -4531,7 +4543,7 @@
         "test:progression"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "93bd11854093f7786174970c50477c909a3f62fe13a6c4f97c44f5b13fa79854",
+      "sourceHash": "d20fe9834d9e56d6d1349956f7506d8fd7495a41299090b5d3eb9b3b1d58873d",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "shard",
@@ -4570,7 +4582,7 @@
         "test:progression"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "93bd11854093f7786174970c50477c909a3f62fe13a6c4f97c44f5b13fa79854",
+      "sourceHash": "d20fe9834d9e56d6d1349956f7506d8fd7495a41299090b5d3eb9b3b1d58873d",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "silk-clump",
@@ -4609,7 +4621,7 @@
         "test:progression"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "93bd11854093f7786174970c50477c909a3f62fe13a6c4f97c44f5b13fa79854",
+      "sourceHash": "d20fe9834d9e56d6d1349956f7506d8fd7495a41299090b5d3eb9b3b1d58873d",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "stone",
@@ -4648,7 +4660,7 @@
         "test:progression"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "93bd11854093f7786174970c50477c909a3f62fe13a6c4f97c44f5b13fa79854",
+      "sourceHash": "d20fe9834d9e56d6d1349956f7506d8fd7495a41299090b5d3eb9b3b1d58873d",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "wood",
@@ -6980,8 +6992,8 @@
         },
         {
           "path": "src/game/content/scenes/authored/worlds/crystal-caverns.scene.json",
-          "sha256": "ad713fe9193980233ebdc2dcca52a0e563e07c7ffaf749fb6dc4edb9d9d3025b",
-          "bytes": 280701
+          "sha256": "845f2bd10eb696ce6943385b39fb718933ac0ff377646c6405b1c7276538e601",
+          "bytes": 470743
         }
       ],
       "consumedFieldPaths": [
@@ -8281,8 +8293,8 @@
         },
         {
           "path": "src/game/content/scenes/authored/worlds/gloop-forest.scene.json",
-          "sha256": "ddd7c8b08db06aee56afad15e0a414d36b1f347102fda62ca5c421efcad64ed9",
-          "bytes": 312874
+          "sha256": "6f5d2778633d9a3693cc33dd4989658d5e14194f05079d0e3e857e39846107b4",
+          "bytes": 893080
         }
       ],
       "consumedFieldPaths": [
@@ -9296,8 +9308,8 @@
         },
         {
           "path": "src/game/content/scenes/authored/worlds/level-1.scene.json",
-          "sha256": "3771ebb489d0997137f523083eb970218824903088e1901a66dff6da1598b310",
-          "bytes": 316057
+          "sha256": "f30bdba34b7cf3fa40c58f7c60e3a23c23097b850fef42249a7e375001a69b9b",
+          "bytes": 1599754
         }
       ],
       "consumedFieldPaths": [
@@ -9892,8 +9904,8 @@
         },
         {
           "path": "src/game/content/scenes/authored/worlds/slime-home.scene.json",
-          "sha256": "56f5576d90378e3035808d217dfd09716904807886c717e55c325be6736305ab",
-          "bytes": 42681
+          "sha256": "474ef224be3da5fff1a2ecc5b9126b17a809f6f0aa75f8c1116941730508c2e8",
+          "bytes": 42958
         }
       ],
       "consumedFieldPaths": [
@@ -11305,8 +11317,8 @@
         },
         {
           "path": "src/game/content/scenes/authored/worlds/tiktok.scene.json",
-          "sha256": "85dbf1e4bc5dfe2f11c4048d89e9925711e65a8a4bace980e56ef0626c2c5fcb",
-          "bytes": 1247980
+          "sha256": "3005adf48b7f74003af70f8b6dec485843f23036f10032df182439ad823f1e3c",
+          "bytes": 1576007
         }
       ],
       "consumedFieldPaths": [
@@ -11374,7 +11386,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "eade7d777201d3b98b1c6317fd22282a326a01a941bbf88d916191f8770d668e",
+      "sourceHash": "9c27d966fc4bbf0cb6a17043323d885084cd8e3602046a2c591d640436085429",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "level-1-spider-giver",
@@ -11417,7 +11429,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "eade7d777201d3b98b1c6317fd22282a326a01a941bbf88d916191f8770d668e",
+      "sourceHash": "9c27d966fc4bbf0cb6a17043323d885084cd8e3602046a2c591d640436085429",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "lili",
@@ -11460,7 +11472,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "eade7d777201d3b98b1c6317fd22282a326a01a941bbf88d916191f8770d668e",
+      "sourceHash": "9c27d966fc4bbf0cb6a17043323d885084cd8e3602046a2c591d640436085429",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "red-slime-boy",
@@ -11503,7 +11515,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "eade7d777201d3b98b1c6317fd22282a326a01a941bbf88d916191f8770d668e",
+      "sourceHash": "9c27d966fc4bbf0cb6a17043323d885084cd8e3602046a2c591d640436085429",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "village-elder-plop",
@@ -11546,7 +11558,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "eade7d777201d3b98b1c6317fd22282a326a01a941bbf88d916191f8770d668e",
+      "sourceHash": "9c27d966fc4bbf0cb6a17043323d885084cd8e3602046a2c591d640436085429",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "yellow-blond-slime-girl",
@@ -14049,7 +14061,7 @@
         "test:ui"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "96d4318d8c34e3ecec3f15571b0fc745d98cea906391f89ff557c02575349ea8",
+      "sourceHash": "fe65fc0e2ccf6eb622a95764a888207b60b22c2d53a4300991f7faf098e5c242",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "brew-fizzy",
@@ -14086,7 +14098,7 @@
         "test:ui"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "96d4318d8c34e3ecec3f15571b0fc745d98cea906391f89ff557c02575349ea8",
+      "sourceHash": "fe65fc0e2ccf6eb622a95764a888207b60b22c2d53a4300991f7faf098e5c242",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "brew-tonic",
@@ -14123,7 +14135,7 @@
         "test:ui"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "96d4318d8c34e3ecec3f15571b0fc745d98cea906391f89ff557c02575349ea8",
+      "sourceHash": "fe65fc0e2ccf6eb622a95764a888207b60b22c2d53a4300991f7faf098e5c242",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "craft-stone-axe",
@@ -14160,7 +14172,7 @@
         "test:ui"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "96d4318d8c34e3ecec3f15571b0fc745d98cea906391f89ff557c02575349ea8",
+      "sourceHash": "fe65fc0e2ccf6eb622a95764a888207b60b22c2d53a4300991f7faf098e5c242",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "craft-stone-axe-test",
@@ -14197,7 +14209,7 @@
         "test:ui"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "96d4318d8c34e3ecec3f15571b0fc745d98cea906391f89ff557c02575349ea8",
+      "sourceHash": "fe65fc0e2ccf6eb622a95764a888207b60b22c2d53a4300991f7faf098e5c242",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "craft-stone-pickaxe",
@@ -14234,7 +14246,7 @@
         "test:ui"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "96d4318d8c34e3ecec3f15571b0fc745d98cea906391f89ff557c02575349ea8",
+      "sourceHash": "fe65fc0e2ccf6eb622a95764a888207b60b22c2d53a4300991f7faf098e5c242",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "craft-stone-pickaxe-test",
@@ -14271,7 +14283,7 @@
         "test:ui"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "96d4318d8c34e3ecec3f15571b0fc745d98cea906391f89ff557c02575349ea8",
+      "sourceHash": "fe65fc0e2ccf6eb622a95764a888207b60b22c2d53a4300991f7faf098e5c242",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "craft-stone-spear",
@@ -14308,7 +14320,7 @@
         "test:ui"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "96d4318d8c34e3ecec3f15571b0fc745d98cea906391f89ff557c02575349ea8",
+      "sourceHash": "fe65fc0e2ccf6eb622a95764a888207b60b22c2d53a4300991f7faf098e5c242",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "craft-stone-spear-test",
@@ -14345,7 +14357,7 @@
         "test:ui"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "96d4318d8c34e3ecec3f15571b0fc745d98cea906391f89ff557c02575349ea8",
+      "sourceHash": "fe65fc0e2ccf6eb622a95764a888207b60b22c2d53a4300991f7faf098e5c242",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "craft-wooden-spear",
@@ -14382,7 +14394,7 @@
         "test:ui"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "96d4318d8c34e3ecec3f15571b0fc745d98cea906391f89ff557c02575349ea8",
+      "sourceHash": "fe65fc0e2ccf6eb622a95764a888207b60b22c2d53a4300991f7faf098e5c242",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "craft-wooden-spear-test",
@@ -14419,7 +14431,7 @@
         "test:ui"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "96d4318d8c34e3ecec3f15571b0fc745d98cea906391f89ff557c02575349ea8",
+      "sourceHash": "fe65fc0e2ccf6eb622a95764a888207b60b22c2d53a4300991f7faf098e5c242",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "weave-tonics",
@@ -14469,8 +14481,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/resources/terrain/terrain.tile-set.resource.json",
-          "sha256": "78c0c916003827674000725225bd5eeea2001c2a4e8055f5b9520256525f5417",
-          "bytes": 7126
+          "sha256": "acada1e08ee29ad0a0dde455de726dc34d39a7b2a0a7167749336826bf0eaa8f",
+          "bytes": 7468
         }
       ],
       "consumedFieldPaths": [
@@ -14513,8 +14525,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/resources/terrain/terrain.tile-set.resource.json",
-          "sha256": "78c0c916003827674000725225bd5eeea2001c2a4e8055f5b9520256525f5417",
-          "bytes": 7126
+          "sha256": "acada1e08ee29ad0a0dde455de726dc34d39a7b2a0a7167749336826bf0eaa8f",
+          "bytes": 7468
         }
       ],
       "consumedFieldPaths": [
@@ -14557,8 +14569,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/resources/terrain/terrain.tile-set.resource.json",
-          "sha256": "78c0c916003827674000725225bd5eeea2001c2a4e8055f5b9520256525f5417",
-          "bytes": 7126
+          "sha256": "acada1e08ee29ad0a0dde455de726dc34d39a7b2a0a7167749336826bf0eaa8f",
+          "bytes": 7468
         }
       ],
       "consumedFieldPaths": [
@@ -14601,8 +14613,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/resources/terrain/terrain.tile-set.resource.json",
-          "sha256": "78c0c916003827674000725225bd5eeea2001c2a4e8055f5b9520256525f5417",
-          "bytes": 7126
+          "sha256": "acada1e08ee29ad0a0dde455de726dc34d39a7b2a0a7167749336826bf0eaa8f",
+          "bytes": 7468
         }
       ],
       "consumedFieldPaths": [
@@ -14645,8 +14657,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/resources/terrain/terrain.tile-set.resource.json",
-          "sha256": "78c0c916003827674000725225bd5eeea2001c2a4e8055f5b9520256525f5417",
-          "bytes": 7126
+          "sha256": "acada1e08ee29ad0a0dde455de726dc34d39a7b2a0a7167749336826bf0eaa8f",
+          "bytes": 7468
         }
       ],
       "consumedFieldPaths": [
@@ -14689,8 +14701,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/resources/terrain/terrain.tile-set.resource.json",
-          "sha256": "78c0c916003827674000725225bd5eeea2001c2a4e8055f5b9520256525f5417",
-          "bytes": 7126
+          "sha256": "acada1e08ee29ad0a0dde455de726dc34d39a7b2a0a7167749336826bf0eaa8f",
+          "bytes": 7468
         }
       ],
       "consumedFieldPaths": [
@@ -14733,8 +14745,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/resources/terrain/terrain.tile-set.resource.json",
-          "sha256": "78c0c916003827674000725225bd5eeea2001c2a4e8055f5b9520256525f5417",
-          "bytes": 7126
+          "sha256": "acada1e08ee29ad0a0dde455de726dc34d39a7b2a0a7167749336826bf0eaa8f",
+          "bytes": 7468
         }
       ],
       "consumedFieldPaths": [
@@ -14777,8 +14789,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/resources/terrain/terrain.tile-set.resource.json",
-          "sha256": "78c0c916003827674000725225bd5eeea2001c2a4e8055f5b9520256525f5417",
-          "bytes": 7126
+          "sha256": "acada1e08ee29ad0a0dde455de726dc34d39a7b2a0a7167749336826bf0eaa8f",
+          "bytes": 7468
         }
       ],
       "consumedFieldPaths": [
@@ -14821,8 +14833,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/resources/terrain/terrain.tile-set.resource.json",
-          "sha256": "78c0c916003827674000725225bd5eeea2001c2a4e8055f5b9520256525f5417",
-          "bytes": 7126
+          "sha256": "acada1e08ee29ad0a0dde455de726dc34d39a7b2a0a7167749336826bf0eaa8f",
+          "bytes": 7468
         }
       ],
       "consumedFieldPaths": [
@@ -14865,8 +14877,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/resources/terrain/terrain.tile-set.resource.json",
-          "sha256": "78c0c916003827674000725225bd5eeea2001c2a4e8055f5b9520256525f5417",
-          "bytes": 7126
+          "sha256": "acada1e08ee29ad0a0dde455de726dc34d39a7b2a0a7167749336826bf0eaa8f",
+          "bytes": 7468
         }
       ],
       "consumedFieldPaths": [
@@ -14909,8 +14921,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/resources/terrain/terrain.tile-set.resource.json",
-          "sha256": "78c0c916003827674000725225bd5eeea2001c2a4e8055f5b9520256525f5417",
-          "bytes": 7126
+          "sha256": "acada1e08ee29ad0a0dde455de726dc34d39a7b2a0a7167749336826bf0eaa8f",
+          "bytes": 7468
         }
       ],
       "consumedFieldPaths": [
@@ -14953,8 +14965,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/resources/terrain/terrain.tile-set.resource.json",
-          "sha256": "78c0c916003827674000725225bd5eeea2001c2a4e8055f5b9520256525f5417",
-          "bytes": 7126
+          "sha256": "acada1e08ee29ad0a0dde455de726dc34d39a7b2a0a7167749336826bf0eaa8f",
+          "bytes": 7468
         }
       ],
       "consumedFieldPaths": [
@@ -15580,8 +15592,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/ui/quest-journal.scene.json",
-          "sha256": "43b38ca88ef2df0a24873ccd18192f6f4e1b760739af9d4b507de1b3a6c401ed",
-          "bytes": 8201
+          "sha256": "b367d2e5aaa4c7c4beb33719c29c72c044036e11f3e86fa3b07d09d13b67668f",
+          "bytes": 8198
         }
       ],
       "consumedFieldPaths": [
@@ -15796,8 +15808,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/fatty-one-eye.scene.json",
-          "sha256": "64f33c46417a35b311a24b64006844947fbfcbc6669b24f6568ac2fe105afdde",
-          "bytes": 17750
+          "sha256": "a750f1dbdfe1019e8546da21f3838cc776952caebcbc89dc124b2e23c0c43810",
+          "bytes": 17753
         }
       ],
       "consumedFieldPaths": [
@@ -15858,8 +15870,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/lili.scene.json",
-          "sha256": "2c26fc42973e72001e6622895f58bb0b269932b22280afcc752d0dc96f2b32f8",
-          "bytes": 7023
+          "sha256": "819107c9b7ff679b79155e795d2b52867c40ea46fab6f0d15237985884d81fda",
+          "bytes": 7026
         }
       ],
       "consumedFieldPaths": [
@@ -15920,8 +15932,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/mossy-scout.scene.json",
-          "sha256": "319b71bf92b69223f80e7a8914c9eb4a1455f16b89e2600ed4aab577155c6814",
-          "bytes": 7437
+          "sha256": "eed1272157a4f8dacbe1af9da75342a351d9ea8c0c7e77ec6f32d64844488886",
+          "bytes": 7440
         }
       ],
       "consumedFieldPaths": [
@@ -15982,8 +15994,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/red-slime-boy.scene.json",
-          "sha256": "baf6f33c3b6e7b2c4d90e900afd1eba43c3f1a47b17ef5c77c18502420fd7a55",
-          "bytes": 7119
+          "sha256": "1ec838fb95d97fdf1350c538bd22364945687e408b1cd0ad4826eb7f9aa602a7",
+          "bytes": 7122
         }
       ],
       "consumedFieldPaths": [
@@ -16044,8 +16056,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/village-elder-plop.scene.json",
-          "sha256": "855ed2b79c2e385f44eab1ae6323cc9cebcd7e293f16d30f985de20157eb9617",
-          "bytes": 7788
+          "sha256": "5a696e9eba80be85710694096983848ce7be872b47403d76659ae31d1fb97208",
+          "bytes": 7791
         }
       ],
       "consumedFieldPaths": [
@@ -16106,8 +16118,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/yellow-blond-slime-girl.scene.json",
-          "sha256": "8d22f61265c53acab09d302e9f38ddaecf3489ece9136889e47cd602d98ffaea",
-          "bytes": 7226
+          "sha256": "f23736b56d0b19ce5801a217cf385e06b26f41b9e92a819a60891a6e3e6595be",
+          "bytes": 7229
         }
       ],
       "consumedFieldPaths": [
@@ -16168,8 +16180,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/player-slime.scene.json",
-          "sha256": "a75b5f933139f2c7d71facc6f9c657f438a4d8b4df949b944b3cede455cbe0c8",
-          "bytes": 20875
+          "sha256": "c0dccf18341b6b9825e10c5fea154498815158593da99f45df038b47c0d3f4bf",
+          "bytes": 20876
         }
       ],
       "consumedFieldPaths": [
@@ -16293,8 +16305,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/slime-spider.scene.json",
-          "sha256": "3b936d499dae75dec39e17bbfdea22e2a6468ac24c0b4de3fa048d5a47f7837c",
-          "bytes": 21093
+          "sha256": "bb9f6e6694e3350704b7ae60a1a38c915572578442b111f42439f38c1c4d8c5d",
+          "bytes": 21096
         }
       ],
       "consumedFieldPaths": [
@@ -16355,8 +16367,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/worm-archer.scene.json",
-          "sha256": "bda656d81af9d744287e3c9b15ae3d3204c99d51b16f24fa907eabb5fbf7c8d5",
-          "bytes": 16906
+          "sha256": "75e032db611e37683664756356c40e2376bc0dba2f630e8193a9b8fc03014824",
+          "bytes": 16909
         }
       ],
       "consumedFieldPaths": [
@@ -16417,8 +16429,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/worm-brawler.scene.json",
-          "sha256": "ce32c52438d12167ed4c12a6da16d64324db0ed09cb5cfb79b804db1e093fcd1",
-          "bytes": 16663
+          "sha256": "d73d05cccb63b7dc30828c6c1aee9fc81ffb8c4d0caf4608acc497ae780e3d66",
+          "bytes": 16666
         }
       ],
       "consumedFieldPaths": [
@@ -16479,8 +16491,8 @@
       "outputs": [
         {
           "path": "src/game/content/scenes/authored/characters/worm-swordsman.scene.json",
-          "sha256": "2f0982a671ee769f68812c62f9d6a421e70bb6190c4f8142860c249531ca0000",
-          "bytes": 17441
+          "sha256": "1d355fcbbac61b53aaafe6488e3a4eee4f5fee44888e5dc7b26e58d663d935d2",
+          "bytes": 17444
         }
       ],
       "consumedFieldPaths": [
