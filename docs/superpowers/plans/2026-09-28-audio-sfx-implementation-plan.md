@@ -12,6 +12,9 @@
 A dev toggle (`?sfx=synth|library`, default `synth`) picks the flavour at boot. After comparing, the losing flavour
 is deleted per category (or globally).
 
+> 2026-09-30: the flavours were picked per cue (`scripts/audio/picks.json`) and the `?sfx` toggle was removed; see
+> [GAME_ROADMAP 3.8](../../GAME_ROADMAP.md).
+
 ## Status (2026-09-28)
 - **Done:**
   - Phases 0–3 for the P1 set and most P2 cues. 183 takes in total; 180 have CC0 library takes, and library is the shipping default. `?sfx=synth` switches to the synthesized takes.

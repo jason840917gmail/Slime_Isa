@@ -35,6 +35,6 @@ Hand-authored manifest entries (`audio.music.*`, bundle `music`); `pnpm audio:ba
 |---|---|---|---|---|
 | `level-1-home-town.ogg` | Home Town (JRPG Pack 2: Towns) | Juhani Junkala | CC0 1.0 | https://archive.org/details/JuhaniJunkala-JRPGpack2Town |
 
-## A/B flavour
-Library samples play by default. Open the game with `?sfx=synth` to hear the synthesized takes instead;
-the few cues without a library take always play the synthesized one.
+## One flavour per cue
+Each cue ships only the flavour picked in `scripts/audio/picks.json` (library sample or synthesized take); there is
+no runtime switch between them.
