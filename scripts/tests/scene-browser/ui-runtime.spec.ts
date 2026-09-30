@@ -18,9 +18,9 @@ test('authored HUD mounts, hydrates, resizes, and cleans up in production', asyn
   const root = page.locator('[data-scene-ui-root]');
   const hud = root.locator('.game-ui--hud');
   await expect(hud).toBeVisible();
-  await expect(hud.getByText('Level 1')).toBeVisible();
   await expect(hud.getByText(/^Coins /)).toBeVisible();
-  await expect(hud.getByRole('progressbar')).toHaveCount(3);
+  await expect(hud.getByText(/Level|XP/)).toHaveCount(0);
+  await expect(hud.getByRole('progressbar')).toHaveCount(2);
   await expect(hud.getByRole('progressbar', { name: 'HP' })).toContainText('HP');
 
   await page.setViewportSize({ width: 760, height: 540 });

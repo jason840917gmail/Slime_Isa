@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import type { PerkChoice, StatusKind } from './types';
+import type { StatusKind } from './types';
 import type { QuestDomainEvents, QuestInputEvents } from '../content/quests/types';
 
 /**
@@ -34,24 +34,38 @@ export type GameEvents = {
   'player.sleep': { asleep: boolean };
   /** HP reached full while sleeping. */
   'player.rested': {};
+  /** The player's critical attack connected with a creature (sounds a crit on top of the hit). */
+  'weapon.critical-hit': {};
+  /** A boss fight began (the boss spawned in its arena). */
+  'boss.engaged': { campId: string; bossId: string };
+  /** A boss fight ended: the boss was defeated, or the fight reset (defeat, leaving the arena). */
+  'boss.disengaged': { campId: string; defeated: boolean };
+  /** The slime took a Gulp form (`formId`) or lost it (`formId: null`, with why). */
+  'gulp.changed': { formId: string | null; reason: 'started' | 'refreshed' | 'burp' | 'expired' | 'switched' | 'cleared' };
   /** Player-placed furniture went back into the inventory (`furniture.placed` is declared with the quest inputs). */
   'furniture.picked-up': { mapId: string; placementId: string; itemId: string };
   /** A crafting station was opened; `placementId` is set for player-placed stations. */
   'workbench.opened': { mapId: string; placementId?: string; context: string };
   'player.death': {};
   'player.respawn': {};
-  'xp.changed': { currentXp: number; xpToNextLevel: number | null; level: number; delta: number };
-  'level.up': { level: number; skillPoints: number };
   'energy.changed': { energy: number; maxEnergy: number; delta: number };
-  'skillpoint.changed': { points: number };
-  'perk.taken': { perkId: string };
+  /** A quest or boss taught the slime an ability (story unlock). */
+  'ability.learned': { abilityId: string };
+  /** A ruined building was paid for and restored (`object.activated` reports it to quests). */
+  'building.restored': { objectId: string; instanceId: string; x: number; y: number };
+  /** F at a ruined building did nothing: `missing-materials`, or `locked` (its quest is not active). */
+  'building.restore-refused': { objectId: string; reason: 'missing-materials' | 'locked' };
+  /** Weak ground broke under the Heavy Gulp form. */
+  'ground.cracked': { x: number; y: number };
+  /** Craft was pressed but refused (missing materials, full inventory, ...). */
+  'craft.failed': { recipeId: string; reason: string };
+  /** A Goo Heart was collected; max HP is now `maxHp`. */
+  'goo-heart.collected': { heartId: string; maxHp: number };
   'status.added': { kind: StatusKind; stacks: number };
   'status.removed': { kind: StatusKind };
   'inventory.changed': {};
   'weapon.loadout.changed': { slots: readonly (string | null)[] };
   'weapon.equipped': { weaponId: string | null };
-  'levelup.modal.open': { choices: PerkChoice[] };
-  'levelup.modal.close': { pickedPerkId: string | null };
 } & QuestDomainEvents & QuestInputEvents;
 
 export interface CollectibleCollectedPayload {

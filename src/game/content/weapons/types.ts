@@ -38,7 +38,6 @@ export interface WeaponCombatDefinition {
     readonly knockback?: AttributeScaling;
   };
   readonly vfxColor: number;
-  readonly unlockLevel: number;
   readonly iconKey: string;
   readonly iconFrame?: number;
   readonly description: string;

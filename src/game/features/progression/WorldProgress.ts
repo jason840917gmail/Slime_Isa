@@ -19,6 +19,8 @@ export interface ResourceProgressState {
   readonly stage: ResourceProgressStage;
   readonly value: number;
   readonly piles?: readonly ResourcePileProgress[];
+  /** When a harvested node may grow back (epoch ms). */
+  readonly respawnReadyAtEpochMs?: number;
 }
 
 export interface CollectibleProgressState {
@@ -51,6 +53,7 @@ function cloneResourceState(state: ResourceProgressStateData): ResourceProgressS
     ...(state.piles && state.piles.length > 0
       ? { piles: state.piles.map((pile) => ({ ...pile, amount: Math.max(0, pile.amount) })) }
       : {}),
+    ...(state.respawnReadyAtEpochMs !== undefined ? { respawnReadyAtEpochMs: state.respawnReadyAtEpochMs } : {}),
   };
 }
 
@@ -255,7 +258,7 @@ export class WorldProgress {
   setRespawnPoint(point: RespawnPointData): void {
     this.ensureLoaded();
     const current = this.respawn;
-    if (current && current.mapId === point.mapId && current.x === point.x && current.y === point.y) return;
+    if (current && current.mapId === point.mapId && current.x === point.x && current.y === point.y && current.bedId === point.bedId) return;
     this.respawn = { ...point };
     gameEvents.emit('world.progress.changed', {});
   }
@@ -390,10 +393,23 @@ export class WorldProgress {
     this.ensureLoaded();
     const mapState = this.mapStates.get(mapId) ?? emptyMapState();
     const previous = mapState.resources[instanceId];
-    const normalized = cloneResourceState(state);
+    // A harvested node keeps its regrowth time while its piles are collected.
+    const respawnReadyAtEpochMs = state.respawnReadyAtEpochMs
+      ?? (state.stage !== 'node' ? previous?.respawnReadyAtEpochMs : undefined);
+    const normalized = cloneResourceState({ ...state, ...(respawnReadyAtEpochMs !== undefined ? { respawnReadyAtEpochMs } : {}) });
     if (JSON.stringify(previous) === JSON.stringify(normalized)) return;
     mapState.resources[instanceId] = normalized;
     this.mapStates.set(mapId, mapState);
+    gameEvents.emit('world.progress.changed', {});
+  }
+
+  /** Forgets a resource node's harvest, so it loads as authored (it grew back). */
+  clearResourceState(mapId: string, instanceId: string): void {
+    this.ensureLoaded();
+    const mapState = this.mapStates.get(mapId);
+    if (!mapState || !(instanceId in mapState.resources)) return;
+    const { [instanceId]: _removed, ...rest } = mapState.resources;
+    this.mapStates.set(mapId, { ...mapState, resources: rest });
     gameEvents.emit('world.progress.changed', {});
   }
 

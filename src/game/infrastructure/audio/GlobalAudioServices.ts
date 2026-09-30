@@ -12,14 +12,16 @@ export class GlobalAudioServices implements AudioPreferences, AudioUnlockService
   private masterMuted = false;
   private readonly volumes: Record<AudioBus, number> = { effects: 1, music: 1, ambience: 1 };
   private readonly mutedBuses: Record<AudioBus, boolean> = { effects: false, music: false, ambience: false };
+  /** Temporary attenuation (music under a pause menu); not a player setting. */
+  private readonly ducks: Record<AudioBus, number> = { effects: 1, music: 1, ambience: 1 };
   private readonly unlockCallbacks = new Set<() => void>();
   private listening = false;
   private disposed = false;
 
   constructor(private readonly sound: UnlockableSoundManager) {}
 
-  /** Effective bus gain: the bus slider scaled by the master slider. */
-  volume(bus: AudioBus): number { return this.volumes[bus] * this.master; }
+  /** Effective bus gain: the bus slider scaled by the master slider and any duck. */
+  volume(bus: AudioBus): number { return this.volumes[bus] * this.master * this.ducks[bus]; }
   muted(bus: AudioBus): boolean { return this.masterMuted || this.mutedBuses[bus]; }
   busVolume(bus: AudioBus): number { return this.volumes[bus]; }
   masterVolume(): number { return this.master; }
@@ -38,6 +40,11 @@ export class GlobalAudioServices implements AudioPreferences, AudioUnlockService
   }
 
   setMuted(bus: AudioBus, muted: boolean): void { this.mutedBuses[bus] = muted; }
+
+  /** Lowers a bus for a while without touching the player's volume settings (1 = no duck). */
+  setDuck(bus: AudioBus, factor: number): void {
+    this.ducks[bus] = Math.max(0, Math.min(1, Number.isFinite(factor) ? factor : 1));
+  }
   isUnlocked(): boolean { return this.sound.locked !== true; }
 
   onUnlocked(callback: () => void): () => void {

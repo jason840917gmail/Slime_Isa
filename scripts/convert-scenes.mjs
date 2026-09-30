@@ -115,7 +115,6 @@ const sliceUnitKeys = [
   'ui:health-bar',
   'ui:hud',
   'ui:inventory-ui',
-  'ui:level-up-modal',
   'ui:minimap',
   'ui:quest-journal',
   'ui:quest-offer-modal',

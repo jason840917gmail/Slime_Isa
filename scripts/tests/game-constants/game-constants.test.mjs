@@ -23,7 +23,7 @@ test('checked-in gameplay configuration is valid and deeply frozen', async () =>
   assert.equal(Number.isInteger(GAME_CONSTANTS.worldNavigation.edgeTransitionGraceMs), true);
   assert.equal(Object.isFrozen(GAME_CONSTANTS), true);
   assert.equal(Object.isFrozen(GAME_CONSTANTS.resources.tags), true);
-  assert.equal(Object.isFrozen(GAME_CONSTANTS.character.player.progression.levels), true);
+  assert.equal(Object.isFrozen(GAME_CONSTANTS.character.player.stats), true);
   assert.throws(() => { GAME_CONSTANTS.inventory.initialMaxSlots = 1; }, TypeError);
 });
 
@@ -36,7 +36,7 @@ test('resource tags expose constants-owned membership checks', async () => {
   assert.match(resourceTagIssue('crystal'), /Unknown resource tag 'crystal'/);
 });
 
-test('validator reports movement order and level-table violations', async () => {
+test('validator reports movement order and player stat violations', async () => {
   const { validateGameConstants } = await load('src/game/content/GameConstantsValidation.ts');
   const invalid = {
     version: 1,
@@ -47,20 +47,14 @@ test('validator reports movement order and level-table violations', async () => 
       initialAttributes: { strength: 10, vitality: 10, agility: 10, intellect: 10 },
       movement: { baseSpeed: 500, boostSpeed: 300, dodgeSpeed: 600, dodgeInvulnerabilityMs: 400, movementSpeedCap: 480 },
       hitInvulnerabilityMs: 500,
-      progression: {
-        maxLevel: 2, baseMaxHp: 100, baseMaxEnergy: 100, baseAttack: 10, baseDefense: 2,
-        levels: [
-          { level: 1, xpToNextLevel: 80, gains: { maxHp: 1, maxEnergy: 0, attack: 0, defense: 0 } },
-          { level: 3, xpToNextLevel: 100, gains: { maxHp: 12, maxEnergy: 4, attack: 2, defense: 1 } },
-        ],
-      },
+      stats: { maxHp: 0, maxEnergy: 100, attack: 12, defense: 3, critChance: 2, critMultiplier: 1.75, energyRegenPerSecond: 8 },
+      gooHeart: { maxHpBonus: 10 },
     } },
   };
   const issues = validateGameConstants(invalid);
   assert.ok(issues.some((entry) => entry.message.includes('baseSpeed')));
-  assert.ok(issues.some((entry) => entry.message.includes('level 1 gain')));
-  assert.ok(issues.some((entry) => entry.message.includes('must be 2')));
-  assert.ok(issues.some((entry) => entry.message.includes('final level must use null')));
+  assert.ok(issues.some((entry) => entry.path.endsWith('stats.maxHp')));
+  assert.ok(issues.some((entry) => entry.path.endsWith('stats.critChance')));
   assert.ok(issues.some((entry) => entry.message.includes("duplicate tag 'wood'")));
   assert.ok(issues.some((entry) => entry.message.includes('lowercase kebab-case tag')));
 });

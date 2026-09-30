@@ -1,0 +1,183 @@
+{
+  "version": 1,
+  "sceneId": "object.cracked-ground",
+  "rootNodeId": "root",
+  "nodes": [
+    {
+      "id": "root",
+      "name": "cracked-ground",
+      "type": "Node2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "crack",
+      "name": "CrackedGroundScript",
+      "type": "ScriptNode",
+      "scriptId": "game.cracked-ground",
+      "parentId": "root",
+      "order": 0,
+      "properties": {
+        "flagId": "cracked.unassigned",
+        "radius": 52
+      }
+    },
+    {
+      "id": "variant",
+      "name": "StoryVariantScript",
+      "type": "ScriptNode",
+      "scriptId": "game.story-variant",
+      "parentId": "root",
+      "order": 1,
+      "properties": {
+        "flagId": "cracked.unassigned",
+        "whenSet": {
+          "nodeId": "broken"
+        },
+        "whenUnset": {
+          "nodeId": "intact"
+        }
+      }
+    },
+    {
+      "id": "intact",
+      "name": "Intact",
+      "type": "Node2D",
+      "parentId": "root",
+      "order": 2,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "intact-visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "intact",
+      "order": 0,
+      "properties": {
+        "texture": {
+          "resourceId": "cracked-ground.sprite"
+        },
+        "frame": 0,
+        "origin": [
+          0.5,
+          1
+        ],
+        "scale": [
+          0.62,
+          0.62
+        ],
+        "visualOffset": [
+          0,
+          62
+        ],
+        "depthMode": "world-sorted",
+        "depthBand": "ground-decals"
+      }
+    },
+    {
+      "id": "broken",
+      "name": "Broken",
+      "type": "Node2D",
+      "parentId": "root",
+      "order": 3,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "broken-visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "broken",
+      "order": 0,
+      "properties": {
+        "texture": {
+          "resourceId": "cracked-ground.sprite"
+        },
+        "frame": 1,
+        "origin": [
+          0.5,
+          1
+        ],
+        "scale": [
+          0.62,
+          0.62
+        ],
+        "visualOffset": [
+          0,
+          62
+        ],
+        "depthMode": "world-sorted",
+        "depthBand": "ground-decals"
+      }
+    },
+    {
+      "id": "door",
+      "name": "Door",
+      "type": "Node2D",
+      "parentId": "broken",
+      "order": 1,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "door-script",
+      "name": "DoorScript",
+      "type": "ScriptNode",
+      "scriptId": "game.door",
+      "parentId": "door",
+      "order": 0,
+      "properties": {
+        "mapId": "unassigned",
+        "doorId": "sinkhole",
+        "targetAreaId": "unassigned",
+        "targetDoorId": "ladder",
+        "prompt": "Climb down",
+        "interactRadius": 80,
+        "badgeRise": 70
+      }
+    },
+    {
+      "id": "door-arrival",
+      "name": "arrival",
+      "type": "Node2D",
+      "parentId": "door",
+      "order": 1,
+      "properties": {
+        "position": [
+          0,
+          96
+        ]
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "cracked-ground.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "sheet.props.gulp.8x1",
+      "frameWidth": 256,
+      "frameHeight": 256
+    }
+  ]
+}

@@ -131,7 +131,7 @@ function renderSaveRecord(record: NamedSaveMetadata, mode: 'save' | 'load'): str
     ? `<button type="button" class="dev-modal-button" data-persistence-action="overwrite" data-save-id="${escapeHtml(record.saveId)}">Overwrite</button>`
     : `<button type="button" class="dev-modal-button" data-persistence-action="load" data-save-id="${escapeHtml(record.saveId)}">Load</button>
        <button type="button" class="dev-modal-button dev-modal-button--quiet" data-persistence-action="delete" data-save-id="${escapeHtml(record.saveId)}">Delete</button>`;
-  return `<article class="dev-save-record"><div><strong>${escapeHtml(record.name)}</strong><small>${escapeHtml(formatTimestamp(record.updatedAt))} · ${escapeHtml(record.currentMapId)} · Level ${record.playerLevel}</small></div><div class="dev-save-record__actions">${actions}</div></article>`;
+  return `<article class="dev-save-record"><div><strong>${escapeHtml(record.name)}</strong><small>${escapeHtml(formatTimestamp(record.updatedAt))} · ${escapeHtml(record.currentMapId)}</small></div><div class="dev-save-record__actions">${actions}</div></article>`;
 }
 
 function renderPersistenceModal(state: PersistenceModalState): string {

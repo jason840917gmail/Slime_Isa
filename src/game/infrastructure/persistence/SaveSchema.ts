@@ -3,9 +3,8 @@ import type { InventorySlot } from '../../core/types';
 import type { QuestState } from '../../content/quests/types';
 import type { AreaId } from '../../world/Area';
 import type { MapId } from '../../content/maps/mapFormat';
-import { GAME_CONSTANTS } from '../../Constant';
 
-export const SAVE_SCHEMA_VERSION = 9;
+export const SAVE_SCHEMA_VERSION = 10;
 export const SAVE_NAME_MAX_LENGTH = 32;
 
 export type FacingDirection = 'up' | 'down' | 'left' | 'right';
@@ -33,6 +32,8 @@ export interface ResourceProgressStateData {
   readonly stage: 'node' | 'destroyed' | 'depleted';
   readonly value: number;
   readonly piles?: readonly ResourcePileProgressData[];
+  /** When a harvested node may grow back (epoch ms); set when it is depleted. */
+  readonly respawnReadyAtEpochMs?: number;
 }
 
 export interface CollectibleProgressStateData {
@@ -90,6 +91,8 @@ export interface RespawnPointData {
   readonly mapId: string;
   readonly x: number;
   readonly y: number;
+  /** The bed slept in (authored persistence key or `placed-furniture:<id>`); older saves omit it. */
+  readonly bedId?: string;
 }
 
 export interface WorldProgressData {
@@ -112,6 +115,8 @@ export interface InventorySaveData {
 export interface StorySaveData {
   readonly worldFlags: readonly string[];
   readonly learnedRecipeIds: readonly string[];
+  /** Abilities taught by quests and bosses; absent in saves written before they were. */
+  readonly learnedAbilityIds?: readonly string[];
   readonly talkedNpcIds: readonly string[];
 }
 
@@ -138,7 +143,6 @@ export interface NamedSaveMetadata {
   readonly updatedAt: number;
   readonly schemaVersion: number;
   readonly currentMapId: string;
-  readonly playerLevel: number;
   readonly playTimeMs: number;
 }
 
@@ -153,7 +157,6 @@ export interface SaveIndexEntry {
   readonly updatedAt: number;
   readonly schemaVersion: number;
   readonly currentMapId: string;
-  readonly playerLevel: number;
   readonly playTimeMs: number;
 }
 
@@ -168,7 +171,8 @@ export function isRecord(value: unknown): value is Record<string, unknown> {
 
 export function isRespawnPoint(value: unknown): value is RespawnPointData {
   return isRecord(value) && typeof value.areaId === 'string' && typeof value.mapId === 'string'
-    && isFiniteNumber(value.x) && isFiniteNumber(value.y);
+    && isFiniteNumber(value.x) && isFiniteNumber(value.y)
+    && (value.bedId === undefined || (typeof value.bedId === 'string' && value.bedId.length > 0));
 }
 
 function isFiniteNumber(value: unknown): value is number {
@@ -183,9 +187,10 @@ function isStringArray(value: unknown): value is string[] {
   return Array.isArray(value) && value.every((entry) => typeof entry === 'string');
 }
 
-function isStory(value: unknown): value is StorySaveData {
+export function isStory(value: unknown): value is StorySaveData {
   return isRecord(value) && isStringArray(value.worldFlags)
-    && isStringArray(value.learnedRecipeIds) && isStringArray(value.talkedNpcIds);
+    && isStringArray(value.learnedRecipeIds) && isStringArray(value.talkedNpcIds)
+    && (value.learnedAbilityIds === undefined || isStringArray(value.learnedAbilityIds));
 }
 
 function isInventorySlots(value: unknown): value is InventorySlot[] {
@@ -225,21 +230,12 @@ function isQuests(value: unknown): value is QuestState[] {
 function isGameState(value: unknown): value is GameStateData {
   if (!isRecord(value)) return false;
   const equipment = value.equipment;
-  const level = value.level;
-  const levelEntry = Number.isInteger(level) && (level as number) >= 1 && (level as number) <= GAME_CONSTANTS.character.player.progression.maxLevel
-    ? GAME_CONSTANTS.character.player.progression.levels[(level as number) - 1]
-    : undefined;
-  return value.schemaVersion === 4
+  return value.schemaVersion === 5
     && isNonNegativeNumber(value.coins)
     && isFiniteNumber(value.boostBonus)
-    && levelEntry !== undefined
-    && isNonNegativeNumber(value.currentXp)
-    && (levelEntry.xpToNextLevel === null ? value.currentXp === 0 : (value.currentXp as number) < levelEntry.xpToNextLevel)
     && isNonNegativeNumber(value.hp)
     && isNonNegativeNumber(value.energy)
-    && Number.isInteger(value.skillPoints)
-    && isRecord(value.perks)
-    && Object.values(value.perks).every((rank) => typeof rank === 'number' && Number.isInteger(rank) && rank >= 0)
+    && Number.isInteger(value.gooHearts) && (value.gooHearts as number) >= 0
     && isRecord(value.attributes)
     && Object.values(value.attributes).every((attribute) => isFiniteNumber(attribute) && attribute >= 0)
     && isRecord(equipment)
@@ -253,6 +249,7 @@ function isResourceState(value: unknown): value is ResourceProgressStateData {
   if (!isRecord(value)) return false;
   if (!['node', 'destroyed', 'depleted'].includes(value.stage as string)) return false;
   if (!isNonNegativeNumber(value.value)) return false;
+  if (value.respawnReadyAtEpochMs !== undefined && !isFiniteNumber(value.respawnReadyAtEpochMs)) return false;
   if (value.piles === undefined) return true;
   return Array.isArray(value.piles) && value.piles.every((pile) => (
     isRecord(pile)

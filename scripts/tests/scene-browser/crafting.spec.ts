@@ -24,16 +24,23 @@ test('authored crafting quotes materials and commits a recipe transaction', asyn
     return Boolean(viewport && box.left >= viewport.left && box.right <= viewport.right && box.top >= viewport.top && box.bottom <= viewport.bottom);
   })).toBe(true);
   await expect(workbench.getByRole('listbox', { name: 'Crafting recipes' })).toBeVisible();
-  await expect(workbench.getByRole('button', { name: 'Craft', exact: true })).toBeDisabled();
-  await expect(workbench).toContainText('More materials are needed');
-
-  await page.evaluate(() => window.sceneFixture.grantProductionItem('wood', 20));
+  // C crafts the portable recipes; the first is the workbench itself.
+  await expect(workbench).toContainText('Crafting');
+  await expect(workbench).not.toContainText('Wooden Spear');
+  // Short of materials, Craft stays pressable and answers with exactly what is missing (playtest 2026-09-29).
   await expect(workbench.getByRole('button', { name: 'Craft', exact: true })).toBeEnabled();
-  await expect(workbench).toContainText('Wood: 20 / 20');
+  await expect(workbench).toContainText('Missing: 40 Wood');
   await workbench.getByRole('button', { name: 'Craft', exact: true }).click();
-  await expect.poll(() => page.evaluate(() => window.sceneFixture.productionItemCount('wooden-spear'))).toBe(1);
+  await expect(workbench).toContainText('Missing: 40 Wood');
+  await expect.poll(() => page.evaluate(() => window.sceneFixture.productionItemCount('workbench'))).toBe(0);
+
+  await page.evaluate(() => window.sceneFixture.grantProductionItem('wood', 40));
+  await expect(workbench.getByRole('button', { name: 'Craft', exact: true })).toBeEnabled();
+  await expect(workbench).toContainText('Wood: 40 / 40');
+  await workbench.getByRole('button', { name: 'Craft', exact: true }).click();
+  await expect.poll(() => page.evaluate(() => window.sceneFixture.productionItemCount('workbench'))).toBe(1);
   await expect.poll(() => page.evaluate(() => window.sceneFixture.productionItemCount('wood'))).toBe(0);
-  await expect(workbench).toContainText('Crafted 1 × Wooden Spear');
+  await expect(workbench).toContainText('Crafted 1 × Workbench');
 
   await page.keyboard.press('Escape');
   await expect(workbench).toBeHidden();

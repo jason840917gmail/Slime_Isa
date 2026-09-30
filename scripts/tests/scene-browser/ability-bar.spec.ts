@@ -24,10 +24,12 @@ test('authored ability bar follows unlock, cooldown, energy, input, and cleanup 
   await expect(bar).toBeVisible();
   await expect(buttons).toHaveCount(4);
   await expect(jump).toBeDisabled();
-  await expect(jump).toContainText('Lv 2');
-  await expect(teleport).toContainText('Lv 5');
+  // Locked abilities say how they are earned; the story teaches them, not levels.
+  await expect(jump).toContainText('Quest');
+  await expect(slam).toContainText('Boss');
+  await expect(teleport).toContainText('Later');
 
-  await page.evaluate(() => window.sceneFixture.setProductionLevel(2));
+  await page.evaluate(() => window.sceneFixture.learnProductionAbilities(['jump']));
   await expect(jump).toBeEnabled();
   await expect(jump).toContainText('Space');
   await expect(slam).toBeDisabled();
@@ -42,7 +44,7 @@ test('authored ability bar follows unlock, cooldown, energy, input, and cleanup 
   await page.keyboard.press('Enter');
   await expect.poll(() => page.evaluate(() => window.sceneFixture.snapshot().jumpCooldownMs ?? 0)).toBeGreaterThan(0);
 
-  await page.evaluate(() => window.sceneFixture.setProductionLevel(5));
+  await page.evaluate(() => window.sceneFixture.learnProductionAbilities(['teleport']));
   await page.evaluate(() => window.sceneFixture.drainProductionEnergy());
   await expect(teleport).toBeDisabled();
   await expect(teleport).toContainText('Need 35E');

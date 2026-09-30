@@ -397,6 +397,39 @@ def is_workbench(category: str, name: str) -> bool:
     return category == "workshop" and name in ("workbench", "workbench-vise")
 
 
+# Furniture whose art is mostly floor-plane depth (beds, tables, hearths, basins)
+# blocks this share of its visible height, measured up from the bottom of the
+# art, instead of the generator's shallow default footprint. Keys are
+# "<category>/<name prefix>"; the longest matching prefix wins. Tall pieces that
+# stand against a wall (shelves, wardrobes, cabinets) keep the default, and the
+# wall behind them closes the gap.
+FOOTPRINT_SHARES: dict[str, float] = {
+    "beds/straw-nest-": 0.7,
+    "beds/round-": 0.65,
+    "beds/canopy-": 0.55,
+    "beds/four-poster-": 0.55,
+    "beds/double-round-": 0.65,
+    "beds/basket-dome-": 0.6,
+    "tables/dining-blue-runner-": 0.62,
+    "tables/banquet-green-runner-": 0.62,
+    "tables/work-iron-banded-": 0.6,
+    "mushroom-large/bed-mushroom-cap-": 0.5,
+    "mushroom-large/bed-moss-nest": 0.7,
+    "mushroom-large/table-": 0.58,
+    "mushroom-large/alchemy-workbench": 0.55,
+    "mushroom-large/counter-root": 0.5,
+    "mushroom-large/hearth-root-": 0.75,
+    "mushroom-large/water-basin-stump": 0.62,
+}
+
+
+def footprint_share(category: str, name: str) -> float | None:
+    """The catalog footprint share for a sprite, or None for the default footprint."""
+    key = f"{category}/{name}"
+    matches = [prefix for prefix in FOOTPRINT_SHARES if key.startswith(prefix)]
+    return FOOTPRINT_SHARES[max(matches, key=len)] if matches else None
+
+
 def is_bed(category: str, name: str) -> bool:
     """Sprites that get a `game.bed` script so the player can sleep in them."""
     if category == "mushroom-large":

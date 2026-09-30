@@ -1,6 +1,7 @@
 import { getNpcDefinition } from '../npcs/NpcCatalog';
 import { isKnownItemId } from '../items/ItemCatalog';
 import { RECIPE_CATALOG } from '../recipes/RecipeCatalog';
+import { isPlayerAbilityId } from '../abilities';
 import type {
   QuestConditionDefinition,
   QuestDefinition,
@@ -45,11 +46,6 @@ function validateCondition(condition: QuestConditionDefinition, path: string, is
       break;
     case 'area-entered':
       if (!nonEmptyStringArray(condition.areaIds)) issues.push(`${path}.areaIds: expected a non-empty string array`);
-      break;
-    case 'player-level':
-      if (!Number.isInteger(condition.minimumLevel) || condition.minimumLevel <= 0) {
-        issues.push(`${path}.minimumLevel: expected a positive integer`);
-      }
       break;
     case 'inventory-count':
       if (!isKnownItemId(condition.itemId)) issues.push(`${path}.itemId: unknown item '${condition.itemId}'`);
@@ -209,7 +205,7 @@ function validateQuest(quest: QuestDefinition, index: number, ids: Set<string>, 
   if (!isRecord(quest.rewards)) issues.push(`${path}.rewards: expected an object`);
   const rewards = isRecord(quest.rewards) ? quest.rewards : {};
   if (rewards.coins !== undefined && (typeof rewards.coins !== 'number' || !Number.isInteger(rewards.coins) || rewards.coins < 0)) issues.push(`${path}.rewards.coins: expected a non-negative integer`);
-  if (rewards.xp !== undefined && (typeof rewards.xp !== 'number' || !Number.isInteger(rewards.xp) || rewards.xp < 0)) issues.push(`${path}.rewards.xp: expected a non-negative integer`);
+  if (rewards.xp !== undefined) issues.push(`${path}.rewards.xp: XP was retired; the slime grows through gear, Goo Hearts and story unlocks`);
   for (const reward of (Array.isArray(rewards.items) ? rewards.items : [])) {
     if (!isKnownItemId(reward.itemId)) issues.push(`${path}.rewards.items: unknown item '${reward.itemId}'`);
     if (!Number.isInteger(reward.count) || reward.count <= 0) issues.push(`${path}.rewards.items: counts must be positive integers`);
@@ -220,6 +216,12 @@ function validateQuest(quest: QuestDefinition, index: number, ids: Set<string>, 
       const recipe = RECIPE_CATALOG.find((entry) => entry.id === recipeId);
       if (!recipe) issues.push(`${path}.rewards.recipeIds: unknown recipe '${recipeId}'`);
       else if (!recipe.learnedByQuest) issues.push(`${path}.rewards.recipeIds: recipe '${recipeId}' is not marked learnedByQuest`);
+    }
+  }
+  if (rewards.abilityIds !== undefined) {
+    if (!nonEmptyStringArray(rewards.abilityIds)) issues.push(`${path}.rewards.abilityIds: expected a non-empty string array`);
+    for (const abilityId of Array.isArray(rewards.abilityIds) ? rewards.abilityIds : []) {
+      if (typeof abilityId === 'string' && !isPlayerAbilityId(abilityId)) issues.push(`${path}.rewards.abilityIds: unknown ability '${abilityId}'`);
     }
   }
   if (rewards.flags !== undefined) {

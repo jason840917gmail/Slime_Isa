@@ -5,9 +5,11 @@ import type { QuestDefinition } from '../types';
  * workbench → stone tools → wooden spear → worm camp → stone spear → Fatty → Gloop Forest.
  * Every step ends with a recipe or a new place, and each quest opens the next one.
  *
- * Level 1 holds a fixed material budget (40 loose wood, 40 wood in trees, ~200 stone)
- * and nothing regrows. The wood rewards below bridge the workbench cost so the chain
- * can never softlock; keep them in step with recipe costs.
+ * Level 1 starts with loose wood and stone piles plus choppable trees and rocks;
+ * harvested trees and rocks grow back after a while (roadmap 5.5), piles do not.
+ * The wood rewards below bridge the workbench cost so the main chain never waits on
+ * regrowth; keep them in step with recipe costs. The Old Workshop (optional) is the
+ * one big material sink.
  */
 
 const ELDER = 'village-elder-plop';
@@ -46,7 +48,6 @@ export const aPlaceToWork: QuestDefinition = {
   failurePolicy: { kind: 'permanent' },
   abandonmentPolicy: retry,
   rewards: {
-    xp: 30,
     items: [{ itemId: 'wood', count: 20 }],
     recipeIds: ['craft-stone-axe', 'craft-stone-pickaxe'],
   },
@@ -96,7 +97,6 @@ export const stoneTools: QuestDefinition = {
   failurePolicy: { kind: 'permanent' },
   abandonmentPolicy: retry,
   rewards: {
-    xp: 60,
     coins: 20,
     items: [{ itemId: 'wood', count: 10 }],
     recipeIds: ['craft-wooden-spear'],
@@ -116,7 +116,8 @@ export const stoneTools: QuestDefinition = {
 
 export const wormTrouble: QuestDefinition = {
   id: 'worm-trouble',
-  definitionVersion: 1,
+  // v2 (playtest 2026-09-29): the first camp holds slower worm swordsmen, and three are enough.
+  definitionVersion: 2,
   title: 'Worm Trouble',
   description: 'Mossy spotted a worm camp near the clearing. Arm yourself with a spear and drive them out.',
   category: 'mandatory',
@@ -136,7 +137,7 @@ export const wormTrouble: QuestDefinition = {
       title: 'Clear the worm camp',
       description: 'The worms gather south-east of the clearing.',
       objectives: [
-        { id: 'defeat-worms', kind: 'kill', label: 'Defeat worm brawlers', target: 5, enemyKinds: ['worm-brawler'] },
+        { id: 'defeat-worms', kind: 'kill', label: 'Defeat worm swordsmen', target: 3, enemyKinds: ['worm-swordsman'] },
       ],
     },
   ],
@@ -144,9 +145,9 @@ export const wormTrouble: QuestDefinition = {
   failurePolicy: { kind: 'permanent' },
   abandonmentPolicy: retry,
   rewards: {
-    xp: 80,
     coins: 30,
     recipeIds: ['craft-stone-spear'],
+    abilityIds: ['jump'],
   },
   dialogue: {
     offer: [
@@ -157,6 +158,7 @@ export const wormTrouble: QuestDefinition = {
     progress: ['Keep your distance and let the spear do the work. Worms hate reach.'],
     complete: [
       'Ha! That will teach them.',
+      'You fought well, but you move like a puddle. Watch me: squish down, then spring! That is how a slime jumps. Press Space to try it.',
       'I have seen something much bigger in the east. A one-eyed blob guarding a chest. Wood will not be enough for that. Here is how to make a stone spear.',
     ],
   },
@@ -200,7 +202,6 @@ export const theOneEyedGuardian: QuestDefinition = {
   failurePolicy: { kind: 'permanent' },
   abandonmentPolicy: retry,
   rewards: {
-    xp: 150,
     coins: 100,
     flags: ['chapter-1-complete'],
   },
@@ -211,6 +212,40 @@ export const theOneEyedGuardian: QuestDefinition = {
       'Make a stone spear. Aim for the eye. And come back in one piece.',
     ],
     progress: ['Aim for the eye, and never stand where his shadow lands.'],
+  },
+};
+
+export const theOldWorkshop: QuestDefinition = {
+  id: 'the-old-workshop',
+  definitionVersion: 1,
+  title: 'The Old Workshop',
+  description: 'The Workshop in the woodcutter yard fell to ruin when the worms came. Bring wood and stone and rebuild it.',
+  category: 'optional',
+  prerequisites: [{ kind: 'quest-status', questId: 'stone-tools', status: 'completed' }],
+  acquisition: { kind: 'npc', npcIds: [ELDER] },
+  stages: [
+    {
+      id: 'restore-workshop',
+      title: 'Rebuild the Workshop',
+      description: 'Gather 60 wood and 40 stone, then press F at the ruined Workshop north of the plaza.',
+      objectives: [
+        { id: 'restore-workshop', kind: 'activate-object', label: 'Restore the Workshop (60 wood, 40 stone)', target: 1, objectIds: ['workshop'] },
+      ],
+    },
+  ],
+  completion: { kind: 'automatic' },
+  failurePolicy: { kind: 'permanent' },
+  abandonmentPolicy: { kind: 'retryable', reset: 'quest' },
+  rewards: {
+    coins: 25,
+  },
+  dialogue: {
+    offer: [
+      'See that wreck by the woodpile? That was our Workshop, before the worms chased everyone off.',
+      'A workbench is fine for tools, but the Workshop can make real gear. Heavier things. Better things.',
+      'Bring sixty wood and forty stone and fix it up. It is yours to use once it stands again.',
+    ],
+    progress: ['Sixty wood, forty stone. Trees and rocks grow back if you give them time.'],
   },
 };
 
@@ -236,7 +271,6 @@ export const aTonicForLili: QuestDefinition = {
   failurePolicy: { kind: 'permanent' },
   abandonmentPolicy: { kind: 'retryable', reset: 'quest' },
   rewards: {
-    xp: 40,
     items: [{ itemId: 'purple-berry-mat', count: 2 }],
   },
   dialogue: {
@@ -274,7 +308,6 @@ export const snackForTheRoad: QuestDefinition = {
   failurePolicy: { kind: 'permanent' },
   abandonmentPolicy: { kind: 'retryable', reset: 'quest' },
   rewards: {
-    xp: 50,
     coins: 25,
     items: [{ itemId: 'hp-potion', count: 1 }],
   },
@@ -296,6 +329,7 @@ export const CHAPTER_ONE_QUESTS: readonly QuestDefinition[] = [
   stoneTools,
   wormTrouble,
   theOneEyedGuardian,
+  theOldWorkshop,
   aTonicForLili,
   snackForTheRoad,
 ];

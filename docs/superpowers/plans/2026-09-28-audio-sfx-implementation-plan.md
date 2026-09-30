@@ -16,13 +16,14 @@ is deleted per category (or globally).
 - **Done:**
   - Phases 0–3 for the P1 set and most P2 cues. 183 takes in total; 180 have CC0 library takes, and library is the shipping default. `?sfx=synth` switches to the synthesized takes.
   - 107 scenes are wired, and the global event bridge is live.
-  - Phase 4 sound settings: press Esc for the menu. It has Master / Effects / Music sliders plus Mute and Defaults. Changes apply live and persist per device through `AudioSettingsStore`.
+  - Phase 4 sound settings: Settings (pause menu or title) has Master / Effects / Music sliders plus Mute and Defaults. Changes apply live and persist per device through `GameSettingsService` (roadmap 4.5).
   - New `Slider` control node. Mouse drag and click work because the input router keeps the browser default for pointer presses on native form fields.
   - Level 1 world music: Juhani Junkala's "Home Town" (CC0). A looping `MusicPlayer` node on the music bus sits in `worlds/level-1.scene.json`.
+  - 2026-09-29: synth placeholder loops for the campfire, cauldron, grindstone and anvil (positional, ambience bus) and ambience beds for Level 1 and both interiors; the synth renders seamless loops (`loop: { seconds, crossfade }`). `features/audio/MusicDirector.ts` fades world music in, ducks it under pause menus, crossfades to `Music/BossMusic` during boss fights, and fades out before map changes; crits play `weapon/crit`.
 - **Open:**
   - Footstep wiring.
-  - Low-hp heartbeat, burn loop, prop and biome ambience.
-  - Music for the other worlds and boss music. The CC0 candidates are the rest of Juhani Junkala's JRPG packs and his Epic Boss Battle track.
+  - Low-hp heartbeat, burn loop, gloop-forest and other biome ambience; final recordings for the placeholder loops.
+  - Music for the other worlds and a real boss track (`BossMusic` currently pitches up the town theme). The CC0 candidates are the rest of Juhani Junkala's JRPG packs and his Epic Boss Battle track.
   - Crafting-failure cue.
   - Library takes for burn, Fatty's fall whistle and the area transition.
 - **Tooling:**

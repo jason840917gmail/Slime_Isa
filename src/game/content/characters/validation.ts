@@ -312,8 +312,7 @@ function validateEnemy(issues: CharacterValidationIssue[], enemy: unknown, optio
   }
   if (!isRecord(drop)) issue(issues, 'character.enemy.drop', 'must be an object');
   else {
-    checkKeys(issues, drop, 'character.enemy.drop', new Set(['xp', 'coins', 'items']));
-    integer(issues, drop.xp, 'character.enemy.drop.xp', (entry) => entry >= 0, 'must be a non-negative integer');
+    checkKeys(issues, drop, 'character.enemy.drop', new Set(['coins', 'items']));
     integer(issues, drop.coins, 'character.enemy.drop.coins', (entry) => entry >= 0, 'must be a non-negative integer');
     if (drop.items !== undefined && !Array.isArray(drop.items)) issue(issues, 'character.enemy.drop.items', 'must be an array');
     for (const [index, item] of (Array.isArray(drop.items) ? drop.items : []).entries()) {

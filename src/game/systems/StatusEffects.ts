@@ -28,6 +28,11 @@ const STATUS_DEFS: Record<StatusKind, Omit<ActiveStatus, 'timeLeft' | 'lastTick'
   frenzy: { kind: 'frenzy', dps: 0, speedMult: 1.4 },
 };
 
+/** A status's movement multiplier (the slime trail slows enemies by the `slow` status's). */
+export function statusSpeedMultiplier(kind: StatusKind): number {
+  return STATUS_DEFS[kind].speedMult;
+}
+
 const DEFAULT_DURATION_MS: Record<StatusKind, number> = {
   burn: 3000,
   poison: 5000,

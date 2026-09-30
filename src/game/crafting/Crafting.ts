@@ -1,4 +1,4 @@
-import { recipesFor } from '../content/recipes/RecipeCatalog';
+import { PORTABLE_SITE, recipesAt } from '../content/recipes/RecipeCatalog';
 import type { RecipeDef } from '../content/recipes/types';
 import { gameEvents } from '../core/EventBus';
 import { itemRegistry, playerInventory } from '../systems/Inventory';
@@ -8,7 +8,7 @@ import { storyProgress } from '../features/progression/StoryProgress';
 
 export type { RecipeDef, RecipeIngredient } from '../content/recipes/types';
 
-export const RECIPES: readonly RecipeDef[] = recipesFor('portable');
+export const RECIPES: readonly RecipeDef[] = recipesAt(PORTABLE_SITE);
 
 const craftingService = new CraftingService({
   inventory: playerInventory,

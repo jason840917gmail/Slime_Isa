@@ -3,6 +3,7 @@ import { PLAYER_CONFIG } from '../../content/player';
 import { gameEvents } from '../../core/EventBus';
 import { gameState } from '../../core/GameState';
 import { floatingText } from '../../ui/FloatingText';
+import { particleFx } from '../feel/ParticlePresets';
 import type { StatusEffectManager } from '../../systems/StatusEffects';
 import { getStats, resolveMovementSpeed } from '../../systems/PlayerStats';
 import { resolveBodyBottom, resolveWorldDepth } from '../../presentation/WorldDepth';
@@ -18,6 +19,8 @@ export interface PlayerControllerContext {
   getMotion: () => PlayerActorPort;
   getInput: () => PlayerInputPort;
   getStatusEffects: () => StatusEffectManager | undefined;
+  /** Movement multiplier from the current Gulp form (1 without one). */
+  getFormSpeedMultiplier: () => number;
   playAnimation: (key: string) => void;
 }
 
@@ -63,7 +66,8 @@ export class PlayerController {
     const baseSpeed = wantsBoost
       ? PLAYER_CONFIG.movement.boostSpeed + gameState.boostBonus
       : stats.movementSpeed;
-    const speed = resolveMovementSpeed(baseSpeed, 0, statusEffects?.speedMultiplier ?? 1);
+    // A Gulp form scales the effective (capped) speed, so Heavy is slower than any walk.
+    const speed = resolveMovementSpeed(baseSpeed, 0, statusEffects?.speedMultiplier ?? 1) * this.ctx.getFormSpeedMultiplier();
 
     if (statusEffects?.isRooted()) {
       this.ctx.getMotion().move({ x: 0, y: 0 }, 0);
@@ -113,19 +117,7 @@ export class PlayerController {
     this.ctx.playAnimation('slime-roll');
     gameEvents.emit('player.action', { anim: 'dodge' });
 
-    const dust = scene.add.particles(player.x, player.y, 'xp-orb', {
-      lifespan: 280,
-      speed: { min: 10, max: 40 },
-      scale: { start: 0.2, end: 0 },
-      alpha: { start: 0.4, end: 0 },
-      quantity: 6,
-      emitting: false,
-    }).setDepth(resolveWorldDepth(resolveBodyBottom(player.body as Phaser.Physics.Arcade.Body), {
-      stableId: 'player',
-      attachmentSlot: -4,
-    }).depth);
-    dust.emitParticle(6);
-    scene.time.delayedCall(300, () => dust.destroy());
+    particleFx.play('dodge-dust', player.x, resolveBodyBottom(player.body as Phaser.Physics.Arcade.Body));
     floatingText.spawn(scene, player.x, player.y - 30, 'DODGE', 'cyan');
     return true;
   }

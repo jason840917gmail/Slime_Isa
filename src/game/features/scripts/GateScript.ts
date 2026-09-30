@@ -62,6 +62,8 @@ export class GateScript extends ScriptNode {
     this.badgeRise = this.numberProperty('badgeRise', 120);
     this.closedFrame = this.numberProperty('closedFrame', 0);
     this.openFrame = this.numberProperty('openFrame', 1);
+    // Scene connections (a pressure plate's `pressed`) can swing the gate open.
+    this.registerSignalHandler('open', () => this.open());
   }
 
   get isOpen(): boolean {

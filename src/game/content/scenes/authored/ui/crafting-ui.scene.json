@@ -423,6 +423,11 @@
         "modal": true,
         "bindings": [
           {
+            "nodePath": "../Scroll/Content/Title",
+            "property": "text",
+            "model": "title"
+          },
+          {
             "nodePath": "../Scroll/Content/Recipes",
             "property": "items",
             "model": "recipes"
@@ -446,6 +451,11 @@
             "nodePath": "../Scroll/Content/Status",
             "property": "text",
             "model": "status"
+          },
+          {
+            "nodePath": "../Scroll/Content/Status",
+            "property": "color",
+            "model": "statusColor"
           },
           {
             "nodePath": "../Scroll/Content/Craft",

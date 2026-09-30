@@ -1,22 +1,27 @@
 import { getBaseItemDefinitions } from '../../content/items/ItemCatalog';
 import { RECIPE_CATALOG } from '../../content/recipes/RecipeCatalog';
 import type { QuestRewards } from '../../content/quests/types';
+import { isPlayerAbilityId, PLAYER_ABILITY_DEFINITIONS } from '../player/PlayerAbilityDefinitions';
 
 function itemName(itemId: string): string {
   return getBaseItemDefinitions()[itemId]?.name ?? itemId;
+}
+
+function abilityName(abilityId: string): string {
+  return isPlayerAbilityId(abilityId) ? PLAYER_ABILITY_DEFINITIONS[abilityId].title : abilityId;
 }
 
 function recipeName(recipeId: string): string {
   return RECIPE_CATALOG.find((recipe) => recipe.id === recipeId)?.name ?? recipeId;
 }
 
-/** Every reward as a short player-facing line: coins, XP, items, then unlocked recipes. */
+/** Every reward as a short player-facing line: coins, items, then learned recipes and abilities. */
 export function questRewardLines(rewards: QuestRewards): readonly string[] {
   return [
     ...(rewards.coins ? [`${rewards.coins} coins`] : []),
-    ...(rewards.xp ? [`${rewards.xp} XP`] : []),
     ...(rewards.items ?? []).map((item) => `${item.count > 1 ? `${item.count}× ` : ''}${itemName(item.itemId)}`),
     ...(rewards.recipeIds ?? []).map((recipeId) => `New recipe: ${recipeName(recipeId)}`),
+    ...(rewards.abilityIds ?? []).map((abilityId) => `New ability: ${abilityName(abilityId)}`),
   ];
 }
 

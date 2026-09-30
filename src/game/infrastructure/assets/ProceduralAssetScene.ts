@@ -44,86 +44,61 @@ export class ProceduralAssetScene extends Phaser.Scene {
     graphics.generateTexture('stone', 32, 18);
     graphics.clear();
 
-    // XP orb â€” glowing green orb with bright core
+    // Goo dust: glowing green orb with a bright core (dodge and landing puffs)
     graphics.fillStyle(0x1a3a24, 1);
     graphics.fillCircle(8, 8, 7);
     graphics.fillStyle(0x7be08a, 1);
     graphics.fillCircle(8, 8, 5);
     graphics.fillStyle(0xffffff, 0.85);
     graphics.fillCircle(7, 7, 2);
-    graphics.generateTexture('xp-orb', 16, 16);
+    graphics.generateTexture('goo-dust', 16, 16);
     graphics.clear();
 
-    // Perk icons (32x32)
-    graphics.fillStyle(0x7be08a, 1);
-    graphics.fillCircle(16, 16, 12);
-    graphics.fillStyle(0x0b1020, 1);
-    graphics.fillRect(14, 8, 4, 16);
-    graphics.generateTexture('perk-tanky', 32, 32);
-    graphics.clear();
-
-    graphics.fillStyle(0xff6f88, 1);
-    graphics.fillTriangle(16, 4, 26, 24, 6, 24);
-    graphics.fillStyle(0xffffff, 0.8);
-    graphics.fillTriangle(16, 8, 22, 22, 10, 22);
-    graphics.generateTexture('perk-fangs', 32, 32);
-    graphics.clear();
-
-    graphics.fillStyle(0x8b5a3c, 1);
-    graphics.fillRoundedRect(6, 6, 20, 20, 6);
-    graphics.fillStyle(0xc89878, 0.8);
-    graphics.fillRoundedRect(9, 9, 14, 14, 4);
-    graphics.generateTexture('perk-skin', 32, 32);
-    graphics.clear();
-
-    graphics.fillStyle(0x72d8ff, 1);
-    graphics.fillCircle(16, 16, 11);
-    graphics.fillStyle(0xffffff, 0.8);
-    graphics.fillTriangle(16, 6, 22, 18, 10, 18);
-    graphics.generateTexture('perk-quick', 32, 32);
-    graphics.clear();
-
-    graphics.fillStyle(0xffdf8a, 1);
-    const starPoints: Phaser.Math.Vector2[] = [];
-    for (let i = 0; i < 10; i += 1) {
-      const r = i % 2 === 0 ? 12 : 5;
-      const a = (-90 + i * 36) * (Math.PI / 180);
-      starPoints.push(new Phaser.Math.Vector2(16 + Math.cos(a) * r, 16 + Math.sin(a) * r));
+    // Dust puff: a soft sandy cloud (a building being restored)
+    for (const [radius, alpha] of [[15, 0.18], [12, 0.28], [9, 0.4], [6, 0.5]] as const) {
+      graphics.fillStyle(0xd9c8a4, alpha);
+      graphics.fillCircle(16, 16, radius);
     }
-    graphics.fillPoints(starPoints, true);
-    graphics.generateTexture('perk-crit', 32, 32);
+    graphics.fillStyle(0xf3ead6, 0.45);
+    graphics.fillCircle(13, 13, 4);
+    graphics.generateTexture('dust-puff', 32, 32);
     graphics.clear();
 
-    graphics.fillStyle(0xffad66, 1);
-    graphics.fillRoundedRect(6, 10, 20, 14, 4);
-    graphics.fillStyle(0x4a2a10, 1);
-    graphics.fillRect(8, 14, 16, 2);
-    graphics.fillRect(8, 18, 16, 2);
-    graphics.generateTexture('perk-well', 32, 32);
+    // Particle presets (roadmap 9.3): a hit spark, a goo droplet and a loot sparkle.
+    graphics.fillStyle(0xfff2b8, 0.55);
+    graphics.fillCircle(8, 8, 7);
+    graphics.fillStyle(0xffffff, 1);
+    graphics.fillCircle(8, 8, 3.5);
+    graphics.generateTexture('fx-spark', 16, 16);
     graphics.clear();
 
-    // Quick Recovery â€” lightning bolt
-    graphics.fillStyle(0xffdf8a, 1);
-    graphics.fillTriangle(14, 4, 20, 14, 15, 14);
-    graphics.fillTriangle(15, 14, 12, 28, 18, 16);
-    graphics.generateTexture('perk-recovery', 32, 32);
+    graphics.fillStyle(0x2f8f3a, 1);
+    graphics.fillCircle(8, 9, 6);
+    graphics.fillStyle(0x7be08a, 1);
+    graphics.fillCircle(8, 8, 5);
+    graphics.fillStyle(0xffffff, 0.8);
+    graphics.fillCircle(6, 6, 1.6);
+    graphics.generateTexture('fx-goo-drop', 16, 16);
     graphics.clear();
 
-    // Vampiric Goo â€” red drop
-    graphics.fillStyle(0xc8324a, 1);
-    graphics.fillCircle(16, 19, 8);
-    graphics.fillTriangle(16, 4, 8, 19, 24, 19);
-    graphics.fillStyle(0xffffff, 0.55);
-    graphics.fillCircle(13, 16, 2);
-    graphics.generateTexture('perk-lifesteal', 32, 32);
+    graphics.fillStyle(0xffe89a, 1);
+    graphics.fillTriangle(8, 0, 10, 8, 6, 8);
+    graphics.fillTriangle(8, 16, 10, 8, 6, 8);
+    graphics.fillTriangle(0, 8, 8, 6, 8, 10);
+    graphics.fillTriangle(16, 8, 8, 6, 8, 10);
+    graphics.fillStyle(0xffffff, 1);
+    graphics.fillCircle(8, 8, 2);
+    graphics.generateTexture('fx-sparkle', 16, 16);
     graphics.clear();
 
-    // Default perk icon (fallback)
-    graphics.fillStyle(0x88c899, 1);
-    graphics.fillRoundedRect(6, 6, 20, 20, 6);
-    graphics.fillStyle(0x0b1020, 1);
-    graphics.fillCircle(16, 16, 4);
-    graphics.generateTexture('perk-default', 32, 32);
+    // Slime trail mark (roadmap 9.4): a flat translucent goo smear.
+    graphics.fillStyle(0x3f9a4a, 0.55);
+    graphics.fillEllipse(14, 8, 26, 13);
+    graphics.fillStyle(0x7be08a, 0.7);
+    graphics.fillEllipse(13, 7, 18, 8);
+    graphics.fillStyle(0xd8ffd8, 0.6);
+    graphics.fillEllipse(10, 5, 6, 2.5);
+    graphics.generateTexture('fx-goo-mark', 28, 16);
     graphics.clear();
 
     // â”€â”€ Phase 2: weapon icons (32x32) â”€â”€

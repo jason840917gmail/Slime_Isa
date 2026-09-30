@@ -6,9 +6,7 @@ export type {
   DeepReadonly,
   GameConstants,
   PlayerAttributeDefaults,
-  PlayerLevelDefinition,
-  PlayerLevelGains,
-  PlayerProgressionDefinition,
+  PlayerStatsDefinition,
 } from './content/GameConstantsTypes';
 
 function deepFreeze<T>(value: T): DeepReadonly<T> {

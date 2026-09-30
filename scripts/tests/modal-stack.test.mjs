@@ -13,10 +13,6 @@ const vite = await createServer({
 
 const { ModalStack } = await vite.ssrLoadModule('/src/game/ui/ModalStack.ts');
 const { createTransientModalSession } = await vite.ssrLoadModule('/src/game/ui/TransientModalSession.ts');
-const {
-  canReopenPendingLevelUp,
-  reopenPendingLevelUpWhenIdle,
-} = await vite.ssrLoadModule('/src/game/ui/LevelUpReopenPolicy.ts');
 
 test.after(async () => {
   await vite.close();
@@ -185,25 +181,6 @@ test('transient persistence sessions unregister, reopen, and remain active while
   stack.destroy();
 });
 
-test('level-up reopening policy rejects invalid states and P is blocked by active surfaces', () => {
-  assert.equal(canReopenPendingLevelUp({ isOpen: true, isClosing: false, choiceCount: 3 }), false);
-  assert.equal(canReopenPendingLevelUp({ isOpen: false, isClosing: true, choiceCount: 3 }), false);
-  assert.equal(canReopenPendingLevelUp({ isOpen: false, isClosing: false, choiceCount: 0 }), false);
-  assert.equal(canReopenPendingLevelUp({ isOpen: false, isClosing: false, choiceCount: 3 }), true);
-
-  let reopenCalls = 0;
-  const levelUpModal = {
-    reopenPending: () => {
-      reopenCalls += 1;
-      return true;
-    },
-  };
-  assert.equal(reopenPendingLevelUpWhenIdle({ hasActiveSurface: () => true }, levelUpModal), false);
-  assert.equal(reopenCalls, 0);
-  assert.equal(reopenPendingLevelUpWhenIdle({ hasActiveSurface: () => false }, levelUpModal), true);
-  assert.equal(reopenCalls, 1);
-});
-
 test('handles are token-scoped across unregister and ID reuse', () => {
   const stack = new ModalStack(new FakeEventTarget());
   assert.throws(() => {
@@ -284,7 +261,6 @@ test('WorldScene integration keeps one shared Escape contract', () => {
     'src/game/ui/CraftingUI.ts',
     'src/game/ui/WorldMapUI.ts',
     'src/game/ui/QuestJournal.ts',
-    'src/game/ui/LevelUpModal.ts',
   ];
 
   for (const file of surfaceFiles) {
@@ -300,7 +276,6 @@ test('WorldScene integration keeps one shared Escape contract', () => {
     crafting: 'src/game/ui/CraftingUI.ts',
     'world-map': 'src/game/ui/WorldMapUI.ts',
     'quest-journal': 'src/game/ui/QuestJournal.ts',
-    'level-up': 'src/game/ui/LevelUpModal.ts',
   };
   for (const [id, file] of Object.entries(registrations)) {
     assert.match(read(file), new RegExp(`register\\('${id}'`));

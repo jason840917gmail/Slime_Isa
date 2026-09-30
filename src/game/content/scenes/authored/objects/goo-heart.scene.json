@@ -1,0 +1,74 @@
+{
+  "version": 1,
+  "sceneId": "object.goo-heart",
+  "rootNodeId": "root",
+  "nodes": [
+    {
+      "id": "root",
+      "name": "goo-heart",
+      "type": "Node2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "root",
+      "order": 0,
+      "properties": {
+        "texture": {
+          "resourceId": "goo-heart.sprite"
+        },
+        "frame": 5,
+        "origin": [
+          0.5,
+          1
+        ],
+        "scale": [
+          0.46,
+          0.46
+        ],
+        "visualOffset": [
+          0,
+          -4
+        ],
+        "depthMode": "world-sorted",
+        "depthBand": "world-entities"
+      }
+    },
+    {
+      "id": "script",
+      "name": "GooHeartScript",
+      "type": "ScriptNode",
+      "scriptId": "game.goo-heart",
+      "parentId": "root",
+      "order": 1,
+      "properties": {
+        "heartId": "unassigned",
+        "radius": 36,
+        "bobPx": 4,
+        "visual": {
+          "nodeId": "visual"
+        }
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "goo-heart.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "sheet.props.gulp.8x1",
+      "frameWidth": 256,
+      "frameHeight": 256
+    }
+  ]
+}

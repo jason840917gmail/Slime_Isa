@@ -66,6 +66,12 @@ export class QuestNpcController implements InteractionProvider {
     return surface;
   }
 
+  /** Where a quest NPC stands on this map, if it is here. */
+  npcPosition(npcId: string): { readonly x: number; readonly y: number } | undefined {
+    const record = this.records.find((entry) => entry.npcId === npcId);
+    return record?.actor.getPosition();
+  }
+
   register(registration: QuestNpcRegistration): void {
     if (!getNpcDefinition(registration.npcDefinitionId)) return;
     this.records.push({ actor: registration.actor, instanceId: registration.instanceId, npcId: registration.npcDefinitionId });

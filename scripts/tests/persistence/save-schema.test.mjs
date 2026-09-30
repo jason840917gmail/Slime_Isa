@@ -15,15 +15,12 @@ test.after(async () => vite.close());
 function validSave() {
   return {
     player: {
-      schemaVersion: 4,
+      schemaVersion: 5,
       coins: 50,
       boostBonus: 0,
-      level: 1,
-      currentXp: 0,
       hp: 100,
       energy: 100,
-      skillPoints: 0,
-      perks: {},
+      gooHearts: 0,
       attributes: { strength: 10, vitality: 10, agility: 10, intellect: 10 },
       equipment: { weaponId: null, weaponSlots: [null, null, null, null, null, null] },
     },
@@ -106,6 +103,14 @@ test('accepts an optional bed respawn point and rejects malformed ones', () => {
   const invalid = structuredClone(valid);
   invalid.world.respawnPoint = { areaId: 'slime-home', mapId: 'slime-home', x: 'bed', y: 356 };
   assert.equal(isGameSaveData(invalid), false);
+
+  const withBed = structuredClone(valid);
+  withBed.world.respawnPoint = { ...valid.world.respawnPoint, bedId: 'world.slime-home.west-bed' };
+  assert.equal(isGameSaveData(withBed), true);
+
+  const blankBed = structuredClone(valid);
+  blankBed.world.respawnPoint = { ...valid.world.respawnPoint, bedId: '' };
+  assert.equal(isGameSaveData(blankBed), false);
 });
 
 test('accepts boss respawn timestamps and persistent partial chest contents', () => {

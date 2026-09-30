@@ -7,8 +7,8 @@ import type { UiPresentationModel, UiSurfacePort } from '../scripts/ui/UiSurface
 
 const SURFACE_ID = 'quest-tracker';
 const WIDTH = 284;
-/** Directly under the HUD card (16..112), aligned to its left edge. */
-const TOP = 124;
+/** Directly under the HUD card (16..84), aligned to its left edge. */
+const TOP = 96;
 const LEFT = 16;
 const HEADER_HEIGHT = 44;
 /** Objectives render at 12px with 1.45 line height, one requirement per row. */
@@ -34,15 +34,20 @@ function npcName(npcId: string | undefined): string {
 }
 
 /** Newest-first, main story before side quests: the one quest the player should be doing now. */
-function trackedQuest(): TrackedQuest | undefined {
+export function trackedQuestView(): QuestView | undefined {
   const active = [...questService.list('active')]
     .sort((a, b) => Number(b.definition.category === 'mandatory') - Number(a.definition.category === 'mandatory')
       || (b.acceptedAt ?? 0) - (a.acceptedAt ?? 0));
-  const current = active[0];
-  if (current) return describeActive(current);
-  const offer = questService.list('available')
+  if (active[0]) return active[0];
+  return questService.list('available')
     .filter((quest) => quest.definition.acquisition.kind === 'npc')
     .sort((a, b) => Number(b.definition.category === 'mandatory') - Number(a.definition.category === 'mandatory'))[0];
+}
+
+function trackedQuest(): TrackedQuest | undefined {
+  const quest = trackedQuestView();
+  if (quest?.status === 'active') return describeActive(quest);
+  const offer = quest;
   if (!offer || offer.definition.acquisition.kind !== 'npc') return undefined;
   const giver = npcName(offer.definition.acquisition.npcIds[0]);
   return {
@@ -80,8 +85,10 @@ export class QuestTrackerSurfacePort implements UiSurfacePort {
   private readonly listeners = new Set<(model: UiPresentationModel) => void>();
   private model: UiPresentationModel = {};
   private stopped = false;
+  private waypointOn = false;
+  private waypointFound = false;
 
-  constructor() {
+  constructor(private readonly onToggleWaypoint: (on: boolean) => void = () => undefined) {
     gameEvents.on('quest.changed', this.publish, this);
     this.model = this.build();
   }
@@ -96,7 +103,25 @@ export class QuestTrackerSurfacePort implements UiSurfacePort {
     return () => { this.listeners.delete(listener); };
   }
 
-  invoke(_surfaceId: string, _actionId: string, _payload?: JsonValue): void {}
+  invoke(surfaceId: string, actionId: string, _payload?: JsonValue): void {
+    if (this.stopped || surfaceId !== SURFACE_ID || actionId !== 'toggle-waypoint') return;
+    this.waypointOn = !this.waypointOn;
+    this.onToggleWaypoint(this.waypointOn);
+    this.publish();
+  }
+
+  /** Whether the player asked for the way to the tracked quest. */
+  get showingWay(): boolean { return this.waypointOn; }
+
+  /** The quest the card shows (the one the waypoint follows). */
+  get trackedQuestId(): string | undefined { return trackedQuestView()?.questId; }
+
+  /** Tells the card whether the waypoint found somewhere to point at on this map. */
+  setWaypointFound(found: boolean): void {
+    if (found === this.waypointFound) return;
+    this.waypointFound = found;
+    this.publish();
+  }
 
   destroy(): void {
     if (this.stopped) return;
@@ -114,15 +139,18 @@ export class QuestTrackerSurfacePort implements UiSurfacePort {
       heading: tracked?.heading ?? '',
       title: tracked?.title ?? '',
       objectives: tracked?.lines.join('\n') ?? '',
-      hint: tracked?.hint ?? '',
+      hint: !tracked ? '' : this.waypointOn
+        ? (this.waypointFound ? '➜ Follow the gold arrow' : 'Nothing to point at on this map')
+        : tracked.hint,
+      bookHint: this.waypointOn ? 'click: hide way · U book' : 'click: show way · U book',
       offsetMin: [LEFT, TOP],
       offsetMax: [LEFT + WIDTH, TOP + height],
     };
   }
 
-  private publish(): void {
+  private readonly publish = (): void => {
     if (this.stopped) return;
     this.model = this.build();
     for (const listener of this.listeners) listener(this.model);
-  }
+  };
 }

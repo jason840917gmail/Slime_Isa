@@ -40,14 +40,8 @@ const { getBaseItemDefinitions } = await vite.ssrLoadModule('/src/game/content/i
 const { createInitialRunState } = await vite.ssrLoadModule('/src/game/content/initial-state/InitialRun.ts');
 const { Inventory, itemRegistry } = await vite.ssrLoadModule('/src/game/systems/Inventory.ts');
 const { getStats, resolveMovementSpeed } = await vite.ssrLoadModule('/src/game/systems/PlayerStats.ts');
-const { resolveLevelStats } = await vite.ssrLoadModule('/src/game/systems/PlayerProgression.ts');
 const { gameState } = await vite.ssrLoadModule('/src/game/core/GameState.ts');
 
-test('HUD initializes XP from the installed game state', async () => {
-  const source = await fs.readFile(path.resolve(process.cwd(), 'src/game/HUD.ts'), 'utf8');
-  assert.match(source, /private xpIntoLevel = gameState\.currentXp;/);
-  assert.match(source, /private xpForNext: number \| null = gameState\.xpToNextLevel;/);
-});
 const { emittedEvents } = await vite.ssrLoadModule(eventBusStubId);
 
 test.after(async () => vite.close());
@@ -119,47 +113,35 @@ test('slot removal cannot consume another stack of the same item', () => {
   ]);
 });
 
-test('runtime XP grants one reward per crossed level and refills final maxima', () => {
+test('player stats come from gameplay constants; there are no levels, XP or perks', () => {
+  const stats = GAME_CONSTANTS.character.player.stats;
   gameState.load(createInitialRunState().player);
-  const eventStart = emittedEvents.length;
-  const progression = GAME_CONSTANTS.character.player.progression;
-  const levelOneXp = progression.levels[0].xpToNextLevel;
-  const levelTwoXp = progression.levels[1].xpToNextLevel;
-  assert.notEqual(levelOneXp, null);
-  assert.notEqual(levelTwoXp, null);
-  gameState.addXp(levelOneXp + levelTwoXp + 30);
-
-  assert.equal(gameState.level, 3);
-  assert.equal(gameState.currentXp, 30);
-  assert.equal(gameState.xpToNextLevel, progression.levels[2].xpToNextLevel);
-  assert.equal(gameState.skillPoints, 2);
-  const levelThreeStats = resolveLevelStats(progression, 3);
-  assert.equal(gameState.maxHp, levelThreeStats.maxHp);
-  assert.equal(gameState.hp, levelThreeStats.maxHp);
-  assert.equal(gameState.maxEnergy, levelThreeStats.maxEnergy);
-  assert.equal(gameState.energy, levelThreeStats.maxEnergy);
-  assert.deepEqual(emittedEvents.slice(eventStart).filter((entry) => entry.event === 'level.up').map((entry) => entry.payload.level), [2, 3]);
+  const saved = gameState.serialize();
+  for (const retired of ['level', 'currentXp', 'skillPoints', 'perks']) assert.equal(retired in saved, false, retired);
+  assert.equal(gameState.maxHp, stats.maxHp);
+  assert.equal(gameState.hp, stats.maxHp);
+  assert.equal(gameState.maxEnergy, stats.maxEnergy);
+  const derived = getStats();
+  assert.equal(derived.attack, stats.attack);
+  assert.equal(derived.defense, stats.defense);
+  assert.equal(derived.critChance, stats.critChance);
+  assert.equal(derived.critMult, stats.critMultiplier);
+  assert.equal(derived.energyRegenPerSec, stats.energyRegenPerSecond);
+  assert.equal(derived.damageTakenMult, 1);
 });
 
-test('load clamps maxima without refill and maximum level cannot reward level 11', () => {
-  const initial = createInitialRunState().player;
-  const progression = GAME_CONSTANTS.character.player.progression;
-  gameState.load({ ...initial, level: 3, currentXp: 0, hp: 999, energy: 999 });
-  const levelThreeStats = resolveLevelStats(progression, 3);
-  assert.equal(gameState.hp, levelThreeStats.maxHp);
-  assert.equal(gameState.energy, levelThreeStats.maxEnergy);
-
-  const finalLevel = progression.maxLevel;
-  const previousLevelXp = progression.levels[finalLevel - 2].xpToNextLevel;
-  assert.notEqual(previousLevelXp, null);
-  gameState.load({ ...initial, level: finalLevel - 1, currentXp: previousLevelXp - 1, hp: 1, energy: 1 });
-  gameState.addXp(1);
-  assert.equal(gameState.level, finalLevel);
-  assert.equal(gameState.currentXp, 0);
-  assert.equal(gameState.xpToNextLevel, null);
-  const skillPoints = gameState.skillPoints;
-  gameState.addXp(999_999);
-  assert.equal(gameState.level, finalLevel);
-  assert.equal(gameState.currentXp, 0);
-  assert.equal(gameState.skillPoints, skillPoints);
+test('a Goo Heart raises max HP for good, fills HP, and survives a save', () => {
+  const stats = GAME_CONSTANTS.character.player.stats;
+  const bonus = GAME_CONSTANTS.character.player.gooHeart.maxHpBonus;
+  gameState.load({ ...createInitialRunState().player, hp: 10 });
+  const eventStart = emittedEvents.length;
+  gameState.addGooHeart();
+  assert.equal(gameState.gooHearts, 1);
+  assert.equal(gameState.maxHp, stats.maxHp + bonus);
+  assert.equal(gameState.hp, stats.maxHp + bonus);
+  assert.ok(emittedEvents.slice(eventStart).some((entry) => entry.event === 'hp.changed' && entry.payload.maxHp === stats.maxHp + bonus));
+  gameState.load({ ...gameState.serialize(), hp: 999, energy: 999 });
+  assert.equal(gameState.gooHearts, 1);
+  assert.equal(gameState.hp, stats.maxHp + bonus, 'load clamps HP to the raised maximum');
+  assert.equal(gameState.energy, stats.maxEnergy);
 });

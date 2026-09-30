@@ -22,7 +22,7 @@ from pathlib import Path
 from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from interior_catalog import DERIVED, ROWS, SHEETS, is_bed, is_workbench  # noqa: E402
+from interior_catalog import DERIVED, ROWS, SHEETS, footprint_share, is_bed, is_workbench  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 MANIFEST = json.loads((ROOT / "asset" / "assets.json").read_text(encoding="utf-8"))
@@ -85,7 +85,9 @@ def scene_document(category: str, name: str, atlas: Atlas, frame: int, kind: str
         shape = {"shape": "rectangle", "width": number((y1 - y0) * scale * 0.9), "height": number((x1 - x0) * scale)}
         shape_position = [0, 0]
     else:
-        depth = max(FOOTPRINT_MIN, min((y1 - y0) * scale * FOOTPRINT_DEPTH, FOOTPRINT_MAX))
+        share = footprint_share(category, name)
+        depth = ((y1 - y0) * scale * share if share is not None
+                 else max(FOOTPRINT_MIN, min((y1 - y0) * scale * FOOTPRINT_DEPTH, FOOTPRINT_MAX)))
         shape = {"shape": "rectangle", "width": number((x1 - x0) * scale * FOOTPRINT_WIDTH), "height": number(depth)}
         shape_position = [number(((x0 + x1) / 2 - fw / 2) * scale), number(-(fw - y1) * scale - depth / 2)]
 

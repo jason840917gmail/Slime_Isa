@@ -2,7 +2,8 @@
   "$schema": "./game-constants.schema.json",
   "version": 1,
   "resources": {
-    "tags": ["wood", "stone", "iron", "charcoal", "grain"]
+    "tags": ["wood", "stone", "iron", "charcoal", "grain"],
+    "respawnMs": 600000
   },
   "inventory": {
     "initialMaxSlots": 10,
@@ -28,6 +29,9 @@
   "rest": {
     "sleepHpRegenPerSec": 2
   },
+  "gulp": {
+    "formDurationMs": 60000
+  },
   "character": {
     "player": {
       "initialAttributes": {
@@ -44,24 +48,17 @@
         "movementSpeedCap": 480
       },
       "hitInvulnerabilityMs": 500,
-      "progression": {
-        "maxLevel": 10,
-        "baseMaxHp": 100,
-        "baseMaxEnergy": 100,
-        "baseAttack": 10,
-        "baseDefense": 2,
-        "levels": [
-          { "level": 1, "xpToNextLevel": 250, "gains": { "maxHp": 0, "maxEnergy": 0, "attack": 0, "defense": 0 } },
-          { "level": 2, "xpToNextLevel": 700, "gains": { "maxHp": 12, "maxEnergy": 4, "attack": 2, "defense": 1 } },
-          { "level": 3, "xpToNextLevel": 1200, "gains": { "maxHp": 12, "maxEnergy": 4, "attack": 2, "defense": 1 } },
-          { "level": 4, "xpToNextLevel": 1600, "gains": { "maxHp": 12, "maxEnergy": 4, "attack": 2, "defense": 1 } },
-          { "level": 5, "xpToNextLevel": 2235, "gains": { "maxHp": 12, "maxEnergy": 4, "attack": 2, "defense": 1 } },
-          { "level": 6, "xpToNextLevel": 2940, "gains": { "maxHp": 12, "maxEnergy": 4, "attack": 2, "defense": 1 } },
-          { "level": 7, "xpToNextLevel": 3705, "gains": { "maxHp": 12, "maxEnergy": 4, "attack": 2, "defense": 1 } },
-          { "level": 8, "xpToNextLevel": 4525, "gains": { "maxHp": 12, "maxEnergy": 4, "attack": 2, "defense": 1 } },
-          { "level": 9, "xpToNextLevel": 5400, "gains": { "maxHp": 12, "maxEnergy": 4, "attack": 2, "defense": 1 } },
-          { "level": 10, "xpToNextLevel": null, "gains": { "maxHp": 12, "maxEnergy": 4, "attack": 2, "defense": 1 } }
-        ]
+      "stats": {
+        "maxHp": 100,
+        "maxEnergy": 100,
+        "attack": 12,
+        "defense": 3,
+        "critChance": 0.05,
+        "critMultiplier": 1.75,
+        "energyRegenPerSecond": 8
+      },
+      "gooHeart": {
+        "maxHpBonus": 10
       }
     }
   }

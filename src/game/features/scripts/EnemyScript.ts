@@ -190,6 +190,11 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
   private targetService?: EnemyRuntimePort;
   private runtimeStateValue: EnemyRuntimeState = 'idle';
   private simulationTimeMs = 0;
+  /** A slow (the slime's goo trail): movement is multiplied by `slowMultiplier` until `slowedUntil`. */
+  private slowedUntil = 0;
+  private slowMultiplier = 1;
+  /** The factor the last written velocity carries, so the AI reads back its own unslowed speed. */
+  private appliedSlow = 1;
   private activeActivationId?: string;
   private activeSequenceId?: number;
   private attackImpactAt = 0;
@@ -332,6 +337,9 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
     this.simulationTimeMs += deltaSeconds * 1000;
     this.updateHitFlash();
     const body = this.body();
+    // Only the AI path below writes a slowed velocity; every other path writes an unslowed one.
+    const slowWritten = this.appliedSlow;
+    this.appliedSlow = 1;
     if (this.defeatedValue) {
       body.velocity = { x: 0, y: 0 };
       this.runtimeStateValue = 'dead';
@@ -385,7 +393,7 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
     // The AI keeps running during an attack exactly as the legacy enemy did:
     // the attack state holds position, and a target that escapes beyond the
     // attack range is chased while the committed swing plays out.
-    const velocity = { x: body.velocity.x, y: body.velocity.y };
+    const velocity = { x: body.velocity.x / slowWritten, y: body.velocity.y / slowWritten };
     const velocityPort = {
       setVelocity: (x: number, y: number) => { velocity.x = x; velocity.y = y; },
       velocity: { scale: (amount: number) => { velocity.x *= amount; velocity.y *= amount; } },
@@ -421,7 +429,8 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
     }
     this.aiState = state;
     this.runtimeStateValue = this.activeSequenceId === undefined ? state : 'attack';
-    body.velocity = velocity;
+    this.appliedSlow = this.simulationTimeMs < this.slowedUntil ? this.slowMultiplier : 1;
+    body.velocity = this.appliedSlow === 1 ? velocity : { x: velocity.x * this.appliedSlow, y: velocity.y * this.appliedSlow };
     if (this.activeSequenceId !== undefined) return;
     this.updateFacing(velocity);
     this.playFacing(Math.hypot(velocity.x, velocity.y) > 2 ? 'walk' : 'idle');
@@ -819,6 +828,23 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
   private attributeValue(key: string): JsonValue | undefined {
     const attributes = this.jsonProperty('attributes');
     return isRecord(attributes) ? attributes[key] : undefined;
+  }
+
+  /**
+   * Slows this enemy's movement to `multiplier` for `durationMs` (the slime's
+   * goo trail). Bosses are not slowed. A fresh slow replaces a weaker or
+   * shorter one.
+   */
+  applySlow(multiplier: number, durationMs: number): void {
+    if (this.rank === 'boss' || this.defeated || !(multiplier > 0 && multiplier < 1) || !(durationMs > 0)) return;
+    const until = this.simulationTimeMs + durationMs;
+    if (this.simulationTimeMs >= this.slowedUntil || multiplier <= this.slowMultiplier) this.slowMultiplier = multiplier;
+    this.slowedUntil = Math.max(this.slowedUntil, until);
+  }
+
+  /** True while a slow holds this enemy back. */
+  get slowed(): boolean {
+    return this.simulationTimeMs < this.slowedUntil;
   }
 
   protected override _duplicateSelf(runtimeId: RuntimeNodeId): EnemyScript {

@@ -56,7 +56,7 @@ test('UI conversion covers every ledger row and is deterministic in either input
   const first = await runner.run({ unitKeys, mode: 'dry-run' });
   const replay = await runner.run({ unitKeys: [...unitKeys].reverse(), mode: 'dry-run' });
   assert.deepEqual(replay.outputs, first.outputs);
-  assert.equal(first.outputs.length, 15);
+  assert.equal(first.outputs.length, 14);
   assert.deepEqual(first.outputs.map((output) => output.unitKey), unitKeys);
   assert.ok(first.outputs.every((output) => output.path.startsWith('ui/') && output.path.endsWith('.scene.json')));
 });
@@ -72,8 +72,8 @@ test('UI scenes preserve layout, theme, typed bindings, actions, and common cont
 
   assert.equal(hud.sceneId, 'ui.hud');
   assert.deepEqual(hud.nodes.find((node) => node.id === 'surface').properties.theme, { resourceId: 'ui.field-kit.theme' });
-  assert.deepEqual(hud.nodes.filter((node) => node.type === 'ProgressBar').map((node) => node.name), ['Health', 'Experience', 'Energy']);
-  assert.equal(hud.nodes.find((node) => node.scriptId === 'game.ui-surface').properties.bindings.length, 8);
+  assert.deepEqual(hud.nodes.filter((node) => node.type === 'ProgressBar').map((node) => node.name), ['Health', 'Energy']);
+  assert.equal(hud.nodes.find((node) => node.scriptId === 'game.ui-surface').properties.bindings.length, 5);
 
   assert.equal(inventory.nodes[0].type, 'ModalRoot');
   assert.ok(inventory.nodes.some((node) => node.type === 'ItemList'));

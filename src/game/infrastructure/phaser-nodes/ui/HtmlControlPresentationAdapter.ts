@@ -251,6 +251,8 @@ function synchronizeLabel(element: HTMLElement, control: LabelControlNode): void
   setStyle(element, 'font-size', `${control.fontSize}px`);
   setStyle(element, 'font-weight', String(control.fontWeight));
   setStyle(element, 'text-align', control.textAlign);
+  // Labels and buttons lay out as flex boxes, where only justify-content moves the text.
+  setStyle(element, 'justify-content', control.textAlign === 'center' ? 'center' : control.textAlign === 'right' ? 'flex-end' : 'flex-start');
   setStyle(element, 'white-space', control.wrap ? 'pre-line' : 'nowrap');
 }
 
@@ -340,6 +342,7 @@ function synchronizeList(
     option.disabled = item.disabled ?? false;
     // Locked rows stay selectable (their details are still worth reading) but read as unavailable.
     option.classList.toggle('scene-item--locked', isLockedItem(item.metadata));
+    option.classList.toggle('scene-item--short', metadataFlag(item.metadata, 'short'));
     option.dataset.itemId = item.id;
     option.setAttribute('role', 'option');
     option.setAttribute('aria-selected', String(index === control.selectedIndex));
@@ -355,8 +358,12 @@ function synchronizeList(
 }
 
 function isLockedItem(metadata: unknown): boolean {
+  return metadataFlag(metadata, 'locked');
+}
+
+function metadataFlag(metadata: unknown, key: string): boolean {
   return !!metadata && typeof metadata === 'object' && !Array.isArray(metadata)
-    && (metadata as Readonly<Record<string, unknown>>).locked === true;
+    && (metadata as Readonly<Record<string, unknown>>)[key] === true;
 }
 
 function itemIcon(metadata: unknown): { readonly key: string; readonly frame: number; readonly shortcut?: string; readonly showLabel: boolean } | undefined {

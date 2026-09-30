@@ -181,7 +181,6 @@
           "damageMultiplier": 1
         },
         "rewards": {
-          "xp": 40,
           "coins": 8
         },
         "impactEffect": {

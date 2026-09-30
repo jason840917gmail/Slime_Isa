@@ -40,7 +40,7 @@ test('selecting the Fatty camp in level-1 links to the boss scene and shows wher
   const summary = camps.bossCampSummary(camp, nodes, shapeValue(nodes), boss);
   assert.deepEqual(summary.issues, []);
   assert.equal(summary.shapesEditableHere, false, 'circles belong to the encounter scene, not the world');
-  assert.match(summary.lines.join('\n'), /Arena: circle r933 at 2528, 1472/);
+  assert.match(summary.lines.join('\n'), /Arena: circle r420 at 2528, 1472/);
 });
 
 test('camp shapes are coloured as activation and arena', () => {

@@ -59,8 +59,7 @@
       "projectileSpeed": 180,
       "knockbackResist": 0
     },
-    "drop": {
-      "xp": 45,
+    "drop": {
       "coins": 10,
       "items": [
         {

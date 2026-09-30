@@ -25,4 +25,14 @@ export class QuestReconciliationRegistry {
   }
 }
 
+/** Keeps saved progress within the (possibly lowered) targets of a newer definition. */
+export function clampProgressToTargets(state: QuestState, definition: QuestDefinition): QuestState {
+  const targets = new Map(definition.stages.flatMap((stage) => stage.objectives).map((objective) => [objective.id, objective.target]));
+  const progress = Object.fromEntries(Object.entries(state.progress).map(([id, value]) => [id, Math.min(value, targets.get(id) ?? value)]));
+  return { ...state, definitionVersion: definition.definitionVersion, progress };
+}
+
 export const questReconciliationRegistry = new QuestReconciliationRegistry();
+
+// Worm Trouble v2: five worm brawlers became three worm swordsmen.
+questReconciliationRegistry.register('worm-trouble', 1, 2, clampProgressToTargets);

@@ -3,10 +3,15 @@ import { peekRunNavigation } from '../world-navigation/AreaNavigation';
 
 /**
  * Resolves browser recovery before Phaser builds the authored world. Explicit
- * load/reset/area handoffs already carry a complete run and skip this prompt.
+ * load/reset/area handoffs already carry a complete run and skip this. A
+ * normal start shows the title screen (WorldScene), whose Continue loads the
+ * autosave; only a development `?map=` preview still asks here whether to
+ * preview the map with the autosaved run or a new one.
  */
 export async function prepareRunStartup(container: HTMLElement): Promise<void> {
   if (peekRunNavigation()) return;
+  const devMapPreview = import.meta.env.DEV && new URLSearchParams(window.location.search).has('map');
+  if (!devMapPreview) return;
   if (!saveSystem.hasSave()) {
     saveSystem.startNewRun();
     return;

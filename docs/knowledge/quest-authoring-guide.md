@@ -97,9 +97,9 @@ export const myQuest: QuestDefinition = {
 
   rewards: {
     coins: 25,
-    xp: 30,
     items: [{ itemId: 'hp-potion', count: 1 }],
     // recipeIds: ['craft-stone-spear'], // recipe must have learnedByQuest: true
+    // abilityIds: ['jump'],             // ability the slime learns (content/abilities.ts)
     // flags: ['my-story-flag'],         // persistent story flag
   },
 
@@ -180,11 +180,14 @@ from the quest journal.
 All fields are optional and combinable. The service persists `rewardsGranted`,
 so rewards are granted exactly once.
 
-- `coins`, `xp`: non-negative integers.
+- `coins`: a non-negative integer. There is no XP; the validator rejects `xp`.
 - `items`: `{ itemId, count }` with a known item and positive count.
 - `recipeIds`: recipes the player learns. Each must exist in `RecipeCatalog.ts`
   and be marked `learnedByQuest: true`; such recipes stay visible but locked
   until learned.
+- `abilityIds`: abilities the slime learns (`jump`, `squash-slam`,
+  `stretch-lash`, `teleport`; see `content/abilities.ts`). Learning one shows
+  the "learned" banner, and the ability bar stops showing it as locked.
 - `flags`: persistent story flags (pattern `a-z0-9` segments joined by `-`,
   `:`, or `.`) stored in `StoryProgress`; other content can require them with a
   `world-flag` prerequisite. Chapter 1 sets `chapter-1-complete`.
@@ -197,7 +200,6 @@ Every entry in `prerequisites` must pass (AND). Within one entry's `areaIds` or
 ```ts
 { kind: 'quest-status', questId: 'previous-quest', status: 'completed' } // referenced quest must exist; cycles are rejected
 { kind: 'area-entered', areaIds: ['gloop-forest'] }                      // discovered map/area IDs
-{ kind: 'player-level', minimumLevel: 3 }
 { kind: 'inventory-count', itemId: 'wood', minimumCount: 10 }           // checked, not consumed
 { kind: 'world-flag', flagId: 'chapter-1-complete' }                    // story flag, or boss:<bossId>
 { kind: 'npc-talked', npcIds: ['village-elder-plop'] }
@@ -228,7 +230,7 @@ current. Progress is capped at `target`.
 | `defeat-boss` | `boss.defeated` | 1 | `factId`, else `bossId` | boss camp progress service (`UniversalSceneWorldController`) |
 | `discover-area` | `area.enter` | 1 | `areaId` | `WorldScene` on map entry |
 | `escort-character` | `escort.completed` | 1 | `runId`, else `escortId` | **none yet** |
-| `activate-object` | `object.activated` | 1 | `instanceId` | **none yet** |
+| `activate-object` | `object.activated` | 1 | `instanceId` | `WorldScene` when a `game.restoration-site` is paid (`objectId` from the script, e.g. `workshop`) |
 | `survive-duration` | `survival.completed` | 1 | `factId`, else `encounterId` | **none yet** |
 
 Do not ship a quest that uses a kind with no producer until the owning feature

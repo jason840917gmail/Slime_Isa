@@ -20,9 +20,11 @@ export interface DestructibleState {
 }
 
 export interface WorldObjectStatePort {
-  load(mapId: string, instanceId: string): DestructibleState | undefined;
+  /** Saved state; a node that may regrow and whose time has come loads as authored. */
+  load(mapId: string, instanceId: string, regrows: boolean): DestructibleState | undefined;
   saveHealth(mapId: string, instanceId: string, health: number, maxHealth: number): void;
-  markDestroyed(mapId: string, instanceId: string): void;
+  /** `regrows` starts the regrowth timer (harvested resources). */
+  markDestroyed(mapId: string, instanceId: string, regrows: boolean): void;
 }
 
 export interface DestructibleHealthChanged {
@@ -123,7 +125,7 @@ export class DestructibleScript extends ScriptNode implements DamageReceiver {
     super._enter_tree();
     const damageRouter = this.service<DamageRouter>(DAMAGE_ROUTER_SERVICE);
     this.state = this.service<WorldObjectStatePort>(WORLD_OBJECT_STATE_SERVICE);
-    const saved = this.state.load(this.mapId, this.instanceId);
+    const saved = this.state.load(this.mapId, this.instanceId, this.regrows());
     if (saved) {
       this.destroyedValue = saved.destroyed;
       this.healthValue = saved.destroyed ? 0 : Math.min(this.maxHealth, Math.max(0, saved.health));
@@ -140,6 +142,9 @@ export class DestructibleScript extends ScriptNode implements DamageReceiver {
   }
 
   protected shouldPersistHealth(): boolean { return true; }
+
+  /** True for objects that grow back after `resources.respawnMs` (harvested resource nodes). */
+  protected regrows(): boolean { return false; }
 
   protected onPositiveDamage(_commit: DamageCommit): void {}
 
@@ -175,7 +180,7 @@ export class DestructibleScript extends ScriptNode implements DamageReceiver {
     if (this.destroyedValue) return;
     this.destroyedValue = true;
     this.healthValue = 0;
-    this.state?.markDestroyed(this.mapId, this.instanceId);
+    this.state?.markDestroyed(this.mapId, this.instanceId, this.regrows());
     this.onDestroyed({ mapId: this.mapId, instanceId: this.instanceId, objectId: this.objectId });
   }
 

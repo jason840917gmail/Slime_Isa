@@ -1,8 +1,8 @@
 /**
  * Shared type definitions for Phase 1 systems.
  *
- * Kept in a standalone module so EventBus, GameState, StatusEffects, LevelUpModal
- * and others can reference them without circular imports.
+ * Kept in a standalone module so EventBus, GameState, StatusEffects and others
+ * can reference them without circular imports.
  */
 
 export type StatusKind =
@@ -12,14 +12,6 @@ export type StatusKind =
   | 'sticky'
   | 'bouncy'
   | 'frenzy';
-
-export interface PerkChoice {
-  id: string;
-  title: string;
-  description: string;
-  /** Optional icon texture key generated in BootScene. */
-  icon?: string;
-}
 
 export const WEAPON_HOTBAR_SLOT_COUNT = 6;
 

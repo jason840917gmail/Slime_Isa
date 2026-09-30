@@ -33,7 +33,7 @@ async function prepare(sceneId) {
 }
 
 test('every authored UI scene resolves through the common scene document pipeline', async () => {
-  assert.equal(uiScenes.length, 18);
+  assert.equal(uiScenes.length, 25);
   for (const scene of uiScenes) {
     const { packed, documents, resources } = await prepare(scene.sceneId);
     assert.equal(packed.definition.sourceSceneId, scene.sceneId);
@@ -47,7 +47,7 @@ test('every authored UI scene resolves through the common scene document pipelin
 
 test('UI scripts bind injected presentation models and queue typed actions without domain imports', async () => {
   const models = {
-    hud: { levelLabel: 'Level 4', coinsLabel: 'Coins 27', hp: 42, maxHp: 60, xp: 8, xpMax: 25, energy: 31, maxEnergy: 40 },
+    hud: { coinsLabel: 'Coins 27', hp: 42, maxHp: 60, energy: 31, maxEnergy: 40 },
     'chest-inventory-panel': { open: true, selectedIndex: 0, items: [{ id: 'wood', label: 'Wood ×3' }], details: 'Wood\nCrafting material' },
   };
   const actions = [];
@@ -66,7 +66,8 @@ test('UI scripts bind injected presentation models and queue typed actions witho
   const hudTree = new t.SceneTree();
   hudTree.setRoot(hud);
   const hudNodes = descendants(hud);
-  assert.equal(hudNodes.find((node) => node.name === 'Level').text, 'Level 4');
+  assert.equal(hudNodes.find((node) => node.name === 'Coins').text, 'Coins 27');
+  assert.equal(hudNodes.some((node) => node.name === 'Level' || node.name === 'Experience'), false);
   assert.equal(hudNodes.find((node) => node.name === 'Health').ratio, 0.7);
   hudTree.shutdown();
   hudPrepared.packed.dispose();

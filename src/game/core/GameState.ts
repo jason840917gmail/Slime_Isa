@@ -1,33 +1,27 @@
 import { gameEvents, type HealSource } from './EventBus';
 import { createInitialRunState } from '../content/initial-state/InitialRun';
 import { GAME_CONSTANTS } from '../Constant';
-import { PERK_BALANCE } from '../content/perks';
-import { applyExperience, resolveLevelStats } from '../systems/PlayerProgression';
 import type { CharacterAttributeSet } from '../content/characters/types';
 import { WEAPON_HOTBAR_SLOT_COUNT } from './types';
 
 /**
- * Single source of truth for persistent player state.
- *
- * Phase 0: coins + boostBonus.
- * Phase 1: hp, maxHp, level, xp, energy, maxEnergy, skillPoints, perks.
- * Future phases extend with abilities, weapons, inventory, discovered areas,
- * quest flags — all flowing through the same emit-on-change pipeline.
+ * Single source of truth for persistent player state: coins, HP, energy, Goo
+ * Hearts, attributes and equipment. The slime grows through gear, Goo Hearts
+ * and story-taught abilities, never through experience (see GAME_GUIDELINES).
  */
 
-const SAVE_SCHEMA_VERSION = 4;
-const PROGRESSION = GAME_CONSTANTS.character.player.progression;
+const SAVE_SCHEMA_VERSION = 5;
+const STATS = GAME_CONSTANTS.character.player.stats;
+const GOO_HEART = GAME_CONSTANTS.character.player.gooHeart;
 
 export interface GameStateData {
   schemaVersion: number;
   coins: number;
   boostBonus: number;
-  level: number;
-  currentXp: number;
   hp: number;
   energy: number;
-  skillPoints: number;
-  perks: Record<string, number>;
+  /** Goo Hearts collected this run; each one raises max HP for good. */
+  gooHearts: number;
   attributes: CharacterAttributeSet;
   equipment: {
     weaponId: string | null;
@@ -40,7 +34,6 @@ function defaultData(): GameStateData {
   return {
     ...initial,
     schemaVersion: SAVE_STATE_SCHEMA_VERSION,
-    perks: {},
     attributes: { ...initial.attributes },
     equipment: { ...initial.equipment, weaponSlots: [...initial.equipment.weaponSlots] },
   };
@@ -71,12 +64,9 @@ class GameStateImpl {
       schemaVersion: SAVE_STATE_SCHEMA_VERSION,
       coins: data.coins ?? defaults.coins,
       boostBonus: data.boostBonus ?? defaults.boostBonus,
-      level: data.level ?? defaults.level,
-      currentXp: data.currentXp ?? defaults.currentXp,
       hp: data.hp ?? defaults.hp,
       energy: data.energy ?? defaults.energy,
-      skillPoints: data.skillPoints ?? defaults.skillPoints,
-      perks: { ...(data.perks ?? {}) },
+      gooHearts: data.gooHearts ?? defaults.gooHearts,
       attributes: { ...defaults.attributes, ...(data.attributes ?? {}) },
       equipment: {
         ...defaults.equipment,
@@ -92,7 +82,6 @@ class GameStateImpl {
     gameEvents.emit('boost.changed', { boostBonus: this.data.boostBonus, delta: 0 });
     this.emitHp(0);
     this.emitEnergy(0);
-    this.emitXp(0);
     gameEvents.emit('weapon.loadout.changed', { slots: [...this.data.equipment.weaponSlots] });
     gameEvents.emit('weapon.equipped', { weaponId: this.data.equipment.weaponId });
   }
@@ -103,7 +92,6 @@ class GameStateImpl {
     gameEvents.emit('boost.changed', { boostBonus: this.data.boostBonus, delta: 0 });
     this.emitHp(0);
     this.emitEnergy(0);
-    this.emitXp(0);
     gameEvents.emit('weapon.loadout.changed', { slots: [...this.data.equipment.weaponSlots] });
     gameEvents.emit('weapon.equipped', { weaponId: this.data.equipment.weaponId });
   }
@@ -111,7 +99,6 @@ class GameStateImpl {
   serialize(): GameStateData {
     return {
       ...this.data,
-      perks: { ...this.data.perks },
       attributes: { ...this.data.attributes },
       equipment: { ...this.data.equipment, weaponSlots: [...this.data.equipment.weaponSlots] },
     };
@@ -146,61 +133,17 @@ class GameStateImpl {
     gameEvents.emit('boost.changed', { boostBonus: this.data.boostBonus, delta: amount });
   }
 
-  // ── Level / XP ──
-  get level(): number {
-    return this.data.level;
+  // ── Goo Hearts ──
+  get gooHearts(): number {
+    return this.data.gooHearts;
   }
 
-  get currentXp(): number {
-    return this.data.currentXp;
-  }
-
-  get xpToNextLevel(): number | null {
-    return PROGRESSION.levels[this.data.level - 1]?.xpToNextLevel ?? null;
-  }
-
-  get skillPoints(): number {
-    return this.data.skillPoints;
-  }
-
-  addXp(amount: number): void {
-    if (amount <= 0) return;
-    const result = applyExperience(PROGRESSION, this.data.level, this.data.currentXp, amount);
-    for (const entry of result.levelsGained) {
-      this.data.level = entry.level;
-      this.data.skillPoints += 1;
-      gameEvents.emit('level.up', {
-        level: this.data.level,
-        skillPoints: 1,
-      });
-      gameEvents.emit('skillpoint.changed', { points: this.data.skillPoints });
-    }
-    this.data.currentXp = result.currentXp;
-    const leveledUp = result.levelsGained.length > 0;
-    if (leveledUp) {
-      this.data.hp = this.maxHp;
-      this.data.energy = this.maxEnergy;
-    }
-    this.emitXp(amount);
-    if (leveledUp) {
-      this.emitHp(0);
-      this.emitEnergy(0);
-    }
-  }
-
-  spendSkillPoint(perkId: string): boolean {
-    if (this.data.skillPoints <= 0) return false;
-    this.data.skillPoints -= 1;
-    this.data.perks[perkId] = (this.data.perks[perkId] ?? 0) + 1;
-    gameEvents.emit('skillpoint.changed', { points: this.data.skillPoints });
-    gameEvents.emit('perk.taken', { perkId });
-    this.emitHp(0);
-    this.emitEnergy(0);
-    return true;
-  }
-
-  perkRank(perkId: string): number {
-    return this.data.perks[perkId] ?? 0;
+  /** A collected Goo Heart raises max HP for the rest of the run and fills HP. */
+  addGooHeart(): void {
+    this.data.gooHearts += 1;
+    const healed = this.maxHp - this.data.hp;
+    this.data.hp = this.maxHp;
+    this.emitHp(healed);
   }
 
   get attributes(): CharacterAttributeSet {
@@ -237,8 +180,7 @@ class GameStateImpl {
 
   // ── HP ──
   get maxHp(): number {
-    return resolveLevelStats(PROGRESSION, this.data.level).maxHp
-      + this.perkRank('tanky-goo') * PERK_BALANCE.maxHpPerTankyGooRank;
+    return STATS.maxHp + this.data.gooHearts * GOO_HEART.maxHpBonus;
   }
 
   get hp(): number {
@@ -289,8 +231,7 @@ class GameStateImpl {
 
   // ── Energy ──
   get maxEnergy(): number {
-    return resolveLevelStats(PROGRESSION, this.data.level).maxEnergy
-      + this.perkRank('deep-well') * PERK_BALANCE.maxEnergyPerDeepWellRank;
+    return STATS.maxEnergy;
   }
 
   get energy(): number {
@@ -312,31 +253,12 @@ class GameStateImpl {
     this.emitEnergy(delta);
   }
 
-  // ── Derived stat helpers (full table lives in PlayerStats) ──
-  get attackBase(): number {
-    return resolveLevelStats(PROGRESSION, this.data.level).attack;
-  }
-
-  get defenseBase(): number {
-    return resolveLevelStats(PROGRESSION, this.data.level).defense;
-  }
-
   private emitHp(delta: number): void {
     gameEvents.emit('hp.changed', { hp: this.data.hp, maxHp: this.maxHp, delta });
   }
 
   private emitEnergy(delta: number): void {
     gameEvents.emit('energy.changed', { energy: this.data.energy, maxEnergy: this.maxEnergy, delta });
-  }
-
-  private emitXp(delta: number): void {
-    const level = this.data.level;
-    gameEvents.emit('xp.changed', {
-      currentXp: this.data.currentXp,
-      xpToNextLevel: this.xpToNextLevel,
-      level,
-      delta,
-    });
   }
 }
 

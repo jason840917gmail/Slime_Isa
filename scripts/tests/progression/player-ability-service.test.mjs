@@ -5,14 +5,14 @@ import { loadTypescriptModule } from '../helpers/load-typescript.mjs';
 
 const { PlayerAbilityService } = await loadTypescriptModule('src/game/features/player/PlayerAbilityService.ts');
 
-function fixture({ level = 5, energy = 100, blocked = () => false } = {}) {
+function fixture({ learned = ['jump', 'teleport', 'squash-slam', 'stretch-lash'], energy = 100, blocked = () => false } = {}) {
   let now = 0;
   let actionLocked = false;
   let spendCount = 0;
   const service = new PlayerAbilityService({
     nowMs: () => now,
     state: {
-      getLevel: () => level,
+      isLearned: (abilityId) => learned.includes(abilityId),
       getEnergy: () => energy,
       isActionLocked: () => actionLocked,
       setActionLocked: (locked) => { actionLocked = locked; },
@@ -42,8 +42,8 @@ const request = {
 };
 
 test('ability unlock, cooldown, energy, and busy checks preserve their decision order', () => {
-  const locked = fixture({ level: 1 });
-  assert.deepEqual(locked.service.tryBegin('jump', request), { accepted: false, reason: 'locked', unlockLevel: 2 });
+  const locked = fixture({ learned: [] });
+  assert.deepEqual(locked.service.tryBegin('jump', request), { accepted: false, reason: 'locked' });
 
   const active = fixture();
   const accepted = active.service.tryBegin('teleport', request);

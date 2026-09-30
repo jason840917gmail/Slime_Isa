@@ -136,8 +136,8 @@
           }
         },
         "drop": {
-          "type": "object", "additionalProperties": false, "required": ["xp", "coins"],
-          "properties": { "xp": { "type": "integer", "minimum": 0 }, "coins": { "type": "integer", "minimum": 0 }, "items": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["itemId", "chance"], "properties": { "itemId": { "type": "string" }, "chance": { "type": "number", "minimum": 0, "maximum": 1 }, "count": { "type": "integer", "minimum": 1 } } } } }
+          "type": "object", "additionalProperties": false, "required": ["coins"],
+          "properties": { "coins": { "type": "integer", "minimum": 0 }, "items": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["itemId", "chance"], "properties": { "itemId": { "type": "string" }, "chance": { "type": "number", "minimum": 0, "maximum": 1 }, "count": { "type": "integer", "minimum": 1 } } } } }
         },
         "projectile": { "type": "object", "additionalProperties": false, "required": ["damage"], "properties": { "projectileId": { "$ref": "#/$defs/stableId" }, "assetId": { "type": "string" }, "damage": { "type": "number", "minimum": 0 } }, "anyOf": [{ "required": ["projectileId"] }, { "required": ["assetId"] }] },
         "impactEffect": { "type": "object", "additionalProperties": false, "required": ["visualSetId", "clipId", "distance"], "properties": { "visualSetId": { "type": "string" }, "clipId": { "$ref": "#/$defs/stableId" }, "distance": { "type": "number", "minimum": 0 } } }

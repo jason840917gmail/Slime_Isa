@@ -90,13 +90,15 @@ test('overwriting stores metadata-only index entries', () => {
   const repository = new SaveRepository(storage);
   const created = repository.create('Before Forest', createInitialRunState());
   const replacement = createInitialRunState();
-  replacement.player.level = 3;
+  replacement.player.coins = 3;
+  replacement.playTimeMs = 4_000;
 
   repository.overwrite(created.saveId, replacement);
 
   const index = JSON.parse(storage.getItem(STORAGE_KEYS.saveIndex));
   assert.equal(index.saves.length, 1);
-  assert.equal(index.saves[0].playerLevel, 3);
+  assert.equal(index.saves[0].playTimeMs, 4_000);
+  assert.equal('playerLevel' in index.saves[0], false, 'there are no levels to show');
   assert.equal('data' in index.saves[0], false);
 });
 
@@ -107,7 +109,7 @@ test('failed overwrite and delete index writes restore the existing snapshot', (
   const key = recordKey(created.saveId);
   const originalRecord = storage.getItem(key);
   const replacement = createInitialRunState();
-  replacement.player.level = 8;
+  replacement.player.coins = 8;
 
   storage.failNextIndexWrite = true;
   assert.throws(
@@ -200,7 +202,7 @@ test('version 3 player saves discard retired population fields', () => {
 
   const recovery = repository.readRecovery();
 
-  assert.equal(recovery.player.schemaVersion, 4);
+  assert.equal(recovery.player.schemaVersion, 5);
   assert.equal('totalFriends' in recovery.player, false);
 });
 
@@ -220,7 +222,7 @@ test('version 5 named and recovery saves migrate inventory capacity', () => {
   const metadata = {
     saveId: 'legacy-named', name: 'Legacy Named', createdAt: 10, updatedAt: 20,
     schemaVersion: 5, currentMapId: legacy.location.mapId,
-    playerLevel: legacy.player.level, playTimeMs: legacy.playTimeMs,
+    playerLevel: 1, playTimeMs: legacy.playTimeMs,
   };
   storage.setItem(STORAGE_KEYS.saveIndex, JSON.stringify({ version: 1, saves: [metadata] }));
   storage.setItem(recordKey(metadata.saveId), JSON.stringify({ ...metadata, data: legacy }));
@@ -249,7 +251,7 @@ test('malformed legacy inventory rejects named and recovery saves without changi
   const metadata = {
     saveId: 'malformed-inventory', name: 'Repair Me', createdAt: 10, updatedAt: 20,
     schemaVersion: 5, currentMapId: legacy.location.mapId,
-    playerLevel: legacy.player.level, playTimeMs: legacy.playTimeMs,
+    playerLevel: 1, playTimeMs: legacy.playTimeMs,
   };
   const namedRaw = JSON.stringify({ ...metadata, data: legacy });
   const recoveryRaw = JSON.stringify({ schemaVersion: 5, savedAt: 30, data: legacy });
@@ -272,27 +274,48 @@ test('malformed legacy inventory rejects named and recovery saves without changi
   ]);
 });
 
-test('legacy cumulative XP preserves saved level and follows exact clamp rules', () => {
-  const migrate = (level, xp) => {
-    const storage = new MemoryStorage();
-    const repository = new SaveRepository(storage);
+test('schema v9 saves drop level, XP and perks and keep every quest-taught ability', () => {
+  const v9 = (completedQuestIds) => {
     const legacy = createInitialRunState();
-    legacy.player = { ...legacy.player, schemaVersion: 2, level, xp, maxHpBonus: 999, maxEnergyBonus: 999 };
-    delete legacy.player.currentXp;
-    storage.setItem(STORAGE_KEYS.legacySave, JSON.stringify({ schemaVersion: 6, savedAt: 1, data: legacy }));
-    return repository.readLegacyEnvelope()?.data.player;
+    legacy.player = { ...legacy.player, schemaVersion: 4, level: 3, currentXp: 17, skillPoints: 1, perks: { 'tanky-goo': 1 }, hp: 124 };
+    delete legacy.player.gooHearts;
+    legacy.quests = legacy.quests.map((quest) => (completedQuestIds.includes(quest.questId)
+      ? { ...quest, status: 'completed', activeStageId: null, rewardsGranted: true, completedAt: 5 }
+      : quest));
+    legacy.story = { worldFlags: ['met-mossy'], learnedRecipeIds: ['craft-stone-spear'], talkedNpcIds: ['level-1-spider-giver'] };
+    return legacy;
+  };
+  let lastIssues = [];
+  const migrate = (legacy) => {
+    const storage = new MemoryStorage();
+    storage.setItem(STORAGE_KEYS.recovery, JSON.stringify({ schemaVersion: 9, savedAt: 30, data: legacy }));
+    const repository = new SaveRepository(storage);
+    const result = repository.readRecovery();
+    lastIssues = repository.validationIssues();
+    return result;
   };
 
-  assert.equal(migrate(3, 80 + 226 + 17).currentXp, 17);
-  assert.equal(migrate(3, 1).currentXp, 0);
-  assert.equal(
-    migrate(3, 999_999).currentXp,
-    GAME_CONSTANTS.character.player.progression.levels[2].xpToNextLevel - 1,
-  );
-  assert.equal(migrate(GAME_CONSTANTS.character.player.progression.maxLevel, 999_999).currentXp, 0);
-  assert.equal(migrate(GAME_CONSTANTS.character.player.progression.maxLevel + 1, 0), undefined);
-  assert.equal('maxHpBonus' in migrate(2, 80), false);
-  assert.equal('maxEnergyBonus' in migrate(2, 80), false);
+  const migrated = migrate(v9(['a-place-to-work', 'stone-tools', 'worm-trouble']));
+  assert.ok(migrated, `the save still loads: ${JSON.stringify(lastIssues)}`);
+  for (const retired of ['level', 'currentXp', 'skillPoints', 'perks']) assert.equal(retired in migrated.player, false, retired);
+  assert.equal(migrated.player.schemaVersion, 5);
+  assert.equal(migrated.player.gooHearts, 0);
+  assert.equal(migrated.player.hp, 124, 'HP is clamped by the game state on load, not rewritten here');
+  assert.deepEqual(migrated.story.worldFlags, ['met-mossy']);
+  assert.deepEqual(migrated.story.learnedRecipeIds, ['craft-stone-spear']);
+  assert.deepEqual(migrated.story.talkedNpcIds, ['level-1-spider-giver']);
+  assert.deepEqual(migrated.story.learnedAbilityIds, ['jump'], 'Worm Trouble was finished, so Jump stays learned');
+
+  const early = migrate(v9(['a-place-to-work']));
+  assert.deepEqual(early.story.learnedAbilityIds, [], 'level 3 alone no longer teaches anything');
+
+  const legacyXp = createInitialRunState();
+  legacyXp.player = { ...legacyXp.player, schemaVersion: 2, level: 2, xp: 80, maxHpBonus: 999, maxEnergyBonus: 999 };
+  delete legacyXp.player.gooHearts;
+  const storage = new MemoryStorage();
+  storage.setItem(STORAGE_KEYS.legacySave, JSON.stringify({ schemaVersion: 6, savedAt: 1, data: legacyXp }));
+  const player = new SaveRepository(storage).readLegacyEnvelope()?.data.player;
+  for (const retired of ['level', 'xp', 'maxHpBonus', 'maxEnergyBonus']) assert.equal(retired in player, false, retired);
 });
 
 test('version 7 saves with removed quest definitions fail clearly without overwriting data', () => {
@@ -303,7 +326,7 @@ test('version 7 saves with removed quest definitions fail clearly without overwr
   const metadata = {
     saveId: 'removed-quest-save', name: 'Removed Quest', createdAt: 10, updatedAt: 20,
     schemaVersion: 7, currentMapId: legacy.location.mapId,
-    playerLevel: legacy.player.level, playTimeMs: legacy.playTimeMs,
+    playerLevel: 1, playTimeMs: legacy.playTimeMs,
   };
   const raw = JSON.stringify({ ...metadata, data: legacy });
   storage.setItem(STORAGE_KEYS.saveIndex, JSON.stringify({ version: 1, saves: [metadata] }));

@@ -60,6 +60,24 @@
         "depthMode": "world-sorted",
         "depthBand": "world-entities"
       }
+    },
+    {
+      "id": "sfx-loop-sfx",
+      "name": "LoopSfx",
+      "type": "AudioStreamPlayer2D",
+      "parentId": "body",
+      "order": 2,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.world.grindstone-loop"
+        },
+        "bus": "ambience",
+        "loop": true,
+        "autoplay": true,
+        "volume": 0.45,
+        "maxDistance": 420,
+        "polyphony": 1
+      }
     }
   ],
   "instances": [],
@@ -81,6 +99,12 @@
         "width": 80,
         "height": 26
       }
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.world.grindstone-loop",
+      "kind": "audio",
+      "assetId": "audio.sfx.world.grindstone-loop.1"
     }
   ]
 }

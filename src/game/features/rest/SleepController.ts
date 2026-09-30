@@ -9,6 +9,8 @@ export interface WorldPoint {
 }
 
 export interface SleepRequest {
+  /** Stable identity of the bed, stored with the respawn point. */
+  readonly bedId: string;
   /** World point where the sleeping slime is drawn (on the mattress). */
   readonly sleepPoint: WorldPoint;
   /** Walkable world point in front of the bed where the slime lies and wakes. */

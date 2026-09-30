@@ -23,7 +23,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "8f6d4fea40093c212701b0e14dd59d88c33098c5587bee02c5fea8a0c672b5fe",
+      "sourceHash": "d22064e8f40fe6384b597fc820f4cd37483ae3d80d0c0034c3ca424563e93887",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "crystal-caverns",
@@ -61,7 +61,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "8f6d4fea40093c212701b0e14dd59d88c33098c5587bee02c5fea8a0c672b5fe",
+      "sourceHash": "d22064e8f40fe6384b597fc820f4cd37483ae3d80d0c0034c3ca424563e93887",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "gloop-forest",
@@ -99,7 +99,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "8f6d4fea40093c212701b0e14dd59d88c33098c5587bee02c5fea8a0c672b5fe",
+      "sourceHash": "d22064e8f40fe6384b597fc820f4cd37483ae3d80d0c0034c3ca424563e93887",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "icege",
@@ -137,7 +137,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "8f6d4fea40093c212701b0e14dd59d88c33098c5587bee02c5fea8a0c672b5fe",
+      "sourceHash": "d22064e8f40fe6384b597fc820f4cd37483ae3d80d0c0034c3ca424563e93887",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "level-1",
@@ -179,7 +179,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "character.boss.fatty-one-eye",
@@ -221,7 +221,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "character.enemy.slime-spider",
@@ -263,7 +263,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "character.npc.lili",
@@ -305,7 +305,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "character.npc.mossy-scout",
@@ -347,7 +347,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "character.npc.red-slime-boy",
@@ -389,7 +389,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "character.npc.village-elder-plop",
@@ -431,7 +431,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "character.npc.yellow-blond-slime-girl",
@@ -473,7 +473,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "character.player.slime",
@@ -515,7 +515,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "effect.boss.ground-crack",
@@ -557,7 +557,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "enemy.projectile.worm-arrow",
@@ -599,7 +599,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "effect.enemy.worm-brawler-hit",
@@ -641,7 +641,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "effect.resource.impact-tiles",
@@ -683,7 +683,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "effect.resource.stone-impact-tiles",
@@ -725,7 +725,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "effect.weapon.hit-tiles",
@@ -767,7 +767,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "enemy.projectile.worm-arrow",
@@ -809,7 +809,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "enemy.projectile.worm-arrow",
@@ -851,7 +851,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "enemy.worm.archer",
@@ -893,7 +893,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "enemy.worm.brawler",
@@ -935,7 +935,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "enemy.worm.swordsman",
@@ -977,7 +977,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.decorations.8x3",
@@ -1019,7 +1019,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.grounds.19x19.amberleaf",
@@ -1061,7 +1061,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.grounds.19x19.cavern-floor",
@@ -1103,7 +1103,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.grounds.19x19.crystal-floor",
@@ -1145,7 +1145,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.grounds.19x19.deep-water",
@@ -1187,7 +1187,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.grounds.19x19.forest-floor",
@@ -1229,7 +1229,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.grounds.19x19.forest-moss",
@@ -1271,7 +1271,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.grounds.19x19.frozen",
@@ -1313,7 +1313,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.grounds.19x19.highland-green",
@@ -1355,7 +1355,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.grounds.19x19.sanddessert",
@@ -1397,7 +1397,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.grounds.19x19.water",
@@ -1439,7 +1439,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.houses.3x1",
@@ -1481,7 +1481,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.items.forage.5x2",
@@ -1523,7 +1523,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.items.gems.5x2",
@@ -1565,7 +1565,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.items.keys.5x4",
@@ -1607,7 +1607,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.items.materials.5x2",
@@ -1649,7 +1649,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.items.potions.5x2",
@@ -1691,7 +1691,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.objects.chest-wooden.2x1",
@@ -1733,7 +1733,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.resources.4x2",
@@ -1775,7 +1775,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.resources.starter-materials.2x1",
@@ -1817,7 +1817,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.rocks.3x1",
@@ -1859,7 +1859,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.rocks.8x3",
@@ -1901,7 +1901,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.rocks.crystal-clusters.8x2",
@@ -1943,7 +1943,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.trees.3x1",
@@ -1985,7 +1985,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.trees.8x6",
@@ -2027,7 +2027,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.trees.autumn.6x2",
@@ -2069,7 +2069,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.walls.corners.4x2",
@@ -2111,7 +2111,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.walls.horizontal.8x1",
@@ -2153,7 +2153,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.walls.t-junctions.7x1",
@@ -2195,7 +2195,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "sheet.walls.vertical.1x8",
@@ -2237,7 +2237,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "ui.backplate.crafting-detail-workbench",
@@ -2279,7 +2279,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "ui.backplate.crafting-workbench",
@@ -2321,7 +2321,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "ui.backplate.inventory",
@@ -2363,7 +2363,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "ui.backplate.quest-journal",
@@ -2405,7 +2405,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "ui.banner.area-title",
@@ -2447,7 +2447,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "ui.frame.boss-health",
@@ -2459,48 +2459,6 @@
         {
           "path": "$",
           "owner": "asset://ui.frame.boss-health"
-        }
-      ],
-      "writerState": "legacy"
-    },
-    {
-      "key": "asset:ui.frame.levelup-crest",
-      "family": "asset",
-      "stableId": "ui.frame.levelup-crest",
-      "environment": "production",
-      "classification": "retain",
-      "oldSourcePath": "asset/assets.json",
-      "oldCatalogValidator": [
-        "asset/assets.json",
-        "check-assets.mjs"
-      ],
-      "oldFactoryController": [
-        "AssetLoader",
-        "manifest"
-      ],
-      "oldEditorWriteEndpoints": [
-        "/__character-studio/asset/register"
-      ],
-      "destinationId": "asset://ui.frame.levelup-crest",
-      "persistenceKeys": [],
-      "migrationWorkPackage": null,
-      "focusedVerification": [
-        "assets:check",
-        "test:scene-conversion"
-      ],
-      "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
-      "converterVersion": 1,
-      "oldToNewIdMap": {
-        "sourceId": "ui.frame.levelup-crest",
-        "targetId": "asset://ui.frame.levelup-crest"
-      },
-      "outputs": [],
-      "consumedFieldPaths": [],
-      "intentionallyRetainedFields": [
-        {
-          "path": "$",
-          "owner": "asset://ui.frame.levelup-crest"
         }
       ],
       "writerState": "legacy"
@@ -2531,7 +2489,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "ui.frame.organic-compact",
@@ -2573,7 +2531,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "ui.frame.organic-minimap",
@@ -2615,7 +2573,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "ui.frame.organic-modal",
@@ -2657,7 +2615,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "ui.frame.quest-offer-scroll",
@@ -2699,7 +2657,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "ui.surface.map-journal-paper",
@@ -2741,7 +2699,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "weapon.player.hammer-spear-tiles",
@@ -2783,7 +2741,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "weapon.player.pickaxe-tiles",
@@ -2825,7 +2783,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "weapon.player.starter-spears-tiles",
@@ -2867,7 +2825,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "weapon.player.stone-tools-tiles",
@@ -2909,7 +2867,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "weapon.player.sword-tiles",
@@ -2951,7 +2909,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "ebcb96ab7b8efc3be04f686e0738914a9db58f72179a38c03f864290245ed3d8",
+      "sourceHash": "62e09091f4bd72387771f47d0f0fc93e48093b23fb21492b89bd97126deef3da",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "weapon.player.wooden-axe-tiles",
@@ -3461,7 +3419,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "fd38d87af969e806b0f53c6eb37dab3b2740236213e7bd04ca47ea0df62e5c78",
+      "sourceHash": "7c0976bb5bf0cf47d6756f2da0b59662a7242fcb6a4fcbdabd71f91c865fa0fd",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "slime-spider",
@@ -3613,7 +3571,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "e5ad854f34c8edda89038ad3f2be71f2029553fe259e16f63086c1082a7ec3d4",
+      "sourceHash": "f78c1e0fd289b74147f74f21c614c03db039cf195458d48bc723c4fb0cabb2b6",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "worm-archer",
@@ -3664,7 +3622,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "9a7d3e8f847a7037b0a0bcaf38ca70482110336712f9a5753e753cc2ad3404b2",
+      "sourceHash": "dbb580e22afc851e67cca6a6d6ed1bcd4b87e4b25ad62a349ac0a3acddd6d77c",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "worm-brawler",
@@ -3715,7 +3673,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "f7e26d478b3fcaebf0dfe4002eaa667c23836146dacaee7eda0c3aa78a259af5",
+      "sourceHash": "19aafcb53e893823229daa8e033363a904dc9bd92bdb1103f44e4c669dd4afde",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "worm-swordsman",
@@ -4072,7 +4030,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "70ee40bde5458dcd937cb12f6eca7fc758c29ab3439052f5bf4fb0759ff43b1f",
+      "sourceHash": "d95ff7c303e96d46eac2805fbca787a3838bbf2dc44e49b3e18345d4b3190318",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "worm-archer",
@@ -4138,7 +4096,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "70ee40bde5458dcd937cb12f6eca7fc758c29ab3439052f5bf4fb0759ff43b1f",
+      "sourceHash": "d95ff7c303e96d46eac2805fbca787a3838bbf2dc44e49b3e18345d4b3190318",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "worm-brawler",
@@ -4204,7 +4162,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "70ee40bde5458dcd937cb12f6eca7fc758c29ab3439052f5bf4fb0759ff43b1f",
+      "sourceHash": "d95ff7c303e96d46eac2805fbca787a3838bbf2dc44e49b3e18345d4b3190318",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "worm-swordsman",
@@ -4270,7 +4228,7 @@
         "test:game-constants"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "600161eaacc456cd85a79fb117a5ebf397a448665e4467c7a41747224b58114a",
+      "sourceHash": "b460ac3f1ec28e21193c58e453557f2d4060d015850ed32baf55eb5741700bd4",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "global",
@@ -14061,7 +14019,7 @@
         "test:ui"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "fe65fc0e2ccf6eb622a95764a888207b60b22c2d53a4300991f7faf098e5c242",
+      "sourceHash": "e3dfa40f48c70562092567e5689b8fbda5d5d00ebef1d3a692c5b198e78bbbb3",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "brew-fizzy",
@@ -14098,7 +14056,7 @@
         "test:ui"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "fe65fc0e2ccf6eb622a95764a888207b60b22c2d53a4300991f7faf098e5c242",
+      "sourceHash": "e3dfa40f48c70562092567e5689b8fbda5d5d00ebef1d3a692c5b198e78bbbb3",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "brew-tonic",
@@ -14135,7 +14093,7 @@
         "test:ui"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "fe65fc0e2ccf6eb622a95764a888207b60b22c2d53a4300991f7faf098e5c242",
+      "sourceHash": "e3dfa40f48c70562092567e5689b8fbda5d5d00ebef1d3a692c5b198e78bbbb3",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "craft-stone-axe",
@@ -14172,7 +14130,7 @@
         "test:ui"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "fe65fc0e2ccf6eb622a95764a888207b60b22c2d53a4300991f7faf098e5c242",
+      "sourceHash": "e3dfa40f48c70562092567e5689b8fbda5d5d00ebef1d3a692c5b198e78bbbb3",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "craft-stone-axe-test",
@@ -14209,7 +14167,7 @@
         "test:ui"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "fe65fc0e2ccf6eb622a95764a888207b60b22c2d53a4300991f7faf098e5c242",
+      "sourceHash": "e3dfa40f48c70562092567e5689b8fbda5d5d00ebef1d3a692c5b198e78bbbb3",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "craft-stone-pickaxe",
@@ -14246,7 +14204,7 @@
         "test:ui"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "fe65fc0e2ccf6eb622a95764a888207b60b22c2d53a4300991f7faf098e5c242",
+      "sourceHash": "e3dfa40f48c70562092567e5689b8fbda5d5d00ebef1d3a692c5b198e78bbbb3",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "craft-stone-pickaxe-test",
@@ -14283,7 +14241,7 @@
         "test:ui"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "fe65fc0e2ccf6eb622a95764a888207b60b22c2d53a4300991f7faf098e5c242",
+      "sourceHash": "e3dfa40f48c70562092567e5689b8fbda5d5d00ebef1d3a692c5b198e78bbbb3",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "craft-stone-spear",
@@ -14320,7 +14278,7 @@
         "test:ui"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "fe65fc0e2ccf6eb622a95764a888207b60b22c2d53a4300991f7faf098e5c242",
+      "sourceHash": "e3dfa40f48c70562092567e5689b8fbda5d5d00ebef1d3a692c5b198e78bbbb3",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "craft-stone-spear-test",
@@ -14357,7 +14315,7 @@
         "test:ui"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "fe65fc0e2ccf6eb622a95764a888207b60b22c2d53a4300991f7faf098e5c242",
+      "sourceHash": "e3dfa40f48c70562092567e5689b8fbda5d5d00ebef1d3a692c5b198e78bbbb3",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "craft-wooden-spear",
@@ -14394,7 +14352,7 @@
         "test:ui"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "fe65fc0e2ccf6eb622a95764a888207b60b22c2d53a4300991f7faf098e5c242",
+      "sourceHash": "e3dfa40f48c70562092567e5689b8fbda5d5d00ebef1d3a692c5b198e78bbbb3",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "craft-wooden-spear-test",
@@ -14431,7 +14389,7 @@
         "test:ui"
       ],
       "legacyRemovalWorkPackage": null,
-      "sourceHash": "fe65fc0e2ccf6eb622a95764a888207b60b22c2d53a4300991f7faf098e5c242",
+      "sourceHash": "e3dfa40f48c70562092567e5689b8fbda5d5d00ebef1d3a692c5b198e78bbbb3",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "weave-tonics",
@@ -14999,7 +14957,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "cbbd03c25fc8250a3e1dc21d134b0b1a689a82837080f59198a3aa022c5fa9ca",
+      "sourceHash": "0e4c98577ba1a2a1257907a41d8c1983cc6f395386b6c8d560bb1af5d7b5e8ec",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "ability-bar",
@@ -15211,7 +15169,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "aa4c7a3b0b2e37ce7ebe2da791bfd54b87e2ceb5768c854e71cf31741f36731f",
+      "sourceHash": "4ac05e94be93d9694ec40a74f204438554df50e848c2d82be4f7474e41ee6be2",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "crafting-ui",
@@ -15352,7 +15310,7 @@
       "stableId": "hud",
       "environment": "production",
       "classification": "convert",
-      "oldSourcePath": "src/game/HUD.ts",
+      "oldSourcePath": "scripts/migrations/frozen-sources/HUD.ts",
       "oldCatalogValidator": [
         "WorldScene UI composition"
       ],
@@ -15394,7 +15352,7 @@
       "intentionallyRetainedFields": [
         {
           "path": "$.sourcePath",
-          "owner": "src/game/HUD.ts"
+          "owner": "scripts/migrations/frozen-sources/HUD.ts"
         }
       ],
       "writerState": "scene"
@@ -15448,59 +15406,6 @@
         {
           "path": "$.sourcePath",
           "owner": "src/game/ui/InventoryUI.ts"
-        }
-      ],
-      "writerState": "scene"
-    },
-    {
-      "key": "ui:level-up-modal",
-      "family": "ui",
-      "stableId": "level-up-modal",
-      "environment": "production",
-      "classification": "convert",
-      "oldSourcePath": "src/game/ui/LevelUpModal.ts",
-      "oldCatalogValidator": [
-        "WorldScene UI composition"
-      ],
-      "oldFactoryController": [
-        "WorldScene",
-        "ModalStack"
-      ],
-      "oldEditorWriteEndpoints": [],
-      "destinationId": "scene://ui/level-up-modal",
-      "persistenceKeys": [],
-      "migrationWorkPackage": 14,
-      "focusedVerification": [
-        "test:scene-studio",
-        "test:scene-browser",
-        "test:scene-conversion"
-      ],
-      "legacyRemovalWorkPackage": 15,
-      "sourceHash": "20f88cca760c0bce9546d790e78ef227a46e1a7312ef90d35ae453bf59ad5eda",
-      "converterVersion": 1,
-      "oldToNewIdMap": {
-        "sourceId": "level-up-modal",
-        "targetId": "scene://ui/level-up-modal"
-      },
-      "outputs": [
-        {
-          "path": "src/game/content/scenes/authored/ui/level-up-modal.scene.json",
-          "sha256": "7f239027ef42f97836e8018c47c7a08588eec01a4f2b75cd86214cccab851d84",
-          "bytes": 5137
-        }
-      ],
-      "consumedFieldPaths": [
-        "$.actions",
-        "$.bindings",
-        "$.controls",
-        "$.layoutValues",
-        "$.sourceHash",
-        "$.themeValues"
-      ],
-      "intentionallyRetainedFields": [
-        {
-          "path": "$.sourcePath",
-          "owner": "src/game/ui/LevelUpModal.ts"
         }
       ],
       "writerState": "scene"
@@ -15583,7 +15488,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "e78287f1a12a5c87841f0b91ae06849d3a72341e3922798fc41e73daa623f3a6",
+      "sourceHash": "e0adaca4396cb666f41bae1d2e89c990896fb766031d91e3b8fe245c665f6e38",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "quest-journal",
@@ -15636,7 +15541,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "3c757aa35b6f564cda920f13e3418aaecfe0b5998ef05f3bba0e1ceacc5ae034",
+      "sourceHash": "60bba0a122f5b61d572ff08dff3e18b406ef25ceeac1d13eddc862d5eb19b527",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "quest-offer-modal",
@@ -16546,7 +16451,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "17da791ace8f1fa7cb02ff1ec5e1ada2936710ba2d907ef3ee80aa947b08efb6",
+      "sourceHash": "cb0bba64f3ca4da9e2401d604c79c85cbf8b3d81bfae14ee9294ae17e3bec513",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "basic-spear",
@@ -16595,7 +16500,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "77164ae8bd2c1371492b048c7ec99c66d63c7066eb5ef35a4d356a082e925f9d",
+      "sourceHash": "0f1ea299244b904cab40f6a72d60295558279d5c47935af7d28eb9b718c16867",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "basic-sword",
@@ -16644,7 +16549,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "550d0d60ac67d94cccb051c49f34830a92edd55ce084747cf6b4bc94e321e539",
+      "sourceHash": "118530c5056fcc83aba70d893cc4f23cb228f49969ee2021470bb7ffe426fb8a",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "goo-gauntlet",
@@ -16693,7 +16598,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "7bbb3affe40f6d06a0b7740e8df9c9789d21cd4f3ec7c127a90e2815389d900d",
+      "sourceHash": "e85ee1a53e3b9e8a92e0c404728acbed6635f70f097ea34651cb1f92ccec1d02",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "pickaxe",
@@ -16742,7 +16647,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "8fa67aea4c3aaab151cb37c7336aac3a0d7fe1a465089539dce7290b248f5c02",
+      "sourceHash": "aa52338da594b8af56e1bc526c91da5a92cbf3d66bf9be0b2d33dbd3799fd5b8",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "slam-hammer",
@@ -16791,7 +16696,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "c82c1f45c2ffdd3c2d700be64ba2f5c1099285009dfaa2cfbe8c8fd11574e7ce",
+      "sourceHash": "7e066053c486325659d48087c08298731ec70988e7ab0aeb1571d3c740d112b4",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "stone-axe",
@@ -16840,7 +16745,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "0447c830ebdbb8020bb7263cde16ec2b204c8ecb8cd74e2e2e8897717cee84bb",
+      "sourceHash": "82f863b708d634a9fee54341abff5e9acd03edfc1a00f5475c8044d8508ff0c9",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "stone-pickaxe",
@@ -16889,7 +16794,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "ea610e015215491f75b82e141ab06d55b5523759708ad7e345dc7e8a151c1a58",
+      "sourceHash": "1255761c107ec56509b8b9a0850572489d6fdf77798e2a607c3d99a03ae219a9",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "stone-spear",
@@ -16938,7 +16843,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "2290517fc8725a93ab032d33709ab1cb2ec17af338ce150f511bfd202c231668",
+      "sourceHash": "3645def6c8e9f65d08d44c5620283e34afdf96f1e9b324198d99f26402e1d32c",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "wooden-axe",
@@ -16987,7 +16892,7 @@
         "test:scene-conversion"
       ],
       "legacyRemovalWorkPackage": 15,
-      "sourceHash": "8e85959cbe724ca7b99437adc4f941237abeaa2045135128fdf9276050e9d811",
+      "sourceHash": "f6141762bbd82e94e2c4c03f278f545612c54a21eea61ed0d92469f55289124b",
       "converterVersion": 1,
       "oldToNewIdMap": {
         "sourceId": "wooden-spear",

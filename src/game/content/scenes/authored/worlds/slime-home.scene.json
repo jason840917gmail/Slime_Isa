@@ -137,6 +137,23 @@
           -70
         ]
       }
+    },
+    {
+      "id": "sfx-ambience",
+      "name": "Ambience",
+      "type": "AudioStreamPlayer",
+      "parentId": "world",
+      "order": 57,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.world.interior-ambience"
+        },
+        "bus": "ambience",
+        "loop": true,
+        "autoplay": true,
+        "volume": 0.35,
+        "polyphony": 1
+      }
     }
   ],
   "instances": [
@@ -1973,6 +1990,12 @@
           "tileId": "wood-floor"
         }
       ]
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.world.interior-ambience",
+      "kind": "audio",
+      "assetId": "audio.sfx.world.interior-ambience.1"
     }
   ]
 }

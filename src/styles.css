@@ -3493,6 +3493,9 @@ body {
 .scene-item--locked { opacity: 0.5; }
 .scene-item--locked img { filter: grayscale(1) brightness(0.8); }
 .game-ui--crafting-ui .scene-item--locked span { color: #9aa6b8; }
+/* Short of materials: a red edge and red "Missing ..." line, easy to spot in the list. */
+.game-ui--crafting-ui .scene-item--short { box-shadow: inset 4px 0 0 var(--scene-danger, #ff6f88); }
+.game-ui--crafting-ui .scene-item--short .scene-item-label { color: var(--scene-danger, #ff6f88); }
 
 
 .game-ui--quest-journal,
@@ -3559,16 +3562,6 @@ body {
 }
 
 
-.game-ui--level-up-modal { border-radius: 14px; box-shadow: 0 18px 52px #080e1ad9; }
-.game-ui--level-up-modal .scene-control--itemlist { overflow: auto; align-content: start; }
-.game-ui--level-up-modal .scene-control--itemlist > button { min-height: 150px; border-radius: 9px; text-align: center; padding: 12px; font-size: 12px; white-space: pre-line; line-height: 1.5; }
-.game-ui--level-up-modal .scene-control--button { border-radius: 6px; }
-@media (max-width: 520px) {
-  .game-ui--level-up-modal .scene-control--itemlist { grid-template-columns: 1fr !important; }
-  .game-ui--level-up-modal .scene-control--itemlist > button { min-height: 100px; }
-}
-
-
 .game-ui--minimap { background: transparent !important; border: 0 !important; box-shadow: none !important; pointer-events: none; }
 .game-ui--minimap .scene-minimap-frame { pointer-events: none; }
 .game-ui--minimap .scene-minimap-canvas-host { overflow: hidden; pointer-events: none; }
@@ -3590,3 +3583,80 @@ body {
   overflow: hidden;
 }
 .game-ui--quest-tracker [data-scene-control-id$="/heading"] { letter-spacing: 0.12em; }
+/* The whole card is the "show the way" button; only it takes the pointer. */
+.game-ui--quest-tracker [data-scene-control-id$="/show-way"] {
+  pointer-events: auto;
+  cursor: pointer;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+.game-ui--quest-tracker [data-scene-control-id$="/show-way"]:hover,
+.game-ui--quest-tracker [data-scene-control-id$="/show-way"]:focus-visible {
+  background: color-mix(in srgb, var(--scene-warning, #ffd277) 10%, transparent) !important;
+  outline: 2px solid color-mix(in srgb, var(--scene-warning, #ffd277) 60%, transparent);
+}
+
+/* Game shell (title, pause, settings, saves, game over, credits, end card). */
+.game-ui--shell .scene-control--button { justify-content: center; text-align: center; }
+.game-ui--shell .scene-control--label { line-height: 1.35; }
+/* Title screen: only the shell menus show over the drifting world. */
+.scene-ui-root.is-title-screen .game-ui:not(.game-ui--shell) { display: none !important; }
+.game-ui--credits .scene-control--label,
+.game-ui--controls .scene-control--label { align-items: flex-start; overflow: auto; }
+.game-ui--end-card [data-scene-control-id$="/title"] { text-shadow: 0 3px 0 #081022, 0 0 18px #7a5cff66; }
+
+/* First-time control hints: a soft banner above the hotbar that fades in and out. */
+.game-ui--control-hint {
+  pointer-events: none;
+  border: 1px solid color-mix(in srgb, var(--scene-accent, #7ee0a8) 45%, transparent) !important;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #0810228c, #081022cc, #0810228c) !important;
+  text-shadow: 0 1px 2px #081022;
+  transition: opacity 320ms ease;
+}
+.game-ui--control-hint .scene-control--label { justify-content: center; }
+@media (prefers-reduced-motion: reduce) { .game-ui--control-hint { transition: none; } }
+
+/* Artwork-first world HUD (spec 2026-09-04, Option C): the world stays visible;
+   thin outlines and soft text shadows replace filled boxes. The minimap already
+   uses its illustrated frame over a 0.16-alpha interior. */
+.game-ui--hud,
+.game-ui--weapon-hotbar {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  text-shadow: 0 1px 2px #081022, 0 0 6px #081022d9;
+}
+.game-ui--hud .scene-control--progressbar {
+  border: 1px solid color-mix(in srgb, #f5f7ff 42%, transparent);
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--scene-progress-color, #86f0c3) 0 calc(var(--scene-progress, 0) * 100%), transparent calc(var(--scene-progress, 0) * 100%) 100%);
+  box-shadow: 0 0 0 1px #0810224d;
+}
+.game-ui--weapon-hotbar .scene-control--itemlist > button {
+  background: transparent;
+  border: 1px solid color-mix(in srgb, #f5f7ff 38%, transparent);
+  box-shadow: 0 0 0 1px #08102240;
+}
+.game-ui--weapon-hotbar .scene-control--itemlist > button[aria-selected="true"] {
+  position: relative;
+  overflow: visible;
+  border: 1px solid var(--scene-warning, #ffd277);
+  outline: 1px solid color-mix(in srgb, var(--scene-warning, #ffd277) 55%, transparent);
+  outline-offset: 2px;
+}
+/* The selected slot also carries a small marker, so selection never relies on color alone. */
+.game-ui--weapon-hotbar .scene-control--itemlist > button[aria-selected="true"]::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -9px;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--scene-warning, #ffd277);
+}
+/* Narrow screens (spec: at most 366px of hotbar at 390px): shrink the six slots together. */
+@media (max-width: 420px) {
+  .game-ui--weapon-hotbar { transform: scale(0.92); transform-origin: 50% 100%; }
+}

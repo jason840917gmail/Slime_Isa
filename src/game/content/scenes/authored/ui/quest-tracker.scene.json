@@ -175,12 +175,32 @@
       }
     },
     {
+      "id": "show-way",
+      "name": "ShowWay",
+      "type": "Button",
+      "parentId": "surface",
+      "order": 5,
+      "properties": {
+        "anchorMin": [
+          0,
+          0
+        ],
+        "anchorMax": [
+          1,
+          1
+        ],
+        "text": "",
+        "tone": "muted",
+        "ariaLabel": "Show the way to this quest"
+      }
+    },
+    {
       "id": "script",
       "name": "UiSurfaceScript",
       "type": "ScriptNode",
       "scriptId": "game.ui-surface",
       "parentId": "surface",
-      "order": 5,
+      "order": 6,
       "properties": {
         "surfaceId": "quest-tracker",
         "modal": false,
@@ -219,13 +239,61 @@
             "nodePath": "..",
             "property": "offsetMax",
             "model": "offsetMax"
+          },
+          {
+            "nodePath": "../BookHint",
+            "property": "text",
+            "model": "bookHint"
           }
         ],
-        "actions": {}
+        "actions": {
+          "on_menu_1": "toggle-waypoint"
+        }
+      }
+    },
+    {
+      "id": "sfx-click-sfx",
+      "name": "ClickSfx",
+      "type": "AudioStreamPlayer",
+      "parentId": "surface",
+      "order": 7,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.ui.click"
+        },
+        "minIntervalMs": 40
       }
     }
   ],
   "instances": [],
-  "connections": [],
-  "subresources": []
+  "connections": [
+    {
+      "source": {
+        "nodeId": "show-way"
+      },
+      "signal": "pressed",
+      "target": {
+        "nodeId": "script"
+      },
+      "handler": "on_menu_1"
+    },
+    {
+      "source": {
+        "nodeId": "show-way"
+      },
+      "signal": "pressed",
+      "target": {
+        "nodeId": "sfx-click-sfx"
+      },
+      "handler": "play"
+    }
+  ],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "sfx.ui.click",
+      "kind": "audio",
+      "assetId": "audio.sfx.ui.click.1"
+    }
+  ]
 }

@@ -8,8 +8,7 @@ export interface EnemyItemDrop {
   count?: number;
 }
 
-export interface EnemyDrop {
-  xp: number;
+export interface EnemyDrop {
   coins: number;
   items?: readonly EnemyItemDrop[];
 }

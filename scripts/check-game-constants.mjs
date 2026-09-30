@@ -47,7 +47,7 @@ for (const itemId of configuredIds) {
 
 if (primaryPlayer.attributes !== undefined) errors.push('characters.player-slime.attributes: primary-player attributes belong in game-constants.json');
 if (primaryPlayer.player?.movement !== undefined) errors.push('characters.player-slime.player.movement: primary-player movement belongs in game-constants.json');
-if (primaryPlayer.player?.progression !== undefined) errors.push('characters.player-slime.player.progression: primary-player progression belongs in game-constants.json');
+if (primaryPlayer.player?.stats !== undefined) errors.push('characters.player-slime.player.stats: primary-player stats belong in game-constants.json');
 
 function sourceFiles(directory) {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
@@ -70,4 +70,4 @@ if (errors.length > 0) {
   process.exit(1);
 }
 
-console.log(`constants:check OK - ${itemIds.length} base item(s), ${constants.character.player.progression.maxLevel} level(s).`);
+console.log(`constants:check OK - ${itemIds.length} base item(s), player max HP ${constants.character.player.stats.maxHp}.`);

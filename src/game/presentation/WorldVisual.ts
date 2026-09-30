@@ -29,6 +29,8 @@ export interface WorldVisual {
   setFlipX(flipped: boolean): this;
   setAlpha(alpha: number): this;
   setTintFill(color: number): this;
+  /** Multiplies the art by `color` (a look such as a Gulp form); `clearTint` removes it. */
+  setTint(color: number): this;
   clearTint(): this;
   resetEffects(): this;
   getBounds(): Phaser.Geom.Rectangle;

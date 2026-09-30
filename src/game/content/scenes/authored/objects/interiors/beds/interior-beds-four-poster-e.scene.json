@@ -30,7 +30,7 @@
         },
         "position": [
           -0.375,
-          -25
+          -33.9375
         ]
       }
     },
@@ -100,7 +100,7 @@
       "value": {
         "shape": "rectangle",
         "width": 130.02,
-        "height": 44
+        "height": 61.875
       }
     }
   ]

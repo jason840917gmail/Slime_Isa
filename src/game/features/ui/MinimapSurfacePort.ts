@@ -41,7 +41,11 @@ export class MinimapSurfacePort implements UiSurfacePort {
 
   invoke(_surfaceId: string, _actionId: string, _payload?: JsonValue): void {}
 
-  update(camera: Phaser.Cameras.Scene2D.Camera, player: Phaser.Physics.Arcade.Sprite | undefined): void {
+  update(
+    camera: Phaser.Cameras.Scene2D.Camera,
+    player: Phaser.Physics.Arcade.Sprite | undefined,
+    waypoint?: Readonly<{ x: number; y: number }>,
+  ): void {
     if (this.stopped) return;
     const canvas = this.ensureCanvas();
     if (!canvas) return;
@@ -76,6 +80,22 @@ export class MinimapSurfacePort implements UiSurfacePort {
       ctx.fillStyle = '#72d8ff';
       ctx.fill();
       canvas.setAttribute('aria-label', `Local map. Player at ${Math.round(player.x)}, ${Math.round(player.y)}.`);
+    }
+    if (waypoint) {
+      // The quest waypoint: a gold pin with a dark rim.
+      const x = mapX(waypoint.x);
+      const y = mapY(waypoint.y);
+      ctx.beginPath();
+      ctx.moveTo(x, y + 1);
+      ctx.lineTo(x - 5, y - 6);
+      ctx.arc(x, y - 8, 5, Math.PI * 0.8, Math.PI * 0.2);
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(8, 16, 34, 0.9)';
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(x, y - 8, 3.4, 0, Math.PI * 2);
+      ctx.fillStyle = '#ffd277';
+      ctx.fill();
     }
     const viewW = camera.width / camera.zoom;
     const viewH = camera.height / camera.zoom;

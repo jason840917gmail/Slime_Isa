@@ -11,7 +11,8 @@
     "inventory",
     "character",
     "worldNavigation",
-    "rest"
+    "rest",
+    "gulp"
   ],
   "properties": {
     "$schema": {
@@ -64,6 +65,20 @@
           "exclusiveMinimum": 0
         }
       }
+    },
+    "gulp": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "formDurationMs"
+      ],
+      "properties": {
+        "formDurationMs": {
+          "description": "How long a Gulp form lasts after eating its material, in milliseconds. Eating the same material at a Gulp spot restarts the timer.",
+          "type": "integer",
+          "minimum": 1000
+        }
+      }
     }
   },
   "$defs": {
@@ -83,9 +98,15 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "tags"
+        "tags",
+        "respawnMs"
       ],
       "properties": {
+        "respawnMs": {
+          "description": "How long a harvested tree, stone node or ore node stays gone, in milliseconds. It grows back the next time its map loads after this time, once its dropped piles are collected.",
+          "type": "integer",
+          "minimum": 1000
+        },
         "tags": {
           "type": "array",
           "minItems": 1,
@@ -176,89 +197,57 @@
         }
       }
     },
-    "gains": {
+    "playerStats": {
       "type": "object",
       "additionalProperties": false,
       "required": [
         "maxHp",
         "maxEnergy",
         "attack",
-        "defense"
+        "defense",
+        "critChance",
+        "critMultiplier",
+        "energyRegenPerSecond"
       ],
       "properties": {
         "maxHp": {
-          "$ref": "#/$defs/nonNegative"
+          "type": "number",
+          "exclusiveMinimum": 0
         },
         "maxEnergy": {
-          "$ref": "#/$defs/nonNegative"
+          "type": "number",
+          "exclusiveMinimum": 0
         },
         "attack": {
           "$ref": "#/$defs/nonNegative"
         },
         "defense": {
           "$ref": "#/$defs/nonNegative"
-        }
-      }
-    },
-    "level": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "level",
-        "xpToNextLevel",
-        "gains"
-      ],
-      "properties": {
-        "level": {
-          "$ref": "#/$defs/positiveInteger"
         },
-        "xpToNextLevel": {
-          "type": [
-            "integer",
-            "null"
-          ],
+        "critChance": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "critMultiplier": {
+          "type": "number",
           "minimum": 1
         },
-        "gains": {
-          "$ref": "#/$defs/gains"
+        "energyRegenPerSecond": {
+          "$ref": "#/$defs/nonNegative"
         }
       }
     },
-    "progression": {
+    "gooHeart": {
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "maxLevel",
-        "baseMaxHp",
-        "baseMaxEnergy",
-        "baseAttack",
-        "baseDefense",
-        "levels"
+        "maxHpBonus"
       ],
       "properties": {
-        "maxLevel": {
-          "$ref": "#/$defs/positiveInteger"
-        },
-        "baseMaxHp": {
+        "maxHpBonus": {
           "type": "number",
           "exclusiveMinimum": 0
-        },
-        "baseMaxEnergy": {
-          "type": "number",
-          "exclusiveMinimum": 0
-        },
-        "baseAttack": {
-          "$ref": "#/$defs/nonNegative"
-        },
-        "baseDefense": {
-          "$ref": "#/$defs/nonNegative"
-        },
-        "levels": {
-          "type": "array",
-          "minItems": 1,
-          "items": {
-            "$ref": "#/$defs/level"
-          }
         }
       }
     },
@@ -269,7 +258,8 @@
         "initialAttributes",
         "movement",
         "hitInvulnerabilityMs",
-        "progression"
+        "stats",
+        "gooHeart"
       ],
       "properties": {
         "initialAttributes": {
@@ -282,8 +272,11 @@
           "type": "integer",
           "minimum": 0
         },
-        "progression": {
-          "$ref": "#/$defs/progression"
+        "stats": {
+          "$ref": "#/$defs/playerStats"
+        },
+        "gooHeart": {
+          "$ref": "#/$defs/gooHeart"
         }
       }
     }

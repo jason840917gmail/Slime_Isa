@@ -12,5 +12,7 @@ export const STORAGE_KEYS = {
   legacyDefeatedBosses: `${STORAGE_PREFIX}:defeated-bosses`,
   legacyCompletedDungeons: `${STORAGE_PREFIX}:dungeon-completed`,
   areaTransition: `${STORAGE_PREFIX}:area-transition`,
+  /** Read once to carry sound preferences into `gameSettings`; no longer written. */
   audioSettings: `${STORAGE_PREFIX}:audio-settings:v1`,
+  gameSettings: `${STORAGE_PREFIX}:settings:v1`,
 } as const;

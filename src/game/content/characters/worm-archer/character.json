@@ -44,7 +44,6 @@
       "knockbackResist": 0
     },
     "drop": {
-      "xp": 45,
       "coins": 10,
       "items": [
         {

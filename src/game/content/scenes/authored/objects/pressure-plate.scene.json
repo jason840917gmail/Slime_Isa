@@ -1,0 +1,76 @@
+{
+  "version": 1,
+  "sceneId": "object.pressure-plate",
+  "rootNodeId": "root",
+  "nodes": [
+    {
+      "id": "root",
+      "name": "pressure-plate",
+      "type": "Node2D",
+      "parentId": null,
+      "order": 0,
+      "properties": {
+        "position": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "visual",
+      "name": "Visual",
+      "type": "Sprite2D",
+      "parentId": "root",
+      "order": 0,
+      "properties": {
+        "texture": {
+          "resourceId": "pressure-plate.sprite"
+        },
+        "frame": 6,
+        "origin": [
+          0.5,
+          1
+        ],
+        "scale": [
+          1,
+          1
+        ],
+        "visualOffset": [
+          0,
+          49
+        ],
+        "depthMode": "world-sorted",
+        "depthBand": "ground-decals"
+      }
+    },
+    {
+      "id": "script",
+      "name": "PressurePlateScript",
+      "type": "ScriptNode",
+      "scriptId": "game.pressure-plate",
+      "parentId": "root",
+      "order": 1,
+      "properties": {
+        "plateId": "plate",
+        "radius": 44,
+        "sinkPx": 0,
+        "latch": true,
+        "visual": {
+          "nodeId": "visual"
+        },
+        "pressedFrame": 7
+      }
+    }
+  ],
+  "instances": [],
+  "subresources": [
+    {
+      "version": 1,
+      "resourceId": "pressure-plate.sprite",
+      "kind": "sprite-sheet",
+      "assetId": "sheet.props.gulp.8x1",
+      "frameWidth": 256,
+      "frameHeight": 256
+    }
+  ]
+}

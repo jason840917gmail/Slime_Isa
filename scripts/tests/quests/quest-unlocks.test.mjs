@@ -16,7 +16,7 @@ const vite = await createServer({
       return /(^|\/)core\/EventBus$|^\.\/EventBus$/.test(source) ? eventBusStubId : undefined;
     },
     load(id) {
-      return id === eventBusStubId ? 'export const gameEvents = { on() { return this; }, off() { return this; }, emit() { return this; } };' : undefined;
+      return id === eventBusStubId ? 'export const emitted = []; export const gameEvents = { on() { return this; }, off() { return this; }, emit(event, payload) { emitted.push({ event, payload }); return this; } };' : undefined;
     },
   }],
   resolve: {
@@ -31,7 +31,10 @@ const vite = await createServer({
   server: { middlewareMode: true, hmr: false },
 });
 
-const { QuestService } = await vite.ssrLoadModule('/src/game/quests/QuestService.ts');
+const { QuestService, bindQuestStory } = await vite.ssrLoadModule('/src/game/quests/QuestService.ts');
+const { getQuestDefinitions } = await vite.ssrLoadModule('/src/game/content/quests/QuestCatalog.ts');
+const { validateQuestCatalog } = await vite.ssrLoadModule('/src/game/content/quests/validateQuestCatalog.ts');
+const { emitted } = await vite.ssrLoadModule(eventBusStubId);
 const { StoryProgress } = await vite.ssrLoadModule('/src/game/features/progression/StoryProgress.ts');
 const { isGameSaveData } = await vite.ssrLoadModule('/src/game/infrastructure/persistence/SaveSchema.ts');
 const { createInitialRunState } = await vite.ssrLoadModule('/src/game/content/initial-state/InitialRun.ts');
@@ -58,7 +61,7 @@ function harness(catalog, flags = new Set()) {
     clock: { now: () => 1 },
     rewards: { grant: (questId, rewards) => granted.push({ questId, rewards }) },
     conditions: {
-      playerLevel: () => 1, inventoryCount: () => 0, hasDiscoveredArea: () => false,
+      inventoryCount: () => 0, hasDiscoveredArea: () => false,
       hasWorldFlag: (flag) => flags.has(flag), hasTalkedToNpc: () => false,
     },
   });
@@ -109,14 +112,56 @@ test('story progress round-trips learned recipes, flags, and talked NPCs', () =>
   assert.equal(restored.hasTalkedTo('lili'), true);
 });
 
+test('ability rewards teach the slime through the story, announced once', () => {
+  const story = new StoryProgress();
+  story.load(undefined);
+  bindQuestStory({
+    hasDiscoveredArea: () => false, hasWorldFlag: (flagId) => story.hasFlag(flagId), hasTalkedToNpc: () => false,
+    learnRecipes: (recipeIds) => story.learnRecipes(recipeIds),
+    learnAbilities: (abilityIds) => story.learnAbilities(abilityIds),
+    setFlags: (flagIds) => story.setFlags(flagIds),
+  });
+  const service = new QuestService({
+    catalog: [quest('teach-jump', { rewards: { abilityIds: ['jump'] } })],
+    events: { emit: () => {} },
+    clock: { now: () => 1 },
+    conditions: { inventoryCount: () => 0, hasDiscoveredArea: () => false, hasWorldFlag: () => false, hasTalkedToNpc: () => false },
+  });
+  service.start();
+  const start = emitted.length;
+  assert.equal(story.knowsAbility('jump'), false);
+  service.handleEvent('furniture.placed', { mapId: 'm', placementId: 'a', itemId: 'workbench', sceneId: 's', x: 0, y: 0 });
+  assert.equal(service.get('teach-jump').status, 'completed');
+  assert.equal(story.knowsAbility('jump'), true);
+  story.learnAbilities(['jump']);
+  assert.deepEqual(emitted.slice(start).filter((entry) => entry.event === 'ability.learned').map((entry) => entry.payload), [{ abilityId: 'jump' }]);
+
+  const restored = new StoryProgress();
+  restored.load(story.serialize());
+  assert.equal(restored.knowsAbility('jump'), true, 'a learned ability survives save and load');
+  const older = new StoryProgress();
+  older.load({ worldFlags: [], learnedRecipeIds: [], talkedNpcIds: [] });
+  assert.equal(older.knowsAbility('jump'), false, 'stories saved before abilities load with none learned');
+});
+
+test('Chapter 1 teaches Jump from Worm Trouble and rewards no XP', () => {
+  const quests = getQuestDefinitions();
+  assert.deepEqual(quests.find((entry) => entry.id === 'worm-trouble').rewards.abilityIds, ['jump']);
+  assert.equal(quests.some((entry) => 'xp' in entry.rewards), false);
+  assert.throws(() => validateQuestCatalog([quest('bad-ability', { rewards: { abilityIds: ['fly'] } })]), /unknown ability 'fly'/);
+  assert.throws(() => validateQuestCatalog([quest('old-xp', { rewards: { xp: 10 } })]), /XP was retired/);
+});
+
 test('saves accept an optional story block and reject a malformed one', () => {
   const base = createInitialRunState();
   assert.equal(isGameSaveData(base), true);
   assert.equal(isGameSaveData({ ...base, story: { worldFlags: [], learnedRecipeIds: ['x'], talkedNpcIds: [] } }), true);
   assert.equal(isGameSaveData({ ...base, story: { worldFlags: 'nope', learnedRecipeIds: [], talkedNpcIds: [] } }), false);
+  assert.equal(isGameSaveData({ ...base, story: { worldFlags: [], learnedRecipeIds: [], learnedAbilityIds: ['jump'], talkedNpcIds: [] } }), true);
+  assert.equal(isGameSaveData({ ...base, story: { worldFlags: [], learnedRecipeIds: [], learnedAbilityIds: 'jump', talkedNpcIds: [] } }), false);
 });
 
-test('reward text lists items and learned recipes, not just coins and XP', () => {
-  const lines = questRewardLines({ coins: 20, xp: 60, items: [{ itemId: 'wood', count: 10 }], recipeIds: ['craft-wooden-spear'] });
-  assert.deepEqual(lines, ['20 coins', '60 XP', '10× Wood', 'New recipe: Wooden Spear']);
+test('reward text lists items, learned recipes and learned abilities', () => {
+  const lines = questRewardLines({ coins: 20, items: [{ itemId: 'wood', count: 10 }], recipeIds: ['craft-wooden-spear'], abilityIds: ['jump'] });
+  assert.deepEqual(lines, ['20 coins', '10× Wood', 'New recipe: Wooden Spear', 'New ability: Jump']);
 });

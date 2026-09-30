@@ -10,6 +10,4 @@ export type DeepReadonly<T> = T extends (...args: never[]) => unknown
 
 export type GameConstants = DeepReadonly<GameConstantsDocument>;
 export type PlayerAttributeDefaults = GameConstants['character']['player']['initialAttributes'];
-export type PlayerProgressionDefinition = GameConstants['character']['player']['progression'];
-export type PlayerLevelDefinition = PlayerProgressionDefinition['levels'][number];
-export type PlayerLevelGains = PlayerLevelDefinition['gains'];
+export type PlayerStatsDefinition = GameConstants['character']['player']['stats'];

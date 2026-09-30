@@ -1,8 +1,16 @@
 import type { InventorySlot, ItemDef } from '../core/types';
 import type { NormalizedWeaponDefinition } from '../content/weapons/types';
-import type { RecipeDef } from '../content/recipes/types';
+import type { CraftingSite, RecipeDef } from '../content/recipes/types';
+import { PORTABLE_SITE, stationCrafts } from '../content/recipes/RecipeCatalog';
 
-export type CraftFailureReason = 'invalid-recipe' | 'not-learned' | 'unique-owned' | 'missing-materials' | 'inventory-full';
+export type CraftFailureReason =
+  | 'invalid-recipe'
+  | 'wrong-station'
+  | 'station-tier'
+  | 'not-learned'
+  | 'unique-owned'
+  | 'missing-materials'
+  | 'inventory-full';
 
 export interface CraftCompletedPayload {
   readonly recipeId: string;
@@ -141,7 +149,8 @@ export class CraftingService {
     this.deps = deps;
   }
 
-  quote(recipe: RecipeDef, requestedQuantity: number | string): CraftQuote {
+  /** Quotes a craft at `site` (portable by default): a recipe of another station is `wrong-station`. */
+  quote(recipe: RecipeDef, requestedQuantity: number | string, site: CraftingSite = PORTABLE_SITE): CraftQuote {
     const outputItemId = typeof recipe?.output?.itemId === 'string' ? recipe.output.itemId : '';
     const outputDef = this.deps.getItem(outputItemId);
     if (!outputDef || !this.isValidRecipe(recipe, outputDef)) {
@@ -178,7 +187,7 @@ export class CraftingService {
       };
     });
 
-    const status = this.resolveStatus(recipe, outputDef, maxCraftable, requirements);
+    const status = this.resolveStatus(recipe, site, outputDef, maxCraftable, requirements);
     return {
       recipeId: recipe.id,
       requestedQuantity: quantity,
@@ -191,15 +200,16 @@ export class CraftingService {
     };
   }
 
-  craft(recipe: RecipeDef, requestedQuantity: number | string): CraftResult {
-    let quote = this.quote(recipe, requestedQuantity);
+  /** Crafts at `site`; anything but a ready quote is refused before the inventory is touched. */
+  craft(recipe: RecipeDef, requestedQuantity: number | string, site: CraftingSite = PORTABLE_SITE): CraftResult {
+    let quote = this.quote(recipe, requestedQuantity, site);
     if (quote.status !== 'ready') {
       return { ok: false, recipe, quote, reason: quote.status };
     }
 
     const transaction = transactionFor(recipe, quote.requestedQuantity);
     if (!this.deps.inventory.transact(transaction.removals, transaction.additions)) {
-      quote = this.quote(recipe, requestedQuantity);
+      quote = this.quote(recipe, requestedQuantity, site);
       const reason = quote.status === 'ready' ? 'inventory-full' : quote.status;
       return { ok: false, recipe, quote, reason };
     }
@@ -248,10 +258,14 @@ export class CraftingService {
 
   private resolveStatus(
     recipe: RecipeDef,
+    site: CraftingSite,
     outputDef: ItemDef,
     maxCraftable: number,
     requirements: readonly CraftRequirementQuote[],
   ): 'ready' | CraftFailureReason {
+    // The most fundamental reason wins: station, tier, knowledge, then materials and space.
+    if (!stationCrafts(site.station, recipe)) return 'wrong-station';
+    if (recipe.tier > site.tier) return 'station-tier';
     if (recipe.learnedByQuest && !(this.deps.isRecipeLearned?.(recipe.id) ?? true)) return 'not-learned';
     if (recipe.uniqueOutput && this.deps.inventory.count(recipe.output.itemId) > 0) return 'unique-owned';
     if (requirements.some((requirement) => requirement.available < requirement.perCraft)) return 'missing-materials';
