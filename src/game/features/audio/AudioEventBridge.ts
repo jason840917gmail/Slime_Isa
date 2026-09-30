@@ -80,6 +80,7 @@ export class AudioEventBridge {
     on('craft.failed', () => this.play('CraftFail'));
     on('ground.cracked', () => this.play('GroundCrack'));
     on('building.restored', () => this.play('BuildingRestored'));
+    on('web.torn', () => this.play('WebTear'));
     on('building.restore-refused', ({ reason }) => { if (reason === 'missing-materials') this.play('CraftFail'); });
     // PLACEHOLDER: the heal chime until a Goo Heart pickup sound is made (roadmap 5).
     on('goo-heart.collected', () => this.play('Heal'));

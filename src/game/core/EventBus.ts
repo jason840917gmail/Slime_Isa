@@ -55,6 +55,8 @@ export type GameEvents = {
   'building.restored': { objectId: string; instanceId: string; x: number; y: number };
   /** F at a ruined building did nothing: `missing-materials`, or `locked` (its quest is not active). */
   'building.restore-refused': { objectId: string; reason: 'missing-materials' | 'locked' };
+  /** The Sticky slime tore a spider web open for good. */
+  'web.torn': { x: number; y: number };
   /** Weak ground broke under the Heavy Gulp form. */
   'ground.cracked': { x: number; y: number };
   /** Craft was pressed but refused (missing materials, full inventory, ...). */

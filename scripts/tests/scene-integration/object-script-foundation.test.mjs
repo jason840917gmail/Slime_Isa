@@ -371,10 +371,12 @@ test('the Workshop is a ruin with a restoration site until its flag is set, then
   dispose(ruin);
 });
 
-test('cracked ground breaks once under weight, and a web catches only slimes that cannot cross it', async () => {
+test('cracked ground breaks once when the Heavy slime lands a jump on it; standing only makes it creak', async () => {
   const flags = new Set();
   const cracks = [];
+  const creaks = [];
   let weights = [];
+  let landing = { x: 900, y: 900, id: 4 };
   const crackDocument = {
     version: 1, sceneId: 'object.cracked-ground-fixture', rootNodeId: 'root',
     nodes: [
@@ -383,44 +385,80 @@ test('cracked ground breaks once under weight, and a web catches only slimes tha
     ],
     instances: [],
   };
-  const crack = await instantiate(crackDocument, {
+  const services = {
     [t.PLATE_WEIGHT_SERVICE]: { weights: () => weights },
     [t.STORY_FLAG_SERVICE]: { setFlags: (ids) => ids.forEach((id) => flags.add(id)), hasFlag: (id) => flags.has(id) },
-    [t.GROUND_CRACK_SERVICE]: { groundCracked: (at) => cracks.push(at) },
-  });
+    [t.GROUND_CRACK_SERVICE]: { groundCracked: (at) => cracks.push(at), lastHeavyLanding: () => landing, groundCreaks: (at) => creaks.push(at) },
+  };
+  const crack = await instantiate(crackDocument, services);
   crack.tree.process(0.1);
   assert.equal(flags.has('cracked.test'), false, 'a light slime walks over it');
   weights = [{ x: 210, y: 310 }];
   crack.tree.process(0.1);
+  assert.equal(flags.has('cracked.test'), false, 'standing on it in Heavy form is not enough');
+  assert.deepEqual(creaks, [{ x: 200, y: 300 }], 'it creaks instead');
+  landing = { x: 205, y: 310, id: 4 };
   crack.tree.process(0.1);
-  assert.equal(flags.has('cracked.test'), true);
+  assert.equal(flags.has('cracked.test'), false, 'a landing that happened before it loaded does not count');
+  landing = { x: 205, y: 310, id: 5 };
+  crack.tree.process(0.1);
+  crack.tree.process(0.1);
+  assert.equal(flags.has('cracked.test'), true, 'a Heavy jump landing breaks it');
   assert.deepEqual(cracks, [{ x: 200, y: 300 }], 'it breaks exactly once');
   dispose(crack);
 
+  // With Requires Landing off, standing on it in Heavy form breaks it (the old rule).
+  const standing = await instantiate({ ...crackDocument, nodes: crackDocument.nodes.map((node) => (node.id === 'crack'
+    ? { ...node, properties: { ...node.properties, flagId: 'cracked.standing', requiresLanding: false } } : node)) }, services);
+  standing.tree.process(0.1);
+  assert.equal(flags.has('cracked.standing'), true);
+  dispose(standing);
+});
+
+test('a web catches a normal slime; the Sticky form tears it open for good', async () => {
   const caught = [];
+  const torn = [];
+  const flags = new Set();
   let crosses = false;
   const webDocument = {
     version: 1, sceneId: 'object.spider-web-fixture', rootNodeId: 'root',
     nodes: [
       { id: 'root', name: 'Web', type: 'Node2D', parentId: null, order: 0, properties: { position: [100, 100] } },
-      { id: 'script', name: 'SpiderWebScript', type: 'ScriptNode', scriptId: 'game.spider-web', parentId: 'root', order: 0, properties: { width: 100, depth: 40 } },
+      { id: 'visual', name: 'Visual', type: 'Node2D', parentId: 'root', order: 0, properties: {} },
+      { id: 'script', name: 'SpiderWebScript', type: 'ScriptNode', scriptId: 'game.spider-web', parentId: 'root', order: 1, properties: { width: 100, depth: 40, visual: { nodeId: 'visual' } } },
     ],
     instances: [],
   };
   let player = { x: 100, y: 200 };
-  const web = await instantiate(webDocument, {
-    [t.SPIDER_WEB_SERVICE]: { playerPosition: () => player, playerCrossesWebs: () => crosses, catchPlayer: (zone) => caught.push(zone) },
-  });
+  const services = {
+    [t.SPIDER_WEB_SERVICE]: { playerPosition: () => player, playerCrossesWebs: () => crosses, catchPlayer: (zone) => caught.push(zone), webTorn: (zone) => torn.push(zone) },
+    [t.STORY_FLAG_SERVICE]: { setFlags: (ids) => ids.forEach((id) => flags.add(id)), hasFlag: (id) => flags.has(id) },
+  };
+  const web = await instantiate(webDocument, services);
+  web.tree.flushMutations();
+  const script = web.root.get_node('SpiderWebScript');
+  const visual = web.root.get_node('Visual');
+  visual.visible = true;
   web.tree.process(0.1);
   assert.equal(caught.length, 0, 'outside the web');
   player = { x: 120, y: 90 };
+  web.tree.process(0.1);
+  assert.deepEqual(caught, [{ x: 100, y: 80, halfWidth: 50, halfHeight: 20 }], 'a normal slime is caught');
   crosses = true;
   web.tree.process(0.1);
-  assert.equal(caught.length, 0, 'the Sticky form crosses');
+  assert.equal(script.torn, true, 'the Sticky form tears it');
+  assert.equal(visual.visible, false, 'and it disappears');
+  assert.equal(torn.length, 1);
+  assert.equal(flags.size, 1, 'the tear is remembered');
   crosses = false;
   web.tree.process(0.1);
-  assert.deepEqual(caught, [{ x: 100, y: 80, halfWidth: 50, halfHeight: 20 }]);
+  assert.equal(caught.length, 1, 'a torn web never catches again, even when the form wears off');
   dispose(web);
+
+  const again = await instantiate(webDocument, services);
+  again.tree.flushMutations();
+  assert.equal(again.root.get_node('SpiderWebScript').torn, true, 'it stays open after loading');
+  dispose(again);
 });
 
 test('generic interactions publish domain-service outcomes without mutating world state directly', async () => {

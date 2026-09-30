@@ -43,7 +43,7 @@ The game plays world scenes (`src/game/content/scenes/authored/worlds/<id>.scene
 
 Sources live in `asset/Originals/` (unmapped in `assets.json`); packed runtime sheets land in `asset/MAPS/`. Register new runtime media in `asset/assets.json` and run `pnpm assets:check`. See [assets/README.md](assets/README.md).
 
-- `pnpm grounds:pack [-- --only <sheet>]` (**numpy**) — builds each 19x19 (64x64 tile) `asset/MAPS/grounds/64x64-tile_19x19_<ground>.png` from `asset/Originals/grounds/{generated,legacy-sheets}/`, graded and made wrap-seamless for `sheet-wrap` tiling.
+- `pnpm grounds:pack [-- --only <sheet>]` (**numpy**) — builds each 19x19 (64x64 tile) `asset/MAPS/grounds/64x64-tile_19x19_<ground>.webp` (lossless) from `asset/Originals/grounds/{generated,legacy-sheets}/`, graded and made wrap-seamless for `sheet-wrap` tiling.
 - `pnpm props:pack` (**numpy**) — packs `asset/Originals/props/` into bottom-anchored `asset/MAPS/rocks/<frame>x<frame>-tile_<cols>x<rows>-<name>.png` atlases (crystal cluster art for the `crystal-cluster-wall` object scenes).
 - `python scripts/props/generate-wall-prop-scenes.py` (**numpy**) — generates the `object.crystal-cluster-wall.*` and `object.tree-forest-wall.*` wall scenes.
 - `python scripts/props/pack-gulp-props.py` — packs the Gulp and secret props (cracked ground, sinkhole, cave ladder, silk cocoon, spider web, Goo Heart, pressure plate up and down) from `asset/Originals/props/gulp/` into `asset/MAPS/props/256x256-tile_8x1-gulp-props.png`, and the Gulp form badges from `asset/Originals/ui/gulp/` into `asset/UI/ui-gulp-form-icons-2x1.png`.
@@ -55,7 +55,7 @@ Sources live in `asset/Originals/` (unmapped in `assets.json`); packed runtime s
 
 ## Audio
 
-- `pnpm audio:bake [-- --library <dir>]` — renders the synthesized SFX in `scripts/audio/cues.mjs` to `asset/audio/sfx/synth/` and rewrites the generated `audio.sfx.*` block of `assets.json`; `--library` re-imports the library takes listed in `asset/audio/CREDITS.md` (it empties `asset/audio/sfx/library/` first, so the parent folder must also hold a `magnific` copy of `asset/Originals/audio/magnific/`). Without `--library` the existing library files are kept.
+- `pnpm audio:bake [-- --library <dir>]` — ships one flavour per cue, as picked in `scripts/audio/picks.json`: renders the synth-picked cues from `scripts/audio/cues.mjs` to `asset/audio/sfx/synth/`, keeps the library-picked cues' files in `asset/audio/sfx/library/`, and rewrites the generated `audio.sfx.*` block of `assets.json`; `--library` re-imports the library takes listed in `asset/audio/CREDITS.md` (it empties `asset/audio/sfx/library/` first, so the parent folder must also hold a `magnific` copy of `asset/Originals/audio/magnific/`). Without `--library` the existing library files are kept.
 - `pnpm audio:wire` — writes audio nodes/connections into scene JSON from the table in `scripts/audio/wire-scene-audio.mjs`.
 
 ## Dev server endpoints

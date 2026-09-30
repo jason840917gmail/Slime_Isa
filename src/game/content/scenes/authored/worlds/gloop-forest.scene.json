@@ -336,6 +336,152 @@
           0
         ]
       }
+    },
+    {
+      "id": "area-gloop-orb-weavers-north-east",
+      "name": "gloop-orb-weavers-north-east",
+      "type": "Area2D",
+      "parentId": "world",
+      "order": 141,
+      "properties": {
+        "position": [
+          2560,
+          640
+        ],
+        "collisionLayer": 512,
+        "collisionMask": 0,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "area-gloop-orb-weavers-north-east-shape",
+      "name": "pursue-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-gloop-orb-weavers-north-east",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "gloop-forest.area-gloop-orb-weavers-north-east.shape"
+        }
+      }
+    },
+    {
+      "id": "area-gloop-orb-weavers-north-east-stay-shape",
+      "name": "stay-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-gloop-orb-weavers-north-east",
+      "order": 1,
+      "properties": {
+        "shape": {
+          "resourceId": "gloop-forest.area-gloop-orb-weavers-north-east.stay-shape"
+        }
+      }
+    },
+    {
+      "id": "area-gloop-orb-weavers-north-east-script",
+      "name": "world-area-script",
+      "type": "ScriptNode",
+      "scriptId": "game.world-area",
+      "parentId": "area-gloop-orb-weavers-north-east",
+      "order": 2,
+      "properties": {
+        "areaKind": "enemy-spawn",
+        "areaId": "gloop-orb-weavers-north-east",
+        "area": {
+          "nodeId": "area-gloop-orb-weavers-north-east"
+        },
+        "data": {
+          "enemies": [
+            {
+              "type": "orb-weaver",
+              "weight": 1,
+              "maxAlive": 2
+            }
+          ],
+          "intervalMs": 6000,
+          "maxPopulation": 2
+        },
+        "shape": {
+          "nodeId": "area-gloop-orb-weavers-north-east-shape"
+        },
+        "stayShape": {
+          "nodeId": "area-gloop-orb-weavers-north-east-stay-shape"
+        }
+      }
+    },
+    {
+      "id": "area-gloop-orb-weavers-south-west",
+      "name": "gloop-orb-weavers-south-west",
+      "type": "Area2D",
+      "parentId": "world",
+      "order": 142,
+      "properties": {
+        "position": [
+          768,
+          2560
+        ],
+        "collisionLayer": 512,
+        "collisionMask": 0,
+        "monitoring": false,
+        "monitorable": false
+      }
+    },
+    {
+      "id": "area-gloop-orb-weavers-south-west-shape",
+      "name": "pursue-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-gloop-orb-weavers-south-west",
+      "order": 0,
+      "properties": {
+        "shape": {
+          "resourceId": "gloop-forest.area-gloop-orb-weavers-south-west.shape"
+        }
+      }
+    },
+    {
+      "id": "area-gloop-orb-weavers-south-west-stay-shape",
+      "name": "stay-shape",
+      "type": "CollisionShape2D",
+      "parentId": "area-gloop-orb-weavers-south-west",
+      "order": 1,
+      "properties": {
+        "shape": {
+          "resourceId": "gloop-forest.area-gloop-orb-weavers-south-west.stay-shape"
+        }
+      }
+    },
+    {
+      "id": "area-gloop-orb-weavers-south-west-script",
+      "name": "world-area-script",
+      "type": "ScriptNode",
+      "scriptId": "game.world-area",
+      "parentId": "area-gloop-orb-weavers-south-west",
+      "order": 2,
+      "properties": {
+        "areaKind": "enemy-spawn",
+        "areaId": "gloop-orb-weavers-south-west",
+        "area": {
+          "nodeId": "area-gloop-orb-weavers-south-west"
+        },
+        "data": {
+          "enemies": [
+            {
+              "type": "orb-weaver",
+              "weight": 1,
+              "maxAlive": 2
+            }
+          ],
+          "intervalMs": 6000,
+          "maxPopulation": 2
+        },
+        "shape": {
+          "nodeId": "area-gloop-orb-weavers-south-west-shape"
+        },
+        "stayShape": {
+          "nodeId": "area-gloop-orb-weavers-south-west-stay-shape"
+        }
+      }
     }
   ],
   "instances": [
@@ -39677,6 +39823,46 @@
           "tileId": "forest-floor"
         }
       ]
+    },
+    {
+      "version": 1,
+      "resourceId": "gloop-forest.area-gloop-orb-weavers-north-east.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 768,
+        "height": 640
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "gloop-forest.area-gloop-orb-weavers-north-east.stay-shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 320,
+        "height": 256
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "gloop-forest.area-gloop-orb-weavers-south-west.shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 768,
+        "height": 640
+      }
+    },
+    {
+      "version": 1,
+      "resourceId": "gloop-forest.area-gloop-orb-weavers-south-west.stay-shape",
+      "kind": "collision-shape",
+      "value": {
+        "shape": "rectangle",
+        "width": 320,
+        "height": 256
+      }
     }
   ]
 }

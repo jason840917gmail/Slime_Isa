@@ -71,12 +71,10 @@
       "weapon.player.hammer-spear-tiles",
       "weapon.player.pickaxe-tiles",
       "effect.resource.stone-impact-tiles",
-      "ui.frame.organic-modal",
       "ui.frame.organic-compact",
       "ui.backplate.inventory",
       "ui.surface.map-journal-paper",
       "ui.frame.organic-minimap",
-      "ui.backplate.crafting-workbench",
       "ui.backplate.crafting-detail-workbench",
       "ui.backplate.quest-journal",
       "ui.frame.quest-offer-scroll",
@@ -120,7 +118,6 @@
       "audio.sfx.weapon.swing-blade.2",
       "audio.sfx.weapon.swing-blade.3",
       "audio.sfx.weapon.thrust.1",
-      "audio.sfx.weapon.thrust.2",
       "audio.sfx.weapon.swing-heavy.1",
       "audio.sfx.weapon.swing-heavy.2",
       "audio.sfx.weapon.swing-tool.1",
@@ -130,7 +127,6 @@
       "audio.sfx.weapon.hit-punch.3",
       "audio.sfx.weapon.hit-slash.1",
       "audio.sfx.weapon.hit-slash.2",
-      "audio.sfx.weapon.hit-slash.3",
       "audio.sfx.weapon.hit-stab.1",
       "audio.sfx.weapon.hit-stab.2",
       "audio.sfx.weapon.hit-stab.3",
@@ -139,7 +135,6 @@
       "audio.sfx.weapon.chop-wood.1",
       "audio.sfx.weapon.chop-wood.2",
       "audio.sfx.weapon.chop-wood.3",
-      "audio.sfx.weapon.chop-wood.4",
       "audio.sfx.weapon.mine-stone.1",
       "audio.sfx.weapon.mine-stone.2",
       "audio.sfx.weapon.mine-stone.3",
@@ -200,7 +195,6 @@
       "audio.sfx.footstep.sand.3",
       "audio.sfx.footstep.water.1",
       "audio.sfx.footstep.water.2",
-      "audio.sfx.footstep.water.3",
       "audio.sfx.status.burn.1",
       "audio.sfx.status.poison.1",
       "audio.sfx.status.slow.1",
@@ -215,7 +209,6 @@
       "audio.sfx.enemy.worm-death.2",
       "audio.sfx.enemy.worm-alert.1",
       "audio.sfx.enemy.worm-windup.1",
-      "audio.sfx.enemy.worm-windup.2",
       "audio.sfx.enemy.bow-draw.1",
       "audio.sfx.enemy.arrow-release.1",
       "audio.sfx.enemy.arrow-release.2",
@@ -547,7 +540,7 @@
     "sheet.grounds.19x19.highland-green": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/grounds/64x64-tile_19x19_HighlandGreen.png",
+        "path": "MAPS/grounds/64x64-tile_19x19_HighlandGreen.webp",
         "frame": {
           "w": 64,
           "h": 64,
@@ -571,7 +564,7 @@
     "sheet.grounds.19x19.amberleaf": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/grounds/64x64-tile_19x19_amberleaf.png",
+        "path": "MAPS/grounds/64x64-tile_19x19_amberleaf.webp",
         "frame": {
           "w": 64,
           "h": 64,
@@ -595,7 +588,7 @@
     "sheet.grounds.19x19.frozen": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/grounds/64x64-tile_19x19_frozen.png",
+        "path": "MAPS/grounds/64x64-tile_19x19_frozen.webp",
         "frame": {
           "w": 64,
           "h": 64,
@@ -619,7 +612,7 @@
     "sheet.grounds.19x19.sanddessert": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/grounds/64x64-tile_19x19_sanddessert.png",
+        "path": "MAPS/grounds/64x64-tile_19x19_sanddessert.webp",
         "frame": {
           "w": 64,
           "h": 64,
@@ -643,7 +636,7 @@
     "sheet.grounds.19x19.forest-floor": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/grounds/64x64-tile_19x19_forest-floor.png",
+        "path": "MAPS/grounds/64x64-tile_19x19_forest-floor.webp",
         "frame": {
           "w": 64,
           "h": 64,
@@ -667,7 +660,7 @@
     "sheet.grounds.19x19.forest-moss": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/grounds/64x64-tile_19x19_forest-moss.png",
+        "path": "MAPS/grounds/64x64-tile_19x19_forest-moss.webp",
         "frame": {
           "w": 64,
           "h": 64,
@@ -691,7 +684,7 @@
     "sheet.grounds.19x19.cavern-floor": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/grounds/64x64-tile_19x19_cavern-floor.png",
+        "path": "MAPS/grounds/64x64-tile_19x19_cavern-floor.webp",
         "frame": {
           "w": 64,
           "h": 64,
@@ -715,7 +708,7 @@
     "sheet.grounds.19x19.town-cobble": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/grounds/64x64-tile_19x19_town-cobble.png",
+        "path": "MAPS/grounds/64x64-tile_19x19_town-cobble.webp",
         "frame": {
           "w": 64,
           "h": 64,
@@ -740,7 +733,7 @@
     "sheet.grounds.19x19.crystal-floor": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/grounds/64x64-tile_19x19_crystal-floor.png",
+        "path": "MAPS/grounds/64x64-tile_19x19_crystal-floor.webp",
         "frame": {
           "w": 64,
           "h": 64,
@@ -765,7 +758,7 @@
     "sheet.grounds.19x19.water": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/grounds/64x64-tile_19x19_water.png",
+        "path": "MAPS/grounds/64x64-tile_19x19_water.webp",
         "frame": {
           "w": 64,
           "h": 64,
@@ -789,7 +782,7 @@
     "sheet.grounds.19x19.deep-water": {
       "source": {
         "kind": "spritesheet",
-        "path": "MAPS/grounds/64x64-tile_19x19_deep-water.png",
+        "path": "MAPS/grounds/64x64-tile_19x19_deep-water.webp",
         "frame": {
           "w": 64,
           "h": 64,
@@ -2969,33 +2962,6 @@
       ],
       "status": "ready"
     },
-    "ui.frame.organic-modal": {
-      "source": {
-        "kind": "image",
-        "path": "UI/ui-organic-modal-frame.png",
-        "expect": {
-          "w": 1448,
-          "h": 1086
-        }
-      },
-      "runtime": {
-        "textureKey": "ui-organic-modal-frame"
-      },
-      "render": {
-        "origin": [
-          0.5,
-          0.5
-        ],
-        "pixelArt": false
-      },
-      "tags": [
-        "ui",
-        "frame",
-        "modal"
-      ],
-      "status": "ready",
-      "notes": "Shared large organic modal frame; dynamic content stays in UI code."
-    },
     "ui.frame.organic-compact": {
       "source": {
         "kind": "image",
@@ -3192,33 +3158,6 @@
       ],
       "status": "ready",
       "notes": "Square minimap frame; terrain, camera rectangle, and markers stay dynamic."
-    },
-    "ui.backplate.crafting-workbench": {
-      "source": {
-        "kind": "image",
-        "path": "UI/ui-crafting-workbench-backplate.png",
-        "expect": {
-          "w": 1672,
-          "h": 941
-        }
-      },
-      "runtime": {
-        "textureKey": "ui-crafting-workbench-backplate"
-      },
-      "render": {
-        "origin": [
-          0.5,
-          0.5
-        ],
-        "pixelArt": false
-      },
-      "tags": [
-        "ui",
-        "backplate",
-        "crafting"
-      ],
-      "status": "ready",
-      "notes": "Crafting workbench backplate with quiet recipe and output regions."
     },
     "ui.backplate.crafting-detail-workbench": {
       "source": {
@@ -3569,8 +3508,7 @@
     "audio.sfx.weapon.swing-light.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/weapon/swing-light-1.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/swing-light-1.wav" }
+        "path": "audio/sfx/library/weapon/swing-light-1.wav"
       },
       "runtime": { "textureKey": "sfx-weapon-swing-light-1" },
       "tags": ["audio", "sfx", "weapon"],
@@ -3580,8 +3518,7 @@
     "audio.sfx.weapon.swing-light.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/weapon/swing-light-2.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/swing-light-2.wav" }
+        "path": "audio/sfx/library/weapon/swing-light-2.wav"
       },
       "runtime": { "textureKey": "sfx-weapon-swing-light-2" },
       "tags": ["audio", "sfx", "weapon"],
@@ -3591,8 +3528,7 @@
     "audio.sfx.weapon.swing-blade.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/weapon/swing-blade-1.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/swing-blade-1.wav" }
+        "path": "audio/sfx/synth/weapon/swing-blade-1.wav"
       },
       "runtime": { "textureKey": "sfx-weapon-swing-blade-1" },
       "tags": ["audio", "sfx", "weapon"],
@@ -3602,8 +3538,7 @@
     "audio.sfx.weapon.swing-blade.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/weapon/swing-blade-2.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/swing-blade-2.wav" }
+        "path": "audio/sfx/synth/weapon/swing-blade-2.wav"
       },
       "runtime": { "textureKey": "sfx-weapon-swing-blade-2" },
       "tags": ["audio", "sfx", "weapon"],
@@ -3613,8 +3548,7 @@
     "audio.sfx.weapon.swing-blade.3": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/weapon/swing-blade-3.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/swing-blade-3.wav" }
+        "path": "audio/sfx/synth/weapon/swing-blade-3.wav"
       },
       "runtime": { "textureKey": "sfx-weapon-swing-blade-3" },
       "tags": ["audio", "sfx", "weapon"],
@@ -3624,21 +3558,9 @@
     "audio.sfx.weapon.thrust.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/weapon/thrust-1.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/thrust-1.wav" }
+        "path": "audio/sfx/library/weapon/thrust.wav"
       },
       "runtime": { "textureKey": "sfx-weapon-thrust-1" },
-      "tags": ["audio", "sfx", "weapon"],
-      "status": "draft",
-      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
-    },
-    "audio.sfx.weapon.thrust.2": {
-      "source": {
-        "kind": "audio",
-        "path": "audio/sfx/synth/weapon/thrust-2.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/thrust-2.wav" }
-      },
-      "runtime": { "textureKey": "sfx-weapon-thrust-2" },
       "tags": ["audio", "sfx", "weapon"],
       "status": "draft",
       "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
@@ -3646,8 +3568,7 @@
     "audio.sfx.weapon.swing-heavy.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/weapon/swing-heavy-1.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/swing-heavy-1.wav" }
+        "path": "audio/sfx/synth/weapon/swing-heavy-1.wav"
       },
       "runtime": { "textureKey": "sfx-weapon-swing-heavy-1" },
       "tags": ["audio", "sfx", "weapon"],
@@ -3657,8 +3578,7 @@
     "audio.sfx.weapon.swing-heavy.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/weapon/swing-heavy-2.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/swing-heavy-2.wav" }
+        "path": "audio/sfx/synth/weapon/swing-heavy-2.wav"
       },
       "runtime": { "textureKey": "sfx-weapon-swing-heavy-2" },
       "tags": ["audio", "sfx", "weapon"],
@@ -3668,8 +3588,7 @@
     "audio.sfx.weapon.swing-tool.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/weapon/swing-tool-1.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/swing-tool-1.wav" }
+        "path": "audio/sfx/synth/weapon/swing-tool-1.wav"
       },
       "runtime": { "textureKey": "sfx-weapon-swing-tool-1" },
       "tags": ["audio", "sfx", "weapon"],
@@ -3679,8 +3598,7 @@
     "audio.sfx.weapon.swing-tool.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/weapon/swing-tool-2.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/swing-tool-2.wav" }
+        "path": "audio/sfx/synth/weapon/swing-tool-2.wav"
       },
       "runtime": { "textureKey": "sfx-weapon-swing-tool-2" },
       "tags": ["audio", "sfx", "weapon"],
@@ -3690,8 +3608,7 @@
     "audio.sfx.weapon.hit-punch.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/weapon/hit-punch-1.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/hit-punch-1.ogg" }
+        "path": "audio/sfx/synth/weapon/hit-punch-1.wav"
       },
       "runtime": { "textureKey": "sfx-weapon-hit-punch-1" },
       "tags": ["audio", "sfx", "weapon"],
@@ -3701,8 +3618,7 @@
     "audio.sfx.weapon.hit-punch.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/weapon/hit-punch-2.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/hit-punch-2.ogg" }
+        "path": "audio/sfx/synth/weapon/hit-punch-2.wav"
       },
       "runtime": { "textureKey": "sfx-weapon-hit-punch-2" },
       "tags": ["audio", "sfx", "weapon"],
@@ -3712,8 +3628,7 @@
     "audio.sfx.weapon.hit-punch.3": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/weapon/hit-punch-3.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/hit-punch-3.ogg" }
+        "path": "audio/sfx/synth/weapon/hit-punch-3.wav"
       },
       "runtime": { "textureKey": "sfx-weapon-hit-punch-3" },
       "tags": ["audio", "sfx", "weapon"],
@@ -3723,8 +3638,7 @@
     "audio.sfx.weapon.hit-slash.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/weapon/hit-slash-1.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/hit-slash-1.ogg" }
+        "path": "audio/sfx/library/weapon/hit-slash-1.ogg"
       },
       "runtime": { "textureKey": "sfx-weapon-hit-slash-1" },
       "tags": ["audio", "sfx", "weapon"],
@@ -3734,21 +3648,9 @@
     "audio.sfx.weapon.hit-slash.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/weapon/hit-slash-2.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/hit-slash-2.ogg" }
+        "path": "audio/sfx/library/weapon/hit-slash-2.ogg"
       },
       "runtime": { "textureKey": "sfx-weapon-hit-slash-2" },
-      "tags": ["audio", "sfx", "weapon"],
-      "status": "draft",
-      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
-    },
-    "audio.sfx.weapon.hit-slash.3": {
-      "source": {
-        "kind": "audio",
-        "path": "audio/sfx/synth/weapon/hit-slash-3.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/hit-slash-3.ogg" }
-      },
-      "runtime": { "textureKey": "sfx-weapon-hit-slash-3" },
       "tags": ["audio", "sfx", "weapon"],
       "status": "draft",
       "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
@@ -3756,8 +3658,7 @@
     "audio.sfx.weapon.hit-stab.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/weapon/hit-stab-1.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/hit-stab-1.ogg" }
+        "path": "audio/sfx/library/weapon/hit-stab-1.wav"
       },
       "runtime": { "textureKey": "sfx-weapon-hit-stab-1" },
       "tags": ["audio", "sfx", "weapon"],
@@ -3767,8 +3668,7 @@
     "audio.sfx.weapon.hit-stab.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/weapon/hit-stab-2.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/hit-stab-2.ogg" }
+        "path": "audio/sfx/library/weapon/hit-stab-2.wav"
       },
       "runtime": { "textureKey": "sfx-weapon-hit-stab-2" },
       "tags": ["audio", "sfx", "weapon"],
@@ -3778,8 +3678,7 @@
     "audio.sfx.weapon.hit-stab.3": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/weapon/hit-stab-3.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/hit-stab-3.ogg" }
+        "path": "audio/sfx/library/weapon/hit-stab-3.wav"
       },
       "runtime": { "textureKey": "sfx-weapon-hit-stab-3" },
       "tags": ["audio", "sfx", "weapon"],
@@ -3789,8 +3688,7 @@
     "audio.sfx.weapon.hit-heavy.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/weapon/hit-heavy-1.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/hit-heavy-1.ogg" }
+        "path": "audio/sfx/synth/weapon/hit-heavy-1.wav"
       },
       "runtime": { "textureKey": "sfx-weapon-hit-heavy-1" },
       "tags": ["audio", "sfx", "weapon"],
@@ -3800,8 +3698,7 @@
     "audio.sfx.weapon.hit-heavy.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/weapon/hit-heavy-2.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/hit-heavy-2.ogg" }
+        "path": "audio/sfx/synth/weapon/hit-heavy-2.wav"
       },
       "runtime": { "textureKey": "sfx-weapon-hit-heavy-2" },
       "tags": ["audio", "sfx", "weapon"],
@@ -3811,8 +3708,7 @@
     "audio.sfx.weapon.chop-wood.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/weapon/chop-wood-1.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/chop-wood-1.ogg" }
+        "path": "audio/sfx/library/weapon/chop-wood-1.ogg"
       },
       "runtime": { "textureKey": "sfx-weapon-chop-wood-1" },
       "tags": ["audio", "sfx", "weapon"],
@@ -3822,8 +3718,7 @@
     "audio.sfx.weapon.chop-wood.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/weapon/chop-wood-2.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/chop-wood-2.ogg" }
+        "path": "audio/sfx/library/weapon/chop-wood-2.ogg"
       },
       "runtime": { "textureKey": "sfx-weapon-chop-wood-2" },
       "tags": ["audio", "sfx", "weapon"],
@@ -3833,21 +3728,9 @@
     "audio.sfx.weapon.chop-wood.3": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/weapon/chop-wood-3.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/chop-wood-3.ogg" }
+        "path": "audio/sfx/library/weapon/chop-wood-3.ogg"
       },
       "runtime": { "textureKey": "sfx-weapon-chop-wood-3" },
-      "tags": ["audio", "sfx", "weapon"],
-      "status": "draft",
-      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
-    },
-    "audio.sfx.weapon.chop-wood.4": {
-      "source": {
-        "kind": "audio",
-        "path": "audio/sfx/synth/weapon/chop-wood-4.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/chop-wood-4.ogg" }
-      },
-      "runtime": { "textureKey": "sfx-weapon-chop-wood-4" },
       "tags": ["audio", "sfx", "weapon"],
       "status": "draft",
       "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
@@ -3855,8 +3738,7 @@
     "audio.sfx.weapon.mine-stone.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/weapon/mine-stone-1.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/mine-stone-1.ogg" }
+        "path": "audio/sfx/library/weapon/mine-stone-1.ogg"
       },
       "runtime": { "textureKey": "sfx-weapon-mine-stone-1" },
       "tags": ["audio", "sfx", "weapon"],
@@ -3866,8 +3748,7 @@
     "audio.sfx.weapon.mine-stone.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/weapon/mine-stone-2.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/mine-stone-2.ogg" }
+        "path": "audio/sfx/library/weapon/mine-stone-2.ogg"
       },
       "runtime": { "textureKey": "sfx-weapon-mine-stone-2" },
       "tags": ["audio", "sfx", "weapon"],
@@ -3877,8 +3758,7 @@
     "audio.sfx.weapon.mine-stone.3": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/weapon/mine-stone-3.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/mine-stone-3.ogg" }
+        "path": "audio/sfx/library/weapon/mine-stone-3.ogg"
       },
       "runtime": { "textureKey": "sfx-weapon-mine-stone-3" },
       "tags": ["audio", "sfx", "weapon"],
@@ -3888,8 +3768,7 @@
     "audio.sfx.weapon.mine-stone.4": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/weapon/mine-stone-4.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/mine-stone-4.ogg" }
+        "path": "audio/sfx/library/weapon/mine-stone-4.ogg"
       },
       "runtime": { "textureKey": "sfx-weapon-mine-stone-4" },
       "tags": ["audio", "sfx", "weapon"],
@@ -3899,8 +3778,7 @@
     "audio.sfx.weapon.hit-dull.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/weapon/hit-dull-1.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/hit-dull-1.ogg" }
+        "path": "audio/sfx/synth/weapon/hit-dull-1.wav"
       },
       "runtime": { "textureKey": "sfx-weapon-hit-dull-1" },
       "tags": ["audio", "sfx", "weapon"],
@@ -3910,8 +3788,7 @@
     "audio.sfx.weapon.hit-dull.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/weapon/hit-dull-2.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/hit-dull-2.ogg" }
+        "path": "audio/sfx/synth/weapon/hit-dull-2.wav"
       },
       "runtime": { "textureKey": "sfx-weapon-hit-dull-2" },
       "tags": ["audio", "sfx", "weapon"],
@@ -3921,8 +3798,7 @@
     "audio.sfx.weapon.hit-blocked.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/weapon/hit-blocked-1.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/hit-blocked-1.ogg" }
+        "path": "audio/sfx/library/weapon/hit-blocked-1.ogg"
       },
       "runtime": { "textureKey": "sfx-weapon-hit-blocked-1" },
       "tags": ["audio", "sfx", "weapon"],
@@ -3932,8 +3808,7 @@
     "audio.sfx.weapon.hit-blocked.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/weapon/hit-blocked-2.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/hit-blocked-2.ogg" }
+        "path": "audio/sfx/library/weapon/hit-blocked-2.ogg"
       },
       "runtime": { "textureKey": "sfx-weapon-hit-blocked-2" },
       "tags": ["audio", "sfx", "weapon"],
@@ -3943,8 +3818,7 @@
     "audio.sfx.weapon.crit.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/weapon/crit.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/crit.ogg" }
+        "path": "audio/sfx/library/weapon/crit.ogg"
       },
       "runtime": { "textureKey": "sfx-weapon-crit-1" },
       "tags": ["audio", "sfx", "weapon"],
@@ -3954,8 +3828,7 @@
     "audio.sfx.weapon.combo-1.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/weapon/combo-1.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/combo-1.ogg" }
+        "path": "audio/sfx/synth/weapon/combo-1.wav"
       },
       "runtime": { "textureKey": "sfx-weapon-combo-1-1" },
       "tags": ["audio", "sfx", "weapon"],
@@ -3965,8 +3838,7 @@
     "audio.sfx.weapon.combo-2.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/weapon/combo-2.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/combo-2.ogg" }
+        "path": "audio/sfx/synth/weapon/combo-2.wav"
       },
       "runtime": { "textureKey": "sfx-weapon-combo-2-1" },
       "tags": ["audio", "sfx", "weapon"],
@@ -3976,8 +3848,7 @@
     "audio.sfx.weapon.combo-3.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/weapon/combo-3.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/combo-3.ogg" }
+        "path": "audio/sfx/synth/weapon/combo-3.wav"
       },
       "runtime": { "textureKey": "sfx-weapon-combo-3-1" },
       "tags": ["audio", "sfx", "weapon"],
@@ -3987,8 +3858,7 @@
     "audio.sfx.weapon.combo-finisher.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/weapon/combo-finisher.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/combo-finisher.ogg" }
+        "path": "audio/sfx/synth/weapon/combo-finisher.wav"
       },
       "runtime": { "textureKey": "sfx-weapon-combo-finisher-1" },
       "tags": ["audio", "sfx", "weapon"],
@@ -3998,8 +3868,7 @@
     "audio.sfx.weapon.equip-blade.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/weapon/equip-blade.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/equip-blade.ogg" }
+        "path": "audio/sfx/library/weapon/equip-blade.wav"
       },
       "runtime": { "textureKey": "sfx-weapon-equip-blade-1" },
       "tags": ["audio", "sfx", "weapon"],
@@ -4009,8 +3878,7 @@
     "audio.sfx.weapon.equip-tool.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/weapon/equip-tool.wav",
-        "alternates": { "library": "audio/sfx/library/weapon/equip-tool.ogg" }
+        "path": "audio/sfx/library/weapon/equip-tool.ogg"
       },
       "runtime": { "textureKey": "sfx-weapon-equip-tool-1" },
       "tags": ["audio", "sfx", "weapon"],
@@ -4020,8 +3888,7 @@
     "audio.sfx.player.hurt.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/player/hurt-1.wav",
-        "alternates": { "library": "audio/sfx/library/player/hurt-1.ogg" }
+        "path": "audio/sfx/library/player/hurt-1.ogg"
       },
       "runtime": { "textureKey": "sfx-player-hurt-1" },
       "tags": ["audio", "sfx", "player"],
@@ -4031,8 +3898,7 @@
     "audio.sfx.player.hurt.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/player/hurt-2.wav",
-        "alternates": { "library": "audio/sfx/library/player/hurt-2.ogg" }
+        "path": "audio/sfx/library/player/hurt-2.ogg"
       },
       "runtime": { "textureKey": "sfx-player-hurt-2" },
       "tags": ["audio", "sfx", "player"],
@@ -4042,8 +3908,7 @@
     "audio.sfx.player.hurt.3": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/player/hurt-3.wav",
-        "alternates": { "library": "audio/sfx/library/player/hurt-3.ogg" }
+        "path": "audio/sfx/library/player/hurt-3.ogg"
       },
       "runtime": { "textureKey": "sfx-player-hurt-3" },
       "tags": ["audio", "sfx", "player"],
@@ -4053,8 +3918,7 @@
     "audio.sfx.player.death.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/player/death.wav",
-        "alternates": { "library": "audio/sfx/library/player/death.ogg" }
+        "path": "audio/sfx/synth/player/death.wav"
       },
       "runtime": { "textureKey": "sfx-player-death-1" },
       "tags": ["audio", "sfx", "player"],
@@ -4064,8 +3928,7 @@
     "audio.sfx.player.respawn.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/player/respawn.wav",
-        "alternates": { "library": "audio/sfx/library/player/respawn.ogg" }
+        "path": "audio/sfx/synth/player/respawn.wav"
       },
       "runtime": { "textureKey": "sfx-player-respawn-1" },
       "tags": ["audio", "sfx", "player"],
@@ -4075,8 +3938,7 @@
     "audio.sfx.player.dodge.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/player/dodge-1.wav",
-        "alternates": { "library": "audio/sfx/library/player/dodge-1.wav" }
+        "path": "audio/sfx/synth/player/dodge-1.wav"
       },
       "runtime": { "textureKey": "sfx-player-dodge-1" },
       "tags": ["audio", "sfx", "player"],
@@ -4086,8 +3948,7 @@
     "audio.sfx.player.dodge.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/player/dodge-2.wav",
-        "alternates": { "library": "audio/sfx/library/player/dodge-2.wav" }
+        "path": "audio/sfx/synth/player/dodge-2.wav"
       },
       "runtime": { "textureKey": "sfx-player-dodge-2" },
       "tags": ["audio", "sfx", "player"],
@@ -4097,8 +3958,7 @@
     "audio.sfx.player.jump.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/player/jump-1.wav",
-        "alternates": { "library": "audio/sfx/library/player/jump-1.ogg" }
+        "path": "audio/sfx/synth/player/jump-1.wav"
       },
       "runtime": { "textureKey": "sfx-player-jump-1" },
       "tags": ["audio", "sfx", "player"],
@@ -4108,8 +3968,7 @@
     "audio.sfx.player.jump.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/player/jump-2.wav",
-        "alternates": { "library": "audio/sfx/library/player/jump-2.ogg" }
+        "path": "audio/sfx/synth/player/jump-2.wav"
       },
       "runtime": { "textureKey": "sfx-player-jump-2" },
       "tags": ["audio", "sfx", "player"],
@@ -4119,8 +3978,7 @@
     "audio.sfx.player.land.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/player/land-1.wav",
-        "alternates": { "library": "audio/sfx/library/player/land-1.ogg" }
+        "path": "audio/sfx/library/player/land-1.ogg"
       },
       "runtime": { "textureKey": "sfx-player-land-1" },
       "tags": ["audio", "sfx", "player"],
@@ -4130,8 +3988,7 @@
     "audio.sfx.player.land.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/player/land-2.wav",
-        "alternates": { "library": "audio/sfx/library/player/land-2.ogg" }
+        "path": "audio/sfx/library/player/land-2.ogg"
       },
       "runtime": { "textureKey": "sfx-player-land-2" },
       "tags": ["audio", "sfx", "player"],
@@ -4141,8 +3998,7 @@
     "audio.sfx.player.slam-windup.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/player/slam-windup.wav",
-        "alternates": { "library": "audio/sfx/library/player/slam-windup.ogg" }
+        "path": "audio/sfx/library/player/slam-windup.ogg"
       },
       "runtime": { "textureKey": "sfx-player-slam-windup-1" },
       "tags": ["audio", "sfx", "player"],
@@ -4152,8 +4008,7 @@
     "audio.sfx.player.slam-impact.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/player/slam-impact.wav",
-        "alternates": { "library": "audio/sfx/library/player/slam-impact.ogg" }
+        "path": "audio/sfx/synth/player/slam-impact.wav"
       },
       "runtime": { "textureKey": "sfx-player-slam-impact-1" },
       "tags": ["audio", "sfx", "player"],
@@ -4163,8 +4018,7 @@
     "audio.sfx.player.lash.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/player/lash-1.wav",
-        "alternates": { "library": "audio/sfx/library/player/lash-1.wav" }
+        "path": "audio/sfx/synth/player/lash-1.wav"
       },
       "runtime": { "textureKey": "sfx-player-lash-1" },
       "tags": ["audio", "sfx", "player"],
@@ -4174,8 +4028,7 @@
     "audio.sfx.player.lash.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/player/lash-2.wav",
-        "alternates": { "library": "audio/sfx/library/player/lash-2.wav" }
+        "path": "audio/sfx/synth/player/lash-2.wav"
       },
       "runtime": { "textureKey": "sfx-player-lash-2" },
       "tags": ["audio", "sfx", "player"],
@@ -4185,8 +4038,7 @@
     "audio.sfx.player.teleport-out.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/player/teleport-out.wav",
-        "alternates": { "library": "audio/sfx/library/player/teleport-out.ogg" }
+        "path": "audio/sfx/library/player/teleport-out.ogg"
       },
       "runtime": { "textureKey": "sfx-player-teleport-out-1" },
       "tags": ["audio", "sfx", "player"],
@@ -4196,8 +4048,7 @@
     "audio.sfx.player.teleport-in.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/player/teleport-in.wav",
-        "alternates": { "library": "audio/sfx/library/player/teleport-in.ogg" }
+        "path": "audio/sfx/library/player/teleport-in.ogg"
       },
       "runtime": { "textureKey": "sfx-player-teleport-in-1" },
       "tags": ["audio", "sfx", "player"],
@@ -4207,8 +4058,7 @@
     "audio.sfx.player.eat.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/player/eat-1.wav",
-        "alternates": { "library": "audio/sfx/library/player/eat-1.ogg" }
+        "path": "audio/sfx/library/player/eat-1.ogg"
       },
       "runtime": { "textureKey": "sfx-player-eat-1" },
       "tags": ["audio", "sfx", "player"],
@@ -4218,8 +4068,7 @@
     "audio.sfx.player.eat.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/player/eat-2.wav",
-        "alternates": { "library": "audio/sfx/library/player/eat-2.ogg" }
+        "path": "audio/sfx/library/player/eat-2.ogg"
       },
       "runtime": { "textureKey": "sfx-player-eat-2" },
       "tags": ["audio", "sfx", "player"],
@@ -4229,8 +4078,7 @@
     "audio.sfx.player.heal.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/player/heal.wav",
-        "alternates": { "library": "audio/sfx/library/player/heal.ogg" }
+        "path": "audio/sfx/synth/player/heal.wav"
       },
       "runtime": { "textureKey": "sfx-player-heal-1" },
       "tags": ["audio", "sfx", "player"],
@@ -4240,8 +4088,7 @@
     "audio.sfx.player.potion-drink.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/player/potion-drink.wav",
-        "alternates": { "library": "audio/sfx/library/player/potion-drink.ogg" }
+        "path": "audio/sfx/synth/player/potion-drink.wav"
       },
       "runtime": { "textureKey": "sfx-player-potion-drink-1" },
       "tags": ["audio", "sfx", "player"],
@@ -4251,8 +4098,7 @@
     "audio.sfx.player.energy-restore.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/player/energy-restore.wav",
-        "alternates": { "library": "audio/sfx/library/player/energy-restore.ogg" }
+        "path": "audio/sfx/library/player/energy-restore.ogg"
       },
       "runtime": { "textureKey": "sfx-player-energy-restore-1" },
       "tags": ["audio", "sfx", "player"],
@@ -4262,8 +4108,7 @@
     "audio.sfx.player.ability-learned.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/player/ability-learned.wav",
-        "alternates": { "library": "audio/sfx/library/player/ability-learned.ogg" }
+        "path": "audio/sfx/synth/player/ability-learned.wav"
       },
       "runtime": { "textureKey": "sfx-player-ability-learned-1" },
       "tags": ["audio", "sfx", "player"],
@@ -4273,8 +4118,7 @@
     "audio.sfx.player.coin.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/player/coin-1.wav",
-        "alternates": { "library": "audio/sfx/library/player/coin-1.ogg" }
+        "path": "audio/sfx/library/player/coin-1.ogg"
       },
       "runtime": { "textureKey": "sfx-player-coin-1" },
       "tags": ["audio", "sfx", "player"],
@@ -4284,8 +4128,7 @@
     "audio.sfx.player.coin.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/player/coin-2.wav",
-        "alternates": { "library": "audio/sfx/library/player/coin-2.ogg" }
+        "path": "audio/sfx/library/player/coin-2.ogg"
       },
       "runtime": { "textureKey": "sfx-player-coin-2" },
       "tags": ["audio", "sfx", "player"],
@@ -4295,7 +4138,7 @@
     "audio.sfx.player.sleep-breath.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/player/sleep-breath.wav"
+        "path": "audio/sfx/library/player/sleep-breath.wav"
       },
       "runtime": { "textureKey": "sfx-player-sleep-breath-1" },
       "tags": ["audio", "sfx", "player"],
@@ -4315,8 +4158,7 @@
     "audio.sfx.player.web-struggle.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/player/web-struggle.wav",
-        "alternates": { "library": "audio/sfx/library/player/web-struggle.ogg" }
+        "path": "audio/sfx/library/player/web-struggle.ogg"
       },
       "runtime": { "textureKey": "sfx-player-web-struggle-1" },
       "tags": ["audio", "sfx", "player"],
@@ -4326,8 +4168,7 @@
     "audio.sfx.footstep.grass.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/footstep/grass-1.wav",
-        "alternates": { "library": "audio/sfx/library/footstep/grass-1.ogg" }
+        "path": "audio/sfx/library/footstep/grass-1.wav"
       },
       "runtime": { "textureKey": "sfx-footstep-grass-1" },
       "tags": ["audio", "sfx", "footstep"],
@@ -4337,8 +4178,7 @@
     "audio.sfx.footstep.grass.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/footstep/grass-2.wav",
-        "alternates": { "library": "audio/sfx/library/footstep/grass-2.ogg" }
+        "path": "audio/sfx/library/footstep/grass-2.wav"
       },
       "runtime": { "textureKey": "sfx-footstep-grass-2" },
       "tags": ["audio", "sfx", "footstep"],
@@ -4348,8 +4188,7 @@
     "audio.sfx.footstep.grass.3": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/footstep/grass-3.wav",
-        "alternates": { "library": "audio/sfx/library/footstep/grass-3.ogg" }
+        "path": "audio/sfx/library/footstep/grass-3.wav"
       },
       "runtime": { "textureKey": "sfx-footstep-grass-3" },
       "tags": ["audio", "sfx", "footstep"],
@@ -4359,8 +4198,7 @@
     "audio.sfx.footstep.forest.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/footstep/forest-1.wav",
-        "alternates": { "library": "audio/sfx/library/footstep/forest-1.ogg" }
+        "path": "audio/sfx/library/footstep/forest-1.wav"
       },
       "runtime": { "textureKey": "sfx-footstep-forest-1" },
       "tags": ["audio", "sfx", "footstep"],
@@ -4370,8 +4208,7 @@
     "audio.sfx.footstep.forest.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/footstep/forest-2.wav",
-        "alternates": { "library": "audio/sfx/library/footstep/forest-2.ogg" }
+        "path": "audio/sfx/library/footstep/forest-2.wav"
       },
       "runtime": { "textureKey": "sfx-footstep-forest-2" },
       "tags": ["audio", "sfx", "footstep"],
@@ -4381,8 +4218,7 @@
     "audio.sfx.footstep.forest.3": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/footstep/forest-3.wav",
-        "alternates": { "library": "audio/sfx/library/footstep/forest-3.ogg" }
+        "path": "audio/sfx/library/footstep/forest-3.wav"
       },
       "runtime": { "textureKey": "sfx-footstep-forest-3" },
       "tags": ["audio", "sfx", "footstep"],
@@ -4392,8 +4228,7 @@
     "audio.sfx.footstep.stone.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/footstep/stone-1.wav",
-        "alternates": { "library": "audio/sfx/library/footstep/stone-1.ogg" }
+        "path": "audio/sfx/library/footstep/stone-1.wav"
       },
       "runtime": { "textureKey": "sfx-footstep-stone-1" },
       "tags": ["audio", "sfx", "footstep"],
@@ -4403,8 +4238,7 @@
     "audio.sfx.footstep.stone.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/footstep/stone-2.wav",
-        "alternates": { "library": "audio/sfx/library/footstep/stone-2.ogg" }
+        "path": "audio/sfx/library/footstep/stone-2.wav"
       },
       "runtime": { "textureKey": "sfx-footstep-stone-2" },
       "tags": ["audio", "sfx", "footstep"],
@@ -4414,8 +4248,7 @@
     "audio.sfx.footstep.stone.3": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/footstep/stone-3.wav",
-        "alternates": { "library": "audio/sfx/library/footstep/stone-3.ogg" }
+        "path": "audio/sfx/library/footstep/stone-3.wav"
       },
       "runtime": { "textureKey": "sfx-footstep-stone-3" },
       "tags": ["audio", "sfx", "footstep"],
@@ -4425,8 +4258,7 @@
     "audio.sfx.footstep.snow.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/footstep/snow-1.wav",
-        "alternates": { "library": "audio/sfx/library/footstep/snow-1.ogg" }
+        "path": "audio/sfx/library/footstep/snow-1.wav"
       },
       "runtime": { "textureKey": "sfx-footstep-snow-1" },
       "tags": ["audio", "sfx", "footstep"],
@@ -4436,8 +4268,7 @@
     "audio.sfx.footstep.snow.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/footstep/snow-2.wav",
-        "alternates": { "library": "audio/sfx/library/footstep/snow-2.ogg" }
+        "path": "audio/sfx/library/footstep/snow-2.wav"
       },
       "runtime": { "textureKey": "sfx-footstep-snow-2" },
       "tags": ["audio", "sfx", "footstep"],
@@ -4447,8 +4278,7 @@
     "audio.sfx.footstep.snow.3": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/footstep/snow-3.wav",
-        "alternates": { "library": "audio/sfx/library/footstep/snow-3.ogg" }
+        "path": "audio/sfx/library/footstep/snow-3.wav"
       },
       "runtime": { "textureKey": "sfx-footstep-snow-3" },
       "tags": ["audio", "sfx", "footstep"],
@@ -4458,8 +4288,7 @@
     "audio.sfx.footstep.sand.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/footstep/sand-1.wav",
-        "alternates": { "library": "audio/sfx/library/footstep/sand-1.ogg" }
+        "path": "audio/sfx/library/footstep/sand-1.wav"
       },
       "runtime": { "textureKey": "sfx-footstep-sand-1" },
       "tags": ["audio", "sfx", "footstep"],
@@ -4469,8 +4298,7 @@
     "audio.sfx.footstep.sand.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/footstep/sand-2.wav",
-        "alternates": { "library": "audio/sfx/library/footstep/sand-2.ogg" }
+        "path": "audio/sfx/library/footstep/sand-2.wav"
       },
       "runtime": { "textureKey": "sfx-footstep-sand-2" },
       "tags": ["audio", "sfx", "footstep"],
@@ -4480,8 +4308,7 @@
     "audio.sfx.footstep.sand.3": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/footstep/sand-3.wav",
-        "alternates": { "library": "audio/sfx/library/footstep/sand-3.ogg" }
+        "path": "audio/sfx/library/footstep/sand-3.wav"
       },
       "runtime": { "textureKey": "sfx-footstep-sand-3" },
       "tags": ["audio", "sfx", "footstep"],
@@ -4491,8 +4318,7 @@
     "audio.sfx.footstep.water.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/footstep/water-1.wav",
-        "alternates": { "library": "audio/sfx/library/footstep/water-1.ogg" }
+        "path": "audio/sfx/library/footstep/water-1.ogg"
       },
       "runtime": { "textureKey": "sfx-footstep-water-1" },
       "tags": ["audio", "sfx", "footstep"],
@@ -4502,21 +4328,9 @@
     "audio.sfx.footstep.water.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/footstep/water-2.wav",
-        "alternates": { "library": "audio/sfx/library/footstep/water-2.ogg" }
+        "path": "audio/sfx/library/footstep/water-2.ogg"
       },
       "runtime": { "textureKey": "sfx-footstep-water-2" },
-      "tags": ["audio", "sfx", "footstep"],
-      "status": "draft",
-      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
-    },
-    "audio.sfx.footstep.water.3": {
-      "source": {
-        "kind": "audio",
-        "path": "audio/sfx/synth/footstep/water-3.wav",
-        "alternates": { "library": "audio/sfx/library/footstep/water-3.ogg" }
-      },
-      "runtime": { "textureKey": "sfx-footstep-water-3" },
       "tags": ["audio", "sfx", "footstep"],
       "status": "draft",
       "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
@@ -4524,7 +4338,7 @@
     "audio.sfx.status.burn.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/status/burn.wav"
+        "path": "audio/sfx/library/status/burn.wav"
       },
       "runtime": { "textureKey": "sfx-status-burn-1" },
       "tags": ["audio", "sfx", "status"],
@@ -4534,8 +4348,7 @@
     "audio.sfx.status.poison.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/status/poison.wav",
-        "alternates": { "library": "audio/sfx/library/status/poison.ogg" }
+        "path": "audio/sfx/synth/status/poison.wav"
       },
       "runtime": { "textureKey": "sfx-status-poison-1" },
       "tags": ["audio", "sfx", "status"],
@@ -4545,8 +4358,7 @@
     "audio.sfx.status.slow.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/status/slow.wav",
-        "alternates": { "library": "audio/sfx/library/status/slow.ogg" }
+        "path": "audio/sfx/synth/status/slow.wav"
       },
       "runtime": { "textureKey": "sfx-status-slow-1" },
       "tags": ["audio", "sfx", "status"],
@@ -4556,8 +4368,7 @@
     "audio.sfx.status.sticky.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/status/sticky.wav",
-        "alternates": { "library": "audio/sfx/library/status/sticky.ogg" }
+        "path": "audio/sfx/library/status/sticky.ogg"
       },
       "runtime": { "textureKey": "sfx-status-sticky-1" },
       "tags": ["audio", "sfx", "status"],
@@ -4567,8 +4378,7 @@
     "audio.sfx.status.bouncy.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/status/bouncy.wav",
-        "alternates": { "library": "audio/sfx/library/status/bouncy.ogg" }
+        "path": "audio/sfx/synth/status/bouncy.wav"
       },
       "runtime": { "textureKey": "sfx-status-bouncy-1" },
       "tags": ["audio", "sfx", "status"],
@@ -4578,8 +4388,7 @@
     "audio.sfx.status.frenzy.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/status/frenzy.wav",
-        "alternates": { "library": "audio/sfx/library/status/frenzy.ogg" }
+        "path": "audio/sfx/library/status/frenzy.ogg"
       },
       "runtime": { "textureKey": "sfx-status-frenzy-1" },
       "tags": ["audio", "sfx", "status"],
@@ -4589,8 +4398,7 @@
     "audio.sfx.status.expire.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/status/expire.wav",
-        "alternates": { "library": "audio/sfx/library/status/expire.ogg" }
+        "path": "audio/sfx/library/status/expire.ogg"
       },
       "runtime": { "textureKey": "sfx-status-expire-1" },
       "tags": ["audio", "sfx", "status"],
@@ -4600,8 +4408,7 @@
     "audio.sfx.enemy.worm-hurt.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/enemy/worm-hurt-1.wav",
-        "alternates": { "library": "audio/sfx/library/enemy/worm-hurt-1.ogg" }
+        "path": "audio/sfx/library/enemy/worm-hurt-1.ogg"
       },
       "runtime": { "textureKey": "sfx-enemy-worm-hurt-1" },
       "tags": ["audio", "sfx", "enemy"],
@@ -4611,8 +4418,7 @@
     "audio.sfx.enemy.worm-hurt.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/enemy/worm-hurt-2.wav",
-        "alternates": { "library": "audio/sfx/library/enemy/worm-hurt-2.ogg" }
+        "path": "audio/sfx/library/enemy/worm-hurt-2.ogg"
       },
       "runtime": { "textureKey": "sfx-enemy-worm-hurt-2" },
       "tags": ["audio", "sfx", "enemy"],
@@ -4622,8 +4428,7 @@
     "audio.sfx.enemy.worm-hurt.3": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/enemy/worm-hurt-3.wav",
-        "alternates": { "library": "audio/sfx/library/enemy/worm-hurt-3.ogg" }
+        "path": "audio/sfx/library/enemy/worm-hurt-3.ogg"
       },
       "runtime": { "textureKey": "sfx-enemy-worm-hurt-3" },
       "tags": ["audio", "sfx", "enemy"],
@@ -4633,8 +4438,7 @@
     "audio.sfx.enemy.worm-death.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/enemy/worm-death-1.wav",
-        "alternates": { "library": "audio/sfx/library/enemy/worm-death-1.ogg" }
+        "path": "audio/sfx/library/enemy/worm-death-1.ogg"
       },
       "runtime": { "textureKey": "sfx-enemy-worm-death-1" },
       "tags": ["audio", "sfx", "enemy"],
@@ -4644,8 +4448,7 @@
     "audio.sfx.enemy.worm-death.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/enemy/worm-death-2.wav",
-        "alternates": { "library": "audio/sfx/library/enemy/worm-death-2.ogg" }
+        "path": "audio/sfx/library/enemy/worm-death-2.ogg"
       },
       "runtime": { "textureKey": "sfx-enemy-worm-death-2" },
       "tags": ["audio", "sfx", "enemy"],
@@ -4655,8 +4458,7 @@
     "audio.sfx.enemy.worm-alert.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/enemy/worm-alert.wav",
-        "alternates": { "library": "audio/sfx/library/enemy/worm-alert.ogg" }
+        "path": "audio/sfx/synth/enemy/worm-alert.wav"
       },
       "runtime": { "textureKey": "sfx-enemy-worm-alert-1" },
       "tags": ["audio", "sfx", "enemy"],
@@ -4666,21 +4468,9 @@
     "audio.sfx.enemy.worm-windup.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/enemy/worm-windup-1.wav",
-        "alternates": { "library": "audio/sfx/library/enemy/worm-windup-1.ogg" }
+        "path": "audio/sfx/library/enemy/worm-windup.ogg"
       },
       "runtime": { "textureKey": "sfx-enemy-worm-windup-1" },
-      "tags": ["audio", "sfx", "enemy"],
-      "status": "draft",
-      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
-    },
-    "audio.sfx.enemy.worm-windup.2": {
-      "source": {
-        "kind": "audio",
-        "path": "audio/sfx/synth/enemy/worm-windup-2.wav",
-        "alternates": { "library": "audio/sfx/library/enemy/worm-windup-2.ogg" }
-      },
-      "runtime": { "textureKey": "sfx-enemy-worm-windup-2" },
       "tags": ["audio", "sfx", "enemy"],
       "status": "draft",
       "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."
@@ -4688,8 +4478,7 @@
     "audio.sfx.enemy.bow-draw.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/enemy/bow-draw.wav",
-        "alternates": { "library": "audio/sfx/library/enemy/bow-draw.ogg" }
+        "path": "audio/sfx/library/enemy/bow-draw.wav"
       },
       "runtime": { "textureKey": "sfx-enemy-bow-draw-1" },
       "tags": ["audio", "sfx", "enemy"],
@@ -4699,8 +4488,7 @@
     "audio.sfx.enemy.arrow-release.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/enemy/arrow-release-1.wav",
-        "alternates": { "library": "audio/sfx/library/enemy/arrow-release-1.wav" }
+        "path": "audio/sfx/library/enemy/arrow-release-1.wav"
       },
       "runtime": { "textureKey": "sfx-enemy-arrow-release-1" },
       "tags": ["audio", "sfx", "enemy"],
@@ -4710,8 +4498,7 @@
     "audio.sfx.enemy.arrow-release.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/enemy/arrow-release-2.wav",
-        "alternates": { "library": "audio/sfx/library/enemy/arrow-release-2.wav" }
+        "path": "audio/sfx/library/enemy/arrow-release-2.wav"
       },
       "runtime": { "textureKey": "sfx-enemy-arrow-release-2" },
       "tags": ["audio", "sfx", "enemy"],
@@ -4721,8 +4508,7 @@
     "audio.sfx.enemy.arrow-hit.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/enemy/arrow-hit-1.wav",
-        "alternates": { "library": "audio/sfx/library/enemy/arrow-hit-1.ogg" }
+        "path": "audio/sfx/library/enemy/arrow-hit-1.wav"
       },
       "runtime": { "textureKey": "sfx-enemy-arrow-hit-1" },
       "tags": ["audio", "sfx", "enemy"],
@@ -4732,8 +4518,7 @@
     "audio.sfx.enemy.arrow-hit.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/enemy/arrow-hit-2.wav",
-        "alternates": { "library": "audio/sfx/library/enemy/arrow-hit-2.ogg" }
+        "path": "audio/sfx/library/enemy/arrow-hit-2.wav"
       },
       "runtime": { "textureKey": "sfx-enemy-arrow-hit-2" },
       "tags": ["audio", "sfx", "enemy"],
@@ -4743,8 +4528,7 @@
     "audio.sfx.enemy.arrow-thunk.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/enemy/arrow-thunk-1.wav",
-        "alternates": { "library": "audio/sfx/library/enemy/arrow-thunk-1.ogg" }
+        "path": "audio/sfx/library/enemy/arrow-thunk-1.ogg"
       },
       "runtime": { "textureKey": "sfx-enemy-arrow-thunk-1" },
       "tags": ["audio", "sfx", "enemy"],
@@ -4754,8 +4538,7 @@
     "audio.sfx.enemy.arrow-thunk.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/enemy/arrow-thunk-2.wav",
-        "alternates": { "library": "audio/sfx/library/enemy/arrow-thunk-2.ogg" }
+        "path": "audio/sfx/library/enemy/arrow-thunk-2.ogg"
       },
       "runtime": { "textureKey": "sfx-enemy-arrow-thunk-2" },
       "tags": ["audio", "sfx", "enemy"],
@@ -4765,8 +4548,7 @@
     "audio.sfx.enemy.spider-hurt.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/enemy/spider-hurt-1.wav",
-        "alternates": { "library": "audio/sfx/library/enemy/spider-hurt-1.ogg" }
+        "path": "audio/sfx/library/enemy/spider-hurt-1.ogg"
       },
       "runtime": { "textureKey": "sfx-enemy-spider-hurt-1" },
       "tags": ["audio", "sfx", "enemy"],
@@ -4776,8 +4558,7 @@
     "audio.sfx.enemy.spider-hurt.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/enemy/spider-hurt-2.wav",
-        "alternates": { "library": "audio/sfx/library/enemy/spider-hurt-2.ogg" }
+        "path": "audio/sfx/library/enemy/spider-hurt-2.ogg"
       },
       "runtime": { "textureKey": "sfx-enemy-spider-hurt-2" },
       "tags": ["audio", "sfx", "enemy"],
@@ -4787,8 +4568,7 @@
     "audio.sfx.enemy.spider-death.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/enemy/spider-death.wav",
-        "alternates": { "library": "audio/sfx/library/enemy/spider-death.ogg" }
+        "path": "audio/sfx/library/enemy/spider-death.wav"
       },
       "runtime": { "textureKey": "sfx-enemy-spider-death-1" },
       "tags": ["audio", "sfx", "enemy"],
@@ -4798,8 +4578,7 @@
     "audio.sfx.enemy.spider-hiss.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/enemy/spider-hiss.wav",
-        "alternates": { "library": "audio/sfx/library/enemy/spider-hiss.ogg" }
+        "path": "audio/sfx/synth/enemy/spider-hiss.wav"
       },
       "runtime": { "textureKey": "sfx-enemy-spider-hiss-1" },
       "tags": ["audio", "sfx", "enemy"],
@@ -4809,8 +4588,7 @@
     "audio.sfx.enemy.web-spit.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/enemy/web-spit-1.wav",
-        "alternates": { "library": "audio/sfx/library/enemy/web-spit-1.ogg" }
+        "path": "audio/sfx/library/enemy/web-spit-1.ogg"
       },
       "runtime": { "textureKey": "sfx-enemy-web-spit-1" },
       "tags": ["audio", "sfx", "enemy"],
@@ -4820,8 +4598,7 @@
     "audio.sfx.enemy.web-spit.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/enemy/web-spit-2.wav",
-        "alternates": { "library": "audio/sfx/library/enemy/web-spit-2.ogg" }
+        "path": "audio/sfx/library/enemy/web-spit-2.ogg"
       },
       "runtime": { "textureKey": "sfx-enemy-web-spit-2" },
       "tags": ["audio", "sfx", "enemy"],
@@ -4831,8 +4608,7 @@
     "audio.sfx.enemy.web-splat.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/enemy/web-splat-1.wav",
-        "alternates": { "library": "audio/sfx/library/enemy/web-splat-1.ogg" }
+        "path": "audio/sfx/library/enemy/web-splat-1.wav"
       },
       "runtime": { "textureKey": "sfx-enemy-web-splat-1" },
       "tags": ["audio", "sfx", "enemy"],
@@ -4842,8 +4618,7 @@
     "audio.sfx.enemy.web-splat.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/enemy/web-splat-2.wav",
-        "alternates": { "library": "audio/sfx/library/enemy/web-splat-2.ogg" }
+        "path": "audio/sfx/library/enemy/web-splat-2.wav"
       },
       "runtime": { "textureKey": "sfx-enemy-web-splat-2" },
       "tags": ["audio", "sfx", "enemy"],
@@ -4853,8 +4628,7 @@
     "audio.sfx.enemy.telegraph.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/enemy/telegraph.wav",
-        "alternates": { "library": "audio/sfx/library/enemy/telegraph.ogg" }
+        "path": "audio/sfx/synth/enemy/telegraph.wav"
       },
       "runtime": { "textureKey": "sfx-enemy-telegraph-1" },
       "tags": ["audio", "sfx", "enemy"],
@@ -4864,8 +4638,7 @@
     "audio.sfx.boss.fatty-roar.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/boss/fatty-roar.wav",
-        "alternates": { "library": "audio/sfx/library/boss/fatty-roar.ogg" }
+        "path": "audio/sfx/library/boss/fatty-roar.ogg"
       },
       "runtime": { "textureKey": "sfx-boss-fatty-roar-1" },
       "tags": ["audio", "sfx", "boss"],
@@ -4875,8 +4648,7 @@
     "audio.sfx.boss.fatty-step.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/boss/fatty-step-1.wav",
-        "alternates": { "library": "audio/sfx/library/boss/fatty-step-1.ogg" }
+        "path": "audio/sfx/library/boss/fatty-step-1.ogg"
       },
       "runtime": { "textureKey": "sfx-boss-fatty-step-1" },
       "tags": ["audio", "sfx", "boss"],
@@ -4886,8 +4658,7 @@
     "audio.sfx.boss.fatty-step.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/boss/fatty-step-2.wav",
-        "alternates": { "library": "audio/sfx/library/boss/fatty-step-2.ogg" }
+        "path": "audio/sfx/library/boss/fatty-step-2.ogg"
       },
       "runtime": { "textureKey": "sfx-boss-fatty-step-2" },
       "tags": ["audio", "sfx", "boss"],
@@ -4897,8 +4668,7 @@
     "audio.sfx.boss.fatty-hop.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/boss/fatty-hop-1.wav",
-        "alternates": { "library": "audio/sfx/library/boss/fatty-hop-1.ogg" }
+        "path": "audio/sfx/library/boss/fatty-hop-1.ogg"
       },
       "runtime": { "textureKey": "sfx-boss-fatty-hop-1" },
       "tags": ["audio", "sfx", "boss"],
@@ -4908,8 +4678,7 @@
     "audio.sfx.boss.fatty-hop.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/boss/fatty-hop-2.wav",
-        "alternates": { "library": "audio/sfx/library/boss/fatty-hop-2.ogg" }
+        "path": "audio/sfx/library/boss/fatty-hop-2.ogg"
       },
       "runtime": { "textureKey": "sfx-boss-fatty-hop-2" },
       "tags": ["audio", "sfx", "boss"],
@@ -4919,8 +4688,7 @@
     "audio.sfx.boss.fatty-leap.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/boss/fatty-leap.wav",
-        "alternates": { "library": "audio/sfx/library/boss/fatty-leap.ogg" }
+        "path": "audio/sfx/library/boss/fatty-leap.wav"
       },
       "runtime": { "textureKey": "sfx-boss-fatty-leap-1" },
       "tags": ["audio", "sfx", "boss"],
@@ -4940,8 +4708,7 @@
     "audio.sfx.boss.fatty-land.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/boss/fatty-land.wav",
-        "alternates": { "library": "audio/sfx/library/boss/fatty-land.ogg" }
+        "path": "audio/sfx/library/boss/fatty-land.wav"
       },
       "runtime": { "textureKey": "sfx-boss-fatty-land-1" },
       "tags": ["audio", "sfx", "boss"],
@@ -4951,8 +4718,7 @@
     "audio.sfx.boss.fatty-hurt.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/boss/fatty-hurt-1.wav",
-        "alternates": { "library": "audio/sfx/library/boss/fatty-hurt-1.ogg" }
+        "path": "audio/sfx/library/boss/fatty-hurt-1.ogg"
       },
       "runtime": { "textureKey": "sfx-boss-fatty-hurt-1" },
       "tags": ["audio", "sfx", "boss"],
@@ -4962,8 +4728,7 @@
     "audio.sfx.boss.fatty-hurt.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/boss/fatty-hurt-2.wav",
-        "alternates": { "library": "audio/sfx/library/boss/fatty-hurt-2.ogg" }
+        "path": "audio/sfx/library/boss/fatty-hurt-2.ogg"
       },
       "runtime": { "textureKey": "sfx-boss-fatty-hurt-2" },
       "tags": ["audio", "sfx", "boss"],
@@ -4973,8 +4738,7 @@
     "audio.sfx.boss.fatty-recover.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/boss/fatty-recover.wav",
-        "alternates": { "library": "audio/sfx/library/boss/fatty-recover.ogg" }
+        "path": "audio/sfx/library/boss/fatty-recover.wav"
       },
       "runtime": { "textureKey": "sfx-boss-fatty-recover-1" },
       "tags": ["audio", "sfx", "boss"],
@@ -4984,8 +4748,7 @@
     "audio.sfx.boss.fatty-death.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/boss/fatty-death.wav",
-        "alternates": { "library": "audio/sfx/library/boss/fatty-death.ogg" }
+        "path": "audio/sfx/library/boss/fatty-death.wav"
       },
       "runtime": { "textureKey": "sfx-boss-fatty-death-1" },
       "tags": ["audio", "sfx", "boss"],
@@ -4995,8 +4758,7 @@
     "audio.sfx.boss.victory.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/boss/victory.wav",
-        "alternates": { "library": "audio/sfx/library/boss/victory.ogg" }
+        "path": "audio/sfx/synth/boss/victory.wav"
       },
       "runtime": { "textureKey": "sfx-boss-victory-1" },
       "tags": ["audio", "sfx", "boss"],
@@ -5006,8 +4768,7 @@
     "audio.sfx.resource.leaf-rustle.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/resource/leaf-rustle-1.wav",
-        "alternates": { "library": "audio/sfx/library/resource/leaf-rustle-1.ogg" }
+        "path": "audio/sfx/synth/resource/leaf-rustle-1.wav"
       },
       "runtime": { "textureKey": "sfx-resource-leaf-rustle-1" },
       "tags": ["audio", "sfx", "resource"],
@@ -5017,8 +4778,7 @@
     "audio.sfx.resource.leaf-rustle.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/resource/leaf-rustle-2.wav",
-        "alternates": { "library": "audio/sfx/library/resource/leaf-rustle-2.ogg" }
+        "path": "audio/sfx/synth/resource/leaf-rustle-2.wav"
       },
       "runtime": { "textureKey": "sfx-resource-leaf-rustle-2" },
       "tags": ["audio", "sfx", "resource"],
@@ -5028,8 +4788,7 @@
     "audio.sfx.resource.tree-fall.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/resource/tree-fall.wav",
-        "alternates": { "library": "audio/sfx/library/resource/tree-fall.ogg" }
+        "path": "audio/sfx/synth/resource/tree-fall.wav"
       },
       "runtime": { "textureKey": "sfx-resource-tree-fall-1" },
       "tags": ["audio", "sfx", "resource"],
@@ -5039,8 +4798,7 @@
     "audio.sfx.resource.stone-crumble.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/resource/stone-crumble.wav",
-        "alternates": { "library": "audio/sfx/library/resource/stone-crumble.ogg" }
+        "path": "audio/sfx/library/resource/stone-crumble.ogg"
       },
       "runtime": { "textureKey": "sfx-resource-stone-crumble-1" },
       "tags": ["audio", "sfx", "resource"],
@@ -5050,8 +4808,7 @@
     "audio.sfx.resource.ore-clink.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/resource/ore-clink-1.wav",
-        "alternates": { "library": "audio/sfx/library/resource/ore-clink-1.ogg" }
+        "path": "audio/sfx/synth/resource/ore-clink-1.wav"
       },
       "runtime": { "textureKey": "sfx-resource-ore-clink-1" },
       "tags": ["audio", "sfx", "resource"],
@@ -5061,8 +4818,7 @@
     "audio.sfx.resource.ore-clink.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/resource/ore-clink-2.wav",
-        "alternates": { "library": "audio/sfx/library/resource/ore-clink-2.ogg" }
+        "path": "audio/sfx/synth/resource/ore-clink-2.wav"
       },
       "runtime": { "textureKey": "sfx-resource-ore-clink-2" },
       "tags": ["audio", "sfx", "resource"],
@@ -5072,8 +4828,7 @@
     "audio.sfx.resource.ore-clink.3": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/resource/ore-clink-3.wav",
-        "alternates": { "library": "audio/sfx/library/resource/ore-clink-3.ogg" }
+        "path": "audio/sfx/synth/resource/ore-clink-3.wav"
       },
       "runtime": { "textureKey": "sfx-resource-ore-clink-3" },
       "tags": ["audio", "sfx", "resource"],
@@ -5083,8 +4838,7 @@
     "audio.sfx.resource.ore-shatter.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/resource/ore-shatter.wav",
-        "alternates": { "library": "audio/sfx/library/resource/ore-shatter.ogg" }
+        "path": "audio/sfx/library/resource/ore-shatter.wav"
       },
       "runtime": { "textureKey": "sfx-resource-ore-shatter-1" },
       "tags": ["audio", "sfx", "resource"],
@@ -5094,8 +4848,7 @@
     "audio.sfx.resource.wrong-tool.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/resource/wrong-tool-1.wav",
-        "alternates": { "library": "audio/sfx/library/resource/wrong-tool-1.ogg" }
+        "path": "audio/sfx/synth/resource/wrong-tool-1.wav"
       },
       "runtime": { "textureKey": "sfx-resource-wrong-tool-1" },
       "tags": ["audio", "sfx", "resource"],
@@ -5105,8 +4858,7 @@
     "audio.sfx.resource.wrong-tool.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/resource/wrong-tool-2.wav",
-        "alternates": { "library": "audio/sfx/library/resource/wrong-tool-2.ogg" }
+        "path": "audio/sfx/synth/resource/wrong-tool-2.wav"
       },
       "runtime": { "textureKey": "sfx-resource-wrong-tool-2" },
       "tags": ["audio", "sfx", "resource"],
@@ -5116,8 +4868,7 @@
     "audio.sfx.resource.drop-pop.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/resource/drop-pop-1.wav",
-        "alternates": { "library": "audio/sfx/library/resource/drop-pop-1.ogg" }
+        "path": "audio/sfx/synth/resource/drop-pop-1.wav"
       },
       "runtime": { "textureKey": "sfx-resource-drop-pop-1" },
       "tags": ["audio", "sfx", "resource"],
@@ -5127,8 +4878,7 @@
     "audio.sfx.resource.drop-pop.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/resource/drop-pop-2.wav",
-        "alternates": { "library": "audio/sfx/library/resource/drop-pop-2.ogg" }
+        "path": "audio/sfx/synth/resource/drop-pop-2.wav"
       },
       "runtime": { "textureKey": "sfx-resource-drop-pop-2" },
       "tags": ["audio", "sfx", "resource"],
@@ -5138,8 +4888,7 @@
     "audio.sfx.resource.drop-land.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/resource/drop-land-1.wav",
-        "alternates": { "library": "audio/sfx/library/resource/drop-land-1.ogg" }
+        "path": "audio/sfx/synth/resource/drop-land-1.wav"
       },
       "runtime": { "textureKey": "sfx-resource-drop-land-1" },
       "tags": ["audio", "sfx", "resource"],
@@ -5149,8 +4898,7 @@
     "audio.sfx.resource.drop-land.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/resource/drop-land-2.wav",
-        "alternates": { "library": "audio/sfx/library/resource/drop-land-2.ogg" }
+        "path": "audio/sfx/synth/resource/drop-land-2.wav"
       },
       "runtime": { "textureKey": "sfx-resource-drop-land-2" },
       "tags": ["audio", "sfx", "resource"],
@@ -5160,8 +4908,7 @@
     "audio.sfx.pickup.wood.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/pickup/wood.wav",
-        "alternates": { "library": "audio/sfx/library/pickup/wood.ogg" }
+        "path": "audio/sfx/library/pickup/wood.ogg"
       },
       "runtime": { "textureKey": "sfx-pickup-wood-1" },
       "tags": ["audio", "sfx", "pickup"],
@@ -5171,8 +4918,7 @@
     "audio.sfx.pickup.stone.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/pickup/stone.wav",
-        "alternates": { "library": "audio/sfx/library/pickup/stone.ogg" }
+        "path": "audio/sfx/library/pickup/stone.wav"
       },
       "runtime": { "textureKey": "sfx-pickup-stone-1" },
       "tags": ["audio", "sfx", "pickup"],
@@ -5182,8 +4928,7 @@
     "audio.sfx.pickup.ore.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/pickup/ore.wav",
-        "alternates": { "library": "audio/sfx/library/pickup/ore.ogg" }
+        "path": "audio/sfx/library/pickup/ore.wav"
       },
       "runtime": { "textureKey": "sfx-pickup-ore-1" },
       "tags": ["audio", "sfx", "pickup"],
@@ -5193,8 +4938,7 @@
     "audio.sfx.pickup.silk.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/pickup/silk.wav",
-        "alternates": { "library": "audio/sfx/library/pickup/silk.ogg" }
+        "path": "audio/sfx/library/pickup/silk.ogg"
       },
       "runtime": { "textureKey": "sfx-pickup-silk-1" },
       "tags": ["audio", "sfx", "pickup"],
@@ -5204,8 +4948,7 @@
     "audio.sfx.pickup.berry.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/pickup/berry.wav",
-        "alternates": { "library": "audio/sfx/library/pickup/berry.ogg" }
+        "path": "audio/sfx/synth/pickup/berry.wav"
       },
       "runtime": { "textureKey": "sfx-pickup-berry-1" },
       "tags": ["audio", "sfx", "pickup"],
@@ -5215,8 +4958,7 @@
     "audio.sfx.pickup.potion.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/pickup/potion.wav",
-        "alternates": { "library": "audio/sfx/library/pickup/potion.ogg" }
+        "path": "audio/sfx/library/pickup/potion.ogg"
       },
       "runtime": { "textureKey": "sfx-pickup-potion-1" },
       "tags": ["audio", "sfx", "pickup"],
@@ -5226,8 +4968,7 @@
     "audio.sfx.pickup.key.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/pickup/key.wav",
-        "alternates": { "library": "audio/sfx/library/pickup/key.ogg" }
+        "path": "audio/sfx/library/pickup/key.ogg"
       },
       "runtime": { "textureKey": "sfx-pickup-key-1" },
       "tags": ["audio", "sfx", "pickup"],
@@ -5237,8 +4978,7 @@
     "audio.sfx.pickup.generic.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/pickup/generic.wav",
-        "alternates": { "library": "audio/sfx/library/pickup/generic.ogg" }
+        "path": "audio/sfx/library/pickup/generic.ogg"
       },
       "runtime": { "textureKey": "sfx-pickup-generic-1" },
       "tags": ["audio", "sfx", "pickup"],
@@ -5248,8 +4988,7 @@
     "audio.sfx.pickup.inventory-full.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/pickup/inventory-full.wav",
-        "alternates": { "library": "audio/sfx/library/pickup/inventory-full.ogg" }
+        "path": "audio/sfx/synth/pickup/inventory-full.wav"
       },
       "runtime": { "textureKey": "sfx-pickup-inventory-full-1" },
       "tags": ["audio", "sfx", "pickup"],
@@ -5259,8 +4998,7 @@
     "audio.sfx.world.chest-open.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/world/chest-open.wav",
-        "alternates": { "library": "audio/sfx/library/world/chest-open.ogg" }
+        "path": "audio/sfx/library/world/chest-open.ogg"
       },
       "runtime": { "textureKey": "sfx-world-chest-open-1" },
       "tags": ["audio", "sfx", "world"],
@@ -5270,8 +5008,7 @@
     "audio.sfx.world.chest-close.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/world/chest-close.wav",
-        "alternates": { "library": "audio/sfx/library/world/chest-close.ogg" }
+        "path": "audio/sfx/library/world/chest-close.ogg"
       },
       "runtime": { "textureKey": "sfx-world-chest-close-1" },
       "tags": ["audio", "sfx", "world"],
@@ -5281,8 +5018,7 @@
     "audio.sfx.world.chest-locked.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/world/chest-locked.wav",
-        "alternates": { "library": "audio/sfx/library/world/chest-locked.ogg" }
+        "path": "audio/sfx/library/world/chest-locked.ogg"
       },
       "runtime": { "textureKey": "sfx-world-chest-locked-1" },
       "tags": ["audio", "sfx", "world"],
@@ -5292,8 +5028,7 @@
     "audio.sfx.world.gate-locked.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/world/gate-locked.wav",
-        "alternates": { "library": "audio/sfx/library/world/gate-locked.ogg" }
+        "path": "audio/sfx/library/world/gate-locked.ogg"
       },
       "runtime": { "textureKey": "sfx-world-gate-locked-1" },
       "tags": ["audio", "sfx", "world"],
@@ -5303,8 +5038,7 @@
     "audio.sfx.world.gate-unlock.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/world/gate-unlock.wav",
-        "alternates": { "library": "audio/sfx/library/world/gate-unlock.ogg" }
+        "path": "audio/sfx/library/world/gate-unlock.ogg"
       },
       "runtime": { "textureKey": "sfx-world-gate-unlock-1" },
       "tags": ["audio", "sfx", "world"],
@@ -5324,8 +5058,7 @@
     "audio.sfx.world.area-title.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/world/area-title.wav",
-        "alternates": { "library": "audio/sfx/library/world/area-title.ogg" }
+        "path": "audio/sfx/synth/world/area-title.wav"
       },
       "runtime": { "textureKey": "sfx-world-area-title-1" },
       "tags": ["audio", "sfx", "world"],
@@ -5335,8 +5068,7 @@
     "audio.sfx.world.npc-blip.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/world/npc-blip-1.wav",
-        "alternates": { "library": "audio/sfx/library/world/npc-blip-1.ogg" }
+        "path": "audio/sfx/library/world/npc-blip-1.ogg"
       },
       "runtime": { "textureKey": "sfx-world-npc-blip-1" },
       "tags": ["audio", "sfx", "world"],
@@ -5346,8 +5078,7 @@
     "audio.sfx.world.npc-blip.2": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/world/npc-blip-2.wav",
-        "alternates": { "library": "audio/sfx/library/world/npc-blip-2.ogg" }
+        "path": "audio/sfx/library/world/npc-blip-2.ogg"
       },
       "runtime": { "textureKey": "sfx-world-npc-blip-2" },
       "tags": ["audio", "sfx", "world"],
@@ -5357,8 +5088,7 @@
     "audio.sfx.world.npc-blip.3": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/world/npc-blip-3.wav",
-        "alternates": { "library": "audio/sfx/library/world/npc-blip-3.ogg" }
+        "path": "audio/sfx/library/world/npc-blip-3.ogg"
       },
       "runtime": { "textureKey": "sfx-world-npc-blip-3" },
       "tags": ["audio", "sfx", "world"],
@@ -5368,8 +5098,7 @@
     "audio.sfx.world.interact.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/world/interact.wav",
-        "alternates": { "library": "audio/sfx/library/world/interact.ogg" }
+        "path": "audio/sfx/library/world/interact.ogg"
       },
       "runtime": { "textureKey": "sfx-world-interact-1" },
       "tags": ["audio", "sfx", "world"],
@@ -5379,8 +5108,7 @@
     "audio.sfx.world.save.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/world/save.wav",
-        "alternates": { "library": "audio/sfx/library/world/save.ogg" }
+        "path": "audio/sfx/library/world/save.ogg"
       },
       "runtime": { "textureKey": "sfx-world-save-1" },
       "tags": ["audio", "sfx", "world"],
@@ -5390,8 +5118,7 @@
     "audio.sfx.world.restore-building.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/world/restore-building.wav",
-        "alternates": { "library": "audio/sfx/library/world/restore-building.wav" }
+        "path": "audio/sfx/library/world/restore-building.wav"
       },
       "runtime": { "textureKey": "sfx-world-restore-building-1" },
       "tags": ["audio", "sfx", "world"],
@@ -5461,8 +5188,7 @@
     "audio.sfx.ui.hover.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/ui/hover.wav",
-        "alternates": { "library": "audio/sfx/library/ui/hover.ogg" }
+        "path": "audio/sfx/library/ui/hover.ogg"
       },
       "runtime": { "textureKey": "sfx-ui-hover-1" },
       "tags": ["audio", "sfx", "ui"],
@@ -5472,8 +5198,7 @@
     "audio.sfx.ui.click.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/ui/click.wav",
-        "alternates": { "library": "audio/sfx/library/ui/click.ogg" }
+        "path": "audio/sfx/library/ui/click.ogg"
       },
       "runtime": { "textureKey": "sfx-ui-click-1" },
       "tags": ["audio", "sfx", "ui"],
@@ -5483,8 +5208,7 @@
     "audio.sfx.ui.confirm.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/ui/confirm.wav",
-        "alternates": { "library": "audio/sfx/library/ui/confirm.ogg" }
+        "path": "audio/sfx/library/ui/confirm.ogg"
       },
       "runtime": { "textureKey": "sfx-ui-confirm-1" },
       "tags": ["audio", "sfx", "ui"],
@@ -5494,8 +5218,7 @@
     "audio.sfx.ui.cancel.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/ui/cancel.wav",
-        "alternates": { "library": "audio/sfx/library/ui/cancel.ogg" }
+        "path": "audio/sfx/library/ui/cancel.ogg"
       },
       "runtime": { "textureKey": "sfx-ui-cancel-1" },
       "tags": ["audio", "sfx", "ui"],
@@ -5505,8 +5228,7 @@
     "audio.sfx.ui.error.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/ui/error.wav",
-        "alternates": { "library": "audio/sfx/library/ui/error.ogg" }
+        "path": "audio/sfx/synth/ui/error.wav"
       },
       "runtime": { "textureKey": "sfx-ui-error-1" },
       "tags": ["audio", "sfx", "ui"],
@@ -5516,8 +5238,7 @@
     "audio.sfx.ui.open.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/ui/open.wav",
-        "alternates": { "library": "audio/sfx/library/ui/open.ogg" }
+        "path": "audio/sfx/synth/ui/open.wav"
       },
       "runtime": { "textureKey": "sfx-ui-open-1" },
       "tags": ["audio", "sfx", "ui"],
@@ -5527,8 +5248,7 @@
     "audio.sfx.ui.close.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/ui/close.wav",
-        "alternates": { "library": "audio/sfx/library/ui/close.ogg" }
+        "path": "audio/sfx/synth/ui/close.wav"
       },
       "runtime": { "textureKey": "sfx-ui-close-1" },
       "tags": ["audio", "sfx", "ui"],
@@ -5538,8 +5258,7 @@
     "audio.sfx.ui.craft-success.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/ui/craft-success.wav",
-        "alternates": { "library": "audio/sfx/library/ui/craft-success.ogg" }
+        "path": "audio/sfx/library/ui/craft-success.ogg"
       },
       "runtime": { "textureKey": "sfx-ui-craft-success-1" },
       "tags": ["audio", "sfx", "ui"],
@@ -5549,8 +5268,7 @@
     "audio.sfx.ui.craft-fail.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/ui/craft-fail.wav",
-        "alternates": { "library": "audio/sfx/library/ui/craft-fail.ogg" }
+        "path": "audio/sfx/library/ui/craft-fail.ogg"
       },
       "runtime": { "textureKey": "sfx-ui-craft-fail-1" },
       "tags": ["audio", "sfx", "ui"],
@@ -5560,8 +5278,7 @@
     "audio.sfx.ui.quest-accept.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/ui/quest-accept.wav",
-        "alternates": { "library": "audio/sfx/library/ui/quest-accept.ogg" }
+        "path": "audio/sfx/synth/ui/quest-accept.wav"
       },
       "runtime": { "textureKey": "sfx-ui-quest-accept-1" },
       "tags": ["audio", "sfx", "ui"],
@@ -5571,8 +5288,7 @@
     "audio.sfx.ui.quest-progress.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/ui/quest-progress.wav",
-        "alternates": { "library": "audio/sfx/library/ui/quest-progress.ogg" }
+        "path": "audio/sfx/library/ui/quest-progress.ogg"
       },
       "runtime": { "textureKey": "sfx-ui-quest-progress-1" },
       "tags": ["audio", "sfx", "ui"],
@@ -5582,8 +5298,7 @@
     "audio.sfx.ui.quest-complete.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/ui/quest-complete.wav",
-        "alternates": { "library": "audio/sfx/library/ui/quest-complete.ogg" }
+        "path": "audio/sfx/synth/ui/quest-complete.wav"
       },
       "runtime": { "textureKey": "sfx-ui-quest-complete-1" },
       "tags": ["audio", "sfx", "ui"],
@@ -5593,8 +5308,7 @@
     "audio.sfx.ui.quest-failed.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/ui/quest-failed.wav",
-        "alternates": { "library": "audio/sfx/library/ui/quest-failed.ogg" }
+        "path": "audio/sfx/library/ui/quest-failed.ogg"
       },
       "runtime": { "textureKey": "sfx-ui-quest-failed-1" },
       "tags": ["audio", "sfx", "ui"],
@@ -5604,8 +5318,7 @@
     "audio.sfx.ui.hotbar-switch.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/ui/hotbar-switch.wav",
-        "alternates": { "library": "audio/sfx/library/ui/hotbar-switch.ogg" }
+        "path": "audio/sfx/synth/ui/hotbar-switch.wav"
       },
       "runtime": { "textureKey": "sfx-ui-hotbar-switch-1" },
       "tags": ["audio", "sfx", "ui"],
@@ -5615,8 +5328,7 @@
     "audio.sfx.ui.ability-denied.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/ui/ability-denied.wav",
-        "alternates": { "library": "audio/sfx/library/ui/ability-denied.ogg" }
+        "path": "audio/sfx/library/ui/ability-denied.ogg"
       },
       "runtime": { "textureKey": "sfx-ui-ability-denied-1" },
       "tags": ["audio", "sfx", "ui"],
@@ -5626,8 +5338,7 @@
     "audio.sfx.ui.ability-ready.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/ui/ability-ready.wav",
-        "alternates": { "library": "audio/sfx/library/ui/ability-ready.ogg" }
+        "path": "audio/sfx/library/ui/ability-ready.ogg"
       },
       "runtime": { "textureKey": "sfx-ui-ability-ready-1" },
       "tags": ["audio", "sfx", "ui"],
@@ -5637,8 +5348,7 @@
     "audio.sfx.ui.journal-open.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/ui/journal-open.wav",
-        "alternates": { "library": "audio/sfx/library/ui/journal-open.ogg" }
+        "path": "audio/sfx/library/ui/journal-open.ogg"
       },
       "runtime": { "textureKey": "sfx-ui-journal-open-1" },
       "tags": ["audio", "sfx", "ui"],
@@ -5648,8 +5358,7 @@
     "audio.sfx.ui.toast.1": {
       "source": {
         "kind": "audio",
-        "path": "audio/sfx/synth/ui/toast.wav",
-        "alternates": { "library": "audio/sfx/library/ui/toast.ogg" }
+        "path": "audio/sfx/library/ui/toast.ogg"
       },
       "runtime": { "textureKey": "sfx-ui-toast-1" },
       "tags": ["audio", "sfx", "ui"],

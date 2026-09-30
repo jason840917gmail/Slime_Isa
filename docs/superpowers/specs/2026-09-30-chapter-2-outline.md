@@ -156,7 +156,8 @@ above → 8.11 the locked exit and end card.
 3. **Stretch Lash** from Sunny's optional quest, or from the main line (Q2)?
 4. **The Matron**: is a web-volley boss that you cross with the Sticky form
    the direction you want (the guidelines list the boss design as open)?
-5. **Orb-weaver art.** The green orb-weaver sheet is already the Meadow slime
+5. **Orb-weaver art.** (Answered 2026-09-30: use the orb-weaver art for now;
+   built in 8.2 as a larger, darker, tougher variant.) The green orb-weaver sheet is already the Meadow slime
    spider's look (an earlier, deliberate change); the old yellow spider sheet
    (same 8 × 10 layout) is unused. Should the Meadow spider go back to the
    yellow sheet so the orb-weaver is new in Gloop Forest, or should Chapter 2

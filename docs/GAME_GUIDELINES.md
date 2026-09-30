@@ -163,6 +163,11 @@ starter piles and quest rewards keep the chain softlock-free.
 - **The boss model** is Fatty One Eye: a telegraphed signature attack, a boss
   bar, an arena leash, a guarded reward, persisted defeat, and a timed respawn.
   Telegraphs make the dodge a skill, not a stat.
+- Ordinary enemies keep a territory: they notice the slime by sight (walls,
+  houses and trees hide it) or when hit, chase within a leash that shrinks
+  the farther they are from home, search for three seconds where they lost
+  sight of the slime, then walk home and heal. Standing just outside a camp
+  and poking its enemies never works.
 - Fatty One Eye is the finished Chapter 1 boss; his fight does not change.
 - Each boss should teach something: a weapon, a form, or a way to move.
 

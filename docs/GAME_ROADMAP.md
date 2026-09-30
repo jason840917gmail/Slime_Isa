@@ -176,7 +176,17 @@ Interior authoring in Scene Studio (was 4.3) is not a separate task: the next
 interior, the Gloop Forest hut, is built in 8.8 with Scene Studio as it is
 today, and only real blockers get fixed.
 
-### [ ] 3.8 — Pick one sound flavour (was A.4)
+### [x] 3.8 — Pick one sound flavour (was A.4), applied 2026-09-30
+
+- Done: the owner's final picks live in `scripts/audio/picks.json` (79
+  library, 50 synth); `pnpm audio:bake` ships only the picked flavour, the
+  losing takes and the six dropped takes are gone, and the `?sfx` switch and
+  manifest alternates are removed. The 20 cues marked "Neither" got new takes
+  made with Magnific from the owner's descriptions (66 takes, sources in
+  `asset/Originals/audio/magnific/`); the game ships the first ones, and
+  round 2 of the [picker](https://claude.ai/artifact/RDDoJKEVByiJCSsRvzwLHZ)
+  lets the owner drop or replace them. Shipped sound went from about 7.5 MB
+  to 5.6 MB. `assets:check` finds no orphans.
 
 - 2026-09-30: the picker now also offers **Neither** per cue (with a "how
   should it sound?" box, for replacements to make) and a ✕ to drop single
@@ -385,6 +395,20 @@ below exist.
     chest waits at the north rim, and the maze has no enemy spawns, so no
     worm joins his fight (`scripts/maps/build-level-1.mjs`).
   - Credits read "Created by Daniel, Isa and Dany6".
+- Owner feedback, 2026-09-30, and what changed:
+  - A web crossed with the Sticky form could trap a slime whose form wore off
+    on the far side: the web now tears open for good when the Sticky slime
+    pushes through (remembered per placement).
+  - Cracked ground broke too easily: the Heavy form now has to land a jump on
+    it; standing on it only makes it creak, with a hint.
+  - Enemies could be killed from just outside their pursue area, where they
+    stood passive: camp enemies now keep a territory
+    (`enemies/ai/Territory.ts`): sight blocked by walls, houses and trees, a
+    hit always alerts them, a leash (distance from home plus how far the
+    player is out of reach) decides how far they chase, a lost player is
+    searched for 3 s where last seen, and they walk home healing. Played
+    headless: a worm engaged at 150 px in sight, searched then went home when
+    the slime hid behind the ruins, and healed to full after giving up.
 - Open: a second new player.
 
 - Build: two people who have never seen the game play Chapter 1 from the
@@ -403,7 +427,7 @@ and two new players have played Chapter 1 (4.9). The loop works (headless,
 
 **Assets**
 
-- Reuse: `ui-organic-modal-frame`, `ui-map-journal-paper`, the existing UI
+- Reuse: `ui-map-journal-paper`, the existing UI
   sound cues, the player's defeat clip.
 - [~] Game logo: Magnific GPT-2 (`asset/UI/ui-slime-isa-logo.png`,
       `ui.logo.slime-isa`), shown at the top of the title panel; owner to
@@ -748,7 +772,9 @@ it, so a puzzle never depends on what the player carries.
   **Sticky** (`content/gulp/gulpForms.ts`); a `game.spider-web` barrier
   catches a normal slime (stuck for a moment, set back on its side) and lets a
   Sticky one through. The playground's web nook (south-west) hides a chest
-  behind a web, with the cocoon beside it.
+  behind a web, with the cocoon beside it. The Sticky slime tears a web open
+  for good as it passes (owner feedback 2026-09-30), so a form that wears off
+  on the far side never traps it.
 - Quick wheel: W is decided on release. A tap does what it did; holding W for
   a quarter second opens a ring of the carried Gulp materials around the slime
   (`features/gulp/GulpWheel.ts`), starting on the last-used one; the arrow keys
@@ -789,7 +815,9 @@ it, so a puzzle never depends on what the player carries.
 ### [~] 7.4 — Heavy breaks cracked ground into caverns
 
 - Built 2026-09-30 (playground): `object.cracked-ground` is weak ground only
-  the Heavy form breaks (`game.cracked-ground`, by standing on it). It sets a
+  the Heavy form breaks (`game.cracked-ground`): it has to land a jump on it
+  (owner feedback; standing on it only creaks, `requiresLanding` off restores
+  the old rule). It sets a
   story flag, and a story variant (6.1) swaps the cracks for a sinkhole with a
   rope ladder; F climbs down into the dev-only `playground-cavern` (a chest and
   crystal shards), and the cave ladder climbs back up beside the hole.
@@ -844,16 +872,18 @@ materials), 8 (Forge), and 13 (progression pass).
   on the stubbed quests. If Gulp changes later in Milestone 7, update the
   outline before starting 8.7 and 8.9.
 
-### [ ] 8.2 — A new Gloop Forest enemy
+### [~] 8.2 — A new Gloop Forest enemy
 
-- Blocked on the owner (2026-09-30): the orb-weaver sheet
-  (`64x64-8x10-forest-orb-weaver-slime.png`) is already the Meadow slime
-  spider's runtime art (`character.enemy.slime-spider`, chosen in an earlier
-  commit), and the old yellow spider sheet (`64x64-8x10-spider_slime.png`,
-  same 8 × 10 layout) is unregistered. Either the Meadow spider goes back to
-  the yellow sheet and the orb-weaver becomes Gloop Forest's new enemy, or
-  Chapter 2 gets a different new enemy (new art). See question 5 in the
-  [Chapter 2 outline](./superpowers/specs/2026-09-30-chapter-2-outline.md).
+- Built 2026-09-30 (owner: "use the orb-weaver for now"): `orb-weaver`
+  (`content/characters/orb-weaver/`, `character.orb-weaver`) shares the
+  orb-weaver sheet with the Meadow spider for now, drawn 1.3× larger and
+  tinted darker. It is tougher (70 HP, knockback resist 0.3), sees and shoots
+  farther (300 / 240 px), keeps its distance and roots with webs (30 damage,
+  1.3 s), and drops silk (50 %) and shards (20 %). Its voice is the spider's,
+  pitched down (placeholder). It is in the playground pen, and Gloop Forest
+  has two orb-weaver camps (north-east and south-west, away from both safe
+  zones). Played headless: it spawned in both places, engaged and webbed the
+  slime. Open: the owner tries it; its own art and sounds later.
 
 - Build: add the Forest Orb-Weaver Slime to the roster: behavior, drops, spawn
   areas. Its sprite sheet is already registered in `asset/assets.json` but
@@ -1047,7 +1077,22 @@ reduce motion turns the strong effects off.
 
 ## 10. Release Hygiene
 
-### [ ] 10.1 — Download size
+### [~] 10.1 — Download size
+
+- 2026-09-30 (owner: remove unused backplates; make the grounds lighter
+  without losing much quality):
+  - Removed the two images nothing used (`ui-organic-modal-frame`,
+    `ui-crafting-workbench-backplate`, 4.9 MB).
+  - The eleven ground sheets are lossless WebP now (identical pixels, checked
+    pixel by pixel): 25.4 MB to 13.6 MB. `grounds:pack` writes WebP;
+    `assets:check` reads WebP sizes and finds WebP orphans.
+  - Sound: one flavour per cue (3.8), 7.5 MB to 5.6 MB.
+  - Production-only worlds (10.2): the main script went from 5.4 MB to 4.5 MB.
+- Next, measured: lossless WebP for the other 43 images over 300 KB (UI
+  backplates, character and prop sheets) would save about 15 MB more with no
+  quality change; lossy WebP (quality 95) would save much more with slight
+  noise, so it needs the owner's eye first. Then lazy area loading and a
+  loading bar.
 
 - Build: `dist/` is 70 MB today: a 5.4 MB main script and UI backplates of
   2–5 MB each. Compress and resize images to their display size, load area art
@@ -1220,24 +1265,26 @@ numbered milestone and task tiles.
 Milestones 3 to 7 and 9 are built and played headless (2026-09-30); each waits
 on its assets and the owner's acceptance. Waiting on the owner:
 
-- 3.8: mark the sound picks final in the picker; then the losing takes go and
-  the "neither" wishes become new sounds. The picker now also has the
-  Workshop's restoration sound.
-- 4.9: play the fixes from the first playtest, then a second new player.
+- 3.8 round 2: in the [picker](https://claude.ai/artifact/RDDoJKEVByiJCSsRvzwLHZ),
+  judge the new takes for the 20 replaced sounds (drop, keep "Before", or
+  describe again), then mark them final.
+- 4.9: play the second round of fixes (tearing webs, Heavy jump on cracked
+  ground, enemy territories), then a second new player.
 - 6: accept the Workshop art and restoration sound; play The Old Workshop.
 - 7: try the Heavy plate gate, the Sticky web nook, the hold-W quick wheel and
   the cracked-ground cavern in the playground (`?map=playground`); accept the
   new plate and form-badge art.
-- 8.1: read the Chapter 2 outline and answer its five questions (the fifth
-  decides the orb-weaver art, which 8.2 waits on).
+- 8.1: answer the Chapter 2 outline's first four questions (the fifth, the
+  orb-weaver art, is answered).
+- 8.2: fight the orb-weavers in the playground pen and in Gloop Forest.
 - 9: play the new feel (hit-stop, squash and stretch, particles, goo trail)
   and say whether the trail should always be on.
-- 10.1: approve how to cut the download (resize the UI backplates to their
-  display size, WebP or not, and load biome grounds that only the dev maps use
-  outside the boot bundle).
+- 10.1: decide on lossy WebP for the remaining large images (lossless is
+  done for the grounds).
 
-Chapter 2 (8.2 onward) waits on the outline's questions; art keeps coming
-from Magnific (GPT-2) as each task needs it.
+Next to build: 8.3 (the orb-weaver's own material and the Reinforced
+Pickaxe) and 8.4 (iron) follow the outline once its questions are answered;
+art keeps coming from Magnific (GPT-2) as each task needs it.
 
 ## Done — Foundations
 

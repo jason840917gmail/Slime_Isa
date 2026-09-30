@@ -1,0 +1,81 @@
+{
+  "$schema": "../character.schema.json",
+  "version": 1,
+  "characterId": "orb-weaver",
+  "displayName": "orb-weaver slime",
+  "kind": "enemy",
+  "visualSetId": "enemy.slime.orb-weaver",
+  "body": {
+    "width": 38,
+    "height": 36,
+    "centerOffsetX": 0,
+    "centerOffsetY": 0,
+    "shape": "ellipse",
+    "radiusX": 19,
+    "radiusY": 15
+  },
+  "hitboxes": {},
+  "animationTracks": {
+    "idle-down": {
+      "events": [],
+      "hitboxSpans": []
+    },
+    "walk-down": {
+      "events": [],
+      "hitboxSpans": []
+    },
+    "idle-side": {
+      "events": [],
+      "hitboxSpans": []
+    },
+    "walk-side": {
+      "events": [],
+      "hitboxSpans": []
+    },
+    "idle-up": {
+      "events": [],
+      "hitboxSpans": []
+    },
+    "walk-up": {
+      "events": [],
+      "hitboxSpans": []
+    }
+  },
+  "enemy": {
+    "maxHp": 70,
+    "ai": {
+      "aggroRange": 300,
+      "behavior": "slime-spider",
+      "attackRange": 240,
+      "fleeRange": 140,
+      "wanderSpeed": 28,
+      "chaseSpeed": 72,
+      "attackCooldownMs": 2000,
+      "attackWindupMs": 650,
+      "attackRecoveryMs": 350,
+      "contactDamage": 26,
+      "knockbackStrength": 200,
+      "isRanged": true,
+      "projectileSpeed": 200,
+      "knockbackResist": 0.3
+    },
+    "drop": {
+      "coins": 14,
+      "items": [
+        {
+          "itemId": "silk-clump",
+          "chance": 0.5
+        },
+        {
+          "itemId": "shard",
+          "chance": 0.2
+        }
+      ]
+    },
+    "projectile": {
+      "projectileId": "spider-web",
+      "assetId": "enemy.projectile.spider-web",
+      "damage": 30
+    }
+  }
+}

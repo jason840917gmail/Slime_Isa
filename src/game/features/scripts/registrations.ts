@@ -558,13 +558,14 @@ export const STORY_VARIANT_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
 export const CRACKED_GROUND_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
   scriptId: 'game.cracked-ground',
   displayName: 'Cracked Ground Script',
-  description: 'Weak ground the Heavy Gulp form breaks by standing on it; sets its story flag for good (pair with a story variant on the same flag).',
+  description: 'Weak ground the Heavy Gulp form breaks by landing a jump on it (or by standing on it with Requires Landing off); sets its story flag for good (pair with a story variant on the same flag).',
   sourcePath: 'src/game/features/scripts/CrackedGroundScript.ts',
   capabilities: ['cracked-ground'],
   exclusiveCapabilities: ['cracked-ground'],
   properties: [
     stringProperty('flagId', 'Flag ID', 'Story'),
     numberProperty('radius', 'Break Radius', 48, 'Ground'),
+    { key: 'requiresLanding', label: 'Requires Landing', group: 'Ground', value: { kind: 'boolean' }, defaultValue: true, serialized: true, inspector: 'checkbox', overridable: true },
   ],
   signals: [{ id: 'cracked', payload: 'Any' }],
 };
@@ -572,15 +573,18 @@ export const CRACKED_GROUND_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
 export const SPIDER_WEB_SCRIPT_DESCRIPTOR: ScriptDescriptor = {
   scriptId: 'game.spider-web',
   displayName: 'Spider Web Script',
-  description: 'A web barrier: a normal slime is caught and set back; the Sticky Gulp form crosses it.',
+  description: 'A web barrier: a normal slime is caught and set back; the Sticky Gulp form pushes through and tears it open for good (remembered per placement).',
   sourcePath: 'src/game/features/scripts/SpiderWebScript.ts',
   capabilities: ['spider-web'],
   exclusiveCapabilities: ['spider-web'],
+  references: [{ key: 'visual', label: 'Web Sprite', required: false, expectedNodeType: 'Sprite2D' }],
   properties: [
     numberProperty('width', 'Width', 200, 'Web'),
     numberProperty('depth', 'Depth', 48, 'Web'),
+    { key: 'tearsWhenCrossed', label: 'Tears When Crossed', group: 'Web', value: { kind: 'boolean' }, defaultValue: true, serialized: true, inspector: 'checkbox', overridable: true },
+    { ...nodeReference('visual', 'Web Sprite'), required: false },
   ],
-  signals: [{ id: 'caught', payload: 'Any' }],
+  signals: [{ id: 'caught', payload: 'Any' }, { id: 'torn', payload: 'Any' }],
 };
 
 const vectorProperty = (key: string, label: string, group: string, defaultValue: readonly [number, number]): PropertyDescriptor => ({

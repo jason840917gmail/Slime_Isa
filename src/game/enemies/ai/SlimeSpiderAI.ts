@@ -1,3 +1,4 @@
+import { noticesPlayer } from '../EnemyAI';
 import type {
   EnemyAIConfig,
   EnemyDirection,
@@ -36,14 +37,14 @@ function preferredDistance(config: EnemyAIConfig): number {
 function spiderIdle(ctx: EnemyStateContext): StateResult {
   const body = ctx.enemy.body as EnemyVelocityBody;
   body.setVelocity(0, 0);
-  if (ctx.distToPlayer <= ctx.config.aggroRange) return 'chase';
+  if (noticesPlayer(ctx)) return 'chase';
   if (Math.random() < 0.008) return 'wander';
   return 'continue';
 }
 
 function spiderWander(ctx: EnemyStateContext): StateResult {
   const body = ctx.enemy.body as EnemyVelocityBody;
-  if (ctx.distToPlayer <= ctx.config.aggroRange) {
+  if (noticesPlayer(ctx)) {
     body.setVelocity(0, 0);
     return 'chase';
   }

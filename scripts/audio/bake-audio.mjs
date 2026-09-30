@@ -4,13 +4,17 @@
  *
  *   node scripts/audio/bake-audio.mjs [--library <dir-with-unpacked-kenney-packs>] [--report]
  *
- * 1. Renders every cue take in scripts/audio/cues.mjs to
+ * Each cue ships one flavour, picked by the owner (scripts/audio/picks.json,
+ * roadmap 3.8): `synth` or `library`.
+ *
+ * 1. Renders the synth-picked cues' takes from scripts/audio/cues.mjs to
  *    asset/audio/sfx/synth/<category>/<cue>[-<n>].wav (deterministic).
- * 2. With --library, copies the cue's CC0 library files (Kenney, OpenGameArt; see
- *    asset/audio/CREDITS.md) into asset/audio/sfx/library/<category>/<cue>[-<n>].ogg|wav.
- *    Without it, existing library files are kept as-is.
+ * 2. With --library, copies the library-picked cues' files (Kenney, OpenGameArt,
+ *    Magnific; see asset/audio/CREDITS.md) into
+ *    asset/audio/sfx/library/<category>/<cue>[-<n>].ogg|wav. Without it, existing
+ *    library files are kept as-is.
  * 3. Rewrites the generated `audio.sfx.*` block of asset/assets.json and the
- *    `audio` bundle. Library files become `source.alternates.library`.
+ *    `audio` bundle, each entry pointing at its picked file.
  *
  * Asset IDs: audio.sfx.<category>.<cue>.<n> (n starts at 1).
  */
@@ -20,6 +24,9 @@ import { basename, dirname, extname, join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { CUES, variantPitch } from './cues.mjs';
+
+/** Owner's flavour per cue ("synth" | "library"); cues missing from it ship their library take when one exists. */
+const PICKS = JSON.parse(readFileSync(new URL('./picks.json', import.meta.url), 'utf8')).cues;
 import { describe, encodeWav, hashSeed, renderRecipe } from './synth.mjs';
 
 const repoRoot = fileURLToPath(new URL('../..', import.meta.url));
@@ -69,18 +76,22 @@ let synthBytes = 0;
 for (const [category, cues] of Object.entries(CUES)) {
   for (const [cue, definition] of Object.entries(cues)) {
     const variants = definition.variants ?? 1;
+    const pick = PICKS[`${category}.${cue}`] ?? (definition.library?.length ? 'library' : 'synth');
+    if (pick === 'library' && !definition.library?.length) throw new Error(`${category}/${cue} is picked as library but lists no library take`);
     for (let variant = 0; variant < variants; variant += 1) {
       const suffix = variants > 1 ? `-${variant + 1}` : '';
       const stem = `${cue}${suffix}`;
       const synthPath = `audio/sfx/synth/${category}/${stem}.wav`;
-      const samples = renderRecipe(definition.synth(variantPitch(variant), variant), hashSeed(`${category}/${stem}`));
-      const wav = encodeWav(samples);
-      synthBytes += wav.length;
-      mkdirSync(join(assetRoot, dirname(synthPath)), { recursive: true });
-      writeFileSync(join(assetRoot, synthPath), wav);
-      rows.push({ id: `${category}/${stem}`, ...describe(samples) });
+      if (pick === 'synth') {
+        const samples = renderRecipe(definition.synth(variantPitch(variant), variant), hashSeed(`${category}/${stem}`));
+        const wav = encodeWav(samples);
+        synthBytes += wav.length;
+        mkdirSync(join(assetRoot, dirname(synthPath)), { recursive: true });
+        writeFileSync(join(assetRoot, synthPath), wav);
+        rows.push({ id: `${category}/${stem}`, ...describe(samples) });
+      }
 
-      if (libraryPackDir && definition.library?.length) {
+      if (pick === 'library' && libraryPackDir) {
         const sourceName = definition.library[variant % definition.library.length];
         if (ambiguousNames.has(sourceName)) throw new Error(`Library file '${sourceName}' for ${category}/${cue} exists in several packs; use '<pack>/${sourceName}'`);
         const source = libraryIndex.get(sourceName);
@@ -89,15 +100,16 @@ for (const [category, cues] of Object.entries(CUES)) {
         mkdirSync(dirname(target), { recursive: true });
         copyFileSync(source, target);
       }
-      const libraryPath = LIBRARY_EXTENSIONS.map((extension) => `audio/sfx/library/${category}/${stem}${extension}`)
-        .find((candidate) => existsSync(join(assetRoot, candidate)));
-      const hasLibrary = libraryPath !== undefined;
+      const libraryPath = pick === 'library'
+        ? LIBRARY_EXTENSIONS.map((extension) => `audio/sfx/library/${category}/${stem}${extension}`).find((candidate) => existsSync(join(assetRoot, candidate)))
+        : undefined;
+      if (pick === 'library' && !libraryPath) throw new Error(`${category}/${stem}: the picked library take is missing (run with --library)`);
 
       entries.push({
         id: `audio.sfx.${category}.${cue}.${variant + 1}`,
         textureKey: `sfx-${category}-${cue}-${variant + 1}`,
-        path: synthPath,
-        library: hasLibrary ? libraryPath : undefined,
+        path: libraryPath ?? synthPath,
+        library: libraryPath !== undefined,
         category,
       });
     }
@@ -133,8 +145,7 @@ function sectionClose(source, key) {
 
 text = removeGenerated(text);
 const entryText = entries.map((entry) => {
-  const alternates = entry.library ? `,\n        "alternates": { "library": "${entry.library}" }` : '';
-  return `    "${entry.id}": {\n      "source": {\n        "kind": "audio",\n        "path": "${entry.path}"${alternates}\n      },\n      "runtime": { "textureKey": "${entry.textureKey}" },\n      "tags": ["audio", "sfx", "${entry.category}"],\n      "status": "draft",\n      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."\n    }`;
+  return `    "${entry.id}": {\n      "source": {\n        "kind": "audio",\n        "path": "${entry.path}"\n      },\n      "runtime": { "textureKey": "${entry.textureKey}" },\n      "tags": ["audio", "sfx", "${entry.category}"],\n      "status": "draft",\n      "notes": "Generated by pnpm audio:bake (scripts/audio/cues.mjs)."\n    }`;
 }).join(',\n');
 const assetsClose = sectionClose(text, 'assets');
 text = `${text.slice(0, assetsClose)},\n${entryText}${text.slice(assetsClose)}`;
@@ -147,4 +158,4 @@ writeFileSync(manifestPath, crlf ? text.replace(/\n/g, '\r\n') : text);
 const libraryCount = entries.filter((entry) => entry.library).length;
 const libraryBytes = existsSync(libraryRoot) ? listFiles(libraryRoot).reduce((sum, file) => sum + statSync(file).size, 0) : 0;
 if (report) console.table(rows);
-console.log(`audio:bake OK — ${entries.length} takes (${(synthBytes / 1024).toFixed(0)} KiB synth WAV), ${libraryCount} with library alternates (${(libraryBytes / 1024).toFixed(0)} KiB library audio).`);
+console.log(`audio:bake OK — ${entries.length} takes: ${entries.length - libraryCount} synth (${(synthBytes / 1024).toFixed(0)} KiB WAV), ${libraryCount} library (${(libraryBytes / 1024).toFixed(0)} KiB).`);

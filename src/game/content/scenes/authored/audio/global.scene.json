@@ -420,11 +420,25 @@
       }
     },
     {
+      "id": "sfx-web-tear",
+      "name": "WebTear",
+      "type": "AudioStreamPlayer",
+      "parentId": "effects",
+      "order": 28,
+      "properties": {
+        "stream": {
+          "resourceId": "sfx.pickup.silk"
+        },
+        "pitchRandomness": 0.06,
+        "minIntervalMs": 60
+      }
+    },
+    {
       "id": "sfx-npc-blip",
       "name": "NpcBlip",
       "type": "AudioStreamPlayer",
       "parentId": "effects",
-      "order": 28,
+      "order": 29,
       "properties": {
         "stream": {
           "resourceId": "sfx.world.npc-blip"
@@ -438,7 +452,7 @@
       "name": "QuestAccept",
       "type": "AudioStreamPlayer",
       "parentId": "effects",
-      "order": 29,
+      "order": 30,
       "properties": {
         "stream": {
           "resourceId": "sfx.ui.quest-accept"
@@ -452,7 +466,7 @@
       "name": "QuestProgress",
       "type": "AudioStreamPlayer",
       "parentId": "effects",
-      "order": 30,
+      "order": 31,
       "properties": {
         "stream": {
           "resourceId": "sfx.ui.quest-progress"
@@ -466,7 +480,7 @@
       "name": "QuestComplete",
       "type": "AudioStreamPlayer",
       "parentId": "effects",
-      "order": 31,
+      "order": 32,
       "properties": {
         "stream": {
           "resourceId": "sfx.ui.quest-complete"
@@ -480,7 +494,7 @@
       "name": "QuestFailed",
       "type": "AudioStreamPlayer",
       "parentId": "effects",
-      "order": 32,
+      "order": 33,
       "properties": {
         "stream": {
           "resourceId": "sfx.ui.quest-failed"
@@ -494,7 +508,7 @@
       "name": "Victory",
       "type": "AudioStreamPlayer",
       "parentId": "effects",
-      "order": 33,
+      "order": 34,
       "properties": {
         "stream": {
           "resourceId": "sfx.boss.victory"
@@ -508,7 +522,7 @@
       "name": "AreaTransition",
       "type": "AudioStreamPlayer",
       "parentId": "effects",
-      "order": 34,
+      "order": 35,
       "properties": {
         "stream": {
           "resourceId": "sfx.world.area-transition"
@@ -522,7 +536,7 @@
       "name": "MenuOpen",
       "type": "AudioStreamPlayer",
       "parentId": "effects",
-      "order": 35,
+      "order": 36,
       "properties": {
         "stream": {
           "resourceId": "sfx.ui.open"
@@ -536,7 +550,7 @@
       "name": "MenuClose",
       "type": "AudioStreamPlayer",
       "parentId": "effects",
-      "order": 36,
+      "order": 37,
       "properties": {
         "stream": {
           "resourceId": "sfx.ui.close"
@@ -550,7 +564,7 @@
       "name": "JournalOpen",
       "type": "AudioStreamPlayer",
       "parentId": "effects",
-      "order": 37,
+      "order": 38,
       "properties": {
         "stream": {
           "resourceId": "sfx.ui.journal-open"
@@ -564,7 +578,7 @@
       "name": "Crit",
       "type": "AudioStreamPlayer",
       "parentId": "effects",
-      "order": 38,
+      "order": 39,
       "properties": {
         "stream": {
           "resourceId": "sfx.weapon.crit"
@@ -578,7 +592,7 @@
       "name": "SleepBreath",
       "type": "AudioStreamPlayer",
       "parentId": "effects",
-      "order": 39,
+      "order": 40,
       "properties": {
         "stream": {
           "resourceId": "sfx.player.sleep-breath"
@@ -593,7 +607,7 @@
       "name": "Rested",
       "type": "AudioStreamPlayer",
       "parentId": "effects",
-      "order": 40,
+      "order": 41,
       "properties": {
         "stream": {
           "resourceId": "sfx.player.rested"
@@ -807,6 +821,12 @@
       "resourceId": "sfx.world.restore-building",
       "kind": "audio",
       "assetId": "audio.sfx.world.restore-building.1"
+    },
+    {
+      "version": 1,
+      "resourceId": "sfx.pickup.silk",
+      "kind": "audio",
+      "assetId": "audio.sfx.pickup.silk.1"
     },
     {
       "version": 1,
