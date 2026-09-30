@@ -725,10 +725,7 @@
       "version": 1,
       "resourceId": "sfx.enemy.worm-windup",
       "kind": "audio",
-      "assetId": "audio.sfx.enemy.worm-windup.1",
-      "variants": [
-        "audio.sfx.enemy.worm-windup.2"
-      ]
+      "assetId": "audio.sfx.enemy.worm-windup.1"
     }
   ],
   "connections": [

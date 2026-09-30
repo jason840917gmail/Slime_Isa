@@ -9,6 +9,16 @@ import { blockingPairAccepts, type BlockingContact, type BlockingMembership } fr
 import type { SceneHostBackend } from './PhaserSceneTreeHost';
 import { PresentationSync, type PresentationParticipant } from '../phaser-nodes/PresentationSync';
 import { prepareArcadeBodiesForStep, type ArcadeStepBody } from './ArcadeStepBookkeeping';
+import { segmentIntersectsRect } from '../../shared/segmentIntersectsRect';
+
+interface StaticTreeBody {
+  readonly enable: boolean;
+  readonly x: number;
+  readonly y: number;
+  readonly width: number;
+  readonly height: number;
+  readonly gameObject?: Phaser.GameObjects.GameObject;
+}
 
 export type PhaserHostCallbackPhase =
   | 'physics-animation'
@@ -74,6 +84,26 @@ export class PhaserNodeContext implements SceneHostBackend {
   get physicsStepCount(): number { return this.physicsSteps; }
   get managedContactParticipantCount(): number { return this.contactRouter.participantCount; }
   get managedBlockingColliderCount(): number { return this.blockingColliders.size; }
+
+  /**
+   * Whether the straight line between two world points crosses a static
+   * blocking body on one of `layerMask`'s collision layers (for enemy sight:
+   * walls, houses, trees and rocks on the world layer; water stays
+   * see-through). Bodies smaller than `minSize` on both sides (posts,
+   * lanterns) never block.
+   */
+  sightBlocked(from: Readonly<{ x: number; y: number }>, to: Readonly<{ x: number; y: number }>, layerMask: number, minSize = 20): boolean {
+    const tree = (this.scene.physics?.world as unknown as { staticTree?: { search(bounds: { minX: number; minY: number; maxX: number; maxY: number }): readonly StaticTreeBody[] } } | undefined)?.staticTree;
+    if (!tree) return false;
+    const bounds = { minX: Math.min(from.x, to.x), minY: Math.min(from.y, to.y), maxX: Math.max(from.x, to.x), maxY: Math.max(from.y, to.y) };
+    for (const body of tree.search(bounds)) {
+      if (!body.enable || (body.width < minSize && body.height < minSize)) continue;
+      const participant = body.gameObject ? this.staticBlockingParticipants.get(body.gameObject) : undefined;
+      if (!participant || (participant.collisionLayer & layerMask) === 0) continue;
+      if (segmentIntersectsRect(from, to, body.x, body.y, body.width, body.height)) return true;
+    }
+    return false;
+  }
 
   resource(resourceId: ResourceId): SceneResourceDocument {
     const resource = this.leasedResources.get(resourceId)?.resource ?? this.baseResources.get(resourceId);

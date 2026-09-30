@@ -59,8 +59,19 @@ export interface EnemyStateContext {
   requestAttack?: (direction: EnemyDirection) => void;
   /** Areas enemies should not enter, such as the player's house. */
   safeZones?: EnemySafeZone[];
-  /** Optional authored camp controlling spawn, home, and pursuit boundaries. */
+  /** Optional authored camp controlling spawn, home, and pursuit boundaries (enemies without a territory). */
   spawnArea?: MapEnemySpawnArea;
+  /**
+   * Whether idle or wandering enemies may start a chase this step. A camp's
+   * territory (enemies/ai/Territory.ts) decides it from sight, hits and the
+   * leash; omitted means "whenever the player is within aggro range".
+   */
+  mayEngage?: boolean;
+}
+
+/** An idle or wandering enemy notices the player. */
+export function noticesPlayer(ctx: EnemyStateContext): boolean {
+  return ctx.mayEngage ?? ctx.distToPlayer <= ctx.config.aggroRange;
 }
 
 export interface EnemyAIConfig {
@@ -223,11 +234,11 @@ function avoidSafeZones(ctx: EnemyStateContext): StateResult | null {
 }
 
 function stateIdle(ctx: EnemyStateContext): StateResult {
-  const { enemy, distToPlayer, config } = ctx;
+  const { enemy } = ctx;
   const body = enemy.body as EnemyVelocityBody;
   body.setVelocity(0, 0);
 
-  if (distToPlayer <= config.aggroRange) {
+  if (noticesPlayer(ctx)) {
     return 'chase';
   }
   // Short idle → wander.
@@ -236,10 +247,10 @@ function stateIdle(ctx: EnemyStateContext): StateResult {
 }
 
 function stateWander(ctx: EnemyStateContext): StateResult {
-  const { enemy, distToPlayer, config } = ctx;
+  const { enemy, config } = ctx;
   const body = enemy.body as EnemyVelocityBody;
 
-  if (distToPlayer <= config.aggroRange) {
+  if (noticesPlayer(ctx)) {
     body.setVelocity(0, 0);
     return 'chase';
   }

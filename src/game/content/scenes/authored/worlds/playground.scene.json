@@ -207,10 +207,15 @@
               "type": "slime-spider",
               "weight": 1,
               "maxAlive": 1
+            },
+            {
+              "type": "orb-weaver",
+              "weight": 2,
+              "maxAlive": 2
             }
           ],
           "intervalMs": 4000,
-          "maxPopulation": 5
+          "maxPopulation": 6
         },
         "shape": {
           "nodeId": "area-playground-enemy-pen-shape"

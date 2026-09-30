@@ -1331,8 +1331,7 @@
       "kind": "audio",
       "assetId": "audio.sfx.weapon.hit-slash.1",
       "variants": [
-        "audio.sfx.weapon.hit-slash.2",
-        "audio.sfx.weapon.hit-slash.3"
+        "audio.sfx.weapon.hit-slash.2"
       ]
     }
   ]

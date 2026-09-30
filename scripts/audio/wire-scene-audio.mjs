@@ -114,6 +114,12 @@ const RULES = [
   ['characters/worm-archer.scene.json', ENEMY_WORM('enemy/bow-draw')],
   ['characters/worm-brawler.scene.json', ENEMY_WORM('enemy/worm-windup')],
   ['characters/worm-swordsman.scene.json', ENEMY_WORM('enemy/worm-windup')],
+  // PLACEHOLDER: the Gloop Forest orb-weaver borrows the spider's voice, pitched down, until it has its own (roadmap 8.2).
+  ['characters/orb-weaver.scene.json', [
+    sfx('HurtSfx', 'enemy/spider-hurt', [{ signal: 'damaged' }], { ...ONE_SHOT, minIntervalMs: 90, pitch: 0.8 }),
+    sfx('DeathSfx', 'enemy/spider-death', [{ signal: 'defeated' }], { ...DETACHED, pitch: 0.8 }),
+    sfx('AlertSfx', 'enemy/spider-hiss', [{ signal: 'alerted' }], { ...ONE_SHOT, volume: 0.8, pitch: 0.8 }),
+  ]],
   ['characters/slime-spider.scene.json', [
     sfx('HurtSfx', 'enemy/spider-hurt', [{ signal: 'damaged' }], { ...ONE_SHOT, minIntervalMs: 90 }),
     sfx('DeathSfx', 'enemy/spider-death', [{ signal: 'defeated' }], DETACHED),
@@ -199,7 +205,7 @@ const RULES = [
       ['StatusBurn', 'status/burn'], ['StatusPoison', 'status/poison'], ['StatusSlow', 'status/slow'],
       ['StatusSticky', 'status/sticky'], ['StatusBouncy', 'status/bouncy'], ['StatusFrenzy', 'status/frenzy'],
       ['StatusExpire', 'status/expire'], ['EquipBlade', 'weapon/equip-blade'], ['EquipTool', 'weapon/equip-tool'],
-      ['CraftSuccess', 'ui/craft-success'], ['CraftFail', 'ui/craft-fail'], ['GroundCrack', 'resource/stone-crumble'], ['BuildingRestored', 'world/restore-building'], ['NpcBlip', 'world/npc-blip'], ['QuestAccept', 'ui/quest-accept'],
+      ['CraftSuccess', 'ui/craft-success'], ['CraftFail', 'ui/craft-fail'], ['GroundCrack', 'resource/stone-crumble'], ['BuildingRestored', 'world/restore-building'], ['WebTear', 'pickup/silk'], ['NpcBlip', 'world/npc-blip'], ['QuestAccept', 'ui/quest-accept'],
       ['QuestProgress', 'ui/quest-progress'], ['QuestComplete', 'ui/quest-complete'], ['QuestFailed', 'ui/quest-failed'],
       ['Victory', 'boss/victory'], ['AreaTransition', 'world/area-transition'], ['MenuOpen', 'ui/open'],
       ['MenuClose', 'ui/close'], ['JournalOpen', 'ui/journal-open'], ['Crit', 'weapon/crit'],

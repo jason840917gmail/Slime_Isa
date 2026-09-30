@@ -161,6 +161,9 @@ export class WorldScene extends Phaser.Scene {
   private gulpWheel?: GulpWheel;
   private squash?: SquashStretch;
   private slimeTrail?: SlimeTrail;
+  /** The Heavy slime's last jump landing (cracked ground breaks under it). */
+  private heavyLanding?: { readonly x: number; readonly y: number; readonly id: number };
+  private nextCreakHintAt = 0;
   private nextTrailSlowAt = 0;
   /** Move-start squash: whether the slime moved last frame, and since when it has stood still. */
   private wasMoving = false;
@@ -384,7 +387,13 @@ export class WorldScene extends Phaser.Scene {
       busy: () => this.abilitySystem?.isBusy() ?? false,
     });
     this.squash = squash;
-    const onAction = ({ anim }: { anim: string }) => { if (anim === 'jump-land') squash.play('land', true); };
+    const onAction = ({ anim }: { anim: string }) => {
+      if (anim !== 'jump-land') return;
+      squash.play('land', true);
+      if (this.gulp?.activeForm?.pressesPlates && this.player) {
+        this.heavyLanding = { x: this.player.x, y: this.player.y, id: (this.heavyLanding?.id ?? 0) + 1 };
+      }
+    };
     const onGulp = ({ reason }: { reason: string }) => { if (reason === 'started' || reason === 'refreshed') squash.play('gulp'); };
     gameEvents.on('player.action', onAction);
     gameEvents.on('gulp.changed', onGulp);
@@ -2081,11 +2090,25 @@ export class WorldScene extends Phaser.Scene {
       requestSleep: (request) => this.requestSleep(request),
       plateWeights: () => (this.gulp?.activeForm?.pressesPlates && this.player ? [{ x: this.player.x, y: this.player.y }] : []),
       hasStoryFlag: (flagId) => storyProgress.hasFlag(flagId),
-      groundCrack: { groundCracked: (at) => this.onGroundCracked(at) },
+      groundCrack: {
+        groundCracked: (at) => this.onGroundCracked(at),
+        lastHeavyLanding: () => this.heavyLanding,
+        groundCreaks: (at) => {
+          const now = this.time.now;
+          if (now < this.nextCreakHintAt) return;
+          this.nextCreakHintAt = now + 4000;
+          floatingText.spawn(this, at.x, at.y - 50, 'It creaks under you... jump on it! (Space)', 'yellow', true, 2200);
+        },
+      },
       spiderWebs: {
         playerPosition: () => (this.player && !this.healthSystem?.isDead() && !this.transitioning ? { x: this.player.x, y: this.player.y } : undefined),
         playerCrossesWebs: () => this.gulp?.activeForm?.crossesWebs ?? false,
         catchPlayer: (zone) => this.catchInWeb(zone),
+        webTorn: (zone) => {
+          gameEvents.emit('web.torn', { x: zone.x, y: zone.y });
+          particleFx.play('loot-sparkle', zone.x, zone.y);
+          floatingText.spawn(this, zone.x, zone.y - 40, 'The web tears open!', 'cyan', true, 1800);
+        },
       },
       gooHearts: {
         isCollected: (heartId) => storyProgress.hasFlag(gooHeartFlag(heartId)),

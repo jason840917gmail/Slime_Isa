@@ -10,6 +10,7 @@ const sceneIds = [
   'character.worm-archer',
   'character.worm-swordsman',
   'character.slime-spider',
+  'character.orb-weaver',
 ];
 
 class TestCharacterBody extends t.Node2D {

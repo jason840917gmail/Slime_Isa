@@ -51,6 +51,25 @@ function readPngSize(filePath) {
   return { w: buffer.readUInt32BE(16), h: buffer.readUInt32BE(20) };
 }
 
+/** Width and height of a WebP image (lossy VP8, lossless VP8L or extended VP8X), or null. */
+function readWebpSize(filePath) {
+  const buffer = readFileSync(filePath);
+  if (buffer.length < 30 || buffer.toString('ascii', 0, 4) !== 'RIFF' || buffer.toString('ascii', 8, 12) !== 'WEBP') return null;
+  const chunk = buffer.toString('ascii', 12, 16);
+  if (chunk === 'VP8 ') return { w: buffer.readUInt16LE(26) & 0x3fff, h: buffer.readUInt16LE(28) & 0x3fff };
+  if (chunk === 'VP8L') {
+    const bits = buffer.readUInt32LE(21);
+    return { w: (bits & 0x3fff) + 1, h: ((bits >> 14) & 0x3fff) + 1 };
+  }
+  if (chunk === 'VP8X') return { w: buffer.readUIntLE(24, 3) + 1, h: buffer.readUIntLE(27, 3) + 1 };
+  return null;
+}
+
+/** Image size for the formats the game ships (PNG, lossless or lossy WebP). */
+function readImageSize(filePath) {
+  return filePath.toLowerCase().endsWith('.webp') ? readWebpSize(filePath) : readPngSize(filePath);
+}
+
 /** Case-exact existence check, segment by segment (Windows FS is case-insensitive). */
 function findCaseMismatch(relativePath) {
   const segments = relativePath.split('/');
@@ -313,11 +332,11 @@ for (const [id, asset] of Object.entries(assets)) {
     continue;
   }
 
-  if (!path.toLowerCase().endsWith('.png')) continue;
+  if (!/\.(png|webp)$/i.test(path)) continue;
 
-  const size = readPngSize(join(assetRoot, path));
+  const size = readImageSize(join(assetRoot, path));
   if (!size) {
-    fail(id, 'source.path', `'${path}' is not a readable PNG`);
+    fail(id, 'source.path', `'${path}' is not a readable PNG or WebP image`);
     continue;
   }
 
@@ -366,13 +385,13 @@ const mappedPaths = new Set(
     .flatMap((source) => [source.path, ...Object.values(source.alternates ?? {})]),
 );
 
-for (const absolutePath of listPngFiles(assetRoot)) {
+for (const absolutePath of listPngFiles(assetRoot, ['.png', '.webp'])) {
   const relativePath = toManifestPath(absolutePath);
   if (relativePath === 'assets.schema.json' || relativePath === 'assets.json') continue;
   if (mappedPaths.has(relativePath)) continue;
   if (ignoreRegExps.some((pattern) => pattern.test(relativePath))) continue;
 
-  fail(relativePath, 'orphan', 'PNG on disk is neither mapped in assets nor covered by ignore');
+  fail(relativePath, 'orphan', 'image on disk is neither mapped in assets nor covered by ignore');
 }
 
 const audioRoot = join(assetRoot, 'audio');

@@ -2151,10 +2151,7 @@
       "version": 1,
       "resourceId": "sfx.weapon.thrust",
       "kind": "audio",
-      "assetId": "audio.sfx.weapon.thrust.1",
-      "variants": [
-        "audio.sfx.weapon.thrust.2"
-      ]
+      "assetId": "audio.sfx.weapon.thrust.1"
     }
   ]
 }

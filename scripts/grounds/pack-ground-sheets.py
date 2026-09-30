@@ -1,6 +1,7 @@
 """Build the 19x19 ground sheets (64x64 tiles) in asset/MAPS/grounds/.
 
-Every ground is one large 1216x1216 image cut row-major into 64x64 frames.
+Every ground is one large 1216x1216 image cut row-major into 64x64 frames,
+saved as lossless WebP (identical pixels, about 45% smaller than PNG).
 Each image is made to wrap seamlessly (its right edge continues into its left,
 its bottom into its top), so the runtime repeats the sheet without mirroring
 (`selection: "sheet-wrap"` in the terrain tile set) and no symmetry seams
@@ -125,7 +126,8 @@ def main() -> None:
                 for column in range(repeat):
                     tiled.paste(image, (column * SIZE, row * SIZE))
             image = tiled.resize((SIZE, SIZE), Image.LANCZOS)
-        image.save(PROMOTED / f"{TILE}x{TILE}-tile_{GRID}x{GRID}_{name}.png", optimize=True)
+        # Lossless WebP: the same pixels as a PNG at a little over half the download (roadmap 10.1).
+        image.save(PROMOTED / f"{TILE}x{TILE}-tile_{GRID}x{GRID}_{name}.webp", format="WEBP", lossless=True, quality=100, method=6)
     print(f"packed {packed} wrap-seamless ground sheets into {PROMOTED.relative_to(ROOT)}")
 
 

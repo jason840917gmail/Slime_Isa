@@ -20,6 +20,13 @@ import { CharacterScript, type CharacterPoint } from './CharacterScript';
 import type { Node } from '../../runtime/scene/Node';
 import type { Node2D } from '../../runtime/scene/Node2D';
 import { AnimationPlayerNode } from '../../runtime/scene/animation/AnimationPlayerNode';
+import {
+  createTerritoryMemory,
+  stepTerritory,
+  territoryRulesFor,
+  type TerritoryDecision,
+  type TerritoryMemory,
+} from '../../enemies/ai/Territory';
 import { runState, type EnemyAIConfig, type EnemySafeZone, type EnemyState } from '../../enemies/EnemyAI';
 import type { MapEnemyAreaPerimeter, MapEnemySpawnArea } from '../../content/maps/mapFormat';
 import { bossArenaCenter, bossPerimeterContains } from '../bosses/BossCampBehavior';
@@ -62,6 +69,8 @@ export interface EnemyRuntimePort extends EnemyTargetService {
   showTelegraph?(request: EnemyTelegraphRequest): void;
   clearTelegraph?(sourceNodeId: string): void;
   shakeCamera?(request: { readonly durationMs: number; readonly intensity: number }): void;
+  /** True when nothing solid (walls, houses, trees) stands between two world points. */
+  lineOfSight?(from: CharacterPoint, to: CharacterPoint): boolean;
 }
 
 export interface EnemyTelegraphRequest {
@@ -86,6 +95,9 @@ export interface EnemyDamageNumberRequest {
   readonly y: number;
   readonly amount: number;
 }
+
+/** How often a camp enemy re-checks its line of sight to the player. */
+const ENEMY_SIGHT_CHECK_MS = 150;
 
 /** Knockback added to every accepted hit before resistance (legacy Enemy.applyDamage). */
 export const ENEMY_HIT_KNOCKBACK_BASE = 120;
@@ -195,6 +207,11 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
   private slowMultiplier = 1;
   /** The factor the last written velocity carries, so the AI reads back its own unslowed speed. */
   private appliedSlow = 1;
+  /** Camp territory (chase leash, search, going home); see enemies/ai/Territory.ts. */
+  private readonly territory: TerritoryMemory = createTerritoryMemory();
+  private hurtSinceTerritoryStep = false;
+  private sightCheckedAt = Number.NEGATIVE_INFINITY;
+  private sightCached = false;
   private activeActivationId?: string;
   private activeSequenceId?: number;
   private attackImpactAt = 0;
@@ -250,6 +267,7 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
     this.getSignal<EnemyHealthChanged>('health_changed')?.emit({ hp: this.hpValue, maxHp: this.maxHealth });
     this.getSignal<DamageCommit>('damaged')?.emit(commit);
     const defeated = commit.result.defeated || this.hpValue <= 0;
+    this.hurtSinceTerritoryStep = true;
     this.reactToDamage(commit, defeated);
     if (defeated) this.defeat();
   }
@@ -381,6 +399,29 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
     const direction = movement.speed > 0 ? { x: movement.x, y: movement.y } : this.attackDirection;
     const distance = Math.sqrt(this.distanceSquared(origin, target.position));
 
+    // Camp enemies follow their territory: chase within the leash, search where the player
+    // was last seen, then walk home healing (see enemies/ai/Territory.ts).
+    const territory = navigation?.spawnArea ? this.stepCampTerritory(navigation.spawnArea.stayPerimeter, origin, target.position, distance, deltaSeconds) : undefined;
+    if (territory && (territory.moveTo || territory.hold)) {
+      this.cancelAttack();
+      this.aiState = territory.hold ? 'idle' : 'wander';
+      this.runtimeStateValue = this.aiState;
+      const rules = territoryRulesFor(this.targetingRadius, this.attributeOptionalNumber('leashRange'));
+      const speed = this.movementSpeed * rules.returnSpeedMultiplier;
+      const step = territory.moveTo ? this.movementToward(origin, territory.moveTo, speed) : { x: 0, y: 0, speed: 0 };
+      const walk = { x: step.x * step.speed, y: step.y * step.speed };
+      this.appliedSlow = this.simulationTimeMs < this.slowedUntil ? this.slowMultiplier : 1;
+      body.velocity = { x: walk.x * this.appliedSlow, y: walk.y * this.appliedSlow };
+      this.updateFacing(walk);
+      this.playFacing(step.speed > 2 ? 'walk' : 'idle');
+      return;
+    }
+    if (territory?.mode === 'engaged' && (this.aiState === 'idle' || this.aiState === 'wander')) {
+      // Noticed by sight or a hit: the combat AI starts chasing even beyond its aggro range.
+      this.getSignal<{ state: string }>('alerted')?.emit({ state: 'chase' });
+      this.aiState = 'chase';
+    }
+
     if (this.activeSequenceId !== undefined) {
       if (!this.attackResolved && this.simulationTimeMs >= this.attackImpactAt) this.resolveRuntimeAttack(target, origin);
       if (this.activeSequenceId !== undefined && this.simulationTimeMs >= this.attackFinishAt) {
@@ -415,7 +456,8 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
           if (this.canRunCommonAttack()) this.beginRuntimeAttack(attackDirection);
         },
         safeZones: navigation?.safeZones ? [...navigation.safeZones] : undefined,
-        spawnArea: navigation?.spawnArea,
+        // The territory owns the camp's bounds; the AI only fights and wanders.
+        ...(territory ? { mayEngage: territory.mayEngage } : { spawnArea: navigation?.spawnArea }),
       });
       if (result === 'continue') break;
       state = result;
@@ -488,6 +530,48 @@ export class EnemyScript extends CharacterScript implements DamageReceiver {
 
   protected currentTarget(): EnemyTargetSnapshot | undefined {
     return this.targetService?.getPrimaryTarget(this.runtimeId);
+  }
+
+  /** One step of the camp territory rules, with a throttled line-of-sight check and regeneration. */
+  private stepCampTerritory(
+    home: MapEnemySpawnArea['stayPerimeter'],
+    origin: CharacterPoint,
+    player: CharacterPoint,
+    distance: number,
+    deltaSeconds: number,
+  ): TerritoryDecision {
+    const rules = territoryRulesFor(this.targetingRadius, this.attributeOptionalNumber('leashRange'));
+    const hurt = this.hurtSinceTerritoryStep;
+    this.hurtSinceTerritoryStep = false;
+    const decision = stepTerritory(this.territory, {
+      now: this.simulationTimeMs,
+      enemy: origin,
+      player,
+      home,
+      aggroRange: this.targetingRadius,
+      attackReach: this.attackRange,
+      seesPlayer: this.seesTarget(origin, player, distance, rules.loseSightMultiplier),
+      hurt,
+    }, rules);
+    if (decision.restoreHealth) this.restoreHealth(this.maxHealth);
+    else if (decision.regenerate) this.restoreHealth(this.hpValue + this.maxHealth * rules.regenPerSecond * deltaSeconds);
+    return decision;
+  }
+
+  /** Sight within a range, blocked by walls, houses and trees; checked a few times a second. */
+  private seesTarget(origin: CharacterPoint, target: CharacterPoint, distance: number, loseSightMultiplier: number): boolean {
+    if (distance > this.targetingRadius * loseSightMultiplier) return false;
+    if (this.simulationTimeMs - this.sightCheckedAt < ENEMY_SIGHT_CHECK_MS) return this.sightCached;
+    this.sightCheckedAt = this.simulationTimeMs;
+    this.sightCached = this.targetService?.lineOfSight?.(origin, target) ?? true;
+    return this.sightCached;
+  }
+
+  private restoreHealth(hp: number): void {
+    const next = Math.min(this.maxHealth, Math.max(this.hpValue, hp));
+    if (next === this.hpValue || this.defeatedValue) return;
+    this.hpValue = next;
+    this.getSignal<EnemyHealthChanged>('health_changed')?.emit({ hp: this.hpValue, maxHp: this.maxHealth });
   }
 
   protected navigation(): EnemyNavigationSnapshot | undefined {

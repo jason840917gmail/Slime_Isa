@@ -326,6 +326,9 @@ function bossDisplayName(script: EnemyScript, fallbackId: string): string {
 /** Key-badge height above a chest's body origin. */
 const CHEST_BADGE_RISE_PX = 56;
 
+/** Collision layer 1 ("world" in content/physics/collision-layers.json): walls, houses, trees, rocks. */
+const WORLD_COLLISION_LAYER_BIT = 1;
+
 function isPassiveObjectScene(sceneIdValue: string): boolean {
   return sceneIdValue.startsWith('object.decoration-world-')
     || sceneIdValue.startsWith('object.house-world-solid')
@@ -541,6 +544,8 @@ export class UniversalSceneWorldController implements InteractionProvider {
         clearTelegraph: (sourceNodeId: string) => this.attackTelegraphs.clear(sourceNodeId),
         // Bosses author their own landing shake; the feel service scales it by the player's settings.
         shakeCamera: (request: { readonly durationMs: number; readonly intensity: number }) => gameFeel.play('boss-landing', request),
+        // Enemy sight: world-layer blockers (walls, houses, trees, rocks) hide the player; water does not.
+        lineOfSight: (from: Readonly<{ x: number; y: number }>, to: Readonly<{ x: number; y: number }>) => !this.runtime.context.sightBlocked(from, to, WORLD_COLLISION_LAYER_BIT),
       },
       [NPC_RUNTIME_SERVICE]: {
         acquire: (request: NpcRuntimeRequest) => this.acquireNpcAgent(request),
